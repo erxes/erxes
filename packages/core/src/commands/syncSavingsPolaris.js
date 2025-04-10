@@ -21,7 +21,6 @@ let LoanContracts;
 let LoanContractTypes;
 let LoanFirstSchedules;
 let LoanSchedules;
-let LoanTransaction;
 let SavingContracts;
 let SavingContractTypes;
 
@@ -38,41 +37,28 @@ const nanoid = (len = 21) => {
   return randomString;
 };
 
-const getNumber = async (LoanContracts, contractType) => {
-  let preNumbered;
-
-  const latestContracts = await LoanContracts.aggregate([
+const getNumber = async (SavingContracts, type, contractTypeId) => {
+  const preNumbered = await SavingContracts.findOne(
     {
-      $match: {
-        contractTypeId: contractType._id,
-        number: { $regex: new RegExp(`^${contractType.number}[0-9]+`) },
-      },
+      contractTypeId: contractTypeId,
     },
-    {
-      $project: {
-        number: 1,
-        number_len: { $strLenCP: '$number' },
-      },
-    },
-    { $sort: { number_len: -1, number: -1 } },
-    { $limit: 1 },
-  ]).toArray();
+    {},
+    { sort: { createdAt: -1 } }
+  );
 
-  if (!latestContracts.length) {
-    return `${contractType.number}${'0'.repeat(contractType.vacancy - 1)}1`;
+  if (!preNumbered) {
+    return `${type.number}${'0'.repeat(type.vacancy - 1)}1`;
   }
 
-  preNumbered = latestContracts[0];
-
   const preNumber = preNumbered.number;
-  const preInt = Number(preNumber.replace(contractType.number, ''));
+  const preInt = Number(preNumber.replace(type.number, ''));
 
   const preStrLen = String(preInt).length;
-  let lessLen = contractType.vacancy - preStrLen;
+  let lessLen = type.vacancy - preStrLen;
 
   if (lessLen < 0) lessLen = 0;
 
-  return `${contractType.number}${'0'.repeat(lessLen)}${preInt + 1}`;
+  return `${type.number}${'0'.repeat(lessLen)}${preInt + 1}`;
 };
 
 const getMostFrequentPaymentDay = async (schedule) => {
@@ -90,19 +76,6 @@ const getMostFrequentPaymentDay = async (schedule) => {
   return Object.keys(dayCounts).reduce((a, b) =>
     dayCounts[a] > dayCounts[b] ? a : b
   );
-};
-
-const dateGroup = async (data) => {
-  const groupedByDate = data.txns.reduce((acc, txn) => {
-    const date = txn.postDate.split('T')[0]; // Extract YYYY-MM-DD
-    if (!acc[date]) {
-      acc[date] = [];
-    }
-    acc[date].push(txn);
-    return acc;
-  }, {});
-
-  console.log(groupedByDate);
 };
 
 const fetchPolaris = async (op, body) => {
@@ -157,7 +130,6 @@ const command = async () => {
   LoanContractTypes = db.collection('loan_contract_types');
   LoanFirstSchedules = db.collection('loan_first_schedules');
   LoanSchedules = db.collection('loan_schedules');
-  LoanTransaction = db.collection('loan_transactions');
   SavingContracts = db.collection('saving_contracts');
   SavingContractTypes = db.collection('saving_contract_types');
 
@@ -187,36 +159,44 @@ const command = async () => {
 
   // console.log(tololtHuvaari, 'tololtHuvaari');
 
-  const huulga = await fetchPolaris('13610201', [
-    '130013000562',
-    '2025-03-28',
-    '2025-07-28',
-    0,
-    100,
-  ]);
+  // const ha = moment(zeel[0].startDate).format('YYYY-MM-DD');
+  // const he = moment(zeel[0].endDate).format('YYYY-MM-DD');
 
-  console.log(huulga, 'huulga');
+  // console.log(ha, he);
 
-  const haha = await dateGroup(huulga);
+  // const huulga = await fetchPolaris('13610201', [
+  //   '130013000562',
+  //   '2025-03-28',
+  //   '2025-07-28',
+  //   0,
+  //   100,
+  // ]);
 
-  huulga.txns.map((data) => {
-    const doc = {
+  // console.log(huulga, 'huulga');
+
+  const hadgalamj = await fetchPolaris('13610100', ['130011000031', '0']);
+
+  console.log(hadgalamj, 'hadgalamj');
+
+  const type = await SavingContractTypes.findOne({ code: hadgalamj.prodCode });
+
+  if (type) {
+    const document = {
       _id: nanoid(),
-      contractId: '',
-      payDate: new Date(data.postDate),
-      description: data.txnDesc,
-      currency: data.curCode,
-      payment: data.income,
+      contractTypeId: type._id,
+      status: 'normal',
+      number: await getNumber(SavingContracts, type, type._id),
+      customerType: 'customer',
+      savingAmount: hadgalamj.currentBal,
+      duration: hadgalamj.termLen,
+      interestRate: hadgalamj.intRate,
+      currency: 'MNT',
+      startDate: new Date(hadgalamj.startDate),
+      createdAt: new Date(hadgalamj.createdDate),
     };
 
-    LoanTransaction.insertOne({ ...doc });
-  });
-
-  console.log(haha, 'haha');
-
-  // const hadgalamj = await fetchPolaris('13610100', ['130011000031', '0']);
-
-  // console.log(hadgalamj, 'hadgalamj');
+    await SavingContracts.insertOne({ ...document });
+  }
 
   // while (step * per < customersCount) {
   //   const skip = step * per;
@@ -236,7 +216,7 @@ const command = async () => {
   //     const pLoanContracts = await fetchPolaris('13610210', [
   //       customer.code,
   //       0,
-  //       0,
+  //       10,
   //     ]);
 
   //     console.log(pLoanContracts.length, 'pLoanContracts');
@@ -270,6 +250,19 @@ const command = async () => {
   //           pLoanContract.acntCode,
   //         ]);
 
+  //         // for (const schedule of pLoanSchedules) {
+  //         //   schedules.push({
+  //         //     _id: nanoid(),
+  //         //     contractId: loanContract.insertedId.toString(),
+  //         //     status: 'pending',
+  //         //     payDate: new Date(schedule.schdDate),
+  //         //     balance: schedule.totalAmount,
+  //         //     interestNonce: schedule.intAmount,
+  //         //     payment: schedule.totalAmount,
+  //         //     total: schedule.totalAmount,
+  //         //   });
+  //         // }
+
   //         const schedules = pLoanSchedules.map((schedule) => ({
   //           _id: nanoid(),
   //           contractId: loanContract.insertedId.toString(),
@@ -294,29 +287,6 @@ const command = async () => {
   //             },
   //           }
   //         );
-
-  //         const huulga = await fetchPolaris('13610201', [
-  //           pLoanContract.acntCode,
-  //           moment(pLoanContract.startDate).format('YYYY-MM-DD'),
-  //           moment(pLoanContract.endDate).format('YYYY-MM-DD'),
-  //           0,
-  //           100,
-  //         ]);
-
-  //         console.log(huulga, 'huulga');
-
-  //         for (const data of huulga.txns) {
-  //           const doc = {
-  //             _id: nanoid(),
-  //             contractId: loanContract.insertedId,
-  //             payDate: new Date(data.postDate),
-  //             description: data.txnDesc,
-  //             currency: data.curCode,
-  //             payment: data.income,
-  //           };
-
-  //           await LoanTransaction.insertOne({ ...doc });
-  //         }
   //       }
   //     }
   //   }
