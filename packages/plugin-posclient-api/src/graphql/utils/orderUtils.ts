@@ -325,13 +325,14 @@ const calcPreTaxPercentage = (paymentTypes, order) => {
   return { itemAmountPrePercent, preTaxPaymentTypes }
 }
 
-const mathRound = (value, p = 2) => {
-  if (!value || isNaN(Number(value))) {
+export const mathRound = (value, p = 4) => {
+  const cleanNumber = Number((value ?? '').toString().replace(/,/g, ""));
+
+  if(isNaN(cleanNumber)) {
     return 0;
   }
 
-  let converter = 10 ** p;
-  return Math.round(value * converter) / converter;
+  return Number(cleanNumber.toFixed(p))
 };
 
 export const prepareEbarimtData = async (
@@ -395,7 +396,7 @@ export const prepareEbarimtData = async (
         const product: IProductDocument = productsById[item.productId];
         const tempAmount = (item.count ?? 0) * (item.unitPrice ?? 0);
         const minusAmount = (tempAmount / 100) * itemAmountPrePercent;
-        const totalAmount = mathRound(tempAmount - minusAmount, 4);
+        const totalAmount = mathRound(tempAmount - minusAmount);
 
         return {
           recId: item._id,
