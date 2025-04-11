@@ -97,3 +97,9 @@ export const EXPENSE_DIVIDE_TYPES = {
   AMOUNT: "amount",
   ALL: ["quantity", "amount"]
 };
+
+export const AGENT_STATUSES = {
+  ...BOARD_STATUSES,
+  DRAFT: 'draft',
+  ALL: [...BOARD_STATUSES.ALL, 'draft']
+};
