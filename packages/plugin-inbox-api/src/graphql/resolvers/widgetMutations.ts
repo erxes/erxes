@@ -412,6 +412,13 @@ const widgetMutations = {
           },
           isRPC: true
         });
+        sendAutomationsMessage({
+          subdomain,
+          action: "trigger",
+          data: company,
+          isRPC: true,
+          defaultValue: null
+        });
       }
 
       if (customer && company) {
