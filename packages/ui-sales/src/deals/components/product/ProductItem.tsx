@@ -1,4 +1,3 @@
-import Select, { components } from "react-select";
 import {
   Amount,
   ProductButton,
@@ -6,25 +5,31 @@ import {
   VoucherCard,
   VoucherContainer,
 } from "../../styles";
-import { IDeal, IDiscountValue, IProductData } from "../../types";
+import {
+  IDeal,
+  IDiscountValue,
+  IProductData,
+  dealsEditProductDataMutationParams,
+} from "../../types";
+import Select, { components } from "react-select";
+import { can, isEnabled } from "@erxes/ui/src/utils/core";
 
-import { gql } from "@apollo/client";
-import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
-import { IProduct } from "@erxes/ui-products/src/types";
-import client from "@erxes/ui/src/apolloClient";
-import { IUser } from '@erxes/ui/src/auth/types';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import CURRENCIES from "@erxes/ui/src/constants/currencies";
 import FormControl from "@erxes/ui/src/components/form/Control";
+import { IProduct } from "@erxes/ui-products/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Tip from "@erxes/ui/src/components/Tip";
-import CURRENCIES from "@erxes/ui/src/constants/currencies";
+import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
+import React from "react";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils";
-import { can, isEnabled } from "@erxes/ui/src/utils/core";
-import React from "react";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
 import { queries } from "../../graphql";
 import { selectConfigOptions } from "../../utils";
 
@@ -41,7 +46,8 @@ type Props = {
   currentProduct?: string;
   dealQuery: IDeal;
   confirmLoyalties: any;
-  currentUser: IUser
+  dealsEditProductData: (variables: dealsEditProductDataMutationParams) => void;
+  currentUser: IUser;
 };
 
 type State = {
@@ -134,6 +140,17 @@ class ProductItem extends React.Component<Props, State> {
     }
   };
 
+  onBlur = () => {
+    const { productData, dealQuery, dealsEditProductData } = this.props;
+
+    dealsEditProductData({
+      proccessId: localStorage.getItem("proccessId") || "",
+      dealId: dealQuery._id || "",
+      dataId: productData._id,
+      doc: productData,
+    });
+  };
+
   renderType = (product: IProduct) => {
     const { type = "" } = product;
 
@@ -224,6 +241,7 @@ class ProductItem extends React.Component<Props, State> {
         }
       }
     };
+
     const VoucherDiscountCard = () => {
       const { isSelectedVoucher, discountValue } = this.state;
 
@@ -272,6 +290,7 @@ class ProductItem extends React.Component<Props, State> {
         )
       );
     };
+
     const content = (props) => (
       <ProductChooser
         {...props}
@@ -387,17 +406,17 @@ class ProductItem extends React.Component<Props, State> {
   };
 
   renderManageableField(control) {
-    const { currentUser } = this.props
+    const { currentUser } = this.props;
 
-    const isManageable = can('dealUpdateProductsData', currentUser)
+    const isManageable = can("dealUpdateProductsData", currentUser);
 
     if (isManageable) {
-      return <FormControl {...control} />
+      return <FormControl {...control} />;
     }
 
     const value = control?.value ?? control?.defaultValue;
 
-    if (typeof value !== 'number' || isNaN(value)) {
+    if (typeof value !== "number" || isNaN(value)) {
       return <>-</>;
     }
 
@@ -468,6 +487,7 @@ class ProductItem extends React.Component<Props, State> {
             placeholder="0"
             name="quantity"
             onChange={this.onChange}
+            onBlur={() => this.onBlur()}
           />
         </td>
         <td>
@@ -476,7 +496,8 @@ class ProductItem extends React.Component<Props, State> {
             type: "number",
             placeholder: "0",
             name: "unitPrice",
-            onChange: this.onChange
+            onChange: this.onChange,
+            onBlur: () => this.onBlur(),
           })}
         </td>
         <td>
@@ -487,7 +508,8 @@ class ProductItem extends React.Component<Props, State> {
             max: 100,
             placeholder: "0",
             name: "discountPercent",
-            onChange: this.onChange
+            onChange: this.onChange,
+            onBlur: () => this.onBlur(),
           })}
         </td>
         <td>
@@ -496,7 +518,8 @@ class ProductItem extends React.Component<Props, State> {
             type: "number",
             placeholder: "0",
             name: "discount",
-            onChange: this.onChange
+            onChange: this.onChange,
+            onBlur: () => this.onBlur(),
           })}
         </td>
         <td style={avStyle}>
@@ -508,6 +531,7 @@ class ProductItem extends React.Component<Props, State> {
             placeholder="0"
             name="taxPercent"
             onChange={this.onChange}
+            onBlur={() => this.onBlur()}
           />
         </td>
         <td style={avStyle}>
@@ -531,6 +555,7 @@ class ProductItem extends React.Component<Props, State> {
               (option) => option.value === productData.currency
             )}
             onChange={this.currencyOnChange}
+            onBlur={() => this.onBlur()}
             components={{ Option }}
             isClearable={true}
             options={currencyOptions}
@@ -544,6 +569,7 @@ class ProductItem extends React.Component<Props, State> {
             placeholder={__("Choose")}
             value={uoms.find((uom) => uom.value === productData.uom)}
             onChange={this.uomOnChange}
+            onBlur={() => this.onBlur()}
             components={{ Option }}
             isClearable={true}
             options={uoms}
@@ -556,6 +582,7 @@ class ProductItem extends React.Component<Props, State> {
             componentclass="checkbox"
             checked={productData.tickUsed}
             onChange={this.onTickUse}
+            onBlur={() => this.onBlur()}
           />
         </td>
         <td>
@@ -564,6 +591,7 @@ class ProductItem extends React.Component<Props, State> {
             disabled={true}
             value={productData.isVatApplied}
             checked={productData.isVatApplied}
+            onBlur={() => this.onBlur()}
           />
         </td>
         <td>
@@ -615,6 +643,7 @@ class ProductItem extends React.Component<Props, State> {
             placeholder="0"
             name="globalUnitPrice"
             onChange={this.onChange}
+            onBlur={() => this.onBlur()}
           />
         </td>
         <td style={avStyle}>
@@ -626,6 +655,7 @@ class ProductItem extends React.Component<Props, State> {
             placeholder="0"
             name="unitPricePercent"
             onChange={this.onChange}
+            onBlur={() => this.onBlur()}
           />
         </td>
         <td>
@@ -634,7 +664,7 @@ class ProductItem extends React.Component<Props, State> {
               onClick={duplicateProductItem?.bind(this, productData._id)}
               icon="copy-alt"
             />
-            {can('dealRemoveProductsData', currentUser) && (
+            {can("dealRemoveProductsData", currentUser) && (
               <Icon
                 onClick={removeProductItem?.bind(this, productData._id)}
                 icon="times-circle"
