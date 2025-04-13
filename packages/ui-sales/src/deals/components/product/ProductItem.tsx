@@ -210,6 +210,7 @@ class ProductItem extends React.Component<Props, State> {
   renderProductModal(productData: IProductData) {
     const productOnChange = (products: IProduct[]) => {
       const product = products && products.length === 1 ? products[0] : null;
+      this.onBlur();
 
       if (product) {
         this.onChangeField("product", product, productData._id);
