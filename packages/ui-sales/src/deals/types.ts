@@ -77,11 +77,12 @@ export interface IDealParams extends IItemParams {
   paymentsData?: IPaymentsData;
 }
 
-export type dealsEditProductDataMutationParams = {
+export type dealsProductDataMutationParams = {
   proccessId?: string;
   dealId?: string;
   dataId?: string;
   doc?: any;
+  docs?: any;
 }
 
 export type DealsQueryResponse = {

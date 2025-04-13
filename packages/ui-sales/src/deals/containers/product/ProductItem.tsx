@@ -1,14 +1,14 @@
 import {
   IDeal,
   IProductData,
-  dealsEditProductDataMutationParams,
+  dealsProductDataMutationParams,
 } from "../../types";
-import React, { useEffect } from "react";
 import { gql, useMutation } from "@apollo/client";
-import { isEnabled, withProps } from "@erxes/ui/src/utils/core";
 
 import { IUser } from "@erxes/ui/src/auth/types";
 import ProductItem from "../../components/product/ProductItem";
+import React from "react";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 import { mutations } from "../../graphql";
 
 type Props = {
@@ -33,15 +33,10 @@ const ProductItemContainer: React.FC<Props> = (props) => {
   const [confirmLoyaltiesMutation] = useMutation(CONFIRM_LOYALTIES);
 
   const [dealsEditProductDataMutation] = useMutation(
-    gql(mutations.dealsEditProductData),
-    {
-      variables: {},
-    }
+    gql(mutations.dealsEditProductData)
   );
 
-  const dealsEditProductData = (
-    variables: dealsEditProductDataMutationParams
-  ) => {
+  const dealsEditProductData = (variables: dealsProductDataMutationParams) => {
     return dealsEditProductDataMutation({ variables });
   };
 

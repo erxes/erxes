@@ -9,7 +9,7 @@ import {
   IDeal,
   IDiscountValue,
   IProductData,
-  dealsEditProductDataMutationParams,
+  dealsProductDataMutationParams,
 } from "../../types";
 import Select, { components } from "react-select";
 import { can, isEnabled } from "@erxes/ui/src/utils/core";
@@ -46,7 +46,8 @@ type Props = {
   currentProduct?: string;
   dealQuery: IDeal;
   confirmLoyalties: any;
-  dealsEditProductData: (variables: dealsEditProductDataMutationParams) => void;
+  dealsEditProductData: (variables: dealsProductDataMutationParams) => void;
+  dealsCreateProductData?: (variables: dealsProductDataMutationParams) => void;
   currentUser: IUser;
 };
 
