@@ -1,9 +1,9 @@
-import fetch from 'node-fetch';
-import { IModels } from './connectionResolver';
-import { sendCoreMessage, sendPosMessage } from './messageBroker';
-import { ISyncLogDocument } from './models/definitions/dynamic';
-import { getMsdCustomerInfo } from './utilsCustomer';
-import { putCreateLog, putDeleteLog, putUpdateLog } from './logUtils';
+import fetch from "node-fetch";
+import { IModels } from "./connectionResolver";
+import { sendCoreMessage, sendPosMessage } from "./messageBroker";
+import { ISyncLogDocument } from "./models/definitions/dynamic";
+import { getMsdCustomerInfo } from "./utilsCustomer";
+import { putCreateLog, putDeleteLog, putUpdateLog } from "./logUtils";
 
 interface ExchangeRateConfig {
   exchangeRateApi: string;
@@ -14,7 +14,7 @@ interface ExchangeRateConfig {
 export const getConfig = async (subdomain, code, defaultValue?) => {
   return await sendCoreMessage({
     subdomain,
-    action: 'getConfig',
+    action: "getConfig",
     data: { code, defaultValue },
     isRPC: true,
   });
@@ -27,11 +27,11 @@ export const consumeInventory = async (
   action,
   user
 ) => {
-  const updateCode = action === 'delete' ? doc.code : doc.No;
+  const updateCode = action === "delete" ? doc.code : doc.No;
 
   const product = await sendCoreMessage({
     subdomain,
-    action: 'products.findOne',
+    action: "products.findOne",
     data: { code: updateCode },
     isRPC: true,
     defaultValue: {},
@@ -39,34 +39,34 @@ export const consumeInventory = async (
 
   const brandIds = (product || {}).scopeBrandIds || [];
 
-  if ((action === 'update' && doc.No) || action === 'create') {
+  if ((action === "update" && doc.No) || action === "create") {
     const productCategory = await sendCoreMessage({
       subdomain,
-      action: 'categories.findOne',
+      action: "categories.findOne",
       data: { code: doc.Item_Category_Code },
       isRPC: true,
     });
 
-    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
+    if (!brandIds.includes(config.brandId) && config.brandId !== "noBrand") {
       brandIds.push(config.brandId);
     }
 
     const document: any = {
-      name: doc?.Description || 'default',
-      shortName: doc?.Description_2 || '',
-      type: doc.Type === 'Inventory' ? 'product' : 'service',
+      name: doc?.Description || "default",
+      shortName: doc?.Description_2 || "",
+      type: doc.Type === "Inventory" ? "product" : "service",
       unitPrice: doc?.Unit_Price || 0,
       code: doc.No,
-      uom: doc?.Base_Unit_of_Measure || 'PCS',
+      uom: doc?.Base_Unit_of_Measure || "PCS",
       categoryId: productCategory?._id || product?.categoryId, // TODO: if product not exists and productCategory not found then category is null
       scopeBrandIds: brandIds,
-      status: 'active',
+      status: "active",
     };
 
     if (product) {
       const updated = await sendCoreMessage({
         subdomain,
-        action: 'products.updateProduct',
+        action: "products.updateProduct",
         data: { _id: product._id, doc: { ...document } },
         isRPC: true,
       });
@@ -74,11 +74,11 @@ export const consumeInventory = async (
       await putUpdateLog(
         subdomain,
         {
-          type: 'product',
+          type: "product",
           object: product,
           newData: {
             ...doc,
-            status: 'active',
+            status: "active",
           },
           updatedDocument: updated,
         },
@@ -87,7 +87,7 @@ export const consumeInventory = async (
     } else {
       const create = await sendCoreMessage({
         subdomain,
-        action: 'products.createProduct',
+        action: "products.createProduct",
         data: { doc: { ...document } },
         isRPC: true,
       });
@@ -95,7 +95,7 @@ export const consumeInventory = async (
       await putCreateLog(
         subdomain,
         {
-          type: 'product',
+          type: "product",
           newData: {
             ...doc,
           },
@@ -104,12 +104,12 @@ export const consumeInventory = async (
         user
       );
     }
-  } else if (action === 'delete' && product) {
+  } else if (action === "delete" && product) {
     const anotherBrandIds = brandIds.filter((b) => b && b !== config.brandId);
     if (anotherBrandIds.length) {
       const updated = await sendCoreMessage({
         subdomain,
-        action: 'products.updateProduct',
+        action: "products.updateProduct",
         data: {
           _id: product._id,
           doc: { ...product, scopeBrandIds: anotherBrandIds },
@@ -120,11 +120,11 @@ export const consumeInventory = async (
       await putUpdateLog(
         subdomain,
         {
-          type: 'product',
+          type: "product",
           object: product,
           newData: {
             ...doc,
-            status: 'active',
+            status: "active",
           },
           updatedDocument: updated,
         },
@@ -133,12 +133,12 @@ export const consumeInventory = async (
     } else {
       await sendCoreMessage({
         subdomain,
-        action: 'products.removeProducts',
+        action: "products.removeProducts",
         data: { _ids: [product._id] },
         isRPC: true,
       });
 
-      await putDeleteLog(subdomain, { type: 'product', object: product }, user);
+      await putDeleteLog(subdomain, { type: "product", object: product }, user);
     }
   }
 };
@@ -150,11 +150,11 @@ export const consumeCategory = async (
   doc,
   action
 ) => {
-  const updateCode = action === 'delete' ? doc.code : doc.Code;
+  const updateCode = action === "delete" ? doc.code : doc.Code;
 
   const productCategory = await sendCoreMessage({
     subdomain,
-    action: 'categories.findOne',
+    action: "categories.findOne",
     data: { code: updateCode },
     isRPC: true,
     defaultValue: {},
@@ -162,23 +162,23 @@ export const consumeCategory = async (
 
   const brandIds = (productCategory || {}).scopeBrandIds || [];
 
-  if ((action === 'update' && doc.Code) || action === 'create') {
-    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
+  if ((action === "update" && doc.Code) || action === "create") {
+    if (!brandIds.includes(config.brandId) && config.brandId !== "noBrand") {
       brandIds.push(config.brandId);
     }
 
     const document: any = {
       code: doc?.Code,
-      name: doc?.Description || 'default',
+      name: doc?.Description || "default",
       scopeBrandIds: brandIds,
       parentId: categoryId,
-      status: 'active',
+      status: "active",
     };
 
     if (doc.Parent_Category) {
       const parentCategory = await sendCoreMessage({
         subdomain,
-        action: 'categories.findOne',
+        action: "categories.findOne",
         data: { code: doc.Parent_Category },
         isRPC: true,
       });
@@ -191,22 +191,22 @@ export const consumeCategory = async (
     if (productCategory) {
       await sendCoreMessage({
         subdomain,
-        action: 'categories.updateProductCategory',
+        action: "categories.updateProductCategory",
         data: { _id: productCategory._id, doc: { ...document } },
         isRPC: true,
       });
     } else {
       await sendCoreMessage({
         subdomain,
-        action: 'categories.createProductCategory',
+        action: "categories.createProductCategory",
         data: { doc: { ...document } },
         isRPC: true,
       });
     }
-  } else if (action === 'delete' && productCategory) {
+  } else if (action === "delete" && productCategory) {
     await sendCoreMessage({
       subdomain,
-      action: 'categories.removeProductCategory',
+      action: "categories.removeProductCategory",
       data: { _id: productCategory._id },
       isRPC: true,
     });
@@ -218,15 +218,14 @@ export const dealToDynamic = async (
   syncLog: ISyncLogDocument,
   params: any,
   models: IModels,
-  configs: any
+  config: any
 ) => {
   const order = params;
   const brandId = order.scopeBrandIds[0];
-  const config = configs[brandId || 'noBrand'];
 
   let msdCustomer: any = {};
 
-  let orderMsdNo: string = '';
+  let orderMsdNo: string = "";
   let orderItemsMsdNo: any = {};
   try {
     const syncErkhetInfo = JSON.parse(order.syncErkhetInfo);
@@ -250,13 +249,13 @@ export const dealToDynamic = async (
     }
 
     const { salesApi, salesLineApi, username, password } = config;
-    let urlParam = '';
-    let lineUrlParam = '';
-    let postMethod = 'POST';
+    let urlParam = "";
+    let lineUrlParam = "";
+    let postMethod = "POST";
     const postHeaders = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-        'base64'
+        "base64"
       )}`,
     };
 
@@ -279,24 +278,24 @@ export const dealToDynamic = async (
       Sell_to_Customer_No: msdCustomer?.No
         ? msdCustomer?.No
         : config.defaultUserCode,
-      Sell_to_Phone_No: customer?.primaryPhone || '',
-      Sell_to_E_Mail: customer?.primaryEmail || '',
+      Sell_to_Phone_No: customer?.primaryPhone || "",
+      Sell_to_E_Mail: customer?.primaryEmail || "",
       External_Document_No: order.number,
-      Responsibility_Center: config.responsibilityCenter || '',
-      Sync_Type: config.syncType || '',
-      Mobile_Phone_No: customer?.primaryPhone || '',
-      VAT_Bus_Posting_Group: config.vatBusPostingGroup || '',
-      Payment_Terms_Code: config.paymentTermsCode || '',
-      Payment_Method_Code: config.paymentMethodCode || 'CASH',
-      Customer_Price_Group: config.customerPricingGroup || '',
+      Responsibility_Center: config.responsibilityCenter || "",
+      Sync_Type: config.syncType || "",
+      Mobile_Phone_No: customer?.primaryPhone || "",
+      VAT_Bus_Posting_Group: config.vatBusPostingGroup || "",
+      Payment_Terms_Code: config.paymentTermsCode || "",
+      Payment_Method_Code: config.paymentMethodCode || "CASH",
+      Customer_Price_Group: config.customerPricingGroup || "",
       Prices_Including_VAT: true,
-      BillType: config.billType || 'Receipt',
-      Location_Code: config.locationCode || '',
-      Deal_Type_Code: config.dealType || 'NORMAL',
+      BillType: config.billType || "Receipt",
+      Location_Code: config.locationCode || "",
+      Deal_Type_Code: config.dealType || "NORMAL",
       Salesperson_Code:
-        config.title === 'Beverage'
-          ? msdCustomer?.Salesperson_Code || '3144'
-          : '',
+        config.title === "Beverage"
+          ? msdCustomer?.Salesperson_Code || "3144"
+          : "",
       CustomerNo:
         customer?.customFieldsDataByFieldCode?.vatCustomer?.value ||
         customer?.customFieldsDataByFieldCode?.vatCompany?.value,
@@ -305,8 +304,8 @@ export const dealToDynamic = async (
     if (orderMsdNo) {
       urlParam = `(Document_Type='Order', No='${orderMsdNo}')`;
       lineUrlParam = `(Document_Type='Order',Document_No='${orderMsdNo}',Line_No=%Ln)`;
-      postMethod = 'PATCH';
-      postHeaders['If-Match'] = '*';
+      postMethod = "PATCH";
+      postHeaders["If-Match"] = "*";
       sendData.No = orderMsdNo;
     }
 
@@ -321,7 +320,7 @@ export const dealToDynamic = async (
     );
 
     if (!order.items.length) {
-      throw new Error('Has not items order');
+      throw new Error("Has not items order");
     }
 
     const responseSale = await fetch(`${salesApi}${urlParam}`, {
@@ -335,7 +334,7 @@ export const dealToDynamic = async (
     if (responseSale) {
       const products = await sendCoreMessage({
         subdomain,
-        action: 'products.find',
+        action: "products.find",
         data: { _id: { $in: order.items.map((item) => item.productId) } },
         isRPC: true,
       });
@@ -349,16 +348,16 @@ export const dealToDynamic = async (
       let totalDiscount = 0;
 
       for (const item of order.items) {
-        let lineUrlP = '';
-        let linePostMethod = 'POST';
+        let lineUrlP = "";
+        let linePostMethod = "POST";
         let linePostHeaders = {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Basic ${Buffer.from(
             `${username}:${password}`
-          ).toString('base64')}`,
+          ).toString("base64")}`,
         };
 
-        const lineNo = orderItemsMsdNo[item._id] || '';
+        const lineNo = orderItemsMsdNo[item._id] || "";
         const product = productById[item.productId];
 
         if (!product) {
@@ -376,19 +375,19 @@ export const dealToDynamic = async (
 
         const sendSalesLine: any = {
           Document_No: responseSale.No,
-          Type: 'Item',
+          Type: "Item",
           No: productById[item.productId]
             ? productById[item.productId].code
-            : '',
+            : "",
           Quantity: item.count || 0,
           // Unit_Price: item.unitPrice || 0,
           Location_Code: config.locationCode,
         };
 
         if (lineNo) {
-          lineUrlP = lineUrlParam.replace('%Ln', lineNo);
-          linePostMethod = 'PATCH';
-          linePostHeaders['If-Match'] = '*';
+          lineUrlP = lineUrlParam.replace("%Ln", lineNo);
+          linePostMethod = "PATCH";
+          linePostHeaders["If-Match"] = "*";
           sendSalesLine.Line_No = lineNo;
         }
 
@@ -410,14 +409,15 @@ export const dealToDynamic = async (
         if (responseSaleLine?.error?.message) {
           const foundSyncLog = (await models.SyncLogs.findOne({
             _id: syncLog._id,
-          })) || { error: '' };
+          })) || { error: "" };
 
           await models.SyncLogs.updateOne(
             { _id: syncLog._id },
             {
               $set: {
-                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${responseSaleLine.error.message
-                  }`,
+                error: `${foundSyncLog.error ? foundSyncLog.error : ""} - ${
+                  responseSaleLine.error.message
+                }`,
               },
             }
           );
@@ -435,16 +435,17 @@ export const dealToDynamic = async (
         totalDiscount += item.discountAmount ?? 0;
       }
 
-      const soapApiUrl = config.discountSoapApi // "https://bc.erpmsm.mn:7047/MSM-Data/WS/Betastar%20LLC/Codeunit/PictureService";
+      const soapApiUrl = config.discountSoapApi; // "https://bc.erpmsm.mn:7047/MSM-Data/WS/Betastar%20LLC/Codeunit/PictureService";
 
       if (soapApiUrl && totalDiscount) {
         const soapHeaders = {
           "Content-Type": "text/xml",
-          SOAPAction: "urn:microsoft-dynamics-schemas/codeunit/PictureService:ReCalculateSalesOrderDiscount",
+          SOAPAction:
+            "urn:microsoft-dynamics-schemas/codeunit/PictureService:ReCalculateSalesOrderDiscount",
           Authorization: `Basic ${Buffer.from(
             `${username}:${password}`
-          ).toString('base64')}`,
-        }
+          ).toString("base64")}`,
+        };
 
         const soapDiscountSendData = `
           <?xml version="1.0"?>
@@ -461,7 +462,7 @@ export const dealToDynamic = async (
         `;
 
         await fetch(`${soapApiUrl}`, {
-          method: 'POST',
+          method: "POST",
           headers: soapHeaders,
           body: soapDiscountSendData,
         });
@@ -470,7 +471,7 @@ export const dealToDynamic = async (
 
     await sendPosMessage({
       subdomain,
-      action: 'orders.updateOne',
+      action: "orders.updateOne",
       data: {
         selector: { _id: params._id },
         modifier: {
@@ -502,7 +503,297 @@ export const dealToDynamic = async (
       { _id: syncLog._id },
       { $set: { error: e.message } }
     );
-    console.log(e, 'error');
+    console.log(e, "error");
+  }
+};
+
+export const orderToDynamic = async (
+  subdomain: string,
+  syncLog: ISyncLogDocument,
+  params: any,
+  models: IModels,
+  config: any
+) => {
+  const order = params;
+  const brandId = order.scopeBrandIds[0];
+
+  let msdCustomer: any = {};
+
+  let orderMsdNo: string = "";
+  let orderItemsMsdNo: any = {};
+  try {
+    const syncErkhetInfo = JSON.parse(order.syncErkhetInfo);
+    orderMsdNo = syncErkhetInfo.no;
+    orderItemsMsdNo = syncErkhetInfo.lineNos || {};
+  } catch {
+    orderMsdNo = order.syncErkhetInfo;
+  }
+
+  try {
+    let customer;
+
+    if (
+      !config?.customerApi ||
+      !config?.salesApi ||
+      !config?.salesLineApi ||
+      !config?.username ||
+      !config?.password
+    ) {
+      throw new Error(`MS Dynamic config not found..., ${brandId}`);
+    }
+
+    const { salesApi, salesLineApi, username, password } = config;
+    let urlParam = "";
+    let lineUrlParam = "";
+    let postMethod = "POST";
+    const postHeaders = {
+      "Content-Type": "application/json",
+      Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+        "base64"
+      )}`,
+    };
+
+    if (order?.customerId) {
+      const msdCustomerInfo = await getMsdCustomerInfo(
+        subdomain,
+        models,
+        order.customerId,
+        order.customerType,
+        brandId,
+        config
+      );
+      if (msdCustomerInfo) {
+        msdCustomer = msdCustomerInfo.relation?.response;
+        customer = msdCustomerInfo.customer;
+      }
+    }
+
+    const sendData: any = {
+      Sell_to_Customer_No: msdCustomer?.No
+        ? msdCustomer?.No
+        : config.defaultUserCode,
+      Sell_to_Phone_No: customer?.primaryPhone || "",
+      Sell_to_E_Mail: customer?.primaryEmail || "",
+      External_Document_No: order.number,
+      Responsibility_Center: config.responsibilityCenter || "",
+      Sync_Type: config.syncType || "",
+      Mobile_Phone_No: customer?.primaryPhone || "",
+      VAT_Bus_Posting_Group: config.vatBusPostingGroup || "",
+      Payment_Terms_Code: config.paymentTermsCode || "",
+      Payment_Method_Code: config.paymentMethodCode || "CASH",
+      Customer_Price_Group: config.customerPricingGroup || "",
+      Prices_Including_VAT: true,
+      BillType: config.billType || "Receipt",
+      Location_Code: config.locationCode || "",
+      Deal_Type_Code: config.dealType || "NORMAL",
+      CustomerNo:
+        customer?.customFieldsDataByFieldCode?.vatCustomer?.value ||
+        customer?.customFieldsDataByFieldCode?.vatCompany?.value,
+    };
+
+    if (orderMsdNo) {
+      urlParam = `(Document_Type='Order', No='${orderMsdNo}')`;
+      lineUrlParam = `(Document_Type='Order',Document_No='${orderMsdNo}',Line_No=%Ln)`;
+      postMethod = "PATCH";
+      postHeaders["If-Match"] = "*";
+      sendData.No = orderMsdNo;
+    }
+
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: {
+          sendData,
+          sendStr: JSON.stringify(sendData),
+        },
+      }
+    );
+
+    if (!order.items.length) {
+      throw new Error("Has not items order");
+    }
+
+    const responseSale = await fetch(`${salesApi}${urlParam}`, {
+      method: postMethod,
+      headers: postHeaders,
+      body: JSON.stringify(sendData),
+    }).then((res) => res.json());
+
+    const lineNoById = {};
+
+    if (responseSale) {
+      const products = await sendCoreMessage({
+        subdomain,
+        action: "products.find",
+        data: { _id: { $in: order.items.map((item) => item.productId) } },
+        isRPC: true,
+      });
+
+      const productById = {};
+
+      for (const product of products) {
+        productById[product._id] = product;
+      }
+
+      let totalDiscount = 0;
+
+      for (const item of order.items) {
+        let lineUrlP = "";
+        let linePostMethod = "POST";
+        let linePostHeaders = {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${Buffer.from(
+            `${username}:${password}`
+          ).toString("base64")}`,
+        };
+
+        const lineNo = orderItemsMsdNo[item._id] || "";
+        const product = productById[item.productId];
+
+        if (!product) {
+          await models.SyncLogs.updateOne(
+            { _id: syncLog._id },
+            {
+              $set: {
+                error: `not found product ${product._id}`,
+              },
+            }
+          );
+
+          continue;
+        }
+
+        const sendSalesLine: any = {
+          Document_No: responseSale.No,
+          Type: "Item",
+          No: productById[item.productId]
+            ? productById[item.productId].code
+            : "",
+          Quantity: item.count || 0,
+          // Unit_Price: item.unitPrice || 0,
+          Location_Code: config.locationCode,
+        };
+
+        if (lineNo) {
+          lineUrlP = lineUrlParam.replace("%Ln", lineNo);
+          linePostMethod = "PATCH";
+          linePostHeaders["If-Match"] = "*";
+          sendSalesLine.Line_No = lineNo;
+        }
+
+        await models.SyncLogs.updateOne(
+          { _id: syncLog._id },
+          {
+            $push: {
+              sendSales: JSON.stringify(sendSalesLine),
+            },
+          }
+        );
+
+        const responseSaleLine = await fetch(`${salesLineApi}${lineUrlP}`, {
+          method: linePostMethod,
+          headers: linePostHeaders,
+          body: JSON.stringify(sendSalesLine),
+        }).then((res) => res.json());
+
+        if (responseSaleLine?.error?.message) {
+          const foundSyncLog = (await models.SyncLogs.findOne({
+            _id: syncLog._id,
+          })) || { error: "" };
+
+          await models.SyncLogs.updateOne(
+            { _id: syncLog._id },
+            {
+              $set: {
+                error: `${foundSyncLog.error ? foundSyncLog.error : ""} - ${
+                  responseSaleLine.error.message
+                }`,
+              },
+            }
+          );
+        }
+
+        await models.SyncLogs.updateOne(
+          { _id: syncLog._id },
+          {
+            $push: {
+              responseSales: JSON.stringify(responseSaleLine),
+            },
+          }
+        );
+        lineNoById[item._id] = lineNo || responseSaleLine.Line_No;
+        totalDiscount += item.discountAmount ?? 0;
+      }
+
+      const soapApiUrl = config.discountSoapApi; // "https://bc.erpmsm.mn:7047/MSM-Data/WS/Betastar%20LLC/Codeunit/PictureService";
+
+      if (soapApiUrl && totalDiscount) {
+        const soapHeaders = {
+          "Content-Type": "text/xml",
+          SOAPAction:
+            "urn:microsoft-dynamics-schemas/codeunit/PictureService:ReCalculateSalesOrderDiscount",
+          Authorization: `Basic ${Buffer.from(
+            `${username}:${password}`
+          ).toString("base64")}`,
+        };
+
+        const soapDiscountSendData = `
+          <?xml version="1.0"?>
+          <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                    xmlns:tns="urn:microsoft-dynamics-schemas/codeunit/PictureService">
+          <soapenv:Header/>
+          <soapenv:Body>
+            <tns:ReCalculateSalesOrderDiscount>
+              <tns:code>${responseSale.No}</tns:code>
+              <tns:invoiceDiscountAmount>${totalDiscount}</tns:invoiceDiscountAmount>
+            </tns:ReCalculateSalesOrderDiscount>
+          </soapenv:Body>
+          </soapenv:Envelope>
+        `;
+
+        await fetch(`${soapApiUrl}`, {
+          method: "POST",
+          headers: soapHeaders,
+          body: soapDiscountSendData,
+        });
+      }
+    }
+
+    await sendPosMessage({
+      subdomain,
+      action: "orders.updateOne",
+      data: {
+        selector: { _id: params._id },
+        modifier: {
+          $set: {
+            syncErkhetInfo: JSON.stringify({
+              no: orderMsdNo || responseSale.No,
+              lineNos: lineNoById,
+            }),
+            syncedErkhet: true,
+          },
+        },
+      },
+      isRPC: true,
+    });
+
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: {
+          responseData: responseSale,
+          responseStr: JSON.stringify(responseSale),
+        },
+      }
+    );
+
+    return responseSale;
+  } catch (e) {
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      { $set: { error: e.message } }
+    );
+    console.log(e, "error");
   }
 };
 
@@ -512,7 +803,7 @@ const getPriceForList = (prods, exchangeRates) => {
   let resCurrencyCode = prods[0].Currency_Code;
 
   const hasDateList = prods.filter(
-    (p) => p.Ending_Date && p.Ending_Date !== '0001-01-01'
+    (p) => p.Ending_Date && p.Ending_Date !== "0001-01-01"
   );
 
   if (hasDateList.length) {
@@ -547,7 +838,7 @@ const getPriceForList = (prods, exchangeRates) => {
     convertedPrice *= exchangeRates[resCurrencyCode];
 
     convertedPrice = Math.round(
-      parseFloat(convertedPrice.toString().replace(/,/g, ''))
+      parseFloat(convertedPrice.toString().replace(/,/g, ""))
     );
   }
 
@@ -556,14 +847,14 @@ const getPriceForList = (prods, exchangeRates) => {
 
 export const getPrice = async (resProds, pricePriority, exchangeRates) => {
   try {
-    const sorts = pricePriority.replace(/, /g, ',').split(',');
+    const sorts = pricePriority.replace(/, /g, ",").split(",");
 
     const currentDate = new Date();
 
     const activeProds = resProds.filter((p) => {
       if (
         p.Starting_Date &&
-        p.Starting_Date !== '0001-01-01' &&
+        p.Starting_Date !== "0001-01-01" &&
         new Date(p.Starting_Date) > currentDate
       ) {
         return false;
@@ -571,7 +862,7 @@ export const getPrice = async (resProds, pricePriority, exchangeRates) => {
 
       if (
         p.Ending_Date &&
-        p.Ending_Date !== '0001-01-01' &&
+        p.Ending_Date !== "0001-01-01" &&
         new Date(p.Ending_Date) < currentDate
       ) {
         return false;
@@ -602,14 +893,14 @@ export const getPrice = async (resProds, pricePriority, exchangeRates) => {
 
     return getPriceForList(otherFilter, exchangeRates);
   } catch (e) {
-    console.log(e, 'error');
+    console.log(e, "error");
     return { resPrice: 0, resProd: {} };
   }
 };
 
 export const getExchangeRates = async (config: ExchangeRateConfig) => {
   if (!config.exchangeRateApi || !config.username || !config.password) {
-    throw new Error('MS Dynamic config not found.');
+    throw new Error("MS Dynamic config not found.");
   }
 
   const { exchangeRateApi, username, password } = config;
@@ -619,18 +910,18 @@ export const getExchangeRates = async (config: ExchangeRateConfig) => {
       `${exchangeRateApi}?$filter=Code eq  'PREPAID'`,
       {
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Accept: 'application/json',
+          "Content-Type": "application/x-www-form-urlencoded",
+          Accept: "application/json",
           Authorization: `Basic ${Buffer.from(
             `${username}:${password}`
-          ).toString('base64')}`,
+          ).toString("base64")}`,
         },
         timeout: 180000,
       }
     ).then((res) => res.json());
 
     if (!response.value || !Array.isArray(response.value)) {
-      throw new Error('Invalid response format from exchange rate API');
+      throw new Error("Invalid response format from exchange rate API");
     }
 
     const latestByCurrency: { [key: string]: any } = {};
@@ -640,7 +931,7 @@ export const getExchangeRates = async (config: ExchangeRateConfig) => {
       if (
         !latestByCurrency[currency] ||
         new Date(item.Starting_Date) >
-        new Date(latestByCurrency[currency].Starting_Date)
+          new Date(latestByCurrency[currency].Starting_Date)
       ) {
         latestByCurrency[currency] = item;
       }
@@ -655,6 +946,6 @@ export const getExchangeRates = async (config: ExchangeRateConfig) => {
 
     return result;
   } catch (e) {
-    console.error('Failed to fetch exchange rates:', e);
+    console.error("Failed to fetch exchange rates:", e);
   }
 };
