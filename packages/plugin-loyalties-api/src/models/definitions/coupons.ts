@@ -1,5 +1,5 @@
 import { stringRandomId } from '@erxes/api-utils/src/mongoose-types';
-import { Schema } from 'mongoose';
+import { Schema, Document } from 'mongoose';
 import { CODE_STATUS } from './constants';
 
 export interface ICoupon {
@@ -11,9 +11,9 @@ export interface ICoupon {
   usageLogs: Array<{
     usedDate: Date;
     ownerId: string;
-    ownerType: string,
-    targetId: string,
-    targetType: string,
+    ownerType: string;
+    targetId: string;
+    targetType: string;
   }>;
   redemptionLimitPerUser: number;
 }

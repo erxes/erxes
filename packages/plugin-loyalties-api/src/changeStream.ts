@@ -61,10 +61,8 @@ export default async () => {
 
         if (documents.length >= 10) {
           await processMessage();
-        } else {
-          if (!timer) {
-            timer = setTimeout(processMessage, 5000);
-          }
+        } else if (!timer) {
+          timer = setTimeout(processMessage, 5000);
         }
       }
     } catch (error) {

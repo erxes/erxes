@@ -24,8 +24,8 @@ const couponMutations = {
   },
 };
 
-checkPermission(couponMutations, 'couponsAdd', 'manageLoyalties');
-checkPermission(couponMutations, 'couponsEdit', 'manageLoyalties');
+checkPermission(couponMutations, 'couponAdd', 'manageLoyalties');
+checkPermission(couponMutations, 'couponEdit', 'manageLoyalties');
 checkPermission(couponMutations, 'couponsRemove', 'manageLoyalties');
 
 export default couponMutations;

@@ -77,7 +77,7 @@ export interface IOrder {
   };
   closeDate?: Date;
 
-  extraInfo?: any
+  extraInfo?: any;
 }
 
 const commonAttributes = { positive: true, default: 0 };

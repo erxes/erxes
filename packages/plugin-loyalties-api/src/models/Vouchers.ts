@@ -228,7 +228,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
           }
         );
       } catch (error) {
-        throw new Error(`Error occured while redeeming voucher code ${error}`);
+        throw new Error(`Error occurred while redeeming voucher ${error}`);
       }
     }
   }

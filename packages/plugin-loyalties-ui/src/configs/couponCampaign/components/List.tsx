@@ -102,7 +102,7 @@ const List = (props: Props) => {
         />
         <ModalTrigger
           size={'lg'}
-          title={__('Add voucher campaign')}
+          title={__('Add coupon campaign')}
           trigger={
             <Button btnStyle="success" icon="plus-circle">
               Add coupon campaign
@@ -180,7 +180,7 @@ const List = (props: Props) => {
           data={renderContent()}
           loading={loading}
           count={totalCount}
-          emptyText="There is no data"
+          emptyText="There are no data"
           emptyImage="/images/actions/5.svg"
         />
       }

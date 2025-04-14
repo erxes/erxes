@@ -255,7 +255,7 @@ const Form = (props: Props) => {
             onChange={(content) => handleOnChange({ content })}
             height={150}
             isSubmitted={formProps.isSaved}
-            name={`couponCampaign_description_${campaignState.description}`}
+            name="couponCampaign_description"
             toolbar={[
               'bold',
               'italic',

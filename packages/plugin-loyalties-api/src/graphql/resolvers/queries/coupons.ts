@@ -3,7 +3,7 @@ import { SortOrder } from 'mongoose';
 import { IContext } from '../../../connectionResolver';
 import { ICommonParams } from '../../../models/definitions/common';
 
-const couponQueires = {
+const couponQueries = {
   coupons: async (
     _root,
     params: ICommonParams & { fromDate: string; toDate: string },
@@ -90,6 +90,6 @@ const couponQueires = {
   },
 };
 
-checkPermission(couponQueires, 'coupons', 'showLoyalties');
+checkPermission(couponQueries, 'coupons', 'showLoyalties');
 
-export default couponQueires;
+export default couponQueries;

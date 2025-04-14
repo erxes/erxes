@@ -189,7 +189,7 @@ const FilterCampaign = (props: Props) => {
           <SidebarList>
             {FILTER_OPTIONS[field].map(({ value, label }) => {
               return (
-                <li key={Math.random()}>
+                <li key={value}>
                   <a
                     href="#filter"
                     tabIndex={0}

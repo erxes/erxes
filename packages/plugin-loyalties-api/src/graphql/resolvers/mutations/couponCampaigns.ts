@@ -28,8 +28,8 @@ const couponCampaignMutations = {
   },
 };
 
-checkPermission(couponCampaignMutations, 'couponCampaignsAdd', 'manageLoyalties');
-checkPermission(couponCampaignMutations, 'couponCampaignsEdit', 'manageLoyalties');
+checkPermission(couponCampaignMutations, 'couponCampaignAdd', 'manageLoyalties');
+checkPermission(couponCampaignMutations, 'couponCampaignEdit', 'manageLoyalties');
 checkPermission(couponCampaignMutations, 'couponCampaignsRemove', 'manageLoyalties');
 
 export default couponCampaignMutations;

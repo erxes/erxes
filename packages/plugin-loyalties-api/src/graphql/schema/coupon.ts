@@ -38,7 +38,7 @@ export const types = `
 `;
 
 export const queries = `
-    coupon(_id:String): Coupon
+    coupon(_id: String): Coupon
     coupons(${commonFilters} ${paginateTypes}, fromDate:String, toDate:String): CouponMain
     couponsByOwner(ownerId: String!, status: String): [OwnerCoupon]    
 

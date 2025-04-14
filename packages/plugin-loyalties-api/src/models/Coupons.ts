@@ -254,7 +254,7 @@ export const loadCouponClass = (models: IModels, _subdomain: string) => {
           },
         );
       } catch (error) {
-        throw new Error(`Error occured while redeeming voucher code ${error}`);
+        throw new Error(`Error occurred while redeeming coupon code ${error}`);
       }
     }
   }

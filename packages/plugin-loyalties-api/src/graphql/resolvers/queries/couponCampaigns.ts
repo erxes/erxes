@@ -2,7 +2,7 @@ import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { ICommonCampaignParams } from '../../../models/definitions/common';
 
-const couponCampaignQueires = {
+const couponCampaignQueries = {
   couponCampaigns: async (
     _root,
     params: ICommonCampaignParams,
@@ -33,7 +33,7 @@ const couponCampaignQueires = {
   },
 };
 
-checkPermission(couponCampaignQueires, 'couponCampaign', 'showLoyalties');
-checkPermission(couponCampaignQueires, 'couponCampaigns', 'showLoyalties');
+checkPermission(couponCampaignQueries, 'couponCampaign', 'showLoyalties');
+checkPermission(couponCampaignQueries, 'couponCampaigns', 'showLoyalties');
 
-export default couponCampaignQueires;
+export default couponCampaignQueries;

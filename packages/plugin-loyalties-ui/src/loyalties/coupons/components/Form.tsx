@@ -125,7 +125,7 @@ const Form = (props: Props) => {
             cursor: 'pointer',
             width: '100%',
             display: 'flex',
-            justifyContent: 'end',
+            justifyContent: 'flex-end',
             gap: '8px',
             marginBottom: '20px',
             textTransform: 'uppercase',
