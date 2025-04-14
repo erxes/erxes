@@ -237,7 +237,6 @@ export const dealToDynamic = async (
 
   try {
     let customer;
-
     if (
       !config?.customerApi ||
       !config?.salesApi ||
@@ -247,7 +246,6 @@ export const dealToDynamic = async (
     ) {
       throw new Error(`MS Dynamic config not found..., ${brandId}`);
     }
-
     const { salesApi, salesLineApi, username, password } = config;
     let urlParam = "";
     let lineUrlParam = "";
@@ -259,20 +257,46 @@ export const dealToDynamic = async (
       )}`,
     };
 
-    if (order?.customerId) {
+    const conformities = await sendCoreMessage({
+      subdomain,
+      action: "conformities.findConformities",
+      data: {
+        mainType: "deal",
+        mainTypeId: { $in: order._id },
+      },
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    if (conformities.length > 0) {
       const msdCustomerInfo = await getMsdCustomerInfo(
         subdomain,
         models,
-        order.customerId,
-        order.customerType,
+        conformities[0].relTypeId,
+        conformities[0].relType,
         brandId,
         config
       );
+
       if (msdCustomerInfo) {
         msdCustomer = msdCustomerInfo.relation?.response;
         customer = msdCustomerInfo.customer;
       }
     }
+
+    const user = await sendCoreMessage({
+      subdomain,
+      action: "users.findOne",
+      data: {
+        _id: order.assignedUserIds[0],
+      },
+      isRPC: true,
+    });
+
+    const rawDescription = order.description.replace(/<\/?p>/g, "").trim();
+
+    const sellAddress = rawDescription.slice(0, 100);
+    const sellAddress2 = rawDescription.slice(100, 150);
 
     const sendData: any = {
       Sell_to_Customer_No: msdCustomer?.No
@@ -280,7 +304,7 @@ export const dealToDynamic = async (
         : config.defaultUserCode,
       Sell_to_Phone_No: customer?.primaryPhone || "",
       Sell_to_E_Mail: customer?.primaryEmail || "",
-      External_Document_No: order.number,
+      External_Document_No: `${order.name.split(":").pop().trim()}TESTBYERXES`,
       Responsibility_Center: config.responsibilityCenter || "",
       Sync_Type: config.syncType || "",
       Mobile_Phone_No: customer?.primaryPhone || "",
@@ -292,10 +316,9 @@ export const dealToDynamic = async (
       BillType: config.billType || "Receipt",
       Location_Code: config.locationCode || "",
       Deal_Type_Code: config.dealType || "NORMAL",
-      Salesperson_Code:
-        config.title === "Beverage"
-          ? msdCustomer?.Salesperson_Code || "3144"
-          : "",
+      Salesperson_Code: user && user.employeeId,
+      Sell_to_Address: sellAddress,
+      Sell_to_Address_2: sellAddress2,
       CustomerNo:
         customer?.customFieldsDataByFieldCode?.vatCustomer?.value ||
         customer?.customFieldsDataByFieldCode?.vatCompany?.value,
@@ -319,7 +342,7 @@ export const dealToDynamic = async (
       }
     );
 
-    if (!order.items.length) {
+    if (!order.productsData.length) {
       throw new Error("Has not items order");
     }
 
@@ -328,14 +351,15 @@ export const dealToDynamic = async (
       headers: postHeaders,
       body: JSON.stringify(sendData),
     }).then((res) => res.json());
-
     const lineNoById = {};
 
     if (responseSale) {
       const products = await sendCoreMessage({
         subdomain,
         action: "products.find",
-        data: { _id: { $in: order.items.map((item) => item.productId) } },
+        data: {
+          _id: { $in: order.productsData.map((item) => item.productId) },
+        },
         isRPC: true,
       });
 
@@ -347,7 +371,7 @@ export const dealToDynamic = async (
 
       let totalDiscount = 0;
 
-      for (const item of order.items) {
+      for (const item of order.productsData) {
         let lineUrlP = "";
         let linePostMethod = "POST";
         let linePostHeaders = {
@@ -369,7 +393,6 @@ export const dealToDynamic = async (
               },
             }
           );
-
           continue;
         }
 
@@ -379,8 +402,7 @@ export const dealToDynamic = async (
           No: productById[item.productId]
             ? productById[item.productId].code
             : "",
-          Quantity: item.count || 0,
-          // Unit_Price: item.unitPrice || 0,
+          Quantity: item.quantity || 0,
           Location_Code: config.locationCode,
         };
 
@@ -410,7 +432,6 @@ export const dealToDynamic = async (
           const foundSyncLog = (await models.SyncLogs.findOne({
             _id: syncLog._id,
           })) || { error: "" };
-
           await models.SyncLogs.updateOne(
             { _id: syncLog._id },
             {
@@ -436,7 +457,6 @@ export const dealToDynamic = async (
       }
 
       const soapApiUrl = config.discountSoapApi; // "https://bc.erpmsm.mn:7047/MSM-Data/WS/Betastar%20LLC/Codeunit/PictureService";
-
       if (soapApiUrl && totalDiscount) {
         const soapHeaders = {
           "Content-Type": "text/xml",
@@ -446,7 +466,6 @@ export const dealToDynamic = async (
             `${username}:${password}`
           ).toString("base64")}`,
         };
-
         const soapDiscountSendData = `
           <?xml version="1.0"?>
           <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
@@ -460,7 +479,6 @@ export const dealToDynamic = async (
           </soapenv:Body>
           </soapenv:Envelope>
         `;
-
         await fetch(`${soapApiUrl}`, {
           method: "POST",
           headers: soapHeaders,

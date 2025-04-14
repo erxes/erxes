@@ -75,23 +75,15 @@ export const afterMutationHandlers = async (subdomain, params) => {
     }
 
     if (type === "sales:deal") {
-      // syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-
       const updatedDoc = params.updatedDocument || params.object;
       const brandId = updatedDoc?.scopeBrandIds?.[0];
       const config = configs[brandId || "noBrand"];
 
       if (action === "update" && config?.useBoard) {
-        const updatedDoc = params.updatedDocument || params.object;
-
         if (config.stageId === updatedDoc?.stageId) {
-          // await dealToDynamic(
-          //   subdomain,
-          //   syncLog,
-          //   params.updatedDocument || params.object,
-          //   models,
-          //   config
-          // );
+          syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+
+          await dealToDynamic(subdomain, syncLog, updatedDoc, models, config);
         }
 
         return;
@@ -106,13 +98,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       const config = configs[brandId || "noBrand"];
 
       if (action === "synced" && !config.useBoard) {
-        await orderToDynamic(
-          subdomain,
-          syncLog,
-          params.updatedDocument || params.object,
-          models,
-          config
-        );
+        await orderToDynamic(subdomain, syncLog, updatedDoc, models, config);
         return;
       }
     }
