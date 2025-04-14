@@ -49,37 +49,43 @@ const SeeMoreButton = styled.button`
 type Props = {
   PostInfo: {
     permalink_url: string;
-    content: string;
+    content?: string;
   };
 };
 
 export default function Post({ PostInfo }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const MAX_LENGTH = 50;
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
 
-  const MAX_LENGTH = 50; 
+  const { content = '', permalink_url } = PostInfo;
 
   const truncatedContent =
-    PostInfo.content.length > MAX_LENGTH && !isExpanded
-      ? `${PostInfo.content.slice(0, MAX_LENGTH)}...`
-      : PostInfo.content;
+    content.length > MAX_LENGTH && !isExpanded
+      ? `${content.slice(0, MAX_LENGTH)}...`
+      : content;
 
   return (
     <Container>
-      <StyledLink href={PostInfo.permalink_url} target="_blank" rel="noreferrer">
-        {__('Go to Post')}
-      </StyledLink>
-      <NameDisplay>
-        {truncatedContent}
-        {PostInfo.content.length > MAX_LENGTH && (
-          <SeeMoreButton onClick={toggleExpanded}>
-            {isExpanded ? __('See less') : __('See more')}
-          </SeeMoreButton>
-        )}
-      </NameDisplay>
+      {permalink_url && (
+        <StyledLink href={permalink_url} target="_blank" rel="noreferrer">
+          {__('Go to Post')}
+        </StyledLink>
+      )}
+
+      {content && (
+        <NameDisplay>
+          {truncatedContent}
+          {content.length > MAX_LENGTH && (
+            <SeeMoreButton onClick={toggleExpanded}>
+              {isExpanded ? __('See less') : __('See more')}
+            </SeeMoreButton>
+          )}
+        </NameDisplay>
+      )}
     </Container>
   );
 }

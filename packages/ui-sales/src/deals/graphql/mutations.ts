@@ -10,11 +10,13 @@ import { dealFields } from './queries';
 const dealMutationVariables = `
   $productsData: JSON,
   $paymentsData: JSON,
+  $extraData: JSON,
 `;
 
 const dealMutationParams = `
   productsData: $productsData,
   paymentsData: $paymentsData,
+  extraData: $extraData,
 `;
 
 const copyVariables = `$companyIds: [String], $customerIds: [String], $labelIds: [String]`;

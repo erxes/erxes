@@ -2,7 +2,7 @@ import { sendLoyaltiesMessage } from '../../messageBroker';
 import { IOrderInput } from '../types';
 
 export const checkLoyalties = async (subdomain: string, doc: IOrderInput) => {
-  if (!doc.customerId) {
+  if (!doc.couponCode && !doc.customerId) {
     return doc;
   }
 
@@ -15,17 +15,21 @@ export const checkLoyalties = async (subdomain: string, doc: IOrderInput) => {
         ownerType: doc.customerType || 'customer',
         ownerId: doc.customerId,
         products: [
-          ...doc.items.map(i => ({
+          ...doc.items.map((i) => ({
             productId: i.productId,
-            quantity: i.count
-          }))
-        ]
+            quantity: i.count,
+            unitPrice: i.unitPrice,
+          })),
+        ],
+        discountInfo: {
+          couponCode: doc.couponCode,
+        }
       },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
     });
   } catch (e) {
-    console.log(e.message);
+    throw new Error(e.message);
   }
 
   for (const item of doc.items || []) {

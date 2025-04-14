@@ -74,6 +74,7 @@ export interface IDeal extends IItem {
 export interface IDealParams extends IItemParams {
   productsData?: IProductData[];
   paymentsData?: IPaymentsData;
+  extraData?: any
 }
 
 export type DealsQueryResponse = {
