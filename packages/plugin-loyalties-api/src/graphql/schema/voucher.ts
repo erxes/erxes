@@ -11,18 +11,13 @@ export const types = `
     list: [Voucher]
     totalCount: Int
   }
-
-  type OwnerVoucher {
-    campaign: VoucherCampaign,
-    count: Int
-  }
 `;
 
 export const queries = `
   vouchersMain(${commonFilters}): VoucherMain
   vouchers(${commonFilters}): [Voucher]
+  ownerVouchers(ownerId: String!): JSON
   voucherDetail(_id: String!): Voucher
-  ownerVouchers(ownerId: String!): [OwnerVoucher]
 `;
 
 const VoucherDoc = `

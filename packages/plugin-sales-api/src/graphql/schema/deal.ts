@@ -53,6 +53,7 @@ export const types = ({ contacts }) => `
   input SalesProductField {
     productId : String
     quantity: Int
+    unitPrice: Float
   }
 
 `;
@@ -60,6 +61,7 @@ export const types = ({ contacts }) => `
 const dealMutationParams = `
   paymentsData: JSON,
   productsData: JSON,
+  extraData: JSON,
 `;
 
 const commonQueryParams = `
@@ -131,7 +133,7 @@ const archivedDealsParams = `
 
 export const queries = `
   dealDetail(_id: String!, clientPortalCard: Boolean): Deal
-  checkDiscount(_id: String!,products:[SalesProductField]):JSON
+  checkDiscount(_id: String!,products:[SalesProductField], couponCode: String):JSON
   deals(${listQueryParams}): [DealListItem]
   dealsTotalCount(${listQueryParams}): Int
   archivedDeals(

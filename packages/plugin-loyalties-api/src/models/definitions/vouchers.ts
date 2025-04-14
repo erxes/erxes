@@ -7,6 +7,8 @@ import { VOUCHER_STATUS } from './constants';
 export interface IVoucher extends ICommonFields {
   status?: string;
   bonusInfo?: any;
+
+  config?: any
 }
 
 export interface IVoucherDocument extends IVoucher, ICommonDocument, Document {
@@ -24,7 +26,10 @@ export const voucherSchema = schemaHooksWrapper(
       label: 'Status'
     }),
     // etc: bonus-> usedCount
-    bonusInfo: field({ type: Object, optional: true, label: 'Bonus log' })
+    bonusInfo: field({ type: Object, optional: true, label: 'Bonus log' }),
+
+    // Optional voucher configuration for standalone config (not tied to campaigns)
+    config: field({ type: Object, optional: true, label: 'Config' })
   }),
   'erxes_loyalty_vouchers'
 );
