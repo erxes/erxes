@@ -51,11 +51,9 @@ type ReorderItemMap = {
 
 export const updateItemInfo = (state, item) => {
   const { itemMap } = state;
-  const items = [...itemMap[item.stageId]];
-  const index = items.findIndex((d) => d._id === item._id);
-
-  items[index] = item;
-
+  const items = (itemMap[item.stageId] || []).map(
+    (it) => it._id === item._id ? item : it
+  );
   return { ...itemMap, [item.stageId]: items };
 };
 

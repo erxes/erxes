@@ -1,39 +1,42 @@
-import { Add, FlexRowGap, FooterInfo, FormContainer } from "../../styles";
-import lodash from "lodash";
-import { Alert, __ } from "@erxes/ui/src/utils";
+import { gql } from '@apollo/client';
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import ProductCategoryChooser from "@erxes/ui-products/src/components/ProductCategoryChooser";
+import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
+import { IProduct, IProductCategory } from "@erxes/ui-products/src/types";
+import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
+import client from '@erxes/ui/src/apolloClient';
+import { IUser } from "@erxes/ui/src/auth/types";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
 import {
   ControlLabel,
   FormGroup,
   ModalTrigger,
   Table,
 } from "@erxes/ui/src/components";
-import { IDeal, IPaymentsData, IProductData } from "../../types";
+import Button from "@erxes/ui/src/components/Button";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
 import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
-
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IProduct } from '@erxes/ui-products/src/types';
-import { IProductCategory } from '@erxes/ui-products/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import PaymentForm from './PaymentForm';
-import ProductCategoryChooser from '@erxes/ui-products/src/components/ProductCategoryChooser';
-import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
-import ProductItem from '../../containers/product/ProductItem';
-import ProductTotal from './ProductTotal';
-import React from 'react';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
-import styled from 'styled-components';
-import { IUser } from '@erxes/ui/src/auth/types';
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import { Alert, __ } from "@erxes/ui/src/utils";
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
+import lodash from "lodash";
+import React from "react";
+import styled from "styled-components";
+import ProductItem from "../../containers/product/ProductItem";
 import { queries } from '../../graphql';
+import { Add, FlexRowGap, FooterInfo, FormContainer } from "../../styles";
+import {
+  IDeal,
+  IPaymentsData,
+  IProductData,
+  dealsProductDataMutationParams,
+} from "../../types";
+import PaymentForm from "./PaymentForm";
+import ProductTotal from "./ProductTotal";
 
 const TableWrapper = styled.div`
   overflow: auto;
@@ -69,6 +72,7 @@ type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
   saveProductsData: () => void;
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
+  dealsCreateProductData: (variables: dealsProductDataMutationParams) => void;
   onChangeExtraData: (extraData: any) => void;
   productsData: IProductData[];
   products: IProduct[];
@@ -123,20 +127,36 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   duplicateProductItem = (_id) => {
-    const { productsData, onChangeProductsData } = this.props;
+    const {
+      productsData,
+      onChangeProductsData,
+      dealsCreateProductData,
+      dealQuery,
+    } = this.props;
 
     const productData: any = productsData.find((p) => p._id === _id);
 
-    productsData.push({
+    const docs: any[] = [];
+
+    const data = {
       ...productData,
       _id: Math.random().toString(),
-    });
+    };
+
+    docs.push(data);
+    productsData.push(data);
 
     onChangeProductsData(productsData);
 
     for (const productData of productsData) {
       this.calculatePerProductAmount("discount", productData);
     }
+
+    dealsCreateProductData({
+      proccessId: localStorage.getItem("proccessId") || "",
+      dealId: dealQuery._id || "",
+      docs,
+    });
   };
 
   removeProductItem = (_id) => {
@@ -232,8 +252,8 @@ class ProductForm extends React.Component<Props, State> {
         unitPrice: p.isVatApplied
           ? p.unitPrice
           : parseFloat(
-            ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
-          ),
+              ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
+            ),
       };
 
       this.calculatePerProductAmount("", pData, false);
@@ -308,8 +328,13 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { productsData, onChangeProductsData, currentProduct, dealQuery, currentUser } =
-      this.props;
+    const {
+      productsData,
+      onChangeProductsData,
+      currentProduct,
+      dealQuery,
+      currentUser,
+    } = this.props;
 
     if (productsData.length === 0) {
       return (
@@ -325,12 +350,10 @@ class ProductForm extends React.Component<Props, State> {
       filteredProductsData = filteredProductsData.filter(
         (p) =>
           p.product &&
-          (
-            p.product.name.includes(filterValues.search) ||
+          (p.product.name.includes(filterValues.search) ||
             p.product.code.includes(filterValues.search) ||
             p.product.shortName.includes(filterValues.search) ||
-            p.product.barcodes.includes(filterValues.search)
-          )
+            p.product.barcodes.includes(filterValues.search))
       );
     }
 
@@ -349,7 +372,8 @@ class ProductForm extends React.Component<Props, State> {
 
     if (filterValues.tags && filterValues.tags.length) {
       filteredProductsData = filteredProductsData.filter(
-        (p) => p.product && lodash.intersection(filterValues.tags, p.product.tagIds)
+        (p) =>
+          p.product && lodash.intersection(filterValues.tags, p.product.tagIds)
       );
     }
 
@@ -608,7 +632,7 @@ class ProductForm extends React.Component<Props, State> {
             name="tags"
             label="Choose tag"
             initialValue={filterValues.tags}
-            onSelect={tagsIds => this.onFilter("tags", tagsIds)}
+            onSelect={(tagsIds) => this.onFilter("tags", tagsIds)}
             multi={true}
           />
         </FormGroup>
@@ -673,13 +697,15 @@ class ProductForm extends React.Component<Props, State> {
     const productOnChange = (products: IProduct[]) => {
       this.clearFilter();
 
-      const { onChangeProductsData, currencies } = this.props;
+      const { onChangeProductsData, currencies, dealsCreateProductData } =
+        this.props;
 
       const { tax, discount } = this.state;
       const currency = currencies ? currencies[0] : "";
 
+      const docs: any[] = [];
       for (const product of products) {
-        productsData.push({
+        const productData = {
           tax: 0,
           taxPercent: tax[currency] ? tax[currency].percent || 0 : 0,
           discount: 0,
@@ -698,8 +724,16 @@ class ProductForm extends React.Component<Props, State> {
           globalUnitPrice: product.unitPrice,
           unitPricePercent: 100,
           _id: Math.random().toString(),
-        });
+        };
+        docs.push(productData);
+        productsData.push(productData);
       }
+
+      dealsCreateProductData({
+        proccessId: localStorage.getItem("proccessId") || "",
+        dealId: dealQuery._id || "",
+        docs,
+      });
 
       onChangeProductsData(productsData);
 
