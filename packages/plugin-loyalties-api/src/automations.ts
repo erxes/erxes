@@ -10,12 +10,12 @@ export default {
   constants: {
     triggers: [
       {
-        type: "loyalties:promotion",
+        type: "loyalties:reward",
         img: "automation3.svg",
         icon: "gift",
-        label: "Promotion",
+        label: "Reward",
         description:
-          "Start with a blank workflow that enrolls and is triggered off promotions",
+          "Start with a blank workflow that enrolls and is triggered off reward",
         isCustom: true,
       },
     ],
@@ -58,10 +58,10 @@ export default {
   checkCustomTrigger: async ({ subdomain, data }) => {
     const { collectionType, config } = data;
 
-    const { promotionType } = config;
+    const { rewardType } = config;
 
-    if (collectionType === "promotion") {
-      switch (promotionType) {
+    if (collectionType === "reward") {
+      switch (rewardType) {
         case "birthday":
           return await checkBirthDateTrigger(subdomain, data);
         case "registration":
@@ -133,8 +133,8 @@ const checkBirthDateTrigger = async (subdomain, data) => {
     serviceName: "automations",
     action: "executions.find",
     data: {
-      triggerType: "loyalties:promotion",
-      "triggerConfig.promotionType": "birthday",
+      triggerType: "loyalties:reward",
+      "triggerConfig.rewardType": "birthday",
       targetId: target._id,
       status: "complete",
       createdAt: {
@@ -296,7 +296,7 @@ const getOwner = async ({
     }
   }
 
-  if (["loyalties:promotion"].includes(execution.triggerType)) {
+  if (["loyalties:reward"].includes(execution.triggerType)) {
     const { appliesTo = [] } = execution.triggerConfig || {};
 
     if (appliesTo.includes("customer")) {
@@ -323,6 +323,7 @@ const createVoucher = async ({
 }) => {
   let ownerType;
   let ownerId;
+  let voucherConfig;
 
   if (
     ["core:customer", "core:user", "core:company"].includes(
@@ -376,19 +377,47 @@ const createVoucher = async ({
     }
   }
 
-  if (["loyalties:promotion"].includes(execution.triggerType)) {
+  if (["loyalties:reward"].includes(execution.triggerType)) {
     const { appliesTo = [] } = execution.triggerConfig || {};
+    const { customRule } = config || {};
 
     if (appliesTo.includes("customer")) {
       ownerType = "customer";
       ownerId = execution.targetId;
     }
+
+    if (customRule) {
+      const { duration = "month" } = customRule || {};
+
+      let startDate = new Date();
+      let endDate;
+
+      switch (duration) {
+        case "month":
+          endDate = startDate.setMonth(startDate.getMonth() + 1);
+          break;
+        case "week":
+          endDate = startDate.setDate(startDate.getDate() + 1 * 7);
+          break;
+        case "day":
+          endDate = startDate.setDate(startDate.getDate() + 1);
+          break;
+        default:
+          break;
+      }
+
+      voucherConfig = {
+        startDate,
+        endDate,
+      };
+    }
   }
 
   return await models.Vouchers.createVoucher({
-    campaignId: config.voucherCampaignId,
+    campaignId: config?.voucherCampaignId || undefined,
     ownerType,
     ownerId,
+    config: voucherConfig,
   });
 };
 

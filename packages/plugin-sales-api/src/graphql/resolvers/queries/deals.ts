@@ -365,7 +365,9 @@ const dealQueries = {
         ownerType,
         ownerId,
         products,
-        couponCode
+        discountInfo: {
+          couponCode
+        }
       },
       isRPC: true
     });

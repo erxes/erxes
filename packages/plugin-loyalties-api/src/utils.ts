@@ -1,6 +1,6 @@
-import { IModels } from './connectionResolver';
-import { sendCoreMessage } from './messageBroker';
-import { VOUCHER_STATUS } from './models/definitions/constants';
+import { IModels } from "./connectionResolver";
+import { sendCoreMessage } from "./messageBroker";
+import { VOUCHER_STATUS } from "./models/definitions/constants";
 
 interface IProductD {
   productId: string;
@@ -11,7 +11,7 @@ interface IProductD {
 export const getChildCategories = async (subdomain: string, categoryIds) => {
   const childs = await sendCoreMessage({
     subdomain,
-    action: 'categories.withChilds',
+    action: "categories.withChilds",
     data: { ids: categoryIds },
     isRPC: true,
     defaultValue: [],
@@ -27,12 +27,14 @@ export const checkVouchersSale = async (
   ownerType: string,
   ownerId: string,
   products: IProductD[],
-  couponCode?: string,
+  discountInfo?: Record<string, string>
 ) => {
   const result = {};
 
+  const { couponCode, voucherId } = discountInfo || {};
+
   if (!ownerId && !ownerId && !products) {
-    return 'No Data';
+    return "No Data";
   }
 
   const now = new Date();
@@ -41,8 +43,8 @@ export const checkVouchersSale = async (
   for (const productId of productsIds) {
     if (!Object.keys(result).includes(productId)) {
       result[productId] = {
-        voucherCampaignId: '',
-        voucherId: '',
+        voucherCampaignId: "",
+        voucherId: "",
         potentialBonus: 0,
         discount: 0,
         sumDiscount: 0,
@@ -59,16 +61,16 @@ export const checkVouchersSale = async (
 
     ownerType: 1,
     ownerId: 1,
-    campaign: { $arrayElemAt: ['$campaign_doc', 0] },
+    campaign: { $arrayElemAt: ["$campaign_doc", 0] },
   };
   const lookup = {
-    from: 'voucher_campaigns',
-    localField: 'campaignId',
-    foreignField: '_id',
-    as: 'campaign_doc',
+    from: "voucher_campaigns",
+    localField: "campaignId",
+    foreignField: "_id",
+    as: "campaign_doc",
   };
 
-  const voucherFilter = { ownerType, ownerId, status: { $in: ['new'] } };
+  const voucherFilter = { ownerType, ownerId, status: { $in: ["new"] } };
 
   const activeVouchers = await models.Vouchers.find(voucherFilter).lean();
 
@@ -82,7 +84,7 @@ export const checkVouchersSale = async (
   // bonus
   const bonusCampaign = await models.VoucherCampaigns.find({
     ...campaignFilter,
-    voucherType: { $in: ['bonus'] },
+    voucherType: { $in: ["bonus"] },
   }).lean();
 
   const bonusVouchers = await models.Vouchers.aggregate([
@@ -112,9 +114,9 @@ export const checkVouchersSale = async (
           bonusVoucher.campaign.bonusCount -
           (bonusVoucher.bonusInfo || []).reduce(
             (sum, i) => sum + i.usedCount,
-            0,
+            0
           );
-        result[productId].type = 'bonus';
+        result[productId].type = "bonus";
         result[productId].discount = 100;
         result[productId].bonusName = bonusVoucher.campaign.title;
       }
@@ -124,7 +126,7 @@ export const checkVouchersSale = async (
   // discount
   const discountCampaigns = await models.VoucherCampaigns.find({
     ...campaignFilter,
-    voucherType: { $in: ['discount'] },
+    voucherType: { $in: ["discount"] },
   }).lean();
 
   const discountVouchers = await models.Vouchers.aggregate([
@@ -146,7 +148,7 @@ export const checkVouchersSale = async (
 
   const productCatIds = discountCampaigns.reduce(
     (catIds, c) => catIds.concat(c.productCategoryIds),
-    [] as string[],
+    [] as string[]
   );
 
   const categoryIdsByCampaignId = {};
@@ -164,7 +166,7 @@ export const checkVouchersSale = async (
 
   const catProducts = await sendCoreMessage({
     subdomain,
-    action: 'products.find',
+    action: "products.find",
     data: {
       query: { categoryId: { $in: allCatIds } },
       sort: { _id: 1, categoryId: 1 },
@@ -201,12 +203,66 @@ export const checkVouchersSale = async (
             voucherId: discountVoucher._id,
             discount: discountVoucher.campaign.discountPercent,
             voucherName: discountVoucher.campaign.title,
-            type: 'discount',
+            type: "discount",
           };
         }
         result[productId].sumDiscount +=
           discountVoucher.campaign.discountPercent;
       }
+    }
+  }
+
+  if (voucherId) {
+    const voucherCampaign = await models.Vouchers.checkVoucher({
+      voucherId,
+      ownerType,
+      ownerId,
+    });
+
+    const { title, kind, value } = voucherCampaign;
+
+    const productDocs = await sendCoreMessage({
+      subdomain,
+      action: "products.find",
+      data: {
+        query: {
+          _id: {
+            $in: [...productsIds],
+          },
+        },
+      },
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    const totalAmount = productDocs.reduce((sum, doc) => {
+      const { _id } = doc;
+
+      const item: IProductD =
+        products.find((p) => p.productId === _id) || ({} as IProductD);
+      sum += item.quantity * item.unitPrice;
+
+      return sum;
+    }, 0);
+
+    for (const product of productDocs) {
+      const { _id } = product;
+
+      const item = products.find((p) => p.productId === _id) || {};
+
+      result[_id] = {
+        ...result[_id],
+        voucherCampaignId: voucherCampaign._id,
+        voucherId: voucherId,
+        discount: calculateDiscount({
+          kind,
+          value,
+          product: item,
+          totalAmount,
+        }),
+        voucherName: title,
+        type: "reward",
+      };
     }
   }
 
@@ -226,7 +282,7 @@ export const checkVouchersSale = async (
     }).lean();
 
     if (!couponCampaign) {
-      throw new Error('Coupon campaign not found');
+      throw new Error("Coupon campaign not found");
     }
 
     const { title, kind, value, restrictions } = couponCampaign;
@@ -243,7 +299,7 @@ export const checkVouchersSale = async (
 
     const productDocs = await sendCoreMessage({
       subdomain,
-      action: 'products.find',
+      action: "products.find",
       data: {
         query: {
           _id: {
@@ -275,9 +331,8 @@ export const checkVouchersSale = async (
     }, 0);
 
     if (minimumSpend && totalAmount < minimumSpend) {
-
       throw new Error(
-        `This coupon requires a minimum spend of ${minimumSpend}`,
+        `This coupon requires a minimum spend of ${minimumSpend}`
       );
     }
 
@@ -297,7 +352,7 @@ export const checkVouchersSale = async (
           totalAmount,
         }),
         couponName: title,
-        type: 'coupon',
+        type: "coupon",
       };
     }
   }
@@ -314,19 +369,26 @@ export const confirmVoucherSale = async (
     };
   },
   extraInfo?: {
-    couponCode: string,
+    couponCode?: string;
+    voucherId?: string;
     ownerType?: string;
     ownerId?: string;
     targetid?: string;
     serviceName?: string;
-  },
+  }
 ) => {
-
-  const { couponCode, ...usageInfo } = extraInfo || {};
+  const { couponCode, voucherId, ...usageInfo } = extraInfo || {};
 
   if (couponCode) {
     await models.Coupons.redeemCoupon({
       code: couponCode,
+      usageInfo,
+    });
+  }
+
+  if (voucherId) {
+    await models.Vouchers.redeemVoucher({
+      voucherId,
       usageInfo,
     });
   }
@@ -355,7 +417,7 @@ export const confirmVoucherSale = async (
 
       const oldBonusCount = (voucher.bonusInfo || []).reduce(
         (sum, i) => sum + i.usedCount,
-        0,
+        0
       );
 
       const updateInfo: any = {
@@ -373,11 +435,11 @@ export const confirmVoucherSale = async (
 export const isInSegment = async (
   subdomain: string,
   segmentId: string,
-  targetId: string,
+  targetId: string
 ) => {
   const response = await sendCoreMessage({
     subdomain,
-    action: 'isInSegment',
+    action: "isInSegment",
     data: { segmentId, idToCheck: targetId },
     isRPC: true,
   });
@@ -391,8 +453,8 @@ export interface AssignmentCheckResponse {
 }
 
 export const generateAttributes = (value) => {
-  const matches = (value || '').match(/\{\{\s*([^}]+)\s*\}\}/g);
-  return matches.map((match) => match.replace(/\{\{\s*|\s*\}\}/g, ''));
+  const matches = (value || "").match(/\{\{\s*([^}]+)\s*\}\}/g);
+  return matches.map((match) => match.replace(/\{\{\s*|\s*\}\}/g, ""));
 };
 
 export const handleScore = async (models: IModels, data) => {
@@ -403,14 +465,14 @@ export const handleScore = async (models: IModels, data) => {
   });
 
   if (!scoreCampaign) {
-    throw new Error('Not found');
+    throw new Error("Not found");
   }
 
   if (scoreCampaign.ownerType !== ownerType) {
-    throw new Error('Missmatching owner type');
+    throw new Error("Missmatching owner type");
   }
 
-  const config = scoreCampaign[action as 'add' | 'subtract'];
+  const config = scoreCampaign[action as "add" | "subtract"];
 
   const placeholer = config.placeholder;
 
@@ -431,12 +493,12 @@ export const handleScore = async (models: IModels, data) => {
     description,
   });
 
-  return 'success';
+  return "success";
 };
 
 export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
   try {
-    if (kind === 'percent') {
+    if (kind === "percent") {
       return value;
     }
 
@@ -454,7 +516,7 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
 
     return (productDiscount / productPrice) * 100;
   } catch (error) {
-    console.error('Error calculating discount:', error.message);
+    console.error("Error calculating discount:", error.message);
     return 0;
   }
 };

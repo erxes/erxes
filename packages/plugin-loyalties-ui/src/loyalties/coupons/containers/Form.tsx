@@ -30,8 +30,6 @@ const FormContainer = (props: Props) => {
       closeModal();
     };
 
-    console.log('values', values)
-
     return (
       <ButtonMutate
         mutation={mutations.couponsAdd}

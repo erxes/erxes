@@ -4,7 +4,6 @@ import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import automations from './automations';
 import { generateModels } from './connectionResolver';
 import cronjobs from './cronjobs';
-// import { buildFile } from './export';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 import logs from './logUtils';

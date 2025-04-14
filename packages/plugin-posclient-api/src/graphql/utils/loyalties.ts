@@ -21,7 +21,9 @@ export const checkLoyalties = async (subdomain: string, doc: IOrderInput) => {
             unitPrice: i.unitPrice,
           })),
         ],
-        couponCode: doc.couponCode,
+        discountInfo: {
+          couponCode: doc.couponCode,
+        }
       },
       isRPC: true,
       defaultValue: {},

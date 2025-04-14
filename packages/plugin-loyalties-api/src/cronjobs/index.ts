@@ -1,36 +1,34 @@
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-import { sendCommonMessage, sendCoreMessage } from '../messageBroker';
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+import { sendCommonMessage, sendCoreMessage } from "../messageBroker";
 
 export default {
   handleMonthlyJob: async ({ subdomain }) => {
-
-    if (!isEnabled('automations')) return;
+    if (!isEnabled("automations")) return;
 
     const NOW = new Date();
     const NOW_MONTH = NOW.getMonth() + 1;
 
-    const customers = await sendCoreMessage({
-      subdomain,
-      action: 'customers.find',
-      data: {
-        $expr: {
-          $and: [
-            { $eq: [{ $month: '$birthDate' }, NOW_MONTH] },
-          ],
+    const customers =
+      (await sendCoreMessage({
+        subdomain,
+        action: "customers.find",
+        data: {
+          $expr: {
+            $and: [{ $eq: [{ $month: "$birthDate" }, NOW_MONTH] }],
+          },
         },
-      },
-      isRPC: true,
-      defaultValue: [],
-    }) || [];
+        isRPC: true,
+        defaultValue: [],
+      })) || [];
 
     if (customers.length === 0) return;
 
     await sendCommonMessage({
       subdomain,
-      serviceName: 'automations',
-      action: 'trigger',
+      serviceName: "automations",
+      action: "trigger",
       data: {
-        type: 'loyalties:promotion',
+        type: "loyalties:reward",
         targets: customers,
       },
       defaultValue: [],

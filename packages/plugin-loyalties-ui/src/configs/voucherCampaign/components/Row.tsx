@@ -10,7 +10,6 @@ import { Link } from 'react-router-dom';
 import { VOUCHER_TYPES } from '../../../constants';
 import Form from '../containers/Form';
 import { IVoucherCampaign } from '../types';
-import ConfigForm from '../containers/ConfigForm';
 
 type Props = {
   voucherCampaign: IVoucherCampaign;
@@ -28,33 +27,6 @@ class Row extends React.Component<Props> {
     };
 
     return <Form {...updatedProps} />;
-  };
-
-  renderForm = () => {
-
-    const { voucherCampaign } = this.props;
-
-    const {
-      _id,
-      voucherType
-    } = voucherCampaign;
-
-    if(voucherType !== 'coupon') {
-      return <></>
-    }
-
-    const content = (formProps) => <ConfigForm campaignId={_id} {...formProps} />;
-
-    const trigger = <Button btnStyle='link' icon='refresh-1' onClick={(e) => e.preventDefault()}/>;
-
-    return (
-      <ModalTrigger
-        title="Generate Code"
-        trigger={trigger}
-        autoOpenKey="codeGenerate"
-        content={content}
-      />
-    );
   };
 
   render() {
@@ -99,7 +71,6 @@ class Row extends React.Component<Props> {
         </td>
         <td onClick={onClick}>
           <ActionButtons>
-            {this.renderForm()}
             <Link to={`/vouchers?campaignId=${_id}`}>
               <Button btnStyle='link' icon='list-2' />
             </Link>
