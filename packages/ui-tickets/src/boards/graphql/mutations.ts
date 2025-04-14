@@ -143,6 +143,16 @@ export const commonFields = `
       fullName
     }
   }
+  comments {
+      _id
+      createdAt
+      content
+      createdCustomer {
+        _id
+        firstName
+        lastName
+      }
+    }
   labels {
     _id
     name

@@ -8,6 +8,7 @@ import {
 import { ACTIVITY_CONTENT_TYPES } from "./definitions/constants";
 import { ITicket, ITicketDocument, ticketSchema } from "./definitions/tickets";
 import { IModels } from "../connectionResolver";
+import { IUserDocument } from "@erxes/api-utils/src/types";
 
 export interface ITicketModel extends Model<ITicketDocument> {
   createTicket(doc: ITicket): Promise<ITicketDocument>;
@@ -15,6 +16,11 @@ export interface ITicketModel extends Model<ITicketDocument> {
   updateTicket(_id: string, doc: ITicket): Promise<ITicketDocument>;
   watchTicket(_id: string, isAdd: boolean, userId: string): void;
   removeTickets(_ids: string[]): Promise<{ n: number; ok: number }>;
+  createTicketComment(
+    number: string,
+    content: string,
+    user: IUserDocument
+  ): Promise<ITicketDocument>;
 }
 
 export const loadTicketClass = (models: IModels, subdomain: string) => {
@@ -47,6 +53,34 @@ export const loadTicketClass = (models: IModels, subdomain: string) => {
       }
 
       return createBoardItem(models, subdomain, doc, "ticket");
+    }
+    public static async createTicketComment(number: string, content: string, user:IUserDocument) {
+      try {
+
+        if (!number || !content) {
+          throw new Error("Number or content not found");
+        }
+
+        const ticket = await models.Tickets.findOne({ number });
+
+        if (!ticket) {
+          throw new Error("Ticket not found");
+        }
+
+        const newComment = {
+          userId : user._id,
+          content,
+          createdAt: new Date()
+        };
+
+        return await models.Tickets.findOneAndUpdate(
+          { number },
+          { $push: { comments: newComment } },
+          { new: true }
+        );
+      } catch (error) {
+        throw error;
+      }
     }
 
     /**

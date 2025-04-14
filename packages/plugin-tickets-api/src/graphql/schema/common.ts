@@ -14,7 +14,13 @@ const ruleFields = `
 export const types = `
   ${attachmentType}
   ${attachmentInput}
-
+  type Comment { 
+    _id :String
+    content: String
+    userId: String
+    createdAt: Date
+    createdCustomer: Customer
+  }
   type TicketsRule {
     ${ruleFields}
   }
@@ -27,7 +33,6 @@ export const types = `
   input TicketsInputRule {
     ${ruleFields}
   }
-
   type TicketsTimeTrack {
     status: String,
     timeSpent: Int,
