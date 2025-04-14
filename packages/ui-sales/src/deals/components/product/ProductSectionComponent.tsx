@@ -20,6 +20,7 @@ type State = {
   products: (IProduct & { quantity?: number })[];
   productsData: any;
   paymentsData: IPaymentsData;
+  extraData?: any;
 };
 
 export default class ProductSectionComponent extends React.Component<
@@ -61,7 +62,7 @@ export default class ProductSectionComponent extends React.Component<
   };
 
   saveProductsData = () => {
-    const { productsData, paymentsData } = this.state;
+    const { productsData, paymentsData, extraData } = this.state;
     const { saveItem } = this.props;
     const products: IProduct[] = [];
     const amount: any = {};
@@ -109,9 +110,10 @@ export default class ProductSectionComponent extends React.Component<
         amount,
         unUsedAmount,
         paymentsData,
+        extraData
       },
       () => {
-        saveItem({ productsData, paymentsData }, (updatedItem) => {
+        saveItem({ productsData, paymentsData, extraData }, (updatedItem) => {
           this.setState({ updatedItem });
         });
 
@@ -126,12 +128,17 @@ export default class ProductSectionComponent extends React.Component<
     const pDataChange = (pData) => this.onChangeField("productsData", pData);
     const payDataChange = (payData) =>
       this.onChangeField("paymentsData", payData);
+    const extraDataChange = extraData =>
+      {
+        this.onChangeField("extraData", extraData);
+      }
 
     return (
       <ProductFormContainer>
         <ProductForm
           onChangeProductsData={pDataChange}
           onChangePaymentsData={payDataChange}
+          onChangeExtraData={extraDataChange}
           productsData={productsData}
           products={products}
           paymentsData={paymentsData}

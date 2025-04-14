@@ -429,6 +429,14 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
   configs.onServerInit();
 
+  if (configs.changeStream) {
+    try {
+      await configs.changeStream();
+    } catch (error) {
+      debugError(`Error initializing change stream: ${error.message}`);
+    }
+  }
+
   applyInspectorEndpoints(configs.name);
 
   debugInfo(`${configs.name} server is running on port: ${PORT}`);

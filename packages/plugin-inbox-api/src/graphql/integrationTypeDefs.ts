@@ -19,6 +19,8 @@ export const types = `
   type CloudflareCallsData {
     header: String
     description: String
+    secondPageHeader: String
+    secondPageDescription: String
     departments: [CloudflareCallDataDepartment]
     isReceiveWebCall: Boolean
   }
@@ -158,6 +160,8 @@ export const types = `
   input IntegrationCallData {
     header: String
     description: String
+    secondPageHeader: String
+    secondPageDescription: String
     departments: [DepartmentInput]
     isReceiveWebCall: Boolean
   }

@@ -1,6 +1,3 @@
-import { EditFormContent, LeftSide, RightSide } from "../styles";
-import { IDeal, IDealParams } from "../types";
-import { IEditFormContent, IItem, IOptions } from "../../boards/types";
 import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 import TaskTimer, { STATUS_TYPES } from "@erxes/ui/src/components/Timer";
 import {
@@ -8,24 +5,27 @@ import {
   loadDynamicComponent,
   router as routerUtils,
 } from "@erxes/ui/src/utils";
+import { IEditFormContent, IItem, IOptions } from "../../boards/types";
+import { EditFormContent, LeftSide, RightSide } from "../styles";
+import { IDeal, IDealParams } from "../types";
 
 import ActivityLogs from "@erxes/ui-log/src/activityLogs/containers/ActivityLogs";
-import CommonActions from "../../boards/components/editForm/CommonActions";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import CustomFieldsSection from "../../boards/containers/editForm/CustomFieldsSection";
-import EditForm from "../../boards/components/editForm/EditForm";
-import FullEditForm from "./FullEditForm";
-import { HeaderContentSmall } from "../../boards/styles/item";
-import { IUser } from "@erxes/ui/src/auth/types";
-import Icon from "@erxes/ui/src/components/Icon";
 import PortablePurchase from "@erxes/ui-purchases/src/purchases/components/PortablePurchases";
 import PortableTasks from "@erxes/ui-tasks/src/tasks/components/PortableTasks";
 import PortableTickets from "@erxes/ui-tickets/src/tickets/components/PortableTickets";
-import ProductSectionComponent from "./product/ProductSectionComponent";
+import { IUser } from "@erxes/ui/src/auth/types";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Icon from "@erxes/ui/src/components/Icon";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 import React from "react";
+import CommonActions from "../../boards/components/editForm/CommonActions";
+import EditForm from "../../boards/components/editForm/EditForm";
 import SidebarConformity from "../../boards/components/editForm/SidebarConformity";
 import Top from "../../boards/components/editForm/Top";
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import CustomFieldsSection from "../../boards/containers/editForm/CustomFieldsSection";
+import { HeaderContentSmall } from "../../boards/styles/item";
+import FullEditForm from "./FullEditForm";
+import ProductSectionComponent from "./product/ProductSectionComponent";
 
 type Props = {
   options: IOptions;
@@ -362,6 +362,8 @@ export default class DealEditForm extends React.Component<Props, State> {
   };
 
   render() {
+    console.log("this.state", this.state);
+
     const extendedProps = {
       ...this.props,
       sidebar: this.renderProductSection,

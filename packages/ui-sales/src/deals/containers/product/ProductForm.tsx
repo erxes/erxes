@@ -18,6 +18,7 @@ type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
   saveProductsData: () => void;
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
+  onChangeExtraData: (extraData: any) => void;
   productsData: IProductData[];
   products: IProduct[];
   paymentsData?: IPaymentsData;

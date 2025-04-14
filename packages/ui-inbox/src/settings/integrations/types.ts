@@ -464,6 +464,8 @@ export interface IDepartment {
 export interface ICallData {
   header?: String;
   description?: String;
+  secondPageHeader?: String;
+  secondPageDescription?: String;
   departments?: IDepartment[];
   isReceiveWebCall?: boolean;
 }
