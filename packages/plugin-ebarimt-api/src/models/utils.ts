@@ -207,12 +207,12 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
     detailsFree,
     details0,
     detailsInner,
-    ableAmount: mathRound(ableAmount, 4),
-    freeAmount: mathRound(freeAmount, 4),
-    zeroAmount: mathRound(zeroAmount, 4),
-    innerAmount: mathRound(innerAmount, 4),
-    ableVATAmount: mathRound(ableVATAmount, 4),
-    ableCityTaxAmount: mathRound(ableCityTaxAmount, 4),
+    ableAmount: mathRound(ableAmount),
+    freeAmount: mathRound(freeAmount),
+    zeroAmount: mathRound(zeroAmount),
+    innerAmount: mathRound(innerAmount),
+    ableVATAmount: mathRound(ableVATAmount),
+    ableCityTaxAmount: mathRound(ableCityTaxAmount),
   }
 }
 
@@ -259,7 +259,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
       contentType: doc.contentType,
       contentId: doc.contentId,
 
-      totalAmount: mathRound(ableAmount + freeAmount + zeroAmount, 4),
+      totalAmount: mathRound(ableAmount + freeAmount + zeroAmount),
       totalVAT: mathRound(ableVATAmount),
       totalCityTax: mathRound(ableCityTaxAmount),
       districtCode: config.districtCode,
@@ -309,14 +309,15 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     // payments
     let cashAmount: number = mathRound(mainData.totalAmount) ?? 0;
     for (const payment of doc.nonCashAmounts) {
+      const paidAmount = mathRound(payment.amount);
       mainData.payments?.push({
         code: 'PAYMENT_CARD',
         exchangeCode: '',
         status: 'PAID',
-        paidAmount: mathRound(payment.amount),
+        paidAmount,
       });
 
-      cashAmount -= mathRound(payment.amount);
+      cashAmount -= paidAmount;
     }
 
     if (mathRound(cashAmount)) {
