@@ -276,39 +276,34 @@ export const getOrCreatePostConversation = async (
   customer: ICustomerDocument,
   params: ICommentParams
 ) => {
-  let postConversation = await models.PostConversations.findOne({
-    postId
-  });
-  if (!postConversation) {
-    const integration = await models.Integrations.findOne({
-      $and: [
-        { facebookPageIds: { $in: pageId } },
-        { kind: INTEGRATION_KINDS.POST }
-      ]
-    });
-    if (!integration) {
-      throw new Error('Integration not found');
+  try {
+    let postConversation = await models.PostConversations.findOne({ postId });
+
+    const facebookPost = await fetchFacebookPostDetails(pageId, models, params);
+
+    if (!postConversation) {
+      postConversation = await models.PostConversations.create(facebookPost);
+      return postConversation;  
+    } else {
+      const hasPostContentChanged = facebookPost.content !== postConversation.content;
+
+      if (hasPostContentChanged) {
+        await models.PostConversations.updateOne(
+          { postId },
+          { $set: { content: facebookPost.content } }
+        );
+        const updatedPost = await models.PostConversations.findOne({ postId });
+        return updatedPost;
+      } else {
+        return postConversation;  // Return the existing post conversation without changes
+      }
     }
-    const { facebookPageTokensMap = {} } = integration;
-    const getPostDetail = await getPostDetails(
-      pageId,
-      facebookPageTokensMap,
-      params.post_id || ''
-    );
-
-    const facebookPost = {
-      postId: params.post_id,
-      content: params.message,
-      recipientId: pageId,
-      senderId: pageId,
-      permalink_url: getPostDetail.permalink_url,
-      timestamp: getPostDetail.created_time
-    };
-    postConversation = await models.PostConversations.create(facebookPost);
+  } catch (error) {
+    console.error('Error in getOrCreatePostConversation:', error);
+    throw new Error('Failed to get or create post conversation');
   }
-
-  return postConversation;
 };
+
 
 export const getOrCreatePost = async (
   models: IModels,
@@ -482,4 +477,42 @@ function getMediaSources(postDetails: any): string[] {
   }
 
   return Array.from(mediaSources);
+}
+
+
+export default async function fetchFacebookPostDetails(pageId: string, models: IModels, params: ICommentParams) {
+  try {
+    const integration = await models.Integrations.findOne({
+      $and: [
+        { facebookPageIds: { $in: pageId } },
+        { kind: INTEGRATION_KINDS.POST }
+      ]
+    });
+
+    if (!integration) {
+      throw new Error('Integration not found');
+    }
+
+    const { facebookPageTokensMap = {} } = integration;
+
+    const getPostDetail = await getPostDetails(
+      pageId,
+      facebookPageTokensMap,
+      params.post_id || ''
+    );
+
+    const facebookPost = {
+      postId: params.post_id,
+      content: getPostDetail.message || '',
+      recipientId: pageId,
+      senderId: pageId,
+      permalink_url: getPostDetail.permalink_url || '',
+      timestamp: getPostDetail.created_time
+    };
+
+    return facebookPost;
+  } catch (error) {
+    console.error('Error fetching post details:', error);
+    throw new Error('Failed to fetch post details');
+  }
 }
