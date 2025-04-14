@@ -28,6 +28,7 @@ type Props = {
   closeModal: () => void;
   onSelect: (products: IProduct[]) => void;
   loadDiscountPercent?: (productsData: any) => void;
+  limit?: number;
 };
 
 const ProductChooser: React.FC<Props> = ({
@@ -37,6 +38,7 @@ const ProductChooser: React.FC<Props> = ({
   closeModal,
   onSelect,
   loadDiscountPercent,
+  limit
 }) => {
   const [perPage, setPerPage] = useState(20);
   const [categoryId, setCategoryId] = useState<string | undefined>(
@@ -185,6 +187,7 @@ const ProductChooser: React.FC<Props> = ({
       handleExtra={renderDiscount}
       modalSize="xl"
       closeModal={closeModal}
+      limit={limit}
     />
   );
 };

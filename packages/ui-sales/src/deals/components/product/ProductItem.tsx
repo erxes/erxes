@@ -59,6 +59,8 @@ type State = {
 };
 
 class ProductItem extends React.Component<Props, State> {
+  private timer?: NodeJS.Timer;
+
   constructor(props) {
     super(props);
 
@@ -124,6 +126,7 @@ class ProductItem extends React.Component<Props, State> {
           productData.unitPrice = product.unitPrice;
           productData.currency =
             productData.currency || this.props.currencies[0];
+          productData.productId = product._id;
         }
 
         if (type === "unitPricePercent") {
@@ -146,7 +149,11 @@ class ProductItem extends React.Component<Props, State> {
       }
     }
 
-    setTimeout(() => {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+
+    this.timer = setTimeout(() => {
       dealsEditProductData({
         proccessId: localStorage.getItem("proccessId") || "",
         dealId: dealQuery._id || "",
