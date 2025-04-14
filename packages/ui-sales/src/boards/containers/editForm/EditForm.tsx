@@ -109,7 +109,7 @@ class EditFormContainer extends React.Component<FinalProps> {
           },
         }
       ) => {
-        if (!salesProductsDataChanged || !salesProductsDataChanged.data) {
+        if (!salesProductsDataChanged?.data) {
           return;
         }
 
@@ -119,9 +119,9 @@ class EditFormContainer extends React.Component<FinalProps> {
           return;
         }
 
-        if (document.querySelectorAll(".modal").length < 2) {
-          this.props.detailQuery.refetch();
-        }
+        // if (document.querySelectorAll(".modal").length < 2) {
+        this.props.detailQuery.refetch();
+        // }
       },
     });
   }

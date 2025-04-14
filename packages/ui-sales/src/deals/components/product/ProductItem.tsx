@@ -332,12 +332,20 @@ class ProductItem extends React.Component<Props, State> {
       this.props.productData._id
     );
 
-  onChange = (e) =>
+  onChange = (e) => {
+    const target = e.target as HTMLInputElement;
+    let value: any = target.value;
+
+    if (target.type === 'number') {
+      value = Number(value);
+    }
+
     this.onChangeField(
-      (e.target as HTMLInputElement).name,
-      (e.target as HTMLInputElement).value,
+      target.name,
+      value,
       this.props.productData._id
     );
+  }
 
   onClick = () => {
     const { productData, removeProductItem } = this.props;
@@ -478,7 +486,7 @@ class ProductItem extends React.Component<Props, State> {
         <td>{this.renderProductModal(productData)}</td>
         <td>
           <FormControl
-            defaultValue={productData.quantity || 0}
+            value={productData.quantity || 0}
             type="number"
             min={1}
             max={

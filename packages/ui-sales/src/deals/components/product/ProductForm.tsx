@@ -176,8 +176,8 @@ class ProductForm extends React.Component<Props, State> {
         unitPrice: p.isVatApplied
           ? p.unitPrice
           : parseFloat(
-              ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
-            ),
+            ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
+          ),
       };
 
       this.calculatePerProductAmount("", pData, false);
@@ -624,17 +624,12 @@ class ProductForm extends React.Component<Props, State> {
       const { onChangeProductsData, currencies, dealsCreateProductData } =
         this.props;
 
-      dealsCreateProductData({
-        proccessId: localStorage.getItem("proccessId") || "",
-        dealId: dealQuery._id || "",
-        docs: products,
-      });
-
       const { tax, discount } = this.state;
       const currency = currencies ? currencies[0] : "";
 
+      const docs: any[] = [];
       for (const product of products) {
-        productsData.push({
+        const productData = {
           tax: 0,
           taxPercent: tax[currency] ? tax[currency].percent || 0 : 0,
           discount: 0,
@@ -653,8 +648,18 @@ class ProductForm extends React.Component<Props, State> {
           globalUnitPrice: product.unitPrice,
           unitPricePercent: 100,
           _id: Math.random().toString(),
-        });
+        };
+        docs.push(productData)
+        productsData.push(productData);
       }
+
+      dealsCreateProductData({
+        proccessId: localStorage.getItem("proccessId") || "",
+        dealId: dealQuery._id || "",
+        docs,
+      });
+
+
 
       onChangeProductsData(productsData);
 
