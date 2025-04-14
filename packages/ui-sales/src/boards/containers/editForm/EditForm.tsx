@@ -92,9 +92,7 @@ class EditFormContainer extends React.Component<FinalProps> {
           return;
         }
 
-        if (document.querySelectorAll(".modal").length < 2) {
-          this.props.detailQuery.refetch();
-        }
+        this.props.detailQuery.refetch();
       },
     });
 
@@ -119,9 +117,7 @@ class EditFormContainer extends React.Component<FinalProps> {
           return;
         }
 
-        // if (document.querySelectorAll(".modal").length < 2) {
         this.props.detailQuery.refetch();
-        // }
       },
     });
   }

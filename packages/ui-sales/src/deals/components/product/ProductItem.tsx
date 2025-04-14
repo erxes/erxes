@@ -105,8 +105,14 @@ class ProductItem extends React.Component<Props, State> {
   };
 
   onChangeField = (type: string, value, _id: string) => {
-    const { productsData, onChangeProductsData, calculatePerProductAmount } =
-      this.props;
+    const {
+      productsData,
+      onChangeProductsData,
+      calculatePerProductAmount,
+      dealQuery,
+      dealsEditProductData,
+      productData,
+    } = this.props;
 
     if (productsData) {
       const productData = productsData.find((p) => p._id === _id);
@@ -139,17 +145,15 @@ class ProductItem extends React.Component<Props, State> {
         onChangeProductsData(productsData);
       }
     }
-  };
 
-  onBlur = () => {
-    const { productData, dealQuery, dealsEditProductData } = this.props;
-
-    dealsEditProductData({
-      proccessId: localStorage.getItem("proccessId") || "",
-      dealId: dealQuery._id || "",
-      dataId: productData._id,
-      doc: productData,
-    });
+    setTimeout(() => {
+      dealsEditProductData({
+        proccessId: localStorage.getItem("proccessId") || "",
+        dealId: dealQuery._id || "",
+        dataId: productData._id,
+        doc: productData,
+      });
+    }, 1000);
   };
 
   renderType = (product: IProduct) => {
@@ -210,7 +214,6 @@ class ProductItem extends React.Component<Props, State> {
   renderProductModal(productData: IProductData) {
     const productOnChange = (products: IProduct[]) => {
       const product = products && products.length === 1 ? products[0] : null;
-      this.onBlur();
 
       if (product) {
         this.onChangeField("product", product, productData._id);
@@ -336,16 +339,12 @@ class ProductItem extends React.Component<Props, State> {
     const target = e.target as HTMLInputElement;
     let value: any = target.value;
 
-    if (target.type === 'number') {
+    if (target.type === "number") {
       value = Number(value);
     }
 
-    this.onChangeField(
-      target.name,
-      value,
-      this.props.productData._id
-    );
-  }
+    this.onChangeField(target.name, value, this.props.productData._id);
+  };
 
   onClick = () => {
     const { productData, removeProductItem } = this.props;
@@ -497,7 +496,6 @@ class ProductItem extends React.Component<Props, State> {
             placeholder="0"
             name="quantity"
             onChange={this.onChange}
-            onBlur={() => this.onBlur()}
           />
         </td>
         <td>
@@ -507,7 +505,6 @@ class ProductItem extends React.Component<Props, State> {
             placeholder: "0",
             name: "unitPrice",
             onChange: this.onChange,
-            onBlur: () => this.onBlur(),
           })}
         </td>
         <td>
@@ -519,7 +516,6 @@ class ProductItem extends React.Component<Props, State> {
             placeholder: "0",
             name: "discountPercent",
             onChange: this.onChange,
-            onBlur: () => this.onBlur(),
           })}
         </td>
         <td>
@@ -529,7 +525,6 @@ class ProductItem extends React.Component<Props, State> {
             placeholder: "0",
             name: "discount",
             onChange: this.onChange,
-            onBlur: () => this.onBlur(),
           })}
         </td>
         <td style={avStyle}>
@@ -541,7 +536,6 @@ class ProductItem extends React.Component<Props, State> {
             placeholder="0"
             name="taxPercent"
             onChange={this.onChange}
-            onBlur={() => this.onBlur()}
           />
         </td>
         <td style={avStyle}>
@@ -565,7 +559,6 @@ class ProductItem extends React.Component<Props, State> {
               (option) => option.value === productData.currency
             )}
             onChange={this.currencyOnChange}
-            onBlur={() => this.onBlur()}
             components={{ Option }}
             isClearable={true}
             options={currencyOptions}
@@ -579,7 +572,6 @@ class ProductItem extends React.Component<Props, State> {
             placeholder={__("Choose")}
             value={uoms.find((uom) => uom.value === productData.uom)}
             onChange={this.uomOnChange}
-            onBlur={() => this.onBlur()}
             components={{ Option }}
             isClearable={true}
             options={uoms}
@@ -592,7 +584,6 @@ class ProductItem extends React.Component<Props, State> {
             componentclass="checkbox"
             checked={productData.tickUsed}
             onChange={this.onTickUse}
-            onBlur={() => this.onBlur()}
           />
         </td>
         <td>
@@ -601,7 +592,6 @@ class ProductItem extends React.Component<Props, State> {
             disabled={true}
             value={productData.isVatApplied}
             checked={productData.isVatApplied}
-            onBlur={() => this.onBlur()}
           />
         </td>
         <td>
@@ -653,7 +643,6 @@ class ProductItem extends React.Component<Props, State> {
             placeholder="0"
             name="globalUnitPrice"
             onChange={this.onChange}
-            onBlur={() => this.onBlur()}
           />
         </td>
         <td style={avStyle}>
@@ -665,7 +654,6 @@ class ProductItem extends React.Component<Props, State> {
             placeholder="0"
             name="unitPricePercent"
             onChange={this.onChange}
-            onBlur={() => this.onBlur()}
           />
         </td>
         <td>

@@ -123,20 +123,36 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   duplicateProductItem = (_id) => {
-    const { productsData, onChangeProductsData } = this.props;
+    const {
+      productsData,
+      onChangeProductsData,
+      dealsCreateProductData,
+      dealQuery,
+    } = this.props;
 
     const productData: any = productsData.find((p) => p._id === _id);
 
-    productsData.push({
+    const docs: any[] = [];
+
+    const data = {
       ...productData,
       _id: Math.random().toString(),
-    });
+    };
+
+    docs.push(data);
+    productsData.push(data);
 
     onChangeProductsData(productsData);
 
     for (const productData of productsData) {
       this.calculatePerProductAmount("discount", productData);
     }
+
+    dealsCreateProductData({
+      proccessId: localStorage.getItem("proccessId") || "",
+      dealId: dealQuery._id || "",
+      docs,
+    });
   };
 
   removeProductItem = (_id) => {
@@ -176,8 +192,8 @@ class ProductForm extends React.Component<Props, State> {
         unitPrice: p.isVatApplied
           ? p.unitPrice
           : parseFloat(
-            ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
-          ),
+              ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
+            ),
       };
 
       this.calculatePerProductAmount("", pData, false);
@@ -649,7 +665,7 @@ class ProductForm extends React.Component<Props, State> {
           unitPricePercent: 100,
           _id: Math.random().toString(),
         };
-        docs.push(productData)
+        docs.push(productData);
         productsData.push(productData);
       }
 
@@ -658,8 +674,6 @@ class ProductForm extends React.Component<Props, State> {
         dealId: dealQuery._id || "",
         docs,
       });
-
-
 
       onChangeProductsData(productsData);
 
