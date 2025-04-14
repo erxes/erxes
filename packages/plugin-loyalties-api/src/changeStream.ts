@@ -25,45 +25,19 @@ export default async () => {
 
   const subdomain = getSubdomain(hostname);
 
-  let documents: any[] = [];
-  let timer: NodeJS.Timeout | null = null;
-
-  const processMessage = async () => {
-    if (documents.length === 0) return;
-
-    try {
-      await sendCommonMessage({
-        subdomain,
-        serviceName: 'automations',
-        action: 'trigger',
-        data: {
-          type: 'loyalties:promotion',
-          targets: documents,
-        },
-        defaultValue: [],
-      });
-
-      documents = [];
-    } catch (error) {
-      console.error('Error processing documents:', error);
-    }
-
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
-    }
-  };
-
   changeStream.on('change', async (data: any) => {
     try {
       if (data.operationType === 'insert') {
-        documents.push(data.fullDocument);
-
-        if (documents.length >= 10) {
-          await processMessage();
-        } else if (!timer) {
-          timer = setTimeout(processMessage, 5000);
-        }
+        sendCommonMessage({
+          subdomain,
+          serviceName: 'automations',
+          action: 'trigger',
+          data: {
+            type: 'loyalties:reward',
+            targets: [data.fullDocument],
+          },
+          defaultValue: [],
+        });
       }
     } catch (error) {
       console.error('Error handling change event:', error);
@@ -79,7 +53,6 @@ export default async () => {
     process.on(sig, async () => {
       console.log('Closing change stream...');
       await changeStream.close();
-      process.exit(0);
     });
   });
 };
