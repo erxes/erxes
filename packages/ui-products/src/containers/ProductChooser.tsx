@@ -1,3 +1,15 @@
+import { gql, useMutation, useQuery } from "@apollo/client";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import Chooser from "@erxes/ui/src/components/Chooser";
+import { Alert } from "@erxes/ui/src/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import queryString from "query-string";
+import React, { useEffect, useState } from "react";
+import ProductCategoryChooser from "../components/ProductCategoryChooser";
+import {
+  mutations as productMutations,
+  queries as productQueries,
+} from "../graphql";
 import {
   IProduct,
   IProductDoc,
@@ -5,21 +17,7 @@ import {
   ProductCategoriesQueryResponse,
   ProductsQueryResponse,
 } from "../types";
-import React, { useEffect, useState } from "react";
-import {
-  mutations as productMutations,
-  queries as productQueries,
-} from "../graphql";
-import { useMutation, useQuery } from "@apollo/client";
-
-import { Alert } from "@erxes/ui/src/utils";
-import Chooser from "@erxes/ui/src/components/Chooser";
-import ProductCategoryChooser from "../components/ProductCategoryChooser";
 import ProductForm from "./ProductForm";
-import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
-import { gql } from "@apollo/client";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-import queryString from "query-string";
 
 type Props = {
   data: { name: string; products: IProduct[] };
