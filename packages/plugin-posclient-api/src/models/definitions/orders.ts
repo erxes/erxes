@@ -76,6 +76,8 @@ export interface IOrder {
     prevSubscriptionId?: string;
   };
   closeDate?: Date;
+
+  extraInfo?: any;
 }
 
 const commonAttributes = { positive: true, default: 0 };
@@ -308,7 +310,12 @@ export const orderSchema = schemaHooksWrapper(
       optional: true,
       label: 'Subscription Info'
     }),
-    closeDate: field({ type: Date, optional: true, label: 'Close Date' })
+    closeDate: field({ type: Date, optional: true, label: 'Close Date' }),
+    extraInfo: field({
+      type: Schema.Types.Mixed,
+      optional: true,
+      label: 'Extra Info'
+    }),
   }),
   'erxes_orders'
 );

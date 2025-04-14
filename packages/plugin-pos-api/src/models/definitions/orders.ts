@@ -74,6 +74,7 @@ export interface IPosOrder {
     subscriptionId: string;
     status: string;
   };
+  extraInfo?: any
 }
 export interface IPosOrderDocument extends IPosOrder, Document {
   _id: string;
@@ -274,7 +275,8 @@ export const posOrderSchema = schemaHooksWrapper(
       optional: true,
       label: 'Subscription Info'
     }),
-    closeDate: field({ type: Date, optional: true, label: 'Close Date' })
+    closeDate: field({ type: Date, optional: true, label: 'Close Date' }),
+    extraInfo: field({ type: Schema.Types.Mixed, optional: true, label: 'Extra Info' })
   }),
   'erxes_posOrders'
 );
