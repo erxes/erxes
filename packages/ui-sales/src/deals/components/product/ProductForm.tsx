@@ -35,6 +35,10 @@ import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
 import lodash from "lodash";
 import styled from "styled-components";
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import client from '@erxes/ui/src/apolloClient';
+import { gql } from '@apollo/client';
+import { queries } from '../../graphql';
 
 const TableWrapper = styled.div`
   overflow: auto;
@@ -71,6 +75,7 @@ type Props = {
   saveProductsData: () => void;
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
   dealsCreateProductData: (variables: dealsProductDataMutationParams) => void;
+  onChangeExtraData: (extraData: any) => void;
   productsData: IProductData[];
   products: IProduct[];
   paymentsData?: IPaymentsData;
@@ -96,6 +101,7 @@ type State = {
   tempId: string;
   filterValues: any;
   advancedView?: boolean;
+  couponCode?: string;
 };
 
 class ProductForm extends React.Component<Props, State> {
@@ -180,6 +186,62 @@ class ProductForm extends React.Component<Props, State> {
   onChangeVatPercent = (e) => {
     this.setState({ vatPercent: parseInt(e.currentTarget.value) });
   };
+
+  onChangeCouponCode = e => {
+    this.setState({ couponCode: e.currentTarget.value });
+  };
+
+  applyCoupon = () => {
+    const { dealQuery, productsData, onChangeProductsData, onChangeExtraData } = this.props;
+    const { couponCode } = this.state
+
+    const variables = {
+      _id: dealQuery._id,
+      products: productsData.map(p => ({
+        productId: p.productId,
+        quantity: p.quantity,
+        unitPrice: p.unitPrice
+      })),
+      couponCode
+    };
+
+    client
+      .query({
+        query: gql(queries.checkDiscount),
+        fetchPolicy: "network-only",
+        variables,
+      })
+      .then((res) => {
+        const { checkDiscount } = res.data;
+
+        if (!checkDiscount) {
+          return;
+        }
+
+        const updatedData = (productsData || []).map(p => {
+
+          if (!p.productId || !checkDiscount[p.productId]) {
+            return p;
+          }
+
+          const loyalty = checkDiscount[p.productId]
+
+          const pData = {
+            ...p,
+            discountPercent: loyalty.discount || p.discountPercent || 0
+          };
+    
+          this.calculatePerProductAmount('', pData, false);
+    
+          return pData;
+        })
+
+        onChangeProductsData(updatedData)
+        onChangeExtraData({couponCode})
+
+        this.updateTotal(updatedData);
+      }).catch((err) => Alert.error(err.message));
+  }
 
   applyVat = () => {
     const { productsData, onChangeProductsData } = this.props;
@@ -801,6 +863,27 @@ class ProductForm extends React.Component<Props, State> {
                   </ApplyVatWrapper>
                 </td>
               </tr>
+              {
+                isEnabled('loyalties') &&
+                <tr>
+                <td colSpan={6}>
+                  <ApplyVatWrapper>
+                    <FormControl
+                      placeholder='Coupon code'
+                      onChange={this.onChangeCouponCode}
+                    />
+
+                    <Button
+                      btnStyle='primary'
+                      icon='plus-circle'
+                      onClick={this.applyCoupon}
+                    >
+                      Apply coupon
+                    </Button>
+                  </ApplyVatWrapper>
+                </td>
+              </tr>
+              }
             </tbody>
           </table>
         </FooterInfo>

@@ -1,22 +1,22 @@
 import { sendMessage } from '@erxes/api-utils/src/messageBroker';
-import * as lodash from 'lodash';
 import redis from '@erxes/api-utils/src/redis';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import * as lodash from 'lodash';
 import { generateModels, IModels } from './connectionResolver';
+import { debugError } from './debugger';
 import {
   sendAutomationsMessage,
-  sendSalesMessage,
   sendCoreMessage,
   sendEbarimtMessage,
   sendInventoriesMessage,
   sendLoyaltiesMessage,
   sendPosclientHealthCheck,
   sendPosclientMessage,
+  sendSalesMessage,
   sendSyncerkhetMessage
 } from './messageBroker';
 import { IPosOrder, IPosOrderDocument } from './models/definitions/orders';
 import { IPosDocument } from './models/definitions/pos';
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-import { debugError } from './debugger';
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
   return await sendCoreMessage({
@@ -162,7 +162,7 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
     }
   }
 
-  const confirmItems = (order.items || []).filter((i) => i.bonusCount) || [];
+  const confirmItems = (order.items || [])
 
   if (!confirmItems.length) {
     return;
@@ -181,11 +181,19 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
       subdomain,
       action: 'confirmLoyalties',
       data: {
-        checkInfo
-      }
+        checkInfo,
+        extraInfo: {
+          ...(order.extraInfo || {}),
+          ownerType: order.customerType?.trim() || 'customer',
+          ownerId: order.customerId || null,
+          targetType: 'pos',
+          targetId: (order as any)?._id
+        }
+      },
+      isRPC: true
     });
   } catch (e) {
-    console.log(e.message);
+    throw new Error(e.message);
   }
 };
 

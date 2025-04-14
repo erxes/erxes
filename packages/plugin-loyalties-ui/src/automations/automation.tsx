@@ -1,5 +1,5 @@
 import React from 'react';
-import PromotionForm from './components/PromotionForm';
+import RewardForm from './components/RewardForm';
 import ScoreForm from './components/ScoreForm';
 import SpinForm from './components/SpinForm';
 import LoyaltyForm from './containers/LoyaltyForm';
@@ -37,8 +37,8 @@ const Automations = (props) => {
   if (componentType === 'triggerForm') {
     const [_serviceName, contentType] = activeTrigger?.type.split(':');
 
-    if (contentType === 'promotion') {
-      return <PromotionForm {...props} />;
+    if (contentType === 'reward') {
+      return <RewardForm {...props} />;
     }
 
     return null;

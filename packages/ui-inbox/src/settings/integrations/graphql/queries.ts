@@ -43,6 +43,8 @@ const integrationDetail = `
       callData {
         header
         description
+        secondPageHeader
+        secondPageDescription
         departments {
           _id
           name

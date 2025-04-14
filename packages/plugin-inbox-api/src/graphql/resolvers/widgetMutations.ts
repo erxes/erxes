@@ -415,7 +415,7 @@ const widgetMutations = {
         sendAutomationsMessage({
           subdomain,
           action: "trigger",
-          data: company,
+          data: {type:"core:company",targets:[company]},
           isRPC: true,
           defaultValue: null
         });
