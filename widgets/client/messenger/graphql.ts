@@ -257,6 +257,8 @@ const connect = (isCloudFlareEnabled?: boolean) => `
       callData {
         header
         description
+        secondPageHeader
+        secondPageDescription
         departments {
           _id
           name

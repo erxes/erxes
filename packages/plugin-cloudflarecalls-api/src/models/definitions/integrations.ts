@@ -20,6 +20,8 @@ export interface IIntegration {
   isReceiveWebCall: boolean;
   header?: String;
   description?: String;
+  secondPageHeader?: String;
+  secondPageDescription?: String;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {}
@@ -59,4 +61,12 @@ export const integrationSchema = new Schema({
   status: field({ type: String, label: 'status' }),
   header: field({ type: String, label: 'header in messenger' }),
   description: field({ type: String, label: 'description in messenger' }),
+  secondPageHeader: field({
+    type: String,
+    label: 'secondPageHeader in messenger',
+  }),
+  secondPageDescription: field({
+    type: String,
+    label: 'secondPageDescription in messenger',
+  }),
 });
