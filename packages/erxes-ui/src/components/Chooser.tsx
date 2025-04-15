@@ -26,7 +26,6 @@ export type CommonProps = {
   loading?: boolean;
   onLoadMore?: () => void;
   renderExtra?: () => any;
-  add?: any;
   handleExtra?: (data: any) => void;
   extraChecker?: (data: any) => any;
   modalSize?: "sm" | "lg" | "xl";

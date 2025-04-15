@@ -1,19 +1,13 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 import Chooser from "@erxes/ui/src/components/Chooser";
-import { Alert } from "@erxes/ui/src/utils";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 import queryString from "query-string";
 import React, { useEffect, useState } from "react";
 import ProductCategoryChooser from "../components/ProductCategoryChooser";
-import {
-  mutations as productMutations,
-  queries as productQueries,
-} from "../graphql";
+import { queries as productQueries, } from "../graphql";
 import {
   IProduct,
-  IProductDoc,
-  ProductAddMutationResponse,
   ProductCategoriesQueryResponse,
   ProductsQueryResponse,
 } from "../types";
@@ -39,10 +33,15 @@ const ProductChooser: React.FC<Props> = ({
   limit
 }) => {
   const [perPage, setPerPage] = useState(20);
-  const [categoryId, setCategoryId] = useState<string | undefined>(
-    propCategoryId
+  const savedFilters = JSON.parse(
+    localStorage.getItem("erxes_products:chooser_filter") || "{}"
   );
-  const [vendorId, setVendorId] = useState<string | undefined>(propVendorId);
+
+  const [categoryId, setCategoryId] = useState<string | undefined>(
+    propCategoryId || savedFilters?.categoryId
+  );
+  const [vendorId, setVendorId] = useState<string | undefined>(propVendorId || savedFilters?.vendorId);
+  const [searchValue, setSearchValue] = useState<string | undefined>('');
 
   const parsedQuery = queryString.parse(location.search);
 
@@ -50,6 +49,7 @@ const ProductChooser: React.FC<Props> = ({
     useQuery<ProductsQueryResponse>(gql(productQueries.products), {
       variables: {
         perPage,
+        searchValue,
         categoryId,
         vendorId,
         pipelineId: parsedQuery.pipelineId,
@@ -62,35 +62,6 @@ const ProductChooser: React.FC<Props> = ({
     gql(productQueries.productCategories)
   );
 
-  const [addProductMutation] = useMutation<
-    ProductAddMutationResponse,
-    IProduct
-  >(gql(productMutations.productAdd));
-
-  useEffect(() => {
-    const savedFilters = JSON.parse(
-      localStorage.getItem("erxes_products:chooser_filter") || "{}"
-    );
-
-    const variables: any = { perPage };
-
-    if (savedFilters.categoryId) {
-      setCategoryId(savedFilters.categoryId);
-      variables.categoryId = categoryId;
-    }
-
-    if (savedFilters.vendorId) {
-      setVendorId(savedFilters.vendorId);
-      variables.vendorId = vendorId;
-    }
-
-    if (savedFilters.vendorId || savedFilters.categoryId) {
-      refetchProducts({
-        ...variables,
-      });
-    }
-  }, []);
-
   const saveFilter = () => {
     localStorage.setItem(
       "erxes_products:chooser_filter",
@@ -98,35 +69,15 @@ const ProductChooser: React.FC<Props> = ({
     );
   };
 
+  useEffect(() => {
+    setPerPage(20)
+    refetchProducts();
+    saveFilter();
+  }, [categoryId, vendorId, searchValue]);
+
   const handleSearch = (value: string, reload?: boolean) => {
-    if (!reload) setPerPage(0);
-
-    const newPerPage = perPage + 20;
-    setPerPage(newPerPage);
-
-    refetchProducts({ searchValue: value, perPage: newPerPage });
-  };
-
-  const handleChangeCategory = (id: string) => {
-    setCategoryId(id);
-    refetchProducts({ categoryId: id, perPage });
-    saveFilter();
-  };
-
-  const handleChangeVendor = (id: string) => {
-    setVendorId(id);
-    refetchProducts({ vendorId: id, perPage });
-    saveFilter();
-  };
-
-  const addProduct = (doc: IProductDoc, callback: () => void) => {
-    addProductMutation({ variables: doc })
-      .then(() => {
-        refetchProducts();
-        Alert.success("You successfully added a product or service");
-        callback();
-      })
-      .catch((e) => Alert.error(e.message));
+    setSearchValue(value)
+    refetchProducts();
   };
 
   const renderProductCategoryChooser = () => (
@@ -136,13 +87,13 @@ const ProductChooser: React.FC<Props> = ({
         name="ownerId"
         multi={false}
         initialValue={vendorId}
-        onSelect={(company) => handleChangeVendor(company as string)}
+        onSelect={(companyId) => setVendorId(companyId as string)}
         customOption={{ label: "Choose company", value: "" }}
       />
       <ProductCategoryChooser
         currentId={categoryId}
         categories={categoriesData?.productCategories || []}
-        onChangeCategory={handleChangeCategory}
+        onChangeCategory={categoryId => setCategoryId(categoryId)}
         customOption={{ label: "Choose product category...", value: "" }}
       />
     </>
@@ -157,14 +108,18 @@ const ProductChooser: React.FC<Props> = ({
     }
   };
 
+  const loadMore = () => {
+    setPerPage((prev) => prev + 20);
+    refetchProducts();
+  }
+
   const renderName = (product: IProduct) => {
     if (product.code && product.subUoms?.length) {
-      return `${product.code} - ${product.name} ~${
-        Math.round((1 / (product.subUoms[0].ratio || 1)) * 100) / 100
-      } - ${product.unitPrice}`;
+      return `${product.code} - ${product.name} ~${Math.round((1 / (product.subUoms[0].ratio || 1)) * 100) / 100
+        } - ${product.unitPrice}`;
     }
     if (product.code) {
-      return `${product.code} - ${product.name} - ${product.unitPrice || ""}`;
+      return `${product.code} - ${product.name} - ${product.unitPrice.toLocaleString() || ""}`;
     }
     return product.name;
   };
@@ -178,7 +133,6 @@ const ProductChooser: React.FC<Props> = ({
       search={handleSearch}
       clearState={() => handleSearch("", true)}
       onSelect={onSelect}
-      add={addProduct}
       renderName={renderName}
       renderForm={({ closeModal }) => <ProductForm closeModal={closeModal} />}
       renderFilter={renderProductCategoryChooser}
@@ -186,6 +140,7 @@ const ProductChooser: React.FC<Props> = ({
       modalSize="xl"
       closeModal={closeModal}
       limit={limit}
+      onLoadMore={loadMore}
     />
   );
 };
