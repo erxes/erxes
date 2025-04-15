@@ -62,7 +62,7 @@ export default function Post({ PostInfo }: Props) {
   };
   
   const { content = '', permalink_url } = PostInfo;
-  const safeContent = content || ''; // handles null, undefined, or empty
+  const safeContent = content || ''; 
   const truncatedContent =
       safeContent.length > MAX_LENGTH && !isExpanded
         ? `${safeContent.slice(0, MAX_LENGTH)}...`
