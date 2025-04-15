@@ -77,7 +77,6 @@ const ProductChooser: React.FC<Props> = ({
 
   const handleSearch = (value: string, reload?: boolean) => {
     setSearchValue(value)
-    refetchProducts();
   };
 
   const renderProductCategoryChooser = () => (
