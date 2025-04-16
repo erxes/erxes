@@ -1,7 +1,7 @@
-import fetch from "node-fetch";
-import { IModels } from "./connectionResolver";
-import { sendCoreMessage } from "./messageBroker";
-import { ISyncLogDocument } from "./models/definitions/dynamic";
+import fetch from 'node-fetch';
+import { IModels } from './connectionResolver';
+import { sendCoreMessage } from './messageBroker';
+import { ISyncLogDocument } from './models/definitions/dynamic';
 
 const getCustomer = async (
   subdomain: string,
@@ -10,10 +10,10 @@ const getCustomer = async (
 ) => {
   let customer;
 
-  if (customerType === "company") {
+  if (customerType === 'company') {
     customer = await sendCoreMessage({
       subdomain,
-      action: "companies.findOne",
+      action: 'companies.findOne',
       data: { _id: customerId },
       isRPC: true,
       defaultValue: {},
@@ -21,7 +21,7 @@ const getCustomer = async (
   } else {
     customer = await sendCoreMessage({
       subdomain,
-      action: "customers.findOne",
+      action: 'customers.findOne',
       data: { _id: customerId },
       isRPC: true,
       defaultValue: {},
@@ -32,18 +32,18 @@ const getCustomer = async (
 };
 
 const getName = (customer) => {
-  let name = customer.primaryName || "";
+  let name = customer.primaryName || '';
   name =
     name && customer.firstName
-      ? name.concat(" ").concat(customer.firstName || "")
-      : name || customer.firstName || "";
+      ? name.concat(' ').concat(customer.firstName || '')
+      : name || customer.firstName || '';
 
   name =
     name && customer.lastName
-      ? name.concat(" ").concat(customer.lastName || "")
-      : name || customer.lastName || "";
+      ? name.concat(' ').concat(customer.lastName || '')
+      : name || customer.lastName || '';
 
-  return name || "";
+  return name || '';
 };
 
 const getSendDataCustomer = async (subdomain, customer, config) => {
@@ -57,7 +57,7 @@ const getSendDataCustomer = async (subdomain, customer, config) => {
     for (const field of customer.customFieldsData) {
       foundfield = await sendCoreMessage({
         subdomain,
-        action: "fields.findOne",
+        action: 'fields.findOne',
         data: {
           query: {
             _id: field.field,
@@ -66,15 +66,15 @@ const getSendDataCustomer = async (subdomain, customer, config) => {
         isRPC: true,
       });
 
-      if (foundfield.text === "VAT") {
+      if (foundfield.text === 'VAT') {
         sendVAT = field.value;
       }
 
-      if (foundfield.text === "city") {
+      if (foundfield.text === 'city') {
         sendCity = field.value;
       }
 
-      if (foundfield.text === "post code") {
+      if (foundfield.text === 'post code') {
         sendPostCode = field.value;
       }
     }
@@ -84,35 +84,35 @@ const getSendDataCustomer = async (subdomain, customer, config) => {
     getCompanyName = await fetch(
       `https://ebarimt-bridge.erkhet.biz/getCompany?regno=${sendVAT}`,
       {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       }
     ).then((r) => r.json());
   }
 
   const sendData: any = {
-    Name: getName(customer) || "",
-    Name_MN: getCompanyName?.name || "",
-    Phone_No: customer.primaryPhone || "",
-    E_Mail: customer.primaryEmail || "",
-    Mobile_Phone_No: customer.primaryPhone || "",
-    Address: customer.primaryAddress || "",
-    Address_2: "",
-    Country_Region_Code: "MN",
-    City: sendCity || "Ulaanbaatar",
-    Post_Code: sendPostCode || "",
-    VAT_Registration_No: sendVAT || "",
-    Gen_Bus_Posting_Group: config.genBusPostingGroup || "",
-    VAT_Bus_Posting_Group: config.vatBusPostingGroup || "",
-    Customer_Posting_Group: config.customerPostingGroup || "",
-    Customer_Price_Group: config.customerPricingGroup || "",
-    Customer_Disc_Group: config.customerDiscGroup || "",
-    Partner_Type: sendVAT?.length === 7 ? "Company" : "Person",
-    Payment_Terms_Code: config.paymentTermsCode || "CASH",
-    Payment_Method_Code: config.paymentMethodCode || "CASH",
-    Location_Code: config.locationCode || "",
+    Name: getName(customer) || '',
+    Name_MN: getCompanyName?.name || '',
+    Phone_No: customer.primaryPhone || '',
+    E_Mail: customer.primaryEmail || '',
+    Mobile_Phone_No: customer.primaryPhone || '',
+    Address: customer.primaryAddress || '',
+    Address_2: '',
+    Country_Region_Code: 'MN',
+    City: sendCity || 'Ulaanbaatar',
+    Post_Code: sendPostCode || '',
+    VAT_Registration_No: sendVAT || '',
+    Gen_Bus_Posting_Group: config.genBusPostingGroup || '',
+    VAT_Bus_Posting_Group: config.vatBusPostingGroup || '',
+    Customer_Posting_Group: config.customerPostingGroup || '',
+    Customer_Price_Group: config.customerPricingGroup || '',
+    Customer_Disc_Group: config.customerDiscGroup || '',
+    Partner_Type: sendVAT?.length === 7 ? 'Company' : 'Person',
+    Payment_Terms_Code: config.paymentTermsCode || 'CASH',
+    Payment_Method_Code: config.paymentMethodCode || 'CASH',
+    Location_Code: config.locationCode || '',
     Prices_Including_VAT: true,
     Allow_Line_Disc: true,
   };
@@ -126,10 +126,10 @@ const checkSend = async (customer, config, filterStr) => {
     `${customerApi}?$top=1&$filter=${filterStr}`,
     {
       headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
         Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-          "base64"
+          'base64'
         )}`,
       },
     }
@@ -138,20 +138,20 @@ const checkSend = async (customer, config, filterStr) => {
   if (responseChecker.value?.length) {
     const msdValues = responseChecker.value[0];
 
-    const name = getName(customer) || "";
+    const name = getName(customer) || '';
     if (
       msdValues.Phone_No !== customer.primaryPhone ||
       msdValues.E_Mail !== customer.primaryEmail ||
       msdValues.Name !== name
     ) {
       return await fetch(`${customerApi}(No='${msdValues.No}')`, {
-        method: "PATCH",
+        method: 'PATCH',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Basic ${Buffer.from(
             `${username}:${password}`
-          ).toString("base64")}`,
-          "If-Match": "*",
+          ).toString('base64')}`,
+          'If-Match': '*',
         },
         body: JSON.stringify({
           Phone_No: customer.primaryPhone,
@@ -209,17 +209,17 @@ export const getMsdCustomerInfo = async (
   if (!brandIds.includes(brandId)) {
     brandIds.push(brandId);
 
-    if (customerType === "company") {
+    if (customerType === 'company') {
       await sendCoreMessage({
         subdomain,
-        action: "companies.updateCompany",
+        action: 'companies.updateCompany',
         data: { _id: customer._id, doc: { scopeBrandIds: brandIds } },
         isRPC: true,
       });
     } else {
       await sendCoreMessage({
         subdomain,
-        action: "customers.updateCustomer",
+        action: 'customers.updateCustomer',
         data: {
           _id: customer._id,
           doc: {
@@ -266,7 +266,7 @@ export const customerToDynamic = async (
   const brandIds = Object.keys(configs);
 
   for (const brandId of brandIds) {
-    const config = configs[brandId || "noBrand"];
+    const config = configs[brandId || 'noBrand'];
 
     if (!config?.customerApi || !config?.username || !config?.password) {
       continue;
@@ -289,7 +289,7 @@ export const customerToDynamic = async (
 const companyRequest = async (subdomain, config, action, updateCode, doc) => {
   const company = await sendCoreMessage({
     subdomain,
-    action: "companies.findOne",
+    action: 'companies.findOne',
     data: { $or: [{ code: updateCode }, { primaryName: doc.Name }] },
     isRPC: true,
     defaultValue: {},
@@ -300,19 +300,19 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
 
   const brandIds = company?.scopeBrandIds || [];
 
-  if ((action === "update" && doc.No) || action === "create") {
-    if (!brandIds.includes(config.brandId) && config.brandId !== "noBrand") {
+  if ((action === 'update' && doc.No) || action === 'create') {
+    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
       brandIds.push(config.brandId);
     }
 
     if (doc.Post_Code) {
       const foundfield = await sendCoreMessage({
         subdomain,
-        action: "fields.findOne",
+        action: 'fields.findOne',
         data: {
           query: {
-            text: "post code",
-            contentType: "core:company",
+            text: 'post code',
+            contentType: 'core:company',
           },
         },
         isRPC: true,
@@ -329,11 +329,11 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
     if (doc.City) {
       const foundfield = await sendCoreMessage({
         subdomain,
-        action: "fields.findOne",
+        action: 'fields.findOne',
         data: {
           query: {
-            text: "city",
-            contentType: "core:company",
+            text: 'city',
+            contentType: 'core:company',
           },
         },
         isRPC: true,
@@ -350,11 +350,11 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
     if (doc.VAT_Registration_No) {
       const foundfield = await sendCoreMessage({
         subdomain,
-        action: "fields.findOne",
+        action: 'fields.findOne',
         data: {
           query: {
-            text: "VAT",
-            contentType: "core:company",
+            text: 'VAT',
+            contentType: 'core:company',
           },
         },
         isRPC: true,
@@ -371,19 +371,19 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
     if (doc.Post_Code || doc.VAT_Registration_No || doc.City) {
       updateCustomFieldData = await sendCoreMessage({
         subdomain,
-        action: "fields.prepareCustomFieldsData",
+        action: 'fields.prepareCustomFieldsData',
         data: customFieldData,
         isRPC: true,
       });
     }
 
     const document: any = {
-      primaryName: doc?.Name || "default",
+      primaryName: doc?.Name || 'default',
       code: doc.No,
       primaryPhone: doc?.Phone_No || doc?.Mobile_Phone_No,
       phones: [doc?.Phone_No],
-      location: doc?.Country_Region_Code === "MN" ? "Mongolia" : "",
-      businessType: doc?.Partner_Type === "Person" ? "Customer" : "Partner",
+      location: doc?.Country_Region_Code === 'MN' ? 'Mongolia' : '',
+      businessType: doc?.Partner_Type === 'Person' ? 'Customer' : 'Partner',
       customFieldsData: updateCustomFieldData,
       scopeBrandIds: brandIds,
     };
@@ -391,14 +391,14 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
     if (company) {
       await sendCoreMessage({
         subdomain,
-        action: "companies.updateCompany",
+        action: 'companies.updateCompany',
         data: { _id: company._id, doc: { ...document } },
         isRPC: true,
       });
     } else {
       await sendCoreMessage({
         subdomain,
-        action: "companies.createCompany",
+        action: 'companies.createCompany',
         data: { ...document },
         isRPC: true,
       });
@@ -409,7 +409,7 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
 const customerRequest = async (subdomain, config, action, updateCode, doc) => {
   const customer = await sendCoreMessage({
     subdomain,
-    action: "customers.findOne",
+    action: 'customers.findOne',
     data: { code: updateCode },
     isRPC: true,
     defaultValue: {},
@@ -420,19 +420,19 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
 
   const brandIds = customer?.scopeBrandIds || [];
 
-  if ((action === "update" && doc.No) || action === "create") {
-    if (!brandIds.includes(config.brandId) && config.brandId !== "noBrand") {
+  if ((action === 'update' && doc.No) || action === 'create') {
+    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
       brandIds.push(config.brandId);
     }
 
     if (doc.Post_Code) {
       const foundfield = await sendCoreMessage({
         subdomain,
-        action: "fields.findOne",
+        action: 'fields.findOne',
         data: {
           query: {
-            text: "post code",
-            contentType: "core:customer",
+            text: 'post code',
+            contentType: 'core:customer',
           },
         },
         isRPC: true,
@@ -449,11 +449,11 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
     if (doc.City) {
       const foundfield = await sendCoreMessage({
         subdomain,
-        action: "fields.findOne",
+        action: 'fields.findOne',
         data: {
           query: {
-            text: "city",
-            contentType: "core:customer",
+            text: 'city',
+            contentType: 'core:customer',
           },
         },
         isRPC: true,
@@ -470,11 +470,11 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
     if (doc.VAT_Registration_No) {
       const foundfield = await sendCoreMessage({
         subdomain,
-        action: "fields.findOne",
+        action: 'fields.findOne',
         data: {
           query: {
-            text: "VAT",
-            contentType: "core:customer",
+            text: 'VAT',
+            contentType: 'core:customer',
           },
         },
         isRPC: true,
@@ -491,33 +491,33 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
     if (doc.Post_Code || doc.VAT_Registration_No || doc.City) {
       updateCustomFieldData = await sendCoreMessage({
         subdomain,
-        action: "fields.prepareCustomFieldsData",
+        action: 'fields.prepareCustomFieldsData',
         data: customFieldData,
         isRPC: true,
       });
     }
 
     const document: any = {
-      firstName: doc?.Name || "default",
+      firstName: doc?.Name || 'default',
       code: doc.No,
       primaryPhone: doc?.Mobile_Phone_No,
       phones: [doc?.Phone_No],
       customFieldsData: updateCustomFieldData,
       scopeBrandIds: brandIds,
-      state: "customer",
+      state: 'customer',
     };
 
     if (customer) {
       await sendCoreMessage({
         subdomain,
-        action: "customers.updateCustomer",
+        action: 'customers.updateCustomer',
         data: { _id: customer._id, doc: { ...document } },
         isRPC: true,
       });
     } else {
       await sendCoreMessage({
         subdomain,
-        action: "customers.createCustomer",
+        action: 'customers.createCustomer',
         data: { ...document },
         isRPC: true,
       });
@@ -526,13 +526,13 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
 };
 
 export const consumeCustomers = async (subdomain, config, doc, action) => {
-  const updateCode = action === "delete" ? doc.code : doc.No.replace(/\s/g, "");
+  const updateCode = action === 'delete' ? doc.code : doc.No.replace(/\s/g, '');
 
-  if (doc?.Partner_Type === "Company") {
+  if (doc?.Partner_Type === 'Company') {
     companyRequest(subdomain, config, action, updateCode, doc);
   }
 
-  if (doc?.Partner_Type === "Person") {
+  if (doc?.Partner_Type === 'Person') {
     if (doc.VAT_Registration_No.length === 7) {
       companyRequest(subdomain, config, action, updateCode, doc);
     } else {
@@ -540,18 +540,18 @@ export const consumeCustomers = async (subdomain, config, doc, action) => {
     }
   }
 
-  if (doc?.Partner_Type === " " && doc.VAT_Registration_No) {
+  if (doc?.Partner_Type === ' ' && doc.VAT_Registration_No) {
     companyRequest(subdomain, config, action, updateCode, doc);
   }
 
-  if (doc?.Partner_Type === " " && !doc.VAT_Registration_No) {
+  if (doc?.Partner_Type === ' ' && !doc.VAT_Registration_No) {
     customerRequest(subdomain, config, action, updateCode, doc);
   }
 
-  if (action === "delete") {
+  if (action === 'delete') {
     const company = await sendCoreMessage({
       subdomain,
-      action: "companies.findOne",
+      action: 'companies.findOne',
       data: { _id: doc._id },
       isRPC: true,
       defaultValue: {},
@@ -559,25 +559,25 @@ export const consumeCustomers = async (subdomain, config, doc, action) => {
 
     const customer = await sendCoreMessage({
       subdomain,
-      action: "customers.findOne",
+      action: 'customers.findOne',
       data: { _id: doc._id },
       isRPC: true,
       defaultValue: {},
     });
 
-    if (action === "delete" && company) {
+    if (action === 'delete' && company) {
       await sendCoreMessage({
         subdomain,
-        action: "companies.removeCompanies",
+        action: 'companies.removeCompanies',
         data: { _ids: [company._id] },
         isRPC: true,
       });
     }
 
-    if (action === "delete" && customer) {
+    if (action === 'delete' && customer) {
       await sendCoreMessage({
         subdomain,
-        action: "customers.removeCustomers",
+        action: 'customers.removeCustomers',
         data: { customerIds: [customer._id] },
       });
     }

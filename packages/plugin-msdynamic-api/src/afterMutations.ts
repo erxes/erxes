@@ -1,12 +1,12 @@
-import { generateModels } from "./connectionResolver";
-import { customerToDynamic } from "./utilsCustomer";
-import { dealToDynamic, getConfig, orderToDynamic } from "./utils";
+import { generateModels } from './connectionResolver';
+import { customerToDynamic } from './utilsCustomer';
+import { dealToDynamic, getConfig, orderToDynamic } from './utils';
 
 const allowTypes = {
-  "core:customer": ["create"],
-  "core:company": ["create"],
-  "pos:order": ["synced"],
-  "sales:deal": ["update"],
+  'core:customer': ['create'],
+  'core:company': ['create'],
+  'pos:order': ['synced'],
+  'sales:deal': ['update'],
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
@@ -23,7 +23,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
   let configs;
 
   try {
-    configs = await getConfig(subdomain, "DYNAMIC", {});
+    configs = await getConfig(subdomain, 'DYNAMIC', {});
     if (!configs || !Object.keys(configs).length) {
       return;
     }
@@ -34,7 +34,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
   const models = await generateModels(subdomain);
 
   const syncLogDoc = {
-    type: "",
+    type: '',
     contentType: type,
     contentId: params.object?._id,
     createdAt: new Date(),
@@ -46,40 +46,40 @@ export const afterMutationHandlers = async (subdomain, params) => {
   let syncLog;
 
   try {
-    if (type === "core:customer" && action === "create") {
+    if (type === 'core:customer' && action === 'create') {
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
       await customerToDynamic(
         subdomain,
         syncLog,
         params.updatedDocument || params.object,
-        "customer",
+        'customer',
         models,
         configs
       );
       return;
     }
 
-    if (type === "core:company" && action === "create") {
+    if (type === 'core:company' && action === 'create') {
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
       await customerToDynamic(
         subdomain,
         syncLog,
         params.updatedDocument || params.object,
-        "company",
+        'company',
         models,
         configs
       );
       return;
     }
 
-    if (type === "sales:deal") {
+    if (type === 'sales:deal') {
       const updatedDoc = params.updatedDocument || params.object;
       const brandId = updatedDoc?.scopeBrandIds?.[0];
-      const config = configs[brandId || "noBrand"];
+      const config = configs[brandId || 'noBrand'];
 
-      if (action === "update" && config?.useBoard) {
+      if (action === 'update' && config?.useBoard) {
         if (config.stageId === updatedDoc?.stageId) {
           syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
@@ -90,14 +90,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
       }
     }
 
-    if (type === "pos:order") {
+    if (type === 'pos:order') {
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
       const updatedDoc = params.updatedDocument || params.object;
       const brandId = updatedDoc?.scopeBrandIds?.[0];
-      const config = configs[brandId || "noBrand"];
+      const config = configs[brandId || 'noBrand'];
 
-      if (action === "synced" && !config.useBoard) {
+      if (action === 'synced' && !config.useBoard) {
         await orderToDynamic(subdomain, syncLog, updatedDoc, models, config);
         return;
       }
