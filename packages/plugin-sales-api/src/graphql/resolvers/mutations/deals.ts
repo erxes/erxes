@@ -1,11 +1,12 @@
-import * as _ from "underscore";
+import { checkUserIds } from "@erxes/api-utils/src";
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
+import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
 import { IItemDragCommonFields } from "../../../models/definitions/boards";
 import { IDeal, IProductData } from "../../../models/definitions/deals";
-import { checkPermission } from "@erxes/api-utils/src/permissions";
-import { checkUserIds } from "@erxes/api-utils/src";
 import {
+  confirmLoyalties,
   doScoreCampaign,
-  generateTotalAmount,
   itemResolver,
   itemsAdd,
   itemsArchive,
@@ -14,11 +15,6 @@ import {
   itemsEdit,
   itemsRemove,
 } from "./utils";
-import { IContext } from "../../../connectionResolver";
-import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
-import { sendCoreMessage, sendLoyaltiesMessage } from "../../../messageBroker";
-import { getCustomerIds } from "../../../models/utils";
-import { debugError } from "@erxes/api-utils/src/debuggers";
 
 interface IDealsEdit extends IDeal {
   _id: string;
@@ -96,6 +92,9 @@ const dealMutations = {
         doc.assignedUserIds = assignedUserIds;
       }
     }
+
+    await doScoreCampaign(subdomain, models, _id, doc);
+    await confirmLoyalties(subdomain, _id, doc);
 
     return itemsEdit(
       models,

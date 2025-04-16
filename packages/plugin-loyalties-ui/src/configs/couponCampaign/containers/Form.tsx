@@ -1,24 +1,24 @@
 import { ButtonMutate } from '@erxes/ui/src/components';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
-import Form from '../components/ConfigForm';
+import Form from '../components/Form';
 import { mutations } from '../graphql';
+import { ICouponCampaign } from '../types';
 
 type Props = {
-  campaignId: string;
+  queryParams: any;
+  couponCampaign: ICouponCampaign;
   closeModal: () => void;
 };
 
-const ConfigForm = (props: Props) => {
-  const { campaignId, closeModal } = props;
-
+const FormContainer = (props: Props) => {
   const renderButton = ({
     name,
     values,
     isSubmitted,
     object,
   }: IButtonMutateProps) => {
-    values['campaignId'] = campaignId;
+    const { closeModal } = props;
 
     const afterSave = () => {
       closeModal();
@@ -26,13 +26,13 @@ const ConfigForm = (props: Props) => {
 
     return (
       <ButtonMutate
-        mutation={mutations.voucherGenerateCodes}
+        mutation={
+          object ? mutations.couponCampaignEdit : mutations.couponCampaignAdd
+        }
         variables={values}
         callback={afterSave}
         isSubmitted={isSubmitted}
-        refetchQueries={['voucherCampaigns']}
         type="submit"
-        uppercase={false}
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${name}`}
@@ -48,4 +48,4 @@ const ConfigForm = (props: Props) => {
   return <Form {...updatedProps} />;
 };
 
-export default ConfigForm;
+export default FormContainer;

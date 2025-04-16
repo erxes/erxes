@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.9.4](https://github.com/erxes/erxes/compare/2.9.3...2.9.4) (2025-04-15)
+
+### Bug Fixes
+
+* **facebook:** display permalink even when content is empty ([6937ee0](https://github.com/erxes/erxes/commit/6937ee076b85f34ee364ac30a01fcf40ffbc58e6))
+* **inbox:** send a trigger to automations when a company is updated ([31974a7](https://github.com/erxes/erxes/commit/31974a730906e28627f78a32e28eaedfae919501))
+* **inbox:** send a trigger to automations when a company is updated. ([f8f8a30](https://github.com/erxes/erxes/commit/f8f8a306aaf83d4d71035e5bf137a56acf411bab))
+* products data save per row on sales ([#6001](https://github.com/erxes/erxes/issues/6001)) ([953fc3c](https://github.com/erxes/erxes/commit/953fc3c359af60397096824642dbac26a284f6c3))
+
 ## [2.9.3](https://github.com/erxes/erxes/compare/2.9.2...2.9.3) (2025-04-10)
 
 ### Features

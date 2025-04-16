@@ -988,3 +988,32 @@ export const doScoreCampaign = async (
     }
   }
 };
+
+export const confirmLoyalties = async (subdomain: string, _id: string, deal: IDeal) => {
+  const confirmItems = (deal.productsData || []);
+
+  if (!confirmItems.length) {
+    return;
+  }
+
+  const [customerId] = (await getCustomerIds(subdomain, "deal", _id)) || [];
+
+  try {
+    await sendLoyaltiesMessage({
+      subdomain,
+      action: 'confirmLoyalties',
+      data: {
+        checkInfo: {},
+        extraInfo: {
+          ...(deal.extraData || {}),
+          ownerType: 'customer',
+          ownerId: customerId || null,
+          targetType: 'sales',
+          targetId: _id
+        }
+      },
+    });
+  } catch (e) {
+    console.log(e.message);
+  }
+};

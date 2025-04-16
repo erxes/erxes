@@ -4,13 +4,13 @@ import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import automations from './automations';
 import { generateModels } from './connectionResolver';
 import cronjobs from './cronjobs';
-import { buildFile } from './export';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 import logs from './logUtils';
 import { setupMessageConsumers } from './messageBroker';
 import * as permissions from './permissions';
 import changeStream from './changeStream';
+import { buildFile } from './export';
 
 export default {
   name: 'loyalties',
@@ -45,9 +45,7 @@ export default {
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
 
-        const result = await buildFile(models, subdomain, {
-          campaignId: query.campaignId,
-        });
+        const result = await buildFile(models, subdomain, query);
 
         res.attachment(`${result.name}.xlsx`);
 
@@ -55,5 +53,6 @@ export default {
       }),
     );
   },
+  changeStream,
   setupMessageConsumers,
 };
