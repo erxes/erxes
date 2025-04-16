@@ -75,6 +75,8 @@ export const loadIntegrationClass = (models: IModels) => {
               status: doc.status,
               header: doc.header,
               description: doc.description,
+              secondPageHeader: doc.header,
+              secondPageDescription: doc.description,
             },
           },
         );
@@ -88,6 +90,8 @@ export const loadIntegrationClass = (models: IModels) => {
         status: doc.status,
         header: doc.header,
         description: doc.description,
+        secondPageHeader: doc.secondPageHeader,
+        secondPageDescription: doc.secondPageDescription,
       });
     }
   }

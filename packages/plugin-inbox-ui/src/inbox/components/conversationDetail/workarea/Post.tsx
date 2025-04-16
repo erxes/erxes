@@ -60,13 +60,13 @@ export default function Post({ PostInfo }: Props) {
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
-
+  
   const { content = '', permalink_url } = PostInfo;
-
+  const safeContent = content || ''; 
   const truncatedContent =
-    content.length > MAX_LENGTH && !isExpanded
-      ? `${content.slice(0, MAX_LENGTH)}...`
-      : content;
+      safeContent.length > MAX_LENGTH && !isExpanded
+        ? `${safeContent.slice(0, MAX_LENGTH)}...`
+        : safeContent;
 
   return (
     <Container>
