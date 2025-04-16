@@ -19,7 +19,7 @@ module.exports = {
   menus: [
     {
       text: "Loyalties",
-      url: "/vouchers",
+      url: "/score",
       icon: "icon-piggybank",
       location: "mainNavigation",
       permission: "showLoyalties",

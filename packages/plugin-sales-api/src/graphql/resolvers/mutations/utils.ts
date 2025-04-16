@@ -911,13 +911,15 @@ export const doScoreCampaign = async (
       const scoreCampaignTypes = (pipeline?.paymentTypes || []).filter(
         ({ scoreCampaignId }) => !!scoreCampaignId
       );
-
-      target.exludeAmount = Object.entries(doc.paymentsData)
-        .filter(([type]) => !scoreCampaignTypes.includes(type))
+      target.excludeAmount = Object.entries(doc.paymentsData)
+        .filter(
+          ([type]) => !scoreCampaignTypes.map(({ type }) => type).includes(type)
+        )
         .map(([type, obj]) => ({
           type,
           ...obj,
-        }));
+        }))
+        .reduce((sum, payment) => sum + (payment?.amount || 0), 0);
       for (const type of types) {
         const paymentType = scoreCampaignTypes.find(
           (paymentType) => paymentType.type === type
@@ -989,8 +991,12 @@ export const doScoreCampaign = async (
   }
 };
 
-export const confirmLoyalties = async (subdomain: string, _id: string, deal: IDeal) => {
-  const confirmItems = (deal.productsData || []);
+export const confirmLoyalties = async (
+  subdomain: string,
+  _id: string,
+  deal: IDeal
+) => {
+  const confirmItems = deal.productsData || [];
 
   if (!confirmItems.length) {
     return;
@@ -1001,19 +1007,17 @@ export const confirmLoyalties = async (subdomain: string, _id: string, deal: IDe
   try {
     await sendLoyaltiesMessage({
       subdomain,
-      action: 'confirmLoyalties',
+      action: "confirmLoyalties",
       data: {
         checkInfo: {},
         extraInfo: {
           ...(deal.extraData || {}),
-          ownerType: 'customer',
+          ownerType: "customer",
           ownerId: customerId || null,
-          targetType: 'sales',
-          targetId: _id
-        }
+          targetType: "sales",
+          targetId: _id,
+        },
       },
     });
-  } catch (e) {
-    console.log(e.message);
-  }
+  } catch (e) {}
 };
