@@ -92,7 +92,7 @@ export const doWaitingResponseAction = async (
   const clearExecution = (exec: IExecutionDocument, status?: string) => {
     exec.responseActionId = undefined;
     exec.startWaitingDate = undefined;
-    exec.objToCheck = undefined;
+    // exec.objToCheck = undefined;
 
     if (status) {
       exec.status = status;
@@ -151,7 +151,7 @@ export const doWaitingResponseAction = async (
     if (generalKeys.every(key => target[key] === general[key])) {
       waitingExecution.responseActionId = undefined;
       waitingExecution.startWaitingDate = undefined;
-      waitingExecution.objToCheck = undefined;
+      // waitingExecution.objToCheck = undefined;
 
       return await executeActions(
         subdomain,
@@ -204,41 +204,57 @@ export const checkWaitingResponseAction = async (
   models: IModels,
   type: string,
   actionType: string,
-  targets: any[]
+  targets: any[],
+  executionId: string
 ) => {
-  if (actionType) {
-    false;
-  }
+  try {
+    if (actionType) {
+      return false;
+    }
 
-  const waitingResponseExecution = await models.Executions.find({
-    triggerType: type,
-    status: EXECUTION_STATUS.WAITING,
-    objToCheck: { $exists: true, $ne: null },
-    // responseActionId: { $exists: true }
-  }).sort({ createdAt: -1 });
+    let waitingResponseExecutions: IExecutionDocument[] = [];
 
-  for (const waitingExecution of waitingResponseExecution) {
-    const { objToCheck, actions = [] } = waitingExecution;
-    const { general, propertyName } = objToCheck;
+    if (executionId) {
+      waitingResponseExecutions = await models.Executions.find({
+        _id: executionId
+      });
+    } else {
+      waitingResponseExecutions = await models.Executions.find({
+        triggerType: type,
+        status: EXECUTION_STATUS.WAITING,
+        objToCheck: { $exists: true, $ne: null }
+        // responseActionId: { $exists: true }
+      }).sort({ createdAt: -1 });
+    }
 
-    const generalKeys = Object.keys(general);
-    for (const target of targets) {
-      const valueToCheck = accessNestedObject(target, propertyName.split('.'));
+    for (const waitingExecution of waitingResponseExecutions) {
+      const { objToCheck, actions = [] } = waitingExecution;
+      const { general, propertyName } = objToCheck || {};
 
-      if (generalKeys.every(key => target[key] === general[key])) {
-        for (const { actionConfig,actionId } of actions) {
-          if (
-            (actionConfig?.optionalConnects || []).some(
-              ({ optionalConnectId }) => optionalConnectId == valueToCheck
-            )
-          ) {
-            if(waitingExecution.responseActionId !==actionId){
-              waitingExecution.responseActionId = actionId
+      const generalKeys = Object.keys(general);
+      for (const target of targets) {
+        const valueToCheck = accessNestedObject(
+          target,
+          propertyName.split('.')
+        );
+
+        if (generalKeys.every(key => target[key] === general[key])) {
+          for (const { actionConfig, actionId } of actions) {
+            if (
+              (actionConfig?.optionalConnects || []).some(
+                ({ optionalConnectId }) => optionalConnectId == valueToCheck
+              )
+            ) {
+              if (waitingExecution.responseActionId !== actionId) {
+                waitingExecution.responseActionId = actionId;
+              }
+              return waitingExecution;
             }
-            return waitingExecution;
           }
         }
       }
     }
+  } catch (error) {
+    throw new Error(error);
   }
 };
