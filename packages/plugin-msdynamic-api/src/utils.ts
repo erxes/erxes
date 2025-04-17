@@ -221,7 +221,7 @@ export const dealToDynamic = async (
   config: any
 ) => {
   const order = params;
-  const brandId = order.scopeBrandIds[0];
+  const brandId = config.branId;
 
   let msdCustomer: any = {};
 

@@ -76,14 +76,24 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
     if (type === 'sales:deal') {
       const updatedDoc = params.updatedDocument || params.object;
-      const brandId = updatedDoc?.scopeBrandIds?.[0];
-      const config = configs[brandId || 'noBrand'];
 
-      if (action === 'update' && config?.useBoard) {
-        if (config.stageId === updatedDoc?.stageId) {
+      const array = Object.values(configs) as any[];
+
+      const foundConfig = array.find(
+        (config) => config.stageId === updatedDoc?.stageId
+      );
+
+      if (action === 'update' && foundConfig?.useBoard) {
+        if (foundConfig.stageId === updatedDoc?.stageId) {
           syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
-          await dealToDynamic(subdomain, syncLog, updatedDoc, models, config);
+          await dealToDynamic(
+            subdomain,
+            syncLog,
+            updatedDoc,
+            models,
+            foundConfig
+          );
         }
 
         return;
