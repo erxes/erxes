@@ -22,7 +22,7 @@ export const setupMessageConsumers = async () => {
     debugInfo(`Receiving queue data: ${JSON.stringify(data)}`);
 
     const models = await generateModels(subdomain);
-    const { type, actionType, targets } = data;
+    const { type, actionType, targets, executionId } = data;
 
     if (actionType && actionType === "waiting") {
       await playWait(models, subdomain, data);
@@ -32,7 +32,8 @@ export const setupMessageConsumers = async () => {
       models,
       type,
       actionType,
-      targets
+      targets,
+      executionId
     );
 
     if (waitingExecution) {
@@ -47,14 +48,16 @@ export const setupMessageConsumers = async () => {
     debugInfo(`Receiving queue data: ${JSON.stringify(data)}`);
 
     const models = await generateModels(subdomain);
-    const { type, actionType, targets } = data;
-  
+    const { type, actionType, targets, executionId } = data;
+
     const waitingExecution = await checkWaitingResponseAction(
       models,
       type,
       actionType,
-      targets
+      targets,
+      executionId
     );
+    console.log({ waitingExecution });
 
     if (waitingExecution) {
       await doWaitingResponseAction(models, subdomain, data, waitingExecution);
@@ -120,14 +123,17 @@ export const setupMessageConsumers = async () => {
     }
   );
 
-  consumeRPCQueue("automations:executions.find", async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    "automations:executions.find",
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
 
-    return {
-      status: "success",
-      data: await models.Executions.find(data)
-    };
-  });
+      return {
+        status: "success",
+        data: await models.Executions.find(data)
+      };
+    }
+  );
 };
 
 export const sendCommonMessage = async (

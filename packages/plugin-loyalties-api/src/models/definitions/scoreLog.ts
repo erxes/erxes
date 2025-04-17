@@ -12,6 +12,7 @@ export interface IScoreLog {
   campaignId?: string;
   serviceName?: string;
   sourceScoreLogId?: string;
+  targetId?:string
 }
 
 export interface IScoreLogDocument extends IScoreLog, Document {

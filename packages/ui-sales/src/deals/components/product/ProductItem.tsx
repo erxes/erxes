@@ -1,4 +1,3 @@
-import Select, { components } from "react-select";
 import {
   Amount,
   ProductButton,
@@ -6,25 +5,31 @@ import {
   VoucherCard,
   VoucherContainer,
 } from "../../styles";
-import { IDeal, IDiscountValue, IProductData } from "../../types";
+import {
+  IDeal,
+  IDiscountValue,
+  IProductData,
+  dealsProductDataMutationParams,
+} from "../../types";
+import Select, { components } from "react-select";
+import { can, isEnabled } from "@erxes/ui/src/utils/core";
 
-import { gql } from "@apollo/client";
-import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
-import { IProduct } from "@erxes/ui-products/src/types";
-import client from "@erxes/ui/src/apolloClient";
-import { IUser } from '@erxes/ui/src/auth/types';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import CURRENCIES from "@erxes/ui/src/constants/currencies";
 import FormControl from "@erxes/ui/src/components/form/Control";
+import { IProduct } from "@erxes/ui-products/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Tip from "@erxes/ui/src/components/Tip";
-import CURRENCIES from "@erxes/ui/src/constants/currencies";
+import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
+import React from "react";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils";
-import { can, isEnabled } from "@erxes/ui/src/utils/core";
-import React from "react";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
 import { queries } from "../../graphql";
 import { selectConfigOptions } from "../../utils";
 
@@ -41,7 +46,9 @@ type Props = {
   currentProduct?: string;
   dealQuery: IDeal;
   confirmLoyalties: any;
-  currentUser: IUser
+  dealsEditProductData: (variables: dealsProductDataMutationParams) => void;
+  dealsCreateProductData?: (variables: dealsProductDataMutationParams) => void;
+  currentUser: IUser;
 };
 
 type State = {
@@ -52,6 +59,8 @@ type State = {
 };
 
 class ProductItem extends React.Component<Props, State> {
+  private timer?: NodeJS.Timer;
+
   constructor(props) {
     super(props);
 
@@ -98,8 +107,14 @@ class ProductItem extends React.Component<Props, State> {
   };
 
   onChangeField = (type: string, value, _id: string) => {
-    const { productsData, onChangeProductsData, calculatePerProductAmount } =
-      this.props;
+    const {
+      productsData,
+      onChangeProductsData,
+      calculatePerProductAmount,
+      dealQuery,
+      dealsEditProductData,
+      productData,
+    } = this.props;
 
     if (productsData) {
       const productData = productsData.find((p) => p._id === _id);
@@ -111,6 +126,7 @@ class ProductItem extends React.Component<Props, State> {
           productData.unitPrice = product.unitPrice;
           productData.currency =
             productData.currency || this.props.currencies[0];
+          productData.productId = product._id;
         }
 
         if (type === "unitPricePercent") {
@@ -132,6 +148,19 @@ class ProductItem extends React.Component<Props, State> {
         onChangeProductsData(productsData);
       }
     }
+
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+
+    this.timer = setTimeout(() => {
+      dealsEditProductData({
+        proccessId: localStorage.getItem("proccessId") || "",
+        dealId: dealQuery._id || "",
+        dataId: productData._id,
+        doc: productData,
+      });
+    }, 1000);
   };
 
   renderType = (product: IProduct) => {
@@ -224,6 +253,7 @@ class ProductItem extends React.Component<Props, State> {
         }
       }
     };
+
     const VoucherDiscountCard = () => {
       const { isSelectedVoucher, discountValue } = this.state;
 
@@ -272,6 +302,7 @@ class ProductItem extends React.Component<Props, State> {
         )
       );
     };
+
     const content = (props) => (
       <ProductChooser
         {...props}
@@ -311,12 +342,16 @@ class ProductItem extends React.Component<Props, State> {
       this.props.productData._id
     );
 
-  onChange = (e) =>
-    this.onChangeField(
-      (e.target as HTMLInputElement).name,
-      (e.target as HTMLInputElement).value,
-      this.props.productData._id
-    );
+  onChange = (e) => {
+    const target = e.target as HTMLInputElement;
+    let value: any = target.value;
+
+    if (target.type === "number") {
+      value = Number(value);
+    }
+
+    this.onChangeField(target.name, value, this.props.productData._id);
+  };
 
   onClick = () => {
     const { productData, removeProductItem } = this.props;
@@ -387,17 +422,17 @@ class ProductItem extends React.Component<Props, State> {
   };
 
   renderManageableField(control) {
-    const { currentUser } = this.props
+    const { currentUser } = this.props;
 
-    const isManageable = can('dealUpdateProductsData', currentUser)
+    const isManageable = can("dealUpdateProductsData", currentUser);
 
     if (isManageable) {
-      return <FormControl {...control} />
+      return <FormControl {...control} />;
     }
 
     const value = control?.value ?? control?.defaultValue;
 
-    if (typeof value !== 'number' || isNaN(value)) {
+    if (typeof value !== "number" || isNaN(value)) {
       return <>-</>;
     }
 
@@ -457,7 +492,7 @@ class ProductItem extends React.Component<Props, State> {
         <td>{this.renderProductModal(productData)}</td>
         <td>
           <FormControl
-            defaultValue={productData.quantity || 0}
+            value={productData.quantity || 0}
             type="number"
             min={1}
             max={
@@ -476,7 +511,7 @@ class ProductItem extends React.Component<Props, State> {
             type: "number",
             placeholder: "0",
             name: "unitPrice",
-            onChange: this.onChange
+            onChange: this.onChange,
           })}
         </td>
         <td>
@@ -487,7 +522,7 @@ class ProductItem extends React.Component<Props, State> {
             max: 100,
             placeholder: "0",
             name: "discountPercent",
-            onChange: this.onChange
+            onChange: this.onChange,
           })}
         </td>
         <td>
@@ -496,7 +531,7 @@ class ProductItem extends React.Component<Props, State> {
             type: "number",
             placeholder: "0",
             name: "discount",
-            onChange: this.onChange
+            onChange: this.onChange,
           })}
         </td>
         <td style={avStyle}>
@@ -634,7 +669,7 @@ class ProductItem extends React.Component<Props, State> {
               onClick={duplicateProductItem?.bind(this, productData._id)}
               icon="copy-alt"
             />
-            {can('dealRemoveProductsData', currentUser) && (
+            {can("dealRemoveProductsData", currentUser) && (
               <Icon
                 onClick={removeProductItem?.bind(this, productData._id)}
                 icon="times-circle"

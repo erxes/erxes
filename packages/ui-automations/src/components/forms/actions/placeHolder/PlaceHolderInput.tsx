@@ -36,6 +36,7 @@ type Props = {
   componentClass?: string;
   placeholder?: string;
   textLimit?: number;
+  selectConfig?: any;
 };
 
 type State = {
@@ -78,8 +79,15 @@ class PlaceHolderInput extends React.Component<Props, State> {
   };
 
   renderSelect() {
-    const { fieldType, options, inputName, isMulti, optionsAllowedTypes } =
-      this.props;
+    const {
+      fieldType,
+      options,
+      inputName,
+      isMulti,
+      optionsAllowedTypes,
+      selectConfig
+    } = this.props;
+
     if (!['select', ...(optionsAllowedTypes || [])].includes(fieldType || '')) {
       return '';
     }
@@ -92,6 +100,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
         triggerType={this.props.triggerType}
         options={options || []}
         isMulti={isMulti}
+        selectConfig={selectConfig}
       />
     );
   }
