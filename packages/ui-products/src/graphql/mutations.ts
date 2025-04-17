@@ -18,6 +18,7 @@ const productParamsDef = `
   $uom: String,
   $subUoms: JSON,
   $currency: String,
+  $bundleId: String
 `;
 
 const productCategoryParamsDef = `
@@ -54,7 +55,8 @@ const productParams = `
   scopeBrandIds: $scopeBrandIds,
   uom: $uom,
   subUoms: $subUoms,
-  currency: $currency
+  currency: $currency,
+  bundleId: $bundleId,
 `;
 
 const productCategoryParams = `
