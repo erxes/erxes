@@ -9,6 +9,18 @@ const pipelinesChanged = `
   }
 `;
 
+const productsDataChanged = `
+  subscription salesProductsDataChanged($_id: String!) {
+    salesProductsDataChanged(_id: $_id) {
+      _id
+      proccessId
+      action
+      data
+    }
+  }
+`;
+
 export default {
-  pipelinesChanged
+  pipelinesChanged,
+  productsDataChanged
 };

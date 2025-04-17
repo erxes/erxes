@@ -38,6 +38,34 @@ export default class ProductSectionComponent extends React.Component<
       productsData: item.products ? item.products.map((p) => ({ ...p })) : [],
       products: item.products
         ? item.products.map((p) => {
+          const newProduct = { ...p.product };
+          newProduct.quantity = p.quantity;
+          if (p.product.uom !== p.uom) {
+            newProduct.subUoms = Array.from(
+              new Set([
+                ...(p.product.subUoms || []),
+                { uom: p.product.uom, ratio: 1 },
+              ])
+            );
+            newProduct.uom = p.uom;
+          }
+          return newProduct;
+        })
+        : [],
+
+      paymentsData: item.paymentsData,
+    };
+  }
+
+  componentDidUpdate(prevProps) {
+    const { item } = this.props;
+    if (prevProps.item !== item) {
+      this.setState({
+        amount: item.amount || {},
+        unUsedAmount: item.unUsedAmount || {},
+        productsData: item.products ? item.products.map((p) => ({ ...p })) : [],
+        products: item.products
+          ? item.products.map((p) => {
             const newProduct = { ...p.product };
             newProduct.quantity = p.quantity;
             if (p.product.uom !== p.uom) {
@@ -51,10 +79,9 @@ export default class ProductSectionComponent extends React.Component<
             }
             return newProduct;
           })
-        : [],
-
-      paymentsData: item.paymentsData,
-    };
+          : []
+      });
+    }
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {

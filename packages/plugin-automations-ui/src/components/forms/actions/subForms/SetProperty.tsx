@@ -131,14 +131,13 @@ class SetProperty extends React.Component<Props, State> {
     const { type, config, fields } = this.state;
 
     return config.rules.map((rule) => {
-      const chosenField: FieldsCombinedByType = fields.find(
-        (f) => f.name === rule.field
-      ) || {
-        _id: String(Math.random()),
-        type: "Default",
-        name: "name",
-        label: "label"
-      };
+      const chosenField: { selectionConfig?: any } & FieldsCombinedByType =
+        fields.find((f) => f.name === rule.field) || {
+          _id: String(Math.random()),
+          type: "Default",
+          name: "name",
+          label: "label"
+        };
 
       const operatorType: string = chosenField.name.includes("customFieldsData")
         ? capitalizeFirstLetter(chosenField.validation || "String")
@@ -225,7 +224,11 @@ class SetProperty extends React.Component<Props, State> {
             isMulti={this.getIsMulti(chosenField)}
             attrType={operatorType}
             options={chosenField.selectOptions}
+            optionsAllowedTypes={
+              chosenField?.selectionConfig ? [chosenField?.type] : []
+            }
             triggerConfig={triggerConfig}
+            selectConfig={chosenField?.selectionConfig}
             attrWithSegmentConfig={true}
           />
 

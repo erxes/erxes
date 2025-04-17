@@ -1,18 +1,18 @@
-import * as compose from "lodash.flowright";
-
-import { IDeal, IPaymentsData, IProductData } from "../../types";
+import {
+  IDeal,
+  IPaymentsData,
+  IProductData,
+  dealsProductDataMutationParams,
+} from "../../types";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { mutations, queries } from "../../graphql";
 
 import { AppConsumer } from "coreui/appContext";
 import { IProduct } from "@erxes/ui-products/src/types";
 import { ProductCategoriesQueryResponse } from "@erxes/ui-products/src/types";
 import ProductForm from "../../components/product/ProductForm";
 import React from "react";
-import { gql } from "@apollo/client";
-import { graphql } from "@apollo/client/react/hoc";
-import { queries } from "../../graphql";
-// import { queries as queriesSettings } from '../../../settings/boards/graphql';
 import { queries as queriesBoard } from "../../../boards/graphql";
-import { withProps } from "@erxes/ui/src/utils/core";
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
@@ -27,59 +27,68 @@ type Props = {
   dealQuery: IDeal;
 };
 
-type FinalProps = Props & {
-  productCategoriesQuery: ProductCategoriesQueryResponse;
-  salesPipelineDetailQuery: any;
+const ProductFormContainer: React.FC<Props> = ({
+  onChangeProductsData,
+  saveProductsData,
+  onChangePaymentsData,
+  productsData,
+  products,
+  paymentsData,
+  currentProduct,
+  closeModal,
+  dealQuery,
+}) => {
+  const { data: productCategoriesData, loading: loadingCategories } =
+    useQuery<ProductCategoriesQueryResponse>(gql(queries.productCategories));
+
+  const { data: pipelineDetailData } = useQuery(
+    gql(queriesBoard.pipelineDetail),
+    {
+      variables: { _id: dealQuery.pipeline._id },
+    }
+  );
+
+  const [dealsCreateProductDataMutation] = useMutation(
+    gql(mutations.dealsCreateProductsData)
+  );
+
+  const dealsCreateProductData = (
+    variables: dealsProductDataMutationParams
+  ) => {
+    return dealsCreateProductDataMutation({ variables });
+  };
+
+  return (
+    <AppConsumer>
+      {({ currentUser }) => {
+        if (!currentUser) return null;
+
+        const configs = currentUser.configs || {};
+
+        const categories = productCategoriesData?.productCategories || [];
+
+        const extendedProps = {
+          onChangeProductsData,
+          saveProductsData,
+          onChangePaymentsData,
+          dealsCreateProductData,
+          productsData,
+          products,
+          paymentsData,
+          currentProduct,
+          closeModal,
+          dealQuery,
+          categories,
+          loading: loadingCategories,
+          pipelineDetail: pipelineDetailData?.salesPipelineDetail,
+          currencies: configs.dealCurrency || [],
+          currentUser,
+        };
+
+        return <ProductForm {...extendedProps} />;
+      }}
+    </AppConsumer>
+  );
 };
 
-class ProductFormContainer extends React.Component<FinalProps> {
-  render() {
-    return (
-      <AppConsumer>
-        {({ currentUser }) => {
-          if (!currentUser) {
-            return;
-          }
-
-          const configs = currentUser.configs || {};
-
-          const { productCategoriesQuery } = this.props;
-
-          const categories = productCategoriesQuery.productCategories || [];
-
-          const extendedProps = {
-            ...this.props,
-            categories: categories,
-            pipelineDetail:
-              this.props.salesPipelineDetailQuery.salesPipelineDetail,
-            loading: productCategoriesQuery.loading,
-            currencies: configs.dealCurrency || [],
-            currentUser
-          };
-
-          return <ProductForm {...extendedProps} />;
-        }}
-      </AppConsumer>
-    );
-  }
-}
-
-export default withProps<Props>(
-  compose(
-    graphql<{}, ProductCategoriesQueryResponse, {}>(
-      gql(queries.productCategories),
-      {
-        name: "productCategoriesQuery",
-      }
-    ),
-    graphql<{ dealQuery: IDeal }, ProductCategoriesQueryResponse, {}>(
-      gql(queriesBoard.pipelineDetail),
-      {
-        name: "salesPipelineDetailQuery",
-        options: ({ dealQuery }) => ({
-          variables: { _id: dealQuery.pipeline._id },
-        }),
-      }
-    )
-  )(ProductFormContainer)
-);
+export default ProductFormContainer;

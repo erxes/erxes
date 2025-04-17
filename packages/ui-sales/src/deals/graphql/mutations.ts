@@ -5,6 +5,7 @@ import {
   commonMutationParams,
   commonMutationVariables,
 } from '../../boards/graphql/mutations';
+
 import { dealFields } from './queries';
 
 const dealMutationVariables = `
@@ -38,6 +39,18 @@ const dealsEdit = `
       ${commonFields}
     }
   }
+`;
+
+const dealsEditProductData = `
+  mutation dealsEditProductData($proccessId: String, $dealId: String, $dataId: String, $doc: JSON) {
+    dealsEditProductData(proccessId: $proccessId, dealId: $dealId, dataId: $dataId, doc: $doc)
+  }
+`;
+
+const dealsCreateProductsData = `
+mutation DealsCreateProductsData($proccessId: String, $dealId: String, $docs: JSON) {
+  dealsCreateProductsData(proccessId: $proccessId, dealId: $dealId, docs: $docs)
+}
 `;
 
 const dealsRemove = `
@@ -89,6 +102,8 @@ const confirmLoyalties = `
 export default {
   dealsAdd,
   dealsEdit,
+  dealsCreateProductsData,
+  dealsEditProductData,
   dealsRemove,
   dealsChange,
   dealsWatch,

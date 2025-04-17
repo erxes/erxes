@@ -9,6 +9,7 @@ import SpinCampaign from './customResolvers/spinCampaign';
 import Lottery from './customResolvers/lottery';
 import LotteryCampaign from './customResolvers/lotteryCampaign';
 import ScoreLog from './customResolvers/scoreLog';
+import ScoreLogItem from './customResolvers/scoreLogItem';
 import Assignment from './customResolvers/assignments';
 import AssignmentCampaign from './customResolvers/assignmentCampaign';
 import Coupon from './customResolvers/coupon';
@@ -60,6 +61,7 @@ const resolvers: any = async serviceDiscovery => ({
   Lottery,
   LotteryCampaign,
   ScoreLog,
+  ScoreLogItem,
   Coupon,
   Mutation: {
     ...LoyaltyConfigMutations,
