@@ -57,6 +57,7 @@ export const queries = `
   bundleConditionDetail(_id: String!): BundleCondition
   bundleConditionTotalCount: Int
   bundleRules: [BundleRule]
+  bundleRuleDetail( _id: String!): BundleRule
 `;
 
 const mutationParams = `

@@ -246,7 +246,34 @@ query BundleRules {
   }
 }
 `;
-
+const bundleRuleDetail = `
+query bundleRuleDetail($id: String!){
+ bundleRuleDetail(_id: $id) {
+    userId
+    name
+    description
+    createdAt
+    code
+    _id
+    rules {
+      quantity
+      productIds
+      products {
+        _id
+        name
+        unitPrice
+      }
+      priceValue
+      priceType
+      priceAdjustType
+      priceAdjustFactor
+      percent
+      code
+      allowSkip
+    }
+ }
+}
+`;
 export default {
   productFields,
   products,
@@ -257,4 +284,5 @@ export default {
   uomsTotalCount,
   configs,
   bundleRules,
+  bundleRuleDetail
 };

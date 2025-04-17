@@ -1,5 +1,5 @@
-import { checkPermission, requireLogin } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
+import { checkPermission, requireLogin } from "@erxes/api-utils/src";
+import { IContext } from "../../../connectionResolver";
 
 interface IListArgs {
   page?: number;
@@ -13,7 +13,7 @@ const queryBuilder = (params: IListArgs, brandIdSelector: any) => {
   const { searchValue } = params;
 
   if (searchValue) {
-    selector.name = new RegExp(`.*${params.searchValue}.*`, 'i');
+    selector.name = new RegExp(`.*${params.searchValue}.*`, "i");
   }
 
   return selector;
@@ -68,21 +68,36 @@ const bundleQueries = {
       const rules = bundle.rules.map(async rule => ({
         ...rule,
         products: await models.Products.find({
-          _id: { $in: rule.productIds || [] },
-        }),
+          _id: { $in: rule.productIds || [] }
+        })
       }));
       return { ...bundle, rules: rules };
     });
     return bundlesWithProducts;
   },
+  async bundleRuleDetail(
+    _root,
+    { _id }: { _id: string },
+    { brandIdSelector, models }: IContext
+  ) {
+    const bundle = await models.BundleRule.findById(_id).lean();
+
+    const rules = bundle?.rules.map(async rule => ({
+      ...rule,
+      products: await models.Products.find({
+        _id: { $in: rule.productIds || [] }
+      })
+    }));
+    return { ...bundle, rules: rules };
+  }
 };
 
-requireLogin(bundleQueries, 'bundleConditionTotalCount');
-requireLogin(bundleQueries, 'bundleConditions');
-requireLogin(bundleQueries, 'bundleConditionDetail');
-requireLogin(bundleQueries, 'allBundleConditions');
+requireLogin(bundleQueries, "bundleConditionTotalCount");
+requireLogin(bundleQueries, "bundleConditions");
+requireLogin(bundleQueries, "bundleConditionDetail");
+requireLogin(bundleQueries, "allBundleConditions");
 
-checkPermission(bundleQueries, 'bundleConditions', 'showBundles', []);
-checkPermission(bundleQueries, 'bundleRules', 'showBundles', []);
+checkPermission(bundleQueries, "bundleConditions", "showBundles", []);
+checkPermission(bundleQueries, "bundleRules", "showBundles", []);
 
 export default bundleQueries;

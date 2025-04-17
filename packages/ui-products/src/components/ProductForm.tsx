@@ -2,13 +2,13 @@ import { BarcodeItem, TableBarcode } from "../styles";
 import {
   FormColumn,
   FormWrapper,
-  ModalFooter,
+  ModalFooter
 } from "@erxes/ui/src/styles/main";
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
-  IPdfAttachment,
+  IPdfAttachment
 } from "@erxes/ui/src/types";
 import {
   IBundleCondition,
@@ -16,7 +16,7 @@ import {
   IProduct,
   IProductCategory,
   IUom,
-  IVariant,
+  IVariant
 } from "../types";
 import React, { useEffect, useState } from "react";
 import { TYPES } from "../constants";
@@ -92,7 +92,7 @@ const Form = (props: Props) => {
     scopeBrandIds,
     code,
     categoryId,
-    bundleId,
+    bundleId
   } = product;
 
   const paramCategoryId = router.getParam(location, "categoryId");
@@ -120,14 +120,14 @@ const Form = (props: Props) => {
     bundleId: bundleId,
     type: product.type || "",
     currency: product.currency || "",
-    pdfAttachment: product.pdfAttachment || undefined,
+    pdfAttachment: product.pdfAttachment || undefined
   });
 
   useEffect(() => {
     if (!state.categoryId && props.productCategories.length > 0) {
       setState({
         ...state,
-        categoryId: props.productCategories[0]._id,
+        categoryId: props.productCategories[0]._id
       });
     }
   }, [state.categoryId, props.productCategories]);
@@ -195,7 +195,7 @@ const Form = (props: Props) => {
       code,
       categoryId,
       currency,
-      bundleId,
+      bundleId
     } = state;
 
     if (product) {
@@ -241,10 +241,10 @@ const Form = (props: Props) => {
         .filter(su => su.uom)
         .map(su => ({
           ...su,
-          ratio: Math.abs(Number(su.ratio)) || 1,
+          ratio: Math.abs(Number(su.ratio)) || 1
         })),
       currency,
-      bundleId,
+      bundleId
     };
   };
 
@@ -279,7 +279,7 @@ const Form = (props: Props) => {
           ...prevState,
           subUoms: subUoms.map(su =>
             su._id === subUom._id ? { ...subUom, [key]: value } : su
-          ),
+          )
         }));
       };
 
@@ -389,7 +389,7 @@ const Form = (props: Props) => {
     setState(prevState => ({
       ...prevState,
       barcodes: tempBarcodes,
-      barcodeInput: "",
+      barcodeInput: ""
     }));
   };
 
@@ -418,14 +418,14 @@ const Form = (props: Props) => {
   const onChangeAttachment = (files: IAttachment[]) => {
     setState(prevState => ({
       ...prevState,
-      attachment: files.length ? files[0] : undefined,
+      attachment: files.length ? files[0] : undefined
     }));
   };
 
   const onChangeAttachmentMore = (files: IAttachment[]) => {
     setState(prevState => ({
       ...prevState,
-      attachmentMore: files ? files : undefined,
+      attachmentMore: files ? files : undefined
     }));
   };
 
@@ -447,7 +447,7 @@ const Form = (props: Props) => {
   const onClickBarcode = (value: string) => {
     setState(prevState => ({
       ...prevState,
-      barcodes: state.barcodes.filter(b => b !== value),
+      barcodes: state.barcodes.filter(b => b !== value)
     }));
   };
 
@@ -457,7 +457,7 @@ const Form = (props: Props) => {
     setState(prevState => ({
       ...prevState,
       categoryId: value,
-      category: getMaskStr(value),
+      category: getMaskStr(value)
     }));
   };
 
@@ -466,15 +466,16 @@ const Form = (props: Props) => {
 
     setState(prevState => ({
       ...prevState,
-      currency: value,
+      currency: value
     }));
   };
   const onChangeBundle = option => {
-    const value = option.value;
+    console.log("option", option);
+    const value = option?.value;
 
     setState(prevState => ({
       ...prevState,
-      bundleId: value,
+      bundleId: value || ""
     }));
   };
   const onChangeBrand = (brandIds: string[]) => {
@@ -495,9 +496,9 @@ const Form = (props: Props) => {
           ...variants,
           [item]: {
             ...variants[item],
-            image: (attachmentMore || []).find(a => a.url === value),
-          },
-        },
+            image: (attachmentMore || []).find(a => a.url === value)
+          }
+        }
       }));
     };
 
@@ -530,9 +531,9 @@ const Form = (props: Props) => {
                         ...variants,
                         [item]: {
                           ...variants[item],
-                          name: (e.target as any).value,
-                        },
-                      },
+                          name: (e.target as any).value
+                        }
+                      }
                     }))
                   }
                 />
@@ -586,9 +587,9 @@ const Form = (props: Props) => {
         "link",
         "unlink",
         "|",
-        "image",
+        "image"
       ],
-      name: `product_description_${_id || "create"}`,
+      name: `product_description_${_id || "create"}`
     };
 
     return <RichTextEditor {...finalProps} />;
@@ -602,7 +603,7 @@ const Form = (props: Props) => {
       productCategories,
       uoms,
       currencies,
-      bundleRules,
+      bundleRules
     } = props;
     const { values, isSubmitted } = formProps;
     const object = product || ({} as IProduct);
@@ -631,27 +632,27 @@ const Form = (props: Props) => {
       categoryId,
       maskStr,
       currency,
-      bundleId,
+      bundleId
     } = state;
 
     const generateOptions = () => {
       return productCategories.map(item => ({
         label: item.name,
-        value: item._id,
+        value: item._id
       }));
     };
 
     const generateCurrencyOptions = () => {
       return currencies.map(item => ({
         label: item,
-        value: item,
+        value: item
       }));
     };
     const generateBundleRuleOptions = () => {
       return (
         bundleRules?.map(item => ({
           label: item.name,
-          value: item._id,
+          value: item._id
         })) || []
       );
     };
@@ -692,7 +693,7 @@ const Form = (props: Props) => {
                 onChange={(e: any) => {
                   setState(prevState => ({
                     ...prevState,
-                    code: e.target.value.replace(/\*/g, ""),
+                    code: e.target.value.replace(/\*/g, "")
                   }));
                 }}
               />
@@ -730,7 +731,7 @@ const Form = (props: Props) => {
                 onChange={e =>
                   setState(prevState => ({
                     ...prevState,
-                    type: (e.target as HTMLInputElement).value,
+                    type: (e.target as HTMLInputElement).value
                   }))
                 }
               >
@@ -841,7 +842,7 @@ const Form = (props: Props) => {
                 onChange={(attachment?: IPdfAttachment) => {
                   setState(prevState => ({
                     ...prevState,
-                    pdfAttachment: attachment,
+                    pdfAttachment: attachment
                   }));
                 }}
               />
@@ -885,7 +886,7 @@ const Form = (props: Props) => {
                   "link",
                   "unlink",
                   "|",
-                  "image",
+                  "image"
                 ]}
               />
             </FormGroup>
@@ -932,7 +933,7 @@ const Form = (props: Props) => {
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: product,
+            object: product
           })}
         </ModalFooter>
       </>

@@ -28,6 +28,7 @@ import { CollapseContent } from "@erxes/ui/src";
 import Select from "react-select";
 
 const PRICE_TYPE = {
+  "": null,
   thisProductPricePercent: "thisProductPricePercent",
   mainPricePercent: "mainPricePercent",
   price: "price"

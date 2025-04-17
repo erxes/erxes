@@ -228,6 +228,8 @@ const convertToInfo = `
   }
 `;
 
+const bundleRuleDetail = queries.bundleRuleDetail;
+
 const productCategories = queries.productCategories;
 
 export default {
@@ -240,5 +242,6 @@ export default {
   dealsTotalAmounts,
   archivedDeals,
   archivedDealsCount,
-  checkDiscount
+  checkDiscount,
+  bundleRuleDetail
 };

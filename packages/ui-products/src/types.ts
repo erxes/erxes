@@ -36,11 +36,10 @@ export interface IBundleRuleItem {
   products: IProduct[];
   priceValue: number;
   percent: number;
-  priceType: string;
+  priceType: "thisProductPricePercent" | "price" | "mainPricePercent";
   priceAdjustType: string;
   priceAdjustFactor: number;
   allowSkip: boolean;
-  __typename?: string;
 }
 export interface IBundleRule {
   _id: string;
@@ -168,6 +167,9 @@ export type BundleConditionQueryResponse = {
 
 export type BundleRulesQueryResponse = {
   bundleRules: IBundleRule[];
+} & QueryResponse;
+export type BundleRuleQueryResponse = {
+  bundleRuleDetail: IBundleRule;
 } & QueryResponse;
 
 export type IConfigsMap = { [key: string]: any };

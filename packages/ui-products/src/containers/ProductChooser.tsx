@@ -226,7 +226,7 @@ class ProductChooser extends React.Component<FinalProps, State> {
 export default withProps<Props>(
   compose(
     graphql<
-      { categoryId: string; vendorId: string },
+      { categoryId: string; vendorId: string; ids: string[] },
       ProductsQueryResponse,
       { perPage: number; categoryId: string; vendorId: string }
     >(gql(productQueries.products), {
@@ -235,6 +235,7 @@ export default withProps<Props>(
         variables: {
           perPage: 20,
           categoryId: props.categoryId,
+          ids: props.ids,
           vendorId: props.vendorId,
           pipelineId: queryString.parse(location.search).pipelineId,
           boardId: queryString.parse(location.search).boardId
