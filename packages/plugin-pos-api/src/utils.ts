@@ -13,7 +13,7 @@ import {
   sendPosclientHealthCheck,
   sendPosclientMessage,
   sendSalesMessage,
-  sendSyncerkhetMessage,
+  sendSyncerkhetMessage
 } from './messageBroker';
 import { IPosOrder, IPosOrderDocument } from './models/definitions/orders';
 import { IPosDocument } from './models/definitions/pos';
@@ -23,7 +23,7 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
     subdomain,
     action: 'getConfig',
     data: { code, defaultValue },
-    isRPC: true,
+    isRPC: true
   });
 };
 
@@ -33,7 +33,7 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
     action: 'categories.withChilds',
     data: { ids: categoryIds },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   const catIds: string[] = (childs || []).map((ch) => ch._id) || [];
@@ -46,7 +46,7 @@ const getChildTags = async (subdomain: string, tagIds) => {
     action: 'tagWithChilds',
     data: { query: { _id: { $in: tagIds } }, fields: { _id: 1 } },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   const foundTagIds: string[] = (childs || []).map((ch) => ch._id) || [];
@@ -66,7 +66,7 @@ export const getBranchesUtil = async (
 
   const allowsPos = await models.Pos.find({
     isOnline: { $ne: true },
-    branchId: { $in: pos.allowBranchIds },
+    branchId: { $in: pos.allowBranchIds }
   })
     .sort({ onServer: -1, name: 1 })
     .lean();
@@ -85,7 +85,7 @@ export const getBranchesUtil = async (
 
       const response = await sendPosclientHealthCheck({
         subdomain,
-        pos: allowPos,
+        pos: allowPos
       });
 
       if (response && response.healthy === 'ok') {
@@ -111,11 +111,11 @@ export const getBranchesUtil = async (
         code: 1,
         order: 1,
         status: 1,
-        links: 1,
-      },
+        links: 1
+      }
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 };
 
@@ -127,9 +127,9 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
     paymentTypes: {
       $elemMatch: {
         type: { $in: (order?.paidAmounts || []).map(({ type }) => type) },
-        scoreCampaignId: { $exists: true },
-      },
-    },
+        scoreCampaignId: { $exists: true }
+      }
+    }
   });
 
   if (pos) {
@@ -150,9 +150,9 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
               target: order,
               actionMethod: 'subtract',
               serviceName: 'pos',
-              targetId: (order as any)?._id,
+              targetId: (order as any)?._id
             },
-            isRPC: true,
+            isRPC: true
           });
         } catch (error) {
           debugError(error);
@@ -172,7 +172,7 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
   for (const item of confirmItems) {
     checkInfo[item.productId] = {
       voucherId: item.bonusVoucherId,
-      count: item.bonusCount,
+      count: item.bonusCount
     };
   }
 
@@ -187,10 +187,10 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
           ownerType: order.customerType?.trim() || 'customer',
           ownerId: order.customerId || null,
           targetType: 'pos',
-          targetId: (order as any)?._id,
-        },
+          targetId: (order as any)?._id
+        }
       },
-      isRPC: true,
+      isRPC: true
     });
   } catch (e) {
     throw new Error(e.message);
@@ -210,7 +210,7 @@ const otherPlugins = async (subdomain, newOrder, oldOrder?, userId?) => {
       subdomain,
       action: 'users.findOne',
       data: { _id: userId },
-      isRPC: true,
+      isRPC: true
     });
 
     for (const service of afterMutations['pos:order']['synced']) {
@@ -222,8 +222,8 @@ const otherPlugins = async (subdomain, newOrder, oldOrder?, userId?) => {
           object: oldOrder || newOrder,
           updatedDocument: newOrder,
           newData: newOrder,
-          user,
-        },
+          user
+        }
       });
     }
   }
@@ -237,7 +237,7 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
     description,
     phone,
     email,
-    saveInfo,
+    saveInfo
   } = deliveryInfo;
 
   const customerType = doneOrder.customerType || 'customer';
@@ -261,11 +261,11 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
           type: 'Point',
           coordinates: [
             marker.longitude || marker.lng,
-            marker.latitude || marker.lat,
-          ],
+            marker.latitude || marker.lat
+          ]
         },
         address,
-        short: description,
+        short: description
       };
     }
 
@@ -284,10 +284,10 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
         data: {
           selector: { _id: doneOrder.customerId },
           modifier: {
-            $addToSet: pushInfo,
-          },
+            $addToSet: pushInfo
+          }
         },
-        isRPC: true,
+        isRPC: true
       });
     }
   }
@@ -313,8 +313,8 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       quantity: i.count,
       unitPrice: i.unitPrice,
       amount: i.count * i.unitPrice,
-      tickUsed: true,
-    })),
+      tickUsed: true
+    }))
   };
 
   if (deliveryConfig.mapCustomField) {
@@ -340,16 +340,16 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
           type: 'Point',
           coordinates: [
             marker.longitude || marker.lng,
-            marker.latitude || marker.lat,
-          ],
+            marker.latitude || marker.lat
+          ]
         },
         value: {
           lat: marker.latitude || marker.lat,
           lng: marker.longitude || marker.lng,
-          description: 'location',
+          description: 'location'
         },
-        stringValue: `${marker.longitude || marker.lng},${marker.latitude || marker.lat}`,
-      },
+        stringValue: `${marker.longitude || marker.lng},${marker.latitude || marker.lat}`
+      }
     ];
   }
 
@@ -359,10 +359,10 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       action: 'deals.updateOne',
       data: {
         selector: { _id: doneOrder.deliveryInfo.dealId },
-        modifier: dealsData,
+        modifier: dealsData
       },
       isRPC: true,
-      defaultValue: {},
+      defaultValue: {}
     });
 
     await sendSalesMessage({
@@ -373,9 +373,9 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
         action: 'itemUpdate',
         data: {
           item: deal,
-          destinationStageId: deliveryConfig.stageId,
-        },
-      },
+          destinationStageId: deliveryConfig.stageId
+        }
+      }
     });
   } else {
     const deal = await sendSalesMessage({
@@ -383,7 +383,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       action: 'deals.create',
       data: dealsData,
       isRPC: true,
-      defaultValue: {},
+      defaultValue: {}
     });
 
     if (
@@ -398,9 +398,9 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
           mainType: 'deal',
           mainTypeId: deal._id,
           relType: doneOrder.customerType || 'customer',
-          relTypeId: doneOrder.customerId,
+          relTypeId: doneOrder.customerId
         },
-        isRPC: true,
+        isRPC: true
       });
     }
 
@@ -412,9 +412,9 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
         action: 'itemAdd',
         data: {
           item: deal,
-          destinationStageId: deliveryConfig.stageId,
-        },
-      },
+          destinationStageId: deliveryConfig.stageId
+        }
+      }
     });
 
     await models.PosOrders.updateOne(
@@ -423,9 +423,9 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
         $set: {
           deliveryInfo: {
             ...deliveryInfo,
-            dealId: deal._id,
-          },
-        },
+            dealId: deal._id
+          }
+        }
       }
     );
   }
@@ -435,7 +435,7 @@ export const statusToDone = async ({
   subdomain,
   models,
   order,
-  pos,
+  pos
 }: {
   subdomain;
   models;
@@ -444,7 +444,7 @@ export const statusToDone = async ({
 }) => {
   // must have
   const doneOrder = await models.PosOrders.findOne({
-    _id: order._id,
+    _id: order._id
   }).lean();
 
   if (!doneOrder) {
@@ -458,7 +458,7 @@ export const statusToDone = async ({
   if (pos.isOnline && doneOrder.subBranchId) {
     const toPos = await models.Pos.findOne({
       branchId: doneOrder.subBranchId,
-      _id: { $ne: pos._id },
+      _id: { $ne: pos._id }
     })
       .sort({ onServer: -1, name: 1 })
       .lean();
@@ -473,16 +473,16 @@ export const statusToDone = async ({
             ...doneOrder,
             posToken: doneOrder.posToken,
             subToken: toPos.token,
-            status: 'reDoing',
-          },
+            status: 'reDoing'
+          }
         },
-        pos: toPos,
+        pos: toPos
       });
     }
   }
 
   return {
-    status: 'success',
+    status: 'success'
   };
 };
 
@@ -490,7 +490,7 @@ const createDealPerOrder = async ({
   subdomain,
   models,
   pos,
-  newOrder,
+  newOrder
 }: {
   subdomain: string;
   models: IModels;
@@ -510,13 +510,13 @@ const createDealPerOrder = async ({
     if (newOrder.cashAmount) {
       paymentsData.cash = {
         amount: newOrder.cashAmount,
-        currency: 'MNT',
+        currency: 'MNT'
       };
     }
     if (newOrder.mobileAmount) {
       paymentsData.bank = {
         amount: newOrder.cashAmount,
-        currency: 'MNT',
+        currency: 'MNT'
       };
     }
     if (newOrder.paidAmounts?.length) {
@@ -529,7 +529,7 @@ const createDealPerOrder = async ({
           (sum, curr) => curr.amount + sum,
           0
         ),
-        currency: 'MNT',
+        currency: 'MNT'
       };
     }
 
@@ -549,12 +549,12 @@ const createDealPerOrder = async ({
           quantity: i.count,
           unitPrice: i.unitPrice,
           amount: i.count * (i.unitPrice || 0),
-          tickUsed: true,
+          tickUsed: true
         })),
-        paymentsData,
+        paymentsData
       },
       isRPC: true,
-      defaultValue: {},
+      defaultValue: {}
     });
 
     if (newOrder.customerId && cardDeal._id) {
@@ -565,9 +565,9 @@ const createDealPerOrder = async ({
           mainType: 'deal',
           mainTypeId: cardDeal._id,
           relType: newOrder.customerType || 'customer',
-          relTypeId: newOrder.customerId,
+          relTypeId: newOrder.customerId
         },
-        isRPC: true,
+        isRPC: true
       });
     }
 
@@ -579,9 +579,9 @@ const createDealPerOrder = async ({
         action: 'itemAdd',
         data: {
           item: cardDeal,
-          destinationStageId: currentCardsConfig.stageId,
-        },
-      },
+          destinationStageId: currentCardsConfig.stageId
+        }
+      }
     });
 
     await models.PosOrders.updateOne(
@@ -611,11 +611,11 @@ const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
       action: 'returnOrder',
       data: {
         pos,
-        order: newOrder,
+        order: newOrder
       },
       isRPC: true,
       defaultValue: {},
-      timeout: 50000,
+      timeout: 50000
     });
   } else {
     resp = await sendSyncerkhetMessage({
@@ -623,18 +623,18 @@ const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
       action: 'toOrder',
       data: {
         pos,
-        order: newOrder,
+        order: newOrder
       },
       isRPC: true,
       defaultValue: {},
-      timeout: 50000,
+      timeout: 50000
     });
   }
 
   if (resp && (resp.message || resp.error)) {
     const txt = JSON.stringify({
       message: resp.message,
-      error: resp.error,
+      error: resp.error
     });
 
     await models.PosOrders.updateOne(
@@ -648,7 +648,7 @@ const syncInventoriesRem = async ({
   subdomain,
   newOrder,
   oldBranchId,
-  pos,
+  pos
 }) => {
   if (!(pos.checkRemainder && newOrder.departmentId)) {
     return;
@@ -674,9 +674,9 @@ const syncInventoriesRem = async ({
             productsData: (newOrder.items || []).map((item) => ({
               productId: item.productId,
               uom: item.uom,
-              diffSoonOut: item.count * multiplier,
-            })),
-          },
+              diffSoonOut: item.count * multiplier
+            }))
+          }
         });
       }
 
@@ -690,9 +690,9 @@ const syncInventoriesRem = async ({
             productsData: (newOrder.items || []).map((item) => ({
               productId: item.productId,
               uom: item.uom,
-              diffSoonOut: -1 * item.count * multiplier,
-            })),
-          },
+              diffSoonOut: -1 * item.count * multiplier
+            }))
+          }
         });
       }
 
@@ -717,9 +717,9 @@ const syncInventoriesRem = async ({
           productId: item.productId,
           uom: item.uom,
           diffCount: -1 * item.count * multiplier,
-          diffSoonOut: newOrder.isPre ? -1 * item.count * multiplier : 0,
-        })),
-      },
+          diffSoonOut: newOrder.isPre ? -1 * item.count * multiplier : 0
+        }))
+      }
     });
   }
 
@@ -734,9 +734,9 @@ const syncInventoriesRem = async ({
           productId: item.productId,
           uom: item.uom,
           diffCount: item.count * multiplier,
-          diffSoonOut: newOrder.isPre ? item.count * multiplier : 0,
-        })),
-      },
+          diffSoonOut: newOrder.isPre ? item.count * multiplier : 0
+        }))
+      }
     });
   }
 };
@@ -748,7 +748,7 @@ export const syncOrderFromClient = async ({
   items,
   pos,
   posToken,
-  responses,
+  responses
 }: {
   subdomain: string;
   models: IModels;
@@ -768,7 +768,7 @@ export const syncOrderFromClient = async ({
           subdomain,
           action: 'putresponses.createOrUpdate',
           data: { _id: response._id, doc: { ...response, posToken } },
-          isRPC: true,
+          isRPC: true
         });
       }
     }
@@ -783,8 +783,8 @@ export const syncOrderFromClient = async ({
         items,
         scopeBrandIds: pos.scopeBrandIds,
         branchId: order.branchId || pos.branchId,
-        departmentId: order.departmentId || pos.departmentId,
-      },
+        departmentId: order.departmentId || pos.departmentId
+      }
     },
     { upsert: true }
   );
@@ -804,8 +804,8 @@ export const syncOrderFromClient = async ({
           action: 'trigger',
           data: {
             type: 'pos:posOrder',
-            targets: [newOrder],
-          },
+            targets: [newOrder]
+          }
         });
       } catch (e) {
         console.log(subdomain, e.message);
@@ -829,7 +829,7 @@ export const syncOrderFromClient = async ({
         subdomain,
         models,
         pos,
-        newOrder,
+        newOrder
       });
     } catch (e) {
       console.log(subdomain, e.message);
@@ -839,7 +839,7 @@ export const syncOrderFromClient = async ({
   if (pos.isOnline && newOrder.subBranchId) {
     const toPos = await models.Pos.findOne({
       branchId: newOrder.subBranchId,
-      _id: { $ne: pos._id },
+      _id: { $ne: pos._id }
     })
       .sort({ onServer: -1, name: 1 })
       .lean();
@@ -854,10 +854,10 @@ export const syncOrderFromClient = async ({
             ...newOrder,
             convertDealId,
             posToken,
-            subToken: toPos.token,
-          },
+            subToken: toPos.token
+          }
         },
-        pos: toPos,
+        pos: toPos
       });
     }
 
@@ -869,7 +869,7 @@ export const syncOrderFromClient = async ({
     ) {
       const toCancelPos = await models.Pos.findOne({
         branchId: oldOrder.subBranchId,
-        _id: { $ne: pos._id },
+        _id: { $ne: pos._id }
       }).lean();
 
       if (toCancelPos) {
@@ -877,9 +877,9 @@ export const syncOrderFromClient = async ({
           subdomain,
           action: 'erxes-posclient-to-pos-api-remove',
           data: {
-            order: { ...newOrder, posToken, subToken: toCancelPos.token },
+            order: { ...newOrder, posToken, subToken: toCancelPos.token }
           },
-          pos: toCancelPos,
+          pos: toCancelPos
         });
       }
     }
@@ -904,10 +904,10 @@ export const syncOrderFromClient = async ({
       subdomain,
       action: 'putresponses.find',
       data: {
-        query: { _id: { $in: (responses || []).map((resp) => resp._id) } },
+        query: { _id: { $in: (responses || []).map((resp) => resp._id) } }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     })) || []
   ).map((r) => r._id);
 
@@ -920,9 +920,9 @@ export const syncOrderFromClient = async ({
       posToken,
       responseIds: syncedResponseIds,
       orderId: newOrder._id,
-      convertDealId,
+      convertDealId
     },
-    pos,
+    pos
   });
 };
 
@@ -1007,7 +1007,7 @@ export const calcProductsTaxRule = async (
         action: 'productRules.find',
         data: { _id: { $in: config.reverseVatRules } },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       }))) ||
     [];
 
@@ -1018,7 +1018,7 @@ export const calcProductsTaxRule = async (
         action: 'productRules.find',
         data: { _id: { $in: config.reverseCtaxRules } },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       }))) ||
     [];
 
