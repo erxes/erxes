@@ -72,6 +72,7 @@ function BotSelector({ botId, bots, onSelect }) {
 
 function BotSelectorContainer({ botsQueryResponse, ...props }: FinalProps) {
   const { loading, integrations } = botsQueryResponse;
+  console.log(botsQueryResponse, "botsQueryResponse");
   if (loading) {
     return <Spinner objective />;
   }
