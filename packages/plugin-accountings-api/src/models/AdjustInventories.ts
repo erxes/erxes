@@ -1,6 +1,7 @@
 import { Model, connection } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { adjustInventoriesSchema, IAdjustInventory, IAdjustInventoryDocument } from './definitions/adjustInventory';
+import { getFullDate } from '@erxes/api-utils/src';
 
 export interface IAdjustInventoriesModel extends Model<IAdjustInventoryDocument> {
   getAdjustInventory(_id: string): Promise<IAdjustInventoryDocument>;
@@ -20,6 +21,7 @@ export const loadAdjustInventoriesClass = (models: IModels, subdomain: string) =
     }
 
     public static async createAdjustInventory(doc: IAdjustInventory) {
+      doc.date = getFullDate(doc.date)
       return models.AdjustInventories.create({ ...doc, createdAt: new Date() });
     }
 

@@ -4,8 +4,9 @@ import { IAction } from "@erxes/ui-automations/src/types";
 import { setConfig } from "@erxes/ui";
 import { useQuery, gql } from "@apollo/client";
 import Select from "react-select";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { __ } from "coreui/utils";
+import Spinner from '@erxes/ui/src/components/Spinner';
+
 const DOCUMENTS_QUERY = gql`
   query documents(
     $page: Int
@@ -25,6 +26,16 @@ const DOCUMENTS_QUERY = gql`
   }
 `;
 
+const DOCUMENTS_GET_CONTENT_TYPES = gql`
+  query DocumentsGetContentTypes {
+    documentsGetContentTypes {
+      contentType
+      label
+      subTypes
+    }
+  }
+`;
+
 type Props = {
   actionsConst: any[];
   activeAction: IAction;
@@ -34,55 +45,80 @@ type Props = {
   propertyTypesConst: any[];
 };
 
-export default function Workflow({
-  closeModal,
-  activeAction,
-  addAction
-}: Props) {
+export default function MessagePro({ closeModal, activeAction, addAction }: Props) {
   const [config, setConfig] = useState(activeAction?.config || {});
+  const [selectedContentType, setSelectedContentType] = useState(config.documentType || "");
 
-  // Query to fetch documents
-  const { loading, error, data } = useQuery(DOCUMENTS_QUERY, {
+  const { 
+    loading: contentTypesLoading, 
+    error: contentTypesError, 
+    data: contentTypesData 
+  } = useQuery(DOCUMENTS_GET_CONTENT_TYPES);
+
+  const { 
+    loading: documentsLoading, 
+    error: documentsError, 
+    data: documentsData 
+  } = useQuery(DOCUMENTS_QUERY, {
     variables: {
       page: 1,
       perPage: 10,
-      contentType: "sales",
-      subType: "deal"
-    }
+      contentType: selectedContentType,
+    },
+    skip: !selectedContentType 
   });
 
-  // Check if data is loading or error occurs
-  if (loading) return <div>Loading documents...</div>;
-  if (error) return <div>Error: {error.message}</div>;
 
-  // Map the documents to format suitable for react-select
-  const documents = data?.documents || [];
-  const options = documents.map((doc) => ({
+
+    if (contentTypesLoading|| contentTypesError) {
+    return <Spinner />;
+  }
+
+  const contentTypeOptions = contentTypesData?.documentsGetContentTypes?.map(type => ({
+    value: type.contentType,
+    label: type.label
+  })) || [];
+
+  const documentOptions = documentsData?.documents?.map(doc => ({
     value: doc._id,
     label: doc.name
-  }));
+  })) || [];
 
-  const handleSelectChange = (selectedOption: any) => {
-    // Handle the document selection and update config
-    setConfig({ ...config, documentId: selectedOption?.value });
+  const handleContentTypeChange = (selectedOption: any) => {
+    const value = selectedOption?.value || "";
+    setSelectedContentType(value);
+    setConfig(prev => ({ ...prev, documentType: value, documentId: undefined }));
   };
 
-return (
-  <>
-    <ControlLabel>{__("Document")}</ControlLabel>
-    <Common
-      closeModal={closeModal}
-      addAction={addAction}
-      activeAction={activeAction}
-      config={config}>
-      <Select
-        options={options}
-        onChange={handleSelectChange}
-        value={options.find((opt) => opt.value === config.documentId)}
-        placeholder='Choose a document'
-        isClearable={true}
-      />
-    </Common>
-  </>
-);
+  const handleSelectChange = (selectedOption: any) => {
+    setConfig(prev => ({ ...prev, documentId: selectedOption?.value }));
+  };
+
+  return (
+    <>
+      <Common closeModal={closeModal} addAction={addAction} activeAction={activeAction} config={config}>
+        <Select
+          options={contentTypeOptions}
+          onChange={handleContentTypeChange}
+          value={contentTypeOptions.find(opt => opt.value === config.documentType)}
+          placeholder="Choose a document type"
+          isClearable
+        />
+
+        {config.documentType && (
+          <Select
+            options={documentOptions}
+            onChange={handleSelectChange}
+            value={documentOptions.find(opt => opt.value === config.documentId)}
+            placeholder="Choose a document"
+            isClearable
+            isLoading={documentsLoading}
+            isDisabled={documentsLoading || !!documentsError}
+          />
+        )}
+
+        {documentsError && <div className="error-message">Error loading documents: {documentsError.message}</div>}
+      </Common>
+    </>
+  );
 }

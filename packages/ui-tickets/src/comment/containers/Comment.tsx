@@ -10,13 +10,15 @@ import { queries, mutations } from "../graphql/";
 import {
   ClientPortalCommentQueryResponse,
   IClientPortalComment,
-  CommentRemoveMutationResponse
+  CommentRemoveMutationResponse,
+  IWidgetsComment
 } from "../types";
 import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
 
 type Props = {
   item: IItem;
   currentUser?: IUser;
+  onChange: (field: string, value: any) => void;
 };
 
 type FinalProps = {
@@ -26,7 +28,7 @@ type FinalProps = {
 
 class CommentContainer extends React.Component<FinalProps> {
   render() {
-    const { clientPortalCommentsQuery, removeMutation } = this.props;
+    const { clientPortalCommentsQuery, removeMutation,item } = this.props;
 
     const clientPortalComments =
       clientPortalCommentsQuery.clientPortalComments ||
@@ -44,12 +46,13 @@ class CommentContainer extends React.Component<FinalProps> {
           });
       });
     };
-
     return (
       <Comment
         currentUser={this.props.currentUser || ({} as IUser)}
+        widgetsComments={item.comments} 
         clientPortalComments={clientPortalComments}
         remove={remove}
+        
       />
     );
   }

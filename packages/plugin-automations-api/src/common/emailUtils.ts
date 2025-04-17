@@ -36,27 +36,36 @@ export const getEmailRecipientTypes = async () => {
   return reciepentTypes;
 };
 
-const generateEmails = (entry, key?) => {
+const generateEmails = (entry: string | any[], key?: string): string[] => {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
   if (Array.isArray(entry)) {
     if (key) {
-      entry = entry.map((item) => item[key]);
+      entry = entry.map((item) => item?.[key]);
     }
 
-    return entry.filter((value) =>
-      value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
-    );
+    return entry
+      .filter((value) => typeof value === 'string')
+      .map((value) => value.trim())
+      .filter((value) => emailRegex.test(value));
   }
 
   if (typeof entry === "string") {
     return entry
-      .split(", ")
-      .filter((value) =>
-        value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
+      .split(/[\s,;]+/) // split by space, comma, or semicolon
+      .map((value) => value.trim())
+      .filter(
+        (value) =>
+          value &&
+          value.toLowerCase() !== "null" &&
+          value.toLowerCase() !== "undefined" &&
+          emailRegex.test(value)
       );
   }
 
   return [];
 };
+
 
 const getTeamMemberEmails = async ({ subdomain, params }) => {
   const users = await sendCoreMessage({
@@ -134,8 +143,11 @@ const getAttributionEmails = async ({
     isRPC: true,
     defaultValue: {},
   });
+  console.log({replacedContent})
 
   const generatedEmails = generateEmails(replacedContent[key]);
+
+  console.log({generatedEmails})
 
   return [...emails, ...generatedEmails];
 };

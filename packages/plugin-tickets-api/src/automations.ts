@@ -287,6 +287,53 @@ const getItems = async (
 };
 
 export default {
+  checkCustomTrigger: async ({ subdomain, data }) => {
+    const { collectionType, target, config } = data;
+    const models = await generateModels(subdomain);
+
+    if (collectionType === "ticket.probability") {
+      const { boardId, pipelineId, stageId, probability } = config || {};
+
+      if (!probability) {
+        return false;
+      }
+
+      const filter = { _id: target?.stageId, probability };
+      if (stageId && stageId !== target.stageId) {
+        return false;
+      }
+
+      if (!stageId && pipelineId) {
+        const stageIds = await models.Stages.find({
+          pipelineId,
+          probability
+        }).distinct("_id");
+
+        if (!stageIds.find(stageId => target.stageId === stageId)) {
+          return false;
+        }
+      }
+
+      if (!stageId && !pipelineId && boardId) {
+        const pipelineIds = await models.Pipelines.find({ boardId }).distinct(
+          "_id"
+        );
+
+        const stageIds = await models.Stages.find({
+          pipelineId: { $in: pipelineIds },
+          probability
+        }).distinct("_id");
+
+        if (!stageIds.find(stageId => target.stageId === stageId)) {
+          return false;
+        }
+      }
+
+      return !!(await models.Stages.findOne(filter));
+    }
+
+    return false;
+  },
   receiveActions: async ({
     subdomain,
     data: { action, execution, collectionType, triggerType, actionType }
@@ -349,6 +396,15 @@ export default {
         label: "Ticket",
         description:
           "Start with a blank workflow that enrolls and is triggered off ticket"
+      },
+      {
+        type: "tickets:ticket.probability",
+        img: "automation3.svg",
+        icon: "file-plus-alt",
+        label: "Ticket stage probability based",
+        description:
+          "Start with a blank workflow that triggered off ticket item stage probability",
+        isCustom: true
       }
     ],
     actions: [
