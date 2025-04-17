@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.11.0-rc.0](https://github.com/erxes/erxes/compare/2.10.0...2.11.0-rc.0) (2025-04-17)
+
+### Features
+
+* **clientportal:** add card type UI for SMS ([d403e70](https://github.com/erxes/erxes/commit/d403e707ab6816530c96e5b5865fd511f50d20d6))
+
+### Bug Fixes
+
+* **automations:** handle if string has null undefined in generateEmails ([3d0b402](https://github.com/erxes/erxes/commit/3d0b402a34fc60e04e31b9d8113cc7dc3e7ca3ca))
+* scorelogs with index ([cb5919f](https://github.com/erxes/erxes/commit/cb5919fd1275a223714ed05981ed7c2e85131eec))
+* tr fullDate ([6d751f3](https://github.com/erxes/erxes/commit/6d751f3da4e5e166546a6684dcc99ac3a98702b5))
+
 ## [2.10.0](https://github.com/erxes/erxes/compare/2.9.5...2.10.0) (2025-04-17)
 
 ### Bug Fixes
