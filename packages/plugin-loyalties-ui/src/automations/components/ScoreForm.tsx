@@ -156,7 +156,7 @@ export default class ScoreForm extends React.Component<Props, State> {
           customAttributions={additionalAttributes}
         />
         <FormGroup>
-          <ControlLabel>{__("Score campaing")}</ControlLabel>
+          <ControlLabel>{__("Score campaign")}</ControlLabel>
           <SelectWithSearch
             label={"Score Campaigns"}
             queryName="scoreCampaigns"

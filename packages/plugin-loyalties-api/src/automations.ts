@@ -5,6 +5,7 @@ import {
   sendCommonMessage,
   sendCoreMessage,
 } from "./messageBroker";
+import { getService } from "@erxes/api-utils/src/serviceDiscovery";
 
 export default {
   constants: {
@@ -712,6 +713,30 @@ const addSpin = async ({
   });
 };
 
+const getLoyatyCampaignConfig = async (serviceName: string) => {
+  const service = await getService(serviceName);
+
+  const meta = service.config?.meta || {};
+
+  if (meta && meta?.loyalties && meta?.loyalties?.aviableAttributes) {
+    const {
+      name,
+      label,
+      isAviableAdditionalConfig,
+      icon,
+      extendTargetAutomation,
+    } = meta?.loyalties || {};
+    return {
+      name,
+      label,
+      isAviableAdditionalConfig,
+      icon,
+      extendTargetAutomation,
+    };
+  }
+  return {};
+};
+
 const docScoreCampaign = async ({
   models,
   subdomain,
@@ -733,14 +758,33 @@ const docScoreCampaign = async ({
     config,
   });
 
+  let target = execution.target;
+
+  const [serviceName] = (execution?.triggerType || "").split(":");
+
+  const { extendTargetAutomation } =
+    (await getLoyatyCampaignConfig(serviceName)) || {};
+
+
+  if (extendTargetAutomation) {
+    target = await sendCommonMessage({
+      subdomain,
+      serviceName,
+      action: "targetExtender",
+      data: { target },
+      isRPC: true,
+      defaultValue: target,
+    });
+  }
+
   return await models.ScoreCampaigns.doCampaign({
-    serviceName: execution.triggerType,
+    serviceName,
     targetId: execution.targetId,
     campaignId: config.campaignId,
     actionMethod: config.action,
     ownerId,
     ownerType,
-    target: execution.target,
+    target,
   });
 };
 

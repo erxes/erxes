@@ -1,15 +1,16 @@
 import {
   ControlLabel,
   FormControl,
-  FormGroup,
+  FormGroup
 } from "@erxes/ui/src/components/form";
 
 import { Attributes } from "../styles";
 import { IOption } from "@erxes/ui/src/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import Popover from "@erxes/ui/src/components/Popover";
-import React from "react";
+import React, { useRef, useState } from "react";
 import { __ } from "@erxes/ui/src/utils/core";
+import { gql, useQuery } from "@apollo/client";
 
 type Props = {
   config: any;
@@ -18,98 +19,128 @@ type Props = {
   inputName?: string;
   options: IOption[];
   isMulti?: boolean;
+  selectConfig?: any;
 };
 
 type State = {
   searchValue: string;
 };
 
-export default class SelectOption extends React.Component<Props, State> {
-  private overlay: any;
+const generateOptions = (searchValue, selectionConfig, options) => {
+  if (selectionConfig) {
+    const {
+      queryName,
+      selectionName,
+      labelField,
+      valueField = "_id",
+      multi
+    } = selectionConfig;
 
-  constructor(props) {
-    super(props);
+    const query = `
+        query ${queryName}($searchValue: String) {
+          ${queryName}(searchValue: $searchValue) {
+            ${labelField},${valueField}
+          }
+        }
+      `;
+    const { data, loading } = useQuery(gql(query), {
+      variables: { searchValue }
+    });
 
-    this.state = {
-      searchValue: "",
-    };
-  }
-
-  onChange = (item, close) => {
-    const { config, setConfig, inputName = "value" } = this.props;
-
-    if (this.props.isMulti) {
-      const value: string = config[inputName] || "";
-      const re = /(\[\[ \w* \]\])/gi;
-      const ids = value.match(re) || [];
-
-      if (!ids.includes(`[[ ${item.value} ]]`)) {
-        const comma = config[inputName] ? ", " : "";
-
-        config[inputName] = `${config[inputName] || ""}${comma}[[ ${
-          item.value
-        } ]]`;
-      }
-    } else {
-      config[inputName] = `[[ ${item.value} ]]`;
+    if (loading) {
+      return [];
     }
 
-    setConfig(config);
+    const options = data[queryName].map((option) => ({
+      label: option[labelField],
+      value: option[valueField]
+    }));
+
+    return options;
+  }
+
+  return searchValue
+    ? options.filter((option) =>
+        new RegExp(searchValue, "i").test(option.label)
+      )
+    : options;
+};
+
+const SelectOption: React.FC<Props> = ({
+  config,
+  setConfig,
+  inputName = "value",
+  isMulti,
+  options: initialOptions,
+  selectConfig
+}) => {
+  const overlay = useRef(null);
+  const [searchValue, setSearchValue] = useState("");
+
+  const onChange = (item, close) => {
+    const updatedConfig = { ...config };
+
+    if (isMulti) {
+      const value: string = updatedConfig[inputName] || "";
+      const re = /(\[\[ \w* \]\])/gi;
+      const ids: string[] = value.match(re) || [];
+
+      if (!ids.includes(`[[ ${item.value} ]]`)) {
+        const comma = value ? ", " : "";
+        updatedConfig[inputName] = `${value}${comma}[[ ${item.value} ]]`;
+      }
+    } else {
+      updatedConfig[inputName] = `[[ ${item.value} ]]`;
+    }
+
+    setConfig(updatedConfig);
     close();
   };
 
-  render() {
-    let { options } = this.props;
-    const { searchValue } = this.state;
+  const onSearch = (e: React.FormEvent<HTMLElement>) => {
+    const { value } = e.currentTarget as HTMLInputElement;
 
-    const onSearch = (e) => {
-      const { value } = e.currentTarget as HTMLInputElement;
+    setSearchValue(value);
+  };
 
-      this.setState({ searchValue: value });
-    };
+  const filteredOptions = generateOptions(
+    searchValue,
+    selectConfig,
+    initialOptions
+  );
 
-    if (searchValue) {
-      options = options.filter((option) =>
-        new RegExp(searchValue, "i").test(option.label)
-      );
-    }
+  const lists = (close) => (
+    <Attributes>
+      <>
+        <FormGroup>
+          <ControlLabel>{__("Search")}</ControlLabel>
+          <FormControl placeholder="Type to search" onChange={onSearch} />
+        </FormGroup>
+        <li>
+          <b>Default Options</b>
+        </li>
+        {filteredOptions.map((item) => (
+          <li key={item.label} onClick={() => onChange(item, close)}>
+            {item.label}
+          </li>
+        ))}
+      </>
+    </Attributes>
+  );
 
-    const lists = (close) => {
-      return (
-        <Attributes>
-          <React.Fragment>
-            <FormGroup>
-              <ControlLabel>{__("Search")}</ControlLabel>
-              <FormControl placeholder="Type to search" onChange={onSearch} />
-            </FormGroup>
-            <li>
-              <b>Default Options</b>
-            </li>
-            {options.map((item) => (
-              <li
-                key={item.label}
-                onClick={this.onChange.bind(this, item, close)}
-              >
-                {item.label}
-              </li>
-            ))}
-          </React.Fragment>
-        </Attributes>
-      );
-    };
-    return (
-      <Popover
-        innerRef={this.overlay}
-        trigger={
-          <span>
-            {__("Options")} <Icon icon="angle-down" />
-          </span>
-        }
-        placement="top"
-        closeAfterSelect={true}
-      >
-        {lists}
-      </Popover>
-    );
-  }
-}
+  return (
+    <Popover
+      innerRef={overlay}
+      trigger={
+        <span>
+          {__("Options")} <Icon icon="angle-down" />
+        </span>
+      }
+      placement="top"
+      closeAfterSelect={true}
+    >
+      {lists}
+    </Popover>
+  );
+};
+export default SelectOption;

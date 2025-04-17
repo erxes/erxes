@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.9.5](https://github.com/erxes/erxes/compare/2.9.4...2.9.5) (2025-04-16)
+
+### Bug Fixes
+
+* **facebook:** safe content ([989dbc7](https://github.com/erxes/erxes/commit/989dbc7a41121781323aabd9b8a197a31b74d8ba))
+* product chooser search by text ([3dd135b](https://github.com/erxes/erxes/commit/3dd135b8ad2e3044c9b1239d47d51bfb582589b7))
+* products query doubled ([52e0b6d](https://github.com/erxes/erxes/commit/52e0b6dbef2955cf1af327da2053c0018518fc11))
+
 ## [2.9.4](https://github.com/erxes/erxes/compare/2.9.3...2.9.4) (2025-04-15)
 
 ### Bug Fixes
