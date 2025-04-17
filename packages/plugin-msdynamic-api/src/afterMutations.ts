@@ -83,18 +83,16 @@ export const afterMutationHandlers = async (subdomain, params) => {
         (config) => config.stageId === updatedDoc?.stageId
       );
 
-      if (action === 'update' && foundConfig?.useBoard) {
-        if (foundConfig.stageId === updatedDoc?.stageId) {
-          syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+      if (action === 'update' && foundConfig) {
+        syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
-          await dealToDynamic(
-            subdomain,
-            syncLog,
-            updatedDoc,
-            models,
-            foundConfig
-          );
-        }
+        await dealToDynamic(
+          subdomain,
+          syncLog,
+          updatedDoc,
+          models,
+          foundConfig
+        );
 
         return;
       }
