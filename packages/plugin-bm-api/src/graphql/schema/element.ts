@@ -20,6 +20,7 @@ export const types = () => `
     _id: String!
     name: String
     quick: Boolean
+    visibleName: Boolean
     icon: String
     content: String
     note: String
@@ -68,7 +69,8 @@ const params = `
   location: BMSLocationInput,
   quick: Boolean,
   branchId: String,
-  icon: String
+  icon: String,
+  visibleName: Boolean
 `;
 
 export const mutations = `
