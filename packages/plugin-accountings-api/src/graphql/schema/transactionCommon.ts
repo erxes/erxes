@@ -42,6 +42,8 @@ const transactionFields = `
   ctaxRowId: String
   isHandleCtax: Boolean
   ctaxAmount: Float
+
+  data: JSON
 `;
 
 export const types = () => `

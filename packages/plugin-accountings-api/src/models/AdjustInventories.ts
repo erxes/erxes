@@ -1,6 +1,6 @@
 import { Model, connection } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { adjustInventoriesSchema, IAdjustInventory, IAdjustInventoryDocument } from './definitions/adjustInventory';
+import { adjustInventoriesSchema, IAdjustInventory, IAdjustInventoryDocument, adjustInvDetailsSchema, IAdjustInvDetail, IAdjustInvDetailDocument, ADJ_INV_STATUSES } from './definitions/adjustInventory';
 import { getFullDate } from '@erxes/api-utils/src';
 
 export interface IAdjustInventoriesModel extends Model<IAdjustInventoryDocument> {
@@ -40,3 +40,29 @@ export const loadAdjustInventoriesClass = (models: IModels, subdomain: string) =
 
   return adjustInventoriesSchema;
 };
+
+export interface IAdjustInvDetailsModel extends Model<IAdjustInvDetailDocument> {
+  getAdjustInvDetail(args: {
+    productId: string, accountId: string, departmentId: string, branchId: string, adjustId?: string
+  }): Promise<IAdjustInvDetailDocument>;
+}
+
+export const loadAdjustInvDetailsClass = (models: IModels, subdomain: string) => {
+  class AdjustInvDetails {
+    public static async getAdjustInvDetail({ productId, accountId, departmentId, branchId, adjustId }: { productId: string, accountId: string, departmentId: string, branchId: string, adjustId?: string }) {
+      if (!adjustId) {
+        const lastAdjust = await models.AdjustInventories.findOne({ status: ADJ_INV_STATUSES.PUBLISH }).sort({ date: -1 }).lean();
+        if (!lastAdjust) {
+          return {};
+        }
+        adjustId = lastAdjust._id;
+      }
+
+      return await models.AdjustInvDetails.findOne({ adjustId, productId, accountId, departmentId, branchId }).lean() || {};
+    }
+  }
+
+  adjustInvDetailsSchema.loadClass(AdjustInvDetails);
+  return adjustInvDetailsSchema;
+
+}
