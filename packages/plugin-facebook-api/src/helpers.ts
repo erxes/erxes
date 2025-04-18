@@ -80,13 +80,20 @@ export const removeIntegration = async (
   // Remove from core =========
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+  
+  let domain = `${DOMAIN}/gateway/pl:facebook`;
+
+  if (process.env.NODE_ENV !== 'production') {
+    domain = `${DOMAIN}/pl:facebook`;
+  }
+
   if (ENDPOINT_URL) {
     // send domain to core endpoints
     try {
       await fetch(`${ENDPOINT_URL}/remove-endpoint`, {
         method: 'POST',
         body: JSON.stringify({
-          domain: DOMAIN,
+          domain,
           ...integrationRemoveBy
         }),
         headers: {
@@ -173,13 +180,19 @@ export const repairIntegrations = async (
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
+  let domain = `${DOMAIN}/gateway/pl:facebook`;
+
+  if (process.env.NODE_ENV !== 'production') {
+    domain = `${DOMAIN}/pl:facebook`;
+  }
+
   if (ENDPOINT_URL) {
     // send domain to core endpoints
     try {
       await fetch(`${ENDPOINT_URL}/update-endpoint`, {
         method: 'POST',
         body: JSON.stringify({
-          domain: `${DOMAIN}/gateway/pl:facebook`,
+          domain,
           facebookPageIds: integration.facebookPageIds,
           fbPageIds: integration.facebookPageIds
         }),

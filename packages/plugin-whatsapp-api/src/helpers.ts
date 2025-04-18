@@ -37,7 +37,7 @@ export const removeIntegration = async (
       throw new Error('whatsappNumber ID not found');
     }
 
-    integrationRemoveBy = { whatsappNumberIds: integration.whatsappNumberIds };
+    integrationRemoveBy = { wabaIds: integration.whatsappNumberIds };
 
     const conversationIds =
       await models.Conversations.find(selector).distinct('_id');
@@ -52,12 +52,18 @@ export const removeIntegration = async (
   }
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+  let domain = `${DOMAIN}/gateway/pl:whatsapp`;
+
+  if (process.env.NODE_ENV !== 'production') {
+    domain = `${DOMAIN}/pl:whatsapp`;
+  }
+
   if (ENDPOINT_URL) {
     try {
       await fetch(`${ENDPOINT_URL}/remove-endpoint`, {
         method: 'POST',
         body: JSON.stringify({
-          domain: DOMAIN,
+          domain,
           ...integrationRemoveBy
         }),
         headers: {
@@ -147,13 +153,19 @@ export const repairIntegrations = async (
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
+  let domain = `${DOMAIN}/gateway/pl:whatsapp`;
+
+  if (process.env.NODE_ENV !== 'production') {
+    domain = `${DOMAIN}/pl:whatsapp`;
+  }
+
   if (ENDPOINT_URL) {
     try {
       await fetch(`${ENDPOINT_URL}/update-endpoint`, {
         method: 'POST',
         body: JSON.stringify({
-          domain: `${DOMAIN}/gateway/pl:whatsapp`,
-          whatsappNumberIds: integration.whatsappNumberIds
+          domain,
+          wabaIds: integration.whatsappNumberIds
         }),
         headers: { 'Content-Type': 'application/json' }
       });
@@ -204,7 +216,6 @@ export const whatsappCreateIntegration = async (
 ): Promise<{ status: 'success' }> => {
   const whatsappNumberIds = JSON.parse(data).pageIds;
 
-  const account = await models.Accounts.getAccount({ _id: accountId });
 
   const integration = await models.Integrations.create({
     kind,
