@@ -1,15 +1,15 @@
-import { skip } from 'node:test';
-import { IContext, IModels } from '../../../connectionResolver';
+import { skip } from "node:test";
+import { IContext, IModels } from "../../../connectionResolver";
 import {
   IElement,
   IElementCategory
-} from '../../../models/definitions/element';
+} from "../../../models/definitions/element";
 
 const checkDefaults = async (models: IModels, name: string, icon: string) => {
   const one = await models.Elements.findOne({ name, itineraryId: null });
 
   if (!one) {
-    let element: IElement = { name: name, content: '', quick: true, icon };
+    let element: IElement = { name: name, content: "", quick: true, icon };
     await models.Elements.createElement(element, null);
   } else {
     const abc = await models.Elements.updateElement(one._id, {
@@ -39,134 +39,134 @@ const insertCategoryDefaults = async (
 };
 const LIST_CATEGORIES = [
   {
-    name: 'Accommodation',
+    name: "Accommodation",
     children: [
-      { name: 'Hotel', children: [] },
-      { name: 'Resort' },
-      { name: 'Guesthouse' },
-      { name: 'Vacation Rental' },
-      { name: 'Hostel' },
-      { name: 'Camping' },
-      { name: 'Lodge' },
-      { name: 'Motel' },
-      { name: 'Villa' }
+      { name: "Hotel", children: [] },
+      { name: "Resort" },
+      { name: "Guesthouse" },
+      { name: "Vacation Rental" },
+      { name: "Hostel" },
+      { name: "Camping" },
+      { name: "Lodge" },
+      { name: "Motel" },
+      { name: "Villa" }
     ]
   },
   {
-    name: 'Places',
+    name: "Places",
     children: [
       {
-        name: 'Natural Attractions',
+        name: "Natural Attractions",
         children: [
-          { name: 'Beaches' },
-          { name: 'Mountains' },
-          { name: 'Deserts' },
-          { name: 'Forests & Jungles' },
-          { name: 'Lakes & Rivers' },
-          { name: 'Waterfalls' },
-          { name: 'Islands' }
+          { name: "Beaches" },
+          { name: "Mountains" },
+          { name: "Deserts" },
+          { name: "Forests & Jungles" },
+          { name: "Lakes & Rivers" },
+          { name: "Waterfalls" },
+          { name: "Islands" }
         ]
       },
       {
-        name: 'Cultural & Historical Sites',
+        name: "Cultural & Historical Sites",
         children: [
-          { name: 'Ancient Ruins' },
-          { name: 'Temples & Monasteries' },
-          { name: 'Museums & Art Galleries' },
-          { name: 'Historical Cities' },
-          { name: 'Castles & Palaces' }
+          { name: "Ancient Ruins" },
+          { name: "Temples & Monasteries" },
+          { name: "Museums & Art Galleries" },
+          { name: "Historical Cities" },
+          { name: "Castles & Palaces" }
         ]
       },
       {
-        name: 'Urban Destinations',
+        name: "Urban Destinations",
         children: [
-          { name: 'Metropolitan Cities' },
-          { name: 'Skyscraper Cities' },
-          { name: 'Old Towns & Quarters' },
-          { name: 'Technology Hubs' }
+          { name: "Metropolitan Cities" },
+          { name: "Skyscraper Cities" },
+          { name: "Old Towns & Quarters" },
+          { name: "Technology Hubs" }
         ]
       },
       {
-        name: 'Adventure & Outdoor Recreation',
+        name: "Adventure & Outdoor Recreation",
         children: [
-          { name: 'National Parks' },
-          { name: 'Hiking Trails' },
-          { name: 'Ski Resorts' },
-          { name: 'Diving & Snorkeling Spots' },
-          { name: 'Rock Climbing Destinations' }
+          { name: "National Parks" },
+          { name: "Hiking Trails" },
+          { name: "Ski Resorts" },
+          { name: "Diving & Snorkeling Spots" },
+          { name: "Rock Climbing Destinations" }
         ]
       },
       {
-        name: 'Relaxation & Wellness',
+        name: "Relaxation & Wellness",
         children: [
-          { name: 'Spa Towns' },
-          { name: 'Yoga Retreats' },
-          { name: 'Hot Springs' },
-          { name: 'Quiet Countryside' }
+          { name: "Spa Towns" },
+          { name: "Yoga Retreats" },
+          { name: "Hot Springs" },
+          { name: "Quiet Countryside" }
         ]
       },
       {
-        name: 'Relaxation & Wellness',
+        name: "Relaxation & Wellness",
         children: [
-          { name: 'Spa Towns' },
-          { name: 'Yoga Retreats' },
-          { name: 'Hot Springs' },
-          { name: 'Quiet Countryside' }
+          { name: "Spa Towns" },
+          { name: "Yoga Retreats" },
+          { name: "Hot Springs" },
+          { name: "Quiet Countryside" }
         ]
       }
     ]
   },
   {
-    name: 'Activity',
+    name: "Activity",
     children: [
-      { name: 'Sightseeing' },
-      { name: 'Hiking' },
-      { name: 'Camping' },
-      { name: 'Shopping' },
-      { name: 'Cultural Tours' },
-      { name: 'Food Tours' },
-      { name: 'Adventure Sports' },
-      { name: 'Water Sports' },
-      { name: 'Wildlife Safaris' },
-      { name: 'Skiing/Snowboarding' },
-      { name: 'Beach Activities' },
-      { name: 'City Tours' },
-      { name: 'Boat Tours/Cruises' },
-      { name: 'Photography' }
+      { name: "Sightseeing" },
+      { name: "Hiking" },
+      { name: "Camping" },
+      { name: "Shopping" },
+      { name: "Cultural Tours" },
+      { name: "Food Tours" },
+      { name: "Adventure Sports" },
+      { name: "Water Sports" },
+      { name: "Wildlife Safaris" },
+      { name: "Skiing/Snowboarding" },
+      { name: "Beach Activities" },
+      { name: "City Tours" },
+      { name: "Boat Tours/Cruises" },
+      { name: "Photography" }
     ]
   },
   {
-    name: 'Food & Drink',
+    name: "Food & Drink",
     children: [
-      { name: 'Street Food' },
-      { name: 'Local Cuisine' },
-      { name: 'Fine Dining' },
-      { name: 'Café' },
-      { name: 'Beverages' },
-      { name: 'Desserts and Sweets' },
-      { name: 'Vegetarian/Vegan Options' },
-      { name: 'Food Markets' },
-      { name: 'Picnics and Outdoor Dining' },
-      { name: 'Fast Food' }
+      { name: "Street Food" },
+      { name: "Local Cuisine" },
+      { name: "Fine Dining" },
+      { name: "Café" },
+      { name: "Beverages" },
+      { name: "Desserts and Sweets" },
+      { name: "Vegetarian/Vegan Options" },
+      { name: "Food Markets" },
+      { name: "Picnics and Outdoor Dining" },
+      { name: "Fast Food" }
     ]
   },
 
   {
-    name: 'Location',
+    name: "Location",
     children: [
       {
-        name: 'Mongolia',
+        name: "Mongolia",
         children: [
-          { name: 'Arkhangai' },
-          { name: 'Bayan-Ölgii' },
-          { name: 'Bayankhongor' },
-          { name: 'Bulgan' },
-          { name: 'Darkhan-Uul' },
-          { name: 'Dornod' },
-          { name: 'Dornogovi' },
-          { name: 'Dundgovi' },
-          { name: 'Govi-Altai' },
-          { name: 'Ulaanbaatar' }
+          { name: "Arkhangai" },
+          { name: "Bayan-Ölgii" },
+          { name: "Bayankhongor" },
+          { name: "Bulgan" },
+          { name: "Darkhan-Uul" },
+          { name: "Dornod" },
+          { name: "Dornogovi" },
+          { name: "Dundgovi" },
+          { name: "Govi-Altai" },
+          { name: "Ulaanbaatar" }
         ]
       }
     ]
@@ -183,7 +183,8 @@ const elementQueries = {
       perPage = 10,
       quick,
       sortField,
-      sortDirection
+      sortDirection,
+      icon
     },
     { models }: IContext
   ) {
@@ -206,12 +207,19 @@ const elementQueries = {
 
     if (name) {
       selector.$or = [
-        { name: { $regex: name, $options: 'i' } },
-        { 'location.name': { $regex: name, $options: 'i' } }
+        { name: { $regex: name, $options: "i" } },
+        { "location.name": { $regex: name, $options: "i" } }
       ];
     }
-    if (typeof quick === 'boolean') {
+    if (typeof quick === "boolean") {
       selector.quick = quick;
+    }
+    if (typeof icon === "boolean") {
+      if (icon) {
+        selector.quick = { $exists: true };
+      } else {
+        selector.quick = { $exists: false };
+      }
     }
     if (branchId) {
       selector.branchId = branchId;
@@ -250,22 +258,22 @@ const elementQueries = {
   },
 
   async bmElementsInit(_root, {}, { models }: IContext) {
-    await checkDefaults(models, 'Breakfast', 'soup');
-    await checkDefaults(models, 'Lunch', 'utensils');
-    await checkDefaults(models, 'Dinner', 'utensils');
-    await checkDefaults(models, 'Snack', 'donut');
-    await checkDefaults(models, 'Check-in', 'door-open');
-    await checkDefaults(models, 'Check-out', 'door-closed');
-    await checkDefaults(models, 'Overnight', 'moon');
+    await checkDefaults(models, "Breakfast", "soup");
+    await checkDefaults(models, "Lunch", "utensils");
+    await checkDefaults(models, "Dinner", "utensils");
+    await checkDefaults(models, "Snack", "donut");
+    await checkDefaults(models, "Check-in", "door-open");
+    await checkDefaults(models, "Check-out", "door-closed");
+    await checkDefaults(models, "Overnight", "moon");
 
-    await checkDefaults(models, 'Hot shower', 'moon');
-    await checkDefaults(models, 'unable to shower', 'moon');
-    await checkDefaults(models, 'pick-up service', 'moon');
-    await checkDefaults(models, 'electricity', 'moon');
-    await checkDefaults(models, 'no electricity', 'moon');
-    await checkDefaults(models, 'horse & camel', 'moon');
+    await checkDefaults(models, "Hot shower", "moon");
+    await checkDefaults(models, "unable to shower", "moon");
+    await checkDefaults(models, "pick-up service", "moon");
+    await checkDefaults(models, "electricity", "moon");
+    await checkDefaults(models, "no electricity", "moon");
+    await checkDefaults(models, "horse & camel", "moon");
 
-    return 'ok';
+    return "ok";
   },
   async bmCategoryInit(_root, {}, { models }: IContext) {
     let one: any = null;
@@ -283,14 +291,14 @@ const elementQueries = {
             const t1 = await insertCategoryDefaults(
               models,
               grandChild.name,
-              childOne?._id || ''
+              childOne?._id || ""
             );
           }
         }
       }
     }
 
-    return 'ok';
+    return "ok";
   }
 };
 
