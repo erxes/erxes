@@ -119,14 +119,7 @@ const getSendDataCustomer = async (subdomain, customer, config) => {
   return sendData;
 };
 
-const checkSend = async (
-  subdomain,
-  models: IModels,
-  customer,
-  config,
-  filterStr,
-  syncLog
-) => {
+const checkSend = async (customer, config, filterStr) => {
   const { customerApi, username, password } = config;
 
   const responseChecker = await fetch(
@@ -174,44 +167,6 @@ const checkSend = async (
   if (!responseChecker.value?.length) {
     return customer;
   }
-
-  const sendData = await getSendDataCustomer(subdomain, customer, config);
-
-  await models.SyncLogs.updateOne(
-    { _id: syncLog._id },
-    {
-      $set: {
-        sendData,
-        sendStr: JSON.stringify(sendData),
-      },
-    }
-  );
-
-  let responseCustomerData;
-
-  try {
-    responseCustomerData = await fetch(customerApi, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-          'base64'
-        )}`,
-      },
-      body: JSON.stringify(sendData),
-    });
-  } catch (e) {
-    await models.SyncLogs.updateOne(
-      { _id: syncLog._id },
-      {
-        $set: {
-          error: e.message,
-        },
-      }
-    );
-  }
-
-  return responseCustomerData;
 };
 
 export const getMsdCustomerInfo = async (
@@ -243,24 +198,10 @@ export const getMsdCustomerInfo = async (
     }
 
     filterStr = `No eq '${relation.no}'`;
-    msdCustomer = await checkSend(
-      subdomain,
-      models,
-      customer,
-      config,
-      filterStr,
-      syncLog
-    );
+    msdCustomer = await checkSend(customer, config, filterStr);
   } else {
     filterStr = `Phone_No eq '${customer.primaryPhone}'`;
-    msdCustomer = await checkSend(
-      subdomain,
-      models,
-      customer,
-      config,
-      filterStr,
-      syncLog
-    );
+    msdCustomer = await checkSend(customer, config, filterStr);
   }
 
   const brandIds = customer?.scopeBrandIds || [];

@@ -162,7 +162,7 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
     }
   }
 
-  const confirmItems = (order.items || [])
+  const confirmItems = order.items || [];
 
   if (!confirmItems.length) {
     return;
@@ -850,7 +850,12 @@ export const syncOrderFromClient = async ({
         subdomain,
         action: 'erxes-posclient-to-pos-api',
         data: {
-          order: { ...newOrder, convertDealId, posToken, subToken: toPos.token }
+          order: {
+            ...newOrder,
+            convertDealId,
+            posToken,
+            subToken: toPos.token
+          }
         },
         pos: toPos
       });
