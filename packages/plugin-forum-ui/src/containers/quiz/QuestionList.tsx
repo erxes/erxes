@@ -13,7 +13,7 @@ type Props = {
 };
 
 const QuestionList = ({ _id, index, onDelete }: Props) => {
-  const { data, loading, error, refetch } = useQuery(
+  const { data, loading, error } = useQuery(
     gql(queries.quizQuestion),
     {
       variables: {

@@ -137,7 +137,7 @@ class PostForm extends React.Component<Props, State> {
 
   onChangeRangeFilter = (date, key: string) => {
     const formattedDate = date ? dayjs(date).format("YYYY-MM-DD") : "";
-    this.setState({ ...this.state, [key]: formattedDate });
+    this.setState((prevState) => ({...prevState,[key]: formattedDate}));    
   };
 
   onChangeThumbnail = (attachment) => {
