@@ -220,15 +220,14 @@ export const dealToDynamic = async (
   deal: any,
   config: any
 ) => {
-  const order = deal;
   const brandId = config.branId;
 
   let msdCustomer: any = {};
 
   let orderMsdNo: string = '';
   let orderItemsMsdNo: any = {};
-  const extraData = order.extraData || {};
-  const syncErkhetInfo = extraData.msdynamic;
+  const extraData = deal.extraData || {};
+  const syncErkhetInfo = extraData.msdynamic || {};
   orderMsdNo = syncErkhetInfo.no;
   orderItemsMsdNo = syncErkhetInfo.lineNos || {};
 
@@ -259,7 +258,7 @@ export const dealToDynamic = async (
       action: 'conformities.findConformities',
       data: {
         mainType: 'deal',
-        mainTypeId: { $in: order._id },
+        mainTypeId: { $in: deal._id },
       },
       isRPC: true,
       defaultValue: [],
@@ -285,12 +284,12 @@ export const dealToDynamic = async (
       subdomain,
       action: 'users.findOne',
       data: {
-        _id: order.assignedUserIds[0],
+        _id: deal.assignedUserIds[0],
       },
       isRPC: true,
     });
 
-    const rawDescription = order.description.replace(/<\/?p>/g, '').trim();
+    const rawDescription = deal.description.replace(/<\/?p>/g, '').trim();
 
     const sellAddress = rawDescription.slice(0, 100);
     const sellAddress2 = rawDescription.slice(100, 150);
@@ -301,7 +300,7 @@ export const dealToDynamic = async (
         : config.defaultUserCode,
       Sell_to_Phone_No: customer?.primaryPhone || '',
       Sell_to_E_Mail: customer?.primaryEmail || '',
-      External_Document_No: order.number,
+      External_Document_No: deal.number,
       Responsibility_Center: config.responsibilityCenter || '',
       Sync_Type: config.syncType || '',
       Mobile_Phone_No: customer?.primaryPhone || '',
@@ -339,7 +338,7 @@ export const dealToDynamic = async (
       }
     );
 
-    if (!order.productsData.length) {
+    if (!deal.productsData.length) {
       throw new Error('Has not items order');
     }
 
@@ -355,7 +354,7 @@ export const dealToDynamic = async (
         subdomain,
         action: 'products.find',
         data: {
-          _id: { $in: order.productsData.map((item) => item.productId) },
+          _id: { $in: deal.productsData.map((item) => item.productId) },
         },
         isRPC: true,
       });
@@ -368,7 +367,7 @@ export const dealToDynamic = async (
 
       let totalDiscount = 0;
 
-      for (const item of order.productsData) {
+      for (const item of deal.productsData) {
         let lineUrlP = '';
         let linePostMethod = 'POST';
         let linePostHeaders = {
@@ -487,11 +486,11 @@ export const dealToDynamic = async (
       subdomain,
       action: 'deals.updateOne',
       data: {
-        selector: { _id: order._id },
+        selector: { _id: deal._id },
         modifier: {
           $set: {
             extraData: {
-              ...extraData,
+              ...extraData || {},
               msdynamic: {
                 no: orderMsdNo || responseSale.No,
                 lineNos: lineNoById,
