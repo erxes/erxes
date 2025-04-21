@@ -526,13 +526,13 @@ function ContractForm(props: Props) {
                   onChange={onChangeField}
                 >
                   {LoanPurpose.purpose
-                    .filter((a) =>
-                      contract.loanDestination
-                        ? a.parent === contract.loanDestination
-                        : true
+                    .filter(
+                      (a) =>
+                        contract.loanDestination &&
+                        a.parent === contract.loanDestination
                     )
                     .map((type) => (
-                      <option key={type.name} value={type.name}>
+                      <option key={type.name} value={type.value}>
                         {__(type.name)}
                       </option>
                     ))}
