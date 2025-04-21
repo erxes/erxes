@@ -18,6 +18,7 @@ export const contractTypeFields = `
   isAllowOutcome
   isDeposit
   productType
+  limitPercentage
 `;
 
 const listParamsDef = `
@@ -79,5 +80,5 @@ export default {
   contractTypes,
   contractTypesMain,
   contractTypeCounts,
-  contractTypeDetail
+  contractTypeDetail,
 };
