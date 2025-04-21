@@ -85,6 +85,8 @@ export const types = () => `
     branch: Branch
     department: Department
     customer: AccCustomer
+
+    extraData: JSON
   }
 
   input CommonTrDetailInput {

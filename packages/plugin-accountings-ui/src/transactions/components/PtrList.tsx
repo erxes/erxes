@@ -20,6 +20,7 @@ import Table from "@erxes/ui/src/components/table";
 import { Title } from "@erxes/ui/src/styles/main";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { journalConfigMaps } from "../utils/maps";
+import { AccountingsSubMenus } from "../../constants";
 
 interface IProps {
   queryParams: any;
@@ -281,8 +282,6 @@ const PtrList: React.FC<IProps> = (props) => {
     );
   };
 
-  const breadcrumb = [{ title: __("Accountings"), link: "" }];
-
   const onChangeChecked = (e) => {
     const checked = e.target.checked;
 
@@ -367,7 +366,7 @@ const PtrList: React.FC<IProps> = (props) => {
         <Wrapper.Header
           title={__("Perfect Transactions")}
           queryParams={queryParams}
-          breadcrumb={breadcrumb}
+          submenu={AccountingsSubMenus}
         />
       }
       mainHead={

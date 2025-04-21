@@ -69,6 +69,7 @@ module.exports = {
             "integrationsEditMessengerIntegration",
             "integrationsSaveMessengerAppearanceData",
             "integrationsSaveMessengerConfigs",
+            "integrationsSaveMessengerTicketData",
             "integrationsCreateLeadIntegration",
             "integrationsEditLeadIntegration",
             "integrationsRemove",
@@ -182,6 +183,7 @@ module.exports = {
                 "integrationsCreateMessengerIntegration",
                 "integrationsEditMessengerIntegration",
                 "integrationsSaveMessengerAppearanceData",
+                "integrationsSaveMessengerTicketData",
                 "integrationsSaveMessengerConfigs",
                 "integrationsCreateLeadIntegration",
                 "integrationsEditLeadIntegration",
@@ -205,6 +207,10 @@ module.exports = {
             {
               "name": "integrationsSaveMessengerAppearanceData",
               "description": "Save messenger appearance data"
+            },
+            {
+              "name": "integrationsSaveMessengerTicketData",
+              "description": "Save messenger ticket data"
             },
             {
               "name": "integrationsSaveMessengerConfigs",
@@ -4650,7 +4656,11 @@ module.exports = {
                 "showAccounts",
                 "manageAccounts",
                 "accountsMerge",
-                "removeAccounts"
+                "removeAccounts",
+                "showVatRows",
+                "manageVatRows",
+                "showCtaxRows",
+                "manageCtaxRows"
               ]
             },
             {
@@ -4668,6 +4678,22 @@ module.exports = {
             {
               "name": "accountsMerge",
               "description": "Merge accounts"
+            },
+            {
+              "name": "showVatRows",
+              "description": "show Vat Rows"
+            },
+            {
+              "name": "manageVatRows",
+              "description": "manage Vat Rows"
+            },
+            {
+              "name": "showCtaxRows",
+              "description": "show CTAX Rows"
+            },
+            {
+              "name": "manageCtaxRows",
+              "description": "manage CTAX Rows"
             }
           ]
         },

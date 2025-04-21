@@ -112,6 +112,8 @@ export const commonTransactionFields = `
     ${ctaxRowFields}
   }
 
+  extraData
+  
   permission
 `;
 

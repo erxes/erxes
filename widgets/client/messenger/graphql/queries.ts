@@ -75,10 +75,41 @@ const GET_CLOUDFLARE_CALL_INTEGRATION = gql`
   }
 `
 
+const TICKET_COMMENTS = gql`
+query clientPortalComments($typeId: String!, $type: String!) {
+  clientPortalComments(typeId: $typeId, type: $type) {
+    _id
+    content
+    createdUser {
+      _id
+      email
+      firstName
+    }
+    type
+    createdAt
+  }
+}
+`;
+
+const TICKET_ACTIVITY_LOGS = gql`
+  query activityLogs($contentType: String!, $contentId: String) {
+    activityLogs(contentType: $contentType, contentId: $contentId) {
+      _id
+      action
+      contentType
+      createdByDetail
+      content
+      createdAt
+    }
+  }
+`;
+
 export {
   GET_UNREAD_COUNT,
   GET_CONVERSATION_DETAIL,
   GET_WIDGET_EXPORT_MESSENGER_DATA,
   GET_FAQ_TOPIC,
-  GET_CLOUDFLARE_CALL_INTEGRATION
+  GET_CLOUDFLARE_CALL_INTEGRATION,
+  TICKET_COMMENTS,
+  TICKET_ACTIVITY_LOGS
 };

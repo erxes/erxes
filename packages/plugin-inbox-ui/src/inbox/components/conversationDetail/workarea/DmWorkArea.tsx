@@ -227,7 +227,7 @@ export default class WorkArea extends React.Component<Props, State> {
         </>
       );
     }
-    if (['cloudflarecalls', 'messenger'].includes(kind)) {
+    if (['cloudflarecalls'].includes(kind)) {
       return (
         <>
           <CloudflareCalls conversation={currentConversation} />

@@ -8,6 +8,7 @@ import { ContentBox } from "@erxes/ui-settings/src/styles";
 import { ICallData } from "@erxes/ui-inbox/src/settings/integrations/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import React from "react";
+import TicketSelect from "../../../containers/messenger/Ticket";
 
 type BotPersistentMenuTypeMessenger = {
   _id: string;
@@ -27,6 +28,10 @@ type Props = {
   channelIds?: string[];
   botGreetMessage?: string;
   persistentMenus?: BotPersistentMenuTypeMessenger[];
+  handleFormChange: (name: string, value: string | boolean) => void;
+  ticketPipelineId: string;
+  ticketBoardId: string;
+  ticketStageId: string;
 };
 
 const ConfigSetup: React.FC<Props> = ({
@@ -40,6 +45,10 @@ const ConfigSetup: React.FC<Props> = ({
   brandId,
   persistentMenus,
   channelIds,
+  handleFormChange,
+  ticketBoardId,
+  ticketPipelineId,
+  ticketStageId,
 }) => {
   return (
     <FlexItem>
@@ -83,6 +92,19 @@ const ConfigSetup: React.FC<Props> = ({
             title="Cloudflare Calls Setup"
           >
             <CloudflareCalls onChange={onChange} callData={callData} />
+          </CollapseContent>
+          <CollapseContent
+            full={true}
+            beforeTitle={<Icon icon="ticket" />}
+            transparent={true}
+            title="Ticket Setup"
+          >
+            <TicketSelect
+              handleFormChange={handleFormChange}
+              ticketPipelineId={ticketPipelineId || ""}
+              ticketBoardId={ticketBoardId || ""}
+              ticketStageId={ticketStageId || ""}
+            />
           </CollapseContent>
         </ContentBox>
       </LeftItem>

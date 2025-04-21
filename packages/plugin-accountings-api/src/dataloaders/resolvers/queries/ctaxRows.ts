@@ -42,7 +42,8 @@ const ctaxRowQueries = {
 
     const sortParams: any = { number: 1 };
 
-    return await models.CtaxRows.find(filter).sort(sortParams).lean();
+    return await models.CtaxRows.find(filter).sort(sortParams)
+      .collation({ locale: "en", numericOrdering: true }).lean();
   },
 
   async ctaxRowsCount(

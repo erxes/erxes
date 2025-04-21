@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.10.0](https://github.com/erxes/erxes/compare/2.9.5...2.10.0) (2025-04-17)
+
+### Bug Fixes
+
+* **assets:** query syntax error ([a0e841a](https://github.com/erxes/erxes/commit/a0e841af9167c20e5f8f6e203ed7ffc72d24b5e2))
+* **cards:** vendor users filter ([5327197](https://github.com/erxes/erxes/commit/53271975def93841c3abe6877f509bc8cd754ccf))
+* **facebook:** little bot ui fixes ([62eb0f5](https://github.com/erxes/erxes/commit/62eb0f5d4e26ef00f1db48de69ea8bccc98f4efd))
+* **gateway:** ci runs-on to ubuntu-22.04 from ubuntu-20.04 ([5fe8b3a](https://github.com/erxes/erxes/commit/5fe8b3a0551804564959761e417831883fe31c8e))
+* **loyalties:** add target extender & fix can't generate excludeAmount on target ([8e77836](https://github.com/erxes/erxes/commit/8e778361d2d112a6c0dbd4e66dff81902c7601df))
+* **tms:** branch on element ([115ccfe](https://github.com/erxes/erxes/commit/115ccfee48e41897901e033d25b3165f30b7e964))
+* **tms:** filter branch ([e037e87](https://github.com/erxes/erxes/commit/e037e87b49b73935317120a424e3a8b69b7c9dba))
+## [2.10.0-rc.1](https://github.com/erxes/erxes/compare/2.9.5...2.10.0) (2025-04-04)
+## [2.10.0-rc.0](https://github.com/erxes/erxes/compare/2.9.5...2.10.0) (2025-04-02)
+
+### Bug Fixes
+
+* accountings invIncome save and t balance improve ([3ee3131](https://github.com/erxes/erxes/commit/3ee3131708798147cba9319a8b7cf8469c99a05a))
+* deal products form filter by barcode ([2331133](https://github.com/erxes/erxes/commit/23311334115c73127db4e7510d9b583cd62f9527))
+
+## [2.10.0-rc.1](https://github.com/erxes/erxes/compare/2.10.0-rc.0...2.10.0-rc.1) (2025-04-04)
+## [2.10.0-rc.0](https://github.com/erxes/erxes/compare/2.10.0-rc.0...2.10.0-rc.1) (2025-04-02)
 ## [2.9.5](https://github.com/erxes/erxes/compare/2.9.4...2.9.5) (2025-04-16)
 
 ### Bug Fixes
@@ -25,19 +46,22 @@
 
 ### Bug Fixes
 
-* ebarimt data and payments data with round 4 ([d6a1044](https://github.com/erxes/erxes/commit/d6a10445e660b61c14d1acc804e6cd60069218fa))
-* erkhetremainder queries update ([8d69d9b](https://github.com/erxes/erxes/commit/8d69d9bf5f2fa37cf6a9c385ff16f8e688dd3172))
-
-## [2.9.2](https://github.com/erxes/erxes/compare/2.9.1...2.9.2) (2025-04-08)
+* accountings invIncome save and t balance improve ([3ee3131](https://github.com/erxes/erxes/commit/3ee3131708798147cba9319a8b7cf8469c99a05a))
+* deal products form filter by barcode ([2331133](https://github.com/erxes/erxes/commit/23311334115c73127db4e7510d9b583cd62f9527))
+## [2.9.1](https://github.com/erxes/erxes/compare/2.10.0-rc.0...2.10.0-rc.1) (2025-04-04)
 
 ### Bug Fixes
 
-* can't subscribe fields in facebook ([912e488](https://github.com/erxes/erxes/commit/912e488163c791b0eba6acd13601814057dfc7a3))
-* **facebook:** remove unnecessary field in fb ([e399e55](https://github.com/erxes/erxes/commit/e399e5557c9e243a66f1860ef6be61268d458deb))
-* products default filter by segment on per user config ([e68d0d6](https://github.com/erxes/erxes/commit/e68d0d6860af95c6dee82580ca20a05150947edd))
-* **tms:** element filter ([4f0cb78](https://github.com/erxes/erxes/commit/4f0cb7810db5a16d31955f119eebcb13268746c7))
-* update pluginsMap ([5ce0cd7](https://github.com/erxes/erxes/commit/5ce0cd760c0f2c4402e23046cc6ad726e7b2e390))
+* add permission dealsRemoveProductsData and productsData filter by barcode ([e7d859a](https://github.com/erxes/erxes/commit/e7d859aa7c2f96b4dcb2298b8105b03a6097ab3c))
+* syncerkhet return with records ([caa532f](https://github.com/erxes/erxes/commit/caa532f37119cbbad1a86820fff621067f9dc56a))
+* update pluginsMap ([24f7a54](https://github.com/erxes/erxes/commit/24f7a54408a64995f74c0a0be557f15ed3e7de77))
 
+## [2.10.0-rc.0](https://github.com/erxes/erxes/compare/2.9.0...2.10.0-rc.0) (2025-04-02)
+
+### Bug Fixes
+
+* accountings invIncome save and t balance improve ([3ee3131](https://github.com/erxes/erxes/commit/3ee3131708798147cba9319a8b7cf8469c99a05a))
+* deal products form filter by barcode ([2331133](https://github.com/erxes/erxes/commit/23311334115c73127db4e7510d9b583cd62f9527))
 ## [2.9.1](https://github.com/erxes/erxes/compare/2.9.0...2.9.1) (2025-04-04)
 
 ### Bug Fixes

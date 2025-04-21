@@ -20,7 +20,8 @@ const generateMessages = async (
   subdomain: string,
   config: any,
   conversation: IConversation,
-  customer: ICustomer
+  customer: ICustomer,
+  executionId: string
 ) => {
   let { messages = [] } = config || {};
 
@@ -34,7 +35,8 @@ const generateMessages = async (
         payload: generatePayloadString(
           conversation,
           button,
-          customer?.erxesApiId
+          customer?.erxesApiId,
+          executionId
         )
       };
 
@@ -126,7 +128,7 @@ const generateMessages = async (
     if (type === "quickReplies") {
       generatedMessages.push({
         text: text || "",
-        quick_replies: quickReplies.map(quickReply => ({
+        quick_replies: quickReplies.map((quickReply) => ({
           content_type: "text",
           title: quickReply?.text || "",
           image_url: quickReply?.image_url
@@ -135,7 +137,8 @@ const generateMessages = async (
           payload: generatePayloadString(
             conversation,
             quickReply,
-            customer?.erxesApiId
+            customer?.erxesApiId,
+            executionId
           )
         })),
         botData
@@ -184,7 +187,7 @@ export const checkMessageTrigger = async (subdomain, { target, config }) => {
         }
       },
       isRPC: true
-    }).catch(error => {
+    }).catch((error) => {
       debugError(error.message);
     });
 
@@ -241,9 +244,9 @@ const generateObjectToWait = ({
   };
   let propertyName = "payload.btnId";
 
-  if (messages.some(msg => msg.type === "input")) {
+  if (messages.some((msg) => msg.type === "input")) {
     const inputMessageConfig =
-      messages.find(msg => msg.type === "input")?.input || {};
+      messages.find((msg) => msg.type === "input")?.input || {};
 
     if (inputMessageConfig.timeType === "day") {
       obj.startWaitingDate = moment()
@@ -264,7 +267,7 @@ const generateObjectToWait = ({
 
     const actionIdIfNotReply =
       optionalConnects.find(
-        connect => connect?.optionalConnectId === "ifNotReply"
+        (connect) => connect?.optionalConnectId === "ifNotReply"
       )?.actionId || null;
 
     obj.waitingActionId = actionIdIfNotReply;
@@ -291,17 +294,24 @@ const sendMessage = async (
   isLoop?: boolean
 ) => {
   try {
-    await sendReply(
-      models,
-      "me/messages",
-      {
-        recipient: { id: senderId },
-        sender_action: "typing_on",
-        tag
-      },
-      recipientId,
-      integration.erxesApiId
-    );
+    // Try sending 'typing_on' but ignore if it fails
+    try {
+      await sendReply(
+        models,
+        "me/messages",
+        {
+          recipient: { id: senderId },
+          sender_action: "typing_on",
+          tag
+        },
+        recipientId,
+        integration.erxesApiId
+      );
+    } catch (typingError) {
+      console.warn(`typing_on failed: ${typingError.message}`);
+    }
+  
+    // Send the actual message
     const resp = await sendReply(
       models,
       "me/messages",
@@ -313,10 +323,9 @@ const sendMessage = async (
       recipientId,
       integration.erxesApiId
     );
-    if (!resp) {
-      return;
-    }
+  
     return resp;
+  
   } catch (error) {
     if (
       error.message.includes(
@@ -338,10 +347,11 @@ const sendMessage = async (
         true
       );
     }
-
-    debugError(error.message);
+  
+    debugError(`Error occurred during send bot message: ${error.message}`);
     throw new Error(error.message);
   }
+  
 };
 
 const getData = async (
@@ -531,7 +541,12 @@ export const actionCreateMessage = async (
   action,
   execution
 ) => {
-  const { target, triggerType, triggerConfig } = execution || {};
+  const {
+    target,
+    triggerType,
+    triggerConfig,
+    _id: executionId
+  } = execution || {};
   const { config } = action || {};
 
   if (
@@ -558,7 +573,8 @@ export const actionCreateMessage = async (
       subdomain,
       config,
       conversation,
-      customer
+      customer,
+      executionId
     );
 
     if (!messages?.length) {

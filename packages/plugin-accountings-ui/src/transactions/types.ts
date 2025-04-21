@@ -45,6 +45,7 @@ export interface ITrDetail {
   productId?: string;
   count?: number;
   unitPrice?: number;
+  tempAmount?: number;
 
   account?: IAccount;
   product?: IProduct;
@@ -95,6 +96,8 @@ export interface ITransaction {
   isHandleCtax?: boolean;
   ctaxAmount?: number;
   ctaxRow?: ICtaxRow;
+
+  extraData?: any;
 
   sumDt: number;
   sumCt: number;

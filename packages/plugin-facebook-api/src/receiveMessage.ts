@@ -38,10 +38,14 @@ const handleAutomation = async (
   }
 ) => {
   const target = { ...conversationMessage.toObject() };
+  let executionId;
   let type = "facebook:messages";
 
   if (payload) {
     target.payload = JSON.parse(payload || "{}");
+    if (target?.payload?.executionId) {
+      executionId = target.payload.executionId;
+    }
   }
 
   if (adData) {
@@ -54,7 +58,8 @@ const handleAutomation = async (
     action: "trigger",
     data: {
       type,
-      targets: [target]
+      targets: [target],
+      executionId
     },
     isRPC: true,
     defaultValue: null
