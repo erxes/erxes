@@ -316,7 +316,7 @@ export const dealToDynamic = async (
       BillType: config.billType || 'Receipt',
       Location_Code: config.locationCode || '',
       Deal_Type_Code: config.dealType || 'NORMAL',
-      Salesperson_Code: user && user.employeeId,
+      Salesperson_Code: user?.employeeId ?? '',
       Sell_to_Address: sellAddress,
       Sell_to_Address_2: sellAddress2,
       CustomerNo:
