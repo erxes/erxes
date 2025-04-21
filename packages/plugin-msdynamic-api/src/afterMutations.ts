@@ -74,41 +74,52 @@ export const afterMutationHandlers = async (subdomain, params) => {
       return;
     }
 
-    if (type === 'sales:deal') {
-      const updatedDoc = params.updatedDocument || params.object;
+    if (type === 'sales:deal' && action === 'update') {
+      const deal = params.updatedDocument || params.object;
+      const oldDeal = params.object;
+      const destinationStageId = deal.stageId || "";
 
-      const array = Object.values(configs) as any[];
+      if (!(destinationStageId && destinationStageId !== oldDeal.stageId)) {
+        return;
+      }
 
-      const foundConfig = array.find(
-        (config) => config.stageId === updatedDoc?.stageId
+      const configsArray = Object.values(configs) as any[];
+
+      const foundConfig = configsArray.find(
+        (config) => config.useBoard && config.stageId === destinationStageId
       );
 
-      if (action === 'update' && foundConfig) {
+      if (foundConfig) {
         syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
         await dealToDynamic(
           subdomain,
-          syncLog,
-          updatedDoc,
           models,
+          syncLog,
+          deal,
           foundConfig
         );
-
-        return;
       }
+      return;
     }
 
-    if (type === 'pos:order') {
+    if (type === 'pos:order' && action === 'synced') {
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
       const updatedDoc = params.updatedDocument || params.object;
       const brandId = updatedDoc?.scopeBrandIds?.[0];
       const config = configs[brandId || 'noBrand'];
 
-      if (action === 'synced' && !config.useBoard) {
-        await orderToDynamic(subdomain, syncLog, updatedDoc, models, config);
-        return;
+      if (!config.useBoard) {
+        await orderToDynamic(
+          subdomain,
+          models,
+          syncLog,
+          updatedDoc,
+          config
+        );
       }
+      return;
     }
   } catch (e) {
     await models.SyncLogs.updateOne(

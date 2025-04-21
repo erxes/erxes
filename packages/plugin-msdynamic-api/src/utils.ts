@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 import { IModels } from './connectionResolver';
-import { sendCoreMessage, sendPosMessage } from './messageBroker';
+import { sendCoreMessage, sendSalesMessage, sendPosMessage } from './messageBroker';
 import { ISyncLogDocument } from './models/definitions/dynamic';
 import { getMsdCustomerInfo } from './utilsCustomer';
 import { putCreateLog, putDeleteLog, putUpdateLog } from './logUtils';
@@ -215,25 +215,22 @@ export const consumeCategory = async (
 
 export const dealToDynamic = async (
   subdomain: string,
-  syncLog: ISyncLogDocument,
-  params: any,
   models: IModels,
+  syncLog: ISyncLogDocument,
+  deal: any,
   config: any
 ) => {
-  const order = params;
+  const order = deal;
   const brandId = config.branId;
 
   let msdCustomer: any = {};
 
   let orderMsdNo: string = '';
   let orderItemsMsdNo: any = {};
-  try {
-    const syncErkhetInfo = JSON.parse(order.syncErkhetInfo);
-    orderMsdNo = syncErkhetInfo.no;
-    orderItemsMsdNo = syncErkhetInfo.lineNos || {};
-  } catch {
-    orderMsdNo = order.syncErkhetInfo;
-  }
+  const extraData = order.extraData || {};
+  const syncErkhetInfo = extraData.msdynamic;
+  orderMsdNo = syncErkhetInfo.no;
+  orderItemsMsdNo = syncErkhetInfo.lineNos || {};
 
   try {
     let customer;
@@ -304,7 +301,7 @@ export const dealToDynamic = async (
         : config.defaultUserCode,
       Sell_to_Phone_No: customer?.primaryPhone || '',
       Sell_to_E_Mail: customer?.primaryEmail || '',
-      External_Document_No: order.name.split(':').pop().trim(),
+      External_Document_No: order.number,
       Responsibility_Center: config.responsibilityCenter || '',
       Sync_Type: config.syncType || '',
       Mobile_Phone_No: customer?.primaryPhone || '',
@@ -436,9 +433,8 @@ export const dealToDynamic = async (
             { _id: syncLog._id },
             {
               $set: {
-                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${
-                  responseSaleLine.error.message
-                }`,
+                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${responseSaleLine.error.message
+                  }`,
               },
             }
           );
@@ -487,18 +483,20 @@ export const dealToDynamic = async (
       }
     }
 
-    await sendPosMessage({
+    await sendSalesMessage({
       subdomain,
-      action: 'orders.updateOne',
+      action: 'deals.updateOne',
       data: {
-        selector: { _id: params._id },
+        selector: { _id: order._id },
         modifier: {
           $set: {
-            syncErkhetInfo: JSON.stringify({
-              no: orderMsdNo || responseSale.No,
-              lineNos: lineNoById,
-            }),
-            syncedErkhet: true,
+            extraData: {
+              ...extraData,
+              msdynamic: {
+                no: orderMsdNo || responseSale.No,
+                lineNos: lineNoById,
+              }
+            },
           },
         },
       },
@@ -527,12 +525,11 @@ export const dealToDynamic = async (
 
 export const orderToDynamic = async (
   subdomain: string,
-  syncLog: ISyncLogDocument,
-  params: any,
   models: IModels,
+  syncLog: ISyncLogDocument,
+  order: any,
   config: any
 ) => {
-  const order = params;
   const brandId = order.scopeBrandIds[0];
 
   let msdCustomer: any = {};
@@ -723,9 +720,8 @@ export const orderToDynamic = async (
             { _id: syncLog._id },
             {
               $set: {
-                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${
-                  responseSaleLine.error.message
-                }`,
+                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${responseSaleLine.error.message
+                  }`,
               },
             }
           );
@@ -781,7 +777,7 @@ export const orderToDynamic = async (
       subdomain,
       action: 'orders.updateOne',
       data: {
-        selector: { _id: params._id },
+        selector: { _id: order._id },
         modifier: {
           $set: {
             syncErkhetInfo: JSON.stringify({
@@ -949,7 +945,7 @@ export const getExchangeRates = async (config: ExchangeRateConfig) => {
       if (
         !latestByCurrency[currency] ||
         new Date(item.Starting_Date) >
-          new Date(latestByCurrency[currency].Starting_Date)
+        new Date(latestByCurrency[currency].Starting_Date)
       ) {
         latestByCurrency[currency] = item;
       }
