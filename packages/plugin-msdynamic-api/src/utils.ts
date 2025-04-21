@@ -1,6 +1,10 @@
 import fetch from 'node-fetch';
 import { IModels } from './connectionResolver';
-import { sendCoreMessage, sendSalesMessage, sendPosMessage } from './messageBroker';
+import {
+  sendCoreMessage,
+  sendSalesMessage,
+  sendPosMessage,
+} from './messageBroker';
 import { ISyncLogDocument } from './models/definitions/dynamic';
 import { getMsdCustomerInfo } from './utilsCustomer';
 import { putCreateLog, putDeleteLog, putUpdateLog } from './logUtils';
@@ -300,7 +304,7 @@ export const dealToDynamic = async (
         : config.defaultUserCode,
       Sell_to_Phone_No: customer?.primaryPhone || '',
       Sell_to_E_Mail: customer?.primaryEmail || '',
-      External_Document_No: deal.number,
+      External_Document_No: deal.name,
       Responsibility_Center: config.responsibilityCenter || '',
       Sync_Type: config.syncType || '',
       Mobile_Phone_No: customer?.primaryPhone || '',
@@ -432,8 +436,9 @@ export const dealToDynamic = async (
             { _id: syncLog._id },
             {
               $set: {
-                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${responseSaleLine.error.message
-                  }`,
+                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${
+                  responseSaleLine.error.message
+                }`,
               },
             }
           );
@@ -490,11 +495,11 @@ export const dealToDynamic = async (
         modifier: {
           $set: {
             extraData: {
-              ...extraData || {},
+              ...(extraData || {}),
               msdynamic: {
                 no: orderMsdNo || responseSale.No,
                 lineNos: lineNoById,
-              }
+              },
             },
           },
         },
@@ -719,8 +724,9 @@ export const orderToDynamic = async (
             { _id: syncLog._id },
             {
               $set: {
-                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${responseSaleLine.error.message
-                  }`,
+                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${
+                  responseSaleLine.error.message
+                }`,
               },
             }
           );
@@ -944,7 +950,7 @@ export const getExchangeRates = async (config: ExchangeRateConfig) => {
       if (
         !latestByCurrency[currency] ||
         new Date(item.Starting_Date) >
-        new Date(latestByCurrency[currency].Starting_Date)
+          new Date(latestByCurrency[currency].Starting_Date)
       ) {
         latestByCurrency[currency] = item;
       }
