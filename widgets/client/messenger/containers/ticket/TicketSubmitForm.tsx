@@ -1,10 +1,13 @@
 import * as React from "react";
 
-import { CUSTOMER_ADD, TICKET_ADD } from "../../graphql/mutations";
+import { CUSTOMER_EDIT, TICKET_ADD } from "../../graphql/mutations";
+import { gql, useMutation, useQuery } from "@apollo/client";
 
+import { ICustomer } from "../../../types";
 import TicketSubmitForm from "../../components/ticket/TicketSubmitForm";
+import { connection } from "../../connection";
+import { customerDetail } from "../../graphql/queries";
 import { getTicketData } from "../../utils/util";
-import { useMutation } from "@apollo/client";
 import { useRouter } from "../../context/Router";
 
 type Props = {
@@ -20,6 +23,7 @@ const TicketSubmitContainer = (props: Props) => {
     }[]
   >([]);
   const ticketData = getTicketData();
+  const customerId = connection.data.customerId;
   const [isSubmitted, setIsSubmitted] = React.useState(false);
   const [ticketNumber, setTicketNumber] = React.useState("");
   const [formData, setFormData] = React.useState({
@@ -31,6 +35,30 @@ const TicketSubmitContainer = (props: Props) => {
     title: "",
     description: "",
   });
+
+  const {
+    data: customer,
+    loading: customerLoading,
+    refetch: customerRefetch,
+  } = useQuery(gql(customerDetail), {
+    variables: { id: customerId },
+    skip: !customerId,
+  });
+
+  React.useEffect(() => {
+    if (customer && customer.customerDetail) {
+      const { emails, firstName, lastName, phones } =
+        customer.customerDetail || ({} as ICustomer);
+
+      setFormData((prev) => ({
+        ...prev,
+        firstName,
+        lastName,
+        phone: phones?.[0] || "",
+        email: emails?.[0] || "",
+      }));
+    }
+  }, [customer]);
 
   const [ticketAdd, { loading }] = useMutation(TICKET_ADD, {
     onCompleted(data) {
@@ -48,36 +76,32 @@ const TicketSubmitContainer = (props: Props) => {
     },
   });
 
-  const [customerAdd, { loading: customerAddLoading }] = useMutation(
-    CUSTOMER_ADD,
-    {
-      fetchPolicy: "no-cache",
-      onCompleted(data) {
-        const { customersAdd } = data || {};
-        const customerId = customersAdd._id || "";
+  const [customerEdit] = useMutation(CUSTOMER_EDIT, {
+    fetchPolicy: "no-cache",
+    onCompleted: async () => {
+      const transformedFiles = files.map((file) => ({
+        url: file.path, // Saving "path" as "url"
+        name: file.preview, // Saving "preview" as "name"
+        type: "image",
+      }));
 
-        const transformedFiles = files.map((file) => ({
-          url: file.path, // Saving "path" as "url"
-          name: file.preview, // Saving "preview" as "name"
-          type: "image",
-        }));
+      await ticketAdd({
+        variables: {
+          name: formData.title,
+          description: formData.description,
+          attachments: transformedFiles,
+          stageId: ticketData.ticketStageId,
+          type: formData.ticketType,
+          customerIds: [customerId],
+        },
+      });
 
-        return ticketAdd({
-          variables: {
-            name: formData.title,
-            description: formData.description,
-            attachments: transformedFiles,
-            stageId: ticketData.ticketStageId,
-            type: formData.ticketType,
-            customerIds: [customerId],
-          },
-        });
-      },
-      onError(error) {
-        return alert(error.message);
-      },
-    }
-  );
+      customerRefetch();
+    },
+    onError(error) {
+      return alert(error.message);
+    },
+  });
 
   const handleChange = (e: any) => {
     const { id, value } = e.target;
@@ -91,12 +115,13 @@ const TicketSubmitContainer = (props: Props) => {
   const onSubmit = (e: any) => {
     e.preventDefault();
 
-    return customerAdd({
+    return customerEdit({
       variables: {
+        id: customerId,
         firstName: formData.firstName,
         lastName: formData.lastName,
-        primaryEmail: formData.email,
-        primaryPhone: formData.phone,
+        emails: [formData.email],
+        phones: [formData.phone],
       },
     });
   };
@@ -109,12 +134,13 @@ const TicketSubmitContainer = (props: Props) => {
     <TicketSubmitForm
       isSubmitted={isSubmitted}
       loading={loading}
+      formData={formData}
       ticketNumber={ticketNumber}
       handleSubmit={onSubmit}
       handleChange={handleChange}
       handleButtonClick={onButtonClick}
       handleFiles={setFiles}
-      customerAddLoading={customerAddLoading}
+      customerLoading={customerId ? customerLoading : false}
     />
   );
 };

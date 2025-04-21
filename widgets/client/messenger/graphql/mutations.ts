@@ -1,6 +1,44 @@
 import { MESSAGE_FIELDS } from './fields';
 import gql from 'graphql-tag';
 
+export const messageFields = `
+  _id
+  conversationId
+  customerId
+  user {
+    _id
+    details {
+      avatar
+      fullName
+      description
+      location
+      position
+      shortName
+    }
+  }
+  content
+  createdAt
+  internal
+  fromBot
+  contentType
+
+  engageData {
+    content
+    kind
+    sentAs
+    messageId
+    brandId
+  }
+  botData
+  messengerAppData
+  attachments {
+    url
+    name
+    size
+    type
+  }
+`;
+
 const WIDGETS_INSERT_MESSAGE_MUTATION = ({
   queryVariables,
   queryParams,
@@ -161,22 +199,12 @@ const TICKET_ADD = gql`
   }
 `;
 
-const CUSTOMER_ADD = gql`
-  mutation customersAdd(
-    $firstName: String
-    $lastName: String
-    $primaryEmail: String
-    $primaryPhone: String
-  ) {
-    customersAdd(
-      firstName: $firstName
-      lastName: $lastName
-      primaryEmail: $primaryEmail
-      primaryPhone: $primaryPhone
-    ) {
+const CUSTOMER_EDIT = gql`
+  mutation CustomersEdit($id: String!, $firstName: String, $lastName: String, $emails: [String], $phones: [String]) {
+    customersEdit(_id: $id, firstName: $firstName, lastName: $lastName, emails: $emails, phones: $phones) {
       _id
+      firstName
       email
-      createdAt
     }
   }
 `;
@@ -228,6 +256,74 @@ const TICKET_CHECK_PROGRESS_FORGET = gql`
   }
 `;
 
+const readConversationMessages = `
+  mutation widgetsReadConversationMessages($conversationId: String) {
+    widgetsReadConversationMessages(conversationId: $conversationId)
+  }
+`;
+
+const connect = (isCloudFlareEnabled?: boolean, isTicketEnabled?: boolean) => `
+  mutation connect($brandCode: String!, $email: String, $phone: String, $code: String
+    $isUser: Boolean, $data: JSON,
+    $companyData: JSON, $cachedCustomerId: String $visitorId: String) {
+
+    widgetsMessengerConnect(brandCode: $brandCode, email: $email, phone: $phone, code: $code,
+      isUser: $isUser, data: $data, companyData: $companyData,
+      cachedCustomerId: $cachedCustomerId, visitorId: $visitorId) {
+      integrationId,
+      messengerData,
+      ${
+        isCloudFlareEnabled
+          ? `
+      callData {
+        header
+        description
+        secondPageHeader
+        secondPageDescription
+        departments {
+          _id
+          name
+          operators
+        }
+        isReceiveWebCall
+      },
+    `
+          : ''
+      }
+      
+      ${
+        isTicketEnabled
+          ? `
+        ticketData
+      `
+          : ``
+      }
+      languageCode,
+      uiOptions,
+      customerId,
+      visitorId,
+      brand {
+        name
+        description
+      }
+    }
+  }
+`;
+
+const saveBrowserInfo = `
+  mutation widgetsSaveBrowserInfo($customerId: String $visitorId: String $browserInfo: JSON!) {
+    widgetsSaveBrowserInfo(customerId: $customerId visitorId: $visitorId browserInfo: $browserInfo) {
+      ${messageFields}
+    }
+  }
+`;
+
+const sendTypingInfo = `
+  mutation widgetsSendTypingInfo($conversationId: String!  $text: String) {
+    widgetsSendTypingInfo(conversationId: $conversationId text: $text)
+  }
+`;
+
 export {
   WIDGETS_INSERT_MESSAGE_MUTATION,
   WIDGET_GET_BOT_INTIAL_MESSAGE,
@@ -240,8 +336,12 @@ export {
   CLOUDFLARE_CALL,
   CLOUDFLARE_LEAVE_CALL,
   TICKET_ADD,
-  CUSTOMER_ADD,
+  CUSTOMER_EDIT,
   TICKET_COMMENTS_ADD,
   TICKET_CHECK_PROGRESS,
   TICKET_CHECK_PROGRESS_FORGET,
+  connect,
+  saveBrowserInfo,
+  sendTypingInfo,
+  readConversationMessages,
 };

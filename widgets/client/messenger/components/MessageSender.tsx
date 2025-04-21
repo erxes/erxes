@@ -1,13 +1,12 @@
 import * as React from "react";
 
-import { IconSend, iconAttach, iconVideo } from "../../icons/Icons";
+import { IconSend, iconAttach } from "../../icons/Icons";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import EmojiPicker from "./EmojiPicker";
 import { MESSAGE_TYPES } from "../constants";
 import PersistentMenu from "./PersistentMenu";
 import { __ } from "../../utils";
-import { connection } from "../connection";
 import { getMessengerData } from "../utils/util";
 
 type Props = {
