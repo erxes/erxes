@@ -30,6 +30,15 @@ export const sendPosMessage = async (
   });
 };
 
+export const sendSalesMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "sales",
+    ...args
+  });
+};
+
 export const sendCoreMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
