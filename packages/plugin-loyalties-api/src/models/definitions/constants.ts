@@ -48,3 +48,10 @@ export const ASSIGNMENT_STATUS = {
   LOSS: 'loss',
   ALL: ['new', 'won', 'loss']
 };
+
+export const AGENT_STATUSES = {
+  ACTIVE: 'active',
+  DRAFT: 'draft',
+  ARCHIVED: 'archived',
+  ALL: ['active', 'draft', 'archived']
+};
