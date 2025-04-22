@@ -75,13 +75,12 @@ export const createLoan = async (
 
   if (
     loanProduct?.code &&
-    loan.loanDestination !== null &&
-    loan.loanPurpose !== null &&
-    loan.leaseAmount &&
-    leasingExpert?.employeeId !== undefined &&
-    loan.startDate &&
-    loan.endDate &&
-    loan.tenor
+    loan.loanDestination != null &&
+    loan.loanPurpose != null &&
+    loan.leaseAmount !== 0 &&
+    leasingExpert?.employeeId != null &&
+    branch?.code != null &&
+    loan.tenor !== 0
   ) {
     result = await fetchPolaris({
       op: '13610253',
