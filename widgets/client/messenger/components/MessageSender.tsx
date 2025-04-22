@@ -17,7 +17,7 @@ type Props = {
   isParentFocused: boolean;
   sendMessage: (contentType: string, message: string) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
-  sendFile: (file: File) => void;
+  sendFiles: (files: FileList) => void;
   readMessages: (conversationId: string) => void;
   onTextInputBlur: () => void;
   collapseHead: () => void;
@@ -36,7 +36,7 @@ const MessageSender: React.FC<Props> = (props) => {
     inputDisabled,
     isParentFocused,
     sendTypingInfo,
-    sendFile,
+    sendFiles,
     readMessages,
     onTextInputBlur,
     collapseHead,
@@ -161,10 +161,10 @@ const MessageSender: React.FC<Props> = (props) => {
       e.preventDefault();
       const { files } = e.currentTarget;
       if (files && files.length > 0) {
-        sendFile(files[0]);
+        sendFiles(files);
       }
     },
-    [sendFile]
+    [sendFiles]
   );
   const handleReadMessages = () => {
     if (conversationId) {

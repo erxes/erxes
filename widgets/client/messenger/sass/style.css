@@ -3382,6 +3382,14 @@ select.form-control:focus,
   margin-bottom: 10px;
   display: flex;
 }
+.ticket-progress-logs .ticket-progress-log .comment {
+  margin-top: 5px;
+}
+.ticket-progress-logs .ticket-progress-log .date {
+  font-size: 11px;
+  text-align: right;
+  margin-top: 5px;
+}
 .ticket-progress-logs .ticket-progress-log > span {
   background: #eee;
   margin-left: 10px;
@@ -3389,6 +3397,7 @@ select.form-control:focus,
   border-radius: 10px;
   font-size: 14px;
   color: #666;
+  width: 70%;
 }
 .ticket-progress-logs .ticket-progress-log > span strong {
   margin-right: 5px;

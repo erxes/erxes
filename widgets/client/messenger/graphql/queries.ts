@@ -85,9 +85,12 @@ query clientPortalComments($typeId: String!, $type: String!) {
     createdUser {
       _id
       email
+      lastName
       firstName
+      avatar
     }
     type
+    userType
     createdAt
   }
 }

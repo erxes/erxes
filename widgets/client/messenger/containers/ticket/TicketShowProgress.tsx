@@ -16,7 +16,7 @@ const TicketShowProgressContainer = (props: Props) => {
   const [comment, setComment] = React.useState("");
 
   const {
-    data,
+    data: comments,
     loading: commentsLoading,
     error,
     refetch: commentQueryRefetch,
@@ -49,7 +49,7 @@ const TicketShowProgressContainer = (props: Props) => {
     fetchPolicy: "network-only",
   });
 
-  const onSubmit = () => {
+  const onComment = () => {
     return commentsAdd({
       variables: {
         type: "ticket",
@@ -66,9 +66,10 @@ const TicketShowProgressContainer = (props: Props) => {
 
   return (
     <TicketShowProgress
-      activityLogs={activityData.activityLogs || []}
+      activityLogs={activityData?.activityLogs || []}
       setComment={setComment}
-      handleSubmit={onSubmit}
+      onComment={onComment}
+      comments={comments?.clientPortalComments || []}
     />
   );
 };

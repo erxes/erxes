@@ -179,3 +179,18 @@ export interface ITicketActivityLog {
     content: any;
   }
 }
+
+export interface ITicketComment {
+  _id: string;
+  userType: string;
+  type: string;
+  content: any;
+  createdAt: string;
+  createdUser: {
+    _id: string;
+    email: string;
+    avatar: string;
+    firstName: string;
+    lastName: string;
+  }
+}

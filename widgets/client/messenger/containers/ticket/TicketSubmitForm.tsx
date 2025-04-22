@@ -8,7 +8,12 @@ import TicketSubmitForm from "../../components/ticket/TicketSubmitForm";
 import { connection } from "../../connection";
 import { customerDetail } from "../../graphql/queries";
 import { getTicketData } from "../../utils/util";
+import { readFile } from "../../../utils";
 import { useRouter } from "../../context/Router";
+
+interface FileWithUrl extends File {
+  url?: string;
+}
 
 type Props = {
   loading: boolean;
@@ -16,12 +21,8 @@ type Props = {
 
 const TicketSubmitContainer = (props: Props) => {
   const { setRoute } = useRouter();
-  const [files, setFiles] = React.useState<
-    {
-      path: string | null | undefined;
-      preview: string;
-    }[]
-  >([]);
+
+  const [files, setFiles] = React.useState<FileWithUrl[]>([]);
   const ticketData = getTicketData();
   const customerId = connection.data.customerId;
   const [isSubmitted, setIsSubmitted] = React.useState(false);
@@ -80,8 +81,8 @@ const TicketSubmitContainer = (props: Props) => {
     fetchPolicy: "no-cache",
     onCompleted: async () => {
       const transformedFiles = files.map((file) => ({
-        url: file.path, // Saving "path" as "url"
-        name: file.preview, // Saving "preview" as "name"
+        url: readFile(file.url || ""),
+        name: file.name, // Saving "preview" as "name"
         type: "image",
       }));
 
