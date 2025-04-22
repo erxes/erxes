@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.10.1](https://github.com/erxes/erxes/compare/2.10.0...2.10.1) (2025-04-22)
+
+### Features
+
+* deal to msdynamic sync added ([#6000](https://github.com/erxes/erxes/issues/6000)) ([263a3c2](https://github.com/erxes/erxes/commit/263a3c2bc4610c8dcc3ab5e5044ae3a5d868b350))
+
+### Bug Fixes
+
+* **facebook:** can't send fb message when on error typing_on ([5459233](https://github.com/erxes/erxes/commit/545923367a2c9c0758cd9a783d25e09306c2be88))
+* **helper:** correct request handling for Instagram, Facebook, and WhatsApp integrations ([#5999](https://github.com/erxes/erxes/issues/5999)) ([fe90dc0](https://github.com/erxes/erxes/commit/fe90dc0671486958cf24cd841479ffcf956c2799))
+* **tms:** icon search ([16ac8ad](https://github.com/erxes/erxes/commit/16ac8ad1d237eca58ba56d62a757906d8d61a07f))
+* **tms:** visibible name ([88eddd8](https://github.com/erxes/erxes/commit/88eddd81b4bea02a760ad7ad49cd65567e464292))
+
 ## [2.10.0](https://github.com/erxes/erxes/compare/2.9.5...2.10.0) (2025-04-17)
 
 ### Bug Fixes
