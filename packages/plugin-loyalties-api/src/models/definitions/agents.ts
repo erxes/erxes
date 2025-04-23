@@ -56,7 +56,7 @@ const productRuleSchema = new Schema({
 
 export const agentSchema = new Schema({
   _id: field({ pkey: true }),
-  number: field({ type: String, unique: true }),
+  number: field({ type: String, unique: true, required: true }),
   customerIds: field({ type: [String] }),
   companyIds: field({ type: [String] }),
   status: field({ type: String, enum: AGENT_STATUSES.ALL, default: AGENT_STATUSES.DRAFT }),
@@ -76,3 +76,6 @@ export const agentSchema = new Schema({
   discountPercent: field({ type: Number, min: 0, max: 100 }),
   productRules: field({ type: [productRuleSchema], label: 'Product specific rules' })
 });
+
+// TODO: add indexes on other fields later depending on usage
+agentSchema.index({ number: 1 });
