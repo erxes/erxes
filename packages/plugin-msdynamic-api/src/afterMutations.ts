@@ -11,6 +11,8 @@ const allowTypes = {
 
 export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action, user } = params;
+  console.log(type, 'type');
+  console.log(action, 'action');
 
   if (!Object.keys(allowTypes).includes(type)) {
     return;
