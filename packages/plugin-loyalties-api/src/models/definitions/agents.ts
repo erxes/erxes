@@ -32,7 +32,7 @@ export interface IAgent extends Document {
   startDay?: Date;
   endDay?: Date;
   hasReturn: boolean;
-  productRule?: IProductRule[];
+  productRules?: IProductRule[];
   returnAmount?: number;
   returnPercent?: number;
   prepaidPercent?: number;
@@ -74,5 +74,5 @@ export const agentSchema = new Schema({
   // if hasReturn === false
   prepaidPercent: field({ type: Number, min: 0, max: 100 }),
   discountPercent: field({ type: Number, min: 0, max: 100 }),
-  productRule: field({ type: [productRuleSchema], label: 'Product specific rules' })
+  productRules: field({ type: [productRuleSchema], label: 'Product specific rules' })
 });
