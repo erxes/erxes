@@ -27,7 +27,9 @@ import {
   AssignmentCampaigns as AssignmentCampaignMutations,
   ScoreCampaigns as scoreCampaignMutations,
   voucherCodes as voucherCodeMutations,
+  Agents as AgentMutations
 } from './mutations';
+
 import {
   Donates as DonateQueries,
   DonateCampaigns as DonateCampaignQueries,
@@ -42,7 +44,9 @@ import {
   Assignments as AssignmentQueries,
   AssignmentCampaigns as AssignmentCampaignQueries,
   ScoreCampaigns as ScoreCampaignQueries,
+  Agents as AgentQueries
 } from './queries';
+
 const resolvers: any = async serviceDiscovery => ({
   ...customScalars,
   Donate,
@@ -71,7 +75,8 @@ const resolvers: any = async serviceDiscovery => ({
     ...AssignmentMutations,
     ...AssignmentCampaignMutations,
     ...scoreCampaignMutations,
-    ...voucherCodeMutations
+    ...voucherCodeMutations,
+    ...AgentMutations
   },
   Query: {
     ...loyaltyConfigQueries,
@@ -88,6 +93,7 @@ const resolvers: any = async serviceDiscovery => ({
     ...AssignmentQueries,
     ...AssignmentCampaignQueries,
     ...ScoreCampaignQueries,
+    ...AgentQueries
   },
 });
 

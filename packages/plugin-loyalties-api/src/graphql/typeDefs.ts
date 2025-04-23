@@ -79,6 +79,8 @@ import {
   mutations as voucherCodeMutations
 } from './schema/voucherCode';
 
+import { types as agentTypes, mutations as agentMutations, queries as agentQueries } from './schema/agents';
+
 const typeDefs = async () => {
   return gql`
     scalar JSON
@@ -112,6 +114,7 @@ const typeDefs = async () => {
     ${assignmentTypes}
     ${assignmentCampaignTypes}
     ${scoreCampaignTypes}
+    ${agentTypes}
 
     extend type Query {
       ${donateCampaignQueries}
@@ -128,6 +131,7 @@ const typeDefs = async () => {
       ${assignmentQueries}
       ${assignmentCampaignQueries}
       ${scoreCampaignQueries}
+      ${agentQueries}
     }
 
     extend type Mutation {
@@ -146,6 +150,7 @@ const typeDefs = async () => {
       ${assignmentCampaignMutations}
       ${scoreCampaignMutations}
       ${voucherCodeMutations}
+      ${agentMutations}
     }
   `;
 };
