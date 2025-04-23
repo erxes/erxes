@@ -11,8 +11,6 @@ const allowTypes = {
 
 export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action, user } = params;
-  console.log(type, 'type');
-  console.log(action, 'action');
 
   if (!Object.keys(allowTypes).includes(type)) {
     return;
@@ -77,15 +75,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
     }
 
     if (type === 'sales:deal' && action === 'update') {
-      console.log('-----deal-----');
-
       const deal = params.updatedDocument || params.object;
       const oldDeal = params.object;
       const destinationStageId = deal.stageId || '';
-
-      console.log(deal, 'updatedDocument');
-      console.log(oldDeal, 'oldDeal');
-      console.log(destinationStageId, 'destinationStageId');
 
       if (!(destinationStageId && destinationStageId !== oldDeal.stageId)) {
         return;
@@ -93,13 +85,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
       const configsArray = Object.values(configs) as any[];
 
-      console.log(configsArray, 'configsArray');
-
       const foundConfig = configsArray.find(
         (config) => config.useBoard && config.stageId === destinationStageId
       );
-
-      console.log(foundConfig, 'foundConfig');
 
       if (foundConfig) {
         syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);

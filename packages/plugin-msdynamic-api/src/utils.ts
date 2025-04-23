@@ -324,8 +324,6 @@ export const dealToDynamic = async (
         customer?.customFieldsDataByFieldCode?.vatCompany?.value,
     };
 
-    console.log(sendData, 'sendData');
-
     if (orderMsdNo) {
       urlParam = `(Document_Type='Order', No='${orderMsdNo}')`;
       lineUrlParam = `(Document_Type='Order',Document_No='${orderMsdNo}',Line_No=%Ln)`;
@@ -354,8 +352,6 @@ export const dealToDynamic = async (
       body: JSON.stringify(sendData),
     }).then((res) => res.json());
     const lineNoById = {};
-
-    console.log(responseSale, 'responseSale');
 
     if (responseSale) {
       const products = await sendCoreMessage({
