@@ -37,47 +37,6 @@ const nanoid = (len = 21) => {
   return randomString;
 };
 
-const getNumber = async (SavingContracts, type, contractTypeId) => {
-  const preNumbered = await SavingContracts.findOne(
-    {
-      contractTypeId: contractTypeId,
-    },
-    {},
-    { sort: { createdAt: -1 } }
-  );
-
-  if (!preNumbered) {
-    return `${type.number}${'0'.repeat(type.vacancy - 1)}1`;
-  }
-
-  const preNumber = preNumbered.number;
-  const preInt = Number(preNumber.replace(type.number, ''));
-
-  const preStrLen = String(preInt).length;
-  let lessLen = type.vacancy - preStrLen;
-
-  if (lessLen < 0) lessLen = 0;
-
-  return `${type.number}${'0'.repeat(lessLen)}${preInt + 1}`;
-};
-
-const getMostFrequentPaymentDay = async (schedule) => {
-  if (!Array.isArray(schedule) || schedule.length === 0) {
-    throw new Error('Invalid schedule data');
-  }
-
-  const dayCounts = {};
-
-  schedule.forEach((item) => {
-    const day = new Date(item.schdDate).getDate();
-    dayCounts[day] = (dayCounts[day] || 0) + 1;
-  });
-
-  return Object.keys(dayCounts).reduce((a, b) =>
-    dayCounts[a] > dayCounts[b] ? a : b
-  );
-};
-
 const fetchPolaris = async (op, body) => {
   const headers = {
     Op: op,
@@ -134,8 +93,8 @@ const command = async () => {
   SavingContractTypes = db.collection('saving_contract_types');
 
   console.log(`Process start at: ${new Date()}`);
-  // const customerFilter = { code: { $exists: true } };
-  const customerFilter = { code: 'CIF-13000112' };
+  const customerFilter = { code: { $exists: true } };
+  // const customerFilter = { code: 'CIF-13000112' };
   // CIF-13000098
   // CIF-13000112
 
@@ -145,48 +104,70 @@ const command = async () => {
   let per = 10000;
   const schedules = [];
 
-  const hadgalamj = await fetchPolaris('13610658', ['130011000031']);
+  while (step * per < customersCount) {
+    const skip = step * per;
+    const customers = await Customers.find(customerFilter)
+      .sort({ code: 1 })
+      .skip(skip)
+      .limit(per)
+      .toArray();
 
-  console.log(hadgalamj, 'hadgalamj');
+    let bulkOps = [];
 
-  const type = await SavingContractTypes.findOne({ code: hadgalamj.prodCode });
+    for (const customer of customers) {
+      if (!customer.code) {
+        continue;
+      }
 
-  // if (type) {
-  //   const document = {
-  //     _id: nanoid(),
-  //     contractTypeId: type._id,
-  //     status: 'normal',
-  //     number: await getNumber(SavingContracts, type, type._id),
-  //     customerType: 'customer',
-  //     savingAmount: hadgalamj.currentBal,
-  //     duration: hadgalamj.termLen,
-  //     interestRate: hadgalamj.intRate,
-  //     currency: 'MNT',
-  //     startDate: new Date(hadgalamj.startDate),
-  //     createdAt: new Date(hadgalamj.createdDate),
-  //   };
+      const getAccounts = await fetchPolaris('13610312', [
+        customer.code,
+        0,
+        20,
+      ]);
 
-  //   await SavingContracts.insertOne({ ...document });
-  // }
+      const termDeposits = getAccounts.filter(
+        (account) => account.acntType === 'TD'
+      );
 
-  // while (step * per < customersCount) {
-  //   const skip = step * per;
-  //   const customers = await Customers.find(customerFilter)
-  //     .sort({ code: 1 })
-  //     .skip(skip)
-  //     .limit(per)
-  //     .toArray();
+      if (termDeposits.length > 0) {
+        for (const deposit of termDeposits) {
+          const detailDeposit = await fetchPolaris('13610100', [
+            deposit.acntCode,
+            '0',
+          ]);
 
-  //   let bulkOps = [];
+          const type = await SavingContractTypes.findOne({
+            code: deposit.prodCode,
+          });
 
-  //   for (const customer of customers) {
-  //     if (!customer.code) {
-  //       continue;
-  //     }
-  //   }
+          const contract = await SavingContracts.findOne({
+            number: deposit.acntCode,
+          });
 
-  //   step++;
-  // }
+          if (type && !contract) {
+            const document = {
+              _id: nanoid(),
+              contractTypeId: type._id,
+              status: 'normal',
+              number: detailDeposit.acntCode,
+              customerType: 'customer',
+              customerId: customer._id,
+              savingAmount: detailDeposit.currentBal,
+              duration: detailDeposit.termLen,
+              interestRate: detailDeposit.intRate,
+              currency: 'MNT',
+              startDate: new Date(detailDeposit.startDate),
+              createdAt: new Date(detailDeposit.createdDate),
+            };
+
+            await SavingContracts.insertOne({ ...document });
+          }
+        }
+      }
+    }
+
+    step++;
+  }
 
   console.log(`Process finished at: ${new Date()}`);
 
