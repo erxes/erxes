@@ -92,19 +92,13 @@ function EditForm(props: Props) {
     }
   }, [item]);
 
-  // Close modal when clicking outside the drawer
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
-        closeModal();
-      }
-    };
+  // useEffect(() => {
+  //   document.addEventListener("mousedown", onHideModal);
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  //   return () => {
+  //     document.removeEventListener("mousedown", onHideModal);
+  //   };
+  // }, [isPopupVisible]);
 
   const onChangeStage = (stageId: string) => {
     setStageId(stageId);
@@ -255,15 +249,7 @@ function EditForm(props: Props) {
 
   return (
     <Portal>
-      <div
-        className="edit-form-trigger"
-        onClick={(e) => {
-          // Close only if clicked outside the drawer
-          if (triggerRef.current && !triggerRef.current.contains(e.target)) {
-            closeModal();
-          }
-        }}
-      >
+      <div className="edit-form-trigger" onClick={() => closeModal()}>
         <CSSTransition
           in={isPopupVisible}
           timeout={100}
