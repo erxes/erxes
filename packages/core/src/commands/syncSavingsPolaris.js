@@ -145,58 +145,29 @@ const command = async () => {
   let per = 10000;
   const schedules = [];
 
-  // const zeel = await fetchPolaris('13610210', ['CIF-13000112', 0, 10]);
-
-  // console.log(zeel, 'zeel');
-
-  // const filteredContracts = zeel.filter(
-  //   (contract) => contract.statusName !== 'Хаасан'
-  // );
-
-  // console.log(filteredContracts);
-
-  // const tololtHuvaari = await fetchPolaris('13610203', ['130013000562']);
-
-  // console.log(tololtHuvaari, 'tololtHuvaari');
-
-  // const ha = moment(zeel[0].startDate).format('YYYY-MM-DD');
-  // const he = moment(zeel[0].endDate).format('YYYY-MM-DD');
-
-  // console.log(ha, he);
-
-  // const huulga = await fetchPolaris('13610201', [
-  //   '130013000562',
-  //   '2025-03-28',
-  //   '2025-07-28',
-  //   0,
-  //   100,
-  // ]);
-
-  // console.log(huulga, 'huulga');
-
-  const hadgalamj = await fetchPolaris('13610100', ['130011000031', '0']);
+  const hadgalamj = await fetchPolaris('13610658', ['130011000031']);
 
   console.log(hadgalamj, 'hadgalamj');
 
   const type = await SavingContractTypes.findOne({ code: hadgalamj.prodCode });
 
-  if (type) {
-    const document = {
-      _id: nanoid(),
-      contractTypeId: type._id,
-      status: 'normal',
-      number: await getNumber(SavingContracts, type, type._id),
-      customerType: 'customer',
-      savingAmount: hadgalamj.currentBal,
-      duration: hadgalamj.termLen,
-      interestRate: hadgalamj.intRate,
-      currency: 'MNT',
-      startDate: new Date(hadgalamj.startDate),
-      createdAt: new Date(hadgalamj.createdDate),
-    };
+  // if (type) {
+  //   const document = {
+  //     _id: nanoid(),
+  //     contractTypeId: type._id,
+  //     status: 'normal',
+  //     number: await getNumber(SavingContracts, type, type._id),
+  //     customerType: 'customer',
+  //     savingAmount: hadgalamj.currentBal,
+  //     duration: hadgalamj.termLen,
+  //     interestRate: hadgalamj.intRate,
+  //     currency: 'MNT',
+  //     startDate: new Date(hadgalamj.startDate),
+  //     createdAt: new Date(hadgalamj.createdDate),
+  //   };
 
-    await SavingContracts.insertOne({ ...document });
-  }
+  //   await SavingContracts.insertOne({ ...document });
+  // }
 
   // while (step * per < customersCount) {
   //   const skip = step * per;
@@ -211,83 +182,6 @@ const command = async () => {
   //   for (const customer of customers) {
   //     if (!customer.code) {
   //       continue;
-  //     }
-
-  //     const pLoanContracts = await fetchPolaris('13610210', [
-  //       customer.code,
-  //       0,
-  //       10,
-  //     ]);
-
-  //     console.log(pLoanContracts.length, 'pLoanContracts');
-
-  //     for (const pLoanContract of pLoanContracts) {
-  //       console.log('---------------------------------------------');
-  //       const contractType = await LoanContractTypes.findOne({
-  //         code: pLoanContract.prodCode,
-  //       });
-
-  //       if (contractType) {
-  //         const document = {
-  //           _id: nanoid(),
-  //           contractTypeId: contractType._id,
-  //           number: await getNumber(LoanContracts, contractType),
-  //           repayment: 'fixed',
-  //           leaseType: 'finance',
-  //           currency: pLoanContract.curCode,
-  //           customerType: pLoanContract.custType === 0 ? 'customer' : 'company',
-  //           customerId: customer._id,
-  //           tenor: pLoanContract.termLen,
-  //           startDate: new Date(pLoanContract.startDate),
-  //           contractDate: new Date(pLoanContract.approvDate),
-  //           endDate: new Date(pLoanContract.endDate),
-  //           createdAt: new Date(),
-  //         };
-
-  //         const loanContract = await LoanContracts.insertOne({ ...document });
-
-  //         const pLoanSchedules = await fetchPolaris('13610203', [
-  //           pLoanContract.acntCode,
-  //         ]);
-
-  //         // for (const schedule of pLoanSchedules) {
-  //         //   schedules.push({
-  //         //     _id: nanoid(),
-  //         //     contractId: loanContract.insertedId.toString(),
-  //         //     status: 'pending',
-  //         //     payDate: new Date(schedule.schdDate),
-  //         //     balance: schedule.totalAmount,
-  //         //     interestNonce: schedule.intAmount,
-  //         //     payment: schedule.totalAmount,
-  //         //     total: schedule.totalAmount,
-  //         //   });
-  //         // }
-
-  //         const schedules = pLoanSchedules.map((schedule) => ({
-  //           _id: nanoid(),
-  //           contractId: loanContract.insertedId.toString(),
-  //           status: 'pending',
-  //           payDate: new Date(schedule.schdDate),
-  //           balance: schedule.totalAmount,
-  //           interestNonce: schedule.intAmount,
-  //           payment: schedule.totalAmount,
-  //           total: schedule.totalAmount,
-  //         }));
-
-  //         console.log(schedules, 'schedules');
-
-  //         await LoanFirstSchedules.insertMany(schedules);
-
-  //         await LoanContracts.updateOne(
-  //           { _id: loanContract.insertedId },
-  //           {
-  //             $set: {
-  //               firstPayDate: new Date(pLoanSchedules[0].schdDate),
-  //               scheduleDays: [await getMostFrequentPaymentDay(pLoanSchedules)],
-  //             },
-  //           }
-  //         );
-  //       }
   //     }
   //   }
 
