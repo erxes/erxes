@@ -19,8 +19,8 @@ import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
+import { Portal } from "@headlessui/react";
 import Watch from "../../containers/editForm/Watch";
-import { currentUser } from "@erxes/ui/src/auth/graphql";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
@@ -59,14 +59,20 @@ function EditForm(props: Props) {
   const location = useLocation();
   const navigate = useNavigate();
   const wrapperRef = useRef<any>(null);
+  const triggerRef = useRef<any>(null);
 
   const isFullQueryParam = routerUtils.getParam(location, "isFull");
 
   const [stageId, setStageId] = useState(item.stageId);
   const [updatedItem, setUpdatedItem] = useState(item);
   const [prevStageId, setPrevStageId] = useState<string>("");
+  // const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null);
 
   const isFullMode = isFullQueryParam === "true" ? true : false;
+
+  // useEffect(() => {
+  //   setPortalRoot(document.getElementById("portal-root"));
+  // }, []);
 
   useEffect(() => {
     if (item.stageId !== stageId) {
@@ -86,13 +92,19 @@ function EditForm(props: Props) {
     }
   }, [item]);
 
-  // useEffect(() => {
-  //   document.addEventListener("mousedown", onHideModal);
+  // Close modal when clicking outside the drawer
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+        closeModal();
+      }
+    };
 
-  //   return () => {
-  //     document.removeEventListener("mousedown", onHideModal);
-  //   };
-  // }, [isPopupVisible]);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const onChangeStage = (stageId: string) => {
     setStageId(stageId);
@@ -242,32 +254,42 @@ function EditForm(props: Props) {
   };
 
   return (
-    <div className="edit-form-trigger">
-      <CSSTransition
-        in={isPopupVisible}
-        timeout={100}
-        classNames="slide-in-right"
-        unmountOnExit={true}
+    <Portal>
+      <div
+        className="edit-form-trigger"
+        onClick={(e) => {
+          // Close only if clicked outside the drawer
+          if (triggerRef.current && !triggerRef.current.contains(e.target)) {
+            closeModal();
+          }
+        }}
       >
-        <RightDrawerContainer
-          width={isFullMode ? "calc(100% - 100px)" : "45%"}
-          ref={wrapperRef}
+        <CSSTransition
+          in={isPopupVisible}
+          timeout={100}
+          classNames="slide-in-right"
+          unmountOnExit={true}
         >
-          <EditFormContent>
-            {renderArchiveStatus()}
+          <RightDrawerContainer
+            width={isFullMode ? "calc(100% - 100px)" : "45%"}
+            ref={wrapperRef}
+          >
+            <EditFormContent>
+              {renderArchiveStatus()}
 
-            {renderHeader()}
-            {props.formContent({
-              state: { stageId, updatedItem, prevStageId },
-              saveItem: saveItemHandler,
-              onChangeStage,
-              copy,
-              remove,
-            })}
-          </EditFormContent>
-        </RightDrawerContainer>
-      </CSSTransition>
-    </div>
+              {renderHeader()}
+              {props.formContent({
+                state: { stageId, updatedItem, prevStageId },
+                saveItem: saveItemHandler,
+                onChangeStage,
+                copy,
+                remove,
+              })}
+            </EditFormContent>
+          </RightDrawerContainer>
+        </CSSTransition>
+      </div>
+    </Portal>
   );
 }
 

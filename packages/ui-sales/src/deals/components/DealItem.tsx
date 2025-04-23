@@ -5,6 +5,7 @@ import Assignees from "../../boards/components/Assignees";
 import { Content } from "../../boards/styles/stage";
 import Details from "../../boards/components/Details";
 import DueDateLabel from "../../boards/components/DueDateLabel";
+import EditForm from "../../boards/containers/editForm/EditForm";
 import { IDeal } from "../types";
 import ItemArchivedStatus from "../../boards/components/portable/ItemArchivedStatus";
 import { ItemContainer } from "../../boards/styles/common";
@@ -21,6 +22,7 @@ type Props = {
   item: IDeal;
   beforePopupClose?: () => void;
   onClick?: () => void;
+  isFormVisible?: boolean;
   options?: IOptions;
   portable?: boolean;
   onAdd?: (stageId: string, item: IDeal) => void;
@@ -29,6 +31,25 @@ type Props = {
 };
 
 class DealItem extends React.PureComponent<Props> {
+  renderForm = () => {
+    const { item, isFormVisible, stageId } = this.props;
+
+    if (!isFormVisible) {
+      return null;
+    }
+
+    return (
+      <EditForm
+        {...this.props}
+        stageId={stageId || item.stageId}
+        itemId={item._id}
+        hideHeader={true}
+        isPopupVisible={isFormVisible}
+        // beforePopupClose={handleBeforePopupClose}
+      />
+    );
+  };
+
   renderStatusLabel(text, color) {
     const { item } = this.props;
 
@@ -153,6 +174,7 @@ class DealItem extends React.PureComponent<Props> {
             {this.renderStatus(item.stage)}
             <Content>{this.renderContent()}</Content>
           </ItemContainer>
+          {this.renderForm()}
         </>
       );
     }
@@ -161,6 +183,7 @@ class DealItem extends React.PureComponent<Props> {
       <>
         <Labels labels={item.labels} indicator={true} />
         <Content onClick={onClick}>{this.renderContent()}</Content>
+        {this.renderForm()}
       </>
     );
   }

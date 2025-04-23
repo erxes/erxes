@@ -1,12 +1,19 @@
 import * as routerUtils from "@erxes/ui/src/utils/router";
 
 import { Draggable, Droppable } from "react-beautiful-dnd";
-import { DropZone, EmptyContainer, Wrapper } from "../../styles/common";
+import {
+  DropZone,
+  EmptyContainer,
+  ItemContainer,
+  NotifiedContainer,
+  Wrapper,
+} from "../../styles/common";
 import { IItem, IOptions } from "../../types";
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Icon from "@erxes/ui/src/components/Icon";
 import Item from "./Item";
 import client from "@erxes/ui/src/apolloClient";
 import dayjs from "dayjs";
@@ -74,6 +81,18 @@ function DraggableContainer(props: DraggableContainerProps) {
     setHasNotified(true);
   };
 
+  const renderHasNotified = () => {
+    if (hasNotified) {
+      return null;
+    }
+
+    return (
+      <NotifiedContainer>
+        <Icon icon="bell" size={14} />
+      </NotifiedContainer>
+    );
+  };
+
   const now = dayjs(new Date());
   const createdAt = dayjs(item.createdAt);
   const isOld =
@@ -87,18 +106,23 @@ function DraggableContainer(props: DraggableContainerProps) {
       isDragDisabled={isDragDisabled}
     >
       {(dragProvided, dragSnapshot) => (
-        <Item
-          dragProvided={dragProvided}
-          dragSnapshot={dragSnapshot}
-          isOld={isOld}
-          key={item._id}
-          stageId={stageId}
-          item={item}
-          onClick={onClick}
-          hasNotified={hasNotified}
-          beforePopupClose={beforePopupClose}
-          options={options}
-        />
+        <ItemContainer
+          $isDragging={dragSnapshot.isDragging}
+          $isOld={isOld}
+          ref={dragProvided.innerRef}
+          {...dragProvided.draggableProps}
+          {...dragProvided.dragHandleProps}
+        >
+          {renderHasNotified()}
+          <Item
+            key={item._id}
+            item={item}
+            onClick={onClick}
+            hasNotified={hasNotified}
+            beforePopupClose={beforePopupClose}
+            options={options}
+          />
+        </ItemContainer>
       )}
     </Draggable>
   );
