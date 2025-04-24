@@ -1,13 +1,12 @@
 import * as routerUtils from "@erxes/ui/src/utils/router";
 
 import { IItem, IOptions } from "../../types";
-import { ItemContainer, NotifiedContainer } from "../../styles/common";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import EditForm from "../../containers/editForm/EditForm";
 import { IDeal } from "../../../deals/types";
 import Icon from "@erxes/ui/src/components/Icon";
+import { NotifiedContainer } from "../../styles/common";
 import queryString from "query-string";
 
 type Props = {
@@ -19,10 +18,7 @@ type Props = {
   itemRowComponent?: any;
   groupType?: string;
   groupObj?: any;
-  dragSnapshot?: any;
-  dragProvided?: any;
   hasNotified?: boolean;
-  isOld?: boolean;
 };
 
 const Item: React.FC<Props> = (props) => {
@@ -30,13 +26,9 @@ const Item: React.FC<Props> = (props) => {
     item,
     groupObj,
     options,
-    stageId,
     itemRowComponent,
-    isOld,
     hasNotified,
     beforePopupClose,
-    dragSnapshot,
-    dragProvided,
   } = props;
 
   const [isFormVisible, setIsFormVisible] = useState<boolean>(false);
@@ -90,39 +82,14 @@ const Item: React.FC<Props> = (props) => {
     );
   };
 
-  const renderForm = () => {
-    if (!isFormVisible) {
-      return null;
-    }
-
-    return (
-      <EditForm
-        {...props}
-        stageId={stageId || item.stageId}
-        itemId={item._id}
-        hideHeader={true}
-        isPopupVisible={isFormVisible}
-        beforePopupClose={handleBeforePopupClose}
-      />
-    );
-  };
-
   const ItemComponent = itemRowComponent || options.Item;
 
   return (
-    <>
-      <ItemContainer
-        $isDragging={dragSnapshot.isDragging}
-        $isOld={isOld}
-        ref={dragProvided.innerRef}
-        {...dragProvided.draggableProps}
-        {...dragProvided.dragHandleProps}
-      >
-        {renderHasNotified()}
-        <ItemComponent {...props} beforePopupClose={handleBeforePopupClose} />
-      </ItemContainer>
-      {renderForm()}
-    </>
+    <ItemComponent
+      {...props}
+      beforePopupClose={handleBeforePopupClose}
+      isFormVisible={isFormVisible}
+    />
   );
 };
 
