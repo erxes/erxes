@@ -27,13 +27,13 @@ type Props = {
   options: IOptions;
   item: IItem;
   addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
-  synchSingleCard: (itemId: string) => void;
   removeItem: (itemId: string, callback?: () => void) => void;
   copyItem: (itemId: string, callback: () => void, msg?: string) => void;
   beforePopupClose: (afterPopupClose?: () => void) => void;
   formContent: ({ state, copy, remove }: IEditFormContent) => React.ReactNode;
   onUpdate: (item: IItem, prevStageId?) => void;
   saveItem: (doc, callback?: (item) => void) => void;
+  synchSingleCard?: (itemId: string) => void;
   isPopupVisible?: boolean;
   hideHeader?: boolean;
   sendToBoard?: (item: any) => void;
@@ -54,25 +54,20 @@ function EditForm(props: Props) {
     sendToBoard,
     currentUser,
     isPopupVisible,
+    synchSingleCard,
   } = props;
 
   const location = useLocation();
   const navigate = useNavigate();
   const wrapperRef = useRef<any>(null);
-  const triggerRef = useRef<any>(null);
 
   const isFullQueryParam = routerUtils.getParam(location, "isFull");
 
   const [stageId, setStageId] = useState(item.stageId);
   const [updatedItem, setUpdatedItem] = useState(item);
   const [prevStageId, setPrevStageId] = useState<string>("");
-  // const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null);
 
   const isFullMode = isFullQueryParam === "true" ? true : false;
-
-  // useEffect(() => {
-  //   setPortalRoot(document.getElementById("portal-root"));
-  // }, []);
 
   useEffect(() => {
     if (item.stageId !== stageId) {
@@ -91,14 +86,6 @@ function EditForm(props: Props) {
       setUpdatedItem(props.item);
     }
   }, [item]);
-
-  // useEffect(() => {
-  //   document.addEventListener("mousedown", onHideModal);
-
-  //   return () => {
-  //     document.removeEventListener("mousedown", onHideModal);
-  //   };
-  // }, [isPopupVisible]);
 
   const onChangeStage = (stageId: string) => {
     setStageId(stageId);
@@ -155,10 +142,7 @@ function EditForm(props: Props) {
         localStorage.removeItem(`${updatedItem._id}Name`);
       }
 
-      props.synchSingleCard(updatedItem._id);
-      // if (updatedItem && props.onUpdate) {
-      //   props.onUpdate(updatedItem, prevStageId);
-      // }
+      synchSingleCard && synchSingleCard(updatedItem._id);
     });
   };
 
@@ -249,7 +233,7 @@ function EditForm(props: Props) {
 
   return (
     <Portal>
-      <div className="edit-form-trigger" onClick={() => closeModal()}>
+      <div className="edit-form-trigger">
         <CSSTransition
           in={isPopupVisible}
           timeout={100}

@@ -28,6 +28,7 @@ type Props = {
   onAdd?: (stageId: string, item: IDeal) => void;
   onRemove?: (dealId: string, stageId: string) => void;
   onUpdate?: (item: IDeal) => void;
+  synchSingleCard?: (itemId: string) => void;
 };
 
 class DealItem extends React.PureComponent<Props> {
