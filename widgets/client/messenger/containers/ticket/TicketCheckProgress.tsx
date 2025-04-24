@@ -28,7 +28,7 @@ const TicketCheckProgressContainer = ({ isForget, setIsForget }: Props) => {
     {
       fetchPolicy: "no-cache",
       onCompleted(data) {
-        setTicketData(data.ticketCheckProgress);
+        setTicketData(data.widgetsTicketCheckProgress);
         data && setRoute("ticket-progress");
       },
       onError(error) {
@@ -42,7 +42,7 @@ const TicketCheckProgressContainer = ({ isForget, setIsForget }: Props) => {
     {
       fetchPolicy: "no-cache",
       onCompleted(data) {
-        setTicketData(data.ticketCheckProgressForget);
+        setTicketData(data.widgetsTicketCheckProgressForget);
         data && setRoute("ticket-forget");
       },
       onError(error) {

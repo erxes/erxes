@@ -170,15 +170,15 @@ const CLOUDFLARE_LEAVE_CALL = gql`
 `;
 
 const TICKET_ADD = gql`
-  mutation TicketsAdd(
+  mutation widgetTicketCreated(
     $name: String!
     $description: String
     $attachments: [AttachmentInput]
-    $stageId: String
-    $customerIds: [String]
-    $type: String
+    $stageId: String!
+    $customerIds: [String!]!
+    $type: String!
   ) {
-    ticketsAdd(
+    widgetTicketCreated(
       name: $name
       description: $description
       attachments: $attachments
@@ -200,8 +200,8 @@ const TICKET_ADD = gql`
 `;
 
 const CUSTOMER_EDIT = gql`
-  mutation CustomersEdit($id: String!, $firstName: String, $lastName: String, $emails: [String], $phones: [String]) {
-    customersEdit(_id: $id, firstName: $firstName, lastName: $lastName, emails: $emails, phones: $phones) {
+  mutation WidgetsTicketCustomersEdit($customerId: String, $firstName: String, $lastName: String, $emails: [String], $phones: [String]) {
+    widgetsTicketCustomersEdit(customerId: $customerId, firstName: $firstName, lastName: $lastName, emails: $emails, phones: $phones) {
       _id
       firstName
       email
@@ -210,13 +210,13 @@ const CUSTOMER_EDIT = gql`
 `;
 
 const TICKET_COMMENTS_ADD = gql`
-  mutation clientPortalCommentsAdd(
+  mutation widgetsTicketCommentAdd(
     $type: String!
     $typeId: String!
     $content: String!
     $userType: String!
   ) {
-    clientPortalCommentsAdd(
+    widgetsTicketCommentAdd(
       type: $type
       typeId: $typeId
       content: $content
@@ -230,8 +230,8 @@ const TICKET_COMMENTS_ADD = gql`
 `;
 
 const TICKET_CHECK_PROGRESS = gql`
-  mutation TicketCheckProgress($number: String!) {
-    ticketCheckProgress(number: $number) {
+  mutation widgetsTicketCheckProgress($number: String!) {
+    widgetsTicketCheckProgress(number: $number) {
       _id
       name
       number
@@ -239,6 +239,11 @@ const TICKET_CHECK_PROGRESS = gql`
       stage {
         name
         _id
+      }
+      comments {
+        _id
+        content
+        createdAt
       }
       attachments {
         url
@@ -251,8 +256,8 @@ const TICKET_CHECK_PROGRESS = gql`
 `;
 
 const TICKET_CHECK_PROGRESS_FORGET = gql`
-  mutation ticketCheckProgressForget($email: String, $phoneNumber: String) {
-    ticketCheckProgressForget(email: $email, phoneNumber: $phoneNumber)
+  mutation widgetsTicketCheckProgressForget($email: String, $phoneNumber: String) {
+    widgetsTicketCheckProgressForget(email: $email, phoneNumber: $phoneNumber)
   }
 `;
 

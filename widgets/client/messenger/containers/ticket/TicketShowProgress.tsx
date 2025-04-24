@@ -15,22 +15,9 @@ const TicketShowProgressContainer = (props: Props) => {
   const { ticketData } = useTicket();
   const [comment, setComment] = React.useState("");
 
-  const {
-    data: comments,
-    loading: commentsLoading,
-    error,
-    refetch: commentQueryRefetch,
-  } = useQuery(TICKET_COMMENTS, {
-    variables: {
-      typeId: ticketData._id,
-      type: "ticket",
-    },
-    fetchPolicy: "network-only",
-  });
-
   const [commentsAdd, { loading }] = useMutation(TICKET_COMMENTS_ADD, {
     onCompleted() {
-      commentQueryRefetch();
+      setComment("");
     },
     onError(error) {
       return alert(error.message);
@@ -60,7 +47,7 @@ const TicketShowProgressContainer = (props: Props) => {
     });
   };
 
-  if (activityLoading || commentsLoading) {
+  if (activityLoading || loading) {
     return <div className="loader" />;
   }
 
@@ -68,8 +55,8 @@ const TicketShowProgressContainer = (props: Props) => {
     <TicketShowProgress
       activityLogs={activityData?.activityLogs || []}
       setComment={setComment}
+      comment={comment}
       onComment={onComment}
-      comments={comments?.clientPortalComments || []}
     />
   );
 };

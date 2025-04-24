@@ -4101,17 +4101,32 @@ select.form-control:focus,
   height: 2.75rem;
   min-width: 2.75rem;
   cursor: pointer;
+  transition: all ease 0.3s;
+
   &:hover {
     border-radius: 9999px;
-    background-color: hsla(0, 0%, 100%, 0.25);
+
     svg {
       fill: white;
     }
+
+    .nav-content span {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+    }
   }
+
   &.active {
     padding-right: 0.625rem;
     padding-left: 0.625rem;
     background-color: transparent;
+
+    .nav-content span {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+    }
   }
   .nav-content {
     height: 100%;
@@ -4120,13 +4135,20 @@ select.form-control:focus,
     display: flex;
     align-items: center;
     gap: 0.5rem;
+
     span {
       font-size: 0.85rem;
       font-weight: 500;
       color: white;
       background-color: transparent;
+      transition: all ease 0.3s;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(-4px);
+      white-space: nowrap;
     }
   }
 }

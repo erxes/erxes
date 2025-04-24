@@ -42,14 +42,14 @@ const TicketSubmitContainer = (props: Props) => {
     loading: customerLoading,
     refetch: customerRefetch,
   } = useQuery(gql(customerDetail), {
-    variables: { id: customerId },
+    variables: { customerId },
     skip: !customerId,
   });
 
   React.useEffect(() => {
-    if (customer && customer.customerDetail) {
+    if (customer && customer.widgetsTicketCustomerDetail) {
       const { emails, firstName, lastName, phones } =
-        customer.customerDetail || ({} as ICustomer);
+        customer.widgetsTicketCustomerDetail || ({} as ICustomer);
 
       setFormData((prev) => ({
         ...prev,
@@ -63,11 +63,11 @@ const TicketSubmitContainer = (props: Props) => {
 
   const [ticketAdd, { loading }] = useMutation(TICKET_ADD, {
     onCompleted(data) {
-      const { ticketsAdd } = data || {};
+      const { widgetTicketCreated } = data || {};
 
       return (
         <>
-          {setTicketNumber(ticketsAdd.number || "")}
+          {setTicketNumber(widgetTicketCreated.number || "")}
           {setIsSubmitted(true)}
         </>
       );
@@ -118,7 +118,7 @@ const TicketSubmitContainer = (props: Props) => {
 
     return customerEdit({
       variables: {
-        id: customerId,
+        customerId,
         firstName: formData.firstName,
         lastName: formData.lastName,
         emails: [formData.email],

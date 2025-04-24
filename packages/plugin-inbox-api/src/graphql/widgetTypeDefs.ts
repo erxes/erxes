@@ -170,8 +170,10 @@ export const mutations = () => `
   widgetsTicketCheckProgressForget(email: String, phoneNumber: String): JSON
   widgetsTicketCheckProgress(number: String!): Ticket
   widgetsTicketCommentAdd(
-    number: String!
+    type: String!
+    typeId: String!
     content: String!
+    userType: String!
   ): Ticket
   widgetTicketCreated(
     name: String!

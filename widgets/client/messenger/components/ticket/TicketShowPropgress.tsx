@@ -12,7 +12,7 @@ import { useTicket } from "../../context/Ticket";
 
 type Props = {
   activityLogs: ITicketActivityLog[];
-  comments: ITicketComment[];
+  comment: string;
   setComment: (comment: string) => void;
   onComment: () => void;
 };
@@ -20,8 +20,8 @@ type Props = {
 const TicketShowProgress: React.FC<Props> = ({
   onComment,
   setComment,
+  comment,
   activityLogs,
-  comments,
 }) => {
   const { ticketData = {} } = useTicket();
 
@@ -59,16 +59,24 @@ const TicketShowProgress: React.FC<Props> = ({
   };
 
   const renderComments = () => {
-    return comments.map((comment) => {
+    if (!ticketData.comments || ticketData.comments.length === 0) return null;
+
+    return (ticketData?.comments || []).map((comment: ITicketComment) => {
       const { userType, createdUser, createdAt, content } =
         comment || ({} as ITicketComment);
-      const { firstName, lastName, email, avatar } = createdUser || {};
+      const { firstName, lastName, email, avatar } = createdUser || ({} as any);
 
       return (
         <div key={comment._id} className="ticket-progress-log">
           <div className="user">
             <img
-              src={avatar.includes("read-file") ? avatar : readFile(avatar)}
+              src={
+                avatar
+                  ? avatar.includes("read-file")
+                    ? avatar
+                    : readFile(avatar)
+                  : ""
+              }
               alt=""
             />
           </div>
@@ -134,6 +142,7 @@ const TicketShowProgress: React.FC<Props> = ({
             <Input
               id="comment"
               label="Add a comment"
+              value={comment}
               onChange={(e) => setComment(e.target.value)}
             />
           </div>

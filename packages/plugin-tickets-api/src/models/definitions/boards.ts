@@ -1,14 +1,14 @@
-import { Document, Schema } from "mongoose";
-import { customFieldSchema, ICustomField } from "./common";
 import {
   BOARD_STATUSES,
   BOARD_STATUSES_OPTIONS,
   BOARD_TYPES,
   HACK_SCORING_TYPES,
-  VISIBLITIES,
   PROBABILITY,
-  TIME_TRACK_TYPES
+  TIME_TRACK_TYPES,
+  VISIBLITIES
 } from "./constants";
+import { Document, Schema } from "mongoose";
+import { ICustomField, customFieldSchema } from "./common";
 import { field, schemaWrapper } from "./utils";
 
 interface ICommonFields {
@@ -20,6 +20,7 @@ interface ICommonFields {
 export interface IComment {
   _id: string;
   userId: string;
+  userType: string;
   content: string;
   createdAt: Date;
 }
@@ -151,6 +152,7 @@ const commentSchema = new Schema({
   number: { type: String, required: true },
   userId: { type: String, required: true },
   content: { type: String, required: true },
+  userType: { type: String, required: true },
   parentId: field({ type: String, label: "Parent Id" }),
   createdAt: { type: Date, default: Date.now }
 });

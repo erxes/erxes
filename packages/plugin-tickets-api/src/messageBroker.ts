@@ -1,29 +1,30 @@
-import { sendMessage } from "@erxes/api-utils/src/core";
 import type {
   MessageArgs,
   MessageArgsOmitService
 } from "@erxes/api-utils/src/core";
-
-import { generateModels } from "./connectionResolver";
-import { itemsEdit, publishHelper } from "./graphql/resolvers/mutations/utils";
 import {
-  createConformity,
-  notifiedUserIds,
-  sendNotifications
-} from "./graphql/utils";
+  consumeQueue,
+  consumeRPCQueue
+} from "@erxes/api-utils/src/messageBroker";
 import {
   conversationConvertToCard,
   createBoardItem,
   updateName
 } from "./models/utils";
+import {
+  createConformity,
+  notifiedUserIds,
+  sendNotifications
+} from "./graphql/utils";
+import { itemsEdit, publishHelper } from "./graphql/resolvers/mutations/utils";
+
+import { checkItemPermByUser } from "../src/graphql/resolvers/queries/utils";
+import { generateModels } from "./connectionResolver";
 import { getCardItem } from "./utils";
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
-import {
-  consumeQueue,
-  consumeRPCQueue
-} from "@erxes/api-utils/src/messageBroker";
-import { checkItemPermByUser } from "../src/graphql/resolvers/queries/utils";
 import { itemsAdd } from "../src/graphql/resolvers/mutations/utils";
+import { sendMessage } from "@erxes/api-utils/src/core";
+
 export const setupMessageConsumers = async () => {
   consumeRPCQueue("tickets:tickets.create", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -370,8 +371,8 @@ export const setupMessageConsumers = async () => {
   });
   consumeRPCQueue("tickets:widgets.commentAdd", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-    const { number, content, user } = data;
-    const comment = await models.Tickets.createTicketComment(number, content, user)
+    const { type, _id, content, userType } = data;
+    const comment = await models.Tickets.createTicketComment(type, _id, content, userType)
     return {
       status: "success",
       data: comment

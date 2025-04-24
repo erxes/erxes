@@ -1,44 +1,40 @@
 import * as strip from "strip";
 
 import {
+  AUTO_BOT_MESSAGES,
+  BOT_MESSAGE_TYPES
+} from "../../models/definitions/constants";
+import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
   MESSAGE_TYPES
 } from "../../models/definitions/constants";
-
 import {
   IAttachment,
   IIntegrationDocument,
   IMessengerDataMessagesItem
 } from "../../models/definitions/integrations";
-
-import { debugError, debugInfo } from "@erxes/api-utils/src/debuggers";
-import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
-import redis from "@erxes/api-utils/src/redis";
-import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
-
-import {
-  AUTO_BOT_MESSAGES,
-  BOT_MESSAGE_TYPES
-} from "../../models/definitions/constants";
-
-import { getEnv, sendToWebhook } from "@erxes/api-utils/src";
-
-import { IBrowserInfo } from "@erxes/api-utils/src/definitions/common";
-import EditorAttributeUtil from "@erxes/api-utils/src/editorAttributeUtils";
-import { getServices } from "@erxes/api-utils/src/serviceDiscovery";
 import { IContext, IModels } from "../../connectionResolver";
-import { VERIFY_EMAIL_TRANSLATIONS } from "../../constants";
-import { trackViewPageEvent } from "../../events";
+import { debugError, debugInfo } from "@erxes/api-utils/src/debuggers";
+import { getEnv, sendToWebhook } from "@erxes/api-utils/src";
 import {
-  sendAutomationsMessage,
   handleAutomation,
+  sendAutomationsMessage,
   sendCoreMessage,
   sendIntegrationsMessage,
   sendTicketsMessage
 } from "../../messageBroker";
-import fetch from "node-fetch";
+
+import EditorAttributeUtil from "@erxes/api-utils/src/editorAttributeUtils";
+import { IBrowserInfo } from "@erxes/api-utils/src/definitions/common";
+import { VERIFY_EMAIL_TRANSLATIONS } from "../../constants";
 import { compileFunction } from "vm";
+import fetch from "node-fetch";
+import { getServices } from "@erxes/api-utils/src/serviceDiscovery";
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+import redis from "@erxes/api-utils/src/redis";
+import { trackViewPageEvent } from "../../events";
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -315,17 +311,19 @@ const widgetMutations = {
   async widgetsTicketCommentAdd(
     _root,
     args: {
-      number?: string;
-      content: string
+      type?: string;
+      typeId?: string;
+      content?: string;
+      userType?: string;
     },
     { models, subdomain, user }: IContext
   ) {
-    const { number, content } = args
+    const { type, typeId, content, userType } = args
     return sendTicketsMessage({
       subdomain,
       action: 'widgets.commentAdd',
       data: {
-        number, content, user
+        type, _id: typeId, content, userType
       },
       isRPC: true,
     });

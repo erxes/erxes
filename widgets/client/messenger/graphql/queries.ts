@@ -97,8 +97,8 @@ query clientPortalComments($typeId: String!, $type: String!) {
 `;
 
 const TICKET_ACTIVITY_LOGS = gql`
-  query activityLogs($contentType: String!, $contentId: String) {
-    activityLogs(contentType: $contentType, contentId: $contentId) {
+  query widgetsTicketActivityLogs($contentType: String!, $contentId: String) {
+    widgetsTicketActivityLogs(contentType: $contentType, contentId: $contentId) {
       _id
       action
       contentType
@@ -237,8 +237,8 @@ const getEngageMessage = `
 `;
 
 const customerDetail = `
-  query CustomerDetail($id: String!) {
-    customerDetail(_id: $id) {
+  query WidgetsTicketCustomerDetail($customerId: String) {
+    widgetsTicketCustomerDetail(customerId: $customerId) {
       _id
       emails
       email
