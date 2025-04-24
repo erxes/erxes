@@ -5,7 +5,6 @@ import type {
 } from "@erxes/api-utils/src/core";
 
 import { generateModels } from "./connectionResolver";
-
 import { itemsEdit, publishHelper } from "./graphql/resolvers/mutations/utils";
 import {
   createConformity,
@@ -23,7 +22,8 @@ import {
   consumeQueue,
   consumeRPCQueue
 } from "@erxes/api-utils/src/messageBroker";
-
+import { checkItemPermByUser } from "../src/graphql/resolvers/queries/utils";
+import { itemsAdd } from "../src/graphql/resolvers/mutations/utils";
 export const setupMessageConsumers = async () => {
   consumeRPCQueue("tickets:tickets.create", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -276,6 +276,105 @@ export const setupMessageConsumers = async () => {
     return {
       status: "success",
       data: {}
+    };
+  });
+
+
+  consumeRPCQueue("tickets:widgets.createTicket", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { doc, user } = data;
+    const result = await itemsAdd(
+      models,
+      subdomain,
+      doc,
+      "ticket",
+      models.Tickets.createTicket,
+      user
+    );
+    return {
+      status: "success",
+      data: result
+    };
+  });
+  consumeRPCQueue("tickets:widgets.fetchTicketProgress", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { number, user } = data;
+    if (!number) {
+      throw new Error("Ticket number is required");
+    }
+
+    const ticket = await models.Tickets.findOne({ number });
+
+    if (!ticket) {
+      throw new Error("Ticket not found");
+    }
+    const result = await checkItemPermByUser(subdomain, models, user, ticket);
+    return {
+      status: "success",
+      data: result
+    };
+  });
+
+
+  consumeRPCQueue("tickets:widgets.fetchTicketProgressForget", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { email, phoneNumber } = data;
+    let customer;
+    if (email) {
+      customer = await sendCoreMessage({
+        subdomain,
+        action: "customers.findOne",
+        data: { primaryEmail: email },
+        isRPC: true,
+        defaultValue: null
+      });
+    } else if (phoneNumber) {
+      customer = await sendCoreMessage({
+        subdomain,
+        action: "customers.findOne",
+        data: { primaryPhone: phoneNumber },
+        isRPC: true,
+        defaultValue: null
+      });
+    }
+
+    const customerIds = [customer._id];
+    const mainTypeIds = await sendCoreMessage({
+      subdomain,
+      action: "conformities.findConformities",
+      data: {
+        mainType: "ticket",
+        relType: "customer",
+        relTypeId: customerIds
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+    const ticketIds = mainTypeIds.map((mainType) => mainType.mainTypeId);
+
+    const tickets = await models.Tickets.find({
+      _id: { $in: ticketIds },
+      number: { $exists: true, $ne: null }
+    });
+    const formattedTickets = tickets.map((ticket) => ({
+      userId: ticket.userId,
+      name: ticket.name,
+      stageId: ticket.stageId,
+      number: ticket.number,
+      type: ticket.type
+    }));
+    return {
+      status: "success",
+      data: formattedTickets
+    };
+  });
+  consumeRPCQueue("tickets:widgets.commentAdd", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { number, content, user } = data;
+    const comment = await models.Tickets.createTicketComment(number, content, user)
+    return {
+      status: "success",
+      data: comment
     };
   });
 

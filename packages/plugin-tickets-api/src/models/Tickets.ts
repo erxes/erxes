@@ -54,7 +54,7 @@ export const loadTicketClass = (models: IModels, subdomain: string) => {
 
       return createBoardItem(models, subdomain, doc, "ticket");
     }
-    public static async createTicketComment(number: string, content: string, user:IUserDocument) {
+    public static async createTicketComment(number: string, content: string, user: IUserDocument) {
       try {
 
         if (!number || !content) {
@@ -62,13 +62,12 @@ export const loadTicketClass = (models: IModels, subdomain: string) => {
         }
 
         const ticket = await models.Tickets.findOne({ number });
-
         if (!ticket) {
           throw new Error("Ticket not found");
         }
 
         const newComment = {
-          userId : user._id,
+          userId: user._id,
           content,
           createdAt: new Date()
         };

@@ -145,7 +145,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       customerFields: ICustomerFieldsInput,
       idsToExclude?: string[] | string
     ) {
-      const query: { status: {}; [key: string]: any } = {
+      const query: { status: {};[key: string]: any } = {
         status: { $ne: 'deleted' },
       };
       let previousEntry;

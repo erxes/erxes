@@ -34,7 +34,8 @@ import {
   sendAutomationsMessage,
   handleAutomation,
   sendCoreMessage,
-  sendIntegrationsMessage
+  sendIntegrationsMessage,
+  sendTicketsMessage
 } from "../../messageBroker";
 import fetch from "node-fetch";
 import { compileFunction } from "vm";
@@ -49,10 +50,20 @@ interface IWidgetEmailParams {
   attachments?: IAttachment[];
 }
 
+interface ITicketWidget {
+  name: string;
+  description: string;
+  attachments: IAttachment[];
+  stageId: string;
+  type: string; // consider narrowing this down to specific ticket types, e.g., "request" | "issue"
+  customerIds: string[];
+}
+
+
 export const pConversationClientMessageInserted = async (
   models,
   subdomain,
-  message: { _id: string; [other: string]: any }
+  message: { _id: string;[other: string]: any }
 ) => {
   const conversation = await models.Conversations.findOne(
     {
@@ -234,6 +245,109 @@ const createVisitor = async (subdomain: string, visitorId: string) => {
 };
 
 const widgetMutations = {
+
+  async widgetTicketCreated(_root,
+    doc: ITicketWidget,
+    { models, subdomain, user }: IContext
+  ) {
+
+    return await sendTicketsMessage({
+      subdomain,
+      action: "widgets.createTicket",
+      data: {
+        doc, user
+      },
+      isRPC: true
+    });
+
+  },
+  async widgetsTicketCustomersEdit(
+    _root,
+    args: {
+      customerId?: string;
+      firstName?: string;
+      lastName?: string;
+      emails?: string[];
+      phones?: string[];
+    },
+    { models, subdomain }: IContext
+  ) {
+    const { customerId, firstName, lastName, emails, phones } = args;
+    if (!customerId) {
+      throw new Error('Customer ID is now found');
+    }
+    return await sendCoreMessage({
+      subdomain,
+      action: 'customers.updateCustomer',
+      data: {
+        _id: customerId,
+        doc: {
+          firstName,
+          lastName,
+          emails,
+          phones
+        }
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+  },
+  async widgetsTicketCheckProgressForget(
+    _root,
+    args: {
+      email?: string;
+      phoneNumber?: string;
+    },
+    { subdomain, user }: IContext
+  ) {
+
+    const { email, phoneNumber } = args
+    return sendTicketsMessage({
+      subdomain,
+      action: 'widgets.fetchTicketProgressForget',
+      data: {
+        email, phoneNumber, user
+      },
+      isRPC: true,
+    });
+  },
+
+  async widgetsTicketCommentAdd(
+    _root,
+    args: {
+      number?: string;
+      content: string
+    },
+    { models, subdomain, user }: IContext
+  ) {
+    const { number, content } = args
+    return sendTicketsMessage({
+      subdomain,
+      action: 'widgets.commentAdd',
+      data: {
+        number, content, user
+      },
+      isRPC: true,
+    });
+  },
+
+  async widgetsTicketCheckProgress(
+    _root,
+    args: {
+      number?: string;
+    },
+    { models, subdomain }: IContext
+  ) {
+    const { number } = args
+    return sendTicketsMessage({
+      subdomain,
+      action: 'widgets.fetchTicketProgress',
+      data: {
+        number,
+      },
+      isRPC: true,
+    });
+  },
   async widgetsLeadIncreaseViewCount(
     _root,
     { formId }: { formId: string },
@@ -333,24 +447,24 @@ const widgetMutations = {
 
       customer = customer
         ? await sendCoreMessage({
-            subdomain,
-            action: "customers.updateMessengerCustomer",
-            data: {
-              _id: customer._id,
-              doc,
-              customData
-            },
-            isRPC: true
-          })
+          subdomain,
+          action: "customers.updateMessengerCustomer",
+          data: {
+            _id: customer._id,
+            doc,
+            customData
+          },
+          isRPC: true
+        })
         : await sendCoreMessage({
-            subdomain,
-            action: "customers.createMessengerCustomer",
-            data: {
-              doc,
-              customData
-            },
-            isRPC: true
-          });
+          subdomain,
+          action: "customers.createMessengerCustomer",
+          data: {
+            doc,
+            customData
+          },
+          isRPC: true
+        });
     }
 
     if (visitorId) {
@@ -414,7 +528,7 @@ const widgetMutations = {
         sendAutomationsMessage({
           subdomain,
           action: "trigger",
-          data: {type:"core:company",targets:[company]},
+          data: { type: "core:company", targets: [company] },
           isRPC: true,
           defaultValue: null
         });
@@ -681,11 +795,11 @@ const widgetMutations = {
           responses.length !== 0
             ? responses
             : [
-                {
-                  type: "text",
-                  text: AUTO_BOT_MESSAGES.NO_RESPONSE
-                }
-              ];
+              {
+                type: "text",
+                text: AUTO_BOT_MESSAGES.NO_RESPONSE
+              }
+            ];
 
         const botMessage = await models.ConversationMessages.createMessage({
           conversationId: conversation._id,
@@ -1111,7 +1225,9 @@ const widgetMutations = {
     );
 
     return { botData: botRequest.responses };
-  }
+  },
+
+
 };
 
 export default widgetMutations;

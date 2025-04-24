@@ -1,16 +1,20 @@
 export const types = ({ products, knowledgeBase, cloudflareCalls }) => `
-  ${
-    products
-      ? `
+  ${products
+    ? `
     extend type Product @key(fields: "_id") {
       _id: String! @external
     }
-
+    extend type Ticket @key(fields: "_id") {
+      _id: String! @external
+    }
     extend type ProductCategory @key(fields: "_id") {
       _id: String! @external
     }
+    extend type ActivityLog @key(fields: "_id") {
+      _id: String! @external
+    }
     `
-      : ''
+    : ''
   }
 
     extend type Field @key(fields: "_id") {
@@ -19,9 +23,8 @@ export const types = ({ products, knowledgeBase, cloudflareCalls }) => `
 
  
 
-  ${
-    knowledgeBase
-      ? `
+  ${knowledgeBase
+    ? `
     extend type KnowledgeBaseArticle @key(fields: "_id") {
       _id: String! @external
     }
@@ -30,7 +33,7 @@ export const types = ({ products, knowledgeBase, cloudflareCalls }) => `
       _id: String! @external
     }
     `
-      : ''
+    : ''
   }
 
   type MessengerConnectResponse {
@@ -82,19 +85,20 @@ export const queries = ({ products, knowledgeBase }) => `
   widgetsConversations(integrationId: String!, customerId: String, visitorId: String): [Conversation]
   widgetsConversationDetail(_id: String, integrationId: String!): ConversationDetailResponse
   widgetsGetMessengerIntegration(brandCode: String!): Integration
+  widgetsTicketCustomerDetail(customerId: String, type: String): Customer
+  widgetsTicketActivityLogs(contentType: String!, contentId: String): [ActivityLog]
   widgetsMessages(conversationId: String): [ConversationMessage]
   widgetsUnreadCount(conversationId: String): Int
   widgetsTotalUnreadCount(integrationId: String!, customerId: String, visitorId: String): Int
   widgetsMessengerSupporters(integrationId: String!): MessengerSupportersResponse
   widgetsGetEngageMessage(integrationId: String, customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
 
-  ${
-    knowledgeBase
-      ? `
+  ${knowledgeBase
+    ? `
       widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
       widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
     `
-      : ''
+    : ''
   }
 
 
@@ -162,4 +166,19 @@ export const mutations = () => `
 
   widgetsLeadIncreaseViewCount(formId: String!): JSON
   widgetsSendTypingInfo(conversationId: String!, text: String): String
+  widgetsTicketCustomersEdit (customerId: String, firstName: String, lastName: String, emails: [String], phones: [String]): Customer
+  widgetsTicketCheckProgressForget(email: String, phoneNumber: String): JSON
+  widgetsTicketCheckProgress(number: String!): Ticket
+  widgetsTicketCommentAdd(
+    number: String!
+    content: String!
+  ): Ticket
+  widgetTicketCreated(
+    name: String!
+    description: String
+    attachments: [AttachmentInput]
+    stageId: String!
+    type: String!
+    customerIds: [String!]!
+  ): Ticket
 `;
