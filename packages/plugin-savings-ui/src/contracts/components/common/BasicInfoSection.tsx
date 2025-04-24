@@ -12,7 +12,6 @@ import {
 import React, { useState } from "react";
 import { can, isEnabled } from "@erxes/ui/src/utils/core";
 
-import BlockForm from "../../containers/detail/BlockForm";
 import CloseForm from "../../containers/detail/CloseForm";
 import ContractForm from "../../containers/ContractForm";
 import DetailInfo from "./DetailInfo";
@@ -105,6 +104,7 @@ const BasicInfoSection = (props: Props) => {
     return (
       <Action>
         <Dropdown
+          className="max-width-300"
           // onToggle={(isShown) => isShown && onOpen()}
           as={DropdownToggle}
           toggleComponent={
