@@ -24,6 +24,8 @@ let LoanSchedules;
 let LoanTransaction;
 let SavingContracts;
 let SavingContractTypes;
+let Products;
+let ProductCategories;
 
 const nanoid = (len = 21) => {
   const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -123,6 +125,8 @@ const command = async () => {
   LoanTransaction = db.collection('loan_transactions');
   SavingContracts = db.collection('saving_contracts');
   SavingContractTypes = db.collection('saving_contract_types');
+  Products = db.collection('products');
+  ProductCategories = db.collection('product_categories');
 
   console.log(`Process start at: ${new Date()}`);
   // const customerFilter = { code: { $exists: true } };
@@ -135,12 +139,6 @@ const command = async () => {
   let step = 0;
   let per = 10000;
   const schedules = [];
-
-  const pLoanSchedules = await fetchPolaris('13610200', ['130013000562', 0]);
-  console.log(pLoanSchedules, 'sada');
-
-  const sda = await fetchPolaris('13610904', ['130013000563']);
-  console.log(sda, 'sada');
 
   while (step * per < customersCount) {
     const skip = step * per;
@@ -175,6 +173,10 @@ const command = async () => {
           0,
         ]);
 
+        const collaterals = await fetchPolaris('13610904', [
+          pLoanContract.acntCode,
+        ]);
+
         const contractType = await LoanContractTypes.findOne({
           code: contractDetail.prodCode,
         });
@@ -202,6 +204,76 @@ const command = async () => {
             endDate: new Date(contractDetail.endDate),
             createdAt: new Date(),
           };
+
+          if (collaterals.length > 0) {
+            document.collateralsData = [];
+
+            for (const item of collaterals) {
+              const detailCollateral = await fetchPolaris('13610906', [
+                item.acntCode,
+              ]);
+
+              const product = await Products.findOne({
+                code: item.acntCode,
+              });
+
+              if (!product) {
+                let categoryId;
+                const findCategory = await ProductCategories.findOne({
+                  code: detailCollateral.acntCode,
+                });
+
+                if (findCategory) {
+                  categoryId = findCategory._id;
+                } else {
+                  const createCategory = await ProductCategories.insertOne({
+                    _id: nanoid(),
+                    name: `${item.acntName} ${item.linkTypeName}`,
+                    code: detailCollateral.acntCode,
+                    order: `${detailCollateral.acntCode}/`,
+                    status: 'active',
+                    createdAt: new Date(),
+                  });
+
+                  categoryId = createCategory.insertedId;
+                }
+
+                const createProduct = await Products.insertOne({
+                  _id: nanoid(),
+                  name: `${item.acntName} ${item.linkTypeName}`,
+                  code: item.acntCode,
+                  unitPrice: detailCollateral.price,
+                  categoryId,
+                  createdAt: new Date(),
+                });
+
+                document.collateralsData.push({
+                  _id: nanoid(),
+                  collateralId: createProduct.insertedId,
+                  cost: detailCollateral.price,
+                  percent: 0,
+                  marginAmount: 0,
+                  leaseAmount: item.useAmount,
+                  currency: item.useCurCode,
+                  certificate: detailCollateral.key2,
+                  vinNumber: detailCollateral.key,
+                });
+              } else {
+                // Optional: If you want to handle case when product exists
+                document.collateralsData.push({
+                  _id: nanoid(),
+                  collateralId: product._id,
+                  cost: detailCollateral.useAmount,
+                  percent: 0,
+                  marginAmount: 0,
+                  leaseAmount: item.useAmount,
+                  currency: item.useCurCode,
+                  certificate: detailCollateral.key2,
+                  vinNumber: detailCollateral.key,
+                });
+              }
+            }
+          }
 
           const loanContract = await LoanContracts.insertOne({ ...document });
 
@@ -232,15 +304,15 @@ const command = async () => {
             }
           );
 
-          const huulga = await fetchPolaris('13610201', [
-            pLoanContract.acntCode,
-            moment(pLoanContract.startDate).format('YYYY-MM-DD'),
-            moment(pLoanContract.endDate).format('YYYY-MM-DD'),
-            0,
-            100,
-          ]);
+          // const huulga = await fetchPolaris('13610201', [
+          //   pLoanContract.acntCode,
+          //   moment(pLoanContract.startDate).format('YYYY-MM-DD'),
+          //   moment(pLoanContract.endDate).format('YYYY-MM-DD'),
+          //   0,
+          //   100,
+          // ]);
 
-          console.log(huulga, 'huulga');
+          // console.log(huulga, 'huulga');
 
           // for (const data of huulga.txns) {
           //   const doc = {
