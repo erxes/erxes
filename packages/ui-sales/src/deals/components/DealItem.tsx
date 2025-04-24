@@ -42,7 +42,7 @@ class DealItem extends React.PureComponent<Props> {
     return (
       <EditForm
         {...this.props}
-        stageId={stageId || item.stageId}
+        stageId={stageId || item.stage?._id || ""}
         itemId={item._id}
         hideHeader={true}
         isPopupVisible={isFormVisible}

@@ -3,6 +3,7 @@ import {
   DynamicComponentList,
   DynamicTableWrapper,
 } from "@erxes/ui/src/styles/main";
+import { DetailContainer, ScoringBox } from "../../styles";
 import React, { useState } from "react";
 
 import Box from "@erxes/ui/src/components/Box";
@@ -12,7 +13,6 @@ import EmptyState from "@erxes/ui/src/components/EmptyState";
 import { IBurenScoring } from "../../types";
 import InquiryRow from "./InquiryRow";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import { ScoringBox } from "../../styles";
 import ScoringForm from "../../containers/ScoringForm";
 import Table from "@erxes/ui/src/components/table";
 import { __ } from "@erxes/ui/src/utils/core";
@@ -248,13 +248,13 @@ function Component(props: Props) {
     }
 
     return (
-      <>
+      <DetailContainer>
         {renderDetail()}
         {renderScore()}
         {renderCreditSummary()}
         {renderActiveLoan()}
         {renderTable()}
-      </>
+      </DetailContainer>
     );
   };
 

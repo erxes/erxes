@@ -2,6 +2,8 @@ import { ChooseDates, GridContainer, TitleRow } from "../../styles/item";
 import { IItem, IItemParams, IOptions } from "../../types";
 
 import Actions from "./Actions";
+import ActivityInputs from "@erxes/ui-log/src/activityLogs/components/ActivityInputs";
+import ActivityLogs from "@erxes/ui-log/src/activityLogs/containers/ActivityLogs";
 import Checklists from "../../../checklists/containers/Checklists";
 import { ColorButton } from "../../styles/common";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
@@ -21,6 +23,7 @@ import { TAG_TYPES } from "@erxes/ui-tags/src/constants";
 import TaggerPopover from "@erxes/ui-tags/src/components/TaggerPopover";
 import Tags from "@erxes/ui/src/components/Tags";
 import { __ } from "@erxes/ui/src/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   item: IItem;
@@ -173,7 +176,28 @@ const CommonActions = (props: Props) => {
       </GridContainer>
 
       {!isFullView && (
-        <FileAndDescription item={item} options={options} saveItem={saveItem} />
+        <>
+          <FileAndDescription
+            item={item}
+            options={options}
+            saveItem={saveItem}
+          />
+          <ActivityInputs
+            contentTypeId={item._id}
+            contentType={`sales:${options.type}`}
+            showEmail={false}
+          />
+          <ActivityLogs
+            target={item.name}
+            contentId={item._id}
+            contentType={`sales:${options.type}`}
+            extraTabs={
+              options.type === "tasks:task" && isEnabled("tasks")
+                ? []
+                : [{ name: "tasks:task", label: "Task" }]
+            }
+          />
+        </>
       )}
 
       <Checklists
