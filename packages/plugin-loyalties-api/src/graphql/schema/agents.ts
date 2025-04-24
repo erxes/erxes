@@ -55,7 +55,13 @@ export const types = `
 `;
 
 export const queries = `
-  agents: [Agent]
+  agents(
+    status: String,
+    number: String,
+    hasReturn: Boolean,
+    customerIds: [String],
+    companyIds: [String]
+  ): [Agent]
 `;
 
 export const mutations = `
