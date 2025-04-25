@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.10.2](https://github.com/erxes/erxes/compare/2.10.1...2.10.2) (2025-04-25)
+
+### Features
+
+* put another logs on msdynamic ([4fda221](https://github.com/erxes/erxes/commit/4fda221d18d096c11f04c98f7b17ef7293018f0e))
+* put some log on msdynamic ([bce9c69](https://github.com/erxes/erxes/commit/bce9c696750e67000db549536cbb1469f74fe893))
+
+### Bug Fixes
+
+* pricing ui readOnly objects ([9d36b6e](https://github.com/erxes/erxes/commit/9d36b6e02178131692e5f13465e0a3d42c3428ef))
+* **sales:** update deal edit form ([743faa6](https://github.com/erxes/erxes/commit/743faa6f72da548208c7fe34cccbfd9f3ee425d2))
+
 ## [2.10.1](https://github.com/erxes/erxes/compare/2.10.0...2.10.1) (2025-04-22)
 
 ### Features
