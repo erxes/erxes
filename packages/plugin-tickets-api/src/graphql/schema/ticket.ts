@@ -9,8 +9,7 @@ import {
 
 export const types = ({ contacts, clientPortal }) => `
   type TicketListItem {
-    customPropertiesData:JSON,
-    
+    customPropertiesData: JSON,
     ${commonListTypes}
   }
 
@@ -24,11 +23,8 @@ export const types = ({ contacts, clientPortal }) => `
       `
     : ''
   }
-
     tags: [Tag]
     ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ''}
-    comments: [Comment]
-
     ${commonTypes}
   }
 `;

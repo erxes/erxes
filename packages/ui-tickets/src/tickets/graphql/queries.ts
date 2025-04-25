@@ -136,6 +136,19 @@ const clientPortalComments = `
   }
 `;
 
+const widgetsTicketComments = `
+  query widgetsTicketComments($typeId: String!, $type: String!) {
+    widgetsTicketComments(typeId: $typeId, type: $type) {
+      _id
+      content
+      createdUser 
+      createdAt
+      userType
+      type
+    }
+  }
+`;
+
 const archivedTicketsParams = `
   $pipelineId: String!
   $search: String
@@ -206,5 +219,6 @@ export default {
   ticketDetail,
   archivedTickets,
   archivedTicketsCount,
-  clientPortalComments
+  clientPortalComments,
+  widgetsTicketComments
 };

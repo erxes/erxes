@@ -41,7 +41,6 @@ const TicketShowProgress: React.FC<Props> = ({
 
   const renderTicketIssue = () => {
     const { name, type, description, attachments } = ticketData;
-
     return (
       <div className="ticket-progress-content">
         <div className="content-header">

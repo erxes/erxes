@@ -283,18 +283,28 @@ export const setupMessageConsumers = async () => {
 
   consumeRPCQueue("tickets:widgets.createTicket", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-    const { doc, user } = data;
-    const result = await itemsAdd(
-      models,
+    const { doc } = data;
+    const customerIds = doc.customerIds || [];
+
+    const customer = await sendCoreMessage({
       subdomain,
-      doc,
-      "ticket",
-      models.Tickets.createTicket,
-      user
-    );
+      action: "customers.find",
+      data: {
+        _id: { $in: customerIds },
+      },
+      isRPC: true,
+      defaultValue: null
+    });
     return {
       status: "success",
-      data: result
+      data: await itemsAdd(
+        models,
+        subdomain,
+        doc,
+        "ticket",
+        models.Tickets.createTicket,
+        customer
+      )
     };
   });
   consumeRPCQueue("tickets:widgets.fetchTicketProgress", async ({ subdomain, data }) => {
@@ -320,25 +330,21 @@ export const setupMessageConsumers = async () => {
   consumeRPCQueue("tickets:widgets.fetchTicketProgressForget", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { email, phoneNumber } = data;
-    let customer;
-    if (email) {
-      customer = await sendCoreMessage({
-        subdomain,
-        action: "customers.findOne",
-        data: { primaryEmail: email },
-        isRPC: true,
-        defaultValue: null
-      });
-    } else if (phoneNumber) {
-      customer = await sendCoreMessage({
-        subdomain,
-        action: "customers.findOne",
-        data: { primaryPhone: phoneNumber },
-        isRPC: true,
-        defaultValue: null
-      });
-    }
+    const field = email ? 'emails' : phoneNumber ? 'phones' : null;
+    const value = email || phoneNumber;
 
+    const customer = field
+      ? await sendCoreMessage({
+        subdomain,
+        action: "customers.findOne",
+        data: { [field]: value },
+        isRPC: true,
+        defaultValue: null
+      })
+      : null;
+    if (!customer) {
+      throw new Error("Customer not found");
+    }
     const customerIds = [customer._id];
     const mainTypeIds = await sendCoreMessage({
       subdomain,
@@ -371,14 +377,30 @@ export const setupMessageConsumers = async () => {
   });
   consumeRPCQueue("tickets:widgets.commentAdd", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-    const { type, _id, content, userType } = data;
-    const comment = await models.Tickets.createTicketComment(type, _id, content, userType)
+    const { type, typeId, content, userType, customerId } = data;
+    const comment = await models.Tickets.createTicketComment(type, typeId, content, userType, customerId)
     return {
       status: "success",
       data: comment
     };
   });
-
+  consumeRPCQueue("tickets:widgets.comment.remove", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { _id } = data;
+    await models.Comments.deleteComment(_id)
+    return {
+      status: "success",
+    };
+  });
+  consumeRPCQueue("tickets:widgets.comments.find", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { typeId } = data;
+    const comment = await models.Comments.getComment(typeId)
+    return {
+      status: "success",
+      data: comment
+    };
+  });
   consumeRPCQueue("tickets:findItem", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

@@ -2,7 +2,6 @@ import * as strip from "strip";
 
 import {
   AUTO_BOT_MESSAGES,
-  BOT_MESSAGE_TYPES
 } from "../../models/definitions/constants";
 import {
   CONVERSATION_OPERATOR_STATUS,
@@ -244,14 +243,14 @@ const widgetMutations = {
 
   async widgetTicketCreated(_root,
     doc: ITicketWidget,
-    { models, subdomain, user }: IContext
+    { subdomain }: IContext
   ) {
 
     return await sendTicketsMessage({
       subdomain,
       action: "widgets.createTicket",
       data: {
-        doc, user
+        doc
       },
       isRPC: true
     });
@@ -294,7 +293,7 @@ const widgetMutations = {
       email?: string;
       phoneNumber?: string;
     },
-    { subdomain, user }: IContext
+    { subdomain }: IContext
   ) {
 
     const { email, phoneNumber } = args
@@ -302,7 +301,7 @@ const widgetMutations = {
       subdomain,
       action: 'widgets.fetchTicketProgressForget',
       data: {
-        email, phoneNumber, user
+        email, phoneNumber
       },
       isRPC: true,
     });
@@ -311,22 +310,41 @@ const widgetMutations = {
   async widgetsTicketCommentAdd(
     _root,
     args: {
-      type?: string;
-      typeId?: string;
-      content?: string;
-      userType?: string;
+      type: string;
+      typeId: string;
+      content: string;
+      userType: string;
+      customerId: string
     },
-    { models, subdomain, user }: IContext
+    { subdomain, }: IContext
   ) {
-    const { type, typeId, content, userType } = args
-    return sendTicketsMessage({
+    const { type, typeId, content, userType, customerId } = args
+    return await sendTicketsMessage({
       subdomain,
       action: 'widgets.commentAdd',
       data: {
-        type, _id: typeId, content, userType
+        type, typeId, content, userType, customerId
       },
       isRPC: true,
     });
+  },
+  async widgetsTicketCommentsRemove(
+    _root,
+    args: {
+      _id: string;
+    },
+    { subdomain, }: IContext
+  ) {
+    const { _id } = args
+    await sendTicketsMessage({
+      subdomain,
+      action: 'widgets.comment.remove',
+      data: {
+        _id
+      },
+      isRPC: true,
+    });
+    return 'deleted';
   },
 
   async widgetsTicketCheckProgress(

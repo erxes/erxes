@@ -27,6 +27,12 @@ import {
   mutations as ptMutations
 } from "./schema/pipelineTemplate";
 import { types as CommonTypes } from "./schema/common";
+import {
+  types as commentTypes
+} from "./schema/comments";
+import {
+  types as commentUserTypes
+} from "./schema/commentUser";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 const typeDefs = async () => {
@@ -55,9 +61,8 @@ const typeDefs = async () => {
           _id: String! @external
     }
 
-    ${
-      contactsEnabled
-        ? `
+    ${contactsEnabled
+      ? `
         extend type Company @key(fields: "_id") {
           _id: String! @external
         }
@@ -66,21 +71,20 @@ const typeDefs = async () => {
           _id: String! @external
         }
       `
-        : ""
+      : ""
     }
 
       extend type Tag @key(fields: "_id") {
           _id: String! @external
         } 
     
-    ${
-      clientPortalEnabled
-        ? `
+    ${clientPortalEnabled
+      ? `
         extend type ClientPortalUser @key(fields: "_id") {
           _id: String! @external
         }
       `
-        : ""
+      : ""
     }
     ${boardTypes()}
     ${ticketTypes(isEnabledTable)}
@@ -88,8 +92,9 @@ const typeDefs = async () => {
     ${plTypes}
     ${ptTypes}
     ${CommonTypes}
+    ${commentUserTypes}
     ${checkListTypes}
-    
+    ${commentTypes}
     extend type Query {
       ${boardQueries}
       ${ticketQueries}

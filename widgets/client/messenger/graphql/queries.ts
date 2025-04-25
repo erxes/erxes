@@ -16,15 +16,14 @@ const GET_CONVERSATION_DETAIL = (isDailycoEnabled: boolean) => gql`
       _id
       messages {
         ${MESSAGE_FIELDS}
-        ${
-          isDailycoEnabled
-            ? `
+        ${isDailycoEnabled
+    ? `
         videoCallData {
           url
           status
         }`
-            : ""
-        }
+    : ""
+  }
       }
 
       operatorStatus
@@ -78,8 +77,8 @@ const GET_CLOUDFLARE_CALL_INTEGRATION = gql`
 `
 
 const TICKET_COMMENTS = gql`
-query clientPortalComments($typeId: String!, $type: String!) {
-  clientPortalComments(typeId: $typeId, type: $type) {
+query widgetsTicketComments($typeId: String!, $type: String!) {
+  widgetsTicketComments(typeId: $typeId, type: $type) {
     _id
     content
     createdUser {
@@ -133,15 +132,14 @@ const conversationDetailQuery = (isDailycoEnabled: boolean) => `
       _id
       messages {
         ${messageFields}
-        ${
-          isDailycoEnabled
-            ? `
+        ${isDailycoEnabled
+    ? `
         videoCallData {
           url
           status
         }`
-            : ''
-        }
+    : ''
+  }
       }
 
       operatorStatus

@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { TICKET_COMMENTS_ADD } from "../../graphql/mutations";
 import TicketShowProgress from "../../components/ticket/TicketShowPropgress";
 import { useTicket } from "../../context/Ticket";
+import { connection } from "../../connection";
 
 type Props = {
   loading: boolean;
@@ -13,8 +14,20 @@ type Props = {
 
 const TicketShowProgressContainer = (props: Props) => {
   const { ticketData } = useTicket();
+  const customerId = connection.data.customerId;
   const [comment, setComment] = React.useState("");
-
+  const {
+    data,
+    loading: commentsLoading,
+    error,
+    refetch: commentQueryRefetch,
+  } = useQuery(TICKET_COMMENTS, {
+    variables: {
+      typeId: ticketData._id,
+      type: "ticket",
+    },
+    fetchPolicy: "network-only",
+  });
   const [commentsAdd, { loading }] = useMutation(TICKET_COMMENTS_ADD, {
     onCompleted() {
       setComment("");
@@ -41,16 +54,16 @@ const TicketShowProgressContainer = (props: Props) => {
       variables: {
         type: "ticket",
         typeId: ticketData._id,
+        customerId: customerId,
         content: comment,
         userType: "client",
       },
     });
   };
 
-  if (activityLoading || loading) {
+  if (activityLoading || loading || commentsLoading) {
     return <div className="loader" />;
   }
-
   return (
     <TicketShowProgress
       activityLogs={activityData?.activityLogs || []}

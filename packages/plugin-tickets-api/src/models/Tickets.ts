@@ -21,7 +21,8 @@ export interface ITicketModel extends Model<ITicketDocument> {
     type: string,
     typeId: string,
     content: string,
-    userType: string
+    userType: string,
+    customerId: string
   ): Promise<ITicketDocument>;
 }
 
@@ -56,32 +57,25 @@ export const loadTicketClass = (models: IModels, subdomain: string) => {
 
       return createBoardItem(models, subdomain, doc, "ticket");
     }
-    public static async createTicketComment(type: string,
+    public static async createTicketComment(
+      type: string,
       typeId: string,
       content: string,
-      userType: string) {
+      userType: string,
+      customerId?: string
+    ) {
       try {
-
         if (!typeId || !content) {
-          throw new Error("Number or content not found");
+          throw new Error("typeId or content not found");
         }
-
-        const ticket = await models.Tickets.findOne({ _id: typeId });
-        if (!ticket) {
-          throw new Error("Ticket not found");
-        }
-
-        const newComment = {
+        const comment = await models.Comments.createComment({
+          type,
+          typeId,
           content,
           userType,
-          createdAt: new Date()
-        };
-
-        return await models.Tickets.findOneAndUpdate(
-          { _id: typeId },
-          { $push: { comments: newComment } },
-          { new: true }
-        );
+          userId: customerId || ''
+        });
+        return comment
       } catch (error) {
         throw error;
       }

@@ -6,7 +6,7 @@ import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import { IBrowserInfo } from "@erxes/api-utils/src/definitions/common";
 import { IIntegrationDocument } from "../../models/definitions/integrations";
 import { getOrCreateEngageMessage } from "../../widgetUtils";
-import { sendAutomationsMessage } from "../../../src/messageBroker";
+import { sendAutomationsMessage, sendTicketsMessage } from "../../../src/messageBroker";
 
 const isMessengerOnline = async (
   models: IModels,
@@ -72,6 +72,20 @@ const getWidgetMessages = (models: IModels, conversationId: string) => {
 };
 
 export default {
+  async widgetsTicketComments(
+    _root,
+    args: { typeId?: string },
+    { subdomain }: IContext
+  ) {
+    const { typeId } = args;
+    return await sendTicketsMessage({
+      subdomain,
+      action: 'widgets.comments.find',
+      data: { typeId },
+      isRPC: true,
+      defaultValue: null
+    });
+  },
   async widgetsTicketCustomerDetail(
     _root,
     args: { customerId?: string; type?: string },

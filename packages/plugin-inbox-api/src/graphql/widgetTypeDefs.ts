@@ -7,6 +7,9 @@ export const types = ({ products, knowledgeBase, cloudflareCalls }) => `
     extend type Ticket @key(fields: "_id") {
       _id: String! @external
     }
+    extend type TicketComment @key(fields: "_id") {
+      _id: String! @external
+    }
     extend type ProductCategory @key(fields: "_id") {
       _id: String! @external
     }
@@ -86,6 +89,7 @@ export const queries = ({ products, knowledgeBase }) => `
   widgetsConversationDetail(_id: String, integrationId: String!): ConversationDetailResponse
   widgetsGetMessengerIntegration(brandCode: String!): Integration
   widgetsTicketCustomerDetail(customerId: String, type: String): Customer
+  widgetsTicketComments(typeId: String! type: String!): [TicketComment]
   widgetsTicketActivityLogs(contentType: String!, contentId: String): [ActivityLog]
   widgetsMessages(conversationId: String): [ConversationMessage]
   widgetsUnreadCount(conversationId: String): Int
@@ -174,7 +178,9 @@ export const mutations = () => `
     typeId: String!
     content: String!
     userType: String!
-  ): Ticket
+    customerId: String
+  ): TicketComment
+  widgetsTicketCommentsRemove(_id: String!): String
   widgetTicketCreated(
     name: String!
     description: String

@@ -215,12 +215,14 @@ const TICKET_COMMENTS_ADD = gql`
     $typeId: String!
     $content: String!
     $userType: String!
+    $customerId: String
   ) {
     widgetsTicketCommentAdd(
       type: $type
       typeId: $typeId
       content: $content
       userType: $userType
+      customerId: $customerId
     ) {
       _id
       type
@@ -239,11 +241,6 @@ const TICKET_CHECK_PROGRESS = gql`
       stage {
         name
         _id
-      }
-      comments {
-        _id
-        content
-        createdAt
       }
       attachments {
         url
@@ -277,9 +274,8 @@ const connect = (isCloudFlareEnabled?: boolean, isTicketEnabled?: boolean) => `
       cachedCustomerId: $cachedCustomerId, visitorId: $visitorId) {
       integrationId,
       messengerData,
-      ${
-        isCloudFlareEnabled
-          ? `
+      ${isCloudFlareEnabled
+    ? `
       callData {
         header
         description
@@ -293,16 +289,15 @@ const connect = (isCloudFlareEnabled?: boolean, isTicketEnabled?: boolean) => `
         isReceiveWebCall
       },
     `
-          : ''
-      }
+    : ''
+  }
       
-      ${
-        isTicketEnabled
-          ? `
+      ${isTicketEnabled
+    ? `
         ticketData
       `
-          : ``
-      }
+    : ``
+  }
       languageCode,
       uiOptions,
       customerId,

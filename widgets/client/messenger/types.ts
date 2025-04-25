@@ -183,6 +183,7 @@ export interface ITicketActivityLog {
 export interface ITicketComment {
   _id: string;
   userType: string;
+  customerId: string;
   type: string;
   content: any;
   createdAt: string;

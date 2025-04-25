@@ -17,14 +17,6 @@ interface ICommonFields {
   order?: number;
   type: string;
 }
-export interface IComment {
-  _id: string;
-  userId: string;
-  userType: string;
-  content: string;
-  createdAt: Date;
-}
-
 export interface IItemCommonFields {
   name?: string;
   // TODO migrate after remove 2row
@@ -57,7 +49,6 @@ export interface IItemCommonFields {
     startDate?: string;
   };
   customFieldsData?: ICustomField[];
-  comments?:IComment[]
   score?: number;
   number?: string;
   data?: any;
@@ -267,7 +258,6 @@ export const commonItemFieldsSchema = {
     optional: true,
     label: "Custom fields data"
   }),
-  comments: field({ type: [commentSchema], label: "comments" }),
   score: field({
     type: Number,
     optional: true,
