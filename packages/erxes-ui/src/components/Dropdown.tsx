@@ -19,6 +19,7 @@ type Props = {
   disabled?: boolean;
   isMenuWidthFit?: boolean;
   unmount?: boolean;
+  className?: string;
   modalMenuItems?: IModalMenuItems[];
 };
 
@@ -31,6 +32,7 @@ const Dropdown: React.FC<Props> = forwardRef<HTMLDivElement, Props>(
       toggleComponent,
       isMenuWidthFit,
       unmount,
+      className,
       modalMenuItems = [] as any,
     },
     ref
@@ -68,11 +70,11 @@ const Dropdown: React.FC<Props> = forwardRef<HTMLDivElement, Props>(
 
       return (
         <>
-          <Menu as={as || "div"} className="relative dropdown-btn">
+          <Menu as={as || "div"} className={`relative dropdown-btn`}>
             <Menu.Button ref={buttonRef}>{toggleComponent}</Menu.Button>
             <Menu.Items
               ref={ref}
-              className={`absolute ${isMenuWidthFit && "menuWidthFit"}`}
+              className={`absolute ${isMenuWidthFit ? "menuWidthFit" : ""} ${className ? className : ""}`}
               style={style}
               unmount={unmount}
             >
@@ -121,7 +123,7 @@ const Dropdown: React.FC<Props> = forwardRef<HTMLDivElement, Props>(
         <Menu.Button ref={buttonRef}>{toggleComponent}</Menu.Button>
         <Menu.Items
           ref={ref}
-          className={`absolute ${isMenuWidthFit && "menuWidthFit"}`}
+          className={`absolute ${isMenuWidthFit ? "menuWidthFit" : ""} ${className ? className : ""}`}
           style={style}
           unmount={unmount}
         >
