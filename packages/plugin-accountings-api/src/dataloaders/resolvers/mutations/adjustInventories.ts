@@ -1,11 +1,10 @@
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import { getFullDate, getTomorrow } from '@erxes/api-utils/src';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-import * as lodash from "lodash";
-import { nanoid } from 'nanoid';
 import { IContext, IModels } from '../../../connectionResolver';
-import { ADJ_INV_STATUSES, IAdjustInvDetail, IAdjustInvDetailDocument, IAdjustInventory, IAdjustInventoryDocument } from '../../../models/definitions/adjustInventory';
-import { JOURNALS, TR_SIDES, TR_STATUSES } from '../../../models/definitions/constants';
-import { calcInvTrs, cleanPreCalced, fixInvTrs } from '../../../utils/inventories';
+import { ADJ_INV_STATUSES, IAdjustInventory } from '../../../models/definitions/adjustInventory';
+import { TR_STATUSES } from '../../../models/definitions/constants';
+import { calcInvTrs, fixInvTrs } from '../../../utils/inventories';
 
 const checkValidDate = async (models: IModels, adjustInventory: IAdjustInventory) => {
   const date = adjustInventory.date;
@@ -40,6 +39,7 @@ const recheckValidDate = async (models: IModels, adjustInventory, beginDate) => 
     return beginDate;
   }
 
+  // yavaandaa logoos delete iig mun shalgah yum baina
   const betweenModifiedFirstTr = await models.Transactions.findOne({
     date: { $gte: beginDate, $lte: adjustInventory.successDate },
     'details.productId': { $exists: true, $ne: '' },
@@ -96,24 +96,62 @@ const adjustInventoryMutations = {
 
     let currentDate = await recheckValidDate(models, adjustInventory, beginDate);
 
-    await cleanPreCalced(models, adjustInventory);
+    await models.AdjustInvDetails.cleanAdjustInvDetails({ adjustId });
+    if (beforeAdjInv) {
+      await models.AdjustInvDetails.copyAdjustInvDetails({ sourceAdjustId: beforeAdjInv._id, adjustId });
+    }
 
     const trFilter = {
       'details.productId': { $exists: true, $ne: '' },
+      'details.accountId': { $exists: true, $ne: '' },
+      'branchId': { $exists: true, $ne: '' },
+      'departmentId': { $exists: true, $ne: '' },
       status: { $in: TR_STATUSES.ACTIVE },
     }
 
     if (currentDate !== beginDate) {
-      await calcInvTrs(models) // энэ хооронд бичилтийн өөрлөлт орохгүй тул бөөнд нь details ээ цэнэглэх зорилготой
+      await calcInvTrs(models, { adjustId, beginDate: beginDate, endDate: currentDate, trFilter }) // энэ хооронд бичилтийн өөрлөлт орохгүй тул бөөнд нь details ээ цэнэглэх зорилготой
     }
 
     // өдөр бүрээр гүйлгээнүүдийг журналаар багцалж тооцож өртгийг зүгшрүүлж шаардлагатай бол гүйлгээг засч эндээсээ цэнэглэнэ
     while (currentDate < date) {
       const nextDate = getTomorrow(currentDate);
+      let warning = '';
 
-      await fixInvTrs(models, { adjustId, beginDate: currentDate, endDate: nextDate, trFilter, beforeAdjInv });
+      try {
+        await fixInvTrs(models, { adjustId, beginDate: currentDate, endDate: nextDate, trFilter });
+      } catch (e) {
+        const now = new Date();
+        await models.AdjustInventories.updateOne({ _id: adjustId }, { $set: { error: e.message, checkedDate: now } });
+        await graphqlPubsub.publish(`accountingsAdjustInventoriesRunner:${user._id}`, {
+          accountingsAdjustInventoriesRunner: {
+            userId: user._id,
+            adjustId,
+            data: {
+              ...adjustInventory,
+              checkedDate: now,
+              error: e.message,
+            }
+          }
+        });
+        break;
+      }
 
-      await models.Transactions.updateOne({ _id: adjustId }, { $set: { successDate: nextDate } });
+      const now = new Date();
+      await models.AdjustInventories.updateOne({ _id: adjustId }, { $set: { successDate: nextDate, checkedDate: now, warning } });
+
+      await graphqlPubsub.publish(`accountingsAdjustInventoriesRunner:${user._id}`, {
+        accountingsAdjustInventoriesRunner: {
+          userId: user._id,
+          adjustId,
+          data: {
+            ...adjustInventory,
+            successDate: currentDate,
+            lastDate: now,
+            warning
+          }
+        }
+      });
       currentDate = nextDate;
     }
   }
