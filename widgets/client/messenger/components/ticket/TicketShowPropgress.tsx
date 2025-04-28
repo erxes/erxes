@@ -66,10 +66,26 @@ const TicketShowProgress: React.FC<Props> = ({
     return comments.map((comment: ITicketComment) => {
       const { userType, createdUser, createdAt, content } =
         comment || ({} as ITicketComment);
-      const { firstName, lastName, email, avatar } = createdUser || ({} as any);
+      const { firstName, lastName, email, emails, phone, phones, avatar } =
+        createdUser || ({} as any);
+
+      let renderName = "Visitor";
+
+      renderName =
+        firstName || lastName
+          ? `${firstName} ${lastName}`
+          : email
+            ? email
+            : emails && emails.length !== 0
+              ? emails?.[0]
+              : phone
+                ? phone
+                : phones && phones.length !== 0
+                  ? phones?.[0]
+                  : "Unknown";
 
       return (
-        <div key={comment._id} className="ticket-progress-log">
+        <div key={comment._id} className={`ticket-progress-log ${userType}`}>
           <div className="user">
             <img
               src={
@@ -83,8 +99,7 @@ const TicketShowProgress: React.FC<Props> = ({
             />
           </div>
           <span>
-            <strong>{`${firstName} ${lastName}` || email}</strong> added{" "}
-            <b>comment</b>
+            <strong>{renderName}</strong> added <b>comment</b>
             <div className="comment">{content}</div>
             <div className="date">
               {dayjs(createdAt).format("YYYY-MM-DD, LT")}

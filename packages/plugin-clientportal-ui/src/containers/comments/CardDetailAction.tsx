@@ -2,15 +2,18 @@ import { Alert, confirm } from "@erxes/ui/src/utils";
 import { mutations, queries } from "../../graphql";
 import { useMutation, useQuery } from "@apollo/client";
 
+import { AppConsumer } from "coreui/appContext";
 import Detail from "../../components/comments/CardDetailAction";
+import { IUser } from "@erxes/ui/src/auth/types";
 import React from "react";
 import { gql } from "@apollo/client";
 
 type Props = {
   item: any;
+  currentUser?: IUser;
 };
 
-function DetailContainer({ item }: Props) {
+function DetailContainer({ item, currentUser }: Props) {
   const {
     stage: { type = "" },
   } = item;
@@ -84,7 +87,7 @@ function DetailContainer({ item }: Props) {
         typeId: item._id,
         type: "ticket",
         userType: "team",
-        customerId: item.createdUser?._id || "",
+        customerId: currentUser ? currentUser._id : item.createdUser?._id || "",
       },
     });
   };
@@ -115,4 +118,14 @@ function DetailContainer({ item }: Props) {
   return <Detail {...updatedProps} />;
 }
 
-export default DetailContainer;
+function CardDetailActionWrapper({ item }: { item: any }) {
+  return (
+    <AppConsumer>
+      {({ currentUser }) => {
+        return <DetailContainer item={item} currentUser={currentUser} />;
+      }}
+    </AppConsumer>
+  );
+}
+
+export default CardDetailActionWrapper;

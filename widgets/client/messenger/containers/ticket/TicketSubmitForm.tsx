@@ -30,7 +30,7 @@ const TicketSubmitContainer = (props: Props) => {
   const [formData, setFormData] = React.useState({
     firstName: "",
     lastName: "",
-    phone: "",
+    phone: 0,
     email: "",
     ticketType: "",
     title: "",
@@ -50,12 +50,11 @@ const TicketSubmitContainer = (props: Props) => {
     if (customer && customer.widgetsTicketCustomerDetail) {
       const { emails, firstName, lastName, phones } =
         customer.widgetsTicketCustomerDetail || ({} as ICustomer);
-
       setFormData((prev) => ({
         ...prev,
         firstName,
         lastName,
-        phone: phones?.[0] || "",
+        phone: Number(phones?.[0].replace(/\D/g, "")) || 0,
         email: emails?.[0] || "",
       }));
     }
@@ -130,7 +129,6 @@ const TicketSubmitContainer = (props: Props) => {
   const onButtonClick = () => {
     setRoute("home");
   };
-
   return (
     <TicketSubmitForm
       isSubmitted={isSubmitted}

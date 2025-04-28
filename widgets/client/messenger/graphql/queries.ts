@@ -84,6 +84,9 @@ query widgetsTicketComments($typeId: String!, $type: String!) {
     createdUser {
       _id
       email
+      emails
+      phone
+      phones
       lastName
       firstName
       avatar

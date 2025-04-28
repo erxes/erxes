@@ -190,8 +190,11 @@ export interface ITicketComment {
   createdUser: {
     _id: string;
     email: string;
+    emails: string[];
     avatar: string;
     firstName: string;
     lastName: string;
+    phone: string;
+    phones: string[];
   }
 }

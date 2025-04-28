@@ -3308,6 +3308,8 @@ select.form-control:focus,
 .ticket-progress-container .ticket-progress-main-content {
   height: 78%;
   overflow: auto;
+  max-width: 90%;
+  padding-right: 20px;
 }
 .ticket-progress-container .ticket-lbl {
   margin-bottom: 10px;
@@ -3382,6 +3384,9 @@ select.form-control:focus,
   margin-bottom: 10px;
   display: flex;
 }
+.ticket-progress-logs .ticket-progress-log.team {
+  flex-direction: row-reverse;
+}
 .ticket-progress-logs .ticket-progress-log .comment {
   margin-top: 5px;
 }
@@ -3397,7 +3402,12 @@ select.form-control:focus,
   border-radius: 10px;
   font-size: 14px;
   color: #666;
-  width: 70%;
+  width: 100%;
+}
+.ticket-progress-logs .ticket-progress-log.team > span {
+  margin-left: 0;
+  margin-right: 10px;
+  background: #e5e0f7;
 }
 .ticket-progress-logs .ticket-progress-log > span strong {
   margin-right: 5px;
@@ -4232,7 +4242,6 @@ select.form-control:focus,
   overflow: hidden;
 }
 .container-content {
-  /*  overflow-y: auto; */
   flex: 1;
   display: flex;
   flex-shrink: 2;
