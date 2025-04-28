@@ -124,8 +124,8 @@ const generateFilter = async (
 
   if (!Object.keys(selector).length) {
     const dueQry: any = {};
-    dueQry.$gte = getPureDate(new Date());
-    dueQry.$lte = getTomorrow(new Date());
+    dueQry.$gte = getPureDate(getToday(getPureDate(new Date(), -1)));
+    dueQry.$lte = getPureDate(getTomorrow(getPureDate(new Date(), -1)));
 
     if (Object.keys(dueQry).length) {
       selector.dueDate = dueQry;

@@ -1,8 +1,7 @@
 export type IConfig = {
   _id?: string;
   apiUrl: string;
-  isLocalUser: boolean;
-  userDN: string;
+  useDN: boolean;
   baseDN: string;
   adminDN?: string;
   adminPassword?: string;
@@ -18,9 +17,7 @@ export type ConfigsQueryResponse = {
 };
 
 export type ToCheckUsersMutationResponse = {
-  toCheckAdUsers: (mutation: {
-    variables: { userName: string; userPass: string };
-  }) => Promise<any>;
+  toCheckAdUsers: (mutation: { variables: {} }) => Promise<any>;
 };
 
 export type ToSyncUsersMutationResponse = {

@@ -50,11 +50,11 @@ const SyncContainer = (props: FinalProps) => {
     return data;
   };
 
-  const toCheckUsers = (userName: string, userPass: string) => {
+  const toCheckUsers = () => {
     setLoading(true);
     props
       .toCheckAdUsers({
-        variables: { userName, userPass },
+        variables: {},
       })
       .then((response) => {
         const data = response.data.toCheckAdUsers;

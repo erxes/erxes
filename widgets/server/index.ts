@@ -38,11 +38,13 @@ const getHeaderValue = (value: string | string[] | undefined): string => {
 };
 
 // Helper function to generate environment variables based on subdomain
-const getEnv = (req:express.Request) => {
+const getEnv = (req: express.Request) => {
   const {
     ROOT_URL = '',
     API_URL = '',
     API_SUBSCRIPTIONS_URL = '',
+    CALLS_APP_ID = '',
+    CALLS_APP_SECRET = '',
   } = process.env;
 
   const replaceSubdomain = (url: string, subdomain: string) => {
@@ -57,12 +59,15 @@ const getEnv = (req:express.Request) => {
     const subdomain = getSubdomain(
       getHeaderValue(req.headers['nginx-hostname']) ||
         req.hostname ||
-        req.headers['host'] || ''
+        req.headers['host'] ||
+        '',
     );
     return JSON.stringify({
       ROOT_URL: replaceSubdomain(ROOT_URL, subdomain),
       API_URL: replaceSubdomain(API_URL, subdomain),
       API_SUBSCRIPTIONS_URL: replaceSubdomain(API_SUBSCRIPTIONS_URL, subdomain),
+      CALLS_APP_ID: replaceSubdomain(CALLS_APP_ID, subdomain),
+      CALLS_APP_SECRET: replaceSubdomain(CALLS_APP_SECRET, subdomain),
     });
   }
 
@@ -71,6 +76,8 @@ const getEnv = (req:express.Request) => {
     ROOT_URL,
     API_URL,
     API_SUBSCRIPTIONS_URL,
+    CALLS_APP_ID,
+    CALLS_APP_SECRET,
   });
 };
 
@@ -104,7 +111,7 @@ app.get('/test', (req, res) => {
     brand_id,
     form_id,
     integration_id,
-    env
+    env,
   });
 });
 

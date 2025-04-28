@@ -14,7 +14,7 @@ module.exports = {
   menus: [
     {
       text: 'CMS',
-      url: '/cms/posts',
+      url: '/cms',
       icon: 'icon-star',
       location: 'mainNavigation',
       scope: 'cms',

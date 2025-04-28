@@ -30,10 +30,11 @@ export const getEnv = () => {
     return value;
   };
 
-
   return {
     API_URL: getItem('API_URL'),
     API_SUBSCRIPTIONS_URL: getItem('API_SUBSCRIPTIONS_URL'),
+    CALLS_APP_ID: getItem('CALLS_APP_ID'),
+    CALLS_APP_SECRET: getItem('CALLS_APP_SECRET'),
   };
 };
 
@@ -47,7 +48,7 @@ export const postMessage = (source: string, message: string, postData = {}) => {
       message,
       ...postData,
     },
-    '*'
+    '*',
   );
 };
 
@@ -267,7 +268,7 @@ export const checkRule = (rule: IRule, browserInfo: IBrowserInfo) => {
 
 export const checkRules = (
   rules: IRule[],
-  browserInfo: IBrowserInfo
+  browserInfo: IBrowserInfo,
 ): boolean => {
   let passedAllRules = true;
 

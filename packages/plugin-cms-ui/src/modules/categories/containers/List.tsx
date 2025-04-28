@@ -5,7 +5,8 @@ import React from 'react';
 import { mutations, queries } from '../graphql';
 
 import List from '../components/List';
-import { useSearchParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { WEB_DETAIL } from '../../web/queries';
 
 type Props = {
   refetch: () => void;
@@ -13,10 +14,13 @@ type Props = {
 };
 
 export default function ListContainer(props: Props) {
-  const [searchParams] = useSearchParams(); 
-
-  const clientPortalId = searchParams.get('web') || '';
-
+   const { cpId = '' } = useParams<{ cpId: string }>();
+ 
+   const { data: webData, loading: webLoading } = useQuery(WEB_DETAIL, {
+     variables: {
+       id: cpId,
+     },
+   });
 
 
   function buildCategoryTree(categories) {
@@ -47,7 +51,7 @@ export default function ListContainer(props: Props) {
   const { data, loading, refetch } = useQuery(queries.GET_CATEGORIES, {
     variables: {
       ...router.generatePaginationParams(props.queryParams || {}),
-      clientPortalId,
+      clientPortalId: cpId,
     },
     fetchPolicy: 'network-only',
   });
@@ -79,7 +83,8 @@ export default function ListContainer(props: Props) {
 
   const extendedProps = {
     ...props,
-    clientPortalId,
+    website: webData?.clientPortalGetConfig,
+    clientPortalId: cpId,
     loading,
     categoryTree,
     totalCount: data?.cmsCategories?.length || 0,

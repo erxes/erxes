@@ -8,6 +8,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import UpdateConfigs from '../components/UpdateConfigs';
 import { mutations, queries } from '../graphql';
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
+import { getVersion } from '@erxes/ui/src/utils/core';
 
 type Props = {
   history: any;
@@ -19,6 +20,11 @@ type FinalProps = {
 } & Props;
 
 const ConfigsContainer = (props: FinalProps) => {
+  const { VERSION } = getVersion();
+
+  if (VERSION === 'saas') {
+    return;
+  }
   const { getConfigsQuery, updateConfigsMutation } = props;
 
   if (getConfigsQuery.loading) {

@@ -5,25 +5,30 @@ import { Alert, confirm, router } from '@erxes/ui/src/utils';
 import React from 'react';
 import { mutations, queries } from '../graphql';
 
-import List from '../components/List';
-import { useSearchParams } from 'react-router-dom';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import { useParams } from 'react-router-dom';
+import { WEB_DETAIL } from '../../web/queries';
+import List from '../components/List';
 
 type Props = {
-
   refetch: () => void;
   queryParams: any;
 };
 
 export default function ListContainer(props: Props) {
-  const [searchParams] = useSearchParams(); 
-
-  const clientPortalId = searchParams.get('web');
+  const { cpId = '' } = useParams<{ cpId: string }>();
+ 
+  const { data: webData, loading: webLoading } = useQuery(WEB_DETAIL, {
+    variables: {
+      id: cpId,
+    },
+  });
 
   const { data, loading, refetch } = useQuery(queries.POST_LIST, {
     variables: {
       ...router.generatePaginationParams(props.queryParams || {}),
-      clientPortalId
+      clientPortalId: cpId,
+      type: props.queryParams?.type,
     },
     fetchPolicy: 'network-only',
   });
@@ -31,7 +36,7 @@ export default function ListContainer(props: Props) {
   const [removeMutation] = useMutation(mutations.POST_REMOVE);
 
   if (loading) {
-    return <Spinner/>
+    return <Spinner />;
   }
 
   const remove = (id: string) => {
@@ -57,14 +62,14 @@ export default function ListContainer(props: Props) {
 
   const extendedProps = {
     ...props,
-    clientPortalId,
+    website: webData?.clientPortalGetConfig,
+    clientPortalId: cpId,
     loading,
     posts,
     totalCount,
     refetch,
     remove,
   };
-
 
   return <List {...extendedProps} />;
 }

@@ -8,7 +8,6 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
-import SelectCp from '../../clientportal/containers/SelectCp';
 import SelectCategory from '../containers/SelectCategory';
 
 type Props = {
@@ -20,7 +19,7 @@ type Props = {
 };
 
 const ProductForm = (props: Props) => {
-  const [clientPortalId, setClientPortalId] = React.useState(props.clientPortalId || '');
+  const { clientPortalId } = props;
   const [category, setCategory] = React.useState<any>(
     props.category || {
       slug: '',
@@ -31,8 +30,6 @@ const ProductForm = (props: Props) => {
     }
   );
 
-  React.useEffect(() => {
-  }, [clientPortalId]);
 
   const generateDoc = () => {
     const finalValues: any = {};
@@ -165,18 +162,6 @@ const ProductForm = (props: Props) => {
 
     return (
       <>
-      <FormGroup>
-      <ControlLabel>{__('Client Portal')}</ControlLabel>
-        <SelectCp
-          onSelect={(cpID) => {
-            setClientPortalId(cpID);
-          }}
-          initialValue={clientPortalId}
-          label={'Client Portal'}
-          name='selectedCp'
-          multi={false}
-        />
-      </FormGroup>
         {renderFormFields()}
       </>
     );

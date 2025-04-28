@@ -27,6 +27,8 @@ export interface ITour {
   info2?: string;
   info3?: string;
   info4?: string;
+  images?: string[];
+  imageThumbnail?: string;
 }
 
 export interface ITourDocument extends ITour, Document {
@@ -40,7 +42,7 @@ const STATUS_TYPES = [
   { label: 'running', value: 'running' },
   { label: 'compeleted', value: 'compeleted' },
   { label: 'scheduled', value: 'scheduled' },
-  { label: 'cancelled', value: 'cancelled' }
+  { label: 'cancelled', value: 'cancelled' },
 ];
 
 const getEnum = (): string[] => {
@@ -50,7 +52,7 @@ const getEnum = (): string[] => {
 export const guideItemSchema = new Schema(
   {
     guideId: field({ type: String, optional: true }),
-    type: field({ type: String, optional: true })
+    type: field({ type: String, optional: true }),
   },
   { _id: false }
 );
@@ -66,7 +68,7 @@ export const tourSchema = schemaHooksWrapper(
     location: field({
       type: [locationSchema],
       optional: true,
-      label: 'location'
+      label: 'location',
     }),
     itineraryId: field({ type: String, optional: true, label: 'initeraryId' }),
     startDate: field({ type: Date, optional: true, label: 'date' }),
@@ -78,7 +80,7 @@ export const tourSchema = schemaHooksWrapper(
       default: '',
       optional: true,
       label: 'status',
-      esType: 'keyword'
+      esType: 'keyword',
     }),
     cost: field({ type: Number, optional: true, label: 'cost' }),
     tags: field({ type: [String], optional: true, label: 'tags' }),
@@ -88,7 +90,11 @@ export const tourSchema = schemaHooksWrapper(
     info1: field({ type: String, optional: true, label: 'info' }),
     info2: field({ type: String, optional: true, label: 'info' }),
     info3: field({ type: String, optional: true, label: 'info' }),
-    info4: field({ type: String, optional: true, label: 'info' })
+    info4: field({ type: String, optional: true, label: 'info' }),
+    extra: field({ type: Object, optional: true, label: 'info' }),
+
+    images: field({ type: [String], optional: true, label: 'images' }),
+    imageThumbnail: field({ type: String, optional: true, label: 'images' }),
   }),
   'erxes_tours'
 );

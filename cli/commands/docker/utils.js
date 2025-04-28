@@ -17,7 +17,7 @@ const {
 
 const isSwarm = DEPLOYMENT_METHOD !== "docker-compose";
 
-const buildPlugins = ["dev", "staging", "v2", "rc", "master"];
+const buildPlugins = ["dev", "staging", "v2", "rc", "master", "v1"];
 
 const commonEnvs = configs => {
   const enabledServices = (configs.plugins || []).map(plugin => plugin.name);

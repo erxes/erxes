@@ -32,7 +32,7 @@ const adMutations = {
 
     const client = new Client({ url: config.apiUrl });
 
-    await bindUser(client, params.userName, params.userPass);
+    await bindUser(client, config.adminDN, config.adminPassword);
 
     const searchBase = String(config.baseDN); // Base DN for searching
     const searchOptions: SearchOptions = {

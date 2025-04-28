@@ -7,6 +7,7 @@ import {
   getNextMonth,
   getToday,
   getPureDate,
+  getFullDate,
   getTomorrow,
   getUserDetail,
   paginate,
@@ -52,6 +53,7 @@ export { fixDate };
 export { getDate };
 export { getToday };
 export { getPureDate };
+export { getFullDate };
 export { getTomorrow };
 export { getNextMonth };
 export { checkUserIds };
@@ -94,6 +96,7 @@ export default {
   getDate,
   getToday,
   getPureDate,
+  getFullDate,
   getTomorrow,
   getNextMonth,
   checkUserIds,

@@ -126,6 +126,7 @@ export const setupMessageConsumers = async () => {
       if (details.isReceiveWebCall) {
         status = 'active';
       }
+      console.log(status, 'status...:', details.isReceiveWebCall);
       const updatedIntegration =
         await models.Integrations.createOrUpdateIntegration(integrationId, {
           ...details,

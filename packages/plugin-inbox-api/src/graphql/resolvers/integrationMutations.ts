@@ -309,21 +309,25 @@ const integrationMutations = {
     }: { _id: string; messengerData: IMessengerData; callData: any },
     { models, subdomain }: IContext,
   ) {
-    await sendCommonMessage({
-      serviceName: 'cloudflarecalls',
-      subdomain,
-      action: 'createOrUpdateIntegration',
-      data: {
-        kind: 'cloudflarecalls',
-        integrationId: _id,
-        doc: {
+    const isEnabledCloudflareCalls = await isServiceRunning('cloudflarecalls');
+
+    if (isEnabledCloudflareCalls) {
+      await sendCommonMessage({
+        serviceName: 'cloudflarecalls',
+        subdomain,
+        action: 'createOrUpdateIntegration',
+        data: {
           kind: 'cloudflarecalls',
           integrationId: _id,
-          data: { ...callData },
+          doc: {
+            kind: 'cloudflarecalls',
+            integrationId: _id,
+            data: { ...callData },
+          },
         },
-      },
-      isRPC: true,
-    });
+        isRPC: true,
+      });
+    }
 
     return models.Integrations.saveMessengerConfigs(_id, messengerData);
   },

@@ -63,11 +63,11 @@ const Row = (props: Props) => {
 
   return (
     <tr>
-      <td key={Math.random()}>
+      <td key={page._id + 'name'}>
         <RowTitle>{page.name}</RowTitle>
       </td>
 
-      <td key={Math.random()}>
+      <td key={page._id + 'slug'}>
         <RowTitle>{`${page.slug}` || 'Undefined'} </RowTitle>
       </td>
 
