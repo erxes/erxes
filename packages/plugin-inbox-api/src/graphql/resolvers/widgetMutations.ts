@@ -1,9 +1,6 @@
 import * as strip from "strip";
 
 import {
-  AUTO_BOT_MESSAGES,
-} from "../../models/definitions/constants";
-import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
   MESSAGE_TYPES
@@ -24,6 +21,9 @@ import {
   sendTicketsMessage
 } from "../../messageBroker";
 
+import {
+  AUTO_BOT_MESSAGES,
+} from "../../models/definitions/constants";
 import EditorAttributeUtil from "@erxes/api-utils/src/editorAttributeUtils";
 import { IBrowserInfo } from "@erxes/api-utils/src/definitions/common";
 import { VERIFY_EMAIL_TRANSLATIONS } from "../../constants";
@@ -269,7 +269,7 @@ const widgetMutations = {
   ) {
     const { customerId, firstName, lastName, emails, phones } = args;
     if (!customerId) {
-      throw new Error('Customer ID is now found');
+      throw new Error('Customer ID not found');
     }
     return await sendCoreMessage({
       subdomain,

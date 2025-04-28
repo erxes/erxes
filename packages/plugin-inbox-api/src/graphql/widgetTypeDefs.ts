@@ -89,7 +89,7 @@ export const queries = ({ products, knowledgeBase }) => `
   widgetsConversationDetail(_id: String, integrationId: String!): ConversationDetailResponse
   widgetsGetMessengerIntegration(brandCode: String!): Integration
   widgetsTicketCustomerDetail(customerId: String, type: String): Customer
-  widgetsTicketComments(typeId: String! type: String!): [TicketComment]
+  widgetsTicketComments(typeId: String!, type: String!): [TicketComment]
   widgetsTicketActivityLogs(contentType: String!, contentId: String): [ActivityLog]
   widgetsMessages(conversationId: String): [ConversationMessage]
   widgetsUnreadCount(conversationId: String): Int

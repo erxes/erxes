@@ -76,7 +76,7 @@ const TicketSubmitForm: React.FC<Props> = ({
           </div>
           <div className="ticket-form-item">
             <div className="input-container">
-              <label htmlFor="type">
+              <label htmlFor="ticketType">
                 {__("Ticket type")} <span className="required">*</span>
               </label>
               <select id="ticketType" onChange={handleChange} required>
@@ -87,7 +87,7 @@ const TicketSubmitForm: React.FC<Props> = ({
             </div>
           </div>
           <div className="input-container">
-            <label htmlFor="type">{__("Attachments")} </label>
+            <label htmlFor="attachments">{__("Attachments")} </label>
             <FileUploader handleFiles={handleFiles} />
           </div>
           <div className="ticket-form-item">

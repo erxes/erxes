@@ -15,7 +15,7 @@ type Props = {
 
 const TicketShowProgressContainer = (props: Props) => {
   const { ticketData } = useTicket();
-  const customerId = connection.data.customerId;
+  const { customerId } = connection.data;
   const [comment, setComment] = React.useState("");
 
   const {

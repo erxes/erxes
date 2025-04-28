@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import AccquireInformation from "../../components/AccquireInformation";
+import AcquireInformation from "../../components/AcquireInformation";
 import Ticket from "../../components/ticket/Ticket";
 import TicketCheckProgressContainer from "./TicketCheckProgress";
 import { connection } from "../../connection";
@@ -73,7 +73,7 @@ const TicketContainer = (props: Props) => {
         <div className="line-wrapper">
           <div className="line" />
         </div>
-        <AccquireInformation
+        <AcquireInformation
           color={getUiOptions().color}
           textColor={getUiOptions().textColor || "#fff"}
           save={onCustomerAdd}

@@ -6,8 +6,8 @@ export const types = `
     userId: String,
     
     userType: String,
-    content: String
-    createdUser: CommentsUser
+    content: String,
+    createdUser: CommentsUser,
     createdAt: Date
   }
 `;

@@ -24,7 +24,7 @@ const TicketSubmitContainer = (props: Props) => {
 
   const [files, setFiles] = React.useState<FileWithUrl[]>([]);
   const ticketData = getTicketData();
-  const customerId = connection.data.customerId;
+  const { customerId } = connection.data;
   const [isSubmitted, setIsSubmitted] = React.useState(false);
   const [ticketNumber, setTicketNumber] = React.useState("");
   const [formData, setFormData] = React.useState({
@@ -81,7 +81,7 @@ const TicketSubmitContainer = (props: Props) => {
     onCompleted: async () => {
       const transformedFiles = files.map((file) => ({
         url: readFile(file.url || ""),
-        name: file.name, // Saving "preview" as "name"
+        name: file.name,
         type: "image",
       }));
 

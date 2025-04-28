@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { getColor, getUiOptions } from "../utils/util";
 
-import AccquireInformation from "../components/AccquireInformation";
+import AccquireInformation from "../components/AcquireInformation";
 import { useConversation } from "../context/Conversation";
 
 const AccquireInformationContainer = ({ loading }: { loading: boolean }) => {
