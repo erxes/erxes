@@ -7,8 +7,7 @@ export const types = `
     
     userType: String,
     content: String
-
-    createdUser: TicketCommentUser
+    createdUser: CommentsUser
     createdAt: Date
   }
 `;
