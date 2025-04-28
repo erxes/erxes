@@ -6,7 +6,7 @@ import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import { IBrowserInfo } from "@erxes/api-utils/src/definitions/common";
 import { IIntegrationDocument } from "../../models/definitions/integrations";
 import { getOrCreateEngageMessage } from "../../widgetUtils";
-import { sendAutomationsMessage } from "../../../src/messageBroker";
+import { sendAutomationsMessage, sendTicketsMessage } from "../../../src/messageBroker";
 
 const isMessengerOnline = async (
   models: IModels,
@@ -32,6 +32,7 @@ const isMessengerOnline = async (
 
   return models.Integrations.isOnline(modifiedIntegration, userTimezone);
 };
+
 
 const fetchUsers = async (
   models: IModels,
@@ -71,6 +72,53 @@ const getWidgetMessages = (models: IModels, conversationId: string) => {
 };
 
 export default {
+  async widgetsTicketComments(
+    _root,
+    args: { typeId?: string },
+    { subdomain }: IContext
+  ) {
+
+    const { typeId } = args;
+
+    const data = await sendTicketsMessage({
+      subdomain,
+      action: 'widgets.comments.find',
+      data: { typeId },
+      isRPC: true,
+      defaultValue: null
+    });
+    return data
+  },
+  async widgetsTicketCustomerDetail(
+    _root,
+    args: { customerId?: string; type?: string },
+    { models, subdomain }: IContext
+  ) {
+    const { customerId } = args;
+    return await sendCoreMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: { _id: customerId },
+      isRPC: true,
+      defaultValue: null
+    });
+  },
+  async widgetsTicketActivityLogs(
+    _root,
+    args: { contentId?: string; contentType?: string },
+    { subdomain }: IContext
+  ) {
+    const { contentId, contentType } = args;
+    return await sendCoreMessage({
+      subdomain,
+      action: 'activityLogs.findOne',
+      data: { contentType, contentId, },
+      isRPC: true,
+      defaultValue: null
+    });
+  },
+
+
   async widgetsGetMessengerIntegration(
     _root,
     args: { brandCode: string },

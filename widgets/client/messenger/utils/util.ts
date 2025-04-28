@@ -1,5 +1,6 @@
 import {
   IBrand,
+  IIntegrationCallData,
   IIntegrationMessengerData,
   IIntegrationUiOptions,
 } from '../../types';
@@ -37,7 +38,7 @@ export const getIntegrationId = () => {
   return connection.data.integrationId
 }
 
-export const getCallData = (): IIntegrationMessengerData => {
+export const getCallData = (): IIntegrationCallData => {
   return connection.data.callData || {};
 };
 
@@ -61,6 +62,22 @@ function rgbToHex(r: any, g: any, b: any) {
   const toHex = (x: any) => x.toString(16).padStart(2, '0');
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
+
+export const hexToRGBA = (hex: string, alpha: number | string): string => {
+  let validHex = hex.replace(/^#/, "");
+
+  if (validHex.length === 3) {
+    // Expand shorthand like #abc to #aabbcc
+    validHex = validHex.split("").map((char) => char + char).join("");
+  }
+
+  const bigint = parseInt(validHex, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
 
 // Function to adjust brightness (positive for brighter, negative for dimmer)
 export function adjustBrightness(hex: string, factor: any) {

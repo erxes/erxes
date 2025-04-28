@@ -4,6 +4,8 @@ import TicketsStage from './stage';
 import Ticket from './ticket';
 import TicketsChecklist from './checklists';
 import { default as TicketListItem } from './commonListItem';
+import TicketComment from './comments';
+
 export {
   TicketsBoard,
   TicketsPipeline,
@@ -11,4 +13,5 @@ export {
   Ticket,
   TicketsChecklist,
   TicketListItem,
+  TicketComment,
 };

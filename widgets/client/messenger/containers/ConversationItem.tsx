@@ -1,10 +1,13 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import ConversationItem from '../components/ConversationItem';
-import graphqlTypes from '../graphql';
-import { IConversation } from '../types';
-import { connection } from '../connection';
-import { useQuery } from '@apollo/client';
+import * as React from "react";
+
+import { conversationDetailQuery, unreadCountQuery } from "../graphql/queries";
+
+import ConversationItem from "../components/ConversationItem";
+import { IConversation } from "../types";
+import { connection } from "../connection";
+import { conversationMessageInserted } from "../graphql/subscriptions";
+import gql from "graphql-tag";
+import { useQuery } from "@apollo/client";
 
 type Props = {
   conversation: IConversation;
@@ -14,26 +17,21 @@ type Props = {
 const ConversationItemContainer = (props: Props) => {
   const { conversation } = props;
 
-  const { data, subscribeToMore, refetch } = useQuery(
-    gql(graphqlTypes.unreadCountQuery),
-    {
-      variables: { conversationId: conversation._id },
-    }
-  );
+  const { data, subscribeToMore, refetch } = useQuery(gql(unreadCountQuery), {
+    variables: { conversationId: conversation._id },
+  });
   const {
     data: newResponseData,
     subscribeToMore: subscribeToNewResponse,
     refetch: refetchNewResponse,
   } = useQuery(
-    gql(
-      graphqlTypes.conversationDetailQuery(connection.enabledServices.dailyco)
-    ),
+    gql(conversationDetailQuery(connection.enabledServices.dailyco)),
     {
       variables: {
         _id: conversation._id,
         integrationId: connection.data.integrationId,
       },
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
     }
   );
 
@@ -44,9 +42,7 @@ const ConversationItemContainer = (props: Props) => {
     // lister for all conversation changes for this customer
     const messageSubscription = subscribeToMore({
       document: gql(
-        graphqlTypes.conversationMessageInserted(
-          connection.enabledServices.dailyco
-        )
+        conversationMessageInserted(connection.enabledServices.dailyco)
       ),
       variables: { _id: conversation._id },
       updateQuery: () => {
@@ -55,9 +51,7 @@ const ConversationItemContainer = (props: Props) => {
     });
     const responseSubscription = subscribeToNewResponse({
       document: gql(
-        graphqlTypes.conversationMessageInserted(
-          connection.enabledServices.dailyco
-        )
+        conversationMessageInserted(connection.enabledServices.dailyco)
       ),
       variables: { _id: conversation._id },
       updateQuery: () => {

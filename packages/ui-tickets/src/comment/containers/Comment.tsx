@@ -11,7 +11,8 @@ import {
   ClientPortalCommentQueryResponse,
   IClientPortalComment,
   CommentRemoveMutationResponse,
-  IWidgetsComment
+  WidgetsTicketCommentsQueryResponse,
+  IWidgetsTicketComments
 } from "../types";
 import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
 
@@ -23,16 +24,18 @@ type Props = {
 
 type FinalProps = {
   clientPortalCommentsQuery: ClientPortalCommentQueryResponse;
+  widgetsTicketCommentsQuery: WidgetsTicketCommentsQueryResponse
 } & Props &
   CommentRemoveMutationResponse;
 
 class CommentContainer extends React.Component<FinalProps> {
   render() {
-    const { clientPortalCommentsQuery, removeMutation,item } = this.props;
-
+    const { clientPortalCommentsQuery, widgetsTicketCommentsQuery, removeMutation, removeCommentMutation } = this.props;
     const clientPortalComments =
       clientPortalCommentsQuery.clientPortalComments ||
       ([] as IClientPortalComment[]);
+    const widgetsTicketComments =
+      widgetsTicketCommentsQuery?.widgetsTicketComments || ([] as IWidgetsTicketComments[]);
 
     const remove = (_id: string) => {
       confirm().then(() => {
@@ -46,13 +49,26 @@ class CommentContainer extends React.Component<FinalProps> {
           });
       });
     };
+
+    const removeTicketComment = (_id: string) => {
+      confirm().then(() => {
+        removeCommentMutation({ variables: { _id } })
+          .then(() => {
+            Alert.success("You successfully deleted a comment");
+            widgetsTicketCommentsQuery.refetch()
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+      });
+    };
     return (
       <Comment
         currentUser={this.props.currentUser || ({} as IUser)}
-        widgetsComments={item.comments} 
+        widgetsTicketComments={widgetsTicketComments}
         clientPortalComments={clientPortalComments}
         remove={remove}
-        
+        removeTicketComment={removeTicketComment}
       />
     );
   }
@@ -74,10 +90,30 @@ const WithProps = withProps<Props>(
         })
       }
     ),
+    graphql<Props, ClientPortalCommentQueryResponse, {}>(
+      gql(queries.widgetsTicketComments),
+      {
+        name: "widgetsTicketCommentsQuery",
+        options: ({ item }: { item: IItem }) => ({
+          variables: {
+            typeId: item._id,
+            type: (item.stage || ({} as IStage)).type
+          },
+          fetchPolicy: "network-only",
+          notifyOnNetworkStatusChange: true
+        })
+      }
+    ),
     graphql<Props, CommentRemoveMutationResponse, {}>(
       gql(mutations.clientPortalCommentsRemove),
       {
         name: "removeMutation"
+      }
+    ),
+    graphql<Props, CommentRemoveMutationResponse, {}>(
+      gql(mutations.widgetsTicketCommentsRemove),
+      {
+        name: "removeCommentMutation"
       }
     )
   )(CommentContainer)
