@@ -13,6 +13,7 @@ import { useTicket } from "../../context/Ticket";
 type Props = {
   activityLogs: ITicketActivityLog[];
   comment: string;
+  comments: ITicketComment[];
   setComment: (comment: string) => void;
   onComment: () => void;
 };
@@ -21,6 +22,7 @@ const TicketShowProgress: React.FC<Props> = ({
   onComment,
   setComment,
   comment,
+  comments,
   activityLogs,
 }) => {
   const { ticketData = {} } = useTicket();
@@ -41,6 +43,7 @@ const TicketShowProgress: React.FC<Props> = ({
 
   const renderTicketIssue = () => {
     const { name, type, description, attachments } = ticketData;
+
     return (
       <div className="ticket-progress-content">
         <div className="content-header">
@@ -58,9 +61,9 @@ const TicketShowProgress: React.FC<Props> = ({
   };
 
   const renderComments = () => {
-    if (!ticketData.comments || ticketData.comments.length === 0) return null;
+    if (!comments || comments.length === 0) return null;
 
-    return (ticketData?.comments || []).map((comment: ITicketComment) => {
+    return comments.map((comment: ITicketComment) => {
       const { userType, createdUser, createdAt, content } =
         comment || ({} as ITicketComment);
       const { firstName, lastName, email, avatar } = createdUser || ({} as any);

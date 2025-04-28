@@ -128,7 +128,13 @@ const clientPortalComments = `
     clientPortalComments(typeId: $typeId, type: $type) {
       _id
       content
-      createdUser 
+      createdUser {
+        _id
+        email
+        lastName
+        firstName
+        avatar
+      }
       createdAt
       userType
       type
@@ -141,7 +147,13 @@ const widgetsTicketComments = `
     widgetsTicketComments(typeId: $typeId, type: $type) {
       _id
       content
-      createdUser 
+      createdUser {
+        _id
+        email
+        lastName
+        firstName
+        avatar
+      }
       createdAt
       userType
       type

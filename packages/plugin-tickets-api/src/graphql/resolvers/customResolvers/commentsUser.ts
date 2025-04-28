@@ -1,8 +1,6 @@
-import { IContext } from '../../../connectionResolver';
 import { ICommentDocument } from '../../../models/definitions/comments';
+import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage } from '../../../messageBroker';
-
-
 
 export default {
     async createdUser(
@@ -46,21 +44,21 @@ export default {
                 isRPC: true
             });
             console.log("customer", customer)
-            // console.log("customer", customer)
-            // if (!customer) {
-            //     return null;
-            // }
+            console.log("customer", customer)
+            if (!customer) {
+                return null;
+            }
 
-            // const { details = {} } = customer;
-            // console.log(customer, 'customer')
-            // return {
-            //     // _id: customer._id,
-            //     // avatar: details.avatar,
-            //     // firstName: details.firstName,
-            //     // lastName: details.lastName,
-            //     // fullName: details.fullName,
-            //     // email: customer.email
-            // };
+            const { details = {} } = customer;
+            console.log(customer, 'customer')
+            return {
+                // _id: customer._id,
+                // avatar: details.avatar,
+                // firstName: details.firstName,
+                // lastName: details.lastName,
+                // fullName: details.fullName,
+                // email: customer.email
+            };
         }
 
 

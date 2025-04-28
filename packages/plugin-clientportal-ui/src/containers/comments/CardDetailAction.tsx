@@ -1,9 +1,10 @@
-import { useQuery, useMutation } from '@apollo/client';
-import { gql } from '@apollo/client';
-import { confirm } from '@erxes/ui/src/utils';
-import React from 'react';
-import Detail from '../../components/comments/CardDetailAction';
-import { mutations, queries } from '../../graphql';
+import { Alert, confirm } from "@erxes/ui/src/utils";
+import { mutations, queries } from "../../graphql";
+import { useMutation, useQuery } from "@apollo/client";
+
+import Detail from "../../components/comments/CardDetailAction";
+import React from "react";
+import { gql } from "@apollo/client";
 
 type Props = {
   item: any;
@@ -11,23 +12,46 @@ type Props = {
 
 function DetailContainer({ item }: Props) {
   const {
-    stage: { type = '' }
+    stage: { type = "" },
   } = item;
 
-  const { data } = useQuery(gql(queries.clientPortalComments), {
+  const {
+    data,
+    loading,
+    refetch: cpCommentsRefetch,
+  } = useQuery(gql(queries.clientPortalComments), {
     variables: { typeId: item._id, type },
-    skip: !type
+    skip: !type,
   });
 
-  const comments = data?.clientPortalComments || [];
+  const {
+    data: widgetDatas,
+    loading: widgetCommentsLoading,
+    refetch: widgetCommentsRefetch,
+  } = useQuery(gql(queries.widgetComments), {
+    variables: { typeId: item._id, type },
+    skip: !type,
+  });
+
+  const cpComments = data?.clientPortalComments || [];
+  const widgetComments = widgetDatas?.widgetsTicketComments || [];
 
   const [createComment] = useMutation(gql(mutations.clientPortalCommentsAdd), {
-    refetchQueries: [
-      {
-        query: gql(queries.clientPortalComments),
-        variables: { typeId: item._id, type }
-      }
-    ]
+    onCompleted() {
+      cpCommentsRefetch();
+    },
+    onError(error) {
+      return Alert.error(error.message);
+    },
+  });
+
+  const [createWidgetComment] = useMutation(gql(mutations.widgetCommentsAdd), {
+    onCompleted() {
+      widgetCommentsRefetch();
+    },
+    onError(error) {
+      return Alert.error(error.message);
+    },
   });
 
   const [deleteComment] = useMutation(
@@ -36,9 +60,9 @@ function DetailContainer({ item }: Props) {
       refetchQueries: [
         {
           query: gql(queries.clientPortalComments),
-          variables: { typeId: item._id, type }
-        }
-      ]
+          variables: { typeId: item._id, type },
+        },
+      ],
     }
   );
 
@@ -47,9 +71,21 @@ function DetailContainer({ item }: Props) {
       variables: {
         ...values,
         typeId: item._id,
-        type: 'ticket',
-        userType: 'team'
-      }
+        type: "ticket",
+        userType: "team",
+      },
+    });
+  };
+
+  const handleWidgetSubmit = (values: { content: string }) => {
+    createWidgetComment({
+      variables: {
+        ...values,
+        typeId: item._id,
+        type: "ticket",
+        userType: "team",
+        customerId: item.createdUser?._id || "",
+      },
     });
   };
 
@@ -57,20 +93,23 @@ function DetailContainer({ item }: Props) {
     confirm().then(() =>
       deleteComment({
         variables: {
-          _id: commentId
-        }
+          _id: commentId,
+        },
       })
     );
   };
 
-  if (type !== 'ticket') {
+  if (type !== "ticket") {
     return null;
   }
 
   const updatedProps = {
-    comments,
+    cpComments,
+    widgetComments,
+    loading,
     handleSubmit,
-    handleRemoveComment
+    handleRemoveComment,
+    handleWidgetSubmit,
   };
 
   return <Detail {...updatedProps} />;
