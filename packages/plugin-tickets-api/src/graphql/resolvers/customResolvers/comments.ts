@@ -46,15 +46,7 @@ export default {
                 },
                 isRPC: true
             });
-            return {
-                _id: customer._id,
-                firstName: customer.firstName,
-                middleName: customer.middleName,
-                lastName: customer.lastName,
-                primaryEmail: customer.primaryEmail,
-                primaryPhone: customer.primaryPhone,
-                visitorContactInfo: customer.visitorContactInfo
-            }
+            return customer
         }
 
     }
