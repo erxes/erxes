@@ -21,7 +21,7 @@ const allowTypes = {
   //deposit
   // "savings:transaction": ["create"],
   //saving
-  // "savings:contract": ["create", "update"],
+  'savings:contract': ['create', 'update'],
   //loan
   'loans:contract': ['create', 'update'],
   // "loans:classification": ["create"],
