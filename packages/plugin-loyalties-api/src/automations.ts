@@ -766,6 +766,8 @@ const docScoreCampaign = async ({
     (await getLoyatyCampaignConfig(serviceName)) || {};
 
 
+    console.log({extendTargetAutomation,serviceName})
+
   if (extendTargetAutomation) {
     target = await sendCommonMessage({
       subdomain,
@@ -775,6 +777,7 @@ const docScoreCampaign = async ({
       isRPC: true,
       defaultValue: target,
     });
+    console.log({target})
   }
 
   return await models.ScoreCampaigns.doCampaign({

@@ -19,21 +19,21 @@ import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
+import { Portal } from "@headlessui/react";
 import Watch from "../../containers/editForm/Watch";
-import { currentUser } from "@erxes/ui/src/auth/graphql";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   options: IOptions;
   item: IItem;
   addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
-  synchSingleCard: (itemId: string) => void;
   removeItem: (itemId: string, callback?: () => void) => void;
   copyItem: (itemId: string, callback: () => void, msg?: string) => void;
   beforePopupClose: (afterPopupClose?: () => void) => void;
   formContent: ({ state, copy, remove }: IEditFormContent) => React.ReactNode;
   onUpdate: (item: IItem, prevStageId?) => void;
   saveItem: (doc, callback?: (item) => void) => void;
+  synchSingleCard?: (itemId: string) => void;
   isPopupVisible?: boolean;
   hideHeader?: boolean;
   sendToBoard?: (item: any) => void;
@@ -54,6 +54,7 @@ function EditForm(props: Props) {
     sendToBoard,
     currentUser,
     isPopupVisible,
+    synchSingleCard,
   } = props;
 
   const location = useLocation();
@@ -85,14 +86,6 @@ function EditForm(props: Props) {
       setUpdatedItem(props.item);
     }
   }, [item]);
-
-  // useEffect(() => {
-  //   document.addEventListener("mousedown", onHideModal);
-
-  //   return () => {
-  //     document.removeEventListener("mousedown", onHideModal);
-  //   };
-  // }, [isPopupVisible]);
 
   const onChangeStage = (stageId: string) => {
     setStageId(stageId);
@@ -149,10 +142,7 @@ function EditForm(props: Props) {
         localStorage.removeItem(`${updatedItem._id}Name`);
       }
 
-      props.synchSingleCard(updatedItem._id);
-      // if (updatedItem && props.onUpdate) {
-      //   props.onUpdate(updatedItem, prevStageId);
-      // }
+      synchSingleCard && synchSingleCard(updatedItem._id);
     });
   };
 
@@ -242,32 +232,34 @@ function EditForm(props: Props) {
   };
 
   return (
-    <div className="edit-form-trigger">
-      <CSSTransition
-        in={isPopupVisible}
-        timeout={100}
-        classNames="slide-in-right"
-        unmountOnExit={true}
-      >
-        <RightDrawerContainer
-          width={isFullMode ? "calc(100% - 100px)" : "45%"}
-          ref={wrapperRef}
+    <Portal>
+      <div className="edit-form-trigger">
+        <CSSTransition
+          in={isPopupVisible}
+          timeout={100}
+          classNames="slide-in-right"
+          unmountOnExit={true}
         >
-          <EditFormContent>
-            {renderArchiveStatus()}
+          <RightDrawerContainer
+            width={isFullMode ? "calc(100% - 100px)" : "45%"}
+            ref={wrapperRef}
+          >
+            <EditFormContent>
+              {renderArchiveStatus()}
 
-            {renderHeader()}
-            {props.formContent({
-              state: { stageId, updatedItem, prevStageId },
-              saveItem: saveItemHandler,
-              onChangeStage,
-              copy,
-              remove,
-            })}
-          </EditFormContent>
-        </RightDrawerContainer>
-      </CSSTransition>
-    </div>
+              {renderHeader()}
+              {props.formContent({
+                state: { stageId, updatedItem, prevStageId },
+                saveItem: saveItemHandler,
+                onChangeStage,
+                copy,
+                remove,
+              })}
+            </EditFormContent>
+          </RightDrawerContainer>
+        </CSSTransition>
+      </div>
+    </Portal>
   );
 }
 

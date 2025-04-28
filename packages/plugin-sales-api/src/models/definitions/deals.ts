@@ -83,4 +83,5 @@ export const dealSchema = new Schema({
 
   productsData: field({ type: [productDataSchema], label: 'Products' }),
   paymentsData: field({ type: Object, optional: true, label: 'Payments' }),
+  extraData: field({ type: Object, optional: true })
 });

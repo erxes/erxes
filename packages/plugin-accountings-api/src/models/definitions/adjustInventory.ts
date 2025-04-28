@@ -3,12 +3,18 @@ import { Schema, Document } from 'mongoose';
 import { field, schemaWrapper } from './utils';
 import { ICommonAdjusting } from './commonAdjusting';
 
-export interface IAdjustInvDetail {
-  adjustId: string;
-  productId: string;
-  accountId: string;
-  branchId: string;
-  departmentId: string;
+export interface IAdjustInvDetailParams {
+  productId: string,
+  accountId: string,
+  departmentId: string,
+  branchId: string,
+}
+
+export interface IAdjustInvDetailParamsId extends IAdjustInvDetailParams {
+  adjustId: string
+}
+
+export interface IAdjustInvDetail extends IAdjustInvDetailParamsId {
   remainder: number;
   cost: number;
   unitCost: number;
@@ -30,11 +36,12 @@ export interface IAdjustInventory extends ICommonAdjusting {
   date: Date;
   description: string;
   status: string;
-
+  error?: string;
+  warning?: string;
   beginDate?: Date;
   successDate?: Date;
   checkedDate?: Date;
-  
+
   createdAt?: Date;
   createdBy?: string;
   modifiedAt?: Date;
@@ -82,6 +89,8 @@ export const adjustInventoriesSchema = schemaWrapper(
     date: field({ type: Date, label: 'date' }),
     description: field({ type: String, label: 'description' }),
     status: field({ type: String, default: 'draft', enum: ADJ_INV_STATUSES.all, label: 'status' }),
+    error: field({ type: String, optional: true, label: 'error' }),
+    warning: field({ type: String, optional: true, label: 'warning' }),
     beginDate: field({ type: Date, label: 'date' }),
     checkedDate: field({ type: Date, label: 'date' }),
     successDate: field({ type: Date, label: 'current date' }),

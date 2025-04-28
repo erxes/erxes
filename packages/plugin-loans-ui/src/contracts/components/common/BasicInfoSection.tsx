@@ -1,29 +1,29 @@
-import { Action, Name } from '../../styles';
-import React, { useState } from 'react';
-import { can, isEnabled } from '@erxes/ui/src/utils/core';
+import { Action, Name } from "../../styles";
+import React, { useState } from "react";
+import { can, isEnabled } from "@erxes/ui/src/utils/core";
 
-import Alert from '@erxes/ui/src/utils/Alert';
-import Button from '@erxes/ui/src/components/Button';
-import CloseForm from '../../containers/detail/CloseForm';
-import ContractForm from '../../containers/ContractForm';
-import DetailInfo from './DetailInfo';
-import Dropdown from '@erxes/ui/src/components/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import { IContract } from '../../types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { MainStyleInfoWrapper as InfoWrapper } from '@erxes/ui/src/styles/eindex';
-import InterestChange from '../../containers/detail/InterestChange';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { __ } from 'coreui/utils';
-import client from '@erxes/ui/src/apolloClient';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
-import { getEnv } from '@erxes/ui/src/utils';
-import { gql } from '@apollo/client';
-import { queries } from '../../graphql';
-import withConsumer from '../../../withConsumer';
-import TransactionForm from '../../../transactions/containers/TransactionForm';
+import Alert from "@erxes/ui/src/utils/Alert";
+import Button from "@erxes/ui/src/components/Button";
+import CloseForm from "../../containers/detail/CloseForm";
+import ContractForm from "../../containers/ContractForm";
+import DetailInfo from "./DetailInfo";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import { IContract } from "../../types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { MainStyleInfoWrapper as InfoWrapper } from "@erxes/ui/src/styles/eindex";
+import InterestChange from "../../containers/detail/InterestChange";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import TransactionForm from "../../../transactions/containers/TransactionForm";
+import { __ } from "coreui/utils";
+import client from "@erxes/ui/src/apolloClient";
+import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+import { getEnv } from "@erxes/ui/src/utils";
+import { gql } from "@apollo/client";
+import { queries } from "../../graphql";
+import withConsumer from "../../../withConsumer";
 
 type Props = {
   contract: IContract;
@@ -45,11 +45,11 @@ const BasicInfoSection = (props: Props) => {
         });
 
     const onOpen = () => {
-      if (!isEnabled('documents') || documents.length > 0) return;
+      if (!isEnabled("documents") || documents.length > 0) return;
       client
         .mutate({
           mutation: gql(queries.documents),
-          variables: { contentType: 'loans' },
+          variables: { contentType: "loans" },
         })
         .then(({ data }) => {
           setDocuments(data.documents);
@@ -97,39 +97,39 @@ const BasicInfoSection = (props: Props) => {
     const menuItems = () => {
       let result: any[] = [
         {
-          title: 'Interest correction',
-          trigger: <a href="#toClose">{__('Interest correction')}</a>,
+          title: "Interest correction",
+          trigger: <a href="#toClose">{__("Interest correction")}</a>,
           content: interestChangeForm,
-          additionalModalProps: { size: 'lg' },
+          additionalModalProps: { size: "lg" },
         },
         {
-          title: 'Change contract',
-          trigger: <a href="#changeContract">{__('Change contract')}</a>,
+          title: "Change contract",
+          trigger: <a href="#changeContract">{__("Change contract")}</a>,
           content: contractForm,
-          additionalModalProps: { size: 'lg' },
+          additionalModalProps: { size: "lg" },
         },
       ];
-      if (can('contractsClose', currentUser))
+      if (can("contractsClose", currentUser))
         result.push({
-          title: 'To Close Contract',
-          trigger: <a href="#toClose">{__('To Close Contract')}</a>,
+          title: "To Close Contract",
+          trigger: <a href="#toClose">{__("To Close Contract")}</a>,
           content: closeForm,
-          additionalModalProps: { size: 'lg' },
+          additionalModalProps: { size: "lg" },
         });
 
       if (contract.unUsedBalance) {
         result.unshift({
-          title: 'Give transaction',
-          trigger: <a href="#toClose">{__('Give transaction')}</a>,
+          title: "Give transaction",
+          trigger: <a href="#toClose">{__("Give transaction")}</a>,
           content: giveTrForm,
-          additionalModalProps: { size: 'lg' },
+          additionalModalProps: { size: "lg" },
         });
       } else {
         result.unshift({
-          title: 'Repayment Transaction',
-          trigger: <a href="#toClose">{__('Repayment Transaction')}</a>,
+          title: "Repayment Transaction",
+          trigger: <a href="#toClose">{__("Repayment Transaction")}</a>,
           content: repaymentTrForm,
-          additionalModalProps: { size: 'lg' },
+          additionalModalProps: { size: "lg" },
         });
       }
       return result;
@@ -138,10 +138,11 @@ const BasicInfoSection = (props: Props) => {
     return (
       <Action>
         <Dropdown
+          className="max-width-300"
           as={DropdownToggle}
           toggleComponent={
             <Button btnStyle="simple" size="medium" onClick={onOpen}>
-              {__('Action')}
+              {__("Action")}
               <Icon icon="angle-down" />
             </Button>
           }
@@ -151,15 +152,15 @@ const BasicInfoSection = (props: Props) => {
             return (
               <li key={mur._id}>
                 <a href="#print" onClick={() => onPrint(mur)}>
-                  {__('Print') + ' ' + mur.name}
+                  {__("Print") + " " + mur.name}
                 </a>
               </li>
             );
           })}
-          {can('contractsRemove', currentUser) && (
+          {can("contractsRemove", currentUser) && (
             <li>
               <a href="#delete" onClick={onDelete}>
-                {__('Delete')}
+                {__("Delete")}
               </a>
             </li>
           )}
@@ -179,9 +180,9 @@ const BasicInfoSection = (props: Props) => {
     <Sidebar.Section>
       <InfoWrapper>
         <Name>{contract.number}</Name>
-        {can('contractsEdit', currentUser) && (
+        {can("contractsEdit", currentUser) && (
           <ModalTrigger
-            title={__('Edit contract info')}
+            title={__("Edit contract info")}
             trigger={<Icon icon="edit" />}
             size="xl"
             content={contractForm}

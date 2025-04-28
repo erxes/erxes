@@ -72,11 +72,14 @@ export const JOURNALS = {
   INV_INCOME: 'invIncome',
   INV_OUT: 'invOut',
   INV_MOVE: 'invMove',
+  INV_MOVE_IN: 'invMoveIn',
   INV_JUSTIFY: 'invJustify',
   INV_CONVERT: 'invConvert',
   INV_SALE: 'invSale',
   INV_IN_RETURN: 'invInReturn',
   INV_SALE_RETURN: 'invSaleReturn',
+  INV_SALE_COST: 'invSaleCost',
+  INV_SALE_OUT: 'invSaleOut',
   VAT: 'vat',
   CTAX: 'ctax',
   ALL: [
@@ -86,5 +89,16 @@ export const JOURNALS = {
     'inv_in_return', 'inv_sale_return',
     'expense', 'vat', 'ctax'
   ],
-  ALL_INV: [],
+  ALL_REAL_INV: [ // yag urtug uldegdeld nuluuluh journal ni
+    'inv_fb',
+    'invIncome',
+    'invOut',
+    'invMove',
+    'invMoveIn',
+    'invJustify',
+    'invConvert',
+    'invInReturn',
+    'invSaleReturn',
+    'invSaleOut'
+  ],
 }
