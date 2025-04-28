@@ -1,84 +1,99 @@
-import { getCustomer, fetchPolaris, genObjectOfRule } from '../utils';
+import {
+  getCustomer,
+  fetchPolaris,
+  getBranch,
+  sendMessageBrokerData,
+} from '../utils';
 
-export const updateSaving = async (subdomain: string, models, polarisConfig, syncLog, params) => {
-  const savingContract = params.object;
+export const updateSaving = async (
+  subdomain: string,
+  models,
+  polarisConfig,
+  syncLog,
+  params,
+  user
+) => {
+  const savingContract = params.updatedDocument || params.object;
+  let updateData;
+
+  const savingProduct = await sendMessageBrokerData(
+    subdomain,
+    'savings',
+    'contractType.findOne',
+    { _id: savingContract.contractTypeId }
+  );
+
   const customer = await getCustomer(subdomain, savingContract.customerId);
 
-  const dataOfRules = await genObjectOfRule(
-    subdomain,
-    "savings:contract",
-    savingContract,
-    (polarisConfig.saving && polarisConfig.saving[savingContract.contractTypeId || ''] || {}).values || {}
-  )
+  const branch = await getBranch(subdomain, savingContract.branchId);
 
   let sendData = {
-    prodCode: savingContract.contractTypeId,
-    slevel: 1,
-    capMethod: savingContract.interestCalcType,
-    capAcntCode:
-      savingContract.depositAccount === 'depositAccount'
-        ? savingContract.depositAccount
-        : '',
-    capAcntSysNo: '', // savingContract.storeInterestInterval,
-    startDate: savingContract.startDate,
-    maturityOption: savingContract.closeOrExtendConfig,
+    operCode: '13610286',
+    acntCode: savingContract.number,
+    name: `${customer.firstName} ${customer.lastName}`,
+    name2: `${customer.firstName} ${customer.lastName}`,
+    companyCode: 'STBM',
+    prodCode: savingProduct.code,
+    prodType: 'TD',
+    brchCode: branch?.code,
+    curCode: savingContract.currency,
+    custCode: customer?.code,
+    statusSys: 'O',
+    openDateOrg: savingContract?.startDate,
+    startDate: savingContract?.startDate,
+    maturityDate: '',
+    tenor: savingContract.duration,
+    capMethod: '0',
     rcvAcntCode:
       savingContract.depositAccount === 'depositAccount'
         ? savingContract.depositAccount
         : '',
-    brchCode: savingContract.branchId,
-    curCode: savingContract.currency,
-    name: savingContract.contractType.name,
-    name2: savingContract.contractType.__typename,
+    rcvSysNo: '1305',
+    segCode: '81',
+    isCorpAcnt: 0,
+    jointOrSingle: 'S',
+    lastDtDate: '',
+    lastCtDate: '',
+    slevel: 1,
+    createdBy: 10,
+    createdDate: new Date(),
+    createdDatetime: new Date(),
+    createdByName: user?.details?.firstName,
+    modifiedBy: 1,
+    modifiedDate: new Date(),
+    modifiedDatetime: new Date(),
+    modifiedByName: 'СИСТЕМ BFGB',
+    lastSeqTxn: 54,
+    termBasis: 'D',
     termLen: savingContract.duration,
-    maturityDate: savingContract.endDate,
-    custCode: customer.code,
-    segCode: savingContract.number,
-    jointOrSingle: 's',
-    statusCustom: 0,
-    statusDate: savingContract.startDate,
-    casaAcntCode: savingContract.casaAcntCode,
-    closedBy: savingContract.closedBy,
-    closedDate: savingContract.closedDate,
-    lastCtDate: savingContract.lastCtDate,
-    lastDtDate: savingContract.lastDtDate,
-    ...dataOfRules
+    passbookFacility: 1,
+    classNo: 1,
+    maturityOption: 'R',
+    readBal: 1,
+    readDetail: 1,
+    readTran: 1,
+    doTran: 1,
+    useSpclAcnt: 0,
+    jointOrSingleStr: '0',
+    repayPriority: 0,
   };
 
-  return await fetchPolaris({
-    op: '13610120',
-    data: [sendData],
-    subdomain,
-    models,
-    polarisConfig,
-    syncLog
-  });
-};
+  if (
+    savingProduct?.code &&
+    savingProduct.name != null &&
+    savingContract.duration != null &&
+    customer?.code != null &&
+    branch?.code != null
+  ) {
+    updateData = await fetchPolaris({
+      op: '13610286',
+      data: [{}, sendData],
+      subdomain,
+      models,
+      polarisConfig,
+      syncLog,
+    });
+  }
 
-export const getSavingAcntTransaction = async (subdomain, models, polarisConfig, syncLog, params) => {
-  const savingTransactionParams = params.updatedDocument || params.object;
-  let sendData = {};
-
-  sendData = [
-    {
-      acntCode: savingTransactionParams.acntCode,
-      startDate: savingTransactionParams.startDate,
-      endDate: savingTransactionParams.endDate,
-      orderBy: savingTransactionParams.orderBy,
-      seeNotFinancial: savingTransactionParams.seeNotFinancial,
-      seeCorr: savingTransactionParams.seeCorr,
-      seeReverse: savingTransactionParams.seeReverse,
-      startPagingPosition: savingTransactionParams.startPagingPosition,
-      PageRowCount: savingTransactionParams.PageRowCount,
-    },
-  ];
-
-  return await fetchPolaris({
-    op: '13610101',
-    data: sendData,
-    subdomain,
-    models,
-    polarisConfig,
-    syncLog
-  });
+  return updateData;
 };

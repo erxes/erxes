@@ -5,6 +5,7 @@ import {
   updateContract,
   sendMessageBrokerData,
 } from '../utils';
+import { activeSaving } from './activeSaving';
 
 export const createSaving = async (
   subdomain: string,
@@ -14,6 +15,7 @@ export const createSaving = async (
   params
 ) => {
   const savingContract = params.object;
+  let savingCode;
 
   const savingProduct = await sendMessageBrokerData(
     subdomain,
@@ -47,8 +49,8 @@ export const createSaving = async (
         : '',
     brchCode: branch?.code,
     curCode: savingContract.currency,
-    name: savingProduct.name,
-    name2: savingProduct.name,
+    name: `${customer.firstName} ${customer.lastName}`,
+    name2: `${customer.firstName} ${customer.lastName}`,
     termLen: savingContract.duration,
     maturityDate: savingContract.endDate,
     custCode: customer?.code,
@@ -63,14 +65,22 @@ export const createSaving = async (
     lastDtDate: '',
   };
 
-  const savingCode = await fetchPolaris({
-    op: '13610120',
-    data: [sendData],
-    subdomain,
-    models,
-    polarisConfig,
-    syncLog,
-  });
+  if (
+    savingProduct?.code &&
+    savingProduct.name != null &&
+    savingContract.duration != null &&
+    customer?.code != null &&
+    branch?.code != null
+  ) {
+    savingCode = await fetchPolaris({
+      op: '13610120',
+      data: [sendData],
+      subdomain,
+      models,
+      polarisConfig,
+      syncLog,
+    });
+  }
 
   if (savingCode) {
     await updateContract(
@@ -79,6 +89,8 @@ export const createSaving = async (
       { $set: { number: JSON.parse(savingCode) } },
       'savings'
     );
+
+    // await activeSaving(subdomain, polarisConfig, [savingCode, 'данс нээв']);
   }
 
   return savingCode;

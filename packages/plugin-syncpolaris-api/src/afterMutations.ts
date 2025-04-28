@@ -91,7 +91,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
           models,
           polarisConfig,
           syncLog,
-          params
+          params,
+          user
         );
         break;
       case 'savings:transaction':
@@ -183,7 +184,8 @@ const savingContractMethod = async (
   models,
   polarisConfig,
   syncLog,
-  params
+  params,
+  user
 ) => {
   if (action === 'create' || action === 'update') {
     if (!preSuccessValue) {
@@ -219,7 +221,8 @@ const savingContractMethod = async (
       models,
       polarisConfig,
       syncLog,
-      params
+      params,
+      user
     );
   }
 };
