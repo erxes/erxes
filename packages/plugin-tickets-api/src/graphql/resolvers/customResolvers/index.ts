@@ -5,7 +5,6 @@ import Ticket from './ticket';
 import TicketsChecklist from './checklists';
 import { default as TicketListItem } from './commonListItem';
 import TicketComment from './comments';
-import TicketCommentUser from './commentsUser';
 
 export {
   TicketsBoard,
@@ -15,5 +14,4 @@ export {
   TicketsChecklist,
   TicketListItem,
   TicketComment,
-  TicketCommentUser
 };

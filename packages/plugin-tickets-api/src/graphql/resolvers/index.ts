@@ -7,7 +7,6 @@ import {
   TicketListItem,
   TicketsChecklist,
   TicketComment,
-  TicketCommentUser
 } from "./customResolvers";
 import {
   Board as BoardMutations,
@@ -34,7 +33,6 @@ const resolvers: any = {
   TicketListItem,
   TicketsChecklist,
   TicketComment,
-  TicketCommentUser,
   Mutation: {
     ...BoardMutations,
     ...TicketMutations,

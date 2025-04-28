@@ -77,14 +77,19 @@ export default {
     args: { typeId?: string },
     { subdomain }: IContext
   ) {
+    console.log("hello")
+
     const { typeId } = args;
-    return await sendTicketsMessage({
+
+    const data = await sendTicketsMessage({
       subdomain,
       action: 'widgets.comments.find',
       data: { typeId },
       isRPC: true,
       defaultValue: null
     });
+    console.log(data, 'data')
+    return data
   },
   async widgetsTicketCustomerDetail(
     _root,

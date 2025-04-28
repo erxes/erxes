@@ -73,7 +73,7 @@ export const loadTicketClass = (models: IModels, subdomain: string) => {
           typeId,
           content,
           userType,
-          userId: customerId || ''
+          userId: customerId
         });
         return comment
       } catch (error) {

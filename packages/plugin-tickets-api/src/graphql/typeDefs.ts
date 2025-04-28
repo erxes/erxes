@@ -31,8 +31,8 @@ import {
   types as commentTypes
 } from "./schema/comments";
 import {
-  types as commentUserTypes
-} from "./schema/commentUser";
+  types as commentsUser
+} from "./schema/commentsUser";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 const typeDefs = async () => {
@@ -92,9 +92,9 @@ const typeDefs = async () => {
     ${plTypes}
     ${ptTypes}
     ${CommonTypes}
-    ${commentUserTypes}
     ${checkListTypes}
     ${commentTypes}
+    ${commentsUser}
     extend type Query {
       ${boardQueries}
       ${ticketQueries}
