@@ -25,8 +25,9 @@ export default function Expiry(props: Props) {
 
   // Functions
   const handleChange = (index: number, key: string, value: any) => {
-    const temp = [...formValues.expiryRules];
-    temp[index][key] = value;
+    const temp = (formValues.expiryRules || []).map(
+      (qr, ind) => ind === index ? { ...qr, [key]: value } : { ...qr }
+    );
 
     handleState("expiryRules", temp);
   };
@@ -44,7 +45,7 @@ export default function Expiry(props: Props) {
   };
 
   const renderRow = (item: any, index: number) => (
-    <tr key={"expiry" + item}>
+    <tr key={"expiry" + index}>
       <td>
         <FormGroup>
           <FormControl

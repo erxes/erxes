@@ -294,17 +294,24 @@ const sendMessage = async (
   isLoop?: boolean
 ) => {
   try {
-    await sendReply(
-      models,
-      "me/messages",
-      {
-        recipient: { id: senderId },
-        sender_action: "typing_on",
-        tag
-      },
-      recipientId,
-      integration.erxesApiId
-    );
+    // Try sending 'typing_on' but ignore if it fails
+    try {
+      await sendReply(
+        models,
+        "me/messages",
+        {
+          recipient: { id: senderId },
+          sender_action: "typing_on",
+          tag
+        },
+        recipientId,
+        integration.erxesApiId
+      );
+    } catch (typingError) {
+      console.warn(`typing_on failed: ${typingError.message}`);
+    }
+  
+    // Send the actual message
     const resp = await sendReply(
       models,
       "me/messages",
@@ -316,10 +323,9 @@ const sendMessage = async (
       recipientId,
       integration.erxesApiId
     );
-    if (!resp) {
-      return;
-    }
+  
     return resp;
+  
   } catch (error) {
     if (
       error.message.includes(
@@ -341,10 +347,11 @@ const sendMessage = async (
         true
       );
     }
-
-    debugError(error.message);
+  
+    debugError(`Error occurred during send bot message: ${error.message}`);
     throw new Error(error.message);
   }
+  
 };
 
 const getData = async (

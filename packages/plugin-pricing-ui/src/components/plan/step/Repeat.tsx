@@ -30,8 +30,9 @@ export default function Repeat(props: Props) {
 
   // Functions
   const handleChange = (index: number, key: string, value: any) => {
-    const temp = [...formValues.repeatRules];
-    temp[index][key] = value;
+    const temp = (formValues.repeatRules || []).map(
+      (qr, ind) => ind === index ? { ...qr, [key]: value } : { ...qr }
+    );
 
     handleState("repeatRules", temp);
   };
