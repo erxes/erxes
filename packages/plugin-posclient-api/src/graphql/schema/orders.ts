@@ -51,6 +51,8 @@ export const orderTypeFields = `
   returnInfo: JSON
 
   slotCode: String
+
+  extraInfo: JSON
 `;
 
 const addEditParams = `

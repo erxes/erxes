@@ -25,10 +25,11 @@ export default function Quantity(props: Props) {
 
   // Functions
   const handleChange = (index: number, key: string, value: any) => {
-    const temp = [...formValues.quantityRules];
-    temp[index][key] = value;
+    const temp = (formValues.quantityRules || []).map(
+      (qr, ind) => ind === index ? { ...qr, [key]: value } : { ...qr }
+    );
 
-    handleState("quantityRules", [...temp]);
+    handleState("quantityRules", temp);
   };
 
   const handleAdd = () => {
@@ -45,7 +46,7 @@ export default function Quantity(props: Props) {
 
   const renderRow = (item: any, index: number) => {
     return (
-      <tr key={"quantity" + item}>
+      <tr key={"quantity" + index}>
         <td>
           <FormGroup>
             <FormControl

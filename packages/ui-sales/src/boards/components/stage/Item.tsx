@@ -5,8 +5,6 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { IDeal } from "../../../deals/types";
-import Icon from "@erxes/ui/src/components/Icon";
-import { NotifiedContainer } from "../../styles/common";
 import queryString from "query-string";
 
 type Props = {
@@ -68,18 +66,6 @@ const Item: React.FC<Props> = (props) => {
     if (afterPopupClose) {
       afterPopupClose();
     }
-  };
-
-  const renderHasNotified = () => {
-    if (hasNotified) {
-      return null;
-    }
-
-    return (
-      <NotifiedContainer>
-        <Icon icon="bell" size={14} />
-      </NotifiedContainer>
-    );
   };
 
   const ItemComponent = itemRowComponent || options.Item;

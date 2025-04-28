@@ -80,8 +80,7 @@ a:hover {
 .max-width-300 {
   max-width: 300px;
 }
-
-.max-width-300 a{
+.max-width-300 a {
   white-space: pre-wrap !important;
   line-height: 16px;
 }

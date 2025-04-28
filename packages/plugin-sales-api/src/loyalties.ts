@@ -14,6 +14,7 @@ const getPaymentsAttributes = async (subdomain) => {
 };
 
 export const extendLoyaltyTarget = async (models: IModels, target: IDeal) => {
+  console.log({target})
   const totalAmount = generateTotalAmount(target.productsData);
 
   const paymentTypes = await models.Pipelines.find({
@@ -44,6 +45,9 @@ export const extendLoyaltyTarget = async (models: IModels, target: IDeal) => {
   const excludeAmount =
     validPayments.reduce((sum, payment) => sum + (payment?.amount || 0), 0) ||
     0;
+
+    console.log({ totalAmount, excludeAmount, ...target })
+
   return { totalAmount, excludeAmount, ...target };
 };
 
