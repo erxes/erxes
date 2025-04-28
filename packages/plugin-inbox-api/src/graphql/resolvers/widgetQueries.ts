@@ -77,7 +77,6 @@ export default {
     args: { typeId?: string },
     { subdomain }: IContext
   ) {
-    console.log("hello")
 
     const { typeId } = args;
 
@@ -88,7 +87,6 @@ export default {
       isRPC: true,
       defaultValue: null
     });
-    console.log(data, 'data')
     return data
   },
   async widgetsTicketCustomerDetail(
