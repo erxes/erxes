@@ -5,6 +5,7 @@ import { IContractDocument } from '../definitions/contracts';
 import { trAfterSchedule, transactionRule } from './transactionUtils';
 import {
   addMonths,
+  calcAllMonthLast,
   calcPerMonthEqual,
   calcPerMonthFixed,
   getEqualPay,
@@ -165,92 +166,135 @@ export const scheduleHelper = async (
   const skipInterestCalcDate = getSkipDate(currentDate, skipInterestCalcMonth, skipInterestCalcDay);
   const skipAmountCalcDate = getSkipDate(currentDate, skipAmountCalcMonth, skipAmountCalcDay);
 
-  if (repayment === 'equal') {
-    const payment = new BigNumber(balance - (salvageAmount || 0)).div(paymentDates.length).dp(calculationFixed, BigNumber.ROUND_HALF_UP).toNumber()
+  switch (repayment) {
+    case 'equal':
+      const payment = new BigNumber(balance - (salvageAmount || 0)).div(paymentDates.length).dp(calculationFixed, BigNumber.ROUND_HALF_UP).toNumber()
 
-    for (const payDate of paymentDates) {
-      const perMonth = await calcPerMonthEqual({
+      for (const payDate of paymentDates) {
+        const perMonth = await calcPerMonthEqual({
+          currentDate,
+          balance,
+          interestRate: interestRate ?? 0,
+          payment,
+          nextDate: payDate,
+          calculationFixed,
+          unUsedBalance,
+          skipInterestCalcDate,
+          skipAmountCalcDate,
+        });
+
+        currentDate = perMonth.date;
+        balance = perMonth.loanBalance;
+
+        bulkEntries.push({
+          createdAt: new Date(),
+          contractId,
+          version: '0',
+          payDate: currentDate,
+          interestRate: perMonth.interestRate ?? 0,
+          balance: balance,
+          payment,
+          firstPayment: payment,
+          interestEve: perMonth.calcedInterestEve,
+          interestNonce: perMonth.calcedInterestNonce,
+          total: perMonth.totalPayment,
+          unUsedBalance,
+          commitmentInterest: perMonth.commitmentInterest,
+          isDefault: true
+        });
+      }
+
+      break;
+
+    case 'last':
+      const calcedOne = await calcAllMonthLast({
         currentDate,
         balance,
-        interestRate: interestRate ?? 0,
-        payment,
-        nextDate: payDate,
+        interestRate,
+        endDate,
         calculationFixed,
-        unUsedBalance,
-        skipInterestCalcDate,
-        skipAmountCalcDate,
+        unUsedBalance
       });
 
-      currentDate = perMonth.date;
-      balance = perMonth.loanBalance;
+      const totalAmount = balance + calcedOne.interest
 
-      bulkEntries.push({
+      bulkEntries = [{
         createdAt: new Date(),
         contractId,
         version: '0',
-        payDate: currentDate,
-        interestRate: perMonth.interestRate ?? 0,
-        balance: balance,
-        payment,
-        firstPayment: payment,
-        interestEve: perMonth.calcedInterestEve,
-        interestNonce: perMonth.calcedInterestNonce,
-        total: perMonth.totalPayment,
-        unUsedBalance,
-        commitmentInterest: perMonth.commitmentInterest,
-        isDefault: true
-      });
-    }
-  } else {
-    let total = await getEqualPay({
-      startDate,
-      interestRate: interestRate ?? 0,
-      leaseAmount: balance,
-      paymentDates,
-      calculationFixed
-    });
+        payDate: endDate,
+        interestRate: calcedOne.interestRate,
+        balance: 0,
+        payment: balance,
 
-    for (const payDate of paymentDates) {
-      const perMonth = await calcPerMonthFixed({
-        currentDate,
-        balance,
+        interestEve: calcedOne.calcedInterestEve,
+        interestNonce: calcedOne.calcedInterestNonce,
+        total: totalAmount,
+        unUsedBalance: calcedOne.unUsedBalance,
+        commitmentInterest: calcedOne.commitmentInterest,
+        isDefault: true,
+        firstTotal: totalAmount,
+      }];
+      balance = 0;
+      currentDate = endDate;
+
+      break;
+
+    // case 'fixed':
+    default:
+      let total = await getEqualPay({
+        startDate,
         interestRate: interestRate ?? 0,
-        total,
-        nextDate: payDate,
-        calculationFixed,
-        unUsedBalance,
-        skipInterestCalcDate,
-        skipAmountCalcDate,
+        leaseAmount: balance,
+        paymentDates,
+        calculationFixed
       });
 
-      currentDate = perMonth.date;
-      balance = perMonth.loanBalance;
+      for (const payDate of paymentDates) {
+        const perMonth = await calcPerMonthFixed({
+          currentDate,
+          balance,
+          interestRate: interestRate ?? 0,
+          total,
+          nextDate: payDate,
+          calculationFixed,
+          unUsedBalance,
+          skipInterestCalcDate,
+          skipAmountCalcDate,
+        });
 
-      bulkEntries.push({
-        createdAt: new Date(),
-        contractId,
-        version: '0',
-        payDate: currentDate,
-        interestRate: perMonth.interestRate,
-        balance,
-        payment: perMonth.loanPayment,
-        interestEve: perMonth.calcedInterestEve,
-        interestNonce: perMonth.calcedInterestNonce,
-        total,
-        firstTotal: total,
-        unUsedBalance,
-        commitmentInterest: perMonth.commitmentInterest,
-        isDefault: true
-      });
-    }
+        currentDate = perMonth.date;
+        balance = perMonth.loanBalance;
+
+        bulkEntries.push({
+          createdAt: new Date(),
+          contractId,
+          version: '0',
+          payDate: currentDate,
+          interestRate: perMonth.interestRate,
+          balance,
+          payment: perMonth.loanPayment,
+          interestEve: perMonth.calcedInterestEve,
+          interestNonce: perMonth.calcedInterestNonce,
+          total,
+          firstTotal: total,
+          unUsedBalance,
+          commitmentInterest: perMonth.commitmentInterest,
+          isDefault: true
+        });
+      }
+
+      break;
   }
 
-  const tempBalance = balance - (salvageAmount || 0);
   const lastEntry = bulkEntries[bulkEntries.length - 1];
-  lastEntry.total = lastEntry.total + tempBalance;
-  lastEntry.balance = salvageAmount || 0;
-  lastEntry.payment = lastEntry.payment + tempBalance;
-  bulkEntries[bulkEntries.length - 1] = lastEntry;
+  if (lastEntry) {
+    const tempBalance = balance - (salvageAmount || 0);
+    lastEntry.total = lastEntry.total + tempBalance;
+    lastEntry.balance = salvageAmount || 0;
+    lastEntry.payment = lastEntry.payment + tempBalance;
+    bulkEntries[bulkEntries.length - 1] = lastEntry;
+  }
 
   return bulkEntries;
 };

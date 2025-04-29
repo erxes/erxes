@@ -61,6 +61,12 @@ export const scoreToResearch = async (params, customerId, models: IModels) => {
   const findResearch = await models.LoansResearch.findOne({ customerId });
 
   const loanInquiries = params?.restInquiryResponse?.inquiry || [];
+  const externalScoringResponse =
+    params?.externalScoringResponse?.data?.detail || {};
+
+  const userMonthlyRepayment =
+    externalScoringResponse?.creditSummary?.monthlyLoanRepayment
+      ?.userMonthlyRepayment ?? 0;
 
   if (loanInquiries?.length) {
     const transformedData = loanInquiries.map((item) => ({
@@ -72,29 +78,29 @@ export const scoreToResearch = async (params, customerId, models: IModels) => {
       loanAmount: item.BALANCE,
     }));
 
-    const loanSum = loanInquiries.reduce(
-      (accumulator, loan) => accumulator + (loan.BALANCE || 0),
-      0
-    );
-
     if (findResearch) {
       if (findResearch.totalIncome) {
-        ratio = (loanSum / findResearch.totalIncome) * 100;
+        ratio =
+          userMonthlyRepayment && findResearch.totalIncome
+            ? (userMonthlyRepayment / findResearch.totalIncome) * 100
+            : 0;
       }
       if (findResearch.customerType === 'Salary') {
-        increaseAmount = findResearch.averageSalaryIncome * 0.8 - loanSum;
+        increaseAmount =
+          findResearch.averageSalaryIncome * 0.8 - userMonthlyRepayment;
       }
 
       if (findResearch.customerType === 'Business') {
-        increaseAmount = findResearch.averageBusinessIncome * 0.7 - loanSum;
+        increaseAmount =
+          findResearch.averageBusinessIncome * 0.7 - userMonthlyRepayment;
       }
 
       await models.LoansResearch.updateOne(
         { customerId },
         {
           $set: {
-            monthlyLoanAmount: loanSum,
-            totalPaymentAmount: loanSum,
+            monthlyLoanAmount: userMonthlyRepayment,
+            totalPaymentAmount: userMonthlyRepayment,
             loans: transformedData,
             debtIncomeRatio: ratio,
             increaseMonthlyPaymentAmount: increaseAmount,
@@ -107,8 +113,8 @@ export const scoreToResearch = async (params, customerId, models: IModels) => {
     if (!findResearch) {
       await models.LoansResearch.create({
         customerId,
-        monthlyLoanAmount: loanSum,
-        totalPaymentAmount: loanSum,
+        monthlyLoanAmount: userMonthlyRepayment,
+        totalPaymentAmount: userMonthlyRepayment,
         loans: transformedData,
         createdAt: new Date(),
       });

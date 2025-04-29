@@ -35,6 +35,11 @@ const commonFields = `
   scheduleDays: [Int]
   stepRules: [JSON]
 
+  skipInterestCalcMonth: Float
+  skipInterestCalcDay: Float
+  skipAmountCalcMonth: Float
+  skipAmountCalcDay: Float
+
   insuranceAmount: Float
   debt: Float
   debtTenor: Float

@@ -1,4 +1,4 @@
-import { IBlock, blockSchema ,IBlockDocument} from './definitions/blocks';
+import { IBlock, blockSchema, IBlockDocument } from './definitions/blocks';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { FilterQuery } from 'mongoose';
@@ -16,9 +16,7 @@ export const loadBlockClass = (models: IModels) => {
      * Get Block
      */
 
-    public static async getBlock(
-      selector: FilterQuery<IBlockDocument>
-    ) {
+    public static async getBlock(selector: FilterQuery<IBlockDocument>) {
       const block = await models.Block.findOne(selector);
 
       if (!block) {
@@ -32,57 +30,64 @@ export const loadBlockClass = (models: IModels) => {
      * Create a block
      */
     public static async createBlock(doc: IBlock) {
-      
       const periodLock = await models.PeriodLocks.findOne({
-        date: { $gte: doc.payDate }
+        date: { $gte: doc.payDate },
       })
         .sort({ date: -1 })
         .lean();
 
-      if (periodLock && !periodLock?.excludeContracts.includes(doc.contractId || 'undefined'))
+      if (
+        periodLock &&
+        !periodLock?.excludeContracts.includes(doc.contractId || 'undefined')
+      )
         throw new Error(
           'At this moment block can not been created because this date closed'
         );
 
       const contract = await models.Contracts.findOne({
-        _id: doc.contractId
+        _id: doc.contractId,
       }).lean<IContractDocument>();
-
-      console.log('contract',contract,doc)
 
       if (!doc.currency && contract?.currency) {
         doc.currency = contract?.currency;
       }
-      if(contract)
-        await models.Contracts.updateOne({_id:contract._id},{$set:{blockAmount:doc.amount}})
+      if (contract) {
+        await models.Contracts.updateOne(
+          { _id: contract._id },
+          {
+            $set: {
+              blockAmount: (contract.blockAmount ?? 0) + doc.amount,
+            },
+          }
+        );
+      }
 
       const tr = await models.Block.create({ ...doc });
 
       return tr;
     }
 
-
     /**
      * Remove Block
      */
     public static async removeBlocks(_ids) {
-      const blocks: IBlockDocument[] = await models.Block.find(
-        { _id: _ids }
-      )
+      const blocks: IBlockDocument[] = await models.Block.find({ _id: _ids })
         .sort({ payDate: -1 })
         .lean();
 
       for await (const oldTr of blocks) {
         if (oldTr) {
           const periodLock = await models.PeriodLocks.findOne({
-            date: { $gte: oldTr.payDate }
+            date: { $gte: oldTr.payDate },
           })
             .sort({ date: -1 })
             .lean();
 
           if (
             periodLock &&
-            !periodLock?.excludeContracts.includes(oldTr.contractId || 'undefined')
+            !periodLock?.excludeContracts.includes(
+              oldTr.contractId || 'undefined'
+            )
           )
             throw new Error(
               'At this moment block can not been created because this date closed'
