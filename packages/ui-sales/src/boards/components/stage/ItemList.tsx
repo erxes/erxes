@@ -6,7 +6,7 @@ import {
   EmptyContainer,
   ItemContainer,
   NotifiedContainer,
-  Wrapper
+  Wrapper,
 } from "../../styles/common";
 import { IItem, IOptions } from "../../types";
 import React, { useState } from "react";
@@ -88,10 +88,10 @@ function DraggableContainer(props: DraggableContainerProps) {
 
     return (
       <NotifiedContainer>
-        <Icon icon='bill' size={14} />
+        <Icon icon="bell" size={14} />
       </NotifiedContainer>
-    )
-  }
+    );
+  };
 
   const now = dayjs(new Date());
   const createdAt = dayjs(item.createdAt);

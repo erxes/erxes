@@ -76,7 +76,7 @@ const Item: React.FC<Props> = (props) => {
       beforePopupClose={handleBeforePopupClose}
       isFormVisible={isFormVisible}
     />
-  )
+  );
 };
 
 export default Item;

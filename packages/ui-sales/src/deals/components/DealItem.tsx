@@ -46,7 +46,7 @@ class DealItem extends React.PureComponent<Props> {
         itemId={item._id}
         hideHeader={true}
         isPopupVisible={isFormVisible}
-      // beforePopupClose={handleBeforePopupClose}
+        // beforePopupClose={handleBeforePopupClose}
       />
     );
   };
