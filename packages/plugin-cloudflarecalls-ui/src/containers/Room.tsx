@@ -1,10 +1,10 @@
 import React from 'react';
 import { RoomProvider } from '../RoomProvider';
-import SipProviderContainer from './SipProvider';
+import CallProvider from './CallProvider';
 const Room = (props) => {
   return (
     <RoomProvider>
-      <SipProviderContainer {...props} />
+      <CallProvider {...props} />
     </RoomProvider>
   );
 };

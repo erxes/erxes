@@ -36,7 +36,6 @@ export const getOrCreateCustomer = async (
             integrationId: inboxIntegrationId,
             primaryPhone: primaryPhone,
             primaryEmail: email,
-            firstName: primaryPhone,
             isUser: true,
             phone: [primaryPhone],
           }),

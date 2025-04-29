@@ -26,6 +26,10 @@ export const branchCommonFields = `
   roomCategories
   discount
   time
+  checkintime 
+  checkouttime
+  checkinamount
+  checkoutamount
 `;
 
 const pmsBranchDetail = `
@@ -52,5 +56,5 @@ const pmBranchList = `
 
 export default {
   pmBranchList,
-  pmsBranchDetail
+  pmsBranchDetail,
 };

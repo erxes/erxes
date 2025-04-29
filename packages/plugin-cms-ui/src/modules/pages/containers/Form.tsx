@@ -10,7 +10,7 @@ import { useSearchParams } from 'react-router-dom';
 
 type Props = {
   clientPortalId: string;
-  category?: any;
+  page?: any;
   closeModal: () => void;
   refetch?: () => void;
 };
@@ -34,14 +34,14 @@ const FormContainer = (props: Props) => {
       input,
     };
 
-    if (props.category) {
-      variables._id = props.category._id;
+    if (props.page) {
+      variables.id = props.page._id;
     }
 
     return (
       <ButtonMutate
         mutation={getGqlString(
-          props.category ? mutations.PAGE_EDIT : mutations.PAGE_ADD
+          props.page ? mutations.PAGE_EDIT : mutations.PAGE_ADD
         )}
         variables={variables}
         callback={callback}
@@ -50,7 +50,7 @@ const FormContainer = (props: Props) => {
         type='submit'
         icon='check-circle'
         successMessage={`You successfully ${
-          props.category ? 'updated' : 'added'
+          props.page ? 'updated' : 'added'
         } a page`}
       />
     );

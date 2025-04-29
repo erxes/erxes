@@ -48,6 +48,7 @@ query AssetMovementItems ($movementId:String,${movementFilterParams},${dateFilte
       teamMember
     }
   }
+}
 `;
 
 const item = `

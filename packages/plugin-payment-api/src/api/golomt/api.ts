@@ -87,12 +87,13 @@ export class GolomtAPI extends BaseAPI {
         },
         data,
       }).then((r) => r.json());
-
-      if (res.status !== 200) {
+      
+      if (res.status && res.status !== 200) {
         throw new Error(res.message);
       }
       return { success: true, message: 'Authorized' };
     } catch (e) {
+      console.error('error', e);
       throw new Error(e.message);
     }
   }

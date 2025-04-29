@@ -8,6 +8,7 @@ export type RoomContextType = {
     audio?: string;
   };
   setPushedAudioTrack: (newValue: string) => void;
+  setIceConnectionState: (newValue: any) => void;
 };
 
 const RoomContext = createContext<RoomContextType | undefined>(undefined);

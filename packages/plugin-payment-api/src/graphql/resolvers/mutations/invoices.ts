@@ -1,8 +1,9 @@
 import { checkPermission, getEnv, requireLogin } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
-
+import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 import { IInvoice } from '../../../models/definitions/invoices';
+
 type InvoiceParams = {
   amount: number;
   phone: string;
@@ -35,15 +36,59 @@ const mutations = {
     return `${domain}/pl:payment/invoice/${invoice._id}`;
   },
 
-  async invoiceCreate(_root, params: IInvoice, { models, subdomain }: IContext) {
-    const invoice = await models.Invoices.createInvoice({
-      ...params,
-    }, subdomain);
+  async invoiceCreate(
+    _root,
+    params: IInvoice,
+    { models, subdomain }: IContext
+  ) {
+    const invoice = await models.Invoices.createInvoice(
+      {
+        ...params,
+      },
+      subdomain
+    );
     return invoice;
   },
 
-  async invoicesCheck(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Invoices.checkInvoice(_id);
+  async invoicesCheck(
+    _root,
+    { _id }: { _id: string },
+    { subdomain, models }: IContext
+  ) {
+    const status = await models.Invoices.checkInvoice(_id);
+
+    if (status === 'paid') {
+      const invoice = await models.Invoices.getInvoice({ _id });
+      const [serviceName] = invoice.contentType.split(':');
+
+      sendMessage(`${serviceName}:paymentCallback`, {
+        subdomain,
+        data: {
+          ...invoice,
+          status: 'paid',
+        },
+      });
+
+      if (invoice.callback) {
+        try {
+          await fetch(invoice.callback, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              _id: invoice._id,
+              amount: invoice.amount,
+              status: 'paid',
+            }),
+          });
+        } catch (e) {
+          console.error('Error: ', e);
+        }
+      }
+    }
+
+    return status;
   },
 
   async invoicesRemove(

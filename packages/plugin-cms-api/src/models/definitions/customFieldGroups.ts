@@ -1,6 +1,7 @@
 import { Document, Schema } from 'mongoose';
 import { nanoid } from 'nanoid';
 
+
 export interface ICustomFieldGroup {
   clientPortalId: string;
   label: string;
@@ -8,6 +9,9 @@ export interface ICustomFieldGroup {
   order: number;
   parentId?: string;
   customPostTypeIds?: string[];
+
+  enabledPageIds ?: string[];
+  enabledCategoryIds ?: string[];
 }
 
 export interface ICustomFieldGroupDocument extends ICustomFieldGroup, Document {
@@ -25,6 +29,9 @@ export const fieldGroupSchema = new Schema<ICustomFieldGroupDocument>(
     parentId: { type: String },
     order: { type: Number},
     customPostTypeIds: { type: [String] },
+
+    enabledPageIds: { type: [String] },
+    enabledCategoryIds: { type: [String] },
   },
   { timestamps: true }
 );

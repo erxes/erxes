@@ -206,11 +206,17 @@ export default {
           isRPC: true,
           defaultValue: null,
         });
+
         const isReceiveWebCall =
           integrationDetails.status === 'active' ? true : false;
 
         return (
           {
+            header: integrationDetails.header || '',
+            description: integrationDetails.description || '',
+            secondPageHeader: integrationDetails.secondPageHeader || '',
+            secondPageDescription:
+              integrationDetails.secondPageDescription || '',
             departments: integrationDetails.departments,
             isReceiveWebCall,
           } || {}

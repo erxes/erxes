@@ -37,10 +37,6 @@ export interface IPost {
   pdfAttachment?: IPdfAttachment;
 
   customFieldsData?: ICustomField;
-
-  customPostTypeId?: string;
-
-
 }
 
 export interface IPostDocument extends IPost, Document {

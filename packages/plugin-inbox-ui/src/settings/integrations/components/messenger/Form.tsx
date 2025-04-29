@@ -19,6 +19,7 @@ import {
   IMessengerApps,
   IMessengerData,
   ISkillData,
+  ITicketTypeMessenger,
   IUiOptions,
 } from "@erxes/ui-inbox/src/settings/integrations/types";
 import { Step, Steps } from "@erxes/ui/src/components/step";
@@ -33,6 +34,7 @@ import { LANGUAGES } from "@erxes/ui-settings/src/general/constants";
 import { Link } from "react-router-dom";
 import React from "react";
 import { SmallLoader } from "@erxes/ui/src/components/ButtonMutate";
+import TicketSelect from "../../containers/messenger/Ticket";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { linkify } from "@erxes/ui-inbox/src/inbox/utils";
 
@@ -47,6 +49,7 @@ type Props = {
     languageCode: string;
     channelIds?: string[];
     messengerData: IMessengerData;
+    ticketData: ITicketTypeMessenger;
     uiOptions: IUiOptions;
     messengerApps: IMessengerApps;
     callData: ICallData;
@@ -62,6 +65,10 @@ type BotPersistentMenuTypeMessenger = {
 };
 
 type State = {
+  ticketStageId?: string;
+  ticketPipelineId?: string;
+  ticketBoardId?: string;
+  ticketToggle?: boolean;
   title: string;
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
@@ -133,6 +140,7 @@ class CreateMessenger extends React.Component<Props, State> {
     const externalLinks = configData.externalLinks || [];
     const messages = configData.messages || {};
     const uiOptions = integration.uiOptions || {};
+    const ticketData = integration.ticketData || {};
     const channels = integration.channels || [];
     const messengerApps = props.messengerApps || {};
 
@@ -146,6 +154,10 @@ class CreateMessenger extends React.Component<Props, State> {
       skillData: configData.skillData,
       brandId: integration.brandId || "",
       languageCode,
+      ticketStageId: ticketData.ticketStageId || "",
+      ticketPipelineId: ticketData.ticketPipelineId || "",
+      ticketBoardId: ticketData.ticketBoardId || "",
+      ticketToggle: ticketData.ticketToggle || false,
       channelIds: channels.map((item) => item._id) || [],
       color: uiOptions.color || "#6569DF",
       textColor: uiOptions.textColor || "#fff",
@@ -218,7 +230,12 @@ class CreateMessenger extends React.Component<Props, State> {
   handleMessengerApps = (messengerApps: IMessengerApps) => {
     this.setState({ messengerApps });
   };
-
+  handleFormChange = (name: string, value: string | object | boolean) => {
+    this.setState((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
   save = (e) => {
     e.preventDefault();
 
@@ -247,6 +264,10 @@ class CreateMessenger extends React.Component<Props, State> {
       skillData,
       externalLinks,
       callData,
+      ticketStageId,
+      ticketPipelineId,
+      ticketBoardId,
+      ticketToggle,
     } = this.state;
 
     if (!languageCode) {
@@ -338,6 +359,12 @@ class CreateMessenger extends React.Component<Props, State> {
         links,
         externalLinks,
       },
+      ticketData: {
+        ticketStageId: ticketStageId,
+        ticketPipelineId: ticketPipelineId,
+        ticketBoardId: ticketBoardId,
+        ticketToggle: ticketToggle,
+      },
       uiOptions: {
         color: this.state.color,
         textColor: this.state.textColor,
@@ -428,6 +455,10 @@ class CreateMessenger extends React.Component<Props, State> {
       messengerApps,
       externalLinks,
       callData,
+      ticketStageId,
+      ticketPipelineId,
+      ticketBoardId,
+      ticketToggle,
     } = this.state;
 
     const { integration } = this.props;
@@ -541,6 +572,10 @@ class CreateMessenger extends React.Component<Props, State> {
                   botShowInitialMessage={botShowInitialMessage}
                   channelIds={channelIds}
                   brandId={brandId}
+                  handleFormChange={this.handleFormChange}
+                  ticketPipelineId={ticketPipelineId || ""}
+                  ticketBoardId={ticketBoardId || ""}
+                  ticketStageId={ticketStageId || ""}
                 />
               </Step>
               <Step

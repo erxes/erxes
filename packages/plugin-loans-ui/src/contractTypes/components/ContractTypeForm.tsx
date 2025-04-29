@@ -341,39 +341,39 @@ const ContractTypeForm = (props: Props) => {
                   })}
                 </>
               )) || (
-                <>
-                  {renderFormGroup('Is use debt', {
-                    ...formProps,
-                    className: 'flex-item',
-                    type: 'checkbox',
-                    componentclass: 'checkbox',
-                    name: 'useDebt',
-                    checked: contractType.useDebt,
-                    onChange: onChangeField,
-                  })}
-                  {renderFormGroup('Is use margin amount', {
-                    ...formProps,
-                    className: 'flex-item',
-                    type: 'checkbox',
-                    componentclass: 'checkbox',
-                    name: 'useMargin',
-                    checked: contractType.useMargin,
-                    onChange: onChangeField,
-                  })}
-                  {contractType.useMargin && (
-                    <>
-                      {renderFormGroup('min margin and lease amounts ratio', {
-                        ...formProps,
-                        name: 'minPercentMargin',
-                        required: true,
-                        type: 'number',
-                        defaultValue: contractType.minPercentMargin || 0,
-                        onChange: onChangeField,
-                      })}
-                    </>
-                  )}
-                </>
-              )}
+                  <>
+                    {renderFormGroup('Is use debt', {
+                      ...formProps,
+                      className: 'flex-item',
+                      type: 'checkbox',
+                      componentclass: 'checkbox',
+                      name: 'useDebt',
+                      checked: contractType.useDebt,
+                      onChange: onChangeField,
+                    })}
+                    {renderFormGroup('Is use margin amount', {
+                      ...formProps,
+                      className: 'flex-item',
+                      type: 'checkbox',
+                      componentclass: 'checkbox',
+                      name: 'useMargin',
+                      checked: contractType.useMargin,
+                      onChange: onChangeField,
+                    })}
+                    {contractType.useMargin && (
+                      <>
+                        {renderFormGroup('min margin and lease amounts ratio', {
+                          ...formProps,
+                          name: 'minPercentMargin',
+                          required: true,
+                          type: 'number',
+                          defaultValue: contractType.minPercentMargin || 0,
+                          onChange: onChangeField,
+                        })}
+                      </>
+                    )}
+                  </>
+                )}
               {renderFormGroup('Is use collateral', {
                 ...formProps,
                 className: 'flex-item',

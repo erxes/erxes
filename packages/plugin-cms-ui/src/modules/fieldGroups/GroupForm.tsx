@@ -12,6 +12,8 @@ import { __ } from '@erxes/ui/src/utils/core';
 import { mutations } from './graphql';
 import queries from '../customPostTypes/graphql/queries';
 import Select from 'react-select';
+import SelectPage from '../pages/components/SelectPage';
+import SelectCategory from '../categories/containers/SelectCategory';
 
 type Props = {
   clientPortalId: string;
@@ -85,6 +87,54 @@ const GroupForm = (props: Props) => {
     }));
   }, [data]);
 
+  const renderPages = () => {
+    if (!doc?.customPostTypeIds?.includes('page')) {
+      return null;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel>{__('Pages')}</ControlLabel>
+        <p>{__('Select the pages where you want to enable this group')}</p>
+        <SelectPage
+          isMulti={true}
+          value={doc.enabledPageIds}
+          clientPortalId={props.clientPortalId}
+          onChange={(pageIds) => {
+            setDoc({
+              ...doc,
+              enabledPageIds: pageIds,
+            });
+          }}
+        />
+      </FormGroup>
+    );
+  };
+
+  const renderCategories = () => {
+    if (!doc?.customPostTypeIds?.includes('category')) {
+      return null;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel>{__('Categories')}</ControlLabel>
+        <p>{__('Select the categories where you want to enable this group')}</p>
+        <SelectCategory
+          clientPortalId={props.clientPortalId}
+          isMulti={true}
+          value={doc.enabledCategoryIds}
+          onChange={(categoryIds) => {
+            setDoc({
+              ...doc,
+              enabledCategoryIds: categoryIds,
+            });
+          }}
+        />
+      </FormGroup>
+    );
+  };
+
   const renderContent = (formProps: IFormProps) => {
     return (
       <>
@@ -143,10 +193,10 @@ const GroupForm = (props: Props) => {
           <p>Loading...</p>
         ) : (
           <FormGroup>
-            <ControlLabel>{__('Custom Post Types')}</ControlLabel>
-            <p>{__('Select allowed custom post types for this group')}</p>
+            <ControlLabel>{__('Types')}</ControlLabel>
+            <p>{__('Select allowed types for this group')}</p>
             <Select
-              placeholder={__('Select custom post types')}
+              placeholder={__('Select type')}
               isMulti={true}
               options={typeOptions}
               value={
@@ -155,7 +205,6 @@ const GroupForm = (props: Props) => {
                 ) || []
               }
               onChange={(options) => {
-                
                 setDoc({
                   ...doc,
                   customPostTypeIds: options.map((o) => o.value),
@@ -165,6 +214,9 @@ const GroupForm = (props: Props) => {
           </FormGroup>
         )}
 
+        {renderPages()}
+
+        {renderCategories()}
         <ModalFooter>
           <Button
             btnStyle='simple'

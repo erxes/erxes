@@ -4,8 +4,8 @@ import {
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
-  copyParams,
-} from './common';
+  copyParams
+} from "./common";
 
 export const types = ({ contacts, clientPortal }) => `
   type TicketListItem {
@@ -23,11 +23,11 @@ export const types = ({ contacts, clientPortal }) => `
       companies: [Company]
       customers: [Customer]
       `
-        : ''
+        : ""
     }
 
     tags: [Tag]
-    ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ''}
+    ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ""}
 
     ${commonTypes}
   }
@@ -41,6 +41,7 @@ const listQueryParams = `
   perPage: Int
   parentId:String
   stageId: String
+  stage: [String]
   customerIds: [String]
   vendorCustomerIds: [String]
   companyIds: [String]
@@ -113,9 +114,12 @@ export const queries = `
 
 const ticketMutationParams = `
   source: String,
+  type: String,
 `;
 
 export const mutations = `
+  ticketCheckProgress(number: String!): Ticket
+  ticketCheckProgressForget(email: String, phoneNumber: String): JSON
   ticketsAdd(name: String!, ${copyParams}, ${ticketMutationParams}, ${commonMutationParams}): Ticket
   ticketsEdit(_id: String!, name: String, ${ticketMutationParams}, ${commonMutationParams}): Ticket
   ticketsChange(${commonDragParams}): Ticket

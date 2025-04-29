@@ -1,5 +1,152 @@
 # Changelog
 
+## [2.10.2](https://github.com/erxes/erxes/compare/2.10.1...2.10.2) (2025-04-25)
+
+### Features
+
+* put another logs on msdynamic ([4fda221](https://github.com/erxes/erxes/commit/4fda221d18d096c11f04c98f7b17ef7293018f0e))
+* put some log on msdynamic ([bce9c69](https://github.com/erxes/erxes/commit/bce9c696750e67000db549536cbb1469f74fe893))
+
+### Bug Fixes
+
+* pricing ui readOnly objects ([9d36b6e](https://github.com/erxes/erxes/commit/9d36b6e02178131692e5f13465e0a3d42c3428ef))
+* **sales:** update deal edit form ([743faa6](https://github.com/erxes/erxes/commit/743faa6f72da548208c7fe34cccbfd9f3ee425d2))
+
+## [2.10.1](https://github.com/erxes/erxes/compare/2.10.0...2.10.1) (2025-04-22)
+
+### Features
+
+* deal to msdynamic sync added ([#6000](https://github.com/erxes/erxes/issues/6000)) ([263a3c2](https://github.com/erxes/erxes/commit/263a3c2bc4610c8dcc3ab5e5044ae3a5d868b350))
+
+### Bug Fixes
+
+* **facebook:** can't send fb message when on error typing_on ([5459233](https://github.com/erxes/erxes/commit/545923367a2c9c0758cd9a783d25e09306c2be88))
+* **helper:** correct request handling for Instagram, Facebook, and WhatsApp integrations ([#5999](https://github.com/erxes/erxes/issues/5999)) ([fe90dc0](https://github.com/erxes/erxes/commit/fe90dc0671486958cf24cd841479ffcf956c2799))
+* **tms:** icon search ([16ac8ad](https://github.com/erxes/erxes/commit/16ac8ad1d237eca58ba56d62a757906d8d61a07f))
+* **tms:** visibible name ([88eddd8](https://github.com/erxes/erxes/commit/88eddd81b4bea02a760ad7ad49cd65567e464292))
+
+## [2.10.0](https://github.com/erxes/erxes/compare/2.9.5...2.10.0) (2025-04-17)
+
+### Bug Fixes
+
+* **assets:** query syntax error ([a0e841a](https://github.com/erxes/erxes/commit/a0e841af9167c20e5f8f6e203ed7ffc72d24b5e2))
+* **cards:** vendor users filter ([5327197](https://github.com/erxes/erxes/commit/53271975def93841c3abe6877f509bc8cd754ccf))
+* **facebook:** little bot ui fixes ([62eb0f5](https://github.com/erxes/erxes/commit/62eb0f5d4e26ef00f1db48de69ea8bccc98f4efd))
+* **gateway:** ci runs-on to ubuntu-22.04 from ubuntu-20.04 ([5fe8b3a](https://github.com/erxes/erxes/commit/5fe8b3a0551804564959761e417831883fe31c8e))
+* **loyalties:** add target extender & fix can't generate excludeAmount on target ([8e77836](https://github.com/erxes/erxes/commit/8e778361d2d112a6c0dbd4e66dff81902c7601df))
+* **tms:** branch on element ([115ccfe](https://github.com/erxes/erxes/commit/115ccfee48e41897901e033d25b3165f30b7e964))
+* **tms:** filter branch ([e037e87](https://github.com/erxes/erxes/commit/e037e87b49b73935317120a424e3a8b69b7c9dba))
+## [2.10.0-rc.1](https://github.com/erxes/erxes/compare/2.9.5...2.10.0) (2025-04-04)
+## [2.10.0-rc.0](https://github.com/erxes/erxes/compare/2.9.5...2.10.0) (2025-04-02)
+
+### Bug Fixes
+
+* accountings invIncome save and t balance improve ([3ee3131](https://github.com/erxes/erxes/commit/3ee3131708798147cba9319a8b7cf8469c99a05a))
+* deal products form filter by barcode ([2331133](https://github.com/erxes/erxes/commit/23311334115c73127db4e7510d9b583cd62f9527))
+
+## [2.10.0-rc.1](https://github.com/erxes/erxes/compare/2.10.0-rc.0...2.10.0-rc.1) (2025-04-04)
+## [2.10.0-rc.0](https://github.com/erxes/erxes/compare/2.10.0-rc.0...2.10.0-rc.1) (2025-04-02)
+## [2.9.5](https://github.com/erxes/erxes/compare/2.9.4...2.9.5) (2025-04-16)
+
+### Bug Fixes
+
+* **facebook:** safe content ([989dbc7](https://github.com/erxes/erxes/commit/989dbc7a41121781323aabd9b8a197a31b74d8ba))
+* product chooser search by text ([3dd135b](https://github.com/erxes/erxes/commit/3dd135b8ad2e3044c9b1239d47d51bfb582589b7))
+* products query doubled ([52e0b6d](https://github.com/erxes/erxes/commit/52e0b6dbef2955cf1af327da2053c0018518fc11))
+
+## [2.9.4](https://github.com/erxes/erxes/compare/2.9.3...2.9.4) (2025-04-15)
+
+### Bug Fixes
+
+* **facebook:** display permalink even when content is empty ([6937ee0](https://github.com/erxes/erxes/commit/6937ee076b85f34ee364ac30a01fcf40ffbc58e6))
+* **inbox:** send a trigger to automations when a company is updated ([31974a7](https://github.com/erxes/erxes/commit/31974a730906e28627f78a32e28eaedfae919501))
+* **inbox:** send a trigger to automations when a company is updated. ([f8f8a30](https://github.com/erxes/erxes/commit/f8f8a306aaf83d4d71035e5bf137a56acf411bab))
+* products data save per row on sales ([#6001](https://github.com/erxes/erxes/issues/6001)) ([953fc3c](https://github.com/erxes/erxes/commit/953fc3c359af60397096824642dbac26a284f6c3))
+
+## [2.9.3](https://github.com/erxes/erxes/compare/2.9.2...2.9.3) (2025-04-10)
+
+### Features
+
+* number to mn word utils and mnt rates download cron ([#5996](https://github.com/erxes/erxes/issues/5996)) ([7662543](https://github.com/erxes/erxes/commit/766254317848d8fbdcc8dc842a01dd90ed4bec6c))
+
+### Bug Fixes
+
+* accountings invIncome save and t balance improve ([3ee3131](https://github.com/erxes/erxes/commit/3ee3131708798147cba9319a8b7cf8469c99a05a))
+* deal products form filter by barcode ([2331133](https://github.com/erxes/erxes/commit/23311334115c73127db4e7510d9b583cd62f9527))
+## [2.9.1](https://github.com/erxes/erxes/compare/2.10.0-rc.0...2.10.0-rc.1) (2025-04-04)
+
+### Bug Fixes
+
+* add permission dealsRemoveProductsData and productsData filter by barcode ([e7d859a](https://github.com/erxes/erxes/commit/e7d859aa7c2f96b4dcb2298b8105b03a6097ab3c))
+* syncerkhet return with records ([caa532f](https://github.com/erxes/erxes/commit/caa532f37119cbbad1a86820fff621067f9dc56a))
+* update pluginsMap ([24f7a54](https://github.com/erxes/erxes/commit/24f7a54408a64995f74c0a0be557f15ed3e7de77))
+
+## [2.10.0-rc.0](https://github.com/erxes/erxes/compare/2.9.0...2.10.0-rc.0) (2025-04-02)
+
+### Bug Fixes
+
+* accountings invIncome save and t balance improve ([3ee3131](https://github.com/erxes/erxes/commit/3ee3131708798147cba9319a8b7cf8469c99a05a))
+* deal products form filter by barcode ([2331133](https://github.com/erxes/erxes/commit/23311334115c73127db4e7510d9b583cd62f9527))
+## [2.9.1](https://github.com/erxes/erxes/compare/2.9.0...2.9.1) (2025-04-04)
+
+### Bug Fixes
+
+* add permission dealsRemoveProductsData and productsData filter by barcode ([e7d859a](https://github.com/erxes/erxes/commit/e7d859aa7c2f96b4dcb2298b8105b03a6097ab3c))
+* syncerkhet return with records ([caa532f](https://github.com/erxes/erxes/commit/caa532f37119cbbad1a86820fff621067f9dc56a))
+* update pluginsMap ([24f7a54](https://github.com/erxes/erxes/commit/24f7a54408a64995f74c0a0be557f15ed3e7de77))
+
+## [2.9.0](https://github.com/erxes/erxes/compare/2.8.3...2.9.0) (2025-04-02)
+
+### Features
+
+* add phone number and email validation in Call component ([b16e93a](https://github.com/erxes/erxes/commit/b16e93a3d2d09074dc3407cc85e65acb3481649d))
+* **cms:** Implement custom fields group functionality for CMS categories and pages, extending the existing custom fields ([#5987](https://github.com/erxes/erxes/issues/5987)) ([f82d136](https://github.com/erxes/erxes/commit/f82d136a73e67ca610d61f6863531b5142df7627))
+* **pms:** check-in & check-out ([9d89279](https://github.com/erxes/erxes/commit/9d8927908175e931a63a07bf6b4433764034909f))
+
+### Bug Fixes
+
+* **bm:** sort on tour,itinerary, tour group ([d0ae651](https://github.com/erxes/erxes/commit/d0ae6512095dafea81f676ac23971cc903bd2987))
+* **cards:** null pointer on chart view ([bfb1a8c](https://github.com/erxes/erxes/commit/bfb1a8c1512315b7d787a75b271b56b57866d83a))
+* **core:** can't import unitPrice is string on products ([4cbeb4b](https://github.com/erxes/erxes/commit/4cbeb4b2d31f4f0026d58f7321bbeb387be732f7))
+* improve 2-way audio for multiple operators ([97940c1](https://github.com/erxes/erxes/commit/97940c170564ac3087430906a771644014e68695))
+* **pms:** pms rooms pagination ([6cef89b](https://github.com/erxes/erxes/commit/6cef89bd40471c78bc506d0801b62f3cf8b612b8))
+* **tms:** tour images and order fields ([234adb1](https://github.com/erxes/erxes/commit/234adb1403c13e85fa27cc3d4822a253868c7948))
+* yaml files ([858aaf5](https://github.com/erxes/erxes/commit/858aaf54707aff14f40981dc45092e4b29809656))
+## [2.9.0-rc.0](https://github.com/erxes/erxes/compare/2.8.3...2.9.0) (2025-03-16)
+
+### Features
+
+* Accountings improve ([#5966](https://github.com/erxes/erxes/issues/5966)) ([f7ef547](https://github.com/erxes/erxes/commit/f7ef5470f4afbcb5aed5f2044456f8642825b9a9))
+* improve sales-ui, improve loans, add plugin loansresearch ([#5968](https://github.com/erxes/erxes/issues/5968)) ([19e5397](https://github.com/erxes/erxes/commit/19e539708a082b40d7a6fb8ce52ae982fd0c7a93)), closes [#5895](https://github.com/erxes/erxes/issues/5895) [#5898](https://github.com/erxes/erxes/issues/5898)
+
+### Bug Fixes
+
+* **pms:** room change permission ([442c512](https://github.com/erxes/erxes/commit/442c51245ead4c39851ebdbbe5e7154be9392203))
+* **pms:** room change permission ([20079a9](https://github.com/erxes/erxes/commit/20079a911276ea10a1ea0bdd5196c27a93eb4739))
+* **tms:** extra ([77cc177](https://github.com/erxes/erxes/commit/77cc177515d513823aa33f1e42ff819fde2cf27d))
+* **tms:** extrafields ([8e4ecfb](https://github.com/erxes/erxes/commit/8e4ecfb0958a5ec06aff2db7e68301e401dcccc1))
+
+## [2.9.0-rc.0](https://github.com/erxes/erxes/compare/2.8.0...2.9.0-rc.0) (2025-03-16)
+## [2.8.3](https://github.com/erxes/erxes/compare/2.8.2...2.8.3) (2025-03-26)
+
+### Bug Fixes
+
+* temp sales to erkhet without debit ([bb4ab11](https://github.com/erxes/erxes/commit/bb4ab117054965bed07694c29a30809444b56b07))
+
+## [2.8.2](https://github.com/erxes/erxes/compare/2.8.1...2.8.2) (2025-03-24)
+
+### Features
+
+* **cms:** Introduce custom post types and field groups ([#5982](https://github.com/erxes/erxes/issues/5982)) ([adfd12d](https://github.com/erxes/erxes/commit/adfd12dbbf1b36193ba000f59f208e8f21da5045))
+
+### Bug Fixes
+
+* **calls:** check timezone ([0ab4c38](https://github.com/erxes/erxes/commit/0ab4c3870fc4c2e8abdafcaa0d2150f6b8d4266b))
+* **payment:** trigger payment success callback on manual status check ([#5983](https://github.com/erxes/erxes/issues/5983)) ([277d493](https://github.com/erxes/erxes/commit/277d4939f8cfa5571ce3ded0cedff6584084881b))
+* posclient from payment settlement, when hasnt ebarimt ([16e840a](https://github.com/erxes/erxes/commit/16e840a1abec32f7e3b9c76a078d4e1308c95127))
+* posclient types ([04b9589](https://github.com/erxes/erxes/commit/04b9589b7d0f7a404ffa94835745dee324cf1ef4))
+* **tms:** tour images and order fields ([00013c6](https://github.com/erxes/erxes/commit/00013c69e44fc97b080c39e9bc53616aca07e342))
+
 ## [2.8.1](https://github.com/erxes/erxes/compare/2.8.0...2.8.1) (2025-03-16)
 
 ### Reverts

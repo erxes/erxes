@@ -25,10 +25,11 @@ export default function Price(props: Props) {
 
   // Functions
   const handleChange = (index: number, key: string, value: any) => {
-    const temp = [...formValues.priceRules];
-    temp[index][key] = value;
+    const temp = (formValues.priceRules || []).map(
+      (qr, ind) => ind === index ? { ...qr, [key]: value } : { ...qr }
+    );
 
-    handleState("priceRules", [...temp]);
+    handleState("priceRules", temp);
   };
 
   const handleAdd = () => {
@@ -45,7 +46,7 @@ export default function Price(props: Props) {
 
   const renderRow = (item: any, index: number) => {
     return (
-      <tr key={"price" + item}>
+      <tr key={"price" + index}>
         <td>
           <FormGroup>
             <FormControl

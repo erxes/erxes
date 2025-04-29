@@ -24,6 +24,10 @@ export const types = `
         createdAt: Date
         updatedAt: Date
         pageItems: [PageItem]
+
+        customFieldsData: JSON
+
+        customFieldsMap: JSON
     }
 
 
@@ -44,6 +48,8 @@ export const inputs = `
         contentType: String
         contentTypeId: String
         config: JSON
+
+        
     }
 
     input PageInput {
@@ -56,6 +62,7 @@ export const inputs = `
         slug: String
         content: String
         pageItems: [PageItemInput]
+        customFieldsData: JSON
     }
 `;
 

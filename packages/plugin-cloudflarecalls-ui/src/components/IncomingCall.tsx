@@ -13,11 +13,15 @@ import { renderFullName } from '@erxes/ui/src/utils/core';
 import { callActions } from '../utils';
 import { PullAudioTracks } from './PullAudioTracks';
 import {
+  Actions,
+  CallAction,
+  InCallFooter,
   IncomingActionButton,
   IncomingButtonContainer,
   IncomingCallNav,
   IncomingContainer,
   IncomingContent,
+  InnerActions,
   NameCardContainer,
   PhoneNumber,
 } from '../styles';
@@ -32,7 +36,7 @@ type Props = {
   erxesApiId: string;
   currentCallConversationId: string;
   answerCall: () => void;
-  leaveCall: (seconds: number) => void;
+  leaveCall: ({ roomState }: { roomState?: string }) => void;
   audioTrack?: string;
 };
 
@@ -109,8 +113,8 @@ const IncomingCall = (props: Props) => {
   }, [status]);
 
   const endCall = useCallback(() => {
-    leaveCall(timeSpent);
-  }, [leaveCall, timeSpent]);
+    leaveCall({ roomState: 'leave' });
+  }, [leaveCall]);
 
   const onAcceptCall = useCallback(() => {
     if (audioRef.current) {
@@ -132,6 +136,7 @@ const IncomingCall = (props: Props) => {
     }
 
     setStatus('declined');
+    leaveCall({ roomState: 'busy' });
   }, []);
 
   const gotoDetail = useCallback(() => {
@@ -202,24 +207,32 @@ const IncomingCall = (props: Props) => {
     );
   }
 
-  if (status === 'accepted' && !hideIncomingCall) {
+  if (status === 'accepted') {
     const renderContent = () => (
       <>
         {renderUserInfo('incall')}
         <p>
           {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
         </p>
-        {callActions(
-          { isMuted: () => true },
-          toggleMic,
-          endCall,
-          erxesApiId,
-          true,
-          { direction: 'incoming' },
-          gotoDetail,
-          !!currentCallConversationId,
-          { onClickKeyPad: () => {} },
-        )}
+        <InCallFooter>
+          <Actions>
+            <InnerActions>
+              <div>
+                <CallAction onClick={gotoDetail} $disabled={false}>
+                  <Icon size={20} icon={'book-alt'} />
+                </CallAction>
+
+                {__('Detail')}
+              </div>
+            </InnerActions>
+            <div>
+              <CallAction onClick={endCall} $isDecline={true}>
+                <Icon size={20} icon="phone-slash" />
+              </CallAction>
+              {__('End Call')}
+            </div>
+          </Actions>
+        </InCallFooter>
       </>
     );
 

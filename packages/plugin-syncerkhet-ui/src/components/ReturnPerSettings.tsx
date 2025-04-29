@@ -6,12 +6,13 @@ import {
   FormGroup,
   Icon
 } from "@erxes/ui/src/components";
-
+import Select from "react-select";
 import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
 import { IConfigsMap } from "../types";
 import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
 import React from "react";
 import { __ } from "@erxes/ui/src/utils";
+import { payOptions } from "../constants";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -157,7 +158,7 @@ class PerSettings extends React.Component<Props, State> {
 
         {this.renderInput("userEmail", "userEmail", "")}
         <FormGroup>
-          <ControlLabel>{"Title"}</ControlLabel>
+          <ControlLabel>{"Return type"}</ControlLabel>
           <FormControl
             componentclass="select"
             options={[
@@ -171,6 +172,19 @@ class PerSettings extends React.Component<Props, State> {
             autoFocus={true}
           />
         </FormGroup>
+
+        {['sale', 'full'].includes(config.returnType) && (
+          <FormGroup>
+            <ControlLabel>{"defaultPay"}</ControlLabel>
+            <Select
+              value={payOptions.find(o => o.value === config.defaultPay) || ""}
+              onChange={option => this.onChangeCombo(option)}
+              isClearable={true}
+              options={payOptions}
+            />
+          </FormGroup>
+          // this.renderInput("defaultAccount", "default Account")
+        )}
 
         <ModalFooter>
           <Button

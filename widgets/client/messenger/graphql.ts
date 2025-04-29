@@ -1,4 +1,4 @@
-import { connection } from "./connection";
+import { connection } from './connection';
 
 const userDetailFields = `
   avatar
@@ -104,7 +104,7 @@ const conversationDetailQuery = (isDailycoEnabled: boolean) => `
           url
           status
         }`
-            : ""
+            : ''
         }
       }
 
@@ -157,7 +157,7 @@ const conversationMessageInserted = (isDailycoEnabled: boolean) => `
         url
         status
       }`
-          : ""
+          : ''
       }
     }
   }
@@ -241,7 +241,7 @@ const readConversationMessages = `
   }
 `;
 
-const connect = (isCloudFlareEnabled?: boolean) => `
+const connect = (isCloudFlareEnabled?: boolean, isTicketEnabled?: boolean) => `
   mutation connect($brandCode: String!, $email: String, $phone: String, $code: String
     $isUser: Boolean, $data: JSON,
     $companyData: JSON, $cachedCustomerId: String $visitorId: String) {
@@ -251,8 +251,14 @@ const connect = (isCloudFlareEnabled?: boolean) => `
       cachedCustomerId: $cachedCustomerId, visitorId: $visitorId) {
       integrationId,
       messengerData,
-      ${isCloudFlareEnabled ? `
+      ${
+        isCloudFlareEnabled
+          ? `
       callData {
+        header
+        description
+        secondPageHeader
+        secondPageDescription
         departments {
           _id
           name
@@ -260,7 +266,17 @@ const connect = (isCloudFlareEnabled?: boolean) => `
         }
         isReceiveWebCall
       },
-    ` : ""}
+    `
+          : ''
+      }
+      
+      ${
+        isTicketEnabled
+          ? `
+        ticketData
+      `
+          : ``
+      }
       languageCode,
       uiOptions,
       customerId,
@@ -368,6 +384,6 @@ export default {
   integrationsFetchApi,
   conversationBotTypingStatus,
   getEngageMessage,
-  MESSAGE_FIELDS
+  MESSAGE_FIELDS,
 };
 export { MESSAGE_FIELDS };

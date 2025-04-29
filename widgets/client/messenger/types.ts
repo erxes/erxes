@@ -162,3 +162,20 @@ export interface IBotData {
     typing: boolean;
   };
 }
+
+export interface IAttachment {
+  name: string;
+  url: string;
+}
+
+export interface ITicketActivityLog {
+  _id: string;
+  contentType: string;
+  action: string;
+  content: any;
+  createdAt: string;
+  createdByDetail: {
+    type: string;
+    content: any;
+  }
+}

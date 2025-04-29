@@ -79,8 +79,14 @@ class TaxTrs {
 
     this.taxPercent = taxPercent;
 
-    this.sumDt = this.doc.details.filter(d => d.side === TR_SIDES.DEBIT).reduce((sum, cur) => sum + cur.amount, 0)
-    this.sumCt = this.doc.details.filter(d => d.side === TR_SIDES.CREDIT).reduce((sum, cur) => sum + cur.amount, 0)
+    this.sumDt = this.doc.details
+      .filter(d => d.side === TR_SIDES.DEBIT)
+      .reduce((sum, cur) => sum + cur.amount, 0)
+
+    this.sumCt = this.doc.details
+      .filter(d => d.side === TR_SIDES.CREDIT)
+      .reduce((sum, cur) => sum + cur.amount, 0)
+
   }
 
   private checkVatValidation = async () => {
@@ -195,16 +201,28 @@ class TaxTrs {
 
     if (oldFollowInfo) {
       const oldvatTr = await this.models.Transactions.findOne({ _id: oldFollowInfo.id });
+
       if (oldvatTr) {
-        vatTr = await this.models.Transactions.updateTransaction(oldvatTr._id, { ...this.vatTrDoc, originId: transaction._id });
+        vatTr = await this.models.Transactions.updateTransaction(oldvatTr._id, {
+          ...this.vatTrDoc,
+          originId: transaction._id,
+          parentId: transaction.parentId
+        });
+
       } else {
-        vatTr = await this.models.Transactions.createTransaction({ ...this.vatTrDoc, originId: transaction._id });
+        vatTr = await this.models.Transactions.createTransaction({
+          ...this.vatTrDoc,
+          originId: transaction._id,
+          parentId: transaction.parentId
+        });
+
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
           $set: { vatAmount: this.vatTrDoc.details[0].amount },
           $pull: {
             follows: { ...oldFollowInfo }
           }
         })
+
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
           $addToSet: {
             follows: {
@@ -216,7 +234,12 @@ class TaxTrs {
       }
 
     } else {
-      vatTr = await this.models.Transactions.createTransaction({ ...this.vatTrDoc, originId: transaction._id });
+      vatTr = await this.models.Transactions.createTransaction({
+        ...this.vatTrDoc,
+        originId: transaction._id,
+        parentId: transaction.parentId
+      });
+
       await this.models.Transactions.updateOne({ _id: transaction._id }, {
         $set: { vatAmount: this.vatTrDoc.details[0].amount },
         $addToSet: {
@@ -251,15 +274,26 @@ class TaxTrs {
     if (oldFollowInfo) {
       const oldctaxTr = await this.models.Transactions.findOne({ _id: oldFollowInfo.id });
       if (oldctaxTr) {
-        ctaxTr = await this.models.Transactions.updateTransaction(oldctaxTr._id, { ...this.ctaxTrDoc, originId: transaction._id });
+        ctaxTr = await this.models.Transactions.updateTransaction(oldctaxTr._id, {
+          ...this.ctaxTrDoc,
+          originId: transaction._id,
+          parentId: transaction.parentId
+        });
+
       } else {
-        ctaxTr = await this.models.Transactions.createTransaction({ ...this.ctaxTrDoc, originId: transaction._id });
+        ctaxTr = await this.models.Transactions.createTransaction({
+          ...this.ctaxTrDoc,
+          originId: transaction._id,
+          parentId: transaction.parentId
+        });
+
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
           $set: { ctaxAmount: this.ctaxTrDoc.details[0].amount },
           $pull: {
             follows: { ...oldFollowInfo }
           }
         })
+
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
           $addToSet: {
             follows: {
@@ -271,7 +305,12 @@ class TaxTrs {
       }
 
     } else {
-      ctaxTr = await this.models.Transactions.createTransaction({ ...this.ctaxTrDoc, originId: transaction._id });
+      ctaxTr = await this.models.Transactions.createTransaction({
+        ...this.ctaxTrDoc,
+        originId: transaction._id,
+        parentId: transaction.parentId
+      });
+
       await this.models.Transactions.updateOne({ _id: transaction._id }, {
         $set: { ctaxAmount: this.ctaxTrDoc.details[0].amount },
         $addToSet: {
@@ -285,6 +324,7 @@ class TaxTrs {
 
     return ctaxTr;
   }
+
   public doTaxTrs = async (transaction) => {
     const vatTr = await this.doVatTr(transaction);
     const ctaxTr = await this.doCtaxTr(transaction);

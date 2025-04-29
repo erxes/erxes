@@ -3,6 +3,7 @@ import * as moment from 'moment';
 import { IEbarimt, IEbarimtFull } from './definitions/putResponses';
 import { IEbarimtConfig } from './definitions/configs';
 import { IProductDocument } from './definitions/products';
+import { mathRound } from '../graphql/utils/orderUtils';
 
 export interface IDoc {
   contentType: string;
@@ -193,12 +194,12 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc, posToken: s
     detailsFree,
     details0,
     detailsInner,
-    ableAmount,
-    freeAmount,
-    zeroAmount,
-    innerAmount,
-    ableVATAmount,
-    ableCityTaxAmount,
+    ableAmount: mathRound(ableAmount),
+    freeAmount: mathRound(freeAmount),
+    zeroAmount: mathRound(zeroAmount),
+    innerAmount: mathRound(innerAmount),
+    ableVATAmount: mathRound(ableVATAmount),
+    ableCityTaxAmount: mathRound(ableCityTaxAmount),
   }
 }
 
@@ -245,9 +246,9 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
       contentType: doc.contentType,
       contentId: doc.contentId,
 
-      totalAmount: ableAmount + freeAmount + zeroAmount,
-      totalVAT: ableVATAmount,
-      totalCityTax: ableCityTaxAmount,
+      totalAmount: mathRound(ableAmount + freeAmount + zeroAmount),
+      totalVAT: mathRound(ableVATAmount),
+      totalCityTax: mathRound(ableCityTaxAmount),
       districtCode: config.districtCode,
       branchNo: config.branchNo,
       merchantTin: config.merchantTin,
@@ -293,24 +294,25 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     }
 
     // payments
-    let cashAmount = mainData.totalAmount ?? 0;
+    let cashAmount = mathRound(mainData.totalAmount ?? 0);
     for (const payment of doc.nonCashAmounts) {
+      const paidAmount = mathRound(payment.amount);
       mainData.payments?.push({
         code: 'PAYMENT_CARD',
         exchangeCode: '',
         status: 'PAID',
-        paidAmount: payment.amount,
+        paidAmount,
       });
 
-      cashAmount -= payment.amount;
+      cashAmount -= paidAmount;
     }
 
-    if (cashAmount) {
+    if (mathRound(cashAmount)) {
       mainData.payments?.push({
         code: 'CASH',
         exchangeCode: '',
         status: 'PAID',
-        paidAmount: cashAmount,
+        paidAmount: mathRound(cashAmount),
       });
     }
   }

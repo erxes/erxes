@@ -7,16 +7,11 @@ import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   callUserIntegrations: any;
-  setConfig: any;
   setHideIncomingCall?: (isHide: boolean) => void;
   hideIncomingCall?: boolean;
-  currentCallConversationId: string;
 };
 
 const Widget = (props: Props) => {
-  const isConnected = JSON.parse(
-    localStorage.getItem('config:cloudflareCall') || '{}',
-  ).isAvailable;
   const onClick = () => {
     const { setHideIncomingCall, hideIncomingCall } = props;
     if (setHideIncomingCall) {
@@ -27,8 +22,8 @@ const Widget = (props: Props) => {
   return (
     <Popover
       trigger={
-        <WidgetWrapper $isConnected={isConnected} onClick={onClick}>
-          <Icon icon={isConnected ? 'phone' : 'phone-slash'} size={23} />
+        <WidgetWrapper $isConnected={true} onClick={onClick}>
+          <Icon icon={true ? 'phone' : 'phone-slash'} size={23} />
         </WidgetWrapper>
       }
       placement="top"

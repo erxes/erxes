@@ -409,6 +409,14 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           }),
         );
       }
+      if (loyalties.targetExtender) {
+        loyalties.aviableAttributes = true;
+
+        consumeRPCQueue(`${configs.name}:targetExtender`, async (args) => ({
+          status: 'success',
+          data: await loyalties.targetExtender(args),
+        }));
+      }
     }
 
     if (loginValidator) {
@@ -428,6 +436,14 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   });
 
   configs.onServerInit();
+
+  if (configs.changeStream) {
+    try {
+      await configs.changeStream();
+    } catch (error) {
+      debugError(`Error initializing change stream: ${error.message}`);
+    }
+  }
 
   applyInspectorEndpoints(configs.name);
 

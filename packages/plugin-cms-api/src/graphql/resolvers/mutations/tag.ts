@@ -74,10 +74,10 @@ import {
   requireLogin(mutations, 'cmsTagsRemove');
   requireLogin(mutations, 'cmsTagsToggleStatus');
   
-  checkPermission(mutations, 'cmsTagsAdd', 'cmsTagsAdd', []);
-  checkPermission(mutations, 'cmsTagsEdit', 'cmsTagsEdit', []);
-  checkPermission(mutations, 'cmsTagsRemove', 'cmsTagsRemove', []);
-  checkPermission(mutations, 'cmsTagsToggleStatus', 'cmsTagsEdit', []);
+  checkPermission(mutations, 'cmsTagsAdd', 'manageCms', []);
+  checkPermission(mutations, 'cmsTagsEdit', 'manageCms', []);
+  checkPermission(mutations, 'cmsTagsRemove', 'manageCms', []);
+  checkPermission(mutations, 'cmsTagsToggleStatus', 'manageCms', []);
   
   
   export default mutations;

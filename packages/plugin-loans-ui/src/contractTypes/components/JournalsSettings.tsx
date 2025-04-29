@@ -442,6 +442,11 @@ const GeneralSettings = (props: Props) => {
             componentclass: 'textarea',
           })}
         </CollapseContent>
+        <CollapseContent title={__("Requirements")}>
+          {renderItem("requirementsTxt", "", { componentclass: "textarea" })}
+          {renderItem("customerDocumentsTxt", "", { componentclass: "textarea" })}
+          {renderItem("companyDocumentsTxt", "", { componentclass: "textarea" })}
+        </CollapseContent>
       </ContentBox>
     </ScrollWrapper>
   );

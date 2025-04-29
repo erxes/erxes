@@ -29,6 +29,7 @@ export interface IAccount {
   departmentId?: string;
   scopeBrandIds?: string[];
   status: string;
+  isTemp: boolean;
   isOutBalance: boolean;
   mergedIds?: string[];
 

@@ -8,7 +8,7 @@ export interface IBrandModel extends Model<IBrandDocument> {
   getBrandByCode(code: string): IBrandDocument;
   generateCode(code: string): string;
   createBrand(doc: IBrand): IBrandDocument;
-  updateBrand(_id: string, fields: IBrand): IBrandDocument;
+  updateBrand(_id: string, fields: IBrand): Promise<IBrandDocument>;
   removeBrand(_id: string): IBrandDocument;
 }
 
@@ -52,7 +52,7 @@ export const loadBrandClass = (models: IModels) => {
         emailConfig:
           Object.keys(doc.emailConfig || {}).length > 0
             ? doc.emailConfig
-            : { type: 'simple' }
+            : { type: 'simple' },
       });
     }
 

@@ -116,7 +116,8 @@ class PropertyRow extends React.Component<Props, State> {
   };
 
   renderActionButtons = (data, remove, content, isGroup) => {
-    if (data.isDefinedByErxes) {
+
+    if (data.isDefinedByErxes || data.isDisabled) {
       return null;
     }
 

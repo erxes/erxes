@@ -95,6 +95,18 @@ const LoansResearchForm = (props: Props) => {
   }, [customer]);
 
   useEffect(() => {
+    if (queryParams && queryParams?.itemId) {
+      setDealId(queryParams.itemId);
+    }
+  }, [queryParams]);
+
+  useEffect(() => {
+    if (customer) {
+      setCustomerId(customer._id);
+    }
+  }, [customer]);
+
+  useEffect(() => {
     let increaseAmount;
 
     const ratio = (totalPaymentAmount / totalIncome) * 100;

@@ -23,8 +23,9 @@ function arraysEqual(arr1: any[], arr2: any[]): boolean {
 export default {
   handle3SecondlyJob: async ({ subdomain }) => {
     const VERSION = getEnv({ name: 'VERSION' });
+    const CALL_CRON_ENABLED = getEnv({ name: 'CALL_CRON_ENABLED' });
 
-    if (VERSION && VERSION === 'os') {
+    if (VERSION && VERSION === 'os' && CALL_CRON_ENABLED) {
       const models = await generateModels(subdomain);
       const integrations = await models.Integrations.find({}).lean();
 
@@ -299,6 +300,8 @@ export default {
 
   handle10MinutelyJob: async ({ subdomain }) => {
     const VERSION = getEnv({ name: 'VERSION' });
+    const CALL_CRON_ENABLED = getEnv({ name: 'CALL_CRON_ENABLED' });
+
     //save forwarded operator data
     const processCdrData = async (
       models,
@@ -380,7 +383,7 @@ export default {
       }
     };
 
-    if (VERSION === 'os') {
+    if (VERSION === 'os' && CALL_CRON_ENABLED) {
       await handleOsVersion();
     } else if (VERSION === 'saas') {
       // await handleSaasVersion();

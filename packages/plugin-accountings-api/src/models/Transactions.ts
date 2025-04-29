@@ -24,7 +24,7 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
   updateTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   removeTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   removeTransaction(_id: string): Promise<string>;
-  removePTransaction(_ids: string[]): Promise<{ n: number; ok: number }>;
+  removePTransaction(parentId?: string, ptrId?: string): Promise<{ n: number; ok: number }>;
 }
 
 export const loadTransactionClass = (models: IModels, subdomain: string) => {
@@ -261,13 +261,50 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
         throw new Error('cant remove this transaction. Remove the source transaction first')
       }
 
-      if (await models.Transactions.find({ preTrId: _id })) {
+      if ((await models.Transactions.find({ preTrId: _id }).lean()).length) {
         throw new Error('cant remove this transaction. Remove the dependent transaction first')
       }
 
-      await models.Transactions.deleteMany({ $or: [{ _id }, { _id: { $in: (transaction.follows || []).map(tr => tr.id) } }] });
+      await models.Transactions.deleteMany({
+        $or: [
+          { _id },
+          { _id: { $in: (transaction.follows || []).map(tr => tr.id) } },
+          { originId: _id }
+        ]
+      });
 
       return 'success'
+    }
+
+    public static async removePTransaction(parentId?: string, ptrId?: string) {
+      const $or: any = [];
+      if (parentId) {
+        $or.push({ parentId })
+      }
+      if (ptrId) {
+        $or.push({ ptrId })
+      }
+
+      if (!$or.length) {
+        throw new Error('less params')
+      }
+
+      const trsOfPtr = await models.Transactions.find({ $or }).lean();
+      const parentIds = [...new Set(trsOfPtr.map(tr => tr.parentId))];
+      const ptrIds = [...new Set(trsOfPtr.map(tr => tr.ptrId))];
+
+      const summaryTrs = await models.Transactions.find({
+        $or: [
+          { parentId: { $in: parentIds } },
+          { ptrId: { $in: ptrIds } }]
+      });
+      const deleteTrIds = summaryTrs.map(tr => tr._id);
+
+      if ((await models.Transactions.find({ preTrId: { $in: deleteTrIds }, _id: { $nin: deleteTrIds } }).lean()).length) {
+        throw new Error('cant remove this transaction. Remove the dependent transaction first')
+      }
+
+      return await models.Transactions.deleteMany({ _id: { $in: deleteTrIds } });
     }
   }
 

@@ -27,9 +27,42 @@ const CustomFieldGroup = {
       return [];
     }
 
-    return await models.CustomPostTypes.find({
+    const systemTypes: any[] = [
+      {
+        _id: 'page',
+        code: 'page',
+        clientPortalId: group.clientPortalId,
+        label: 'Page',
+        pluralLabel: 'Pages',
+      },
+      {
+        _id: 'post',
+        code: 'post',
+        clientPortalId: group.clientPortalId,
+        label: 'Post',
+        pluralLabel: 'Posts',
+      },
+      {
+        _id: 'category',
+        code: 'category',
+        clientPortalId: group.clientPortalId,
+        label: 'Category',
+        pluralLabel: 'Categories',
+      },
+    ];
+
+    const customPostTypes = await models.CustomPostTypes.find({
       _id: { $in: group.customPostTypeIds },
     });
+
+    group.customPostTypeIds.forEach((element) => {
+      const index = systemTypes.findIndex((t) => t._id === element);
+      if (index !== -1) {
+        customPostTypes.push(systemTypes[index]);
+      }
+    });
+
+    return customPostTypes;
   },
 };
 

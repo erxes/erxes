@@ -1,3 +1,4 @@
+import { customFieldSchema, ICustomField } from "@erxes/api-utils/src/definitions/common";
 import { Document, Schema } from "mongoose";
 import { nanoid } from "nanoid";
 
@@ -11,6 +12,7 @@ export interface IPage {
   pageItems: any[];
   createdUserId: string;
   coverImage?: string;
+  customFieldsData?: ICustomField;
 }
 
 export interface IPageDocument extends IPage, Document {
@@ -28,6 +30,7 @@ export const pageSchema = new Schema<IPageDocument>(
     layout: { type: String, required: false },
     createdUserId: { type: String, ref: "User" },
     coverImage: { type: String },
+    customFieldsData: { type: [customFieldSchema], optional: true },
     pageItems: [
       {
         _id: { type: String, default: () => nanoid() },

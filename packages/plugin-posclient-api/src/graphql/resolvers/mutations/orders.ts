@@ -3,23 +3,26 @@ import { debugError } from "@erxes/api-utils/src/debuggers";
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import { IModels } from "../../../connectionResolver";
 import {
-  sendSalesMessage,
   sendCoreMessage,
   sendInboxMessage,
-  sendPosMessage
+  sendPosMessage,
+  sendSalesMessage
 } from "../../../messageBroker";
 import { IConfig, IConfigDocument } from "../../../models/definitions/configs";
 import {
   BILL_TYPES,
   ORDER_ITEM_STATUSES,
-  ORDER_STATUSES,
   ORDER_SALE_STATUS,
+  ORDER_STATUSES,
   ORDER_TYPES
 } from "../../../models/definitions/constants";
 import { IPaidAmount } from "../../../models/definitions/orders";
 import { IPosUserDocument } from "../../../models/definitions/posUsers";
+import { IDoc } from "../../../models/PutData";
+import { prepareSettlePayment } from "../../../utils";
 import { IContext, IOrderInput, IOrderItemInput } from "../../types";
 import {
+  checkCouponCode,
   checkOrderAmount,
   checkOrderStatus,
   checkScoreAviableSubtractScoreCampaign,
@@ -34,8 +37,6 @@ import {
   validateOrderPayment
 } from "../../utils/orderUtils";
 import { checkSlotStatus } from "../../utils/slots";
-import { prepareSettlePayment } from "../../../utils";
-import { IDoc } from "../../../models/PutData";
 
 interface IPaymentBase {
   billType: string;
@@ -216,7 +217,11 @@ export const ordersAdd = async (
       taxInfo: getTaxInfo(config),
       status,
       saleStatus,
-      subscriptionInfo: preparedDoc?.subscriptionInfo
+      subscriptionInfo: preparedDoc?.subscriptionInfo,
+      extraInfo: {
+        rawTotalAmount: doc.totalAmount,
+        couponCode: doc.couponCode
+      }
     };
 
     const order = await orderAdd(models, lastDoc, config);
@@ -336,7 +341,11 @@ const ordersEdit = async (
     dueDate: doc.dueDate,
     description: doc.description,
     status,
-    saleStatus
+    saleStatus,
+    extraInfo: {
+      rawTotalAmount: doc.totalAmount,
+      couponCode: doc.couponCode
+    }
   });
 
   await graphqlPubsub.publish("ordersOrdered", {
@@ -741,6 +750,7 @@ const orderMutations = {
       order,
       paidAmounts
     );
+    await checkCouponCode({subdomain, order})
 
     const modifier: any = {
       $set: {

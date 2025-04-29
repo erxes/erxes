@@ -43,6 +43,7 @@ const resolverWrapper = async (methodName, args, context) => {
           data: {
             resolver: methodName,
             args,
+            user: context.user
           },
         })),
       };
@@ -97,9 +98,9 @@ export const getUserActionsMap = async (
     const userPermissions = await (permissionsFind
       ? permissionsFind(userPermissionQuery)
       : sendRPCMessage('core:permissions.find', {
-          subdomain,
-          data: userPermissionQuery,
-        }));
+        subdomain,
+        data: userPermissionQuery,
+      }));
 
     const groupQuery = { $or: [] as any[] };
 
@@ -159,9 +160,9 @@ export const getUserActionsMap = async (
     const groupPermissions = await (permissionsFind
       ? permissionsFind(groupPermissionQuery)
       : sendRPCMessage('core:permissions.find', {
-          subdomain,
-          data: groupPermissionQuery,
-        }));
+        subdomain,
+        data: groupPermissionQuery,
+      }));
 
     actionMap = await userActionsMap(userPermissions, groupPermissions, user);
 
@@ -224,7 +225,7 @@ export const checkPermission = async (
   cls[methodName] = async (
     root: any,
     args: any,
-    context: { user?: IUser; [x: string]: any; subdomain: string },
+    context: { user?: IUser;[x: string]: any; subdomain: string },
     info: any,
   ) => {
     const { user, subdomain } = context;

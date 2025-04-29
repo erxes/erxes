@@ -1,24 +1,20 @@
-import * as _ from 'underscore';
-import { IItemDragCommonFields } from '../../../models/definitions/boards';
-import { IDeal, IProductData } from '../../../models/definitions/deals';
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { checkUserIds } from '@erxes/api-utils/src';
+import { checkUserIds } from "@erxes/api-utils/src";
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
+import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
+import { IItemDragCommonFields } from "../../../models/definitions/boards";
+import { IDeal, IProductData } from "../../../models/definitions/deals";
 import {
+  confirmLoyalties,
   doScoreCampaign,
-  generateTotalAmount,
   itemResolver,
   itemsAdd,
   itemsArchive,
   itemsChange,
   itemsCopy,
   itemsEdit,
-  itemsRemove
-} from './utils';
-import { IContext } from '../../../connectionResolver';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { sendCoreMessage, sendLoyaltiesMessage } from '../../../messageBroker';
-import { getCustomerIds } from '../../../models/utils';
-import { debugError } from '@erxes/api-utils/src/debuggers';
+  itemsRemove,
+} from "./utils";
 
 interface IDealsEdit extends IDeal {
   _id: string;
@@ -37,7 +33,7 @@ const dealMutations = {
       models,
       subdomain,
       doc,
-      'deal',
+      "deal",
       models.Deals.createDeal,
       user
     );
@@ -60,14 +56,14 @@ const dealMutations = {
       );
       const oldAssignedUserPdata = (oldDeal.productsData || [])
         .filter((pdata) => pdata.assignUserId)
-        .map((pdata) => pdata.assignUserId || '');
+        .map((pdata) => pdata.assignUserId || "");
       const cantRemoveUserIds = removedUserIds.filter((userId) =>
         oldAssignedUserPdata.includes(userId)
       );
 
       if (cantRemoveUserIds.length > 0) {
         throw new Error(
-          'Cannot remove the team member, it is assigned in the product / service section'
+          "Cannot remove the team member, it is assigned in the product / service section"
         );
       }
     }
@@ -75,11 +71,11 @@ const dealMutations = {
     if (doc.productsData) {
       const assignedUsersPdata = doc.productsData
         .filter((pdata) => pdata.assignUserId)
-        .map((pdata) => pdata.assignUserId || '');
+        .map((pdata) => pdata.assignUserId || "");
 
       const oldAssignedUserPdata = (oldDeal.productsData || [])
         .filter((pdata) => pdata.assignUserId)
-        .map((pdata) => pdata.assignUserId || '');
+        .map((pdata) => pdata.assignUserId || "");
 
       const { addedUserIds, removedUserIds } = checkUserIds(
         oldAssignedUserPdata,
@@ -98,12 +94,13 @@ const dealMutations = {
     }
 
     await doScoreCampaign(subdomain, models, _id, doc);
+    await confirmLoyalties(subdomain, _id, doc);
 
     return itemsEdit(
       models,
       subdomain,
       _id,
-      'deal',
+      "deal",
       oldDeal,
       doc,
       proccessId,
@@ -124,7 +121,7 @@ const dealMutations = {
       models,
       subdomain,
       doc,
-      'deal',
+      "deal",
       user,
       models.Deals.updateDeal
     );
@@ -138,7 +135,7 @@ const dealMutations = {
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
   ) {
-    return itemsRemove(models, subdomain, _id, 'deal', user);
+    return itemsRemove(models, subdomain, _id, "deal", user);
   },
 
   /**
@@ -162,9 +159,9 @@ const dealMutations = {
       subdomain,
       _id,
       proccessId,
-      'deal',
+      "deal",
       user,
-      ['productsData', 'paymentsData'],
+      ["productsData", "paymentsData"],
       models.Deals.createDeal
     );
   },
@@ -174,7 +171,7 @@ const dealMutations = {
     { stageId, proccessId }: { stageId: string; proccessId: string },
     { user, models, subdomain }: IContext
   ) {
-    return itemsArchive(models, subdomain, stageId, 'deal', proccessId, user);
+    return itemsArchive(models, subdomain, stageId, "deal", proccessId, user);
   },
 
   async dealsCreateProductsData(
@@ -182,7 +179,7 @@ const dealMutations = {
     {
       proccessId,
       dealId,
-      docs
+      docs,
     }: {
       proccessId: string;
       dealId: string;
@@ -201,7 +198,7 @@ const dealMutations = {
           (pd) => pd._id === doc._id
         );
         if (checkDup) {
-          throw new Error('Deals productData duplicated');
+          throw new Error("Deals productData duplicated");
         }
       }
     }
@@ -224,7 +221,7 @@ const dealMutations = {
       salesPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
-        action: 'itemUpdate',
+        action: "itemUpdate",
         data: {
           item: {
             ...updatedItem,
@@ -232,12 +229,12 @@ const dealMutations = {
               models,
               subdomain,
               user,
-              'deal',
+              "deal",
               updatedItem
-            ))
-          }
-        }
-      }
+            )),
+          },
+        },
+      },
     });
 
     const dataIds = (updatedItem.productsData || [])
@@ -248,18 +245,18 @@ const dealMutations = {
       salesProductsDataChanged: {
         _id: dealId,
         proccessId,
-        action: 'create',
+        action: "create",
         data: {
           dataIds,
           docs,
-          productsData
-        }
-      }
+          productsData,
+        },
+      },
     });
 
     return {
       dataIds,
-      productsData
+      productsData,
     };
   },
 
@@ -269,7 +266,7 @@ const dealMutations = {
       proccessId,
       dealId,
       dataId,
-      doc
+      doc,
     }: {
       proccessId: string;
       dealId: string;
@@ -284,7 +281,7 @@ const dealMutations = {
     );
 
     if (!oldPData) {
-      throw new Error('Deals productData not found');
+      throw new Error("Deals productData not found");
     }
 
     const productsData = (deal.productsData || []).map((data) =>
@@ -301,7 +298,7 @@ const dealMutations = {
       salesPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
-        action: 'itemUpdate',
+        action: "itemUpdate",
         data: {
           item: {
             ...updatedItem,
@@ -309,30 +306,30 @@ const dealMutations = {
               models,
               subdomain,
               user,
-              'deal',
+              "deal",
               updatedItem
-            ))
-          }
-        }
-      }
+            )),
+          },
+        },
+      },
     });
 
     graphqlPubsub.publish(`salesProductsDataChanged:${dealId}`, {
       salesProductsDataChanged: {
         _id: dealId,
         proccessId,
-        action: 'edit',
+        action: "edit",
         data: {
           dataId,
           doc,
-          productsData
-        }
-      }
+          productsData,
+        },
+      },
     });
 
     return {
       dataId,
-      productsData
+      productsData,
     };
   },
 
@@ -341,7 +338,7 @@ const dealMutations = {
     {
       proccessId,
       dealId,
-      dataId
+      dataId,
     }: {
       proccessId: string;
       dealId: string;
@@ -356,7 +353,7 @@ const dealMutations = {
     );
 
     if (!oldPData) {
-      throw new Error('Deals productData not found');
+      throw new Error("Deals productData not found");
     }
 
     const productsData = (deal.productsData || []).filter(
@@ -373,7 +370,7 @@ const dealMutations = {
       salesPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
-        action: 'itemUpdate',
+        action: "itemUpdate",
         data: {
           item: {
             ...updatedItem,
@@ -381,40 +378,40 @@ const dealMutations = {
               models,
               subdomain,
               user,
-              'deal',
+              "deal",
               updatedItem
-            ))
-          }
-        }
-      }
+            )),
+          },
+        },
+      },
     });
 
     graphqlPubsub.publish(`salesProductsDataChanged:${dealId}`, {
       salesProductsDataChanged: {
         _id: dealId,
         proccessId,
-        action: 'delete',
+        action: "delete",
         data: {
           dataId,
-          productsData
-        }
-      }
+          productsData,
+        },
+      },
     });
 
     return {
       dataId,
-      productsData
+      productsData,
     };
-  }
+  },
 };
 
-checkPermission(dealMutations, 'dealsAdd', 'dealsAdd');
-checkPermission(dealMutations, 'dealsEdit', 'dealsEdit');
-checkPermission(dealMutations, 'dealsCreateProductsData', 'dealsEdit');
-checkPermission(dealMutations, 'dealsEditProductData', 'dealsEdit');
-checkPermission(dealMutations, 'dealsDeleteProductData', 'dealsEdit');
-checkPermission(dealMutations, 'dealsRemove', 'dealsRemove');
-checkPermission(dealMutations, 'dealsWatch', 'dealsWatch');
-checkPermission(dealMutations, 'dealsArchive', 'dealsArchive');
+checkPermission(dealMutations, "dealsAdd", "dealsAdd");
+checkPermission(dealMutations, "dealsEdit", "dealsEdit");
+checkPermission(dealMutations, "dealsCreateProductsData", "dealsEdit");
+checkPermission(dealMutations, "dealsEditProductData", "dealsEdit");
+checkPermission(dealMutations, "dealsDeleteProductData", "dealsEdit");
+checkPermission(dealMutations, "dealsRemove", "dealsRemove");
+checkPermission(dealMutations, "dealsWatch", "dealsWatch");
+checkPermission(dealMutations, "dealsArchive", "dealsArchive");
 
 export default dealMutations;

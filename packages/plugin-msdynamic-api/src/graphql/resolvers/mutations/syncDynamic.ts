@@ -8,10 +8,10 @@ import {
 import {
   consumeCategory,
   consumeInventory,
-  dealToDynamic,
   getConfig,
   getExchangeRates,
   getPrice,
+  orderToDynamic,
 } from '../../../utils';
 import { consumeCustomers } from '../../../utilsCustomer';
 import { putUpdateLog } from '../../../logUtils';
@@ -388,12 +388,14 @@ const msdynamicSyncMutations = {
 
     try {
       const configs = await getConfig(subdomain, 'DYNAMIC', {});
-      response = await dealToDynamic(
+      const config = configs[order.scopeBrandIds[0] || 'noBrand'];
+
+      response = await orderToDynamic(
         subdomain,
+        models,
         syncLog,
         order,
-        models,
-        configs
+        config
       );
     } catch (e) {
       await models.SyncLogs.updateOne(
