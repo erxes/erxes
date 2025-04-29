@@ -1,17 +1,17 @@
-import { IProduct } from "@erxes/ui-products/src/types";
+import { IProduct } from '@erxes/ui-products/src/types';
 
 export interface IContractConfig {
   transAccount: string;
   savingAccount: string;
   interestAccount: string;
   storedInterestAccount: string;
-  minInterest: number
-  maxInterest: number
-  defaultInterest: number
-  minDuration: number
-  maxDuration: number
-  minAmount: number
-  maxAmount: number
+  minInterest: number;
+  maxInterest: number;
+  defaultInterest: number;
+  minDuration: number;
+  maxDuration: number;
+  minAmount: number;
+  maxAmount: number;
   storeInterestTime: string;
 }
 
@@ -35,15 +35,15 @@ export interface IContractTypeDoc {
   createdAt?: boolean;
   config?: IContractConfig;
   productType: string;
+  limitPercentage: number;
 }
 
 export interface IContractType extends IContractTypeDoc {
   _id: string;
-  product: IProduct
+  product: IProduct;
 }
 
-export interface IContractTypeDetail extends IContractType {
-}
+export interface IContractTypeDetail extends IContractType {}
 
 // mutation types
 

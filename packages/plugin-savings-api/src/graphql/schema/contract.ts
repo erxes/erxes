@@ -46,6 +46,7 @@ export const types = () => `
     loansOfForeclosed: [SavingLoans]
     customFieldsData: JSON
     blockAmount: Float
+    remainAmount: Float
   }
 
   type SavingCloseInfo {
