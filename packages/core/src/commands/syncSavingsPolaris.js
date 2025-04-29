@@ -160,6 +160,7 @@ const command = async () => {
               createdAt: new Date(detailDeposit.createdDate),
             };
 
+            // @ts-ignore
             await SavingContracts.insertOne({ ...document });
           }
         }
