@@ -34,7 +34,10 @@ const SyncHistoryList = ({
     const { No, Sell_to_Customer_No, Sell_to_Customer_Name, error } =
       item.responseData || {};
 
-    if (item?.contentType === 'pos:order') {
+    if (
+      item?.contentType === "pos:order" ||
+      item?.contentType === "sales:deal"
+    ) {
       const renderSales = () => {
         return (item?.responseSales || []).map((listItem, index: number) => {
           const jsonObject = JSON.parse(listItem);
@@ -51,10 +54,12 @@ const SyncHistoryList = ({
                 {__("Number")}: {item.consumeData?.number || ""}
               </FormGroup>
               <FormGroup>
-                {__("Created Date")}: {dayjs(item.consumeData?.createdAt).format("lll") || ""}
+                {__("Created Date")}:{" "}
+                {dayjs(item.consumeData?.createdAt).format("lll") || ""}
               </FormGroup>
               <FormGroup>
-                {__("Paid Date")}: {dayjs(item?.consumeData?.paidDate).format("lll") || ""}
+                {__("Paid Date")}:{" "}
+                {dayjs(item?.consumeData?.paidDate).format("lll") || ""}
               </FormGroup>
               <FormGroup>
                 {__("Sync Date")}: {dayjs(item?.createdAt).format("lll") || ""}

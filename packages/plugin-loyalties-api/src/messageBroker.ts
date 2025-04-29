@@ -1,21 +1,15 @@
-import { generateModels } from "./connectionResolver";
-import { sendMessage } from "@erxes/api-utils/src/core";
 import type {
   MessageArgs,
   MessageArgsOmitService,
 } from "@erxes/api-utils/src/core";
+import { sendMessage } from "@erxes/api-utils/src/core";
+import { generateModels } from "./connectionResolver";
 
-import {
-  checkVouchersSale,
-  confirmVoucherSale,
-  generateAttributes,
-  handleScore,
-} from "./utils";
 import {
   consumeQueue,
   consumeRPCQueue,
 } from "@erxes/api-utils/src/messageBroker";
-import { getOwner } from "./models/utils";
+import { checkVouchersSale, confirmVoucherSale, handleScore } from "./utils";
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue(
@@ -32,7 +26,7 @@ export const setupMessageConsumers = async () => {
 
   consumeRPCQueue("loyalties:checkLoyalties", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-    const { ownerType, ownerId, products } = data;
+    const { ownerType, ownerId, products, discountInfo } = data;
 
     return {
       data: await checkVouchersSale(
@@ -40,7 +34,8 @@ export const setupMessageConsumers = async () => {
         subdomain,
         ownerType,
         ownerId,
-        products
+        products,
+        discountInfo
       ),
       status: "success",
     };
@@ -48,10 +43,10 @@ export const setupMessageConsumers = async () => {
 
   consumeQueue("loyalties:confirmLoyalties", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-    const { checkInfo } = data;
+    const { checkInfo, extraInfo } = data;
 
     return {
-      data: await confirmVoucherSale(models, checkInfo),
+      data: await confirmVoucherSale(models, checkInfo, extraInfo),
       status: "success",
     };
   });
@@ -101,6 +96,15 @@ export const setupMessageConsumers = async () => {
       };
     }
   );
+
+  consumeRPCQueue("loyalties:checkCoupon", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.Coupons.checkCoupon(data),
+      status: "success",
+    };
+  });
 
   consumeRPCQueue("loyalties:doScoreCampaign", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);

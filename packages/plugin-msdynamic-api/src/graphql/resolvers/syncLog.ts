@@ -15,12 +15,18 @@ export default {
       subdomain,
       action: "users.findOne",
       data: { _id: syncLog.createdBy },
-      isRPC: true
+      isRPC: true,
     });
   },
 
   async content(syncLog: ISyncLogDocument, {}, {}: IContext) {
     const { contentType, contentId } = syncLog;
+
+    if (contentType === "sales:deal") {
+      return (
+        syncLog.consumeData?.object.name.split(":").pop().trim() || contentId
+      );
+    }
 
     if (contentType === "pos:order") {
       return (
@@ -48,5 +54,5 @@ export default {
     }
 
     return contentId;
-  }
+  },
 };

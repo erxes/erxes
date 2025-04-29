@@ -54,9 +54,9 @@ type Props = {
 
 const AdditionalRow = ({ scoreLogs }: { scoreLogs: IScoreLogParams[] }) => {
   const renderContent = (scoreLog) => {
-    const { target = [], type } = scoreLog || {};
+    const { target, type } = scoreLog || {};
 
-    const [firstItem, ...restItem] = target;
+    // const [firstItem, ...restItem] = [target];
 
     return (
       <>
@@ -64,12 +64,10 @@ const AdditionalRow = ({ scoreLogs }: { scoreLogs: IScoreLogParams[] }) => {
           <td rowSpan={target?.length || 1}>
             {dayjs(scoreLog.createdAt).format("YYYY/MM/DD") || "-"}
           </td>
-          <td rowSpan={target?.length || 1}>
-            {scoreLog.target?.number || "-"}
-          </td>
+          <td rowSpan={target?.length || 1}>{target?.number || "-"}</td>
           <td rowSpan={target?.length || 1}>{type || "-"}</td>
-          <td>{firstItem?.unitPrice || "-"}</td>
-          <td>{firstItem?.count || firstItem?.quantity || "-"}</td>
+          <td>{target?.unitPrice || "-"}</td>
+          <td>{target?.count || target?.quantity || "-"}</td>
           <td rowSpan={target?.length || 1}>
             {((scoreLog.action === "add" ||
               (!scoreLog.action && scoreLog.changeScore > 0)) && (
@@ -102,12 +100,12 @@ const AdditionalRow = ({ scoreLogs }: { scoreLogs: IScoreLogParams[] }) => {
             {scoreLog.campaign?.title || "-"}
           </td>
         </tr>
-        {restItem?.map((item) => (
+        {/* {restItem?.map((item) => (
           <tr key={item._id} className="additional-row">
             <td>{item.unitPrice || "-"}</td>
             <td>{item.count || item.quantity || "-"}</td>
           </tr>
-        ))}
+        ))} */}
       </>
     );
   };

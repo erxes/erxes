@@ -1,7 +1,60 @@
 # Changelog
 
+## [2.11.0-rc.0](https://github.com/erxes/erxes/compare/2.10.0...2.11.0-rc.0) (2025-04-17)
+
+### Features
+
+* **clientportal:** add card type UI for SMS ([d403e70](https://github.com/erxes/erxes/commit/d403e707ab6816530c96e5b5865fd511f50d20d6))
+
+### Bug Fixes
+
+* **automations:** handle if string has null undefined in generateEmails ([3d0b402](https://github.com/erxes/erxes/commit/3d0b402a34fc60e04e31b9d8113cc7dc3e7ca3ca))
+* scorelogs with index ([cb5919f](https://github.com/erxes/erxes/commit/cb5919fd1275a223714ed05981ed7c2e85131eec))
+* tr fullDate ([6d751f3](https://github.com/erxes/erxes/commit/6d751f3da4e5e166546a6684dcc99ac3a98702b5))
+
+## [2.10.0](https://github.com/erxes/erxes/compare/2.9.5...2.10.0) (2025-04-17)
+
+### Bug Fixes
+
+* **assets:** query syntax error ([a0e841a](https://github.com/erxes/erxes/commit/a0e841af9167c20e5f8f6e203ed7ffc72d24b5e2))
+* **cards:** vendor users filter ([5327197](https://github.com/erxes/erxes/commit/53271975def93841c3abe6877f509bc8cd754ccf))
+* **facebook:** little bot ui fixes ([62eb0f5](https://github.com/erxes/erxes/commit/62eb0f5d4e26ef00f1db48de69ea8bccc98f4efd))
+* **gateway:** ci runs-on to ubuntu-22.04 from ubuntu-20.04 ([5fe8b3a](https://github.com/erxes/erxes/commit/5fe8b3a0551804564959761e417831883fe31c8e))
+* **loyalties:** add target extender & fix can't generate excludeAmount on target ([8e77836](https://github.com/erxes/erxes/commit/8e778361d2d112a6c0dbd4e66dff81902c7601df))
+* **tms:** branch on element ([115ccfe](https://github.com/erxes/erxes/commit/115ccfee48e41897901e033d25b3165f30b7e964))
+* **tms:** filter branch ([e037e87](https://github.com/erxes/erxes/commit/e037e87b49b73935317120a424e3a8b69b7c9dba))
+## [2.10.0-rc.1](https://github.com/erxes/erxes/compare/2.9.5...2.10.0) (2025-04-04)
+## [2.10.0-rc.0](https://github.com/erxes/erxes/compare/2.9.5...2.10.0) (2025-04-02)
+
+### Bug Fixes
+
+* accountings invIncome save and t balance improve ([3ee3131](https://github.com/erxes/erxes/commit/3ee3131708798147cba9319a8b7cf8469c99a05a))
+* deal products form filter by barcode ([2331133](https://github.com/erxes/erxes/commit/23311334115c73127db4e7510d9b583cd62f9527))
+
 ## [2.10.0-rc.1](https://github.com/erxes/erxes/compare/2.10.0-rc.0...2.10.0-rc.1) (2025-04-04)
 ## [2.10.0-rc.0](https://github.com/erxes/erxes/compare/2.10.0-rc.0...2.10.0-rc.1) (2025-04-02)
+## [2.9.5](https://github.com/erxes/erxes/compare/2.9.4...2.9.5) (2025-04-16)
+
+### Bug Fixes
+
+* **facebook:** safe content ([989dbc7](https://github.com/erxes/erxes/commit/989dbc7a41121781323aabd9b8a197a31b74d8ba))
+* product chooser search by text ([3dd135b](https://github.com/erxes/erxes/commit/3dd135b8ad2e3044c9b1239d47d51bfb582589b7))
+* products query doubled ([52e0b6d](https://github.com/erxes/erxes/commit/52e0b6dbef2955cf1af327da2053c0018518fc11))
+
+## [2.9.4](https://github.com/erxes/erxes/compare/2.9.3...2.9.4) (2025-04-15)
+
+### Bug Fixes
+
+* **facebook:** display permalink even when content is empty ([6937ee0](https://github.com/erxes/erxes/commit/6937ee076b85f34ee364ac30a01fcf40ffbc58e6))
+* **inbox:** send a trigger to automations when a company is updated ([31974a7](https://github.com/erxes/erxes/commit/31974a730906e28627f78a32e28eaedfae919501))
+* **inbox:** send a trigger to automations when a company is updated. ([f8f8a30](https://github.com/erxes/erxes/commit/f8f8a306aaf83d4d71035e5bf137a56acf411bab))
+* products data save per row on sales ([#6001](https://github.com/erxes/erxes/issues/6001)) ([953fc3c](https://github.com/erxes/erxes/commit/953fc3c359af60397096824642dbac26a284f6c3))
+
+## [2.9.3](https://github.com/erxes/erxes/compare/2.9.2...2.9.3) (2025-04-10)
+
+### Features
+
+* number to mn word utils and mnt rates download cron ([#5996](https://github.com/erxes/erxes/issues/5996)) ([7662543](https://github.com/erxes/erxes/commit/766254317848d8fbdcc8dc842a01dd90ed4bec6c))
 
 ### Bug Fixes
 

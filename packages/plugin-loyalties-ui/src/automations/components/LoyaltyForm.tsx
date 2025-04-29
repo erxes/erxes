@@ -1,9 +1,18 @@
-import React from "react";
-import Select from "react-select";
-import { __, ControlLabel, FormGroup } from "@erxes/ui/src";
-import { IVoucherCampaign } from "../../configs/voucherCampaign/types";
+import { gql, useLazyQuery } from "@apollo/client";
 import Common from "@erxes/ui-automations/src/components/forms/actions/Common";
 import { DrawerDetail } from "@erxes/ui-automations/src/styles";
+import { __, ControlLabel, FormControl, FormGroup } from "@erxes/ui/src";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+import React, { useEffect, useState } from "react";
+import Select from "react-select";
+import { queries } from "../../configs/voucherCampaign/graphql";
+import { IVoucherCampaign } from "../../configs/voucherCampaign/types";
+
+const DATE_USAGE_OPTIONS = [
+  { label: "Month", value: "month" },
+  { label: "Week", value: "week" },
+  { label: "Day", value: "day" },
+];
 
 type Props = {
   closeModal: () => void;
@@ -14,65 +23,108 @@ type Props = {
   common: any;
 };
 
-type State = {
-  config: any;
-};
+const LoyaltyForm = (props: Props) => {
+  const { activeAction, voucherCampaigns } = props;
 
-class LoyaltyForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const [config, setConfig] = useState(activeAction?.config || {});
 
-    const { config } = this.props.activeAction;
-    const fillConfig = config || {};
+  const [fetchCampaign, { data: campaignData }] = useLazyQuery(
+    gql(queries.voucherCampaignDetail)
+  );
 
-    this.state = {
-      config: fillConfig,
-    };
-  }
+  useEffect(() => {
+    setConfig(activeAction?.config);
+  }, [activeAction]);
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.activeAction !== this.props.activeAction) {
-      this.setState({ config: nextProps.activeAction.config });
+  useEffect(() => {
+    if (config?.voucherCampaignId) {
+      fetchCampaign({
+        variables: {
+          id: config?.voucherCampaignId,
+        },
+      });
     }
-  }
+  }, [config?.voucherCampaignId]);
 
-  onChangeField = (option) => {
-    const { config } = this.state;
-    config.voucherCampaignId = option.value;
+  const onChangeField = (field: string, value: string | undefined) => {
+    setConfig((prevConfig) => {
+      const updatedConfig = { ...prevConfig };
 
-    this.setState({ config });
+      updatedConfig[field] = value;
+
+      return updatedConfig;
+    });
   };
 
-  renderContent() {
-    const options = this.props.voucherCampaigns.map((v) => ({
+  const onChangeRule = (field: string, value: any) => {
+    onChangeField("customRule", { ...config.customRule, [field]: value });
+  };
+
+  const renderConfig = () => {
+    if (!campaignData) {
+      return null;
+    }
+
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel>Date Rule</ControlLabel>
+          <br />
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel>From</ControlLabel>
+                <FormControl defaultValue={"Created At"} disabled={true} />
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel>Duration</ControlLabel>
+                <Select
+                  value={DATE_USAGE_OPTIONS.find(
+                    (opt) => opt.value === config.customRule?.duration
+                  )}
+                  options={DATE_USAGE_OPTIONS}
+                  onChange={(option) => onChangeRule("duration", option?.value)}
+                />
+              </FormGroup>
+            </FormColumn>
+          </FormWrapper>
+        </FormGroup>
+      </>
+    );
+  };
+
+  const renderContent = () => {
+    const options = voucherCampaigns.map((v) => ({
       label: v.title,
       value: v._id,
     }));
     return (
-      <DrawerDetail>
-        <FormGroup>
-          <ControlLabel>Voucher Campaign</ControlLabel>
-          <Select
-            required={true}
-            value={options.find(
-              (o) => o.value === this.state.config.voucherCampaignId
-            )}
-            options={options}
-            onChange={this.onChangeField}
-            placeholder={__("Choose type")}
-          />
-        </FormGroup>
-      </DrawerDetail>
+      <FormGroup>
+        <ControlLabel>Voucher Campaign</ControlLabel>
+        <Select
+          required={true}
+          value={options.find((o) => o.value === config?.voucherCampaignId)}
+          options={options}
+          onChange={(option) =>
+            onChangeField("voucherCampaignId", option?.value)
+          }
+          placeholder={__("Choose type")}
+          isClearable
+        />
+      </FormGroup>
     );
-  }
+  };
 
-  render() {
-    return (
-      <Common config={this.state.config} {...this.props}>
-        {this.renderContent()}
-      </Common>
-    );
-  }
-}
+  return (
+    <Common config={config} {...props}>
+      <DrawerDetail>
+        {renderContent()}
+        {renderConfig()}
+      </DrawerDetail>
+    </Common>
+  );
+};
 
 export default LoyaltyForm;

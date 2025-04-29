@@ -254,17 +254,19 @@ const connect = (isCloudFlareEnabled?: boolean, isTicketEnabled?: boolean) => `
       ${
         isCloudFlareEnabled
           ? `
-        callData {
-          header
-          description
-          departments {
-            _id
-            name
-            operators
-          }
-          isReceiveWebCall
-        },
-      `
+      callData {
+        header
+        description
+        secondPageHeader
+        secondPageDescription
+        departments {
+          _id
+          name
+          operators
+        }
+        isReceiveWebCall
+      },
+    `
           : ''
       }
       
