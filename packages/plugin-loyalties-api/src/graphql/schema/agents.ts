@@ -27,6 +27,11 @@ const fieldDefs = `
   discountPercent: Float
 `;
 
+const addEditParamDefs = `
+  ${fieldDefs}
+  productRules: [ProductRuleInput]
+`;
+
 export const types = `
   enum AgentStatus {
     active
@@ -34,16 +39,11 @@ export const types = `
     archived
   }
 
-  input ProductRuleInput {
+  type ProductRule {
     ${productRuleDefs}
   }
 
-  input AgentInput {
-    ${fieldDefs}
-    productRules: [ProductRuleInput]
-  }
-
-  type ProductRule {
+  input ProductRuleInput {
     ${productRuleDefs}
   }
 
@@ -62,8 +62,10 @@ export const queries = `
     customerIds: [String],
     companyIds: [String]
   ): [Agent]
+  agentDetail(_id: String): Agent
 `;
 
 export const mutations = `
-  agentsAdd(doc: AgentInput): Agent
+  agentsAdd(${addEditParamDefs}): Agent
+  agentsEdit(_id: String!, ${addEditParamDefs}): Agent
 `;

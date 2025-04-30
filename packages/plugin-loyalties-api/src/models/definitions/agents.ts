@@ -20,7 +20,7 @@ enum AgentStatus {
   Archived = 'archived'
 };
 
-export interface IAgent extends Document {
+export interface IAgent {
   number: string;
   customerIds: string[];
   companyIds: string[];
@@ -39,7 +39,7 @@ export interface IAgent extends Document {
   discountPercent?: number;
 }
 
-export interface IAgentDocument extends IAgent {
+export interface IAgentDocument extends Document, IAgent {
   _id: string;
 }
 

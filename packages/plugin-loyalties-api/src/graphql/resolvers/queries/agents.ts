@@ -8,6 +8,10 @@ interface IListParams {
   companyIds?: string[];
 }
 
+interface IDetailParam {
+  _id: string
+}
+
 const agentQueries = {
   agents: async (_root, params: IListParams, { models }: IContext) => {
     const { number, status, hasReturn, customerIds = [], companyIds = [] } = params;
@@ -30,6 +34,11 @@ const agentQueries = {
     }
 
     return models.Agents.find(filter).lean();
+  },
+  agentDetail: async (_root, { _id }: IDetailParam, { models }: IContext) => {
+    const agent = await models.Agents.getAgent(_id);
+
+    return agent;
   }
 };
 
