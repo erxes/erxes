@@ -5,12 +5,10 @@ import { FlexItem } from "../../common/styles";
 import { formatValue } from "@erxes/ui/src/utils";
 import { IQueryParams } from "@erxes/ui/src/types";
 import { IAgent } from "../types";
-import { IVoucherCampaign } from "../../../configs/voucherCampaign/types";
 import { ModalTrigger } from "@erxes/ui/src/components";
 
 type Props = {
   agent: IAgent;
-  currentCampaign?: IVoucherCampaign;
   isChecked: boolean;
   toggleBulk: (agent: IAgent, isChecked?: boolean) => void;
   queryParams: IQueryParams;
@@ -46,7 +44,7 @@ class AgentRow extends React.Component<Props> {
   };
 
   render() {
-    const { agent, isChecked } = this.props;
+    const { agent } = this.props;
 
     const onClick = (e) => {
       e.stopPropagation();

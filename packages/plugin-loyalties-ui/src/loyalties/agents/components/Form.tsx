@@ -98,18 +98,20 @@ class AgentForm extends React.Component<Props, State> {
 
   renderNumberFields = (formProps, label: string, fieldName: string, defaultValue: number | undefined) => {
     return (
-      <FormGroup>
-        <ControlLabel>{label}</ControlLabel>
-        <FormControl
-          {...formProps}
-          name={fieldName}
-          type="number"
-          min={0}
-          max={100}
-          onChange={this.onInputChange}
-          defaultValue={defaultValue}
-        />
-      </FormGroup>
+      <FormColumn>
+        <FormGroup>
+          <ControlLabel>{label}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name={fieldName}
+            type="number"
+            min={0}
+            max={100}
+            onChange={this.onInputChange}
+            defaultValue={defaultValue}
+          />
+        </FormGroup>
+      </FormColumn>
     );
   }
 
@@ -121,35 +123,41 @@ class AgentForm extends React.Component<Props, State> {
     return (
       <>
         <ScrollWrapper>
-          <FormGroup>
-            <ControlLabel required={true}>Number</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="number"
-              defaultValue={agent.number || ''}
-              required={true}
-              onChange={this.onInputChange}
-            >
-            </FormControl>
-          </FormGroup>
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>Number</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="number"
+                  defaultValue={agent.number || ''}
+                  required={true}
+                  onChange={this.onInputChange}
+                >
+                </FormControl>
+              </FormGroup>
+            </FormColumn>
 
-          <FormGroup>
-            <ControlLabel required={true}>Status</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="status"
-              componentclass="select"
-              defaultValue={agent.status || 'active'}
-              required={true}
-              onChange={this.onInputChange}
-            >
-              {["active", "draft"].map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </FormControl>
-          </FormGroup>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>Status</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="status"
+                  componentclass="select"
+                  defaultValue={agent.status || 'active'}
+                  required={true}
+                  onChange={this.onInputChange}
+                >
+                  {["active", "draft"].map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </FormControl>
+              </FormGroup>
+            </FormColumn>
+          </FormWrapper>
 
           <FormGroup>
             <ControlLabel>Relevant customers</ControlLabel>
@@ -172,6 +180,25 @@ class AgentForm extends React.Component<Props, State> {
               onSelect={this.onChangeSelect}
             />
           </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Has Return</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="hasReturn"
+              type="checkbox"
+              componentclass="checkbox"
+              onChange={this.onCheckboxChange}
+              defaultChecked={agent.hasReturn}
+            />
+          </FormGroup>
+
+          <FormWrapper>
+            {agent.hasReturn ? this.renderNumberFields(formProps, 'Return Amount', 'returnAmount', agent.returnAmount) : null}
+            {agent.hasReturn ? this.renderNumberFields(formProps, 'Return Percent', 'returnPercent', agent.returnPercent) : null}
+            {!agent.hasReturn ? this.renderNumberFields(formProps, 'Prepaid Percent', 'prepaidPercent', agent.prepaidPercent) : null}
+            {!agent.hasReturn ? this.renderNumberFields(formProps, 'Discount Percent', 'discountPercent', agent.discountPercent) : null}
+          </FormWrapper>
 
           <FormWrapper>
             <FormColumn>
@@ -203,25 +230,8 @@ class AgentForm extends React.Component<Props, State> {
                 </DateContainer>
               </FormGroup>
             </FormColumn>
-
-            <FormGroup>
-              <ControlLabel>Has Return</ControlLabel>
-              <FormControl
-                {...formProps}
-                name="hasReturn"
-                type="checkbox"
-                componentclass="checkbox"
-                onChange={this.onCheckboxChange}
-                defaultChecked={agent.hasReturn}
-              />
-            </FormGroup>
-
-            {agent.hasReturn ? this.renderNumberFields(formProps, 'Return Amount', 'returnAmount', agent.returnAmount) : null}
-            {agent.hasReturn ? this.renderNumberFields(formProps, 'Return Percent', 'returnPercent', agent.returnPercent) : null}
-            {!agent.hasReturn ? this.renderNumberFields(formProps, 'Prepaid Percent', 'prepaidPercent', agent.prepaidPercent) : null}
-            {!agent.hasReturn ? this.renderNumberFields(formProps, 'Discount Percent', 'discountPercent', agent.discountPercent) : null}
-
           </FormWrapper>
+
         </ScrollWrapper>
 
         <ModalFooter>
