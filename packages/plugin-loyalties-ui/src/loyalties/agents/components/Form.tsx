@@ -115,6 +115,26 @@ class AgentForm extends React.Component<Props, State> {
     );
   }
 
+  renderDateFields = (formProps, label: string, fieldName: string, defaultValue: Date | undefined, format?: string) => {
+    return (
+      <FormColumn>
+        <FormGroup>
+          <ControlLabel>{label}</ControlLabel>
+          <DateContainer>
+            <DateControl
+              {...formProps}
+              name={fieldName}
+              placeholder={__(label)}
+              value={defaultValue}
+              onChange={(val) => this.onDateInputChange(fieldName, val)}
+              dateFormat={format}
+            />
+          </DateContainer>
+        </FormGroup>
+      </FormColumn>
+    );
+  }
+
   renderContent = (formProps: IFormProps) => {
     const { agent } = this.state;
     const { closeModal, renderButton } = this.props;
@@ -201,35 +221,18 @@ class AgentForm extends React.Component<Props, State> {
           </FormWrapper>
 
           <FormWrapper>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel>Start Date</ControlLabel>
-                <DateContainer>
-                  <DateControl
-                    {...formProps}
-                    name="startDate"
-                    placeholder={__("Start date")}
-                    value={agent.startDate}
-                    onChange={(val) => this.onDateInputChange("startDate", val)}
-                  />
-                </DateContainer>
-              </FormGroup>
-            </FormColumn>
+            {this.renderDateFields(formProps, 'Start Date', 'startDate', agent.startDate)}
+            {this.renderDateFields(formProps, 'End Date', 'endDate', agent.endDate)}
+          </FormWrapper>
 
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel>End Date</ControlLabel>
-                <DateContainer>
-                  <DateControl
-                    {...formProps}
-                    name="endDate"
-                    placeholder={__("End date")}
-                    value={agent.endDate}
-                    onChange={(val) => this.onDateInputChange("endDate", val)}
-                  />
-                </DateContainer>
-              </FormGroup>
-            </FormColumn>
+          <FormWrapper>
+            {this.renderDateFields(formProps, 'Start Month', 'startMonth', agent.startMonth, 'M')}
+            {this.renderDateFields(formProps, 'End Month', 'endMonth', agent.endMonth, 'M')}
+          </FormWrapper>
+
+          <FormWrapper>
+            {this.renderDateFields(formProps, 'Start Day', 'startDay', agent.startDay, 'D')}
+            {this.renderDateFields(formProps, 'End Day', 'endDay', agent.endDay, 'D')}
           </FormWrapper>
 
         </ScrollWrapper>
