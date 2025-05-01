@@ -2,6 +2,9 @@ const productsQueryParams = `
   productIds: [String]
   stageId: String
   pipelineId: String
+  posId: String
+  accountCodes: String
+  locationCodes: String
 `;
 
 const commonHistoryParams = `

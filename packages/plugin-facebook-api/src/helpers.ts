@@ -80,13 +80,20 @@ export const removeIntegration = async (
   // Remove from core =========
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+  
+  let domain = `${DOMAIN}/gateway/pl:facebook`;
+
+  if (process.env.NODE_ENV !== 'production') {
+    domain = `${DOMAIN}/pl:facebook`;
+  }
+
   if (ENDPOINT_URL) {
     // send domain to core endpoints
     try {
       await fetch(`${ENDPOINT_URL}/remove-endpoint`, {
         method: 'POST',
         body: JSON.stringify({
-          domain: DOMAIN,
+          domain,
           ...integrationRemoveBy
         }),
         headers: {
@@ -156,7 +163,7 @@ export const repairIntegrations = async (
   for (const pageId of integration.facebookPageIds || []) {
     const pageTokens = await refreshPageAccesToken(models, pageId, integration);
 
-    await subscribePage(pageId, pageTokens[pageId]);
+    await subscribePage(models,pageId, pageTokens[pageId]);
 
     await models.Integrations.deleteMany({
       erxesApiId: { $ne: integrationId },
@@ -173,13 +180,19 @@ export const repairIntegrations = async (
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
+  let domain = `${DOMAIN}/gateway/pl:facebook`;
+
+  if (process.env.NODE_ENV !== 'production') {
+    domain = `${DOMAIN}/pl:facebook`;
+  }
+
   if (ENDPOINT_URL) {
     // send domain to core endpoints
     try {
       await fetch(`${ENDPOINT_URL}/update-endpoint`, {
         method: 'POST',
         body: JSON.stringify({
-          domain: `${DOMAIN}/gateway/pl:facebook`,
+          domain,
           facebookPageIds: integration.facebookPageIds,
           fbPageIds: integration.facebookPageIds
         }),
@@ -318,7 +331,7 @@ export const facebookCreateIntegration = async (
       facebookPageTokensMap[pageId] = pageAccessToken;
 
       try {
-        await subscribePage(pageId, pageAccessToken);
+        await subscribePage(models,pageId, pageAccessToken);
         debugFacebook(`Successfully subscribed page ${pageId}`);
       } catch (e) {
         debugError(

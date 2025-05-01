@@ -138,7 +138,7 @@ export default class SimpleMessage extends React.Component<Props, {}> {
             dangerouslySetInnerHTML={{ __html: xss(urlify(message.content)) }}
           />
           {this.renderAttachment(hasAttachment)}
-          {this.renderActionButtons()}
+          {/* {this.renderActionButtons()} */}
         </MessageContent>
       </>
     );

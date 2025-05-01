@@ -182,9 +182,7 @@ export default class Peer {
 
     const baseUrl = `https://rtc.live.cloudflare.com/v1/apps/${CALLS_APP_ID}`;
 
-    this.transceivers.push(
-      this.pc.addTransceiver('audio', { direction: 'inactive' }),
-    );
+    this.transceivers.push(this.pc.addTransceiver('audio'));
     this.pc.onicecandidate = (event) => {
       if (event.candidate) {
       }
@@ -272,7 +270,7 @@ export default class Peer {
   ) {
     const transceiver = this.pc.addTransceiver(track, {
       direction: 'sendonly',
-      // sendEncodings,
+      sendEncodings,
     });
     this.transceivers.push(transceiver);
     return transceiver;

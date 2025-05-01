@@ -1,11 +1,11 @@
-import { colors, dimensions } from '@erxes/ui/src/styles';
+import { colors, dimensions } from "@erxes/ui/src/styles";
 
-import { Flex } from '@erxes/ui/src/styles/main';
-import { Input } from '@erxes/ui/src/components/form/styles';
-import { darken } from '@erxes/ui/src/styles/ecolor';
-import { highlight } from '@erxes/ui/src/utils/animations';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { Flex } from "@erxes/ui/src/styles/main";
+import { Input } from "@erxes/ui/src/components/form/styles";
+import { darken } from "@erxes/ui/src/styles/ecolor";
+import { highlight } from "@erxes/ui/src/utils/animations";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const FormContainer = styled.div`
   margin-top: 20px;
@@ -44,7 +44,7 @@ const ContentRowTitle = styled(Flex)`
 `;
 
 const ContentColumn = styledTS<{ flex?: string }>(styled.div)`
-  flex: ${props => (props.flex ? props.flex : '1')};
+  flex: ${(props) => (props.flex ? props.flex : "1")};
   margin-right: 10px;
 
   &:last-of-type {
@@ -94,7 +94,7 @@ const Measure = styled(Amount)`
 `;
 
 const ItemText = styledTS<{ align?: string }>(styled(Amount))`
-  text-align: ${props => props.align || 'left'};
+  text-align: ${(props) => props.align || "left"};
   flex: 2;
   font-weight: 500;
 `;
@@ -216,7 +216,7 @@ const TypeBox = styledTS<{ color: string }>(styled.div)`
   width: 28px;
   height: 28px;
   border-radius: 6px;
-  background: ${props => props.color};
+  background: ${(props) => props.color};
   color: white;
   line-height: 28px;
   text-align: center;
@@ -299,6 +299,11 @@ const VoucherCard = styled.div`
   }
 `;
 
+const PaymentTypeScoreCampaign = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 6px 12px;
+}`;
 const LeftSide = styled.div`
   flex: 1;
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
@@ -374,6 +379,7 @@ export {
   RemoveRow,
   VoucherContainer,
   FlexRowGap,
+  PaymentTypeScoreCampaign,
   LeftSide,
   RightSide,
   EditFormContent,
@@ -381,5 +387,5 @@ export {
   FullLeftSide,
   FullRightSide,
   LeftBody,
-  LeftBodyContent
+  LeftBodyContent,
 };

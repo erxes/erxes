@@ -1,7 +1,6 @@
 export type IConfig = {
   _id?: string;
   apiUrl: string;
-  useDN: boolean;
   baseDN: string;
   adminDN?: string;
   adminPassword?: string;

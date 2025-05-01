@@ -127,7 +127,7 @@ const PropertyRow: React.FC<Props> = ({
           placement='bottom'
         >
           <ModalTrigger
-            size='sm'
+            size={isGroup ? 'lg' : 'sm'}
             title={isGroup ? 'Edit group' : 'Edit field'}
             trigger={<Button btnStyle='link' icon='edit-3' />}
             content={isGroup ? formContent : fieldEditFormContent}

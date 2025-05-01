@@ -15,11 +15,6 @@ const callUserIntegrations: any = `
     cloudflareCallsUserIntegrations {
       _id
       erxesApiId
-      departments{
-        _id
-        operators
-        name
-      }
     }
   }
 `;

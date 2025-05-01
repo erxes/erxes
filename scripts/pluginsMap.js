@@ -69,6 +69,7 @@ module.exports = {
             "integrationsEditMessengerIntegration",
             "integrationsSaveMessengerAppearanceData",
             "integrationsSaveMessengerConfigs",
+            "integrationsSaveMessengerTicketData",
             "integrationsCreateLeadIntegration",
             "integrationsEditLeadIntegration",
             "integrationsRemove",
@@ -182,6 +183,7 @@ module.exports = {
                 "integrationsCreateMessengerIntegration",
                 "integrationsEditMessengerIntegration",
                 "integrationsSaveMessengerAppearanceData",
+                "integrationsSaveMessengerTicketData",
                 "integrationsSaveMessengerConfigs",
                 "integrationsCreateLeadIntegration",
                 "integrationsEditLeadIntegration",
@@ -205,6 +207,10 @@ module.exports = {
             {
               "name": "integrationsSaveMessengerAppearanceData",
               "description": "Save messenger appearance data"
+            },
+            {
+              "name": "integrationsSaveMessengerTicketData",
+              "description": "Save messenger ticket data"
             },
             {
               "name": "integrationsSaveMessengerConfigs",
@@ -680,7 +686,8 @@ module.exports = {
         "./automation": "./src/automations/automation.tsx",
         "./contactDetailRightSidebar": "./src/RightSidebar.tsx",
         "./selectRelation": "./src/common/SelectRelation.tsx",
-        "./invoiceDetailRightSection": "./src/common/Item.tsx"
+        "./invoiceDetailRightSection": "./src/common/Item.tsx",
+        "./scoreCampaignConfig": "./src/scoreCampaignConfig.tsx"
       },
       "routes": {
         "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-sales-ui/remoteEntry.js",
@@ -694,6 +701,7 @@ module.exports = {
       "contactDetailRightSidebar": "./contactDetailRightSidebar",
       "invoiceDetailRightSection": "./invoiceDetailRightSection",
       "selectRelation": "./selectRelation",
+      "scoreCampaignConfig": "./scoreCampaignConfig",
       "menus": [
         {
           "text": "Sales Pipeline",
@@ -759,7 +767,9 @@ module.exports = {
                 "dealsArchive",
                 "dealsSort",
                 "exportDeals",
-                "dealUpdateTimeTracking"
+                "dealUpdateTimeTracking",
+                "dealUpdateProductsData",
+                "dealRemoveProductsData"
               ]
             },
             {
@@ -853,6 +863,10 @@ module.exports = {
             {
               "name": "dealUpdateProductsData",
               "description": "Update products data"
+            },
+            {
+              "name": "dealRemoveProductsData",
+              "description": "Remove products data"
             }
           ]
         }
@@ -2024,6 +2038,10 @@ module.exports = {
             {
               "name": "manageLoyalties",
               "description": "Manage loyalties"
+            },
+            {
+              "name": "adjustLoyaltyScore",
+              "description": "Adjust loyalty score"
             }
           ]
         }
@@ -4638,7 +4656,11 @@ module.exports = {
                 "showAccounts",
                 "manageAccounts",
                 "accountsMerge",
-                "removeAccounts"
+                "removeAccounts",
+                "showVatRows",
+                "manageVatRows",
+                "showCtaxRows",
+                "manageCtaxRows"
               ]
             },
             {
@@ -4656,6 +4678,22 @@ module.exports = {
             {
               "name": "accountsMerge",
               "description": "Merge accounts"
+            },
+            {
+              "name": "showVatRows",
+              "description": "show Vat Rows"
+            },
+            {
+              "name": "manageVatRows",
+              "description": "manage Vat Rows"
+            },
+            {
+              "name": "showCtaxRows",
+              "description": "show CTAX Rows"
+            },
+            {
+              "name": "manageCtaxRows",
+              "description": "manage CTAX Rows"
             }
           ]
         },
@@ -4800,100 +4838,8 @@ module.exports = {
           "description": "CMS",
           "actions": [
             {
-              "name": "cmsAll",
-              "description": "All",
-              "use": [
-                "cmsPostsAdd",
-                "cmsPostsEdit",
-                "cmsPostsRemove",
-                "cmsTagsAdd",
-                "cmsTagsEdit",
-                "cmsTagsRemove",
-                "cmsCategoriesAdd",
-                "cmsCategoriesEdit",
-                "cmsCategoriesRemove",
-                "cmsPagesAdd",
-                "cmsPagesEdit",
-                "cmsPagesRemove",
-                "cmsMenuAdd",
-                "cmsMenuEdit",
-                "cmsMenuRemove",
-                "showCmsPosts",
-                "showCmsTags",
-                "showCmsCategories"
-              ]
-            },
-            {
-              "name": "cmsPostsAdd",
-              "description": "Add post"
-            },
-            {
-              "name": "cmsPostsEdit",
-              "description": "Edit post"
-            },
-            {
-              "name": "cmsPostsRemove",
-              "description": "Remove post"
-            },
-            {
-              "name": "cmsTagsAdd",
-              "description": "Add tag"
-            },
-            {
-              "name": "cmsTagsEdit",
-              "description": "Edit tag"
-            },
-            {
-              "name": "cmsTagsRemove",
-              "description": "Remove tag"
-            },
-            {
-              "name": "cmsCategoriesAdd",
-              "description": "Add category"
-            },
-            {
-              "name": "cmsCategoriesEdit",
-              "description": "Edit category"
-            },
-            {
-              "name": "cmsCategoriesRemove",
-              "description": "Remove category"
-            },
-            {
-              "name": "cmsPagesAdd",
-              "description": "Add page"
-            },
-            {
-              "name": "cmsPagesEdit",
-              "description": "Edit page"
-            },
-            {
-              "name": "cmsPagesRemove",
-              "description": "Remove page"
-            },
-            {
-              "name": "cmsMenuAdd",
-              "description": "Add menu"
-            },
-            {
-              "name": "cmsMenuEdit",
-              "description": "Edit menu"
-            },
-            {
-              "name": "cmsMenuRemove",
-              "description": "Remove menu"
-            },
-            {
-              "name": "showCmsPosts",
-              "description": "Show posts"
-            },
-            {
-              "name": "showCmsTags",
-              "description": "Show cms tags"
-            },
-            {
-              "name": "showCmsCategories",
-              "descriotion": "Show cms categories"
+              "name": "manageCms",
+              "description": "Manage CMS"
             }
           ]
         }
@@ -5045,8 +4991,8 @@ module.exports = {
       "inboxIntegrationSettings": "./inboxIntegrationSettings",
       "inboxIntegrations": [
         {
-          "name": "Cloudflare calls",
-          "description": "Configure Cloudflare Calls",
+          "name": "Web call",
+          "description": "Configure Web Call",
           "isAvailable": true,
           "kind": "cloudflarecalls",
           "logo": "/images/integrations/cloudflarecall.png",

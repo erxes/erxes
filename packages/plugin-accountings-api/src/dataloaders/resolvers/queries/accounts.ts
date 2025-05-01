@@ -21,7 +21,8 @@ interface IQueryParams {
   perPage?: number;
   sortField?: string;
   sortDirection?: number;
-  isOutBalance?: boolean,
+  isTemp?: boolean;
+  isOutBalance?: boolean;
   branchId?: string;
   departmentId?: string;
   currency?: string;
@@ -43,6 +44,7 @@ export const generateFilter = async (
     categoryId,
     searchValue,
     brand,
+    isTemp,
     isOutBalance,
     branchId,
     departmentId,
@@ -115,11 +117,14 @@ export const generateFilter = async (
   }
 
   if (code) {
-    filter.code = code
+    filter.code = new RegExp(
+      `^${code.replace(/\*/g, '.').replace(/_/g, '.')}$`,
+      'igu',
+    );
   }
 
   if (name) {
-    filter.name = name
+    filter.name = new RegExp(`.*${escapeRegExp(name)}.*`, 'i');
   }
 
   if (currency) {
@@ -144,6 +149,10 @@ export const generateFilter = async (
 
   if (brand) {
     filter.scopeBrandIds = { $in: [brand] };
+  }
+
+  if (isTemp !== undefined) {
+    filter.isTemp = isTemp
   }
 
   if (isOutBalance !== undefined) {

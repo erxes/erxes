@@ -25,7 +25,7 @@ const SettingsRoute = () => (
     <ImportHistory key="ImportHistory" />
     <PermissionRoutes key="PermissionRoutes" />
     <AppRoutes key="AppRoutes" />
-    <ClientRoutes key="ClientRoutes"/>
+    <ClientRoutes key="ClientRoutes" />
     <PlanRoutes key="Plan" />
     <MarketplaceRoutes key="Store" />
     <LogsRoutes key="Logs" />

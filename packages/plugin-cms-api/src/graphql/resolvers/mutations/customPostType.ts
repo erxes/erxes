@@ -1,10 +1,10 @@
-
 import {
   checkPermission,
   requireLogin,
 } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../../connectionResolver';
+const systemTypes = ['page', 'post', 'category'];
 
 const mutations = {
   async cmsCustomFieldGroupsAdd(_parent: any, args: any, context: IContext) {
@@ -28,10 +28,13 @@ const mutations = {
     return models.CustomFieldGroups.deleteFieldGroup(_id);
   },
 
-
   cmsCustomPostTypesAdd(_parent: any, args: any, context: IContext) {
     const { models } = context;
     const { input } = args;
+
+    if (systemTypes.includes(input.code)) {
+      throw new Error('Cannot add system post type');
+    }
 
     return models.CustomPostTypes.createCustomPostType(input);
   },
@@ -39,6 +42,12 @@ const mutations = {
   cmsCustomPostTypesEdit(_parent: any, args: any, context: IContext) {
     const { models } = context;
     const { _id, input } = args;
+
+    if (input.code) {
+      if (systemTypes.includes(input.code)) {
+        throw new Error('Cannot edit system post type');
+      }
+    }
 
     return models.CustomPostTypes.updateCustomPostType(_id, input);
   },
@@ -54,6 +63,5 @@ const mutations = {
 requireLogin(mutations, 'cmsCustomPostTypesAdd');
 requireLogin(mutations, 'cmsCustomPostTypesEdit');
 requireLogin(mutations, 'cmsCustomPostTypesRemove');
-
 
 export default mutations;

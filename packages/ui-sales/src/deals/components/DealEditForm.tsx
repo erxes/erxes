@@ -37,6 +37,8 @@ type Props = {
   removeItem: (itemId: string, callback?: () => void) => void;
   beforePopupClose: (afterPopupClose?: () => void) => void;
   sendToBoard?: (item: any) => void;
+  synchSingleCard?: (itemId: string) => void;
+  isPopupVisible?: boolean;
   updateTimeTrack: (
     {
       _id,

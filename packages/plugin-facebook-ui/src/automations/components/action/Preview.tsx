@@ -8,7 +8,10 @@ import {
   CardItem,
 } from "@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/bot/styles";
 import { Row } from "@erxes/ui-settings/src/styles";
-import { AvatarImg } from "@erxes/ui/src/components/filterableList/styles";
+import {
+  AvatarImg,
+  PopoverContent,
+} from "@erxes/ui/src/components/filterableList/styles";
 import styled from "styled-components";
 import {
   CarouselButtonLeft,
@@ -21,7 +24,16 @@ import {
 } from "../../styles";
 
 const PopoverWrapper = (props) => {
-  return <Popover {...props} />;
+  return (
+    <Popover
+      trigger={
+        <Button btnStyle="simple" icon="eye" block>
+          {__("Preview")}
+        </Button>
+      }
+      {...props}
+    />
+  );
 };
 
 const Emulator = styled(PopoverWrapper)`
@@ -206,30 +218,24 @@ function Preview({ messages }) {
     }
   };
 
+  console.log({ messages });
+
   return (
     <Emulator id="call-popover" className="call-popover">
       <div className="top-bar">
         <div className="dynamic-island" />
       </div>
       <EmulatorWrapper>
-        {messages.map((message) => renderMessage(message))}
+        {messages.map((message, index) => (
+          <div key={index}>{renderMessage(message)}</div>
+        ))}
       </EmulatorWrapper>
     </Emulator>
   );
 }
 
 function PreviewWidget({ messages }) {
-  return (
-    <Popover
-      trigger={
-        <Button btnStyle="simple" icon="eye" block>
-          {__("Preview")}
-        </Button>
-      }
-    >
-      <Preview messages={messages} />
-    </Popover>
-  );
+  return <Preview messages={messages} />;
 }
 
 export default PreviewWidget;

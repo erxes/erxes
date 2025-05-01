@@ -42,13 +42,10 @@ const transactionsMutations = {
    */
   async accTransactionsRemove(
     _root,
-    { _id }: { _id: string },
+    { parentId, ptrId }: { parentId: string, ptrId: string },
     { user, models, subdomain }: IContext,
   ) {
-    await models.Transactions.getTransaction({
-      _id,
-    });
-    const removed = await models.Transactions.removeTransaction(_id);
+    const removed = await models.Transactions.removePTransaction(parentId, ptrId);
 
     return removed;
   },

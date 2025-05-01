@@ -91,10 +91,10 @@ export const Tabs = ({ tabs }: ITabs) => {
 function ContractForm(props: Props) {
   const [contract, setContract] = useState(
     props.contract ||
-      ({
-        customerType: 'customer',
-        repayment: 'fixed',
-      } as IContract)
+    ({
+      customerType: 'customer',
+      repayment: 'fixed',
+    } as IContract)
   );
 
   const [contractType, setContractType] = useState<IContractTypeDoc>(
@@ -451,17 +451,17 @@ function ContractForm(props: Props) {
                   />
                 </FormGroup>
               )) || (
-                <FormGroup>
-                  <ControlLabel required={true}>{__('Customer')}</ControlLabel>
-                  <SelectCustomers
-                    label={__('Choose customer')}
-                    name="customerId"
-                    initialValue={contract.customerId}
-                    onSelect={onSelectCustomer}
-                    multi={false}
-                  />
-                </FormGroup>
-              )}
+                  <FormGroup>
+                    <ControlLabel required={true}>{__('Customer')}</ControlLabel>
+                    <SelectCustomers
+                      label={__('Choose customer')}
+                      name="customerId"
+                      initialValue={contract.customerId}
+                      onSelect={onSelectCustomer}
+                      multi={false}
+                    />
+                  </FormGroup>
+                )}
               {contract.useManualNumbering &&
                 renderFormGroup('Contract Number', {
                   ...formProps,
@@ -561,7 +561,7 @@ function ContractForm(props: Props) {
                   fixed: 2,
                   value:
                     (contract.marginAmount || 0) -
-                      (contract.leaseAmount || 0) || 0,
+                    (contract.leaseAmount || 0) || 0,
                   onChange: onChangeField,
                   onClick: onFieldClick,
                 })}

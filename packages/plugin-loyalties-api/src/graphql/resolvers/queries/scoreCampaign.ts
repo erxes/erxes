@@ -8,7 +8,7 @@ import { getOwner } from "../../../models/utils";
 
 const generateFilter = (params: any) => {
   const filter: any = {
-    status: { $ne: SCORE_CAMPAIGN_STATUSES.ARCHIVED }
+    status: { $ne: SCORE_CAMPAIGN_STATUSES.ARCHIVED },
   };
 
   if (params.searchValue) {
@@ -17,6 +17,10 @@ const generateFilter = (params: any) => {
 
   if (params.status) {
     filter.status = params.status;
+  }
+
+  if (params.serviceName) {
+    filter.serviceName = params.serviceName;
   }
 
   return filter;
@@ -44,34 +48,49 @@ const scoreCampaignQueries = {
 
   async scoreCampaignAttributes(
     _root,
-    { _id },
+    { serviceName },
     { models, subdomain }: IContext
   ) {
+    let attributes: any[] = [];
+
+    // for (const serviceName of services) {
+    const service = await getService(serviceName);
+    const meta = service.config?.meta || {};
+
+    if (meta && meta?.loyalties && meta?.loyalties?.aviableAttributes) {
+      const serviceAttributes = await sendCommonMessage({
+        subdomain,
+        serviceName: serviceName,
+        action: "getScoreCampaingAttributes",
+        data: {},
+        isRPC: true,
+        defaultValue: [],
+      });
+
+      if (Array.isArray(serviceAttributes)) {
+        attributes = [...attributes, ...serviceAttributes];
+      }
+    }
+
+    return attributes;
+  },
+  async scoreCampaignServices(_root, {}, {}: IContext) {
     const services = await getServices();
 
-    let attributes: any[] = [];
+    const searviceNames: any[] = [];
 
     for (const serviceName of services) {
       const service = await getService(serviceName);
       const meta = service.config?.meta || {};
 
       if (meta && meta?.loyalties && meta?.loyalties?.aviableAttributes) {
-        const serviceAttributes = await sendCommonMessage({
-          subdomain,
-          serviceName: serviceName,
-          action: "getScoreCampaingAttributes",
-          data: {},
-          isRPC: true,
-          defaultValue: []
-        });
-
-        if (Array.isArray(serviceAttributes)) {
-          attributes = [...attributes, ...serviceAttributes];
-        }
+        const { name, label, isAviableAdditionalConfig, icon } =
+          meta?.loyalties || {};
+        searviceNames.push({ name, label, isAviableAdditionalConfig, icon });
       }
     }
 
-    return attributes;
+    return searviceNames;
   },
 
   async checkOwnerScore(
@@ -101,7 +120,7 @@ const scoreCampaignQueries = {
       ) || {};
 
     return value;
-  }
+  },
 };
 
 checkPermission(scoreCampaignQueries, "scoreCampaigns", "manageLoyalties");

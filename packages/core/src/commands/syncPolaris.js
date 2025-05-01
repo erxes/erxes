@@ -26,7 +26,6 @@ let SavingContracts;
 let SavingContractTypes;
 let Products;
 let ProductCategories;
-let PeriodLocks;
 
 const nanoid = (len = 21) => {
   const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -128,7 +127,6 @@ const command = async () => {
   SavingContractTypes = db.collection('saving_contract_types');
   Products = db.collection('products');
   ProductCategories = db.collection('product_categories');
-  PeriodLocks = db.collection('loan_period_locks');
 
   console.log(`Process start at: ${new Date()}`);
   // const customerFilter = { code: { $exists: true } };

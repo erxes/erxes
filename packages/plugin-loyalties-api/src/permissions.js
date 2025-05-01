@@ -16,6 +16,10 @@ module.exports = {
         name: "manageLoyalties",
         description: "Manage loyalties",
       },
+      {
+        name: "adjustLoyaltyScore",
+        description: "Adjust loyalty score",
+      },
     ],
   },
 };

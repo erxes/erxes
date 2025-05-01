@@ -555,6 +555,14 @@ export const setupMessageConsumers = async (): Promise<void> => {
       data: await models.Brands.createBrand(data),
     };
   });
+  consumeRPCQueue('core:brands.updateOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Brands.updateBrand(data._id, data.fields),
+    };
+  });
 
   consumeRPCQueue('core:branches.aggregate', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -1307,14 +1315,21 @@ export const setupMessageConsumers = async (): Promise<void> => {
     };
   });
 
-  consumeRPCQueue('core:exchangeRates.getActiveRate', async ({ subdomain, data: { date, rateCurrency, mainCurrency } }) => {
-    const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    'core:exchangeRates.getActiveRate',
+    async ({ subdomain, data: { date, rateCurrency, mainCurrency } }) => {
+      const models = await generateModels(subdomain);
 
-    return {
-      data: await models.ExchangeRates.getActiveRate({ date, rateCurrency, mainCurrency }),
-      status: 'success',
-    };
-  });
+      return {
+        data: await models.ExchangeRates.getActiveRate({
+          date,
+          rateCurrency,
+          mainCurrency,
+        }),
+        status: 'success',
+      };
+    }
+  );
 };
 
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
@@ -1436,9 +1451,9 @@ export const getContentTypeDetail = async (
 
   return enabled
     ? sendRPCMessage(`${serviceName}:logs.getContentTypeDetail`, {
-      subdomain,
-      data: activityLog,
-    })
+        subdomain,
+        data: activityLog,
+      })
     : null;
 };
 

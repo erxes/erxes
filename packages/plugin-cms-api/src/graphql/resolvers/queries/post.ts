@@ -1,8 +1,4 @@
 import { paginate } from '@erxes/api-utils/src';
-import {
-  checkPermission,
-  requireLogin,
-} from '@erxes/api-utils/src/permissions';
 
 import { IContext, IModels } from '../../../connectionResolver';
 
@@ -139,12 +135,5 @@ const queries = {
     return { totalCount, totalPages, currentPage: page, posts };
   },
 };
-
-requireLogin(queries, 'cmsPosts');
-requireLogin(queries, 'cmsPost');
-requireLogin(queries, 'cmsPostList');
-checkPermission(queries, 'cmsPosts', 'showCmsPosts', []);
-checkPermission(queries, 'cmsPost', 'showCmsPosts', []);
-checkPermission(queries, 'cmsPostList', 'showCmsPosts', []);
 
 export default queries;

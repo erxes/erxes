@@ -23,4 +23,12 @@ const ScoringBox = styled.div`
   }
 `;
 
-export { ExtraRow, ScoringBox};
+const DetailContainer = styled.div`
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+`;
+
+export { 
+  ExtraRow, 
+  ScoringBox, 
+  DetailContainer
+};

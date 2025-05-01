@@ -749,28 +749,15 @@ class GenerateGroups extends React.Component<
     }
 
     const renderChildGroupsName = (childGroups) => {
-      return childGroups.map((child) => {
-        const subChildGroups = fieldsGroups.filter(
-          (gro) => gro.parentId === child._id
-        );
-
-        return (
-          <>
-            <div
-              key={child._id}
-              className={`custom-child-title custom-title ${child._id === this.state.currentFieldGroupId ? "active" : ""}`}
-              onClick={() => this.setState({ currentFieldGroupId: child._id })}
-            >
-              {child.name}
-            </div>
-            {subChildGroups && subChildGroups.length !== 0 && (
-              <div className="sub-custom-child">
-                {renderChildGroupsName(subChildGroups)}
-              </div>
-            )}
-          </>
-        );
-      });
+      return childGroups.map((child) => (
+        <div
+          key={child._id}
+          className={`custom-child-title custom-title ${child._id === this.state.currentFieldGroupId ? "active" : ""}`}
+          onClick={() => this.setState({ currentFieldGroupId: child._id })}
+        >
+          {child.name}
+        </div>
+      ));
     };
 
     if (showType && showType === "list") {

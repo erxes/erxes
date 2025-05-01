@@ -7,12 +7,10 @@ type Props = {
   clientPortalId: string;
   value: string | string[];
   isMulti?: boolean;
-  onChange: (categoryId: string) => void;
+  onChange: (value: string | string[]) => void;
 };
 
 const Container = (props: Props) => {
-  
-
   const { value, onChange } = props;
   const [searchValue, setSearchValue] = React.useState<string>('');
   const [options, setOptions] = React.useState<any[]>([]);
@@ -20,7 +18,7 @@ const Container = (props: Props) => {
   const { data, loading } = useQuery(queries.GET_CATEGORIES, {
     variables: {
       clientPortalId: props.clientPortalId,
-      searchValue: '',
+      searchValue,
     },
   });
 

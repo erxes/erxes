@@ -63,8 +63,8 @@ import {
   requireLogin(mutations, 'cmsPagesEdit');
   requireLogin(mutations, 'cmsPagesRemove');
   
-  checkPermission(mutations, 'cmsPagesAdd', 'cmsPagesAdd', []);
-  checkPermission(mutations, 'cmsPagesEdit', 'cmsPagesEdit', []);
-  checkPermission(mutations, 'cmsPagesRemove', 'cmsPagesRemove', []);
+  checkPermission(mutations, 'cmsPagesAdd', 'manageCms', []);
+  checkPermission(mutations, 'cmsPagesEdit', 'manageCms', []);
+  checkPermission(mutations, 'cmsPagesRemove', 'manageCms', []);
 
   export default mutations

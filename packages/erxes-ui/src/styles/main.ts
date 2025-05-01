@@ -667,9 +667,6 @@ const DynamicContentLeft = styled.div`
     padding: ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing}px ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing + dimensions.unitSpacing}px;
     color: ${colors.colorCoreGray};
   }
-  .sub-custom-child {
-    padding-left: ${dimensions.unitSpacing}px;
-  }
 `;
 
 const DynamicContentLeftButtonWrapper = styled.div`

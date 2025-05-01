@@ -24,7 +24,6 @@ const GeneralSettings = (props: Props) => {
   const { config, saveConfig } = props;
 
   const [apiUrl, setApiUrl] = useState<string>(config.apiUrl || '');
-  const [useDN, setUseDN] = useState<boolean>(config.useDN || false);
   const [baseDN, setBaseDN] = useState<string>(config.baseDN || '');
   const [adminDN, setAdminDN] = useState<string>(config.adminDN || '');
   const [adminPassword, setAdminPassword] = useState<string>(
@@ -36,7 +35,6 @@ const GeneralSettings = (props: Props) => {
 
     saveConfig({
       apiUrl,
-      useDN,
       baseDN,
       code: 'ACTIVEDIRECTOR',
       adminDN,
@@ -75,16 +73,6 @@ const GeneralSettings = (props: Props) => {
           <FormGroup>
             <ControlLabel>{'base dn'}</ControlLabel>
             <FormControl value={baseDN} onChange={onChangeBaseDN} />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>{'use distinguished name'}</ControlLabel>
-            <FormControl
-              componentclass="checkbox"
-              checked={useDN}
-              onChange={() => {
-                setUseDN(!useDN);
-              }}
-            />
           </FormGroup>
 
           <FormGroup>

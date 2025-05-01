@@ -11,7 +11,7 @@ export default function List(props) {
   const { data, loading, refetch } = useQuery<ScoreCampaignsQueryResponse>(
     gql(queries.scoreCampaigns),
     {
-      variables: { ...props?.queryParams }
+      variables: { ...props?.queryParams },
     }
   );
 
@@ -24,7 +24,7 @@ export default function List(props) {
     const onRemove = () => {
       confirm().then(() => {
         removeScoreCampaign({
-          variables: { _ids: bulkProps.bulk.map(({ _id }) => _id) }
+          variables: { _ids: bulkProps.bulk.map(({ _id }) => _id) },
         })
           .then(() => {
             Alert.success("Campaign successfully removed");
@@ -40,7 +40,7 @@ export default function List(props) {
     const onChangeStatus = (_id: string, status: string) => {
       const campaign = scoreCampaigns.find((campaign) => campaign._id === _id);
       changeScoreCampaignStatus({
-        variables: { ...campaign, status }
+        variables: { ...campaign, status },
       }).then(() => {
         Alert.success("Successfully changed the status of the campaign");
         refetch();
@@ -55,7 +55,7 @@ export default function List(props) {
       campaigns: scoreCampaigns,
       totalCount: scoreCampaignsTotalCount,
       onRemove,
-      onChangeStatus
+      onChangeStatus,
     };
 
     return <Component {...updatedProps} />;

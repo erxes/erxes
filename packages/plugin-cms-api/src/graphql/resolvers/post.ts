@@ -1,5 +1,6 @@
 import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
+import { buildCustomFieldsMap } from './utils';
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
@@ -33,34 +34,7 @@ export default {
       customPostTypeIds: post.type,
     }).lean();
 
-    const jsonMap: any = {};
-
-    if (fieldGroups.length > 0) {
-      for (const fieldGroup of fieldGroups) {
-        const fields = await sendCommonMessage({
-          subdomain,
-          serviceName: 'core',
-          action: 'fields.find',
-          data: {
-            query: {
-              groupId: fieldGroup._id,
-            },
-          },
-          isRPC: true,
-          defaultValue: [],
-        });
-
-        jsonMap[fieldGroup.code] = fields.reduce((acc, field: any) => {
-          const value = post.customFieldsData.find(
-            (c: any) => c.field === field._id
-          );
-          acc[field.code] = value ? value.value : null;
-          return acc;
-        }, {});
-      }
-    }
-
-    return jsonMap;
+    return await buildCustomFieldsMap(subdomain, fieldGroups, post.customFieldsData);
   },
 
   async customPostType(post: any, _params, { models }: IContext) {

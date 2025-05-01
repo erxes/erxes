@@ -9,6 +9,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
 import SelectCategory from '../containers/SelectCategory';
+import CustomPostTypeGroup from '../../fieldGroups/CustomPostTypeGroup';
 
 type Props = {
   clientPortalId: string;
@@ -30,15 +31,14 @@ const ProductForm = (props: Props) => {
     }
   );
 
-
   const generateDoc = () => {
     const finalValues: any = {};
-
-    if (props.category) {
-      finalValues._id = props.category._id;
-    }
-
+    const keysToDelete = ['__typename', '_id', 'createdAt', 'parent', 'children'];
     Object.keys(category).forEach((key) => {
+      if (keysToDelete.indexOf(key) !== -1) {
+        return;
+      }
+
       if (category[key] !== undefined) {
         finalValues[key] = category[key];
       }
@@ -92,7 +92,32 @@ const ProductForm = (props: Props) => {
       }
       return (
         <>
-          {renderInput('name', 'text', category.name, 'Name', true)}
+          <FormGroup>
+            <ControlLabel>{__('Name')}</ControlLabel>
+            <FormControl
+              {...formProps}
+              id={'name'}
+              name={'name'}
+              required={true}
+              defaultValue={category.name}
+              value={category.name}
+              onChange={(e: any) => {
+                const nameValue = e.target.value;
+                const slugValue = nameValue
+                  .toLowerCase()
+                  .trim()
+                  .replace(/\s+/g, '-')
+                  .replace(/[^a-z0-9-]+/g, '')
+                  .replace(/-+/g, '-');
+
+                setCategory({
+                  ...category,
+                  name: nameValue,
+                  slug: slugValue,
+                });
+              }}
+            />
+          </FormGroup>
           {renderInput('slug', 'text', category.slug, 'Slug', true)}
           {renderInput(
             'description',
@@ -137,6 +162,25 @@ const ProductForm = (props: Props) => {
             </FormControl>
           </FormGroup>
 
+          {props.category && (
+            <FormGroup>
+              <ControlLabel>{__('Custom Fields')}</ControlLabel>
+              <div style={{ paddingTop: 10 }}>
+              <CustomPostTypeGroup
+                clientPortalId={clientPortalId}
+                category={category}
+                customFieldsData={category.customFieldsData || []} 
+                onChange={(field, value) => {
+                  setCategory({
+                    ...category,
+                    [field]: value,
+                  });
+                }}
+              />
+              </div>
+            </FormGroup>
+          )}
+
           <ModalFooter>
             <Button btnStyle='simple' onClick={closeModal} icon='times-circle'>
               Close
@@ -160,11 +204,7 @@ const ProductForm = (props: Props) => {
       );
     };
 
-    return (
-      <>
-        {renderFormFields()}
-      </>
-    );
+    return <>{renderFormFields()}</>;
   };
 
   return <Form renderContent={renderContent} />;

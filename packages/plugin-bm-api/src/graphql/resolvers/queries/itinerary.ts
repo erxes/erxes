@@ -4,8 +4,15 @@ import { IContext } from '../../../connectionResolver';
 const itineraryQueries = {
   async bmItineraries(
     _root,
-    { categories, page = 1, perPage = 10, branchId },
-    { models }: IContext,
+    {
+      categories,
+      page = 1,
+      perPage = 10,
+      branchId,
+      sortField = 'createdAt',
+      sortDirection = -1
+    },
+    { models }: IContext
   ) {
     const selector: any = {};
     if (branchId) {
@@ -18,16 +25,17 @@ const itineraryQueries = {
 
     const list = await models.Itineraries.find(selector)
       .limit(perPage)
-      .skip(skip);
+      .skip(skip)
+      .sort({ [sortField]: sortDirection === -1 ? sortDirection : 1 });
     const total = await models.Itineraries.countDocuments();
     return {
       list,
-      total,
+      total
     };
   },
   async bmItineraryDetail(_root, { _id }, { models }: IContext) {
     return await models.Itineraries.findById(_id);
-  },
+  }
 };
 
 export default itineraryQueries;

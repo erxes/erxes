@@ -51,6 +51,8 @@ export const orderTypeFields = `
   returnInfo: JSON
 
   slotCode: String
+
+  extraInfo: JSON
 `;
 
 const addEditParams = `
@@ -75,6 +77,7 @@ const addEditParams = `
   isPre: Boolean,
   isSingle: Boolean,
   deviceId: String,
+  couponCode: String
 `;
 
 export const types = `

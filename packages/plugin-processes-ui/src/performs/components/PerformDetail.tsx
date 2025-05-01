@@ -16,6 +16,7 @@ type Props = {
   isReadSeries?: boolean;
   onChangeState: (value: any) => void;
   onEnter: (val?: number) => void;
+  deleteDetail: (stateName, productsData, removeId) => void;
 };
 
 type State = {};
@@ -133,6 +134,11 @@ class PerformDetail extends React.Component<Props, State> {
     }
   };
 
+  onDelete = () => {
+    const { deleteDetail, stateName, productsData, productData } = this.props
+    deleteDetail(stateName, productsData, productData._id)
+  }
+
   render() {
     const { productData, hasCost } = this.props;
     const { product = {} } = productData;
@@ -189,7 +195,12 @@ class PerformDetail extends React.Component<Props, State> {
           </td>
         )}
         <td>
-          <ActionButtons>{this.renderSeriesReader()}</ActionButtons>
+          <ActionButtons>
+            <Button btnStyle="link" onClick={this.onDelete}>
+              <Icon icon="trash-alt" />
+            </Button>
+            {this.renderSeriesReader()}
+          </ActionButtons>
         </td>
       </tr>
     );

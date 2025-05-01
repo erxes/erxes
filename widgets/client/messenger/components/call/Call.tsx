@@ -1,15 +1,14 @@
-import * as React from "react";
+import * as React from 'react';
 
-import Button from "../common/Button";
-import Container from "../common/Container";
-import CountrySelect from "../common/CountrySelect";
-import { __ } from "../../../utils";
+import Button from '../common/Button';
+import Container from '../common/Container';
+import CountrySelect from '../common/CountrySelect';
+import { __ } from '../../../utils';
 
 type Props = {
   setPhoneNumber: (phoneNumber: string) => void;
   setEmail: (email: string) => void;
   setIsCalling: (isCalling: boolean) => void;
-  audioStreamTrack: any;
   phoneNumber: string;
   email: string;
 };
@@ -21,29 +20,41 @@ const Call: React.FC<Props> = ({
   phoneNumber,
   email,
 }) => {
+  const isValidPhoneNumber = (phone: string) => {
+    return phone.length >= 8 && /^[0-9]+$/.test(phone);
+  };
+
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
   const onContinue = () => {
-    if (!phoneNumber || !email) {
-      return alert("Please fill in both phone number and email!");
+    if (!isValidPhoneNumber(phoneNumber)) {
+      return alert('Please enter a valid phone number with at least 8 digits.');
+    }
+
+    if (!isValidEmail(email)) {
+      return alert('Please enter a valid email address.');
     }
 
     return setIsCalling(true);
   };
 
   return (
-    <Container title={__("Call")} withBottomNavBar={false}>
+    <Container title={__('Call')} withBottomNavBar={false}>
       <div className="call-container">
         <div className="h-full flex flex-col justify-between">
           <div className="flex flex-col gap-4">
             <div className="detail-info">
-              <h2>{__("Let’s Get You Connected")}</h2>
+              <h2>{__('Let’s Get You Connected')}</h2>
               <p>
                 {__(
-                  "We help you business grow by connecting you to your customers."
+                  'We help your business grow by connecting you to your customers.',
                 )}
               </p>
             </div>
             <div className="form-group">
-              <label className="control-label" htmlFor={`field-name`}>
+              <label className="control-label" htmlFor="field-phone">
                 Phone number
               </label>
               <div className="phone-input-wrapper form-control">
@@ -60,7 +71,7 @@ const Call: React.FC<Props> = ({
             </div>
 
             <div className="form-group">
-              <label className="control-label" htmlFor={`field-name`}>
+              <label className="control-label" htmlFor="field-email">
                 Email
               </label>
               <input
@@ -73,8 +84,8 @@ const Call: React.FC<Props> = ({
               />
             </div>
           </div>
-          <Button full onClick={() => onContinue()}>
-            <span className="font-semibold">{__("Continue")}</span>
+          <Button full onClick={onContinue}>
+            <span className="font-semibold">{__('Continue')}</span>
           </Button>
         </div>
       </div>

@@ -1,6 +1,6 @@
-import { checkPermission } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
-import { IScoreCampaign } from '../../../models/definitions/scoreCampaigns';
+import { checkPermission } from "@erxes/api-utils/src";
+import { IContext } from "../../../connectionResolver";
+import { IScoreCampaign } from "../../../models/definitions/scoreCampaigns";
 
 const scoreCampaignMutations = {
   async scoreCampaignAdd(
@@ -32,18 +32,30 @@ const scoreCampaignMutations = {
   ) {
     return await models.ScoreCampaigns.removeScoreCampaigns(_ids, user);
   },
+
+  async refundLoyaltyScore(
+    _root,
+    { ownerId, ownerType, targetId },
+    { models }: IContext
+  ) {
+    return await models.ScoreCampaigns.refundLoyaltyScore(
+      targetId,
+      ownerType,
+      ownerId
+    );
+  },
 };
 
-checkPermission(scoreCampaignMutations, 'scoreCampaignAdd', 'manageLoyalties');
+checkPermission(scoreCampaignMutations, "scoreCampaignAdd", "manageLoyalties");
 checkPermission(
   scoreCampaignMutations,
-  'scoreCampaignUpdate',
-  'manageLoyalties'
+  "scoreCampaignUpdate",
+  "manageLoyalties"
 );
 checkPermission(
   scoreCampaignMutations,
-  'scoreCampaignRemove',
-  'manageLoyalties'
+  "scoreCampaignRemove",
+  "manageLoyalties"
 );
 
 export default scoreCampaignMutations;

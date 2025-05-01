@@ -85,6 +85,8 @@ export const types = () => `
     branch: Branch
     department: Department
     customer: AccCustomer
+
+    extraData: JSON
   }
 
   input CommonTrDetailInput {
@@ -124,6 +126,7 @@ const trsQueryParams = `
   accountCategoryId: String,
   accountSearchValue: String,
   accountBrand: String,
+  accountIsTemp: Boolean,
   accountIsOutBalance: Boolean,
   accountBranchId: String,
   accountDepartmentId: String,
@@ -131,6 +134,7 @@ const trsQueryParams = `
   accountJournal: String,
 
   brandId: String,
+  isTemp: Boolean,
   isOutBalance: Boolean,
   branchId: String,
   departmentId: String,
@@ -162,18 +166,7 @@ export const queries = `
 export const mutations = `
   accTransactionsCreate(trDocs: [TransactionInput]): [AccCommonTransaction]
   accTransactionsUpdate(parentId: String, trDocs: [TransactionInput]): [AccCommonTransaction]
-  accMainTrAdd(${mainTrParams}): [AccCommonTransaction]
-  accMainTrEdit(_id: String!, ${mainTrParams}): [AccCommonTransaction]
-  accMainTrRemove(_id: String!): String
-
-  accPtrRemove(_id: String!): String
+  accTransactionsRemove(parentId: String, ptrId: String): JSON
 
   accTransactionsLink(trIds: [String], ptrId: String): [AccCommonTransaction]
-
-  accCashTrAdd(${mainTrParams}): [AccCommonTransaction]
-  accCashTrEdit(_id: String!, ${mainTrParams}): [AccCommonTransaction]
-  accFundTrAdd(${mainTrParams}): [AccCommonTransaction]
-  accFundTrEdit(_id: String!, ${mainTrParams}): [AccCommonTransaction]
-  accDebtTrAdd(${mainTrParams}): [AccCommonTransaction]
-  accDebtTrEdit(_id: String!, ${mainTrParams}): [AccCommonTransaction]
 `;

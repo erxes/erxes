@@ -1,11 +1,18 @@
 import { getEnv } from "../commonUtils";
 import { generateModels } from "../connectionResolver";
+import { IConversation } from "../models/definitions/conversations";
 
-export const generatePayloadString = (conversation, btn, customerId) => {
+export const generatePayloadString = (
+  conversation: IConversation,
+  btn: any,
+  customerId,
+  executionId: string
+) => {
   return JSON.stringify({
     btnId: btn._id,
     conversationId: conversation._id,
-    customerId
+    customerId,
+    executionId
   });
 };
 

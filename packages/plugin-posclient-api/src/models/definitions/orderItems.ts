@@ -25,6 +25,7 @@ export interface IOrderItem {
   description?: string;
   attachment?: IAttachment;
   closeDate?: Date;
+  couponCode?: string
 }
 
 export interface IOrderItemDocument extends Document, IOrderItem {
@@ -90,7 +91,8 @@ export const orderItemSchema = schemaHooksWrapper(
       type: Date,
       label: 'Subscription Close Date',
       optional: true
-    })
+    }),
+    couponCode: field({ type: String, label: 'Coupon code' }),
   }),
   'erxes_orderItem'
 );

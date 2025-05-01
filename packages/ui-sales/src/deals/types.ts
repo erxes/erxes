@@ -1,4 +1,5 @@
 import { IItem, IItemParams } from '../boards/types';
+
 import { IProduct } from '@erxes/ui-products/src/types';
 
 export interface IQueryParams {
@@ -74,6 +75,15 @@ export interface IDeal extends IItem {
 export interface IDealParams extends IItemParams {
   productsData?: IProductData[];
   paymentsData?: IPaymentsData;
+  extraData?: any
+}
+
+export type dealsProductDataMutationParams = {
+  proccessId?: string;
+  dealId?: string;
+  dataId?: string;
+  doc?: any;
+  docs?: any;
 }
 
 export type DealsQueryResponse = {

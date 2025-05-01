@@ -21,3 +21,13 @@ export const menuSyncerkhet = [
   { title: 'Check Category', link: '/inventory-category' },
   { title: 'Check Products', link: '/inventory-products' }
 ];
+
+export const payOptions = [
+  { value: "debtAmount", label: "Зээлийн данс" },
+  { value: "cashAmount", label: "Бэлэн мөнгө данс" },
+  { value: "cardAmount", label: "Картын данс" },
+  { value: "card2Amount", label: "Картын данс нэмэлт" },
+  { value: "mobileAmount", label: "Мобайл данс" },
+  { value: "debtBarterAmount", label: "Бартер данс" },
+  { value: "preAmount", label: "Урьдчилгаа данс" },
+];

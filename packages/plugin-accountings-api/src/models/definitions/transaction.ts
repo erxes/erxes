@@ -66,6 +66,8 @@ export interface ITransaction {
   ctaxRowId?: string;
   isHandleCtax?: boolean;
   ctaxAmount?: number;
+
+  extraData?: any;
 }
 
 export interface ITransactionDocument extends ITransaction, Document {
@@ -225,5 +227,7 @@ export const transactionSchema = schemaWrapper(
     ctaxRowId: field({ type: String, optional: true, label: 'ctaxRowId' }),
     isHandleCtax: field({ type: Boolean, optional: true, label: 'isHandleCtax' }),
     ctaxAmount: field({ type: Number, optional: true, label: 'ctaxAmount' }),
+
+    extraData: field({ type: Object, optional: true })
   }),
 );

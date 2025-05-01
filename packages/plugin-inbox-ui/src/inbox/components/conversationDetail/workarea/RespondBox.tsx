@@ -494,7 +494,7 @@ const RespondBox = (props: Props) => {
           content={content}
           onSelect={onSelectTemplate}
         />
-        {editMessage && content && (
+        {/* {editMessage && content && (
           <Button
             onClick={() => onEditMessageId && onEditMessageId('')}
             btnStyle="warning"
@@ -503,7 +503,7 @@ const RespondBox = (props: Props) => {
           >
             {'Cancel'}
           </Button>
-        )}
+        )} */}
         <Button onClick={onSend} btnStyle="success" size="small" icon="message">
           {!disabled && (editMessage && content ? 'Save' : 'Send')}
         </Button>
