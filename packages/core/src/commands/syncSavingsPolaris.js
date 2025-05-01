@@ -2,7 +2,6 @@ const dotenv = require('dotenv');
 const fetch = require('node-fetch');
 const http = require('http');
 const { MongoClient } = require('mongodb');
-const moment = require('moment');
 
 dotenv.config();
 
@@ -16,11 +15,6 @@ if (!MONGO_URL) {
 const client = new MongoClient(MONGO_URL);
 let db;
 let Customers;
-let Companies;
-let LoanContracts;
-let LoanContractTypes;
-let LoanFirstSchedules;
-let LoanSchedules;
 let SavingContracts;
 let SavingContractTypes;
 
@@ -84,11 +78,6 @@ const command = async () => {
   console.log(Boolean(db));
 
   Customers = db.collection('customers');
-  Companies = db.collection('companies');
-  LoanContracts = db.collection('loan_contracts');
-  LoanContractTypes = db.collection('loan_contract_types');
-  LoanFirstSchedules = db.collection('loan_first_schedules');
-  LoanSchedules = db.collection('loan_schedules');
   SavingContracts = db.collection('saving_contracts');
   SavingContractTypes = db.collection('saving_contract_types');
 
@@ -102,7 +91,6 @@ const command = async () => {
 
   let step = 0;
   let per = 10000;
-  const schedules = [];
 
   while (step * per < customersCount) {
     const skip = step * per;
@@ -111,8 +99,6 @@ const command = async () => {
       .skip(skip)
       .limit(per)
       .toArray();
-
-    let bulkOps = [];
 
     for (const customer of customers) {
       if (!customer.code) {
