@@ -61,6 +61,7 @@ export const types = () => `
     customerType: String
     customerId: String
     debtIncomeRatio: Float
+    updatedRatio: Float
     increaseMonthlyPaymentAmount: Float
 
     averageSalaryIncome: Float
@@ -116,6 +117,7 @@ const commonFields = `
   customerType: String
   customerId: String
   debtIncomeRatio: Float
+  updatedRatio: Float
   increaseMonthlyPaymentAmount: Float
 
   averageSalaryIncome: Float
@@ -133,4 +135,5 @@ export const mutations = `
   loansResearchAdd(${commonFields}): LoansResearch
   loansResearchEdit(_id: String!, ${commonFields}): LoansResearch
   loansResearchRemove(loanResearchIds: [String]): [String]
+  loansResearchRefetch(customerId: String!, type: String!): LoansResearch
 `;

@@ -247,6 +247,7 @@ export default {
         docs.push(result);
       }
     } catch (e) {
+      console.log("product:", e.message);
       return { error: e.message };
     }
     return { docs };

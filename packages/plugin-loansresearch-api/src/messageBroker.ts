@@ -30,6 +30,33 @@ export const sendSalesMessage = async (
   });
 };
 
+export const sendLoansMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'loans',
+    ...args,
+  });
+};
+
+export const sendXypMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'xyp',
+    ...args,
+  });
+};
+
+export const sendScoreMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'burenscoring',
+    ...args,
+  });
+};
+
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,

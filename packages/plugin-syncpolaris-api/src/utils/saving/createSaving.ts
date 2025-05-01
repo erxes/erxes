@@ -4,23 +4,30 @@ import {
   getDepositAccount,
   updateContract,
   sendMessageBrokerData,
-  genObjectOfRule
 } from '../utils';
+import { activeSaving } from './activeSaving';
 
-export const createSaving = async (subdomain: string, models, polarisConfig, syncLog, params) => {
+export const createSaving = async (
+  subdomain: string,
+  models,
+  polarisConfig,
+  syncLog,
+  params
+) => {
   const savingContract = params.object;
+  let savingCode;
 
   const savingProduct = await sendMessageBrokerData(
     subdomain,
-    "savings",
-    "contractType.findOne",
+    'savings',
+    'contractType.findOne',
     { _id: savingContract.contractTypeId }
   );
 
   const customer = await sendMessageBrokerData(
     subdomain,
-    "core",
-    "customers.findOne",
+    'core',
+    'customers.findOne',
     { _id: savingContract.customerId }
   );
 
@@ -28,29 +35,22 @@ export const createSaving = async (subdomain: string, models, polarisConfig, syn
 
   const deposit = await getDepositAccount(subdomain, savingContract.customerId);
 
-  const dataOfRules = await genObjectOfRule(
-    subdomain,
-    "savings:contract",
-    savingContract,
-    (polarisConfig.saving && polarisConfig.saving[savingContract.contractTypeId || ''] || {}).values || {}
-  )
-
   let sendData = {
     prodCode: savingProduct.code,
     slevel: 1,
-    capMethod: "1",
-    capAcntCode: deposit?.number || "",
-    capAcntSysNo: "1306", // savingContract.storeInterestInterval,
+    capMethod: '0',
+    capAcntCode: deposit?.number || '',
+    capAcntSysNo: '1306', // savingContract.storeInterestInterval,
     startDate: savingContract.startDate,
-    maturityOption: savingContract.closeOrExtendConfig,
+    maturityOption: 'C',
     rcvAcntCode:
-      savingContract.depositAccount === "depositAccount"
+      savingContract.depositAccount === 'depositAccount'
         ? savingContract.depositAccount
-        : "",
+        : '',
     brchCode: branch?.code,
     curCode: savingContract.currency,
-    name: savingProduct.name,
-    name2: savingProduct.name,
+    name: `${customer.firstName} ${customer.lastName}`,
+    name2: `${customer.firstName} ${customer.lastName}`,
     termLen: savingContract.duration,
     maturityDate: savingContract.endDate,
     custCode: customer?.code,
@@ -63,25 +63,34 @@ export const createSaving = async (subdomain: string, models, polarisConfig, syn
     closedDate: '',
     lastCtDate: '',
     lastDtDate: '',
-    ...dataOfRules
   };
 
-  const savingCode = await fetchPolaris({
-    op: "13610120",
-    data: [sendData],
-    subdomain,
-    models,
-    polarisConfig,
-    syncLog
-  });
+  if (
+    savingProduct?.code &&
+    savingProduct.name != null &&
+    savingContract.duration != null &&
+    customer?.code != null &&
+    branch?.code != null
+  ) {
+    savingCode = await fetchPolaris({
+      op: '13610120',
+      data: [sendData],
+      subdomain,
+      models,
+      polarisConfig,
+      syncLog,
+    });
+  }
 
   if (savingCode) {
     await updateContract(
       subdomain,
       { _id: savingContract._id },
       { $set: { number: JSON.parse(savingCode) } },
-      "savings"
+      'savings'
     );
+
+    // await activeSaving(subdomain, polarisConfig, [savingCode, 'данс нээв']);
   }
 
   return savingCode;
