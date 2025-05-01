@@ -1,4 +1,4 @@
-import { checkPermission, requireLogin } from '@erxes/api-utils/src';
+import { checkPermission } from '@erxes/api-utils/src';
 import { sendCoreMessage } from '../../../messageBroker';
 import { TExmThank } from '../../../models/definitions/exm';
 
