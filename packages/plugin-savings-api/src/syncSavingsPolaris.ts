@@ -92,68 +92,68 @@ const command = async () => {
   let step = 0;
   let per = 10000;
 
-  while (step * per < customersCount) {
-    const skip = step * per;
-    const customers = await Customers.find(customerFilter)
-      .sort({ code: 1 })
-      .skip(skip)
-      .limit(per)
-      .toArray();
+  // while (step * per < customersCount) {
+  //   const skip = step * per;
+  //   const customers = await Customers.find(customerFilter)
+  //     .sort({ code: 1 })
+  //     .skip(skip)
+  //     .limit(per)
+  //     .toArray();
 
-    for (const customer of customers) {
-      if (!customer.code) {
-        continue;
-      }
+  //   for (const customer of customers) {
+  //     if (!customer.code) {
+  //       continue;
+  //     }
 
-      const getAccounts = await fetchPolaris('13610312', [
-        customer.code,
-        0,
-        20,
-      ]);
+  //     const getAccounts = await fetchPolaris('13610312', [
+  //       customer.code,
+  //       0,
+  //       20,
+  //     ]);
 
-      const termDeposits = getAccounts.filter(
-        (account) => account.acntType === 'TD'
-      );
+  //     const termDeposits = getAccounts.filter(
+  //       (account) => account.acntType === 'TD'
+  //     );
 
-      if (termDeposits.length > 0) {
-        for (const deposit of termDeposits) {
-          const detailDeposit = await fetchPolaris('13610100', [
-            deposit.acntCode,
-            '0',
-          ]);
+  //     if (termDeposits.length > 0) {
+  //       for (const deposit of termDeposits) {
+  //         const detailDeposit = await fetchPolaris('13610100', [
+  //           deposit.acntCode,
+  //           '0',
+  //         ]);
 
-          const type = await SavingContractTypes.findOne({
-            code: deposit.prodCode,
-          });
+  //         const type = await SavingContractTypes.findOne({
+  //           code: deposit.prodCode,
+  //         });
 
-          const contract = await SavingContracts.findOne({
-            number: deposit.acntCode,
-          });
+  //         const contract = await SavingContracts.findOne({
+  //           number: deposit.acntCode,
+  //         });
 
-          if (type && !contract) {
-            const document = {
-              _id: nanoid(),
-              contractTypeId: type._id,
-              status: 'normal',
-              number: detailDeposit.acntCode,
-              customerType: 'customer',
-              customerId: customer._id,
-              savingAmount: detailDeposit.currentBal,
-              duration: detailDeposit.termLen,
-              interestRate: detailDeposit.intRate,
-              currency: 'MNT',
-              startDate: new Date(detailDeposit.startDate),
-              createdAt: new Date(detailDeposit.createdDate),
-            };
+  //         if (type && !contract) {
+  //           const document = {
+  //             _id: nanoid(),
+  //             contractTypeId: type._id,
+  //             status: 'normal',
+  //             number: detailDeposit.acntCode,
+  //             customerType: 'customer',
+  //             customerId: customer._id,
+  //             savingAmount: detailDeposit.currentBal,
+  //             duration: detailDeposit.termLen,
+  //             interestRate: detailDeposit.intRate,
+  //             currency: 'MNT',
+  //             startDate: new Date(detailDeposit.startDate),
+  //             createdAt: new Date(detailDeposit.createdDate),
+  //           };
 
-            await SavingContracts.insertOne({ ...document });
-          }
-        }
-      }
-    }
+  //           await SavingContracts.insertOne({ ...document });
+  //         }
+  //       }
+  //     }
+  //   }
 
-    step++;
-  }
+  //   step++;
+  // }
 
   console.log(`Process finished at: ${new Date()}`);
 
