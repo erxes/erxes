@@ -33,6 +33,7 @@ import SelectSavingContract, {
   Contracts,
 } from '../collaterals/SelectSavingContract';
 import StepRulesForm from './StepRulesForm';
+import { IPurpose } from '../../../purpose/types';
 
 const onFieldClick = (e) => {
   e.target.select();
@@ -44,6 +45,7 @@ type Props = {
     props: IButtonMutateProps & { disabled: boolean }
   ) => JSX.Element;
   contract?: IContract;
+  purposes?: IPurpose[];
   closeModal: () => void;
   change?: boolean;
   data?: RelType;
@@ -89,12 +91,14 @@ export const Tabs = ({ tabs }: ITabs) => {
 };
 
 function ContractForm(props: Props) {
+  const { purposes } = props;
+
   const [contract, setContract] = useState(
     props.contract ||
-    ({
-      customerType: 'customer',
-      repayment: 'fixed',
-    } as IContract)
+      ({
+        customerType: 'customer',
+        repayment: 'fixed',
+      } as IContract)
   );
 
   const [contractType, setContractType] = useState<IContractTypeDoc>(
@@ -104,6 +108,8 @@ function ContractForm(props: Props) {
   const [stepRules, setStepRules] = useState<IStepRules[]>(
     props.contract?.stepRules || []
   );
+
+  const [subPurpose, setSubPurpose] = useState<IPurpose[]>([]);
 
   const generateDoc = (values: { _id: string } & IContractDoc) => {
     const result = {
@@ -225,6 +231,18 @@ function ContractForm(props: Props) {
       endDate,
     });
   }, [contract.startDate, contract.scheduleDays, contract.tenor]);
+
+  useEffect(() => {
+    const destinationId = contract?.loanDestination;
+
+    if (destinationId && purposes) {
+      const children = purposes.filter((p) => p.parentId === destinationId);
+
+      setSubPurpose(children);
+    } else {
+      setSubPurpose([]);
+    }
+  }, [contract.loanDestination]);
 
   const renderFormGroup = (label, props) => {
     if (!label) return <FormControl {...props} />;
@@ -451,17 +469,17 @@ function ContractForm(props: Props) {
                   />
                 </FormGroup>
               )) || (
-                  <FormGroup>
-                    <ControlLabel required={true}>{__('Customer')}</ControlLabel>
-                    <SelectCustomers
-                      label={__('Choose customer')}
-                      name="customerId"
-                      initialValue={contract.customerId}
-                      onSelect={onSelectCustomer}
-                      multi={false}
-                    />
-                  </FormGroup>
-                )}
+                <FormGroup>
+                  <ControlLabel required={true}>{__('Customer')}</ControlLabel>
+                  <SelectCustomers
+                    label={__('Choose customer')}
+                    name="customerId"
+                    initialValue={contract.customerId}
+                    onSelect={onSelectCustomer}
+                    multi={false}
+                  />
+                </FormGroup>
+              )}
               {contract.useManualNumbering &&
                 renderFormGroup('Contract Number', {
                   ...formProps,
@@ -479,8 +497,8 @@ function ContractForm(props: Props) {
                   value={contract.loanDestination}
                   onChange={onChangeField}
                 >
-                  {LoanPurpose.destination.map((type) => (
-                    <option key={type.code} value={type.code}>
+                  {(purposes || []).map((type) => (
+                    <option key={type.code} value={type._id}>
                       {__(type.name)}
                     </option>
                   ))}
@@ -525,17 +543,14 @@ function ContractForm(props: Props) {
                   value={contract.loanPurpose}
                   onChange={onChangeField}
                 >
-                  {LoanPurpose.purpose
-                    .filter(
-                      (a) =>
-                        contract.loanDestination &&
-                        a.parent === contract.loanDestination
-                    )
-                    .map((type) => (
-                      <option key={type.name} value={type.value}>
-                        {__(type.name)}
-                      </option>
-                    ))}
+                  <option key={''} value={''}>
+                    {''}
+                  </option>
+                  {(subPurpose || []).map((type) => (
+                    <option key={type.code} value={type._id}>
+                      {__(type.name)}
+                    </option>
+                  ))}
                 </FormControl>
               </FormGroup>
 
@@ -561,7 +576,7 @@ function ContractForm(props: Props) {
                   fixed: 2,
                   value:
                     (contract.marginAmount || 0) -
-                    (contract.leaseAmount || 0) || 0,
+                      (contract.leaseAmount || 0) || 0,
                   onChange: onChangeField,
                   onClick: onFieldClick,
                 })}
