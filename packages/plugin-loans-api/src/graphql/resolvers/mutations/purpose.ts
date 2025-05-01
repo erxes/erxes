@@ -39,12 +39,12 @@ const purposeMutations = {
 
   purposesRemove: async (
     _root,
-    { puposeIds }: { puposeIds: string[] },
+    { purposeIds }: { purposeIds: string[] },
     { models }: IContext
   ) => {
-    await models.LoanPurpose.removePurposes(puposeIds);
+    await models.LoanPurpose.removePurposes(purposeIds);
 
-    return puposeIds;
+    return purposeIds;
   },
 };
 

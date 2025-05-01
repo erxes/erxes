@@ -5,24 +5,8 @@ import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
-  if (params.number) {
-    filter.number = { $in: [new RegExp(`.*${params.number}.*`, 'i')] };
-  }
-
-  if (params.ids) {
-    filter._id = { $in: params.ids };
-  }
-
-  if (params.contractId) {
-    filter.contractId = params.contractId;
-  }
-
-  if (params.companyId) {
-    filter.companyId = params.companyId;
-  }
-
-  if (params.customerId) {
-    filter.customerId = params.customerId;
+  if (params.searchValue) {
+    filter.name = { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] };
   }
 
   return filter;
@@ -33,16 +17,20 @@ const purposeQueries = {
    * Purpose for only list
    */
 
-  purposes: async (
+  purposesMain: async (
     _root,
     params,
     { commonQuerySelector, models }: IContext
   ) => {
     const filter = await generateFilter(params, commonQuerySelector);
-    return await paginate(models.LoanPurpose.find(filter), {
-      page: params.page,
-      perPage: params.perPage,
-    });
+
+    return {
+      list: await paginate(models.LoanPurpose.find(filter), {
+        page: params.page,
+        perPage: params.perPage,
+      }),
+      totalCount: await models.LoanPurpose.find(filter).countDocuments(),
+    };
   },
 };
 

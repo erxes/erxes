@@ -7,16 +7,22 @@ export const types = () => `
     description: String
     createdAt: Date
   }
+
+  type purposesMainResponse {
+    list: [Purpose],
+    totalCount: Float,
+  }
 `;
 
 const queryParams = `
   page: Int
   perPage: Int
   parentId: String
+  searchValue: String
 `;
 
 export const queries = `
-  purposes(${queryParams}): [Purpose]
+  purposesMain(${queryParams}): purposesMainResponse
 `;
 
 const commonFields = `
@@ -24,10 +30,11 @@ const commonFields = `
   parentId: String
   code: String
   description: String
+  searchValue: String
 `;
 
 export const mutations = `
   purposeAdd(${commonFields}): Purpose
   purposeEdit(_id: String!, ${commonFields}): Purpose
-  purposesRemove(puposeIds: [String]): [String]
+  purposesRemove(purposeIds: [String]): [String]
 `;
