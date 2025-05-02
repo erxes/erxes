@@ -1,6 +1,6 @@
 import { Document, Schema } from "mongoose";
-import { field } from "./utils";
 import { OWNER_TYPES } from "./constants";
+import { field } from "./utils";
 
 export interface IScoreLog {
   ownerType: string;
@@ -12,7 +12,7 @@ export interface IScoreLog {
   campaignId?: string;
   serviceName?: string;
   sourceScoreLogId?: string;
-  targetId?:string
+  targetId?: string;
 }
 
 export interface IScoreLogDocument extends IScoreLog, Document {
@@ -47,3 +47,5 @@ export const scoreLogSchema = new Schema({
     optional: true,
   }),
 });
+
+scoreLogSchema.index({ createdAt: 1, changeScore: 1 });

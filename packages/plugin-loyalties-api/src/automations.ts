@@ -1,3 +1,4 @@
+import { getService } from "@erxes/api-utils/src/serviceDiscovery";
 import * as dayjs from "dayjs";
 import { generateModels, IModels } from "./connectionResolver";
 import {
@@ -5,7 +6,6 @@ import {
   sendCommonMessage,
   sendCoreMessage,
 } from "./messageBroker";
-import { getService } from "@erxes/api-utils/src/serviceDiscovery";
 
 export default {
   constants: {
@@ -773,7 +773,7 @@ const docScoreCampaign = async ({
       subdomain,
       serviceName,
       action: "targetExtender",
-      data: { target },
+      data: { target, campaignId: config.campaignId },
       isRPC: true,
       defaultValue: target,
     });

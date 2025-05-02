@@ -8,7 +8,7 @@ import {
 import { putCreateLog, putDeleteLog, putUpdateLog } from "../logUtils";
 import { IModels } from "../connectionResolver";
 import { model, Model } from "mongoose";
-import { sendCoreMessage } from "../messageBroker";
+import { sendClientPortalMessage, sendCoreMessage } from "../messageBroker";
 import { getOwner } from "./utils";
 
 type DoCampaingTypes = {
@@ -334,6 +334,24 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         throw new Error(
           "Owner type is not the same as the owner type of the campaign"
         );
+      }
+
+      if (campaign.onlyClientPortal && ownerType === 'customer') {
+
+        const cpUser = await sendClientPortalMessage({
+          subdomain,
+          action: 'clientPortalUsers.findOne',
+          data: {
+            erxesCustomerId: ownerId
+          },
+          isRPC: true,
+          defaultValue: null
+        })
+
+        if (!cpUser) {
+          throw new Error("This campaign is only available to client portal users.");
+        }
+
       }
 
       let { placeholder = "", currencyRatio = 0 } = campaign[actionMethod];

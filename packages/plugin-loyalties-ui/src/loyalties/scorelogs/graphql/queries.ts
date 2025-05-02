@@ -22,6 +22,7 @@ const commonFields = `
     }
     campaignId
   }
+  totalScore
 `;
 
 const getScoreLogs = `

@@ -1,5 +1,6 @@
 import { generateModels, IModels } from "./connectionResolver";
 import { generateTotalAmount } from "./graphql/resolvers/mutations/utils";
+import { sendCoreMessage, sendLoyaltiesMessage } from "./messageBroker";
 import { IDeal } from "./models/definitions/deals";
 
 const getPaymentsAttributes = async (subdomain) => {
@@ -13,8 +14,66 @@ const getPaymentsAttributes = async (subdomain) => {
   }));
 };
 
-export const extendLoyaltyTarget = async (models: IModels, target: IDeal) => {
-  console.log({target})
+const applyProductRestrictions = async ({ target, campaign, subdomain }) => {
+  if (!campaign?.restrictions) return target;
+
+  const {
+    categoryIds = [],
+    excludeCategoryIds = [],
+    productIds = [],
+    excludeProductIds = [],
+    tagIds = [],
+    excludeTagIds = [],
+  } = campaign.restrictions || {};
+
+  const productIdsFromTarget = target.productsData.map((p) => p.productId);
+
+  const query: any = {
+    _id: {
+      $in: [...productIdsFromTarget, ...productIds],
+      $nin: excludeProductIds,
+    },
+  };
+
+  if (categoryIds.length || excludeCategoryIds.length) {
+    query.categoryId = {
+      ...(categoryIds.length && { $in: categoryIds }),
+      ...(excludeCategoryIds.length && { $nin: excludeCategoryIds }),
+    };
+  }
+
+  if (tagIds.length || excludeTagIds.length) {
+    query.tagIds = {
+      ...(tagIds.length && { $in: tagIds }),
+      ...(excludeTagIds.length && { $nin: excludeTagIds }),
+    };
+  }
+
+  const productDocs = await sendCoreMessage({
+    subdomain,
+    action: "products.find",
+    data: { query },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  const allowedProductIds = new Set(productDocs.map((p) => p._id));
+
+  target.productsData = target.productsData.filter((p) =>
+    allowedProductIds.has(p.productId)
+  );
+
+  return target;
+};
+
+export const extendLoyaltyTarget = async (
+  models: IModels,
+  target: IDeal,
+  campaign,
+  subdomain: string
+) => {
+  await applyProductRestrictions({ target, campaign, subdomain });
+
   const totalAmount = generateTotalAmount(target.productsData);
 
   const paymentTypes = await models.Pipelines.find({
@@ -60,7 +119,15 @@ export default {
   targetExtender: async ({ subdomain, data: { target, campaignId } }) => {
     const models = await generateModels(subdomain);
 
-    return await extendLoyaltyTarget(models, target);
+    const scoreCampaign = await sendLoyaltiesMessage({
+      subdomain,
+      action: "scoreCampaign.findOne",
+      data: { _id: campaignId },
+      isRPC: true,
+      defaultValue: {},
+    });
+
+    return await extendLoyaltyTarget(models, target, scoreCampaign, subdomain);
   },
   getScoreCampaingAttributes: async ({ subdomain }) => {
     return [
