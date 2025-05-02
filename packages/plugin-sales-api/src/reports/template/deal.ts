@@ -3009,8 +3009,6 @@ export const dealCharts = [
 
       const pipeline = buildPipeline(filter, "deal", matchFilter);
 
-      console.log("pipeline", JSON.stringify(pipeline, null, 2));
-
       const deals = await models.Deals.aggregate(pipeline);
 
       const title = "Total Deals Count";
