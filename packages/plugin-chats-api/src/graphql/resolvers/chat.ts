@@ -27,7 +27,7 @@ export const getIsSeen = async (models, chat, user) => {
 };
 
 const Chat = {
-  async lastMessage(chat, {}, { models }) {
+  async lastMessage(chat, _, { models }) {
     return models.ChatMessages.findOne({ chatId: chat._id }).sort({
       createdAt: -1
     });
@@ -42,17 +42,17 @@ const Chat = {
     );
   },
 
-  async isSeen(chat, {}, { models, user }) {
+  async isSeen(chat, _, { models, user }) {
     return getIsSeen(models, chat, user);
   },
 
-  async isArchived(chat, {}, { models, user }) {
+  async isArchived(chat, _, { models, user }) {
     const archivedUserIds = chat.archivedUserIds || [];
 
     return archivedUserIds.includes(user._id);
   },
 
-  async participantUsers(chat, {}, { subdomain }) {
+  async participantUsers(chat, _, { subdomain }) {
     const users = await sendCoreMessage({
       subdomain,
       action: 'users.find',
@@ -74,7 +74,7 @@ const Chat = {
               subdomain,
               action: 'departments.find',
               data: {
-                userIds: { $in: [user._id] || [] }
+                userIds: { $in: user._id ? [user._id] : [] }
               },
               isRPC: true
             })
@@ -86,7 +86,7 @@ const Chat = {
               action: 'branches.find',
               data: {
                 query: {
-                  userIds: { $in: [user._id] || [] }
+                  userIds: { $in: user._id ? [user._id] : [] }
                 }
               },
               isRPC: true
