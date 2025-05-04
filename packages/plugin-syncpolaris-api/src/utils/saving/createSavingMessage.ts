@@ -7,22 +7,15 @@ import {
 import { activeSaving } from './activeSaving';
 import { getDate } from './getDate';
 
-export const createSaving = async (
+export const createSavingMessage = async (
   subdomain: string,
-  models,
   polarisConfig,
-  syncLog,
   params
 ) => {
-  const savingContract = params.object;
-  let savingCode;
+  const savingContract = params.data;
+  const { contractType } = savingContract;
 
-  const savingProduct = await sendMessageBrokerData(
-    subdomain,
-    'savings',
-    'contractType.findOne',
-    { _id: savingContract.contractTypeId }
-  );
+  let savingCode;
 
   const customer = await sendMessageBrokerData(
     subdomain,
@@ -31,13 +24,15 @@ export const createSaving = async (
     { _id: savingContract.customerId }
   );
 
-  const getAccounts = await await fetchPolaris({
-    op: '13610120',
+  if (!customer?.code) {
+    throw new Error('Customer code is required before calling fetchPolaris.');
+  }
+
+  const getAccounts = await fetchPolaris({
+    op: '13610312',
     data: [customer?.code, 0, 20],
     subdomain,
-    models,
     polarisConfig,
-    syncLog,
   });
 
   const customerAccount = getAccounts.filter(
@@ -53,7 +48,7 @@ export const createSaving = async (
   );
 
   let sendData = {
-    prodCode: savingProduct.code,
+    prodCode: contractType.code,
     slevel: 1,
     capMethod: '1',
     capAcntCode:
@@ -83,8 +78,7 @@ export const createSaving = async (
   };
 
   if (
-    savingProduct?.code &&
-    savingProduct.name != null &&
+    contractType?.code &&
     savingContract.duration != null &&
     customer?.code != null &&
     branch?.code != null
@@ -93,9 +87,7 @@ export const createSaving = async (
       op: '13610120',
       data: [sendData],
       subdomain,
-      models,
       polarisConfig,
-      syncLog,
     });
   }
 
@@ -113,7 +105,7 @@ export const createSaving = async (
       'savings'
     );
 
-    await activeSaving(subdomain, polarisConfig, [savingCode, 'данс нээв']);
+    // await activeSaving(subdomain, polarisConfig, [savingCode, 'данс нээв']);
   }
 
   return savingCode;

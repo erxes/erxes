@@ -47,7 +47,7 @@ export interface IContract {
   interestNounce?: any;
   customFieldsData?: any;
   isDeposit?: boolean;
-  blockAmount: number
+  blockAmount: number;
 }
 
 export interface IContractDoc extends IContract {
@@ -142,6 +142,10 @@ export type RegenSchedulesMutationResponse = {
     variables: { contractId: string };
   }) => Promise<any>;
   fixSchedules: (params: { variables: { contractId: string } }) => Promise<any>;
+};
+
+export type SavingsMutationResponse = {
+  sendSaving: (params: { variables: { data: any } }) => Promise<any>;
 };
 
 // query types

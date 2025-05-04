@@ -157,6 +157,7 @@ export const sendMessageBroker = async (
     | 'ebarimt'
     | 'loans'
     | 'khanbank'
+    | 'syncpolaris'
 ): Promise<any> => {
   return sendMessage({
     serviceName: name,

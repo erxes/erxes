@@ -10,6 +10,7 @@ import { getDepositBalance } from './utils/deposit/getDepositBalance';
 import { createLoanStoreInterest } from './utils/loan/loanStoreInterest';
 import { changeLoanSchedule } from './utils/loan/changeLoanSchedule';
 import { getConfig } from './utils/utils';
+import { createSavingMessage } from './utils/saving/createSavingMessage';
 
 export const setupMessageConsumers = async () => {
   consumeQueue('syncpolaris:afterMutation', async ({ subdomain, data }) => {
@@ -21,6 +22,15 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
+    };
+  });
+
+  consumeRPCQueue('syncpolaris:sendContract', async ({ data, subdomain }) => {
+    const polarisConfig = await getConfig(subdomain, 'POLARIS', {});
+
+    return {
+      status: 'success',
+      data: await createSavingMessage(subdomain, polarisConfig, data),
     };
   });
 
@@ -39,7 +49,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await getDepositBalance(subdomain, polarisConfig, data),
       };
-    },
+    }
   );
 
   consumeRPCQueue('syncpolaris:createSchedule', async ({ data, subdomain }) => {
@@ -68,7 +78,7 @@ export const setupMessageConsumers = async () => {
 };
 
 export const sendCommonMessage = async (
-  args: MessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string }
 ) => {
   return sendMessage({
     ...args,
