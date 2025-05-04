@@ -50,7 +50,7 @@ class PollOptions extends React.Component<Props, State> {
     let adding = true;
 
     if (props.showAddButton) {
-      adding = false;
+
     }
 
     this.state = {
