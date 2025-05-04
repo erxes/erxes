@@ -18,7 +18,7 @@ type Props = {
 const SelectPaymentsContainer = (props: Props) => {
   const [paymentIds, setPaymentIds] = React.useState<string[]>([]);
 
-  const { data, loading, error } = useQuery<PaymentsQueryResponse>(
+  const { data, loading } = useQuery<PaymentsQueryResponse>(
     queries.payments,
     {
       fetchPolicy: 'network-only',
