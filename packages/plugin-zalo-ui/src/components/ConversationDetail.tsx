@@ -17,10 +17,10 @@ type Props = {
 const Detail = (props: Props) => {
   let prevMessageInsertedSubscription = null as any;
   let prevTypingInfoSubscription;
-  const { currentId } = props;
-
-  const [loadingMessages, setLoadingMessages] = useState(false);
-  const [typingInfo, setTypingInfo] = useState('');
+  const { currentId } = props;  
+  
+  const [setLoadingMessages] = useState(false);
+  const [setTypingInfo] = useState('');
 
   const messagesQuery = useQuery(gql(queries.zaloConversationMessages), {
     variables: {
@@ -114,7 +114,7 @@ const Detail = (props: Props) => {
     }
   }, [currentId, messagesQuery]);
 
-  const loadMoreMessages = () => {
+  const  () => {
     const { zaloConversationMessagesCount } = messagesTotalCountQuery.data;
     const conversationMessages =
       messagesQuery.data.zaloConversationMessages || [];
