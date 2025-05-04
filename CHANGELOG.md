@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.12.0-rc.0](https://github.com/erxes/erxes/compare/2.11.0...2.12.0-rc.0) (2025-05-04)
+
+### Bug Fixes
+
+* accountings correction inventories costs ([489a727](https://github.com/erxes/erxes/commit/489a727fa81ed02bdbbacdb943db7f68bf8d5c3e))
+* **loans:** fix detail bug and dropdown ([44de37b](https://github.com/erxes/erxes/commit/44de37bf6b0b40ded4ffd97315f4dc593dbc9abf))
+* **sales:** fix some ui ([d66973a](https://github.com/erxes/erxes/commit/d66973aa1c9b419970d4b16f3317a71da53623bd))
+
+### Performance Improvements
+
+* **messenger:** update ticket and call ([#6014](https://github.com/erxes/erxes/issues/6014)) ([a799820](https://github.com/erxes/erxes/commit/a799820fa403dd6e736b61192c762c5ceeaf5848))
+
 ## [2.11.0](https://github.com/erxes/erxes/compare/2.11.0-rc.0...2.11.0) (2025-05-04)
 
 ### Bug Fixes
