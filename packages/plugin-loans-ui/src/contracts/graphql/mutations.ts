@@ -37,6 +37,11 @@ const commonFields = `
   $scheduleDays: [Int]
   $stepRules: [JSON]
 
+  $skipInterestCalcMonth: Float
+  $skipInterestCalcDay: Float
+  $skipAmountCalcMonth: Float
+  $skipAmountCalcDay: Float
+
   $insuranceAmount: Float
   $debt: Float
   $debtTenor: Float
@@ -105,6 +110,11 @@ const commonVariables = `
   endDate: $endDate
   scheduleDays: $scheduleDays
   stepRules: $stepRules
+
+  skipInterestCalcMonth: $skipInterestCalcMonth
+  skipInterestCalcDay: $skipInterestCalcDay
+  skipAmountCalcMonth: $skipAmountCalcMonth
+  skipAmountCalcDay: $skipAmountCalcDay
 
   insuranceAmount: $insuranceAmount
   debt: $debt

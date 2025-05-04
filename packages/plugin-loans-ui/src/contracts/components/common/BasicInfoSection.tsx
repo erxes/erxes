@@ -49,7 +49,7 @@ const BasicInfoSection = (props: Props) => {
       client
         .mutate({
           mutation: gql(queries.documents),
-          variables: { contentType: "loans" },
+          variables: { contentType: 'loans' },
         })
         .then(({ data }) => {
           setDocuments(data.documents);
@@ -100,13 +100,13 @@ const BasicInfoSection = (props: Props) => {
           title: "Interest correction",
           trigger: <a href="#toClose">{__("Interest correction")}</a>,
           content: interestChangeForm,
-          additionalModalProps: { size: "lg" },
+          additionalModalProps: { size: 'lg' },
         },
         {
           title: "Change contract",
           trigger: <a href="#changeContract">{__("Change contract")}</a>,
           content: contractForm,
-          additionalModalProps: { size: "lg" },
+          additionalModalProps: { size: 'lg' },
         },
       ];
       if (can("contractsClose", currentUser))
@@ -114,7 +114,7 @@ const BasicInfoSection = (props: Props) => {
           title: "To Close Contract",
           trigger: <a href="#toClose">{__("To Close Contract")}</a>,
           content: closeForm,
-          additionalModalProps: { size: "lg" },
+          additionalModalProps: { size: 'lg' },
         });
 
       if (contract.unUsedBalance) {
@@ -122,14 +122,14 @@ const BasicInfoSection = (props: Props) => {
           title: "Give transaction",
           trigger: <a href="#toClose">{__("Give transaction")}</a>,
           content: giveTrForm,
-          additionalModalProps: { size: "lg" },
+          additionalModalProps: { size: 'lg' },
         });
       } else {
         result.unshift({
           title: "Repayment Transaction",
           trigger: <a href="#toClose">{__("Repayment Transaction")}</a>,
           content: repaymentTrForm,
-          additionalModalProps: { size: "lg" },
+          additionalModalProps: { size: 'lg' },
         });
       }
       return result;
@@ -182,7 +182,7 @@ const BasicInfoSection = (props: Props) => {
         <Name>{contract.number}</Name>
         {can("contractsEdit", currentUser) && (
           <ModalTrigger
-            title={__("Edit contract info")}
+            title={__('Edit contract info')}
             trigger={<Icon icon="edit" />}
             size="xl"
             content={contractForm}

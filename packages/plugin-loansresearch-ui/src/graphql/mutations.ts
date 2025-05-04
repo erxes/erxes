@@ -3,6 +3,7 @@ const commonFields = `
   $customerType: String
   $customerId: String
   $debtIncomeRatio: Float
+  $updatedRatio: Float
   $increaseMonthlyPaymentAmount: Float
 
   $averageSalaryIncome: Float
@@ -21,6 +22,7 @@ const commonVariables = `
   customerType: $customerType
   customerId: $customerId
   debtIncomeRatio: $debtIncomeRatio
+  updatedRatio: $updatedRatio
   increaseMonthlyPaymentAmount: $increaseMonthlyPaymentAmount
 
   averageSalaryIncome: $averageSalaryIncome
@@ -56,8 +58,17 @@ const loansResearchRemove = `
   }
 `;
 
+const loansResearchRefetch = `
+  mutation loansResearchRefetch($customerId: String!, $type: String!) {
+    loansResearchRefetch(customerId: $customerId, type: $type) {
+      _id
+    }
+  }
+`;
+
 export default {
   loansResearchAdd,
   loansResearchEdit,
   loansResearchRemove,
+  loansResearchRefetch,
 };

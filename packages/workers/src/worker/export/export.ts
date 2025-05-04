@@ -188,18 +188,19 @@ async function main() {
 
     const [serviceName, type] = contentType.split(":");
 
-    const { totalCount, excelHeader } = await sendRPCMessage(
-      `${serviceName}:exporter.prepareExportData`,
-      {
-        subdomain,
-        data: {
-          contentType,
-          columnsConfig,
-          segmentData
-        },
-        timeout: 5 * 60 * 1000 // 5 minutes
-      }
-    );
+    const {
+      totalCount = 0,
+      excelHeader = [],
+      error
+    } = await sendRPCMessage(`${serviceName}:exporter.prepareExportData`, {
+      subdomain,
+      data: {
+        contentType,
+        columnsConfig,
+        segmentData
+      },
+      timeout: 5 * 60 * 1000 // 5 minutes
+    });
 
     const perPage = 10;
     const totalIterations = Math.ceil(totalCount / perPage);
@@ -251,7 +252,11 @@ async function main() {
       let columnIndex = 0;
 
       for (const header of excelHeader) {
-        const value = doc[header];
+        let value = doc[header];
+
+        if (Array.isArray(value) && !value.length) {
+          value = "";
+        }
 
         sheet.cell(rowIndex, columnIndex + 1).value(value || "-");
         columnIndex++;

@@ -70,6 +70,8 @@ export interface IContractConfig {
   requirements?: string[];
   customerDocuments?: string[];
   companyDocuments?: string[];
+
+  danRule: string;
 }
 
 export interface IContractType {
@@ -106,7 +108,7 @@ export interface IContractType {
   savingUpperPercent: number;
 
   config: IContractConfig;
-  productId: string
+  productId: string;
   productType: string;
 
   feePercent?: number;
@@ -130,7 +132,7 @@ export const customFieldSchema = new Schema(
     value: field({ type: Schema.Types.Mixed }),
     stringValue: field({ type: 'String', optional: true }),
     numberValue: field({ type: 'Number', optional: true }),
-    dateValue: field({ type: 'Date', optional: true })
+    dateValue: field({ type: 'Date', optional: true }),
   },
   { _id: false }
 );
@@ -143,52 +145,162 @@ export const contractTypeSchema = schemaHooksWrapper(
     description: field({ type: String, optional: true, label: 'Description' }),
     status: field({ type: String, default: 'active', label: 'Status' }),
     number: field({ type: String, label: 'Number' }),
-    vacancy: field({ type: Number, min: 1, max: 10, label: 'Vacancy', required: true }),
-    leaseType: field({ type: String, enum: LEASE_TYPES.ALL, label: 'Lease Type', required: true, default: LEASE_TYPES.FINANCE }),
-    currency: field({ type: String, default: 'MNT', label: 'contract type currency of lease' }),
+    vacancy: field({
+      type: Number,
+      min: 1,
+      max: 10,
+      label: 'Vacancy',
+      required: true,
+    }),
+    leaseType: field({
+      type: String,
+      enum: LEASE_TYPES.ALL,
+      label: 'Lease Type',
+      required: true,
+      default: LEASE_TYPES.FINANCE,
+    }),
+    currency: field({
+      type: String,
+      default: 'MNT',
+      label: 'contract type currency of lease',
+    }),
 
-    defaultInterest: field({ type: Number, label: 'Default Percent', optional: true }),
+    defaultInterest: field({
+      type: Number,
+      label: 'Default Percent',
+      optional: true,
+    }),
     useSkipInterest: field({ type: Boolean, label: 'use skip interest' }),
-    skipInterestDay: field({ type: Number, label: 'Skip interest Day', optional: true }),
-    skipInterestMonth: field({ type: Number, label: 'Skip interest Month', optional: true }),
-    skipPaymentDay: field({ type: Number, label: 'Skip interest Day', optional: true }),
-    skipPaymentMonth: field({ type: Number, label: 'Skip interest Month', optional: true }),
+    skipInterestDay: field({
+      type: Number,
+      label: 'Skip interest Day',
+      optional: true,
+    }),
+    skipInterestMonth: field({
+      type: Number,
+      label: 'Skip interest Month',
+      optional: true,
+    }),
+    skipPaymentDay: field({
+      type: Number,
+      label: 'Skip interest Day',
+      optional: true,
+    }),
+    skipPaymentMonth: field({
+      type: Number,
+      label: 'Skip interest Month',
+      optional: true,
+    }),
 
     lossPercent: field({ type: Number, label: 'Loss Percent', optional: true }),
-    lossCalcType: field({ type: String, label: 'Loss Calc Type', optional: true }),
-    skipLossDay: field({ type: Number, label: 'Skip loss day', optional: true }),
-    allowLateDay: field({ type: Number, label: 'Allow late day', optional: true }),
+    lossCalcType: field({
+      type: String,
+      label: 'Loss Calc Type',
+      optional: true,
+    }),
+    skipLossDay: field({
+      type: Number,
+      label: 'Skip loss day',
+      optional: true,
+    }),
+    allowLateDay: field({
+      type: Number,
+      label: 'Allow late day',
+      optional: true,
+    }),
 
-    allowPartOfLease: field({ type: Boolean, label: 'Allow part of lease', optional: true }),
-    limitIsCurrent: field({ type: Boolean, label: 'Limit Is Current balance', optional: true }),
-    commitmentInterest: field({ type: Number, label: 'Commitment Interest', default: 0 }),
+    allowPartOfLease: field({
+      type: Boolean,
+      label: 'Allow part of lease',
+      optional: true,
+    }),
+    limitIsCurrent: field({
+      type: Boolean,
+      label: 'Limit Is Current balance',
+      optional: true,
+    }),
+    commitmentInterest: field({
+      type: Number,
+      label: 'Commitment Interest',
+      default: 0,
+    }),
 
     useMargin: field({ type: Boolean, label: 'Use margin', optional: true }),
     useDebt: field({ type: Boolean, label: 'Use debt', optional: true }),
     useManualNumbering: field({ type: Boolean, label: 'use manual numbering' }),
 
-    savingPlusLoanInterest: field({ type: Number, default: 0, label: 'Saving loan plus interest' }),
-    savingUpperPercent: field({ type: Number, default: 0, label: 'Saving loan upper percent' }),
-    usePrePayment: field({ type: Boolean, default: false, label: 'use pre payment' }),
+    savingPlusLoanInterest: field({
+      type: Number,
+      default: 0,
+      label: 'Saving loan plus interest',
+    }),
+    savingUpperPercent: field({
+      type: Number,
+      default: 0,
+      label: 'Saving loan upper percent',
+    }),
+    usePrePayment: field({
+      type: Boolean,
+      default: false,
+      label: 'use pre payment',
+    }),
 
     config: field({ type: Object }),
     productId: field({ type: String, optional: true, label: 'product' }),
-    productType: field({ type: String, default: 'private', optional: true, label: 'product Type' }),
+    productType: field({
+      type: String,
+      default: 'private',
+      optional: true,
+      label: 'product Type',
+    }),
 
     feePercent: field({ type: Number, label: 'fee Percent', optional: true }),
     defaultFee: field({ type: Number, label: 'default Fee', optional: true }),
-    useCollateral: field({ type: Boolean, label: 'Use Collateral', optional: true }),
-    minPercentMargin: field({ type: Number, label: 'Pre Percent', optional: true }),
+    useCollateral: field({
+      type: Boolean,
+      label: 'Use Collateral',
+      optional: true,
+    }),
+    minPercentMargin: field({
+      type: Number,
+      label: 'Pre Percent',
+      optional: true,
+    }),
 
-    collectivelyRule: field({ type: String, optional: true, enum: COLLECTIVELY_RULES.ALL, label: 'collectively Rule' }),
-    overPaymentIsNext: field({ type: Boolean, label: 'Over Payment is next schedule', default: false, optional: true }),
+    collectivelyRule: field({
+      type: String,
+      optional: true,
+      enum: COLLECTIVELY_RULES.ALL,
+      label: 'collectively Rule',
+    }),
+    overPaymentIsNext: field({
+      type: Boolean,
+      label: 'Over Payment is next schedule',
+      default: false,
+      optional: true,
+    }),
 
-    requirements: field({ type: [String], optional: true, label: 'requirements' }),
-    customerDocuments: field({ type: [String], optional: true, label: 'customer Documents' }),
-    companyDocuments: field({ type: [String], optional: true, label: 'company Documents' }),
+    requirements: field({
+      type: [String],
+      optional: true,
+      label: 'requirements',
+    }),
+    customerDocuments: field({
+      type: [String],
+      optional: true,
+      label: 'customer Documents',
+    }),
+    companyDocuments: field({
+      type: [String],
+      optional: true,
+      label: 'company Documents',
+    }),
 
-
-    createdAt: field({ type: Date, default: () => new Date(), label: 'Created at' }),
+    createdAt: field({
+      type: Date,
+      default: () => new Date(),
+      label: 'Created at',
+    }),
     modifiedAt: field({ type: Date, optional: true, label: 'Created at' }),
   }),
   'erxes_contractTypeSchema'

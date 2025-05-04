@@ -6,13 +6,13 @@ export interface IContractConfig {
   savingAccount?: string;
   interestAccount?: string;
   storedInterestAccount?: string;
-  minInterest?: number
-  maxInterest?: number
-  defaultInterest?: number
-  minDuration?: number
-  maxDuration?: number
-  minAmount?: number
-  maxAmount?: number
+  minInterest?: number;
+  maxInterest?: number;
+  defaultInterest?: number;
+  minDuration?: number;
+  maxDuration?: number;
+  minAmount?: number;
+  maxAmount?: number;
   storeInterestTime?: string;
 }
 
@@ -35,6 +35,7 @@ export interface IContractType {
   isAllowOutcome: boolean;
   isDeposit: boolean;
   productType: string;
+  limitPercentage: number;
 }
 
 export interface IContractTypeDocument extends IContractType, Document {
@@ -54,31 +55,31 @@ export const contractTypeSchema = schemaHooksWrapper(
       min: 1,
       max: 10,
       label: 'Vacancy',
-      required: true
+      required: true,
     }),
 
     config: field({ type: Object }),
     currency: field({
       type: String,
       default: 'MNT',
-      label: 'Currency'
+      label: 'Currency',
     }),
     interestCalcType: field({ type: String, label: 'Interest calculate type' }),
     storeInterestInterval: field({
       type: String,
-      label: 'Interest store interval'
+      label: 'Interest store interval',
     }),
     interestRate: field({
       type: Number,
       min: 0,
       max: 100,
-      label: 'Saving Interest Rate'
+      label: 'Saving Interest Rate',
     }),
     closeInterestRate: field({
       type: Number,
       min: 0,
       max: 100,
-      label: 'Saving Close Interest Rate'
+      label: 'Saving Close Interest Rate',
     }),
     branchId: field({ type: String, label: 'Branch Id' }),
     isAllowIncome: field({ type: Boolean, label: 'Is Allow income' }),
@@ -87,7 +88,11 @@ export const contractTypeSchema = schemaHooksWrapper(
     productType: field({
       type: String,
       default: 'private',
-      label: 'product Type'
+      label: 'product Type',
+    }),
+    limitPercentage: field({
+      type: Number,
+      label: 'Limit Percentage',
     }),
   }),
   'erxes_contractTypeSchema'

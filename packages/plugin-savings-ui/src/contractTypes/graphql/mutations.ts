@@ -19,6 +19,7 @@ const commonFields = `
   $currency:String,
   $branchId:String,
   $productType: String
+  $limitPercentage: Float
 `;
 
 const commonVariables = `
@@ -40,6 +41,7 @@ const commonVariables = `
   branchId:$branchId,
   isDeposit:$isDeposit,
   productType: $productType
+  limitPercentage: $limitPercentage
 `;
 
 const contractTypesAdd = `
@@ -67,5 +69,5 @@ const contractTypesRemove = `
 export default {
   contractTypesAdd,
   contractTypesEdit,
-  contractTypesRemove
+  contractTypesRemove,
 };
