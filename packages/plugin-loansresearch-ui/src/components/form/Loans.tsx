@@ -29,9 +29,11 @@ const getEmptyIncome = () => ({
 type Props = {
   loans: ILoan[];
   setLoans: (loans) => void;
+  refetchResearch: (customerId: string, type: string) => void;
   monthlyCostAmount: number;
   monthlyLoanAmount: number;
   totalPaymentAmount: number;
+  customerId: string;
 };
 
 const LoanForm = (props: Props) => {
@@ -41,6 +43,8 @@ const LoanForm = (props: Props) => {
     monthlyCostAmount,
     monthlyLoanAmount,
     totalPaymentAmount,
+    refetchResearch,
+    customerId,
   } = props;
 
   const onChangeLoanItem = (_id: string, key: string, value: any) => {
@@ -84,6 +88,10 @@ const LoanForm = (props: Props) => {
     setLoans([...loans, getEmptyIncome()]);
   };
 
+  const onChangeRefetch = () => {
+    refetchResearch(customerId, 'loan');
+  };
+
   const removeFeature = (_id?: string) => {
     const modifiedLoans = loans.filter((f) => f._id !== _id);
 
@@ -97,7 +105,7 @@ const LoanForm = (props: Props) => {
           return (
             <MarginTop borderBottom={true}>
               <FormGroup>
-                <ControlLabel>Income type</ControlLabel>
+                <ControlLabel>Loan type</ControlLabel>
                 <Select
                   value={LOAN_TYPES.find((o) => o.value === loan.loanType)}
                   onChange={(item: any) =>
@@ -232,14 +240,12 @@ const LoanForm = (props: Props) => {
                   single={false}
                 />
 
-                {loan.loanType === 'Cost' && (
-                  <Button
-                    btnStyle="danger"
-                    onClick={() => removeFeature(loan._id)}
-                  >
-                    X
-                  </Button>
-                )}
+                <Button
+                  btnStyle="danger"
+                  onClick={() => removeFeature(loan._id)}
+                >
+                  X
+                </Button>
               </FormGroup>
             </MarginTop>
           );
@@ -290,6 +296,13 @@ const LoanForm = (props: Props) => {
         <ControlLabel>Loans</ControlLabel>
         <Button size="small" onClick={() => onChangeFeature()}>
           + Add Loans
+        </Button>
+        <Button
+          size="small"
+          btnStyle="warning"
+          onClick={() => onChangeRefetch()}
+        >
+          Refetch Loans
         </Button>
       </FormGroup>
 

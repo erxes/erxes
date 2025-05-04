@@ -19,6 +19,7 @@ export const types = () => `
     isAllowOutcome: Boolean
     isDeposit: Boolean
     productType: String
+    limitPercentage: Float
   }
 
   type SavingContractTypesListResponse {
@@ -64,6 +65,7 @@ const commonFields = `
   isAllowOutcome: Boolean
   isDeposit: Boolean
   productType: String
+  limitPercentage: Float
 `;
 
 export const mutations = `

@@ -228,14 +228,14 @@ class ProductForm extends React.Component<Props, State> {
             ...p,
             discountPercent: loyalty.discount || p.discountPercent || 0
           };
-    
+
           this.calculatePerProductAmount('', pData, false);
-    
+
           return pData;
         })
 
         onChangeProductsData(updatedData)
-        onChangeExtraData({couponCode})
+        onChangeExtraData({ couponCode })
 
         this.updateTotal(updatedData);
       }).catch((err) => Alert.error(err.message));
@@ -252,8 +252,8 @@ class ProductForm extends React.Component<Props, State> {
         unitPrice: p.isVatApplied
           ? p.unitPrice
           : parseFloat(
-              ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
-            ),
+            ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
+          ),
       };
 
       this.calculatePerProductAmount("", pData, false);
@@ -864,23 +864,23 @@ class ProductForm extends React.Component<Props, State> {
               {
                 isEnabled('loyalties') &&
                 <tr>
-                <td colSpan={6}>
-                  <ApplyVatWrapper>
-                    <FormControl
-                      placeholder='Coupon code'
-                      onChange={this.onChangeCouponCode}
-                    />
+                  <td colSpan={6}>
+                    <ApplyVatWrapper>
+                      <FormControl
+                        placeholder='Coupon code'
+                        onChange={this.onChangeCouponCode}
+                      />
 
-                    <Button
-                      btnStyle='primary'
-                      icon='plus-circle'
-                      onClick={this.applyCoupon}
-                    >
-                      Apply coupon
-                    </Button>
-                  </ApplyVatWrapper>
-                </td>
-              </tr>
+                      <Button
+                        btnStyle='primary'
+                        icon='plus-circle'
+                        onClick={this.applyCoupon}
+                      >
+                        Apply coupon
+                      </Button>
+                    </ApplyVatWrapper>
+                  </td>
+                </tr>
               }
             </tbody>
           </table>

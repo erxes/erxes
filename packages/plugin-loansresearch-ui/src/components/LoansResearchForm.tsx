@@ -18,6 +18,7 @@ import LoanForm from './form/Loans';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  refetchResearch: (customerId: string, type: string) => void;
   loansResearch: ILoanResearch;
   closeModal: () => void;
   queryParams: any;
@@ -29,6 +30,7 @@ const LoansResearchForm = (props: Props) => {
     loansResearch = {} as ILoanResearch,
     closeModal,
     renderButton,
+    refetchResearch,
     queryParams,
     customer,
   } = props;
@@ -49,6 +51,9 @@ const LoansResearchForm = (props: Props) => {
   );
   const [increaseMonthlyPaymentAmount, setIncreaseMonthlyPaymentAmount] =
     useState<number>(loansResearch?.increaseMonthlyPaymentAmount || 0);
+  const [updatedRatio, setUpdatedRatio] = useState<number>(
+    loansResearch?.updatedRatio || 0
+  );
 
   // income state
   const [incomes, setIncomes] = useState<IIncome[]>(
@@ -84,6 +89,18 @@ const LoansResearchForm = (props: Props) => {
   }, [queryParams]);
 
   useEffect(() => {
+    if (customer?._id) {
+      setCustomerId(customer._id);
+    }
+  }, [customer]);
+
+  useEffect(() => {
+    if (queryParams && queryParams?.itemId) {
+      setDealId(queryParams.itemId);
+    }
+  }, [queryParams]);
+
+  useEffect(() => {
     if (customer) {
       setCustomerId(customer._id);
     }
@@ -94,20 +111,26 @@ const LoansResearchForm = (props: Props) => {
 
     const ratio = (totalPaymentAmount / totalIncome) * 100;
 
+    const updatedRatio =
+      ((totalPaymentAmount + increaseMonthlyPaymentAmount) / totalIncome) * 100;
+
     if (customerType === 'Salary') {
       increaseAmount = averageSalaryIncome * 0.8 - totalPaymentAmount;
+      setIncreaseMonthlyPaymentAmount(increaseAmount);
     }
 
     if (customerType === 'Business') {
       increaseAmount = averageBusinessIncome * 0.7 - totalPaymentAmount;
+      setIncreaseMonthlyPaymentAmount(increaseAmount);
     }
 
     if (customerType === 'Salary+Business') {
       increaseAmount = totalIncome * 0.7 - totalPaymentAmount;
+      setIncreaseMonthlyPaymentAmount(increaseAmount);
     }
 
     setDebtIncomeRatio(ratio);
-    setIncreaseMonthlyPaymentAmount(increaseAmount);
+    setUpdatedRatio(updatedRatio);
   }, [
     averageSalaryIncome,
     averageBusinessIncome,
@@ -198,6 +221,7 @@ const LoansResearchForm = (props: Props) => {
       totalPaymentAmount,
       debtIncomeRatio,
       increaseMonthlyPaymentAmount,
+      updatedRatio,
     };
   };
 
@@ -212,6 +236,8 @@ const LoansResearchForm = (props: Props) => {
           totalPaymentAmount={totalPaymentAmount}
           debtIncomeRatio={debtIncomeRatio}
           increaseMonthlyPaymentAmount={increaseMonthlyPaymentAmount}
+          setIncreaseMonthlyPaymentAmount={setIncreaseMonthlyPaymentAmount}
+          updatedRatio={updatedRatio}
         />
       );
     }
@@ -224,6 +250,8 @@ const LoansResearchForm = (props: Props) => {
           averageSalaryIncome={averageSalaryIncome}
           totalIncome={totalIncome}
           averageBusinessIncome={averageBusinessIncome}
+          refetchResearch={refetchResearch}
+          customerId={customerId}
         />
       );
     }
@@ -236,6 +264,8 @@ const LoansResearchForm = (props: Props) => {
           monthlyCostAmount={monthlyCostAmount}
           monthlyLoanAmount={monthlyLoanAmount}
           totalPaymentAmount={totalPaymentAmount}
+          refetchResearch={refetchResearch}
+          customerId={customerId}
         />
       );
     }

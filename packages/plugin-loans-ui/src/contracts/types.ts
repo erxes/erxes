@@ -88,6 +88,11 @@ export interface IContract {
   scheduleDays: number[];
   stepRules?: IStepRules[];
 
+  skipInterestCalcMonth: number;
+  skipInterestCalcDay: number;
+  skipAmountCalcMonth: number;
+  skipAmountCalcDay: number;
+
   insuranceAmount?: number;
   debt?: number;
   debtTenor?: number;
