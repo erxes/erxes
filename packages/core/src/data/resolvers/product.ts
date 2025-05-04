@@ -1,6 +1,6 @@
-import { IContext } from "../../connectionResolver";
-import { IProductDocument } from "../../db/models/definitions/products";
-import { customFieldsDataByFieldCode } from "@erxes/api-utils/src/fieldUtils";
+import { IContext } from '../../connectionResolver';
+import { IProductDocument } from '../../db/models/definitions/products';
+import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
@@ -26,6 +26,11 @@ export default {
     );
   },
 
+  async bundle(product: IProductDocument, _, { dataLoaders }: IContext) {
+    return (
+      (product.bundleId && dataLoaders.bundle.load(product.bundleId)) || null
+    );
+  },
   async customFieldsDataByFieldCode(
     product: IProductDocument,
     _,
