@@ -1,10 +1,11 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import DumbCategoryDetail from '../../components/faq/CategoryDetail';
-import queries from '../../graphql';
-import { useQuery } from '@apollo/react-hooks';
-import { useRouter } from '../../context/Router';
-import { getMessengerData } from '../../utils/util';
+import * as React from "react";
+
+import DumbCategoryDetail from "../../components/faq/CategoryDetail";
+import { getFaqCategoryQuery } from "../../graphql/queries";
+import { getMessengerData } from "../../utils/util";
+import gql from "graphql-tag";
+import { useQuery } from "@apollo/react-hooks";
+import { useRouter } from "../../context/Router";
 
 const CategoryDetail = ({ loading }: { loading: boolean }) => {
   const { activeFaqCategory } = useRouter();
@@ -14,9 +15,9 @@ const CategoryDetail = ({ loading }: { loading: boolean }) => {
   const topicId = getMessengerData().knowledgeBaseTopicId;
 
   const { data, loading: loadingFaqCategoy } = useQuery(
-    gql(queries.getFaqCategoryQuery),
+    gql(getFaqCategoryQuery),
     {
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
       variables: {
         _id: categoryId,
       },

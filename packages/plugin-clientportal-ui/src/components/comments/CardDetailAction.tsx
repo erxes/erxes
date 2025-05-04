@@ -7,6 +7,7 @@ import {
   TicketLabel,
 } from "./styles";
 import React, { useState } from "react";
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 import { __, readFile } from "@erxes/ui/src/utils";
 
 import Button from "@erxes/ui/src/components/Button";
@@ -14,6 +15,7 @@ import EmptyState from "@erxes/ui/src/components/EmptyState";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Spinner from "@erxes/ui/src/components/Spinner";
 import { colors } from "@erxes/ui/src/styles";
 import dayjs from "dayjs";
 import { rgba } from "@erxes/ui/src/styles/ecolor";
@@ -21,8 +23,11 @@ import styled from "styled-components";
 import styledTS from "styled-components-ts";
 
 type Props = {
-  comments: any[];
+  cpComments: any[];
+  widgetComments: any[];
+  loading: boolean;
   handleSubmit: ({ content }: { content: string }) => void;
+  handleWidgetSubmit: ({ content }: { content: string }) => void;
   handleRemoveComment: (commentId: string) => void;
 };
 
@@ -49,11 +54,15 @@ const TriggerButton = styledTS<{ color?: string }>(styled.div)`
 `;
 
 const Container: React.FC<Props> = ({
-  comments,
+  cpComments,
+  widgetComments,
+  loading,
   handleRemoveComment,
   handleSubmit,
+  handleWidgetSubmit,
 }: Props) => {
   const [content, setContent] = useState("");
+  const [currentTab, setCurrentTab] = useState("cp");
 
   const handleChange = (e) => {
     setContent(e.target.value);
@@ -66,7 +75,11 @@ const Container: React.FC<Props> = ({
   const createComment = () => {
     setContent("");
 
-    handleSubmit({ content });
+    if (currentTab === "widget") {
+      return handleWidgetSubmit({ content });
+    }
+
+    return handleSubmit({ content });
   };
 
   const deleteComment = (commentId: string) => {
@@ -82,6 +95,10 @@ const Container: React.FC<Props> = ({
           size="small"
         />
       );
+    }
+
+    if (loading) {
+      return <Spinner />;
     }
 
     return (
@@ -120,11 +137,27 @@ const Container: React.FC<Props> = ({
   };
 
   const renderContent = () => {
+    const isCp = currentTab === "cp";
+
     return (
       <>
+        <Tabs full={true}>
+          <TabTitle
+            className={isCp ? "active" : ""}
+            onClick={() => setCurrentTab("cp")}
+          >
+            {__("Client Portal")}
+          </TabTitle>
+          <TabTitle
+            className={currentTab === "widget" ? "active" : ""}
+            onClick={() => setCurrentTab("widget")}
+          >
+            {__("Widgets")}
+          </TabTitle>
+        </Tabs>
         <TicketLabel>
           <Icon icon="comment-1" size={14} />
-          &nbsp; Activity
+          &nbsp; {isCp ? "Write clientportal comment" : "Write widget comment"}
         </TicketLabel>
         <TicketContent>
           <FormControl
@@ -144,7 +177,7 @@ const Container: React.FC<Props> = ({
               </Button>
             </div>
           )}
-          {renderComments(comments)}
+          {renderComments(isCp ? cpComments : widgetComments)}
         </TicketContent>
       </>
     );

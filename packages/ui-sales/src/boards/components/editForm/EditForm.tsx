@@ -21,20 +21,19 @@ import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { Portal } from "@headlessui/react";
 import Watch from "../../containers/editForm/Watch";
-import { currentUser } from "@erxes/ui/src/auth/graphql";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   options: IOptions;
   item: IItem;
   addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
-  synchSingleCard?: (itemId: string) => void;
   removeItem: (itemId: string, callback?: () => void) => void;
   copyItem: (itemId: string, callback: () => void, msg?: string) => void;
   beforePopupClose: (afterPopupClose?: () => void) => void;
   formContent: ({ state, copy, remove }: IEditFormContent) => React.ReactNode;
   onUpdate: (item: IItem, prevStageId?) => void;
   saveItem: (doc, callback?: (item) => void) => void;
+  synchSingleCard?: (itemId: string) => void;
   isPopupVisible?: boolean;
   hideHeader?: boolean;
   sendToBoard?: (item: any) => void;
@@ -87,14 +86,6 @@ function EditForm(props: Props) {
       setUpdatedItem(props.item);
     }
   }, [item]);
-
-  // useEffect(() => {
-  //   document.addEventListener("mousedown", onHideModal);
-
-  //   return () => {
-  //     document.removeEventListener("mousedown", onHideModal);
-  //   };
-  // }, [isPopupVisible]);
 
   const onChangeStage = (stageId: string) => {
     setStageId(stageId);

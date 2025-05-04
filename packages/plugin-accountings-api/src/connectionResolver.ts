@@ -9,7 +9,7 @@ import {
   IAccountModel,
   loadAccountClass,
 } from './models/Accounts';
-import { IAdjustInventoriesModel, loadAdjustInventoriesClass } from './models/AdjustInventories';
+import { IAdjustInventoriesModel, loadAdjustInventoriesClass, IAdjustInvDetailsModel, loadAdjustInvDetailsClass } from './models/AdjustInventories';
 import {
   IAccountingConfigModel,
   loadAccountingConfigClass,
@@ -27,7 +27,7 @@ import {
 import {
   IAccountCategoryDocument,
 } from './models/definitions/accountCategory';
-import { IAdjustInventoryDocument } from './models/definitions/adjustInventory';
+import { IAdjustInventoryDocument, IAdjustInvDetailDocument } from './models/definitions/adjustInventory';
 import { IAccountingConfigDocument } from './models/definitions/config';
 import { ICtaxRowDocument } from './models/definitions/ctaxRow';
 import { IPermissionDocument } from './models/definitions/permission';
@@ -45,6 +45,7 @@ export interface IModels {
   CtaxRows: ICtaxRowModel;
   Permissions: IPermissionModel;
   AdjustInventories: IAdjustInventoriesModel;
+  AdjustInvDetails: IAdjustInvDetailsModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -75,6 +76,11 @@ export const loadClasses = (
     IAdjustInventoryDocument,
     IAdjustInventoriesModel
   >('adjust_inventories', loadAdjustInventoriesClass(models, subdomain));
+
+  models.AdjustInvDetails = db.model<
+    IAdjustInvDetailDocument,
+    IAdjustInvDetailsModel
+  >('adjust_inv_details', loadAdjustInvDetailsClass(models, subdomain));
 
   models.Permissions = db.model<IPermissionDocument, IPermissionModel>(
     'accounting_permissions',

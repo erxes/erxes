@@ -1,15 +1,15 @@
-import uploadHandler from '../../uploadHandler';
-import { MESSAGE_TYPES } from '../constants';
-import { useConfig } from '../context/Config';
-import { useMessage } from '../context/Message';
+import { MESSAGE_TYPES } from "../constants";
+import uploadHandler from "../../uploadHandler";
+import { useConfig } from "../context/Config";
+import { useMessage } from "../context/Message";
 
 function useHelpers() {
   const { sendMessage } = useMessage();
   const { setIsAttachingFile } = useConfig();
 
-  const sendFile = (file: File) => {
+  const sendFiles = (files: FileList) => {
     uploadHandler({
-      file,
+      files,
       beforeUpload() {
         setIsAttachingFile(true);
       },
@@ -20,7 +20,7 @@ function useHelpers() {
         const attachment = { url: response, ...fileInfo };
 
         // send message with attachment
-        sendMessage(MESSAGE_TYPES.TEXT, 'This message has an attachment', [
+        sendMessage(MESSAGE_TYPES.TEXT, "This message has an attachment", [
           attachment,
         ]);
       },
@@ -32,7 +32,7 @@ function useHelpers() {
     });
   };
 
-  return { sendFile };
+  return { sendFiles };
 }
 
 export default useHelpers;

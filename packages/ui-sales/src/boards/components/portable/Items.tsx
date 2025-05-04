@@ -1,13 +1,14 @@
-import { ItemsWrapper } from "../../styles/item";
+import { IItem, IOptions } from "../../types";
+
 import Box from "@erxes/ui/src/components/Box";
+import { ButtonRelated } from "@erxes/ui/src/styles/main";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
 import Icon from "@erxes/ui/src/components/Icon";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import { ButtonRelated } from "@erxes/ui/src/styles/main";
-import { __ } from "@erxes/ui/src/utils";
-import React from "react";
 import { ItemChooser } from "../../containers/portable/";
-import { IItem, IOptions } from "../../types";
+import { ItemsWrapper } from "../../styles/item";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
 
 type IData = {
   options: IOptions;
@@ -29,7 +30,7 @@ class Items extends React.Component<Props, { openItemId?: string }> {
     super(props);
 
     this.state = {
-      openItemId: ""
+      openItemId: "",
     };
   }
 
@@ -89,7 +90,7 @@ class Items extends React.Component<Props, { openItemId?: string }> {
       onChangeItem,
       items,
       relType,
-      hideQuickButtons
+      hideQuickButtons,
     } = this.props;
 
     const trigger = (
@@ -104,7 +105,7 @@ class Items extends React.Component<Props, { openItemId?: string }> {
       </ButtonRelated>
     );
 
-    const content = props => (
+    const content = (props) => (
       <ItemChooser
         {...props}
         data={{
@@ -112,14 +113,14 @@ class Items extends React.Component<Props, { openItemId?: string }> {
           options: data.options,
           mainType,
           mainTypeId,
-          items
+          items,
         }}
         callback={onChangeItem}
         showSelect={true}
       />
     );
 
-    const relContent = props => (
+    const relContent = (props) => (
       <ItemChooser
         {...props}
         data={{
@@ -127,7 +128,7 @@ class Items extends React.Component<Props, { openItemId?: string }> {
           mainType,
           mainTypeId,
           items,
-          isRelated: true
+          isRelated: true,
         }}
         callback={onChangeItem}
         showSelect={true}
@@ -155,7 +156,7 @@ class Items extends React.Component<Props, { openItemId?: string }> {
     const boxProps = {
       extraButtons: !hideQuickButtons && quickButtons,
       title: __(data.options.title),
-      name: relType && `show${relType}`
+      name: relType && `show${relType}`,
     };
 
     return (

@@ -26,7 +26,17 @@ const clientPortalCommentsRemove = `
     }
 `;
 
+const widgetsTicketCommentsRemove = `	
+  mutation widgetsTicketCommentsRemove(
+    $_id: String!
+  ) {
+    widgetsTicketCommentsRemove(
+      _id: $_id
+      )
+    }
+`;
 export default {
   clientPortalCommentsAdd,
-  clientPortalCommentsRemove
+  clientPortalCommentsRemove,
+  widgetsTicketCommentsRemove
 };

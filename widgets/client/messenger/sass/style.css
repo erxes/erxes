@@ -1471,6 +1471,9 @@ select.form-control:focus,
   text-align: left;
   word-wrap: break-word;
 }
+.text-danger {
+  color: #d9382c;
+}
 .flex {
   display: flex;
 }
@@ -1660,11 +1663,6 @@ select.form-control:focus,
   border-top: 2px solid rgba(255, 255, 255, 0.3);
   height: 16px;
   width: 16px;
-}
-@media screen and (max-width: 420px) {
-  .accquire-information {
-    height: 100%;
-  }
 }
 
 .websiteApp {
@@ -3102,6 +3100,29 @@ select.form-control:focus,
   position: relative;
   height: 100%;
 }
+.ticket-main-container .ticket-check-container.active,
+.ticket-main-container .ticket-auth-container.active {
+  display: block;
+}
+.ticket-main-container .ticket-auth-container {
+  position: absolute;
+  bottom: -180px; /* Initially hidden below */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 180px;
+  background: white;
+  padding: 20px;
+  box-sizing: border-box;
+  transition: bottom 0.5s ease-in-out;
+  border-radius: 12px;
+  display: none;
+}
+
+.ticket-main-container .ticket-auth-container .accquire-information {
+  padding: 10px;
+}
+
 .ticket-main-container .ticket-check-container {
   position: absolute;
   bottom: -220px; /* Initially hidden below */
@@ -3114,6 +3135,7 @@ select.form-control:focus,
   box-sizing: border-box;
   transition: bottom 0.5s ease-in-out;
   border-radius: 12px;
+  display: none;
 }
 .ticket-main-container .forget-form .input-container {
   margin-bottom: 10px;
@@ -3122,12 +3144,14 @@ select.form-control:focus,
   bottom: -350px;
   height: 350px;
 }
-.ticket-main-container .ticket-check-container .line-wrapper {
+.ticket-main-container .ticket-check-container .line-wrapper,
+.ticket-main-container .ticket-auth-container .line-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.ticket-main-container .ticket-check-container .line {
+.ticket-main-container .ticket-check-container .line,
+.ticket-main-container .ticket-auth-container .line {
   width: 48px;
   height: 6px;
   border-radius: 8px;
@@ -3149,7 +3173,8 @@ select.form-control:focus,
   opacity: 1;
   visibility: visible;
 }
-.ticket-main-container.active .ticket-check-container {
+.ticket-main-container.active .ticket-check-container,
+.ticket-main-container.active .ticket-auth-container {
   bottom: 0;
 }
 .ticket-check-content button {
@@ -3283,6 +3308,8 @@ select.form-control:focus,
 .ticket-progress-container .ticket-progress-main-content {
   height: 78%;
   overflow: auto;
+  max-width: 90%;
+  padding-right: 20px;
 }
 .ticket-progress-container .ticket-lbl {
   margin-bottom: 10px;
@@ -3357,6 +3384,17 @@ select.form-control:focus,
   margin-bottom: 10px;
   display: flex;
 }
+.ticket-progress-logs .ticket-progress-log.team {
+  flex-direction: row-reverse;
+}
+.ticket-progress-logs .ticket-progress-log .comment {
+  margin-top: 5px;
+}
+.ticket-progress-logs .ticket-progress-log .date {
+  font-size: 11px;
+  text-align: right;
+  margin-top: 5px;
+}
 .ticket-progress-logs .ticket-progress-log > span {
   background: #eee;
   margin-left: 10px;
@@ -3364,6 +3402,12 @@ select.form-control:focus,
   border-radius: 10px;
   font-size: 14px;
   color: #666;
+  width: 100%;
+}
+.ticket-progress-logs .ticket-progress-log.team > span {
+  margin-left: 0;
+  margin-right: 10px;
+  background: #e5e0f7;
 }
 .ticket-progress-logs .ticket-progress-log > span strong {
   margin-right: 5px;
@@ -3522,7 +3566,7 @@ select.form-control:focus,
 }
 
 .call-container .list-item {
-  background: rgba(79, 51, 175, 0.2);
+  background: rgba(79, 51, 175, 0.1);
   border-radius: 12px;
   color: #4f33af;
   padding: 10px 20px;
@@ -3541,6 +3585,7 @@ select.form-control:focus,
 .call-container .list-item:hover,
 .call-container .list-item.active {
   border-color: #aba0ce;
+  background: rgba(79, 51, 175, 0.2);
 }
 
 .call-container .outgoing-call {
@@ -4066,17 +4111,32 @@ select.form-control:focus,
   height: 2.75rem;
   min-width: 2.75rem;
   cursor: pointer;
+  transition: all ease 0.3s;
+
   &:hover {
     border-radius: 9999px;
-    background-color: hsla(0, 0%, 100%, 0.25);
+
     svg {
       fill: white;
     }
+
+    .nav-content span {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+    }
   }
+
   &.active {
     padding-right: 0.625rem;
     padding-left: 0.625rem;
     background-color: transparent;
+
+    .nav-content span {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+    }
   }
   .nav-content {
     height: 100%;
@@ -4085,13 +4145,20 @@ select.form-control:focus,
     display: flex;
     align-items: center;
     gap: 0.5rem;
+
     span {
       font-size: 0.85rem;
       font-weight: 500;
       color: white;
       background-color: transparent;
+      transition: all ease 0.3s;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(-4px);
+      white-space: nowrap;
     }
   }
 }
@@ -4175,7 +4242,6 @@ select.form-control:focus,
   overflow: hidden;
 }
 .container-content {
-  /*  overflow-y: auto; */
   flex: 1;
   display: flex;
   flex-shrink: 2;

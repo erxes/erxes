@@ -219,7 +219,7 @@ export default {
               integrationDetails.secondPageDescription || '',
             departments: integrationDetails.departments,
             isReceiveWebCall,
-          } || {}
+          }
         );
       } catch (e) {
         console.error('error', e);
