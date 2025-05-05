@@ -32,6 +32,11 @@ export const ACCOUNT_CATEGORY_STATUSES = {
   ALL: ['active', 'archived'],
 };
 
+export const ACCOUNT_CATEGORIES_STATUS_FILTER = {
+  disabled: 'Disabled',
+  archived: 'Archived',
+};
+
 export const ACCOUNT_CATEGORY_MASK_TYPES = {
   ANY: '',
   SOFT: 'soft',

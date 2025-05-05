@@ -4,6 +4,7 @@ import { IModels } from '../connectionResolver';
 import { JOURNALS, TR_SIDES } from '../models/definitions/constants';
 import { ITransaction, ITransactionDocument } from "../models/definitions/transaction";
 import { getConfig, sendCoreMessage } from '../messageBroker';
+import { getFullDate } from '@erxes/api-utils/src';
 
 export default class CurrencyTr {
   private subdomain: string;
@@ -101,7 +102,7 @@ export default class CurrencyTr {
     if (!this.currencyDiffTrDoc) {
       if (oldFollowInfo) {
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
-          $set: { 'details.0.amount': amount },
+          $set: { 'details.0.amount': amount, fullDate: getFullDate(transaction.date) },
           $pull: {
             follows: { ...oldFollowInfo }
           }
@@ -129,13 +130,10 @@ export default class CurrencyTr {
         });
 
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
+          $set: { 'details.0.amount': amount, fullDate: getFullDate(transaction.date) },
           $pull: {
             follows: { ...oldFollowInfo }
-          }
-        });
-
-        await this.models.Transactions.updateOne({ _id: transaction._id }, {
-          $set: { 'details.0.amount': amount },
+          },
           $addToSet: {
             follows: {
               type: 'currencyDiff',
@@ -153,7 +151,7 @@ export default class CurrencyTr {
       });
 
       await this.models.Transactions.updateOne({ _id: transaction._id }, {
-        $set: { 'details.0.amount': amount },
+        $set: { 'details.0.amount': amount, fullDate: getFullDate(transaction.date) },
         $addToSet: {
           follows: [{
             type: 'currencyDiff',

@@ -4,6 +4,7 @@ import { JOURNALS, TR_SIDES } from "../models/definitions/constants";
 import { ITransaction, ITransactionDocument } from "../models/definitions/transaction";
 import { IVatRow } from '../models/definitions/vatRow';
 import { ICtaxRow } from '../models/definitions/ctaxRow';
+import { getFullDate } from '@erxes/api-utils/src/core';
 
 
 class TaxTrs {
@@ -189,7 +190,7 @@ class TaxTrs {
     if (!this.vatTrDoc) {
       if (oldFollowInfo) {
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
-          $set: { vatAmount: 0 },
+          $set: { vatAmount: 0, fullDate: getFullDate(transaction.date) },
           $pull: {
             follows: { ...oldFollowInfo }
           }
@@ -217,20 +218,17 @@ class TaxTrs {
         });
 
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
-          $set: { vatAmount: this.vatTrDoc.details[0].amount },
+          $set: { vatAmount: this.vatTrDoc.details[0].amount, fullDate: getFullDate(transaction.date) },
           $pull: {
             follows: { ...oldFollowInfo }
-          }
-        })
-
-        await this.models.Transactions.updateOne({ _id: transaction._id }, {
+          },
           $addToSet: {
             follows: {
               type: 'vat',
               id: vatTr._id
             }
           }
-        });
+        })
       }
 
     } else {
@@ -241,7 +239,7 @@ class TaxTrs {
       });
 
       await this.models.Transactions.updateOne({ _id: transaction._id }, {
-        $set: { vatAmount: this.vatTrDoc.details[0].amount },
+        $set: { vatAmount: this.vatTrDoc.details[0].amount, fullDate: getFullDate(transaction.date) },
         $addToSet: {
           follows: [{
             type: 'vat',
@@ -261,7 +259,7 @@ class TaxTrs {
     if (!this.ctaxTrDoc) {
       if (oldFollowInfo) {
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
-          $set: { ctaxAmount: 0 },
+          $set: { ctaxAmount: 0, fullDate: getFullDate(transaction.date) },
           $pull: {
             follows: { ...oldFollowInfo }
           }
@@ -288,13 +286,10 @@ class TaxTrs {
         });
 
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
-          $set: { ctaxAmount: this.ctaxTrDoc.details[0].amount },
+          $set: { ctaxAmount: this.ctaxTrDoc.details[0].amount, fullDate: getFullDate(transaction.date) },
           $pull: {
             follows: { ...oldFollowInfo }
-          }
-        })
-
-        await this.models.Transactions.updateOne({ _id: transaction._id }, {
+          },
           $addToSet: {
             follows: {
               type: 'ctax',
@@ -312,7 +307,7 @@ class TaxTrs {
       });
 
       await this.models.Transactions.updateOne({ _id: transaction._id }, {
-        $set: { ctaxAmount: this.ctaxTrDoc.details[0].amount },
+        $set: { ctaxAmount: this.ctaxTrDoc.details[0].amount, fullDate: getFullDate(transaction.date) },
         $addToSet: {
           follows: [{
             type: 'ctax',

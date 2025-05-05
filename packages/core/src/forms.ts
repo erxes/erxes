@@ -53,20 +53,12 @@ const generateBrandsOptions = async (
   };
 };
 
-const generateUsersOptions = async (
+const generateUsersOptions = (
   name: string,
   label: string,
   type: string,
   selectionConfig?: any
 ) => {
-  // const models = await generateModels(subdomain);
-  // const users = await models.Users.find({}).lean();
-
-  // const options: Array<{ label: string; value: any }> = users.map((user) => ({
-  //   value: user._id,
-  //   label: user.username || user.email || '',
-  // }));
-
   return {
     _id: Math.random(),
     name,
@@ -77,7 +69,6 @@ const generateUsersOptions = async (
       queryName: "users",
       labelField: "email"
     }
-    // selectOptions: options
   };
 };
 
@@ -231,6 +222,22 @@ const generateProductsFields = async ({ subdomain, data }) => {
     ];
   }
 
+  fields = fields.map(field =>
+    field.name === "vendorId"
+      ? {
+          _id: Math.random(),
+          name: "vendorId",
+          label: "Vendor",
+          type: "company",
+          selectionConfig: {
+            queryName: "companies",
+            labelField: "primaryEmail"
+          }
+        }
+      : // generateUsersOptions("vendorId", "Vendor", "user")
+        field
+  );
+
   return fields;
 };
 
@@ -323,7 +330,7 @@ export const generateContactsFields = async ({ subdomain, data }) => {
     }
   }
 
-  const ownerOptions = await generateUsersOptions("ownerId", "Owner", "user");
+  const ownerOptions = generateUsersOptions("ownerId", "Owner", "user");
 
   const tags = await getTags(
     subdomain,
