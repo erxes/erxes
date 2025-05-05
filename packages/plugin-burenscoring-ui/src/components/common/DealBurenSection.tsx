@@ -2,20 +2,20 @@ import {
   ButtonRelated,
   DynamicComponentList,
   DynamicTableWrapper,
-} from "@erxes/ui/src/styles/main";
-import { DetailContainer, ScoringBox } from "../../styles";
-import React, { useState } from "react";
+} from '@erxes/ui/src/styles/main';
+import React, { useState } from 'react';
 
-import Box from "@erxes/ui/src/components/Box";
-import DetailForm from "../DetailForm";
-import DynamicComponentContent from "@erxes/ui/src/components/dynamicComponent/Content";
-import EmptyState from "@erxes/ui/src/components/EmptyState";
-import { IBurenScoring } from "../../types";
-import InquiryRow from "./InquiryRow";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import ScoringForm from "../../containers/ScoringForm";
-import Table from "@erxes/ui/src/components/table";
-import { __ } from "@erxes/ui/src/utils/core";
+import Box from '@erxes/ui/src/components/Box';
+import DetailForm from '../DetailForm';
+import DynamicComponentContent from '@erxes/ui/src/components/dynamicComponent/Content';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { IBurenScoring } from '../../types';
+import InquiryRow from './InquiryRow';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { ScoringBox } from '../../styles';
+import ScoringForm from '../../containers/ScoringForm';
+import Table from '@erxes/ui/src/components/table';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   customerId: string;
@@ -40,12 +40,14 @@ function Component(props: Props) {
       <Table $striped $bordered $responsive>
         <thead>
           <tr>
-            <th>{__("LOAN CLASS")}</th>
-            <th>{__("LOAN TYPE")}</th>
-            <th>{__("BALANCE")}</th>
-            <th>{__("ADVAMOUNT")}</th>
-            <th>{__("EXPDATE")}</th>
-            <th>{__("ORGNAME")}</th>
+            <th>{__('LOAN CLASS')}</th>
+            <th>{__('LOAN TYPE')}</th>
+            <th>{__('BALANCE')}</th>
+            <th>{__('ADVAMOUNT')}</th>
+            <th>{__('STARTEDDATE')}</th>
+            <th>{__('EXPDATE')}</th>
+            <th>{__('PAID_DATE')}</th>
+            <th>{__('ORGNAME')}</th>
           </tr>
         </thead>
         <tbody id="inquiries">
@@ -62,10 +64,10 @@ function Component(props: Props) {
       <Table $striped $bordered $responsive>
         <thead>
           <tr>
-            <th>{__("first name")}</th>
-            <th>{__("last name")}</th>
-            <th>{__("address")}</th>
-            <th>{__("registerno")}</th>
+            <th>{__('first name')}</th>
+            <th>{__('last name')}</th>
+            <th>{__('address')}</th>
+            <th>{__('registerno')}</th>
           </tr>
         </thead>
         <tbody id="inquiries">
@@ -83,7 +85,7 @@ function Component(props: Props) {
   const renderScoringButton = () => {
     const trigger = (
       <ButtonRelated>
-        <span>{__("Check another scoring...")}</span>
+        <span>{__('Check another scoring...')}</span>
       </ButtonRelated>
     );
 
@@ -94,7 +96,7 @@ function Component(props: Props) {
     return (
       <ModalTrigger
         size="lg"
-        title={__("Customer Scoring")}
+        title={__('Customer Scoring')}
         trigger={trigger}
         content={modalContent}
       />
@@ -114,7 +116,7 @@ function Component(props: Props) {
 
     const rowTrigger = (
       <ButtonRelated type="primary">
-        <span>{__("View more...")}</span>
+        <span>{__('View more...')}</span>
       </ButtonRelated>
     );
 
@@ -139,22 +141,22 @@ function Component(props: Props) {
           </div>
           <div>
             <span>Сарын төлөлт</span>
-            {monthlyLoanRepayment?.userMonthlyRepayment.toLocaleString("en-US")}
+            {monthlyLoanRepayment?.userMonthlyRepayment.toLocaleString('en-US')}
           </div>
           <div>
             <span>Шугаман зээлийн хэмжээ</span>
-            {monthlyLoanRepayment?.lineTotalBaseAmount.toLocaleString("en-US")}
+            {monthlyLoanRepayment?.lineTotalBaseAmount.toLocaleString('en-US')}
           </div>
           <div>
             <span>Шугаман зээлийн үлдэгдэл</span>
             {monthlyLoanRepayment?.lineTotalRemainAmount.toLocaleString(
-              "en-US"
+              'en-US'
             )}
           </div>
           <div>
             <span>Идэвхитэй зээлийн үлдэгдэл</span>
             {activeLoanInformation?.activeLoanTotalRemainAmount.toLocaleString(
-              "en-US"
+              'en-US'
             )}
           </div>
         </ScoringBox>
@@ -173,14 +175,14 @@ function Component(props: Props) {
       <Table $striped $bordered $responsive>
         <thead>
           <tr>
-            <th>{__("score")}</th>
-            <th>{__("bad Ratio")}</th>
+            <th>{__('score')}</th>
+            <th>{__('bad Ratio')}</th>
           </tr>
         </thead>
         <tbody id="inquiries">
           <tr>
-            <td>{credit?.creditScore?.scoringResult || ""}</td>
-            <td>{credit?.creditScore?.badRatio || ""}</td>
+            <td>{credit?.creditScore?.scoringResult || ''}</td>
+            <td>{credit?.creditScore?.badRatio || ''}</td>
           </tr>
         </tbody>
       </Table>
@@ -192,24 +194,24 @@ function Component(props: Props) {
       <Table $striped $bordered $responsive>
         <thead>
           <tr>
-            <th>{__("user Monthly Repayment")}</th>
-            <th>{__("line Total Base Amount")}</th>
-            <th>{__("line Total Remain Amount")}</th>
+            <th>{__('user Monthly Repayment')}</th>
+            <th>{__('line Total Base Amount')}</th>
+            <th>{__('line Total Remain Amount')}</th>
           </tr>
         </thead>
         <tbody id="inquiries">
           <tr>
             <td>
               {credit?.creditSummary?.monthlyLoanRepayment
-                ?.userMonthlyRepayment || ""}
+                ?.userMonthlyRepayment || ''}
             </td>
             <td>
               {credit?.creditSummary?.monthlyLoanRepayment
-                ?.lineTotalBaseAmount || ""}
+                ?.lineTotalBaseAmount || ''}
             </td>
             <td>
               {credit?.creditSummary?.monthlyLoanRepayment
-                ?.lineTotalRemainAmount || ""}
+                ?.lineTotalRemainAmount || ''}
             </td>
           </tr>
         </tbody>
@@ -222,19 +224,19 @@ function Component(props: Props) {
       <Table $striped $bordered $responsive>
         <thead>
           <tr>
-            <th>{__("active Loan Remain Percent")}</th>
-            <th>{__("active Loan Total Remain Amount")}</th>
+            <th>{__('active Loan Remain Percent')}</th>
+            <th>{__('active Loan Total Remain Amount')}</th>
           </tr>
         </thead>
         <tbody id="inquiries">
           <tr>
             <td>
               {credit?.creditSummary?.activeLoanInformation
-                ?.activeLoanRemainPercent || ""}
+                ?.activeLoanRemainPercent || ''}
             </td>
             <td>
               {credit?.creditSummary?.activeLoanInformation
-                ?.activeLoanTotalRemainAmount || ""}
+                ?.activeLoanTotalRemainAmount || ''}
             </td>
           </tr>
         </tbody>
@@ -248,13 +250,13 @@ function Component(props: Props) {
     }
 
     return (
-      <DetailContainer>
+      <>
         {renderDetail()}
         {renderScore()}
         {renderCreditSummary()}
         {renderActiveLoan()}
         {renderTable()}
-      </DetailContainer>
+      </>
     );
   };
 
@@ -263,18 +265,18 @@ function Component(props: Props) {
       return <EmptyState icon="building" text="No scoring" />;
     }
 
-    if (showType && showType === "list") {
+    if (showType && showType === 'list') {
       return renderServiceItem();
     }
 
     return renderSmallScore();
   };
 
-  if (showType && showType === "list") {
+  if (showType && showType === 'list') {
     return (
       <DynamicComponentContent>
         <DynamicComponentList>
-          <h4>{__("Customer Scoring")}</h4>
+          <h4>{__('Customer Scoring')}</h4>
           <DynamicTableWrapper>{content()}</DynamicTableWrapper>
           {renderScoringButton()}
         </DynamicComponentList>
@@ -283,7 +285,7 @@ function Component(props: Props) {
   }
 
   return (
-    <Box title={__("Loan scoring")} name="showBurenScoring" isOpen={true}>
+    <Box title={__('Loan scoring')} name="showBurenScoring" isOpen={true}>
       {content()}
       {renderScoringButton()}
     </Box>

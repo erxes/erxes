@@ -34,6 +34,7 @@ export type ILoanResearch = {
   customerType: string;
   customerId: string;
   debtIncomeRatio: number;
+  updatedRatio: number;
   increaseMonthlyPaymentAmount: number;
 
   averageSalaryIncome: number;
@@ -67,5 +68,11 @@ export type DetailQueryResponse = {
 export type RemoveMutationResponse = {
   loansResearchRemove: (params: {
     variables: { loanResearchIds: string[] };
+  }) => Promise<any>;
+};
+
+export type RefetchMutationResponse = {
+  loansResearchRefetch: (params: {
+    variables: { customerId: string; type: string };
   }) => Promise<any>;
 };

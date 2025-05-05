@@ -16,7 +16,7 @@ const Contracts = {
         subdomain,
         action: 'customers.findOne',
         data: { _id: contract.customerId },
-        isRPC: true
+        isRPC: true,
       },
       'core'
     );
@@ -32,7 +32,7 @@ const Contracts = {
         subdomain,
         action: 'companies.findOne',
         data: { _id: contract.customerId },
-        isRPC: true
+        isRPC: true,
       },
       'core'
     );
@@ -43,7 +43,7 @@ const Contracts = {
   async hasTransaction(contract: IContractDocument, _, { models }: IContext) {
     return (
       (await models.Transactions.countDocuments({
-        contractId: contract._id
+        contractId: contract._id,
       })) > 0
     );
   },
@@ -54,7 +54,7 @@ const Contracts = {
     { models }: IContext
   ) {
     const transactions = await models.Transactions.find({
-      contractId: contract._id
+      contractId: contract._id,
     })
       .sort({ createdAt: -1 })
       .lean();
@@ -63,7 +63,7 @@ const Contracts = {
   },
   async storeInterest(contract: IContractDocument, _, { models }: IContext) {
     const transactions = await models.Transactions.find({
-      contractId: contract._id
+      contractId: contract._id,
     })
       .sort({ createdAt: -1 })
       .lean();
@@ -80,13 +80,24 @@ const Contracts = {
         subdomain,
         action: 'contracts.find',
         data: { savingContractId: contract._id, status: { $ne: 'closed' } },
-        isRPC: true
+        isRPC: true,
       },
       'loans'
     );
 
     return loans;
-  }
+  },
+  async remainAmount(contract: IContractDocument, _, { models }: IContext) {
+    const contractType = await models.ContractTypes.findOne({
+      _id: contract.contractTypeId,
+    });
+
+    if (contractType)
+      return (
+        (contract.savingAmount / 100) * contractType.limitPercentage -
+        contract.blockAmount
+      );
+  },
 };
 
 export default Contracts;

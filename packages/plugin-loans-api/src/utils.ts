@@ -1,15 +1,20 @@
 import { IColumnLabel } from '@erxes/api-utils/src/types';
 import * as moment from 'moment';
 import * as xlsxPopulate from 'xlsx-populate';
+import { IContractDocument } from './models/definitions/contracts';
+import { REPAYMENT } from './models/definitions/constants';
+import { IModels } from './connectionResolver';
+import { sendSalesMessage } from './messageBroker';
+import { customFieldToObject } from './graphql/resolvers/utils';
+import { generateSchedules } from './models/utils/scheduleUtils';
 
 export const generateXlsx = async (workbook: any): Promise<string> => {
   return workbook.outputAsync();
 };
 
 export const buildFile = async (
-  data: any,
+  data: any
 ): Promise<{ name: string; response: string }> => {
-
   if (!data || !data.length) {
     return {
       name: 'No data',
@@ -96,4 +101,71 @@ const fillCellValue = async (colName: string, item: any): Promise<string> => {
 
   let cellValue: any = getCellValue(item, colName);
   return cellValue || emptyMsg;
+};
+
+export const dealContract = async (
+  dealId: string,
+  args: any,
+  models: IModels,
+  subdomain: string
+) => {
+  let fakeContract: IContractDocument = {
+    _id: 'tempFakeContract',
+    contractDate: new Date(),
+    startDate: new Date(),
+    endDate: new Date(
+      moment(new Date())
+        .add(args?.tenor || 1, 'M')
+        .format('YYYY-MM-DD')
+    ),
+    tenor: 1,
+    scheduleDays: [new Date().getDate()],
+    interestRate: 0,
+    repayment: REPAYMENT.FIXED,
+    ...(args || {}),
+  };
+
+  if (dealId) {
+    const contract = await models.Contracts.findOne({ dealId }).lean();
+    if (contract?._id) {
+      return {
+        contract,
+        schedules: await models.Schedules.find({ contractId: contract._id }),
+        firstSchedules: await models.FirstSchedules.find({
+          contractId: contract._id,
+        }),
+      };
+    }
+
+    const deal = await sendSalesMessage({
+      subdomain,
+      action: 'deals.findOne',
+      data: { _id: dealId },
+      isRPC: true,
+    });
+
+    if (!deal?._id) {
+      throw new Error('deal not found');
+    }
+
+    const contractData = await customFieldToObject(
+      models,
+      subdomain,
+      'sales:deal',
+      deal
+    );
+
+    fakeContract = {
+      ...fakeContract,
+      endDate: moment(new Date()).add(contractData.tenor || 1, 'M'),
+      ...contractData,
+    };
+  }
+  const bulkEntries = await generateSchedules(subdomain, models, fakeContract);
+
+  return {
+    contract: { ...fakeContract },
+    schedules: [],
+    firstSchedules: bulkEntries,
+  };
 };
