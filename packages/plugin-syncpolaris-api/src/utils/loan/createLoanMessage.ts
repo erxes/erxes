@@ -7,7 +7,7 @@ import {
   updateContract,
   sendMessageBrokerData,
   getProduct,
-  getPurpose,
+  getPurpose
 } from '../utils';
 import { activeLoan } from './activeLoan';
 import { createSavingLoan } from './createSavingLoan';
@@ -35,14 +35,14 @@ export const createLoanMessage = async (subdomain, polarisConfig, params) => {
     createdAt: new Date(),
     createdBy: '',
     consumeData: params.data,
-    consumeStr: JSON.stringify(params.data),
+    consumeStr: JSON.stringify(params.data)
   };
 
   const preSuccessValue = await models.SyncLogs.findOne({
     contentType: 'loans:contract',
     contentId: params.data._id,
     error: { $exists: false },
-    responseData: { $exists: true, $ne: null },
+    responseData: { $exists: true, $ne: null }
   }).sort({ createdAt: -1 });
 
   let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
@@ -69,8 +69,8 @@ export const createLoanMessage = async (subdomain, polarisConfig, params) => {
 
   let sendData: any = {
     custCode: customer.code,
-    name: `${customer.code} ${customer.firstName} ${customer.code} ${customer.lastName}`,
-    name2: `${customer.code} ${customer.firstName} ${customer.code} ${customer.lastName}`,
+    name: `${customer.firstName} ${customer.lastName}`,
+    name2: `${customer.firstName} ${customer.lastName}`,
     prodCode: loanProduct?.code,
     prodType: 'LOAN',
     purpose: purpose ? purpose.code : '',
@@ -101,7 +101,7 @@ export const createLoanMessage = async (subdomain, polarisConfig, params) => {
     notSendToCib: 0,
     losMultiAcnt: 0,
     validLosAcnt: 1,
-    secType: 0,
+    secType: 0
   };
 
   if (!preSuccessValue) {
@@ -120,7 +120,7 @@ export const createLoanMessage = async (subdomain, polarisConfig, params) => {
         subdomain,
         models,
         polarisConfig,
-        syncLog,
+        syncLog
       });
     }
 
@@ -135,5 +135,5 @@ export const createLoanMessage = async (subdomain, polarisConfig, params) => {
     }
   }
 
-  return 'result';
+  return result;
 };
