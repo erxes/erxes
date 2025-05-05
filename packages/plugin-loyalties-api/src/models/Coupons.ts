@@ -188,11 +188,7 @@ export const loadCouponClass = (models: IModels, _subdomain: string) => {
 
       const { codeRule } = campaign || {};
 
-      console.log("2", 2);
-
       const codes = await this.generateCodes(codeRule);
-
-      console.log("3", 3);
 
       const couponDocs: any = [];
 
