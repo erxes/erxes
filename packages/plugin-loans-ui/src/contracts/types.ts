@@ -269,6 +269,10 @@ export type RegenSchedulesMutationResponse = {
   fixSchedules: (params: { variables: { contractId: string } }) => Promise<any>;
 };
 
+export type SendLoansMutationResponse = {
+  sendContractToPolaris: (params: { variables: { data: any } }) => Promise<any>;
+};
+
 // query types
 
 export type ListQueryVariables = {

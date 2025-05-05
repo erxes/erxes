@@ -248,4 +248,5 @@ export const mutations = `
   interestReturn(${interestCorrectionFields}): LoanContract
   clientCreditLoanRequest(${clientCreditLoanRequestFields}): LoanContract
   clientCreditLoanCalculate(customerId: String): JSON
+  sendContractToPolaris(data: JSON): JSON
 `;

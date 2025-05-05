@@ -19,7 +19,7 @@ type Props = {
 
 function PolarisSection({ contract, reSendContract }: Props) {
   const onSendPolaris = () =>
-    confirm(__('Are you sure Send Savings polaris?'))
+    confirm(__('Are you sure Send Loan polaris?'))
       .then(() => reSendContract(contract))
       .catch((error) => {
         Alert.error(error.message);
@@ -35,7 +35,7 @@ function PolarisSection({ contract, reSendContract }: Props) {
 
   return (
     <Box
-      title={__('Saving & Polaris')}
+      title={__('Loan & Polaris')}
       name="showPolaris"
       isOpen={true}
       extraButtons={renderExtraButton()}

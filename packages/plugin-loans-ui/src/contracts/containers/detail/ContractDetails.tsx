@@ -12,6 +12,7 @@ import {
   EditMutationResponse,
   IContractDoc,
   RegenSchedulesMutationResponse,
+  SendLoansMutationResponse,
 } from '../../types';
 import { useMutation, useQuery } from '@apollo/client';
 import subscriptions from '../../graphql/subscriptions';
@@ -67,6 +68,13 @@ const ContractDetailsContainer = (props: FinalProps) => {
     }
   );
 
+  const [sendSavings] = useMutation<SendLoansMutationResponse>(
+    gql(mutations.sendSaving),
+    {
+      refetchQueries: ['contractDetail'],
+    }
+  );
+
   const saveItem = (doc: IContractDoc, callback: (item) => void) => {
     contractsEdit({ variables: { ...doc } })
       .then(({ data }) => {
@@ -91,6 +99,12 @@ const ContractDetailsContainer = (props: FinalProps) => {
     });
   };
 
+  const regenPolarisHandler = (data: any) => {
+    sendSavings({ variables: { data } }).catch((error) => {
+      Alert.error(error.message);
+    });
+  };
+
   if (contractDetailQuery.loading) {
     return <Spinner objective={true} />;
   }
@@ -111,6 +125,7 @@ const ContractDetailsContainer = (props: FinalProps) => {
     saveItem,
     regenSchedules: regenSchedulesHandler,
     fixSchedules: fixSchedulesHandler,
+    reSendContract: regenPolarisHandler,
   };
 
   return <ContractDetails {...updatedProps} />;

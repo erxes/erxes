@@ -86,6 +86,14 @@ export const setupMessageConsumers = async () => {
     };
   });
 
+  consumeRPCQueue('loans:purposeType.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      status: 'success',
+      data: await models.LoanPurpose.findOne(data).lean(),
+    };
+  });
+
   consumeRPCQueue('loans:contractType.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

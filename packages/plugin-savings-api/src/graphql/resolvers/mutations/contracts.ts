@@ -366,11 +366,11 @@ const contractMutations = {
     return updatedContract;
   },
 
-  sendSaving: async (_root, { data }, { models, subdomain }: IContext) => {
+  sendSaving: async (_root, { data }, { subdomain }: IContext) => {
     await sendMessageBroker(
       {
         subdomain,
-        action: "sendContract",
+        action: "sendSavingContract",
         data: { data },
         isRPC: true,
       },
