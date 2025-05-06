@@ -28,7 +28,7 @@ type FinalProps = {
 
 class CommentContainer extends React.Component<FinalProps> {
   render() {
-    const { clientPortalCommentsQuery, removeMutation,item } = this.props;
+    const { clientPortalCommentsQuery, removeMutation, item } = this.props;
 
     const clientPortalComments =
       clientPortalCommentsQuery.clientPortalComments ||
@@ -49,10 +49,10 @@ class CommentContainer extends React.Component<FinalProps> {
     return (
       <Comment
         currentUser={this.props.currentUser || ({} as IUser)}
-        widgetsComments={item.comments} 
+        widgetsComments={[]}
         clientPortalComments={clientPortalComments}
         remove={remove}
-        
+
       />
     );
   }
