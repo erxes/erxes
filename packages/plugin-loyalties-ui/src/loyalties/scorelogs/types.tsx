@@ -23,6 +23,7 @@ export interface IScoreLogParams {
   ownerType: string;
   campaign: IScoreCampaign;
   scoreLogs?: any[]
+  totalScore?: number
 }
 
 export interface Owner {

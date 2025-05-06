@@ -1,12 +1,12 @@
-import { Model } from 'mongoose';
-import { customAlphabet } from 'nanoid';
-import { IModels } from '../connectionResolver';
-import { CHAR_SET, CODE_STATUS } from './definitions/constants';
+import { Model } from "mongoose";
+import { customAlphabet } from "nanoid";
+import { IModels } from "../connectionResolver";
+import { CHAR_SET, CODE_STATUS } from "./definitions/constants";
 import {
   couponSchema,
   ICouponDocument,
   ICouponInput,
-} from './definitions/coupons';
+} from "./definitions/coupons";
 
 export interface ICouponModel extends Model<ICouponDocument> {
   createCoupon(doc: ICouponInput): Promise<ICouponDocument>;
@@ -44,30 +44,30 @@ export const loadCouponClass = (models: IModels, _subdomain: string) => {
       const coupon = await models.Coupons.findOne({ code });
 
       if (!coupon) {
-        throw new Error('Invalid coupon code');
+        throw new Error("Invalid coupon code");
       }
 
       if (!coupon.campaignId) {
-        throw new Error('Coupon code is not associated with any campaign');
+        throw new Error("Coupon code is not associated with any campaign");
       }
 
       if (coupon.usageCount >= coupon.usageLimit) {
-        throw new Error('Coupon code usage limit reached');
+        throw new Error("Coupon code usage limit reached");
       }
 
-      if (coupon.status === 'done') {
-        throw new Error('Coupon code has already been used and is expired');
+      if (coupon.status === "done") {
+        throw new Error("Coupon code has already been used and is expired");
       }
 
       if (ownerId && coupon.redemptionLimitPerUser) {
         const redeemedUser =
           coupon.usageLogs?.filter(
-            (log) => log.ownerId === ownerId && coupon.code === code,
+            (log) => log.ownerId === ownerId && coupon.code === code
           ) || [];
 
         if (redeemedUser.length >= coupon.redemptionLimitPerUser) {
           throw new Error(
-            'Coupon code has already been used and cannot be reused',
+            "Coupon code has already been used and cannot be reused"
           );
         }
       }
@@ -77,15 +77,17 @@ export const loadCouponClass = (models: IModels, _subdomain: string) => {
       });
 
       if (!couponCampaign) {
-        throw new Error('Campaign not found');
+        throw new Error("Campaign not found");
       }
 
       if (totaAmount && couponCampaign.restrictions.minimumSpend > totaAmount) {
-        throw new Error(`This coupon requires a minimum spend of ${couponCampaign.restrictions.minimumSpend}`);
+        throw new Error(
+          `This coupon requires a minimum spend of ${couponCampaign.restrictions.minimumSpend}`
+        );
       }
 
-      if (couponCampaign.status !== 'active') {
-        throw new Error('Campaign is not active');
+      if (couponCampaign.status !== "active") {
+        throw new Error("Campaign is not active");
       }
 
       const currentDate = new Date();
@@ -94,7 +96,7 @@ export const loadCouponClass = (models: IModels, _subdomain: string) => {
         (couponCampaign.finishDateOfUse || couponCampaign.endDate) < currentDate
       ) {
         throw new Error(
-          'The campaign has ended and the coupon code is expired',
+          "The campaign has ended and the coupon code is expired"
         );
       }
 
@@ -105,71 +107,75 @@ export const loadCouponClass = (models: IModels, _subdomain: string) => {
       const {
         codeLength = 6,
         staticCode,
-        prefix = '',
-        postfix = '',
-        pattern = '',
-        charSet = ['A-Z', '0-9'],
+        prefix = "",
+        postfix = "",
+        pattern = "",
+        charSet = ["A-Z", "0-9"],
         size = 1,
       } = config;
 
-      const codes = new Set<string>();
+      try {
+        const codes = new Set<string>();
 
-      if (staticCode) {
-        const code = staticCode.trim().toUpperCase().replace(/\s+/g, '');
-
-        codes.add(code);
-      } else {
-        let alphabet = '';
-
-        for (const range of charSet) {
-          alphabet += CHAR_SET[range];
-        }
-
-        const actualCodeLength = pattern
-          ? pattern.split('').filter((char) => char === '#').length
-          : codeLength;
-
-        const nanoid = customAlphabet(alphabet, actualCodeLength);
-
-        while (codes.size < size) {
-          let code = nanoid();
-
-          if (pattern) {
-            let formattedCode = '';
-            let codeIndex = 0;
-
-            for (const char of pattern) {
-              if (char === '#') {
-                if (codeIndex < code.length) {
-                  formattedCode += code[codeIndex];
-                  codeIndex++;
-                }
-              } else {
-                formattedCode += char;
-              }
-            }
-
-            code = formattedCode;
-          }
-
-          if (prefix || postfix) {
-            code = [prefix.toUpperCase(), code, postfix.toUpperCase()]
-              .filter(Boolean)
-              .join('');
-          }
+        if (staticCode) {
+          const code = staticCode.trim().toUpperCase().replace(/\s+/g, "");
 
           codes.add(code);
-        }
-      }
+        } else {
+          let alphabet = "";
 
-      return Array.from(codes);
+          for (const range of charSet) {
+            alphabet += CHAR_SET[range];
+          }
+
+          const actualCodeLength = pattern
+            ? pattern.split("").filter((char) => char === "#").length
+            : codeLength;
+
+          const nanoid = customAlphabet(alphabet, actualCodeLength);
+
+          while (codes.size < size) {
+            let code = nanoid();
+
+            if (pattern) {
+              let formattedCode = "";
+              let codeIndex = 0;
+
+              for (const char of pattern) {
+                if (char === "#") {
+                  if (codeIndex < code.length) {
+                    formattedCode += code[codeIndex];
+                    codeIndex++;
+                  }
+                } else {
+                  formattedCode += char;
+                }
+              }
+
+              code = formattedCode;
+            }
+
+            if (prefix || postfix) {
+              code = [prefix.toUpperCase(), code, postfix.toUpperCase()]
+                .filter(Boolean)
+                .join("");
+            }
+
+            codes.add(code);
+          }
+        }
+
+        return Array.from(codes);
+      } catch (error) {
+        throw new Error(error.message);
+      }
     }
 
     public static async createCoupon(doc: ICouponInput) {
       const { campaignId, customConfig } = doc;
 
       if (!campaignId) {
-        throw new Error('Campaign id is required');
+        throw new Error("Campaign id is required");
       }
 
       const campaign = await models.CouponCampaigns.findOne({
@@ -177,7 +183,7 @@ export const loadCouponClass = (models: IModels, _subdomain: string) => {
       });
 
       if (!campaign) {
-        throw new Error('Campaign not found');
+        throw new Error("Campaign not found");
       }
 
       const { codeRule } = campaign || {};
@@ -196,7 +202,7 @@ export const loadCouponClass = (models: IModels, _subdomain: string) => {
           usageLimit: usageLimit || campaign.codeRule.usageLimit,
           redemptionLimitPerUser:
             redemptionLimitPerUser || campaign.codeRule.redemptionLimitPerUser,
-          codeType: codeRule.staticCode ? 'static' : 'generated',
+          codeType: codeRule.staticCode ? "static" : "generated",
         });
       }
 
@@ -228,13 +234,13 @@ export const loadCouponClass = (models: IModels, _subdomain: string) => {
       });
 
       if (!isValid) {
-        throw new Error('Invalid voucher code');
+        throw new Error("Invalid voucher code");
       }
 
       const coupon = await models.Coupons.findOne({ code });
 
       if (!coupon) {
-        throw new Error('Voucher not found');
+        throw new Error("Voucher not found");
       }
 
       const usageCount = coupon.usageCount + 1;
@@ -251,7 +257,7 @@ export const loadCouponClass = (models: IModels, _subdomain: string) => {
               status,
               usageLogs,
             },
-          },
+          }
         );
       } catch (error) {
         throw new Error(`Error occurred while redeeming coupon code ${error}`);

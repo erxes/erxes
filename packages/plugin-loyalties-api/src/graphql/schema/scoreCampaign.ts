@@ -14,6 +14,9 @@ export const types = `
         fieldId:String,
         serviceName:String,
         additionalConfig:JSON
+
+        restrictions: JSON
+        onlyClientPortal: Boolean
     }
 `;
 
@@ -31,6 +34,9 @@ const COMMON_MUTATION_FIELDS = `
     fieldId: String
     serviceName:String
     additionalConfig:JSON
+
+    restrictions: JSON
+    onlyClientPortal: Boolean
 `;
 const COMMON_QUERIES_FIELDS = `
     page: Int,
