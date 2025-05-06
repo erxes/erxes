@@ -28,8 +28,8 @@ module.exports = {
           'nonBalanceTransactionsRemove',
           'showPeriodLocks',
           'managePeriodLocks',
-          'managePurpose',
-        ],
+          'managePurpose'
+        ]
       },
       {
         name: 'loansContractsAll',
@@ -42,8 +42,13 @@ module.exports = {
           'contractsRemove',
           'showContracts',
           'manageSchedule',
-          'showCollaterals',
-        ],
+          'showCollaterals'
+        ]
+      },
+      {
+        name: 'loansPurposesAll',
+        description: 'Manage All Loan Purpose',
+        use: ['managePurpose', 'purposeAdd', 'purposeEdit', 'purposesRemove']
       },
       {
         name: 'loansTransactionsAll',
@@ -52,108 +57,108 @@ module.exports = {
           'manageTransactions',
           'showTransactions',
           'transactionsEdit',
-          'transactionsRemove',
-        ],
+          'transactionsRemove'
+        ]
       },
       {
         name: 'loansPeriodLocksAll',
         description: 'Manage All Period Locks',
-        use: ['showPeriodLocks', 'managePeriodLocks'],
+        use: ['showPeriodLocks', 'managePeriodLocks']
       },
       //#region contract
       {
         name: 'contractsAdd',
-        description: 'Contract Add',
+        description: 'Contract Add'
       },
       {
         name: 'contractsEdit',
-        description: 'Contract Edit',
+        description: 'Contract Edit'
       },
       {
         name: 'contractsDealEdit',
-        description: 'Contract Deal Relation',
+        description: 'Contract Deal Relation'
       },
       {
         name: 'contractsClose',
-        description: 'Close Contract',
+        description: 'Close Contract'
       },
       {
         name: 'contractsRemove',
-        description: 'Delete Contract',
+        description: 'Delete Contract'
       },
       {
         name: 'showContracts',
-        description: 'Show Contracts',
+        description: 'Show Contracts'
       },
       {
         name: 'manageContracts',
-        description: 'Manage Contracts',
+        description: 'Manage Contracts'
       },
       {
         name: 'manageSchedule',
-        description: 'Manage Schedule',
+        description: 'Manage Schedule'
       },
       {
         name: 'managePurpose',
-        description: 'Manage Purpose',
+        description: 'Manage Purpose'
       },
       {
         name: 'showCollaterals',
-        description: 'Show Collaterals',
+        description: 'Show Collaterals'
       },
       //#endregion
       //insurance
       {
         name: 'manageLoanConfigs',
-        description: 'Manage Loan Configs',
+        description: 'Manage Loan Configs'
       },
       {
         name: 'manageInsuranceTypes',
-        description: 'Manage Insurance Config',
+        description: 'Manage Insurance Config'
       },
       {
         name: 'manageInvoices',
-        description: 'Manage Invoices',
+        description: 'Manage Invoices'
       },
       {
         name: 'showLoanInvoices',
-        description: 'Show Invoices',
+        description: 'Show Invoices'
       },
       //transaction
       {
         name: 'manageTransactions',
-        description: 'Manage Transaction',
+        description: 'Manage Transaction'
       },
       {
         name: 'showTransactions',
-        description: 'Show Transactions',
+        description: 'Show Transactions'
       },
       {
         name: 'transactionsEdit',
-        description: 'Edit Transactions',
+        description: 'Edit Transactions'
       },
       {
         name: 'transactionsRemove',
-        description: 'Remove Transactions',
+        description: 'Remove Transactions'
       },
       //nonBalanceTransaction
       {
         name: 'showNonBalanceTransactions',
-        description: 'Show Non Balance Transactions',
+        description: 'Show Non Balance Transactions'
       },
       {
         name: 'nonBalanceTransactionsRemove',
-        description: 'Remove Non Balance Transactions',
+        description: 'Remove Non Balance Transactions'
       },
       //period Lock
       {
         name: 'showPeriodLocks',
-        description: 'Show Period Locks',
+        description: 'Show Period Locks'
       },
       {
         name: 'managePeriodLocks',
-        description: 'Manage Period Locks',
-      },
-    ],
-  },
+        description: 'Manage Period Locks'
+      }
+    ]
+  }
 };

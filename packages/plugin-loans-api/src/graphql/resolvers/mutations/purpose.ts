@@ -1,8 +1,8 @@
-import { checkPermission } from '@erxes/api-utils/src';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import {
   IPurpose,
-  IPurposeDocument,
+  IPurposeDocument
 } from '../../../models/definitions/loanPurpose';
 
 const purposeMutations = {
@@ -45,7 +45,7 @@ const purposeMutations = {
     await models.LoanPurpose.removePurposes(purposeIds);
 
     return purposeIds;
-  },
+  }
 };
 
 checkPermission(purposeMutations, 'purposeAdd', 'managePurpose');
