@@ -1,4 +1,8 @@
-import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 import { Syncpolariss } from './models';
 import { afterMutationHandlers } from './afterMutations';
 import {
@@ -97,6 +101,15 @@ export const sendCommonMessage = async (
   args: MessageArgs & { serviceName: string }
 ) => {
   return sendMessage({
+    ...args,
+  });
+};
+
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'core',
     ...args,
   });
 };

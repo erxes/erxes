@@ -2,6 +2,8 @@ import Box from '@erxes/ui/src/components/Box';
 import EmptyState from '@erxes/ui/src/components/Box';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import confirm from '@erxes/ui/src/utils/confirmation/confirm';
+import Alert from '@erxes/ui/src/utils/Alert';
 
 import { __ } from 'coreui/utils';
 import { IProduct } from '@erxes/ui-products/src/types';
@@ -16,7 +18,7 @@ import {
   RowCollateral,
   ScrollTableColls
 } from '../../styles';
-import { ICollateralData } from '../../types';
+import { ICollateralData, IContractDoc } from '../../types';
 
 type Props = {
   collateralsData: ICollateralData[];
@@ -24,7 +26,8 @@ type Props = {
   onChangeCollateralsData: (collateralsData: ICollateralData[]) => void;
   onChangeCollaterals: (prs: IProduct[]) => void;
   saveCollateralsData: () => void;
-  contractId: string;
+  reSendContract: (data: any) => void;
+  contract: IContractDoc;
 };
 
 function CollateralsSection({
@@ -32,10 +35,11 @@ function CollateralsSection({
   collateralsData,
   onChangeCollateralsData,
   saveCollateralsData,
-  contractId
+  reSendContract,
+  contract
 }: Props) {
   const contentWithId = (collateralId?: string) => {
-    const content = props => (
+    const content = (props) => (
       <CollateralManager
         {...props}
         currentCollateral={collateralId}
@@ -43,7 +47,7 @@ function CollateralsSection({
         collateralsData={collateralsData}
         collaterals={collaterals}
         saveCollateralsData={saveCollateralsData}
-        contractId={contractId}
+        contractId={contract._id}
       />
     );
 
@@ -105,14 +109,32 @@ function CollateralsSection({
     );
   };
 
+  const onSendPolaris = () =>
+    confirm(__('Are you sure Send Loan polaris?'))
+      .then(() => reSendContract(contract))
+      .catch((error) => {
+        Alert.error(error.message);
+      });
+
+  const renderExtraButton = () => {
+    return (
+      <>
+        {renderCollateralFormModal(
+          <button>
+            <Icon icon="edit-3" />
+          </button>
+        )}
+        <button onClick={onSendPolaris} title="send contract">
+          <Icon icon="refresh-1" />
+        </button>
+      </>
+    );
+  };
+
   return (
     <Box
       title={__('Collaterals')}
-      extraButtons={renderCollateralFormModal(
-        <button>
-          <Icon icon="edit-3" />
-        </button>
-      )}
+      extraButtons={renderExtraButton()}
       name="showCollateral"
       isOpen={true}
     >

@@ -15,6 +15,7 @@ export interface ICollateralData {
   certificate?: string;
   vinNumber?: string;
   currency?: string;
+  collateralTypeId?: string;
 
   cost: number;
   percent: number;

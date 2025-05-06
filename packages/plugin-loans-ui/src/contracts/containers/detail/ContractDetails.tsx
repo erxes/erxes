@@ -100,9 +100,13 @@ const ContractDetailsContainer = (props: FinalProps) => {
   };
 
   const regenPolarisHandler = (data: any) => {
-    sendSavings({ variables: { data } }).catch((error) => {
-      Alert.error(error.message);
-    });
+    sendSavings({ variables: { data } })
+      .then(() => {
+        Alert.success('Successfully synced');
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
   };
 
   if (contractDetailQuery.loading) {

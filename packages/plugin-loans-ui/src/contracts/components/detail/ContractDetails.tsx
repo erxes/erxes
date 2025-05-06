@@ -145,9 +145,10 @@ const ContractDetails = (props: Props) => {
             onChangeCollateralsData={pDataChange}
             onChangeCollaterals={prsChange}
             saveCollateralsData={saveCollateralsData}
+            reSendContract={reSendContract}
             collateralsData={collateralsData}
             collaterals={collaterals}
-            contractId={contract._id}
+            contract={contract}
           ></CollateralsSection>
         ),
       },

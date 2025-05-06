@@ -11,6 +11,7 @@ import {
 } from '../utils';
 import { activeLoan } from './activeLoan';
 import { createSavingLoan } from './createSavingLoan';
+import { updateLoan } from './updateLoan';
 
 export const createLoanMessage = async (subdomain, polarisConfig, params) => {
   const loan = params.data;
@@ -103,6 +104,10 @@ export const createLoanMessage = async (subdomain, polarisConfig, params) => {
     validLosAcnt: 1,
     secType: 0
   };
+
+  if (preSuccessValue) {
+    return await updateLoan(subdomain, models, polarisConfig, syncLog, params);
+  }
 
   if (!preSuccessValue) {
     if (

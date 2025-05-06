@@ -111,6 +111,44 @@ export const fetchPolaris = async (args: IParams) => {
   }
 };
 
+export const fetchPolarisWithoutError = async (args: IParams) => {
+  const { op, data, polarisConfig } = args;
+
+  const config = polarisConfig;
+
+  const headers = {
+    Op: op,
+    Cookie: `NESSESSION=${config.token}`,
+    Company: config.companyCode,
+    Role: config.role,
+    "Content-Type": "application/json"
+  };
+
+  const requestOptions = {
+    url: `${config.apiUrl}`,
+    method: "POST",
+    headers,
+    body: JSON.stringify(data),
+    agent:
+      (config.apiUrl.includes("http://") &&
+        new http.Agent({ keepAlive: true })) ||
+      new https.Agent({ keepAlive: true, rejectUnauthorized: false })
+  };
+
+  const realResponse = await fetch(config.apiUrl, requestOptions)
+    .then(async () => {
+      return "error";
+    })
+    .then((response) => {
+      try {
+        return JSON.parse(response);
+      } catch (e) {
+        return response;
+      }
+    });
+  return realResponse;
+};
+
 export const sendMessageBrokerData = async (
   subdomain,
   serviceName: "core" | "savings" | "loans",
@@ -344,6 +382,20 @@ export const getProduct = async (
   return await sendCommonMessage({
     subdomain,
     action: "contractType.findOne",
+    serviceName: serverName,
+    data: { _id },
+    isRPC: true
+  });
+};
+
+export const getCollateralType = async (
+  subdomain: string,
+  _id: string,
+  serverName: string
+) => {
+  return await sendCommonMessage({
+    subdomain,
+    action: "collateralType.findOne",
     serviceName: serverName,
     data: { _id },
     isRPC: true
