@@ -91,6 +91,41 @@ export const types = () => `
     extraData: JSON
   }
 
+  type AccCommonTrRecord @key(fields: "_id") @cacheControl(maxAge: 3) {
+    _id: String
+    trId: String
+    detailInd: Int
+
+    ${transactionFields}
+
+    status: String
+    ptrStatus: String
+
+    createdAt: Date
+    modifiedAt: Date
+
+    originId: String
+    follows: [FollowTrType]
+
+    details: AccTrDetail
+    shortDetail: AccTrDetail
+    sumDt: Float
+    sumCt: Float
+    createdBy: String
+    modifiedBy: String
+
+    permission: String
+    vatRow: VatRow
+    ctaxRow: CtaxRow
+    followTrs: [AccCommonTransaction]
+
+    branch: Branch
+    department: Department
+    customer: AccCustomer
+
+    extraData: JSON
+  }
+
   input CommonTrDetailInput {
     ${trDetailFields}
   }
@@ -105,13 +140,6 @@ export const types = () => `
     details: [CommonTrDetailInput]
   }
 `;
-
-const mainTrParams = `
-  ${transactionFields}
-
-  details: CommonTrDetailInput
-`;
-
 
 const trsQueryParams = `
   ids: [String],
@@ -145,6 +173,13 @@ const trsQueryParams = `
   statuses: [String],
 `;
 
+const trRecsQueryParams = `
+  ${trsQueryParams}
+
+  groupRule: [String],
+  folded: Boolean,
+`;
+
 export const queries = `
   accTransactions(
     ${trsQueryParams},
@@ -155,13 +190,14 @@ export const queries = `
   ): [AccCommonTransaction]
   accTransactionDetail(_id: String!): [AccCommonTransaction]
   accTransactionsCount(${trsQueryParams}): Int
-  accPtrs(
-    ${trsQueryParams},
+  accTrRecords(
+    ${trRecsQueryParams},
     page: Int,
     perPage: Int,
     sortField: String
     sortDirection: Int
-  ): AccCommonTransaction
+  ): [AccCommonTrRecord]
+  accTrRecordsCount(${trRecsQueryParams}): Int
   accOddTransactions: AccCommonTransaction
 `;
 

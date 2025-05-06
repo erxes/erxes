@@ -17,7 +17,6 @@ type Props = {
   isChecked: boolean;
   toggleBulk: (transaction: ITransaction, isChecked?: boolean) => void;
   toggleHalf: (id: string, type: string, isChecked?: boolean) => void;
-  hasNewParent: boolean;
   hasNewPtr: boolean;
 };
 
@@ -27,7 +26,6 @@ const Row: React.FC<Props> = (props) => {
     toggleBulk,
     toggleHalf,
     isChecked,
-    hasNewParent,
     hasNewPtr,
   } = props;
 
@@ -75,20 +73,6 @@ const Row: React.FC<Props> = (props) => {
 
   return (
     <>
-      {(hasNewParent && (
-        <tr className="odd">
-          <td onClick={onClick}>
-            <FormControl
-              checked={false}
-              componentclass="checkbox"
-              onChange={onChangeParent}
-            />
-          </td>
-          <td className="odd-td" colSpan={11}>
-            parent - {dayjs(date).format("YYYY-MM-DD")}
-          </td>
-        </tr>
-      )) || <></>}
       {(hasNewPtr && (
         <tr className="odd">
           <td onClick={onClick}>
@@ -99,7 +83,7 @@ const Row: React.FC<Props> = (props) => {
             />
           </td>
           <td className="odd-td" colSpan={11}>
-            ptr
+            ptr - {dayjs(date).format("YYYY-MM-DD")}
           </td>
         </tr>
       )) || <></>}
