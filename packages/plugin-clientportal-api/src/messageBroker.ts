@@ -289,6 +289,15 @@ export const sendTicketsMessage = async (
     ...args
   });
 };
+export const sendNotificationsMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "notifications",
+    ...args
+  });
+};
+
 
 export const sendPurchasesMessage = async (
   args: MessageArgsOmitService

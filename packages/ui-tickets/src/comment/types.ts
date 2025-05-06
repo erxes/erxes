@@ -111,16 +111,16 @@ export type IClientPortalComment = {
 };
 
 export type IWidgetsComment = {
-    _id:string;
-    createdAt:string;
-    content:string;
-    createdCustomer:{
-      avatar:string,
-      fullName:string,
-      _id:string;
-      firstName:string;
-      lastName:string;
-    }
+  _id: string;
+  createdAt: string;
+  content: string;
+  createdCustomer: {
+    avatar: string,
+    fullName: string,
+    _id: string;
+    firstName: string;
+    lastName: string;
+  }
 };
 
 export type ClientPortalCommentQueryResponse = {

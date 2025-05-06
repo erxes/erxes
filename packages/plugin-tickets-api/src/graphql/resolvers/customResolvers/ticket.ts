@@ -8,30 +8,6 @@ import { ITicketDocument } from '../../../models/definitions/tickets';
 import { boardId } from '../../utils';
 
 export default {
-  async comments({ comments }, {}, { subdomain }: IContext) {
-  if (!Array.isArray(comments)) return [];
-  const plainComments = comments.map((comment) =>
-    comment.toObject ? comment.toObject() : comment
-  );
-  const uniqueUserIds = [...new Set(plainComments.map(comment => comment.userId))];
-
-  const customers = await sendCoreMessage({
-    subdomain,
-    action: 'customers.find',
-    data: { _id: { $in: uniqueUserIds } },  
-    isRPC: true,
-    defaultValue: [],
-  });
-
-  const customerMap = new Map(customers.map(customer => [customer._id, customer]));
-
-  for (let comment of plainComments) {
-    if (!comment || !comment.userId) continue;
-    comment.createdCustomer = customerMap.get(comment.userId) || null;
-  }
-  return plainComments;
-},
-
   async __resolveReference({ _id }, { models }: IContext) {
     return models.Tickets.findOne({ _id });
   },
