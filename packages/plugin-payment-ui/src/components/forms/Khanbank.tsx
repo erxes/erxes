@@ -27,6 +27,7 @@ const ACCOUNTS_QUERY = gql`
     khanbankAccounts(configId: $configId) {
       name
       number
+      ibanAcctNo
       currency
     }
   }
@@ -61,6 +62,9 @@ const ConfigForm: React.FC<Props> = ({ renderButton, closeModal, payment }) => {
   const [accountNumber, setAccountNumber] = useState(
     payment?.config?.accountNumber || ''
   );
+  const [ibanAcctNo, setIbanAcctNo] = useState(
+    payment?.config?.ibanAcctNo || ''
+  );
 
   React.useEffect(() => {
     if (configId) {
@@ -91,6 +95,7 @@ const ConfigForm: React.FC<Props> = ({ renderButton, closeModal, payment }) => {
       config: {
         configId,
         accountNumber,
+        ibanAcctNo,
       },
     };
 
@@ -115,13 +120,23 @@ const ConfigForm: React.FC<Props> = ({ renderButton, closeModal, payment }) => {
             componentclass='select'
             required={true}
             defaultValue={accountNumber}
-            onChange={(e: any) => setAccountNumber(e.target.value)}
+            onChange={(e: any) => {
+              const selectedAccountNumber = e.target.value;
+              const selectedAccount = accounts.find(
+                (a) => a.number === selectedAccountNumber
+              );
+
+              if (selectedAccount) {
+                setIbanAcctNo(selectedAccount.ibanAcctNo);
+              }
+              setAccountNumber(selectedAccountNumber);
+            }}
             errors={formProps.errors}
           >
             <option value=''>{__('Select a Account')}</option>
             {accounts.map((c) => (
               <option key={c.number} value={c.number}>
-                {`${c.name} - ${c.number}`}
+                {`${c.name} - ${c.ibanAcctNo}`}
               </option>
             ))}
           </FormControl>
@@ -157,7 +172,7 @@ const ConfigForm: React.FC<Props> = ({ renderButton, closeModal, payment }) => {
               value={configId}
               onChange={(e: any) => {
                 const selectedConfigId = e.target.value;
-  
+
                 setConfigId(selectedConfigId);
               }}
               errors={formProps.errors}
