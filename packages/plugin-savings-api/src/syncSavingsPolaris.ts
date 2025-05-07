@@ -37,7 +37,7 @@ const fetchPolaris = async (op, body) => {
     Cookie: `NESSESSION=03tv40BnPzFEEcGgsFxkhrAUTN7Awh`,
     Company: '13',
     Role: '45',
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json'
   };
   const url = `http://202.131.242.158:4139/nesWeb/NesFront`;
   const requestOptions = {
@@ -45,7 +45,7 @@ const fetchPolaris = async (op, body) => {
     method: 'POST',
     headers,
     body: JSON.stringify(body),
-    agent: new http.Agent({ keepAlive: true }),
+    agent: new http.Agent({ keepAlive: true })
   };
 
   const realResponse = await fetch(url, requestOptions)
@@ -83,9 +83,6 @@ const command = async () => {
 
   console.log(`Process start at: ${new Date()}`);
   const customerFilter = { code: { $exists: true } };
-  // const customerFilter = { code: 'CIF-13000112' };
-  // CIF-13000098
-  // CIF-13000112
 
   const customersCount = await Customers.countDocuments(customerFilter);
 
@@ -108,7 +105,7 @@ const command = async () => {
       const getAccounts = await fetchPolaris('13610312', [
         customer.code,
         0,
-        20,
+        20
       ]);
 
       const termDeposits = getAccounts.filter(
@@ -119,15 +116,15 @@ const command = async () => {
         for (const deposit of termDeposits) {
           const detailDeposit = await fetchPolaris('13610100', [
             deposit.acntCode,
-            '0',
+            '0'
           ]);
 
           const type = await SavingContractTypes.findOne({
-            code: deposit.prodCode,
+            code: deposit.prodCode
           });
 
           const contract = await SavingContracts.findOne({
-            number: deposit.acntCode,
+            number: deposit.acntCode
           });
 
           if (type && !contract) {
@@ -143,7 +140,7 @@ const command = async () => {
               interestRate: detailDeposit.intRate,
               currency: 'MNT',
               startDate: new Date(detailDeposit.startDate),
-              createdAt: new Date(detailDeposit.createdDate),
+              createdAt: new Date(detailDeposit.createdDate)
             };
 
             await SavingContracts.insertOne({ ...document });
