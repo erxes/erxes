@@ -12,6 +12,9 @@ const mutationParams = `
     $fieldId: String
     $serviceName:String,
     $additionalConfig:JSON
+
+    $restrictions: JSON
+    $onlyClientPortal: Boolean
 `;
 const mutationParamsDef = `
     title: $title,
@@ -27,6 +30,9 @@ const mutationParamsDef = `
     fieldId: $fieldId
     serviceName:$serviceName
     additionalConfig:$additionalConfig
+
+    restrictions: $restrictions
+    onlyClientPortal: $onlyClientPortal
 `;
 
 const add = `

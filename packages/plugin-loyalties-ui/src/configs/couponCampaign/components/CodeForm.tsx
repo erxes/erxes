@@ -116,6 +116,7 @@ const Form = (props: Props) => {
           <Select
             name="charSet"
             options={CHARACTER_SET_OPTIONS}
+            value={CHARACTER_SET_OPTIONS.filter(option => (codeRule?.charSet || []).includes(option.value))}
             isMulti
             isClearable
             placeholder="Characters that can appear in the code"

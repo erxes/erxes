@@ -941,9 +941,9 @@ export const doScoreCampaign = async (
           if (scoreCampaign) {
             const { additionalConfig = [] } = scoreCampaign || {};
 
-            const stageIds = additionalConfig.flatMap(
+            const stageIds = additionalConfig?.flatMap(
               ({ stageIds }) => stageIds
-            );
+            ) || [];
 
             if (stageIds.includes(doc.stageId)) {
               await sendLoyaltiesMessage({

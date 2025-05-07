@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.11.2](https://github.com/erxes/erxes/compare/2.11.1...2.11.2) (2025-05-06)
+
+### Bug Fixes
+
+* **core:** add ability display label primaryName of company in segment field config ([01d2ce5](https://github.com/erxes/erxes/commit/01d2ce5ec7b19358615e381aca8fa827baa8e43d))
+* **tickets:** update notification handling for ticket comments and client portal ([1b6e723](https://github.com/erxes/erxes/commit/1b6e723fbfc69a3c5a7fdfd15639eaf57550b7ac))
+
+## [2.11.1](https://github.com/erxes/erxes/compare/2.11.0...2.11.1) (2025-05-06)
+
 ## [2.11.0](https://github.com/erxes/erxes/compare/2.11.0-rc.0...2.11.0) (2025-05-04)
 
 ### Bug Fixes

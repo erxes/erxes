@@ -24,7 +24,7 @@ import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 
 type Props = {
   currentUser: IUser;
-  widgetsComments: IWidgetsComment[]; 
+  widgetsComments: IWidgetsComment[];
   clientPortalComments: IClientPortalComment[];
   remove: (_id: string) => void;
 
@@ -52,65 +52,65 @@ class Comment extends React.Component<Props, State> {
     const { currentUser, remove, } = this.props;
     const { show, } = this.state;
 
-  const renderComment = (comment) => {
-    const createdUser = comment.createdUser || comment.createdCustomer || {};
-    const isCurrentUser = createdUser._id === currentUser._id;
-  
-    return (
-      <TicketComment key={comment._id}>
-        <CreatedUser>
-          <img
-            src={readFile(createdUser.avatar || "/images/avatar-colored.svg")}
-            alt="profile"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = "/images/avatar-colored.svg";
-            }}
-          />
-          <div>
-            <CommentContent>
-              <h5>
-                {createdUser.fullName || 
-                 `${createdUser.firstName || ''} ${createdUser.lastName || ''}`}
-              </h5>
-              <div
-                className="comment"
-                dangerouslySetInnerHTML={{ __html: comment.content }}
-              />
-            </CommentContent>
-            <span>
-              Created at {dayjs(comment.createdAt).format("YYYY-MM-DD HH:mm")}
-            </span>
-          </div>
-          {isCurrentUser && (
-            <div className="actions">
-              <button 
-                type="button"
-                onClick={() => remove(comment._id)}
-                aria-label="Delete comment"
-              >
-                Delete
-              </button>
+    const renderComment = (comment) => {
+      const createdUser = comment.createdUser || comment.createdCustomer || {};
+      const isCurrentUser = createdUser._id === currentUser._id;
+
+      return (
+        <TicketComment key={comment._id}>
+          <CreatedUser>
+            <img
+              src={readFile(createdUser.avatar || "/images/avatar-colored.svg")}
+              alt="profile"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/images/avatar-colored.svg";
+              }}
+            />
+            <div>
+              <CommentContent>
+                <h5>
+                  {createdUser.fullName ||
+                    `${createdUser.firstName || ''} ${createdUser.lastName || ''}`}
+                </h5>
+                <div
+                  className="comment"
+                  dangerouslySetInnerHTML={{ __html: comment.content }}
+                />
+              </CommentContent>
+              <span>
+                Created at {dayjs(comment.createdAt).format("YYYY-MM-DD HH:mm")}
+              </span>
             </div>
-          )}
-        </CreatedUser>
-      </TicketComment>
-    );
-  };
+            {isCurrentUser && (
+              <div className="actions">
+                <button
+                  type="button"
+                  onClick={() => remove(comment._id)}
+                  aria-label="Delete comment"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
+          </CreatedUser>
+        </TicketComment>
+      );
+    };
 
- const renderCommentsList = () => {
-    const { currentTab } = this.state;
-    const { clientPortalComments, widgetsComments } = this.props;
+    const renderCommentsList = () => {
+      const { currentTab } = this.state;
+      const { clientPortalComments, widgetsComments } = this.props;
 
-    const comments = currentTab === 'clientPortal' 
-      ? clientPortalComments 
-      : widgetsComments;
+      const comments = currentTab === 'clientPortal'
+        ? clientPortalComments
+        : widgetsComments;
 
-    return comments.length === 0 ? (
-      <EmptyState text="No comments available" icon="info-circle"/>
-    ) : (
-      comments.map(renderComment)
-    );
-  };
+      return comments.length === 0 ? (
+        <EmptyState text="No comments available" icon="info-circle" />
+      ) : (
+        comments.map(renderComment)
+      );
+    };
     return (
       <>
         <ColorButton onClick={this.handleShow}>
@@ -123,26 +123,20 @@ class Comment extends React.Component<Props, State> {
           closeModal={this.handleClose}
           title={__("Comments")}
         >
-         
-      <Tabs full={true}>
-        <TabTitle
-          className={this.state.currentTab === "clientPortal" ? "active" : ""}
-          onClick={this.tabOnClick.bind(this, "clientPortal")}
-        >
-          {__("Client Portal")}
-        </TabTitle>
-        <TabTitle
-          className={this.state.currentTab === "widget" ? "active" : ""}
-          onClick={this.tabOnClick.bind(this, "widget")}
-        >
-          {__("Widgets")}
-        </TabTitle>
-      </Tabs>         
-      <SpaceFormsWrapper>
-           <CommentWrapper>
-            {renderCommentsList()}
-          </CommentWrapper>
-        </SpaceFormsWrapper>
+
+          <Tabs full={true}>
+            <TabTitle
+              className={this.state.currentTab === "clientPortal" ? "active" : ""}
+              onClick={this.tabOnClick.bind(this, "clientPortal")}
+            >
+              {__("Client Portal")}
+            </TabTitle>
+          </Tabs>
+          <SpaceFormsWrapper>
+            <CommentWrapper>
+              {renderCommentsList()}
+            </CommentWrapper>
+          </SpaceFormsWrapper>
           <ModalFooter>
             <Button
               btnStyle="simple"

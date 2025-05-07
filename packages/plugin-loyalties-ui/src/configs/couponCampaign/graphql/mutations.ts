@@ -14,6 +14,7 @@ const couponCampaignAdd = `
         $restrictions: JSON
         $redemptionLimitPerUser: Int
         $buyScore: Int
+        $charSet: [String]
     ) {
         couponCampaignAdd(
             title: $title
@@ -30,6 +31,7 @@ const couponCampaignAdd = `
             restrictions: $restrictions
             redemptionLimitPerUser: $redemptionLimitPerUser
             buyScore: $buyScore
+            charSet: $charSet
         ) {
             createdAt
         }
@@ -53,6 +55,7 @@ const couponCampaignEdit = `
         $restrictions: JSON
         $redemptionLimitPerUser: Int
         $buyScore: Int
+        $charSet: [String]
     ) {
         couponCampaignEdit(
             _id: $_id
@@ -70,6 +73,7 @@ const couponCampaignEdit = `
             restrictions: $restrictions
             redemptionLimitPerUser: $redemptionLimitPerUser
             buyScore: $buyScore
+            charSet: $charSet
         ) {
             modifiedAt
         }

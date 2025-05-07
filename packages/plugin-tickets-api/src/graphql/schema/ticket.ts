@@ -17,18 +17,16 @@ export const types = ({ contacts, clientPortal }) => `
   type Ticket @key(fields: "_id") {
     _id: String!
     source: String
-    ${
-      contacts
-        ? `
+    ${contacts
+    ? `
       companies: [Company]
       customers: [Customer]
       `
-        : ''
-    }
+    : ''
+  }
 
     tags: [Tag]
     ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ''}
-    comments: [Comment]
 
     ${commonTypes}
   }
