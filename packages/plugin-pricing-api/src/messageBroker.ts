@@ -13,7 +13,7 @@ export const setupMessageConsumers = async () => {
   consumeRPCQueue("pricing:checkPricing", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { prioritizeRule, totalAmount, departmentId, branchId, products } =
+    const { prioritizeRule, totalAmount, departmentId, branchId, products, pipelineId } =
       data;
 
     return {
@@ -25,6 +25,7 @@ export const setupMessageConsumers = async () => {
           totalAmount,
           departmentId,
           branchId,
+          pipelineId,
           products
         )) || {},
       status: "success"
@@ -44,7 +45,7 @@ export const setupMessageConsumers = async () => {
     const productIds = products.map(pr => pr._id);
     const rulesByProductId = {};
 
-    const conditions = getMainConditions(branchId, departmentId);
+    const conditions = getMainConditions({ branchId, departmentId });
     conditions.isPriority = false;
 
     const plans = await models.PricingPlans.find({

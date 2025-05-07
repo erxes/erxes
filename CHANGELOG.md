@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.11.3](https://github.com/erxes/erxes/compare/2.11.2...2.11.3) (2025-05-07)
+
+### Features
+
+* **payment:** introduce ibanAcctNo in khanbank payment ([7bb6e98](https://github.com/erxes/erxes/commit/7bb6e98df76e4b493ffab3b24684855a9d982ee7))
+
+### Bug Fixes
+
+* deals productsData save with check pricing ([bc691fa](https://github.com/erxes/erxes/commit/bc691fae3639dcbe585187c092570d8b1ac3845e))
+* export products with tagNames ([5cfce50](https://github.com/erxes/erxes/commit/5cfce503ab9dc762184df10fef28d14863fd577b))
+* **riskassessment:** can't filter by date type filters in plan ([dddd286](https://github.com/erxes/erxes/commit/dddd28632d49755cf5f3dcbae215add6a9fb1504))
+
 ## [2.11.2](https://github.com/erxes/erxes/compare/2.11.1...2.11.2) (2025-05-06)
 
 ### Bug Fixes

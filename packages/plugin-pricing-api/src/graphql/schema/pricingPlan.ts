@@ -87,9 +87,9 @@ export const types = () => `
 
     branchIds: [String],
     departmentIds: [String],
-    boardId: [String],
-    pipelineId: [String],
-    stageId: [String],
+    boardId: String,
+    pipelineId: String,
+    stageId: String,
 
     isQuantityEnabled: Boolean,
     quantityRules: [QuantityRule],
@@ -189,9 +189,9 @@ export const types = () => `
 
     branchIds: [String],
     departmentIds: [String],
-    boardId: [String],
-    pipelineId: [String],
-    stageId: [String],
+    boardId: String,
+    pipelineId: String,
+    stageId: String,
 
     isQuantityEnabled: Boolean,
     quantityRules: [QuantityRuleInput],
@@ -237,9 +237,9 @@ export const types = () => `
 
     branchIds: [String],
     departmentIds: [String],
-    boardId: [String],
-    pipelineId: [String],
-    stageId: [String],
+    boardId: String,
+    pipelineId: String,
+    stageId: String,
 
     isQuantityEnabled: Boolean,
     quantityRules: [QuantityRuleInput],
