@@ -3,9 +3,7 @@ import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { IPeriodLockDocument } from './models/definitions/periodLocks';
 import { IContractDocument } from './models/definitions/contracts';
-import {
-  ICollateralTypeDocument
-} from './models/definitions/collateralType';
+import { ICollateralTypeDocument } from './models/definitions/collateralType';
 import { IContractTypeDocument } from './models/definitions/contractTypes';
 import { IInsuranceTypeDocument } from './models/definitions/insuranceTypes';
 import { IInvoiceDocument } from './models/definitions/invoices';
@@ -15,47 +13,47 @@ import { loadPeriodLockClass, IPeriodLockModel } from './models/periodLock';
 import { loadContractClass, IContractModel } from './models/contracts';
 import {
   loadCollateralTypeClass,
-  ICollateralTypeModel
+  ICollateralTypeModel,
 } from './models/collateralType';
 import {
   loadContractTypeClass,
-  IContractTypeModel
+  IContractTypeModel,
 } from './models/contractTypes';
 import {
   loadInsuranceTypeClass,
-  IInsuranceTypeModel
+  IInsuranceTypeModel,
 } from './models/insuranceTypes';
 import { loadInvoiceClass, IInvoiceModel } from './models/invoices';
-import { loadScheduleClass, IScheduleModel, loadFirstScheduleClass, IFirstScheduleModel } from './models/schedules';
+import {
+  loadScheduleClass,
+  IScheduleModel,
+  loadFirstScheduleClass,
+  IFirstScheduleModel,
+} from './models/schedules';
 import { loadTransactionClass, ITransactionModel } from './models/transactions';
 import { IGeneralModel, loadGeneralClass } from './models/general';
 import { loadPurposeClass, IPurposeModel } from './models/loanPurpose';
-import {
-  loadPurposeTypeClass,
-  IPurposeTypeModel
-} from './models/loanPurposeType';
 import { IGeneralDocument } from './models/definitions/general';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import {
   IClassificationModel,
-  loadClassificationClass
+  loadClassificationClass,
 } from './models/classification';
 import { IClassificationDocument } from './models/definitions/classification';
 import {
   IInterestCorrectionModel,
-  loanInterestCorrectionClass
+  loanInterestCorrectionClass,
 } from './models/interestCorrection';
 import { IInterestCorrectionDocument } from './models/definitions/interestCorrection';
 import {
   IStoredInterestModel,
-  loanStoredInterestClass
+  loanStoredInterestClass,
 } from './models/storedInterest';
 import { IStoredInterestDocument } from './models/definitions/storedInterest';
-import { IPurpose, IPurposeDocument } from './models/definitions/loanPurpose';
-import { IPurposeType, IPurposeTypeDocument } from './models/definitions/loanPurposeType';
+import { IPurposeDocument } from './models/definitions/loanPurpose';
 import {
   INonBalanceTransactionModel,
-  loadNonBalanceTransactionClass
+  loadNonBalanceTransactionClass,
 } from './models/nonBalanceTransactions';
 import { INonBalanceTransactionDocument } from './models/definitions/nonBalanceTransactions';
 //#endregion
@@ -73,7 +71,6 @@ export interface IModels {
   Classification: IClassificationModel;
   InterestCorrection: IInterestCorrectionModel;
   StoredInterest: IStoredInterestModel;
-  LoanPurposeType: IPurposeTypeModel;
   LoanPurpose: IPurposeModel;
   NonBalanceTransactions: INonBalanceTransactionModel;
   CollateralTypes: ICollateralTypeModel;
@@ -153,15 +150,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loanStoredInterestClass(models)
   ) as IStoredInterestModel;
 
-  models.LoanPurpose = db.model<IPurpose, IPurposeModel>(
+  models.LoanPurpose = db.model<IPurposeDocument, IPurposeModel>(
     'loan_purpose',
     loadPurposeClass(models)
   ) as IPurposeModel;
-
-  models.LoanPurposeType = db.model<IPurposeType, IPurposeTypeModel>(
-    'loan_purpose_type',
-    loadPurposeTypeClass(models)
-  ) as IPurposeTypeModel;
 
   models.NonBalanceTransactions = db.model<
     INonBalanceTransactionDocument,

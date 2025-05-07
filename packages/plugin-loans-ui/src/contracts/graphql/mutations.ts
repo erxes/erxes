@@ -253,6 +253,12 @@ const interestReturn = `
   }
 `;
 
+const sendSaving = `
+  mutation sendContractToPolaris($data: JSON) {
+    sendContractToPolaris(data: $data)
+  }
+`;
+
 export default {
   contractsAdd,
   contractsEdit,
@@ -266,4 +272,5 @@ export default {
   stopInterest,
   interestChange,
   interestReturn,
+  sendSaving,
 };

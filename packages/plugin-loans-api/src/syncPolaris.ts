@@ -1,3 +1,9 @@
+import {
+  syncCollateral,
+  syncSchedules,
+  syncTransactions
+} from './syncCollateralPolaris';
+
 const dotenv = require('dotenv');
 const fetch = require('node-fetch');
 const http = require('http');
@@ -16,14 +22,11 @@ if (!MONGO_URL) {
 const client = new MongoClient(MONGO_URL);
 let db;
 let Customers;
-let Companies;
 let LoanContracts;
 let LoanContractTypes;
 let LoanFirstSchedules;
 let LoanSchedules;
 let LoanTransaction;
-let SavingContracts;
-let SavingContractTypes;
 let Products;
 let ProductCategories;
 
@@ -40,26 +43,9 @@ const nanoid = (len = 21) => {
   return randomString;
 };
 
-const getMostFrequentPaymentDay = async (schedule) => {
-  if (!Array.isArray(schedule) || schedule.length === 0) {
-    throw new Error('Invalid schedule data');
-  }
-
-  const dayCounts = {};
-
-  schedule.forEach((item) => {
-    const day = new Date(item.schdDate).getDate();
-    dayCounts[day] = (dayCounts[day] || 0) + 1;
-  });
-
-  return Object.keys(dayCounts).reduce((a, b) =>
-    dayCounts[a] > dayCounts[b] ? a : b
-  );
-};
-
 const dateGroup = async (data) => {
   const groupedByDate = data.txns.reduce((acc, txn) => {
-    const date = txn.postDate.split('T')[0]; // Extract YYYY-MM-DD
+    const date = txn.postDate.split('T')[0];
     if (!acc[date]) {
       acc[date] = [];
     }
@@ -76,7 +62,7 @@ const fetchPolaris = async (op, body) => {
     Cookie: `NESSESSION=03tv40BnPzFEEcGgsFxkhrAUTN7Awh`,
     Company: '13',
     Role: '45',
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json'
   };
   const url = `http://202.131.242.158:4139/nesWeb/NesFront`;
   const requestOptions = {
@@ -84,7 +70,7 @@ const fetchPolaris = async (op, body) => {
     method: 'POST',
     headers,
     body: JSON.stringify(body),
-    agent: new http.Agent({ keepAlive: true }),
+    agent: new http.Agent({ keepAlive: true })
   };
 
   const realResponse = await fetch(url, requestOptions)
@@ -117,14 +103,11 @@ const command = async () => {
   console.log(Boolean(db));
 
   Customers = db.collection('customers');
-  Companies = db.collection('companies');
   LoanContracts = db.collection('loan_contracts');
   LoanContractTypes = db.collection('loan_contract_types');
   LoanFirstSchedules = db.collection('loan_first_schedules');
   LoanSchedules = db.collection('loan_schedules');
   LoanTransaction = db.collection('loan_transactions');
-  SavingContracts = db.collection('saving_contracts');
-  SavingContractTypes = db.collection('saving_contract_types');
   Products = db.collection('products');
   ProductCategories = db.collection('product_categories');
 
@@ -138,7 +121,37 @@ const command = async () => {
 
   let step = 0;
   let per = 10000;
-  const schedules = [];
+
+  // const huulga = await fetchPolaris('13610201', [
+  //   '130013000562',
+  //   moment(contractDetail.startDate).format('YYYY-MM-DD'),
+  //   moment(contractDetail.endDate).format('YYYY-MM-DD'),
+  //   0,
+  //   100
+  // ]);
+
+  // console.log(huulga, 'huulga');
+  // const haha = await dateGroup(huulga);
+  // console.log(haha, 'haha');
+
+  // for (const data of huulga.txns) {
+  //   if (data.income !== 0) {
+  //     const doc = {
+  //       _id: nanoid(),
+  //       contractId: 'nrt7qZBM008-UpKQ3Nx91',
+  //       payDate: new Date(data.postDate),
+  //       description: data.txnDesc,
+  //       currency: data.curCode,
+  //       payment: data.income,
+  //       transactionType: 'repayment',
+  //       total: data.balance
+  //     };
+
+  //     await LoanTransaction.insertOne({ ...doc });
+
+  //     await PeriodLocks.insertOne({});
+  //   }
+  // }
 
   while (step * per < customersCount) {
     const skip = step * per;
@@ -148,8 +161,6 @@ const command = async () => {
       .limit(per)
       .toArray();
 
-    let bulkOps = [];
-
     for (const customer of customers) {
       if (!customer.code) {
         continue;
@@ -158,7 +169,7 @@ const command = async () => {
       const pLoanContracts = await fetchPolaris('13610210', [
         customer.code,
         0,
-        1,
+        20
       ]);
 
       const filteredContracts = pLoanContracts.filter(
@@ -170,20 +181,24 @@ const command = async () => {
 
         const contractDetail = await fetchPolaris('13610200', [
           pLoanContract.acntCode,
-          0,
+          0
         ]);
 
         const collaterals = await fetchPolaris('13610904', [
-          pLoanContract.acntCode,
+          pLoanContract.acntCode
         ]);
 
         const contractType = await LoanContractTypes.findOne({
-          code: contractDetail.prodCode,
+          code: contractDetail.prodCode
         });
 
         const createdContract = await LoanContracts.findOne({
-          number: contractDetail.acntCode,
+          number: contractDetail.acntCode
         });
+
+        /**
+         * sync loan contract
+         */
 
         if (contractType && !createdContract) {
           const document = {
@@ -202,130 +217,48 @@ const command = async () => {
             startDate: new Date(contractDetail.startDate),
             contractDate: new Date(contractDetail.approvDate),
             endDate: new Date(contractDetail.endDate),
-            createdAt: new Date(),
+            createdAt: new Date()
           };
 
-          if (collaterals.length > 0) {
-            document.collateralsData = [];
+          const updatedDocument = await syncCollateral(
+            ProductCategories,
+            Products,
+            collaterals,
+            document
+          );
 
-            for (const item of collaterals) {
-              const detailCollateral = await fetchPolaris('13610906', [
-                item.acntCode,
-              ]);
+          const loanContract = await LoanContracts.insertOne({
+            ...updatedDocument
+          });
 
-              const product = await Products.findOne({
-                code: item.acntCode,
-              });
-
-              if (!product) {
-                let categoryId;
-                const findCategory = await ProductCategories.findOne({
-                  code: detailCollateral.acntCode,
-                });
-
-                if (findCategory) {
-                  categoryId = findCategory._id;
-                } else {
-                  const createCategory = await ProductCategories.insertOne({
-                    _id: nanoid(),
-                    name: `${item.acntName} ${item.linkTypeName}`,
-                    code: detailCollateral.acntCode,
-                    order: `${detailCollateral.acntCode}/`,
-                    status: 'active',
-                    createdAt: new Date(),
-                  });
-
-                  categoryId = createCategory.insertedId;
-                }
-
-                const createProduct = await Products.insertOne({
-                  _id: nanoid(),
-                  name: `${item.acntName} ${item.linkTypeName}`,
-                  code: item.acntCode,
-                  unitPrice: detailCollateral.price,
-                  categoryId,
-                  createdAt: new Date(),
-                });
-
-                document.collateralsData.push({
-                  _id: nanoid(),
-                  collateralId: createProduct.insertedId,
-                  cost: detailCollateral.price,
-                  percent: 0,
-                  marginAmount: 0,
-                  leaseAmount: item.useAmount,
-                  currency: item.useCurCode,
-                  certificate: detailCollateral.key2,
-                  vinNumber: detailCollateral.key,
-                });
-              } else {
-                // Optional: If you want to handle case when product exists
-                document.collateralsData.push({
-                  _id: nanoid(),
-                  collateralId: product._id,
-                  cost: detailCollateral.useAmount,
-                  percent: 0,
-                  marginAmount: 0,
-                  leaseAmount: item.useAmount,
-                  currency: item.useCurCode,
-                  certificate: detailCollateral.key2,
-                  vinNumber: detailCollateral.key,
-                });
-              }
-            }
-          }
-
-          const loanContract = await LoanContracts.insertOne({ ...document });
+          /**
+           * sync loan schedules
+           */
 
           const pLoanSchedules = await fetchPolaris('13610203', [
-            pLoanContract.acntCode,
+            pLoanContract.acntCode
           ]);
 
-          const schedules = pLoanSchedules.map((schedule) => ({
-            _id: nanoid(),
-            contractId: loanContract.insertedId.toString(),
-            status: 'pending',
-            payDate: new Date(schedule.schdDate),
-            balance: schedule.totalAmount,
-            interestNonce: schedule.intAmount,
-            payment: schedule.totalAmount,
-            total: schedule.totalAmount,
-          }));
-
-          await LoanFirstSchedules.insertMany(schedules);
-
-          await LoanContracts.updateOne(
-            { _id: loanContract.insertedId },
-            {
-              $set: {
-                firstPayDate: new Date(pLoanSchedules[0].schdDate),
-                scheduleDays: [await getMostFrequentPaymentDay(pLoanSchedules)],
-              },
-            }
+          await syncSchedules(
+            LoanFirstSchedules,
+            LoanContracts,
+            pLoanSchedules,
+            loanContract
           );
+
+          /**
+           * sync loan transaction
+           */
 
           // const huulga = await fetchPolaris('13610201', [
           //   pLoanContract.acntCode,
           //   moment(pLoanContract.startDate).format('YYYY-MM-DD'),
           //   moment(pLoanContract.endDate).format('YYYY-MM-DD'),
           //   0,
-          //   100,
+          //   100
           // ]);
 
-          // console.log(huulga, 'huulga');
-
-          // for (const data of huulga.txns) {
-          //   const doc = {
-          //     _id: nanoid(),
-          //     contractId: loanContract.insertedId,
-          //     payDate: new Date(data.postDate),
-          //     description: data.txnDesc,
-          //     currency: data.curCode,
-          //     payment: data.income,
-          //   };
-
-          //   await LoanTransaction.insertOne({ ...doc });
-          // }
+          // await syncTransactions(huulga, LoanTransaction, loanContract);
         }
       }
     }

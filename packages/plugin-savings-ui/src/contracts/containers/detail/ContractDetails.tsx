@@ -9,6 +9,7 @@ import {
   EditMutationResponse,
   IContractDoc,
   RegenSchedulesMutationResponse,
+  SavingsMutationResponse,
 } from '../../types';
 import { useQuery, useMutation } from '@apollo/client';
 import subscriptions from '../../graphql/subscriptions';
@@ -30,7 +31,7 @@ const ContractDetailsContainer = (props: FinalProps) => {
       variables: {
         _id: id,
       },
-    },
+    }
   );
 
   useEffect(() => {
@@ -38,9 +39,9 @@ const ContractDetailsContainer = (props: FinalProps) => {
       document: gql(subscriptions.savingsContractChanged),
       variables: { ids: [id] },
       updateQuery: (prev) => {
-        contractDetailQuery.refetch();        
-        return prev
-      }
+        contractDetailQuery.refetch();
+        return prev;
+      },
     });
   }, []);
 
@@ -48,21 +49,28 @@ const ContractDetailsContainer = (props: FinalProps) => {
     gql(mutations.contractsEdit),
     {
       refetchQueries: ['contractDetail'],
-    },
+    }
   );
 
   const [regenSchedules] = useMutation<RegenSchedulesMutationResponse>(
     gql(mutations.regenSchedules),
     {
       refetchQueries: ['schedules', 'scheduleYears'],
-    },
+    }
+  );
+
+  const [sendSavings] = useMutation<SavingsMutationResponse>(
+    gql(mutations.sendSaving),
+    {
+      refetchQueries: ['contractDetail'],
+    }
   );
 
   const [fixSchedules] = useMutation<RegenSchedulesMutationResponse>(
     gql(mutations.fixSchedules),
     {
       refetchQueries: ['schedules', 'scheduleYears'],
-    },
+    }
   );
 
   const saveItem = (doc: IContractDoc, callback: (item) => void) => {
@@ -79,6 +87,12 @@ const ContractDetailsContainer = (props: FinalProps) => {
 
   const regenSchedulesHandler = (contractId: string) => {
     regenSchedules({ variables: { contractId } }).catch((error) => {
+      Alert.error(error.message);
+    });
+  };
+
+  const regenPolarisHandler = (data: any) => {
+    sendSavings({ variables: { data } }).catch((error) => {
       Alert.error(error.message);
     });
   };
@@ -108,6 +122,7 @@ const ContractDetailsContainer = (props: FinalProps) => {
     currentUser,
     saveItem,
     regenSchedules: regenSchedulesHandler,
+    reSendContract: regenPolarisHandler,
     fixSchedules: fixSchedulesHandler,
   };
 

@@ -27,7 +27,8 @@ module.exports = {
           'transactionsRemove',
           'nonBalanceTransactionsRemove',
           'showPeriodLocks',
-          'managePeriodLocks'
+          'managePeriodLocks',
+          'managePurpose'
         ]
       },
       {
@@ -43,6 +44,11 @@ module.exports = {
           'manageSchedule',
           'showCollaterals'
         ]
+      },
+      {
+        name: 'loansPurposesAll',
+        description: 'Manage All Loan Purpose',
+        use: ['managePurpose', 'purposeAdd', 'purposeEdit', 'purposesRemove']
       },
       {
         name: 'loansTransactionsAll',
@@ -91,6 +97,10 @@ module.exports = {
       {
         name: 'manageSchedule',
         description: 'Manage Schedule'
+      },
+      {
+        name: 'managePurpose',
+        description: 'Manage Purpose'
       },
       {
         name: 'showCollaterals',

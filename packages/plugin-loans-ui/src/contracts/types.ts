@@ -15,6 +15,7 @@ export interface ICollateralData {
   certificate?: string;
   vinNumber?: string;
   currency?: string;
+  collateralTypeId?: string;
 
   cost: number;
   percent: number;
@@ -267,6 +268,10 @@ export type RegenSchedulesMutationResponse = {
     variables: { contractId: string };
   }) => Promise<any>;
   fixSchedules: (params: { variables: { contractId: string } }) => Promise<any>;
+};
+
+export type SendLoansMutationResponse = {
+  sendContractToPolaris: (params: { variables: { data: any } }) => Promise<any>;
 };
 
 // query types

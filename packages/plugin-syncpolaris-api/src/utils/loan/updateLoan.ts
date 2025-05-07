@@ -6,7 +6,7 @@ import {
   fetchPolaris,
   updateContract,
   getProduct,
-  getFullDate,
+  getFullDate
 } from '../utils';
 import { createChangeLoanAmount } from './changeLoanAmount';
 import { changeLoanInterest } from './changeLoanInterest';
@@ -18,27 +18,23 @@ export const updateLoan = async (
   syncLog,
   params
 ) => {
-  const loan = params.updatedDocument || params.object;
+  const loan = params.data;
   let result;
 
-  if (
-    JSON.stringify(loan.collateralsData) !==
-    JSON.stringify(params.object.collateralsData)
-  ) {
+  if (loan.collateralsData.length > 0) {
     return createCollateral(subdomain, polarisConfig, loan);
   }
 
-  if (params.updatedDocument.leaseAmount !== params.object.leaseAmount) {
+  if (params.data.leaseAmount) {
     return createChangeLoanAmount(subdomain, polarisConfig, {
       number: loan.number,
-      leaseAmount:
-        params.updatedDocument.leaseAmount - params.object.leaseAmount,
-      description: `change loan amount ${params.updatedDocument.description}`,
+      leaseAmount: params.data.leaseAmount,
+      description: `change loan amount ${params.data.description}`
     });
   }
 
-  if (params.updatedDocument.interestRate !== params.object.interestRate) {
-    return changeLoanInterest(subdomain, polarisConfig, params.updatedDocument);
+  if (params.data.interestRate) {
+    return changeLoanInterest(subdomain, polarisConfig, params.data);
   }
 
   const customer = await getCustomer(subdomain, loan.customerId);
@@ -85,8 +81,8 @@ export const updateLoan = async (
       notSendToCib: 0,
       losMultiAcnt: 0,
       validLosAcnt: 1,
-      secType: 0,
-    },
+      secType: 0
+    }
   ];
 
   if (
@@ -104,7 +100,7 @@ export const updateLoan = async (
       subdomain,
       models,
       polarisConfig,
-      syncLog,
+      syncLog
     });
   }
 
