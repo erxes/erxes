@@ -22,11 +22,11 @@ const generateFilters = params => {
   }
 
   if (params.createDateFrom) {
-    filter.createDate = { $gte: params.createdAtFrom };
+    filter.createDate = { $gte: params.createDateFrom };
   }
 
   if (params.createDateTo) {
-    filter.createDate = { ...filter?.createDate, $gte: params.createDateTo };
+    filter.createDate = { ...filter?.createDate, $lte: params.createDateTo };
   }
 
   if (params.startDateFrom) {
@@ -34,7 +34,7 @@ const generateFilters = params => {
   }
 
   if (params.startDateTo) {
-    filter.startDate = { ...filter?.startDate, $gte: params.startDateTo };
+    filter.startDate = { ...filter?.startDate, $lte: params.startDateTo };
   }
 
   if (params.closeDateFrom) {
@@ -42,10 +42,7 @@ const generateFilters = params => {
   }
 
   if (params.closeDateTo) {
-    filter.closeDate = {
-      ...filter?.closeDate,
-      $gte: params.closeDateTo
-    };
+    filter.closeDate = { ...filter?.closeDate, $lte: params.closeDateTo };
   }
 
   if (params.createdAtFrom) {
@@ -53,10 +50,7 @@ const generateFilters = params => {
   }
 
   if (params.createdAtTo) {
-    filter.createdAt = {
-      ...filter?.createdAt,
-      $gte: params.createdAtTo
-    };
+    filter.createdAt = { ...filter?.createdAt, $lte: params.createdAtTo };
   }
 
   if (params.modifiedAtFrom) {
@@ -64,10 +58,7 @@ const generateFilters = params => {
   }
 
   if (params.modifiedAtTo) {
-    filter.modifiedAt = {
-      ...filter?.modifiedAt,
-      $gte: params.modifiedAtTo
-    };
+    filter.modifiedAt = { ...filter?.modifiedAt, $lte: params.modifiedAtTo };
   }
 
   if (params.tagIds) {
@@ -107,7 +98,7 @@ const RiskAssessmentPlansQueries = {
     { models }: IContext
   ) {
     return await models.Schedules.countDocuments({ planId });
-  }
+  },
 };
 
 export default RiskAssessmentPlansQueries;
