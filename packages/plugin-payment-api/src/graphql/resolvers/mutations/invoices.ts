@@ -58,7 +58,7 @@ const mutations = {
     const status = await models.Invoices.checkInvoice(_id);
 
     if (status === 'paid') {
-      const invoice = await models.Invoices.getInvoice({ _id });
+      const invoice = await models.Invoices.getInvoice({ _id }, true);
       const [serviceName] = invoice.contentType.split(':');
 
       sendMessage(`${serviceName}:paymentCallback`, {
