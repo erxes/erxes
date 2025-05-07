@@ -58,16 +58,18 @@ const mutations = {
     const status = await models.Invoices.checkInvoice(_id);
 
     if (status === 'paid') {
-      const invoice = await models.Invoices.getInvoice({ _id }, true);
-      const [serviceName] = invoice.contentType.split(':');
+      const invoice = await models.Invoices.getInvoice({ _id });
+      if (invoice.contentType) {
+        const [serviceName] = invoice.contentType.split(':');
 
-      sendMessage(`${serviceName}:paymentCallback`, {
-        subdomain,
-        data: {
-          ...invoice,
-          status: 'paid',
-        },
-      });
+        sendMessage(`${serviceName}:paymentCallback`, {
+          subdomain,
+          data: {
+            ...invoice,
+            status: 'paid',
+          },
+        });
+      }
 
       if (invoice.callback) {
         try {

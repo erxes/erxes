@@ -209,22 +209,26 @@ const Row = (props: Props) => {
     }
   };
 
-  const score = (scoreLogs) => {
-    let totalScore = 0;
-
-    if (scoreLogs?.length) {
-      for (const scoreLog of scoreLogs) {
-        const { action, changeScore } = scoreLog;
-
-        if (action === "subtract") {
-          totalScore -= changeScore;
-        } else {
-          totalScore += changeScore;
-        }
-      }
+  const score = (scoreLogs, initialTotalScore) => {
+    if (typeof initialTotalScore === "number") {
+      return Math.round(initialTotalScore * 100) / 100;
     }
 
-    return totalScore || "-";
+    if (Array.isArray(scoreLogs) && scoreLogs.length > 0) {
+      let total = 0;
+
+      for (const { action, changeScore } of scoreLogs) {
+        if (action === "subtract") {
+          total -= changeScore;
+        } else {
+          total += changeScore;
+        }
+      }
+
+      return Math.round(total * 100) / 100;
+    }
+
+    return "-";
   };
 
   return (
@@ -234,7 +238,7 @@ const Row = (props: Props) => {
         <td>{email(scoreLog.ownerType, scoreLog.owner)}</td>
         <td>{phone(scoreLog.ownerType, scoreLog.owner)}</td>
         <td>{scoreLog.ownerType}</td>
-        <td>{score(scoreLog.scoreLogs)}</td>
+        <td>{score(scoreLog.scoreLogs, scoreLog.totalScore)}</td>
         <td>
           <ActionButtons>
             <Link

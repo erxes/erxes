@@ -1,5 +1,6 @@
 import * as lodash from "lodash";
 import fetch from "node-fetch";
+import { fixNum } from "@erxes/api-utils/src";
 import {
   sendCoreMessage,
   sendNotificationsMessage
@@ -375,16 +376,6 @@ const calcProductsTaxRule = async (subdomain: string, models: IModels, config, p
   }
 }
 
-export const mathRound = (value, p = 4) => {
-  const cleanNumber = Number((value ?? '').toString().replace(/,/g, ""));
-
-  if (isNaN(cleanNumber)) {
-    return 0;
-  }
-
-  return Number(cleanNumber.toFixed(p))
-};
-
 const calcPreTaxPercentage = (paymentTypes, deal) => {
   let itemAmountPrePercent = 0;
   const preTaxPaymentTypes: string[] = (paymentTypes || []).filter(p =>
@@ -462,7 +453,7 @@ export const getPostData = async (subdomain, models: IModels, config, deal, paym
 
         const tempAmount = prData.amount;
         const minusAmount = (tempAmount / 100) * itemAmountPrePercent;
-        const totalAmount = mathRound(tempAmount - minusAmount, 4);
+        const totalAmount = fixNum(tempAmount - minusAmount, 4);
 
         return {
           product,

@@ -22,7 +22,8 @@ export const types = `
     ownerType: String
 
     owner: JSON
-    scoreLogs : [ScoreLogItem]
+    scoreLogs: [ScoreLogItem]
+    totalScore: Float
   }
 
   type List {

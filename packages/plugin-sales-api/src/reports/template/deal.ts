@@ -7,6 +7,7 @@ import {
   DATERANGE_TYPES,
   DUE_DATERANGE_TYPES,
   DUE_TYPES,
+  INTEGRATION_OPTIONS,
   MONTH_NAMES,
   PRIORITY,
   PROBABILITY_DEAL,
@@ -34,6 +35,7 @@ const DIMENSION_OPTIONS = [
   { label: "Companies", value: "company" },
   { label: "Customers", value: "customer" },
   { label: "Products", value: "product" },
+  { label: "Service", value: "service" },
   { label: "Payment", value: "paymentType" },
   { label: "Boards", value: "board" },
   { label: "Pipelines", value: "pipeline" },
@@ -56,6 +58,8 @@ const DIMENSION_OPTIONS = [
   { label: "Start Date", value: "startDate" },
   { label: "Close Date", value: "closeDate" },
   { label: "Custom Propertry", value: "field" },
+  { label: "Car", value: "car" },
+  { label: "Source", value: "source" },
 ];
 
 export const dealCharts = [
@@ -202,8 +206,24 @@ export const dealCharts = [
         fieldName: "productIds",
         fieldType: "select",
         fieldQuery: "products",
+        fieldValueVariable: "_id",
+        fieldLabelVariable: "name",
+        fieldQueryVariables: `{"type": "product"}`,
+        searchable: true,
         multi: true,
         fieldLabel: "Select products",
+      },
+      // SERVICE FILTER
+      {
+        fieldName: "serviceIds",
+        fieldType: "select",
+        fieldQuery: "products",
+        fieldValueVariable: "_id",
+        fieldLabelVariable: "name",
+        fieldQueryVariables: `{"type": "service"}`,
+        searchable: true,
+        multi: true,
+        fieldLabel: "Select services",
       },
       // BOARD FILTER
       {
@@ -3138,6 +3158,15 @@ export const dealCharts = [
         fieldQueryVariables: `{"conformityMainType": "deal", "conformityRelType": "customer"}`,
         fieldLabel: "Select customers",
       },
+      // SOURCE FILTER
+      {
+        fieldName: "integrationTypes",
+        fieldType: "select",
+        fieldQuery: "integrations",
+        multi: true,
+        fieldOptions: INTEGRATION_OPTIONS,
+        fieldLabel: "Select source",
+      },
       // TAG FILTER
       {
         fieldName: "tagIds",
@@ -3189,6 +3218,15 @@ export const dealCharts = [
         multi: true,
         searchable: true,
         fieldLabel: "Select car",
+      },
+      // CAR PLATE NUMBER FILTER
+      {
+        fieldName: "plateSuffixes",
+        fieldType: "select",
+        fieldQuery: "carPlateSuffixes",
+        fieldQueryResponse: true,
+        multi: true,
+        fieldLabel: "Select car plate suffix",
       },
       // BOARD FILTER
       {

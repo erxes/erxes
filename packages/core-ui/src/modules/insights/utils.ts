@@ -89,8 +89,15 @@ export const extractData = (data: any) => {
 };
 
 export const generateOptions = (data, parentData, filterType) => {
-  const { fieldValueVariable, fieldLabelVariable, fieldParentVariable } =
+  const { fieldValueVariable, fieldLabelVariable, fieldParentVariable, fieldQueryResponse } =
     filterType;
+
+    if (fieldQueryResponse) {
+      return (data || []).map(item => ({
+        value: item,
+        label: item
+      }))
+    }
 
   const extractedData = extractData(data);
 
@@ -445,8 +452,17 @@ export const generateQuery = ({ fieldName, config, fieldValues }: any) => {
     fieldInitialVariable,
     fieldRequiredQueryParams,
     fieldExtraVariables = [],
+    fieldQueryResponse,
     logics,
   } = config;
+
+  if (fieldQueryResponse) {
+    return `
+      query ${fieldName} {
+        ${fieldName}
+      }
+    `
+  }
 
   if (!fieldName || !fieldValueVariable || !fieldLabelVariable) {
     return "";

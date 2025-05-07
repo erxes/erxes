@@ -6,28 +6,28 @@ import {
   FormControl,
   FormGroup,
   Uploader,
-} from '@erxes/ui/src/components';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
-import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
+} from "@erxes/ui/src/components";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 import {
   DateContainer,
   FormColumn,
   FormWrapper,
   ModalFooter,
-} from '@erxes/ui/src/styles/main';
+} from "@erxes/ui/src/styles/main";
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
-} from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import { extractAttachment } from '@erxes/ui/src/utils/core';
-import React, { useState } from 'react';
-import Select from 'react-select';
-import { COUPON_APPLY_TYPES } from '../../../loyalties/coupons/constants';
-import { IConfig, ICouponCampaign } from '../types';
-import CodeRuleForm from './CodeForm';
-import RestrictionForm from './RestrictionForm';
+} from "@erxes/ui/src/types";
+import { __ } from "@erxes/ui/src/utils";
+import { extractAttachment } from "@erxes/ui/src/utils/core";
+import React, { useState } from "react";
+import Select from "react-select";
+import { COUPON_APPLY_TYPES } from "../../../loyalties/coupons/constants";
+import { IConfig, ICouponCampaign } from "../types";
+import CodeRuleForm from "./CodeForm";
+import RestrictionForm from "./RestrictionForm";
 
 type Props = {
   couponCampaign: ICouponCampaign;
@@ -39,8 +39,21 @@ type Props = {
 const Form = (props: Props) => {
   const { queryParams, couponCampaign, renderButton, closeModal } = props;
 
-  const [currentTab, setCurrentTab] = useState('campaign');
-  const [campaignState, setCampaignState] = useState(couponCampaign || {});
+  const [currentTab, setCurrentTab] = useState("campaign");
+  const [campaignState, setCampaignState] = useState(
+    couponCampaign || {
+      title: "",
+      buyScore: 0,
+      startDate: new Date(),
+      codeRule: {
+        codeLength: 10,
+        size: 1,
+        usageLimit: 1,
+        redemptionLimitPerUser: 1,
+        charSet: ['A-Z']
+      },
+    }
+  );
 
   const generateDoc = (values: {
     _id?: string;
@@ -94,7 +107,7 @@ const Form = (props: Props) => {
         const { name, value, type } = event.target as
           | HTMLInputElement
           | HTMLTextAreaElement;
-        updatedCampaign[name] = type === 'number' ? Number(value) : value;
+        updatedCampaign[name] = type === "number" ? Number(value) : value;
       }
 
       if (dateType && date) {
@@ -162,18 +175,18 @@ const Form = (props: Props) => {
               <Select
                 options={COUPON_APPLY_TYPES}
                 value={COUPON_APPLY_TYPES.find(
-                  (type) => type.value === campaignState.kind,
+                  (type) => type.value === campaignState.kind
                 )}
                 onChange={(option) => {
                   handleOnChange({
                     event: {
-                      target: { name: 'kind', value: option?.value },
+                      target: { name: "kind", value: option?.value },
                     } as any,
                   });
 
                   handleOnChange({
                     event: {
-                      target: { name: 'value', value: 0 },
+                      target: { name: "value", value: 0 },
                     } as any,
                   });
                 }}
@@ -203,10 +216,10 @@ const Form = (props: Props) => {
                 <DateControl
                   {...formProps}
                   name="startDate"
-                  placeholder={__('Start date')}
+                  placeholder={__("Start date")}
                   value={campaignState.startDate}
                   onChange={(date) =>
-                    handleOnChange({ dateType: 'startDate', date })
+                    handleOnChange({ dateType: "startDate", date })
                   }
                 />
               </DateContainer>
@@ -220,10 +233,10 @@ const Form = (props: Props) => {
                 <DateControl
                   {...formProps}
                   name="endDate"
-                  placeholder={__('End date')}
+                  placeholder={__("End date")}
                   value={campaignState.endDate}
                   onChange={(date) =>
-                    handleOnChange({ dateType: 'endDate', date })
+                    handleOnChange({ dateType: "endDate", date })
                   }
                 />
               </DateContainer>
@@ -237,10 +250,10 @@ const Form = (props: Props) => {
                 <DateControl
                   {...formProps}
                   name="finishDateOfUse"
-                  placeholder={__('Finish Date of Use')}
+                  placeholder={__("Finish Date of Use")}
                   value={campaignState.finishDateOfUse}
                   onChange={(date) =>
-                    handleOnChange({ dateType: 'finishDateOfUse', date })
+                    handleOnChange({ dateType: "finishDateOfUse", date })
                   }
                 />
               </DateContainer>
@@ -249,22 +262,22 @@ const Form = (props: Props) => {
         </FormWrapper>
 
         <FormGroup>
-          <ControlLabel>Description</ControlLabel>
+          <ControlLabel required>Description</ControlLabel>
           <RichTextEditor
-            content={campaignState.description || ''}
+            content={campaignState.description || ""}
             onChange={(content) => handleOnChange({ content })}
             height={150}
             isSubmitted={formProps.isSaved}
             name="couponCampaign_description"
             toolbar={[
-              'bold',
-              'italic',
-              'orderedList',
-              'bulletList',
-              'link',
-              'unlink',
-              '|',
-              'image',
+              "bold",
+              "italic",
+              "orderedList",
+              "bulletList",
+              "link",
+              "unlink",
+              "|",
+              "image",
             ]}
           />
         </FormGroup>
@@ -308,15 +321,15 @@ const Form = (props: Props) => {
 
     let content;
 
-    if (['', 'campaign'].includes(currentTab)) {
+    if (["", "campaign"].includes(currentTab)) {
       content = renderDefaultContent(formProps);
     }
 
-    if ('restriction' === currentTab) {
+    if ("restriction" === currentTab) {
       content = renderRestrictionContent(formProps);
     }
 
-    if ('code' === currentTab) {
+    if ("code" === currentTab) {
       content = renderCodeContent(formProps);
     }
 
@@ -330,7 +343,7 @@ const Form = (props: Props) => {
             </Button>
 
             {renderButton({
-              name: 'codeConfig',
+              name: "codeConfig",
               values: generateDoc(values),
               isSubmitted,
               object: couponCampaign,
@@ -348,22 +361,22 @@ const Form = (props: Props) => {
       <>
         <Tabs full={true}>
           <TabTitle
-            onClick={() => setCurrentTab('campaign')}
-            className={['', 'campaign'].includes(currentTab) ? 'active' : ''}
+            onClick={() => setCurrentTab("campaign")}
+            className={["", "campaign"].includes(currentTab) ? "active" : ""}
           >
-            {__('Campaign')}
+            {__("Campaign")}
           </TabTitle>
           <TabTitle
-            onClick={() => setCurrentTab('restriction')}
-            className={currentTab === 'restriction' ? 'active' : ''}
+            onClick={() => setCurrentTab("restriction")}
+            className={currentTab === "restriction" ? "active" : ""}
           >
-            {__('Restriction')}
+            {__("Restriction")}
           </TabTitle>
           <TabTitle
-            onClick={() => setCurrentTab('code')}
-            className={currentTab === 'code' ? 'active' : ''}
+            onClick={() => setCurrentTab("code")}
+            className={currentTab === "code" ? "active" : ""}
           >
-            {__('Code rule')}
+            {__("Code rule")}
           </TabTitle>
         </Tabs>
         <br />

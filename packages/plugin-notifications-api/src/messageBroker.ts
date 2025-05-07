@@ -24,6 +24,15 @@ interface ISendNotification {
   action: string;
   contentType: string;
   contentTypeId: string;
+  toMail: string,
+}
+
+
+interface INotificationRecipient {
+  _id: string;
+  email?: string;
+  getNotificationByEmail?: boolean;
+  isActive?: boolean;
 }
 
 const sendNotification = async (
@@ -33,35 +42,82 @@ const sendNotification = async (
 ) => {
   const {
     createdUser,
-    receivers,
+    receivers = [],
     title,
     content,
     notifType,
     action,
     contentType,
-    contentTypeId
+    contentTypeId,
+    toMail,
+    link: originalLink = ''
   } = doc;
 
-  let link = doc.link;
+  try {
+    const receiverIds = Array.from(new Set(receivers.filter(Boolean)));
+    if (!receiverIds.length) {
+      console.warn('No valid receivers specified for notification');
+      return;
+    }
 
-  // remove duplicated ids
-  const receiverIds = Array.from(new Set(receivers));
+    await markNotificationsAsUnread(subdomain, receiverIds);
 
+    const recipients = await getActiveRecipients(subdomain, receiverIds);
+    const toEmails = getNotificationEmails(recipients, toMail);
+
+    await processNotifications(
+      models,
+      subdomain,
+      receiverIds,
+      {
+        link: originalLink,
+        title,
+        content,
+        notifType,
+        action,
+        contentType,
+        contentTypeId
+      },
+      createdUser._id
+    );
+
+    if (toEmails.length) {
+      await sendEmailNotification(
+        subdomain,
+        {
+          ...doc,
+          link: `${getEnv({ name: "DOMAIN", subdomain })}${originalLink}`
+        },
+        toEmails,
+        recipients,
+        action,
+        createdUser
+      );
+    }
+  } catch (error) {
+    console.error('Notification processing failed:', {
+      error: error.message,
+      contentType,
+      contentTypeId,
+      createdUserId: createdUser._id
+    });
+    throw error;
+  }
+};
+
+async function markNotificationsAsUnread(subdomain: string, receiverIds: string[]) {
   await sendCoreMessage({
     subdomain,
     action: "users.updateMany",
     data: {
-      selector: {
-        _id: { $in: receiverIds }
-      },
-      modifier: {
-        $set: { isShowNotification: false }
-      }
+      selector: { _id: { $in: receiverIds } },
+      modifier: { $set: { isShowNotification: false } }
     }
   });
+}
 
-  // collecting emails
-  const recipients = await sendCoreMessage({
+async function getActiveRecipients(subdomain: string, receiverIds: string[]): Promise<INotificationRecipient[]> {
+  return await sendCoreMessage({
     subdomain,
     action: "users.find",
     data: {
@@ -73,32 +129,36 @@ const sendNotification = async (
     isRPC: true,
     defaultValue: []
   });
+}
 
-  // collect recipient emails
-  const toEmails: string[] = [];
+function getNotificationEmails(recipients: INotificationRecipient[], fallbackEmail?: string): string[] {
+  const emails = recipients
+    .filter(r => r.getNotificationByEmail && r.email)
+    .map(r => r.email as string);
 
-  for (const recipient of recipients) {
-    if (recipient.getNotificationByEmail && recipient.email) {
-      toEmails.push(recipient.email);
-    }
-  }
+  return emails.length ? emails : fallbackEmail ? [fallbackEmail] : [];
+}
 
-  // loop through receiver ids
-  for (const receiverId of receiverIds) {
+async function processNotifications(
+  models: IModels,
+  subdomain: string,
+  receiverIds: string[],
+  notificationData: {
+    link: string;
+    title: string;
+    content: string;
+    notifType: string;
+    action: string;
+    contentType: string;
+    contentTypeId: string;
+  },
+  createdUserId: string
+) {
+  await Promise.all(receiverIds.map(async receiverId => {
     try {
-      // send web and mobile notification
       const notification = await models.Notifications.createNotification(
-        {
-          link,
-          title,
-          content,
-          notifType,
-          receiver: receiverId,
-          action,
-          contentType,
-          contentTypeId
-        },
-        createdUser._id
+        { ...notificationData, receiver: receiverId },
+        createdUserId
       );
 
       graphqlPubsub.publish(`notificationInserted:${subdomain}:${receiverId}`, {
@@ -110,28 +170,24 @@ const sendNotification = async (
         }
       });
     } catch (e) {
-      // Any other error is serious
       if (e.message !== "Configuration does not exist") {
+        console.error(`Failed to create notification for ${receiverId}:`, e);
         throw e;
       }
     }
-  } // end receiverIds loop
+  }));
+}
 
-  const DOMAIN = getEnv({ name: "DOMAIN", subdomain });
-
-  link = `${DOMAIN}${link}`;
-
-  // for controlling email template data filling
-  const modifier = (data: any, email: string) => {
-    const user = recipients.find(item => item.email === email);
-
-    if (user) {
-      data.uid = user._id;
-    }
-  };
-
+async function sendEmailNotification(
+  subdomain: string,
+  doc: ISendNotification & { link: string },
+  toEmails: string[],
+  recipients: INotificationRecipient[],
+  action: string,
+  createdUser: any
+) {
   try {
-    sendCoreMessage({
+    await sendCoreMessage({
       subdomain,
       action: "sendEmail",
       data: {
@@ -140,18 +196,24 @@ const sendNotification = async (
         template: {
           name: "notification",
           data: {
-            notification: { ...doc, link },
+            notification: doc,
             action,
             userName: getUserDetail(createdUser)
           }
         },
-        modifier
+        modifier: (data: any, email: string) => {
+          const user = recipients.find(item => item.email === email);
+          if (user) data.uid = user._id;
+        }
       }
     });
   } catch (err) {
-    debugError(err.message);
+    console.error('Failed to send email notification:', {
+      error: err.message,
+      emails: toEmails
+    });
   }
-};
+}
 
 export const setupMessageConsumers = async () => {
   consumeQueue("notifications:send", async ({ subdomain, data }) => {

@@ -30,7 +30,8 @@ type FinalProps = {
 
 class CommentContainer extends React.Component<FinalProps> {
   render() {
-    const { clientPortalCommentsQuery, widgetsTicketCommentsQuery, removeMutation, removeCommentMutation } = this.props;
+    const { clientPortalCommentsQuery, removeMutation, item } = this.props;
+
     const clientPortalComments =
       clientPortalCommentsQuery.clientPortalComments ||
       ([] as IClientPortalComment[]);
@@ -65,10 +66,10 @@ class CommentContainer extends React.Component<FinalProps> {
     return (
       <Comment
         currentUser={this.props.currentUser || ({} as IUser)}
-        widgetsTicketComments={widgetsTicketComments}
+        widgetsComments={[]}
         clientPortalComments={clientPortalComments}
         remove={remove}
-        removeTicketComment={removeTicketComment}
+
       />
     );
   }
