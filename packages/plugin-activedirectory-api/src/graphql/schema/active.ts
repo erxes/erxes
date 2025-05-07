@@ -8,8 +8,7 @@ export const types = () => `
     createdAt: Date
     modifiedAt: Date
     apiUrl: String
-    isLocalUser: Boolean
-    userDN: String
+    baseDN: String
     adminDN: String
     adminPassword: String
     code: String
@@ -22,8 +21,7 @@ export const queries = `
 
 const commonFields = `
   apiUrl: String
-  isLocalUser: Boolean
-  userDN: String
+  baseDN: String
   adminDN: String
   adminPassword: String
   code: String
@@ -31,6 +29,6 @@ const commonFields = `
 
 export const mutations = `
   adConfigUpdate(${commonFields}): ADconfig
-  toCheckAdUsers(userName: String, userPass: String): JSON
+  toCheckAdUsers: JSON
   toSyncAdUsers(action: String, users: [JSON]): JSON
 `;

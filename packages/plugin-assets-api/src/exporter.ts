@@ -1,6 +1,6 @@
-import { generateModels, IModels } from "./connectionResolver";
-import { sendCoreMessage } from "./messageBroker";
-import * as moment from "moment";
+import { generateModels, IModels } from './connectionResolver';
+import { sendCoreMessage } from './messageBroker';
+import * as moment from 'moment';
 
 const prepareData = async (
   models: IModels,
@@ -23,6 +23,7 @@ const prepareData = async (
   return data;
 };
 
+// prepareDataCount
 const prepareDataCount = async (
   models: IModels,
   _subdomain: string,
@@ -46,7 +47,7 @@ const getCustomFieldsData = async (item, fieldId) => {
         value = customFeild.value;
 
         if (Array.isArray(value)) {
-          value = value.join(", ");
+          value = value.join(', ');
         }
 
         return { value };
@@ -66,24 +67,24 @@ export const fillValue = async (
   let value = item[column];
 
   switch (column) {
-    case "createdAt":
-      value = moment(value).format("YYYY-MM-DD HH:mm");
+    case 'createdAt':
+      value = moment(value).format('YYYY-MM-DD HH:mm');
       break;
 
-    case "categoryName":
+    case 'categoryName':
       const category = await models.AssetCategories.findOne({
-        _id: item.categoryId
+        _id: item.categoryId,
       }).lean();
 
-      value = category?.name || "-";
+      value = category?.name || '-';
 
       break;
-    case "parentName":
+    case 'parentName':
       const parent = await models.Assets.findOne({
-        _id: item.parentId
+        _id: item.parentId,
       }).lean();
 
-      value = parent?.name || "-";
+      value = parent?.name || '-';
 
       break;
 
@@ -91,21 +92,21 @@ export const fillValue = async (
       break;
   }
 
-  return value || "-";
+  return value || '-';
 };
 
 export const IMPORT_EXPORT_TYPES = [
   {
-    text: "Assets",
-    contentType: "asset",
-    icon: "piggy-bank",
-    skipFilter: true
+    text: 'Assets',
+    contentType: 'asset',
+    icon: 'piggy-bank',
+    skipFilter: true,
   },
   {
-    text: "Assets Movement",
-    contentType: "assets-movement",
-    icon: "piggy-bank"
-  }
+    text: 'Assets Movement',
+    contentType: 'assets-movement',
+    icon: 'piggy-bank',
+  },
 ];
 
 export default {
@@ -126,17 +127,17 @@ export default {
       totalCount = results;
 
       for (const column of columnsConfig) {
-        if (column.startsWith("customFieldsData")) {
-          const fieldId = column.split(".")[1];
+        if (column.startsWith('customFieldsData')) {
+          const fieldId = column.split('.')[1];
           const field = await sendCoreMessage({
             subdomain,
-            action: "fields.findOne",
+            action: 'fields.findOne',
             data: {
               query: {
-                _id: fieldId
-              }
+                _id: fieldId,
+              },
             },
-            isRPC: true
+            isRPC: true,
           });
 
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
@@ -146,15 +147,15 @@ export default {
       }
 
       for (const header of headers) {
-        if (header.startsWith("customFieldsData")) {
-          excelHeader.push(header.split(".")[1]);
+        if (header.startsWith('customFieldsData')) {
+          excelHeader.push(header.split('.')[1]);
         } else {
           excelHeader.push(header);
         }
       }
     } catch (e) {
       return {
-        error: e.message
+        error: e.message,
       };
     }
     return { totalCount, excelHeader };
@@ -172,15 +173,15 @@ export default {
       const results = await prepareData(models, subdomain, data);
 
       for (const column of columnsConfig) {
-        if (column.startsWith("customFieldsData")) {
-          const fieldId = column.split(".")[1];
+        if (column.startsWith('customFieldsData')) {
+          const fieldId = column.split('.')[1];
           const field = await sendCoreMessage({
             subdomain,
-            action: "fields.findOne",
+            action: 'fields.findOne',
             data: {
-              query: { _id: fieldId }
+              query: { _id: fieldId },
             },
-            isRPC: true
+            isRPC: true,
           });
 
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
@@ -193,17 +194,17 @@ export default {
         const result = {};
 
         for (const column of headers) {
-          if (column.startsWith("customFieldsData")) {
-            const fieldId = column.split(".")[2];
-            const fieldName = column.split(".")[1];
+          if (column.startsWith('customFieldsData')) {
+            const fieldId = column.split('.')[2];
+            const fieldName = column.split('.')[1];
 
             const { value } = await getCustomFieldsData(item, fieldId);
 
-            result[column] = value || "-";
+            result[column] = value || '-';
           } else {
             const value = await fillValue(models, subdomain, column, item);
 
-            result[column] = value || "-";
+            result[column] = value || '-';
           }
         }
 
@@ -213,5 +214,5 @@ export default {
       return { error: e.message };
     }
     return { docs };
-  }
+  },
 };

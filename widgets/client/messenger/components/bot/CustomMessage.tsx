@@ -1,6 +1,7 @@
-import * as React from 'react';
-import { IBotData } from '../../types';
-import { BOT_CUSTOM_TYPES } from './constants';
+import * as React from "react";
+
+import { BOT_CUSTOM_TYPES } from "./constants";
+import { IBotData } from "../../types";
 
 type Props = {
   conversationId?: string;
@@ -13,7 +14,7 @@ type Props = {
 export default function CustomMessage({
   message,
   replyAutoAnswer,
-  color
+  color,
 }: Props) {
   if (!message) {
     return null;
@@ -32,10 +33,21 @@ export default function CustomMessage({
   };
 
   const renderButton = (
-    item: { title: string; payload: string },
+    item: { mainTitle?: string; title: string; payload: string },
     index: number
   ) => {
     const handleClick = () => onSelectReply(item.title, item.payload);
+    if (item.mainTitle) {
+      return (
+        <div
+          key={index}
+          className="reply-button quick_reply_text"
+          style={{ backgroundColor: color, borderColor: color }}
+        >
+          {item.mainTitle}
+        </div>
+      );
+    }
 
     return (
       <div

@@ -24,10 +24,11 @@ const params = `
 export const queries = `
   pmsConfigs: [PmsConfig]
   pmsConfigsGetValue(code:String): PmsConfig
-  pmsRooms( pipelineId:String! ,endDate1:Date,endDate2:Date, startDate1:Date ,startDate2:Date ): [Deal]
+  pmsRooms(perPage:Int,page: Int, pipelineId:String! ,endDate1:Date,endDate2:Date, startDate1:Date ,startDate2:Date ): [Deal]
   pmsCheckRooms(pipelineId:String! ,endDate:Date, startDate:Date,ids:[String]): [Product]
 `;
 
 export const mutations = `
   pmsConfigsUpdate(${params}): [PmsConfig]
+  pmsRoomChangeByUser(userId:String!, password:String!):JSON
 `;

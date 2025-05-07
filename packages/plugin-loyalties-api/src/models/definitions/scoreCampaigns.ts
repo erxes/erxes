@@ -4,7 +4,7 @@ import { field } from "./utils";
 export const SCORE_CAMPAIGN_STATUSES = {
   PUBLISHED: "published",
   DRAFT: "draft",
-  ARCHIVED: "archived"
+  ARCHIVED: "archived",
 };
 
 export interface IScoreCampaign {
@@ -25,6 +25,9 @@ export interface IScoreCampaign {
   fieldName: string;
   fieldId: string;
   status: string;
+
+  onlyClientPortal?: boolean
+  restrictions?: any
 }
 
 export interface IScoreCampaignDocuments extends Document, IScoreCampaign {
@@ -34,7 +37,7 @@ export interface IScoreCampaignDocuments extends Document, IScoreCampaign {
 const addSchema = new Schema(
   {
     placeholder: field({ type: String, label: "Placeholder" }),
-    currencyRatio: field({ type: String, label: "currencyRatio", default: 1 })
+    currencyRatio: field({ type: String, label: "currencyRatio", default: 1 }),
   },
   { _id: false }
 );
@@ -42,7 +45,7 @@ const addSchema = new Schema(
 const subtractSchema = new Schema(
   {
     placeholder: field({ type: String, label: "Placeholder" }),
-    currencyRatio: field({ type: String, label: "currencyRatio", default: 1 })
+    currencyRatio: field({ type: String, label: "currencyRatio", default: 1 }),
   },
   { _id: false }
 );
@@ -57,11 +60,33 @@ export const scoreCampaignSchema = new Schema({
   createdUserId: field({ type: String, label: "Created User Id" }),
   ownerType: field({ type: String, label: "Owner Type" }),
   fieldGroupId: field({ type: String, label: "Field Group" }),
-  fieldName: field({ type: String, label: "Field Name" }),
+  fieldName: field({ type: String, label: "Field Name", optional: true }),
   fieldId: field({ type: String, label: "Field Id" }),
   status: field({
     type: String,
     enum: Object.values(SCORE_CAMPAIGN_STATUSES),
-    default: SCORE_CAMPAIGN_STATUSES.DRAFT
-  })
+    default: SCORE_CAMPAIGN_STATUSES.DRAFT,
+  }),
+  serviceName: field({
+    type: String,
+    label: "Service Name",
+    required: true,
+  }),
+  additionalConfig: field({
+    type: Schema.Types.Mixed,
+    label: "Additional Config",
+    optional: true,
+  }),
+
+  onlyClientPortal: field({
+    type: Boolean,
+    label: "Only Client Portal",
+    optional: true,
+  }),
+
+  restrictions: field({
+    type: Schema.Types.Mixed,
+    label: "Restrictions",
+    optional: true,
+  }),
 });

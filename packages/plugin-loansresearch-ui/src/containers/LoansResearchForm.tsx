@@ -1,16 +1,28 @@
-import { ButtonMutate } from '@erxes/ui/src';
+import { Alert, ButtonMutate, Spinner } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { mutations } from '../graphql';
+import { gql, useQuery, useMutation } from '@apollo/client';
+
+import { mutations, queries } from '../graphql';
 import LoansResearchForm from '../components/LoansResearchForm';
-import { ILoanResearch } from '../types';
+import { ILoanResearch, RefetchMutationResponse } from '../types';
 
 type Props = {
   loansResearch: ILoanResearch;
   closeModal: () => void;
+  queryParams: any;
 };
 
 const LoansResearchFormContainer = (props: Props) => {
+  const { queryParams } = props;
+
+  const [loanResearchRefetch] = useMutation<RefetchMutationResponse>(
+    gql(mutations.loansResearchRefetch),
+    {
+      refetchQueries: ['loanResearchDetail'],
+    }
+  );
+
   const deepCleanTypename = (obj: any): any => {
     if (Array.isArray(obj)) {
       return obj.map(deepCleanTypename); // Recursively clean arrays
@@ -22,6 +34,31 @@ const LoansResearchFormContainer = (props: Props) => {
       }, {});
     }
     return obj; // Return primitive values as-is
+  };
+
+  const customersQuery = useQuery(gql(queries.customers), {
+    variables: {
+      mainType: 'deal',
+      mainTypeId: queryParams?.itemId || '',
+      relType: 'customer',
+      isSaved: true,
+    },
+  });
+
+  if (customersQuery.loading) {
+    return <Spinner />;
+  }
+
+  const refetchResearch = (customerId, type) => {
+    loanResearchRefetch({
+      variables: { customerId, type },
+    })
+      .then(() => {
+        Alert.success('You successfully refetched the research');
+      })
+      .catch((e) => {
+        Alert.error(e.message);
+      });
   };
 
   const renderButton = ({
@@ -53,6 +90,8 @@ const LoansResearchFormContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     renderButton,
+    refetchResearch,
+    customer: customersQuery?.data?.customers[0] || {},
   };
   return <LoansResearchForm {...updatedProps} />;
 };

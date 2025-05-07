@@ -59,14 +59,15 @@ const getRelatedValue = async (
     if (!!relatedValueProps[targetKey]) {
       const { key, filter } = relatedValueProps[targetKey] || {};
       return users
-        .filter(user => (filter ? user[filter.key] === filter.value : user))
-        .map(user => user[key])
+        .filter((user) => (filter ? user[filter.key] === filter.value : user))
+        .map((user) => user[key])
         .join(", ");
     }
 
     return (
-      users.map(user => (user.detail && user.detail.fullName) || user.email) ||
-      []
+      users.map(
+        (user) => (user.detail && user.detail.fullName) || user.email
+      ) || []
     ).join(", ");
   }
 
@@ -79,7 +80,7 @@ const getRelatedValue = async (
       isRPC: true
     });
 
-    return (tags.map(tag => tag.name) || []).join(", ");
+    return (tags.map((tag) => tag.name) || []).join(", ");
   }
 
   if (targetKey === "labelIds") {
@@ -87,7 +88,7 @@ const getRelatedValue = async (
       _id: { $in: target[targetKey] }
     });
 
-    return (labels.map(label => label.name) || []).join(", ");
+    return (labels.map((label) => label.name) || []).join(", ");
   }
 
   if (["initialStageId", "stageId"].includes(targetKey)) {
@@ -107,7 +108,7 @@ const getRelatedValue = async (
       isRPC: true
     });
 
-    return (conversations.map(c => c.content) || []).join(", ");
+    return (conversations.map((c) => c.content) || []).join(", ");
   }
 
   if (["customers", "companies"].includes(targetKey)) {
@@ -142,14 +143,14 @@ const getRelatedValue = async (
     if (relatedValueProps && !!relatedValueProps[targetKey]) {
       const { key, filter } = relatedValueProps[targetKey] || {};
       return activeContacts
-        .filter(contacts =>
+        .filter((contacts) =>
           filter ? contacts[filter.key] === filter.value : contacts
         )
-        .map(contacts => contacts[key])
+        .map((contacts) => contacts[key])
         .join(", ");
     }
 
-    const result = activeContacts.map(contact => contact?._id).join(", ");
+    const result = activeContacts.map((contact) => contact?._id).join(", ");
     return result;
   }
 
@@ -164,10 +165,10 @@ const getRelatedValue = async (
   return false;
 };
 
-const generateTotalAmount = productsData => {
+const generateTotalAmount = (productsData) => {
   let totalAmount = 0;
 
-  (productsData || []).forEach(product => {
+  (productsData || []).forEach((product) => {
     if (product.tickUsed) {
       return;
     }
@@ -262,7 +263,7 @@ const getItems = async (
     triggerCollectionType,
     moduleCollectionType,
     target
-  ).find(service => service.name === triggerService);
+  ).find((service) => service.name === triggerService);
 
   let filter: any = await relatedService?.filter();
 
@@ -286,6 +287,53 @@ const getItems = async (
 };
 
 export default {
+  checkCustomTrigger: async ({ subdomain, data }) => {
+    const { collectionType, target, config } = data;
+    const models = await generateModels(subdomain);
+
+    if (collectionType === "ticket.probability") {
+      const { boardId, pipelineId, stageId, probability } = config || {};
+
+      if (!probability) {
+        return false;
+      }
+
+      const filter = { _id: target?.stageId, probability };
+      if (stageId && stageId !== target.stageId) {
+        return false;
+      }
+
+      if (!stageId && pipelineId) {
+        const stageIds = await models.Stages.find({
+          pipelineId,
+          probability
+        }).distinct("_id");
+
+        if (!stageIds.find(stageId => target.stageId === stageId)) {
+          return false;
+        }
+      }
+
+      if (!stageId && !pipelineId && boardId) {
+        const pipelineIds = await models.Pipelines.find({ boardId }).distinct(
+          "_id"
+        );
+
+        const stageIds = await models.Stages.find({
+          pipelineId: { $in: pipelineIds },
+          probability
+        }).distinct("_id");
+
+        if (!stageIds.find(stageId => target.stageId === stageId)) {
+          return false;
+        }
+      }
+
+      return !!(await models.Stages.findOne(filter));
+    }
+
+    return false;
+  },
   receiveActions: async ({
     subdomain,
     data: { action, execution, collectionType, triggerType, actionType }
@@ -348,6 +396,15 @@ export default {
         label: "Ticket",
         description:
           "Start with a blank workflow that enrolls and is triggered off ticket"
+      },
+      {
+        type: "tickets:ticket.probability",
+        img: "automation3.svg",
+        icon: "file-plus-alt",
+        label: "Ticket stage probability based",
+        description:
+          "Start with a blank workflow that triggered off ticket item stage probability",
+        isCustom: true
       }
     ],
     actions: [
@@ -362,7 +419,7 @@ export default {
   }
 };
 
-const generateIds = value => {
+const generateIds = (value) => {
   const arr = value.split(", ");
 
   if (Array.isArray(arr)) {
@@ -465,10 +522,10 @@ const actionCreate = async ({
     newData.companyIds = generateIds(newData.companies);
   }
 
-  if (Object.keys(newData).some(key => key.startsWith("customFieldsData"))) {
+  if (Object.keys(newData).some((key) => key.startsWith("customFieldsData"))) {
     const customFieldsData: Array<{ field: string; value: string }> = [];
 
-    const fieldKeys = Object.keys(newData).filter(key =>
+    const fieldKeys = Object.keys(newData).filter((key) =>
       key.startsWith("customFieldsData")
     );
 

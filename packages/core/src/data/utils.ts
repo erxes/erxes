@@ -406,7 +406,7 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     "",
     models,
   );
-  console.log(UPLOAD_FILE_TYPES, "UPLOAD_FILE_TYPES", source, "mime:", mime);
+
   if (!(UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.includes(mime))) {
     if (!defaultMimeTypes.includes(mime)) {
       return "Invalid configured file type";
@@ -644,7 +644,7 @@ export const uploadFileCloudflare = async (
     isImage(detectedType.mime) &&
     !["image/heic", "image/heif", "image/x-icon", "image/vnd.microsoft.icon"].includes(detectedType.mime)
   ) {
-    console.log("uploading to cf images");
+    console.debug("uploading to cf images");
     return uploadToCFImages(fileObj, forcePrivate, models);
   }
 
@@ -1021,13 +1021,13 @@ export const deleteFileAzure = async (fileName: string, models?: IModels) => {
     // Check if the blob exists
     const exists = await blobClient.exists();
     if (!exists) {
-      console.log(`File with key ${fileName} does not exist.`);
+      console.error(`File with key ${fileName} does not exist.`);
       return;
     }
 
     // Delete the blob
     await blobClient.delete();
-    console.log(
+    console.debug(
       `File with key ${fileName} successfully deleted from Azure Blob Storage.`,
     );
   } catch (error) {

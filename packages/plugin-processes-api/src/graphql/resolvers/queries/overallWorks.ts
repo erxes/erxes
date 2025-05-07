@@ -129,7 +129,7 @@ const generateFilter = async (
     const category = await models.JobCategories.findOne({
       _id: jobCategoryId,
     }).lean();
-    if(!category) {
+    if (!category) {
       throw new Error(`JobCategory ${jobCategoryId} not found`);
     }
     const categories = await models.JobCategories.find(

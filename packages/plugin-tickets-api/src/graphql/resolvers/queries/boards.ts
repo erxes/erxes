@@ -64,48 +64,7 @@ const boardQueries = {
     { type }: { type: string },
     { user, commonQuerySelector, models: { Boards }, res }: IContext
   ) {
-    const pipelineFilter = user.isOwner
-      ? {}
-      : {
-          $or: [
-            { $eq: ["$visibility", "public"] },
-            {
-              $and: [
-                { $eq: ["$visibility", "private"] },
-                {
-                  $or: [
-                    { $in: [user._id, "$memberIds"] },
-                    { $eq: ["$userId", user._id] }
-                  ]
-                }
-              ]
-            }
-          ]
-        };
-
-    return Boards.aggregate([
-      { $match: { ...commonQuerySelector, type } },
-      {
-        $lookup: {
-          from: "tickets_pipelines",
-          let: { boardId: "$_id" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ["$boardId", "$$boardId"] },
-                    { ...pipelineFilter }
-                  ]
-                }
-              }
-            },
-            { $project: { name: 1 } }
-          ],
-          as: "pipelines"
-        }
-      }
-    ]);
+    return await Boards.find({ ...commonQuerySelector }).lean();
   },
 
   /**
@@ -852,7 +811,11 @@ const boardQueries = {
       const endDate = new Date(interval.endTime.getTime() - timezone);
 
       const checkingItems = items.filter(
-        item => item.startDate && item.startDate < endDate && item.closeDate && item.closeDate > startDate
+        item =>
+          item.startDate &&
+          item.startDate < endDate &&
+          item.closeDate &&
+          item.closeDate > startDate
       );
 
       let checkedTagIds: string[] = [];

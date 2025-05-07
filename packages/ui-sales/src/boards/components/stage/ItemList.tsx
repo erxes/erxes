@@ -116,9 +116,9 @@ function DraggableContainer(props: DraggableContainerProps) {
           {renderHasNotified()}
           <Item
             key={item._id}
-            stageId={stageId}
             item={item}
             onClick={onClick}
+            hasNotified={hasNotified}
             beforePopupClose={beforePopupClose}
             options={options}
           />

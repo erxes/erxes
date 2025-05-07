@@ -3,7 +3,14 @@ import type {
   MessageArgs,
   MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
-import { checkForExistingIntegrations, generateToken, getDomain, sendToGrandStream, updateIntegrationQueueNames, updateIntegrationQueues } from './utils';
+import {
+  checkForExistingIntegrations,
+  generateToken,
+  getDomain,
+  sendToGrandStream,
+  updateIntegrationQueueNames,
+  updateIntegrationQueues,
+} from './utils';
 import { generateModels } from './connectionResolver';
 import {
   consumeQueue,
@@ -23,44 +30,51 @@ export const setupMessageConsumers = async () => {
       const { integrationId, doc } = data;
       const models = generateModels(subdomain);
       try {
-      
         const docData = JSON.parse(doc.data);
-  
+
         const token = await generateToken(integrationId);
-  
+
         const updateData = {
           inboxId: integrationId,
           token,
           ...docData,
         };
-        const checkedIntegration = await checkForExistingIntegrations(subdomain, updateData, integrationId)
-        const {queues} = checkedIntegration;
-        if(checkedIntegration){
-            const integration = await (
-              await models
-        ).Integrations.create({
-          ...checkedIntegration
-        });
-        try {
-          await updateIntegrationQueueNames(subdomain, integration?.inboxId, integration.queues);
-        } catch (error) {
-          console.error('Failed to update queue names:', error.message);
+        const checkedIntegration = await checkForExistingIntegrations(
+          subdomain,
+          updateData,
+          integrationId,
+        );
+
+        if (checkedIntegration) {
+          const integration = await (
+            await models
+          ).Integrations.create({
+            ...checkedIntegration,
+          });
+          try {
+            await updateIntegrationQueueNames(
+              subdomain,
+              integration?.inboxId,
+              integration.queues,
+            );
+          } catch (error) {
+            console.error('Failed to update queue names:', error.message);
+          }
         }
-      }
         return { status: 'success' };
       } catch (error) {
         await (await models).Integrations.deleteOne({ inboxId: integrationId });
 
         return {
           status: 'error',
-          errorMessage: error.code === 11000
-            ? 'Duplicate queue detected. Queues must be unique across integrations.'
-            : `Error creating integration: ${error.message}`,
+          errorMessage:
+            error.code === 11000
+              ? 'Duplicate queue detected. Queues must be unique across integrations.'
+              : `Error creating integration: ${error.message}`,
         };
       }
-    }
+    },
   );
-  
 
   consumeRPCQueue(
     'calls:api_to_integrations',
@@ -100,27 +114,43 @@ export const setupMessageConsumers = async () => {
       try {
         const details = JSON.parse(doc.data);
         const models = await generateModels(subdomain);
-  
-        const integration = await models.Integrations.findOne({ inboxId: integrationId }).lean();
+
+        const integration = await models.Integrations.findOne({
+          inboxId: integrationId,
+        }).lean();
         if (!integration) {
           return { status: 'error', errorMessage: 'Integration not found.' };
         }
-  
-        // Update queues
-        const updatedQueues = await updateIntegrationQueues(subdomain, integrationId, details);
 
-        // Update queue names this function role is detect which incoming call queue 
-        await updateIntegrationQueueNames(subdomain, integrationId, updatedQueues);
+        // Update queues
+        const updatedQueues = await updateIntegrationQueues(
+          subdomain,
+          integrationId,
+          details,
+        );
+
+        // Update queue names this function role is detect which incoming call queue
+        await updateIntegrationQueueNames(
+          subdomain,
+          integrationId,
+          updatedQueues,
+        );
 
         // Notify external endpoint if necessary
         const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
         const domain = getDomain(subdomain);
+
+        let Domain = `${domain}/gateway/pl:calls`;
+
+        if (process.env.NODE_ENV !== 'production') {
+          Domain = `${domain}/pl:calls`;
+        }
         if (ENDPOINT_URL && !['os', 'localhost'].includes(subdomain)) {
           try {
             await fetch(`${ENDPOINT_URL}/update-endpoint`, {
               method: 'POST',
               body: JSON.stringify({
-                domain,
+                domain: Domain,
                 callQueues: updatedQueues,
                 erxesApiId: integration._id,
                 subdomain,
@@ -131,26 +161,31 @@ export const setupMessageConsumers = async () => {
             console.error('Failed to update endpoint:', e.message);
           }
         }
-  
+
         // Verify the update
-        const updatedIntegration = await models.Integrations.findOne({ inboxId: integrationId });
+        const updatedIntegration = await models.Integrations.findOne({
+          inboxId: integrationId,
+        });
         if (!updatedIntegration) {
-          return { status: 'error', errorMessage: 'Integration not found after update.' };
+          return {
+            status: 'error',
+            errorMessage: 'Integration not found after update.',
+          };
         }
-  
+
         return { status: 'success' };
       } catch (error) {
         console.error('Error in consumeRPCQueue:', error.message);
         return {
           status: 'error',
-          errorMessage: error.code === 11000
-            ? 'Duplicate queue detected. Queues must be unique across integrations.'
-            : `Error updating integration: ${error.message}`,
+          errorMessage:
+            error.code === 11000
+              ? 'Duplicate queue detected. Queues must be unique across integrations.'
+              : `Error updating integration: ${error.message}`,
         };
       }
-    }
+    },
   );
-  
 
   consumeRPCQueue(
     'calls:removeIntegrations',

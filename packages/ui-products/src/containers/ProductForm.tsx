@@ -1,21 +1,22 @@
-import * as compose from "lodash.flowright";
+import * as compose from 'lodash.flowright';
 
 import {
+  ConfigsQueryResponse,
   IConfigsMap,
   IProduct,
   ProductCategoriesQueryResponse,
   ProductsConfigsQueryResponse,
   UomsQueryResponse,
-} from "../types";
-import { mutations, queries } from "../graphql";
+} from '../types';
+import { mutations, queries } from '../graphql';
 
-import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
-import Form from "../components/ProductForm";
-import { IButtonMutateProps } from "@erxes/ui/src/types";
-import React from "react";
-import { gql } from "@apollo/client";
-import { graphql } from "@apollo/client/react/hoc";
-import { withProps } from "@erxes/ui/src/utils";
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import Form from '../components/ProductForm';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   product?: IProduct;
@@ -23,18 +24,25 @@ type Props = {
 };
 
 type FinalProps = {
+  configsQuery: ConfigsQueryResponse;
   productCategoriesQuery: ProductCategoriesQueryResponse;
   productsConfigsQuery: ProductsConfigsQueryResponse;
   uomsQuery: UomsQueryResponse;
 } & Props;
 
 const ProductFormContainer = (props: FinalProps) => {
-  const { productCategoriesQuery, productsConfigsQuery, uomsQuery } = props;
+  const {
+    productCategoriesQuery,
+    productsConfigsQuery,
+    uomsQuery,
+    configsQuery,
+  } = props;
 
   if (
     productCategoriesQuery.loading ||
     productsConfigsQuery.loading ||
-    uomsQuery.loading
+    uomsQuery.loading ||
+    configsQuery.loading
   ) {
     return null;
   }
@@ -73,7 +81,7 @@ const ProductFormContainer = (props: FinalProps) => {
         type="submit"
         uppercase={false}
         successMessage={`You successfully ${
-          object ? "updated" : "added"
+          object ? 'updated' : 'added'
         } a ${name}`}
       />
     );
@@ -82,6 +90,7 @@ const ProductFormContainer = (props: FinalProps) => {
   const productCategories = productCategoriesQuery.productCategories || [];
   const configs = productsConfigsQuery.productsConfigs || [];
   const configsMap = {};
+  const currencies = configsQuery.configsGetValue.value || [];
 
   for (const config of configs) {
     configsMap[config.code] = config.value;
@@ -95,6 +104,7 @@ const ProductFormContainer = (props: FinalProps) => {
     productCategories,
     uoms,
     configsMap: configsMap || ({} as IConfigsMap),
+    currencies,
   };
 
   return <Form {...updatedProps} />;
@@ -102,10 +112,10 @@ const ProductFormContainer = (props: FinalProps) => {
 
 const getRefetchQueries = () => {
   return [
-    "productDetail",
-    "products",
-    "productsTotalCount",
-    "productCategories",
+    'productDetail',
+    'products',
+    'productsTotalCount',
+    'productCategories',
   ];
 };
 
@@ -114,14 +124,23 @@ export default withProps<Props>(
     graphql<Props, ProductCategoriesQueryResponse>(
       gql(queries.productCategories),
       {
-        name: "productCategoriesQuery",
+        name: 'productCategoriesQuery',
       }
     ),
+    graphql<Props, ConfigsQueryResponse>(gql(queries.configs), {
+      name: 'configsQuery',
+      options: () => ({
+        variables: {
+          code: 'dealCurrency',
+        },
+        fetchPolicy: 'network-only',
+      }),
+    }),
     graphql<{}, UomsQueryResponse>(gql(queries.uoms), {
-      name: "uomsQuery",
+      name: 'uomsQuery',
     }),
     graphql<{}, ProductsConfigsQueryResponse>(gql(queries.productsConfigs), {
-      name: "productsConfigsQuery",
+      name: 'productsConfigsQuery',
     })
   )(ProductFormContainer)
 );

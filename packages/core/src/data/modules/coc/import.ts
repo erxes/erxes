@@ -94,8 +94,6 @@ export default {
           defaultValue: ""
         });
 
-        console.log("EMAIL_VERIFIER_ENDPOINT === ", EMAIL_VERIFIER_ENDPOINT);
-
         if (EMAIL_VERIFIER_ENDPOINT) {
           const DOMAIN = getEnv({ name: "DOMAIN" })
             ? `${getEnv({ name: "DOMAIN" })}/gateway`

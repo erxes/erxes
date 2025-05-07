@@ -1,20 +1,20 @@
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { Activity } from 'botbuilder';
-
-import { debugInfo } from '@erxes/api-utils/src/debuggers';
-import { IModels } from './connectionResolver';
-import { INTEGRATION_KINDS } from './constants';
-import { debugError } from './debuggers';
-import { sendAutomationsMessage, sendInboxMessage } from './messageBroker';
-import { getOrCreateCustomer } from './store';
-import { IChannelData } from './types';
-import { IConversationMessageDocument } from './models/definitions/conversationMessages';
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
+import { Activity } from "botbuilder";
+import { IIntegrationDocument } from "./models/Integrations";
+import { debugInfo } from "@erxes/api-utils/src/debuggers";
+import { IModels } from "./connectionResolver";
+import { INTEGRATION_KINDS } from "./constants";
+import { debugError } from "./debuggers";
+import { sendAutomationsMessage, sendInboxMessage } from "./messageBroker";
+import { getOrCreateCustomer } from "./store";
+import { IChannelData } from "./types";
+import { IConversationMessageDocument } from "./models/definitions/conversationMessages";
 
 const checkIsBot = async (models: IModels, message, recipientId) => {
   let selector: any = { pageId: recipientId };
 
   if (message?.payload) {
-    const payload = JSON.parse(message?.payload || '{}');
+    const payload = JSON.parse(message?.payload || "{}");
     if (payload.botId) {
       selector = { _id: payload.botId };
     }
@@ -38,23 +38,28 @@ const handleAutomation = async (
   }
 ) => {
   const target = { ...conversationMessage.toObject() };
-  let type = 'facebook:messages';
+  let executionId;
+  let type = "facebook:messages";
 
   if (payload) {
-    target.payload = JSON.parse(payload || '{}');
+    target.payload = JSON.parse(payload || "{}");
+    if (target?.payload?.executionId) {
+      executionId = target.payload.executionId;
+    }
   }
 
   if (adData) {
     target.adData = adData;
-    type = 'facebook:ads';
+    type = "facebook:ads";
   }
 
   await sendAutomationsMessage({
     subdomain,
-    action: 'trigger',
+    action: "trigger",
     data: {
       type,
-      targets: [target]
+      targets: [target],
+      executionId
     },
     isRPC: true,
     defaultValue: null
@@ -71,19 +76,19 @@ const handleAutomation = async (
 const receiveMessage = async (
   models: IModels,
   subdomain: string,
+  integration: IIntegrationDocument,
   activity: Activity
 ) => {
   let {
     recipient,
     sender,
     timestamp,
-    text,
     attachments = [],
     message,
     postback
   } = activity.channelData as IChannelData;
   let adData;
-
+  let text = message?.text || "";
   if (!text && !message && !!postback) {
     text = postback.title;
 
@@ -98,13 +103,6 @@ const receiveMessage = async (
   if (message.quick_reply) {
     message.payload = message.quick_reply.payload;
   }
-
-  const integration = await models.Integrations.getIntegration({
-    $and: [
-      { facebookPageIds: { $in: [recipient.id] } },
-      { kind: INTEGRATION_KINDS.MESSENGER }
-    ]
-  });
 
   const userId = sender.id;
   const pageId = recipient.id;
@@ -131,7 +129,7 @@ const receiveMessage = async (
   if (message.referral && bot) {
     const referral = message.referral;
     adData = {
-      type: 'text',
+      type: "text",
       text: `<div class="ads"> 
               <img src="${referral.ads_context_data.photo_url}" alt="${referral.ads_context_data.ad_title}"/>
               <h5>${referral.ads_context_data.ad_title}</h5>
@@ -162,8 +160,8 @@ const receiveMessage = async (
       });
     } catch (e) {
       throw new Error(
-        e.message.includes('duplicate')
-          ? 'Concurrent request: conversation duplication'
+        e.message.includes("duplicate")
+          ? "Concurrent request: conversation duplication"
           : e
       );
     }
@@ -173,27 +171,27 @@ const receiveMessage = async (
     if (bot) {
       conversation.botId = botId;
     }
-    conversation.content = text || '';
+    conversation.content = text || "";
   }
 
   const formattedAttachments = (attachments || [])
-    .filter((att) => att.type !== 'fallback')
+    .filter((att) => att.type !== "fallback")
     .map((att) => ({
       type: att.type,
-      url: att.payload ? att.payload.url : ''
+      url: att.payload ? att.payload.url : ""
     }));
 
   // save on api
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
-      action: 'integrations.receive',
+      action: "integrations.receive",
       data: {
-        action: 'create-or-update-conversation',
+        action: "create-or-update-conversation",
         payload: JSON.stringify({
           customerId: customer.erxesApiId,
           integrationId: integration.erxesApiId,
-          content: text || '',
+          content: text || "",
           attachments: formattedAttachments,
           conversationId: conversation.erxesApiId,
           updatedAt: timestamp
@@ -219,7 +217,7 @@ const receiveMessage = async (
       if (adData) {
         const adsMessage = await models.ConversationMessages.addMessage({
           conversationId: conversation._id,
-          content: '<p>Conversation started from Facebook ads </p>',
+          content: "<p>Conversation started from Facebook ads </p>",
           botId,
           botData: [adData],
           fromBot: true,
@@ -229,7 +227,7 @@ const receiveMessage = async (
 
         await sendInboxMessage({
           subdomain,
-          action: 'conversationClientMessageInserted',
+          action: "conversationClientMessageInserted",
           data: {
             ...adsMessage.toObject(),
             conversationId: conversation.erxesApiId
@@ -248,7 +246,7 @@ const receiveMessage = async (
 
       await sendInboxMessage({
         subdomain,
-        action: 'conversationClientMessageInserted',
+        action: "conversationClientMessageInserted",
         data: {
           ...created.toObject(),
           conversationId: conversation.erxesApiId
@@ -273,8 +271,8 @@ const receiveMessage = async (
       });
     } catch (e) {
       throw new Error(
-        e.message.includes('duplicate')
-          ? 'Concurrent request: conversation message duplication'
+        e.message.includes("duplicate")
+          ? "Concurrent request: conversation message duplication"
           : e
       );
     }

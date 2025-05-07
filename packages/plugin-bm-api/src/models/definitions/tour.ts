@@ -23,6 +23,12 @@ export interface ITour {
   branchId: string;
   tags: string[];
   viewCount: number;
+  info1?: string;
+  info2?: string;
+  info3?: string;
+  info4?: string;
+  images?: string[];
+  imageThumbnail?: string;
 }
 
 export interface ITourDocument extends ITour, Document {
@@ -48,7 +54,7 @@ export const guideItemSchema = new Schema(
     guideId: field({ type: String, optional: true }),
     type: field({ type: String, optional: true }),
   },
-  { _id: false },
+  { _id: false }
 );
 export const tourSchema = schemaHooksWrapper(
   new Schema({
@@ -71,17 +77,24 @@ export const tourSchema = schemaHooksWrapper(
     guides: field({ type: [guideItemSchema], optional: true, label: 'guides' }),
     status: field({
       type: String,
-      enum: getEnum(),
       default: '',
       optional: true,
       label: 'status',
       esType: 'keyword',
-      selectOptions: STATUS_TYPES,
     }),
     cost: field({ type: Number, optional: true, label: 'cost' }),
     tags: field({ type: [String], optional: true, label: 'tags' }),
     viewCount: field({ type: Number, optional: true, label: 'viewCount' }),
     branchId: field({ type: String, optional: true, label: 'branchId' }),
+
+    info1: field({ type: String, optional: true, label: 'info' }),
+    info2: field({ type: String, optional: true, label: 'info' }),
+    info3: field({ type: String, optional: true, label: 'info' }),
+    info4: field({ type: String, optional: true, label: 'info' }),
+    extra: field({ type: Object, optional: true, label: 'info' }),
+
+    images: field({ type: [String], optional: true, label: 'images' }),
+    imageThumbnail: field({ type: String, optional: true, label: 'images' }),
   }),
-  'erxes_tours',
+  'erxes_tours'
 );

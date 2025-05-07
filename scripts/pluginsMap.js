@@ -1,13 +1,13 @@
 module.exports = {
   "inbox": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-inbox-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-inbox-ui/src",
       "name": "inbox",
       "scope": "inbox",
       "exposes": {
         "./routes": "./src/routes.tsx",
         "./activityLog": "./src/activityLogs/activityLog.tsx",
-        "./automation": "./src/automations/automation.tsx",
+        "./automation": "./src/automations/index.tsx",
         "./unreadCount": "./src/inbox/containers/UnreadCount.tsx",
         "./actionForms": "./src/settings/integrations/containers/ActionForms",
         "./emailWidget": "./src/inbox/containers/EmailWidget.tsx",
@@ -69,6 +69,7 @@ module.exports = {
             "integrationsEditMessengerIntegration",
             "integrationsSaveMessengerAppearanceData",
             "integrationsSaveMessengerConfigs",
+            "integrationsSaveMessengerTicketData",
             "integrationsCreateLeadIntegration",
             "integrationsEditLeadIntegration",
             "integrationsRemove",
@@ -182,6 +183,7 @@ module.exports = {
                 "integrationsCreateMessengerIntegration",
                 "integrationsEditMessengerIntegration",
                 "integrationsSaveMessengerAppearanceData",
+                "integrationsSaveMessengerTicketData",
                 "integrationsSaveMessengerConfigs",
                 "integrationsCreateLeadIntegration",
                 "integrationsEditLeadIntegration",
@@ -205,6 +207,10 @@ module.exports = {
             {
               "name": "integrationsSaveMessengerAppearanceData",
               "description": "Save messenger appearance data"
+            },
+            {
+              "name": "integrationsSaveMessengerTicketData",
+              "description": "Save messenger ticket data"
             },
             {
               "name": "integrationsSaveMessengerConfigs",
@@ -405,7 +411,7 @@ module.exports = {
   },
   "automations": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-automations-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-automations-ui/src",
       "name": "automations",
       "scope": "automations",
       "exposes": {
@@ -477,7 +483,7 @@ module.exports = {
   },
   "calendar": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-calendar-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-calendar-ui/src",
       "name": "calendar",
       "exposes": {
         "./routes": "./src/routes.tsx",
@@ -520,7 +526,7 @@ module.exports = {
   },
   "calls": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-calls-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-calls-ui/src",
       "name": "calls",
       "scope": "calls",
       "exposes": {
@@ -598,7 +604,7 @@ module.exports = {
   },
   "cars": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-cars-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-cars-ui/src",
       "name": "cars",
       "scope": "cars",
       "exposes": {
@@ -625,7 +631,10 @@ module.exports = {
       ],
       "customerRightSidebarSection": "./customerSidebar",
       "companyRightSidebarSection": "./companySidebar",
-      "dealRightSidebarSection": "./dealSidebar",
+      "dealRightSidebarSection": {
+        "title": "Cars",
+        "component": "./dealSidebar"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-cars-ui/remoteEntry.js"
     },
     "api": {
@@ -664,7 +673,7 @@ module.exports = {
   },
   "sales": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-sales-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-sales-ui/src",
       "name": "sales",
       "scope": "sales",
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-sales-ui/remoteEntry.js",
@@ -677,7 +686,8 @@ module.exports = {
         "./automation": "./src/automations/automation.tsx",
         "./contactDetailRightSidebar": "./src/RightSidebar.tsx",
         "./selectRelation": "./src/common/SelectRelation.tsx",
-        "./invoiceDetailRightSection": "./src/common/Item.tsx"
+        "./invoiceDetailRightSection": "./src/common/Item.tsx",
+        "./scoreCampaignConfig": "./src/scoreCampaignConfig.tsx"
       },
       "routes": {
         "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-sales-ui/remoteEntry.js",
@@ -691,6 +701,7 @@ module.exports = {
       "contactDetailRightSidebar": "./contactDetailRightSidebar",
       "invoiceDetailRightSection": "./invoiceDetailRightSection",
       "selectRelation": "./selectRelation",
+      "scoreCampaignConfig": "./scoreCampaignConfig",
       "menus": [
         {
           "text": "Sales Pipeline",
@@ -756,7 +767,9 @@ module.exports = {
                 "dealsArchive",
                 "dealsSort",
                 "exportDeals",
-                "dealUpdateTimeTracking"
+                "dealUpdateTimeTracking",
+                "dealUpdateProductsData",
+                "dealRemoveProductsData"
               ]
             },
             {
@@ -850,6 +863,10 @@ module.exports = {
             {
               "name": "dealUpdateProductsData",
               "description": "Update products data"
+            },
+            {
+              "name": "dealRemoveProductsData",
+              "description": "Remove products data"
             }
           ]
         }
@@ -875,7 +892,7 @@ module.exports = {
   },
   "tasks": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-tasks-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-tasks-ui/src",
       "name": "tasks",
       "scope": "tasks",
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-tasks-ui/remoteEntry.js",
@@ -1082,7 +1099,7 @@ module.exports = {
   },
   "purchases": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-purchases-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-purchases-ui/src",
       "name": "purchases",
       "scope": "purchases",
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-purchases-ui/remoteEntry.js",
@@ -1289,7 +1306,7 @@ module.exports = {
   },
   "notifications": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-notifications-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-notifications-ui/src",
       "name": "notifications",
       "scope": "notifications",
       "exposes": {
@@ -1325,7 +1342,7 @@ module.exports = {
   },
   "tickets": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-tickets-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-tickets-ui/src",
       "name": "tickets",
       "scope": "tickets",
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-tickets-ui/remoteEntry.js",
@@ -1560,7 +1577,7 @@ module.exports = {
   },
   "clientportal": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-clientportal-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-clientportal-ui/src",
       "name": "clientportal",
       "scope": "clientportal",
       "exposes": {
@@ -1591,7 +1608,10 @@ module.exports = {
       ],
       "taskRightSidebarSection": "./Section",
       "ticketRightSidebarSection": "./Section",
-      "dealRightSidebarSection": "./Section",
+      "dealRightSidebarSection": {
+        "title": "Kind",
+        "component": "./Section"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-clientportal-ui/remoteEntry.js"
     },
     "api": {
@@ -1628,7 +1648,7 @@ module.exports = {
   },
   "ebarimt": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-ebarimt-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-ebarimt-ui/src",
       "name": "ebarimt",
       "exposes": {
         "./routes": "./src/routes.tsx",
@@ -1704,7 +1724,7 @@ module.exports = {
   },
   "engages": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-engages-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-engages-ui/src",
       "name": "engages",
       "scope": "engages",
       "exposes": {
@@ -1802,7 +1822,7 @@ module.exports = {
   },
   "exm": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-exm-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-exm-ui/src",
       "name": "exm",
       "exposes": {
         "./routes": "./src/routes.tsx"
@@ -1896,7 +1916,7 @@ module.exports = {
   "integrations": {},
   "knowledgebase": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-knowledgebase-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-knowledgebase-ui/src",
       "name": "knowledgebase",
       "scope": "knowledgebase",
       "exposes": {
@@ -1949,7 +1969,7 @@ module.exports = {
   },
   "loyalties": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-loyalties-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-loyalties-ui/src",
       "name": "loyalties",
       "scope": "loyalties",
       "exposes": {
@@ -2018,6 +2038,10 @@ module.exports = {
             {
               "name": "manageLoyalties",
               "description": "Manage loyalties"
+            },
+            {
+              "name": "adjustLoyaltyScore",
+              "description": "Adjust loyalty score"
             }
           ]
         }
@@ -2026,7 +2050,7 @@ module.exports = {
   },
   "webhooks": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-webhooks-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-webhooks-ui/src",
       "name": "webhooks",
       "scope": "webhooks",
       "exposes": {
@@ -2083,7 +2107,7 @@ module.exports = {
   },
   "pos": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-pos-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-pos-ui/src",
       "name": "pos",
       "scope": "pos",
       "exposes": {
@@ -2194,7 +2218,7 @@ module.exports = {
   },
   "syncerkhet": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-syncerkhet-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-syncerkhet-ui/src",
       "name": "syncerkhet",
       "exposes": {
         "./routes": "./src/routes.tsx"
@@ -2242,7 +2266,7 @@ module.exports = {
   },
   "multierkhet": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-multierkhet-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-multierkhet-ui/src",
       "name": "multierkhet",
       "exposes": {
         "./routes": "./src/routes.tsx",
@@ -2296,7 +2320,7 @@ module.exports = {
   },
   "salesplans": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-salesplans-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-salesplans-ui/src",
       "name": "salesplans",
       "exposes": {
         "./routes": "./src/routes.tsx"
@@ -2358,7 +2382,7 @@ module.exports = {
   },
   "processes": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-processes-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-processes-ui/src",
       "name": "processes",
       "exposes": {
         "./routes": "./src/routes.tsx"
@@ -2431,7 +2455,7 @@ module.exports = {
   },
   "inventories": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-inventories-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-inventories-ui/src",
       "name": "inventories",
       "exposes": {
         "./routes": "./src/routes.tsx"
@@ -2482,7 +2506,7 @@ module.exports = {
   "posclient": {},
   "webbuilder": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-webbuilder-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-webbuilder-ui/src",
       "name": "webbuilder",
       "exposes": {
         "./routes": "./src/routes.tsx"
@@ -2532,7 +2556,7 @@ module.exports = {
   },
   "payment": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-payment-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-payment-ui/src",
       "name": "payment",
       "scope": "payment",
       "exposes": {
@@ -2569,7 +2593,10 @@ module.exports = {
           ]
         }
       ],
-      "dealRightSidebarSection": "./invoiceSection",
+      "dealRightSidebarSection": {
+        "title": "Invoices",
+        "component": "./invoiceSection"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-payment-ui/remoteEntry.js"
     },
     "api": {
@@ -2633,7 +2660,7 @@ module.exports = {
   },
   "imap": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-imap-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-imap-ui/src",
       "name": "imap",
       "scope": "imap",
       "exposes": {
@@ -2674,7 +2701,7 @@ module.exports = {
   },
   "block": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-block-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-block-ui/src",
       "name": "block",
       "scope": "block",
       "exposes": {
@@ -2702,7 +2729,7 @@ module.exports = {
   },
   "assets": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-assets-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-assets-ui/src",
       "name": "assets",
       "scope": "assets",
       "exposes": {
@@ -2789,7 +2816,7 @@ module.exports = {
   },
   "riskassessment": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-riskassessment-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-riskassessment-ui/src",
       "name": "riskassessment",
       "scope": "riskassessment",
       "exposes": {
@@ -2846,7 +2873,10 @@ module.exports = {
           ]
         }
       ],
-      "dealRightSidebarSection": "./cardSideBarSection",
+      "dealRightSidebarSection": {
+        "title": "Risk Assessment",
+        "component": "./cardSideBarSection"
+      },
       "ticketRightSidebarSection": "./cardSideBarSection",
       "taskRightSidebarSection": "./cardSideBarSection",
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-riskassessment-ui/remoteEntry.js"
@@ -2883,7 +2913,7 @@ module.exports = {
   },
   "forum": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-forum-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-forum-ui/src",
       "name": "forum",
       "scope": "forum",
       "exposes": {
@@ -3042,7 +3072,7 @@ module.exports = {
   },
   "documents": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-documents-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-documents-ui/src",
       "name": "documents",
       "scope": "documents",
       "exposes": {
@@ -3104,7 +3134,7 @@ module.exports = {
   },
   "pricing": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-pricing-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-pricing-ui/src",
       "name": "pricing",
       "scope": "pricing",
       "exposes": {
@@ -3163,7 +3193,7 @@ module.exports = {
   },
   "timeclock": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-timeclock-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-timeclock-ui/src",
       "name": "timeclock",
       "scope": "timeclock",
       "exposes": {
@@ -3213,7 +3243,7 @@ module.exports = {
   },
   "zalo": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-zalo-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-zalo-ui/src",
       "name": "zalo",
       "scope": "zalo",
       "exposes": {
@@ -3256,7 +3286,7 @@ module.exports = {
   },
   "facebook": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-facebook-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-facebook-ui/src",
       "name": "facebook",
       "scope": "facebook",
       "exposes": {
@@ -3345,7 +3375,7 @@ module.exports = {
   },
   "filemanager": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-filemanager-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-filemanager-ui/src",
       "name": "filemanager",
       "scope": "filemanager",
       "exposes": {
@@ -3368,7 +3398,10 @@ module.exports = {
           ]
         }
       ],
-      "dealRightSidebarSection": "./fileChooserSection",
+      "dealRightSidebarSection": {
+        "title": "File manager",
+        "component": "./fileChooserSection"
+      },
       "ticketRightSidebarSection": "./fileChooserSection",
       "taskRightSidebarSection": "./fileChooserSection",
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-filemanager-ui/remoteEntry.js"
@@ -3398,7 +3431,7 @@ module.exports = {
   },
   "khanbank": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-khanbank-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-khanbank-ui/src",
       "name": "khanbank",
       "scope": "khanbank",
       "exposes": {
@@ -3528,7 +3561,7 @@ module.exports = {
   },
   "productplaces": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-productplaces-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-productplaces-ui/src",
       "name": "productplaces",
       "exposes": {
         "./routes": "./src/routes.tsx",
@@ -3575,7 +3608,7 @@ module.exports = {
   "ecommerce": {},
   "grants": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-grants-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-grants-ui/src",
       "name": "grants",
       "scope": "grants",
       "exposes": {
@@ -3602,7 +3635,10 @@ module.exports = {
           "scope": "grants"
         }
       ],
-      "dealRightSidebarSection": "./cardSideBarSection",
+      "dealRightSidebarSection": {
+        "title": "Grants",
+        "component": "./cardSideBarSection"
+      },
       "ticketRightSidebarSection": "./cardSideBarSection",
       "taskRightSidebarSection": "./cardSideBarSection",
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-grants-ui/remoteEntry.js"
@@ -3610,7 +3646,7 @@ module.exports = {
   },
   "loans": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-loans-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-loans-ui/src",
       "name": "loans",
       "scope": "loans",
       "exposes": {
@@ -3632,6 +3668,18 @@ module.exports = {
             "showContracts"
           ],
           "permission": "showContracts"
+        },
+        {
+          "text": "Loan config",
+          "image": "/images/icons/erxes-16.svg",
+          "to": "/erxes-plugin-loan/main-settings",
+          "action": "loanConfig",
+          "scope": "loans",
+          "location": "settings",
+          "permissions": [
+            "manageLoanConfigs"
+          ],
+          "permission": "manageLoanConfigs"
         },
         {
           "text": "Contract types",
@@ -3658,18 +3706,6 @@ module.exports = {
           "permission": "manageInsuranceTypes"
         },
         {
-          "text": "Loan config",
-          "image": "/images/icons/erxes-16.svg",
-          "to": "/erxes-plugin-loan/holiday-settings/",
-          "action": "loanConfig",
-          "scope": "loans",
-          "location": "settings",
-          "permissions": [
-            "manageLoanConfigs"
-          ],
-          "permission": "manageLoanConfigs"
-        },
-        {
           "text": "Transaction",
           "image": "/images/icons/erxes-16.svg",
           "to": "/erxes-plugin-loan/transaction-list",
@@ -3694,7 +3730,10 @@ module.exports = {
       ],
       "customerRightSidebarSection": "./contractSection",
       "companyRightSidebarSection": "./contractSection",
-      "dealRightSidebarSection": "./contractSection",
+      "dealRightSidebarSection": {
+        "title": "Loan contract",
+        "component": "./contractSection"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loans-ui/remoteEntry.js"
     },
     "api": {
@@ -3853,7 +3892,7 @@ module.exports = {
   },
   "viber": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-viber-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-viber-ui/src",
       "name": "viber",
       "scope": "viber",
       "exposes": {
@@ -3897,7 +3936,7 @@ module.exports = {
   },
   "meetings": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-meetings-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-meetings-ui/src",
       "name": "meetings",
       "scope": "meetings",
       "exposes": {
@@ -3917,13 +3956,16 @@ module.exports = {
           "location": "mainNavigation"
         }
       ],
-      "dealRightSidebarSection": "./meetingSideBarSection",
+      "dealRightSidebarSection": {
+        "title": "Meeting",
+        "component": "./meetingSideBarSection"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-meetings-ui/remoteEntry.js"
     }
   },
   "xyp": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-xyp-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-xyp-ui/src",
       "name": "xyp",
       "scope": "xyp",
       "exposes": {
@@ -3950,7 +3992,10 @@ module.exports = {
       ],
       "customerRightSidebarSection": "./customerSidebar",
       "carRightSidebarSection": "./customerSidebar",
-      "dealRightSidebarSection": "./customerSidebar",
+      "dealRightSidebarSection": {
+        "title": "ДАН",
+        "component": "./customerSidebar"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-xyp-ui/remoteEntry.js"
     },
     "api": {
@@ -3965,7 +4010,7 @@ module.exports = {
   },
   "savings": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-savings-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-savings-ui/src",
       "name": "savings",
       "scope": "savings",
       "exposes": {
@@ -4151,7 +4196,7 @@ module.exports = {
   },
   "goals": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-goals-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-goals-ui/src",
       "name": "goalType",
       "scope": "goalType",
       "exposes": {
@@ -4176,7 +4221,7 @@ module.exports = {
   },
   "msdynamic": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-msdynamic-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-msdynamic-ui/src",
       "name": "msdynamic",
       "scope": "msdynamic",
       "exposes": {
@@ -4210,7 +4255,7 @@ module.exports = {
   },
   "dailyco": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-dailyco-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-dailyco-ui/src",
       "name": "dailyco",
       "scope": "dailyco",
       "exposes": {
@@ -4230,7 +4275,7 @@ module.exports = {
   },
   "zms": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-zms-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-zms-ui/src",
       "name": "zms",
       "scope": "zms",
       "exposes": {
@@ -4262,7 +4307,7 @@ module.exports = {
   },
   "syncpolaris": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-syncpolaris-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-syncpolaris-ui/src",
       "name": "syncpolaris",
       "scope": "syncpolaris",
       "exposes": {
@@ -4311,7 +4356,7 @@ module.exports = {
   },
   "reports": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-reports-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-reports-ui/src",
       "name": "reports",
       "scope": "reports",
       "exposes": {
@@ -4338,7 +4383,7 @@ module.exports = {
   },
   "instagram": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-instagram-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-instagram-ui/src",
       "name": "instagram",
       "scope": "instagram",
       "exposes": {
@@ -4417,7 +4462,7 @@ module.exports = {
   },
   "whatsapp": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-whatsapp-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-whatsapp-ui/src",
       "name": "whatsapp",
       "scope": "whatsapp",
       "exposes": {
@@ -4482,12 +4527,13 @@ module.exports = {
   },
   "burenscoring": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-burenscoring-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-burenscoring-ui/src",
       "name": "burenscoring",
       "scope": "burenscoring",
       "exposes": {
         "./routes": "./src/routes.tsx",
-        "./burenSection": "./src/containers/BurenSection.tsx"
+        "./burenSection": "./src/containers/BurenSection.tsx",
+        "./burenScoreSidebar": "./src/containers/DealBurenSection.tsx"
       },
       "routes": {
         "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-burenscoring-ui/remoteEntry.js",
@@ -4510,12 +4556,16 @@ module.exports = {
         }
       ],
       "customerRightSidebarSection": "./burenSection",
+      "dealRightSidebarSection": {
+        "title": "ЗМС",
+        "component": "./burenScoreSidebar"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-burenscoring-ui/remoteEntry.js"
     }
   },
   "golomtbank": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-golomtbank-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-golomtbank-ui/src",
       "name": "golomtbank",
       "scope": "golomtbank",
       "exposes": {
@@ -4547,7 +4597,7 @@ module.exports = {
   },
   "accountings": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-accountings-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-accountings-ui/src",
       "name": "accountings",
       "scope": "accountings",
       "exposes": {
@@ -4606,7 +4656,11 @@ module.exports = {
                 "showAccounts",
                 "manageAccounts",
                 "accountsMerge",
-                "removeAccounts"
+                "removeAccounts",
+                "showVatRows",
+                "manageVatRows",
+                "showCtaxRows",
+                "manageCtaxRows"
               ]
             },
             {
@@ -4624,6 +4678,22 @@ module.exports = {
             {
               "name": "accountsMerge",
               "description": "Merge accounts"
+            },
+            {
+              "name": "showVatRows",
+              "description": "show Vat Rows"
+            },
+            {
+              "name": "manageVatRows",
+              "description": "manage Vat Rows"
+            },
+            {
+              "name": "showCtaxRows",
+              "description": "show CTAX Rows"
+            },
+            {
+              "name": "manageCtaxRows",
+              "description": "manage CTAX Rows"
             }
           ]
         },
@@ -4646,7 +4716,7 @@ module.exports = {
   },
   "pms": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-pms-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-pms-ui/src",
       "name": "pms",
       "exposes": {
         "./routes": "./src/routes.tsx"
@@ -4683,7 +4753,7 @@ module.exports = {
   },
   "bm": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-bm-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-bm-ui/src",
       "name": "bm",
       "scope": "bm",
       "exposes": {
@@ -4707,7 +4777,7 @@ module.exports = {
   },
   "template": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-template-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-template-ui/src",
       "name": "template",
       "scope": "template",
       "exposes": {
@@ -4732,7 +4802,7 @@ module.exports = {
   },
   "cms": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-cms-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-cms-ui/src",
       "name": "cms",
       "scope": "cms",
       "exposes": {
@@ -4746,8 +4816,15 @@ module.exports = {
       "menus": [
         {
           "text": "CMS",
-          "url": "/cms/posts",
+          "url": "/cms",
           "icon": "icon-star",
+          "location": "mainNavigation",
+          "scope": "cms"
+        },
+        {
+          "text": "Web builder",
+          "url": "/cms/web-builder",
+          "icon": "icon-web-grid-alt",
           "location": "mainNavigation",
           "scope": "cms"
         }
@@ -4761,100 +4838,8 @@ module.exports = {
           "description": "CMS",
           "actions": [
             {
-              "name": "cmsAll",
-              "description": "All",
-              "use": [
-                "cmsPostsAdd",
-                "cmsPostsEdit",
-                "cmsPostsRemove",
-                "cmsTagsAdd",
-                "cmsTagsEdit",
-                "cmsTagsRemove",
-                "cmsCategoriesAdd",
-                "cmsCategoriesEdit",
-                "cmsCategoriesRemove",
-                "cmsPagesAdd",
-                "cmsPagesEdit",
-                "cmsPagesRemove",
-                "cmsMenuAdd",
-                "cmsMenuEdit",
-                "cmsMenuRemove",
-                "showCmsPosts",
-                "showCmsTags",
-                "showCmsCategories"
-              ]
-            },
-            {
-              "name": "cmsPostsAdd",
-              "description": "Add post"
-            },
-            {
-              "name": "cmsPostsEdit",
-              "description": "Edit post"
-            },
-            {
-              "name": "cmsPostsRemove",
-              "description": "Remove post"
-            },
-            {
-              "name": "cmsTagsAdd",
-              "description": "Add tag"
-            },
-            {
-              "name": "cmsTagsEdit",
-              "description": "Edit tag"
-            },
-            {
-              "name": "cmsTagsRemove",
-              "description": "Remove tag"
-            },
-            {
-              "name": "cmsCategoriesAdd",
-              "description": "Add category"
-            },
-            {
-              "name": "cmsCategoriesEdit",
-              "description": "Edit category"
-            },
-            {
-              "name": "cmsCategoriesRemove",
-              "description": "Remove category"
-            },
-            {
-              "name": "cmsPagesAdd",
-              "description": "Add page"
-            },
-            {
-              "name": "cmsPagesEdit",
-              "description": "Edit page"
-            },
-            {
-              "name": "cmsPagesRemove",
-              "description": "Remove page"
-            },
-            {
-              "name": "cmsMenuAdd",
-              "description": "Add menu"
-            },
-            {
-              "name": "cmsMenuEdit",
-              "description": "Edit menu"
-            },
-            {
-              "name": "cmsMenuRemove",
-              "description": "Remove menu"
-            },
-            {
-              "name": "showCmsPosts",
-              "description": "Show posts"
-            },
-            {
-              "name": "showCmsTags",
-              "description": "Show cms tags"
-            },
-            {
-              "name": "showCmsCategories",
-              "descriotion": "Show cms categories"
+              "name": "manageCms",
+              "description": "Manage CMS"
             }
           ]
         }
@@ -4863,7 +4848,7 @@ module.exports = {
   },
   "activedirectory": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-activedirectory-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-activedirectory-ui/src",
       "name": "activedirectory",
       "scope": "activedirectory",
       "exposes": {
@@ -4924,11 +4909,12 @@ module.exports = {
   },
   "loansresearch": {
     "ui": {
-      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-loansresearch-ui/src",
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-loansresearch-ui/src",
       "name": "loansresearch",
       "scope": "loansresearch",
       "exposes": {
-        "./routes": "./src/routes.tsx"
+        "./routes": "./src/routes.tsx",
+        "./loansResearchSidebar": "./src/containers/LoansResearchSidebar.tsx"
       },
       "routes": {
         "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loansresearch-ui/remoteEntry.js",
@@ -4941,10 +4927,79 @@ module.exports = {
           "url": "/loansresearch",
           "icon": "icon-file-check-alt",
           "location": "mainNavigation",
-          "scope": "loansresearch"
+          "scope": "loansresearch",
+          "permission": "showLoanResearch"
         }
       ],
+      "dealRightSidebarSection": {
+        "title": "Loan Research",
+        "component": "./loansResearchSidebar"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loansresearch-ui/remoteEntry.js"
+    },
+    "api": {
+      "permissions": {
+        "loansResearch": {
+          "name": "loansResearch",
+          "description": "LoansResearch",
+          "actions": [
+            {
+              "name": "loansResearchAll",
+              "description": "All",
+              "use": [
+                "showLoanResearch",
+                "manageLoanResearch"
+              ]
+            },
+            {
+              "name": "showLoanResearch",
+              "description": "Show loansresearch"
+            },
+            {
+              "name": "manageLoanResearch",
+              "description": "Manage loansresearch"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "cloudflarecalls": {
+    "ui": {
+      "srcDir": "/Users/macintosh/Documents/erxes/packages/plugin-cloudflarecalls-ui/src",
+      "name": "cloudflarecalls",
+      "scope": "cloudflarecalls",
+      "exposes": {
+        "./routes": "./src/routes.tsx",
+        "./cloudflareCall": "./src/containers/Room.tsx",
+        "./inboxIntegrationForm": "./src/components/IntegrationForm.tsx",
+        "./integrationDetailsForm": "./src/components/IntegrationEditForm.tsx",
+        "./inboxIntegrationSettings": "./src/containers/UpdateConfigsContainer.tsx"
+      },
+      "routes": {
+        "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-cloudflarecalls-ui/remoteEntry.js",
+        "scope": "cloudflarecalls",
+        "module": "./routes"
+      },
+      "layout": {
+        "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-cloudflarecalls-ui/remoteEntry.js",
+        "scope": "cloudflarecalls",
+        "module": "./cloudflareCall"
+      },
+      "inboxIntegrationForm": "./inboxIntegrationForm",
+      "integrationDetailsForm": "./integrationDetailsForm",
+      "inboxIntegrationSettings": "./inboxIntegrationSettings",
+      "inboxIntegrations": [
+        {
+          "name": "Web call",
+          "description": "Configure Web Call",
+          "isAvailable": true,
+          "kind": "cloudflarecalls",
+          "logo": "/images/integrations/cloudflarecall.png",
+          "createModal": "cloudflarecall"
+        }
+      ],
+      "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-cloudflarecalls-ui/remoteEntry.js"
     }
   }
 }

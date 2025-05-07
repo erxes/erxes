@@ -13,7 +13,7 @@ export const types = `
     campaignId: String
     target: JSON
     action: String
-
+    type: String
     campaign: ScoreCampaign
   }
 
@@ -22,7 +22,8 @@ export const types = `
     ownerType: String
 
     owner: JSON
-    scoreLogs : [ScoreLogItem]
+    scoreLogs: [ScoreLogItem]
+    totalScore: Float
   }
 
   type List {

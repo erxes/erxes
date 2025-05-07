@@ -5,11 +5,11 @@ import { Client, SearchOptions } from 'ldapts';
 import { bindUser, consumeUser } from '../../../utilsAD';
 
 const adMutations = {
-  adConfigUpdate: async (_root, doc, { models, subdomain }: IContext) => {
+  adConfigUpdate: async (_root, doc, { models }: IContext) => {
     const config = await models.AdConfig.createOrUpdateConfig(doc);
     return config;
   },
-  async toCheckAdUsers(_root, params, { models, subdomain, user }: IContext) {
+  async toCheckAdUsers(_root, params, { models, subdomain }: IContext) {
     const config = await models.AdConfig.findOne({ code: 'ACTIVEDIRECTOR' });
 
     const updateUsers: any = [];
@@ -32,9 +32,9 @@ const adMutations = {
 
     const client = new Client({ url: config.apiUrl });
 
-    await bindUser(client, params.userName, params.userPass);
+    await bindUser(client, config.adminDN, config.adminPassword);
 
-    const searchBase = 'DC=light,DC=local'; // Base DN for searching
+    const searchBase = String(config.baseDN); // Base DN for searching
     const searchOptions: SearchOptions = {
       scope: 'sub', // Search entire subtree
       filter: `(&(objectClass=user)(!(sAMAccountName=krbtgt))(!(sAMAccountName=administrator))(!(sAMAccountName=guest)))`, // Filter for users

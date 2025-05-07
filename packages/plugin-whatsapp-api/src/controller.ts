@@ -20,11 +20,12 @@ const init = async (app) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
+   
     const WHATSAPP_VERIFY_TOKEN = await getConfig(
       models,
       "WHATSAPP_VERIFY_TOKEN"
     );
-
+    console.log(WHATSAPP_VERIFY_TOKEN,'WHATSAPP_VERIFY_TOKEN')
     if (req.query["hub.mode"] === "subscribe") {
       if (req.query["hub.verify_token"] === WHATSAPP_VERIFY_TOKEN) {
         res.send(req.query["hub.challenge"]);
@@ -37,6 +38,7 @@ const init = async (app) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
     const data = req.body;
+    console.log(data,'data')
     if (data.object !== "whatsapp_business_account") {
       return res.status(400).end();
     }

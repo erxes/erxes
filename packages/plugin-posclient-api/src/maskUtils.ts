@@ -145,8 +145,8 @@ export const getSimilaritiesProducts = async (models, filter, sortParams, params
     { $match: filter },
     { $sort: sortParams },
     ...aggregates,
-    ...aggregatePaginator(params),
     { $sort: productSort },
+    ...aggregatePaginator(params),
   ]);
 
   return groupedData.map(gd => ({

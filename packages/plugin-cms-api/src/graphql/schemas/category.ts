@@ -4,11 +4,6 @@ export const types = `
         inactive
     }
 
-    enum SortDirection {
-        asc
-        desc
-    }
-
     type PostCategory {
         _id: String!
         clientPortalId: String!
@@ -20,6 +15,10 @@ export const types = `
         parent: PostCategory
         createdAt: Date
         updatedAt: Date
+
+        customFieldsData: JSON
+
+        customFieldsMap: JSON
     }
 `;
 
@@ -32,12 +31,13 @@ export const inputs = `
         parentId: String
         status: String
         clientPortalId: String
+        customFieldsData: JSON
     }
 
 `;
 
 export const queries = `
-    cmsCategories(clientPortalId: String, searchValue: String, status: CategoryStatus, page: Int, perPage: Int, sortField: String, sortDirection: SortDirection): [PostCategory]
+    cmsCategories(clientPortalId: String, searchValue: String, status: CategoryStatus, page: Int, perPage: Int, sortField: String, sortDirection: String): [PostCategory]
     cmsCategory(_id: String, slug: String): PostCategory
 `;
 

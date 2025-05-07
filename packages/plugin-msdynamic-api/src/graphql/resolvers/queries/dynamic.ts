@@ -1,7 +1,12 @@
 import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp, getPureDate } from '@erxes/api-utils/src/core';
 import fetch from 'node-fetch';
-import { IContext, sendCoreMessage, sendInventoriesMessage, sendPosMessage } from '../../../messageBroker';
+import {
+  IContext,
+  sendCoreMessage,
+  sendInventoriesMessage,
+  sendPosMessage,
+} from '../../../messageBroker';
 import { getConfig } from '../../../utils';
 
 const generateFilter = (params) => {
@@ -58,7 +63,9 @@ const generateFilter = (params) => {
 const msdynamicQueries = {
   async syncMsdHistories(_root, params, { models }: IContext) {
     const selector = generateFilter(params);
-    return paginate(models.SyncLogs.find(selector), params);
+    return paginate(models.SyncLogs.find(selector), params).sort({
+      createdAt: -1,
+    });
   },
 
   async syncMsdHistoriesCount(_root, params, { models }: IContext) {
@@ -68,7 +75,17 @@ const msdynamicQueries = {
 
   async msdProductsRemainder(
     _root,
-    { productCodes, brandId, posToken, branchId }: { productCodes: string[], brandId: string, posToken?: string, branchId?: string },
+    {
+      productCodes,
+      brandId,
+      posToken,
+      branchId,
+    }: {
+      productCodes: string[];
+      brandId: string;
+      posToken?: string;
+      branchId?: string;
+    },
     { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
@@ -80,9 +97,11 @@ const msdynamicQueries = {
         action: 'configs.findOne',
         data: { token: posToken },
         isRPC: true,
-        defaultValue: {}
+        defaultValue: {},
       });
-      brandId = posConfig?.scopeBrandIds?.length ? posConfig.scopeBrandIds[0] : '';
+      brandId = posConfig?.scopeBrandIds?.length
+        ? posConfig.scopeBrandIds[0]
+        : '';
     }
 
     const config = configs[brandId || 'noBrand'];
@@ -97,26 +116,27 @@ const msdynamicQueries = {
       throw new Error('MS Dynamic config not found.');
     }
 
-    const { itemApi, username, password, locationCode } = config;
+    const { itemApi, username, password, reminderCode } = config;
 
-    let filterSection = '';
+    let filterSection = productCodes
+      .map((code) => `No eq '${code}'`)
+      .join(' or ');
 
-    for (let i = 0; i < productCodes.length; i++) {
-      const code = productCodes[i];
-      filterSection += `No eq '${code}' or `;
-    }
+    const locationCodes = reminderCode.split(',').map((loc) => loc.trim());
 
-    filterSection = filterSection.slice(0, -4) + '';
+    let locationFilterSection = locationCodes
+      .map((loc) => `Location_Filter eq '${loc}'`)
+      .join(' or ');
 
-    const url = `${itemApi}?$filter=(${filterSection}) and Location_Filter eq '${locationCode}'&$select=No,Inventory`;
+    const url = `${itemApi}?$filter=(${filterSection}) and (${locationFilterSection})&$select=No,Inventory`;
 
     const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/json',
-        Authorization: `Basic ${Buffer.from(
-          `${username}:${password}`
-        ).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+          'base64'
+        )}`,
       },
       timeout: 60000,
     }).then((res) => res.json());
@@ -128,27 +148,33 @@ const msdynamicQueries = {
     const result = response.value || [];
 
     if (posToken) {
-      posConfig = posConfig || await sendPosMessage({
-        subdomain,
-        action: 'configs.findOne',
-        data: { token: posToken },
-        isRPC: true,
-        defaultValue: {}
-      })
+      posConfig =
+        posConfig ||
+        (await sendPosMessage({
+          subdomain,
+          action: 'configs.findOne',
+          data: { token: posToken },
+          isRPC: true,
+          defaultValue: {},
+        }));
 
-      if (posConfig?._id && posConfig.departmentId && (posConfig?.branchId || branchId)) {
+      if (
+        posConfig?._id &&
+        posConfig.departmentId &&
+        (posConfig?.branchId || branchId)
+      ) {
         const products = await sendCoreMessage({
           subdomain,
           action: 'products.find',
           data: {
             query: { code: { $in: productCodes } },
-            fields: { _id: 1, code: 1 }
+            fields: { _id: 1, code: 1 },
           },
           isRPC: true,
-          defaultValue: []
+          defaultValue: [],
         });
 
-        const productCodeById = {}
+        const productCodeById = {};
         for (const product of products) {
           productCodeById[product._id] = product.code;
         }
@@ -159,21 +185,21 @@ const msdynamicQueries = {
           data: {
             productIds: Object.keys(productCodeById),
             branchId: posConfig?.branchId || branchId,
-            departmentId: posConfig.departmentId
+            departmentId: posConfig.departmentId,
           },
           isRPC: true,
-          defaultValue: []
-        })
+          defaultValue: [],
+        });
 
-        const remByCode = {}
+        const remByCode = {};
         for (const rem of remainders) {
-          const procuctCode = productCodeById[rem.productId]
+          const procuctCode = productCodeById[rem.productId];
           remByCode[procuctCode] = rem.remainder;
         }
 
         for (const row of result) {
           if (remByCode[row.No]) {
-            row.reserveRemainder = remByCode[row.No]
+            row.reserveRemainder = remByCode[row.No];
           }
         }
       }
@@ -183,7 +209,9 @@ const msdynamicQueries = {
 
   async msdCustomerRelations(_root, params, { models, subdomain }: IContext) {
     const { customerId } = params;
-    const relations = await models.CustomerRelations.find({ customerId }).lean();
+    const relations = await models.CustomerRelations.find({
+      customerId,
+    }).lean();
 
     if (!relations.length) {
       return relations;
@@ -192,12 +220,15 @@ const msdynamicQueries = {
     const brands = await sendCoreMessage({
       subdomain,
       action: 'brands.find',
-      data: { _id: { $in: (relations || []).map(r => r.brandId) } },
-      isRPC: true
-    })
+      data: { _id: { $in: (relations || []).map((r) => r.brandId) } },
+      isRPC: true,
+    });
 
-    return relations.map(r => ({ ...r, brand: brands.find(b => b._id === r.brandId) }))
-  }
+    return relations.map((r) => ({
+      ...r,
+      brand: brands.find((b) => b._id === r.brandId),
+    }));
+  },
 };
 
 export default msdynamicQueries;

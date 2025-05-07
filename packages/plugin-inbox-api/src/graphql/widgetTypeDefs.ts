@@ -1,4 +1,4 @@
-export const types = ({ products, knowledgeBase }) => `
+export const types = ({ products, knowledgeBase, cloudflareCalls }) => `
   ${
     products
       ? `
@@ -38,17 +38,30 @@ export const types = ({ products, knowledgeBase }) => `
     uiOptions: JSON
     languageCode: String
     messengerData: JSON
+    ticketData: JSON
     customerId: String
     visitorId: String
     brand: Brand
+    ${cloudflareCalls ? 'callData: CloudflareCallsData' : ''}
   }
-
+  type TicketTypeMessenger {
+    ticketLabel: String
+    ticketToggle: Boolean,
+    ticketStageId: String
+    ticketPipelineId: String
+    ticketBoardId: String
+  }
   type ConversationDetailResponse {
     _id: String
     messages: [ConversationMessage]
     operatorStatus: String
     participatedUsers: [User]
     readUsers: [User]
+    botData:JSON
+    persistentMenus:JSON
+    botGreetMessage:String
+    fromBot:Boolean
+    getStarted:Boolean
     isOnline: Boolean
     supporters: [User]
   }
@@ -113,6 +126,7 @@ export const mutations = () => `
   widgetsInsertMessage(
     integrationId: String!
     customerId: String
+    payload: String
     visitorId: String
     conversationId: String
     message: String,
@@ -123,11 +137,11 @@ export const mutations = () => `
 
   widgetBotRequest(
     customerId: String
+    payload: String
     visitorId: String
     conversationId: String
     integrationId: String!,
     message: String!
-    payload: String!
     type: String!
     ): JSON
 

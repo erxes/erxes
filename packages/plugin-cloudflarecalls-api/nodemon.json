@@ -1,0 +1,4 @@
+{
+  "watch": ["./src", "../api-utils/src"],
+  "delay": 1000
+}

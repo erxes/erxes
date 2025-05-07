@@ -3,20 +3,26 @@ import {
   ContentRowTitle,
   Divider,
   WrongLess,
-} from '../../styles';
-import Select, { components } from 'react-select';
+  PaymentTypeScoreCampaign,
+  FlexRowGap,
+} from "../../styles";
+import Select, { components } from "react-select";
 
-import CURRENCIES from '@erxes/ui/src/constants/currencies';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { Flex } from '@erxes/ui/src/styles/main';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IDeal, IPaymentsData } from '../../types';
-import { PAYMENT_TYPES } from '../../constants';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import { pluginsOfPaymentForm } from 'coreui/pluginUtils';
-import { selectConfigOptions } from '../../utils';
-import { gql, useQuery } from '@apollo/client';
+import CURRENCIES from "@erxes/ui/src/constants/currencies";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { Flex } from "@erxes/ui/src/styles/main";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IDeal, IPaymentsData } from "../../types";
+import { PAYMENT_TYPES } from "../../constants";
+import React from "react";
+import { __, Alert, confirm } from "@erxes/ui/src/utils";
+import { pluginsOfPaymentForm } from "coreui/pluginUtils";
+import { selectConfigOptions } from "../../utils";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import Button from "@erxes/ui/src/components/Button";
+import Popover from "@erxes/ui/src/components/Popover";
+import Icon from "@erxes/ui/src/components/Icon";
+import { colors } from "@erxes/ui/src/styles";
 
 type Props = {
   total: { [currency: string]: number };
@@ -26,35 +32,93 @@ type Props = {
   calcChangePay: () => void;
   changePayData: { [currency: string]: number };
   pipelineDetail: any;
-  dealQuery:IDeal
+  dealQuery: IDeal;
 };
 
 type State = {
   paymentsData: IPaymentsData;
+  checkOwnerScore: number | null;
 };
 
 const scoreCampaignQuery = `
-  query Query($ownerId: String, $ownerType: String, $campaignId: String) {
+  query checkOwnerScore($ownerId: String, $ownerType: String, $campaignId: String) {
     checkOwnerScore(ownerId: $ownerId, ownerType: $ownerType, campaignId: $campaignId)
   }
-`
+`;
+const refundScoreCampaignMutation = `
+    mutation RefundLoyaltyScore($ownerId: String, $ownerType: String, $targetId: String) {
+     refundLoyaltyScore(ownerId: $ownerId, ownerType: $ownerType, targetId: $targetId)
+    }
+`;
 
-const OwnerScoreCampaignScore = ({type,dealQuery}:{type:any,dealQuery:IDeal}) =>{
-  if(!type?.scoreCampaignId || !(dealQuery?.customers ||[])?.length){
-    return null
+const OwnerScoreCampaignScore = ({
+  type,
+  dealQuery,
+  onScoreFetched,
+}: {
+  type: any;
+  dealQuery: IDeal;
+  onScoreFetched: (score: number) => void;
+}) => {
+  if (!type?.scoreCampaignId || !(dealQuery?.customers || [])?.length) {
+    return null;
   }
 
-  const [customer] = dealQuery.customers || []
+  const [customer] = dealQuery.customers || [];
 
-  const {data} = useQuery(gql(scoreCampaignQuery),{variables:{ownerType:"customer",ownerId:customer._id,campaignId:type.scoreCampaignId}})
+  const { data, refetch } = useQuery(gql(scoreCampaignQuery), {
+    variables: {
+      ownerType: "customer",
+      ownerId: customer._id,
+      campaignId: type.scoreCampaignId,
+    },
+    fetchPolicy: "no-cache",
+  });
+  const [refundLoyaltyScore] = useMutation(gql(refundScoreCampaignMutation), {
+    variables: {
+      ownerId: customer._id,
+      ownerType: "customer",
+      targetId: dealQuery._id,
+    },
+  });
 
-  const {checkOwnerScore} = data || {}
+  const { checkOwnerScore = 0 } = data || {};
 
-  return <div>
-    {`/Avaible score campaign score: ${checkOwnerScore}/`}
-  </div>
+  React.useEffect(() => {
+    if (checkOwnerScore) {
+      onScoreFetched(checkOwnerScore);
+    }
+  }, [checkOwnerScore, onScoreFetched]);
 
-}
+  const refundScore = () => {
+    confirm(
+      "This action will refund all loyalty scores used on this card and deduct any retrieved scores before processing the refund.\n Are you sure ?"
+    ).then(() => {
+      refundLoyaltyScore()
+        .then(() => Alert.info("Loyalty Score refunded successfully"))
+        .catch((error) => Alert.error(error.message));
+      refetch();
+    });
+  };
+  return (
+    <Popover
+      trigger={<Icon icon="award" size={16} color={colors.colorCoreOrange} />}
+    >
+      <PaymentTypeScoreCampaign>
+        <p>{`Customer email: ${customer.primaryEmail}`}</p>
+        <span>{`Avaible score campaign score: ${checkOwnerScore}`}</span>
+        <Button
+          size="small"
+          btnStyle="warning"
+          icon="refresh-1"
+          onClick={refundScore}
+        >
+          {__("Return Score")}
+        </Button>
+      </PaymentTypeScoreCampaign>
+    </Popover>
+  );
+};
 
 class PaymentForm extends React.Component<Props, State> {
   constructor(props) {
@@ -64,6 +128,7 @@ class PaymentForm extends React.Component<Props, State> {
 
     this.state = {
       paymentsData: payments || {},
+      checkOwnerScore: null,
     };
   }
 
@@ -79,7 +144,7 @@ class PaymentForm extends React.Component<Props, State> {
   }
 
   renderTotal(value) {
-    return Object.keys(value).map(key => (
+    return Object.keys(value).map((key) => (
       <div key={key}>
         {this.renderAmount(value[key])} <b>{key}</b>
       </div>
@@ -90,7 +155,10 @@ class PaymentForm extends React.Component<Props, State> {
     const { onChangePaymentsData, calcChangePay } = this.props;
     const { paymentsData } = this.state;
 
-    const newPaymentData = { ...paymentsData, [name]: { ...paymentsData[name], [kind]: value } }
+    const newPaymentData = {
+      ...paymentsData,
+      [name]: { ...paymentsData[name], [kind]: value },
+    };
 
     onChangePaymentsData(newPaymentData);
     this.setState({ paymentsData: newPaymentData }, () => {
@@ -98,38 +166,42 @@ class PaymentForm extends React.Component<Props, State> {
     });
   };
 
-  selectOption = option => (
-    <div className='simple-option' key={option.label}>
+  selectOption = (option) => (
+    <div className="simple-option" key={option.label}>
       <span>{option.label}</span>
     </div>
   );
+
+  handleScoreFetched = (score: number) => {
+    this.setState({ checkOwnerScore: score });
+  };
 
   renderPaymentsByType(type) {
     const { currencies, changePayData } = this.props;
     const { paymentsData } = this.state;
     const NAME = type.name || type.type;
 
-    const onChange = e => {
+    const onChange = (e) => {
       if (
         (!paymentsData[NAME] || !paymentsData[NAME].currency) &&
         currencies.length > 0
       ) {
-        this.paymentStateChange('currency', NAME, currencies[0]);
+        this.paymentStateChange("currency", NAME, currencies[0]);
       }
 
       this.paymentStateChange(
-        'amount',
+        "amount",
         NAME,
-        parseFloat((e.target as HTMLInputElement).value || '0'),
+        parseFloat((e.target as HTMLInputElement).value || "0")
       );
     };
 
-    const currencyOnChange = currency => {
-      this.paymentStateChange('currency', NAME, currency ? currency.value : '');
+    const currencyOnChange = (currency) => {
+      this.paymentStateChange("currency", NAME, currency ? currency.value : "");
     };
 
     const onClick = () => {
-      Object.keys(changePayData).forEach(key => {
+      Object.keys(changePayData).forEach((key) => {
         if (
           changePayData[key] > 0 &&
           (!paymentsData[NAME] || !paymentsData[NAME].amount)
@@ -152,7 +224,7 @@ class PaymentForm extends React.Component<Props, State> {
       });
     };
 
-    const Option = props => {
+    const Option = (props) => {
       return (
         <components.Option {...props} key={type}>
           {this.selectOption(props.data)}
@@ -165,15 +237,21 @@ class PaymentForm extends React.Component<Props, State> {
     return (
       <Flex key={type.name}>
         <ContentColumn>
-          <ControlLabel>{__(type.title)}</ControlLabel>
-        <OwnerScoreCampaignScore type={type} dealQuery={this.props.dealQuery}/>
+          <FlexRowGap>
+            <ControlLabel>{__(type.title)}</ControlLabel>
+            <OwnerScoreCampaignScore
+              type={type}
+              dealQuery={this.props.dealQuery}
+              onScoreFetched={this.handleScoreFetched}
+            />
+          </FlexRowGap>
         </ContentColumn>
 
         <ContentColumn>
           <FormControl
-            value={paymentsData[NAME] ? paymentsData[NAME].amount : ''}
-            type='number'
-            placeholder={__('Type amount')}
+            value={paymentsData[NAME] ? paymentsData[NAME].amount : ""}
+            type="number"
+            placeholder={__("Type amount")}
             min={0}
             name={NAME}
             onChange={onChange}
@@ -183,11 +261,11 @@ class PaymentForm extends React.Component<Props, State> {
         <ContentColumn>
           <Select
             name={type.name}
-            placeholder={__('Choose currency')}
+            placeholder={__("Choose currency")}
             value={selectOptions.find(
-              option =>
+              (option) =>
                 option.value ===
-                (paymentsData[NAME] ? paymentsData[NAME].currency : 0),
+                (paymentsData[NAME] ? paymentsData[NAME].currency : 0)
             )}
             onChange={currencyOnChange}
             components={{ Option }}
@@ -203,16 +281,18 @@ class PaymentForm extends React.Component<Props, State> {
     const pipelinePayments = this.props.pipelineDetail?.paymentTypes || [];
 
     const keys = [
-      ...PAYMENT_TYPES.map(t => t.type),
-      ...pipelinePayments.map(paymentType => paymentType.type)
+      ...PAYMENT_TYPES.map((t) => t.type),
+      ...pipelinePayments.map((paymentType) => paymentType.type),
     ];
-    const alreadyNotExistsTypes = Object.keys(this.props.payments || {}).filter(
-      name => !keys.includes(name)
-    ).map(name => ({ type: name, title: name }));
+    const alreadyNotExistsTypes = Object.keys(this.props.payments || {})
+      .filter((name) => !keys.includes(name))
+      .map((name) => ({ type: name, title: name }));
 
-    return [...PAYMENT_TYPES, ...pipelinePayments, ...alreadyNotExistsTypes].map(type => (
-      this.renderPaymentsByType(type)
-    ));
+    return [
+      ...PAYMENT_TYPES,
+      ...pipelinePayments,
+      ...alreadyNotExistsTypes,
+    ].map((type) => this.renderPaymentsByType(type));
   }
 
   render() {
@@ -233,7 +313,7 @@ class PaymentForm extends React.Component<Props, State> {
         <Divider />
 
         {this.renderPayments()}
-        {pluginsOfPaymentForm(type => this.renderPaymentsByType(type))}
+        {pluginsOfPaymentForm((type) => this.renderPaymentsByType(type))}
       </>
     );
   }

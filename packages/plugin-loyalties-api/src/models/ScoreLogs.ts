@@ -1,36 +1,34 @@
-import * as _ from "underscore";
-import { Model, models } from "mongoose";
-import { getOwner } from "./utils";
+import { Model } from "mongoose";
 import { IModels } from "../connectionResolver";
-import {
-  IScoreLogDocument,
-  scoreLogSchema,
-  IScoreLog
-} from "./definitions/scoreLog";
 import {
   sendClientPortalMessage,
   sendCommonMessage,
-  sendCoreMessage
+  sendCoreMessage,
 } from "../messageBroker";
+import {
+  IScoreLog,
+  IScoreLogDocument,
+  scoreLogSchema,
+} from "./definitions/scoreLog";
+import { getOwner } from "./utils";
 
-import { IScoreParams } from "./definitions/common";
-import { paginate } from "@erxes/api-utils/src";
 import { debugError } from "@erxes/api-utils/src/debuggers";
-import * as dayjs from 'dayjs';
+import * as dayjs from "dayjs";
+import { IScoreParams } from "./definitions/common";
 
 const OWNER_TYPES = {
   customer: {
     serviceName: "core",
-    contentType: "customers"
+    contentType: "customers",
   },
   company: {
     serviceName: "core",
-    contentType: "companies"
+    contentType: "companies",
   },
   user: {
     serviceName: "core",
-    contentType: "users"
-  }
+    contentType: "users",
+  },
 };
 
 export interface IScoreLogModel extends Model<IScoreLogDocument> {
@@ -43,24 +41,31 @@ export interface IScoreLogModel extends Model<IScoreLogDocument> {
 
 const generateFilter = (params: IScoreParams) => {
   let filter: any = {};
+
   if (params.ownerType) {
     filter.ownerType = params.ownerType;
   }
+
   if (params.ownerId) {
     filter.ownerId = params.ownerId;
   }
-  if (params.fromDate) {
-    filter.createdAt = { $gte: new Date(params.fromDate as string) };
+
+  if (params.fromDate || params.toDate) {
+    filter.createdAt = {};
+
+    if (params.fromDate) {
+      filter.createdAt.$gte = new Date(params.fromDate);
+    }
+
+    if (params.toDate) {
+      filter.createdAt.$lte = new Date(params.toDate);
+    }
   }
-  if (params.toDate) {
-    filter.createdAt = {
-      ...filter.createdAt,
-      $lt: new Date(params.toDate as string),
-    };
-  }
+
   if (params.campaignId) {
     filter.campaignId = params.campaignId;
   }
+
   return filter;
 };
 
@@ -81,59 +86,91 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         page = 1,
         perPage = 20,
         sortDirection = -1,
-        sortField = 'createdAt',
+        sortField = "createdAt",
       } = doc;
+
       const filter = generateFilter(doc);
 
-      const list = await models.ScoreLogs.aggregate([
+      const aggregation: any = [
         {
-          $match: { ...(filter || {}) },
+          $match: { ...filter },
+        },
+        {
+          $addFields: {
+            signedScore: {
+              $cond: {
+                if: { $eq: ["$action", "subtract"] },
+                then: { $multiply: ["$changeScore", -1] },
+                else: "$changeScore",
+              },
+            },
+          },
         },
         {
           $sort: {
-            [sortField]: sortDirection,
-          } as any,
-        },
-        {
-          $skip: (page - 1) * perPage,
-        },
-        {
-          $limit: perPage,
+            [sortField]: Number(sortDirection),
+          },
         },
         {
           $group: {
-            _id: '$ownerId',
-            ownerType: { $first: '$ownerType' },
-            scoreLogs: { $push: '$$ROOT' },
+            _id: "$ownerId",
+            ownerType: { $first: "$ownerType" },
+            scoreLogs: { $push: "$$ROOT" },
+            createdAt: { $max: "$createdAt" },
+            changeScore: { $sum: "$signedScore" },
+          },
+        },
+        {
+          $sort: {
+            [sortField]: Number(sortDirection),
           },
         },
         {
           $project: {
             _id: 0,
-            ownerId: '$_id',
+            ownerId: "$_id",
             ownerType: 1,
             scoreLogs: 1,
+            totalScore: "$changeScore",
           },
         },
-      ]);
+        {
+          $facet: {
+            list: [{ $skip: (page - 1) * perPage }, { $limit: perPage }],
+            total: [{ $count: "count" }],
+          },
+        },
+        {
+          $project: {
+            list: 1,
+            total: { $ifNull: [{ $arrayElemAt: ["$total.count", 0] }, 0] },
+          },
+        },
+      ];
 
-      const total = await models.ScoreLogs.find(filter).countDocuments();
-      return { list, total };
+      const [result] = await models.ScoreLogs.aggregate(aggregation);
+
+      return result;
     }
 
     public static async getStatistic(doc: IScoreParams) {
       const filter = generateFilter(doc);
 
       const pipeline = [
-        { $match: { ...(filter || {}) } },
+        { $match: { ...filter } },
         {
           $group: {
             _id: null,
             totalPointEarned: {
               $sum: {
                 $cond: {
-                  if: {$or: [{ $eq: ['$action', 'add'] }, { $gt: ['$changeScore', 0] }]},
-                  then: '$changeScore',
+                  if: {
+                    $or: [
+                      { $eq: ["$action", "add"] },
+                      { $gt: ["$changeScore", 0] },
+                    ],
+                  },
+                  then: "$changeScore",
                   else: 0,
                 },
               },
@@ -141,8 +178,13 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
             totalPointRedeemed: {
               $sum: {
                 $cond: {
-                  if: {$or: [{ $eq: ['$action', 'subtract'] }, { $lt: ['$changeScore', 0] }]},
-                  then: {$abs: '$changeScore'},
+                  if: {
+                    $or: [
+                      { $eq: ["$action", "subtract"] },
+                      { $lt: ["$changeScore", 0] },
+                    ],
+                  },
+                  then: { $abs: "$changeScore" },
                   else: 0,
                 },
               },
@@ -152,11 +194,11 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
                 $cond: [
                   {
                     $and: [
-                      { $ifNull: ['$ownerId', false] },
-                      { $ifNull: ['$ownerType', false] },
+                      { $ifNull: ["$ownerId", false] },
+                      { $ifNull: ["$ownerType", false] },
                     ],
                   },
-                  '$ownerId',
+                  "$ownerId",
                   null,
                 ],
               },
@@ -168,13 +210,15 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
             _id: 0,
             totalPointEarned: 1,
             totalPointRedeemed: 1,
-            totalPointBalance: { $subtract: ['$totalPointEarned', '$totalPointRedeemed'] },
-            activeLoyaltyMembers: { $size: '$activeLoyaltyMembers' },
+            totalPointBalance: {
+              $subtract: ["$totalPointEarned", "$totalPointRedeemed"],
+            },
+            activeLoyaltyMembers: { $size: "$activeLoyaltyMembers" },
           },
         },
       ];
 
-      const currentMonthStart = dayjs().subtract(1, 'month').toDate();
+      const currentMonthStart = dayjs().subtract(1, "month").toDate();
       const currentMonthEnd = dayjs().toDate();
 
       const monthlyActiveUsersPipeline = [
@@ -185,57 +229,59 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         },
         {
           $group: {
-            _id: '$ownerId',
+            _id: "$ownerId",
           },
         },
         {
-          $count: 'count',
+          $count: "count",
         },
       ];
 
-      const targetIds = await models.ScoreLogs.find(filter).distinct('targetId').exec()
+      const targetIds = await models.ScoreLogs.find(filter)
+        .distinct("targetId")
+        .exec();
 
       const [mostRedeemedProductCategory] = await sendCommonMessage({
-        serviceName: 'pos',
+        serviceName: "pos",
         subdomain,
-        action: 'orders.aggregate',
+        action: "orders.aggregate",
         data: {
           aggregate: [
             {
               $match: {
-                _id: {$in: targetIds || []}
-              }
+                _id: { $in: targetIds || [] },
+              },
             },
             {
-              $unwind: '$items',
+              $unwind: "$items",
             },
             {
               $group: {
-                _id: '$items.productId',
+                _id: "$items.productId",
                 count: { $sum: 1 },
               },
             },
             {
               $lookup: {
-                from: 'products',
-                localField: '_id',
-                foreignField: '_id',
-                as: 'product',
+                from: "products",
+                localField: "_id",
+                foreignField: "_id",
+                as: "product",
               },
             },
             {
-              $unwind: '$product',
+              $unwind: "$product",
             },
             {
               $lookup: {
-                from: 'product_categories',
-                localField: 'product.categoryId',
-                foreignField: '_id',
-                as: 'productCategory',
+                from: "product_categories",
+                localField: "product.categoryId",
+                foreignField: "_id",
+                as: "productCategory",
               },
             },
             {
-              $unwind: '$productCategory',
+              $unwind: "$productCategory",
             },
             {
               $project: {
@@ -259,13 +305,17 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       const [statistic] = await models.ScoreLogs.aggregate(pipeline);
       const [monthlyActiveUsers] = await models.ScoreLogs.aggregate(
-        monthlyActiveUsersPipeline,
+        monthlyActiveUsersPipeline
       );
 
       return {
         ...statistic,
-        redemptionRate: statistic?.totalPointEarned ? ((statistic.totalPointRedeemed ?? 0) / statistic.totalPointEarned) * 100 : 0,
-        mostRedeemedProductCategory: mostRedeemedProductCategory?.productCategory?.name || '',
+        redemptionRate: statistic?.totalPointEarned
+          ? ((statistic.totalPointRedeemed ?? 0) / statistic.totalPointEarned) *
+            100
+          : 0,
+        mostRedeemedProductCategory:
+          mostRedeemedProductCategory?.productCategory?.name || "",
         monthlyActiveUsers: monthlyActiveUsers?.count || 0,
       };
     }
@@ -276,7 +326,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         ownerIds,
         changeScore,
         description,
-        createdBy = ""
+        createdBy = "",
       } = doc;
       const { serviceName, contentType } = OWNER_TYPES[ownerType] || {};
 
@@ -292,8 +342,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
             ? { query: { ...ownerFilter } }
             : { ...ownerFilter },
         isRPC: true,
-        defaultValue: []
-      }).catch(error => debugError(error.message));
+        defaultValue: [],
+      }).catch((error) => debugError(error.message));
 
       if (!owners?.length) {
         throw new Error("Not found owners");
@@ -306,13 +356,13 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           action: `${contentType}.updateMany`,
           data: {
             selector: {
-              _id: { $in: owners.map(owner => owner._id) }
+              _id: { $in: owners.map((owner) => owner._id) },
             },
             modifier: {
-              $inc: { score }
-            }
+              $inc: { score },
+            },
           },
-          isRPC: true
+          isRPC: true,
         });
       } catch (error) {
         throw new Error(error.message);
@@ -323,12 +373,12 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         changeScore: score,
         createdAt: new Date(),
         description,
-        createdBy
+        createdBy,
       };
 
-      const newDatas = owners.map(owner => ({
+      const newDatas = owners.map((owner) => ({
         ownerId: owner._id,
-        ...commonDoc
+        ...commonDoc,
       }));
 
       return await models.ScoreLogs.insertMany(newDatas);
@@ -341,7 +391,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         changeScore,
         description,
         createdBy = "",
-        campaignId
+        campaignId,
       } = doc;
 
       const score = Number(changeScore);
@@ -355,7 +405,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       if (campaignId) {
         const campaign = await models.ScoreCampaigns.findOne({
-          _id: campaignId
+          _id: campaignId,
         });
 
         if (!campaign) {
@@ -380,7 +430,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         ownerId,
         ownerType,
         newScore,
-        campaignId
+        campaignId,
       });
 
       if (!response || !Object.keys(response || {})?.length) {
@@ -393,7 +443,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         createdAt: new Date(),
         description,
         createdBy,
-        action: "add"
+        campaignId,
+        action: "add",
       });
     }
 
@@ -402,7 +453,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       ownerType,
       ownerId,
       newScore,
-      campaignId
+      campaignId,
     }) {
       const updateEntity = async (
         action: string,
@@ -414,7 +465,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           action,
           data: { selector, modifier },
           isRPC: true,
-          defaultValue: null
+          defaultValue: null,
         });
 
       const modifier: any = { $set: { score: newScore } };
@@ -424,7 +475,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       if (campaignId) {
         const campaign = await models.ScoreCampaigns.findOne({
-          _id: campaignId
+          _id: campaignId,
         });
 
         if (!campaign?.fieldId) {
@@ -438,7 +489,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           action: "fields.prepareCustomFieldsData",
           data: [{ field: campaign.fieldId, value: newScore }],
           isRPC: true,
-          defaultValue: []
+          defaultValue: [],
         });
 
         if (!prepareCustomFieldsData[0]) {
@@ -463,10 +514,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         ) {
           updatedCustomFieldsData = [
             ...(customFieldsData || []),
-            prepareCustomFieldData
+            prepareCustomFieldData,
           ];
         } else {
-          updatedCustomFieldsData = customFieldsData.map(customFieldData =>
+          updatedCustomFieldsData = customFieldsData.map((customFieldData) =>
             customFieldData.field === campaign.fieldId
               ? { ...customFieldData, ...prepareCustomFieldData }
               : customFieldData
@@ -481,7 +532,6 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         return await updateEntity("users.updateOne", selector, modifier);
       }
       if (ownerType === "customer") {
-        console.log(selector, modifier);
         return await updateEntity("customers.updateOne", selector, modifier);
       }
       if (ownerType === "company") {
@@ -492,10 +542,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           subdomain,
           action: "clientPortalUsers.findOne",
           data: {
-            _id: ownerId
+            _id: ownerId,
           },
           isRPC: true,
-          defaultValue: null
+          defaultValue: null,
         });
 
         if (!cpUser) {
@@ -506,10 +556,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           action: "customers.updateOne",
           data: {
             selector: { _id: cpUser.erxesCustomerId },
-            modifier
+            modifier,
           },
           isRPC: true,
-          defaultValue: null
+          defaultValue: null,
         });
       }
     }

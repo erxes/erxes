@@ -48,7 +48,10 @@ module.exports = {
       permissions: ["showRiskAssessment", "manageRiskAssessment"],
     },
   ],
-  dealRightSidebarSection: "./cardSideBarSection",
+  dealRightSidebarSection: {
+    title: "Risk Assessment",
+    component: "./cardSideBarSection",
+  },
   ticketRightSidebarSection: "./cardSideBarSection",
   taskRightSidebarSection: "./cardSideBarSection",
 };

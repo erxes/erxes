@@ -97,18 +97,24 @@ const conversationDetailQuery = (isDailycoEnabled: boolean) => `
       _id
       messages {
         ${messageFields}
-        ${isDailycoEnabled
-    ? `
+        ${
+          isDailycoEnabled
+            ? `
         videoCallData {
           url
           status
         }`
-    : ''
-  }
+            : ''
+        }
       }
 
       operatorStatus
       isOnline
+      persistentMenus
+      fromBot
+      botData
+      botGreetMessage
+      getStarted
       supporters {
         _id
         details {
@@ -144,14 +150,15 @@ const conversationMessageInserted = (isDailycoEnabled: boolean) => `
   subscription conversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       ${messageFields}
-      ${isDailycoEnabled
-    ? `
+      ${
+        isDailycoEnabled
+          ? `
       videoCallData {
         url
         status
       }`
-    : ''
-  }
+          : ''
+      }
     }
   }
 `;
@@ -234,7 +241,7 @@ const readConversationMessages = `
   }
 `;
 
-const connect = `
+const connect = (isCloudFlareEnabled?: boolean, isTicketEnabled?: boolean) => `
   mutation connect($brandCode: String!, $email: String, $phone: String, $code: String
     $isUser: Boolean, $data: JSON,
     $companyData: JSON, $cachedCustomerId: String $visitorId: String) {
@@ -244,6 +251,32 @@ const connect = `
       cachedCustomerId: $cachedCustomerId, visitorId: $visitorId) {
       integrationId,
       messengerData,
+      ${
+        isCloudFlareEnabled
+          ? `
+      callData {
+        header
+        description
+        secondPageHeader
+        secondPageDescription
+        departments {
+          _id
+          name
+          operators
+        }
+        isReceiveWebCall
+      },
+    `
+          : ''
+      }
+      
+      ${
+        isTicketEnabled
+          ? `
+        ticketData
+      `
+          : ``
+      }
       languageCode,
       uiOptions,
       customerId,
@@ -351,6 +384,6 @@ export default {
   integrationsFetchApi,
   conversationBotTypingStatus,
   getEngageMessage,
-  MESSAGE_FIELDS
+  MESSAGE_FIELDS,
 };
-export { MESSAGE_FIELDS }
+export { MESSAGE_FIELDS };

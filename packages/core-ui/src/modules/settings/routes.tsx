@@ -12,6 +12,8 @@ import TeamRoutes from "./team/routes";
 import LogsRoutes from "./logs/routes";
 import EmailDeliveriesRoutes from "./emailDelivery/routes";
 import EmailTemplatesRoutes from "../emailtemplates/routes";
+import ClientRoutes from "./clients/routes";
+import ExchangeRatesRoutes from './exchangeRates/routes';
 
 const SettingsRoute = () => (
   <>
@@ -23,11 +25,13 @@ const SettingsRoute = () => (
     <ImportHistory key="ImportHistory" />
     <PermissionRoutes key="PermissionRoutes" />
     <AppRoutes key="AppRoutes" />
+    <ClientRoutes key="ClientRoutes" />
     <PlanRoutes key="Plan" />
     <MarketplaceRoutes key="Store" />
     <LogsRoutes key="Logs" />
     <EmailDeliveriesRoutes key="EmailDeliveries" />
     <EmailTemplatesRoutes key="EmailTemplates" />
+    <ExchangeRatesRoutes key="exchangeRates" />
   </>
 );
 

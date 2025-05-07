@@ -365,8 +365,8 @@ const SidebarList = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
 `;
 
-const ContentBox = styled.div`
-  padding: ${dimensions.coreSpacing}px;
+const ContentBox = styledTS<{ $noPadding?: boolean }>(styled.div)`
+  padding: ${props => props.$noPadding ? '0' : '20px'};
   margin: 0 auto;
 `;
 

@@ -9,6 +9,12 @@ const mutationParams = `
     $ownerType: String
     $fieldGroupId:String
     $fieldName: String
+    $fieldId: String
+    $serviceName:String,
+    $additionalConfig:JSON
+
+    $restrictions: JSON
+    $onlyClientPortal: Boolean
 `;
 const mutationParamsDef = `
     title: $title,
@@ -21,6 +27,12 @@ const mutationParamsDef = `
     ownerType: $ownerType
     fieldGroupId: $fieldGroupId
     fieldName: $fieldName
+    fieldId: $fieldId
+    serviceName:$serviceName
+    additionalConfig:$additionalConfig
+
+    restrictions: $restrictions
+    onlyClientPortal: $onlyClientPortal
 `;
 
 const add = `
@@ -51,5 +63,5 @@ export default {
   add,
   update,
   remove,
-  removeCampaigns
+  removeCampaigns,
 };

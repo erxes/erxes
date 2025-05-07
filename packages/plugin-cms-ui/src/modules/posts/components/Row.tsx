@@ -2,16 +2,15 @@ import { RowTitle } from '@erxes/ui-engage/src/styles';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import { DateWrapper } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import React from 'react';
-import { InsuranceCategory, InsuranceProduct, User } from '../../../gql/types';
-import PostForm from '../containers/Form';
+
 import { useLocation, useNavigate } from 'react-router-dom';
+import PostForm from '../containers/Form';
 
 type Props = {
   post: any;
@@ -59,7 +58,7 @@ const Row = (props: Props) => {
     );
   };
 
-  const getFullName = (doc: User) => {
+  const getFullName = (doc) => {
     return doc.details ? doc.details.fullName : 'Unknown';
   };
 
@@ -102,23 +101,27 @@ const Row = (props: Props) => {
 
   return (
     <tr>
-      <td key={Math.random()}>
+      <td key={post._id + 'title'}>
         <RowTitle>{post.title || '-'}</RowTitle>
       </td>
 
-      <td key={Math.random()}>
+      <td key={post._id + 'type'}>
+        <RowTitle>{post.customPostType.label || '-'}</RowTitle>
+      </td>
+
+      <td key={post._id + 'categories'}>
         <RowTitle>{categories.map((e) => e.name).join(', ') || '-'} </RowTitle>
       </td>
 
-      <td key={Math.random()}>
+      <td key={post._id + 'tags'}>
         <RowTitle>{tags.map((e) => e.name).join(', ') || '-'}</RowTitle>
       </td>
 
-      <td key={Math.random()}>
+      <td key={post._id + 'status'}>
         <RowTitle>{post.status || '-'}</RowTitle>
       </td>
 
-      <td key={Math.random()}>
+      <td key={post._id + 'author'}>
         {post.authorKind === 'user' ? renderUser(user) : renderCPUser(user)}
       </td>
 

@@ -8,10 +8,11 @@ import {
   invoiceSchema,
 } from './definitions/invoices';
 import { PAYMENT_STATUS } from '../api/constants';
+import ErxesPayment from '../api/ErxesPayment';
 
 export interface IInvoiceModel extends Model<IInvoiceDocument> {
   getInvoice(doc: any, leanObject?: boolean): IInvoiceDocument;
-  createInvoice(doc: IInvoice): Promise<IInvoiceDocument>;
+  createInvoice(doc: IInvoice, subdomain?: string): Promise<IInvoiceDocument>;
   updateInvoice(_id: string, doc: any): Promise<IInvoiceDocument>;
   cancelInvoice(_id: string): Promise<string>;
   checkInvoice(_id: string): Promise<string>;
@@ -33,12 +34,46 @@ export const loadInvoiceClass = (models: IModels) => {
       return invoice;
     }
 
-    public static async createInvoice(doc: IInvoice) {
+    public static async createInvoice(doc: IInvoice, subdomain?: string) {
       if (!doc.amount && doc.amount === 0) {
         throw new Error('Amount is required');
       }
 
-      return models.Invoices.create(doc);
+      const invoice = await models.Invoices.create(doc);
+
+      if (doc.paymentIds && doc.paymentIds.length === 1) {
+        const payment = await models.PaymentMethods.getPayment(
+          doc.paymentIds[0]
+        );
+
+        if (!payment) {
+          throw new Error('Payment not found');
+        }
+
+        const transaction = await models.Transactions.createTransaction({
+          invoiceId: invoice._id,
+          paymentId: payment._id,
+          subdomain: subdomain || '',
+          amount: invoice.amount,
+          description: invoice.description,
+        });
+
+        const api = new ErxesPayment(payment);
+
+        try {
+          const reponse = await api.createInvoice(transaction);
+          transaction.response = reponse;
+          invoice.save();
+
+          return invoice;
+        } catch (e) {
+          await models.Invoices.deleteOne({ _id: invoice._id });
+          await models.Transactions.deleteOne({ _id: transaction._id });
+          throw new Error(`Error creating invoice: ${e.message}`);
+        }
+      }
+
+      return invoice;
     }
 
     public static async updateInvoice(_id: string, doc: any) {

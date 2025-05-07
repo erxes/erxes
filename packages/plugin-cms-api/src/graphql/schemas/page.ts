@@ -1,5 +1,6 @@
 export const types = `
     type PageItem {
+        _id: String
         name: String
         type: String
         content: String
@@ -23,6 +24,10 @@ export const types = `
         createdAt: Date
         updatedAt: Date
         pageItems: [PageItem]
+
+        customFieldsData: JSON
+
+        customFieldsMap: JSON
     }
 
 
@@ -32,8 +37,7 @@ export const types = `
         totalPages: Int
         currentPage: Int
     }
-`
-
+`;
 
 export const inputs = `
     input PageItemInput {
@@ -44,6 +48,8 @@ export const inputs = `
         contentType: String
         contentTypeId: String
         config: JSON
+
+        
     }
 
     input PageInput {
@@ -56,18 +62,18 @@ export const inputs = `
         slug: String
         content: String
         pageItems: [PageItemInput]
+        customFieldsData: JSON
     }
-`
+`;
 
 export const queries = `
     cmsPage(_id: String, slug: String): Page
     cmsPages(clientPortalId: String, page: Int, perPage: Int, searchValue: String): [Page]
     cmsPageList(clientPortalId: String, page: Int, perPage: Int, searchValue: String): PageList
-`   
-
+`;
 
 export const mutations = `
     cmsPagesAdd(input: PageInput!): Page
     cmsPagesEdit(_id: String!, input: PageInput!): Page
     cmsPagesRemove(_id: String!): JSON
-`
+`;

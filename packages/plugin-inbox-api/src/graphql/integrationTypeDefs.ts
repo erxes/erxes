@@ -2,13 +2,26 @@ export const types = `
   extend type Form @key(fields: "_id") {
     _id: String! @external
   }
-    
   input InputRule {
     _id : String!,
     kind: String!,
     text: String!,
     condition: String!,
     value: String,
+  }
+
+  type CloudflareCallDataDepartment {
+    _id: String
+    name: String
+    operators: JSON
+  }
+  type CloudflareCallsData {
+    header: String
+    description: String
+    secondPageHeader: String
+    secondPageDescription: String
+    departments: [CloudflareCallDataDepartment]
+    isReceiveWebCall: Boolean
   }
 
   type Integration @key(fields: "_id") {
@@ -21,11 +34,11 @@ export const types = `
     formId: String
     tagIds: [String]
     createdAt: Date
-
     tags: [Tag]
   
     leadData: JSON
     messengerData: JSON
+    ticketData :JSON
     uiOptions: JSON
     isActive: Boolean
     isConnected: Boolean
@@ -45,7 +58,9 @@ export const types = `
     departmentIds: [String]
 
     details: JSON
+    callData: CloudflareCallsData
   }
+  
 
   type integrationsTotalCount {
     total: Int
@@ -60,7 +75,13 @@ export const types = `
     _id: String
     name: String
   }
-
+  input BotPersistentMenuTypeMessenger {
+    _id: String
+    type: String
+    text: String
+    link: String
+    isEditing: Boolean
+  }
   input MessengerOnlineHoursSchema {
     _id: String
     day: String
@@ -78,6 +99,14 @@ export const types = `
   input IntegrationExternalLinks {
     url: String
   }
+  
+   input TicketData {
+      ticketLabel: String
+      ticketToggle: Boolean
+      ticketStageId: String
+      ticketPipelineId: String
+      ticketBoardId: String
+  }
 
   input IntegrationMessengerData {
     _id: String
@@ -85,6 +114,10 @@ export const types = `
     botEndpointUrl: String
     skillData: JSON
     botShowInitialMessage: Boolean
+    botCheck: Boolean
+    botGreetMessage: String
+    getStarted: Boolean
+    persistentMenus: [BotPersistentMenuTypeMessenger]
     availabilityMethod: String
     isOnline: Boolean,
     onlineHours: [MessengerOnlineHoursSchema]
@@ -109,6 +142,27 @@ export const types = `
     wallpaper: String
     logo: String
     textColor: String
+  }
+
+  input OperatorInput {
+    _id: String
+    userId: String
+    name: String
+  }
+
+  input DepartmentInput {
+    _id: String
+    name: String
+    operators: [OperatorInput]
+  }
+
+  input IntegrationCallData {
+    header: String
+    description: String
+    secondPageHeader: String
+    secondPageDescription: String
+    departments: [DepartmentInput]
+    isReceiveWebCall: Boolean
   }
 `;
 
@@ -174,8 +228,14 @@ export const mutations = `
 
   integrationsSaveMessengerConfigs(
     _id: String!,
-    messengerData: IntegrationMessengerData): Integration
+    messengerData: IntegrationMessengerData,
+    callData: IntegrationCallData
+    ): Integration
 
+  integrationsSaveMessengerTicketData(
+    _id: String!,
+    ticketData: TicketData): Integration
+    
   integrationsCreateExternalIntegration(
     kind: String!,
     name: String!,

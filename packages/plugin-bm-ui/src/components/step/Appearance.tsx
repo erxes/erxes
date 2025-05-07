@@ -1,9 +1,9 @@
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Popover from '@erxes/ui/src/components/Popover';
-import React, { useState } from 'react';
-import TwitterPicker from 'react-color/lib/Twitter';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __, AvatarUpload, FormControl, FormGroup } from '@erxes/ui/src';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Popover from "@erxes/ui/src/components/Popover";
+import React, { useEffect, useState } from "react";
+import TwitterPicker from "react-color/lib/Twitter";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
+import { __, AvatarUpload, FormControl, FormGroup } from "@erxes/ui/src";
 import {
   AppearanceRow,
   ColorPick,
@@ -13,7 +13,7 @@ import {
   LogoWrapper,
   ColorPickerWrap,
   ColorChooserTile
-} from '../../styles';
+} from "../../styles";
 
 interface IColor {
   [key: string]: string;
@@ -33,7 +33,7 @@ export interface IUIOptions {
 
 type Props = {
   onChange: (
-    name: 'uiOptions' | 'logoPreviewUrl' | 'logoPreviewStyle',
+    name: "uiOptions" | "logoPreviewUrl" | "logoPreviewStyle",
     value: any
   ) => void;
   uiOptions?: IUIOptions;
@@ -45,18 +45,17 @@ const Appearance = (props: Props) => {
   const [uiOptions, setUiOptions] = useState(
     props.uiOptions || {
       colors: {},
-      logo: '',
+      logo: "",
       texts: {}
     }
   );
-
   const onChangeFunction = (name: any, value: any) => {
     onChange(name, value);
   };
 
   const handleLogoChange = (id, url) => {
     setUiOptions(prevOptions => ({ ...prevOptions, [id]: url }));
-    onChange('uiOptions', { ...uiOptions, [id]: url });
+    onChange("uiOptions", { ...uiOptions, [id]: url });
   };
 
   const renderUploadImage = (id, title, desc) => {
@@ -82,10 +81,10 @@ const Appearance = (props: Props) => {
       };
 
       setUiOptions(newUiOptions);
-      onChangeFunction('uiOptions', newUiOptions);
+      onChangeFunction("uiOptions", newUiOptions);
     };
 
-    const defaultValue = (uiOptions['texts'] || {})[key];
+    const defaultValue = (uiOptions["texts"] || {})[key];
     return (
       <FormGroup>
         <ControlLabel>{title || key}</ControlLabel>
@@ -95,6 +94,10 @@ const Appearance = (props: Props) => {
     );
   };
 
+  useEffect(() => {
+    setUiOptions(props.uiOptions || { colors: {}, logo: "", texts: {} });
+  }, [props.uiOptions]);
+
   const renderPicker = (group, key, title, colour) => {
     const onChangeColor = e => {
       const newUiOptions = {
@@ -103,7 +106,7 @@ const Appearance = (props: Props) => {
       };
 
       setUiOptions(newUiOptions);
-      onChangeFunction('uiOptions', newUiOptions);
+      onChangeFunction("uiOptions", newUiOptions);
     };
 
     const color =
@@ -121,12 +124,12 @@ const Appearance = (props: Props) => {
                 <ColorPicker style={{ backgroundColor: color }} />
               </ColorPick>
             }
-            placement='bottom-start'
+            placement="bottom-start"
           >
             <TwitterPicker
               color={color}
               onChange={onChangeColor}
-              triangle='hide'
+              triangle="hide"
             />
           </Popover>
         </div>
@@ -138,27 +141,27 @@ const Appearance = (props: Props) => {
     <FlexItem>
       <LeftItem>
         <Block>
-          <h4>{__('Logo')}</h4>
+          <h4>{__("Logo")}</h4>
           <AppearanceRow>
-            {renderUploadImage('logo', 'Main Logo', 'main logo PNG')}
+            {renderUploadImage("logo", "Main Logo", "main logo PNG")}
           </AppearanceRow>
         </Block>
         <Block>
-          <h4>{__('Main colors')}</h4>
+          <h4>{__("Main colors")}</h4>
           <FormGroup>
-            <ControlLabel>{__('Colors')}</ControlLabel>
+            <ControlLabel>{__("Colors")}</ControlLabel>
             <AppearanceRow>
               <ColorPickerWrap>
-                {renderPicker('colors', 'primary', 'Primary', '#6569df')}
-                {renderPicker('colors', 'secondary', 'Secondary', '#3fc7cc')}
-                {renderPicker('colors', 'third', 'Third', '#3fc700')}
+                {renderPicker("colors", "primary", "Primary", "#6569df")}
+                {renderPicker("colors", "secondary", "Secondary", "#3fc7cc")}
+                {renderPicker("colors", "third", "Third", "#3fc700")}
               </ColorPickerWrap>
             </AppearanceRow>
           </FormGroup>
         </Block>
         <Block>
-          <h4>{__('Infos')}</h4>
-          <FormGroup>{renderInput('website', 'WebSite', '')}</FormGroup>
+          <h4>{__("Infos")}</h4>
+          <FormGroup>{renderInput("website", "WebSite", "")}</FormGroup>
         </Block>
       </LeftItem>
     </FlexItem>

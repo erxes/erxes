@@ -1,10 +1,10 @@
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from "@erxes/api-utils/src/permissions";
 import {
   fieldsCombinedByContentType,
-  getContentTypes
+  getContentTypes,
 } from "../../../formUtils";
 
 import { fetchServiceForms } from "../../../messageBroker";
@@ -22,6 +22,7 @@ export interface IFieldsQuery {
   searchable?: boolean;
   isVisibleToCreate?: boolean;
   groupId?: any;
+  isDisabled?: boolean;
 }
 
 const fieldQueries = {
@@ -39,7 +40,7 @@ const fieldQueries = {
         for (const type of types) {
           fieldTypes.push({
             description: type.description,
-            contentType: `${serviceName}:${type.type}`
+            contentType: `${serviceName}:${type.type}`,
           });
         }
       }
@@ -66,7 +67,7 @@ const fieldQueries = {
       { value: "users", label: "Team members" },
       { value: "branch", label: "Branch" },
       { value: "department", label: "Department" },
-      { value: "map", label: "Location/Map" }
+      { value: "map", label: "Location/Map" },
     ];
 
     for (const serviceName of services) {
@@ -79,7 +80,7 @@ const fieldQueries = {
         for (const type of types) {
           fieldInputTypes.push({
             value: type.value,
-            label: type.label
+            label: type.label,
           });
         }
       }
@@ -100,7 +101,9 @@ const fieldQueries = {
       isVisibleToCreate,
       searchable,
       pipelineId,
-      groupIds: inputGroupIds
+      groupIds: inputGroupIds,
+      isDefinedByErxes,
+      isDisabled,
     }: {
       contentType: string;
       contentTypeId: string;
@@ -109,6 +112,8 @@ const fieldQueries = {
       searchable: boolean;
       pipelineId: string;
       groupIds: string[];
+      isDefinedByErxes: boolean;
+      isDisabled: boolean;
     },
     { models }: IContext
   ) {
@@ -149,7 +154,7 @@ const fieldQueries = {
       const erxesDefinedGroup = await models.FieldsGroups.findOne({
         contentType,
         isDefinedByErxes: true,
-        code: { $exists: false }
+        code: { $exists: false },
       });
 
       if (erxesDefinedGroup) {
@@ -157,9 +162,16 @@ const fieldQueries = {
       }
     }
 
+    if (isDefinedByErxes) {
+      query.isDefinedByErxes = isDefinedByErxes;
+    }
+    if (isDisabled) {
+      query.isDisabled = isDisabled;
+    }
+
     if (pipelineId) {
       const otherGroupIds = await models.FieldsGroups.find({
-        "config.boardsPipelines.pipelineIds": { $in: [pipelineId] }
+        "config.boardsPipelines.pipelineIds": { $in: [pipelineId] },
       })
         .select({ _id: 1 })
         .sort({ order: 1 });
@@ -168,7 +180,7 @@ const fieldQueries = {
 
       const fields = await models.Fields.find({
         ...query,
-        groupId: { $in: groupIds }
+        groupId: { $in: groupIds },
       }).sort({ order: 1 });
 
       allFields.push(...fields);
@@ -176,7 +188,7 @@ const fieldQueries = {
       for (const groupId of otherGroupIds) {
         const groupFields = await models.Fields.find({
           groupId,
-          ...query
+          ...query,
         }).sort({ order: 1 });
 
         allFields.push(...groupFields);
@@ -188,6 +200,8 @@ const fieldQueries = {
     if (groupIds && groupIds.length > 0) {
       query.groupId = { $in: groupIds };
     }
+
+    console.log({ query });
 
     return models.Fields.find(query).sort({ order: 1 });
   },
@@ -240,7 +254,7 @@ const fieldQueries = {
     _root,
     {
       contentType,
-      isVisibleToCreate
+      isVisibleToCreate,
     }: { contentType: string; isVisibleToCreate: boolean },
     { models }: IContext
   ) {
@@ -248,7 +262,7 @@ const fieldQueries = {
       contentType,
       isDefinedByErxes: true,
       isVisibleToCreate,
-      relationType: { $exists: true }
+      relationType: { $exists: true },
     });
   },
 
@@ -258,7 +272,7 @@ const fieldQueries = {
     { models }: IContext
   ) {
     return models.Fields.findOne({ contentType, code });
-  }
+  },
 };
 
 requireLogin(fieldQueries, "fieldsCombinedByContentType");
@@ -277,7 +291,7 @@ const fieldsGroupQueries = {
       contentType,
       isDefinedByErxes,
       codes,
-      config
+      config,
     }: {
       contentType: string;
       isDefinedByErxes: boolean;
@@ -287,7 +301,7 @@ const fieldsGroupQueries = {
     { commonQuerySelector, models, subdomain }: IContext
   ) {
     let query: any = {
-      $or: [{ ...commonQuerySelector }, { isDefinedByErxes: true }]
+      $or: [{ ...commonQuerySelector }, { isDefinedByErxes: true }],
     };
 
     // querying by content type
@@ -338,7 +352,7 @@ const fieldsGroupQueries = {
     query.isDefinedByErxes = true;
 
     return models.FieldsGroups.findOne(query);
-  }
+  },
 };
 
 checkPermission(fieldsGroupQueries, "fieldsGroups", "showForms", []);

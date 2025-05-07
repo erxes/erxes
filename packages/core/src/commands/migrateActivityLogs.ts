@@ -136,7 +136,7 @@ const command = async () => {
     }
   }
 
-  console.log(`Process finished at: ${new Date()}`);
+  console.debug(`Process finished at: ${new Date()}`);
 
   process.exit();
 };

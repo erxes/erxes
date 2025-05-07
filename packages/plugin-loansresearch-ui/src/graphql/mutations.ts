@@ -2,30 +2,38 @@ const commonFields = `
   $dealId: String
   $customerType: String
   $customerId: String
-  $incomes: [IncomeInput]
-  $loans: [LoanInput]
-  $totalMonth: Int
-  $totalIncome: Int
-  $monthlyIncome: Int
-  $totalLoanAmount: Int
-  $monthlyPaymentAmount: Int
   $debtIncomeRatio: Float
+  $updatedRatio: Float
   $increaseMonthlyPaymentAmount: Float
+
+  $averageSalaryIncome: Float
+  $averageBusinessIncome: Float
+  $totalIncome: Float
+  $incomes: [IncomeInput]
+
+  $monthlyCostAmount: Float
+  $monthlyLoanAmount: Float
+  $totalPaymentAmount: Float
+  $loans: [LoanInput]
 `;
 
 const commonVariables = `
   dealId: $dealId
   customerType: $customerType
   customerId: $customerId
-  incomes: $incomes
-  loans: $loans
-  totalMonth: $totalMonth
-  totalIncome: $totalIncome
-  monthlyIncome: $monthlyIncome
-  totalLoanAmount: $totalLoanAmount
-  monthlyPaymentAmount: $monthlyPaymentAmount
   debtIncomeRatio: $debtIncomeRatio
+  updatedRatio: $updatedRatio
   increaseMonthlyPaymentAmount: $increaseMonthlyPaymentAmount
+
+  averageSalaryIncome: $averageSalaryIncome
+  averageBusinessIncome: $averageBusinessIncome
+  totalIncome: $totalIncome
+  incomes: $incomes
+
+  monthlyCostAmount: $monthlyCostAmount
+  monthlyLoanAmount: $monthlyLoanAmount
+  totalPaymentAmount: $totalPaymentAmount
+  loans: $loans
 `;
 
 const loansResearchAdd = `
@@ -50,8 +58,17 @@ const loansResearchRemove = `
   }
 `;
 
+const loansResearchRefetch = `
+  mutation loansResearchRefetch($customerId: String!, $type: String!) {
+    loansResearchRefetch(customerId: $customerId, type: $type) {
+      _id
+    }
+  }
+`;
+
 export default {
   loansResearchAdd,
   loansResearchEdit,
   loansResearchRemove,
+  loansResearchRefetch,
 };

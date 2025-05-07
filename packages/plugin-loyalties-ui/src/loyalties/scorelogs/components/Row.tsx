@@ -1,9 +1,17 @@
-import { __, ActionButtons, Button, Icon, Table, Tip } from '@erxes/ui/src';
-import * as dayjs from 'dayjs';
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
-import { IScoreLogParams } from '../types';
+import {
+  __,
+  ActionButtons,
+  Button,
+  colors,
+  Icon,
+  Table,
+  Tip,
+} from "@erxes/ui/src";
+import * as dayjs from "dayjs";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import styled from "styled-components";
+import { IScoreLogParams } from "../types";
 
 const SubTable = styled(Table)`
   > thead > tr > th {
@@ -21,11 +29,11 @@ const SubTable = styled(Table)`
     }
 
     .icon-arrow-down {
-      color: #FF0000
+      color: #ff0000;
     }
 
     .icon-arrow-up {
-      color: #00FF00
+      color: #00ff00;
     }
   }
 
@@ -46,37 +54,58 @@ type Props = {
 
 const AdditionalRow = ({ scoreLogs }: { scoreLogs: IScoreLogParams[] }) => {
   const renderContent = (scoreLog) => {
-    const { items = [], type } = scoreLog.target || {};
+    const { target, type } = scoreLog || {};
 
-    const [firstItem, ...restItem] = items;
+    // const [firstItem, ...restItem] = [target];
 
     return (
       <>
         <tr>
-          <td rowSpan={items?.length || 1}>
-            {dayjs(scoreLog.createdAt).format('YYYY/MM/DD') || '-'}
+          <td rowSpan={target?.length || 1}>
+            {dayjs(scoreLog.createdAt).format("YYYY/MM/DD") || "-"}
           </td>
-          <td rowSpan={items?.length || 1}>{scoreLog.target?.number || '-'}</td>
-          <td>{type || '-'}</td>
-          <td>{firstItem?.unitPrice || '-'}</td>
-          <td>{firstItem?.count || '-'}</td>
-          <td rowSpan={items?.length || 1}>
-            {(scoreLog.action === 'add' || !scoreLog.action && scoreLog.changeScore > 0) && <>{scoreLog.changeScore} <Icon icon='arrow-up' /></> || '-'}
+          <td rowSpan={target?.length || 1}>{target?.number || "-"}</td>
+          <td rowSpan={target?.length || 1}>{type || "-"}</td>
+          <td>{target?.unitPrice || "-"}</td>
+          <td>{target?.count || target?.quantity || "-"}</td>
+          <td rowSpan={target?.length || 1}>
+            {((scoreLog.action === "add" ||
+              (!scoreLog.action && scoreLog.changeScore > 0)) && (
+              <>
+                {scoreLog.changeScore} <Icon icon="arrow-up" />
+              </>
+            )) ||
+              "-"}
           </td>
-          <td rowSpan={items?.length || 1}>
-            {(scoreLog.action === 'subtract' || !scoreLog.action && scoreLog.changeScore < 0) && <>{Math.abs(scoreLog.changeScore)} <Icon icon='arrow-down'/></> || '-'}
+          <td rowSpan={target?.length || 1}>
+            {((scoreLog.action === "subtract" ||
+              (!scoreLog.action && scoreLog.changeScore < 0)) && (
+              <>
+                {Math.abs(scoreLog.changeScore)} <Icon icon="arrow-down" />
+              </>
+            )) ||
+              "-"}
           </td>
-          <td rowSpan={items?.length || 1}>
-            {scoreLog.campaign?.title || '-'}
+          <td rowSpan={target?.length || 1}>
+            {((scoreLog.action === "refund" ||
+              (!scoreLog.action && scoreLog.changeScore < 0)) && (
+              <>
+                {Math.abs(scoreLog.changeScore)}{" "}
+                <Icon icon="refresh-1" color={colors.colorCoreBlue} />
+              </>
+            )) ||
+              "-"}
+          </td>
+          <td rowSpan={target?.length || 1}>
+            {scoreLog.campaign?.title || "-"}
           </td>
         </tr>
-        {restItem?.map((item) => (
-          <tr key={item._id} className='additional-row'>
-            <td>{type || '-'}</td>
-            <td>{item.unitPrice || '-'}</td>
-            <td>{item.count || '-'}</td>
+        {/* {restItem?.map((item) => (
+          <tr key={item._id} className="additional-row">
+            <td>{item.unitPrice || "-"}</td>
+            <td>{item.count || item.quantity || "-"}</td>
           </tr>
-        ))}
+        ))} */}
       </>
     );
   };
@@ -92,6 +121,7 @@ const AdditionalRow = ({ scoreLogs }: { scoreLogs: IScoreLogParams[] }) => {
           <th>Quantity</th>
           <th>Points Earned</th>
           <th>Points Spent</th>
+          <th>Points Refunded</th>
           <th>Campaign</th>
         </tr>
       </thead>
@@ -107,94 +137,98 @@ const Row = (props: Props) => {
 
   const route = (type) => {
     switch (type) {
-      case 'customer':
-        return 'contacts';
-      case 'user':
-        return 'settings/team';
-      case 'company':
-        return 'companies';
-      case 'cpUser':
-        return 'settings/client-portal/users';
+      case "customer":
+        return "contacts";
+      case "user":
+        return "settings/team";
+      case "company":
+        return "companies";
+      case "cpUser":
+        return "settings/client-portal/users";
     }
   };
 
   const email = (type, owner) => {
     if (!owner) {
-      return '-';
+      return "-";
     }
     switch (type) {
-      case 'customer':
+      case "customer":
         return owner?.primaryEmail;
-      case 'user':
+      case "user":
         return owner?.email;
-      case 'company':
+      case "company":
         return owner?.primaryEmail ? owner?.primaryEmail : owner?.primaryName;
-      case 'cpUser':
-        return owner?.email || '-';
+      case "cpUser":
+        return owner?.email || "-";
     }
   };
 
   const name = (type, owner) => {
     if (!owner) {
-      return '-';
+      return "-";
     }
 
     switch (type) {
-      case 'customer':
+      case "customer":
         return (
-          `${owner?.firstName ?? ''} ${owner?.lastName ?? ''}`.trim() || '-'
+          `${owner?.firstName ?? ""} ${owner?.lastName ?? ""}`.trim() || "-"
         );
-      case 'user':
-        return owner?.details?.fullName ?? '-';
-      case 'company':
-        return owner?.primaryName ?? '-';
-      case 'cpUser':
+      case "user":
+        return owner?.details?.fullName ?? "-";
+      case "company":
+        return owner?.primaryName ?? "-";
+      case "cpUser":
         if (owner?.username) {
           return owner.username;
         }
         if (owner?.firstName && owner?.lastName) {
           return `${owner.firstName} ${owner.lastName}`;
         }
-        return '-';
+        return "-";
       default:
-        return '-';
+        return "-";
     }
   };
 
   const phone = (type, owner) => {
     if (!owner) {
-      return '-';
+      return "-";
     }
 
     switch (type) {
-      case 'customer':
-      case 'company':
-        return owner?.phones?.length ? owner.phones[0] : '-';
-      case 'user':
-        return owner?.primaryPhone || owner?.details?.operatorPhone || '-';
-      case 'cpUser':
-        return owner?.phone || '-';
+      case "customer":
+      case "company":
+        return owner?.phones?.length ? owner.phones[0] : "-";
+      case "user":
+        return owner?.primaryPhone || owner?.details?.operatorPhone || "-";
+      case "cpUser":
+        return owner?.phone || "-";
       default:
-        return '-';
+        return "-";
     }
   };
 
-  const score = ( scoreLogs) => {
-    let totalScore = 0;
-
-    if (scoreLogs?.length) {
-      for (const scoreLog of scoreLogs) {
-        const { action, changeScore } = scoreLog;
-
-        if (action === 'subtract') {
-          totalScore -= changeScore;
-        } else {
-          totalScore += changeScore;
-        }
-      }
+  const score = (scoreLogs, initialTotalScore) => {
+    if (typeof initialTotalScore === "number") {
+      return Math.round(initialTotalScore * 100) / 100;
     }
 
-    return totalScore || '-';
+    if (Array.isArray(scoreLogs) && scoreLogs.length > 0) {
+      let total = 0;
+
+      for (const { action, changeScore } of scoreLogs) {
+        if (action === "subtract") {
+          total -= changeScore;
+        } else {
+          total += changeScore;
+        }
+      }
+
+      return Math.round(total * 100) / 100;
+    }
+
+    return "-";
   };
 
   return (
@@ -204,7 +238,7 @@ const Row = (props: Props) => {
         <td>{email(scoreLog.ownerType, scoreLog.owner)}</td>
         <td>{phone(scoreLog.ownerType, scoreLog.owner)}</td>
         <td>{scoreLog.ownerType}</td>
-        <td>{score(scoreLog.scoreLogs)}</td>
+        <td>{score(scoreLog.scoreLogs, scoreLog.totalScore)}</td>
         <td>
           <ActionButtons>
             <Link
@@ -214,11 +248,11 @@ const Row = (props: Props) => {
                 <Icon icon="external-link-alt" />
               </Tip>
             </Link>
-            <Tip text={__(toggleRow ? 'Collapse' : 'Expand')} placement="top">
+            <Tip text={__(toggleRow ? "Collapse" : "Expand")} placement="top">
               <Button
                 btnStyle="link"
                 onClick={() => setToggleRow(!toggleRow)}
-                icon={toggleRow ? 'angle-up' : 'angle-down'}
+                icon={toggleRow ? "angle-up" : "angle-down"}
               />
             </Tip>
           </ActionButtons>
@@ -229,7 +263,7 @@ const Row = (props: Props) => {
         <tr>
           <td
             colSpan={headers.length}
-            style={{ textAlign: 'left', backgroundColor: '#FAFAFA' }}
+            style={{ textAlign: "left", backgroundColor: "#FAFAFA" }}
           >
             <AdditionalRow scoreLogs={scoreLog.scoreLogs as any} />
           </td>

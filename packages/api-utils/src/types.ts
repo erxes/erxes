@@ -45,6 +45,7 @@ export interface IUserDocument extends IUser, Document {
   _id: string;
   emailSignatures?: IEmailSignatureDocument[];
   details?: IDetailDocument;
+  appId?: string;
 }
 
 export interface IContext {

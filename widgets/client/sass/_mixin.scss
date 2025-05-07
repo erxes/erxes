@@ -1,4 +1,4 @@
-/* // mixins
+// mixins
 
 @mixin prefix($declarations, $prefixes: ()) {
   @each $property, $value in $declarations {
@@ -48,4 +48,4 @@
   animation-name: $animation;
   animation-iteration-count: $count;
   animation-timing-function: $timing;
-} */
+} 

@@ -117,7 +117,7 @@ const useDynamicScript = (args) => {
     setFailed(false);
 
     element.onload = () => {
-      console.log(`Dynamic Script Loaded: ${args.url}`);
+      console.debug(`Dynamic Script Loaded: ${args.url}`);
       setReady(true);
     };
 
@@ -130,7 +130,7 @@ const useDynamicScript = (args) => {
     document.head.appendChild(element);
 
     return () => {
-      console.log(`Dynamic Script Removed: ${args.url}`);
+      console.debug(`Dynamic Script Removed: ${args.url}`);
       document.head.removeChild(element);
     };
   }, [args.url]);

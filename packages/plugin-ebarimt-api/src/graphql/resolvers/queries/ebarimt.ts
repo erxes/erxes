@@ -15,7 +15,8 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
     filter.$or = [
       { id: new RegExp(`.*${params.search}.*`, "i") },
       { inactiveId: new RegExp(`.*${params.search}.*`, "i") },
-      { number: new RegExp(`.*${params.search}.*`, "i") }
+      { number: new RegExp(`.*${params.search}.*`, "i") },
+      { 'receipts.id': new RegExp(`.*${params.search}.*`, "i") }
     ];
   }
 

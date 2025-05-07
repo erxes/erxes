@@ -10,7 +10,10 @@ const PAGE_LIST = gql`
         _id
         name
         slug
+        clientPortalId
         createdAt
+        customFieldsData
+       
         createdUser {
           _id
           email
@@ -42,6 +45,8 @@ query Page($id: String) {
     content
     createdAt
     updatedAt
+    customFieldsData
+    customFieldsMap
     pageItems {
       type
       content

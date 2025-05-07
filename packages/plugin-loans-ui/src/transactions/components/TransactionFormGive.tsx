@@ -33,7 +33,7 @@ type Props = {
 };
 
 function TransactionFormGive(props: Props) {
-  const [contract, setContract] = useState<IContract | undefined>();
+  const [contract, setContract] = useState<IContract | undefined>(Contracts[props.contractId || '']);
   const [contractId, setContractId] = useState<string>(props.contractId || '');
   const [payDate, setPayDate] = useState(new Date());
   const [description, setDescription] = useState<string>('');
@@ -42,7 +42,7 @@ function TransactionFormGive(props: Props) {
 
   const maxAmount = useMemo(() => {
     if (!contract) return 0
-    return contract.leaseAmount - contract.givenAmount
+    return contract.unUsedBalance || 0
   }, [contract])
 
   const doc = useMemo(() => {
@@ -125,7 +125,7 @@ function TransactionFormGive(props: Props) {
                     </FormColumn>
                   </FormWrapper>
                   {renderRowTr('Loan amount', 'leaseAmount')}
-                  {renderRowTr('Given amount', 'givenAmount')}
+                  {renderRowTr('Un Used Amount', 'unUsedAmount')}
                   {renderRowTr('must give amount', 'mustGive', maxAmount)}
                 </>}
                 <FormColumn>

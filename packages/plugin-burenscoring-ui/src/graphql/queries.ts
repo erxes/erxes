@@ -1,3 +1,8 @@
+import {
+  conformityQueryFieldDefs,
+  conformityQueryFields,
+} from '@erxes/ui-sales/src/conformity/graphql/queries';
+
 const commonHistoryParams = `
   $page: Int,
   $perPage: Int,
@@ -68,10 +73,10 @@ query getCustomerScoring(${fintechParams}) {
 `;
 export const fieldsCombinedByContentType = `query fieldsCombinedByContentType($contentType: String!) {
   fieldsCombinedByContentType(contentType: $contentType)
-}`
-export const getRegister =  `query Query($customerId: String!) {
+}`;
+export const getRegister = `query Query($customerId: String!) {
   getRegister(customerId: $customerId)
-}`
+}`;
 const BurenConfigs = `
   query configs {
     configs {
@@ -81,15 +86,23 @@ const BurenConfigs = `
     }
   }
 `;
+
+const customers = `
+  query customers(${conformityQueryFields}) {
+    customers(${conformityQueryFieldDefs}) {
+      _id
+      firstName
+      primaryPhone
+      primaryEmail
+    }
+  }
+`;
 export default {
   burenCustomerScoringsMain,
   getCustomerScore,
   getCustomerScoring,
   BurenConfigs,
   fieldsCombinedByContentType,
-  getRegister
+  getRegister,
+  customers,
 };
-
-
-
-

@@ -1,9 +1,9 @@
 import {
   checkPermission,
   moduleRequireLogin
-} from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
-import { IListParams } from './boards';
+} from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
+import { IListParams } from "./boards";
 import {
   archivedItems,
   archivedItemsCount,
@@ -11,8 +11,7 @@ import {
   generateTicketCommonFilters,
   getItemList,
   IArchiveArgs
-} from './utils';
-
+} from "./utils";
 const ticketQueries = {
   /**
    * Tickets list
@@ -26,7 +25,7 @@ const ticketQueries = {
       ...(await generateTicketCommonFilters(models, subdomain, user._id, args))
     };
 
-    return await getItemList(models, subdomain, filter, args, user, 'ticket');
+    return await getItemList(models, subdomain, filter, args, user, "ticket");
   },
 
   async ticketsTotalCount(
@@ -58,16 +57,17 @@ const ticketQueries = {
   async ticketDetail(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const ticket = await models.Tickets.getTicket(_id);
 
-    return checkItemPermByUser(models, user, ticket);
-  }
+    return checkItemPermByUser(subdomain, models, user, ticket);
+  },
+
 };
 
 moduleRequireLogin(ticketQueries);
 
-checkPermission(ticketQueries, 'tickets', 'showTickets', []);
+checkPermission(ticketQueries, "tickets", "showTickets", []);
 
 export default ticketQueries;

@@ -29,7 +29,7 @@ const ActivateInstallation = () => {
         setActivated(true);
       })
       .catch(e => {
-        console.log('while checking activation: ', e.message);
+        console.error('while checking activation: ', e.message);
       });
   }, [hostname]);
 

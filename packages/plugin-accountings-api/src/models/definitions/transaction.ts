@@ -32,6 +32,7 @@ export interface ITrDetail {
 export interface ITransaction {
   _id?: string;
   date: Date;
+  fullDate?: Date;
   description: string;
   status?: string;
   ptrId?: string;
@@ -66,6 +67,8 @@ export interface ITransaction {
   ctaxRowId?: string;
   isHandleCtax?: boolean;
   ctaxAmount?: number;
+
+  extraData?: any;
 }
 
 export interface ITransactionDocument extends ITransaction, Document {
@@ -161,6 +164,7 @@ export const transactionSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     date: field({ type: Date, label: 'Date' }),
+    fullDate: field({ type: Date, index: true, label: 'Date' }),
     description: field({ type: String, optional: true, label: 'Description' }),
     status: field({
       type: String,
@@ -225,5 +229,7 @@ export const transactionSchema = schemaWrapper(
     ctaxRowId: field({ type: String, optional: true, label: 'ctaxRowId' }),
     isHandleCtax: field({ type: Boolean, optional: true, label: 'isHandleCtax' }),
     ctaxAmount: field({ type: Number, optional: true, label: 'ctaxAmount' }),
+
+    extraData: field({ type: Object, optional: true })
   }),
 );

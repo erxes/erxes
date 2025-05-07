@@ -10,14 +10,17 @@ export const types = `
     user: User
     group: UsersGroup
   }
-  type PermissionModule {
-    name: String
-    description: String
-  }
+
   type PermissionAction {
     name: String
     description: String
     module: String
+  }
+
+  type PermissionModule {
+    name: String
+    description: String
+    actions: [PermissionAction]
   }
 
   type UsersGroup {

@@ -13,6 +13,7 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../../bots/graphql';
 import styled from 'styled-components';
+import { Button, EmptyState } from '@erxes/ui/src';
 
 const BotAvatar = styled(Avatar)`
   width: 50px;
@@ -46,6 +47,46 @@ function BotSelector({ botId, bots, onSelect }) {
     onSelect(_id);
   };
 
+  const renderBots = () => {
+    if (!bots?.length) {
+      return (
+        <EmptyState
+          text={`There's no bots configured`}
+          icon="flask-potion"
+          extra={
+            <Button
+              btnStyle="link"
+              onClick={() =>
+                window.open(`/settings/facebook-messenger-bot/create`, '_blank')
+              }
+            >
+              {__('Create new bot')}
+            </Button>
+          }
+        />
+      );
+    }
+
+    return bots.map(({ _id, profileUrl, name }) => (
+      <BottomBarAction key={_id} onClick={() => handleSelect(_id)}>
+        <div>
+          {selectedBotId === _id && <Icon icon="check-1" />}
+          <Avatar src={profileUrl} alt={name} />
+          {name}
+        </div>
+        <Icon
+          onClick={() =>
+            window.open(
+              `/settings/facebook-messenger-bot/edit/${_id}`,
+              '_blank'
+            )
+          }
+          icon="settings"
+        />
+      </BottomBarAction>
+    ));
+  };
+
   return (
     <BorderedCollapseContent
       open={isOpen}
@@ -56,13 +97,7 @@ function BotSelector({ botId, bots, onSelect }) {
       title={selectedBot?.name || 'Select a bot'}
     >
       <ControlLabel>{__('Bots List')}</ControlLabel>
-      {bots.map(({ _id, profileUrl, name }) => (
-        <BottomBarAction key={_id} onClick={() => handleSelect(_id)}>
-          {selectedBotId === _id && <Icon icon="check-1" />}
-          <Avatar src={profileUrl} alt={name} />
-          {name}
-        </BottomBarAction>
-      ))}
+      {renderBots()}
     </BorderedCollapseContent>
   );
 }
@@ -86,6 +121,6 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.list), {
       name: 'botsQueryResponse',
-    }),
-  )(BotSelectorContainer),
+    })
+  )(BotSelectorContainer)
 );

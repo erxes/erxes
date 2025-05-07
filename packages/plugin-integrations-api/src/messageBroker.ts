@@ -9,10 +9,7 @@ import {
   callproGetAudio,
 } from './callpro/controller';
 import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
-import type {
-  MessageArgs,
-  MessageArgsOmitService,
-} from '@erxes/api-utils/src/core';
+import type { MessageArgsOmitService } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
 import {

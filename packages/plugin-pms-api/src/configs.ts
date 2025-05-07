@@ -1,20 +1,21 @@
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
-import { generateModels } from './connectionResolver';
+import typeDefs from "./graphql/typeDefs";
+import resolvers from "./graphql/resolvers";
+import { generateModels } from "./connectionResolver";
 
-import { setupMessageConsumers } from './messageBroker';
-import { getSubdomain } from '@erxes/api-utils/src/core';
-import * as permissions from './permissions';
+import { setupMessageConsumers } from "./messageBroker";
+import { getSubdomain } from "@erxes/api-utils/src/core";
+import * as permissions from "./permissions";
 
-import { getOrderInfo } from './routes';
+import { getOrderInfo } from "./routes";
+import reports from "./reports/reports";
 
 export default {
-  name: 'pms',
+  name: "pms",
 
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers(),
+      resolvers: await resolvers()
     };
   },
   apolloServerContext: async (context, req) => {
@@ -34,5 +35,6 @@ export default {
     // afterMutations,
     // afterQueries,
     permissions,
-  },
+    reports
+  }
 };

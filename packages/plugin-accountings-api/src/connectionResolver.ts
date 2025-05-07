@@ -9,12 +9,13 @@ import {
   IAccountModel,
   loadAccountClass,
 } from './models/Accounts';
+import { IAdjustInventoriesModel, loadAdjustInventoriesClass } from './models/AdjustInventories';
 import {
   IAccountingConfigModel,
   loadAccountingConfigClass,
 } from './models/Configs';
 import { ICtaxRowModel, loadCtaxRowClass } from './models/CtaxRows';
-import { IExchangeRateModel, loadExchangeRateClass } from './models/ExchangeRates';
+import { IPermissionModel, loadPermissionClass } from './models/Permissions';
 import {
   ITransactionModel,
   loadTransactionClass,
@@ -26,15 +27,14 @@ import {
 import {
   IAccountCategoryDocument,
 } from './models/definitions/accountCategory';
+import { IAdjustInventoryDocument } from './models/definitions/adjustInventory';
 import { IAccountingConfigDocument } from './models/definitions/config';
 import { ICtaxRowDocument } from './models/definitions/ctaxRow';
-import { IExchangeRateDocument } from './models/definitions/exchangeRate';
+import { IPermissionDocument } from './models/definitions/permission';
 import {
   ITransactionDocument,
 } from './models/definitions/transaction';
 import { IVatRowDocument } from './models/definitions/vatRow';
-import { IPermissionModel, loadPermissionClass } from './models/Permissions';
-import { IPermissionDocument } from './models/definitions/permission';
 
 export interface IModels {
   Accounts: IAccountModel;
@@ -43,8 +43,8 @@ export interface IModels {
   AccountingConfigs: IAccountingConfigModel;
   VatRows: IVatRowModel;
   CtaxRows: ICtaxRowModel;
-  ExchangeRates: IExchangeRateModel;
   Permissions: IPermissionModel;
+  AdjustInventories: IAdjustInventoriesModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -71,10 +71,10 @@ export const loadClasses = (
     IAccountCategoryModel
   >('account_categories', loadAccountCategoryClass(models));
 
-  models.ExchangeRates = db.model<IExchangeRateDocument, IExchangeRateModel>(
-    'exchange_rates',
-    loadExchangeRateClass(models, subdomain),
-  );
+  models.AdjustInventories = db.model<
+    IAdjustInventoryDocument,
+    IAdjustInventoriesModel
+  >('adjust_inventories', loadAdjustInventoriesClass(models, subdomain));
 
   models.Permissions = db.model<IPermissionDocument, IPermissionModel>(
     'accounting_permissions',

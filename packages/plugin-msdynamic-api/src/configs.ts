@@ -7,6 +7,7 @@ import { generateModels } from './connectionResolver';
 import afterMutations from './afterMutations';
 import cpCustomerHandle from './cpCustomerHandle';
 import cronjobs from './cronjobs';
+import logUtils from './logUtils';
 
 export default {
   name: 'msdynamic',
@@ -17,7 +18,12 @@ export default {
     };
   },
 
-  meta: { cronjobs, afterMutations, cpCustomerHandle },
+  meta: {
+    logs: { consumers: logUtils },
+    cronjobs,
+    afterMutations,
+    cpCustomerHandle,
+  },
 
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);

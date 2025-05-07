@@ -3,7 +3,7 @@ import {
   Button,
   FormControl,
   ModalTrigger,
-  Toggle
+  Toggle,
 } from "@erxes/ui/src";
 import React from "react";
 import { IScoreCampaign } from "../types";
@@ -22,7 +22,7 @@ type Props = {
 
 const statuses = {
   draft: false,
-  published: true
+  published: true,
 };
 
 export default function Row({
@@ -30,7 +30,7 @@ export default function Row({
   campaign,
   isChecked,
   refetch,
-  onChangeStatus
+  onChangeStatus,
 }: Props) {
   const onChange = (e) => {
     if (toggleBulk) {
@@ -68,7 +68,7 @@ export default function Row({
       <td>
         <ActionButtons>
           <ModalTrigger
-            size="lg"
+            size="xl"
             title="Edit score campaign"
             content={({ closeModal }) => (
               <Form

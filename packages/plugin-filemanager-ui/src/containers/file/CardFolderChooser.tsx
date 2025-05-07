@@ -1,20 +1,21 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   FilemanagerFoldersQueryResponse,
-  GetRelatedFilesContentTypeQueryResponse
-} from '../../types';
+  GetRelatedFilesContentTypeQueryResponse,
+} from "../../types";
 
-import CardFileChooser from '../../components/file/CardFileChooser';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '../../graphql';
-import { withProps } from '@erxes/ui/src/utils';
+import CardFileChooser from "../../components/file/CardFileChooser";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "../../graphql";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   mainType: string;
   mainTypeId: string;
+  showType?: string;
 };
 
 type FinalProps = {
@@ -38,7 +39,7 @@ const CardFolderChooser = (props: FinalProps) => {
   const folderId =
     folders.length && Object.keys(folders[0]).length !== 0
       ? folders[0]._id
-      : '';
+      : "";
   const relatedFiles =
     relatedFilesContentTypeQuery.filemanagerGetRelatedFilesContentType || [];
 
@@ -57,23 +58,23 @@ export default withProps<Props>(
     graphql<Props, FilemanagerFoldersQueryResponse>(
       gql(queries.filemanagerFoldersTree),
       {
-        name: 'filemanagerFoldersQuery',
+        name: "filemanagerFoldersQuery",
         options: () => ({
           variables: { isTree: true },
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: "network-only",
+        }),
       }
     ),
     graphql<Props, GetRelatedFilesContentTypeQueryResponse, {}>(
       gql(queries.filemanagerGetRelatedFilesContentType),
       {
-        name: 'relatedFilesContentTypeQuery',
+        name: "relatedFilesContentTypeQuery",
         options: ({ mainType, mainTypeId }: Props) => ({
           variables: {
             contentType: mainType,
-            contentTypeId: mainTypeId
-          }
-        })
+            contentTypeId: mainTypeId,
+          },
+        }),
       }
     )
   )(CardFolderChooser)

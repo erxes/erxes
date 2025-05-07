@@ -10,6 +10,7 @@ import { getNextMonth, getToday, regexSearchText } from '@erxes/api-utils/src';
 import { IListParams } from './boards';
 import {
   fetchSegment,
+  sendCommonMessage,
   sendCoreMessage,
   sendNotificationsMessage
 } from '../../../messageBroker';
@@ -185,6 +186,7 @@ export const generateCommonFilters = async (
     closeDateType,
     assignedUserIds,
     customerIds,
+    vendorCustomerIds,
     companyIds,
     conformityMainType,
     conformityMainTypeId,
@@ -468,47 +470,57 @@ export const generateCommonFilters = async (
 
   if (pipelineId) {
     const pipeline = await models.Pipelines.getPipeline(pipelineId);
+    const user = await sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: {
+        _id: currentUserId
+      },
+      isRPC: true
+    });
+    const tmp =
+      (await sendCoreMessage({
+        subdomain,
+        action: 'departments.findWithChild',
+        data: {
+          query: {
+            supervisorId: currentUserId
+          },
+          fields: {
+            _id: 1
+          }
+        },
+        isRPC: true
+      })) || [];
+
+    const supervisorDepartmentIds = tmp?.map(x => x._id) || [];
+    const pipelineDepartmentIds = pipeline.departmentIds || [];
+
+    const commonIds =
+      supervisorDepartmentIds.filter(id =>
+        pipelineDepartmentIds.includes(id)
+      ) || [];
+    const isEligibleSeeAllCards = (pipeline.excludeCheckUserIds || []).includes(
+      currentUserId
+    );
     if (
+      commonIds?.length > 0 &&
       (pipeline.isCheckUser || pipeline.isCheckDepartment) &&
-      !(pipeline.excludeCheckUserIds || []).includes(currentUserId)
+      !isEligibleSeeAllCards
     ) {
-      let includeCheckUserIds: string[] = [];
-
-      if (pipeline.isCheckDepartment) {
-        const user = await sendCoreMessage({
-          subdomain,
-          action: 'users.findOne',
-          data: {
-            _id: currentUserId
-          },
-          isRPC: true
-        });
-
-        const userDepartmentIds = user?.departmentIds || [];
-        const pipelineDepartmentIds = pipeline.departmentIds || [];
-
-        const otherDepartmentUsers = await sendCoreMessage({
-          subdomain,
-          action: 'users.find',
-          data: {
-            query: { departmentIds: { $in: userDepartmentIds } }
-          },
-          isRPC: true,
-          defaultValue: []
-        });
-
-        for (const departmentUser of otherDepartmentUsers) {
-          includeCheckUserIds = [...includeCheckUserIds, departmentUser._id];
-        }
-
-        if (
-          !!pipelineDepartmentIds.filter(departmentId =>
-            userDepartmentIds.includes(departmentId)
-          ).length
-        ) {
-          includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
-        }
-      }
+      // current user is supervisor in departments and this pipeline has included that some of user's departments
+      // so user is eligible to see all cards of people who share same department.
+      const otherDepartmentUsers = await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: { departmentIds: { $in: commonIds } }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+      let includeCheckUserIds = otherDepartmentUsers.map(x => x._id) || [];
+      includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
 
       const uqinueCheckUserIds = [
         ...new Set(includeCheckUserIds.concat(currentUserId))
@@ -520,6 +532,53 @@ export const generateCommonFilters = async (
           { userId: { $in: uqinueCheckUserIds } }
         ]
       });
+    } else {
+      if (
+        (pipeline.isCheckUser || pipeline.isCheckDepartment) &&
+        !isEligibleSeeAllCards
+      ) {
+        let includeCheckUserIds: string[] = [];
+
+        if (pipeline.isCheckDepartment) {
+          const userDepartmentIds = user?.departmentIds || [];
+          const commonIds = userDepartmentIds.filter(id =>
+            pipelineDepartmentIds.includes(id)
+          );
+
+          const otherDepartmentUsers = await sendCoreMessage({
+            subdomain,
+            action: 'users.find',
+            data: {
+              query: { departmentIds: { $in: commonIds } }
+            },
+            isRPC: true,
+            defaultValue: []
+          });
+
+          for (const departmentUser of otherDepartmentUsers) {
+            includeCheckUserIds = [...includeCheckUserIds, departmentUser._id];
+          }
+
+          if (
+            !!pipelineDepartmentIds.filter(departmentId =>
+              userDepartmentIds.includes(departmentId)
+            ).length
+          ) {
+            includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
+          }
+        }
+
+        const uqinueCheckUserIds = [
+          ...new Set(includeCheckUserIds.concat(currentUserId))
+        ];
+
+        Object.assign(filter, {
+          $or: [
+            { assignedUserIds: { $in: uqinueCheckUserIds } },
+            { userId: { $in: uqinueCheckUserIds } }
+          ]
+        });
+      }
     }
   }
 
@@ -559,7 +618,28 @@ export const generateCommonFilters = async (
   if (number) {
     filter.number = { $regex: `${number}`, $options: 'mui' };
   }
+  if (vendorCustomerIds?.length > 0) {
+    const cards = await sendCommonMessage({
+      subdomain,
+      serviceName: 'clientportal',
+      action: 'clientPortalUserCards.find',
+      data: {
+        contentType: 'deal',
+        cpUserId: { $in: vendorCustomerIds }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
 
+    const cardIds = cards.map(d => d.contentTypeId);
+    if (filter._id) {
+      const ids = filter._id.$in;
+      const newIds = ids.filter(d => cardIds.includes(d));
+      filter._id = { $in: newIds };
+    } else {
+      filter._id = { $in: cardIds };
+    }
+  }
   if ((stageId || stageCodes) && resolvedDayBetween) {
     const [dayFrom, dayTo] = resolvedDayBetween;
     filter.$expr = {
@@ -756,6 +836,7 @@ const compareDepartmentIds = (
 };
 
 export const checkItemPermByUser = async (
+  subdomain: string,
   models: IModels,
   user: any,
   item: IItemCommonFields
@@ -771,14 +852,30 @@ export const checkItemPermByUser = async (
     excludeCheckUserIds
   } = await models.Pipelines.getPipeline(stage.pipelineId);
 
+  const supervisorDepartments =
+    (await sendCoreMessage({
+      subdomain,
+      action: 'departments.findWithChild',
+      data: {
+        query: {
+          supervisorId: user?._id
+        },
+        fields: {
+          _id: 1
+        }
+      },
+      isRPC: true
+    })) || [];
+
+  const supervisorDepartmentIds = supervisorDepartments?.map(x => x._id) || [];
   const userDepartmentIds = user.departmentIds || [];
   const userBranchIds = user?.branchIds || [];
 
   // check permission on department
-  const hasUserInDepartment = compareDepartmentIds(
-    departmentIds,
-    userDepartmentIds
-  );
+  const hasUserInDepartment = compareDepartmentIds(departmentIds, [
+    ...userDepartmentIds,
+    ...supervisorDepartmentIds
+  ]);
   const isUserInBranch = compareDepartmentIds(branchIds, userBranchIds);
 
   if (
@@ -789,6 +886,14 @@ export const checkItemPermByUser = async (
     user?.role !== USER_ROLES.SYSTEM
   ) {
     throw new Error('You do not have permission to view.');
+  }
+
+  const isSuperVisorInDepartment = compareDepartmentIds(
+    departmentIds,
+    supervisorDepartmentIds
+  );
+  if (isSuperVisorInDepartment) {
+    return item;
   }
 
   // pipeline is Show only the users assigned(created) cards checked

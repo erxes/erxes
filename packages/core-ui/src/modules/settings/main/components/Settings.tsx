@@ -1,33 +1,33 @@
-import WithPermission from "modules/common/components/WithPermission";
-import { __ } from "modules/common/utils";
-import Wrapper from "modules/layout/components/Wrapper";
-import { pluginsSettingsNavigations } from "pluginUtils";
-import React from "react";
-import { Link } from "react-router-dom";
+import WithPermission from 'modules/common/components/WithPermission';
+import { __ } from 'modules/common/utils';
+import Wrapper from 'modules/layout/components/Wrapper';
+import { pluginsSettingsNavigations } from 'pluginUtils';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import {
   Box,
   BoxName,
   MenusContainer,
   Row,
   RowTitle,
-  Divider
-} from "@erxes/ui-settings/src/main/styles";
-import { getVersion } from "@erxes/ui/src/utils/core";
+  Divider,
+} from '@erxes/ui-settings/src/main/styles';
+import { getVersion } from '@erxes/ui/src/utils/core';
 
-const breadcrumb = [{ title: __("Settings"), link: "/settings" }];
+const breadcrumb = [{ title: __('Settings'), link: '/settings' }];
 const permissionActions = [
-  "managePermissions",
-  "showPermissions",
-  "showPermissionModules",
-  "showPermissionActions",
-  "exportPermissions"
+  'managePermissions',
+  'showPermissions',
+  'showPermissionModules',
+  'showPermissionActions',
+  'exportPermissions',
 ];
 const teamPermissions = [
-  "showUsers",
-  "usersEdit",
-  "usersInvite",
-  "usersSetActiveStatus",
-  "exportUsers"
+  'showUsers',
+  'usersEdit',
+  'usersInvite',
+  'usersSetActiveStatus',
+  'exportUsers',
 ];
 
 class Settings extends React.PureComponent {
@@ -42,7 +42,7 @@ class Settings extends React.PureComponent {
   ) {
     const box = (
       <Box color={color}>
-        <Link to={to || "#"}>
+        <Link to={to || '#'}>
           {type && <em>{type}</em>}
           <img src={image} alt={name} />
           <BoxName>{__(name)}</BoxName>
@@ -78,10 +78,10 @@ class Settings extends React.PureComponent {
         <Divider />
         <Row>
           <RowTitle>
-            {__("Plugin Settings")}
-            <span>{__("Set up your additional plugin settings")}</span>
+            {__('Plugin Settings')}
+            <span>{__('Set up your additional plugin settings')}</span>
           </RowTitle>
-          <div id={"PluginSettings"}>{plugins}</div>
+          <div id={'PluginSettings'}>{plugins}</div>
         </Row>
       </>
     );
@@ -90,20 +90,20 @@ class Settings extends React.PureComponent {
   render() {
     const { VERSION } = getVersion();
     const content = (
-      <MenusContainer id={"SettingsMain"}>
+      <MenusContainer id={'SettingsMain'}>
         <Row>
           <RowTitle>
-            {__("General Settings")}
-            <span>{__("Set up your basic settings")}</span>
+            {__('General Settings')}
+            <span>{__('Set up your basic settings')}</span>
           </RowTitle>
-          <div id={"SettingsGeneralSettings"}>
-            {VERSION && VERSION === "saas" ? (
+          <div id={'SettingsGeneralSettings'}>
+            {VERSION && VERSION === 'saas' ? (
               <>
                 {this.renderBox(
-                  "Organization settings",
-                  "/images/icons/erxes-35.png",
-                  "/settings/organizations",
-                  "editOrganizationInfo"
+                  'Organization settings',
+                  '/images/icons/erxes-35.png',
+                  '/settings/organizations',
+                  'editOrganizationInfo'
                 )}
                 <Box>
                   <a
@@ -115,39 +115,39 @@ class Settings extends React.PureComponent {
                       src="/images/icons/erxes-24.svg"
                       alt="Global Account"
                     />
-                    <BoxName>{__("Global Account Profile")}</BoxName>
+                    <BoxName>{__('Global Account Profile')}</BoxName>
                   </a>
                 </Box>
               </>
             ) : null}
 
             {this.renderBox(
-              "System Configuration",
-              "/images/icons/erxes-16.svg",
-              "/settings/general",
-              "generalSettingsAll",
-              ["manageGeneralSettings", "showGeneralSettings"]
+              'System Configuration',
+              '/images/icons/erxes-16.svg',
+              '/settings/general',
+              'generalSettingsAll',
+              ['manageGeneralSettings', 'showGeneralSettings']
             )}
             {this.renderBox(
-              "Permissions",
-              "/images/icons/erxes-02.svg",
-              "/settings/permissions",
-              "permissionsAll",
+              'Permissions',
+              '/images/icons/erxes-02.svg',
+              '/settings/permissions',
+              'permissionsAll',
               permissionActions
             )}
             {this.renderBox(
-              "Team Members",
-              "/images/icons/erxes-23.svg",
-              "/settings/team",
-              "usersAll",
+              'Team Members',
+              '/images/icons/erxes-23.svg',
+              '/settings/team',
+              'usersAll',
               teamPermissions
             )}
             {this.renderBox(
-              "Brands",
-              "/images/icons/erxes-03.svg",
-              "/settings/brands",
-              "brandsAll",
-              ["showBrands", "manageBrands"]
+              'Brands',
+              '/images/icons/erxes-03.svg',
+              '/settings/brands',
+              'brandsAll',
+              ['showBrands', 'manageBrands']
             )}
             {/* {this.renderBox(
               "Properties",
@@ -156,16 +156,23 @@ class Settings extends React.PureComponent {
               ""
             )} */}
             {this.renderBox(
-              "Import & Export",
-              "/images/icons/erxes-22.svg",
-              "/settings/selectMenu",
-              "importHistoriesAll",
-              ["importHistories", "removeImportHistories", "importXlsFile"]
+              'Import & Export',
+              '/images/icons/erxes-22.svg',
+              '/settings/selectMenu',
+              'importHistoriesAll',
+              ['importHistories', 'removeImportHistories', 'importXlsFile']
+            )}
+            {this.renderBox(
+              "Apps (legacy)",
+              "/images/icons/erxes-20.svg",
+              "/settings/apps",
+              "",
+              []
             )}
             {this.renderBox(
               "Apps",
               "/images/icons/erxes-20.svg",
-              "/settings/apps",
+              "/settings/clients",
               "",
               []
             )}
@@ -178,58 +185,66 @@ class Settings extends React.PureComponent {
             )}
 
             {this.renderBox(
-              "Tags",
-              "/images/icons/erxes-18.svg",
-              "/settings/tags",
-              "tagsAll",
-              ["showTags", "manageTags"]
+              'Tags',
+              '/images/icons/erxes-18.svg',
+              '/settings/tags',
+              'tagsAll',
+              ['showTags', 'manageTags']
             )}
 
             {this.renderBox(
-              "System Logs",
-              "/images/icons/erxes-33.png",
-              "/settings/logs",
-              "",
+              'Exchange Rates',
+              '/images/icons/erxes-25.png',
+              '/settings/exchangeRates',
+              'exchangeRatesAll',
+              ['showExchangeRates', 'manageExchangeRates']
+            )}
+
+            {this.renderBox(
+              'System Logs',
+              '/images/icons/erxes-33.png',
+              '/settings/logs',
+              '',
               []
             )}
 
             {this.renderBox(
-              "Properties",
-              "/images/icons/erxes-01.svg",
-              "/settings/properties",
-              "formsAll",
-              ["showForms", "manageForms"]
+              'Properties',
+              '/images/icons/erxes-01.svg',
+              '/settings/properties',
+              'formsAll',
+              ['showForms', 'manageForms']
             )}
 
             {this.renderBox(
-              "Email Delivery Logs",
-              "/images/icons/erxes-27.png",
-              "/settings/emailDelivery",
-              "",
+              'Email Delivery Logs',
+              '/images/icons/erxes-27.png',
+              '/settings/emailDelivery',
+              '',
               []
             )}
             {this.renderBox(
-              "Configs of Products",
-              "/images/icons/erxes-07.svg",
-              "/settings/uoms-manage",
-              "",
-              ["showProducts", "manageProducts"]
+              'Configs of Products',
+              '/images/icons/erxes-07.svg',
+              '/settings/uoms-manage',
+              '',
+              ['showProducts', 'manageProducts']
             )}
 
             {this.renderBox(
-              "Product and services",
-              "/images/icons/erxes-31.png",
-              "/settings/product-service/",
-              "",
-              ["showProducts", "manageProducts"]
+              'Product and services',
+              '/images/icons/erxes-31.png',
+              '/settings/product-service/',
+              '',
+              ['showProducts', 'manageProducts']
             )}
 
             {this.renderBox(
-              "Email Templates",
-              "/images/icons/erxes-09.svg",
-              "/settings/email-templates",
-              "emailTemplateAll",
-              ["showEmailTemplates"]
+              'Email Templates',
+              '/images/icons/erxes-09.svg',
+              '/settings/email-templates',
+              'emailTemplateAll',
+              ['showEmailTemplates']
             )}
           </div>
         </Row>
@@ -240,7 +255,7 @@ class Settings extends React.PureComponent {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__("Settings")} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__('Settings')} breadcrumb={breadcrumb} />
         }
         content={content}
         transparent={true}

@@ -58,8 +58,9 @@ const receiveMessage = async (
 ): Promise<void> => {
   const { metadata, contacts = [], messages = [] } = messageData;
   const { phone_number_id } = metadata;
-
+  console.log(messageData,'messageData')
   const waId = contacts.length > 0 ? contacts[0]?.wa_id : undefined;
+
   if (!waId) {
     return;
   }
@@ -71,6 +72,7 @@ const receiveMessage = async (
         { kind: INTEGRATION_KINDS.MESSENGER }
       ]
     });
+
     if (!integration) {
       throw new Error("whatsapp Integration not found");
     }
@@ -83,6 +85,7 @@ const receiveMessage = async (
       contacts,
       integration
     );
+    console.log(customer,'customer')
     if (!customer) {
       throw new Error("Failed to get or create customer");
     }
@@ -91,12 +94,13 @@ const receiveMessage = async (
       senderId: phone_number_id,
       recipientId: waId
     });
+    console.log(conversation,'conversation')
     const bot = await checkIsBot(models, messageData.message, phone_number_id);
     const botId = bot?._id;
     const messageId = messages.length > 0 ? messages[0]?.id : undefined;
     let attachments: { type: string; url: any }[] = [];
     const type = messages.length > 0 ? messages[0]?.type : undefined;
-
+    console.log(type,'type')
     const content =
       messages[0]?.text?.body || messages[0]?.image?.caption || "";
     if (
@@ -186,6 +190,8 @@ const receiveMessage = async (
         attachments,
         botId
       });
+
+      console.log(createdMessage,'createdMessage')
       await sendInboxMessage({
         subdomain,
         action: "conversationClientMessageInserted",

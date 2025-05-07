@@ -22,7 +22,7 @@ export const inputs = `
 `;
 
 export const queries = `
-    cmsTags(clientPortalId: String, searchValue: String, page: Int, perPage: Int, sortField: String, sortDirection: SortDirection): [PostTag]
+    cmsTags(clientPortalId: String, searchValue: String, page: Int, perPage: Int, sortField: String, sortDirection: String): [PostTag]
     cmsTag(_id: String, slug: String): PostTag
 `;
 

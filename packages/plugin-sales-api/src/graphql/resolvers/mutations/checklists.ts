@@ -17,9 +17,9 @@ interface IChecklistItemsEdit extends IChecklistItem {
 
 const checklistsChanged = (checklist: IChecklistsEdit) => {
   graphqlPubsub.publish(
-    `checklistsChanged:${checklist.contentType}:${checklist.contentTypeId}`,
+    `salesChecklistsChanged:${checklist.contentType}:${checklist.contentTypeId}`,
     {
-      checklistsChanged: {
+      salesChecklistsChanged: {
         _id: checklist._id,
         contentType: checklist.contentType,
         contentTypeId: checklist.contentTypeId

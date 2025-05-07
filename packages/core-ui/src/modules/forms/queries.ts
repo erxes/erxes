@@ -161,6 +161,10 @@ query FormDetail($id: String!) {
     fields {
       _id
       associatedFieldId
+      associatedField {
+        _id
+        contentType
+      }
       column
       content
       contentType

@@ -2,8 +2,7 @@ import { Alert, Bulk, router } from '@erxes/ui/src';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import LoansResearchList from '../components/LoansResearchList';
-import { useQuery, useMutation } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import { mutations, queries } from '../graphql';
 import { MainQueryResponse, RemoveMutationResponse } from '../types';
 

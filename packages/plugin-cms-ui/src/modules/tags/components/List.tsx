@@ -4,18 +4,19 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { BarItems, Contents } from '@erxes/ui/src/layout/styles';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-
+import { EmptyState, EmptyText, EmptyTitle } from '../../../styles';
 import TagForm from '../containers/Form';
-// import { tumentechMenu } from '../list/CarsList';
 
+import Submenu from '@erxes/ui/src/components/subMenu/Submenu';
 import { menu } from '../../../routes';
+import { IWebSite } from '../../../types';
 import Row from './Row';
-import CPHeader from '../../clientportal/containers/Header';
 
 type Props = {
+  website: IWebSite;
   clientPortalId: string;
   tags: any[];
   totalCount: number;
@@ -29,7 +30,6 @@ const List = (props: Props) => {
   const { totalCount, queryParams, loading, tags, remove } = props;
 
   const renderRow = () => {
-
     return tags.map((tag) => (
       <React.Fragment key={tag._id}>
         <Row tag={tag} remove={remove} />
@@ -37,17 +37,18 @@ const List = (props: Props) => {
     ));
   };
 
-  //   queryParams.loadingMainQuery = loading;
-  //   const actionBarLeft: React.ReactNode;
-
   const trigger = (
-    <Button btnStyle='success' size='small' icon='plus-circle'>
+    <Button btnStyle='primary' size='small' icon='plus-circle'>
       Add tag
     </Button>
   );
 
   const formContent = (formProps) => (
-    <TagForm {...formProps} clientPortalId={props.clientPortalId} refetch={props.refetch} />
+    <TagForm
+      {...formProps}
+      clientPortalId={props.clientPortalId}
+      refetch={props.refetch}
+    />
   );
 
   const righActionBar = (
@@ -62,9 +63,18 @@ const List = (props: Props) => {
     </BarItems>
   );
 
+  const breadcrumb = [
+    { title: 'Websites', link: '/cms' },
+    {
+      title: props.website?.name,
+      link: '/cms/website/' + props.clientPortalId + '/tags',
+    },
+    { title: __('Tags') },
+  ];
+
   const leftActionBar = (
     <BarItems>
-      <CPHeader />
+      <Submenu items={menu(props.clientPortalId)} />
     </BarItems>
   );
 
@@ -73,18 +83,22 @@ const List = (props: Props) => {
   );
 
   const content = (
-    <Table $whiteSpace='nowrap' $hover={true}>
-      <thead>
-        <tr>
-          <th>{__('Name')}</th>
-          <th>{__('Slug')}</th>
-          <th>{__('Last modified date')}</th>
-          <th>{__('Last modified by')}</th>
-          <th>{__('Actions')}</th>
-        </tr>
-      </thead>
-      <tbody>{renderRow()}</tbody>
-    </Table>
+    <Contents $hasBorder={true}>
+      <div style={{ flex: 1 }}>
+        <Table $hover={true} $bordered={true} $striped={true}>
+          <thead>
+            <tr>
+              <th>{__('Name')}</th>
+              <th>{__('Slug')}</th>
+              <th>{__('Last modified date')}</th>
+              <th>{__('Last modified by')}</th>
+              <th>{__('Actions')}</th>
+            </tr>
+          </thead>
+          <tbody>{renderRow()}</tbody>
+        </Table>
+      </div>
+    </Contents>
   );
   return (
     <>
@@ -94,7 +108,7 @@ const List = (props: Props) => {
           <Wrapper.Header
             title={__('Tag')}
             queryParams={queryParams}
-            submenu={menu}
+            breadcrumb={breadcrumb}
           />
         }
         actionBar={actionBar}
@@ -105,15 +119,10 @@ const List = (props: Props) => {
             loading={loading}
             count={props.totalCount}
             emptyContent={
-              <h3
-                style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                no data
-              </h3>
+              <EmptyState>
+                <EmptyTitle>No Tags Yet</EmptyTitle>
+                <EmptyText>Create your first tag</EmptyText>
+              </EmptyState>
             }
           />
         }

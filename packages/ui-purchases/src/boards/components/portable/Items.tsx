@@ -1,13 +1,13 @@
-import { ItemsWrapper } from '../../styles/item';
-import Box from '@erxes/ui/src/components/Box';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { ButtonRelated } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { ItemChooser } from '../../containers/portable/';
-import { IItem, IOptions } from '../../types';
+import { ItemsWrapper } from "../../styles/item";
+import Box from "@erxes/ui/src/components/Box";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { ButtonRelated } from "@erxes/ui/src/styles/main";
+import { __ } from "@erxes/ui/src/utils";
+import React from "react";
+import { ItemChooser } from "../../containers/portable/";
+import { IItem, IOptions } from "../../types";
 
 type IData = {
   options: IOptions;
@@ -29,7 +29,7 @@ class Items extends React.Component<Props, { openItemId?: string }> {
     super(props);
 
     this.state = {
-      openItemId: ''
+      openItemId: ""
     };
   }
 
@@ -37,8 +37,16 @@ class Items extends React.Component<Props, { openItemId?: string }> {
     this.setState({ openItemId: item._id });
   };
 
-  beforePopupClose = () => {
-    this.setState({ openItemId: '' });
+  beforePopupClose = (afterPopupClose: () => void) => {
+    this.setState({ openItemId: "" });
+    if (afterPopupClose) {
+      afterPopupClose();
+    }
+  };
+
+  synchSingleCard = () => {
+    const { onChangeItem } = this.props;
+    onChangeItem();
   };
 
   renderItems = () => {
@@ -64,6 +72,7 @@ class Items extends React.Component<Props, { openItemId?: string }> {
             onAdd={onChangeItem}
             onUpdate={onChangeItem}
             onRemove={onChangeItem}
+            synchSingleCard={this.synchSingleCard}
             portable={true}
           />
         ))}
@@ -91,7 +100,7 @@ class Items extends React.Component<Props, { openItemId?: string }> {
 
     const relTrigger = (
       <ButtonRelated>
-        <span>{__('See related ' + data.options.title + '..')}</span>
+        <span>{__("See related " + data.options.title + "..")}</span>
       </ButtonRelated>
     );
 

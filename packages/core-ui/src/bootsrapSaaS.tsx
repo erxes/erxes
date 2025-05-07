@@ -127,7 +127,7 @@ if (process.env && process.env.NODE_ENV === "production") {
     })
     .catch(e => {
       // tslint:disable-next-line
-      console.log(`Error during check domain ${e.message}`);
+      console.error(`Error during check domain ${e.message}`);
 
       (window as any).erxesEnv = {};
 

@@ -426,6 +426,51 @@ const LogoWrapper = styledTS<{ backgroundColor?: string }>(styled.div)`
   }
 `;
 
+const OperatorFormView = styled.div`
+  position: relative;
+  background: ${colors.bgActive};
+  padding: 5px ${dimensions.unitSpacing}px;
+  margin-bottom: ${dimensions.unitSpacing}px;
+  border-radius: 4px;
+`;
+
+const OperatorRemoveBtn = styled.div`
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  > button {
+    padding: 3px 5px;
+  }
+`;
+
+const CallRouting = styled.div`
+  background: ${colors.bgLight};
+  border: 1px solid ${colors.borderPrimary};
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  border-radius: ${dimensions.unitSpacing - 6}px;
+  position: relative;
+  margin-bottom: ${dimensions.coreSpacing}px;
+
+  .routing-name {
+    margin-bottom: ${dimensions.unitSpacing}px;
+  }
+`;
+
+const CallRoutingRemove = styled.div`
+  position: absolute;
+  right: -${dimensions.unitSpacing}px;
+  top: -${dimensions.unitSpacing}px;
+  background: ${colors.colorCoreDarkGray};
+  color: ${colors.colorWhite};
+  cursor: pointer;
+  padding: 3px;
+  text-align: center;
+  border-radius: ${dimensions.unitSpacing + dimensions.coreSpacing}px;
+  width: ${dimensions.unitSpacing + dimensions.coreSpacing}px;
+  height: ${dimensions.unitSpacing + dimensions.coreSpacing}px;
+  transition: all ease .3s;
+`;
+
 export {
   AccountBox,
   AccountItem,
@@ -460,4 +505,8 @@ export {
   TextWrapper,
   ToolBar,
   Uploading,
+  OperatorFormView,
+  OperatorRemoveBtn,
+  CallRouting,
+  CallRoutingRemove
 };

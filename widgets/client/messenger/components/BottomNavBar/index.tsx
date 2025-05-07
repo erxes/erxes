@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { m } from 'framer-motion';
-import Item from './Item';
+
 import {
   IconChat,
   IconHome,
@@ -8,6 +7,9 @@ import {
   IconQuestionMark,
   IconTicket,
 } from './Icons';
+import { getCallData, getTicketData } from '../../utils/util';
+
+import Item from './Item';
 import { useRouter } from '../../context/Router';
 
 const items = [
@@ -17,8 +19,8 @@ const items = [
     route: 'home',
   },
   { icon: IconChat, route: 'allConversations' },
-  // { icon: IconPhone, route: 'call' },
-  // { icon: IconTicket, route: 'ticket' },
+  { icon: IconPhone, route: 'call' },
+  { icon: IconTicket, route: 'ticket' },
   {
     label: 'Help',
     icon: IconQuestionMark,
@@ -29,6 +31,8 @@ const items = [
 
 function BottomNavBar() {
   const { setActiveRoute, activeRoute } = useRouter();
+  const callData = getCallData();
+  const ticketData = getTicketData();
 
   const handleItemClick = (route: string) => (e: React.MouseEvent) => {
     setActiveRoute(route);
@@ -46,10 +50,17 @@ function BottomNavBar() {
   };
 
   return (
-    // <m.div style={{ transition: '1s ease-out', transitionProperty: 'all' }}>
     <ul className="nav-container nav-list">
       {items.map((item) => {
         const { route } = item;
+
+        if (route === 'call' && callData && !callData.isReceiveWebCall) {
+          return null;
+        }
+
+        if (route === 'ticket' && ticketData && !ticketData.ticketStageId) {
+          return null;
+        }
 
         return (
           <Item
@@ -61,7 +72,6 @@ function BottomNavBar() {
         );
       })}
     </ul>
-    // </m.div>
   );
 }
 

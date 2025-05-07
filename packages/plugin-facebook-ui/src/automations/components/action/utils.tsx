@@ -8,7 +8,7 @@ import styled from "styled-components";
 const timeTypes = [
   { label: "Minutes", value: "minutes" },
   { label: "Hours", value: "hours" },
-  { label: "Minutes", value: "minute" },
+  { label: "Days", value: "day" },
 ];
 
 const Container = styled(Flex)`
@@ -23,7 +23,7 @@ export function TimeSetter({
   onChange,
 }) {
   const selectedTimeType =
-    timeTypes.find(({ value }) => value === timeType) || timeTypes[1];
+    timeTypes.find(({ value }) => value === timeType) || timeTypes[0];
 
   return (
     <Popover
@@ -31,18 +31,18 @@ export function TimeSetter({
         <LinkButton>{`${value || 0} ${selectedTimeType.label}`}</LinkButton>
       }
     >
-      <Wrapper>
+      <Wrapper style={{ width: "250px" }}>
         <Container>
           <FormControl
             type="number"
-            defaultValue={value}
+            defaultValue={value || 0}
             onChange={(e) =>
               onChange("value", (e.currentTarget as HTMLInputElement).value)
             }
           />
           <Select
             options={timeTypes}
-            value={timeTypes.find((o) => o.value === timeType)}
+            value={timeTypes.find((o) => o.value === timeType) || timeTypes[0]}
             isClearable={true}
             onChange={({ value }: any) => onChange("timeType", value)}
           />

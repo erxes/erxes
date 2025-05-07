@@ -1,17 +1,19 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { useEffect } from 'react';
-import client from '../../apollo-client';
-import { getLocalStorageItem } from '../../common';
-import { IParticipator, IUser } from '../../types';
-import ConversationDetail from '../components/ConversationDetail';
-import { connection } from '../connection';
-import graphqlTypes from '../graphql';
-import { IMessage } from '../types';
-import { useQuery } from '@apollo/react-hooks';
-import { useConversation } from '../context/Conversation';
-import { getMessengerData } from '../utils/util';
-import { useMessage } from '../context/Message';
+import * as React from "react";
+
+import { IParticipator, IUser } from "../../types";
+
+import ConversationDetail from "../components/ConversationDetail";
+import { IMessage } from "../types";
+import client from "../../apollo-client";
+import { connection } from "../connection";
+import { getLocalStorageItem } from "../../common";
+import { getMessengerData } from "../utils/util";
+import gql from "graphql-tag";
+import graphqlTypes from "../graphql";
+import { useConversation } from "../context/Conversation";
+import { useEffect } from "react";
+import { useMessage } from "../context/Message";
+import { useQuery } from "@apollo/react-hooks";
 
 type PropsWithConsumer = {
   supporters: IUser[];
@@ -38,7 +40,7 @@ const ConversationDetailContainer: React.FC<PropsWithConsumer> = (props) => {
         _id: conversationId,
         integrationId: connection.data.integrationId,
       },
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
     }
   );
 
@@ -54,7 +56,7 @@ const ConversationDetailContainer: React.FC<PropsWithConsumer> = (props) => {
       .subscribe({
         query: gql(graphqlTypes.conversationBotTypingStatus),
         variables: { _id: conversationId },
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
       })
       .subscribe({
         next({ data: { conversationBotTypingStatus } }) {
@@ -84,7 +86,7 @@ const ConversationDetailContainer: React.FC<PropsWithConsumer> = (props) => {
         }
 
         // do not show internal or bot messages
-        if (message.internal || message.fromBot) {
+        if (message.internal) {
           return prev;
         }
 
@@ -110,7 +112,7 @@ const ConversationDetailContainer: React.FC<PropsWithConsumer> = (props) => {
         const conversationChanged = subData.conversationChanged || {};
         const type = conversationChanged.type;
 
-        if (forceLogoutWhenResolve && type === 'closed') {
+        if (forceLogoutWhenResolve && type === "closed") {
           endConversation();
         }
       },
@@ -139,6 +141,7 @@ const ConversationDetailContainer: React.FC<PropsWithConsumer> = (props) => {
 
   if (data && data.widgetsConversationDetail) {
     const conversationDetail = data.widgetsConversationDetail;
+
     messages = conversationDetail.messages;
     participators = conversationDetail.participatedUsers || [];
     state = conversationDetail.isOnline;
@@ -147,7 +150,7 @@ const ConversationDetailContainer: React.FC<PropsWithConsumer> = (props) => {
   }
 
   const { messengerData }: any = JSON.parse(
-    getLocalStorageItem('messengerDataJson')
+    getLocalStorageItem("messengerDataJson")
   );
 
   if (!messengerData.showLauncher && connection.enabledServices.engages) {

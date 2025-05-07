@@ -32,6 +32,7 @@ export const types = `
     lotteryCount: Float,
 
     vouchersCount: Int,
+    codesCount: Int,
   }
 `;
 

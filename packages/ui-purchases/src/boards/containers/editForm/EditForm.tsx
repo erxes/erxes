@@ -33,6 +33,7 @@ type WrapperProps = {
   onUpdate?: (item: IItem, prevStageId: string) => void;
   hideHeader?: boolean;
   currentUser: IUser;
+  synchSingleCard?: (itemId: string) => void;
 };
 
 type ContainerProps = {
@@ -319,13 +320,20 @@ class WithData extends React.Component<ContainerProps> {
 export default withCurrentUser((props: WrapperProps) => {
   return (
     <PipelineConsumer>
-      {({ onAddItem, onRemoveItem, onUpdateItem, options }) => {
+      {({
+        onAddItem,
+        onRemoveItem,
+        onUpdateItem,
+        synchSingleCard,
+        options
+      }) => {
         return (
           <WithData
             {...props}
             onAdd={onAddItem || props.onAdd}
             onRemove={onRemoveItem || props.onRemove}
             onUpdate={onUpdateItem || props.onUpdate}
+            synchSingleCard={synchSingleCard || props.synchSingleCard}
             options={props.options || options}
           />
         );

@@ -1,17 +1,17 @@
 import dynamic from "next/dynamic"
 import { modeAtom, orderCollapsibleAtom } from "@/store"
-import { openCancelDialogAtom } from "@/store/history.store"
 import {
   activeOrderIdAtom,
   orderNumberAtom,
   setInitialAtom,
+  openCancelDialogAtom
 } from "@/store/order.store"
 import { useAtomValue, useSetAtom } from "jotai"
 
 import { Button } from "@/components/ui/button"
 import { CollapsibleContent } from "@/components/ui/collapsible"
 import { Separator } from "@/components/ui/separator"
-import OrderCancel from "@/app/(main)/(orders)/components/history/orderCancel"
+import OrderCancel from "@/modules/orders/components/orderCancel"
 
 const Delivery: any = dynamic(() => import("./Delivery"))
 const Description: any = dynamic(() => import("./Description"))

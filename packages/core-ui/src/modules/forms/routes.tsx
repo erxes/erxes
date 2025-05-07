@@ -48,7 +48,7 @@ const Responses = () => {
 
   const queryParams = queryString.parse(location.search);
   const { formId } = useParams();
-  console.log({ queryParams, formId });
+  
 
   return <ResponseList queryParams={queryParams} formId={formId} />;
 };

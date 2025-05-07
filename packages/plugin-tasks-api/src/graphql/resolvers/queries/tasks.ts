@@ -1,8 +1,8 @@
 import {
   checkPermission,
   moduleRequireLogin
-} from "@erxes/api-utils/src/permissions";
-import { IListParams } from "./boards";
+} from '@erxes/api-utils/src/permissions';
+import { IListParams } from './boards';
 import {
   archivedItems,
   archivedItemsCount,
@@ -10,9 +10,9 @@ import {
   generateTaskCommonFilters,
   getItemList,
   IArchiveArgs
-} from "./utils";
-import { IContext } from "../../../connectionResolver";
-import { sendCoreMessage, sendInboxMessage } from "../../../messageBroker";
+} from './utils';
+import { IContext } from '../../../connectionResolver';
+import { sendCoreMessage, sendInboxMessage } from '../../../messageBroker';
 
 interface ITasksAsLogsParams {
   contentId: string;
@@ -29,7 +29,7 @@ const taskQueries = {
       ...(await generateTaskCommonFilters(models, subdomain, user._id, args))
     };
 
-    return await getItemList(models, subdomain, filter, args, user, "task");
+    return await getItemList(models, subdomain, filter, args, user, 'task');
   },
 
   async tasksTotalCount(
@@ -61,7 +61,7 @@ const taskQueries = {
   async taskDetail(
     _root,
     { _id, clientPortalCard }: { _id: string; clientPortalCard: boolean },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const task = await models.Tasks.getTask(_id);
 
@@ -70,7 +70,7 @@ const taskQueries = {
       return task;
     }
 
-    return checkItemPermByUser(models, user, task);
+    return checkItemPermByUser(subdomain, models, user, task);
   },
 
   async tasksAsLogs(
@@ -82,21 +82,21 @@ const taskQueries = {
 
     const relatedTaskIds = await sendCoreMessage({
       subdomain,
-      action: "conformities.savedConformity",
+      action: 'conformities.savedConformity',
       data: {
         mainType: contentType,
         mainTypeId: contentId,
-        relTypes: ["task"]
+        relTypes: ['task']
       },
       isRPC: true,
       defaultValue: []
     });
 
-    if (contentType !== "tasks:task") {
+    if (contentType !== 'tasks:task') {
       tasks = await Tasks.find({
         $and: [
           { _id: { $in: relatedTaskIds } },
-          { status: { $ne: "archived" } }
+          { status: { $ne: 'archived' } }
         ]
       })
         .sort({ closeDate: 1 })
@@ -104,21 +104,21 @@ const taskQueries = {
     }
 
     const contentIds = tasks
-      .filter(activity => activity.action === "convert")
+      .filter(activity => activity.action === 'convert')
       .map(activity => activity.content);
 
     if (Array.isArray(contentIds)) {
       const conversations =
         (await sendInboxMessage({
           subdomain,
-          action: "getConversations",
+          action: 'getConversations',
           data: { _id: { $in: contentIds } }
         })) || [];
 
       for (const conv of conversations) {
         tasks.push({
           _id: conv._id,
-          contentType: "inbox:conversation",
+          contentType: 'inbox:conversation',
           contentId,
           createdAt: conv.createdAt
         });
@@ -131,6 +131,6 @@ const taskQueries = {
 
 moduleRequireLogin(taskQueries);
 
-checkPermission(taskQueries, "tasks", "showTasks", []);
+checkPermission(taskQueries, 'tasks', 'showTasks', []);
 
 export default taskQueries;

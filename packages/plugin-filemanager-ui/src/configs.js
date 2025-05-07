@@ -21,7 +21,10 @@ module.exports = {
       permissions: ["showFileManager"],
     },
   ],
-  dealRightSidebarSection: "./fileChooserSection",
+  dealRightSidebarSection: {
+    title: "File manager",
+    component: "./fileChooserSection",
+  },
   ticketRightSidebarSection: "./fileChooserSection",
   taskRightSidebarSection: "./fileChooserSection",
 };

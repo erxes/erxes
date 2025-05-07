@@ -1,83 +1,121 @@
-import { __, ControlLabel, FormControl, FormGroup } from '@erxes/ui/src';
+import { ControlLabel, FormControl, FormGroup } from '@erxes/ui/src';
 import React from 'react';
 import Select from 'react-select';
 
 import { CUSTOMER_TYPES } from '../../constants';
 import { MarginTop } from '../../styles';
+import { renderBody } from '../../utils';
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 
 type Props = {
-  dealId: string;
-  setDealId: (dealId: string) => void;
-  customerId: string;
-  setCustomerId: (dealId: string) => void;
+  customerData: any;
+  dealData: any;
   customerType: string;
-  setCustomerType: (dealId: string) => void;
+  totalIncome: number;
+  totalPaymentAmount: number;
   debtIncomeRatio: number;
   increaseMonthlyPaymentAmount: number;
+  setIncreaseMonthlyPaymentAmount: (increaseMonthlyPaymentAmount) => void;
+  updatedRatio: number;
 };
 
 const DealForm = (props: Props) => {
   const {
-    dealId,
-    setDealId,
-    customerId,
-    setCustomerId,
+    customerData,
+    dealData,
     customerType,
-    setCustomerType,
+    totalIncome,
+    totalPaymentAmount,
     debtIncomeRatio,
     increaseMonthlyPaymentAmount,
+    setIncreaseMonthlyPaymentAmount,
+    updatedRatio,
   } = props;
 
-  const onChangeDealId = (e) => {
-    setDealId(e.target.value);
-  };
-
-  const onChangeCustomerId = (e) => {
-    setCustomerId(e.target.value);
-  };
-
-  const onCustomerTypeChange = (option) => {
-    setCustomerType(option.value);
+  const onChange = (e) => {
+    setIncreaseMonthlyPaymentAmount(Number(e.target.value));
   };
 
   return (
     <MarginTop>
       <FormGroup>
         <ControlLabel>{'Deal'}</ControlLabel>
-        <FormControl name="dealId" onChange={onChangeDealId} value={dealId} />
+        {renderBody(dealData, 'deal')}
       </FormGroup>
 
       <FormGroup>
         <ControlLabel>{'Customer'}</ControlLabel>
-        <FormControl
-          name="customerId"
-          value={customerId}
-          onChange={onChangeCustomerId}
-        />
+        {renderBody(customerData)}
       </FormGroup>
+      <FormWrapper>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel>Customer type</ControlLabel>
+            <Select
+              value={CUSTOMER_TYPES.find((o) => o.value === customerType)}
+              isDisabled={true}
+              options={CUSTOMER_TYPES}
+              isClearable={false}
+            />
+          </FormGroup>
 
-      <FormGroup>
-        <ControlLabel>Customer type</ControlLabel>
-        <Select
-          value={CUSTOMER_TYPES.find((o) => o.value === customerType)}
-          onChange={onCustomerTypeChange}
-          options={CUSTOMER_TYPES}
-          isClearable={false}
-        />
-      </FormGroup>
+          <FormGroup>
+            <ControlLabel>Average income</ControlLabel>
+            <FormControl
+              type="number"
+              value={totalIncome}
+              disabled={true}
+              useNumberFormat={true}
+              fixed={2}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Monthly payment</ControlLabel>
+            <FormControl
+              type="number"
+              value={totalPaymentAmount}
+              disabled={true}
+              useNumberFormat={true}
+              fixed={2}
+            />
+          </FormGroup>
+        </FormColumn>
 
-      <FormGroup>
-        <ControlLabel>Dept income ratio</ControlLabel>
-        <FormControl type="number" defaultValue={debtIncomeRatio} />
-      </FormGroup>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel>Dept income ratio</ControlLabel>
+            <FormControl
+              type="number"
+              defaultValue={
+                debtIncomeRatio != null ? debtIncomeRatio.toFixed(2) : '0.00'
+              }
+              disabled={true}
+            />
+          </FormGroup>
 
-      <FormGroup>
-        <ControlLabel>Increase Monthly Payment Amount</ControlLabel>
-        <FormControl
-          type="number"
-          defaultValue={increaseMonthlyPaymentAmount}
-        />
-      </FormGroup>
+          <FormGroup>
+            <ControlLabel>Increase Monthly Payment Amount</ControlLabel>
+            <FormControl
+              type="number"
+              value={increaseMonthlyPaymentAmount}
+              onChange={(e: any) => onChange(e)}
+              useNumberFormat={true}
+              fixed={2}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>After Dept income ratio</ControlLabel>
+            <FormControl
+              type="number"
+              defaultValue={
+                updatedRatio != null ? updatedRatio.toFixed(2) : '0.00'
+              }
+              disabled={true}
+            />
+          </FormGroup>
+        </FormColumn>
+      </FormWrapper>
     </MarginTop>
   );
 };

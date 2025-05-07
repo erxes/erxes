@@ -17,7 +17,7 @@ const ListContainer = (props: Props) => {
   const [link, setLink] = useState("");
   const shouldRefetchList = router.getParam(location, "refetchList");
 
-  const branchListQuery = useQuery(gql(queries.tmBranchList), {
+  const branchListQuery = useQuery(gql(queries.pmBranchList), {
     variables: {
       ...router.generatePaginationParams(queryParams || {}),
       status: queryParams.status,
@@ -74,7 +74,7 @@ const ListContainer = (props: Props) => {
   };
 
   const content = bulkProps => {
-    const branchList = branchListQuery?.data?.tmsBranchList || [];
+    const branchList = branchListQuery?.data?.pmsBranchList || [];
     const totalCount = branchList.length || 0;
 
     const updatedProps = {

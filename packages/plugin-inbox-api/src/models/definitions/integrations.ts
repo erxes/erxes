@@ -1,16 +1,15 @@
 import { Document, Schema } from 'mongoose';
 import {
-  attachmentSchema,
   IRule,
-  ruleSchema,
-} from '@erxes/api-utils/src/definitions/common';
+  attachmentSchema,
+  ruleSchema
+} from "@erxes/api-utils/src/definitions/common";
 import {
   LEAD_LOAD_TYPES,
   LEAD_SUCCESS_ACTIONS,
-  MESSENGER_DATA_AVAILABILITY,
-} from './constants';
-
-import { field, schemaHooksWrapper } from './utils';
+  MESSENGER_DATA_AVAILABILITY
+} from "./constants";
+import { field, schemaHooksWrapper } from "./utils";
 
 export interface ISubmission extends Document {
   customerId: string;
@@ -32,7 +31,7 @@ export interface IMessengerOnlineHours {
 
 export interface IMessengerOnlineHoursDocument
   extends IMessengerOnlineHours,
-  Document { }
+    Document {}
 
 export interface IMessengerDataMessagesItem {
   greetings?: { title?: string; message?: string };
@@ -44,10 +43,20 @@ export interface IMessengerDataMessagesItem {
 export interface IMessageDataMessages {
   [key: string]: IMessengerDataMessagesItem;
 }
-
+type BotPersistentMenuTypeMessenger = {
+  _id: string;
+  type: string;
+  text: string;
+  link: string;
+  isEditing?: boolean;
+};
 export interface IMessengerData {
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
+  botCheck?: boolean;
+  botGreetMessage?: string;
+  persistentMenus?: BotPersistentMenuTypeMessenger[];
+  getStarted?: boolean;
   skillData?: {
     typeId: string;
     options: Array<{
@@ -66,17 +75,33 @@ export interface IMessengerData {
   showTimezone?: boolean;
   messages?: IMessageDataMessages;
   links?: ILink;
-  externalLinks?: IExternalLink[]
+  externalLinks?: IExternalLink[];
   showChat?: boolean;
   showLauncher?: boolean;
   hideWhenOffline?: boolean;
   requireAuth?: boolean;
   forceLogoutWhenResolve?: boolean;
   showVideoCallRequest?: boolean;
+  isReceiveWebCall?: boolean;
+}
+export interface ITicketData {
+  ticketLabel?: String;
+  ticketToggle?: Boolean;
+  ticketStageId?: String;
+  ticketPipelineId?: String;
+  ticketBoardId?: String;
 }
 
-export interface IMessengerDataDocument extends IMessengerData, Document { }
+export interface IMessengerDataDocument extends IMessengerData, Document {}
+// export interface ITicketDataDocument extends ITicketData, Document {}
 
+export interface ITicketDataDocument extends Document {
+  ticketLabel?: String;
+  ticketToggle?: Boolean;
+  ticketStageId?: String;
+  ticketPipelineId?: String;
+  ticketBoardId?: String;
+}
 export interface ICallout extends Document {
   title?: string;
   body?: string;
@@ -139,7 +164,7 @@ export interface IUiOptions {
 }
 
 // subdocument schema for messenger UiOptions
-export interface IUiOptionsDocument extends IUiOptions, Document { }
+export interface IUiOptionsDocument extends IUiOptions, Document {}
 
 export interface IIntegration {
   kind: string;
@@ -150,6 +175,7 @@ export interface IIntegration {
   formId?: string;
   leadData?: ILeadData;
   messengerData?: IMessengerData;
+  ticketData?: ITicketData;
   uiOptions?: IUiOptions;
   isActive?: boolean;
   isConnected?: boolean;
@@ -159,7 +185,7 @@ export interface IIntegration {
 }
 
 export interface IExternalLink {
-  url: String
+  url: String;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {
@@ -169,6 +195,7 @@ export interface IIntegrationDocument extends IIntegration, Document {
   formData?: ILeadData;
   leadData?: ILeadDataDocument;
   messengerData?: IMessengerDataDocument;
+  ticketData?: ITicketDataDocument;
   webhookData?: IWebhookData;
   uiOptions?: IUiOptionsDocument;
 }
@@ -183,12 +210,28 @@ const messengerOnlineHoursSchema = new Schema(
   { _id: false },
 );
 
+const persistentMenuSchema = new Schema({
+  _id: { type: String },
+  text: { type: String },
+  type: { type: String },
+  link: { type: String, optional: true },
+  isEditing: { type: Boolean }
+});
+
 // subdocument schema for MessengerData
 const messengerDataSchema = new Schema(
   {
     skillData: field({ type: Object, optional: true }),
     botEndpointUrl: field({ type: String }),
     botShowInitialMessage: field({ type: Boolean }),
+    getStarted: field({ type: Boolean }),
+    botCheck: field({ type: Boolean }),
+    botGreetMessage: field({ type: String }),
+    persistentMenus: field({ type: [persistentMenuSchema] }),
+    ticketLabel: field({ type: String, optional: true }),
+    ticketStageId: field({ type: String }),
+    ticketPipelineId: field({ type: String }),
+    ticketBoardId: field({ type: String }),
     supporterIds: field({ type: [String] }),
     notifyCustomer: field({ type: Boolean }),
     availabilityMethod: field({
@@ -248,6 +291,17 @@ export const calloutSchema = new Schema(
     skip: field({ type: Boolean, optional: true, label: 'Skip' }),
   },
   { _id: false },
+);
+
+const ticketSchema = new Schema(
+  {
+    ticketLabel: { type: String, required: true },
+    ticketToggle: { type: Boolean, required: true },
+    ticketStageId: { type: String, required: true },
+    ticketPipelineId: { type: String, required: true },
+    ticketBoardId: { type: String, required: true }
+  },
+  { _id: false }
 );
 
 // TODO: remove
@@ -437,7 +491,10 @@ export const integrationSchema = schemaHooksWrapper(
     // TODO: remove
     formData: field({ type: leadDataSchema }),
     messengerData: field({ type: messengerDataSchema }),
-    uiOptions: field({ type: uiOptionsSchema }),
+
+    ticketData: field({ type: ticketSchema }),
+    uiOptions: field({ type: uiOptionsSchema })
+
   }),
   'erxes_integrations',
 );

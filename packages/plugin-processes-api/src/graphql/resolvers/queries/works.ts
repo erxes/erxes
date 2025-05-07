@@ -102,7 +102,7 @@ const generateFilter = async (
       _id: jobCategoryId,
     }).lean();
 
-    if(!category) {
+    if (!category) {
       throw new Error(`JobCategory ${jobCategoryId} not found`);
     }
 

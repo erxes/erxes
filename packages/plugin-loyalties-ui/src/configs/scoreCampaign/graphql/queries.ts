@@ -25,6 +25,11 @@ const fields = `
     fieldGroupId
     fieldName
     fieldId
+    serviceName
+    additionalConfig
+
+    restrictions
+    onlyClientPortal
 `;
 
 const scoreCampaigns = `
@@ -37,5 +42,5 @@ const scoreCampaigns = `
 `;
 
 export default {
-  scoreCampaigns
+  scoreCampaigns,
 };

@@ -1,11 +1,11 @@
-import { gql, useQuery, useMutation } from '@apollo/client';
-import React, { useState } from 'react';
-import { Alert, Spinner } from '@erxes/ui/src';
-import BranchEditComponent from '../components/BranchEdit';
+import { gql, useQuery, useMutation } from "@apollo/client";
+import React, { useState } from "react";
+import { Alert, Spinner } from "@erxes/ui/src";
+import BranchEditComponent from "../components/BranchEdit";
 
-import { IPmsBranch } from '../types';
-import { mutations, queries } from '../graphql';
-import { useNavigate } from 'react-router-dom';
+import { IPmsBranch } from "../types";
+import { mutations, queries } from "../graphql";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   pmsId?: string;
@@ -18,11 +18,11 @@ const BranchEdit = (props: Props) => {
 
   const [loading, setLoading] = useState<boolean>(false);
 
-  const branchDetailQuery = useQuery(gql(queries.tmsBranchDetail), {
+  const branchDetailQuery = useQuery(gql(queries.pmsBranchDetail), {
     skip: !pmsId,
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: "cache-and-network",
     variables: {
-      _id: pmsId || ''
+      _id: pmsId || ""
     }
   });
 
@@ -42,11 +42,11 @@ const BranchEdit = (props: Props) => {
     })
       .then(data => {})
       .then(() => {
-        Alert.success('You successfully updated a branch');
+        Alert.success("You successfully updated a branch");
 
         navigate({
           pathname: `/pms`,
-          search: '?refetchList=true'
+          search: "?refetchList=true"
         });
       })
 
@@ -58,7 +58,7 @@ const BranchEdit = (props: Props) => {
   };
 
   const branch =
-    (branchDetailQuery && branchDetailQuery?.data?.tmsBranchDetail) ||
+    (branchDetailQuery && branchDetailQuery?.data?.pmsBranchDetail) ||
     ({} as IPmsBranch);
 
   const updatedProps = {

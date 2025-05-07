@@ -61,7 +61,7 @@ export const getPermissionModules = async () => {
     }
   }
 
-  return modules;
+  return modules.sort((a, b) => a.name.localeCompare(b.name));
 };
 
 export const getPermissionActions = async () => {

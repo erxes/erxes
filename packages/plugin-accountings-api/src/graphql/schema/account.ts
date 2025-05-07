@@ -28,6 +28,7 @@ export const types = () => `
     categoryId: String
     branchId: String
     departmentId: String
+    isTemp: Boolean
     isOutBalance: Boolean
     parentId: String
     createdAt: Date
@@ -48,6 +49,7 @@ const accountParams = `
   description: String,
   branchId: String,
   departmentId: String,
+  isTemp: Boolean,
   isOutBalance: Boolean,
   scopeBrandIds: [String]
 `;
@@ -70,6 +72,7 @@ const accountsQueryParams = `
   brand: String
   ids: [String],
   excludeIds: Boolean,
+  isTemp: Boolean,
   isOutBalance: Boolean,
   branchId: String
   departmentId: String

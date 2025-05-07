@@ -1,15 +1,15 @@
 import {
   FormControl,
-  Icon,
   ModalTrigger,
   TextInfo,
-} from "@erxes/ui/src/components";
-
-import Form from "../containers/Form";
-import { IVoucherCampaign } from "../types";
-import { Link } from "react-router-dom";
-import React from "react";
-import { VOUCHER_TYPES } from "../../../constants";
+} from '@erxes/ui/src/components';
+import Button from '@erxes/ui/src/components/Button';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { VOUCHER_TYPES } from '../../../constants';
+import Form from '../containers/Form';
+import { IVoucherCampaign } from '../types';
 
 type Props = {
   voucherCampaign: IVoucherCampaign;
@@ -70,16 +70,18 @@ class Row extends React.Component<Props> {
           <TextInfo>{status}</TextInfo>
         </td>
         <td onClick={onClick}>
-          <Link to={`/vouchers?campaignId=${_id}`}>
-            <Icon icon="list-2" />
-          </Link>
+          <ActionButtons>
+            <Link to={`/vouchers?campaignId=${_id}`}>
+              <Button btnStyle='link' icon='list-2' />
+            </Link>
+          </ActionButtons>
         </td>
       </tr>
     );
 
     return (
       <ModalTrigger
-        size={"lg"}
+        size={'lg'}
         title="Edit voucher campaign"
         trigger={trigger}
         autoOpenKey="showProductModal"

@@ -1,5 +1,4 @@
 import { getSubdomain } from "@erxes/api-utils/src/core";
-
 import { debugError, debugFacebook } from "./debuggers";
 import { getConfig } from "./commonUtils";
 import loginMiddleware from "./middlewares/loginMiddleware";
@@ -12,9 +11,10 @@ import {
   getAdapter,
   getPageAccessTokenFromMap
 } from "./utils";
-import { generateModels } from "./connectionResolver";
-
-const init = async app => {
+import { generateModels, IModels } from "./connectionResolver";
+import { IIntegrationDocument } from "./models/Integrations";
+import { NextFunction, Request, Response } from "express";
+const init = async (app) => {
   app.get("/fblogin", loginMiddleware);
 
   app.get("/facebook/get-post", async (req, res) => {
@@ -89,58 +89,32 @@ const init = async app => {
       return;
     }
     const adapter = await getAdapter(models);
-
     for (const entry of data.entry) {
       // receive chat
-      if (entry.messaging) {
-        debugFacebook(`Received messenger data ${JSON.stringify(data)}`);
 
-        adapter
-          .processActivity(req, res, async context => {
-            const { activity } = await context;
-
-            if (!activity || !activity.recipient) {
-              next();
-            }
-
-            const pageId = activity.recipient.id;
-
-            const integration = await models.Integrations.getIntegration({
-              $and: [
-                { facebookPageIds: { $in: pageId } },
-                { kind: INTEGRATION_KINDS.MESSENGER }
-              ]
-            });
-
-            await models.Accounts.getAccount({ _id: integration.accountId });
-
-            const { facebookPageTokensMap = {} } = integration;
-
-            try {
-              accessTokensByPageId[pageId] = getPageAccessTokenFromMap(
-                pageId,
-                facebookPageTokensMap
-              );
-            } catch (e) {
-              debugFacebook(
-                `Error occurred while getting page access token: ${e.message}`
-              );
-              return next();
-            }
-
-            await receiveMessage(models, subdomain, activity);
-
-            debugFacebook(
-              `Successfully saved activity ${JSON.stringify(activity)}`
-            );
-          })
-
-          .catch(e => {
-            debugFacebook(
-              `Error occurred while processing activity: ${e.message}`
-            );
-            return res.end("success");
-          });
+      try {
+        if (entry.messaging) {
+          await processMessagingEvent(
+            entry,
+            models,
+            req,
+            res,
+            next,
+            adapter,
+            subdomain,
+            accessTokensByPageId
+          );
+        }
+        if (entry.standby) {
+          const activities = await processStandbyEvents(entry, models);
+          for (const { activity, integration } of activities) {
+            await receiveMessage(models, subdomain, integration, activity);
+          }
+        }
+      } catch (error) {
+        debugFacebook(`Error processing entry: ${error.message}`);
+        // Optionally, send a response or log the error
+        res.status(500).send("Internal Server Error");
       }
 
       // receive post and comment
@@ -186,3 +160,128 @@ const init = async app => {
 };
 
 export default init;
+export async function processStandbyEvents(data: any, models: IModels) {
+  const activities: {
+    activity: any;
+    integration: IIntegrationDocument;
+  }[] = [];
+  if (!data.standby || !Array.isArray(data.standby)) {
+    debugFacebook("No standby events found or standby is not an array");
+    return activities;
+  }
+  for (const standbyEvent of data.standby) {
+    try {
+      if (
+        !standbyEvent.recipient?.id ||
+        !standbyEvent.sender?.id ||
+        !standbyEvent.timestamp
+      ) {
+        debugFacebook("Invalid standby event: missing required fields");
+        continue; // Skip invalid event
+      }
+
+      const integration = await models.Integrations.getIntegration({
+        $and: [
+          { facebookPageIds: { $in: [standbyEvent.recipient.id] } },
+          { kind: INTEGRATION_KINDS.MESSENGER }
+        ]
+      });
+
+      if (!integration) {
+        debugFacebook(
+          `Integration not found for pageId: ${standbyEvent.recipient.id}`
+        );
+        continue;
+      }
+
+      const activity: any = {
+        channelId: "facebook",
+        timestamp: new Date(standbyEvent.timestamp),
+        conversation: {
+          id: standbyEvent.sender.id
+        },
+        from: {
+          id: standbyEvent.sender.id,
+          name: standbyEvent.sender.id
+        },
+        recipient: {
+          id: standbyEvent.recipient.id,
+          name: standbyEvent.recipient.id
+        },
+        channelData: standbyEvent,
+        type: "message",
+        text: standbyEvent.message?.text || ""
+      };
+
+      activities.push({ activity, integration });
+    } catch (error) {
+      debugFacebook(`Error processing standby event: ${error.message}`);
+    }
+  }
+
+  return activities;
+}
+
+const processMessagingEvent = async (
+  entry: any,
+  models: IModels,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+  adapter: any,
+  subdomain: string,
+  accessTokensByPageId: Record<string, string>
+) => {
+  debugFacebook(`Received messenger data ${JSON.stringify(entry)}`);
+
+  try {
+    await adapter.processActivity(req, res, async (context: any) => {
+      const { activity } = await context;
+
+      if (!activity || !activity.recipient) {
+        return next();
+      }
+
+      const pageId = activity.recipient.id;
+
+      // Find integration for the page
+      const integration = await models.Integrations.getIntegration({
+        $and: [
+          { facebookPageIds: { $in: [pageId] } },
+          { kind: INTEGRATION_KINDS.MESSENGER }
+        ]
+      });
+
+      if (!integration) {
+        throw new Error("Integration not found");
+      }
+
+      // Verify the account associated with the integration
+      await models.Accounts.getAccount({ _id: integration.accountId });
+
+      // Get the page access token
+      const { facebookPageTokensMap = {} } = integration;
+      try {
+        accessTokensByPageId[pageId] = getPageAccessTokenFromMap(
+          pageId,
+          facebookPageTokensMap
+        );
+      } catch (e) {
+        debugFacebook(
+          `Error occurred while getting page access token: ${e.message}`
+        );
+        return next();
+      }
+
+      // Process the received message
+      await receiveMessage(models, subdomain, integration, activity);
+
+      debugFacebook(`Successfully saved activity ${JSON.stringify(activity)}`);
+    });
+  } catch (e) {
+    debugFacebook(
+      `Error occurred while processing messaging activity: ${e.message}`
+    );
+    return res.end("success");
+  }
+};

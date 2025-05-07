@@ -70,6 +70,16 @@ export class StripeAPI {
     this.client = new Stripe(this.secretKey);
   }
 
+  async authorize() {
+    try {
+      await this.client.accounts.retrieve();
+
+      return { success: true, message: 'Authorized' };
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  }
+
   async createInvoice(transaction: ITransactionDocument) {
     try {
       const intent = await this.client.paymentIntents.create({
@@ -132,7 +142,7 @@ export class StripeAPI {
 
   async getWebhooks() {
     const response = await this.client.webhookEndpoints.list();
-   
+
     return response.data;
   }
 
@@ -151,7 +161,7 @@ export class StripeAPI {
           'payment_intent.payment_failed',
         ],
       });
- 
+
       return { status: 'success' };
     } catch (e) {
       console.error(e);

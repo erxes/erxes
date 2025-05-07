@@ -20,14 +20,14 @@ const command = async () => {
           `https://${org.subdomain}.api.erxes.io/api/initial-setup`
         );
 
-        console.log(response.ok);
+        console.debug(response.ok);
       } catch (e) {
-        console.log(e.message);
+        console.error(e.message);
       }
     }
   }
 
-  console.log(`Process finished at: ${new Date()}`);
+  console.debug(`Process finished at: ${new Date()}`);
 
   process.exit();
 };

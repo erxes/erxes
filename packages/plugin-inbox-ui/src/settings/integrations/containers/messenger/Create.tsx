@@ -5,11 +5,12 @@ import {
   SaveMessengerConfigsMutationResponse,
   SaveMessengerMutationResponse,
   SaveMessengerMutationVariables,
+  SaveMessengerTicketMutationResponse
 } from "@erxes/ui-inbox/src/settings/integrations/types";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import {
   mutations,
-  queries,
+  queries
 } from "@erxes/ui-inbox/src/settings/integrations/graphql";
 
 import { BrandsQueryResponse } from "@erxes/ui/src/brands/types";
@@ -37,12 +38,12 @@ const CreateMessenger = (props: Props) => {
     useQuery<UsersQueryResponse>(gql(queries.users));
   const { data: brandsData, loading: brandsLoading } =
     useQuery<BrandsQueryResponse>(gql(brandQueries.brands), {
-      fetchPolicy: "network-only",
+      fetchPolicy: "network-only"
     });
   const { data: topicsData } = useQuery<TopicsQueryResponse>(
     gql(kbQueries.knowledgeBaseTopics),
     {
-      skip: !isEnabled("knowledgebase") ? true : false,
+      skip: !isEnabled("knowledgebase") ? true : false
     }
   );
 
@@ -53,10 +54,10 @@ const CreateMessenger = (props: Props) => {
     refetchQueries: [
       {
         query: gql(queries.integrations),
-        variables: integrationsListParams(queryParams),
+        variables: integrationsListParams(queryParams)
       },
-      { query: gql(queries.integrationTotalCount) },
-    ],
+      { query: gql(queries.integrationTotalCount) }
+    ]
   });
 
   const [saveConfigsMutation] =
@@ -67,9 +68,9 @@ const CreateMessenger = (props: Props) => {
           {
             query: gql(queries.integrationDetail),
             variables: { _id: integrationId || "" },
-            fetchPolicy: "network-only",
-          },
-        ],
+            fetchPolicy: "network-only"
+          }
+        ]
       }
     );
 
@@ -81,12 +82,23 @@ const CreateMessenger = (props: Props) => {
           {
             query: gql(queries.integrationDetail),
             variables: { _id: integrationId || "" },
-            fetchPolicy: "network-only",
-          },
-        ],
+            fetchPolicy: "network-only"
+          }
+        ]
       }
     );
-
+  const [saveTicketData] = useMutation<SaveMessengerTicketMutationResponse>(
+    gql(mutations.integrationsSaveMessengerTicketData),
+    {
+      refetchQueries: [
+        {
+          query: gql(queries.integrationDetail),
+          variables: { _id: integrationId || "" },
+          fetchPolicy: "network-only"
+        }
+      ]
+    }
+  );
   const [messengerAppSaveMutation] =
     useMutation<SaveMessengerAppsMutationResponse>(
       gql(mutations.messengerAppSave),
@@ -95,9 +107,9 @@ const CreateMessenger = (props: Props) => {
           {
             query: gql(queries.integrationDetail),
             variables: { _id: integrationId || "" },
-            fetchPolicy: "network-only",
-          },
-        ],
+            fetchPolicy: "network-only"
+          }
+        ]
       }
     );
 
@@ -117,14 +129,16 @@ const CreateMessenger = (props: Props) => {
       brandId,
       languageCode,
       messengerData,
+      ticketData,
       uiOptions,
       channelIds,
       messengerApps,
+      callData
     } = doc;
 
     let id = "";
     saveMessengerMutation({
-      variables: { name, brandId, languageCode, channelIds },
+      variables: { name, brandId, languageCode, channelIds }
     })
       .then(({ data = {} as any }) => {
         setIsLoading(true);
@@ -132,21 +146,24 @@ const CreateMessenger = (props: Props) => {
         const integrationId = data.integrationsCreateMessengerIntegration._id;
         id = integrationId;
         return saveConfigsMutation({
-          variables: { _id: integrationId, messengerData },
+          variables: { _id: integrationId, messengerData, callData }
         });
       })
       .then(({ data = {} as any }) => {
         const integrationId = data.integrationsSaveMessengerConfigs._id;
 
+        saveTicketData({
+          variables: { _id: integrationId, ticketData }
+        });
         return saveAppearanceMutation({
-          variables: { _id: integrationId, uiOptions },
+          variables: { _id: integrationId, uiOptions }
         });
       })
       .then(({ data = {} as any }) => {
         const integrationId = data.integrationsSaveMessengerAppearanceData._id;
 
         return messengerAppSaveMutation({
-          variables: { integrationId, messengerApps },
+          variables: { integrationId, messengerApps }
         });
       })
       .then(() => {
@@ -175,7 +192,7 @@ const CreateMessenger = (props: Props) => {
     brands,
     save,
     topics,
-    isLoading,
+    isLoading
   };
 
   return <Form {...updatedProps} />;

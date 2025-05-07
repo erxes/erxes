@@ -14,8 +14,8 @@ type Params = {
 };
 
 export const getDiffDay = (fromDate: Date, toDate: Date) => {
-  const date1 = fromDate;
-  const date2 = toDate;
+  const date1 = new Date(fromDate);
+  const date2 = new Date(toDate);
   return (date2.getTime() - date1.getTime()) / (1000 * 3600 * 24);
 };
 

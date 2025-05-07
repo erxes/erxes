@@ -19,7 +19,7 @@ const checklistsChanged = (checklist: IChecklistsEdit) => {
   graphqlPubsub.publish(
     `ticketsChecklistsChanged:${checklist.contentType}:${checklist.contentTypeId}`,
     {
-      checklistsChanged: {
+      ticketsChecklistsChanged: {
         _id: checklist._id,
         contentType: checklist.contentType,
         contentTypeId: checklist.contentTypeId

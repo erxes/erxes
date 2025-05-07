@@ -7,6 +7,7 @@ import {
   getNextMonth,
   getToday,
   getPureDate,
+  getFullDate,
   getTomorrow,
   getUserDetail,
   paginate,
@@ -22,6 +23,7 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from './logUtils';
 import { sendToWebhook } from './requests';
 import { updateUserScore, getScoringConfig } from './scoring';
 import { generateFieldsFromSchema } from './fieldUtils';
+import { numberToWord } from './numberUtils'
 
 import {
   can,
@@ -52,6 +54,7 @@ export { fixDate };
 export { getDate };
 export { getToday };
 export { getPureDate };
+export { getFullDate };
 export { getTomorrow };
 export { getNextMonth };
 export { checkUserIds };
@@ -94,6 +97,7 @@ export default {
   getDate,
   getToday,
   getPureDate,
+  getFullDate,
   getTomorrow,
   getNextMonth,
   checkUserIds,
@@ -107,4 +111,5 @@ export default {
   afterQueryWrapper,
   dateToShortStr,
   shortStrToDate,
+  numberToWord
 };

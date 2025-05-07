@@ -3,19 +3,23 @@ import { nanoid } from 'nanoid';
 import { IModels } from '../connectionResolver';
 import { JOURNALS, TR_SIDES } from '../models/definitions/constants';
 import { ITransaction, ITransactionDocument } from "../models/definitions/transaction";
-import { IExchangeRateDocument } from '../models/definitions/exchangeRate';
+import { getConfig, sendCoreMessage } from '../messageBroker';
+import { getFullDate } from '@erxes/api-utils/src';
 
 export default class CurrencyTr {
+  private subdomain: string;
   private models: IModels;
   private doc: ITransaction;
   private currencyDiffTrDoc?: ITransaction;
-  private spotRate?: IExchangeRateDocument;
+  private spotRate?: any;
 
   constructor(
+    subdomain: string,
     models: IModels,
     doc: ITransaction
   ) {
     this.models = models;
+    this.subdomain = subdomain;
     this.doc = doc;
   }
 
@@ -24,7 +28,9 @@ export default class CurrencyTr {
     if (!detail) {
       throw new Error('has not detail')
     }
-    const mainCurrency = await this.models.AccountingConfigs.getConfig('MainCurrency');
+
+    const mainCurrency = await getConfig(this.subdomain, 'mainCurrency', '')
+
     const account = await this.models.Accounts.getAccount({ _id: detail.accountId });
     if (mainCurrency === account.currency) {
       return;
@@ -34,7 +40,16 @@ export default class CurrencyTr {
       throw new Error('must fill Currency Amount')
     }
 
-    this.spotRate = await this.models.ExchangeRates.getExchangeRate({ date: moment(this.doc.date).format('YYYY-MM-DD'), mainCurrency, rateCurrency: account.currency });
+    this.spotRate = await sendCoreMessage({
+      subdomain: this.subdomain,
+      action: 'exchangeRates.getActiveRate',
+      data: {
+        date: moment(this.doc.date).format('YYYY-MM-DD'),
+        rateCurrency: account.currency, mainCurrency
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
 
     if (!this.spotRate?.rate) {
       throw new Error('not found spot rate')
@@ -87,7 +102,7 @@ export default class CurrencyTr {
     if (!this.currencyDiffTrDoc) {
       if (oldFollowInfo) {
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
-          $set: { 'details.0.amount': amount },
+          $set: { 'details.0.amount': amount, fullDate: getFullDate(transaction.date) },
           $pull: {
             follows: { ...oldFollowInfo }
           }
@@ -100,18 +115,25 @@ export default class CurrencyTr {
     if (oldFollowInfo) {
       const oldCurrencyTr = await this.models.Transactions.findOne({ _id: oldFollowInfo.id });
       if (oldCurrencyTr) {
-        await this.models.Transactions.updateTransaction(oldCurrencyTr._id, { ...this.currencyDiffTrDoc, originId: transaction._id });
+        await this.models.Transactions.updateTransaction(oldCurrencyTr._id, {
+          ...this.currencyDiffTrDoc,
+          originId: transaction._id,
+          parentId: transaction.parentId
+        });
         currencyTr = this.models.Transactions.findOne({ _id: oldCurrencyTr._id });
 
       } else {
-        currencyTr = await this.models.Transactions.createTransaction({ ...this.currencyDiffTrDoc, originId: transaction._id });
+        currencyTr = await this.models.Transactions.createTransaction({
+          ...this.currencyDiffTrDoc,
+          originId: transaction._id,
+          parentId: transaction.parentId
+        });
+
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
+          $set: { 'details.0.amount': amount, fullDate: getFullDate(transaction.date) },
           $pull: {
             follows: { ...oldFollowInfo }
-          }
-        })
-        await this.models.Transactions.updateOne({ _id: transaction._id }, {
-          $set: { 'details.0.amount': amount },
+          },
           $addToSet: {
             follows: {
               type: 'currencyDiff',
@@ -122,9 +144,14 @@ export default class CurrencyTr {
       }
 
     } else {
-      currencyTr = await this.models.Transactions.createTransaction({ ...this.currencyDiffTrDoc, originId: transaction._id });
+      currencyTr = await this.models.Transactions.createTransaction({
+        ...this.currencyDiffTrDoc,
+        originId: transaction._id,
+        parentId: transaction.parentId
+      });
+
       await this.models.Transactions.updateOne({ _id: transaction._id }, {
-        $set: { 'details.0.amount': amount },
+        $set: { 'details.0.amount': amount, fullDate: getFullDate(transaction.date) },
         $addToSet: {
           follows: [{
             type: 'currencyDiff',

@@ -391,6 +391,9 @@ const productQueries = {
       searchValue,
       vendorId,
       tag,
+      tags,
+      excludeTags,
+      tagWithRelated,
       ids,
       excludeIds,
       pipelineId,
@@ -399,6 +402,7 @@ const productQueries = {
       segmentData,
       categoryMeta,
       groupedSimilarity,
+      image,
       isKiosk
     }: IProductParams,
     { models, config, subdomain }: IContext
@@ -410,6 +414,9 @@ const productQueries = {
       searchValue,
       vendorId,
       tag,
+      tags,
+      excludeTags,
+      tagWithRelated,
       ids,
       excludeIds,
       pipelineId,
@@ -417,6 +424,7 @@ const productQueries = {
       segment,
       segmentData,
       categoryMeta,
+      image,
       isKiosk
     });
 

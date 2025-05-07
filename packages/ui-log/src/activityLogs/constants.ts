@@ -126,3 +126,12 @@ export const ICON_AND_COLOR_TABLE = {
     color: colors.colorCoreBlue
   }
 };
+
+export const ACTIVITY_NAMES = {
+  "activity": "Activity",
+  "core:internalNote": "Notes",
+  "inbox:conversation": "Conversation",
+  "imap:email": "Email",
+  "tasks:task": "Task",
+  "engages:campaign": "Campaign"
+}

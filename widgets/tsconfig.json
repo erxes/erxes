@@ -9,7 +9,9 @@
     "jsx": "react",
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["client"],
   "exclude": ["node_modules", "dist"]

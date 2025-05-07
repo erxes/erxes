@@ -4,6 +4,7 @@ import { JOURNALS, TR_SIDES } from "../models/definitions/constants";
 import { ITransaction, ITransactionDocument } from "../models/definitions/transaction";
 import { IVatRow } from '../models/definitions/vatRow';
 import { ICtaxRow } from '../models/definitions/ctaxRow';
+import { getFullDate } from '@erxes/api-utils/src/core';
 
 
 class TaxTrs {
@@ -79,8 +80,14 @@ class TaxTrs {
 
     this.taxPercent = taxPercent;
 
-    this.sumDt = this.doc.details.filter(d => d.side === TR_SIDES.DEBIT).reduce((sum, cur) => sum + cur.amount, 0)
-    this.sumCt = this.doc.details.filter(d => d.side === TR_SIDES.CREDIT).reduce((sum, cur) => sum + cur.amount, 0)
+    this.sumDt = this.doc.details
+      .filter(d => d.side === TR_SIDES.DEBIT)
+      .reduce((sum, cur) => sum + cur.amount, 0)
+
+    this.sumCt = this.doc.details
+      .filter(d => d.side === TR_SIDES.CREDIT)
+      .reduce((sum, cur) => sum + cur.amount, 0)
+
   }
 
   private checkVatValidation = async () => {
@@ -183,7 +190,7 @@ class TaxTrs {
     if (!this.vatTrDoc) {
       if (oldFollowInfo) {
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
-          $set: { vatAmount: 0 },
+          $set: { vatAmount: 0, fullDate: getFullDate(transaction.date) },
           $pull: {
             follows: { ...oldFollowInfo }
           }
@@ -195,30 +202,44 @@ class TaxTrs {
 
     if (oldFollowInfo) {
       const oldvatTr = await this.models.Transactions.findOne({ _id: oldFollowInfo.id });
+
       if (oldvatTr) {
-        vatTr = await this.models.Transactions.updateTransaction(oldvatTr._id, { ...this.vatTrDoc, originId: transaction._id });
+        vatTr = await this.models.Transactions.updateTransaction(oldvatTr._id, {
+          ...this.vatTrDoc,
+          originId: transaction._id,
+          parentId: transaction.parentId
+        });
+
       } else {
-        vatTr = await this.models.Transactions.createTransaction({ ...this.vatTrDoc, originId: transaction._id });
+        vatTr = await this.models.Transactions.createTransaction({
+          ...this.vatTrDoc,
+          originId: transaction._id,
+          parentId: transaction.parentId
+        });
+
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
-          $set: { vatAmount: this.vatTrDoc.details[0].amount },
+          $set: { vatAmount: this.vatTrDoc.details[0].amount, fullDate: getFullDate(transaction.date) },
           $pull: {
             follows: { ...oldFollowInfo }
-          }
-        })
-        await this.models.Transactions.updateOne({ _id: transaction._id }, {
+          },
           $addToSet: {
             follows: {
               type: 'vat',
               id: vatTr._id
             }
           }
-        });
+        })
       }
 
     } else {
-      vatTr = await this.models.Transactions.createTransaction({ ...this.vatTrDoc, originId: transaction._id });
+      vatTr = await this.models.Transactions.createTransaction({
+        ...this.vatTrDoc,
+        originId: transaction._id,
+        parentId: transaction.parentId
+      });
+
       await this.models.Transactions.updateOne({ _id: transaction._id }, {
-        $set: { vatAmount: this.vatTrDoc.details[0].amount },
+        $set: { vatAmount: this.vatTrDoc.details[0].amount, fullDate: getFullDate(transaction.date) },
         $addToSet: {
           follows: [{
             type: 'vat',
@@ -238,7 +259,7 @@ class TaxTrs {
     if (!this.ctaxTrDoc) {
       if (oldFollowInfo) {
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
-          $set: { ctaxAmount: 0 },
+          $set: { ctaxAmount: 0, fullDate: getFullDate(transaction.date) },
           $pull: {
             follows: { ...oldFollowInfo }
           }
@@ -251,16 +272,24 @@ class TaxTrs {
     if (oldFollowInfo) {
       const oldctaxTr = await this.models.Transactions.findOne({ _id: oldFollowInfo.id });
       if (oldctaxTr) {
-        ctaxTr = await this.models.Transactions.updateTransaction(oldctaxTr._id, { ...this.ctaxTrDoc, originId: transaction._id });
+        ctaxTr = await this.models.Transactions.updateTransaction(oldctaxTr._id, {
+          ...this.ctaxTrDoc,
+          originId: transaction._id,
+          parentId: transaction.parentId
+        });
+
       } else {
-        ctaxTr = await this.models.Transactions.createTransaction({ ...this.ctaxTrDoc, originId: transaction._id });
+        ctaxTr = await this.models.Transactions.createTransaction({
+          ...this.ctaxTrDoc,
+          originId: transaction._id,
+          parentId: transaction.parentId
+        });
+
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
-          $set: { ctaxAmount: this.ctaxTrDoc.details[0].amount },
+          $set: { ctaxAmount: this.ctaxTrDoc.details[0].amount, fullDate: getFullDate(transaction.date) },
           $pull: {
             follows: { ...oldFollowInfo }
-          }
-        })
-        await this.models.Transactions.updateOne({ _id: transaction._id }, {
+          },
           $addToSet: {
             follows: {
               type: 'ctax',
@@ -271,9 +300,14 @@ class TaxTrs {
       }
 
     } else {
-      ctaxTr = await this.models.Transactions.createTransaction({ ...this.ctaxTrDoc, originId: transaction._id });
+      ctaxTr = await this.models.Transactions.createTransaction({
+        ...this.ctaxTrDoc,
+        originId: transaction._id,
+        parentId: transaction.parentId
+      });
+
       await this.models.Transactions.updateOne({ _id: transaction._id }, {
-        $set: { ctaxAmount: this.ctaxTrDoc.details[0].amount },
+        $set: { ctaxAmount: this.ctaxTrDoc.details[0].amount, fullDate: getFullDate(transaction.date) },
         $addToSet: {
           follows: [{
             type: 'ctax',
@@ -285,6 +319,7 @@ class TaxTrs {
 
     return ctaxTr;
   }
+
   public doTaxTrs = async (transaction) => {
     const vatTr = await this.doVatTr(transaction);
     const ctaxTr = await this.doCtaxTr(transaction);

@@ -1,22 +1,25 @@
-import * as classNames from 'classnames';
-import * as React from 'react';
-import { useRef, useEffect, useState } from 'react';
-import { setLocalStorageItem } from '../../common';
-import { iconCall, iconVideo } from '../../icons/Icons';
+import * as RTG from "react-transition-group";
+import * as React from "react";
+import * as classNames from "classnames";
+
+import { IBotData, IMessage } from "../types";
 import {
   IIntegrationMessengerData,
   IIntegrationMessengerDataMessagesItem,
   IIntegrationUiOptions,
-} from '../../types';
-import { __, makeClickableLink, scrollTo } from '../../utils';
-import { MESSAGE_TYPES } from '../constants';
-import { IBotData, IMessage } from '../types';
-import Message from './Message';
-import MessageBot from './MessageBot';
-import AccquireInformation from './AccquireInformation';
-import Bot from './bot/Bot';
-import { OPERATOR_STATUS } from './bot/constants';
-import { connection } from '../connection';
+} from "../../types";
+import { __, makeClickableLink, scrollTo } from "../../utils";
+import { iconCall, iconVideo } from "../../icons/Icons";
+import { useEffect, useRef, useState } from "react";
+
+import AccquireInformation from "./AccquireInformation";
+import Bot from "./bot/Bot";
+import { MESSAGE_TYPES } from "../constants";
+import Message from "./Message";
+import MessageBot from "./MessageBot";
+import { OPERATOR_STATUS } from "./bot/constants";
+import { connection } from "../connection";
+import { setLocalStorageItem } from "../../common";
 
 type Props = {
   messages: IMessage[];
@@ -52,7 +55,7 @@ const MessagesList: React.FC<Props> = (props) => {
     uiOptions,
     messengerData,
     messages,
-    conversationId = '',
+    conversationId = "",
     getBotInitialMessage,
     saveGetNotified,
     onSelectSkill,
@@ -74,7 +77,7 @@ const MessagesList: React.FC<Props> = (props) => {
     isLoading,
   } = props;
 
-  const backgroundClass = classNames('erxes-messages-background', {
+  const backgroundClass = classNames("erxes-messages-background", {
     [`bg-${uiOptions.wallpaper}`]: uiOptions.wallpaper,
   });
 
@@ -89,9 +92,9 @@ const MessagesList: React.FC<Props> = (props) => {
   useEffect(() => {
     const newConversation =
       messages.length === 0 &&
-      (!conversationId || (conversationId || '').length === 0);
+      (!conversationId || (conversationId || "").length === 0);
 
-    if (messengerData.botShowInitialMessage && newConversation) {
+    if (messengerData.botGreetMessage && newConversation) {
       getBotInitialMessage((initialMessage) => {
         setInitialMessage(initialMessage);
       });
@@ -99,7 +102,7 @@ const MessagesList: React.FC<Props> = (props) => {
     const node = nodeRef.current;
     if (node) {
       node.scrollTop = node.scrollHeight;
-      makeClickableLink('#erxes-messages a');
+      makeClickableLink("#erxes-messages a");
     }
   }, []);
 
@@ -114,11 +117,11 @@ const MessagesList: React.FC<Props> = (props) => {
       };
 
       // Attach scroll event listener
-      node.addEventListener('scroll', handleScroll);
+      node.addEventListener("scroll", handleScroll);
 
       // Cleanup event listener on unmount
       return () => {
-        node.removeEventListener('scroll', handleScroll);
+        node.removeEventListener("scroll", handleScroll);
       };
     }
   }, []);
@@ -129,7 +132,7 @@ const MessagesList: React.FC<Props> = (props) => {
     if (node && shouldScrollBottom) {
       scrollTo(node, node.scrollHeight, 500);
     }
-    makeClickableLink('#erxes-messages a');
+    makeClickableLink("#erxes-messages a");
   }, [messages, shouldScrollBottom]);
 
   const scrollBottom = () => {
@@ -143,7 +146,7 @@ const MessagesList: React.FC<Props> = (props) => {
   const onNotify = ({ type, value }: { type: string; value: string }) => {
     saveGetNotified({ type, value }, () => {
       setHideNotifyInput(true);
-      setLocalStorageItem('hasNotified', 'true');
+      setLocalStorageItem("hasNotified", "true");
     });
   };
 
@@ -156,11 +159,14 @@ const MessagesList: React.FC<Props> = (props) => {
   const renderBotGreetingMessage = (
     messengerData: IIntegrationMessengerData
   ) => {
-    if (!messengerData.botShowInitialMessage || !initialMessage) {
+    if (!messengerData.botGreetMessage) {
       return null;
     }
 
-    return renderSingleMessage(initialMessage);
+    return renderSingleMessage({
+      content: messengerData.botGreetMessage,
+      user: {},
+    });
   };
 
   const renderAwayMessage = (messengerData: IIntegrationMessengerData) => {
@@ -187,7 +193,7 @@ const MessagesList: React.FC<Props> = (props) => {
 
       return (
         <li className="erxes-spacial-message with-background">
-          <span> {messages.thank || __('Thank you') + '.'}</span>
+          <span> {messages.thank || __("Thank you") + "."}</span>
         </li>
       );
     }
@@ -198,7 +204,7 @@ const MessagesList: React.FC<Props> = (props) => {
           save={onNotify}
           color={getColor}
           loading={false}
-          textColor={uiOptions.textColor || '#fff'}
+          textColor={uiOptions.textColor || "#fff"}
         />
       </li>
     );
@@ -219,14 +225,14 @@ const MessagesList: React.FC<Props> = (props) => {
   ) => {
     const newConversation =
       messages.length === 0 &&
-      (!conversationId || (conversationId || '').length === 0);
+      (!conversationId || (conversationId || "").length === 0);
 
     if (!messengerData.skillData || !newConversation || selectedSkill) {
       return null;
     }
 
     const { options = [] } = messengerData.skillData;
-    const { color, textColor = '#fff' } = uiOptions;
+    const { color, textColor = "#fff" } = uiOptions;
 
     if (options.length === 0) {
       return null;
@@ -272,18 +278,18 @@ const MessagesList: React.FC<Props> = (props) => {
     }
 
     const sendCallRequest = () => {
-      sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '');
+      sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, "");
     };
 
-    const { color, textColor = '#fff' } = uiOptions;
+    const { color, textColor = "#fff" } = uiOptions;
 
     return (
       <div
         className="app-message-box call-request"
         style={{ borderColor: color }}
       >
-        <h5>{__('Audio and video call')}</h5>
-        <p>{__('You can contact the operator by voice or video!')}</p>
+        <h5>{__("Audio and video call")}</h5>
+        <p>{__("You can contact the operator by voice or video!")}</p>
         <div className="call-buttons">
           <button
             className="erxes-button"
@@ -292,7 +298,7 @@ const MessagesList: React.FC<Props> = (props) => {
           >
             {iconCall(textColor)}
             <span style={{ background: color, color: textColor }}>
-              {__('Audio call')}
+              {__("Audio call")}
             </span>
           </button>
           <button
@@ -309,7 +315,7 @@ const MessagesList: React.FC<Props> = (props) => {
   };
 
   const renderSingleMessage = (message: any) => {
-    const { color, textColor = '#fff' } = uiOptions;
+    const { color, textColor = "#fff" } = uiOptions;
     const { botEndpointUrl } = messengerData;
     const _id: any = message._id;
 
@@ -322,8 +328,7 @@ const MessagesList: React.FC<Props> = (props) => {
       ...message,
     };
 
-    const showBotMessage = botEndpointUrl && message.botData !== null;
-
+    const showBotMessage = message.botData && message.botData !== null;
     const content = showBotMessage ? (
       <MessageBot
         color={color}
@@ -337,13 +342,13 @@ const MessagesList: React.FC<Props> = (props) => {
 
     if (_id < 0) {
       return (
-        // <RTG.CSSTransition
-        //   key={message._id}
-        //   timeout={500}
-        //   classNames="slide-in"
-        // >
-        { content }
-        // </RTG.CSSTransition>
+        <RTG.CSSTransition
+          key={message._id}
+          timeout={500}
+          classNames="slide-in"
+        >
+          {content}
+        </RTG.CSSTransition>
       );
     }
 
@@ -352,9 +357,9 @@ const MessagesList: React.FC<Props> = (props) => {
 
   const renderMessages = () => {
     return (
-      // <RTG.TransitionGroup component={null}>
-      messages.map(renderSingleMessage)
-      // </RTG.TransitionGroup>
+      <RTG.TransitionGroup component={null}>
+        {messages.map(renderSingleMessage)}
+      </RTG.TransitionGroup>
     );
   };
 
@@ -375,7 +380,7 @@ const MessagesList: React.FC<Props> = (props) => {
             onClick={handleOperatorStatus}
             style={{ borderColor: getColor }}
           >
-            {__('Contact with Operator')}
+            {__("Contact with Operator")}
           </div>
         </div>
       </div>
@@ -410,7 +415,7 @@ const MessagesList: React.FC<Props> = (props) => {
       <li className="from-customer">
         <div
           className="app-message-box spaced flexible"
-          style={{ borderColor: 'red' }}
+          style={{ borderColor: "red" }}
         >
           <div className="user-info horizontal">{errorMessage}</div>
         </div>

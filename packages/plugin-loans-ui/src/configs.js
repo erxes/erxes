@@ -2,12 +2,12 @@ module.exports = {
   srcDir: __dirname,
   name: "loans",
   port: 3227,
-  scope: 'loans',
+  scope: "loans",
   exposes: {
     "./routes": "./src/routes.tsx",
     // './settings': './src/Settings.tsx',
     "./contractSection":
-    "./src/contracts/components/common/ContractSection.tsx",
+      "./src/contracts/components/common/ContractSection.tsx",
   },
   routes: {
     url: "http://localhost:3227/remoteEntry.js",
@@ -22,6 +22,16 @@ module.exports = {
       location: "mainNavigation",
       permissions: ["showContracts"],
       permission: "showContracts",
+    },
+    {
+      text: "Loan config",
+      image: "/images/icons/erxes-16.svg",
+      to: "/erxes-plugin-loan/main-settings",
+      action: "loanConfig",
+      scope: "loans",
+      location: "settings",
+      permissions: ["manageLoanConfigs"],
+      permission: "manageLoanConfigs",
     },
     {
       text: "Contract types",
@@ -44,16 +54,6 @@ module.exports = {
       permission: "manageInsuranceTypes",
     },
     {
-      text: "Loan config",
-      image: "/images/icons/erxes-16.svg",
-      to: "/erxes-plugin-loan/holiday-settings/",
-      action: "loanConfig",
-      scope: "loans",
-      location: "settings",
-      permissions: ["manageLoanConfigs"],
-      permission: "manageLoanConfigs",
-    },
-    {
       text: "Transaction",
       image: "/images/icons/erxes-16.svg",
       to: "/erxes-plugin-loan/transaction-list",
@@ -74,5 +74,8 @@ module.exports = {
   ],
   customerRightSidebarSection: "./contractSection",
   companyRightSidebarSection: "./contractSection",
-  dealRightSidebarSection: "./contractSection",
+  dealRightSidebarSection: {
+    title: "Loan contract",
+    component: "./contractSection",
+  },
 };

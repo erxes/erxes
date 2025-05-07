@@ -1,6 +1,10 @@
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
-import { sendCallsMessage, sendIntegrationsMessage } from '../../messageBroker';
+import {
+  sendCallsMessage,
+  sendCloudflareCallsMessage,
+  sendIntegrationsMessage,
+} from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 
@@ -20,7 +24,7 @@ export default {
     return (
       conversation.customerId && {
         __typename: 'Customer',
-        _id: conversation.customerId
+        _id: conversation.customerId,
       }
     );
   },
@@ -28,10 +32,10 @@ export default {
   async integration(
     conversation: IConversationDocument,
     _args,
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Integrations.findOne({
-      _id: conversation.integrationId
+      _id: conversation.integrationId,
     });
   },
 
@@ -45,7 +49,7 @@ export default {
     return (
       conversation.assignedUserId && {
         __typename: 'User',
-        _id: conversation.assignedUserId
+        _id: conversation.assignedUserId,
       }
     );
   },
@@ -53,14 +57,14 @@ export default {
   participatedUsers(conv: IConversationDocument) {
     return (conv.participatedUserIds || []).map((_id) => ({
       __typename: 'User',
-      _id
+      _id,
     }));
   },
 
   readUsers(conv: IConversationDocument) {
     return (conv.readUserIds || []).map((_id) => ({
       __typename: 'User',
-      _id
+      _id,
     }));
   },
   participatorCount(conv: IConversationDocument) {
@@ -76,11 +80,11 @@ export default {
   async callProAudio(
     conv: IConversationDocument,
     _args,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const integration =
       (await models.Integrations.findOne({
-        _id: conv.integrationId
+        _id: conv.integrationId,
       })) || ({} as any);
 
     if (integration && integration.kind !== 'callpro') {
@@ -94,9 +98,9 @@ export default {
           action: 'getCallproAudio',
           data: {
             erxesApiId: conv._id,
-            integrationId: integration._id
+            integrationId: integration._id,
           },
-          isRPC: true
+          isRPC: true,
         });
 
         return response ? response.audioSrc : '';
@@ -116,11 +120,11 @@ export default {
   async videoCallData(
     conversation: IConversationDocument,
     _args,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const message = await models.ConversationMessages.findOne({
       conversationId: conversation._id,
-      contentType: MESSAGE_TYPES.VIDEO_CALL
+      contentType: MESSAGE_TYPES.VIDEO_CALL,
     }).lean();
 
     if (!message) {
@@ -132,9 +136,9 @@ export default {
         subdomain,
         action: 'getDailyActiveRoom',
         data: {
-          erxesApiConversationId: conversation._id
+          erxesApiConversationId: conversation._id,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       return response;
@@ -146,11 +150,11 @@ export default {
   async callHistory(
     conversation: IConversationDocument,
     _args,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const integration =
       (await models.Integrations.findOne({
-        _id: conversation.integrationId
+        _id: conversation.integrationId,
       })) || ({} as any);
 
     if (integration && integration.kind !== 'calls') {
@@ -163,9 +167,9 @@ export default {
         subdomain,
         action: 'getCallHistory',
         data: {
-          erxesApiConversationId: conversation._id
+          erxesApiConversationId: conversation._id,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       return response ? response : '';
@@ -176,5 +180,39 @@ export default {
     // }
 
     return null;
-  }
+  },
+
+  async cloudflareCallsHistory(
+    conversation: IConversationDocument,
+    _args,
+    { models, subdomain }: IContext,
+  ) {
+    const integration =
+      (await models.Integrations.findOne({
+        _id: conversation.integrationId,
+      })) || ({} as any);
+
+    if (
+      integration &&
+      !['cloudflarecalls', 'messenger'].includes(integration.kind)
+    ) {
+      return null;
+    }
+
+    try {
+      const response = await sendCloudflareCallsMessage({
+        subdomain,
+        action: 'getCallHistory',
+        data: {
+          erxesApiConversationId: conversation._id,
+        },
+        isRPC: true,
+      });
+
+      return response ? response : '';
+    } catch (e) {
+      debugError(e);
+      return null;
+    }
+  },
 };

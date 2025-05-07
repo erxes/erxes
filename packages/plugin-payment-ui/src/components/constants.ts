@@ -137,10 +137,14 @@ export const PAYMENTCONFIGS = [
   {
     name: 'Qpay Wechat Pay',
     description: 'Receive payments in Mongolia through the WeChat Pay',
-    isAvailable: false,
+    isAvailable: true,
     kind: 'wechatpay',
     logo: 'images/payments/wechatpay.png',
-
+    inputs: [
+      { key: 'username', label: 'Username' },
+      { key: 'password', label: 'Password', type: 'password' },
+      { key: 'terminal', label: 'Terminal code' },
+    ],
     acceptedCurrencies: ['MNT'],
   },
   {

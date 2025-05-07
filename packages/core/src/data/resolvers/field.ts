@@ -64,6 +64,9 @@ export const field = {
 };
 
 export const fieldsGroup = {
+  async __resolveReference({ _id }, { models }: IContext) {
+    return models.Fields.findOne({ _id });
+  },
   async fields(root: IFieldGroupDocument, _params, { models }: IContext) {
     // Returning all fields that are related to the group
     const fields = await models.Fields.find({

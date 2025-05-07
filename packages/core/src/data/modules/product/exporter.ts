@@ -78,6 +78,7 @@ export const fillValue = async (
       break;
 
     case "tag":
+    case "tagIds":
       const tags = await models.Tags.find({ _id: { $in: item.tagIds || [] } });
 
       let tagNames = "";
@@ -86,13 +87,13 @@ export const fillValue = async (
         tagNames = tagNames.concat(tag.name, ", ");
       }
 
-      value = tags ? tagNames : "-";
+      value = tagNames || "-";
 
       break;
 
     case "barcodes":
       value =
-        item.barcodes && item.barcodes.length ? item.barcodes.join(",") : "";
+        item.barcodes?.length ? item.barcodes.join(", ") : "";
       break;
 
     case "uom":
@@ -247,6 +248,7 @@ export default {
         docs.push(result);
       }
     } catch (e) {
+      console.log("product:", e.message);
       return { error: e.message };
     }
     return { docs };

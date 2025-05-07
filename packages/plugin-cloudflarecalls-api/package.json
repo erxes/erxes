@@ -1,0 +1,15 @@
+{
+  "name": "@erxes/plugin-cloudflarecalls-api",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@erxes/api-utils": "*",
+    "dayjs": "^1.11.11",
+    "fast-xml-parser": "^4.4.1",
+    "moment-timezone": "^0.5.46",
+    "redlock": "4.2.0"
+  }
+}

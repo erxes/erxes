@@ -8,12 +8,13 @@ import {
 import {
   consumeCategory,
   consumeInventory,
-  dealToDynamic,
   getConfig,
   getExchangeRates,
   getPrice,
+  orderToDynamic,
 } from '../../../utils';
 import { consumeCustomers } from '../../../utilsCustomer';
+import { putUpdateLog } from '../../../logUtils';
 
 const msdynamicSyncMutations = {
   async toSyncMsdProducts(
@@ -23,7 +24,7 @@ const msdynamicSyncMutations = {
       action,
       products,
     }: { brandId: string; action: string; products: any[] },
-    { subdomain }: IContext
+    { user, subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -32,7 +33,7 @@ const msdynamicSyncMutations = {
       case 'CREATE': {
         for (const product of products) {
           try {
-            await consumeInventory(subdomain, config, product, 'create');
+            await consumeInventory(subdomain, config, product, 'create', user);
           } catch (e) {
             console.log(e, 'error');
           }
@@ -42,7 +43,7 @@ const msdynamicSyncMutations = {
       case 'UPDATE': {
         for (const product of products) {
           try {
-            await consumeInventory(subdomain, config, product, 'update');
+            await consumeInventory(subdomain, config, product, 'update', user);
           } catch (e) {
             console.log(e, 'error');
           }
@@ -52,7 +53,7 @@ const msdynamicSyncMutations = {
       case 'DELETE': {
         for (const product of products) {
           try {
-            await consumeInventory(subdomain, config, product, 'delete');
+            await consumeInventory(subdomain, config, product, 'delete', user);
           } catch (e) {
             console.log(e, 'error');
           }
@@ -71,7 +72,7 @@ const msdynamicSyncMutations = {
   async toSyncMsdPrices(
     _root,
     { brandId }: { brandId: string },
-    { subdomain }: IContext
+    { subdomain, user }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -110,10 +111,7 @@ const msdynamicSyncMutations = {
         isRPC: true,
       });
 
-      const salesCodeFilter = pricePriority
-        .replace(', ', ',')
-        .split(',')
-        .filter((p) => p);
+      const salesCodeFilter = pricePriority.replace(/, /g, ',').split(',');
 
       let filterSection = '';
 
@@ -182,7 +180,7 @@ const msdynamicSyncMutations = {
             if (foundProduct.unitPrice === resPrice) {
               matchPrices.push(resProd);
             } else {
-              await sendCoreMessage({
+              const updated = await sendCoreMessage({
                 subdomain,
                 action: 'products.updateProduct',
                 data: {
@@ -192,6 +190,21 @@ const msdynamicSyncMutations = {
                 isRPC: true,
               });
               updatePrices.push(resProd);
+
+              await putUpdateLog(
+                subdomain,
+                {
+                  type: 'product',
+                  object: foundProduct,
+                  newData: {
+                    unitPrice: resPrice || 0,
+                    currency: 'MNT',
+                    status: 'active',
+                  },
+                  updatedDocument: updated,
+                },
+                user
+              );
             }
           } else {
             createPrices.push(resProd);
@@ -375,12 +388,14 @@ const msdynamicSyncMutations = {
 
     try {
       const configs = await getConfig(subdomain, 'DYNAMIC', {});
-      response = await dealToDynamic(
+      const config = configs[order.scopeBrandIds[0] || 'noBrand'];
+
+      response = await orderToDynamic(
         subdomain,
+        models,
         syncLog,
         order,
-        models,
-        configs
+        config
       );
     } catch (e) {
       await models.SyncLogs.updateOne(

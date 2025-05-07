@@ -1,12 +1,13 @@
 import {
   ILoanResearch,
   ILoanResearchDocument,
-  configSchema,
+  loanResearchSchema,
 } from './definitions/loansResearch';
-import { Model } from 'mongoose';
+import { Model, FilterQuery } from 'mongoose';
 import { IModels } from '../connectionResolver';
 
 export interface ILoansResearchModel extends Model<ILoanResearchDocument> {
+  getLoanResearch(dealId: string, customerId: string);
   createLoansResearch(doc: ILoanResearch);
   updateLoansResearch(_id: string, doc: ILoanResearch);
   removeLoansResearches(_ids: string[]);
@@ -14,6 +15,21 @@ export interface ILoansResearchModel extends Model<ILoanResearchDocument> {
 
 export const loadLoansResearchClass = (models: IModels) => {
   class LoanResearch {
+    public static async getLoanResearch(dealId: string, customerId: string) {
+      if (!dealId && !customerId) {
+        throw new Error('Either dealId or customerId must be provided');
+      }
+
+      const query = dealId ? { dealId } : { customerId };
+      const loanResearch = await models.LoansResearch.findOne(query);
+
+      if (!loanResearch) {
+        throw new Error('Loan Research not found');
+      }
+
+      return loanResearch;
+    }
+
     /**
      * Create a Loans Research
      */
@@ -44,7 +60,7 @@ export const loadLoansResearchClass = (models: IModels) => {
     }
   }
 
-  configSchema.loadClass(LoanResearch);
+  loanResearchSchema.loadClass(LoanResearch);
 
-  return configSchema;
+  return loanResearchSchema;
 };

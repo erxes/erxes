@@ -345,3 +345,23 @@ export const generateSystemFields = ({ data: { groupId, type } }) => {
 
   return fields;
 };
+export const convertNestedDate = (obj: any) => {
+  if (typeof obj !== "object" || obj === null) return obj;
+
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      // Check if the key is one of the target comparison operators
+      if (
+        ["$gte", "$lte", "$gt", "$lt"].includes(key) &&
+        typeof obj[key] === "string"
+      ) {
+        obj[key] = new Date(obj[key]); // Convert value to Date
+      } else if (typeof obj[key] === "object") {
+        // Recursively process nested objects
+        obj[key] = convertNestedDate(obj[key]);
+      }
+    }
+  }
+
+  return obj;
+};

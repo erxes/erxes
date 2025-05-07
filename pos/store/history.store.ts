@@ -18,7 +18,6 @@ export const defaultFilter = {
   slotCode: undefined,
 }
 
-export const openCancelDialogAtom = atom<string | null>(null)
 export const paymentDetailAtom = atom<IOrder | null>(null)
 export const openReturnDialogAtom = atom<string | null>(null)
 

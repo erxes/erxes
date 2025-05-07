@@ -25,6 +25,7 @@ export interface IVoucherCampaign extends ICommonTypes {
   lotteryCount?: number;
 
   vouchersCount?: number;
+  codesCount?: number;
 }
 
 // query types

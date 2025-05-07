@@ -17,14 +17,13 @@ export const types = ({ contacts, clientPortal }) => `
   type Ticket @key(fields: "_id") {
     _id: String!
     source: String
-    ${
-      contacts
-        ? `
+    ${contacts
+    ? `
       companies: [Company]
       customers: [Customer]
       `
-        : ''
-    }
+    : ''
+  }
 
     tags: [Tag]
     ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ''}
@@ -41,6 +40,7 @@ const listQueryParams = `
   perPage: Int
   parentId:String
   stageId: String
+  stage: [String]
   customerIds: [String]
   vendorCustomerIds: [String]
   companyIds: [String]
@@ -113,9 +113,16 @@ export const queries = `
 
 const ticketMutationParams = `
   source: String,
+  type: String,
 `;
 
 export const mutations = `
+  ticketCheckProgress(number: String!): Ticket
+  ticketCommentAdd(
+    number: String!
+    content: String!
+  ): Ticket
+  ticketCheckProgressForget(email: String, phoneNumber: String): JSON
   ticketsAdd(name: String!, ${copyParams}, ${ticketMutationParams}, ${commonMutationParams}): Ticket
   ticketsEdit(_id: String!, name: String, ${ticketMutationParams}, ${commonMutationParams}): Ticket
   ticketsChange(${commonDragParams}): Ticket

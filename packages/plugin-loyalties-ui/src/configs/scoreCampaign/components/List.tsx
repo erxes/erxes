@@ -7,7 +7,7 @@ import {
   ModalTrigger,
   Pagination,
   router,
-  Table
+  Table,
 } from "@erxes/ui/src";
 import { Wrapper } from "@erxes/ui/src/layout";
 import React, { useState } from "react";
@@ -21,9 +21,9 @@ const breadcrumb = [
   { title: __("Settings"), link: "/settings" },
   {
     title: __("Loyalties Config"),
-    link: "/erxes-plugin-loyalty/settings/general"
+    link: "/erxes-plugin-loyalty/settings/general",
   },
-  { title: __("Score Campaign") }
+  { title: __("Score Campaign") },
 ];
 
 type Props = {
@@ -50,7 +50,7 @@ export default function List({
   totalCount,
   onRemove,
   refetch,
-  onChangeStatus
+  onChangeStatus,
 }: Props) {
   let timer;
 
@@ -115,11 +115,13 @@ export default function List({
             onFocus={moveCursorAtTheEnd}
           />
           <ModalTrigger
-            size={"lg"}
+            size={"xl"}
             title={__("Add score campaign")}
             trigger={trigger}
             autoOpenKey="showProductModal"
-            content={({ closeModal }) => <Form closeModal={closeModal} />}
+            content={({ closeModal }) => (
+              <Form refetch={refetch} closeModal={closeModal} />
+            )}
           />
         </FlexRow>
       </FilterContainer>
@@ -127,10 +129,7 @@ export default function List({
   };
 
   const onChange = () => {
-    toggleAll(
-      campaigns.map(({ _id }) => _id),
-      "campaigns"
-    );
+    toggleAll(campaigns, "campaigns");
   };
 
   const content = (

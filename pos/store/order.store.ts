@@ -40,6 +40,9 @@ export const activeOrderIdAtom = atomWithStorage<string | null>(
 )
 export const orderNumberAtom = atom<string>("")
 export const buttonTypeAtom = atom<string | null>(null)
+export const isShowAtom = atom(false);
+export const orderIdAtom = atom<string | null>(null);
+export const previousOrderCountRefAtom = atom(0);
 
 // customer
 export const customerAtom = atom<Customer | null>(null)
@@ -127,6 +130,7 @@ export const splitOrderItemsAtom = atom<{
     subItems: getItems("sub"),
   }
 })
+
 export const payByProductTotalAtom = atom<number>((get) =>
   get(payByProductAtom).reduce((prev, pr) => prev + pr.count * pr.unitPrice, 0)
 )
@@ -166,6 +170,8 @@ export const askSaveAtom = atom((get) =>
 
 // cashier
 export const orderUserAtom = atom<IOrderUser | null>(null)
+
+
 
 // reset
 export const setInitialAtom = atom(
@@ -270,6 +276,19 @@ export const setOnOrderChangeAtom = atom(
     set(cartChangedAtom, false)
   }
 )
+
+export const openCancelDialogAtom = atom<string | null>(null)
+
+export const setOpenCancelDialogAtom = atom(get => null, (get, set) => {
+  const totalPaidAmount = get(getTotalPaidAmountAtom)
+  const activeOrderId = get(activeOrderIdAtom)
+  if (typeof totalPaidAmount === 'number' && 
+     totalPaidAmount <= 0 && 
+     activeOrderId && 
+     get(openCancelDialogAtom) !== activeOrderId) {  
+    set(openCancelDialogAtom, activeOrderId)
+  }
+})
 
 export const orderValuesAtom = atom((get) => ({
   items: get(orderItemInput),

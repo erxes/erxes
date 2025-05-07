@@ -36,6 +36,7 @@ type State = {
   departmentId?: string;
   scopeBrandIds?: string[];
   status: string;
+  isTemp?: boolean;
   isOutBalance: boolean;
   category?: IAccountCategory;
   maskStr?: string;
@@ -53,6 +54,7 @@ function AccountForm(props: IProps): React.ReactNode {
     departmentId,
     scopeBrandIds,
     status,
+    isTemp,
     isOutBalance,
   } = account;
 
@@ -67,6 +69,7 @@ function AccountForm(props: IProps): React.ReactNode {
     departmentId: departmentId ?? "",
     scopeBrandIds: scopeBrandIds || [],
     status: status ?? "",
+    isTemp: isTemp ?? false,
     isOutBalance: isOutBalance ?? false,
   });
 
@@ -116,6 +119,7 @@ function AccountForm(props: IProps): React.ReactNode {
       ...account,
       ...state,
       ...finalValues,
+      isTemp: Boolean(state.isTemp),
       isOutBalance: Boolean(state.isOutBalance),
     };
   };
@@ -130,7 +134,7 @@ function AccountForm(props: IProps): React.ReactNode {
     const { values, isSubmitted } = formProps;
     const object = account || ({} as IAccount);
 
-    const { code, categoryId, branchId, departmentId, maskStr, isOutBalance } =
+    const { code, categoryId, branchId, departmentId, maskStr, isOutBalance, isTemp } =
       state;
 
     return (
@@ -254,6 +258,22 @@ function AccountForm(props: IProps): React.ReactNode {
                   setState((prevState) => ({
                     ...prevState,
                     departmentId: departmentId as string,
+                  }));
+                }}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__("Is Temp")}</ControlLabel>
+              <FormControl
+                {...formProps}
+                componentclass="checkbox"
+                name="isTemp"
+                defaultValue={isTemp}
+                checked={isTemp}
+                onChange={(e: any) => {
+                  setState((prevState) => ({
+                    ...prevState,
+                    isTemp: e.target.checked,
                   }));
                 }}
               />

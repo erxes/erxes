@@ -1,20 +1,20 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 import {
   mutations as configMutations,
   queries as configQueries,
   types as configTypes
-} from './schema/configs';
+} from "./schema/configs";
 
 import {
   mutations as cleanMutations,
   queries as cleanQueries,
   types as cleanTypes
-} from './schema/cleaning';
+} from "./schema/cleaning";
 import {
   types as branchTypes,
   queries as branchQueries,
   mutations as branchMutations
-} from './schema/tmsbranch';
+} from "./schema/pmsbranch";
 const typeDefs = async () => {
   return gql`
     scalar JSON

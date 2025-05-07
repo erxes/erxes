@@ -52,4 +52,5 @@ export const SERVICE_MAP = {
   Calls: 'calls',
   Contacts: 'core:contacts',
   Forms: 'core:forms',
+  Pms: 'pms',
 };

@@ -2,6 +2,8 @@ import { colors, dimensions, typography } from '../styles';
 import styled, { css, keyframes } from 'styled-components';
 
 import { Popover } from '@headlessui/react';
+import { SelectWrapper } from '../components/form/styles';
+import { SidebarContent } from '@erxes/ui-forms/src/settings/properties/styles';
 import { rgba } from '../styles/ecolor';
 import styledTS from 'styled-components-ts';
 
@@ -350,15 +352,15 @@ const TabContent = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
 `;
 
-const ButtonRelated = styled.div`
+const ButtonRelated = styledTS<{ type?: string }>(styled.div)`
   text-align: center;
   padding: 16px 0;
   font-size: 12px;
 
   span {
-    background: rgba(0, 0, 0, 0.06);
+    background: ${props => props.type === "primary" ? colors.colorSecondary : "rgba(0, 0, 0, 0.06)"};
     padding: 4px 16px;
-    color: ${colors.colorCoreGray};
+    color: ${props => props.type === "primary" ? colors.colorWhite : colors.colorCoreGray};
     border-radius: 25px;
     transition: all 0.3s ease;
 
@@ -637,6 +639,155 @@ const AttachmentContainer = styled.div`
   margin-top: 20px;
 `;
 
+const DynamicContent = styled.div`
+  display: grid;
+  grid-template-columns: 250px 2fr;
+  height: 100%;
+`;
+
+const DynamicContentLeft = styled.div`
+  border-right: 1px solid ${colors.borderPrimary};
+  margin-right: ${dimensions.coreSpacing}px;
+  padding-right: ${dimensions.coreSpacing}px;
+
+  .custom-title {
+    padding: ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing}px;
+    font-weight: 500;
+    color: #666;
+    line-height: ${dimensions.coreSpacing - 5}px;
+
+    &.active {
+      background: rgba(119, 99, 241, 0.1);
+      color: #7763F1;
+      border-radius: ${dimensions.unitSpacing - 6}px;
+    }
+  }
+
+  .custom-child-title {
+    padding: ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing}px ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+    color: ${colors.colorCoreGray};
+  }
+`;
+
+const DynamicContentLeftButtonWrapper = styled.div`
+  margin-top: ${dimensions.unitSpacing}px;
+`;
+
+const DynamicContentRight = styledTS<{ overflow?: boolean }>(styled.div)`
+  height: calc(100% - 25px);
+  overflow: ${props => props.overflow ? 'auto' : 'initial'}
+`;
+
+const DynamicTableWrapper = styled.div`
+  background: ${colors.colorWhite};
+  overflow-x: auto;
+  border-radius: 4px;
+
+  .empty {
+    padding: ${dimensions.coreSpacing}px;
+  }
+
+  > div, #hurData > div {
+    padding: 0;
+
+    .salary {
+      color: ${colors.colorCoreRed};
+
+      &.paid {
+        color: ${colors.colorCoreGreen};
+      }
+    }
+
+    .salary-center {
+      th {
+        text-transform: inherit;
+        font-size: 12px;
+        line-height: 12px;
+        text-align: center;
+      }
+    }
+
+    > table td:first-child {
+      padding-left: ${dimensions.coreSpacing}px;
+    }
+  }
+
+  #hurData > h4 {
+    margin: 0;
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+    font-size: 15px;
+  }
+`;
+
+const XypTitle = styled.div`
+  display: flex;
+  padding: ${dimensions.unitSpacing - 5}px ${dimensions.coreSpacing}px;
+  transition: all ease .3s;
+  cursor: pointer;
+
+  &:hover {
+    background: ${colors.bgLight};
+  }
+`;
+
+const DynamicComponentList = styledTS<{$hasMargin?: boolean}>(styled.div)`
+  border-radius: ${dimensions.unitSpacing + 2}px;
+  background: #F2F4F7;
+  color: ${colors.textPrimary};
+  box-shadow: 0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06);
+  margin: ${props => props.$hasMargin && `${dimensions.coreSpacing}px 0`};
+  padding: ${dimensions.unitSpacing - 5}px;
+
+  > h4 {
+    margin: 0;
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+    color: #666;
+    font-size: 15px;
+  }
+
+  ${SidebarContent} {
+    background: ${colors.colorWhite};
+    border-radius: 8px;
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+
+    ${SelectWrapper} {
+      border: 0;
+      border-radius: 4px;
+      height: auto;
+
+      select {
+        padding: 0 ${dimensions.unitSpacing}px;
+      }
+    }
+
+    input, select, textarea {
+      background: #F2F4F7;
+      border-radius: 4px;
+      border-bottom: 0;
+      padding: ${dimensions.unitSpacing}px;
+      margin-top: 5px;
+    }
+
+    label {
+      text-transform: initial;
+      font-size: 13px;
+      color: ${colors.colorCoreGray};
+    }
+  }
+`;
+
+const ProductFormContainer = styled.div`
+  margin-bottom: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+
+  .flex-wrap {
+    flex-wrap: wrap;
+  }
+
+  thead th {
+    z-index: 0 !important;
+  }
+`;
+
 export {
   Actions,
   PopoverButton,
@@ -660,6 +811,7 @@ export {
   HomeContainer,
   DateWrapper,
   CloseModal,
+  DynamicComponentList,
   ScrollWrapper,
   DateContainer,
   TabContent,
@@ -685,9 +837,16 @@ export {
   ImageWrapper,
   TextWrapper,
   DialogWrapper,
+  DynamicTableWrapper,
   DialogContent,
   PopoverPanel,
   TipContent,
   UploadBtn,
   AttachmentContainer,
+  DynamicContent,
+  DynamicContentLeft,
+  DynamicContentRight,
+  DynamicContentLeftButtonWrapper,
+  ProductFormContainer,
+  XypTitle
 };

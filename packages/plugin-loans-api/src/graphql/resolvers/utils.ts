@@ -1,5 +1,6 @@
 import { sendCoreMessage, sendMessageBroker } from "../../messageBroker";
 import { IModels } from "../../connectionResolver";
+import { REPAYMENT } from "../../models/definitions/constants";
 
 const getFieldsWithCode = async (subdomain, contentType) => {
   return await sendMessageBroker(
@@ -79,9 +80,29 @@ const getProductInfo = async (models: IModels, type, object) => {
     }
 
     const contractType = await models.ContractTypes.findOne({ productId: { $in: productsData.map(p => p.productId) }, productType: 'public' }).lean();
-    return { contractTypeId: contractType?._id }
+    const leaseAmount = (productsData || []).reduce((sum, pd) => Number(sum) + Number(pd.unitPrice * pd.quantity), 0)
+
+    return { contractTypeId: contractType?._id, leaseAmount, interestRate: contractType?.defaultInterest }
   }
   return {};
+}
+
+const checkRepayment = (repayment) => {
+  if (Object.values(REPAYMENT).includes(repayment)) {
+    return repayment
+  }
+
+  let re = /(үндсэн)|(main)/gui;
+  if (re.test(repayment)) {
+    return REPAYMENT.EQUAL
+  }
+
+  re = /(эцэс)|(last)/gui;
+  if (re.test(repayment)) {
+    return REPAYMENT.EQUAL
+  }
+
+  return REPAYMENT.FIXED;
 }
 
 export const customFieldToObject = async (
@@ -103,6 +124,8 @@ export const customFieldToObject = async (
     const existingData = customFieldsData.find(c => c.field === f._id);
     result[f.code] = existingData?.value;
   }
+
+  result.repayment = checkRepayment(result.repayment);
 
   return {
     ...result,

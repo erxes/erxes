@@ -10,12 +10,7 @@
   border-bottom-left-radius: 10px;
 
   textarea {
-    @include prefix(
-      (
-        box-sizing: border-box !important
-      ),
-      webkit moz ms o
-    );
+    @include prefix((box-sizing: border-box), webkit moz ms o);
     border: 0;
     color: $text-color;
     font-size: $font-size;
@@ -36,7 +31,7 @@
     &:focus {
       @include prefix(
         (
-          box-shadow: none !important
+          box-shadow: none
         ),
         webkit moz ms o
       );

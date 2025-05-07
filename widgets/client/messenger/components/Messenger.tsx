@@ -1,17 +1,21 @@
 import * as React from 'react';
-import { IUser } from '../../types';
-import asyncComponent from '../../AsyncComponent';
-import FaqCategories from './faq/FaqCategories';
-import { getMessengerData } from '../utils/util';
-import TicketContainer from '../containers/TicketContainer';
-import CallContainer from '../containers/CallContainer';
+
 import AccquireInformationContainer from '../containers/AccquireInformation';
-import ConversationListContainer from '../containers/ConversationList';
-import ConversationDetailContainer from '../containers/ConversationDetail';
-import CategoryDetail from '../containers/faq/CategoryDetail';
 import ArticleDetailContainer from '../containers/faq/ArticleDetail';
-import WebsiteAppDetailContainer from '../containers/websiteApp/WebsiteAppDetail';
+import CallContainer from '../containers/call/CallContainer';
+import CategoryDetail from '../containers/faq/CategoryDetail';
+import ConversationDetailContainer from '../containers/ConversationDetail';
+import ConversationListContainer from '../containers/ConversationList';
+import FaqCategories from './faq/FaqCategories';
 import Home from '../containers/Home';
+import { IUser } from '../../types';
+import TicketContainer from '../containers/ticket/TicketContainer';
+import TicketForget from './ticket/TicketForget';
+import TicketShowProgressContainer from '../containers/ticket/TicketShowProgress';
+import TicketSubmitContainer from '../containers/ticket/TicketSubmitForm';
+import WebsiteAppDetailContainer from '../containers/websiteApp/WebsiteAppDetail';
+import asyncComponent from '../../AsyncComponent';
+import { getCallData, getMessengerData } from '../utils/util';
 
 type Props = {
   activeRoute: string | '';
@@ -62,11 +66,19 @@ function Messenger({
 
       case 'faqCategories':
         return <FaqCategories topicId={topicId} loading={loading} />;
-
       case 'ticket':
-        return <TicketContainer />;
+        return <TicketContainer loading={loading} />;
+      case 'ticket-submit':
+        return <TicketSubmitContainer loading={loading} />;
+      case 'ticket-forget':
+        return <TicketForget />;
+      case 'ticket-progress':
+        return <TicketShowProgressContainer loading={loading} />;
+
       case 'call':
-        return <CallContainer />;
+        const callData = getCallData();
+        return callData && <CallContainer />;
+
       // case 'faqCategories':
       //   return (
       //     <Home

@@ -23,6 +23,7 @@ const buildConfigs = (
   }
 
   const json = {
+    cpId: config._id,
     template: config.template,
     templateId: config.templateId,
     meta: {
@@ -45,6 +46,7 @@ const buildConfigs = (
     menus: {
       main: mainMenus.map((m) => {
         return {
+          _id: m._id,
           label: m.label,
           url: m.url,
           icon: m.icon,
@@ -53,6 +55,7 @@ const buildConfigs = (
       }),
       footerMenu: footerMenus.map((m) => {
         return {
+          _id: m._id,
           label: m.label,
           url: m.url,
           icon: m.icon,
@@ -263,6 +266,15 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
         ERXES_FILE_URL: "${domain}/read-file?key=",
         ERXES_CP_ID: "${config._id}",
         ERXES_APP_TOKEN: "${config.erxesAppToken}",
+      },
+      images: {
+        unoptimized: true,
+        remotePatterns: [
+          {
+            protocol: "https",
+            hostname: "${subdomain}.app.erxes.io",
+          },
+        ]
       },
     };`;
 

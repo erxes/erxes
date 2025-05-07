@@ -6,6 +6,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@erxes/api-utils": "*"
+    "@erxes/api-utils": "*",
+    "dayjs": "^1.11.13"
   }
 }

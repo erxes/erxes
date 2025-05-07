@@ -7,6 +7,7 @@ import * as permissions from './permissions';
 import forms from './forms';
 import segments from './segments';
 import tags from './tags';
+import automations from './automations';
 
 export default {
   name: 'cars',
@@ -29,5 +30,5 @@ export default {
 
   onServerInit: async () => {},
   setupMessageConsumers,
-  meta: { forms, tags, segments, permissions },
+  meta: { forms, tags, segments, permissions, automations },
 };

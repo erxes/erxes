@@ -1,38 +1,39 @@
-import { IOptions, IStage } from '../../boards/types';
-import { PriceContainer, Right, Status } from '../../boards/styles/item';
+import { IOptions, IStage } from "../../boards/types";
+import { PriceContainer, Right, Status } from "../../boards/styles/item";
 
-import Assignees from '../../boards/components/Assignees';
-import { Content } from '../../boards/styles/stage';
-import Details from '../../boards/components/Details';
-import DueDateLabel from '../../boards/components/DueDateLabel';
-import EditForm from '../../boards/containers/editForm/EditForm';
-import { IDeal } from '../types';
-import ItemArchivedStatus from '../../boards/components/portable/ItemArchivedStatus';
-import { ItemContainer } from '../../boards/styles/common';
-import ItemFooter from '../../boards/components/portable/ItemFooter';
-import ItemProductProbabilities from './ItemProductProbabilities';
-import Labels from '../../boards/components/label/Labels';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import { colors } from '@erxes/ui/src/styles';
-import { renderPriority } from '../../boards/utils';
+import Assignees from "../../boards/components/Assignees";
+import { Content } from "../../boards/styles/stage";
+import Details from "../../boards/components/Details";
+import DueDateLabel from "../../boards/components/DueDateLabel";
+import EditForm from "../../boards/containers/editForm/EditForm";
+import { IDeal } from "../types";
+import ItemArchivedStatus from "../../boards/components/portable/ItemArchivedStatus";
+import { ItemContainer } from "../../boards/styles/common";
+import ItemFooter from "../../boards/components/portable/ItemFooter";
+import ItemProductProbabilities from "./ItemProductProbabilities";
+import Labels from "../../boards/components/label/Labels";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
+import { colors } from "@erxes/ui/src/styles";
+import { renderPriority } from "../../boards/utils";
 
 type Props = {
   stageId?: string;
   item: IDeal;
   beforePopupClose?: () => void;
   onClick?: () => void;
-  options?: IOptions;
   isFormVisible?: boolean;
+  options?: IOptions;
   portable?: boolean;
   onAdd?: (stageId: string, item: IDeal) => void;
   onRemove?: (dealId: string, stageId: string) => void;
   onUpdate?: (item: IDeal) => void;
+  synchSingleCard?: (itemId: string) => void;
 };
 
 class DealItem extends React.PureComponent<Props> {
   renderForm = () => {
-    const { stageId, item, isFormVisible } = this.props;
+    const { item, isFormVisible, stageId } = this.props;
 
     if (!isFormVisible) {
       return null;
@@ -41,10 +42,11 @@ class DealItem extends React.PureComponent<Props> {
     return (
       <EditForm
         {...this.props}
-        stageId={stageId || item.stageId}
+        stageId={stageId || item.stage?._id || ""}
         itemId={item._id}
         hideHeader={true}
         isPopupVisible={isFormVisible}
+        // beforePopupClose={handleBeforePopupClose}
       />
     );
   };
@@ -56,7 +58,7 @@ class DealItem extends React.PureComponent<Props> {
       <Status>
         <span style={{ backgroundColor: color }}>{__(text)}</span>
         <ItemArchivedStatus
-          status={item.status || 'active'}
+          status={item.status || "active"}
           skipContainer={true}
         />
       </Status>
@@ -68,15 +70,15 @@ class DealItem extends React.PureComponent<Props> {
       return null;
     }
 
-    if (stage.probability === 'Lost') {
-      return this.renderStatusLabel('Lost', colors.colorCoreRed);
+    if (stage.probability === "Lost") {
+      return this.renderStatusLabel("Lost", colors.colorCoreRed);
     }
 
-    if (stage.probability === 'Won') {
-      return this.renderStatusLabel('Won', colors.colorCoreGreen);
+    if (stage.probability === "Won") {
+      return this.renderStatusLabel("Won", colors.colorCoreGreen);
     }
 
-    return this.renderStatusLabel('In Progress', colors.colorCoreBlue);
+    return this.renderStatusLabel("In Progress", colors.colorCoreBlue);
   }
 
   renderContent() {
@@ -112,8 +114,8 @@ class DealItem extends React.PureComponent<Props> {
 
     const renderItemProductProbabilities = () => {
       if (
-        window.location.pathname.includes('deal/board') ||
-        window.location.pathname.includes('deal/calendar')
+        window.location.pathname.includes("deal/board") ||
+        window.location.pathname.includes("deal/calendar")
       ) {
         return (
           <ItemProductProbabilities

@@ -8,8 +8,6 @@ const scoreCampaignMutations = {
     doc: IScoreCampaign,
     { models, user }: IContext
   ) {
-    console.log({ doc });
-
     return await models.ScoreCampaigns.createScoreCampaign(doc, user);
   },
   async scoreCampaignUpdate(
@@ -33,7 +31,19 @@ const scoreCampaignMutations = {
     { models, user }: IContext
   ) {
     return await models.ScoreCampaigns.removeScoreCampaigns(_ids, user);
-  }
+  },
+
+  async refundLoyaltyScore(
+    _root,
+    { ownerId, ownerType, targetId },
+    { models }: IContext
+  ) {
+    return await models.ScoreCampaigns.refundLoyaltyScore(
+      targetId,
+      ownerType,
+      ownerId
+    );
+  },
 };
 
 checkPermission(scoreCampaignMutations, "scoreCampaignAdd", "manageLoyalties");

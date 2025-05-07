@@ -66,6 +66,7 @@ export const BottomBarActionsContainer = styled.div`
 export const BottomBarAction = styled.div`
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
   border: ${colors.bgGray} solid 1px;
   border-radius: 5px;
   height: 35px;
@@ -75,6 +76,11 @@ export const BottomBarAction = styled.div`
   cursor: pointer;
   margin-left: 5px;
   margin-bottom: 5px;
+  > div {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+  }
 `;
 
 export const ContentWrapper = styled.div`
@@ -101,13 +107,19 @@ export const ContentWrapper = styled.div`
   }
 `;
 
-export const ButtonRow = styledTS<{ twoElement?: boolean }>(styled.div)`
+const btnRowColumns = {
+  // 1:"70% 20% 5%",
+  2: '90% 10%',
+  3: '10% 80% 10%',
+};
+
+export const ButtonRow = styledTS<{ columns?: '2' | '3' }>(styled.div)`
   display: grid;
-  grid-template-columns: ${({ twoElement }) =>
-    twoElement ? '90% 5%' : '70% 20% 5%'} ;
-  grid-gap: 10px;
+  grid-template-columns: ${({ columns }) => (columns ? btnRowColumns[columns] : '70% 20% 10%')} ;
   padding: 10px 0;
   border-bottom: 1px solid ${colors.bgGray};
+  align-items: anchor-center;
+  
   > a {
     border-right: 1px solid ${colors.bgGray};
     cursor: text;
@@ -119,6 +131,28 @@ export const ButtonRow = styledTS<{ twoElement?: boolean }>(styled.div)`
   > div:last-child {
     border-right: none;
   }
+`;
+
+export const QuickReplyImgUploader = styledTS<{}>(styled.div)`
+  width: 30px;
+  height: 30px;
+  position: relative;
+  cursor: pointer;
+
+
+  > img {
+    width: 100%;
+    height: 100%;
+    objectFit: cover;
+    borderRadius: 4px;
+  }
+
+  > div {
+    width: 100%;
+    height:100%;
+    place-content: center;
+    text-align: center;
+   }
 `;
 
 export const RemoveBtn = styled(Icon)`
@@ -378,8 +412,8 @@ export const ConditionsContainer = styled.div`
 
 export const Features = styledTS<{ isToggled: boolean }>(styled.span)`
   transition: all ease .3s;
-  filter: ${(props) => !props.isToggled && `blur(4px)`};
-  pointer-events: ${(props) => !props.isToggled && `none`};
+  filter: ${props => !props.isToggled && `blur(4px)`};
+  pointer-events: ${props => !props.isToggled && `none`};
 `;
 
 export const ListItem = styled.div`

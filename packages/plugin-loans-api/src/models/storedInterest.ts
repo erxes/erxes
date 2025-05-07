@@ -107,7 +107,7 @@ export const loanStoredInterestClass = (models: IModels) => {
             commitmentInterest: commitmentInterest,
             contractId: contract._id,
             invDate: storeInterestDate,
-            prevStoredDate: contract.lastStoredDate,
+            // prevStoredDate: contract.lastStoredDate,
             periodLockId,
             number: contract.number
           });

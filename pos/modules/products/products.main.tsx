@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import Loader, { LoaderIcon } from "@/components/ui/loader"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-import ProductItem from "./components/productItem/productItem.main"
+import  ProductItem from "./components/productItem/productItem.main"
 import { FETCH_MORE_PER_PAGE, useProducts } from "./hooks/useProducts"
 
 const Products = () => {

@@ -202,19 +202,6 @@ function Form({ renderButton, bot, returnToList }: Props) {
           >
             <Padding>
               <FormGroup>
-                <ControlLabel>{__("Greet Message (Optional)")}</ControlLabel>
-                <FieldInfo
-                  error={doc?.greetText?.length > 160}
-                >{`${doc?.greetText?.length || 0}/160`}</FieldInfo>
-                <FormControl
-                  name="greetMessage"
-                  componentclass="textarea"
-                  placeholder={__("Type a greet message for your messenger")}
-                  defaultValue={doc.greetText}
-                  onChange={onChangeGreetText}
-                />
-              </FormGroup>
-              <FormGroup>
                 <p>
                   You are sending a message outside the 7 days messaging window.
                   Facebook requires a tag to be added to this message. Select
@@ -225,7 +212,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
                   id="facebook-message-tag"
                   componentclass="select"
                   placeholder={__("Select Facebook Tag") as string}
-                  defaultValue={doc.tag || ""}
+                  defaultValue={doc.tag || "CONFIRMED_EVENT_UPDATE"}
                   onChange={e =>
                     setDoc({
                       ...doc,
@@ -259,16 +246,44 @@ function Form({ renderButton, bot, returnToList }: Props) {
                 </FacebookTagText>
               </FormGroup>
               <FormGroup>
-                <ControlLabel>
-                  Enable Back Button on Persistence menu
-                </ControlLabel>
-                <Toggle
-                  defaultChecked={false}
-                  checked={doc?.isEnabledBackBtn}
-                  onChange={() =>
-                    onChange("isEnabledBackBtn", !doc?.isEnabledBackBtn)
-                  }
+                <ControlLabel>{__("Greet Message (Optional)")}</ControlLabel>
+                <FieldInfo
+                  error={doc?.greetText?.length > 160}
+                >{`${doc?.greetText?.length || 0}/160`}</FieldInfo>
+                <FormControl
+                  name="greetMessage"
+                  componentclass="textarea"
+                  placeholder={__("Type a greet message for your messenger")}
+                  defaultValue={doc.greetText}
+                  onChange={onChangeGreetText}
                 />
+              </FormGroup>
+              <FormGroup>
+                <FlexRow $justifyContent="space-between">
+                  <p style={{ flex: 10 }}>
+                    <ControlLabel>
+                      Enable Back Button on Persistence menu
+                    </ControlLabel>
+                  </p>
+                  <Toggle
+                    defaultChecked={false}
+                    checked={doc?.isEnabledBackBtn}
+                    onChange={() => {
+                      setDoc(prev => {
+                        const updated = {
+                          ...prev,
+                          isEnabledBackBtn: !prev?.isEnabledBackBtn
+                        };
+
+                        if (!!prev?.isEnabledBackBtn && prev?.backButtonText) {
+                          updated.backButtonText = "";
+                        }
+
+                        return updated;
+                      });
+                    }}
+                  />
+                </FlexRow>
                 {doc?.isEnabledBackBtn && (
                   <Container>
                     <FormGroup>
@@ -279,7 +294,9 @@ function Form({ renderButton, bot, returnToList }: Props) {
                         error={doc?.backButtonText?.length > 20}
                       >{`${doc?.backButtonText?.length || 0}/20`}</FieldInfo>
                       <FormControl
-                        placeholder={__("Set custom back button text for the persistent menu")}
+                        placeholder={__(
+                          "Set custom back button text for the persistent menu"
+                        )}
                         value={doc.backButtonText || ""}
                         onChange={onChangeBackButtonInput}
                       />

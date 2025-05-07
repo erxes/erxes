@@ -14,7 +14,6 @@ const ruleFields = `
 export const types = `
   ${attachmentType}
   ${attachmentInput}
-
   type TicketsRule {
     ${ruleFields}
   }
@@ -27,7 +26,6 @@ export const types = `
   input TicketsInputRule {
     ${ruleFields}
   }
-
   type TicketsTimeTrack {
     status: String,
     timeSpent: Int,
@@ -80,6 +78,7 @@ export const commonTypes = `
   stageChangedDate: Date
 
   customProperties: JSON
+  type: String
 `;
 
 export const commonMutationParams = `
@@ -136,6 +135,7 @@ export const commonListTypes = `
   stageChangedDate: Date
   tagIds: [String]
   customProperties: JSON
+  type: String
   status: String
   branchIds: [String]
   branches:[Branch]

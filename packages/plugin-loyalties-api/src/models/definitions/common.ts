@@ -9,6 +9,17 @@ export interface IBuyParams {
   count?: number;
 }
 
+export interface ICodeConfig {
+  campaignId: string;
+  prefix?: string;
+  suffix?: string;
+  codeLength: number;
+  usageLimit: number;
+  quantity: number;
+  allowRepeatRedemption: boolean;
+  staticCode: string;
+}
+
 export interface ICommonCampaignFields {
   title: string;
   description?: string;
@@ -53,15 +64,15 @@ export interface ICommonParams {
 }
 
 export interface IScoreParams {
-  ownerType: String;
-  ownerId: String;
+  ownerType: string;
+  ownerId: string;
   sortField: string;
-  sortDirection: String;
-  fromDate: String;
-  toDate: String;
+  sortDirection: string;
+  fromDate: string;
+  toDate: string;
   page?: number;
   perPage?: number;
-  campaignId?: String;
+  campaignId?: string;
 }
 
 export const attachmentSchema = new Schema(

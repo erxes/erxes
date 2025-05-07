@@ -26,6 +26,7 @@ export const voucherCampaignFields = `
   lotteryCount
 
   vouchersCount
+  codesCount
 `;
 
 const voucherCampaigns = `

@@ -46,6 +46,11 @@ import {
 } from './models/ScoreCampaigns';
 import { IScoreCampaignDocuments } from './models/definitions/scoreCampaigns';
 
+import { ICouponCampaignDocument } from './models/definitions/couponCampaigns';
+import { ICouponCampaignModel, loadCouponCampaignClass } from './models/CouponCampaigns';
+import { ICouponDocument } from './models/definitions/coupons';
+import { ICouponModel, loadCouponClass } from './models/Coupons';
+
 export interface IModels {
   LoyaltyConfigs: ILoyaltyConfigModel;
   DonateCampaigns: IDonateCampaignModel;
@@ -60,6 +65,8 @@ export interface IModels {
   Lotteries: ILotteryModel;
   ScoreLogs: IScoreLogModel;
   ScoreCampaigns: IScoreCampaignModel;
+  CouponCampaigns: ICouponCampaignModel;
+  Coupons: ICouponModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -125,6 +132,17 @@ export const loadClasses = (
     IScoreCampaignDocuments,
     IScoreCampaignModel
   >('score_campaigns', loadScoreCampaignClass(models, subdomain));
+
+
+  models.CouponCampaigns = db.model<
+    ICouponCampaignDocument,
+    ICouponCampaignModel
+  >('coupon_campaigns', loadCouponCampaignClass(models, subdomain));
+
+  models.Coupons = db.model<ICouponDocument, ICouponModel>(
+    'coupons',
+    loadCouponClass(models, subdomain),
+  );
 
   return models;
 };

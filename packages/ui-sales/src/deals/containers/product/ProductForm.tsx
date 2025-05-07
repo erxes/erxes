@@ -1,82 +1,96 @@
-import * as compose from 'lodash.flowright';
+import {
+  IDeal,
+  IPaymentsData,
+  IProductData,
+  dealsProductDataMutationParams,
+} from "../../types";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { mutations, queries } from "../../graphql";
 
-import { IDeal, IPaymentsData, IProductData } from '../../types';
-
-import { AppConsumer } from 'coreui/appContext';
-import { IProduct } from '@erxes/ui-products/src/types';
-import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
-import ProductForm from '../../components/product/ProductForm';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '../../graphql';
-import { queries as queriesSettings } from '../../../settings/boards/graphql';
-import { queries as queriesBoard } from '../../../boards/graphql';
-
-import { withProps } from '@erxes/ui/src/utils/core';
+import { AppConsumer } from "coreui/appContext";
+import { IProduct } from "@erxes/ui-products/src/types";
+import { ProductCategoriesQueryResponse } from "@erxes/ui-products/src/types";
+import ProductForm from "../../components/product/ProductForm";
+import React from "react";
+import { queries as queriesBoard } from "../../../boards/graphql";
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
   saveProductsData: () => void;
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
+  onChangeExtraData: (extraData: any) => void;
   productsData: IProductData[];
   products: IProduct[];
   paymentsData?: IPaymentsData;
   currentProduct?: string;
-  closeModal: () => void;
+  closeModal?: () => void;
   dealQuery: IDeal;
-  productCategoriesQuery: ProductCategoriesQueryResponse;
-  salesPipelineDetailQuery: any;
 };
 
-class ProductFormContainer extends React.Component<Props> {
-  render() {
-    return (
-      <AppConsumer>
-        {({ currentUser }) => {
-          if (!currentUser) {
-            return;
-          }
+const ProductFormContainer: React.FC<Props> = ({
+  onChangeProductsData,
+  saveProductsData,
+  onChangePaymentsData,
+  onChangeExtraData,
+  productsData,
+  products,
+  paymentsData,
+  currentProduct,
+  closeModal,
+  dealQuery,
+}) => {
+  const { data: productCategoriesData, loading: loadingCategories } =
+    useQuery<ProductCategoriesQueryResponse>(gql(queries.productCategories));
 
-          const configs = currentUser.configs || {};
+  const { data: pipelineDetailData } = useQuery(
+    gql(queriesBoard.pipelineDetail),
+    {
+      variables: { _id: dealQuery.pipeline._id },
+    }
+  );
 
-          const { productCategoriesQuery } = this.props;
+  const [dealsCreateProductDataMutation] = useMutation(
+    gql(mutations.dealsCreateProductsData)
+  );
 
-          const categories = productCategoriesQuery.productCategories || [];
+  const dealsCreateProductData = (
+    variables: dealsProductDataMutationParams
+  ) => {
+    return dealsCreateProductDataMutation({ variables });
+  };
 
-          const extendedProps = {
-            ...this.props,
-            categories: categories,
-            pipelineDetail:
-              this.props.salesPipelineDetailQuery.salesPipelineDetail,
-            loading: productCategoriesQuery.loading,
-            currencies: configs.dealCurrency || [],
-            currentUser
-          };
+  return (
+    <AppConsumer>
+      {({ currentUser }) => {
+        if (!currentUser) return null;
 
-          return <ProductForm {...extendedProps} />;
-        }}
-      </AppConsumer>
-    );
-  }
-}
+        const configs = currentUser.configs || {};
 
-export default withProps<Props>(
-  compose(
-    graphql<{}, ProductCategoriesQueryResponse, {}>(
-      gql(queries.productCategories),
-      {
-        name: 'productCategoriesQuery',
-      }
-    ),
-    graphql<{ dealQuery: IDeal }, ProductCategoriesQueryResponse, {}>(
-      gql(queriesBoard.pipelineDetail),
-      {
-        name: 'salesPipelineDetailQuery',
-        options: ({ dealQuery }) => ({
-          variables: { _id: dealQuery.pipeline._id },
-        }),
-      }
-    )
-  )(ProductFormContainer)
-);
+        const categories = productCategoriesData?.productCategories || [];
+
+        const extendedProps = {
+          onChangeProductsData,
+          saveProductsData,
+          onChangePaymentsData,
+          onChangeExtraData,
+          dealsCreateProductData,
+          productsData,
+          products,
+          paymentsData,
+          currentProduct,
+          closeModal,
+          dealQuery,
+          categories,
+          loading: loadingCategories,
+          pipelineDetail: pipelineDetailData?.salesPipelineDetail,
+          currencies: configs.dealCurrency || [],
+          currentUser,
+        };
+
+        return <ProductForm {...extendedProps} />;
+      }}
+    </AppConsumer>
+  );
+};
+
+export default ProductFormContainer;

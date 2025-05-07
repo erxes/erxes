@@ -11,6 +11,7 @@ import { setPtrStatus } from './utils';
 import { commonCreate } from '../utils/commonCreate';
 import { IUserDocument } from '@erxes/api-utils/src/definitions/users';
 import { commonUpdate } from '../utils/commonUpdate';
+import { getFullDate } from '@erxes/api-utils/src';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: any): Promise<ITransactionDocument>;
@@ -24,7 +25,7 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
   updateTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   removeTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   removeTransaction(_id: string): Promise<string>;
-  removePTransaction(_ids: string[]): Promise<{ n: number; ok: number }>;
+  removePTransaction(parentId?: string, ptrId?: string): Promise<{ n: number; ok: number }>;
 }
 
 export const loadTransactionClass = (models: IModels, subdomain: string) => {
@@ -68,6 +69,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       }
 
       const _id = nanoid();
+      doc.fullDate = getFullDate(doc.date);
       const lastDoc = {
         ...doc,
         _id,
@@ -91,6 +93,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
     public static async updateTransaction(_id: string, doc: ITransaction) {
       const oldTr = await models.Transactions.getTransaction({ _id });
 
+      doc.fullDate = getFullDate(doc.date);
       await models.Transactions.updateOne({ _id }, {
         $set: {
           ...doc,
@@ -133,7 +136,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
           }
 
           if (!parentId) {
-            const firstTrs = await commonCreate(models, { ...doc, ptrId });
+            const firstTrs = await commonCreate(subdomain, models, { ...doc, ptrId });
             parentId = firstTrs.mainTr.parentId;
             transactions.push(firstTrs.mainTr);
             if (firstTrs.otherTrs?.length) {
@@ -142,7 +145,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
               }
             }
           } else {
-            const trs = await commonCreate(models, { ...doc, ptrId, parentId });
+            const trs = await commonCreate(subdomain, models, { ...doc, ptrId, parentId });
             transactions.push(trs.mainTr);
             if (trs.otherTrs?.length) {
               for (const otherTr of trs.otherTrs) {
@@ -208,7 +211,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       session.startTransaction();
       try {
         for (const doc of editTrDocs) {
-          const trs = await commonUpdate(models, { ...doc, ptrId, parentId }, oldTrs.find(ot => ot._id === doc._id));
+          const trs = await commonUpdate(subdomain, models, { ...doc, ptrId, parentId }, oldTrs.find(ot => ot._id === doc._id));
           transactions.push(trs.mainTr);
           if (trs.otherTrs?.length) {
             for (const otherTr of trs.otherTrs) {
@@ -218,7 +221,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
         }
 
         for (const doc of addTrDocs) {
-          const trs = await commonCreate(models, { ...doc, ptrId, parentId })
+          const trs = await commonCreate(subdomain, models, { ...doc, ptrId, parentId })
           transactions.push(trs.mainTr);
           if (trs.otherTrs?.length) {
             for (const otherTr of trs.otherTrs) {
@@ -261,13 +264,50 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
         throw new Error('cant remove this transaction. Remove the source transaction first')
       }
 
-      if (await models.Transactions.find({ preTrId: _id })) {
+      if ((await models.Transactions.find({ preTrId: _id }).lean()).length) {
         throw new Error('cant remove this transaction. Remove the dependent transaction first')
       }
 
-      await models.Transactions.deleteMany({ $or: [{ _id }, { _id: { $in: (transaction.follows || []).map(tr => tr.id) } }] });
+      await models.Transactions.deleteMany({
+        $or: [
+          { _id },
+          { _id: { $in: (transaction.follows || []).map(tr => tr.id) } },
+          { originId: _id }
+        ]
+      });
 
       return 'success'
+    }
+
+    public static async removePTransaction(parentId?: string, ptrId?: string) {
+      const $or: any = [];
+      if (parentId) {
+        $or.push({ parentId })
+      }
+      if (ptrId) {
+        $or.push({ ptrId })
+      }
+
+      if (!$or.length) {
+        throw new Error('less params')
+      }
+
+      const trsOfPtr = await models.Transactions.find({ $or }).lean();
+      const parentIds = [...new Set(trsOfPtr.map(tr => tr.parentId))];
+      const ptrIds = [...new Set(trsOfPtr.map(tr => tr.ptrId))];
+
+      const summaryTrs = await models.Transactions.find({
+        $or: [
+          { parentId: { $in: parentIds } },
+          { ptrId: { $in: ptrIds } }]
+      });
+      const deleteTrIds = summaryTrs.map(tr => tr._id);
+
+      if ((await models.Transactions.find({ preTrId: { $in: deleteTrIds }, _id: { $nin: deleteTrIds } }).lean()).length) {
+        throw new Error('cant remove this transaction. Remove the dependent transaction first')
+      }
+
+      return await models.Transactions.deleteMany({ _id: { $in: deleteTrIds } });
     }
   }
 

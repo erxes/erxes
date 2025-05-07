@@ -1,11 +1,18 @@
+import {
+  BotPersistentMenuTypeMessenger,
+  IAttachment,
+  IBotData,
+  IWebsiteApp,
+} from './messenger/types';
 
 import { ICallout } from './form/types';
-import { IAttachment, IWebsiteApp } from './messenger/types';
 
 export type ENV = {
   ROOT_URL: string;
   API_URL: string;
   API_SUBSCRIPTIONS_URL: string;
+  CALLS_APP_ID: string;
+  CALLS_APP_SECRET: string;
 };
 
 export interface IUserDetails {
@@ -98,7 +105,7 @@ export interface IIntegrationLink {
 }
 
 export interface IIntegrationExternalLink {
-  url: string
+  url: string;
 }
 
 export interface IIntegrationMessengerDataMessagesItem {
@@ -106,6 +113,18 @@ export interface IIntegrationMessengerDataMessagesItem {
   away?: string;
   thank?: string;
   welcome?: string;
+}
+
+export interface ICloudflareCallDataOperator {
+  _id: string;
+  name: string;
+  userId: string;
+}
+
+export interface CloudflareCallDataDepartment {
+  _id: string;
+  name: string;
+  operators: ICloudflareCallDataOperator[];
 }
 
 export interface IIntegrationMessengerData {
@@ -118,6 +137,7 @@ export interface IIntegrationMessengerData {
     }>;
   };
   botEndpointUrl?: string;
+  botCheck?: boolean;
   botShowInitialMessage?: boolean;
   supporterIds: string[];
   notifyCustomer: boolean;
@@ -138,6 +158,13 @@ export interface IIntegrationMessengerData {
   messages?: IIntegrationMessengerDataMessagesItem;
   links?: IIntegrationLink;
   externalLinks?: IIntegrationExternalLink[];
+  botGreetMessage?: string;
+  persistentMenus?: BotPersistentMenuTypeMessenger[];
+  fromBot?: boolean;
+  botData?: IBotData;
+  getStarted?: boolean;
+  isReceiveWebCall?: boolean;
+  departments?: CloudflareCallDataDepartment[];
 }
 
 export interface ILeadData {
@@ -228,4 +255,4 @@ export interface ICountry {
   name: string;
   dialCode: string;
   emoji: string;
-};
+}

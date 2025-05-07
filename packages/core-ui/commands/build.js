@@ -6,7 +6,7 @@ const main = async () => {
     execSync("webpack --mode production", { stdio: "inherit" });
     fs.cpSync("public", "dist/", { force: true, recursive: true });
   } catch (e) {
-    console.log(e.message);
+    console.error(e.message);
   }
 };
 

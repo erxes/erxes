@@ -8,6 +8,7 @@ import { queries as voucherQueries } from '../vouchers/graphql';
 import { queries as spinQueries } from '../spins/graphql';
 import { queries as donateQueries } from '../donates/graphql';
 import { queries as lotteryQueries } from '../lotteries/graphql';
+import { queries as scoreLogQueries } from '../scorelogs/graphql';
 import { VouchersQueryResponse } from '../vouchers/types';
 import { SpinsQueryResponse } from '../spins/types';
 import { DonatesQueryResponse } from '../donates/types';
@@ -23,6 +24,7 @@ type FinalProps = {
   spinsQuery: SpinsQueryResponse;
   donatesQuery: DonatesQueryResponse;
   lotteriesQuery: LotteriesQueryResponse;
+  scoreLogsQuery: any;
 } & IProps;
 
 class LoyaltySectionContainer extends React.Component<FinalProps> {
@@ -33,14 +35,16 @@ class LoyaltySectionContainer extends React.Component<FinalProps> {
       vouchersQuery,
       lotteriesQuery,
       spinsQuery,
-      donatesQuery
+      donatesQuery,
+      scoreLogsQuery
     } = this.props;
 
     if (
       vouchersQuery.loading ||
       lotteriesQuery.loading ||
       spinsQuery.loading ||
-      donatesQuery.loading
+      donatesQuery.loading || 
+      scoreLogsQuery.loading
     ) {
       return null;
     }
@@ -49,6 +53,7 @@ class LoyaltySectionContainer extends React.Component<FinalProps> {
     const spins = spinsQuery.spins || [];
     const donates = donatesQuery.donates || [];
     const lotteries = lotteriesQuery.lotteries || [];
+    const scoreLogs = scoreLogsQuery?.scoreLogList?.list?.[0]?.scoreLogs || [];
 
     const extendedProps = {
       ...this.props,
@@ -57,7 +62,8 @@ class LoyaltySectionContainer extends React.Component<FinalProps> {
       vouchers,
       lotteries,
       spins,
-      donates
+      donates,
+      scoreLogs
       // onclick
     };
     return <LoyaltySection {...extendedProps} />;
@@ -101,6 +107,16 @@ export default withProps<IProps>(
       { ownerType: string; ownerId: string }
     >(gql(donateQueries.donates), {
       name: 'donatesQuery',
+      options: ({ ownerType, ownerId }) => ({
+        variables: { ownerType, ownerId }
+      })
+    }),
+    graphql<
+      IProps,
+      DonatesQueryResponse,
+      { ownerType: string; ownerId: string }
+    >(gql(scoreLogQueries.getScoreLogs), {
+      name: 'scoreLogsQuery',
       options: ({ ownerType, ownerId }) => ({
         variables: { ownerType, ownerId }
       })

@@ -16,6 +16,7 @@ export interface IAccount {
   departmentId?: string;
   scopeBrandIds?: string[];
   status: string;
+  isTemp?: boolean;
   isOutBalance: boolean;
   mergedIds?: string[];
 }
@@ -31,7 +32,7 @@ export const accountSchema = schemaWrapper(
     code: field({ type: String, unique: true, label: 'Code' }),
     name: field({ type: String, label: 'Name' }),
     categoryId: field({ type: String, label: 'Category' }),
-    parentId: field({ type: String, optional: true, label: 'Parent account' }),
+    parentId: field({ type: String, optional: true, label: 'Parent' }),
     currency: field({ type: String, label: 'Currency' }),
     kind: field({
       type: String,
@@ -43,7 +44,7 @@ export const accountSchema = schemaWrapper(
       type: String,
       enum: ACCOUNT_JOURNALS.ALL,
       default: ACCOUNT_JOURNALS.MAIN,
-      label: 'KIND',
+      label: 'Journal',
     }),
     description: field({ type: String, optional: true, label: 'Description' }),
     branchId: field({ type: String, optional: true, label: 'Branch' }),
@@ -61,7 +62,8 @@ export const accountSchema = schemaWrapper(
       esType: 'keyword',
       index: true,
     }),
-    isOutBalance: field({ type: Boolean, default: false }),
+    isTemp: field({ type: Boolean, default: false, label: 'Is Temp' }),
+    isOutBalance: field({ type: Boolean, default: false, label: 'Is Out balance' }),
     mergedIds: field({ type: [String], optional: true }),
   }),
 );

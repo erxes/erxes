@@ -19,6 +19,8 @@ type Props = {
 };
 
 function LoansResearchRow({ loansResearch, isChecked, toggleBulk }: Props) {
+  const ratio = loansResearch?.debtIncomeRatio ?? 0;
+
   const trigger = (
     <Button btnStyle="link">
       <Tip text={__('Edit')} placement="bottom">
@@ -51,13 +53,13 @@ function LoansResearchRow({ loansResearch, isChecked, toggleBulk }: Props) {
         />
       </td>
 
-      <td key={'dealId'}>{(loansResearch && loansResearch?.dealId) || ''} </td>
+      <td key={'deal'}>
+        {(loansResearch && loansResearch?.deal?.name) || ''}{' '}
+      </td>
       <td key={'customerType'}>
         {(loansResearch && loansResearch?.customerType) || ''}{' '}
       </td>
-      <td key={'debtIncomeRatio'}>
-        {(loansResearch && loansResearch?.debtIncomeRatio) || ''}{' '}
-      </td>
+      <td key={'debtIncomeRatio'}>{ratio.toFixed(2) || 0} </td>
       <td key={'increaseMonthlyPaymentAmount'}>
         {(loansResearch && loansResearch?.increaseMonthlyPaymentAmount) || ''}{' '}
       </td>

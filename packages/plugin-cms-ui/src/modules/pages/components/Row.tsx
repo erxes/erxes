@@ -9,6 +9,8 @@ import { __ } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import PageForm from '../containers/Form';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
 type Props = {
   page: any;
@@ -16,8 +18,6 @@ type Props = {
 };
 
 const Row = (props: Props) => {
-  const navigate = useNavigate();
-  const location = useLocation();
 
   const { page, remove } = props;
   const user = page.createdUser;
@@ -28,64 +28,43 @@ const Row = (props: Props) => {
     };
 
     return (
-      <Tip text={__('Delete')} placement="top">
+      <Tip text={__('Delete')} placement='top'>
         <Button
-          id="directionDelete"
-          btnStyle="link"
+          id='directionDelete'
+          btnStyle='link'
           onClick={onClick}
-          icon="times-circle"
+          icon='times-circle'
         />
       </Tip>
     );
   };
-
-  const renderEditAction = () => {
-    const onClick = () => {
-      navigate(`${location.pathname}/edit/${page._id}`, { replace: true });
-    }
-
-    return (
-      <Tip text={__('Edit')} placement="top">
-        <Button
-          id="directionEdit"
-          btnStyle="link"
-          onClick={onClick}
-          icon="edit"
-        />
-      </Tip>
-    );
-  }
 
   const getFullName = (doc: any) => {
     return doc.details ? doc.details.fullName : 'Unknown';
   };
 
+  const formContent = (formProps) => (
+    <PageForm {...formProps} page={page} clientPortalId={page.clientPortalId} />
+  );
 
   return (
     <tr>
-      <td key={Math.random()}>
+      <td key={page._id + 'name'}>
         <RowTitle>{page.name}</RowTitle>
       </td>
 
-      <td key={Math.random()}>
+      <td key={page._id + 'slug'}>
         <RowTitle>{`${page.slug}` || 'Undefined'} </RowTitle>
       </td>
 
-
-
       <td>
-        <Icon icon="calender" />{' '}
-        <DateWrapper>
-          {dayjs(page.createdAt).format('lll')}
-        </DateWrapper>
+        <Icon icon='calender' />{' '}
+        <DateWrapper>{dayjs(page.createdAt).format('lll')}</DateWrapper>
       </td>
 
-
       <td>
-        <Icon icon="calender" />{' '}
-        <DateWrapper>
-          {dayjs(page.updatedAt).format('lll')}
-        </DateWrapper>
+        <Icon icon='calender' />{' '}
+        <DateWrapper>{dayjs(page.updatedAt).format('lll')}</DateWrapper>
       </td>
 
       <td>
@@ -95,7 +74,12 @@ const Row = (props: Props) => {
 
       <td>
         <ActionButtons>
-          {renderEditAction()}
+          <ModalTrigger
+            title={'Edit page'}
+            trigger={<Button btnStyle='link' icon='edit-3' />}
+            content={formContent}
+            size={'lg'}
+          />
           {renderRemoveAction()}
         </ActionButtons>
       </td>

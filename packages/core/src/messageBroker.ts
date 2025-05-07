@@ -105,7 +105,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
   );
 
   consumeQueue('core:runCrons', async () => {
-    console.log('Running crons ........');
+    console.debug('Running crons ........');
   });
 
   consumeRPCQueue('core:permissions.find', async ({ subdomain, data }) => {
@@ -553,6 +553,14 @@ export const setupMessageConsumers = async (): Promise<void> => {
     return {
       status: 'success',
       data: await models.Brands.createBrand(data),
+    };
+  });
+  consumeRPCQueue('core:brands.updateOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Brands.updateBrand(data._id, data.fields),
     };
   });
 
@@ -1272,6 +1280,53 @@ export const setupMessageConsumers = async (): Promise<void> => {
         data: await models.FormSubmissions.insertMany(submissions, {
           ordered: false,
         }),
+      };
+    }
+  );
+
+  // exchange rates
+  consumeRPCQueue('core:exchangeRates.create', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.ExchangeRates.createExchangeRate(data),
+      status: 'success',
+    };
+  });
+
+  consumeRPCQueue(
+    'core:exchangeRates.update',
+    async ({ subdomain, data: { selector, modifier } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.ExchangeRates.updateOne(selector, modifier),
+        status: 'success',
+      };
+    }
+  );
+
+  consumeRPCQueue('core:exchangeRates.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.ExchangeRates.findOne(data).lean(),
+      status: 'success',
+    };
+  });
+
+  consumeRPCQueue(
+    'core:exchangeRates.getActiveRate',
+    async ({ subdomain, data: { date, rateCurrency, mainCurrency } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.ExchangeRates.getActiveRate({
+          date,
+          rateCurrency,
+          mainCurrency,
+        }),
+        status: 'success',
       };
     }
   );

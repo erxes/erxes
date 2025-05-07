@@ -124,6 +124,7 @@ class FormControl extends React.Component<Props> {
       maxLength: props.maxLength,
       color: props.color,
       align: props.align,
+      className: props.className,
       onDoubleClick: props.onDoubleClick,
     };
 

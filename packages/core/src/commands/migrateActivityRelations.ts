@@ -70,7 +70,7 @@ const command = async () => {
   ActivityLogs = db.collection("activity_logs");
   const limit = 1000;
 
-  console.log(`Logs migrated ....`);
+  console.debug(`Logs migrated ....`);
 
   const bulkOps = [] as any[];
 
@@ -97,7 +97,7 @@ const command = async () => {
     }
   }
 
-  console.log(`Process finished at: ${new Date()}`);
+  console.debug(`Process finished at: ${new Date()}`);
 
   process.exit();
 };

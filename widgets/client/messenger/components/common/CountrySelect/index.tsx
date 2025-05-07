@@ -1,9 +1,11 @@
-import * as React from 'react';
-import COUNTRIES from '../../../constants';
+import * as React from "react";
+
+import COUNTRIES from "../../../constants";
 
 function CountrySelect() {
   const [currentCountryDialCode, setCurrentCountryDialCode] =
-    React.useState('');
+    React.useState("+976");
+
   return (
     <div>
       <select

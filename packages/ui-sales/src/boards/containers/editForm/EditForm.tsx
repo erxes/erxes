@@ -1,14 +1,7 @@
-import client from "@erxes/ui/src/apolloClient";
-import { gql } from "@apollo/client";
 import * as compose from "lodash.flowright";
-import Spinner from "@erxes/ui/src/components/Spinner";
+
 import { Alert, confirm, withProps } from "@erxes/ui/src/utils";
-import { queries as userQueries } from "@erxes/ui/src/team/graphql";
 import { AllUsersQueryResponse, IUser } from "@erxes/ui/src/auth/types";
-import React from "react";
-import { graphql } from "@apollo/client/react/hoc";
-import ErrorMsg from "@erxes/ui/src/components/ErrorMsg";
-import { mutations, queries, subscriptions } from "../../graphql";
 import {
   CopyMutation,
   DetailQueryResponse,
@@ -16,10 +9,19 @@ import {
   IItemParams,
   IOptions,
   RemoveMutation,
-  SaveMutation
+  SaveMutation,
 } from "../../types";
-import { invalidateCache } from "../../utils";
+import { mutations, queries, subscriptions } from "../../graphql";
+
+import ErrorMsg from "@erxes/ui/src/components/ErrorMsg";
 import { PipelineConsumer } from "../PipelineContext";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { invalidateCache } from "../../utils";
+import { queries as userQueries } from "@erxes/ui/src/team/graphql";
 import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
 
 type WrapperProps = {
@@ -33,6 +35,7 @@ type WrapperProps = {
   onUpdate?: (item: IItem, prevStageId: string) => void;
   hideHeader?: boolean;
   currentUser: IUser;
+  synchSingleCard?: (itemId: string) => void;
 };
 
 type ContainerProps = {
@@ -54,6 +57,7 @@ type FinalProps = {
 
 class EditFormContainer extends React.Component<FinalProps> {
   private unsubcribe;
+  private productDataSubscribe;
 
   constructor(props) {
     super(props);
@@ -74,8 +78,8 @@ class EditFormContainer extends React.Component<FinalProps> {
         prev,
         {
           subscriptionData: {
-            data: { salesPipelinesChanged }
-          }
+            data: { salesPipelinesChanged },
+          },
         }
       ) => {
         if (!salesPipelinesChanged || !salesPipelinesChanged.data) {
@@ -88,15 +92,39 @@ class EditFormContainer extends React.Component<FinalProps> {
           return;
         }
 
-        if (document.querySelectorAll(".modal").length < 2) {
-          this.props.detailQuery.refetch();
+        this.props.detailQuery.refetch();
+      },
+    });
+
+    this.productDataSubscribe = detailQuery.subscribeToMore({
+      document: gql(subscriptions.productsDataChanged),
+      variables: { _id: itemId },
+      updateQuery: (
+        prev,
+        {
+          subscriptionData: {
+            data: { salesProductsDataChanged },
+          },
         }
-      }
+      ) => {
+        if (!salesProductsDataChanged?.data) {
+          return;
+        }
+
+        const { proccessId } = salesProductsDataChanged;
+
+        if (proccessId === localStorage.getItem("proccessId")) {
+          return;
+        }
+
+        this.props.detailQuery.refetch();
+      },
     });
   }
 
   componentWillUnmount() {
     this.unsubcribe();
+    this.productDataSubscribe();
   }
 
   addItem(doc: IItemParams, callback: () => void) {
@@ -106,7 +134,7 @@ class EditFormContainer extends React.Component<FinalProps> {
       .then(() => {
         callback();
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   }
@@ -126,7 +154,7 @@ class EditFormContainer extends React.Component<FinalProps> {
           onAdd(stageId, data[options.mutationsName.copyMutation], itemId);
         }
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   }
@@ -148,7 +176,7 @@ class EditFormContainer extends React.Component<FinalProps> {
 
         invalidateCache();
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
@@ -172,7 +200,7 @@ class EditFormContainer extends React.Component<FinalProps> {
           }
         })
 
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         })
     );
@@ -187,14 +215,14 @@ class EditFormContainer extends React.Component<FinalProps> {
     client
       .mutate({
         variables: { ...doc, type: options.type },
-        mutation: gql(mutations.boardItemUpdateTimeTracking)
+        mutation: gql(mutations.boardItemUpdateTimeTracking),
       })
       .then(() => {
         if (callback) {
           callback();
         }
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
@@ -225,7 +253,7 @@ class EditFormContainer extends React.Component<FinalProps> {
       saveItem: this.saveItem,
       copyItem: this.copyItem,
       updateTimeTrack: this.updateTimeTrack,
-      users
+      users,
     };
 
     const EditForm = options.EditForm;
@@ -241,9 +269,9 @@ const withQuery = (props: ContainerProps) => {
     refetchQueries: [
       {
         query: gql(queries.stageDetail),
-        variables: { _id: stageId }
-      }
-    ]
+        variables: { _id: stageId },
+      },
+    ],
   });
 
   return withProps<ContainerProps>(
@@ -255,45 +283,45 @@ const withQuery = (props: ContainerProps) => {
           options: ({ itemId }: { itemId: string }) => {
             return {
               variables: {
-                _id: itemId
+                _id: itemId,
               },
-              fetchPolicy: "network-only"
+              fetchPolicy: "network-only",
             };
-          }
+          },
         }
       ),
       graphql<ContainerProps, AllUsersQueryResponse>(
         gql(userQueries.allUsers),
         {
-          name: "usersQuery"
+          name: "usersQuery",
         }
       ),
       graphql<ContainerProps, SaveMutation, IItemParams>(
         gql(options.mutations.addMutation),
         {
           name: "addMutation",
-          options: refetchOptions
+          options: refetchOptions,
         }
       ),
       graphql<ContainerProps, SaveMutation, IItemParams>(
         gql(options.mutations.copyMutation),
         {
           name: "copyMutation",
-          options: refetchOptions
+          options: refetchOptions,
         }
       ),
       graphql<ContainerProps, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),
         {
           name: "editMutation",
-          options: refetchOptions
+          options: refetchOptions,
         }
       ),
       graphql<ContainerProps, RemoveMutation, { _id: string }>(
         gql(options.mutations.removeMutation),
         {
           name: "removeMutation",
-          options: refetchOptions
+          options: refetchOptions,
         }
       )
     )(EditFormContainer)
@@ -319,13 +347,20 @@ class WithData extends React.Component<ContainerProps> {
 export default withCurrentUser((props: WrapperProps) => {
   return (
     <PipelineConsumer>
-      {({ onAddItem, onRemoveItem, onUpdateItem, options }) => {
+      {({
+        onAddItem,
+        onRemoveItem,
+        onUpdateItem,
+        synchSingleCard,
+        options,
+      }) => {
         return (
           <WithData
             {...props}
             onAdd={onAddItem || props.onAdd}
             onRemove={onRemoveItem || props.onRemove}
             onUpdate={onUpdateItem || props.onUpdate}
+            synchSingleCard={synchSingleCard || props.synchSingleCard}
             options={props.options || options}
           />
         );

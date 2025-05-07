@@ -55,7 +55,7 @@ export const getUsageByPluginType = async (args: {
         pluginType = "instagramMessenger";
 
       case "whatsapp":
-          pluginType = "whatsapp";
+        pluginType = "whatsapp";
     }
   }
 
@@ -176,6 +176,30 @@ export const getUsageByPluginType = async (args: {
         serviceName: "inbox",
         action: "integrations.count",
         data: { selector }
+      });
+    }
+  }
+  if (pluginType === "pms") {
+    if (models) {
+      totalUsage = await models.TmsBranch.countDocuments();
+    } else {
+      totalUsage = await sendCommonMessage({
+        subdomain,
+        serviceName: "pms",
+        action: "branch.count",
+        data: {}
+      });
+    }
+  }
+  if (pluginType === "bm") {
+    if (models) {
+      totalUsage = await models.BmsBranch.countDocuments();
+    } else {
+      totalUsage = await sendCommonMessage({
+        subdomain,
+        serviceName: "bm",
+        action: "branch.count",
+        data: {}
       });
     }
   }
@@ -321,14 +345,14 @@ export const getUsageByPluginType = async (args: {
   if (pluginType === "segments") {
     if (models) {
       totalUsage = await models.Segments.find({
-        name: { $exists: true },
+        name: { $exists: true }
       }).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: 'core',
-        action: 'segmentCount',
-        data: { selector:{name: { $exists: true }} },
+        serviceName: "core",
+        action: "segmentCount",
+        data: { selector: { name: { $exists: true } } }
       });
     }
   }

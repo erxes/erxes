@@ -13,10 +13,19 @@ export const OWNER_TYPES = {
   ALL: ['customer', 'user', 'company', 'cpUser']
 };
 
+export const CODE_STATUS = {
+  NEW: 'new',
+  IN_USE: 'in_use',
+  DONE: 'done',
+  ALL: ['new','in_use', 'done']
+};
+
 export const VOUCHER_STATUS = {
   NEW: 'new',
+  IN_USE: 'in_use',
   LOSS: 'used',
-  ALL: ['new', 'used']
+  EXPIRED: 'expired',
+  ALL: ['new', 'in_use', 'used', 'expired']
 };
 
 export const LOTTERY_STATUS = {
@@ -39,3 +48,11 @@ export const ASSIGNMENT_STATUS = {
   LOSS: 'loss',
   ALL: ['new', 'won', 'loss']
 };
+
+export const CHAR_SET = {
+  'A-Z': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  'a-z': 'abcdefghijklmnopqrstuvwxyz',
+  '0-9': '0123456789',
+  'А-Я': 'АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ',  
+  'а-я': 'абвгдеёжзийклмнопрстуфхцчшщыэюя'
+}

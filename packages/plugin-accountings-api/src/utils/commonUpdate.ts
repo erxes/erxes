@@ -3,7 +3,7 @@ import { ITransaction, ITransactionDocument } from "../models/definitions/transa
 import CurrencyTr from "./currencyTr";
 import TaxTrs from "./taxTrs";
 
-export const commonUpdate = async (models: IModels, doc: ITransaction, oldTr?: ITransactionDocument) => {
+export const commonUpdate = async (subdomain: string, models: IModels, doc: ITransaction, oldTr?: ITransactionDocument) => {
   let mainTr: ITransactionDocument | null = null;
   let otherTrs: ITransactionDocument[] = [];
 
@@ -23,7 +23,7 @@ export const commonUpdate = async (models: IModels, doc: ITransaction, oldTr?: I
     case 'payable': {
       const detail = doc.details[0] || {}
       let currencyTr;
-      const currencyTrClass = new CurrencyTr(models, doc);
+      const currencyTrClass = new CurrencyTr(subdomain, models, doc);
       await currencyTrClass.checkValidationCurrency();
 
       const taxTrsClass = new TaxTrs(models, doc, detail?.side === 'dt' ? 'ct' : 'dt', true);
@@ -46,6 +46,32 @@ export const commonUpdate = async (models: IModels, doc: ITransaction, oldTr?: I
           otherTrs.push(taxTr)
         }
       }
+
+      break;
+    }
+    case 'invIncome': {
+      const taxTrsClass = new TaxTrs(models, doc, 'dt', false);
+      taxTrsClass.checkTaxValidation();
+
+      const transaction =
+        await models.Transactions.updateTransaction(oldTr._id, { ...doc });
+
+      mainTr = transaction;
+
+      const taxTrs = await taxTrsClass.doTaxTrs(transaction)
+
+      if (taxTrs?.length) {
+        for (const taxTr of taxTrs) {
+          otherTrs.push(taxTr)
+        }
+      }
+      break;
+    }
+    case 'invOut': {
+      const transaction =
+        await models.Transactions.updateTransaction(oldTr._id, { ...doc });
+
+      mainTr = transaction;
 
       break;
     }

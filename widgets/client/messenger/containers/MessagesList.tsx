@@ -1,10 +1,12 @@
-import * as React from 'react';
-import MessagesList from '../components/MessagesList';
-import { IMessage } from '../types';
-import { useConversation } from '../context/Conversation';
-import { useMessage } from '../context/Message';
-import { useConfig } from '../context/Config';
-import { getColor, getMessengerData, getUiOptions } from '../utils/util';
+import * as React from "react";
+
+import { getColor, getMessengerData, getUiOptions } from "../utils/util";
+
+import { IMessage } from "../types";
+import MessagesList from "../components/MessagesList";
+import { useConfig } from "../context/Config";
+import { useConversation } from "../context/Conversation";
+import { useMessage } from "../context/Message";
 
 type Props = {
   messages: IMessage[];

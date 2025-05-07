@@ -35,7 +35,7 @@ const command = async () => {
       try {
         await TARGET_COLLECTION.drop();
       } catch (e) {
-        console.log(e.message, contentType);
+        console.error(e.message, contentType);
       }
 
       TARGET_COLLECTION = db.collection(targetCollection);
@@ -45,7 +45,7 @@ const command = async () => {
           try {
             TARGET_COLLECTION.insertOne(item);
           } catch (e) {
-            console.log(e);
+            console.error(e);
           }
         });
       } else {
@@ -53,16 +53,16 @@ const command = async () => {
           try {
             TARGET_COLLECTION.insertOne(item);
           } catch (e) {
-            console.log(e);
+            console.error(e);
           }
         });
       }
     } catch (e) {
-      console.log(e.message, contentType);
+      console.error(e.message, contentType);
     }
   };
 
-  console.log("migrating boards");
+  console.debug("migrating boards");
 
   await migrateItems("deal", "boards", "sales_boards");
   await migrateItems("task", "boards", "tasks_boards");
@@ -70,9 +70,9 @@ const command = async () => {
   await migrateItems("ticket", "boards", "tickets_boards");
   await migrateItems("growthhacks", "boards", "growthhacks_boards");
 
-  console.log(`migrating boards finished at: ${new Date()}`);
+  console.debug(`migrating boards finished at: ${new Date()}`);
 
-  console.log("migrating pipelines");
+  console.debug("migrating pipelines");
 
   await migrateItems("deal", "pipelines", "sales_pipelines");
   await migrateItems("task", "pipelines", "tasks_pipelines");
@@ -80,9 +80,9 @@ const command = async () => {
   await migrateItems("ticket", "pipelines", "tickets_pipelines");
   await migrateItems("growthhacks", "pipelines", "growthhacks_pipelines");
 
-  console.log(`migrating pipelines finished at: ${new Date()}`);
+  console.debug(`migrating pipelines finished at: ${new Date()}`);
 
-  console.log("migrating pipeline_labels");
+  console.debug("migrating pipeline_labels");
 
   await migrateItems(null, "pipeline_labels", "sales_pipeline_labels");
   await migrateItems(null, "pipeline_labels", "tasks_pipeline_labels");
@@ -90,9 +90,9 @@ const command = async () => {
   await migrateItems(null, "pipeline_labels", "tickets_pipeline_labels");
   await migrateItems(null, "pipeline_labels", "growthhacks_pipeline_labels");
 
-  console.log(`migrating pipeline_labels finished at: ${new Date()}`);
+  console.debug(`migrating pipeline_labels finished at: ${new Date()}`);
 
-  console.log("migrating stages");
+  console.debug("migrating stages");
 
   await migrateItems("deal", "stages", "sales_stages");
   await migrateItems("task", "stages", "tasks_stages");
@@ -100,9 +100,9 @@ const command = async () => {
   await migrateItems("ticket", "stages", "tickets_stages");
   await migrateItems("growthhacks", "stages", "growthhacks_stages");
 
-  console.log(`migrating stages finished at: ${new Date()}`);
+  console.debug(`migrating stages finished at: ${new Date()}`);
 
-  console.log("migrating checklists");
+  console.debug("migrating checklists");
 
   await migrateItems("deal", "checklists", "sales_checklists");
   await migrateItems("task", "checklists", "tasks_checklists");
@@ -110,7 +110,7 @@ const command = async () => {
   await migrateItems("ticket", "checklists", "tickets_checklists");
   await migrateItems("growthhacks", "checklists", "growthhacks_checklists");
 
-  console.log(`migrating checklists finished at: ${new Date()}`);
+  console.debug(`migrating checklists finished at: ${new Date()}`);
 
   ChecklistItems = db.collection("checklist_items");
   Checklists = db.collection("checklists");
@@ -153,7 +153,7 @@ const command = async () => {
     }
   }
 
-  console.log(`Process finished at: ${new Date()}`);
+  console.debug(`Process finished at: ${new Date()}`);
 
   process.exit();
 };

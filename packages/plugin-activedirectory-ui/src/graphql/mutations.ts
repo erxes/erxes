@@ -1,19 +1,17 @@
 const commonFields = `
-  $apiUrl: String,
-  $isLocalUser: Boolean,
-  $userDN: String,
+  $apiUrl: String
+  $baseDN: String
   $adminDN: String
   $adminPassword: String
-  $code: String,
+  $code: String
 `;
 
 const commonVariables = `
-  apiUrl: $apiUrl,
-  isLocalUser: $isLocalUser,
-  userDN: $userDN,
+  apiUrl: $apiUrl
+  baseDN: $baseDN
   adminDN: $adminDN
   adminPassword: $adminPassword
-  code: $code,
+  code: $code
 `;
 
 const adConfigUpdate = `
@@ -25,8 +23,8 @@ const adConfigUpdate = `
 `;
 
 const toCheckUsers = `
-  mutation toCheckAdUsers($userName: String, $userPass: String) {
-    toCheckAdUsers(userName: $userName, userPass: $userPass)
+  mutation toCheckAdUsers {
+    toCheckAdUsers
   }
 `;
 

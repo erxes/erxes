@@ -7,7 +7,8 @@ import {
   IIntegration,
   IIntegrationDocument,
   IMessengerData,
-  IUiOptions
+  IUiOptions,
+  ITicketData
 } from "../../models/definitions/integrations";
 
 import { IExternalIntegrationParams } from "../../models/Integrations";
@@ -25,7 +26,6 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from "../../logUtils";
 import { checkPermission } from "@erxes/api-utils/src/permissions";
 import { IContext, IModels } from "../../connectionResolver";
 import { isServiceRunning } from "../../utils";
-import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 interface IEditIntegration extends IIntegration {
   _id: string;
@@ -303,9 +303,33 @@ const integrationMutations = {
    */
   async integrationsSaveMessengerConfigs(
     _root,
-    { _id, messengerData }: { _id: string; messengerData: IMessengerData },
-    { models }: IContext
+    {
+      _id,
+      messengerData,
+      callData
+    }: { _id: string; messengerData: IMessengerData; callData: any },
+    { models, subdomain }: IContext
   ) {
+    const isEnabledCloudflareCalls = await isServiceRunning("cloudflarecalls");
+
+    if (isEnabledCloudflareCalls) {
+      await sendCommonMessage({
+        serviceName: "cloudflarecalls",
+        subdomain,
+        action: "createOrUpdateIntegration",
+        data: {
+          kind: "cloudflarecalls",
+          integrationId: _id,
+          doc: {
+            kind: "cloudflarecalls",
+            integrationId: _id,
+            data: { ...callData }
+          }
+        },
+        isRPC: true
+      });
+    }
+
     return models.Integrations.saveMessengerConfigs(_id, messengerData);
   },
 
@@ -381,6 +405,9 @@ const integrationMutations = {
     }
 
     const kind = doc.kind.split("-")[0];
+    if (kind === "cloudflarecalls") {
+      data = { ...data, name: doc.name };
+    }
 
     try {
       if ("webhook" !== kind) {
@@ -517,6 +544,20 @@ const integrationMutations = {
           throw e;
         }
       }
+    }
+    const isEnabledCloudflareCalls = await isServiceRunning('cloudflarecalls');
+
+    if (isEnabledCloudflareCalls) {
+      await sendCommonMessage({
+        serviceName: 'cloudflarecalls',
+        subdomain,
+        action: 'removeIntegrations',
+        data: {
+          kind: 'cloudflarecalls',
+          integrationId: _id,
+        },
+        isRPC: true,
+      });
     }
 
     await putDeleteLog(
@@ -728,7 +769,7 @@ const integrationMutations = {
       user._id
     );
 
-    const fields = sourceFields.map(e => ({
+    const fields = sourceFields.map((e) => ({
       options: e.options,
       isVisible: e.isVisible,
       contentType: e.contentType,
@@ -772,6 +813,16 @@ const integrationMutations = {
     });
 
     return copiedIntegration;
+  },
+  async integrationsSaveMessengerTicketData(
+    _root,
+    { _id, ticketData }: { _id: string; ticketData: ITicketData },
+    { models }: IContext
+  ) {
+    return models.Integrations.integrationsSaveMessengerTicketData(
+      _id,
+      ticketData
+    );
   }
 };
 

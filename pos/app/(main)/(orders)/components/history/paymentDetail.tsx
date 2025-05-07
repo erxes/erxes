@@ -3,7 +3,7 @@ import { paymentDetailAtom } from "@/store/history.store"
 import { useQuery } from "@apollo/client"
 import { useSetAtom } from "jotai"
 
-import { OrderCancelTrigger } from "./orderCancel"
+import { HistoryOrderCancelTrigger } from "@/modules/orders/components/orderCancel"
 import { OrderReturnTrigger } from "./orderReturn"
 
 const PaymentDetail = ({
@@ -28,7 +28,7 @@ const PaymentDetail = ({
   return (
     <>
       <OrderReturnTrigger _id={_id} paidDate={paidDate} />
-      <OrderCancelTrigger loading={loading} _id={_id} />
+      <HistoryOrderCancelTrigger loading={loading} _id={_id} />
     </>
   )
 }

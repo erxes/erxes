@@ -16,6 +16,7 @@ export const types = `
 export const queries = `
   vouchersMain(${commonFilters}): VoucherMain
   vouchers(${commonFilters}): [Voucher]
+  ownerVouchers(ownerId: String!): JSON
   voucherDetail(_id: String!): Voucher
 `;
 

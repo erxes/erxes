@@ -11,6 +11,7 @@ const commonFields = `
     createdBy
     createdAt
     target
+    type
     campaign {
       _id
       title
@@ -21,6 +22,7 @@ const commonFields = `
     }
     campaignId
   }
+  totalScore
 `;
 
 const getScoreLogs = `

@@ -64,7 +64,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
       onChannelChange: this.onChannelChange,
     };
 
-    if (['imap', 'viber', 'calls'].includes(type)) {
+    if (['imap', 'viber', 'calls', 'cloudflarecalls'].includes(type)) {
       return loadDynamicComponent(
         'inboxIntegrationForm',
         updatedProps,

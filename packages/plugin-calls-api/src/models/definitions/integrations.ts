@@ -29,7 +29,6 @@ export const integrationSchema = new Schema({
   token: field({ type: String, label: 'token' }),
   queues: field({ type: [String], label: 'queues' }),
   queueNames: field({ type: [String], label: 'queue names' }),
-
 });
 
 integrationSchema.index({ wsServer: 1, queues: 1 }, { unique: true });

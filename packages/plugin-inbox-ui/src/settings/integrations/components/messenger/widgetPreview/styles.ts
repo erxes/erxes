@@ -93,6 +93,62 @@ const Supporters = styled(ErxesSupporters)`
   }
 `;
 
+export const Padding = styled.div`
+  padding: 10px;
+`;
+
+
+export const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  button {
+    flex-shrink: 0;
+  }
+`;
+export const Container = styled.div`
+  padding: 10px 0;
+
+  .dropdown-item {
+    > a {
+      color: ${colors.colorCoreGray};
+    }
+  }
+
+  .dropdown-item:active {
+    background-color: ${colors.colorShadowGray};
+    color: ${colors.colorLightGray};
+  }
+`;
+
+
+export const ButtonRow = styledTS<{ twoElement?: boolean }>(styled.div)`
+  display: grid;
+  grid-template-columns: ${({ twoElement }) =>
+    twoElement ? '90% 5%' : '70% 20% 5%'} ;
+  grid-gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid ${colors.bgGray};
+  > a {
+    border-right: 1px solid ${colors.bgGray};
+    cursor: text;
+  }
+  > div {
+    border-right: 1px solid ${colors.bgGray};
+    cursor: pointer;
+
+  > div:last-child {
+    border-right: none;
+  }
+`;
+
+export const FieldInfo = styledTS<{ error?: boolean }>(styled.div)`
+  width: 100%;
+  display:flex;
+  justify-content: end;
+  color:${({ error }) => (error ? colors.colorCoreRed : colors.colorCoreGray)}
+`;
+
 const ErxesState = styled.div`
   font-size: ${typography.fontSizeUppercase}px;
   font-weight: ${typography.fontWeightLight};

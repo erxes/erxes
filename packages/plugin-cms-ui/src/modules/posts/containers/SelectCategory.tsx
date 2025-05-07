@@ -1,7 +1,7 @@
 import React from 'react';
-import { gql, useQuery, useLazyQuery } from '@apollo/client';
+import { useQuery, useLazyQuery } from '@apollo/client';
 import SelectCategory from '../components/SelectCategory';
-import { queries } from '../graphql';
+import queries from '../../categories/graphql/queries';
 
 type Props = {
   value: string | string[];
@@ -31,9 +31,9 @@ const Container = (props: Props) => {
     });
   };
 
-  const categories = (data && data.insuranceCategories) || [];
+  const categories = (data && data.cmsCategories) || [];
   const allCategories =
-    (categoriesQuery.data && categoriesQuery.data.insuranceCategories) || [];
+    (categoriesQuery.data && categoriesQuery.data.cmsCategories) || [];
 
   return (
     <SelectCategory

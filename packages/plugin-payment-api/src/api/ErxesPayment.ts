@@ -84,6 +84,20 @@ class ErxesPayment {
     }
   }
 
+  async authorize(payment: IPaymentDocument) {
+    const api = this[payment.kind];
+
+    if (api.authorize) {
+      try {
+        return await api.authorize(payment);
+      } catch (e) {
+        throw new Error(e.message);
+      }
+    }
+
+    return { success: true, message: 'Authorized' };
+  }
+
   async createInvoice(transaction: ITransactionDocument) {
     const { payment } = this;
     const details = transaction.details || {};
