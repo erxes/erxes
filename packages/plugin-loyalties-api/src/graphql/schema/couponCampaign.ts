@@ -42,6 +42,7 @@ const couponCampaignParams = `
     redemptionLimitPerUser: Int
     
     buyScore: Int
+    charSet: [String]
     `;
 
 export const mutations = `

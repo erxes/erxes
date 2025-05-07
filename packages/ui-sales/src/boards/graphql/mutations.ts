@@ -164,6 +164,7 @@ export const commonFields = `
   }
   labelIds
   stage {
+    _id
     probability
     type
     defaultTick

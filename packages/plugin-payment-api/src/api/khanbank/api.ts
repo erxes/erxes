@@ -1,10 +1,7 @@
 import { IModels } from '../../connectionResolver';
-import { ITransactionDocument } from '../../models/definitions/transactions';
-import redis from '@erxes/api-utils/src/redis';
-import { BaseAPI } from '../base';
-import { PAYMENTS, PAYMENT_STATUS } from '../constants';
-import { IQpayInvoice } from '../types';
 import { sendCommonMessage } from '../../messageBroker';
+import { ITransactionDocument } from '../../models/definitions/transactions';
+import { PAYMENT_STATUS } from '../constants';
 
 export const khanbankCallbackHandler = async (
   models: IModels,
@@ -49,17 +46,21 @@ export const khanbankCallbackHandler = async (
 export interface IKhanbankConfig {
   configId: string;
   accountNumber: string;
+  ibanAcctNo: string;
 }
 
 export class KhanbankAPI {
   private configId: string;
   private accountNumber: string;
+  private ibanAcctNo: string;
   private subdomain: string;
 
   constructor(config: IKhanbankConfig, subdomain: string) {
+    console.log(config);
     this.configId = config.configId;
     this.accountNumber = config.accountNumber;
     this.subdomain = subdomain;
+    this.ibanAcctNo = config.ibanAcctNo || '';
   }
 
   async createInvoice(_transaction: ITransactionDocument) {
@@ -72,7 +73,7 @@ export class KhanbankAPI {
         defaultValue: null,
       });
 
-      return { accountNumber: this.accountNumber, ...account };
+      return { accountNumber: this.accountNumber, ibanAcctNo: this.ibanAcctNo, ...account };
     } catch (e) {
       return { error: e.message };
     }

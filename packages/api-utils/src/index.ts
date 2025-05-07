@@ -2,6 +2,7 @@ import {
   checkUserIds,
   chunkArray,
   fixDate,
+  fixNum,
   getDate,
   getEnv,
   getNextMonth,
@@ -51,6 +52,7 @@ export { validSearchText }; // (values: string[])
 export { regexSearchText }; // ( searchValue: string, searchKey = "searchText" )
 export { sendToWebhook };
 export { fixDate };
+export { fixNum };
 export { getDate };
 export { getToday };
 export { getPureDate };

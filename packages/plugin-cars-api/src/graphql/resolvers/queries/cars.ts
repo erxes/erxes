@@ -1,7 +1,7 @@
 import { paginate } from "@erxes/api-utils/src/core";
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
 import { sendCoreMessage } from "../../../messageBroker";
@@ -43,11 +43,11 @@ const generateFilter = async (
         data: {
           mainType: params.conformityMainType,
           mainTypeId: params.conformityMainTypeId,
-          relTypes: ["car"]
+          relTypes: ["car"],
         },
         isRPC: true,
-        defaultValue: []
-      })
+        defaultValue: [],
+      }),
     };
   }
 
@@ -63,11 +63,11 @@ const generateFilter = async (
         data: {
           mainType: params.conformityMainType,
           mainTypeId: params.conformityMainTypeId,
-          relType: "car"
+          relType: "car",
         },
         isRPC: true,
-        defaultValue: []
-      })
+        defaultValue: [],
+      }),
     };
   }
 
@@ -82,13 +82,13 @@ const generateFilter = async (
 
     const { list } = await qb.runQueries();
 
-    filter._id = { $in: list.map(l => l._id) };
+    filter._id = { $in: list.map((l) => l._id) };
   }
 
   return filter;
 };
 
-export const sortBuilder = params => {
+export const sortBuilder = (params) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -111,7 +111,7 @@ const carQueries = {
       ),
       {
         page: params.page,
-        perPage: params.perPage
+        perPage: params.perPage,
       }
     );
   },
@@ -131,9 +131,9 @@ const carQueries = {
     return {
       list: await paginate(models.Cars.find(filter).sort(sortBuilder(params)), {
         page: params.page,
-        perPage: params.perPage
+        perPage: params.perPage,
       }),
-      totalCount: await models.Cars.find(filter).countDocuments()
+      totalCount: await models.Cars.find(filter).countDocuments(),
     };
   },
 
@@ -174,14 +174,14 @@ const carQueries = {
   ) => {
     const counts = {
       bySegment: {},
-      byTag: {}
+      byTag: {},
     };
 
     const { only } = params;
 
     const qb = new Builder(models, subdomain, params, {
       commonQuerySelector,
-      commonQuerySelectorElk
+      commonQuerySelectorElk,
     });
 
     switch (only) {
@@ -201,16 +201,16 @@ const carQueries = {
       subdomain,
       action: "tagFind",
       data: {
-        type: "cars:car"
+        type: "cars:car",
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const tag of tags) {
       counts[tag._id] = await models.Cars.find({
         tagIds: tag._id,
-        status: { $ne: "Deleted" }
+        status: { $ne: "Deleted" },
       }).countDocuments();
     }
 
@@ -245,7 +245,48 @@ const carQueries = {
 
   cpCarCategoryDetail: async (_root, { _id }, { models }: IContext) => {
     return models.CarCategories.findOne({ _id });
-  }
+  },
+
+  carPlateSuffixes: async (
+    _root: undefined,
+    _param: undefined,
+    { models }: IContext
+  ) => {
+    const pipeline = [
+      {
+        $project: {
+          plateSuffix: {
+            $substrCP: [
+              "$plateNumber",
+              { $subtract: [{ $strLenCP: "$plateNumber" }, 3] },
+              3,
+            ],
+          },
+        },
+      },
+      {
+        $match: {
+          plateSuffix: { $regex: /^[А-Я]{3}$/ },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          uniquePlateSuffixes: { $addToSet: "$plateSuffix" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          uniquePlateSuffixes: 1,
+        },
+      },
+    ];
+
+    const [result] = await models.Cars.aggregate(pipeline)
+
+    return result?.uniquePlateSuffixes || []
+  },
 };
 
 requireLogin(carQueries, "carDetail");

@@ -1,4 +1,4 @@
-import { getPureDate } from '@erxes/api-utils/src';
+import { fixNum, getPureDate } from '@erxes/api-utils/src';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import * as moment from 'moment';
 import { nanoid } from 'nanoid';
@@ -322,16 +322,6 @@ const calcPreTaxPercentage = (paymentTypes, order) => {
   return { itemAmountPrePercent, preTaxPaymentTypes };
 };
 
-export const mathRound = (value, p = 4) => {
-  const cleanNumber = Number((value ?? '').toString().replace(/,/g, ""));
-
-  if(isNaN(cleanNumber)) {
-    return 0;
-  }
-
-  return Number(cleanNumber.toFixed(p))
-};
-
 export const prepareEbarimtData = async (
   models: IModels,
   order: IOrderDocument,
@@ -396,7 +386,7 @@ export const prepareEbarimtData = async (
         const product: IProductDocument = productsById[item.productId];
         const tempAmount = (item.count ?? 0) * (item.unitPrice ?? 0);
         const minusAmount = (tempAmount / 100) * itemAmountPrePercent;
-        const totalAmount = mathRound(tempAmount - minusAmount);
+        const totalAmount = fixNum(tempAmount - minusAmount);
 
         return {
           recId: item._id,
@@ -510,8 +500,8 @@ export const prepareOrderDoc = async (
     const fixedUnitPrice = Number(
       Number(
         ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
-          item.unitPrice ||
-          0,
+        item.unitPrice ||
+        0,
       ).toFixed(2),
     );
 
@@ -779,13 +769,13 @@ export const checkScoreAviableSubtractScoreCampaign = async (
   }
 };
 
-export const checkCouponCode = async ({order, subdomain}: {order: IOrderDocument, subdomain: string}) => {
-  
-  const {extraInfo, customerId} = order || {}
+export const checkCouponCode = async ({ order, subdomain }: { order: IOrderDocument, subdomain: string }) => {
 
-  const {couponCode, rawTotalAmount} = extraInfo || {}
+  const { extraInfo, customerId } = order || {}
 
-  if(!couponCode) { 
+  const { couponCode, rawTotalAmount } = extraInfo || {}
+
+  if (!couponCode) {
     return;
   }
 

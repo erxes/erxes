@@ -1,4 +1,5 @@
 import resolvers from "..";
+import { fixNum } from "@erxes/api-utils/src/core";
 import {
   destroyBoardItemRelations,
   getCollection,
@@ -14,7 +15,6 @@ import {
 } from "../../../models/definitions/boards";
 import {
   BOARD_STATUSES,
-  PROBABILITY,
 } from "../../../models/definitions/constants";
 import { IDeal, IDealDocument } from "../../../models/definitions/deals";
 
@@ -40,6 +40,7 @@ import {
   sendCoreMessage,
   sendLoyaltiesMessage,
   sendNotificationsMessage,
+  sendPricingMessage,
 } from "../../../messageBroker";
 import { debugError } from "@erxes/api-utils/src/debuggers";
 
@@ -364,9 +365,8 @@ export const itemsEdit = async (
       action: "sendMobileNotification",
       data: {
         title: notificationDoc?.item?.name,
-        body: `${
-          user?.details?.fullName || user?.details?.shortName
-        } has updated`,
+        body: `${user?.details?.fullName || user?.details?.shortName
+          } has updated`,
         receivers: notificationDoc?.item?.assignedUserIds,
         data: {
           type,
@@ -941,9 +941,9 @@ export const doScoreCampaign = async (
           if (scoreCampaign) {
             const { additionalConfig = [] } = scoreCampaign || {};
 
-            const stageIds = additionalConfig.flatMap(
+            const stageIds = additionalConfig?.flatMap(
               ({ stageIds }) => stageIds
-            );
+            ) || [];
 
             if (stageIds.includes(doc.stageId)) {
               await sendLoyaltiesMessage({
@@ -1019,5 +1019,98 @@ export const confirmLoyalties = async (
         },
       },
     });
-  } catch (e) {}
+  } catch (e) { }
+};
+
+export const checkPricing = async (
+  subdomain: string,
+  models: IModels,
+  deal: IDeal
+) => {
+  let pricing: any = {};
+
+  const activeProductsData = deal.productsData?.filter(pd => pd.tickUsed) || [];
+  if (!activeProductsData.length) {
+    return deal.productsData;
+  }
+
+  const stage = await models.Stages.getStage(deal.stageId);
+
+  try {
+    const totalAmount = activeProductsData.reduce((sum, pd) => sum + (pd.amount || 0), 0)
+    pricing = await sendPricingMessage({
+      subdomain,
+      action: 'checkPricing',
+      data: {
+        prioritizeRule: 'exclude',
+        totalAmount,
+        departmentId: deal.departmentIds?.length && deal.departmentIds[0] || '',
+        branchId: deal.branchIds?.length && deal.branchIds[0] || '',
+        pipelineId: stage.pipelineId,
+        products: activeProductsData.map(i => ({
+          itemId: i._id,
+          productId: i.productId,
+          quantity: i.quantity,
+          price: i.unitPrice,
+        }))
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
+  } catch (e) {
+    console.log(e.message);
+  }
+
+  let bonusProductsToAdd: any = {};
+
+  for (const item of activeProductsData || []) {
+    const discount = pricing[item._id ?? ''];
+
+    if (discount) {
+      if (discount.bonusProducts.length !== 0) {
+        for (const bonusProduct of discount.bonusProducts) {
+          if (bonusProductsToAdd[bonusProduct]) {
+            bonusProductsToAdd[bonusProduct].count += 1;
+          } else {
+            bonusProductsToAdd[bonusProduct] = {
+              count: 1
+            };
+          }
+        }
+      }
+      item.discountPercent = fixNum(discount.value * 100 / (item.unitPrice ?? 1), 8)
+      item.discount = fixNum(discount.value * item.quantity);
+      item.amount = fixNum((item.unitPrice - discount.value) * item.quantity);
+    }
+  }
+
+  for (const bonusProductId of Object.keys(bonusProductsToAdd)) {
+    const orderIndex = activeProductsData.findIndex(
+      (docItem: any) => docItem.productId === bonusProductId
+    );
+
+    if (orderIndex === -1) {
+      const bonusProduct: any = {
+        productId: bonusProductId,
+        unitPrice: 0,
+        quantity: bonusProductsToAdd[bonusProductId].count,
+        amount: 0,
+        tickUsed: true
+      };
+
+      activeProductsData.push(bonusProduct);
+    } else {
+      const item = activeProductsData[orderIndex];
+
+      item.bonusCount = bonusProductsToAdd[bonusProductId].count;
+
+      if ((item.bonusCount || 0) > item.quantity) {
+        item.quantity = item.bonusCount || 0;
+      }
+      item.discountPercent = fixNum(100 * (1 - (item.quantity - (item.bonusCount || 0)) / item.quantity), 8);
+      item.discount = fixNum((item.unitPrice / 100 * item.discountPercent) * item.quantity);
+    }
+  }
+
+  return [...activeProductsData, ...(deal.productsData?.filter(pd => !pd.tickUsed) || [])];
 };

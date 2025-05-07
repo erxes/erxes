@@ -27,6 +27,9 @@ const fields = `
     fieldId
     serviceName
     additionalConfig
+
+    restrictions
+    onlyClientPortal
 `;
 
 const scoreCampaigns = `

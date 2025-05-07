@@ -23,8 +23,10 @@ export const types = ({ contacts, clientPortal }) => `
       `
     : ''
   }
+
     tags: [Tag]
     ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ''}
+
     ${commonTypes}
   }
 `;

@@ -23,7 +23,7 @@ import dayjs from "dayjs";
 
 type Props = {
   currentUser: IUser;
-  widgetsTicketComments: IWidgetsTicketComments[];
+  widgetsComments: IWidgetsComment[];
   clientPortalComments: IClientPortalComment[];
   remove: (_id: string) => void;
   removeTicketComment: (_id: string) => void;
@@ -53,7 +53,6 @@ class Comment extends React.Component<Props, State> {
     const renderComment = (comment) => {
       const createdUser = comment.createdUser || comment.createdCustomer || {};
       const isCurrentUser = createdUser._id === currentUser._id;
-      const { currentTab } = this.state;
       return (
         <TicketComment key={comment._id}>
           <CreatedUser>
@@ -61,15 +60,14 @@ class Comment extends React.Component<Props, State> {
               src={readFile(createdUser.avatar || "/images/avatar-colored.svg")}
               alt="profile"
               onError={(e) => {
-                (e.target as HTMLImageElement).src =
-                  "/images/avatar-colored.svg";
+                (e.target as HTMLImageElement).src = "/images/avatar-colored.svg";
               }}
             />
             <div>
               <CommentContent>
                 <h5>
                   {createdUser.fullName ||
-                    `${createdUser.firstName || ""} ${createdUser.lastName || ""}`}
+                    `${createdUser.firstName || ''} ${createdUser.lastName || ''}`}
                 </h5>
                 <div
                   className="comment"
@@ -80,22 +78,11 @@ class Comment extends React.Component<Props, State> {
                 Created at {dayjs(comment.createdAt).format("YYYY-MM-DD HH:mm")}
               </span>
             </div>
-            {isCurrentUser && currentTab === "clientPortal" && (
+            {isCurrentUser && (
               <div className="actions">
                 <button
                   type="button"
                   onClick={() => remove(comment._id)}
-                  aria-label="Delete comment"
-                >
-                  Delete
-                </button>
-              </div>
-            )}
-            {currentTab === "widget" && (
-              <div className="actions">
-                <button
-                  type="button"
-                  onClick={() => removeTicketComment(comment._id)}
                   aria-label="Delete comment"
                 >
                   Delete
@@ -109,12 +96,11 @@ class Comment extends React.Component<Props, State> {
 
     const renderCommentsList = () => {
       const { currentTab } = this.state;
-      const { clientPortalComments, widgetsTicketComments } = this.props;
+      const { clientPortalComments, widgetsComments } = this.props;
 
-      const comments =
-        currentTab === "clientPortal"
-          ? clientPortalComments
-          : widgetsTicketComments;
+      const comments = currentTab === 'clientPortal'
+        ? clientPortalComments
+        : widgetsComments;
 
       return comments.length === 0 ? (
         <EmptyState text="No comments available" icon="info-circle" />
@@ -122,7 +108,6 @@ class Comment extends React.Component<Props, State> {
         comments.map(renderComment)
       );
     };
-
     return (
       <>
         <ColorButton onClick={this.handleShow}>
@@ -135,24 +120,19 @@ class Comment extends React.Component<Props, State> {
           closeModal={this.handleClose}
           title={__("Comments")}
         >
+
           <Tabs full={true}>
             <TabTitle
-              className={
-                this.state.currentTab === "clientPortal" ? "active" : ""
-              }
+              className={this.state.currentTab === "clientPortal" ? "active" : ""}
               onClick={this.tabOnClick.bind(this, "clientPortal")}
             >
               {__("Client Portal")}
             </TabTitle>
-            <TabTitle
-              className={this.state.currentTab === "widget" ? "active" : ""}
-              onClick={this.tabOnClick.bind(this, "widget")}
-            >
-              {__("Widgets")}
-            </TabTitle>
           </Tabs>
           <SpaceFormsWrapper>
-            <CommentWrapper>{renderCommentsList()}</CommentWrapper>
+            <CommentWrapper>
+              {renderCommentsList()}
+            </CommentWrapper>
           </SpaceFormsWrapper>
           <ModalFooter>
             <Button
