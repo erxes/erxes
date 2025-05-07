@@ -1,7 +1,8 @@
 import * as moment from 'moment';
+import { fixNum } from '@erxes/api-utils/src';
 import { IEbarimt, IEbarimtFull } from './definitions/ebarimt';
 import { IEbarimtConfig } from './definitions/configs';
-import { getCompanyInfo, mathRound } from '../utils';
+import { getCompanyInfo } from '../utils';
 
 export interface IDoc {
   contentType: string;
@@ -207,12 +208,12 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
     detailsFree,
     details0,
     detailsInner,
-    ableAmount: mathRound(ableAmount),
-    freeAmount: mathRound(freeAmount),
-    zeroAmount: mathRound(zeroAmount),
-    innerAmount: mathRound(innerAmount),
-    ableVATAmount: mathRound(ableVATAmount),
-    ableCityTaxAmount: mathRound(ableCityTaxAmount),
+    ableAmount: fixNum(ableAmount),
+    freeAmount: fixNum(freeAmount),
+    zeroAmount: fixNum(zeroAmount),
+    innerAmount: fixNum(innerAmount),
+    ableVATAmount: fixNum(ableVATAmount),
+    ableCityTaxAmount: fixNum(ableCityTaxAmount),
   }
 }
 
@@ -259,9 +260,9 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
       contentType: doc.contentType,
       contentId: doc.contentId,
 
-      totalAmount: mathRound(ableAmount + freeAmount + zeroAmount),
-      totalVAT: mathRound(ableVATAmount),
-      totalCityTax: mathRound(ableCityTaxAmount),
+      totalAmount: fixNum(ableAmount + freeAmount + zeroAmount),
+      totalVAT: fixNum(ableVATAmount),
+      totalCityTax: fixNum(ableCityTaxAmount),
       districtCode: config.districtCode,
       branchNo: config.branchNo,
       merchantTin: config.merchantTin,
@@ -307,9 +308,9 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     }
 
     // payments
-    let cashAmount: number = mathRound(mainData.totalAmount) ?? 0;
+    let cashAmount: number = fixNum(mainData.totalAmount) ?? 0;
     for (const payment of doc.nonCashAmounts) {
-      const paidAmount = mathRound(payment.amount);
+      const paidAmount = fixNum(payment.amount);
       mainData.payments?.push({
         code: 'PAYMENT_CARD',
         exchangeCode: '',
@@ -320,12 +321,12 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
       cashAmount -= paidAmount;
     }
 
-    if (mathRound(cashAmount)) {
+    if (fixNum(cashAmount)) {
       mainData.payments?.push({
         code: 'CASH',
         exchangeCode: '',
         status: 'PAID',
-        paidAmount: mathRound(cashAmount),
+        paidAmount: fixNum(cashAmount),
       });
     }
   }

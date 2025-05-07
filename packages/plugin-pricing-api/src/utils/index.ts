@@ -14,7 +14,11 @@ import { CalculatedRule, OrderItem } from '../types';
 import { IPricingPlanDocument } from '../models/definitions/pricingPlan';
 
 // Finding valid discounts
-export const getMainConditions: any = (branchId?, departmentId?, date?) => {
+export const getMainConditions: any = ({
+  branchId, departmentId, pipelineId, date
+}: {
+  branchId?: string, departmentId?: string, pipelineId?: string, date?: Date
+}) => {
   const now = dayjs(date || new Date());
   const nowISO = now.toISOString();
 
@@ -38,7 +42,14 @@ export const getMainConditions: any = (branchId?, departmentId?, date?) => {
           {
             departmentIds: { $in: [departmentId && departmentId] },
             branchIds: { $in: [branchId && branchId] }
-          }
+          },
+        ]
+      },
+      pipelineId && {
+        $or: [
+          { pipelineId },
+          { pipelineId: { $exists: false } },
+          { pipelineId: '' }
         ]
       },
       {
@@ -84,6 +95,7 @@ export const checkPricing = async (
   totalAmount: number,
   departmentId: string,
   branchId: string,
+  pipelineId: string,
   orderItems: OrderItem[]
 ) => {
   const productIds: string[] = orderItems.map(p => p.productId);
@@ -92,7 +104,7 @@ export const checkPricing = async (
   let allowedProductIds: string[] = [];
 
   // Finding valid discounts
-  const conditions: any = getMainConditions(branchId, departmentId);
+  const conditions: any = getMainConditions({ branchId, departmentId, pipelineId });
 
   if (prioritizeRule === 'only') {
     conditions.isPriority = true;
