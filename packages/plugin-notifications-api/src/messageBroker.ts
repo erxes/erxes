@@ -45,7 +45,7 @@ const sendNotification = async (
     contentTypeId,
   } = doc;
 
-  let link = doc.link;
+  let { link } = doc;
   // remove duplicated ids
   const receiverIds = Array.from(new Set(receivers));
 
