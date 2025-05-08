@@ -51,7 +51,7 @@ export const getMainConditions: any = ({
           { pipelineId: { $exists: false } },
           { pipelineId: '' }
         ]
-      },
+      } || {},
       {
         $or: [
           {
