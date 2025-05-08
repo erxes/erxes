@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 export const types = () => `
   extend type User @key(fields: "_id") {
@@ -16,6 +16,7 @@ export const types = () => `
     branchId: String
     name: String
     refNumber: String
+    groupCode: String
     content: String
     duration: Int
     location: [BMSLocation]
@@ -83,11 +84,14 @@ export const queries = `
   bmTours(branchId:String, sortField:String, sortDirection:Int, page:Int, perPage:Int, status: String, innerDate: Date,branchId: String, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date): ListTour
   bmTourDetail(_id:String!,branchId: String): Tour
   bmOrders( tourId:String, customerId:String ,branchId: String):ListBmsOrder
+  bmToursGroup(branchId:String, sortField:String, sortDirection:Int, page:Int, perPage:Int, status: String, innerDate: Date,branchId: String, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date): JSON
+
 `;
 
 const params = `
   branchId: String,
   name: String,
+  groupCode: String,
   content: String,
   itineraryId:String,
   startDate: Date,
