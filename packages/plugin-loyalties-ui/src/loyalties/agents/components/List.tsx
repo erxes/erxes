@@ -156,6 +156,7 @@ const AgentList = (props: IProps) => {
           autoOpenKey="showAgentModal"
           content={agentForm}
           backDrop="static"
+          size="xl"
         />
       </BarItems>
     );

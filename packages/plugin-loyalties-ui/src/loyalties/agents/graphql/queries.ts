@@ -15,16 +15,6 @@ const agentFields = `
   returnPercent
   prepaidPercent
   discountPercent
-  productRules {
-    categoryIds
-    excludeCategoryIds
-    productIds
-    excludeProductIds
-    tagIds
-    excludeTagIds
-    unitPrice
-    bundleId
-  }
 `;
 
 const agents = `

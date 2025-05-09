@@ -54,7 +54,7 @@ class AgentRow extends React.Component<Props> {
       <tr>
         <td key={"number"}>{this.displayValue(agent, "number")}</td>
         <td key={"status"}>{this.displayValue(agent, "status")}</td>
-        <td key={"status"}>{this.displayValue(agent, "hasReturn")}</td>
+        <td key={"hasReturn"}>{this.displayValue(agent, "hasReturn")}</td>
         <td key={"actions"} onClick={onClick}>
           .
         </td>

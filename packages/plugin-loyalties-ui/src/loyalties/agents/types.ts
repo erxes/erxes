@@ -1,14 +1,3 @@
-export interface IProductRule {
-  categoryIds?: string[];
-  excludeCategoryIds?: string[];
-  productIds?: string[];
-  excludeProductIds?: string[];
-  tagIds?: string[];
-  excludeTagIds?: string[];
-  unitPrice: number;
-  bundleId?: string;
-}
-
 enum AgentStatus {
   Active = 'active',
   Draft = 'draft',
@@ -27,7 +16,6 @@ export interface IAgent {
   startDay?: Date;
   endDay?: Date;
   hasReturn: boolean;
-  productRules?: IProductRule[];
   returnAmount?: number;
   returnPercent?: number;
   prepaidPercent?: number;

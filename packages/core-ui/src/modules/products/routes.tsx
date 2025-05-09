@@ -30,6 +30,11 @@ const BarcodeGenerator = asyncComponent(
     )
 );
 
+const ProductRulesContainer = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "Settings List - ProductRules" */ './containers/config/ProductRules')
+);
+
 const Details = () => {
   const id = useParams();
 
@@ -111,6 +116,12 @@ const routes = () => (
       path='/settings/barcode-generator/:id'
       key='/settings/barcode-generator/:id'
       element={<BarcodeGeneratorComponent />}
+    />
+
+    <Route
+      path='/settings/product-rule'
+      key='/settings/product-rule'
+      element={<ProductRulesContainer />}
     />
   </Routes>
 );

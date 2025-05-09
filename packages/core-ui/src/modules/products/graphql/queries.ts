@@ -158,6 +158,25 @@ query BundleRules {
     }
   }
 }`;
+
+const productRules = `
+  query productRules {
+    productRules {
+      _id
+      name
+      categoryIds
+      excludeCategoryIds
+      productIds
+      excludeProductIds
+      tagIds
+      excludeTagIds
+      unitPrice
+      bundleId
+    }
+  }
+`;
+
+
 export default {
   products,
   productDetail,
@@ -174,5 +193,6 @@ export default {
   bundleConditions,
   bundleConditionDetail,
   bundleConditionTotalCount,
-  bundleRules
+  bundleRules,
+  productRules
 };

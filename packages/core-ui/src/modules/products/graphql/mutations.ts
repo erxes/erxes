@@ -134,6 +134,47 @@ mutation BundleRulesEdit($_id: String!, $description: String, $code: String, $ru
 }`;
 const productsConfigsUpdate = productMutations.productsConfigsUpdate;
 
+// product rules
+const productRuleParamDefs = `
+  $name: String!,
+  $unitPrice: Float!,
+  $bundleId: String,
+  $categoryIds: [String],
+  $excludeCategoryIds: [String],
+  $productIds: [String],
+  $excludeProductIds: [String],
+  $tagIds: [String],
+  $excludeTagIds: [String]
+`;
+
+const productRuleParams = `
+  name: $name,
+  unitPrice: $unitPrice,
+  bundleId: $bundleId,
+  categoryIds: $categoryIds,
+  excludeCategoryIds: $excludeCategoryIds,
+  productIds: $productIds,
+  excludeProductIds: $excludeProductIds,
+  tagIds: $tagIds,
+  excludeTagIds: $excludeTagIds
+`;
+
+const productRulesAdd = `
+  mutation productRulesAdd(${productRuleParamDefs}) {
+    productRulesAdd(${productRuleParams}) {
+      _id
+    }
+  }
+`;
+
+const productRulesEdit = `
+  mutation productRulesEdit(_id: String!, ${productRuleParamDefs}) {
+    productRulesEdit(_id: $_id, ${productRuleParams}) {
+      _id
+    }
+  }
+`;
+
 export default {
   productAdd,
   productEdit,
@@ -157,4 +198,7 @@ export default {
   bundleRuleRemove,
   bundleRuleEdit,
   bundleConditionSetBulk,
+
+  productRulesAdd,
+  productRulesEdit
 };

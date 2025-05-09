@@ -197,3 +197,21 @@ export type ConfigsQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+// Product rules
+export interface IProductRule {
+  _id: string;
+  categoryIds?: string[];
+  excludeCategoryIds?: string[];
+  productIds?: string[];
+  excludeProductIds?: string[];
+  tagIds?: string[];
+  excludeTagIds?: string[];
+  unitPrice: number;
+  bundleId?: string;
+  name: string;
+};
+
+export type ProductRulesQueryResponse = {
+  productRules: IProductRule[];
+} & QueryResponse;

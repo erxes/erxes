@@ -38,6 +38,9 @@ const Sidebar = () => {
       <List id="SettingsSidebar">
         {renderListItem("/settings/bundle-rule", "Bundle Rule")}
       </List>
+      <List id="SettingsSidebar">
+        {renderListItem("/settings/product-rule", "Product Rule")}
+      </List>
     </LeftSidebar>
   );
 };
