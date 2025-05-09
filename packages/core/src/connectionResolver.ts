@@ -162,6 +162,9 @@ import {
   IBundleRuleDocument,
 } from './db/models/definitions/bundle';
 
+import { IProductRuleModel, loadProductRuleClass } from './db/models/ProductRules';
+import { IProductRuleDocument } from './db/models/definitions/productRules';
+
 export interface IModels {
   Users: IUserModel;
   Brands: IBrandModel;
@@ -205,6 +208,7 @@ export interface IModels {
   ExchangeRates: IExchangeRateModel;
   BundleCondition: IBundleConditionModel;
   BundleRule: IBundleRuleModel;
+  ProductRules: IProductRuleModel;
 }
 
 export interface IContext extends IMainContext {
@@ -402,6 +406,12 @@ export const loadClasses = (
     'bundle_rules',
     loadBundleRuleClass(models, subdomain)
   );
+
+  models.ProductRules = db.model<IProductRuleDocument, IProductRuleModel>(
+    'product_rules',
+    loadProductRuleClass(models, subdomain)
+  );
+
   return models;
 };
 

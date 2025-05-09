@@ -2,7 +2,7 @@ import { IContext } from "../../../connectionResolver";
 import { IAgent, IAgentDocument } from "../../../models/definitions/agents";
 
 const agentMutations = {
-  agentsAdd: async (_root, params: IAgent, { models, subdomain, user }: IContext) => {
+  agentsAdd: async (_root, params: IAgent, { models }: IContext) => {
     const agent = await models.Agents.createAgent(params);
 
     return agent;

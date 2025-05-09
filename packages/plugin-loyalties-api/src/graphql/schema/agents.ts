@@ -1,14 +1,3 @@
-const productRuleDefs = `
-  categoryIds: [String],
-  excludeCategoryIds: [String],
-  productIds: [String],
-  excludeProductIds: [String],
-  tagIds: [String],
-  excludeTagIds: [String],
-  unitPrice: Float,
-  bundleId: String
-`;
-
 const fieldDefs = `
   number: String!,
   customerIds: [String],
@@ -24,12 +13,12 @@ const fieldDefs = `
   returnAmount: Float,
   returnPercent: Float,
   prepaidPercent: Float,
-  discountPercent: Float
+  discountPercent: Float,
+  productRuleIds: [String]
 `;
 
 const addEditParamDefs = `
   ${fieldDefs}
-  productRules: [ProductRuleInput]
 `;
 
 export const types = `
@@ -39,18 +28,14 @@ export const types = `
     archived
   }
 
-  type ProductRule {
-    ${productRuleDefs}
-  }
-
-  input ProductRuleInput {
-    ${productRuleDefs}
-  }
-
   type Agent @key(fields: "_id") {
     _id: String!,
-    productRules: [ProductRule],
-    ${fieldDefs}
+    ${fieldDefs},
+  }
+
+  type AgentList {
+    list: [Agent],
+    totalCount: Int
   }
 `;
 
@@ -63,6 +48,7 @@ export const queries = `
     companyIds: [String]
   ): [Agent]
   agentDetail(_id: String): Agent
+  agentsMain: AgentList
 `;
 
 export const mutations = `

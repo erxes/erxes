@@ -39,6 +39,9 @@ const agentQueries = {
     const agent = await models.Agents.getAgent(_id);
 
     return agent;
+  },
+  agentsMain: async (_root, params, { models }: IContext) => {
+    
   }
 };
 

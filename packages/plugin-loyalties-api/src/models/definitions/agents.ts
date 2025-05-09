@@ -3,17 +3,6 @@ import { Document, Schema } from 'mongoose';
 import { AGENT_STATUSES } from './constants';
 import { field } from './utils';
 
-export interface IProductRule {
-  categoryIds?: string[];
-  excludeCategoryIds?: string[];
-  productIds?: string[];
-  excludeProductIds?: string[];
-  tagIds?: string[];
-  excludeTagIds?: string[];
-  unitPrice: number;
-  bundleId?: string;
-}
-
 enum AgentStatus {
   Active = 'active',
   Draft = 'draft',
@@ -32,7 +21,7 @@ export interface IAgent {
   startDay?: Date;
   endDay?: Date;
   hasReturn: boolean;
-  productRules?: IProductRule[];
+  productRuleIds?: string[];
   returnAmount?: number;
   returnPercent?: number;
   prepaidPercent?: number;
@@ -42,17 +31,6 @@ export interface IAgent {
 export interface IAgentDocument extends Document, IAgent {
   _id: string;
 }
-
-const productRuleSchema = new Schema({
-  categoryIds: field({ type: [String], label: 'When using specific product categories' }),
-  excludeCategoryIds: field({ type: [String], label: 'When excluding specific categories' }),
-  productIds: field({ type: [String], label: 'When including specific products' }),
-  excludeProductIds: field({ type: [String], label: 'When excluding specific products' }),
-  tagIds: field({ type: [String], label: 'When including specific products with tags' }),
-  excludeTagIds: field({ type: [String], label: 'When excluding specific products with tags' }),
-  unitPrice: field({ type: Number, label: 'Unit price' }),
-  bundleId: field({ type: String, label: 'Relevant loyalty bundle id' })
-}, { _id: false });
 
 export const agentSchema = new Schema({
   _id: field({ pkey: true }),
@@ -67,6 +45,7 @@ export const agentSchema = new Schema({
   startDay: field({ type: Date }),
   endDay: field({ type: Date }),
   hasReturn: field({ type: Boolean, label: 'Whether agent returns money or not' }),
+  productRuleIds: field({ type: [String], label: 'Product specific rules' }),
   // if hasReturn === true
   returnAmount: field({ type: Number, min: 0 }),
   // returnAmount will override returnPercent
@@ -74,7 +53,6 @@ export const agentSchema = new Schema({
   // if hasReturn === false
   prepaidPercent: field({ type: Number, min: 0, max: 100 }),
   discountPercent: field({ type: Number, min: 0, max: 100 }),
-  productRules: field({ type: [productRuleSchema], label: 'Product specific rules' })
 });
 
 // TODO: add indexes on other fields later depending on usage
