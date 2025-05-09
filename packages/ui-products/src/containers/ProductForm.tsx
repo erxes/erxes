@@ -95,7 +95,7 @@ const ProductFormContainer = (props: FinalProps) => {
   const productCategories = productCategoriesQuery.productCategories || [];
   const configs = productsConfigsQuery.productsConfigs || [];
   const configsMap = {};
-  const currencies = configsQuery.configsGetValue.value || [];
+  const currencies = configsQuery.configsGetValue?.value || [];
   const bundleRules = bundlesQuery.bundleRules || [];
   for (const config of configs) {
     configsMap[config.code] = config.value;
