@@ -1,87 +1,87 @@
-import { Route, Routes, useLocation, useParams } from 'react-router-dom';
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
 
-import HolidaySettings from './settings/components/HolidaySettings';
-import LossSettings from './settings/components/LossSettings';
-import CreditLoanSettings from './settings/components/CreditLoanSettings';
-import MainSettings from './settings/components/MainSettings';
-import React from 'react';
-import Settings from './settings/containers/Settings';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
+import HolidaySettings from "./settings/components/HolidaySettings";
+import LossSettings from "./settings/components/LossSettings";
+import CreditLoanSettings from "./settings/components/CreditLoanSettings";
+import MainSettings from "./settings/components/MainSettings";
+import React from "react";
+import Settings from "./settings/containers/Settings";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
 
 const ContractList = asyncComponent(
   () =>
-    import(/* webpackChunkName: "ContractList" */ './contracts/containers/List')
+    import(/* webpackChunkName: "ContractList" */ "./contracts/containers/List")
 );
 
 const ContractDetails = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "ContractDetails" */ './contracts/containers/detail/ContractDetails'
+      /* webpackChunkName: "ContractDetails" */ "./contracts/containers/detail/ContractDetails"
     )
 );
 const PeriodLockDetails = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "PeriodLockDetails" */ './periodLocks/containers/PeriodLockDetails'
+      /* webpackChunkName: "PeriodLockDetails" */ "./periodLocks/containers/PeriodLockDetails"
     )
 );
 
 const CollateralList = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "CollateralList" */ './collaterals/containers/CollateralsList'
+      /* webpackChunkName: "CollateralList" */ "./collaterals/containers/CollateralsList"
     )
 );
 
 const TransactionList = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "TransactionList" */ './transactions/containers/TransactionsList'
+      /* webpackChunkName: "TransactionList" */ "./transactions/containers/TransactionsList"
     )
 );
 const PeriodLockList = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "PeriodLockList" */ './periodLocks/containers/PeriodLocksList'
+      /* webpackChunkName: "PeriodLockList" */ "./periodLocks/containers/PeriodLocksList"
     )
 );
 const InsuranceTypesList = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "InsuranceTypesList" */ './insuranceTypes/containers/InsuranceTypesList'
+      /* webpackChunkName: "InsuranceTypesList" */ "./insuranceTypes/containers/InsuranceTypesList"
     )
 );
 const ContractTypesList = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "ContractTypesList" */ './contractTypes/containers/ContractTypesList'
+      /* webpackChunkName: "ContractTypesList" */ "./contractTypes/containers/ContractTypesList"
     )
 );
 const PurposeList = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "ContractTypesList" */ './purpose/containers/PurposesList'
+      /* webpackChunkName: "PurposeTypesList" */ "./purpose/containers/PurposesList"
     )
 );
 const ContractTypeDetails = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "ContractTypeDetails" */ './contractTypes/containers/ContractTypeDetails'
+      /* webpackChunkName: "ContractTypeDetails" */ "./contractTypes/containers/ContractTypeDetails"
     )
 );
 
 const ClassificationList = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "ContractTypeDetails" */ './classificationHistory/containers/ClassificationList'
+      /* webpackChunkName: "ContractTypeDetails" */ "./classificationHistory/containers/ClassificationList"
     )
 );
 
 const NonBalanceTransactionList = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "NonBalanceTransactionList" */ './nonBalanceTransaction/containers/NonBalanceTransactionList'
+      /* webpackChunkName: "NonBalanceTransactionList" */ "./nonBalanceTransaction/containers/NonBalanceTransactionList"
     )
 );
 

@@ -1,65 +1,65 @@
 import {
   attachmentInput,
-  attachmentType,
+  attachmentType
 } from '@erxes/api-utils/src/commonTypeDefs';
 import {
   mutations as periodLockMutations,
   queries as periodLockQueries,
-  types as periodLockTypes,
+  types as periodLockTypes
 } from './periodLock';
 import {
   queries as collateralQueries,
-  types as collateralTypes,
+  types as collateralTypes
 } from './collateral';
 import {
   mutations as collateralTypeMutations,
   queries as collateralTypeQueries,
-  types as collateralTypeTypes,
+  types as collateralTypeTypes
 } from './collateralType';
 import {
   mutations as contractMutations,
   queries as contractQueries,
-  types as contractTypes,
+  types as contractTypes
 } from './contract';
 import {
   mutations as contractTypeMutations,
   queries as contractTypeQueries,
-  types as contractTypeTypes,
+  types as contractTypeTypes
 } from './contractType';
 import {
   mutations as insuranceTypeMutations,
   queries as insuranceTypeQueries,
-  types as insuranceTypeTypes,
+  types as insuranceTypeTypes
 } from './insuranceType';
 import {
   mutations as invoiceMutations,
   queries as invoiceQueries,
-  types as invoiceTypes,
+  types as invoiceTypes
 } from './invoice';
 import {
   mutations as scheduleMutations,
   queries as scheduleQueries,
-  types as scheduleTypes,
+  types as scheduleTypes
 } from './schedule';
 import {
   mutations as transactionMutations,
   queries as transactionQueries,
-  types as transactionTypes,
+  types as transactionTypes
 } from './transaction';
 import {
   mutations as classificationMutations,
   queries as classificationQueries,
-  types as classificationTypes,
+  types as classificationTypes
 } from './classification';
 import {
   mutations as nonBalanceTransactionMutations,
   queries as nonBalanceTransactionQueries,
-  types as nonBalanceTransactionTypes,
+  types as nonBalanceTransactionTypes
 } from './nonBalanceTransaction';
 import {
   mutations as purposeMutations,
   queries as purposeQueries,
-  types as purposeTypes,
+  types as purposeTypes
 } from './purpose';
 
 export const types = `
