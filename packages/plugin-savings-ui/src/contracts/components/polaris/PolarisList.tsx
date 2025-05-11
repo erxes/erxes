@@ -17,16 +17,23 @@ const PolarisList = (props: IProps) => {
       <Table>
         <thead>
           <tr>
+            <th>{__('Is Synced Polaris')}</th>
             <th>{__('Polaris Contract Id')}</th>
             <th>{__('Contract Type')}</th>
             <th>{__('Saving Amount')}</th>
           </tr>
         </thead>
-        <tbody id="schedules">
-          <td>{contract?.number || ''}</td>
-          <td>{contract?.contractType?.name || ''}</td>
-          <td>{contract?.savingAmount || 0}</td>
-        </tbody>
+
+        {contract.isSyncedPolaris ? (
+          <tbody id="schedules">
+            <td>{contract?.isSyncedPolaris && 'Synced'}</td>
+            <td>{contract?.number || ''}</td>
+            <td>{contract?.contractType?.name || ''}</td>
+            <td>{contract?.savingAmount || 0}</td>{' '}
+          </tbody>
+        ) : (
+          ''
+        )}
       </Table>
     </ContractsTableWrapper>
   );

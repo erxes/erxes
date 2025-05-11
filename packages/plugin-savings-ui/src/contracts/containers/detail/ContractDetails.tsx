@@ -48,7 +48,7 @@ const ContractDetailsContainer = (props: FinalProps) => {
   const [contractsEdit] = useMutation<EditMutationResponse>(
     gql(mutations.contractsEdit),
     {
-      refetchQueries: ['contractDetail'],
+      refetchQueries: ['savingsContractDetail'],
     }
   );
 
@@ -62,7 +62,7 @@ const ContractDetailsContainer = (props: FinalProps) => {
   const [sendSavings] = useMutation<SavingsMutationResponse>(
     gql(mutations.sendSaving),
     {
-      refetchQueries: ['contractDetail'],
+      refetchQueries: ['savingsContractDetail'],
     }
   );
 

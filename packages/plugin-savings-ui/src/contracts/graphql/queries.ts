@@ -34,6 +34,7 @@ export const contractFields = `
   isDeposit
   customFieldsData
   blockAmount
+  isSyncedPolaris
 `;
 
 const listParamsDef = `

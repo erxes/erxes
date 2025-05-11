@@ -1,9 +1,9 @@
 import {
   IActivityLog,
-  IActivityLogForMonth,
-} from '@erxes/ui-log/src/activityLogs/types';
+  IActivityLogForMonth
+} from "@erxes/ui-log/src/activityLogs/types";
 
-import { ITransaction } from '../transactions/types';
+import { ITransaction } from "../transactions/types";
 
 export interface IContract {
   _id: string;
@@ -48,6 +48,7 @@ export interface IContract {
   customFieldsData?: any;
   isDeposit?: boolean;
   blockAmount: number;
+  isSyncedPolaris?: boolean;
 }
 
 export interface IContractDoc extends IContract {

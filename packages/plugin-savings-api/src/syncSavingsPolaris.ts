@@ -37,7 +37,7 @@ const fetchPolaris = async (op, body) => {
     Cookie: `NESSESSION=03tv40BnPzFEEcGgsFxkhrAUTN7Awh`,
     Company: '13',
     Role: '45',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   };
   const url = `http://202.131.242.158:4139/nesWeb/NesFront`;
   const requestOptions = {
@@ -45,7 +45,7 @@ const fetchPolaris = async (op, body) => {
     method: 'POST',
     headers,
     body: JSON.stringify(body),
-    agent: new http.Agent({ keepAlive: true })
+    agent: new http.Agent({ keepAlive: true }),
   };
 
   const realResponse = await fetch(url, requestOptions)
@@ -105,7 +105,7 @@ const command = async () => {
       const getAccounts = await fetchPolaris('13610312', [
         customer.code,
         0,
-        20
+        20,
       ]);
 
       const termDeposits = getAccounts.filter(
@@ -116,15 +116,15 @@ const command = async () => {
         for (const deposit of termDeposits) {
           const detailDeposit = await fetchPolaris('13610100', [
             deposit.acntCode,
-            '0'
+            '0',
           ]);
 
           const type = await SavingContractTypes.findOne({
-            code: deposit.prodCode
+            code: deposit.prodCode,
           });
 
           const contract = await SavingContracts.findOne({
-            number: deposit.acntCode
+            number: deposit.acntCode,
           });
 
           if (type && !contract) {
@@ -139,8 +139,9 @@ const command = async () => {
               duration: detailDeposit.termLen,
               interestRate: detailDeposit.intRate,
               currency: 'MNT',
+              isSyncedPolaris: true,
               startDate: new Date(detailDeposit.startDate),
-              createdAt: new Date(detailDeposit.createdDate)
+              createdAt: new Date(detailDeposit.createdDate),
             };
 
             await SavingContracts.insertOne({ ...document });
