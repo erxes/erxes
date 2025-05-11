@@ -43,19 +43,6 @@ const nanoid = (len = 21) => {
   return randomString;
 };
 
-const dateGroup = async (data) => {
-  const groupedByDate = data.txns.reduce((acc, txn) => {
-    const date = txn.postDate.split('T')[0];
-    if (!acc[date]) {
-      acc[date] = [];
-    }
-    acc[date].push(txn);
-    return acc;
-  }, {});
-
-  console.log(groupedByDate);
-};
-
 const fetchPolaris = async (op, body) => {
   const headers = {
     Op: op,
@@ -122,149 +109,150 @@ const command = async () => {
   let step = 0;
   let per = 10000;
 
-  // const huulga = await fetchPolaris('13610201', [
-  //   '130013000562',
-  //   moment(contractDetail.startDate).format('YYYY-MM-DD'),
-  //   moment(contractDetail.endDate).format('YYYY-MM-DD'),
+  // const pLoanContracts = await fetchPolaris('13610210', [
+  //   'CIF-13000112',
   //   0,
-  //   100
+  //   20
   // ]);
 
-  // console.log(huulga, 'huulga');
-  // const haha = await dateGroup(huulga);
-  // console.log(haha, 'haha');
+  const huulga = await fetchPolaris('13610201', [
+    '130013000562',
+    '2025-03-28',
+    '2025-07-28',
+    0,
+    100
+  ]);
 
-  // for (const data of huulga.txns) {
-  //   if (data.income !== 0) {
-  //     const doc = {
-  //       _id: nanoid(),
-  //       contractId: 'nrt7qZBM008-UpKQ3Nx91',
-  //       payDate: new Date(data.postDate),
-  //       description: data.txnDesc,
-  //       currency: data.curCode,
-  //       payment: data.income,
-  //       transactionType: 'repayment',
-  //       total: data.balance
-  //     };
+  console.log(huulga, 'huulga');
 
-  //     await LoanTransaction.insertOne({ ...doc });
+  await syncTransactions(
+    huulga,
+    LoanTransaction,
+    LoanSchedules,
+    LoanContracts,
+    'IFmfkRSuJXnNClNJlDwxI'
+  );
 
-  //     await PeriodLocks.insertOne({});
+  // while (step * per < customersCount) {
+  //   const skip = step * per;
+  //   const customers = await Customers.find(customerFilter)
+  //     .sort({ code: 1 })
+  //     .skip(skip)
+  //     .limit(per)
+  //     .toArray();
+
+  //   for (const customer of customers) {
+  //     if (!customer.code) {
+  //       continue;
+  //     }
+
+  //     const pLoanContracts = await fetchPolaris('13610210', [
+  //       customer.code,
+  //       0,
+  //       20
+  //     ]);
+
+  //     const filteredContracts = pLoanContracts.filter(
+  //       (contract) => contract.acntCode === '130013000562'
+  //     );
+
+  //     for (const pLoanContract of filteredContracts) {
+  //       console.log('---------------------------------------------');
+
+  //       const contractDetail = await fetchPolaris('13610200', [
+  //         pLoanContract.acntCode,
+  //         0
+  //       ]);
+
+  //       const collaterals = await fetchPolaris('13610904', [
+  //         pLoanContract.acntCode
+  //       ]);
+
+  //       const contractType = await LoanContractTypes.findOne({
+  //         code: contractDetail.prodCode
+  //       });
+
+  //       const createdContract = await LoanContracts.findOne({
+  //         number: contractDetail.acntCode
+  //       });
+
+  //       /**
+  //        * sync loan contract
+  //        */
+
+  //       if (contractType && !createdContract) {
+  //         const document = {
+  //           _id: nanoid(),
+  //           contractTypeId: contractType._id,
+  //           number: contractDetail.acntCode,
+  //           repayment: 'fixed',
+  //           leaseType: 'finance',
+  //           currency: contractDetail.curCode,
+  //           customerType:
+  //             contractDetail.custType === 0 ? 'customer' : 'company',
+  //           customerId: customer._id,
+  //           tenor: contractDetail.termLen,
+  //           leaseAmount: contractDetail.approvAmount,
+  //           interestRate: contractDetail.baseFixedIntRate,
+  //           startDate: new Date(contractDetail.startDate),
+  //           contractDate: new Date(contractDetail.approvDate),
+  //           endDate: new Date(contractDetail.endDate),
+  //           createdAt: new Date()
+  //         };
+
+  //         const updatedDocument = await syncCollateral(
+  //           ProductCategories,
+  //           Products,
+  //           collaterals,
+  //           document
+  //         );
+
+  //         const loanContract = await LoanContracts.insertOne({
+  //           ...updatedDocument
+  //         });
+
+  //         /**
+  //          * sync loan schedules
+  //          */
+
+  //         const pLoanSchedules = await fetchPolaris('13610203', [
+  //           pLoanContract.acntCode
+  //         ]);
+
+  //         await syncSchedules(
+  //           LoanFirstSchedules,
+  //           LoanContracts,
+  //           pLoanSchedules,
+  //           loanContract
+  //         );
+
+  //         /**
+  //          * sync loan transaction
+  //          */
+
+  //         const huulga = await fetchPolaris('13610201', [
+  //           pLoanContract.acntCode,
+  //           moment(pLoanContract.startDate).format('YYYY-MM-DD'),
+  //           moment(pLoanContract.endDate).format('YYYY-MM-DD'),
+  //           0,
+  //           100
+  //         ]);
+
+  //         console.log(huulga, 'huulga');
+
+  //         await syncTransactions(
+  //           huulga,
+  //           LoanTransaction,
+  //           LoanSchedules,
+  //           LoanContracts,
+  //           loanContract
+  //         );
+  //       }
+  //     }
   //   }
+
+  //   step++;
   // }
-
-  while (step * per < customersCount) {
-    const skip = step * per;
-    const customers = await Customers.find(customerFilter)
-      .sort({ code: 1 })
-      .skip(skip)
-      .limit(per)
-      .toArray();
-
-    for (const customer of customers) {
-      if (!customer.code) {
-        continue;
-      }
-
-      const pLoanContracts = await fetchPolaris('13610210', [
-        customer.code,
-        0,
-        20
-      ]);
-
-      const filteredContracts = pLoanContracts.filter(
-        (contract) => contract.statusName !== 'Хаасан'
-      );
-
-      for (const pLoanContract of filteredContracts) {
-        console.log('---------------------------------------------');
-
-        const contractDetail = await fetchPolaris('13610200', [
-          pLoanContract.acntCode,
-          0
-        ]);
-
-        const collaterals = await fetchPolaris('13610904', [
-          pLoanContract.acntCode
-        ]);
-
-        const contractType = await LoanContractTypes.findOne({
-          code: contractDetail.prodCode
-        });
-
-        const createdContract = await LoanContracts.findOne({
-          number: contractDetail.acntCode
-        });
-
-        /**
-         * sync loan contract
-         */
-
-        if (contractType && !createdContract) {
-          const document = {
-            _id: nanoid(),
-            contractTypeId: contractType._id,
-            number: contractDetail.acntCode,
-            repayment: 'fixed',
-            leaseType: 'finance',
-            currency: contractDetail.curCode,
-            customerType:
-              contractDetail.custType === 0 ? 'customer' : 'company',
-            customerId: customer._id,
-            tenor: contractDetail.termLen,
-            leaseAmount: contractDetail.approvAmount,
-            interestRate: contractDetail.baseFixedIntRate,
-            startDate: new Date(contractDetail.startDate),
-            contractDate: new Date(contractDetail.approvDate),
-            endDate: new Date(contractDetail.endDate),
-            createdAt: new Date()
-          };
-
-          const updatedDocument = await syncCollateral(
-            ProductCategories,
-            Products,
-            collaterals,
-            document
-          );
-
-          const loanContract = await LoanContracts.insertOne({
-            ...updatedDocument
-          });
-
-          /**
-           * sync loan schedules
-           */
-
-          const pLoanSchedules = await fetchPolaris('13610203', [
-            pLoanContract.acntCode
-          ]);
-
-          await syncSchedules(
-            LoanFirstSchedules,
-            LoanContracts,
-            pLoanSchedules,
-            loanContract
-          );
-
-          /**
-           * sync loan transaction
-           */
-
-          // const huulga = await fetchPolaris('13610201', [
-          //   pLoanContract.acntCode,
-          //   moment(pLoanContract.startDate).format('YYYY-MM-DD'),
-          //   moment(pLoanContract.endDate).format('YYYY-MM-DD'),
-          //   0,
-          //   100
-          // ]);
-
-          // await syncTransactions(huulga, LoanTransaction, loanContract);
-        }
-      }
-    }
-
-    step++;
-  }
 
   console.log(`Process finished at: ${new Date()}`);
 
