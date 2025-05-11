@@ -190,7 +190,11 @@ export const contractSchema = schemaHooksWrapper(
       optional: true,
       label: 'Custom fields data',
     }),
-    isSyncedPolaris: field({ type: Boolean, label: 'Is Synced polaris' }),
+    isSyncedPolaris: field({
+      type: Boolean,
+      label: 'Is Synced polaris',
+      optional: true,
+    }),
   }),
   'erxes_contractSchema'
 );

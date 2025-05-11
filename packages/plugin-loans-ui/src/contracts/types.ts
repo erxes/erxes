@@ -6,7 +6,6 @@ import {
 import { IContractTypeDoc } from '../contractTypes/types';
 import { IInsuranceType } from '../insuranceTypes/types';
 import { IProduct } from '@erxes/ui-products/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface ICollateralData {
   _id: string;
@@ -129,6 +128,7 @@ export interface IContract {
   unUsedBalance?: number;
   commitmentInterest: number;
   storedInterest: number;
+  isSyncedPolaris: boolean;
 }
 
 export interface IContractGql {

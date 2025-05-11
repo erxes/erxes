@@ -129,6 +129,7 @@ export const types = () => `
     relationExpert: JSON
     leasingExpert: JSON
     riskExpert: JSON
+    isSyncedPolaris: Boolean
   }
 
 

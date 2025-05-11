@@ -142,6 +142,7 @@ export interface IContract {
   holidayType?: HolidayType;
   weekends?: number[];
   overPaymentIsNext?: boolean;
+  isSyncedPolaris?: boolean;
 }
 
 export interface IContractDocument extends IContract, Document {
@@ -403,6 +404,11 @@ export const contractSchema = schemaHooksWrapper(
       type: Boolean,
       label: 'Over Payment is next schedule',
       default: false,
+      optional: true,
+    }),
+    isSyncedPolaris: field({
+      type: Boolean,
+      label: 'Is Synced Polaris',
       optional: true,
     }),
   }),
