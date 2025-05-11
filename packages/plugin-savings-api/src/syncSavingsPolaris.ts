@@ -17,6 +17,7 @@ let db;
 let Customers;
 let SavingContracts;
 let SavingContractTypes;
+let Branches;
 
 const nanoid = (len = 21) => {
   const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -80,6 +81,7 @@ const command = async () => {
   Customers = db.collection('customers');
   SavingContracts = db.collection('saving_contracts');
   SavingContractTypes = db.collection('saving_contract_types');
+  Branches = db.collection('branches');
 
   console.log(`Process start at: ${new Date()}`);
   const customerFilter = { code: { $exists: true } };
@@ -127,6 +129,10 @@ const command = async () => {
             number: deposit.acntCode,
           });
 
+          const branch = await Branches.findOne({
+            code: detailDeposit.brchCode,
+          });
+
           if (type && !contract) {
             const document = {
               _id: nanoid(),
@@ -135,11 +141,21 @@ const command = async () => {
               number: detailDeposit.acntCode,
               customerType: 'customer',
               customerId: customer._id,
+              branchId: branch ? branch._id : '',
               savingAmount: detailDeposit.currentBal,
               duration: detailDeposit.termLen,
               interestRate: detailDeposit.intRate,
+              blockAmount: detailDeposit.blockBal,
               currency: 'MNT',
               isSyncedPolaris: true,
+              closeInterestRate: 0,
+              storedInterest: 0,
+              interestCalcType: null,
+              storeInterestInterval: null,
+              isAllowIncome: null,
+              isAllowOutcome: null,
+              isDeposit: null,
+              customFieldsData: [],
               startDate: new Date(detailDeposit.startDate),
               createdAt: new Date(detailDeposit.createdDate),
             };
