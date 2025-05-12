@@ -14,6 +14,13 @@ export const types = `
   type ProductRule {
     _id: String!,
     ${productRuleDefs}
+
+    categories: [ProductCategory],
+    excludeCategories: [ProductCategory],
+    products: [Product],
+    excludeProducts: [Product],
+    tags: [Tag],
+    excludeTags: [Tag]
   }
 
   type ProductRulesCount {

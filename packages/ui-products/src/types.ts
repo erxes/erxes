@@ -210,6 +210,14 @@ export interface IProductRule {
   unitPrice: number;
   bundleId?: string;
   name: string;
+
+  // resolved fields
+  categories?: IProductCategory[];
+  excludeCategories?: IProductCategory[];
+  products?: IProduct[];
+  excludeProducts?: IProduct[];
+  tags?: ITag[];
+  excludeTags?: ITag[];
 };
 
 export type ProductRulesQueryResponse = {

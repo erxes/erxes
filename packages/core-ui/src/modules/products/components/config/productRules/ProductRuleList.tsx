@@ -34,6 +34,13 @@ const RuleList: React.FC<Props> = props => {
           <thead>
             <tr>
               <th>{__("Name")}</th>
+              <th>{__('Unit price')}</th>
+              <th>{__('Categories')}</th>
+              <th>{__('Exclude categories')}</th>
+              <th>{__('Products')}</th>
+              <th>{__('Exclude products')}</th>
+              <th>{__('Tags')}</th>
+              <th>{__('Exclude tags')}</th>
               <th>{__("actions")}</th>
             </tr>
           </thead>

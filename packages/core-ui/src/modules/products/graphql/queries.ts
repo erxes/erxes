@@ -172,6 +172,25 @@ const productRules = `
       excludeTagIds
       unitPrice
       bundleId
+
+      categories {
+        name
+      }
+      excludeCategories {
+        name
+      }
+      products {
+        name
+      }
+      excludeProducts {
+        name
+      }
+      tags {
+        name
+      }
+      excludeTags {
+        name
+      }
     }
   }
 `;
