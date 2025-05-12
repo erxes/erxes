@@ -1,3 +1,4 @@
+import { ButtonWrapper, ContractList, SidebarListItem } from "../../styles";
 import {
   DealContractQueryResponse,
   EditMutationResponse,
@@ -14,7 +15,6 @@ import { useMutation, useQuery } from "@apollo/client";
 import Alert from "@erxes/ui/src/utils/Alert";
 import Box from "@erxes/ui/src/components/Box";
 import Button from "@erxes/ui/src/components/Button";
-import { ButtonWrapper } from "../../styles";
 import ContractChooser from "../../containers/ContractChooser";
 import DynamicComponentContent from "@erxes/ui/src/components/dynamicComponent/Content";
 import { IUser } from "@erxes/ui/src/auth/types";
@@ -27,6 +27,7 @@ import { SectionBodyItem } from "@erxes/ui/src/layout/styles";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { __ } from "coreui/utils";
 import { can } from "@erxes/ui/src/utils/core";
+import dayjs from "dayjs";
 import { gql } from "@apollo/client";
 import withConsumer from "../../../withConsumer";
 
@@ -82,9 +83,10 @@ function Component({
         {...props}
         data={{
           name,
-          contracts: (
-            contract?._id && contract?._id === 'tempFakeContract'
-          ) ? [] : [contract],
+          contracts:
+            contract?._id && contract?._id === "tempFakeContract"
+              ? []
+              : [contract],
           mainType,
           mainTypeId: mainTypeId || id,
         }}
@@ -116,6 +118,49 @@ function Component({
     />
   );
 
+  const renderFakeContract = () => {
+    if (contract._id === "tempFakeContract") {
+      const renderComponent = (props = {}) => (
+        <SchedulesList
+          {...props}
+          contractId={contract._id}
+          schedules={firstSchedules.map((fs) => ({
+            ...fs,
+            interest:
+              (fs.storedInterest || 0) +
+              (fs.interestEve || 0) +
+              (fs.interestNonce || 0),
+          }))}
+          loading={false}
+          scheduleYears={scheduleYears}
+          currentYear={new Date().getFullYear()}
+          onClickYear={() => {}}
+        />
+      );
+
+      if (showType && showType === "list") {
+        return renderComponent();
+      }
+
+      return (
+        <ModalTrigger
+          title={__("Loan Contracts")}
+          trigger={
+            <SidebarListItem isActive={false}>
+              <ContractList>
+                {__("Contract")} - {dayjs(contract.contractDate).format("lll")}
+              </ContractList>
+            </SidebarListItem>
+          }
+          size="lg"
+          content={renderComponent}
+        />
+      );
+    }
+
+    return null;
+  };
+
   const firstSchedules =
     contractsQuery?.data?.dealLoanContract?.firstSchedules || [];
   const years = firstSchedules.map((fs) => new Date(fs.payDate).getFullYear());
@@ -136,23 +181,7 @@ function Component({
             </span>
           </Link>
         )}
-
-        {contract._id === "tempFakeContract" && (
-          <SchedulesList
-            contractId={contract._id}
-            schedules={firstSchedules.map((fs) => ({
-              ...fs,
-              interest:
-                (fs.storedInterest || 0) +
-                (fs.interestEve || 0) +
-                (fs.interestNonce || 0),
-            }))}
-            loading={false}
-            scheduleYears={scheduleYears}
-            currentYear={new Date().getFullYear()}
-            onClickYear={() => { }}
-          ></SchedulesList>
-        )}
+        {renderFakeContract()}
       </SectionBodyItem>
       <ButtonWrapper>
         {contract._id === "tempFakeContract" && quickButtons}

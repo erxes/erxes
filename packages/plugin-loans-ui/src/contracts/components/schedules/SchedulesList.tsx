@@ -1,12 +1,12 @@
-import { ISchedule, IScheduleYear } from '../../types';
+import { ISchedule, IScheduleYear } from "../../types";
 
-import { __ } from 'coreui/utils';
-import React from 'react';
-import Button from '@erxes/ui/src/components/Button';
-import ScheduleRow from './ScheduleRow';
-import { ScheduleYears } from '../../styles';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Table from '@erxes/ui/src/components/table';
+import Button from "@erxes/ui/src/components/Button";
+import React from "react";
+import ScheduleRow from "./ScheduleRow";
+import { ScheduleYears } from "../../styles";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Table from "@erxes/ui/src/components/table";
+import { __ } from "coreui/utils";
 
 interface IProps {
   contractId: string;
@@ -42,13 +42,13 @@ const SchedulesList = (props: IProps) => {
         <thead>
           <tr>
             <th />
-            <th>{__('Date')}</th>
-            <th>{__('Loan Balance')}</th>
-            <th>{__('Loan Payment')}</th>
-            <th>{__('Interest')}</th>
-            {leaseType === 'linear' && <th>{__('Commitment interest')}</th>}
-            <th>{__('Loss')}</th>
-            <th>{__('Total')}</th>
+            <th>{__("Date")}</th>
+            <th>{__("Loan Balance")}</th>
+            <th>{__("Loan Payment")}</th>
+            <th>{__("Interest")}</th>
+            {leaseType === "linear" && <th>{__("Commitment interest")}</th>}
+            <th>{__("Loss")}</th>
+            <th>{__("Total")}</th>
           </tr>
         </thead>
         <tbody id="schedules">
@@ -57,7 +57,7 @@ const SchedulesList = (props: IProps) => {
               schedule={schedule}
               key={schedule._id}
               leaseType={leaseType}
-            ></ScheduleRow>
+            />
           ))}
         </tbody>
       </Table>
