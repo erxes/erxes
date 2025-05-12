@@ -67,7 +67,7 @@ export const types = () => `
     ptrStatus: String
 
     createdAt: Date
-    modifiedAt: Date
+    updatedAt: Date
 
     originId: String
     follows: [FollowTrType]
@@ -102,7 +102,7 @@ export const types = () => `
     ptrStatus: String
 
     createdAt: Date
-    modifiedAt: Date
+    updatedAt: Date
 
     originId: String
     follows: [FollowTrType]
