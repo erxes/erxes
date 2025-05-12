@@ -15,6 +15,7 @@ const agentFields = `
   returnPercent
   prepaidPercent
   discountPercent
+  productRuleIds
 `;
 
 const agents = `

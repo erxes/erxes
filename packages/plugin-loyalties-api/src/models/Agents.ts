@@ -23,11 +23,11 @@ const validateDoc = (doc: IAgent) => {
   }
 
   if (hasReturn && !(returnAmount || returnPercent)) {
-    throw new Error('Invalid return amount/percent');
+    throw new Error('Either return amount or percent must be > 0');
   }
 
   if (!hasReturn && !(prepaidPercent || discountPercent)) {
-    throw new Error('Invalid prepaid or discount percent')
+    throw new Error('Either prepaid or discount percent must be > 0')
   }
 }
 

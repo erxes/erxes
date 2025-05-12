@@ -20,6 +20,7 @@ export interface IAgent {
   returnPercent?: number;
   prepaidPercent?: number;
   discountPercent?: number;
+  productRuleIds?: string[];
 }
 
 export interface IAgentDocument extends IAgent {

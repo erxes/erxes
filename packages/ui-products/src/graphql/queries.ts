@@ -274,6 +274,16 @@ query bundleRuleDetail($id: String!){
  }
 }
 `;
+
+const productRules = `
+  query productRules {
+    productRules {
+      _id
+      name
+    }
+  }
+`;
+
 export default {
   productFields,
   products,
@@ -284,5 +294,6 @@ export default {
   uomsTotalCount,
   configs,
   bundleRules,
-  bundleRuleDetail
+  bundleRuleDetail,
+  productRules
 };

@@ -20,6 +20,7 @@ import React from "react";
 import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
 import { __ } from "@erxes/ui/src/utils";
+import SelectProductRules from "@erxes/ui-products/src/containers/SelectProductRules";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -36,7 +37,14 @@ class AgentForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { agent = { hasReturn: false, status: 'draft' } as IAgent } = props;
+    const initialValue = {
+      hasReturn: false,
+      status: 'draft',
+      prepaidPercent: 0,
+      discountPercent: 0
+    };
+
+    const { agent = initialValue as IAgent } = props;
 
     this.state = { agent };
   }
@@ -179,27 +187,33 @@ class AgentForm extends React.Component<Props, State> {
             </FormColumn>
           </FormWrapper>
 
-          <FormGroup>
-            <ControlLabel>Relevant customers</ControlLabel>
-            <SelectCustomers
-              label="Choose customers"
-              name="customerIds"
-              multi={true}
-              initialValue={agent.customerIds}
-              onSelect={this.onChangeSelect}
-            />
-          </FormGroup>
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel>Relevant customers</ControlLabel>
+                <SelectCustomers
+                  label="Choose customers"
+                  name="customerIds"
+                  multi={true}
+                  initialValue={agent.customerIds}
+                  onSelect={this.onChangeSelect}
+                />
+              </FormGroup>
+            </FormColumn>
 
-          <FormGroup>
-            <ControlLabel>Relevant companies</ControlLabel>
-            <SelectCompanies
-              label="Choose companies"
-              name="companyIds"
-              multi={true}
-              initialValue={agent.companyIds}
-              onSelect={this.onChangeSelect}
-            />
-          </FormGroup>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel>Relevant companies</ControlLabel>
+                <SelectCompanies
+                  label="Choose companies"
+                  name="companyIds"
+                  multi={true}
+                  initialValue={agent.companyIds}
+                  onSelect={this.onChangeSelect}
+                />
+              </FormGroup>
+            </FormColumn>
+          </FormWrapper>
 
           <FormGroup>
             <ControlLabel>Has Return</ControlLabel>
@@ -234,6 +248,17 @@ class AgentForm extends React.Component<Props, State> {
             {this.renderDateFields(formProps, 'Start Day', 'startDay', agent.startDay, 'D')}
             {this.renderDateFields(formProps, 'End Day', 'endDay', agent.endDay, 'D')}
           </FormWrapper>
+
+          <FormGroup>
+            <ControlLabel>Choose product rules</ControlLabel>
+            <SelectProductRules
+              label="Choose product rule"
+              name="productRuleIds"
+              multi={true}
+              onSelect={this.onChangeSelect}
+              initialValue={agent.productRuleIds}
+            />
+          </FormGroup>
 
         </ScrollWrapper>
 

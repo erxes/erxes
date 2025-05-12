@@ -13,7 +13,8 @@ const addEditParamDefs = `
   $returnAmount: Float,
   $returnPercent: Float,
   $prepaidPercent: Float,
-  $discountPercent: Float
+  $discountPercent: Float,
+  $productRuleIds: [String]
 `;
 
 const addEditParams = `
@@ -21,17 +22,18 @@ const addEditParams = `
   customerIds: $customerIds,
   companyIds: $companyIds,
   status: $status,
-  startDate: $startDate
-  endDate: $endDate
-  startMonth: $startMonth
-  endMonth: $endMonth
-  startDay: $startDay
-  endDay: $endDay
+  startDate: $startDate,
+  endDate: $endDate,
+  startMonth: $startMonth,
+  endMonth: $endMonth,
+  startDay: $startDay,
+  endDay: $endDay,
   hasReturn: $hasReturn,
-  returnAmount: $returnAmount
-  returnPercent: $returnPercent
-  prepaidPercent: $prepaidPercent
-  discountPercent: $discountPercent
+  returnAmount: $returnAmount,
+  returnPercent: $returnPercent,
+  prepaidPercent: $prepaidPercent,
+  discountPercent: $discountPercent,
+  productRuleIds: $productRuleIds
 `;
 
 const agentsAdd = `
