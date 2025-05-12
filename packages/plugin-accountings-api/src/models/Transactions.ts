@@ -131,10 +131,6 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
         let parentId = '';
 
         for (const doc of docs) {
-          if (doc._id?.substring(0, 4) === 'temp') {
-            delete doc._id
-          }
-
           if (!parentId) {
             const firstTrs = await commonCreate(subdomain, models, { ...doc, ptrId });
             parentId = firstTrs.mainTr.parentId;
