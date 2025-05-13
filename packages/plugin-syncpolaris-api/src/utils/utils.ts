@@ -135,17 +135,16 @@ export const fetchPolarisWithoutError = async (args: IParams) => {
       new https.Agent({ keepAlive: true, rejectUnauthorized: false })
   };
 
-  const realResponse = await fetch(config.apiUrl, requestOptions)
-    .then(async () => {
-      return "error";
-    })
-    .then((response) => {
-      try {
-        return JSON.parse(response);
-      } catch (e) {
-        return response;
+  const realResponse = await fetch(config.apiUrl, requestOptions).then(
+    async (response) => {
+      if (!response.ok) {
+        return "error";
       }
-    });
+
+      return response.text();
+    }
+  );
+
   return realResponse;
 };
 

@@ -129,6 +129,9 @@ export interface IContract {
   commitmentInterest: number;
   storedInterest: number;
   isSyncedPolaris: boolean;
+  isActiveLoan: boolean;
+  isSyncedSchedules: boolean;
+  isSyncedCollateral: boolean;
 }
 
 export interface IContractGql {
@@ -272,6 +275,22 @@ export type RegenSchedulesMutationResponse = {
 
 export type SendLoansMutationResponse = {
   sendContractToPolaris: (params: { variables: { data: any } }) => Promise<any>;
+};
+
+export type SyncLoanCollateralsMutationResponse = {
+  syncLoanCollateral: (params: {
+    variables: { contract: any };
+  }) => Promise<any>;
+};
+
+export type SendSchedulesMutationResponse = {
+  sendLoanSchedules: (params: { variables: { contract: any } }) => Promise<any>;
+};
+
+export type ActiveLoanMutationResponse = {
+  loanContractActive: (params: {
+    variables: { contractNumber: string };
+  }) => Promise<any>;
 };
 
 // query types

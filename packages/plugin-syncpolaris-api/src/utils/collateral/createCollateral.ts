@@ -5,7 +5,8 @@ import {
   fetchPolarisWithoutError,
   getBranch,
   getCollateralType,
-  sendMessageBrokerData
+  sendMessageBrokerData,
+  updateContract
 } from '../utils';
 import { integrateCollateralToLoan } from './integrateCollateralToLoan';
 import { openCollateral } from './openCollateral';
@@ -13,8 +14,11 @@ import { openCollateral } from './openCollateral';
 export const createCollateral = async (
   subdomain: string,
   polarisConfig,
-  loan: any
+  data: any
 ) => {
+  const loan = data.contract;
+  let collateralObj;
+
   const collateral = loan.collateralsData?.[0];
   if (!collateral) return;
   let collateralRes;
@@ -112,13 +116,28 @@ export const createCollateral = async (
     }
   }
 
-  const integrationCode = collateralRes.acntCode || product.code;
+  if (polarisCollateral !== 'error') {
+    collateralObj = JSON.parse(polarisCollateral);
+  }
+
+  const integrationCode = collateralRes
+    ? collateralRes.acntCode
+    : collateralObj.acntCode;
 
   if (integrationCode) {
-    return await integrateCollateralToLoan(subdomain, polarisConfig, {
-      code: collateralRes.acntCode,
+    const result = await integrateCollateralToLoan(subdomain, polarisConfig, {
+      code: integrationCode,
       amount: collateral.marginAmount,
       loanNumber: loan.number
     });
+
+    if (result) {
+      await updateContract(
+        subdomain,
+        { _id: loan._id },
+        { $set: { isSyncedCollateral: true } },
+        'loans'
+      );
+    }
   }
 };

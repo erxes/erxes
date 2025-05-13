@@ -46,6 +46,9 @@ type Props = {
   regenSchedules: (contractId: string) => void;
   fixSchedules: (contractId: string) => void;
   reSendContract: (data: any) => void;
+  reSendCollateral: (contract: any) => void;
+  reSendSchedules: (contract: any) => void;
+  activeLoan: (contractNumber: string) => void;
   loading: boolean;
 };
 
@@ -56,7 +59,14 @@ type State = {
 };
 
 const ContractDetails = (props: Props) => {
-  const { saveItem, contract, reSendContract } = props;
+  const {
+    saveItem,
+    contract,
+    reSendContract,
+    reSendCollateral,
+    reSendSchedules,
+    activeLoan
+  } = props;
 
   const [collateralsData, setCollateralsData] = useState(
     contract.collaterals ? contract.collaterals.map((p) => ({ ...p })) : []
@@ -145,7 +155,6 @@ const ContractDetails = (props: Props) => {
             onChangeCollateralsData={pDataChange}
             onChangeCollaterals={prsChange}
             saveCollateralsData={saveCollateralsData}
-            reSendContract={reSendContract}
             collateralsData={collateralsData}
             collaterals={collaterals}
             contract={contract}
@@ -155,7 +164,13 @@ const ContractDetails = (props: Props) => {
       {
         label: __("Sync Polaris"),
         component: (
-          <Polaris contract={contract} reSendContract={reSendContract} />
+          <Polaris
+            contract={contract}
+            reSendContract={reSendContract}
+            reSendCollateral={reSendCollateral}
+            reSendSchedules={reSendSchedules}
+            activeLoan={activeLoan}
+          />
         )
       }
     ];

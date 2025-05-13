@@ -9,7 +9,6 @@ import {
   getProduct,
   getPurpose,
 } from '../utils';
-import { activeLoan } from './activeLoan';
 import { createSavingLoan } from './createSavingLoan';
 import { updateLoan } from './updateLoan';
 
@@ -136,7 +135,6 @@ export const createLoanMessage = async (subdomain, polarisConfig, params) => {
         { $set: { number: result, isSyncedPolaris: true } },
         'loans'
       );
-      await activeLoan(subdomain, polarisConfig, [result, 'данс нээв', null]);
     }
   }
 

@@ -1,10 +1,8 @@
-import { Box } from '@erxes/ui/src';
+import { Box, Table } from '@erxes/ui/src';
 import { __ } from 'coreui/utils';
 import React from 'react';
-import { Table } from '@erxes/ui/src';
 
-import { ContractsTableWrapper } from '../../styles';
-import { ScrollTableColls } from '../../styles';
+import { ContractsTableWrapper, ScrollTableColls } from '../../styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import confirm from '@erxes/ui/src/utils/confirmation/confirm';
 import Alert from '@erxes/ui/src/utils/Alert';
@@ -12,30 +10,28 @@ import { IContractDoc } from '../../types';
 
 type Props = {
   contract: IContractDoc;
-  savingActive: (contractNumber: string) => void;
+  activeLoan: (contractNumber: string) => void;
 };
 
-function SavingActive({ contract, savingActive }: Props) {
-  const onHandlePolaris = () =>
-    confirm(__('Are you sure you want to activate Savings?'))
-      .then(() => savingActive(contract.number))
+function LoanActive({ contract, activeLoan }: Props) {
+  const onSendSchedules = () =>
+    confirm(__('Are you sure Active Loan?'))
+      .then(() => activeLoan(contract.number))
       .catch((error) => {
         Alert.error(error.message);
       });
 
   const renderExtraButton = () => {
     return (
-      !contract.isActiveSaving && (
-        <button onClick={onHandlePolaris} title="active contract">
-          <Icon icon="refresh-1" />
-        </button>
-      )
+      <button onClick={onSendSchedules} title="active loan">
+        <Icon icon="refresh-1" />
+      </button>
     );
   };
 
   return (
     <Box
-      title={__('Active Saving')}
+      title={__('Active loan')}
       name="showPolaris"
       isOpen={true}
       extraButtons={renderExtraButton()}
@@ -46,15 +42,15 @@ function SavingActive({ contract, savingActive }: Props) {
             <thead>
               <tr>
                 <th>{__('Is Active Contract')}</th>
-                <th>{__('Polaris Contract Id')}</th>
+                <th>{__('Polaris Contract number')}</th>
               </tr>
             </thead>
 
-            {contract.isActiveSaving ? (
+            {contract.isActiveLoan ? (
               <tbody id="schedules">
                 <tr>
-                  <td>{contract?.isActiveSaving && 'Activated'}</td>
-                  <td>{contract?.number || ''}</td>
+                  <td>{contract?.isActiveLoan && 'Activated Loan'}</td>
+                  <td>{contract?.number && 'Activated Loan'}</td>
                 </tr>
               </tbody>
             ) : (
@@ -67,4 +63,4 @@ function SavingActive({ contract, savingActive }: Props) {
   );
 }
 
-export default SavingActive;
+export default LoanActive;

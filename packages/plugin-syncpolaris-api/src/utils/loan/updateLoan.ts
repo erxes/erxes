@@ -1,15 +1,11 @@
-import { createCollateral } from '../collateral/createCollateral';
 import {
   getBranch,
   getCustomer,
   getUser,
   fetchPolaris,
-  updateContract,
   getProduct,
-  getFullDate
+  getFullDate,
 } from '../utils';
-import { createChangeLoanAmount } from './changeLoanAmount';
-import { changeLoanInterest } from './changeLoanInterest';
 
 export const updateLoan = async (
   subdomain,
@@ -19,24 +15,6 @@ export const updateLoan = async (
   params
 ) => {
   const loan = params.data;
-  let result;
-
-  if (loan.collateralsData.length > 0) {
-    return createCollateral(subdomain, polarisConfig, loan);
-  }
-
-  if (params.data.leaseAmount) {
-    return createChangeLoanAmount(subdomain, polarisConfig, {
-      number: loan.number,
-      leaseAmount: params.data.leaseAmount,
-      description: `change loan amount ${params.data.description}`
-    });
-  }
-
-  if (params.data.interestRate) {
-    return changeLoanInterest(subdomain, polarisConfig, params.data);
-  }
-
   const customer = await getCustomer(subdomain, loan.customerId);
 
   const loanProduct = await getProduct(subdomain, loan.contractTypeId, 'loans');
@@ -46,11 +24,12 @@ export const updateLoan = async (
   const branch = await getBranch(subdomain, loan.branchId);
 
   let sendData = [
+    {},
     {
       acntCode: loan.number,
       custCode: customer.code,
-      name: `${customer.code} ${customer.firstName} ${customer.code} ${customer.lastName}`,
-      name2: `${customer.code} ${customer.firstName} ${customer.code} ${customer.lastName}`,
+      name: `${customer.firstName} ${customer.lastName}`,
+      name2: `${customer.firstName} ${customer.lastName}`,
       prodCode: loanProduct?.code,
       prodType: 'LOAN',
       purpose: loan.loanDestination,
@@ -81,8 +60,8 @@ export const updateLoan = async (
       notSendToCib: 0,
       losMultiAcnt: 0,
       validLosAcnt: 1,
-      secType: 0
-    }
+      secType: 0,
+    },
   ];
 
   if (
@@ -94,22 +73,13 @@ export const updateLoan = async (
     branch?.code != null &&
     loan.tenor !== 0
   ) {
-    result = await fetchPolaris({
+    await fetchPolaris({
       op: '13610282',
-      data: [sendData],
+      data: sendData,
       subdomain,
       models,
       polarisConfig,
-      syncLog
+      syncLog,
     });
-  }
-
-  if (typeof result === 'string') {
-    await updateContract(
-      subdomain,
-      { _id: loan._id },
-      { $set: { number: result } },
-      'loans'
-    );
   }
 };

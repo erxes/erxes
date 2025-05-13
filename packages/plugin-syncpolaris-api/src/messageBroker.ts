@@ -17,6 +17,8 @@ import { getConfig } from './utils/utils';
 import { createSavingMessage } from './utils/saving/createSavingMessage';
 import { createLoanMessage } from './utils/loan/createLoanMessage';
 import { activeSaving } from './utils/saving/activeSaving';
+import { activeLoan } from './utils/loan/activeLoan';
+import { createCollateral } from './utils/collateral/createCollateral';
 
 export const setupMessageConsumers = async () => {
   consumeQueue('syncpolaris:afterMutation', async ({ subdomain, data }) => {
@@ -63,6 +65,30 @@ export const setupMessageConsumers = async () => {
       return {
         status: 'success',
         data: await createLoanMessage(subdomain, polarisConfig, data),
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'syncpolaris:loanContractActive',
+    async ({ data, subdomain }) => {
+      const polarisConfig = await getConfig(subdomain, 'POLARIS', {});
+
+      return {
+        status: 'success',
+        data: await activeLoan(subdomain, polarisConfig, data),
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'syncpolaris:createLoanCollateral',
+    async ({ data, subdomain }) => {
+      const polarisConfig = await getConfig(subdomain, 'POLARIS', {});
+
+      return {
+        status: 'success',
+        data: await createCollateral(subdomain, polarisConfig, data),
       };
     }
   );

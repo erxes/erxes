@@ -2,8 +2,6 @@ import Box from '@erxes/ui/src/components/Box';
 import EmptyState from '@erxes/ui/src/components/Box';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
-import Alert from '@erxes/ui/src/utils/Alert';
 
 import { __ } from 'coreui/utils';
 import { IProduct } from '@erxes/ui-products/src/types';
@@ -26,7 +24,6 @@ type Props = {
   onChangeCollateralsData: (collateralsData: ICollateralData[]) => void;
   onChangeCollaterals: (prs: IProduct[]) => void;
   saveCollateralsData: () => void;
-  reSendContract: (data: any) => void;
   contract: IContractDoc;
 };
 
@@ -35,7 +32,6 @@ function CollateralsSection({
   collateralsData,
   onChangeCollateralsData,
   saveCollateralsData,
-  reSendContract,
   contract
 }: Props) {
   const contentWithId = (collateralId?: string) => {
@@ -109,25 +105,11 @@ function CollateralsSection({
     );
   };
 
-  const onSendPolaris = () =>
-    confirm(__('Are you sure Send Loan polaris?'))
-      .then(() => reSendContract(contract))
-      .catch((error) => {
-        Alert.error(error.message);
-      });
-
   const renderExtraButton = () => {
-    return (
-      <>
-        {renderCollateralFormModal(
-          <button>
-            <Icon icon="edit-3" />
-          </button>
-        )}
-        <button onClick={onSendPolaris} title="send contract">
-          <Icon icon="refresh-1" />
-        </button>
-      </>
+    return renderCollateralFormModal(
+      <button>
+        <Icon icon="edit-3" />
+      </button>
     );
   };
 

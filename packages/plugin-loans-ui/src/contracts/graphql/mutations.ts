@@ -259,6 +259,24 @@ const sendSaving = `
   }
 `;
 
+const syncLoanCollateral = `
+  mutation syncLoanCollateral($contract: JSON) {
+    syncLoanCollateral(contract: $contract)
+  }
+`;
+
+const sendLoanSchedules = `
+  mutation sendLoanSchedules($contract: JSON) {
+    sendLoanSchedules(contract: $contract)
+  }
+`;
+
+const loanContractActive = `
+  mutation loanContractActive($contractNumber: String!) {
+    loanContractActive(contractNumber: $contractNumber)
+  }
+`;
+
 export default {
   contractsAdd,
   contractsEdit,
@@ -273,4 +291,7 @@ export default {
   interestChange,
   interestReturn,
   sendSaving,
+  syncLoanCollateral,
+  sendLoanSchedules,
+  loanContractActive,
 };

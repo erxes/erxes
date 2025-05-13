@@ -98,6 +98,7 @@ function ContractForm(props: Props) {
       ({
         customerType: 'customer',
         repayment: 'fixed',
+        holidayType: 'before',
       } as IContract)
   );
 

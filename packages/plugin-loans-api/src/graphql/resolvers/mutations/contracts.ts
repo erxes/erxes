@@ -536,6 +536,52 @@ const contractMutations = {
     );
 
     return "success";
+  },
+
+  syncLoanCollateral: async (_root, { contract }, { subdomain }: IContext) => {
+    await sendMessageBroker(
+      {
+        subdomain,
+        action: "createLoanCollateral",
+        data: { contract },
+        isRPC: true
+      },
+      "syncpolaris"
+    );
+
+    return "success";
+  },
+
+  sendLoanSchedules: async (_root, { contract }, { subdomain }: IContext) => {
+    await sendMessageBroker(
+      {
+        subdomain,
+        action: "createSchedule",
+        data: { contract },
+        isRPC: true
+      },
+      "syncpolaris"
+    );
+
+    return "success";
+  },
+
+  loanContractActive: async (
+    _root,
+    { contractNumber },
+    { subdomain }: IContext
+  ) => {
+    await sendMessageBroker(
+      {
+        subdomain,
+        action: "loanContractActive",
+        data: { contractNumber },
+        isRPC: true
+      },
+      "syncpolaris"
+    );
+
+    return "success";
   }
 };
 
