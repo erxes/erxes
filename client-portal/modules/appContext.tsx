@@ -1,21 +1,17 @@
+import { gql, useQuery } from '@apollo/client';
+import React, { createContext, useEffect } from 'react';
 import {
   Config,
-  IUser,
   NotificationsCountQueryResponse,
-  NotificationsQueryResponse,
   UserQueryResponse,
 } from './types';
-import React, { createContext, useEffect } from 'react';
-import { gql, useQuery } from '@apollo/client';
 
-import Spinner from './common/Spinner';
-import { clientPortalGetConfig } from './main/graphql/queries';
+import { useLanguage } from '../context/LanguageContext';
 import { getKbTopicQuery } from './knowledgeBase/graphql/queries';
+import { clientPortalGetConfig } from './main/graphql/queries';
 import queries from './user/graphql/queries';
-import { sendDesktopNotification } from './utils';
 import subscriptions from './user/graphql/subscriptions';
-import { setLocale } from '../utils';
-import { set } from 'lodash';
+import { sendDesktopNotification } from './utils';
 
 const AppContext = createContext({});
 
@@ -28,7 +24,7 @@ type Props = {
 function AppProvider({ children }: Props) {
   const [currentUser, setCurrentUser] = React.useState(null);
   const [notificationsCount, setNotificationsCount] = React.useState(0);
-
+  const { setLanguage } = useLanguage();
   const { data: userData, loading: userLoading } = useQuery<UserQueryResponse>(
     gql(queries.currentUser)
   );
@@ -45,7 +41,7 @@ function AppProvider({ children }: Props) {
   useEffect(() => {
     if (localStorage) {
       const currentLocale = localStorage.getItem('locale') || 'en';
-      setLocale(currentLocale, () => null);
+      setLanguage(currentLocale);
     }
     if (userData && userData.clientPortalCurrentUser) {
       setCurrentUser(userData.clientPortalCurrentUser);
@@ -132,8 +128,13 @@ function AppProvider({ children }: Props) {
 
     if (config.language !== currentLocale) {
       localStorage.setItem('locale', config.language);
-      setLocale(config.language, () => null);
+      setLanguage(config.language);
     }
+  }
+
+  if (config.languages) {
+    localStorage.setItem('languages', JSON.stringify(config.languages));
+    
   }
 
   return (

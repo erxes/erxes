@@ -192,6 +192,7 @@ export type Config = {
   facebookAppId?: string;
   erxesAppToken?: string;
   language?: string;
+  languages?: string[];
 };
 
 interface ICommonFields {

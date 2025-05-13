@@ -1,105 +1,69 @@
-import Icon from "../../common/Icon";
-import React from "react";
-import Router from "next/router";
-import { SearchContainer } from "../../styles/main";
-import { __ } from "../../../utils";
+import React, { useState, useEffect } from 'react';
+import Router from 'next/router';
+import Icon from '../../common/Icon';
+import { SearchContainer } from '../../styles/main';
+import { useLanguage } from '../../../context/LanguageContext';
 
 type Props = {
-  searchValue?: any;
+  searchValue?: string;
 };
 
-type State = {
-  searchValue: string;
-  focused: boolean;
-};
+const Search: React.FC<Props> = ({ searchValue: initialSearchValue = '' }) => {
+  const [searchValue, setSearchValue] = useState<string>(initialSearchValue);
+  const [focused, setFocused] = useState<boolean>(false);
+  const { t } = useLanguage();
 
-export default class Search extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  // Sync prop to state like componentWillReceiveProps
+  useEffect(() => {
+    setSearchValue(initialSearchValue || '');
+  }, [initialSearchValue]);
 
-    const { searchValue } = props;
-
-    this.state = {
-      searchValue: searchValue || "",
-      focused: false,
-    };
-  }
-
-  componentWillReceiveProps(props) {
-    const { searchValue } = props;
-
-    this.setState({
-      searchValue: searchValue || "",
-    });
-  }
-
-  onChange = (e) => {
-    const value = e.target.value;
-
-    this.setState({
-      searchValue: value,
-    });
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(e.target.value);
   };
 
-  onSearch = () => {
-    const { searchValue } = this.state;
-
+  const onSearch = () => {
     Router.push({
       query: { searchValue },
     });
   };
 
-  onKeyDown = (e) => {
-    const { searchValue } = this.state;
-
-    if (e.key === "Enter") {
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
       Router.push({
         query: { searchValue },
       });
     }
   };
 
-  clearSearch = () => {
-    this.setState({
-      searchValue: "",
-    });
-
+  const clearSearch = () => {
+    setSearchValue('');
     Router.push({
-      query: { searchValue: "" },
+      query: { searchValue: '' },
     });
   };
 
-  onFocus = () => {
-    this.setState({ focused: true });
-  };
-
-  onBlur = () => {
-    this.setState({ focused: false });
-  };
-
-  render() {
-    const { searchValue, focused } = this.state;
-
-    return (
-      <SearchContainer focused={focused}>
-        <Icon icon="search-1" size={32} onClick={this.onSearch} />
-        <input
-          onChange={this.onChange}
-          placeholder={__("Search for articles") + "..."}
-          value={searchValue}
-          onKeyDown={this.onKeyDown}
-          onBlur={this.onBlur}
-          onFocus={this.onFocus}
+  return (
+    <SearchContainer focused={focused}>
+      <Icon icon="search-1" size={32} onClick={onSearch} />
+      <input
+        onChange={onChange}
+        placeholder={`${t('Search for articles')}...`}
+        value={searchValue}
+        onKeyDown={onKeyDown}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+      />
+      {searchValue && (
+        <Icon
+          icon="times-circle"
+          className="clear-icon"
+          size={26}
+          onClick={clearSearch}
         />
-        {searchValue && (
-          <Icon
-            icon="times-circle"
-            className="clear-icon"
-            size={26}
-            onClick={this.clearSearch}
-          />
-        )}
-      </SearchContainer>
-    );
-  }
-}
+      )}
+    </SearchContainer>
+  );
+};
+
+export default Search;
