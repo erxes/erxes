@@ -30,6 +30,7 @@ export interface IContract {
   closeDescription?: string;
 
   isSyncedPolaris?: boolean;
+  isActiveSaving?: boolean;
   dealId?: string;
   storedInterest: number;
   lastStoredDate: Date;
@@ -193,6 +194,11 @@ export const contractSchema = schemaHooksWrapper(
     isSyncedPolaris: field({
       type: Boolean,
       label: 'Is Synced polaris',
+      optional: true,
+    }),
+    isActiveSaving: field({
+      type: Boolean,
+      label: 'Is Active savings',
       optional: true,
     }),
   }),

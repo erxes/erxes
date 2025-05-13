@@ -27,11 +27,9 @@ function PolarisSection({ contract, reSendContract }: Props) {
 
   const renderExtraButton = () => {
     return (
-      !contract.isSyncedPolaris && (
-        <button onClick={onSendPolaris} title="send contract">
-          <Icon icon="refresh-1" />
-        </button>
-      )
+      <button onClick={onSendPolaris} title="send contract">
+        <Icon icon="refresh-1" />
+      </button>
     );
   };
 

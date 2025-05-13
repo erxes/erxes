@@ -148,6 +148,7 @@ const command = async () => {
               blockAmount: detailDeposit.blockBal,
               currency: 'MNT',
               isSyncedPolaris: true,
+              isActiveSaving: true,
               closeInterestRate: 0,
               storedInterest: 0,
               interestCalcType: null,

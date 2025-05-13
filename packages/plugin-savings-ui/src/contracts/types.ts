@@ -1,9 +1,9 @@
 import {
   IActivityLog,
-  IActivityLogForMonth
-} from "@erxes/ui-log/src/activityLogs/types";
+  IActivityLogForMonth,
+} from '@erxes/ui-log/src/activityLogs/types';
 
-import { ITransaction } from "../transactions/types";
+import { ITransaction } from '../transactions/types';
 
 export interface IContract {
   _id: string;
@@ -49,6 +49,7 @@ export interface IContract {
   isDeposit?: boolean;
   blockAmount: number;
   isSyncedPolaris?: boolean;
+  isActiveSaving?: boolean;
 }
 
 export interface IContractDoc extends IContract {
@@ -147,6 +148,12 @@ export type RegenSchedulesMutationResponse = {
 
 export type SavingsMutationResponse = {
   sendSaving: (params: { variables: { data: any } }) => Promise<any>;
+};
+
+export type SavingsActiveMutationResponse = {
+  savingContractActive: (params: {
+    variables: { contractNumber: string };
+  }) => Promise<any>;
 };
 
 // query types

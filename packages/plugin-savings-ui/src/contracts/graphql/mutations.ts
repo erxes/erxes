@@ -142,6 +142,12 @@ const sendSaving = `
   }
 `;
 
+const savingActive = `
+  mutation savingContractActive($contractNumber: String!) {
+    savingContractActive(contractNumber: $contractNumber)
+  }
+`;
+
 const fixSchedules = `
   mutation fixSchedules($contractId: String!) {
     fixSchedules(contractId: $contractId)
@@ -205,4 +211,5 @@ export default {
   expandContract,
   savingsBlockAdd,
   sendSaving,
+  savingActive,
 };

@@ -48,6 +48,7 @@ export const types = () => `
     blockAmount: Float
     remainAmount: Float
     isSyncedPolaris: Boolean
+    isActiveSaving: Boolean
   }
 
   type SavingCloseInfo {
@@ -169,4 +170,5 @@ export const mutations = `
   savingsExpandDuration(_id: String!,contractTypeId:String):SavingContract
   clientSavingSubmit(customerId: String!):SavingContract
   sendSaving(data: JSON): JSON
+  savingContractActive(contractNumber: String!): String
 `;

@@ -5,8 +5,8 @@ import {
   updateContract,
   sendMessageBrokerData,
 } from '../utils';
-import { activeSaving } from './activeSaving';
 import { getDate } from './getDate';
+import { updateSaving } from './updateSaving';
 
 export const createSavingMessage = async (
   subdomain: string,
@@ -50,7 +50,14 @@ export const createSavingMessage = async (
   let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
   if (preSuccessValue) {
-    throw new Error('already synced');
+    return await updateSaving(
+      subdomain,
+      models,
+      polarisConfig,
+      syncLog,
+      params,
+      ''
+    );
   }
 
   const customer = await sendMessageBrokerData(
@@ -143,8 +150,6 @@ export const createSavingMessage = async (
       },
       'savings'
     );
-
-    await activeSaving(subdomain, polarisConfig, [savingCode, 'данс нээв']);
   }
 
   return savingCode;
