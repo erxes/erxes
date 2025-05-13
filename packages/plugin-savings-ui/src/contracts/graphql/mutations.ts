@@ -136,6 +136,18 @@ const regenSchedules = `
   }
 `;
 
+const sendSaving = `
+  mutation sendSaving($data: JSON) {
+    sendSaving(data: $data)
+  }
+`;
+
+const savingActive = `
+  mutation savingContractActive($contractNumber: String!) {
+    savingContractActive(contractNumber: $contractNumber)
+  }
+`;
+
 const fixSchedules = `
   mutation fixSchedules($contractId: String!) {
     fixSchedules(contractId: $contractId)
@@ -197,5 +209,7 @@ export default {
   interestChange,
   interestReturn,
   expandContract,
-  savingsBlockAdd
+  savingsBlockAdd,
+  sendSaving,
+  savingActive,
 };

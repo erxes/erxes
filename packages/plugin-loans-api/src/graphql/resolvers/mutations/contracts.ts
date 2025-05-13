@@ -1,4 +1,4 @@
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import {
   ICollateralData,
   IContract,
@@ -17,14 +17,11 @@ import { createLog, deleteLog, updateLog } from "../../../logUtils";
 import { putActivityLog } from "@erxes/api-utils/src/logUtils";
 
 export const loansContractChanged = async (contract: IContractDocument) => {
-  graphqlPubsub.publish(
-    'loansContractChanged',
-    {
-      loansContractChanged: {
-        ...contract
-      },
-    },
-  );
+  graphqlPubsub.publish("loansContractChanged", {
+    loansContractChanged: {
+      ...contract
+    }
+  });
 };
 
 const contractMutations = {
@@ -122,7 +119,7 @@ const contractMutations = {
 
   contractsDealEdit: async (
     _root,
-    params: { _id: string, dealId: string },
+    params: { _id: string; dealId: string },
     { models, user, subdomain }: IContext
   ) => {
     const { _id, dealId } = params;
@@ -130,7 +127,7 @@ const contractMutations = {
 
     if (!dealId && contract.dealId) {
       delete contract.dealId;
-      await models.Contracts.updateOne({ _id }, { $unset: { dealId: '' } });
+      await models.Contracts.updateOne({ _id }, { $unset: { dealId: "" } });
       return;
     }
 
@@ -138,7 +135,7 @@ const contractMutations = {
     await models.Contracts.updateOne({ _id }, { $set: { dealId } });
     await models.Contracts.updateMany(
       { dealId, _id: { $ne: _id } },
-      { $unset: { dealId: '' } }
+      { $unset: { dealId: "" } }
     );
 
     const logData = {
@@ -240,7 +237,7 @@ const contractMutations = {
     });
 
     const oldCollateralIds = (contract.collateralsData || []).map(
-      item => item.collateralId
+      (item) => item.collateralId
     );
 
     const collateralsData: ICollateralData[] = contract.collateralsData || [];
@@ -308,7 +305,6 @@ const contractMutations = {
     },
     { models }: IContext
   ) => {
-
     const result = await models.InterestCorrection.stopInterest({
       contractId,
       stoppedDate,
@@ -318,7 +314,7 @@ const contractMutations = {
     });
     const updated = await models.Contracts.getContract({ _id: contractId });
     await loansContractChanged(updated);
-    return result
+    return result;
   },
 
   interestChange: async (
@@ -345,7 +341,7 @@ const contractMutations = {
     });
     const updated = await models.Contracts.getContract({ _id: contractId });
     await loansContractChanged(updated);
-    return result
+    return result;
   },
 
   interestReturn: async (
@@ -368,7 +364,7 @@ const contractMutations = {
     });
     const updated = await models.Contracts.getContract({ _id: contractId });
     await loansContractChanged(updated);
-    return result
+    return result;
   },
 
   clientCreditLoanRequest: async (
@@ -488,7 +484,7 @@ const contractMutations = {
     if (customerCreditAmount > 0 && maxLeaseAmountField) {
       const index =
         customer.customFieldsData?.findIndex(
-          a => a.field == maxLeaseAmountField._id
+          (a) => a.field == maxLeaseAmountField._id
         ) || -1;
       if (index == -1) {
         customer.customFieldsData = [
@@ -526,6 +522,66 @@ const contractMutations = {
     }
 
     return customerCreditAmount;
+  },
+
+  sendContractToPolaris: async (_root, { data }, { subdomain }: IContext) => {
+    await sendMessageBroker(
+      {
+        subdomain,
+        action: "sendLoanContract",
+        data: { data },
+        isRPC: true
+      },
+      "syncpolaris"
+    );
+
+    return "success";
+  },
+
+  syncLoanCollateral: async (_root, { contract }, { subdomain }: IContext) => {
+    await sendMessageBroker(
+      {
+        subdomain,
+        action: "createLoanCollateral",
+        data: { contract },
+        isRPC: true
+      },
+      "syncpolaris"
+    );
+
+    return "success";
+  },
+
+  sendLoanSchedules: async (_root, { contract }, { subdomain }: IContext) => {
+    await sendMessageBroker(
+      {
+        subdomain,
+        action: "createSchedule",
+        data: { contract },
+        isRPC: true
+      },
+      "syncpolaris"
+    );
+
+    return "success";
+  },
+
+  loanContractActive: async (
+    _root,
+    { contractNumber },
+    { subdomain }: IContext
+  ) => {
+    await sendMessageBroker(
+      {
+        subdomain,
+        action: "loanContractActive",
+        data: { contractNumber },
+        isRPC: true
+      },
+      "syncpolaris"
+    );
+
+    return "success";
   }
 };
 

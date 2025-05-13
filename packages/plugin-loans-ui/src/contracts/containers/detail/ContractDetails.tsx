@@ -8,10 +8,14 @@ import React, { useEffect } from 'react';
 import ContractDetails from '../../components/detail/ContractDetails';
 import { mutations, queries } from '../../graphql';
 import {
+  ActiveLoanMutationResponse,
   DetailQueryResponse,
   EditMutationResponse,
   IContractDoc,
   RegenSchedulesMutationResponse,
+  SendLoansMutationResponse,
+  SendSchedulesMutationResponse,
+  SyncLoanCollateralsMutationResponse,
 } from '../../types';
 import { useMutation, useQuery } from '@apollo/client';
 import subscriptions from '../../graphql/subscriptions';
@@ -67,6 +71,34 @@ const ContractDetailsContainer = (props: FinalProps) => {
     }
   );
 
+  const [sendSavings] = useMutation<SendLoansMutationResponse>(
+    gql(mutations.sendSaving),
+    {
+      refetchQueries: ['contractDetail'],
+    }
+  );
+
+  const [syncLoanCollateral] = useMutation<SyncLoanCollateralsMutationResponse>(
+    gql(mutations.syncLoanCollateral),
+    {
+      refetchQueries: ['contractDetail'],
+    }
+  );
+
+  const [sendLoanSchedules] = useMutation<SendSchedulesMutationResponse>(
+    gql(mutations.sendLoanSchedules),
+    {
+      refetchQueries: ['contractDetail'],
+    }
+  );
+
+  const [activeLoan] = useMutation<ActiveLoanMutationResponse>(
+    gql(mutations.loanContractActive),
+    {
+      refetchQueries: ['contractDetail'],
+    }
+  );
+
   const saveItem = (doc: IContractDoc, callback: (item) => void) => {
     contractsEdit({ variables: { ...doc } })
       .then(({ data }) => {
@@ -91,6 +123,46 @@ const ContractDetailsContainer = (props: FinalProps) => {
     });
   };
 
+  const regenPolarisHandler = (data: any) => {
+    sendSavings({ variables: { data } })
+      .then(() => {
+        Alert.success('Successfully synced');
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
+  };
+
+  const syncCollateralHandler = (contract: any) => {
+    syncLoanCollateral({ variables: { contract } })
+      .then(() => {
+        Alert.success('Successfully synced');
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
+  };
+
+  const sendSchedulesHandler = (contract: any) => {
+    sendLoanSchedules({ variables: { contract } })
+      .then(() => {
+        Alert.success('Successfully synced');
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
+  };
+
+  const activeLoanHandler = (contractNumber: string) => {
+    activeLoan({ variables: { contractNumber } })
+      .then(() => {
+        Alert.success('Successfully activated');
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
+  };
+
   if (contractDetailQuery.loading) {
     return <Spinner objective={true} />;
   }
@@ -111,6 +183,10 @@ const ContractDetailsContainer = (props: FinalProps) => {
     saveItem,
     regenSchedules: regenSchedulesHandler,
     fixSchedules: fixSchedulesHandler,
+    reSendContract: regenPolarisHandler,
+    reSendCollateral: syncCollateralHandler,
+    reSendSchedules: sendSchedulesHandler,
+    activeLoan: activeLoanHandler,
   };
 
   return <ContractDetails {...updatedProps} />;

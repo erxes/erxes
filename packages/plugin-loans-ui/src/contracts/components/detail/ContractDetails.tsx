@@ -17,6 +17,7 @@ import TransactionSection from "../transaction/TransactionSection";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "coreui/utils";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import Polaris from "../polaris/index";
 
 const ActivityInputs = asyncComponent(
   () =>
@@ -44,6 +45,10 @@ type Props = {
   saveItem: (doc: IContractDoc, callback?: (item) => void) => void;
   regenSchedules: (contractId: string) => void;
   fixSchedules: (contractId: string) => void;
+  reSendContract: (data: any) => void;
+  reSendCollateral: (contract: any) => void;
+  reSendSchedules: (contract: any) => void;
+  activeLoan: (contractNumber: string) => void;
   loading: boolean;
 };
 
@@ -54,13 +59,20 @@ type State = {
 };
 
 const ContractDetails = (props: Props) => {
-  const { saveItem, contract } = props;
+  const {
+    saveItem,
+    contract,
+    reSendContract,
+    reSendCollateral,
+    reSendSchedules,
+    activeLoan
+  } = props;
 
   const [collateralsData, setCollateralsData] = useState(
-    contract.collaterals ? contract.collaterals.map(p => ({ ...p })) : []
+    contract.collaterals ? contract.collaterals.map((p) => ({ ...p })) : []
   );
   const [collaterals, setCollaterals] = useState(
-    contract.collaterals ? contract.collaterals.map(p => p.collateral) : []
+    contract.collaterals ? contract.collaterals.map((p) => p.collateral) : []
   );
 
   const saveCollateralsData = () => {
@@ -68,7 +80,7 @@ const ContractDetails = (props: Props) => {
     const amount: any = {};
     const filteredCollateralsData: any = [];
 
-    collateralsData.forEach(data => {
+    collateralsData.forEach((data) => {
       // collaterals
       if (data.collateral) {
         if (data.currency) {
@@ -107,8 +119,8 @@ const ContractDetails = (props: Props) => {
     { title }
   ];
 
-  const pDataChange = pData => onChangeField("collateralsData", pData);
-  const prsChange = prs => onChangeField("collaterals", prs);
+  const pDataChange = (pData) => onChangeField("collateralsData", pData);
+  const prsChange = (prs) => onChangeField("collaterals", prs);
   const content = () => {
     let tabs = [
       {
@@ -145,8 +157,20 @@ const ContractDetails = (props: Props) => {
             saveCollateralsData={saveCollateralsData}
             collateralsData={collateralsData}
             collaterals={collaterals}
-            contractId={contract._id}
+            contract={contract}
           ></CollateralsSection>
+        )
+      },
+      {
+        label: __("Sync Polaris"),
+        component: (
+          <Polaris
+            contract={contract}
+            reSendContract={reSendContract}
+            reSendCollateral={reSendCollateral}
+            reSendSchedules={reSendSchedules}
+            activeLoan={activeLoan}
+          />
         )
       }
     ];

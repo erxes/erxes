@@ -17,7 +17,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue("savings:contract.findOne", async ({ subdomain, data }) => {
+  consumeRPCQueue("savings:contracts.findOne", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -157,6 +157,7 @@ export const sendMessageBroker = async (
     | "ebarimt"
     | "loans"
     | "khanbank"
+    | "syncpolaris"
 ): Promise<any> => {
   return sendMessage({
     serviceName: name,

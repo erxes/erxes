@@ -6,9 +6,8 @@ import ContractDetails from '../../components/detail/ContractDetails';
 import { mutations, queries } from '../../graphql';
 import {
   DetailQueryResponse,
-  EditMutationResponse,
-  IContractDoc,
-  RegenSchedulesMutationResponse,
+  SavingsActiveMutationResponse,
+  SavingsMutationResponse,
 } from '../../types';
 import { useQuery, useMutation } from '@apollo/client';
 import subscriptions from '../../graphql/subscriptions';
@@ -30,7 +29,7 @@ const ContractDetailsContainer = (props: FinalProps) => {
       variables: {
         _id: id,
       },
-    },
+    }
   );
 
   useEffect(() => {
@@ -38,55 +37,44 @@ const ContractDetailsContainer = (props: FinalProps) => {
       document: gql(subscriptions.savingsContractChanged),
       variables: { ids: [id] },
       updateQuery: (prev) => {
-        contractDetailQuery.refetch();        
-        return prev
-      }
+        contractDetailQuery.refetch();
+        return prev;
+      },
     });
   }, []);
 
-  const [contractsEdit] = useMutation<EditMutationResponse>(
-    gql(mutations.contractsEdit),
+  const [sendSavings] = useMutation<SavingsMutationResponse>(
+    gql(mutations.sendSaving),
     {
-      refetchQueries: ['contractDetail'],
-    },
+      refetchQueries: ['savingsContractDetail'],
+    }
   );
 
-  const [regenSchedules] = useMutation<RegenSchedulesMutationResponse>(
-    gql(mutations.regenSchedules),
+  const [savingActive] = useMutation<SavingsActiveMutationResponse>(
+    gql(mutations.savingActive),
     {
-      refetchQueries: ['schedules', 'scheduleYears'],
-    },
+      refetchQueries: ['savingsContractDetail'],
+    }
   );
 
-  const [fixSchedules] = useMutation<RegenSchedulesMutationResponse>(
-    gql(mutations.fixSchedules),
-    {
-      refetchQueries: ['schedules', 'scheduleYears'],
-    },
-  );
-
-  const saveItem = (doc: IContractDoc, callback: (item) => void) => {
-    contractsEdit({ variables: { ...doc } })
-      .then(({ data }) => {
-        if (callback) {
-          callback((data || {}).contractsEdit);
-        }
+  const regenPolarisHandler = (data: any) => {
+    sendSavings({ variables: { data } })
+      .then(() => {
+        Alert.success('Successfully synced');
       })
       .catch((error) => {
         Alert.error(error.message);
       });
   };
 
-  const regenSchedulesHandler = (contractId: string) => {
-    regenSchedules({ variables: { contractId } }).catch((error) => {
-      Alert.error(error.message);
-    });
-  };
-
-  const fixSchedulesHandler = (contractId: string) => {
-    fixSchedules({ variables: { contractId } }).catch((error) => {
-      Alert.error(error.message);
-    });
+  const savingActiveHandler = (contractNumber: string) => {
+    savingActive({ variables: { contractNumber } })
+      .then(() => {
+        Alert.success('Successfully activated');
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
   };
 
   if (contractDetailQuery.loading) {
@@ -106,9 +94,8 @@ const ContractDetailsContainer = (props: FinalProps) => {
     loading: contractDetailQuery.loading,
     contract: contractDetail,
     currentUser,
-    saveItem,
-    regenSchedules: regenSchedulesHandler,
-    fixSchedules: fixSchedulesHandler,
+    reSendContract: regenPolarisHandler,
+    savingActive: savingActiveHandler,
   };
 
   return <ContractDetails {...updatedProps} />;

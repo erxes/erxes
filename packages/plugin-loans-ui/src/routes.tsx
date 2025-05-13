@@ -58,6 +58,12 @@ const ContractTypesList = asyncComponent(
       /* webpackChunkName: "ContractTypesList" */ "./contractTypes/containers/ContractTypesList"
     )
 );
+const PurposeList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PurposeTypesList" */ "./purpose/containers/PurposesList"
+    )
+);
 const ContractTypeDetails = asyncComponent(
   () =>
     import(
@@ -127,6 +133,12 @@ const ContractTypesLists = () => {
   const location = useLocation();
 
   return <ContractTypesList queryParams={queryString.parse(location.search)} />;
+};
+
+const PurposeLists = () => {
+  const location = useLocation();
+
+  return <PurposeList queryParams={queryString.parse(location.search)} />;
 };
 
 const ClassificationHistoryList = () => {
@@ -233,6 +245,7 @@ const LoanRoutes = () => {
         path="/erxes-plugin-loan/non-balance-transactions"
         element={<NonBalanceTransactionLists />}
       />
+      <Route path="/erxes-plugin-loan/purpose" element={<PurposeLists />} />
     </Routes>
   );
 };

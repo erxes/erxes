@@ -129,6 +129,10 @@ export const types = () => `
     relationExpert: JSON
     leasingExpert: JSON
     riskExpert: JSON
+    isSyncedPolaris: Boolean
+    isActiveLoan: Boolean
+    isSyncedSchedules: Boolean
+    isSyncedCollateral: Boolean
   }
 
 
@@ -248,4 +252,8 @@ export const mutations = `
   interestReturn(${interestCorrectionFields}): LoanContract
   clientCreditLoanRequest(${clientCreditLoanRequestFields}): LoanContract
   clientCreditLoanCalculate(customerId: String): JSON
+  sendContractToPolaris(data: JSON): JSON
+  syncLoanCollateral(contract: JSON): JSON
+  sendLoanSchedules(contract: JSON): JSON
+  loanContractActive(contractNumber: String!): JSON
 `;

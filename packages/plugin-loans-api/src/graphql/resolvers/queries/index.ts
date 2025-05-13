@@ -9,6 +9,7 @@ import collateralQueries from './collaterals';
 import classificationQueries from './classification';
 import nonBalanceTransactionQueries from './nonBalanceTransactions';
 import collateralTypeQueries from './collateralTypes';
+import purposeQueries from './purpose';
 
 export default {
   ...periodLockQueries,
@@ -21,5 +22,6 @@ export default {
   ...collateralQueries,
   ...classificationQueries,
   ...nonBalanceTransactionQueries,
-  ...collateralTypeQueries
+  ...collateralTypeQueries,
+  ...purposeQueries,
 };

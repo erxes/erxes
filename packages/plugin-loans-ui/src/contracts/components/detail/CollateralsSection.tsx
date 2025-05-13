@@ -16,7 +16,7 @@ import {
   RowCollateral,
   ScrollTableColls
 } from '../../styles';
-import { ICollateralData } from '../../types';
+import { ICollateralData, IContractDoc } from '../../types';
 
 type Props = {
   collateralsData: ICollateralData[];
@@ -24,7 +24,7 @@ type Props = {
   onChangeCollateralsData: (collateralsData: ICollateralData[]) => void;
   onChangeCollaterals: (prs: IProduct[]) => void;
   saveCollateralsData: () => void;
-  contractId: string;
+  contract: IContractDoc;
 };
 
 function CollateralsSection({
@@ -32,10 +32,10 @@ function CollateralsSection({
   collateralsData,
   onChangeCollateralsData,
   saveCollateralsData,
-  contractId
+  contract
 }: Props) {
   const contentWithId = (collateralId?: string) => {
-    const content = props => (
+    const content = (props) => (
       <CollateralManager
         {...props}
         currentCollateral={collateralId}
@@ -43,7 +43,7 @@ function CollateralsSection({
         collateralsData={collateralsData}
         collaterals={collaterals}
         saveCollateralsData={saveCollateralsData}
-        contractId={contractId}
+        contractId={contract._id}
       />
     );
 
@@ -105,14 +105,18 @@ function CollateralsSection({
     );
   };
 
+  const renderExtraButton = () => {
+    return renderCollateralFormModal(
+      <button>
+        <Icon icon="edit-3" />
+      </button>
+    );
+  };
+
   return (
     <Box
       title={__('Collaterals')}
-      extraButtons={renderCollateralFormModal(
-        <button>
-          <Icon icon="edit-3" />
-        </button>
-      )}
+      extraButtons={renderExtraButton()}
       name="showCollateral"
       isOpen={true}
     >

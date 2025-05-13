@@ -2,7 +2,6 @@ const dotenv = require('dotenv');
 const fetch = require('node-fetch');
 const http = require('http');
 const { MongoClient } = require('mongodb');
-const moment = require('moment');
 
 dotenv.config();
 
@@ -16,13 +15,9 @@ if (!MONGO_URL) {
 const client = new MongoClient(MONGO_URL);
 let db;
 let Customers;
-let Companies;
-let LoanContracts;
-let LoanContractTypes;
-let LoanFirstSchedules;
-let LoanSchedules;
 let SavingContracts;
 let SavingContractTypes;
+let Branches;
 
 const nanoid = (len = 21) => {
   const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -84,25 +79,17 @@ const command = async () => {
   console.log(Boolean(db));
 
   Customers = db.collection('customers');
-  Companies = db.collection('companies');
-  LoanContracts = db.collection('loan_contracts');
-  LoanContractTypes = db.collection('loan_contract_types');
-  LoanFirstSchedules = db.collection('loan_first_schedules');
-  LoanSchedules = db.collection('loan_schedules');
   SavingContracts = db.collection('saving_contracts');
   SavingContractTypes = db.collection('saving_contract_types');
+  Branches = db.collection('branches');
 
   console.log(`Process start at: ${new Date()}`);
   const customerFilter = { code: { $exists: true } };
-  // const customerFilter = { code: 'CIF-13000112' };
-  // CIF-13000098
-  // CIF-13000112
 
   const customersCount = await Customers.countDocuments(customerFilter);
 
   let step = 0;
   let per = 10000;
-  const schedules = [];
 
   while (step * per < customersCount) {
     const skip = step * per;
@@ -111,8 +98,6 @@ const command = async () => {
       .skip(skip)
       .limit(per)
       .toArray();
-
-    let bulkOps = [];
 
     for (const customer of customers) {
       if (!customer.code) {
@@ -144,6 +129,10 @@ const command = async () => {
             number: deposit.acntCode,
           });
 
+          const branch = await Branches.findOne({
+            code: detailDeposit.brchCode,
+          });
+
           if (type && !contract) {
             const document = {
               _id: nanoid(),
@@ -152,10 +141,22 @@ const command = async () => {
               number: detailDeposit.acntCode,
               customerType: 'customer',
               customerId: customer._id,
+              branchId: branch ? branch._id : '',
               savingAmount: detailDeposit.currentBal,
               duration: detailDeposit.termLen,
               interestRate: detailDeposit.intRate,
+              blockAmount: detailDeposit.blockBal,
               currency: 'MNT',
+              isSyncedPolaris: true,
+              isActiveSaving: true,
+              closeInterestRate: 0,
+              storedInterest: 0,
+              interestCalcType: null,
+              storeInterestInterval: null,
+              isAllowIncome: null,
+              isAllowOutcome: null,
+              isDeposit: null,
+              customFieldsData: [],
               startDate: new Date(detailDeposit.startDate),
               createdAt: new Date(detailDeposit.createdDate),
             };

@@ -142,6 +142,10 @@ export interface IContract {
   holidayType?: HolidayType;
   weekends?: number[];
   overPaymentIsNext?: boolean;
+  isSyncedPolaris?: boolean;
+  isActiveLoan: boolean;
+  isSyncedSchedules: boolean;
+  isSyncedCollateral: boolean;
 }
 
 export interface IContractDocument extends IContract, Document {
@@ -403,6 +407,26 @@ export const contractSchema = schemaHooksWrapper(
       type: Boolean,
       label: 'Over Payment is next schedule',
       default: false,
+      optional: true,
+    }),
+    isSyncedPolaris: field({
+      type: Boolean,
+      label: 'Is Synced Polaris',
+      optional: true,
+    }),
+    isActiveLoan: field({
+      type: Boolean,
+      label: 'Is Active Loan',
+      optional: true,
+    }),
+    isSyncedSchedules: field({
+      type: Boolean,
+      label: 'Is Synced Schedules',
+      optional: true,
+    }),
+    isSyncedCollateral: field({
+      type: Boolean,
+      label: 'Is Synced Collateral',
       optional: true,
     }),
   }),

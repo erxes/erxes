@@ -55,6 +55,10 @@ export const contractFields = `
   commitmentInterest
   endDate
   contractDate
+  isSyncedPolaris
+  isActiveLoan
+  isSyncedSchedules
+  isSyncedCollateral
 `;
 
 const selectContractFields = `
