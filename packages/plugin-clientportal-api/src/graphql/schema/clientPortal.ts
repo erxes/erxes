@@ -253,6 +253,7 @@ ${
 
     socialpayConfig: SocialpayConfig
     language: String
+    languages: [String]
 
     template: String
     templateId: String
@@ -375,6 +376,7 @@ ${
     vendorParentProductCategoryId: String
     socialpayConfig: JSON
     language: String
+    languages: [String]
 
     template: String
     templateId: String
@@ -480,7 +482,7 @@ export const queries = (enabledPlugins) => `
     enabledPlugins.knowledgebase
       ? `
     clientPortalKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
-    clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String], topicId: String, isPrivate: Boolean): [KnowledgeBaseArticle]
+    clientPortalKnowledgeBaseArticles(searchValue: String,slug: String  categoryIds: [String], topicId: String, isPrivate: Boolean): [KnowledgeBaseArticle]
    `
       : ''
   }

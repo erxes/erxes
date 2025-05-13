@@ -114,8 +114,8 @@ export const articleDetailQuery = `
 `;
 
 export const articlesQuery = `
-  query knowledgeBaseArticles($categoryIds: [String], $searchValue: String, $topicId: String, $isPrivate: Boolean) {
-    clientPortalKnowledgeBaseArticles(categoryIds: $categoryIds, searchValue: $searchValue, topicId: $topicId, isPrivate: $isPrivate) {
+  query knowledgeBaseArticles($categoryIds: [String], $slug: String, $searchValue: String, $topicId: String, $isPrivate: Boolean) {
+    clientPortalKnowledgeBaseArticles(categoryIds: $categoryIds, slug: $slug, searchValue: $searchValue, topicId: $topicId, isPrivate: $isPrivate) {
       _id
       title
       viewCount

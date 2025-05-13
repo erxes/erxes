@@ -114,6 +114,7 @@ export interface IClientPortal {
 
   vendorParentProductCategoryId?: string;
   language?: string;
+  languages?: string[];
   slug?: string;
   template?: string;
   templateId?: string;
@@ -366,6 +367,7 @@ export const clientPortalSchema = new Schema({
     optional: true,
   }),
   language: field({ type: String, optional: true }),
+  languages: field({ type: [String], optional: true }),
   slug: field({ type: String, optional: true }),
   template: field({ type: String, optional: true }),
   templateId: field({ type: String, optional: true }),

@@ -204,6 +204,7 @@ export type ClientPortalConfig = {
   vendorParentProductCategoryId?: string;
   socialpayConfig?: SocialpayConfig;
   language?: string;
+  languages?: string[];
 };
 
 export type Styles = {
