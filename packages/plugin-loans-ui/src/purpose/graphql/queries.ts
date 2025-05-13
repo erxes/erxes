@@ -9,14 +9,14 @@ export const contractTypeFields = `
 const listParamsDef = `
   $page: Int
   $perPage: Int
-  $parentId: String
+  $hasParentId: Boolean
   $searchValue: String
 `;
 
 const listParamsValue = `
   page: $page
   perPage: $perPage
-  parentId: $parentId
+  hasParentId: $hasParentId
   searchValue: $searchValue
 `;
 
@@ -30,5 +30,5 @@ export const purposes = `
 `;
 
 export default {
-  purposes,
+  purposes
 };

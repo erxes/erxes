@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 
 interface IProps {
   purposes: IPurpose[];
+  parentPurposes: IPurpose[];
   loading: boolean;
   searchValue: string;
   totalCount: number;
@@ -45,6 +46,7 @@ const ContractTypesList = (props: IProps) => {
     totalCount,
     queryParams,
     toggleAll,
+    parentPurposes
   } = props;
 
   const navigate = useNavigate();
@@ -149,7 +151,11 @@ const ContractTypesList = (props: IProps) => {
 
   const purposeForm = (props) => {
     return (
-      <PurposeForm {...props} queryParams={queryParams} purposes={purposes} />
+      <PurposeForm
+        {...props}
+        queryParams={queryParams}
+        parentPurposes={parentPurposes}
+      />
     );
   };
 
@@ -188,7 +194,7 @@ const ContractTypesList = (props: IProps) => {
           queryParams={queryParams}
           breadcrumb={[
             { title: __('Settings'), link: '/settings' },
-            { title: __('Contract Type') },
+            { title: __('Contract Type') }
           ]}
         />
       }

@@ -18,21 +18,33 @@ const ContractTypeListContainer = (props: Props) => {
     variables: {
       ...router.generatePaginationParams(queryParams || {}),
       parentId: queryParams.parentId,
-      searchValue: queryParams.searchValue,
+      searchValue: queryParams.searchValue
     },
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'network-only'
   });
+
+  const ParentPurposeQuery = useQuery<MainQueryResponse>(
+    gql(queries.purposes),
+    {
+      variables: {
+        ...router.generatePaginationParams(queryParams || {}),
+        parentId: queryParams.parentId,
+        hasParentId: true
+      },
+      fetchPolicy: 'network-only'
+    }
+  );
 
   const [purposesRemove] = useMutation<RemoveMutationResponse>(
     gql(mutations.purposesRemove),
     {
-      refetchQueries: ['purposes'],
+      refetchQueries: ['purposes']
     }
   );
 
   const removePurpose = ({ purposeIds }, emptyBulk) => {
     purposesRemove({
-      variables: { purposeIds },
+      variables: { purposeIds }
     })
       .then(() => {
         emptyBulk();
@@ -46,14 +58,17 @@ const ContractTypeListContainer = (props: Props) => {
   const searchValue = queryParams.searchValue || '';
 
   const { list = [], totalCount = 0 } = purposeQuery?.data?.purposesMain || {};
+  const { list: parentList = [] } =
+    ParentPurposeQuery?.data?.purposesMain || {};
 
   const updatedProps = {
     ...props,
     searchValue,
     purposes: list,
+    parentPurposes: parentList,
     totalCount,
     loading: purposeQuery.loading,
-    removePurpose,
+    removePurpose
   };
 
   const contractTypesList = (props) => {

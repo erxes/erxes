@@ -9,6 +9,10 @@ const generateFilter = async (params, commonQuerySelector) => {
     filter.name = { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] };
   }
 
+  if (params.hasParentId) {
+    filter.parentId = { $exists: false };
+  }
+
   return filter;
 };
 
@@ -27,11 +31,11 @@ const purposeQueries = {
     return {
       list: await paginate(models.LoanPurpose.find(filter), {
         page: params.page,
-        perPage: params.perPage,
+        perPage: params.perPage
       }),
-      totalCount: await models.LoanPurpose.find(filter).countDocuments(),
+      totalCount: await models.LoanPurpose.find(filter).countDocuments()
     };
-  },
+  }
 };
 
 moduleRequireLogin(purposeQueries);

@@ -7,7 +7,7 @@ import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
+  MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src/styles/eindex';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from 'coreui/utils';
@@ -17,13 +17,13 @@ import { IPurpose, IPurposeDoc } from '../types';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   purpose?: IPurpose;
-  purposes: IPurpose[];
+  parentPurposes: IPurpose[];
   closeModal: () => void;
 };
 
 const PurposeForm = (props: Props) => {
   const [purpose, setPurpose] = useState(props.purpose || ({} as IPurpose));
-  const { purposes } = props;
+  const { parentPurposes } = props;
 
   const generateDoc = (values: { _id: string } & IPurposeDoc) => {
     const finalValues = values;
@@ -34,7 +34,7 @@ const PurposeForm = (props: Props) => {
 
     return {
       ...purpose,
-      _id: finalValues._id,
+      _id: finalValues._id
     };
   };
 
@@ -76,14 +76,14 @@ const PurposeForm = (props: Props) => {
                 name: 'code',
                 required: true,
                 defaultValue: purpose.code || '',
-                onChange: onChangeField,
+                onChange: onChangeField
               })}
               {renderFormGroup('Name', {
                 ...formProps,
                 name: 'name',
                 required: true,
                 defaultValue: purpose.name || '',
-                onChange: onChangeField,
+                onChange: onChangeField
               })}
               <FormGroup>
                 <ControlLabel>Parent Category</ControlLabel>
@@ -98,7 +98,7 @@ const PurposeForm = (props: Props) => {
                   <option key={''} value={''}>
                     {''}
                   </option>
-                  {purposes.map((type) => (
+                  {parentPurposes.map((type) => (
                     <option key={type.code} value={type._id}>
                       {__(type.name)}
                     </option>
@@ -109,7 +109,7 @@ const PurposeForm = (props: Props) => {
                 ...formProps,
                 name: 'description',
                 defaultValue: purpose.description || '',
-                onChange: onChangeField,
+                onChange: onChangeField
               })}
             </FormColumn>
           </FormWrapper>
@@ -124,7 +124,7 @@ const PurposeForm = (props: Props) => {
             name: 'purpose',
             values: generateDoc(values),
             isSubmitted,
-            object: props.purpose,
+            object: props.purpose
           })}
         </ModalFooter>
       </>

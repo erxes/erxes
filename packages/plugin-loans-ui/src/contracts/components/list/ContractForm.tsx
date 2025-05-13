@@ -12,7 +12,7 @@ import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
+  MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src/styles/eindex';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
@@ -30,7 +30,7 @@ import { IContractType, IContractTypeDoc } from '../../../contractTypes/types';
 import { RelType } from '../../containers/ContractForm';
 import { IContract, IContractDoc, IStepRules } from '../../types';
 import SelectSavingContract, {
-  Contracts,
+  Contracts
 } from '../collaterals/SelectSavingContract';
 import StepRulesForm from './StepRulesForm';
 import { IPurpose } from '../../../purpose/types';
@@ -46,6 +46,7 @@ type Props = {
   ) => JSX.Element;
   contract?: IContract;
   purposes?: IPurpose[];
+  parentPurpose?: IPurpose[];
   closeModal: () => void;
   change?: boolean;
   data?: RelType;
@@ -91,14 +92,14 @@ export const Tabs = ({ tabs }: ITabs) => {
 };
 
 function ContractForm(props: Props) {
-  const { purposes } = props;
+  const { purposes, parentPurpose } = props;
 
   const [contract, setContract] = useState(
     props.contract ||
       ({
         customerType: 'customer',
         repayment: 'fixed',
-        holidayType: 'before',
+        holidayType: 'before'
       } as IContract)
   );
 
@@ -153,7 +154,7 @@ function ContractForm(props: Props) {
       firstPayDate: contract.firstPayDate,
       contractDate: contract.contractDate,
       stepRules,
-      skipAmountCalcMonth: Number(contract.skipAmountCalcMonth),
+      skipAmountCalcMonth: Number(contract.skipAmountCalcMonth)
     };
 
     return result;
@@ -164,7 +165,7 @@ function ContractForm(props: Props) {
       ...contract,
       feeAmount:
         contractType?.defaultFee ||
-        (contract.leaseAmount / 100) * (contractType?.feePercent ?? 0),
+        (contract.leaseAmount / 100) * (contractType?.feePercent ?? 0)
     });
   }, [contractType, contract.leaseAmount]);
 
@@ -229,7 +230,7 @@ function ContractForm(props: Props) {
     setContract({
       ...contract,
       firstPayDate,
-      endDate,
+      endDate
     });
   }, [contract.startDate, contract.scheduleDays, contract.tenor]);
 
@@ -267,7 +268,7 @@ function ContractForm(props: Props) {
       setContract((v) => ({
         ...v,
         interestRate: Number(value),
-        interestMonth: Number(value || 0) / 12,
+        interestMonth: Number(value || 0) / 12
       }));
       return;
     }
@@ -296,7 +297,7 @@ function ContractForm(props: Props) {
       interestRate: selectedContractType.defaultInterest,
       feeAmount:
         selectedContractType.defaultFee ||
-        (contract.leaseAmount / 100) * (selectedContractType.feePercent ?? 0),
+        (contract.leaseAmount / 100) * (selectedContractType.feePercent ?? 0)
     };
 
     if (!contract.lossPercent) {
@@ -324,7 +325,7 @@ function ContractForm(props: Props) {
     }
 
     setContractType({
-      ...selectedContractType,
+      ...selectedContractType
     });
 
     setContract((v) => ({ ...v, ...changingStateValue }));
@@ -337,7 +338,7 @@ function ContractForm(props: Props) {
   const onCheckCustomerType = (e) => {
     setContract((v) => ({
       ...v,
-      customerType: e.target.checked ? 'company' : 'customer',
+      customerType: e.target.checked ? 'company' : 'customer'
     }));
   };
 
@@ -455,7 +456,7 @@ function ContractForm(props: Props) {
                   componentclass: 'checkbox',
                   name: 'customerType',
                   checked: contract.customerType === 'company',
-                  onChange: onCheckCustomerType,
+                  onChange: onCheckCustomerType
                 })}
               </div>
               {(contract.customerType === 'company' && (
@@ -487,7 +488,7 @@ function ContractForm(props: Props) {
                   name: 'contractNumber',
                   value: contract.number,
                   onChange: onChangeField,
-                  onClick: onFieldClick,
+                  onClick: onFieldClick
                 })}
               <FormGroup>
                 <ControlLabel required={true}>{__('Loan Type')}</ControlLabel>
@@ -498,7 +499,10 @@ function ContractForm(props: Props) {
                   value={contract.loanDestination}
                   onChange={onChangeField}
                 >
-                  {(purposes || []).map((type) => (
+                  <option key={''} value={''}>
+                    {''}
+                  </option>
+                  {(parentPurpose || []).map((type) => (
                     <option key={type.code} value={type._id}>
                       {__(type.name)}
                     </option>
@@ -530,7 +534,7 @@ function ContractForm(props: Props) {
                 fixed: 2,
                 value: contract.feeAmount || 0,
                 onChange: onChangeField,
-                onClick: onFieldClick,
+                onClick: onFieldClick
               })}
 
               <FormGroup>
@@ -566,7 +570,7 @@ function ContractForm(props: Props) {
                   required: true,
                   errors: checkValidation(),
                   onChange: onChangeField,
-                  onClick: onFieldClick,
+                  onClick: onFieldClick
                 })}
               {contractType.useMargin &&
                 renderFormGroup('Down payment', {
@@ -579,7 +583,7 @@ function ContractForm(props: Props) {
                     (contract.marginAmount || 0) -
                       (contract.leaseAmount || 0) || 0,
                   onChange: onChangeField,
-                  onClick: onFieldClick,
+                  onClick: onFieldClick
                 })}
             </FormColumn>
             <FormColumn>
@@ -615,7 +619,7 @@ function ContractForm(props: Props) {
                     initialValue={contract.savingContractId}
                     filterParams={{
                       isDeposit: false,
-                      customerId: contract.customerId,
+                      customerId: contract.customerId
                     }}
                     onSelect={(v) => {
                       if (typeof v === 'string') {
@@ -624,7 +628,7 @@ function ContractForm(props: Props) {
 
                         let changeState: any = {
                           savingContractId: v,
-                          endDate: savingContract.endDate,
+                          endDate: savingContract.endDate
                         };
                         if (
                           contractType.savingUpperPercent &&
@@ -662,13 +666,13 @@ function ContractForm(props: Props) {
                   initialValue={contract.depositAccountId}
                   filterParams={{
                     isDeposit: true,
-                    customerId: contract.customerId,
+                    customerId: contract.customerId
                   }}
                   onSelect={(depositAccountId) => {
                     if (typeof depositAccountId === 'string') {
                       setContract((v) => ({
                         ...v,
-                        ['depositAccountId']: depositAccountId,
+                        ['depositAccountId']: depositAccountId
                       }));
                     }
                   }}
@@ -705,7 +709,7 @@ function ContractForm(props: Props) {
             values: generateDoc(values),
             disabled: !!Object.keys(checkValidation()).length,
             isSubmitted,
-            object: props.contract,
+            object: props.contract
           })}
         </ModalFooter>
       </>
@@ -726,13 +730,13 @@ function ContractForm(props: Props) {
 
     const onSelectScheduleDays = (values) => {
       onChangeField({
-        target: { name: 'scheduleDays', value: values.map((val) => val.value) },
+        target: { name: 'scheduleDays', value: values.map((val) => val.value) }
       });
     };
 
     const scheduleOptions = new Array(31).fill(1).map((row, index) => ({
       value: row + index,
-      label: row + index,
+      label: row + index
     }));
 
     return (
@@ -761,7 +765,7 @@ function ContractForm(props: Props) {
                 fixed: 2,
                 value: contract.leaseAmount || 0,
                 errors: checkValidation(),
-                onChange: onChangeField,
+                onChange: onChangeField
               })}
               {renderFormGroup('Tenor /duration month/', {
                 type: 'number',
@@ -771,7 +775,7 @@ function ContractForm(props: Props) {
                 errors: checkValidation(),
                 required: true,
                 max: contractType?.config?.maxTenor,
-                onChange: onChangeField,
+                onChange: onChangeField
               })}
               <FormGroup>
                 <ControlLabel required={true}>
@@ -843,7 +847,7 @@ function ContractForm(props: Props) {
                 value: contract.interestRate || 0,
                 errors: checkValidation(),
                 onChange: onChangeField,
-                onClick: onFieldClick,
+                onClick: onFieldClick
               })}
 
               {contract.leaseType === LEASE_TYPES.LINEAR &&
@@ -856,7 +860,7 @@ function ContractForm(props: Props) {
                   value: contract.commitmentInterest || 0,
                   errors: checkValidation(),
                   onChange: onChangeField,
-                  onClick: onFieldClick,
+                  onClick: onFieldClick
                 })}
             </FormColumn>
             <FormColumn>
@@ -896,8 +900,8 @@ function ContractForm(props: Props) {
                 onChange: (e) =>
                   setContract({
                     ...contract,
-                    interestRate: (e.target as any).value * 12,
-                  }),
+                    interestRate: (e.target as any).value * 12
+                  })
               })}
 
               {renderFormGroup('Skip Amount Calc Month', {
@@ -906,7 +910,7 @@ function ContractForm(props: Props) {
                 useNumberFormat: true,
                 value: contract.skipAmountCalcMonth || 0,
                 errors: checkValidation(),
-                onChange: onChangeField,
+                onChange: onChangeField
               })}
             </FormColumn>
           </FormWrapper>
@@ -923,7 +927,7 @@ function ContractForm(props: Props) {
             values: generateDoc(values),
             disabled: !!Object.keys(checkValidation()).length,
             isSubmitted,
-            object: props.contract,
+            object: props.contract
           })}
         </ModalFooter>
       </>
@@ -937,12 +941,12 @@ function ContractForm(props: Props) {
       tabs={[
         {
           label: 'Гэрээ',
-          component: <Form renderContent={renderContent} />,
+          component: <Form renderContent={renderContent} />
         },
         {
           label: 'Хуваарь',
-          component: <Form renderContent={renderGraphic} />,
-        },
+          component: <Form renderContent={renderGraphic} />
+        }
       ]}
     />
   );

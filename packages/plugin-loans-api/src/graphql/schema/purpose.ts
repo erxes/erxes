@@ -17,7 +17,7 @@ export const types = () => `
 const queryParams = `
   page: Int
   perPage: Int
-  parentId: String
+  hasParentId: Boolean
   searchValue: String
 `;
 

@@ -35,20 +35,26 @@ const ContractFromContainer = (props: FinalProps) => {
   const objectOnContract = useQuery(gql(queries.convertToContract), {
     variables: {
       contentType: data?.mainType,
-      id: data?.mainTypeId,
+      id: data?.mainTypeId
     },
     skip: !data?.mainTypeId,
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'network-only'
   });
 
   const purposesQuery = useQuery(gql(purposeQuery.purposes));
+  const parentPurposesQuery = useQuery(gql(purposeQuery.purposes), {
+    variables: {
+      hasParentId: true
+    },
+    fetchPolicy: 'network-only'
+  });
 
   const renderButton = ({
     name,
     values,
     isSubmitted,
     object,
-    disabled,
+    disabled
   }: IButtonMutateProps & { disabled: boolean }) => {
     const afterSave = (data) => {
       closeModal();
@@ -77,12 +83,13 @@ const ContractFromContainer = (props: FinalProps) => {
     );
   };
 
-  if (purposesQuery.loading) return 'Loading';
+  if (purposesQuery.loading || parentPurposesQuery.loading) return 'Loading';
 
   const updatedProps = {
     ...props,
     purposes: purposesQuery?.data?.purposesMain?.list || {},
-    renderButton,
+    parentPurpose: parentPurposesQuery?.data?.purposesMain?.list || {},
+    renderButton
   };
 
   if (data) {
@@ -92,7 +99,7 @@ const ContractFromContainer = (props: FinalProps) => {
         {...updatedProps}
         contract={{
           ...(objectOnContract.data?.convertToContract || {}),
-          _id: undefined,
+          _id: undefined
         }}
       />
     );
@@ -108,7 +115,7 @@ const getRefetchQueries = () => {
     'contracts',
     'contractCounts',
     'activityLogs',
-    'schedules',
+    'schedules'
   ];
 };
 
