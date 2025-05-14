@@ -1,7 +1,7 @@
-import { router } from "@erxes/ui/src/utils";
+import { Alert, router, confirm } from "@erxes/ui/src/utils";
 import { Bulk, Spinner } from "@erxes/ui/src/components";
-import { queries } from "../graphql";
-import { useQuery } from "@apollo/client";
+import { mutations, queries } from "../graphql";
+import { useMutation, useQuery } from "@apollo/client";
 
 import List from "../components/List";
 import React from "react";
@@ -20,6 +20,7 @@ const AgentListContainer = ({ queryParams }: Props) => {
     variables: generateParams(queryParams),
     fetchPolicy: "network-only",
   });
+  const [remove] = useMutation(gql(mutations.agentsRemove));
 
   if (loading) {
     return <Spinner />;
@@ -28,10 +29,28 @@ const AgentListContainer = ({ queryParams }: Props) => {
   const list = data?.agents || [];
   const totalCount = 0;
 
+  const removeAgent = (_id: string) => {
+    confirm()
+      .then(() => {
+        remove({ variables: { _id } }).then(({ data }) => {
+          const { agentsRemove } = data;
+
+          if (agentsRemove.acknowledged && agentsRemove.deletedCount === 1) {
+            Alert.success('Agent has been deleted.');
+          }
+
+          refetchMainQuery();
+        }).catch(e => {
+          Alert.error(e.message);
+        })
+      });
+  };
+
   const updatedProps = {
     totalCount,
     searchValue: queryParams.searchValue || "",
     agents: list,
+    removeAgent
   };
 
   const refetch = () => {

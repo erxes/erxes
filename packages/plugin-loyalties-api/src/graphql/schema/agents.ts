@@ -61,4 +61,5 @@ export const queries = `
 export const mutations = `
   agentsAdd(${addEditParamDefs}): Agent
   agentsEdit(_id: String!, ${addEditParamDefs}): Agent
+  agentsRemove(_id: String!): JSON
 `;

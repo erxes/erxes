@@ -12,6 +12,11 @@ const agentMutations = {
     const updated = await models.Agents.updateAgent(agent._id, params);
 
     return updated;
+  },
+  agentsRemove: async (_root, params: { _id: string }, { models }: IContext) => {
+    const removed = await models.Agents.removeAgent(params._id);
+
+    return removed;
   }
 };
 

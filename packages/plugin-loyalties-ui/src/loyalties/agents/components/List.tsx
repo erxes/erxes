@@ -1,4 +1,4 @@
-import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
+import { __, router } from "@erxes/ui/src/utils";
 import {
   Button,
   DataWithLoader,
@@ -17,7 +17,7 @@ import { IQueryParams } from "@erxes/ui/src/types";
 import { BarItems } from "@erxes/ui/src/layout/styles";
 import { IAgentDocument } from "../types";
 import { LoyaltiesTableWrapper } from "../../common/styles";
-import React, { useState } from "react";
+import React from "react";
 import AgentForm from "../containers/Form";
 import AgentRow from "./Row";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
@@ -29,17 +29,13 @@ interface IProps {
   loading: boolean;
   searchValue: string;
   totalCount: number;
-  toggleBulk: () => void;
-  toggleAll: (targets: IAgentDocument[], containerId: string) => void;
-  bulk: any[];
-  isAllSelected: boolean;
-  emptyBulk: () => void;
   queryParams: IQueryParams;
+  removeAgent: (_id: string) => void;
 }
 
 const AgentList = (props: IProps) => {
   let timer;
-  const [searchValue, setSearchValue] = useState(props.searchValue)
+  const [searchValue, setSearchValue] = React.useState(props.searchValue)
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -66,10 +62,9 @@ const AgentList = (props: IProps) => {
   const {
     agents,
     loading,
-    toggleBulk,
-    bulk,
     totalCount,
     queryParams,
+    removeAgent
   } = props;
 
   const mainContent = (
@@ -94,10 +89,9 @@ const AgentList = (props: IProps) => {
           {agents.map((a) => (
             <AgentRow
               agent={a}
-              isChecked={bulk.includes(a)}
               key={a._id}
-              toggleBulk={toggleBulk}
               queryParams={queryParams}
+              removeAgent={removeAgent}
             />
           ))}
         </tbody>
@@ -116,30 +110,6 @@ const AgentList = (props: IProps) => {
   };
 
   const actionBarRight = () => {
-    if (bulk.length > 0) {
-      const onClick = () =>
-        confirm()
-          .then(() => {
-            // removeVouchers(bulk);
-            console.log('removing')
-          })
-          .catch((error) => {
-            Alert.error(error.message);
-          });
-
-      return (
-        <BarItems>
-          <Button
-            btnStyle="danger"
-            size="small"
-            icon="cancel-1"
-            onClick={onClick}
-          >
-            Delete
-          </Button>
-        </BarItems>
-      );
-    }
     return (
       <BarItems>
         <FormControl

@@ -4,14 +4,13 @@ import React from "react";
 import { FlexItem } from "../../common/styles";
 import { formatValue } from "@erxes/ui/src/utils";
 import { IQueryParams } from "@erxes/ui/src/types";
-import { IAgent } from "../types";
-import { ModalTrigger } from "@erxes/ui/src/components";
+import { IAgentDocument } from "../types";
+import { ActionButtons, Button, ModalTrigger, Tip } from "@erxes/ui/src/components";
 
 type Props = {
-  agent: IAgent;
-  isChecked: boolean;
-  toggleBulk: (agent: IAgent, isChecked?: boolean) => void;
+  agent: IAgentDocument;
   queryParams: IQueryParams;
+  removeAgent: (_id: string) => void;
 };
 
 class AgentRow extends React.Component<Props> {
@@ -25,13 +24,6 @@ class AgentRow extends React.Component<Props> {
     return formatValue(value);
   }
 
-  onChange = (e) => {
-    const { toggleBulk, agent } = this.props;
-    if (toggleBulk) {
-      toggleBulk(agent, e.target.checked);
-    }
-  };
-
   modalContent = (props) => {
     const { agent } = this.props;
 
@@ -44,13 +36,17 @@ class AgentRow extends React.Component<Props> {
   };
 
   render() {
-    const { agent } = this.props;
+    const { agent, removeAgent } = this.props;
 
     const onClick = (e) => {
       e.stopPropagation();
     };
 
     const productRuleNames = (agent.rulesOfProducts || []).map(p => `${p.name}, `);
+
+    const remove = () => {
+      removeAgent(agent._id);
+    };
 
     const trigger = (
       <tr>
@@ -59,7 +55,11 @@ class AgentRow extends React.Component<Props> {
         <td key="hasReturn">{this.displayValue(agent, "hasReturn")}</td>
         <td key="productRules">{productRuleNames}</td>
         <td key="actions" onClick={onClick}>
-          .
+          <ActionButtons>
+            <Tip text="Delete" placement="bottom">
+              <Button btnStyle="link" onClick={remove} icon="cancel-1" />
+            </Tip>
+          </ActionButtons>
         </td>
       </tr>
     );

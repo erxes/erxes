@@ -7,7 +7,7 @@ export interface IAgentModel extends Model<IAgentDocument> {
   getAgent(_id: string): Promise<IAgentDocument>;
   createAgent(doc: IAgent): Promise<IAgentDocument>;
   updateAgent(_id: string, doc: IAgent): Promise<IAgentDocument>;
-  removeAgent(_id: string): void;
+  removeAgent(_id: string): Promise<{ n: number; ok: number }>;
 };
 
 // TODO: add more validations on other fields

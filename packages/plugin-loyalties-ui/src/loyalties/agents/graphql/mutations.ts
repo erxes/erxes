@@ -54,7 +54,14 @@ const agentsEdit = `
   }
 `;
 
+const agentsRemove = `
+  mutation agentsRemove($_id: String!) {
+    agentsRemove(_id: $_id)
+  }
+`;
+
 export default {
   agentsAdd,
-  agentsEdit
+  agentsEdit,
+  agentsRemove
 };

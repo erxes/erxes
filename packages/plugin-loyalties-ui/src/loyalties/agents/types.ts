@@ -23,13 +23,13 @@ export interface IAgent {
   prepaidPercent?: number;
   discountPercent?: number;
   productRuleIds?: string[];
-
-  // resolved fields
-  rulesOfProducts?: IProductRule[];
 }
 
 export interface IAgentDocument extends IAgent {
   _id: string;
+
+  // resolved fields
+  rulesOfProducts?: IProductRule[];
 }
 
 // mutation types
