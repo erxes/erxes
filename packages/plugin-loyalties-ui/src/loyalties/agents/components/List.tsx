@@ -86,6 +86,7 @@ const AgentList = (props: IProps) => {
             <th>
               <SortHandler sortField={"hasReturn"} label={__("Has Return")} />
             </th>
+            <th>{__('Product rules')}</th>
             <th>Actions</th>
           </tr>
         </thead>

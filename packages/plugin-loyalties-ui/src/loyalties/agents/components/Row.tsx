@@ -50,12 +50,15 @@ class AgentRow extends React.Component<Props> {
       e.stopPropagation();
     };
 
+    const productRuleNames = (agent.rulesOfProducts || []).map(p => `${p.name}, `);
+
     const trigger = (
       <tr>
-        <td key={"number"}>{this.displayValue(agent, "number")}</td>
-        <td key={"status"}>{this.displayValue(agent, "status")}</td>
-        <td key={"hasReturn"}>{this.displayValue(agent, "hasReturn")}</td>
-        <td key={"actions"} onClick={onClick}>
+        <td key="number">{this.displayValue(agent, "number")}</td>
+        <td key="status">{this.displayValue(agent, "status")}</td>
+        <td key="hasReturn">{this.displayValue(agent, "hasReturn")}</td>
+        <td key="productRules">{productRuleNames}</td>
+        <td key="actions" onClick={onClick}>
           .
         </td>
       </tr>

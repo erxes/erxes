@@ -21,6 +21,11 @@ const addEditParamDefs = `
   ${fieldDefs}
 `;
 
+/**
+ * TODO: fix loading order of graphql types
+ * rulesOfProducts should return [ProductRule] but type Agent is being dynamically 
+ * loaded before type ProductRule, therefore throwing "Unknown type ProductRule" error
+ */
 export const types = `
   enum AgentStatus {
     active
@@ -31,6 +36,8 @@ export const types = `
   type Agent @key(fields: "_id") {
     _id: String!,
     ${fieldDefs},
+
+    rulesOfProducts: [JSON]
   }
 
   type AgentList {

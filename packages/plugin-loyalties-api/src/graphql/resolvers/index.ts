@@ -11,6 +11,8 @@ import LotteryCampaign from './customResolvers/lotteryCampaign';
 import ScoreLog from './customResolvers/scoreLog';
 import Assignment from './customResolvers/assignments';
 import AssignmentCampaign from './customResolvers/assignmentCampaign';
+import Agent from './customResolvers/agent';
+
 import {
   Configs as LoyaltyConfigMutations,
   Donates as DonateMutations,
@@ -60,6 +62,7 @@ const resolvers: any = async serviceDiscovery => ({
   Lottery,
   LotteryCampaign,
   ScoreLog,
+  Agent,
   Mutation: {
     ...LoyaltyConfigMutations,
     ...DonateMutations,

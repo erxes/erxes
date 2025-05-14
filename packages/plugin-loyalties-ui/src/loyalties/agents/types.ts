@@ -1,3 +1,5 @@
+import { IProductRule } from "@erxes/ui-products/src/types";
+
 enum AgentStatus {
   Active = 'active',
   Draft = 'draft',
@@ -21,6 +23,9 @@ export interface IAgent {
   prepaidPercent?: number;
   discountPercent?: number;
   productRuleIds?: string[];
+
+  // resolved fields
+  rulesOfProducts?: IProductRule[];
 }
 
 export interface IAgentDocument extends IAgent {
