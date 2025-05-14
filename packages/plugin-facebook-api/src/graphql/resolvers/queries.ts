@@ -11,19 +11,6 @@ import {
 } from '../../utils';
 
 
-interface BrandIntegration {
-  _id: string;
-  createdUserId: string;
-  kind: string;
-  createdAt: string;
-  name: string;
-  brandId: string;
-  tagIds: string[];
-  isActive: boolean;
-  isConnected: boolean;
-  scopeBrandIds: string[];
-  __v: number;
-}
 interface FacebookPosts {
   message?: string;        // Optional because some posts might not have text
   created_time: string;    // ISO format date string
@@ -405,7 +392,9 @@ const facebookQueries = {
       // Wait for all promises and flatten results
       const posts = (await Promise.all(postsPromises)).flat();
 
-      return posts;
+      const sortedPosts = posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      return sortedPosts.slice(0, limit);
+
     } catch (error) {
       console.error('Error in facebookGetPosts:', error);
       throw error;

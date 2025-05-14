@@ -472,7 +472,7 @@ export const fetchPagesPostsList = async (
       );
       return response.data || [];
     } catch (error) {
-      console.error(`Error fetching posts for page ${pageId}:`, error);
+      debugError(`Error fetching posts for page ${pageId}:`, error);
       return [];
     }
   });
