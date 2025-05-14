@@ -20,6 +20,7 @@ export const types = () => `
     _id: String!
     name: String
     quick: Boolean
+    orderCheck: Boolean
     visibleName: Boolean
     icon: String
     content: String
@@ -68,6 +69,7 @@ const params = `
   itineraryId: String,
   location: BMSLocationInput,
   quick: Boolean,
+  orderCheck: Boolean,
   branchId: String,
   icon: String,
   visibleName: Boolean

@@ -46,8 +46,8 @@ export const elementCategorySchema = schemaHooksWrapper(
     createdAt: field({
       type: Date,
       default: new Date(),
-      label: "Created at"
-    })
+      label: "Created at",
+    }),
   }),
   "erxes_elementCategory"
 );
@@ -73,8 +73,9 @@ export const elementSchema = schemaHooksWrapper(
     location: field({
       type: locationSchema,
       optional: true,
-      label: "location"
-    })
+      label: "location",
+    }),
+    orderCheck: field({ type: Boolean, optional: true, label: "orderCheck" }),
   }),
   "erxes_elements"
 );
