@@ -100,7 +100,7 @@ const clientPortalCommentMutations = {
             createdUser: user,
             contentType: type,
             contentTypeId: typeId,
-            receivers: sendUsers || [],
+            receivers: sendUsers,
           }
         });
       } catch (error) {
