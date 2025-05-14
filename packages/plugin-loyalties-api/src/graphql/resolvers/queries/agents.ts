@@ -1,3 +1,4 @@
+import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
 
 interface IListParams {
@@ -44,5 +45,7 @@ const agentQueries = {
     
   }
 };
+
+moduleRequireLogin(agentQueries);
 
 export default agentQueries;

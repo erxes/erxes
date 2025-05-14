@@ -1,3 +1,4 @@
+import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
 import { IAgent, IAgentDocument } from "../../../models/definitions/agents";
 
@@ -19,5 +20,7 @@ const agentMutations = {
     return removed;
   }
 };
+
+moduleRequireLogin(agentMutations);
 
 export default agentMutations;

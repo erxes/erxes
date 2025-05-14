@@ -1,3 +1,4 @@
+import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
 import { IProductRule, IProductRuleDocument } from "../../../db/models/definitions/productRules";
 
@@ -14,5 +15,7 @@ const productRuleMutations = {
     return updated;
   }
 };
+
+moduleRequireLogin(productRuleMutations);
 
 export default productRuleMutations;
