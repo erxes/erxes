@@ -53,6 +53,8 @@ export const types = () => `
     numberOfPeople: Int
     type: String
     additionalCustomers: String
+    isChild: Boolean
+    parent: String    
   }
 
   input BmsOrderInput {
@@ -65,6 +67,8 @@ export const types = () => `
     numberOfPeople: Int
     type: String
     additionalCustomers: String
+    isChild: Boolean
+    parent: String
   }
   input GuideItemInput {
     guideId: String
