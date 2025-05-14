@@ -12,12 +12,12 @@ import {
 
 
 interface FacebookPosts {
-  message?: string;        // Optional because some posts might not have text
-  created_time: string;    // ISO format date string
-  picture?: string;        // Optional thumbnail URL
-  full_picture?: string;   // Optional full-size image URL
-  permalink_url: string;   // URL to the post on Facebook
-  id: string;             // Unique Facebook post ID
+  message?: string;
+  created_time: string;
+  picture?: string;
+  full_picture?: string;
+  permalink_url: string;
+  id: string;
 }
 
 interface IKind {
@@ -342,7 +342,7 @@ const facebookQueries = {
     {
       brandIds,
       channelIds,
-      limit = 20 // Default limit of 20 posts if not provided
+      limit = 20
     }: {
       brandIds: string | string[];
       channelIds: string | string[];
@@ -352,7 +352,6 @@ const facebookQueries = {
   ): Promise<FacebookPosts[]> {
 
     try {
-      // Fetch brand integrations
       const brandIntegrations = brandIds
         ? await sendInboxMessage({
           subdomain,
@@ -369,15 +368,12 @@ const facebookQueries = {
         })
         : [];
 
-      // Get erxesApiIds from integrations
       const erxesApiIds = brandIntegrations.map(integration => integration._id);
 
-      // Find Facebook accounts
       const facebookAccounts = await models.Integrations.find({
         erxesApiId: { $in: erxesApiIds },
       });
 
-      // Process accounts in parallel
       const postsPromises = facebookAccounts.map(async account => {
         if (!account.facebookPageIds || !account.facebookPageTokensMap) {
           return [];
@@ -394,7 +390,6 @@ const facebookQueries = {
         }
       });
 
-      // Wait for all promises and flatten results
       const posts = (await Promise.all(postsPromises)).flat();
 
       const sortedPosts = posts.sort((a, b) => new Date(b.created_time).getTime() - new Date(a.created_time).getTime());

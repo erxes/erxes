@@ -458,7 +458,6 @@ export const fetchPagesPostsList = async (
   limit: number
 ) => {
   const fields = "message,created_time,full_picture,picture,permalink_url";
-  // Fetch posts for all pages in parallel
   const postsPromises = pageIds.map(async (pageId) => {
     const accessToken = tokensMap[pageId];
     if (!accessToken) {
@@ -478,7 +477,7 @@ export const fetchPagesPostsList = async (
   });
 
   const allPosts = await Promise.all(postsPromises);
-  return allPosts.flat(); // Combine all posts into a single array
+  return allPosts.flat()
 };
 export const checkFacebookPages = async (models: IModels, pages: any) => {
   for (const page of pages) {
