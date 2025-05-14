@@ -378,15 +378,20 @@ const facebookQueries = {
       });
 
       // Process accounts in parallel
-      const postsPromises = facebookAccounts.map(account => {
+      const postsPromises = facebookAccounts.map(async account => {
         if (!account.facebookPageIds || !account.facebookPageTokensMap) {
-          return Promise.resolve([]);
+          return [];
         }
-        return fetchPagesPostsList(
-          account.facebookPageIds,
-          account.facebookPageTokensMap,
-          limit
-        );
+        try {
+          return await fetchPagesPostsList(
+            account.facebookPageIds,
+            account.facebookPageTokensMap,
+            limit
+          );
+        } catch (error) {
+          console.error(`Error fetching posts for account ${account._id}:`, error);
+          return [];
+        }
       });
 
       // Wait for all promises and flatten results
