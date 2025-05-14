@@ -397,7 +397,7 @@ const facebookQueries = {
       // Wait for all promises and flatten results
       const posts = (await Promise.all(postsPromises)).flat();
 
-      const sortedPosts = posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      const sortedPosts = posts.sort((a, b) => new Date(b.created_time).getTime() - new Date(a.created_time).getTime());
       return sortedPosts.slice(0, limit);
 
     } catch (error) {
