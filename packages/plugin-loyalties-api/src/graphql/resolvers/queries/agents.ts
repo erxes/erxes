@@ -1,7 +1,15 @@
 import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
+import { paginate } from "@erxes/api-utils/src";
 
-interface IListParams {
+interface IPaginationParams {
+  page?: number;
+  perPage?: number;
+  sortField?: string;
+  sortDirection?: number;
+}
+
+interface IListParams extends IPaginationParams {
   number?: string;
   status?: string;
   hasReturn?: boolean;
@@ -13,26 +21,32 @@ interface IDetailParam {
   _id: string
 }
 
+const generateFilter = (params: IListParams) => {
+  const { number, status, hasReturn, customerIds = [], companyIds = [] } = params;
+  const filter: any = {};
+
+  if (number) {
+    filter.number = new RegExp(number, 'gi');
+  }
+  if (status) {
+    filter.status = status;
+  }
+  if (typeof hasReturn === "boolean") {
+    filter.hasReturn = hasReturn;
+  }
+  if (customerIds.length > 0) {
+    filter.customerIds = { $in: customerIds };
+  }
+  if (companyIds.length > 0) {
+    filter.companyIds = { $in: companyIds };
+  }
+
+  return filter;
+};
+
 const agentQueries = {
   agents: async (_root, params: IListParams, { models }: IContext) => {
-    const { number, status, hasReturn, customerIds = [], companyIds = [] } = params;
-    const filter: any = {};
-
-    if (number) {
-      filter.number = new RegExp(number, 'gi');
-    }
-    if (status) {
-      filter.status = status;
-    }
-    if (typeof hasReturn === "boolean") {
-      filter.hasReturn = hasReturn;
-    }
-    if (customerIds.length > 0) {
-      filter.customerIds = { $in: customerIds };
-    }
-    if (companyIds.length > 0) {
-      filter.companyIds = { $in: companyIds };
-    }
+    const filter = generateFilter(params);
 
     return models.Agents.find(filter).lean();
   },
@@ -41,8 +55,12 @@ const agentQueries = {
 
     return agent;
   },
-  agentsMain: async (_root, params, { models }: IContext) => {
-    
+  agentsMain: async (_root, params: IListParams, { models }: IContext) => {
+    const filter = generateFilter(params);
+    const list = await paginate(models.Agents.find(filter), params);
+    const totalCount = await models.Agents.countDocuments(filter);
+
+    return { list, totalCount };
   }
 };
 

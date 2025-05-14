@@ -36,7 +36,37 @@ const agentDetail = `
   }
 `;
 
+const listParamDefs = `
+  $number: String,
+  $status: String,
+  $hasReturn: Boolean,
+  $customerIds: [String],
+  $companyIds: [String],
+`;
+const listParams = `
+  number: $number,
+  status: $status,
+  hasReturn: $hasReturn,
+  customerIds: $customerIds,
+  companyIds: $companyIds
+`;
+
+const pageParamDefs = `$page: Int, $perPage: Int, $sortField: String, $sortDirection: String`;
+const pageParams = `page: $page, perPage: $perPage, sortField: $sortField, sortDirection: $sortDirection`;
+
+const agentsMain = `
+  query agentsMain(${pageParamDefs}, ${listParamDefs}) {
+    agentsMain(${pageParams}, ${listParams}) {
+      list {
+        ${agentFields}
+      }
+      totalCount
+    }
+  }
+`;
+
 export default {
   agents,
-  agentDetail
+  agentDetail,
+  agentsMain
 };

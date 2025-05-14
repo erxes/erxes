@@ -16,7 +16,7 @@ const AgentListContainer = ({ queryParams }: Props) => {
     loading,
     data,
     refetch: refetchMainQuery,
-  } = useQuery(gql(queries.agents), {
+  } = useQuery(gql(queries.agentsMain), {
     variables: generateParams(queryParams),
     fetchPolicy: "network-only",
   });
@@ -26,8 +26,9 @@ const AgentListContainer = ({ queryParams }: Props) => {
     return <Spinner />;
   }
 
-  const list = data?.agents || [];
-  const totalCount = 0;
+  const { agentsMain } = data;
+  const list = agentsMain?.list || [];
+  const totalCount = agentsMain?.totalCount || 0;
 
   const removeAgent = (_id: string) => {
     confirm()

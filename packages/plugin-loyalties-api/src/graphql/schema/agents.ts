@@ -46,6 +46,21 @@ export const types = `
   }
 `;
 
+const listParams = `
+  number: String,
+  status: String,
+  hasReturn: Boolean,
+  customerIds: [String],
+  companyIds: [String],
+`;
+
+const pageParams = `
+  page: Int,
+  perPage: Int,
+  sortField: String,
+  sortDirection: String
+`;
+
 export const queries = `
   agents(
     status: String,
@@ -55,7 +70,7 @@ export const queries = `
     companyIds: [String]
   ): [Agent]
   agentDetail(_id: String): Agent
-  agentsMain: AgentList
+  agentsMain(${listParams}, ${pageParams}): AgentList
 `;
 
 export const mutations = `
