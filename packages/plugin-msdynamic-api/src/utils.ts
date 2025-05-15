@@ -268,12 +268,14 @@ export const dealToDynamic = async (
       defaultValue: [],
     });
 
+    const customerType =
+      conformities.length > 0 ? conformities[0].relType : 'customer';
     if (conformities.length > 0) {
       const msdCustomerInfo = await getMsdCustomerInfo(
         subdomain,
         models,
         conformities[0].relTypeId,
-        conformities[0].relType,
+        customerType,
         brandId,
         config
       );
@@ -293,15 +295,49 @@ export const dealToDynamic = async (
       isRPC: true,
     });
 
+    let custCode = null;
+    let userLocationCode = null;
+
+    // sell_toCUstomer_no aa avahdaa currentUser iin customFieldsDatanaas aliig avahaa tohiruulsnii daguu avdag bolgohod bolno oo
+    if (customerType === 'customer') {
+      (user?.customFieldsData ?? []).forEach((field) => {
+        if (field.field === config.custCode.fieldId) {
+          custCode = field.value || null;
+        }
+        if (field.field === config.userLocationCode.fieldId) {
+          userLocationCode = field.value || null;
+        }
+      });
+
+      if (!orderMsdNo) {
+        const subSendData: any = {
+          Sell_to_Customer_No: custCode || config.defaultUserCode,
+        };
+
+        const subResponseSale = await fetch(`${salesApi}${urlParam}`, {
+          method: postMethod,
+          headers: postHeaders,
+          body: JSON.stringify(subSendData),
+        }).then((res) => res.json());
+
+        orderMsdNo = subResponseSale.No;
+      }
+    }
+
     const rawDescription = deal.description.replace(/<\/?p>/g, '').trim();
 
     const sellAddress = rawDescription.slice(0, 100);
     const sellAddress2 = rawDescription.slice(100, 150);
 
     const sendData: any = {
-      Sell_to_Customer_No: msdCustomer?.No
-        ? msdCustomer?.No
-        : config.defaultUserCode,
+      // Sell_to_Customer_No: msdCustomer?.No
+      //   ? msdCustomer?.No
+      //   : config.defaultUserCode,
+
+      Sell_to_Customer_No:
+        customerType === 'company'
+          ? msdCustomer?.No || config.defaultUserCode
+          : custCode || config.defaultUserCode,
       Sell_to_Phone_No: customer?.primaryPhone || '',
       Sell_to_E_Mail: customer?.primaryEmail || '',
       External_Document_No: deal.number || deal.name.split(':').pop().trim(),
@@ -314,7 +350,7 @@ export const dealToDynamic = async (
       Customer_Price_Group: config.customerPricingGroup || '',
       Prices_Including_VAT: true,
       BillType: config.billType || 'Receipt',
-      Location_Code: config.locationCode || '',
+      Location_Code: userLocationCode || config.locationCode || '',
       Deal_Type_Code: config.dealType || 'NORMAL',
       Salesperson_Code: user?.employeeId ?? '',
       Sell_to_Address: sellAddress,
@@ -436,9 +472,8 @@ export const dealToDynamic = async (
             { _id: syncLog._id },
             {
               $set: {
-                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${
-                  responseSaleLine.error.message
-                }`,
+                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${responseSaleLine.error.message
+                  }`,
               },
             }
           );
@@ -724,9 +759,8 @@ export const orderToDynamic = async (
             { _id: syncLog._id },
             {
               $set: {
-                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${
-                  responseSaleLine.error.message
-                }`,
+                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${responseSaleLine.error.message
+                  }`,
               },
             }
           );
@@ -950,7 +984,7 @@ export const getExchangeRates = async (config: ExchangeRateConfig) => {
       if (
         !latestByCurrency[currency] ||
         new Date(item.Starting_Date) >
-          new Date(latestByCurrency[currency].Starting_Date)
+        new Date(latestByCurrency[currency].Starting_Date)
       ) {
         latestByCurrency[currency] = item;
       }
