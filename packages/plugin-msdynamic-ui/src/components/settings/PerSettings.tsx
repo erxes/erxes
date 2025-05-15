@@ -144,19 +144,10 @@ class PerSettings extends React.Component<Props, State> {
     };
 
     const setFormField = (value) => {
-      const currentFields = (
-        (fieldGroups || []).find((fg) => fg._id === config[key]?.groupId) || {}
-      ).fields;
-      const field = currentFields?.find((cf) => cf._id === value);
-      let propType: string | undefined = undefined;
-
-      if (field?.isDefinedByErxes) {
-        propType = field.type;
-      }
       this.setState({
         config: {
           ...config,
-          [key]: { ...(config[key] || {}), fieldId: value, propType }
+          [key]: { ...(config[key] || {}), fieldId: value }
         }
       });
     };
