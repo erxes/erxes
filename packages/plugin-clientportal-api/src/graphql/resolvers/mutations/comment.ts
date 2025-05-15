@@ -25,7 +25,7 @@ const clientPortalCommentMutations = {
     const relatedCards = await models.ClientPortalUserCards.getUserIds(type, typeId);
 
     // Handle notifications for team members if no related cards
-    if (userType === 'team' && (!relatedCards || relatedCards.length === 0)) {
+    if (!relatedCards || relatedCards.length === 0) {
       try {
         // Step 1: Find conformities for the ticket
         const conformities = await sendCoreMessage({
@@ -54,11 +54,12 @@ const clientPortalCommentMutations = {
           },
           isRPC: true,
         });
-
         if (!tickets || tickets.length === 0) return;
 
         // Step 3: Find stages for the tickets
         const stageIds = tickets.map(ticket => ticket.stageId);
+        const assignedUserIds = tickets.flatMap(ticket => ticket.assignedUserIds || []);
+
         const stages = await sendTicketsMessage({
           subdomain,
           action: 'stages.find',
@@ -83,7 +84,6 @@ const clientPortalCommentMutations = {
 
         if (!pipelines || pipelines.length === 0) return;
 
-        // Assuming we take the first pipeline (logic might need adjustment)
         const pipeline = pipelines[0];
         // Step 5: Send notification
         await sendNotificationsMessage({
@@ -98,30 +98,23 @@ const clientPortalCommentMutations = {
             createdUser: user,
             contentType: type,
             contentTypeId: typeId,
-            receivers: [user._id] || [],
-            toMail: user.email || ''
+            receivers: assignedUserIds || [],
           }
         });
-
       } catch (error) {
         throw new Error('Error in notification workflow:', error);
       }
-    }
-
-    // Skip notifications for clients or if no related cards
-    if (!relatedCards || relatedCards.length === 0 || userType === 'client') {
-      return comment;
-    }
-
-    // Send notifications to related card users
-    for (const cardUserId of relatedCards) {
-      await sendNotification(models, subdomain, {
-        receivers: [cardUserId],
-        title: `${user.details?.fullName} commented on your ${type}.`,
-        content: `<a href=/tickets?itemId=${typeId}>View ${type}</a>`,
-        notifType: 'system',
-        link: `/tickets?itemId=${typeId}`
-      });
+    } else {
+      // Send notifications to related card users
+      for (const cardUserId of relatedCards) {
+        await sendNotification(models, subdomain, {
+          receivers: [cardUserId],
+          title: `${user.details?.fullName} commented on your ${type}.`,
+          content: `<a href=/tickets?itemId=${typeId}>View ${type}</a>`,
+          notifType: 'system',
+          link: `/tickets?itemId=${typeId}`
+        });
+      }
     }
 
     return comment;
