@@ -18,7 +18,7 @@ export const loadAdjustInventoriesClass = (models: IModels, subdomain: string) =
     public static async getAdjustInventory(_id: string) {
       const adjusting = await models.AdjustInventories.findOne({ _id }).lean();
       if (!adjusting) {
-        throw new Error('Accounting not found');
+        throw new Error('Adjusting not found');
       }
       return adjusting;
     }

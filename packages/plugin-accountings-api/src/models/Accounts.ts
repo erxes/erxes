@@ -33,7 +33,7 @@ export const loadAccountClass = (models: IModels, subdomain: string) => {
       const accounting = await models.Accounts.findOne(selector).lean();
 
       if (!accounting) {
-        throw new Error('Accounting not found');
+        throw new Error('Account not found');
       }
 
       return accounting;
