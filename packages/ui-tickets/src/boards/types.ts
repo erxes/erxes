@@ -232,16 +232,6 @@ export interface IItem {
   customProperties?: any;
   departmentIds: string[];
   branchIds: string[];
-  comments?:{
-    _id:string;
-    createdAt:string;
-    content:string;
-    createdCustomer:{
-      _id:string;
-      firstName:string;
-      lastName:string;
-    }
-  };
 }
 
 export interface IDraggableLocation {
