@@ -34,7 +34,6 @@ import Popup from 'reactjs-popup';
 import RegisterContainer from '../../user/containers/Register';
 import { withRouter } from 'next/router';
 import { __ } from '../../../utils';
-import LanguageDropdown from '../../../components/ui/LanguageToggle';
 
 type Props = {
   config: Config;
@@ -250,7 +249,6 @@ function Header({
 
               {renderNavigationMenu()}
             </SupportMenus>
-            <LanguageDropdown />
           </HeaderRight>
         </HeaderTop>
       </Container>
@@ -263,7 +261,6 @@ function Header({
       color={getConfigColor(config, 'headingColor')}
       headingSpacing={headingSpacing}
     >
-      
       {renderTopHeader()}
       <BottomComponent>
         <h3>
@@ -302,7 +299,6 @@ function Header({
         onClose={() => setResetPassword(false)}
         isOpen={showResetPassword}
       />
-     
     </Head>
   );
 }
