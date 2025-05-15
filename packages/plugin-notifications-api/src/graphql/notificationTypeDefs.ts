@@ -25,6 +25,7 @@ export const types = `
 `;
 
 const params = `
+  userId:String,
   limit: Int,
   page: Int,
   perPage: Int,
