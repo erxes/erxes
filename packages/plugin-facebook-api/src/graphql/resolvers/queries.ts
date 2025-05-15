@@ -10,6 +10,16 @@ import {
   fetchPagesPostsList
 } from '../../utils';
 
+
+interface FacebookPosts {
+  message?: string;
+  created_time: string;
+  picture?: string;
+  full_picture?: string;
+  permalink_url: string;
+  id: string;
+}
+
 interface IKind {
   kind: string;
 }
@@ -332,164 +342,64 @@ const facebookQueries = {
     {
       brandIds,
       channelIds,
-      limit = 20 // Default limit of 20 posts if not provided
+      limit = 20
     }: {
       brandIds: string | string[];
       channelIds: string | string[];
       limit?: number;
     },
     { models, subdomain }: IContext
-  ) {
-    const filteredBrandIds = Array.isArray(brandIds)
-      ? brandIds.filter((id) => id !== '')
-      : brandIds.split(',').filter((id) => id !== '');
-    const filteredChannelIds = Array.isArray(channelIds)
-      ? channelIds.filter((id) => id !== '')
-      : channelIds.split(',').filter((id) => id !== '');
+  ): Promise<FacebookPosts[]> {
 
-    let integrations: any[] = [];
-
-    let response;
-    if (filteredBrandIds.length > 0) {
-      for (const BrandId of filteredBrandIds) {
-        const splitBrandIds = BrandId.split(',');
-        for (const brandId of splitBrandIds) {
-          try {
-            response = await sendInboxMessage({
-              subdomain,
-              action: 'integrations.find',
-              data: {
-                query: { kind: 'facebook-post', brandId: brandId }
-              },
-              isRPC: true,
-              defaultValue: []
-            });
-
-            if (Array.isArray(response)) {
-              integrations.push(...response);
-            } else {
-              integrations.push(response);
+    try {
+      const brandIntegrations = brandIds
+        ? await sendInboxMessage({
+          subdomain,
+          action: 'integrations.find',
+          data: {
+            query: {
+              kind: 'facebook-post',
+              brandId: brandIds,
+              isActive: true
             }
-          } catch (error) {
-            throw new Error(
-              `Error fetching Brand with ID ${brandId}: ${error.message}`
-            );
-          }
-        }
-      }
-    } else if (
-      filteredChannelIds.length === 0 &&
-      filteredBrandIds.length === 0
-    ) {
-      response = await sendInboxMessage({
-        subdomain,
-        action: 'integrations.find',
-        data: {
-          query: { kind: 'facebook-post' }
-        },
-        isRPC: true,
-        defaultValue: []
+          },
+          isRPC: true,
+          defaultValue: []
+        })
+        : [];
+
+      const erxesApiIds = brandIntegrations.map(integration => integration._id);
+
+      const facebookAccounts = await models.Integrations.find({
+        erxesApiId: { $in: erxesApiIds },
       });
-      if (Array.isArray(response)) {
-        integrations.push(...response);
-      } else {
-        integrations.push(response);
-      }
-    }
 
-    let channels: any[] = [];
-    if (filteredChannelIds.length > 0) {
-      for (const combinedChannelIds of filteredChannelIds) {
-        const splitChannelIds = combinedChannelIds.split(',');
-
-        for (const channelId of splitChannelIds) {
-          try {
-            const response = await sendInboxMessage({
-              subdomain,
-              action: 'channels.find',
-              data: { _id: channelId },
-              isRPC: true,
-              defaultValue: []
-            });
-            if (Array.isArray(response)) {
-              channels.push(...response);
-            } else {
-              channels.push(response);
-            }
-          } catch (error) {
-            throw new Error(
-              `Error fetching channel with ID ${channelId}: ${error.message}`
-            );
-          }
-        }
-      }
-    }
-
-    const channelIntegrationIds = channels.flatMap(
-      (channel: any) => channel.integrationIds
-    );
-
-    const allIntegrationIds = integrations.map(
-      (integration: { _id: string }) => integration._id
-    );
-    const uniqueIntegrationIds = [
-      ...new Set([...allIntegrationIds, ...channelIntegrationIds])
-    ];
-
-    const fetchedIntegrations = await models.Integrations.find({
-      erxesApiId: { $in: uniqueIntegrationIds }
-    });
-
-    if (fetchedIntegrations.length === 0) {
-      throw new Error('No integrations found in the database');
-    }
-
-    const allPosts = await Promise.all(
-      fetchedIntegrations.map(async (integration) => {
-        const { facebookPageIds, facebookPageTokensMap } = integration;
-
-        if (!facebookPageIds || facebookPageIds.length === 0) {
+      const postsPromises = facebookAccounts.map(async account => {
+        if (!account.facebookPageIds || !account.facebookPageTokensMap) {
           return [];
         }
-
-        if (
-          !facebookPageTokensMap ||
-          Object.keys(facebookPageTokensMap).length === 0
-        ) {
+        try {
+          return await fetchPagesPostsList(
+            account.facebookPageIds,
+            account.facebookPageTokensMap,
+            limit
+          );
+        } catch (error) {
+          console.error(`Error fetching posts for account ${account._id}:`, error);
           return [];
         }
+      });
 
-        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      const posts = (await Promise.all(postsPromises)).flat();
 
-        const fetchPagePostsWithRateLimiting = async (
-          pageId,
-          accessToken,
-          limit
-        ) => {
-          await delay(1000);
-          return fetchPagesPostsList(pageId, accessToken, limit);
-        };
+      const sortedPosts = posts.sort((a, b) => new Date(b.created_time).getTime() - new Date(a.created_time).getTime());
+      return sortedPosts.slice(0, limit);
 
-        const posts = await Promise.all(
-          facebookPageIds.map(async (pageId) => {
-            const accessToken = facebookPageTokensMap[pageId];
-            if (!accessToken) {
-              console.warn(`Access token missing for page ID: ${pageId}`);
-              return [];
-            }
-            return fetchPagePostsWithRateLimiting(pageId, accessToken, limit);
-          })
-        );
+    } catch (error) {
+      console.error('Error in facebookGetPosts:', error);
+      throw error;
+    }
 
-        return posts.flat();
-      })
-    );
-
-    // Applying the limit to the final result
-    const allPostsFlattened = allPosts.flat();
-    const limitedPosts = allPostsFlattened.slice(0, limit);
-
-    return limitedPosts;
   },
 
 
