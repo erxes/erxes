@@ -56,9 +56,8 @@ const clientPortalCommentMutations = {
         });
         if (!tickets || tickets.length === 0) return;
 
-        // Step 3: Find stages for the tickets
         const stageIds = tickets.map(ticket => ticket.stageId);
-        const assignedUserIds = tickets.flatMap(ticket => ticket.assignedUserIds || []);
+
 
         const stages = await sendTicketsMessage({
           subdomain,
@@ -85,6 +84,9 @@ const clientPortalCommentMutations = {
         if (!pipelines || pipelines.length === 0) return;
 
         const pipeline = pipelines[0];
+        const assignedUserIds = tickets.flatMap(ticket => ticket.assignedUserIds || []);
+
+        const sendUsers = Array.from(new Set([...assignedUserIds, user._id]));
         // Step 5: Send notification
         await sendNotificationsMessage({
           subdomain,
@@ -98,7 +100,7 @@ const clientPortalCommentMutations = {
             createdUser: user,
             contentType: type,
             contentTypeId: typeId,
-            receivers: assignedUserIds || [],
+            receivers: sendUsers,
           }
         });
       } catch (error) {
