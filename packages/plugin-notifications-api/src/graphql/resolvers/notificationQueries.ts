@@ -35,7 +35,6 @@ const notificationQueries = {
   ) {
     const sort: any = { date: -1 };
     const selector: any = { receiver: userId || user._id };
-    console.log(selector, 'asdkopkdspa')
     if (requireRead) {
       selector.isRead = false;
     }
