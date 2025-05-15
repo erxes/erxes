@@ -19,6 +19,7 @@ export interface IElement {
   location?: ILocation;
   categories?: string[];
   branchId?: string;
+  additionalInfo?: any;
 }
 
 export interface IElementDocument extends IElement, Document {
@@ -76,6 +77,11 @@ export const elementSchema = schemaHooksWrapper(
       label: "location",
     }),
     orderCheck: field({ type: Boolean, optional: true, label: "orderCheck" }),
+    additionalInfo: field({
+      type: Object,
+      optional: true,
+      label: "additionalInfo",
+    }),
   }),
   "erxes_elements"
 );

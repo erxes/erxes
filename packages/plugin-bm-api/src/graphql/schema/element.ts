@@ -36,6 +36,7 @@ export const types = () => `
     branchId: String
     createdAt: Date
     modifiedAt: Date
+    additionalInfo: JSON
   }
 
   type ElementCategory {
@@ -72,7 +73,8 @@ const params = `
   orderCheck: Boolean,
   branchId: String,
   icon: String,
-  visibleName: Boolean
+  visibleName: Boolean,
+  additionalInfo: JSON
 `;
 
 export const mutations = `
