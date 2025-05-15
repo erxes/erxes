@@ -300,7 +300,7 @@ export const dealToDynamic = async (
 
     // sell_toCUstomer_no aa avahdaa currentUser iin customFieldsDatanaas aliig avahaa tohiruulsnii daguu avdag bolgohod bolno oo
     if (customerType === 'customer') {
-      user?.customFieldsData.forEach((field) => {
+      (user?.customFieldsData ?? []).forEach((field) => {
         if (field.field === config.custCode.fieldId) {
           custCode = field.value || null;
         }
@@ -311,7 +311,7 @@ export const dealToDynamic = async (
 
       if (!orderMsdNo) {
         const subSendData: any = {
-          Sell_to_Customer_No: custCode ? custCode : config.defaultUserCode,
+          Sell_to_Customer_No: custCode || config.defaultUserCode,
         };
 
         const subResponseSale = await fetch(`${salesApi}${urlParam}`, {
@@ -472,9 +472,8 @@ export const dealToDynamic = async (
             { _id: syncLog._id },
             {
               $set: {
-                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${
-                  responseSaleLine.error.message
-                }`,
+                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${responseSaleLine.error.message
+                  }`,
               },
             }
           );
@@ -760,9 +759,8 @@ export const orderToDynamic = async (
             { _id: syncLog._id },
             {
               $set: {
-                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${
-                  responseSaleLine.error.message
-                }`,
+                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${responseSaleLine.error.message
+                  }`,
               },
             }
           );
@@ -986,7 +984,7 @@ export const getExchangeRates = async (config: ExchangeRateConfig) => {
       if (
         !latestByCurrency[currency] ||
         new Date(item.Starting_Date) >
-          new Date(latestByCurrency[currency].Starting_Date)
+        new Date(latestByCurrency[currency].Starting_Date)
       ) {
         latestByCurrency[currency] = item;
       }
