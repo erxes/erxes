@@ -949,15 +949,7 @@ const widgetMutations = {
       });
     }
 
-    const integration = await models.Integrations.findOne({
-      formId
-    });
-
-    if (!integration) {
-      throw new Error("Integration not found");
-    }
-
-    const { verifyEmail = false } = integration.leadData || {};
+    const { verifyEmail = false } = form.leadData || {};
 
     if (verifyEmail) {
       const domain = getEnv({ name: "DOMAIN", subdomain })
@@ -975,7 +967,7 @@ const widgetMutations = {
 
         const emailValidationUrl = `${domain}/verify?p=${params}`;
 
-        const languageCode = integration.languageCode || "en";
+        const languageCode = form.languageCode || "en";
         const text =
           VERIFY_EMAIL_TRANSLATIONS[languageCode] ||
           VERIFY_EMAIL_TRANSLATIONS.en;
