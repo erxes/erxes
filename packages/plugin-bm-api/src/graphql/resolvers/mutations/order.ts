@@ -1,8 +1,9 @@
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
+import { sendMessage } from "@erxes/api-utils/src/core";
 
 const orderMutations = {
   bmOrderAdd: async (
@@ -14,6 +15,25 @@ const orderMutations = {
       docModifier(doc?.order),
       user
     );
+    const branch = await models.BmsBranch.findById(order.branchId);
+
+    await sendMessage({
+      serviceName: "notifications",
+      subdomain,
+      action: "send",
+      data: {
+        notifType: `orderadd`,
+        title: "Захиалга үүслээ",
+        content: `${order.amount} дүнтэй захиалга, ${order.tourId} тур дээр ирлээ.`,
+        action: `Reminder:`,
+        link: `/tour?id=${order.tourId}&orderId=${order.id}`,
+        createdUser: user,
+        // exclude current user
+        contentType: "bm:order",
+        contentTypeId: order._id,
+        receivers: [...(branch?.user1Ids || []), ...(branch?.user2Ids || [])],
+      },
+    });
     return order;
   },
 
@@ -34,7 +54,7 @@ const orderMutations = {
     await models.Orders.removeOrder(ids);
 
     return ids;
-  }
+  },
 };
 
 export default orderMutations;
