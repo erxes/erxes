@@ -139,12 +139,12 @@ export const getPageAccessTokenFromMap = (
 };
 
 export const subscribePage = async (
-  models:IModels,
+  models: IModels,
   pageId,
   pageToken
 ): Promise<{ success: true } | any> => {
 
-  let subscribed_fields= [
+  let subscribed_fields = [
     "conversations",
     "feed",
     "messages",
@@ -152,10 +152,10 @@ export const subscribePage = async (
     "messaging_handovers"
   ]
 
-  const bot = await models.Bots.findOne({pageId})
+  const bot = await models.Bots.findOne({ pageId })
 
-  if(bot){
-    subscribed_fields = [...new Set([...subscribed_fields,...BOT_SUBSCRIBE_FIELDS])]
+  if (bot) {
+    subscribed_fields = [...new Set([...subscribed_fields, ...BOT_SUBSCRIBE_FIELDS])]
   }
 
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
@@ -372,8 +372,7 @@ export const sendReply = async (
     return response;
   } catch (e) {
     debugError(
-      `Error ocurred while trying to send post request to facebook ${
-        e.message
+      `Error ocurred while trying to send post request to facebook ${e.message
       } data: ${JSON.stringify(data)}`
     );
 
@@ -454,19 +453,32 @@ export const fetchPagesPosts = async (pageId: string, accessToken: string) => {
 };
 
 export const fetchPagesPostsList = async (
-  pageId: string,
-  accessToken: string,
+  pageIds: string[],
+  tokensMap: Record<string, string>,
   limit: number
 ) => {
   const fields = "message,created_time,full_picture,picture,permalink_url";
+  const postsPromises = pageIds.map(async (pageId) => {
+    const accessToken = tokensMap[pageId];
+    if (!accessToken) {
+      console.warn(`No access token found for page ${pageId}`);
+      return [];
+    }
 
-  const response = await graphRequest.get(
-    `/${pageId}/posts?fields=${fields}&access_token=${accessToken}&limit=${limit}`
-  );
+    try {
+      const response = await graphRequest.get(
+        `/${pageId}/posts?fields=${fields}&access_token=${accessToken}&limit=${limit}`
+      );
+      return response.data || [];
+    } catch (error) {
+      debugError(`Error fetching posts for page ${pageId}:`, error);
+      return [];
+    }
+  });
 
-  return response.data || [];
+  const allPosts = await Promise.all(postsPromises);
+  return allPosts.flat()
 };
-
 export const checkFacebookPages = async (models: IModels, pages: any) => {
   for (const page of pages) {
     const integration = await models.Integrations.findOne({ pageId: page.id });
