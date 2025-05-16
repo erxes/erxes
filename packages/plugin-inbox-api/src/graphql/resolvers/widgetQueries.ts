@@ -65,7 +65,6 @@ const getWidgetMessages = (models: IModels, conversationId: string) => {
   return models.ConversationMessages.find({
     conversationId,
     internal: false
-    // fromBot: { $exists: false }
   }).sort({
     createdAt: 1
   });
