@@ -45,7 +45,7 @@ const recheckValidDate = async (models: IModels, adjustInventory, beginDate) => 
     'details.productId': { $exists: true, $ne: '' },
     $or: [
       { createdAt: { $gte: adjustInventory.checkedDate } },
-      { modifiedAt: { $gte: adjustInventory.checkedDate } },
+      { updatedAt: { $gte: adjustInventory.checkedDate } },
     ]
   }).sort({ date: 1 }).lean();
 

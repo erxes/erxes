@@ -159,7 +159,7 @@ export const generateFilter = async (
     filter.isOutBalance = isOutBalance
   }
 
-  if (user.isOwner) {
+  if (user?.isOwner) {
     return filter;
   }
 
