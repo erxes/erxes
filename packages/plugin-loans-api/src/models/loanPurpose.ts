@@ -101,7 +101,7 @@ export const loadPurposeClass = (models: IModels) => {
 
       if (count > 0) {
         throw new Error(
-          "Can't remove purposes that are being used in child purpose"
+          "Can't remove purposes that are being used in child purposes"
         );
       }
 

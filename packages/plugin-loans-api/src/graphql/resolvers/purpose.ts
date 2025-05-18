@@ -1,7 +1,7 @@
 import { IPurposeDocument } from '../../models/definitions/loanPurpose';
 
 const purpose = {
-  isRoot(category: IPurposeDocument, {}) {
+  isRoot(category: IPurposeDocument) {
     return category.parentId ? false : true;
   },
 };
