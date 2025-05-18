@@ -7,23 +7,24 @@ import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
+  MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src/styles/eindex';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from 'coreui/utils';
 import React, { useState } from 'react';
 import { IPurpose, IPurposeDoc } from '../types';
+import { generateCategoryOptions } from '../categories';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   purpose?: IPurpose;
-  parentPurposes: IPurpose[];
+  purposes: IPurpose[];
   closeModal: () => void;
 };
 
 const PurposeForm = (props: Props) => {
   const [purpose, setPurpose] = useState(props.purpose || ({} as IPurpose));
-  const { parentPurposes } = props;
+  const { purposes } = props;
 
   const generateDoc = (values: { _id: string } & IPurposeDoc) => {
     const finalValues = values;
@@ -34,7 +35,7 @@ const PurposeForm = (props: Props) => {
 
     return {
       ...purpose,
-      _id: finalValues._id
+      _id: finalValues._id,
     };
   };
 
@@ -76,14 +77,14 @@ const PurposeForm = (props: Props) => {
                 name: 'code',
                 required: true,
                 defaultValue: purpose.code || '',
-                onChange: onChangeField
+                onChange: onChangeField,
               })}
               {renderFormGroup('Name', {
                 ...formProps,
                 name: 'name',
                 required: true,
                 defaultValue: purpose.name || '',
-                onChange: onChangeField
+                onChange: onChangeField,
               })}
               <FormGroup>
                 <ControlLabel>Parent Category</ControlLabel>
@@ -95,21 +96,15 @@ const PurposeForm = (props: Props) => {
                   defaultValue={purpose.parentId}
                   onChange={onChangeField}
                 >
-                  <option key={''} value={''}>
-                    {''}
-                  </option>
-                  {parentPurposes.map((type) => (
-                    <option key={type.code} value={type._id}>
-                      {__(type.name)}
-                    </option>
-                  ))}
+                  <option value="" />
+                  {generateCategoryOptions(purposes, purpose._id, true)}
                 </FormControl>
               </FormGroup>
               {renderFormGroup('Description', {
                 ...formProps,
                 name: 'description',
                 defaultValue: purpose.description || '',
-                onChange: onChangeField
+                onChange: onChangeField,
               })}
             </FormColumn>
           </FormWrapper>
@@ -124,7 +119,7 @@ const PurposeForm = (props: Props) => {
             name: 'purpose',
             values: generateDoc(values),
             isSubmitted,
-            object: props.purpose
+            object: props.purpose,
           })}
         </ModalFooter>
       </>

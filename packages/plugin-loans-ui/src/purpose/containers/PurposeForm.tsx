@@ -9,7 +9,7 @@ import { mutations } from '../graphql';
 
 type Props = {
   purpose: IPurpose;
-  parentPurposes: IPurpose[];
+  purposes: IPurpose[];
   getAssociatedContractType?: (contractTypeId: string) => void;
   closeModal: () => void;
 };
@@ -22,7 +22,7 @@ const PurposeFromContainer = (props: FinalProps) => {
     name,
     values,
     isSubmitted,
-    object
+    object,
   }: IButtonMutateProps) => {
     const afterSave = (data) => {
       closeModal();
@@ -51,7 +51,7 @@ const PurposeFromContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    renderButton
+    renderButton,
   };
   return <PurposeForm {...updatedProps} />;
 };

@@ -3,6 +3,8 @@ export const contractTypeFields = `
   name
   parentId
   code
+  order
+  isRoot
   description
 `;
 
@@ -30,5 +32,5 @@ export const purposes = `
 `;
 
 export default {
-  purposes
+  purposes,
 };

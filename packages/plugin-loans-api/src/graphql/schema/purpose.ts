@@ -3,7 +3,9 @@ export const types = () => `
     _id: String!
     name: String
     parentId: String
+    order: String!
     code: String
+    isRoot: Boolean
     description: String
     createdAt: Date
   }

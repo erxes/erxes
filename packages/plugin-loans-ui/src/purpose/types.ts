@@ -1,6 +1,8 @@
 export interface IPurposeDoc {
   code?: string;
   name?: string;
+  order: string;
+  isRoot: boolean;
   description?: string;
   parentId?: string;
 }
