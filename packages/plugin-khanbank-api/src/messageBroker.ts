@@ -316,7 +316,9 @@ export const setupMessageConsumers = async () => {
 
       const transactions = response.transactions.filter((transaction) => {
         const normalizedDesc = transaction.description.toLowerCase();
+    
         const searchDesc = description.toLowerCase();
+
         if (type === 'income') {
           return transaction.amount > 0 && normalizedDesc.includes(searchDesc);
         } else {

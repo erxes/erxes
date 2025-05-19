@@ -56,7 +56,7 @@ export class KhanbankAPI {
   private subdomain: string;
 
   constructor(config: IKhanbankConfig, subdomain: string) {
-    console.log(config);
+ 
     this.configId = config.configId;
     this.accountNumber = config.accountNumber;
     this.subdomain = subdomain;

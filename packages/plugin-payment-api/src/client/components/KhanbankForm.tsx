@@ -11,10 +11,12 @@ const LabelInputRow = ({
   label,
   value,
   onCopy,
+  apiDomain,
 }: {
   label: string;
   value: string;
   onCopy: () => void;
+  apiDomain: string;
 }) => (
   <div className='mb-4 w-full'>
     <label className='text-sm mb-1 block'>{label}</label>
@@ -29,7 +31,7 @@ const LabelInputRow = ({
         className='ml-2 w-10 h-10 flex-shrink-0 flex items-center justify-center bg-blue-500 hover:bg-blue-600 rounded-lg'
       >
         <img
-          src='/pl:payment/static/images/copy.svg'
+          src={`${apiDomain}/pl:payment/static/images/copy.svg`}
           alt='Copy Icon'
           className='w-5 h-5'
         />
@@ -37,7 +39,6 @@ const LabelInputRow = ({
     </div>
   </div>
 );
-
 
 const KhanbankForm = (props: Props) => {
   const { transaction, apiResponse, invoiceDetail, apiDomain } = usePayment();
@@ -59,30 +60,35 @@ const KhanbankForm = (props: Props) => {
         label='Дансны дугаар'
         value={apiResponse.accountNumber}
         onCopy={() => copyToClipboard(apiResponse.accountNumber)}
+        apiDomain={apiDomain}
       />
 
       <LabelInputRow
         label='IBAN'
         value={apiResponse.ibanAcctNo}
         onCopy={() => copyToClipboard(apiResponse.ibanAcctNo)}
+        apiDomain={apiDomain}
       />
 
       <LabelInputRow
         label='Дансны эзэмшигч'
         value={apiResponse.accountName?.trim()}
         onCopy={() => copyToClipboard(apiResponse.accountName)}
+        apiDomain={apiDomain}
       />
 
       <LabelInputRow
         label='Гүйлгээний дүн'
         value={transaction.amount.toString()}
         onCopy={() => copyToClipboard(transaction.amount.toString())}
+        apiDomain={apiDomain}
       />
 
       <LabelInputRow
         label='Гүйлгээний утга'
         value={invoiceDetail.description}
         onCopy={() => copyToClipboard(apiResponse.description)}
+        apiDomain={apiDomain}
       />
 
       <div className='sticky bottom-0 bg-white -mx-4 px-4 pb-4 mt-4'>
