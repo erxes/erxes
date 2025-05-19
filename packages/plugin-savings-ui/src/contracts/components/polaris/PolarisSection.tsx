@@ -15,12 +15,19 @@ type Props = {
   contract: IContractDoc;
   currentUser: IUser;
   reSendContract: (data: any) => void;
+  sendDeposit: (data: any) => void;
 };
 
-function PolarisSection({ contract, reSendContract }: Props) {
+function PolarisSection({ contract, reSendContract, sendDeposit }: Props) {
   const onSendPolaris = () =>
     confirm(__('Are you sure Send Savings polaris?'))
-      .then(() => reSendContract(contract))
+      .then(() => {
+        if (contract.isDeposit) {
+          return sendDeposit(contract);
+        } else {
+          return reSendContract(contract);
+        }
+      })
       .catch((error) => {
         Alert.error(error.message);
       });

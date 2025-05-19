@@ -15,11 +15,14 @@ type Props = {
   currentUser: IUser;
   reSendContract: (data: any) => void;
   savingActive: (contractNumber: string) => void;
+  sendDeposit: (data: any) => void;
+  depositActive: (contractNumber: string) => void;
   loading: boolean;
 };
 
 const ContractDetails = (props: Props) => {
-  const { contract, reSendContract, savingActive } = props;
+  const { contract, reSendContract, savingActive, sendDeposit, depositActive } =
+    props;
 
   const title = contract.number || 'Unknown';
 
@@ -46,6 +49,8 @@ const ContractDetails = (props: Props) => {
             contract={contract}
             reSendContract={reSendContract}
             savingActive={savingActive}
+            sendDeposit={sendDeposit}
+            depositActive={depositActive}
           />
         ),
       },

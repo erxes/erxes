@@ -24,6 +24,13 @@ export const updateSaving = async (
     { _id: savingContract.contractTypeId }
   );
 
+  const deposit = await sendMessageBrokerData(
+    subdomain,
+    'savings',
+    'contracts.findOne',
+    { _id: savingContract.depositAccount }
+  );
+
   const customer = await getCustomer(subdomain, savingContract.customerId);
 
   const branch = await getBranch(subdomain, savingContract.branchId);
@@ -62,10 +69,7 @@ export const updateSaving = async (
     maturityDate: new Date(endDate),
     tenor: savingContract.duration,
     capMethod: '1',
-    rcvAcntCode:
-      customerAccount && customerAccount.length > 0
-        ? customerAccount[0].acntCode
-        : '',
+    rcvAcntCode: deposit ? deposit.number : '',
     rcvSysNo: '1305',
     segCode: '81',
     isCorpAcnt: 0,

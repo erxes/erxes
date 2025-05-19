@@ -397,6 +397,38 @@ const contractMutations = {
 
     return 'success';
   },
+
+  sendDepositToPolaris: async (_root, { data }, { subdomain }: IContext) => {
+    await sendMessageBroker(
+      {
+        subdomain,
+        action: 'sendDeposit',
+        data: { data },
+        isRPC: true,
+      },
+      'syncpolaris'
+    );
+
+    return 'success';
+  },
+
+  depositContractActive: async (
+    _root,
+    { contractNumber },
+    { subdomain }: IContext
+  ) => {
+    await sendMessageBroker(
+      {
+        subdomain,
+        action: 'depositContractActive',
+        data: { contractNumber },
+        isRPC: true,
+      },
+      'syncpolaris'
+    );
+
+    return 'success';
+  },
 };
 
 checkPermission(contractMutations, 'saingsContractsAdd', 'saingsContractsAdd');

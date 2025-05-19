@@ -1,12 +1,13 @@
-import { generateModels } from '../../connectionResolver';
+import { generateModels } from "../../connectionResolver";
 import {
   fetchPolaris,
   getBranch,
   updateContract,
-  sendMessageBrokerData,
-} from '../utils';
-import { getDate } from './getDate';
-import { updateSaving } from './updateSaving';
+  sendMessageBrokerData
+} from "../utils";
+import { getDate } from "./getDate";
+import { updateSaving } from "./updateSaving";
+import { validateDepositObject } from "./validator";
 
 export const createSavingMessage = async (
   subdomain: string,
@@ -31,20 +32,20 @@ export const createSavingMessage = async (
   const models = await generateModels(subdomain);
 
   const syncLogDoc = {
-    type: '',
-    contentType: 'savings:contract',
+    type: "",
+    contentType: "savings:contract",
     contentId: params.data._id,
     createdAt: new Date(),
-    createdBy: '',
+    createdBy: "",
     consumeData: params.data,
-    consumeStr: JSON.stringify(params.data),
+    consumeStr: JSON.stringify(params.data)
   };
 
   const preSuccessValue = await models.SyncLogs.findOne({
-    contentType: 'savings:contract',
+    contentType: "savings:contract",
     contentId: params.data._id,
     error: { $exists: false },
-    responseData: { $exists: true, $ne: null },
+    responseData: { $exists: true, $ne: null }
   }).sort({ createdAt: -1 });
 
   let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
@@ -56,30 +57,37 @@ export const createSavingMessage = async (
       polarisConfig,
       syncLog,
       params,
-      ''
+      ""
     );
   }
 
   const customer = await sendMessageBrokerData(
     subdomain,
-    'core',
-    'customers.findOne',
+    "core",
+    "customers.findOne",
     { _id: savingContract.customerId }
   );
 
   if (!customer?.code) {
-    throw new Error('Customer code is required before calling fetchPolaris.');
+    throw new Error("Customer code is required before calling fetchPolaris.");
   }
 
   const getAccounts = await fetchPolaris({
-    op: '13610312',
+    op: "13610312",
     data: [customer?.code, 0, 20],
     subdomain,
-    polarisConfig,
+    polarisConfig
   });
 
   const customerAccount = getAccounts.filter(
-    (account) => account.acntType === 'CA'
+    (account) => account.acntType === "CA"
+  );
+
+  const deposit = await sendMessageBrokerData(
+    subdomain,
+    "savings",
+    "contracts.findOne",
+    { _id: savingContract.depositAccount }
   );
 
   const branch = await getBranch(subdomain, savingContract.branchId);
@@ -90,18 +98,19 @@ export const createSavingMessage = async (
     new Date(systemDate).getMonth() + savingContract.duration
   );
 
+  // customerAccount && customerAccount.length > 0
+  //       ? customerAccount[0].acntCode
+  //       : '',
+
   let sendData = {
     prodCode: contractType.code,
     slevel: 1,
-    capMethod: '1',
-    capAcntCode:
-      customerAccount && customerAccount.length > 0
-        ? customerAccount[0].acntCode
-        : '',
-    capAcntSysNo: '1306',
+    capMethod: "1",
+    capAcntCode: deposit ? deposit.number : "",
+    capAcntSysNo: "1306",
     startDate: systemDate,
-    maturityOption: 'C',
-    rcvAcntCode: '',
+    maturityOption: "C",
+    rcvAcntCode: "",
     brchCode: branch?.code,
     curCode: savingContract.currency,
     name: `${customer.firstName} ${customer.lastName}`,
@@ -109,16 +118,20 @@ export const createSavingMessage = async (
     termLen: savingContract.duration,
     maturityDate: new Date(endDate),
     custCode: customer?.code,
-    segCode: '81',
-    jointOrSingle: 'S',
-    statusCustom: 'N',
-    statusDate: '',
-    casaAcntCode: '',
-    closedBy: '',
-    closedDate: '',
-    lastCtDate: '',
-    lastDtDate: '',
+    segCode: "81",
+    jointOrSingle: "S",
+    statusCustom: "N",
+    statusDate: "",
+    casaAcntCode: "",
+    closedBy: "",
+    closedDate: "",
+    lastCtDate: "",
+    lastDtDate: ""
   };
+
+  await validateDepositObject(sendData);
+
+  console.log(sendData, "sendData");
 
   if (
     contractType?.code &&
@@ -127,12 +140,12 @@ export const createSavingMessage = async (
     branch?.code != null
   ) {
     savingCode = await fetchPolaris({
-      op: '13610120',
+      op: "13610120",
       data: [sendData],
       subdomain,
       models,
       polarisConfig,
-      syncLog,
+      syncLog
     });
   }
 
@@ -145,10 +158,10 @@ export const createSavingMessage = async (
           number: JSON.parse(savingCode),
           startDate: new Date(systemDate),
           isSyncedPolaris: true,
-          endDate: new Date(endDate),
-        },
+          endDate: new Date(endDate)
+        }
       },
-      'savings'
+      "savings"
     );
   }
 

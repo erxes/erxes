@@ -19,6 +19,8 @@ import { createLoanMessage } from './utils/loan/createLoanMessage';
 import { activeSaving } from './utils/saving/activeSaving';
 import { activeLoan } from './utils/loan/activeLoan';
 import { createCollateral } from './utils/collateral/createCollateral';
+import { createDeposit } from './utils/deposit/createDeposit';
+import { activeDeposit } from './utils/deposit/activeDeposit';
 
 export const setupMessageConsumers = async () => {
   consumeQueue('syncpolaris:afterMutation', async ({ subdomain, data }) => {
@@ -107,6 +109,27 @@ export const setupMessageConsumers = async () => {
       return {
         status: 'success',
         data: await getDepositBalance(subdomain, polarisConfig, data),
+      };
+    }
+  );
+
+  consumeRPCQueue('syncpolaris:sendDeposit', async ({ data, subdomain }) => {
+    const polarisConfig = await getConfig(subdomain, 'POLARIS', {});
+
+    return {
+      status: 'success',
+      data: await createDeposit(subdomain, polarisConfig, data),
+    };
+  });
+
+  consumeRPCQueue(
+    'syncpolaris:depositContractActive',
+    async ({ data, subdomain }) => {
+      const polarisConfig = await getConfig(subdomain, 'POLARIS', {});
+
+      return {
+        status: 'success',
+        data: await activeDeposit(subdomain, polarisConfig, data),
       };
     }
   );

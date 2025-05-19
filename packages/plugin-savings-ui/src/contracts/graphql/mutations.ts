@@ -148,6 +148,18 @@ const savingActive = `
   }
 `;
 
+const sendDeposit = `
+  mutation sendDepositToPolaris($data: JSON) {
+    sendDepositToPolaris(data: $data)
+  }
+`;
+
+const depositActive = `
+  mutation depositContractActive($contractNumber: String!) {
+    depositContractActive(contractNumber: $contractNumber)
+  }
+`;
+
 const fixSchedules = `
   mutation fixSchedules($contractId: String!) {
     fixSchedules(contractId: $contractId)
@@ -212,4 +224,6 @@ export default {
   savingsBlockAdd,
   sendSaving,
   savingActive,
+  sendDeposit,
+  depositActive,
 };

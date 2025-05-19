@@ -9,6 +9,8 @@ interface IProps {
   contract: IContract;
   reSendContract: (data: any) => void;
   savingActive: (contractNumber: string) => void;
+  sendDeposit: (data: any) => void;
+  depositActive: (contractNumber: string) => void;
 }
 
 function PolarisData(props: IProps) {

@@ -13,12 +13,19 @@ import { IContractDoc } from '../../types';
 type Props = {
   contract: IContractDoc;
   savingActive: (contractNumber: string) => void;
+  depositActive: (contractNumber: string) => void;
 };
 
-function SavingActive({ contract, savingActive }: Props) {
+function SavingActive({ contract, savingActive, depositActive }: Props) {
   const onHandlePolaris = () =>
     confirm(__('Are you sure you want to activate Savings?'))
-      .then(() => savingActive(contract.number))
+      .then(() => {
+        if (contract.isDeposit) {
+          return depositActive(contract.number);
+        } else {
+          return savingActive(contract.number);
+        }
+      })
       .catch((error) => {
         Alert.error(error.message);
       });

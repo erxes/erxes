@@ -5,9 +5,11 @@ import React, { useEffect } from 'react';
 import ContractDetails from '../../components/detail/ContractDetails';
 import { mutations, queries } from '../../graphql';
 import {
+  DepositActiveMutationResponse,
   DetailQueryResponse,
   SavingsActiveMutationResponse,
   SavingsMutationResponse,
+  SendDepositMutationResponse,
 } from '../../types';
 import { useQuery, useMutation } from '@apollo/client';
 import subscriptions from '../../graphql/subscriptions';
@@ -57,6 +59,20 @@ const ContractDetailsContainer = (props: FinalProps) => {
     }
   );
 
+  const [sendDeposit] = useMutation<SendDepositMutationResponse>(
+    gql(mutations.sendDeposit),
+    {
+      refetchQueries: ['savingsContractDetail'],
+    }
+  );
+
+  const [depositActive] = useMutation<DepositActiveMutationResponse>(
+    gql(mutations.depositActive),
+    {
+      refetchQueries: ['savingsContractDetail'],
+    }
+  );
+
   const regenPolarisHandler = (data: any) => {
     sendSavings({ variables: { data } })
       .then(() => {
@@ -69,6 +85,26 @@ const ContractDetailsContainer = (props: FinalProps) => {
 
   const savingActiveHandler = (contractNumber: string) => {
     savingActive({ variables: { contractNumber } })
+      .then(() => {
+        Alert.success('Successfully activated');
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
+  };
+
+  const sendDepositHandler = (data: any) => {
+    sendDeposit({ variables: { data } })
+      .then(() => {
+        Alert.success('Successfully synced');
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
+  };
+
+  const depositActiveHandler = (contractNumber: string) => {
+    depositActive({ variables: { contractNumber } })
       .then(() => {
         Alert.success('Successfully activated');
       })
@@ -96,6 +132,8 @@ const ContractDetailsContainer = (props: FinalProps) => {
     currentUser,
     reSendContract: regenPolarisHandler,
     savingActive: savingActiveHandler,
+    sendDeposit: sendDepositHandler,
+    depositActive: depositActiveHandler,
   };
 
   return <ContractDetails {...updatedProps} />;
