@@ -1,4 +1,4 @@
-import { fetchPolaris, updateContract } from '../utils';
+import { fetchPolaris, updateContract } from "../utils";
 
 export const activeDeposit = async (
   subdomain: string,
@@ -6,24 +6,22 @@ export const activeDeposit = async (
   params: any
 ) => {
   const result = await fetchPolaris({
-    op: '13610063',
+    op: "13610063",
     data: [params.contractNumber],
     subdomain,
-    polarisConfig,
+    polarisConfig
   });
 
-  if (result) {
-    await updateContract(
-      subdomain,
-      { number: params.contractNumber },
-      {
-        $set: {
-          isActiveSaving: true,
-        },
-      },
-      'savings'
-    );
-  }
+  await updateContract(
+    subdomain,
+    { number: params.contractNumber },
+    {
+      $set: {
+        isActiveSaving: true
+      }
+    },
+    "savings"
+  );
 
   return result;
 };
