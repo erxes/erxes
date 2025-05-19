@@ -19,6 +19,28 @@ const clientPortalComments = `
   }
 `;
 
+const widgetsTicketComments = `
+  query widgetsTicketComments($typeId: String!, $type: String!) {
+    widgetsTicketComments(typeId: $typeId, type: $type) {
+      _id
+      content
+      createdUser {
+        _id
+        avatar
+        firstName
+        fullName
+        lastName
+        email
+        username
+      }
+      createdAt
+      userType
+      type
+    }
+  }
+`;
+
 export default {
-  clientPortalComments
+  clientPortalComments,
+  widgetsTicketComments
 };

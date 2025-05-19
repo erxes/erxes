@@ -126,7 +126,10 @@ export type IWidgetsComment = {
 export type ClientPortalCommentQueryResponse = {
   clientPortalComments: IClientPortalComment[];
 } & QueryResponse;
-
+export type WidgetsTicketCommentsQueryResponse = {
+  widgetsTicketComments: IWidgetsComment[];
+} & QueryResponse;
 export type CommentRemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+  removeCommentMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };

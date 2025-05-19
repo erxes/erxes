@@ -12,7 +12,7 @@ import { __, makeClickableLink, scrollTo } from "../../utils";
 import { iconCall, iconVideo } from "../../icons/Icons";
 import { useEffect, useRef, useState } from "react";
 
-import AccquireInformation from "./AccquireInformation";
+import AccquireInformation from "./AcquireInformation";
 import Bot from "./bot/Bot";
 import { MESSAGE_TYPES } from "../constants";
 import Message from "./Message";

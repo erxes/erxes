@@ -1,23 +1,28 @@
 import * as React from "react";
+import * as dayjs from "dayjs";
 
-import { IAttachment, ITicketActivityLog } from "../../types";
+import { IAttachment, ITicketActivityLog, ITicketComment } from "../../types";
+import { __, readFile } from "../../../utils";
 
 import Button from "../common/Button";
 import Container from "../common/Container";
 import Input from "../common/Input";
 import TicketActivity from "./TicketAcitvity";
-import { __ } from "../../../utils";
 import { useTicket } from "../../context/Ticket";
 
 type Props = {
   activityLogs: ITicketActivityLog[];
+  comment: string;
+  comments: ITicketComment[];
   setComment: (comment: string) => void;
-  handleSubmit: () => void;
+  onComment: () => void;
 };
 
 const TicketShowProgress: React.FC<Props> = ({
-  handleSubmit,
+  onComment,
   setComment,
+  comment,
+  comments,
   activityLogs,
 }) => {
   const { ticketData = {} } = useTicket();
@@ -26,7 +31,7 @@ const TicketShowProgress: React.FC<Props> = ({
     return attachments.map((attachment, index) => (
       <div key={attachment.url} className="ticket-attachment">
         <img
-          src={attachment.name}
+          src={readFile(attachment.url)}
           alt={`ticket-image-${index}`}
           onLoad={() => {
             URL.revokeObjectURL(attachment.name);
@@ -55,6 +60,56 @@ const TicketShowProgress: React.FC<Props> = ({
     );
   };
 
+  const renderComments = () => {
+    if (!comments || comments.length === 0) return null;
+
+    return comments.map((comment: ITicketComment) => {
+      const { userType, createdUser, createdAt, content } =
+        comment || ({} as ITicketComment);
+      const { firstName, lastName, email, emails, phone, phones, avatar } =
+        createdUser || ({} as any);
+
+      let renderName = "Visitor";
+
+      renderName =
+        firstName || lastName
+          ? `${firstName} ${lastName}`
+          : email
+            ? email
+            : emails && emails.length !== 0
+              ? emails?.[0]
+              : phone
+                ? phone
+                : phones && phones.length !== 0
+                  ? phones?.[0]
+                  : "Unknown";
+
+      return (
+        <div key={comment._id} className={`ticket-progress-log ${userType}`}>
+          <div className="user">
+            <img
+              src={
+                avatar
+                  ? avatar.includes("read-file")
+                    ? avatar
+                    : readFile(avatar)
+                  : ""
+              }
+              alt=""
+            />
+          </div>
+          <span>
+            <strong>{renderName}</strong> added <b>comment</b>
+            <div className="comment">{content}</div>
+            <div className="date">
+              {dayjs(createdAt).format("YYYY-MM-DD, LT")}
+            </div>
+          </span>
+        </div>
+      );
+    });
+  };
+
   const renderTicketLogs = () => {
     return (
       <div className="ticket-progress-logs">
@@ -62,6 +117,7 @@ const TicketShowProgress: React.FC<Props> = ({
         {activityLogs.map((log, index) => (
           <TicketActivity key={index} activity={log} />
         ))}
+        {renderComments()}
       </div>
     );
   };
@@ -91,7 +147,7 @@ const TicketShowProgress: React.FC<Props> = ({
       title={__("Ticket progress")}
       backRoute="ticket"
       persistentFooter={
-        <Button full onClick={() => handleSubmit()}>
+        <Button full onClick={() => onComment()}>
           <span className="font-semibold">{__("Send comment")}</span>
         </Button>
       }
@@ -103,6 +159,7 @@ const TicketShowProgress: React.FC<Props> = ({
             <Input
               id="comment"
               label="Add a comment"
+              value={comment}
               onChange={(e) => setComment(e.target.value)}
             />
           </div>

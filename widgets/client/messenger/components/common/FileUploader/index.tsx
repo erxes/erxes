@@ -1,37 +1,82 @@
 import * as React from "react";
 
 import { IconUpload } from "../../../../icons/Icons";
+import { readFile } from "../../../../utils";
+import uploadHandler from "../../../../uploadHandler";
 import { useDropzone } from "react-dropzone";
 
-const img = {
+const imgStyle = {
   display: "block",
   width: "100px",
-  height: "100%",
+  height: "80px",
+  "object-fit": "cover",
 };
+
+interface FileWithUrl extends File {
+  url?: string;
+}
 
 const FileUploader = ({
   handleFiles,
 }: {
-  handleFiles?: (files: any) => void;
+  handleFiles: (files: any) => void;
 }) => {
-  const [files, setFiles] = React.useState<
-    {
-      name: string | null | undefined;
-      preview: string;
-    }[]
-  >([]);
+  const [files, setFiles] = React.useState<FileWithUrl[]>([]);
+  const [isUploading, setIsUploading] = React.useState(false);
+
+  const sendFiles = (files: FileList) => {
+    const uploadedFiles: FileWithUrl[] = [];
+    const total = files.length;
+    let completed = 0;
+
+    uploadHandler({
+      files,
+      beforeUpload: () => {
+        setIsUploading(true);
+      },
+      // upload to server
+      afterUpload({ response, fileInfo }: { response: any; fileInfo: any }) {
+        const updatedFile = {
+          ...fileInfo,
+          url: response,
+        } as FileWithUrl;
+
+        uploadedFiles.push(updatedFile);
+        setFiles((prev) => [...prev, updatedFile]);
+
+        completed++;
+
+        if (completed === total) {
+          setIsUploading(false);
+          handleFiles(uploadedFiles); // ✅ send only after all uploads
+        }
+      },
+
+      onError: (message) => {
+        alert(message);
+        setIsUploading(false);
+      },
+    });
+  };
+
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
       "image/*": [],
     },
     onDrop: (acceptedFiles) => {
-      setFiles(
-        acceptedFiles.map((file) =>
-          Object.assign(file, {
-            preview: URL.createObjectURL(file),
-          })
-        )
+      const updatedFiles = acceptedFiles.map((file) =>
+        Object.assign(file, {
+          preview: URL.createObjectURL(file),
+        })
       );
+
+      const dataTransfer = new DataTransfer();
+      updatedFiles.forEach((file) => dataTransfer.items.add(file));
+      const fileList = dataTransfer.files;
+
+      if (fileList && fileList.length > 0) {
+        sendFiles(fileList);
+      }
     },
   });
 
@@ -39,11 +84,13 @@ const FileUploader = ({
     <div className="dropzone-thumb" key={file.name}>
       <div className="inner">
         <img
-          src={file.preview}
-          style={img}
+          src={readFile(file.url || "")}
+          style={imgStyle}
           // Revoke data uri after image is loaded
           onLoad={() => {
-            URL.revokeObjectURL(file.preview);
+            if (file.url?.startsWith("blob:")) {
+              URL.revokeObjectURL(file.url);
+            }
           }}
         />
       </div>
@@ -52,11 +99,7 @@ const FileUploader = ({
 
   React.useEffect(() => {
     // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
-    return () => files.forEach((file) => URL.revokeObjectURL(file.preview));
-  }, []);
-
-  React.useEffect(() => {
-    return handleFiles && handleFiles(files);
+    return () => files.forEach((file) => URL.revokeObjectURL(file.name));
   }, [files]);
 
   return (
@@ -64,7 +107,13 @@ const FileUploader = ({
       <div {...getRootProps({ className: "dropzone" })}>
         <input {...getInputProps()} />
         <div className="dropzone-field-description">
-          <IconUpload />
+          {isUploading ? (
+            <div className="relative w-[43px] h-[43px]">
+              <div className="loader" />
+            </div>
+          ) : (
+            <IconUpload />
+          )}
           <p>Upload screenshot or your a file here</p>
         </div>
       </div>

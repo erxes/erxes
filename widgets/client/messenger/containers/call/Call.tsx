@@ -1,16 +1,17 @@
-import * as React from 'react';
-import { gql, useMutation, useSubscription } from '@apollo/client';
-import { useEffect, useState } from 'react';
+import * as React from "react";
 
-import AcceptedCallContainer from './AcceptedCallContainer';
-import { CLOUDFLARE_CALL_RECEIVED } from '../../graphql/subscriptions';
-import { CLOUDFLARE_LEAVE_CALL } from '../../graphql/mutations';
-import { CloudflareCallDataDepartment } from '../../../types';
-import Home from './Home';
-import { getCallData } from '../../utils/util';
-import { useRoomContext } from './RoomContext';
-import { useRouter } from '../../context/Router';
-import useUserMedia from './hooks/useUserMedia';
+import { gql, useMutation, useSubscription } from "@apollo/client";
+import { useEffect, useState } from "react";
+
+import AcceptedCallContainer from "./AcceptedCallContainer";
+import { CLOUDFLARE_CALL_RECEIVED } from "../../graphql/subscriptions";
+import { CLOUDFLARE_LEAVE_CALL } from "../../graphql/mutations";
+import { CloudflareCallDataDepartment } from "../../../types";
+import Home from "./Home";
+import { getCallData } from "../../utils/util";
+import { useRoomContext } from "./RoomContext";
+import { useRouter } from "../../context/Router";
+import useUserMedia from "./hooks/useUserMedia";
 
 const CallContainer = () => {
   const { peer, pushedTracks } = useRoomContext();
@@ -21,11 +22,11 @@ const CallContainer = () => {
 
   const [remoteAudioTracks, setRemoteAudioTracks] = useState([]) as any;
   const [departmentId, setDepartmentId] = useState(
-    departments ? departments[0]._id : '',
+    departments && departments.length !== 0 ? departments[0]._id : ""
   );
 
   const activeDepartment = departments.find(
-    (department) => department._id === departmentId,
+    (department) => department._id === departmentId
   ) as CloudflareCallDataDepartment;
 
   const { audioStreamTrack, stopAllTracks } = useUserMedia();
@@ -41,18 +42,18 @@ const CallContainer = () => {
         }
 
         setRemoteAudioTracks([]);
-        setRoute('home');
+        setRoute("home");
       },
       onError(error) {
         setRemoteAudioTracks([]);
         console.log(error.message);
       },
-    },
+    }
   );
 
   const { data: receiveCall } = useSubscription(gql(CLOUDFLARE_CALL_RECEIVED), {
     variables: { audioTrack: pushedTracks?.audio },
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
   });
 
   const [callStartTime, setCallStartTime] = useState<number | null>(null);
@@ -60,7 +61,7 @@ const CallContainer = () => {
   useEffect(() => {
     if (
       receiveCall?.cloudflareReceivedCall?.audioTrack &&
-      receiveCall?.cloudflareReceivedCall?.roomState === 'answered' &&
+      receiveCall?.cloudflareReceivedCall?.roomState === "answered" &&
       remoteAudioTracks.length === 0
     ) {
       setRemoteAudioTracks([receiveCall.cloudflareReceivedCall.audioTrack]);
@@ -70,8 +71,8 @@ const CallContainer = () => {
       }
     }
     if (
-      receiveCall?.cloudflareReceivedCall?.roomState === 'leave' ||
-      receiveCall?.cloudflareReceivedCall?.roomState === 'busy'
+      receiveCall?.cloudflareReceivedCall?.roomState === "leave" ||
+      receiveCall?.cloudflareReceivedCall?.roomState === "busy"
     ) {
       if (!peer) return;
       if (audioStreamTrack) {
@@ -79,7 +80,7 @@ const CallContainer = () => {
         stopAllTracks();
       }
       setRemoteAudioTracks([]);
-      setRoute('home');
+      setRoute("home");
     }
   }, [receiveCall]);
 
@@ -98,24 +99,24 @@ const CallContainer = () => {
 
       leaveCall({
         variables: {
-          originator: 'web',
+          originator: "web",
           duration,
           audioTrack: pushedTracks?.audio,
         },
       }).then(() => {});
     };
 
-    window.addEventListener('beforeunload', handleRefresh);
+    window.addEventListener("beforeunload", handleRefresh);
     return () => {
-      window.removeEventListener('beforeunload', handleRefresh);
+      window.removeEventListener("beforeunload", handleRefresh);
     };
   }, [peer, audioStreamTrack, pushedTracks, callStartTime]);
 
   const stopCall = ({ seconds }: { seconds: number }) => {
     leaveCall({
       variables: {
-        roomState: 'leave',
-        originator: 'web',
+        roomState: "leave",
+        originator: "web",
         duration: seconds,
         audioTrack: pushedTracks?.audio,
       },
