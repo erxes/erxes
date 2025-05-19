@@ -12,7 +12,7 @@ import {
   IClientPortalComment,
   CommentRemoveMutationResponse,
   WidgetsTicketCommentsQueryResponse,
-  IWidgetsTicketComments
+  IWidgetsComment
 } from "../types";
 import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
 
@@ -30,13 +30,12 @@ type FinalProps = {
 
 class CommentContainer extends React.Component<FinalProps> {
   render() {
-    const { clientPortalCommentsQuery, removeMutation, item } = this.props;
-
+    const { clientPortalCommentsQuery, widgetsTicketCommentsQuery, removeMutation, removeCommentMutation } = this.props;
     const clientPortalComments =
       clientPortalCommentsQuery.clientPortalComments ||
       ([] as IClientPortalComment[]);
     const widgetsTicketComments =
-      widgetsTicketCommentsQuery?.widgetsTicketComments || ([] as IWidgetsTicketComments[]);
+      widgetsTicketCommentsQuery?.widgetsTicketComments || ([] as IWidgetsComment[]);
 
     const remove = (_id: string) => {
       confirm().then(() => {
@@ -66,10 +65,10 @@ class CommentContainer extends React.Component<FinalProps> {
     return (
       <Comment
         currentUser={this.props.currentUser || ({} as IUser)}
-        widgetsComments={[]}
+        widgetsTicketComments={widgetsTicketComments}
         clientPortalComments={clientPortalComments}
         remove={remove}
-
+        removeTicketComment={removeTicketComment}
       />
     );
   }

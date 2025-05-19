@@ -116,7 +116,6 @@ export type IWidgetsComment = {
   content: string;
   createdCustomer: {
     avatar: string,
-    fullName: string,
     _id: string;
     firstName: string;
     lastName: string;
