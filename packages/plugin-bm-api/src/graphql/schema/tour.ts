@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 export const types = () => `
   extend type User @key(fields: "_id") {
@@ -32,7 +32,7 @@ export const types = () => `
     createdAt: Date
     modifiedAt: Date
     viewCount: Int
-    tags: [String]
+    tagIds: [String]
     info1: String
     info2: String
     info3: String
@@ -107,7 +107,7 @@ const params = `
   location: [BMSLocationInput],
   guides:[GuideItemInput],
   refNumber: String,
-  tags:[String],
+  tagIds:[String],
   viewCount: Int,
   info1: String,
   info2: String,

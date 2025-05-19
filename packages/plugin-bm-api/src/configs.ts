@@ -1,19 +1,22 @@
-import typeDefs from "./graphql/typeDefs";
-import resolvers from "./graphql/resolvers";
-import { setupMessageConsumers } from "./messageBroker";
-import { getSubdomain } from "@erxes/api-utils/src/core";
-import { generateModels } from "./connectionResolver";
-import payment from "./payment";
+import typeDefs from './graphql/typeDefs';
+import resolvers from './graphql/resolvers';
+import { setupMessageConsumers } from './messageBroker';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import { generateModels } from './connectionResolver';
+import payment from './payment';
+import tags from './tags';
+
 export default {
-  name: "bm",
+  name: 'bm',
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers(),
+      resolvers: await resolvers()
     };
   },
   meta: {
     payment,
+    tags
   },
 
   apolloServerContext: async (context, req) => {
@@ -26,5 +29,5 @@ export default {
   },
 
   onServerInit: async () => {},
-  setupMessageConsumers,
+  setupMessageConsumers
 };
