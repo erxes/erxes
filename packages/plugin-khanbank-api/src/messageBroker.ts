@@ -314,13 +314,11 @@ export const setupMessageConsumers = async () => {
         endDate,
       });
 
-      console.debug('statements', response);
-
       const transactions = response.transactions.filter((transaction) => {
         const normalizedDesc = transaction.description.toLowerCase();
-        console.debug('normalizedDesc', normalizedDesc);
+    
         const searchDesc = description.toLowerCase();
-        console.debug('searchDesc', searchDesc);
+
         if (type === 'income') {
           return transaction.amount > 0 && normalizedDesc.includes(searchDesc);
         } else {

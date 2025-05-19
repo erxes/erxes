@@ -96,8 +96,6 @@ export class KhanbankAPI {
         defaultValue: null,
       });
 
-      console.debug("transactionResponse", transactionResponse);
-
       if (transactionResponse) {
         return PAYMENT_STATUS.PAID;
       }
