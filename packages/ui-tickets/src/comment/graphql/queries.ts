@@ -28,10 +28,8 @@ const widgetsTicketComments = `
         _id
         avatar
         firstName
-        fullName
         lastName
         email
-        username
       }
       createdAt
       userType
