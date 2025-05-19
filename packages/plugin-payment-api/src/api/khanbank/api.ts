@@ -56,7 +56,7 @@ export class KhanbankAPI {
   private subdomain: string;
 
   constructor(config: IKhanbankConfig, subdomain: string) {
-    console.log(config);
+ 
     this.configId = config.configId;
     this.accountNumber = config.accountNumber;
     this.subdomain = subdomain;
@@ -95,6 +95,8 @@ export class KhanbankAPI {
         isRPC: true,
         defaultValue: null,
       });
+
+      console.debug("transactionResponse", transactionResponse);
 
       if (transactionResponse) {
         return PAYMENT_STATUS.PAID;
