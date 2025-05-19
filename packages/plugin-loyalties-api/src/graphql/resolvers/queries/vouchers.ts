@@ -1,8 +1,8 @@
-import { paginate } from '@erxes/api-utils/src/core';
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
-import { ICommonParams } from '../../../models/definitions/common';
-import { CAMPAIGN_STATUS } from '../../../models/definitions/constants';
+import { paginate } from "@erxes/api-utils/src/core";
+import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
+import { ICommonParams } from "../../../models/definitions/common";
+import { CAMPAIGN_STATUS } from "../../../models/definitions/constants";
 
 const generateFilter = (params: ICommonParams) => {
   const filter: any = {};
@@ -34,37 +34,53 @@ const voucherQueries = {
   async ownerVouchers(
     _root,
     { ownerId }: { ownerId: string },
-    { models }: IContext,
+    { models }: IContext
   ) {
-
     const NOW = new Date();
-    
-    const campaignIds = await models.Vouchers.find({
-      ownerId, 
-      status: CAMPAIGN_STATUS.ACTIVE,
-      startDate: { $lte: NOW },
-      endDate: { $gte: NOW }
-    }).distinct('campaignId');
+
+    const vouchers = await models.Vouchers.find({ ownerId });
+
+    const campaignVoucherMap = new Map<string, { voucherIds: string[] }>();
+
+    for (const voucher of vouchers) {
+      const campaignId = voucher.campaignId?.toString();
+      if (!campaignId) continue;
+
+      if (!campaignVoucherMap.has(campaignId)) {
+        campaignVoucherMap.set(campaignId, { voucherIds: [] });
+      }
+
+      campaignVoucherMap
+        .get(campaignId)!
+        .voucherIds.push(voucher._id.toString());
+    }
+
+    const campaignIds = Array.from(campaignVoucherMap.keys());
 
     const campaigns = await models.VoucherCampaigns.find({
-      _id: {$in: campaignIds}
-    })
+      _id: { $in: campaignIds },
+      status: CAMPAIGN_STATUS.ACTIVE,
+      startDate: { $lte: NOW },
+      endDate: { $gte: NOW },
+    });
 
-    const voucherMap = new Map();
+    const results: any = [];
 
     for (const campaign of campaigns) {
-      const key = campaign._id.toString();
-  
-      if (voucherMap.has(key)) {
-        voucherMap.get(key).count += 1;
-      } else {
-        voucherMap.set(key, { campaign, count: 1 });
+      const campaignId = campaign._id.toString();
+      const voucherData = campaignVoucherMap.get(campaignId);
+
+      if (voucherData) {
+        results.push({
+          campaign,
+          count: voucherData.voucherIds.length,
+          voucherIds: voucherData.voucherIds,
+        });
       }
     }
-  
-    return Array.from(voucherMap.values());
-  },
 
+    return results;
+  },
 
   async vouchersMain(_root, params: ICommonParams, { models }: IContext) {
     const filter: any = generateFilter(params);
@@ -80,7 +96,7 @@ const voucherQueries = {
   },
 };
 
-checkPermission(voucherQueries, 'vouchersMain', 'showLoyalties', {
+checkPermission(voucherQueries, "vouchersMain", "showLoyalties", {
   list: [],
   totalCount: 0,
 });

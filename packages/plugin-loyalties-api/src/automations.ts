@@ -766,7 +766,7 @@ const docScoreCampaign = async ({
     (await getLoyatyCampaignConfig(serviceName)) || {};
 
 
-    console.log({extendTargetAutomation,serviceName})
+     console.log({extendTargetAutomation,serviceName})
 
   if (extendTargetAutomation) {
     target = await sendCommonMessage({
@@ -777,7 +777,7 @@ const docScoreCampaign = async ({
       isRPC: true,
       defaultValue: target,
     });
-    console.log({target})
+     console.log({target})
   }
 
   return await models.ScoreCampaigns.doCampaign({
@@ -801,6 +801,8 @@ const actionCreate = async ({ subdomain, action, execution }) => {
   try {
     switch (type) {
       case "loyalties:score.create":
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
         return await addScore({
           models,
           subdomain,

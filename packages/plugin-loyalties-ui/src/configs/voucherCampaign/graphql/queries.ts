@@ -27,6 +27,10 @@ export const voucherCampaignFields = `
 
   vouchersCount
   codesCount
+
+  kind
+  value
+  restrictions
 `;
 
 const voucherCampaigns = `

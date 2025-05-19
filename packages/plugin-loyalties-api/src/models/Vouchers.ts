@@ -19,10 +19,12 @@ export interface IVoucherModel extends Model<IVoucherDocument> {
     voucherId,
     ownerType,
     ownerId,
+    totalAmount,
   }: {
     voucherId: string;
     ownerType: string;
     ownerId: string;
+    totalAmount?: number;
   });
   redeemVoucher({
     voucherId,
@@ -114,7 +116,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
       if (!voucher) {
         throw new Error(`Voucher ${_id} not found`);
       }
-      const campaignId = voucher.campaignId;
+      const campaignId = voucher.campaignId || doc.campaignId;
 
       await models.VoucherCampaigns.getVoucherCampaign(campaignId);
 
@@ -162,7 +164,12 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
       return models.Vouchers.deleteMany({ _id: { $in: _ids } });
     }
 
-    public static async checkVoucher({ ownerType, ownerId, voucherId }) {
+    public static async checkVoucher({
+      ownerType,
+      ownerId,
+      voucherId,
+      totalAmount = 0,
+    }) {
       const voucher = await models.Vouchers.findOne({
         _id: voucherId,
         ownerId,
@@ -188,6 +195,24 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
       if (voucherCampaign.status !== "active") {
         throw new Error("Campaign is not active");
+      }
+
+      if (
+        totalAmount &&
+        voucherCampaign.restrictions.minimumSpend > totalAmount
+      ) {
+        throw new Error(
+          `This coupon requires a minimum spend of ${voucherCampaign.restrictions.minimumSpend}`
+        );
+      }
+
+      if (
+        totalAmount &&
+        totalAmount > voucherCampaign.restrictions.maximumSpend
+      ) {
+        throw new Error(
+          `This coupon allows a maximum spend of ${voucherCampaign.restrictions.maximumSpend}`
+        );
       }
 
       const currentDate = new Date();
