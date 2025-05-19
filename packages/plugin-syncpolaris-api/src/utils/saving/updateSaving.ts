@@ -2,7 +2,7 @@ import {
   getCustomer,
   fetchPolaris,
   getBranch,
-  sendMessageBrokerData,
+  sendMessageBrokerData
 } from '../utils';
 import { getDate } from './getDate';
 
@@ -39,7 +39,7 @@ export const updateSaving = async (
     op: '13610312',
     data: [customer?.code, 0, 20],
     subdomain,
-    polarisConfig,
+    polarisConfig
   });
 
   const customerAccount = getAccounts.filter(
@@ -51,6 +51,12 @@ export const updateSaving = async (
   const endDate = new Date(systemDate).setMonth(
     new Date(systemDate).getMonth() + savingContract.duration
   );
+
+  const depositNumber = deposit?.number || '';
+  const polarisNumber =
+    customerAccount && customerAccount.length > 0
+      ? customerAccount[0].acntCode
+      : '';
 
   let sendData = {
     operCode: '13610286',
@@ -69,7 +75,7 @@ export const updateSaving = async (
     maturityDate: new Date(endDate),
     tenor: savingContract.duration,
     capMethod: '1',
-    rcvAcntCode: deposit ? deposit.number : '',
+    rcvAcntCode: depositNumber || polarisNumber || '',
     rcvSysNo: '1305',
     segCode: '81',
     isCorpAcnt: 0,
@@ -97,7 +103,7 @@ export const updateSaving = async (
     doTran: 1,
     useSpclAcnt: 0,
     jointOrSingleStr: '0',
-    repayPriority: 0,
+    repayPriority: 0
   };
 
   if (
@@ -113,7 +119,7 @@ export const updateSaving = async (
       subdomain,
       models,
       polarisConfig,
-      syncLog,
+      syncLog
     });
   }
 

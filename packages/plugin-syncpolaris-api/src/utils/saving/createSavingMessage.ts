@@ -98,15 +98,17 @@ export const createSavingMessage = async (
     new Date(systemDate).getMonth() + savingContract.duration
   );
 
-  // customerAccount && customerAccount.length > 0
-  //       ? customerAccount[0].acntCode
-  //       : '',
+  const depositNumber = deposit?.number || "";
+  const polarisNumber =
+    customerAccount && customerAccount.length > 0
+      ? customerAccount[0].acntCode
+      : "";
 
   let sendData = {
     prodCode: contractType.code,
     slevel: 1,
     capMethod: "1",
-    capAcntCode: deposit ? deposit.number : "",
+    capAcntCode: depositNumber || polarisNumber || "",
     capAcntSysNo: "1306",
     startDate: systemDate,
     maturityOption: "C",
@@ -130,8 +132,6 @@ export const createSavingMessage = async (
   };
 
   await validateDepositObject(sendData);
-
-  console.log(sendData, "sendData");
 
   if (
     contractType?.code &&
