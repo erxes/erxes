@@ -33,7 +33,6 @@ type Props = {
 };
 
 const CollateralItem = (props: Props) => {
-  const [collateralType, setCollateralType] = useState<any>();
   const [categoryId, setCategoryId] = useState('');
   const [currentCollateral, setCurrentCollateral] = useState(
     props.currentCollateral
@@ -314,11 +313,11 @@ const CollateralItem = (props: Props) => {
               <ContentColumn flex="3">
                 <SelectCollateralType
                   label={__('Choose an collateralType')}
-                  name="collateralType"
-                  initialValue={collateralType}
+                  name="collateralTypeId"
+                  initialValue={collateralData.collateralTypeId || ''}
                   onSelect={(v) => {
                     if (typeof v === 'string') {
-                      setCollateralType(v);
+                      onChangeField('collateralTypeId', v, collateralData._id);
                       const collateralType: ICollateralTypeDocument =
                         CollateralType?.[v];
 
