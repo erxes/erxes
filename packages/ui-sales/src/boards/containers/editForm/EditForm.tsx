@@ -134,7 +134,7 @@ class EditFormContainer extends React.Component<FinalProps> {
       .then(() => {
         callback();
       })
-      .catch((error) => {
+      .catch(error => {
         Alert.error(error.message);
       });
   }
@@ -154,7 +154,7 @@ class EditFormContainer extends React.Component<FinalProps> {
           onAdd(stageId, data[options.mutationsName.copyMutation], itemId);
         }
       })
-      .catch((error) => {
+      .catch(error => {
         Alert.error(error.message);
       });
   }
@@ -173,10 +173,10 @@ class EditFormContainer extends React.Component<FinalProps> {
         if (callback) {
           callback(data[options.mutationsName.editMutation]);
         }
-
+        this.props.synchSingleCard && this.props.synchSingleCard(itemId);
         invalidateCache();
       })
-      .catch((error) => {
+      .catch(error => {
         Alert.error(error.message);
       });
   };
@@ -200,7 +200,7 @@ class EditFormContainer extends React.Component<FinalProps> {
           }
         })
 
-        .catch((error) => {
+        .catch(error => {
           Alert.error(error.message);
         })
     );
@@ -222,7 +222,7 @@ class EditFormContainer extends React.Component<FinalProps> {
           callback();
         }
       })
-      .catch((error) => {
+      .catch(error => {
         Alert.error(error.message);
       });
   };

@@ -7,7 +7,7 @@ import { generateModels } from './connectionResolver';
 import logs from './logUtils';
 import reports from './reports/reports';
 import * as permissions from './permissions';
-import cronjobs from './cronjobs/calls';
+// import cronjobs from './cronjobs/calls';
 import initApp from './initApp';
 
 export default {
@@ -35,7 +35,7 @@ export default {
     logs: { providesActivityLog: true, consumers: logs },
     reports,
     permissions,
-    cronjobs,
+    // cronjobs,
   },
 
   apolloServerContext: async (context, req) => {

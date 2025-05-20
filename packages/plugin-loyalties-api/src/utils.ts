@@ -245,6 +245,13 @@ export const checkVouchersSale = async (
       return sum;
     }, 0);
 
+    await models.Vouchers.checkVoucher({
+      voucherId,
+      ownerType,
+      ownerId,
+      totalAmount,
+    });
+
     for (const product of productDocs) {
       const { _id } = product;
 
@@ -261,7 +268,7 @@ export const checkVouchersSale = async (
           totalAmount,
         }),
         voucherName: title,
-        type: "reward",
+        type: "voucher",
       };
     }
   }
@@ -330,11 +337,11 @@ export const checkVouchersSale = async (
       return sum;
     }, 0);
 
-    if (minimumSpend && totalAmount < minimumSpend) {
-      throw new Error(
-        `This coupon requires a minimum spend of ${minimumSpend}`
-      );
-    }
+    await models.Coupons.checkCoupon({
+      code: couponCode,
+      ownerId,
+      totalAmount,
+    });
 
     for (const product of productDocs) {
       const { _id } = product;
@@ -375,9 +382,10 @@ export const confirmVoucherSale = async (
     ownerId?: string;
     targetid?: string;
     serviceName?: string;
+    totalAmount?: string;
   }
 ) => {
-  const { couponCode, voucherId, ...usageInfo } = extraInfo || {};
+  const { couponCode, voucherId, totalAmount, ...usageInfo } = extraInfo || {};
 
   if (couponCode) {
     await models.Coupons.redeemCoupon({

@@ -1,14 +1,14 @@
-import { IUser, IUserDocument } from "@erxes/api-utils/src/types";
+import { IUserDocument } from "@erxes/api-utils/src/types";
+import { Model } from "mongoose";
+import { IModels } from "../connectionResolver";
+import { putCreateLog, putDeleteLog, putUpdateLog } from "../logUtils";
+import { sendClientPortalMessage, sendCoreMessage } from "../messageBroker";
 import {
   IScoreCampaign,
   IScoreCampaignDocuments,
   SCORE_CAMPAIGN_STATUSES,
   scoreCampaignSchema,
 } from "./definitions/scoreCampaigns";
-import { putCreateLog, putDeleteLog, putUpdateLog } from "../logUtils";
-import { IModels } from "../connectionResolver";
-import { model, Model } from "mongoose";
-import { sendClientPortalMessage, sendCoreMessage } from "../messageBroker";
 import { getOwner } from "./utils";
 
 type DoCampaingTypes = {
@@ -336,22 +336,22 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         );
       }
 
-      if (campaign.onlyClientPortal && ownerType === 'customer') {
-
+      if (campaign.onlyClientPortal && ownerType === "customer") {
         const cpUser = await sendClientPortalMessage({
           subdomain,
-          action: 'clientPortalUsers.findOne',
+          action: "clientPortalUsers.findOne",
           data: {
-            erxesCustomerId: ownerId
+            erxesCustomerId: owner._id,
           },
           isRPC: true,
-          defaultValue: null
-        })
+          defaultValue: null,
+        });
 
         if (!cpUser) {
-          throw new Error("This campaign is only available to client portal users.");
+          throw new Error(
+            "This campaign is only available to client portal users."
+          );
         }
-
       }
 
       let { placeholder = "", currencyRatio = 0 } = campaign[actionMethod];
@@ -384,48 +384,48 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
 
       const changeScore = (eval(placeholder) || 0) * Number(currencyRatio) || 0;
 
-      const scoreLog = await models.ScoreLogs.findOne({
-        targetId,
-        ownerId,
-        campaignId,
-      });
+      // const scoreLog = await models.ScoreLogs.findOne({
+      //   targetId,
+      //   ownerId,
+      //   campaignId,
+      //   action: "subtract",
+      // });
 
-      if (scoreLog) {
-        const prevChangeScore = scoreLog.changeScore;
-        if (changeScore !== scoreLog.changeScore) {
-          scoreLog.changeScore = changeScore;
+      // if (scoreLog) {
+      //   const prevChangeScore = scoreLog.changeScore;
+      //   if (changeScore !== scoreLog.changeScore) {
+      //     scoreLog.changeScore = changeScore;
 
-          const scoreDifference = changeScore - prevChangeScore;
-          const updatedCustomFieldsData = (owner?.customFieldsData || []).map(
-            (customFieldData) =>
-              customFieldData.field === campaign.fieldId
-                ? {
-                    ...customFieldData,
-                    value: (customFieldData?.value || 0) + -scoreDifference,
-                  }
-                : customFieldData
-          );
+      //     const scoreDifference = changeScore - prevChangeScore;
+      //     const updatedCustomFieldsData = (owner?.customFieldsData || []).map(
+      //       (customFieldData) =>
+      //         customFieldData.field === campaign.fieldId
+      //           ? {
+      //               ...customFieldData,
+      //               value: (customFieldData?.value || 0) + -scoreDifference,
+      //             }
+      //           : customFieldData
+      //     );
+      //     const preparedCustomFieldsData = await sendCoreMessage({
+      //       subdomain,
+      //       action: "fields.prepareCustomFieldsData",
+      //       data: updatedCustomFieldsData,
+      //       defaultValue: [],
+      //       isRPC: true,
+      //     });
 
-          const preparedCustomFieldsData = await sendCoreMessage({
-            subdomain,
-            action: "fields.prepareCustomFieldsData",
-            data: updatedCustomFieldsData,
-            defaultValue: [],
-            isRPC: true,
-          });
+      //     await this.updateOwnerScore({
+      //       ownerId,
+      //       ownerType,
+      //       updatedCustomFieldsData: preparedCustomFieldsData,
+      //     });
 
-          this.updateOwnerScore({
-            ownerId,
-            ownerType,
-            updatedCustomFieldsData: preparedCustomFieldsData,
-          });
+      //     await scoreLog.save();
+      //     return;
+      //   }
 
-          await scoreLog.save();
-          return;
-        }
-
-        return;
-      }
+      //   return;
+      // }
 
       const { score = 0, customFieldsData = [] } = owner || {};
 
@@ -475,7 +475,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         );
       }
 
-      this.updateOwnerScore({ ownerId, ownerType, updatedCustomFieldsData });
+      await this.updateOwnerScore({ ownerId, ownerType, updatedCustomFieldsData });
 
       return await models.ScoreLogs.create({
         ownerId,

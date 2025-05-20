@@ -2,7 +2,7 @@ import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import { sendCommonMessage, sendCoreMessage } from "../messageBroker";
 
 export default {
-  handleMonthlyJob: async ({ subdomain }) => {
+  handleDailyJob: async ({ subdomain }) => {
     if (!isEnabled("automations")) return;
 
     const NOW = new Date();

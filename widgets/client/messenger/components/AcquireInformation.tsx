@@ -1,11 +1,12 @@
-import * as classNames from 'classnames';
-import * as React from 'react';
-import { iconRight } from '../../icons/Icons';
-import { __ } from '../../utils';
-import TopBar from '../containers/TopBar';
-import { connection } from '../connection';
-import { COUNTRIES } from '../../form/constants';
-import { ICountry } from '../../types';
+import * as React from "react";
+import * as classNames from "classnames";
+
+import { COUNTRIES } from "../../form/constants";
+import { ICountry } from "../../types";
+import TopBar from "../containers/TopBar";
+import { __ } from "../../utils";
+import { connection } from "../connection";
+import { iconRight } from "../../icons/Icons";
 
 type Props = {
   save: (doc: State) => void;
@@ -23,7 +24,7 @@ type State = {
   country?: ICountry;
 };
 
-class AccquireInformation extends React.PureComponent<Props, State> {
+class AcquireInformation extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -32,8 +33,8 @@ class AccquireInformation extends React.PureComponent<Props, State> {
     );
 
     this.state = {
-      type: 'email',
-      value: '',
+      type: "email",
+      value: "",
       isValidated: true,
       isLoading: props.loading,
       country: currentCountry || COUNTRIES[0],
@@ -58,7 +59,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
   onValueChange(e: React.FormEvent<HTMLInputElement>) {
     const { type, country } = this.state;
 
-    if (type === 'email') {
+    if (type === "email") {
       return this.setState({ value: e.currentTarget.value, isValidated: true });
     }
 
@@ -70,7 +71,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
 
   isPhoneValid(phoneNumber: string) {
     const reg = /^\d{8,}$/;
-    return reg.test(phoneNumber.replace(/[\s()+\-\.]|ext/gi, ''));
+    return reg.test(phoneNumber.replace(/[\s()+\-\.]|ext/gi, ""));
   }
 
   isEmailValid(email: string) {
@@ -84,7 +85,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
     const { value, type } = this.state;
 
     if (
-      (type === 'email' && this.isEmailValid(value)) ||
+      (type === "email" && this.isEmailValid(value)) ||
       this.isPhoneValid(value)
     ) {
       return this.props.save(this.state);
@@ -100,10 +101,10 @@ class AccquireInformation extends React.PureComponent<Props, State> {
 
     const title = (
       <div className="erxes-topbar-title">
-        <div>{__('Contact')}</div>
+        <div>{__("Contact")}</div>
         <span>
-          {__('Please leave your contact details to start a conversation') +
-            '.'}
+          {__("Please leave your contact details to start a conversation") +
+            "."}
         </span>
       </div>
     );
@@ -114,10 +115,10 @@ class AccquireInformation extends React.PureComponent<Props, State> {
   render() {
     const { color, textColor } = this.props;
     const { type, isValidated, isLoading, country } = this.state;
-    const formClasses = classNames('form', { invalid: !isValidated });
+    const formClasses = classNames("form", { invalid: !isValidated });
 
     const placeholder =
-      type === 'email' ? __('email@domain.com') : __('phone number');
+      type === "email" ? __("email@domain.com") : __("phone number");
 
     return (
       <>
@@ -125,40 +126,40 @@ class AccquireInformation extends React.PureComponent<Props, State> {
         <div className="accquire-information slide-in">
           <p className="type">
             <span
-              className={type === 'email' ? 'current' : ''}
-              onClick={() => this.onTypeChange('email')}
+              className={type === "email" ? "current" : ""}
+              onClick={() => this.onTypeChange("email")}
               style={{ borderColor: color }}
             >
-              {__('Email')}
+              {__("Email")}
             </span>
 
             <span
-              className={type === 'phone' ? 'current' : ''}
-              onClick={() => this.onTypeChange('phone')}
+              className={type === "phone" ? "current" : ""}
+              onClick={() => this.onTypeChange("phone")}
               style={{ borderColor: color }}
             >
-              {__('Phone')}
+              {__("Phone")}
             </span>
           </p>
 
           <form className={formClasses} onSubmit={this.save}>
-            {type === 'phone' ? (
+            {type === "phone" ? (
               <div
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  height: '100%',
+                  display: "flex",
+                  alignItems: "center",
+                  height: "100%",
                   flex: 1,
                 }}
               >
                 <input
                   id="country-select-val"
-                  style={{ width: '80px', flex: 0 }}
+                  style={{ width: "80px", flex: 0 }}
                   value={country && `${country.emoji} ${country.dialCode}`}
                   readOnly={true}
                 />
 
-                <div style={{ height: '36px' }}>
+                <div style={{ height: "36px" }}>
                   <select
                     value={country?.code}
                     onChange={(e) =>
@@ -170,11 +171,11 @@ class AccquireInformation extends React.PureComponent<Props, State> {
                     }
                     className="form-control"
                     style={{
-                      width: '80px',
+                      width: "80px",
                       opacity: 0,
-                      position: 'absolute',
+                      position: "absolute",
                       left: 0,
-                      cursor: 'pointer',
+                      cursor: "pointer",
                     }}
                   >
                     {COUNTRIES.map((country) => (
@@ -186,7 +187,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
                 </div>
                 <input
                   onChange={this.onValueChange}
-                  placeholder={placeholder ? placeholder.toString() : ''}
+                  placeholder={placeholder ? placeholder.toString() : ""}
                   type="tel"
                   autoFocus={true}
                 />
@@ -194,7 +195,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
             ) : (
               <input
                 onChange={this.onValueChange}
-                placeholder={placeholder ? placeholder.toString() : ''}
+                placeholder={placeholder ? placeholder.toString() : ""}
                 type="text"
                 autoFocus={true}
               />
@@ -214,4 +215,4 @@ class AccquireInformation extends React.PureComponent<Props, State> {
   }
 }
 
-export default AccquireInformation;
+export default AcquireInformation;

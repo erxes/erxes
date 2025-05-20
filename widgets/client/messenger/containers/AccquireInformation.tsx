@@ -1,7 +1,9 @@
-import * as React from 'react';
-import AccquireInformation from '../components/AccquireInformation';
-import { getColor, getUiOptions } from '../utils/util';
-import { useConversation } from '../context/Conversation';
+import * as React from "react";
+
+import { getColor, getUiOptions } from "../utils/util";
+
+import AccquireInformation from "../components/AcquireInformation";
+import { useConversation } from "../context/Conversation";
 
 const AccquireInformationContainer = ({ loading }: { loading: boolean }) => {
   const { saveGetNotified, isSavingNotified } = useConversation();
@@ -9,7 +11,7 @@ const AccquireInformationContainer = ({ loading }: { loading: boolean }) => {
   return (
     <AccquireInformation
       color={getColor()}
-      textColor={getUiOptions().textColor || '#fff'}
+      textColor={getUiOptions().textColor || "#fff"}
       save={saveGetNotified}
       loading={isSavingNotified || loading}
       showTitle={true}

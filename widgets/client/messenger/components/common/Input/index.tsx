@@ -6,6 +6,7 @@ type Props = {
   id?: string;
   onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   value?: string;
+  defaultValue?: string;
   type?: string;
   placeholder?: string;
   label?: string;
@@ -17,6 +18,7 @@ const Input: React.FC<Props> = ({
   id,
   onChange,
   value,
+  defaultValue,
   placeholder,
   label,
   textArea = false,
@@ -28,6 +30,7 @@ const Input: React.FC<Props> = ({
     const elementProps = {
       id,
       value,
+      defaultValue,
       onChange,
       placeholder,
       rows,

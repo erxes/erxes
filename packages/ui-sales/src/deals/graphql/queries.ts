@@ -1,9 +1,10 @@
-import { queries } from "@erxes/ui-products/src/graphql";
 import { commonFields, commonListFields } from "../../boards/graphql/mutations";
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
 } from "../../conformity/graphql/queries";
+
+import { queries } from "@erxes/ui-products/src/graphql";
 
 const commonParams = `
   $_ids: [String]
@@ -83,6 +84,7 @@ export const dealFields = `
   paymentsData
   unUsedAmount
   amount
+  stageId
 `;
 
 const dealsTotalAmounts = `

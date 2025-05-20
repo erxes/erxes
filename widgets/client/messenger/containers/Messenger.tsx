@@ -1,28 +1,21 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import DumbMessenger from '../components/Messenger';
-import { connection } from '../connection';
-import graphqTypes from '../graphql';
-import { IMessengerSupporters } from '../types';
-import { useQuery } from '@apollo/react-hooks';
-import { useRouter } from '../context/Router';
+import * as React from "react";
 
-type QueryResponse = {
-  widgetsMessengerSupporters: IMessengerSupporters;
-};
+import DumbMessenger from "../components/Messenger";
+import { connection } from "../connection";
+import gql from "graphql-tag";
+import { messengerSupportersQuery } from "../graphql/queries";
+import { useQuery } from "@apollo/react-hooks";
+import { useRouter } from "../context/Router";
 
 const MessengerContainer = () => {
   const { activeRoute } = useRouter();
 
-  const { data, loading } = useQuery(
-    gql(graphqTypes.messengerSupportersQuery),
-    {
-      variables: {
-        integrationId: connection.data.integrationId,
-      },
-      fetchPolicy: 'network-only',
-    }
-  );
+  const { data, loading } = useQuery(gql(messengerSupportersQuery), {
+    variables: {
+      integrationId: connection.data.integrationId,
+    },
+    fetchPolicy: "network-only",
+  });
 
   const info = data && data.widgetsMessengerSupporters;
   let supporters: any = [];

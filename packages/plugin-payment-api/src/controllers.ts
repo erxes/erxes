@@ -72,46 +72,7 @@ router.post('/checkInvoice', async (req, res) => {
   return res.json({ status });
 });
 
-router.post('/gateway/manualCheck', async (req, res) => {
-  const { invoiceId } = req.body;
 
-  const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
-
-  const status = await models.Invoices.checkInvoice(invoiceId);
-
-  if (status === 'paid') {
-    const invoiceDoc = await models.Invoices.getInvoice(
-      { _id: invoiceId },
-      true
-    );
-
-    graphqlPubsub.publish(`invoiceUpdated:${invoiceDoc._id}`, {
-      invoiceUpdated: {
-        _id: invoiceDoc._id,
-        status: 'paid',
-      },
-    });
-
-    const [serviceName] = invoiceDoc.contentType.split(':');
-
-    if (await isEnabled(serviceName)) {
-      sendMessage(`${serviceName}:paymentCallback`, {
-        subdomain,
-        data: {
-          ...invoiceDoc,
-          apiResponse: 'success',
-        },
-      });
-    }
-
-    redisUtils.removeInvoice(invoiceId);
-
-    res.clearCookie(`paymentData_${invoiceDoc.contentTypeId}`);
-  }
-
-  return res.json({ status });
-});
 
 router.post('/gateway/storepay', async (req, res) => {
   const { selectedPaymentId, paymentKind, invoiceData, phone } = req.body;
