@@ -52,7 +52,7 @@ export const types = () => `
     note: String
     numberOfPeople: Int
     type: String
-    additionalCustomers: String
+    additionalCustomers: [String]
     isChild: Boolean
     parent: String    
   }
@@ -66,7 +66,7 @@ export const types = () => `
     note: String
     numberOfPeople: Int
     type: String
-    additionalCustomers: String
+    additionalCustomers: [String]
     isChild: Boolean
     parent: String
   }
