@@ -2,8 +2,9 @@ import {
   getCustomer,
   fetchPolaris,
   getBranch,
-  sendMessageBrokerData,
+  sendMessageBrokerData
 } from '../utils';
+import { getDate } from './getDate';
 
 export const updateSaving = async (
   subdomain: string,
@@ -13,7 +14,7 @@ export const updateSaving = async (
   params,
   user
 ) => {
-  const savingContract = params.updatedDocument || params.object;
+  const savingContract = params.data;
   let updateData;
 
   const savingProduct = await sendMessageBrokerData(
@@ -23,9 +24,39 @@ export const updateSaving = async (
     { _id: savingContract.contractTypeId }
   );
 
+  const deposit = await sendMessageBrokerData(
+    subdomain,
+    'savings',
+    'contracts.findOne',
+    { _id: savingContract.depositAccount }
+  );
+
   const customer = await getCustomer(subdomain, savingContract.customerId);
 
   const branch = await getBranch(subdomain, savingContract.branchId);
+
+  const getAccounts = await fetchPolaris({
+    op: '13610312',
+    data: [customer?.code, 0, 20],
+    subdomain,
+    polarisConfig
+  });
+
+  const customerAccount = getAccounts.filter(
+    (account) => account.acntType === 'CA'
+  );
+
+  const systemDate = await getDate(subdomain, polarisConfig);
+
+  const endDate = new Date(systemDate).setMonth(
+    new Date(systemDate).getMonth() + savingContract.duration
+  );
+
+  const depositNumber = deposit?.number || '';
+  const polarisNumber =
+    customerAccount && customerAccount.length > 0
+      ? customerAccount[0].acntCode
+      : '';
 
   let sendData = {
     operCode: '13610286',
@@ -40,14 +71,11 @@ export const updateSaving = async (
     custCode: customer?.code,
     statusSys: 'O',
     openDateOrg: savingContract?.startDate,
-    startDate: savingContract?.startDate,
-    maturityDate: '',
+    startDate: systemDate,
+    maturityDate: new Date(endDate),
     tenor: savingContract.duration,
-    capMethod: '0',
-    rcvAcntCode:
-      savingContract.depositAccount === 'depositAccount'
-        ? savingContract.depositAccount
-        : '',
+    capMethod: '1',
+    rcvAcntCode: depositNumber || polarisNumber || '',
     rcvSysNo: '1305',
     segCode: '81',
     isCorpAcnt: 0,
@@ -58,7 +86,7 @@ export const updateSaving = async (
     createdBy: 10,
     createdDate: new Date(),
     createdDatetime: new Date(),
-    createdByName: user?.details?.firstName,
+    createdByName: user?.details?.firstName || '',
     modifiedBy: 1,
     modifiedDate: new Date(),
     modifiedDatetime: new Date(),
@@ -75,7 +103,7 @@ export const updateSaving = async (
     doTran: 1,
     useSpclAcnt: 0,
     jointOrSingleStr: '0',
-    repayPriority: 0,
+    repayPriority: 0
   };
 
   if (
@@ -91,7 +119,7 @@ export const updateSaving = async (
       subdomain,
       models,
       polarisConfig,
-      syncLog,
+      syncLog
     });
   }
 

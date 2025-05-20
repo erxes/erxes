@@ -1,8 +1,12 @@
+import { sendCoreMessage } from '../../messageBroker';
 import {
   customFieldToObject,
   fetchPolaris,
+  fetchPolarisWithoutError,
   getBranch,
+  getCollateralType,
   sendMessageBrokerData,
+  updateContract
 } from '../utils';
 import { integrateCollateralToLoan } from './integrateCollateralToLoan';
 import { openCollateral } from './openCollateral';
@@ -10,8 +14,11 @@ import { openCollateral } from './openCollateral';
 export const createCollateral = async (
   subdomain: string,
   polarisConfig,
-  loan: any
+  data: any
 ) => {
+  const loan = data.contract;
+  let collateralObj;
+
   const collateral = loan.collateralsData?.[0];
   if (!collateral) return;
   let collateralRes;
@@ -31,11 +38,31 @@ export const createCollateral = async (
     customer
   );
 
+  const collateralType = await getCollateralType(
+    subdomain,
+    collateral.collateralTypeId,
+    'loans'
+  );
+
+  const product = await sendCoreMessage({
+    subdomain,
+    action: 'products.findOne',
+    data: { _id: collateral.collateralId },
+    isRPC: true
+  });
+
+  const polarisCollateral = await fetchPolarisWithoutError({
+    subdomain,
+    op: '13610906',
+    data: [product.code],
+    polarisConfig
+  });
+
   let sendData = {
-    name: `${customer.firstName} ${customer.lastName}`,
-    name2: `${customer.firstName} ${customer.lastName}`,
+    name: product.name,
+    name2: product.name,
     custCode: customer.code,
-    prodCode: '700111220013', // ene code iig nyagtlah
+    prodCode: collateralType?.code || '',
     prodType: 'COLL',
     collType: '2',
     brchCode: branch.code,
@@ -59,52 +86,58 @@ export const createCollateral = async (
     marketValueDate: new Date(),
     marketValue: collateral.marginAmount,
     registerCode: customerData.registerCode,
-    identityType: 'NES',
-    acntProp: {
-      sizeSquare: 55,
-      sizeSquareUnit: '1',
-      cntRoom: 2,
-      startDate: '2021-12-30 00:00:00.000',
-      endDate: '2022-03-30 00:00:00.000',
-      quality: '1',
-      purpose: '1',
-      mark: '7272',
-      color: 'red',
-      power: '75227',
-      frameNumber: 'erfefe',
-      importedDate: '2019-04-14 00:00:00.000',
-      factoryDate: '2021-11-18 00:00:00.000',
-      courtOrderDate: '2021-12-02 00:00:00.000',
-      mrtConfirmedDate: '2021-12-16 00:00:00.000',
-      cmrtRegisteredDate: '2018-02-05 00:00:00.000',
-      mrtRegisteredDate: '2021-11-19 00:00:00.000',
-      courtOrderNo: '74747474',
-      mrtOrg: '01',
-      registeredToAuthority: '1',
-      causeToShiftTo: 0,
-    },
+    identityType: 'NES'
   };
 
   if (
     customer?.code &&
     collateral?.cost &&
-    customerData?.registerCode != null
+    customerData?.registerCode != null &&
+    polarisCollateral === 'error'
   ) {
     collateralRes = await fetchPolaris({
       subdomain,
       op: '13610900',
       data: [sendData],
-      polarisConfig,
+      polarisConfig
     });
+
+    if (collateralRes.acntCode) {
+      await openCollateral(subdomain, polarisConfig, collateralRes.acntCode);
+      await sendCoreMessage({
+        subdomain,
+        action: 'products.updateProduct',
+        data: {
+          _id: product._id,
+          doc: { ...product, code: collateralRes.acntCode }
+        },
+        isRPC: true
+      });
+    }
   }
 
-  if (collateralRes.acntCode) {
-    await openCollateral(subdomain, polarisConfig, collateralRes.acntCode);
+  if (polarisCollateral !== 'error') {
+    collateralObj = JSON.parse(polarisCollateral);
+  }
 
-    return await integrateCollateralToLoan(subdomain, polarisConfig, {
-      code: collateralRes.acntCode,
+  const integrationCode = collateralRes
+    ? collateralRes.acntCode
+    : collateralObj.acntCode;
+
+  if (integrationCode) {
+    const result = await integrateCollateralToLoan(subdomain, polarisConfig, {
+      code: integrationCode,
       amount: collateral.marginAmount,
-      loanNumber: loan.number,
+      loanNumber: loan.number
     });
+
+    if (result) {
+      await updateContract(
+        subdomain,
+        { _id: loan._id },
+        { $set: { isSyncedCollateral: true } },
+        'loans'
+      );
+    }
   }
 };

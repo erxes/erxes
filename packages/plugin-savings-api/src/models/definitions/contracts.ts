@@ -15,7 +15,7 @@ export interface IContract {
   createdBy: string;
   createdAt: Date;
   savingAmount: number;
-  blockAmount:number;
+  blockAmount: number;
   startDate: Date;
   duration: number;
   endDate: Date;
@@ -29,6 +29,8 @@ export interface IContract {
   closeType?: string;
   closeDescription?: string;
 
+  isSyncedPolaris?: boolean;
+  isActiveSaving?: boolean;
   dealId?: string;
   storedInterest: number;
   lastStoredDate: Date;
@@ -189,8 +191,18 @@ export const contractSchema = schemaHooksWrapper(
       optional: true,
       label: 'Custom fields data',
     }),
+    isSyncedPolaris: field({
+      type: Boolean,
+      label: 'Is Synced polaris',
+      optional: true,
+    }),
+    isActiveSaving: field({
+      type: Boolean,
+      label: 'Is Active savings',
+      optional: true,
+    }),
   }),
-  'erxes_contractSchema',
+  'erxes_contractSchema'
 );
 
 export interface ICloseVariable {
