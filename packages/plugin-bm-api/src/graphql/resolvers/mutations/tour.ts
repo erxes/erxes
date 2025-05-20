@@ -1,9 +1,10 @@
 import {
   checkPermission,
-  requireLogin,
-} from "@erxes/api-utils/src/permissions";
-import { IContext } from "../../../connectionResolver";
-import { sendMessage } from "@erxes/api-utils/src/core";
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
+import { IContext } from '../../../connectionResolver';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 
 const tourMutations = {
   bmTourAdd: async (
@@ -15,22 +16,31 @@ const tourMutations = {
     const branch = await models.BmsBranch.findById(tour.branchId);
 
     await sendMessage({
-      serviceName: "notifications",
+      serviceName: 'notifications',
       subdomain,
-      action: "send",
+      action: 'send',
       data: {
         notifType: `touradd`,
-        title: "Тур үүслээ",
-        content: `${tour.name} тур үүслээ,хэрэглэгч үүсгэлэ${user.details?.firstName || user.email || "."}`,
+        title: 'Тур үүслээ',
+        content: `${tour.name} тур үүслээ,хэрэглэгч үүсгэлэ${user.details?.firstName || user.email || '.'}`,
         action: `Reminder:`,
         link: `/tour?id=${tour._id}`,
         createdUser: user,
         // exclude current user
-        contentType: "bm:tour",
+        contentType: 'bm:tour',
         contentTypeId: tour._id,
-        receivers: [...(branch?.user1Ids || []), ...(branch?.user2Ids || [])],
-      },
+        receivers: [...(branch?.user1Ids || []), ...(branch?.user2Ids || [])]
+      }
     });
+    await putCreateLog(
+      subdomain,
+      {
+        type: 'tour',
+        newData: doc,
+        object: tour
+      },
+      user
+    );
     return tour;
   },
 
@@ -39,7 +49,19 @@ const tourMutations = {
     { _id, ...doc },
     { models, user, subdomain }: IContext
   ) => {
+    const tour = await models.Tours.getTour(_id);
+
     const updated = await models.Tours.updateTour(_id, doc as any);
+    await putUpdateLog(
+      subdomain,
+      {
+        type: 'tour',
+        object: tour,
+        newData: doc,
+        updatedDocument: updated
+      },
+      user
+    );
     return updated;
   },
   bmTourViewCount: async (
@@ -61,32 +83,32 @@ const tourMutations = {
 
     await models.Tours.removeTour(ids);
     const branchs = await models.BmsBranch.find({ _id: { $in: ids } });
-    const names = tours.map(x => x.name).join(",");
+    const names = tours.map(x => x.name).join(',');
     let allUsers: string[] = [];
     for (const branch of branchs) {
       const users = [...(branch?.user1Ids || []), ...(branch?.user2Ids || [])];
       allUsers = [...allUsers, ...users];
     }
     await sendMessage({
-      serviceName: "notifications",
+      serviceName: 'notifications',
       subdomain,
-      action: "send",
+      action: 'send',
       data: {
         notifType: `tourremove`,
-        title: "Тур устгав",
-        content: `${names} турууд устдаа,хэрэглэгч ${user.details?.firstName || user.email || "."}`,
+        title: 'Тур устгав',
+        content: `${names} турууд устдаа,хэрэглэгч ${user.details?.firstName || user.email || '.'}`,
         action: `Reminder:`,
         link: `/tour`,
         createdUser: user,
         // exclude current user
-        contentType: "bm:tour",
-        contentTypeId: "deleteall",
-        receivers: allUsers || [],
-      },
+        contentType: 'bm:tour',
+        contentTypeId: 'deleteall',
+        receivers: allUsers || []
+      }
     });
 
     return ids;
-  },
+  }
 };
 
 export default tourMutations;
