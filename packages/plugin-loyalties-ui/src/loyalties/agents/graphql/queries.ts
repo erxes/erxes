@@ -20,14 +20,6 @@ const agentFields = `
   rulesOfProducts
 `;
 
-const agents = `
-  query agents {
-    agents {
-      ${agentFields}
-    }
-  }
-`;
-
 const agentDetail = `
   query agentDetail {
     agentDetail {
@@ -66,7 +58,6 @@ const agentsMain = `
 `;
 
 export default {
-  agents,
   agentDetail,
   agentsMain
 };

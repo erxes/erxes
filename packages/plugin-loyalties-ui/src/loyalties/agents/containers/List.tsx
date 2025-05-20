@@ -56,7 +56,6 @@ const AgentListContainer = ({ queryParams }: Props) => {
     number: queryParams.number || "",
     agents: list,
     removeAgent,
-    refetch: refetchMainQuery,
     queryParams
   };
 

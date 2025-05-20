@@ -103,7 +103,7 @@ const AgentList = (props: IProps) => {
   );
 
   const agentForm = (props) => {
-    return <AgentForm {...props} queryParams={queryParams} refetch={refetch} />;
+    return <AgentForm {...props} queryParams={queryParams} />;
   };
 
   const actionBarRight = () => {
@@ -149,7 +149,7 @@ const AgentList = (props: IProps) => {
         />
       }
       actionBar={actionBar}
-      footer={<Pagination count={totalCount} />}
+      footer={<Pagination count={totalCount} perPage={10}/>}
       leftSidebar={<Sidebar queryParams={queryParams} />}
       content={
         <>
