@@ -12,7 +12,7 @@ export interface IOrder {
   branchId?: string;
   numberOfPeople: number;
   type?: string;
-  additionalCustomers?: string;
+  additionalCustomers?: string[];
 }
 
 export interface IOrderDocument extends IOrder, Document {
