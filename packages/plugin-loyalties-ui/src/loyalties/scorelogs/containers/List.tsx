@@ -1,15 +1,15 @@
-import { router } from '@erxes/ui/src/utils/core';
+import { router } from "@erxes/ui/src/utils/core";
 
-import { gql, useQuery } from '@apollo/client';
-import React from 'react';
-import ScoreLogsListComponent from '../components/List';
-import { queries } from '../graphql';
-import { withCurrentUser } from '@erxes/ui/src';
-import { IUser } from '@erxes/ui/src/auth/types';
+import { gql, useQuery } from "@apollo/client";
+import { withCurrentUser } from "@erxes/ui/src";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import ScoreLogsListComponent from "../components/List";
+import { queries } from "../graphql";
 
 type Props = {
   queryParams: any;
-  currentUser: IUser
+  currentUser: IUser;
 };
 
 const generateParams = ({ queryParams }: { queryParams: any }) => ({
@@ -31,6 +31,7 @@ const ScoreLogsListContainer = (props: Props) => {
 
   const { data, loading, refetch } = useQuery(gql(queries.getScoreLogs), {
     variables: generateParams({ queryParams }),
+    fetchPolicy: "network-only",
   });
 
   const { data: statistic } = useQuery(gql(queries.getScoreLogStatistics), {

@@ -93,6 +93,7 @@ export const orderItemSchema = schemaHooksWrapper(
       optional: true
     }),
     couponCode: field({ type: String, label: 'Coupon code' }),
+    voucherId: field({ type: String, label: 'Voucher' }),
   }),
   'erxes_orderItem'
 );

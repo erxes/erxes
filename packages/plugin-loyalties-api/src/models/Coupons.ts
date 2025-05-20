@@ -15,11 +15,11 @@ export interface ICouponModel extends Model<ICouponDocument> {
   checkCoupon({
     code,
     ownerId,
-    totaAmount,
+    totalAmount,
   }: {
     code: string;
     ownerId?: string;
-    totaAmount?: number;
+    totalAmount?: number;
   }): Promise<string>;
   redeemCoupon({
     code,
@@ -35,11 +35,11 @@ export const loadCouponClass = (models: IModels, _subdomain: string) => {
     public static async checkCoupon({
       code,
       ownerId,
-      totaAmount,
+      totalAmount,
     }: {
       code: string;
       ownerId?: string;
-      totaAmount?: number;
+      totalAmount?: number;
     }) {
       const coupon = await models.Coupons.findOne({ code });
 
@@ -80,9 +80,15 @@ export const loadCouponClass = (models: IModels, _subdomain: string) => {
         throw new Error("Campaign not found");
       }
 
-      if (totaAmount && couponCampaign.restrictions.minimumSpend > totaAmount) {
+      if (totalAmount && couponCampaign.restrictions.minimumSpend > totalAmount) {
         throw new Error(
           `This coupon requires a minimum spend of ${couponCampaign.restrictions.minimumSpend}`
+        );
+      }
+
+      if (totalAmount && totalAmount > couponCampaign.restrictions.maximumSpend) {
+        throw new Error(
+          `This coupon allows a maximum spend of ${couponCampaign.restrictions.maximumSpend}`
         );
       }
 

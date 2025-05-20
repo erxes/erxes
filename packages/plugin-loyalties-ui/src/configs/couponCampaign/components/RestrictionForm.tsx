@@ -1,13 +1,13 @@
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
 import {
   ControlLabel,
   FormControl,
   FormGroup,
-} from '@erxes/ui/src/components/form';
-import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils/core';
+} from "@erxes/ui/src/components/form";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+import { __ } from "@erxes/ui/src/utils/core";
 import React from 'react';
 
 type Props = {
@@ -28,24 +28,42 @@ const Form = (props: Props) => {
 
   return (
     <>
-      <FormGroup>
-        <ControlLabel required={true}>Minimum spend</ControlLabel>
-        <FormControl
-          name="minimumSpend"
-          type="number"
-          min={0}
-          value={restrictions.minimumSpend || 0}
-          onChange={(e) =>
-            handleChange({ minimumSpend: Number((e.target as any).value) })
-          }
-        />
-      </FormGroup>
+      <FormWrapper>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel required={true}>Minimum spend</ControlLabel>
+            <FormControl
+              name="minimumSpend"
+              type="number"
+              min={0}
+              value={restrictions.minimumSpend || 0}
+              onChange={(e) =>
+                handleChange({ minimumSpend: Number((e.target as any).value) })
+              }
+            />
+          </FormGroup>
+        </FormColumn>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel required={true}>Maximum spend</ControlLabel>
+            <FormControl
+              name="maximumSpend"
+              type="number"
+              min={0}
+              value={restrictions.maximumSpend || 0}
+              onChange={(e) =>
+                handleChange({ maximumSpend: Number((e.target as any).value) })
+              }
+            />
+          </FormGroup>
+        </FormColumn>
+      </FormWrapper>
       <FormWrapper>
         <FormColumn>
           <FormGroup>
             <ControlLabel required={true}>Product Category</ControlLabel>
             <SelectProductCategory
-              label={__('Choose product category')}
+              label={__("Choose product category")}
               name="categoryIds"
               initialValue={restrictions.categoryIds}
               onSelect={(categoryIds) => handleChange({ categoryIds })}
@@ -59,7 +77,7 @@ const Form = (props: Props) => {
               Or Exclude Product Category
             </ControlLabel>
             <SelectProductCategory
-              label={__('Choose product category')}
+              label={__("Choose product category")}
               name="excludeCategoryIds"
               initialValue={restrictions.excludeCategoryIds}
               onSelect={(excludeCategoryIds) =>
@@ -75,7 +93,7 @@ const Form = (props: Props) => {
           <FormGroup>
             <ControlLabel required={true}>Product</ControlLabel>
             <SelectProducts
-              label={__('Filter by products')}
+              label={__("Filter by products")}
               name="productIds"
               multi={true}
               initialValue={restrictions.productIds}
@@ -87,7 +105,7 @@ const Form = (props: Props) => {
           <FormGroup>
             <ControlLabel required={true}>Or Exclude Product</ControlLabel>
             <SelectProducts
-              label={__('Filter by products')}
+              label={__("Filter by products")}
               name="excludeProductIds"
               multi={true}
               initialValue={restrictions.excludeProductIds}
@@ -103,7 +121,7 @@ const Form = (props: Props) => {
           <FormGroup>
             <ControlLabel required={true}>Tag</ControlLabel>
             <SelectTags
-              label={__('Filter by tag')}
+              label={__("Filter by tag")}
               name="tagIds"
               multi={true}
               initialValue={restrictions.tagIds}
@@ -116,7 +134,7 @@ const Form = (props: Props) => {
           <FormGroup>
             <ControlLabel required={true}>Or Exclude Tag</ControlLabel>
             <SelectTags
-              label={__('Filter by tag')}
+              label={__("Filter by tag")}
               name="excludeTagIds"
               multi={true}
               initialValue={restrictions.excludeTagIds}
