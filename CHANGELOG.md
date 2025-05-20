@@ -1,5 +1,7 @@
 # Changelog
 
+## [2.12.1](https://github.com/erxes/erxes/compare/2.12.0...2.12.1) (2025-05-20)
+
 ## [2.12.0](https://github.com/erxes/erxes/compare/2.11.3...2.12.0) (2025-05-18)
 
 ### Features
