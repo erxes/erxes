@@ -82,7 +82,8 @@ export const callbackHandler = async (req, res) => {
         return res.status(400).send('Invoice not found');
       }
 
-      const result = await models.Invoices.checkInvoice(transaction.invoiceId);
+      const result = await models.Invoices.checkInvoice(transaction.invoiceId,
+        subdomain);
 
       delete transaction.response;
 

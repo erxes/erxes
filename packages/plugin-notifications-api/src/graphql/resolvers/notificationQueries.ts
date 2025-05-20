@@ -10,6 +10,7 @@ const notificationQueries = {
   async notifications(
     _root,
     {
+      userId,
       requireRead,
       title,
       limit,
@@ -19,6 +20,7 @@ const notificationQueries = {
       endDate,
       ...params
     }: {
+      userId: string
       requireRead: boolean;
       title: string;
       limit: number;
@@ -32,9 +34,7 @@ const notificationQueries = {
     { models, user }: IContext,
   ) {
     const sort: any = { date: -1 };
-
-    const selector: any = { receiver: user._id };
-
+    const selector: any = { receiver: userId || user._id };
     if (requireRead) {
       selector.isRead = false;
     }

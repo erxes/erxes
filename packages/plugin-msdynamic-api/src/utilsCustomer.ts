@@ -138,11 +138,9 @@ const checkSend = async (customer, config, filterStr) => {
   if (responseChecker.value?.length) {
     const msdValues = responseChecker.value[0];
 
-    const name = getName(customer) || '';
     if (
       msdValues.Phone_No !== customer.primaryPhone ||
-      msdValues.E_Mail !== customer.primaryEmail ||
-      msdValues.Name !== name
+      msdValues.E_Mail !== customer.primaryEmail
     ) {
       return await fetch(`${customerApi}(No='${msdValues.No}')`, {
         method: 'PATCH',
@@ -156,7 +154,6 @@ const checkSend = async (customer, config, filterStr) => {
         body: JSON.stringify({
           Phone_No: customer.primaryPhone,
           E_Mail: customer.primaryEmail,
-          Name: name,
         }),
       }).then((r) => r.json());
     }

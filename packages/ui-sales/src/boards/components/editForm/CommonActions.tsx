@@ -38,6 +38,7 @@ type Props = {
   onChangeRefresh: () => void;
   currentUser: IUser;
   isFullView?: boolean;
+  synchSingleCard?: (itemId: string) => void;
 };
 
 const CommonActions = (props: Props) => {
@@ -54,13 +55,14 @@ const CommonActions = (props: Props) => {
     onChangeRefresh,
     currentUser,
     isFullView,
+    synchSingleCard,
   } = props;
 
-  const userOnChange = (usrs) => saveItem({ assignedUserIds: usrs });
+  const userOnChange = usrs => saveItem({ assignedUserIds: usrs });
   const onChangeStructure = (values, name) => saveItem({ [name]: values });
-  const onLabelChange = (labels) => saveItem({ labels });
+  const onLabelChange = labels => saveItem({ labels });
 
-  const assignedUserIds = (item.assignedUsers || []).map((user) => user._id);
+  const assignedUserIds = (item.assignedUsers || []).map(user => user._id);
   const branchIds = currentUser.branchIds;
   const departmentIds = currentUser.departmentIds;
 
@@ -167,6 +169,9 @@ const CommonActions = (props: Props) => {
               type={TAG_TYPE}
               trigger={tagTrigger}
               refetchQueries={["dealDetail"]}
+              successCallback={() => {
+                synchSingleCard && synchSingleCard(item._id);
+              }}
               targets={[item]}
               parentTagId={pipelineTagId}
               singleSelect={false}
