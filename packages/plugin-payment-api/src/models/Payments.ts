@@ -18,7 +18,7 @@ export interface IPaymentModel extends Model<IPaymentDocument> {
 export const loadPaymentClass = (models: IModels) => {
   class Payment {
     public static async createPayment(doc: IPayment) {
-      console.debug('Creating payment', doc);
+  
       return models.PaymentMethods.create(doc);
     }
 

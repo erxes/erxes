@@ -1,7 +1,8 @@
-import * as React from 'react';
-import { m } from 'framer-motion';
-import { IconProps } from './Icons';
-import useHover from '../../hooks/useHover';
+import * as React from "react";
+
+import { IconProps } from "./Icons";
+import { m } from "framer-motion";
+import useHover from "../../hooks/useHover";
 
 type Props = {
   label?: string;
@@ -18,21 +19,22 @@ const Item: React.FC<Props> = ({
   handleClick,
   route,
 }) => {
+  const [hoverRef, isHovered] = useHover();
+
   const renderIcon = () => {
-    return icon({ filled: isActive });
+    return icon({ filled: isActive || isHovered });
   };
 
   const renderLabel = () => {
-    /* Render the label if the item is active and a label is provided */
-    if (!label || !isActive) {
-      return null;
-    }
-    return <span>{label}</span>;
+    if (!label || (!isActive && !isHovered)) return null;
+
+    return <span className="nav-label">{label}</span>;
   };
 
   return (
     <m.li
-      className={`nav-item ${isActive ? 'active' : ''} `}
+      ref={hoverRef}
+      className={`nav-item ${isActive ? "active" : ""} `}
       onClick={handleClick(route)}
     >
       <m.div className="nav-content">

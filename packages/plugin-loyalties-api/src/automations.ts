@@ -1,3 +1,4 @@
+import { getService } from "@erxes/api-utils/src/serviceDiscovery";
 import * as dayjs from "dayjs";
 import { generateModels, IModels } from "./connectionResolver";
 import {
@@ -5,7 +6,6 @@ import {
   sendCommonMessage,
   sendCoreMessage,
 } from "./messageBroker";
-import { getService } from "@erxes/api-utils/src/serviceDiscovery";
 
 export default {
   constants: {
@@ -766,18 +766,18 @@ const docScoreCampaign = async ({
     (await getLoyatyCampaignConfig(serviceName)) || {};
 
 
-    console.log({extendTargetAutomation,serviceName})
+     console.log({extendTargetAutomation,serviceName})
 
   if (extendTargetAutomation) {
     target = await sendCommonMessage({
       subdomain,
       serviceName,
       action: "targetExtender",
-      data: { target },
+      data: { target, campaignId: config.campaignId },
       isRPC: true,
       defaultValue: target,
     });
-    console.log({target})
+     console.log({target})
   }
 
   return await models.ScoreCampaigns.doCampaign({
@@ -801,6 +801,8 @@ const actionCreate = async ({ subdomain, action, execution }) => {
   try {
     switch (type) {
       case "loyalties:score.create":
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
         return await addScore({
           models,
           subdomain,

@@ -4,12 +4,13 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon,
+  Icon
 } from "@erxes/ui/src/components";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 import client from "@erxes/ui/src/apolloClient";
 import { gql } from "@apollo/client";
 import { queries as boardQueries } from "@erxes/ui-sales/src/boards/graphql";
+import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
 
 import { IConfigsMap } from "../../types";
 import { KEY_LABELS } from "../../constants";
@@ -18,6 +19,7 @@ import React from "react";
 import SelectBrand from "@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand";
 import { __ } from "@erxes/ui/src/utils";
 import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
+import { IFieldGroup } from "@erxes/ui-forms/src/settings/properties/types";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -31,6 +33,7 @@ type State = {
   config: any;
   hasOpen: boolean;
   pipeline?: any;
+  fieldGroups?: IFieldGroup[];
 };
 
 class PerSettings extends React.Component<Props, State> {
@@ -39,8 +42,19 @@ class PerSettings extends React.Component<Props, State> {
 
     this.state = {
       config: props.config,
-      hasOpen: false,
+      hasOpen: false
     };
+
+    client
+      .query({
+        query: gql(fieldQueries.fieldsGroups),
+        variables: {
+          contentType: "core:user"
+        }
+      })
+      .then(({ data }) => {
+        this.setState({ fieldGroups: data?.fieldsGroups });
+      });
   }
 
   onSave = (e) => {
@@ -85,7 +99,7 @@ class PerSettings extends React.Component<Props, State> {
         client
           .query({
             query: gql(boardQueries.pipelineDetail),
-            variables: { _id: pipelineId },
+            variables: { _id: pipelineId }
           })
           .then(({ data }) => {
             this.setState({ pipeline: data?.salesPipelineDetail || {} });
@@ -112,6 +126,69 @@ class PerSettings extends React.Component<Props, State> {
           defaultValue={config[key]}
           onChange={this.onChangeInput.bind(this, key)}
           {...args}
+        />
+      </FormGroup>
+    );
+  };
+
+  renderFields = (key: string, label: string) => {
+    const { fieldGroups, config } = this.state;
+
+    const setFieldGroup = (value) => {
+      this.setState({
+        config: {
+          ...config,
+          [key]: { ...(config[key] || {}), groupId: value }
+        }
+      });
+    };
+
+    const setFormField = (value) => {
+      this.setState({
+        config: {
+          ...config,
+          [key]: { ...(config[key] || {}), fieldId: value }
+        }
+      });
+    };
+
+    return (
+      <FormGroup>
+        <ControlLabel>{__(`${label}`)}</ControlLabel>
+        <FormControl
+          name="fieldGroup"
+          componentclass="select"
+          options={[
+            { value: "", label: "Empty" },
+            ...(fieldGroups || []).map((fg) => ({
+              value: fg._id,
+              label: `${fg.code} - ${fg.name}`
+            }))
+          ]}
+          value={config[key]?.groupId}
+          onChange={(e) => setFieldGroup((e.target as any).value)}
+        />
+
+        <FormControl
+          name="formField"
+          componentclass="select"
+          options={[
+            { value: "", label: "Empty" },
+            ...(
+              (
+                (fieldGroups || []).find(
+                  (fg) => fg._id === config[key]?.groupId
+                ) || {}
+              ).fields ||
+              [] ||
+              []
+            ).map((f) => ({
+              value: f._id,
+              label: `${f.code} - ${f.text}`
+            }))
+          ]}
+          value={config[key]?.fieldId}
+          onChange={(e) => setFormField((e.target as any).value)}
         />
       </FormGroup>
     );
@@ -171,6 +248,9 @@ class PerSettings extends React.Component<Props, State> {
             {this.renderInput("pricePriority")}
             {this.renderInput("username")}
             {this.renderInput("password", { type: "password" })}
+
+            {this.renderFields("custCode", "Cust code")}
+            {this.renderFields("userLocationCode", "User Location code")}
           </FormColumn>
 
           <FormColumn>

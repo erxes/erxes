@@ -1,34 +1,34 @@
-import React from "react";
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
 import {
   Button,
-  ControlLabel,
   Form as CommonForm,
+  ControlLabel,
+  DateControl,
   FormControl,
   FormGroup,
-  DateControl,
   Uploader,
 } from "@erxes/ui/src/components";
 import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
 import {
+  MainStyleDateContainer as DateContainer,
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
-  MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
-  MainStyleDateContainer as DateContainer,
 } from "@erxes/ui/src/styles/eindex";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
 } from "@erxes/ui/src/types";
-import { IVoucherCampaign } from "../types";
+import { __, extractAttachment } from "@erxes/ui/src/utils";
+import React from "react";
 import Select from "react-select";
-import { extractAttachment, __ } from "@erxes/ui/src/utils";
-import { ISpinCampaign } from "../../spinCampaign/types";
-import { ILotteryCampaign } from "../../lotteryCampaign/types";
 import { VOUCHER_TYPES } from "../../../constants";
-import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
-import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
+import { COUPON_APPLY_TYPES } from "../../../loyalties/coupons/constants";
+import { ILotteryCampaign } from "../../lotteryCampaign/types";
+import { ISpinCampaign } from "../../spinCampaign/types";
+import { IVoucherCampaign } from "../types";
 
 type Props = {
   voucherCampaign?: IVoucherCampaign;
@@ -71,6 +71,7 @@ class Form extends React.Component<Props, State> {
       lotteryCount = 0,
       bonusCount = 0,
       buyScore = 0,
+      value = 0,
     } = voucherCampaign;
 
     return {
@@ -81,6 +82,7 @@ class Form extends React.Component<Props, State> {
       lotteryCount: Number(lotteryCount),
       bonusCount: Number(bonusCount),
       buyScore: Number(buyScore),
+      value: Number(value),
     };
   };
 
@@ -134,6 +136,54 @@ class Form extends React.Component<Props, State> {
 
     this.setState({
       voucherCampaign: { ...this.state.voucherCampaign, [name]: value },
+    });
+  };
+
+  handleOnChange = ({
+    files,
+    content,
+    event,
+    dateType,
+    date,
+    restrictions,
+  }: {
+    files?: IAttachment[];
+    content?: string;
+    event?: React.FormEvent<HTMLElement>;
+    dateType?: string;
+    date?: React.FormEvent<HTMLElement>;
+    restrictions?: any;
+  }) => {
+    this.setState((prevState) => {
+      const updatedCampaign = { ...prevState.voucherCampaign };
+
+      if (files) {
+        updatedCampaign.attachment = files.length > 0 ? files[0] : undefined;
+      }
+
+      if (content) {
+        updatedCampaign.description = content;
+      }
+
+      if (event) {
+        const { name, value, type } = event.target as
+          | HTMLInputElement
+          | HTMLTextAreaElement;
+        updatedCampaign[name] = type === "number" ? Number(value) : value;
+      }
+
+      if (dateType && date) {
+        updatedCampaign[dateType] = date;
+      }
+
+      if (restrictions) {
+        updatedCampaign.restrictions = {
+          ...updatedCampaign.restrictions,
+          ...restrictions,
+        };
+      }
+
+      return { voucherCampaign: updatedCampaign };
     });
   };
 
@@ -322,20 +372,6 @@ class Form extends React.Component<Props, State> {
             />
           </FormGroup>
         </FormColumn>
-        <FormColumn>
-          <FormGroup>
-            <ControlLabel required={true}>Discount percent</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="discountPercent"
-              type="number"
-              min={0}
-              max={100}
-              defaultValue={voucherCampaign.discountPercent}
-              onChange={this.onInputChange}
-            />
-          </FormGroup>
-        </FormColumn>
       </FormWrapper>
     );
   };
@@ -353,138 +389,215 @@ class Form extends React.Component<Props, State> {
 
     return (
       <>
-        <ScrollWrapper>
-          <FormWrapper>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>Title</ControlLabel>
-                <FormControl
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Title</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="title"
+                defaultValue={voucherCampaign.title}
+                autoFocus={true}
+                onChange={(event) => this.handleOnChange({ event })}
+              />
+            </FormGroup>
+          </FormColumn>
+
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Buy Score</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="buyScore"
+                type="number"
+                min={0}
+                required={false}
+                defaultValue={voucherCampaign.buyScore}
+                onChange={(event) => this.handleOnChange({ event })}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Type</ControlLabel>
+              <Select
+                value={Object.values(VOUCHER_TYPES).find(
+                  (o) => o.value === (voucherCampaign.voucherType || "discount")
+                )}
+                options={Object.values(VOUCHER_TYPES)}
+                name="voucherType"
+                isClearable={true}
+                onChange={this.onChangeCombo.bind(this, "voucherType")}
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Type</ControlLabel>
+              <Select
+                options={COUPON_APPLY_TYPES}
+                value={COUPON_APPLY_TYPES.find(
+                  (type) => type.value === voucherCampaign.kind
+                )}
+                onChange={(option) => {
+                  this.handleOnChange({
+                    event: {
+                      target: { name: "kind", value: option?.value },
+                    } as any,
+                  });
+
+                  this.handleOnChange({
+                    event: {
+                      target: { name: "value", value: 0 },
+                    } as any,
+                  });
+                }}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Count</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="value"
+                type="number"
+                min={0}
+                required={false}
+                value={voucherCampaign.value}
+                onChange={(event) => this.handleOnChange({ event })}
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Minimum spend</ControlLabel>
+              <FormControl
+                name="minimumSpend"
+                type="number"
+                min={0}
+                value={voucherCampaign?.restrictions?.minimumSpend || 0}
+                onChange={(e) =>
+                  this.handleOnChange({
+                    restrictions: {
+                      ...voucherCampaign?.restrictions,
+                      minimumSpend: Number((e.target as any).value),
+                    },
+                  })
+                }
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Maximum spend</ControlLabel>
+              <FormControl
+                name="maximumSpend"
+                type="number"
+                min={0}
+                value={voucherCampaign?.restrictions?.maximumSpend || 0}
+                onChange={(e) =>
+                  this.handleOnChange({
+                    restrictions: {
+                      ...voucherCampaign?.restrictions,
+                      maximumSpend: Number((e.target as any).value),
+                    },
+                  })
+                }
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+
+        {this.renderVoucherType(formProps)}
+
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Start Date</ControlLabel>
+              <DateContainer>
+                <DateControl
                   {...formProps}
-                  name="title"
-                  defaultValue={voucherCampaign.title}
-                  autoFocus={true}
-                  required={true}
-                  onChange={this.onInputChange}
+                  name="startDate"
+                  placeholder={__("Start date")}
+                  value={voucherCampaign.startDate}
+                  onChange={this.onDateInputChange.bind(this, "startDate")}
                 />
-              </FormGroup>
-            </FormColumn>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>Type</ControlLabel>
-                <Select
-                  value={Object.values(VOUCHER_TYPES).find(
-                    (o) =>
-                      o.value === (voucherCampaign.voucherType || "discount")
+              </DateContainer>
+            </FormGroup>
+          </FormColumn>
+
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>End Date</ControlLabel>
+              <DateContainer>
+                <DateControl
+                  {...formProps}
+                  name="endDate"
+                  placeholder={__("End date")}
+                  value={voucherCampaign.endDate}
+                  onChange={this.onDateInputChange.bind(this, "endDate")}
+                />
+              </DateContainer>
+            </FormGroup>
+          </FormColumn>
+
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Finish Date of Use</ControlLabel>
+              <DateContainer>
+                <DateControl
+                  {...formProps}
+                  name="finishDateOfUse"
+                  placeholder={__("Finish Date of Use")}
+                  value={voucherCampaign.finishDateOfUse}
+                  onChange={this.onDateInputChange.bind(
+                    this,
+                    "finishDateOfUse"
                   )}
-                  options={Object.values(VOUCHER_TYPES)}
-                  name="voucherType"
-                  isClearable={true}
-                  onChange={this.onChangeCombo.bind(this, "voucherType")}
                 />
-              </FormGroup>
-            </FormColumn>
-          </FormWrapper>
+              </DateContainer>
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
 
-          <FormWrapper>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>Start Date</ControlLabel>
-                <DateContainer>
-                  <DateControl
-                    {...formProps}
-                    required={true}
-                    name="startDate"
-                    placeholder={__("Start date")}
-                    value={voucherCampaign.startDate}
-                    onChange={this.onDateInputChange.bind(this, "startDate")}
-                  />
-                </DateContainer>
-              </FormGroup>
-            </FormColumn>
+        <FormGroup>
+          <ControlLabel required>Description</ControlLabel>
+          <RichTextEditor
+            content={voucherCampaign.description || ""}
+            onChange={(content) => this.handleOnChange({ content })}
+            height={150}
+            isSubmitted={formProps.isSaved}
+            name="couponCampaign_description"
+            toolbar={[
+              "bold",
+              "italic",
+              "orderedList",
+              "bulletList",
+              "link",
+              "unlink",
+              "|",
+              "image",
+            ]}
+          />
+        </FormGroup>
 
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>End Date</ControlLabel>
-                <DateContainer>
-                  <DateControl
-                    {...formProps}
-                    required={true}
-                    name="endDate"
-                    placeholder={__("End date")}
-                    value={voucherCampaign.endDate}
-                    onChange={this.onDateInputChange.bind(this, "endDate")}
-                  />
-                </DateContainer>
-              </FormGroup>
-            </FormColumn>
+        <FormGroup>
+          <ControlLabel>Featured image</ControlLabel>
 
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>Finish Date of Use</ControlLabel>
-                <DateContainer>
-                  <DateControl
-                    {...formProps}
-                    required={true}
-                    name="finishDateOfUse"
-                    placeholder={__("Finish Date of Use")}
-                    value={voucherCampaign.finishDateOfUse}
-                    onChange={this.onDateInputChange.bind(
-                      this,
-                      "finishDateOfUse"
-                    )}
-                  />
-                </DateContainer>
-              </FormGroup>
-            </FormColumn>
-          </FormWrapper>
+          <Uploader
+            defaultFileList={attachments}
+            onChange={(files) => this.handleOnChange({ files })}
+            multiple={false}
+            single={true}
+          />
+        </FormGroup>
 
-          {this.renderVoucherType(formProps)}
-
-          <FormGroup>
-            <ControlLabel required={true}>Buy Score</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="buyScore"
-              type="number"
-              min={0}
-              required={false}
-              defaultValue={voucherCampaign.buyScore}
-              onChange={this.onInputChange}
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <ControlLabel>Description</ControlLabel>
-            <RichTextEditor
-              content={voucherCampaign.description || ""}
-              onChange={this.onChangeDescription}
-              height={150}
-              isSubmitted={formProps.isSaved}
-              name={`voucherCampaign_description_${voucherCampaign.description}`}
-              toolbar={[
-                "bold",
-                "italic",
-                "orderedList",
-                "bulletList",
-                "link",
-                "unlink",
-                "|",
-                "image",
-              ]}
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <ControlLabel>Featured image</ControlLabel>
-
-            <Uploader
-              defaultFileList={attachments}
-              onChange={this.onChangeAttachment}
-              multiple={false}
-              single={true}
-            />
-          </FormGroup>
-        </ScrollWrapper>
         <ModalFooter>
           <Button
             btnStyle="simple"

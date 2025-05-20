@@ -1,13 +1,15 @@
-import { Model } from "mongoose";
+import { ITicket, ITicketDocument, ticketSchema } from "./definitions/tickets";
 import {
+  createBoardItem,
   destroyBoardItemRelations,
   fillSearchTextItem,
-  createBoardItem,
   watchItem
 } from "./utils";
+
 import { ACTIVITY_CONTENT_TYPES } from "./definitions/constants";
-import { ITicket, ITicketDocument, ticketSchema } from "./definitions/tickets";
 import { IModels } from "../connectionResolver";
+import { IUserDocument } from "@erxes/api-utils/src/types";
+import { Model } from "mongoose";
 
 export interface ITicketModel extends Model<ITicketDocument> {
   createTicket(doc: ITicket): Promise<ITicketDocument>;
@@ -15,6 +17,13 @@ export interface ITicketModel extends Model<ITicketDocument> {
   updateTicket(_id: string, doc: ITicket): Promise<ITicketDocument>;
   watchTicket(_id: string, isAdd: boolean, userId: string): void;
   removeTickets(_ids: string[]): Promise<{ n: number; ok: number }>;
+  createTicketComment(
+    type: string,
+    typeId: string,
+    content: string,
+    userType: string,
+    customerId: string
+  ): Promise<ITicketDocument>;
 }
 
 export const loadTicketClass = (models: IModels, subdomain: string) => {
@@ -47,6 +56,29 @@ export const loadTicketClass = (models: IModels, subdomain: string) => {
       }
 
       return createBoardItem(models, subdomain, doc, "ticket");
+    }
+    public static async createTicketComment(
+      type: string,
+      typeId: string,
+      content: string,
+      userType: string,
+      customerId?: string
+    ) {
+      try {
+        if (!typeId || !content) {
+          throw new Error("typeId or content not found");
+        }
+        const comment = await models.Comments.createComment({
+          type,
+          typeId,
+          content,
+          userType,
+          userId: customerId
+        });
+        return comment
+      } catch (error) {
+        throw error;
+      }
     }
 
     /**

@@ -10,7 +10,7 @@ const commonFields = `
 `;
 
 export const types = `
-  type ActivityLog {
+  type ActivityLog @key(fields: "_id") @cacheControl(maxAge: 3) {
     ${commonFields}
     createdByDetail: JSON
     contentDetail: JSON

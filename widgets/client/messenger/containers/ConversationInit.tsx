@@ -1,19 +1,19 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import DumbConversationList from '../components/ConversationInit';
-import { connection } from '../connection';
-import graphqTypes from '../graphql';
-import { IConversation } from '../types';
-import { useQuery } from '@apollo/react-hooks';
-import { getMessengerData } from '../utils/util';
-import { useRouter } from '../context/Router';
-import { useConversation } from '../context/Conversation';
+import * as React from "react";
+
+import DumbConversationList from "../components/ConversationInit";
+import { allConversations } from "../graphql/queries";
+import { connection } from "../connection";
+import { getMessengerData } from "../utils/util";
+import gql from "graphql-tag";
+import { useConversation } from "../context/Conversation";
+import { useQuery } from "@apollo/react-hooks";
+import { useRouter } from "../context/Router";
 
 const ConversationInit = () => {
   const { setRoute } = useRouter();
   const { goToConversation, createConversation } = useConversation();
-  const { data, loading } = useQuery(gql(graphqTypes.allConversations), {
-    fetchPolicy: 'network-only',
+  const { data, loading } = useQuery(gql(allConversations), {
+    fetchPolicy: "network-only",
     variables: connection.data,
     notifyOnNetworkStatusChange: true,
     // every minute
@@ -23,7 +23,7 @@ const ConversationInit = () => {
   const { responseRate } = getMessengerData();
 
   const goToAllConversations = () => {
-    setRoute('allConversations');
+    setRoute("allConversations");
   };
 
   return (

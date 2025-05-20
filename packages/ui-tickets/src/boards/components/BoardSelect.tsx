@@ -20,6 +20,7 @@ type Props = {
   callback?: () => void;
   translator?: (key: string, options?: any) => string;
   isRequired?: boolean;
+  isOptional?: boolean;
 };
 
 class BoardSelect extends React.Component<Props> {
@@ -64,7 +65,8 @@ class BoardSelect extends React.Component<Props> {
       onChangeBoard,
       onChangePipeline,
       onChangeStage,
-      callback
+      callback,
+      isOptional
     } = this.props;
 
     const __ = (key: string, options?: any) => {
@@ -78,7 +80,7 @@ class BoardSelect extends React.Component<Props> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>Board</ControlLabel>
+          <ControlLabel>Board {isOptional && "(optional)"}</ControlLabel>
           {this.renderSelect(
             __("Choose a board"),
             boardId,
@@ -88,7 +90,7 @@ class BoardSelect extends React.Component<Props> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Pipeline</ControlLabel>
+          <ControlLabel>Pipeline {isOptional && "(optional)"}</ControlLabel>
           {this.renderSelect(
             __("Choose a pipeline"),
             pipelineId,
@@ -98,7 +100,7 @@ class BoardSelect extends React.Component<Props> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Stage</ControlLabel>
+          <ControlLabel>Stage {isOptional && "(optional)"}</ControlLabel>
           {this.renderSelect(
             __("Choose a stage"),
             stageId,

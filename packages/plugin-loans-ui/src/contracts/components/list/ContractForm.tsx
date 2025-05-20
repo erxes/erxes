@@ -471,17 +471,17 @@ function ContractForm(props: Props) {
                   />
                 </FormGroup>
               )) || (
-                <FormGroup>
-                  <ControlLabel required={true}>{__('Customer')}</ControlLabel>
-                  <SelectCustomers
-                    label={__('Choose customer')}
-                    name="customerId"
-                    initialValue={contract.customerId}
-                    onSelect={onSelectCustomer}
-                    multi={false}
-                  />
-                </FormGroup>
-              )}
+                  <FormGroup>
+                    <ControlLabel required={true}>{__('Customer')}</ControlLabel>
+                    <SelectCustomers
+                      label={__('Choose customer')}
+                      name="customerId"
+                      initialValue={contract.customerId}
+                      onSelect={onSelectCustomer}
+                      multi={false}
+                    />
+                  </FormGroup>
+                )}
               {contract.useManualNumbering &&
                 renderFormGroup('Contract Number', {
                   ...formProps,
@@ -581,7 +581,7 @@ function ContractForm(props: Props) {
                   fixed: 2,
                   value:
                     (contract.marginAmount || 0) -
-                      (contract.leaseAmount || 0) || 0,
+                    (contract.leaseAmount || 0) || 0,
                   onChange: onChangeField,
                   onClick: onFieldClick
                 })}
@@ -911,6 +911,15 @@ function ContractForm(props: Props) {
                 value: contract.skipAmountCalcMonth || 0,
                 errors: checkValidation(),
                 onChange: onChangeField
+              })}
+
+              {renderFormGroup('Skip Amount Calc Month', {
+                type: 'number',
+                name: 'skipAmountCalcMonth',
+                useNumberFormat: true,
+                value: contract.skipAmountCalcMonth || 0,
+                errors: checkValidation(),
+                onChange: onChangeField,
               })}
             </FormColumn>
           </FormWrapper>

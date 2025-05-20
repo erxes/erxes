@@ -15,7 +15,7 @@ export interface IInvoiceModel extends Model<IInvoiceDocument> {
   createInvoice(doc: IInvoice, subdomain?: string): Promise<IInvoiceDocument>;
   updateInvoice(_id: string, doc: any): Promise<IInvoiceDocument>;
   cancelInvoice(_id: string): Promise<string>;
-  checkInvoice(_id: string): Promise<string>;
+  checkInvoice(_id: string, subdomain: string): Promise<string>;
   removeInvoices(_ids: string[]): Promise<any>;
   markAsPaid(_id: string): Promise<string>;
 }
@@ -108,7 +108,7 @@ export const loadInvoiceClass = (models: IModels) => {
       return 'success';
     }
 
-    public static async checkInvoice(_id: string) {
+    public static async checkInvoice(_id: string, subdomain: string) {
       const unpaidTransactions = await models.Transactions.find({
         invoiceId: _id,
         status: 'pending',
@@ -119,7 +119,7 @@ export const loadInvoiceClass = (models: IModels) => {
           // Process transactions in parallel for better performance
           const statusChecks = await Promise.all(
             unpaidTransactions.map((transaction) =>
-              models.Transactions.checkTransaction(transaction._id)
+              models.Transactions.checkTransaction(transaction._id, subdomain)
             )
           );
 

@@ -1,11 +1,13 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import DumpLauncher from '../components/Launcher';
-import { connection } from '../connection';
-import graphqlTypes from '../graphql';
-import { useQuery } from '@apollo/react-hooks';
-import { useConversation } from '../context/Conversation';
-import { getUiOptions } from '../utils/util';
+import * as React from "react";
+
+import DumpLauncher from "../components/Launcher";
+import { adminMessageInserted } from "../graphql/subscriptions";
+import { connection } from "../connection";
+import { getUiOptions } from "../utils/util";
+import gql from "graphql-tag";
+import { totalUnreadCountQuery } from "../graphql/queries";
+import { useConversation } from "../context/Conversation";
+import { useQuery } from "@apollo/react-hooks";
 
 const Launcher = () => {
   const {
@@ -18,7 +20,7 @@ const Launcher = () => {
   } = useConversation();
 
   const { data, subscribeToMore, loading } = useQuery(
-    gql(graphqlTypes.totalUnreadCountQuery),
+    gql(totalUnreadCountQuery),
     {
       variables: connection.data,
     }
@@ -27,7 +29,7 @@ const Launcher = () => {
   React.useEffect(() => {
     if (data) {
       subscribeToMore({
-        document: gql(graphqlTypes.adminMessageInserted),
+        document: gql(adminMessageInserted),
         variables: { customerId: connection.data.customerId },
         updateQuery: (prev, { subscriptionData }) => {
           setUnreadCount(

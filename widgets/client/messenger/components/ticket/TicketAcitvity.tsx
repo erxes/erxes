@@ -1,7 +1,9 @@
 import * as React from "react";
+import * as dayjs from "dayjs";
+
+import { __, readFile } from "../../../utils";
 
 import { ITicketActivityLog } from "../../types";
-import { __ } from "../../../utils";
 
 type Props = {
   activity: ITicketActivityLog;
@@ -25,12 +27,12 @@ export const renderUserFullName = (data: any) => {
 };
 
 const TicketActivity: React.FC<Props> = ({ activity }) => {
-  const { contentType, action, createdByDetail, content } = activity;
+  const { contentType, action, createdByDetail, content, createdAt } = activity;
   const type = contentType.split(":")[1];
 
   const renderDetail = (contentType: string, children: React.ReactNode) => {
     let src =
-      "https://office.erxes.io/gateway/read-file?key=offi…-erxes-io/chz8U6ErcBCK102DtFGVferxes.png&width=20";
+      "https://office.erxes.io/gateway/read-file?key=office-erxes-io%2Fchz8U6ErcBCK102DtFGVferxes.png&width=20";
 
     if (createdByDetail && createdByDetail.type === "user") {
       const { content } = createdByDetail;
@@ -43,7 +45,7 @@ const TicketActivity: React.FC<Props> = ({ activity }) => {
     return (
       <>
         <div className="user">
-          <img src={src} alt="" />
+          <img src={src.includes("read-file") ? src : readFile(src)} alt="" />
         </div>
         {children}
       </>
@@ -67,6 +69,9 @@ const TicketActivity: React.FC<Props> = ({ activity }) => {
           activity.contentType,
           <span>
             <strong>{userName}</strong> created <b>ticket</b>
+            <div className="date">
+              {dayjs(createdAt).format("YYYY-MM-DD, LT")}
+            </div>
           </span>
         );
 

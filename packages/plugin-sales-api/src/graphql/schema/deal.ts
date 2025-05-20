@@ -136,7 +136,7 @@ const archivedDealsParams = `
 
 export const queries = `
   dealDetail(_id: String!, clientPortalCard: Boolean): Deal
-  checkDiscount(_id: String!,products:[SalesProductField], couponCode: String):JSON
+  checkDiscount(_id: String!,products:[SalesProductField], couponCode: String, voucherId: String):JSON
   deals(${listQueryParams}): [DealListItem]
   dealsTotalCount(${listQueryParams}): Int
   archivedDeals(

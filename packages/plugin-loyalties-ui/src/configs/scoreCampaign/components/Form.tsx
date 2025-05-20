@@ -1,5 +1,10 @@
 import React, { useReducer, useRef, useState } from "react";
 
+import { gql, useQuery } from "@apollo/client";
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import { FlexRow } from "@erxes/ui-settings/src/styles";
+import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
 import {
   Button,
   ButtonMutate,
@@ -14,9 +19,14 @@ import {
   Tabs,
   TabTitle,
 } from "@erxes/ui/src/components";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
+import Popover from "@erxes/ui/src/components/Popover";
+import {
+  FormColumn,
+  FormWrapper,
+  ModalFooter,
+} from "@erxes/ui/src/styles/main";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import { __, Alert, loadDynamicComponent } from "@erxes/ui/src/utils";
+import { __, loadDynamicComponent } from "@erxes/ui/src/utils";
 import {
   Attributes,
   AttributeTrigger,
@@ -24,12 +34,7 @@ import {
   PaddingTop,
   Row,
 } from "../../../styles";
-import { FlexRow } from "@erxes/ui-settings/src/styles";
-import Popover from "@erxes/ui/src/components/Popover";
 import mutations from "../graphql/mutations";
-import { isEnabled, RenderDynamicComponent } from "@erxes/ui/src/utils/core";
-import { gql, useQuery } from "@apollo/client";
-import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
 
 type Props = {
   closeModal: () => void;
@@ -462,6 +467,113 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
     );
   };
 
+  const renderRestrictionForm = () => {
+    const { restrictions } = state;
+
+    return (
+      <>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Product Category</ControlLabel>
+              <SelectProductCategory
+                label={__("Choose product category")}
+                name="categoryIds"
+                initialValue={restrictions?.categoryIds || []}
+                onSelect={(categoryIds) =>
+                  dispatch({ restrictions: { ...restrictions, categoryIds } })
+                }
+                multi={true}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>
+                Or Exclude Product Category
+              </ControlLabel>
+              <SelectProductCategory
+                label={__("Choose product category")}
+                name="excludeCategoryIds"
+                initialValue={restrictions?.excludeCategoryIds || []}
+                onSelect={(excludeCategoryIds) =>
+                  dispatch({
+                    restrictions: { ...restrictions, excludeCategoryIds },
+                  })
+                }
+                multi={true}
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Product</ControlLabel>
+              <SelectProducts
+                label={__("Filter by products")}
+                name="productIds"
+                multi={true}
+                initialValue={restrictions?.productIds || []}
+                onSelect={(productIds) =>
+                  dispatch({ restrictions: { ...restrictions, productIds } })
+                }
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Or Exclude Product</ControlLabel>
+              <SelectProducts
+                label={__("Filter by products")}
+                name="excludeProductIds"
+                multi={true}
+                initialValue={restrictions?.excludeProductIds || []}
+                onSelect={(excludeProductIds) =>
+                  dispatch({
+                    restrictions: { ...restrictions, excludeProductIds },
+                  })
+                }
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Tag</ControlLabel>
+              <SelectTags
+                label={__("Filter by tag")}
+                name="tagIds"
+                multi={true}
+                initialValue={restrictions?.tagIds || []}
+                tagsType="core:product"
+                onSelect={(tagIds) =>
+                  dispatch({ restrictions: { ...restrictions, tagIds } })
+                }
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Or Exclude Tag</ControlLabel>
+              <SelectTags
+                label={__("Filter by tag")}
+                name="excludeTagIds"
+                multi={true}
+                initialValue={restrictions?.excludeTagIds || []}
+                tagsType="core:product"
+                onSelect={(excludeTagIds) =>
+                  dispatch({ restrictions: { ...restrictions, excludeTagIds } })
+                }
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+      </>
+    );
+  };
+
   const renderForm = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
@@ -513,6 +625,9 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
             onChange={onChangeInput}
           />
         </FormGroup>
+
+        {renderRestrictionForm()}
+
         <SelectService state={state} dispatch={dispatch} />
         {state.serviceName && (
           <>
@@ -546,6 +661,22 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
                 ))}
               </FlexRow>
             </FormGroup>
+
+            {state.ownerType === "customer" && (
+              <FormGroup>
+                <ControlLabel>
+                  {__("Only client portal (optional)")}
+                </ControlLabel>
+                <FormControl
+                  {...formProps}
+                  componentclass="checkbox"
+                  checked={state.onlyClientPortal || false}
+                  onChange={(e: any) =>
+                    dispatch({ onlyClientPortal: e.target.checked })
+                  }
+                />
+              </FormGroup>
+            )}
 
             {state.ownerType && (
               <>

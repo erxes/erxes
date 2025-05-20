@@ -620,6 +620,15 @@ export const sendLoyaltiesMessage = async (
   });
 };
 
+export const sendPricingMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "pricing",
+    ...args
+  });
+};
+
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args
