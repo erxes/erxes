@@ -34,6 +34,7 @@ export const loadProductRuleClass = (models: IModels, _subdomain: string) => {
       return models.ProductRules.findOne({ _id });
     }
 
+    // TODO: add related usage validations
     public static async removeRule(_id: string) {
       const rule = await models.ProductRules.getRule(_id);
 

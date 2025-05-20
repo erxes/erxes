@@ -1,13 +1,15 @@
 import React from 'react';
 
 import { IProductRule } from '@erxes/ui-products/src/types';
+import { ActionButtons, Button, Tip } from '@erxes/ui/src/components';
 
 type Props = {
   rule: IProductRule;
+  removeRule: (_id: string) => void;
 }
 
 export default function ProductRuleRow(props: Props) {
-  const { rule } = props;
+  const { rule, removeRule } = props;
 
   const categoryNames = (rule.categories || []).map(c => `${c.name}, `);
   const excludeCategoryNames = (rule.excludeCategories || []).map(c => `${c.name}, `);
@@ -15,7 +17,7 @@ export default function ProductRuleRow(props: Props) {
   const excludeProductNames = (rule.excludeProducts || []).map(c => `${c.name}, `);
   const tagNames = (rule.tags || []).map(c => `${c.name}, `);
   const excludeTagNames = (rule.excludeTags || []).map(c => `${c.name}, `);
-
+  
   return (
     <tr>
       <td>{rule.name}</td>
@@ -26,7 +28,13 @@ export default function ProductRuleRow(props: Props) {
       <td>{excludeProductNames}</td>
       <td>{tagNames}</td>
       <td>{excludeTagNames}</td>
-      <td>action</td>
+      <td key="actions">
+        <ActionButtons>
+          <Tip text="Delete" placement="bottom">
+            <Button btnStyle="link" onClick={() => removeRule(rule._id)} icon="cancel-1" />
+          </Tip>
+        </ActionButtons>
+      </td>
     </tr>
   );
 };

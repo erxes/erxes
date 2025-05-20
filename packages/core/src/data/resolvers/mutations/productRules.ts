@@ -13,6 +13,11 @@ const productRuleMutations = {
     const updated =  models.ProductRules.updateRule(rule._id, params);
 
     return updated;
+  },
+  async productRulesRemove(_root, params: { _id: string }, { models }: IContext) {
+    const rule = await models.ProductRules.getRule(params._id);
+
+    return models.ProductRules.removeRule(rule._id);
   }
 };
 

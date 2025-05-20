@@ -36,5 +36,6 @@ export const queries = `
 
 export const mutations = `
   productRulesAdd(${productRuleDefs}): ProductRule
-  productRulesEdit(_id: String, ${productRuleDefs}): ProductRule
+  productRulesEdit(_id: String!, ${productRuleDefs}): ProductRule
+  productRulesRemove(_id: String!): JSON
 `;

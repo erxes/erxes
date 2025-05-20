@@ -22,10 +22,11 @@ type Props = {
   rules: IProductRule[];
   loading: boolean;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  removeRule: (_id: string) => void;
 };
 
 const RuleList: React.FC<Props> = props => {
-  const { rules, renderButton, totalCount, loading } = props;
+  const { rules, renderButton, totalCount, loading, removeRule } = props;
 
   const renderContent = () => {
     return (
@@ -50,6 +51,7 @@ const RuleList: React.FC<Props> = props => {
                 <Row
                   key={rule._id}
                   rule={rule}
+                  removeRule={removeRule}
                 />
               );
             })}

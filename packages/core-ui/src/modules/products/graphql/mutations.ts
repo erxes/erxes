@@ -168,10 +168,16 @@ const productRulesAdd = `
 `;
 
 const productRulesEdit = `
-  mutation productRulesEdit(_id: String!, ${productRuleParamDefs}) {
+  mutation productRulesEdit($_id: String!, ${productRuleParamDefs}) {
     productRulesEdit(_id: $_id, ${productRuleParams}) {
       _id
     }
+  }
+`;
+
+const productRulesRemove = `
+  mutation productRulesRemove($_id: String!) {
+    productRulesRemove(_id: $_id)
   }
 `;
 
@@ -200,5 +206,6 @@ export default {
   bundleConditionSetBulk,
 
   productRulesAdd,
-  productRulesEdit
+  productRulesEdit,
+  productRulesRemove
 };

@@ -1,5 +1,5 @@
 import React from "react";
-import { useQuery, gql } from "@apollo/client";
+import { useQuery, gql, useMutation } from "@apollo/client";
 
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
@@ -8,6 +8,7 @@ import { mutations, queries } from "../../graphql";
 import {
   ProductRulesQueryResponse
 } from "@erxes/ui-products/src/types";
+import { Alert, confirm } from "@erxes/ui/src/utils";
 
 type Props = {};
 
@@ -15,6 +16,27 @@ const ProductRules = (props: Props) => {
   const rulesQuery = useQuery<ProductRulesQueryResponse>(
     gql(queries.productRules)
   );
+
+  const [remove] = useMutation(
+    gql(mutations.productRulesRemove)
+  );
+
+  const removeRule = (_id: string) => {
+    confirm()
+      .then(() => {
+        remove({ variables: { _id } }).then(({ data }) => {
+          const { productRulesRemove } = data;
+
+          if (productRulesRemove.acknowledged && productRulesRemove.deletedCount === 1) {
+            Alert.success('Product rule has been deleted.');
+          }
+
+          rulesQuery.refetch();
+        }).catch(e => {
+          Alert.error(e.message);
+        })
+      });
+  };
 
   const renderButton = ({
     name,
@@ -46,6 +68,7 @@ const ProductRules = (props: Props) => {
     totalCount: rulesQuery.data?.productRules.length || 0,
     loading: rulesQuery.loading,
     renderButton,
+    removeRule
   };
 
   return <List {...updatedProps} />;
