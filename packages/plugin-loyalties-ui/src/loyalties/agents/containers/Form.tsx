@@ -11,6 +11,7 @@ import { mutations } from '../graphql';
 type Props = {
   agent: IAgent;
   closeModal: () => void;
+  refetch: () => void;
 };
 
 type FinalProps = {
@@ -25,10 +26,11 @@ class AgentFormContainer extends React.Component<FinalProps> {
       isSubmitted,
       object
     }: IButtonMutateProps) => {
-      const { closeModal } = this.props;
+      const { closeModal, refetch } = this.props;
 
       const afterSave = () => {
         closeModal();
+        refetch();
       };
 
       return (

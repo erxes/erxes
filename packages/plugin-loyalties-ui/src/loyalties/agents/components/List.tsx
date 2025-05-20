@@ -23,19 +23,21 @@ import AgentRow from "./Row";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { menuLoyalties } from "../../common/constants";
 import { useLocation, useNavigate } from 'react-router-dom';
+import Sidebar from "./Sidebar";
 
 interface IProps {
   agents: IAgentDocument[];
   loading: boolean;
-  searchValue: string;
+  number: string;
   totalCount: number;
   queryParams: IQueryParams;
   removeAgent: (_id: string) => void;
+  refetch: () => void;
 }
 
 const AgentList = (props: IProps) => {
   let timer;
-  const [searchValue, setSearchValue] = React.useState(props.searchValue)
+  const [number, setSearchValue] = React.useState(props.number)
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -47,9 +49,10 @@ const AgentList = (props: IProps) => {
     const searchValue = e.target.value;
 
     setSearchValue(searchValue);
+
     timer = setTimeout(() => {
       router.removeParams(navigate, location, "page");
-      router.setParams(navigate, location, { searchValue });
+      router.setParams(navigate, location, { number: searchValue });
     }, 500);
   };
 
@@ -64,7 +67,8 @@ const AgentList = (props: IProps) => {
     loading,
     totalCount,
     queryParams,
-    removeAgent
+    removeAgent,
+    refetch
   } = props;
 
   const mainContent = (
@@ -106,7 +110,7 @@ const AgentList = (props: IProps) => {
   );
 
   const agentForm = (props) => {
-    return <AgentForm {...props} queryParams={queryParams} />;
+    return <AgentForm {...props} queryParams={queryParams} refetch={refetch} />;
   };
 
   const actionBarRight = () => {
@@ -116,7 +120,7 @@ const AgentList = (props: IProps) => {
           type="text"
           placeholder={__("Type to search")}
           onChange={search}
-          value={searchValue}
+          value={number}
           autoFocus={true}
           onFocus={moveCursorAtTheEnd}
         />
@@ -135,7 +139,7 @@ const AgentList = (props: IProps) => {
 
   const actionBarLeft = (
     <Title>
-      <div>Agents</div>
+      <div>{__('Agents')}</div>
     </Title>
   );
 
@@ -153,9 +157,7 @@ const AgentList = (props: IProps) => {
       }
       actionBar={actionBar}
       footer={<Pagination count={totalCount} />}
-      leftSidebar={
-        <div />
-      }
+      leftSidebar={<Sidebar queryParams={queryParams} />}
       content={
         <>
           <Count>

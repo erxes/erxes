@@ -47,15 +47,17 @@ const AgentListContainer = ({ queryParams }: Props) => {
       });
   };
 
-  const updatedProps = {
-    totalCount,
-    searchValue: queryParams.searchValue || "",
-    agents: list,
-    removeAgent
-  };
-
   const refetch = () => {
     refetchMainQuery();
+  };
+
+  const updatedProps = {
+    totalCount,
+    number: queryParams.number || "",
+    agents: list,
+    removeAgent,
+    refetch: refetchMainQuery,
+    queryParams
   };
 
   const agentList = (props) => {
@@ -67,10 +69,10 @@ const AgentListContainer = ({ queryParams }: Props) => {
 
 const generateParams = (queryParams) => ({
   ...router.generatePaginationParams(queryParams || {}),
-  ids: queryParams.ids,
-  agentId: queryParams.agentId,
+  customerIds: queryParams.customerIds,
+  companyIds: queryParams.companyIds,
   status: queryParams.status,
-  searchValue: queryParams.searchValue,
+  number: queryParams.number,
   sortField: queryParams.sortField,
   sortDirection: Number(queryParams.sortDirection) || undefined,
 });
