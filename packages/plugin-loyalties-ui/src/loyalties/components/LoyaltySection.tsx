@@ -138,43 +138,48 @@ class LoyaltySection extends React.Component<IProps, State> {
   }
 
   renderScoreLog() {
-    const { ownerId, ownerType, scoreLogs } = this.props;
+  const { ownerId, ownerType, scoreLogs } = this.props;
 
-    if (!scoreLogs.length) {
-      return '';
-    }
-
-    const status = {
-      earned: 0,
-      redeemed: 0,
-      balance: 0,
-    };
-
-    (scoreLogs || []).forEach((scoreLog) => {
-      const { action, changeScore } = scoreLog;
-
-      const finalAction = action ?? (changeScore > 0 ? 'add' : 'subtract');
-
-      if (finalAction === 'add') {
-        status.earned += Math.abs(changeScore);
-      } else if (finalAction === 'subtract') {
-        status.redeemed += Math.abs(changeScore);
-      }
-    });
-
-    status.balance = status.earned - status.redeemed;
-
-    return (
-      <BoxContainer className="no-link">
-        <li>Earned: {status.earned}</li>
-        <li>Redeemed: {status.redeemed}</li>
-        <li>Balance: {status.balance}</li>
-        <Link to={`/score?ownerId=${ownerId}&ownerType=${ownerType}`}>
-          <li>See more</li>
-        </Link>
-      </BoxContainer>
-    );
+  if (!scoreLogs.length) {
+    return '';
   }
+
+  const status = {
+    earned: 0,
+    redeemed: 0,
+    refunded: 0,
+    balance: 0,
+  };
+
+  (scoreLogs || []).forEach((scoreLog) => {
+    const { action, changeScore } = scoreLog;
+
+    const finalAction = action ?? (changeScore > 0 ? 'add' : 'subtract');
+
+    if (finalAction === 'add') {
+      status.earned += Math.abs(changeScore);
+    } else if (finalAction === 'subtract') {
+      status.redeemed += Math.abs(changeScore);
+    } else if (finalAction === 'refund') {
+      status.refunded += Math.abs(changeScore);
+      status.redeemed += Math.abs(changeScore); 
+    }
+  });
+
+  status.balance = status.earned - status.redeemed;
+
+  return (
+    <BoxContainer className="no-link">
+      <li>Earned: {status.earned}</li>
+      <li>Redeemed: {status.redeemed}</li>
+      <li>Refunded: {status.refunded}</li>
+      <li>Balance: {status.balance}</li>
+      <Link to={`/score?ownerId=${ownerId}&ownerType=${ownerType}`}>
+        <li>See more</li>
+      </Link>
+    </BoxContainer>
+  );
+}
 
   renderEmpty() {
     const { vouchers, spins, donates, lotteries } = this.props;

@@ -17,6 +17,10 @@ const paramDefs = `
   $spinCount: Float,
   $lotteryCampaignId: String,
   $lotteryCount: Float,
+
+  $kind: Kind
+  $value: Int
+  $restrictions: JSON
 `;
 
 const params = `
@@ -35,6 +39,10 @@ const params = `
   spinCount: $spinCount
   lotteryCampaignId: $lotteryCampaignId
   lotteryCount: $lotteryCount
+
+  kind: $kind
+  value: $value
+  restrictions: $restrictions
 `;
 
 const voucherCampaignsAdd = `

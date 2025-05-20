@@ -69,5 +69,6 @@ export interface IOrderInput {
   subscriptionId?: string;
   isSingle?: boolean;
   deviceId?: string;
-  couponCode?: any;
+  couponCode?: string;
+  voucherId?: string;
 }
