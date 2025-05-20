@@ -939,9 +939,9 @@ export const doScoreCampaign = async (
           });
 
           if (scoreCampaign) {
-            const { additionalConfig = [] } = scoreCampaign || {};
+            const { additionalConfig = {} } = scoreCampaign || {};
 
-            const stageIds = additionalConfig?.flatMap(
+            const stageIds = additionalConfig?.cardBasedRule?.flatMap(
               ({ stageIds }) => stageIds
             ) || [];
 
