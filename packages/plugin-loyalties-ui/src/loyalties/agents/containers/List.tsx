@@ -73,8 +73,6 @@ const generateParams = (queryParams) => ({
   companyIds: queryParams.companyIds,
   status: queryParams.status,
   number: queryParams.number,
-  sortField: queryParams.sortField,
-  sortDirection: Number(queryParams.sortDirection) || undefined,
 });
 
 export default AgentListContainer;

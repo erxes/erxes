@@ -1,11 +1,10 @@
 import _ from "lodash";
 import Form from "../containers/Form";
 import React from "react";
-import { FlexItem } from "../../common/styles";
 import { formatValue } from "@erxes/ui/src/utils";
 import { IQueryParams } from "@erxes/ui/src/types";
 import { IAgentDocument } from "../types";
-import { ActionButtons, Button, ModalTrigger, Tip } from "@erxes/ui/src/components";
+import { ActionButtons, Button, ModalTrigger, TextInfo, Tip } from "@erxes/ui/src/components";
 
 type Props = {
   agent: IAgentDocument;
@@ -14,16 +13,6 @@ type Props = {
 };
 
 class AgentRow extends React.Component<Props> {
-  displayValue(agent, name) {
-    const value = _.get(agent, name);
-
-    if (name === "primaryName") {
-      return <FlexItem>{formatValue(agent.primaryName)}</FlexItem>;
-    }
-
-    return formatValue(value);
-  }
-
   modalContent = (props) => {
     const { agent } = this.props;
 
@@ -48,11 +37,18 @@ class AgentRow extends React.Component<Props> {
       removeAgent(agent._id);
     };
 
+    const styleOfStatus = agent.status === 'active' ? 'success' : 'default';
+    const styleOfReturn = agent.hasReturn ===  true ? 'warning' : 'simple';
+
     const trigger = (
       <tr>
-        <td key="number">{this.displayValue(agent, "number")}</td>
-        <td key="status">{this.displayValue(agent, "status")}</td>
-        <td key="hasReturn">{this.displayValue(agent, "hasReturn")}</td>
+        <td key="number">{agent.number}</td>
+        <td key="status">
+          <TextInfo $textStyle={styleOfStatus}>{agent.status}</TextInfo>
+        </td>
+        <td key="hasReturn">
+          <TextInfo $textStyle={styleOfReturn}>{formatValue(agent.hasReturn)}</TextInfo>
+        </td>
         <td key="productRules">{productRuleNames}</td>
         <td key="actions" onClick={onClick}>
           <ActionButtons>

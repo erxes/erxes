@@ -5,7 +5,6 @@ import {
   FormControl,
   ModalTrigger,
   Pagination,
-  SortHandler,
   Table,
 } from "@erxes/ui/src/components";
 import {
@@ -76,15 +75,9 @@ const AgentList = (props: IProps) => {
       <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
         <thead>
           <tr>
-            <th>
-              <SortHandler sortField={"number"} label={__("Number")} />
-            </th>
-            <th>
-              <SortHandler sortField={"status"} label={__("Status")} />
-            </th>
-            <th>
-              <SortHandler sortField={"hasReturn"} label={__("Has Return")} />
-            </th>
+            <th>{__("Number")}</th>
+            <th>{__("Status")}</th>
+            <th>{__("Has Return")}</th>
             <th>{__('Product rules')}</th>
             <th>Actions</th>
           </tr>

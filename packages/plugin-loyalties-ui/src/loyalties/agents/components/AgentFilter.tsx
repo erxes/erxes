@@ -42,7 +42,7 @@ const AgentFilter = (props: IProps) => {
     <Sidebar>
       <Section $collapsible={false}>
         <Section.Title>
-          {__("Addition filters")}
+          {__("Additional filters")}
           <Section.QuickButtons>
             {(qp.status || qp.customerIds || qp.companyIds) && (
               <a href="#cancel" tabIndex={0} onClick={clearFilter}>
