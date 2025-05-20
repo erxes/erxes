@@ -51,8 +51,8 @@ const listParams = `
   companyIds: $companyIds
 `;
 
-const pageParamDefs = `$page: Int, $perPage: Int, $sortField: String, $sortDirection: String`;
-const pageParams = `page: $page, perPage: $perPage, sortField: $sortField, sortDirection: $sortDirection`;
+const pageParamDefs = `$page: Int, $perPage: Int`;
+const pageParams = `page: $page, perPage: $perPage`;
 
 const agentsMain = `
   query agentsMain(${pageParamDefs}, ${listParamDefs}) {

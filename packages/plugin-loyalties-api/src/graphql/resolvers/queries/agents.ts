@@ -5,8 +5,6 @@ import { paginate } from "@erxes/api-utils/src";
 interface IPaginationParams {
   page?: number;
   perPage?: number;
-  sortField?: string;
-  sortDirection?: number;
 }
 
 interface IListParams extends IPaginationParams {

@@ -56,9 +56,7 @@ const listParams = `
 
 const pageParams = `
   page: Int,
-  perPage: Int,
-  sortField: String,
-  sortDirection: String
+  perPage: Int
 `;
 
 export const queries = `
