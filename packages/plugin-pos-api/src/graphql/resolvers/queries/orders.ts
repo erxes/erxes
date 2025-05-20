@@ -264,7 +264,7 @@ export const posOrderRecordsQuery = async (
   }
 
   const customerIds = orders
-    .filter(o => (o.customerType || "customer" === "customer") && o.customerId)
+    .filter(o => (o.customerType || "customer") === "customer" && o.customerId)
     .map(o => o.customerId);
   const companyIds = orders
     .filter(o => o.customerType === "company" && o.customerId)
