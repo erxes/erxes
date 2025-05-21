@@ -25,96 +25,7 @@ const activityLogQueries = {
    * Get activity log list
    */
   async activityLogs(_root, doc: IListArgs, { models, subdomain }: IContext) {
-    const { contentId, contentType, activityType } = doc;
-
-    const activities: any[] = [];
-
-    if (activityType && activityType !== "activity") {
-      const serviceName = activityType.split(":")[0];
-
-      if (serviceName === "core") {
-        const logType = activityType.split(":")[1];
-
-        switch (logType) {
-          case "internalNote":
-            const notes = await models.InternalNotes.find({
-              contentTypeId: contentId
-            }).sort({ createdAt: -1 });
-
-            for (const note of notes) {
-              note.contentType = "core:internalNote";
-            }
-
-            return notes;
-
-          default:
-            break;
-        }
-      }
-
-      const result = await fetchServiceSegments(
-        subdomain,
-        serviceName,
-        "collectItems",
-        { contentId, contentType, activityType },
-        ""
-      );
-
-      const { data } = result;
-
-      return data;
-    }
-
-    const services = await getServices();
-    const activityLogs = await models.ActivityLogs.find({
-      contentId
-    }).lean();
-
-    for (const serviceName of services) {
-      const service = await getService(serviceName);
-      const meta = service.config.meta || {};
-
-      if (meta && meta.logs) {
-        const logs = meta.logs;
-
-        if (logs.providesActivityLog) {
-          const result = await fetchServiceSegments(
-            subdomain,
-            serviceName,
-            "collectItems",
-            { contentId, contentType, activityLogs },
-            ""
-          );
-
-          const { data } = result;
-
-          if (Array.isArray(data) && data.length > 0) {
-            activities.push(...data);
-          }
-        }
-      }
-    }
-
-    const notes =
-      (await models.InternalNotes.find({
-        contentTypeId: contentId
-      })
-        .lean()
-        .sort({ createdAt: -1 })) || [];
-
-    for (const note of notes) {
-      note.contentType = "core:internalNote";
-
-      activities.push(note);
-    }
-
-    activities.push(...activityLogs);
-
-    activities.sort((a, b) => {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
-
-    return activities;
+    return await Activities(subdomain,models, doc)
   },
 
   async activityLogsByAction(
@@ -206,3 +117,95 @@ const activityLogQueries = {
 moduleRequireLogin(activityLogQueries);
 
 export default activityLogQueries;
+export const Activities = async (subdomain,models, query) => {
+    const { contentId, contentType, activityType } = query;
+    console.log(query,'query')
+    const activities: any[] = [];
+
+    if (activityType && activityType !== "activity") {
+      const serviceName = activityType.split(":")[0];
+
+      if (serviceName === "core") {
+        const logType = activityType.split(":")[1];
+
+        switch (logType) {
+          case "internalNote":
+            const notes = await models.InternalNotes.find({
+              contentTypeId: contentId
+            }).sort({ createdAt: -1 });
+
+            for (const note of notes) {
+              note.contentType = "core:internalNote";
+            }
+
+            return notes;
+
+          default:
+            break;
+        }
+      }
+
+      const result = await fetchServiceSegments(
+        subdomain,
+        serviceName,
+        "collectItems",
+        { contentId, contentType, activityType },
+        ""
+      );
+
+      const { data } = result;
+
+      return data;
+    }
+
+    const services = await getServices();
+    const activityLogs = await models.ActivityLogs.find({
+      contentId
+    }).lean();
+
+    for (const serviceName of services) {
+      const service = await getService(serviceName);
+      const meta = service.config.meta || {};
+
+      if (meta && meta.logs) {
+        const logs = meta.logs;
+
+        if (logs.providesActivityLog) {
+          const result = await fetchServiceSegments(
+            subdomain,
+            serviceName,
+            "collectItems",
+            { contentId, contentType, activityLogs },
+            ""
+          );
+
+          const { data } = result;
+
+          if (Array.isArray(data) && data.length > 0) {
+            activities.push(...data);
+          }
+        }
+      }
+    }
+
+    const notes =
+      (await models.InternalNotes.find({
+        contentTypeId: contentId
+      })
+        .lean()
+        .sort({ createdAt: -1 })) || [];
+
+    for (const note of notes) {
+      note.contentType = "core:internalNote";
+
+      activities.push(note);
+    }
+
+    activities.push(...activityLogs);
+
+    activities.sort((a, b) => {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+    return activities;
+}

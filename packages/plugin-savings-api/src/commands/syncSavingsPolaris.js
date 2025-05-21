@@ -1,3 +1,4 @@
+// @ts-nocheck
 const dotenv = require('dotenv');
 const fetch = require('node-fetch');
 const http = require('http');

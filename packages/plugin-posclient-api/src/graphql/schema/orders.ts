@@ -78,6 +78,7 @@ const addEditParams = `
   isSingle: Boolean,
   deviceId: String,
   couponCode: String
+  voucherId: String
 `;
 
 export const types = `

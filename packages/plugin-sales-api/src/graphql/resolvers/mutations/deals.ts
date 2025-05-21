@@ -5,6 +5,7 @@ import { IContext } from "../../../connectionResolver";
 import { IItemDragCommonFields } from "../../../models/definitions/boards";
 import { IDeal, IProductData } from "../../../models/definitions/deals";
 import {
+  checkPricing,
   confirmLoyalties,
   doScoreCampaign,
   itemResolver,
@@ -91,6 +92,7 @@ const dealMutations = {
         );
         doc.assignedUserIds = assignedUserIds;
       }
+      doc.productsData = await checkPricing(subdomain, models, { ...oldDeal, ...doc })
     }
 
     await doScoreCampaign(subdomain, models, _id, doc);

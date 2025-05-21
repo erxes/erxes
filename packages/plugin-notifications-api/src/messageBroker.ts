@@ -24,12 +24,15 @@ interface ISendNotification {
   action: string;
   contentType: string;
   contentTypeId: string;
+  toMail: string,
 }
+
+
 
 const sendNotification = async (
   models: IModels,
   subdomain: string,
-  doc: ISendNotification
+  doc: ISendNotification,
 ) => {
   const {
     createdUser,
@@ -39,50 +42,48 @@ const sendNotification = async (
     notifType,
     action,
     contentType,
-    contentTypeId
+    contentTypeId,
   } = doc;
 
-  let link = doc.link;
-
+  let { link } = doc;
   // remove duplicated ids
   const receiverIds = Array.from(new Set(receivers));
 
   await sendCoreMessage({
     subdomain,
-    action: "users.updateMany",
+    action: 'users.updateMany',
     data: {
       selector: {
-        _id: { $in: receiverIds }
+        _id: { $in: receiverIds },
       },
       modifier: {
-        $set: { isShowNotification: false }
-      }
-    }
+        $set: { isShowNotification: false },
+      },
+    },
   });
 
   // collecting emails
   const recipients = await sendCoreMessage({
     subdomain,
-    action: "users.find",
+    action: 'users.find',
     data: {
       query: {
         _id: { $in: receiverIds },
-        isActive: true
-      }
+        isActive: true,
+      },
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
-
   // collect recipient emails
+
   const toEmails: string[] = [];
 
   for (const recipient of recipients) {
-    if (recipient.getNotificationByEmail && recipient.email) {
+    if (recipient.email) {
       toEmails.push(recipient.email);
     }
   }
-
   // loop through receiver ids
   for (const receiverId of receiverIds) {
     try {
@@ -96,9 +97,9 @@ const sendNotification = async (
           receiver: receiverId,
           action,
           contentType,
-          contentTypeId
+          contentTypeId,
         },
-        createdUser._id
+        createdUser._id,
       );
 
       graphqlPubsub.publish(`notificationInserted:${subdomain}:${receiverId}`, {
@@ -106,52 +107,59 @@ const sendNotification = async (
           _id: notification._id,
           userId: receiverId,
           title: notification.title,
-          content: notification.content
-        }
+          content: notification.content,
+        },
       });
     } catch (e) {
       // Any other error is serious
-      if (e.message !== "Configuration does not exist") {
+      if (e.message !== 'Configuration does not exist') {
         throw e;
       }
     }
   } // end receiverIds loop
 
-  const DOMAIN = getEnv({ name: "DOMAIN", subdomain });
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
 
   link = `${DOMAIN}${link}`;
 
   // for controlling email template data filling
   const modifier = (data: any, email: string) => {
-    const user = recipients.find(item => item.email === email);
+    const user = recipients.find((item) => item.email === email);
 
     if (user) {
       data.uid = user._id;
     }
   };
 
-  try {
-    sendCoreMessage({
-      subdomain,
-      action: "sendEmail",
-      data: {
-        toEmails,
-        title: "Notification",
-        template: {
-          name: "notification",
-          data: {
-            notification: { ...doc, link },
-            action,
-            userName: getUserDetail(createdUser)
-          }
+  sendCoreMessage({
+    subdomain,
+    action: 'sendEmail',
+    data: {
+      toEmails,
+      title: 'Notification',
+      template: {
+        name: 'notification',
+        data: {
+          notification: { ...doc, link },
+          action,
+          userName: getUserDetail(createdUser),
         },
-        modifier
-      }
-    });
-  } catch (err) {
-    debugError(err.message);
-  }
+      },
+      modifier,
+    },
+  });
 };
+
+async function markNotificationsAsUnread(subdomain: string, receiverIds: string[]) {
+  await sendCoreMessage({
+    subdomain,
+    action: "users.updateMany",
+    data: {
+      selector: { _id: { $in: receiverIds } },
+      modifier: { $set: { isShowNotification: false } }
+    }
+  });
+}
 
 export const setupMessageConsumers = async () => {
   consumeQueue("notifications:send", async ({ subdomain, data }) => {

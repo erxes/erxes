@@ -2,6 +2,15 @@ import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { generateSort } from '../../../utils';
 
+const addDateRangeFilter = (filter: any, field: string, from: any, to: any) => {
+  if (from) {
+    filter[field] = { $gte: from };
+  }
+  if (to) {
+    filter[field] = { ...filter[field], $lte: to };
+  }
+};
+
 const generateFilters = params => {
   const filter: any = { status: { $ne: 'archived' } };
 
@@ -21,54 +30,37 @@ const generateFilters = params => {
     filter.name = { $regex: new RegExp(params.searchValue, 'i') };
   }
 
-  if (params.createDateFrom) {
-    filter.createDate = { $gte: params.createdAtFrom };
-  }
-
-  if (params.createDateTo) {
-    filter.createDate = { ...filter?.createDate, $gte: params.createDateTo };
-  }
-
-  if (params.startDateFrom) {
-    filter.startDate = { $gte: params.startDateFrom };
-  }
-
-  if (params.startDateTo) {
-    filter.startDate = { ...filter?.startDate, $gte: params.startDateTo };
-  }
-
-  if (params.closeDateFrom) {
-    filter.closeDate = { $gte: params.closeDateFrom };
-  }
-
-  if (params.closeDateTo) {
-    filter.closeDate = {
-      ...filter?.closeDate,
-      $gte: params.closeDateTo
-    };
-  }
-
-  if (params.createdAtFrom) {
-    filter.createdAt = { $gte: params.createdAtFrom };
-  }
-
-  if (params.createdAtTo) {
-    filter.createdAt = {
-      ...filter?.createdAt,
-      $gte: params.createdAtTo
-    };
-  }
-
-  if (params.modifiedAtFrom) {
-    filter.modifiedAt = { $gte: params.modifiedAtFrom };
-  }
-
-  if (params.modifiedAtTo) {
-    filter.modifiedAt = {
-      ...filter?.modifiedAt,
-      $gte: params.modifiedAtTo
-    };
-  }
+  // Handle all date range filters
+  addDateRangeFilter(
+    filter,
+    'createDate',
+    params.createDateFrom,
+    params.createDateTo
+  );
+  addDateRangeFilter(
+    filter,
+    'startDate',
+    params.startDateFrom,
+    params.startDateTo
+  );
+  addDateRangeFilter(
+    filter,
+    'closeDate',
+    params.closeDateFrom,
+    params.closeDateTo
+  );
+  addDateRangeFilter(
+    filter,
+    'createdAt',
+    params.createdAtFrom,
+    params.createdAtTo
+  );
+  addDateRangeFilter(
+    filter,
+    'modifiedAt',
+    params.modifiedAtFrom,
+    params.modifiedAtTo
+  );
 
   if (params.tagIds) {
     filter.tagId = { $in: params.tagIds };
@@ -107,7 +99,7 @@ const RiskAssessmentPlansQueries = {
     { models }: IContext
   ) {
     return await models.Schedules.countDocuments({ planId });
-  }
+  },
 };
 
 export default RiskAssessmentPlansQueries;

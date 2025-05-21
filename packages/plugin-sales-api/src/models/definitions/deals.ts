@@ -4,6 +4,7 @@ import { commonItemFieldsSchema, IItemCommonFields } from './boards';
 import { field } from './utils';
 
 export interface IProductData extends Document {
+  _id?: string;
   productId: string;
   uom: string;
   currency: string;
@@ -17,6 +18,7 @@ export interface IProductData extends Document {
   vatPercent?: number;
   discountPercent?: number;
   discount?: number;
+  bonusCount?: number;
   amount?: number;
   tickUsed?: boolean;
   isVatApplied?: boolean;
@@ -65,6 +67,7 @@ export const productDataSchema = new Schema(
     tax: field({ type: Number, label: 'Tax' }), // Tax
     discountPercent: field({ type: Number, label: 'Discount percent' }), // Discount percent
     discount: field({ type: Number, label: 'Discount' }), // Discount
+    bonusCount: field({ type: Number, label: 'Bonus Count' }), // Discount
     amount: field({ type: Number, label: 'Amount' }), // Amount
     tickUsed: field({ type: Boolean, label: 'Tick used' }), // TickUsed
     isVatApplied: field({ type: Boolean, label: 'Is vat applied' }), // isVatApplied

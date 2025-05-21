@@ -4,10 +4,7 @@ import {
 } from "@erxes/api-utils/src/automations";
 import { generateModels, IModels } from "./connectionResolver";
 import { itemsAdd } from "./graphql/resolvers/mutations/utils";
-import {
-  sendCommonMessage,
-  sendCoreMessage
-} from "./messageBroker";
+import { sendCommonMessage, sendCoreMessage } from "./messageBroker";
 import { getCollection } from "./models/utils";
 
 const getRelatedValue = async (
@@ -289,6 +286,53 @@ const getItems = async (
 };
 
 export default {
+  checkCustomTrigger: async ({ subdomain, data }) => {
+    const { collectionType, target, config } = data;
+    const models = await generateModels(subdomain);
+
+    if (collectionType === "task.probability") {
+      const { boardId, pipelineId, stageId, probability } = config || {};
+
+      if (!probability) {
+        return false;
+      }
+
+      const filter = { _id: target?.stageId, probability };
+      if (stageId && stageId !== target.stageId) {
+        return false;
+      }
+
+      if (!stageId && pipelineId) {
+        const stageIds = await models.Stages.find({
+          pipelineId,
+          probability
+        }).distinct("_id");
+
+        if (!stageIds.find(stageId => target.stageId === stageId)) {
+          return false;
+        }
+      }
+
+      if (!stageId && !pipelineId && boardId) {
+        const pipelineIds = await models.Pipelines.find({ boardId }).distinct(
+          "_id"
+        );
+
+        const stageIds = await models.Stages.find({
+          pipelineId: { $in: pipelineIds },
+          probability
+        }).distinct("_id");
+
+        if (!stageIds.find(stageId => target.stageId === stageId)) {
+          return false;
+        }
+      }
+
+      return !!(await models.Stages.findOne(filter));
+    }
+
+    return false;
+  },
   receiveActions: async ({
     subdomain,
     data: { action, execution, collectionType, triggerType, actionType }
@@ -351,6 +395,15 @@ export default {
         label: "Task",
         description:
           "Start with a blank workflow that enrolls and is triggered off task"
+      },
+      {
+        type: "tasks:task.probability",
+        img: "automation3.svg",
+        icon: "file-plus-alt",
+        label: "Task stage probability based",
+        description:
+          "Start with a blank workflow that triggered off task item stage probability",
+        isCustom: true
       }
     ],
     actions: [

@@ -1,33 +1,33 @@
-import { generateFieldsFromSchema } from "@erxes/api-utils/src";
-import { generateModels, IModels } from "./connectionResolver";
+import { generateFieldsFromSchema } from '@erxes/api-utils/src';
+import { generateModels, IModels } from './connectionResolver';
 import {
   USER_EXPORT_EXTENDED_FIELDS,
   USER_EXTENDED_FIELDS,
-  USER_PROPERTIES_INFO
-} from "./constants";
+  USER_PROPERTIES_INFO,
+} from './constants';
 import {
   COMPANY_INFO,
   CUSTOMER_BASIC_INFO,
-  DEVICE_PROPERTIES_INFO
-} from "./data/modules/coc/constants";
+  DEVICE_PROPERTIES_INFO,
+} from './data/modules/coc/constants';
 import {
   PRODUCT_EXTEND_FIELDS,
-  PRODUCT_INFO
-} from "./data/modules/product/constants";
-import { escapeRegExp } from "@erxes/api-utils/src/core";
-import { sendInboxMessage } from "./messageBroker";
-import { fetchEs } from "@erxes/api-utils/src/elasticsearch";
-import { fieldsCombinedByContentType } from "./formUtils";
+  PRODUCT_INFO,
+} from './data/modules/product/constants';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
+import { sendInboxMessage } from './messageBroker';
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import { fieldsCombinedByContentType } from './formUtils';
 
 const EXTEND_FIELDS = {
   CUSTOMER: [
-    { name: "companiesPrimaryNames", label: "Company Primary Names" },
-    { name: "companiesPrimaryEmails", label: "Company Primary Emails" }
+    { name: 'companiesPrimaryNames', label: 'Company Primary Names' },
+    { name: 'companiesPrimaryEmails', label: 'Company Primary Emails' },
   ],
   ALL: [
-    { name: "tag", label: "Tag" },
-    { name: "ownerEmail", label: "Owner email" }
-  ]
+    { name: 'tag', label: 'Tag' },
+    { name: 'ownerEmail', label: 'Owner email' },
+  ],
 };
 
 const generateBrandsOptions = async (
@@ -41,7 +41,7 @@ const generateBrandsOptions = async (
 
   const options: Array<{ label: string; value: any }> = brands.map(brand => ({
     value: brand._id,
-    label: brand.name || brand._id
+    label: brand.name || brand._id,
   }));
 
   return {
@@ -49,24 +49,16 @@ const generateBrandsOptions = async (
     name,
     label,
     type,
-    selectOptions: options
+    selectOptions: options,
   };
 };
 
-const generateUsersOptions = async (
+const generateUsersOptions = (
   name: string,
   label: string,
   type: string,
   selectionConfig?: any
 ) => {
-  // const models = await generateModels(subdomain);
-  // const users = await models.Users.find({}).lean();
-
-  // const options: Array<{ label: string; value: any }> = users.map((user) => ({
-  //   value: user._id,
-  //   label: user.username || user.email || '',
-  // }));
-
   return {
     _id: Math.random(),
     name,
@@ -74,10 +66,9 @@ const generateUsersOptions = async (
     type,
     selectionConfig: {
       ...selectionConfig,
-      queryName: "users",
-      labelField: "email"
-    }
-    // selectOptions: options
+      queryName: 'users',
+      labelField: 'email',
+    },
   };
 };
 
@@ -85,23 +76,23 @@ const getFormSubmissionFields = async (subdomain, config) => {
   const models = await generateModels(subdomain);
 
   const fields = await fieldsCombinedByContentType(models, subdomain, {
-    contentType: "core:form_submission",
-    config
+    contentType: 'core:form_submission',
+    config,
   });
 
   return fields.map(field => ({
     ...field,
-    label: `form_submission:${field?.label || ""}`
+    label: `form_submission:${field?.label || ''}`,
   }));
 };
 
 const getIntegrations = async (subdomain: string) => {
   const integrations = await sendInboxMessage({
     subdomain,
-    action: "integrations.find",
+    action: 'integrations.find',
     data: { query: {} },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   const selectOptions: Array<{ label: string; value: any }> = [];
@@ -109,15 +100,15 @@ const getIntegrations = async (subdomain: string) => {
   for (const integration of integrations) {
     selectOptions.push({
       value: integration._id,
-      label: integration.name
+      label: integration.name,
     });
   }
 
   return {
     _id: Math.random(),
-    name: "relatedIntegrationIds",
-    label: "Related integration",
-    selectOptions
+    name: 'relatedIntegrationIds',
+    label: 'Related integration',
+    selectOptions,
   };
 };
 
@@ -129,21 +120,21 @@ const getCategories = async (models: IModels) => {
   const selectOptions: Array<{ label: string; value: any }> = [];
 
   for (const category of categories) {
-    let step = (category.order || "/").split("/").length - 2;
+    let step = (category.order || '/').split('/').length - 2;
     if (step < 0) step = 0;
 
     selectOptions.push({
       value: category._id,
-      label: `${".".repeat(step)}${category.code} - ${category.name}`
+      label: `${'.'.repeat(step)}${category.code} - ${category.name}`,
     });
   }
 
   return {
     _id: Math.random(),
-    name: "categoryId",
-    label: "Categories",
-    type: "category",
-    selectOptions
+    name: 'categoryId',
+    label: 'Categories',
+    type: 'category',
+    selectOptions,
   };
 };
 
@@ -156,16 +147,16 @@ const getTags = async (subdomain: string, type: string) => {
   for (const tag of tags) {
     selectOptions.push({
       value: tag._id,
-      label: tag.name
+      label: tag.name,
     });
   }
 
   return {
     _id: Math.random(),
-    name: "tagIds",
-    label: "Tag",
-    type: "tag",
-    selectOptions
+    name: 'tagIds',
+    label: 'Tag',
+    type: 'tag',
+    selectOptions,
   };
 };
 
@@ -187,12 +178,12 @@ const generateProductsFields = async ({ subdomain, data }) => {
   }> = [];
 
   fields = PRODUCT_EXTEND_FIELDS;
-  const tags = await getTags(subdomain, "core:product");
+  const tags = await getTags(subdomain, 'core:product');
   const categories = await getCategories(models);
 
   fields = [...fields, categories, tags];
   if (schema) {
-    fields = [...fields, ...(await generateFieldsFromSchema(schema, ""))];
+    fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
 
     for (const name of Object.keys(schema.paths)) {
       const path = schema.paths[name];
@@ -200,36 +191,52 @@ const generateProductsFields = async ({ subdomain, data }) => {
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
         ];
       }
     }
   }
 
-  if (usageType === "export") {
+  if (usageType === 'export') {
     fields = [
       ...fields,
-      { _id: Math.random(), name: "subUoms.code", label: "Sub Uom Code" },
-      { _id: Math.random(), name: "subUoms.name", label: "Sub Uom Name" },
+      { _id: Math.random(), name: 'subUoms.code', label: 'Sub Uom Code' },
+      { _id: Math.random(), name: 'subUoms.name', label: 'Sub Uom Name' },
       {
         _id: Math.random(),
-        name: "subUoms.subratio",
-        label: "Sub Uoam Ratio"
-      }
+        name: 'subUoms.subratio',
+        label: 'Sub Uoam Ratio',
+      },
     ];
   }
 
-  if (["import", "export"].includes(usageType)) {
+  if (['import', 'export'].includes(usageType)) {
     fields = [
       ...fields,
       {
         _id: Math.random(),
-        name: "categoryName",
-        label: "Category Name",
-        type: "string"
-      }
+        name: 'categoryName',
+        label: 'Category Name',
+        type: 'string',
+      },
     ];
   }
+
+  fields = fields.map(field =>
+    field.name === 'vendorId'
+      ? {
+          _id: Math.random(),
+          name: 'vendorId',
+          label: 'Vendor',
+          type: 'company',
+          selectionConfig: {
+            queryName: 'companies',
+            labelField: 'primaryName',
+          },
+        }
+      : // generateUsersOptions("vendorId", "Vendor", "user")
+        field
+  );
 
   return fields;
 };
@@ -254,21 +261,21 @@ export const generateContactsFields = async ({ subdomain, data }) => {
   }> = [];
 
   switch (type) {
-    case "lead":
+    case 'lead':
       schema = Customers.schema;
 
-    case "customer":
+    case 'customer':
       schema = Customers.schema;
       break;
 
-    case "company":
+    case 'company':
       schema = Companies.schema;
       break;
   }
 
   if (schema) {
     // generate list using customer or company schema
-    fields = [...fields, ...(await generateFieldsFromSchema(schema, ""))];
+    fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
 
     for (const name of Object.keys(schema.paths)) {
       const path = schema.paths[name];
@@ -277,37 +284,37 @@ export const generateContactsFields = async ({ subdomain, data }) => {
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
         ];
       }
     }
   }
 
-  if (!usageType || usageType === "export") {
+  if (!usageType || usageType === 'export') {
     const aggre = await fetchEs({
       subdomain,
-      action: "search",
-      index: type === "company" ? "companies" : "customers",
+      action: 'search',
+      index: type === 'company' ? 'companies' : 'customers',
       body: {
         size: 0,
         _source: false,
         aggs: {
           trackedDataKeys: {
             nested: {
-              path: "trackedData"
+              path: 'trackedData',
             },
             aggs: {
               fieldKeys: {
                 terms: {
-                  field: "trackedData.field",
-                  size: 10000
-                }
-              }
-            }
-          }
-        }
+                  field: 'trackedData.field',
+                  size: 10000,
+                },
+              },
+            },
+          },
+        },
       },
-      defaultValue: { aggregations: { trackedDataKeys: {} } }
+      defaultValue: { aggregations: { trackedDataKeys: {} } },
     });
 
     const aggregations = aggre.aggregations || { trackedDataKeys: {} };
@@ -318,21 +325,21 @@ export const generateContactsFields = async ({ subdomain, data }) => {
       fields.push({
         _id: Math.random(),
         name: `trackedData.${bucket.key}`,
-        label: bucket.key
+        label: bucket.key,
       });
     }
   }
 
-  const ownerOptions = await generateUsersOptions("ownerId", "Owner", "user");
+  const ownerOptions = generateUsersOptions('ownerId', 'Owner', 'user');
 
   const tags = await getTags(
     subdomain,
-    `contacts:${["lead", "visitor"].includes(type) ? "customer" : type}`
+    `contacts:${['lead', 'visitor'].includes(type) ? 'customer' : type}`
   );
 
   fields = [...fields, tags];
 
-  if (type === "customer" || type === "lead") {
+  if (type === 'customer' || type === 'lead') {
     const { config } = data;
 
     const integrations = await getIntegrations(subdomain);
@@ -347,26 +354,26 @@ export const generateContactsFields = async ({ subdomain, data }) => {
 
     fields = [...fields, integrations];
 
-    if (usageType === "import") {
+    if (usageType === 'import') {
       fields.push({
         _id: Math.random(),
-        name: "companiesPrimaryNames",
-        label: "Company Primary Names"
+        name: 'companiesPrimaryNames',
+        label: 'Company Primary Names',
       });
 
       fields.push({
         _id: Math.random(),
-        name: "companiesPrimaryEmails",
-        label: "Company Primary Emails"
+        name: 'companiesPrimaryEmails',
+        label: 'Company Primary Emails',
       });
     }
   }
 
   if (process.env.USE_BRAND_RESTRICTIONS) {
     const brandsOptions = await generateBrandsOptions(
-      "scopeBrandIds",
-      "Brands",
-      "brand",
+      'scopeBrandIds',
+      'Brands',
+      'brand',
       subdomain
     );
 
@@ -375,11 +382,11 @@ export const generateContactsFields = async ({ subdomain, data }) => {
 
   fields = [...fields, ownerOptions];
 
-  if (usageType === "import") {
+  if (usageType === 'import') {
     for (const extendField of EXTEND_FIELDS.ALL) {
       fields.push({
         _id: Math.random(),
-        ...extendField
+        ...extendField,
       });
     }
   }
@@ -390,32 +397,32 @@ export const generateContactsFields = async ({ subdomain, data }) => {
 const relations = type => {
   return [
     {
-      name: "customerIds",
-      label: "Customers",
-      relationType: "core:customer"
+      name: 'customerIds',
+      label: 'Customers',
+      relationType: 'core:customer',
     },
     {
-      name: "companyIds",
-      label: "Companies",
-      relationType: "core:company"
+      name: 'companyIds',
+      label: 'Companies',
+      relationType: 'core:company',
     },
-    { name: "dealIds", label: "Deals", relationType: "sales:deal" },
+    { name: 'dealIds', label: 'Deals', relationType: 'sales:deal' },
     {
-      name: "purchaseIds",
-      label: "Purchases",
-      relationType: "purchases:purchase"
+      name: 'purchaseIds',
+      label: 'Purchases',
+      relationType: 'purchases:purchase',
     },
-    { name: "taskIds", label: "Tasks", relationType: "tasks:task" },
-    { name: "ticketIds", label: "Tickets", relationType: "tickets:ticket" },
-    { name: "carIds", label: "Cars", relationType: "cars:car" }
+    { name: 'taskIds', label: 'Tasks', relationType: 'tasks:task' },
+    { name: 'ticketIds', label: 'Tickets', relationType: 'tickets:ticket' },
+    { name: 'carIds', label: 'Cars', relationType: 'cars:car' },
   ].filter(r => r.relationType !== type);
 };
 
 export const getFormFields = async (models: IModels, formId: string) => {
   return models.Fields.find({
-    contentType: "form",
+    contentType: 'form',
     isDefinedByErxes: false,
-    contentTypeId: formId
+    contentTypeId: formId,
   });
 };
 
@@ -439,17 +446,17 @@ const generateFieldsUsers = async ({ subdomain, data }) => {
 
   schema = Users.schema;
 
-  if (usageType && usageType === "import") {
+  if (usageType && usageType === 'import') {
     fields = USER_EXTENDED_FIELDS;
   }
 
-  if (usageType && usageType === "export") {
+  if (usageType && usageType === 'export') {
     fields = USER_EXPORT_EXTENDED_FIELDS;
   }
 
   if (schema) {
     // generate list using customer or company schema
-    fields = [...fields, ...(await generateFieldsFromSchema(schema, ""))];
+    fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
 
     for (const name of Object.keys(schema.paths)) {
       const path = schema.paths[name];
@@ -458,7 +465,7 @@ const generateFieldsUsers = async ({ subdomain, data }) => {
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
         ];
       }
     }
@@ -491,11 +498,11 @@ const generateFormFields = async ({ subdomain, data }) => {
       fields.push({
         _id: Math.random(),
         name: formField._id,
-        group: form ? form.title : "Fields",
+        group: form ? form.title : 'Fields',
         label: formField.text,
         options: formField.options,
         validation: formField.validation,
-        type: formField.type
+        type: formField.type,
       });
     }
   }
@@ -506,7 +513,7 @@ const generateFormFields = async ({ subdomain, data }) => {
 export const generateSystemFields = ({ data: { groupId } }) => {
   const coreFields: any = [];
 
-  const serviceName = "core";
+  const serviceName = 'core';
 
   CUSTOMER_BASIC_INFO.ALL.map(e => {
     coreFields.push({
@@ -516,7 +523,7 @@ export const generateSystemFields = ({ data: { groupId } }) => {
       validation: e.validation,
       groupId,
       contentType: `${serviceName}:customer`,
-      isDefinedByErxes: true
+      isDefinedByErxes: true,
     });
   });
 
@@ -528,7 +535,7 @@ export const generateSystemFields = ({ data: { groupId } }) => {
       validation: e.validation,
       groupId,
       contentType: `${serviceName}:company`,
-      isDefinedByErxes: true
+      isDefinedByErxes: true,
     });
   });
 
@@ -538,7 +545,7 @@ export const generateSystemFields = ({ data: { groupId } }) => {
       type: e.field,
       groupId,
       contentType: `${serviceName}:device`,
-      isDefinedByErxes: true
+      isDefinedByErxes: true,
     });
   });
 
@@ -548,7 +555,7 @@ export const generateSystemFields = ({ data: { groupId } }) => {
       type: e.field,
       groupId,
       contentType: `${serviceName}:user`,
-      isDefinedByErxes: true
+      isDefinedByErxes: true,
     });
   });
 
@@ -559,7 +566,7 @@ export const generateSystemFields = ({ data: { groupId } }) => {
       groupId,
       contentType: `${serviceName}:product`,
       canHide: false,
-      isDefinedByErxes: true
+      isDefinedByErxes: true,
     });
   });
 
@@ -569,92 +576,92 @@ export const generateSystemFields = ({ data: { groupId } }) => {
 export default {
   types: [
     {
-      description: "Customers",
-      type: "customer",
-      relations: relations("core:customer")
+      description: 'Customers',
+      type: 'customer',
+      relations: relations('core:customer'),
     },
     {
-      description: "Companies",
-      type: "company",
-      relations: relations("core:company")
+      description: 'Companies',
+      type: 'company',
+      relations: relations('core:company'),
     },
     {
-      description: "Device properties",
-      type: "device"
+      description: 'Device properties',
+      type: 'device',
     },
     {
-      description: "Team member",
-      type: "user"
+      description: 'Team member',
+      type: 'user',
     },
-    { description: "Products & services", type: "product" }
+    { description: 'Products & services', type: 'product' },
   ],
 
   defaultColumnsConfig: {
     customer: [
-      { name: "location.country", label: "Country", order: 0 },
-      { name: "firstName", label: "First name", order: 1 },
-      { name: "lastName", label: "Last name", order: 2 },
-      { name: "primaryEmail", label: "Primary email", order: 3 },
-      { name: "lastSeenAt", label: "Last seen at", order: 4 },
-      { name: "sessionCount", label: "Session count", order: 5 },
-      { name: "profileScore", label: "Profile score", order: 6 },
-      { name: "middleName", label: "Middle name", order: 7 },
-      { name: "score", label: "Score", order: 8 }
+      { name: 'location.country', label: 'Country', order: 0 },
+      { name: 'firstName', label: 'First name', order: 1 },
+      { name: 'lastName', label: 'Last name', order: 2 },
+      { name: 'primaryEmail', label: 'Primary email', order: 3 },
+      { name: 'lastSeenAt', label: 'Last seen at', order: 4 },
+      { name: 'sessionCount', label: 'Session count', order: 5 },
+      { name: 'profileScore', label: 'Profile score', order: 6 },
+      { name: 'middleName', label: 'Middle name', order: 7 },
+      { name: 'score', label: 'Score', order: 8 },
     ],
     company: [
-      { name: "primaryName", label: "Primary Name", order: 1 },
-      { name: "size", label: "Size", order: 2 },
-      { name: "links.website", label: "Website", order: 3 },
-      { name: "industry", label: "Industries", order: 4 },
-      { name: "plan", label: "Plan", order: 5 },
-      { name: "lastSeenAt", label: "Last seen at", order: 6 },
-      { name: "sessionCount", label: "Session count", order: 7 },
-      { name: "score", label: "Score", order: 8 }
-    ]
+      { name: 'primaryName', label: 'Primary Name', order: 1 },
+      { name: 'size', label: 'Size', order: 2 },
+      { name: 'links.website', label: 'Website', order: 3 },
+      { name: 'industry', label: 'Industries', order: 4 },
+      { name: 'plan', label: 'Plan', order: 5 },
+      { name: 'lastSeenAt', label: 'Last seen at', order: 6 },
+      { name: 'sessionCount', label: 'Session count', order: 7 },
+      { name: 'score', label: 'Score', order: 8 },
+    ],
   },
   groupsFilter: async ({ subdomain, data: { config } }) => {
     const { categoryId, isChosen } = config;
     if (!categoryId) {
-      return { contentType: "core:product" };
+      return { contentType: 'core:product' };
     }
 
     const models = await generateModels(subdomain);
     const category = await models.ProductCategories.findOne({
-      _id: categoryId
+      _id: categoryId,
     }).lean();
     if (!category) {
       throw new Error(`ProductCategory ${categoryId} not found`);
     }
     const categories = await models.ProductCategories.find({
-      order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) }
+      order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
     }).lean();
 
     // TODO: get recurcive parent
 
     return {
       $and: [
-        { contentType: "core:product" },
+        { contentType: 'core:product' },
         {
           $or: [
             {
               $and: [
-                { "config.categories": { $exists: true } },
+                { 'config.categories': { $exists: true } },
                 {
-                  "config.categories": {
-                    $in: categories.map(c => c._id)
-                  }
-                }
-              ]
+                  'config.categories': {
+                    $in: categories.map(c => c._id),
+                  },
+                },
+              ],
             },
-            { "config.categories": { $exists: false } },
+            { 'config.categories': { $exists: false } },
             {
-              "config.categories": {
-                $size: 0
-              }
-            }
-          ]
-        }
-      ]
+              'config.categories': {
+                $size: 0,
+              },
+            },
+          ],
+        },
+      ],
     };
   },
 
@@ -662,18 +669,18 @@ export default {
     const { type } = data;
 
     switch (type) {
-      case "lead":
+      case 'lead':
         return generateContactsFields({ subdomain, data });
-      case "customer":
-        return generateContactsFields({ subdomain, data });
-
-      case "company":
+      case 'customer':
         return generateContactsFields({ subdomain, data });
 
-      case "product":
+      case 'company':
+        return generateContactsFields({ subdomain, data });
+
+      case 'product':
         return generateProductsFields({ subdomain, data });
 
-      case "form_submission":
+      case 'form_submission':
         return generateFormFields({ subdomain, data });
 
       default:
@@ -682,5 +689,5 @@ export default {
   },
 
   systemFields: generateSystemFields,
-  systemFieldsAvailable: true
+  systemFieldsAvailable: true,
 };

@@ -11,6 +11,7 @@ import { setPtrStatus } from './utils';
 import { commonCreate } from '../utils/commonCreate';
 import { IUserDocument } from '@erxes/api-utils/src/definitions/users';
 import { commonUpdate } from '../utils/commonUpdate';
+import { getFullDate } from '@erxes/api-utils/src';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: any): Promise<ITransactionDocument>;
@@ -68,6 +69,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       }
 
       const _id = nanoid();
+      doc.fullDate = getFullDate(doc.date);
       const lastDoc = {
         ...doc,
         _id,
@@ -91,6 +93,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
     public static async updateTransaction(_id: string, doc: ITransaction) {
       const oldTr = await models.Transactions.getTransaction({ _id });
 
+      doc.fullDate = getFullDate(doc.date);
       await models.Transactions.updateOne({ _id }, {
         $set: {
           ...doc,

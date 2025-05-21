@@ -32,6 +32,7 @@ const FormContainer = (props: Props) => {
         variables={values}
         callback={afterSave}
         isSubmitted={isSubmitted}
+        refetchQueries={['couponCampaigns']}
         type="submit"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'

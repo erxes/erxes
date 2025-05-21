@@ -4,30 +4,28 @@ import {
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
-  copyParams
-} from "./common";
+  copyParams,
+} from './common';
 
 export const types = ({ contacts, clientPortal }) => `
   type TicketListItem {
-    customPropertiesData:JSON,
-    
+    customPropertiesData: JSON,
     ${commonListTypes}
   }
 
   type Ticket @key(fields: "_id") {
     _id: String!
     source: String
-    ${
-      contacts
-        ? `
+    ${contacts
+    ? `
       companies: [Company]
       customers: [Customer]
       `
-        : ""
-    }
+    : ''
+  }
 
     tags: [Tag]
-    ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ""}
+    ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ''}
 
     ${commonTypes}
   }
@@ -118,8 +116,6 @@ const ticketMutationParams = `
 `;
 
 export const mutations = `
-  ticketCheckProgress(number: String!): Ticket
-  ticketCheckProgressForget(email: String, phoneNumber: String): JSON
   ticketsAdd(name: String!, ${copyParams}, ${ticketMutationParams}, ${commonMutationParams}): Ticket
   ticketsEdit(_id: String!, name: String, ${ticketMutationParams}, ${commonMutationParams}): Ticket
   ticketsChange(${commonDragParams}): Ticket

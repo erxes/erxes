@@ -240,19 +240,6 @@ const ChartFormField = (props: Props) => {
           />
         </div>
       );
-    case "products":
-      return (
-        <div>
-          <ControlLabel> {fieldLabel}</ControlLabel>
-          <SelectProducts
-            label="Select products"
-            name="productIds"
-            multi={multi}
-            initialValue={fieldValue}
-            onSelect={onChange}
-          />
-        </div>
-      );
     case "date":
       return (
         <SelectDate

@@ -1,6 +1,12 @@
 import * as React from "react";
 
 import { IParticipator, IUser } from "../../types";
+import {
+  conversationBotTypingStatus,
+  conversationChanged,
+  conversationMessageInserted,
+} from "../graphql/subscriptions";
+import { conversationDetailQuery, getEngageMessage } from "../graphql/queries";
 
 import ConversationDetail from "../components/ConversationDetail";
 import { IMessage } from "../types";
@@ -9,7 +15,6 @@ import { connection } from "../connection";
 import { getLocalStorageItem } from "../../common";
 import { getMessengerData } from "../utils/util";
 import gql from "graphql-tag";
-import graphqlTypes from "../graphql";
 import { useConversation } from "../context/Conversation";
 import { useEffect } from "react";
 import { useMessage } from "../context/Message";
@@ -32,9 +37,7 @@ const ConversationDetailContainer: React.FC<PropsWithConsumer> = (props) => {
   const { errorMessage } = useMessage();
 
   const { data, loading, subscribeToMore } = useQuery(
-    gql(
-      graphqlTypes.conversationDetailQuery(connection.enabledServices.dailyco)
-    ),
+    gql(conversationDetailQuery(connection.enabledServices.dailyco)),
     {
       variables: {
         _id: conversationId,
@@ -54,7 +57,7 @@ const ConversationDetailContainer: React.FC<PropsWithConsumer> = (props) => {
     // listen for bot message typing
     const botTypingSubscription = client
       .subscribe({
-        query: gql(graphqlTypes.conversationBotTypingStatus),
+        query: gql(conversationBotTypingStatus),
         variables: { _id: conversationId },
         fetchPolicy: "network-only",
       })
@@ -68,9 +71,7 @@ const ConversationDetailContainer: React.FC<PropsWithConsumer> = (props) => {
     // lister for new message
     const messageSubscription = subscribeToMore({
       document: gql(
-        graphqlTypes.conversationMessageInserted(
-          connection.enabledServices.dailyco
-        )
+        conversationMessageInserted(connection.enabledServices.dailyco)
       ),
       variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
@@ -105,7 +106,7 @@ const ConversationDetailContainer: React.FC<PropsWithConsumer> = (props) => {
 
     // lister for conversation status change
     const statusSubscription = subscribeToMore({
-      document: gql(graphqlTypes.conversationChanged),
+      document: gql(conversationChanged),
       variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
         const subData = subscriptionData.data || {};
@@ -155,7 +156,7 @@ const ConversationDetailContainer: React.FC<PropsWithConsumer> = (props) => {
 
   if (!messengerData.showLauncher && connection.enabledServices.engages) {
     client.query({
-      query: gql(graphqlTypes.getEngageMessage),
+      query: gql(getEngageMessage),
       variables: {
         integrationId: connection.data.integrationId,
         customerId: connection.data.customerId,

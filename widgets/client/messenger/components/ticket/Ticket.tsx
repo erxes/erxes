@@ -5,12 +5,12 @@ import { IconCheckTicket, IconTicket } from "../../../icons/Icons";
 import Button from "../common/Button";
 import Container from "../common/Container";
 import { __ } from "../../../utils";
+import { connection } from "../../connection";
 
 type Props = {
   loading: boolean;
   activeRoute: string;
   handleSubmit: (activeRoute: string) => void;
-  setIsCheck: (isCheck: boolean) => void;
   handleButtonClick: () => void;
 };
 
@@ -19,16 +19,19 @@ const Ticket: React.FC<Props> = ({
   activeRoute,
   handleSubmit,
   handleButtonClick,
-  setIsCheck,
 }) => {
   const continueText = __("Continue");
 
   const renderSubmitForm = () => {
+    const submitTicketRoute = connection.data.customerId
+      ? "ticket-submit"
+      : "create-customer";
+
     return (
       <div className="type-choose-container">
         <div
-          className={`${activeRoute === "ticket-submit" ? "active" : ""} ticket-box`}
-          onClick={() => handleSubmit("ticket-submit")}
+          className={`${activeRoute === submitTicketRoute ? "active" : ""} ticket-box`}
+          onClick={() => handleSubmit(submitTicketRoute)}
         >
           <IconTicket size="30px" />
           <span>Submit a ticket</span>

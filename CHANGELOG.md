@@ -1,6 +1,72 @@
 # Changelog
 
-## [2.10.2](https://github.com/erxes/erxes/compare/2.10.1...2.10.2) (2025-04-25)
+## [2.12.1](https://github.com/erxes/erxes/compare/2.12.0...2.12.1) (2025-05-20)
+
+## [2.12.0](https://github.com/erxes/erxes/compare/2.11.3...2.12.0) (2025-05-18)
+
+### Features
+
+* **clientportal:** implement client portal comment addition with notifications ([2825c22](https://github.com/erxes/erxes/commit/2825c22038ea198e8d2b13b492a7cbf7f1ba79a0))
+* **clientportal:** Send email notifications to both assigned users and the ticket creator ([70aba57](https://github.com/erxes/erxes/commit/70aba57559349492f46bbe59cf3f021e0a8570dd))
+* **facebook:** enhance performance of facebookGetPosts query ([dd2e245](https://github.com/erxes/erxes/commit/dd2e245d86b35c9ac92527491df2cf81459fb1b8))
+* **notifications:** add userId variable to notifications query ([#6027](https://github.com/erxes/erxes/issues/6027)) ([c91369f](https://github.com/erxes/erxes/commit/c91369ff4899ee1a340d322ac1c5d6226903b65f))
+
+### Bug Fixes
+
+* clientportal ci ([88146f7](https://github.com/erxes/erxes/commit/88146f7e7178a4910b83e57e6ee469999cfbc582))
+* clientportal ci ([9318936](https://github.com/erxes/erxes/commit/931893639ab02cb21a0f9fa99555ac592f1175ac))
+* **cp:** add ability replace subdomain in getEnv ([10ec8c1](https://github.com/erxes/erxes/commit/10ec8c14401586acb43c0c431f1a5a9d211b1b86))
+* **cp:** apollo client uri ([a86a7b4](https://github.com/erxes/erxes/commit/a86a7b474eedb1f70522059dc2922607844721b3))
+* **cp:** can't generate uri apollo client propertly ([5517213](https://github.com/erxes/erxes/commit/55172130c5c1f92d1646b8d93f27a61d6c9b3c1e))
+* Msdynamic double send ([#6028](https://github.com/erxes/erxes/issues/6028)) ([795c5ae](https://github.com/erxes/erxes/commit/795c5ae6e0a0a981278a76c9b820303f63a3a88f))
+* **payment:** 9ix callback on manual checking invoice ([a78a205](https://github.com/erxes/erxes/commit/a78a20572068100615b293e087e8268db2c428a6))
+* **sales:** refetch deal detail in Main Board ([36650a0](https://github.com/erxes/erxes/commit/36650a0e35399fffcf1c6e587bacea29248e4293))
+* **tms:** tourgroup ([a0a616f](https://github.com/erxes/erxes/commit/a0a616f75012f8f5f06be82d90ee530489f7801e))
+* **tms:** tourgroup ([39b06f4](https://github.com/erxes/erxes/commit/39b06f4aa19f6d9a8ebdde65ba3bffea906ba234))
+## [2.12.0-rc.0](https://github.com/erxes/erxes/compare/2.11.3...2.12.0) (2025-05-04)
+
+### Bug Fixes
+
+* accountings correction inventories costs ([489a727](https://github.com/erxes/erxes/commit/489a727fa81ed02bdbbacdb943db7f68bf8d5c3e))
+* **loans:** fix detail bug and dropdown ([44de37b](https://github.com/erxes/erxes/commit/44de37bf6b0b40ded4ffd97315f4dc593dbc9abf))
+* **sales:** fix some ui ([d66973a](https://github.com/erxes/erxes/commit/d66973aa1c9b419970d4b16f3317a71da53623bd))
+
+### Performance Improvements
+
+* **messenger:** update ticket and call ([#6014](https://github.com/erxes/erxes/issues/6014)) ([a799820](https://github.com/erxes/erxes/commit/a799820fa403dd6e736b61192c762c5ceeaf5848))
+
+## [2.12.0-rc.0](https://github.com/erxes/erxes/compare/2.11.0...2.12.0-rc.0) (2025-05-04)
+
+### Bug Fixes
+
+* accountings correction inventories costs ([489a727](https://github.com/erxes/erxes/commit/489a727fa81ed02bdbbacdb943db7f68bf8d5c3e))
+* **loans:** fix detail bug and dropdown ([44de37b](https://github.com/erxes/erxes/commit/44de37bf6b0b40ded4ffd97315f4dc593dbc9abf))
+* **sales:** fix some ui ([d66973a](https://github.com/erxes/erxes/commit/d66973aa1c9b419970d4b16f3317a71da53623bd))
+
+### Performance Improvements
+
+* **messenger:** update ticket and call ([#6014](https://github.com/erxes/erxes/issues/6014)) ([a799820](https://github.com/erxes/erxes/commit/a799820fa403dd6e736b61192c762c5ceeaf5848))
+
+## [2.11.0](https://github.com/erxes/erxes/compare/2.11.0-rc.0...2.11.0) (2025-05-04)
+
+### Bug Fixes
+
+* loans and savings improve ([#6015](https://github.com/erxes/erxes/issues/6015)) ([596f8a6](https://github.com/erxes/erxes/commit/596f8a6cc7c584ce9ae7592e66ad77b7f171a277))
+* **payment:** fix golomt e-commerce api authorization error handling ([c4b486d](https://github.com/erxes/erxes/commit/c4b486de2fd10fcdb1a8797e19cacfa4732834a2))
+* **tms:** visible name ([644d1ce](https://github.com/erxes/erxes/commit/644d1cea4fa58238e7ecb39a9ae19883bc70d3e1))
+* **workers:** can't run when array field value are empty ([4983f19](https://github.com/erxes/erxes/commit/4983f19243df700a927ecf0f5e69cfd905d49bd0))
+## [2.11.0-rc.0](https://github.com/erxes/erxes/compare/2.11.0-rc.0...2.11.0) (2025-04-17)
+
+### Features
+
+* **clientportal:** add card type UI for SMS ([d403e70](https://github.com/erxes/erxes/commit/d403e707ab6816530c96e5b5865fd511f50d20d6))
+
+### Bug Fixes
+
+* **automations:** handle if string has null undefined in generateEmails ([3d0b402](https://github.com/erxes/erxes/commit/3d0b402a34fc60e04e31b9d8113cc7dc3e7ca3ca))
+* scorelogs with index ([cb5919f](https://github.com/erxes/erxes/commit/cb5919fd1275a223714ed05981ed7c2e85131eec))
+* tr fullDate ([6d751f3](https://github.com/erxes/erxes/commit/6d751f3da4e5e166546a6684dcc99ac3a98702b5))
+## [2.10.2](https://github.com/erxes/erxes/compare/2.11.0-rc.0...2.11.0) (2025-04-25)
 
 ### Features
 
@@ -11,8 +77,7 @@
 
 * pricing ui readOnly objects ([9d36b6e](https://github.com/erxes/erxes/commit/9d36b6e02178131692e5f13465e0a3d42c3428ef))
 * **sales:** update deal edit form ([743faa6](https://github.com/erxes/erxes/commit/743faa6f72da548208c7fe34cccbfd9f3ee425d2))
-
-## [2.10.1](https://github.com/erxes/erxes/compare/2.10.0...2.10.1) (2025-04-22)
+## [2.10.1](https://github.com/erxes/erxes/compare/2.11.0-rc.0...2.11.0) (2025-04-22)
 
 ### Features
 
@@ -24,6 +89,18 @@
 * **helper:** correct request handling for Instagram, Facebook, and WhatsApp integrations ([#5999](https://github.com/erxes/erxes/issues/5999)) ([fe90dc0](https://github.com/erxes/erxes/commit/fe90dc0671486958cf24cd841479ffcf956c2799))
 * **tms:** icon search ([16ac8ad](https://github.com/erxes/erxes/commit/16ac8ad1d237eca58ba56d62a757906d8d61a07f))
 * **tms:** visibible name ([88eddd8](https://github.com/erxes/erxes/commit/88eddd81b4bea02a760ad7ad49cd65567e464292))
+
+## [2.11.0-rc.0](https://github.com/erxes/erxes/compare/2.10.0...2.11.0-rc.0) (2025-04-17)
+
+### Features
+
+* **clientportal:** add card type UI for SMS ([d403e70](https://github.com/erxes/erxes/commit/d403e707ab6816530c96e5b5865fd511f50d20d6))
+
+### Bug Fixes
+
+* **automations:** handle if string has null undefined in generateEmails ([3d0b402](https://github.com/erxes/erxes/commit/3d0b402a34fc60e04e31b9d8113cc7dc3e7ca3ca))
+* scorelogs with index ([cb5919f](https://github.com/erxes/erxes/commit/cb5919fd1275a223714ed05981ed7c2e85131eec))
+* tr fullDate ([6d751f3](https://github.com/erxes/erxes/commit/6d751f3da4e5e166546a6684dcc99ac3a98702b5))
 
 ## [2.10.0](https://github.com/erxes/erxes/compare/2.9.5...2.10.0) (2025-04-17)
 

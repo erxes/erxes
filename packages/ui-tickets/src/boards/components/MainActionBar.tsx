@@ -321,7 +321,7 @@ class MainActionBar extends React.Component<Props, State> {
                     </Link>
                   </li>
                 )}
-                <li key="activity">
+                <li key="activity"> 
                   <Link
                     to={onFilterClick("activity")}
                     className={viewType === "activity" ? "active" : ""}

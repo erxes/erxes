@@ -48,6 +48,11 @@ export interface ICustomer {
   _id: string;
   avatar?: string;
   firstName?: string;
+  lastName?: string;
+  email?: string;
+  emails?: string[];
+  phone?: string;
+  phones?: string[];
 }
 
 export interface IBrand {
@@ -125,6 +130,15 @@ export interface CloudflareCallDataDepartment {
   _id: string;
   name: string;
   operators: ICloudflareCallDataOperator[];
+}
+
+export interface IIntegrationCallData {
+  departments?: CloudflareCallDataDepartment[];
+  description?: string;
+  header?: string;
+  isReceiveWebCall?: boolean;
+  secondPageHeader?: string;
+  secondPageDescription?: string;
 }
 
 export interface IIntegrationMessengerData {

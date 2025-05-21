@@ -25,6 +25,9 @@ export interface IScoreCampaign {
   fieldName: string;
   fieldId: string;
   status: string;
+
+  onlyClientPortal?: boolean
+  restrictions?: any
 }
 
 export interface IScoreCampaignDocuments extends Document, IScoreCampaign {
@@ -72,6 +75,18 @@ export const scoreCampaignSchema = new Schema({
   additionalConfig: field({
     type: Schema.Types.Mixed,
     label: "Additional Config",
+    optional: true,
+  }),
+
+  onlyClientPortal: field({
+    type: Boolean,
+    label: "Only Client Portal",
+    optional: true,
+  }),
+
+  restrictions: field({
+    type: Schema.Types.Mixed,
+    label: "Restrictions",
     optional: true,
   }),
 });

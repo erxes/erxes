@@ -30,7 +30,7 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
   }): Promise<ITransactionDocument>;
   updateTransaction(_id: string, doc: any): Promise<ITransactionDocument>;
   cancelTransaction(_id: string): Promise<string>;
-  checkTransaction(_id: string): Promise<string>;
+  checkTransaction(_id: string, subdomain: string): Promise<string>;
   removeTransactions(_ids: string[]): Promise<any>;
 }
 
@@ -159,14 +159,14 @@ export const loadTransactionClass = (models: IModels) => {
       return 'success';
     }
 
-    public static async checkTransaction(_id: string) {
+    public static async checkTransaction(_id: string, subdomain: string) {
       const transaction = await models.Transactions.getTransaction({ _id });
 
       const payment = await models.PaymentMethods.getPayment(
         transaction.paymentId
       );
 
-      const api = new ErxesPayment(payment);
+      const api = new ErxesPayment(payment, subdomain);
 
       const status = await api.manualCheck(transaction);
 

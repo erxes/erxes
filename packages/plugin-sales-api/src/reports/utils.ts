@@ -18,7 +18,6 @@ import {
   PROBABILITY_CLOSED,
   PROBABILITY_OPEN,
 } from "./constants";
-const util = require("util");
 
 dayjs.extend(isoWeek);
 
@@ -274,6 +273,78 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push({ $unwind: "$labelIds" });
   }
 
+  if (dimensions.includes("car")) {
+    pipeline.push(
+      {
+        $lookup: {
+          from: "conformities",
+          let: { fieldId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $and: [
+                  {
+                    $expr: {
+                      $eq: ["$mainType", type],
+                    },
+                  },
+                  {
+                    $expr: {
+                      $eq: ["$mainTypeId", "$$fieldId"],
+                    },
+                  },
+                  {
+                    $expr: {
+                      $eq: ["$relType", "car"],
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+          as: "carConformity",
+        },
+      },
+      {
+        $unwind: "$carConformity",
+      },
+      {
+        $lookup: {
+          from: "cars",
+          let: {
+            fieldId: "$carConformity.relTypeId",
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$_id", "$$fieldId"],
+                },
+              },
+            },
+          ],
+          as: "car",
+        },
+      },
+      {
+        $unwind: "$car",
+      },
+      {
+        $addFields: {
+          plateSuffix: {
+            $substrCP: [
+              "$car.plateNumber",
+              {
+                $subtract: [{ $strLenCP: "$car.plateNumber" }, 3],
+              },
+              3,
+            ],
+          },
+        },
+      }
+    );
+  }
+
   if (dimensions.includes("customer")) {
     pipeline.push(
       {
@@ -303,11 +374,11 @@ export const buildPipeline = (filter, type, matchFilter) => {
               },
             },
           ],
-          as: "conformity",
+          as: "customerConformity",
         },
       },
       {
-        $unwind: "$conformity",
+        $unwind: "$customerConformity",
       }
     );
   }
@@ -341,11 +412,11 @@ export const buildPipeline = (filter, type, matchFilter) => {
               },
             },
           ],
-          as: "conformity",
+          as: "companyConformity",
         },
       },
       {
-        $unwind: "$conformity",
+        $unwind: "$companyConformity",
       }
     );
   }
@@ -437,6 +508,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
   if (
     dimensions.includes("product") ||
+    dimensions.includes("service") ||
     measures.some((m) =>
       [
         "totalAmount",
@@ -447,6 +519,68 @@ export const buildPipeline = (filter, type, matchFilter) => {
     )
   ) {
     pipeline.push({ $unwind: "$productsData" });
+  }
+
+  if (dimensions.includes("product") && dimensions.includes("service")) {
+    pipeline.push(
+      {
+        $lookup: {
+          from: "products",
+          localField: "productsData.productId",
+          foreignField: "_id",
+          as: "productInfo",
+        },
+      },
+      { $unwind: "$productInfo" },
+      {
+        $group: {
+          _id: "$_id",
+          products: {
+            $addToSet: {
+              $cond: [
+                { $eq: ["$productInfo.type", "product"] },
+                "$productInfo.name",
+                "$$REMOVE",
+              ],
+            },
+          },
+          services: {
+            $addToSet: {
+              $cond: [
+                { $eq: ["$productInfo.type", "service"] },
+                "$productInfo.name",
+                "$$REMOVE",
+              ],
+            },
+          },
+          otherFields: { $first: "$$ROOT" },
+        },
+      },
+      {
+        $match: {
+          products: {
+            $ne: [],
+          },
+          services: {
+            $ne: [],
+          },
+        },
+      },
+      {
+        $project: {
+          merged: {
+            $mergeObjects: [
+              "$otherFields",
+              {
+                product: { $arrayElemAt: ["$products", 0] },
+                service: { $arrayElemAt: ["$services", 0] },
+              },
+            ],
+          },
+        },
+      },
+      { $replaceRoot: { newRoot: "$merged" } }
+    );
   }
 
   if (
@@ -640,12 +774,16 @@ export const buildPipeline = (filter, type, matchFilter) => {
     groupKeys.labelId = "$labelIds";
   }
 
+  if (dimensions.includes("car")) {
+    groupKeys.car = "$plateSuffix";
+  }
+
   if (dimensions.includes("customer")) {
-    groupKeys.customerId = "$conformity.relTypeId";
+    groupKeys.customerId = "$customerConformity.relTypeId";
   }
 
   if (dimensions.includes("company")) {
-    groupKeys.companyId = "$conformity.relTypeId";
+    groupKeys.companyId = "$companyConformity.relTypeId";
   }
 
   if (dimensions.includes("priority")) {
@@ -668,7 +806,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
     groupKeys.source = "$integration.kind";
   }
 
-  if (dimensions.includes("product")) {
+  if (dimensions.includes("product") && dimensions.includes("service")) {
+    groupKeys.product = "$product";
+    groupKeys.service = "$service";
+  } else if (dimensions.includes("product") || dimensions.includes("service")) {
     groupKeys.productId = "$productsData.productId";
   }
 
@@ -977,17 +1118,26 @@ export const buildPipeline = (filter, type, matchFilter) => {
     );
   }
 
-  if (dimensions.includes("product")) {
+  if (!dimensions.includes("service") && dimensions.includes("product")) {
     pipeline.push(
       {
         $lookup: {
           from: "products",
-          let: { fieldId: "$_id.productId" },
+          let: {
+            fieldId: "$_id.productId",
+          },
           pipeline: [
             {
               $match: {
                 $expr: {
-                  $and: [{ $eq: ["$_id", "$$fieldId"] }],
+                  $and: [
+                    {
+                      $eq: ["$_id", "$$fieldId"],
+                    },
+                    {
+                      $eq: ["$type", "product"],
+                    },
+                  ],
                 },
               },
             },
@@ -995,7 +1145,42 @@ export const buildPipeline = (filter, type, matchFilter) => {
           as: "product",
         },
       },
-      { $unwind: "$product" }
+      {
+        $unwind: "$product",
+      }
+    );
+  }
+
+  if (!dimensions.includes("product") && dimensions.includes("service")) {
+    pipeline.push(
+      {
+        $lookup: {
+          from: "products",
+          let: {
+            fieldId: "$_id.productId",
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    {
+                      $eq: ["$_id", "$$fieldId"],
+                    },
+                    {
+                      $eq: ["$type", "service"],
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "service",
+        },
+      },
+      {
+        $unwind: "$service",
+      }
     );
   }
 
@@ -1171,6 +1356,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
     projectionFields.label = "$label.name";
   }
 
+  if (dimensions.includes("car")) {
+    projectionFields.car = "$_id.car";
+  }
+
   if (dimensions.includes("customer")) {
     projectionFields.customer = "$customer.firstName";
   }
@@ -1203,8 +1392,17 @@ export const buildPipeline = (filter, type, matchFilter) => {
     projectionFields.source = "$_id.source";
   }
 
-  if (dimensions.includes("product")) {
+  if (!dimensions.includes("service") && dimensions.includes("product")) {
     projectionFields.product = "$product.name";
+  }
+
+  if (!dimensions.includes("product") && dimensions.includes("service")) {
+    projectionFields.service = "$service.name";
+  }
+
+  if (dimensions.includes("product") && dimensions.includes("service")) {
+    projectionFields.product = "$_id.product";
+    projectionFields.service = "$_id.service";
   }
 
   if (dimensions.includes("stage")) {
@@ -1473,6 +1671,7 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     productCategoryIds,
     carCategoryIds,
     carIds,
+    plateSuffixes,
   } = filter;
 
   const matchfilter = {};
@@ -1794,6 +1993,43 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
       data: {
         mainType: "car",
         mainTypeIds: carIds,
+        relType: type,
+      },
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    if (matchfilter["_id"]) {
+      matchfilter["_id"]["$in"] = [...matchfilter["_id"]["$in"], ...relTypeIds];
+    } else {
+      matchfilter["_id"] = { $in: relTypeIds };
+    }
+  }
+
+  if (plateSuffixes?.length) {
+    const regexPatterns = plateSuffixes.map((suffix) => ({
+      plateNumber: { $regex: `${suffix}$` },
+    }));
+
+    const cars = await sendCommonMessage({
+      subdomain,
+      serviceName: "cars",
+      action: "cars.find",
+      data: {
+        query: {
+          $or: regexPatterns,
+        },
+      },
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    const relTypeIds = await sendCoreMessage({
+      subdomain,
+      action: "conformities.filterConformity",
+      data: {
+        mainType: "car",
+        mainTypeIds: (cars || []).map((car) => car._id),
         relType: type,
       },
       isRPC: true,

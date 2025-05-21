@@ -139,11 +139,7 @@ export class VendorBaseAPI {
         requestOptions,
       ).then((r) => r.json());
 
-      console.debug('path', path);
-      console.debug('params', params);
-      console.debug('data', data);
-      console.debug('response', response);
-      
+
       if (response.error) {
         console.error('response.error', response.error);
         throw new Error(response.error);
