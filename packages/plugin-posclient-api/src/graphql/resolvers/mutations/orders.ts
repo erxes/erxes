@@ -220,7 +220,8 @@ export const ordersAdd = async (
       subscriptionInfo: preparedDoc?.subscriptionInfo,
       extraInfo: {
         rawTotalAmount: doc.totalAmount,
-        couponCode: doc.couponCode
+        couponCode: doc.couponCode,
+        voucherId: doc.voucherId
       }
     };
 
@@ -344,7 +345,8 @@ const ordersEdit = async (
     saleStatus,
     extraInfo: {
       rawTotalAmount: doc.totalAmount,
-      couponCode: doc.couponCode
+      couponCode: doc.couponCode,
+      voucherId: doc.voucherId
     }
   });
 

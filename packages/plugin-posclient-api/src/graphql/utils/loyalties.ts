@@ -2,7 +2,7 @@ import { sendLoyaltiesMessage } from '../../messageBroker';
 import { IOrderInput } from '../types';
 
 export const checkLoyalties = async (subdomain: string, doc: IOrderInput) => {
-  if (!doc.couponCode && !doc.customerId) {
+  if (!doc.couponCode && !doc.voucherId && !doc.customerId) {
     return doc;
   }
 
@@ -23,6 +23,7 @@ export const checkLoyalties = async (subdomain: string, doc: IOrderInput) => {
         ],
         discountInfo: {
           couponCode: doc.couponCode,
+          voucherId: doc.voucherId,
         }
       },
       isRPC: true,

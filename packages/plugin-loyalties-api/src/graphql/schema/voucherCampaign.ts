@@ -33,6 +33,10 @@ export const types = `
 
     vouchersCount: Int,
     codesCount: Int,
+
+    kind: Kind
+    value: Int
+    restrictions: JSON
   }
 `;
 
@@ -66,6 +70,10 @@ const VoucherCampaignDoc = `
 
   lotteryCampaignId: String,
   lotteryCount: Float,
+
+  kind: Kind
+  value: Int
+  restrictions: JSON
 `;
 
 export const mutations = `
