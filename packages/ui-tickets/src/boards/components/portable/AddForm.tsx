@@ -295,7 +295,7 @@ class AddForm extends React.Component<Props, State> {
     const { cardId, name } = option;
 
     if (cardId && cardId !== "copiedItem") {
-      this.onChangeField("name", "");
+      this.onChangeField("name", name);
 
       return this.onChangeField("cardId", cardId);
     }
