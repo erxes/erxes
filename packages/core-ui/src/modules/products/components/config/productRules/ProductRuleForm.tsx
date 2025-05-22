@@ -77,7 +77,7 @@ export default class ProductRuleForm extends React.Component<Props, State> {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel>{__('Name')}</ControlLabel>
+                <ControlLabel required={true}>{__('Name')}</ControlLabel>
                 <FormControl
                   name="name"
                   type="text"
@@ -85,8 +85,10 @@ export default class ProductRuleForm extends React.Component<Props, State> {
                   onBlur={onNameChange}
                 />
               </FormGroup>
+            </FormColumn>
+            <FormColumn>
               <FormGroup>
-                <ControlLabel>{__('Unit price')}</ControlLabel>
+                <ControlLabel required={true}>{__('Unit price')}</ControlLabel>
                 <FormControl
                   name="unitPrice"
                   type="number"
@@ -96,7 +98,9 @@ export default class ProductRuleForm extends React.Component<Props, State> {
                 />
               </FormGroup>
             </FormColumn>
+          </FormWrapper>
 
+          <FormWrapper>
             <FormColumn>
               <FormGroup>
                 <ControlLabel>{__('Choose categories to include')}</ControlLabel>
@@ -108,6 +112,8 @@ export default class ProductRuleForm extends React.Component<Props, State> {
                   onSelect={onSelectChange}
                 />
               </FormGroup>
+            </FormColumn>
+            <FormColumn>
               <FormGroup>
                 <ControlLabel>{__('Choose categories to exclude')}</ControlLabel>
                 <SelectProductCategory
@@ -119,7 +125,9 @@ export default class ProductRuleForm extends React.Component<Props, State> {
                 />
               </FormGroup>
             </FormColumn>
+          </FormWrapper>
 
+          <FormWrapper>
             <FormColumn>
               <FormGroup>
                 <ControlLabel>{__('Choose products')}</ControlLabel>
@@ -131,7 +139,8 @@ export default class ProductRuleForm extends React.Component<Props, State> {
                   onSelect={onSelectChange}
                 />
               </FormGroup>
-
+            </FormColumn>
+            <FormColumn>
               <FormGroup>
                 <ControlLabel>{__('Choose exclude products')}</ControlLabel>
                 <SelectProducts
@@ -143,7 +152,9 @@ export default class ProductRuleForm extends React.Component<Props, State> {
                 />
               </FormGroup>
             </FormColumn>
+          </FormWrapper>
 
+          <FormWrapper>
             <FormColumn>
               <FormGroup>
                 <ControlLabel>{__('Choose tags')}</ControlLabel>
@@ -156,7 +167,9 @@ export default class ProductRuleForm extends React.Component<Props, State> {
                   onSelect={onSelectChange}
                 />
               </FormGroup>
+            </FormColumn>
 
+            <FormColumn>
               <FormGroup>
                 <ControlLabel>{__('Choose exclude tags')}</ControlLabel>
                 <SelectTags
@@ -176,7 +189,12 @@ export default class ProductRuleForm extends React.Component<Props, State> {
               Close
             </Button>
 
-            {renderButton({ values: this.state, isSubmitted, callback, object: rule })}
+            {renderButton({
+              values: this.state,
+              isSubmitted,
+              callback,
+              object: rule,
+            })}
           </ModalFooter>
         </>
       );

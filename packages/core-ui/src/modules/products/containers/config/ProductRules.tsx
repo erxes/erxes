@@ -39,7 +39,6 @@ const ProductRules = (props: Props) => {
   };
 
   const renderButton = ({
-    name,
     values,
     isSubmitted,
     callback,
@@ -52,7 +51,7 @@ const ProductRules = (props: Props) => {
         }
         variables={values}
         callback={callback}
-        refetchQueries={refetch}
+        refetchQueries={["productRules"]}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
@@ -73,7 +72,5 @@ const ProductRules = (props: Props) => {
 
   return <List {...updatedProps} />;
 };
-
-const refetch = ["productRules"];
 
 export default ProductRules;
