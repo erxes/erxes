@@ -12,7 +12,7 @@ export interface IOrder {
   branchId?: string;
   numberOfPeople: number;
   type?: string;
-  additionalCustomers?: string;
+  additionalCustomers?: string[];
 }
 
 export interface IOrderDocument extends IOrder, Document {
@@ -23,7 +23,7 @@ export interface IOrderDocument extends IOrder, Document {
 
 const STATUS_TYPES = [
   { label: 'paid', value: 'paid' },
-  { label: 'notPaid', value: 'notPaid' },
+  { label: 'notPaid', value: 'notPaid' }
 ];
 
 const getEnum = (): string[] => {
@@ -46,20 +46,22 @@ export const orderSchema = schemaHooksWrapper(
       optional: true,
       label: 'status',
       esType: 'keyword',
-      selectOptions: STATUS_TYPES,
+      selectOptions: STATUS_TYPES
     }),
     branchId: field({ type: String, optional: true, label: 'branchId' }),
     numberOfPeople: field({
       type: Number,
       optional: true,
-      label: 'numberOfPeople',
+      label: 'numberOfPeople'
     }),
     type: field({ type: String, optional: true, label: 'type' }),
     additionalCustomers: field({
-      type: String,
+      type: [String],
       optional: true,
-      label: 'additionalCustomers',
+      label: 'additionalCustomers'
     }),
+    parent: field({ type: String, optional: true, label: 'parent' }),
+    isChild: field({ type: Boolean, optional: true, label: 'isChild' })
   }),
   'erxes_bm_orders'
 );
