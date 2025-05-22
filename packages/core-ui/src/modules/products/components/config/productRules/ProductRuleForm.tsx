@@ -7,10 +7,13 @@ import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProdu
 import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
 import { Button, ControlLabel, FormControl, FormGroup } from '@erxes/ui/src/components';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { IProductRule } from '@erxes/ui-products/src/types';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  rule?: IProductRule;
 }
 
 type State = {
@@ -28,11 +31,13 @@ export default class ProductRuleForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { unitPrice: 0, name: '' };
+    const rule = props.rule || {};
+
+    this.state = { unitPrice: 0, name: '', ...rule };
   }
 
   render() {
-    const { renderButton, closeModal } = this.props;
+    const { renderButton, closeModal, rule } = this.props;
     const {
       unitPrice,
       categoryIds,
@@ -72,7 +77,7 @@ export default class ProductRuleForm extends React.Component<Props, State> {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel>Name</ControlLabel>
+                <ControlLabel>{__('Name')}</ControlLabel>
                 <FormControl
                   name="name"
                   type="text"
@@ -81,7 +86,7 @@ export default class ProductRuleForm extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>Unit price</ControlLabel>
+                <ControlLabel>{__('Unit price')}</ControlLabel>
                 <FormControl
                   name="unitPrice"
                   type="number"
@@ -94,7 +99,7 @@ export default class ProductRuleForm extends React.Component<Props, State> {
 
             <FormColumn>
               <FormGroup>
-                <ControlLabel>Choose categories to include</ControlLabel>
+                <ControlLabel>{__('Choose categories to include')}</ControlLabel>
                 <SelectProductCategory
                   label="Choose categories"
                   name="categoryIds"
@@ -104,7 +109,7 @@ export default class ProductRuleForm extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>Choose categories to exclude</ControlLabel>
+                <ControlLabel>{__('Choose categories to exclude')}</ControlLabel>
                 <SelectProductCategory
                   label="Choose exclude categories"
                   name="excludeCategoryIds"
@@ -117,7 +122,7 @@ export default class ProductRuleForm extends React.Component<Props, State> {
 
             <FormColumn>
               <FormGroup>
-                <ControlLabel>Choose products</ControlLabel>
+                <ControlLabel>{__('Choose products')}</ControlLabel>
                 <SelectProducts
                   label="Choose products"
                   name="productIds"
@@ -128,7 +133,7 @@ export default class ProductRuleForm extends React.Component<Props, State> {
               </FormGroup>
 
               <FormGroup>
-                <ControlLabel>Choose exclude products</ControlLabel>
+                <ControlLabel>{__('Choose exclude products')}</ControlLabel>
                 <SelectProducts
                   label="Choose exclude products"
                   name="excludeProductIds"
@@ -141,7 +146,7 @@ export default class ProductRuleForm extends React.Component<Props, State> {
 
             <FormColumn>
               <FormGroup>
-                <ControlLabel>Choose tags</ControlLabel>
+                <ControlLabel>{__('Choose tags')}</ControlLabel>
                 <SelectTags
                   tagsType='core:product'
                   label="Choose tags"
@@ -153,7 +158,7 @@ export default class ProductRuleForm extends React.Component<Props, State> {
               </FormGroup>
 
               <FormGroup>
-                <ControlLabel>Choose exclude tags</ControlLabel>
+                <ControlLabel>{__('Choose exclude tags')}</ControlLabel>
                 <SelectTags
                   tagsType='core:product'
                   label="Choose exclude tags"
@@ -171,7 +176,7 @@ export default class ProductRuleForm extends React.Component<Props, State> {
               Close
             </Button>
 
-            {renderButton({ values: this.state, isSubmitted, callback })}
+            {renderButton({ values: this.state, isSubmitted, callback, object: rule })}
           </ModalFooter>
         </>
       );

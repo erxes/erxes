@@ -52,6 +52,7 @@ const RuleList: React.FC<Props> = props => {
                   key={rule._id}
                   rule={rule}
                   removeRule={removeRule}
+                  renderButton={renderButton}
                 />
               );
             })}
