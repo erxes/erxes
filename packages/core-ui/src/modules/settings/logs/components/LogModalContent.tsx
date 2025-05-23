@@ -14,7 +14,13 @@ const DATE_FIELD_NAMES = [
   'modifiedAt',
   'lastSeenAt',
   'closeDate',
-  'modifiedDate'
+  'modifiedDate',
+  'startDate',
+  'endDate',
+  'startMonth',
+  'endMonth',
+  'startDay',
+  'endDay'
 ];
 
 type Props = {
