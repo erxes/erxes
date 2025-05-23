@@ -42,6 +42,7 @@ function General({
   mailConfig,
   twoFactorConfig,
   socialpayConfig,
+  tokiConfig,
   name,
   manualVerificationConfig,
   passwordVerificationConfig,
@@ -89,7 +90,7 @@ function General({
     });
   }
 
-  const onSelectUsers = values => {
+  const onSelectUsers = (values) => {
     handleFormChange('manualVerificationConfig', {
       userIds: values,
       verifyCompany,
@@ -175,7 +176,7 @@ function General({
     }
   };
 
-  const onChangeConfiguration = option => {
+  const onChangeConfiguration = (option) => {
     handleFormChange('otpConfig', {
       ...otpConfig,
       smsTransporterType: option.value,
@@ -227,7 +228,7 @@ function General({
       }),
     };
 
-    const handleChange = e => {
+    const handleChange = (e) => {
       const key = e.currentTarget.id;
       const value = (e.currentTarget as HTMLInputElement).value;
 
@@ -263,7 +264,7 @@ function General({
     };
 
     const options = smsConfigs.filter((obj, index) => {
-      return index === smsConfigs.findIndex(o => obj.value === o.value);
+      return index === smsConfigs.findIndex((o) => obj.value === o.value);
     });
 
     return (
@@ -288,10 +289,10 @@ function General({
               <ControlLabel>Sms Configuration</ControlLabel>
               <Select
                 placeholder='Choose a configuration'
-                value={options.find(o => o.value === obj.smsTransporterType)}
+                value={options.find((o) => o.value === obj.smsTransporterType)}
                 options={smsConfigs.filter((obj, index) => {
                   return (
-                    index === smsConfigs.findIndex(o => obj.value === o.value)
+                    index === smsConfigs.findIndex((o) => obj.value === o.value)
                   );
                 })}
                 isClearable={true}
@@ -384,7 +385,7 @@ function General({
         expireAfter: 5,
       }),
     };
-    const handleChange = e => {
+    const handleChange = (e) => {
       const key = e.currentTarget.id;
       const value = (e.currentTarget as HTMLInputElement).value;
 
@@ -419,7 +420,7 @@ function General({
       handleFormChange('twoFactorConfig', obj);
     };
 
-    const onChangeConfiguration = option => {
+    const onChangeConfiguration = (option) => {
       handleFormChange('twoFactorConfig', {
         ...twoFactorConfig,
         smsTransporterType: option.value,
@@ -454,10 +455,12 @@ function General({
               <ControlLabel>2FA Sms Configuration</ControlLabel>
               <Select
                 placeholder='Choose a configuration'
-                value={smsConfigs.find(o => o.value === obj.smsTransporterType)}
+                value={smsConfigs.find(
+                  (o) => o.value === obj.smsTransporterType
+                )}
                 options={smsConfigs.filter((obj, index) => {
                   return (
-                    index === smsConfigs.findIndex(o => obj.value === o.value)
+                    index === smsConfigs.findIndex((o) => obj.value === o.value)
                   );
                 })}
                 name='SMS Configuration'
@@ -544,7 +547,7 @@ function General({
       publicKey: '',
     };
 
-    const handleChange = e => {
+    const handleChange = (e) => {
       const key = e.currentTarget.id;
       const value = (e.currentTarget as HTMLInputElement).value;
 
@@ -580,6 +583,79 @@ function General({
               id='publicKey'
               name='publicKey'
               value={config.publicKey}
+              onChange={handleChange}
+            />
+          </FlexContent>
+        </FormGroup>
+      </CollapseContent>
+    );
+  };
+
+  const renderTokiConfig = () => {
+    const config = tokiConfig || {
+      apiKey: '',
+      merchantId: '',
+      username: '',
+      password: '',
+    };
+
+    const handleChange = (e) => {
+      const key = e.currentTarget.id;
+      const value = (e.currentTarget as HTMLInputElement).value;
+
+      config[key] = value;
+
+      handleFormChange('tokiConfig', config);
+    };
+
+    return (
+      <CollapseContent title={__('Toki Config')} compact={true} open={false}>
+        <FormGroup>
+          <ControlLabel required={true}>API Key</ControlLabel>
+
+          <FlexContent>
+            <FormControl
+              id='apiKey'
+              name='apiKey'
+              value={config.apiKey}
+              onChange={handleChange}
+            />
+          </FlexContent>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>Merchant ID</ControlLabel>
+
+          <FlexContent>
+            <FormControl
+              id='merchantId'
+              name='merchantId'
+              value={config.merchantId}
+              onChange={handleChange}
+            />
+          </FlexContent>
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>Username</ControlLabel>
+
+          <FlexContent>
+            <FormControl
+              id='username'
+              name='username'
+              value={config.username}
+              onChange={handleChange}
+            />
+          </FlexContent>
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>Password</ControlLabel>
+
+          <FlexContent>
+            <FormControl
+              id='password'
+              type='password'
+              name='password'
+              value={config.password}
               onChange={handleChange}
             />
           </FlexContent>
@@ -883,6 +959,7 @@ function General({
       {renderOtp()}
       {renderTwoFactor()}
       {renderSocialPayConfig()}
+      {renderTokiConfig()}
       {renderMailConfig()}
       <PasswordConfig
         config={passwordVerificationConfig}
