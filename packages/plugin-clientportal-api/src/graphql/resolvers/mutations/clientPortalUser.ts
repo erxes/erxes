@@ -13,7 +13,7 @@ import {
   ITwoFactorDevice,
 } from '../../../models/definitions/clientPortalUser';
 import redis from '../../../redis';
-import { sendSms } from '../../../utils';
+import { fetchUserFromToki, sendSms } from '../../../utils';
 import { sendCommonMessage } from './../../../messageBroker';
 import * as jwt from 'jsonwebtoken';
 import { fetchUserFromSocialpay } from '../../../socialpayUtils';
@@ -1065,6 +1065,40 @@ const clientPortalUserMutations = {
       email,
       code: individualId,
       avatar: imgUrl,
+    };
+
+    const user = await models.ClientPortalUsers.loginWithoutPassword(
+      subdomain,
+      clientPortal,
+      doc
+    );
+
+    return tokenHandler(user, clientPortal, res, false);
+  },
+
+  clientPortalLoginWithToki: async (
+    _root,
+    args: { token: string; clientPortalId: string },
+    { models, subdomain, res }: IContext
+  ) => {
+    const { token, clientPortalId } = args;
+
+    const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
+
+    const response = await fetchUserFromToki(token, clientPortal);
+    const { _id, phoneNo, profilePicURL, name } = response.data;
+
+    const [firstName = '', lastName = ''] = name.trim().split(' ');
+
+    const mobileNumber = phoneNo;
+    const imgUrl = profilePicURL;
+
+    const doc = {
+      firstName,
+      lastName,
+      phone: mobileNumber,
+      code: _id,
+      avatar: `https://ms-public-toki.mn/profile/${imgUrl}`, //imgUrl,
     };
 
     const user = await models.ClientPortalUsers.loginWithoutPassword(
