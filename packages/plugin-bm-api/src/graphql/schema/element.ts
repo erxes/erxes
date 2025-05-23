@@ -20,6 +20,7 @@ export const types = () => `
     _id: String!
     name: String
     quick: Boolean
+    orderCheck: Boolean
     visibleName: Boolean
     icon: String
     content: String
@@ -35,6 +36,7 @@ export const types = () => `
     branchId: String
     createdAt: Date
     modifiedAt: Date
+    additionalInfo: JSON
   }
 
   type ElementCategory {
@@ -68,9 +70,11 @@ const params = `
   itineraryId: String,
   location: BMSLocationInput,
   quick: Boolean,
+  orderCheck: Boolean,
   branchId: String,
   icon: String,
-  visibleName: Boolean
+  visibleName: Boolean,
+  additionalInfo: JSON
 `;
 
 export const mutations = `

@@ -1,46 +1,48 @@
-import customScalars from "@erxes/api-utils/src/customScalars";
+import customScalars from '@erxes/api-utils/src/customScalars';
 
-import mutationsElement from "./mutations/element";
-import queriesElement from "./queries/element";
+import mutationsElement from './mutations/element';
+import queriesElement from './queries/element';
 
-import mutationItinerary from "./mutations/itinerary";
-import queriesItinerary from "./queries/itinerary";
+import mutationItinerary from './mutations/itinerary';
+import queriesItinerary from './queries/itinerary';
 
-import mutationTour from "./mutations/tour";
-import queriesTour from "./queries/tour";
+import mutationTour from './mutations/tour';
+import queriesTour from './queries/tour';
 
-import mutationOrder from "./mutations/order";
-import queriesOrder from "./queries/order";
+import mutationOrder from './mutations/order';
+import queriesOrder from './queries/order';
 
-import ElementItem from "./elementItemResolver";
-import Element from "./element";
+import ElementItem from './elementItemResolver';
+import Element from './element';
 
-import mutationBranch from "./mutations/branch";
-import queriesBranch from "./queries/branch";
+import mutationBranch from './mutations/branch';
+import queriesBranch from './queries/branch';
 
-import Tour from "./tourResolver";
-import Itinerary from "./intineraryResolver";
+import Tour from './tourResolver';
+import Itinerary from './intineraryResolver';
+import BmsBranch from './bmsBranchResolver';
 
 const resolvers: any = async () => ({
   ...customScalars,
   ElementItem,
   Element,
   Tour,
+  BmsBranch,
   Itinerary,
   Mutation: {
     ...mutationsElement,
     ...mutationItinerary,
     ...mutationTour,
     ...mutationOrder,
-    ...mutationBranch,
+    ...mutationBranch
   },
   Query: {
     ...queriesElement,
     ...queriesItinerary,
     ...queriesTour,
     ...queriesOrder,
-    ...queriesBranch,
-  },
+    ...queriesBranch
+  }
 });
 
 export default resolvers;

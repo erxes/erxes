@@ -1,6 +1,6 @@
 import {
   attachmentType,
-  attachmentInput,
+  attachmentInput
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 const posCommonFields = `
@@ -31,6 +31,8 @@ export const types = () => `
     userId: String
     user: User
     ${posCommonFields}
+    user1s: [User]
+    user2s: [User]
   }
 `;
 
