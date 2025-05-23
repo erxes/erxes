@@ -776,7 +776,7 @@ export const fetchUserFromToki = async (
 
   const apiKey = clientPortal.tokiConfig.apiKey;
   return await fetch(
-    'https://qams-api.toki.mn/third-party-service/v1/shoppy/user',
+    'https://ms-api.toki.mn/third-party-service/v1/shoppy/user',
     {
       method: 'GET',
       headers: {
