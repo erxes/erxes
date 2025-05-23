@@ -182,6 +182,13 @@ ${
     certId: String
   }
 
+  type TokiConfig {
+    merchantId: String
+    apiKey: String
+    username: String
+    password: String
+  }
+
   type ClientPortal {
     _id: String!
     name: String!
@@ -252,6 +259,7 @@ ${
     testUserOTP: String
 
     socialpayConfig: SocialpayConfig
+    tokiConfig: TokiConfig
     language: String
 
     template: String
@@ -374,6 +382,7 @@ ${
     refreshTokenExpiration: Int
     vendorParentProductCategoryId: String
     socialpayConfig: JSON
+    tokiConfig: JSON
     language: String
 
     template: String

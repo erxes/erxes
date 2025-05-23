@@ -23,6 +23,13 @@ export interface ISocialpayConfig {
   certId: string;
 }
 
+export interface ITokiConfig {
+  merchantId: string;
+  apiKey: string;
+  username: string;
+  password: string;
+}
+
 export interface IMailConfig {
   subject: string;
   invitationContent: string;
@@ -71,6 +78,7 @@ export interface IClientPortal {
   manualVerificationConfig?: IManualVerificationConfig;
   passwordVerificationConfig?: IPasswordVerificationConfig;
   socialpayConfig?: ISocialpayConfig;
+  tokiConfig?: ITokiConfig;
 
   googleCredentials?: string;
   googleClientId?: string;
@@ -362,6 +370,16 @@ export const clientPortalSchema = new Schema({
     type: {
       publicKey: field({ type: String, optional: true }),
       certId: field({ type: String, optional: true }),
+    },
+    optional: true,
+  }),
+
+  tokiConfig: field({
+    type: {
+      merchantId: field({ type: String, optional: true }),
+      apiKey: field({ type: String, optional: true }),
+      username: field({ type: String, optional: true }),
+      password: field({ type: String, optional: true }),
     },
     optional: true,
   }),
