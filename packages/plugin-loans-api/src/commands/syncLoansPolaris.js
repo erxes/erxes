@@ -1,6 +1,32 @@
-const moment = require("moment");
+const dotenv = require("dotenv");
+const fetch = require("node-fetch");
 const http = require("http");
-const BigNumber = require("bignumber.js");
+const { MongoClient } = require("mongodb");
+const moment = require("moment");
+const BigNumber = require("bignumber.js").BigNumber;
+
+dotenv.config();
+
+// const { MONGO_URL } = process.env;
+const MONGO_URL = "mongodb://127.0.0.1:27017/erxes?directConnection=true";
+
+if (!MONGO_URL) {
+  throw new Error(`Environment variable MONGO_URL not set.`);
+}
+
+const client = new MongoClient(MONGO_URL);
+let db;
+let Customers;
+let LoanContracts;
+let LoanContractTypes;
+let LoanFirstSchedules;
+let LoanSchedules;
+let LoanTransaction;
+let Products;
+let ProductCategories;
+let LoanPurpose;
+let Branches;
+let Users;
 
 const nanoid = (len = 21) => {
   const charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -14,6 +40,266 @@ const nanoid = (len = 21) => {
 
   return randomString;
 };
+
+const fetchPolaris = async (op, body) => {
+  const headers = {
+    Op: op,
+    Cookie: `NESSESSION=03tv40BnPzFEEcGgsFxkhrAUTN7Awh`,
+    Company: "13",
+    Role: "45",
+    "Content-Type": "application/json",
+  };
+  const url = `http://202.131.242.158:4139/nesWeb/NesFront`;
+  const requestOptions = {
+    url,
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+    agent: new http.Agent({ keepAlive: true }),
+  };
+
+  const realResponse = await fetch(url, requestOptions)
+    .then(async (response) => {
+      if (!response.ok) {
+        const respErr = await response.text();
+        throw new Error(respErr);
+      }
+
+      return response.text();
+    })
+    .then((response) => {
+      try {
+        return JSON.parse(response);
+      } catch (e) {
+        return response;
+      }
+    })
+    .catch((e) => {
+      throw new Error(e.message);
+    });
+
+  return realResponse;
+};
+
+const command = async () => {
+  await client.connect();
+  console.log(Boolean(client));
+  db = client.db();
+  console.log(Boolean(db));
+
+  Customers = db.collection("customers");
+  LoanContracts = db.collection("loan_contracts");
+  LoanContractTypes = db.collection("loan_contract_types");
+  LoanFirstSchedules = db.collection("loan_first_schedules");
+  LoanSchedules = db.collection("loan_schedules");
+  LoanTransaction = db.collection("loan_transactions");
+  Products = db.collection("products");
+  ProductCategories = db.collection("product_categories");
+  LoanPurpose = db.collection("loan_purposes");
+  Branches = db.collection("branches");
+  Users = db.collection("users");
+
+  console.log(`Process start at: ${new Date()}`);
+  // const customerFilter = { code: { $exists: true } };
+  const customerFilter = { code: "CIF-13000112" };
+  // CIF-13000098
+  // CIF-13000112
+
+  const customersCount = await Customers.countDocuments(customerFilter);
+
+  let step = 0;
+  let per = 10000;
+
+  // const huulga = await fetchPolaris("13610201", [
+  //   "130013000562",
+  //   "2025-03-28",
+  //   "2025-07-28",
+  //   0,
+  //   100,
+  // ]);
+
+  // console.log(huulga, "huulga");
+
+  // await syncTransactions(
+  //   huulga,
+  //   2000000,
+  //   LoanTransaction,
+  //   LoanSchedules,
+  //   LoanContracts,
+  //   "FJLAAdVpCPOENHrDMmcIC"
+  // );
+
+  while (step * per < customersCount) {
+    const skip = step * per;
+    const customers = await Customers.find(customerFilter)
+      .sort({ code: 1 })
+      .skip(skip)
+      .limit(per)
+      .toArray();
+
+    for (const customer of customers) {
+      if (!customer.code) {
+        continue;
+      }
+
+      const pLoanContracts = await fetchPolaris("13610210", [
+        customer.code,
+        0,
+        20,
+      ]);
+
+      const filteredContracts = pLoanContracts.filter(
+        (contract) => contract.statusName !== "Хаасан"
+      );
+
+      for (const pLoanContract of filteredContracts) {
+        console.log("---------------------------------------------");
+
+        const contractDetail = await fetchPolaris("13610200", [
+          pLoanContract.acntCode,
+          0,
+        ]);
+
+        console.log(contractDetail, "contractDetail");
+
+        const collaterals = await fetchPolaris("13610904", [
+          pLoanContract.acntCode,
+        ]);
+
+        const contractType = await LoanContractTypes.findOne({
+          code: contractDetail.prodCode,
+        });
+
+        const createdContract = await LoanContracts.findOne({
+          number: contractDetail.acntCode,
+        });
+
+        const branch = await Branches.findOne({
+          code: contractDetail.brchCode,
+        });
+
+        const user = await Users.findOne({
+          employeeId: String(contractDetail.acntManager),
+        });
+
+        const purpose = await LoanPurpose.findOne({
+          code: contractDetail.purpose,
+        });
+
+        const subPurpose = await LoanPurpose.findOne({
+          code: contractDetail.subPurpose,
+        });
+
+        /**
+         * sync loan contract
+         */
+
+        if (contractType && !createdContract) {
+          const document = {
+            _id: nanoid(),
+            contractTypeId: contractType._id,
+            number: contractDetail.acntCode,
+            repayment: "fixed",
+            leaseType: "finance",
+            currency: contractDetail.curCode,
+            branchId: branch ? branch._id : "",
+            customerType:
+              contractDetail.custType === 0 ? "customer" : "company",
+            customerId: customer._id,
+            tenor: contractDetail.termLen,
+            loanPurpose: subPurpose ? subPurpose._id : "",
+            loanDestination: purpose ? purpose._id : "",
+            isSyncedPolaris: true,
+            isActiveSaving: true,
+            leaseAmount: contractDetail.approvAmount,
+            interestRate: contractDetail.baseFixedIntRate,
+            startDate: new Date(contractDetail.startDate),
+            contractDate: new Date(contractDetail.approvDate),
+            endDate: new Date(contractDetail.endDate),
+            createdAt: new Date(),
+            leasingExpertId: user ? user._id : "",
+            holidayType: "before",
+            useManualNumbering: null,
+            status: "normal",
+            classification: "NORMAL",
+            marginAmount: null,
+            feeAmount: 0,
+            lossPercent: 20,
+            lossCalcType: "fromInterest",
+            skipAmountCalcMonth: null,
+            insuranceAmount: 0,
+            debt: null,
+            debtTenor: null,
+            debtLimit: null,
+            weekends: [],
+            overPaymentIsNext: false,
+            scopeBrandIds: [],
+            collateralsData: [],
+            insurancesData: [],
+            relCustomers: [],
+            customFieldsData: [],
+            scheduleDays: [],
+          };
+
+          const updatedDocument = await syncCollateral(
+            ProductCategories,
+            Products,
+            collaterals,
+            document
+          );
+
+          const loanContract = await LoanContracts.insertOne({
+            ...updatedDocument,
+          });
+
+          /**
+           * sync loan schedules
+           */
+
+          const pLoanSchedules = await fetchPolaris("13610203", [
+            pLoanContract.acntCode,
+          ]);
+
+          await syncSchedules(
+            LoanFirstSchedules,
+            LoanContracts,
+            pLoanSchedules,
+            loanContract
+          );
+
+          /**
+           * sync loan transaction
+           */
+
+          // const huulga = await fetchPolaris("13610201", [
+          //   pLoanContract.acntCode,
+          //   moment(pLoanContract.startDate).format("YYYY-MM-DD"),
+          //   moment(pLoanContract.endDate).format("YYYY-MM-DD"),
+          //   0,
+          //   100,
+          // ]);
+
+          // await syncTransactions(
+          //   huulga,
+          //   contractDetail.approvAmount,
+          //   LoanTransaction,
+          //   LoanSchedules,
+          //   LoanContracts,
+          //   loanContract
+          // );
+        }
+      }
+    }
+
+    step++;
+  }
+
+  console.log(`Process finished at: ${new Date()}`);
+
+  process.exit();
+};
+
+command();
 
 const dateGroup = async (data, aprvAmnt) => {
   if (!data || !Array.isArray(data.txns)) {
@@ -53,28 +339,17 @@ const getMostFrequentPaymentDay = async (schedule) => {
   );
 };
 
-const getFullDate = (date: Date) => {
+const getFullDate = (date) => {
   return new Date(moment(date).format("YYYY-MM-DD"));
 };
 
-const getDiffDay = (fromDate: Date, toDate: Date) => {
+const getDiffDay = (fromDate, toDate) => {
   const date1 = getFullDate(fromDate);
   const date2 = getFullDate(toDate);
   return (date2.getTime() - date1.getTime()) / (1000 * 3600 * 24);
 };
 
-const getAmountByPriority = (
-  total: number,
-  params: {
-    debt: number;
-    loss: number;
-    storedInterest: number;
-    interestEve: number;
-    interestNonce: number;
-    insurance: number;
-    payment: number;
-  }
-) => {
+const getAmountByPriority = (total, params) => {
   const {
     debt,
     loss,
@@ -158,12 +433,7 @@ const calcInterest = ({
   interestRate,
   dayOfMonth = 30,
   fixed = 2,
-}: {
-  balance: number;
-  interestRate: number;
-  fixed?: number;
-  dayOfMonth?: number;
-}): number => {
+}) => {
   const interest = new BigNumber(interestRate).div(100).div(365);
   return new BigNumber(balance)
     .multipliedBy(interest)
@@ -172,12 +442,7 @@ const calcInterest = ({
     .toNumber();
 };
 
-const calcLoss = async (
-  contract: any,
-  paymentInfo: any,
-  lossPercent: number,
-  diff: number
-): Promise<number> => {
+const calcLoss = async (contract, paymentInfo, lossPercent, diff) => {
   let result = 0;
 
   switch (contract.lossCalcType) {
@@ -218,7 +483,7 @@ const calcLoss = async (
   return result;
 };
 
-const getDaysInMonth = (date: Date) => {
+const getDaysInMonth = (date) => {
   const ndate = getFullDate(date);
   const year = ndate.getFullYear();
   const month = ndate.getMonth() + 1;
@@ -229,7 +494,7 @@ const getDaysInMonth = (date: Date) => {
   // return new Date(year, month+1, 0).getDate();
 };
 
-const getDatesDiffMonth = (fromDate: Date, toDate: Date) => {
+const getDatesDiffMonth = (fromDate, toDate) => {
   const fDate = getFullDate(fromDate);
   const tDate = getFullDate(toDate);
 
@@ -263,26 +528,7 @@ const getCalcedAmountsOnDate = async (
   }
   console.log("2222222222");
   const currentDate = getFullDate(date);
-  const result: {
-    balance: number;
-    didBalance: number;
-    unUsedBalance: number;
-
-    loss: number;
-    interestEve: number;
-    interestNonce: number;
-    storedInterest: number;
-    commitmentInterest: number;
-    payment: number;
-    insurance: number;
-    debt: number;
-    total: number;
-    giveAmount: number;
-    calcInterest: number;
-    closeAmount: number;
-    preSchedule?: any;
-    skippedSchedules?: any[];
-  } = {
+  const result = {
     // status: 'pending' | 'done' | 'skipped' | 'pre' | 'less' | 'expired' | 'give';
     balance: 0,
     didBalance: 0,
@@ -974,8 +1220,8 @@ const generateDates = (
   perHolidays,
   firstPayDate
 ) => {
-  let mainDate: Date;
-  var dateRanges: Date[] = [];
+  let mainDate;
+  var dateRanges = [];
 
   // ehnii tuluh udur todorhoi bol ter uduriig ni dates-d oroltsuulna harin todorhoigui bol startDate ees hoishhi anh oldson huvaarit udruur todorhoilogdono
   if (firstPayDate) {
@@ -1020,15 +1266,11 @@ const generateDates = (
   return dateRanges;
 };
 
-const addMonths = (date: Date, months: number) => {
+const addMonths = (date, months) => {
   return new Date(moment(new Date(date)).add(months, "M").format("YYYY-MM-DD"));
 };
 
-const getSkipDate = (
-  currentDate: Date,
-  skipMonth?: number,
-  skipDay?: number
-) => {
+const getSkipDate = (currentDate, skipMonth, skipDay) => {
   if (skipDay) {
     return new Date(
       moment(new Date(currentDate)).add(skipDay, "day").format("YYYY-MM-DD")
@@ -1052,16 +1294,6 @@ const calcPerMonthEqual = async ({
   unUsedBalance,
   skipInterestCalcDate,
   skipAmountCalcDate,
-}: {
-  currentDate: Date;
-  balance: number;
-  interestRate: number;
-  payment: number;
-  nextDate: Date;
-  calculationFixed: number;
-  unUsedBalance?: number;
-  skipInterestCalcDate?: Date;
-  skipAmountCalcDate?: Date;
 }) => {
   // Хүү тооцохгүй огнооноос урагш бол үндсэн төлөлт л хийхнь
   if (skipInterestCalcDate && getDiffDay(nextDate, skipInterestCalcDate) >= 0) {
@@ -1167,12 +1399,6 @@ const getEqualPay = async ({
   leaseAmount,
   paymentDates,
   calculationFixed,
-}: {
-  startDate: Date;
-  interestRate: number;
-  leaseAmount?: number;
-  paymentDates: Date[];
-  calculationFixed: number;
 }) => {
   if (!leaseAmount) {
     return 0;
@@ -1207,13 +1433,6 @@ const calcAllMonthLast = async ({
   endDate,
   calculationFixed,
   unUsedBalance,
-}: {
-  currentDate: Date;
-  balance: number;
-  interestRate: number;
-  endDate: Date;
-  calculationFixed: number;
-  unUsedBalance?: number;
 }) => {
   const diffDay = getDiffDay(currentDate, endDate);
   const interest = calcInterest({
@@ -1263,16 +1482,6 @@ const calcPerMonthFixed = async ({
   unUsedBalance,
   skipInterestCalcDate,
   skipAmountCalcDate,
-}: {
-  currentDate: Date;
-  balance: number;
-  interestRate: number;
-  total: number;
-  nextDate: Date;
-  calculationFixed: number;
-  unUsedBalance?: number;
-  skipInterestCalcDate?: Date;
-  skipAmountCalcDate?: Date;
 }) => {
   // Хүү тооцохгүй огнооноос урагш бол
   if (skipInterestCalcDate && getDiffDay(nextDate, skipInterestCalcDate) >= 0) {
@@ -1371,7 +1580,7 @@ const calcPerMonthFixed = async ({
 };
 
 const scheduleHelper = async (
-  bulkEntries: any[],
+  bulkEntries,
   {
     _id,
     contractId,
@@ -1387,23 +1596,8 @@ const scheduleHelper = async (
     skipAmountCalcMonth,
     skipAmountCalcDay,
     dateRanges,
-  }: {
-    _id: string;
-    contractId: string;
-    repayment: string;
-    startDate: Date;
-    balance: number;
-    interestRate: number;
-    tenor: number;
-    salvageAmount: number;
-    unUsedBalance?: number;
-    skipInterestCalcMonth?: number;
-    skipInterestCalcDay?: number;
-    skipAmountCalcMonth?: number;
-    skipAmountCalcDay?: number;
-    dateRanges: Date[];
   },
-  calculationFixed: number = 2
+  calculationFixed = 2
 ) => {
   if (tenor === 0) {
     return bulkEntries;
@@ -1580,9 +1774,9 @@ const fixFutureSchedulesGive = async (
   const unUsedBalance = currentSchedule.unUsedBalance;
   contract.stepRules?.filter((sr) => sr.firstPayDate > currentSchedule.payDate);
 
-  let bulkEntries: any[] = [];
+  let bulkEntries = [];
   let balance = currentSchedule.didBalance || currentSchedule.balance;
-  let startDate: Date = getFullDate(currentSchedule.payDate);
+  let startDate = getFullDate(currentSchedule.payDate);
   let tenor = futureSchedules.length;
 
   if (contract.stepRules?.length) {
@@ -1611,6 +1805,7 @@ const fixFutureSchedulesGive = async (
           interestRate: stepRule.interestRate ?? contract.interestRate,
           tenor: stepRule.tenor,
           salvageAmount: stepRule.salvageAmount || 0,
+          unUsedBalance: unUsedBalance || 0,
           skipInterestCalcMonth: stepRule.skipInterestCalcMonth,
           skipInterestCalcDay: stepRule.skipInterestCalcDay,
           skipAmountCalcMonth: stepRule.skipAmountCalcMonth,
@@ -1621,7 +1816,7 @@ const fixFutureSchedulesGive = async (
       );
 
       if (bulkEntries.length) {
-        const preEntry: any = bulkEntries[bulkEntries.length - 1];
+        const preEntry = bulkEntries[bulkEntries.length - 1];
         startDate = preEntry.payDate;
         balance = preEntry.balance;
       }
@@ -1660,9 +1855,9 @@ const fixFutureSchedulesGive = async (
 };
 
 const generateSchedules = async (LoanSchedules, contract, unUsedBalance) => {
-  let bulkEntries: any[] = [];
+  let bulkEntries = [];
   let balance = contract.leaseAmount;
-  let startDate: Date = getFullDate(contract.startDate);
+  let startDate = getFullDate(contract.startDate);
   let tenor = contract.tenor;
 
   const perHolidays = {};
@@ -1682,7 +1877,7 @@ const generateSchedules = async (LoanSchedules, contract, unUsedBalance) => {
         }
       }
 
-      const dateRanges: Date[] = generateDates(
+      const dateRanges = generateDates(
         startDate,
         stepRule.scheduleDays || contract.scheduleDays,
         tenor,
@@ -1703,6 +1898,7 @@ const generateSchedules = async (LoanSchedules, contract, unUsedBalance) => {
           interestRate: stepRule.interestRate ?? contract.interestRate,
           tenor: stepRule.tenor,
           salvageAmount: stepRule.salvageAmount || 0,
+          unUsedBalance: unUsedBalance || 0,
           skipInterestCalcMonth: stepRule.skipInterestCalcMonth,
           skipInterestCalcDay: stepRule.skipInterestCalcDay,
           skipAmountCalcMonth: stepRule.skipAmountCalcMonth,
@@ -1713,7 +1909,7 @@ const generateSchedules = async (LoanSchedules, contract, unUsedBalance) => {
       );
 
       if (bulkEntries.length) {
-        const preEntry: any = bulkEntries[bulkEntries.length - 1];
+        const preEntry = bulkEntries[bulkEntries.length - 1];
         startDate = preEntry.payDate;
         balance = preEntry.balance;
       }
@@ -1722,7 +1918,7 @@ const generateSchedules = async (LoanSchedules, contract, unUsedBalance) => {
   }
 
   if (tenor > 0) {
-    const dateRanges: Date[] = generateDates(
+    const dateRanges = generateDates(
       startDate,
       contract.scheduleDays,
       tenor,
@@ -1859,13 +2055,7 @@ const afterGiveTrInSchedule = async (LoanSchedules, foundCT, tr) => {
     currentSchedule,
     futureSchedules
   );
-  const updateBulkOps: {
-    updateOne: {
-      filter: { _id: string };
-      update: any;
-      upsert: true;
-    };
-  }[] = [];
+  const updateBulkOps = [];
 
   let index = 0;
   for (const futureSch of futureSchedules) {
@@ -1884,47 +2074,7 @@ const afterGiveTrInSchedule = async (LoanSchedules, foundCT, tr) => {
   await LoanSchedules.bulkWrite(updateBulkOps);
 };
 
-const fetchPolaris = async (op, body) => {
-  const headers = {
-    Op: op,
-    Cookie: `NESSESSION=03tv40BnPzFEEcGgsFxkhrAUTN7Awh`,
-    Company: "13",
-    Role: "45",
-    "Content-Type": "application/json",
-  };
-  const url = `http://202.131.242.158:4139/nesWeb/NesFront`;
-  const requestOptions = {
-    url,
-    method: "POST",
-    headers,
-    body: JSON.stringify(body),
-    agent: new http.Agent({ keepAlive: true }),
-  };
-
-  const realResponse = await fetch(url, requestOptions)
-    .then(async (response) => {
-      if (!response.ok) {
-        const respErr = await response.text();
-        throw new Error(respErr);
-      }
-
-      return response.text();
-    })
-    .then((response) => {
-      try {
-        return JSON.parse(response);
-      } catch (e) {
-        return response;
-      }
-    })
-    .catch((e) => {
-      throw new Error(e.message);
-    });
-
-  return realResponse;
-};
-
-export const syncCollateral = async (
+const syncCollateral = async (
   ProductCategories,
   Products,
   collaterals,
@@ -2001,37 +2151,39 @@ export const syncCollateral = async (
   return document;
 };
 
-export const syncSchedules = async (
+const syncSchedules = async (
   LoanFirstSchedules,
   LoanContracts,
   pLoanSchedules,
   loanContract
 ) => {
-  const schedules = pLoanSchedules.map((schedule) => ({
-    _id: nanoid(),
-    contractId: loanContract.insertedId.toString(),
-    status: "pending",
-    payDate: new Date(schedule.schdDate),
-    balance: schedule.totalAmount,
-    interestNonce: schedule.intAmount,
-    payment: schedule.totalAmount,
-    total: schedule.totalAmount,
-  }));
+  if (pLoanSchedules.length > 0) {
+    const schedules = pLoanSchedules.map((schedule) => ({
+      _id: nanoid(),
+      contractId: loanContract.insertedId.toString(),
+      status: "pending",
+      payDate: new Date(schedule.schdDate),
+      balance: schedule.totalAmount,
+      interestNonce: schedule.intAmount,
+      payment: schedule.totalAmount,
+      total: schedule.totalAmount,
+    }));
 
-  await LoanFirstSchedules.insertMany(schedules);
+    await LoanFirstSchedules.insertMany(schedules);
 
-  await LoanContracts.updateOne(
-    { _id: loanContract.insertedId },
-    {
-      $set: {
-        firstPayDate: new Date(pLoanSchedules[0].schdDate),
-        scheduleDays: [await getMostFrequentPaymentDay(pLoanSchedules)],
-      },
-    }
-  );
+    await LoanContracts.updateOne(
+      { _id: loanContract.insertedId },
+      {
+        $set: {
+          firstPayDate: new Date(pLoanSchedules[0].schdDate),
+          scheduleDays: [await getMostFrequentPaymentDay(pLoanSchedules)],
+        },
+      }
+    );
+  }
 };
 
-export const syncTransactions = async (
+const syncTransactions = async (
   huulga,
   aprvAmnt,
   LoanTransaction,
@@ -2041,7 +2193,7 @@ export const syncTransactions = async (
 ) => {
   const filteredIncomeTxns = await dateGroup(huulga, aprvAmnt);
 
-  console.log(loanContract, "filtered");
+  console.log(filteredIncomeTxns, "filteredIncomeTxns");
 
   for (const data of filteredIncomeTxns) {
     const foundCT = await LoanContracts.findOne({
