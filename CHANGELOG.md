@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.12.3](https://github.com/erxes/erxes/compare/2.12.2...2.12.3) (2025-05-27)
+
+### Bug Fixes
+
+* **tickets:**  related ticket ([20c3855](https://github.com/erxes/erxes/commit/20c3855277bd705b6c49fe1b8ac9d41de3f82c30))
+
 ## [2.12.2](https://github.com/erxes/erxes/compare/2.12.1...2.12.2) (2025-05-27)
 
 ### Features
