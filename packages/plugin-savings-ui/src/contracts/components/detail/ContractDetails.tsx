@@ -8,22 +8,16 @@ import ScheduleSection from '../schedules/ScheduleSection';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 import { Tabs } from '../list/ContractForm';
-import Polaris from '../polaris/index';
 import { loadDynamicComponent } from '@erxes/ui/src/utils';
 
 type Props = {
   contract: IContractDoc;
   currentUser: IUser;
-  reSendContract: (data: any) => void;
-  savingActive: (contractNumber: string) => void;
-  sendDeposit: (data: any) => void;
-  depositActive: (contractNumber: string) => void;
   loading: boolean;
 };
 
 const ContractDetails = (props: Props) => {
-  const { contract, reSendContract, savingActive, sendDeposit, depositActive } =
-    props;
+  const { contract } = props;
 
   const title = contract.number || 'Unknown';
 
@@ -44,23 +38,11 @@ const ContractDetails = (props: Props) => {
         )
       },
       {
-        label: __(`Sync Polaris 2.0`),
+        label: __(`Sync Polaris`),
         component: loadDynamicComponent(
           'savingPolarisSection',
           { contract },
           true
-        )
-      },
-      {
-        label: __(`Sync Polaris`),
-        component: (
-          <Polaris
-            contract={contract}
-            reSendContract={reSendContract}
-            savingActive={savingActive}
-            sendDeposit={sendDeposit}
-            depositActive={depositActive}
-          />
         )
       }
     ];

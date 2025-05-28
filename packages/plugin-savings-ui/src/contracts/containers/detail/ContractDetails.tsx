@@ -1,17 +1,11 @@
-import { Alert, EmptyState, Spinner } from '@erxes/ui/src';
+import { EmptyState, Spinner } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { gql } from '@apollo/client';
 import React, { useEffect } from 'react';
 import ContractDetails from '../../components/detail/ContractDetails';
-import { mutations, queries } from '../../graphql';
-import {
-  DepositActiveMutationResponse,
-  DetailQueryResponse,
-  SavingsActiveMutationResponse,
-  SavingsMutationResponse,
-  SendDepositMutationResponse,
-} from '../../types';
-import { useQuery, useMutation } from '@apollo/client';
+import { queries } from '../../graphql';
+import { DetailQueryResponse } from '../../types';
+import { useQuery } from '@apollo/client';
 import subscriptions from '../../graphql/subscriptions';
 
 type Props = {
@@ -29,8 +23,8 @@ const ContractDetailsContainer = (props: FinalProps) => {
     gql(queries.contractDetail),
     {
       variables: {
-        _id: id,
-      },
+        _id: id
+      }
     }
   );
 
@@ -41,77 +35,9 @@ const ContractDetailsContainer = (props: FinalProps) => {
       updateQuery: (prev) => {
         contractDetailQuery.refetch();
         return prev;
-      },
+      }
     });
   }, []);
-
-  const [sendSavings] = useMutation<SavingsMutationResponse>(
-    gql(mutations.sendSaving),
-    {
-      refetchQueries: ['savingsContractDetail'],
-    }
-  );
-
-  const [savingActive] = useMutation<SavingsActiveMutationResponse>(
-    gql(mutations.savingActive),
-    {
-      refetchQueries: ['savingsContractDetail'],
-    }
-  );
-
-  const [sendDeposit] = useMutation<SendDepositMutationResponse>(
-    gql(mutations.sendDeposit),
-    {
-      refetchQueries: ['savingsContractDetail'],
-    }
-  );
-
-  const [depositActive] = useMutation<DepositActiveMutationResponse>(
-    gql(mutations.depositActive),
-    {
-      refetchQueries: ['savingsContractDetail'],
-    }
-  );
-
-  const regenPolarisHandler = (data: any) => {
-    sendSavings({ variables: { data } })
-      .then(() => {
-        Alert.success('Successfully synced');
-      })
-      .catch((error) => {
-        Alert.error(error.message);
-      });
-  };
-
-  const savingActiveHandler = (contractNumber: string) => {
-    savingActive({ variables: { contractNumber } })
-      .then(() => {
-        Alert.success('Successfully activated');
-      })
-      .catch((error) => {
-        Alert.error(error.message);
-      });
-  };
-
-  const sendDepositHandler = (data: any) => {
-    sendDeposit({ variables: { data } })
-      .then(() => {
-        Alert.success('Successfully synced');
-      })
-      .catch((error) => {
-        Alert.error(error.message);
-      });
-  };
-
-  const depositActiveHandler = (contractNumber: string) => {
-    depositActive({ variables: { contractNumber } })
-      .then(() => {
-        Alert.success('Successfully activated');
-      })
-      .catch((error) => {
-        Alert.error(error.message);
-      });
-  };
 
   if (contractDetailQuery.loading) {
     return <Spinner objective={true} />;
@@ -129,11 +55,7 @@ const ContractDetailsContainer = (props: FinalProps) => {
     ...props,
     loading: contractDetailQuery.loading,
     contract: contractDetail,
-    currentUser,
-    reSendContract: regenPolarisHandler,
-    savingActive: savingActiveHandler,
-    sendDeposit: sendDepositHandler,
-    depositActive: depositActiveHandler,
+    currentUser
   };
 
   return <ContractDetails {...updatedProps} />;

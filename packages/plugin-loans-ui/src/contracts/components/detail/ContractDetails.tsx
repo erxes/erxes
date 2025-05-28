@@ -17,7 +17,6 @@ import TransactionSection from '../transaction/TransactionSection';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import Polaris from '../polaris/index';
 import { loadDynamicComponent } from '@erxes/ui/src/utils';
 
 const ActivityInputs = asyncComponent(
@@ -46,10 +45,6 @@ type Props = {
   saveItem: (doc: IContractDoc, callback?: (item) => void) => void;
   regenSchedules: (contractId: string) => void;
   fixSchedules: (contractId: string) => void;
-  reSendContract: (data: any) => void;
-  reSendCollateral: (contract: any) => void;
-  reSendSchedules: (contract: any) => void;
-  activeLoan: (contractNumber: string) => void;
   loading: boolean;
 };
 
@@ -60,14 +55,7 @@ type State = {
 };
 
 const ContractDetails = (props: Props) => {
-  const {
-    saveItem,
-    contract,
-    reSendContract,
-    reSendCollateral,
-    reSendSchedules,
-    activeLoan
-  } = props;
+  const { saveItem, contract } = props;
 
   const [collateralsData, setCollateralsData] = useState(
     contract.collaterals ? contract.collaterals.map((p) => ({ ...p })) : []
@@ -163,23 +151,11 @@ const ContractDetails = (props: Props) => {
         )
       },
       {
-        label: __(`Sync Polaris 2.0`),
+        label: __(`Sync Polaris`),
         component: loadDynamicComponent(
           'loanPolarisSection',
           { contract },
           true
-        )
-      },
-      {
-        label: __('Sync Polaris'),
-        component: (
-          <Polaris
-            contract={contract}
-            reSendContract={reSendContract}
-            reSendCollateral={reSendCollateral}
-            reSendSchedules={reSendSchedules}
-            activeLoan={activeLoan}
-          />
         )
       }
     ];
