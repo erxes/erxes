@@ -22,7 +22,7 @@ export const activeSaving = async (
 
   const result = await fetchPolaris({
     op: '13610122',
-    data: ['params.contractNumber', 'данс нээв'],
+    data: [params.contractNumber, 'данс нээв'],
     subdomain,
     models,
     polarisConfig,

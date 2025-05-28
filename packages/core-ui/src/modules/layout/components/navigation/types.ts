@@ -1,4 +1,4 @@
-import { QueryResponse } from "@erxes/ui/src/types";
+import { QueryResponse } from '@erxes/ui/src/types';
 
 export type GetEnvQueryResponse = {
   configsGetEnv: {
@@ -133,6 +133,7 @@ export type PluginConfig = {
   extendSystemConfig?: string;
   carRightSidebarSection?: string;
   savingPolarisSection?: string;
+  loanPolarisSection?: string;
   template?: string;
 };
 

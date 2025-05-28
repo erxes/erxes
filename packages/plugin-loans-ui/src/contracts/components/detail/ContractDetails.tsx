@@ -1,35 +1,36 @@
-import { IContractDoc, IInvoice } from "../../types";
-import React, { useState } from "react";
+import { IContractDoc, IInvoice } from '../../types';
+import React, { useState } from 'react';
 
-import ActivityItem from "./ActivityItem";
-import CollateralsSection from "./CollateralsSection";
-import { IProduct } from "@erxes/ui-products/src/types";
-import { ITransaction } from "../../../transactions/types";
-import { IUser } from "@erxes/ui/src/auth/types";
-import InvoiceList from "../invoices/InvoiceList";
-import { LEASE_TYPES } from "../../../contractTypes/constants";
-import LeftSidebar from "./LeftSidebar";
-import RightSidebar from "./RightSidebar";
-import ScheduleSection from "../schedules/ScheduleSection";
-import StoreInterestSection from "../storeInterest/StoreInterestSection";
-import { Tabs } from "../list/ContractForm";
-import TransactionSection from "../transaction/TransactionSection";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { __ } from "coreui/utils";
-import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
-import Polaris from "../polaris/index";
+import ActivityItem from './ActivityItem';
+import CollateralsSection from './CollateralsSection';
+import { IProduct } from '@erxes/ui-products/src/types';
+import { ITransaction } from '../../../transactions/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import InvoiceList from '../invoices/InvoiceList';
+import { LEASE_TYPES } from '../../../contractTypes/constants';
+import LeftSidebar from './LeftSidebar';
+import RightSidebar from './RightSidebar';
+import ScheduleSection from '../schedules/ScheduleSection';
+import StoreInterestSection from '../storeInterest/StoreInterestSection';
+import { Tabs } from '../list/ContractForm';
+import TransactionSection from '../transaction/TransactionSection';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import Polaris from '../polaris/index';
+import { loadDynamicComponent } from '@erxes/ui/src/utils';
 
 const ActivityInputs = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "ActivityInputs" */ "@erxes/ui-log/src/activityLogs/components/ActivityInputs"
+      /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/src/activityLogs/components/ActivityInputs'
     )
 );
 
 const ActivityLogs = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "ActivityLogs" */ "@erxes/ui-log/src/activityLogs/containers/ActivityLogs"
+      /* webpackChunkName: "ActivityLogs" */ '@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
     )
 );
 
@@ -104,23 +105,23 @@ const ContractDetails = (props: Props) => {
   };
 
   const onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    if (name === "collaterals") {
+    if (name === 'collaterals') {
       setCollaterals(value);
     }
-    if (name === "collateralsData") {
+    if (name === 'collateralsData') {
       setCollateralsData([...value]);
     }
   };
 
-  const title = contract.number || "Unknown";
+  const title = contract.number || 'Unknown';
 
   const breadcrumb = [
-    { title: __("Contracts"), link: "/erxes-plugin-loan/contract-list" },
+    { title: __('Contracts'), link: '/erxes-plugin-loan/contract-list' },
     { title }
   ];
 
-  const pDataChange = (pData) => onChangeField("collateralsData", pData);
-  const prsChange = (prs) => onChangeField("collaterals", prs);
+  const pDataChange = (pData) => onChangeField('collateralsData', pData);
+  const prsChange = (prs) => onChangeField('collaterals', prs);
   const content = () => {
     let tabs = [
       {
@@ -148,7 +149,7 @@ const ContractDetails = (props: Props) => {
         )
       },
       {
-        label: __("Collaterals"),
+        label: __('Collaterals'),
         component: (
           <CollateralsSection
             {...props}
@@ -162,7 +163,15 @@ const ContractDetails = (props: Props) => {
         )
       },
       {
-        label: __("Sync Polaris"),
+        label: __(`Sync Polaris 2.0`),
+        component: loadDynamicComponent(
+          'loanPolarisSection',
+          { contract },
+          true
+        )
+      },
+      {
+        label: __('Sync Polaris'),
         component: (
           <Polaris
             contract={contract}
@@ -177,7 +186,7 @@ const ContractDetails = (props: Props) => {
 
     if (contract?.storeInterest.length > 0)
       tabs.push({
-        label: __("Interest store"),
+        label: __('Interest store'),
         component: <StoreInterestSection invoices={contract.storeInterest} />
       });
 
@@ -198,7 +207,7 @@ const ContractDetails = (props: Props) => {
             showEmail={false}
           />
           <ActivityLogs
-            target={contract.number || ""}
+            target={contract.number || ''}
             contentId={contract._id}
             contentType="loans:contract"
             extraTabs={[]}

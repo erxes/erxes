@@ -1,25 +1,19 @@
-import { IContext } from "../../../connectionResolver";
-import { getConfig } from "../../../utils/utils";
-import {
-  findDiffrentData,
-  getCustomFields,
-  getMainDatas,
-  getPolarisData,
-} from "../../../utils/toSyncUtils/utils";
-import { createSavingMessage } from "../../../utils/saving/createSavingMessage";
-import { activeSaving } from "../../../utils/saving/activeSaving";
+import { IContext } from '../../../connectionResolver';
+import { getConfig } from '../../../utils/utils';
+import { createSavingMessage } from '../../../utils/saving/createSavingMessage';
+import { activeSaving } from '../../../utils/saving/activeSaving';
 
 const checkMutations = {
   async sendSaving(_root, { data }: { data: any[] }, { subdomain }: IContext) {
-    const config = await getConfig(subdomain, "POLARIS", {});
+    const config = await getConfig(subdomain, 'POLARIS', {});
 
     if (!config.token) {
-      throw new Error("POLARIS config not found.");
+      throw new Error('POLARIS config not found.');
     }
 
     await createSavingMessage(subdomain, config, data);
 
-    return "success";
+    return 'success';
   },
 
   async savingContractActive(
@@ -27,15 +21,15 @@ const checkMutations = {
     { contractNumber }: { contractNumber: string },
     { subdomain }: IContext
   ) {
-    const config = await getConfig(subdomain, "POLARIS", {});
+    const config = await getConfig(subdomain, 'POLARIS', {});
 
     if (!config.token) {
-      throw new Error("POLARIS config not found.");
+      throw new Error('POLARIS config not found.');
     }
 
     await activeSaving(subdomain, config, contractNumber);
 
-    return "success";
-  },
+    return 'success';
+  }
 };
 export default checkMutations;

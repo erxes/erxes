@@ -49,7 +49,7 @@ function SavingActive({
   const renderRow = (saving) => {
     return (
       <tr key={saving._id}>
-        <td>{saving.responseData ? 'synced' : 'not synced'}</td>
+        <td>{saving?.responseData ? 'synced' : 'not synced'}</td>
         <td>{saving?.responseData || saving?.content}</td>
         <td style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
           {saving?.error || saving?.responseData}
@@ -77,7 +77,15 @@ function SavingActive({
             </thead>
 
             <tbody>
-              {(savingHistories || []).map((saving) => renderRow(saving))}
+              {(savingHistories || []).length > 0
+                ? (savingHistories || []).map((saving) => renderRow(saving))
+                : contract.isActiveSaving && (
+                    <tr>
+                      <td>{contract?.isActiveSaving && 'Activated Saving'}</td>
+                      <td>{contract?.number || ''}</td>
+                      <td>{''}</td>
+                    </tr>
+                  )}
             </tbody>
           </Table>
         </ContractsTableWrapper>

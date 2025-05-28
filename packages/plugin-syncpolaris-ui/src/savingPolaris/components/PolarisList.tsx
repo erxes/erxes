@@ -45,7 +45,7 @@ export function Tabs({ tabs }: ITabs) {
 }
 
 const PolarisList = (props: IProps) => {
-  const { savingHistories } = props;
+  const { savingHistories, contract } = props;
 
   const renderRow = (saving) => {
     return (
@@ -70,8 +70,16 @@ const PolarisList = (props: IProps) => {
           </tr>
         </thead>
 
-        <tbody>
-          {(savingHistories || []).map((saving) => renderRow(saving))}
+        <tbody id="saving">
+          {(savingHistories || []).length > 0
+            ? savingHistories.map((saving) => renderRow(saving))
+            : contract.isSyncedPolaris && (
+                <tr>
+                  <td>{'Synced'}</td>
+                  <td>{contract?.number || ''}</td>
+                  <td>{contract?.contractType?.name || ''}</td>
+                </tr>
+              )}
         </tbody>
       </Table>
     </ContractsTableWrapper>
