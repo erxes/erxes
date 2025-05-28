@@ -26,4 +26,6 @@ export const queries = `
 
   pullPolarisConfigs(contentType: String) : JSON
   pullPolarisData(contentType: String, contentId: String, kind: String, codes: [String]) : JSON
+
+  syncSavingsData(contentType: String, contentId: String): [SyncHistoryPolaris]
 `;

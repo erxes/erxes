@@ -1,12 +1,13 @@
 import React from 'react';
-import { Tabs } from '../list/ContractForm';
+import { Tabs } from './PolarisList';
 import { __ } from 'coreui/utils';
-import { IContract } from '../../types';
+import { IContract } from '../types';
 import PolarisSection from './PolarisSection';
-import SavingActive from './SavingActive';
+import SavingActive from '../containers/ActiveContainer';
 
 interface IProps {
   contract: IContract;
+  savingHistories: any[];
   reSendContract: (data: any) => void;
   savingActive: (contractNumber: string) => void;
   sendDeposit: (data: any) => void;
@@ -19,12 +20,12 @@ function PolarisData(props: IProps) {
       tabs={[
         {
           label: __(`Sync Polaris`),
-          component: <PolarisSection {...props} />,
+          component: <PolarisSection {...props} />
         },
         {
           label: __(`Active Saving contract`),
-          component: <SavingActive {...props} />,
-        },
+          component: <SavingActive {...props} />
+        }
       ]}
     />
   );

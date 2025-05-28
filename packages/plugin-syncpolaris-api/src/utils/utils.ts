@@ -78,6 +78,12 @@ export const fetchPolaris = async (args: IParams) => {
       .then(async (response) => {
         if (!response.ok) {
           const respErr = await response.text();
+          if (models && syncLog) {
+            await models.SyncLogs.updateOne(
+              { _id: syncLog._id },
+              { $set: { error: respErr } }
+            );
+          }
           throw new Error(respErr);
         }
 

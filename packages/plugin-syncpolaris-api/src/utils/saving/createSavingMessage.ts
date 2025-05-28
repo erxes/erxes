@@ -1,20 +1,20 @@
-import { generateModels } from "../../connectionResolver";
+import { generateModels } from '../../connectionResolver';
 import {
   fetchPolaris,
   getBranch,
   updateContract,
   sendMessageBrokerData
-} from "../utils";
-import { getDate } from "./getDate";
-import { updateSaving } from "./updateSaving";
-import { validateDepositObject } from "./validator";
+} from '../utils';
+import { getDate } from './getDate';
+import { updateSaving } from './updateSaving';
+import { validateDepositObject } from './validator';
 
 export const createSavingMessage = async (
   subdomain: string,
   polarisConfig,
-  params
+  savingContract,
+  user?
 ) => {
-  const savingContract = params.data;
   const { contractType } = savingContract;
 
   let savingCode;
@@ -32,18 +32,18 @@ export const createSavingMessage = async (
   const models = await generateModels(subdomain);
 
   const syncLogDoc = {
-    type: "",
-    contentType: "savings:contract",
-    contentId: params.data._id,
+    type: '',
+    contentType: 'savings:contract',
+    contentId: savingContract._id,
     createdAt: new Date(),
-    createdBy: "",
-    consumeData: params.data,
-    consumeStr: JSON.stringify(params.data)
+    createdBy: '',
+    consumeData: savingContract,
+    consumeStr: JSON.stringify(savingContract)
   };
 
   const preSuccessValue = await models.SyncLogs.findOne({
-    contentType: "savings:contract",
-    contentId: params.data._id,
+    contentType: 'savings:contract',
+    contentId: savingContract._id,
     error: { $exists: false },
     responseData: { $exists: true, $ne: null }
   }).sort({ createdAt: -1 });
@@ -56,37 +56,37 @@ export const createSavingMessage = async (
       models,
       polarisConfig,
       syncLog,
-      params,
-      ""
+      savingContract,
+      user
     );
   }
 
   const customer = await sendMessageBrokerData(
     subdomain,
-    "core",
-    "customers.findOne",
+    'core',
+    'customers.findOne',
     { _id: savingContract.customerId }
   );
 
   if (!customer?.code) {
-    throw new Error("Customer code is required before calling fetchPolaris.");
+    throw new Error('Customer code is required before calling fetchPolaris.');
   }
 
   const getAccounts = await fetchPolaris({
-    op: "13610312",
+    op: '13610312',
     data: [customer?.code, 0, 20],
     subdomain,
     polarisConfig
   });
 
   const customerAccount = getAccounts.filter(
-    (account) => account.acntType === "CA"
+    (account) => account.acntType === 'CA'
   );
 
   const deposit = await sendMessageBrokerData(
     subdomain,
-    "savings",
-    "contracts.findOne",
+    'savings',
+    'contracts.findOne',
     { _id: savingContract.depositAccount }
   );
 
@@ -98,21 +98,21 @@ export const createSavingMessage = async (
     new Date(systemDate).getMonth() + savingContract.duration
   );
 
-  const depositNumber = deposit?.number || "";
+  const depositNumber = deposit?.number || '';
   const polarisNumber =
     customerAccount && customerAccount.length > 0
       ? customerAccount[0].acntCode
-      : "";
+      : '';
 
   let sendData = {
     prodCode: contractType.code,
     slevel: 1,
-    capMethod: "1",
-    capAcntCode: depositNumber || polarisNumber || "",
-    capAcntSysNo: "1306",
+    capMethod: '1',
+    capAcntCode: depositNumber || polarisNumber || '',
+    capAcntSysNo: '1306',
     startDate: systemDate,
-    maturityOption: "C",
-    rcvAcntCode: "",
+    maturityOption: 'C',
+    rcvAcntCode: '',
     brchCode: branch?.code,
     curCode: savingContract.currency,
     name: `${customer.firstName} ${customer.lastName}`,
@@ -120,15 +120,15 @@ export const createSavingMessage = async (
     termLen: savingContract.duration,
     maturityDate: new Date(endDate),
     custCode: customer?.code,
-    segCode: "81",
-    jointOrSingle: "S",
-    statusCustom: "N",
-    statusDate: "",
-    casaAcntCode: "",
-    closedBy: "",
-    closedDate: "",
-    lastCtDate: "",
-    lastDtDate: ""
+    segCode: '81',
+    jointOrSingle: 'S',
+    statusCustom: 'N',
+    statusDate: '',
+    casaAcntCode: '',
+    closedBy: '',
+    closedDate: '',
+    lastCtDate: '',
+    lastDtDate: ''
   };
 
   await validateDepositObject(sendData);
@@ -140,7 +140,7 @@ export const createSavingMessage = async (
     branch?.code != null
   ) {
     savingCode = await fetchPolaris({
-      op: "13610120",
+      op: '13610120',
       data: [sendData],
       subdomain,
       models,
@@ -161,7 +161,7 @@ export const createSavingMessage = async (
           endDate: new Date(endDate)
         }
       },
-      "savings"
+      'savings'
     );
   }
 

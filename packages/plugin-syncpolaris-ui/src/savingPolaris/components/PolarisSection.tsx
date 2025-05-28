@@ -2,25 +2,38 @@ import { Box } from '@erxes/ui/src';
 import { __ } from 'coreui/utils';
 import React from 'react';
 
-import { ScrollTableColls } from '../../styles';
-import withConsumer from '../../../withConsumer';
+import { ScrollTableColls } from '../styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import { IUser } from '@erxes/ui/src/auth/types';
 import confirm from '@erxes/ui/src/utils/confirmation/confirm';
 import Alert from '@erxes/ui/src/utils/Alert';
-import { IContractDoc } from '../../types';
-import PolarisContainer from '../../containers/Polaris';
+import { IContractDoc } from '../types';
+import PolarisList from './PolarisList';
 
 type Props = {
   contract: IContractDoc;
   currentUser: IUser;
+  savingHistories: any[];
   reSendContract: (data: any) => void;
+  sendDeposit: (data: any) => void;
 };
 
-function PolarisSection({ contract, reSendContract }: Props) {
+function PolarisSection({
+  currentUser,
+  contract,
+  savingHistories,
+  reSendContract,
+  sendDeposit
+}: Props) {
   const onSendPolaris = () =>
-    confirm(__('Are you sure Send Loan polaris?'))
-      .then(() => reSendContract(contract))
+    confirm(__('Are you sure Send Savings polaris?'))
+      .then(() => {
+        if (contract.isDeposit) {
+          return sendDeposit(contract);
+        } else {
+          return reSendContract(contract);
+        }
+      })
       .catch((error) => {
         Alert.error(error.message);
       });
@@ -35,16 +48,19 @@ function PolarisSection({ contract, reSendContract }: Props) {
 
   return (
     <Box
-      title={__('Loan & Polaris')}
+      title={__('Saving & Polaris')}
       name="showPolaris"
       isOpen={true}
       extraButtons={renderExtraButton()}
     >
       <ScrollTableColls>
-        <PolarisContainer contract={contract}></PolarisContainer>
+        <PolarisList
+          contract={contract}
+          savingHistories={savingHistories}
+        ></PolarisList>
       </ScrollTableColls>
     </Box>
   );
 }
 
-export default withConsumer(PolarisSection);
+export default PolarisSection;

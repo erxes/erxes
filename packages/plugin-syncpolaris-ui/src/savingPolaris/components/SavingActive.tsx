@@ -3,20 +3,26 @@ import { __ } from 'coreui/utils';
 import React from 'react';
 import { Table } from '@erxes/ui/src';
 
-import { ContractsTableWrapper } from '../../styles';
-import { ScrollTableColls } from '../../styles';
+import { ContractsTableWrapper } from '../styles';
+import { ScrollTableColls } from '../styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import confirm from '@erxes/ui/src/utils/confirmation/confirm';
 import Alert from '@erxes/ui/src/utils/Alert';
-import { IContractDoc } from '../../types';
+import { IContractDoc } from '../types';
 
 type Props = {
   contract: IContractDoc;
+  savingHistories: any[];
   savingActive: (contractNumber: string) => void;
   depositActive: (contractNumber: string) => void;
 };
 
-function SavingActive({ contract, savingActive, depositActive }: Props) {
+function SavingActive({
+  contract,
+  savingHistories,
+  savingActive,
+  depositActive
+}: Props) {
   const onHandlePolaris = () =>
     confirm(__('Are you sure you want to activate Savings?'))
       .then(() => {
@@ -40,6 +46,18 @@ function SavingActive({ contract, savingActive, depositActive }: Props) {
     );
   };
 
+  const renderRow = (saving) => {
+    return (
+      <tr key={saving._id}>
+        <td>{saving?.responseData ? 'synced' : 'not synced'}</td>
+        <td>{saving?.responseData || saving?.content}</td>
+        <td style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
+          {saving?.error || saving?.responseData}
+        </td>
+      </tr>
+    );
+  };
+
   return (
     <Box
       title={__('Active Saving')}
@@ -54,19 +72,21 @@ function SavingActive({ contract, savingActive, depositActive }: Props) {
               <tr>
                 <th>{__('Is Active Contract')}</th>
                 <th>{__('Polaris Contract Id')}</th>
+                <th>{__('Message')}</th>
               </tr>
             </thead>
 
-            {contract.isActiveSaving ? (
-              <tbody id="schedules">
-                <tr>
-                  <td>{contract?.isActiveSaving && 'Activated'}</td>
-                  <td>{contract?.number || ''}</td>
-                </tr>
-              </tbody>
-            ) : (
-              ''
-            )}
+            <tbody>
+              {(savingHistories || []).length > 0
+                ? (savingHistories || []).map((saving) => renderRow(saving))
+                : contract.isActiveSaving && (
+                    <tr>
+                      <td>{contract?.isActiveSaving && 'Activated Saving'}</td>
+                      <td>{contract?.number || ''}</td>
+                      <td>{''}</td>
+                    </tr>
+                  )}
+            </tbody>
           </Table>
         </ContractsTableWrapper>
       </ScrollTableColls>
