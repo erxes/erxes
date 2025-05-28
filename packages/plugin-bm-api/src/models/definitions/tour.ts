@@ -24,6 +24,7 @@ export interface ITour {
   branchId: string;
   tags: string[];
   viewCount: number;
+  advancePercent?: number;
   info1?: string;
   info2?: string;
   info3?: string;
@@ -89,6 +90,12 @@ export const tourSchema = schemaHooksWrapper(
     cost: field({ type: Number, optional: true, label: "cost" }),
     tagIds: field({ type: [String], optional: true, label: "tagIds" }),
     viewCount: field({ type: Number, optional: true, label: "viewCount" }),
+    advancePercent: field({
+      type: Number,
+      optional: true,
+      label: "advancePercent"
+    }),
+
     branchId: field({ type: String, optional: true, label: "branchId" }),
 
     info1: field({ type: String, optional: true, label: "info" }),
