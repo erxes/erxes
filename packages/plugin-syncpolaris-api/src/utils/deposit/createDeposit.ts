@@ -1,21 +1,19 @@
-import { generateModels } from "../../connectionResolver";
+import { generateModels } from '../../connectionResolver';
 import {
   fetchPolaris,
   getBranch,
   sendMessageBrokerData,
   updateContract
-} from "../utils";
-import { IPolarisDeposit } from "./types";
-import { updateDeposit } from "./updateDeposit";
-import { validateDepositObject } from "./validator";
+} from '../utils';
+import { IPolarisDeposit } from './types';
+import { updateDeposit } from './updateDeposit';
+import { validateDepositObject } from './validator';
 
 export const createDeposit = async (
   subdomain: string,
   polarisConfig,
-  params
+  deposit
 ) => {
-  const deposit = params.data;
-
   if (
     !polarisConfig ||
     !polarisConfig.apiUrl ||
@@ -29,18 +27,18 @@ export const createDeposit = async (
   const models = await generateModels(subdomain);
 
   const syncLogDoc = {
-    type: "",
-    contentType: "savings:contract",
-    contentId: params.data._id,
+    type: '',
+    contentType: 'savings:contract',
+    contentId: deposit._id,
     createdAt: new Date(),
-    createdBy: "",
-    consumeData: params.data,
-    consumeStr: JSON.stringify(params.data)
+    createdBy: '',
+    consumeData: deposit,
+    consumeStr: JSON.stringify(deposit)
   };
 
   const preSuccessValue = await models.SyncLogs.findOne({
-    contentType: "savings:contract",
-    contentId: params.data._id,
+    contentType: 'savings:contract',
+    contentId: deposit._id,
     error: { $exists: false },
     responseData: { $exists: true, $ne: null }
   }).sort({ createdAt: -1 });
@@ -53,14 +51,14 @@ export const createDeposit = async (
       models,
       polarisConfig,
       syncLog,
-      params
+      deposit
     );
   }
 
   const savingProduct = await sendMessageBrokerData(
     subdomain,
-    "savings",
-    "contractType.findOne",
+    'savings',
+    'contractType.findOne',
     { _id: deposit.contractTypeId }
   );
 
@@ -68,51 +66,51 @@ export const createDeposit = async (
 
   const customer = await sendMessageBrokerData(
     subdomain,
-    "core",
-    "customers.findOne",
+    'core',
+    'customers.findOne',
     { _id: deposit.customerId }
   );
 
   let sendData: IPolarisDeposit = {
-    acntType: "CA",
+    acntType: 'CA',
     prodCode: savingProduct.code,
     brchCode: branch.code,
     curCode: deposit.currency,
     custCode: customer.code,
     name: `${customer.firstName} ${customer.lastName}`,
     name2: `${customer.firstName} ${customer.lastName}`,
-    slevel: deposit.slevel || "1",
-    jointOrSingle: "S",
-    dormancyDate: "",
-    statusDate: "",
-    flagNoCredit: "0",
-    flagNoDebit: "0",
-    salaryAcnt: "N",
-    corporateAcnt: "N",
-    capAcntCode: "",
-    capMethod: "0",
-    segCode: "81",
-    paymtDefault: "",
-    odType: "NON"
+    slevel: deposit.slevel || '1',
+    jointOrSingle: 'S',
+    dormancyDate: '',
+    statusDate: '',
+    flagNoCredit: '0',
+    flagNoDebit: '0',
+    salaryAcnt: 'N',
+    corporateAcnt: 'N',
+    capAcntCode: '',
+    capMethod: '0',
+    segCode: '81',
+    paymtDefault: '',
+    odType: 'NON'
   };
 
   await validateDepositObject(sendData);
 
   const depositCode = await fetchPolaris({
     subdomain,
-    op: "13610020",
+    op: '13610020',
     data: [sendData],
     models,
     polarisConfig,
     syncLog
   });
 
-  if (typeof depositCode === "string") {
+  if (typeof depositCode === 'string') {
     await updateContract(
       subdomain,
       { _id: deposit._id },
       { $set: { number: JSON.parse(depositCode), isSyncedPolaris: true } },
-      "savings"
+      'savings'
     );
   }
 
