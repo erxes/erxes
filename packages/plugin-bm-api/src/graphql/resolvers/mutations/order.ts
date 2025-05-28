@@ -1,10 +1,10 @@
 import {
   checkPermission,
   requireLogin
-} from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
-import { sendMessage } from '@erxes/api-utils/src/core';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
+} from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
+import { sendMessage } from "@erxes/api-utils/src/core";
+import { putCreateLog, putDeleteLog, putUpdateLog } from "../../../logUtils";
 
 const orderMutations = {
   bmOrderAdd: async (
@@ -16,21 +16,22 @@ const orderMutations = {
       docModifier(doc?.order),
       user
     );
+    const tour = await models.Tours.getTour(order.tourId);
     const branch = await models.BmsBranch.findById(order.branchId);
 
     await sendMessage({
-      serviceName: 'notifications',
+      serviceName: "notifications",
       subdomain,
-      action: 'send',
+      action: "send",
       data: {
         notifType: `orderadd`,
-        title: 'Захиалга үүслээ',
-        content: `${order.amount} дүнтэй захиалга, ${order.tourId} тур дээр ирлээ.`,
+        title: "Захиалга үүслээ",
+        content: `${order.amount} дүнтэй захиалга, ${tour.name} тур дээр ирлээ.`,
         action: `Reminder:`,
-        link: `/tour?id=${order.tourId}&orderId=${order.id}`,
+        link: `${order.id}`,
         createdUser: user,
         // exclude current user
-        contentType: 'bm:order',
+        contentType: "bm:order",
         contentTypeId: order._id,
         receivers: [...(branch?.user1Ids || []), ...(branch?.user2Ids || [])]
       }
@@ -38,7 +39,7 @@ const orderMutations = {
     await putCreateLog(
       subdomain,
       {
-        type: 'order',
+        type: "order",
         newData: doc,
         object: order
       },
@@ -58,23 +59,65 @@ const orderMutations = {
     await putUpdateLog(
       subdomain,
       {
-        type: 'order',
+        type: "order",
         object: order,
         newData: doc,
         updatedDocument: updated
       },
       user
     );
+    const tour = await models.Tours.getTour(order.tourId);
+    const branch = await models.BmsBranch.findById(order.branchId);
+
+    await sendMessage({
+      serviceName: "notifications",
+      subdomain,
+      action: "send",
+      data: {
+        notifType: `orderedit`,
+        title: "Захиалга засах",
+        content: `${order.amount} дүнтэй захиалга засагдлаа, ${tour.name} `,
+        action: `Reminder:`,
+        link: `${order.id}`,
+        createdUser: user,
+        // exclude current user
+        contentType: "bm:order",
+        contentTypeId: order._id,
+        receivers: [...(branch?.user1Ids || []), ...(branch?.user2Ids || [])]
+      }
+    });
     return updated;
   },
 
   bmOrderRemove: async (
     _root,
     { ids }: { ids: string[] },
-    { models, user }: IContext
+    { models, user, subdomain }: IContext
   ) => {
-    await models.Orders.removeOrder(ids);
+    const orders = await models.Orders.find({ _id: { $in: ids } });
+    for (const order of orders) {
+      await models.Orders.deleteOne({ _id: order._id });
+      await putDeleteLog(subdomain, { type: "order", object: order }, user);
+      const branch = await models.BmsBranch.findById(order.branchId);
 
+      await sendMessage({
+        serviceName: "notifications",
+        subdomain,
+        action: "send",
+        data: {
+          notifType: `orderremove`,
+          title: "Захиалга устлаа",
+          content: `${order.amount} дүнтэй захиалга устлаа`,
+          action: `Reminder:`,
+          link: `${order.id}`,
+          createdUser: user,
+          // exclude current user
+          contentType: "bm:order",
+          contentTypeId: order._id,
+          receivers: [...(branch?.user1Ids || []), ...(branch?.user2Ids || [])]
+        }
+      });
+    }
     return ids;
   }
 };
