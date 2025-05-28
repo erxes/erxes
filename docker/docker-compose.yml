@@ -84,6 +84,48 @@ services:
     networks:
       - "erxes-net"
 
+  client-portal:
+    container_name: client-portal
+    build:
+      context: ../client-portal
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:4200:4200"
+    environment:
+      API_URL: http://core-api:3100/graphql
+      REACT_APP_DOMAIN: http://localhost:4200
+      REACT_APP_SUBSCRIPTION_URL: ws://core-api:3100/graphql
+    depends_on:
+      - core-api
+    networks:
+      - erxes-net
+
+  core-api:
+    container_name: core-api
+    build:
+      context: ../packages/core
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:3100:3100"
+    environment:
+      NODE_ENV: development
+      PORT: 3100
+      MONGO_URL: mongodb://mongo:27017/erxes?replicaSet=rs0
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_HOSTNAME: rabbitmq
+      DOMAIN: http://localhost:4200
+      MAIN_APP_DOMAIN: http://localhost:4200
+      CLIENT_PORTAL_DOMAINS: http://localhost:4200
+      JWT_TOKEN_SECRET: "some-secret-key" # Please change this in a real environment
+      ENABLED_SERVICES_JSON: '{"core": true}'
+    depends_on:
+      - mongo
+      - redis
+      - rabbitmq
+    networks:
+      - erxes-net
+
 networks:
   erxes-net:
     driver: bridge
