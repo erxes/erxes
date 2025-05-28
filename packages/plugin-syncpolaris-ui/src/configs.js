@@ -6,6 +6,7 @@ module.exports = {
   exposes: {
     "./routes": "./src/routes.tsx",
     "./customerSidebar": "./src/pullPolaris/containers/CustomerSidebar.tsx",
+    "./savingsPolaris": "./src/savingPolaris/containers/Polaris.tsx",
   },
   routes: {
     url: "http://localhost:3137/remoteEntry.js",
@@ -30,4 +31,5 @@ module.exports = {
     },
   ],
   customerRightSidebarSection: "./customerSidebar",
+  savingPolarisSection: "./savingsPolaris",
 };

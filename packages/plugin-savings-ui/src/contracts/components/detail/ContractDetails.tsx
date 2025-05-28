@@ -9,6 +9,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 import { Tabs } from '../list/ContractForm';
 import Polaris from '../polaris/index';
+import { loadDynamicComponent } from '@erxes/ui/src/utils';
 
 type Props = {
   contract: IContractDoc;
@@ -28,7 +29,7 @@ const ContractDetails = (props: Props) => {
 
   const breadcrumb = [
     { title: __('Contracts'), link: '/erxes-plugin-saving/contract-list' },
-    { title },
+    { title }
   ];
 
   const content = () => {
@@ -40,7 +41,15 @@ const ContractDetails = (props: Props) => {
             constractId={contract._id}
             constractNumber={contract.number}
           />
-        ),
+        )
+      },
+      {
+        label: __(`Sync Polaris 2.0`),
+        component: loadDynamicComponent(
+          'savingPolarisSection',
+          { contract },
+          true
+        )
       },
       {
         label: __(`Sync Polaris`),
@@ -52,8 +61,8 @@ const ContractDetails = (props: Props) => {
             sendDeposit={sendDeposit}
             depositActive={depositActive}
           />
-        ),
-      },
+        )
+      }
     ];
 
     return (

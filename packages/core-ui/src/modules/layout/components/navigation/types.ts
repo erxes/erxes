@@ -132,6 +132,7 @@ export type PluginConfig = {
   }[];
   extendSystemConfig?: string;
   carRightSidebarSection?: string;
+  savingPolarisSection?: string;
   template?: string;
 };
 
