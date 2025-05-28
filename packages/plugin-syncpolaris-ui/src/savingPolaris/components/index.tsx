@@ -1,9 +1,9 @@
-import React from "react";
-import { Tabs } from "./PolarisList";
-import { __ } from "coreui/utils";
-import { IContract } from "../types";
-import PolarisSection from "./PolarisSection";
-import SavingActive from "./SavingActive";
+import React from 'react';
+import { Tabs } from './PolarisList';
+import { __ } from 'coreui/utils';
+import { IContract } from '../types';
+import PolarisSection from './PolarisSection';
+import SavingActive from '../containers/ActiveContainer';
 
 interface IProps {
   contract: IContract;
@@ -20,12 +20,12 @@ function PolarisData(props: IProps) {
       tabs={[
         {
           label: __(`Sync Polaris`),
-          component: <PolarisSection {...props} />,
+          component: <PolarisSection {...props} />
         },
         {
           label: __(`Active Saving contract`),
-          component: <SavingActive {...props} />,
-        },
+          component: <SavingActive {...props} />
+        }
       ]}
     />
   );
