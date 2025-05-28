@@ -101,7 +101,8 @@ const tourMutations = {
     const tours = await models.Tours.find({ _id: { $in: ids } });
 
     await models.Tours.removeTour(ids);
-    const branchs = await models.BmsBranch.find({ _id: { $in: ids } });
+    const branchIds = tours.map((x) => x.branchId);
+    const branchs = await models.BmsBranch.find({ _id: { $in: branchIds } });
     const names = tours.map((x) => x.name).join(",");
     let allUsers: string[] = [];
     for (const branch of branchs) {
@@ -125,6 +126,9 @@ const tourMutations = {
         receivers: allUsers || []
       }
     });
+    for (const tour of tours) {
+      await putDeleteLog(subdomain, { type: "tour", object: tour }, user);
+    }
 
     return ids;
   }

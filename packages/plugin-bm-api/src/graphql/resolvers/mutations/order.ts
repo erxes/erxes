@@ -66,16 +66,58 @@ const orderMutations = {
       },
       user
     );
+    const tour = await models.Tours.getTour(order.tourId);
+    const branch = await models.BmsBranch.findById(order.branchId);
+
+    await sendMessage({
+      serviceName: "notifications",
+      subdomain,
+      action: "send",
+      data: {
+        notifType: `orderedit`,
+        title: "Захиалга засах",
+        content: `${order.amount} дүнтэй захиалга засагдлаа, ${tour.name} `,
+        action: `Reminder:`,
+        link: `${order.id}`,
+        createdUser: user,
+        // exclude current user
+        contentType: "bm:order",
+        contentTypeId: order._id,
+        receivers: [...(branch?.user1Ids || []), ...(branch?.user2Ids || [])]
+      }
+    });
     return updated;
   },
 
   bmOrderRemove: async (
     _root,
     { ids }: { ids: string[] },
-    { models, user }: IContext
+    { models, user, subdomain }: IContext
   ) => {
-    await models.Orders.removeOrder(ids);
+    const orders = await models.Orders.find({ _id: { $in: ids } });
+    for (const order of orders) {
+      await models.Orders.deleteOne({ _id: order._id });
+      await putDeleteLog(subdomain, { type: "order", object: order }, user);
+      const branch = await models.BmsBranch.findById(order.branchId);
 
+      await sendMessage({
+        serviceName: "notifications",
+        subdomain,
+        action: "send",
+        data: {
+          notifType: `orderremove`,
+          title: "Захиалга устлаа",
+          content: `${order.amount} дүнтэй захиалга устлаа`,
+          action: `Reminder:`,
+          link: `${order.id}`,
+          createdUser: user,
+          // exclude current user
+          contentType: "bm:order",
+          contentTypeId: order._id,
+          receivers: [...(branch?.user1Ids || []), ...(branch?.user2Ids || [])]
+        }
+      });
+    }
     return ids;
   }
 };
