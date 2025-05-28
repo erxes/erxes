@@ -11,10 +11,9 @@ export const updateSaving = async (
   models,
   polarisConfig,
   syncLog,
-  params,
+  savingContract,
   user
 ) => {
-  const savingContract = params.data;
   let updateData;
 
   const savingProduct = await sendMessageBrokerData(

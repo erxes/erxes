@@ -4,14 +4,18 @@ import { createSavingMessage } from '../../../utils/saving/createSavingMessage';
 import { activeSaving } from '../../../utils/saving/activeSaving';
 
 const checkMutations = {
-  async sendSaving(_root, { data }: { data: any[] }, { subdomain }: IContext) {
+  async sendSaving(
+    _root,
+    { data }: { data: any[] },
+    { subdomain, user }: IContext
+  ) {
     const config = await getConfig(subdomain, 'POLARIS', {});
 
     if (!config.token) {
       throw new Error('POLARIS config not found.');
     }
 
-    await createSavingMessage(subdomain, config, data);
+    await createSavingMessage(subdomain, config, data, user);
 
     return 'success';
   },

@@ -50,10 +50,12 @@ const PolarisList = (props: IProps) => {
   const renderRow = (saving) => {
     return (
       <tr key={saving._id}>
-        <td>{saving.responseData ? 'synced' : 'not synced'}</td>
-        <td>{saving?.responseData || saving?.content}</td>
+        <td>{saving.responseStr ? 'synced' : 'not synced'}</td>
         <td style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
-          {saving?.error || saving?.responseData}
+          {saving?.responseStr || saving?.content}
+        </td>
+        <td style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
+          {saving?.error || saving.responseStr}
         </td>
       </tr>
     );
