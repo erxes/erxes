@@ -72,7 +72,7 @@ function SavingActive({
               <tr>
                 <th>{__('Is Active Contract')}</th>
                 <th>{__('Polaris Contract Id')}</th>
-                <th>{__('Error')}</th>
+                <th>{__('Message')}</th>
               </tr>
             </thead>
 
