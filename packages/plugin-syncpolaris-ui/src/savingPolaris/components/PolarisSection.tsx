@@ -1,15 +1,14 @@
-import { Box } from "@erxes/ui/src";
-import { __ } from "coreui/utils";
-import React from "react";
+import { Box } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
+import React from 'react';
 
-import { ScrollTableColls } from "../styles";
-import withConsumer from "../../withConsumer";
-import Icon from "@erxes/ui/src/components/Icon";
-import { IUser } from "@erxes/ui/src/auth/types";
-import confirm from "@erxes/ui/src/utils/confirmation/confirm";
-import Alert from "@erxes/ui/src/utils/Alert";
-import { IContractDoc } from "../types";
-import PolarisList from "./PolarisList";
+import { ScrollTableColls } from '../styles';
+import Icon from '@erxes/ui/src/components/Icon';
+import { IUser } from '@erxes/ui/src/auth/types';
+import confirm from '@erxes/ui/src/utils/confirmation/confirm';
+import Alert from '@erxes/ui/src/utils/Alert';
+import { IContractDoc } from '../types';
+import PolarisList from './PolarisList';
 
 type Props = {
   contract: IContractDoc;
@@ -24,10 +23,10 @@ function PolarisSection({
   contract,
   savingHistories,
   reSendContract,
-  sendDeposit,
+  sendDeposit
 }: Props) {
   const onSendPolaris = () =>
-    confirm(__("Are you sure Send Savings polaris?"))
+    confirm(__('Are you sure Send Savings polaris?'))
       .then(() => {
         if (contract.isDeposit) {
           return sendDeposit(contract);
@@ -49,7 +48,7 @@ function PolarisSection({
 
   return (
     <Box
-      title={__("Saving & Polaris")}
+      title={__('Saving & Polaris')}
       name="showPolaris"
       isOpen={true}
       extraButtons={renderExtraButton()}
@@ -64,4 +63,4 @@ function PolarisSection({
   );
 }
 
-export default withConsumer(PolarisSection);
+export default PolarisSection;
