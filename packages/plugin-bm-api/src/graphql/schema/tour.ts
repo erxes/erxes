@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 export const types = () => `
   extend type User @key(fields: "_id") {
@@ -37,6 +37,7 @@ export const types = () => `
     info2: String
     info3: String
     info4: String
+    info5: String
     extra: JSON
     images: [String]
     imageThumbnail: String
@@ -113,6 +114,7 @@ const params = `
   info2: String,
   info3: String,
   info4: String,
+  info5: String,
   extra: JSON,
   images: [String],
   imageThumbnail: String
