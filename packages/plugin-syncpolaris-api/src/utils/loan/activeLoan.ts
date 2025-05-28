@@ -10,19 +10,19 @@ export const activeLoan = async (
 
   const syncLogDoc = {
     type: '',
-    contentType: 'savings:contract',
-    contentId: params.contractNumber,
+    contentType: 'loans:contract',
+    contentId: params,
     createdAt: new Date(),
     createdBy: '',
-    consumeData: params.contractNumber,
-    consumeStr: JSON.stringify(params.contractNumber)
+    consumeData: params,
+    consumeStr: JSON.stringify(params)
   };
 
   let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
   const result = await fetchPolaris({
     op: '13610263',
-    data: [params.contractNumber, 'данс нээв', null],
+    data: [params, 'данс нээв', null],
     subdomain,
     models,
     polarisConfig,
@@ -32,7 +32,7 @@ export const activeLoan = async (
   if (result) {
     await updateContract(
       subdomain,
-      { number: params.contractNumber },
+      { number: params },
       {
         $set: {
           isActiveLoan: true

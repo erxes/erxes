@@ -8,7 +8,7 @@ import { createLoanSchedule } from '../../../utils/loan/createSchedule';
 const loansMutations = {
   async sendContractToPolaris(
     _root,
-    { data }: { data: any[] },
+    { data }: { data: any },
     { subdomain }: IContext
   ) {
     const config = await getConfig(subdomain, 'POLARIS', {});
@@ -24,7 +24,7 @@ const loansMutations = {
 
   async syncLoanCollateral(
     _root,
-    { data }: { data: any[] },
+    { data }: { data: any },
     { subdomain }: IContext
   ) {
     const config = await getConfig(subdomain, 'POLARIS', {});
@@ -40,7 +40,7 @@ const loansMutations = {
 
   async sendLoanSchedules(
     _root,
-    { data }: { data: any[] },
+    { data }: { data: any },
     { subdomain }: IContext
   ) {
     const config = await getConfig(subdomain, 'POLARIS', {});

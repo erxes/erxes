@@ -34,28 +34,28 @@ const PolarisListContainer = (props: Props) => {
   const [sendSavings] = useMutation<SendLoansMutationResponse>(
     gql(mutations.sendSaving),
     {
-      refetchQueries: ['contractDetail']
+      refetchQueries: ['contractDetail', 'syncSavingsData']
     }
   );
 
   const [syncLoanCollateral] = useMutation<SyncLoanCollateralsMutationResponse>(
     gql(mutations.syncLoanCollateral),
     {
-      refetchQueries: ['contractDetail']
+      refetchQueries: ['contractDetail', 'syncSavingsData']
     }
   );
 
   const [sendLoanSchedules] = useMutation<SendSchedulesMutationResponse>(
     gql(mutations.sendLoanSchedules),
     {
-      refetchQueries: ['contractDetail']
+      refetchQueries: ['contractDetail', 'syncSavingsData']
     }
   );
 
   const [activeLoan] = useMutation<ActiveLoanMutationResponse>(
     gql(mutations.loanContractActive),
     {
-      refetchQueries: ['contractDetail']
+      refetchQueries: ['contractDetail', 'syncSavingsData']
     }
   );
   const regenPolarisHandler = (data: any) => {

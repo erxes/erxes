@@ -4,7 +4,7 @@ import {
   getUser,
   fetchPolaris,
   getProduct,
-  getFullDate,
+  getFullDate
 } from '../utils';
 
 export const updateLoan = async (
@@ -12,9 +12,8 @@ export const updateLoan = async (
   models,
   polarisConfig,
   syncLog,
-  params
+  loan
 ) => {
-  const loan = params.data;
   const customer = await getCustomer(subdomain, loan.customerId);
 
   const loanProduct = await getProduct(subdomain, loan.contractTypeId, 'loans');
@@ -60,8 +59,8 @@ export const updateLoan = async (
       notSendToCib: 0,
       losMultiAcnt: 0,
       validLosAcnt: 1,
-      secType: 0,
-    },
+      secType: 0
+    }
   ];
 
   if (
@@ -79,7 +78,7 @@ export const updateLoan = async (
       subdomain,
       models,
       polarisConfig,
-      syncLog,
+      syncLog
     });
   }
 };

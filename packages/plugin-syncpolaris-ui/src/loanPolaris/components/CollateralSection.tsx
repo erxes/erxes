@@ -37,10 +37,10 @@ function CollateralSection({
   const renderRow = (loan) => {
     return (
       <tr key={loan._id}>
-        <td>{loan?.responseData ? 'synced' : 'not synced'}</td>
-        <td>{loan?.responseData || loan?.content}</td>
+        <td>{loan?.responseStr ? 'synced' : 'not synced'}</td>
+        <td>{loan?.responseStr || loan?.content}</td>
         <td style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
-          {loan?.error || loan?.responseData}
+          {loan?.error || loan?.responseStr}
         </td>
       </tr>
     );

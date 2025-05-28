@@ -21,7 +21,7 @@ const CollateralContainer = (props: Props) => {
     {
       variables: {
         contentType: 'loans:contract',
-        contentId: contract?.collateralsData?.[0]?._id || ''
+        contentId: contract?.collateralsData?.[0]?.collateralId || ''
       }
     }
   );

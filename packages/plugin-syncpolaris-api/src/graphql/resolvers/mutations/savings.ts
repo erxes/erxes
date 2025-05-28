@@ -6,7 +6,7 @@ import { activeSaving } from '../../../utils/saving/activeSaving';
 const checkMutations = {
   async sendSaving(
     _root,
-    { data }: { data: any[] },
+    { data }: { data: any },
     { subdomain, user }: IContext
   ) {
     const config = await getConfig(subdomain, 'POLARIS', {});
