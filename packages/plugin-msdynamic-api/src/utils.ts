@@ -330,10 +330,6 @@ export const dealToDynamic = async (
     const sellAddress2 = rawDescription.slice(100, 150);
 
     const sendData: any = {
-      // Sell_to_Customer_No: msdCustomer?.No
-      //   ? msdCustomer?.No
-      //   : config.defaultUserCode,
-
       Sell_to_Customer_No:
         customerType === 'company'
           ? msdCustomer?.No || config.defaultUserCode
@@ -439,7 +435,7 @@ export const dealToDynamic = async (
             ? productById[item.productId].code
             : '',
           Quantity: item.quantity || 0,
-          Location_Code: config.locationCode,
+          Location_Code: userLocationCode || config.locationCode || '',
         };
 
         if (lineNo) {
@@ -472,8 +468,9 @@ export const dealToDynamic = async (
             { _id: syncLog._id },
             {
               $set: {
-                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${responseSaleLine.error.message
-                  }`,
+                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${
+                  responseSaleLine.error.message
+                }`,
               },
             }
           );
@@ -724,7 +721,6 @@ export const orderToDynamic = async (
             ? productById[item.productId].code
             : '',
           Quantity: item.count || 0,
-          // Unit_Price: item.unitPrice || 0,
           Location_Code: config.locationCode,
         };
 
@@ -759,8 +755,9 @@ export const orderToDynamic = async (
             { _id: syncLog._id },
             {
               $set: {
-                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${responseSaleLine.error.message
-                  }`,
+                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${
+                  responseSaleLine.error.message
+                }`,
               },
             }
           );
@@ -984,7 +981,7 @@ export const getExchangeRates = async (config: ExchangeRateConfig) => {
       if (
         !latestByCurrency[currency] ||
         new Date(item.Starting_Date) >
-        new Date(latestByCurrency[currency].Starting_Date)
+          new Date(latestByCurrency[currency].Starting_Date)
       ) {
         latestByCurrency[currency] = item;
       }
