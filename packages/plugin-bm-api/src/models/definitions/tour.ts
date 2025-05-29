@@ -24,10 +24,15 @@ export interface ITour {
   branchId: string;
   tags: string[];
   viewCount: number;
+  advancePercent?: number;
+  joinPercent?: number;
+  advanceCheck?: boolean;
   info1?: string;
   info2?: string;
   info3?: string;
   info4?: string;
+  info5?: string;
+  extra?: any;
   images?: string[];
   imageThumbnail?: string;
 }
@@ -47,7 +52,7 @@ const STATUS_TYPES = [
 ];
 
 const getEnum = (): string[] => {
-  return STATUS_TYPES.map(option => option.value);
+  return STATUS_TYPES.map((option) => option.value);
 };
 
 export const guideItemSchema = new Schema(
@@ -85,15 +90,33 @@ export const tourSchema = schemaHooksWrapper(
       esType: "keyword"
     }),
     cost: field({ type: Number, optional: true, label: "cost" }),
-    tags: field({ type: [String], optional: true, label: "tags" }),
+    tagIds: field({ type: [String], optional: true, label: "tagIds" }),
     viewCount: field({ type: Number, optional: true, label: "viewCount" }),
+    advancePercent: field({
+      type: Number,
+      optional: true,
+      label: "advancePercent"
+    }),
+    joinPercent: field({
+      type: Number,
+      optional: true,
+      label: "joinPercent"
+    }),
+    advanceCheck: field({
+      type: Boolean,
+      optional: true,
+      label: "advanceCheck"
+    }),
+
     branchId: field({ type: String, optional: true, label: "branchId" }),
 
     info1: field({ type: String, optional: true, label: "info" }),
     info2: field({ type: String, optional: true, label: "info" }),
     info3: field({ type: String, optional: true, label: "info" }),
     info4: field({ type: String, optional: true, label: "info" }),
-    extra: field({ type: Object, optional: true, label: "info" }),
+    info5: field({ type: String, optional: true, label: "info" }),
+
+    extra: field({ type: Object, optional: true, label: "extra" }),
 
     images: field({ type: [String], optional: true, label: "images" }),
     imageThumbnail: field({ type: String, optional: true, label: "images" })

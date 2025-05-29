@@ -1,5 +1,33 @@
 # Changelog
 
+## [2.12.3](https://github.com/erxes/erxes/compare/2.12.2...2.12.3) (2025-05-27)
+
+### Bug Fixes
+
+* **tickets:**  related ticket ([20c3855](https://github.com/erxes/erxes/commit/20c3855277bd705b6c49fe1b8ac9d41de3f82c30))
+
+## [2.12.2](https://github.com/erxes/erxes/compare/2.12.1...2.12.2) (2025-05-27)
+
+### Features
+
+* **clientportal:** add toki login ([8b4c8c2](https://github.com/erxes/erxes/commit/8b4c8c2dce179c276d173483fc332600dfe50241))
+
+### Bug Fixes
+
+* **tms:** additional customers ([357efc8](https://github.com/erxes/erxes/commit/357efc80fab2ecabdeedf27ce79dbc8f21658815))
+* **tms:** additional info ([6f56309](https://github.com/erxes/erxes/commit/6f5630913b94515bb50fd09b15bf049c78755bf9))
+* **tms:** elements order check ([70f7ffc](https://github.com/erxes/erxes/commit/70f7ffccd1712b0c7eb78d6de5f209d37b936010))
+* **tms:** loggs ([64120a7](https://github.com/erxes/erxes/commit/64120a7357ebc6e4285a9c8b1a85f85ce8361cb0))
+* **tms:** notification ([967a7fa](https://github.com/erxes/erxes/commit/967a7fa3f9adbaccfecf2d11f348f47fd36335c3))
+* **tms:** order fields ([34811ec](https://github.com/erxes/erxes/commit/34811ec4fbe7c3bc4b37322a891dac7f6beea39a))
+* **tms:** payment ([d50b6f3](https://github.com/erxes/erxes/commit/d50b6f35d01a43a427bbfa9f890c23af19913889))
+* **tms:** tags ([0a7260a](https://github.com/erxes/erxes/commit/0a7260ae154b6fef2028e326fe6246e7e96f8725))
+* **tms:** user resolver ([860548c](https://github.com/erxes/erxes/commit/860548cee9fa47ee883ba253119d9cfbd5d69fa7))
+
+### Performance Improvements
+
+* **clientportal:** Show custom fields in clientportal user detail ([072bb66](https://github.com/erxes/erxes/commit/072bb661d26ff05a4283b82d6a9afbeaf7393ca9))
+
 ## [2.12.1](https://github.com/erxes/erxes/compare/2.12.0...2.12.1) (2025-05-20)
 
 ## [2.12.0](https://github.com/erxes/erxes/compare/2.11.3...2.12.0) (2025-05-18)

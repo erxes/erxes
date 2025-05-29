@@ -81,11 +81,16 @@ const applyProductRestrictions = async ({ target, campaign, subdomain }) => {
 
   target.productsData = includedProducts;
 
-  const excludedAmount = excludedProducts.reduce(
-    (acc, excludedProduct) =>
-      acc + (excludedProduct?.amount || 0) * (excludedProduct?.quantity || 1),
-    0
-  );
+  const excludedAmount = excludedProducts.reduce((acc, excludedProduct) => {
+    const amount = Number(excludedProduct?.amount) || 0;
+    let quantity = Number(excludedProduct?.quantity) || 1;
+
+    if (excludedProduct?.discount) {
+      quantity = 1
+    }
+
+    return acc + amount * quantity;
+  }, 0);
 
   console.log({ excludedAmount });
 
@@ -135,7 +140,14 @@ export const extendLoyaltyTarget = async (
     0;
 
   if (excludeAmount && excludedProductsAmount) {
-    excludeAmount = excludeAmount - excludedProductsAmount;
+
+    const adjusted = excludeAmount - excludedProductsAmount;
+
+    if (adjusted < 0 && !updatedTarget?.productsData?.length) {
+      excludeAmount = 0;
+    } else {
+      excludeAmount = Math.max(0, adjusted)
+    }
   }
 
   console.log({ totalAmount, excludeAmount, ...updatedTarget });

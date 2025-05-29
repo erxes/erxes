@@ -384,6 +384,10 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
 
       const changeScore = (eval(placeholder) || 0) * Number(currencyRatio) || 0;
 
+      if (!changeScore) {
+        return
+      }
+
       // const scoreLog = await models.ScoreLogs.findOne({
       //   targetId,
       //   ownerId,

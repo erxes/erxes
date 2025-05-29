@@ -242,6 +242,7 @@ export const mutations = cmsAvailable => `
   clientPortalVerify2FA(phoneOtp: String, emailOtp: String,twoFactor:TwoFactor): JSON
   clientPortalLoginWithMailOTP(email: String!, clientPortalId: String!, deviceToken: String): JSON
   clientPortalLoginWithSocialPay(clientPortalId: String!, token: String!) : JSON
+  clientPortalLoginWithToki(clientPortalId: String!, token: String!) : JSON
   clientPortalRefreshToken: String
   clientPortalGoogleAuthentication(clientPortalId: String!, code: String!): JSON
   clientPortalFacebookAuthentication(accessToken: String!, clientPortalId: String!): JSON
