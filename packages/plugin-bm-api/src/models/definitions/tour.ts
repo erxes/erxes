@@ -25,6 +25,8 @@ export interface ITour {
   tags: string[];
   viewCount: number;
   advancePercent?: number;
+  joinPercent?: number;
+  advanceCheck?: boolean;
   info1?: string;
   info2?: string;
   info3?: string;
@@ -94,6 +96,16 @@ export const tourSchema = schemaHooksWrapper(
       type: Number,
       optional: true,
       label: "advancePercent"
+    }),
+    joinPercent: field({
+      type: Number,
+      optional: true,
+      label: "joinPercent"
+    }),
+    advanceCheck: field({
+      type: Boolean,
+      optional: true,
+      label: "advanceCheck"
     }),
 
     branchId: field({ type: String, optional: true, label: "branchId" }),
