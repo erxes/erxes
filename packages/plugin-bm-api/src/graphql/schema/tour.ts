@@ -32,6 +32,7 @@ export const types = () => `
     createdAt: Date
     modifiedAt: Date
     viewCount: Int
+    advanceCheck: Boolean
     advancePercent: Float
     tagIds: [String]
     info1: String
@@ -113,7 +114,8 @@ const params = `
   endDate: Date,
   groupSize: Int,
   duration: Int,
-  advancePercent: Float
+  advancePercent: Float,
+  advanceCheck: Boolean,
   status: String,
   cost: Float,
   location: [BMSLocationInput],
