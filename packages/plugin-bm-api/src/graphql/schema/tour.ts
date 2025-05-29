@@ -34,6 +34,7 @@ export const types = () => `
     viewCount: Int
     advanceCheck: Boolean
     advancePercent: Float
+    joinPercent: Float
     tagIds: [String]
     info1: String
     info2: String
@@ -115,6 +116,7 @@ const params = `
   groupSize: Int,
   duration: Int,
   advancePercent: Float,
+  joinPercent: Float,
   advanceCheck: Boolean,
   status: String,
   cost: Float,
