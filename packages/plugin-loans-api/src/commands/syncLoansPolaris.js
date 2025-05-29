@@ -47,7 +47,7 @@ const fetchPolaris = async (op, body) => {
     Cookie: `NESSESSION=03tv40BnPzFEEcGgsFxkhrAUTN7Awh`,
     Company: '13',
     Role: '45',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   };
   const url = `http://202.131.242.158:4139/nesWeb/NesFront`;
   const requestOptions = {
@@ -55,7 +55,7 @@ const fetchPolaris = async (op, body) => {
     method: 'POST',
     headers,
     body: JSON.stringify(body),
-    agent: new http.Agent({ keepAlive: true })
+    agent: new http.Agent({ keepAlive: true }),
   };
 
   const realResponse = await fetch(url, requestOptions)
@@ -110,15 +110,15 @@ const command = async () => {
   let step = 0;
   let per = 10000;
 
-  // const huulga = await fetchPolaris("13610201", [
-  //   "130013000562",
-  //   "2025-03-28",
-  //   "2025-07-28",
+  // const huulga = await fetchPolaris('13610201', [
+  //   '130013000562',
+  //   '2025-03-28',
+  //   '2025-07-28',
   //   0,
   //   100,
   // ]);
 
-  // console.log(huulga, "huulga");
+  // console.log(huulga, 'huulga');
 
   // await syncTransactions(
   //   huulga,
@@ -126,7 +126,7 @@ const command = async () => {
   //   LoanTransaction,
   //   LoanSchedules,
   //   LoanContracts,
-  //   "FJLAAdVpCPOENHrDMmcIC"
+  //   'yFVCdVXhOOLTXEoRXvUEN'
   // );
 
   while (step * per < customersCount) {
@@ -145,7 +145,7 @@ const command = async () => {
       const pLoanContracts = await fetchPolaris('13610210', [
         customer.code,
         0,
-        20
+        20,
       ]);
 
       const filteredContracts = pLoanContracts.filter(
@@ -157,37 +157,35 @@ const command = async () => {
 
         const contractDetail = await fetchPolaris('13610200', [
           pLoanContract.acntCode,
-          0
+          0,
         ]);
 
-        console.log(contractDetail, 'contractDetail');
-
         const collaterals = await fetchPolaris('13610904', [
-          pLoanContract.acntCode
+          pLoanContract.acntCode,
         ]);
 
         const contractType = await LoanContractTypes.findOne({
-          code: contractDetail.prodCode
+          code: contractDetail.prodCode,
         });
 
         const createdContract = await LoanContracts.findOne({
-          number: contractDetail.acntCode
+          number: contractDetail.acntCode,
         });
 
         const branch = await Branches.findOne({
-          code: contractDetail.brchCode
+          code: contractDetail.brchCode,
         });
 
         const user = await Users.findOne({
-          employeeId: String(contractDetail.acntManager)
+          employeeId: String(contractDetail.acntManager),
         });
 
         const purpose = await LoanPurpose.findOne({
-          code: contractDetail.purpose
+          code: contractDetail.purpose,
         });
 
         const subPurpose = await LoanPurpose.findOne({
-          code: contractDetail.subPurpose
+          code: contractDetail.subPurpose,
         });
 
         /**
@@ -240,7 +238,7 @@ const command = async () => {
             customFieldsData: [],
             scheduleDays: [],
             isSyncedSchedules: true,
-            isSyncedCollateral: true
+            isSyncedCollateral: true,
           };
 
           const updatedDocument = await syncCollateral(
@@ -251,7 +249,7 @@ const command = async () => {
           );
 
           const loanContract = await LoanContracts.insertOne({
-            ...updatedDocument
+            ...updatedDocument,
           });
 
           /**
@@ -259,7 +257,7 @@ const command = async () => {
            */
 
           const pLoanSchedules = await fetchPolaris('13610203', [
-            pLoanContract.acntCode
+            pLoanContract.acntCode,
           ]);
 
           await syncSchedules(
@@ -273,22 +271,22 @@ const command = async () => {
            * sync loan transaction
            */
 
-          // const huulga = await fetchPolaris("13610201", [
-          //   pLoanContract.acntCode,
-          //   moment(pLoanContract.startDate).format("YYYY-MM-DD"),
-          //   moment(pLoanContract.endDate).format("YYYY-MM-DD"),
-          //   0,
-          //   100,
-          // ]);
+          const huulga = await fetchPolaris('13610201', [
+            pLoanContract.acntCode,
+            moment(pLoanContract.startDate).format('YYYY-MM-DD'),
+            moment(pLoanContract.endDate).format('YYYY-MM-DD'),
+            0,
+            100,
+          ]);
 
-          // await syncTransactions(
-          //   huulga,
-          //   contractDetail.approvAmount,
-          //   LoanTransaction,
-          //   LoanSchedules,
-          //   LoanContracts,
-          //   loanContract
-          // );
+          await syncTransactions(
+            huulga,
+            contractDetail.approvAmount,
+            LoanTransaction,
+            LoanSchedules,
+            LoanContracts,
+            loanContract
+          );
         }
       }
     }
@@ -309,10 +307,11 @@ const dateGroup = async (data, aprvAmnt) => {
   }
 
   // Step 1: Filter transactions with income !== 0
-  const filtered = data.txns.filter(
-    (txn) =>
-      txn.income !== 0 || txn.outcome === aprvAmnt || txn.balance === aprvAmnt
-  );
+  const filtered = data.txns;
+  // .filter(
+  //   (txn) =>
+  //     txn.income !== 0 || txn.outcome === aprvAmnt || txn.balance === aprvAmnt
+  // );
 
   // Step 2: Sort by postDate
   filtered.sort((a, b) => {
@@ -359,7 +358,7 @@ const getAmountByPriority = (total, params) => {
     interestEve,
     interestNonce,
     payment,
-    insurance
+    insurance,
   } = params;
 
   const result = {
@@ -370,7 +369,7 @@ const getAmountByPriority = (total, params) => {
     didInterestNonce: 0,
     didInsurance: 0,
     didDebt: 0,
-    didStoredInterest: 0
+    didStoredInterest: 0,
   };
 
   let mainAmount = total;
@@ -434,7 +433,7 @@ const calcInterest = ({
   balance,
   interestRate,
   dayOfMonth = 30,
-  fixed = 2
+  fixed = 2,
 }) => {
   const interest = new BigNumber(interestRate).div(100).div(365);
   return new BigNumber(balance)
@@ -503,7 +502,7 @@ const getDatesDiffMonth = (fromDate, toDate) => {
   if (fDate.getMonth() === tDate.getMonth()) {
     return {
       diffEve: getDiffDay(fromDate, toDate),
-      diffNonce: 0
+      diffNonce: 0,
     };
   }
 
@@ -513,7 +512,7 @@ const getDatesDiffMonth = (fromDate, toDate) => {
 
   return {
     diffEve: getDiffDay(fromDate, lastDate),
-    diffNonce: getDiffDay(lastDate, toDate)
+    diffNonce: getDiffDay(lastDate, toDate),
   };
 };
 
@@ -523,12 +522,9 @@ const getCalcedAmountsOnDate = async (
   date,
   calculationFixed
 ) => {
-  console.log('1111111111');
-
   if (!calculationFixed) {
     calculationFixed = 2;
   }
-  console.log('2222222222');
   const currentDate = getFullDate(date);
   const result = {
     // status: 'pending' | 'done' | 'skipped' | 'pre' | 'less' | 'expired' | 'give';
@@ -547,21 +543,16 @@ const getCalcedAmountsOnDate = async (
     total: 0,
     giveAmount: 0,
     calcInterest: 0,
-    closeAmount: 0
+    closeAmount: 0,
   };
-  console.log('33333333333333');
   const preSchedule = await LoanSchedules.findOne(
     {
       contractId: contract._id,
       payDate: { $lte: currentDate },
-      didBalance: { $exists: true, $gte: 0 }
+      didBalance: { $exists: true, $gte: 0 },
     },
     { sort: { payDate: -1, createdAt: -1 } }
   );
-
-  console.log('44444444');
-
-  console.log(preSchedule, 'preSchedule');
 
   if (!preSchedule) {
     return result;
@@ -570,7 +561,7 @@ const getCalcedAmountsOnDate = async (
   const skippedSchedules = await LoanSchedules.find(
     {
       contractId: contract._id,
-      payDate: { $gt: preSchedule.payDate, $lte: currentDate }
+      payDate: { $gt: preSchedule.payDate, $lte: currentDate },
     },
     { sort: { payDate: -1, createdAt: -1 } }
   );
@@ -608,7 +599,7 @@ const getCalcedAmountsOnDate = async (
         .minus(preSchedule.didTotal ?? 0)
         .toNumber(),
       preSchedule,
-      skippedSchedules
+      skippedSchedules,
     };
   }
 
@@ -621,7 +612,7 @@ const getCalcedAmountsOnDate = async (
     balance: preSchedule.didBalance || preSchedule.balance,
     interestRate: preSchedule.interestRate ?? contract.interestRate,
     dayOfMonth: diffDay,
-    fixed: calculationFixed
+    fixed: calculationFixed,
   });
 
   const { diffEve } = getDatesDiffMonth(preSchedule.payDate, currentDate);
@@ -630,7 +621,7 @@ const getCalcedAmountsOnDate = async (
     balance: preSchedule.didBalance || preSchedule.balance,
     interestRate: preSchedule.interestRate ?? contract.interestRate,
     dayOfMonth: diffEve,
-    fixed: calculationFixed
+    fixed: calculationFixed,
   });
   const calcedInterestNonce = new BigNumber(interest)
     .minus(calcedInterestEve)
@@ -641,7 +632,7 @@ const getCalcedAmountsOnDate = async (
     balance: preSchedule.unUsedBalance,
     interestRate: preSchedule.interestRate ?? contract.interestRate,
     dayOfMonth: diffDay,
-    fixed: calculationFixed
+    fixed: calculationFixed,
   });
 
   result.interestEve = new BigNumber(preSchedule.interestEve ?? 0)
@@ -689,7 +680,7 @@ const getCalcedAmountsOnDate = async (
               .plus(preSchedule.interestEve ?? 0)
               .plus(preSchedule.storedInterest ?? 0)
               .toNumber(),
-            payment: preSchedule.payment ?? 0
+            payment: preSchedule.payment ?? 0,
           },
           contract.lossPercent ?? 0,
           lossDiffDay
@@ -719,7 +710,7 @@ const getCalcedAmountsOnDate = async (
       .toNumber(),
     closeAmount,
     preSchedule,
-    skippedSchedules
+    skippedSchedules,
   };
 };
 
@@ -737,7 +728,7 @@ const getFreezeAmount = async (
     balance: nowBalance,
     interestRate,
     dayOfMonth: diffDay,
-    fixed: calculationFixed
+    fixed: calculationFixed,
   });
 
   const diff = new BigNumber(interest)
@@ -781,7 +772,7 @@ const fixFutureSchedulesNext = async (
       balance: indBalance,
       interestRate: afterCurrentSchedule.interestRate ?? contract.interestRate,
       dayOfMonth: diffDay,
-      fixed: calculationFixed
+      fixed: calculationFixed,
     });
 
     const { diffEve } = getDatesDiffMonth(
@@ -793,7 +784,7 @@ const fixFutureSchedulesNext = async (
       balance: indBalance,
       interestRate: afterCurrentSchedule.interestRate ?? contract.interestRate,
       dayOfMonth: diffEve,
-      fixed: calculationFixed
+      fixed: calculationFixed,
     });
 
     const calcedInterestNonce = new BigNumber(interest)
@@ -815,8 +806,8 @@ const fixFutureSchedulesNext = async (
           interestNonce: calcedInterestNonce,
           payment: currPayment,
           balance: indBalance,
-          total: calcedInterestEve + calcedInterestNonce + currPayment
-        }
+          total: calcedInterestEve + calcedInterestNonce + currPayment,
+        },
       }
     );
 
@@ -845,14 +836,14 @@ const fixFutureSchedulesLast = async (
       balance: loopBeforeSchedule.unUsedBalance || 0,
       interestRate: loopBeforeSchedule.interestRate ?? contract.interestRate,
       dayOfMonth: betweenDay,
-      fixed: calculationFixed
+      fixed: calculationFixed,
     });
 
     const interest = calcInterest({
       balance: loopBeforeSchedule.didBalance || loopBeforeSchedule.balance,
       interestRate: loopBeforeSchedule.interestRate ?? contract.interestRate,
       dayOfMonth: betweenDay,
-      fixed: calculationFixed
+      fixed: calculationFixed,
     });
 
     const { diffEve } = getDatesDiffMonth(
@@ -864,7 +855,7 @@ const fixFutureSchedulesLast = async (
       balance: loopBeforeSchedule.didBalance || loopBeforeSchedule.balance,
       interestRate: loopBeforeSchedule.interestRate ?? contract.interestRate,
       dayOfMonth: diffEve,
-      fixed: calculationFixed
+      fixed: calculationFixed,
     });
 
     const calcedInterestNonce = new BigNumber(interest)
@@ -898,13 +889,13 @@ const fixFutureSchedulesLast = async (
           storedInterest: 0,
           commitmentInterest,
           payment,
-          total
-        }
+          total,
+        },
       }
     );
 
     loopBeforeSchedule = await LoanSchedules.findOne({
-      _id: futureSch._id
+      _id: futureSch._id,
     });
   }
 };
@@ -955,7 +946,7 @@ const overPaymentFutureImpact = async (
   let futureSchedules = await LoanSchedules.find(
     {
       contractId: contract._id,
-      payDate: { $gt: getFullDate(trPayDate) }
+      payDate: { $gt: getFullDate(trPayDate) },
     },
     { sort: { payDate: -1, createdAt: -1 } }
   );
@@ -986,8 +977,8 @@ const overPaymentFutureImpact = async (
               didPayment:
                 (currentSchedule.didPayment ?? 0) - freezeNextScheduleInterest,
               didBalance:
-                (currentSchedule.didBalance ?? 0) + freezeNextScheduleInterest
-            }
+                (currentSchedule.didBalance ?? 0) + freezeNextScheduleInterest,
+            },
           }
         );
 
@@ -995,7 +986,7 @@ const overPaymentFutureImpact = async (
           balance: preSchedule.didBalance || preSchedule.balance,
           interestRate: preSchedule.interestRate ?? contract.interestRate,
           dayOfMonth: nextDiffDay,
-          fixed: calculationFixed
+          fixed: calculationFixed,
         });
 
         const { diffEve } = getDatesDiffMonth(preSchedule.payDate, currentDate);
@@ -1004,7 +995,7 @@ const overPaymentFutureImpact = async (
           balance: preSchedule.didBalance || preSchedule.balance,
           interestRate: preSchedule.interestRate ?? contract.interestRate,
           dayOfMonth: diffEve,
-          fixed: calculationFixed
+          fixed: calculationFixed,
         });
 
         const calcedInterestNonce = new BigNumber(interest)
@@ -1020,13 +1011,13 @@ const overPaymentFutureImpact = async (
               balance:
                 (currentSchedule.didBalance ?? 0) + freezeNextScheduleInterest,
               interestEve: calcedInterestEve,
-              interestNonce: calcedInterestNonce
-            }
+              interestNonce: calcedInterestNonce,
+            },
           }
         );
 
         currentSchedule = await LoanSchedules.findOne({
-          _id: nextSchedule
+          _id: nextSchedule,
         });
         futureSchedules = futureSchedules.filter(
           (fs) => fs._id !== nextSchedule._id
@@ -1080,7 +1071,7 @@ const afterPayTrInSchedule = async (LoanSchedules, foundCT, tr) => {
     didInterestEve,
     didInterestNonce,
     didInsurance,
-    didPayment
+    didPayment,
   } = didInfo;
   let status = didInfo.status;
 
@@ -1092,8 +1083,6 @@ const afterPayTrInSchedule = async (LoanSchedules, foundCT, tr) => {
     didBalance = 0;
   }
 
-  console.log(skippedSchedules, 'skippedSchedules');
-
   let currentSchedule = !getDiffDay(preSchedule?.payDate, currentDate)
     ? preSchedule
     : Array.isArray(skippedSchedules)
@@ -1103,7 +1092,7 @@ const afterPayTrInSchedule = async (LoanSchedules, foundCT, tr) => {
   if (currentSchedule) {
     await LoanSchedules.updateOne(
       {
-        _id: currentSchedule._id
+        _id: currentSchedule._id,
       },
       {
         $set: {
@@ -1117,13 +1106,13 @@ const afterPayTrInSchedule = async (LoanSchedules, foundCT, tr) => {
           didPayment,
           didBalance,
           didTotal: tr.total,
-          surplus
+          surplus,
         },
-        $addToSet: { transactionIds: tr._id }
+        $addToSet: { transactionIds: tr._id },
       }
     );
     currentSchedule = await LoanSchedules.findOne({
-      _id: currentSchedule._id
+      _id: currentSchedule._id,
     });
   } else {
     currentSchedule = await LoanSchedules.insertOne({
@@ -1157,7 +1146,7 @@ const afterPayTrInSchedule = async (LoanSchedules, foundCT, tr) => {
       didBalance,
       didTotal: tr.total,
       surplus,
-      transactionIds: [tr._id]
+      transactionIds: [tr._id],
     });
   }
 
@@ -1295,7 +1284,7 @@ const calcPerMonthEqual = async ({
   calculationFixed,
   unUsedBalance,
   skipInterestCalcDate,
-  skipAmountCalcDate
+  skipAmountCalcDate,
 }) => {
   // Хүү тооцохгүй огнооноос урагш бол үндсэн төлөлт л хийхнь
   if (skipInterestCalcDate && getDiffDay(nextDate, skipInterestCalcDate) >= 0) {
@@ -1309,7 +1298,7 @@ const calcPerMonthEqual = async ({
         calcedInterestNonce: 0,
         unUsedBalance,
         commitmentInterest: 0,
-        totalPayment: 0
+        totalPayment: 0,
       };
     }
     const loanBalance = new BigNumber(balance)
@@ -1326,7 +1315,7 @@ const calcPerMonthEqual = async ({
       calcedInterestNonce: 0,
       unUsedBalance,
       commitmentInterest: 0,
-      totalPayment
+      totalPayment,
     };
   }
 
@@ -1336,7 +1325,7 @@ const calcPerMonthEqual = async ({
     balance,
     interestRate: interestRate,
     dayOfMonth: diffDay,
-    fixed: calculationFixed
+    fixed: calculationFixed,
   });
 
   const { diffEve } = getDatesDiffMonth(currentDate, nextDate);
@@ -1345,7 +1334,7 @@ const calcPerMonthEqual = async ({
     balance,
     interestRate: interestRate,
     dayOfMonth: diffEve,
-    fixed: calculationFixed
+    fixed: calculationFixed,
   });
 
   const calcedInterestNonce = new BigNumber(interest)
@@ -1356,7 +1345,7 @@ const calcPerMonthEqual = async ({
     balance: unUsedBalance || 0,
     interestRate: interestRate,
     dayOfMonth: diffDay,
-    fixed: calculationFixed
+    fixed: calculationFixed,
   });
 
   // Үндсэн төлөлт л хийхгүй бол хүү тооцож тооцсон хүүгээ л төлнө
@@ -1369,7 +1358,7 @@ const calcPerMonthEqual = async ({
       calcedInterestNonce,
       unUsedBalance,
       commitmentInterest,
-      totalPayment: interest
+      totalPayment: interest,
     };
   }
 
@@ -1391,7 +1380,7 @@ const calcPerMonthEqual = async ({
     calcedInterestNonce,
     unUsedBalance,
     commitmentInterest,
-    totalPayment
+    totalPayment,
   };
 };
 
@@ -1400,7 +1389,7 @@ const getEqualPay = async ({
   interestRate,
   leaseAmount,
   paymentDates,
-  calculationFixed
+  calculationFixed,
 }) => {
   if (!leaseAmount) {
     return 0;
@@ -1434,14 +1423,14 @@ const calcAllMonthLast = async ({
   interestRate,
   endDate,
   calculationFixed,
-  unUsedBalance
+  unUsedBalance,
 }) => {
   const diffDay = getDiffDay(currentDate, endDate);
   const interest = calcInterest({
     balance,
     interestRate: interestRate,
     dayOfMonth: diffDay,
-    fixed: calculationFixed
+    fixed: calculationFixed,
   });
 
   const { diffEve } = getDatesDiffMonth(currentDate, endDate);
@@ -1449,7 +1438,7 @@ const calcAllMonthLast = async ({
     balance,
     interestRate: interestRate,
     dayOfMonth: diffEve,
-    fixed: calculationFixed
+    fixed: calculationFixed,
   });
 
   const calcedInterestNonce = new BigNumber(interest)
@@ -1461,7 +1450,7 @@ const calcAllMonthLast = async ({
     balance: unUsedBalance ?? 0,
     interestRate: interestRate,
     dayOfMonth: diffDay,
-    fixed: calculationFixed
+    fixed: calculationFixed,
   });
 
   return {
@@ -1470,7 +1459,7 @@ const calcAllMonthLast = async ({
     calcedInterestEve,
     calcedInterestNonce,
     unUsedBalance,
-    commitmentInterest
+    commitmentInterest,
   };
 };
 
@@ -1483,7 +1472,7 @@ const calcPerMonthFixed = async ({
   calculationFixed,
   unUsedBalance,
   skipInterestCalcDate,
-  skipAmountCalcDate
+  skipAmountCalcDate,
 }) => {
   // Хүү тооцохгүй огнооноос урагш бол
   if (skipInterestCalcDate && getDiffDay(nextDate, skipInterestCalcDate) >= 0) {
@@ -1497,7 +1486,7 @@ const calcPerMonthFixed = async ({
         calcedInterestEve: 0,
         calcedInterestNonce: 0,
         unUsedBalance,
-        commitmentInterest: 0
+        commitmentInterest: 0,
       };
     }
     const loanPayment = total;
@@ -1514,7 +1503,7 @@ const calcPerMonthFixed = async ({
       calcedInterestEve: 0,
       calcedInterestNonce: 0,
       unUsedBalance,
-      commitmentInterest: 0
+      commitmentInterest: 0,
     };
   }
 
@@ -1523,7 +1512,7 @@ const calcPerMonthFixed = async ({
     balance,
     interestRate: interestRate,
     dayOfMonth: diffDay,
-    fixed: calculationFixed
+    fixed: calculationFixed,
   });
 
   const { diffEve } = getDatesDiffMonth(currentDate, nextDate);
@@ -1531,7 +1520,7 @@ const calcPerMonthFixed = async ({
     balance,
     interestRate: interestRate,
     dayOfMonth: diffEve,
-    fixed: calculationFixed
+    fixed: calculationFixed,
   });
 
   const calcedInterestNonce = new BigNumber(interest)
@@ -1543,7 +1532,7 @@ const calcPerMonthFixed = async ({
     balance: unUsedBalance ?? 0,
     interestRate: interestRate,
     dayOfMonth: diffDay,
-    fixed: calculationFixed
+    fixed: calculationFixed,
   });
 
   // Үндсэн төлөлт л хийхгүй бол хүү тооцож тооцсон хүүгээ л төлнө
@@ -1556,7 +1545,7 @@ const calcPerMonthFixed = async ({
       calcedInterestEve,
       calcedInterestNonce,
       unUsedBalance,
-      commitmentInterest
+      commitmentInterest,
     };
   }
 
@@ -1577,7 +1566,7 @@ const calcPerMonthFixed = async ({
     calcedInterestEve,
     calcedInterestNonce,
     unUsedBalance,
-    commitmentInterest
+    commitmentInterest,
   };
 };
 
@@ -1597,7 +1586,7 @@ const scheduleHelper = async (
     skipInterestCalcDay,
     skipAmountCalcMonth,
     skipAmountCalcDay,
-    dateRanges
+    dateRanges,
   },
   calculationFixed = 2
 ) => {
@@ -1641,7 +1630,7 @@ const scheduleHelper = async (
           calculationFixed,
           unUsedBalance,
           skipInterestCalcDate,
-          skipAmountCalcDate
+          skipAmountCalcDate,
         });
 
         currentDate = perMonth.date;
@@ -1662,7 +1651,7 @@ const scheduleHelper = async (
           total: perMonth.totalPayment,
           unUsedBalance,
           commitmentInterest: perMonth.commitmentInterest,
-          isDefault: true
+          isDefault: true,
         });
       }
 
@@ -1675,7 +1664,7 @@ const scheduleHelper = async (
         interestRate,
         endDate,
         calculationFixed,
-        unUsedBalance
+        unUsedBalance,
       });
 
       const totalAmount = balance + calcedOne.interest;
@@ -1697,8 +1686,8 @@ const scheduleHelper = async (
           unUsedBalance: calcedOne.unUsedBalance,
           commitmentInterest: calcedOne.commitmentInterest,
           isDefault: true,
-          firstTotal: totalAmount
-        }
+          firstTotal: totalAmount,
+        },
       ];
       balance = 0;
       currentDate = endDate;
@@ -1712,7 +1701,7 @@ const scheduleHelper = async (
         interestRate: interestRate ?? 0,
         leaseAmount: balance,
         paymentDates,
-        calculationFixed
+        calculationFixed,
       });
 
       for (const payDate of paymentDates) {
@@ -1725,7 +1714,7 @@ const scheduleHelper = async (
           calculationFixed,
           unUsedBalance,
           skipInterestCalcDate,
-          skipAmountCalcDate
+          skipAmountCalcDate,
         });
 
         currentDate = perMonth.date;
@@ -1746,7 +1735,7 @@ const scheduleHelper = async (
           firstTotal: total,
           unUsedBalance,
           commitmentInterest: perMonth.commitmentInterest,
-          isDefault: true
+          isDefault: true,
         });
       }
 
@@ -1812,7 +1801,7 @@ const fixFutureSchedulesGive = async (
           skipInterestCalcDay: stepRule.skipInterestCalcDay,
           skipAmountCalcMonth: stepRule.skipAmountCalcMonth,
           skipAmountCalcDay: stepRule.skipAmountCalcDay,
-          dateRanges
+          dateRanges,
         },
         2
       );
@@ -1847,7 +1836,7 @@ const fixFutureSchedulesGive = async (
           (!bulkEntries.length && contract.skipAmountCalcMonth) || undefined,
         skipAmountCalcDay:
           (!bulkEntries.length && contract.skipAmountCalcDay) || undefined,
-        dateRanges
+        dateRanges,
       },
       2
     );
@@ -1862,7 +1851,7 @@ const generateSchedules = async (LoanSchedules, contract, unUsedBalance) => {
   let startDate = getFullDate(contract.startDate);
   let tenor = contract.tenor;
 
-  const perHolidays = {};
+  const perHolidays = [];
 
   if (contract.stepRules?.length) {
     for (const stepRule of contract.stepRules.sort(
@@ -1905,7 +1894,7 @@ const generateSchedules = async (LoanSchedules, contract, unUsedBalance) => {
           skipInterestCalcDay: stepRule.skipInterestCalcDay,
           skipAmountCalcMonth: stepRule.skipAmountCalcMonth,
           skipAmountCalcDay: stepRule.skipAmountCalcDay,
-          dateRanges
+          dateRanges,
         },
         2
       );
@@ -1950,7 +1939,7 @@ const generateSchedules = async (LoanSchedules, contract, unUsedBalance) => {
           (!bulkEntries.length && contract.skipAmountCalcMonth) || undefined,
         skipAmountCalcDay:
           (!bulkEntries.length && contract.skipAmountCalcDay) || undefined,
-        dateRanges
+        dateRanges,
       },
       2
     );
@@ -1979,7 +1968,7 @@ const firstGiveTr = async (LoanSchedules, foundCT, tr) => {
     payment: 0,
     transactionIds: [tr._id],
     total: 0,
-    giveAmount: tr.total
+    giveAmount: tr.total,
   });
 
   foundCT.leaseAmount = tr.total;
@@ -1998,7 +1987,7 @@ const firstGiveTr = async (LoanSchedules, foundCT, tr) => {
 const afterGiveTrInSchedule = async (LoanSchedules, foundCT, tr) => {
   const calculationFixed = 2;
   const alreadySchedules = await LoanSchedules.findOne({
-    contractId: foundCT._id
+    contractId: foundCT._id,
   });
 
   if (!alreadySchedules?._id) {
@@ -2040,13 +2029,13 @@ const afterGiveTrInSchedule = async (LoanSchedules, foundCT, tr) => {
     payment: amounts.payment ?? 0,
     transactionIds: [tr._id],
     total: 0,
-    giveAmount: tr.total
+    giveAmount: tr.total,
   });
 
   const futureSchedules = await LoanSchedules.find(
     {
       contractId: foundCT._id,
-      payDate: { $gt: getFullDate(currentSchedule.payDate) }
+      payDate: { $gt: getFullDate(currentSchedule.payDate) },
     },
     { sort: { payDate: -1, createdAt: -1 } }
   );
@@ -2066,8 +2055,8 @@ const afterGiveTrInSchedule = async (LoanSchedules, foundCT, tr) => {
       updateOne: {
         filter: { _id: futureSch._id },
         update: { $set: { ...updInfos } },
-        upsert: true
-      }
+        upsert: true,
+      },
     });
 
     index++;
@@ -2089,13 +2078,13 @@ const syncCollateral = async (
       const detailCollateral = await fetchPolaris('13610906', [item.acntCode]);
 
       const product = await Products.findOne({
-        code: item.acntCode
+        code: item.acntCode,
       });
 
       if (!product) {
         let categoryId;
         const findCategory = await ProductCategories.findOne({
-          code: detailCollateral.acntCode
+          code: detailCollateral.acntCode,
         });
 
         if (findCategory) {
@@ -2107,7 +2096,7 @@ const syncCollateral = async (
             code: detailCollateral.acntCode,
             order: `${detailCollateral.acntCode}/`,
             status: 'active',
-            createdAt: new Date()
+            createdAt: new Date(),
           });
 
           categoryId = createCategory.insertedId;
@@ -2119,7 +2108,7 @@ const syncCollateral = async (
           code: item.acntCode,
           unitPrice: detailCollateral.price,
           categoryId,
-          createdAt: new Date()
+          createdAt: new Date(),
         });
 
         document.collateralsData.push({
@@ -2131,7 +2120,7 @@ const syncCollateral = async (
           leaseAmount: item.useAmount,
           currency: item.useCurCode,
           certificate: detailCollateral.key2,
-          vinNumber: detailCollateral.key
+          vinNumber: detailCollateral.key,
         });
       } else {
         // Optional: If you want to handle case when product exists
@@ -2144,7 +2133,7 @@ const syncCollateral = async (
           leaseAmount: item.useAmount,
           currency: item.useCurCode,
           certificate: detailCollateral.key2,
-          vinNumber: detailCollateral.key
+          vinNumber: detailCollateral.key,
         });
       }
     }
@@ -2168,7 +2157,7 @@ const syncSchedules = async (
       balance: schedule.totalAmount,
       interestNonce: schedule.intAmount,
       payment: schedule.totalAmount,
-      total: schedule.totalAmount
+      total: schedule.totalAmount,
     }));
 
     await LoanFirstSchedules.insertMany(schedules);
@@ -2178,8 +2167,8 @@ const syncSchedules = async (
       {
         $set: {
           firstPayDate: new Date(pLoanSchedules[0].schdDate),
-          scheduleDays: [await getMostFrequentPaymentDay(pLoanSchedules)]
-        }
+          scheduleDays: [await getMostFrequentPaymentDay(pLoanSchedules)],
+        },
       }
     );
   }
@@ -2195,41 +2184,36 @@ const syncTransactions = async (
 ) => {
   const filteredIncomeTxns = await dateGroup(huulga, aprvAmnt);
 
-  console.log(filteredIncomeTxns, 'filteredIncomeTxns');
-
   for (const data of filteredIncomeTxns) {
     const foundCT = await LoanContracts.findOne({
-      _id: loanContract
+      _id: loanContract.insertedId,
     });
 
     if (data.outcome === aprvAmnt || data.balance === aprvAmnt) {
-      console.log('1111111bnubnubnu');
       const doc = {
         _id: nanoid(),
         transactionType: 'give',
-        contractId: loanContract,
+        contractId: loanContract.insertedId,
         payDate: new Date(data.postDate),
         total: data.outcome,
         pendings: [],
         reactions: [],
         currency: data.curCode,
         isManual: true,
-        createdAt: new Date()
+        createdAt: new Date(),
       };
 
       const transaction = await LoanTransaction.insertOne({ ...doc });
 
       const tr = await LoanTransaction.findOne({
-        _id: transaction.insertedId
+        _id: transaction.insertedId,
       });
 
       afterGiveTrInSchedule(LoanSchedules, foundCT, tr);
     } else {
-      console.log('2222zayaj bn ');
-
       const doc = {
         _id: nanoid(),
-        contractId: loanContract,
+        contractId: loanContract.insertedId,
         payDate: new Date(data.postDate),
         description: data.txnDesc,
         currency: data.curCode,
@@ -2241,13 +2225,13 @@ const syncTransactions = async (
         loss: 0,
         total: data.income,
         isManual: true,
-        createdAt: new Date()
+        createdAt: new Date(),
       };
 
       const transaction = await LoanTransaction.insertOne({ ...doc });
 
       const tr = await LoanTransaction.findOne({
-        _id: transaction.insertedId
+        _id: transaction.insertedId,
       });
 
       afterPayTrInSchedule(LoanSchedules, foundCT, tr);
