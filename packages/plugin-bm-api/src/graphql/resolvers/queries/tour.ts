@@ -190,11 +190,12 @@ const tourQueries = {
       total
     };
   },
-  async bmToursGroupDetail(_root, { groupCode }, { models }: IContext) {
+  async bmToursGroupDetail(_root, { groupCode, status }, { models }: IContext) {
     const selector: any = {};
 
     const list = await models.Tours.find({
-      groupCode: groupCode
+      groupCode: groupCode,
+      status: status
     });
 
     return { _id: groupCode, items: list };

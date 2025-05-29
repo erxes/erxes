@@ -32,7 +32,9 @@ export const types = () => `
     createdAt: Date
     modifiedAt: Date
     viewCount: Int
+    advanceCheck: Boolean
     advancePercent: Float
+    joinPercent: Float
     tagIds: [String]
     info1: String
     info2: String
@@ -99,7 +101,7 @@ export const queries = `
   bmTourDetail(_id:String!,branchId: String): Tour
   bmOrders( tourId:String, customerId:String ,branchId: String):ListBmsOrder
   bmToursGroup(branchId:String, sortField:String, sortDirection:Int, page:Int, perPage:Int, status: String, innerDate: Date,branchId: String, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date): GroupTour
-  bmToursGroupDetail(groupCode:String): GroupTourItem
+  bmToursGroupDetail(groupCode:String,status: String): GroupTourItem
 
 `;
 
@@ -113,7 +115,9 @@ const params = `
   endDate: Date,
   groupSize: Int,
   duration: Int,
-  advancePercent: Float
+  advancePercent: Float,
+  joinPercent: Float,
+  advanceCheck: Boolean,
   status: String,
   cost: Float,
   location: [BMSLocationInput],
