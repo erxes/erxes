@@ -12,7 +12,17 @@ export interface IAgentModel extends Model<IAgentDocument> {
 
 // TODO: add more validations on other fields
 const validateDoc = (doc: IAgent) => {
-  const { number, status, hasReturn, returnAmount, returnPercent, prepaidPercent, discountPercent } = doc;
+  const {
+    number,
+    status,
+    hasReturn,
+    returnAmount,
+    returnPercent,
+    prepaidPercent,
+    discountPercent,
+    customerIds = [],
+    companyIds = []
+  } = doc;
 
   if (!number) {
     throw new Error('Agent number is missing');
@@ -28,6 +38,10 @@ const validateDoc = (doc: IAgent) => {
 
   if (!hasReturn && !(prepaidPercent || discountPercent)) {
     throw new Error('Either prepaid or discount percent must be > 0')
+  }
+
+  if (customerIds.length > 0 && companyIds.length > 0) {
+    throw new Error('Choose only customers or companies at once, not both at the same time');
   }
 }
 
