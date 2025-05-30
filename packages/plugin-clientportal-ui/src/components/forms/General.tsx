@@ -364,8 +364,7 @@ function General({
                   'languages',
                   e.map((o) => o.value)
                 );
-                console.log(e);
-                // handleFormChange('language', e.value)
+            
               }}
               isClearable={false}
               isMulti={true}

@@ -138,7 +138,7 @@ const configClientPortalQueries = {
     { _id },
     { subdomain }: IContext
   ) {
-    console.log(_id);
+
     return sendKbMessage({
       subdomain,
       action: 'topics.findOne',
