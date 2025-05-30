@@ -113,14 +113,14 @@ const queries = {
 
 
       if (translation) {
-        post = {
-          ...post,
-          title: translation.title,
-          excerpt: translation.excerpt,
-          content: translation.content,
-          customFieldsData: translation.customFieldsData,
-        };
-
+        Object.assign(post, {
+          ...(translation.title && { title: translation.title }),
+          ...(translation.excerpt && { excerpt: translation.excerpt }),
+          ...(translation.content && { content: translation.content }),
+          ...(translation.customFieldsData && {
+            customFieldsData: translation.customFieldsData,
+          }),
+        });
       }
     }
     return post;
