@@ -30,7 +30,6 @@ import {
   Assignments as AssignmentMutations,
   AssignmentCampaigns as AssignmentCampaignMutations,
   ScoreCampaigns as scoreCampaignMutations,
-  voucherCodes as voucherCodeMutations,
   Agents as AgentMutations,
   Coupons as CouponMutations,
   CouponCampaigns as CouponCampaignMutations,
@@ -86,8 +85,7 @@ const resolvers: any = async serviceDiscovery => ({
     ...AssignmentMutations,
     ...AssignmentCampaignMutations,
     ...scoreCampaignMutations,
-    ...voucherCodeMutations,
-    ...AgentMutations
+    ...AgentMutations,
     ...CouponMutations,
     ...CouponCampaignMutations,
   },
@@ -106,7 +104,7 @@ const resolvers: any = async serviceDiscovery => ({
     ...AssignmentQueries,
     ...AssignmentCampaignQueries,
     ...ScoreCampaignQueries,
-    ...AgentQueries
+    ...AgentQueries,
     ...CouponQueries,
     ...CouponCampaignQueries,
   },
