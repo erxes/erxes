@@ -100,34 +100,12 @@ const command = async () => {
   Users = db.collection('users');
 
   console.log(`Process start at: ${new Date()}`);
-  // const customerFilter = { code: { $exists: true } };
-  const customerFilter = { code: 'CIF-13000112' };
-  // CIF-13000098
-  // CIF-13000112
+  const customerFilter = { code: { $exists: true } };
 
   const customersCount = await Customers.countDocuments(customerFilter);
 
   let step = 0;
   let per = 10000;
-
-  // const huulga = await fetchPolaris("13610201", [
-  //   "130013000562",
-  //   "2025-03-28",
-  //   "2025-07-28",
-  //   0,
-  //   100,
-  // ]);
-
-  // console.log(huulga, "huulga");
-
-  // await syncTransactions(
-  //   huulga,
-  //   2000000,
-  //   LoanTransaction,
-  //   LoanSchedules,
-  //   LoanContracts,
-  //   "FJLAAdVpCPOENHrDMmcIC"
-  // );
 
   while (step * per < customersCount) {
     const skip = step * per;
@@ -159,8 +137,6 @@ const command = async () => {
           pLoanContract.acntCode,
           0
         ]);
-
-        console.log(contractDetail, 'contractDetail');
 
         const collaterals = await fetchPolaris('13610904', [
           pLoanContract.acntCode
@@ -273,22 +249,22 @@ const command = async () => {
            * sync loan transaction
            */
 
-          // const huulga = await fetchPolaris("13610201", [
-          //   pLoanContract.acntCode,
-          //   moment(pLoanContract.startDate).format("YYYY-MM-DD"),
-          //   moment(pLoanContract.endDate).format("YYYY-MM-DD"),
-          //   0,
-          //   100,
-          // ]);
+          const huulga = await fetchPolaris('13610201', [
+            pLoanContract.acntCode,
+            moment(pLoanContract.startDate).format('YYYY-MM-DD'),
+            moment(pLoanContract.endDate).format('YYYY-MM-DD'),
+            0,
+            100
+          ]);
 
-          // await syncTransactions(
-          //   huulga,
-          //   contractDetail.approvAmount,
-          //   LoanTransaction,
-          //   LoanSchedules,
-          //   LoanContracts,
-          //   loanContract
-          // );
+          await syncTransactions(
+            huulga,
+            contractDetail.approvAmount,
+            LoanTransaction,
+            LoanSchedules,
+            LoanContracts,
+            loanContract
+          );
         }
       }
     }
@@ -309,10 +285,11 @@ const dateGroup = async (data, aprvAmnt) => {
   }
 
   // Step 1: Filter transactions with income !== 0
-  const filtered = data.txns.filter(
-    (txn) =>
-      txn.income !== 0 || txn.outcome === aprvAmnt || txn.balance === aprvAmnt
-  );
+  const filtered = data.txns;
+  // .filter(
+  //   (txn) =>
+  //     txn.income !== 0 || txn.outcome === aprvAmnt || txn.balance === aprvAmnt
+  // );
 
   // Step 2: Sort by postDate
   filtered.sort((a, b) => {
@@ -523,12 +500,9 @@ const getCalcedAmountsOnDate = async (
   date,
   calculationFixed
 ) => {
-  console.log('1111111111');
-
   if (!calculationFixed) {
     calculationFixed = 2;
   }
-  console.log('2222222222');
   const currentDate = getFullDate(date);
   const result = {
     // status: 'pending' | 'done' | 'skipped' | 'pre' | 'less' | 'expired' | 'give';
@@ -549,7 +523,6 @@ const getCalcedAmountsOnDate = async (
     calcInterest: 0,
     closeAmount: 0
   };
-  console.log('33333333333333');
   const preSchedule = await LoanSchedules.findOne(
     {
       contractId: contract._id,
@@ -558,10 +531,6 @@ const getCalcedAmountsOnDate = async (
     },
     { sort: { payDate: -1, createdAt: -1 } }
   );
-
-  console.log('44444444');
-
-  console.log(preSchedule, 'preSchedule');
 
   if (!preSchedule) {
     return result;
@@ -1091,8 +1060,6 @@ const afterPayTrInSchedule = async (LoanSchedules, foundCT, tr) => {
     surplus = didBalance * -1;
     didBalance = 0;
   }
-
-  console.log(skippedSchedules, 'skippedSchedules');
 
   let currentSchedule = !getDiffDay(preSchedule?.payDate, currentDate)
     ? preSchedule
@@ -1668,7 +1635,7 @@ const scheduleHelper = async (
 
       break;
 
-    case 'last':
+    case 'last': {
       const calcedOne = await calcAllMonthLast({
         currentDate,
         balance,
@@ -1704,9 +1671,10 @@ const scheduleHelper = async (
       currentDate = endDate;
 
       break;
+    }
 
     // case 'fixed':
-    default:
+    default: {
       let total = await getEqualPay({
         startDate,
         interestRate: interestRate ?? 0,
@@ -1751,6 +1719,7 @@ const scheduleHelper = async (
       }
 
       break;
+    }
   }
 
   const lastEntry = bulkEntries[bulkEntries.length - 1];
@@ -1862,7 +1831,7 @@ const generateSchedules = async (LoanSchedules, contract, unUsedBalance) => {
   let startDate = getFullDate(contract.startDate);
   let tenor = contract.tenor;
 
-  const perHolidays = {};
+  const perHolidays = [];
 
   if (contract.stepRules?.length) {
     for (const stepRule of contract.stepRules.sort(
@@ -2195,19 +2164,16 @@ const syncTransactions = async (
 ) => {
   const filteredIncomeTxns = await dateGroup(huulga, aprvAmnt);
 
-  console.log(filteredIncomeTxns, 'filteredIncomeTxns');
-
   for (const data of filteredIncomeTxns) {
     const foundCT = await LoanContracts.findOne({
-      _id: loanContract
+      _id: loanContract.insertedId
     });
 
     if (data.outcome === aprvAmnt || data.balance === aprvAmnt) {
-      console.log('1111111bnubnubnu');
       const doc = {
         _id: nanoid(),
         transactionType: 'give',
-        contractId: loanContract,
+        contractId: loanContract.insertedId,
         payDate: new Date(data.postDate),
         total: data.outcome,
         pendings: [],
@@ -2225,11 +2191,9 @@ const syncTransactions = async (
 
       afterGiveTrInSchedule(LoanSchedules, foundCT, tr);
     } else {
-      console.log('2222zayaj bn ');
-
       const doc = {
         _id: nanoid(),
-        contractId: loanContract,
+        contractId: loanContract.insertedId,
         payDate: new Date(data.postDate),
         description: data.txnDesc,
         currency: data.curCode,

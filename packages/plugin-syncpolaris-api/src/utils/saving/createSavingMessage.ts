@@ -6,8 +6,9 @@ import {
   sendMessageBrokerData
 } from '../utils';
 import { getDate } from './getDate';
+import { IPolarisSaving } from './types';
 import { updateSaving } from './updateSaving';
-import { validateDepositObject } from './validator';
+import { validateSavingObject } from './validator';
 
 export const createSavingMessage = async (
   subdomain: string,
@@ -104,7 +105,7 @@ export const createSavingMessage = async (
       ? customerAccount[0].acntCode
       : '';
 
-  let sendData = {
+  let sendData: IPolarisSaving = {
     prodCode: contractType.code,
     slevel: 1,
     capMethod: '1',
@@ -131,7 +132,7 @@ export const createSavingMessage = async (
     lastDtDate: ''
   };
 
-  await validateDepositObject(sendData);
+  await validateSavingObject(sendData);
 
   if (
     contractType?.code &&
