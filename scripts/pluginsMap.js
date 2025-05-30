@@ -1988,7 +1988,7 @@ module.exports = {
       "menus": [
         {
           "text": "Loyalties",
-          "url": "/vouchers",
+          "url": "/score",
           "icon": "icon-piggybank",
           "location": "mainNavigation",
           "permission": "showLoyalties"
@@ -3694,6 +3694,17 @@ module.exports = {
           "permission": "showContracts"
         },
         {
+          "text": "Contract purpose",
+          "image": "/images/icons/erxes-01.svg",
+          "to": "/erxes-plugin-loan/purpose/",
+          "action": "loanConfig",
+          "location": "settings",
+          "permissions": [
+            "showContracts"
+          ],
+          "permission": "showContracts"
+        },
+        {
           "text": "Insurance types",
           "image": "/images/icons/erxes-13.svg",
           "to": "/erxes-plugin-loan/insurance-types/",
@@ -3766,7 +3777,8 @@ module.exports = {
                 "transactionsRemove",
                 "nonBalanceTransactionsRemove",
                 "showPeriodLocks",
-                "managePeriodLocks"
+                "managePeriodLocks",
+                "managePurpose"
               ]
             },
             {
@@ -3781,6 +3793,16 @@ module.exports = {
                 "showContracts",
                 "manageSchedule",
                 "showCollaterals"
+              ]
+            },
+            {
+              "name": "loansPurposesAll",
+              "description": "Manage All Loan Purpose",
+              "use": [
+                "managePurpose",
+                "purposeAdd",
+                "purposeEdit",
+                "purposesRemove"
               ]
             },
             {
@@ -3832,6 +3854,10 @@ module.exports = {
             {
               "name": "manageSchedule",
               "description": "Manage Schedule"
+            },
+            {
+              "name": "managePurpose",
+              "description": "Manage Purpose"
             },
             {
               "name": "showCollaterals",
@@ -4312,7 +4338,9 @@ module.exports = {
       "scope": "syncpolaris",
       "exposes": {
         "./routes": "./src/routes.tsx",
-        "./customerSidebar": "./src/pullPolaris/containers/CustomerSidebar.tsx"
+        "./customerSidebar": "./src/pullPolaris/containers/CustomerSidebar.tsx",
+        "./savingsPolaris": "./src/savingPolaris/containers/Polaris.tsx",
+        "./loansPolaris": "./src/loanPolaris/containers/Polaris.tsx"
       },
       "routes": {
         "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-syncpolaris-ui/remoteEntry.js",
@@ -4337,6 +4365,8 @@ module.exports = {
         }
       ],
       "customerRightSidebarSection": "./customerSidebar",
+      "savingPolarisSection": "./savingsPolaris",
+      "loanPolarisSection": "./loansPolaris",
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-syncpolaris-ui/remoteEntry.js"
     },
     "api": {
