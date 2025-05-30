@@ -1,12 +1,14 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { IBrowserInfo } from '../../types';
-import DumbNotifier from '../components/Notifier';
-import { connection } from '../connection';
-import graphqlTypes from '../graphql';
-import { useQuery } from '@apollo/react-hooks';
-import { useConversation } from '../context/Conversation';
-import { toggleNotifier, toggleNotifierFull } from '../utils/util';
+import * as React from "react";
+
+import { toggleNotifier, toggleNotifierFull } from "../utils/util";
+
+import DumbNotifier from "../components/Notifier";
+import { IBrowserInfo } from "../../types";
+import { connection } from "../connection";
+import { getEngageMessage } from "../graphql/queries";
+import gql from "graphql-tag";
+import { useConversation } from "../context/Conversation";
+import { useQuery } from "@apollo/react-hooks";
 
 type Props = {
   browserInfo?: IBrowserInfo;
@@ -16,7 +18,7 @@ const Notifier = ({ browserInfo }: Props) => {
   const { readConversation } = useConversation();
 
   const { data: engageMessageQuery, loading } = useQuery(
-    gql(graphqlTypes.getEngageMessage),
+    gql(getEngageMessage),
     {
       skip: !connection.data.customerId || !connection.enabledServices?.engage, // it should be "engages"
       variables: {
@@ -26,7 +28,7 @@ const Notifier = ({ browserInfo }: Props) => {
         browserInfo: browserInfo,
       },
       notifyOnNetworkStatusChange: true,
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
       // every minute
       pollInterval: 60000,
     }
@@ -36,7 +38,7 @@ const Notifier = ({ browserInfo }: Props) => {
     if (message._id) {
       const { engageData } = message;
 
-      if (engageData && engageData.sentAs === 'fullMessage') {
+      if (engageData && engageData.sentAs === "fullMessage") {
         toggleNotifierFull();
       } else {
         toggleNotifier();

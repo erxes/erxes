@@ -15,7 +15,8 @@ const getPaymentsAttributes = async (subdomain) => {
 };
 
 const applyProductRestrictions = async ({ target, campaign, subdomain }) => {
-  if (!campaign?.restrictions) return target;
+  if (!campaign?.restrictions || !target?.productsData)
+    return { target, excludedProductsAmount: 0 };
 
   const {
     categoryIds = [],
@@ -25,6 +26,8 @@ const applyProductRestrictions = async ({ target, campaign, subdomain }) => {
     tagIds = [],
     excludeTagIds = [],
   } = campaign.restrictions || {};
+
+  const { discountCheck } = campaign.additionalConfig || {};
 
   const productIdsFromTarget = target.productsData.map((p) => p.productId);
 
@@ -59,11 +62,39 @@ const applyProductRestrictions = async ({ target, campaign, subdomain }) => {
 
   const allowedProductIds = new Set(productDocs.map((p) => p._id));
 
-  target.productsData = target.productsData.filter((p) =>
-    allowedProductIds.has(p.productId)
-  );
+  const originalProducts = target.productsData;
 
-  return target;
+  const includedProducts: any = [];
+  const excludedProducts: any = [];
+
+  for (const product of originalProducts) {
+    const isAllowed =
+      allowedProductIds.has(product.productId) &&
+      (!discountCheck || !product.discountPercent || !product.discount);
+
+    if (isAllowed) {
+      includedProducts.push(product);
+    } else {
+      excludedProducts.push(product);
+    }
+  }
+
+  target.productsData = includedProducts;
+
+  const excludedAmount = excludedProducts.reduce((acc, excludedProduct) => {
+    const amount = Number(excludedProduct?.amount) || 0;
+    let quantity = Number(excludedProduct?.quantity) || 1;
+
+    if (excludedProduct?.discount) {
+      quantity = 1
+    }
+
+    return acc + amount * quantity;
+  }, 0);
+
+  console.log({ excludedAmount });
+
+  return { target, excludedProductsAmount: excludedAmount };
 };
 
 export const extendLoyaltyTarget = async (
@@ -72,9 +103,12 @@ export const extendLoyaltyTarget = async (
   campaign,
   subdomain: string
 ) => {
-  await applyProductRestrictions({ target, campaign, subdomain });
+  console.log("target 1", JSON.stringify(target, null, 2));
+  const { target: updatedTarget, excludedProductsAmount } =
+    await applyProductRestrictions({ target, campaign, subdomain });
+  console.log("target 2", JSON.stringify(target, null, 2));
 
-  const totalAmount = generateTotalAmount(target.productsData);
+  const totalAmount = generateTotalAmount(updatedTarget.productsData);
 
   const paymentTypes = await models.Pipelines.find({
     "paymentTypes.scoreCampaignId": { $exists: true },
@@ -92,7 +126,7 @@ export const extendLoyaltyTarget = async (
     return false;
   };
 
-  const payments = Object.entries(target?.paymentsData || {});
+  const payments = Object.entries((updatedTarget as IDeal)?.paymentsData || {});
 
   const validPayments = payments
     .filter(([type, obj]) => hasValidAmount(type, obj))
@@ -101,13 +135,24 @@ export const extendLoyaltyTarget = async (
       ...obj,
     }));
 
-  const excludeAmount =
+  let excludeAmount =
     validPayments.reduce((sum, payment) => sum + (payment?.amount || 0), 0) ||
     0;
 
-    console.log({ totalAmount, excludeAmount, ...target })
+  if (excludeAmount && excludedProductsAmount) {
 
-  return { totalAmount, excludeAmount, ...target };
+    const adjusted = excludeAmount - excludedProductsAmount;
+
+    if (adjusted < 0 && !updatedTarget?.productsData?.length) {
+      excludeAmount = 0;
+    } else {
+      excludeAmount = Math.max(0, adjusted)
+    }
+  }
+
+  console.log({ totalAmount, excludeAmount, ...updatedTarget });
+
+  return { totalAmount, excludeAmount, ...updatedTarget };
 };
 
 export default {

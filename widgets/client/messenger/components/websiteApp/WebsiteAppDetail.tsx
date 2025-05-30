@@ -1,7 +1,8 @@
-import * as React from 'react';
-import { __ } from '../../../utils';
-import { IWebsiteApp } from '../../types';
-import Container from '../common/Container';
+import * as React from "react";
+
+import Container from "../common/Container";
+import { IWebsiteApp } from "../../types";
+import { __ } from "../../../utils";
 
 type Props = {
   websiteApp: IWebsiteApp;
@@ -22,7 +23,11 @@ export default class WebsiteAppDetail extends React.PureComponent<Props> {
           {loading ? (
             <div className="loader" />
           ) : (
-            <iframe src={websiteApp.credentials.url} className="websiteApp" />
+            <iframe
+              title="erxes-messenger"
+              src={websiteApp.credentials.url}
+              className="websiteApp"
+            />
           )}
         </div>
       </Container>

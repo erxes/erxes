@@ -1,24 +1,26 @@
-import * as React from 'react';
-import { createContext, useContext, useState } from 'react';
-import { getLocalStorageItem, setLocalStorageItem } from '../../common';
-import { connection } from '../connection';
-import { IMessage } from '../types';
-import { useRouter } from './Router';
-import { postMessage, requestBrowserInfo } from '../../utils';
+import * as React from "react";
+
+import {
+  GET_UNREAD_COUNT,
+  GET_WIDGET_EXPORT_MESSENGER_DATA,
+} from "../graphql/queries";
 import {
   READ_CONVERSATION_MESSAGES_MUTATION,
   SAVE_BROWSER_INFO,
   SEND_TYPING_INFO_MUTATION,
   WIDGETS_SAVE_CUSTOMER_GET_NOTIFIED,
   WIDGET_GET_BOT_INTIAL_MESSAGE,
-} from '../graphql/mutations';
-import { useLazyQuery, useMutation } from '@apollo/react-hooks';
-import {
-  GET_UNREAD_COUNT,
-  GET_WIDGET_EXPORT_MESSENGER_DATA,
-} from '../graphql/queries';
-import { toggleNotifier } from '../utils/util';
-import { IBrowserInfo } from '../../types';
+} from "../graphql/mutations";
+import { createContext, useContext, useState } from "react";
+import { getLocalStorageItem, setLocalStorageItem } from "../../common";
+import { postMessage, requestBrowserInfo } from "../../utils";
+import { useLazyQuery, useMutation } from "@apollo/react-hooks";
+
+import { IBrowserInfo } from "../../types";
+import { IMessage } from "../types";
+import { connection } from "../connection";
+import { toggleNotifier } from "../utils/util";
+import { useRouter } from "./Router";
 
 interface ConversationContextType {
   activeConversationId: string | null;
@@ -36,7 +38,8 @@ interface ConversationContextType {
   toggle: (isVisible?: boolean) => void;
   saveGetNotified: (
     doc: { type: string; value: string },
-    callback?: () => void
+    callback?: () => void,
+    redirect?: () => void
   ) => void;
   isSavingNotified: boolean;
   lastUnreadMessage?: IMessage;
@@ -72,7 +75,7 @@ export const ConversationProvider = ({
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [isBrowserInfoSaved, setIsBrowserInfoSaved] = useState(false);
   const [browserInfo, setBrowserInfo] = useState<IBrowserInfo>({});
-  const [activeConversationId, setActiveConversationId] = useState('');
+  const [activeConversationId, setActiveConversationId] = useState("");
   const [isMessengerVisible, setIsMessengerVisible] = useState(false);
   const [isSavingNotified, setIsSavingNotified] = useState(false);
   const [lastSentTypingInfo, setLastSentTypingInfo] = useState<
@@ -97,7 +100,7 @@ export const ConversationProvider = ({
   React.useEffect(() => {
     const saveBrowserInfo = () => {
       requestBrowserInfo({
-        source: 'fromMessenger',
+        source: "fromMessenger",
         callback: (browserInfo: IBrowserInfo) => {
           connection.browserInfo = browserInfo;
 
@@ -152,7 +155,7 @@ export const ConversationProvider = ({
 
     const options = {
       activeConversation: _id,
-      activeRoute: _id ? 'conversationDetail' : 'conversationCreate',
+      activeRoute: _id ? "conversationDetail" : "conversationCreate",
       lastUnreadMessage,
     };
 
@@ -179,15 +182,15 @@ export const ConversationProvider = ({
 
   const goToConversation = (conversationId: string) => {
     changeConversation(conversationId);
-    setRoute('conversationDetail');
+    setRoute("conversationDetail");
     readMessages(conversationId);
   };
 
   const goToConversationList = () => {
     // reset current conversation
-    changeConversation('');
+    changeConversation("");
 
-    setRoute('conversationList');
+    setRoute("conversationList");
   };
 
   const getLastConversationId = () => {
@@ -197,14 +200,14 @@ export const ConversationProvider = ({
 
   const toggle = (isVisible?: boolean) => {
     // notify parent window launcher state
-    postMessage('fromMessenger', 'messenger', {
+    postMessage("fromMessenger", "messenger", {
       isVisible: !isMessengerVisible,
       isSmallContainer,
     });
 
     setIsMessengerVisible(!isMessengerVisible);
 
-    if (activeRoute.includes('conversation')) {
+    if (activeRoute.includes("conversation")) {
       prepareOpenLastConversation();
     }
   };
@@ -212,8 +215,8 @@ export const ConversationProvider = ({
   const prepareOpenLastConversation = () => {
     const _id = getLastConversationId();
 
-    setActiveConversationId(_id || '');
-    setRoute(_id ? 'conversationDetail' : 'conversationCreate');
+    setActiveConversationId(_id || "");
+    setRoute(_id ? "conversationDetail" : "conversationCreate");
   };
 
   const endConversation = () => {
@@ -225,12 +228,12 @@ export const ConversationProvider = ({
     }
 
     // reset local storage items
-    setLocalStorageItem('getNotifiedType', '');
-    setLocalStorageItem('getNotifiedValue', '');
-    setLocalStorageItem('customerId', '');
-    setLocalStorageItem('hasNotified', '');
+    setLocalStorageItem("getNotifiedType", "");
+    setLocalStorageItem("getNotifiedValue", "");
+    setLocalStorageItem("customerId", "");
+    setLocalStorageItem("hasNotified", "");
 
-    setLastConversationId('');
+    setLastConversationId("");
 
     toggle(true);
     window.location.reload();
@@ -255,7 +258,7 @@ export const ConversationProvider = ({
   const readConversation = (conversationId: string) => {
     toggle();
     changeConversation(conversationId);
-    setRoute('conversationDetail');
+    setRoute("conversationDetail");
     readMessages(conversationId);
     toggleNotifier();
     toggle();
@@ -263,7 +266,8 @@ export const ConversationProvider = ({
 
   const saveGetNotified = (
     { type, value }: { type: string; value: string },
-    callback?: () => void
+    callback?: () => void,
+    redirect?: () => void
   ) => {
     if (!value) {
       return;
@@ -287,26 +291,26 @@ export const ConversationProvider = ({
         }
 
         // cache customerId
-        setLocalStorageItem('customerId', widgetsSaveCustomerGetNotified._id);
+        setLocalStorageItem("customerId", widgetsSaveCustomerGetNotified._id);
         connection.data.customerId = widgetsSaveCustomerGetNotified._id;
 
         // save email
-        setLocalStorageItem('getNotifiedType', type);
-        setLocalStorageItem('getNotifiedValue', value);
+        setLocalStorageItem("getNotifiedType", type);
+        setLocalStorageItem("getNotifiedValue", value);
 
         // redirect to conversation
-        prepareOpenLastConversation();
+        redirect ? redirect() : prepareOpenLastConversation();
 
         // notify parent window launcher state
-        postMessage('fromMessenger', 'messenger', {
+        postMessage("fromMessenger", "messenger", {
           isVisible: true,
           isSmallContainer: isSmallContainer,
         });
 
-        const messengerDataJson = getLocalStorageItem('messengerDataJson');
+        const messengerDataJson = getLocalStorageItem("messengerDataJson");
         const messengerData = JSON.parse(messengerDataJson);
         messengerData.customerId = widgetsSaveCustomerGetNotified._id;
-        setLocalStorageItem('messengerDataJson', JSON.stringify(messengerData));
+        setLocalStorageItem("messengerDataJson", JSON.stringify(messengerData));
 
         // wsLink.restart();
       },
@@ -314,8 +318,8 @@ export const ConversationProvider = ({
   };
 
   const createConversation = () => {
-    setActiveConversationId('');
-    setActiveRoute('conversationCreate');
+    setActiveConversationId("");
+    setActiveRoute("conversationCreate");
   };
 
   const sendTypingInfo = (conversationId: string, text: string) => {

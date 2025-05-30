@@ -128,7 +128,32 @@ const clientPortalComments = `
     clientPortalComments(typeId: $typeId, type: $type) {
       _id
       content
-      createdUser 
+      createdUser {
+        _id
+        email
+        lastName
+        firstName
+        avatar
+      }
+      createdAt
+      userType
+      type
+    }
+  }
+`;
+
+const widgetsTicketComments = `
+  query widgetsTicketComments($typeId: String!, $type: String!) {
+    widgetsTicketComments(typeId: $typeId, type: $type) {
+      _id
+      content
+      createdUser {
+        _id
+        email
+        lastName
+        firstName
+        avatar
+      }
       createdAt
       userType
       type
@@ -206,5 +231,6 @@ export default {
   ticketDetail,
   archivedTickets,
   archivedTicketsCount,
-  clientPortalComments
+  clientPortalComments,
+  widgetsTicketComments
 };

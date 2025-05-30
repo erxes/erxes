@@ -17,7 +17,8 @@ const tourQueries = {
       startDate2,
       endDate2,
       sortField = "createdAt",
-      sortDirection = -1
+      sortDirection = -1,
+      groupCode
     },
     { models }: IContext
   ) {
@@ -70,6 +71,9 @@ const tourQueries = {
     if (endDate1) {
       if (!selector.endDate) selector.endDate = {};
       selector.endDate["$gte"] = endDate1;
+    }
+    if (groupCode) {
+      selector.groupCode = groupCode;
     }
     const list = await models.Tours.find(selector)
       .limit(perPage)
@@ -97,7 +101,8 @@ const tourQueries = {
       startDate2,
       endDate2,
       sortField = "createdAt",
-      sortDirection = -1
+      sortDirection = -1,
+      groupCode
     },
     { models }: IContext
   ) {
@@ -151,6 +156,9 @@ const tourQueries = {
       if (!selector.endDate) selector.endDate = {};
       selector.endDate["$gte"] = endDate1;
     }
+    if (groupCode) {
+      selector.groupCode = groupCode;
+    }
     const list = await models.Tours.find({
       ...selector,
       groupCode: { $in: [null, ""] }
@@ -158,7 +166,10 @@ const tourQueries = {
       .limit(perPage)
       .skip(skip)
       .sort({ [sortField]: sortDirection === -1 ? sortDirection : 1 });
-    const total = await models.Tours.find(selector).countDocuments();
+    const total = await models.Tours.find({
+      ...selector,
+      groupCode: { $nin: [null, ""] }
+    }).countDocuments();
 
     const group = await models.Tours.aggregate([
       {
@@ -175,9 +186,19 @@ const tourQueries = {
       }
     ]);
     return {
-      list: [...group, ...list],
+      list: [...group],
       total
     };
+  },
+  async bmToursGroupDetail(_root, { groupCode, status }, { models }: IContext) {
+    const selector: any = {};
+
+    const list = await models.Tours.find({
+      groupCode: groupCode,
+      status: status
+    });
+
+    return { _id: groupCode, items: list };
   },
   async bmTourDetail(_root, { _id }, { models }: IContext) {
     return await models.Tours.findById(_id);

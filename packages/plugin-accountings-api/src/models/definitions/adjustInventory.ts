@@ -3,8 +3,18 @@ import { Schema, Document } from 'mongoose';
 import { field, schemaWrapper } from './utils';
 import { ICommonAdjusting } from './commonAdjusting';
 
-export interface IAdjInvDetail {
-  productId: string;
+export interface IAdjustInvDetailParams {
+  productId: string,
+  accountId: string,
+  departmentId: string,
+  branchId: string,
+}
+
+export interface IAdjustInvDetailParamsId extends IAdjustInvDetailParams {
+  adjustId: string
+}
+
+export interface IAdjustInvDetail extends IAdjustInvDetailParamsId {
   remainder: number;
   cost: number;
   unitCost: number;
@@ -13,19 +23,29 @@ export interface IAdjInvDetail {
 
   error?: string;
   warning?: string;
+  byDate?: any;
+}
+
+export interface IAdjustInvDetailDocument extends IAdjustInvDetail, Document {
+  _id: string;
+  createdAt: Date;
+  modifiedAt: Date;
 }
 
 export interface IAdjustInventory extends ICommonAdjusting {
   date: Date;
-  accountId: string;
-  branchId: string;
-  departmentId: string;
   description: string;
   status: string;
+  error?: string;
+  warning?: string;
+  beginDate?: Date;
+  successDate?: Date;
+  checkedDate?: Date;
 
-  checkedDate: Date;
-  productIds?: string[];
-  details?: IAdjInvDetail[];
+  createdAt?: Date;
+  createdBy?: string;
+  modifiedAt?: Date;
+  modifiedBy?: string;
 }
 
 export interface IAdjustInventoryDocument extends IAdjustInventory, Document {
@@ -42,15 +62,24 @@ export const ADJ_INV_STATUSES = {
   PUBLISH: 'publish',
   all: ['draft', 'cancel', 'publish']
 }
-export const adjInvDetailSchema = schemaWrapper(
+
+export const adjustInvDetailsSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
+    adjustId: field({ type: String, optional: true, label: 'Adjust inventory' }),
     productId: field({ type: String, optional: true, label: 'Product' }),
+    accountId: field({ type: String, label: 'account' }),
+    branchId: field({ type: String, label: 'branch' }),
+    departmentId: field({ type: String, label: 'department' }),
     remainder: field({ type: Number, optional: true, label: 'remainder' }),
     cost: field({ type: Number, optional: true, label: 'cost' }),
     unitCost: field({ type: Number, optional: true, label: 'unitCost' }),
     soonInCount: field({ type: Number, optional: true, label: 'soonInCount' }),
     soonOutCount: field({ type: Number, optional: true, label: 'soonOutCount' }),
+    error: field({ type: String, optional: true, label: 'error' }),
+    warning: field({ type: String, optional: true, label: 'warning' }),
+    createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
+    modifiedAt: field({ type: Date, optional: true, label: 'Modified at' }),
   })
 );
 
@@ -58,14 +87,13 @@ export const adjustInventoriesSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     date: field({ type: Date, label: 'date' }),
-    accountId: field({ type: String, label: 'account' }),
-    branchId: field({ type: String, label: 'branch' }),
-    departmentId: field({ type: String, label: 'department' }),
     description: field({ type: String, label: 'description' }),
     status: field({ type: String, default: 'draft', enum: ADJ_INV_STATUSES.all, label: 'status' }),
+    error: field({ type: String, optional: true, label: 'error' }),
+    warning: field({ type: String, optional: true, label: 'warning' }),
+    beginDate: field({ type: Date, label: 'date' }),
     checkedDate: field({ type: Date, label: 'date' }),
-    productIds: field({ type: [String], label: 'products' }),
-    details: field({ type: [adjInvDetailSchema], label: 'products' }),
+    successDate: field({ type: Date, label: 'current date' }),
     createdBy: field({ type: String, label: 'Created user' }),
     modifiedBy: field({ type: String, optional: true, label: 'Modified user' }),
     createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),

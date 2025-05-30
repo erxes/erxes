@@ -9,8 +9,7 @@ import {
 
 export const types = ({ contacts, clientPortal }) => `
   type TicketListItem {
-    customPropertiesData:JSON,
-    
+    customPropertiesData: JSON,
     ${commonListTypes}
   }
 
@@ -117,12 +116,6 @@ const ticketMutationParams = `
 `;
 
 export const mutations = `
-  ticketCheckProgress(number: String!): Ticket
-  ticketCommentAdd(
-    number: String!
-    content: String!
-  ): Ticket
-  ticketCheckProgressForget(email: String, phoneNumber: String): JSON
   ticketsAdd(name: String!, ${copyParams}, ${ticketMutationParams}, ${commonMutationParams}): Ticket
   ticketsEdit(_id: String!, name: String, ${ticketMutationParams}, ${commonMutationParams}): Ticket
   ticketsChange(${commonDragParams}): Ticket

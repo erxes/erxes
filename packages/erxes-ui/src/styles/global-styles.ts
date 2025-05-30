@@ -293,6 +293,26 @@ a:hover {
   transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
 }
 
+.slide-in-right-enter {
+  transform: translateX(100%);
+  opacity: 0;
+}
+.slide-in-right-enter-active {
+  transform: translateX(0);
+  opacity: 1;
+  transition: transform 300ms ease, opacity 300ms ease;
+}
+
+/* Exit */
+.slide-in-right-exit {
+  transform: translateX(0);
+  opacity: 1;
+}
+.slide-in-right-exit-active {
+  transform: translateX(100%);
+  opacity: 0;
+  transition: transform 300ms ease, opacity 300ms ease;
+}
 
 .slide-in-right-appear,
 .slide-in-right-enter {

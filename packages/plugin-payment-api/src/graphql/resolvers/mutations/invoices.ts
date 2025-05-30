@@ -55,10 +55,10 @@ const mutations = {
     { _id }: { _id: string },
     { subdomain, models }: IContext
   ) {
-    const status = await models.Invoices.checkInvoice(_id);
+    const status = await models.Invoices.checkInvoice(_id, subdomain);
 
     if (status === 'paid') {
-      const invoice = await models.Invoices.getInvoice({ _id });
+      const invoice = await models.Invoices.getInvoice({ _id }, true);
       if (invoice.contentType) {
         const [serviceName] = invoice.contentType.split(':');
 

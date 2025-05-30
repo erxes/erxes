@@ -70,7 +70,7 @@ const Dropdown: React.FC<Props> = forwardRef<HTMLDivElement, Props>(
 
       return (
         <>
-          <Menu as={as || "div"} className="relative dropdown-btn">
+          <Menu as={as || "div"} className={`relative dropdown-btn`}>
             <Menu.Button ref={buttonRef}>{toggleComponent}</Menu.Button>
             <Menu.Items
               ref={ref}

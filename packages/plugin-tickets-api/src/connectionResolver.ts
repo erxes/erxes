@@ -27,10 +27,15 @@ import {
   IChecklistItemDocument
 } from "./models/definitions/checklists";
 import { IPipelineLabelDocument } from "./models/definitions/pipelineLabels";
+import { ICommentDocument } from "./models/definitions/comments";
 import {
   IPipelineLabelModel,
   loadPipelineLabelClass
 } from "./models/PipelineLabels";
+import {
+  ICommentModel,
+  loadCommentClass
+} from "./models/Comments";
 import {
   IPipelineTemplateModel,
   loadPipelineTemplateClass
@@ -47,6 +52,7 @@ export interface IModels {
   ChecklistItems: IChecklistItemModel;
   PipelineLabels: IPipelineLabelModel;
   PipelineTemplates: IPipelineTemplateModel;
+  Comments: ICommentModel;
 }
 
 export interface IContext extends IMainContext {
@@ -96,7 +102,10 @@ export const loadClasses = (
     IPipelineTemplateDocument,
     IPipelineTemplateModel
   >("tickets_pipeline_templates", loadPipelineTemplateClass(models, subdomain));
-
+  models.Comments = db.model<ICommentDocument, ICommentModel>(
+    'ticket_comments',
+    loadCommentClass(models)
+  );
   return models;
 };
 

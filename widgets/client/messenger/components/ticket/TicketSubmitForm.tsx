@@ -11,7 +11,8 @@ type Props = {
   loading: boolean;
   isSubmitted: boolean;
   ticketNumber: string;
-  customerAddLoading: boolean;
+  formData: any;
+  customerLoading: boolean;
   handleSubmit: (e: any) => void;
   handleChange: (e: any) => void;
   handleButtonClick: () => void;
@@ -23,13 +24,15 @@ const TicketSubmitForm: React.FC<Props> = ({
   isSubmitted,
   loading,
   ticketNumber,
-  customerAddLoading,
+  customerLoading,
+  formData,
   handleChange,
   handleFiles,
   handleButtonClick,
 }) => {
   const submitText = __("Submit");
   const continueText = __("Continue");
+  const { email, firstName, lastName, phone } = formData;
 
   const renderForm = () => {
     return (
@@ -41,12 +44,14 @@ const TicketSubmitForm: React.FC<Props> = ({
               label="Name"
               onChange={handleChange}
               placeholder="First name"
+              value={firstName || ""}
               required={true}
             />
             <Input
               id="lastName"
               placeholder="Last name"
               onChange={handleChange}
+              value={lastName || ""}
               required={true}
             />
           </div>
@@ -57,6 +62,7 @@ const TicketSubmitForm: React.FC<Props> = ({
               placeholder="Phone number"
               onChange={handleChange}
               type="number"
+              value={phone}
               required={true}
             />
             <Input
@@ -64,13 +70,16 @@ const TicketSubmitForm: React.FC<Props> = ({
               placeholder="Email"
               type="email"
               required={true}
+              value={email}
               onChange={handleChange}
             />
           </div>
           <div className="ticket-form-item">
             <div className="input-container">
-              <label htmlFor="type">{__("Ticket type")}</label>
-              <select id="ticketType" onChange={handleChange}>
+              <label htmlFor="ticketType">
+                {__("Ticket type")} <span className="required">*</span>
+              </label>
+              <select id="ticketType" onChange={handleChange} required>
                 <option value="">Choose type...</option>
                 <option value="request">Request</option>
                 <option value="complaint">Complaint</option>
@@ -78,11 +87,16 @@ const TicketSubmitForm: React.FC<Props> = ({
             </div>
           </div>
           <div className="input-container">
-            <label htmlFor="type">{__("Attachments")}</label>
+            <label htmlFor="attachments">{__("Attachments")} </label>
             <FileUploader handleFiles={handleFiles} />
           </div>
           <div className="ticket-form-item">
-            <Input id="title" label="Ticket title" onChange={handleChange} />
+            <Input
+              id="title"
+              label="Ticket title"
+              onChange={handleChange}
+              required
+            />
           </div>
           <div className="ticket-form-item">
             <Input
@@ -90,6 +104,7 @@ const TicketSubmitForm: React.FC<Props> = ({
               id="description"
               label="Describe the problem"
               onChange={handleChange}
+              required
             />
           </div>
         </div>
@@ -105,7 +120,7 @@ const TicketSubmitForm: React.FC<Props> = ({
       persistentFooter={
         !isSubmitted ? (
           <Button form="ticket-form" type="submit" full>
-            {customerAddLoading ? (
+            {loading ? (
               <div className="loader" />
             ) : (
               <span className="font-semibold">{submitText}</span>
@@ -119,7 +134,7 @@ const TicketSubmitForm: React.FC<Props> = ({
       }
     >
       <div className="ticket-container">
-        {loading ? (
+        {loading || customerLoading ? (
           <div className="loader" />
         ) : isSubmitted ? (
           <SuccessForm ticketNumber={ticketNumber} />

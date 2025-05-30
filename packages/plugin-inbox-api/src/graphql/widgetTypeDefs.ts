@@ -1,16 +1,34 @@
-export const types = ({ products, knowledgeBase, cloudflareCalls }) => `
+export const types = ({
+  products,
+  knowledgeBase,
+  cloudflareCalls,
+  tickets,
+}) => `
   ${
     products
       ? `
     extend type Product @key(fields: "_id") {
       _id: String! @external
     }
-
     extend type ProductCategory @key(fields: "_id") {
+      _id: String! @external
+    }
+    extend type ActivityLog @key(fields: "_id") {
       _id: String! @external
     }
     `
       : ''
+  }
+  ${
+    tickets
+      ? `
+  extend type Ticket @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type TicketComment @key(fields: "_id") {
+    _id: String! @external
+  }`
+      : ``
   }
 
     extend type Field @key(fields: "_id") {
@@ -78,10 +96,19 @@ export const types = ({ products, knowledgeBase, cloudflareCalls }) => `
   }
 `;
 
-export const queries = ({ products, knowledgeBase }) => `
+export const queries = ({ products, knowledgeBase, tickets }) => `
   widgetsConversations(integrationId: String!, customerId: String, visitorId: String): [Conversation]
   widgetsConversationDetail(_id: String, integrationId: String!): ConversationDetailResponse
   widgetsGetMessengerIntegration(brandCode: String!): Integration
+  ${
+    tickets
+      ? `
+  widgetsTicketCustomerDetail(customerId: String, type: String): Customer
+  widgetsTicketComments(typeId: String!, type: String!): [TicketComment]
+  widgetsTicketActivityLogs(contentType: String!, contentId: String): [ActivityLog]
+  `
+      : ``
+  }
   widgetsMessages(conversationId: String): [ConversationMessage]
   widgetsUnreadCount(conversationId: String): Int
   widgetsTotalUnreadCount(integrationId: String!, customerId: String, visitorId: String): Int
@@ -101,7 +128,7 @@ export const queries = ({ products, knowledgeBase }) => `
   widgetsProductCategory(_id: String!): ProductCategory
 `;
 
-export const mutations = () => `
+export const mutations = ({ tickets }) => `
   widgetsMessengerConnect(
     brandCode: String!
     email: String
@@ -162,4 +189,28 @@ export const mutations = () => `
 
   widgetsLeadIncreaseViewCount(formId: String!): JSON
   widgetsSendTypingInfo(conversationId: String!, text: String): String
+
+  ${
+    tickets
+      ? `widgetsTicketCustomersEdit (customerId: String, firstName: String, lastName: String, emails: [String], phones: [String]): Customer
+  widgetsTicketCheckProgressForget(email: String, phoneNumber: String): JSON
+  widgetsTicketCheckProgress(number: String!): Ticket
+  widgetsTicketCommentAdd(
+    type: String!
+    typeId: String!
+    content: String!
+    userType: String!
+    customerId: String
+  ): TicketComment
+  widgetsTicketCommentsRemove(_id: String!): String
+  widgetTicketCreated(
+    name: String!
+    description: String
+    attachments: [AttachmentInput]
+    stageId: String!
+    type: String!
+    customerIds: [String!]!
+  ): Ticket`
+      : ``
+  }
 `;

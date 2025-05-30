@@ -1,33 +1,32 @@
-import React from "react";
-import Button from "@erxes/ui/src/components/Button";
-import Icon from "@erxes/ui/src/components/Icon";
-import { __, readFile, renderFullName } from "coreui/utils";
 import {
-  SpaceFormsWrapper,
-  CommentWrapper,
-  TicketComment,
-  CreatedUser,
   CommentContent,
+  CommentWrapper,
+  CreatedUser,
+  SpaceFormsWrapper,
+  TicketComment,
 } from "@erxes/ui-settings/src/styles";
+import { IClientPortalComment, IWidgetsComment } from "../types";
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
+import { __, readFile, renderFullName } from "coreui/utils";
+
+import Button from "@erxes/ui/src/components/Button";
 import { ColorButton } from "../../boards/styles/common";
-import dayjs from "dayjs";
-import { IUser } from "@erxes/ui/src/auth/types";
-import { IClientPortalComment, ICommentCreatedUser, IWidgetsComment } from "../types";
-import Dialog from "@erxes/ui/src/components/Dialog";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
-import {
-  Toggle,
-} from '@erxes/ui/src';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
 import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
+import Dialog from "@erxes/ui/src/components/Dialog";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import React from "react";
+import { Toggle } from "@erxes/ui/src";
+import dayjs from "dayjs";
 
 type Props = {
   currentUser: IUser;
-  widgetsComments: IWidgetsComment[];
+  widgetsTicketComments: IWidgetsComment[];
   clientPortalComments: IClientPortalComment[];
   remove: (_id: string) => void;
-
+  removeTicketComment: (_id: string) => void;
 };
 type State = {
   show: boolean;
@@ -38,7 +37,7 @@ class Comment extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentTab: 'clientPortal',
+      currentTab: "clientPortal",
       show: false,
     };
   }
@@ -47,15 +46,14 @@ class Comment extends React.Component<Props, State> {
   handleShow = () => this.setState({ show: true });
   tabOnClick = (tab) => this.setState({ currentTab: tab });
 
-
   render() {
-    const { currentUser, remove, } = this.props;
-    const { show, } = this.state;
+    const { currentUser, remove, removeTicketComment } = this.props;
+    const { show } = this.state;
 
     const renderComment = (comment) => {
       const createdUser = comment.createdUser || comment.createdCustomer || {};
       const isCurrentUser = createdUser._id === currentUser._id;
-
+      const { currentTab } = this.state;
       return (
         <TicketComment key={comment._id}>
           <CreatedUser>
@@ -63,14 +61,15 @@ class Comment extends React.Component<Props, State> {
               src={readFile(createdUser.avatar || "/images/avatar-colored.svg")}
               alt="profile"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = "/images/avatar-colored.svg";
+                (e.target as HTMLImageElement).src =
+                  "/images/avatar-colored.svg";
               }}
             />
             <div>
               <CommentContent>
                 <h5>
                   {createdUser.fullName ||
-                    `${createdUser.firstName || ''} ${createdUser.lastName || ''}`}
+                    `${createdUser.firstName || ""} ${createdUser.lastName || ""}`}
                 </h5>
                 <div
                   className="comment"
@@ -81,11 +80,22 @@ class Comment extends React.Component<Props, State> {
                 Created at {dayjs(comment.createdAt).format("YYYY-MM-DD HH:mm")}
               </span>
             </div>
-            {isCurrentUser && (
+            {isCurrentUser && currentTab === "clientPortal" && (
               <div className="actions">
                 <button
                   type="button"
                   onClick={() => remove(comment._id)}
+                  aria-label="Delete comment"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
+            {currentTab === "widget" && (
+              <div className="actions">
+                <button
+                  type="button"
+                  onClick={() => removeTicketComment(comment._id)}
                   aria-label="Delete comment"
                 >
                   Delete
@@ -99,11 +109,12 @@ class Comment extends React.Component<Props, State> {
 
     const renderCommentsList = () => {
       const { currentTab } = this.state;
-      const { clientPortalComments, widgetsComments } = this.props;
+      const { clientPortalComments, widgetsTicketComments } = this.props;
 
-      const comments = currentTab === 'clientPortal'
-        ? clientPortalComments
-        : widgetsComments;
+      const comments =
+        currentTab === "clientPortal"
+          ? clientPortalComments
+          : widgetsTicketComments;
 
       return comments.length === 0 ? (
         <EmptyState text="No comments available" icon="info-circle" />
@@ -111,6 +122,7 @@ class Comment extends React.Component<Props, State> {
         comments.map(renderComment)
       );
     };
+
     return (
       <>
         <ColorButton onClick={this.handleShow}>
@@ -123,19 +135,24 @@ class Comment extends React.Component<Props, State> {
           closeModal={this.handleClose}
           title={__("Comments")}
         >
-
           <Tabs full={true}>
             <TabTitle
-              className={this.state.currentTab === "clientPortal" ? "active" : ""}
+              className={
+                this.state.currentTab === "clientPortal" ? "active" : ""
+              }
               onClick={this.tabOnClick.bind(this, "clientPortal")}
             >
               {__("Client Portal")}
             </TabTitle>
+            <TabTitle
+              className={this.state.currentTab === "widget" ? "active" : ""}
+              onClick={this.tabOnClick.bind(this, "widget")}
+            >
+              {__("Widgets")}
+            </TabTitle>
           </Tabs>
           <SpaceFormsWrapper>
-            <CommentWrapper>
-              {renderCommentsList()}
-            </CommentWrapper>
+            <CommentWrapper>{renderCommentsList()}</CommentWrapper>
           </SpaceFormsWrapper>
           <ModalFooter>
             <Button
