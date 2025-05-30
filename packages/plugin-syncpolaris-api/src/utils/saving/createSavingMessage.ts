@@ -3,7 +3,7 @@ import {
   fetchPolaris,
   getBranch,
   updateContract,
-  sendMessageBrokerData,
+  sendMessageBrokerData
 } from '../utils';
 import { getDate } from './getDate';
 import { IPolarisSaving } from './types';
@@ -39,14 +39,14 @@ export const createSavingMessage = async (
     createdAt: new Date(),
     createdBy: '',
     consumeData: savingContract,
-    consumeStr: JSON.stringify(savingContract),
+    consumeStr: JSON.stringify(savingContract)
   };
 
   const preSuccessValue = await models.SyncLogs.findOne({
     contentType: 'savings:contract',
     contentId: savingContract._id,
     error: { $exists: false },
-    responseData: { $exists: true, $ne: null },
+    responseData: { $exists: true, $ne: null }
   }).sort({ createdAt: -1 });
 
   let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
@@ -77,7 +77,7 @@ export const createSavingMessage = async (
     op: '13610312',
     data: [customer?.code, 0, 20],
     subdomain,
-    polarisConfig,
+    polarisConfig
   });
 
   const customerAccount = getAccounts.filter(
@@ -129,7 +129,7 @@ export const createSavingMessage = async (
     closedBy: '',
     closedDate: '',
     lastCtDate: '',
-    lastDtDate: '',
+    lastDtDate: ''
   };
 
   await validateSavingObject(sendData);
@@ -146,7 +146,7 @@ export const createSavingMessage = async (
       subdomain,
       models,
       polarisConfig,
-      syncLog,
+      syncLog
     });
   }
 
@@ -159,8 +159,8 @@ export const createSavingMessage = async (
           number: JSON.parse(savingCode),
           startDate: new Date(systemDate),
           isSyncedPolaris: true,
-          endDate: new Date(endDate),
-        },
+          endDate: new Date(endDate)
+        }
       },
       'savings'
     );

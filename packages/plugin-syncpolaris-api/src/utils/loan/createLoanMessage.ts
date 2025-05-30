@@ -7,7 +7,7 @@ import {
   updateContract,
   sendMessageBrokerData,
   getProduct,
-  getPurpose,
+  getPurpose
 } from '../utils';
 import { createSavingLoan } from './createSavingLoan';
 import { IPolarisLoan } from './types';
@@ -36,14 +36,14 @@ export const createLoanMessage = async (subdomain, polarisConfig, loan) => {
     createdAt: new Date(),
     createdBy: '',
     consumeData: loan,
-    consumeStr: JSON.stringify(loan),
+    consumeStr: JSON.stringify(loan)
   };
 
   const preSuccessValue = await models.SyncLogs.findOne({
     contentType: 'loans:contract',
     contentId: loan._id,
     error: { $exists: false },
-    responseData: { $exists: true, $ne: null },
+    responseData: { $exists: true, $ne: null }
   }).sort({ createdAt: -1 });
 
   let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
@@ -106,7 +106,7 @@ export const createLoanMessage = async (subdomain, polarisConfig, loan) => {
     notSendToCib: 0,
     losMultiAcnt: 0,
     validLosAcnt: 1,
-    secType: 0,
+    secType: 0
   };
 
   await validateLoanObject(sendData);
@@ -127,7 +127,7 @@ export const createLoanMessage = async (subdomain, polarisConfig, loan) => {
         subdomain,
         models,
         polarisConfig,
-        syncLog,
+        syncLog
       });
     }
 

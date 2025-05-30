@@ -4,7 +4,7 @@ import {
   getUser,
   fetchPolaris,
   getProduct,
-  getFullDate,
+  getFullDate
 } from '../utils';
 import { IPolarisUpdateLoan } from './types';
 import { validateUpdateLoanObject } from './validator';
@@ -62,7 +62,7 @@ export const updateLoan = async (
     prodName: '',
     brchName: '',
     flagMoveSa: '',
-    repayAcntCode: '',
+    repayAcntCode: ''
   };
 
   await validateUpdateLoanObject(sendData);
@@ -82,7 +82,7 @@ export const updateLoan = async (
       subdomain,
       models,
       polarisConfig,
-      syncLog,
+      syncLog
     });
   }
 };

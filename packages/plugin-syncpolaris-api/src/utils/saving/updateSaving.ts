@@ -2,7 +2,7 @@ import {
   getCustomer,
   fetchPolaris,
   getBranch,
-  sendMessageBrokerData,
+  sendMessageBrokerData
 } from '../utils';
 import { getDate } from './getDate';
 import { IPolarisUpdateSaving } from './types';
@@ -40,7 +40,7 @@ export const updateSaving = async (
     op: '13610312',
     data: [customer?.code, 0, 20],
     subdomain,
-    polarisConfig,
+    polarisConfig
   });
 
   const customerAccount = getAccounts.filter(
@@ -104,7 +104,7 @@ export const updateSaving = async (
     doTran: 1,
     useSpclAcnt: 0,
     jointOrSingleStr: '0',
-    repayPriority: 0,
+    repayPriority: 0
   };
 
   await validateUpdateDepositObject(sendData);
@@ -122,7 +122,7 @@ export const updateSaving = async (
       subdomain,
       models,
       polarisConfig,
-      syncLog,
+      syncLog
     });
   }
 
