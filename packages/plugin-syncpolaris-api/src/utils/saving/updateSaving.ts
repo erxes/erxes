@@ -6,7 +6,7 @@ import {
 } from '../utils';
 import { getDate } from './getDate';
 import { IPolarisUpdateSaving } from './types';
-import { validateUpdateDepositObject } from './validator';
+import { validateUpdateSavingObject } from './validator';
 
 export const updateSaving = async (
   subdomain: string,
@@ -107,7 +107,7 @@ export const updateSaving = async (
     repayPriority: 0
   };
 
-  await validateUpdateDepositObject(sendData);
+  await validateUpdateSavingObject(sendData);
 
   if (
     savingProduct?.code &&

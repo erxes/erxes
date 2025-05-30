@@ -14,7 +14,7 @@ const requiredKeys = [
   'name2',
   'termLen',
   'custCode',
-  'jointOrSingle',
+  'jointOrSingle'
 ];
 
 const requiredUpdateKeys = [
@@ -22,7 +22,6 @@ const requiredUpdateKeys = [
   'slevel',
   'capMethod',
   'acntCode',
-  'name',
   'startDate',
   'maturityOption',
   'brchCode',
@@ -32,7 +31,7 @@ const requiredUpdateKeys = [
   'termLen',
   'tenor',
   'custCode',
-  'jointOrSingle',
+  'jointOrSingle'
 ];
 
 export const validateSavingObject = async (value: IPolarisSaving) => {
@@ -41,7 +40,7 @@ export const validateSavingObject = async (value: IPolarisSaving) => {
   }
 };
 
-export const validateUpdateDepositObject = async (
+export const validateUpdateSavingObject = async (
   value: IPolarisUpdateSaving
 ) => {
   for (const key of requiredUpdateKeys) {
