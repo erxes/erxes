@@ -12,8 +12,8 @@ import { getCards, getUserCards } from '../../../utils';
 
 const getByHost = async (models: IModels, requestInfo, clientPortalName?) => {
   const origin = requestInfo.headers.origin;
-  const pattern = `.*${origin}.*`;
-
+  // const pattern = `.*${origin}.*`;
+  const pattern = 'http://localhost:3001';
   let config = await models.ClientPortals.findOne({ url: { $regex: pattern } });
 
   if (clientPortalName) {
@@ -138,6 +138,7 @@ const configClientPortalQueries = {
     { _id },
     { subdomain }: IContext
   ) {
+
     return sendKbMessage({
       subdomain,
       action: 'topics.findOne',
@@ -191,11 +192,13 @@ const configClientPortalQueries = {
       searchValue,
       topicId,
       isPrivate,
+      slug,
     }: {
       searchValue?: string;
       categoryIds: string[];
       topicId?: string;
       isPrivate: Boolean;
+      slug?: string;
     },
     { subdomain }: IContext
   ) {
@@ -216,6 +219,24 @@ const configClientPortalQueries = {
 
     if (categoryIds && categoryIds.length > 0) {
       selector.categoryId = { $in: categoryIds };
+    }
+
+    if (slug) {
+      const category = await sendKbMessage({
+        subdomain,
+        action: 'categories.findOne',
+        data: {
+          query: {
+            code: slug,
+          },
+        },
+        isRPC: true,
+        defaultValue: null,
+      });
+
+      if (category) {
+        selector.categoryId = category._id;
+      }
     }
 
     if (!isPrivate) {

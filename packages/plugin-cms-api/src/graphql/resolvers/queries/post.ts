@@ -3,7 +3,6 @@ import { paginate } from '@erxes/api-utils/src';
 import { IContext, IModels } from '../../../connectionResolver';
 
 export const queryBuilder = async (args: any, models: IModels) => {
-
   let query: any = {
     clientPortalId: args.clientPortalId,
   };
@@ -45,13 +44,12 @@ export const queryBuilder = async (args: any, models: IModels) => {
     const type = await models.CustomPostTypes.findOne({
       clientPortalId: args.clientPortalId,
       code: args.type,
-    }).lean()
+    }).lean();
 
     if (type) {
       query.type = type._id;
     }
   }
-
 
   return query;
 };
@@ -74,7 +72,7 @@ const queries = {
     } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
 
-    const query =  await queryBuilder({ ...args, clientPortalId }, models);
+    const query = await queryBuilder({ ...args, clientPortalId }, models);
 
     return paginate(
       models.Posts.find(query).sort({ [sortField]: sortDirection }),
@@ -87,20 +85,44 @@ const queries = {
    */
   cmsPost: async (_parent: any, args: any, context: IContext): Promise<any> => {
     const { models, clientPortalId } = context;
-    const { _id, slug } = args;
+    const { _id, slug, language } = args;
 
     if (!_id && !slug) {
       return null;
     }
 
+    let post: any = null;
+
     if (slug) {
-      return models.Posts.findOne({ slug, clientPortalId });
+      post = await models.Posts.findOne({ slug, clientPortalId }).lean();
+    } else if (_id) {
+      post = await models.Posts.findOne({
+        _id,
+      }).lean();
     }
 
-    const post = await models.Posts.findOne({
-      _id,
-    });
+    if (!post) {
+      return null;
+    }
 
+    if (language) {
+      const translation = await models.PostTranslations.findOne({
+        postId: post._id,
+        language,
+      }).lean()
+
+
+      if (translation) {
+        Object.assign(post, {
+          ...(translation.title && { title: translation.title }),
+          ...(translation.excerpt && { excerpt: translation.excerpt }),
+          ...(translation.content && { content: translation.content }),
+          ...(translation.customFieldsData && {
+            customFieldsData: translation.customFieldsData,
+          }),
+        });
+      }
+    }
     return post;
   },
 
@@ -133,6 +155,17 @@ const queries = {
     const totalPages = Math.ceil(totalCount / perPage);
 
     return { totalCount, totalPages, currentPage: page, posts };
+  },
+
+  cmsPostTranslations: async (
+    _parent: any,
+    args: any,
+    context: IContext
+  ): Promise<any> => {
+    const { models } = context;
+    const { postId } = args;
+
+    return models.PostTranslations.find({ postId });
   },
 };
 

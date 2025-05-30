@@ -9,6 +9,8 @@ export interface IWebSite {
   icon?: string;
   createdAt?: Date;
   kind: string;
+  language: string;
+  languages: string[];
 }
 
 export interface IPostDocument {
@@ -44,6 +46,18 @@ export interface IPostDocument {
 
 export interface IPost extends IPostDocument {
   _id: string;
+}
+
+export interface IPostTranslation {
+  _id?: string;
+  postId: string;
+  language: string;
+  title: string;
+  content: string;
+  excerpt: string;
+  customFieldsData: {
+    [key: string]: any;
+  };
 }
 
 
