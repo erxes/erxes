@@ -8,7 +8,8 @@ import {
 import {
   mutations as clientPortalUserMutations,
   queries as clientPortalUserQueries,
-  types as clientPortalUserTypes
+  types as clientPortalUserTypes,
+  inputs as clientPortalUserInputs
 } from "./schema/clientPortalUser";
 import {
   queries as notificationQueries,
@@ -81,6 +82,8 @@ const typeDefs = async () => {
     ${notificationTypes}
     ${commentTypes}
     ${fieldConfigTypes}
+
+    ${clientPortalUserInputs}
 
     extend type Query {
      ${clientPortalQueries(enabledPlugins)}
