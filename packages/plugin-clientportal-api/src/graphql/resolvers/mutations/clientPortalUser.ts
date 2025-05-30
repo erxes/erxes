@@ -3,22 +3,21 @@ import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IAttachment } from '@erxes/api-utils/src/types';
 import * as randomize from 'randomatic';
 
+import * as jwt from 'jsonwebtoken';
+import fetch from 'node-fetch';
 import { tokenHandler } from '../../../auth/authUtils';
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
 import {
   IInvitiation,
-  IUser,
   ITwoFactorDevice,
+  IUser,
 } from '../../../models/definitions/clientPortalUser';
 import redis from '../../../redis';
 import { fetchUserFromToki, sendSms } from '../../../utils';
 import { sendCommonMessage } from './../../../messageBroker';
-import * as jwt from 'jsonwebtoken';
 import { fetchUserFromSocialpay } from '../../../socialpayUtils';
-import fetch from 'node-fetch';
-import { TwoFactorConfig } from '../../../models/definitions/clientPortal';
 
 export interface IVerificationParams {
   userId: string;
@@ -51,7 +50,7 @@ interface IGoogleUserResult {
   locale: string;
 }
 
-const clientPortalUserMutations = {
+export const clientPortalUserMutations = {
   async clientPortalConfirmInvitation(
     _root,
     {
@@ -1510,10 +1509,27 @@ const clientPortalUserMutations = {
   },
 };
 
+export const userMutations = {
+  clientPortalUserEditProfile: async (
+    _root,
+    args,
+    { models, cpUser, subdomain }: IContext
+  ) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
+    return await models.ClientPortalUsers.updateUser(
+      subdomain,
+      cpUser._id,
+      args.input
+    );
+  },
+};
+
 checkPermission(
   clientPortalUserMutations,
   'clientPortalUpdateUser',
   'updateUser'
 );
 
-export default clientPortalUserMutations;

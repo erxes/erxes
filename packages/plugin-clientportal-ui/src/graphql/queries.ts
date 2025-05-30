@@ -121,6 +121,7 @@ export const commonFields = `
   tokenPassMethod
   vendorParentProductCategoryId
   language
+  languages
 `;
 
 export const basicFields = `
