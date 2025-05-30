@@ -15,6 +15,7 @@ import {
   IUser,
 } from '../../../models/definitions/clientPortalUser';
 import redis from '../../../redis';
+import { fetchUserFromSocialpay } from '../../../socialpayUtils';
 import { fetchUserFromToki, sendSms } from '../../../utils';
 import { sendCommonMessage } from './../../../messageBroker';
 
@@ -49,7 +50,7 @@ interface IGoogleUserResult {
   locale: string;
 }
 
-export const clientPortalUserMutations = {
+const clientPortalUserMutations = {
   async clientPortalConfirmInvitation(
     _root,
     {
@@ -1508,27 +1509,10 @@ export const clientPortalUserMutations = {
   },
 };
 
-export const userMutations = {
-  clientPortalUserEditProfile: async (
-    _root,
-    args,
-    { models, cpUser, subdomain }: IContext
-  ) => {
-    if (!cpUser) {
-      throw new Error('login required');
-    }
-
-    return await models.ClientPortalUsers.updateUser(
-      subdomain,
-      cpUser._id,
-      args.input
-    );
-  },
-};
-
 checkPermission(
   clientPortalUserMutations,
   'clientPortalUpdateUser',
   'updateUser'
 );
 
+export default clientPortalUserMutations;
