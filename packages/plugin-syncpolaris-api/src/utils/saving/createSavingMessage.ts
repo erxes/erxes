@@ -3,11 +3,12 @@ import {
   fetchPolaris,
   getBranch,
   updateContract,
-  sendMessageBrokerData
+  sendMessageBrokerData,
 } from '../utils';
 import { getDate } from './getDate';
+import { IPolarisSaving } from './types';
 import { updateSaving } from './updateSaving';
-import { validateDepositObject } from './validator';
+import { validateSavingObject } from './validator';
 
 export const createSavingMessage = async (
   subdomain: string,
@@ -38,14 +39,14 @@ export const createSavingMessage = async (
     createdAt: new Date(),
     createdBy: '',
     consumeData: savingContract,
-    consumeStr: JSON.stringify(savingContract)
+    consumeStr: JSON.stringify(savingContract),
   };
 
   const preSuccessValue = await models.SyncLogs.findOne({
     contentType: 'savings:contract',
     contentId: savingContract._id,
     error: { $exists: false },
-    responseData: { $exists: true, $ne: null }
+    responseData: { $exists: true, $ne: null },
   }).sort({ createdAt: -1 });
 
   let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
@@ -76,7 +77,7 @@ export const createSavingMessage = async (
     op: '13610312',
     data: [customer?.code, 0, 20],
     subdomain,
-    polarisConfig
+    polarisConfig,
   });
 
   const customerAccount = getAccounts.filter(
@@ -104,7 +105,7 @@ export const createSavingMessage = async (
       ? customerAccount[0].acntCode
       : '';
 
-  let sendData = {
+  let sendData: IPolarisSaving = {
     prodCode: contractType.code,
     slevel: 1,
     capMethod: '1',
@@ -128,10 +129,10 @@ export const createSavingMessage = async (
     closedBy: '',
     closedDate: '',
     lastCtDate: '',
-    lastDtDate: ''
+    lastDtDate: '',
   };
 
-  await validateDepositObject(sendData);
+  await validateSavingObject(sendData);
 
   if (
     contractType?.code &&
@@ -145,7 +146,7 @@ export const createSavingMessage = async (
       subdomain,
       models,
       polarisConfig,
-      syncLog
+      syncLog,
     });
   }
 
@@ -158,8 +159,8 @@ export const createSavingMessage = async (
           number: JSON.parse(savingCode),
           startDate: new Date(systemDate),
           isSyncedPolaris: true,
-          endDate: new Date(endDate)
-        }
+          endDate: new Date(endDate),
+        },
       },
       'savings'
     );

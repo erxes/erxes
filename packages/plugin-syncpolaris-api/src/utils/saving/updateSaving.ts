@@ -2,9 +2,11 @@ import {
   getCustomer,
   fetchPolaris,
   getBranch,
-  sendMessageBrokerData
+  sendMessageBrokerData,
 } from '../utils';
 import { getDate } from './getDate';
+import { IPolarisUpdateSaving } from './types';
+import { validateUpdateDepositObject } from './validator';
 
 export const updateSaving = async (
   subdomain: string,
@@ -38,7 +40,7 @@ export const updateSaving = async (
     op: '13610312',
     data: [customer?.code, 0, 20],
     subdomain,
-    polarisConfig
+    polarisConfig,
   });
 
   const customerAccount = getAccounts.filter(
@@ -57,7 +59,7 @@ export const updateSaving = async (
       ? customerAccount[0].acntCode
       : '';
 
-  let sendData = {
+  let sendData: IPolarisUpdateSaving = {
     operCode: '13610286',
     acntCode: savingContract.number,
     name: `${customer.firstName} ${customer.lastName}`,
@@ -102,8 +104,10 @@ export const updateSaving = async (
     doTran: 1,
     useSpclAcnt: 0,
     jointOrSingleStr: '0',
-    repayPriority: 0
+    repayPriority: 0,
   };
+
+  await validateUpdateDepositObject(sendData);
 
   if (
     savingProduct?.code &&
@@ -118,7 +122,7 @@ export const updateSaving = async (
       subdomain,
       models,
       polarisConfig,
-      syncLog
+      syncLog,
     });
   }
 
