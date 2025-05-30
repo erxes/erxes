@@ -3,9 +3,9 @@ import {
   putUpdateLog as commonPutUpdateLog,
   putDeleteLog as commonPutDeleteLog,
   LogDesc,
-  gatherNames,
   IDescriptions,
   getSchemaLabels,
+  gatherNames,
 } from '@erxes/api-utils/src/logUtils';
 
 import { IModels } from './connectionResolver';
@@ -23,7 +23,8 @@ import {
 } from './models/definitions/spinCampaigns';
 import { assignmentCampaignSchema } from './models/definitions/assignmentCampaigns';
 import { voucherCampaignSchema } from './models/definitions/voucherCampaigns';
-import { sendCommonMessage } from './messageBroker';
+import { agentSchema, IAgent, IAgentDocument } from './models/definitions/agents';
+import { sendCommonMessage, sendCoreMessage } from './messageBroker';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
@@ -37,15 +38,87 @@ export const MODULE_NAMES = {
   SPIN: 'spinCampaign',
   DONATE: 'donateCampaign',
   ASSINGNMENT: 'assignmentCampaign',
+  AGENT: 'agent'
 };
+
+const gatherAgentNames = async (
+  subdomain: string,
+  doc: IAgent | IAgentDocument,
+  prevList: LogDesc[]
+) => {
+  let options: LogDesc[] = [];
+
+  if (prevList) {
+    options = prevList;
+  }
+
+  const params = { defaultValue: [], subdomain, isRPC: true };
+
+  if (doc.customerIds && doc.customerIds.length > 0) {
+    const customers = await sendCoreMessage({
+      ...params,
+      action: 'customers.find',
+      data: { _id: { $in: doc.customerIds } },
+    });
+
+    options = await gatherNames({
+      foreignKey: "customerIds",
+      prevList: options,
+      nameFields: ["firstName"],
+      items: customers
+    });
+  }
+
+  if (doc.companyIds && doc.companyIds.length > 0) {
+    const companies = await sendCoreMessage({
+      ...params,
+      action: 'companies.find',
+      data: { _id: { $in: doc.companyIds } },
+    });
+
+    options = await gatherNames({
+      foreignKey: "companyIds",
+      prevList: options,
+      nameFields: ["primaryName"],
+      items: companies
+    });
+  }
+
+  if (doc.productRuleIds && doc.productRuleIds.length > 0) {
+    const rules = await sendCoreMessage({
+      ...params,
+      action: 'productRules.find',
+      data: { _ids: doc.productRuleIds },
+    });
+
+    options = await gatherNames({
+      foreignKey: "productRuleIds",
+      prevList: options,
+      nameFields: ["name"],
+      items: rules
+    });
+  }
+
+  return options;
+};
+
 const gatherDescriptions = async (
   _args,
-  _args1,
+  subdomain,
   params: any,
 ): Promise<IDescriptions> => {
-  const { action, object } = params;
-  const extraDesc: LogDesc[] = [];
-  const description = `"${object.title}" has been ${action}d`;
+  const { action, object, updatedDocument, type } = params;
+  let extraDesc: LogDesc[] = [];
+  let description = `"${object.title}" has been ${action}d`;
+
+  if (type && type === MODULE_NAMES.AGENT) {
+    description = `"${object.number}" has been ${action}d`;
+    extraDesc = await gatherAgentNames(subdomain, object, extraDesc);
+
+    if (updatedDocument) {
+      extraDesc = await gatherAgentNames(subdomain, updatedDocument, extraDesc);
+    }
+  }
 
   return { extraDesc, description };
 };
@@ -141,6 +214,7 @@ export default {
       { name: 'spinCampaign', schemas: [spinCampaignSchema, spinAwardSchema] },
       { name: 'assignmentCampaign', schemas: [assignmentCampaignSchema] },
       { name: 'voucherCampaign', schemas: [voucherCampaignSchema] },
+      { name: MODULE_NAMES.AGENT, schemas: [agentSchema] }
     ]),
   }),
 };

@@ -34,6 +34,8 @@ import reports from './report';
 import sections from './section';
 import insights from './insight';
 import exchangeRates from './exchangeRates';
+import bundle from './bundle';
+import productRule from './productRules';
 
 export default {
   ...users,
@@ -68,4 +70,6 @@ export default {
   ...sections,
   ...insights,
   ...exchangeRates,
+  ...bundle,
+  ...productRule,
 };

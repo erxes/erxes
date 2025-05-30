@@ -15,49 +15,49 @@ const ScoreCampaigns = asyncComponent(
 const VoucherCampaigns = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "KnowledgeBase" */ "./configs/voucherCampaign/containers/List"
+      /* webpackChunkName: "VoucherCampaigns" */ "./configs/voucherCampaign/containers/List"
     )
 );
 
 const LotteryCampaigns = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "KnowledgeBase" */ "./configs/lotteryCampaign/containers/List"
+      /* webpackChunkName: "LotteryCampaigns" */ "./configs/lotteryCampaign/containers/List"
     )
 );
 
 const SpinCampaigns = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "KnowledgeBase" */ "./configs/spinCampaign/containers/List"
+      /* webpackChunkName: "SpinCampaigns" */ "./configs/spinCampaign/containers/List"
     )
 );
 
 const DonateCampaigns = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "KnowledgeBase" */ "./configs/donateCampaign/containers/List"
+      /* webpackChunkName: "DonateCampaigns" */ "./configs/donateCampaign/containers/List"
     )
 );
 
 const AssignmentCampaigns = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "KnowledgeBase" */ "./configs/assignmentCampaign/containers/List"
+      /* webpackChunkName: "AssignmentCampaigns" */ "./configs/assignmentCampaign/containers/List"
     )
 );
 
 const AssignmentCampaignsCreate = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "KnowledgeBase" */ "./configs/assignmentCampaign/containers/CreateForm"
+      /* webpackChunkName: "AssignmentCampaignsCreate" */ "./configs/assignmentCampaign/containers/CreateForm"
     )
 );
 
 const AssignmentCampaignsEdit = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "KnowledgeBase" */ "./configs/assignmentCampaign/containers/EditForm"
+      /* webpackChunkName: "AssignmentCampaignsEdit" */ "./configs/assignmentCampaign/containers/EditForm"
     )
 );
 
@@ -78,50 +78,54 @@ const Coupons = asyncComponent(
 const Vouchers = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "KnowledgeBase" */ "./loyalties/vouchers/containers/List"
+      /* webpackChunkName: "Vouchers" */ "./loyalties/vouchers/containers/List"
     )
 );
 
 const Lotteries = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "KnowledgeBase" */ "./loyalties/lotteries/containers/List"
+      /* webpackChunkName: "Lotteries" */ "./loyalties/lotteries/containers/List"
     )
 );
 
 const Spins = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "KnowledgeBase" */ "./loyalties/spins/containers/List"
+      /* webpackChunkName: "Spins" */ "./loyalties/spins/containers/List"
     )
 );
 
 const Donates = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "KnowledgeBase" */ "./loyalties/donates/containers/List"
+      /* webpackChunkName: "Donates" */ "./loyalties/donates/containers/List"
     )
 );
 
 const ScoreLogs = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "KnowledgeBase" */ "./loyalties/scorelogs/containers/List"
+      /* webpackChunkName: "ScoreLogs" */ "./loyalties/scorelogs/containers/List"
     )
 );
 
 const Award = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "KnowledgeBase" */ "./loyalties/lotteries/containers/Award"
+      /* webpackChunkName: "Award" */ "./loyalties/lotteries/containers/Award"
     )
 );
 
 const Assignments = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "KnowledgeBase" */ "./loyalties/assignments/containers/List"
+      /* webpackChunkName: "Assignments" */ "./loyalties/assignments/containers/List"
     )
+);
+
+const Agents = asyncComponent(
+  () => import(/* webpackChunkName: "Agents" */ "./loyalties/agents/containers/List")
 );
 
 const ScoreCampaignList = () => {
@@ -234,6 +238,12 @@ const AssignmentsComponent = () => {
   return <Assignments queryParams={queryString.parse(location.search)} />;
 };
 
+const AgentList = () => {
+  const location = useLocation();
+
+  return <Agents queryParams={queryString.parse(location.search)} />;
+};
+
 const routes = () => {
   return (
     <Routes>
@@ -301,6 +311,7 @@ const routes = () => {
 
       <Route path="/assignments" element={<AssignmentsComponent />} />
 
+      <Route path="/agents" element={<AgentList />} />
       <Route path="/coupons" element={<CouponsComponent />} />
     </Routes>
   );

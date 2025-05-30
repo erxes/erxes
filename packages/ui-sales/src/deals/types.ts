@@ -1,6 +1,5 @@
-import { IItem, IItemParams } from '../boards/types';
-
-import { IProduct } from '@erxes/ui-products/src/types';
+import { IItem, IItemParams } from "../boards/types";
+import { IBundleRuleItem, IProduct } from "@erxes/ui-products/src/types";
 
 export interface IQueryParams {
   brandIds: string;
@@ -31,6 +30,14 @@ export interface IDiscountValue {
   voucherId: string;
   voucherName: string;
 }
+export interface IDealBundleItem {
+  bundleCode: string;
+  count: number;
+  total: number;
+  selectedProductId?: string;
+  selectedProduct?: IProduct;
+  bundleSnapshot?: IBundleRuleItem;
+}
 export interface IProductData {
   _id: string;
   productId?: string;
@@ -53,6 +60,7 @@ export interface IProductData {
   maxQuantity: number;
   branchId?: string;
   departmentId?: string;
+  conditions?: IDealBundleItem[];
 }
 
 export interface IPaymentsData {

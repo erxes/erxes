@@ -1,31 +1,38 @@
-import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
-import queryString from "query-string";
-import React from "react";
-import { Route, Routes, useLocation, useParams } from "react-router-dom";
-import Settings from "./containers/config/Settings";
-import Uom from "./containers/config/Uoms";
-import GeneralSettings from "./components/config/GeneralSettings";
-import SimilarityGroup from "./components/config/SimilarityGroup";
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import queryString from 'query-string';
+import React from 'react';
+import { Route, Routes, useLocation, useParams } from 'react-router-dom';
+import Settings from './containers/config/Settings';
+import Uom from './containers/config/Uoms';
+import GeneralSettings from './components/config/GeneralSettings';
+import SimilarityGroup from './components/config/SimilarityGroup';
+import BundleCondition from './containers/config/ConditionList';
+import BundleRule from './containers/config/RuleList';
 
 const ProductList = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Settings List - ProductService" */ "./containers/product/ProductList"
+      /* webpackChunkName: "Settings List - ProductService" */ './containers/product/ProductList'
     )
 );
 
 const ProductDetails = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Settings List - ProductService" */ "./containers/product/detail/ProductDetails"
+      /* webpackChunkName: "Settings List - ProductService" */ './containers/product/detail/ProductDetails'
     )
 );
 
 const BarcodeGenerator = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Settings List - ProductService" */ "./containers/barcodeGenerator/BarcodeGenerator"
+      /* webpackChunkName: "Settings List - ProductService" */ './containers/barcodeGenerator/BarcodeGenerator'
     )
+);
+
+const ProductRulesContainer = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "Settings List - ProductRules" */ './containers/config/ProductRules')
 );
 
 const Details = () => {
@@ -67,39 +74,54 @@ const BarcodeGeneratorComponent = () => {
 const routes = () => (
   <Routes>
     <Route
-      path="/settings/product-service/details/:id"
-      key="/settings/product-service/details/:id"
+      path='/settings/product-service/details/:id'
+      key='/settings/product-service/details/:id'
       element={<Details />}
     />
 
     <Route
-      path="/settings/product-service/"
-      key="/settings/product-service/"
+      path='/settings/product-service/'
+      key='/settings/product-service/'
       element={<ProductService />}
     />
 
     <Route
-      path="/settings/products-config/"
-      key="/settings/products-config/"
+      path='/settings/products-config/'
+      key='/settings/products-config/'
       element={<GeneralSetting />}
     />
 
     <Route
-      path="/settings/similarity-group/"
-      key="/settings/similarity-group"
+      path='/settings/similarity-group/'
+      key='/settings/similarity-group'
       element={<SimilarityGroupComponent />}
     />
-
     <Route
-      path="/settings/uoms-manage/"
-      key="/settings/uoms-manage/"
+      path='/settings/bundle-condition/'
+      key='/settings/bundle-condition'
+      element={<BundleCondition />}
+    />
+    <Route
+      path='/settings/bundle-rule/'
+      key='/settings/bundle-rule'
+      element={<BundleRule />}
+    />
+    <Route
+      path='/settings/uoms-manage/'
+      key='/settings/uoms-manage/'
       element={<UomManage />}
     />
 
     <Route
-      path="/settings/barcode-generator/:id"
-      key="/settings/barcode-generator/:id"
+      path='/settings/barcode-generator/:id'
+      key='/settings/barcode-generator/:id'
       element={<BarcodeGeneratorComponent />}
+    />
+
+    <Route
+      path='/settings/product-rule'
+      key='/settings/product-rule'
+      element={<ProductRulesContainer />}
     />
   </Routes>
 );

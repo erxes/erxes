@@ -287,4 +287,17 @@ export const setupProductMessageBroker = async (): Promise<void> => {
       };
     }
   );
+
+  consumeRPCQueue(
+    'core:productRules.find',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const result = await models.ProductRules.find({ _id: { $in: data._ids } }).lean();
+
+      return {
+        status: 'success',
+        data: result
+      };
+    }
+  );
 };

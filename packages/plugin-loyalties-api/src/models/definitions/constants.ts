@@ -49,6 +49,13 @@ export const ASSIGNMENT_STATUS = {
   ALL: ['new', 'won', 'loss']
 };
 
+export const AGENT_STATUSES = {
+  ACTIVE: 'active',
+  DRAFT: 'draft',
+  ARCHIVED: 'archived',
+  ALL: ['active', 'draft', 'archived']
+};
+
 export const CHAR_SET = {
   'A-Z': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
   'a-z': 'abcdefghijklmnopqrstuvwxyz',

@@ -12,6 +12,8 @@ import ScoreLogs from './scoreLogs';
 import Assignments from './assignments';
 import AssignmentCampaigns from './assignmentCampaign';
 import ScoreCampaigns from './scoreCampaign';
+import Agents from './agents';
+
 import CouponCampaigns from './couponCampaigns';
 import Coupons from './coupons';
 export {
@@ -29,6 +31,7 @@ export {
   Assignments,
   AssignmentCampaigns,
   ScoreCampaigns,
+  Agents,
   CouponCampaigns,
   Coupons
 };
