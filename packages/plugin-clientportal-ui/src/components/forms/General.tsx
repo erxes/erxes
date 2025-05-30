@@ -96,6 +96,7 @@ function General({
   ticketToggle,
   vendorParentProductCategoryId,
   kind,
+  languages = [],
   language = 'en',
 }: Props) {
   const [show, setShow] = useState<boolean>(false);
@@ -353,13 +354,31 @@ function General({
           })}
 
           <FormGroup>
-            <ControlLabel>Language</ControlLabel>
+            <ControlLabel>Languages</ControlLabel>
+            <Select
+              id='languageCodes'
+              value={LANGUAGES.filter((o) => languages.includes(o.value))}
+              options={LANGUAGES}
+              onChange={(e: any) => {
+                handleFormChange(
+                  'languages',
+                  e.map((o) => o.value)
+                );
+            
+              }}
+              isClearable={false}
+              isMulti={true}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Default Language</ControlLabel>
             <Select
               id='languageCode'
-              value={LANGUAGES.find((o) => o.value === language )}
-              options={LANGUAGES}
-              onChange={(e:any) => {
-                handleFormChange('language', e.value)
+              value={LANGUAGES.find((o) => o.value === language)}
+              options={LANGUAGES.filter((o) => languages.includes(o.value))}
+              onChange={(e: any) => {
+                handleFormChange('language', e.value);
               }}
               isClearable={false}
             />

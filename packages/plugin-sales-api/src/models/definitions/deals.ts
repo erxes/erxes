@@ -4,6 +4,7 @@ import { commonItemFieldsSchema, IItemCommonFields } from "./boards";
 import { field } from "./utils";
 
 export interface IProductData extends Document {
+  _id?: string;
   productId: string;
   uom: string;
   currency: string;
@@ -17,6 +18,7 @@ export interface IProductData extends Document {
   vatPercent?: number;
   discountPercent?: number;
   discount?: number;
+  bonusCount?: number;
   amount?: number;
   tickUsed?: boolean;
   isVatApplied?: boolean;
@@ -41,6 +43,7 @@ interface IPaymentsData {
 export interface IDeal extends IItemCommonFields {
   productsData?: IProductData[];
   paymentsData?: IPaymentsData;
+  extraData?: any;
 }
 
 export interface IDealDocument extends IDeal, Document {
@@ -86,7 +89,8 @@ export const productDataSchema = new Schema(
       type: [conditionSchema],
       optional: true,
       label: "bundel conditions"
-    }) //bundle
+    }), //bundle
+    bonusCount: field({ type: Number, label: 'Bonus Count' }), // Discount
   },
   { _id: false }
 );
@@ -95,5 +99,6 @@ export const dealSchema = new Schema({
   ...commonItemFieldsSchema,
 
   productsData: field({ type: [productDataSchema], label: "Products" }),
-  paymentsData: field({ type: Object, optional: true, label: "Payments" })
+  paymentsData: field({ type: Object, optional: true, label: "Payments" }),
+  extraData: field({ type: Object, optional: true })
 });

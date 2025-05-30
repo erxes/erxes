@@ -2,6 +2,8 @@ import { ChooseDates, GridContainer, TitleRow } from "../../styles/item";
 import { IItem, IItemParams, IOptions } from "../../types";
 
 import Actions from "./Actions";
+import ActivityInputs from "@erxes/ui-log/src/activityLogs/components/ActivityInputs";
+import ActivityLogs from "@erxes/ui-log/src/activityLogs/containers/ActivityLogs";
 import Checklists from "../../../checklists/containers/Checklists";
 import { ColorButton } from "../../styles/common";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
@@ -21,6 +23,7 @@ import { TAG_TYPES } from "@erxes/ui-tags/src/constants";
 import TaggerPopover from "@erxes/ui-tags/src/components/TaggerPopover";
 import Tags from "@erxes/ui/src/components/Tags";
 import { __ } from "@erxes/ui/src/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   item: IItem;
@@ -35,6 +38,7 @@ type Props = {
   onChangeRefresh: () => void;
   currentUser: IUser;
   isFullView?: boolean;
+  synchSingleCard?: (itemId: string) => void;
 };
 
 const CommonActions = (props: Props) => {
@@ -51,13 +55,14 @@ const CommonActions = (props: Props) => {
     onChangeRefresh,
     currentUser,
     isFullView,
+    synchSingleCard,
   } = props;
 
-  const userOnChange = (usrs) => saveItem({ assignedUserIds: usrs });
+  const userOnChange = usrs => saveItem({ assignedUserIds: usrs });
   const onChangeStructure = (values, name) => saveItem({ [name]: values });
-  const onLabelChange = (labels) => saveItem({ labels });
+  const onLabelChange = labels => saveItem({ labels });
 
-  const assignedUserIds = (item.assignedUsers || []).map((user) => user._id);
+  const assignedUserIds = (item.assignedUsers || []).map(user => user._id);
   const branchIds = currentUser.branchIds;
   const departmentIds = currentUser.departmentIds;
 
@@ -164,6 +169,9 @@ const CommonActions = (props: Props) => {
               type={TAG_TYPE}
               trigger={tagTrigger}
               refetchQueries={["dealDetail"]}
+              successCallback={() => {
+                synchSingleCard && synchSingleCard(item._id);
+              }}
               targets={[item]}
               parentTagId={pipelineTagId}
               singleSelect={false}
@@ -173,7 +181,28 @@ const CommonActions = (props: Props) => {
       </GridContainer>
 
       {!isFullView && (
-        <FileAndDescription item={item} options={options} saveItem={saveItem} />
+        <>
+          <FileAndDescription
+            item={item}
+            options={options}
+            saveItem={saveItem}
+          />
+          <ActivityInputs
+            contentTypeId={item._id}
+            contentType={`sales:${options.type}`}
+            showEmail={false}
+          />
+          <ActivityLogs
+            target={item.name}
+            contentId={item._id}
+            contentType={`sales:${options.type}`}
+            extraTabs={
+              options.type === "tasks:task" && isEnabled("tasks")
+                ? []
+                : [{ name: "tasks:task", label: "Task" }]
+            }
+          />
+        </>
       )}
 
       <Checklists

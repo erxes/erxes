@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 export const types = () => `
   extend type User @key(fields: "_id") {
@@ -16,6 +16,7 @@ export const types = () => `
     branchId: String
     name: String
     refNumber: String
+    groupCode: String
     content: String
     duration: Int
     location: [BMSLocation]
@@ -31,11 +32,15 @@ export const types = () => `
     createdAt: Date
     modifiedAt: Date
     viewCount: Int
-    tags: [String]
+    advanceCheck: Boolean
+    advancePercent: Float
+    joinPercent: Float
+    tagIds: [String]
     info1: String
     info2: String
     info3: String
     info4: String
+    info5: String
     extra: JSON
     images: [String]
     imageThumbnail: String
@@ -51,7 +56,9 @@ export const types = () => `
     note: String
     numberOfPeople: Int
     type: String
-    additionalCustomers: String
+    additionalCustomers: [String]
+    isChild: Boolean
+    parent: String    
   }
 
   input BmsOrderInput {
@@ -63,7 +70,9 @@ export const types = () => `
     note: String
     numberOfPeople: Int
     type: String
-    additionalCustomers: String
+    additionalCustomers: [String]
+    isChild: Boolean
+    parent: String
   }
   input GuideItemInput {
     guideId: String
@@ -77,34 +86,50 @@ export const types = () => `
     list: [BmsOrder]
     total: Int
   }
+  type GroupTourItem {
+    items:[Tour]
+    _id: String
+  }
+  type GroupTour {
+    list:[GroupTourItem]
+    total: Int
+  }
 `;
 
 export const queries = `
-  bmTours(branchId:String, sortField:String, sortDirection:Int, page:Int, perPage:Int, status: String, innerDate: Date,branchId: String, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date): ListTour
+  bmTours(branchId:String, sortField:String, sortDirection:Int, page:Int, perPage:Int, status: String, innerDate: Date,branchId: String, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,groupCode:String): ListTour
   bmTourDetail(_id:String!,branchId: String): Tour
   bmOrders( tourId:String, customerId:String ,branchId: String):ListBmsOrder
+  bmToursGroup(branchId:String, sortField:String, sortDirection:Int, page:Int, perPage:Int, status: String, innerDate: Date,branchId: String, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date): GroupTour
+  bmToursGroupDetail(groupCode:String,status: String): GroupTourItem
+
 `;
 
 const params = `
   branchId: String,
   name: String,
+  groupCode: String,
   content: String,
   itineraryId:String,
   startDate: Date,
   endDate: Date,
   groupSize: Int,
   duration: Int,
+  advancePercent: Float,
+  joinPercent: Float,
+  advanceCheck: Boolean,
   status: String,
   cost: Float,
   location: [BMSLocationInput],
   guides:[GuideItemInput],
   refNumber: String,
-  tags:[String],
+  tagIds:[String],
   viewCount: Int,
   info1: String,
   info2: String,
   info3: String,
   info4: String,
+  info5: String,
   extra: JSON,
   images: [String],
   imageThumbnail: String

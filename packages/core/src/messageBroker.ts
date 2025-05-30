@@ -8,7 +8,7 @@ import type {
   MessageArgs,
   MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
-
+import { Activities } from './data/resolvers/queries/activityLogs';
 import { formConsumers } from '@erxes/api-utils/src/consumers/forms';
 
 import { logConsumers } from '@erxes/api-utils/src/consumers/logs';
@@ -496,7 +496,6 @@ export const setupMessageConsumers = async (): Promise<void> => {
     const models = await generateModels(subdomain);
 
     const { query, sort = {}, fields, skip, limit } = data;
-
     return {
       status: 'success',
       data: await models.Users.find(
@@ -846,6 +845,16 @@ export const setupMessageConsumers = async (): Promise<void> => {
       }
     }
   );
+
+  consumeRPCQueue("core:activityLogs.findOne", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const query = await Activities(subdomain, models, data)
+    return {
+      status: "success",
+      data: query
+    };
+  });
+
 
   consumeQueue(
     'core:delete.old',
@@ -1451,9 +1460,9 @@ export const getContentTypeDetail = async (
 
   return enabled
     ? sendRPCMessage(`${serviceName}:logs.getContentTypeDetail`, {
-        subdomain,
-        data: activityLog,
-      })
+      subdomain,
+      data: activityLog,
+    })
     : null;
 };
 

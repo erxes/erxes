@@ -200,7 +200,6 @@ export const setupContactsMessageBroker = async (): Promise<void> => {
     "core:customers.updateCustomer",
     async ({ subdomain, data: { _id, doc } }) => {
       const models = await generateModels(subdomain);
-
       return {
         status: "success",
         data: await models.Customers.updateCustomer(_id, doc)

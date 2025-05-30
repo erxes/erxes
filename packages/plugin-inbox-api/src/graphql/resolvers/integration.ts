@@ -214,9 +214,12 @@ export default {
           {
             header: integrationDetails.header || '',
             description: integrationDetails.description || '',
+            secondPageHeader: integrationDetails.secondPageHeader || '',
+            secondPageDescription:
+              integrationDetails.secondPageDescription || '',
             departments: integrationDetails.departments,
             isReceiveWebCall,
-          } || {}
+          }
         );
       } catch (e) {
         console.error('error', e);

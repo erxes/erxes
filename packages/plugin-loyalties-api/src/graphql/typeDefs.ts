@@ -76,8 +76,16 @@ import {
 } from './schema/scoreCampaign';
 
 import {
-  mutations as voucherCodeMutations
-} from './schema/voucherCode';
+  mutations as couponCampaignMutations,
+  queries as couponCampaignQueries,
+  types as couponCampaignTypes,
+} from './schema/couponCampaign';
+
+import {
+  mutations as couponMutations,
+  queries as couponQueries,
+  types as couponTypes,
+} from './schema/coupon';
 
 import { types as agentTypes, mutations as agentMutations, queries as agentQueries } from './schema/agents';
 
@@ -115,6 +123,8 @@ const typeDefs = async () => {
     ${assignmentCampaignTypes}
     ${scoreCampaignTypes}
     ${agentTypes}
+    ${couponTypes}
+    ${couponCampaignTypes}
 
     extend type Query {
       ${donateCampaignQueries}
@@ -132,6 +142,8 @@ const typeDefs = async () => {
       ${assignmentCampaignQueries}
       ${scoreCampaignQueries}
       ${agentQueries}
+      ${couponQueries}
+      ${couponCampaignQueries}
     }
 
     extend type Mutation {
@@ -149,8 +161,9 @@ const typeDefs = async () => {
       ${assignmentMutations}
       ${assignmentCampaignMutations}
       ${scoreCampaignMutations}
-      ${voucherCodeMutations}
       ${agentMutations}
+      ${couponMutations}
+      ${couponCampaignMutations}
     }
   `;
 };

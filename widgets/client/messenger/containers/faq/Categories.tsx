@@ -1,10 +1,12 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import Categories from '../../components/faq/Categories';
-import queries from '../../graphql';
-import { IFaqCategory, IFaqTopic } from '../../types';
-import Articles from './Articles';
-import { useQuery } from '@apollo/client';
+import * as React from "react";
+
+import { IFaqCategory, IFaqTopic } from "../../types";
+
+import Articles from "./Articles";
+import Categories from "../../components/faq/Categories";
+import { getFaqTopicQuery } from "../../graphql/queries";
+import gql from "graphql-tag";
+import { useQuery } from "@apollo/client";
 
 type Props = {
   topicId?: string;
@@ -13,8 +15,8 @@ type Props = {
 };
 
 const CategoriesContainer = (props: Props) => {
-  const { data, loading } = useQuery(gql(queries.getFaqTopicQuery), {
-    fetchPolicy: 'cache-and-network',
+  const { data, loading } = useQuery(gql(getFaqTopicQuery), {
+    fetchPolicy: "cache-and-network",
     variables: {
       _id: props.topicId,
     },

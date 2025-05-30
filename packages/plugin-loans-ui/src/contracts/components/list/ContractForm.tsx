@@ -91,10 +91,10 @@ export const Tabs = ({ tabs }: ITabs) => {
 function ContractForm(props: Props) {
   const [contract, setContract] = useState(
     props.contract ||
-      ({
-        customerType: 'customer',
-        repayment: 'fixed',
-      } as IContract)
+    ({
+      customerType: 'customer',
+      repayment: 'fixed',
+    } as IContract)
   );
 
   const [contractType, setContractType] = useState<IContractTypeDoc>(
@@ -146,6 +146,7 @@ function ContractForm(props: Props) {
       firstPayDate: contract.firstPayDate,
       contractDate: contract.contractDate,
       stepRules,
+      skipAmountCalcMonth: Number(contract.skipAmountCalcMonth),
     };
 
     return result;
@@ -385,6 +386,14 @@ function ContractForm(props: Props) {
         `${__('Interest must less than')} ${Number(contractType.config.maxInterest ?? '0').toFixed(0)}`
       );
 
+    if (
+      contract?.skipAmountCalcMonth &&
+      isGreaterNumber(contract.skipAmountCalcMonth, contract?.tenor)
+    )
+      errors.skipAmountCalcMonth = errorWrapper(
+        `${__('must be less than tenor')} ${Number(contract?.tenor ?? '0')}`
+      );
+
     return errors;
   };
 
@@ -442,17 +451,17 @@ function ContractForm(props: Props) {
                   />
                 </FormGroup>
               )) || (
-                <FormGroup>
-                  <ControlLabel required={true}>{__('Customer')}</ControlLabel>
-                  <SelectCustomers
-                    label={__('Choose customer')}
-                    name="customerId"
-                    initialValue={contract.customerId}
-                    onSelect={onSelectCustomer}
-                    multi={false}
-                  />
-                </FormGroup>
-              )}
+                  <FormGroup>
+                    <ControlLabel required={true}>{__('Customer')}</ControlLabel>
+                    <SelectCustomers
+                      label={__('Choose customer')}
+                      name="customerId"
+                      initialValue={contract.customerId}
+                      onSelect={onSelectCustomer}
+                      multi={false}
+                    />
+                  </FormGroup>
+                )}
               {contract.useManualNumbering &&
                 renderFormGroup('Contract Number', {
                   ...formProps,
@@ -517,13 +526,13 @@ function ContractForm(props: Props) {
                   onChange={onChangeField}
                 >
                   {LoanPurpose.purpose
-                    .filter((a) =>
-                      contract.loanDestination
-                        ? a.parent === contract.loanDestination
-                        : true
+                    .filter(
+                      (a) =>
+                        contract.loanDestination &&
+                        a.parent === contract.loanDestination
                     )
                     .map((type) => (
-                      <option key={type.name} value={type.name}>
+                      <option key={type.name} value={type.value}>
                         {__(type.name)}
                       </option>
                     ))}
@@ -552,7 +561,7 @@ function ContractForm(props: Props) {
                   fixed: 2,
                   value:
                     (contract.marginAmount || 0) -
-                      (contract.leaseAmount || 0) || 0,
+                    (contract.leaseAmount || 0) || 0,
                   onChange: onChangeField,
                   onClick: onFieldClick,
                 })}
@@ -779,6 +788,7 @@ function ContractForm(props: Props) {
                     name="firstPayDate"
                     dateFormat="YYYY/MM/DD"
                     value={contract.firstPayDate}
+                    onChange={onChangeFirstPayDate}
                     isValidDate={(date) => {
                       const startDate = new Date(contract.startDate);
                       const maxDate = moment(startDate).add(45, 'day').toDate();
@@ -872,6 +882,15 @@ function ContractForm(props: Props) {
                     ...contract,
                     interestRate: (e.target as any).value * 12,
                   }),
+              })}
+
+              {renderFormGroup('Skip Amount Calc Month', {
+                type: 'number',
+                name: 'skipAmountCalcMonth',
+                useNumberFormat: true,
+                value: contract.skipAmountCalcMonth || 0,
+                errors: checkValidation(),
+                onChange: onChangeField,
               })}
             </FormColumn>
           </FormWrapper>

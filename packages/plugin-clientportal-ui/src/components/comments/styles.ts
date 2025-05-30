@@ -1,4 +1,5 @@
-import { dimensions, colors } from '@erxes/ui/src/styles';
+import { colors, dimensions } from '@erxes/ui/src/styles';
+
 import styled from 'styled-components';
 
 const TicketLabel = styled.div`
@@ -7,6 +8,7 @@ const TicketLabel = styled.div`
   font-size: 12px;
   text-transform: uppercase;
   color: ${colors.colorCoreGray};
+  margin-top: ${dimensions.coreSpacing}px;
 
   > i {
     margin-right: 5px;

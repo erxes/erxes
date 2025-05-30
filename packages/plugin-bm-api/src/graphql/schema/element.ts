@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 export const types = () => `
 
@@ -20,6 +20,8 @@ export const types = () => `
     _id: String!
     name: String
     quick: Boolean
+    orderCheck: Boolean
+    visibleName: Boolean
     icon: String
     content: String
     note: String
@@ -34,6 +36,7 @@ export const types = () => `
     branchId: String
     createdAt: Date
     modifiedAt: Date
+    additionalInfo: JSON
   }
 
   type ElementCategory {
@@ -48,7 +51,7 @@ export const types = () => `
 `;
 
 export const queries = `
-  bmElements(branchId:String, categories: [String],name: String, page:Int, perPage:Int,quick: Boolean,sortField:String, sortDirection:Int): ListElement
+  bmElements(branchId:String, categories: [String],name: String, page:Int, perPage:Int,quick: Boolean,sortField:String, sortDirection:Int,icon:Boolean): ListElement
   bmElementDetail(_id:String!): Element
   bmElementCategoryies(parentId:String): [ElementCategory]
   bmElementsInit: JSON
@@ -67,7 +70,11 @@ const params = `
   itineraryId: String,
   location: BMSLocationInput,
   quick: Boolean,
-  branchId: String
+  orderCheck: Boolean,
+  branchId: String,
+  icon: String,
+  visibleName: Boolean,
+  additionalInfo: JSON
 `;
 
 export const mutations = `

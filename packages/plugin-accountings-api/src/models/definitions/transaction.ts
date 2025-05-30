@@ -32,6 +32,7 @@ export interface ITrDetail {
 export interface ITransaction {
   _id?: string;
   date: Date;
+  fullDate?: Date;
   description: string;
   status?: string;
   ptrId?: string;
@@ -80,7 +81,7 @@ export interface ITransactionDocument extends ITransaction, Document {
   ptrStatus: string;
 
   createdAt: Date;
-  modifiedAt?: Date;
+  updatedAt?: Date;
 
   sumDt: number;
   sumCt: number;
@@ -163,6 +164,7 @@ export const transactionSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     date: field({ type: Date, label: 'Date' }),
+    fullDate: field({ type: Date, index: true, label: 'Date' }),
     description: field({ type: String, optional: true, label: 'Description' }),
     status: field({
       type: String,
@@ -212,7 +214,7 @@ export const transactionSchema = schemaWrapper(
     createdBy: field({ type: String, label: 'Created user' }),
     modifiedBy: field({ type: String, optional: true, label: 'Modified user' }),
     createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
-    modifiedAt: field({ type: Date, optional: true, label: 'Modified at' }),
+    updatedAt: field({ type: Date, optional: true, label: 'Modified at' }),
 
     // vat 
     hasVat: field({ type: Boolean, optional: true, label: 'hasVat' }),

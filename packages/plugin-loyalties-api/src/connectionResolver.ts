@@ -45,13 +45,13 @@ import {
   loadScoreCampaignClass,
 } from './models/ScoreCampaigns';
 import { IScoreCampaignDocuments } from './models/definitions/scoreCampaigns';
-import {
-  IVoucherCodeModel,
-  loadVoucherCodeClass,
-} from './models/VoucherCodes';
-import { IVoucherCodeDocument } from './models/definitions/voucherCodes';
 import { IAgentModel, loadAgentClass } from './models/Agents';
 import { IAgentDocument } from './models/definitions/agents';
+
+import { ICouponCampaignDocument } from './models/definitions/couponCampaigns';
+import { ICouponCampaignModel, loadCouponCampaignClass } from './models/CouponCampaigns';
+import { ICouponDocument } from './models/definitions/coupons';
+import { ICouponModel, loadCouponClass } from './models/Coupons';
 
 export interface IModels {
   LoyaltyConfigs: ILoyaltyConfigModel;
@@ -67,8 +67,9 @@ export interface IModels {
   Lotteries: ILotteryModel;
   ScoreLogs: IScoreLogModel;
   ScoreCampaigns: IScoreCampaignModel;
-  VoucherCodes: IVoucherCodeModel;
   Agents: IAgentModel;
+  CouponCampaigns: ICouponCampaignModel;
+  Coupons: ICouponModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -135,10 +136,16 @@ export const loadClasses = (
     IScoreCampaignModel
   >('score_campaigns', loadScoreCampaignClass(models, subdomain));
 
-  models.VoucherCodes = db.model<
-    IVoucherCodeDocument,
-    IVoucherCodeModel
-  >('voucher_codes', loadVoucherCodeClass(models, subdomain));
+
+  models.CouponCampaigns = db.model<
+    ICouponCampaignDocument,
+    ICouponCampaignModel
+  >('coupon_campaigns', loadCouponCampaignClass(models, subdomain));
+
+  models.Coupons = db.model<ICouponDocument, ICouponModel>(
+    'coupons',
+    loadCouponClass(models, subdomain),
+  );
 
   models.Agents = db.model<IAgentDocument, IAgentModel>('agents', loadAgentClass(models, subdomain));
 

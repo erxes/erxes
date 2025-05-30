@@ -1,14 +1,14 @@
-import { Document, Schema } from "mongoose";
-import { customFieldSchema, ICustomField } from "./common";
 import {
   BOARD_STATUSES,
   BOARD_STATUSES_OPTIONS,
   BOARD_TYPES,
   HACK_SCORING_TYPES,
-  VISIBLITIES,
   PROBABILITY,
-  TIME_TRACK_TYPES
+  TIME_TRACK_TYPES,
+  VISIBLITIES
 } from "./constants";
+import { Document, Schema } from "mongoose";
+import { ICustomField, customFieldSchema } from "./common";
 import { field, schemaWrapper } from "./utils";
 
 interface ICommonFields {
@@ -17,7 +17,6 @@ interface ICommonFields {
   order?: number;
   type: string;
 }
-
 export interface IItemCommonFields {
   name?: string;
   // TODO migrate after remove 2row
@@ -57,7 +56,7 @@ export interface IItemCommonFields {
   branchIds?: string[];
   departmentIds?: string[];
   parentId?: string;
-  type?:string;
+  type?: string;
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -133,6 +132,21 @@ export interface IStageDocument extends IStage, Document {
 
 // Not mongoose document, just stage shaped plain object
 export type IPipelineStage = IStage & { _id: string };
+
+export const USER_TYPES = {
+  TEAM: "team",
+  CLIENT: "client",
+  ALL: ["team", "client"]
+};
+
+const commentSchema = new Schema({
+  number: { type: String, required: true },
+  userId: { type: String, required: true },
+  content: { type: String, required: true },
+  userType: { type: String, required: true },
+  parentId: field({ type: String, label: "Parent Id" }),
+  createdAt: { type: Date, default: Date.now }
+});
 
 export const attachmentSchema = new Schema(
   {

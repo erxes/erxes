@@ -1,6 +1,44 @@
 import { MESSAGE_FIELDS } from './fields';
 import gql from 'graphql-tag';
 
+export const messageFields = `
+  _id
+  conversationId
+  customerId
+  user {
+    _id
+    details {
+      avatar
+      fullName
+      description
+      location
+      position
+      shortName
+    }
+  }
+  content
+  createdAt
+  internal
+  fromBot
+  contentType
+
+  engageData {
+    content
+    kind
+    sentAs
+    messageId
+    brandId
+  }
+  botData
+  messengerAppData
+  attachments {
+    url
+    name
+    size
+    type
+  }
+`;
+
 const WIDGETS_INSERT_MESSAGE_MUTATION = ({
   queryVariables,
   queryParams,
@@ -132,15 +170,15 @@ const CLOUDFLARE_LEAVE_CALL = gql`
 `;
 
 const TICKET_ADD = gql`
-  mutation TicketsAdd(
+  mutation widgetTicketCreated(
     $name: String!
     $description: String
     $attachments: [AttachmentInput]
-    $stageId: String
-    $customerIds: [String]
-    $type: String
+    $stageId: String!
+    $customerIds: [String!]!
+    $type: String!
   ) {
-    ticketsAdd(
+    widgetTicketCreated(
       name: $name
       description: $description
       attachments: $attachments
@@ -161,38 +199,30 @@ const TICKET_ADD = gql`
   }
 `;
 
-const CUSTOMER_ADD = gql`
-  mutation customersAdd(
-    $firstName: String
-    $lastName: String
-    $primaryEmail: String
-    $primaryPhone: String
-  ) {
-    customersAdd(
-      firstName: $firstName
-      lastName: $lastName
-      primaryEmail: $primaryEmail
-      primaryPhone: $primaryPhone
-    ) {
+const CUSTOMER_EDIT = gql`
+  mutation WidgetsTicketCustomersEdit($customerId: String, $firstName: String, $lastName: String, $emails: [String], $phones: [String]) {
+    widgetsTicketCustomersEdit(customerId: $customerId, firstName: $firstName, lastName: $lastName, emails: $emails, phones: $phones) {
       _id
+      firstName
       email
-      createdAt
     }
   }
 `;
 
 const TICKET_COMMENTS_ADD = gql`
-  mutation clientPortalCommentsAdd(
+  mutation widgetsTicketCommentAdd(
     $type: String!
     $typeId: String!
     $content: String!
     $userType: String!
+    $customerId: String
   ) {
-    clientPortalCommentsAdd(
+    widgetsTicketCommentAdd(
       type: $type
       typeId: $typeId
       content: $content
       userType: $userType
+      customerId: $customerId
     ) {
       _id
       type
@@ -202,8 +232,8 @@ const TICKET_COMMENTS_ADD = gql`
 `;
 
 const TICKET_CHECK_PROGRESS = gql`
-  mutation TicketCheckProgress($number: String!) {
-    ticketCheckProgress(number: $number) {
+  mutation widgetsTicketCheckProgress($number: String!) {
+    widgetsTicketCheckProgress(number: $number) {
       _id
       name
       number
@@ -223,8 +253,74 @@ const TICKET_CHECK_PROGRESS = gql`
 `;
 
 const TICKET_CHECK_PROGRESS_FORGET = gql`
-  mutation ticketCheckProgressForget($email: String, $phoneNumber: String) {
-    ticketCheckProgressForget(email: $email, phoneNumber: $phoneNumber)
+  mutation widgetsTicketCheckProgressForget($email: String, $phoneNumber: String) {
+    widgetsTicketCheckProgressForget(email: $email, phoneNumber: $phoneNumber)
+  }
+`;
+
+const readConversationMessages = `
+  mutation widgetsReadConversationMessages($conversationId: String) {
+    widgetsReadConversationMessages(conversationId: $conversationId)
+  }
+`;
+
+const connect = (isCloudFlareEnabled?: boolean, isTicketEnabled?: boolean) => `
+  mutation connect($brandCode: String!, $email: String, $phone: String, $code: String
+    $isUser: Boolean, $data: JSON,
+    $companyData: JSON, $cachedCustomerId: String $visitorId: String) {
+
+    widgetsMessengerConnect(brandCode: $brandCode, email: $email, phone: $phone, code: $code,
+      isUser: $isUser, data: $data, companyData: $companyData,
+      cachedCustomerId: $cachedCustomerId, visitorId: $visitorId) {
+      integrationId,
+      messengerData,
+      ${isCloudFlareEnabled
+    ? `
+      callData {
+        header
+        description
+        secondPageHeader
+        secondPageDescription
+        departments {
+          _id
+          name
+          operators
+        }
+        isReceiveWebCall
+      },
+    `
+    : ''
+  }
+      
+      ${isTicketEnabled
+    ? `
+        ticketData
+      `
+    : ``
+  }
+      languageCode,
+      uiOptions,
+      customerId,
+      visitorId,
+      brand {
+        name
+        description
+      }
+    }
+  }
+`;
+
+const saveBrowserInfo = `
+  mutation widgetsSaveBrowserInfo($customerId: String $visitorId: String $browserInfo: JSON!) {
+    widgetsSaveBrowserInfo(customerId: $customerId visitorId: $visitorId browserInfo: $browserInfo) {
+      ${messageFields}
+    }
+  }
+`;
+
+const sendTypingInfo = `
+  mutation widgetsSendTypingInfo($conversationId: String!  $text: String) {
+    widgetsSendTypingInfo(conversationId: $conversationId text: $text)
   }
 `;
 
@@ -240,8 +336,12 @@ export {
   CLOUDFLARE_CALL,
   CLOUDFLARE_LEAVE_CALL,
   TICKET_ADD,
-  CUSTOMER_ADD,
+  CUSTOMER_EDIT,
   TICKET_COMMENTS_ADD,
   TICKET_CHECK_PROGRESS,
   TICKET_CHECK_PROGRESS_FORGET,
+  connect,
+  saveBrowserInfo,
+  sendTypingInfo,
+  readConversationMessages,
 };

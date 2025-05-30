@@ -1,7 +1,8 @@
 import * as moment from 'moment';
+import { fixNum } from '@erxes/api-utils/src';
 import { IEbarimt, IEbarimtFull } from './definitions/ebarimt';
 import { IEbarimtConfig } from './definitions/configs';
-import { getCompanyInfo, mathRound } from '../utils';
+import { getCompanyInfo } from '../utils';
 
 export interface IDoc {
   contentType: string;
@@ -207,12 +208,12 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
     detailsFree,
     details0,
     detailsInner,
-    ableAmount: mathRound(ableAmount, 4),
-    freeAmount: mathRound(freeAmount, 4),
-    zeroAmount: mathRound(zeroAmount, 4),
-    innerAmount: mathRound(innerAmount, 4),
-    ableVATAmount: mathRound(ableVATAmount, 4),
-    ableCityTaxAmount: mathRound(ableCityTaxAmount, 4),
+    ableAmount: fixNum(ableAmount),
+    freeAmount: fixNum(freeAmount),
+    zeroAmount: fixNum(zeroAmount),
+    innerAmount: fixNum(innerAmount),
+    ableVATAmount: fixNum(ableVATAmount),
+    ableCityTaxAmount: fixNum(ableCityTaxAmount),
   }
 }
 
@@ -259,9 +260,9 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
       contentType: doc.contentType,
       contentId: doc.contentId,
 
-      totalAmount: mathRound(ableAmount + freeAmount + zeroAmount, 4),
-      totalVAT: mathRound(ableVATAmount),
-      totalCityTax: mathRound(ableCityTaxAmount),
+      totalAmount: fixNum(ableAmount + freeAmount + zeroAmount),
+      totalVAT: fixNum(ableVATAmount),
+      totalCityTax: fixNum(ableCityTaxAmount),
       districtCode: config.districtCode,
       branchNo: config.branchNo,
       merchantTin: config.merchantTin,
@@ -307,24 +308,25 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     }
 
     // payments
-    let cashAmount: number = mathRound(mainData.totalAmount) ?? 0;
+    let cashAmount: number = fixNum(mainData.totalAmount) ?? 0;
     for (const payment of doc.nonCashAmounts) {
+      const paidAmount = fixNum(payment.amount);
       mainData.payments?.push({
         code: 'PAYMENT_CARD',
         exchangeCode: '',
         status: 'PAID',
-        paidAmount: mathRound(payment.amount),
+        paidAmount,
       });
 
-      cashAmount -= mathRound(payment.amount);
+      cashAmount -= paidAmount;
     }
 
-    if (mathRound(cashAmount)) {
+    if (fixNum(cashAmount)) {
       mainData.payments?.push({
         code: 'CASH',
         exchangeCode: '',
         status: 'PAID',
-        paidAmount: mathRound(cashAmount),
+        paidAmount: fixNum(cashAmount),
       });
     }
   }

@@ -1,9 +1,10 @@
-import { queries } from "@erxes/ui-products/src/graphql";
 import { commonFields, commonListFields } from "../../boards/graphql/mutations";
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
 } from "../../conformity/graphql/queries";
+
+import { queries } from "@erxes/ui-products/src/graphql";
 
 const commonParams = `
   $_ids: [String]
@@ -83,6 +84,7 @@ export const dealFields = `
   paymentsData
   unUsedAmount
   amount
+  stageId
 `;
 
 const dealsTotalAmounts = `
@@ -215,8 +217,8 @@ const productDetail = `
 `;
 
 const checkDiscount = `
-  query checkDiscount($_id: String!, $products: [SalesProductField]) {
-    checkDiscount(_id: $_id, products: $products)
+  query checkDiscount($_id: String!, $products: [SalesProductField], $couponCode: String) {
+    checkDiscount(_id: $_id, products: $products, couponCode: $couponCode)
   }
 `;
 

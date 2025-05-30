@@ -12,9 +12,10 @@ import ScoreLogs from './scoreLogs';
 import Assignments from './assignments';
 import AssignmentCampaigns from './assignmentCampaign';
 import ScoreCampaigns from './scoreCampaign';
-import voucherCodes from './voucherCodes';
 import Agents from './agents';
 
+import CouponCampaigns from './couponCampaigns';
+import Coupons from './coupons';
 export {
   Configs,
   DonateCampaigns,
@@ -30,6 +31,7 @@ export {
   Assignments,
   AssignmentCampaigns,
   ScoreCampaigns,
-  voucherCodes,
-  Agents
+  Agents,
+  CouponCampaigns,
+  Coupons
 };

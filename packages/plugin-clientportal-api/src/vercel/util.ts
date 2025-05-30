@@ -46,6 +46,7 @@ const buildConfigs = (
     menus: {
       main: mainMenus.map((m) => {
         return {
+          _id: m._id,
           label: m.label,
           url: m.url,
           icon: m.icon,
@@ -54,6 +55,7 @@ const buildConfigs = (
       }),
       footerMenu: footerMenus.map((m) => {
         return {
+          _id: m._id,
           label: m.label,
           url: m.url,
           icon: m.icon,

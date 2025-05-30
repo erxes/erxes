@@ -1,18 +1,18 @@
-import { CustomField, ProductName } from "../styles";
-import { IDeal, IPaymentsData, IProductData } from "../types";
+import { CustomField, ProductName } from '../styles';
+import { IDeal, IPaymentsData, IProductData } from '../types';
 
-import Box from "@erxes/ui/src/components/Box";
-import { BoxPadding } from "@erxes/ui-contacts/src/customers/styles";
-import EmptyState from "@erxes/ui/src/components/EmptyState";
-import { IProduct } from "@erxes/ui-products/src/types";
-import Icon from "@erxes/ui/src/components/Icon";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import ProductForm from "../containers/product/ProductForm";
-import { Quantity } from "../../boards/styles/stage";
-import React from "react";
-import { SectionBodyItem } from "@erxes/ui/src/layout/styles";
-import Tip from "@erxes/ui/src/components/Tip";
-import { __ } from "@erxes/ui/src/utils";
+import { BoxPadding } from '@erxes/ui-contacts/src/customers/styles';
+import { IProduct } from '@erxes/ui-products/src/types';
+import Box from '@erxes/ui/src/components/Box';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Tip from '@erxes/ui/src/components/Tip';
+import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
+import { __ } from '@erxes/ui/src/utils';
+import React from 'react';
+import { Quantity } from '../../boards/styles/stage';
+import ProductForm from '../containers/product/ProductForm';
 
 type Props = {
   productsData: IProductData[];
@@ -20,6 +20,7 @@ type Props = {
   paymentsData: IPaymentsData;
   onChangeProductsData: (productsData: IProductData[]) => void;
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
+  onChangeExtraData: (extraData: any) => void;
   onChangeProducts: (prs: IProduct[]) => void;
   saveProductsData: () => void;
   dealQuery: IDeal;
@@ -32,6 +33,7 @@ function ProductSection({
   paymentsData,
   onChangeProductsData,
   onChangePaymentsData,
+  onChangeExtraData,
   saveProductsData,
   dealQuery,
   isFullMode,
@@ -43,6 +45,7 @@ function ProductSection({
         currentProduct={productId}
         onChangeProductsData={onChangeProductsData}
         onChangePaymentsData={onChangePaymentsData}
+        onChangeExtraData={onChangeExtraData}
         productsData={productsData}
         products={products}
         paymentsData={paymentsData}
@@ -63,7 +66,7 @@ function ProductSection({
       result.push(
         <CustomField key={index}>
           <b>{field.text}:</b> {field.data}
-        </CustomField>
+        </CustomField>,
       );
     });
 
@@ -72,7 +75,7 @@ function ProductSection({
 
   const renderProductFormModal = (
     trigger: React.ReactNode,
-    productId?: string
+    productId?: string,
   ) => {
     return (
       <ModalTrigger
@@ -89,7 +92,7 @@ function ProductSection({
     productName: string,
     quantity: number,
     uom: string,
-    productId: string
+    productId: string,
   ) => {
     return renderProductFormModal(
       <ProductName>
@@ -97,13 +100,13 @@ function ProductSection({
           {productName}
           {quantity && (
             <Quantity>
-              ({quantity} {uom ? uom : "PC"})
+              ({quantity} {uom ? uom : 'PC'})
             </Quantity>
           )}
         </div>
         <Icon icon="pen-1" />
       </ProductName>,
-      productId
+      productId,
     );
   };
 
@@ -114,8 +117,8 @@ function ProductSection({
           {renderProductItem(
             product.name,
             product.quantity || 0,
-            product.uom || "",
-            product._id
+            product.uom || '',
+            product._id,
           )}
         </Tip>
       );
@@ -124,8 +127,8 @@ function ProductSection({
     return renderProductItem(
       product.name,
       product.quantity || 0,
-      product.uom || "",
-      product._id
+      product.uom || '',
+      product._id,
     );
   };
 
@@ -143,12 +146,12 @@ function ProductSection({
 
   return (
     <Box
-      title={__("Product & Service")}
+      title={__('Product & Service')}
       isOpen={products.length > 0}
       extraButtons={renderProductFormModal(
         <button>
           <Icon icon="edit-3" />
-        </button>
+        </button>,
       )}
       name="showProductAndService"
     >

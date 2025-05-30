@@ -110,6 +110,28 @@ const clientPortalCommentsAdd = `
   }
 `;
 
+const widgetCommentsAdd = `
+  mutation widgetsTicketCommentAdd(
+    $type: String!
+    $typeId: String!
+    $content: String!
+    $userType: String!
+    $customerId: String
+  ) {
+    widgetsTicketCommentAdd(
+      type: $type
+      typeId: $typeId
+      content: $content
+      userType: $userType
+      customerId: $customerId
+    ) {
+      _id
+      type
+      createdAt
+    }
+  }
+`;
+
 const clientPortalCommentsRemove = `
   mutation clientPortalCommentsRemove(
     $_id: String!
@@ -157,6 +179,7 @@ export default {
   clientPortalUsersEdit,
   clientPortalUsersRemove,
   verifyUsers,
+  widgetCommentsAdd,
   clientPortalCommentsAdd,
   clientPortalCommentsRemove,
   changeVerificationStatus,

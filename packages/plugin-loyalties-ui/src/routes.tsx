@@ -61,6 +61,20 @@ const AssignmentCampaignsEdit = asyncComponent(
     )
 );
 
+const CouponCampaigns = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "KnowledgeBase" */ "./configs/couponCampaign/containers/List"
+    )
+);
+
+const Coupons = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "KnowledgeBase" */ "./loyalties/coupons/containers/List"
+    )
+);
+
 const Vouchers = asyncComponent(
   () =>
     import(
@@ -170,6 +184,18 @@ const AssignmentCampaignEdit = () => {
   );
 };
 
+const CouponCampaignList = () => {
+  const location = useLocation();
+
+  return <CouponCampaigns queryParams={queryString.parse(location.search)} />;
+};
+
+const CouponsComponent = () => {
+  const location = useLocation();
+
+  return <Coupons queryParams={queryString.parse(location.search)} />;
+};
+
 const VouchersComponent = () => {
   const location = useLocation();
 
@@ -266,6 +292,11 @@ const routes = () => {
         element={<AssignmentCampaignEdit />}
       />
 
+      <Route
+        path="/erxes-plugin-loyalty/settings/coupon"
+        element={<CouponCampaignList />}
+      />
+
       <Route path="/lotteryAward" element={<AwardComponent />} />
 
       <Route path="/vouchers" element={<VouchersComponent />} />
@@ -281,6 +312,7 @@ const routes = () => {
       <Route path="/assignments" element={<AssignmentsComponent />} />
 
       <Route path="/agents" element={<AgentList />} />
+      <Route path="/coupons" element={<CouponsComponent />} />
     </Routes>
   );
 };

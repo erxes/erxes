@@ -2,6 +2,7 @@ import {
   conformityQueryFieldDefs,
   conformityQueryFields
 } from "@erxes/ui-sales/src/conformity/graphql/queries";
+
 import { isEnabled } from "@erxes/ui/src/utils/core";
 
 export const commonFields = `
@@ -120,6 +121,7 @@ export const commonFields = `
   tokenPassMethod
   vendorParentProductCategoryId
   language
+  languages
 `;
 
 export const basicFields = `
@@ -283,7 +285,32 @@ const clientPortalComments = `
       _id
       content
       createdAt
-      createdUser
+      createdUser {
+        _id
+        email
+        lastName
+        firstName
+        avatar
+      }
+    }
+  }
+`;
+
+const widgetComments = `
+  query widgetsTicketComments($typeId: String!, $type: String!) {
+    widgetsTicketComments(typeId: $typeId, type: $type) {
+      _id
+      content
+      createdUser {
+        _id
+        email
+        lastName
+        firstName
+        avatar
+      }
+      type
+      userType
+      createdAt
     }
   }
 `;
@@ -451,5 +478,6 @@ export default {
   ticketsOfUser,
   purchasesOfUser,
   clientPortalParticipantDetail,
-  clientPortalParticipants
+  clientPortalParticipants,
+  widgetComments
 };

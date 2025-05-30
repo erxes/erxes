@@ -1,22 +1,20 @@
-import * as _ from "underscore";
-import { Model, models } from "mongoose";
-import { getOwner } from "./utils";
+import { Model } from "mongoose";
 import { IModels } from "../connectionResolver";
-import {
-  IScoreLogDocument,
-  scoreLogSchema,
-  IScoreLog,
-} from "./definitions/scoreLog";
 import {
   sendClientPortalMessage,
   sendCommonMessage,
   sendCoreMessage,
 } from "../messageBroker";
+import {
+  IScoreLog,
+  IScoreLogDocument,
+  scoreLogSchema,
+} from "./definitions/scoreLog";
+import { getOwner } from "./utils";
 
-import { IScoreParams } from "./definitions/common";
-import { paginate } from "@erxes/api-utils/src";
 import { debugError } from "@erxes/api-utils/src/debuggers";
 import * as dayjs from "dayjs";
+import { IScoreParams } from "./definitions/common";
 
 const OWNER_TYPES = {
   customer: {
@@ -43,24 +41,31 @@ export interface IScoreLogModel extends Model<IScoreLogDocument> {
 
 const generateFilter = (params: IScoreParams) => {
   let filter: any = {};
+
   if (params.ownerType) {
     filter.ownerType = params.ownerType;
   }
+
   if (params.ownerId) {
     filter.ownerId = params.ownerId;
   }
-  if (params.fromDate) {
-    filter.createdAt = { $gte: new Date(params.fromDate as string) };
+
+  if (params.fromDate || params.toDate) {
+    filter.createdAt = {};
+
+    if (params.fromDate) {
+      filter.createdAt.$gte = new Date(params.fromDate);
+    }
+
+    if (params.toDate) {
+      filter.createdAt.$lte = new Date(params.toDate);
+    }
   }
-  if (params.toDate) {
-    filter.createdAt = {
-      ...filter.createdAt,
-      $lt: new Date(params.toDate as string),
-    };
-  }
+
   if (params.campaignId) {
     filter.campaignId = params.campaignId;
   }
+
   return filter;
 };
 
@@ -83,22 +88,41 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         sortDirection = -1,
         sortField = "createdAt",
       } = doc;
+
       const filter = generateFilter(doc);
 
-      const aggregation = [
+      const aggregation: any = [
         {
-          $match: { ...(filter || {}) },
+          $match: { ...filter },
+        },
+        {
+          $addFields: {
+            signedScore: {
+              $cond: {
+                if: { $eq: ["$action", "subtract"] },
+                then: { $multiply: ["$changeScore", -1] },
+                else: "$changeScore",
+              },
+            },
+          },
         },
         {
           $sort: {
-            [sortField]: sortDirection,
-          } as any,
+            [sortField]: Number(sortDirection),
+          },
         },
         {
           $group: {
             _id: "$ownerId",
             ownerType: { $first: "$ownerType" },
             scoreLogs: { $push: "$$ROOT" },
+            createdAt: { $max: "$createdAt" },
+            changeScore: { $sum: "$signedScore" },
+          },
+        },
+        {
+          $sort: {
+            [sortField]: Number(sortDirection),
           },
         },
         {
@@ -107,31 +131,33 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
             ownerId: "$_id",
             ownerType: 1,
             scoreLogs: 1,
+            totalScore: "$changeScore",
+          },
+        },
+        {
+          $facet: {
+            list: [{ $skip: (page - 1) * perPage }, { $limit: perPage }],
+            total: [{ $count: "count" }],
+          },
+        },
+        {
+          $project: {
+            list: 1,
+            total: { $ifNull: [{ $arrayElemAt: ["$total.count", 0] }, 0] },
           },
         },
       ];
 
-      const totalResult = await models.ScoreLogs.aggregate([
-        ...aggregation,
-        { $count: "total" },
-      ]);
+      const [result] = await models.ScoreLogs.aggregate(aggregation);
 
-      const total = totalResult.length > 0 ? totalResult[0].total : 0;
-
-      const list = await models.ScoreLogs.aggregate([
-        ...aggregation,
-        { $skip: (page - 1) * perPage },
-        { $limit: perPage },
-      ]);
-
-      return { list, total };
+      return result;
     }
 
     public static async getStatistic(doc: IScoreParams) {
       const filter = generateFilter(doc);
 
       const pipeline = [
-        { $match: { ...(filter || {}) } },
+        { $match: { ...filter } },
         {
           $group: {
             _id: null,

@@ -7,7 +7,8 @@ export const menuLoyalties = [
   { title: 'Donates', link: '/donates' },
   { title: 'Score', link: '/score' },
   { title: 'Assignments', link: '/assignments' },
-  { title: 'Agents', link: '/agents' }
+  { title: 'Agents', link: '/agents' },
+  { title: 'Coupons', link: '/coupons' }
 ];
 
 export const getOwnerTypes = () => {

@@ -17,7 +17,11 @@ import { ILoanResearch } from '../types';
 import { FlexRow, List } from '../styles';
 import LoansResearchFormContainer from '../containers/LoansResearchForm';
 import React, { useState } from 'react';
-import { DynamicComponentList } from '@erxes/ui/src/styles/main';
+import {
+  DynamicComponentList,
+  FormColumn,
+  FormWrapper,
+} from '@erxes/ui/src/styles/main';
 import { SidebarContent } from '@erxes/ui-forms/src/settings/properties/styles';
 import { renderBody } from '../utils';
 
@@ -81,35 +85,52 @@ const LoansResearchSidebar = (props: Props) => {
           <ControlLabel>{'Customer'}</ControlLabel>
           {renderBody(loansResearch?.customer || 'Unknown')}
         </FormGroup>
-        {renderFormGroup('Customer Type', {
-          value: loansResearch?.customerType || '',
-          disabled: true,
-        })}
-        {renderFormGroup('Average Salary Income', {
-          type: 'number',
-          value: loansResearch?.averageSalaryIncome || 0,
-          useNumberFormat: true,
-          fixed: 2,
-          disabled: true,
-        })}
-        {renderFormGroup('Total Payment Amount', {
-          type: 'number',
-          value: loansResearch?.totalPaymentAmount || 0,
-          useNumberFormat: true,
-          fixed: 2,
-          disabled: true,
-        })}
-        {renderFormGroup('Debt Income Ratio', {
-          type: 'number',
-          value: loansResearch?.debtIncomeRatio || 0,
-        })}
-        {renderFormGroup('Increase Monthly Payment Amount', {
-          type: 'number',
-          value: loansResearch?.increaseMonthlyPaymentAmount || 0,
-          useNumberFormat: true,
-          fixed: 2,
-          disabled: true,
-        })}
+
+        <FormWrapper>
+          <FormColumn>
+            {renderFormGroup('Customer Type', {
+              value: loansResearch?.customerType || '',
+              disabled: true,
+            })}
+            {renderFormGroup('Average Salary Income', {
+              type: 'number',
+              value: loansResearch?.averageSalaryIncome || 0,
+              useNumberFormat: true,
+              fixed: 2,
+              disabled: true,
+            })}
+            {renderFormGroup('Total Payment Amount', {
+              type: 'number',
+              value: loansResearch?.totalPaymentAmount || 0,
+              useNumberFormat: true,
+              fixed: 2,
+              disabled: true,
+            })}
+          </FormColumn>
+          <FormColumn>
+            {renderFormGroup('Debt Income Ratio', {
+              type: 'number',
+              value:
+                loansResearch?.debtIncomeRatio != null
+                  ? loansResearch.debtIncomeRatio.toFixed(2)
+                  : '0.00',
+            })}
+            {renderFormGroup('Increase Monthly Payment Amount', {
+              type: 'number',
+              value: loansResearch?.increaseMonthlyPaymentAmount || 0,
+              useNumberFormat: true,
+              fixed: 2,
+              disabled: true,
+            })}
+            {renderFormGroup('After Debt Income Ratio', {
+              type: 'number',
+              value:
+                loansResearch?.updatedRatio != null
+                  ? loansResearch.updatedRatio.toFixed(2)
+                  : '0.00',
+            })}
+          </FormColumn>
+        </FormWrapper>
       </SidebarContent>
     );
   };

@@ -33,6 +33,13 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
   const [header, setHeader] = useState(callData?.header || '');
   const [description, setDescription] = useState(callData?.description || '');
 
+  const [secondPageHeader, setSecondPageHeader] = useState(
+    callData?.secondPageHeader || '',
+  );
+  const [secondPageDescription, setSecondPageDescription] = useState(
+    callData?.secondPageDescription || '',
+  );
+
   const [isCallReceive, setIsCallReceive] = useState(
     Boolean(callData?.isReceiveWebCall) || false,
   );
@@ -46,6 +53,8 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
     onChange('callData', {
       header,
       description,
+      secondPageDescription,
+      secondPageHeader,
       departments: updatedDepartments,
       isReceiveWebCall: isCallReceive,
     });
@@ -57,6 +66,8 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
     onChange('callData', {
       header: name,
       description,
+      secondPageDescription,
+      secondPageHeader,
       departments: departments,
       isReceiveWebCall: isCallReceive,
     });
@@ -68,6 +79,31 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
     onChange('callData', {
       header,
       description: name,
+      secondPageDescription,
+      secondPageHeader,
+      departments: departments,
+      isReceiveWebCall: isCallReceive,
+    });
+  };
+  const updateSecondPageHeader = (name: string) => {
+    setSecondPageHeader(name);
+
+    onChange('callData', {
+      description,
+      secondPageDescription,
+      secondPageHeader: name,
+      departments: departments,
+      isReceiveWebCall: isCallReceive,
+    });
+  };
+
+  const updateSecondPageDescription = (name: string) => {
+    setDescription(name);
+
+    onChange('callData', {
+      header,
+      secondPageDescription: name,
+      secondPageHeader,
       departments: departments,
       isReceiveWebCall: isCallReceive,
     });
@@ -104,6 +140,8 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
     onChange('callData', {
       header,
       description,
+      secondPageDescription,
+      secondPageHeader,
       departments: updatedDepartments,
       isReceiveWebCall: isCallReceive,
     });
@@ -118,6 +156,8 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
     onChange('callData', {
       header,
       description,
+      secondPageDescription,
+      secondPageHeader,
       departments: updatedDepartments,
       isReceiveWebCall: isCallReceive,
     });
@@ -129,6 +169,8 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
     onChange('callData', {
       header,
       description,
+      secondPageDescription,
+      secondPageHeader,
       departments: departments,
       isReceiveWebCall: isChecked,
     });
@@ -154,6 +196,8 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
     onChange('callData', {
       header,
       description,
+      secondPageDescription,
+      secondPageHeader,
       departments: updatedDepartments,
       isReceiveWebCall: isCallReceive,
     });
@@ -241,6 +285,41 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
               updateDescription((e.currentTarget as HTMLInputElement).value)
             }
             defaultValue={description}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>{__('Second Page Header')}</ControlLabel>
+          <FormControl
+            type="text"
+            placeholder={__('Enter second page header text')}
+            onChange={(e) =>
+              setSecondPageHeader((e.currentTarget as HTMLInputElement).value)
+            }
+            onBlur={(e) =>
+              updateSecondPageHeader(
+                (e.currentTarget as HTMLInputElement).value,
+              )
+            }
+            defaultValue={secondPageHeader}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Description')}</ControlLabel>
+          <FormControl
+            type="textarea"
+            placeholder={__('Enter description text')}
+            onChange={(e) =>
+              setSecondPageDescription(
+                (e.currentTarget as HTMLInputElement).value,
+              )
+            }
+            onBlur={(e) =>
+              updateSecondPageDescription(
+                (e.currentTarget as HTMLInputElement).value,
+              )
+            }
+            defaultValue={secondPageDescription}
           />
         </FormGroup>
 

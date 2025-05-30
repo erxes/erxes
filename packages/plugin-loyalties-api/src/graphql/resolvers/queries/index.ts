@@ -13,6 +13,8 @@ import Assignments from './assignments';
 import AssignmentCampaigns from './assignmentCampaign';
 import ScoreCampaigns from './scoreCampaign';
 import Agents from './agents';
+import Coupons from './coupons';
+import CouponCampaigns from './couponCampaigns';
 
 export {
   LoyaltyConfigQueries,
@@ -29,5 +31,7 @@ export {
   Assignments,
   AssignmentCampaigns,
   ScoreCampaigns,
-  Agents
+  Agents,
+  Coupons,
+  CouponCampaigns
 };

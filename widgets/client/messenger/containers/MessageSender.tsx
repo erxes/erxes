@@ -21,7 +21,7 @@ const MessageSenderContainer = (props: Props) => {
   const { activeConversationId, sendTypingInfo, readMessages } =
     useConversation();
   const { sendMessage } = useMessage();
-  const { sendFile } = useHelpers();
+  const { sendFiles } = useHelpers();
 
   return (
     <MessageSender
@@ -37,7 +37,7 @@ const MessageSenderContainer = (props: Props) => {
         sendMessage(contentType, message);
       }}
       readMessages={readMessages}
-      sendFile={sendFile}
+      sendFiles={sendFiles}
       showVideoCallRequest={
         props.isOnline && getMessengerData().showVideoCallRequest
       }

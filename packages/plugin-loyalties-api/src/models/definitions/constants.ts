@@ -15,9 +15,9 @@ export const OWNER_TYPES = {
 
 export const CODE_STATUS = {
   NEW: 'new',
-  LOSS: 'used',
+  IN_USE: 'in_use',
   DONE: 'done',
-  ALL: ['new','used', 'done']
+  ALL: ['new','in_use', 'done']
 };
 
 export const VOUCHER_STATUS = {
@@ -55,3 +55,11 @@ export const AGENT_STATUSES = {
   ARCHIVED: 'archived',
   ALL: ['active', 'draft', 'archived']
 };
+
+export const CHAR_SET = {
+  'A-Z': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  'a-z': 'abcdefghijklmnopqrstuvwxyz',
+  '0-9': '0123456789',
+  'А-Я': 'АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ',  
+  'а-я': 'абвгдеёжзийклмнопрстуфхцчшщыэюя'
+}

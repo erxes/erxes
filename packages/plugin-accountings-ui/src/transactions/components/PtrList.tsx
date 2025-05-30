@@ -87,15 +87,12 @@ const PtrList: React.FC<IProps> = (props) => {
   };
 
   const renderRows = () => {
-    let preParentId = "";
     let prePtrId = "";
 
     return transactions.map((transaction) => {
-      const { ptrId, parentId } = transaction;
-      const hasNewParent = preParentId !== parentId;
+      const { ptrId } = transaction;
       const hasNewPtr = prePtrId !== ptrId;
 
-      preParentId = parentId || "";
       prePtrId = ptrId || "";
 
       return (
@@ -105,7 +102,6 @@ const PtrList: React.FC<IProps> = (props) => {
           toggleBulk={toggleBulk}
           toggleHalf={toggleHalf}
           isChecked={(bulk || []).map((b) => b._id).includes(transaction._id)}
-          hasNewParent={hasNewParent}
           hasNewPtr={hasNewPtr}
         />
       );

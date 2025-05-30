@@ -206,7 +206,6 @@ export const queries = cmsAvailable => `
 `;
 
 const userParams = `
-  clientPortalId: String
   phone: String,
   email: String,
   username: String,
@@ -228,11 +227,19 @@ const userParams = `
   avatar: String
 `;
 
+export const inputs = `
+    input ClientPortalUserInput {
+        ${userParams}
+    }
+`
+
+
 export const mutations = cmsAvailable => `
-  clientPortalUsersInvite(${userParams}, disableVerificationMail: Boolean): ClientPortalUser
-  clientPortalUsersEdit(_id: String!, ${userParams}): ClientPortalUser
+  clientPortalUsersInvite(${userParams}, disableVerificationMail: Boolean,  clientPortalId: String): ClientPortalUser
+  clientPortalUsersEdit(_id: String!,  clientPortalId: String, ${userParams}): ClientPortalUser
+  clientPortalUserEditProfile(input: ClientPortalUserInput): ClientPortalUser
   clientPortalUsersRemove(clientPortalUserIds: [String!]): JSON
-  clientPortalRegister(${userParams}): String
+  clientPortalRegister(${userParams}, clientPortalId: String): String
   clientPortalVerifyOTP(userId: String!, phoneOtp: String, emailOtp: String, password: String): JSON
   clientPortalUsersVerify(userIds: [String]!, type: String): JSON
   clientPortalLogin(login: String!, password: String!, clientPortalId: String!, deviceToken: String,twoFactor: TwoFactor): JSON
@@ -242,6 +249,7 @@ export const mutations = cmsAvailable => `
   clientPortalVerify2FA(phoneOtp: String, emailOtp: String,twoFactor:TwoFactor): JSON
   clientPortalLoginWithMailOTP(email: String!, clientPortalId: String!, deviceToken: String): JSON
   clientPortalLoginWithSocialPay(clientPortalId: String!, token: String!) : JSON
+  clientPortalLoginWithToki(clientPortalId: String!, token: String!) : JSON
   clientPortalRefreshToken: String
   clientPortalGoogleAuthentication(clientPortalId: String!, code: String!): JSON
   clientPortalFacebookAuthentication(accessToken: String!, clientPortalId: String!): JSON

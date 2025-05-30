@@ -37,6 +37,7 @@ type Props = {
   removeItem: (itemId: string, callback?: () => void) => void;
   beforePopupClose: (afterPopupClose?: () => void) => void;
   sendToBoard?: (item: any) => void;
+  synchSingleCard?: (itemId: string) => void;
   updateTimeTrack: (
     {
       _id,
@@ -45,6 +46,7 @@ type Props = {
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
     callback?: () => void
   ) => void;
+  isPopupVisible?: boolean;
   currentUser: IUser;
 };
 
@@ -80,7 +82,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     return (
       <HeaderContentSmall>
         <ControlLabel>{__(title)}</ControlLabel>
-        {Object.keys(amount || {}).map((key) => (
+        {Object.keys(amount || {}).map(key => (
           <p key={key}>
             {amount[key].toLocaleString()} {key}
           </p>
@@ -154,7 +156,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     );
   };
 
-  renderDetail = (saveItem) => {
+  renderDetail = saveItem => {
     const { item, options, updateTimeTrack } = this.props;
 
     const timeTrack = item.timeTrack || {
@@ -218,7 +220,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     );
   };
 
-  renderTabContent = (props) => {
+  renderTabContent = props => {
     const { currentTab } = this.state;
 
     switch (currentTab) {
@@ -260,6 +262,7 @@ export default class DealEditForm extends React.Component<Props, State> {
           onUpdate={onUpdate}
           sendToBoard={sendToBoard}
           item={item}
+          synchSingleCard={this.props.synchSingleCard}
           addItem={addItem}
           onChangeStage={onChangeStage}
           onChangeRefresh={this.onChangeRefresh}
