@@ -15,14 +15,19 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import dayjs from 'dayjs';
 import React from 'react';
 import queries from '../../../../customPostTypes/graphql/queries';
+import { IPostTranslation, IWebSite } from '../../../../../types';
 
 type Props = {
   clientPortalId: string;
   post: any;
+  website: IWebSite;
+  currentLanguage: string;
+  translations: IPostTranslation[];
+  setTranslations: (translations: IPostTranslation[]) => void;
   onChange: (field: string, value: any) => void;
 };
 
-const TripSection = (props: Props) => {
+const MainSection = (props: Props) => {
   const { data, loading: typesLoading } = useQuery(queries.CUSTOM_TYPES, {
     variables: {
       clientPortalId: props.clientPortalId,
@@ -30,7 +35,7 @@ const TripSection = (props: Props) => {
   });
 
   const { Section } = Sidebar;
-  const { post, onChange } = props;
+  const { post, onChange, website, currentLanguage, translations } = props;
 
   const [autoArchiveEnabled, setAutoArchiveEnabled] = React.useState(false);
 
@@ -76,9 +81,41 @@ const TripSection = (props: Props) => {
                     type={'input'}
                     required={true}
                     placeholder='Post title'
-                    value={post.title || ''}
+                    value={
+                      currentLanguage === website.language
+                        ? post.title || ''
+                        : translations.find(t => t.language === currentLanguage)?.title || ''
+                    }
                     onChange={(e: any) => {
-                      onChange('title', e.target.value);
+                      const newTitle = e.target.value;
+                      if (currentLanguage === website.language) {
+                        onChange('title', newTitle);
+                      } else {
+            
+                        props.setTranslations((prev) => {
+                          const updated = prev.map((t) =>
+                            t.language === currentLanguage
+                              ? { ...t, title: newTitle }
+                              : t
+                          );
+                
+                          const exists = prev.find((t) => t.language === currentLanguage);
+                
+                          if (!exists) {
+                            updated.push({
+                              language: currentLanguage,
+                              title: newTitle,
+                     
+                              content: '',
+                              postId: '',
+                              excerpt: '',
+                              customFieldsData: {},
+                            });
+                          }
+                
+                          return updated;
+                        });
+                      }
                     }}
                   />
                 </FormGroup>
@@ -87,10 +124,38 @@ const TripSection = (props: Props) => {
                   <FormControl
                     id='excerpt'
                     componentclass='textarea'
-                    value={post.excerpt || ''}
+                    value={currentLanguage === website.language
+                      ? post.excerpt || ''
+                      : translations.find(t => t.language === currentLanguage)?.excerpt || ''
+                    }
                     placeholder='Description'
                     onChange={(e: any) => {
-                      onChange('excerpt', e.target.value);
+                      if (currentLanguage === website.language) {
+                        onChange('excerpt', e.target.value);
+                      } else {
+                        props.setTranslations((prev) => {
+                          const updated = prev.map((t) =>
+                            t.language === currentLanguage
+                              ? { ...t, excerpt: e.target.value }
+                              : t
+                          );
+
+                          const exists = prev.find((t) => t.language === currentLanguage);
+
+                          if (!exists) {
+                            updated.push({
+                              language: currentLanguage,
+                              excerpt: e.target.value,
+                              postId: '',
+                              title: '',
+                              content: '',
+                              customFieldsData: {},
+                            });
+                          }
+
+                          return updated;
+                        });
+                      }
                     }}
                   />
                 </FormGroup>
@@ -246,4 +311,4 @@ const TripSection = (props: Props) => {
   );
 };
 
-export default TripSection;
+export default MainSection;

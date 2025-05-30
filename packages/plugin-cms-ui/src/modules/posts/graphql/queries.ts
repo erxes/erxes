@@ -195,8 +195,21 @@ const POST = gql`
 `;
 
 
-
+const POST_TRANSLATIONS = gql`
+query CmsPostTranslations($postId: String) {
+  cmsPostTranslations(postId: $postId) {
+    _id
+    content
+    customFieldsData
+    excerpt
+    language
+    postId
+    title
+  }
+}
+`;
 export default {
   POST_LIST,
   POST,
-};
+  POST_TRANSLATIONS,
+  };

@@ -7,6 +7,8 @@ export const WEB_DETAIL = gql`
       domain
       name
       url
+      languages
+      language
     }
   }
 `;

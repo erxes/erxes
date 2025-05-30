@@ -212,6 +212,7 @@ export type ClientPortalConfig = {
   socialpayConfig?: SocialpayConfig;
   tokiConfig?: TokiConfig;
   language?: string;
+  languages?: string[];
 };
 
 export type Styles = {

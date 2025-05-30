@@ -9,19 +9,27 @@ import LeftSideBar from './LeftSidebar';
 import { Button } from '@erxes/ui/src/components';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IPost, IPostDocument, IWebSite } from '../../../../types';
+import {
+  IPost,
+  IPostDocument,
+  IPostTranslation,
+  IWebSite,
+} from '../../../../types';
 import RightSidebar from './RightSidebar';
+import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 
 type Props = {
   clientPortalId: string;
   website: IWebSite;
   post?: IPost;
+  translations?: IPostTranslation[];
   fields?: IField[];
-  onSubmit: (doc: any) => void;
+  onSubmit: (doc: any, translations?: IPostTranslation[]) => void;
 };
 
 const PostForm = (props: Props) => {
-  const { clientPortalId } = props;
+  const { clientPortalId, website } = props;
+
   const defaultPost: IPostDocument = {
     type: 'post',
     clientPortalId,
@@ -54,21 +62,25 @@ const PostForm = (props: Props) => {
     React.useMemo(() => props.post || defaultPost, [props.post])
   );
 
-  const onChange = (field: string, value: any) => {
-    const editedPost = { ...post };
-    editedPost[field] = value;
+  const [translations, setTranslations] = React.useState<IPostTranslation[]>(
+    props.translations || []
+  );
+  const [currentLanguage, setCurrentLanguage] = React.useState(
+    website.language
+  );
 
-    setPost(editedPost);
+  const onChange = (field: string, value: any) => {
+    setPost((prev) => ({ ...prev, [field]: value }));
   };
 
   const onChangeImage = (images: IAttachment[]) => {
-    if (images && images.length > 0) {
-      setPost({ ...post, thumbnail: images[0] });
+    if (images?.length > 0) {
+      setPost((prev) => ({ ...prev, thumbnail: images[0] }));
     }
   };
 
   const onSave = () => {
-    const doc: any = post;
+    const doc: any = { ...post };
 
     const fieldsToDelete = [
       'viewCount',
@@ -90,35 +102,18 @@ const PostForm = (props: Props) => {
 
     doc.clientPortalId = clientPortalId;
 
-    props.onSubmit(clearTypename(doc));
+    props.onSubmit(clearTypename(doc), translations);
   };
 
   const breadcrumb = [
     { title: 'Websites', link: '/cms' },
     {
-      title: props.website.name,
-      link: '/cms/website/' + props.website._id + '/posts',
+      title: website.name,
+      link: '/cms/website/' + website._id + '/posts',
     },
     { title: 'Posts', link: '/cms/website/' + clientPortalId + '/posts' },
     { title: __('Post') },
   ];
-
-  const content = (
-    <div style={{ padding: '10px 15px' }}>
-      <FormGroup>
-        <ControlLabel required={true}>{__('Content')}</ControlLabel>
-        <RichTextEditor
-          content={post.content || ''}
-          onChange={(e) => {
-            onChange('content', e);
-          }}
-          // isSubmitted={false}
-          height={`vh-100`}
-          name={`post_${props.post ? props.post._id : 'create'}`}
-        />
-      </FormGroup>
-    </div>
-  );
 
   const renderHeader = () => {
     const title = `Title: ${post.title}`;
@@ -127,28 +122,108 @@ const PostForm = (props: Props) => {
         style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between', // Ensures space between title and button
+          justifyContent: 'space-between',
           marginLeft: '10px',
           width: '100%',
           height: 50,
         }}
       >
         <h5 style={{ margin: 0 }}>{post.title ? title : __('New post')}</h5>
-        <Button btnStyle='success' size='small' icon='check' onClick={onSave}>
-          Save
-        </Button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Tabs>
+            {website.languages.length > 1 &&
+              website.languages.map((language) => (
+                <TabTitle
+                  key={language}
+                  onClick={() => setCurrentLanguage(language)}
+                  className={currentLanguage === language ? 'active' : ''}
+                >
+                  {language}
+                </TabTitle>
+              ))}
+          </Tabs>
+          <Button btnStyle='success' size='small' icon='check' onClick={onSave}>
+            {__('Save')}
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  const content = () => {
+    const paddingStyle = { padding: '10px 15px' };
+  
+    // Default language – edit post.content directly
+    if (currentLanguage === website.language) {
+      return (
+        <div style={paddingStyle}>
+          <FormGroup>
+            <ControlLabel required={true}>{__('Content')}</ControlLabel>
+            <RichTextEditor
+              content={post.content || ''}
+              onChange={(value) => onChange('content', value)}
+              height="vh-100"
+              name={`post_${props.post ? props.post._id : 'create'}`}
+            />
+          </FormGroup>
+        </div>
+      );
+    }
+  
+    // Translated language – edit in translations array
+    const translation = translations.find(t => t.language === currentLanguage);
+  
+    const handleTranslationChange = (value: string) => {
+      setTranslations(prev => {
+        const existing = prev.find(t => t.language === currentLanguage);
+  
+        if (existing) {
+          return prev.map(t =>
+            t.language === currentLanguage ? { ...t, content: value } : t
+          );
+        }
+  
+        // If not found, create a new translation
+        return [
+          ...prev,
+          {
+            language: currentLanguage,
+            content: value,
+            postId: '',
+            title: post.title || '',
+            excerpt: post.excerpt || '',
+            customFieldsData: post.customFieldsData || {},
+          },
+        ];
+      });
+    };
+
+    return (
+      <div style={paddingStyle}>
+        <FormGroup>
+          <ControlLabel required={true}>{__('Content')}</ControlLabel>
+          <RichTextEditor
+            content={translation?.content || ''}
+            onChange={handleTranslationChange}
+            height="vh-100"
+            name={`post_${currentLanguage}_translation`}
+          />
+        </FormGroup>
       </div>
     );
   };
 
   return (
     <Wrapper
-      header={<Wrapper.Header title={'name'} breadcrumb={breadcrumb} />}
+      header={<Wrapper.Header title={'Post'} breadcrumb={breadcrumb} />}
       mainHead={renderHeader()}
-      // actionBar={}
       leftSidebar={
         <LeftSideBar
           post={post}
+          website={website}
+          currentLanguage={currentLanguage}
+          translations={translations}
+          setTranslations={setTranslations}
           onChange={onChange}
           clientPortalId={clientPortalId}
         />
@@ -160,7 +235,7 @@ const PostForm = (props: Props) => {
           clientPortalId={clientPortalId}
         />
       }
-      content={content}
+      content={content()}
       transparent={true}
     />
   );
