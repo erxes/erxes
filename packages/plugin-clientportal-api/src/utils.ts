@@ -774,9 +774,17 @@ export const fetchUserFromToki = async (
     throw new Error('Toki api key is not set');
   }
 
+  const testApiUrl = 'qams-api.toki.mn';
+  const prodApiUrl = 'ms-api.toki.mn';
+
   const apiKey = clientPortal.tokiConfig.apiKey;
+
+  const apiUrl = clientPortal.tokiConfig.production
+    ? prodApiUrl
+    : testApiUrl;
+
   return await fetch(
-    'https://ms-api.toki.mn/third-party-service/v1/shoppy/user',
+    `https://${apiUrl}/third-party-service/v1/shoppy/user`,
     {
       method: 'GET',
       headers: {

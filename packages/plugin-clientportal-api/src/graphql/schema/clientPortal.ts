@@ -187,6 +187,7 @@ ${
     apiKey: String
     username: String
     password: String
+    production: Boolean
   }
 
   type ClientPortal {

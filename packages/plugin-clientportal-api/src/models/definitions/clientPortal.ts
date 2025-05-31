@@ -28,6 +28,7 @@ export interface ITokiConfig {
   apiKey: string;
   username: string;
   password: string;
+  production?: boolean;
 }
 
 export interface IMailConfig {
