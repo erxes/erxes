@@ -597,6 +597,7 @@ function General({
       merchantId: '',
       username: '',
       password: '',
+      production: false,
     };
 
     const handleChange = (e) => {
@@ -657,6 +658,19 @@ function General({
               name='password'
               value={config.password}
               onChange={handleChange}
+            />
+          </FlexContent>
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Production</ControlLabel>
+
+          <FlexContent>
+            <FormControl
+              id='production'
+              name='production'
+              checked={config.production}
+              onChange={handleChange}
+              componentclass='checkbox'
             />
           </FlexContent>
         </FormGroup>

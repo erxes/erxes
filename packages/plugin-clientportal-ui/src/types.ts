@@ -145,6 +145,7 @@ export type TokiConfig = {
   apiKey: string;
   username: string;
   password: string;
+  production?: boolean;
 };
 
 export type ClientPortalConfig = {
