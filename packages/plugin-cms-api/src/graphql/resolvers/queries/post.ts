@@ -1,6 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
 
 import { IContext, IModels } from '../../../connectionResolver';
+import { sendCommonMessage } from '../../../messageBroker';
 
 export const queryBuilder = async (args: any, models: IModels) => {
   let query: any = {
@@ -63,28 +64,72 @@ const queries = {
     args: any,
     context: IContext
   ): Promise<any> => {
-    const { models } = context;
+    const { models, subdomain } = context;
     const {
       page = 1,
       perPage = 20,
       sortField = 'publishedDate',
       sortDirection = 'asc',
+      language,
     } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
 
     const query = await queryBuilder({ ...args, clientPortalId }, models);
 
-    return paginate(
+    const posts = await paginate(
       models.Posts.find(query).sort({ [sortField]: sortDirection }),
       { page, perPage }
     );
+
+    if (!language) {
+      return posts;
+    }
+
+    const config = await sendCommonMessage({
+      subdomain,
+      serviceName: 'clientPortal',
+      action: 'clientPortals.findOne',
+      data: { _id: clientPortalId },
+      isRPC: true,
+      defaultValue: null,
+    });
+
+    if (!config) {
+      return posts;
+    }
+
+    if (config.language === language) {
+      return posts;
+    }
+
+    const postIds = posts.map((post) => post._id);
+
+    const translations = await models.PostTranslations.find({
+      postId: { $in: postIds },
+      language,
+    }).lean();
+
+    const translationsMap = translations.reduce((acc, translation) => {
+      acc[translation.postId.toString()] = translation;
+      return acc;
+    }, {});
+
+    const postsWithTranslations = posts.map((post) => {
+      const translation = translationsMap[post._id.toString()];
+      return {
+        ...post,
+        translation: translation || null,
+      };
+    });
+
+    return postsWithTranslations;
   },
 
   /**
    * Cms post
    */
   cmsPost: async (_parent: any, args: any, context: IContext): Promise<any> => {
-    const { models, clientPortalId } = context;
+    const { models, clientPortalId, subdomain } = context;
     const { _id, slug, language } = args;
 
     if (!_id && !slug) {
@@ -105,23 +150,41 @@ const queries = {
       return null;
     }
 
-    if (language) {
-      const translation = await models.PostTranslations.findOne({
-        postId: post._id,
-        language,
-      }).lean()
+    if (!language) {
+      return post;
+    }
 
+    const config = await sendCommonMessage({
+      subdomain,
+      serviceName: 'clientPortal',
+      action: 'clientPortals.findOne',
+      data: { _id: clientPortalId },
+      isRPC: true,
+      defaultValue: null,
+    });
 
-      if (translation) {
-        Object.assign(post, {
-          ...(translation.title && { title: translation.title }),
-          ...(translation.excerpt && { excerpt: translation.excerpt }),
-          ...(translation.content && { content: translation.content }),
-          ...(translation.customFieldsData && {
-            customFieldsData: translation.customFieldsData,
-          }),
-        });
-      }
+    if (!config) {
+      return post;
+    }
+
+    if (config.language === language) {
+      return post;
+    }
+
+    const translation = await models.PostTranslations.findOne({
+      postId: post._id,
+      language,
+    }).lean();
+
+    if (translation) {
+      Object.assign(post, {
+        ...(translation.title && { title: translation.title }),
+        ...(translation.excerpt && { excerpt: translation.excerpt }),
+        ...(translation.content && { content: translation.content }),
+        ...(translation.customFieldsData && {
+          customFieldsData: translation.customFieldsData,
+        }),
+      });
     }
     return post;
   },
@@ -134,12 +197,13 @@ const queries = {
     args: any,
     context: IContext
   ): Promise<any> => {
-    const { models } = context;
+    const { models, subdomain } = context;
     const {
       page = 1,
       perPage = 20,
       sortField = 'publishedDate',
       sortDirection = 'desc',
+      language,
     } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
 
@@ -153,8 +217,54 @@ const queries = {
     );
 
     const totalPages = Math.ceil(totalCount / perPage);
+    const response = { totalCount, totalPages, currentPage: page, posts };
+    if (!language) {
+      return response;
+    }
 
-    return { totalCount, totalPages, currentPage: page, posts };
+    const config = await sendCommonMessage({
+      subdomain,
+      serviceName: 'clientPortal',
+      action: 'clientPortals.findOne',
+      data: { _id: clientPortalId },
+      isRPC: true,
+      defaultValue: null,
+    });
+
+    if (!config) {
+      return response;
+    }
+
+    if (config.language === language) {
+      return response;
+    }
+
+    const postIds = posts.map((post) => post._id);
+
+    const translations = await models.PostTranslations.find({
+      postId: { $in: postIds },
+      language,
+    }).lean();
+
+    const translationsMap = translations.reduce((acc, translation) => {
+      acc[translation.postId.toString()] = translation;
+      return acc;
+    }, {});
+
+    const postsWithTranslations = posts.map((post) => {
+      const translation = translationsMap[post._id.toString()];
+      return {
+        ...post,
+        translation: translation || null,
+      };
+    });
+
+    return {
+      totalCount,
+      totalPages,
+      currentPage: page,
+      posts: postsWithTranslations,
+    };
   },
 
   cmsPostTranslations: async (
