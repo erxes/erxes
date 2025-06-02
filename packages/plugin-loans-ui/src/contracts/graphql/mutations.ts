@@ -289,9 +289,5 @@ export default {
   changeClassification,
   stopInterest,
   interestChange,
-  interestReturn,
-  sendSaving,
-  syncLoanCollateral,
-  sendLoanSchedules,
-  loanContractActive,
+  interestReturn
 };

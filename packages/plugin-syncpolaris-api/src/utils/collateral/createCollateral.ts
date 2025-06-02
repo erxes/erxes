@@ -1,3 +1,4 @@
+import { generateModels } from '../../connectionResolver';
 import { sendCoreMessage } from '../../messageBroker';
 import {
   customFieldToObject,
@@ -19,9 +20,23 @@ export const createCollateral = async (
   const loan = data.contract;
   let collateralObj;
 
+  const models = await generateModels(subdomain);
+
   const collateral = loan.collateralsData?.[0];
   if (!collateral) return;
   let collateralRes;
+
+  const syncLogDoc = {
+    type: '',
+    contentType: 'loans:contract',
+    contentId: collateral.collateralId,
+    createdAt: new Date(),
+    createdBy: '',
+    consumeData: collateral,
+    consumeStr: JSON.stringify(collateral)
+  };
+
+  let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
   const branch = await getBranch(subdomain, loan.branchId);
 
@@ -99,11 +114,19 @@ export const createCollateral = async (
       subdomain,
       op: '13610900',
       data: [sendData],
-      polarisConfig
+      models,
+      polarisConfig,
+      syncLog
     });
 
     if (collateralRes.acntCode) {
-      await openCollateral(subdomain, polarisConfig, collateralRes.acntCode);
+      await openCollateral(
+        subdomain,
+        polarisConfig,
+        models,
+        syncLog,
+        collateralRes.acntCode
+      );
       await sendCoreMessage({
         subdomain,
         action: 'products.updateProduct',
@@ -125,11 +148,17 @@ export const createCollateral = async (
     : collateralObj.acntCode;
 
   if (integrationCode) {
-    const result = await integrateCollateralToLoan(subdomain, polarisConfig, {
-      code: integrationCode,
-      amount: collateral.marginAmount,
-      loanNumber: loan.number
-    });
+    const result = await integrateCollateralToLoan(
+      subdomain,
+      polarisConfig,
+      models,
+      syncLog,
+      {
+        code: integrationCode,
+        amount: collateral.marginAmount,
+        loanNumber: loan.number
+      }
+    );
 
     if (result) {
       await updateContract(

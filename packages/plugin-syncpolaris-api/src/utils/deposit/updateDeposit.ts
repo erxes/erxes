@@ -2,7 +2,7 @@ import {
   fetchPolaris,
   getBranch,
   getProduct,
-  sendMessageBrokerData,
+  sendMessageBrokerData
 } from '../utils';
 import { IPolarisUpdateDeposit } from './types';
 import { validateUpdateDepositObject } from './validator';
@@ -12,10 +12,8 @@ export const updateDeposit = async (
   models,
   polarisConfig,
   syncLog,
-  params
+  deposit
 ) => {
-  const deposit = params.data;
-
   const savingProduct = await getProduct(
     subdomain,
     deposit.contractTypeId,
@@ -94,7 +92,7 @@ export const updateDeposit = async (
     statusSysName: 'Шинэ',
     passbookFacility: 0,
     totalBal: 0,
-    odClassNo: 1,
+    odClassNo: 1
   };
 
   await validateUpdateDepositObject(sendData);

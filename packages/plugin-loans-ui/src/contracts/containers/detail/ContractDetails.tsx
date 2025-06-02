@@ -12,10 +12,7 @@ import {
   DetailQueryResponse,
   EditMutationResponse,
   IContractDoc,
-  RegenSchedulesMutationResponse,
-  SendLoansMutationResponse,
-  SendSchedulesMutationResponse,
-  SyncLoanCollateralsMutationResponse,
+  RegenSchedulesMutationResponse
 } from '../../types';
 import { useMutation, useQuery } from '@apollo/client';
 import subscriptions from '../../graphql/subscriptions';
@@ -34,8 +31,8 @@ const ContractDetailsContainer = (props: FinalProps) => {
     gql(queries.contractDetail),
     {
       variables: {
-        _id: id,
-      },
+        _id: id
+      }
     }
   );
 
@@ -46,28 +43,28 @@ const ContractDetailsContainer = (props: FinalProps) => {
       updateQuery: (prev) => {
         contractDetailQuery.refetch();
         return prev;
-      },
+      }
     });
   }, []);
 
   const [contractsEdit] = useMutation<EditMutationResponse>(
     gql(mutations.contractsEdit),
     {
-      refetchQueries: ['contractDetail'],
+      refetchQueries: ['contractDetail']
     }
   );
 
   const [regenSchedules] = useMutation<RegenSchedulesMutationResponse>(
     gql(mutations.regenSchedules),
     {
-      refetchQueries: ['schedules', 'scheduleYears'],
+      refetchQueries: ['schedules', 'scheduleYears']
     }
   );
 
   const [fixSchedules] = useMutation<RegenSchedulesMutationResponse>(
     gql(mutations.fixSchedules),
     {
-      refetchQueries: ['schedules', 'scheduleYears'],
+      refetchQueries: ['schedules', 'scheduleYears']
     }
   );
 
@@ -182,11 +179,7 @@ const ContractDetailsContainer = (props: FinalProps) => {
     currentUser,
     saveItem,
     regenSchedules: regenSchedulesHandler,
-    fixSchedules: fixSchedulesHandler,
-    reSendContract: regenPolarisHandler,
-    reSendCollateral: syncCollateralHandler,
-    reSendSchedules: sendSchedulesHandler,
-    activeLoan: activeLoanHandler,
+    fixSchedules: fixSchedulesHandler
   };
 
   return <ContractDetails {...updatedProps} />;

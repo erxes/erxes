@@ -2,28 +2,28 @@ import { Box, Table } from '@erxes/ui/src';
 import { __ } from 'coreui/utils';
 import React from 'react';
 
-import { ContractsTableWrapper, ScrollTableColls } from '../../styles';
+import { ContractsTableWrapper, ScrollTableColls } from '../styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import confirm from '@erxes/ui/src/utils/confirmation/confirm';
 import Alert from '@erxes/ui/src/utils/Alert';
-import { IContractDoc } from '../../types';
+import { IContractDoc } from '../types';
 
 type Props = {
   contract: IContractDoc;
-  activeLoan: (contractNumber: string) => void;
+  reSendSchedules: (data: any) => void;
 };
 
-function LoanActive({ contract, activeLoan }: Props) {
+function ScheduleSection({ contract, reSendSchedules }: Props) {
   const onSendSchedules = () =>
-    confirm(__('Are you sure Active Loan?'))
-      .then(() => activeLoan(contract.number))
+    confirm(__('Are you sure Send Schedules?'))
+      .then(() => reSendSchedules(contract))
       .catch((error) => {
         Alert.error(error.message);
       });
 
   const renderExtraButton = () => {
     return (
-      <button onClick={onSendSchedules} title="active loan">
+      <button onClick={onSendSchedules} title="send schedule">
         <Icon icon="refresh-1" />
       </button>
     );
@@ -31,7 +31,7 @@ function LoanActive({ contract, activeLoan }: Props) {
 
   return (
     <Box
-      title={__('Active loan')}
+      title={__('Sync Schedules')}
       name="showPolaris"
       isOpen={true}
       extraButtons={renderExtraButton()}
@@ -41,20 +41,16 @@ function LoanActive({ contract, activeLoan }: Props) {
           <Table>
             <thead>
               <tr>
-                <th>{__('Is Active Contract')}</th>
-                <th>{__('Polaris Contract number')}</th>
+                <th>{__('Is Sync Schedule')}</th>
               </tr>
             </thead>
 
-            {contract.isActiveLoan ? (
+            {contract.isSyncedSchedules && (
               <tbody id="schedules">
                 <tr>
-                  <td>{contract?.isActiveLoan && 'Activated Loan'}</td>
-                  <td>{contract?.number && 'Activated Loan'}</td>
+                  <td>{contract?.isSyncedSchedules && 'Synced Schedule'}</td>
                 </tr>
               </tbody>
-            ) : (
-              ''
             )}
           </Table>
         </ContractsTableWrapper>
@@ -63,4 +59,4 @@ function LoanActive({ contract, activeLoan }: Props) {
   );
 }
 
-export default LoanActive;
+export default ScheduleSection;

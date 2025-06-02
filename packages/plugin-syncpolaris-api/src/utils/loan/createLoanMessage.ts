@@ -7,13 +7,14 @@ import {
   updateContract,
   sendMessageBrokerData,
   getProduct,
-  getPurpose,
+  getPurpose
 } from '../utils';
 import { createSavingLoan } from './createSavingLoan';
+import { IPolarisLoan } from './types';
 import { updateLoan } from './updateLoan';
+import { validateLoanObject } from './validator';
 
-export const createLoanMessage = async (subdomain, polarisConfig, params) => {
-  const loan = params.data;
+export const createLoanMessage = async (subdomain, polarisConfig, loan) => {
   let result;
 
   if (
@@ -31,24 +32,28 @@ export const createLoanMessage = async (subdomain, polarisConfig, params) => {
   const syncLogDoc = {
     type: '',
     contentType: 'loans:contract',
-    contentId: params.data._id,
+    contentId: loan._id,
     createdAt: new Date(),
     createdBy: '',
-    consumeData: params.data,
-    consumeStr: JSON.stringify(params.data),
+    consumeData: loan,
+    consumeStr: JSON.stringify(loan)
   };
 
   const preSuccessValue = await models.SyncLogs.findOne({
     contentType: 'loans:contract',
-    contentId: params.data._id,
+    contentId: loan._id,
     error: { $exists: false },
-    responseData: { $exists: true, $ne: null },
+    responseData: { $exists: true, $ne: null }
   }).sort({ createdAt: -1 });
 
   let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
+  if (preSuccessValue) {
+    return await updateLoan(subdomain, models, polarisConfig, syncLog, loan);
+  }
+
   if (loan.leaseType === 'saving')
-    return await createSavingLoan(subdomain, polarisConfig, params);
+    return await createSavingLoan(subdomain, polarisConfig, loan);
 
   const customer = await sendMessageBrokerData(
     subdomain,
@@ -67,7 +72,7 @@ export const createLoanMessage = async (subdomain, polarisConfig, params) => {
 
   const subPurpose = await getPurpose(subdomain, loan.loanPurpose, 'loans');
 
-  let sendData: any = {
+  let sendData: IPolarisLoan = {
     custCode: customer.code,
     name: `${customer.firstName} ${customer.lastName}`,
     name2: `${customer.firstName} ${customer.lastName}`,
@@ -101,12 +106,10 @@ export const createLoanMessage = async (subdomain, polarisConfig, params) => {
     notSendToCib: 0,
     losMultiAcnt: 0,
     validLosAcnt: 1,
-    secType: 0,
+    secType: 0
   };
 
-  if (preSuccessValue) {
-    return await updateLoan(subdomain, models, polarisConfig, syncLog, params);
-  }
+  await validateLoanObject(sendData);
 
   if (!preSuccessValue) {
     if (
@@ -124,7 +127,7 @@ export const createLoanMessage = async (subdomain, polarisConfig, params) => {
         subdomain,
         models,
         polarisConfig,
-        syncLog,
+        syncLog
       });
     }
 

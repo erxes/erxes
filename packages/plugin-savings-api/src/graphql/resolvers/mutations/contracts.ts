@@ -1,7 +1,7 @@
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import {
   IContract,
-  IContractDocument,
+  IContractDocument
 } from '../../../models/definitions/contracts';
 import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
@@ -13,8 +13,8 @@ import { sendMessageBroker } from '../../../messageBroker';
 export const savingsContractChanged = async (contract: IContractDocument) => {
   graphqlPubsub.publish('savingsContractChanged', {
     savingsContractChanged: {
-      ...contract,
-    },
+      ...contract
+    }
   });
 };
 

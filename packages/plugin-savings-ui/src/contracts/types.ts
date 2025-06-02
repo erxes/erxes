@@ -1,6 +1,6 @@
 import {
   IActivityLog,
-  IActivityLogForMonth,
+  IActivityLogForMonth
 } from '@erxes/ui-log/src/activityLogs/types';
 
 import { ITransaction } from '../transactions/types';

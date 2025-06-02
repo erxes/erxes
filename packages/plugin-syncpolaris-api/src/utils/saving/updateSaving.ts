@@ -5,16 +5,17 @@ import {
   sendMessageBrokerData
 } from '../utils';
 import { getDate } from './getDate';
+import { IPolarisUpdateSaving } from './types';
+import { validateUpdateSavingObject } from './validator';
 
 export const updateSaving = async (
   subdomain: string,
   models,
   polarisConfig,
   syncLog,
-  params,
+  savingContract,
   user
 ) => {
-  const savingContract = params.data;
   let updateData;
 
   const savingProduct = await sendMessageBrokerData(
@@ -58,7 +59,7 @@ export const updateSaving = async (
       ? customerAccount[0].acntCode
       : '';
 
-  let sendData = {
+  let sendData: IPolarisUpdateSaving = {
     operCode: '13610286',
     acntCode: savingContract.number,
     name: `${customer.firstName} ${customer.lastName}`,
@@ -105,6 +106,8 @@ export const updateSaving = async (
     jointOrSingleStr: '0',
     repayPriority: 0
   };
+
+  await validateUpdateSavingObject(sendData);
 
   if (
     savingProduct?.code &&
