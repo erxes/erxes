@@ -195,7 +195,7 @@ export const setupMessageConsumers = async () => {
             if (updatedQueues) {
               requestBody.callQueues = updatedQueues;
             }
-
+            console.log(requestBody, 'requestBody');
             await fetch(`${ENDPOINT_URL}/update-endpoint`, {
               method: 'POST',
               body: JSON.stringify(requestBody),

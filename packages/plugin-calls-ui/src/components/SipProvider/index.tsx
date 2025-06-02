@@ -55,25 +55,25 @@ export default class SipProvider extends React.Component<
     debug: boolean;
     children: any;
     callUserIntegration: ICallConfigDoc;
-    createSession: () => void;
-    updateHistory: (
-      timeStamp: number,
-      callStartTime: Date,
-      callEndTime: Date,
-      callStatus: string,
-      direction: string,
-      customerPhone: string,
-      diversionHeader?: string,
-      endedBy?: string,
-    ) => void;
-    addHistory: (
-      callStatus: string,
-      timeStamp: number,
-      direction: string,
-      customerPhone: string,
-      callStartTime: Date,
-      queueName: string | null,
-    ) => void;
+    // createSession: () => void;
+    // updateHistory: (
+    //   timeStamp: number,
+    //   callStartTime: Date,
+    //   callEndTime: Date,
+    //   callStatus: string,
+    //   direction: string,
+    //   customerPhone: string,
+    //   diversionHeader?: string,
+    //   endedBy?: string,
+    // ) => void;
+    // addHistory: (
+    //   callStatus: string,
+    //   timeStamp: number,
+    //   direction: string,
+    //   customerPhone: string,
+    //   callStartTime: Date,
+    //   queueName: string | null,
+    // ) => void;
   },
   {
     sipStatus: SipStatus;
@@ -695,7 +695,7 @@ export default class SipProvider extends React.Component<
             return;
           }
           console.log('failed:', e);
-          const { updateHistory } = this.props;
+          // const { updateHistory } = this.props;
           const { rtcSession: session } = this.state;
 
           if (this.state.callDirection) {
@@ -707,18 +707,18 @@ export default class SipProvider extends React.Component<
               this.state.callCounterpart,
             );
           }
-          if (updateHistory && session) {
-            updateHistory(
-              timeStamp,
-              session.start_time,
-              session.end_time,
-              'cancelled',
-              direction,
-              customerPhone,
-              diversionHeader || '',
-              e.originator,
-            );
-          }
+          // if (updateHistory && session) {
+          //   updateHistory(
+          //     timeStamp,
+          //     session.start_time,
+          //     session.end_time,
+          //     'cancelled',
+          //     direction,
+          //     customerPhone,
+          //     diversionHeader || '',
+          //     e.originator,
+          //   );
+          // }
           this.setState({
             rtcSession: null,
             callStatus: CALL_STATUS_IDLE,
@@ -740,7 +740,7 @@ export default class SipProvider extends React.Component<
             this.playHangupTone();
           }
           console.log('ended:', data);
-          const { updateHistory } = this.props;
+          // const { updateHistory } = this.props;
           const { rtcSession: session } = this.state;
 
           if (this.state.callDirection) {
@@ -752,18 +752,18 @@ export default class SipProvider extends React.Component<
               this.state.callCounterpart,
             );
           }
-          if (updateHistory && session) {
-            updateHistory(
-              timeStamp,
-              session.start_time,
-              session.end_time,
-              'connected',
-              direction,
-              customerPhone,
-              diversionHeader || '',
-              data.originator,
-            );
-          }
+          // if (updateHistory && session) {
+          //   updateHistory(
+          //     timeStamp,
+          //     session.start_time,
+          //     session.end_time,
+          //     'connected',
+          //     direction,
+          //     customerPhone,
+          //     diversionHeader || '',
+          //     data.originator,
+          //   );
+          //}
           this.setState({
             rtcSession: null,
             callStatus: CALL_STATUS_IDLE,
@@ -794,17 +794,17 @@ export default class SipProvider extends React.Component<
           if (this.ua !== ua) {
             return;
           }
-          const { updateHistory } = this.props;
-          const { rtcSession: session } = this.state;
+          // const { updateHistory } = this.props;
+          // const { rtcSession: session } = this.state;
 
-          if (updateHistory && session) {
-            updateHistory(
-              timeStamp,
-              session.start_time,
-              session.end_time,
-              'rejected',
-            );
-          }
+          // if (updateHistory && session) {
+          //   updateHistory(
+          //     timeStamp,
+          //     session.start_time,
+          //     session.end_time,
+          //     'rejected',
+          //   );
+          // }
 
           this.setState({
             rtcSession: null,
@@ -822,7 +822,7 @@ export default class SipProvider extends React.Component<
           if (this.ua !== ua) {
             return;
           }
-          const { addHistory } = this.props;
+          // const { addHistory } = this.props;
 
           if (this.state.callDirection) {
             direction = this.state.callDirection.split('/')[1];
@@ -834,16 +834,6 @@ export default class SipProvider extends React.Component<
             );
           }
 
-          if (addHistory) {
-            addHistory(
-              'active',
-              timeStamp,
-              direction,
-              customerPhone,
-              this.state.rtcSession.start_time,
-              this.state.groupName,
-            );
-          }
           if (originator === 'remote') {
             [this.remoteAudio.srcObject] =
               rtcSession.connection.getRemoteStreams();

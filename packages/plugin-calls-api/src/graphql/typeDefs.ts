@@ -135,15 +135,19 @@ const queries = `
   callQueueMemberList(integrationId: String!, queue: String!): JSON
   `;
 
+//old mutations
+
+//callTerminateSession: JSON
+//callDisconnect: String
+//callHistoryAdd(${commonHistoryFields}, queueName: String): CallHistory
+//callHistoryEdit(_id: String,${commonHistoryFields}): String
+//callHistoryEditStatus(callStatus: String, timeStamp: Float): String
+
 const mutations = `
   callsIntegrationUpdate(configs: CallIntegrationConfigs): JSON
   callAddCustomer(inboxIntegrationId: String, primaryPhone: String, queueName: String): CallConversationDetail
   callUpdateActiveSession: JSON
-  callTerminateSession: JSON
-  callDisconnect: String
-  callHistoryAdd(${commonHistoryFields}, queueName: String): CallHistory
-  callHistoryEdit(_id: String,${commonHistoryFields}): String
-  callHistoryEditStatus(callStatus: String, timeStamp: Float): String
+  
   callHistoryRemove(_id: String!): JSON
   callsUpdateConfigs(configsMap: JSON!): JSON
   callsPauseAgent(status: String!, integrationId: String!): String

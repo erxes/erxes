@@ -70,6 +70,8 @@ export const getOrCreateCdr = async (
   operatorPhone: string,
 ) => {
   const { AcctId: acctId } = cdrParams;
+  console.log('get cdr///', acctId, customer);
+
   if (!acctId) {
     throw new Error('AcctId is required');
   }
