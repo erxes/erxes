@@ -2,8 +2,6 @@ import { generateModels } from './connectionResolver';
 import { createCustomer } from './utils/customer/createCustomer';
 import { getCustomerFromPolaris } from './utils/customer/getCustomerDetail';
 import { updateCustomer } from './utils/customer/updateCustomer';
-import { createDeposit } from './utils/deposit/createDeposit';
-import { updateDeposit } from './utils/deposit/updateDeposit';
 import { createChangeClassification } from './utils/loan/changeClassification';
 import { createLoan } from './utils/loan/createLoan';
 import { createLoanGive } from './utils/loan/loanGive';
@@ -21,9 +19,9 @@ const allowTypes = {
   //deposit
   // "savings:transaction": ["create"],
   //saving
-  'savings:contract': ['create', 'update'],
+  // 'savings:contract': ['create', 'update'],
   //loan
-  'loans:contract': ['create', 'update'],
+  // 'loans:contract': ['create', 'update'],
   // "loans:classification": ["create"],
   // "loans:transaction": ["create"]
 };
@@ -189,15 +187,6 @@ const savingContractMethod = async (
 ) => {
   if (action === 'create' || action === 'update') {
     if (!preSuccessValue) {
-      if (params.object.isDeposit === true) {
-        return await createDeposit(
-          subdomain,
-          models,
-          polarisConfig,
-          syncLog,
-          params
-        );
-      }
       return await createSaving(
         subdomain,
         models,
@@ -207,15 +196,6 @@ const savingContractMethod = async (
       );
     }
 
-    if (params.object.isDeposit === true) {
-      return await updateDeposit(
-        subdomain,
-        models,
-        polarisConfig,
-        syncLog,
-        params
-      );
-    }
     return await updateSaving(
       subdomain,
       models,

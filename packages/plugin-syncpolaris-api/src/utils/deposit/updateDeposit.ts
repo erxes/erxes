@@ -1,86 +1,103 @@
 import {
-  customFieldToObject,
   fetchPolaris,
-  genObjectOfRule,
+  getBranch,
   getProduct,
-  updateContract,
+  sendMessageBrokerData
 } from '../utils';
-import { IPolarisDeposit } from './types';
-import { validateDepositObject } from './validator';
+import { IPolarisUpdateDeposit } from './types';
+import { validateUpdateDepositObject } from './validator';
 
-function setValue(value) {
-  switch (value) {
-    case 'No':
-      return 'N';
-    case 'Yes':
-      return 'Y';
-    case 'Тийм':
-      return '1';
-    case 'Үгүй':
-      return '0';
-    case 'JOINT':
-      return 'J';
-    case 'SINGLE':
-      return 'S';
-    case 'өөр лүүгээ олгоно':
-      return '0';
-    case 'өөр CASA данс руу олгоно':
-      return '1';
-    case 'хугацаат хадгаламж руу олгоно':
-      return '2';
-    default:
-      return '';
-  }
-}
-
-export const updateDeposit = async (subdomain: string, models, polarisConfig, syncLog, params) => {
-  const deposit = params.updatedDocument || params.object;
-
-  const objectCus = await customFieldToObject(
-    subdomain,
-    'savings:contract',
-    deposit,
-  );
+export const updateDeposit = async (
+  subdomain: string,
+  models,
+  polarisConfig,
+  syncLog,
+  deposit
+) => {
   const savingProduct = await getProduct(
     subdomain,
     deposit.contractTypeId,
-    'savings',
+    'savings'
   );
 
-  const dataOfRules = await genObjectOfRule(
-    subdomain,
-    "savings:contract",
-    deposit,
-    (polarisConfig.deposit && polarisConfig.deposit[deposit.contractTypeId || ''] || {}).values || {}
-  )
+  const branch = await getBranch(subdomain, deposit.branchId);
 
-  let sendData: IPolarisDeposit = {
-    acntType: objectCus.acntType,
+  const customer = await sendMessageBrokerData(
+    subdomain,
+    'core',
+    'customers.findOne',
+    { _id: deposit.customerId }
+  );
+
+  let sendData: IPolarisUpdateDeposit = {
+    corporateAcnt: 'N',
+    capAcntSysNo: '1305',
+    jointOrSingle: 'S',
+    salaryAcnt: '0',
+    flagNoDebit: 0,
+    flagNoCredit: 0,
+    statusProd: 1,
+    sysNo: '1305',
+    statusSys: 'N',
+    slevel: 1,
+    capMethod: '0',
+    paymtDefault: 0,
+    classNoTrm: 1,
+    acntCode: deposit.number,
+    statusSysName2: 'New',
+    readName: 1,
+    totalAvailBal: 0,
+    lastSeqTxn: 0,
+    crntBal: 0,
+    prodName: savingProduct.name,
+    flagStoppedPayment: 0,
+    companyCode: '30',
+    acntManagerName: '221',
+    acntManager: 131,
+    readTran: 1,
+    flagFrozen: 0,
+    odBal: 0,
+    name: `${customer.firstName} ${customer.lastName}`,
+    name2: `${customer.firstName} ${customer.lastName}`,
+    custType: 1,
+    modifiedDate: new Date(),
+    flagDormant: 0,
+    createdDatetime: new Date(deposit.createdAt),
+    odType: 'OD',
+    doTran: 1,
+    brchCode: branch.code,
+    odTypeName: 'Улайлт үүснэ',
+    readDetail: 1,
+    modifiedDatetime: new Date(),
+    flagStopped: 0,
+    custName2: `${customer.firstName} ${customer.lastName}`,
+    prodName2: savingProduct.name,
+    acntType: 'CA',
+    modifiedBy: 131,
+    curCode: deposit.currency,
+    classNoQlt: 1,
+    brchName: branch.title,
+    dailyBasisCode: 'ACTUAL/364',
+    isSecure: 0,
+    monthlyWdCount: 0,
+    custName: `${customer.firstName} ${customer.lastName}`,
+    flagStoppedInt: 0,
+    custCode: customer.code,
+    availBal: 0,
     prodCode: savingProduct.code,
-    brchCode: 'deposit.brchCode',
-    curCode: savingProduct.currency,
-    custCode: '',
-    name: deposit.number,
-    name2: deposit.number,
-    slevel: objectCus.slevel,
-    jointOrSingle: setValue(objectCus.jointOrSingle),
-    dormancyDate: objectCus.dormancyDate,
-    statusDate: objectCus.statusDate,
-    flagNoCredit: setValue(objectCus.flagNoCredit),
-    flagNoDebit: setValue(objectCus.flagNoCredit),
-    salaryAcnt: setValue(objectCus.salaryAcnt),
-    corporateAcnt: setValue(objectCus.corporateAcnt),
-    capAcntCode: objectCus.capAcntCode,
-    capMethod: setValue(objectCus.capMethod),
-    segCode: objectCus.segCode,
-    paymtDefault: setValue(objectCus.paymtDefault),
-    odType: objectCus.odType,
-    ...dataOfRules
+    readBal: 1,
+    createdDate: new Date(deposit.createdAt),
+    segCode: '32',
+    createdBy: 131,
+    statusSysName: 'Шинэ',
+    passbookFacility: 0,
+    totalBal: 0,
+    odClassNo: 1
   };
 
-  await validateDepositObject(sendData);
+  await validateUpdateDepositObject(sendData);
 
-  const depositCode = await fetchPolaris({
+  const updateDeposit = await fetchPolaris({
     subdomain,
     op: '13610021',
     data: [sendData],
@@ -89,12 +106,5 @@ export const updateDeposit = async (subdomain: string, models, polarisConfig, sy
     syncLog
   });
 
-  if (typeof depositCode === 'string') {
-    await updateContract(
-      subdomain,
-      { _id: deposit._id },
-      { $set: { number: depositCode } },
-      'savings',
-    );
-  }
+  return updateDeposit;
 };

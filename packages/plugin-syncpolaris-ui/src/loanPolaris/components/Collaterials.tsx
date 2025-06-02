@@ -1,7 +1,7 @@
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
 import query from '../../graphql/queries';
-import { IContract } from '../../types';
+import { IContract } from '../types';
 import { Table } from '@erxes/ui/src';
 import { __ } from 'coreui/utils';
 
@@ -13,8 +13,8 @@ function CollateralsInfo(props: IProps) {
   const { data } = useQuery<any>(gql(query.getPolarisData), {
     variables: {
       method: 'getLoanCollaterals',
-      data: { number: props.contract.number },
-    },
+      data: { number: props.contract.number }
+    }
   });
   return (
     <Table>
