@@ -45,6 +45,8 @@ import {
   loadScoreCampaignClass,
 } from './models/ScoreCampaigns';
 import { IScoreCampaignDocuments } from './models/definitions/scoreCampaigns';
+import { IAgentModel, loadAgentClass } from './models/Agents';
+import { IAgentDocument } from './models/definitions/agents';
 
 import { ICouponCampaignDocument } from './models/definitions/couponCampaigns';
 import { ICouponCampaignModel, loadCouponCampaignClass } from './models/CouponCampaigns';
@@ -65,6 +67,7 @@ export interface IModels {
   Lotteries: ILotteryModel;
   ScoreLogs: IScoreLogModel;
   ScoreCampaigns: IScoreCampaignModel;
+  Agents: IAgentModel;
   CouponCampaigns: ICouponCampaignModel;
   Coupons: ICouponModel;
 }
@@ -143,6 +146,8 @@ export const loadClasses = (
     'coupons',
     loadCouponClass(models, subdomain),
   );
+
+  models.Agents = db.model<IAgentDocument, IAgentModel>('agents', loadAgentClass(models, subdomain));
 
   return models;
 };

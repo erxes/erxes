@@ -1,21 +1,21 @@
 import {
   checkPermission,
-  requireLogin,
-} from "@erxes/api-utils/src/permissions";
-import { afterQueryWrapper, paginate } from "@erxes/api-utils/src";
-import { escapeRegExp } from "@erxes/api-utils/src/core";
-import { IContext, IModels } from "../../../connectionResolver";
-import { sendSalesMessage } from "../../../messageBroker";
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
+import { afterQueryWrapper, paginate } from '@erxes/api-utils/src';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
+import { IContext, IModels } from '../../../connectionResolver';
+import { sendSalesMessage } from '../../../messageBroker';
 import {
   getSimilaritiesProducts,
-  getSimilaritiesProductsCount,
-} from "../../../maskUtils";
+  getSimilaritiesProductsCount
+} from '../../../maskUtils';
 import {
   ProductQueriesBuilder,
   countBySegmentProduct,
-  countByTagProduct,
-} from "../../modules/product/productUtils";
-import { PRODUCT_STATUSES } from "../../../db/models/definitions/products";
+  countByTagProduct
+} from '../../modules/product/productUtils';
+import { PRODUCT_STATUSES } from '../../../db/models/definitions/products';
 
 interface IQueryParams {
   ids?: string[];
@@ -40,6 +40,7 @@ interface IQueryParams {
   segmentData?: string;
   groupedSimilarity?: string;
   image?: string;
+  bundleId?: string;
 }
 
 const generateFilter = async (
@@ -64,6 +65,7 @@ const generateFilter = async (
     segment,
     segmentData,
     image,
+    bundleId
   } = params;
   const filter: any = commonQuerySelector;
   const andFilters: any[] = [];
@@ -79,19 +81,24 @@ const generateFilter = async (
   }
 
   if (pipelineId) {
-    const pipeline = await sendSalesMessage({
-      subdomain,
-      action: 'pipelines.findOne',
-      data: { _id: pipelineId },
-      isRPC: true,
-      defaultValue: {}
-    }) ?? {};
+    const pipeline =
+      (await sendSalesMessage({
+        subdomain,
+        action: 'pipelines.findOne',
+        data: { _id: pipelineId },
+        isRPC: true,
+        defaultValue: {}
+      })) ?? {};
 
     if (pipeline.initialCategoryIds?.length) {
-      let incCategories = await models.ProductCategories.getChildCategories(pipeline.initialCategoryIds);
+      let incCategories = await models.ProductCategories.getChildCategories(
+        pipeline.initialCategoryIds
+      );
 
       if (pipeline.excludeCategoryIds?.length) {
-        const excCategories = await models.ProductCategories.getChildCategories(pipeline.initialCategoryIds);
+        const excCategories = await models.ProductCategories.getChildCategories(
+          pipeline.initialCategoryIds
+        );
         const excCatIds = excCategories.map(c => c._id);
         incCategories = incCategories.filter(c => !excCatIds.includes(c._id));
       }
@@ -99,26 +106,29 @@ const generateFilter = async (
       andFilters.push({ categoryId: { $in: incCategories.map(c => c._id) } });
 
       if (pipeline.excludeProductIds?.length) {
-        andFilters.push({ _id: { $nin: pipeline.excludeProductIds } })
+        andFilters.push({ _id: { $nin: pipeline.excludeProductIds } });
       }
     }
   }
 
-
   if (categoryId) {
-    let categories = await models.ProductCategories.getChildCategories([categoryId]);
-    const catIds = categories.map(c => c._id)
+    let categories = await models.ProductCategories.getChildCategories([
+      categoryId
+    ]);
+    const catIds = categories.map(c => c._id);
     andFilters.push({ categoryId: { $in: catIds } });
   } else {
     const notActiveCategories = await models.ProductCategories.find({
-      status: { $nin: [null, "active"] },
+      status: { $nin: [null, 'active'] }
     });
 
-    andFilters.push({ categoryId: { $nin: notActiveCategories.map((e) => e._id) } });
+    andFilters.push({
+      categoryId: { $nin: notActiveCategories.map(e => e._id) }
+    });
   }
 
   if (ids && ids.length > 0) {
-    filter._id = { [excludeIds ? "$nin" : "$in"]: ids };
+    filter._id = { [excludeIds ? '$nin' : '$in']: ids };
   }
 
   if (tag) {
@@ -131,8 +141,8 @@ const generateFilter = async (
     if (tagWithRelated) {
       const tagObjs = await models.Tags.find({ _id: { $in: tagIds } }).lean();
       tagObjs.forEach(tag => {
-        tagIds = tagIds.concat(tag.relatedIds || [])
-      })
+        tagIds = tagIds.concat(tag.relatedIds || []);
+      });
     }
 
     andFilters.push({ tagIds: { $in: tagIds } });
@@ -144,8 +154,8 @@ const generateFilter = async (
     if (tagWithRelated) {
       const tagObjs = await models.Tags.find({ _id: { $in: tagIds } }).lean();
       tagObjs.forEach(tag => {
-        tagIds = tagIds.concat(tag.relatedIds || [])
-      })
+        tagIds = tagIds.concat(tag.relatedIds || []);
+      });
     }
 
     andFilters.push({ tagIds: { $nin: tagIds } });
@@ -153,17 +163,17 @@ const generateFilter = async (
 
   // search =========
   if (searchValue) {
-    const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, "i");
+    const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
 
     let codeFilter = { code: { $in: [regex] } };
     if (
-      searchValue.includes(".") ||
-      searchValue.includes("_") ||
-      searchValue.includes("*")
+      searchValue.includes('.') ||
+      searchValue.includes('_') ||
+      searchValue.includes('*')
     ) {
       const codeRegex = new RegExp(
-        `^${searchValue.replace(/\*/g, ".").replace(/_/g, ".")}$`,
-        "igu"
+        `^${searchValue.replace(/\*/g, '.').replace(/_/g, '.')}$`,
+        'igu'
       );
       codeFilter = { code: { $in: [codeRegex] } };
     }
@@ -171,7 +181,7 @@ const generateFilter = async (
     filter.$or = [
       codeFilter,
       { name: { $in: [regex] } },
-      { barcodes: { $in: [searchValue] } },
+      { barcodes: { $in: [searchValue] } }
     ];
   }
 
@@ -187,7 +197,7 @@ const generateFilter = async (
 
     const { list } = await qb.runQueries();
 
-    filter._id = { $in: list.map((l) => l._id) };
+    filter._id = { $in: list.map(l => l._id) };
   }
 
   if (vendorId) {
@@ -199,9 +209,12 @@ const generateFilter = async (
   }
 
   if (image) {
-    filter['attachment.url'] = image === 'hasImage' ? { $exists: true } : { $exists: false }
+    filter['attachment.url'] =
+      image === 'hasImage' ? { $exists: true } : { $exists: false };
   }
-
+  if (bundleId) {
+    filter.bundleId = bundleId;
+  }
   return { ...filter, ...(andFilters.length ? { $and: andFilters } : {}) };
 };
 
@@ -213,12 +226,12 @@ const generateFilterCat = async ({
   meta,
   brand,
   status,
-  ids,
+  ids
 }) => {
   const filter: any = {};
-  filter.status = { $nin: ["disabled", "archived"] };
+  filter.status = { $nin: ['disabled', 'archived'] };
 
-  if (status && status !== "active") {
+  if (status && status !== 'active') {
     filter.status = status;
   }
 
@@ -227,7 +240,7 @@ const generateFilterCat = async ({
       const category = await (
         models as IModels
       ).ProductCategories.getProductCategory({
-        _id: parentId,
+        _id: parentId
       });
 
       const relatedCategoryIds = (
@@ -235,7 +248,7 @@ const generateFilterCat = async ({
           { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
           { _id: 1 }
         ).lean()
-      ).map((c) => c._id);
+      ).map(c => c._id);
 
       filter.parentId = { $in: relatedCategoryIds };
     } else {
@@ -256,7 +269,7 @@ const generateFilterCat = async ({
   }
 
   if (searchValue) {
-    filter.name = new RegExp(`.*${searchValue}.*`, "i");
+    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
   }
 
   if (ids?.length > 0) {
@@ -309,7 +322,7 @@ const productQueries = {
 
     return afterQueryWrapper(
       subdomain,
-      "products",
+      'products',
       params,
       await paginate(
         models.Products.find(filter).sort(sort).lean(),
@@ -350,25 +363,25 @@ const productQueries = {
   ) {
     const counts = {
       bySegment: {},
-      byTag: {},
+      byTag: {}
     };
 
     const { only } = params;
 
     const qb = new ProductQueriesBuilder(models, subdomain, params, {
       commonQuerySelector,
-      commonQuerySelectorElk,
+      commonQuerySelectorElk
     });
 
     switch (only) {
-      case "byTag":
-        counts.byTag = await countByTagProduct(models, "core:product", qb);
+      case 'byTag':
+        counts.byTag = await countByTagProduct(models, 'core:product', qb);
         break;
 
-      case "bySegment":
+      case 'bySegment':
         counts.bySegment = await countBySegmentProduct(
           models,
-          "core:product",
+          'core:product',
           qb
         );
         break;
@@ -386,13 +399,15 @@ const productQueries = {
 
     if (groupedSimilarity === 'config') {
       const getRegex = str => {
-        return ['*', '.', '_'].includes(str) ? new RegExp(
-          `^${str
-            .replace(/\./g, '\\.')
-            .replace(/\*/g, '.')
-            .replace(/_/g, '.')}.*`,
-          'igu',
-        ) : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
+        return ['*', '.', '_'].includes(str)
+          ? new RegExp(
+              `^${str
+                .replace(/\./g, '\\.')
+                .replace(/\*/g, '.')
+                .replace(/_/g, '.')}.*`,
+              'igu'
+            )
+          : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
       const similarityGroups =
@@ -487,10 +502,9 @@ const productQueries = {
         ]
       };
 
-      let products = await models.Products.find(filters)
-        .sort({ code: 1 });
+      let products = await models.Products.find(filters).sort({ code: 1 });
       if (!products.length) {
-        products = [product]
+        products = [product];
       }
       return {
         products,
@@ -524,7 +538,7 @@ const productQueries = {
 
     return {
       products: await models.Products.find(filters).sort({ code: 1 }),
-      groups,
+      groups
     };
   },
 
@@ -541,7 +555,7 @@ const productQueries = {
       searchValue,
       brand,
       meta,
-      ids,
+      ids
     });
 
     const sortParams: any = { order: 1 };
@@ -562,7 +576,7 @@ const productQueries = {
       status,
       brand,
       meta,
-      ids,
+      ids
     });
     return models.ProductCategories.find(filter).countDocuments();
   },
@@ -582,12 +596,12 @@ const productQueries = {
   async productCountByTags(_root, _params, { models, subdomain }: IContext) {
     const counts = {};
 
-    const tags = await models.Tags.find({ type: "core:product" }).lean();
+    const tags = await models.Tags.find({ type: 'core:product' }).lean();
 
     for (const tag of tags) {
       counts[tag._id] = await models.Products.find({
         tagIds: tag._id,
-        status: { $ne: PRODUCT_STATUSES.DELETED },
+        status: { $ne: PRODUCT_STATUSES.DELETED }
       }).countDocuments();
     }
 
@@ -612,7 +626,7 @@ const productQueries = {
       page,
       perPage,
       pipelineId,
-      excludeStageIds,
+      excludeStageIds
     } = params;
 
     const pagintationArgs = { page, perPage };
@@ -632,28 +646,26 @@ const productQueries = {
     if (pipelineId) {
       const allStages = await sendSalesMessage({
         subdomain,
-        action: "stages.find",
+        action: 'stages.find',
         data: { pipelineId },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
-      const allStageIds = allStages.map((s) => s._id);
+      const allStageIds = allStages.map(s => s._id);
 
       const deals = await sendSalesMessage({
         subdomain,
-        action: "deals.find",
+        action: 'deals.find',
         data: {
           stageId: {
-            $in: allStageIds.filter(
-              (s) => !(excludeStageIds || []).includes(s)
-            ),
+            $in: allStageIds.filter(s => !(excludeStageIds || []).includes(s))
           },
-          status: { $in: ["active", ""] },
-          "productsData.productId": { $in: products.map((p) => p._id) },
+          status: { $in: ['active', ''] },
+          'productsData.productId': { $in: products.map(p => p._id) }
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       for (const deal of deals) {
@@ -671,18 +683,18 @@ const productQueries = {
     }
 
     return products;
-  },
+  }
 };
 
-requireLogin(productQueries, "productsTotalCount");
-checkPermission(productQueries, "products", "showProducts", []);
+requireLogin(productQueries, 'productsTotalCount');
+checkPermission(productQueries, 'products', 'showProducts', []);
 checkPermission(
   productQueries,
-  "productsCheckUsedPipeline",
-  "showProducts",
+  'productsCheckUsedPipeline',
+  'showProducts',
   []
 );
-checkPermission(productQueries, "productCategories", "showProducts", []);
-checkPermission(productQueries, "productCountByTags", "showProducts", []);
+checkPermission(productQueries, 'productCategories', 'showProducts', []);
+checkPermission(productQueries, 'productCountByTags', 'showProducts', []);
 
 export default productQueries;
