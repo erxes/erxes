@@ -1,17 +1,18 @@
 import clientPortal from './clientPortal';
-import clientPortalUser from './clientPortalUser';
-import clientPOrtalUserPost from './clientPortalUserPost';
-import clientPortalMutations from './clientPortalNotifications';
+import { clientPortalUserMutations, userMutations } from './clientPortalUser';
+import clientPortalUserPost from './clientPortalUserPost';
+import notificationMutations from './clientPortalNotifications';
 import comment from './comment';
 import fieldConfig from './fieldConfig';
 import vercel from './vercel';
 
 export default {
   ...clientPortal,
-  ...clientPortalUser,
-  ...clientPortalMutations,
+  ...clientPortalUserMutations,
+  ...userMutations,
+  ...notificationMutations,
   ...comment,
   ...fieldConfig,
-  ...clientPOrtalUserPost,
-  ...vercel
+  ...clientPortalUserPost,
+  ...vercel,
 };
