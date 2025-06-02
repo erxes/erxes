@@ -21,6 +21,13 @@ const SyncSavingsData = `
   }
 `;
 
+const getPolarisData = `
+  query getPolarisData($method: String, $data: JSON) {
+    getPolarisData(method: $method, data: $data)
+  }
+`;
+
 export default {
   SyncSavingsData,
+  getPolarisData
 };

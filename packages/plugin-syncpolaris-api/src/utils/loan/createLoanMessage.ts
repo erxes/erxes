@@ -3,13 +3,13 @@ import {
   getBranch,
   getUser,
   fetchPolaris,
-  getFullDate,
   updateContract,
   sendMessageBrokerData,
   getProduct,
   getPurpose
 } from '../utils';
 import { createSavingLoan } from './createSavingLoan';
+import { getDate } from './getDate';
 import { IPolarisLoan } from './types';
 import { updateLoan } from './updateLoan';
 import { validateLoanObject } from './validator';
@@ -72,6 +72,12 @@ export const createLoanMessage = async (subdomain, polarisConfig, loan) => {
 
   const subPurpose = await getPurpose(subdomain, loan.loanPurpose, 'loans');
 
+  const systemDate = await getDate(subdomain, polarisConfig);
+
+  const endDate = new Date(systemDate).setMonth(
+    new Date(systemDate).getMonth() + loan.duration
+  );
+
   let sendData: IPolarisLoan = {
     custCode: customer.code,
     name: `${customer.firstName} ${customer.lastName}`,
@@ -86,11 +92,11 @@ export const createLoanMessage = async (subdomain, polarisConfig, loan) => {
     curCode: loan.currency,
     approvAmount: loan.leaseAmount,
     impairmentPer: 0,
-    approvDate: getFullDate(loan.startDate),
+    approvDate: systemDate,
     acntManager: leasingExpert?.employeeId,
     brchCode: branch?.code,
-    startDate: getFullDate(loan.startDate),
-    endDate: getFullDate(loan.endDate),
+    startDate: systemDate,
+    endDate: new Date(endDate),
     termLen: loan.tenor,
     IsGetBrchFromOutside: '0',
     segCode: '1',

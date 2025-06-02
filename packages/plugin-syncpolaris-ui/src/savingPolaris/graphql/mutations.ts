@@ -22,9 +22,16 @@ const depositActive = `
   }
 `;
 
+const syncSavingTransactions = `
+  mutation depositContractActive($contractNumber: String!) {
+    depositContractActive(contractNumber: $contractNumber)
+  }
+`;
+
 export default {
   sendSaving,
   savingActive,
   sendDeposit,
   depositActive,
+  syncSavingTransactions
 };

@@ -1,19 +1,35 @@
+import { generateModels } from '../../connectionResolver';
 import { incomeDeposit } from '../deposit/incomeDeposit';
-import { fetchPolaris, getContract } from '../utils';
+import {
+  customFieldToObject,
+  fetchPolaris,
+  getContract,
+  getCustomer,
+  getDepositAccount
+} from '../utils';
 
-export const incomeSaving = async (
-  subdomain,
-  models,
-  polarisConfig,
-  syncLog,
-  params
-) => {
-  const savingTransactionParams = params.updatedDocument || params.object;
+export const incomeSaving = async (subdomain, polarisConfig, params) => {
   let transaction;
+
+  console.log(params, 'params');
+
+  const models = await generateModels(subdomain);
+
+  const syncLogDoc = {
+    type: '',
+    contentType: 'savings:transaction',
+    contentId: params._id,
+    createdAt: new Date(),
+    createdBy: '',
+    consumeData: params,
+    consumeStr: JSON.stringify(params)
+  };
+
+  let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
   const savingContract = await getContract(
     subdomain,
-    { _id: savingTransactionParams.contractId },
+    { _id: params.contractId },
     'savings'
   );
 
@@ -25,42 +41,50 @@ export const incomeSaving = async (
     return await incomeDeposit(subdomain, polarisConfig, params);
   }
 
+  const customer = await getCustomer(subdomain, params.customerId);
+
+  const customerData = await customFieldToObject(
+    subdomain,
+    'core:customer',
+    customer
+  );
+
+  const depositAccount = await getDepositAccount(subdomain, params.customerId);
+
+  console.log(depositAccount, 'depositAccount');
+
   let sendData = {
-    operCode: '13610015',
-    txnAcntCode: savingContract.number,
-    txnAmount: savingTransactionParams.total,
+    txnAcntCode: '300021000045',
+    txnAmount: 6500,
     rate: 1,
-    rateTypeId: null,
-    contAmount: savingTransactionParams.total,
+    contAcntCode: savingContract.number,
+    contAmount: 6500,
     contRate: 1,
-    contCurCode: savingTransactionParams.currency ?? 'MNT',
-    txnDesc: savingTransactionParams.description ?? 'test',
-    banknotes: [],
-    changeBanknotes: [],
+    rateTypeId: '16',
+    txnDesc: params?.description || 'shiljuuleg',
+    tcustRegister: customerData?.registerCode || '',
+    tcustRegisterMask: '3',
     sourceType: 'TLLR',
+    refNo: '662',
     isPreview: 0,
     isPreviewFee: null,
-    isTmw: 1,
-    aspParam: [
-      [
-        {
-          acntCode: savingContract.number,
-          acntType: 'INCOME',
-        },
-      ],
-    ],
+    isTmw: 1
   };
 
-  if (savingContract?.number && savingTransactionParams?.total != null) {
-    transaction = await fetchPolaris({
-      op: '13610015',
-      data: [sendData],
-      subdomain,
-      models,
-      polarisConfig,
-      syncLog,
-    });
-  }
+  console.log(sendData, 'sendData');
 
-  return transaction;
+  // if (savingContract?.number && params?.total != null) {
+  //   transaction = await fetchPolaris({
+  //     op: '13610055',
+  //     data: [sendData],
+  //     subdomain,
+  //     models,
+  //     polarisConfig,
+  //     syncLog
+  //   });
+  // }
+
+  // console.log(transaction, 'transaction');
+
+  // return transaction;
 };

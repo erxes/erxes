@@ -2,6 +2,7 @@ import { IContext } from '../../../connectionResolver';
 import { getConfig } from '../../../utils/utils';
 import { createSavingMessage } from '../../../utils/saving/createSavingMessage';
 import { activeSaving } from '../../../utils/saving/activeSaving';
+import { incomeSaving } from '../../../utils/saving/incomeSaving';
 
 const checkMutations = {
   async sendSaving(
@@ -32,6 +33,22 @@ const checkMutations = {
     }
 
     await activeSaving(subdomain, config, contractNumber);
+
+    return 'success';
+  },
+
+  async sendSavingAmount(
+    _root,
+    { data }: { data: any },
+    { subdomain }: IContext
+  ) {
+    const config = await getConfig(subdomain, 'POLARIS', {});
+
+    if (!config.token) {
+      throw new Error('POLARIS config not found.');
+    }
+
+    await incomeSaving(subdomain, config, data);
 
     return 'success';
   }

@@ -4,6 +4,7 @@ import { activeLoan } from '../../../utils/loan/activeLoan';
 import { createLoanMessage } from '../../../utils/loan/createLoanMessage';
 import { createCollateral } from '../../../utils/collateral/createCollateral';
 import { createLoanSchedule } from '../../../utils/loan/createSchedule';
+import { createLoanGive } from '../../../utils/loan/loanGive';
 
 const loansMutations = {
   async sendContractToPolaris(
@@ -66,6 +67,22 @@ const loansMutations = {
     }
 
     await activeLoan(subdomain, config, contractNumber);
+
+    return 'success';
+  },
+
+  async sendLoanAmount(
+    _root,
+    { data }: { data: any },
+    { subdomain }: IContext
+  ) {
+    const config = await getConfig(subdomain, 'POLARIS', {});
+
+    if (!config.token) {
+      throw new Error('POLARIS config not found.');
+    }
+
+    await createLoanGive(subdomain, config, data);
 
     return 'success';
   }

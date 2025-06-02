@@ -3,9 +3,11 @@ export const mutations = `
   toSyncPolaris( items: [JSON],type: String): JSON
   sendSaving(data: JSON): JSON
   savingContractActive(contractNumber: String!): String
+  sendSavingAmount(data: JSON): JSON
 
   sendContractToPolaris(data: JSON): JSON
   syncLoanCollateral(data: JSON): JSON
   sendLoanSchedules(data: JSON): JSON
   loanContractActive(contractNumber: String!): JSON
+  sendLoanAmount(data: JSON): JSON
 `;
