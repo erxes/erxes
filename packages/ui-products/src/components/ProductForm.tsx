@@ -470,12 +470,11 @@ const Form = (props: Props) => {
     }));
   };
   const onChangeBundle = option => {
-    console.log("option", option);
     const value = option?.value;
 
     setState(prevState => ({
       ...prevState,
-      bundleId: value || ""
+      bundleId: value || undefined
     }));
   };
   const onChangeBrand = (brandIds: string[]) => {

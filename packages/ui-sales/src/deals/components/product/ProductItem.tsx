@@ -10,7 +10,7 @@ import {
   IDealBundleItem,
   IDiscountValue,
   IProductData,
-  dealsProductDataMutationParams,
+  dealsProductDataMutationParams
 } from "../../types";
 
 import { gql } from "@apollo/client";
@@ -116,7 +116,7 @@ class ProductItem extends React.Component<Props, State> {
       calculatePerProductAmount,
       dealQuery,
       dealsEditProductData,
-      productData,
+      productData
     } = this.props;
 
     if (productsData) {
@@ -161,7 +161,7 @@ class ProductItem extends React.Component<Props, State> {
         proccessId: localStorage.getItem("proccessId") || "",
         dealId: dealQuery._id || "",
         dataId: productData._id,
-        doc: productData,
+        doc: productData
       });
     }, 1000);
   };
@@ -306,7 +306,7 @@ class ProductItem extends React.Component<Props, State> {
       );
     };
 
-    const content = (props) => (
+    const content = props => (
       <ProductChooser
         {...props}
         onSelect={productOnChange}
@@ -345,7 +345,7 @@ class ProductItem extends React.Component<Props, State> {
       this.props.productData._id
     );
 
-  onChange = (e) => {
+  onChange = e => {
     const target = e.target as HTMLInputElement;
     let value: any = target.value;
 
@@ -501,7 +501,6 @@ class ProductItem extends React.Component<Props, State> {
       menuPortal: base => ({ ...base, zIndex: 9999 }),
       menu: base => ({ ...base, zIndex: 9999 })
     };
-    console.log("productData", productData);
     return (
       <tr key={productData._id}>
         <td>{this.renderType(productData.product)}</td>
@@ -527,7 +526,7 @@ class ProductItem extends React.Component<Props, State> {
             type: "number",
             placeholder: "0",
             name: "unitPrice",
-            onChange: this.onChange,
+            onChange: this.onChange
           })}
         </td>
         <td>
@@ -538,7 +537,7 @@ class ProductItem extends React.Component<Props, State> {
             max: 100,
             placeholder: "0",
             name: "discountPercent",
-            onChange: this.onChange,
+            onChange: this.onChange
           })}
         </td>
         <td>
@@ -547,7 +546,7 @@ class ProductItem extends React.Component<Props, State> {
             type: "number",
             placeholder: "0",
             name: "discount",
-            onChange: this.onChange,
+            onChange: this.onChange
           })}
         </td>
         <td style={avStyle}>
