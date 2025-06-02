@@ -382,6 +382,7 @@ export const clientPortalSchema = new Schema({
       apiKey: field({ type: String, optional: true }),
       username: field({ type: String, optional: true }),
       password: field({ type: String, optional: true }),
+      production: field({ type: Boolean, optional: true }),
     },
     optional: true,
   }),
