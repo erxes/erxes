@@ -102,28 +102,46 @@ export const getOrCreateCdr = async (
     createdAt: new Date(),
   });
   await createdCdr.save();
+
   if (cdrParams?.lastapp !== 'ForkCDR') {
     try {
-      const oldCdr = await models.Cdrs.findOne({
-        uniqueid: cdrParams.uniqueid,
-        conversationId: { $exists: true, $ne: '' },
-      });
+      const { userfield, dst, src, action_type } = cdrParams;
 
+      console.log(cdrParams, 'cdrParams');
+      const primaryPhone =
+        userfield === 'Outbound' && !action_type.includes('FOLLOWME')
+          ? dst
+          : src;
+
+      // Find existing conversation for this phone number
+      let existingConversation = await models.Cdrs.findOne({
+        $or: [{ src: primaryPhone }, { dst: primaryPhone }],
+        conversationId: { $exists: true, $ne: '' },
+        inboxIntegrationId: inboxId,
+      }).sort({ createdAt: -1 });
+
+      let conversationId = '';
+
+      if (existingConversation && existingConversation.conversationId) {
+        // Use existing conversation
+        conversationId = existingConversation.conversationId;
+        console.log(
+          'Using existing conversation:',
+          conversationId,
+          'for phone:',
+          primaryPhone,
+        );
+      }
+
+      // Create new conversation only if none exists for this phone number
       const conversationPayload = {
         customerId: customer?.erxesApiId,
         integrationId: inboxId,
         content: cdrParams.disposition || '',
-        conversationId: oldCdr?.conversationId || '',
+        conversationId,
         updatedAt: new Date(),
         owner: operatorPhone || '',
       };
-
-      if (oldCdr) {
-        await models.Cdrs.updateOne(
-          { _id: oldCdr._id, conversationId: { $exists: true, $ne: '' } },
-          { $set: { conversationId: '' } },
-        );
-      }
 
       const apiConversationResponse = await sendInboxMessage({
         subdomain,
@@ -135,9 +153,19 @@ export const getOrCreateCdr = async (
         isRPC: true,
       });
 
-      createdCdr.conversationId = apiConversationResponse._id;
+      conversationId = apiConversationResponse._id;
+      console.log(
+        'Created new conversation:',
+        conversationId,
+        'for phone:',
+        primaryPhone,
+      );
+
+      // Update current CDR with conversation ID
+      createdCdr.conversationId = conversationId;
       await createdCdr.save();
 
+      // Send message to update conversation
       await sendInboxMessage({
         subdomain,
         action: 'conversationClientMessageInserted',
@@ -146,10 +174,10 @@ export const getOrCreateCdr = async (
           conversationId: createdCdr.conversationId,
         },
       });
+
       await saveRecordUrl(createdCdr, models, inboxId, subdomain);
     } catch (error) {
       await models.Cdrs.deleteOne({ _id: createdCdr._id });
-
       throw new Error(`Failed to update conversation: ${error.message}`);
     }
   }

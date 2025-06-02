@@ -87,7 +87,6 @@ const initApp = async () => {
   // init bots
   app.post('/call/cdrReceive', async (req, res) => {
     try {
-      // console.log(req, 'req');
       const data = JSON.parse(JSON.stringify(req.body));
       const subdomain = getSubdomain(req);
 

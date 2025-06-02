@@ -770,7 +770,7 @@ export const checkForExistingIntegrations = async (
         );
 
   const models = await generateModels(subdomain);
-
+  console.log(details, 'details');
   // Check for existing integrations with the same wsServer and overlapping queues
   const existingIntegrations = await models.Integrations.find({
     wsServer: details.wsServer, // Match same wsServer
