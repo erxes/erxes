@@ -87,7 +87,7 @@ const queries = {
 
     const config = await sendCommonMessage({
       subdomain,
-      serviceName: 'clientPortal',
+      serviceName: 'clientportal',
       action: 'clientPortals.findOne',
       data: { _id: clientPortalId },
       isRPC: true,
@@ -116,10 +116,12 @@ const queries = {
 
     const postsWithTranslations = posts.map((post) => {
       const translation = translationsMap[post._id.toString()];
-      return {
-        ...post,
-        translation: translation || null,
-      };
+      post.title = translation?.title || post.title;
+      post.excerpt = translation?.excerpt || post.excerpt;
+      post.content = translation?.content || post.content;
+      post.customFieldsData = translation?.customFieldsData || post.customFieldsData;
+
+      return post;
     });
 
     return postsWithTranslations;
@@ -156,7 +158,7 @@ const queries = {
 
     const config = await sendCommonMessage({
       subdomain,
-      serviceName: 'clientPortal',
+      serviceName: 'clientportal',
       action: 'clientPortals.findOne',
       data: { _id: clientPortalId },
       isRPC: true,
@@ -224,7 +226,7 @@ const queries = {
 
     const config = await sendCommonMessage({
       subdomain,
-      serviceName: 'clientPortal',
+      serviceName: 'clientportal',
       action: 'clientPortals.findOne',
       data: { _id: clientPortalId },
       isRPC: true,
@@ -253,17 +255,19 @@ const queries = {
 
     const postsWithTranslations = posts.map((post) => {
       const translation = translationsMap[post._id.toString()];
-      return {
-        ...post,
-        translation: translation || null,
-      };
+      post.title = translation?.title || post.title;
+      post.excerpt = translation?.excerpt || post.excerpt;
+      post.content = translation?.content || post.content;
+      post.customFieldsData = translation?.customFieldsData || post.customFieldsData;
+
+      return post;
     });
 
     return {
       totalCount,
       totalPages,
       currentPage: page,
-      posts: postsWithTranslations,
+      posts: postsWithTranslations.map((post) => post),
     };
   },
 
