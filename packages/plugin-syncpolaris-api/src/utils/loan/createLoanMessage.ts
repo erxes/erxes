@@ -10,7 +10,9 @@ import {
   getPurpose
 } from '../utils';
 import { createSavingLoan } from './createSavingLoan';
+import { IPolarisLoan } from './types';
 import { updateLoan } from './updateLoan';
+import { validateLoanObject } from './validator';
 
 export const createLoanMessage = async (subdomain, polarisConfig, loan) => {
   let result;
@@ -46,6 +48,10 @@ export const createLoanMessage = async (subdomain, polarisConfig, loan) => {
 
   let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
+  if (preSuccessValue) {
+    return await updateLoan(subdomain, models, polarisConfig, syncLog, loan);
+  }
+
   if (loan.leaseType === 'saving')
     return await createSavingLoan(subdomain, polarisConfig, loan);
 
@@ -66,7 +72,7 @@ export const createLoanMessage = async (subdomain, polarisConfig, loan) => {
 
   const subPurpose = await getPurpose(subdomain, loan.loanPurpose, 'loans');
 
-  let sendData: any = {
+  let sendData: IPolarisLoan = {
     custCode: customer.code,
     name: `${customer.firstName} ${customer.lastName}`,
     name2: `${customer.firstName} ${customer.lastName}`,
@@ -103,9 +109,7 @@ export const createLoanMessage = async (subdomain, polarisConfig, loan) => {
     secType: 0
   };
 
-  if (preSuccessValue) {
-    return await updateLoan(subdomain, models, polarisConfig, syncLog, loan);
-  }
+  await validateLoanObject(sendData);
 
   if (!preSuccessValue) {
     if (
