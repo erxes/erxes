@@ -72,9 +72,15 @@ const syncHistoriesCountPolaris = `
   }
 `;
 
+const getPolarisData = `
+  query getPolarisData($method: String, $data: JSON) {
+    getPolarisData(method: $method, data: $data)
+  }
+`;
+
 export default {
   configs,
   syncHistoriesPolaris,
   syncHistoriesCountPolaris,
-  
+  getPolarisData
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
-import query from '../../graphql/queries';
-import { IContract } from '../../types';
+import query from '../graphql/queries';
+import { IContract } from '../types';
 import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src';
 
 interface IProps {
@@ -12,8 +12,8 @@ function LoanInfo(props: IProps) {
   const { data } = useQuery<any>(gql(query.getPolarisData), {
     variables: {
       method: 'getLoanDetail',
-      data: { number: props.contract.number },
-    },
+      data: { number: props.contract.number }
+    }
   });
 
   const renderRow = (label, value) => {

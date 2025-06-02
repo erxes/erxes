@@ -47,6 +47,8 @@ export const types = () => `
     customFieldsData: JSON
     blockAmount: Float
     remainAmount: Float
+    isSyncedPolaris: Boolean
+    isActiveSaving: Boolean
   }
 
   type SavingCloseInfo {

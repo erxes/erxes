@@ -265,5 +265,5 @@ export default {
   changeClassification,
   stopInterest,
   interestChange,
-  interestReturn,
+  interestReturn
 };
