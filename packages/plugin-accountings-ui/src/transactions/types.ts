@@ -80,7 +80,7 @@ export interface ITransaction {
   modifiedBy?: string;
 
   createdAt?: Date;
-  modifiedAt?: Date;
+  updatedAt?: Date;
 
   followInfos?: any;
 

@@ -22,7 +22,7 @@ export interface ICtaxRow {
   formula: string;
   formula_text: string;
   status: string;
-  percent: number;
+  percent: number;  
 }
 
 export interface ICtaxRowDocument extends ICtaxRow, Document {

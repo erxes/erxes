@@ -29,7 +29,7 @@ export interface IPermissionDocument
   Document {
   _id: string;
   createdAt: Date;
-  modifiedAt: Date;
+  updatedAt: Date;
 }
 
 // Mongoose schemas ===========
@@ -45,5 +45,5 @@ export const permissionSchema = new Schema({
     default: ACCOUNT_PERM_LEVELS.READ
   }),
   createdAt: field({ type: Date }),
-  modifiedAt: field({ type: Date })
+  updatedAt: field({ type: Date })
 });

@@ -29,7 +29,7 @@ export interface IAdjustInvDetail extends IAdjustInvDetailParamsId {
 export interface IAdjustInvDetailDocument extends IAdjustInvDetail, Document {
   _id: string;
   createdAt: Date;
-  modifiedAt: Date;
+  updatedAt: Date;
 }
 
 export interface IAdjustInventory extends ICommonAdjusting {
@@ -44,7 +44,7 @@ export interface IAdjustInventory extends ICommonAdjusting {
 
   createdAt?: Date;
   createdBy?: string;
-  modifiedAt?: Date;
+  updatedAt?: Date;
   modifiedBy?: string;
 }
 
@@ -52,7 +52,7 @@ export interface IAdjustInventoryDocument extends IAdjustInventory, Document {
   _id: string;
   createdAt: Date;
   createdBy: string;
-  modifiedAt: Date;
+  updatedAt: Date;
   modifiedBy: string;
 }
 
@@ -79,7 +79,7 @@ export const adjustInvDetailsSchema = schemaWrapper(
     error: field({ type: String, optional: true, label: 'error' }),
     warning: field({ type: String, optional: true, label: 'warning' }),
     createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
-    modifiedAt: field({ type: Date, optional: true, label: 'Modified at' }),
+    updatedAt: field({ type: Date, optional: true, label: 'Modified at' }),
   })
 );
 
@@ -97,6 +97,6 @@ export const adjustInventoriesSchema = schemaWrapper(
     createdBy: field({ type: String, label: 'Created user' }),
     modifiedBy: field({ type: String, optional: true, label: 'Modified user' }),
     createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
-    modifiedAt: field({ type: Date, optional: true, label: 'Modified at' }),
+    updatedAt: field({ type: Date, optional: true, label: 'Modified at' }),
   }),
 );

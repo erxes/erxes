@@ -18,7 +18,7 @@ export const loadAdjustInventoriesClass = (models: IModels, subdomain: string) =
     public static async getAdjustInventory(_id: string) {
       const adjusting = await models.AdjustInventories.findOne({ _id }).lean();
       if (!adjusting) {
-        throw new Error('Accounting not found');
+        throw new Error('Adjusting not found');
       }
       return adjusting;
     }
@@ -30,7 +30,7 @@ export const loadAdjustInventoriesClass = (models: IModels, subdomain: string) =
 
     public static async updateAdjustInventory(_id: string, doc: IAdjustInventory) {
       const adjusting = await models.AdjustInventories.getAdjustInventory(_id);
-      await models.AdjustInventories.updateOne({ _id }, { $set: { ...doc, modifiedAt: new Date() } });
+      await models.AdjustInventories.updateOne({ _id }, { $set: { ...doc, updatedAt: new Date() } });
       return await models.AdjustInventories.getAdjustInventory(_id);
     }
 
@@ -146,7 +146,7 @@ export const loadAdjustInvDetailsClass = (models: IModels, subdomain: string) =>
         await models.AdjustInvDetails.updateOne({ _id: adjustDetail._id }, {
           $set: {
             ...adjustDetail,
-            modifiedAt: new Date(),
+            updatedAt: new Date(),
             remainder,
             cost,
             unitCost,
