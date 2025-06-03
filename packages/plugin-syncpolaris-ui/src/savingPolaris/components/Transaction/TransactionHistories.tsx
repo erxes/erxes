@@ -1,10 +1,8 @@
-import { Box } from '@erxes/ui/src';
+import { Box, Table } from '@erxes/ui/src';
 import { __ } from 'coreui/utils';
 import React from 'react';
-import { Table } from '@erxes/ui/src';
 
-import { ContractsTableWrapper } from '../../styles';
-import { ScrollTableColls } from '../../styles';
+import { ContractsTableWrapper, ScrollTableColls } from '../../styles';
 import { IContractDoc } from '../../types';
 
 type Props = {

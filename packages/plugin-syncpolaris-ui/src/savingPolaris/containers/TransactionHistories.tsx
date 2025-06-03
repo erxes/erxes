@@ -2,10 +2,9 @@ import React from 'react';
 import { IContractDoc, savingHistoryQueryResponse } from '../types';
 import { queries } from '../graphql';
 
-import { gql } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import { Spinner } from '@erxes/ui/src';
 
-import { useQuery } from '@apollo/client';
 import Transaction from '../components/Transaction/TransactionHistories';
 
 type Props = {

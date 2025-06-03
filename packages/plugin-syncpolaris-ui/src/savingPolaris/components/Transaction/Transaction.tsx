@@ -1,11 +1,14 @@
-import { Box } from '@erxes/ui/src';
+import { Box, Table } from '@erxes/ui/src';
 import { __ } from 'coreui/utils';
 import React from 'react';
-import { Table } from '@erxes/ui/src';
 import dayjs from 'dayjs';
 
-import { ContractsTableWrapper, DidAmount, ExtraRow } from '../../styles';
-import { ScrollTableColls } from '../../styles';
+import {
+  ContractsTableWrapper,
+  DidAmount,
+  ExtraRow,
+  ScrollTableColls
+} from '../../styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import confirm from '@erxes/ui/src/utils/confirmation/confirm';
 import Alert from '@erxes/ui/src/utils/Alert';
@@ -42,11 +45,7 @@ function Transaction({ contract, sentTransaction, sendDepositTr }: Props) {
   };
 
   const renderCell = (transaction, name) => {
-    return (
-      <>
-        <DidAmount> {(transaction[name] || 0).toLocaleString()}</DidAmount>
-      </>
-    );
+    return <DidAmount> {(transaction[name] || 0).toLocaleString()}</DidAmount>;
   };
 
   return (
