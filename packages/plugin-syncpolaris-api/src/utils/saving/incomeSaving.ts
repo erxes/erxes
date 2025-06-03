@@ -63,15 +63,15 @@ export const incomeSaving = async (subdomain, polarisConfig, params) => {
         : '';
 
     let sendData = {
-      txnAcntCode: depositAccount?.number || polarisNumber || '',
+      txnAcntCode: depositAccount?.number ?? polarisNumber ?? '',
       txnAmount: param.total,
       rate: 1,
       contAcntCode: savingContract.number,
       contAmount: param.total,
       contRate: 1,
       rateTypeId: '16',
-      txnDesc: param?.description || 'shiljuuleg',
-      tcustRegister: customerData?.registerCode || '',
+      txnDesc: param?.description ?? 'shiljuuleg',
+      tcustRegister: customerData?.registerCode ?? '',
       tcustRegisterMask: '3',
       sourceType: 'TLLR',
       refNo: '662',

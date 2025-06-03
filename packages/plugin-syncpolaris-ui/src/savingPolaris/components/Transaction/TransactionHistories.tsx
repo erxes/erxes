@@ -6,7 +6,6 @@ import { ContractsTableWrapper, ScrollTableColls } from '../../styles';
 import { IContractDoc } from '../../types';
 
 type Props = {
-  contract: IContractDoc;
   savingHistories: any[];
 };
 
