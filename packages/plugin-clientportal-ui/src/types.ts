@@ -140,6 +140,14 @@ export type SocialpayConfig = {
   certId: string;
 };
 
+export type TokiConfig = {
+  merchantId: string;
+  apiKey: string;
+  username: string;
+  password: string;
+  production?: boolean;
+};
+
 export type ClientPortalConfig = {
   _id?: string;
   kind?: string;
@@ -203,7 +211,9 @@ export type ClientPortalConfig = {
   tokenPassMethod: 'cookie' | 'header';
   vendorParentProductCategoryId?: string;
   socialpayConfig?: SocialpayConfig;
+  tokiConfig?: TokiConfig;
   language?: string;
+  languages?: string[];
 };
 
 export type Styles = {

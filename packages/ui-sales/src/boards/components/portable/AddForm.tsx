@@ -295,7 +295,7 @@ class AddForm extends React.Component<Props, State> {
     const { cardId, name } = option;
 
     if (cardId && cardId !== "copiedItem") {
-      this.onChangeField("name", "");
+      this.onChangeField("name", name);
 
       return this.onChangeField("cardId", cardId);
     }
@@ -359,7 +359,7 @@ class AddForm extends React.Component<Props, State> {
                 <FormControl
                   value={this.state.name}
                   autoFocus={true}
-                  placeholder='Create a new card'
+                  placeholder="Create a new card"
                   onChange={this.onChangeName}
                 />
               )}
@@ -372,14 +372,14 @@ class AddForm extends React.Component<Props, State> {
             <HeaderContent>
               <ControlLabel required={true}>Stage</ControlLabel>
               <Select
-                placeholder='Select a stage'
+                placeholder="Select a stage"
                 value={
                   stageValues
                     ? stageValues.find(s => this.state.stageId === s.value)
                     : null
                 }
                 options={stageValues}
-                name='stage'
+                name="stage"
                 isClearable={true}
                 onChange={e => this.onSelectStage(e)}
               />
@@ -403,18 +403,18 @@ class AddForm extends React.Component<Props, State> {
 
         <FormFooter>
           <Button
-            btnStyle='simple'
+            btnStyle="simple"
             onClick={this.props.closeModal}
-            icon='times-circle'
+            icon="times-circle"
           >
             Close
           </Button>
 
           <Button
             disabled={this.state.disabled}
-            btnStyle='success'
-            icon='check-circle'
-            type='submit'
+            btnStyle="success"
+            icon="check-circle"
+            type="submit"
             onClick={this.save}
           >
             Save

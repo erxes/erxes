@@ -1,6 +1,10 @@
 # Changelog
 
-## [2.12.1](https://github.com/erxes/erxes/compare/2.12.0...2.12.1) (2025-05-20)
+## [2.13.0-rc.0](https://github.com/erxes/erxes/compare/2.12.0...2.13.0-rc.0) (2025-05-18)
+
+### Bug Fixes
+
+* accountings query with record ([ef9a54b](https://github.com/erxes/erxes/commit/ef9a54b3e5529980aecbf176870618ba7d1e4fdf))
 
 ## [2.12.0](https://github.com/erxes/erxes/compare/2.11.3...2.12.0) (2025-05-18)
 

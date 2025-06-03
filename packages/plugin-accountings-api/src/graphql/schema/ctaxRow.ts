@@ -23,6 +23,8 @@ const ctaxRowParams = `
 
 const ctaxRowsQueryParams = `
   status: String,
+  name: String,
+  number: String,
   searchValue: String,
   ids: [String],
   excludeIds: Boolean,

@@ -80,6 +80,16 @@ export const types = `
         totalPages: Int
         currentPage: Int
     }
+
+    type PostTranslation {
+        _id: String
+        postId: String
+        language: String
+        title: String
+        content: String
+        excerpt: String
+        customFieldsData: JSON
+    }
 `;
 
 export const inputs = `
@@ -107,20 +117,31 @@ export const inputs = `
         pdfAttachment: PdfAttachmentInput
         videoUrl: String
         customFieldsData: JSON
-
         type: String
+    }
+
+    input PostTranslationInput {
+        postId: String
+        language: String
+        title: String
+        content: String
+        excerpt: String
+        customFieldsData: JSON
     }
 `;
 
 export const queries = `
-    cmsPost(_id: String, slug: String): Post
-    cmsPosts(clientPortalId: String, featured: Boolean,type: String, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: String): [Post]
-    cmsPostList(clientPortalId: String, featured: Boolean, type: String, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: String): PostList
+    cmsPost(_id: String, slug: String, language: String): Post
+    cmsPosts(clientPortalId: String, featured: Boolean,type: String, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: String, language: String, language: String): [Post]
+    cmsPostList(clientPortalId: String, featured: Boolean, type: String, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: String, language: String, language: String): PostList
+    cmsPostTranslations(postId: String): [PostTranslation]
 `;
 
 export const mutations = `
     cmsPostsAdd(input: PostInput!): Post
+    cmsPostsAddTranslation(input: PostTranslationInput!): PostTranslation
     cmsPostsEdit(_id: String!, input: PostInput!): Post
+    cmsPostsEditTranslation(input: PostTranslationInput!): PostTranslation
     cmsPostsRemove(_id: String!): JSON
     cmsPostsChangeStatus(_id: String!, status: PostStatus!): Post
     cmsPostsToggleFeatured(_id: String!): Post

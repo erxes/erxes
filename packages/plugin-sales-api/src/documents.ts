@@ -52,7 +52,9 @@ const commonFields = [
   { value: 'totalAmountWithoutVat', name: 'Total amount without vat' },
   { value: 'discount', name: 'Discount' },
   { value: 'paymentCash', name: 'Payment cash' },
-  { value: 'paymentNonCash', name: 'Payment non cash' }
+  { value: 'paymentNonCash', name: 'Payment non cash' },
+  { value: 'customers.primaryPhone', name: 'customers.primaryPhone' },
+  { value: 'customers.primaryEmail', name: 'customers.primaryEmail' }
 ];
 
 export default {
@@ -184,7 +186,11 @@ export default {
         .join(',')
     );
 
-    if (replacedContent.includes('{{ customers }}')) {
+    if (
+      replacedContent.includes('{{ customers }}') ||
+      replacedContent.includes('{{ customers.primaryPhone }}') ||
+      replacedContent.includes('{{ customers.primaryEmail }}')
+    ) {
       const customerIds = await sendCoreMessage({
         subdomain,
         action: 'conformities.savedConformity',
@@ -218,10 +224,26 @@ export default {
 
         customerRows.push(name);
       }
+      const customerEmails: string[] = [];
+      const customerPhones: string[] = [];
 
+      for (const item of activeCustomers) {
+        if (item.primaryEmail) customerEmails.push(item.primaryEmail);
+      }
+      for (const item of activeCustomers) {
+        if (item.primaryPhone) customerPhones.push(item.primaryPhone);
+      }
       replacedContent = replacedContent.replace(
         /{{ customers }}/g,
         customerRows.join(',')
+      );
+      replacedContent = replacedContent.replace(
+        /{{ customers.primaryPhone }}/g,
+        customerPhones.join(',')
+      );
+      replacedContent = replacedContent.replace(
+        /{{ customers.primaryEmail }}/g,
+        customerEmails.join(',')
       );
     }
 

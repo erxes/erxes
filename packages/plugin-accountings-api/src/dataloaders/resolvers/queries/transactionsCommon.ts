@@ -47,6 +47,11 @@ interface IQueryParams {
   sortDirection?: number;
 }
 
+interface IRecordsParams extends IQueryParams {
+  groupRule: string[];
+  folded: boolean;
+}
+
 const getAccountIds = async (models: IModels, commonQuerySelector, params: IQueryParams, user: IUserDocument): Promise<string[]> => {
   const {
     accountIds,
@@ -227,6 +232,70 @@ const transactionCommon = {
 
     return models.Transactions.find(filter).countDocuments();
   },
+
+  async accTrRecords(
+    _root,
+    params: IRecordsParams & { page: number, perPage: number },
+    { commonQuerySelector, models, user }: IContext,
+  ) {
+    const filter = await generateFilter(
+      models,
+      commonQuerySelector,
+      params,
+      user,
+    );
+    const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
+
+    const pageArgs = { page, perPage };
+    if (
+      ids?.length &&
+      !excludeIds &&
+      ids.length > (pageArgs.perPage || 20)
+    ) {
+      pageArgs.page = 1;
+      pageArgs.perPage = ids.length;
+    }
+    const $limit = Number(pageArgs.perPage || '20');
+    const $skip = (Number(pageArgs.page || '1') - 1) * $limit;
+
+    let $sort: any = { date: 1 };
+    if (sortField) {
+      $sort = { [sortField]: sortDirection ?? 1 };
+    }
+
+    return await models.Transactions.aggregate([
+      { $match: { ...filter } },
+      { $sort },
+      { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
+      { $skip },
+      { $limit },
+      { "$replaceRoot": { "newRoot": { $mergeObjects: ['$$ROOT', { _id: { $concat: ['$_id', '@', '$details._id'] } }, { trId: '$_id' }] } } }
+      // accountaar groupleh ingesneer shortDetailiig bii bolgoh
+      // { $group: { _id: '$details.accountId', } }
+    ])
+
+  },
+
+  async accTrRecordsCount(
+    _root,
+    params: IRecordsParams,
+    { commonQuerySelector, models, user }: IContext,
+  ) {
+    const filter = await generateFilter(
+      models,
+      commonQuerySelector,
+      params,
+      user,
+    );
+
+    const count = await models.Transactions.aggregate([
+      { $match: { ...filter } },
+      { $unwind: '$details' },
+      { $group: { _id: null, count: { $sum: 1 } } },
+      { $project: { _id: 0 } }
+    ]);
+    return count[0].count;
+  }
 };
 
 export default transactionCommon;

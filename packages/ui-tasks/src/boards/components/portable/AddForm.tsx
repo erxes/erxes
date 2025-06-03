@@ -95,7 +95,7 @@ class AddForm extends React.Component<Props, State> {
       fetchCards(String(value), (cards: any) => {
         if (cards) {
           this.setState({
-            cards: (cards || []).map((c) => ({ value: c._id, label: c.name }))
+            cards: (cards || []).map(c => ({ value: c._id, label: c.name }))
           });
         }
       });
@@ -108,7 +108,7 @@ class AddForm extends React.Component<Props, State> {
     this.setState({ [name]: value } as unknown as Pick<State, keyof State>);
   };
 
-  save = (e) => {
+  save = e => {
     e.preventDefault();
 
     const {
@@ -141,8 +141,8 @@ class AddForm extends React.Component<Props, State> {
       return Alert.error("Please enter name or select card");
     }
 
-    fields = fields.filter((field) => {
-      const logics: LogicParams[] = (field.logics || []).map((logic) => {
+    fields = fields.filter(field => {
+      const logics: LogicParams[] = (field.logics || []).map(logic => {
         let { fieldId = "" } = logic;
 
         if (fieldId.includes("customFieldsData")) {
@@ -153,9 +153,9 @@ class AddForm extends React.Component<Props, State> {
           fieldId,
           operator: logic.logicOperator,
           logicValue: logic.logicValue,
-          fieldValue: (customFieldsData.find((c) => c.field === fieldId) || {})
+          fieldValue: (customFieldsData.find(c => c.field === fieldId) || {})
             .value,
-          validation: fields.find((f) => f._id === fieldId)?.validation,
+          validation: fields.find(f => f._id === fieldId)?.validation,
           type: field.type
         };
       });
@@ -165,13 +165,13 @@ class AddForm extends React.Component<Props, State> {
       }
     });
 
-    customFieldsData = customFieldsData.filter((customField) =>
-      fields.find((field) => field._id === customField.field)
+    customFieldsData = customFieldsData.filter(customField =>
+      fields.find(field => field._id === customField.field)
     );
 
     for (const field of fields) {
       const customField =
-        customFieldsData.find((c) => c.field === field._id) || {};
+        customFieldsData.find(c => c.field === field._id) || {};
 
       if (field.isRequired) {
         let alert = false;
@@ -272,9 +272,9 @@ class AddForm extends React.Component<Props, State> {
 
     const { stageId, pipelineId, boardId } = this.state;
 
-    const stgIdOnChange = (stgId) => this.onChangeField("stageId", stgId);
-    const plIdOnChange = (plId) => this.onChangeField("pipelineId", plId);
-    const brIdOnChange = (brId) => this.onChangeField("boardId", brId);
+    const stgIdOnChange = stgId => this.onChangeField("stageId", stgId);
+    const plIdOnChange = plId => this.onChangeField("pipelineId", plId);
+    const brIdOnChange = brId => this.onChangeField("boardId", brId);
 
     return (
       <BoardSelectWrapper>
@@ -291,11 +291,11 @@ class AddForm extends React.Component<Props, State> {
     );
   }
 
-  onChangeCardSelect = (option) => {
+  onChangeCardSelect = option => {
     const { cardId, name } = option;
 
     if (cardId && cardId !== "copiedItem") {
-      this.onChangeField("name", "");
+      this.onChangeField("name", name);
 
       return this.onChangeField("cardId", cardId);
     }
@@ -306,7 +306,7 @@ class AddForm extends React.Component<Props, State> {
     localStorage.setItem(`${this.props.options.type}Name`, name);
   };
 
-  onChangeName = (e) => {
+  onChangeName = e => {
     const name = (e.target as HTMLInputElement).value;
     this.onChangeField("name", name);
 
@@ -332,7 +332,7 @@ class AddForm extends React.Component<Props, State> {
     let stageValues: any;
 
     if (stages && stages.length > 0) {
-      stageValues = (stages || []).map((stage) => ({
+      stageValues = (stages || []).map(stage => ({
         label: stage.name,
         value: stage._id
       }));
@@ -374,13 +374,13 @@ class AddForm extends React.Component<Props, State> {
                 placeholder="Select a stage"
                 value={
                   stageValues
-                    ? stageValues.find((s) => this.state.stageId === s.value)
+                    ? stageValues.find(s => this.state.stageId === s.value)
                     : null
                 }
                 options={stageValues}
                 name="stage"
                 isClearable={true}
-                onChange={(e) => this.onSelectStage(e)}
+                onChange={e => this.onSelectStage(e)}
               />
             </HeaderContent>
           </HeaderRow>

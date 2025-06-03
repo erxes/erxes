@@ -182,6 +182,14 @@ ${
     certId: String
   }
 
+  type TokiConfig {
+    merchantId: String
+    apiKey: String
+    username: String
+    password: String
+    production: Boolean
+  }
+
   type ClientPortal {
     _id: String!
     name: String!
@@ -252,7 +260,9 @@ ${
     testUserOTP: String
 
     socialpayConfig: SocialpayConfig
+    tokiConfig: TokiConfig
     language: String
+    languages: [String]
 
     template: String
     templateId: String
@@ -374,7 +384,9 @@ ${
     refreshTokenExpiration: Int
     vendorParentProductCategoryId: String
     socialpayConfig: JSON
+    tokiConfig: JSON
     language: String
+    languages: [String]
 
     template: String
     templateId: String
@@ -480,7 +492,7 @@ export const queries = (enabledPlugins) => `
     enabledPlugins.knowledgebase
       ? `
     clientPortalKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
-    clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String], topicId: String, isPrivate: Boolean): [KnowledgeBaseArticle]
+    clientPortalKnowledgeBaseArticles(searchValue: String,slug: String  categoryIds: [String], topicId: String, isPrivate: Boolean): [KnowledgeBaseArticle]
    `
       : ''
   }

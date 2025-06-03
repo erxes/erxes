@@ -1,54 +1,55 @@
 import {
   mutations as ChannelMutations,
   queries as ChannelQueries,
-  types as ChannelTypes
-} from "./channelTypeDefs";
+  types as ChannelTypes,
+} from './channelTypeDefs';
 import {
   mutations as ConversationMutations,
   queries as ConversationQueries,
-  types as ConversationTypes
-} from "./conversationTypeDefs";
+  types as ConversationTypes,
+} from './conversationTypeDefs';
 import {
   mutations as IntegrationMutations,
   queries as IntegrationQueries,
-  types as integrationTypes
-} from "./integrationTypeDefs";
+  types as integrationTypes,
+} from './integrationTypeDefs';
 import {
   mutations as MessengerAppMutations,
   queries as MessengerAppQueries,
-  types as MessengerAppTypes
-} from "./messengerAppTypeDefs";
+  types as MessengerAppTypes,
+} from './messengerAppTypeDefs';
 import {
   mutations as ResponseTemplateMutations,
   queries as ResponseTemplateQueries,
-  types as ResponseTemplateTypes
-} from "./responseTemplateTypeDefs";
+  types as ResponseTemplateTypes,
+} from './responseTemplateTypeDefs';
 import {
   mutations as ScriptMutations,
   queries as ScriptQueries,
-  types as ScriptTypes
-} from "./scriptTypeDefs";
+  types as ScriptTypes,
+} from './scriptTypeDefs';
 import {
   mutations as SkillMutations,
   queries as SkillQueries,
-  types as SkillTypes
-} from "./skillTypeDefs";
+  types as SkillTypes,
+} from './skillTypeDefs';
 import {
   mutations as widgetMutations,
   queries as widgetQueries,
-  types as widgetTypes
-} from "./widgetTypeDefs";
+  types as widgetTypes,
+} from './widgetTypeDefs';
 
-import gql from "graphql-tag";
-import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+import gql from 'graphql-tag';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 const typeDefs = async () => {
   const isProductsEnabled = true;
-  const isKbEnabled = await isEnabled("knowledgebase");
+  const isKbEnabled = await isEnabled('knowledgebase');
   const isContactsEnabled = true;
-  const isDailycoEnabled = await isEnabled("dailyco");
-  const isCallsEnabled = await isEnabled("calls");
-  const isCloudflareCallsEnabled = await isEnabled("cloudflarecalls");
+  const isDailycoEnabled = await isEnabled('dailyco');
+  const isCallsEnabled = await isEnabled('calls');
+  const isCloudflareCallsEnabled = await isEnabled('cloudflarecalls');
+  const isTicketsEnabled = await isEnabled('tickets');
 
   const isEnabledTable = {
     products: isProductsEnabled,
@@ -56,7 +57,8 @@ const typeDefs = async () => {
     contacts: isContactsEnabled,
     dailyco: isDailycoEnabled,
     calls: isCallsEnabled,
-    cloudflareCalls: isCloudflareCallsEnabled
+    cloudflareCalls: isCloudflareCallsEnabled,
+    tickets: isTicketsEnabled,
   };
 
   return gql`
@@ -90,7 +92,7 @@ const typeDefs = async () => {
       ${ChannelMutations}
       ${IntegrationMutations}
       ${ResponseTemplateMutations}
-      ${widgetMutations()}
+      ${widgetMutations(isEnabledTable)}
       ${SkillMutations}
       ${ScriptMutations}
     }
