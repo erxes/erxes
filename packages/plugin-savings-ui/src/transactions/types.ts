@@ -21,7 +21,7 @@ export interface ITransactionDoc {
   storedInterest?: number;
   total: number;
   balance?: number;
-  isSyncedTransaction?: Boolean;
+  isSyncedTransaction?: boolean;
 }
 
 export interface ITransaction extends ITransactionDoc {

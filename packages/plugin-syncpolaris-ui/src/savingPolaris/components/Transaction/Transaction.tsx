@@ -21,7 +21,7 @@ function Transaction({ contract, sentTransaction, sendDepositTr }: Props) {
   const transactions = contract?.savingTransactionHistory || [];
 
   const onHandlePolaris = () =>
-    confirm(__('Are you sure you want to activate Savings?'))
+    confirm(__('Are you sure you want to send transactions?'))
       .then(() => {
         if (contract.isDeposit) {
           return sendDepositTr(transactions);
