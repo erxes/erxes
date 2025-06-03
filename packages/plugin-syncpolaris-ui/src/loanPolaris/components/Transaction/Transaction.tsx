@@ -33,6 +33,7 @@ function Transaction({ contract, sentTransaction }: Props) {
 
   const renderExtraButton = () => {
     return (
+      transactions.length > 0 &&
       !transactions[0].isSyncedTransaction && (
         <button onClick={onHandlePolaris} title="send transaction">
           <Icon icon="refresh-1" />
