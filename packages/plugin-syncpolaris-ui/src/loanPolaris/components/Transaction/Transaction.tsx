@@ -17,20 +17,15 @@ import { IContractDoc } from '../../types';
 type Props = {
   contract: IContractDoc;
   sentTransaction: (data: any) => void;
-  sendDepositTr: (data: any) => void;
 };
 
-function Transaction({ contract, sentTransaction, sendDepositTr }: Props) {
-  const transactions = contract?.savingTransactionHistory || [];
+function Transaction({ contract, sentTransaction }: Props) {
+  const transactions = contract?.loanTransactionHistory || [];
 
   const onHandlePolaris = () =>
     confirm(__('Are you sure you want to send transactions?'))
       .then(() => {
-        if (contract.isDeposit) {
-          return sendDepositTr(transactions);
-        } else {
-          return sentTransaction(transactions);
-        }
+        sentTransaction(transactions);
       })
       .catch((error) => {
         Alert.error(error.message);
@@ -38,9 +33,11 @@ function Transaction({ contract, sentTransaction, sendDepositTr }: Props) {
 
   const renderExtraButton = () => {
     return (
-      <button onClick={onHandlePolaris} title="send transaction">
-        <Icon icon="refresh-1" />
-      </button>
+      !transactions[0].isSyncedTransaction && (
+        <button onClick={onHandlePolaris} title="send transaction">
+          <Icon icon="refresh-1" />
+        </button>
+      )
     );
   };
 
@@ -50,7 +47,7 @@ function Transaction({ contract, sentTransaction, sendDepositTr }: Props) {
 
   return (
     <Box
-      title={__('Saving transaction')}
+      title={__('Transaction history')}
       name="showPolaris"
       isOpen={true}
       extraButtons={renderExtraButton()}

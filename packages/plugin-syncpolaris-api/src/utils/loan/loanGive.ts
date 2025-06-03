@@ -4,17 +4,28 @@ import {
   fetchPolaris,
   getContract,
   getCustomer,
-  getDepositAccount
+  getDepositAccount,
+  updateTransaction
 } from '../utils';
 import { IPolarisLoanGive } from './types';
 
 export const createLoanGive = async (subdomain, polarisConfig, transaction) => {
   const models = await generateModels(subdomain);
 
+  const savingContract = await getContract(
+    subdomain,
+    { _id: transaction[0].contractId },
+    'loans'
+  );
+
+  if (!savingContract) {
+    throw new Error('Contract not found');
+  }
+
   const syncLogDoc = {
     type: '',
     contentType: 'loans:transaction',
-    contentId: transaction._id,
+    contentId: savingContract.number,
     createdAt: new Date(),
     createdBy: '',
     consumeData: transaction,
@@ -25,7 +36,7 @@ export const createLoanGive = async (subdomain, polarisConfig, transaction) => {
 
   const loanContract = await getContract(
     subdomain,
-    { _id: transaction.contractId },
+    { _id: transaction[0].contractId },
     'loans'
   );
 
@@ -42,22 +53,38 @@ export const createLoanGive = async (subdomain, polarisConfig, transaction) => {
     loanContract.customerId
   );
 
+  const getAccounts = await fetchPolaris({
+    op: '13610312',
+    data: [customer?.code, 0, 20],
+    subdomain,
+    polarisConfig
+  });
+
+  const customerAccount = getAccounts.filter(
+    (account) => account.acntType === 'CA'
+  );
+
+  const polarisNumber =
+    customerAccount && customerAccount.length > 0
+      ? customerAccount[0].acntCode
+      : '';
+
   const loanGive: IPolarisLoanGive = {
     txnAcntCode: loanContract.number,
-    txnAmount: transaction.total,
-    curCode: transaction.currency,
+    txnAmount: transaction[0].total,
+    curCode: transaction[0].currency,
     rate: 1,
-    contAcntCode: depositAccount.number,
-    contAmount: transaction.total,
-    contCurCode: transaction.currency,
+    contAcntCode: depositAccount?.number ?? polarisNumber ?? '',
+    contAmount: transaction[0].total,
+    contCurCode: transaction[0].currency,
     contRate: 1,
     rateTypeId: '16',
-    txnDesc: transaction?.description ?? 'zeel olgov',
+    txnDesc: transaction[0].description ?? 'zeel olgov',
     tcustName: customerData?.firstName ?? '',
-    tcustAddr: customerData?.address ?? 'test',
-    tcustRegister: customerData?.registerCode ?? 'уш96100976',
+    tcustAddr: customerData?.address ?? '',
+    tcustRegister: customerData?.registerCode ?? '',
     tcustRegisterMask: '3',
-    tcustContact: customerData?.mobile ?? '85114503',
+    tcustContact: customerData?.mobile ?? '',
     sourceType: 'TLLR',
     isTmw: 1,
     isPreview: 0,
@@ -77,6 +104,17 @@ export const createLoanGive = async (subdomain, polarisConfig, transaction) => {
     polarisConfig,
     syncLog
   });
+
+  await updateTransaction(
+    subdomain,
+    { _id: transaction[0]._id },
+    {
+      $set: {
+        isSyncedTransaction: true
+      }
+    },
+    'loans'
+  );
 
   return loanGiveReponse.txnJrno;
 };

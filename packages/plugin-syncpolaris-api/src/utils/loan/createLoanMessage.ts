@@ -152,8 +152,6 @@ export const createLoanMessage = async (subdomain, polarisConfig, loan) => {
         {
           $set: {
             number: result,
-            startDate: new Date(systemDate),
-            endDate: new Date(endDate),
             isSyncedPolaris: true
           }
         },

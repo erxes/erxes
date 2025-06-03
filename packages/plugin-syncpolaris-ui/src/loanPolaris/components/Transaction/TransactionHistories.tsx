@@ -22,7 +22,7 @@ function TransactionHistories({ savingHistories }: Props) {
   };
 
   return (
-    <Box title={__('Saving history')} name="showPolaris" isOpen={true}>
+    <Box title={__('Transaction history')} name="showPolaris" isOpen={true}>
       <ScrollTableColls>
         <ContractsTableWrapper>
           <Table>

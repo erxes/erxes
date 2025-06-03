@@ -8,6 +8,8 @@ import PolarisSection from './PolarisSection';
 import ScheduleSection from './ScheduleSection';
 import ActiveContainer from '../containers/ActiveContainer';
 import Collateral from '../containers/Collateral';
+import { ScrollHorizontal } from '../styles';
+import Transaction from './Transaction';
 
 interface IProps {
   contract: IContract;
@@ -32,17 +34,19 @@ export const Tabs = ({ tabs }: ITabs) => {
 
   return (
     <>
-      <MainTabs>
-        {tabs.map((tab, index) => (
-          <TabTitle
-            className={tabIndex === index ? 'active' : ''}
-            key={`tab${tab.label}`}
-            onClick={() => setTabIndex(index)}
-          >
-            {tab.label}
-          </TabTitle>
-        ))}
-      </MainTabs>
+      <ScrollHorizontal>
+        <MainTabs>
+          {tabs.map((tab, index) => (
+            <TabTitle
+              className={tabIndex === index ? 'active' : ''}
+              key={`tab${tab.label}`}
+              onClick={() => setTabIndex(index)}
+            >
+              {tab.label}
+            </TabTitle>
+          ))}
+        </MainTabs>
+      </ScrollHorizontal>
 
       <div style={{ width: '100%', marginTop: 20 }}>
         {tabs?.[tabIndex]?.component}
@@ -78,6 +82,10 @@ function PolarisData(props: IProps) {
         {
           label: __(`Polaris Collaterals`),
           component: <CollateralsInfo {...props} />
+        },
+        {
+          label: __(`Transaction`),
+          component: <Transaction {...props} />
         }
       ]}
     />

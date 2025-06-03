@@ -71,7 +71,7 @@ const loansMutations = {
     return 'success';
   },
 
-  async sendLoanAmount(
+  async loanGiveTransaction(
     _root,
     { data }: { data: any },
     { subdomain }: IContext

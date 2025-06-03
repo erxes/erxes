@@ -11,5 +11,5 @@ export const mutations = `
   syncLoanCollateral(data: JSON): JSON
   sendLoanSchedules(data: JSON): JSON
   loanContractActive(contractNumber: String!): JSON
-  sendLoanAmount(data: JSON): JSON
+  loanGiveTransaction(data: JSON): JSON
 `;
