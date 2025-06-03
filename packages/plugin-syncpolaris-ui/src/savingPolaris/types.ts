@@ -134,5 +134,13 @@ export type DepositActiveMutationResponse = {
 };
 
 export type SavingTransactionMutationResponse = {
-  sendSaving: (params: { variables: { data: any } }) => Promise<any>;
+  syncSavingTransactions: (params: {
+    variables: { data: any };
+  }) => Promise<any>;
+};
+
+export type DepositTransactionMutationResponse = {
+  syncDepositTransactions: (params: {
+    variables: { data: any };
+  }) => Promise<any>;
 };

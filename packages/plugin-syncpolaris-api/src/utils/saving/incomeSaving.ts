@@ -1,5 +1,4 @@
 import { generateModels } from '../../connectionResolver';
-import { incomeDeposit } from '../deposit/incomeDeposit';
 import {
   customFieldToObject,
   fetchPolaris,
@@ -37,10 +36,6 @@ export const incomeSaving = async (subdomain, polarisConfig, params) => {
     };
 
     let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-
-    if (savingContract.isDeposit) {
-      return await incomeDeposit(subdomain, polarisConfig, param);
-    }
 
     const customer = await getCustomer(subdomain, param.customerId);
 

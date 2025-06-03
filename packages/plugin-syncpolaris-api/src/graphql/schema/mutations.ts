@@ -4,6 +4,8 @@ export const mutations = `
   sendSaving(data: JSON): JSON
   savingContractActive(contractNumber: String!): String
   sendSavingAmount(data: JSON): JSON
+  
+  sendDepositAmount(data: JSON): JSON
 
   sendContractToPolaris(data: JSON): JSON
   syncLoanCollateral(data: JSON): JSON

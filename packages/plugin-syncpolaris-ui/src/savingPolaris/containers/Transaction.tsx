@@ -37,8 +37,29 @@ const TransactionContainer = (props: Props) => {
     }
   );
 
+  const [depositTransaction] = useMutation<SavingTransactionMutationResponse>(
+    gql(mutations.syncDepositTransactions),
+    {
+      refetchQueries: ['savingsContractDetail', 'syncSavingsData']
+    }
+  );
+
   const sentTransactionHandler = (data: any) => {
     savingTransaction({ variables: { data } })
+      .then(() => {
+        Alert.success('Successfully synced');
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+
+        client.refetchQueries({
+          include: ['syncSavingsData']
+        });
+      });
+  };
+
+  const sentDepositTransactionHandler = (data: any) => {
+    depositTransaction({ variables: { data } })
       .then(() => {
         Alert.success('Successfully synced');
       })
@@ -61,6 +82,7 @@ const TransactionContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     sentTransaction: sentTransactionHandler,
+    sendDepositTr: sentDepositTransactionHandler,
     savingHistories
   };
 
