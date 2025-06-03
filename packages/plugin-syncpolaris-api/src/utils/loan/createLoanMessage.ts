@@ -74,9 +74,17 @@ export const createLoanMessage = async (subdomain, polarisConfig, loan) => {
 
   const systemDate = await getDate(subdomain, polarisConfig);
 
-  const endDate = new Date(systemDate).setMonth(
-    new Date(systemDate).getMonth() + loan.duration
-  );
+  let endDate = new Date(systemDate);
+
+  if (loan.scheduleDays.length === 1) {
+    // If there's only 1 day in scheduleDays, rent is paid once per month
+    endDate.setMonth(new Date(systemDate).getMonth() + Math.ceil(loan.tenor)); // End date is `tenor` months later
+  } else if (loan.scheduleDays.length > 1) {
+    // If there are multiple days in scheduleDays, rent is paid twice per month
+    endDate.setMonth(
+      new Date(systemDate).getMonth() + Math.ceil(systemDate.tenor / 2)
+    ); // 2 months later
+  }
 
   let sendData: IPolarisLoan = {
     custCode: customer.code,
