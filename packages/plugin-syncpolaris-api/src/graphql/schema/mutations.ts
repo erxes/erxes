@@ -12,4 +12,5 @@ export const mutations = `
   sendLoanSchedules(data: JSON): JSON
   loanContractActive(contractNumber: String!): JSON
   loanGiveTransaction(data: JSON): JSON
+  createLoanRepayment(data: JSON): JSON
 `;

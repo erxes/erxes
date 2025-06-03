@@ -15,7 +15,7 @@ import { getConfig } from './utils/utils';
 
 const allowTypes = {
   'core:customer': ['create', 'update'],
-  'core:company': ['create', 'update']
+  'core:company': ['create', 'update'],
   //deposit
   // "savings:transaction": ["create"],
   //saving
@@ -23,7 +23,7 @@ const allowTypes = {
   //loan
   // 'loans:contract': ['create', 'update'],
   // "loans:classification": ["create"],
-  // "loans:transaction": ["create"]
+  'loans:transaction': ['create']
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
@@ -270,20 +270,19 @@ const loansTransactionMethod = async (
       subdomain,
       models,
       polarisConfig,
-      syncLog,
       params.object
     );
   }
 
-  if (params.object.transactionType === 'give') {
-    return await createLoanGive(
-      subdomain,
-      // models,
-      polarisConfig,
-      // syncLog,
-      params.object
-    );
-  }
+  // if (params.object.transactionType === 'give') {
+  //   return await createLoanGive(
+  //     subdomain,
+  //     // models,
+  //     polarisConfig,
+  //     // syncLog,
+  //     params.object
+  //   );
+  // }
 };
 
 export default allowTypes;
