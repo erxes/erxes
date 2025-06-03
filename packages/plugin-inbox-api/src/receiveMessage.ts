@@ -3,7 +3,6 @@ import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { sendCoreMessage } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { IConversationDocument } from './models/definitions/conversations';
-import { pConversationClientMessageInserted } from './graphql/resolvers/widgetMutations';
 import {
   RPError,
   RPResult,
@@ -41,7 +40,7 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
       return sendError(`Integration not found: ${doc.integrationId}`);
     }
 
-    const { primaryEmail, primaryPhone } = doc;
+    const { primaryEmail, primaryPhone, kind } = doc;
 
     let customer;
 
@@ -55,18 +54,24 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
 
     if (primaryPhone) {
       customer = await getCustomer({ primaryPhone });
-
+      console.log(customer, 'customercustomer');
       if (customer) {
-        await sendCoreMessage({
-          subdomain,
-          action: 'customers.updateCustomer',
-          data: {
-            _id: customer._id,
-            doc,
-          },
-          isRPC: true,
-        });
-
+        try {
+          await sendCoreMessage({
+            subdomain,
+            action: 'customers.updateCustomer',
+            data: {
+              _id: customer._id,
+              doc,
+            },
+            isRPC: true,
+          });
+        } catch (error) {
+          if (kind === 'calls' && error.message === 'Duplicated phone') {
+            return sendSuccess({ _id: customer._id });
+          }
+          throw error;
+        }
         return sendSuccess({ _id: customer._id });
       }
     }
