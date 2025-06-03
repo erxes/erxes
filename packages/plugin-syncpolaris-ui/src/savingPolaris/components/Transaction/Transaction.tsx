@@ -1,15 +1,15 @@
-import { Box } from '@erxes/ui/src';
-import { __ } from 'coreui/utils';
-import React from 'react';
-import { Table } from '@erxes/ui/src';
-import dayjs from 'dayjs';
+import { Box } from "@erxes/ui/src";
+import { __ } from "coreui/utils";
+import React from "react";
+import { Table } from "@erxes/ui/src";
+import dayjs from "dayjs";
 
-import { ContractsTableWrapper, DidAmount, ExtraRow } from '../../styles';
-import { ScrollTableColls } from '../../styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
-import Alert from '@erxes/ui/src/utils/Alert';
-import { IContractDoc } from '../../types';
+import { ContractsTableWrapper, DidAmount, ExtraRow } from "../../styles";
+import { ScrollTableColls } from "../../styles";
+import Icon from "@erxes/ui/src/components/Icon";
+import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+import Alert from "@erxes/ui/src/utils/Alert";
+import { IContractDoc } from "../../types";
 
 type Props = {
   contract: IContractDoc;
@@ -20,12 +20,12 @@ function Transaction({ contract, sentTransaction }: Props) {
   const transactions = contract?.savingTransactionHistory || [];
 
   const onHandlePolaris = () =>
-    confirm(__('Are you sure you want to activate Savings?'))
+    confirm(__("Are you sure you want to activate Savings?"))
       .then(() => {
         if (contract.isDeposit) {
-          return sentTransaction(contract);
+          return sentTransaction(transactions);
         } else {
-          return sentTransaction(contract);
+          return sentTransaction(transactions);
         }
       })
       .catch((error) => {
@@ -34,11 +34,9 @@ function Transaction({ contract, sentTransaction }: Props) {
 
   const renderExtraButton = () => {
     return (
-      !contract.isActiveSaving && (
-        <button onClick={onHandlePolaris} title="active contract">
-          <Icon icon="refresh-1" />
-        </button>
-      )
+      <button onClick={onHandlePolaris} title="send transaction">
+        <Icon icon="refresh-1" />
+      </button>
     );
   };
 
@@ -52,7 +50,7 @@ function Transaction({ contract, sentTransaction }: Props) {
 
   return (
     <Box
-      title={__('Active Saving')}
+      title={__("Active Saving")}
       name="showPolaris"
       isOpen={true}
       extraButtons={renderExtraButton()}
@@ -62,24 +60,28 @@ function Transaction({ contract, sentTransaction }: Props) {
           <Table>
             <thead>
               <tr>
-                <th>{__('Date')}</th>
-                <th>{__('Type')}</th>
-                <th>{__('Saving Balance')}</th>
-                <th>{__('Amount')}</th>
-                <th>{__('Stored Interest')}</th>
-                <th>{__('Total')}</th>
+                <th>{__("Date")}</th>
+                <th>{__("Type")}</th>
+                <th>{__("Saving Balance")}</th>
+                <th>{__("Amount")}</th>
+                <th>{__("Stored Interest")}</th>
+                <th>{__("Total")}</th>
+                <th>{__("Status")}</th>
               </tr>
             </thead>
 
             <tbody id="schedules">
               {transactions.map((transaction) => (
                 <ExtraRow key={transaction._id}>
-                  <td>{dayjs(transaction.payDate).format('YYYY/MM/DD')}</td>
+                  <td>{dayjs(transaction.payDate).format("YYYY/MM/DD")}</td>
                   <td>{transaction.transactionType}</td>
-                  <td>{renderCell(transaction, 'balance')}</td>
-                  <td>{renderCell(transaction, 'payment')}</td>
-                  <td>{renderCell(transaction, 'storedInterest')}</td>
-                  <td>{renderCell(transaction, 'total')}</td>
+                  <td>{renderCell(transaction, "balance")}</td>
+                  <td>{renderCell(transaction, "payment")}</td>
+                  <td>{renderCell(transaction, "storedInterest")}</td>
+                  <td>{renderCell(transaction, "total")}</td>
+                  <td>
+                    {transaction?.isSyncedTransaction ? "Synced" : "Not synced"}
+                  </td>
                 </ExtraRow>
               ))}
             </tbody>

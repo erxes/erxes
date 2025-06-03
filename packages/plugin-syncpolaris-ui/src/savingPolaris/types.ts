@@ -82,6 +82,7 @@ export interface ITransactionDoc {
   storedInterest?: number;
   total: number;
   balance?: number;
+  isSyncedTransaction?: boolean;
 }
 
 export interface ITransaction extends ITransactionDoc {

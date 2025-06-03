@@ -23,8 +23,8 @@ const depositActive = `
 `;
 
 const syncSavingTransactions = `
-  mutation depositContractActive($contractNumber: String!) {
-    depositContractActive(contractNumber: $contractNumber)
+  mutation sendSavingAmount($data: JSON) {
+    sendSavingAmount(data: $data)
   }
 `;
 

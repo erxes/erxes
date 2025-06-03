@@ -16,22 +16,14 @@ function TransactionHistories({ savingHistories }: Props) {
   const renderRow = (saving) => {
     return (
       <tr key={saving._id}>
-        <td>{saving?.responseData ? 'synced' : 'not synced'}</td>
-        <td>{saving?.responseData || saving?.content}</td>
+        <td>{saving?.responseStr ? 'synced' : 'not synced'}</td>
+        <td>{saving?.responseData?.txnJrno || saving?.content}</td>
         <td style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
-          {saving?.error || saving?.responseData}
+          {saving?.error || saving?.responseData?.txnJrno}
         </td>
       </tr>
     );
   };
-
-  //  : contract.isActiveSaving && (
-  //                   <tr>
-  //                     <td>{contract?.isActiveSaving && 'Activated Saving'}</td>
-  //                     <td>{contract?.number || ''}</td>
-  //                     <td>{''}</td>
-  //                   </tr>
-  //                 )
 
   return (
     <Box title={__('Active Saving')} name="showPolaris" isOpen={true}>
@@ -42,10 +34,7 @@ function TransactionHistories({ savingHistories }: Props) {
               <tr>
                 <th>{__('Date')}</th>
                 <th>{__('Type')}</th>
-                <th>{__('Saving Balance')}</th>
-                <th>{__('Amount')}</th>
-                <th>{__('Stored Interest')}</th>
-                <th>{__('Total')}</th>
+                <th>{__('Message')}</th>
               </tr>
             </thead>
 

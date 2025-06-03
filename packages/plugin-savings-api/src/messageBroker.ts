@@ -124,6 +124,20 @@ export const setupMessageConsumers = async () => {
       };
     }
   );
+
+  consumeRPCQueue(
+    "savings:transactions.update",
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { selector, modifier } = data;
+      const result = await models.Transactions.updateOne(selector, modifier);
+
+      return {
+        status: "success",
+        data: result
+      };
+    }
+  );
 };
 
 export const getConfig = async (

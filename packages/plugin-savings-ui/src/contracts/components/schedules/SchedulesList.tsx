@@ -25,14 +25,12 @@ const SchedulesList = (props: IProps) => {
             <th>{__('Amount')}</th>
             <th>{__('Stored Interest')}</th>
             <th>{__('Total')}</th>
+            <th>{__('Status')}</th>
           </tr>
         </thead>
         <tbody id="schedules">
           {transactions.map((transaction) => (
-            <ScheduleRow
-              transaction={transaction}
-              key={transaction._id}
-            ></ScheduleRow>
+            <ScheduleRow transaction={transaction} key={transaction._id} />
           ))}
         </tbody>
       </Table>

@@ -24,6 +24,7 @@ export interface ITransaction {
   externalBankName?: string;
   ownBankNumber?: string;
   ownBankType?: string;
+  isSyncedTransaction?: Boolean;
 }
 
 export interface ITransactionDocument extends ITransaction, Document {
@@ -99,7 +100,12 @@ export const transactionSchema = schemaHooksWrapper(
     accountHolderName: field({ type: String, label: "accountHolderName" }),
     externalBankName: field({ type: String, label: "externalBankName" }),
     ownBankNumber: field({ type: String, label: "ownBankNumber" }),
-    ownBankType: field({ type: String, label: "ownBankType" })
+    ownBankType: field({ type: String, label: "ownBankType" }),
+    isSyncedTransaction: field({
+      type: Boolean,
+      label: "Is Synced transaction",
+      optional: true
+    })
   }),
   "erxes_transactionSchema"
 );

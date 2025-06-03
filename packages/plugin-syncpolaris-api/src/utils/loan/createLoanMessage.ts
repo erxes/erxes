@@ -141,7 +141,14 @@ export const createLoanMessage = async (subdomain, polarisConfig, loan) => {
       await updateContract(
         subdomain,
         { _id: loan._id },
-        { $set: { number: result, isSyncedPolaris: true } },
+        {
+          $set: {
+            number: result,
+            startDate: new Date(systemDate),
+            endDate: new Date(endDate),
+            isSyncedPolaris: true
+          }
+        },
         'loans'
       );
     }
