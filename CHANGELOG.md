@@ -1,5 +1,43 @@
 # Changelog
 
+## [2.13.0](https://github.com/erxes/erxes/compare/2.12.3...2.13.0) (2025-06-03)
+
+### Features
+
+* clientportal and cms translations ([#6044](https://github.com/erxes/erxes/issues/6044)) ([8f05d90](https://github.com/erxes/erxes/commit/8f05d90693c065523cf79493162eb7fef52b9814))
+* **clientportal:** introduce production field to toki config ([f5c1744](https://github.com/erxes/erxes/commit/f5c174417a63f8af62bc906d30bb88f0d423a23a))
+
+### Bug Fixes
+
+* **cards:** add related ticket ([f05690d](https://github.com/erxes/erxes/commit/f05690d5a5365a41867fb3d03af5d3902c6f70f4))
+* **cards:** related cards ([a5966f8](https://github.com/erxes/erxes/commit/a5966f8a4c0bfd52188a33f28668b50d414d1fa0))
+* **clientportal:** fix tokiconfig bug ([04d0538](https://github.com/erxes/erxes/commit/04d0538e6e442eab84cac3f5ed553293dcaf0175))
+* get cards association types ([d88d0ab](https://github.com/erxes/erxes/commit/d88d0ab3b9a6d6d6d48ef27b3e8df39bd4fee4e5))
+* improve syncpolaris and loans, savings ([#6047](https://github.com/erxes/erxes/issues/6047)) ([e2ab9db](https://github.com/erxes/erxes/commit/e2ab9db81935f7a284d867d4f23fa5bb107622ba))
+* **products:** filter & bugs ([04b27b9](https://github.com/erxes/erxes/commit/04b27b98656e7eaa73b40f25efc36899136bf633))
+* release.yaml ([ce1f20a](https://github.com/erxes/erxes/commit/ce1f20aac27a59d71ab1ef1807891f8010b23a28))
+* **sales:** add some attributes in document ([acbb9ab](https://github.com/erxes/erxes/commit/acbb9ab04eab286cc5cd9996e4acc288493e5298))
+* **tms:** advancecheck ([52ef4a6](https://github.com/erxes/erxes/commit/52ef4a6f248638dc9ba65e752dc69aed2b9409df))
+* **tms:** changes ([55e744c](https://github.com/erxes/erxes/commit/55e744c5a91afc8b3205a8f16b206d4f7fa6d79b))
+* **tms:** join percent ([9338bad](https://github.com/erxes/erxes/commit/9338badb44ce77cc1105b521b7a5c214e78aeca3))
+* **tms:** notification & payment ([31bedd6](https://github.com/erxes/erxes/commit/31bedd617310c5a23b59dfa3cd34dfd562e9ac24))
+* **tms:** status group ([1b532e3](https://github.com/erxes/erxes/commit/1b532e38c74a3fb6d4dea9e005e194863c0c239c))
+* **tms:** tour fields ([a2611fe](https://github.com/erxes/erxes/commit/a2611fe781549af3316728bceb8658d252d6579f))
+* **tms:** update notifications ([7bd4201](https://github.com/erxes/erxes/commit/7bd420157043b662d829bc0e5d69d2b1474b0aa7))
+* **tms:** update payment and logs ([2d27d37](https://github.com/erxes/erxes/commit/2d27d378712306e6d595bb5ecd2a6cf329279e4a))
+* **tms:** update tour ([569cccf](https://github.com/erxes/erxes/commit/569cccfbdf19d4dc60478a745741481291308add))
+## [2.13.0-rc.0](https://github.com/erxes/erxes/compare/2.12.3...2.13.0) (2025-05-18)
+
+### Features
+
+* **cards:** product bundle ([409458b](https://github.com/erxes/erxes/commit/409458bc3a7326e72b3b7f4c2b0a0b5f5a5e5a03))
+* **product:** add new bundle feature on product ([30668c2](https://github.com/erxes/erxes/commit/30668c27a2215c40749981835b32d72d5ca7c03a))
+* **product:** bundle ([9caba47](https://github.com/erxes/erxes/commit/9caba47c4d003916d9f3d3d44e19d4f40192c0d0))
+
+### Bug Fixes
+
+* accountings query with record ([ef9a54b](https://github.com/erxes/erxes/commit/ef9a54b3e5529980aecbf176870618ba7d1e4fdf))
+
 ## [2.13.0-rc.0](https://github.com/erxes/erxes/compare/2.12.0...2.13.0-rc.0) (2025-05-18)
 
 ### Bug Fixes
