@@ -16,7 +16,7 @@ export default {
   dependentServices: [
     {
       name: "core",
-      types: ["company", "customer", "lead"],
+      // types: ["company", "customer", "lead"],
       twoWay: true,
       associated: true
     },
