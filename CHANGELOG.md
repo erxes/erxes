@@ -1,6 +1,7 @@
 # Changelog
 
 ## [2.14.0-rc.0](https://github.com/erxes/erxes/compare/2.12.3...2.14.0-rc.0) (2025-06-03)
+## [2.13.0](https://github.com/erxes/erxes/compare/2.12.3...2.13.0) (2025-06-03)
 
 ### Features
 
@@ -16,6 +17,7 @@
 * get cards association types ([d88d0ab](https://github.com/erxes/erxes/commit/d88d0ab3b9a6d6d6d48ef27b3e8df39bd4fee4e5))
 * improve syncpolaris and loans, savings ([#6047](https://github.com/erxes/erxes/issues/6047)) ([e2ab9db](https://github.com/erxes/erxes/commit/e2ab9db81935f7a284d867d4f23fa5bb107622ba))
 * **products:** filter & bugs ([04b27b9](https://github.com/erxes/erxes/commit/04b27b98656e7eaa73b40f25efc36899136bf633))
+* release.yaml ([ce1f20a](https://github.com/erxes/erxes/commit/ce1f20aac27a59d71ab1ef1807891f8010b23a28))
 * **sales:** add some attributes in document ([acbb9ab](https://github.com/erxes/erxes/commit/acbb9ab04eab286cc5cd9996e4acc288493e5298))
 * **tms:** advancecheck ([52ef4a6](https://github.com/erxes/erxes/commit/52ef4a6f248638dc9ba65e752dc69aed2b9409df))
 * **tms:** changes ([55e744c](https://github.com/erxes/erxes/commit/55e744c5a91afc8b3205a8f16b206d4f7fa6d79b))
@@ -39,6 +41,11 @@
 * loansresearch number value fixed ([f8c661c](https://github.com/erxes/erxes/commit/f8c661c7a4919ae8144a2998d924473a82676c4d))
 * loansresearch number value fixed on sales side bar ([8a2621e](https://github.com/erxes/erxes/commit/8a2621e19fb6764f050cecfba00a7b3699717a16))
 * permission add on loan research ([#5889](https://github.com/erxes/erxes/issues/5889)) ([29ed04a](https://github.com/erxes/erxes/commit/29ed04ad75263e041e8e47fe144ad56932d3f0da))
+## [2.13.0-rc.0](https://github.com/erxes/erxes/compare/2.12.3...2.13.0) (2025-05-18)
+
+### Features
+
+* **cards:** product bundle ([409458b](https://github.com/erxes/erxes/commit/409458bc3a7326e72b3b7f4c2b0a0b5f5a5e5a03))
 * **product:** add new bundle feature on product ([30668c2](https://github.com/erxes/erxes/commit/30668c27a2215c40749981835b32d72d5ca7c03a))
 * **product:** bundle ([9caba47](https://github.com/erxes/erxes/commit/9caba47c4d003916d9f3d3d44e19d4f40192c0d0))
 
