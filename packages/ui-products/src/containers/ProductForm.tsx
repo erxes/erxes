@@ -1,22 +1,24 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
+  BundleConditionQueryResponse,
+  BundleRulesQueryResponse,
   ConfigsQueryResponse,
   IConfigsMap,
   IProduct,
   ProductCategoriesQueryResponse,
   ProductsConfigsQueryResponse,
   UomsQueryResponse,
-} from '../types';
-import { mutations, queries } from '../graphql';
+} from "../types";
+import { mutations, queries } from "../graphql";
 
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import Form from '../components/ProductForm';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import Form from "../components/ProductForm";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   product?: IProduct;
@@ -28,6 +30,7 @@ type FinalProps = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
   productsConfigsQuery: ProductsConfigsQueryResponse;
   uomsQuery: UomsQueryResponse;
+  bundlesQuery: BundleRulesQueryResponse;
 } & Props;
 
 const ProductFormContainer = (props: FinalProps) => {
@@ -36,13 +39,15 @@ const ProductFormContainer = (props: FinalProps) => {
     productsConfigsQuery,
     uomsQuery,
     configsQuery,
+    bundlesQuery,
   } = props;
 
   if (
     productCategoriesQuery.loading ||
     productsConfigsQuery.loading ||
     uomsQuery.loading ||
-    configsQuery.loading
+    configsQuery.loading ||
+    bundlesQuery.loading
   ) {
     return null;
   }
@@ -59,7 +64,7 @@ const ProductFormContainer = (props: FinalProps) => {
     const attachment = values.attachment || undefined;
     const attachmentMore = values.attachmentMore || [];
 
-    attachmentMore.map((attach) => {
+    attachmentMore.map(attach => {
       attachmentMoreArray.push({ ...attach, __typename: undefined });
     });
 
@@ -81,7 +86,7 @@ const ProductFormContainer = (props: FinalProps) => {
         type="submit"
         uppercase={false}
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          object ? "updated" : "added"
         } a ${name}`}
       />
     );
@@ -90,8 +95,8 @@ const ProductFormContainer = (props: FinalProps) => {
   const productCategories = productCategoriesQuery.productCategories || [];
   const configs = productsConfigsQuery.productsConfigs || [];
   const configsMap = {};
-  const currencies = configsQuery.configsGetValue.value || [];
-
+  const currencies = configsQuery.configsGetValue?.value || [];
+  const bundleRules = bundlesQuery.bundleRules || [];
   for (const config of configs) {
     configsMap[config.code] = config.value;
   }
@@ -105,6 +110,7 @@ const ProductFormContainer = (props: FinalProps) => {
     uoms,
     configsMap: configsMap || ({} as IConfigsMap),
     currencies,
+    bundleRules,
   };
 
   return <Form {...updatedProps} />;
@@ -112,10 +118,10 @@ const ProductFormContainer = (props: FinalProps) => {
 
 const getRefetchQueries = () => {
   return [
-    'productDetail',
-    'products',
-    'productsTotalCount',
-    'productCategories',
+    "productDetail",
+    "products",
+    "productsTotalCount",
+    "productCategories",
   ];
 };
 
@@ -124,23 +130,26 @@ export default withProps<Props>(
     graphql<Props, ProductCategoriesQueryResponse>(
       gql(queries.productCategories),
       {
-        name: 'productCategoriesQuery',
+        name: "productCategoriesQuery",
       }
     ),
     graphql<Props, ConfigsQueryResponse>(gql(queries.configs), {
-      name: 'configsQuery',
+      name: "configsQuery",
       options: () => ({
         variables: {
-          code: 'dealCurrency',
+          code: "dealCurrency",
         },
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
       }),
     }),
+    graphql<{}, BundleRulesQueryResponse>(gql(queries.bundleRules), {
+      name: "bundlesQuery",
+    }),
     graphql<{}, UomsQueryResponse>(gql(queries.uoms), {
-      name: 'uomsQuery',
+      name: "uomsQuery",
     }),
     graphql<{}, ProductsConfigsQueryResponse>(gql(queries.productsConfigs), {
-      name: 'productsConfigsQuery',
+      name: "productsConfigsQuery",
     })
   )(ProductFormContainer)
 );

@@ -32,6 +32,7 @@ import Report from "./report";
 import Section from "./section";
 import Insight from "./insight";
 import Client from "./client";
+import ProductRule from './productRule';
 
 const resolvers: any = {
   ...customScalars,
@@ -71,7 +72,8 @@ const resolvers: any = {
   Dashboard,
   Report,
   Section,
-  Insight
+  Insight,
+  ProductRule
 };
 
 export default resolvers;

@@ -1,6 +1,6 @@
 import {
   pdfAttachmentType,
-  pdfAttachmentInput,
+  pdfAttachmentInput
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 const productFields = `
@@ -16,6 +16,8 @@ const productFields = `
     barcodeDescription: String
     unitPrice: Float
     categoryId: String
+    bundleId: String
+    bundle: BundleRule
     customFieldsData: JSON
     customFieldsDataByFieldCode: JSON
     createdAt: Date
@@ -28,7 +30,7 @@ const productFields = `
     uom: String
     subUoms: JSON
     currency: String
-
+    
     category: ProductCategory
     vendor: Company
     hasSimilarity: Boolean
@@ -89,6 +91,7 @@ const productParams = `
   name: String,
   shortName: String,
   categoryId: String,
+  bundleId: String,
   type: String,
   description: String,
   barcodes: [String],
@@ -125,6 +128,7 @@ const productCategoryParams = `
 const productsQueryParams = `
   type: String,
   status: String,
+  bundleId: String,
   categoryId: String,
   searchValue: String,
   vendorId: String,
