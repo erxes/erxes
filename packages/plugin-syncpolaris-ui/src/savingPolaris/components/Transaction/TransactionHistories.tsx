@@ -3,7 +3,6 @@ import { __ } from 'coreui/utils';
 import React from 'react';
 
 import { ContractsTableWrapper, ScrollTableColls } from '../../styles';
-import { IContractDoc } from '../../types';
 
 type Props = {
   savingHistories: any[];

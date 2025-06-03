@@ -48,7 +48,7 @@ export const createLoanMessage = async (subdomain, polarisConfig, loan) => {
 
   let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
-  if (preSuccessValue) {
+  if (preSuccessValue || loan.isSyncedPolaris) {
     return await updateLoan(subdomain, models, polarisConfig, syncLog, loan);
   }
 
