@@ -18,7 +18,7 @@ export interface IBankTransaction {
   toOwner?: string;
 }
 
-export interface IEBarimt { }
+export interface IEBarimt {}
 
 export interface ITransaction {
   number?: string;
@@ -65,6 +65,7 @@ export interface ITransaction {
   isOrganization?: boolean;
   organizationRegister?: string;
   scheduleId?: string;
+  isSyncedTransaction?: boolean;
 }
 
 export interface ITransactionDocument extends ITransaction, Document {
@@ -211,6 +212,11 @@ export const transactionSchema = schemaHooksWrapper(
       type: String,
       optional: true,
       label: 'scheduleId'
+    }),
+    isSyncedTransaction: field({
+      type: Boolean,
+      label: 'Is Synced transaction',
+      optional: true
     })
   }),
   'erxes_transactionSchema'

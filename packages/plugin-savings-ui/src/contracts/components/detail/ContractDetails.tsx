@@ -9,9 +9,12 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 import { Tabs } from '../list/ContractForm';
 import { loadDynamicComponent } from '@erxes/ui/src/utils';
+import { ITransaction } from '../../../transactions/types';
 
 type Props = {
-  contract: IContractDoc;
+  contract: IContractDoc & {
+    savingTransactionHistory: ITransaction[];
+  };
   currentUser: IUser;
   loading: boolean;
 };
@@ -34,6 +37,7 @@ const ContractDetails = (props: Props) => {
           <ScheduleSection
             constractId={contract._id}
             constractNumber={contract.number}
+            transactions={contract.savingTransactionHistory}
           />
         )
       },

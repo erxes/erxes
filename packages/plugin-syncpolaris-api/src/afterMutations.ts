@@ -23,7 +23,7 @@ const allowTypes = {
   //loan
   // 'loans:contract': ['create', 'update'],
   // "loans:classification": ["create"],
-  // "loans:transaction": ["create"]
+  'loans:transaction': ['create']
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
@@ -49,14 +49,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
     createdAt: new Date(),
     createdBy: user._id,
     consumeData: params,
-    consumeStr: JSON.stringify(params),
+    consumeStr: JSON.stringify(params)
   };
 
   const preSuccessValue = await models.SyncLogs.findOne({
     contentType: type,
     contentId: params.object._id,
     error: { $exists: false },
-    responseData: { $exists: true, $ne: null },
+    responseData: { $exists: true, $ne: null }
   }).sort({ createdAt: -1 });
 
   if (!Object.keys(allowTypes).includes(type)) {
@@ -165,13 +165,13 @@ const customerMethod = async (
     return await updateCustomer(subdomain, models, polarisConfig, syncLog, {
       ...customer,
       custCode,
-      registerCode,
+      registerCode
     });
   }
 
   return await createCustomer(subdomain, models, polarisConfig, syncLog, {
     ...customer,
-    registerCode,
+    registerCode
   });
 };
 
@@ -217,9 +217,9 @@ const savingsTransactionMethod = async (
   if (params.object.transactionType === 'income') {
     return await incomeSaving(
       subdomain,
-      models,
+      // models,
       polarisConfig,
-      syncLog,
+      // syncLog,
       params
     );
   }
@@ -270,20 +270,19 @@ const loansTransactionMethod = async (
       subdomain,
       models,
       polarisConfig,
-      syncLog,
       params.object
     );
   }
 
-  if (params.object.transactionType === 'give') {
-    return await createLoanGive(
-      subdomain,
-      models,
-      polarisConfig,
-      syncLog,
-      params.object
-    );
-  }
+  // if (params.object.transactionType === 'give') {
+  //   return await createLoanGive(
+  //     subdomain,
+  //     // models,
+  //     polarisConfig,
+  //     // syncLog,
+  //     params.object
+  //   );
+  // }
 };
 
 export default allowTypes;

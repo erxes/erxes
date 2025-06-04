@@ -3,13 +3,13 @@ import {
   getBranch,
   getUser,
   fetchPolaris,
-  getFullDate,
   updateContract,
   sendMessageBrokerData,
   getProduct,
   getPurpose
 } from '../utils';
 import { createSavingLoan } from './createSavingLoan';
+import { getDate } from './getDate';
 import { IPolarisLoan } from './types';
 import { updateLoan } from './updateLoan';
 import { validateLoanObject } from './validator';
@@ -48,7 +48,7 @@ export const createLoanMessage = async (subdomain, polarisConfig, loan) => {
 
   let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
-  if (preSuccessValue) {
+  if (preSuccessValue || loan.isSyncedPolaris) {
     return await updateLoan(subdomain, models, polarisConfig, syncLog, loan);
   }
 
@@ -72,6 +72,20 @@ export const createLoanMessage = async (subdomain, polarisConfig, loan) => {
 
   const subPurpose = await getPurpose(subdomain, loan.loanPurpose, 'loans');
 
+  const systemDate = await getDate(subdomain, polarisConfig);
+
+  let endDate = new Date(systemDate);
+
+  if (loan.scheduleDays.length === 1) {
+    // If there's only 1 day in scheduleDays, rent is paid once per month
+    endDate.setMonth(new Date(systemDate).getMonth() + Math.ceil(loan.tenor)); // End date is `tenor` months later
+  } else if (loan.scheduleDays.length > 1) {
+    // If there are multiple days in scheduleDays, rent is paid twice per month
+    endDate.setMonth(
+      new Date(systemDate).getMonth() + Math.ceil(systemDate.tenor / 2)
+    ); // 2 months later
+  }
+
   let sendData: IPolarisLoan = {
     custCode: customer.code,
     name: `${customer.firstName} ${customer.lastName}`,
@@ -86,11 +100,11 @@ export const createLoanMessage = async (subdomain, polarisConfig, loan) => {
     curCode: loan.currency,
     approvAmount: loan.leaseAmount,
     impairmentPer: 0,
-    approvDate: getFullDate(loan.startDate),
+    approvDate: systemDate,
     acntManager: leasingExpert?.employeeId,
     brchCode: branch?.code,
-    startDate: getFullDate(loan.startDate),
-    endDate: getFullDate(loan.endDate),
+    startDate: systemDate,
+    endDate: new Date(endDate),
     termLen: loan.tenor,
     IsGetBrchFromOutside: '0',
     segCode: '1',
@@ -135,7 +149,12 @@ export const createLoanMessage = async (subdomain, polarisConfig, loan) => {
       await updateContract(
         subdomain,
         { _id: loan._id },
-        { $set: { number: result, isSyncedPolaris: true } },
+        {
+          $set: {
+            number: result,
+            isSyncedPolaris: true
+          }
+        },
         'loans'
       );
     }

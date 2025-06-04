@@ -22,9 +22,16 @@ const loanContractActive = `
   }
 `;
 
+const loanGiveTransaction = `
+  mutation loanGiveTransaction($data: JSON) {
+    loanGiveTransaction(data: $data)
+  }
+`;
+
 export default {
   sendSaving,
   syncLoanCollateral,
   sendLoanSchedules,
-  loanContractActive
+  loanContractActive,
+  loanGiveTransaction
 };

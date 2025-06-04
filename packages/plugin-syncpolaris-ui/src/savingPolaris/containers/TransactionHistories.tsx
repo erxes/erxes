@@ -2,28 +2,25 @@ import React from 'react';
 import { IContractDoc, savingHistoryQueryResponse } from '../types';
 import { queries } from '../graphql';
 
-import { gql } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import { Spinner } from '@erxes/ui/src';
 
-import { useQuery } from '@apollo/client';
-import CollateralSection from '../components/CollateralSection';
+import Transaction from '../components/Transaction/TransactionHistories';
 
 type Props = {
   contract: IContractDoc;
-  reSendCollateral: (data: any) => void;
 };
 
-const CollateralContainer = (props: Props) => {
+const TransactionContainer = (props: Props) => {
   const { contract } = props;
 
   const savingHistoryQuery = useQuery<savingHistoryQueryResponse>(
     gql(queries.SyncSavingsData),
     {
       variables: {
-        contentType: 'loans:contract',
-        contentId: contract?.collateralsData?.[0]?.collateralId
-      },
-      skip: !contract?.collateralsData?.[0]?.collateralId
+        contentType: 'savings:transaction',
+        contentId: contract.number
+      }
     }
   );
 
@@ -39,7 +36,7 @@ const CollateralContainer = (props: Props) => {
     savingHistories
   };
 
-  return <CollateralSection {...updatedProps} />;
+  return <Transaction {...updatedProps} />;
 };
 
-export default CollateralContainer;
+export default TransactionContainer;

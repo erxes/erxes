@@ -27,6 +27,7 @@ export interface ITransactionDoc {
   total: number;
   futureDebt?: number;
   debtTenor?: number;
+  isSyncedTransaction?: boolean;
 }
 
 export interface ITransaction extends ITransactionDoc {
