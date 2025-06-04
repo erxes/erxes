@@ -75,5 +75,8 @@
   "resolutions": {
     "prosemirror-model": "1.22.3",
     "prosemirror-view": "1.34.2"
+  },
+  "dependencies": {
+    "ssh2-sftp-client": "^12.0.0"
   }
 }
