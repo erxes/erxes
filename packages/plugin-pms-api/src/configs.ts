@@ -5,7 +5,7 @@ import { generateModels } from "./connectionResolver";
 import { setupMessageConsumers } from "./messageBroker";
 import { getSubdomain } from "@erxes/api-utils/src/core";
 import * as permissions from "./permissions";
-
+import logs from "./logUtils";
 import { getOrderInfo } from "./routes";
 import reports from "./reports/reports";
 
@@ -35,6 +35,7 @@ export default {
     // afterMutations,
     // afterQueries,
     permissions,
-    reports
+    reports,
+    logs: { providesActivityLog: true, consumers: logs }
   }
 };
