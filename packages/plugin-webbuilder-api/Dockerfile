@@ -1,4 +1,4 @@
-FROM node:18.17.1-bookworm-slim
+FROM node:18.20.4-bookworm-slim
 WORKDIR /erxes
 RUN chown -R node:node /erxes
 RUN apt-get update -y \

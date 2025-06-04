@@ -20,7 +20,7 @@
     "@types/json2csv": "^5.0.1",
     "@types/ioredis-mock": "^8.2.5",
     "@types/jsonwebtoken": "^8.5.6",
-    "@types/node": "18.17.1",
+    "@types/node": "18.20.4",
     "@types/underscore": "^1.8.9",
     "ora": "^3.4.0"
   },
