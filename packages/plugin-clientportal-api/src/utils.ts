@@ -779,19 +779,17 @@ export const fetchUserFromToki = async (
 
   const apiKey = clientPortal.tokiConfig.apiKey;
 
-  const apiUrl = clientPortal.tokiConfig.production
-    ? prodApiUrl
-    : testApiUrl;
-
-  return await fetch(
-    `https://${apiUrl}/third-party-service/v1/shoppy/user`,
-    {
+  const apiUrl = clientPortal.tokiConfig.production ? prodApiUrl : testApiUrl;
+  try {
+    return await fetch(`https://${apiUrl}/third-party-service/v1/shoppy/user`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
         'api-key': apiKey,
       },
-    }
-  ).then((r) => r.json());
+    }).then((r) => r.json());
+  } catch (err) {
+    throw new Error(err);
+  }
 };
