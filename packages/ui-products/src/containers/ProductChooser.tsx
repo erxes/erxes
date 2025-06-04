@@ -5,11 +5,11 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 import queryString from "query-string";
 import React, { useEffect, useState } from "react";
 import ProductCategoryChooser from "../components/ProductCategoryChooser";
-import { queries as productQueries, } from "../graphql";
+import { queries as productQueries } from "../graphql";
 import {
   IProduct,
   ProductCategoriesQueryResponse,
-  ProductsQueryResponse,
+  ProductsQueryResponse
 } from "../types";
 import ProductForm from "./ProductForm";
 
@@ -21,6 +21,7 @@ type Props = {
   onSelect: (products: IProduct[]) => void;
   loadDiscountPercent?: (productsData: any) => void;
   limit?: number;
+  ids?: string[];
 };
 
 const ProductChooser: React.FC<Props> = ({
@@ -30,7 +31,8 @@ const ProductChooser: React.FC<Props> = ({
   closeModal,
   onSelect,
   loadDiscountPercent,
-  limit
+  limit,
+  ids
 }) => {
   const [perPage, setPerPage] = useState(20);
   const savedFilters = JSON.parse(
@@ -40,8 +42,10 @@ const ProductChooser: React.FC<Props> = ({
   const [categoryId, setCategoryId] = useState<string | undefined>(
     propCategoryId || savedFilters?.categoryId
   );
-  const [vendorId, setVendorId] = useState<string | undefined>(propVendorId || savedFilters?.vendorId);
-  const [searchValue, setSearchValue] = useState<string | undefined>('');
+  const [vendorId, setVendorId] = useState<string | undefined>(
+    propVendorId || savedFilters?.vendorId
+  );
+  const [searchValue, setSearchValue] = useState<string | undefined>("");
 
   const parsedQuery = queryString.parse(location.search);
 
@@ -54,8 +58,9 @@ const ProductChooser: React.FC<Props> = ({
         vendorId,
         pipelineId: parsedQuery.pipelineId,
         boardId: parsedQuery.boardId,
+        ids: ids
       },
-      fetchPolicy: "network-only",
+      fetchPolicy: "network-only"
     });
 
   const { data: categoriesData } = useQuery<ProductCategoriesQueryResponse>(
@@ -70,13 +75,13 @@ const ProductChooser: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    setPerPage(20)
+    setPerPage(20);
     refetchProducts();
     saveFilter();
   }, [categoryId, vendorId, searchValue]);
 
   const handleSearch = (value: string, reload?: boolean) => {
-    setSearchValue(value)
+    setSearchValue(value);
   };
 
   const renderProductCategoryChooser = () => (
@@ -86,7 +91,7 @@ const ProductChooser: React.FC<Props> = ({
         name="ownerId"
         multi={false}
         initialValue={vendorId}
-        onSelect={(companyId) => setVendorId(companyId as string)}
+        onSelect={companyId => setVendorId(companyId as string)}
         customOption={{ label: "Choose company", value: "" }}
       />
       <ProductCategoryChooser
@@ -98,24 +103,25 @@ const ProductChooser: React.FC<Props> = ({
     </>
   );
 
-  const renderDiscount = (data) => {
+  const renderDiscount = data => {
     if (isEnabled("loyalties") && loadDiscountPercent && data) {
       loadDiscountPercent({
         product: { _id: data._id },
-        quantity: 1,
+        quantity: 1
       });
     }
   };
 
   const loadMore = () => {
-    setPerPage((prev) => prev + 20);
+    setPerPage(prev => prev + 20);
     refetchProducts();
-  }
+  };
 
   const renderName = (product: IProduct) => {
     if (product.code && product.subUoms?.length) {
-      return `${product.code} - ${product.name} ~${Math.round((1 / (product.subUoms[0].ratio || 1)) * 100) / 100
-        } - ${product.unitPrice}`;
+      return `${product.code} - ${product.name} ~${
+        Math.round((1 / (product.subUoms[0].ratio || 1)) * 100) / 100
+      } - ${product.unitPrice}`;
     }
     if (product.code) {
       return `${product.code} - ${product.name} - ${product.unitPrice.toLocaleString() || ""}`;

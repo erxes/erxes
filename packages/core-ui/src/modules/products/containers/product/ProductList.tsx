@@ -55,7 +55,7 @@ const ProductListContainer = (props: FinalProps) => {
     productsRemove({
       variables: { productIds },
     })
-      .then((removeStatus) => {
+      .then(removeStatus => {
         emptyBulk();
 
         const status = removeStatus.data.productsRemove;
@@ -64,7 +64,7 @@ const ProductListContainer = (props: FinalProps) => {
           ? Alert.success("You successfully deleted a product")
           : Alert.warning("Product status deleted");
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
@@ -86,7 +86,7 @@ const ProductListContainer = (props: FinalProps) => {
           `/settings/product-service/details/${result.data.productsMerge._id}`
         );
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
         setMergeProductLoading(false);
       });
@@ -99,7 +99,7 @@ const ProductListContainer = (props: FinalProps) => {
       .then((result: any) => {
         Alert.success("You successfully duplicated a product");
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
@@ -116,10 +116,10 @@ const ProductListContainer = (props: FinalProps) => {
     productsCount: productsCountQuery.productsTotalCount || 0,
     currentCategory: productCategoryDetailQuery.productCategoryDetail || {},
     mergeProducts,
-    duplicateProduct
+    duplicateProduct,
   };
 
-  const productList = (props) => {
+  const productList = props => {
     return <List {...updatedProps} {...props} />;
   };
 
@@ -152,6 +152,7 @@ export default withProps<Props>(
         name: "productsQuery",
         options: ({ queryParams }) => ({
           variables: {
+            bundleId: queryParams.bundle,
             categoryId: queryParams.categoryId,
             status: queryParams.state,
             tag: queryParams.tag,

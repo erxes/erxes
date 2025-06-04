@@ -92,6 +92,7 @@ export interface IProduct {
   shortName?: string;
   categoryId?: string;
   categoryCode?: string;
+  bundleId?: string;
   type?: string;
   scopeBrandIds?: string[];
   description?: string;
@@ -163,6 +164,7 @@ export const productSchema = schemaWrapper(
     shortName: field({ type: String, optional: true, label: 'Short name' }),
     code: field({ type: String, unique: true, label: 'Code' }),
     categoryId: field({ type: String, label: 'Category' }),
+    bundleId: field({ type: String, label: 'bundleId' }),
     type: field({
       type: String,
       enum: PRODUCT_TYPES.ALL,
