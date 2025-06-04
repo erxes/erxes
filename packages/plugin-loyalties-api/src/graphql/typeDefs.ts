@@ -87,6 +87,8 @@ import {
   types as couponTypes,
 } from './schema/coupon';
 
+import { types as agentTypes, mutations as agentMutations, queries as agentQueries } from './schema/agents';
+
 const typeDefs = async () => {
   return gql`
     scalar JSON
@@ -120,6 +122,7 @@ const typeDefs = async () => {
     ${assignmentTypes}
     ${assignmentCampaignTypes}
     ${scoreCampaignTypes}
+    ${agentTypes}
     ${couponTypes}
     ${couponCampaignTypes}
 
@@ -138,6 +141,7 @@ const typeDefs = async () => {
       ${assignmentQueries}
       ${assignmentCampaignQueries}
       ${scoreCampaignQueries}
+      ${agentQueries}
       ${couponQueries}
       ${couponCampaignQueries}
     }
@@ -157,6 +161,7 @@ const typeDefs = async () => {
       ${assignmentMutations}
       ${assignmentCampaignMutations}
       ${scoreCampaignMutations}
+      ${agentMutations}
       ${couponMutations}
       ${couponCampaignMutations}
     }

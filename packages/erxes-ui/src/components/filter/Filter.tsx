@@ -1,30 +1,35 @@
-import { removeParams, setParams } from '../../utils/router';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { removeParams, setParams } from "../../utils/router";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import Chip from '../Chip';
-import React from 'react';
-import { __ } from '../../utils/core';
-import { cleanIntegrationKind } from '../../utils';
-import createChipText from './createChipText';
-import { gql } from '@apollo/client';
-import styled from 'styled-components';
+import Chip from "../Chip";
+import React from "react";
+import { __ } from "../../utils/core";
+import { cleanIntegrationKind } from "../../utils";
+import createChipText from "./createChipText";
+import { gql } from "@apollo/client";
+import styled from "styled-components";
 
 interface IProps {
   queryParams?: any;
   filterTitle?: string;
-  extraFilterParams?: { param: string, bool: boolean, title?: string }[];
-  extraFilterWithData?: { paramKey: string, type: string, fields?: string }[];
+  extraFilterParams?: { param: string; bool: boolean; title?: string }[];
+  extraFilterWithData?: { paramKey: string; type: string; fields?: string }[];
 }
 
 const Filters = styled.div`
   font-size: 0.9em;
 `;
 
-function Filter({ queryParams = {}, filterTitle, extraFilterParams, extraFilterWithData }: IProps) {
+function Filter({
+  queryParams = {},
+  filterTitle,
+  extraFilterParams,
+  extraFilterWithData,
+}: IProps) {
   const navigate = useNavigate();
   const location = useLocation() as any;
 
-  const onClickClose = (paramKey) => {
+  const onClickClose = paramKey => {
     removeParams(navigate, location, ...paramKey);
   };
 
@@ -43,7 +48,7 @@ function Filter({ queryParams = {}, filterTitle, extraFilterParams, extraFilterW
   const renderFilterParam = (
     paramKey: string,
     bool: boolean,
-    customText?: string,
+    customText?: string
   ) => {
     if (!queryParams[paramKey]) {
       return null;
@@ -63,7 +68,7 @@ function Filter({ queryParams = {}, filterTitle, extraFilterParams, extraFilterW
   const renderFilterWithData = (
     paramKey: string,
     type: string,
-    fields = '_id name',
+    fields = "_id name"
   ) => {
     if (queryParams[paramKey]) {
       const id = queryParams[paramKey];
@@ -76,7 +81,7 @@ function Filter({ queryParams = {}, filterTitle, extraFilterParams, extraFilterW
         }
       `;
 
-      if (type === 'forum') {
+      if (type === "forum") {
         graphqlQuery = gql`
           query ForumCategoryDetail($id: ID!) {
             forumCategory(_id: $id) {
@@ -87,7 +92,7 @@ function Filter({ queryParams = {}, filterTitle, extraFilterParams, extraFilterW
         `;
       }
 
-      const ids = id.split(',');
+      const ids = id.split(",");
 
       if (ids.length > 1) {
         return ids.map((_id: string) => {
@@ -118,7 +123,7 @@ function Filter({ queryParams = {}, filterTitle, extraFilterParams, extraFilterW
 
   const renderFilterWithDate = () => {
     if (queryParams.startDate && queryParams.endDate) {
-      const onClick = () => onClickClose(['startDate', 'endDate']);
+      const onClick = () => onClickClose(["startDate", "endDate"]);
 
       return (
         <Chip onClick={onClick}>
@@ -129,7 +134,7 @@ function Filter({ queryParams = {}, filterTitle, extraFilterParams, extraFilterW
 
     if (queryParams.startDate || queryParams.endDate) {
       const onClick = () =>
-        onClickClose([queryParams.startDate ? 'startDate' : 'endDate']);
+        onClickClose([queryParams.startDate ? "startDate" : "endDate"]);
 
       return (
         <Chip onClick={onClick}>
@@ -143,52 +148,58 @@ function Filter({ queryParams = {}, filterTitle, extraFilterParams, extraFilterW
 
   return (
     <Filters>
-      {renderFilterWithData('channelId', 'channel')}
-      {renderFilterParam('status', false)}
-      {renderFilterParam('state', false)}
-      {renderFilterParam('categoryApprovalState', false)}
-      {(location?.href || '').includes('forum') &&
-        renderFilterWithData('categoryId', 'forum')}
-      {(location?.href || '').includes('product') &&
+      {renderFilterWithData("channelId", "channel")}
+      {renderFilterParam("status", false)}
+      {renderFilterParam("state", false)}
+      {renderFilterParam("categoryApprovalState", false)}
+      {(location?.href || "").includes("forum") &&
+        renderFilterWithData("categoryId", "forum")}
+      {(location?.href || "").includes("product") &&
         renderFilterWithData(
-          'categoryId',
-          'productCategory',
-          '_id, code, name',
+          "categoryId",
+          "productCategory",
+          "_id, code, name"
         )}
-      {renderFilterParam('participating', true)}
-      {renderFilterParam('unassigned', true)}
-      {renderFilterParam('awaitingResponse', true, 'Awaiting Response')}
-      {renderFilterWithData('brandId', 'brand')}
-      {renderFilterParam('integrationType', false)}
-      {renderFilterWithData('tag', 'tag')}
-      {renderFilterWithData('segment', 'segment')}
-      {renderFilterParam('segmentData', true, 'Temporary segment')}
-      {renderFilterParam('kind', false)}
-      {renderFilterWithData('brand', 'brand')}
+      {renderFilterParam("participating", true)}
+      {renderFilterParam("unassigned", true)}
+      {renderFilterParam("awaitingResponse", true, "Awaiting Response")}
+      {renderFilterWithData("brandId", "brand")}
+      {renderFilterParam("integrationType", false)}
+      {renderFilterWithData("tag", "tag")}
+      {renderFilterWithData("segment", "segment")}
+      {renderFilterParam("segmentData", true, "Temporary segment")}
+      {renderFilterParam("kind", false)}
+      {renderFilterWithData("brand", "brand")}
       {renderFilterWithDate()}
-      {renderFilterWithData('form', 'form', '_id title')}
-      {renderFilterWithData('branchId', 'branch', '_id title')}
-      {renderFilterWithData('departmentId', 'department', '_id title')}
-      {renderFilterWithData('unitId', 'unit', '_id title')}
-      {renderFilterParam('groupId', true, filterTitle)}
-      {renderFilterParam('tagType', true, filterTitle)}
-      {renderFilterParam('contentType', true, filterTitle)}
-      {renderFilterParam('type', false, filterTitle)}
-      {renderFilterParam('action', false, filterTitle)}
-      {renderFilterWithData('userId', 'user', 'details{fullName}, email')}
+      {renderFilterWithData("form", "form", "_id title")}
+      {renderFilterWithData("branchId", "branch", "_id title")}
+      {renderFilterWithData("departmentId", "department", "_id title")}
+      {renderFilterWithData("unitId", "unit", "_id title")}
+      {renderFilterParam("groupId", true, filterTitle)}
+      {renderFilterParam("tagType", true, filterTitle)}
+      {renderFilterParam("contentType", true, filterTitle)}
+      {renderFilterParam("type", false, filterTitle)}
+      {renderFilterParam("bundle", false, filterTitle)}
+
+      {renderFilterParam("action", false, filterTitle)}
+      {renderFilterWithData("userId", "user", "details{fullName}, email")}
       {renderFilterWithData(
-        'assetCategoryId',
-        'assetCategory',
-        '_id, code, name',
+        "assetCategoryId",
+        "assetCategory",
+        "_id, code, name"
       )}
       {renderFilterWithData(
-        'knowledgebaseCategoryId',
-        'knowledgeBaseCategory',
-        '_id, title',
+        "knowledgebaseCategoryId",
+        "knowledgeBaseCategory",
+        "_id, title"
       )}
-      {renderFilterWithData('assetId', 'asset', '_id, code, name')}
-      {(extraFilterParams || []).map(af => (renderFilterParam(af.param, af.bool, af.title || af.param)))}
-      {(extraFilterWithData || []).map(af => (renderFilterWithData(af.paramKey, af.type, af.fields)))}
+      {renderFilterWithData("assetId", "asset", "_id, code, name")}
+      {(extraFilterParams || []).map(af =>
+        renderFilterParam(af.param, af.bool, af.title || af.param)
+      )}
+      {(extraFilterWithData || []).map(af =>
+        renderFilterWithData(af.paramKey, af.type, af.fields)
+      )}
     </Filters>
   );
 }

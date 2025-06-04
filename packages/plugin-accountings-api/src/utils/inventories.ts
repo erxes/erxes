@@ -40,7 +40,7 @@ export const calcInvTrs = async (models: IModels, { adjustId, beginDate, endDate
   const commonMatch: any = { date: { $gte: beginDate, $lt: endDate }, ...trFilter }
   const commonAggregates: any[] = [
     { $unwind: '$details' },
-    { $sort: { modifiedAt: 1 } },
+    { $sort: { updatedAt: 1 } },
     {
       $group: {
         _id: {
@@ -284,7 +284,7 @@ export const fixInvTrs = async (models: IModels, {
   const commonMatch: any = { date: { $gte: beginDate, $lt: endDate }, ...trFilter }
   const commonAggregates: any[] = [
     { $unwind: '$details' },
-    { $sort: { modifiedAt: 1 } },
+    { $sort: { updatedAt: 1 } },
     {
       $group: {
         _id: {

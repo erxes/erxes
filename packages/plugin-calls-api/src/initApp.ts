@@ -36,6 +36,7 @@ const initApp = async () => {
 
   // init bots
   app.post('/call/receiveWaitingCall', async (req, res) => {
+    console.log('received...');
     try {
       const data = JSON.parse(JSON.stringify(req.body));
       const history = JSON.parse(JSON.stringify(data.history));

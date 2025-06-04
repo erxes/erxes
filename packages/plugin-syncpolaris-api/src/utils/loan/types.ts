@@ -5,7 +5,6 @@ export interface IPolarisLoan {
   prodCode: string;
   prodType: string;
   purpose: string;
-  loanDestination: string;
   subPurpose: string;
   isNotAutoClass: number;
   comRevolving: number;
@@ -13,7 +12,7 @@ export interface IPolarisLoan {
   curCode: string;
   approvAmount: number;
   impairmentPer: number;
-  approvDate: string;
+  approvDate: Date;
   acntManager: number;
   brchCode: string;
   IsGetBrchFromOutside: string;
@@ -23,9 +22,9 @@ export interface IPolarisLoan {
   classNoTrm: string;
   classNoQlt: string;
   classNo: string;
-  startDate: string;
-  endDate: string;
-  termLen: 1;
+  startDate: Date;
+  endDate: Date;
+  termLen: number;
   termBasis: string;
   isBrowseAcntOtherCom: number;
   repayPriority: number;
@@ -34,6 +33,47 @@ export interface IPolarisLoan {
   losMultiAcnt: number;
   validLosAcnt: number;
   secType: number;
+}
+
+export interface IPolarisUpdateLoan {
+  acntCode: string;
+  custCode: string;
+  name: string;
+  name2: string;
+  prodCode: string;
+  prodName: string;
+  prodType: string;
+  brchName: string;
+  purpose: string;
+  subPurpose: string;
+  isNotAutoClass: number;
+  comRevolving: number;
+  flagMoveSa: string;
+  dailyBasisCode: string;
+  curCode: string;
+  approvAmount: number;
+  impairmentPer: number;
+  approvDate: Date;
+  acntManager: number;
+  brchCode: string;
+  segCode: string;
+  status: string;
+  slevel: string;
+  classNoTrm: string;
+  classNoQlt: string;
+  classNo: string;
+  startDate: Date;
+  endDate: Date;
+  termLen: number;
+  termBasis: string;
+  repayAcntCode: string;
+  isBrowseAcntOtherCom: number;
+  repayPriority: number;
+  useSpclAcnt: number;
+  notSendToCib: number;
+  repayAcntSysNo: number;
+  losMultiAcnt: number;
+  validLosAcnt: number;
 }
 
 export interface IPolarisLoanGive {

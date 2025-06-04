@@ -100,7 +100,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
           parentId: doc.parentId || _id,
           sumDt: doc.details.filter(d => d.side === TR_SIDES.DEBIT).reduce((sum, cur) => sum + cur.amount, 0),
           sumCt: doc.details.filter(d => d.side === TR_SIDES.CREDIT).reduce((sum, cur) => sum + cur.amount, 0),
-          modifiedAt: new Date()
+          updatedAt: new Date()
         }
       });
       await this.checkPtr(oldTr.ptrId);
@@ -131,10 +131,6 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
         let parentId = '';
 
         for (const doc of docs) {
-          if (doc._id?.substring(0, 4) === 'temp') {
-            delete doc._id
-          }
-
           if (!parentId) {
             const firstTrs = await commonCreate(subdomain, models, { ...doc, ptrId });
             parentId = firstTrs.mainTr.parentId;

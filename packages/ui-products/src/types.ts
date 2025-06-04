@@ -1,6 +1,6 @@
-import { ICompany } from '@erxes/ui-contacts/src/companies/types';
-import { ITag } from '@erxes/ui-tags/src/types';
-import { IPdfAttachment, QueryResponse } from '@erxes/ui/src/types';
+import { ICompany } from "@erxes/ui-contacts/src/companies/types";
+import { ITag } from "@erxes/ui-tags/src/types";
+import { IPdfAttachment, QueryResponse } from "@erxes/ui/src/types";
 
 export interface IProductDoc {
   _id?: string;
@@ -21,6 +21,34 @@ export interface IUom {
   timely?: string;
 }
 
+export interface IBundleCondition {
+  _id: string;
+  name: string;
+  code: string;
+  description?: string;
+  isDefault?: boolean;
+}
+
+export interface IBundleRuleItem {
+  code: string;
+  quantity: number;
+  productIds: string[];
+  products: IProduct[];
+  priceValue: number;
+  percent: number;
+  priceType: "thisProductPricePercent" | "price" | "mainPricePercent";
+  priceAdjustType: string;
+  priceAdjustFactor: number;
+  allowSkip: boolean;
+}
+export interface IBundleRule {
+  _id: string;
+  name: string;
+  code: string;
+  description?: string;
+  rules: IBundleRuleItem[];
+  selectedBy?: string;
+}
 export interface IVariant {
   [code: string]: { name?: string; image?: any };
 }
@@ -30,6 +58,8 @@ export interface IProduct {
   shortName: string;
   type: string;
   categoryId: string;
+  bundleId?: string;
+  bundle: IBundleRule;
   description: string;
   tagIds: string[];
   getTags?: ITag[];
@@ -130,6 +160,18 @@ export type UomsQueryResponse = {
 
 // SETTINGS
 
+// Bundle Conditions
+export type BundleConditionQueryResponse = {
+  bundleConditions: IBundleCondition[];
+} & QueryResponse;
+
+export type BundleRulesQueryResponse = {
+  bundleRules: IBundleRule[];
+} & QueryResponse;
+export type BundleRuleQueryResponse = {
+  bundleRuleDetail: IBundleRule;
+} & QueryResponse;
+
 export type IConfigsMap = { [key: string]: any };
 
 export type IProductsConfig = {
@@ -155,3 +197,29 @@ export type ConfigsQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+// Product rules
+export interface IProductRule {
+  _id: string;
+  categoryIds?: string[];
+  excludeCategoryIds?: string[];
+  productIds?: string[];
+  excludeProductIds?: string[];
+  tagIds?: string[];
+  excludeTagIds?: string[];
+  unitPrice: number;
+  bundleId?: string;
+  name: string;
+
+  // resolved fields
+  categories?: IProductCategory[];
+  excludeCategories?: IProductCategory[];
+  products?: IProduct[];
+  excludeProducts?: IProduct[];
+  tags?: ITag[];
+  excludeTags?: ITag[];
+};
+
+export type ProductRulesQueryResponse = {
+  productRules: IProductRule[];
+} & QueryResponse;

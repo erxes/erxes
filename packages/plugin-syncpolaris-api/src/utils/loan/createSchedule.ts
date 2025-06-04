@@ -1,8 +1,8 @@
-import { fetchPolaris, getFullDate } from '../utils';
+import { fetchPolaris, getFullDate, updateContract } from '../utils';
 
 const getMethod = (contract) => {
   if (contract.stepRules?.length) {
-    return '4'
+    return '4';
   }
 
   switch (contract.repayment) {
@@ -28,7 +28,11 @@ const getHolidayMethod = (method) => {
   }
 };
 
-export const createLoanSchedule = async (subdomain: string, polarisConfig, contract: any) => {
+export const createLoanSchedule = async (
+  subdomain: string,
+  polarisConfig,
+  contract
+) => {
   const sendData = [
     contract.number,
     getFullDate(contract.startDate),
@@ -50,10 +54,19 @@ export const createLoanSchedule = async (subdomain: string, polarisConfig, contr
     []
   ];
 
-  return await fetchPolaris({
+  const schedule = await fetchPolaris({
     op: '13610258',
     data: sendData,
     subdomain,
-    polarisConfig,
+    polarisConfig
   });
+
+  await updateContract(
+    subdomain,
+    { _id: contract._id },
+    { $set: { isSyncedSchedules: true } },
+    'loans'
+  );
+
+  return schedule;
 };

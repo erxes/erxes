@@ -6,13 +6,12 @@ module.exports = {
   exposes: {
     "./routes": "./src/routes.tsx",
     // './settings': './src/Settings.tsx',
-    "./contractSection":
-      "./src/contracts/components/common/ContractSection.tsx",
+    "./contractSection": "./src/contracts/components/common/ContractSection.tsx"
   },
   routes: {
     url: "http://localhost:3227/remoteEntry.js",
     scope: "loans",
-    module: "./routes",
+    module: "./routes"
   },
   menus: [
     {
@@ -21,7 +20,7 @@ module.exports = {
       icon: "icon-medal",
       location: "mainNavigation",
       permissions: ["showContracts"],
-      permission: "showContracts",
+      permission: "showContracts"
     },
     {
       text: "Loan config",
@@ -31,7 +30,7 @@ module.exports = {
       scope: "loans",
       location: "settings",
       permissions: ["manageLoanConfigs"],
-      permission: "manageLoanConfigs",
+      permission: "manageLoanConfigs"
     },
     {
       text: "Contract types",
@@ -41,7 +40,16 @@ module.exports = {
       scope: "loans",
       location: "settings",
       permissions: ["showContracts"],
-      permission: "showContracts",
+      permission: "showContracts"
+    },
+    {
+      text: "Contract purpose",
+      image: "/images/icons/erxes-01.svg",
+      to: "/erxes-plugin-loan/purpose/",
+      action: "loanConfig",
+      location: "settings",
+      permissions: ["showContracts"],
+      permission: "showContracts"
     },
     {
       text: "Insurance types",
@@ -51,7 +59,7 @@ module.exports = {
       scope: "loans",
       location: "settings",
       permissions: ["manageInsuranceTypes"],
-      permission: "manageInsuranceTypes",
+      permission: "manageInsuranceTypes"
     },
     {
       text: "Transaction",
@@ -60,7 +68,7 @@ module.exports = {
       action: "transaction",
       scope: "loans",
       location: "transaction-list",
-      permissions: ["showTransactions"],
+      permissions: ["showTransactions"]
     },
     {
       text: "nonBalanceTransaction",
@@ -69,13 +77,13 @@ module.exports = {
       action: "nonBalanceTransaction",
       scope: "loans",
       location: "non-balance-transactions",
-      permissions: ["showNonBalanceTransactions"],
-    },
+      permissions: ["showNonBalanceTransactions"]
+    }
   ],
   customerRightSidebarSection: "./contractSection",
   companyRightSidebarSection: "./contractSection",
   dealRightSidebarSection: {
     title: "Loan contract",
-    component: "./contractSection",
-  },
+    component: "./contractSection"
+  }
 };

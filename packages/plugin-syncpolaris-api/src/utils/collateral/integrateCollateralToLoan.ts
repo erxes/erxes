@@ -1,7 +1,12 @@
-import { fetchPolaris } from "../utils";
+import { fetchPolaris } from '../utils';
 
-export const integrateCollateralToLoan = async (subdomain: string, polarisConfig, params) => {
-
+export const integrateCollateralToLoan = async (
+  subdomain: string,
+  polarisConfig,
+  models,
+  syncLog,
+  params
+) => {
   let sendData = {
     txnAcntCode: params.code,
     txnAmount: params.amount,
@@ -12,7 +17,8 @@ export const integrateCollateralToLoan = async (subdomain: string, polarisConfig
     subdomain,
     op: '13610903',
     data: [sendData],
-    polarisConfig
+    models,
+    polarisConfig,
+    syncLog
   });
-
 };
