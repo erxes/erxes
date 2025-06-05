@@ -9,7 +9,7 @@ import {
 } from '../utils';
 
 export const incomeSaving = async (subdomain, polarisConfig, params) => {
-  let transaction;
+  let transactions: any[] = [];
   const filtered = params.filter((tx) => tx.isSyncedTransaction !== true);
 
   const models = await generateModels(subdomain);
@@ -74,14 +74,14 @@ export const incomeSaving = async (subdomain, polarisConfig, params) => {
       tcustRegister: customerData?.registerCode ?? '',
       tcustRegisterMask: '3',
       sourceType: 'TLLR',
-      refNo: '662',
+      refNo: null,
       isPreview: 0,
       isPreviewFee: 0,
       isTmw: 1
     };
 
     if (savingContract?.number && param?.total != null) {
-      transaction = await fetchPolaris({
+      const transaction = await fetchPolaris({
         op: '13610055',
         data: [sendData],
         subdomain,
@@ -100,8 +100,9 @@ export const incomeSaving = async (subdomain, polarisConfig, params) => {
         },
         'savings'
       );
+      transactions.push(transaction);
     }
-
-    return transaction;
   }
+
+  return transactions;
 };
