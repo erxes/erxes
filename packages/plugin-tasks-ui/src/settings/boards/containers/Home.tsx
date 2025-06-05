@@ -31,11 +31,11 @@ function HomeContainer(props: HomeContainerProps & Props) {
 
   const { boardId } = props;
 
-  // useEffect(() => {
-  //   if (!routerUtils.getParam(location, "boardId") && boardId) {
-  //     routerUtils.setParams(navigate, location, { boardId });
-  //   }
-  // }, [boardId, location, navigate]);
+  useEffect(() => {
+    if (!routerUtils.getParam(location, "boardId") && boardId) {
+      routerUtils.setParams(navigate, location, { boardId });
+    }
+  }, [boardId, location, navigate]);
 
   return <Home {...props} />;
 }
