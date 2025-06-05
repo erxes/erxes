@@ -478,12 +478,12 @@ const cfRecordUrl = async (params, user, models, subdomain) => {
 
         const responseText = await rec.text();
 
-        await uploadCallRecordingToSftp({
-          buffer,
-          fileName: removePlusSign,
-          subdomain,
-          getEnv,
-        });
+        // await uploadCallRecordingToSftp({
+        //   buffer,
+        //   fileName: removePlusSign,
+        //   subdomain,
+        //   getEnv,
+        // });
         return responseText;
       }
     }

@@ -1,4 +1,4 @@
-FROM node:18.17.1-bullseye-slim
+FROM node:18.20.4-bullseye-slim
 
 WORKDIR /erxes
 RUN chown -R node:node /erxes
