@@ -47,7 +47,6 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
   } = useQuery<PipelinesQueryResponse>(GET_PIPELINES, {
     variables: { boardId, type, isAll: true },
     fetchPolicy: "network-only",
-    skip: !boardId,
   });
 
   const { data: boardDetailData } = useQuery<BoardDetailQueryResponse>(
@@ -193,7 +192,7 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
       ? boardDetailData.tasksBoardDetail
       : undefined,
   };
-  console.log("pipelines", pipelines);
+
   return <Pipelines {...extendedProps} />;
 };
 
