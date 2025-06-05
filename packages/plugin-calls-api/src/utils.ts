@@ -11,6 +11,7 @@ import { generateModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
 import { IIntegrationDocument } from './models/definitions/integrations';
+import { uploadCallRecordingToSftp } from './uploadSftp';
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET || 'secret';
 const MAX_RETRY_COUNT = 3;
@@ -474,7 +475,16 @@ const cfRecordUrl = async (params, user, models, subdomain) => {
           method: 'POST',
           body: formData,
         });
-        return await rec.text();
+
+        const responseText = await rec.text();
+
+        // await uploadCallRecordingToSftp({
+        //   buffer,
+        //   fileName: removePlusSign,
+        //   subdomain,
+        //   getEnv,
+        // });
+        return responseText;
       }
     }
     return;
@@ -704,7 +714,10 @@ interface FindIntegrationArgs {
   inboxIntegrationId?: string;
 }
 
-export const findIntegration = async (subdomain: string,args: FindIntegrationArgs): Promise<IIntegrationDocument> => {
+export const findIntegration = async (
+  subdomain: string,
+  args: FindIntegrationArgs,
+): Promise<IIntegrationDocument> => {
   let integration: IIntegrationDocument | null = null;
   const models = await generateModels(subdomain);
 
@@ -734,37 +747,54 @@ export const findIntegration = async (subdomain: string,args: FindIntegrationArg
   return integration;
 };
 
-export const  checkForExistingIntegrations = async (subdomain,details, integrationId) =>{
-  const queues = typeof details?.queues === 'string' 
-    ? details.queues.split(',').flatMap(q => q.trim().split(/\s+/)) 
-    : (details?.queues || []).flatMap(q => typeof q === 'string' ? q.trim().split(/\s+/) : q);
+export const checkForExistingIntegrations = async (
+  subdomain,
+  details,
+  integrationId,
+) => {
+  const queues =
+    typeof details?.queues === 'string'
+      ? details.queues.split(',').flatMap((q) => q.trim().split(/\s+/))
+      : (details?.queues || []).flatMap((q) =>
+          typeof q === 'string' ? q.trim().split(/\s+/) : q,
+        );
 
   const models = await generateModels(subdomain);
 
   // Check for existing integrations with the same wsServer and overlapping queues
   const existingIntegrations = await models.Integrations.find({
-    wsServer: details.wsServer,  // Match same wsServer
-    queues: { $in: queues },     // Check if any queue already exists
+    wsServer: details.wsServer, // Match same wsServer
+    queues: { $in: queues }, // Check if any queue already exists
   }).lean();
 
   if (existingIntegrations.length > 0) {
-    existingIntegrations.forEach(existingIntegration => {
+    existingIntegrations.forEach((existingIntegration) => {
       if (existingIntegration.inboxId.toString() !== integrationId.toString()) {
-        throw new Error('One or more queues already exist in the integration with the same wsServer.');
+        throw new Error(
+          'One or more queues already exist in the integration with the same wsServer.',
+        );
       }
     });
   }
 
   details.queues = queues;
-  return details || {}
-}
+  return details || {};
+};
 
-export const updateIntegrationQueues = async (subdomain, integrationId, details) => {
+export const updateIntegrationQueues = async (
+  subdomain,
+  integrationId,
+  details,
+) => {
   try {
     const models = await generateModels(subdomain);
 
     // Normalize and clean queue list
-    const checkedIntegration = await checkForExistingIntegrations(subdomain, details, integrationId);
+    const checkedIntegration = await checkForExistingIntegrations(
+      subdomain,
+      details,
+      integrationId,
+    );
     const { queues } = checkedIntegration;
 
     // Prepare update data
@@ -783,53 +813,59 @@ export const updateIntegrationQueues = async (subdomain, integrationId, details)
   }
 };
 
-export const updateIntegrationQueueNames = async (subdomain, integrationId, queues) => {
+export const updateIntegrationQueueNames = async (
+  subdomain,
+  integrationId,
+  queues,
+) => {
   try {
     const models = await generateModels(subdomain);
     const queueNames: string[] = [];
 
     if (queues?.length > 0) {
-      await Promise.all(queues.map(async (queue) => {
-        try {
-          const { response } = await sendToGrandStream(
-            models,
-            {
-              path: 'api',
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              data: { request: { action: 'getQueue', queue } },
-              integrationId: integrationId,
-              retryCount: 1,
-              isConvertToJson: true,
-              isGetExtension: true,
-            },
-            {},
-          );
+      await Promise.all(
+        queues.map(async (queue) => {
+          try {
+            const { response } = await sendToGrandStream(
+              models,
+              {
+                path: 'api',
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                data: { request: { action: 'getQueue', queue } },
+                integrationId: integrationId,
+                retryCount: 1,
+                isConvertToJson: true,
+                isGetExtension: true,
+              },
+              {},
+            );
 
-          const q = response?.response?.queue || response?.queue;
-          if (q?.queue_name) {
-            queueNames.push(q.queue_name);
+            const q = response?.response?.queue || response?.queue;
+            if (q?.queue_name) {
+              queueNames.push(q.queue_name);
+            }
+          } catch (e) {
+            console.error('getQueue error:', e.message);
+            throw new Error(`getQueue error: ${e.message}`);
           }
-        } catch (e) {
-          console.error('getQueue error:', e.message);
-          throw new Error(`getQueue error: ${e.message}`);
-        }
-      }));
+        }),
+      );
     }
     if (queueNames.length > 0) {
+      // Prepare update data
+      const updateData = { $set: { queueNames } };
 
-    // Prepare update data
-    const updateData = { $set: { queueNames } };
+      // Update the integration
+      const integration = await models.Integrations.findOneAndUpdate(
+        { inboxId: integrationId },
+        updateData,
+      );
 
-    // Update the integration
-    const integration = await models.Integrations.findOneAndUpdate(
-      { inboxId: integrationId },
-      updateData,
-    );
+      return integration?.queueNames || queueNames;
+    }
 
-    return integration?.queueNames || queueNames;}
-
-    return []
+    return [];
   } catch (error) {
     console.error('Error updating integration queue names:', error.message);
     throw error;
