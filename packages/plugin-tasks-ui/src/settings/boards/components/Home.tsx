@@ -44,7 +44,7 @@ class Home extends React.Component<Props, {}> {
         leftSidebar={
           <Boards options={options} type={type} currentBoardId={boardId} />
         }
-        content={<div>Pipelines</div>}
+        content={<Pipelines options={options} type={type} boardId={boardId} />}
         transparent={true}
         hasBorder={true}
       />
