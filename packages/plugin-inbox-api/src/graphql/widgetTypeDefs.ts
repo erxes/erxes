@@ -1,13 +1,13 @@
-export const types = ({ products, knowledgeBase, cloudflareCalls }) => `
-  ${products
-    ? `
+export const types = ({
+  products,
+  knowledgeBase,
+  cloudflareCalls,
+  tickets,
+}) => `
+  ${
+    products
+      ? `
     extend type Product @key(fields: "_id") {
-      _id: String! @external
-    }
-    extend type Ticket @key(fields: "_id") {
-      _id: String! @external
-    }
-    extend type TicketComment @key(fields: "_id") {
       _id: String! @external
     }
     extend type ProductCategory @key(fields: "_id") {
@@ -17,7 +17,18 @@ export const types = ({ products, knowledgeBase, cloudflareCalls }) => `
       _id: String! @external
     }
     `
-    : ''
+      : ''
+  }
+  ${
+    tickets
+      ? `
+  extend type Ticket @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type TicketComment @key(fields: "_id") {
+    _id: String! @external
+  }`
+      : ``
   }
 
     extend type Field @key(fields: "_id") {
@@ -26,8 +37,9 @@ export const types = ({ products, knowledgeBase, cloudflareCalls }) => `
 
  
 
-  ${knowledgeBase
-    ? `
+  ${
+    knowledgeBase
+      ? `
     extend type KnowledgeBaseArticle @key(fields: "_id") {
       _id: String! @external
     }
@@ -36,7 +48,7 @@ export const types = ({ products, knowledgeBase, cloudflareCalls }) => `
       _id: String! @external
     }
     `
-    : ''
+      : ''
   }
 
   type MessengerConnectResponse {
@@ -84,32 +96,39 @@ export const types = ({ products, knowledgeBase, cloudflareCalls }) => `
   }
 `;
 
-export const queries = ({ products, knowledgeBase }) => `
+export const queries = ({ products, knowledgeBase, tickets }) => `
   widgetsConversations(integrationId: String!, customerId: String, visitorId: String): [Conversation]
   widgetsConversationDetail(_id: String, integrationId: String!): ConversationDetailResponse
   widgetsGetMessengerIntegration(brandCode: String!): Integration
+  ${
+    tickets
+      ? `
   widgetsTicketCustomerDetail(customerId: String, type: String): Customer
   widgetsTicketComments(typeId: String!, type: String!): [TicketComment]
   widgetsTicketActivityLogs(contentType: String!, contentId: String): [ActivityLog]
+  `
+      : ``
+  }
   widgetsMessages(conversationId: String): [ConversationMessage]
   widgetsUnreadCount(conversationId: String): Int
   widgetsTotalUnreadCount(integrationId: String!, customerId: String, visitorId: String): Int
   widgetsMessengerSupporters(integrationId: String!): MessengerSupportersResponse
   widgetsGetEngageMessage(integrationId: String, customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
 
-  ${knowledgeBase
-    ? `
+  ${
+    knowledgeBase
+      ? `
       widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
       widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
     `
-    : ''
+      : ''
   }
 
 
   widgetsProductCategory(_id: String!): ProductCategory
 `;
 
-export const mutations = () => `
+export const mutations = ({ tickets }) => `
   widgetsMessengerConnect(
     brandCode: String!
     email: String
@@ -170,7 +189,10 @@ export const mutations = () => `
 
   widgetsLeadIncreaseViewCount(formId: String!): JSON
   widgetsSendTypingInfo(conversationId: String!, text: String): String
-  widgetsTicketCustomersEdit (customerId: String, firstName: String, lastName: String, emails: [String], phones: [String]): Customer
+
+  ${
+    tickets
+      ? `widgetsTicketCustomersEdit (customerId: String, firstName: String, lastName: String, emails: [String], phones: [String]): Customer
   widgetsTicketCheckProgressForget(email: String, phoneNumber: String): JSON
   widgetsTicketCheckProgress(number: String!): Ticket
   widgetsTicketCommentAdd(
@@ -188,5 +210,7 @@ export const mutations = () => `
     stageId: String!
     type: String!
     customerIds: [String!]!
-  ): Ticket
+  ): Ticket`
+      : ``
+  }
 `;

@@ -28,6 +28,7 @@ export interface ITokiConfig {
   apiKey: string;
   username: string;
   password: string;
+  production?: boolean;
 }
 
 export interface IMailConfig {
@@ -122,6 +123,7 @@ export interface IClientPortal {
 
   vendorParentProductCategoryId?: string;
   language?: string;
+  languages?: string[];
   slug?: string;
   template?: string;
   templateId?: string;
@@ -380,10 +382,12 @@ export const clientPortalSchema = new Schema({
       apiKey: field({ type: String, optional: true }),
       username: field({ type: String, optional: true }),
       password: field({ type: String, optional: true }),
+      production: field({ type: Boolean, optional: true }),
     },
     optional: true,
   }),
   language: field({ type: String, optional: true }),
+  languages: field({ type: [String], optional: true }),
   slug: field({ type: String, optional: true }),
   template: field({ type: String, optional: true }),
   templateId: field({ type: String, optional: true }),

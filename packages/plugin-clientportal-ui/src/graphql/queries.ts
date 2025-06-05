@@ -111,6 +111,14 @@ export const commonFields = `
     publicKey
   }
 
+  tokiConfig {
+    merchantId
+    apiKey
+    username
+    password
+    production
+  }
+
   testUserEmail
   testUserPhone
   testUserPassword
@@ -121,6 +129,7 @@ export const commonFields = `
   tokenPassMethod
   vendorParentProductCategoryId
   language
+  languages
 `;
 
 export const basicFields = `

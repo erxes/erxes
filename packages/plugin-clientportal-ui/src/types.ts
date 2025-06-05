@@ -145,6 +145,7 @@ export type TokiConfig = {
   apiKey: string;
   username: string;
   password: string;
+  production?: boolean;
 };
 
 export type ClientPortalConfig = {
@@ -212,6 +213,7 @@ export type ClientPortalConfig = {
   socialpayConfig?: SocialpayConfig;
   tokiConfig?: TokiConfig;
   language?: string;
+  languages?: string[];
 };
 
 export type Styles = {

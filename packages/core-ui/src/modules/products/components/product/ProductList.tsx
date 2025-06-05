@@ -23,6 +23,7 @@ import TemporarySegment from "@erxes/ui-segments/src/components/filter/Temporary
 import { Title } from "@erxes/ui/src/styles/main";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { isEnabled } from "@erxes/ui/src/utils/core";
+import ConditionPopover from "../config/condition/ConditionPopover";
 
 interface IProps {
   queryParams: any;
@@ -59,7 +60,7 @@ const List: React.FC<IProps> = props => {
     mergeProducts,
     duplicateProduct,
     productsCount,
-    queryParams
+    queryParams,
   } = props;
 
   const [searchValue, setSearchValue] = useState<string>(props.searchValue);
@@ -160,6 +161,7 @@ const List: React.FC<IProps> = props => {
               <th>{__("Category")}</th>
               <th>{__("Unit Price")}</th>
               <th>{__("Tags")}</th>
+              <th>{__("Bundle")}</th>
               <th>{__("Actions")}</th>
             </tr>
           </thead>
@@ -171,7 +173,7 @@ const List: React.FC<IProps> = props => {
 
   const breadcrumb = [
     { title: __("Settings"), link: "/settings" },
-    { title: __("Product & Service") }
+    { title: __("Product & Service") },
   ];
 
   const onChangeChecked = e => {
@@ -188,7 +190,7 @@ const List: React.FC<IProps> = props => {
         "categoryId"
       );
       router.setParams(navigate, location, {
-        ids: (bulk || []).map(b => b._id).join(",")
+        ids: (bulk || []).map(b => b._id).join(","),
       });
     } else {
       setChecked(false);
@@ -271,6 +273,17 @@ const List: React.FC<IProps> = props => {
             perPage={1000}
             refetchQueries={["productCountByTags"]}
           />
+          <ConditionPopover
+            successCallback={emptyBulk}
+            trigger={
+              <Button btnStyle="success" icon="tag-alt">
+                Bundle
+              </Button>
+            }
+            singleSelect={true}
+            targets={bulk}
+            refetchQueries={["productCountByTags"]}
+          />
 
           <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
             Remove
@@ -319,7 +332,7 @@ const List: React.FC<IProps> = props => {
           title={__("Product & Service")}
           queryParams={queryParams}
           breadcrumb={breadcrumb}
-          extraFilterParams={[{ param: 'image', bool: false }]}
+          extraFilterParams={[{ param: "image", bool: false }]}
         />
       }
       mainHead={

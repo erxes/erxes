@@ -774,16 +774,39 @@ export const fetchUserFromToki = async (
     throw new Error('Toki api key is not set');
   }
 
+  const testApiUrl = 'qams-api.toki.mn';
+  const prodApiUrl = 'ms-api.toki.mn';
+
   const apiKey = clientPortal.tokiConfig.apiKey;
-  return await fetch(
-    'https://ms-api.toki.mn/third-party-service/v1/shoppy/user',
-    {
+  const apiUrl = clientPortal.tokiConfig.production ? prodApiUrl : testApiUrl;
+
+  try {
+    const response = await fetch(`https://${apiUrl}/third-party-service/v1/shoppy/user`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
         'api-key': apiKey,
       },
+    });
+
+    const contentType = response.headers.get('content-type');
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Toki API Error (${response.status}): ${errorText}`
+      );
     }
-  ).then((r) => r.json());
+
+    if (contentType && contentType.includes('application/json')) {
+      return await response.json();
+    } else {
+      const text = await response.text();
+      throw new Error(`Expected JSON but received: ${text}`);
+    }
+  } catch (err: any) {
+    console.error(err);
+    throw new Error(`Failed to fetch user from Toki: ${err.message}`);
+  }
 };

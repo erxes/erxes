@@ -1,12 +1,11 @@
 import {
   IActivityLog,
-  IActivityLogForMonth,
+  IActivityLogForMonth
 } from '@erxes/ui-log/src/activityLogs/types';
 
 import { IContractTypeDoc } from '../contractTypes/types';
 import { IInsuranceType } from '../insuranceTypes/types';
 import { IProduct } from '@erxes/ui-products/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface ICollateralData {
   _id: string;
@@ -15,6 +14,7 @@ export interface ICollateralData {
   certificate?: string;
   vinNumber?: string;
   currency?: string;
+  collateralTypeId?: string;
 
   cost: number;
   percent: number;
@@ -128,6 +128,10 @@ export interface IContract {
   unUsedBalance?: number;
   commitmentInterest: number;
   storedInterest: number;
+  isSyncedPolaris: boolean;
+  isActiveLoan: boolean;
+  isSyncedSchedules: boolean;
+  isSyncedCollateral: boolean;
 }
 
 export interface IContractGql {
@@ -267,6 +271,26 @@ export type RegenSchedulesMutationResponse = {
     variables: { contractId: string };
   }) => Promise<any>;
   fixSchedules: (params: { variables: { contractId: string } }) => Promise<any>;
+};
+
+export type SendLoansMutationResponse = {
+  sendContractToPolaris: (params: { variables: { data: any } }) => Promise<any>;
+};
+
+export type SyncLoanCollateralsMutationResponse = {
+  syncLoanCollateral: (params: {
+    variables: { contract: any };
+  }) => Promise<any>;
+};
+
+export type SendSchedulesMutationResponse = {
+  sendLoanSchedules: (params: { variables: { contract: any } }) => Promise<any>;
+};
+
+export type ActiveLoanMutationResponse = {
+  loanContractActive: (params: {
+    variables: { contractNumber: string };
+  }) => Promise<any>;
 };
 
 // query types

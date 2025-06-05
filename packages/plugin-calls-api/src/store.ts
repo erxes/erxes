@@ -39,6 +39,7 @@ export const getOrCreateCustomer = async (
             primaryPhone: primaryPhone,
             isUser: true,
             phone: [primaryPhone],
+            kind: 'calls',
           }),
         },
         isRPC: true,

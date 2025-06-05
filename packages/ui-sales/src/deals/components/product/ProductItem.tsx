@@ -7,6 +7,7 @@ import {
 } from "../../styles";
 import {
   IDeal,
+  IDealBundleItem,
   IDiscountValue,
   IProductData,
   dealsProductDataMutationParams,
@@ -21,6 +22,7 @@ import { IProduct } from "@erxes/ui-products/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import ProductBundleForm from "./ProductBundleForm";
 import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
 import React from "react";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
@@ -353,6 +355,19 @@ class ProductItem extends React.Component<Props, State> {
     this.onChangeField(target.name, value, this.props.productData._id);
   };
 
+  onChangeBundle = (conditions: IDealBundleItem[]) => {
+    const { productData } = this.props;
+
+    this.onChangeField("conditions", conditions, productData._id);
+
+    const total = conditions.reduce(
+      (accumulator, currentValue) => accumulator + currentValue.total,
+      0
+    );
+
+    this.onChangeField("unitPrice", total, productData._id);
+  };
+
   onClick = () => {
     const { productData, removeProductItem } = this.props;
 
@@ -489,7 +504,9 @@ class ProductItem extends React.Component<Props, State> {
     return (
       <tr key={productData._id}>
         <td>{this.renderType(productData.product)}</td>
-        <td>{this.renderProductModal(productData)}</td>
+        <td style={{ position: "sticky", left: 0, zIndex: 2 }}>
+          {this.renderProductModal(productData)}
+        </td>
         <td>
           <FormControl
             value={productData.quantity || 0}
@@ -665,6 +682,13 @@ class ProductItem extends React.Component<Props, State> {
         </td>
         <td>
           <ActionButtons>
+            {productData.product.bundleId && (
+              <ProductBundleForm
+                conditions={productData.conditions || []}
+                bundleId={productData.product.bundleId}
+                onChangeBundle={this.onChangeBundle}
+              />
+            )}
             <Icon
               onClick={duplicateProductItem?.bind(this, productData._id)}
               icon="copy-alt"

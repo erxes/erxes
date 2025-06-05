@@ -11,6 +11,7 @@ import LoanTransaction from './transaction';
 import Classification from './classification';
 import LoanNonBalanceTransaction from './nonBalanceTransaction';
 import CollateralType from './collateralType';
+import Purpose from './purpose';
 import Mutation from './mutations';
 import Query from './queries';
 
@@ -27,8 +28,9 @@ const resolvers: any = async () => ({
   LoanNonBalanceTransaction,
   Classification,
   CollateralType,
+  Purpose,
   Mutation,
-  Query
+  Query,
 });
 
 export default resolvers;

@@ -50,6 +50,7 @@ const mutations = {
     const { models } = context;
     const { _id } = args;
 
+    await models.PostTranslations.deleteMany({ postId: _id });
     return models.Posts.deleteOne({ _id });
   },
 
@@ -103,6 +104,35 @@ const mutations = {
     const { _id } = args;
 
     return models.Posts.toggleFeatured(_id);
+  },
+
+  cmsPostsAddTranslation: async (
+    _parent: any,
+    args: any,
+    context: IContext
+  ): Promise<any> => {
+    const { models } = context;
+    const { input } = args;
+    const post = await models.Posts.findOne({ _id: input.postId });
+    if (!post) {
+      throw new Error('Post not found');
+    }
+    return models.PostTranslations.createPostTranslation(input);
+  },
+
+  cmsPostsEditTranslation: async (
+    _parent: any,
+    args: any,
+    context: IContext
+  ): Promise<any> => {
+    const { models } = context;
+    const {  input } = args;
+    const translation = await models.PostTranslations.findOne({ language: input.language, postId: input.postId });
+    if (!translation) {
+      return models.PostTranslations.createPostTranslation(input);
+    }
+  
+    return models.PostTranslations.updatePostTranslation(translation._id, input);
   },
 };
 

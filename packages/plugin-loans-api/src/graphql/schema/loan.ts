@@ -56,6 +56,11 @@ import {
   queries as nonBalanceTransactionQueries,
   types as nonBalanceTransactionTypes
 } from './nonBalanceTransaction';
+import {
+  mutations as purposeMutations,
+  queries as purposeQueries,
+  types as purposeTypes
+} from './purpose';
 
 export const types = `
   ${attachmentType}
@@ -88,6 +93,7 @@ export const types = `
   ${scheduleTypes()},
   ${classificationTypes()},
   ${nonBalanceTransactionTypes},
+  ${purposeTypes()}
 `;
 
 export const queries = `
@@ -102,6 +108,7 @@ export const queries = `
   ${transactionQueries},
   ${classificationQueries},
   ${nonBalanceTransactionQueries},
+  ${purposeQueries}
 `;
 
 export const mutations = `
@@ -115,4 +122,5 @@ export const mutations = `
   ${transactionMutations},
   ${classificationMutations},
   ${nonBalanceTransactionMutations}
+  ${purposeMutations}
 `;

@@ -1,16 +1,11 @@
-import { Alert, EmptyState, Spinner } from '@erxes/ui/src';
+import { EmptyState, Spinner } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { gql } from '@apollo/client';
 import React, { useEffect } from 'react';
 import ContractDetails from '../../components/detail/ContractDetails';
-import { mutations, queries } from '../../graphql';
-import {
-  DetailQueryResponse,
-  EditMutationResponse,
-  IContractDoc,
-  RegenSchedulesMutationResponse,
-} from '../../types';
-import { useQuery, useMutation } from '@apollo/client';
+import { queries } from '../../graphql';
+import { DetailQueryResponse } from '../../types';
+import { useQuery } from '@apollo/client';
 import subscriptions from '../../graphql/subscriptions';
 
 type Props = {
@@ -28,9 +23,9 @@ const ContractDetailsContainer = (props: FinalProps) => {
     gql(queries.contractDetail),
     {
       variables: {
-        _id: id,
-      },
-    },
+        _id: id
+      }
+    }
   );
 
   useEffect(() => {
@@ -38,56 +33,11 @@ const ContractDetailsContainer = (props: FinalProps) => {
       document: gql(subscriptions.savingsContractChanged),
       variables: { ids: [id] },
       updateQuery: (prev) => {
-        contractDetailQuery.refetch();        
-        return prev
+        contractDetailQuery.refetch();
+        return prev;
       }
     });
   }, []);
-
-  const [contractsEdit] = useMutation<EditMutationResponse>(
-    gql(mutations.contractsEdit),
-    {
-      refetchQueries: ['contractDetail'],
-    },
-  );
-
-  const [regenSchedules] = useMutation<RegenSchedulesMutationResponse>(
-    gql(mutations.regenSchedules),
-    {
-      refetchQueries: ['schedules', 'scheduleYears'],
-    },
-  );
-
-  const [fixSchedules] = useMutation<RegenSchedulesMutationResponse>(
-    gql(mutations.fixSchedules),
-    {
-      refetchQueries: ['schedules', 'scheduleYears'],
-    },
-  );
-
-  const saveItem = (doc: IContractDoc, callback: (item) => void) => {
-    contractsEdit({ variables: { ...doc } })
-      .then(({ data }) => {
-        if (callback) {
-          callback((data || {}).contractsEdit);
-        }
-      })
-      .catch((error) => {
-        Alert.error(error.message);
-      });
-  };
-
-  const regenSchedulesHandler = (contractId: string) => {
-    regenSchedules({ variables: { contractId } }).catch((error) => {
-      Alert.error(error.message);
-    });
-  };
-
-  const fixSchedulesHandler = (contractId: string) => {
-    fixSchedules({ variables: { contractId } }).catch((error) => {
-      Alert.error(error.message);
-    });
-  };
 
   if (contractDetailQuery.loading) {
     return <Spinner objective={true} />;
@@ -105,10 +55,7 @@ const ContractDetailsContainer = (props: FinalProps) => {
     ...props,
     loading: contractDetailQuery.loading,
     contract: contractDetail,
-    currentUser,
-    saveItem,
-    regenSchedules: regenSchedulesHandler,
-    fixSchedules: fixSchedulesHandler,
+    currentUser
   };
 
   return <ContractDetails {...updatedProps} />;

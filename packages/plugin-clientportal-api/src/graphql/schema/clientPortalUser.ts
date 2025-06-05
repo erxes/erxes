@@ -206,7 +206,6 @@ export const queries = cmsAvailable => `
 `;
 
 const userParams = `
-  clientPortalId: String
   phone: String,
   email: String,
   username: String,
@@ -228,11 +227,19 @@ const userParams = `
   avatar: String
 `;
 
+export const inputs = `
+    input ClientPortalUserInput {
+        ${userParams}
+    }
+`
+
+
 export const mutations = cmsAvailable => `
-  clientPortalUsersInvite(${userParams}, disableVerificationMail: Boolean): ClientPortalUser
-  clientPortalUsersEdit(_id: String!, ${userParams}): ClientPortalUser
+  clientPortalUsersInvite(${userParams}, disableVerificationMail: Boolean,  clientPortalId: String): ClientPortalUser
+  clientPortalUsersEdit(_id: String!,  clientPortalId: String, ${userParams}): ClientPortalUser
+  clientPortalUserEditProfile(input: ClientPortalUserInput): ClientPortalUser
   clientPortalUsersRemove(clientPortalUserIds: [String!]): JSON
-  clientPortalRegister(${userParams}): String
+  clientPortalRegister(${userParams}, clientPortalId: String): String
   clientPortalVerifyOTP(userId: String!, phoneOtp: String, emailOtp: String, password: String): JSON
   clientPortalUsersVerify(userIds: [String]!, type: String): JSON
   clientPortalLogin(login: String!, password: String!, clientPortalId: String!, deviceToken: String,twoFactor: TwoFactor): JSON

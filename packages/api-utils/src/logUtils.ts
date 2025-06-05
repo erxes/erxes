@@ -315,6 +315,11 @@ export const getSchemaLabels = (type: string, schemaMappings: ISchemaMap[]) => {
           fieldNames.push({ name, label: field.label });
         }
 
+        // no need to show _id field
+        if (field && !field.label && name !== '_id') {
+          fieldNames.push({ name, label: name });
+        }
+
         // nested object field names
         if (typeof field === "object" && field.type && field.type.obj) {
           fieldNames = fieldNames.concat(buildLabelList(field.type.obj));

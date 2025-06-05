@@ -36,7 +36,22 @@ export interface IPost {
   videoUrl?: string;
   pdfAttachment?: IPdfAttachment;
 
-  customFieldsData?: ICustomField;
+  customFieldsData?: ICustomField[];
+}
+
+export interface IPostTranslation {
+  postId: string;
+  language: string;
+  title: string;
+  content: string;
+  excerpt: string;
+  customFieldsData?: ICustomField[];
+}
+
+export interface IPostTranslationDocument extends IPostTranslation, Document {
+  _id: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IPostDocument extends IPost, Document {
@@ -86,3 +101,18 @@ export const postSchema = new Schema<IPostDocument>(
 );
 
 postSchema.index({ slug: 1, clientPortalId: 1 }, { unique: true, sparse: true });
+
+
+export const postTranslationSchema = new Schema<IPostTranslationDocument>(
+  {
+    _id: { type: String, default: () => nanoid() },
+    postId: { type: String, required: true },
+    language: { type: String, required: true },
+    title: { type: String, required: true },
+    content: { type: String, required: true },
+    excerpt: { type: String, required: true },
+    customFieldsData: { type: [customFieldSchema], optional: true },
+  },
+);
+
+postTranslationSchema.index({ postId: 1, language: 1 }, { unique: true });

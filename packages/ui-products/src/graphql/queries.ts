@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const vendorField = `
   vendor {
@@ -54,7 +54,11 @@ const productFields = `
     name
     colorCode
   }
-    
+  bundleId
+  bundle {
+    _id
+    name
+  }  
   tagIds
   createdAt
   category {
@@ -96,6 +100,7 @@ const productFields = `
 const products = `
   query products(
     $type: String,
+    $bundleId: String,
     $categoryId: String,
     $tag: String,
     $status: String,
@@ -114,6 +119,7 @@ const products = `
   ) {
     products(
       type: $type,
+      bundleId: $bundleId,
       categoryId: $categoryId,
       tag: $tag,
       status: $status,
@@ -213,6 +219,71 @@ const configs = `
   }
 `;
 
+const bundleRules = `
+query BundleRules {
+  bundleRules {
+    userId
+    name
+    description
+    createdAt
+    code
+    _id
+    rules {
+      quantity
+      productIds
+      products {
+        _id
+        name
+      }
+      priceValue
+      priceType
+      priceAdjustType
+      priceAdjustFactor
+      percent
+      code
+      allowSkip
+    }
+  }
+}
+`;
+const bundleRuleDetail = `
+query bundleRuleDetail($id: String!){
+ bundleRuleDetail(_id: $id) {
+    userId
+    name
+    description
+    createdAt
+    code
+    _id
+    rules {
+      quantity
+      productIds
+      products {
+        _id
+        name
+        unitPrice
+      }
+      priceValue
+      priceType
+      priceAdjustType
+      priceAdjustFactor
+      percent
+      code
+      allowSkip
+    }
+ }
+}
+`;
+
+const productRules = `
+  query productRules {
+    productRules {
+      _id
+      name
+    }
+  }
+`;
+
 export default {
   productFields,
   products,
@@ -222,4 +293,7 @@ export default {
   uoms,
   uomsTotalCount,
   configs,
+  bundleRules,
+  bundleRuleDetail,
+  productRules
 };

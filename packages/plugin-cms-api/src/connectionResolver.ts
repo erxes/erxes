@@ -4,7 +4,7 @@ import * as mongoose from 'mongoose';
 import { ICategoryModel, loadCategoryClass } from './models/Categories';
 import { IPostModel, loadPostClass } from './models/Posts';
 import { IPostCategoryDocument } from './models/definitions/categories';
-import { IPostDocument } from './models/definitions/posts';
+import { IPostDocument, IPostTranslationDocument } from './models/definitions/posts';
 import { IPageModel, loadPageClass } from './models/Pages';
 import { IPageDocument } from './models/definitions/pages';
 import { IPostTagModel, loadPostTagClass } from './models/Tags';
@@ -21,11 +21,13 @@ import {
   loadCustomFieldGroupClass,
 } from './models/FieldGroups';
 import { ICustomFieldGroupDocument } from './models/definitions/customFieldGroups';
+import { IPostTranslationModel, loadPostTranslationClass } from './models/PostTranslations';
 
 export interface IModels {
   CustomPostTypes: ICustomPostTypeModel;
   Categories: ICategoryModel;
   Posts: IPostModel;
+  PostTranslations: IPostTranslationModel;
   Pages: IPageModel;
   PostTags: IPostTagModel;
   MenuItems: IMenuItemModel;
@@ -50,6 +52,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Posts = db.model<IPostDocument, IPostModel>(
     'cms_posts',
     loadPostClass(models)
+  );
+
+  models.PostTranslations = db.model<IPostTranslationDocument, IPostTranslationModel>(
+    'cms_post_translations',
+    loadPostTranslationClass(models)
   );
 
   models.Pages = db.model<IPageDocument, IPageModel>(
