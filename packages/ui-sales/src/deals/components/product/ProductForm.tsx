@@ -1,42 +1,43 @@
-import { gql } from "@apollo/client";
-import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
-import ProductCategoryChooser from "@erxes/ui-products/src/components/ProductCategoryChooser";
-import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
-import { IProduct, IProductCategory } from "@erxes/ui-products/src/types";
-import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
-import client from "@erxes/ui/src/apolloClient";
-import { IUser } from "@erxes/ui/src/auth/types";
-import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import { Add, FlexRowGap, FooterInfo, FormContainer } from "../../styles";
+import { Alert, __ } from "@erxes/ui/src/utils";
 import {
   ControlLabel,
   FormGroup,
   ModalTrigger,
   Table,
 } from "@erxes/ui/src/components";
-import Button from "@erxes/ui/src/components/Button";
-import EmptyState from "@erxes/ui/src/components/EmptyState";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import Icon from "@erxes/ui/src/components/Icon";
-import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
-import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
-import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
-import { Alert, __ } from "@erxes/ui/src/utils";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-import lodash from "lodash";
-import React from "react";
-import styled from "styled-components";
-import ProductItem from "../../containers/product/ProductItem";
-import { queries } from "../../graphql";
-import { Add, FlexRowGap, FooterInfo, FormContainer } from "../../styles";
 import {
   IDeal,
   IPaymentsData,
   IProductData,
   dealsProductDataMutationParams,
 } from "../../types";
+import { IProduct, IProductCategory } from "@erxes/ui-products/src/types";
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
+
+import Button from "@erxes/ui/src/components/Button";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
 import PaymentForm from "./PaymentForm";
+import ProductCategoryChooser from "@erxes/ui-products/src/components/ProductCategoryChooser";
+import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
+import ProductItem from "../../containers/product/ProductItem";
 import ProductTotal from "./ProductTotal";
+import React from "react";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import lodash from "lodash";
+import { queries } from "../../graphql";
+import styled from "styled-components";
 
 const TableWrapper = styled.div`
   overflow: auto;
@@ -50,6 +51,7 @@ const TableWrapper = styled.div`
   .css-t3ipsp-control,
   .css-1nmdiq5-menu {
     width: max-content;
+    min-width: 150px;
   }
 `;
 

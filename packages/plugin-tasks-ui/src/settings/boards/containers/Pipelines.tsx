@@ -5,25 +5,25 @@ import {
   IOption,
   RemovePipelineMutationResponse,
   UpdateOrderPipelineMutationResponse,
-  UpdateOrderPipelineMutationVariables
+  UpdateOrderPipelineMutationVariables,
 } from "../types";
 import {
   BoardDetailQueryResponse,
-  PipelinesQueryResponse
+  PipelinesQueryResponse,
 } from "@erxes/ui-tasks/src/boards/types";
-import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import {
   mutations,
-  queries
+  queries,
 } from "@erxes/ui-tasks/src/settings/boards/graphql";
 
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
 import Pipelines from "../components/Pipelines";
 import React from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { queries as boardQueries } from "@erxes/ui-tasks/src/boards/graphql";
 import { getWarningMessage } from "@erxes/ui-tasks/src/boards/utils";
-import { gql, useQuery, useMutation } from "@apollo/client";
 
 type Props = {
   boardId: string;
@@ -43,10 +43,10 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
   const {
     data: pipelinesData,
     loading: pipelinesLoading,
-    refetch: refetchPipelines
+    refetch: refetchPipelines,
   } = useQuery<PipelinesQueryResponse>(GET_PIPELINES, {
     variables: { boardId, type, isAll: true },
-    fetchPolicy: "network-only"
+    fetchPolicy: "network-only",
   });
 
   const { data: boardDetailData } = useQuery<BoardDetailQueryResponse>(
@@ -54,7 +54,7 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
     {
       variables: { _id: boardId },
       fetchPolicy: "network-only",
-      skip: !boardId
+      skip: !boardId,
     }
   );
 
@@ -89,13 +89,13 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
     confirm(message).then(() => {
       archivePipelineMutation({
         variables: { _id: pipelineId },
-        refetchQueries: getRefetchQueries(boardId, pipelineId)
+        refetchQueries: getRefetchQueries(boardId, pipelineId),
       })
         .then(() => {
           refetchPipelines({ boardId });
           Alert.success(`${successMessage} ${__("pipeline")}.`);
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     });
@@ -107,7 +107,7 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
     ).then(() => {
       copiedPipelineMutation({
         variables: { _id: pipelineId },
-        refetchQueries: getRefetchQueries(boardId, pipelineId)
+        refetchQueries: getRefetchQueries(boardId, pipelineId),
       })
         .then(() => {
           refetchPipelines({ boardId });
@@ -115,7 +115,7 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
             `${__("You successfully duplicated a")} ${__("pipeline")}.`
           );
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     });
@@ -126,7 +126,7 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
       () => {
         removePipelineMutation({
           variables: { _id: pipelineId },
-          refetchQueries: getRefetchQueries(boardId, pipelineId)
+          refetchQueries: getRefetchQueries(boardId, pipelineId),
         })
           .then(() => {
             refetchPipelines({ boardId });
@@ -134,7 +134,7 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
               `${__("You successfully deleted a")} ${__("pipeline")}.`
             );
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
       }
@@ -147,7 +147,7 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
     isSubmitted,
     callback,
     object,
-    confirmationUpdate
+    confirmationUpdate,
   }: IButtonMutateProps) => {
     const callBackResponse = () => {
       refetchPipelines({ boardId });
@@ -172,8 +172,8 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
 
   const updateOrder = (orders: any) => {
     pipelinesUpdateOrderMutation({
-      variables: { orders }
-    }).catch(error => {
+      variables: { orders },
+    }).catch((error) => {
       Alert.error(error.message);
     });
   };
@@ -188,7 +188,9 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
     copied,
     renderButton,
     updateOrder,
-    currentBoard: boardDetailData ? boardDetailData.tasksBoardDetail : undefined
+    currentBoard: boardDetailData
+      ? boardDetailData.tasksBoardDetail
+      : undefined,
   };
 
   return <Pipelines {...extendedProps} />;
@@ -199,7 +201,7 @@ const getRefetchQueries = (boardId, pipelineId?: string) => {
     "pipelinesQuery",
     {
       query: GET_BOARD_DETAIL,
-      variables: { _id: boardId }
+      variables: { _id: boardId },
     },
     {
       query: gql(boardQueries.stages),
@@ -212,9 +214,9 @@ const getRefetchQueries = (boardId, pipelineId?: string) => {
         labelIds: undefined,
         extraParams: {},
         closeDateType: undefined,
-        userIds: undefined
-      }
-    }
+        userIds: undefined,
+      },
+    },
   ];
 };
 
