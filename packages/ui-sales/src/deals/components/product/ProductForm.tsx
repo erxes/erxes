@@ -1,42 +1,43 @@
-import { gql } from '@apollo/client';
-import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
-import ProductCategoryChooser from "@erxes/ui-products/src/components/ProductCategoryChooser";
-import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
-import { IProduct, IProductCategory } from "@erxes/ui-products/src/types";
-import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
-import client from '@erxes/ui/src/apolloClient';
-import { IUser } from "@erxes/ui/src/auth/types";
-import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import { Add, FlexRowGap, FooterInfo, FormContainer } from "../../styles";
+import { Alert, __ } from "@erxes/ui/src/utils";
 import {
   ControlLabel,
   FormGroup,
   ModalTrigger,
   Table,
 } from "@erxes/ui/src/components";
-import Button from "@erxes/ui/src/components/Button";
-import EmptyState from "@erxes/ui/src/components/EmptyState";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import Icon from "@erxes/ui/src/components/Icon";
-import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
-import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
-import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
-import { Alert, __ } from "@erxes/ui/src/utils";
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import lodash from "lodash";
-import React from "react";
-import styled from "styled-components";
-import ProductItem from "../../containers/product/ProductItem";
-import { queries } from '../../graphql';
-import { Add, FlexRowGap, FooterInfo, FormContainer } from "../../styles";
 import {
   IDeal,
   IPaymentsData,
   IProductData,
   dealsProductDataMutationParams,
 } from "../../types";
+import { IProduct, IProductCategory } from "@erxes/ui-products/src/types";
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
+
+import Button from "@erxes/ui/src/components/Button";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
 import PaymentForm from "./PaymentForm";
+import ProductCategoryChooser from "@erxes/ui-products/src/components/ProductCategoryChooser";
+import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
+import ProductItem from "../../containers/product/ProductItem";
 import ProductTotal from "./ProductTotal";
+import React from "react";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import lodash from "lodash";
+import { queries } from "../../graphql";
+import styled from "styled-components";
 
 const TableWrapper = styled.div`
   overflow: auto;
@@ -50,6 +51,7 @@ const TableWrapper = styled.div`
   .css-t3ipsp-control,
   .css-1nmdiq5-menu {
     width: max-content;
+    min-width: 150px;
   }
 `;
 
@@ -185,22 +187,23 @@ class ProductForm extends React.Component<Props, State> {
     this.setState({ vatPercent: parseInt(e.currentTarget.value) });
   };
 
-  onChangeCouponCode = e => {
+  onChangeCouponCode = (e) => {
     this.setState({ couponCode: e.currentTarget.value });
   };
 
   applyCoupon = () => {
-    const { dealQuery, productsData, onChangeProductsData, onChangeExtraData } = this.props;
-    const { couponCode } = this.state
+    const { dealQuery, productsData, onChangeProductsData, onChangeExtraData } =
+      this.props;
+    const { couponCode } = this.state;
 
     const variables = {
       _id: dealQuery._id,
-      products: productsData.map(p => ({
+      products: productsData.map((p) => ({
         productId: p.productId,
         quantity: p.quantity,
-        unitPrice: p.unitPrice
+        unitPrice: p.unitPrice,
       })),
-      couponCode
+      couponCode,
     };
 
     client
@@ -216,30 +219,30 @@ class ProductForm extends React.Component<Props, State> {
           return;
         }
 
-        const updatedData = (productsData || []).map(p => {
-
+        const updatedData = (productsData || []).map((p) => {
           if (!p.productId || !checkDiscount[p.productId]) {
             return p;
           }
 
-          const loyalty = checkDiscount[p.productId]
+          const loyalty = checkDiscount[p.productId];
 
           const pData = {
             ...p,
-            discountPercent: loyalty.discount || p.discountPercent || 0
+            discountPercent: loyalty.discount || p.discountPercent || 0,
           };
 
-          this.calculatePerProductAmount('', pData, false);
+          this.calculatePerProductAmount("", pData, false);
 
           return pData;
-        })
+        });
 
-        onChangeProductsData(updatedData)
-        onChangeExtraData({ couponCode })
+        onChangeProductsData(updatedData);
+        onChangeExtraData({ couponCode });
 
         this.updateTotal(updatedData);
-      }).catch((err) => Alert.error(err.message));
-  }
+      })
+      .catch((err) => Alert.error(err.message));
+  };
 
   applyVat = () => {
     const { productsData, onChangeProductsData } = this.props;
@@ -252,8 +255,8 @@ class ProductForm extends React.Component<Props, State> {
         unitPrice: p.isVatApplied
           ? p.unitPrice
           : parseFloat(
-            ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
-          ),
+              ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
+            ),
       };
 
       this.calculatePerProductAmount("", pData, false);
@@ -861,19 +864,18 @@ class ProductForm extends React.Component<Props, State> {
                   </ApplyVatWrapper>
                 </td>
               </tr>
-              {
-                isEnabled('loyalties') &&
+              {isEnabled("loyalties") && (
                 <tr>
                   <td colSpan={6}>
                     <ApplyVatWrapper>
                       <FormControl
-                        placeholder='Coupon code'
+                        placeholder="Coupon code"
                         onChange={this.onChangeCouponCode}
                       />
 
                       <Button
-                        btnStyle='primary'
-                        icon='plus-circle'
+                        btnStyle="primary"
+                        icon="plus-circle"
                         onClick={this.applyCoupon}
                       >
                         Apply coupon
@@ -881,7 +883,7 @@ class ProductForm extends React.Component<Props, State> {
                     </ApplyVatWrapper>
                   </td>
                 </tr>
-              }
+              )}
             </tbody>
           </table>
         </FooterInfo>
