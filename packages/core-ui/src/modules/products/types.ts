@@ -3,8 +3,8 @@ import {
   IProductCategory as IProductCategoryC,
   IProductDoc as IProductDocC,
   IUom as IUomC
-} from '@erxes/ui-products/src/types';
-import { QueryResponse } from '@erxes/ui/src/types';
+} from "@erxes/ui-products/src/types";
+import { QueryResponse } from "@erxes/ui/src/types";
 
 export type IProductDoc = IProductDocC & {};
 
@@ -44,6 +44,10 @@ export type UomsCountQueryResponse = {
   uomsTotalCount: number;
 } & QueryResponse;
 
+export type BundleConditionCountQueryResponse = {
+  bundleConditionTotalCount: number;
+} & QueryResponse;
+
 export type MutationUomVariables = {
   _id?: string;
   name: string;
@@ -62,6 +66,14 @@ export type UomRemoveMutationResponse = {
   uomsRemove: (mutation: { variables: { uomIds: string[] } }) => Promise<any>;
 };
 
+export type BundleConditionRemoveMutationResponse = {
+  bundleConditionRemove: (mutation: {
+    variables: { id: string };
+  }) => Promise<any>;
+};
+export type BundleRuleRemoveMutationResponse = {
+  bundleRulesRemove: (mutation: { variables: { id: string } }) => Promise<any>;
+};
 export type MutationVariables = {
   _id?: string;
   type: string;
