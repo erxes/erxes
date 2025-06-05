@@ -167,7 +167,7 @@ class EditFormContainer extends React.Component<FinalProps> {
     localStorage.setItem("proccessId", proccessId);
 
     doc.proccessId = proccessId;
-
+    doc.stageId = doc.stageId ? doc.stageId : undefined;
     editMutation({ variables: { _id: itemId, ...doc } })
       .then(({ data }) => {
         if (callback) {
