@@ -43,17 +43,17 @@ const clientPortalMutations = {
       await models.ClientPortalNotifications.createNotification({
         title: "Client Portal Ticket Created",
         content: "A new ticket has been created in the client portal.",
-        link: `ticket/board?id=${ticket.boardId}&pipelineId=${ticket._id}&itemId=${ticket.typeId}`,
+        link: `ticket/board?id=${ticket.boardId}&pipelineId=${ticket.pipelineId}&itemId=${ticket._id}`,
         receiver: cpUser._id,
         notifType: "system",
-        clientPortalId: ticket.clientPortalId,
+        clientPortalId: cpUser.clientPortalId || ticket.clientPortalId,
         eventData: {
           ticketId: ticket._id,
-          ticketTitle: ticket.title,
-          ticketStatus: ticket.status,
-          ticketStageId: ticket.stageId,
-          ticketStageName: ticket.stageName,
-          ticketPriority: ticket.priority,
+          ticketTitle: ticket.title || ticket.name || doc.name,
+          ticketStatus: ticket.status || "new",
+          ticketStageId: ticket.stageId || doc.stageId,
+          ticketStageName: ticket.stageName || "",
+          ticketPriority: ticket.priority || doc.priority || "normal",
         },
       });
 
