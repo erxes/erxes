@@ -1,3 +1,31 @@
+export const copyParams = `companyIds: [String], customerIds: [String], labelIds: [String]`;
+
+const ticketMutationParams = `
+  source: String,
+  type: String,
+`;
+
+export const commonMutationParams = `
+  parentId:String,
+  proccessId: String,
+  aboveItemId: String,
+  stageId: String,
+  assignedUserIds: [String],
+  attachments: [AttachmentInput],
+  startDate: Date,
+  closeDate: Date,
+  description: String,
+  order: Int,
+  reminderMinute: Int,
+  isComplete: Boolean,
+  priority: String,
+  status: String,
+  sourceConversationIds: [String],
+  customFieldsData: JSON,
+  tagIds: [String],
+  branchIds: [String],
+  departmentIds: [String],
+`;
 export const types = (enabledPlugins) => `
 ${
   enabledPlugins.tasks
@@ -15,7 +43,7 @@ ${
     _id: String! @external
   }
   `
-    : ''
+    : ""
 }
 
 ${
@@ -33,7 +61,7 @@ ${
     _id: String! @external
   }
     `
-    : ''
+    : ""
 }
 
 ${
@@ -52,7 +80,7 @@ ${
     _id: String! @external
   }
     `
-    : ''
+    : ""
 }
 
 ${
@@ -74,11 +102,11 @@ ${
     year: Int
   }
     `
-    : ''
+    : ""
 }
 
 
-   
+
 
 ${
   enabledPlugins.knowledgebase
@@ -92,7 +120,7 @@ ${
     }
 
    `
-    : ''
+    : ""
 }
 
 
@@ -234,7 +262,7 @@ ${
     erxesAppToken: String
     styles: Styles
     mobileResponsive: Boolean
-  
+
     otpConfig: OTPConfig
     twoFactorConfig: TwoFactorConfig
 
@@ -404,7 +432,7 @@ ${
     ticket
     purchase
   }
-    
+
   enum UserCardStatusEnum {
     participating
     invited
@@ -454,7 +482,7 @@ export const queries = (enabledPlugins) => `
     clientPortalUserDeals(userId: String): [Deal]
     clientPortalDeals(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: SalesItemDate): [Deal]
    `
-      : ''
+      : ""
   }
 
   ${
@@ -465,8 +493,8 @@ export const queries = (enabledPlugins) => `
     clientPortalUserTasks(userId: String): [TasksStage]
     clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TasksItemDate): [Task]
         `
-      : ''
-  } 
+      : ""
+  }
 
   ${
     enabledPlugins.tickets
@@ -474,18 +502,18 @@ export const queries = (enabledPlugins) => `
     clientPortalTicket(_id: String!): Ticket
     clientPortalTickets(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TicketsItemDate): [Ticket]
     clientPortalUserTickets(userId: String): [Ticket]
-    
+
     `
-      : ''
+      : ""
   }
-  
+
   ${
     enabledPlugins.purchases
       ? `
     clientPortalPurchases(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: PurchasesItemDate): [Purchase]
     clientPortalUserPurchases(userId: String): [Purchase]
     `
-      : ''
+      : ""
   }
 
   ${
@@ -494,7 +522,7 @@ export const queries = (enabledPlugins) => `
     clientPortalKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
     clientPortalKnowledgeBaseArticles(searchValue: String,slug: String  categoryIds: [String], topicId: String, isPrivate: Boolean): [KnowledgeBaseArticle]
    `
-      : ''
+      : ""
   }
 `;
 
@@ -502,6 +530,14 @@ export const mutations = `
   clientPortalConfigUpdate (
     config: ClientPortalConfigInput!
   ): ClientPortal
+
+
+  clientPortalTicketAdd(
+        name: String!,
+        ${copyParams},
+        ${ticketMutationParams},
+        ${commonMutationParams}
+      ): Ticket
 
   clientPortalRemove (_id: String!): JSON
   clientPortalCreateCard(
