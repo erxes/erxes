@@ -26,7 +26,7 @@ const { parentPort, workerData } = require("worker_threads");
 
 const { subdomain } = workerData;
 
-export const getConfigs = async models => {
+export const getConfigs = async (models) => {
   const configsMap = {};
   const configs = await models.Configs.find({}).lean();
 
@@ -102,7 +102,7 @@ export const uploadFileAWS = async (
 
   const fileName = `${type} - ${moment().format("YYYY-MM-DD HH-mm")}.xlsx`;
 
-  const response: any = await new Promise(resolve => {
+  const response: any = await new Promise((resolve) => {
     s3.upload(
       {
         ContentType:
@@ -143,7 +143,7 @@ export const uploadFileCloudflare = async (
 
   const fileName = `${type} - ${moment().format("YYYY-MM-DD HH-mm")}.xlsx`;
 
-  const response: any = await new Promise(resolve => {
+  const response: any = await new Promise((resolve) => {
     s3.upload(
       {
         ContentType:
@@ -233,7 +233,11 @@ async function main() {
         { $set: { percentage } }
       );
 
-      docs = docs.concat(response ? response.docs || [] : []);
+      if (serviceName === "core") {
+        docs = response?.docs || [];
+      } else {
+        docs = docs.concat(response ? response.docs || [] : []);
+      }
     }
 
     const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);

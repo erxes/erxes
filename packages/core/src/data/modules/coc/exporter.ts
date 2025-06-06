@@ -95,7 +95,7 @@ const prepareDataCount = async (
 
   const contactsFilter: any = {};
 
-  if (segmentData.conditions) {
+  if (segmentData && segmentData.conditions) {
     const itemIds = await fetchSegment(models, subdomain, segmentData, {
       scroll: true,
       page: 1,
@@ -200,7 +200,7 @@ export const fillValue = async (
       );
 
       value = customers
-        .map(cus => cus.firstName || cus.primaryEmail)
+        .map((cus) => cus.firstName || cus.primaryEmail)
         .join(", ");
 
       break;
