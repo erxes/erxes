@@ -7,7 +7,7 @@ const ticketMutationParams = `
 
 export const commonMutationParams = `
   parentId:String,
-  proccessId: String,
+  processId: String,
   aboveItemId: String,
   stageId: String,
   assignedUserIds: [String],

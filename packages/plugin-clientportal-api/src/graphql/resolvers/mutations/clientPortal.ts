@@ -7,7 +7,6 @@ import { participantEditRelation, createCard } from "../../../models/utils";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import { deploy } from "../../../vercel/util";
 import { sendTicketsMessage } from "../../../messageBroker";
-import { sendNotification } from "../../../utils";
 
 export interface IVerificationParams {
   userId: string;
@@ -18,7 +17,7 @@ export interface IVerificationParams {
 const clientPortalMutations = {
   async clientPortalTicketAdd(
     _root,
-    doc: any & { proccessId: string; aboveItemId: string },
+    doc: any & { processId: string; aboveItemId: string },
     { models, subdomain, cpUser }: IContext
   ) {
     if (!cpUser) {
