@@ -1,5 +1,7 @@
 # Changelog
 
+## [2.13.2](https://github.com/erxes/erxes/compare/2.13.1...2.13.2) (2025-06-06)
+
 ## [2.13.1](https://github.com/erxes/erxes/compare/2.13.0...2.13.1) (2025-06-05)
 
 ### Bug Fixes
