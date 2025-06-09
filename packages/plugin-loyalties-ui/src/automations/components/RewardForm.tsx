@@ -7,7 +7,7 @@ import {
   FormWrapper,
   ModalFooter,
 } from "@erxes/ui/src/styles/main";
-import { __, isEnabled } from "@erxes/ui/src/utils/core";
+import { __ } from "@erxes/ui/src/utils/core";
 import React, { useState } from "react";
 import Select from "react-select";
 
@@ -32,9 +32,6 @@ const APPLIES_TO_OPTIONS = [
   { label: "Team Members", value: "user" },
   { label: "Customers", value: "customer" },
   { label: "Companies", value: "company" },
-  ...(isEnabled("clientportal")
-    ? [{ label: "Client Portal Users", value: "cpUser" }]
-    : []),
 ];
 
 type Props = {

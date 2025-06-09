@@ -1,58 +1,129 @@
-import redis from '@erxes/api-utils/src/redis';
-import * as mongoose from 'mongoose';
-import { sendCommonMessage } from './messageBroker';
+import { getEnv } from "@erxes/api-utils/src";
+import redis from "@erxes/api-utils/src/redis";
+import { getOrganizations } from "@erxes/api-utils/src/saas/saas";
+import * as mongoose from "mongoose";
+import { sendCommonMessage } from "./messageBroker";
+
+const collections = ["customers", "companies", "users"];
+
+const activeChangeStreams: mongoose.mongo.ChangeStream[] = [];
 
 const getSubdomain = (domain: string) => {
-  const hostname = domain.replace(/^(https?:\/\/)/, '');
+  const hostname = domain.replace(/^(https?:\/\/)/, "");
 
-  const firstPart = hostname.split('.')[0];
+  const firstPart = hostname.split(".")[0];
 
-  return firstPart.split(':')[0];
+  return firstPart.split(":")[0];
 };
 
-export default async () => {
-  const db = mongoose.connection;
+const handleLoyaltyChangeStream = ({
+  db,
+  subdomain,
+}: {
+  db: mongoose.Connection;
+  subdomain: string;
+}) => {
+  for (const collectionName of collections) {
+    let collection = db.collection(collectionName);
 
-  const changeStream = db
-    .collection('customers')
-    .watch([{ $match: { operationType: 'insert' } }]);
-
-  const hostname = await redis.get('hostname');
-
-  if (!hostname || !changeStream) {
-    return;
-  }
-
-  const subdomain = getSubdomain(hostname);
-
-  changeStream.on('change', async (data: any) => {
     try {
-      if (data.operationType === 'insert') {
-        sendCommonMessage({
-          subdomain,
-          serviceName: 'automations',
-          action: 'trigger',
-          data: {
-            type: 'loyalties:reward',
-            targets: [data.fullDocument],
-          },
-          defaultValue: [],
-        });
+      const changeStream = collection.watch([
+        { $match: { operationType: "insert" } },
+      ]);
+
+      if (!changeStream) {
+        continue;
       }
+
+      activeChangeStreams.push(changeStream);
+
+      changeStream.on("change", async (data: any) => {
+        try {
+          if (data.operationType === "insert") {
+            sendCommonMessage({
+              subdomain: subdomain,
+              serviceName: "automations",
+              action: "trigger",
+              data: {
+                type: "loyalties:reward",
+                targets: [data.fullDocument],
+              },
+              defaultValue: [],
+            });
+          }
+        } catch (error) {
+          console.error("Error handling change event:", error);
+        }
+      });
+
+      changeStream.on("error", (error) => {
+        console.error("Error in customer stream:", error);
+        changeStream.close();
+      });
     } catch (error) {
-      console.error('Error handling change event:', error);
+      console.error("Error starting change stream for", collectionName, error);
     }
-  });
+  }
+};
 
-  changeStream.on('error', (error) => {
-    console.error('Error in customer stream:', error);
-    changeStream.close();
-  });
+// Register signal handlers only once
+const setupSignalHandlers = (() => {
+  let isSetup = false;
 
-  (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach((sig) => {
-    process.on(sig, async () => {
-      console.log('Closing change stream...');
-      await changeStream.close();
+  return () => {
+    if (isSetup) return;
+    isSetup = true;
+
+    ["SIGINT", "SIGTERM"].forEach((sig) => {
+      process.on(sig, async () => {
+        console.log("Closing all change streams...");
+        for (const stream of activeChangeStreams) {
+          await stream.close();
+        }
+      });
     });
-  });
+  };
+})();
+
+export default async () => {
+  setupSignalHandlers();
+
+  const VERSION = getEnv({ name: "VERSION" });
+
+  if (VERSION && VERSION === "saas") {
+    const orgs = await getOrganizations();
+
+    for (const org of orgs) {
+      if (!org) {
+        continue;
+      }
+
+      const DB_NAME = getEnv({ name: "DB_NAME" });
+
+      const GE_MONGO_URL = (DB_NAME || "erxes_<organizationId>").replace(
+        "<organizationId>",
+        org?._id
+      );
+
+      const db = mongoose.connection.useDb(GE_MONGO_URL);
+
+      handleLoyaltyChangeStream({
+        db,
+        subdomain: org?.subdomain,
+      });
+    }
+  } else {
+    const hostname = await redis.get("hostname");
+
+    const db = mongoose.connection;
+
+    if (!hostname) {
+      return;
+    }
+
+    handleLoyaltyChangeStream({
+      db,
+      subdomain: getSubdomain(hostname),
+    });
+  }
 };

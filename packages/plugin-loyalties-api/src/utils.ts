@@ -219,7 +219,16 @@ export const checkVouchersSale = async (
       ownerId,
     });
 
-    const { title, kind, value } = voucherCampaign;
+    const { title, kind, value, restrictions } = voucherCampaign;
+
+    const {
+      categoryIds = [],
+      excludeCategoryIds = [],
+      productIds = [],
+      excludeProductIds = [],
+      tagIds = [],
+      excludeTagIds = [],
+    } = restrictions || {};
 
     const productDocs = await sendCoreMessage({
       subdomain,
@@ -227,7 +236,16 @@ export const checkVouchersSale = async (
       data: {
         query: {
           _id: {
-            $in: [...productsIds],
+            $in: [...productsIds, ...productIds],
+            $nin: excludeProductIds,
+          },
+          categoryId: {
+            ...(categoryIds.length ? { $in: categoryIds } : {}),
+            $nin: excludeCategoryIds,
+          },
+          tagIds: {
+            ...(tagIds.length ? { $in: tagIds } : {}),
+            $nin: excludeTagIds,
           },
         },
       },
@@ -264,7 +282,10 @@ export const checkVouchersSale = async (
         discount: calculateDiscount({
           kind,
           value,
-          product: item,
+          product: {
+            ...item,
+            discount: result[_id].discount || 0,
+          },
           totalAmount,
         }),
         voucherName: title,
@@ -275,27 +296,14 @@ export const checkVouchersSale = async (
 
   // coupon
   if (couponCode) {
-    const campaignId = await models.Coupons.checkCoupon({
+    const couponCampaign = await models.Coupons.checkCoupon({
       code: couponCode,
       ownerId,
     });
 
-    if (!campaignId) {
-      return result;
-    }
-
-    const couponCampaign: any = await models.CouponCampaigns.findOne({
-      _id: campaignId,
-    }).lean();
-
-    if (!couponCampaign) {
-      throw new Error("Coupon campaign not found");
-    }
-
     const { title, kind, value, restrictions } = couponCampaign;
 
     const {
-      minimumSpend = 0,
       categoryIds = [],
       excludeCategoryIds = [],
       productIds = [],
@@ -355,7 +363,10 @@ export const checkVouchersSale = async (
         discount: calculateDiscount({
           kind,
           value,
-          product: item,
+          product: {
+            ...item,
+            discount: result[_id].discount || 0,
+          },
           totalAmount,
         }),
         couponName: title,
@@ -507,6 +518,10 @@ export const handleScore = async (models: IModels, data) => {
 export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
   try {
     if (kind === "percent") {
+      if (product?.discount) {
+        return product?.discount + value;
+      }
+
       return value;
     }
 
@@ -516,13 +531,19 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
 
     const productPrice = product.unitPrice * product.quantity;
 
-    const productDiscount = (productPrice / totalAmount) * value;
-
     if (productPrice <= 0) {
       return 0;
     }
 
-    return (productDiscount / productPrice) * 100;
+    const productDiscount = (productPrice / totalAmount) * value;
+
+    const discount = (productDiscount / productPrice) * 100;
+
+    if (product?.discount) {
+      return discount + product?.discount;
+    }
+
+    return discount;
   } catch (error) {
     console.error("Error calculating discount:", error.message);
     return 0;
