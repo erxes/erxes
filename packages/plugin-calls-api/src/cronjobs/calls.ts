@@ -68,12 +68,7 @@ export default {
     ) {
       return;
     }
-    console.log(
-      'wahha:',
-      getEnv({ name: 'CALL_CRON_ENABLED' }),
-      getEnv({ name: 'VERSION' }) !== 'os' ||
-        !getEnv({ name: 'CALL_CRON_ENABLED' }),
-    );
+
     const models = await generateModels(subdomain);
     const integrations = await models.Integrations.find({
       'queues.0': { $exists: true },
