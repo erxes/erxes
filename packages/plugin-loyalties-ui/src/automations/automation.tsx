@@ -67,7 +67,7 @@ const Automations = (props) => {
     if (contentType === "voucher") {
       const { campaignId, ownerType, ownerId } = result || {};
 
-      const detailLink = `/vouchers?&campaignId=${campaignId}&ownerId=${ownerId}`;
+      const detailLink = `/vouchers?campaignId=${campaignId}&ownerId=${ownerId}`;
 
       return (
         <p>

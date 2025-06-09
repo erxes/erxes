@@ -59,9 +59,6 @@ const Form = (props: Props) => {
     }
   );
 
-  console.log("campaignState.voucherType", campaignState.voucherType);
-  console.log("currentTab", currentTab);
-
   const generateDoc = (values: {
     _id?: string;
     attachment?: IAttachment;
