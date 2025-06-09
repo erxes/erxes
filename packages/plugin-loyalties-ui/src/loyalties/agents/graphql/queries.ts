@@ -21,8 +21,8 @@ const agentFields = `
 `;
 
 const agentDetail = `
-  query agentDetail {
-    agentDetail {
+  query agentDetail($_id: String) {
+    agentDetail(_id: $_id) {
       ${agentFields}
     }
   }
