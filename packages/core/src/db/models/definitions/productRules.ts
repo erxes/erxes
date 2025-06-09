@@ -27,5 +27,5 @@ export const productRuleSchema = new Schema({
   excludeTagIds: field({ type: [String], label: 'When excluding specific products with tags' }),
   unitPrice: field({ type: Number, label: 'Unit price' }),
   bundleId: field({ type: String, label: 'Relevant loyalty bundle id' }),
-  name: field({ type: String })
+  name: field({ type: String, label: 'Name' })
 });
