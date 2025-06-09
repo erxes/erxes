@@ -1108,17 +1108,6 @@ export const setupMessageConsumers = async (): Promise<void> => {
   );
 
   consumeRPCQueue(
-    'core:fields.prepareCustomFieldsData',
-    async ({ subdomain, data }) => {
-      const models = await generateModels(subdomain);
-      return {
-        status: 'success',
-        data: await models.Fields.prepareCustomFieldsData(data),
-      };
-    }
-  );
-
-  consumeRPCQueue(
     'core:fields.generateCustomFieldsData',
     async ({ subdomain, data: { customData, contentType } }) => {
       const models = await generateModels(subdomain);

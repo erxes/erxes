@@ -420,23 +420,15 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       const result: ITypedListItem[] = [];
 
       for (const customFieldData of customFieldsData || []) {
+        if (!customFieldData?.field) {
+          continue;
+        }
+
         const field = await models.Fields.findOne({
           $or: [{ _id: customFieldData.field }, { code: customFieldData.field }]
         }).lean();
 
         if (!field) {
-          const group = await models.FieldsGroups.findOne({
-            _id: customFieldData.field
-          }).lean();
-
-          if (group) {
-            result.push({
-              ...customFieldData,
-              stringValue: customFieldData.value
-                ? customFieldData.value.toString()
-                : ""
-            });
-          }
           continue;
         }
 

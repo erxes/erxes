@@ -1,7 +1,8 @@
 import { gql, useLazyQuery } from "@apollo/client";
 import Common from "@erxes/ui-automations/src/components/forms/actions/Common";
 import { DrawerDetail } from "@erxes/ui-automations/src/styles";
-import { __, ControlLabel, FormControl, FormGroup } from "@erxes/ui/src";
+import { __, ControlLabel, FormControl, FormGroup, Icon } from "@erxes/ui/src";
+import { Label } from "@erxes/ui/src/components/form/styles";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
@@ -11,7 +12,7 @@ import { IVoucherCampaign } from "../../configs/voucherCampaign/types";
 const DATE_USAGE_OPTIONS = [
   { label: "Month", value: "month" },
   { label: "Week", value: "week" },
-  { label: "Day", value: "day" },
+  { label: "Day (24h)", value: "day" },
 ];
 
 type Props = {
@@ -27,6 +28,7 @@ const LoyaltyForm = (props: Props) => {
   const { activeAction, voucherCampaigns } = props;
 
   const [config, setConfig] = useState(activeAction?.config || {});
+  const [showCustomConfig, setShowCustomConfig] = useState<boolean>(!!activeAction?.config?.customRule);
 
   const [fetchCampaign, { data: campaignData }] = useLazyQuery(
     gql(queries.voucherCampaignDetail)
@@ -35,6 +37,18 @@ const LoyaltyForm = (props: Props) => {
   useEffect(() => {
     setConfig(activeAction?.config);
   }, [activeAction]);
+
+  useEffect(() => {
+    if (!showCustomConfig) {
+      setConfig((prevConfig) => {
+        const updatedConfig = { ...prevConfig };
+
+        delete updatedConfig.customRule;
+
+        return updatedConfig;
+      });
+    }
+  }, [showCustomConfig]);
 
   useEffect(() => {
     if (config?.voucherCampaignId) {
@@ -67,30 +81,54 @@ const LoyaltyForm = (props: Props) => {
 
     return (
       <>
-        <FormGroup>
-          <ControlLabel>Date Rule</ControlLabel>
-          <br />
-          <FormWrapper>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel>From</ControlLabel>
-                <FormControl defaultValue={"Created At"} disabled={true} />
-              </FormGroup>
-            </FormColumn>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel>Duration</ControlLabel>
-                <Select
-                  value={DATE_USAGE_OPTIONS.find(
-                    (opt) => opt.value === config.customRule?.duration
-                  )}
-                  options={DATE_USAGE_OPTIONS}
-                  onChange={(option) => onChangeRule("duration", option?.value)}
-                />
-              </FormGroup>
-            </FormColumn>
-          </FormWrapper>
-        </FormGroup>
+        <Label
+          style={{
+            cursor: "pointer",
+            width: "100%",
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: "8px",
+            marginBottom: "20px",
+            textTransform: "uppercase",
+            userSelect: "none",
+          }}
+          onClick={() => {
+            setShowCustomConfig(!showCustomConfig);
+          }}
+        >
+          Set custom config{" "}
+          {showCustomConfig ? (
+            <Icon icon="uparrow" />
+          ) : (
+            <Icon icon="downarrow-2" />
+          )}
+        </Label>
+        {showCustomConfig && (
+          <FormGroup>
+            <FormWrapper>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>From</ControlLabel>
+                  <FormControl defaultValue={"Created At"} disabled={true} />
+                </FormGroup>
+              </FormColumn>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>Duration</ControlLabel>
+                  <Select
+                    value={DATE_USAGE_OPTIONS.find(
+                      (opt) => opt.value === config.customRule?.duration
+                    )}
+                    options={DATE_USAGE_OPTIONS}
+                    onChange={(option) =>
+                      onChangeRule("duration", option?.value)
+                    }
+                  />
+                </FormGroup>
+              </FormColumn>
+            </FormWrapper>
+          </FormGroup>
+        )}
       </>
     );
   };
