@@ -39,6 +39,7 @@ export const types = `
     isRead: Boolean
     clientPortalId: String
     eventData: JSON
+    type:String
   }
   input MobileFireBaseConfig {
     sound: String

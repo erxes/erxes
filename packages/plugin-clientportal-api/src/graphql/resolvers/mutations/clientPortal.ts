@@ -7,7 +7,7 @@ import { participantEditRelation, createCard } from "../../../models/utils";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import { deploy } from "../../../vercel/util";
 import { sendTicketsMessage } from "../../../messageBroker";
-
+import { sendNotification } from "../../../utils";
 export interface IVerificationParams {
   userId: string;
   emailOtp?: string;
@@ -18,7 +18,7 @@ const clientPortalMutations = {
   async clientPortalTicketAdd(
     _root,
     doc: any & { processId: string; aboveItemId: string },
-    { models, subdomain, cpUser }: IContext
+    { models, subdomain, cpUser, user }: IContext
   ) {
     if (!cpUser) {
       throw new Error("You are not logged in");
@@ -39,23 +39,40 @@ const clientPortalMutations = {
         throw new Error("Ticket creation failed: Invalid response");
       }
 
-      // Step 3: Send notification to the client portal user
-      await models.ClientPortalNotifications.createNotification({
-        title: "Client Portal Ticket Created",
-        content: "A new ticket has been created in the client portal.",
-        link: `ticket/board?id=${ticket.boardId}&pipelineId=${ticket.pipelineId}&itemId=${ticket._id}`,
-        receiver: cpUser._id,
-        notifType: "system",
-        clientPortalId: cpUser.clientPortalId || ticket.clientPortalId,
-        eventData: {
-          ticketId: ticket._id,
-          ticketTitle: ticket.title || ticket.name || doc.name,
-          ticketStatus: ticket.status || "new",
-          ticketStageId: ticket.stageId || doc.stageId,
-          ticketStageName: ticket.stageName || "",
-          ticketPriority: ticket.priority || doc.priority || "normal",
-        },
-      });
+      const data = {
+        contentType: "ticket",
+        contentTypeId: ticket._id,
+        cpUserId: cpUser._id,
+        status: "participating",
+        paymentStatus: "unpaid",
+        paymentAmount: 0,
+        offeredAmount: 0,
+        hasVat: false,
+      };
+      try {
+        await models.ClientPortalUserCards.create(data);
+        await sendNotification(models, subdomain, {
+          receivers: [cpUser._id],
+          title: "Ticket Created",
+          content: "A new support ticket has been created.",
+          notifType: "system", // or "engage"
+          link: `ticket/board?id=${ticket.boardId}&pipelineId=${ticket.pipelineId}&itemId=${ticket._id}`,
+          createdUser: user,
+          isMobile: false,
+          eventData: {
+            ticketId: ticket._id,
+            ticketTitle: ticket.title || ticket.name || doc.name,
+            ticketStatus: ticket.status || "new",
+            ticketStageId: ticket.stageId || doc.stageId,
+            ticketStageName: ticket.stageName || "",
+            ticketPriority: ticket.priority || doc.priority || "normal",
+          },
+
+          groupId: `ticket-${ticket._id}`,
+        });
+      } catch (err) {
+        console.error("Error creating ClientPortalUserCard:", err);
+      }
 
       // Step 4: Return the created ticket
       return ticket;
