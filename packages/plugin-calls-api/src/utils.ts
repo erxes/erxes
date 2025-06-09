@@ -7,11 +7,15 @@ import * as FormData from 'form-data';
 import * as momentTz from 'moment-timezone';
 
 import type { RequestInit, HeadersInit } from 'node-fetch';
-import { generateModels } from './connectionResolver';
+import { IModels, generateModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
-import { IIntegrationDocument } from './models/definitions/integrations';
-import { uploadCallRecordingToSftp } from './uploadSftp';
+import {
+  IIntegration,
+  IIntegrationDocument,
+} from './models/definitions/integrations';
+
+const TWO_HUNDRED_MS = 200;
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET || 'secret';
 const MAX_RETRY_COUNT = 3;
@@ -24,12 +28,19 @@ export const generateToken = async (integrationId, username?, password?) => {
 export const sendRequest = async (url, options) => {
   try {
     const response = await fetch(url, options);
+    const contentType = response.headers.get('content-type');
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text().catch(() => '');
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Message: ${errorText}`,
+      );
     }
 
-    return response;
+    if (contentType?.includes('application/json')) {
+      return await response.json();
+    }
+    return response; // эсвэл шууд response буцааж болно
   } catch (error) {
     console.error('Error in sendRequest:', error);
     throw error;
@@ -42,188 +53,193 @@ const getCallHistory = async (models, _id) => {
   return history;
 };
 
-export const sendToGrandStream = async (models, args, user) => {
-  const {
-    method,
-    path,
-    data,
-    headers = {},
-    integrationId,
-    retryCount,
-    isConvertToJson,
-    isAddExtention,
-    isGetExtension,
-    isCronRunning,
-    extentionNumber: extension,
-  } = args;
+const sleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+export const sendToGrandStream = async (
+  models: IModels,
+  args: any,
+  user,
+): Promise<any> => {
+  const { integrationId, retryCount = 1, wsServer: argWsServer } = args;
 
   if (retryCount <= 0) {
-    throw new Error('Retry limit exceeded.');
+    throw new Error('Grandstream request retry limit exceeded.');
   }
 
-  const integration = await models.Integrations.findOne({
+  const integration: IIntegration | null = await models.Integrations.findOne({
     inboxId: integrationId,
   }).lean();
-  if (!integration) throw new Error('Integration not found');
-
-  const { wsServer = '' } = integration;
-  const operator = integration.operators.find((op) => op.userId === user?._id);
-  const extentionNumber = isCronRunning
-    ? extension
-    : operator?.gsUsername || '1001';
-
-  let cookie = await getOrSetCallCookie(wsServer, isCronRunning || false);
-  if (!cookie) {
-    throw new Error('Cookie not found');
+  if (!integration) {
+    throw new Error(`Integration not found for inboxId: ${integrationId}`);
   }
 
-  cookie = cookie?.toString();
-
-  const requestOptions: RequestInit & { headers: HeadersInit } = {
-    method,
-    headers: { ...headers, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      ...data,
-      request: {
-        ...data.request,
-        cookie,
-        ...(isAddExtention && { extension: extentionNumber }),
-      },
-    }),
-  };
+  const wsServer = argWsServer || integration.wsServer;
+  if (!wsServer) {
+    throw new Error(
+      `wsServer is not configured for integration: ${integrationId}`,
+    );
+  }
 
   try {
-    const res = await sendRequest(
-      `https://${wsServer}/${path}`,
-      requestOptions,
+    const cookie = await getOrSetCallCookie(
+      wsServer,
+      args.isCronRunning || false,
     );
 
-    if (isConvertToJson) {
-      const response = await res.json();
+    const operator = integration.operators.find(
+      (op) => op.userId === user?._id,
+    );
+    const extentionNumber = args.isCronRunning
+      ? args.extentionNumber
+      : operator?.gsUsername;
 
-      if (response.status === -6) {
-        await redis.del('callCookie');
-        return (await sendToGrandStream(
-          models,
-          {
-            path: 'api',
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data,
-            integrationId,
-            retryCount: retryCount - 1,
-            isConvertToJson,
-            isGetExtension,
-          },
-          user,
-        )) as any;
-      }
-      if (isGetExtension) {
-        return { response, extentionNumber };
-      }
-      return response;
-    }
-    if (isGetExtension) {
-      return { res, extentionNumber };
+    const requestBody = {
+      ...args.data,
+      request: {
+        ...args.data.request,
+        cookie,
+        ...(args.isAddExtention && { extension: extentionNumber }),
+      },
+    };
+
+    const res = await sendRequest(`https://${wsServer}/${args.path}`, {
+      method: args.method,
+      headers: { 'Content-Type': 'application/json', ...args.headers },
+      body: JSON.stringify({ ...requestBody }),
+    });
+
+    if (res?.status === -6) {
+      console.warn(
+        `[sendToGrandStream] Invalid cookie for ${wsServer}. Deleting old cookie and retrying...`,
+      );
+      const userType = args.isCronRunning ? 'cron' : 'regular';
+      const cookieKey = `${userType}CallCookie:${wsServer}`;
+      await redis.del(cookieKey);
+
+      return sendToGrandStream(
+        models,
+        { ...args, retryCount: retryCount - 1 },
+        user,
+      );
     }
 
-    return res;
+    return args.isGetExtension ? { response: res, extentionNumber } : res;
   } catch (error) {
-    console.error('Error in sendToGrandStream:', error);
+    console.error(
+      '[sendToGrandStream] Failed to send request to Grandstream:',
+      error,
+    );
     throw error;
   }
 };
 
-export const getOrSetCallCookie = async (wsServer, isCron) => {
+export const getOrSetCallCookie = async (
+  wsServer: string,
+  isCron: boolean,
+): Promise<string> => {
   const {
     CALL_API_USER,
     CALL_API_PASSWORD,
     CALL_CRON_API_USER,
     CALL_CRON_API_PASSWORD,
-    CALL_API_EXPIRY = '86400', // Default 24h for regular users
-    CALL_CRON_API_EXPIRY = '604800', // Default 7d for cron
+    CALL_API_EXPIRY = '86400', // 24 hour
+    CALL_CRON_API_EXPIRY = '604800', // 7 days
   } = process.env;
+
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-  // Validate credentials
-  if (!isCron && (!CALL_API_USER || !CALL_API_PASSWORD)) {
-    throw new Error('Regular API credentials missing!');
-  }
-  if (isCron && (!CALL_CRON_API_USER || !CALL_CRON_API_PASSWORD)) {
-    throw new Error('Cron API credentials missing!');
-  }
-
-  // Create unique cookie keys
-  const cookieKey = `${isCron ? 'cronCallCookie' : 'callCookie'}`;
+  const userType = isCron ? 'cron' : 'regular';
   const apiUser = isCron ? CALL_CRON_API_USER : CALL_API_USER;
   const apiPassword = isCron ? CALL_CRON_API_PASSWORD : CALL_API_PASSWORD;
-  const expiry = isCron ? CALL_CRON_API_EXPIRY : CALL_API_EXPIRY;
+  const cookieKey = `${userType}CallCookie:${wsServer}`;
+  const lockKey = `lock:${cookieKey}`;
+  const expiryInSeconds = isCron
+    ? parseInt(CALL_CRON_API_EXPIRY, 10)
+    : parseInt(CALL_API_EXPIRY, 10);
+  const lockTimeoutInSeconds = 10;
 
-  // Check existing cookie
-  let callCookie = await redis.get(cookieKey);
-  if (callCookie) {
-    console.log(
-      `Using existing ${isCron ? 'cron' : 'regular'} cookie:`,
-      callCookie,
+  if (!apiUser || !apiPassword) {
+    throw new Error(
+      `Authentication credentials for ${userType} user are not configured.`,
     );
-    return callCookie;
   }
 
-  try {
-    // Authentication logic
-    const challengeResponse = await sendRequest(`https://${wsServer}/api`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        request: {
-          action: 'challenge',
-          user: apiUser,
-          version: '1.0.20.23',
-        },
-      }),
-    });
+  const cachedCookie = await redis.get(cookieKey);
+  if (cachedCookie) {
+    return cachedCookie;
+  }
 
-    const data = await challengeResponse.json();
-    const { challenge } = data?.response;
-    const hashedPassword = crypto
-      .createHash('md5')
-      .update(challenge + apiPassword)
-      .digest('hex');
+  const lockAcquired = await redis.set(
+    lockKey,
+    'locked',
+    'EX',
+    lockTimeoutInSeconds,
+    'NX',
+  );
 
-    const loginResponse = await sendRequest(`https://${wsServer}/api`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        request: {
-          action: 'login',
-          user: apiUser,
-          token: hashedPassword,
-        },
-      }),
-    });
+  if (lockAcquired) {
+    console.log(
+      `[${userType}] Lock acquired. Generating a new cookie for ${wsServer}.`,
+    );
+    try {
+      const challengeData = await sendRequest(`https://${wsServer}/api`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          request: { action: 'challenge', user: apiUser, version: '1.0.20.23' },
+        }),
+      });
 
-    const loginData = await loginResponse.json();
-    if (loginData.status === 0) {
-      const { cookie } = loginData.response;
-      await redis.set(cookieKey, cookie, 'EX', expiry);
-      console.log(`Stored new ${isCron ? 'cron' : 'regular'} cookie:`, cookie);
-      return cookie;
-    }
+      const { challenge } = challengeData?.response || {};
 
-    // Error handling
-    if (errorList[loginData.status]) {
-      console.error(
-        `Auth failed for ${isCron ? 'cron' : 'regular'} user:`,
-        errorList[loginData.status],
-        'apiUser:',
-        apiUser,
+      if (!challenge) {
+        throw new Error(
+          `[${userType}] Challenge not received from Grandstream for user ${apiUser}.`,
+        );
+      }
+      const hashedPassword = crypto
+        .createHash('md5')
+        .update(challenge + apiPassword)
+        .digest('hex');
+
+      const loginData = await sendRequest(`https://${wsServer}/api`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          request: { action: 'login', user: apiUser, token: hashedPassword },
+        }),
+      });
+
+      if (loginData.status === 0 && loginData.response?.cookie) {
+        const { cookie } = loginData.response;
+        await redis.set(cookieKey, cookie, 'EX', expiryInSeconds);
+        console.log(`[${userType}] New cookie stored for ${wsServer}.`);
+        return cookie;
+      }
+
+      const errorMsg =
+        errorList[loginData.status] ||
+        `Unknown authentication error (status: ${loginData.status})`;
+      throw new Error(
+        `[${userType}] Auth failed for user ${apiUser}: ${errorMsg}`,
       );
-      throw new Error(errorList[loginData.status]);
+    } catch (error) {
+      console.error(
+        `[getOrSetCallCookie] Error during ${userType} auth:`,
+        error,
+      );
+      throw error;
+    } finally {
+      await redis.del(lockKey);
+      console.log(`[${userType}] Lock released for ${wsServer}.`);
     }
-    throw new Error('Unknown authentication error');
-  } catch (error) {
-    console.error(`Error in ${isCron ? 'cron' : 'regular'} auth:`, error);
-    throw error;
+  } else {
+    console.log(
+      `[${userType}] Could not acquire lock for ${wsServer}, waiting...`,
+    );
+    await sleep(TWO_HUNDRED_MS);
+    return getOrSetCallCookie(wsServer, isCron);
   }
 };
 

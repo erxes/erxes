@@ -1,16 +1,9 @@
 import { getEnv } from '@erxes/api-utils/src';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
-import {
-  getPureDate,
-  getRecordUrl,
-  saveCdrData,
-  sendToGrandStream,
-} from '../utils';
+import { sendToGrandStream } from '../utils';
 import { generateModels } from '../connectionResolver';
 import redis from '../redlock';
-import { getOrganizations } from '@erxes/api-utils/src/saas/saas';
-import * as momentTz from 'moment-timezone';
 
 function arraysEqual(arr1: any[], arr2: any[]): boolean {
   if (arr1.length !== arr2.length) return false;
@@ -20,187 +13,153 @@ function arraysEqual(arr1: any[], arr2: any[]): boolean {
   return true;
 }
 
+async function processQueueState(
+  queue: string,
+  state: 'waiting' | 'talking' | 'agent',
+  newData: any,
+  pubsubEvent: string,
+  comparisonKey?: 'callerid' | 'member',
+) {
+  if (!newData) {
+    return;
+  }
+
+  const redisKey = `callRealtimeHistory:${queue}:${state}`;
+  const oldHistoryJSON = await redis.get(redisKey);
+
+  if (!oldHistoryJSON) {
+    await redis.set(redisKey, JSON.stringify(newData));
+    return;
+  }
+  const oldHistory = JSON.parse(oldHistoryJSON);
+  let hasChanged = false;
+
+  if (comparisonKey === 'callerid') {
+    const oldIds = (oldHistory.member || [])
+      .map((item) => item.callerid)
+      .sort();
+    const newIds = (newData.member || []).map((item) => item.callerid).sort();
+    if (!arraysEqual(oldIds, newIds)) {
+      hasChanged = true;
+    }
+  } else if (comparisonKey === 'member') {
+    if (
+      JSON.stringify(oldHistory.member || []) !==
+      JSON.stringify(newData.member || [])
+    ) {
+      hasChanged = true;
+    }
+  }
+
+  await redis.set(redisKey, JSON.stringify(newData));
+
+  const updatedHistory = await redis.get(redisKey);
+
+  graphqlPubsub.publish(pubsubEvent, {
+    [pubsubEvent]: JSON.parse(JSON.stringify(updatedHistory) || '{}'),
+  });
+}
+
 export default {
-  handle3SecondlyJob: async ({ subdomain }) => {
-    const VERSION = getEnv({ name: 'VERSION' });
-    const CALL_CRON_ENABLED = getEnv({ name: 'CALL_CRON_ENABLED' });
-    if (VERSION && VERSION === 'os' && CALL_CRON_ENABLED) {
-      const models = await generateModels(subdomain);
-      const integrations = await models.Integrations.find({}).lean();
+  handle3SecondlyJob: async ({ subdomain }: { subdomain: string }) => {
+    if (
+      getEnv({ name: 'VERSION' }) !== 'os' ||
+      !getEnv({ name: 'CALL_CRON_ENABLED' })
+    ) {
+      return;
+    }
+    console.log(
+      'wahha:',
+      getEnv({ name: 'CALL_CRON_ENABLED' }),
+      getEnv({ name: 'VERSION' }) !== 'os' ||
+        !getEnv({ name: 'CALL_CRON_ENABLED' }),
+    );
+    const models = await generateModels(subdomain);
+    const integrations = await models.Integrations.find({
+      'queues.0': { $exists: true },
+    }).lean();
 
-      for (const integration of integrations) {
-        if (integration.queues) {
-          for (const queue of integration.queues) {
-            const queueData = (await sendToGrandStream(
-              models,
-              {
-                path: 'api',
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                data: {
-                  request: {
-                    action: 'getQueueCalling',
-                    extension: queue,
-                  },
-                },
-                integrationId: integration.inboxId,
-                retryCount: 1,
-                isConvertToJson: true,
-                isAddExtention: false,
+    for (const integration of integrations) {
+      if (!integration.queues) continue;
+
+      for (const queue of integration.queues) {
+        const baseGrandStreamArgs = {
+          method: 'POST' as const,
+          headers: { 'Content-Type': 'application/json' },
+          integrationId: integration.inboxId,
+          isConvertToJson: true,
+          isCronRunning: true,
+        };
+
+        try {
+          const waitingData = await sendToGrandStream(
+            models,
+            {
+              ...baseGrandStreamArgs,
+              path: 'api',
+              data: {
+                request: { action: 'getQueueCalling', extension: queue },
               },
-              {},
-            )) as any;
-            if (queueData && queueData.response) {
-              const { CallQueues } = queueData?.response;
+            },
+            {},
+          );
+          await processQueueState(
+            queue.toString(),
+            'waiting',
+            waitingData?.response?.CallQueues,
+            'waitingCallReceived',
+            'callerid',
+          );
 
-              if (CallQueues) {
-                const redisKey = `callRealtimeHistory:${queue}:waiting`;
-                const oldHistory = await redis.get(redisKey);
-
-                if (!oldHistory) {
-                  await redis.set(redisKey, JSON.stringify(CallQueues));
-                } else {
-                  const oldHistoryParsed = JSON.parse(oldHistory);
-                  const oldCallerIds = oldHistoryParsed?.member
-                    ?.map((item) => item.callerid)
-                    .sort();
-                  const newCallerIds = CallQueues.member
-                    ?.map((item) => item.callerid)
-                    .sort();
-                  if (!arraysEqual(oldCallerIds, newCallerIds)) {
-                    await redis.set(
-                      redisKey,
-                      JSON.stringify({
-                        ...CallQueues,
-                        member: CallQueues.member,
-                      }),
-                    );
-
-                    const waitingKey = `callRealtimeHistory:${queue}:waiting`;
-                    const history = (await redis.get(waitingKey)) || [];
-
-                    graphqlPubsub.publish(`waitingCallReceived`, {
-                      waitingCallReceived: JSON.parse(JSON.stringify(history)),
-                    });
-                  }
-                }
-              }
-            }
-
-            const queueProceedingData = (await sendToGrandStream(
-              models,
-              {
-                path: 'api',
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                data: {
-                  request: {
-                    action: 'getQueueCalling',
-                    extension: queue,
-                    role: 'answer',
-                  },
+          const talkingData = await sendToGrandStream(
+            models,
+            {
+              ...baseGrandStreamArgs,
+              path: 'api',
+              data: {
+                request: {
+                  action: 'getQueueCalling',
+                  extension: queue,
+                  role: 'answer',
                 },
-                integrationId: integration.inboxId,
-                retryCount: 1,
-                isConvertToJson: true,
-                isAddExtention: false,
               },
-              {},
-            )) as any;
-            if (queueProceedingData && queueProceedingData.response) {
-              const { CallQueues } = queueProceedingData?.response;
-              if (CallQueues) {
-                const redisKey = `callRealtimeHistory:${queue}:talking`;
-                const oldHistory = await redis.get(redisKey);
+            },
+            {},
+          );
+          await processQueueState(
+            queue.toString(),
+            'talking',
+            talkingData?.response?.CallQueues,
+            'talkingCallReceived',
+            'callerid',
+          );
 
-                if (!oldHistory) {
-                  await redis.set(redisKey, JSON.stringify(CallQueues));
-                } else {
-                  const oldHistoryParsed = JSON.parse(oldHistory);
-
-                  const oldCallerIds = oldHistoryParsed?.member
-                    ?.map((item) => item.callerid)
-                    .sort();
-                  const newCallerIds = CallQueues.member
-                    ?.map((item) => item.callerid)
-                    .sort();
-
-                  if (!arraysEqual(oldCallerIds, newCallerIds)) {
-                    await redis.set(
-                      redisKey,
-                      JSON.stringify({
-                        ...CallQueues,
-                        member: CallQueues.member,
-                      }),
-                    );
-
-                    const talkingKey = `callRealtimeHistory:${queue}:talking`;
-                    const history = (await redis.get(talkingKey)) || [];
-
-                    graphqlPubsub.publish(`talkingCallReceived`, {
-                      talkingCallReceived: JSON.parse(JSON.stringify(history)),
-                    });
-                  }
-                }
-              }
-            }
-
-            const callQueueMemberList = (await sendToGrandStream(
-              models,
-              {
-                path: 'api',
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                data: {
-                  request: {
-                    action: 'getCallQueuesMemberMessage',
-                    extension: queue,
-                  },
+          const agentData = await sendToGrandStream(
+            models,
+            {
+              ...baseGrandStreamArgs,
+              path: 'api',
+              data: {
+                request: {
+                  action: 'getCallQueuesMemberMessage',
+                  extension: queue,
                 },
-                integrationId: integration.inboxId,
-                retryCount: 1,
-                isConvertToJson: true,
-                isAddExtention: false,
               },
-              {},
-            )) as any;
-            if (callQueueMemberList && callQueueMemberList.response) {
-              const { CallQueueMembersMessage } = callQueueMemberList?.response;
-              if (CallQueueMembersMessage) {
-                const redisKey = `callRealtimeHistory:${queue}:agent`;
-                const oldHistory = await redis.get(redisKey);
-
-                if (!oldHistory) {
-                  await redis.set(
-                    redisKey,
-                    JSON.stringify(CallQueueMembersMessage),
-                  );
-                } else {
-                  const oldHistoryParsed = JSON.parse(oldHistory);
-                  if (
-                    !arraysEqual(
-                      oldHistoryParsed.member || [],
-                      CallQueueMembersMessage?.member || [],
-                    )
-                  ) {
-                    await redis.set(
-                      redisKey,
-                      JSON.stringify({
-                        ...CallQueueMembersMessage,
-                        member: CallQueueMembersMessage.member,
-                      }),
-                    );
-
-                    const agentKey = `callRealtimeHistory:${queue}:agent`;
-                    const history = (await redis.get(agentKey)) || [];
-                    graphqlPubsub.publish(`agentCallReceived`, {
-                      agentCallReceived: JSON.parse(JSON.stringify(history)),
-                    });
-                  }
-                }
-              }
-            }
-          }
+            },
+            {},
+          );
+          await processQueueState(
+            queue.toString(),
+            'agent',
+            agentData?.response?.CallQueueMembersMessage,
+            'agentCallReceived',
+            'member',
+          );
+        } catch (error) {
+          console.error(
+            `[cron] Failed to process queue ${queue} for integration ${integration.inboxId}:`,
+            error.message,
+          );
         }
       }
     }
