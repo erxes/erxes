@@ -25,8 +25,8 @@ const prepareData = async (
 
   if (segmentData && segmentData.conditions) {
     const itemIds = await fetchSegment(models, subdomain, segmentData, {
-      page: 1,
-      perPage: 10000
+      page,
+      perPage
     });
 
     contactsFilter._id = { $in: itemIds };

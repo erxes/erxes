@@ -233,11 +233,7 @@ async function main() {
         { $set: { percentage } }
       );
 
-      if (serviceName === "core") {
-        docs = response?.docs || [];
-      } else {
-        docs = docs.concat(response ? response.docs || [] : []);
-      }
+      docs = docs.concat(response ? response.docs || [] : []);
     }
 
     const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
