@@ -9,7 +9,6 @@ import typeDefs from './graphql/typeDefs';
 import logs from './logUtils';
 import { setupMessageConsumers } from './messageBroker';
 import * as permissions from './permissions';
-import changeStream from './changeStream';
 import { buildFile } from './export';
 
 export default {
@@ -53,6 +52,5 @@ export default {
       }),
     );
   },
-  changeStream,
   setupMessageConsumers,
 };
