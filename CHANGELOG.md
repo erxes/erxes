@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.13.2](https://github.com/erxes/erxes/compare/2.13.1...2.13.2) (2025-06-06)
+
+## [2.13.1](https://github.com/erxes/erxes/compare/2.13.0...2.13.1) (2025-06-05)
+
+### Bug Fixes
+
+* CI up node version and some ubuntu version ([#6049](https://github.com/erxes/erxes/issues/6049)) ([548636a](https://github.com/erxes/erxes/commit/548636a0fbbd7d32f3761d6ddaad94034ce22525))
+* deals assigned users from check productsData assignedUser ([42482f2](https://github.com/erxes/erxes/commit/42482f23070d319640700526e45350ff5d98037a))
+* ebarimt sub id show ([9e9f680](https://github.com/erxes/erxes/commit/9e9f680d2895f58515c39c3b696872aa7ec1ee89))
+
 ## [2.13.0](https://github.com/erxes/erxes/compare/2.12.3...2.13.0) (2025-06-03)
 
 ### Features

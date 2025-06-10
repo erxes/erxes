@@ -7,6 +7,7 @@ import {
   putUpdateLog,
   MODULE_NAMES
 } from '../../../logUtils';
+
 const vouchersMutations = {
   async voucherCampaignsAdd(
     _root,

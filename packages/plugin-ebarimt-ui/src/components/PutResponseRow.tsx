@@ -47,7 +47,8 @@ const PutResponseRow: React.FC<Props> = ({ putResponse, history, onReReturn }: P
 
   return (
     <tr key={putResponse._id}>
-      <td key={'BillID'}>{putResponse.id} </td>
+      <td key={'BillID'} style={{ 'min-width': '300px' }}>{putResponse.id} </td>
+      <td key={'BillIDs'} style={{ 'min-width': '300px' }}>{putResponse.receipts?.map(r => r.id).join(',')} </td>
       <td key={"number"}>{putResponse.number} </td>
       <td key={'Date'}>
         {putResponse.date ||
@@ -89,7 +90,7 @@ const PutResponseRow: React.FC<Props> = ({ putResponse, history, onReReturn }: P
           onClick={onPrint}
         >Print</Button>)}
       </td>
-    </tr>
+    </tr >
   );
 };
 
