@@ -15,23 +15,12 @@ const REWARD_TYPE_OPTIONS = [
   {
     label: "Birthday",
     value: "birthday",
-  },
-  {
-    label: "Registration",
-    value: "registration",
-  },
-];
-
-const BIRTHDAY_SCOPE_OPTIONS = [
-  { label: "Month", value: "month" },
-  { label: "Week", value: "week" },
-  { label: "Day", value: "day" },
+  }
 ];
 
 const APPLIES_TO_OPTIONS = [
   { label: "Team Members", value: "user" },
   { label: "Customers", value: "customer" },
-  { label: "Companies", value: "company" },
 ];
 
 type Props = {
@@ -56,68 +45,12 @@ const RewardForm = (props: Props) => {
     setConfig({ ...config, [name]: value });
   };
 
-  const onChangeRule = (name: string, value: any) => {
-    onChangeConfig("applyRule", { ...config.applyRule, [name]: value });
-  };
-
   const onSave = () => {
     addConfig(activeTrigger, activeTrigger.id, {
       ...(activeTrigger?.config || {}),
       ...config,
     });
     closeModal();
-  };
-
-  const renderRuleForm = () => {
-    if (config.rewardType !== "birthday") {
-      return null;
-    }
-
-    return (
-      <>
-        <FormGroup>
-          <ControlLabel>Birthday Rule</ControlLabel>
-          <Select
-            value={BIRTHDAY_SCOPE_OPTIONS.find(
-              (opt) => opt.value === config.applyRule?.birthdayRule
-            )}
-            options={BIRTHDAY_SCOPE_OPTIONS}
-            onChange={(option) => onChangeRule("birthdayRule", option?.value)}
-          />
-        </FormGroup>
-
-        {config.applyRule?.birthdayRule === "custom" && (
-          <FormWrapper>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel>Start Offset (days before)</ControlLabel>
-                <FormControl
-                  type="number"
-                  placeholder="E.g., 7 (for 7 days before birthday)"
-                  value={config.applyRule?.startOffset || 0}
-                  onChange={(e: any) =>
-                    onChangeRule("startOffset", Number(e.target.value))
-                  }
-                />
-              </FormGroup>
-            </FormColumn>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel>End Offset (days after)</ControlLabel>
-                <FormControl
-                  type="number"
-                  placeholder="E.g., 3 (for 3 days after birthday)"
-                  value={config.applyRule?.endOffset || 0}
-                  onChange={(e: any) =>
-                    onChangeRule("endOffset", Number(e.target.value))
-                  }
-                />
-              </FormGroup>
-            </FormColumn>
-          </FormWrapper>
-        )}
-      </>
-    );
   };
 
   return (
