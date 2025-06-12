@@ -43,6 +43,7 @@ const Text = styled.div`
   width: 100%;
   z-index: 100;
 `;
+
 const Header = styledTS<{ fontSize?: string; bottomBorder?: boolean }>(
   styled.div,
 )`
@@ -65,6 +66,7 @@ const Header = styledTS<{ fontSize?: string; bottomBorder?: boolean }>(
     }
   `}
 `;
+
 const Row = styledTS<{ fontSize?: string; bottomBorder?: boolean }>(styled.div)`
   text-align: center;
   font-weight: bold;
@@ -75,6 +77,37 @@ const Row = styledTS<{ fontSize?: string; bottomBorder?: boolean }>(styled.div)`
 const ContainerRow = styled.div`
   padding: 20px 0px 0px 30px;
   width: 90%;
+`;
+
+const EmptyState = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #666;
+  width: 100%;
+`;
+
+const EmptyIcon = styled.div`
+  font-size: 48px;
+  color: #ddd;
+  margin-bottom: 16px;
+`;
+
+const EmptyTitle = styled.h3`
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+`;
+
+const EmptyDescription = styled.p`
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
 `;
 
 type IProps = {
@@ -91,6 +124,7 @@ const formatPercentage = (value: string): string => {
 
 function List(props: IProps) {
   const { navigate, queueList } = props;
+
   const progressBar = (
     percentage,
     color = colors.colorPrimary,
@@ -168,6 +202,24 @@ function List(props: IProps) {
       </SwitchboardBox>
     );
   };
+
+  const renderEmptyState = () => {
+    return (
+      <EmptyState>
+        <EmptyIcon>📞</EmptyIcon>
+        <EmptyTitle>Дуудлагын дараалал байхгүй байна</EmptyTitle>
+        <EmptyDescription>
+          Одоогоор идэвхтэй дуудлагын дараалал байхгүй байна.
+          <br />
+          Шинэ дуудлагууд ирэх үед энд харагдах болно.
+        </EmptyDescription>
+      </EmptyState>
+    );
+  };
+
+  if (!queueList || queueList.length === 0) {
+    return <>{renderEmptyState()}</>;
+  }
 
   return <FlexWrap>{queueList.map((list) => renderList(list))}</FlexWrap>;
 }

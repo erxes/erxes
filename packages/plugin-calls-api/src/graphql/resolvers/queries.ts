@@ -162,16 +162,21 @@ const callsQueries = {
         },
         user,
       );
+      console.log('1:', rawResponse);
 
-      rawResponse = await rawResponse.text();
+      rawResponse = await rawResponse?.text();
+      console.log('2');
+
       if (typeof rawResponse !== 'string') {
         throw new Error('Expected string response from Grandstream');
       }
+      console.log(rawResponse, 'rawResponse');
 
       let parsedResponse: any;
 
       try {
         parsedResponse = JSON.parse(rawResponse);
+        console.log('3');
 
         if (parsedResponse?.status === -6) {
           console.warn('Grandstream status -6, clearing callCookie');
@@ -190,11 +195,22 @@ const callsQueries = {
           return [];
         }
       }
+      console.log('4:', parsedResponse?.root_statistics);
 
-      const queuesFromResponse = parsedResponse?.root_statistics?.queue ?? [];
+      const queuesData = parsedResponse?.root_statistics?.queue ?? [];
+      console.log('queuesData:', queuesData);
       const seen = new Set<string>();
       const result: any = [];
 
+      let queuesFromResponse = [] as any;
+      if (queuesData) {
+        if (Array.isArray(queuesData)) {
+          queuesFromResponse = queuesData;
+        } else {
+          queuesFromResponse = [queuesData];
+        }
+      }
+      console.log(queuesFromResponse, 'queuesFromResponse');
       for (const integration of integrations) {
         const { queues: allowedQueues } = integration;
         if (!Array.isArray(allowedQueues)) continue;
@@ -211,8 +227,8 @@ const callsQueries = {
           }
         }
       }
-
-      return result;
+      console.log(result, 'result');
+      return [];
     } catch (error) {
       console.error(
         'Unexpected error while fetching user queues:',
