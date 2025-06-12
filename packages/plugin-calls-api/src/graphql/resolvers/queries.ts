@@ -228,7 +228,7 @@ const callsQueries = {
         }
       }
       console.log(result, 'result');
-      return [];
+      return result;
     } catch (error) {
       console.error(
         'Unexpected error while fetching user queues:',
