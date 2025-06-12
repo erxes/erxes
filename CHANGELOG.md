@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.13.4](https://github.com/erxes/erxes/compare/2.13.3...2.13.4) (2025-06-12)
+
+### Bug Fixes
+
+* fixNumber some case ([74da81f](https://github.com/erxes/erxes/commit/74da81f09e26896ceae40399741011069783a3ef))
+
 ## [2.13.3](https://github.com/erxes/erxes/compare/2.13.2...2.13.3) (2025-06-12)
 
 ### Features
