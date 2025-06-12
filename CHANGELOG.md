@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.13.3](https://github.com/erxes/erxes/compare/2.13.2...2.13.3) (2025-06-12)
+
+### Features
+
+* **calls:** Improve Grandstream API auth and session handling ([4b84df5](https://github.com/erxes/erxes/commit/4b84df53748a564da5407f3258f29b11a234745b))
+* **ticket:** add Chingeltei ticket functionality ([#6053](https://github.com/erxes/erxes/issues/6053)) ([2195d6f](https://github.com/erxes/erxes/commit/2195d6f7398ec919782420d73eb76beb9a3c35b2))
+
 ## [2.13.2](https://github.com/erxes/erxes/compare/2.13.1...2.13.2) (2025-06-06)
 
 ## [2.13.1](https://github.com/erxes/erxes/compare/2.13.0...2.13.1) (2025-06-05)
