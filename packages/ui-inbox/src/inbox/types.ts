@@ -45,6 +45,8 @@ export interface ICallCdrData {
   modifiedBy?: string;
   recordUrl?: string;
   userfield?: string;
+  actionType?: string;
+  duration?: string;
 }
 
 export interface IConversation {

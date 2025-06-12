@@ -147,7 +147,7 @@ const mutations = `
   callsIntegrationUpdate(configs: CallIntegrationConfigs): JSON
   callAddCustomer(inboxIntegrationId: String, primaryPhone: String, queueName: String): CallConversationDetail
   callUpdateActiveSession: JSON
-  
+  callHistoryAdd(${commonHistoryFields}, queueName: String): CallHistory
   callHistoryRemove(_id: String!): JSON
   callsUpdateConfigs(configsMap: JSON!): JSON
   callsPauseAgent(status: String!, integrationId: String!): String

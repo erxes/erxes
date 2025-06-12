@@ -103,25 +103,16 @@ const callDisconnect = `
   }
 `;
 
-// const callHistoryAdd = `
-//   mutation CallHistoryAdd($inboxIntegrationId: String,$customerPhone: String, $callStartTime: Date ,$callStatus: String, $callType: String, $timeStamp: Float, $endedBy: String, $queueName: String) {
-//   callHistoryAdd(inboxIntegrationId: $inboxIntegrationId,  customerPhone: $customerPhone, callStartTime: $callStartTime, callStatus: $callStatus, callType: $callType, timeStamp: $timeStamp, endedBy: $endedBy, queueName: $queueName) {
-//     _id
-//     timeStamp
-//     conversationId
-//   }
-// }
-// `;
+const callHistoryAdd = `
+  mutation CallHistoryAdd($inboxIntegrationId: String,$customerPhone: String, $callStartTime: Date ,$callStatus: String, $callType: String, $timeStamp: Float, $endedBy: String, $queueName: String) {
+  callHistoryAdd(inboxIntegrationId: $inboxIntegrationId,  customerPhone: $customerPhone, callStartTime: $callStartTime, callStatus: $callStatus, callType: $callType, timeStamp: $timeStamp, endedBy: $endedBy, queueName: $queueName) {
+    _id
+    timeStamp
+    conversationId
+  }
+}
+`;
 
-// const callHistoryEdit = `
-//   mutation CallHistoryEdit($id: String, $inboxIntegrationId: String, $customerPhone: String, $callDuration: Int, $callStartTime: Date, $callEndTime: Date, $callType: String, $callStatus: String, $timeStamp: Float, $transferredCallStatus: String, $endedBy: String) {
-//     callHistoryEdit(_id: $id, inboxIntegrationId: $inboxIntegrationId, customerPhone: $customerPhone, callDuration: $callDuration, callStartTime: $callStartTime, callEndTime: $callEndTime, callType: $callType, callStatus: $callStatus, timeStamp: $timeStamp, transferredCallStatus: $transferredCallStatus, endedBy: $endedBy)
-// }`;
-
-// const callHistoryEditStatus = `
-//   mutation CallHistoryEditStatus($callStatus: String, $timeStamp: Float) {
-//     callHistoryEditStatus(callStatus: $callStatus, timeStamp: $timeStamp)
-// }`;
 
 const callHistoryRemove = ` 
   mutation CallHistoryRemove($id: String!) {
@@ -150,7 +141,7 @@ export default {
   callTerminateSession,
   callDisconnect,
   // callHistoryEdit,
-  // callHistoryAdd,
+  callHistoryAdd,
   callHistoryRemove,
   callsUpdateConfigs,
   // callHistoryEditStatus,

@@ -7,8 +7,10 @@ import {
   checkForExistingIntegrations,
   generateToken,
   getDomain,
+  selectRelevantCdr,
   updateIntegrationQueueNames,
   updateIntegrationQueues,
+  validateArgs,
 } from './utils';
 import { generateModels } from './connectionResolver';
 import {
@@ -34,7 +36,6 @@ export const setupMessageConsumers = async () => {
       const models = generateModels(subdomain);
       try {
         const docData = JSON.parse(doc.data);
-        console.log(docData, 'docData');
         const token = await generateToken(integrationId);
 
         const updateData = {
@@ -47,7 +48,6 @@ export const setupMessageConsumers = async () => {
           updateData,
           integrationId,
         );
-        console.log(checkedIntegration, 'checkedIntegration');
         if (checkedIntegration) {
           const integration = await (
             await models
@@ -195,7 +195,6 @@ export const setupMessageConsumers = async () => {
             if (updatedQueues) {
               requestBody.callQueues = updatedQueues;
             }
-            console.log(requestBody, 'requestBody');
             await fetch(`${ENDPOINT_URL}/update-endpoint`, {
               method: 'POST',
               body: JSON.stringify(requestBody),
@@ -350,27 +349,26 @@ export const setupMessageConsumers = async () => {
     async (args: InterMessage): Promise<any> => {
       try {
         const { subdomain, data } = args;
+        validateArgs(data);
+
         const models = await generateModels(subdomain);
         const { erxesApiConversationId } = data;
 
-        if (!erxesApiConversationId) {
-          return {
-            status: 'error',
-            errorMessage: 'Conversation id not found.',
-          };
-        }
-
-        const history = await models.Cdrs.findOne({
+        const histories = await models.Cdrs.find({
           conversationId: erxesApiConversationId,
         });
+
+        const selected = selectRelevantCdr(histories);
+
         return {
           status: 'success',
-          data: history,
+          data: selected,
         };
       } catch (error) {
+        console.error('Error processing calls:getCallCdr', error);
         return {
           status: 'error',
-          errorMessage: 'Error processing call cdr:' + error,
+          errorMessage: `Error processing call CDR: ${error.message || error}`,
         };
       }
     },

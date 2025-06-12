@@ -104,6 +104,8 @@ export default `
     createdBy
     modifiedBy
     recordUrl
+    actionType
+    duration
   }
   `
         : ''

@@ -1,18 +1,18 @@
 import {
   RichEditorControlsRoot,
-  RichEditorRoot
-} from "@erxes/ui/src/components/editor/styles";
+  RichEditorRoot,
+} from '@erxes/ui/src/components/editor/styles';
 import {
   PopoverFooter as RootFooter,
-  PopoverList as RootList
-} from "@erxes/ui/src/components/filterableList/styles";
-import { colors, dimensions } from "@erxes/ui/src/styles";
-import { darken, rgba } from "@erxes/ui/src/styles/ecolor";
+  PopoverList as RootList,
+} from '@erxes/ui/src/components/filterableList/styles';
+import { colors, dimensions } from '@erxes/ui/src/styles';
+import { darken, rgba } from '@erxes/ui/src/styles/ecolor';
 
-import { PopoverButton } from "@erxes/ui/src/styles/eindex";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import { PopoverButton } from '@erxes/ui/src/styles/eindex';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const ResponseSuggestions = styled.ul`
   position: absolute;
@@ -54,16 +54,16 @@ const RespondBoxStyled = styledTS<{
   border-top: 1px solid ${colors.borderPrimary};
   position: relative;
   transition: background 0.3s ease;
-  background: ${props =>
+  background: ${(props) =>
     props.$isInternal ? colors.bgInternal : colors.colorWhite};
-  filter: ${props => props.$isInactive && "blur(2px)"};
+  filter: ${(props) => props.$isInactive && 'blur(2px)'};
   div[data-prose-mirror-editor]{
-    background: ${props =>
+    background: ${(props) =>
       props.$isInternal ? colors.bgInternal : colors.colorWhite};
     transition: background 0.3s ease;
   }
   .cm-editor{
-    background: ${props =>
+    background: ${(props) =>
       props.$isInternal ? colors.bgInternal : colors.colorWhite};
     transition: background 0.3s ease;
   }
@@ -119,7 +119,7 @@ const EditorActions = styled.div`
     margin: 0;
   }
 
-  input[type="file"] {
+  input[type='file'] {
     display: none;
   }
 `;
@@ -148,7 +148,7 @@ const InlineHeaderSpan = styled.span`
 const PopoverHeader = styled.div`
   background-color: ${colors.bgLight};
 
-  input[type="text"] {
+  input[type='text'] {
     padding: 4px 8px 4px 20px;
   }
 `;
@@ -163,7 +163,7 @@ const PopoverList = styledTS<{ center?: boolean }>(styled(RootList))`
   padding: 0;
 
   li {
-    text-align: ${props => props.center && "center"};
+    text-align: ${(props) => props.center && 'center'};
 
     a {
       color: ${colors.colorCoreDarkGray};
@@ -365,7 +365,7 @@ const SmallEditor = styled.div`
 `;
 
 const CallLabel = styledTS<{ type: string }>(styled.span)`
-  color: ${props => (props.type === "answered" ? "green" : "red")};
+  color: ${(props) => (props.type === 'answered' || props.type === 'outbound' ? 'green' : 'red')};
 `;
 
 const ModalWrapper = styledTS<{ $show?: boolean }>(styled.div)`
@@ -418,5 +418,5 @@ export {
   SmallEditor,
   CallLabel,
   MailRespondBox,
-  ModalWrapper
+  ModalWrapper,
 };

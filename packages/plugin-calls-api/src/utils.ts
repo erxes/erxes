@@ -7,7 +7,7 @@ import * as FormData from 'form-data';
 import * as momentTz from 'moment-timezone';
 
 import type { RequestInit, HeadersInit } from 'node-fetch';
-import { generateModels } from './connectionResolver';
+import { IModels, generateModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
 import { IIntegrationDocument } from './models/definitions/integrations';
@@ -59,7 +59,6 @@ export const sendToGrandStream = async (models, args, user) => {
   if (retryCount <= 0) {
     throw new Error('Retry limit exceeded.');
   }
-  console.log(integrationId, 'integrationIdintegrationIdintegrationId');
   const integration = await models.Integrations.findOne({
     inboxId: integrationId,
   }).lean();
@@ -143,7 +142,6 @@ export const getOrSetCallCookie = async (wsServer, isCron) => {
     CALL_CRON_API_EXPIRY = '604800', // Default 7d for cron
   } = process.env;
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
   // Validate credentials
   if (!isCron && (!CALL_API_USER || !CALL_API_PASSWORD)) {
     throw new Error('Regular API credentials missing!');
@@ -348,7 +346,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         (a, b) =>
           new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
       );
-      console.log(sortedCdr, 'sortedCdr');
+
       let lastCreatedObject = sortedCdr[sortedCdr.length - 1];
       if (!lastCreatedObject) {
         console.log(
@@ -470,16 +468,14 @@ export const cfRecordUrl = async (params, user, models, subdomain) => {
     if (!grandStreamResponse) {
       throw new Error('Failed to get response from GrandStream API');
     }
-
     const fileBuffer = await grandStreamResponse.arrayBuffer();
     if (!fileBuffer) {
       throw new Error('Received empty buffer from GrandStream API');
     }
-
     // Prepare file upload
     const uploadUrl = getUrl(subdomain);
-    const sanitizedFileName = rawFileName.replace(/\+/g, '_'); // Sanitize filename
-    console.log(sanitizedFileName, 'sanitizedFileName*********');
+    const sanitizedFileName = rawFileName.replace(/\+/g, '_');
+
     const formData = new FormData();
     formData.append('file', Buffer.from(fileBuffer), {
       filename: sanitizedFileName,
@@ -770,7 +766,6 @@ export const checkForExistingIntegrations = async (
         );
 
   const models = await generateModels(subdomain);
-  console.log(details, 'details');
   // Check for existing integrations with the same wsServer and overlapping queues
   const existingIntegrations = await models.Integrations.find({
     wsServer: details.wsServer, // Match same wsServer
@@ -932,4 +927,141 @@ export const toCamelCase = (obj) => {
     }
   }
   return camelCaseObj;
+};
+
+export const determinePrimaryPhone = (params) => {
+  const { userfield, dst, src, action_type } = params;
+  if (userfield === 'Outbound' && !action_type?.includes('FOLLOWME')) {
+    return dst;
+  }
+  return src;
+};
+
+export const determineExtension = (params) => {
+  const {
+    userfield,
+    src,
+    dst,
+    action_type,
+    action_owner,
+    lastapp,
+    dstchannel_ext,
+    dstanswer,
+    channel_ext,
+    new_src,
+  } = params;
+
+  if (userfield === 'Outbound') {
+    if (!action_type?.includes('FOLLOWME')) {
+      return channel_ext || new_src || src;
+    }
+  }
+
+  if (userfield === 'Inbound') {
+    if (lastapp === 'Queue') {
+      return dstanswer || dstchannel_ext || dst;
+    }
+  }
+};
+
+export const extractOperatorId = (params) => {
+  const { userfield, dst, src, lastapp, action_type } = params;
+
+  if (lastapp !== 'Queue') {
+    return null;
+  }
+
+  const match = action_type?.match(/FOLLOWME\[(\d+)\]/);
+  if (match && match[1]) {
+    return match[1];
+  }
+
+  return userfield === 'Inbound' ? dst : src;
+};
+
+export const getConversationContent = async (models: IModels, cdrParams) => {
+  const disposition = cdrParams.disposition;
+
+  if (!cdrParams.uniqueid) {
+    return 'uniqueId байхгүй';
+  }
+
+  const relatedCdrs = await models.Cdrs.find({
+    uniqueid: cdrParams.uniqueid,
+  });
+  if (relatedCdrs) {
+    const answered = relatedCdrs.some(
+      (cdr) =>
+        cdr.disposition?.toLowerCase() === 'answered' &&
+        cdr.lastapp !== 'ForkCDR' &&
+        !cdr.actionType?.includes('IVR'),
+    );
+
+    if (answered) return 'ANSWERED';
+  }
+
+  if (cdrParams.userfield === 'Outbound') return 'OUTBOUND';
+  if (
+    cdrParams.action_type?.includes('IVR') &&
+    cdrParams.disposition?.toLowerCase() === 'answered' &&
+    cdrParams.userfield?.toLowerCase() === 'inbound'
+  ) {
+    return 'IVR';
+  }
+
+  switch (disposition) {
+    case 'ANSWERED':
+      return disposition;
+    case 'NO ANSWER':
+      return disposition;
+    case 'BUSY':
+      return disposition;
+    case 'FAILED':
+      return disposition;
+    default:
+      return 'MISSED';
+  }
+};
+
+export function validateArgs(data: any): void {
+  if (!data?.erxesApiConversationId) {
+    throw new Error('Conversation ID is required.');
+  }
+}
+
+export function selectRelevantCdr(histories: any[]): any | null {
+  if (!Array.isArray(histories) || histories.length === 0) return null;
+
+  const answered = histories.find(
+    (h) =>
+      h.disposition === 'ANSWERED' && h.billsec > 0 && h.lastapp === 'Queue',
+  );
+
+  const ivr = histories.find(
+    (h) =>
+      h.disposition === 'ANSWERED' &&
+      h.billsec > 0 &&
+      h.lastapp !== 'ForkCDR' &&
+      h.actionType.includes('IVR'),
+  );
+
+  const noAnswer = histories.find(
+    (h) =>
+      h.disposition === 'NO ANSWER' && h.billsec === 0 && h.lastapp === 'Queue',
+  );
+
+  return answered || noAnswer || ivr || histories[histories.length - 1] || null;
+}
+
+export const calculateFileDir = (doc) => {
+  let fileDir = 'monitor';
+
+  if (
+    ['QUEUE', 'TRANSFER'].some((substring) =>
+      doc?.action_type?.includes(substring),
+    )
+  ) {
+    fileDir = 'queue';
+  }
+  return fileDir;
 };

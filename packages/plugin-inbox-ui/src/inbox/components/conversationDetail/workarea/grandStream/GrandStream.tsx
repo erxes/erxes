@@ -58,14 +58,20 @@ const GrandStream: React.FC<Props> = ({
     dst,
     src,
     acctId,
+    end,
+    actionType,
+    duration,
   } = conversation.callCdr || ({} as ICallCdrData);
-
+  console.log(conversation.callCdr, 'conversation.callCdr');
   const audioTitle =
     `operatorPhone:${src || operatorPhone}-` +
     `customerPhone:${dst || customerPhone}-` +
     `${disposition || callType}:${userfield || callStatus}` +
     dayjs(createdAt).format('YYYY-MM-DD HH:mm');
 
+  const ringTimeSec = Math.round(
+    (new Date(end || '').getTime() - new Date(start || '').getTime()) / 1000,
+  );
   const handleDownload = () => {
     const audioSrc = audioRef?.current?.querySelector('source').src;
 
@@ -159,6 +165,11 @@ const GrandStream: React.FC<Props> = ({
         return 'Outgoing call';
     }
   };
+  const ivrEnded =
+    actionType?.startsWith('IVR') &&
+    disposition === 'ANSWERED' &&
+    billsec &&
+    billsec < 30;
 
   return (
     <MessageItem>
@@ -173,9 +184,24 @@ const GrandStream: React.FC<Props> = ({
               </StatusIcon>
               <div>
                 <h5>
-                  {__(renderCallStatus())} ({disposition || callType})
+                  {__(renderCallStatus())}{' '}
+                  {`${!ivrEnded ? disposition || callType : ''} `}
                 </h5>
-                <span>Call duration: {billsec || callDuration || 0}s</span>
+                {ivrEnded && (
+                  <div style={{ color: 'gray' }}>
+                    <Icon icon="menu" /> Caller entered IVR <br /> but hung up
+                    after {duration} seconds <br /> without choosing an option.
+                  </div>
+                )}
+                {disposition === 'NO ANSWER' && !ivrEnded && (
+                  <div style={{ color: 'orange' }}>
+                    <Icon icon="phone-slash" /> Caller waited {ringTimeSec}s{' '}
+                    <br /> but no one answered.
+                  </div>
+                )}
+                {disposition !== 'NO ANSWER' && !ivrEnded && (
+                  <span>Call duration: {billsec || callDuration || 0}s</span>
+                )}
               </div>
             </div>
             <div>{renderDownloadAudio()}</div>

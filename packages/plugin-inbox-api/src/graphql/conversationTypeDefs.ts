@@ -70,6 +70,8 @@ export const types = ({ contacts, dailyco, calls }) => `
         recordUrl: String
         userfield: String
         acctId: String
+        duration: String
+        actionType: String
       }
     `
       : ''
