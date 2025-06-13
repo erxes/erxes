@@ -264,11 +264,11 @@ export const sendNotification = async (
     isMobile,
     eventData,
     mobileConfig,
+    type,
   } = doc;
 
   const link = doc.link;
 
-  const relType: string = doc.type ?? "ticket";
   // remove duplicated ids
   const receiverIds = [...Array.from(new Set(receivers))];
 
@@ -292,7 +292,7 @@ export const sendNotification = async (
     const notification =
       await models.ClientPortalNotifications.createNotification(
         {
-          type: relType,
+          type,
           title,
           link,
           content,
@@ -308,7 +308,7 @@ export const sendNotification = async (
     graphqlPubsub.publish(`clientPortalNotificationInserted:${recipient._id}`, {
       clientPortalNotificationInserted: {
         _id: notification._id,
-        type: relType,
+        type: type,
         userId: recipient._id,
         title: notification.title,
         content: notification.content,
