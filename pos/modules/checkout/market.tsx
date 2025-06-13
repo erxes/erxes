@@ -1,5 +1,6 @@
 import { ReactNode } from "react"
 import dynamic from "next/dynamic"
+import { fixNum } from '@/lib/utils'
 import { orderCollapsibleAtom } from "@/store"
 import { totalAmountAtom } from "@/store/cart.store"
 import { directDiscountConfigAtom } from "@/store/config.store"
@@ -33,7 +34,7 @@ const Checkout: React.FC = () => {
   const totalAmount = useAtomValue(totalAmountAtom)
   const orderTotal = useAtomValue(orderTotalAmountAtom)
   const isReadyToPrint = !!activeOrder && paidAmount === orderTotal
-  const isItemsRegistered = !!activeOrder && orderTotal === totalAmount
+  const isItemsRegistered = !!activeOrder && fixNum(orderTotal) === fixNum(totalAmount)
 
   const { allowDirectDiscount } = useAtomValue(directDiscountConfigAtom)
   const [orderCollapsible, setOrderCollapsible] = useAtom(orderCollapsibleAtom)

@@ -65,8 +65,6 @@ export default {
       switch (rewardType) {
         case "birthday":
           return await checkBirthDateTrigger(subdomain, data);
-        case "registration":
-          return await checkRegistrationTrigger(subdomain, data);
         default:
           return false;
       }
@@ -128,41 +126,6 @@ const checkBirthDateTrigger = async (subdomain, data) => {
   });
 
   return executions?.length === 0;
-};
-
-const checkRegistrationTrigger = async (subdomain, data) => {
-  const { target, config } = data || {};
-
-  const { appliesTo = [] } = config || {};
-
-  if (!appliesTo?.length) return false;
-
-  const { _id: targetId, createdAt } = target;
-
-  if (!targetId || !createdAt) return false;
-
-  const today = new Date();
-  const targetDate = new Date(createdAt);
-
-  if (targetDate.setHours(0, 0, 0, 0) !== today.setHours(0, 0, 0, 0)) {
-    return false;
-  }
-
-  if (appliesTo.includes("cpUser")) {
-    const cpUser = await sendClientPortalMessage({
-      subdomain,
-      action: "clientPortalUsers.findOne",
-      data: {
-        erxesCustomerId: targetId,
-      },
-      isRPC: true,
-      defaultValue: null,
-    });
-
-    if (!cpUser) return false;
-  }
-
-  return true;
 };
 
 const generateAttributes = (value) => {

@@ -295,6 +295,7 @@ export const sendNotification = async (
           type,
           title,
           link,
+          content,
           receiver: recipient._id,
           notifType,
           clientPortalId: recipient.clientPortalId,
@@ -307,7 +308,7 @@ export const sendNotification = async (
     graphqlPubsub.publish(`clientPortalNotificationInserted:${recipient._id}`, {
       clientPortalNotificationInserted: {
         _id: notification._id,
-        type: notification.type,
+        type: type,
         userId: recipient._id,
         title: notification.title,
         content: notification.content,
