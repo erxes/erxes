@@ -21,7 +21,6 @@ import { CLOSE_DATE_TYPES } from "./constants";
 import { IUser } from "./models/definitions/clientPortalUser";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import { IClientPortal } from "./models/definitions/clientPortal";
-import { string } from "zod";
 
 export const getConfig = async (
   code: string,
