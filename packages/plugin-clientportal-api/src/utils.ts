@@ -21,6 +21,7 @@ import { CLOSE_DATE_TYPES } from "./constants";
 import { IUser } from "./models/definitions/clientPortalUser";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import { IClientPortal } from "./models/definitions/clientPortal";
+import { string } from "zod";
 
 export const getConfig = async (
   code: string,
@@ -264,11 +265,11 @@ export const sendNotification = async (
     isMobile,
     eventData,
     mobileConfig,
-    type,
   } = doc;
 
   const link = doc.link;
 
+  const relType: string = doc.type ?? "ticket";
   // remove duplicated ids
   const receiverIds = [...Array.from(new Set(receivers))];
 
@@ -292,9 +293,10 @@ export const sendNotification = async (
     const notification =
       await models.ClientPortalNotifications.createNotification(
         {
-          type,
+          type: relType,
           title,
           link,
+          content,
           receiver: recipient._id,
           notifType,
           clientPortalId: recipient.clientPortalId,
@@ -307,7 +309,7 @@ export const sendNotification = async (
     graphqlPubsub.publish(`clientPortalNotificationInserted:${recipient._id}`, {
       clientPortalNotificationInserted: {
         _id: notification._id,
-        type: notification.type,
+        type: relType,
         userId: recipient._id,
         title: notification.title,
         content: notification.content,
