@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.14.0-rc.2](https://github.com/erxes/erxes/compare/2.14.0-rc.1...2.14.0-rc.2) (2025-06-15)
+
+### Bug Fixes
+
+* **segments:** pass whole associationFilters not one by ones ([4bdccd6](https://github.com/erxes/erxes/commit/4bdccd62f21778645c8e5dcbd99adef128d2b7e5))
+
 ## [2.14.0-rc.1](https://github.com/erxes/erxes/compare/2.14.0-rc.0...2.14.0-rc.1) (2025-06-12)
 
 ### Bug Fixes
