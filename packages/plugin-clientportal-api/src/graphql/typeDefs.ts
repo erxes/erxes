@@ -95,7 +95,7 @@ const typeDefs = async () => {
     }
 
     extend type Mutation {
-      ${clientPortalMutations} 
+      ${clientPortalMutations(enabledPlugins)} 
       ${clientPortalUserMutations(cmsAvailable)}
       ${notificationMutations}
       ${fieldConfigMutations}
