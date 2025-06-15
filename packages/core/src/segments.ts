@@ -68,6 +68,10 @@ export default {
 
     let ids: string[] = [];
 
+    console.log(
+      JSON.stringify({ mainType, propertyType, positiveQuery, negativeQuery })
+    );
+
     if (
       associatedTypes
         .filter(type => type !== "core:form_submission")
