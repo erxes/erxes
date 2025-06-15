@@ -302,6 +302,8 @@ ${
     googleTagManager: String
 
     createdAt: Date
+
+    environmentVariables: JSON
   }
 
   type Styles {
@@ -424,6 +426,8 @@ ${
     googleAnalytics: String
     facebookPixel: String
     googleTagManager: String
+
+    environmentVariables: JSON
   }
 
   enum UserCardEnum {
@@ -526,7 +530,7 @@ export const queries = (enabledPlugins) => `
   }
 `;
 
-export const mutations = `
+export const mutations = (enabledPlugins) => `
   clientPortalConfigUpdate (
     config: ClientPortalConfigInput!
   ): ClientPortal
@@ -537,7 +541,7 @@ export const mutations = `
         ${copyParams},
         ${ticketMutationParams},
         ${commonMutationParams}
-      ): Ticket
+      ): ${enabledPlugins.tickets ? "Ticket" : "JSON"}
 
   clientPortalRemove (_id: String!): JSON
   clientPortalCreateCard(

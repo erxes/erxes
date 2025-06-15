@@ -54,6 +54,11 @@ export interface IPasswordVerificationConfig {
   smsContent: string;
 }
 
+export type EnvironmentVariable = {
+  key: string;
+  value: string;
+};
+
 export interface IClientPortal {
   _id?: string;
   name?: string;
@@ -66,6 +71,8 @@ export interface IClientPortal {
   dnsStatus?: string;
   styles?: IStyles;
   mobileResponsive?: boolean;
+
+  environmentVariables?: EnvironmentVariable[];
 
   // auth
   tokenExpiration?: number;
@@ -132,7 +139,7 @@ export interface IClientPortal {
 
   externalLinks?: {
     [key: string]: string;
-  }
+  };
 
   googleAnalytics?: string;
   facebookPixel?: string;
@@ -399,4 +406,6 @@ export const clientPortalSchema = new Schema({
   googleTagManager: field({ type: String, optional: true }),
   vercelProjectId: field({ type: String, optional: true }),
   lastVercelDeploymentId: field({ type: String, optional: true }),
+
+  environmentVariables: field({ type: [Object], optional: true }),
 });

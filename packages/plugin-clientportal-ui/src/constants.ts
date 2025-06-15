@@ -11,6 +11,10 @@ export const CONFIG_TYPES = {
     LABEL: 'Authentication',
     VALUE: 'auth',
   },
+  ENVIRONMENTVARIABLES: {
+    LABEL: 'Environment Variables',
+    VALUE: 'environmentVariables',
+  },
 };
 
 export const COLORS = [
