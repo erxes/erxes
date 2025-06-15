@@ -263,11 +263,11 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
     const dataPath = path.join(tmpDir, 'data', 'configs.json');
 
     const env: any = {
-      ERXES_API_URL: '${domain}/graphql',
-      ERXES_URL: '${domain}',
-      ERXES_FILE_URL: '${domain}/read-file?key=',
-      ERXES_CP_ID: '${config._id}',
-      ERXES_APP_TOKEN: '${config.erxesAppToken}',
+      ERXES_API_URL: `${domain}/graphql`,
+      ERXES_URL: domain,
+      ERXES_FILE_URL: `${domain}/read-file?key=`,
+      ERXES_CP_ID: config._id,
+      ERXES_APP_TOKEN: config.erxesAppToken,
     };
 
     const { environmentVariables = [] } = config;
