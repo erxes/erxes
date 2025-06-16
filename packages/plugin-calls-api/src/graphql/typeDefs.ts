@@ -79,6 +79,7 @@ const types = `
     extentionNumber: String
     conversationId: String
     recordUrl: String
+    customerId: String
   }
 `;
 
@@ -131,6 +132,7 @@ const queries = `
   callWaitingList(queue: String!): String
   callProceedingList(queue: String!): String
   callQueueMemberList(integrationId: String!, queue: String!): JSON
+  callCustomers(phoneNumber: String): [Customer]
   `;
 
 const mutations = `
@@ -146,7 +148,7 @@ const mutations = `
   callsUpdateConfigs(configsMap: JSON!): JSON
   callsPauseAgent(status: String!, integrationId: String!): String
   callTransfer(extensionNumber: String!, integrationId: String!, direction: String): String
-
+  callSelectCustomer(customerId: String!, conversationId: String!, phoneNumber: String!, integrationId: String!): String
 `;
 
 const typeDefs = async () => {
