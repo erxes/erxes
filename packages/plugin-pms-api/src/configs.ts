@@ -8,6 +8,8 @@ import * as permissions from "./permissions";
 import logs from "./logUtils";
 import { getOrderInfo } from "./routes";
 import reports from "./reports/reports";
+import afterMutations from "./afterMutations";
+import automations from "./automations";
 
 export default {
   name: "pms",
@@ -15,7 +17,7 @@ export default {
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -32,10 +34,11 @@ export default {
   },
   setupMessageConsumers,
   meta: {
-    // afterMutations,
+    afterMutations,
+    automations,
     // afterQueries,
     permissions,
     reports,
-    logs: { providesActivityLog: true, consumers: logs }
-  }
+    logs: { providesActivityLog: true, consumers: logs },
+  },
 };
