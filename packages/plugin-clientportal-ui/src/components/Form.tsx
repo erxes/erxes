@@ -129,8 +129,6 @@ const Form: React.FC<Props> = ({
       handleFormChange,
     };
 
-    console.log('configType', configType);
-
     switch (configType) {
       case CONFIG_TYPES.GENERAL.VALUE:
         return <General {...commonProps} />;
@@ -141,7 +139,7 @@ const Form: React.FC<Props> = ({
       case CONFIG_TYPES.ENVIRONMENTVARIABLES.VALUE:
         return (
           <EnvironmentVariables
-            environmentVariables={defaultConfigValues?.environmentVariables}
+            environmentVariables={formValues?.environmentVariables}
             handleFormChange={handleFormChange}
           />
         );

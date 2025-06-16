@@ -243,6 +243,14 @@ const navigationMenuSchema = new Schema(
   { _id: false }
 );
 
+const environmentVariableSchema = new Schema(
+  {
+    key: field({ type: String, required: true }),
+    value: field({ type: String, required: true }),
+  },
+  { _id: false }
+);
+
 export const clientPortalSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
@@ -407,5 +415,8 @@ export const clientPortalSchema = new Schema({
   vercelProjectId: field({ type: String, optional: true }),
   lastVercelDeploymentId: field({ type: String, optional: true }),
 
-  environmentVariables: field({ type: [Object], optional: true }),
+  environmentVariables: field({
+    type: [environmentVariableSchema],
+    optional: true,
+  }),
 });

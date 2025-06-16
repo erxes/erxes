@@ -3,6 +3,7 @@ import { EnvironmentVariable } from '../../types';
 import { Button, FormControl, Icon } from '@erxes/ui/src/components';
 import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
 import styled from 'styled-components';
+import { removeTypename } from '@erxes/ui/src/utils/core';
 
 type Props = {
   environmentVariables?: EnvironmentVariable[];
@@ -49,6 +50,10 @@ const EnvConfigs = (props: Props) => {
     [key: number]: boolean;
   }>({});
 
+  React.useEffect(() => {
+    setEnvs(environmentVariables ?? []);
+  }, [environmentVariables]);
+
   const handleAdd = useCallback(() => {
     const newEnv: EnvironmentVariable = {
       key: `KEY_${envs.length + 1}`,
@@ -56,14 +61,14 @@ const EnvConfigs = (props: Props) => {
     };
     const newEnvs = [...envs, newEnv];
     setEnvs(newEnvs);
-    handleFormChange('environmentVariables', newEnvs);
+    handleFormChange('environmentVariables', removeTypename(newEnvs));
   }, [envs, handleFormChange]);
 
   const handleDelete = useCallback(
     (index: number) => {
       const newEnvs = envs.filter((_, i) => i !== index);
       setEnvs(newEnvs);
-      handleFormChange('environmentVariables', newEnvs);
+      handleFormChange('environmentVariables', removeTypename(newEnvs));
     },
     [envs, handleFormChange]
   );
@@ -73,7 +78,7 @@ const EnvConfigs = (props: Props) => {
       const newEnvs = [...envs];
       newEnvs[index] = { ...newEnvs[index], value };
       setEnvs(newEnvs);
-      handleFormChange('environmentVariables', newEnvs);
+      handleFormChange('environmentVariables', removeTypename(newEnvs));
     },
     [envs, handleFormChange]
   );
@@ -85,7 +90,7 @@ const EnvConfigs = (props: Props) => {
       const newEnvs = [...envs];
       newEnvs[index] = { ...newEnvs[index], key: newKey };
       setEnvs(newEnvs);
-      handleFormChange('environmentVariables', newEnvs);
+      handleFormChange('environmentVariables', removeTypename(newEnvs));
     },
     [envs, handleFormChange]
   );

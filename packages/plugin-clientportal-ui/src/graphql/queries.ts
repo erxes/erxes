@@ -131,7 +131,10 @@ export const commonFields = `
   language
   languages
 
-  environmentVariables
+  environmentVariables {
+    key
+    value
+  }
 `;
 
 export const basicFields = `
