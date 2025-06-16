@@ -139,7 +139,7 @@ const Form: React.FC<Props> = ({
       case CONFIG_TYPES.ENVIRONMENTVARIABLES.VALUE:
         return (
           <EnvironmentVariables
-            environmentVariables={defaultConfigValues?.environmentVariables}
+            environmentVariables={formValues?.environmentVariables}
             handleFormChange={handleFormChange}
           />
         );
