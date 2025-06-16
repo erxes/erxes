@@ -150,9 +150,9 @@ export const formatNum = (num: number | string, splitter?: string): string => {
   if (checked) {
     const options = splitter
       ? {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }
       : undefined
 
     return checked.toLocaleString(undefined, options)
@@ -161,9 +161,24 @@ export const formatNum = (num: number | string, splitter?: string): string => {
   return "0"
 }
 
+export const fixNum = (value: any, p = 4) => {
+  const cleanNumber = Number((value ?? '').toString().replace(/,/g, ""));
+
+  if (isNaN(cleanNumber)) {
+    return 0;
+  }
+  const multiplier = 10 ** p;
+
+  const big = Math.round(
+    Number((cleanNumber * multiplier).toFixed(2))
+  );
+
+  return Number((big / multiplier).toFixed(p))
+};
+
 export const getCartTotal = (items: OrderItem[]) =>
   (items || []).reduce(
-    (total, item) => total + (item?.count || 0) * (item.unitPrice || 0),
+    (total, item) => total + fixNum((item?.count || 0) * (item.unitPrice || 0)),
     0
   )
 
@@ -279,9 +294,8 @@ export const getCustomerLabel = ({
   _id,
 }: Customer) => {
   if (firstName || lastName || primaryEmail || primaryPhone || code) {
-    return `${firstName ?? ""} ${lastName ?? ""} ${primaryPhone ?? ""} ${
-      primaryEmail ?? ""
-    } ${code ?? ""}`
+    return `${firstName ?? ""} ${lastName ?? ""} ${primaryPhone ?? ""} ${primaryEmail ?? ""
+      } ${code ?? ""}`
   }
 
   return _id || "Unknown"

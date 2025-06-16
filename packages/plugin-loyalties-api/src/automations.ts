@@ -65,8 +65,6 @@ export default {
       switch (rewardType) {
         case "birthday":
           return await checkBirthDateTrigger(subdomain, data);
-        case "registration":
-          return await checkRegistrationTrigger(subdomain, data);
         default:
           return false;
       }
@@ -79,51 +77,31 @@ export default {
 const checkBirthDateTrigger = async (subdomain, data) => {
   const { target, config } = data || {};
 
-  const { appliesTo = [], applyRule } = config || {};
+  const NOW = new Date();
+  const NOW_MONTH = NOW.getMonth();
 
-  if (!appliesTo?.length || !target?.birthDate) return false;
+  const { appliesTo = [] } = config || {};
 
-  if (appliesTo.includes("cpUser")) {
-    const cpUser = await sendClientPortalMessage({
-      subdomain,
-      action: "clientPortalUsers.findOne",
-      data: {
-        erxesCustomerId: target._id,
-      },
-      isRPC: true,
-      defaultValue: null,
-    });
+  if (!appliesTo?.length) return false;
 
-    if (!cpUser) return false;
+  if (target?.details?.birthDate) {
+    if (new Date(target?.details?.birthDate).getMonth() !== NOW_MONTH) {
+      return false;
+    }
+
+    return appliesTo.includes("user");
   }
 
-  const { birthdayRule, startOffset, endOffset } = applyRule || {};
-
-  const today = dayjs();
-  const birthDate = dayjs(target.birthDate);
-
-  if (birthdayRule) {
-    switch (birthdayRule) {
-      case "day":
-        if (!birthDate.isSame(today, "day")) return false;
-        break;
-      case "week":
-        if (!birthDate.isSame(today, "week")) return false;
-        break;
-      case "month":
-        if (!birthDate.isSame(today, "month")) return false;
-        break;
-      case "custom":
-        {
-          const startDate = birthDate.add(startOffset, "days");
-          const endDate = birthDate.add(endOffset, "days");
-
-          if (today.isBefore(startDate) || today.isAfter(endDate)) return false;
-        }
-        break;
-      default:
-        break;
+  if (target?.birthDate) {
+    if (new Date(target?.birthDate).getMonth() !== NOW_MONTH) {
+      return false;
     }
+
+    return appliesTo.includes("customer");
+  }
+
+  if (!target?.details?.birthDate && !target?.birthDate) {
+    return false;
   }
 
   const startOfYear = dayjs().startOf("year");
@@ -148,59 +126,6 @@ const checkBirthDateTrigger = async (subdomain, data) => {
   });
 
   return executions?.length === 0;
-};
-
-const checkRegistrationTrigger = async (subdomain, data) => {
-  const { target, config } = data || {};
-
-  const { appliesTo = [] } = config || {};
-
-  if (!appliesTo?.length) return false;
-
-  const { _id: targetId, createdAt } = target;
-
-  if (!targetId || !createdAt) return false;
-
-  const today = new Date();
-  const targetDate = new Date(createdAt);
-
-  if (targetDate.setHours(0, 0, 0, 0) !== today.setHours(0, 0, 0, 0)) {
-    return false;
-  }
-
-  let customerId = targetId;
-
-  if (appliesTo.includes("cpUser")) {
-    const cpUser = await sendClientPortalMessage({
-      subdomain,
-      action: "clientPortalUsers.findOne",
-      data: {
-        erxesCustomerId: customerId,
-      },
-      isRPC: true,
-      defaultValue: null,
-    });
-
-    if (!cpUser) return false;
-  }
-
-  const conformities = await sendCoreMessage({
-    subdomain,
-    action: "conformities.filterConformity",
-    data: {
-      mainType: "customer",
-      mainTypeIds: [customerId],
-      relType: "deal",
-    },
-    isRPC: true,
-    defaultValue: [],
-  });
-
-  if (conformities?.length === 0) {
-    return true;
-  }
-
-  return false;
 };
 
 const generateAttributes = (value) => {
@@ -298,12 +223,25 @@ const getOwner = async ({
   }
 
   if (["loyalties:reward"].includes(execution.triggerType)) {
-    const { appliesTo = [] } = execution.triggerConfig || {};
+    const { targetId, target = {} } = execution || {};
 
-    if (appliesTo.includes("customer")) {
+    if (
+      "state" in target ||
+      "relatedIntegrationIds" in target ||
+      "integrationId" in target
+    ) {
       ownerType = "customer";
-      ownerId = execution.targetId;
     }
+
+    if ("details" in target || "role" in target) {
+      ownerType = "user";
+    }
+
+    if ("plan" in target || "industry" in target) {
+      ownerType = "company";
+    }
+
+    ownerId = targetId;
   }
 
   return { ownerType, ownerId };
@@ -322,93 +260,58 @@ const createVoucher = async ({
   contentType: string;
   config: any;
 }) => {
-  let ownerType;
-  let ownerId;
   let voucherConfig;
 
-  if (
-    ["core:customer", "core:user", "core:company"].includes(
-      execution.triggerType
-    )
-  ) {
-    ownerType = contentType;
-    ownerId = execution.targetId;
-  }
+  let { ownerId, ownerType } = await getOwner({
+    models,
+    subdomain,
+    execution,
+    contentType,
+    config,
+  });
 
-  if (["inbox:conversation", "pos:posOrder"].includes(execution.triggerType)) {
-    ownerType = "customer";
-    ownerId = execution.target.customerId;
-  }
-
-  if (
-    [
-      "tasks:task",
-      "sales:deal",
-      "tickets:ticket",
-      "purchases:purchase",
-    ].includes(execution.triggerType)
-  ) {
-    const customerIds = await sendCoreMessage({
+  if (ownerType === "customer") {
+    const customerRelatedClientPortalUser = await sendClientPortalMessage({
       subdomain,
-      action: "conformities.savedConformity",
+      action: "clientPortalUsers.findOne",
       data: {
-        mainType: contentType,
-        mainTypeId: execution.targetId,
-        relTypes: ["customer"],
+        erxesCustomerId: ownerId,
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: null,
     });
 
-    if (customerIds.length) {
-      const customers = await sendCoreMessage({
-        subdomain,
-        action: "customers.find",
-        data: {
-          _id: { $in: customerIds },
-        },
-        isRPC: true,
-        defaultValue: [],
-      });
-
-      if (customers.length) {
-        ownerType = "customer";
-        ownerId = customers[0]._id;
-      }
+    if (customerRelatedClientPortalUser) {
+      ownerId = customerRelatedClientPortalUser._id;
+      ownerType = "cpUser";
     }
   }
 
   if (["loyalties:reward"].includes(execution.triggerType)) {
-    const { appliesTo = [] } = execution.triggerConfig || {};
     const { customRule } = config || {};
-
-    if (appliesTo.includes("customer")) {
-      ownerType = "customer";
-      ownerId = execution.targetId;
-    }
 
     if (customRule) {
       const { duration = "month" } = customRule || {};
 
-      let startDate = new Date();
-      let endDate;
+      const endDate = new Date();
 
       switch (duration) {
         case "month":
-          endDate = startDate.setMonth(startDate.getMonth() + 1);
+          endDate.setMonth(endDate.getMonth() + 1);
           break;
         case "week":
-          endDate = startDate.setDate(startDate.getDate() + 1 * 7);
+          endDate.setDate(endDate.getDate() + 7);
           break;
         case "day":
-          endDate = startDate.setDate(startDate.getDate() + 1);
+          endDate.setDate(endDate.getDate() + 1);
           break;
+        case "minute":
+          endDate.setMinutes(endDate.getMinutes() + 2);
         default:
           break;
       }
 
       voucherConfig = {
-        startDate,
         endDate,
       };
     }
@@ -765,8 +668,7 @@ const docScoreCampaign = async ({
   const { extendTargetAutomation } =
     (await getLoyatyCampaignConfig(serviceName)) || {};
 
-
-     console.log({extendTargetAutomation,serviceName})
+  console.log({ extendTargetAutomation, serviceName });
 
   if (extendTargetAutomation) {
     target = await sendCommonMessage({
@@ -777,7 +679,7 @@ const docScoreCampaign = async ({
       isRPC: true,
       defaultValue: target,
     });
-     console.log({target})
+    console.log({ target });
   }
 
   return await models.ScoreCampaigns.doCampaign({
@@ -801,7 +703,7 @@ const actionCreate = async ({ subdomain, action, execution }) => {
   try {
     switch (type) {
       case "loyalties:score.create":
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        await new Promise((resolve) => setTimeout(resolve, 3000));
 
         return await addScore({
           models,

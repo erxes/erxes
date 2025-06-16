@@ -5,6 +5,7 @@ import {
 } from '@erxes/api-utils/src/serviceDiscovery';
 import { IModels } from '../connectionResolver';
 import {
+  sendCommonMessage,
   sendCoreMessage,
   sendPurchasesMessage,
   sendSalesMessage,
@@ -82,6 +83,17 @@ export const handleContacts = async (args: IContactsParams) => {
         },
         isRPC: true,
       });
+
+      const isAutomationsAvailable = await isEnabled("automations");
+
+      if (isAutomationsAvailable) {
+        sendCommonMessage({
+          serviceName: "automations",
+          subdomain,
+          action: "trigger",
+          data: { type: "core:customer", targets: [customer] },
+        });
+      }
     }
 
     if (customer && customer._id) {

@@ -1,37 +1,86 @@
+import { getEnv } from "@erxes/api-utils/src";
+import { getOrganizations } from "@erxes/api-utils/src/saas/saas";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import { sendCommonMessage, sendCoreMessage } from "../messageBroker";
 
-export default {
-  handleDailyJob: async ({ subdomain }) => {
-    if (!isEnabled("automations")) return;
+const collections = {
+  customers: (NOW_MONTH) => ({
+    $expr: {
+      $and: [
+        {
+          $eq: [
+            {
+              $month: `$birthDate`,
+            },
+            NOW_MONTH,
+          ],
+        },
+      ],
+    },
+  }),
+  users: (NOW_MONTH) => ({
+    query: {
+      $expr: {
+        $and: [
+          {
+            $eq: [
+              {
+                $month: `$details.birthDate`,
+              },
+              NOW_MONTH,
+            ],
+          },
+        ],
+      },
+    },
+  }),
+};
 
-    const NOW = new Date();
-    const NOW_MONTH = NOW.getMonth() + 1;
+const handleLoyaltyCronjob = async ({ subdomain }) => {
+  if (!isEnabled("automations")) return;
 
-    const customers =
+  const NOW = new Date();
+  const NOW_MONTH = NOW.getMonth() + 1;
+
+  for (const collectionName of Object.keys(collections)) {
+    const query = collections[collectionName](NOW_MONTH) || {};
+
+    const targets =
       (await sendCoreMessage({
         subdomain,
-        action: "customers.find",
-        data: {
-          $expr: {
-            $and: [{ $eq: [{ $month: "$birthDate" }, NOW_MONTH] }],
-          },
-        },
+        action: `${collectionName}.find`,
+        data: query,
         isRPC: true,
         defaultValue: [],
       })) || [];
 
-    if (customers.length === 0) return;
+    if (targets.length === 0) return;
 
-    await sendCommonMessage({
+    sendCommonMessage({
       subdomain,
       serviceName: "automations",
       action: "trigger",
       data: {
         type: "loyalties:reward",
-        targets: customers,
+        targets,
       },
       defaultValue: [],
     });
+  }
+};
+
+export default {
+  handleDailyJob: async ({ subdomain }) => {
+    const VERSION = getEnv({ name: "VERSION" });
+
+    if (VERSION && VERSION === "saas") {
+      const orgs = await getOrganizations();
+
+      for (const org of orgs) {
+        handleLoyaltyCronjob({ subdomain: org?.subdomain });
+      }
+    } else {
+      handleLoyaltyCronjob({ subdomain });
+    }
   },
 };
