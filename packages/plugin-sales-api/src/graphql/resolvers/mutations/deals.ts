@@ -6,6 +6,7 @@ import { IItemDragCommonFields } from "../../../models/definitions/boards";
 import { IDeal, IProductData } from "../../../models/definitions/deals";
 import {
   checkAssignedUserFromPData,
+  checkLoyalties,
   checkPricing,
   confirmLoyalties,
   doScoreCampaign,
@@ -79,7 +80,8 @@ const dealMutations = {
         oldDeal.productsData
       );
 
-      doc.productsData = await checkPricing(subdomain, models, { ...oldDeal, ...doc })
+      doc.productsData = await checkLoyalties(subdomain, { ...oldDeal, ...doc, _id });
+      doc.productsData = await checkPricing(subdomain, models, { ...oldDeal, ...doc });
     }
 
     await doScoreCampaign(subdomain, models, _id, doc);
