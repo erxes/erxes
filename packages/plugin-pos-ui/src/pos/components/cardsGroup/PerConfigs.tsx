@@ -102,6 +102,7 @@ const PerConfigs = (props: Props) => {
           label={__("Choose branch")}
           name="branchIds"
           multi={false}
+          customOption={{ value: 'all', label: 'All branch' }}
           initialValue={config.branchId}
           onSelect={onChangeBranch}
         />
