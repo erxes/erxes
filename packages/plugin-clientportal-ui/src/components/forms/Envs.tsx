@@ -50,6 +50,10 @@ const EnvConfigs = (props: Props) => {
     [key: number]: boolean;
   }>({});
 
+  React.useEffect(() => {
+    setEnvs(environmentVariables ?? []);
+  }, [environmentVariables]);
+
   const handleAdd = useCallback(() => {
     const newEnv: EnvironmentVariable = {
       key: `KEY_${envs.length + 1}`,
