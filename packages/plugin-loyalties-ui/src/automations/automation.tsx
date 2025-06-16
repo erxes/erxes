@@ -64,6 +64,22 @@ const Automations = (props) => {
       );
     }
 
+    if (contentType === "voucher") {
+      const { campaignId, ownerType, ownerId } = result || {};
+
+      const detailLink = `/vouchers?campaignId=${campaignId}&ownerId=${ownerId}`;
+
+      return (
+        <p>
+          {ownerType} received a {contentType}.{" "}
+          <a href={detailLink} target="_blank" rel="noopener noreferrer">
+            View details
+          </a>
+          .
+        </p>
+      );
+    }
+
     return <>{'-'}</>;
   }
 

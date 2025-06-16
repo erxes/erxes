@@ -25,8 +25,8 @@ const prepareData = async (
 
   if (segmentData && segmentData.conditions) {
     const itemIds = await fetchSegment(models, subdomain, segmentData, {
-      page: 1,
-      perPage: 10000
+      page,
+      perPage
     });
 
     contactsFilter._id = { $in: itemIds };
@@ -95,7 +95,7 @@ const prepareDataCount = async (
 
   const contactsFilter: any = {};
 
-  if (segmentData.conditions) {
+  if (segmentData && segmentData.conditions) {
     const itemIds = await fetchSegment(models, subdomain, segmentData, {
       scroll: true,
       page: 1,
@@ -200,7 +200,7 @@ export const fillValue = async (
       );
 
       value = customers
-        .map(cus => cus.firstName || cus.primaryEmail)
+        .map((cus) => cus.firstName || cus.primaryEmail)
         .join(", ");
 
       break;

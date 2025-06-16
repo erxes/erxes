@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.14.0-rc.2](https://github.com/erxes/erxes/compare/2.14.0-rc.1...2.14.0-rc.2) (2025-06-15)
+
+### Bug Fixes
+
+* **segments:** pass whole associationFilters not one by ones ([4bdccd6](https://github.com/erxes/erxes/commit/4bdccd62f21778645c8e5dcbd99adef128d2b7e5))
+
+## [2.14.0-rc.1](https://github.com/erxes/erxes/compare/2.14.0-rc.0...2.14.0-rc.1) (2025-06-12)
+
+### Bug Fixes
+
+* **cards:** able to sync changes on stage changes ([3bc8c72](https://github.com/erxes/erxes/commit/3bc8c72c1b98669221d8041fbb4893f4d2fa501c))
+* CI up node version and some ubuntu version ([#6049](https://github.com/erxes/erxes/issues/6049)) ([548636a](https://github.com/erxes/erxes/commit/548636a0fbbd7d32f3761d6ddaad94034ce22525))
+## [2.13.0](https://github.com/erxes/erxes/compare/2.14.0-rc.0...2.14.0-rc.1) (2025-06-03)
+
+### Bug Fixes
+
+* release.yaml ([ce1f20a](https://github.com/erxes/erxes/commit/ce1f20aac27a59d71ab1ef1807891f8010b23a28))
+
 ## [2.14.0-rc.0](https://github.com/erxes/erxes/compare/2.12.3...2.14.0-rc.0) (2025-06-03)
 ## [2.13.0](https://github.com/erxes/erxes/compare/2.12.3...2.13.0) (2025-06-03)
 

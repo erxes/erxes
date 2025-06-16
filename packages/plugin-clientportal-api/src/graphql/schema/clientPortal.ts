@@ -1,3 +1,31 @@
+export const copyParams = `companyIds: [String], customerIds: [String], labelIds: [String]`;
+
+const ticketMutationParams = `
+  source: String,
+  type: String,
+`;
+
+export const commonMutationParams = `
+  parentId:String,
+  processId: String,
+  aboveItemId: String,
+  stageId: String,
+  assignedUserIds: [String],
+  attachments: [AttachmentInput],
+  startDate: Date,
+  closeDate: Date,
+  description: String,
+  order: Int,
+  reminderMinute: Int,
+  isComplete: Boolean,
+  priority: String,
+  status: String,
+  sourceConversationIds: [String],
+  customFieldsData: JSON,
+  tagIds: [String],
+  branchIds: [String],
+  departmentIds: [String],
+`;
 export const types = (enabledPlugins) => `
 ${
   enabledPlugins.tasks
@@ -78,7 +106,7 @@ ${
 }
 
 
-   
+
 
 ${
   enabledPlugins.knowledgebase
@@ -190,6 +218,16 @@ ${
     production: Boolean
   }
 
+  type EnvironmentVariable {
+    key: String
+    value: String
+  }
+
+  input EnvironmentVariableInput {
+    key: String
+    value: String
+  }
+
   type ClientPortal {
     _id: String!
     name: String!
@@ -234,7 +272,7 @@ ${
     erxesAppToken: String
     styles: Styles
     mobileResponsive: Boolean
-  
+
     otpConfig: OTPConfig
     twoFactorConfig: TwoFactorConfig
 
@@ -274,6 +312,8 @@ ${
     googleTagManager: String
 
     createdAt: Date
+
+    environmentVariables: [EnvironmentVariable]
   }
 
   type Styles {
@@ -396,6 +436,8 @@ ${
     googleAnalytics: String
     facebookPixel: String
     googleTagManager: String
+
+    environmentVariables: [EnvironmentVariableInput]
   }
 
   enum UserCardEnum {
@@ -404,7 +446,7 @@ ${
     ticket
     purchase
   }
-    
+
   enum UserCardStatusEnum {
     participating
     invited
@@ -466,7 +508,7 @@ export const queries = (enabledPlugins) => `
     clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TasksItemDate): [Task]
         `
       : ''
-  } 
+  }
 
   ${
     enabledPlugins.tickets
@@ -474,11 +516,11 @@ export const queries = (enabledPlugins) => `
     clientPortalTicket(_id: String!): Ticket
     clientPortalTickets(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TicketsItemDate): [Ticket]
     clientPortalUserTickets(userId: String): [Ticket]
-    
+
     `
       : ''
   }
-  
+
   ${
     enabledPlugins.purchases
       ? `
@@ -498,10 +540,18 @@ export const queries = (enabledPlugins) => `
   }
 `;
 
-export const mutations = `
+export const mutations = (enabledPlugins) => `
   clientPortalConfigUpdate (
     config: ClientPortalConfigInput!
   ): ClientPortal
+
+
+  clientPortalTicketAdd(
+        name: String!,
+        ${copyParams},
+        ${ticketMutationParams},
+        ${commonMutationParams}
+      ): ${enabledPlugins.tickets ? 'Ticket' : 'JSON'}
 
   clientPortalRemove (_id: String!): JSON
   clientPortalCreateCard(

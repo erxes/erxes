@@ -148,6 +148,11 @@ export type TokiConfig = {
   production?: boolean;
 };
 
+export type EnvironmentVariable = {
+  key: string;
+  value: string;
+};
+
 export type ClientPortalConfig = {
   _id?: string;
   kind?: string;
@@ -214,6 +219,7 @@ export type ClientPortalConfig = {
   tokiConfig?: TokiConfig;
   language?: string;
   languages?: string[];
+  environmentVariables?: EnvironmentVariable[];
 };
 
 export type Styles = {

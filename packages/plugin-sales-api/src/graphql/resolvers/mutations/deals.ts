@@ -5,6 +5,7 @@ import { IContext } from "../../../connectionResolver";
 import { IItemDragCommonFields } from "../../../models/definitions/boards";
 import { IDeal, IProductData } from "../../../models/definitions/deals";
 import {
+  checkAssignedUserFromPData,
   checkPricing,
   confirmLoyalties,
   doScoreCampaign,
@@ -70,28 +71,14 @@ const dealMutations = {
     }
 
     if (doc.productsData) {
-      const assignedUsersPdata = doc.productsData
-        .filter((pdata) => pdata.assignUserId)
-        .map((pdata) => pdata.assignUserId || "");
-
-      const oldAssignedUserPdata = (oldDeal.productsData || [])
-        .filter((pdata) => pdata.assignUserId)
-        .map((pdata) => pdata.assignUserId || "");
-
-      const { addedUserIds, removedUserIds } = checkUserIds(
-        oldAssignedUserPdata,
-        assignedUsersPdata
+      doc.assignedUserIds = checkAssignedUserFromPData(
+        oldDeal.assignedUserIds,
+        doc.productsData
+          .filter((pdata) => pdata.assignUserId)
+          .map((pdata) => pdata.assignUserId || ""),
+        oldDeal.productsData
       );
 
-      if (addedUserIds.length > 0 || removedUserIds.length > 0) {
-        let assignedUserIds =
-          doc.assignedUserIds || oldDeal.assignedUserIds || [];
-        assignedUserIds = [...new Set(assignedUserIds.concat(addedUserIds))];
-        assignedUserIds = assignedUserIds.filter(
-          (userId) => !removedUserIds.includes(userId)
-        );
-        doc.assignedUserIds = assignedUserIds;
-      }
       doc.productsData = await checkPricing(subdomain, models, { ...oldDeal, ...doc })
     }
 
@@ -194,6 +181,14 @@ const dealMutations = {
 
     const oldDataIds = (deal.productsData || []).map((pd) => pd._id);
 
+    const assignedUserIds = checkAssignedUserFromPData(
+      deal.assignedUserIds,
+      docs
+        .filter((pdata) => pdata.assignUserId)
+        .map((pdata) => pdata.assignUserId || ""),
+      deal.productsData
+    );
+
     for (const doc of docs) {
       if (doc._id) {
         const checkDup = (deal.productsData || []).find(
@@ -214,7 +209,7 @@ const dealMutations = {
       addDocs
     );
 
-    await models.Deals.updateOne({ _id: dealId }, { $set: { productsData } });
+    await models.Deals.updateOne({ _id: dealId }, { $set: { productsData, assignedUserIds } });
 
     const updatedItem =
       (await models.Deals.findOne({ _id: dealId })) || ({} as any);
@@ -290,7 +285,13 @@ const dealMutations = {
       data.id === dataId ? { ...doc } : data
     );
 
-    await models.Deals.updateOne({ _id: dealId }, { $set: { productsData } });
+    const assignedUserIds = checkAssignedUserFromPData(
+      deal.assignedUserIds,
+      doc.assignUserId ? [doc.assignUserId] : [],
+      deal.productsData
+    );
+
+    await models.Deals.updateOne({ _id: dealId }, { $set: { productsData, assignedUserIds } });
 
     const stage = await models.Stages.getStage(deal.stageId);
     const updatedItem =

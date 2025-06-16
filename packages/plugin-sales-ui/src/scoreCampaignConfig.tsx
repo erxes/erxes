@@ -170,7 +170,7 @@ const ScoreCampaignConfig = ({ onChange, config }) => {
           <ControlLabel>{__("Discount check (optional)")}</ControlLabel>
           <FormControl
             componentclass="checkbox"
-            checked={config.discountCheck || false}
+            checked={config?.discountCheck || false}
             onChange={(e: any) =>
               onChange({ ...config, discountCheck: e.target.checked })
             }
