@@ -11,12 +11,20 @@ export default {
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
   meta: {
     payment,
-    tags
+    tags,
+    forms: {
+      form: {
+        title: 'Tour booking',
+        description: 'Build tour booking forms',
+        contentType: 'bm-tours',
+        icon: 'mountains-sun',
+      },
+    },
   },
 
   apolloServerContext: async (context, req) => {
@@ -29,5 +37,5 @@ export default {
   },
 
   onServerInit: async () => {},
-  setupMessageConsumers
+  setupMessageConsumers,
 };

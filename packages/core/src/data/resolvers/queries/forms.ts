@@ -207,22 +207,22 @@ const formQueries = {
         { $match: { formId } }, // Match submissions by formId
         {
           $group: {
-            _id: "$groupId", // Group by groupId (unique per user submission group)
+            _id: '$groupId', // Group by groupId (unique per user submission group)
             submissions: {
               $push: {
-                _id: "$_id",
-                formId: "$formId",
-                formFieldId: "$formFieldId",
-                text: "$text",
-                formFieldText: "$formFieldText",
-                value: "$value",
-                submittedAt: "$submittedAt",
+                _id: '$_id',
+                formId: '$formId',
+                formFieldId: '$formFieldId',
+                text: '$text',
+                formFieldText: '$formFieldText',
+                value: '$value',
+                submittedAt: '$submittedAt',
               },
             },
-            customerId: { $first: "$customerId" }, // Take the first customerId in the group
-            contentTypeId: { $first: "$contentTypeId" }, // Take the first contentTypeId
-            createdAt: { $first: "$submittedAt" }, // Take the earliest submission date
-            customFieldsData: { $first: "$customFieldsData" }, // First customFieldsData
+            customerId: { $first: '$customerId' }, // Take the first customerId in the group
+            contentTypeId: { $first: '$contentTypeId' }, // Take the first contentTypeId
+            createdAt: { $first: '$submittedAt' }, // Take the earliest submission date
+            customFieldsData: { $first: '$customFieldsData' }, // First customFieldsData
           },
         },
         { $skip: skip }, // Skip for pagination
@@ -230,19 +230,18 @@ const formQueries = {
       ]);
 
       // Return single submission per groupId
-      return submissions.map(submission => ({
+      return submissions.map((submission) => ({
         _id: submission._id, // The groupId is used as the _id
         contentTypeId: submission._id,
         customerId: submission.customerId,
-    // Assuming Customer schema
+        // Assuming Customer schema
         createdAt: submission.createdAt,
         customFieldsData: submission.customFieldsData,
         submissions: submission.submissions, // All grouped form submissions
       }));
     } catch (error) {
-      throw new Error("Error fetching form submissions");
+      throw new Error('Error fetching form submissions');
     }
-  
   },
 
   async formSubmissionsTotalCount(
@@ -335,6 +334,7 @@ const formQueries = {
       const service = await getService(serviceName);
       const meta = service.config?.meta || {};
 
+      console.log('meta', meta);
       if (meta && meta.forms) {
         const { form = undefined } = meta.forms;
 

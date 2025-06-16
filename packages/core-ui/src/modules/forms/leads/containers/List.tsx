@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client';
 
 import Bulk from '@erxes/ui/src/components/Bulk';
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import * as routerUtils from '@erxes/ui/src/utils/router';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
@@ -9,8 +8,8 @@ import React, { useCallback, useEffect } from 'react';
 import List from '../components/List';
 
 import { useMutation, useQuery } from '@apollo/client';
-import queries from '../../queries';
 import mutations from '../../mutations';
+import queries from '../../queries';
 
 const FORMS_QUERY = gql`
   ${queries.forms}
@@ -168,7 +167,6 @@ const ListContainer: React.FC<Props> = (props: Props) => {
     archive,
     copy,
     refetch,
-   
   };
 
   const content = (props: any) => {

@@ -4,12 +4,11 @@ import React from 'react';
 import { Route, useLocation, Routes, useParams } from 'react-router-dom';
 
 const List = asyncComponent(
-  () => import(/* webpackChunkName: "List - Bms" */ './containers/ListBranch'),
+  () => import(/* webpackChunkName: "List - Bms" */ './containers/ListBranch')
 );
 
 const AddEditContainer = asyncComponent(
-  () =>
-    import(/* webpackChunkName: "PosContainer" */ './containers/BranchEdit'),
+  () => import(/* webpackChunkName: "PosContainer" */ './containers/BranchEdit')
 );
 
 const Bms = ({}) => {
@@ -27,6 +26,10 @@ const BmsEditAdd = () => {
   return <AddEditContainer queryParams={queryParams} bmsId={bmsId} />;
 };
 
+const TourForms = () => {
+  return <div>Tour form builder</div>;
+};
+
 const routes = () => {
   return (
     <Routes>
@@ -37,6 +40,8 @@ const routes = () => {
         element={<BmsEditAdd />}
       />
       <Route key='/tms/create' path='/tms/create' element={<BmsEditAdd />} />
+
+      <Route path='/forms/bm-tours' element={<TourForms />} />
     </Routes>
   );
 };

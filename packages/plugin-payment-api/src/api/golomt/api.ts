@@ -68,8 +68,8 @@ export class GolomtAPI extends BaseAPI {
     const transactionId = randomAlphanumeric(10);
 
     const data: IGolomtInvoice = {
-      amount: '1',
-      checksum: hmac256(this.key, transactionId + 1 + 'GET' + callback),
+      amount: '100',
+      checksum: hmac256(this.key, transactionId + 100 + 'GET' + callback),
       transactionId: transactionId,
       genToken: 'N',
       socialDeeplink: 'Y',
@@ -87,7 +87,7 @@ export class GolomtAPI extends BaseAPI {
         },
         data,
       }).then((r) => r.json());
-      
+
       if (res.status && res.status !== 200) {
         throw new Error(res.message);
       }
