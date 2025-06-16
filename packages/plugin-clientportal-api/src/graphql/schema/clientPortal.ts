@@ -43,7 +43,7 @@ ${
     _id: String! @external
   }
   `
-    : ""
+    : ''
 }
 
 ${
@@ -61,7 +61,7 @@ ${
     _id: String! @external
   }
     `
-    : ""
+    : ''
 }
 
 ${
@@ -80,7 +80,7 @@ ${
     _id: String! @external
   }
     `
-    : ""
+    : ''
 }
 
 ${
@@ -102,7 +102,7 @@ ${
     year: Int
   }
     `
-    : ""
+    : ''
 }
 
 
@@ -120,7 +120,7 @@ ${
     }
 
    `
-    : ""
+    : ''
 }
 
 
@@ -218,6 +218,16 @@ ${
     production: Boolean
   }
 
+  type EnvironmentVariable {
+    key: String
+    value: String
+  }
+
+  input EnvironmentVariableInput {
+    key: String
+    value: String
+  }
+
   type ClientPortal {
     _id: String!
     name: String!
@@ -303,7 +313,7 @@ ${
 
     createdAt: Date
 
-    environmentVariables: JSON
+    environmentVariables: [EnvironmentVariable]
   }
 
   type Styles {
@@ -427,7 +437,7 @@ ${
     facebookPixel: String
     googleTagManager: String
 
-    environmentVariables: JSON
+    environmentVariables: [EnvironmentVariableInput]
   }
 
   enum UserCardEnum {
@@ -486,7 +496,7 @@ export const queries = (enabledPlugins) => `
     clientPortalUserDeals(userId: String): [Deal]
     clientPortalDeals(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: SalesItemDate): [Deal]
    `
-      : ""
+      : ''
   }
 
   ${
@@ -497,7 +507,7 @@ export const queries = (enabledPlugins) => `
     clientPortalUserTasks(userId: String): [TasksStage]
     clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TasksItemDate): [Task]
         `
-      : ""
+      : ''
   }
 
   ${
@@ -508,7 +518,7 @@ export const queries = (enabledPlugins) => `
     clientPortalUserTickets(userId: String): [Ticket]
 
     `
-      : ""
+      : ''
   }
 
   ${
@@ -517,7 +527,7 @@ export const queries = (enabledPlugins) => `
     clientPortalPurchases(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: PurchasesItemDate): [Purchase]
     clientPortalUserPurchases(userId: String): [Purchase]
     `
-      : ""
+      : ''
   }
 
   ${
@@ -526,7 +536,7 @@ export const queries = (enabledPlugins) => `
     clientPortalKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
     clientPortalKnowledgeBaseArticles(searchValue: String,slug: String  categoryIds: [String], topicId: String, isPrivate: Boolean): [KnowledgeBaseArticle]
    `
-      : ""
+      : ''
   }
 `;
 
@@ -541,7 +551,7 @@ export const mutations = (enabledPlugins) => `
         ${copyParams},
         ${ticketMutationParams},
         ${commonMutationParams}
-      ): ${enabledPlugins.tickets ? "Ticket" : "JSON"}
+      ): ${enabledPlugins.tickets ? 'Ticket' : 'JSON'}
 
   clientPortalRemove (_id: String!): JSON
   clientPortalCreateCard(
