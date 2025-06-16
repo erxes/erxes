@@ -1,19 +1,19 @@
-import typeDefs from './graphql/typeDefs';
-import resolvers from './dataloaders/resolvers';
+import typeDefs from "./graphql/typeDefs";
+import resolvers from "./dataloaders/resolvers";
 
-import { setupMessageConsumers } from './messageBroker';
-import { getSubdomain } from '@erxes/api-utils/src/core';
-import { generateModels } from './connectionResolver';
-import { generateAllDataLoaders } from './dataloaders';
-import imports from './imports';
-import exporter from './exporter';
-import forms from './forms';
-import internalNotes from './internalNotes';
-import logUtils from './logUtils';
-import * as permissions from './permissions';
+import { setupMessageConsumers } from "./messageBroker";
+import { getSubdomain } from "@erxes/api-utils/src/core";
+import { generateModels } from "./connectionResolver";
+import { generateAllDataLoaders } from "./dataloaders";
+import imports from "./imports";
+import exporter from "./exporter";
+import forms from "./forms";
+import internalNotes from "./internalNotes";
+import logUtils from "./logUtils";
+import * as permissions from "./permissions";
 
 export default {
-  name: 'assets',
+  name: "assets",
   permissions,
   graphql: async () => {
     return {
@@ -39,6 +39,7 @@ export default {
     imports,
     exporter,
     forms,
+    permissions,
   },
 
   onServerInit: async () => {},
