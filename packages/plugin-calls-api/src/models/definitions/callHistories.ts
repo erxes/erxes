@@ -18,7 +18,8 @@ export interface ICallHistory {
   acceptedUserId: string;
   recordUrl: string;
   endedBy: string;
-  queueName: string
+  queueName: string;
+  customerId: string;
 }
 
 export interface ICallHistoryDocument extends ICallHistory, Document {
@@ -73,4 +74,5 @@ export const callHistorySchema = new Schema({
     label: `'Local' indicates the call was ended by Erxes, while 'remote' indicates the call was ended by the customer`,
   }),
   queueName: field({ type: String, label: 'queue name' }),
+  customerId: field({ type: String, label: 'erxes customer id' }),
 });

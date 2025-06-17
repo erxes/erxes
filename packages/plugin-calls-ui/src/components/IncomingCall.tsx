@@ -313,6 +313,8 @@ const IncomingCall = (props: Props, context) => {
             {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
           </p>
           {callActions(
+            phoneNumber,
+            currentCallConversationId,
             isMuted,
             handleAudioToggle,
             endCall,
