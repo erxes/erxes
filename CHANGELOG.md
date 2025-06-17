@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.14.0](https://github.com/erxes/erxes/compare/2.14.0-rc.4...2.14.0) (2025-06-17)
+
+### Bug Fixes
+
+* **clientPortal:** correct notification logic in cardUpdateHandler ([#6062](https://github.com/erxes/erxes/issues/6062)) ([caff152](https://github.com/erxes/erxes/commit/caff1529b565650430c5379baff2c9fb18af803c))
+* deals assignedusers related by productsData assignedUser ([3b561fe](https://github.com/erxes/erxes/commit/3b561fed3295f6951af29b3396bb8be6932b9260))
+
 ## [2.14.0-rc.4](https://github.com/erxes/erxes/compare/2.14.0-rc.3...2.14.0-rc.4) (2025-06-17)
 
 ### Bug Fixes
