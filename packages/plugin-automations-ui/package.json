@@ -6,10 +6,13 @@
     "build": "webpack --mode production"
   },
   "dependencies": {
-    "@erxes/ui" : "*",
+    "@emoji-mart/data": "^1.2.1",
+    "@emoji-mart/react": "^1.1.1",
+    "@erxes/ui": "*",
+    "emoji-mart": "^5.6.0",
     "jsplumb": "^2.15.6",
     "prismjs": "^1.29.0",
-    "reactflow": "11.11.2",
-    "react-simple-code-editor": "^0.13.1"
+    "react-simple-code-editor": "^0.13.1",
+    "reactflow": "11.11.2"
   }
 }
