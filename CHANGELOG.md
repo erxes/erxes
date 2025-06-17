@@ -1,5 +1,7 @@
 # Changelog
 
+## [2.15.0-rc.0](https://github.com/erxes/erxes/compare/2.14.0...2.15.0-rc.0) (2025-06-17)
+
 ## [2.14.0](https://github.com/erxes/erxes/compare/2.14.0-rc.4...2.14.0) (2025-06-17)
 
 ### Bug Fixes
