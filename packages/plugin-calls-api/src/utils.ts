@@ -8,7 +8,7 @@ import * as momentTz from 'moment-timezone';
 
 import type { RequestInit, HeadersInit } from 'node-fetch';
 import { IModels, generateModels } from './connectionResolver';
-import { sendInboxMessage } from './messageBroker';
+import { sendCommonMessage, sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
 import {
   IIntegration,
@@ -888,6 +888,115 @@ export const updateIntegrationQueueNames = async (
   }
 };
 
+export const getCoreCustomer = async (subdomain, customerId) => {
+  try {
+    const customer = await sendCommonMessage({
+      subdomain: subdomain,
+      isRPC: true,
+      serviceName: 'core',
+      action: 'customers.findOne',
+      data: {
+        _id: customerId,
+      },
+      defaultValue: null,
+    });
+
+    if (!customer) {
+      throw new Error(`Customer not found`);
+    }
+
+    return customer;
+  } catch (error) {
+    throw new Error('Failed to retrieve customer from core service');
+  }
+};
+
+export const createOrUpdateConversation = async (
+  subdomain,
+  customerId,
+  conversationId,
+) => {
+  try {
+    await sendInboxMessage({
+      subdomain: subdomain,
+      action: 'integrations.receive',
+      data: {
+        action: 'create-or-update-conversation',
+        payload: JSON.stringify({
+          customerId,
+          conversationId,
+          updatedAt: new Date().toISOString(),
+        }),
+      },
+      isRPC: true,
+    });
+  } catch (error) {
+    throw new Error('Failed to create or update conversation');
+  }
+  try {
+    const models = await generateModels(subdomain);
+    await models.CallHistory.updateOne(
+      { conversationId: conversationId },
+      { $set: { customerId } },
+    );
+  } catch (error) {
+    throw new Error('Failed to update existing call history');
+  }
+};
+
+export const validateIntegration = async (models, integrationId) => {
+  try {
+    const integration = await models.Integrations.findOne({
+      inboxId: integrationId,
+    });
+
+    if (!integration) {
+      throw new Error(`Integration with ID ${integrationId} not found`);
+    }
+
+    return integration;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateExistingConversation = async (
+  subdomain,
+  callCustomer,
+  callConversation,
+) => {
+  if (!callCustomer || !callConversation) {
+    return;
+  }
+
+  try {
+    await sendInboxMessage({
+      subdomain,
+      action: 'integrations.receive',
+      data: {
+        action: 'create-or-update-conversation',
+        payload: JSON.stringify({
+          customerId: callCustomer.erxesApiId,
+          conversationId: callConversation.conversationId,
+          updatedAt: new Date().toISOString(),
+        }),
+      },
+      isRPC: true,
+    });
+  } catch (error) {
+    throw new Error('Failed to update existing conversation');
+  }
+  try {
+    const models = await generateModels(subdomain);
+
+    await models.CallHistory.updateOne(
+      { conversationId: callConversation.conversationId },
+      { $set: { customerId: callCustomer.erxesApiId } },
+    );
+  } catch (error) {
+    throw new Error('Failed to update existing call history');
+  }
+};
 type ErrorList = {
   [key: number]: string;
 };

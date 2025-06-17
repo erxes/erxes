@@ -43,7 +43,7 @@ export default {
       },
     });
 
-    if (!customer?.primaryPhone) {
+    if (!customer?._id) {
       return {
         status: 'success',
         data: [],
@@ -52,7 +52,7 @@ export default {
 
     const models = await generateModels(subdomain);
     const histories = await models.CallHistory.find({
-      customerPhone: customer.primaryPhone,
+      customerId: customer._id,
     });
 
     const results: any = [];

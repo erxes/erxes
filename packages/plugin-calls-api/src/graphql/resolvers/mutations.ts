@@ -1,4 +1,13 @@
-import { findIntegration, generateToken, getRecordUrl, sendToGrandStream } from '../../utils';
+import {
+  createOrUpdateConversation,
+  findIntegration,
+  generateToken,
+  getCoreCustomer,
+  getRecordUrl,
+  sendToGrandStream,
+  updateExistingConversation,
+  validateIntegration,
+} from '../../utils';
 import { IContext, IModels } from '../../connectionResolver';
 
 import acceptCall from '../../acceptCall';
@@ -32,8 +41,7 @@ const callsMutations = {
   },
 
   async callAddCustomer(_root, args, { models, subdomain }: IContext) {
-
-    const integration = await findIntegration(subdomain, args)
+    const integration = await findIntegration(subdomain, args);
     const customer = await getOrCreateCustomer(models, subdomain, args);
 
     const channels = await sendInboxMessage({
@@ -228,7 +236,10 @@ const callsMutations = {
       if (cancelledCall) {
         return 'Already exists this history';
       }
-      const integration = await findIntegration(subdomain, {inboxIntegrationId: doc.inboxIntegrationId, queueName: doc.queueName})
+      const integration = await findIntegration(subdomain, {
+        inboxIntegrationId: doc.inboxIntegrationId,
+        queueName: doc.queueName,
+      });
 
       const operator = integration.operators.find(
         (operator) => operator.userId === user?._id,
@@ -267,7 +278,6 @@ const callsMutations = {
         if (!customer || !customer.erxesApiId) {
           customer = await getOrCreateCustomer(models, subdomain, doc);
         }
-
         // Update conversation via API
         try {
           const apiConversationResponse = await sendInboxMessage({
@@ -288,6 +298,11 @@ const callsMutations = {
           });
 
           history.conversationId = apiConversationResponse._id;
+
+          if (customer?.erxesApiId) {
+            history.customerId = customer?.erxesApiId;
+          }
+
           await history.save();
         } catch (e) {
           await models.CallHistory.deleteOne({ _id: history._id });
@@ -501,6 +516,51 @@ const callsMutations = {
     }
 
     return 'failed';
+  },
+
+  async callSelectCustomer(_root, args, { models, subdomain }: IContext) {
+    const { customerId, conversationId, phoneNumber, integrationId } = args;
+
+    try {
+      const integration = await validateIntegration(models, integrationId);
+
+      const callCustomer = await models.Customers.findOne({
+        erxesApiId: customerId,
+      });
+      const callConversation = await models.CallHistory.findOne({
+        conversationId: conversationId,
+      });
+
+      await updateExistingConversation(
+        subdomain,
+        callCustomer,
+        callConversation,
+      );
+
+      const customer = await getCoreCustomer(subdomain, customerId);
+
+      await models.Customers.updateOne(
+        { erxesApiId: customerId },
+        {
+          $set: {
+            primaryPhone: phoneNumber,
+            erxesApiId: customer?._id,
+            inboxIntegrationId: integration.inboxId,
+          },
+        },
+        { upsert: true },
+      );
+
+      await createOrUpdateConversation(
+        subdomain,
+        customer._id,
+        callConversation?.conversationId,
+      );
+
+      return 'Success';
+    } catch (error) {
+      throw error;
+    }
   },
 };
 
