@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.14.0-rc.4](https://github.com/erxes/erxes/compare/2.14.0-rc.3...2.14.0-rc.4) (2025-06-17)
+
+### Bug Fixes
+
+* sales editForm stageNotFound error ([c92d2c1](https://github.com/erxes/erxes/commit/c92d2c14a5f2f7c5327fae5e42e4f140cd3d3af7))
+
 ## [2.14.0-rc.3](https://github.com/erxes/erxes/compare/2.13.4...2.14.0-rc.3) (2025-06-16)
 
 ### Features
