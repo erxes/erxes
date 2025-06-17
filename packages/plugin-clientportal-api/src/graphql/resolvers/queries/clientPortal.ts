@@ -75,10 +75,10 @@ const configClientPortalQueries = {
 
   async clientPortalGetConfigByDomain(
     _root,
-    { clientPortalName },
+    _args,
     { models, requestInfo }: IContext
   ) {
-    return await getByHost(models, requestInfo);
+    return getByHost(models, requestInfo);
   },
 
   async clientPortalGetTaskStages(
