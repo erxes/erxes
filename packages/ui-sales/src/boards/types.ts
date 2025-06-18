@@ -130,7 +130,7 @@ export interface IItemParams {
   departmentIds?: string[];
 }
 
-export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
+export type SaveItemMutation = ({ variables }: { variables: IItemParams }) => Promise<any>;
 export type RemoveStageMutation = ({
   variables
 }: {
@@ -378,12 +378,8 @@ export type PipelineLabelDetailQueryResponse = {
 } & QueryResponse;
 
 // mutation response
-export type AddPipelineLabelMutationResponse = ({
+export type AddPipelineLabelMutationResponse = (params: {
   variables: IPipelineLabelVariables
-}) => Promise<any>;
-
-export type EditPipelineLabelMutationResponse = ({
-  variables: EditMutationVariables
 }) => Promise<any>;
 
 export type RemovePipelineLabelMutationResponse = {
