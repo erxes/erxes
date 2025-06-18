@@ -429,6 +429,8 @@ const KeyPad = (props: Props, context) => {
               <PhoneNumber>{number}</PhoneNumber>
             </NameCardContainer>
             {callActions(
+              phoneNumber,
+              currentCallConversationId,
               isMuted,
               handleAudioToggle,
               handleCallStop,
@@ -464,6 +466,8 @@ const KeyPad = (props: Props, context) => {
               {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
             </p>
             {callActions(
+              phoneNumber,
+              currentCallConversationId,
               isMuted,
               handleAudioToggle,
               handleCallStop,

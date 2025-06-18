@@ -125,6 +125,7 @@ const callHistories = `
     modifiedBy
     extentionNumber
     conversationId
+    customerId
     customer {
       _id
       avatar
@@ -193,6 +194,18 @@ const callQueueMemberList = `
 }
 `;
 
+const callCustomers = `
+  query callCustomers($phoneNumber: String!) {
+    callCustomers(phoneNumber: $phoneNumber){
+      primaryPhone
+      phone
+      lastName
+      firstName
+      _id
+    }
+}
+`;
+
 export default {
   callsIntegrationDetail,
   callUserIntegrations,
@@ -208,4 +221,5 @@ export default {
   callWaitingList,
   callProceedingList,
   callQueueMemberList,
+  callCustomers,
 };

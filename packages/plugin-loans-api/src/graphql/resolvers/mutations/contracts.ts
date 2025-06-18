@@ -1,4 +1,4 @@
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import {
   ICollateralData,
   IContract,
@@ -127,7 +127,7 @@ const contractMutations = {
 
     if (!dealId && contract.dealId) {
       delete contract.dealId;
-      await models.Contracts.updateOne({ _id }, { $unset: { dealId: '' } });
+      await models.Contracts.updateOne({ _id }, { $unset: { dealId: "" } });
       return;
     }
 
@@ -135,7 +135,7 @@ const contractMutations = {
     await models.Contracts.updateOne({ _id }, { $set: { dealId } });
     await models.Contracts.updateMany(
       { dealId, _id: { $ne: _id } },
-      { $unset: { dealId: '' } }
+      { $unset: { dealId: "" } }
     );
 
     const logData = {
@@ -522,6 +522,66 @@ const contractMutations = {
     }
 
     return customerCreditAmount;
+  },
+
+  sendContractToPolaris: async (_root, { data }, { subdomain }: IContext) => {
+    await sendMessageBroker(
+      {
+        subdomain,
+        action: "sendLoanContract",
+        data: { data },
+        isRPC: true
+      },
+      "syncpolaris"
+    );
+
+    return "success";
+  },
+
+  syncLoanCollateral: async (_root, { contract }, { subdomain }: IContext) => {
+    await sendMessageBroker(
+      {
+        subdomain,
+        action: "createLoanCollateral",
+        data: { contract },
+        isRPC: true
+      },
+      "syncpolaris"
+    );
+
+    return "success";
+  },
+
+  sendLoanSchedules: async (_root, { contract }, { subdomain }: IContext) => {
+    await sendMessageBroker(
+      {
+        subdomain,
+        action: "createSchedule",
+        data: { contract },
+        isRPC: true
+      },
+      "syncpolaris"
+    );
+
+    return "success";
+  },
+
+  loanContractActive: async (
+    _root,
+    { contractNumber },
+    { subdomain }: IContext
+  ) => {
+    await sendMessageBroker(
+      {
+        subdomain,
+        action: "loanContractActive",
+        data: { contractNumber },
+        isRPC: true
+      },
+      "syncpolaris"
+    );
+
+    return "success";
   }
 };
 
