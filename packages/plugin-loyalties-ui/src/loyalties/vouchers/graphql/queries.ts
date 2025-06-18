@@ -25,6 +25,12 @@ export const vouchers = `
   }
 `;
 
+export const ownerVouchers = `
+  query ownerVouchers($ownerId: String!) {
+    ownerVouchers(ownerId: $ownerId)
+  }
+`;
+
 export const vouchersMain = `
   query vouchersMain(${listParamsDef}) {
     vouchersMain(${listParamsValue}) {
@@ -48,6 +54,7 @@ const voucherDetail = `
 
 export default {
   vouchers,
+  ownerVouchers,
   vouchersMain,
   voucherDetail
 };

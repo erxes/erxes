@@ -60,7 +60,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
           }
           variables={values}
           callback={callback}
-          refetchQueries={getRefetchQueries()}
+          refetchQueries={['voucherCampaigns']}
           isSubmitted={isSubmitted}
           type="submit"
           uppercase={false}
@@ -84,10 +84,6 @@ class ProductFormContainer extends React.Component<FinalProps> {
     return <From {...updatedProps} />;
   }
 }
-
-const getRefetchQueries = () => {
-  return ['voucherCampaigns'];
-};
 
 export default withProps<Props>(
   compose(
