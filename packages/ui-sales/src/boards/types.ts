@@ -334,9 +334,9 @@ export type WatchVariables = {
   type?: string;
 };
 
-export type SaveMutation = ({ variables: IItemParams }) => Promise<any>;
+export type SaveMutation = (params: { variables: IItemParams }) => Promise<any>;
 
-export type WatchMutation = ({ variables: WatchVariables }) => Promise<any>;
+export type WatchMutation = (params: { variables: WatchVariables }) => Promise<any>;
 
 export type UpdateTimeVariables = {
   _id: string;
@@ -345,9 +345,9 @@ export type UpdateTimeVariables = {
   startDate?: string;
 };
 
-export type RemoveMutation = ({ variables: MutationVariables }) => Promise<any>;
+export type RemoveMutation = (params: { variables: MutationVariables }) => Promise<any>;
 
-export type UpdateTimeTrackMutation = ({
+export type UpdateTimeTrackMutation = (params: {
   variables: UpdateTimeVariables
 }) => Promise<any>;
 
@@ -356,7 +356,7 @@ export type CopyVariables = {
   proccessId: string;
 };
 
-export type CopyMutation = ({ variables: CopyVariables }) => Promise<any>;
+export type CopyMutation = (params: { variables: CopyVariables }) => Promise<any>;
 
 export type ItemsQueryResponse = {
   fetchMore: any;
