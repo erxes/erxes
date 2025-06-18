@@ -151,7 +151,7 @@ export const callActions = (
               conversationId={conversationId}
             />
 
-            {__('Select Customer')}
+            <p style={{ marginRight: '10px' }}>Select Customer</p>
           </div>
         </InnerActions>
         <div>
