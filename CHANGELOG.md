@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.14.1](https://github.com/erxes/erxes/compare/2.14.0...2.14.1) (2025-06-19)
+
+### Bug Fixes
+
+* sales deal stageId not newly ([a64c392](https://github.com/erxes/erxes/commit/a64c39257993c6889f9dfc347c9d419a544fc418))
+
 ## [2.14.0](https://github.com/erxes/erxes/compare/2.14.0-rc.4...2.14.0) (2025-06-17)
 
 ### Bug Fixes

@@ -258,7 +258,6 @@ const IncomingCall = (props: Props, context) => {
                 {__('is calling to')} {channelName}
               </span>
             )}
-            <h5>{caller.place}</h5>
           </PhoneNumber>
         )}
       </NameCardContainer>
