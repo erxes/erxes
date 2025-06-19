@@ -68,7 +68,6 @@ export default class SelectBoard extends React.Component<Props, State> {
   };
 
   onChange = stageId => {
-    this.overlay.hide();
 
     const { config, setConfig, inputName } = this.props;
     const { stages = [] } = this.state;
@@ -105,7 +104,7 @@ export default class SelectBoard extends React.Component<Props, State> {
           <React.Fragment>
             <BoardSelect
               type={type.includes("sales:") ? type.slice(6) : type}
-              stageId={this.state.stageId}
+              stageId={this.state.stageId.slice(2, -2).trim()}
               boardId={this.state.boardId}
               pipelineId={this.state.pipelineId}
               onChangeStage={this.onChange}
