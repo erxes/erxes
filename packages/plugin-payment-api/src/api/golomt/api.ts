@@ -105,8 +105,8 @@ export class GolomtAPI extends BaseAPI {
 
     let transactionId = transaction._id;
 
-    if (transaction.details.golomtTransacitonId) {
-      transactionId = transaction.details.golomtTransacitonId;
+    if (transaction.details.golomtTransactionId) {
+      transactionId = transaction.details.golomtTransactionId;
     }
 
     const data: IGolomtInvoice = {
@@ -139,8 +139,8 @@ export class GolomtAPI extends BaseAPI {
   private async check(transaction: any) {
     let transactionId = transaction._id;
 
-    if (transaction.details.golomtTransacitonId) {
-      transactionId = transaction.details.golomtTransacitonId;
+    if (transaction.details.golomtTransactionId) {
+      transactionId = transaction.details.golomtTransactionId;
     }
 
     const data = {
