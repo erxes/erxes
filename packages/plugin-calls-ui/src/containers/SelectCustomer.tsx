@@ -19,7 +19,7 @@ const SelectCustomerContainer = (props: Props) => {
     gql(queries.callCustomers),
     {
       variables: {
-        phoneNumber: '80786886',
+        phoneNumber,
       },
       pollInterval: 8000,
     },
