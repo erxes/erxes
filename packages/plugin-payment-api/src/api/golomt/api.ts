@@ -14,7 +14,7 @@ export const hmac256 = (key, message) => {
 
 export const golomtCallbackHandler = async (models: IModels, data: any) => {
   const transaction = await models.Transactions.getTransaction({
-    _id: data.invoice,
+    _id: data.transactionId,
   });
 
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
@@ -70,7 +70,7 @@ export class GolomtAPI extends BaseAPI {
     const data: IGolomtInvoice = {
       amount: '1',
       checksum: hmac256(this.key, transactionId + 1 + 'GET' + callback),
-      transactionId: transactionId,
+      transactionId,
       genToken: 'N',
       socialDeeplink: 'Y',
       callback,
@@ -101,12 +101,18 @@ export class GolomtAPI extends BaseAPI {
   async createInvoice(transaction: ITransactionDocument) {
     const amount = transaction.amount.toString();
 
-    const callback = `${this.domain}/pl:payment/callback/golomt`;
+    const callback = `${this.domain}/pl:payment/callback/golomt?transactionId=${transaction._id}`;
+
+    let transactionId = transaction._id;
+
+    if (transaction.details.golomtTransacitonId) {
+      transactionId = transaction.details.golomtTransacitonId;
+    }
 
     const data: IGolomtInvoice = {
       amount,
-      checksum: hmac256(this.key, transaction._id + amount + 'GET' + callback),
-      transactionId: transaction._id,
+      checksum: hmac256(this.key, transactionId + amount + 'GET' + callback),
+      transactionId,
       genToken: 'N',
       socialDeeplink: 'Y',
       callback,
@@ -131,9 +137,15 @@ export class GolomtAPI extends BaseAPI {
   }
 
   private async check(transaction: any) {
+    let transactionId = transaction._id;
+
+    if (transaction.details.golomtTransacitonId) {
+      transactionId = transaction.details.golomtTransacitonId;
+    }
+
     const data = {
-      transactionId: transaction._id,
-      checksum: hmac256(this.key, transaction._id + transaction._id),
+      transactionId,
+      checksum: hmac256(this.key, transactionId + transactionId),
     };
     try {
       const response = await this.request({
