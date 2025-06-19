@@ -22,10 +22,6 @@ export interface IAgent {
   endDay?: Date;
   hasReturn: boolean;
   productRuleIds?: string[];
-  returnAmount?: number;
-  returnPercent?: number;
-  prepaidPercent?: number;
-  discountPercent?: number;
 }
 
 export interface IAgentDocument extends Document, IAgent {
@@ -46,14 +42,7 @@ export const agentSchema = new Schema({
   startDay: field({ type: Date, label: 'Starting day' }),
   endDay: field({ type: Date, label: 'Ending day' }),
   hasReturn: field({ type: Boolean, label: 'Whether agent returns money or not' }),
-  productRuleIds: field({ type: [String], label: 'Product specific rules' }),
-  // if hasReturn === true
-  returnAmount: field({ type: Number, min: 0, label: 'Return amount' }),
-  // returnAmount will override returnPercent
-  returnPercent: field({ type: Number, min: 0, max: 100, label: 'Return percent' }),
-  // if hasReturn === false
-  prepaidPercent: field({ type: Number, min: 0, max: 100, label: 'Prepaid percent' }),
-  discountPercent: field({ type: Number, min: 0, max: 100, label: 'Discount percent' }),
+  productRuleIds: field({ type: [String], label: 'Product specific rules' })
 });
 
 // TODO: add indexes on other fields later depending on usage

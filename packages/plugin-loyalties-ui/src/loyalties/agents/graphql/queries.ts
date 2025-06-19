@@ -11,10 +11,6 @@ const agentFields = `
   startDay
   endDay
   hasReturn
-  returnAmount
-  returnPercent
-  prepaidPercent
-  discountPercent
   productRuleIds
 
   rulesOfProducts

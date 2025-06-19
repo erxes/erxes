@@ -18,10 +18,6 @@ export interface IAgent {
   startDay?: Date;
   endDay?: Date;
   hasReturn: boolean;
-  returnAmount?: number;
-  returnPercent?: number;
-  prepaidPercent?: number;
-  discountPercent?: number;
   productRuleIds?: string[];
 }
 

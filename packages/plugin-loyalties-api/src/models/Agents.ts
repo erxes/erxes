@@ -20,11 +20,6 @@ const validateDoc = (doc: IAgent) => {
   const {
     number,
     status,
-    hasReturn,
-    returnAmount,
-    returnPercent,
-    prepaidPercent,
-    discountPercent,
     customerIds = [],
     companyIds = [],
     startDate,
@@ -41,14 +36,6 @@ const validateDoc = (doc: IAgent) => {
 
   if (!AGENT_STATUSES.ALL.includes(status)) {
     throw new Error('Invalid status value');
-  }
-
-  if (hasReturn && !(returnAmount || returnPercent)) {
-    throw new Error('Either return amount or percent must be > 0');
-  }
-
-  if (!hasReturn && !(prepaidPercent || discountPercent)) {
-    throw new Error('Either prepaid or discount percent must be > 0')
   }
 
   if (customerIds.length > 0 && companyIds.length > 0) {
