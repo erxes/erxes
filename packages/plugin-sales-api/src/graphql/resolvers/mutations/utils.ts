@@ -653,8 +653,8 @@ export const itemsChange = async (
       action: "orderUpdated",
       data: {
         item: {
-          ...item._doc,
-          ...(await itemResolver(models, subdomain, user, type, item)),
+          ...updatedItem._doc,
+          ...(await itemResolver(models, subdomain, user, type, updatedItem)),
           labels,
         },
         aboveItemId,

@@ -633,7 +633,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
 
       // add to new stage's front
       const items = [...itemMap[stageId]];
-      items.unshift(item);
+      items.unshift({ ...item, stageId });
 
       const newItemMap = {
         ...itemMap,

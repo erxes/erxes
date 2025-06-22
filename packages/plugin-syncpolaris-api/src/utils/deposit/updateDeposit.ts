@@ -103,7 +103,7 @@ export const updateDeposit = async (
     data: [sendData],
     models,
     polarisConfig,
-    syncLog
+    syncLog,
   });
 
   return updateDeposit;

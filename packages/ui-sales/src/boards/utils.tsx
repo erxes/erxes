@@ -72,6 +72,7 @@ export const reorderItemMap = ({
   }
 
   target.modifiedAt = new Date();
+  target.stageId = destination.droppableId;
 
   // moving to same list
   if (source.droppableId === destination.droppableId) {

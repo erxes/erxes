@@ -183,9 +183,14 @@ const dealMutations = {
 
     const assignedUserIds = checkAssignedUserFromPData(
       deal.assignedUserIds,
-      docs
-        .filter((pdata) => pdata.assignUserId)
-        .map((pdata) => pdata.assignUserId || ""),
+      [
+        ...(deal.productsData || [])
+          .filter((pdata) => pdata.assignUserId)
+          .map((pdata) => pdata.assignUserId || ""),
+        ...docs
+          .filter((pdata) => pdata.assignUserId)
+          .map((pdata) => pdata.assignUserId || ""),
+      ],
       deal.productsData
     );
 
@@ -285,9 +290,17 @@ const dealMutations = {
       data.id === dataId ? { ...doc } : data
     );
 
+    const possibleAssignedUsersIds: string[] = (deal.productsData || [])
+      .filter((pdata) => pdata._id !== dataId && pdata.assignUserId)
+      .map((pdata) => pdata.assignUserId || "");
+
+    if (doc.assignUserId) {
+      possibleAssignedUsersIds.push(doc.assignUserId)
+    }
+
     const assignedUserIds = checkAssignedUserFromPData(
       deal.assignedUserIds,
-      doc.assignUserId ? [doc.assignUserId] : [],
+      possibleAssignedUsersIds,
       deal.productsData
     );
 

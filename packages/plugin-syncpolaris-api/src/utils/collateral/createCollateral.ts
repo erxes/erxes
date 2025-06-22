@@ -15,8 +15,9 @@ import { openCollateral } from './openCollateral';
 export const createCollateral = async (
   subdomain: string,
   polarisConfig,
-  loan: any
+  data: any
 ) => {
+  const loan = data.contract;
   let collateralObj;
 
   const models = await generateModels(subdomain);
