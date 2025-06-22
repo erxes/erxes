@@ -1,17 +1,17 @@
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { Wrapper } from '@erxes/ui/src/layout';
+import { __ } from "@erxes/ui/src/utils";
+import React from "react";
+import { Wrapper } from "@erxes/ui/src/layout";
 import {
   CollapseContent,
   DataWithLoader,
   Pagination,
   Table,
-} from '@erxes/ui/src/components';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
-import { menuDynamic } from '../../constants';
-import Row from './InventoryProductsRow';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+} from "@erxes/ui/src/components";
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import Button from "@erxes/ui/src/components/Button";
+import { menuDynamic } from "../../constants";
+import Row from "./InventoryProductsRow";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
 
 type Props = {
   queryParams: any;
@@ -34,14 +34,14 @@ const InventoryProducts = ({
     <BarItems>
       <span>{items && items.matched && `Matched: ${items.matched.count}`}</span>
       <SelectBrands
-        label={__('Choose brands')}
+        label={__("Choose brands")}
         onSelect={(brand) => setBrand(brand as string)}
         initialValue={queryParams.brandId}
         multi={false}
         name="selectedBrands"
         customOption={{
-          label: 'No Brand (noBrand)',
-          value: '',
+          label: "No Brand (noBrand)",
+          value: "",
         }}
       />
 
@@ -69,12 +69,12 @@ const InventoryProducts = ({
           data = data.slice(
             Number(queryParams.page - 1) * queryParams.perPage,
             Number((queryParams.page - 1) * queryParams.perPage) +
-              Number(queryParams.perPage),
+              Number(queryParams.perPage)
           );
         } else {
           data = data.slice(
             (queryParams.page - 1) * 20,
-            (queryParams.page - 1) * 20 + 20,
+            (queryParams.page - 1) * 20 + 20
           );
         }
       }
@@ -108,16 +108,14 @@ const InventoryProducts = ({
     };
 
     const syncButton = (
-      <>
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="check-1"
-          onClick={onClickSync}
-        >
-          Sync
-        </Button>
-      </>
+      <Button
+        btnStyle="primary"
+        size="small"
+        icon="check-1"
+        onClick={onClickSync}
+      >
+        Sync
+      </Button>
     );
 
     const subHeader = <Wrapper.ActionBar right={syncButton} />;
@@ -127,12 +125,12 @@ const InventoryProducts = ({
         <Table $hover={true}>
           <thead>
             <tr>
-              <th>{__('Code')}</th>
-              <th>{__('Name')}</th>
-              <th>{__('Unit price')}</th>
-              {action === 'UPDATE' ? <th>{__('Update Status')}</th> : <></>}
-              {action === 'CREATE' ? <th>{__('Create Status')}</th> : <></>}
-              {action === 'DELETE' ? <th>{__('Delete Status')}</th> : <></>}
+              <th>{__("Code")}</th>
+              <th>{__("Name")}</th>
+              <th>{__("Unit price")}</th>
+              {action === "UPDATE" ? <th>{__("Update Status")}</th> : <></>}
+              {action === "CREATE" ? <th>{__("Create Status")}</th> : <></>}
+              {action === "DELETE" ? <th>{__("Delete Status")}</th> : <></>}
             </tr>
           </thead>
           <tbody>{renderRow(data, action)}</tbody>
@@ -147,16 +145,16 @@ const InventoryProducts = ({
       <br />
       <CollapseContent
         title={__(
-          'Create products' + (items.create ? ':  ' + items.create.count : ''),
+          "Create products" + (items.create ? ":  " + items.create.count : "")
         )}
       >
         <>
           <DataWithLoader
             data={
-              items.create ? renderTable(items.create?.items, 'CREATE') : []
+              items.create ? renderTable(items.create?.items, "CREATE") : []
             }
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={"Please check first."}
             emptyIcon="leaf"
             size="large"
             objective={true}
@@ -166,16 +164,16 @@ const InventoryProducts = ({
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Update products' + (items.update ? ':  ' + items.update.count : ''),
+          "Update products" + (items.update ? ":  " + items.update.count : "")
         )}
       >
         <>
           <DataWithLoader
             data={
-              items.update ? renderTable(items.update?.items, 'UPDATE') : []
+              items.update ? renderTable(items.update?.items, "UPDATE") : []
             }
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={"Please check first."}
             emptyIcon="leaf"
             size="large"
             objective={true}
@@ -185,16 +183,16 @@ const InventoryProducts = ({
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Delete products' + (items.delete ? ':  ' + items.delete.count : ''),
+          "Delete products" + (items.delete ? ":  " + items.delete.count : "")
         )}
       >
         <>
           <DataWithLoader
             data={
-              items.delete ? renderTable(items.delete?.items, 'DELETE') : []
+              items.delete ? renderTable(items.delete?.items, "DELETE") : []
             }
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={"Please check first."}
             emptyIcon="leaf"
             size="large"
             objective={true}
@@ -209,7 +207,7 @@ const InventoryProducts = ({
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Check product')}
+          title={__("Check product")}
           queryParams={queryParams}
           submenu={menuDynamic}
         />
