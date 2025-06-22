@@ -512,7 +512,7 @@ const Form = (props: Props) => {
       isFinishTab = currentTab === voucherType;
     }
 
-    if (isFinishTab) {
+    if (isFinishTab || voucherCampaign) {
       return renderButton({
         name: "voucher Campaign",
         values: generateDoc(values),

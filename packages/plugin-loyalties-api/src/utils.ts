@@ -21,6 +21,92 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
   return Array.from(new Set(catIds));
 };
 
+export const getChildTags = async (subdomain: string, tagIds) => {
+  const childs = await sendCoreMessage({
+    subdomain,
+    action: "tagWithChilds",
+    data: {
+      query: { _id: { $in: tagIds } },
+    },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  const allTagIds: string[] = (childs || []).map((ch) => ch._id) || [];
+  return Array.from(new Set(allTagIds));
+};
+
+export const applyRestriction = async ({
+  subdomain,
+  restrictions,
+  products,
+}: {
+  subdomain: string;
+  restrictions: Record<string, any>;
+  products: IProductD[];
+}) => {
+  const {
+    categoryIds = [],
+    excludeCategoryIds = [],
+    productIds = [],
+    excludeProductIds = [],
+    tagIds = [],
+    excludeTagIds = [],
+  } = restrictions;
+
+  const inputProductIds = products.map((p) => p.productId);
+
+  const [includedCategoryIds, excludedCategoryIds] = await Promise.all([
+    categoryIds.length ? getChildCategories(subdomain, categoryIds) : [],
+    excludeCategoryIds.length
+      ? getChildCategories(subdomain, excludeCategoryIds)
+      : [],
+  ]);
+
+  const [includedTagIds, excludedTagIds] = await Promise.all([
+    tagIds.length ? getChildTags(subdomain, tagIds) : [],
+    excludeTagIds.length ? getChildTags(subdomain, excludeTagIds) : [],
+  ]);
+
+  const query: Record<string, any> = {
+    _id: {
+      $in: [...inputProductIds, ...productIds],
+      $nin: excludeProductIds,
+    },
+  };
+
+  if (includedCategoryIds.length || excludedCategoryIds.length) {
+    query.categoryId = {
+      ...(includedCategoryIds.length && { $in: includedCategoryIds }),
+      ...(excludedCategoryIds.length && { $nin: excludedCategoryIds }),
+    };
+  }
+
+  if (includedTagIds.length || excludedTagIds.length) {
+    query.tagIds = {
+      ...(includedTagIds.length && { $in: includedTagIds }),
+      ...(excludedTagIds.length && { $nin: excludedTagIds }),
+    };
+  }
+
+  const productDocs = await sendCoreMessage({
+    subdomain,
+    action: "products.find",
+    data: { query },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  const productMap = new Map(products.map((p) => [p.productId, p]));
+
+  const totalAmount = productDocs.reduce((sum, { _id }) => {
+    const item = productMap.get(_id);
+    return sum + (item ? item.quantity * item.unitPrice : 0);
+  }, 0);
+
+  return { productDocs, totalAmount };
+};
+
 export const checkVouchersSale = async (
   models: IModels,
   subdomain: string,
@@ -219,49 +305,13 @@ export const checkVouchersSale = async (
       ownerId,
     });
 
-    const { title, kind, value, restrictions } = voucherCampaign;
+    const { title, kind, value, restrictions = {} } = voucherCampaign;
 
-    const {
-      categoryIds = [],
-      excludeCategoryIds = [],
-      productIds = [],
-      excludeProductIds = [],
-      tagIds = [],
-      excludeTagIds = [],
-    } = restrictions || {};
-
-    const productDocs = await sendCoreMessage({
+    const { productDocs, totalAmount } = await applyRestriction({
       subdomain,
-      action: "products.find",
-      data: {
-        query: {
-          _id: {
-            $in: [...productsIds, ...productIds],
-            $nin: excludeProductIds,
-          },
-          categoryId: {
-            ...(categoryIds.length ? { $in: categoryIds } : {}),
-            $nin: excludeCategoryIds,
-          },
-          tagIds: {
-            ...(tagIds.length ? { $in: tagIds } : {}),
-            $nin: excludeTagIds,
-          },
-        },
-      },
-      isRPC: true,
-      defaultValue: [],
+      restrictions,
+      products,
     });
-
-    const totalAmount = productDocs.reduce((sum, doc) => {
-      const { _id } = doc;
-
-      const item: IProductD =
-        products.find((p) => p.productId === _id) || ({} as IProductD);
-      sum += item.quantity * item.unitPrice;
-
-      return sum;
-    }, 0);
 
     await models.Vouchers.checkVoucher({
       voucherId,
@@ -301,49 +351,13 @@ export const checkVouchersSale = async (
       ownerId,
     });
 
-    const { title, kind, value, restrictions } = couponCampaign;
+    const { title, kind, value, restrictions = {} } = couponCampaign;
 
-    const {
-      categoryIds = [],
-      excludeCategoryIds = [],
-      productIds = [],
-      excludeProductIds = [],
-      tagIds = [],
-      excludeTagIds = [],
-    } = restrictions || {};
-
-    const productDocs = await sendCoreMessage({
+    const { productDocs, totalAmount } = await applyRestriction({
       subdomain,
-      action: "products.find",
-      data: {
-        query: {
-          _id: {
-            $in: [...productsIds, ...productIds],
-            $nin: excludeProductIds,
-          },
-          categoryId: {
-            ...(categoryIds.length ? { $in: categoryIds } : {}),
-            $nin: excludeCategoryIds,
-          },
-          tagIds: {
-            ...(tagIds.length ? { $in: tagIds } : {}),
-            $nin: excludeTagIds,
-          },
-        },
-      },
-      isRPC: true,
-      defaultValue: [],
+      restrictions,
+      products,
     });
-
-    const totalAmount = productDocs.reduce((sum, doc) => {
-      const { _id } = doc;
-
-      const item: IProductD =
-        products.find((p) => p.productId === _id) || ({} as IProductD);
-      sum += item.quantity * item.unitPrice;
-
-      return sum;
-    }, 0);
 
     await models.Coupons.checkCoupon({
       code: couponCode,
