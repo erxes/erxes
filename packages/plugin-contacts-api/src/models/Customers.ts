@@ -460,11 +460,19 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       if (!nullValues.includes(customer.primaryEmail || '')) {
         possibleLead = true;
         score += 15;
+
+        if (!customer.emails?.includes(customer.primaryEmail)) {
+          searchText = searchText.concat(' ', customer.primaryEmail || '');
+        }
       }
 
       if (!nullValues.includes(customer.primaryPhone || '')) {
         possibleLead = true;
         score += 10;
+
+        if (!customer.phones?.includes(customer.primaryPhone)) {
+          searchText = searchText.concat(' ', customer.primaryPhone || '');
+        }
       }
 
       if (customer.visitorContactInfo != null) {
