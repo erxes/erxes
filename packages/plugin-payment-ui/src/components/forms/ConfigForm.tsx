@@ -82,7 +82,7 @@ const ConfigForm: React.FC<Props> = ({
 
     if (key === 'paymentName') {
       value = state[key as keyof State];
-    }else{
+    } else {
       value = state.configMap[key];
     }
     return (
@@ -127,19 +127,17 @@ const ConfigForm: React.FC<Props> = ({
           {metaData?.kind === 'golomt' && (
             <FormGroup>
               <ControlLabel>{__('Currency')}</ControlLabel>
-                <FormControl defaultValue={'MNT'} 
-                  componentclass='select'
-                  onChange={(e: any) => onChangeConfig('currency', e)}
-                  value={state.configMap.currency || 'MNT'}
-                >
-                  <option value='MNT'>MNT</option>
-                  <option value='USD'>USD</option>
-                  <option value='CNY'>CNY</option>
-                  <option value='EUR'>EUR</option>
-                </FormControl>
-                
-
-
+              <FormControl
+                defaultValue={'MNT'}
+                componentclass='select'
+                onChange={(e: any) => onChangeConfig('currency', e)}
+                value={state.configMap.currency || 'MNT'}
+              >
+                <option value='MNT'>MNT</option>
+                <option value='USD'>USD</option>
+                <option value='CNY'>CNY</option>
+                <option value='EUR'>EUR</option>
+              </FormControl>
             </FormGroup>
           )}
 
@@ -155,6 +153,22 @@ const ConfigForm: React.FC<Props> = ({
                   </p>
                 }
                 <FormControl defaultValue={callbackUrl} disabled={true} />
+              </FormGroup>
+            </>
+          )}
+
+          {metaData?.kind === 'golomt' && (
+            <>
+              <FormGroup>
+                <ControlLabel>{__('Notification URL')}</ControlLabel>
+                {
+                  <p>
+                    {__(
+                      'Please provide this URL to Golomt Bank'
+                    )}
+                  </p>
+                }
+                <FormControl defaultValue={`${getEnv().REACT_APP_API_URL}/pl-payment/notification/golomt`} disabled={true} />
               </FormGroup>
             </>
           )}

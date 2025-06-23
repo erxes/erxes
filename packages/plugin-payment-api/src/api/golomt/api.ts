@@ -13,8 +13,6 @@ export const hmac256 = (key, message) => {
 };
 
 export const golomtCallbackHandler = async (models: IModels, data: any) => {
-  console.log('golomtCallbackHandler', data);
-  
   const transaction = await models.Transactions.getTransaction({
     _id: data.transactionId,
   });
@@ -65,40 +63,40 @@ export class GolomtAPI extends BaseAPI {
     this.domain = domain;
   }
 
-  async authorize() {
-    const callback = `${this.domain}/pl-payment/callback/golomt`;
-    const transactionId = randomAlphanumeric(10);
+  // async authorize() {
+  //   const callback = `${this.domain}/pl-payment/callback/golomt`;
+  //   const transactionId = randomAlphanumeric(10);
 
-    const data: IGolomtInvoice = {
-      amount: '1',
-      checksum: hmac256(this.key, transactionId + 1 + 'GET' + callback),
-      transactionId,
-      genToken: 'N',
-      socialDeeplink: 'Y',
-      callback,
-      returnType: 'GET',
-    };
+  //   const data: IGolomtInvoice = {
+  //     amount: '1',
+  //     checksum: hmac256(this.key, transactionId + 1 + 'GET' + callback),
+  //     transactionId,
+  //     genToken: 'N',
+  //     socialDeeplink: 'Y',
+  //     callback,
+  //     returnType: 'GET',
+  //   };
 
-    try {
-      const res = await this.request({
-        path: PAYMENTS.golomt.actions.invoice,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + this.token,
-        },
-        data,
-      }).then((r) => r.json());
+  //   try {
+  //     const res = await this.request({
+  //       path: PAYMENTS.golomt.actions.invoice,
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         Authorization: 'Bearer ' + this.token,
+  //       },
+  //       data,
+  //     }).then((r) => r.json());
       
-      if (res.status && res.status !== 200) {
-        throw new Error(res.message);
-      }
-      return { success: true, message: 'Authorized' };
-    } catch (e) {
-      console.error('error', e);
-      throw new Error(e.message);
-    }
-  }
+  //     if (res.status && res.status !== 200) {
+  //       throw new Error(res.message);
+  //     }
+  //     return { success: true, message: 'Authorized' };
+  //   } catch (e) {
+  //     console.error('error', e);
+  //     throw new Error(e.message);
+  //   }
+  // }
 
   async createInvoice(transaction: ITransactionDocument) {
     const amount = transaction.amount.toString();

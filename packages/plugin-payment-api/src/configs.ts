@@ -100,6 +100,13 @@ export default {
     app.use(bodyParser.urlencoded({ extended: true }));
 
     app.use(controllers);
+
+
+    app.post('/notification/golomt', (req, res) => {
+      
+      
+      res.status(200).json({ status: 'success' });
+    });
   },
   setupMessageConsumers,
 };

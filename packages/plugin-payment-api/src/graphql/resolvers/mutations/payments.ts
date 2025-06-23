@@ -21,8 +21,8 @@ const mutations = {
     const acceptedCurrencies = PAYMENTS[doc.kind].acceptedCurrencies;
     doc.acceptedCurrencies = acceptedCurrencies;
 
-    if (doc.currency) {
-      doc.acceptedCurrencies = [doc.currency];
+    if (doc.config?.currency) {
+      doc.acceptedCurrencies = [doc.config.currency];
     }
 
     if (doc.kind === 'qpayQuickqr') {
