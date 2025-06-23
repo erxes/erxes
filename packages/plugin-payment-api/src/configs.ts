@@ -103,7 +103,7 @@ export default {
 
 
     app.post('/notification/golomt', (req, res) => {
-      
+      console.debug('received golomt notification', req.body);
       
       res.status(200).json({ status: 'success' });
     });
