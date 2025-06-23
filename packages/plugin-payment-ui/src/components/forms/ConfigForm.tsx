@@ -35,7 +35,7 @@ const ConfigForm: React.FC<Props> = ({
     metaData = PAYMENTCONFIGS.find((p) => p.kind === payment.kind);
   }
 
-  const callbackUrl = `${getEnv().REACT_APP_API_URL}/pl:payment/callback/${metaData.kind}`;
+  const callbackUrl = `${getEnv().REACT_APP_API_URL}/pl-payment/callback/${metaData.kind}`;
   const [state, setState] = useState<State>({
     paymentName: name,
     configMap: config,
@@ -123,6 +123,25 @@ const ConfigForm: React.FC<Props> = ({
             const { label, key, type } = input;
             return renderItem(key, label, type);
           })}
+
+          {metaData?.kind === 'golomt' && (
+            <FormGroup>
+              <ControlLabel>{__('Currency')}</ControlLabel>
+                <FormControl defaultValue={'MNT'} 
+                  componentclass='select'
+                  onChange={(e: any) => onChangeConfig('currency', e)}
+                  value={state.configMap.currency || 'MNT'}
+                >
+                  <option value='MNT'>MNT</option>
+                  <option value='USD'>USD</option>
+                  <option value='CNY'>CNY</option>
+                  <option value='EUR'>EUR</option>
+                </FormControl>
+                
+
+
+            </FormGroup>
+          )}
 
           {metaData?.showCallback && (
             <>

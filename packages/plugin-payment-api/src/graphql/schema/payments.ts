@@ -51,6 +51,7 @@ const params = `
   kind: String!
   status: String
   config: JSON
+  currency: String
 `;
 
 export const mutations = `

@@ -13,6 +13,8 @@ export const hmac256 = (key, message) => {
 };
 
 export const golomtCallbackHandler = async (models: IModels, data: any) => {
+  console.log('golomtCallbackHandler', data);
+  
   const transaction = await models.Transactions.getTransaction({
     _id: data.invoice,
   });
@@ -101,12 +103,19 @@ export class GolomtAPI extends BaseAPI {
   async createInvoice(transaction: ITransactionDocument) {
     const amount = transaction.amount.toString();
 
-    const callback = `${this.domain}/pl:payment/callback/golomt`;
+    const callback = `https://b301-202-21-102-101.ngrok-free.app/pl-payment/callback/golomt`;
+
+    let transactionId = transaction._id || randomAlphanumeric(10);
+
+    if (transaction.details && transaction.details.golomtTransactionId) {
+      // If transaction already has a golomtTransactionId, use it
+      transactionId = transaction.details.golomtTransactionId;
+    }
 
     const data: IGolomtInvoice = {
       amount,
-      checksum: hmac256(this.key, transaction._id + amount + 'GET' + callback),
-      transactionId: transaction._id,
+      checksum: hmac256(this.key, transactionId + amount + 'GET' + callback),
+      transactionId,
       genToken: 'N',
       socialDeeplink: 'Y',
       callback,
@@ -131,9 +140,16 @@ export class GolomtAPI extends BaseAPI {
   }
 
   private async check(transaction: any) {
+    let transactionId = transaction._id;
+
+    if (transaction.details && transaction.details.golomtTransactionId) {
+      // If transaction already has a golomtTransactionId, use it
+      transactionId = transaction.details.golomtTransactionId;
+    }
+
     const data = {
-      transactionId: transaction._id,
-      checksum: hmac256(this.key, transaction._id + transaction._id),
+      transactionId,
+      checksum: hmac256(this.key, transactionId + transactionId),
     };
     try {
       const response = await this.request({
