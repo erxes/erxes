@@ -1,15 +1,10 @@
-import { debugError } from '@erxes/api-utils/src/debuggers';
 import { Model } from 'mongoose';
-import { getEnv } from '@erxes/api-utils/src/core';
-import { IModels } from '../connectionResolver';
-import redisUtils from '../redisUtils';
-import {
-  ITransaction,
-  ITransactionDocument,
-  transactionSchema,
-} from './definitions/transactions';
 import ErxesPayment from '../api/ErxesPayment';
-import { randomAlphanumeric } from '@erxes/api-utils/src/random';
+import { IModels } from '../connectionResolver';
+import {
+  ITransactionDocument,
+  transactionSchema
+} from './definitions/transactions';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(doc: any, leanObject?: boolean): ITransactionDocument;
