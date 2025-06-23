@@ -102,7 +102,7 @@ const PaymentGateway = (props: Props) => {
       <PaymentType
         key={payment._id}
         type={payment.kind}
-        url={`${props.apiDomain}/pl:payment/static/images/payments/${payment.kind}.png`}
+        url={`${props.apiDomain}/pl-payment/static/images/payments/${payment.kind}.png`}
         name={`${payment.kind} - ${payment.name}`}
         onClick={() => {
           openModal(payment);

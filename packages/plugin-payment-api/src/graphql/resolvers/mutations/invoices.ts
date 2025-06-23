@@ -33,7 +33,7 @@ const mutations = {
       ...params,
     });
 
-    return `${domain}/pl:payment/invoice/${invoice._id}`;
+    return `${domain}/pl-payment/invoice/${invoice._id}`;
   },
 
   async invoiceCreate(

@@ -101,7 +101,7 @@ export class GolomtAPI extends BaseAPI {
   async createInvoice(transaction: ITransactionDocument) {
     const amount = transaction.amount.toString();
 
-    const callback = `${this.domain}/pl:payment/callback/golomt?transactionId=${transaction._id}`;
+    const callback = `${this.domain}/pl-payment/callback/golomt?transactionId=${transaction._id}`;
 
     let transactionId = transaction._id;
 
@@ -137,11 +137,7 @@ export class GolomtAPI extends BaseAPI {
   }
 
   private async check(transaction: any) {
-    let transactionId = transaction._id;
-
-    if (transaction.details.golomtTransactionId) {
-      transactionId = transaction.details.golomtTransactionId;
-    }
+    const transactionId = transaction.details.golomtTransactionId || transaction._id;
 
     const data = {
       transactionId,

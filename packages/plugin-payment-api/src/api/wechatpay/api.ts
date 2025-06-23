@@ -140,7 +140,7 @@ export class WechatPayAPI extends BaseAPI {
         invoice_receiver_code: 'terminal',
         invoice_description: invoice.description || 'test invoice',
         amount: invoice.amount,
-        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.wechatpay.kind}?_id=${invoice._id}`,
+        callback_url: `${this.domain}/pl-payment/callback/${PAYMENTS.wechatpay.kind}?_id=${invoice._id}`,
       };
 
       const res = await this.request({
