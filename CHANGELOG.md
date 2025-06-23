@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.14.2](https://github.com/erxes/erxes/compare/2.14.1...2.14.2) (2025-06-23)
+
+### Features
+
+* **clientportal:** toki invoice check ([f8d7bb5](https://github.com/erxes/erxes/commit/f8d7bb5b436e4ffc88b631b9ee6a221556b39ac3))
+
 ## [2.14.1](https://github.com/erxes/erxes/compare/2.14.0...2.14.1) (2025-06-19)
 
 ### Bug Fixes
