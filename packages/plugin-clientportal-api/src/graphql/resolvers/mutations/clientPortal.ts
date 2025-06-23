@@ -1,12 +1,11 @@
 import { sendCommonMessage, sendCoreMessage } from "../../../messageBroker";
 
-import { IClientPortal } from "../../../models/definitions/clientPortal";
-import { IContext } from "../../../connectionResolver";
 import { checkPermission } from "@erxes/api-utils/src";
-import { participantEditRelation, createCard } from "../../../models/utils";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
-import { deploy } from "../../../vercel/util";
+import { IContext } from "../../../connectionResolver";
 import { sendTicketsMessage } from "../../../messageBroker";
+import { IClientPortal } from "../../../models/definitions/clientPortal";
+import { createCard, participantEditRelation } from "../../../models/utils";
 import { sendNotification } from "../../../utils";
 export interface IVerificationParams {
   userId: string;
@@ -246,6 +245,68 @@ const clientPortalMutations = {
       }
     );
     return models.ClientPortalUserCards.findOne({ _id: args._id });
+  },
+
+  async clientPortalCheckTokiInvoice(
+    _root,
+    { clientPortalId, transactionId }: { clientPortalId: string; transactionId: string },
+    { models }: IContext
+  ) {
+    const clientPortal = await models.ClientPortals.findOne({ _id: clientPortalId });
+    if (!clientPortal) {
+      throw new Error("Client portal not found");
+    }
+    const tokiConfig = clientPortal.tokiConfig;
+    if (!tokiConfig) {
+      throw new Error("Toki config not found");
+    }
+
+    const baseApiUrl = tokiConfig.production ? "ms-api.toki.mn" : "qams-api.toki.mn";
+   
+    const apiUrl = tokiConfig.production ? baseApiUrl : "qams-api.toki.mn";
+    const {username, password, apiKey} = tokiConfig;
+
+    const authString = Buffer.from(`${username}:${password}`).toString("base64");
+
+    const response = await fetch(
+      `https://${apiUrl}/third-party-service/v1/auth/token`,
+      {
+        method: "GET",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Basic ${authString}`,
+        },
+      }
+    );
+
+    const contentType = response.headers.get("content-type");
+  
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Toki API Error (${response.status}): ${errorText}`);
+    }
+    
+    if (contentType && contentType.includes("application/json")) {
+      const data: any = await response.json();
+      const {accessToken} = data.data;
+      const invoiceResponse = await fetch(
+        `https://${apiUrl}/third-party-service/v1/payment-request/status?requestId=${transactionId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+            "api-key": apiKey,
+          },
+        }
+      );
+
+      return await invoiceResponse.json();
+    } else {
+      const text = await response.text();
+      throw new Error(`Expected JSON but received: ${text}`);
+    }
   },
 };
 
