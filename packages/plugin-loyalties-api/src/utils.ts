@@ -1,5 +1,5 @@
 import { IModels } from "./connectionResolver";
-import { sendCoreMessage } from "./messageBroker";
+import { sendClientPortalMessage, sendCoreMessage } from "./messageBroker";
 import { VOUCHER_STATUS } from "./models/definitions/constants";
 
 interface IProductD {
@@ -52,7 +52,7 @@ export const applyRestriction = async ({
     excludeProductIds = [],
     tagIds = [],
     excludeTagIds = [],
-  } = restrictions;
+  } = restrictions || {};
 
   const inputProductIds = products.map((p) => p.productId);
 
@@ -121,6 +121,26 @@ export const checkVouchersSale = async (
 
   if (!ownerId && !ownerId && !products) {
     return "No Data";
+  }
+
+  if (ownerType === "customer") {
+    const customerRelatedClientPortalUser = await sendClientPortalMessage({
+      subdomain,
+      action: "clientPortalUsers.findOne",
+      data: {
+        $or: [
+          { _id: ownerId },
+          { erxesCustomerId: ownerId },
+        ]
+      },
+      isRPC: true,
+      defaultValue: null,
+    });
+
+    if (customerRelatedClientPortalUser) {
+      ownerId = customerRelatedClientPortalUser._id;
+      ownerType = "cpUser";
+    }
   }
 
   const now = new Date();
@@ -533,10 +553,10 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
   try {
     if (kind === "percent") {
       if (product?.discount) {
-        return product?.discount + value;
+        return Math.min(product.discount + value, 100);
       }
 
-      return value;
+      return Math.min(value, 100);
     }
 
     if (!product || !totalAmount) {
@@ -554,10 +574,10 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
     const discount = (productDiscount / productPrice) * 100;
 
     if (product?.discount) {
-      return discount + product?.discount;
+      return Math.min(discount + product.discount, 100);
     }
 
-    return discount;
+    return Math.min(discount, 100);
   } catch (error) {
     console.error("Error calculating discount:", error.message);
     return 0;
