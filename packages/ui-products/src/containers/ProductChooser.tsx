@@ -119,7 +119,7 @@ const ProductChooser: React.FC<Props> = ({
   };
 
   const loadMore = () => {
-    setPerPage(perPage + 20);
+    setPerPage(prev => prev + 20);
     refetchProducts();
   };
 
