@@ -257,9 +257,27 @@ export const generateFields = async ({ subdomain, data }) => {
     { multi: true }
   );
 
-  const customersOptions = await generateContactsOptions(
-    'customers',
-    'Customers',
+  const customersPrimaryEmailOptions = await generateContactsOptions(
+    'customersEmail',
+    'Customers Primary Email',
+    'contact',
+    {
+      queryName: 'customers',
+    }
+  );
+
+  const customersPrimaryPhoneOptions = await generateContactsOptions(
+    'customersPhone',
+    'Customers Primary Phone',
+    'contact',
+    {
+      queryName: 'customers',
+    }
+  );
+
+  const customersFullNameOptions = await generateContactsOptions(
+    'customersName',
+    'Customers Full Name',
     'contact',
     {
       queryName: 'customers',
@@ -303,7 +321,9 @@ export const generateFields = async ({ subdomain, data }) => {
       modifiedByOptions,
       assignedUserOptions,
       watchedUserOptions,
-      customersOptions,
+      customersFullNameOptions,
+      customersPrimaryEmailOptions,
+      customersPrimaryPhoneOptions,
       companiesOptions,
       branchesOptions,
       departmentsOptions,
