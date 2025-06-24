@@ -37,7 +37,7 @@ class AssigneeLog extends React.Component<Props> {
           target="_blank"
           key={Math.random()}
         >
-          &nbsp;{user.details.fullName || user.email}&nbsp;
+          &nbsp;{user.details?.fullName || user.email}&nbsp;
         </Link>
       );
     });
@@ -49,7 +49,7 @@ class AssigneeLog extends React.Component<Props> {
           target="_blank"
           key={Math.random()}
         >
-          &nbsp;{user.details.fullName || user.email}&nbsp;
+          &nbsp;{user.details?.fullName || user.email}&nbsp;
         </Link>
       );
     });
