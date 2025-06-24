@@ -15,7 +15,7 @@ const ModalHeader = () => {
       <div className="flex space-y-1.5 text-center sm:text-left flex-row gap-4 items-center justify-between my-2 md:mt-0">
         <div className="flex items-center gap-2">
           <img
-            src={`${apiDomain}/pl:payment/static/images/payments/${kind}.png`}
+            src={`${apiDomain}/pl-payment/static/images/payments/${kind}.png`}
             alt={''}
             height={48}
             width={48}

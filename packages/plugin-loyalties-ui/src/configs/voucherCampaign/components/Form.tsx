@@ -370,8 +370,10 @@ const Form = (props: Props) => {
                 onSelect={(productId) =>
                   handleOnChange({
                     event: {
-                      name: "bonusProductId",
-                      value: String(productId),
+                      target: {
+                        name: "bonusProductId",
+                        value: String(productId),
+                      },
                     } as any,
                   })
                 }
@@ -417,8 +419,10 @@ const Form = (props: Props) => {
                 onChange={(selectedOption) => {
                   handleOnChange({
                     event: {
-                      name: "lotteryCampaignId",
-                      value: String(selectedOption?.value || ""),
+                      target: {
+                        name: "lotteryCampaignId",
+                        value: String(selectedOption?.value || ""),
+                      },
                     } as any,
                   });
                 }}
@@ -465,8 +469,10 @@ const Form = (props: Props) => {
                 onChange={(selectedOption) => {
                   handleOnChange({
                     event: {
-                      name: "spinCampaignId",
-                      value: String(selectedOption?.value || ""),
+                      target: {
+                        name: "spinCampaignId",
+                        value: String(selectedOption?.value || ""),
+                      },
                     } as any,
                   });
                 }}
@@ -506,7 +512,7 @@ const Form = (props: Props) => {
       isFinishTab = currentTab === voucherType;
     }
 
-    if (isFinishTab) {
+    if (isFinishTab || voucherCampaign) {
       return renderButton({
         name: "voucher Campaign",
         values: generateDoc(values),
