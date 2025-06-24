@@ -264,7 +264,7 @@ export const posOrderRecordsQuery = async (
   }
 
   const customerIds = orders
-    .filter(o => o.customerType || ("customer" === "customer" && o.customerId))
+    .filter(o => (o.customerType || "customer") === "customer" && o.customerId)
     .map(o => o.customerId);
   const companyIds = orders
     .filter(o => o.customerType === "company" && o.customerId)
@@ -339,8 +339,8 @@ export const posOrderRecordsQuery = async (
       productCategoryById[perProduct.categoryId || ""];
     order.items.manufactured = order.items.manufacturedDate
       ? new Date(
-          Number(shortStrToDate(order.items.manufacturedDate, 92, "h", "n"))
-        )
+        Number(shortStrToDate(order.items.manufacturedDate, 92, "h", "n"))
+      )
       : "";
     order.user = userById[order.userId];
     order.posName = posByToken[order.posToken].name;

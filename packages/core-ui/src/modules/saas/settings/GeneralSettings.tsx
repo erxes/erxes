@@ -133,7 +133,7 @@ class GeneralSettings extends React.Component<Props, State> {
           options={mimeTypeOptions}
           onChange={this.onChangeMultiCombo.bind(this, key)}
           isMulti={true}
-          delimiter=","
+          delimiter=','
           // simpleValue={true}
         />
       </FormGroup>
@@ -175,7 +175,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     return (
       <Popover
-        placement="bottom-start"
+        placement='bottom-start'
         trigger={
           <ColorPick>
             <ColorPicker style={{ backgroundColor: value }} />
@@ -185,7 +185,7 @@ class GeneralSettings extends React.Component<Props, State> {
         <TwitterPicker
           color={value}
           onChange={this.onChangeColor.bind(this, field)}
-          triangle="hide"
+          triangle='hide'
         />
       </Popover>
     );
@@ -224,7 +224,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <img alt={field} src={readFile(value)} />
           </ImageWrapper>
         ) : null}
-        <input type="file" onChange={this.handleLogoChange.bind(this, field)} />
+        <input type='file' onChange={this.handleLogoChange.bind(this, field)} />
       </FormGroup>
     );
   }
@@ -267,10 +267,10 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const actionButtons = (
       <Button
-        id="generalSettingsSave"
-        btnStyle="success"
+        id='generalSettingsSave'
+        btnStyle='success'
         onClick={this.save}
-        icon="check-circle"
+        icon='check-circle'
       >
         Save
       </Button>
@@ -281,7 +281,7 @@ class GeneralSettings extends React.Component<Props, State> {
         <CollapseContent
           transparent={true}
           title={__('General settings')}
-          beforeTitle={<Icon icon="settings" />}
+          beforeTitle={<Icon icon='settings' />}
         >
           <FormGroup>
             <ControlLabel>Language</ControlLabel>
@@ -322,7 +322,7 @@ class GeneralSettings extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>{__('with team member restrictions')}</ControlLabel>
             <FormControl
-              componentclass="checkbox"
+              componentclass='checkbox'
               checked={configsMap.CHECK_TEAM_MEMBER_SHOWN}
               onChange={(e) =>
                 this.onChangeConfig(
@@ -340,9 +340,9 @@ class GeneralSettings extends React.Component<Props, State> {
                   {__('Team members who can access every branches')}
                 </ControlLabel>
                 <SelectTeamMembers
-                  name="BRANCHES_MASTER_TEAM_MEMBERS_IDS"
+                  name='BRANCHES_MASTER_TEAM_MEMBERS_IDS'
                   initialValue={configsMap.BRANCHES_MASTER_TEAM_MEMBERS_IDS}
-                  label="Select team members"
+                  label='Select team members'
                   onSelect={(values, name) => this.onChangeConfig(name, values)}
                 />
               </FormGroup>
@@ -351,8 +351,8 @@ class GeneralSettings extends React.Component<Props, State> {
                   {__('Team members who can access every departments')}
                 </ControlLabel>
                 <SelectTeamMembers
-                  name="DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS"
-                  label="Select team members"
+                  name='DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS'
+                  label='Select team members'
                   initialValue={configsMap.DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS}
                   onSelect={(values, name) => this.onChangeConfig(name, values)}
                 />
@@ -364,13 +364,13 @@ class GeneralSettings extends React.Component<Props, State> {
         <CollapseContent
           transparent={true}
           title={__('File upload')}
-          beforeTitle={<Icon icon="file-upload-alt" />}
+          beforeTitle={<Icon icon='file-upload-alt' />}
         >
           <Info>
             <a
-              target="_blank"
-              href="https://docs.erxes.io/conversations"
-              rel="noopener noreferrer"
+              target='_blank'
+              href='https://docs.erxes.io/conversations'
+              rel='noopener noreferrer'
             >
               {__('Learn how to set file uploading') + '.'}
             </a>
@@ -381,7 +381,7 @@ class GeneralSettings extends React.Component<Props, State> {
         <CollapseContent
           transparent={true}
           title={__('Constants')}
-          beforeTitle={<Icon icon="link-1" />}
+          beforeTitle={<Icon icon='link-1' />}
         >
           {this.renderConstant('sex_choices')}
           {this.renderConstant('company_industry_types')}
@@ -390,12 +390,22 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent
           transparent={true}
-          title="MessagePro"
-          beforeTitle={<Icon icon="comment-alt-verify" />}
+          title='MessagePro'
+          beforeTitle={<Icon icon='comment-alt-verify' />}
         >
-          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+          <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
             {this.renderItemInput('MESSAGE_PRO_API_KEY')}
             {this.renderItemInput('MESSAGE_PRO_PHONE_NUMBER')}
+          </FlexRow>
+        </CollapseContent>
+
+        <CollapseContent
+          transparent={true}
+          title='Google Map'
+          beforeTitle={<Icon icon='comment-alt-verify' />}
+        >
+          <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
+            {this.renderItemInput('GOOGLE_MAP_API_KEY')}
           </FlexRow>
         </CollapseContent>
       </ContentBox>
@@ -411,7 +421,7 @@ class GeneralSettings extends React.Component<Props, State> {
         }
         mainHead={
           <Header
-            title="System configuration"
+            title='System configuration'
             description={
               __(
                 'Set up your initial account settings so that things run smoothly in unison'

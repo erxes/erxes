@@ -7,7 +7,7 @@ const mutations = {
 
     const description = invoice.description || invoice.invoiceNumber;
 
-    return models.Transactions.createTransaction({ ...args, subdomain, description });
+    return models.Transactions.createTransaction({ ...args, subdomain, description, details: {...args.details, ...invoice.data} });
   },
 };
 

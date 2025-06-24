@@ -8,6 +8,7 @@ import React, { useEffect } from 'react';
 import ContractDetails from '../../components/detail/ContractDetails';
 import { mutations, queries } from '../../graphql';
 import {
+  ActiveLoanMutationResponse,
   DetailQueryResponse,
   EditMutationResponse,
   IContractDoc,
@@ -67,6 +68,34 @@ const ContractDetailsContainer = (props: FinalProps) => {
     }
   );
 
+  const [sendSavings] = useMutation<SendLoansMutationResponse>(
+    gql(mutations.sendSaving),
+    {
+      refetchQueries: ['contractDetail'],
+    }
+  );
+
+  const [syncLoanCollateral] = useMutation<SyncLoanCollateralsMutationResponse>(
+    gql(mutations.syncLoanCollateral),
+    {
+      refetchQueries: ['contractDetail'],
+    }
+  );
+
+  const [sendLoanSchedules] = useMutation<SendSchedulesMutationResponse>(
+    gql(mutations.sendLoanSchedules),
+    {
+      refetchQueries: ['contractDetail'],
+    }
+  );
+
+  const [activeLoan] = useMutation<ActiveLoanMutationResponse>(
+    gql(mutations.loanContractActive),
+    {
+      refetchQueries: ['contractDetail'],
+    }
+  );
+
   const saveItem = (doc: IContractDoc, callback: (item) => void) => {
     contractsEdit({ variables: { ...doc } })
       .then(({ data }) => {
@@ -89,6 +118,46 @@ const ContractDetailsContainer = (props: FinalProps) => {
     fixSchedules({ variables: { contractId } }).catch((error) => {
       Alert.error(error.message);
     });
+  };
+
+  const regenPolarisHandler = (data: any) => {
+    sendSavings({ variables: { data } })
+      .then(() => {
+        Alert.success('Successfully synced');
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
+  };
+
+  const syncCollateralHandler = (contract: any) => {
+    syncLoanCollateral({ variables: { contract } })
+      .then(() => {
+        Alert.success('Successfully synced');
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
+  };
+
+  const sendSchedulesHandler = (contract: any) => {
+    sendLoanSchedules({ variables: { contract } })
+      .then(() => {
+        Alert.success('Successfully synced');
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
+  };
+
+  const activeLoanHandler = (contractNumber: string) => {
+    activeLoan({ variables: { contractNumber } })
+      .then(() => {
+        Alert.success('Successfully activated');
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
   };
 
   if (contractDetailQuery.loading) {

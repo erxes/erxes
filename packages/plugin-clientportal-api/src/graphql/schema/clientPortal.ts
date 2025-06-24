@@ -585,4 +585,9 @@ export const mutations = (enabledPlugins) => `
         paymentAmount: Float,
         offeredAmount: Float,
         hasVat: Boolean):ClientPortalParticipant
+
+  clientPortalCheckTokiInvoice(
+    clientPortalId: String!,
+    transactionId: String!
+  ): JSON
 `;

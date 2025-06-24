@@ -30,7 +30,7 @@ const contractMutations = {
       type: 'contract',
       newData: doc,
       object: contract,
-      extraParams: { models }
+      extraParams: { models },
     };
 
     await createLog(subdomain, user, logData);
@@ -59,8 +59,8 @@ const contractMutations = {
         data: {
           userId: doc.customerId,
           password: doc.secondaryPassword,
-          secondary: true
-        }
+          secondary: true,
+        },
       },
       'clientportal'
     );
@@ -74,16 +74,16 @@ const contractMutations = {
         action: 'customers.findOne',
         subdomain,
         data: {
-          _id: doc.customerId
+          _id: doc.customerId,
         },
-        isRPC: true
+        isRPC: true,
       },
       'core'
     );
 
     if (savingAmount > 0 && contract) {
       const deposit = await models.Contracts.findOne({
-        _id: doc.depositAccount
+        _id: doc.depositAccount,
       }).lean();
 
       if (!deposit) {
@@ -99,7 +99,7 @@ const contractMutations = {
         description: 'saving',
         payment: savingAmount,
         accountNumber: contract.number,
-        accountHolderName: customer.firstName
+        accountHolderName: customer.firstName,
       });
 
       await models.Transactions.createTransaction({
@@ -111,7 +111,7 @@ const contractMutations = {
         description: 'saving',
         payment: savingAmount,
         accountNumber: deposit.number,
-        accountHolderName: customer.firstName
+        accountHolderName: customer.firstName,
       });
     }
 
@@ -119,7 +119,7 @@ const contractMutations = {
       type: 'contract',
       newData: doc,
       object: contract,
-      extraParams: { models }
+      extraParams: { models },
     };
 
     await createLog(subdomain, user, logData);
@@ -137,9 +137,9 @@ const contractMutations = {
         action: 'customers.findOne',
         subdomain,
         data: {
-          _id: customerId
+          _id: customerId,
         },
-        isRPC: true
+        isRPC: true,
       },
       'core'
     );
@@ -150,7 +150,7 @@ const contractMutations = {
 
     const existingContract = await models.Contracts.findOne({
       isDeposit: true,
-      customerId: customer._id
+      customerId: customer._id,
     });
 
     if (existingContract) {
@@ -158,7 +158,7 @@ const contractMutations = {
     }
 
     const contractType = await models.ContractTypes.findOne({
-      isDeposit: true
+      isDeposit: true,
     });
 
     if (!contractType) {
@@ -177,7 +177,7 @@ const contractMutations = {
       description: 'client submit',
       interestRate: 0,
       isAllowIncome: true,
-      isAllowOutcome: true
+      isAllowOutcome: true,
     };
 
     const contract = await models.Contracts.createContract(depositAccount);
@@ -186,7 +186,7 @@ const contractMutations = {
       type: 'contract',
       newData: depositAccount,
       object: contract,
-      extraParams: { models }
+      extraParams: { models },
     };
 
     await createLog(subdomain, user, logData);
@@ -211,7 +211,7 @@ const contractMutations = {
       object: contract,
       newData: { ...doc },
       updatedDocument: updated,
-      extraParams: { models }
+      extraParams: { models },
     };
 
     await updateLog(subdomain, user, logData);
@@ -225,7 +225,7 @@ const contractMutations = {
   ) => {
     const checkOtherDeals = await models.Contracts.countDocuments({
       dealId: doc.dealId,
-      _id: { $ne: _id }
+      _id: { $ne: _id },
     });
 
     if (checkOtherDeals) {
@@ -243,7 +243,7 @@ const contractMutations = {
       object: contract,
       newData: { ...doc },
       updatedDocument: updated,
-      extraParams: { models }
+      extraParams: { models },
     };
 
     await updateLog(subdomain, user, logData);
@@ -261,7 +261,7 @@ const contractMutations = {
     { models, user, subdomain }: IContext
   ) => {
     const contract = await models.Contracts.getContract({
-      _id: doc.contractId
+      _id: doc.contractId,
     });
 
     const updated = await models.Contracts.closeContract(subdomain, doc);
@@ -271,7 +271,7 @@ const contractMutations = {
       object: contract,
       newData: doc,
       updatedDocument: updated,
-      extraParams: { models }
+      extraParams: { models },
     };
 
     await updateLog(subdomain, user, logData);
@@ -290,7 +290,7 @@ const contractMutations = {
     { models, user, subdomain }: IContext
   ) => {
     const contracts = await models.Contracts.find({
-      _id: { $in: contractIds }
+      _id: { $in: contractIds },
     }).lean();
 
     await models.Contracts.removeContracts(contractIds);
@@ -299,7 +299,7 @@ const contractMutations = {
       const logData = {
         type: 'contract',
         object: contract,
-        extraParams: { models }
+        extraParams: { models },
       };
 
       await deleteLog(subdomain, user, logData);
@@ -324,7 +324,7 @@ const contractMutations = {
       contractId,
       stoppedDate,
       interestAmount,
-      lossAmount
+      lossAmount,
     }: {
       contractId: string;
       stoppedDate: Date;
@@ -338,7 +338,7 @@ const contractMutations = {
       contractId,
       stoppedDate,
       interestAmount,
-      lossAmount
+      lossAmount,
     });
 
     return updatedContract;
@@ -349,7 +349,7 @@ const contractMutations = {
     {
       contractId,
       invDate,
-      interestAmount
+      interestAmount,
     }: {
       contractId: string;
       invDate: Date;
@@ -360,11 +360,75 @@ const contractMutations = {
     const updatedContract = await models.Contracts.interestReturn({
       contractId,
       invDate,
-      interestAmount
+      interestAmount,
     });
     await savingsContractChanged(updatedContract);
     return updatedContract;
-  }
+  },
+
+  sendSaving: async (_root, { data }, { subdomain }: IContext) => {
+    await sendMessageBroker(
+      {
+        subdomain,
+        action: 'sendSavingContract',
+        data: { data },
+        isRPC: true,
+      },
+      'syncpolaris'
+    );
+
+    return 'success';
+  },
+
+  savingContractActive: async (
+    _root,
+    { contractNumber },
+    { subdomain }: IContext
+  ) => {
+    await sendMessageBroker(
+      {
+        subdomain,
+        action: 'savingContractActive',
+        data: { contractNumber },
+        isRPC: true,
+      },
+      'syncpolaris'
+    );
+
+    return 'success';
+  },
+
+  sendDepositToPolaris: async (_root, { data }, { subdomain }: IContext) => {
+    await sendMessageBroker(
+      {
+        subdomain,
+        action: 'sendDeposit',
+        data: { data },
+        isRPC: true,
+      },
+      'syncpolaris'
+    );
+
+    return 'success';
+  },
+
+  depositContractActive: async (
+    _root,
+    { contractNumber },
+    { subdomain }: IContext
+  ) => {
+    await sendMessageBroker(
+      {
+        subdomain,
+        action: 'depositContractActive',
+        data: { contractNumber },
+        isRPC: true,
+      },
+      'syncpolaris'
+    );
+
+    return 'success';
+  },
 };
 
 checkPermission(contractMutations, 'saingsContractsAdd', 'saingsContractsAdd');
