@@ -9,7 +9,7 @@ import { queries as productQueries } from "../graphql";
 import {
   IProduct,
   ProductCategoriesQueryResponse,
-  ProductsQueryResponse
+  ProductsQueryResponse,
 } from "../types";
 import ProductForm from "./ProductForm";
 
@@ -32,7 +32,7 @@ const ProductChooser: React.FC<Props> = ({
   onSelect,
   loadDiscountPercent,
   limit,
-  ids
+  ids,
 }) => {
   const [perPage, setPerPage] = useState(20);
   const savedFilters = JSON.parse(
@@ -49,8 +49,11 @@ const ProductChooser: React.FC<Props> = ({
 
   const parsedQuery = queryString.parse(location.search);
 
-  const { data: productsData, refetch: refetchProducts } =
-    useQuery<ProductsQueryResponse>(gql(productQueries.products), {
+  const [products, setProducts] = useState<IProduct[]>([]);
+
+  const { refetch: refetchProducts } = useQuery<ProductsQueryResponse>(
+    gql(productQueries.products),
+    {
       variables: {
         perPage,
         searchValue,
@@ -58,10 +61,14 @@ const ProductChooser: React.FC<Props> = ({
         vendorId,
         pipelineId: parsedQuery.pipelineId,
         boardId: parsedQuery.boardId,
-        ids: ids
+        ids: ids,
       },
-      fetchPolicy: "network-only"
-    });
+      fetchPolicy: "cache-and-network",
+      onCompleted(data) {
+        setProducts(data.products);
+      },
+    }
+  );
 
   const { data: categoriesData } = useQuery<ProductCategoriesQueryResponse>(
     gql(productQueries.productCategories)
@@ -76,7 +83,6 @@ const ProductChooser: React.FC<Props> = ({
 
   useEffect(() => {
     setPerPage(20);
-    refetchProducts();
     saveFilter();
   }, [categoryId, vendorId, searchValue]);
 
@@ -91,23 +97,23 @@ const ProductChooser: React.FC<Props> = ({
         name="ownerId"
         multi={false}
         initialValue={vendorId}
-        onSelect={companyId => setVendorId(companyId as string)}
+        onSelect={(companyId) => setVendorId(companyId as string)}
         customOption={{ label: "Choose company", value: "" }}
       />
       <ProductCategoryChooser
         currentId={categoryId}
         categories={categoriesData?.productCategories || []}
-        onChangeCategory={categoryId => setCategoryId(categoryId)}
+        onChangeCategory={(categoryId) => setCategoryId(categoryId)}
         customOption={{ label: "Choose product category...", value: "" }}
       />
     </>
   );
 
-  const renderDiscount = data => {
+  const renderDiscount = (data) => {
     if (isEnabled("loyalties") && loadDiscountPercent && data) {
       loadDiscountPercent({
         product: { _id: data._id },
-        quantity: 1
+        quantity: 1,
       });
     }
   };
@@ -134,7 +140,7 @@ const ProductChooser: React.FC<Props> = ({
       data={{ name: data.name, datas: data.products }}
       title="Product"
       perPage={perPage}
-      datas={productsData?.products || []}
+      datas={products}
       search={handleSearch}
       clearState={() => handleSearch("", true)}
       onSelect={onSelect}
