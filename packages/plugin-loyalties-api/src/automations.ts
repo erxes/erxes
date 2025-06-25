@@ -61,8 +61,8 @@ export default {
 
     const { rewardType } = config;
 
-    console.log('collectionType', collectionType)
-    console.log('rewardType', rewardType)
+    console.log("collectionType", collectionType);
+    console.log("rewardType", rewardType);
 
     if (collectionType === "reward") {
       switch (rewardType) {
@@ -85,37 +85,25 @@ const checkBirthDateTrigger = async (subdomain, data) => {
 
   const { appliesTo = [] } = config || {};
 
-  console.log('appliesTo.length', appliesTo.length)
-
   if (!appliesTo?.length) return false;
 
   if (target?.details?.birthDate) {
-
-    console.log('new Date(target?.details?.birthDate).getMonth() !== NOW_MONTH', new Date(target?.details?.birthDate).getMonth() !== NOW_MONTH)
-
     if (new Date(target?.details?.birthDate).getMonth() !== NOW_MONTH) {
       return false;
     }
-
-    console.log('appliesTo.includes("user")', appliesTo.includes("user"))
 
     return appliesTo.includes("user");
   }
 
   if (target?.birthDate) {
-    console.log('new Date(target?.birthDate).getMonth() !== NOW_MONTH', new Date(target?.birthDate).getMonth() !== NOW_MONTH)
-
     if (new Date(target?.birthDate).getMonth() !== NOW_MONTH) {
       return false;
     }
-
-    console.log('appliesTo.includes("customer")', appliesTo.includes("customer"))
 
     return appliesTo.includes("customer");
   }
 
   if (!target?.details?.birthDate && !target?.birthDate) {
-    console.log('!target?.details?.birthDate && !target?.birthDate', !target?.details?.birthDate && !target?.birthDate)
     return false;
   }
 
@@ -139,8 +127,6 @@ const checkBirthDateTrigger = async (subdomain, data) => {
     isRPC: true,
     defaultValue: [],
   });
-
-  console.log('executions?.length === 0', executions?.length === 0)
 
   return executions?.length === 0;
 };

@@ -37,10 +37,9 @@ const collections = {
 };
 
 const handleLoyaltyCronjob = async ({ subdomain }) => {
-
-  console.log('isEnabled("automations")', isEnabled("automations"))
-
   if (!isEnabled("automations")) return;
+
+  console.log("subdomain", subdomain);
 
   const NOW = new Date();
   const NOW_MONTH = NOW.getMonth() + 1;
@@ -57,7 +56,7 @@ const handleLoyaltyCronjob = async ({ subdomain }) => {
         defaultValue: [],
       })) || [];
 
-    console.log('targets.length', targets.length)
+    console.log("targets.length", targets.length);
 
     if (targets.length === 0) return;
 
@@ -75,26 +74,18 @@ const handleLoyaltyCronjob = async ({ subdomain }) => {
 };
 
 export default {
-  handle3SecondlyJob: async ({ subdomain }) => {
+  handleDailyJob: async ({ subdomain }) => {
     const VERSION = getEnv({ name: "VERSION" });
-
-    console.log('VERSION', VERSION)
 
     if (VERSION && VERSION === "saas") {
       const orgs = await getOrganizations();
 
-      console.log('orgs.length', orgs.length)
+      const enabledOrganizations = orgs.filter((org) => !org?.isDisabled);
 
-      for (const org of orgs) {
-
-        console.log('org?.subdomain', org?.subdomain)
-
+      for (const org of enabledOrganizations) {
         handleLoyaltyCronjob({ subdomain: org?.subdomain });
       }
     } else {
-
-      console.log('subdomain', subdomain)
-
       handleLoyaltyCronjob({ subdomain });
     }
   },
