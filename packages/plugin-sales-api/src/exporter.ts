@@ -634,7 +634,6 @@ export default {
   getExportDocs: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    console.log('data', data)
 
     const { columnsConfig } = data;
 
