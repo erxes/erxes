@@ -5,6 +5,7 @@ import {
   BOARD_ITEM_EXTENDED_FIELDS,
 } from './constants';
 import { sendCoreMessage } from './messageBroker';
+import { PROBABILITY } from './models/definitions/constants';
 
 const generateProductsOptions = async (
   name: string,
@@ -115,6 +116,21 @@ const getStageOptions = async (models: IModels, pipelineId) => {
     selectOptions: options,
   };
 };
+
+const getStageProbabilityOptions = () => {
+  return {
+    _id: Math.random(),
+    name: 'stageProbability',
+    label: 'Stage Probability',
+    type: 'probability',
+    selectOptions: PROBABILITY.ALL.map(prob => ({
+      value: prob,
+      label: prob
+    })),
+  };
+};
+
+
 
 const getPipelineLabelOptions = async (models: IModels, pipelineId) => {
   const labels = await models.PipelineLabels.find({ pipelineId });
@@ -241,9 +257,27 @@ export const generateFields = async ({ subdomain, data }) => {
     { multi: true }
   );
 
-  const customersOptions = await generateContactsOptions(
-    'customers',
-    'Customers',
+  const customersPrimaryEmailOptions = await generateContactsOptions(
+    'customersEmail',
+    'Customers Primary Email',
+    'contact',
+    {
+      queryName: 'customers',
+    }
+  );
+
+  const customersPrimaryPhoneOptions = await generateContactsOptions(
+    'customersPhone',
+    'Customers Primary Phone',
+    'contact',
+    {
+      queryName: 'customers',
+    }
+  );
+
+  const customersFullNameOptions = await generateContactsOptions(
+    'customersName',
+    'Customers Full Name',
     'contact',
     {
       queryName: 'customers',
@@ -287,7 +321,9 @@ export const generateFields = async ({ subdomain, data }) => {
       modifiedByOptions,
       assignedUserOptions,
       watchedUserOptions,
-      customersOptions,
+      customersFullNameOptions,
+      customersPrimaryEmailOptions,
+      customersPrimaryPhoneOptions,
       companiesOptions,
       branchesOptions,
       departmentsOptions,
@@ -359,7 +395,11 @@ export const generateFields = async ({ subdomain, data }) => {
       pipelineId || (segment ? segment.pipelineId : null)
     );
 
-    fields = [...fields, stageOptions, labelOptions];
+
+    // Add probability options here
+    const probabilityOptions = getStageProbabilityOptions();
+
+    fields = [...fields, stageOptions, labelOptions, probabilityOptions];
   } else {
     const stageOptions = {
       _id: Math.random(),
@@ -367,9 +407,14 @@ export const generateFields = async ({ subdomain, data }) => {
       label: 'Stage',
       type: 'stage',
     };
+    //Add probability options in else
+    const probabilityOptions = getStageProbabilityOptions();
 
-    fields = [...fields, stageOptions];
+    fields = [...fields, stageOptions, probabilityOptions];
   }
 
   return fields;
 };
+
+
+
