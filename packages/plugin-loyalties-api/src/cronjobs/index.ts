@@ -37,6 +37,9 @@ const collections = {
 };
 
 const handleLoyaltyCronjob = async ({ subdomain }) => {
+
+  console.log('isEnabled("automations")', isEnabled("automations"))
+
   if (!isEnabled("automations")) return;
 
   const NOW = new Date();
@@ -75,13 +78,23 @@ export default {
   handle3SecondlyJob: async ({ subdomain }) => {
     const VERSION = getEnv({ name: "VERSION" });
 
+    console.log('VERSION', VERSION)
+
     if (VERSION && VERSION === "saas") {
       const orgs = await getOrganizations();
 
+      console.log('orgs.length', orgs.length)
+
       for (const org of orgs) {
+
+        console.log('org?.subdomain', org?.subdomain)
+
         handleLoyaltyCronjob({ subdomain: org?.subdomain });
       }
     } else {
+
+      console.log('subdomain', subdomain)
+
       handleLoyaltyCronjob({ subdomain });
     }
   },
