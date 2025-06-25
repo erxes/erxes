@@ -201,8 +201,6 @@ const fieldQueries = {
       query.groupId = { $in: groupIds };
     }
 
-    console.log({ query });
-
     return models.Fields.find(query).sort({ order: 1 });
   },
 
