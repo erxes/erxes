@@ -56,14 +56,14 @@ export const createLoanSchedule = async (
     null,
     contract.description,
     [],
-    []
+    [],
   ];
 
   const schedule = await fetchPolaris({
     op: "13610258",
     data: sendData,
     subdomain,
-    polarisConfig
+    polarisConfig,
   });
 
   await updateContract(

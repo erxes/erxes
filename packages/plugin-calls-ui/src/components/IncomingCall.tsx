@@ -258,7 +258,6 @@ const IncomingCall = (props: Props, context) => {
                 {__('is calling to')} {channelName}
               </span>
             )}
-            <h5>{caller.place}</h5>
           </PhoneNumber>
         )}
       </NameCardContainer>
@@ -313,6 +312,8 @@ const IncomingCall = (props: Props, context) => {
             {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
           </p>
           {callActions(
+            phoneNumber,
+            currentCallConversationId,
             isMuted,
             handleAudioToggle,
             endCall,

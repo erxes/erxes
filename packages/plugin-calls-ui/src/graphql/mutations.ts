@@ -143,6 +143,11 @@ const callTransfer = `
     callTransfer(extensionNumber: $extensionNumber, integrationId: $integrationId, direction: $direction)
 }`;
 
+const callSelectCustomer = `
+  mutation callSelectCustomer($integrationId: String!, $customerId: String!, $phoneNumber: String!, $conversationId: String!) {
+    callSelectCustomer(integrationId: $integrationId, customerId: $customerId, phoneNumber: $phoneNumber, conversationId: $conversationId)
+}`;
+
 export default {
   customersAdd,
   conversationMessageAdd,
@@ -156,4 +161,5 @@ export default {
   callHistoryEditStatus,
   callPauseAgent,
   callTransfer,
+  callSelectCustomer,
 };

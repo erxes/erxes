@@ -26,18 +26,6 @@ export interface IVoucherCampaignModel extends Model<IVoucherCampaignDocument> {
 const validVoucherCampaign = doc => {
   validCampaign(doc);
 
-  if (
-    !doc.score &&
-    !doc.productCategoryIds &&
-    !doc.productIds &&
-    !doc.bonusProductId &&
-    !doc.spinCampaignId &&
-    !doc.lotteryCampaignId &&
-    !doc.coupon
-  ) {
-    throw new Error('Could not create null Voucher campaign');
-  }
-
   if (doc.bonusProductId && !doc.bonusCount) {
     throw new Error('Must fill product count or product limit to false');
   }

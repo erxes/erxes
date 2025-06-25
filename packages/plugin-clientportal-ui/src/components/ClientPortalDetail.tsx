@@ -20,6 +20,7 @@ const ClientPortalDetail: React.FC<Props> = ({
   const [currentTab, setCurrentTab] = useState('general');
 
   const tabOnClick = (currentTab: string) => {
+  
     setCurrentTab(currentTab);
   };
 
@@ -29,7 +30,13 @@ const ClientPortalDetail: React.FC<Props> = ({
       handleUpdate,
     };
 
-    const TYPE = CONFIG_TYPES[currentTab.toLocaleUpperCase()];
+    const typeKey = currentTab.toLocaleUpperCase();
+  
+    const TYPE = CONFIG_TYPES[typeKey];
+
+    if (!TYPE) {
+      return null; // or some fallback UI
+    }
 
     return <Form {...commonProps} configType={TYPE.VALUE} />;
   };

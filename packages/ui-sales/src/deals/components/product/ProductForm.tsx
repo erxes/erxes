@@ -1,42 +1,43 @@
-import { gql } from '@apollo/client';
-import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
-import ProductCategoryChooser from "@erxes/ui-products/src/components/ProductCategoryChooser";
-import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
-import { IProduct, IProductCategory } from "@erxes/ui-products/src/types";
-import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
-import client from '@erxes/ui/src/apolloClient';
-import { IUser } from "@erxes/ui/src/auth/types";
-import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import { Add, FlexRowGap, FooterInfo, FormContainer } from "../../styles";
+import { Alert, __ } from "@erxes/ui/src/utils";
 import {
   ControlLabel,
   FormGroup,
   ModalTrigger,
   Table,
 } from "@erxes/ui/src/components";
-import Button from "@erxes/ui/src/components/Button";
-import EmptyState from "@erxes/ui/src/components/EmptyState";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import Icon from "@erxes/ui/src/components/Icon";
-import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
-import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
-import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
-import { Alert, __ } from "@erxes/ui/src/utils";
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import lodash from "lodash";
-import React from "react";
-import styled from "styled-components";
-import ProductItem from "../../containers/product/ProductItem";
-import { queries } from '../../graphql';
-import { Add, FlexRowGap, FooterInfo, FormContainer } from "../../styles";
 import {
   IDeal,
   IPaymentsData,
   IProductData,
   dealsProductDataMutationParams,
 } from "../../types";
+import { IProduct, IProductCategory } from "@erxes/ui-products/src/types";
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
+
+import Button from "@erxes/ui/src/components/Button";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
 import PaymentForm from "./PaymentForm";
+import ProductCategoryChooser from "@erxes/ui-products/src/components/ProductCategoryChooser";
+import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
+import ProductItem from "../../containers/product/ProductItem";
 import ProductTotal from "./ProductTotal";
+import React from "react";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import lodash from "lodash";
+import { queries } from "../../graphql";
+import styled from "styled-components";
 
 const TableWrapper = styled.div`
   overflow: auto;
@@ -50,6 +51,7 @@ const TableWrapper = styled.div`
   .css-t3ipsp-control,
   .css-1nmdiq5-menu {
     width: max-content;
+    min-width: 150px;
   }
 `;
 
@@ -126,7 +128,7 @@ class ProductForm extends React.Component<Props, State> {
     this.updateTotal();
   }
 
-  duplicateProductItem = (_id) => {
+  duplicateProductItem = _id => {
     const {
       productsData,
       onChangeProductsData,
@@ -134,7 +136,7 @@ class ProductForm extends React.Component<Props, State> {
       dealQuery,
     } = this.props;
 
-    const productData: any = productsData.find((p) => p._id === _id);
+    const productData: any = productsData.find(p => p._id === _id);
 
     const docs: any[] = [];
 
@@ -159,10 +161,10 @@ class ProductForm extends React.Component<Props, State> {
     });
   };
 
-  removeProductItem = (_id) => {
+  removeProductItem = _id => {
     const { productsData, onChangeProductsData } = this.props;
 
-    const removedProductsData = productsData.filter((p) => p._id !== _id);
+    const removedProductsData = productsData.filter(p => p._id !== _id);
 
     onChangeProductsData(removedProductsData);
 
@@ -172,7 +174,7 @@ class ProductForm extends React.Component<Props, State> {
   setDiscount = (id, discount) => {
     const { productsData, onChangeProductsData } = this.props;
 
-    const discountAdded = (productsData || []).map((p) =>
+    const discountAdded = (productsData || []).map(p =>
       p.product?._id === id ? { ...p, discountPercent: discount } : p
     );
 
@@ -181,7 +183,7 @@ class ProductForm extends React.Component<Props, State> {
     this.updateTotal(discountAdded);
   };
 
-  onChangeVatPercent = (e) => {
+  onChangeVatPercent = e => {
     this.setState({ vatPercent: parseInt(e.currentTarget.value) });
   };
 
@@ -190,17 +192,18 @@ class ProductForm extends React.Component<Props, State> {
   };
 
   applyCoupon = () => {
-    const { dealQuery, productsData, onChangeProductsData, onChangeExtraData } = this.props;
-    const { couponCode } = this.state
+    const { dealQuery, productsData, onChangeProductsData, onChangeExtraData } =
+      this.props;
+    const { couponCode } = this.state;
 
     const variables = {
       _id: dealQuery._id,
       products: productsData.map(p => ({
         productId: p.productId,
         quantity: p.quantity,
-        unitPrice: p.unitPrice
+        unitPrice: p.unitPrice,
       })),
-      couponCode
+      couponCode,
     };
 
     client
@@ -209,7 +212,7 @@ class ProductForm extends React.Component<Props, State> {
         fetchPolicy: "network-only",
         variables,
       })
-      .then((res) => {
+      .then(res => {
         const { checkDiscount } = res.data;
 
         if (!checkDiscount) {
@@ -217,43 +220,43 @@ class ProductForm extends React.Component<Props, State> {
         }
 
         const updatedData = (productsData || []).map(p => {
-
           if (!p.productId || !checkDiscount[p.productId]) {
             return p;
           }
 
-          const loyalty = checkDiscount[p.productId]
+          const loyalty = checkDiscount[p.productId];
 
           const pData = {
             ...p,
-            discountPercent: loyalty.discount || p.discountPercent || 0
+            discountPercent: loyalty.discount || p.discountPercent || 0,
           };
 
-          this.calculatePerProductAmount('', pData, false);
+          this.calculatePerProductAmount("", pData, false);
 
           return pData;
-        })
+        });
 
-        onChangeProductsData(updatedData)
-        onChangeExtraData({ couponCode })
+        onChangeProductsData(updatedData);
+        onChangeExtraData({ couponCode });
 
         this.updateTotal(updatedData);
-      }).catch((err) => Alert.error(err.message));
-  }
+      })
+      .catch(err => Alert.error(err.message));
+  };
 
   applyVat = () => {
     const { productsData, onChangeProductsData } = this.props;
     const { vatPercent } = this.state;
 
-    const updatedData = (productsData || []).map((p) => {
+    const updatedData = (productsData || []).map(p => {
       const pData = {
         ...p,
         isVatApplied: true,
         unitPrice: p.isVatApplied
           ? p.unitPrice
           : parseFloat(
-            ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
-          ),
+              ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
+            ),
       };
 
       this.calculatePerProductAmount("", pData, false);
@@ -273,7 +276,7 @@ class ProductForm extends React.Component<Props, State> {
     const tax = {};
     const discount = {};
 
-    productsData.forEach((p) => {
+    productsData.forEach(p => {
       if (p.currency) {
         if (!bothTotal[p.currency]) {
           bothTotal[p.currency] = 0;
@@ -314,7 +317,7 @@ class ProductForm extends React.Component<Props, State> {
   renderTotal(totalKind, kindTxt) {
     const { productsData, onChangeProductsData } = this.props;
 
-    return (Object.keys(totalKind) || []).map((currency) => (
+    return (Object.keys(totalKind) || []).map(currency => (
       <ProductTotal
         key={kindTxt.concat(currency)}
         totalKind={totalKind[currency]}
@@ -348,7 +351,7 @@ class ProductForm extends React.Component<Props, State> {
 
     if (filterValues.search) {
       filteredProductsData = filteredProductsData.filter(
-        (p) =>
+        p =>
           p.product &&
           (p.product.name.includes(filterValues.search) ||
             p.product.code.includes(filterValues.search) ||
@@ -359,27 +362,26 @@ class ProductForm extends React.Component<Props, State> {
 
     if (filterValues.categories && filterValues.categories.length) {
       filteredProductsData = filteredProductsData.filter(
-        (p) =>
-          p.product && filterValues.categories.includes(p.product.categoryId)
+        p => p.product && filterValues.categories.includes(p.product.categoryId)
       );
     }
 
     if (filterValues.vendors && filterValues.vendors.length) {
       filteredProductsData = filteredProductsData.filter(
-        (p) => p.product && filterValues.vendors.includes(p.product.vendorId)
+        p => p.product && filterValues.vendors.includes(p.product.vendorId)
       );
     }
 
     if (filterValues.tags && filterValues.tags.length) {
       filteredProductsData = filteredProductsData.filter(
-        (p) =>
+        p =>
           p.product && lodash.intersection(filterValues.tags, p.product.tagIds)
       );
     }
 
     if (filterValues.brand) {
       filteredProductsData = filteredProductsData.filter(
-        (p) =>
+        p =>
           p.product &&
           ((filterValues.brand === "noBrand" &&
             !p.product.scopeBrandIds.length) ||
@@ -388,13 +390,13 @@ class ProductForm extends React.Component<Props, State> {
     }
 
     if (filterValues.branches && filterValues.branches.length) {
-      filteredProductsData = filteredProductsData.filter((p) =>
+      filteredProductsData = filteredProductsData.filter(p =>
         filterValues.branches.includes(p.branchId)
       );
     }
 
     if (filterValues.departments && filterValues.departments.length) {
-      filteredProductsData = filteredProductsData.filter((p) =>
+      filteredProductsData = filteredProductsData.filter(p =>
         filterValues.departments.includes(p.departmentId)
       );
     }
@@ -429,7 +431,7 @@ class ProductForm extends React.Component<Props, State> {
             </tr>
           </thead>
           <tbody id="products">
-            {(filteredProductsData || []).map((productData) => (
+            {(filteredProductsData || []).map(productData => (
               <ProductItem
                 key={productData._id}
                 advancedView={advancedView}
@@ -460,7 +462,7 @@ class ProductForm extends React.Component<Props, State> {
     const changePayData = Object.assign({}, total);
     const payments = paymentsData || {};
 
-    Object.keys(payments || {}).forEach((key) => {
+    Object.keys(payments || {}).forEach(key => {
       const perPaid = payments[key];
       const currency = perPaid.currency || "";
 
@@ -600,7 +602,7 @@ class ProductForm extends React.Component<Props, State> {
             name="branches"
             initialValue={filterValues.branches}
             multi={true}
-            onSelect={(branchIds) => this.onFilter("branches", branchIds)}
+            onSelect={branchIds => this.onFilter("branches", branchIds)}
           />
         </FormGroup>
         <FormGroup>
@@ -610,7 +612,7 @@ class ProductForm extends React.Component<Props, State> {
             name="departments"
             initialValue={filterValues.departments}
             multi={true}
-            onSelect={(departmentIds) =>
+            onSelect={departmentIds =>
               this.onFilter("departments", departmentIds)
             }
           />
@@ -622,7 +624,7 @@ class ProductForm extends React.Component<Props, State> {
             name="vendors"
             initialValue={filterValues.vendors}
             multi={true}
-            onSelect={(companyIds) => this.onFilter("vendors", companyIds)}
+            onSelect={companyIds => this.onFilter("vendors", companyIds)}
           />
         </FormGroup>
         <FormGroup>
@@ -632,7 +634,7 @@ class ProductForm extends React.Component<Props, State> {
             name="tags"
             label="Choose tag"
             initialValue={filterValues.tags}
-            onSelect={(tagsIds) => this.onFilter("tags", tagsIds)}
+            onSelect={tagsIds => this.onFilter("tags", tagsIds)}
             multi={true}
           />
         </FormGroup>
@@ -647,7 +649,7 @@ class ProductForm extends React.Component<Props, State> {
               value: "noBrand",
             }}
             multi={false}
-            onSelect={(brandId) => this.onFilter("brand", brandId)}
+            onSelect={brandId => this.onFilter("brand", brandId)}
           />
         </FormGroup>
         <Button
@@ -742,7 +744,7 @@ class ProductForm extends React.Component<Props, State> {
       }
     };
 
-    const content = (props) => (
+    const content = props => (
       <ProductChooser
         {...props}
         onSelect={productOnChange}
@@ -861,19 +863,18 @@ class ProductForm extends React.Component<Props, State> {
                   </ApplyVatWrapper>
                 </td>
               </tr>
-              {
-                isEnabled('loyalties') &&
+              {isEnabled("loyalties") && (
                 <tr>
                   <td colSpan={6}>
                     <ApplyVatWrapper>
                       <FormControl
-                        placeholder='Coupon code'
+                        placeholder="Coupon code"
                         onChange={this.onChangeCouponCode}
                       />
 
                       <Button
-                        btnStyle='primary'
-                        icon='plus-circle'
+                        btnStyle="primary"
+                        icon="plus-circle"
                         onClick={this.applyCoupon}
                       >
                         Apply coupon
@@ -881,7 +882,7 @@ class ProductForm extends React.Component<Props, State> {
                     </ApplyVatWrapper>
                   </td>
                 </tr>
-              }
+              )}
             </tbody>
           </table>
         </FooterInfo>

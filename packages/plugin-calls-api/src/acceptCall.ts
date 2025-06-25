@@ -10,7 +10,7 @@ const acceptCall = async (
   user,
   type?: string,
 ) => {
- const integration = await findIntegration(subdomain, params);
+  const integration = await findIntegration(subdomain, params);
 
   const operator = integration.operators?.find(
     (operator) => operator.userId === user?._id,
@@ -53,6 +53,7 @@ const acceptCall = async (
       extentionNumber,
       queueName: queue,
       timeStamp,
+      customerId: customer?.erxesApiId || '',
     };
 
     if (timeStamp === 0) {
@@ -79,13 +80,7 @@ const acceptCall = async (
         : e.message,
     );
   }
-  if (!customer || !customer.erxesApiId) {
-    customer = await getOrCreateCustomer(models, subdomain, {
-      inboxIntegrationId: integration.inboxId,
-      primaryPhone: params.customerPhone,
-    });
-  }
-  //save on api
+
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,

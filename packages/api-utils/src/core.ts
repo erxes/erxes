@@ -104,14 +104,19 @@ export const regexSearchText = (
   return { $and: result };
 };
 
-export const fixNum = (value, p = 4) => {
+export const fixNum = (value: any, p = 4) => {
   const cleanNumber = Number((value ?? '').toString().replace(/,/g, ""));
 
   if (isNaN(cleanNumber)) {
     return 0;
   }
+  const multiplier = 10 ** p;
 
-  return Number(cleanNumber.toFixed(p))
+  const big = Math.round(
+    Number((cleanNumber * multiplier).toFixed(2))
+  );
+
+  return Number((big / multiplier).toFixed(p))
 };
 
 /*

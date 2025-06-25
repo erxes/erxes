@@ -1,15 +1,15 @@
-import { IContractDoc } from '../../types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import LeftSidebar from './LeftSidebar';
+import { IContractDoc } from "../../types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import LeftSidebar from "./LeftSidebar";
 
-import React from 'react';
-import RightSidebar from './RightSidebar';
-import ScheduleSection from '../schedules/ScheduleSection';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
-import { Tabs } from '../list/ContractForm';
-import { loadDynamicComponent } from '@erxes/ui/src/utils';
-import { ITransaction } from '../../../transactions/types';
+import React from "react";
+import RightSidebar from "./RightSidebar";
+import ScheduleSection from "../schedules/ScheduleSection";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "coreui/utils";
+import { Tabs } from "../list/ContractForm";
+import { loadDynamicComponent } from "@erxes/ui/src/utils";
+import { ITransaction } from "../../../transactions/types";
 
 type Props = {
   contract: IContractDoc & {
@@ -22,11 +22,11 @@ type Props = {
 const ContractDetails = (props: Props) => {
   const { contract } = props;
 
-  const title = contract.number || 'Unknown';
+  const title = contract.number || "Unknown";
 
   const breadcrumb = [
-    { title: __('Contracts'), link: '/erxes-plugin-saving/contract-list' },
-    { title }
+    { title: __("Contracts"), link: "/erxes-plugin-saving/contract-list" },
+    { title },
   ];
 
   const content = () => {
@@ -39,16 +39,16 @@ const ContractDetails = (props: Props) => {
             constractNumber={contract.number}
             transactions={contract.savingTransactionHistory}
           />
-        )
+        ),
       },
       {
         label: __(`Sync Polaris`),
         component: loadDynamicComponent(
-          'savingPolarisSection',
+          "savingPolarisSection",
           { contract },
           true
-        )
-      }
+        ),
+      },
     ];
 
     return (

@@ -500,10 +500,17 @@ const createDealPerOrder = async ({
   // ===> sync cards config then
   const { cardsConfig } = pos;
 
-  const currentCardsConfig: any = (Object.values(cardsConfig || {}) || []).find(
+  let currentCardsConfig: any = (Object.values(cardsConfig || {}) || []).find(
     (c) =>
       (c || ({} as any)).branchId && (c as any).branchId === newOrder.branchId
   );
+
+  if (!currentCardsConfig) {
+    currentCardsConfig = (Object.values(cardsConfig || {}) || []).find(
+      (c) =>
+        (c || ({} as any)).branchId === 'all'
+    );
+  }
 
   if (currentCardsConfig && currentCardsConfig.stageId) {
     const paymentsData: any = {};
