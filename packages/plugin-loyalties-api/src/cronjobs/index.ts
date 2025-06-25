@@ -54,6 +54,8 @@ const handleLoyaltyCronjob = async ({ subdomain }) => {
         defaultValue: [],
       })) || [];
 
+    console.log('targets.length', targets.length)
+
     if (targets.length === 0) return;
 
     sendCommonMessage({
@@ -70,7 +72,7 @@ const handleLoyaltyCronjob = async ({ subdomain }) => {
 };
 
 export default {
-  handleDailyJob: async ({ subdomain }) => {
+  handle3SecondlyJob: async ({ subdomain }) => {
     const VERSION = getEnv({ name: "VERSION" });
 
     if (VERSION && VERSION === "saas") {
