@@ -1,4 +1,5 @@
 import resolvers from "..";
+import { nanoid } from 'nanoid';
 import { fixNum } from "@erxes/api-utils/src/core";
 import {
   destroyBoardItemRelations,
@@ -1086,6 +1087,8 @@ export const checkPricing = async (
     }
   }
 
+  const addBonusPData: IProductData[] = [];
+
   for (const bonusProductId of Object.keys(bonusProductsToAdd)) {
     const orderIndex = activeProductsData.findIndex(
       (docItem: any) => docItem.productId === bonusProductId
@@ -1093,6 +1096,7 @@ export const checkPricing = async (
 
     if (orderIndex === -1) {
       const bonusProduct: any = {
+        _id: nanoid(),
         productId: bonusProductId,
         unitPrice: 0,
         quantity: bonusProductsToAdd[bonusProductId].count,
@@ -1100,7 +1104,7 @@ export const checkPricing = async (
         tickUsed: true
       };
 
-      activeProductsData.push(bonusProduct);
+      addBonusPData.push(bonusProduct);
     } else {
       const item = activeProductsData[orderIndex];
 
@@ -1114,7 +1118,7 @@ export const checkPricing = async (
     }
   }
 
-  return [...activeProductsData, ...(deal.productsData?.filter(pd => !pd.tickUsed) || [])];
+  return [...(deal.productsData || []).map(pd => activeProductsData.find(apd => apd._id === pd._id) || pd), ...addBonusPData];
 };
 
 export const checkAssignedUserFromPData = (oldAllUserIds?: string[], assignedUsersPdata?: string[], oldPData?: IProductData[]) => {
