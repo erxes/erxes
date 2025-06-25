@@ -339,22 +339,24 @@ export const itemsEdit = async (
       doc.assignedUserIds
     );
 
-    const activityContent = { addedUserIds, removedUserIds };
+    if (addedUserIds?.length || removedUserIds?.length) {
+      const activityContent = { addedUserIds, removedUserIds };
 
-    putActivityLog(subdomain, {
-      action: "createAssigneLog",
-      data: {
-        contentId: _id,
-        userId: user._id,
-        contentType: type,
-        content: activityContent,
-        action: "assignee",
-        createdBy: user._id,
-      },
-    });
+      putActivityLog(subdomain, {
+        action: "createAssigneLog",
+        data: {
+          contentId: _id,
+          userId: user._id,
+          contentType: type,
+          content: activityContent,
+          action: "assignee",
+          createdBy: user._id,
+        },
+      });
 
-    notificationDoc.invitedUsers = addedUserIds;
-    notificationDoc.removedUsers = removedUserIds;
+      notificationDoc.invitedUsers = addedUserIds;
+      notificationDoc.removedUsers = removedUserIds;
+    }
   }
 
   await sendNotifications(models, subdomain, notificationDoc);
@@ -1133,5 +1135,6 @@ export const checkAssignedUserFromPData = (oldAllUserIds?: string[], assignedUse
       (userId) => !removedUserIds.includes(userId)
     );
   }
-  return assignedUserIds;
+
+  return { assignedUserIds, addedUserIds, removedUserIds };
 }

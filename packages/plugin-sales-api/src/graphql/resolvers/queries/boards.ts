@@ -153,22 +153,22 @@ const boardQueries = {
       user.isOwner || isAll
         ? {}
         : {
-            status: { $ne: "archived" },
-            $or: [
-              { visibility: "public" },
-              {
-                $and: [
-                  { visibility: "private" },
-                  {
-                    $or: [
-                      { memberIds: { $in: [user._id] } },
-                      { userId: user._id }
-                    ]
-                  }
-                ]
-              }
-            ]
-          };
+          status: { $ne: "archived" },
+          $or: [
+            { visibility: "public" },
+            {
+              $and: [
+                { visibility: "private" },
+                {
+                  $or: [
+                    { memberIds: { $in: [user._id] } },
+                    { userId: user._id }
+                  ]
+                }
+              ]
+            }
+          ]
+        };
 
     if (!user.isOwner && !isAll) {
       const userDetail = await sendCoreMessage({
@@ -664,7 +664,7 @@ const boardQueries = {
       let removedUsers: IUserDocument[] = [];
 
       if (content) {
-        addedUsers = await sendCoreMessage({
+        addedUsers = content.addedUserIds?.length ? await sendCoreMessage({
           subdomain,
           action: "users.find",
           data: {
@@ -674,9 +674,9 @@ const boardQueries = {
           },
           isRPC: true,
           defaultValue: []
-        });
+        }) : [];
 
-        removedUsers = await sendCoreMessage({
+        removedUsers = content.removedUserIds?.length ? await sendCoreMessage({
           subdomain,
           action: "users.find",
           data: {
@@ -686,7 +686,7 @@ const boardQueries = {
           },
           isRPC: true,
           defaultValue: []
-        });
+        }) : [];
       }
 
       return { addedUsers, removedUsers };
