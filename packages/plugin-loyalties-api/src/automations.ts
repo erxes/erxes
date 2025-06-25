@@ -61,6 +61,9 @@ export default {
 
     const { rewardType } = config;
 
+    console.log("collectionType", collectionType);
+    console.log("rewardType", rewardType);
+
     if (collectionType === "reward") {
       switch (rewardType) {
         case "birthday":

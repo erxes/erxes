@@ -39,6 +39,8 @@ const collections = {
 const handleLoyaltyCronjob = async ({ subdomain }) => {
   if (!isEnabled("automations")) return;
 
+  console.log("subdomain", subdomain);
+
   const NOW = new Date();
   const NOW_MONTH = NOW.getMonth() + 1;
 
@@ -53,6 +55,8 @@ const handleLoyaltyCronjob = async ({ subdomain }) => {
         isRPC: true,
         defaultValue: [],
       })) || [];
+
+    console.log("targets.length", targets.length);
 
     if (targets.length === 0) return;
 
@@ -76,7 +80,9 @@ export default {
     if (VERSION && VERSION === "saas") {
       const orgs = await getOrganizations();
 
-      for (const org of orgs) {
+      const enabledOrganizations = orgs.filter((org) => !org?.isDisabled);
+
+      for (const org of enabledOrganizations) {
         handleLoyaltyCronjob({ subdomain: org?.subdomain });
       }
     } else {
