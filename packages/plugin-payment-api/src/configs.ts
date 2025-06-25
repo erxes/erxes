@@ -15,6 +15,7 @@ import { callbackHandler } from './utils';
 
 import cookieParser = require('cookie-parser')
 import i18n = require('i18n');
+import { notificationHandler } from './api/golomt/api';
 
 export default {
   name: 'payment',
@@ -102,9 +103,12 @@ export default {
     app.use(controllers);
 
 
-    app.post('/notification/golomt', (req, res) => {
+    app.post('/notification/golomt', async (req, res) => {
       console.debug('received golomt notification', req.body);
-      
+      const models = await generateModels(getSubdomain(req));
+      const subdomain = getSubdomain(req);
+      await notificationHandler(models, subdomain, req.body);
+
       res.status(200).json({ status: 'success' });
     });
   },
