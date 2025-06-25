@@ -521,7 +521,7 @@ const fillValue = async (
           action: "customers.findOne",
           data: { _id: id },
           isRPC: true,
-          defaultValue: ""
+          defaultValue: {}
         });
 
         customerRows.push(customer);
