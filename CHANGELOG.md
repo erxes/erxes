@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.14.4](https://github.com/erxes/erxes/compare/2.14.3...2.14.4) (2025-06-26)
+
+### Bug Fixes
+
+* sales deal products data save then old sort ([3c98a87](https://github.com/erxes/erxes/commit/3c98a87a62e16d8ac71da9d8e6162400bf579498))
+
 ## [2.14.3](https://github.com/erxes/erxes/compare/2.14.2...2.14.3) (2025-06-25)
 
 ### Bug Fixes
