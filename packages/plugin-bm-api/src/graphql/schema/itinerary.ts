@@ -9,6 +9,7 @@ export const types = () => `
   }
   type DayItem {
     day: Int
+    title: String
     images: [String]
     content: String
     elements: [ElementItem]
@@ -45,6 +46,7 @@ export const types = () => `
   }
   input DayItemInput {
     day: Int
+    title: String
     images: [String]
     content: String
     elements: [ElementItemInput]
