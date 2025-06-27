@@ -231,7 +231,7 @@ export const createCard = async (subdomain, models, cpUser, doc) => {
     subdomain,
     action: 'customers.findOne',
     data: {
-      _id: cpUser.erxesCustomerId,
+      _id: doc.customerId,
     },
     isRPC: true,
   });
