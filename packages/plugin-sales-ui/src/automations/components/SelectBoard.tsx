@@ -1,14 +1,14 @@
 import { Alert, __ } from "coreui/utils";
 
+import { gql } from "@apollo/client";
 import { Attributes } from "@erxes/ui-automations/src/components/forms/actions/styles";
 import BoardSelect from "@erxes/ui-sales/src/boards/containers/BoardSelect";
+import { queries as boardQueries } from "@erxes/ui-sales/src/boards/graphql";
 import { IStage } from "@erxes/ui-sales/src/boards/types";
+import client from "@erxes/ui/src/apolloClient";
 import Icon from "@erxes/ui/src/components/Icon";
 import Popover from "@erxes/ui/src/components/Popover";
 import React from "react";
-import { queries as boardQueries } from "@erxes/ui-sales/src/boards/graphql";
-import client from "@erxes/ui/src/apolloClient";
-import { gql } from "@apollo/client";
 
 type Props = {
   config: any;
@@ -34,10 +34,12 @@ export default class SelectBoard extends React.Component<Props, State> {
     const { config, inputName } = props;
     const { boardId, pipelineId } = config;
 
+    const stageId = config[inputName] && (config[inputName].match(/\[\[\s*(.*?)\s*\]\]/)?.[1] ?? "").trim();
+
     this.state = {
       boardId: boardId || "",
       pipelineId: pipelineId || "",
-      stageId: config[inputName] || "",
+      stageId: stageId || "",
       stageName: config.stageName
     };
   }
@@ -68,7 +70,6 @@ export default class SelectBoard extends React.Component<Props, State> {
   };
 
   onChange = stageId => {
-    this.overlay.hide();
 
     const { config, setConfig, inputName } = this.props;
     const { stages = [] } = this.state;

@@ -50,7 +50,7 @@ const Form = (props: Props) => {
         size: 1,
         usageLimit: 1,
         redemptionLimitPerUser: 1,
-        charSet: ['A-Z']
+        charSet: ["A-Z"],
       },
     }
   );
@@ -130,6 +130,16 @@ const Form = (props: Props) => {
 
       return updatedCampaign;
     });
+  };
+
+  const handleButtonClick = () => {
+    if (["", "campaign"].includes(currentTab)) {
+      setCurrentTab("restriction");
+    }
+
+    if ("restriction" === currentTab) {
+      setCurrentTab("code");
+    }
   };
 
   const renderDefaultContent = (formProps) => {
@@ -316,9 +326,31 @@ const Form = (props: Props) => {
     );
   };
 
-  const renderTabContent = (formProps) => {
+  const renderSaveButton = (formProps) => {
     const { values, isSubmitted } = formProps;
 
+    if (currentTab === "code" || couponCampaign) {
+      return renderButton({
+        name: "codeConfig",
+        values: generateDoc(values),
+        isSubmitted,
+        object: couponCampaign,
+      });
+    }
+
+    return (
+      <Button
+        btnStyle="success"
+        size="medium"
+        icon="check-circle"
+        onClick={handleButtonClick}
+      >
+        Next
+      </Button>
+    );
+  };
+
+  const renderTabContent = (formProps) => {
     let content;
 
     if (["", "campaign"].includes(currentTab)) {
@@ -342,12 +374,7 @@ const Form = (props: Props) => {
               Close
             </Button>
 
-            {renderButton({
-              name: "codeConfig",
-              values: generateDoc(values),
-              isSubmitted,
-              object: couponCampaign,
-            })}
+            {renderSaveButton(formProps)}
           </ModalFooter>
         </>
       );

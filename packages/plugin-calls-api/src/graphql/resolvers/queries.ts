@@ -142,69 +142,98 @@ const callsQueries = {
     if (!integrations) {
       throw new Error('Integrations not found');
     }
-    const queueData = (await sendToGrandStream(
-      models,
-      {
-        path: 'api',
-        method: 'POST',
-        data: {
-          request: {
-            action: 'queueapi',
-            startTime: formattedDate,
-            endTime: formattedDate,
+    try {
+      let rawResponse = await sendToGrandStream(
+        models,
+        {
+          path: 'api',
+          method: 'POST',
+          data: {
+            request: {
+              action: 'queueapi',
+              startTime: formattedDate,
+              endTime: formattedDate,
+            },
           },
+          integrationId: integrations[0]?.inboxId,
+          retryCount: 3,
+          isConvertToJson: false,
+          isAddExtention: false,
         },
-        integrationId: integrations[0]?.inboxId,
-        retryCount: 3,
-        isConvertToJson: false,
-        isAddExtention: false,
-      },
-      user,
-    )) as any;
+        user,
+      );
+      console.log('1:', rawResponse);
 
-    if (!queueData.ok) {
-      throw new Error(`HTTP error! Status: ${queueData.status}`);
-    }
+      rawResponse = await rawResponse?.text();
+      console.log('2');
 
-    const xmlData = await queueData.text();
-    try {
-      const parsedData = JSON.parse(xmlData);
-
-      if (parsedData.status === -6) {
-        console.log('Status -6 detected. Clearing redis callCookie.');
-        await redis.del('callCookie');
-        return [];
+      if (typeof rawResponse !== 'string') {
+        throw new Error('Expected string response from Grandstream');
       }
-    } catch (error) {
-      console.error(error.message);
-    }
+      console.log(rawResponse, 'rawResponse');
 
-    try {
-      const parser = new XMLParser();
-      const jsonObject = parser.parse(xmlData);
+      let parsedResponse: any;
 
-      const rootStatistics = jsonObject.root_statistics || {};
-      const queues = rootStatistics.queue || [];
-      let userQueues = [] as any;
-      const seenQueues = new Set();
-      for (const integration of integrations) {
-        if (integration.queues) {
-          const matchedQueues = queues.filter((queue) =>
-            integration.queues.includes(queue.queue.toString()),
+      try {
+        parsedResponse = JSON.parse(rawResponse);
+        console.log('3');
+
+        if (parsedResponse?.status === -6) {
+          console.warn('Grandstream status -6, clearing callCookie');
+          await redis.del('callCookie');
+          return [];
+        }
+      } catch {
+        try {
+          const xmlParser = new XMLParser();
+          parsedResponse = xmlParser.parse(rawResponse);
+        } catch (xmlError) {
+          console.error(
+            'Failed to parse Grandstream response as XML:',
+            xmlError.message,
           );
+          return [];
+        }
+      }
+      console.log('4:', parsedResponse?.root_statistics);
 
-          for (const queue of matchedQueues) {
-            if (!seenQueues.has(queue.queue)) {
-              seenQueues.add(queue.queue);
-              userQueues.push(queue);
-            }
+      const queuesData = parsedResponse?.root_statistics?.queue ?? [];
+      console.log('queuesData:', queuesData);
+      const seen = new Set<string>();
+      const result: any = [];
+
+      let queuesFromResponse = [] as any;
+      if (queuesData) {
+        if (Array.isArray(queuesData)) {
+          queuesFromResponse = queuesData;
+        } else {
+          queuesFromResponse = [queuesData];
+        }
+      }
+      console.log(queuesFromResponse, 'queuesFromResponse');
+      for (const integration of integrations) {
+        const { queues: allowedQueues } = integration;
+        if (!Array.isArray(allowedQueues)) continue;
+
+        for (const queue of queuesFromResponse) {
+          const queueId = queue?.queue?.toString();
+          if (
+            queueId &&
+            allowedQueues.includes(queueId) &&
+            !seen.has(queueId)
+          ) {
+            seen.add(queueId);
+            result.push(queue);
           }
         }
       }
-
-      return userQueues || [];
+      console.log(result, 'result');
+      return result;
     } catch (error) {
-      console.error('Error parsing response as XML:', error.message, xmlData);
+      console.error(
+        'Unexpected error while fetching user queues:',
+        error.message,
+      );
       return [];
     }
   },
@@ -253,6 +282,20 @@ const callsQueries = {
       return [];
     }
     return 'request failed';
+  },
+
+  async callCustomers(_root, { phoneNumber }, { subdomain }: IContext) {
+    let customers = await sendCommonMessage({
+      subdomain,
+      isRPC: true,
+      serviceName: 'core',
+      action: 'customers.find',
+      data: {
+        primaryPhone: phoneNumber,
+      },
+      defaultValue: null,
+    });
+    return customers;
   },
 };
 

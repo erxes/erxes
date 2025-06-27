@@ -79,7 +79,7 @@ export class MonpayAPI extends BaseAPI {
       amount: invoice.amount,
       generateUuid: true,
       displayName: invoice.description || 'monpay transaction',
-      callbackUrl: `${this.domain}/pl:payment/callback/${PAYMENTS.monpay.kind}`,
+      callbackUrl: `${this.domain}/pl-payment/callback/${PAYMENTS.monpay.kind}`,
     };
 
     try {

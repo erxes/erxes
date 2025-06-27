@@ -149,7 +149,7 @@ export class QpayAPI extends BaseAPI {
         invoice_description: transaction.description || 'test invoice',
         // sender_branch_code: this.branchCode, TODO: renable after proper branch code config
         amount: transaction.amount,
-        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?_id=${transaction._id}`,
+        callback_url: `${this.domain}/pl-payment/callback/${PAYMENTS.qpay.kind}?_id=${transaction._id}`,
       };
 
       const res = await this.request({

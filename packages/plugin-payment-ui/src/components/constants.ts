@@ -117,7 +117,7 @@ export const PAYMENTCONFIGS = [
       { key: 'key', label: 'Key' },
       { key: 'token', label: 'Token', type: 'password' },
     ],
-    acceptedCurrencies: ['MNT'],
+    acceptedCurrencies: ['MNT']
   },
   {
     name: 'Stripe',

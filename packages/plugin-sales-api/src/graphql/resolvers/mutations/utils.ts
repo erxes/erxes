@@ -16,7 +16,7 @@ import {
 import {
   BOARD_STATUSES,
 } from "../../../models/definitions/constants";
-import { IDeal, IDealDocument } from "../../../models/definitions/deals";
+import { IDeal, IDealDocument, IProductData } from "../../../models/definitions/deals";
 
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import {
@@ -339,22 +339,24 @@ export const itemsEdit = async (
       doc.assignedUserIds
     );
 
-    const activityContent = { addedUserIds, removedUserIds };
+    if (addedUserIds?.length || removedUserIds?.length) {
+      const activityContent = { addedUserIds, removedUserIds };
 
-    putActivityLog(subdomain, {
-      action: "createAssigneLog",
-      data: {
-        contentId: _id,
-        userId: user._id,
-        contentType: type,
-        content: activityContent,
-        action: "assignee",
-        createdBy: user._id,
-      },
-    });
+      putActivityLog(subdomain, {
+        action: "createAssigneLog",
+        data: {
+          contentId: _id,
+          userId: user._id,
+          contentType: type,
+          content: activityContent,
+          action: "assignee",
+          createdBy: user._id,
+        },
+      });
 
-    notificationDoc.invitedUsers = addedUserIds;
-    notificationDoc.removedUsers = removedUserIds;
+      notificationDoc.invitedUsers = addedUserIds;
+      notificationDoc.removedUsers = removedUserIds;
+    }
   }
 
   await sendNotifications(models, subdomain, notificationDoc);
@@ -653,8 +655,8 @@ export const itemsChange = async (
       action: "orderUpdated",
       data: {
         item: {
-          ...item._doc,
-          ...(await itemResolver(models, subdomain, user, type, item)),
+          ...updatedItem._doc,
+          ...(await itemResolver(models, subdomain, user, type, updatedItem)),
           labels,
         },
         aboveItemId,
@@ -1114,3 +1116,25 @@ export const checkPricing = async (
 
   return [...activeProductsData, ...(deal.productsData?.filter(pd => !pd.tickUsed) || [])];
 };
+
+export const checkAssignedUserFromPData = (oldAllUserIds?: string[], assignedUsersPdata?: string[], oldPData?: IProductData[]) => {
+  let assignedUserIds = oldAllUserIds || [];
+
+  const oldAssignedUserPdata = (oldPData || [])
+    .filter((pdata) => pdata.assignUserId)
+    .map((pdata) => pdata.assignUserId || "");
+
+  const { addedUserIds, removedUserIds } = checkUserIds(
+    oldAssignedUserPdata,
+    assignedUsersPdata
+  );
+
+  if (addedUserIds.length > 0 || removedUserIds.length > 0) {
+    assignedUserIds = [...new Set(assignedUserIds.concat(addedUserIds))];
+    assignedUserIds = assignedUserIds.filter(
+      (userId) => !removedUserIds.includes(userId)
+    );
+  }
+
+  return { assignedUserIds, addedUserIds, removedUserIds };
+}

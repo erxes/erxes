@@ -22,10 +22,9 @@ export const CODE_STATUS = {
 
 export const VOUCHER_STATUS = {
   NEW: 'new',
-  IN_USE: 'in_use',
   LOSS: 'used',
   EXPIRED: 'expired',
-  ALL: ['new', 'in_use', 'used', 'expired']
+  ALL: ['new', 'used', 'expired']
 };
 
 export const LOTTERY_STATUS = {

@@ -1,11 +1,11 @@
-import * as moment from 'moment';
-import { debugError } from '@erxes/api-utils/src/debuggers';
-import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
-import redis from '@erxes/api-utils/src/redis';
-import { getNextMonth, getToday } from '@erxes/api-utils/src';
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { generateModels, IContext, IModels } from './connectionResolver';
+import * as moment from "moment";
+import { debugError } from "@erxes/api-utils/src/debuggers";
+import { generateFieldsFromSchema } from "@erxes/api-utils/src/fieldUtils";
+import redis from "@erxes/api-utils/src/redis";
+import { getNextMonth, getToday } from "@erxes/api-utils/src";
+import { IUserDocument } from "@erxes/api-utils/src/types";
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
+import { generateModels, IContext, IModels } from "./connectionResolver";
 import {
   sendCoreMessage,
   sendCommonMessage,
@@ -13,14 +13,14 @@ import {
   sendSalesMessage,
   sendTasksMessage,
   sendTicketsMessage,
-} from './messageBroker';
-import fetch from 'node-fetch';
+} from "./messageBroker";
+import fetch from "node-fetch";
 
-import * as admin from 'firebase-admin';
-import { CLOSE_DATE_TYPES } from './constants';
-import { IUser } from './models/definitions/clientPortalUser';
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-import { IClientPortal } from './models/definitions/clientPortal';
+import * as admin from "firebase-admin";
+import { CLOSE_DATE_TYPES } from "./constants";
+import { IUser } from "./models/definitions/clientPortalUser";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+import { IClientPortal } from "./models/definitions/clientPortal";
 
 export const getConfig = async (
   code: string,
@@ -29,7 +29,7 @@ export const getConfig = async (
 ) => {
   const configs = await sendCoreMessage({
     subdomain,
-    action: 'getConfigs',
+    action: "getConfigs",
     data: {},
     isRPC: true,
     defaultValue: [],
@@ -60,7 +60,7 @@ export const generateFields = async ({ subdomain }) => {
   }> = [];
 
   if (schema) {
-    fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
+    fields = [...fields, ...(await generateFieldsFromSchema(schema, ""))];
 
     for (const name of Object.keys(schema.paths)) {
       const path = schema.paths[name];
@@ -84,26 +84,26 @@ export const sendSms = async (
   phoneNumber: string,
   content: string
 ) => {
-  if (type === 'messagePro') {
+  if (type === "messagePro") {
     const MESSAGE_PRO_API_KEY = await getConfig(
-      'MESSAGE_PRO_API_KEY',
+      "MESSAGE_PRO_API_KEY",
       subdomain,
-      ''
+      ""
     );
 
     const MESSAGE_PRO_PHONE_NUMBER = await getConfig(
-      'MESSAGE_PRO_PHONE_NUMBER',
+      "MESSAGE_PRO_PHONE_NUMBER",
       subdomain,
-      ''
+      ""
     );
 
     if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
-      throw new Error('messaging config not set properly');
+      throw new Error("messaging config not set properly");
     }
 
     try {
       await fetch(
-        'https://api.messagepro.mn/send?' +
+        "https://api.messagepro.mn/send?" +
           new URLSearchParams({
             key: MESSAGE_PRO_API_KEY,
             from: MESSAGE_PRO_PHONE_NUMBER,
@@ -112,7 +112,7 @@ export const sendSms = async (
           })
       );
 
-      return 'sent';
+      return "sent";
     } catch (e) {
       debugError(e.message);
       throw new Error(e.message);
@@ -122,13 +122,13 @@ export const sendSms = async (
   const isServiceEnabled = await isEnabled(type);
 
   if (!isServiceEnabled) {
-    throw new Error('messaging service not enabled');
+    throw new Error("messaging service not enabled");
   }
 
   await sendCommonMessage({
     serviceName: type,
     subdomain,
-    action: 'sendSms',
+    action: "sendSms",
     data: {
       phoneNumber,
       content,
@@ -137,10 +137,10 @@ export const sendSms = async (
 };
 
 export const generateRandomPassword = (len: number = 10) => {
-  const specials = '!@#$%^&*()_+{}:"<>?|[];\',./`~';
-  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const numbers = '0123456789';
+  const specials = "!@#$%^&*()_+{}:\"<>?|[];',./`~";
+  const lowercase = "abcdefghijklmnopqrstuvwxyz";
+  const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const numbers = "0123456789";
 
   const pick = (
     exclusions: string,
@@ -149,7 +149,7 @@ export const generateRandomPassword = (len: number = 10) => {
     max: number
   ) => {
     let n;
-    let chars = '';
+    let chars = "";
 
     if (max === undefined) {
       n = min;
@@ -172,7 +172,7 @@ export const generateRandomPassword = (len: number = 10) => {
   };
 
   const shuffle = (string: string) => {
-    const array = string.split('');
+    const array = string.split("");
     let tmp;
     let current;
     let top = array.length;
@@ -185,11 +185,11 @@ export const generateRandomPassword = (len: number = 10) => {
         array[top] = tmp;
       }
 
-      return array.join('');
+      return array.join("");
     }
   };
 
-  let password = '';
+  let password = "";
 
   password += pick(password, specials, 1, 1);
   password += pick(password, lowercase, 2, 3);
@@ -202,10 +202,10 @@ export const generateRandomPassword = (len: number = 10) => {
 export const initFirebase = async (subdomain: string): Promise<void> => {
   const config = await sendCoreMessage({
     subdomain,
-    action: 'configs.findOne',
+    action: "configs.findOne",
     data: {
       query: {
-        code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON',
+        code: "GOOGLE_APPLICATION_CREDENTIALS_JSON",
       },
     },
     isRPC: true,
@@ -216,9 +216,9 @@ export const initFirebase = async (subdomain: string): Promise<void> => {
     return;
   }
 
-  const codeString = config.value || 'value';
+  const codeString = config.value || "value";
 
-  if (codeString[0] === '{' && codeString[codeString.length - 1] === '}') {
+  if (codeString[0] === "{" && codeString[codeString.length - 1] === "}") {
     const serviceAccount = JSON.parse(codeString);
 
     if (serviceAccount.private_key) {
@@ -240,13 +240,14 @@ interface ISendNotification {
   receivers: string[];
   title: string;
   content: string;
-  notifType: 'system' | 'engage';
+  notifType: "system" | "engage";
   link: string;
   createdUser?: IUserDocument;
   isMobile?: boolean;
   eventData?: any | null;
   mobileConfig?: IMobileConfig;
   groupId?: string;
+  type?: string;
 }
 
 export const sendNotification = async (
@@ -263,6 +264,7 @@ export const sendNotification = async (
     isMobile,
     eventData,
     mobileConfig,
+    type,
   } = doc;
 
   const link = doc.link;
@@ -290,14 +292,15 @@ export const sendNotification = async (
     const notification =
       await models.ClientPortalNotifications.createNotification(
         {
+          type,
           title,
-          content,
           link,
+          content,
           receiver: recipient._id,
           notifType,
           clientPortalId: recipient.clientPortalId,
           eventData,
-          groupId: doc?.groupId || '',
+          groupId: doc?.groupId || "",
         },
         createdUser && createdUser._id
       );
@@ -305,6 +308,7 @@ export const sendNotification = async (
     graphqlPubsub.publish(`clientPortalNotificationInserted:${recipient._id}`, {
       clientPortalNotificationInserted: {
         _id: notification._id,
+        type: type,
         userId: recipient._id,
         title: notification.title,
         content: notification.content,
@@ -317,12 +321,12 @@ export const sendNotification = async (
 
   sendCoreMessage({
     subdomain,
-    action: 'sendEmail',
+    action: "sendEmail",
     data: {
       toEmails,
-      title: 'Notification',
+      title: "Notification",
       template: {
-        name: 'notification',
+        name: "notification",
         data: {
           notification: { ...doc, link },
         },
@@ -350,7 +354,7 @@ export const sendNotification = async (
       }
     }
 
-    const expiredTokens = [''];
+    const expiredTokens = [""];
     const chunkSize = 500;
 
     if (deviceTokens.length > 1) {
@@ -426,9 +430,9 @@ export const customFieldsDataByFieldCode = async (object, subdomain) => {
   const fieldIds = customFieldsData.map((data) => data.field);
 
   const fields = await sendCommonMessage({
-    serviceName: 'core',
+    serviceName: "core",
     subdomain,
-    action: 'fields.find',
+    action: "fields.find",
     data: {
       query: {
         _id: { $in: fieldIds },
@@ -463,8 +467,8 @@ export const sendAfterMutation = async (
   newData: any,
   extraDesc: any
 ) => {
-  const value = await redis.get('afterMutations');
-  const afterMutations = JSON.parse(value || '{}');
+  const value = await redis.get("afterMutations");
+  const afterMutations = JSON.parse(value || "{}");
 
   if (
     afterMutations[type] &&
@@ -475,7 +479,7 @@ export const sendAfterMutation = async (
       sendCommonMessage({
         serviceName: service,
         subdomain,
-        action: 'afterMutation',
+        action: "afterMutation",
         data: {
           type,
           action,
@@ -489,18 +493,18 @@ export const sendAfterMutation = async (
 };
 
 export const getCards = async (
-  type: 'ticket' | 'deal' | 'task' | 'purchase',
+  type: "ticket" | "deal" | "task" | "purchase",
   context: IContext,
   args: any
 ) => {
   const { subdomain, models, cpUser } = context;
   if (!cpUser) {
-    throw new Error('Login required');
+    throw new Error("Login required");
   }
 
   const cp = await models.ClientPortals.getConfig(cpUser.clientPortalId);
 
-  const pipelineId = cp[type + 'PipelineId'];
+  const pipelineId = cp[type + "PipelineId"];
 
   if (!pipelineId || pipelineId.length === 0) {
     return [];
@@ -508,7 +512,7 @@ export const getCards = async (
 
   const customer = await sendCoreMessage({
     subdomain,
-    action: 'customers.findOne',
+    action: "customers.findOne",
     data: {
       _id: cpUser.erxesCustomerId,
     },
@@ -521,9 +525,9 @@ export const getCards = async (
 
   const conformities = await sendCoreMessage({
     subdomain,
-    action: 'conformities.getConformities',
+    action: "conformities.getConformities",
     data: {
-      mainType: 'customer',
+      mainType: "customer",
       mainTypeIds: [customer._id],
       relTypes: [type],
     },
@@ -538,11 +542,11 @@ export const getCards = async (
   const cardIds: string[] = [];
 
   for (const c of conformities) {
-    if (c.relType === type && c.mainType === 'customer') {
+    if (c.relType === type && c.mainType === "customer") {
       cardIds.push(c.relTypeId);
     }
 
-    if (c.mainType === type && c.relType === 'customer') {
+    if (c.mainType === type && c.relType === "customer") {
       cardIds.push(c.mainTypeId);
     }
   }
@@ -550,10 +554,10 @@ export const getCards = async (
   let stages = [] as any;
 
   switch (type) {
-    case 'ticket':
+    case "ticket":
       stages = await sendTicketsMessage({
         subdomain,
-        action: 'stages.find',
+        action: "stages.find",
         data: {
           pipelineId,
         },
@@ -561,10 +565,10 @@ export const getCards = async (
         defaultValue: [],
       });
       break;
-    case 'deal':
+    case "deal":
       stages = await sendSalesMessage({
         subdomain,
-        action: 'stages.find',
+        action: "stages.find",
         data: {
           pipelineId,
         },
@@ -572,10 +576,10 @@ export const getCards = async (
         defaultValue: [],
       });
       break;
-    case 'task':
+    case "task":
       stages = await sendTasksMessage({
         subdomain,
-        action: 'stages.find',
+        action: "stages.find",
         data: {
           pipelineId,
         },
@@ -583,10 +587,10 @@ export const getCards = async (
         defaultValue: [],
       });
       break;
-    case 'purchase':
+    case "purchase":
       stages = await sendPurchasesMessage({
         subdomain,
-        action: 'stages.find',
+        action: "stages.find",
         data: {
           pipelineId,
         },
@@ -602,12 +606,12 @@ export const getCards = async (
 
   const stageIds = stages.map((stage) => stage._id);
 
-  let oneStageId = '';
+  let oneStageId = "";
   if (args.stageId) {
     if (stageIds.includes(args.stageId)) {
       oneStageId = args.stageId;
     } else {
-      oneStageId = 'noneId';
+      oneStageId = "noneId";
     }
   }
 
@@ -633,7 +637,7 @@ export const getCards = async (
     action: `${type}s.find`,
     data: {
       _id: { $in: cardIds },
-      status: { $regex: '^((?!archived).)*$', $options: 'i' },
+      status: { $regex: "^((?!archived).)*$", $options: "i" },
       stageId: oneStageId ? oneStageId : { $in: stageIds },
       ...(args?.priority && { priority: { $in: args?.priority || [] } }),
       ...(args?.labelIds && { labelIds: { $in: args?.labelIds || [] } }),
@@ -648,34 +652,34 @@ export const getCards = async (
   };
 
   switch (type) {
-    case 'deal':
+    case "deal":
       return sendSalesMessage(message);
-    case 'task':
+    case "task":
       return sendTasksMessage(message);
-    case 'ticket':
+    case "ticket":
       return sendTicketsMessage(message);
-    case 'purchase':
+    case "purchase":
       return sendPurchasesMessage(message);
   }
 };
 
 export const getCloseDateByType = (closeDateType: string) => {
   if (closeDateType === CLOSE_DATE_TYPES.NEXT_DAY) {
-    const tommorrow = moment().add(1, 'days');
+    const tommorrow = moment().add(1, "days");
 
     return {
-      $gte: new Date(tommorrow.startOf('day').toISOString()),
-      $lte: new Date(tommorrow.endOf('day').toISOString()),
+      $gte: new Date(tommorrow.startOf("day").toISOString()),
+      $lte: new Date(tommorrow.endOf("day").toISOString()),
     };
   }
 
   if (closeDateType === CLOSE_DATE_TYPES.NEXT_WEEK) {
     const monday = moment()
       .day(1 + 7)
-      .format('YYYY-MM-DD');
+      .format("YYYY-MM-DD");
     const nextSunday = moment()
       .day(7 + 7)
-      .format('YYYY-MM-DD');
+      .format("YYYY-MM-DD");
 
     return {
       $gte: new Date(monday),
@@ -711,14 +715,14 @@ export const getUserName = (data: IUser) => {
   }
 
   if (data.firstName || data.lastName) {
-    return data.firstName + ' ' + data.lastName;
+    return data.firstName + " " + data.lastName;
   }
 
   if (data.email || data.username || data.phone) {
     return data.email || data.username || data.phone;
   }
 
-  return 'Unknown';
+  return "Unknown";
 };
 
 export const getUserCards = async (
@@ -730,7 +734,7 @@ export const getUserCards = async (
   const cardIds = await models.ClientPortalUserCards.find({
     cpUserId: userId,
     contentType,
-  }).distinct('contentTypeId');
+  }).distinct("contentTypeId");
 
   const message = {
     subdomain,
@@ -745,16 +749,16 @@ export const getUserCards = async (
   let cards = [];
 
   switch (contentType) {
-    case 'deal':
+    case "deal":
       cards = await sendSalesMessage(message);
       break;
-    case 'task':
+    case "task":
       cards = await sendTasksMessage(message);
       break;
-    case 'ticket':
+    case "ticket":
       cards = await sendTicketsMessage(message);
       break;
-    case 'purchase':
+    case "purchase":
       cards = await sendPurchasesMessage(message);
       break;
   }
@@ -767,39 +771,40 @@ export const fetchUserFromToki = async (
   clientPortal: IClientPortal
 ) => {
   if (!clientPortal.tokiConfig) {
-    throw new Error('Toki configs are not set');
+    throw new Error("Toki configs are not set");
   }
 
   if (!clientPortal.tokiConfig.apiKey) {
-    throw new Error('Toki api key is not set');
+    throw new Error("Toki api key is not set");
   }
 
-  const testApiUrl = 'qams-api.toki.mn';
-  const prodApiUrl = 'ms-api.toki.mn';
+  const testApiUrl = "qams-api.toki.mn";
+  const prodApiUrl = "ms-api.toki.mn";
 
   const apiKey = clientPortal.tokiConfig.apiKey;
   const apiUrl = clientPortal.tokiConfig.production ? prodApiUrl : testApiUrl;
 
   try {
-    const response = await fetch(`https://${apiUrl}/third-party-service/v1/shoppy/user`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        'api-key': apiKey,
-      },
-    });
+    const response = await fetch(
+      `https://${apiUrl}/third-party-service/v1/shoppy/user`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "api-key": apiKey,
+        },
+      }
+    );
 
-    const contentType = response.headers.get('content-type');
+    const contentType = response.headers.get("content-type");
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(
-        `Toki API Error (${response.status}): ${errorText}`
-      );
+      throw new Error(`Toki API Error (${response.status}): ${errorText}`);
     }
 
-    if (contentType && contentType.includes('application/json')) {
+    if (contentType && contentType.includes("application/json")) {
       return await response.json();
     } else {
       const text = await response.text();

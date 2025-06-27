@@ -1,6 +1,5 @@
 import { IContext, IModels } from '../../../connectionResolver';
 import { IClientPortalDocument } from '../../../models/definitions/clientPortal';
-import { clientPortal } from '../../../permissions';
 import { addDomain, deploy, removeProject } from '../../../vercel/util';
 
 const getConfig = async (_id: string, models: IModels) => {

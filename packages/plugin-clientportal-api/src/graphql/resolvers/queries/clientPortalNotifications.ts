@@ -1,16 +1,16 @@
 // TODO: check if related stages are selected in client portal config
-import { paginate } from '@erxes/api-utils/src';
+import { paginate } from "@erxes/api-utils/src";
 
-import { IContext } from '../../../connectionResolver';
+import { IContext } from "../../../connectionResolver";
 
 const notificationQueries = {
   async clientPortalNotificationCount(
     _root,
     { all }: { all: boolean },
-    { models, cpUser }: IContext,
+    { models, cpUser }: IContext
   ) {
     if (!cpUser) {
-      throw new Error('You are not logged in');
+      throw new Error("You are not logged in");
     }
 
     const qry: { receiver: string; isRead?: boolean } = {
@@ -37,10 +37,10 @@ const notificationQueries = {
       endDate,
       eventDataFilter,
     },
-    { models, cpUser }: IContext,
+    { models, cpUser }: IContext
   ) {
     if (!cpUser) {
-      throw new Error('You are not logged in');
+      throw new Error("You are not logged in");
     }
 
     const query: any = {
@@ -56,7 +56,7 @@ const notificationQueries = {
     }
 
     if (search) {
-      query.title = { $regex: new RegExp(`^${search}`, 'i') };
+      query.title = { $regex: new RegExp(`^${search}`, "i") };
     }
 
     if (startDate) {
@@ -81,17 +81,17 @@ const notificationQueries = {
       {
         page,
         perPage,
-      },
+      }
     );
   },
 
   async clientPortalNotificationDetail(
     _root,
     { _id },
-    { models, cpUser }: IContext,
+    { models, cpUser }: IContext
   ) {
     if (!cpUser) {
-      throw new Error('You are not logged in');
+      throw new Error("You are not logged in");
     }
 
     const notification = await models.ClientPortalNotifications.findOne({
@@ -100,7 +100,7 @@ const notificationQueries = {
     });
 
     if (!notification) {
-      throw new Error('Notification not found');
+      throw new Error("Notification not found");
     }
 
     return notification;

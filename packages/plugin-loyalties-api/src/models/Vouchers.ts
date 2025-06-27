@@ -56,53 +56,48 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
       const now = new Date();
 
-      if (campaignId) {
-        const voucherCampaign =
-          await models.VoucherCampaigns.getVoucherCampaign(campaignId);
+      const voucherCampaign =
+        await models.VoucherCampaigns.getVoucherCampaign(campaignId);
 
-        if (voucherCampaign.startDate > now || voucherCampaign.endDate < now) {
-          throw new Error("Not create voucher, expired");
-        }
-
-        switch (voucherCampaign.voucherType) {
-          case "spin":
-            return models.Spins.createSpin({
-              campaignId: voucherCampaign.spinCampaignId,
-              ownerType,
-              ownerId,
-              voucherCampaignId: campaignId,
-              userId,
-            });
-
-          case "lottery":
-            return models.Lotteries.createLottery({
-              campaignId: voucherCampaign.lotteryCampaignId,
-              ownerType,
-              ownerId,
-              voucherCampaignId: campaignId,
-              userId,
-            });
-
-          case "score":
-            return models.ScoreLogs.changeScore({
-              ownerType,
-              ownerId,
-              changeScore: voucherCampaign.score,
-              description: "score voucher",
-            });
-          default:
-            break;
-        }
+      if (voucherCampaign.startDate > now || voucherCampaign.endDate < now) {
+        throw new Error("Cannot create voucher: voucher is expired");
       }
 
-      return models.Vouchers.create({
-        ownerType,
-        ownerId,
-        createdAt: now,
-        status: VOUCHER_STATUS.NEW,
-        userId,
-        config,
-      });
+      switch (voucherCampaign.voucherType) {
+        case "spin":
+          return models.Spins.createSpin({
+            campaignId: voucherCampaign.spinCampaignId,
+            ownerType,
+            ownerId,
+            voucherCampaignId: campaignId,
+            userId,
+          });
+        case "lottery":
+          return models.Lotteries.createLottery({
+            campaignId: voucherCampaign.lotteryCampaignId,
+            ownerType,
+            ownerId,
+            voucherCampaignId: campaignId,
+            userId,
+          });
+        case "score":
+          return models.ScoreLogs.changeScore({
+            ownerType,
+            ownerId,
+            changeScore: voucherCampaign.score,
+            description: "score voucher",
+          });
+        default:
+          return models.Vouchers.create({
+            campaignId,
+            ownerType,
+            ownerId,
+            createdAt: now,
+            status: VOUCHER_STATUS.NEW,
+            userId,
+            config,
+          });
+      }
     }
 
     public static async updateVoucher(_id: string, doc: IVoucher) {
@@ -197,27 +192,32 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         throw new Error("Campaign is not active");
       }
 
-      if (
-        totalAmount &&
-        voucherCampaign.restrictions.minimumSpend > totalAmount
-      ) {
-        throw new Error(
-          `This coupon requires a minimum spend of ${voucherCampaign.restrictions.minimumSpend}`
-        );
-      }
+      if (totalAmount && voucherCampaign.restrictions) {
+        const { minimumSpend, maximumSpend } = voucherCampaign.restrictions;
 
-      if (
-        totalAmount &&
-        totalAmount > voucherCampaign.restrictions.maximumSpend
-      ) {
-        throw new Error(
-          `This coupon allows a maximum spend of ${voucherCampaign.restrictions.maximumSpend}`
-        );
+        if (maximumSpend && maximumSpend < totalAmount) {
+          throw new Error(
+            `This voucher allows a maximum spend of ${maximumSpend}`
+          );
+        }
+
+        if (minimumSpend && minimumSpend > totalAmount) {
+          throw new Error(
+            `This voucher requires a minimum spend of ${minimumSpend}`
+          );
+        }
       }
 
       const currentDate = new Date();
 
-      if (voucher.config) {
+      if (voucher?.config) {
+        const { endDate } = voucher.config;
+
+        if (endDate < currentDate) {
+          throw new Error(
+            `This voucher is expired`
+          );
+        }
       }
 
       if (

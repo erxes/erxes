@@ -1,7 +1,7 @@
 import { Model } from 'mongoose';
 
 import { IModels } from '../connectionResolver';
-import { customerSchema, ICustomer, ICustomerDocument } from './definitions/customers';
+import { customerSchema, ICustomer } from './definitions/customers';
 
 export interface ICustomerModel extends Model<ICustomer> {}
 
@@ -21,7 +21,6 @@ export const loadCustomerClass = (models: IModels) => {
       return customer;
     }
   }
-
   customerSchema.loadClass(Customer);
 
   return customerSchema;

@@ -1,5 +1,5 @@
 import { IModels } from "./connectionResolver";
-import { sendCoreMessage } from "./messageBroker";
+import { sendClientPortalMessage, sendCoreMessage } from "./messageBroker";
 import { VOUCHER_STATUS } from "./models/definitions/constants";
 
 interface IProductD {
@@ -21,6 +21,92 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
   return Array.from(new Set(catIds));
 };
 
+export const getChildTags = async (subdomain: string, tagIds) => {
+  const childs = await sendCoreMessage({
+    subdomain,
+    action: "tagWithChilds",
+    data: {
+      query: { _id: { $in: tagIds } },
+    },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  const allTagIds: string[] = (childs || []).map((ch) => ch._id) || [];
+  return Array.from(new Set(allTagIds));
+};
+
+export const applyRestriction = async ({
+  subdomain,
+  restrictions,
+  products,
+}: {
+  subdomain: string;
+  restrictions: Record<string, any>;
+  products: IProductD[];
+}) => {
+  const {
+    categoryIds = [],
+    excludeCategoryIds = [],
+    productIds = [],
+    excludeProductIds = [],
+    tagIds = [],
+    excludeTagIds = [],
+  } = restrictions || {};
+
+  const inputProductIds = products.map((p) => p.productId);
+
+  const [includedCategoryIds, excludedCategoryIds] = await Promise.all([
+    categoryIds.length ? getChildCategories(subdomain, categoryIds) : [],
+    excludeCategoryIds.length
+      ? getChildCategories(subdomain, excludeCategoryIds)
+      : [],
+  ]);
+
+  const [includedTagIds, excludedTagIds] = await Promise.all([
+    tagIds.length ? getChildTags(subdomain, tagIds) : [],
+    excludeTagIds.length ? getChildTags(subdomain, excludeTagIds) : [],
+  ]);
+
+  const query: Record<string, any> = {
+    _id: {
+      $in: [...inputProductIds, ...productIds],
+      $nin: excludeProductIds,
+    },
+  };
+
+  if (includedCategoryIds.length || excludedCategoryIds.length) {
+    query.categoryId = {
+      ...(includedCategoryIds.length && { $in: includedCategoryIds }),
+      ...(excludedCategoryIds.length && { $nin: excludedCategoryIds }),
+    };
+  }
+
+  if (includedTagIds.length || excludedTagIds.length) {
+    query.tagIds = {
+      ...(includedTagIds.length && { $in: includedTagIds }),
+      ...(excludedTagIds.length && { $nin: excludedTagIds }),
+    };
+  }
+
+  const productDocs = await sendCoreMessage({
+    subdomain,
+    action: "products.find",
+    data: { query },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  const productMap = new Map(products.map((p) => [p.productId, p]));
+
+  const totalAmount = productDocs.reduce((sum, { _id }) => {
+    const item = productMap.get(_id);
+    return sum + (item ? item.quantity * item.unitPrice : 0);
+  }, 0);
+
+  return { productDocs, totalAmount };
+};
+
 export const checkVouchersSale = async (
   models: IModels,
   subdomain: string,
@@ -35,6 +121,26 @@ export const checkVouchersSale = async (
 
   if (!ownerId && !ownerId && !products) {
     return "No Data";
+  }
+
+  if (ownerType === "customer") {
+    const customerRelatedClientPortalUser = await sendClientPortalMessage({
+      subdomain,
+      action: "clientPortalUsers.findOne",
+      data: {
+        $or: [
+          { _id: ownerId },
+          { erxesCustomerId: ownerId },
+        ]
+      },
+      isRPC: true,
+      defaultValue: null,
+    });
+
+    if (customerRelatedClientPortalUser) {
+      ownerId = customerRelatedClientPortalUser._id;
+      ownerType = "cpUser";
+    }
   }
 
   const now = new Date();
@@ -219,31 +325,13 @@ export const checkVouchersSale = async (
       ownerId,
     });
 
-    const { title, kind, value } = voucherCampaign;
+    const { title, kind, value, restrictions = {} } = voucherCampaign;
 
-    const productDocs = await sendCoreMessage({
+    const { productDocs, totalAmount } = await applyRestriction({
       subdomain,
-      action: "products.find",
-      data: {
-        query: {
-          _id: {
-            $in: [...productsIds],
-          },
-        },
-      },
-      isRPC: true,
-      defaultValue: [],
+      restrictions,
+      products,
     });
-
-    const totalAmount = productDocs.reduce((sum, doc) => {
-      const { _id } = doc;
-
-      const item: IProductD =
-        products.find((p) => p.productId === _id) || ({} as IProductD);
-      sum += item.quantity * item.unitPrice;
-
-      return sum;
-    }, 0);
 
     await models.Vouchers.checkVoucher({
       voucherId,
@@ -264,7 +352,10 @@ export const checkVouchersSale = async (
         discount: calculateDiscount({
           kind,
           value,
-          product: item,
+          product: {
+            ...item,
+            discount: result[_id].discount || 0,
+          },
           totalAmount,
         }),
         voucherName: title,
@@ -275,67 +366,18 @@ export const checkVouchersSale = async (
 
   // coupon
   if (couponCode) {
-    const campaignId = await models.Coupons.checkCoupon({
+    const couponCampaign = await models.Coupons.checkCoupon({
       code: couponCode,
       ownerId,
     });
 
-    if (!campaignId) {
-      return result;
-    }
+    const { title, kind, value, restrictions = {} } = couponCampaign;
 
-    const couponCampaign: any = await models.CouponCampaigns.findOne({
-      _id: campaignId,
-    }).lean();
-
-    if (!couponCampaign) {
-      throw new Error("Coupon campaign not found");
-    }
-
-    const { title, kind, value, restrictions } = couponCampaign;
-
-    const {
-      minimumSpend = 0,
-      categoryIds = [],
-      excludeCategoryIds = [],
-      productIds = [],
-      excludeProductIds = [],
-      tagIds = [],
-      excludeTagIds = [],
-    } = restrictions || {};
-
-    const productDocs = await sendCoreMessage({
+    const { productDocs, totalAmount } = await applyRestriction({
       subdomain,
-      action: "products.find",
-      data: {
-        query: {
-          _id: {
-            $in: [...productsIds, ...productIds],
-            $nin: excludeProductIds,
-          },
-          categoryId: {
-            ...(categoryIds.length ? { $in: categoryIds } : {}),
-            $nin: excludeCategoryIds,
-          },
-          tagIds: {
-            ...(tagIds.length ? { $in: tagIds } : {}),
-            $nin: excludeTagIds,
-          },
-        },
-      },
-      isRPC: true,
-      defaultValue: [],
+      restrictions,
+      products,
     });
-
-    const totalAmount = productDocs.reduce((sum, doc) => {
-      const { _id } = doc;
-
-      const item: IProductD =
-        products.find((p) => p.productId === _id) || ({} as IProductD);
-      sum += item.quantity * item.unitPrice;
-
-      return sum;
-    }, 0);
 
     await models.Coupons.checkCoupon({
       code: couponCode,
@@ -355,7 +397,10 @@ export const checkVouchersSale = async (
         discount: calculateDiscount({
           kind,
           value,
-          product: item,
+          product: {
+            ...item,
+            discount: result[_id].discount || 0,
+          },
           totalAmount,
         }),
         couponName: title,
@@ -507,7 +552,11 @@ export const handleScore = async (models: IModels, data) => {
 export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
   try {
     if (kind === "percent") {
-      return value;
+      if (product?.discount) {
+        return Math.min(product.discount + value, 100);
+      }
+
+      return Math.min(value, 100);
     }
 
     if (!product || !totalAmount) {
@@ -516,13 +565,19 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
 
     const productPrice = product.unitPrice * product.quantity;
 
-    const productDiscount = (productPrice / totalAmount) * value;
-
     if (productPrice <= 0) {
       return 0;
     }
 
-    return (productDiscount / productPrice) * 100;
+    const productDiscount = (productPrice / totalAmount) * value;
+
+    const discount = (productDiscount / productPrice) * 100;
+
+    if (product?.discount) {
+      return Math.min(discount + product.discount, 100);
+    }
+
+    return Math.min(discount, 100);
   } catch (error) {
     console.error("Error calculating discount:", error.message);
     return 0;
