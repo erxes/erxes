@@ -20,24 +20,25 @@ const CustomPostTypeFields = (props: Props) => {
   }, [customFieldsData]);
 
   const onChangeValue = ({ _id, value }: { _id: string; value: any }) => {
-    const fieldIndex = customFieldsData.findIndex((c) => c.field === _id);
-
+    const fieldIndex = customFieldsData.findIndex((c: any) => c.field === _id);
+    let updatedFields;
+  
     if (fieldIndex !== -1) {
-      customFieldsData[fieldIndex].value = value;
-      props.onChange('customFieldsData', customFieldsData);
+      // Create a new array with the updated field
+      updatedFields = customFieldsData.map((field, index) => 
+        index === fieldIndex ? { ...field, value } : field
+      );
     } else {
-      props.onChange('customFieldsData', [
+      // Add new field
+      updatedFields = [
         ...customFieldsData,
-        {
-          field: _id,
-          value,
-        },
-      ]);
+        { field: _id, value }
+      ];
     }
-
+  
+    props.onChange('customFieldsData', updatedFields);
     setHasChanges(true);
   };
-
   const handleCancel = () => {
     props.onChange('customFieldsData', initialData);
     setHasChanges(false);
