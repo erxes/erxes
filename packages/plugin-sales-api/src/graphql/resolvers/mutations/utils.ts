@@ -1,4 +1,5 @@
 import resolvers from "..";
+import { nanoid } from 'nanoid';
 import { fixNum } from "@erxes/api-utils/src/core";
 import {
   destroyBoardItemRelations,
@@ -1031,7 +1032,10 @@ export const checkPricing = async (
 ) => {
   let pricing: any = {};
 
-  const activeProductsData = deal.productsData?.filter(pd => pd.tickUsed) || [];
+  const activeProductsData = deal.productsData?.filter(
+    pd => pd.tickUsed && !pd.bonusCount
+  ) || [];
+
   if (!activeProductsData.length) {
     return deal.productsData;
   }
@@ -1086,35 +1090,28 @@ export const checkPricing = async (
     }
   }
 
+  const addBonusPData: IProductData[] = [];
+
   for (const bonusProductId of Object.keys(bonusProductsToAdd)) {
-    const orderIndex = activeProductsData.findIndex(
-      (docItem: any) => docItem.productId === bonusProductId
-    );
+    const bonusProduct: any = {
+      _id: nanoid(),
+      productId: bonusProductId,
+      bonusCount: bonusProductsToAdd[bonusProductId].count,
+      unitPrice: 0,
+      quantity: bonusProductsToAdd[bonusProductId].count,
+      amount: 0,
+      tickUsed: true
+    };
 
-    if (orderIndex === -1) {
-      const bonusProduct: any = {
-        productId: bonusProductId,
-        unitPrice: 0,
-        quantity: bonusProductsToAdd[bonusProductId].count,
-        amount: 0,
-        tickUsed: true
-      };
-
-      activeProductsData.push(bonusProduct);
-    } else {
-      const item = activeProductsData[orderIndex];
-
-      item.bonusCount = bonusProductsToAdd[bonusProductId].count;
-
-      if ((item.bonusCount || 0) > item.quantity) {
-        item.quantity = item.bonusCount || 0;
-      }
-      item.discountPercent = fixNum(100 * (1 - (item.quantity - (item.bonusCount || 0)) / item.quantity), 8);
-      item.discount = fixNum((item.unitPrice / 100 * item.discountPercent) * item.quantity);
-    }
+    addBonusPData.push(bonusProduct);
   }
 
-  return [...activeProductsData, ...(deal.productsData?.filter(pd => !pd.tickUsed) || [])];
+  return [
+    ...(deal.productsData || []).filter(pd => !pd.bonusCount).map(pd =>
+      activeProductsData.find(apd => apd._id === pd._id) || pd
+    ),
+    ...addBonusPData
+  ];
 };
 
 export const checkAssignedUserFromPData = (oldAllUserIds?: string[], assignedUsersPdata?: string[], oldPData?: IProductData[]) => {
