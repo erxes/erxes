@@ -1,6 +1,6 @@
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields
+  conformityQueryFields,
 } from "@erxes/ui-sales/src/conformity/graphql/queries";
 
 import { isEnabled } from "@erxes/ui/src/utils/core";
@@ -31,6 +31,7 @@ const basicFields = `
   isSubscribed
   code
   emailValidationStatus
+  registrationNumber
   phoneValidationStatus
   score
 
@@ -63,7 +64,7 @@ export const customerFields = `
     name
     colorCode
   }
-  
+
 `;
 
 const listParamsDef = `
@@ -88,6 +89,7 @@ const listParamsDef = `
   $dateFilters: String,
   $segmentData: String
   $emailValidationStatus:String,
+  $registrationNumber: String,
   ${conformityQueryFields}
 `;
 
@@ -113,6 +115,7 @@ const listParamsValue = `
   dateFilters: $dateFilters,
   segmentData: $segmentData,
   emailValidationStatus:$emailValidationStatus,
+  registrationNumber: $registrationNumber,
   ${conformityQueryFieldDefs}
 `;
 
@@ -200,5 +203,5 @@ export default {
   customerDetail,
   customersListConfig,
   customersExport,
-  integrationsGetUsedTypes
+  integrationsGetUsedTypes,
 };

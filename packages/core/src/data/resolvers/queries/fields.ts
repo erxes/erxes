@@ -68,6 +68,10 @@ const fieldQueries = {
       { value: "branch", label: "Branch" },
       { value: "department", label: "Department" },
       { value: "map", label: "Location/Map" },
+      {
+        value: "isCheckUserTicket",
+        label: "Show only the user's assigned(created) tickets",
+      },
     ];
 
     for (const serviceName of services) {

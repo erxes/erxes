@@ -1,7 +1,7 @@
 import {
   attachmentInput,
   attachmentType,
-} from '@erxes/api-utils/src/commonTypeDefs';
+} from "@erxes/api-utils/src/commonTypeDefs";
 
 const ruleFields = `
   _id : String!,
@@ -79,6 +79,7 @@ export const commonTypes = `
 
   customProperties: JSON
   type: String
+  isCheckUserTicket: Boolean
 `;
 
 export const commonMutationParams = `
