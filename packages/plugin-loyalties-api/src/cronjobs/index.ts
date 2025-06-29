@@ -37,15 +37,22 @@ const collections = {
 };
 
 const handleLoyaltyCronjob = async ({ subdomain }) => {
-  if (!isEnabled("automations")) return;
+  console.log("Subdomain:", subdomain);
 
-  console.log("subdomain", subdomain);
+  if (!isEnabled("automations")) return;
 
   const NOW = new Date();
   const NOW_MONTH = NOW.getMonth() + 1;
 
+  console.log("NOW", NOW);
+  console.log("NOW_MONTH", NOW_MONTH);
+
+  console.log('Object.keys(collections)', Object.keys(collections))
+
   for (const collectionName of Object.keys(collections)) {
     const query = collections[collectionName](NOW_MONTH) || {};
+
+    console.log("Query:", JSON.stringify(query));
 
     const targets =
       (await sendCoreMessage({
@@ -56,7 +63,7 @@ const handleLoyaltyCronjob = async ({ subdomain }) => {
         defaultValue: [],
       })) || [];
 
-    console.log("targets.length", targets.length);
+    console.log(collectionName, targets.length);
 
     if (targets.length === 0) return;
 
@@ -69,6 +76,12 @@ const handleLoyaltyCronjob = async ({ subdomain }) => {
         targets,
       },
       defaultValue: [],
+      isRPC: true,
+    }).then((res) => {
+      console.log("Success:", res);
+    })
+    .catch((err) => {
+      console.error("Error:", err);
     });
   }
 };
@@ -76,12 +89,12 @@ const handleLoyaltyCronjob = async ({ subdomain }) => {
 export default {
   handleDailyJob: async ({ subdomain }) => {
     const VERSION = getEnv({ name: "VERSION" });
-
+    
     if (VERSION && VERSION === "saas") {
       const orgs = await getOrganizations();
-
+      
       const enabledOrganizations = orgs.filter((org) => !org?.isDisabled);
-
+      
       for (const org of enabledOrganizations) {
         handleLoyaltyCronjob({ subdomain: org?.subdomain });
       }
@@ -89,4 +102,21 @@ export default {
       handleLoyaltyCronjob({ subdomain });
     }
   },
+  handle3SecondlyJob: async ({ subdomain }) => {
+    const VERSION = getEnv({ name: "VERSION" });
+    
+    if (VERSION && VERSION === "saas") {
+      const orgs = await getOrganizations();
+
+      const ORG_NAME = getEnv({ name: "ORG_NAME" })
+      
+      const enabledOrganizations = orgs.filter((org) => !org?.isDisabled && org?.name === ORG_NAME);
+      
+      for (const org of enabledOrganizations) {
+        handleLoyaltyCronjob({ subdomain: org?.subdomain });
+      }
+    } else {
+      handleLoyaltyCronjob({ subdomain });
+    }
+  }
 };
