@@ -9,7 +9,12 @@ import {
   consumeQueue,
   consumeRPCQueue,
 } from "@erxes/api-utils/src/messageBroker";
-import { checkVouchersSale, confirmVoucherSale, handleScore } from "./utils";
+import {
+  checkVouchersSale,
+  confirmVoucherSale,
+  handleBirthDateLoyalty,
+  handleScore,
+} from "./utils";
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue(
@@ -37,6 +42,13 @@ export const setupMessageConsumers = async () => {
         products,
         discountInfo
       ),
+      status: "success",
+    };
+  });
+
+  consumeQueue("loyalties:handleBirthDay", async ({ subdomain }) => {
+    return {
+      data: await handleBirthDateLoyalty({ subdomain }),
       status: "success",
     };
   });

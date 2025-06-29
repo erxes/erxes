@@ -1,6 +1,13 @@
+import { getEnv } from "@erxes/api-utils/src";
 import { IModels } from "./connectionResolver";
-import { sendClientPortalMessage, sendCoreMessage } from "./messageBroker";
+import {
+  sendClientPortalMessage,
+  sendCommonMessage,
+  sendCoreMessage,
+} from "./messageBroker";
 import { VOUCHER_STATUS } from "./models/definitions/constants";
+import { getOrganizations } from "@erxes/api-utils/src/saas/saas";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 interface IProductD {
   productId: string;
@@ -128,10 +135,7 @@ export const checkVouchersSale = async (
       subdomain,
       action: "clientPortalUsers.findOne",
       data: {
-        $or: [
-          { _id: ownerId },
-          { erxesCustomerId: ownerId },
-        ]
+        $or: [{ _id: ownerId }, { erxesCustomerId: ownerId }],
       },
       isRPC: true,
       defaultValue: null,
@@ -581,5 +585,133 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
   } catch (error) {
     console.error("Error calculating discount:", error.message);
     return 0;
+  }
+};
+
+export const handleBirthDateLoyalty = async ({ subdomain }) => {
+  const collections = {
+    customers: (NOW_MONTH) => ({
+      $expr: {
+        $and: [
+          {
+            $eq: [
+              {
+                $month: `$birthDate`,
+              },
+              NOW_MONTH,
+            ],
+          },
+        ],
+      },
+    }),
+    users: (NOW_MONTH) => ({
+      query: {
+        $expr: {
+          $and: [
+            {
+              $eq: [
+                {
+                  $month: `$details.birthDate`,
+                },
+                NOW_MONTH,
+              ],
+            },
+          ],
+        },
+      },
+    }),
+  };
+  console.log("Subdomain:", subdomain);
+
+  if (!isEnabled("automations")) return;
+  const VERSION = getEnv({ name: "VERSION" });
+
+  const NOW = new Date();
+  const NOW_MONTH = NOW.getMonth() + 1;
+
+  console.log("NOW", NOW);
+  console.log("NOW_MONTH", NOW_MONTH);
+
+  console.log("Object.keys(collections)", Object.keys(collections));
+
+  for (const collectionName of Object.keys(collections)) {
+    const query = collections[collectionName](NOW_MONTH) || {};
+
+    console.log("Query:", JSON.stringify(query));
+
+    if (VERSION && VERSION === "saas") {
+      const orgs = await getOrganizations();
+
+      const ORG_NAME = getEnv({ name: "ORG_NAME" });
+
+      const enabledOrganizations = orgs.filter(
+        (org) => !org?.isDisabled && org?.subdomain === ORG_NAME
+      );
+
+      for (const org of enabledOrganizations) {
+        const targets =
+          (await sendCoreMessage({
+            subdomain: org.subdomain,
+            action: `${collectionName}.find`,
+            data: query,
+            isRPC: true,
+            defaultValue: [],
+          })) || [];
+
+        console.log(collectionName, targets.length);
+
+        if (targets.length === 0) return;
+
+        sendCommonMessage({
+          subdomain: org.subdomain,
+          serviceName: "automations",
+          action: "trigger",
+          data: {
+            type: "loyalties:reward",
+            targets,
+          },
+          defaultValue: [],
+          isRPC: true,
+        })
+          .then((res) => {
+            console.log("Success:", res);
+          })
+          .catch((err) => {
+            console.error("Error:", err);
+          });
+      }
+      continue;
+    } else {
+      const targets =
+        (await sendCoreMessage({
+          subdomain,
+          action: `${collectionName}.find`,
+          data: query,
+          isRPC: true,
+          defaultValue: [],
+        })) || [];
+
+      console.log(collectionName, targets.length);
+
+      if (targets.length === 0) return;
+
+      sendCommonMessage({
+        subdomain,
+        serviceName: "automations",
+        action: "trigger",
+        data: {
+          type: "loyalties:reward",
+          targets,
+        },
+        defaultValue: [],
+        isRPC: true,
+      })
+        .then((res) => {
+          console.log("Success:", res);
+        })
+        .catch((err) => {
+          console.error("Error:", err);
+        });
+    }
   }
 };
