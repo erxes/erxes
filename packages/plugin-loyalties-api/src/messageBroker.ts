@@ -12,7 +12,7 @@ import {
 import {
   checkVouchersSale,
   confirmVoucherSale,
-  handleBirthDateLoyalty,
+  handleLoyaltyReward,
   handleScore,
 } from "./utils";
 
@@ -46,9 +46,9 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeQueue("loyalties:handleBirthDay", async ({ subdomain }) => {
+  consumeQueue("loyalties:handleLoyaltyReward", async ({ subdomain }) => {
     return {
-      data: await handleBirthDateLoyalty({ subdomain }),
+      data: await handleLoyaltyReward({ subdomain }),
       status: "success",
     };
   });

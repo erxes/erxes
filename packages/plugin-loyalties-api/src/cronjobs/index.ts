@@ -5,17 +5,16 @@ export default {
     sendCommonMessage({
       subdomain,
       serviceName: "loyalties",
-      action: "handleBirthDay",
+      action: "handleLoyaltyReward",
       data: {},
       defaultValue: [],
-      isRPC: true,
     });
   },
   handle3SecondlyJob: async ({ subdomain }) => {
     sendCommonMessage({
       subdomain,
       serviceName: "loyalties",
-      action: "handleBirthDay",
+      action: "handleLoyaltyReward",
       data: {},
       defaultValue: [],
     });

@@ -1,13 +1,14 @@
 import { getEnv } from "@erxes/api-utils/src";
+import { getOrganizations } from "@erxes/api-utils/src/saas/saas";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import { IModels } from "./connectionResolver";
+import { collections } from "./constants";
 import {
   sendClientPortalMessage,
   sendCommonMessage,
   sendCoreMessage,
 } from "./messageBroker";
 import { VOUCHER_STATUS } from "./models/definitions/constants";
-import { getOrganizations } from "@erxes/api-utils/src/saas/saas";
-import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 interface IProductD {
   productId: string;
@@ -588,56 +589,16 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
   }
 };
 
-export const handleBirthDateLoyalty = async ({ subdomain }) => {
-  const collections = {
-    customers: (NOW_MONTH) => ({
-      $expr: {
-        $and: [
-          {
-            $eq: [
-              {
-                $month: `$birthDate`,
-              },
-              NOW_MONTH,
-            ],
-          },
-        ],
-      },
-    }),
-    users: (NOW_MONTH) => ({
-      query: {
-        $expr: {
-          $and: [
-            {
-              $eq: [
-                {
-                  $month: `$details.birthDate`,
-                },
-                NOW_MONTH,
-              ],
-            },
-          ],
-        },
-      },
-    }),
-  };
-  console.log("Subdomain:", subdomain);
-
+export const handleLoyaltyReward = async ({ subdomain }) => {
   if (!isEnabled("automations")) return;
+
   const VERSION = getEnv({ name: "VERSION" });
 
   const NOW = new Date();
   const NOW_MONTH = NOW.getMonth() + 1;
 
-  console.log("NOW", NOW);
-  console.log("NOW_MONTH", NOW_MONTH);
-
-  console.log("Object.keys(collections)", Object.keys(collections));
-
   for (const collectionName of Object.keys(collections)) {
     const query = collections[collectionName](NOW_MONTH) || {};
-
-    console.log("Query:", JSON.stringify(query));
 
     if (VERSION && VERSION === "saas") {
       const orgs = await getOrganizations();
@@ -657,8 +618,6 @@ export const handleBirthDateLoyalty = async ({ subdomain }) => {
             isRPC: true,
             defaultValue: [],
           })) || [];
-
-        console.log(collectionName, targets.length);
 
         if (targets.length === 0) return;
 
@@ -690,8 +649,6 @@ export const handleBirthDateLoyalty = async ({ subdomain }) => {
           isRPC: true,
           defaultValue: [],
         })) || [];
-
-      console.log(collectionName, targets.length);
 
       if (targets.length === 0) return;
 
