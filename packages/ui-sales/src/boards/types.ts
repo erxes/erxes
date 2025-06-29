@@ -1,15 +1,15 @@
 import {
   IAttachment,
   MutationVariables,
-  QueryResponse
-} from '@erxes/ui/src/types';
+  QueryResponse,
+} from "@erxes/ui/src/types";
 
-import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
-import { ICompany } from '@erxes/ui-contacts/src/companies/types';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { ISavedConformity } from '../conformity/types';
-import { ITag } from '@erxes/ui-tags/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
+import { IActivityLog } from "@erxes/ui-log/src/activityLogs/types";
+import { ICompany } from "@erxes/ui-contacts/src/companies/types";
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { ISavedConformity } from "../conformity/types";
+import { ITag } from "@erxes/ui-tags/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
 
 export interface IOptions {
   EditForm: any;
@@ -87,6 +87,7 @@ export interface IPipeline {
   isCheckDate?: boolean;
   isCheckUser?: boolean;
   isCheckDepartment?: boolean;
+  isCheckBranch?: boolean;
   excludeCheckUserIds?: string[];
   numberConfig?: string;
   numberSize?: string;
@@ -130,9 +131,13 @@ export interface IItemParams {
   departmentIds?: string[];
 }
 
-export type SaveItemMutation = ({ variables }: { variables: IItemParams }) => Promise<any>;
+export type SaveItemMutation = ({
+  variables,
+}: {
+  variables: IItemParams;
+}) => Promise<any>;
 export type RemoveStageMutation = ({
-  variables
+  variables,
 }: {
   variables: { _id: string };
 }) => Promise<any>;
@@ -293,7 +298,7 @@ export type PipelinesQueryResponse = {
   loading: boolean;
   refetch: ({
     boardId,
-    type
+    type,
   }: {
     boardId?: string;
     type?: string;
@@ -336,7 +341,9 @@ export type WatchVariables = {
 
 export type SaveMutation = (params: { variables: IItemParams }) => Promise<any>;
 
-export type WatchMutation = (params: { variables: WatchVariables }) => Promise<any>;
+export type WatchMutation = (params: {
+  variables: WatchVariables;
+}) => Promise<any>;
 
 export type UpdateTimeVariables = {
   _id: string;
@@ -345,10 +352,12 @@ export type UpdateTimeVariables = {
   startDate?: string;
 };
 
-export type RemoveMutation = (params: { variables: MutationVariables }) => Promise<any>;
+export type RemoveMutation = (params: {
+  variables: MutationVariables;
+}) => Promise<any>;
 
 export type UpdateTimeTrackMutation = (params: {
-  variables: UpdateTimeVariables
+  variables: UpdateTimeVariables;
 }) => Promise<any>;
 
 export type CopyVariables = {
@@ -356,7 +365,9 @@ export type CopyVariables = {
   proccessId: string;
 };
 
-export type CopyMutation = (params: { variables: CopyVariables }) => Promise<any>;
+export type CopyMutation = (params: {
+  variables: CopyVariables;
+}) => Promise<any>;
 
 export type ItemsQueryResponse = {
   fetchMore: any;
@@ -379,7 +390,7 @@ export type PipelineLabelDetailQueryResponse = {
 
 // mutation response
 export type AddPipelineLabelMutationResponse = (params: {
-  variables: IPipelineLabelVariables
+  variables: IPipelineLabelVariables;
 }) => Promise<any>;
 
 export type RemovePipelineLabelMutationResponse = {
@@ -456,7 +467,7 @@ export type ConvertToMutationResponse = {
 };
 
 export type StagesSortItemsMutationResponse = ({
-  variables
+  variables,
 }: {
   variables: {
     stageId: string;

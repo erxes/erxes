@@ -39,6 +39,7 @@ const pipelines = `
       isCheckDate
       isCheckUser
       isCheckDepartment
+      isCheckBranch
       excludeCheckUserIds
       numberConfig
       memberIds
@@ -50,7 +51,7 @@ const pipelines = `
       createdUser{
         details {
           fullName
-        } 
+        }
       }
       initialCategoryIds
       excludeCategoryIds
@@ -111,5 +112,5 @@ export default {
   stages,
   boardGetLast,
   boardDetail,
-  expenses
+  expenses,
 };

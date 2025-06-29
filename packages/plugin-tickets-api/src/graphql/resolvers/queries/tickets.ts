@@ -1,6 +1,6 @@
 import {
   checkPermission,
-  moduleRequireLogin
+  moduleRequireLogin,
 } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
 import { IListParams } from "./boards";
@@ -10,7 +10,7 @@ import {
   checkItemPermByUser,
   generateTicketCommonFilters,
   getItemList,
-  IArchiveArgs
+  IArchiveArgs,
 } from "./utils";
 const ticketQueries = {
   /**
@@ -22,7 +22,7 @@ const ticketQueries = {
     { user, models, subdomain }: IContext
   ) {
     const filter = {
-      ...(await generateTicketCommonFilters(models, subdomain, user._id, args))
+      ...(await generateTicketCommonFilters(models, subdomain, user._id, args)),
     };
 
     return await getItemList(models, subdomain, filter, args, user, "ticket");
@@ -34,7 +34,7 @@ const ticketQueries = {
     { user, models, subdomain }: IContext
   ) {
     const filter = {
-      ...(await generateTicketCommonFilters(models, subdomain, user._id, args))
+      ...(await generateTicketCommonFilters(models, subdomain, user._id, args)),
     };
 
     return models.Tickets.find(filter).countDocuments();
@@ -63,7 +63,6 @@ const ticketQueries = {
 
     return checkItemPermByUser(subdomain, models, user, ticket);
   },
-
 };
 
 moduleRequireLogin(ticketQueries);
