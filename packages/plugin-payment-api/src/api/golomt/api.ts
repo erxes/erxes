@@ -18,12 +18,14 @@ export const hmac256 = (key, message) => {
 export const notificationHandler = async (
   models: IModels,
   subdomain: string,
-  data: any
+  data: any,
+  res: any
 ) => {
-  const { errorCode, transactionId } = data;
+  const { errorCode, transactionId, errorDesc } = data;
 
   if (errorCode !== '000') {
-    throw new Error('Payment failed');
+    res.status(400).json({ status: 'error', message: errorDesc });
+    return;
   }
 
   const transaction = await models.Transactions.getTransaction({
@@ -33,7 +35,8 @@ export const notificationHandler = async (
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
 
   if (payment.kind !== 'golomt') {
-    throw new Error('Payment config type is mismatched');
+    res.status(400).json({ status: 'error', message: 'Payment method kind is mismatched' });
+    return;
   }
 
   try {
@@ -213,7 +216,7 @@ export class GolomtAPI extends BaseAPI {
 
     let transactionId = transaction._id;
 
-    if (transaction.details.golomtTransactionId) {
+    if (transaction.details?.golomtTransactionId) {
       transactionId = transaction.details.golomtTransactionId;
     }
 
@@ -246,7 +249,7 @@ export class GolomtAPI extends BaseAPI {
 
   private async check(transaction: any) {
     const transactionId =
-      transaction.details.golomtTransactionId || transaction._id;
+      transaction.details?.golomtTransactionId || transaction._id;
 
     const data = {
       transactionId,

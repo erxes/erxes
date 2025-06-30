@@ -107,7 +107,7 @@ export default {
       console.debug('received golomt notification', req.body);
       const models = await generateModels(getSubdomain(req));
       const subdomain = getSubdomain(req);
-      await notificationHandler(models, subdomain, req.body);
+      await notificationHandler(models, subdomain, req.body, res);
 
       res.status(200).json({ status: 'success' });
     });

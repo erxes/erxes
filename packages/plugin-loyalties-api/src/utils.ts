@@ -1,5 +1,13 @@
+import { getEnv } from "@erxes/api-utils/src";
+import { getOrganizations } from "@erxes/api-utils/src/saas/saas";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import { IModels } from "./connectionResolver";
-import { sendClientPortalMessage, sendCoreMessage } from "./messageBroker";
+import { collections } from "./constants";
+import {
+  sendClientPortalMessage,
+  sendCommonMessage,
+  sendCoreMessage,
+} from "./messageBroker";
 import { VOUCHER_STATUS } from "./models/definitions/constants";
 
 interface IProductD {
@@ -128,10 +136,7 @@ export const checkVouchersSale = async (
       subdomain,
       action: "clientPortalUsers.findOne",
       data: {
-        $or: [
-          { _id: ownerId },
-          { erxesCustomerId: ownerId },
-        ]
+        $or: [{ _id: ownerId }, { erxesCustomerId: ownerId }],
       },
       isRPC: true,
       defaultValue: null,
@@ -581,5 +586,73 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
   } catch (error) {
     console.error("Error calculating discount:", error.message);
     return 0;
+  }
+};
+
+export const handleLoyaltyReward = async ({ subdomain }) => {
+  if (!isEnabled("automations")) return;
+
+  const VERSION = getEnv({ name: "VERSION" });
+
+  const NOW = new Date();
+  const NOW_MONTH = NOW.getMonth() + 1;
+
+  for (const collectionName of Object.keys(collections)) {
+    const query = collections[collectionName](NOW_MONTH) || {};
+
+    if (VERSION && VERSION === "saas") {
+      const orgs = await getOrganizations();
+
+      const enabledOrganizations = orgs.filter((org) => !org?.isDisabled);
+
+      for (const org of enabledOrganizations) {
+        const targets =
+          (await sendCoreMessage({
+            subdomain: org.subdomain,
+            action: `${collectionName}.find`,
+            data: query,
+            isRPC: true,
+            defaultValue: [],
+          })) || [];
+
+        if (targets.length === 0) return;
+
+        sendCommonMessage({
+          subdomain: org.subdomain,
+          serviceName: "automations",
+          action: "trigger",
+          data: {
+            type: "loyalties:reward",
+            targets,
+          },
+          defaultValue: [],
+          isRPC: true,
+        });
+      }
+      continue;
+    } else {
+      const targets =
+        (await sendCoreMessage({
+          subdomain,
+          action: `${collectionName}.find`,
+          data: query,
+          isRPC: true,
+          defaultValue: [],
+        })) || [];
+
+      if (targets.length === 0) return;
+
+      sendCommonMessage({
+        subdomain,
+        serviceName: "automations",
+        action: "trigger",
+        data: {
+          type: "loyalties:reward",
+          targets,
+        },
+        defaultValue: [],
+        isRPC: true,
+      });
+    }
   }
 };
