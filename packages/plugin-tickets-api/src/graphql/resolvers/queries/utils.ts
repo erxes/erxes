@@ -671,16 +671,6 @@ export const generateCommonFilters = async (
       ],
     };
   }
-  filter.$or = [
-    {
-      isCheckUserTicket: { $ne: true },
-      assignedUserIds: { $eq: [] },
-    },
-    {
-      isCheckUserTicket: true,
-      $or: [{ assignedUserIds: currentUserId }, { userId: currentUserId }],
-    },
-  ];
 
   return filter;
 };
@@ -1128,6 +1118,8 @@ export const getItemList = async (
         labels: "$labels_doc",
         stage: { $arrayElemAt: ["$stages_doc", 0] },
         name: 1,
+        isCheckUserTicket: 1,
+        assignedUserIds: 1,
         isComplete: 1,
         startDate: 1,
         closeDate: 1,
@@ -1385,6 +1377,13 @@ export const getItemList = async (
   let order = 0;
 
   for (const item of list) {
+    if (item.isCheckUserTicket === true) {
+      if (
+        !(item.userId === user._id || item.assignedUserIds?.includes(user._id))
+      ) {
+        continue;
+      }
+    }
     if (
       item.customFieldsData &&
       item.customFieldsData.length > 0 &&

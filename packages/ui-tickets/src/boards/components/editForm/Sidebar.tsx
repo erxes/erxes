@@ -35,13 +35,11 @@ class Sidebar extends React.Component<Props> {
   render() {
     const { item, saveItem, sidebar, childrenSection, currentUser } =
       this.props;
-
     const userOnChange = (usrs) => saveItem({ assignedUserIds: usrs });
     const onChangeStructure = (values, name) => saveItem({ [name]: values });
     const assignedUserIds = (item.assignedUsers || []).map((user) => user._id);
-    const branchIds = currentUser.branchIds;
-    const departmentIds = currentUser.departmentIds;
-
+    const branchIds = item?.branchIds;
+    const departmentIds = item?.departmentIds;
     return (
       <RightContent>
         <FormGroup>
