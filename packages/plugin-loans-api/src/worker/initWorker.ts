@@ -1,13 +1,13 @@
-import { Worker } from 'bullmq';
-import redis from '@erxes/api-utils/src/redis';
-import { generateModels } from '../connectionResolver';
-import { getLastTransaction } from '../utils';
-import * as moment from 'moment';
-import { getConfig } from '../messageBroker';
+import { Worker } from "bullmq";
+import redis from "@erxes/api-utils/src/redis";
+import { generateModels } from "../connectionResolver";
+import { getLastTransaction } from "../utils";
+import * as moment from "moment";
+import { getConfig } from "../messageBroker";
 
 export const initWorker = () => {
   const worker = new Worker(
-    'periodLock', // Queue name
+    "periodLock", // Queue name
     async (job) => {
       const { subdomain, date } = job.data;
 
@@ -18,10 +18,10 @@ export const initWorker = () => {
 
       for (const type of contractTypes) {
         const contracts = await models.Contracts.find({
-          contractTypeId: type._id,
+          contractTypeId: type._id
         });
 
-        const coreConfig = await getConfig('loansConfig', subdomain, {});
+        const coreConfig = await getConfig("loansConfig", subdomain, {});
 
         const config = {
           normalExpirationDay:
@@ -41,39 +41,35 @@ export const initWorker = () => {
             coreConfig.negativeExpirationDay ??
             180,
           badExpirationDay:
-            type.config?.badExpirationDay ?? coreConfig.badExpirationDay ?? 360,
+            type.config?.badExpirationDay ?? coreConfig.badExpirationDay ?? 360
         };
 
         for (const contract of contracts) {
           let lastTransaction;
           const transactions = await models.Transactions.find({
-            contractId: contract._id,
+            contractId: contract._id
           });
 
           if (Array.isArray(transactions) && transactions.length > 0) {
             lastTransaction = await getLastTransaction(transactions);
 
-            let classification = 'active';
+            let classification = "active";
 
             if (lastTransaction?.payDate) {
               const today = moment();
               const lastDate = moment(lastTransaction.payDate);
-              const diffInDays = today.diff(lastDate, 'days');
+              const diffInDays = today.diff(lastDate, "days");
 
               if (diffInDays >= config.badExpirationDay) {
-                classification = 'bad';
-              }
-              if (diffInDays >= config.negativeExpirationDay) {
-                classification = 'suspicious';
-              }
-              if (diffInDays >= config.doubtExpirationDay) {
-                classification = 'abnormal';
-              }
-              if (diffInDays >= config.expiredExpirationDay) {
-                classification = 'expired';
-              }
-              if (diffInDays < config.expiredExpirationDay) {
-                classification = 'normal';
+                classification = "bad";
+              } else if (diffInDays >= config.negativeExpirationDay) {
+                classification = "suspicious";
+              } else if (diffInDays >= config.doubtExpirationDay) {
+                classification = "abnormal";
+              } else if (diffInDays >= config.expiredExpirationDay) {
+                classification = "expired";
+              } else {
+                classification = "normal";
               }
             }
 
@@ -87,8 +83,8 @@ export const initWorker = () => {
               classification,
               ha: lastTransaction.payDate,
               daysSinceLastPayment: lastTransaction?.payDate
-                ? moment().diff(moment(lastTransaction.payDate), 'days')
-                : null,
+                ? moment().diff(moment(lastTransaction.payDate), "days")
+                : null
             });
           }
         }
@@ -97,16 +93,16 @@ export const initWorker = () => {
       // Wait 10 seconds
       await new Promise((resolve) => setTimeout(resolve, 10000));
 
-      console.log('done'); // <- This will print after 10 seconds
+      console.log("done"); // <- This will print after 10 seconds
 
-      return { status: 'done' }; // Optionally return something
+      return { status: "done" }; // Optionally return something
     },
     {
-      connection: redis as any,
+      connection: redis as any
     }
   );
 
-  worker.on('completed', (job) => {
+  worker.on("completed", (job) => {
     console.log(`Job ${job.id} completed`);
   });
 
