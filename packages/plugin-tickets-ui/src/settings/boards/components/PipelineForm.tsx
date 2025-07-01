@@ -66,6 +66,9 @@ const PipelineForm = (props: Props) => {
   const [backgroundColor, setBackgroundColor] = useState(
     (pipeline && pipeline.bgColor) || colors.colorPrimaryDark
   );
+  const [isCheckBranch, setIsCheckBranch] = useState(
+    pipeline ? pipeline.isCheckBranch : false
+  );
   const [isCheckDate, setIsCheckDate] = useState(
     pipeline ? pipeline.isCheckDate : false
   );
@@ -125,6 +128,12 @@ const PipelineForm = (props: Props) => {
     setBackgroundColor(e.hex);
   };
 
+   const onChangeIsCheckBranch = (e) => {
+    const isChecked = (e.currentTarget as HTMLInputElement).checked;
+    setIsCheckBranch(isChecked);
+  };
+
+
   const onChangeNumber = (key: string, value: string) => {
     if (key === 'numberConfig') {
       setNumberConfig(value);
@@ -163,6 +172,7 @@ const PipelineForm = (props: Props) => {
       isCheckDate,
       isCheckUser,
       isCheckDepartment,
+      isCheckBranch,
       excludeCheckUserIds,
       numberConfig,
       numberSize,
@@ -279,7 +289,7 @@ const PipelineForm = (props: Props) => {
   };
 
   const renderDominantUsers = () => {
-    if (!isCheckUser && !isCheckDepartment) {
+   if (!isCheckUser && !isCheckDepartment && !isCheckBranch) {
       return;
     }
 
@@ -452,6 +462,19 @@ const PipelineForm = (props: Props) => {
                   componentclass='checkbox'
                   checked={isCheckDate}
                   onChange={onChangeIsCheckDate}
+                />
+              </span>
+            </FlexItem>
+              <FlexItem>
+              <ControlLabel>
+                {__(`Show only user’s assigned (created)`)} {props.type}{" "}
+                {__(`by branch`)}
+              </ControlLabel>
+              <span style={{ marginLeft: "10px" }}>
+                <FormControl
+                  componentclass="checkbox"
+                  checked={isCheckBranch}
+                  onChange={onChangeIsCheckBranch}
                 />
               </span>
             </FlexItem>

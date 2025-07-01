@@ -97,6 +97,7 @@ export interface IPipeline extends ICommonFields {
   isCheckDate?: boolean;
   isCheckUser?: boolean;
   isCheckDepartment?: boolean;
+  isCheckBranch?: Boolean;
   excludeCheckUserIds?: string[];
   numberConfig?: string;
   numberSize?: string;
@@ -357,6 +358,11 @@ export const pipelineSchema = new Schema({
     type: Boolean,
     optional: true,
     label: "Show only the departments created or assigned cards",
+  }),
+  isCheckBranch: field({
+    type: Boolean,
+    optional: true,
+    label: "Show only the branches created or assigned cards",
   }),
   excludeCheckUserIds: field({
     type: [String],

@@ -39,6 +39,7 @@ const pipelines = `
       isCheckDate
       isCheckUser
       isCheckDepartment
+      isCheckBranch
       excludeCheckUserIds
       numberConfig
       memberIds

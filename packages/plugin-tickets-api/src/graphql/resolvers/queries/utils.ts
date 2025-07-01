@@ -17,6 +17,7 @@ import {
 import { IUserDocument } from "@erxes/api-utils/src/types";
 import { IModels } from "../../../connectionResolver";
 import { USER_ROLES } from "@erxes/api-utils/src/constants";
+import { length } from "../../../essyncer";
 
 export interface IArchiveArgs {
   pipelineId: string;
@@ -478,108 +479,156 @@ export const generateCommonFilters = async (
       },
       isRPC: true,
     });
-    const tmp =
-      (await sendCoreMessage({
-        subdomain,
-        action: "departments.findWithChild",
-        data: {
-          query: {
-            supervisorId: currentUserId,
-          },
-          fields: {
-            _id: 1,
-          },
-        },
-        isRPC: true,
-      })) || [];
+   const getSupervisorUnitIds = async (subdomain, currentUserId) => {
+   const departments =
+    (await sendCoreMessage({
+      subdomain,
+      action: "departments.findWithChild",
+      data: {
+        query: { supervisorId: currentUserId },
+        fields: { _id: 1 },
+      },
+      isRPC: true,
+    })) || [];
 
-    const supervisorDepartmentIds = tmp?.map((x) => x._id) || [];
-    const pipelineDepartmentIds = pipeline.departmentIds || [];
+  const branches =
+    (await sendCoreMessage({
+      subdomain,
+      action: "branches.findWithChild",
+      data: {
+        query: { supervisorId: currentUserId },
+        fields: { _id: 1 },
+      },
+      isRPC: true,
+    })) || [];
 
-    const commonIds =
-      supervisorDepartmentIds.filter((id) =>
-        pipelineDepartmentIds.includes(id)
-      ) || [];
-    const isEligibleSeeAllCards = (pipeline.excludeCheckUserIds || []).includes(
-      currentUserId
+  return {
+    departmentIds: departments.map((x) => x._id),
+    branchIds: branches.map((x) => x._id),
+  };
+};
+
+const getRelatedUsersByUnitIds = async (
+  subdomain,
+  unitType,
+  ids
+): Promise<string[]> => {
+  if (!ids.length) return [];
+
+  const queryKey = unitType === "department" ? "departmentIds" : "branchIds";
+
+  const users =
+    (await sendCoreMessage({
+      subdomain,
+      action: "users.find",
+      data: {
+        query: { [queryKey]: { $in: ids } },
+      },
+      isRPC: true,
+      defaultValue: [],
+    })) || [];
+
+  return users.map((user) => user._id);
+};
+
+const addFilterByUserIds = (filter: any, userIds: string[]) => {
+  const uniqueUserIds = [...new Set(userIds)];
+
+  Object.assign(filter, {
+    $or: [
+      { assignedUserIds: { $in: uniqueUserIds } },
+      { userId: { $in: uniqueUserIds } },
+    ],
+  });
+};
+
+const { departmentIds: supervisorDepartmentIds, branchIds: supervisorBranchIds } =
+  await getSupervisorUnitIds(subdomain, currentUserId);
+
+const pipelineDepartmentIds = pipeline.departmentIds || [];
+const pipelineBranchIds = pipeline.branchIds || [];
+
+const commonDepartmentIds = supervisorDepartmentIds.filter((id) =>
+  pipelineDepartmentIds.includes(id)
+);
+const commonBranchIds = supervisorBranchIds.filter((id) =>
+  pipelineBranchIds.includes(id)
+);
+
+const isEligibleSeeAllCards = (pipeline.excludeCheckUserIds || []).includes(
+  currentUserId
+);
+
+const isCheckEnabled =
+  pipeline.isCheckUser || pipeline.isCheckDepartment || pipeline.isCheckBranch;
+
+if ((commonDepartmentIds.length || commonBranchIds.length) && isCheckEnabled && !isEligibleSeeAllCards) {
+  // supervisor in relevant departments/branches
+  const departmentUserIds = await getRelatedUsersByUnitIds(
+    subdomain,
+    "department",
+    commonDepartmentIds
+  );
+  const branchUserIds = await getRelatedUsersByUnitIds(
+    subdomain,
+    "branch",
+    commonBranchIds
+  );
+
+  const allUserIds = [
+    ...departmentUserIds,
+    ...branchUserIds,
+    user._id,
+    currentUserId,
+  ];
+
+  addFilterByUserIds(filter, allUserIds);
+} else if (isCheckEnabled && !isEligibleSeeAllCards) {
+  // not a supervisor, check by department or branch matching
+  let relatedUserIds: string[] = [];
+
+  if (pipeline.isCheckDepartment) {
+    const userDepartmentIds = user?.departmentIds || [];
+    const commonIds = userDepartmentIds.filter((id) =>
+      pipelineDepartmentIds.includes(id)
     );
-    if (
-      commonIds?.length > 0 &&
-      (pipeline.isCheckUser || pipeline.isCheckDepartment) &&
-      !isEligibleSeeAllCards
-    ) {
-      // current user is supervisor in departments and this pipeline has included that some of user's departments
-      // so user is eligible to see all cards of people who share same department.
-      const otherDepartmentUsers = await sendCoreMessage({
-        subdomain,
-        action: "users.find",
-        data: {
-          query: { departmentIds: { $in: commonIds } },
-        },
-        isRPC: true,
-        defaultValue: [],
-      });
-      let includeCheckUserIds = otherDepartmentUsers.map((x) => x._id) || [];
-      includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
 
-      const uqinueCheckUserIds = [
-        ...new Set(includeCheckUserIds.concat(currentUserId)),
-      ];
+    const deptUserIds = await getRelatedUsersByUnitIds(
+      subdomain,
+      "department",
+      commonIds
+    );
 
-      Object.assign(filter, {
-        $or: [
-          { assignedUserIds: { $in: uqinueCheckUserIds } },
-          { userId: { $in: uqinueCheckUserIds } },
-        ],
-      });
-    } else {
-      if (
-        (pipeline.isCheckUser || pipeline.isCheckDepartment) &&
-        !isEligibleSeeAllCards
-      ) {
-        let includeCheckUserIds: string[] = [];
+    relatedUserIds = relatedUserIds.concat(deptUserIds);
 
-        if (pipeline.isCheckDepartment) {
-          const userDepartmentIds = user?.departmentIds || [];
-          const commonIds = userDepartmentIds.filter((id) =>
-            pipelineDepartmentIds.includes(id)
-          );
-
-          const otherDepartmentUsers = await sendCoreMessage({
-            subdomain,
-            action: "users.find",
-            data: {
-              query: { departmentIds: { $in: commonIds } },
-            },
-            isRPC: true,
-            defaultValue: [],
-          });
-
-          for (const departmentUser of otherDepartmentUsers) {
-            includeCheckUserIds = [...includeCheckUserIds, departmentUser._id];
-          }
-
-          if (
-            !!pipelineDepartmentIds.filter((departmentId) =>
-              userDepartmentIds.includes(departmentId)
-            ).length
-          ) {
-            includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
-          }
-        }
-
-        const uqinueCheckUserIds = [
-          ...new Set(includeCheckUserIds.concat(currentUserId)),
-        ];
-
-        Object.assign(filter, {
-          $or: [
-            { assignedUserIds: { $in: uqinueCheckUserIds } },
-            { userId: { $in: uqinueCheckUserIds } },
-          ],
-        });
-      }
+    if (commonIds.length > 0) {
+      relatedUserIds.push(user._id);
     }
+  }
+
+  if (pipeline.isCheckBranch) {
+    const userBranchIds = user?.branchIds || [];
+    const commonIds = userBranchIds.filter((id) =>
+      pipelineBranchIds.includes(id)
+    );
+
+    const branchUserIds = await getRelatedUsersByUnitIds(
+      subdomain,
+      "branch",
+      commonIds
+    );
+
+    relatedUserIds = relatedUserIds.concat(branchUserIds);
+
+    if (commonIds.length > 0) {
+      relatedUserIds.push(user._id);
+    }
+  }
+
+  relatedUserIds.push(currentUserId);
+  addFilterByUserIds(filter, relatedUserIds);
+  }
+
   }
 
   if (userIds) {
@@ -671,16 +720,8 @@ export const generateCommonFilters = async (
       ],
     };
   }
-  filter.$or = [
-    {
-      isCheckUserTicket: { $ne: true },
-      assignedUserIds: { $eq: [] },
-    },
-    {
-      isCheckUserTicket: true,
-      $or: [{ assignedUserIds: currentUserId }, { userId: currentUserId }],
-    },
-  ];
+ 
+  console.log(filter,'filter')
 
   return filter;
 };

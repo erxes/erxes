@@ -87,6 +87,7 @@ export interface IPipeline {
   isCheckDate?: boolean;
   isCheckUser?: boolean;
   isCheckDepartment?: boolean;
+  isCheckBranch?: boolean
   excludeCheckUserIds?: string[];
   numberConfig?: string;
   numberSize?: string;
