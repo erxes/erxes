@@ -60,8 +60,48 @@ const SelectNewBranches: React.FC<SelectNewBranchesProps> = ({
       : []
   );
   const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({});
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   const branches = useMemo(() => data?.branches || [], [data]);
+
+  // Check if a branch or its descendants match the search term
+  const hasMatchingDescendant = (branchId: string): boolean => {
+    const branch = branches.find((b) => b._id === branchId);
+    if (!branch) return false;
+    if (branch.title.toLowerCase().includes(searchTerm.toLowerCase())) return true;
+    return branches.some((b) => b.parentId === branchId && hasMatchingDescendant(b._id));
+  };
+
+  // Filter top-level branches based on search term
+  const filteredTopBranches = useMemo(() => {
+    if (!searchTerm) return branches.filter((b) => !b.parentId);
+    return branches.filter(
+      (branch) =>
+        !branch.parentId &&
+        (branch.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          hasMatchingDescendant(branch._id))
+    );
+  }, [branches, searchTerm]);
+
+  // Auto-expand parents of matching children
+  const autoExpandedIds = useMemo(() => {
+    if (!searchTerm) return expandedIds;
+    const newExpanded: Record<string, boolean> = { ...expandedIds };
+    branches.forEach((branch) => {
+      if (
+        branch.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        branch.parentId
+      ) {
+        let currentId = branch.parentId;
+        while (currentId) {
+          newExpanded[currentId] = true;
+          const parent = branches.find((b) => b._id === currentId);
+          currentId = parent?.parentId || "";
+        }
+      }
+    });
+    return newExpanded;
+  }, [branches, searchTerm, expandedIds]);
 
   // Function to get full path for a branch
   const getBranchPath = (branchId: string): string => {
@@ -112,7 +152,6 @@ const SelectNewBranches: React.FC<SelectNewBranchesProps> = ({
     const allPaths = selectedIds.map((branchId) => getBranchPath(branchId));
     const mostSpecificPaths: string[] = [];
 
-    // Filter out paths that are ancestors of other selected paths
     allPaths.forEach((path) => {
       const isAncestor = allPaths.some(
         (otherPath) => otherPath !== path && otherPath.startsWith(path + " > ")
@@ -127,7 +166,7 @@ const SelectNewBranches: React.FC<SelectNewBranchesProps> = ({
 
   const renderBranch = (branch: IBranch, level = 0) => {
     const hasChildren = branches.some((b) => b.parentId === branch._id);
-    const isExpanded = !!expandedIds[branch._id];
+    const isExpanded = autoExpandedIds[branch._id] || expandedIds[branch._id];
     const isSelected = selectedIds.includes(branch._id);
 
     return (
@@ -183,10 +222,17 @@ const SelectNewBranches: React.FC<SelectNewBranchesProps> = ({
   return (
     <div className="branch-selector-container">
       <label>{label}</label>
+      <input
+        type="text"
+        placeholder={__("Search branches...")}
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="search-input"
+      />
       <div className="branch-list">
-        {branches
-          .filter((b) => !b.parentId)
-          .map((branch) => renderBranch(branch))}
+        {filteredTopBranches.length > 0
+          ? filteredTopBranches.map((branch) => renderBranch(branch))
+          : <div>{__("No branches found")}</div>}
       </div>
 
       {selectedIds.length > 0 && (
@@ -227,6 +273,16 @@ const SelectNewBranches: React.FC<SelectNewBranchesProps> = ({
       margin-bottom: 8px;
       display: block;
       color: #333;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 6px 8px;
+      margin-bottom: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
     }
 
     .branch-list {
@@ -350,7 +406,6 @@ const SelectNewBranches: React.FC<SelectNewBranchesProps> = ({
       background: #cce5ff;
     }
 
-    /* Scrollbar styling */
     .branch-list::-webkit-scrollbar {
       height: 8px;
       width: 8px;
