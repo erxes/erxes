@@ -20,6 +20,7 @@ export interface ITour {
   groupSize: number;
   guides: IGuideItem[];
   status: string;
+  date_status: string;
   cost: number;
   branchId: string;
   tags: string[];
@@ -48,17 +49,17 @@ const STATUS_TYPES = [
   { label: "running", value: "running" },
   { label: "compeleted", value: "compeleted" },
   { label: "scheduled", value: "scheduled" },
-  { label: "cancelled", value: "cancelled" }
+  { label: "cancelled", value: "cancelled" },
 ];
 
 const getEnum = (): string[] => {
-  return STATUS_TYPES.map((option) => option.value);
+  return STATUS_TYPES.map(option => option.value);
 };
 
 export const guideItemSchema = new Schema(
   {
     guideId: field({ type: String, optional: true }),
-    type: field({ type: String, optional: true })
+    type: field({ type: String, optional: true }),
   },
   { _id: false }
 );
@@ -75,7 +76,7 @@ export const tourSchema = schemaHooksWrapper(
     location: field({
       type: [locationSchema],
       optional: true,
-      label: "location"
+      label: "location",
     }),
     itineraryId: field({ type: String, optional: true, label: "initeraryId" }),
     startDate: field({ type: Date, optional: true, label: "date" }),
@@ -87,7 +88,14 @@ export const tourSchema = schemaHooksWrapper(
       default: "",
       optional: true,
       label: "status",
-      esType: "keyword"
+      esType: "keyword",
+    }),
+    date_status: field({
+      type: String,
+      default: "",
+      optional: true,
+      label: "date status",
+      esType: "keyword",
     }),
     cost: field({ type: Number, optional: true, label: "cost" }),
     tagIds: field({ type: [String], optional: true, label: "tagIds" }),
@@ -95,17 +103,17 @@ export const tourSchema = schemaHooksWrapper(
     advancePercent: field({
       type: Number,
       optional: true,
-      label: "advancePercent"
+      label: "advancePercent",
     }),
     joinPercent: field({
       type: Number,
       optional: true,
-      label: "joinPercent"
+      label: "joinPercent",
     }),
     advanceCheck: field({
       type: Boolean,
       optional: true,
-      label: "advanceCheck"
+      label: "advanceCheck",
     }),
 
     branchId: field({ type: String, optional: true, label: "branchId" }),
@@ -119,7 +127,7 @@ export const tourSchema = schemaHooksWrapper(
     extra: field({ type: Object, optional: true, label: "extra" }),
 
     images: field({ type: [String], optional: true, label: "images" }),
-    imageThumbnail: field({ type: String, optional: true, label: "images" })
+    imageThumbnail: field({ type: String, optional: true, label: "images" }),
   }),
   "erxes_tours"
 );

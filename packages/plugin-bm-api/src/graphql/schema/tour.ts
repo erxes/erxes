@@ -10,7 +10,12 @@ export const types = () => `
     guide: User
     type: String
   }
-
+  enum DATE_STATUS {
+    running
+    compeleted
+    scheduled
+    cancelled
+  }
   type Tour {
     _id: String!
     branchId: String
@@ -27,6 +32,7 @@ export const types = () => `
     endDate: Date
     groupSize: Int
     status: String
+    date_status: DATE_STATUS
     cost: Float
     orders: [BmsOrder]
     createdAt: Date
@@ -119,6 +125,7 @@ const params = `
   joinPercent: Float,
   advanceCheck: Boolean,
   status: String,
+  date_status: DATE_STATUS
   cost: Float,
   location: [BMSLocationInput],
   guides:[GuideItemInput],

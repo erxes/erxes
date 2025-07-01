@@ -2,7 +2,7 @@ import { skip } from "node:test";
 import { IContext, IModels } from "../../../connectionResolver";
 import {
   IElement,
-  IElementCategory
+  IElementCategory,
 } from "../../../models/definitions/element";
 
 const checkDefaults = async (models: IModels, name: string, icon: string) => {
@@ -16,7 +16,7 @@ const checkDefaults = async (models: IModels, name: string, icon: string) => {
       quick: true,
       icon: icon,
       name: one?.name,
-      content: one?.content
+      content: one?.content,
     });
   }
 };
@@ -28,7 +28,7 @@ const insertCategoryDefaults = async (
 ) => {
   const one = await models.ElementCategories.findOne({
     name,
-    parentId
+    parentId,
   });
 
   if (!one) {
@@ -49,8 +49,8 @@ const LIST_CATEGORIES = [
       { name: "Camping" },
       { name: "Lodge" },
       { name: "Motel" },
-      { name: "Villa" }
-    ]
+      { name: "Villa" },
+    ],
   },
   {
     name: "Places",
@@ -64,8 +64,8 @@ const LIST_CATEGORIES = [
           { name: "Forests & Jungles" },
           { name: "Lakes & Rivers" },
           { name: "Waterfalls" },
-          { name: "Islands" }
-        ]
+          { name: "Islands" },
+        ],
       },
       {
         name: "Cultural & Historical Sites",
@@ -74,8 +74,8 @@ const LIST_CATEGORIES = [
           { name: "Temples & Monasteries" },
           { name: "Museums & Art Galleries" },
           { name: "Historical Cities" },
-          { name: "Castles & Palaces" }
-        ]
+          { name: "Castles & Palaces" },
+        ],
       },
       {
         name: "Urban Destinations",
@@ -83,8 +83,8 @@ const LIST_CATEGORIES = [
           { name: "Metropolitan Cities" },
           { name: "Skyscraper Cities" },
           { name: "Old Towns & Quarters" },
-          { name: "Technology Hubs" }
-        ]
+          { name: "Technology Hubs" },
+        ],
       },
       {
         name: "Adventure & Outdoor Recreation",
@@ -93,8 +93,8 @@ const LIST_CATEGORIES = [
           { name: "Hiking Trails" },
           { name: "Ski Resorts" },
           { name: "Diving & Snorkeling Spots" },
-          { name: "Rock Climbing Destinations" }
-        ]
+          { name: "Rock Climbing Destinations" },
+        ],
       },
       {
         name: "Relaxation & Wellness",
@@ -102,8 +102,8 @@ const LIST_CATEGORIES = [
           { name: "Spa Towns" },
           { name: "Yoga Retreats" },
           { name: "Hot Springs" },
-          { name: "Quiet Countryside" }
-        ]
+          { name: "Quiet Countryside" },
+        ],
       },
       {
         name: "Relaxation & Wellness",
@@ -111,10 +111,10 @@ const LIST_CATEGORIES = [
           { name: "Spa Towns" },
           { name: "Yoga Retreats" },
           { name: "Hot Springs" },
-          { name: "Quiet Countryside" }
-        ]
-      }
-    ]
+          { name: "Quiet Countryside" },
+        ],
+      },
+    ],
   },
   {
     name: "Activity",
@@ -132,8 +132,8 @@ const LIST_CATEGORIES = [
       { name: "Beach Activities" },
       { name: "City Tours" },
       { name: "Boat Tours/Cruises" },
-      { name: "Photography" }
-    ]
+      { name: "Photography" },
+    ],
   },
   {
     name: "Food & Drink",
@@ -147,8 +147,8 @@ const LIST_CATEGORIES = [
       { name: "Vegetarian/Vegan Options" },
       { name: "Food Markets" },
       { name: "Picnics and Outdoor Dining" },
-      { name: "Fast Food" }
-    ]
+      { name: "Fast Food" },
+    ],
   },
 
   {
@@ -166,11 +166,11 @@ const LIST_CATEGORIES = [
           { name: "Dornogovi" },
           { name: "Dundgovi" },
           { name: "Govi-Altai" },
-          { name: "Ulaanbaatar" }
-        ]
-      }
-    ]
-  }
+          { name: "Ulaanbaatar" },
+        ],
+      },
+    ],
+  },
 ];
 const elementQueries = {
   async bmElements(
@@ -184,7 +184,7 @@ const elementQueries = {
       quick,
       sortField,
       sortDirection,
-      icon
+      icon,
     },
     { models }: IContext
   ) {
@@ -208,7 +208,7 @@ const elementQueries = {
     if (name) {
       selector.$or = [
         { name: { $regex: name, $options: "i" } },
-        { "location.name": { $regex: name, $options: "i" } }
+        { "location.name": { $regex: name, $options: "i" } },
       ];
     }
     if (typeof quick === "boolean") {
@@ -227,7 +227,7 @@ const elementQueries = {
     let sort: any = { number: 1 };
     if (sortField && sortDirection) {
       sort = {
-        [sortField]: sortDirection
+        [sortField]: sortDirection,
       };
     }
 
@@ -238,7 +238,7 @@ const elementQueries = {
     const total = await models.Elements.find(selector).countDocuments();
     return {
       list,
-      total
+      total,
     };
   },
 
@@ -273,6 +273,11 @@ const elementQueries = {
     await checkDefaults(models, "no electricity", "moon");
     await checkDefaults(models, "horse & camel", "moon");
 
+    await models.Tours.updateMany(
+      { date_status: null },
+      { $set: { date_status: "scheduled" } }
+    );
+
     return "ok";
   },
   async bmCategoryInit(_root, {}, { models }: IContext) {
@@ -299,7 +304,7 @@ const elementQueries = {
     }
 
     return "ok";
-  }
+  },
 };
 
 export default elementQueries;

@@ -7,15 +7,23 @@ import { generateModels } from "../connectionResolver";
 const handleBmCronjob = async ({ subdomain }) => {
   const models = await generateModels(subdomain);
 
-  const update = await models.Tours.updateMany(
+  const update1 = await models.Tours.updateMany(
     {
-      endDate: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) },
-      status: "Ongoing",
+      endDate: { $lte: new Date(new Date().setHours(0, 0, 0, 0)) },
+      date_status: "running",
     },
-    { $set: { status: "Completed" } }
+    { $set: { date_status: "compeleted" } }
+  );
+  const update2 = await models.Tours.updateMany(
+    {
+      startDate: { $lte: new Date(new Date().setHours(0, 0, 0, 0)) },
+      date_status: "scheduled",
+    },
+    { $set: { date_status: "running" } }
   );
 };
-
+// handleHourlyJob
+// handle3SecondlyJob;
 export default {
   handleHourlyJob: async ({ subdomain }) => {
     const VERSION = getEnv({ name: "VERSION" });
