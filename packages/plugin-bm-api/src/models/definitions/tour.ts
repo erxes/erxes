@@ -49,6 +49,7 @@ const STATUS_TYPES = [
   { label: "running", value: "running" },
   { label: "compeleted", value: "compeleted" },
   { label: "scheduled", value: "scheduled" },
+  { label: "unscheduled", value: "unscheduled" },
   { label: "cancelled", value: "cancelled" },
 ];
 
@@ -96,6 +97,7 @@ export const tourSchema = schemaHooksWrapper(
       optional: true,
       label: "date status",
       esType: "keyword",
+      selectOptions: getEnum(),
     }),
     cost: field({ type: Number, optional: true, label: "cost" }),
     tagIds: field({ type: [String], optional: true, label: "tagIds" }),
