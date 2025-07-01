@@ -10,13 +10,4 @@ export default {
       defaultValue: [],
     });
   },
-  handle3SecondlyJob: async ({ subdomain }) => {
-    sendCommonMessage({
-      subdomain,
-      serviceName: "loyalties",
-      action: "handleLoyaltyReward",
-      data: {},
-      defaultValue: [],
-    });
-  },
 };

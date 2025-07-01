@@ -59,11 +59,7 @@ export default {
   checkCustomTrigger: async ({ subdomain, data }) => {
     const { collectionType, config } = data;
 
-    console.log("data", data);
-
     const { rewardType } = config;
-
-    console.log("rewardType", rewardType);
 
     if (collectionType === "reward") {
       switch (rewardType) {
@@ -74,8 +70,6 @@ export default {
       }
     }
 
-    console.log("return false");
-
     return false;
   },
 };
@@ -83,41 +77,25 @@ export default {
 const checkBirthDateTrigger = async (subdomain, data) => {
   const { target, config } = data || {};
 
-  console.log("data", data);
-
   const NOW = new Date();
   const NOW_MONTH = NOW.getMonth();
 
   const { appliesTo = [] } = config || {};
 
-  console.log("appliesTo", appliesTo);
-
   if (!appliesTo?.length) return false;
 
   if (target?.details?.birthDate) {
     if (new Date(target?.details?.birthDate).getMonth() !== NOW_MONTH) {
-      console.log(
-        "new Date(target?.details?.birthDate).getMonth() !== NOW_MONTH",
-        new Date(target?.details?.birthDate).getMonth() !== NOW_MONTH
-      );
       return false;
     }
-
-    console.log("target?.details?.birthDate", target?.details?.birthDate);
 
     return appliesTo.includes("user");
   }
 
   if (target?.birthDate) {
     if (new Date(target?.birthDate).getMonth() !== NOW_MONTH) {
-      console.log(
-        "new Date(target?.birthDate).getMonth() !== NOW_MONTH",
-        new Date(target?.birthDate).getMonth() !== NOW_MONTH
-      );
       return false;
     }
-
-    console.log("target?.birthDate", target?.birthDate);
 
     return appliesTo.includes("customer");
   }
@@ -128,8 +106,6 @@ const checkBirthDateTrigger = async (subdomain, data) => {
 
   const startOfYear = dayjs().startOf("year");
   const endOfYear = dayjs().add(1, "year").startOf("year");
-
-  console.log("{startOfYear, endOfYear}", { startOfYear, endOfYear });
 
   const executions = await sendCommonMessage({
     subdomain,
@@ -148,8 +124,6 @@ const checkBirthDateTrigger = async (subdomain, data) => {
     isRPC: true,
     defaultValue: [],
   });
-
-  console.log("executions?.length", executions?.length);
 
   return executions?.length === 0;
 };

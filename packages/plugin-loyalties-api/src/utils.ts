@@ -603,11 +603,7 @@ export const handleLoyaltyReward = async ({ subdomain }) => {
     if (VERSION && VERSION === "saas") {
       const orgs = await getOrganizations();
 
-      const ORG_NAME = getEnv({ name: "ORG_NAME" });
-
-      const enabledOrganizations = orgs.filter(
-        (org) => !org?.isDisabled && org?.subdomain === ORG_NAME
-      );
+      const enabledOrganizations = orgs.filter((org) => !org?.isDisabled);
 
       for (const org of enabledOrganizations) {
         const targets =
@@ -631,13 +627,7 @@ export const handleLoyaltyReward = async ({ subdomain }) => {
           },
           defaultValue: [],
           isRPC: true,
-        })
-          .then((res) => {
-            console.log("Success:", res);
-          })
-          .catch((err) => {
-            console.error("Error:", err);
-          });
+        });
       }
       continue;
     } else {
@@ -662,13 +652,7 @@ export const handleLoyaltyReward = async ({ subdomain }) => {
         },
         defaultValue: [],
         isRPC: true,
-      })
-        .then((res) => {
-          console.log("Success:", res);
-        })
-        .catch((err) => {
-          console.error("Error:", err);
-        });
+      });
     }
   }
 };
