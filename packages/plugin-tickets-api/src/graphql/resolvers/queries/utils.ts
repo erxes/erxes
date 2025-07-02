@@ -1376,48 +1376,42 @@ export const getItemList = async (
   // add just incremented order to each item in list, not from db
   let order = 0;
 
-  for (const item of list) {
-    if (item.isCheckUserTicket === true) {
-      if (
-        !(item.userId === user._id || item.assignedUserIds?.includes(user._id))
-      ) {
-        continue;
+for (const item of list) {
+  if (
+    item.customFieldsData &&
+    item.customFieldsData.length > 0 &&
+    fields.length > 0
+  ) {
+    item.customProperties = [];
+
+    fields.forEach((field) => {
+      const fieldData = item.customFieldsData.find((f) => f.field === field._id);
+      if (fieldData) {
+        item.customProperties.push({
+          name: `${field.text} - ${fieldData.value}`,
+        });
       }
-    }
-    if (
-      item.customFieldsData &&
-      item.customFieldsData.length > 0 &&
-      fields.length > 0
-    ) {
-      item.customProperties = [];
-
-      fields.forEach((field) => {
-        const fieldData = item.customFieldsData.find(
-          (f) => f.field === field._id
-        );
-
-        if (fieldData) {
-          item.customProperties.push({
-            name: `${field.text} - ${fieldData.value}`,
-          });
-        }
-      });
-    }
-
-    const notification = notifications.find(
-      (n) => n.contentTypeId === item._id
-    );
-
-    updatedList.push({
-      ...item,
-      order: order++,
-      isWatched: (item.watchedUserIds || []).includes(user._id),
-      hasNotified: notification ? false : true,
-      customers: getCocsByItemId(item._id, customerIdsByItemId, customers),
-      companies: getCocsByItemId(item._id, companyIdsByItemId, companies),
-      ...(getExtraFields ? await getExtraFields(item) : {}),
     });
   }
+
+  const notification = notifications.find((n) => n.contentTypeId === item._id);
+
+  if (item.isCheckUserTicket === true) {
+    if (!(item.userId === user._id || (item.assignedUserIds?.includes(user._id) || []))) {
+      continue; 
+    }
+  }
+
+  updatedList.push({
+    ...item,
+    order: order++,
+    isWatched: (item.watchedUserIds || []).includes(user._id),
+    hasNotified: notification ? false : true,
+    customers: getCocsByItemId(item._id, customerIdsByItemId, customers),
+    companies: getCocsByItemId(item._id, companyIdsByItemId, companies),
+    ...(getExtraFields ? await getExtraFields(item) : {}),
+  });
+}
 
   return updatedList;
 };
