@@ -1,6 +1,8 @@
 import * as moment from "moment";
 import { generateModels, IModels } from "../../../connectionResolver";
 import { IFieldDocument } from "../../../db/models/definitions/fields";
+import { getEnv } from "../../utils"
+import { Domain } from "domain";
 
 const prepareData = async (
   models: IModels,
@@ -36,6 +38,26 @@ const prepareDataCount = async (
   return data;
 };
 
+export const getUrl = (subdomain, key) => {
+  const DOMAIN = getEnv({
+    name: "DOMAIN",
+    subdomain
+  });
+
+  const NODE_ENV = getEnv({ name: "NODE_ENV" });
+  const VERSION = getEnv({ name: "VERSION" });
+
+  if (NODE_ENV !== "production") {
+    return `${DOMAIN}/read-file?key=${key}`;
+  }
+
+  if (VERSION === "saas") {
+    return `${DOMAIN}/api/read-file?key=${key}`;
+  }
+
+  return `${DOMAIN}/gateway/read-file?key=${key}`;
+};
+
 const getCustomFieldsData = async (item, fieldId) => {
   let value;
 
@@ -59,7 +81,8 @@ const getCustomFieldsData = async (item, fieldId) => {
 export const fillValue = async (
   models: IModels,
   column: string,
-  item: any
+  item: any,
+  subdomain: any
 ): Promise<string> => {
   let value = item[column];
 
@@ -106,6 +129,19 @@ export const fillValue = async (
 
     default:
       break;
+
+    case "imageUrl": {
+      const key = item?.attachment?.url || item?.attachment?.key;
+
+       if (!key) {
+        value = "-";
+        break;
+      }
+
+    value = getUrl(subdomain, key);
+    break;
+}
+
   }
 
   return value || "-";
@@ -239,7 +275,7 @@ export default {
 
             result[column] = value || "-";
           } else {
-            const value = await fillValue(models, column, item);
+            const value = await fillValue(models, column, item, subdomain);
 
             result[column] = value || "-";
           }

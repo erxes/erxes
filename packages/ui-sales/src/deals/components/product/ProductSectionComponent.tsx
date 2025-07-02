@@ -54,6 +54,7 @@ export default class ProductSectionComponent extends React.Component<
         : [],
 
       paymentsData: item.paymentsData,
+      extraData: item.extraData,
     };
   }
 
@@ -150,7 +151,7 @@ export default class ProductSectionComponent extends React.Component<
   };
 
   render() {
-    const { products, productsData, paymentsData } = this.state;
+    const { products, productsData, paymentsData, extraData } = this.state;
 
     const pDataChange = (pData) => this.onChangeField("productsData", pData);
     const payDataChange = (payData) =>
@@ -171,6 +172,7 @@ export default class ProductSectionComponent extends React.Component<
           paymentsData={paymentsData}
           saveProductsData={this.saveProductsData}
           dealQuery={this.props.item}
+          extraData={extraData}
         />
       </ProductFormContainer>
     );

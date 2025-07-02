@@ -3,12 +3,12 @@ import { companySchema } from "../../../db/models/definitions/companies";
 import {
   customerSchema,
   locationSchema,
-  visitorContactSchema
+  visitorContactSchema,
 } from "../../../db/models/definitions/customers";
 
 export const MODULE_NAMES = {
   COMPANY: "company",
-  CUSTOMER: "customer"
+  CUSTOMER: "customer",
 };
 
 export const COC_LEAD_STATUS_TYPES = [
@@ -20,7 +20,7 @@ export const COC_LEAD_STATUS_TYPES = [
   "unqualified",
   "attemptedToContact",
   "connected",
-  "badTiming"
+  "badTiming",
 ];
 
 export const COC_LIFECYCLE_STATE_TYPES = [
@@ -32,25 +32,25 @@ export const COC_LIFECYCLE_STATE_TYPES = [
   "opportunity",
   "customer",
   "evangelist",
-  "other"
+  "other",
 ];
 
 export const IMPORT_EXPORT_TYPES = [
   {
     text: "Customers",
     contentType: "customer",
-    icon: "users-alt"
+    icon: "users-alt",
   },
   {
     text: "Leads",
     contentType: "lead",
-    icon: "file-alt"
+    icon: "file-alt",
   },
   {
     text: "Companies",
     contentType: "company",
-    icon: "building"
-  }
+    icon: "building",
+  },
 ];
 
 export const CUSTOMER_BASIC_INFOS = [
@@ -72,7 +72,7 @@ export const CUSTOMER_BASIC_INFOS = [
   "isSubscribed",
   "integrationId",
   "code",
-  "mergedIds"
+  "mergedIds",
 ];
 
 export const COMPANY_BASIC_INFOS = [
@@ -87,17 +87,17 @@ export const COMPANY_BASIC_INFOS = [
   "businessType",
   "description",
   "isSubscribed",
-  "parentCompanyId"
+  "parentCompanyId",
 ];
 export const LOG_MAPPINGS = [
   {
     name: MODULE_NAMES.COMPANY,
-    schemas: [companySchema]
+    schemas: [companySchema],
   },
   {
     name: MODULE_NAMES.CUSTOMER,
-    schemas: [customerSchema, locationSchema, visitorContactSchema]
-  }
+    schemas: [customerSchema, locationSchema, visitorContactSchema],
+  },
 ];
 
 export const EMAIL_VALIDATION_STATUSES = {
@@ -108,7 +108,7 @@ export const EMAIL_VALIDATION_STATUSES = {
   UNKNOWN: "unknown",
   DISPOSABLE: "disposable",
   CATCH_ALL: "catchall",
-  BAD_SYNTAX: "badsyntax"
+  BAD_SYNTAX: "badsyntax",
 };
 
 export const AWS_EMAIL_STATUSES = {
@@ -119,13 +119,14 @@ export const AWS_EMAIL_STATUSES = {
   COMPLAINT: "complaint",
   BOUNCE: "bounce",
   RENDERING_FAILURE: "renderingfailure",
-  REJECT: "reject"
+  REJECT: "reject",
 };
 export const CUSTOMER_BASIC_INFO = {
   avatar: "Avatar",
   firstName: "First Name",
   lastName: "Last Name",
   middleName: "Middle Name",
+  registrationNumber: "Registration Number",
   primaryEmail: "Primary E-mail",
   primaryPhone: "Primary Phone",
   position: "Position",
@@ -145,16 +146,21 @@ export const CUSTOMER_BASIC_INFO = {
     { field: "lastName", label: "Last Name", canHide: false },
     { field: "middleName", label: "Middle Name", canHide: false },
     {
+      field: "registrationNumber",
+      label: "Registration Number",
+      canHide: true,
+    },
+    {
       field: "primaryEmail",
       label: "Primary E-mail",
       validation: "email",
-      canHide: false
+      canHide: false,
     },
     {
       field: "primaryPhone",
       label: "Primary Phone",
       validation: "phone",
-      canHide: false
+      canHide: false,
     },
     { field: "position", label: "Position", canHide: true },
     { field: "department", label: "Department", canHide: true },
@@ -165,8 +171,8 @@ export const CUSTOMER_BASIC_INFO = {
     { field: "pronoun", label: "Pronoun", canHide: true },
     { field: "birthDate", label: "Birthday", canHide: true },
     { field: "code", label: "Code", canHide: true },
-    { field: "score", label: "Score", canHide: true }
-  ]
+    { field: "score", label: "Score", canHide: true },
+  ],
 };
 
 export const COMPANY_INFO = {
@@ -191,13 +197,13 @@ export const COMPANY_INFO = {
       field: "primaryEmail",
       label: "Primary E-mail",
       validation: "email",
-      canHide: false
+      canHide: false,
     },
     {
       field: "primaryPhone",
       label: "Primary Phone",
       validation: "phone",
-      canHide: false
+      canHide: false,
     },
     { field: "size", label: "Size" },
     { field: "industry", label: "Industries" },
@@ -208,8 +214,8 @@ export const COMPANY_INFO = {
     { field: "description", label: "Description", canHide: true },
     { field: "isSubscribed", label: "Subscribed", canHide: true },
     { field: "location", label: "Headquarters Country", canHide: true },
-    { field: "score", label: "Score", canHide: true }
-  ]
+    { field: "score", label: "Score", canHide: true },
+  ],
 };
 
 export const DEVICE_PROPERTIES_INFO = {
@@ -227,8 +233,8 @@ export const DEVICE_PROPERTIES_INFO = {
     { field: "ipAddress", label: "IP Address" },
     { field: "hostName", label: "Hostname" },
     { field: "language", label: "Language" },
-    { field: "agent", label: "User Agent" }
-  ]
+    { field: "agent", label: "User Agent" },
+  ],
 };
 
 export const NOTIFICATION_MODULES = [
@@ -239,9 +245,9 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: "customerMention",
-        text: "Mention on customer note"
-      }
-    ]
+        text: "Mention on customer note",
+      },
+    ],
   },
   {
     name: "companies",
@@ -250,16 +256,16 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: "companyMention",
-        text: "Mention on company note"
-      }
-    ]
-  }
+        text: "Mention on company note",
+      },
+    ],
+  },
 ];
 
 export const ACTIVITY_CONTENT_TYPES = {
   CUSTOMER: "customer",
   COMPANY: "company",
-  ALL: ["customer", "company"]
+  ALL: ["customer", "company"],
 };
 
 export { STATUSES, DEFAULT_SEX_CHOICES };
@@ -274,14 +280,14 @@ export const COMPANY_SELECT_OPTIONS = {
     { label: "Prospect", value: "Prospect" },
     { label: "Reseller", value: "Reseller" },
     { label: "Other", value: "Other" },
-    { label: "Unknown", value: "" }
+    { label: "Unknown", value: "" },
   ],
   STATUSES,
   DO_NOT_DISTURB: [
     { label: "Yes", value: "Yes" },
     { label: "No", value: "No" },
-    { label: "Unknown", value: "" }
-  ]
+    { label: "Unknown", value: "" },
+  ],
 };
 
 export const CUSTOMER_SELECT_OPTIONS = {
@@ -299,7 +305,7 @@ export const CUSTOMER_SELECT_OPTIONS = {
     { label: "yo/yo", value: 19 },
     { label: "ze/zir", value: 20 },
     { label: "ve/vis", value: 21 },
-    { label: "xe/xem", value: 22 }
+    { label: "xe/xem", value: 22 },
   ],
   EMAIL_VALIDATION_STATUSES: [
     { label: "Valid", value: "valid" },
@@ -309,14 +315,14 @@ export const CUSTOMER_SELECT_OPTIONS = {
     { label: "Unknown", value: "unknown" },
     { label: "Disposable", value: "disposable" },
     { label: "Catch all", value: "catchall" },
-    { label: "Bad syntax", value: "badsyntax" }
+    { label: "Bad syntax", value: "badsyntax" },
   ],
   PHONE_VALIDATION_STATUSES: [
     { label: "Valid", value: "valid" },
     { label: "Invalid", value: "invalid" },
     { label: "Unknown", value: "unknown" },
     { label: "Can receive sms", value: "receives_sms" },
-    { label: "Unverifiable", value: "unverifiable" }
+    { label: "Unverifiable", value: "unverifiable" },
   ],
   LEAD_STATUS_TYPES: [
     { label: "New", value: "new" },
@@ -324,29 +330,29 @@ export const CUSTOMER_SELECT_OPTIONS = {
     { label: "Working", value: "inProgress" },
     { label: "Bad Timing", value: "badTiming" },
     { label: "Unqualified", value: "unqualified" },
-    { label: "Unknown", value: "" }
+    { label: "Unknown", value: "" },
   ],
   STATUSES,
   DO_NOT_DISTURB: [
     { label: "Yes", value: "Yes" },
     { label: "No", value: "No" },
-    { label: "Unknown", value: "" }
+    { label: "Unknown", value: "" },
   ],
   HAS_AUTHORITY: [
     { label: "Yes", value: "Yes" },
     { label: "No", value: "No" },
-    { label: "Unknown", value: "" }
+    { label: "Unknown", value: "" },
   ],
   STATE: [
     { label: "Visitor", value: "visitor" },
     { label: "Lead", value: "lead" },
-    { label: "Customer", value: "customer" }
-  ]
+    { label: "Customer", value: "customer" },
+  ],
 };
 
 export const TAG_TYPES = {
   CUSTOMER: "core:customer",
   COMPANY: "core:company",
   PRODUCT: "core:product",
-  FORM: "core:form"
+  FORM: "core:form",
 };

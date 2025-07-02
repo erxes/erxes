@@ -1,4 +1,5 @@
 import { generateModels, IModels } from "./connectionResolver";
+import { sendCommonMessage } from "./messageBroker";
 
 const modelChanger = (type: string, models: IModels) => {
   if (type === "customer") {
@@ -58,6 +59,17 @@ export default {
       );
 
       response = await model.find({ _id: { $in: targetIds } }).lean();
+      sendCommonMessage({
+        serviceName: "automations",
+        subdomain,
+        action: "trigger",
+        data: {
+          type: `core:${type}`,
+          targets: [response]
+        },
+        isRPC: true,
+        defaultValue: null
+      });
     }
 
     return response;
