@@ -1,5 +1,29 @@
 # Changelog
 
+## [2.14.5](https://github.com/erxes/erxes/compare/2.14.4...2.14.5) (2025-06-30)
+
+### Features
+
+* **tickets:** add new branch-selector component ([5241d85](https://github.com/erxes/erxes/commit/5241d85281243531aea963e0fb381646f8f26792))
+
+### Bug Fixes
+
+* **loyalties:**  cronjob ([05f0ca0](https://github.com/erxes/erxes/commit/05f0ca0ecef74e885de6983e7958ad31135006cf))
+* sales products sticky 2 columns ([0998d6f](https://github.com/erxes/erxes/commit/0998d6fceb96c8f445240497d52a6c568e0760b3))
+* sales with pricing bonus product addition 0 amounts row ([9f5cd5d](https://github.com/erxes/erxes/commit/9f5cd5d190d233b678fde4315717b4063e385e82))
+
+## [2.14.4](https://github.com/erxes/erxes/compare/2.14.3...2.14.4) (2025-06-26)
+
+### Bug Fixes
+
+* sales deal products data save then old sort ([3c98a87](https://github.com/erxes/erxes/commit/3c98a87a62e16d8ac71da9d8e6162400bf579498))
+
+## [2.14.3](https://github.com/erxes/erxes/compare/2.14.2...2.14.3) (2025-06-25)
+
+### Bug Fixes
+
+* sales deal detail with assignee activity log ([c48b018](https://github.com/erxes/erxes/commit/c48b0181ca3f47ae40159361e1113781bc219cdc))
+
 ## [2.14.2](https://github.com/erxes/erxes/compare/2.14.1...2.14.2) (2025-06-23)
 
 ### Features

@@ -1,11 +1,11 @@
-import { IContext } from '../../../connectionResolver';
-import { sendCommonMessage } from '../../../messageBroker';
-import { ICouponDocument } from '../../../models/definitions/coupons';
-import { getOwner } from '../../../models/utils';
+import { IContext } from "../../../connectionResolver";
+import { sendCommonMessage } from "../../../messageBroker";
+import { ICouponDocument } from "../../../models/definitions/coupons";
+import { getOwner } from "../../../models/utils";
 
 const TARGET_ACTIONS = {
-  pos: { action: 'orders.find', field: 'number' },
-  sales: { action: 'deals.find', field: 'name' },
+  pos: { action: "orders.find", field: "number" },
+  sales: { action: "deals.find", field: "name" },
 };
 
 export const fetchTarget = async ({
@@ -20,7 +20,7 @@ export const fetchTarget = async ({
   const { action, field } = TARGET_ACTIONS[serviceName] || {};
 
   if (!targetId || !serviceName || !TARGET_ACTIONS[serviceName]) {
-    return '';
+    return "";
   }
 
   const [target] = await sendCommonMessage({
@@ -38,6 +38,9 @@ export const fetchTarget = async ({
 };
 
 export default {
+  async __resolveReference({ _id }, { models }: IContext) {
+    return models.Coupons.findOne({ code: _id }).lean();
+  },
   async campaign(coupon: ICouponDocument, _args, { models }: IContext) {
     return models.CouponCampaigns.findOne({ _id: coupon.campaignId }).lean();
   },
