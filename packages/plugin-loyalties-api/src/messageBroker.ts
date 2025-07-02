@@ -58,7 +58,7 @@ export const setupMessageConsumers = async () => {
     const { checkInfo, extraInfo } = data;
 
     return {
-      data: await confirmVoucherSale(models, checkInfo, extraInfo),
+      data: await confirmVoucherSale(models, subdomain, checkInfo, extraInfo),
       status: "success",
     };
   });

@@ -99,6 +99,22 @@ export const commonListFields = `
     name
     colorCode
   }
+  loyalty {
+    ... on Voucher {
+      campaign {
+        title
+        kind
+        value
+      }
+    }
+    ... on Coupon {
+      campaign {
+        title
+        kind
+        value
+      }
+    }
+  }
 `;
 
 export const commonFields = `

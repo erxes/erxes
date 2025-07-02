@@ -2,9 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 
 import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
-import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
 import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
-import { FormControl } from "@erxes/ui/src/components/form";
+import { FormControl, FormGroup } from "@erxes/ui/src/components/form";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
@@ -37,6 +36,7 @@ type Props = {
   fieldDefaultValue?: any;
   filterType: IFilterType;
   fieldValueOptions?: any[];
+  refetch?: () => void;
 };
 
 const ChartFormField = (props: Props) => {
@@ -58,9 +58,10 @@ const ChartFormField = (props: Props) => {
     fieldDefaultValue,
     filterType,
     fieldValueOptions,
+    refetch,
   } = props;
 
-  const { fieldQueryVariables } = filterType;
+  const { fieldName, fieldQueryVariables, searchable } = filterType;
 
   const timerRef = useRef<number | null>(null);
 
@@ -138,6 +139,11 @@ const ChartFormField = (props: Props) => {
     }, 500);
   };
 
+  const handleOnSelect = (value: string[] | string, name: string) => {
+    onChange(value, name);
+    setFieldValue(value);
+  };
+
   switch (fieldQuery) {
     case "users":
       return (
@@ -148,7 +154,7 @@ const ChartFormField = (props: Props) => {
             multi={multi}
             name="userIds"
             label={fieldLabel}
-            onSelect={onChange}
+            onSelect={handleOnSelect}
             initialValue={fieldValue}
           />
         </div>
@@ -164,7 +170,7 @@ const ChartFormField = (props: Props) => {
             filterParams={{ withoutUserFilter: true }}
             name="departmentIds"
             label={fieldLabel}
-            onSelect={onChange}
+            onSelect={handleOnSelect}
             initialValue={fieldValue}
           />
         </div>
@@ -180,7 +186,7 @@ const ChartFormField = (props: Props) => {
             filterParams={{ withoutUserFilter: true }}
             name="branchIds"
             label={fieldLabel}
-            onSelect={onChange}
+            onSelect={handleOnSelect}
             initialValue={fieldValue}
           />
         </div>
@@ -194,7 +200,7 @@ const ChartFormField = (props: Props) => {
             multi={true}
             name="brandIds"
             label={"Choose brands"}
-            onSelect={onChange}
+            onSelect={handleOnSelect}
             initialValue={fieldValue}
           />
         </div>
@@ -208,7 +214,7 @@ const ChartFormField = (props: Props) => {
             multi={true}
             name="portalIds"
             label={"Choose portal"}
-            onSelect={onChange}
+            onSelect={handleOnSelect}
             initialValue={fieldValue}
             filterParams={JSON.parse(fieldQueryVariables)}
           />
@@ -223,7 +229,7 @@ const ChartFormField = (props: Props) => {
             name="companyIds"
             multi={multi}
             initialValue={fieldValue}
-            onSelect={onChange}
+            onSelect={handleOnSelect}
           />
         </div>
       );
@@ -236,7 +242,7 @@ const ChartFormField = (props: Props) => {
             name="customerIds"
             multi={multi}
             initialValue={fieldValue}
-            onSelect={onChange}
+            onSelect={handleOnSelect}
           />
         </div>
       );
@@ -289,14 +295,16 @@ const ChartFormField = (props: Props) => {
           <div>
             <ControlLabel>{fieldLabel}</ControlLabel>
             <CustomSelect
-              initialValue={generateInitialOptions(fieldOptions, fieldValue)}
-              value={fieldValue}
+              value={generateInitialOptions(fieldOptions, fieldValue)}
               multi={multi}
               onSelect={onSelect}
               onInputChange={handleSelectInput}
               options={fieldOptions}
               fieldLabel={fieldLabel}
               fieldValueOptions={fieldValueOptions}
+              fieldName={fieldName}
+              searchable={searchable}
+              refetch={refetch}
             />
           </div>
           {renderSubSelect()}
@@ -316,6 +324,24 @@ const ChartFormField = (props: Props) => {
             ))}
           </ControlRange>
         </div>
+      );
+    case "checkbox":
+      return (
+        <FormGroup>
+          <ControlLabel>{fieldLabel}</ControlLabel>
+          <FormControl
+            className="flex-item"
+            checked={!!fieldValue}
+            type="checkbox"
+            componentclass="checkbox"
+            name={fieldName}
+            id={`${fieldName}`}
+            onChange={() => {
+              onChange(!fieldValue);
+              setFieldValue(!fieldValue);
+            }}
+          />
+        </FormGroup>
       );
     default:
       return <></>;

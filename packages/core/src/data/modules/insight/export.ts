@@ -68,17 +68,17 @@ const prepareHeader = async (
   measures?: string[]
 ) => {
   const headers =
-    dimensions && measures ? [...dimensions, ...measures] : [title, "count"];
+    dimensions && measures ? [...dimensions, ...measures] : [title || "Title", "count"];
 
   for (let i = 0; i < headers.length; i++) {
-    const columnLetter = String.fromCharCode(65 + i);
+    const columnLetter = String.fromCharCode(65 + i).toUpperCase();
     sheet.column(columnLetter).width(15);
   }
 
   addIntoSheet(
     [headers],
     "A1",
-    `${String.fromCharCode(65 + headers.length - 1)}1`,
+    `${String.fromCharCode(65 + headers.length - 1).toUpperCase()}1`,
     sheet
   );
 };
@@ -97,14 +97,15 @@ const extractAndAddIntoSheet = async (
   data: any,
   labels?: string[],
   dimensions?: string[],
-  measures?: string[]
+  measures?: string[],
+  title?: string
 ) => {
   let headers: string[] = [];
 
-  if (labels?.length) {
-    headers = labels;
-  } else if (dimensions && measures) {
+  if (dimensions && measures) {
     headers = [...dimensions, ...measures];
+  } else {
+    headers = [title || "Title", "count"];
   }
 
   const extractValuesIntoArr: any[][] = [];
@@ -123,13 +124,13 @@ const extractAndAddIntoSheet = async (
     });
   }
 
-  const dataRange = sheet.range(`A${startRowIdx - 1}:${String.fromCharCode(65 + headers.length - 1)}${endRowIdx - 1}`);
+  const dataRange = sheet.range(`A${startRowIdx - 1}:${String.fromCharCode(65 + headers.length - 1).toUpperCase()}${endRowIdx - 1}`);
   dataRange.style({ border: "thin" });
 
   addIntoSheet(
     extractValuesIntoArr,
     `A${startRowIdx}`,
-    `${String.fromCharCode(65 + headers.length - 1)}${endRowIdx}`,
+    `${String.fromCharCode(65 + headers.length - 1).toUpperCase()}${endRowIdx}`,
     sheet
   );
 };
@@ -144,7 +145,7 @@ export const buildChartFile = async (subdomain: string, params: any) => {
   const dataset = await chartGetResult(params, subdomain);
 
   const { dimension, measure, colDimension, rowDimension } = JSON.parse(params.filter);
-  const { title, data, labels } = dataset;
+  const { title, data = [], labels = [] } = dataset;
 
   let dimensions
 
@@ -155,7 +156,7 @@ export const buildChartFile = async (subdomain: string, params: any) => {
   }
 
   await prepareHeader(sheet, title, dimensions, measure);
-  await extractAndAddIntoSheet(sheet, data, labels, dimensions, measure);
+  await extractAndAddIntoSheet(sheet, data, labels, dimensions, measure, title);
 
   return {
     name: `${toCamelCase(title)}`,

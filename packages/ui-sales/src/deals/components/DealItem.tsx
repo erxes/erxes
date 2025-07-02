@@ -1,21 +1,22 @@
-import { IOptions, IStage } from "../../boards/types";
 import { PriceContainer, Right, Status } from "../../boards/styles/item";
+import { IOptions, IStage } from "../../boards/types";
 
+import { colors } from "@erxes/ui/src/styles";
+import { __ } from "@erxes/ui/src/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import React from "react";
 import Assignees from "../../boards/components/Assignees";
-import { Content } from "../../boards/styles/stage";
 import Details from "../../boards/components/Details";
 import DueDateLabel from "../../boards/components/DueDateLabel";
-import EditForm from "../../boards/containers/editForm/EditForm";
-import { IDeal } from "../types";
-import ItemArchivedStatus from "../../boards/components/portable/ItemArchivedStatus";
-import { ItemContainer } from "../../boards/styles/common";
-import ItemFooter from "../../boards/components/portable/ItemFooter";
-import ItemProductProbabilities from "./ItemProductProbabilities";
 import Labels from "../../boards/components/label/Labels";
-import React from "react";
-import { __ } from "@erxes/ui/src/utils";
-import { colors } from "@erxes/ui/src/styles";
+import ItemArchivedStatus from "../../boards/components/portable/ItemArchivedStatus";
+import ItemFooter from "../../boards/components/portable/ItemFooter";
+import EditForm from "../../boards/containers/editForm/EditForm";
+import { ItemContainer } from "../../boards/styles/common";
+import { Content } from "../../boards/styles/stage";
 import { renderPriority } from "../../boards/utils";
+import { IDeal } from "../types";
+import ItemProductProbabilities from "./ItemProductProbabilities";
 
 type Props = {
   stageId?: string;
@@ -79,6 +80,50 @@ class DealItem extends React.PureComponent<Props> {
     }
 
     return this.renderStatusLabel("In Progress", colors.colorCoreBlue);
+  }
+
+  renderLoyalty() {
+    const { item } = this.props;
+
+    if (!item?.loyalty || !isEnabled("loyalties")) {
+      return null;
+    }
+
+    const loyaltyColors = {
+      Coupon: "#face9d",
+      Voucher: "#fb7e8b",
+    };
+
+    const loyalty = (item?.loyalty || []).map((l) => {
+      let name = `${l.campaign?.title} (${l.__typename})`;
+
+      if (l.campaign?.kind === "percent") {
+        name += ` - ${l.campaign.value}%`;
+      }
+
+      if (l.campaign?.kind === "amount") {
+        name += ` - ${l.campaign?.value.toLocaleString(undefined, {
+          maximumFractionDigits: 0,
+        })}`;
+      }
+
+      return {
+        name,
+        color: loyaltyColors[l.__typename] || "#EA475D",
+      };
+    });
+
+    return (
+      <>
+        {(loyalty || []).map((entry, index) => (
+          <Details
+            key={index}
+            color={entry?.color}
+            items={[{ name: entry?.name }] as any}
+          />
+        ))}
+      </>
+    );
   }
 
   renderContent() {
@@ -145,6 +190,8 @@ class DealItem extends React.PureComponent<Props> {
           color={colors.colorCoreOrange}
           items={customProperties || []}
         />
+
+        {this.renderLoyalty()}
 
         <PriceContainer>
           {renderItemProductProbabilities()}
