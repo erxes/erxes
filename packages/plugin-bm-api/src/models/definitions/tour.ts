@@ -47,7 +47,7 @@ export interface ITourDocument extends ITour, Document {
 
 const STATUS_TYPES = [
   { label: "running", value: "running" },
-  { label: "compeleted", value: "compeleted" },
+  { label: "completed", value: "completed" },
   { label: "scheduled", value: "scheduled" },
   { label: "unscheduled", value: "unscheduled" },
   { label: "cancelled", value: "cancelled" },

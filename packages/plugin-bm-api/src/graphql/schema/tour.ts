@@ -12,7 +12,7 @@ export const types = () => `
   }
   enum DATE_STATUS {
     running
-    compeleted
+    completed
     scheduled
     cancelled
     unscheduled
