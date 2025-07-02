@@ -11,6 +11,7 @@ const search = async ({ subdomain, data: { value } }) => {
         fields: [
           "code",
           "firstName",
+          "registrationNumber",
           "lastName",
           "middleName",
           "primaryPhone",
