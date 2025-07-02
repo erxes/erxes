@@ -419,6 +419,7 @@ export const checkVouchersSale = async (
 
 export const confirmVoucherSale = async (
   models: IModels,
+  subdomain: string,
   checkInfo: {
     [productId: string]: {
       voucherId: string;
@@ -436,6 +437,23 @@ export const confirmVoucherSale = async (
   }
 ) => {
   const { couponCode, voucherId, totalAmount, ...usageInfo } = extraInfo || {};
+
+  if (extraInfo?.ownerType === "customer" && extraInfo?.ownerId) {
+    const customerRelatedClientPortalUser = await sendClientPortalMessage({
+      subdomain,
+      action: "clientPortalUsers.findOne",
+      data: {
+        erxesCustomerId: extraInfo.ownerId,
+      },
+      isRPC: true,
+      defaultValue: null,
+    });
+
+    if (customerRelatedClientPortalUser) {
+      usageInfo.ownerId = customerRelatedClientPortalUser._id;
+      usageInfo.ownerType = "cpUser";
+    }
+  }
 
   if (couponCode) {
     await models.Coupons.redeemCoupon({
