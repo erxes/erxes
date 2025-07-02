@@ -234,28 +234,31 @@ const SelectNewBranches: React.FC<SelectNewBranchesProps> = ({
           ? filteredTopBranches.map((branch) => renderBranch(branch))
           : <div>{__("No branches found")}</div>}
       </div>
-
       {selectedIds.length > 0 && (
         <div className="selection-summary">
           <div className="selected-count">
             {__("Selected:")} {selectedIds.length} {__("branch(es)")}
           </div>
           <div className="selected-paths">
-            {getMostSpecificPaths().map((path, index) => (
-              <div key={index} className="path-item">
-                <input
-                  type="checkbox"
-                  checked
-                  readOnly
-                  style={{ marginRight: "8px" }}
-                />
-                {path}
-              </div>
-            ))}
+            {getMostSpecificPaths().map((path, index) => {
+              const branchId = selectedIds.find((id) =>
+                getBranchPath(id) === path
+              )!;
+              return (
+                <div key={index} className="path-item">
+                  <input
+                    type="checkbox"
+                    checked
+                    onChange={() => toggleSelection(branchId)}
+                    style={{ marginRight: "8px" }}
+                  />
+                  {path}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
-
       <style>
         {`
     .branch-selector-container {

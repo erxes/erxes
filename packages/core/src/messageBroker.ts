@@ -360,6 +360,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
 
       query.$or = [
         { email: new RegExp(`.*${searchValue}.*`, 'i') },
+        { registrationNumber: new RegExp(`.*${searchValue}.*`, 'i') },
         { employeeId: new RegExp(`.*${searchValue}.*`, 'i') },
         { username: new RegExp(`.*${searchValue}.*`, 'i') },
         { 'details.fullName': new RegExp(`.*${searchValue}.*`, 'i') },
