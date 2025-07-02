@@ -13,6 +13,7 @@ interface Customer {
   primaryPhone: string;
   phones: string[];
   firstName: string;
+  lastName: string;
 }
 
 interface SelectCustomerModalProps {
@@ -153,7 +154,7 @@ const SelectCustomer: React.FC<SelectCustomerModalProps> = ({
             >
               <CustomerInfo>
                 <CustomerDetails>
-                  <CustomerName>{customer.firstName}</CustomerName>
+                  <CustomerName>{customer.lastName}</CustomerName>
                   <CustomerPhone>
                     <Icon icon="phone" size={12} />
                     {customer.primaryPhone}
