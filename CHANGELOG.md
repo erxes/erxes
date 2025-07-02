@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.15.0](https://github.com/erxes/erxes/compare/2.14.5...2.15.0) (2025-07-02)
+
+### Features
+
+* **ticket:** Add user fetching by selected branch during filtering ([7084e41](https://github.com/erxes/erxes/commit/7084e41df7d248dd01c12f282c24badbfcb26b43))
+* **tickets:** add search functionality to SelectNewBranches component ([0f670df](https://github.com/erxes/erxes/commit/0f670dfd80917fcbbea9924e6f424ad6373279a9))
+
+### Bug Fixes
+
+* can't send target as trigger when tagged object ([a71b98e](https://github.com/erxes/erxes/commit/a71b98e27b15f47e03fda57b7790bdbabef5a990))
+* **essyncer:** allow lookup by registration number ([ec085d8](https://github.com/erxes/erxes/commit/ec085d8e712df256719b9164667ca6346d090a7d))
+* sales deal stageId not newly ([bc621f6](https://github.com/erxes/erxes/commit/bc621f6c320a9d3d0488b9fb2d46f81a3218b265))
+* **tickets:** searchable contact rd and branch select ([8af43d4](https://github.com/erxes/erxes/commit/8af43d4facc781efc42498b61395ecc4aaee049b))
+## [2.15.0-rc.0](https://github.com/erxes/erxes/compare/2.14.5...2.15.0) (2025-06-17)
+
 ## [2.15.0-rc.0](https://github.com/erxes/erxes/compare/2.14.0...2.15.0-rc.0) (2025-06-17)
 ## [2.14.5](https://github.com/erxes/erxes/compare/2.14.4...2.14.5) (2025-06-30)
 
