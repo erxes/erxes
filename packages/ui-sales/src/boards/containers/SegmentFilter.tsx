@@ -18,10 +18,10 @@ const SegmentFilterContainer = (props: Props & WrapperProps) => {
   return (
     <SegmentsAA
       contentType={type}
-      config={{
-        boardId,
-        pipelineId
-      }}
+      // config={{
+      //   boardId,
+      //   pipelineId
+      // }}
       counts={counts}
     />
   );
