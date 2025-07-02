@@ -1,5 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import ChartFormField from "../../components/chart/ChartFormField";
 import { IFieldLogic } from "../../types";
@@ -53,11 +53,13 @@ const ChartFormFieldContainer = (props: FinalProps) => {
     fieldValueOptions,
   } = filterType;
 
+  const refetchRef = useRef<((variables?: any) => void) | null>(null);
+
   const [data, setData] = useState([]);
   const [options, setOptions] = useState(fieldOptions || []);
 
   const query = generateQuery({
-    fieldName: fieldQuery,
+    fieldQuery,
     config: filterType,
     fieldValues,
   });
@@ -65,10 +67,17 @@ const ChartFormFieldContainer = (props: FinalProps) => {
   if (!fieldOptions?.length && query) {
     const variables = getVariables(fieldValues, filterType);
 
-    const { data: queryData, loading } = useQuery(gql(query), {
+    const {
+      data: queryData,
+      loading,
+      refetch,
+    } = useQuery(gql(query), {
       skip: !!fieldOptions,
       variables: variables,
+      fetchPolicy: "network-only",
     });
+
+    refetchRef.current = refetch;
 
     useEffect(() => {
       if (!loading) {
@@ -150,6 +159,13 @@ const ChartFormFieldContainer = (props: FinalProps) => {
     }
   };
 
+  const handleRefresh = () => {
+    refetchRef.current?.({
+      searchValue: '',
+      excludeIds: true,
+    });
+  };
+
   if (checkLogic()) {
     return <></>;
   }
@@ -167,6 +183,7 @@ const ChartFormFieldContainer = (props: FinalProps) => {
       fieldDefaultValue={fieldDefaultValue}
       fieldValueOptions={fieldValueOptions}
       onChange={onChange}
+      refetch={handleRefresh}
       {...props}
     />
   );
@@ -184,7 +201,7 @@ const ChartFormFieldWrapper = (props: WrapperProps) => {
   const { fieldParentQuery, fieldQueryVariables } = filterType;
 
   const query = generateQuery({
-    fieldName: fieldParentQuery,
+    fieldQuery: fieldParentQuery,
     config: filterType,
   });
 
@@ -232,7 +249,7 @@ const ChartFormFieldWithSearch = (props: Props) => {
   useEffect(() => {
     const { searchable } = filterType;
 
-    if (searchable) {
+    if (searchable && searchValue) {
       setFilterType((prevFilterType) => {
         const updatedFilterType = { ...prevFilterType };
 
@@ -243,6 +260,7 @@ const ChartFormFieldWithSearch = (props: Props) => {
         updatedFilterType.fieldQueryVariables = JSON.stringify({
           ...fieldQueryVariables,
           searchValue,
+          excludeIds: true,
         });
 
         return updatedFilterType;

@@ -450,10 +450,10 @@ const fillValue = async (
 
       break;
 
-    case "customers":
-      const customerRows = [] as any;
-
+    case "customersEmail": {
       const customerIds = await getCustomerIds(subdomain, type, item._id);
+      const customerRows: any[] = [];
+
 
       for (const id of customerIds) {
         const customer = await sendCoreMessage({
@@ -470,8 +470,72 @@ const fillValue = async (
       value = customerRows
         .map(customer => customer.primaryEmail || "")
         .join(", ");
-
+      
       break;
+    }
+
+    case "customersName": {
+      const customerIds = await getCustomerIds(subdomain, type, item._id);
+      const customerRows: any[] = [];
+
+
+      for (const id of customerIds) {
+        const customer = await sendCoreMessage({
+          subdomain,
+          action: "customers.findOne",
+          data: { _id: id },
+          isRPC: true,
+          defaultValue: ""
+        });
+
+        customerRows.push(customer);
+      }
+
+      value = customerRows
+        .map(customer => {
+          const first = customer.firstName.trim();
+          const middle = customer.middleName?.trim();
+          const last = customer.lastName.trim();
+
+          if (!first && !middle && !last) return "Unnamed Customer"
+
+          const nameParts = [first,",",middle,last]
+            .filter(part => part && part !== ",")
+            .join(" ")
+            .replace(/\s+,/g, ",");
+          return nameParts;
+        })
+        .join(", ") 
+
+      }
+      break;
+
+    case "customersPhone":{
+      const customerIds = await getCustomerIds(subdomain, type, item._id);
+      const customerRows: any[] = [];
+
+
+      for (const id of customerIds) {
+        const customer = await sendCoreMessage({
+          subdomain,
+          action: "customers.findOne",
+          data: { _id: id },
+          isRPC: true,
+          defaultValue: {}
+        });
+
+        customerRows.push(customer);
+      }
+
+      value = customerRows
+        .map(customer => {
+             return customer.primaryPhone || 
+             (customer.phones && customer.phones.length ? customer.phones[0] : '');
+        })
+        .join(", ")
+    }
+    break;
+
 
     case "companies":
       const companyRows = [] as any;
@@ -569,6 +633,7 @@ export default {
 
   getExportDocs: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
+
 
     const { columnsConfig } = data;
 

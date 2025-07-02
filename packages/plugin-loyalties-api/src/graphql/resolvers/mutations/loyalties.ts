@@ -134,9 +134,9 @@ const loyaltiesMutations = {
     return 'success';
   },
 
-  async confirmLoyalties(_root, param, { models }: IContext) {
+  async confirmLoyalties(_root, param, { models, subdomain }: IContext) {
     const { checkInfo } = param;
-    return confirmVoucherSale(models, checkInfo);
+    return confirmVoucherSale(models, subdomain, checkInfo);
   }
 };
 

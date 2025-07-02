@@ -75,7 +75,7 @@ const customerQueries = {
       commonQuerySelector,
       commonQuerySelectorElk
     });
-
+    
     await qb.buildAllQueries();
 
     const { list } = await qb.runQueries();
