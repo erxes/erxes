@@ -102,7 +102,7 @@ export const commonListFields = `
     colorCode
   }
   
-  ${isEnabled('loyalty') ? `
+  ${isEnabled('loyalties') ? `
     loyalty {
       ... on Voucher {
         campaign {
