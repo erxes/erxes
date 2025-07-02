@@ -4,6 +4,7 @@ import { mutations, queries } from '../graphql';
 
 import { Alert } from '@erxes/ui/src/utils';
 import KeyPad from '../components/Keypad';
+import { sanitizePhoneNumber } from '../utils';
 
 type IProps = {
   callUserIntegrations: any;
@@ -35,10 +36,11 @@ const KeyPadContainer = (props: IProps) => {
   });
 
   const createCustomer = (inboxIntegrationId: string, primaryPhone: string) => {
+    const phone = sanitizePhoneNumber(primaryPhone);
     createCustomerMutation({
       variables: {
         inboxIntegrationId,
-        primaryPhone,
+        primaryPhone: phone,
       },
     })
       .then(({ data }: any) => {

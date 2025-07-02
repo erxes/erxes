@@ -291,7 +291,10 @@ const callsQueries = {
       serviceName: 'core',
       action: 'customers.find',
       data: {
-        primaryPhone: phoneNumber,
+        $or: [
+          { primaryPhone: phoneNumber },
+          { phones: { $in: [phoneNumber] } },
+        ],
       },
       defaultValue: null,
     });

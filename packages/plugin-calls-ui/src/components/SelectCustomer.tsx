@@ -62,7 +62,7 @@ const CustomerDetails = styled.div`
 const CustomerName = styled.h4`
   margin: 0 0 4px 0;
   color: #333;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
 `;
 
@@ -154,7 +154,9 @@ const SelectCustomer: React.FC<SelectCustomerModalProps> = ({
             >
               <CustomerInfo>
                 <CustomerDetails>
-                  <CustomerName>{customer.lastName}</CustomerName>
+                  <CustomerName>
+                    {customer.lastName} {customer.firstName}
+                  </CustomerName>
                   <CustomerPhone>
                     <Icon icon="phone" size={12} />
                     {customer.primaryPhone}
