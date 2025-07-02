@@ -166,7 +166,7 @@ export const generateSubOptions = (data, fieldValues, filterType) => {
 };
 
 export const getVariables = (fieldValues, filterType) => {
-  const { logics, fieldQueryVariables } = filterType;
+  const { fieldName, logics, fieldQueryVariables, searchable } = filterType;
 
   const logicFieldVariables = {};
 
@@ -190,6 +190,13 @@ export const getVariables = (fieldValues, filterType) => {
 
   if (Object.values(logicFieldVariables).length) {
     return logicFieldVariables;
+  }
+
+  if (searchable && fieldName?.includes('Ids') && fieldValues[fieldName]) {
+    return fieldQueryVariables ? {
+      ...JSON.parse(fieldQueryVariables),
+      ids: fieldValues[fieldName],
+    } : {};
   }
 
   return fieldQueryVariables ? JSON.parse(fieldQueryVariables) : {};
@@ -443,8 +450,9 @@ export const arrayMove = (array: any[], from: number, to: number) => {
   return slicedArray;
 };
 
-export const generateQuery = ({ fieldName, config, fieldValues }: any) => {
+export const generateQuery = ({ fieldQuery, config, fieldValues }: any) => {
   const {
+    fieldName,
     fieldQueryVariables,
     fieldValueVariable,
     fieldParentVariable,
@@ -454,17 +462,18 @@ export const generateQuery = ({ fieldName, config, fieldValues }: any) => {
     fieldExtraVariables = [],
     fieldQueryResponse,
     logics,
+    searchable
   } = config;
 
   if (fieldQueryResponse) {
     return `
-      query ${fieldName} {
-        ${fieldName}
+      query ${fieldQuery} {
+        ${fieldQuery}
       }
     `
   }
 
-  if (!fieldName || !fieldValueVariable || !fieldLabelVariable) {
+  if (!fieldQuery || !fieldValueVariable || !fieldLabelVariable) {
     return "";
   }
 
@@ -482,6 +491,11 @@ export const generateQuery = ({ fieldName, config, fieldValues }: any) => {
         }
       }
     }
+  }
+
+  if (searchable && fieldName?.includes('Ids') && fieldValues[fieldName]) {
+    variableDefinitions.ids = fieldValues[fieldName]
+    variableDefinitions.excludeIds = Boolean()  
   }
 
   const params = Object.entries(variableDefinitions)
@@ -524,8 +538,8 @@ export const generateQuery = ({ fieldName, config, fieldValues }: any) => {
     : fields;
 
   return `
-    query ${fieldName} ${params ? "(" + params + ")" : ""} {
-      ${fieldName} ${paramDeps ? "(" + paramDeps + ")" : ""} {
+    query ${fieldQuery} ${params ? "(" + params + ")" : ""} {
+      ${fieldQuery} ${paramDeps ? "(" + paramDeps + ")" : ""} {
         ${variableSection}
       }
     }

@@ -79,6 +79,7 @@ type Props = {
   productsData: IProductData[];
   products: IProduct[];
   paymentsData?: IPaymentsData;
+  extraData: any;
   closeModal?: () => void;
   currencies: string[];
   currentProduct?: string;
@@ -868,6 +869,7 @@ class ProductForm extends React.Component<Props, State> {
                   <td colSpan={6}>
                     <ApplyVatWrapper>
                       <FormControl
+                        value={this.props.extraData?.couponCode}
                         placeholder="Coupon code"
                         onChange={this.onChangeCouponCode}
                       />

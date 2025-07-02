@@ -17,35 +17,46 @@ import {
 
 type Props = {
   value: any;
-  initialValue?: any;
   multi?: boolean;
   options: any[];
   fieldLabel: string;
   fieldValueOptions?: any[];
   onSelect: (option: any, value?: string) => void;
   onInputChange: (searchValue: string, actionMeta) => void;
+  fieldName?: string;
+  searchable?: boolean;
+  refetch?: () => void;
 };
 
 const CustomSelect = (props: Props) => {
   const {
     value,
-    initialValue,
     multi,
     options,
     fieldLabel,
     fieldValueOptions,
     onSelect,
     onInputChange,
+    fieldName,
+    searchable,
+    refetch,
   } = props;
 
+  const [selectedOption, setSelectedOption] = useState();
   const [valueOptions, setValueOptions] = useState({});
 
   useEffect(() => {
-    if (fieldValueOptions?.length && initialValue) {
+    if (!selectedOption && value?.length) {
+      setSelectedOption(value || []);
+    }
+  }, [value]);
+
+  useEffect(() => {
+    if (fieldValueOptions?.length && value) {
       setValueOptions((prevState) => {
         const optionValues = { ...prevState };
 
-        initialValue.forEach((option) => {
+        value.forEach((option) => {
           const valueKey = option?.value;
 
           if (valueKey) {
@@ -60,7 +71,7 @@ const CustomSelect = (props: Props) => {
         });
 
         Object.keys(optionValues).forEach((key) => {
-          if (!initialValue.find((opt) => opt.value === key)) {
+          if (!value.find((opt) => opt.value === key)) {
             delete optionValues[key];
           }
         });
@@ -68,7 +79,7 @@ const CustomSelect = (props: Props) => {
         return optionValues;
       });
     }
-  }, [fieldValueOptions, initialValue]);
+  }, [fieldValueOptions, value]);
 
   const handleValueOptionChange = (fieldName, fieldValue, fieldType) => {
     setValueOptions((prevOptions) => {
@@ -95,7 +106,7 @@ const CustomSelect = (props: Props) => {
     });
   };
 
-  const handleSelect = (selectedOption) => {
+  const handleSelect = (selectedOption, actionMeta) => {
     if (fieldValueOptions?.length) {
       const selectedValues = (selectedOption || []).map((option) => {
         const options = valueOptions[option.value] || {};
@@ -110,10 +121,26 @@ const CustomSelect = (props: Props) => {
         return { ...option, ...options };
       });
 
+      if ((actionMeta.action === 'remove-value' || actionMeta.action === 'pop-value') && refetch) {
+        refetch();
+      }
+
+      setSelectedOption(selectedValues);
       return onSelect(selectedValues, "label");
     }
 
+    if ((actionMeta.action === 'remove-value' || actionMeta.action === 'pop-value') && refetch) {
+      refetch();
+    }
+
+    setSelectedOption(selectedOption);
     onSelect(selectedOption);
+  };
+
+  const handleMenuOpen = () => {
+    if (searchable && fieldName?.includes("Ids") && refetch) {
+      refetch();
+    }
   };
 
   const renderValueOption = (valueOption, fieldValue) => {
@@ -175,7 +202,7 @@ const CustomSelect = (props: Props) => {
   };
 
   const finalProps: SelectProps = {
-    value: initialValue,
+    value: selectedOption,
     isMulti: multi,
     onChange: handleSelect,
     onInputChange: onInputChange,
@@ -183,6 +210,7 @@ const CustomSelect = (props: Props) => {
     placeholder: fieldLabel,
     menuPlacement: "auto" as MenuPlacement,
     isClearable: true,
+    onMenuOpen: handleMenuOpen,
   };
 
   if (fieldValueOptions?.length) {

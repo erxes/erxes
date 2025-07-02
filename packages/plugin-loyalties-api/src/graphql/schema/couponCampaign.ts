@@ -18,7 +18,7 @@ export const types = `
         ${commonCampaignTypes}
 
         kind: Kind
-        value: Int
+        value: Float
         codeRule: JSON
         restrictions: JSON
         redemptionLimitPerUser: Int
@@ -36,7 +36,7 @@ const couponCampaignParams = `
     ${commonCampaignInputs}
 
     kind: Kind
-    value: Int
+    value: Float
     codeRule: JSON
     restrictions: JSON
     redemptionLimitPerUser: Int

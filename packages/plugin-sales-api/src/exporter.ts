@@ -521,7 +521,7 @@ const fillValue = async (
           action: "customers.findOne",
           data: { _id: id },
           isRPC: true,
-          defaultValue: ""
+          defaultValue: {}
         });
 
         customerRows.push(customer);
@@ -634,7 +634,6 @@ export default {
   getExportDocs: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    console.log('data', data)
 
     const { columnsConfig } = data;
 

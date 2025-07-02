@@ -503,8 +503,10 @@ class ProductItem extends React.Component<Props, State> {
 
     return (
       <tr key={productData._id}>
-        <td>{this.renderType(productData.product)}</td>
         <td style={{ position: "sticky", left: 0, zIndex: 2 }}>
+          {this.renderType(productData.product)}
+        </td>
+        <td style={{ position: "sticky", left: 1, zIndex: 2 }}>
           {this.renderProductModal(productData)}
         </td>
         <td>
