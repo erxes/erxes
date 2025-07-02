@@ -169,11 +169,14 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         _id: voucherId,
         ownerId,
         ownerType,
-        status: "new",
       });
 
       if (!voucher) {
         throw new Error("Voucher not found");
+      }
+
+      if (voucher.status !== "new") {
+        throw new Error(`Voucher is ${voucher.status}`);
       }
 
       if (!voucher.campaignId) {
@@ -230,8 +233,8 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
       return voucherCampaign;
     }
 
-    public static async redeemVoucher({ ownerType, usageInfo }) {
-      const { ownerId, voucherId } = usageInfo || {};
+    public static async redeemVoucher({ voucherId, usageInfo }) {
+      const { ownerType, ownerId } = usageInfo || {};
 
       const isValid = await this.checkVoucher({
         ownerType,
@@ -244,7 +247,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
       }
 
       try {
-        return await models.Coupons.updateOne(
+        return await models.Vouchers.updateOne(
           { _id: voucherId },
           {
             $set: {

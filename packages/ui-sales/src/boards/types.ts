@@ -239,6 +239,8 @@ export interface IItem {
   customProperties?: any;
   departmentIds: string[];
   branchIds: string[];
+
+  loyalty?: any;
 }
 
 export interface IDraggableLocation {

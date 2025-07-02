@@ -1,3 +1,4 @@
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage } from '../../../messageBroker';
 import { IItemCommonFields } from '../../../models/definitions/boards';
@@ -65,5 +66,24 @@ export default {
     return (deal.tagIds || [])
       .filter(_id => !!_id)
       .map(_id => ({ __typename: 'Tag', _id }));
+  },
+  async loyalty(deal: IDealDocument) {
+    if (!deal?.extraData || !isEnabled("loyalties")) {
+      return;
+    }
+
+    const result: any = [];
+
+    const { voucherId, couponCode } = deal.extraData;
+
+    if (voucherId) {
+      result.push({ __typename: "Voucher", _id: voucherId });
+    }
+
+    if (couponCode) {
+      result.push({ __typename: "Coupon", _id: couponCode });
+    }
+
+    return result;
   },
 };

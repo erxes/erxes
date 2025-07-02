@@ -9,7 +9,7 @@ const couponCampaignAdd = `
         $attachment: AttachmentInput
         $status: String
         $kind: Kind
-        $value: Int
+        $value: Float
         $codeRule: JSON
         $restrictions: JSON
         $redemptionLimitPerUser: Int
@@ -50,7 +50,7 @@ const couponCampaignEdit = `
         $attachment: AttachmentInput
         $status: String
         $kind: Kind
-        $value: Int
+        $value: Float
         $codeRule: JSON
         $restrictions: JSON
         $redemptionLimitPerUser: Int
