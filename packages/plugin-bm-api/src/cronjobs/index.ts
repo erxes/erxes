@@ -9,14 +9,14 @@ const handleBmCronjob = async ({ subdomain }) => {
 
   const update1 = await models.Tours.updateMany(
     {
-      endDate: { $lte: new Date(new Date().setHours(0, 0, 0, 0)) },
+      endDate: { $lte: new Date() },
       date_status: "running",
     },
     { $set: { date_status: "compeleted" } }
   );
   const update2 = await models.Tours.updateMany(
     {
-      startDate: { $lte: new Date(new Date().setHours(0, 0, 0, 0)) },
+      startDate: { $lte: new Date() },
       date_status: "scheduled",
     },
     { $set: { date_status: "running" } }
