@@ -15,7 +15,7 @@ export const setupMessageConsumers = async () => {
       data: count
     };
   });
-  consumeQueue('pos:afterMutation', async ({ subdomain, data }) => {
+  consumeQueue('pms:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;
   });
