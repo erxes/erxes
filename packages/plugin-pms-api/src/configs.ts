@@ -34,8 +34,6 @@ export default {
   },
   setupMessageConsumers,
   meta: {
-    afterMutations,
-    automations,
     // afterQueries,
     permissions,
     reports,
