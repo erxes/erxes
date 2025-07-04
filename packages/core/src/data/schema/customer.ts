@@ -23,9 +23,9 @@ export const types = (inboxEnabled) => `
 
     email: String
     primaryEmail: String
-    emails: [String]
+    emails: JSON
     primaryPhone: String
-    phones: [String]
+    phones: JSON
     primaryAddress: JSON
     addresses: [JSON]
 
@@ -115,9 +115,9 @@ const fields = `
   lastName: String
   middleName: String
   primaryEmail: String
-  emails: [String]
+  emails: JSON
   primaryPhone: String
-  phones: [String]
+  phones: JSON
   primaryAddress: JSON
   addresses: [JSON]
   ownerId: String

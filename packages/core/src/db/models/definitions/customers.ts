@@ -51,6 +51,16 @@ export interface IAddress {
   short: string;
 }
 
+export interface IEmail {
+  type: string,
+  email: string
+}
+
+export interface IPhone {
+  type: string,
+  phone: string
+}
+
 export interface ICustomer {
   state?: "visitor" | "lead" | "customer";
 
@@ -61,10 +71,10 @@ export interface ICustomer {
   birthDate?: Date;
   sex?: number;
   primaryEmail?: string;
-  emails?: string[];
+  emails?: IEmail[];
   avatar?: string;
   primaryPhone?: string;
-  phones?: string[];
+  phones?: IPhone[];
   primaryAddress?: IAddress;
   addresses?: IAddress[];
 
@@ -152,6 +162,16 @@ const getEnum = (fieldName: string): string[] => {
   return CUSTOMER_SELECT_OPTIONS[fieldName].map((option) => option.value);
 };
 
+export const phoneLabelSchema = new Schema({
+  phone: { type: String, optional: true, label: "Phone"},
+  type: { type: String, required: true}
+}, {_id: false})
+
+export const emailLabelSchema = new Schema({
+  email: { type: String, optional: true, label: "Email"},
+  type: { type: String, required: true }
+}, {_id: false})
+
 export const customerSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
@@ -196,7 +216,7 @@ export const customerSchema = schemaWrapper(
       optional: true,
       esType: "email",
     }),
-    emails: field({ type: [String], optional: true, label: "Emails" }),
+    emails: field({ type: [emailLabelSchema], optional: true, label: "Emails" }),
     emailValidationStatus: field({
       type: String,
       enum: getEnum("EMAIL_VALIDATION_STATUSES"),
@@ -216,7 +236,7 @@ export const customerSchema = schemaWrapper(
       label: "Primary Phone",
       optional: true,
     }),
-    phones: field({ type: [String], optional: true, label: "Phones" }),
+    phones: field({ type: [phoneLabelSchema], optional: true, label: "Phones" }),
 
     primaryAddress: field({
       type: Object,
