@@ -118,7 +118,7 @@ const ticketMutationParams = `
 `;
 
 export const mutations = `
-  ticketsAdd(name: String!, ${copyParams}, ${ticketMutationParams}, ${commonMutationParams}): Ticket
+  ticketsAdd(name: String, ${copyParams}, ${ticketMutationParams}, ${commonMutationParams}): Ticket
   ticketsEdit(_id: String!, name: String, ${ticketMutationParams}, ${commonMutationParams}): Ticket
   ticketsChange(${commonDragParams}): Ticket
   ticketsRemove(_id: String!): Ticket

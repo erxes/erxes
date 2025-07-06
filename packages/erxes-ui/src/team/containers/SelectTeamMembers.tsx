@@ -1,8 +1,8 @@
-import { IUser, IUserDetails } from '../../auth/types';
-import SelectWithSearch from '../../components/SelectWithSearch';
-import { IOption, IQueryParams } from '../../types';
-import React from 'react';
-import { queries } from '../graphql';
+import { IUser, IUserDetails } from "../../auth/types";
+import SelectWithSearch from "../../components/SelectWithSearch";
+import { IOption, IQueryParams } from "../../types";
+import React from "react";
+import { queries } from "../graphql";
 
 export default (props: {
   queryParams?: IQueryParams;
@@ -34,28 +34,27 @@ export default (props: {
     label,
     filterParams,
     name,
-    withCustomStyle
+    withCustomStyle,
   } = props;
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
   // get user options for react-select
   function generateUserOptions(array: IUser[] = []): IOption[] {
-    return array.map(item => {
+    return array.map((item) => {
       const user = item || ({} as IUser);
       const details = item.details || ({} as IUserDetails);
-
       const includeCustomFieldOnSelectLabel =
-        customField && user[customField] ? user[customField] : '';
+        customField && user[customField] ? user[customField] : "";
 
       const generateLabel =
         (details.fullName || user.email) +
-        '\t' +
+        "\t" +
         includeCustomFieldOnSelectLabel;
 
       return {
         value: user._id,
         label: generateLabel,
-        avatar: details.avatar
+        avatar: details.avatar,
       };
     });
   }
