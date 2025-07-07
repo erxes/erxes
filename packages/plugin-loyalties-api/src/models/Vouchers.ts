@@ -191,6 +191,10 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         throw new Error("Campaign not found");
       }
 
+      if (voucherCampaign.voucherType !== 'reward') {
+        throw new Error("This voucher is not reward voucher type");
+      }
+
       if (voucherCampaign.status !== "active") {
         throw new Error("Campaign is not active");
       }

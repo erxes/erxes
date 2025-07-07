@@ -306,8 +306,10 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     assignedUserIds: deliveryConfig.assignedUserIds,
     watchedUserIds: deliveryConfig.watchedUserIds,
     productsData: doneOrder.items.map((i) => {
-      if (i.discountPercent && i.discountAmount && i.unitPrice) {
-        i.unitPrice += i.discountAmount;
+      const amount = i.count * i.unitPrice;
+
+      if (i.discountPercent && i.discountAmount && i.unitPrice && i.count) {
+        i.unitPrice = (i.unitPrice * i.count + i.discountAmount) / i.count;
       }
 
       return {
@@ -316,7 +318,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
         currency: 'MNT',
         quantity: i.count,
         unitPrice: i.unitPrice,
-        amount: i.count * i.unitPrice,
+        amount,
         discount: i.discountAmount,
         discountPercent: i.discountPercent,
         tickUsed: true
@@ -558,8 +560,10 @@ const createDealPerOrder = async ({
         stageId: currentCardsConfig.stageId,
         assignedUserIds: currentCardsConfig.assignedUserIds,
         productsData: (newOrder.items || []).map((i) => {
-          if (i.discountPercent && i.discountAmount && i.unitPrice) {
-            i.unitPrice += i.discountAmount;
+          const amount = i.count * (i.unitPrice || 0);
+
+          if (i.discountPercent && i.discountAmount && i.unitPrice && i.count) {
+            i.unitPrice = (i.unitPrice * i.count + i.discountAmount) / i.count;
           }
 
           return {
@@ -568,7 +572,7 @@ const createDealPerOrder = async ({
             currency: 'MNT',
             quantity: i.count,
             unitPrice: i.unitPrice,
-            amount: i.count * (i.unitPrice || 0),
+            amount,
             discount: i.discountAmount,
             discountPercent: i.discountPercent,
             tickUsed: true

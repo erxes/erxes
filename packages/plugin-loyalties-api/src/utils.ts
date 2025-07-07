@@ -16,6 +16,8 @@ interface IProductD {
   unitPrice: number;
 }
 
+const availableVoucherTypes = ["bonus", "discount"];
+
 export const getChildCategories = async (subdomain: string, categoryIds) => {
   const childs = await sendCoreMessage({
     subdomain,
@@ -115,6 +117,121 @@ export const applyRestriction = async ({
   return { productDocs, totalAmount };
 };
 
+export const directVoucher = async ({
+  result,
+  ownerType,
+  ownerId,
+  models,
+  subdomain,
+  products,
+}) => {
+  const NOW = new Date();
+  const productsIds = products.map((p) => p.productId);
+
+  const activeCampaignIds = await models.Vouchers.find({
+    ownerType,
+    ownerId,
+    status: { $in: ["new"] },
+  }).distinct("campaignId");
+
+  for (const voucherType of availableVoucherTypes) {
+    const campaign = await models.VoucherCampaigns.find({
+      _id: { $in: activeCampaignIds },
+      finishDateOfUse: { $gte: NOW },
+      voucherType: { $in: [voucherType] },
+    }).lean();
+
+    const vouchers = await models.Vouchers.aggregate([
+      {
+        $match: {
+          ownerType,
+          ownerId,
+          status: { $in: ["new"] },
+          campaignId: { $in: campaign.map((c) => c._id) },
+        },
+      },
+      {
+        $lookup: {
+          from: "voucher_campaigns",
+          localField: "campaignId",
+          foreignField: "_id",
+          as: "campaign_doc",
+        },
+      },
+      {
+        $project: {
+          campaignId: 1,
+          createdAt: 1,
+          modifiedAt: 1,
+          usedAt: 1,
+          userId: 1,
+
+          ownerType: 1,
+          ownerId: 1,
+          campaign: { $arrayElemAt: ["$campaign_doc", 0] },
+          bonusInfo: 1,
+        },
+      },
+    ]);
+
+    if (voucherType === "bonus") {
+      for (const voucher of vouchers) {
+        for (const productId of productsIds) {
+          if (voucher.campaign.bonusProductId === productId) {
+            result[productId].voucherCampaignId = voucher.campaignId;
+            result[productId].voucherId = voucher._id;
+            result[productId].potentialBonus +=
+              voucher.campaign.bonusCount -
+              (voucher.bonusInfo || []).reduce(
+                (sum, i) => sum + i.usedCount,
+                0
+              );
+            result[productId].type = voucherType;
+            result[productId].discount = 100;
+            result[productId].bonusName = voucher.campaign.title;
+          }
+        }
+      }
+    }
+
+    if (voucherType === "discount") {
+      for (const voucher of vouchers) {
+        const { title, kind, value, restrictions } = voucher.campaign;
+
+        const { productDocs, totalAmount } = await applyRestriction({
+          subdomain,
+          restrictions,
+          products,
+        });
+
+        for (const product of productDocs) {
+          const { _id } = product;
+
+          const discount = calculateDiscount({
+            kind,
+            value,
+            product: {
+              ...product,
+              discount: result[_id].discount || 0,
+            },
+            totalAmount,
+          });
+
+          result[_id] = {
+            ...result[_id],
+            voucherCampaignId: voucher.campaignId,
+            voucherId: voucher._id,
+            discount,
+            voucherName: title,
+            type: voucherType,
+            sumDiscount: result[_id].sumDiscount + discount,
+          };
+        }
+      }
+    }
+  }
+};
+
 export const checkVouchersSale = async (
   models: IModels,
   subdomain: string,
@@ -148,10 +265,9 @@ export const checkVouchersSale = async (
     }
   }
 
-  const now = new Date();
-  const productsIds = products.map((p) => p.productId);
+  for (const product of products) {
+    const { productId } = product || {};
 
-  for (const productId of productsIds) {
     if (!Object.keys(result).includes(productId)) {
       result[productId] = {
         voucherCampaignId: "",
@@ -163,165 +279,14 @@ export const checkVouchersSale = async (
     }
   }
 
-  const voucherProject = {
-    campaignId: 1,
-    createdAt: 1,
-    modifiedAt: 1,
-    usedAt: 1,
-    userId: 1,
-
-    ownerType: 1,
-    ownerId: 1,
-    campaign: { $arrayElemAt: ["$campaign_doc", 0] },
-  };
-  const lookup = {
-    from: "voucher_campaigns",
-    localField: "campaignId",
-    foreignField: "_id",
-    as: "campaign_doc",
-  };
-
-  const voucherFilter = { ownerType, ownerId, status: { $in: ["new"] } };
-
-  const activeVouchers = await models.Vouchers.find(voucherFilter).lean();
-
-  const activeCampaignIds = activeVouchers.map((v) => v.campaignId);
-
-  const campaignFilter = {
-    _id: { $in: activeCampaignIds },
-    finishDateOfUse: { $gte: now },
-  };
-
-  // bonus
-  const bonusCampaign = await models.VoucherCampaigns.find({
-    ...campaignFilter,
-    voucherType: { $in: ["bonus"] },
-  }).lean();
-
-  const bonusVouchers = await models.Vouchers.aggregate([
-    {
-      $match: {
-        ...voucherFilter,
-        campaignId: { $in: bonusCampaign.map((c) => c._id) },
-      },
-    },
-    {
-      $lookup: lookup,
-    },
-    {
-      $project: {
-        ...voucherProject,
-        bonusInfo: 1,
-      },
-    },
-  ]);
-
-  for (const bonusVoucher of bonusVouchers) {
-    for (const productId of productsIds) {
-      if (bonusVoucher.campaign.bonusProductId === productId) {
-        result[productId].voucherCampaignId = bonusVoucher.campaignId;
-        result[productId].voucherId = bonusVoucher._id;
-        result[productId].potentialBonus +=
-          bonusVoucher.campaign.bonusCount -
-          (bonusVoucher.bonusInfo || []).reduce(
-            (sum, i) => sum + i.usedCount,
-            0
-          );
-        result[productId].type = "bonus";
-        result[productId].discount = 100;
-        result[productId].bonusName = bonusVoucher.campaign.title;
-      }
-    }
-  }
-
-  // discount
-  const discountCampaigns = await models.VoucherCampaigns.find({
-    ...campaignFilter,
-    voucherType: { $in: ["discount"] },
-  }).lean();
-
-  const discountVouchers = await models.Vouchers.aggregate([
-    {
-      $match: {
-        ...voucherFilter,
-        campaignId: { $in: discountCampaigns.map((c) => c._id) },
-      },
-    },
-    {
-      $lookup: lookup,
-    },
-    {
-      $project: {
-        ...voucherProject,
-      },
-    },
-  ]);
-
-  const productCatIds = discountCampaigns.reduce(
-    (catIds, c) => catIds.concat(c.productCategoryIds),
-    [] as string[]
-  );
-
-  const categoryIdsByCampaignId = {};
-  let allCatIds: string[] = [];
-  for (const campaign of discountCampaigns) {
-    if (Object.keys(categoryIdsByCampaignId).includes(campaign._id)) {
-      categoryIdsByCampaignId[campaign._id] = [];
-    }
-    const catIds = await getChildCategories(subdomain, [
-      ...new Set(productCatIds),
-    ]);
-    categoryIdsByCampaignId[campaign._id] = catIds;
-    allCatIds = allCatIds.concat(catIds);
-  }
-
-  const catProducts = await sendCoreMessage({
+  await directVoucher({
+    result,
+    ownerType,
+    ownerId,
+    models,
     subdomain,
-    action: "products.find",
-    data: {
-      query: { categoryId: { $in: allCatIds } },
-      sort: { _id: 1, categoryId: 1 },
-    },
-    isRPC: true,
-    defaultValue: [],
+    products,
   });
-
-  const productIdsByCatId = {};
-  for (const pr of catProducts) {
-    if (!Object.keys(productIdsByCatId).includes(pr.categoryId)) {
-      productIdsByCatId[pr.categoryId] = [];
-    }
-
-    productIdsByCatId[pr.categoryId].push(pr._id);
-  }
-
-  for (const discountVoucher of discountVouchers) {
-    const catIds = categoryIdsByCampaignId[discountVoucher.campaignId];
-    let productIds = discountVoucher.campaign.productIds || [];
-
-    for (const catId of catIds) {
-      productIds = productIds.concat(productIdsByCatId[catId] || []);
-    }
-
-    for (const productId of productsIds) {
-      if (productIds.includes(productId)) {
-        if (
-          result[productId].discount < discountVoucher.campaign.discountPercent
-        ) {
-          result[productId] = {
-            ...result[productId],
-            voucherCampaignId: discountVoucher.campaignId,
-            voucherId: discountVoucher._id,
-            discount: discountVoucher.campaign.discountPercent,
-            voucherName: discountVoucher.campaign.title,
-            type: "discount",
-          };
-        }
-        result[productId].sumDiscount +=
-          discountVoucher.campaign.discountPercent;
-      }
-    }
-  }
 
   if (voucherId) {
     const voucherCampaign = await models.Vouchers.checkVoucher({
@@ -586,7 +551,7 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
       return 0;
     }
 
-    const productPrice = product.unitPrice * product.quantity;
+    const productPrice = product.unitPrice * (product.quantity || 1);
 
     if (productPrice <= 0) {
       return 0;
