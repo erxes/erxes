@@ -162,14 +162,30 @@ const getEnum = (fieldName: string): string[] => {
   return CUSTOMER_SELECT_OPTIONS[fieldName].map((option) => option.value);
 };
 
-export const phoneLabelSchema = new Schema({
+export const phoneSchema = new Schema({
   phone: { type: String, optional: true, label: "Phone"},
-  type: { type: String, required: true}
+  type: { type: String, required: true},
+  status: { 
+    type: String,
+    enum: getEnum("PHONE_VALIDATION_STATUSES"),
+    default: "unknown",
+    label: "Phone validation status",
+    esType: "keyword",
+    selectOptions: CUSTOMER_SELECT_OPTIONS.PHONE_VALIDATION_STATUSES,
+  }
 }, {_id: false})
 
-export const emailLabelSchema = new Schema({
+export const emailSchema = new Schema({
   email: { type: String, optional: true, label: "Email"},
-  type: { type: String, required: true }
+  type: { type: String, required: true },
+  status: { 
+    type: String,
+    enum: getEnum("EMAIL_VALIDATION_STATUSES"),
+    default: "unknown",
+    label: "Email validation status",
+    esType: "keyword",
+    selectOptions: CUSTOMER_SELECT_OPTIONS.EMAIL_VALIDATION_STATUSES,
+  }
 }, {_id: false})
 
 export const customerSchema = schemaWrapper(
@@ -216,7 +232,7 @@ export const customerSchema = schemaWrapper(
       optional: true,
       esType: "email",
     }),
-    emails: field({ type: [emailLabelSchema], optional: true, label: "Emails" }),
+    emails: field({ type: [emailSchema], optional: true, label: "Emails" }),
     emailValidationStatus: field({
       type: String,
       enum: getEnum("EMAIL_VALIDATION_STATUSES"),
@@ -236,7 +252,7 @@ export const customerSchema = schemaWrapper(
       label: "Primary Phone",
       optional: true,
     }),
-    phones: field({ type: [phoneLabelSchema], optional: true, label: "Phones" }),
+    phones: field({ type: [phoneSchema], optional: true, label: "Phones" }),
 
     primaryAddress: field({
       type: Object,

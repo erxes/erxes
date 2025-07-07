@@ -4,13 +4,13 @@ import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 
 const query = gql(`
-    query Labels($forType: String!) {
-        labels(forType: $forType) {
-            name
-            forType
-            type
-        }
+  query Labels($forType: String!) {
+    labels(forType: $forType) {
+      name
+      forType
+      type
     }
+  }
 `);
 
 type Props = {
