@@ -26,11 +26,11 @@ export default {
           }
 
           if (doc.primaryEmail && !doc.emails) {
-            doc.emails = [doc.primaryEmail];
+            doc.emails = [{ email: doc.primaryEmail, type: "primary" }];
           }
 
           if (doc.primaryPhone && !doc.phones) {
-            doc.phones = [doc.primaryPhone];
+            doc.phones = [{ phone: doc.primaryPhone, type: "primary" }];
           }
 
           if (doc.integrationId) {
@@ -287,19 +287,19 @@ export default {
               }
 
               if (property.name === "primaryEmail" && value) {
-                doc.emails = [value];
+                doc.emails = [{ email: value, type: "primary" }];
               }
 
               if (property.name === "primaryPhone" && value) {
-                doc.phones = [value];
+                doc.phones = [{ phone: value, type: "primary" }];
               }
 
               if (property.name === "phones" && value) {
-                doc.phones = value.split(",");
+                doc.phones = value.split(",").map(p => ({ phone: p }));
               }
 
               if (property.name === "emails" && value) {
-                doc.emails = value.split(",");
+                doc.emails = value.split(",").map(p => ({ email: p }));
               }
 
               if (property.name === "names" && value) {

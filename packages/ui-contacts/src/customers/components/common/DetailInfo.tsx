@@ -77,7 +77,7 @@ class DetailInfo extends React.PureComponent<Props> {
 
   renderPhones(
     status?: string,
-    phones?: { phone: string; type: string }[],
+    phones?: { phone: string; type: string; status?: string }[],
     primaryPhone?: string
   ) {
     const hasPrimaryPhone = (phones || []).find(
@@ -85,7 +85,7 @@ class DetailInfo extends React.PureComponent<Props> {
     );
 
     if (!hasPrimaryPhone && primaryPhone) {
-      phones = [{ phone: primaryPhone, type: "primary" }, ...(phones || [])];
+      phones = [{ phone: primaryPhone, type: "primary", status }, ...(phones || [])];
     }
 
     if (!phones?.length) {
@@ -97,7 +97,7 @@ class DetailInfo extends React.PureComponent<Props> {
       );
     }
 
-    const renderPhone = ({ phone, type }: { phone?: string; type: string }) => {
+    const renderPhone = ({ phone, type, status }: { phone?: string; type: string; status?: string }) => {
       const capitalizedType = type.replace(/^./, (char) => char.toUpperCase());
 
       return (
@@ -105,7 +105,7 @@ class DetailInfo extends React.PureComponent<Props> {
           <SidebarCounter>
             <PrimaryPhone
               phone={phone}
-              {...(type === "primary" ? { status } : {})}
+              status={status}
             />
           </SidebarCounter>
           <SidebarCounter>{capitalizedType}</SidebarCounter>

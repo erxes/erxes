@@ -163,8 +163,8 @@ const getEnum = (fieldName: string): string[] => {
 };
 
 export const phoneSchema = new Schema({
-  phone: { type: String, optional: true, label: "Phone"},
-  type: { type: String, required: true},
+  phone: { type: String, label: "Phone"},
+  type: { type: String },
   status: { 
     type: String,
     enum: getEnum("PHONE_VALIDATION_STATUSES"),
@@ -176,8 +176,8 @@ export const phoneSchema = new Schema({
 }, {_id: false})
 
 export const emailSchema = new Schema({
-  email: { type: String, optional: true, label: "Email"},
-  type: { type: String, required: true },
+  email: { type: String, label: "Email"},
+  type: { type: String },
   status: { 
     type: String,
     enum: getEnum("EMAIL_VALIDATION_STATUSES"),

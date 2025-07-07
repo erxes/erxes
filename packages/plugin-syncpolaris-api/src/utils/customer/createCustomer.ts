@@ -18,7 +18,7 @@ export const createCustomer = async (subdomain: string, models, polarisConfig, s
     firstName: data.firstName,
     familyName: data.familyName,
     email: data.primaryEmail,
-    mobile: data.phones.join(","),
+    mobile: data.phones.map(p => p.phone).join(","),
     birthDate: data.birthDate,
     custSegCode: data.custSegCode,
     isVatPayer: data.isVatPayer,
