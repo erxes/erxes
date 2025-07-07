@@ -68,8 +68,11 @@ const SelectNewBranches: React.FC<SelectNewBranchesProps> = ({
   const hasMatchingDescendant = (branchId: string): boolean => {
     const branch = branches.find((b) => b._id === branchId);
     if (!branch) return false;
-    if (branch.title.toLowerCase().includes(searchTerm.toLowerCase())) return true;
-    return branches.some((b) => b.parentId === branchId && hasMatchingDescendant(b._id));
+    if (branch.title.toLowerCase().includes(searchTerm.toLowerCase()))
+      return true;
+    return branches.some(
+      (b) => b.parentId === branchId && hasMatchingDescendant(b._id)
+    );
   };
 
   // Filter top-level branches based on search term
@@ -180,6 +183,7 @@ const SelectNewBranches: React.FC<SelectNewBranchesProps> = ({
           onClick={() => toggleSelection(branch._id)}
         >
           <input
+            className="checkboxInput"
             type="checkbox"
             checked={isSelected}
             onChange={() => toggleSelection(branch._id)}
@@ -230,9 +234,11 @@ const SelectNewBranches: React.FC<SelectNewBranchesProps> = ({
         className="search-input"
       />
       <div className="branch-list">
-        {filteredTopBranches.length > 0
-          ? filteredTopBranches.map((branch) => renderBranch(branch))
-          : <div>{__("No branches found")}</div>}
+        {filteredTopBranches.length > 0 ? (
+          filteredTopBranches.map((branch) => renderBranch(branch))
+        ) : (
+          <div>{__("No branches found")}</div>
+        )}
       </div>
       {selectedIds.length > 0 && (
         <div className="selection-summary">
@@ -241,8 +247,8 @@ const SelectNewBranches: React.FC<SelectNewBranchesProps> = ({
           </div>
           <div className="selected-paths">
             {getMostSpecificPaths().map((path, index) => {
-              const branchId = selectedIds.find((id) =>
-                getBranchPath(id) === path
+              const branchId = selectedIds.find(
+                (id) => getBranchPath(id) === path
               )!;
               return (
                 <div key={index} className="path-item">

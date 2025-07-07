@@ -130,17 +130,12 @@ class AddForm extends React.Component<Props, State> {
       isCheckUserTicket,
     } = this.state;
     let hasCheckUserTicketField: boolean = false;
-
     let { customFieldsData } = this.state;
     const { saveItem, closeModal, callback } = this.props;
     let { fields } = this.props;
 
     if (!stageId) {
       return Alert.error("No stage");
-    }
-
-    if (!name && !cardId) {
-      return Alert.error("Please enter name or select card");
     }
 
     fields = fields.filter((field) => {
@@ -204,7 +199,6 @@ class AddForm extends React.Component<Props, State> {
       customFieldsData,
       _id: cardId,
     };
-    console.log(hasCheckUserTicketField, "hasCheckUserTicketField");
     if (priority) {
       doc.priority = priority;
     }
