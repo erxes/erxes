@@ -82,6 +82,7 @@ export const dealFields = `
   products
   productsData
   paymentsData
+  extraData
   unUsedAmount
   amount
   stageId

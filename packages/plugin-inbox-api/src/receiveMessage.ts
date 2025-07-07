@@ -2,7 +2,10 @@ import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { sendCoreMessage } from './messageBroker';
 import { generateModels } from './connectionResolver';
-import { IConversationDocument } from './models/definitions/conversations';
+import {
+  IConversation,
+  IConversationDocument,
+} from './models/definitions/conversations';
 import {
   RPError,
   RPResult,
@@ -98,7 +101,7 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
   }
 
   if (action === 'create-or-update-conversation') {
-    const { conversationId, content, owner, updatedAt } = doc;
+    const { conversationId, content, owner, updatedAt, customerId } = doc;
     let user;
 
     if (owner) {
@@ -128,7 +131,7 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
       }).lean();
 
       if (conversation) {
-        await Conversations.updateConversation(conversationId, {
+        let updatedDoc = {
           content,
           assignedUserId,
           updatedAt,
@@ -137,7 +140,11 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
 
           // reopen this conversation if it's closed
           status: CONVERSATION_STATUSES.OPEN,
-        });
+        } as any;
+        if (customerId) {
+          updatedDoc.customerId = customerId;
+        }
+        await Conversations.updateConversation(conversationId, updatedDoc);
       } else {
         const formattedDoc = {
           _id: doc.conversationId,

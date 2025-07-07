@@ -169,4 +169,8 @@ export const mutations = `
   savingsInterestReturn(${interestCorrectionFields}): SavingContract
   savingsExpandDuration(_id: String!,contractTypeId:String):SavingContract
   clientSavingSubmit(customerId: String!):SavingContract
+  sendSaving(data: JSON): JSON
+  savingContractActive(contractNumber: String!): String
+  sendDepositToPolaris(data: JSON): JSON
+  depositContractActive(contractNumber: String!): String
 `;

@@ -283,6 +283,23 @@ const callsQueries = {
     }
     return 'request failed';
   },
+
+  async callCustomers(_root, { phoneNumber }, { subdomain }: IContext) {
+    let customers = await sendCommonMessage({
+      subdomain,
+      isRPC: true,
+      serviceName: 'core',
+      action: 'customers.find',
+      data: {
+        $or: [
+          { primaryPhone: phoneNumber },
+          { phones: { $in: [phoneNumber] } },
+        ],
+      },
+      defaultValue: null,
+    });
+    return customers;
+  },
 };
 
 export default callsQueries;

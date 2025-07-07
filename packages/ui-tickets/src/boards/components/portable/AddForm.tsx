@@ -4,7 +4,7 @@ import {
   BoardSelectWrapper,
   FormFooter,
   HeaderContent,
-  HeaderRow
+  HeaderRow,
 } from "../../styles/item";
 import { IAttachment, IField } from "@erxes/ui/src/types";
 import { IItem, IItemParams, IOptions, IStage } from "../../types";
@@ -64,13 +64,13 @@ type State = {
   tagIds?: string[];
   branchIds?: string[];
   departmentIds?: string[];
+  isCheckUserTicket?: boolean;
   relationData?: any;
 };
 
 class AddForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
-
     this.state = {
       disabled: false,
       boardId: props.boardId || "",
@@ -85,7 +85,8 @@ class AddForm extends React.Component<Props, State> {
       customFieldsData: [],
       tagIds: props.tagIds || "",
       startDate: props.startDate || null,
-      closeDate: props.closeDate || null
+      closeDate: props.closeDate || null,
+      isCheckUserTicket: props.isCheckUserTicket || false,
     };
   }
 
@@ -95,7 +96,7 @@ class AddForm extends React.Component<Props, State> {
       fetchCards(String(value), (cards: any) => {
         if (cards) {
           this.setState({
-            cards: (cards || []).map((c) => ({ value: c._id, label: c.name }))
+            cards: (cards || []).map((c) => ({ value: c._id, label: c.name })),
           });
         }
       });
@@ -125,20 +126,16 @@ class AddForm extends React.Component<Props, State> {
       tagIds,
       relationData,
       departmentIds,
-      branchIds
+      branchIds,
+      isCheckUserTicket,
     } = this.state;
-
+    let hasCheckUserTicketField: boolean = false;
     let { customFieldsData } = this.state;
-
     const { saveItem, closeModal, callback } = this.props;
     let { fields } = this.props;
 
     if (!stageId) {
       return Alert.error("No stage");
-    }
-
-    if (!name && !cardId) {
-      return Alert.error("Please enter name or select card");
     }
 
     fields = fields.filter((field) => {
@@ -156,7 +153,7 @@ class AddForm extends React.Component<Props, State> {
           fieldValue: (customFieldsData.find((c) => c.field === fieldId) || {})
             .value,
           validation: fields.find((f) => f._id === fieldId)?.validation,
-          type: field.type
+          type: field.type,
         };
       });
 
@@ -170,6 +167,9 @@ class AddForm extends React.Component<Props, State> {
     );
 
     for (const field of fields) {
+      if (field.type === "isCheckUserTicket") {
+        hasCheckUserTicketField = true;
+      }
       const customField =
         customFieldsData.find((c) => c.field === field._id) || {};
 
@@ -197,9 +197,8 @@ class AddForm extends React.Component<Props, State> {
       name,
       stageId,
       customFieldsData,
-      _id: cardId
+      _id: cardId,
     };
-
     if (priority) {
       doc.priority = priority;
     }
@@ -242,6 +241,9 @@ class AddForm extends React.Component<Props, State> {
 
     if (departmentIds) {
       doc.departmentIds = departmentIds;
+    }
+    if (hasCheckUserTicketField == true) {
+      doc.isCheckUserTicket = !!isCheckUserTicket;
     }
 
     // before save, disable save button
@@ -334,7 +336,7 @@ class AddForm extends React.Component<Props, State> {
     if (stages && stages.length > 0) {
       stageValues = (stages || []).map((stage) => ({
         label: stage.name,
-        value: stage._id
+        value: stage._id,
       }));
     }
 

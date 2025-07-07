@@ -24,6 +24,7 @@ type Props = {
   onChangeProducts: (prs: IProduct[]) => void;
   saveProductsData: () => void;
   dealQuery: IDeal;
+  extraData: any;
   isFullMode?: boolean;
 };
 

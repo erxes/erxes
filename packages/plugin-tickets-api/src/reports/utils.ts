@@ -152,7 +152,7 @@ export const getGoalStage = (goalType) => {
 
 export const buildPipeline = (filter, type, matchFilter) => {
 
-  const { dimension, measure, userType = 'userId', frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt", sortBy, goalType, colDimension, rowDimension } = filter
+  const { dimension, measure, userType = 'userId', frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt", sortBy, goalType, colDimension, rowDimension, group } = filter
 
   let dimensions
 
@@ -1204,6 +1204,46 @@ export const buildPipeline = (filter, type, matchFilter) => {
         $match: additionalMatch
       });
     }
+  }
+
+  if (group) {
+    const groupFields = dimensions || [];
+
+    const groupStage = {};
+
+    (groupFields || []).forEach((field) => {
+      groupStage[field] = `$${field}`;
+    });
+
+    const actionFields = {};
+
+    (measures || []).forEach((measure) => {
+      actionFields[measure] = { $sum: `$${measure}` };
+    });
+
+    const projectStage = {
+      _id: 0,
+    };
+
+    (groupFields || []).forEach((field) => {
+      projectStage[field] = `$_id.${field}`;
+    });
+
+    (measures || []).forEach((measure) => {
+      projectStage[measure] = 1;
+    });
+
+    pipeline.push(
+      {
+        $group: {
+          _id: groupStage,
+          ...actionFields,
+        },
+      },
+      {
+        $project: projectStage
+      }
+    );
   }
 
   if (sortBy?.length) {

@@ -254,6 +254,11 @@ const carQueries = {
   ) => {
     const pipeline = [
       {
+        $match: {
+          plateNumber: { $type: "string" },
+        },
+      },
+      {
         $project: {
           plateSuffix: {
             $substrCP: [
@@ -283,9 +288,9 @@ const carQueries = {
       },
     ];
 
-    const [result] = await models.Cars.aggregate(pipeline)
+    const [result] = await models.Cars.aggregate(pipeline);
 
-    return result?.uniquePlateSuffixes || []
+    return result?.uniquePlateSuffixes || [];
   },
 };
 

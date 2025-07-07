@@ -5,9 +5,9 @@ import React from "react";
 import { RightContent } from "../../styles/item";
 import { IItem, IOptions } from "../../types";
 import SidebarConformity from "./SidebarConformity";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import { __ } from "@erxes/ui/src/utils";
-import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectNewBranches from "@erxes/ui/src/team/containers/SelectNewBranches";
+
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import { IUser } from "@erxes/ui/src/auth/types";
 
@@ -23,7 +23,7 @@ type Props = {
     {
       _id,
       status,
-      timeSpent
+      timeSpent,
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
     callback?: () => void
   ) => void;
@@ -35,13 +35,11 @@ class Sidebar extends React.Component<Props> {
   render() {
     const { item, saveItem, sidebar, childrenSection, currentUser } =
       this.props;
-
-    const userOnChange = usrs => saveItem({ assignedUserIds: usrs });
+    const userOnChange = (usrs) => saveItem({ assignedUserIds: usrs });
     const onChangeStructure = (values, name) => saveItem({ [name]: values });
-    const assignedUserIds = (item.assignedUsers || []).map(user => user._id);
-    const branchIds = currentUser.branchIds;
-    const departmentIds = currentUser.departmentIds;
-
+    const assignedUserIds = (item.assignedUsers || []).map((user) => user._id);
+    const branchIds = item?.branchIds;
+    const departmentIds = item?.departmentIds;
     return (
       <RightContent>
         <FormGroup>
@@ -54,17 +52,21 @@ class Sidebar extends React.Component<Props> {
             filterParams={{
               isAssignee: true,
               departmentIds,
-              branchIds
+              branchIds,
             }}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__("Branches")}</ControlLabel>
-          <SelectBranches
+          <SelectNewBranches
             name="branchIds"
             label="Choose branches"
             initialValue={item?.branchIds}
             onSelect={onChangeStructure}
+            filterParams={{
+              withoutUserFilter: true,
+              searchValue: "search term",
+            }}
           />
         </FormGroup>
         <FormGroup>

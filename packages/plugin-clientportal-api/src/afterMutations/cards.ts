@@ -6,6 +6,7 @@ import {
   sendTicketsMessage,
 } from "../messageBroker";
 import { sendNotification } from "../utils";
+import { IUserDocument } from "@erxes/api-utils/src/types";
 
 export const cardUpdateHandler = async (models: IModels, subdomain, params) => {
   const { type, object } = params;
@@ -18,7 +19,6 @@ export const cardUpdateHandler = async (models: IModels, subdomain, params) => {
 
   const oldStatus = oldCard.status;
   const newStatus = card.status;
-
   let content = "";
 
   if (
@@ -141,14 +141,40 @@ export const cardUpdateHandler = async (models: IModels, subdomain, params) => {
     if (!config) {
       continue;
     }
-
-    await sendNotification(models, subdomain, {
+    const baseNotification = {
       receivers: [user._id],
       title: `Your submitted ${cardType} has been updated`,
       content,
-      notifType: "system",
-      link: `${config.url}/${cardType}s?stageId=${destinationStageId}`,
+      notifType: "system" as const,
       type: cardType,
+    };
+
+    let link: string;
+    let extraFields = {};
+
+    if (cardType === "ticket") {
+      link = `ticket/board?id=${card.boardId}&pipelineId=${card.pipelineId}&itemId=${card._id}`;
+
+      extraFields = {
+        isMobile: false,
+        eventData: {
+          ticketId: card._id,
+          ticketTitle: card.title || card.name,
+          ticketStatus: card.status || "new",
+          ticketStageId: card.stageId,
+          ticketStageName: card.stageName || "",
+          ticketPriority: card.priority || "normal",
+        },
+        createdUser: user as IUserDocument,
+      };
+    } else {
+      link = `${config.url}/${cardType}s?stageId=${destinationStageId}`;
+    }
+
+    await sendNotification(models, subdomain, {
+      ...baseNotification,
+      link,
+      ...extraFields,
     });
   }
 

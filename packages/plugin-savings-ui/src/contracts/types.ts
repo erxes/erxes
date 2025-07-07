@@ -146,6 +146,26 @@ export type RegenSchedulesMutationResponse = {
   fixSchedules: (params: { variables: { contractId: string } }) => Promise<any>;
 };
 
+export type SavingsMutationResponse = {
+  sendSaving: (params: { variables: { data: any } }) => Promise<any>;
+};
+
+export type SavingsActiveMutationResponse = {
+  savingContractActive: (params: {
+    variables: { contractNumber: string };
+  }) => Promise<any>;
+};
+
+export type SendDepositMutationResponse = {
+  sendDepositToPolaris: (params: { variables: { data: any } }) => Promise<any>;
+};
+
+export type DepositActiveMutationResponse = {
+  depositContractActive: (params: {
+    variables: { contractNumber: string };
+  }) => Promise<any>;
+};
+
 // query types
 
 export type ListQueryVariables = {

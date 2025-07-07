@@ -8,6 +8,7 @@ export const commonMutationVariables = `
   $startDate: Date,
   $closeDate: Date,
   $description: String,
+  $isCheckUserTicket: Boolean,
   $assignedUserIds: [String],
   $order: Int,
   $attachments: [AttachmentInput],
@@ -30,6 +31,7 @@ export const commonMutationParams = `
   startDate: $startDate,
   closeDate: $closeDate,
   description: $description,
+  isCheckUserTicket: $isCheckUserTicket,
   assignedUserIds: $assignedUserIds,
   order: $order,
   attachments: $attachments,
@@ -111,7 +113,7 @@ export const commonFields = `
         primaryName
         links
       }
-  
+
       customers {
         _id
         firstName
@@ -121,7 +123,7 @@ export const commonFields = `
         primaryPhone
         visitorContactInfo
       }
-    
+
   tags {
     _id
     name
@@ -131,6 +133,7 @@ export const commonFields = `
   startDate
   closeDate
   description
+  isCheckUserTicket
   priority
   assignedUsers {
     _id
@@ -271,7 +274,7 @@ mutation conversationConvertToCard(
   $type: String!
   $assignedUserIds: [String]
   $attachments: [AttachmentInput]
-  
+
   $closeDate: Date
   $customFieldsData: JSON
   $description: String
@@ -287,7 +290,7 @@ mutation conversationConvertToCard(
     type: $type
     assignedUserIds: $assignedUserIds
     attachments: $attachments
-    
+
     closeDate: $closeDate
     customFieldsData: $customFieldsData
     description: $description
@@ -313,5 +316,5 @@ export default {
   pipelineLabelsLabel,
   boardItemsSaveForGanttTimeline,
   stagesUpdateOrder,
-  conversationConvertToCard
+  conversationConvertToCard,
 };

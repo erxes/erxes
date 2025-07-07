@@ -1,5 +1,13 @@
+import { getEnv } from "@erxes/api-utils/src";
+import { getOrganizations } from "@erxes/api-utils/src/saas/saas";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import { IModels } from "./connectionResolver";
-import { sendCoreMessage } from "./messageBroker";
+import { collections } from "./constants";
+import {
+  sendClientPortalMessage,
+  sendCommonMessage,
+  sendCoreMessage,
+} from "./messageBroker";
 import { VOUCHER_STATUS } from "./models/definitions/constants";
 
 interface IProductD {
@@ -21,6 +29,92 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
   return Array.from(new Set(catIds));
 };
 
+export const getChildTags = async (subdomain: string, tagIds) => {
+  const childs = await sendCoreMessage({
+    subdomain,
+    action: "tagWithChilds",
+    data: {
+      query: { _id: { $in: tagIds } },
+    },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  const allTagIds: string[] = (childs || []).map((ch) => ch._id) || [];
+  return Array.from(new Set(allTagIds));
+};
+
+export const applyRestriction = async ({
+  subdomain,
+  restrictions,
+  products,
+}: {
+  subdomain: string;
+  restrictions: Record<string, any>;
+  products: IProductD[];
+}) => {
+  const {
+    categoryIds = [],
+    excludeCategoryIds = [],
+    productIds = [],
+    excludeProductIds = [],
+    tagIds = [],
+    excludeTagIds = [],
+  } = restrictions || {};
+
+  const inputProductIds = products.map((p) => p.productId);
+
+  const [includedCategoryIds, excludedCategoryIds] = await Promise.all([
+    categoryIds.length ? getChildCategories(subdomain, categoryIds) : [],
+    excludeCategoryIds.length
+      ? getChildCategories(subdomain, excludeCategoryIds)
+      : [],
+  ]);
+
+  const [includedTagIds, excludedTagIds] = await Promise.all([
+    tagIds.length ? getChildTags(subdomain, tagIds) : [],
+    excludeTagIds.length ? getChildTags(subdomain, excludeTagIds) : [],
+  ]);
+
+  const query: Record<string, any> = {
+    _id: {
+      $in: [...inputProductIds, ...productIds],
+      $nin: excludeProductIds,
+    },
+  };
+
+  if (includedCategoryIds.length || excludedCategoryIds.length) {
+    query.categoryId = {
+      ...(includedCategoryIds.length && { $in: includedCategoryIds }),
+      ...(excludedCategoryIds.length && { $nin: excludedCategoryIds }),
+    };
+  }
+
+  if (includedTagIds.length || excludedTagIds.length) {
+    query.tagIds = {
+      ...(includedTagIds.length && { $in: includedTagIds }),
+      ...(excludedTagIds.length && { $nin: excludedTagIds }),
+    };
+  }
+
+  const productDocs = await sendCoreMessage({
+    subdomain,
+    action: "products.find",
+    data: { query },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  const productMap = new Map(products.map((p) => [p.productId, p]));
+
+  const totalAmount = productDocs.reduce((sum, { _id }) => {
+    const item = productMap.get(_id);
+    return sum + (item ? item.quantity * item.unitPrice : 0);
+  }, 0);
+
+  return { productDocs, totalAmount };
+};
+
 export const checkVouchersSale = async (
   models: IModels,
   subdomain: string,
@@ -35,6 +129,23 @@ export const checkVouchersSale = async (
 
   if (!ownerId && !ownerId && !products) {
     return "No Data";
+  }
+
+  if (ownerType === "customer") {
+    const customerRelatedClientPortalUser = await sendClientPortalMessage({
+      subdomain,
+      action: "clientPortalUsers.findOne",
+      data: {
+        $or: [{ _id: ownerId }, { erxesCustomerId: ownerId }],
+      },
+      isRPC: true,
+      defaultValue: null,
+    });
+
+    if (customerRelatedClientPortalUser) {
+      ownerId = customerRelatedClientPortalUser._id;
+      ownerType = "cpUser";
+    }
   }
 
   const now = new Date();
@@ -219,49 +330,13 @@ export const checkVouchersSale = async (
       ownerId,
     });
 
-    const { title, kind, value, restrictions } = voucherCampaign;
+    const { title, kind, value, restrictions = {} } = voucherCampaign;
 
-    const {
-      categoryIds = [],
-      excludeCategoryIds = [],
-      productIds = [],
-      excludeProductIds = [],
-      tagIds = [],
-      excludeTagIds = [],
-    } = restrictions || {};
-
-    const productDocs = await sendCoreMessage({
+    const { productDocs, totalAmount } = await applyRestriction({
       subdomain,
-      action: "products.find",
-      data: {
-        query: {
-          _id: {
-            $in: [...productsIds, ...productIds],
-            $nin: excludeProductIds,
-          },
-          categoryId: {
-            ...(categoryIds.length ? { $in: categoryIds } : {}),
-            $nin: excludeCategoryIds,
-          },
-          tagIds: {
-            ...(tagIds.length ? { $in: tagIds } : {}),
-            $nin: excludeTagIds,
-          },
-        },
-      },
-      isRPC: true,
-      defaultValue: [],
+      restrictions,
+      products,
     });
-
-    const totalAmount = productDocs.reduce((sum, doc) => {
-      const { _id } = doc;
-
-      const item: IProductD =
-        products.find((p) => p.productId === _id) || ({} as IProductD);
-      sum += item.quantity * item.unitPrice;
-
-      return sum;
-    }, 0);
 
     await models.Vouchers.checkVoucher({
       voucherId,
@@ -301,49 +376,13 @@ export const checkVouchersSale = async (
       ownerId,
     });
 
-    const { title, kind, value, restrictions } = couponCampaign;
+    const { title, kind, value, restrictions = {} } = couponCampaign;
 
-    const {
-      categoryIds = [],
-      excludeCategoryIds = [],
-      productIds = [],
-      excludeProductIds = [],
-      tagIds = [],
-      excludeTagIds = [],
-    } = restrictions || {};
-
-    const productDocs = await sendCoreMessage({
+    const { productDocs, totalAmount } = await applyRestriction({
       subdomain,
-      action: "products.find",
-      data: {
-        query: {
-          _id: {
-            $in: [...productsIds, ...productIds],
-            $nin: excludeProductIds,
-          },
-          categoryId: {
-            ...(categoryIds.length ? { $in: categoryIds } : {}),
-            $nin: excludeCategoryIds,
-          },
-          tagIds: {
-            ...(tagIds.length ? { $in: tagIds } : {}),
-            $nin: excludeTagIds,
-          },
-        },
-      },
-      isRPC: true,
-      defaultValue: [],
+      restrictions,
+      products,
     });
-
-    const totalAmount = productDocs.reduce((sum, doc) => {
-      const { _id } = doc;
-
-      const item: IProductD =
-        products.find((p) => p.productId === _id) || ({} as IProductD);
-      sum += item.quantity * item.unitPrice;
-
-      return sum;
-    }, 0);
 
     await models.Coupons.checkCoupon({
       code: couponCode,
@@ -380,6 +419,7 @@ export const checkVouchersSale = async (
 
 export const confirmVoucherSale = async (
   models: IModels,
+  subdomain: string,
   checkInfo: {
     [productId: string]: {
       voucherId: string;
@@ -397,6 +437,23 @@ export const confirmVoucherSale = async (
   }
 ) => {
   const { couponCode, voucherId, totalAmount, ...usageInfo } = extraInfo || {};
+
+  if (extraInfo?.ownerType === "customer" && extraInfo?.ownerId) {
+    const customerRelatedClientPortalUser = await sendClientPortalMessage({
+      subdomain,
+      action: "clientPortalUsers.findOne",
+      data: {
+        erxesCustomerId: extraInfo.ownerId,
+      },
+      isRPC: true,
+      defaultValue: null,
+    });
+
+    if (customerRelatedClientPortalUser) {
+      usageInfo.ownerId = customerRelatedClientPortalUser._id;
+      usageInfo.ownerType = "cpUser";
+    }
+  }
 
   if (couponCode) {
     await models.Coupons.redeemCoupon({
@@ -519,10 +576,10 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
   try {
     if (kind === "percent") {
       if (product?.discount) {
-        return product?.discount + value;
+        return Math.min(product.discount + value, 100);
       }
 
-      return value;
+      return Math.min(value, 100);
     }
 
     if (!product || !totalAmount) {
@@ -540,12 +597,80 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
     const discount = (productDiscount / productPrice) * 100;
 
     if (product?.discount) {
-      return discount + product?.discount;
+      return Math.min(discount + product.discount, 100);
     }
 
-    return discount;
+    return Math.min(discount, 100);
   } catch (error) {
     console.error("Error calculating discount:", error.message);
     return 0;
+  }
+};
+
+export const handleLoyaltyReward = async ({ subdomain }) => {
+  if (!isEnabled("automations")) return;
+
+  const VERSION = getEnv({ name: "VERSION" });
+
+  const NOW = new Date();
+  const NOW_MONTH = NOW.getMonth() + 1;
+
+  for (const collectionName of Object.keys(collections)) {
+    const query = collections[collectionName](NOW_MONTH) || {};
+
+    if (VERSION && VERSION === "saas") {
+      const orgs = await getOrganizations();
+
+      const enabledOrganizations = orgs.filter((org) => !org?.isDisabled);
+
+      for (const org of enabledOrganizations) {
+        const targets =
+          (await sendCoreMessage({
+            subdomain: org.subdomain,
+            action: `${collectionName}.find`,
+            data: query,
+            isRPC: true,
+            defaultValue: [],
+          })) || [];
+
+        if (targets.length === 0) return;
+
+        sendCommonMessage({
+          subdomain: org.subdomain,
+          serviceName: "automations",
+          action: "trigger",
+          data: {
+            type: "loyalties:reward",
+            targets,
+          },
+          defaultValue: [],
+          isRPC: true,
+        });
+      }
+      continue;
+    } else {
+      const targets =
+        (await sendCoreMessage({
+          subdomain,
+          action: `${collectionName}.find`,
+          data: query,
+          isRPC: true,
+          defaultValue: [],
+        })) || [];
+
+      if (targets.length === 0) return;
+
+      sendCommonMessage({
+        subdomain,
+        serviceName: "automations",
+        action: "trigger",
+        data: {
+          type: "loyalties:reward",
+          targets,
+        },
+        defaultValue: [],
+        isRPC: true,
+      });
+    }
   }
 };

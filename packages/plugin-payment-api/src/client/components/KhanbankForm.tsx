@@ -31,7 +31,7 @@ const LabelInputRow = ({
         className='ml-2 w-10 h-10 flex-shrink-0 flex items-center justify-center bg-blue-500 hover:bg-blue-600 rounded-lg'
       >
         <img
-          src={`${apiDomain}/pl:payment/static/images/copy.svg`}
+          src={`${apiDomain}/pl-payment/static/images/copy.svg`}
           alt='Copy Icon'
           className='w-5 h-5'
         />

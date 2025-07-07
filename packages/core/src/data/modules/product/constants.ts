@@ -29,6 +29,8 @@ export const PRODUCT_INFO = {
     { field: "status", label: "Status" },
     { field: "uom", label: "Unit of measurement" },
     { field: "subUoms", label: "Sub unit of measurements" },
+    { field: "imageUrl", label: "Image" },
+
   ]
 };
 
@@ -38,5 +40,11 @@ export const PRODUCT_EXTEND_FIELDS = [
     name: "barcodes",
     label: "Barcodes",
     type: "string"
-  }
+  },
+  {
+  _id: Math.random(),
+  name: "imageUrl",
+  label: "Image",
+  type: "string"
+}
 ];

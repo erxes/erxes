@@ -17,6 +17,7 @@ import {
   itemsEdit,
   itemsRemove,
 } from "./utils";
+import { putActivityLog } from "../../../logUtils";
 
 interface IDealsEdit extends IDeal {
   _id: string;
@@ -71,13 +72,15 @@ const dealMutations = {
     }
 
     if (doc.productsData) {
-      doc.assignedUserIds = checkAssignedUserFromPData(
+      const { assignedUserIds } = checkAssignedUserFromPData(
         oldDeal.assignedUserIds,
         doc.productsData
           .filter((pdata) => pdata.assignUserId)
           .map((pdata) => pdata.assignUserId || ""),
         oldDeal.productsData
       );
+
+      doc.assignedUserIds = assignedUserIds;
 
       doc.productsData = await checkPricing(subdomain, models, { ...oldDeal, ...doc })
     }
@@ -181,11 +184,16 @@ const dealMutations = {
 
     const oldDataIds = (deal.productsData || []).map((pd) => pd._id);
 
-    const assignedUserIds = checkAssignedUserFromPData(
+    const { assignedUserIds, addedUserIds, removedUserIds } = checkAssignedUserFromPData(
       deal.assignedUserIds,
-      docs
-        .filter((pdata) => pdata.assignUserId)
-        .map((pdata) => pdata.assignUserId || ""),
+      [
+        ...(deal.productsData || [])
+          .filter((pdata) => pdata.assignUserId)
+          .map((pdata) => pdata.assignUserId || ""),
+        ...docs
+          .filter((pdata) => pdata.assignUserId)
+          .map((pdata) => pdata.assignUserId || ""),
+      ],
       deal.productsData
     );
 
@@ -210,6 +218,22 @@ const dealMutations = {
     );
 
     await models.Deals.updateOne({ _id: dealId }, { $set: { productsData, assignedUserIds } });
+
+    if (addedUserIds?.length || removedUserIds?.length) {
+      const activityContent = { addedUserIds, removedUserIds };
+
+      putActivityLog(subdomain, {
+        action: "createAssigneLog",
+        data: {
+          contentId: deal._id,
+          userId: user._id,
+          contentType: 'deal',
+          content: activityContent,
+          action: "assignee",
+          createdBy: user._id,
+        },
+      });
+    }
 
     const updatedItem =
       (await models.Deals.findOne({ _id: dealId })) || ({} as any);
@@ -285,13 +309,37 @@ const dealMutations = {
       data.id === dataId ? { ...doc } : data
     );
 
-    const assignedUserIds = checkAssignedUserFromPData(
+    const possibleAssignedUsersIds: string[] = (deal.productsData || [])
+      .filter((pdata) => pdata._id !== dataId && pdata.assignUserId)
+      .map((pdata) => pdata.assignUserId || "");
+
+    if (doc.assignUserId) {
+      possibleAssignedUsersIds.push(doc.assignUserId)
+    }
+
+    const { assignedUserIds, addedUserIds, removedUserIds } = checkAssignedUserFromPData(
       deal.assignedUserIds,
-      doc.assignUserId ? [doc.assignUserId] : [],
+      possibleAssignedUsersIds,
       deal.productsData
     );
 
     await models.Deals.updateOne({ _id: dealId }, { $set: { productsData, assignedUserIds } });
+
+    if (addedUserIds?.length || removedUserIds?.length) {
+      const activityContent = { addedUserIds, removedUserIds };
+
+      putActivityLog(subdomain, {
+        action: "createAssigneLog",
+        data: {
+          contentId: deal._id,
+          userId: user._id,
+          contentType: 'deal',
+          content: activityContent,
+          action: "assignee",
+          createdBy: user._id,
+        },
+      });
+    }
 
     const stage = await models.Stages.getStage(deal.stageId);
     const updatedItem =

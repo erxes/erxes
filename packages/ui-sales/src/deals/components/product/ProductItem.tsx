@@ -500,10 +500,15 @@ class ProductItem extends React.Component<Props, State> {
       menuPortal: (base) => ({ ...base, zIndex: 9999 }),
       menu: (base) => ({ ...base, zIndex: 9999 }),
     };
+
     return (
       <tr key={productData._id}>
-        <td>{this.renderType(productData.product)}</td>
-        <td>{this.renderProductModal(productData)}</td>
+        <td style={{ position: "sticky", left: 0, zIndex: 2 }}>
+          {this.renderType(productData.product)}
+        </td>
+        <td style={{ position: "sticky", left: 1, zIndex: 2 }}>
+          {this.renderProductModal(productData)}
+        </td>
         <td>
           <FormControl
             value={productData.quantity || 0}

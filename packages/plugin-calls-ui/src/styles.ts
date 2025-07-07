@@ -351,6 +351,8 @@ export const CountryContainer = styled.div`
 `;
 
 export const IncomingCallNav = styledTS<{ type?: string }>(styled.div)`
+  width: min-content;
+  height: min-content;
   display: flex;
   position: fixed;
   bottom: ${(props) => (props.type === 'outgoing' ? '0' : '150px')};
@@ -439,7 +441,8 @@ export const Actions = styled.div`
 
 export const InnerActions = styled.div`
   display: flex;
-  gap: 25px;
+  gap: 10px;
+  margin-bottom: -20px;
 `;
 
 export const CallAction = styledTS<{
@@ -447,9 +450,9 @@ export const CallAction = styledTS<{
   $active?: boolean;
   $disabled?: boolean;
 }>(styled.div)`
-  width: 60px;
-  height: 60px;
-  border-radius: 60px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -673,6 +676,7 @@ export const IncomingActionButton = styledTS<{
 `;
 
 export const NameCardContainer = styled.div`
+  height: min-content;
   display: flex;
   flex-direction: column;
   align-items: center;

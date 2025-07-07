@@ -10,7 +10,13 @@ export const types = () => `
     guide: User
     type: String
   }
-
+  enum DATE_STATUS {
+    running
+    completed
+    scheduled
+    cancelled
+    unscheduled
+  }
   type Tour {
     _id: String!
     branchId: String
@@ -27,6 +33,7 @@ export const types = () => `
     endDate: Date
     groupSize: Int
     status: String
+    date_status: DATE_STATUS
     cost: Float
     orders: [BmsOrder]
     createdAt: Date
@@ -97,10 +104,10 @@ export const types = () => `
 `;
 
 export const queries = `
-  bmTours(branchId:String, sortField:String, sortDirection:Int, page:Int, perPage:Int, status: String, innerDate: Date,branchId: String, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,groupCode:String): ListTour
+  bmTours(branchId:String, sortField:String, sortDirection:Int, page:Int, perPage:Int, status: String, innerDate: Date,branchId: String, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,groupCode:String,date_status: DATE_STATUS): ListTour
   bmTourDetail(_id:String!,branchId: String): Tour
-  bmOrders( tourId:String, customerId:String ,branchId: String):ListBmsOrder
-  bmToursGroup(branchId:String, sortField:String, sortDirection:Int, page:Int, perPage:Int, status: String, innerDate: Date,branchId: String, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date): GroupTour
+  bmOrders( tourId:String, customerId:String ,branchId: String, status: String,sortField:String, sortDirection:Int, page:Int, perPage:Int):ListBmsOrder
+  bmToursGroup(branchId:String, sortField:String, sortDirection:Int, page:Int, perPage:Int, status: String, innerDate: Date,branchId: String, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,date_status: DATE_STATUS): GroupTour
   bmToursGroupDetail(groupCode:String,status: String): GroupTourItem
 
 `;
@@ -119,6 +126,7 @@ const params = `
   joinPercent: Float,
   advanceCheck: Boolean,
   status: String,
+  date_status: DATE_STATUS!
   cost: Float,
   location: [BMSLocationInput],
   guides:[GuideItemInput],

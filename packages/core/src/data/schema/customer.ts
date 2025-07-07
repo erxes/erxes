@@ -2,7 +2,7 @@ import { conformityQueryFields } from "./company";
 
 // TODO: remove customer's email and phone field after customCommand
 
-export const types = inboxEnabled => `
+export const types = (inboxEnabled) => `
   type CustomerConnectionChangedResponse {
     _id: String!
     status: String!
@@ -46,6 +46,7 @@ export const types = inboxEnabled => `
     isSubscribed: String
     code: String
     emailValidationStatus: String
+    registrationNumber: String
     phoneValidationStatus: String
 
     isOnline: Boolean
@@ -58,7 +59,7 @@ export const types = inboxEnabled => `
 
      getTags: [Tag]
     ${inboxEnabled ? "integration: Integration" : ""}
-    
+
     owner: User
     score: Float
   }
@@ -96,6 +97,7 @@ const queryParams = `
   dateFilters: String
   segmentData: String
   emailValidationStatus:String
+  registrationNumber:String
   ${conformityQueryFields}
 `;
 
@@ -131,6 +133,7 @@ const fields = `
   sex: Int
   birthDate: Date
   emailValidationStatus: String
+  registrationNumber: String
   phoneValidationStatus: String
 `;
 

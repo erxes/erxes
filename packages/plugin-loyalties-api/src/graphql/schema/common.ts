@@ -48,7 +48,6 @@ export const commonTypes = `
   ownerType: String,
   ownerId: String,
 
-  campaign: JSON,
   owner: JSON
 `;
 

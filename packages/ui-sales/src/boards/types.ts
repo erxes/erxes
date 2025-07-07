@@ -130,7 +130,7 @@ export interface IItemParams {
   departmentIds?: string[];
 }
 
-export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
+export type SaveItemMutation = ({ variables }: { variables: IItemParams }) => Promise<any>;
 export type RemoveStageMutation = ({
   variables
 }: {
@@ -239,6 +239,8 @@ export interface IItem {
   customProperties?: any;
   departmentIds: string[];
   branchIds: string[];
+
+  loyalty?: any;
 }
 
 export interface IDraggableLocation {
@@ -334,9 +336,9 @@ export type WatchVariables = {
   type?: string;
 };
 
-export type SaveMutation = ({ variables: IItemParams }) => Promise<any>;
+export type SaveMutation = (params: { variables: IItemParams }) => Promise<any>;
 
-export type WatchMutation = ({ variables: WatchVariables }) => Promise<any>;
+export type WatchMutation = (params: { variables: WatchVariables }) => Promise<any>;
 
 export type UpdateTimeVariables = {
   _id: string;
@@ -345,9 +347,9 @@ export type UpdateTimeVariables = {
   startDate?: string;
 };
 
-export type RemoveMutation = ({ variables: MutationVariables }) => Promise<any>;
+export type RemoveMutation = (params: { variables: MutationVariables }) => Promise<any>;
 
-export type UpdateTimeTrackMutation = ({
+export type UpdateTimeTrackMutation = (params: {
   variables: UpdateTimeVariables
 }) => Promise<any>;
 
@@ -356,7 +358,7 @@ export type CopyVariables = {
   proccessId: string;
 };
 
-export type CopyMutation = ({ variables: CopyVariables }) => Promise<any>;
+export type CopyMutation = (params: { variables: CopyVariables }) => Promise<any>;
 
 export type ItemsQueryResponse = {
   fetchMore: any;
@@ -378,12 +380,8 @@ export type PipelineLabelDetailQueryResponse = {
 } & QueryResponse;
 
 // mutation response
-export type AddPipelineLabelMutationResponse = ({
+export type AddPipelineLabelMutationResponse = (params: {
   variables: IPipelineLabelVariables
-}) => Promise<any>;
-
-export type EditPipelineLabelMutationResponse = ({
-  variables: EditMutationVariables
 }) => Promise<any>;
 
 export type RemovePipelineLabelMutationResponse = {

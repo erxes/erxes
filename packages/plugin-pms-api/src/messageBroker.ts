@@ -2,8 +2,9 @@ import { sendMessage, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import {
   consumeQueue,
-  consumeRPCQueue,
+  consumeRPCQueue
 } from '@erxes/api-utils/src/messageBroker';
+import { afterMutationHandlers } from './afterMutations';
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue('pms:branch.count', async ({ subdomain, data }) => {
@@ -11,8 +12,12 @@ export const setupMessageConsumers = async () => {
     const count = await models.TmsBranch.countDocuments();
     return {
       status: 'success',
-      data: count,
+      data: count
     };
+  });
+  consumeQueue('pms:afterMutation', async ({ subdomain, data }) => {
+    await afterMutationHandlers(subdomain, data);
+    return;
   });
 };
 
@@ -21,7 +26,7 @@ export const sendProductsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args,
+    ...args
   });
 };
 
@@ -30,7 +35,7 @@ export const sendContactsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args,
+    ...args
   });
 };
 
@@ -39,7 +44,7 @@ export const sendSalesMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'sales',
-    ...args,
+    ...args
   });
 };
 
@@ -48,7 +53,7 @@ export const sendPosMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'pos',
-    ...args,
+    ...args
   });
 };
 
@@ -57,7 +62,7 @@ export const sendEbarimtMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'ebarimt',
-    ...args,
+    ...args
   });
 };
 
@@ -66,7 +71,7 @@ export const sendCoreMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args,
+    ...args
   });
 };
 
@@ -75,6 +80,6 @@ export const sendNotificationsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',
-    ...args,
+    ...args
   });
 };

@@ -1,5 +1,6 @@
 import { generateModels, IModels } from './connectionResolver';
 import { publishConversationsChanged } from './graphql/resolvers/conversationMutations';
+import { sendCommonMessage } from './messageBroker';
 
 const modelChanger = (type: string, models: IModels) => {
   if (type === 'integration') {
@@ -41,6 +42,19 @@ export default {
       );
 
       response = await model.find({ _id: { $in: targetIds } }).lean();
+      if (type !== 'integration') {
+        sendCommonMessage({
+          serviceName: 'automations',
+          subdomain,
+          action: 'trigger',
+          data: {
+            type: 'inbox:conversation',
+            targets: [response]
+          },
+          isRPC: true,
+          defaultValue: null
+        });
+      }
     }
 
     return response;

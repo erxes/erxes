@@ -97,7 +97,7 @@ function EditForm(props: Props) {
   };
 
   const saveItemHandler = (doc: { [key: string]: any }) => {
-    saveItem(doc, (updatedItem) => {
+    saveItem({ ...doc, stageId }, (updatedItem) => {
       setUpdatedItem(updatedItem);
     });
   };
