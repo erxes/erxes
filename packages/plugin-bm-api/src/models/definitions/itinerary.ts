@@ -20,6 +20,7 @@ export interface ILocation {
 }
 export interface GroupDay {
   day: number;
+  title: string;
   images: string[];
   content: string;
   elements: ElementItem[];
@@ -69,6 +70,7 @@ const elementOfItinerarySchema = new Schema(
 const groupDay = new Schema(
   {
     day: field({ type: Number, label: "day" }),
+    title: field({ type: String, label: "title" }),
     images: field({ type: [String], label: "images" }),
     content: field({ type: String, label: "content" }),
     elements: field({ type: [elementOfItinerarySchema], label: "elements" }),

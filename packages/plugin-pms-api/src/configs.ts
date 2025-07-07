@@ -1,16 +1,18 @@
-import typeDefs from "./graphql/typeDefs";
-import resolvers from "./graphql/resolvers";
-import { generateModels } from "./connectionResolver";
+import typeDefs from './graphql/typeDefs';
+import resolvers from './graphql/resolvers';
+import { generateModels } from './connectionResolver';
 
-import { setupMessageConsumers } from "./messageBroker";
-import { getSubdomain } from "@erxes/api-utils/src/core";
-import * as permissions from "./permissions";
-
-import { getOrderInfo } from "./routes";
-import reports from "./reports/reports";
+import { setupMessageConsumers } from './messageBroker';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import * as permissions from './permissions';
+import logs from './logUtils';
+import { getOrderInfo } from './routes';
+import reports from './reports/reports';
+import afterMutations from './afterMutations';
+import automations from './automations';
 
 export default {
-  name: "pms",
+  name: 'pms',
 
   graphql: async () => {
     return {
@@ -32,9 +34,11 @@ export default {
   },
   setupMessageConsumers,
   meta: {
-    // afterMutations,
     // afterQueries,
+    afterMutations,
+    automations,
     permissions,
-    reports
+    reports,
+    logs: { providesActivityLog: true, consumers: logs }
   }
 };

@@ -671,16 +671,6 @@ export const generateCommonFilters = async (
       ],
     };
   }
-  filter.$or = [
-    {
-      isCheckUserTicket: { $ne: true },
-      assignedUserIds: { $eq: [] },
-    },
-    {
-      isCheckUserTicket: true,
-      $or: [{ assignedUserIds: currentUserId }, { userId: currentUserId }],
-    },
-  ];
 
   return filter;
 };
@@ -938,20 +928,6 @@ export const checkItemPermByUser = async (
     return item;
   }
 
-  // pipeline is Show only the users assigned(created) cards checked
-  // and current user nothing dominant users
-  // current user hans't this carts assigned and created
-  // if (
-  //   isCheckUser &&
-  //   !(excludeCheckUserIds || []).includes(user?._id) &&
-  //   !(
-  //     (item.assignedUserIds || []).includes(user?._id) ||
-  //     item.userId === user?._id
-  //   )
-  // ) {
-  //   throw new Error('You do not have permission to view.');
-  // }
-
   return item;
 };
 
@@ -1128,6 +1104,8 @@ export const getItemList = async (
         labels: "$labels_doc",
         stage: { $arrayElemAt: ["$stages_doc", 0] },
         name: 1,
+        isCheckUserTicket: 1,
+        assignedUserIds: 1,
         isComplete: 1,
         startDate: 1,
         closeDate: 1,
@@ -1396,7 +1374,6 @@ export const getItemList = async (
         const fieldData = item.customFieldsData.find(
           (f) => f.field === field._id
         );
-
         if (fieldData) {
           item.customProperties.push({
             name: `${field.text} - ${fieldData.value}`,
@@ -1408,7 +1385,12 @@ export const getItemList = async (
     const notification = notifications.find(
       (n) => n.contentTypeId === item._id
     );
-
+    if (
+      item.isCheckUserTicket === true &&
+      !(item.userId === user._id || item.assignedUserIds?.includes(user._id))
+    ) {
+      continue;
+    }
     updatedList.push({
       ...item,
       order: order++,

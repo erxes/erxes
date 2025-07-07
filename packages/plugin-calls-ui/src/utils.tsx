@@ -26,6 +26,18 @@ export const formatPhone = (phone) => {
   return num;
 };
 
+export function sanitizePhoneNumber(phone: string): string {
+  if (!phone) return '';
+
+  const digits = phone.replace(/\D/g, '');
+
+  if (digits.startsWith('976') && digits.length > 8) {
+    return digits.slice(3);
+  }
+
+  return digits;
+}
+
 const formatNumber = (n: number) => {
   return n.toLocaleString('en-US', {
     minimumIntegerDigits: 2,

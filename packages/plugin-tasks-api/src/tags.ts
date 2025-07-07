@@ -1,4 +1,5 @@
 import { generateModels } from "./connectionResolver";
+import { sendCommonMessage } from "./messageBroker";
 
 export default {
   types: [
@@ -28,6 +29,17 @@ export default {
       );
 
       response = await model.find({ _id: { $in: targetIds } }).lean();
+      sendCommonMessage({
+        serviceName: "automations",
+        subdomain,
+        action: "trigger",
+        data: {
+          type: "tasks:task",
+          targets: [response]
+        },
+        isRPC: true,
+        defaultValue: null
+      });
     }
 
     return response;

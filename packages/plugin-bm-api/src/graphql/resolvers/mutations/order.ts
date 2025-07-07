@@ -1,10 +1,11 @@
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
 import { sendMessage } from "@erxes/api-utils/src/core";
 import { putCreateLog, putDeleteLog, putUpdateLog } from "../../../logUtils";
+import { sendCoreMessage } from "../../../messageBroker";
 
 const orderMutations = {
   bmOrderAdd: async (
@@ -18,7 +19,13 @@ const orderMutations = {
     );
     const tour = await models.Tours.getTour(order.tourId);
     const branch = await models.BmsBranch.findById(order.branchId);
-
+    const createdBy = await sendCoreMessage({
+      subdomain,
+      action: "users.findOne",
+      data: { role: "system" },
+      isRPC: true,
+      defaultValue: {},
+    });
     await sendMessage({
       serviceName: "notifications",
       subdomain,
@@ -28,22 +35,22 @@ const orderMutations = {
         title: "Захиалга үүслээ",
         content: `${order.amount} дүнтэй захиалга, ${tour.name} тур дээр ирлээ.`,
         action: `Reminder:`,
-        link: `${order.id}`,
+        link: `${order._id}`,
         createdUser: user,
         // exclude current user
         contentType: "bm:order",
         contentTypeId: order._id,
-        receivers: [...(branch?.user1Ids || []), ...(branch?.user2Ids || [])]
-      }
+        receivers: [...(branch?.user1Ids || []), ...(branch?.user2Ids || [])],
+      },
     });
     await putCreateLog(
       subdomain,
       {
         type: "order",
         newData: doc,
-        object: order
+        object: order,
       },
-      user
+      user ? user : createdBy
     );
     return order;
   },
@@ -56,15 +63,22 @@ const orderMutations = {
     const order = await models.Orders.getOrder(_id);
 
     const updated = await models.Orders.updateOrder(_id, doc?.order as any);
+    const createdBy = await sendCoreMessage({
+      subdomain,
+      action: "users.findOne",
+      data: { role: "system" },
+      isRPC: true,
+      defaultValue: {},
+    });
     await putUpdateLog(
       subdomain,
       {
         type: "order",
         object: order,
         newData: doc,
-        updatedDocument: updated
+        updatedDocument: updated,
       },
-      user
+      user ? user : createdBy
     );
     const tour = await models.Tours.getTour(order.tourId);
     const branch = await models.BmsBranch.findById(order.branchId);
@@ -79,12 +93,12 @@ const orderMutations = {
         content: `${order.amount} дүнтэй захиалга засагдлаа, ${tour.name} `,
         action: `Reminder:`,
         link: `${order.id}`,
-        createdUser: user,
+        createdUser: user ? user : createdBy,
         // exclude current user
         contentType: "bm:order",
         contentTypeId: order._id,
-        receivers: [...(branch?.user1Ids || []), ...(branch?.user2Ids || [])]
-      }
+        receivers: [...(branch?.user1Ids || []), ...(branch?.user2Ids || [])],
+      },
     });
     return updated;
   },
@@ -94,10 +108,21 @@ const orderMutations = {
     { ids }: { ids: string[] },
     { models, user, subdomain }: IContext
   ) => {
+    const createdBy = await sendCoreMessage({
+      subdomain,
+      action: "users.findOne",
+      data: { role: "system" },
+      isRPC: true,
+      defaultValue: {},
+    });
     const orders = await models.Orders.find({ _id: { $in: ids } });
     for (const order of orders) {
       await models.Orders.deleteOne({ _id: order._id });
-      await putDeleteLog(subdomain, { type: "order", object: order }, user);
+      await putDeleteLog(
+        subdomain,
+        { type: "order", object: order },
+        user ? user : createdBy
+      );
       const branch = await models.BmsBranch.findById(order.branchId);
 
       await sendMessage({
@@ -110,16 +135,16 @@ const orderMutations = {
           content: `${order.amount} дүнтэй захиалга устлаа`,
           action: `Reminder:`,
           link: `${order.id}`,
-          createdUser: user,
+          createdUser: user ? user : createdBy,
           // exclude current user
           contentType: "bm:order",
           contentTypeId: order._id,
-          receivers: [...(branch?.user1Ids || []), ...(branch?.user2Ids || [])]
-        }
+          receivers: [...(branch?.user1Ids || []), ...(branch?.user2Ids || [])],
+        },
       });
     }
     return ids;
-  }
+  },
 };
 
 export default orderMutations;

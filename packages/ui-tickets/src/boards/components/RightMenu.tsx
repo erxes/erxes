@@ -295,6 +295,10 @@ export default class RightMenu extends React.Component<Props, State> {
             label="Filter by branches"
             initialValue={queryParams.branchIds}
             onSelect={onSelect}
+             filterParams={{
+              withoutUserFilter: true,
+              searchValue: "search term",
+            }}
           />
         </FormGroup>
 
