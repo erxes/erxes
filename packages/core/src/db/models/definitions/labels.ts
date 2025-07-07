@@ -4,7 +4,7 @@ import { field } from "./utils";
 export interface ILabel {
   name: string;
   forType: string;
-  userId: string;
+  userId?: string;
 }
 
 export interface ILabelDocument extends ILabel, Document {

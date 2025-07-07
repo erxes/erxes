@@ -1,11 +1,21 @@
+import { FilterQuery } from "mongoose";
 import { IContext } from "../../../connectionResolver";
+import { ILabel } from "../../../db/models/definitions/labels";
 import { DEFAULT_LABELS } from "../../constants";
 
+interface ICustomLabel extends ILabel {
+  type: string;
+}
+
 const labelQueries = {
-  async labels(_root: any, args: any, { models }: IContext) {
+  async labels(
+    _root: undefined,
+    args: { forType: string; userId?: string },
+    { models }: IContext
+  ) {
     const { forType, userId } = args || {};
 
-    const filter: any = {
+    const filter: FilterQuery<ILabel> = {
       forType,
     };
 
@@ -16,10 +26,10 @@ const labelQueries = {
     const labels = await models.Labels.find(filter).lean();
 
     if (!labels || !DEFAULT_LABELS[forType]) {
-      throw new Error("Wrong forType");
+      throw new Error(`Invalid label type: '${forType}'`);
     }
 
-    const customLabels: any[] = [];
+    const customLabels: ICustomLabel[] = [];
 
     for (const label of labels) {
       customLabels.push({

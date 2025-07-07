@@ -5,15 +5,15 @@ import {
   SidebarList,
 } from "@erxes/ui/src/layout/styles";
 
-import { GENDER_TYPES } from "../../constants";
-import { ICustomer } from "../../types";
 import { IField } from "@erxes/ui/src/types";
-import { IFieldsVisibility } from "../../types";
-import PrimaryEmail from "./PrimaryEmail";
-import PrimaryPhone from "./PrimaryPhone";
-import React from "react";
 import { __ } from "@erxes/ui/src/utils";
 import dayjs from "dayjs";
+import React from "react";
+import { GENDER_TYPES } from "../../constants";
+import { InfoRow } from "../../styles";
+import { ICustomer, IFieldsVisibility } from "../../types";
+import PrimaryEmail from "./PrimaryEmail";
+import PrimaryPhone from "./PrimaryPhone";
 
 type Props = {
   customer: ICustomer;
@@ -67,17 +67,6 @@ class DetailInfo extends React.PureComponent<Props> {
     );
   }
 
-  renderPhones(phone?: string) {
-    return (
-      <li>
-        <FieldStyle>{__("Primary phone")}:</FieldStyle>
-        <SidebarCounter>
-          <PrimaryPhone phone={phone} />
-        </SidebarCounter>
-      </li>
-    );
-  }
-
   renderPosition(customer) {
     if (!this.props.hasPosition) {
       return null;
@@ -86,70 +75,54 @@ class DetailInfo extends React.PureComponent<Props> {
     return this.renderRow("position", customer.position);
   }
 
-renderPhoneList() {
-  const { customer } = this.props;
+  renderPhones(
+    status?: string,
+    phones?: { phone: string; type: string }[],
+    primaryPhone?: string
+  ) {
+    const hasPrimaryPhone = (phones || []).find(
+      (phone) => phone?.type === "primary"
+    );
 
-  // Destructure `primaryPhone` and `phones` from the customer object
-  let { primaryPhone, phones } = customer || {};
+    if (!hasPrimaryPhone && primaryPhone) {
+      phones = [{ phone: primaryPhone, type: "primary" }, ...(phones || [])];
+    }
 
-  // If there's a primaryPhone and phones list, prepend the primaryPhone to the array
-  if (primaryPhone && phones?.length) {
-    phones = [primaryPhone, ...phones]; // ensures primaryPhone shows first
-  }
+    if (!phones?.length) {
+      return (
+        <li>
+          <FieldStyle>{__("Phones")}</FieldStyle>
+          <SidebarCounter>{__("-")}</SidebarCounter>
+        </li>
+      );
+    }
 
-  // If there are no phone numbers, render a fallback UI showing "-"
-  if (!phones?.length) {
+    const renderPhone = ({ phone, type }: { phone?: string; type: string }) => {
+      const capitalizedType = type.replace(/^./, (char) => char.toUpperCase());
+
+      return (
+        <InfoRow key={`${type}-${phone}`}>
+          <SidebarCounter>
+            <PrimaryPhone
+              phone={phone}
+              {...(type === "primary" ? { status } : {})}
+            />
+          </SidebarCounter>
+          <SidebarCounter>{capitalizedType}</SidebarCounter>
+        </InfoRow>
+      );
+    };
+
     return (
-      <li>
-        <FieldStyle>{__("Phone Numbers")}:</FieldStyle>
-        <SidebarCounter>-</SidebarCounter>
+      <li style={{ display: "flex", flexDirection: "column" }}>
+        <InfoRow>
+          <FieldStyle>{__("Phones")}</FieldStyle>
+          <FieldStyle>{__("Type")}</FieldStyle>
+        </InfoRow>
+        {phones.map(renderPhone)}
       </li>
     );
   }
-
-  return (
-    <li>
-      <FieldStyle>{__("Phone Numbers")}:</FieldStyle>
-      <SidebarCounter>
-        <table style={{ width: "100%", borderSpacing: "0 6px" }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: "left", fontWeight: "bold" }}>{__("Number")}</th>
-              <th style={{ textAlign: "left", fontWeight: "bold" }}>{__("Type")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* <tr>
-              <td>{phones[0]?.phone || "-"}</td>
-              <td>{__("primary")}</td>
-            </tr>
-            {phones[1] && (
-              <tr>
-                <td>{phones[1].phone || "-"}</td>
-                <td>{__("mobile")}</td>
-              </tr>
-            )}
-            {phones[2] && (
-              <tr>
-                <td>{phones[2].phone || "-"}</td>
-                <td>{__("work")}</td>
-              </tr>
-            )} */}
-            {
-              phones.map(phone => (
-                <tr>
-                  <td>{phone || "-"}</td>
-                  <td>{__("Other")}</td>
-                </tr>
-              ))
-            }
-          </tbody>
-        </table>
-      </SidebarCounter>
-    </li>
-  );
-}
-
 
   render() {
     const { customer, fields, isGrid } = this.props;
@@ -165,7 +138,11 @@ renderPhoneList() {
           customer.emailValidationStatus,
           customer.primaryEmail
         )}
-        {this.renderPhoneList()}
+        {this.renderPhones(
+          customer.phoneValidationStatus,
+          customer.phones,
+          customer.primaryPhone
+        )}
         {this.renderPosition(customer)}
         {this.renderRow(
           "owner",

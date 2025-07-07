@@ -1,26 +1,19 @@
 import { IContext } from "../../../connectionResolver";
-import { DEFAULT_LABELS } from "../../constants";
+import { ILabel } from "../../../db/models/definitions/labels";
 
 const labelMutations = {
-  async saveLabel(_root: any, doc: any, { models, user }: IContext) {
-    const defaultLabel = DEFAULT_LABELS[doc.forType];
-
-    if (!defaultLabel) {
-      throw new Error("Wrong forType");
-    }
-
-    const label = defaultLabel.find(
-      (label) => label.name.toLowerCase() === doc.name.toLowerCase()
+  async saveLabel(_root: undefined, doc: ILabel, { models, user }: IContext) {
+    return models.Labels.saveLabel(
+      { ...doc, name: doc.name.toLowerCase() },
+      user
     );
-
-    if (label) {
-      throw new Error("You can't create a label with the same name");
-    }
-
-    return models.Labels.saveLabel(doc, user);
   },
 
-  async removeLabel(_root: any, { name }: any, { models }: IContext) {
+  async removeLabel(
+    _root: undefined,
+    { name }: { name: string },
+    { models }: IContext
+  ) {
     return models.Labels.removeLabel(name);
   },
 };

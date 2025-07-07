@@ -33,6 +33,7 @@ import React from "react";
 import RelationForm from "@erxes/ui-forms/src/forms/containers/RelationForm";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import validator from "validator";
+import SelectWrapper from "./Select";
 
 type Props = {
   currentUser: IUser;
@@ -421,7 +422,7 @@ class CustomerForm extends React.Component<Props, State> {
 
                 <FormGroup>
                   <ControlLabel>Phone</ControlLabel>
-                  <AutoCompletionSelect
+                  {/* <AutoCompletionSelect
                     defaultValue={primaryPhone}
                     defaultOptions={this.getPhonesOptions(customer)}
                     autoCompletionType="phones"
@@ -430,7 +431,8 @@ class CustomerForm extends React.Component<Props, State> {
                     query={autoCompletionQuery}
                     checkFormat={isValidPhone}
                     onChange={this.onPhoneChange}
-                  />
+                  /> */}
+                  <SelectWrapper forType="phone" data={customer.phones || []} />
                 </FormGroup>
 
                 <FormGroup>
