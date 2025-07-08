@@ -75,6 +75,7 @@ export interface IEbarimt {
   // Ебаримт руу илгээсэн мэдээлэл
   sendInfo?: any
   state?: string;
+  userId?: string;
 }
 
 export interface IEbarimtFull extends IEbarimt {
@@ -153,6 +154,7 @@ export const ebarimtSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     createdAt: field({ type: Date, label: 'Created at', index: true }),
     modifiedAt: field({ type: Date, label: 'Modified at' }),
+    userId: field({ type: String, label: 'Created user', optional: true }),
     number: field({ type: String, label: 'Inner bill number', index: true }),
 
     // Холбогдох обьект
