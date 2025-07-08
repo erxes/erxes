@@ -1385,12 +1385,12 @@ export const getItemList = async (
     const notification = notifications.find(
       (n) => n.contentTypeId === item._id
     );
-    // if (
-    //   item.isCheckUserTicket === true &&
-    //   !(item.userId === user._id || item.assignedUserIds?.includes(user._id))
-    // ) {
-    //   continue;
-    // }
+    if (
+      item.isCheckUserTicket === true &&
+      !(item.userId === user._id || item.assignedUserIds?.includes(user._id))
+    ) {
+      continue;
+    }
     updatedList.push({
       ...item,
       order: order++,
