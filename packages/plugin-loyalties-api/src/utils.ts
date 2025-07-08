@@ -64,6 +64,8 @@ export const applyRestriction = async ({
     excludeTagIds = [],
   } = restrictions || {};
 
+  const inputProductsIds = products.map((p) => p.productId);
+
   const [includedCategoryIds, excludedCategoryIds] = await Promise.all([
     categoryIds.length ? getChildCategories(subdomain, categoryIds) : [],
     excludeCategoryIds.length
@@ -78,7 +80,7 @@ export const applyRestriction = async ({
 
   const query: Record<string, any> = {
     _id: {
-      $in: productIds,
+      $in: productIds.length ? productIds : inputProductsIds,
       $nin: excludeProductIds,
     },
   };
