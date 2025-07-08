@@ -60,6 +60,7 @@ const PutResponseRow: React.FC<Props> = ({ putResponse, history, onReReturn }: P
       <td key={'amount'}>{displayValue(putResponse, 'totalAmount')}</td>
       <td key={'message'}>{displayValue(putResponse, 'message')}</td>
       <td key={'inactiveId'}>{putResponse.inactiveId} </td>
+      <td key={'user'}>{putResponse.user?.email} </td>
       <td key={"actions"}>
         {(putResponse.contentType === "deal") && (
           <Button

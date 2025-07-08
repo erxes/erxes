@@ -10,15 +10,18 @@ import { IDoc, getEbarimtData } from './utils';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { returnResponse } from '../utils';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
 export interface IPutResponseModel extends Model<IEbarimtDocument> {
   putData(
     doc: IDoc,
-    config: IEbarimtConfig
+    config: IEbarimtConfig,
+    user?: IUserDocument,
   ): Promise<{ putData?: IEbarimtDocument, innerData?: IEbarimtFull }>;
   returnBill(
     doc: { contentType: string; contentId: string; number: string },
-    config: IEbarimtConfig
+    config: IEbarimtConfig,
+    user?: IUserDocument,
   ): Promise<IEbarimtDocument[]>;
   putHistory({
     contentType,
@@ -43,7 +46,7 @@ export interface IPutResponseModel extends Model<IEbarimtDocument> {
 
 export const loadPutResponseClass = (models: IModels) => {
   class PutResponse {
-    public static async putData(doc: IDoc, config: IEbarimtConfig) {
+    public static async putData(doc: IDoc, config: IEbarimtConfig, user?: IUserDocument) {
       // check previously post
       const { contentId, contentType } = doc;
       const continuePutResponses: IEbarimtDocument[] =
@@ -100,6 +103,7 @@ export const loadPutResponseClass = (models: IModels) => {
           contentType,
           number: doc.number,
           customerName: data.customerName,
+          userId: user?._id
         });
 
         const response = await fetch(
@@ -138,7 +142,7 @@ export const loadPutResponseClass = (models: IModels) => {
       return result;
     }
 
-    public static async returnBill(doc, config) {
+    public static async returnBill(doc, config, user?) {
       const url = config.ebarimtUrl || '';
       const { contentType, contentId } = doc;
 
@@ -172,6 +176,7 @@ export const loadPutResponseClass = (models: IModels) => {
           contentType,
           number: doc.number,
           inactiveId: prePutResponse.id,
+          userId: user?._id,
         });
 
         const delResponse = await await returnResponse(url, data)

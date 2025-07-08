@@ -292,7 +292,7 @@ const ordersEdit = async (
     models,
     subdomain
   }: {
-    posUser: IPosUserDocument;
+    posUser?: IPosUserDocument;
     config: IConfigDocument;
     models: IModels;
     subdomain: string;
@@ -631,7 +631,7 @@ const orderMutations = {
   async ordersMakePayment(
     _root,
     { _id, doc }: IPaymentParams,
-    { config, models, subdomain }: IContext
+    { config, models, subdomain, posUser }: IContext
   ) {
     let order = await models.Orders.getOrder(_id);
 
@@ -664,7 +664,8 @@ const orderMutations = {
       response = await models.PutResponses.putData(
         { ...ebarimtData },
         ebarimtConfig,
-        config.token
+        config.token,
+        posUser
       );
       ebarimtResponses.push(response);
 
@@ -752,7 +753,7 @@ const orderMutations = {
       order,
       paidAmounts
     );
-    await checkCouponCode({subdomain, order})
+    await checkCouponCode({ subdomain, order })
 
     const modifier: any = {
       $set: {
@@ -837,7 +838,7 @@ const orderMutations = {
   async ordersSettlePayment(
     _root,
     { _id, billType, registerNumber }: ISettlePaymentParams,
-    { config, models, subdomain }: IContext
+    { config, models, subdomain, posUser }: IContext
   ) {
     let order = await models.Orders.getOrder(_id);
 
@@ -851,7 +852,7 @@ const orderMutations = {
       _id,
       billType,
       registerNumber
-    });
+    }, posUser);
   }, // end ordersSettlePayment()
 
   async ordersConvertToDeal(
@@ -899,8 +900,8 @@ const orderMutations = {
       startDate: order.createdAt,
       closeDate: order.dueDate,
       stageId: cardConfig.stageId,
-      assignedUserIds: [posUser._id],
-      watchedUserIds: [posUser._id],
+      assignedUserIds: posUser ? [posUser._id] : undefined,
+      watchedUserIds: posUser ? [posUser._id] : undefined,
       productsData: items.map(i => ({
         productId: i.productId,
         uom: "PC",
@@ -1117,7 +1118,7 @@ const orderMutations = {
     },
     { subdomain, models, posUser, config }: IContext
   ) {
-    if (!config.adminIds.includes(posUser._id)) {
+    if (!posUser?._id || !config.adminIds.includes(posUser._id)) {
       throw new Error("Order return admin required");
     }
 
@@ -1189,7 +1190,8 @@ const orderMutations = {
         contentType: "pos",
         number: order.number ?? ""
       },
-      ebarimtConfig
+      ebarimtConfig,
+      posUser
     )) as any;
 
     if (returnResponses.error) {

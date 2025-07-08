@@ -1,5 +1,7 @@
 // SETTINGS
 
+import { IUser } from "@erxes/ui/src/auth/types";
+
 export type IConfigsMap = { [key: string]: any };
 
 export type IConfig = {
@@ -50,6 +52,8 @@ export type IPutResponse = {
 
   createdAt: Date;
   modifiedAt: Date;
+  userId?: string;
+  user?: IUser;
 
   _id: string;
   id: string;
