@@ -83,6 +83,17 @@ export const responseFields = `
 
   createdAt
   modifiedAt
+  userId
+  user {
+    _id
+    username
+    email
+    details {
+      fullName
+      firstName
+      lastName
+    }
+  }
 
   id
   posId

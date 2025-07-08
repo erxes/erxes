@@ -1,3 +1,4 @@
+import * as dayjs from 'dayjs';
 import { debugError } from "@erxes/api-utils/src/debuggers";
 import * as _ from "underscore";
 import { IModels } from "./connectionResolver";
@@ -22,8 +23,7 @@ import { IOrderDocument } from "./models/definitions/orders";
 import { IConfigDocument } from "./models/definitions/configs";
 import * as moment from "moment";
 import { IDoc } from "./models/PutData";
-
-type TSortBuilder = { primaryName: number } | { [index: string]: number };
+import { IPosUserDocument } from "./models/definitions/posUsers";
 
 export interface ICountBy {
   [index: string]: number;
@@ -357,7 +357,8 @@ export const prepareSettlePayment = async (
   models: IModels,
   order: IOrderDocument,
   config: IConfigDocument,
-  { _id, billType, registerNumber }: ISettlePaymentParams
+  { _id, billType, registerNumber }: ISettlePaymentParams,
+  user?: IPosUserDocument
 ) => {
   checkOrderStatus(order);
 
@@ -398,13 +399,22 @@ export const prepareSettlePayment = async (
         const { putData, innerData } = await models.PutResponses.putData(
           { ...ebarimtData },
           ebarimtConfig,
-          config.token
+          config.token,
+          user
         );
         putData && ebarimtResponses.push(putData);
         innerData && ebarimtResponses.push(innerData);
       } catch (e) {
         ebarimtResponses.push({
           _id: `Err${Math.random()}`,
+          sendInfo: { ...ebarimtData },
+          type: ebarimtData.type,
+          date: dayjs(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
+          status: 'ERROR',
+          contentType: 'pos',
+          contentId: order._id,
+          number: order.number ?? '',
+          userId: user?._id,
           billId: "Error",
           success: "false",
           message: e.message

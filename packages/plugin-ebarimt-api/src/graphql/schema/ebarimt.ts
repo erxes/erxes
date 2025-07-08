@@ -1,4 +1,8 @@
 export const types = `
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type AutomationResponse {
     content: JSON
     responseId: String
@@ -39,6 +43,8 @@ export const types = `
 
     createdAt: Date
     modifiedAt: Date
+    userId: String
+    user: User
 
     id: String
     posId: Float
