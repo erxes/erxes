@@ -407,7 +407,7 @@ export const prepareSettlePayment = async (
       } catch (e) {
         ebarimtResponses.push({
           _id: `Err${Math.random()}`,
-          sendInfo: { ...ebarimtData },
+          id: 'Error',
           type: ebarimtData.type,
           date: dayjs(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
           status: 'ERROR',

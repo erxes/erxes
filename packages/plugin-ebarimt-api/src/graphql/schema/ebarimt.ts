@@ -89,6 +89,7 @@ export const queries = `
   putResponsesAmount(${queryParams}): Float
   getDealLink(_id: String): String
   ebarimtGetCompany(companyRD: String!): JSON
+  putResponseDetail(contentType: String, contentId: String, stageId: String, isTemp: Boolean): PutResponse
 `;
 
 export const mutations = `
