@@ -7,6 +7,10 @@ const vouchersMutations = {
   async vouchersAdd(_root, doc: IVoucher, { models }: IContext) {
     return models.Vouchers.createVoucher(doc);
   },
+  
+  async vouchersAddMany(_root, doc: IVoucher, { models }: IContext) {
+    return models.Vouchers.createVouchers(doc);
+  },
 
   async vouchersEdit(
     _root,
@@ -30,6 +34,7 @@ const vouchersMutations = {
 };
 
 checkPermission(vouchersMutations, 'vouchersAdd', 'manageLoyalties');
+checkPermission(vouchersMutations, 'vouchersAddMany', 'manageLoyalties');
 checkPermission(vouchersMutations, 'vouchersEdit', 'manageLoyalties');
 checkPermission(vouchersMutations, 'vouchersRemove', 'manageLoyalties');
 
