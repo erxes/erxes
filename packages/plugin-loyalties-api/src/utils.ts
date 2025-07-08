@@ -64,8 +64,6 @@ export const applyRestriction = async ({
     excludeTagIds = [],
   } = restrictions || {};
 
-  const inputProductIds = products.map((p) => p.productId);
-
   const [includedCategoryIds, excludedCategoryIds] = await Promise.all([
     categoryIds.length ? getChildCategories(subdomain, categoryIds) : [],
     excludeCategoryIds.length
@@ -80,7 +78,7 @@ export const applyRestriction = async ({
 
   const query: Record<string, any> = {
     _id: {
-      $in: [...inputProductIds, ...productIds],
+      $in: productIds,
       $nin: excludeProductIds,
     },
   };
@@ -114,7 +112,7 @@ export const applyRestriction = async ({
     return sum + (item ? item.quantity * item.unitPrice : 0);
   }, 0);
 
-  return { productDocs, totalAmount };
+  return { productDocs, restrictedAmount: totalAmount };
 };
 
 export const directVoucher = async ({
@@ -198,7 +196,7 @@ export const directVoucher = async ({
       for (const voucher of vouchers) {
         const { title, kind, value, restrictions } = voucher.campaign;
 
-        const { productDocs, totalAmount } = await applyRestriction({
+        const { productDocs, restrictedAmount } = await applyRestriction({
           subdomain,
           restrictions,
           products,
@@ -207,14 +205,16 @@ export const directVoucher = async ({
         for (const product of productDocs) {
           const { _id } = product;
 
+          const item = products.find((p) => p.productId === _id) || {};
+
           const discount = calculateDiscount({
             kind,
             value,
             product: {
-              ...product,
+              ...item,
               discount: result[_id].discount || 0,
             },
-            totalAmount,
+            totalAmount: restrictedAmount,
           });
 
           result[_id] = {
@@ -265,6 +265,10 @@ export const checkVouchersSale = async (
     }
   }
 
+  const totalAmount = products.reduce((sum, product) => {
+    return sum + product.quantity * product.unitPrice;
+  }, 0);
+
   for (const product of products) {
     const { productId } = product || {};
 
@@ -297,7 +301,7 @@ export const checkVouchersSale = async (
 
     const { title, kind, value, restrictions = {} } = voucherCampaign;
 
-    const { productDocs, totalAmount } = await applyRestriction({
+    const { productDocs, restrictedAmount } = await applyRestriction({
       subdomain,
       restrictions,
       products,
@@ -326,7 +330,7 @@ export const checkVouchersSale = async (
             ...item,
             discount: result[_id].discount || 0,
           },
-          totalAmount,
+          totalAmount: restrictedAmount,
         }),
         voucherName: title,
         type: "voucher",
@@ -343,7 +347,7 @@ export const checkVouchersSale = async (
 
     const { title, kind, value, restrictions = {} } = couponCampaign;
 
-    const { productDocs, totalAmount } = await applyRestriction({
+    const { productDocs, restrictedAmount } = await applyRestriction({
       subdomain,
       restrictions,
       products,
@@ -371,7 +375,7 @@ export const checkVouchersSale = async (
             ...item,
             discount: result[_id].discount || 0,
           },
-          totalAmount,
+          totalAmount: restrictedAmount,
         }),
         couponName: title,
         type: "coupon",
