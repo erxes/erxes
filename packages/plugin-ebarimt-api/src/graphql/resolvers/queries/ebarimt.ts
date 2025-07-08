@@ -256,13 +256,13 @@ const queries = {
       stageId = stageId || deal.stageId;
 
       if (!deal?._id || !stageId) {
-        throw new Error('has not found deal')
+        throw new Error('Deal not found')
       }
 
       const configs = await getConfig(subdomain, "stageInEbarimt", {});
 
       if (!Object.keys(configs).includes(stageId)) {
-        throw new Error('has not found ebarimt config')
+        throw new Error('Ebarimt config not found')
       }
 
       const config = {
