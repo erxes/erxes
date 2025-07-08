@@ -312,7 +312,6 @@ const queries = {
         };
       }
     }
-    return;
   },
 
   putResponsesAmount: async (
