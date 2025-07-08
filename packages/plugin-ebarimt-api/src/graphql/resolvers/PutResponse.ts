@@ -2,7 +2,7 @@ import { IContext } from '../../connectionResolver';
 import { sendCoreMessage } from '../../messageBroker';
 import { IEbarimtDocument } from '../../models/definitions/ebarimt';
 
-const cars = {
+const putResponse = {
   async user(putResponse: IEbarimtDocument) {
     if (!putResponse.userId) {
       return;
@@ -15,4 +15,4 @@ const cars = {
   },
 };
 
-export default cars;
+export default putResponse;
