@@ -1,17 +1,18 @@
-import { AddContent, AddRow } from "../../styles/item";
+import { AddContent, AddRow, NewBranch } from "../../styles/item";
 
 import AssignedUsers from "./AssignedUsers";
 import GenerateField from "@erxes/ui-forms/src/settings/properties/components/GenerateField";
 import { IField } from "@erxes/ui/src/types";
 import { LogicParams } from "@erxes/ui-forms/src/settings/properties/types";
 import PipelineLabels from "./PipelineLabels";
-import React from "react";
 import { checkLogic } from "@erxes/ui-forms/src/settings/properties/utils";
-import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectNewBranches from "@erxes/ui/src/team/containers/SelectNewBranches";
+
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
+import React, { useState } from "react";
 
 type Props = {
   object: any;
@@ -24,6 +25,7 @@ type Props = {
 function GenerateAddFormFields(props: Props) {
   const customFields = props.fields.filter((f) => !f.isDefinedByErxes);
   const fields = props.fields.filter((f) => f.isDefinedByErxes);
+  const [selectedBranchIds, setSelectedBranchIds] = useState<string[]>([]);
 
   const { customFieldsData, onChangeField } = props;
   const onCustomFieldsDataChange = ({
@@ -103,24 +105,34 @@ function GenerateAddFormFields(props: Props) {
 
           if (field.field === "assignedUserIds") {
             return (
-              <AssignedUsers field={field} onChangeField={onChangeField} />
+              <AssignedUsers
+                field={field}
+                onChangeField={onChangeField}
+                branchIds={selectedBranchIds}
+              />
             );
           }
 
           if (field.field === "branchIds") {
             return (
-              <FormGroup>
-                <ControlLabel>Branches</ControlLabel>
-                <SelectBranches
-                  label="Choose branch"
-                  name="branches"
+              <NewBranch>
+                <SelectNewBranches
+                  name="branchIds"
+                  label="Filter by branches"
                   initialValue={[]}
-                  multi={true}
                   onSelect={(branchIds) => {
-                    onChangeField("branchIds", branchIds);
+                    const normalized = Array.isArray(branchIds)
+                      ? branchIds
+                      : [branchIds];
+                    setSelectedBranchIds(normalized);
+                    onChangeField("branchIds", normalized);
+                  }}
+                  filterParams={{
+                    withoutUserFilter: true,
+                    searchValue: "search term",
                   }}
                 />
-              </FormGroup>
+              </NewBranch>
             );
           }
 
