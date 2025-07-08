@@ -1,4 +1,3 @@
-import * as dayjs from 'dayjs';
 import { debugError } from "@erxes/api-utils/src/debuggers";
 import * as _ from "underscore";
 import { IModels } from "./connectionResolver";
@@ -409,7 +408,7 @@ export const prepareSettlePayment = async (
           _id: `Err${Math.random()}`,
           id: 'Error',
           type: ebarimtData.type,
-          date: dayjs(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
+          date: moment(new Date()).format('"yyyy-MM-dd HH:mm:ss'),
           status: 'ERROR',
           contentType: 'pos',
           contentId: order._id,

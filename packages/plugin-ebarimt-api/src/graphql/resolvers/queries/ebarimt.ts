@@ -1,5 +1,5 @@
 import { paginate, regexSearchText } from "@erxes/api-utils/src";
-import * as dayjs from 'dayjs';
+import * as moment from "moment";
 import { nanoid } from "nanoid";
 import { IContext } from "../../../connectionResolver";
 import {
@@ -298,7 +298,7 @@ const queries = {
           ...data,
           id: "Түр баримт",
           status: "SUCCESS",
-          date: dayjs(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
+          date: moment(new Date()).format('"yyyy-MM-dd HH:mm:ss'),
           registerNo: config.companyRD || ""
         };
       }
@@ -307,7 +307,7 @@ const queries = {
           ...innerData,
           id: "Түр баримт",
           status: "SUCCESS",
-          date: dayjs(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
+          date: moment(new Date()).format('"yyyy-MM-dd HH:mm:ss'),
           registerNo: config.companyRD || ""
         };
       }
