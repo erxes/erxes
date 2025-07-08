@@ -215,7 +215,7 @@ class PaymentForm extends React.Component<Props, State> {
 
         if (config?.require === 'qrCode') {
           confirm('Read QRCODE', {
-            hasUpdateConfirm: true
+            hasPasswordConfirm: true
           })
             .then((qrString) => {
               const [customer] = this.props.dealQuery.customers || [];
