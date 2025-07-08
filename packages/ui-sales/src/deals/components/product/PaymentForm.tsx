@@ -180,6 +180,11 @@ class PaymentForm extends React.Component<Props, State> {
     const { currencies, changePayData } = this.props;
     const { paymentsData } = this.state;
     const NAME = type.name || type.type;
+    let maxVal;
+
+    if (type.scoreCampaignId) {
+      maxVal = this.state.checkOwnerScore ?? 0;
+    }
 
     const onChange = (e) => {
       if (
@@ -189,10 +194,14 @@ class PaymentForm extends React.Component<Props, State> {
         this.paymentStateChange("currency", NAME, currencies[0]);
       }
 
+      if (!maxVal) {
+        maxVal = parseFloat((e.target as HTMLInputElement).value || "0");
+      }
+
       this.paymentStateChange(
         "amount",
         NAME,
-        parseFloat((e.target as HTMLInputElement).value || "0")
+        Math.min(parseFloat((e.target as HTMLInputElement).value || "0"), maxVal)
       );
     };
 
@@ -201,19 +210,43 @@ class PaymentForm extends React.Component<Props, State> {
     };
 
     const onClick = () => {
+      try {
+        const config = JSON.parse(type.config);
+
+        if (config?.require === 'qrCode') {
+          confirm('Read QRCODE', {
+            hasUpdateConfirm: true
+          })
+            .then((qrString) => {
+              const [customer] = this.props.dealQuery.customers || [];
+              if (customer?._id !== qrString) {
+                maxVal = 0;
+              }
+            })
+            .catch((error) => {
+              Alert.error(error.message);
+            });
+
+        }
+      } catch (e) { }
+
       Object.keys(changePayData).forEach((key) => {
         if (
           changePayData[key] > 0 &&
           (!paymentsData[NAME] || !paymentsData[NAME].amount)
         ) {
+          if (!maxVal) {
+            maxVal = changePayData[key];
+          }
+          const possibleVal = Math.min(changePayData[key], maxVal);
           if (!paymentsData[NAME]) {
             paymentsData[NAME] = {};
           }
 
-          paymentsData[NAME].amount = changePayData[key];
+          paymentsData[NAME].amount = possibleVal;
           paymentsData[NAME].currency = key;
 
-          changePayData[key] = 0;
+          changePayData[key] = changePayData[key] - possibleVal;
 
           this.setState({ paymentsData });
 
@@ -235,7 +268,7 @@ class PaymentForm extends React.Component<Props, State> {
     const selectOptions = selectConfigOptions(currencies, CURRENCIES);
 
     return (
-      <Flex key={type.name}>
+      <Flex key={type.name} >
         <ContentColumn>
           <FlexRowGap>
             <ControlLabel>{__(type.title)}</ControlLabel>
