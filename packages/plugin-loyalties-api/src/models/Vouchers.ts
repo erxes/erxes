@@ -111,7 +111,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
       let { campaignId, ownerType, ownerIds, tagIds, userId = "" } = doc;
 
       if (!ownerIds?.length && !tagIds?.length) {
-        throw new Error("Not create voucher, owner is undefined");
+        throw new Error("Cannot create voucher: owner is undefined");
       }
 
       const now = new Date();
@@ -129,7 +129,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
           action: "customers.find",
           data: {
             tagIds: { $in: tagIds },
-            ...(ownerIds?.length && { ownerIds }),
+            ...(ownerIds?.length && { _id: { $in: ownerIds } }),
           },
           isRPC: true,
           defaultValue: [],
@@ -150,33 +150,30 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
             batch.map(async (ownerId) => {
               switch (voucherCampaign.voucherType) {
                 case "spin":
-                  models.Spins.createSpin({
+                  return models.Spins.createSpin({
                     campaignId: voucherCampaign.spinCampaignId,
                     ownerType,
                     ownerId,
                     voucherCampaignId: campaignId,
                     userId,
                   });
-                  break;
                 case "lottery":
-                  models.Lotteries.createLottery({
+                  return models.Lotteries.createLottery({
                     campaignId: voucherCampaign.lotteryCampaignId,
                     ownerType,
                     ownerId,
                     voucherCampaignId: campaignId,
                     userId,
                   });
-                  break;
                 case "score":
-                  models.ScoreLogs.changeScore({
+                  return models.ScoreLogs.changeScore({
                     ownerType,
                     ownerId,
                     changeScore: voucherCampaign.score,
                     description: "score voucher",
                   });
-                  break;
                 default:
-                  models.Vouchers.create({
+                  return models.Vouchers.create({
                     campaignId,
                     ownerType,
                     ownerId,
@@ -184,7 +181,6 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
                     status: VOUCHER_STATUS.NEW,
                     userId,
                   });
-                  break;
               }
             })
           );
@@ -192,6 +188,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
         return "success";
       } catch (error) {
+        console.error("Failed to create vouchers:", error);
         return "error";
       }
     }
@@ -200,7 +197,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
       const { ownerType, ownerId, status = "new", userId = "" } = doc;
 
       if (!ownerId || !ownerType) {
-        throw new Error("Not create voucher, owner is undefined");
+        throw new Error("Cannot create voucher: owner is undefined");
       }
 
       const voucher = await models.Vouchers.findOne({ _id }).lean();
