@@ -34,6 +34,7 @@ import RelationForm from "@erxes/ui-forms/src/forms/containers/RelationForm";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import validator from "validator";
 import SelectWrapper from "./Select";
+import EditablePhoneList from "./EditablePhoneList";
 
 type Props = {
   currentUser: IUser;
@@ -53,13 +54,16 @@ type State = {
   hasAuthority: string;
   users: IUser[];
   avatar: string;
-  phones?: string[];
+  phones?: { phone: string; type: string }[];
+  showPhoneEditor: boolean;
   emails?: string[];
   primaryPhone?: string;
   birthDate: string;
   primaryEmail?: string;
   relationData?: any;
 };
+
+
 
 class CustomerForm extends React.Component<Props, State> {
   constructor(props) {
@@ -72,6 +76,7 @@ class CustomerForm extends React.Component<Props, State> {
       ownerId: customer.ownerId || userId,
       isSubscribed: customer.isSubscribed || "Yes",
       hasAuthority: customer.hasAuthority || "No",
+      showPhoneEditor: false,
       users: [],
       birthDate: customer.birthDate,
       avatar: customer.avatar,
@@ -225,6 +230,10 @@ class CustomerForm extends React.Component<Props, State> {
     } else {
       Alert.error('Please enter a valid "Date".');
     }
+  };
+
+  onPhoneListChange = (phones: { phone: string; type: string }[]) => {
+    this.setState({ phones });
   };
 
   saveAndRedirect = (type: string) => {
@@ -421,20 +430,17 @@ class CustomerForm extends React.Component<Props, State> {
                 )}
 
                 <FormGroup>
-                  <ControlLabel>Phone</ControlLabel>
-                  {/* <AutoCompletionSelect
-                    defaultValue={primaryPhone}
-                    defaultOptions={this.getPhonesOptions(customer)}
-                    autoCompletionType="phones"
-                    placeholder="Enter a phone"
-                    queryName="customers"
-                    query={autoCompletionQuery}
-                    checkFormat={isValidPhone}
-                    onChange={this.onPhoneChange}
-                  /> */}
-                  <SelectWrapper forType="phone" data={customer.phones || []} />
+                <ControlLabel>Phone</ControlLabel>
+                <EditablePhoneList
+                phones={
+                this.state.phones ||
+                (customer.phones || []).map(item => 
+                typeof item === "string" ? { phone: item, type: "Primary" } : item
+                )
+                }
+                onChange={this.onPhoneListChange}
+                />
                 </FormGroup>
-
                 <FormGroup>
                   <ControlLabel>Primary phone verification status</ControlLabel>
                   <FormControl
