@@ -10,7 +10,7 @@ const mutations = {
   posOrderReturnBill: async (
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, user }: IContext,
   ) => {
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
@@ -34,6 +34,7 @@ const mutations = {
         contentId: _id,
         number: order.number,
         config: { ...pos.ebarimtConfig, ...ebarimtMainConfig },
+        user
       },
       isRPC: true,
     });
@@ -67,11 +68,11 @@ const mutations = {
     if (
       order.totalAmount !==
       cashAmount +
-        mobileAmount +
-        (paidAmounts || []).reduce(
-          (sum, i) => Number(sum) + Number(i.amount),
-          0,
-        )
+      mobileAmount +
+      (paidAmounts || []).reduce(
+        (sum, i) => Number(sum) + Number(i.amount),
+        0,
+      )
     ) {
       throw new Error('not balanced');
     }

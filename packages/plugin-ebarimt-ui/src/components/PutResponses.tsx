@@ -89,6 +89,7 @@ const PutResponses: React.FC<IProps> = (props: IProps) => {
                 label={__("Inactive ID")}
               />
             </th>
+            <th>User</th>
             <th>Үйлдлүүд</th>
           </tr>
         </thead>

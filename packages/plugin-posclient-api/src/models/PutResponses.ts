@@ -9,16 +9,19 @@ import {
   ebarimtSchema
 } from './definitions/putResponses';
 import { IModels } from '../connectionResolver';
+import { IPosUserDocument } from './definitions/posUsers';
 
 export interface IPutResponseModel extends Model<IEbarimtDocument> {
   putData(
     doc: IDoc,
     config: IEbarimtConfig,
-    posToken: string
+    posToken: string,
+    user?: IPosUserDocument
   ): Promise<{ putData?: IEbarimtDocument, innerData?: IEbarimtFull }>;
   returnBill(
     doc: { contentType: string; contentId: string; number: string },
-    config: IEbarimtConfig
+    config: IEbarimtConfig,
+    user?: IPosUserDocument
   ): Promise<IEbarimtDocument[]>;
   putHistory({
     contentType,
@@ -60,7 +63,7 @@ const checkContinuingRequest = async (models, contentType, contentId) => {
 
 export const loadPutResponseClass = (models: IModels) => {
   class PutResponse {
-    public static async putData(doc: IDoc, config: IEbarimtConfig, posToken: string) {
+    public static async putData(doc: IDoc, config: IEbarimtConfig, posToken: string, user?: IPosUserDocument) {
       // check previously post
       const { contentId, contentType } = doc;
       await checkContinuingRequest(models, contentType, contentId);
@@ -108,6 +111,7 @@ export const loadPutResponseClass = (models: IModels) => {
           contentType,
           number: doc.number,
           customerName: data.customerName,
+          userId: user?._id
         });
 
         const response = await fetch(
@@ -163,7 +167,7 @@ export const loadPutResponseClass = (models: IModels) => {
       return result;
     }
 
-    public static async returnBill(doc, config) {
+    public static async returnBill(doc, config, user?) {
       const url = config.ebarimtUrl || '';
       const { contentType, contentId } = doc;
 
@@ -197,6 +201,7 @@ export const loadPutResponseClass = (models: IModels) => {
           contentType,
           number: doc.number,
           inactiveId: prePutResponse.id,
+          userId: user?._id
         });
 
         const delResponse = await fetch(`${url}/rest/receipt`, {
