@@ -181,9 +181,17 @@ class PaymentForm extends React.Component<Props, State> {
     const { paymentsData } = this.state;
     const NAME = type.name || type.type;
     let maxVal;
+    let hasPopup = false;
 
     if (type.scoreCampaignId) {
       maxVal = this.state.checkOwnerScore ?? 0;
+      try {
+        const config = JSON.parse(type.config);
+        if (config?.require === 'qrCode') {
+          maxVal = 0;
+          hasPopup = true;
+        }
+      } catch (e) { }
     }
 
     const onChange = (e) => {
@@ -194,7 +202,8 @@ class PaymentForm extends React.Component<Props, State> {
         this.paymentStateChange("currency", NAME, currencies[0]);
       }
 
-      if (!maxVal) {
+      console.log(maxVal, 'mmmmmmmmmmmmmmmmmmm')
+      if (maxVal === undefined) {
         maxVal = parseFloat((e.target as HTMLInputElement).value || "0");
       }
 
@@ -209,52 +218,73 @@ class PaymentForm extends React.Component<Props, State> {
       this.paymentStateChange("currency", NAME, currency ? currency.value : "");
     };
 
-    const onClick = () => {
-      try {
-        const config = JSON.parse(type.config);
-
-        if (config?.require === 'qrCode') {
-          confirm('Read QRCODE', {
-            hasPasswordConfirm: true
-          })
-            .then((qrString) => {
-              const [customer] = this.props.dealQuery.customers || [];
-              if (customer?._id !== qrString) {
-                maxVal = 0;
-              }
-            })
-            .catch((error) => {
-              Alert.error(error.message);
-            });
-
-        }
-      } catch (e) { }
-
+    const onClickFunc = () => {
       Object.keys(changePayData).forEach((key) => {
         if (
           changePayData[key] > 0 &&
           (!paymentsData[NAME] || !paymentsData[NAME].amount)
         ) {
-          if (!maxVal) {
+          if (maxVal === undefined) {
             maxVal = changePayData[key];
           }
+
           const possibleVal = Math.min(changePayData[key], maxVal);
-          if (!paymentsData[NAME]) {
-            paymentsData[NAME] = {};
-          }
-
-          paymentsData[NAME].amount = possibleVal;
-          paymentsData[NAME].currency = key;
-
           changePayData[key] = changePayData[key] - possibleVal;
 
-          this.setState({ paymentsData });
-
-          this.props.onChangePaymentsData(paymentsData);
-
+          const newPaymentsData = {
+            ...paymentsData,
+            [NAME]: {
+              amount: possibleVal,
+              currency: key
+            }
+          }
+          this.setState({
+            paymentsData: newPaymentsData
+          }, () => {
+            this.props.onChangePaymentsData(newPaymentsData);
+          });
           return;
         }
       });
+    }
+
+    const onClick = () => {
+      if (hasPopup) {
+        confirm('Read QRCODE', {
+          hasPasswordConfirm: true,
+          beforeDismiss: () => {
+            maxVal = 0;
+            const newPaymentsData = {
+              ...paymentsData,
+              [NAME]: {
+                amount: 0,
+                currency: ''
+              }
+            }
+            this.setState({
+              paymentsData: newPaymentsData
+            }, () => {
+              this.props.onChangePaymentsData(newPaymentsData);
+            });
+          }
+        })
+          .then((qrString) => {
+            const [customer] = this.props.dealQuery.customers || [];
+            if (qrString && customer?._id === qrString) {
+              maxVal = this.state.checkOwnerScore ?? 0;
+            } else {
+              maxVal = 0;
+            }
+          })
+          .then(() => {
+            onClickFunc();
+          })
+          .catch((error) => {
+            Alert.error(error.message);
+          });
+      } else {
+        onClickFunc();
+      }
     };
 
     const Option = (props) => {
@@ -287,6 +317,7 @@ class PaymentForm extends React.Component<Props, State> {
             placeholder={__("Type amount")}
             min={0}
             name={NAME}
+            disabled={maxVal === 0 && !hasPopup}
             onChange={onChange}
             onClick={onClick}
           />
