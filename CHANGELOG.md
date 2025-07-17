@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.15.1](https://github.com/erxes/erxes/compare/2.15.0...2.15.1) (2025-07-09)
+
+### Bug Fixes
+
+* **cp:** apollo client uri ([0b69071](https://github.com/erxes/erxes/commit/0b690710943a57b602ad2bcf22e25e0e82fca13d))
+* Ebarimt improve, putResponseDetail and put response with user, and golomt pos terminal devPort configure ([#6084](https://github.com/erxes/erxes/issues/6084)) ([549d7cf](https://github.com/erxes/erxes/commit/549d7cf1ad7e24205508f9754c106967854fcc5e))
+* **pms:** add after mutation consumer in pms ([4293010](https://github.com/erxes/erxes/commit/4293010729988e6d71605266b6e16175b0f8768a))
+* **pms:** afterMutation miss typo plugin name ([4bd79fe](https://github.com/erxes/erxes/commit/4bd79fe1eb7aa8e73fb149ebe4208a29fd621f0c))
+* **pms:** revert configs ([1fd0b22](https://github.com/erxes/erxes/commit/1fd0b22581894f94e4197664ecb441fd42718969))
+* pos golomt terminal with diff portNo ([3cf7f00](https://github.com/erxes/erxes/commit/3cf7f00cdd56fc841c3fa3c00631b0d00f6b1623))
+* **ticket:** little issues ([5c31448](https://github.com/erxes/erxes/commit/5c314484c3fed92502367ad58af123efd300f714))
+* **tickets:** debug ([4229377](https://github.com/erxes/erxes/commit/422937774a859b29c9a45b0715e05c0f54fe7c26))
+* **tms:** update ([86294e6](https://github.com/erxes/erxes/commit/86294e6dd85c73e0134c11b8d583a9cd540b7943))
+
 ## [2.15.0](https://github.com/erxes/erxes/compare/2.14.5...2.15.0) (2025-07-02)
 
 ### Features
