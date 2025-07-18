@@ -50,6 +50,14 @@ export const orderNotificationEnabledAtom = atomWithStorage<boolean>(
   false
 )
 
+// supplement
+export const userNameAtom = atomWithStorage<string>("userName", "");
+export const userBankAddressAtom = atomWithStorage<string>("userBankAddress", "");
+export const accountTypeAtom = atom<'person' | 'company'>('person');
+export const companyRegisterAtom = atom('');
+
+export const printModalOpenAtom = atom<boolean>(false)
+
 // dialog
 
 export const checkoutModalViewAtom = atom<string>("")
