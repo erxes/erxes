@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useAtomValue } from "jotai";
 import {
   userNameAtom,
@@ -15,6 +15,8 @@ const UserInfo = () => {
   const company = useAtomValue(companyRegisterAtom);
   const accountType = useAtomValue(accountTypeAtom);
   const total = useAtomValue(totalAmountAtom);
+
+  const transactionDate = useMemo(() => new Date(), []);
 
   return (
     <div className="border p-6 rounded-xl shadow-md bg-white space-y-3 text-gray-900">
@@ -50,11 +52,12 @@ const UserInfo = () => {
           <strong>{formatNum(total)}₮</strong> төгрөгийн төлбөрийг нэхэмжилж байна.
         </p>
       </div>
+      
       <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-gray-700 mb-2">Transaction Date</h3>
-            <p>{new Date().toLocaleDateString()}</p>
-            <p className="text-sm text-gray-600">{new Date().toLocaleTimeString()}</p>
-          </div>
+        <h3 className="font-semibold text-gray-700 mb-2">Transaction Date</h3>
+        <p>{transactionDate.toLocaleDateString()}</p>
+        <p className="text-sm text-gray-600">{transactionDate.toLocaleTimeString()}</p>
+      </div>
     </div>
   );
 };
