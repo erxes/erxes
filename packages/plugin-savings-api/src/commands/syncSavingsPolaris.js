@@ -151,7 +151,7 @@ const command = async () => {
               isSyncedPolaris: true,
               isActiveSaving: true,
               closeInterestRate: 0,
-              storedInterest: 0,
+              storedInterest: detailDeposit.acrintBal,
               interestCalcType: null,
               storeInterestInterval: null,
               isAllowIncome: null,

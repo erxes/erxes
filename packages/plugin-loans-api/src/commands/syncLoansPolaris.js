@@ -196,8 +196,8 @@ const command = async () => {
             leasingExpertId: user ? user._id : "",
             holidayType: "before",
             useManualNumbering: null,
-            status: "normal",
-            classification: "NORMAL",
+            status: contractDetail.classQltName2 || "normal",
+            classification: contractDetail.flagStoppedIntName2 || "NORMAL",
             marginAmount: null,
             feeAmount: 0,
             lossPercent: 20,
@@ -251,19 +251,30 @@ const command = async () => {
           const huulga = await fetchPolaris("13610201", [
             pLoanContract.acntCode,
             moment(pLoanContract.startDate).format("YYYY-MM-DD"),
-            moment(pLoanContract.endDate).format("YYYY-MM-DD"),
+            moment().format("YYYY-MM-DD"),
             0,
             100
           ]);
 
-          await syncTransactions(
-            huulga,
-            contractDetail.approvAmount,
-            LoanTransaction,
-            LoanSchedules,
-            LoanContracts,
-            loanContract
-          );
+          const txns = huulga.txns || [];
+
+          const shouldSkip =
+            txns.length > 0 &&
+            txns.every(
+              (txn) =>
+                txn.income === 0 && txn.outcome === 0 && txn.txnNo === "1"
+            );
+
+          if (!shouldSkip) {
+            await syncTransactions(
+              huulga,
+              contractDetail.approvAmount,
+              LoanTransaction,
+              LoanSchedules,
+              LoanContracts,
+              loanContract
+            );
+          }
         }
       }
     }
@@ -2204,6 +2215,7 @@ const syncTransactions = async (
         reactions: [],
         currency: data.curCode,
         isManual: true,
+        description: data.txnDesc,
         createdAt: new Date()
       };
 
