@@ -202,7 +202,6 @@ class PaymentForm extends React.Component<Props, State> {
         this.paymentStateChange("currency", NAME, currencies[0]);
       }
 
-      console.log(maxVal, 'mmmmmmmmmmmmmmmmmmm')
       if (maxVal === undefined) {
         maxVal = parseFloat((e.target as HTMLInputElement).value || "0");
       }
