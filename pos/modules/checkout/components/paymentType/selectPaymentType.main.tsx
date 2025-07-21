@@ -16,7 +16,7 @@ import usePaymentLabel from "../../hooks/usePaymentLabel"
 import { useCheckNotSplit } from "../../hooks/usePaymentType"
 import usePossiblePaymentTerms from "../../hooks/usePossiblePaymentTerms"
 import PrintableSupplement from "./supplement"
-import React, { useRef, useState } from "react"
+import React, { useRef, useState, useEffect } from "react"
 import { useAtomValue, useSetAtom } from "jotai"
 import { printModalOpenAtom, userBankAddressAtom, userNameAtom } from "@/store"
 import UserInfoForm from "./userInfoForm"
@@ -131,7 +131,6 @@ const createPrintDocument = (content: string): string => {
     <!DOCTYPE html>
     <html>
       <head>
-        <title>Payment Supplement</title>
         <style>${PRINT_STYLES}</style>
       </head>
       <body>
@@ -149,6 +148,7 @@ const usePrintDocument = () => {
   const printDocument = (printRef: React.RefObject<HTMLDivElement>) => {
     if (!printRef.current) {
       console.error('Print reference is not available')
+      alert('Print content is not ready. Please try again.')
       return false
     }
 
@@ -157,6 +157,7 @@ const usePrintDocument = () => {
       
       if (!printWindow) {
         console.error('Failed to open print window - popup may be blocked')
+        alert('Print window was blocked. Please allow popups for this site and try again.')
         return false
       }
 
@@ -166,20 +167,51 @@ const usePrintDocument = () => {
         userBankAddress
       })
       
-      const printDocument = createPrintDocument(contentWithVariables)
-      
-      printWindow.document.write(printDocument)
+      const printDocumentContent = createPrintDocument(contentWithVariables)
+      printWindow.document.open()
+      printWindow.document.write(printDocumentContent)
       printWindow.document.close()
-      
-      printWindow.onload = () => {
-        printWindow.print()
+
+      const handleAfterPrint = () => {
         printWindow.close()
+        setPrintOpen(false)
       }
 
-      setPrintOpen(true)
+      const handleBeforePrint = () => {
+        setPrintOpen(true)
+      }
+
+      printWindow.addEventListener('load', () => {
+        printWindow.addEventListener('afterprint', handleAfterPrint)
+        printWindow.addEventListener('beforeprint', handleBeforePrint)
+        
+        setTimeout(() => {
+          printWindow.print()
+        }, 200)
+      })
+
+      setTimeout(() => {
+        if (printWindow && !printWindow.closed) {
+          try {
+            printWindow.print()
+          } catch (e) {
+            console.error('Fallback print failed:', e)
+          }
+          setTimeout(() => {
+            try {
+              printWindow.close()
+            } catch (e) {
+              console.error('Failed to close print window:', e)
+            }
+          }, 500)
+        }
+      }, 2000)
+
       return true
     } catch (error) {
       console.error('Print failed:', error)
+      alert('Print failed. Please try again.')
+      setPrintOpen(false)
       return false
     }
   }
@@ -190,6 +222,7 @@ const usePrintDocument = () => {
 const SelectPaymentTypeMain = () => {
   const [showUserForm, setShowUserForm] = useState(false)
   const [shouldShowPrintable, setShouldShowPrintable] = useState(false)
+  const [isPrinting, setIsPrinting] = useState(false)
   
   const {
     loadingKhan,
@@ -208,23 +241,48 @@ const SelectPaymentTypeMain = () => {
   
   const printRef = useRef<HTMLDivElement>(null)
 
-  const handlePrint = () => {
-    const success = printDocument(printRef)
-    if (success) {
-      setShowUserForm(false)
-      setShouldShowPrintable(false)
+  const resetPrintStates = () => {
+    setShowUserForm(false)
+    setShouldShowPrintable(false)
+    setIsPrinting(false)
+  }
+
+  const handlePrint = async () => {
+    setIsPrinting(true)
+    
+    try {
+      const success = printDocument(printRef)
+      if (success) {
+        setTimeout(() => {
+          resetPrintStates()
+        }, 500)
+      } else {
+        setIsPrinting(false)
+      }
+    } catch (error) {
+      console.error('Print error:', error)
+      setIsPrinting(false)
     }
   }
 
   const handlePrintClick = () => {
-    setShouldShowPrintable(true)
-    setShowUserForm(true)
+    resetPrintStates()
+    
+    setTimeout(() => {
+      setShouldShowPrintable(true)
+      setShowUserForm(true)
+    }, 50)
   }
 
   const handleCancelPrint = () => {
-    setShowUserForm(false)
-    setShouldShowPrintable(false) 
+    resetPrintStates()
   }
+
+  useEffect(() => {
+    return () => {
+      resetPrintStates()
+    }
+  }, [])
 
   return (
     <>
@@ -285,8 +343,9 @@ const SelectPaymentTypeMain = () => {
           />
         ))}
 
+        {/* Only render the printable component when actually needed */}
         {shouldShowPrintable && (
-          <div style={{ display: "none" }}>
+          <div style={{ display: "none", position: "absolute", left: "-9999px" }}>
             <PrintableSupplement ref={printRef} />
           </div>
         )}
@@ -295,10 +354,11 @@ const SelectPaymentTypeMain = () => {
           variant="secondary"
           className="flex items-center bg-transparent text-white p-4 font-semibold text-sm rounded-lg border border-slate-500 h-auto hover:bg-secondary/10 justify-between"
           onClick={handlePrintClick}
-          disabled={disabledTerms}
+          disabled={disabledTerms || isPrinting}
         >
           <span className="flex items-center">
-            <CoinsIcon className="mr-2" /> Nehemjleh
+            <CoinsIcon className="mr-2" /> 
+            {isPrinting ? "Printing..." : "Nehemjleh"}
           </span>
           <ChevronRight className="h-5 w-5" />
         </Button>
