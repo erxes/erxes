@@ -1,28 +1,28 @@
+import { gql, useMutation, useQuery } from "@apollo/client";
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Icon from "@erxes/ui/src/components/Icon";
+import Popover from "@erxes/ui/src/components/Popover";
+import Spinner from '@erxes/ui/src/components/Spinner';
+import CURRENCIES from "@erxes/ui/src/constants/currencies";
+import { colors } from "@erxes/ui/src/styles";
+import { Flex } from "@erxes/ui/src/styles/main";
+import { __, Alert, confirm } from "@erxes/ui/src/utils";
+import { pluginsOfPaymentForm } from "coreui/pluginUtils";
+import React from "react";
+import Select, { components } from "react-select";
+import { PAYMENT_TYPES } from "../../constants";
 import {
   ContentColumn,
   ContentRowTitle,
   Divider,
-  WrongLess,
-  PaymentTypeScoreCampaign,
   FlexRowGap,
+  PaymentTypeScoreCampaign,
+  WrongLess,
 } from "../../styles";
-import Select, { components } from "react-select";
-
-import CURRENCIES from "@erxes/ui/src/constants/currencies";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { Flex } from "@erxes/ui/src/styles/main";
-import FormControl from "@erxes/ui/src/components/form/Control";
 import { IDeal, IPaymentsData } from "../../types";
-import { PAYMENT_TYPES } from "../../constants";
-import React from "react";
-import { __, Alert, confirm } from "@erxes/ui/src/utils";
-import { pluginsOfPaymentForm } from "coreui/pluginUtils";
 import { selectConfigOptions } from "../../utils";
-import { gql, useMutation, useQuery } from "@apollo/client";
-import Button from "@erxes/ui/src/components/Button";
-import Popover from "@erxes/ui/src/components/Popover";
-import Icon from "@erxes/ui/src/components/Icon";
-import { colors } from "@erxes/ui/src/styles";
 
 type Props = {
   total: { [currency: string]: number };
@@ -35,9 +35,17 @@ type Props = {
   dealQuery: IDeal;
 };
 
+interface IPerPayInfo {
+  maxVal?: number
+  hasPopup?: boolean;
+  validQr?: boolean;
+}
+
 type State = {
+  paymentTypes: any[];
   paymentsData: IPaymentsData;
-  checkOwnerScore: number | null;
+  checkOwnerScore?: number;
+  payInfoByType?: { [type: string]: IPerPayInfo };
 };
 
 const scoreCampaignQuery = `
@@ -66,7 +74,7 @@ const OwnerScoreCampaignScore = ({
 
   const [customer] = dealQuery.customers || [];
 
-  const { data, refetch } = useQuery(gql(scoreCampaignQuery), {
+  const { data, refetch, loading } = useQuery(gql(scoreCampaignQuery), {
     variables: {
       ownerType: "customer",
       ownerId: customer._id,
@@ -88,7 +96,7 @@ const OwnerScoreCampaignScore = ({
     if (checkOwnerScore) {
       onScoreFetched(checkOwnerScore);
     }
-  }, [checkOwnerScore, onScoreFetched]);
+  }, [checkOwnerScore, onScoreFetched, loading]);
 
   const refundScore = () => {
     confirm(
@@ -100,6 +108,11 @@ const OwnerScoreCampaignScore = ({
       refetch();
     });
   };
+
+  if (loading) {
+    return <Spinner />;
+  }
+
   return (
     <Popover
       trigger={<Icon icon="award" size={16} color={colors.colorCoreOrange} />}
@@ -126,9 +139,26 @@ class PaymentForm extends React.Component<Props, State> {
 
     const { payments } = this.props;
 
+    const pipelinePayments = this.props.pipelineDetail?.paymentTypes || [];
+
+    const keys = [
+      ...PAYMENT_TYPES.map((t) => t.type),
+      ...pipelinePayments.map((paymentType) => paymentType.type),
+    ];
+    const alreadyNotExistsTypes = Object.keys(this.props.payments || {})
+      .filter((name) => !keys.includes(name))
+      .map((name) => ({ type: name, title: name }));
+
+    const paymentTypes = [
+      ...PAYMENT_TYPES,
+      ...pipelinePayments,
+      ...alreadyNotExistsTypes,
+    ]
+
     this.state = {
+      paymentTypes,
       paymentsData: payments || {},
-      checkOwnerScore: null,
+      checkOwnerScore: undefined,
     };
   }
 
@@ -173,26 +203,37 @@ class PaymentForm extends React.Component<Props, State> {
   );
 
   handleScoreFetched = (score: number) => {
-    this.setState({ checkOwnerScore: score });
+    this.setState({ checkOwnerScore: score }, () => {
+      const { payInfoByType = {}, paymentTypes } = this.state;
+
+      paymentTypes.forEach((type) => {
+        const thisPayInfo: IPerPayInfo = {};
+        if (type.scoreCampaignId) {
+          thisPayInfo.maxVal = this.state.checkOwnerScore ?? 0;
+          try {
+            const config = JSON.parse(type.config);
+            if (config?.require === 'qrCode') {
+              thisPayInfo.maxVal = 0;
+              thisPayInfo.hasPopup = true;
+            }
+          } catch (e) {
+            thisPayInfo.maxVal = undefined;
+            thisPayInfo.hasPopup = false;
+          }
+        }
+        payInfoByType[type] = thisPayInfo;
+      });
+
+      this.setState({ payInfoByType })
+    });
+
   };
 
   renderPaymentsByType(type) {
     const { currencies, changePayData } = this.props;
-    const { paymentsData } = this.state;
+    const { paymentsData, payInfoByType = {} } = this.state;
     const NAME = type.name || type.type;
-    let maxVal;
-    let hasPopup = false;
-
-    if (type.scoreCampaignId) {
-      maxVal = this.state.checkOwnerScore ?? 0;
-      try {
-        const config = JSON.parse(type.config);
-        if (config?.require === 'qrCode') {
-          maxVal = 0;
-          hasPopup = true;
-        }
-      } catch (e) { }
-    }
+    const thisPayInfo = payInfoByType[type] || {};
 
     const onChange = (e) => {
       if (
@@ -202,14 +243,15 @@ class PaymentForm extends React.Component<Props, State> {
         this.paymentStateChange("currency", NAME, currencies[0]);
       }
 
-      if (maxVal === undefined) {
-        maxVal = parseFloat((e.target as HTMLInputElement).value || "0");
+      if (thisPayInfo.maxVal === undefined) {
+        thisPayInfo.maxVal = parseFloat((e.target as HTMLInputElement).value || "0");
       }
 
+      this.setState({ payInfoByType: { ...payInfoByType, thisPayInfo } });
       this.paymentStateChange(
         "amount",
         NAME,
-        Math.min(parseFloat((e.target as HTMLInputElement).value || "0"), maxVal)
+        Math.min(parseFloat((e.target as HTMLInputElement).value || "0"), thisPayInfo.maxVal)
       );
     };
 
@@ -223,11 +265,11 @@ class PaymentForm extends React.Component<Props, State> {
           changePayData[key] > 0 &&
           (!paymentsData[NAME] || !paymentsData[NAME].amount)
         ) {
-          if (maxVal === undefined) {
-            maxVal = changePayData[key];
+          if (thisPayInfo.maxVal === undefined) {
+            thisPayInfo.maxVal = changePayData[key];
           }
 
-          const possibleVal = Math.min(changePayData[key], maxVal);
+          const possibleVal = Math.min(changePayData[key], thisPayInfo.maxVal);
           changePayData[key] = changePayData[key] - possibleVal;
 
           const newPaymentsData = {
@@ -242,17 +284,19 @@ class PaymentForm extends React.Component<Props, State> {
           }, () => {
             this.props.onChangePaymentsData(newPaymentsData);
           });
+          this.setState({ payInfoByType: { ...payInfoByType, thisPayInfo } });
           return;
         }
       });
     }
 
     const onClick = () => {
-      if (hasPopup) {
+      if (thisPayInfo.hasPopup && !thisPayInfo.validQr) {
         confirm('Read QRCODE', {
           hasPasswordConfirm: true,
           beforeDismiss: () => {
-            maxVal = 0;
+            thisPayInfo.maxVal = 0;
+            this.setState({ payInfoByType: { ...payInfoByType, thisPayInfo } });
             const newPaymentsData = {
               ...paymentsData,
               [NAME]: {
@@ -270,10 +314,12 @@ class PaymentForm extends React.Component<Props, State> {
           .then((qrString) => {
             const [customer] = this.props.dealQuery.customers || [];
             if (qrString && customer?._id === qrString) {
-              maxVal = this.state.checkOwnerScore ?? 0;
+              thisPayInfo.validQr = true;
+              thisPayInfo.maxVal = this.state.checkOwnerScore ?? 0;
             } else {
-              maxVal = 0;
+              thisPayInfo.maxVal = 0;
             }
+            this.setState({ payInfoByType: { ...payInfoByType, thisPayInfo } });
           })
           .then(() => {
             onClickFunc();
@@ -316,7 +362,7 @@ class PaymentForm extends React.Component<Props, State> {
             placeholder={__("Type amount")}
             min={0}
             name={NAME}
-            disabled={maxVal === 0 && !hasPopup}
+            disabled={thisPayInfo.maxVal === 0 && !thisPayInfo.hasPopup}
             onChange={onChange}
             onClick={onClick}
           />
@@ -341,21 +387,9 @@ class PaymentForm extends React.Component<Props, State> {
   }
 
   renderPayments() {
-    const pipelinePayments = this.props.pipelineDetail?.paymentTypes || [];
-
-    const keys = [
-      ...PAYMENT_TYPES.map((t) => t.type),
-      ...pipelinePayments.map((paymentType) => paymentType.type),
-    ];
-    const alreadyNotExistsTypes = Object.keys(this.props.payments || {})
-      .filter((name) => !keys.includes(name))
-      .map((name) => ({ type: name, title: name }));
-
-    return [
-      ...PAYMENT_TYPES,
-      ...pipelinePayments,
-      ...alreadyNotExistsTypes,
-    ].map((type) => this.renderPaymentsByType(type));
+    return this.state.paymentTypes.map(
+      (type) => this.renderPaymentsByType(type)
+    );
   }
 
   render() {
