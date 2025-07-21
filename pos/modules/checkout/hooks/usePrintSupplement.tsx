@@ -1,4 +1,5 @@
 import { useAtomValue, useSetAtom } from "jotai"
+import { useRef, useEffect } from "react"
 import { printModalOpenAtom, userBankAddressAtom, userNameAtom } from "@/store"
 import { createPrintDocument, replaceTemplateVariables } from "../utils/printUtils"
 
@@ -7,7 +8,31 @@ export const usePrintDocument = () => {
   const userBankAddress = useAtomValue(userBankAddressAtom)
   const setPrintOpen = useSetAtom(printModalOpenAtom)
 
+  const timersRef = useRef<Set<NodeJS.Timeout>>(new Set())
+
+  const clearAllTimers = () => {
+    timersRef.current.forEach(timer => clearTimeout(timer))
+    timersRef.current.clear()
+  }
+
+  useEffect(() => {
+    return () => {
+      clearAllTimers()
+    }
+  }, [])
+
+  const addTimer = (callback: () => void, delay: number) => {
+    const timer = setTimeout(() => {
+      timersRef.current.delete(timer)
+      callback()
+    }, delay)
+    timersRef.current.add(timer)
+    return timer
+  }
+
   const printDocument = (printRef: React.RefObject<HTMLDivElement>) => {
+    clearAllTimers()
+
     if (!printRef.current) {
       console.error('Print reference is not available')
       return { success: false, error: 'Print content is not ready. Please try again.' }
@@ -44,20 +69,21 @@ export const usePrintDocument = () => {
       printWindow.addEventListener('load', () => {
         printWindow.addEventListener('afterprint', handleAfterPrint)
         printWindow.addEventListener('beforeprint', handleBeforePrint)
-        
-        setTimeout(() => {
+
+        addTimer(() => {
           printWindow.print()
         }, 200)
       })
 
-      setTimeout(() => {
+      addTimer(() => {
         if (printWindow && !printWindow.closed) {
           try {
             printWindow.print()
           } catch (e) {
             console.error('Fallback print failed:', e)
           }
-          setTimeout(() => {
+          
+          addTimer(() => {
             try {
               printWindow.close()
             } catch (e) {
@@ -75,5 +101,8 @@ export const usePrintDocument = () => {
     }
   }
 
-  return { printDocument }
+  return { 
+    printDocument,
+    clearTimers: clearAllTimers
+  }
 }
