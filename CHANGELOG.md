@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.15.2](https://github.com/erxes/erxes/compare/2.15.1...2.15.2) (2025-07-21)
+
+### Features
+
+* Loyalty with qrcode on sales payments ([#6088](https://github.com/erxes/erxes/issues/6088)) ([3bfba84](https://github.com/erxes/erxes/commit/3bfba841757ce81307e540f8855042bce7adb912))
+
+### Bug Fixes
+
+* description ([c87cf36](https://github.com/erxes/erxes/commit/c87cf364d97b781bbcbc3a32a47f06a52ff3af7f))
+
 ## [2.15.1](https://github.com/erxes/erxes/compare/2.15.0...2.15.1) (2025-07-09)
 
 ### Bug Fixes
