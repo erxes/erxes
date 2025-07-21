@@ -10,6 +10,7 @@ import {
   useParams
 } from "react-router-dom";
 
+
 const Properties = asyncComponent(
   () =>
     import(

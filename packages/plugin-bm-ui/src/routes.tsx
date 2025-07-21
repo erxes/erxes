@@ -1,7 +1,8 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
-import { Route, useLocation, Routes, useParams } from 'react-router-dom';
+import { Route, useLocation, Routes, useParams, useNavigate } from 'react-router-dom';
+import FormListContainer from './containers/FormList';
 
 const List = asyncComponent(
   () => import(/* webpackChunkName: "List - Bms" */ './containers/ListBranch')
@@ -27,7 +28,10 @@ const BmsEditAdd = () => {
 };
 
 const TourForms = () => {
-  return <div>Tour form builder</div>;
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = queryString.parse(location?.search);
+  return <FormListContainer queryParams={queryParams} location={location} navigate={navigate} />
 };
 
 const routes = () => {

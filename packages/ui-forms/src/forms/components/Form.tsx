@@ -190,7 +190,6 @@ class Form extends React.Component<Props, State> {
       };
     }
 
-    console.log({ selector, currentMode });
 
     this.setState(selector, () => {
       if (onDocChange) {

@@ -20,7 +20,7 @@ export default {
     tags,
     forms: {
       form: {
-        title: 'Tour booking',
+        title: 'Tour forms',
         description: 'Build tour booking forms',
         contentType: 'bm-tours',
         icon: 'mountains-sun',
@@ -29,6 +29,7 @@ export default {
     cronjobs,
   },
 
+  
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
 

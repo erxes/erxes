@@ -7,7 +7,9 @@ import { useQuery } from '@apollo/client';
 import queries from '../queries';
 
 const Forms = () => {
-  const { data, loading } = useQuery(gql(queries.formsGetContentTypes));
+  const { data, loading } = useQuery(gql(queries.formsGetContentTypes) , {
+    fetchPolicy: 'network-only',
+  });
 
   if (loading) {
     return <Spinner objective={true} />;
