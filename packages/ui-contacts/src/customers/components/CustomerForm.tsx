@@ -35,6 +35,9 @@ import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import validator from "validator";
 import SelectWrapper from "./Select";
 import EditablePhoneList from "./EditablePhoneList";
+import EditableEmailList from "./EditableEmailList";
+import { confirm } from "@erxes/ui/src/utils";
+// import { automationsRemoveNote } from "@erxes/ui-automations/src/graphql/resolvers/mutations/automations";
 
 type Props = {
   currentUser: IUser;
@@ -56,10 +59,10 @@ type State = {
   avatar: string;
   phones?: { phone: string; type: string }[];
   showPhoneEditor: boolean;
-  emails?: string[];
   primaryPhone?: string;
   birthDate: string;
   primaryEmail?: string;
+  emails?: { email: string; type: string }[];
   relationData?: any;
 };
 
@@ -80,8 +83,34 @@ class CustomerForm extends React.Component<Props, State> {
       users: [],
       birthDate: customer.birthDate,
       avatar: customer.avatar,
-      primaryEmail: customer.primaryEmail,
+        primaryEmail: customer.primaryEmail,
+  emails: (() => {
+    const emailList = customer.emails || [];
+
+    if (
+      customer.primaryEmail &&
+      !emailList.some((e) => e.email === customer.primaryEmail)
+    ) {
+      return [{ type: "primary", email: customer.primaryEmail }, ...emailList];
+    }
+
+    return emailList;
+  })(),
       primaryPhone: customer.primaryPhone,
+      phones: (() => {
+      const phoneList = customer.phones || [];
+
+  // If primaryPhone is defined and not in phoneList already, prepend it
+  if (
+    customer.primaryPhone &&
+    !phoneList.some((p) => p.phone === customer.primaryPhone)
+  ) {
+    return [{ type: "primary", phone: customer.primaryPhone }, ...phoneList];
+  }
+
+  return phoneList;
+})(),
+
     };
   }
 
@@ -111,6 +140,10 @@ class CustomerForm extends React.Component<Props, State> {
       leadStatus: finalValues.leadStatus,
       description: finalValues.description,
       code: finalValues.code,
+      emails: this.state.emails || [],
+      primaryPhone:
+        this.state.phones?.find((p) => p.type === "primary")?.phone || "",
+      primaryEmail: this.state.primaryEmail || "",
       emailValidationStatus: finalValues.emailValidationStatus,
       registrationNumber: finalValues.registrationNumber,
       phoneValidationStatus: finalValues.phoneValidationStatus,
@@ -233,8 +266,35 @@ class CustomerForm extends React.Component<Props, State> {
   };
 
   onPhoneListChange = (phones: { phone: string; type: string }[]) => {
+    const seen = new Set<string>();
+
+    for (const p of phones){
+      const normalized = p.phone.trim().replace(/[\s+()-]/g, "");
+      if (seen.has(normalized)) {
+         confirm("Duplicate number detected. Are you sure you want to keep it?", {
+          confirmText: "Yes, keep it",
+          cancelText: "Cancel",
+          // onConfirm: () => {}
+          //   automationsRemoveNote({ variables: {_id}})
+          //   .then(() => {
+          //     Alert.success('You successfully deleted duplicated numner.');
+          //   })
+          //   .catch(error => {
+          //     Alert.error(error.message);
+          //   })
+          //  }
+      });
+        return;
+      }
+      seen.add(normalized);
+    }
     this.setState({ phones });
   };
+
+  onEmailListChange = (emails: { email: string; type: string }[]) => {
+  this.setState({ emails });
+  };
+
 
   saveAndRedirect = (type: string) => {
     const { changeRedirectType } = this.props;
@@ -357,21 +417,23 @@ class CustomerForm extends React.Component<Props, State> {
                     defaultValue={customer.registrationNumber || ""}
                   />
                 </FormGroup>
-                <FormGroup>
-                  <ControlLabel required={true}>Email</ControlLabel>
-                  <AutoCompletionSelect
-                    required={true}
-                    defaultValue={primaryEmail}
-                    defaultOptions={this.getEmailsOptions(customer)}
-                    autoCompletionType="emails"
-                    placeholder="Enter an email"
-                    queryName="customers"
-                    query={autoCompletionQuery}
-                    checkFormat={validator.isEmail}
-                    onChange={this.onEmailChange}
+                <FormGroup> 
+                <ControlLabel>Email</ControlLabel>
+                 <EditableEmailList
+                  emails={
+                  this.state.emails && this.state.emails.length > 0
+                  ? this.state.emails
+                  : customer.emails?.length
+                  ? customer.emails.map((e) =>
+                  typeof e === 'string' ? { email: e, type: 'primary' } : e
+                    )
+                  : customer.primaryEmail
+                  ? [{ email: customer.primaryEmail, type: 'primary' }]
+                  : []
+                  }
+                  onChange={this.onEmailListChange}
                   />
                 </FormGroup>
-
                 <FormGroup>
                   <ControlLabel>Primary email verification status</ControlLabel>
                   <FormControl
@@ -428,19 +490,21 @@ class CustomerForm extends React.Component<Props, State> {
                   },
                   "date"
                 )}
-
-                <FormGroup>
-                <ControlLabel>Phone</ControlLabel>
-                <EditablePhoneList
-                phones={
-                this.state.phones ||
-                (customer.phones || []).map(item => 
-                typeof item === "string" ? { phone: item, type: "Primary" } : item
-                )
-                }
-                onChange={this.onPhoneListChange}
-                />
-                </FormGroup>
+              <FormGroup>
+              <ControlLabel>Phone</ControlLabel>
+              <EditablePhoneList
+              phones={
+              this.state.phones && this.state.phones.length > 0
+                ? this.state.phones
+                : customer.phones?.length
+                ? customer.phones
+                : customer.primaryPhone
+                ? [{ phone: customer.primaryPhone, type: "primary" }]
+                : []
+              }
+              onChange={this.onPhoneListChange}
+              />
+              </FormGroup>
                 <FormGroup>
                   <ControlLabel>Primary phone verification status</ControlLabel>
                   <FormControl

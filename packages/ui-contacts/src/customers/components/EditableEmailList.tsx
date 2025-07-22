@@ -6,16 +6,16 @@ import Button from "@erxes/ui/src/components/Button";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import styled from 'styled-components';
-import { 
+import {
   FlexCenter,
   FormColumn,
   FormWrapper,
   AttachmentContainer
 } from '@erxes/ui/src/styles/main';
 
-type Phone = {
+type Email = {
   type: string;
-  phone: string;
+  email: string;
 };
 
 type Label = {
@@ -25,13 +25,12 @@ type Label = {
 };
 
 type Props = {
-  phones: Phone[];
-  onChange: (phones: Phone[]) => void;
+  emails: Email[];
+  onChange: (emails: Email[]) => void;
   labels?: Label[];
 };
 
-// Styled components for layout
-const PhoneEntry = styled(FlexCenter)`
+const EmailEntry = styled(FlexCenter)`
   display: flex;
   align-items: center;
   gap: 10px;
@@ -46,10 +45,10 @@ const InputContainer = styled(FormColumn)`
   flex: 1;
 `;
 
-const EditablePhoneList = ({ phones, onChange, labels }: Props) => {
-  const defaultPhoneLabels = useMemo(
+const EditableEmailList = ({ emails, onChange, labels }: Props) => {
+  const defaultEmailLabels = useMemo(
     () =>
-      (labels || DEFAULT_LABELS.phone).map((item) => ({
+      (labels || DEFAULT_LABELS.email).map((item) => ({
         value: item.name,
         label: item.name.charAt(0).toUpperCase() + item.name.slice(1),
       })),
@@ -60,64 +59,54 @@ const EditablePhoneList = ({ phones, onChange, labels }: Props) => {
     { value: string; label: string }[]
   >([]);
 
-  const groupedOptions = useMemo(
-    () => [
-      { label: "Default", options: defaultPhoneLabels },
-      { label: "Custom", options: customOptions },
-    ],
-    [defaultPhoneLabels, customOptions]
-  );
-
   useEffect(() => {
-     const defaultTypes = defaultPhoneLabels.map((opt) => opt.value);
-  
-     const unknownTypes = phones
-      .map((e) => e.type)
-      .filter((type) => !defaultTypes.includes(type))
-      .filter((type) => !customOptions.some((opt) => opt.value === type));
-  
-     if (unknownTypes.length > 0) {
-      setCustomOptions((prev) => [
-        ...prev,
-        ...unknownTypes.map((type) => ({
-          value: type,
-          label: type.charAt(0).toUpperCase() + type.slice(1),
-        })),
-      ]);
-     }
-    }, )
+   const defaultTypes = defaultEmailLabels.map((opt) => opt.value);
+
+   const unknownTypes = emails
+    .map((e) => e.type)
+    .filter((type) => !defaultTypes.includes(type))
+    .filter((type) => !customOptions.some((opt) => opt.value === type));
+
+   if (unknownTypes.length > 0) {
+    setCustomOptions((prev) => [
+      ...prev,
+      ...unknownTypes.map((type) => ({
+        value: type,
+        label: type.charAt(0).toUpperCase() + type.slice(1),
+      })),
+    ]);
+   }
+  }, )
 
   const flattenOptions = () =>
-    groupedOptions.flatMap((group) => group.options);
+    [...defaultEmailLabels, ...customOptions];
 
   const getAvailableGroupedOptions = () => {
-    const primaryPhone = phones.find((p) => p.type === "primary");
-    
-    const filterOutPrimary = (opt: { value: string }) => opt.value !== "primary";
+    const hasPrimary = emails.some((e) => e.type === "primary");
+    const filterPrimary = (opt: { value: string }) => opt.value !== "primary";
 
-      return [
-        {
-          label: "Default",
-          options: primaryPhone
-             ? defaultPhoneLabels.filter(filterOutPrimary)
-             : defaultPhoneLabels,
-        },
-        {
-          label: "Custom",
-          options: primaryPhone
-            ? customOptions.filter(filterOutPrimary)
-            : customOptions,
-        },
-      ];
-    
+    return [
+      {
+        label: "Default",
+        options: hasPrimary
+          ? defaultEmailLabels.filter(filterPrimary)
+          : defaultEmailLabels,
+      },
+      {
+        label: "Custom",
+        options: hasPrimary
+          ? customOptions.filter(filterPrimary)
+          : customOptions,
+      },
+    ];
   };
 
   const handleTypeChange = (index: number, newType: string) => {
-    let updated = [...phones];
+    let updated = [...emails];
 
     if (newType === "primary") {
-      updated = updated.map((p, i) =>
-        i !== index && p.type === "primary" ? { ...p, type: "other" } : p
+      updated = updated.map((e, i) =>
+        i !== index && e.type === "primary" ? { ...e, type: "other" } : e
       );
     }
 
@@ -125,29 +114,29 @@ const EditablePhoneList = ({ phones, onChange, labels }: Props) => {
     onChange(updated);
   };
 
-  const handlePhoneChange = (index: number, newPhone: string) => {
-    const updated = [...phones];
-    updated[index] = { ...updated[index], phone: newPhone };
+  const handleEmailChange = (index: number, newEmail: string) => {
+    const updated = [...emails];
+    updated[index] = { ...updated[index], email: newEmail };
     onChange(updated);
   };
 
-  const handleAddPhone = () => {
-    const nonprimary =
+  const handleAddEmail = () => {
+    const nonPrimary =
       flattenOptions().find((opt) => opt.value !== "primary")?.value || "other";
-    onChange([...phones, { type: nonprimary, phone: "" }]);
+    onChange([...emails, { type: nonPrimary, email: "" }]);
   };
 
-  const handleRemovePhone = (index: number) => {
-    const removed = phones[index];
-    const updated = phones.filter((_, i) => i !== index);
-    onChange(updated);
+  const handleRemoveEmail = (index: number) => {
+    const removedEmail = emails[index];
+    const updatedEmails = emails.filter((_, i) => i !== index);
+    onChange(updatedEmails);
 
     if (
-      !defaultPhoneLabels.some((opt) => opt.value === removed.type) &&
-      !updated.some((p) => p.type === removed.type)
+      !defaultEmailLabels.some((opt) => opt.value === removedEmail.type) &&
+      !updatedEmails.some((e) => e.type === removedEmail.type)
     ) {
       setCustomOptions((prev) =>
-        prev.filter((opt) => opt.value !== removed.type)
+        prev.filter((opt) => opt.value !== removedEmail.type)
       );
     }
   };
@@ -174,13 +163,13 @@ const EditablePhoneList = ({ phones, onChange, labels }: Props) => {
                 );
 
                 const fallback =
-                  defaultPhoneLabels.find((d) => d.value !== "primary")
-                    ?.value || "other";
+                  defaultEmailLabels.find((d) => d.value !== "primary")?.value ||
+                  "other";
 
-                const updatedPhones = phones.map((p) =>
-                  p.type === option.value ? { ...p, type: fallback } : p
+                const updatedEmails = emails.map((e) =>
+                  e.type === option.value ? { ...e, type: fallback } : e
                 );
-                onChange(updatedPhones);
+                onChange(updatedEmails);
               }}
             >
               ×
@@ -191,20 +180,21 @@ const EditablePhoneList = ({ phones, onChange, labels }: Props) => {
     );
   };
 
+  const availableOptions = getAvailableGroupedOptions();
+
   return (
     <FormGroup>
       <FormWrapper>
-        {phones.map((item, index) => {
-          const availableOptions = getAvailableGroupedOptions();
+        {emails.map((item, index) => {
           const selectedOption =
             flattenOptions().find((opt) => opt.value === item.type) || null;
 
           return (
-            <PhoneEntry key={index}>
+            <EmailEntry key={index}>
               <SelectContainer>
                 <CreatableSelect
                   value={selectedOption}
-                  options={getAvailableGroupedOptions()}
+                  options={availableOptions}
                   onChange={(selected) =>
                     selected && handleTypeChange(index, selected.value)
                   }
@@ -214,8 +204,16 @@ const EditablePhoneList = ({ phones, onChange, labels }: Props) => {
 
                     if (
                       newValue === "primary" &&
-                      phones.some((p) => p.type === "primary")
+                      emails.some((e) => e.type === "primary")
                     ) {
+                      return;
+                    }
+
+                    if (
+                      defaultEmailLabels.some((opt) => opt.value === newValue) ||
+                      customOptions.some((opt) => opt.value === newValue)
+                    ) {
+                      handleTypeChange(index, newValue);
                       return;
                     }
 
@@ -225,8 +223,11 @@ const EditablePhoneList = ({ phones, onChange, labels }: Props) => {
                         newValue.charAt(0).toUpperCase() + newValue.slice(1),
                     };
 
-                    setCustomOptions((prev) => [...prev, newOption]);
-                    handleTypeChange(index, newValue);
+                    setCustomOptions((prev) => {
+                      const updated = [...prev, newOption];
+                      handleTypeChange(index, newValue);
+                      return updated;
+                    });
                   }}
                   components={{ Option: CustomOption }}
                   styles={{
@@ -255,13 +256,13 @@ const EditablePhoneList = ({ phones, onChange, labels }: Props) => {
 
               <InputContainer>
                 <FormControl
-                  name={`phone-${index}`}
-                  value={item.phone}
+                  name={`email-${index}`}
+                  value={item.email}
                   placeholder={
-                    item.type === "primary" ? "Primary phone" : "Phone number"
+                    item.type === "primary" ? "Primary email" : "Email address"
                   }
                   onChange={(e: any) =>
-                    handlePhoneChange(index, e.target.value)
+                    handleEmailChange(index, e.target.value)
                   }
                 />
               </InputContainer>
@@ -271,10 +272,10 @@ const EditablePhoneList = ({ phones, onChange, labels }: Props) => {
                   btnStyle="simple"
                   icon="trash"
                   size="small"
-                  onClick={() => handleRemovePhone(index)}
+                  onClick={() => handleRemoveEmail(index)}
                 />
               </div>
-            </PhoneEntry>
+            </EmailEntry>
           );
         })}
       </FormWrapper>
@@ -283,16 +284,15 @@ const EditablePhoneList = ({ phones, onChange, labels }: Props) => {
         <Button
           btnStyle="simple"
           icon="plus"
-          onClick={handleAddPhone}
+          onClick={handleAddEmail}
           uppercase={false}
           size="small"
         >
-          Add phone
+          Add email
         </Button>
       </AttachmentContainer>
     </FormGroup>
   );
 };
 
-export default EditablePhoneList;
-
+export default EditableEmailList;
