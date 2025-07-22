@@ -1374,7 +1374,9 @@ export const getItemList = async (
           (f) => f.field === field._id
         );
 
-        if (fieldData && field.type === "users") {
+        if (!fieldData) continue;
+
+        if (field.type === "users") {
           const valueIds = Array.isArray(fieldData.value)
             ? fieldData.value
             : [fieldData.value];
@@ -1398,7 +1400,7 @@ export const getItemList = async (
           });
         } else {
           item.customProperties.push({
-            name: `${field.text} - ${fieldData.value}`,
+            name: `${field.text} - ${fieldData.stringValue || fieldData.value || ""}`,
           });
         }
       }
