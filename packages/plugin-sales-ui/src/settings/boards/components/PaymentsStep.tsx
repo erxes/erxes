@@ -252,7 +252,8 @@ const PaymentsStep = (props: Props) => {
           Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: "skipEbarimt: true",
           Харилцагч сонгосон үед л харагдах бол: "mustCustomer: true", Хэрэв
           хуваах боломжгүй бол: "notSplit: true" Урьдчилж төлсөн төлбөрөөр
-          (Татвар тооцсон) бол: "preTax: true"
+          (Татвар тооцсон) бол: "preTax: true", Тухайн төрөл нь QRCode шаардлагатай
+          бол "require": "qrCode"
         </div>
 
         <FormGroup>

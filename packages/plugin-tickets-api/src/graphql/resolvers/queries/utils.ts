@@ -1192,7 +1192,6 @@ export const getItemList = async (
 
     cocIdsByItemId[conformity[typeId2]].push(conformity[typeId1]);
   };
-
   for (const conf of conformities) {
     if (conf.mainType === "company") {
       perConformity(
@@ -1370,27 +1369,54 @@ export const getItemList = async (
     ) {
       item.customProperties = [];
 
-      fields.forEach((field) => {
+      for (const field of fields) {
         const fieldData = item.customFieldsData.find(
           (f) => f.field === field._id
         );
-        if (fieldData) {
+
+        if (!fieldData) continue;
+
+        if (field.type === "users") {
+          const valueIds = Array.isArray(fieldData.value)
+            ? fieldData.value
+            : [fieldData.value];
+
+          const users = await sendCoreMessage({
+            subdomain,
+            action: "users.find",
+            data: {
+              query: { _id: { $in: valueIds } },
+            },
+            isRPC: true,
+            defaultValue: [],
+          });
+
+          const userNames = users
+            .map((u) => u.details?.fullName || u.email || u._id)
+            .join(", ");
+
           item.customProperties.push({
-            name: `${field.text} - ${fieldData.value}`,
+            name: `${field.text} - ${userNames}`,
+          });
+        } else {
+          item.customProperties.push({
+            name: `${field.text} - ${fieldData.stringValue || fieldData.value || ""}`,
           });
         }
-      });
+      }
     }
 
-    const notification = notifications.find(
-      (n) => n.contentTypeId === item._id
-    );
     if (
       item.isCheckUserTicket === true &&
       !(item.userId === user._id || item.assignedUserIds?.includes(user._id))
     ) {
       continue;
     }
+
+    const notification = notifications.find(
+      (n) => n.contentTypeId === item._id
+    );
+
     updatedList.push({
       ...item,
       order: order++,
