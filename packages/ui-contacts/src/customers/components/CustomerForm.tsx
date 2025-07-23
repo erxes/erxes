@@ -265,30 +265,30 @@ class CustomerForm extends React.Component<Props, State> {
     }
   };
 
-  onPhoneListChange = (phones: { phone: string; type: string }[]) => {
-    const seen = new Set<string>();
+  onPhoneListChange = async (phones: { phone: string; type: string }[]) => {
+  const seen = new Set<string>();
+  const filtered: { phone: string; type: string }[] = [];
 
-    for (const p of phones){
-      const normalized = p.phone.trim().replace(/[\s+()-]/g, "");
-      if (seen.has(normalized)) {
-         confirm("Duplicate number detected. Are you sure you want to keep it?", {
-          confirmText: "Yes, keep it",
-          cancelText: "Cancel",
-          // onConfirm: () => {}
-          //   automationsRemoveNote({ variables: {_id}})
-          //   .then(() => {
-          //     Alert.success('You successfully deleted duplicated numner.');
-          //   })
-          //   .catch(error => {
-          //     Alert.error(error.message);
-          //   })
-          //  }
+  for (const p of phones) {
+    const normalized = p.phone.trim().replace(/[\s+()-]/g, "");
+
+    if (seen.has(normalized)) {
+      const confirmed = await confirm("Duplicate number is detected. Do you want to remove it?", {
+        okLabel: "Yes, remove it",
+        cancelLabel: "No, keep it",
       });
-        return;
+
+      if (!confirmed) {
+        Alert.info("Duplicate number removed.");
+        continue; 
       }
-      seen.add(normalized);
+      //keep it
     }
-    this.setState({ phones });
+
+    seen.add(normalized);
+    filtered.push(p);
+  }
+    this.setState({ phones: filtered });
   };
 
   onEmailListChange = (emails: { email: string; type: string }[]) => {
