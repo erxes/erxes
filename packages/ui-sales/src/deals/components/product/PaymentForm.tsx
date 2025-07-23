@@ -207,6 +207,7 @@ class PaymentForm extends React.Component<Props, State> {
       const { payInfoByType = {}, paymentTypes } = this.state;
 
       paymentTypes.forEach((type) => {
+        const NAME = type.name || type.type;
         const thisPayInfo: IPerPayInfo = {};
         if (type.scoreCampaignId) {
           thisPayInfo.maxVal = this.state.checkOwnerScore ?? 0;
@@ -221,19 +222,18 @@ class PaymentForm extends React.Component<Props, State> {
             thisPayInfo.hasPopup = false;
           }
         }
-        payInfoByType[type] = thisPayInfo;
+        payInfoByType[NAME] = thisPayInfo;
       });
 
       this.setState({ payInfoByType })
     });
-
   };
 
   renderPaymentsByType(type) {
     const { currencies, changePayData } = this.props;
     const { paymentsData, payInfoByType = {} } = this.state;
     const NAME = type.name || type.type;
-    const thisPayInfo = payInfoByType[type] || {};
+    const thisPayInfo = payInfoByType[NAME] || {};
 
     const onChange = (e) => {
       if (
@@ -247,7 +247,7 @@ class PaymentForm extends React.Component<Props, State> {
         thisPayInfo.maxVal = parseFloat((e.target as HTMLInputElement).value || "0");
       }
 
-      this.setState({ payInfoByType: { ...payInfoByType, thisPayInfo } });
+      this.setState({ payInfoByType: { ...payInfoByType, [NAME]: thisPayInfo } });
       this.paymentStateChange(
         "amount",
         NAME,
@@ -284,7 +284,7 @@ class PaymentForm extends React.Component<Props, State> {
           }, () => {
             this.props.onChangePaymentsData(newPaymentsData);
           });
-          this.setState({ payInfoByType: { ...payInfoByType, thisPayInfo } });
+          this.setState({ payInfoByType: { ...payInfoByType, [NAME]: thisPayInfo } });
           return;
         }
       });
@@ -296,7 +296,7 @@ class PaymentForm extends React.Component<Props, State> {
           hasPasswordConfirm: true,
           beforeDismiss: () => {
             thisPayInfo.maxVal = 0;
-            this.setState({ payInfoByType: { ...payInfoByType, thisPayInfo } });
+            this.setState({ payInfoByType: { ...payInfoByType, [NAME]: thisPayInfo } });
             const newPaymentsData = {
               ...paymentsData,
               [NAME]: {
@@ -319,7 +319,7 @@ class PaymentForm extends React.Component<Props, State> {
             } else {
               thisPayInfo.maxVal = 0;
             }
-            this.setState({ payInfoByType: { ...payInfoByType, thisPayInfo } });
+            this.setState({ payInfoByType: { ...payInfoByType, [NAME]: thisPayInfo } });
           })
           .then(() => {
             onClickFunc();
