@@ -36,6 +36,7 @@ import insights from './insight';
 import exchangeRates from './exchangeRates';
 import bundle from './bundle';
 import productRule from './productRules';
+import labels from './labels';
 
 export default {
   ...users,
@@ -72,4 +73,5 @@ export default {
   ...exchangeRates,
   ...bundle,
   ...productRule,
+  ...labels,
 };
