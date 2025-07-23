@@ -17,6 +17,9 @@ export const loadProductGroupClass = (models: IModels) => {
      * Create a putResponse
      */
     public static async createProductGroup(doc: IProductGroup) {
+      if (doc.mainProductId === doc.subProductId) {
+        throw new Error('Do not select the same item.')
+      }
       return await models.ProductGroups.create({
         ...doc,
         createdAt: new Date()
@@ -27,6 +30,9 @@ export const loadProductGroupClass = (models: IModels) => {
      * Update a putResponse
      */
     public static async updateProductGroup(_id: string, doc: IProductGroup) {
+      if (doc.mainProductId === doc.subProductId) {
+        throw new Error('Do not select the same item.')
+      }
       return await models.ProductGroups.updateOne(
         { _id },
         {

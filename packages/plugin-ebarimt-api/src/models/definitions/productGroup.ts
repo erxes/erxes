@@ -6,6 +6,7 @@ export interface IProductGroup {
   subProductId: string;
   ratio?: number;
   isActive: boolean;
+  modifiedBy?: string;
 }
 
 export interface IProductGroupDocument extends Document, IProductGroup {
