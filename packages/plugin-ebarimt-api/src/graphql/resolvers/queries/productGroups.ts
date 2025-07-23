@@ -44,7 +44,7 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
   }
 
   if (params.status) {
-    if (params.status = 'active') {
+    if (params.status === 'active') {
       filter.isActive = true
     } else {
       filter.isActive = false

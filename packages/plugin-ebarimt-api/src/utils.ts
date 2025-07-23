@@ -453,7 +453,7 @@ const calcGrouped = async (models: IModels, activeProductsData: any[]) => {
           const amountRatio = newQuantity / pd.quantity;
           return {
             ...pd,
-            quantity: fixNum(pd.quantity - quantity),
+            quantity: newQuantity,
             amount: fixNum(subData.amount * amountRatio),
             discount: fixNum((subData.discount ?? 0) * amountRatio),
           }

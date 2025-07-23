@@ -71,7 +71,7 @@ const ProductGroupList = (props: Props) => {
       clearTimeout(timerRef.current);
     }
 
-    const value = e.target.value;
+    const { value } = e.target;
     setSearch(value);
 
     timerRef.current = window.setTimeout(() => {

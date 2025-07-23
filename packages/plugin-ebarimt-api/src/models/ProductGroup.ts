@@ -14,7 +14,7 @@ export interface IProductGroupModel extends Model<IProductGroupDocument> {
 export const loadProductGroupClass = (models: IModels) => {
   class ProductGroup {
     /**
-     * Create a putResponse
+     * Create a product group
      */
     public static async createProductGroup(doc: IProductGroup) {
       if (doc.mainProductId === doc.subProductId) {
@@ -27,7 +27,7 @@ export const loadProductGroupClass = (models: IModels) => {
     }
 
     /**
-     * Update a putResponse
+     * Update a product group
      */
     public static async updateProductGroup(_id: string, doc: IProductGroup) {
       if (doc.mainProductId === doc.subProductId) {

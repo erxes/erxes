@@ -22,7 +22,7 @@ const ProductGroupFormContainer = (props: Props) => {
     const afterSave = (data) => {
       if (data?.errors) {
         // Handle errors appropriately
-        console.error('Error saving product rule:', data.errors);
+        console.error('Error saving product group:', data.errors);
         return;
       }
       closeModal();
