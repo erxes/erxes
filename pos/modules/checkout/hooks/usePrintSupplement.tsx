@@ -7,20 +7,20 @@ export const usePrintDocument = () => {
   const userName = useAtomValue(userNameAtom)
   const userBankAddress = useAtomValue(userBankAddressAtom)
   const setPrintOpen = useSetAtom(printModalOpenAtom)
-
+  
   const timersRef = useRef<Set<NodeJS.Timeout>>(new Set())
-
+  
   const clearAllTimers = () => {
     timersRef.current.forEach(timer => clearTimeout(timer))
     timersRef.current.clear()
   }
-
+  
   useEffect(() => {
     return () => {
       clearAllTimers()
     }
   }, [])
-
+  
   const addTimer = (callback: () => void, delay: number) => {
     const timer = setTimeout(() => {
       timersRef.current.delete(timer)
@@ -29,15 +29,15 @@ export const usePrintDocument = () => {
     timersRef.current.add(timer)
     return timer
   }
-
+  
   const printDocument = (printRef: React.RefObject<HTMLDivElement>) => {
     clearAllTimers()
-
+    
     if (!printRef.current) {
       console.error('Print reference is not available')
       return { success: false, error: 'Print content is not ready. Please try again.' }
     }
-
+    
     try {
       const printWindow = window.open('', '_blank')
       
@@ -45,7 +45,7 @@ export const usePrintDocument = () => {
         console.error('Failed to open print window - popup may be blocked')
         return { success: false, error: 'Print window was blocked. Please allow popups for this site and try again.' }
       }
-
+      
       const originalContent = printRef.current.innerHTML
       const contentWithVariables = replaceTemplateVariables(originalContent, {
         userName,
@@ -56,43 +56,51 @@ export const usePrintDocument = () => {
       printWindow.document.open()
       printWindow.document.write(printDocumentContent)
       printWindow.document.close()
-
+      
       const handleAfterPrint = () => {
         printWindow.close()
         setPrintOpen(false)
       }
-
+      
       const handleBeforePrint = () => {
         setPrintOpen(true)
       }
-
+      
+      const safeWindowOperation = (operation: () => void, operationName: string) => {
+        try {
+          if (printWindow && !printWindow.closed) {
+            operation()
+          }
+        } catch (error) {
+          console.error(`${operationName} failed:`, error)
+        }
+      }
+      
       printWindow.addEventListener('load', () => {
-        printWindow.addEventListener('afterprint', handleAfterPrint)
-        printWindow.addEventListener('beforeprint', handleBeforePrint)
-
+        safeWindowOperation(() => {
+          printWindow.addEventListener('afterprint', handleAfterPrint)
+          printWindow.addEventListener('beforeprint', handleBeforePrint)
+        }, 'Adding print event listeners')
+        
         addTimer(() => {
-          printWindow.print()
+          safeWindowOperation(() => {
+            printWindow.print()
+          }, 'Initial print')
         }, 200)
       })
-
+      
       addTimer(() => {
-        if (printWindow && !printWindow.closed) {
-          try {
-            printWindow.print()
-          } catch (e) {
-            console.error('Fallback print failed:', e)
-          }
+        safeWindowOperation(() => {
+          printWindow.print()
           
           addTimer(() => {
-            try {
+            safeWindowOperation(() => {
               printWindow.close()
-            } catch (e) {
-              console.error('Failed to close print window:', e)
-            }
+            }, 'Closing print window')
           }, 500)
-        }
+        }, 'Fallback print')
       }, 2000)
-
+      
       return { success: true, error: null }
     } catch (error) {
       console.error('Print failed:', error)
@@ -100,8 +108,8 @@ export const usePrintDocument = () => {
       return { success: false, error: 'Print failed. Please try again.' }
     }
   }
-
-  return { 
+  
+  return {
     printDocument,
     clearTimers: clearAllTimers
   }
