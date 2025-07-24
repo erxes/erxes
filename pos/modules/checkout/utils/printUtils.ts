@@ -86,12 +86,33 @@ const PRINT_STYLES = `
   .rounded-lg {
     border-radius: 8px;
   }
+  .bg-blue-50 {
+    background-color: #eff6ff;
+  }
+  .border-blue-200 {
+    border-color: #bfdbfe;
+  }
+  .text-blue-600 {
+    color: #2563eb;
+  }
+  .text-green-600 {
+    color: #16a34a;
+  }
+  .italic {
+    font-style: italic;
+  }
   @media print {
     body {
       margin: 0;
     }
     .bg-gray-50 {
       background-color: #f5f5f5 !important;
+    }
+    .bg-blue-50 {
+      background-color: #f0f9ff !important;
+    }
+    .border-blue-200 {
+      border-color: #bfdbfe !important;
     }
   }
 `

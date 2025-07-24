@@ -1,10 +1,17 @@
 import { useState, useEffect, useCallback } from "react"
+import { useAtomValue } from "jotai"
+import { activeOrderIdAtom, orderTotalAmountAtom } from "@/store/order.store"
+import useAddPayment from "./useAddPayment"
 
 export const usePaymentStates = () => {
   const [showUserForm, setShowUserForm] = useState(false)
   const [shouldShowPrintable, setShouldShowPrintable] = useState(false)
   const [isPrinting, setIsPrinting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  
+  const activeOrderId = useAtomValue(activeOrderIdAtom)
+  const orderTotalAmount = useAtomValue(orderTotalAmountAtom)
+  const { addPayment } = useAddPayment()
 
   const resetStates = useCallback(() => {
     setShowUserForm(false)
@@ -27,10 +34,19 @@ export const usePaymentStates = () => {
   }, [])
 
   const handlePrintSuccess = useCallback(() => {
+    if (activeOrderId && orderTotalAmount > 0) {
+      addPayment({
+        variables: {
+          _id: activeOrderId,
+          cashAmount: orderTotalAmount
+        }
+      })
+    }
+    
     setTimeout(() => {
       resetStates()
     }, 500)
-  }, [resetStates])
+  }, [resetStates, activeOrderId, orderTotalAmount, addPayment])
 
   const handlePrintError = useCallback((errorMessage: string) => {
     setError(errorMessage)

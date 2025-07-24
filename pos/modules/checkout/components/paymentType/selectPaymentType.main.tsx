@@ -126,7 +126,6 @@ const SelectPaymentTypeMain = () => {
           />
         ))}
 
-        {/* Only render the printable component when actually needed */}
         {shouldShowPrintable && (
           <div style={{ display: "none", position: "absolute", left: "-9999px" }}>
             <PrintableSupplement ref={printRef} />
@@ -141,7 +140,7 @@ const SelectPaymentTypeMain = () => {
         >
           <span className="flex items-center">
             <CoinsIcon className="mr-2" /> 
-            {isPrinting ? "Printing..." : "Nehemjleh"}
+            {isPrinting ? "Processing Payment..." : "Complete Payment & Print"}
           </span>
           <ChevronRight className="h-5 w-5" />
         </Button>
