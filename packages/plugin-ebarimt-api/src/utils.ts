@@ -524,8 +524,9 @@ export const getPostData = async (subdomain, models: IModels, config, deal, paym
           totalAmount
         };
       }),
-    nonCashAmounts: Object.keys(deal.paymentsData || {}).filter(pay => !preTaxPaymentTypes.includes(pay)).map(pay => ({
-      amount: deal.paymentsData[pay].amount
+    nonCashAmounts: Object.keys(deal.paymentsData || {}).filter(pay => !preTaxPaymentTypes.includes(pay)).filter(pay => pay !== 'cash').map(pay => ({
+      amount: deal.paymentsData[pay].amount, 
+      type: pay
     }))
   };
 };

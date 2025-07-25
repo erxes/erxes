@@ -10,7 +10,9 @@ on:
     paths:
       - "packages/erxes-ui/**"
       - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
+      - "packages/ui-tickets/**"
+      - "packages/ui-sales/**"
+      - "packages/ui-tasks/**"
       - "packages/ui-forms/**"
       - "packages/ui-inbox/**"
       - "packages/ui-knowledgebase/**"
@@ -34,7 +36,9 @@ on:
     paths:
       - "packages/erxes-ui/**"
       - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
+      - "packages/ui-tickets/**"
+      - "packages/ui-sales/**"
+      - "packages/ui-tasks/**"
       - "packages/ui-forms/**"
       - "packages/ui-inbox/**"
       - "packages/ui-knowledgebase/**"
