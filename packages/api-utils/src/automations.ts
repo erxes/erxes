@@ -96,31 +96,23 @@ export const replacePlaceHolders = async ({
             const regex = new RegExp(`{{ ${complexFieldKey}.([\\w\\d]+) }}`);
             const match = regex.exec(actionData[actionDataKey]);
             const fieldId = match && match.length === 2 ? match[1] : "";
+            const complexFieldData = target[complexFieldKey].find(
+              (cfd) => cfd.field === fieldId
+            );
 
-            if ((complexFields || [])?.includes(complexFieldKey)) {
-              const replaceValue =
-                (await getRelatedValue(
-                  models,
-                  subdomain,
-                  target,
-                  `${complexFieldKey}.${fieldId}`,
-                  relatedValueProps
-                )) || target[targetKey];
+            const replaceValue =
+              (await getRelatedValue(
+                models,
+                subdomain,
+                target,
+                `${complexFieldKey}.${fieldId}`,
+                relatedValueProps
+              )) || complexFieldData?.value|| target[targetKey] || '';
 
-              actionData[actionDataKey] = actionData[actionDataKey].replace(
-                `{{ ${complexFieldKey}.${fieldId} }}`,
-                replaceValue
-              );
-            } else {
-              const complexFieldData = target[complexFieldKey].find(
-                (cfd) => cfd.field === fieldId
-              );
-
-              actionData[actionDataKey] = actionData[actionDataKey].replace(
-                `{{ ${complexFieldKey}.${fieldId} }}`,
-                complexFieldData ? complexFieldData.value : ""
-              );
-            }
+            actionData[actionDataKey] = actionData[actionDataKey].replace(
+              `{{ ${complexFieldKey}.${fieldId} }}`,
+              replaceValue
+            );
           }
         }
       }
