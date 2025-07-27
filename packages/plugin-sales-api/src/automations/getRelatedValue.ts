@@ -116,7 +116,7 @@ export const getRelatedValue = async (
       subdomain,
       action: 'conformities.savedConformity',
       data: {
-        mainType: target.type,
+        mainType: 'deal',
         mainTypeId: target._id,
         relTypes: [relTypeConst[targetKey]]
       },
@@ -247,7 +247,7 @@ const generateCustomersFielValue = async ({
     subdomain,
     action: 'conformities.savedConformity',
     data: {
-      mainType: target.type,
+      mainType: 'deal',
       mainTypeId: target._id,
       relTypes: ['customer']
     },
