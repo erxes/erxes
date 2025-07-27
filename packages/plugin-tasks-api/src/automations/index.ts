@@ -104,7 +104,15 @@ export default {
       subdomain,
       getRelatedValue,
       actionData: config,
-      target,
+      target: {
+        ...target,
+        ['createdBy.department']: null,
+        ['createdBy.branch']: null,
+        ['createdBy.phone']: null,
+        ['customers.email']: null,
+        ['customers.phone']: null,
+        ['customers.fullName']: null
+      },
       relatedValueProps,
       complexFields: ['productsData']
     });
