@@ -259,7 +259,7 @@ const generateCustomersFielValue = async ({
     (await sendCoreMessage({
       subdomain,
       action: 'customers.find',
-      data: { query: { _id: { $in: customerIds } } },
+      data: { _id: { $in: customerIds } },
       isRPC: true,
       defaultValue: []
     })) || [];
