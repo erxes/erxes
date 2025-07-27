@@ -162,10 +162,20 @@ export const getRelatedValue = async (
   }
 
   if (targetKey.includes('customers.')) {
-    return generateCustomersFielValue({ target, targetKey, subdomain });
+    console.log({ target, targetKey });
+    const result = await generateCustomersFielValue({
+      target,
+      targetKey,
+      subdomain
+    });
+    return result;
   }
   if (targetKey.includes('customFieldsData.')) {
-    return generateCustomFieldsDataValue({ target, targetKey, subdomain });
+    return await generateCustomFieldsDataValue({
+      target,
+      targetKey,
+      subdomain
+    });
   }
 
   return false;
@@ -259,6 +269,7 @@ const generateCustomersFielValue = async ({
       isRPC: true,
       defaultValue: []
     })) || [];
+  console.log({ customerIds, customers, fieldName });
 
   if (fieldName === 'email') {
     return customers

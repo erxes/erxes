@@ -162,10 +162,14 @@ export const getRelatedValue = async (
   }
 
   if (targetKey.includes('customers.')) {
-    return generateCustomersFielValue({ target, targetKey, subdomain });
+    return await generateCustomersFielValue({ target, targetKey, subdomain });
   }
   if (targetKey.includes('customFieldsData.')) {
-    return generateCustomFieldsDataValue({ target, targetKey, subdomain });
+    return await generateCustomFieldsDataValue({
+      target,
+      targetKey,
+      subdomain
+    });
   }
 
   return false;
