@@ -15,11 +15,7 @@ export const usePrintDocument = () => {
     timersRef.current.clear()
   }
   
-  useEffect(() => {
-    return () => {
-      clearAllTimers()
-    }
-  }, [])
+  useEffect(() => clearAllTimers, [])
   
   const addTimer = (callback: () => void, delay: number) => {
     const timer = setTimeout(() => {
@@ -41,44 +37,55 @@ export const usePrintDocument = () => {
   }
 
   const setupPrintWindow = (printWindow: Window, content: string) => {
-    printWindow.document.open()
-    // Keep document.write - it's the standard way for print windows
-    printWindow.document.write(content)
-    printWindow.document.close()
+    const doc = printWindow.document
+    doc.open()
+    doc.write(content)
+    doc.close()
+  }
+
+  const handleAfterPrint = (printWindow: Window) => {
+    printWindow.close()
+    setPrintOpen(false)
+  }
+  
+  const handleBeforePrint = () => {
+    setPrintOpen(true)
   }
 
   const addPrintEventListeners = (printWindow: Window) => {
-    const handleAfterPrint = () => {
-      printWindow.close()
-      setPrintOpen(false)
-    }
-    
-    const handleBeforePrint = () => {
-      setPrintOpen(true)
-    }
-
-    printWindow.addEventListener('afterprint', handleAfterPrint)
+    printWindow.addEventListener('afterprint', () => handleAfterPrint(printWindow))
     printWindow.addEventListener('beforeprint', handleBeforePrint)
   }
 
-  const schedulePrintActions = (printWindow: Window) => {
-    addTimer(() => {
-      safeWindowOperation(printWindow, () => printWindow.print(), 'Initial print')
-    }, 200)
+  const doPrint = (printWindow: Window) => {
+    safeWindowOperation(printWindow, () => printWindow.print(), 'Print operation')
+  }
 
+  const closeWindow = (printWindow: Window) => {
+    safeWindowOperation(printWindow, () => printWindow.close(), 'Close window')
+  }
+
+  const schedulePrintActions = (printWindow: Window) => {
+    addTimer(() => doPrint(printWindow), 200)
+    
     addTimer(() => {
-      safeWindowOperation(printWindow, () => {
-        printWindow.print()
-        addTimer(() => {
-          safeWindowOperation(printWindow, () => printWindow.close(), 'Closing print window')
-        }, 500)
-      }, 'Fallback print')
+      doPrint(printWindow)
+      addTimer(() => closeWindow(printWindow), 500)
     }, 2000)
   }
 
-  const handleWindowLoad = (printWindow: Window) => {
-    safeWindowOperation(printWindow, () => addPrintEventListeners(printWindow), 'Adding print event listeners')
+  const handleWindowReady = (printWindow: Window) => {
+    safeWindowOperation(printWindow, () => addPrintEventListeners(printWindow), 'Add listeners')
     schedulePrintActions(printWindow)
+  }
+
+  const setupLoadHandler = (printWindow: Window) => {
+    if (printWindow.document.readyState === 'complete') {
+      handleWindowReady(printWindow)
+      return
+    }
+    
+    printWindow.addEventListener('load', () => handleWindowReady(printWindow))
   }
   
   const printDocument = (printRef: React.RefObject<HTMLDivElement>) => {
@@ -89,14 +96,14 @@ export const usePrintDocument = () => {
       return { success: false, error: 'Print content is not ready. Please try again.' }
     }
     
+    const printWindow = window.open('', '_blank')
+    
+    if (!printWindow) {
+      console.error('Failed to open print window - popup may be blocked')
+      return { success: false, error: 'Print window was blocked. Please allow popups for this site and try again.' }
+    }
+    
     try {
-      const printWindow = window.open('', '_blank')
-      
-      if (!printWindow) {
-        console.error('Failed to open print window - popup may be blocked')
-        return { success: false, error: 'Print window was blocked. Please allow popups for this site and try again.' }
-      }
-      
       const originalContent = printRef.current.innerHTML
       const contentWithVariables = replaceTemplateVariables(originalContent, {
         userName,
@@ -105,12 +112,13 @@ export const usePrintDocument = () => {
       const printDocumentContent = createPrintDocument(contentWithVariables)
       
       setupPrintWindow(printWindow, printDocumentContent)
-      printWindow.addEventListener('load', () => handleWindowLoad(printWindow))
+      setupLoadHandler(printWindow)
       
       return { success: true, error: null }
     } catch (error) {
       console.error('Print failed:', error)
       setPrintOpen(false)
+      printWindow.close()
       return { success: false, error: 'Print failed. Please try again.' }
     }
   }
