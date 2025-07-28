@@ -84,6 +84,12 @@ const UserInfo = () => {
                   </th>
                   <th style={{
                     ...table.headerCellRight,
+                    width: columnWidths.withoutVat
+                  }}>
+                    НӨАТ-гүй үнэ
+                  </th>
+                  <th style={{
+                    ...table.headerCellRight,
                     width: columnWidths.totalPrice
                   }}>
                     Нийт үнэ
@@ -91,34 +97,42 @@ const UserInfo = () => {
                 </tr>
               </thead>
               <tbody>
-                {cartItems.map((item, index) => (
-                  <tr key={item._id}>
-                    <td style={table.cellCenter}>
-                      {index + 1}
-                    </td>
-                    <td style={table.cell}>
-                      <div>
-                        <div style={table.productName}>
-                          {item.productName}
-                        </div>
-                        {item.isTake && (
-                          <div style={table.takeAwayLabel}>
-                            ✓ Авч явах
+                {cartItems.map((item, index) => {
+                  const totalItemPrice = item.count * item.unitPrice;
+                  const withoutVatPrice = totalItemPrice / 1.1;
+                  
+                  return (
+                    <tr key={item._id}>
+                      <td style={table.cellCenter}>
+                        {index + 1}
+                      </td>
+                      <td style={table.cell}>
+                        <div>
+                          <div style={table.productName}>
+                            {item.productName}
                           </div>
-                        )}
-                      </div>
-                    </td>
-                    <td style={table.cellCenter}>
-                      {item.count}
-                    </td>
-                    <td style={table.cellRight}>
-                      {formatNum(item.unitPrice)}₮
-                    </td>
-                    <td style={table.cellRightBold}>
-                      {formatNum(item.count * item.unitPrice)}₮
-                    </td>
-                  </tr>
-                ))}
+                          {item.isTake && (
+                            <div style={table.takeAwayLabel}>
+                              ✓ Авч явах
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td style={table.cellCenter}>
+                        {item.count}
+                      </td>
+                      <td style={table.cellRight}>
+                        {formatNum(item.unitPrice)}₮
+                      </td>
+                      <td style={table.cellRight}>
+                        {formatNum(Math.round(withoutVatPrice))}₮
+                      </td>
+                      <td style={table.cellRightBold}>
+                        {formatNum(totalItemPrice)}₮
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
@@ -127,7 +141,7 @@ const UserInfo = () => {
 
       <div style={userInfo.infoSection}>
         <p>
-          Бид <strong>{userName}</strong> {isCompany ? "байгууллагыг" : "нэр дээрх хүнийг"}{" "}
+          <strong>{userName}</strong> {isCompany ? "байгууллагыг" : "нэр дээрх хүнийг"}{" "}
           <strong>MN{userBankAddress}</strong> дугаартай банкны данс руу{" "}
           <strong>{formatNum(total)}₮</strong> төгрөгийн төлбөрийг нэхэмжилж байна.
         </p>

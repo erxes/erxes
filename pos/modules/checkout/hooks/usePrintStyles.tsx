@@ -29,7 +29,6 @@ const printTheme = {
 
 export const usePrintStyles = () => {
   return useMemo(() => ({
-    // UserInfo component styles
     userInfo: {
       container: {
         padding: printTheme.spacing.sm,
@@ -145,8 +144,7 @@ export const usePrintStyles = () => {
         color: printTheme.colors.secondary,
       },
     },
-
-    // Table component styles  
+ 
     table: {
       container: {
         width: '100%',
@@ -222,7 +220,6 @@ export const usePrintStyles = () => {
       },
     },
 
-    // PrintableSupplement component styles
     supplement: {
       container: {
         color: printTheme.colors.text,
@@ -259,15 +256,14 @@ export const usePrintStyles = () => {
       },
     },
 
-    // Column widths
     columnWidths: {
       index: '60px',
       quantity: '120px', 
       unitPrice: '140px',
+      withoutVat: '140px', 
       totalPrice: '140px',
     },
 
-    // Theme access for custom styling
     theme: printTheme,
   }), [])
 }
