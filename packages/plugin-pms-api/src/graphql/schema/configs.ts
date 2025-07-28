@@ -24,8 +24,8 @@ const params = `
 export const queries = `
   pmsConfigs: [PmsConfig]
   pmsConfigsGetValue(code:String): PmsConfig
-  pmsRooms(perPage:Int,page: Int, pipelineId:String! ,endDate1:Date,endDate2:Date, startDate1:Date ,startDate2:Date ): [Deal]
-  pmsCheckRooms(pipelineId:String! ,endDate:Date, startDate:Date,ids:[String]): [Product]
+  pmsRooms(skipStageIds : [String], perPage:Int,page: Int, pipelineId:String! ,endDate1:Date,endDate2:Date, startDate1:Date ,startDate2:Date ): [Deal]
+  pmsCheckRooms(skipStageIds : [String],pipelineId:String! ,endDate:Date, startDate:Date,ids:[String]): [Product]
 `;
 
 export const mutations = `
