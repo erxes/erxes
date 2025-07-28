@@ -70,12 +70,15 @@ export default {
       actionData: config,
       target: {
         ...target,
-        ['createdBy.department']: null,
-        ['createdBy.branch']: null,
-        ['createdBy.phone']: null,
-        ['customers.email']: null,
-        ['customers.phone']: null,
-        ['customers.fullName']: null
+        ['createdBy.department']: '-',
+        ['createdBy.branch']: '-',
+        ['createdBy.phone']: '-',
+        ['createdBy.email']: '-',
+        ['customers.email']: '-',
+        ['customers.phone']: '-',
+        ['customers.fullName']: '-',
+        link: '-',
+        pipelineLabels: '-'
       },
       relatedValueProps,
       complexFields: ['productsData']

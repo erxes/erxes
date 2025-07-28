@@ -1,13 +1,15 @@
 import { IUser } from '@erxes/api-utils/src/types';
 import { IModels } from '../connectionResolver';
 import { sendCommonMessage, sendCoreMessage } from '../messageBroker';
+import { getEnv } from '@erxes/api-utils/src';
+import * as moment from 'moment';
 
 export const getRelatedValue = async (
   models: IModels,
   subdomain: string,
   target,
   targetKey,
-  relatedValueProps?: any
+  relatedValueProps: any = {}
 ) => {
   if (
     [
@@ -177,6 +179,38 @@ export const getRelatedValue = async (
     });
   }
 
+  if (targetKey === 'link') {
+    const DOMAIN = getEnv({
+      name: 'DOMAIN'
+    });
+    const stage = await models.Stages.getStage(target.stageId);
+    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+    const board = await models.Boards.getBoard(pipeline.boardId);
+
+    return `${DOMAIN}/deal/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${target._id}`;
+  }
+
+  if (targetKey === 'pipelineLabels') {
+    const labels = await models.PipelineLabels.find({
+      _id: { $in: target?.labelIds || [] }
+    }).lean();
+
+    return `${labels.map(({ name }) => name).filter(Boolean) || '-'}`;
+  }
+
+  if (
+    [
+      'createdAt',
+      'startDate',
+      'closeDate',
+      'stageChangedDate',
+      'modifiedAt'
+    ].includes(targetKey)
+  ) {
+    const dateValue = targetKey[targetKey];
+    return moment(dateValue).format('YYYY-MM-DD HH:mm');
+  }
+
   return false;
 };
 
@@ -204,7 +238,10 @@ const generateCustomFieldsDataValue = async ({
     data: {
       query: {
         _id: fieldId,
-        type: { $in: ['users'] }
+        $or: [
+          { type: 'users' },
+          { type: 'input', validation: { $in: ['date', 'datetime'] } }
+        ]
       }
     },
     isRPC: true,
@@ -234,6 +271,17 @@ const generateCustomFieldsDataValue = async ({
       )
       .filter(Boolean)
       .join(', ');
+  }
+  const isISODate = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(
+    customFieldData?.value
+  );
+
+  if (
+    field?.type === 'input' &&
+    ['date', 'datetime'].includes(field.validation) &&
+    isISODate
+  ) {
+    return moment(customFieldData.value).format('YYYY-MM-DD HH:mm');
   }
 };
 
@@ -344,6 +392,10 @@ const generateCreatedByFieldValue = async ({
     const { details } = (user || {}) as IUser;
 
     return `${details?.operatorPhone || ''}`;
+  }
+
+  if (userField === 'email') {
+    return `${user?.email || '-'}`;
   }
 };
 
