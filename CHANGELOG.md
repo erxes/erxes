@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.15.3](https://github.com/erxes/erxes/compare/2.15.2...2.15.3) (2025-07-23)
+
+### Features
+
+* ebarimt grouped by some product config ([#6091](https://github.com/erxes/erxes/issues/6091)) ([5fee820](https://github.com/erxes/erxes/commit/5fee8206054a4e44f43580d4fb4b72aab8d6320c))
+
+### Bug Fixes
+
+* display user names in customProperties and prevent undefined fieldData errors  ([a9f05d8](https://github.com/erxes/erxes/commit/a9f05d81f445b2ab5648cc5fed4c445a617f1677))
+
 ## [2.15.2](https://github.com/erxes/erxes/compare/2.15.1...2.15.2) (2025-07-21)
 
 ### Features

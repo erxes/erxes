@@ -1,17 +1,17 @@
-import * as compose from "lodash.flowright";
+import * as compose from 'lodash.flowright';
 
-import { IEditorProps } from "../types";
+import { IEditorProps } from '../types';
 
-import { UsersQueryResponse } from "../auth/types";
-import React from "react";
-import { gql, useLazyQuery } from "@apollo/client";
-import { graphql } from "@apollo/client/react/hoc";
-import { isEnabled } from "../utils/core";
-import segmentQueries from "./queries";
-import { queries as teamQueries } from "../team/graphql";
-import { readFile, withProps } from "../utils";
-import { capitalize } from "lodash";
-import { RichTextEditor } from "../components/richTextEditor/TEditor";
+import { UsersQueryResponse } from '../auth/types';
+import React from 'react';
+import { gql, useLazyQuery } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { isEnabled } from '../utils/core';
+import segmentQueries from './queries';
+import { queries as teamQueries } from '../team/graphql';
+import { readFile, withProps } from '../utils';
+import { capitalize } from 'lodash';
+import { RichTextEditor } from '../components/richTextEditor/TEditor';
 
 interface ITeamMembers {
   id: string;
@@ -25,43 +25,43 @@ interface ITeamMembers {
 const generateAttributes = (combinedFields?: any[], contentType?: string) => {
   // check - FieldsCombinedByType
   let items: Array<{ name: string; value?: string }> = [
-    { name: "Customer" },
-    { value: "customer.name", name: "Name" }
+    { name: 'Customer' },
+    { value: 'customer.name', name: 'Name' }
   ];
 
   if (contentType) {
-    const [_serviceName, type] = contentType.split(":");
+    const [_serviceName, type] = contentType.split(':');
 
     items.splice(0);
 
     items = [{ name: capitalize(type) }].concat(
-      (combinedFields || []).map(field => ({
-        value: `${type}.${field.name}`,
+      (combinedFields || []).map((field) => ({
+        value: `${field.name}`,
         name: field.label
       }))
     );
   } else {
-    (combinedFields || []).forEach(field =>
+    (combinedFields || []).forEach((field) =>
       items.push({ value: `customer.${field.name}`, name: field.label })
     );
   }
 
   items = [
     ...items,
-    { name: "User" },
-    { value: "user.fullName", name: "Fullname" },
-    { value: "user.position", name: "Position" },
-    { value: "user.email", name: "Email" },
+    { name: 'User' },
+    { value: 'user.fullName', name: 'Fullname' },
+    { value: 'user.position', name: 'Position' },
+    { value: 'user.email', name: 'Email' },
 
-    { name: "Organization" },
-    { value: "brandName", name: "BrandName" },
-    { value: "domain", name: "Domain" }
+    { name: 'Organization' },
+    { value: 'brandName', name: 'BrandName' },
+    { value: 'domain', name: 'Domain' }
   ];
 
   return {
     items,
-    title: "Attributes",
-    label: "Attributes"
+    title: 'Attributes',
+    label: 'Attributes'
   };
 };
 
@@ -134,10 +134,11 @@ const EditorContainer = (props: FinalProps) => {
 export default withProps<IEditorProps>(
   compose(
     graphql<IEditorProps>(gql(segmentQueries.combinedFields), {
-      name: "combinedFieldsQuery",
-      options: ({ contentType }) => ({
+      name: 'combinedFieldsQuery',
+      options: ({ contentType, contentTypeConfig }) => ({
         variables: {
-          contentType: contentType || "customer"
+          contentType: contentType || 'customer',
+          ...(contentTypeConfig || {})
         }
       })
     })

@@ -42,7 +42,7 @@ export interface IDoc {
     totalDiscount: number;
     totalAmount: number;
   }[];
-  nonCashAmounts: { amount: number }[];
+  nonCashAmounts: { amount: number, type?: string }[];
 
   inactiveId?: string;
   invoiceId?: string;
@@ -312,7 +312,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     for (const payment of doc.nonCashAmounts) {
       const paidAmount = fixNum(payment.amount);
       mainData.payments?.push({
-        code: 'PAYMENT_CARD',
+        code: payment.type?.includes('card') || payment.type?.includes('Card') ? 'PAYMENT_CARD' : 'CASH',
         exchangeCode: '',
         status: 'PAID',
         paidAmount,

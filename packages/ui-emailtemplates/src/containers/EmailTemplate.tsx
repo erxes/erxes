@@ -7,34 +7,39 @@ import { EmptyState, Spinner } from '@erxes/ui/src';
 
 import EmailTemplateComponent from '../components/EmailTemplate';
 import queries from '../graphql/queries';
+import { IEmailTemplate } from '../types';
 
 type Props = {
   templateId: string;
   onlyPreview?: boolean;
   handleSelect?: (_id: string) => void;
+  additionalAction?: (
+    template: IEmailTemplate,
+    refetch: () => void
+  ) => JSX.Element;
 };
 
 const EmailTemplate = (props: Props) => {
   const { templateId } = props;
 
-  const emailTemplateQuery = useQuery<{ emailTemplate: any } & QueryResponse>(
-    gql(queries.emailTemplate),
-    {
-      variables: { _id: templateId },
-    },
-  );
+  const { data, loading, error, refetch } = useQuery<
+    { emailTemplate: any } & QueryResponse
+  >(gql(queries.emailTemplate), {
+    variables: { _id: templateId }
+  });
 
-  if (emailTemplateQuery.loading) {
+  if (loading) {
     return <Spinner objective />;
   }
 
-  if (emailTemplateQuery.error) {
-    return <EmptyState text="Not Found" icon="info-circle" />;
+  if (error) {
+    return <EmptyState text='Not Found' icon='info-circle' />;
   }
 
   const updatedProps = {
     ...props,
-    template: emailTemplateQuery?.data?.emailTemplate || {},
+    template: data?.emailTemplate || {},
+    refetch
   };
 
   return <EmailTemplateComponent {...updatedProps} />;
