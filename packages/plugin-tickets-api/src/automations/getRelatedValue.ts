@@ -197,6 +197,20 @@ export const getRelatedValue = async (
 
     return `${labels.map(({ name }) => name).filter(Boolean) || '-'}`;
   }
+  if (targetKey.includes('branches.')) {
+    const branches = await sendCoreMessage({
+      subdomain,
+      action: 'branches.find',
+      data: {
+        query: { _id: { $in: target?.branchIds || [] } },
+        fields: { title: 1 }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    return `${branches.map(({ title }) => title).filter(Boolean) || '-'}`;
+  }
 
   if (
     [
@@ -355,12 +369,12 @@ const generateCreatedByFieldValue = async ({
   target: any;
 }) => {
   const [_, userField] = targetKey.split('.');
-  const user = await sendCoreMessage({
+  const user = (await sendCoreMessage({
     subdomain,
     action: 'users.findOne',
     data: { _id: target?.userId },
     isRPC: true
-  });
+  })) as IUser;
   if (userField === 'branch') {
     const branches = await sendCoreMessage({
       subdomain,
@@ -389,13 +403,23 @@ const generateCreatedByFieldValue = async ({
   }
 
   if (userField === 'phone') {
-    const { details } = (user || {}) as IUser;
+    const { details } = user || {};
 
     return `${details?.operatorPhone || ''}`;
   }
 
   if (userField === 'email') {
     return `${user?.email || '-'}`;
+  }
+
+  if (userField === 'fullName') {
+    const { details, username } = user || {};
+    return (
+      details?.fullName ||
+      `${details?.firstName || ''} ${details?.lastName || ''}` ||
+      username ||
+      '-'
+    );
   }
 };
 

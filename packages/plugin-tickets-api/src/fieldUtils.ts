@@ -306,6 +306,12 @@ export const generateFields = async ({ subdomain, data }) => {
       },
       {
         _id: Math.random(),
+        name: 'createdBy.fullName',
+        label: 'Created by Full Name',
+        type: 'String'
+      },
+      {
+        _id: Math.random(),
         name: 'createdBy.phone',
         label: 'Created by Phone',
         type: 'String'
@@ -350,6 +356,12 @@ export const generateFields = async ({ subdomain, data }) => {
         _id: Math.random(),
         name: 'pipelineLabels',
         label: 'Pipeline Labels',
+        type: 'String'
+      },
+      {
+        _id: Math.random(),
+        name: 'branches.title',
+        label: 'Branches title',
         type: 'String'
       }
     ];
