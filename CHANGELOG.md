@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.15.4](https://github.com/erxes/erxes/compare/2.15.3...2.15.4) (2025-07-28)
+
+### Features
+
+* add new fields for automation and enhance target structure ([7ae2c09](https://github.com/erxes/erxes/commit/7ae2c09b4375294e68ff8a6c008c0a62f3190670))
+* **tickets:** add tag UI and fix pipeline integration ([f7c2e96](https://github.com/erxes/erxes/commit/f7c2e966f9caace3bcb1a7d5d10cb8c5993ba3cc))
+
+### Bug Fixes
+
+* loyalty with qrCode some bug ([3ef4dbd](https://github.com/erxes/erxes/commit/3ef4dbdf2ab838f3283f0e3af3334c684bbeda4c))
+
 ## [2.15.3](https://github.com/erxes/erxes/compare/2.15.2...2.15.3) (2025-07-23)
 
 ### Features
