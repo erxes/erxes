@@ -162,7 +162,6 @@ export const getRelatedValue = async (
   }
 
   if (targetKey.includes('customers.')) {
-    console.log({ target, targetKey });
     const result = await generateCustomersFielValue({
       target,
       targetKey,
@@ -269,7 +268,6 @@ const generateCustomersFielValue = async ({
       isRPC: true,
       defaultValue: []
     })) || [];
-  console.log({ customerIds, customers, fieldName });
 
   if (fieldName === 'email') {
     return customers
