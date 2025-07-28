@@ -187,7 +187,7 @@ export const getRelatedValue = async (
     const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
     const board = await models.Boards.getBoard(pipeline.boardId);
 
-    return `${DOMAIN}/deal/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${target._id}`;
+    return `${DOMAIN}/ticket/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${target._id}`;
   }
 
   if (targetKey === 'pipelineLabels') {
