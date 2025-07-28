@@ -140,7 +140,7 @@ const SelectPaymentTypeMain = () => {
         >
           <span className="flex items-center">
             <CoinsIcon className="mr-2" /> 
-            {isPrinting ? "Processing Payment..." : "Complete Payment & Print"}
+            {isPrinting ? "Processing Payment..." : "Нэхэмжлэл"}
           </span>
           <ChevronRight className="h-5 w-5" />
         </Button>
