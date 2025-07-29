@@ -6,7 +6,7 @@ export const EMPTY_IMPORT_CONTENT = {
       title: "Export your data",
       description: __(
         "Export your data from your previous software or have your data sheet (csv, xls) ready"
-      )
+      ),
     },
     {
       title: __("Create Custom Properties"),
@@ -15,7 +15,7 @@ export const EMPTY_IMPORT_CONTENT = {
       ),
       url: "https://docs.erxes.io",
       isOutside: true,
-      target: "_blank"
+      target: "_blank",
     },
     {
       title: __("Choose the data type"),
@@ -24,20 +24,20 @@ export const EMPTY_IMPORT_CONTENT = {
       )}`,
       url: "http://docs.erxes.io",
       target: "_blank",
-      isOutside: true
+      isOutside: true,
     },
     {
       title: __("Download Template"),
       description: `${__("Click on Download Template for importing")}.${__(
         "This is an important step, because your column titles need to match with erxes titles"
       )}`,
-      isOutside: false
+      isOutside: false,
     },
     {
       title: __("Clean and prepare your data sheet"),
       description: `${__(
         "Make sure the column titles match with the Template"
-      )}.${__("The order of the columns does not need to match")}`
+      )}.${__("The order of the columns does not need to match")}`,
     },
     {
       title: __("Export your data"),
@@ -49,9 +49,9 @@ export const EMPTY_IMPORT_CONTENT = {
       url: "/settings/importHistories",
       isOutside: false,
       urlText: "Go to Customers",
-      icon: "export"
-    }
-  ]
+      icon: "export",
+    },
+  ],
 };
 
 export const EMPTY_SEGMENT_CONTENT = {
@@ -68,15 +68,15 @@ export const EMPTY_SEGMENT_CONTENT = {
         "If you wish to segment by any properties that are not available on erxes, make sure you’ve already created them"
       ),
       url: "/settings/properties?type=core:customer",
-      urlText: "Go to Properties"
+      urlText: "Go to Properties",
     },
     {
       title: __("Choose the Contact Type"),
       description: __(
         "Make sure you’re on the right page and  you want to segment by from the list on the left: Visitor, Lead, Customer, Company"
-      )
-    }
-  ]
+      ),
+    },
+  ],
 };
 
 export const EMPTY_NEW_SEGMENT_CONTENT = {
@@ -91,19 +91,19 @@ export const EMPTY_NEW_SEGMENT_CONTENT = {
         "If you wish to segment by any properties that are not available on erxes, make sure you’ve already created them"
       ),
       url: "/settings/properties?type=core:customer",
-      urlText: __("Go to Properties")
+      urlText: __("Go to Properties"),
     },
     {
       title: __("Install the Event Tracking script"),
       description:
         __(
           "If you wish to segment by events, i.e actions that are triggered by something your Customer performs on your website or app"
-        ) + "."
+        ) + ".",
     },
     {
       title: __("Create your Segment"),
       description:
-        "Select the property/event you want to filter by, select one of the operators and type in or select the value from the dropdown menu."
+        "Select the property/event you want to filter by, select one of the operators and type in or select the value from the dropdown menu.",
     },
     {
       title: "See our documentation",
@@ -111,9 +111,9 @@ export const EMPTY_NEW_SEGMENT_CONTENT = {
       url: "https://docs.erxes.io",
       urlText: "Go to the docs",
       target: "_blank",
-      isOutside: true
-    }
-  ]
+      isOutside: true,
+    },
+  ],
 };
 
 export const EMPTY_CONTENT_SCRIPT = {
@@ -125,15 +125,15 @@ export const EMPTY_CONTENT_SCRIPT = {
     {
       title: "Generate the combination of scripts",
       description:
-        "Click on “New Script” and choose which widgets you’re going to display in a single page"
+        "Click on “New Script” and choose which widgets you’re going to display in a single page",
     },
     {
       title: "Install the script",
       description: __(
         "Copy the updated script and paste it into your website or Google Tag Manager"
-      )
-    }
-  ]
+      ),
+    },
+  ],
 };
 
 export const EMPTY_CONTENT_POPUPS = {
@@ -146,7 +146,7 @@ export const EMPTY_CONTENT_POPUPS = {
       title: __("Create Lead"),
       description: __("Fill out the details and create your lead"),
       url: "/forms/leads/create",
-      urlText: "Create Lead"
+      urlText: "Create Lead",
     },
     {
       title: "Install the script",
@@ -154,9 +154,9 @@ export const EMPTY_CONTENT_POPUPS = {
         "Copy the individual script or use Script Manager to avoid script duplication errors if you’re planning to display this form along with any other erxes widgets"
       ),
       url: "/settings/scripts",
-      urlText: __("Go to Script Manager")
-    }
-  ]
+      urlText: __("Go to Script Manager"),
+    },
+  ],
 };
 
 export const EMPTY_CONTENT_FORUMS = {
@@ -169,15 +169,15 @@ export const EMPTY_CONTENT_FORUMS = {
       title: __("Create Posts"),
       description: __("Fill out the details and create your post"),
       url: "/forums/posts",
-      urlText: "Create Posts"
+      urlText: "Create Posts",
     },
     {
       title: __("Create Pages"),
       description: __("Fill out the details and create your page"),
       url: "/forums/pages",
-      urlText: "Create Pages"
-    }
-  ]
+      urlText: "Create Pages",
+    },
+  ],
 };
 
 export const EMPTY_CONTENT_ENGAGE = {
@@ -192,7 +192,7 @@ export const EMPTY_CONTENT_ENGAGE = {
       description:
         "<ul><li><strong><a href='/settings/campaign-configs'>Verify</a> your email address</strong> <br/> Make sure it is the same as one of your team members</li><li><strong>Integrate that email address with <a href='/settings/integrations#showImapModal=true'>IMAP</a></strong> <br/> Connect your existing emails address as an integration</li><li><strong>Prepare your contacts by Segment / Tag / Brand</strong> <br/> For more targeted marketing, create a <a href='/segments/new/customer'>Segment</a></li></ul>",
       html: true,
-      icon: "envelope-edit"
+      icon: "envelope-edit",
     },
     {
       title: "Messenger",
@@ -202,16 +202,16 @@ export const EMPTY_CONTENT_ENGAGE = {
       html: true,
       url: "/segments/new/customer",
       urlText: "Create a Segment",
-      icon: "comment-edit"
+      icon: "comment-edit",
     },
     {
       title: "SMS",
       description:
         "<ul><li><strong><a href='/settings/campaign-configs'>Claim</a> your phone number</strong> <br/> Make sure you assigned it to a team member</li><li><strong>Prepare your contacts</strong> <br/> Check the <a href='https://en.wikipedia.org/wiki/E.164' target='_blank'>format</a>, verification status, and primary phone state</li><li><strong><a href='/segments/new/customer'>Create</a> a segment</strong> <br/> Filter all contacts with valid phone numbers and other properties</li></ul>",
       html: true,
-      icon: "comment-alt-message"
-    }
-  ]
+      icon: "comment-alt-message",
+    },
+  ],
 };
 
 export const EMPTY_CONTENT_KNOWLEDGEBASE = {
@@ -225,7 +225,7 @@ export const EMPTY_CONTENT_KNOWLEDGEBASE = {
       description: __(
         "<ul><li>Make sure you’ve created your Brands</li><li>Click on “Add Knowledgebase” to create one for a specific Brand</li><li>Click on the “Settings” button and “Add Categories”. A good one to get started with would be “General, Pricing, etc.”</li><li>Click on “Add Articles” to start adding help articles</li></ul>"
       ),
-      html: true
+      html: true,
     },
     {
       title: __("Install the script"),
@@ -233,9 +233,9 @@ export const EMPTY_CONTENT_KNOWLEDGEBASE = {
         "<ul><li>Copy the individual script by clicking on the Settings button.</li><li>Use <a href='/settings/scripts'>Script Manager</a> to avoid script duplication errors if you’re planning to display this popup along with any other erxes widgets</li></ul>",
       html: true,
       url: "/settings/scripts",
-      urlText: __("Go to Script Manager")
-    }
-  ]
+      urlText: __("Go to Script Manager"),
+    },
+  ],
 };
 
 export const EMPTY_CONTENT_MESSENGER = {
@@ -248,7 +248,7 @@ export const EMPTY_CONTENT_MESSENGER = {
       title: __("Create a new messenger"),
       description: __("Click on “Add” and complete all the steps."),
       url: "/settings/integrations/createMessenger",
-      urlText: "Add Messenger"
+      urlText: "Add Messenger",
     },
     {
       title: __("Display your Knowledgebase"),
@@ -256,7 +256,7 @@ export const EMPTY_CONTENT_MESSENGER = {
         "Click on “Add” of the Knowledgebase integration, if any, and complete the steps."
       ),
       url: "/settings/integrations#showKBAddModal=true",
-      urlText: "Add Knowledgebase"
+      urlText: "Add Knowledgebase",
     },
     {
       title: __("Display your form"),
@@ -264,13 +264,13 @@ export const EMPTY_CONTENT_MESSENGER = {
         "Click on “Add” of the Popup integration,if any, and complete the steps."
       ),
       url: "/settings/integrations#showPopupAddModal=true",
-      urlText: "Add Popup"
+      urlText: "Add Popup",
     },
     {
       title: __("Install the script"),
       description: __(
         "Copy the script and install it on your website by clicking on the “Install Code” button."
-      )
+      ),
     },
     {
       title: __("Avoid duplication of erxes widget scripts"),
@@ -279,9 +279,9 @@ export const EMPTY_CONTENT_MESSENGER = {
       ),
       icon: "exclamation-circle",
       url: "/settings/scripts",
-      urlText: "Manange Scripts"
-    }
-  ]
+      urlText: "Manange Scripts",
+    },
+  ],
 };
 
 export const EMPTY_CONTENT_CONTACTS = {
@@ -294,7 +294,7 @@ export const EMPTY_CONTENT_CONTACTS = {
         "Use Import feature to bulk import all your previous Customers or Leads"
       ),
       url: "/settings/importHistories",
-      urlText: "Go to Customer Import"
+      urlText: "Go to Customer Import",
     },
     {
       title: __("Collect visitor information"),
@@ -302,7 +302,7 @@ export const EMPTY_CONTENT_CONTACTS = {
         "Create your erxes Messenger to start capturing Visitors"
       ),
       url: "/settings/integrations/createMessenger",
-      urlText: "Create Messenger"
+      urlText: "Create Messenger",
     },
     {
       title: __("Sync email contacts"),
@@ -310,7 +310,7 @@ export const EMPTY_CONTENT_CONTACTS = {
         "Integrate your email address to sync previous email Leads"
       ),
       url: "/settings/integrations",
-      urlText: "Visit AppStore"
+      urlText: "Visit AppStore",
     },
     {
       title: __("Start capturing social media contacts"),
@@ -318,15 +318,15 @@ export const EMPTY_CONTENT_CONTACTS = {
         "Integrate social media website to start capturing Leads"
       ),
       url: "/settings/integrations",
-      urlText: "Visit AppStore"
+      urlText: "Visit AppStore",
     },
     {
       title: __("Generate contacts through Forms"),
       description: "Create your forms and start collecting Leads",
       url: "/forms/create",
-      urlText: "Create a Popup"
-    }
-  ]
+      urlText: "Create a Popup",
+    },
+  ],
 };
 
 export const EMPTY_CONTENT_DEAL_PIPELINE = {
@@ -342,7 +342,7 @@ export const EMPTY_CONTENT_DEAL_PIPELINE = {
           "Tip: This could be equivalent to your brands and/or you can organize by year/project/etc"
         ) + ".",
       url: "/settings/boards/deal#showBoardModal=true",
-      urlText: "Create a Board"
+      urlText: "Create a Board",
     },
     {
       title: __("Start adding Pipelines to the Board"),
@@ -351,9 +351,9 @@ export const EMPTY_CONTENT_DEAL_PIPELINE = {
           "Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc"
         ) + ".",
       urlText: "Create a Pipeline",
-      url: "/settings/boards/deal#showPipelineModal=true"
-    }
-  ]
+      url: "/settings/boards/deal#showPipelineModal=true",
+    },
+  ],
 };
 
 export const EMPTY_CONTENT_PURCHASE_PIPELINE = {
@@ -369,7 +369,7 @@ export const EMPTY_CONTENT_PURCHASE_PIPELINE = {
           "Tip: This could be equivalent to your brands and/or you can organize by year/project/etc"
         ) + ".",
       url: "/settings/boards/purchase#showBoardModal=true",
-      urlText: "Create a Board"
+      urlText: "Create a Board",
     },
     {
       title: __("Start adding Purchase to the Board"),
@@ -378,11 +378,35 @@ export const EMPTY_CONTENT_PURCHASE_PIPELINE = {
           "Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc"
         ) + ".",
       urlText: "Create a Purchase",
-      url: "/settings/boards/purchase#showPipelineModal=true"
-    }
-  ]
+      url: "/settings/boards/purchase#showPipelineModal=true",
+    },
+  ],
 };
 
+export const EMPTY_CONTENT_TASK_PIPELINE = {
+  title: __("Getting Started with Sales Pipeline"),
+  description: __(
+    "Drive leads to a successful close with our Kanban-style boards"
+  ),
+  steps: [
+    {
+      title: __("Create your first Task Board"),
+      description: __(
+        "Tip: This could be equivalent to your departments and/or you can organize by year/project/etc."
+      ),
+      url: "/settings/boards/task#showBoardModal=true",
+      urlText: "Create a Board",
+    },
+    {
+      title: __("Start adding Pipelines to the Board"),
+      description: __(
+        "Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc."
+      ),
+      urlText: "Create a Pipeline",
+      url: "/settings/boards/task#showPipelineModal=true",
+    },
+  ],
+};
 export const EMPTY_CONTENT_TACKETS_PIPELINE = {
   title: __("Getting Started with Tickets Pipeline"),
   description: __(
@@ -395,7 +419,7 @@ export const EMPTY_CONTENT_TACKETS_PIPELINE = {
         "Tip: This could be equivalent to your departments and/or you can organize by year/project/etc."
       ),
       url: "/settings/boards/ticket#showBoardModal=true",
-      urlText: "Create a Board"
+      urlText: "Create a Board",
     },
     {
       title: __("Start adding Pipelines to the Board"),
@@ -403,9 +427,9 @@ export const EMPTY_CONTENT_TACKETS_PIPELINE = {
         "Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc."
       ),
       urlText: "Create a Pipeline",
-      url: "/settings/boards/ticket#showPipelineModal=true"
-    }
-  ]
+      url: "/settings/boards/ticket#showPipelineModal=true",
+    },
+  ],
 };
 
 export const WEBHOOK_ACTIONS = [
@@ -418,111 +442,111 @@ export const WEBHOOK_ACTIONS = [
   {
     label: "Knowledge Base created",
     action: "create",
-    type: "knowledgeBaseArticle"
+    type: "knowledgeBaseArticle",
   },
   {
     label: "Knowledge Base updated",
     action: "update",
-    type: "knowledgeBaseArticle"
+    type: "knowledgeBaseArticle",
   },
   {
     label: "Knowledge Base deleted",
     action: "delete",
-    type: "knowledgeBaseArticle"
+    type: "knowledgeBaseArticle",
   },
   { label: "Admin messages", action: "create", type: "userMessages" },
   {
     label: "Customer create conversation",
     action: "create",
-    type: "conversation"
+    type: "conversation",
   },
   { label: "Customer messages", action: "create", type: "customerMessages" },
   { label: "Broadcast", action: "create", type: "engageMessages" },
   {
     label: "Form submission received",
     action: "create",
-    type: "popupSubmitted"
+    type: "popupSubmitted",
   },
   {
     label: "Deal created",
     action: "create",
-    type: "deal"
+    type: "deal",
   },
   {
     label: "Deal updated",
     action: "update",
-    type: "deal"
+    type: "deal",
   },
   {
     label: "Deal deleted",
     action: "delete",
-    type: "deal"
+    type: "deal",
   },
   {
     label: "Deal moved",
     action: "createBoardItemMovementLog",
-    type: "deal"
+    type: "deal",
   },
   {
     label: "Purchase created",
     action: "create",
-    type: "purchase"
+    type: "purchase",
   },
   {
     label: "Purchase updated",
     action: "update",
-    type: "purchase"
+    type: "purchase",
   },
   {
     label: "Purchase deleted",
     action: "delete",
-    type: "purchase"
+    type: "purchase",
   },
   {
     label: "Purchase moved",
     action: "createBoardItemMovementLog",
-    type: "purchase"
+    type: "purchase",
   },
   {
     label: "Task created",
     action: "create",
-    type: "task"
+    type: "task",
   },
   {
     label: "Task updated",
     action: "update",
-    type: "task"
+    type: "task",
   },
   {
     label: "Task deleted",
     action: "delete",
-    type: "task"
+    type: "task",
   },
   {
     label: "Task moved",
     action: "createBoardItemMovementLog",
-    type: "task"
+    type: "task",
   },
   {
     label: "Ticket created",
     action: "create",
-    type: "ticket"
+    type: "ticket",
   },
   {
     label: "Ticket updated",
     action: "update",
-    type: "ticket"
+    type: "ticket",
   },
   {
     label: "Ticket deleted",
     action: "delete",
-    type: "ticket"
+    type: "ticket",
   },
   {
     label: "Ticket moved",
     action: "createBoardItemMovementLog",
-    type: "ticket"
-  }
+    type: "ticket",
+  },
 ];
 
 export const EMPTY_CONTENT_BOOKINGS = {
@@ -537,7 +561,7 @@ export const EMPTY_CONTENT_BOOKINGS = {
         "This widget is based on your erxes Products and Services. Depending on your products, you may need to create custom Properties first. For example, you can display additional information such as Amenities, Services, etc. in the product detail page or as user filters."
       ),
       url: "/settings/properties?type=core:product",
-      urlText: "Create Custom Properties"
+      urlText: "Create Custom Properties",
     },
     {
       title: __("Organize Your Products"),
@@ -545,32 +569,32 @@ export const EMPTY_CONTENT_BOOKINGS = {
         "The number of pages in this widget depends on how many sub-categories you’ll create for your products and services. If you haven’t created or organized them yet, please go to Products & Services first."
       ),
       url: "/settings/product-service",
-      urlText: "Manage Products & Services"
-    }
-  ]
+      urlText: "Manage Products & Services",
+    },
+  ],
 };
 
 export const FONTS = [
   {
     label: "Ubuntu",
-    value: `'Ubuntu', sans-serif`
+    value: `'Ubuntu', sans-serif`,
   },
   {
     label: "Lobster",
-    value: `'Lobster', cursive`
+    value: `'Lobster', cursive`,
   },
   {
     label: "Roboto",
-    value: `'Roboto', sans-serif`
+    value: `'Roboto', sans-serif`,
   },
   {
     label: "Roboto Condensed",
-    value: `'Roboto Condensed', sans-serif`
+    value: `'Roboto Condensed', sans-serif`,
   },
   {
     label: "Open Sans",
-    value: `'Open Sans', sans-serif`
-  }
+    value: `'Open Sans', sans-serif`,
+  },
 ];
 
 export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
@@ -585,7 +609,7 @@ export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
     "emailValidationStatus",
     "phoneValidationStatus",
     "location.countryCode",
-    "tagIds"
+    "tagIds",
   ],
 
   IMPORT: [
@@ -610,7 +634,7 @@ export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
     "userId",
     "modifiedBy",
     "assignedUserIds",
-    "watchedUserIds"
+    "watchedUserIds",
   ],
   EXPORT: [
     "state",
@@ -622,6 +646,6 @@ export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
     "isOnline",
     "leadStatus",
     "subUoms.uom",
-    "subUoms.ratio"
-  ]
+    "subUoms.ratio",
+  ],
 };

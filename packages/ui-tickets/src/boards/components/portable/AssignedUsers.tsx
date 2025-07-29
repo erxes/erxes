@@ -7,11 +7,11 @@ import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 type Props = {
   field: IField;
   onChangeField: (name: any, value: any) => void;
+  branchIds?: string[];
 };
 
 export default function AssignedUsers(props: Props) {
   const { field } = props;
-
   const onChange = (userIds) => {
     const { onChangeField } = props;
 
@@ -27,6 +27,10 @@ export default function AssignedUsers(props: Props) {
         label="Choose users"
         name="assignedUserIds"
         onSelect={onChange}
+        filterParams={{
+          isAssignee: true,
+          branchIds: props.branchIds,
+        }}
       />
     </FormGroup>
   );

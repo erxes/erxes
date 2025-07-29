@@ -12,7 +12,7 @@ import {
   IPhone,
 } from './definitions/customers';
 import { IModels } from '../../connectionResolver';
-import { sendEngagesMessage, sendInboxMessage } from '../../messageBroker';
+import { sendClientPortalMessage, sendEngagesMessage, sendInboxMessage } from '../../messageBroker';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { prepareCocLogData, putActivityLog } from '../../logUtils';
 import { validateSingle } from '../../data/modules/coc/verifierUtils';
@@ -637,6 +637,11 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         data: { customerId: customer._id, customerIds },
       });
       await sendEngagesMessage({
+        subdomain,
+        action: 'changeCustomer',
+        data: { customerId: customer._id, customerIds },
+      });
+      await sendClientPortalMessage({
         subdomain,
         action: 'changeCustomer',
         data: { customerId: customer._id, customerIds },

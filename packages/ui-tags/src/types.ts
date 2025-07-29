@@ -11,12 +11,12 @@ export interface ITag {
 }
 
 export type ITagTypes =
-  | 'conversation'
-  | 'customer'
-  | 'engageMessage'
-  | 'company'
-  | 'integration'
-  | 'automations';
+  | "conversation"
+  | "customer"
+  | "engageMessage"
+  | "company"
+  | "integration"
+  | "automations";
 
 // queries
 

@@ -2,7 +2,7 @@ import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import { generateModels, IModels } from './connectionResolver';
 import {
   BOARD_ITEM_EXPORT_EXTENDED_FIELDS,
-  BOARD_ITEM_EXTENDED_FIELDS,
+  BOARD_ITEM_EXTENDED_FIELDS
 } from './constants';
 import { sendCoreMessage } from './messageBroker';
 
@@ -18,8 +18,8 @@ const generateProductsOptions = async (
     type,
     selectionConfig: {
       queryName: 'products',
-      labelField: 'name',
-    },
+      labelField: 'name'
+    }
   };
 };
 
@@ -35,8 +35,8 @@ const generateProductsCategoriesOptions = async (
     type,
     selectionConfig: {
       queryName: 'productCategories',
-      labelField: 'name',
-    },
+      labelField: 'name'
+    }
   };
 };
 
@@ -54,8 +54,8 @@ const generateContactsOptions = async (
     selectionConfig: {
       ...selectionConfig,
       labelField: 'primaryEmail',
-      multi: true,
-    },
+      multi: true
+    }
   };
 };
 
@@ -73,8 +73,8 @@ const generateUsersOptions = async (
     selectionConfig: {
       ...selectionConfig,
       queryName: 'users',
-      labelField: 'email',
-    },
+      labelField: 'email'
+    }
   };
 };
 
@@ -91,8 +91,8 @@ const generateStructuresOptions = async (
     type,
     selectionConfig: {
       ...selectionConfig,
-      labelField: 'title',
-    },
+      labelField: 'title'
+    }
   };
 };
 
@@ -103,7 +103,7 @@ const getStageOptions = async (models: IModels, pipelineId) => {
   for (const stage of stages) {
     options.push({
       value: stage._id,
-      label: stage.name || '',
+      label: stage.name || ''
     });
   }
 
@@ -112,7 +112,7 @@ const getStageOptions = async (models: IModels, pipelineId) => {
     name: 'stageId',
     label: 'Stage',
     type: 'stage',
-    selectOptions: options,
+    selectOptions: options
   };
 };
 
@@ -123,7 +123,7 @@ const getPipelineLabelOptions = async (models: IModels, pipelineId) => {
   for (const label of labels) {
     options.push({
       value: label._id,
-      label: label.name,
+      label: label.name
     });
   }
 
@@ -132,7 +132,7 @@ const getPipelineLabelOptions = async (models: IModels, pipelineId) => {
     name: 'labelIds',
     label: 'Labels',
     type: 'label',
-    selectOptions: options,
+    selectOptions: options
   };
 };
 
@@ -146,10 +146,10 @@ const generateTagOptions = async (
     subdomain,
     action: 'tagFind',
     data: {
-      type: 'tickets:ticket',
+      type: 'tickets:ticket'
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   return {
@@ -159,8 +159,8 @@ const generateTagOptions = async (
     type,
     selectOptions: options.map(({ _id, name }) => ({
       value: _id,
-      label: name,
-    })),
+      label: name
+    }))
   };
 };
 
@@ -207,7 +207,7 @@ export const generateFields = async ({ subdomain, data }) => {
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
         ];
       }
     }
@@ -246,7 +246,7 @@ export const generateFields = async ({ subdomain, data }) => {
     'Customers',
     'contact',
     {
-      queryName: 'customers',
+      queryName: 'customers'
     }
   );
 
@@ -255,7 +255,7 @@ export const generateFields = async ({ subdomain, data }) => {
     'Companies',
     'contact',
     {
-      queryName: 'companies',
+      queryName: 'companies'
     }
   );
 
@@ -291,9 +291,81 @@ export const generateFields = async ({ subdomain, data }) => {
       companiesOptions,
       branchesOptions,
       departmentsOptions,
-      tagsOptions,
-    ],
+      tagsOptions
+    ]
   ];
+
+  if (usageType === 'automations') {
+    fields = [
+      ...fields,
+      {
+        _id: Math.random(),
+        name: 'createdBy.email',
+        label: 'Created by Email',
+        type: 'String'
+      },
+      {
+        _id: Math.random(),
+        name: 'createdBy.fullName',
+        label: 'Created by Full Name',
+        type: 'String'
+      },
+      {
+        _id: Math.random(),
+        name: 'createdBy.phone',
+        label: 'Created by Phone',
+        type: 'String'
+      },
+      {
+        _id: Math.random(),
+        name: 'createdBy.branch',
+        label: 'Created by Branch',
+        type: 'String'
+      },
+      {
+        _id: Math.random(),
+        name: 'createdBy.department',
+        label: 'Created by Department',
+        type: 'String'
+      },
+      {
+        _id: Math.random(),
+        name: 'customers.email',
+        label: 'Customers Email',
+        type: 'String'
+      },
+      {
+        _id: Math.random(),
+        name: 'customers.phone',
+        label: 'Customers phone',
+        type: 'String'
+      },
+      {
+        _id: Math.random(),
+        name: 'customers.fullName',
+        label: 'Customers FullName',
+        type: 'String'
+      },
+      {
+        _id: Math.random(),
+        name: 'link',
+        label: 'Link',
+        type: 'String'
+      },
+      {
+        _id: Math.random(),
+        name: 'pipelineLabels',
+        label: 'Pipeline Labels',
+        type: 'String'
+      },
+      {
+        _id: Math.random(),
+        name: 'branches.title',
+        label: 'Branches title',
+        type: 'String'
+      }
+    ];
+  }
 
   if (type === 'ticket' && usageType !== 'export') {
     const productOptions = await generateProductsOptions(
@@ -310,7 +382,7 @@ export const generateFields = async ({ subdomain, data }) => {
 
     fields = [
       ...fields,
-      ...[productOptions, productsCategoriesOptions, assignedUserOptions],
+      ...[productOptions, productsCategoriesOptions, assignedUserOptions]
     ];
   }
 
@@ -322,8 +394,8 @@ export const generateFields = async ({ subdomain, data }) => {
       {
         _id: Math.random(),
         name: 'productsData.department',
-        label: 'Department',
-      },
+        label: 'Department'
+      }
     ];
 
     fields = [...fields, ...extendFieldsExport];
@@ -333,7 +405,7 @@ export const generateFields = async ({ subdomain, data }) => {
     const extendExport = [
       { _id: Math.random(), name: 'boardId', label: 'Board' },
       { _id: Math.random(), name: 'pipelineId', label: 'Pipeline' },
-      { _id: Math.random(), name: 'labelIds', label: 'Label' },
+      { _id: Math.random(), name: 'labelIds', label: 'Label' }
     ];
 
     fields = [...fields, ...extendExport];
@@ -345,7 +417,7 @@ export const generateFields = async ({ subdomain, data }) => {
           subdomain,
           action: 'segmentFindOne',
           data: { _id: segmentId },
-          isRPC: true,
+          isRPC: true
         })
       : null;
 
@@ -365,7 +437,7 @@ export const generateFields = async ({ subdomain, data }) => {
       _id: Math.random(),
       name: 'stageId',
       label: 'Stage',
-      type: 'stage',
+      type: 'stage'
     };
 
     fields = [...fields, stageOptions];

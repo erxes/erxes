@@ -67,11 +67,11 @@ function Pipelines(props: Props) {
   );
   const [isDragDisabled, setIsDragDisabled] = useState(false);
 
-  // useEffect(() => {
-  //   if (props.pipelines !== pipelines) {
-  //     setPipelines(props.pipelines);
-  //   }
-  // }, [props.pipelines, pipelines]);
+  useEffect(() => {
+    if (props.pipelines !== pipelines) {
+      setPipelines(props.pipelines);
+    }
+  }, [props.pipelines, pipelines]);
 
   const renderAddForm = () => {
     const { boardId, renderButton, type, options } = props;
@@ -242,7 +242,7 @@ function Pipelines(props: Props) {
         right={renderButton()}
       />
       {renderContent()}
-      {/* {renderAddForm()} */}
+      {renderAddForm()}
     </div>
   );
 }

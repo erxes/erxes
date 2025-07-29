@@ -1,7 +1,7 @@
 import {
   attachmentInput,
   attachmentType,
-} from '@erxes/api-utils/src/commonTypeDefs';
+} from "@erxes/api-utils/src/commonTypeDefs";
 
 export const types = ({ contacts, dailyco, calls, cloudflareCalls }) => `
   ${attachmentType}
@@ -21,7 +21,7 @@ export const types = ({ contacts, dailyco, calls, cloudflareCalls }) => `
   extend type Tag @key(fields: "_id") {
         _id: String! @external
   }
-        
+
 
   ${
     dailyco
@@ -33,7 +33,7 @@ export const types = ({ contacts, dailyco, calls, cloudflareCalls }) => `
         recordingLinks: [String]
       }
     `
-      : ''
+      : ""
   }
 
   ${
@@ -56,7 +56,7 @@ export const types = ({ contacts, dailyco, calls, cloudflareCalls }) => `
         recordUrl: String
       }
     `
-      : ''
+      : ""
   }
   ${
     cloudflareCalls
@@ -76,7 +76,7 @@ export const types = ({ contacts, dailyco, calls, cloudflareCalls }) => `
         recordUrl: String
       }
     `
-      : ''
+      : ""
   }
 
   extend type User @key(fields: "_id") {
@@ -103,7 +103,7 @@ export const types = ({ contacts, dailyco, calls, cloudflareCalls }) => `
 
     messages: [ConversationMessage]
     callProAudio: String
-    
+
     tags: [Tag]
     customer: Customer
     integration: Integration
@@ -112,9 +112,9 @@ export const types = ({ contacts, dailyco, calls, cloudflareCalls }) => `
     participatedUsers: [User]
     readUsers: [User]
     participatorCount: Int
-    ${dailyco ? 'videoCallData: VideoCallData' : ''}
-    ${calls ? 'callHistory: CallHistoryData' : ''}
-    ${cloudflareCalls ? 'cloudflareCallsHistory: CloudflareCallsHistoryData' : ''}
+    ${dailyco ? "videoCallData: VideoCallData" : ""}
+    ${calls ? "callHistory: CallHistoryData" : ""}
+    ${cloudflareCalls ? "cloudflareCallsHistory: CloudflareCallsHistoryData" : ""}
 
     customFieldsData: JSON
   }
@@ -143,14 +143,14 @@ export const types = ({ contacts, dailyco, calls, cloudflareCalls }) => `
     userId: String
     createdAt: Date
     isCustomerRead: Boolean
-    engageData: EngageData 
+    engageData: EngageData
     formWidgetData: JSON
     messengerAppData: JSON
     botGreetMessage: String
     user: User
     customer: Customer
     mailData: MailData
-    ${dailyco ? 'videoCallData: VideoCallData' : ''}
+    ${dailyco ? "videoCallData: VideoCallData" : ""}
     contentType: String
     mid: String
   }
@@ -247,6 +247,7 @@ const convertParams = `
   type: String!
   itemId: String
   itemName: String
+  branchIds: [String]
   stageId: String
   customFieldsData: JSON
   priority: String
@@ -266,7 +267,7 @@ const filterParams = `
 
 export const queries = () => `
   conversationMessage(_id: String!): ConversationMessage
-  
+
   conversations(${filterParams}, skip: Int): [Conversation]
 
   conversationMessages(
