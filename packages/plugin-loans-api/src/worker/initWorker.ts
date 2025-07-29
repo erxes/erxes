@@ -73,6 +73,20 @@ export const initWorker = () => {
               }
             }
 
+            const schedules = await models.Schedules.find({
+              contractId: contract._id
+            });
+
+            const maxTimestamp = Math.max(
+              ...schedules.map((d) => new Date(d.payDate).getTime())
+            );
+
+            const latestSchedules = schedules.filter(
+              (d) => new Date(d.payDate).getTime() === maxTimestamp
+            );
+
+            console.log("Last payDate:", latestSchedules);
+
             // await models.Contracts.updateOne(
             //   { _id: contract._id },
             //   { $set: { classification } }
