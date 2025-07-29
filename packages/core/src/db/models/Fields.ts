@@ -49,14 +49,16 @@ export interface IFieldModel extends Model<IFieldDocument> {
   updateOrder(orders: IOrderInput[]): Promise<IFieldDocument[]>;
   clean(_id: string, _value: string | Date | number): string | Date | number;
   cleanMulti(data: { [key: string]: any }): any;
-  generateTypedListFromMap(data: { [key: string]: any }): ITypedListItem[];
+  generateTypedListFromMap(data: {
+    [key: string]: any;
+  }): Promise<ITypedListItem[]>;
   generateTypedItem(
     field: string,
     value: string,
     type: string,
     validation?: string,
     extraValue?: string
-  ): ITypedListItem;
+  ): Promise<ITypedListItem>;
   prepareCustomFieldsData(
     customFieldsData?: Array<{ field: string; value: any }>
   ): Promise<ITypedListItem[]>;
@@ -184,7 +186,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
      */
     public static async updateField(_id: string, doc: IField) {
       await this.checkIsDefinedByErxes(_id);
-      
+
       const field = await models.Fields.findOne({ _id });
 
       if (!field) {
@@ -255,10 +257,21 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
      * Validate per field according to it's validation and type
      * fixes values if necessary
      */
-    public static async clean(_id: string, _value: any) {
+    public static async clean(_id: string, value: any) {
       const field = await models.Fields.findOne({ _id });
+      const group = await models.FieldsGroups.exists({ _id });
 
-      let value = _value;
+      if (group && value && Array.isArray(value)) {
+        for (const fieldValue of value as Array<Record<string, any>>) {
+          for (const [key, value] of Object.entries(fieldValue)) {
+            this.clean(key, value);
+          }
+        }
+
+        return value;
+      }
+
+      // let value = _value;
 
       if (!field) {
         throw new Error(`Field not found with the _id of ${_id}`);
@@ -352,17 +365,26 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       return fixedValues;
     }
 
-    public static generateTypedItem(
-      field: string,
+    public static async generateTypedItem(
+      fieldId: string,
       value: string | number | string[] | ILocationOption,
       type: string,
       validation?: string,
       extraValue?: string
-    ): ITypedListItem {
+    ): Promise<ITypedListItem> {
       let stringValue;
       let numberValue;
       let dateValue;
       let locationValue;
+
+      if (Array.isArray(value)) {
+        const group = await models.FieldsGroups.findOne({
+          _id: fieldId
+        });
+        if (group?.isMultiple) {
+          return { field: fieldId, value };
+        }
+      }
 
       if (value) {
         stringValue = value.toString();
@@ -371,7 +393,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         if (type === "input" && !validation) {
           numberValue = null;
           value = stringValue;
-          return { field, value, stringValue, numberValue, dateValue };
+          return { field: fieldId, value, stringValue, numberValue, dateValue };
         }
 
         // number
@@ -389,11 +411,11 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
           stringValue = `${lng},${lat}`;
           locationValue = { type: "Point", coordinates: [lng, lat] };
-          return { field, value, stringValue, locationValue };
+          return { field: fieldId, value, stringValue, locationValue };
         }
       }
       return {
-        field,
+        field: fieldId,
         value,
         stringValue,
         numberValue,
@@ -403,11 +425,13 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       };
     }
 
-    public static generateTypedListFromMap(data: {
+    public static async generateTypedListFromMap(data: {
       [key: string]: any;
-    }): ITypedListItem[] {
+    }): Promise<ITypedListItem[]> {
       const ids = Object.keys(data || {});
-      return ids.map(_id => this.generateTypedItem(_id, data[_id], ""));
+      return Promise.all(
+        ids.map(_id => this.generateTypedItem(_id, data[_id], ""))
+      );
     }
 
     public static async prepareCustomFieldsData(
@@ -428,25 +452,35 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           $or: [{ _id: customFieldData.field }, { code: customFieldData.field }]
         }).lean();
 
-        if (!field) {
+        const group = await models.FieldsGroups.findOne({
+          _id: customFieldData.field,
+          isMultiple: true
+        });
+
+        if (!field && !group) {
+          continue;
+        }
+
+        const fieldId = group ? group._id : field?._id;
+
+        if (!fieldId) {
           continue;
         }
 
         try {
-          await models.Fields.clean(field._id, customFieldData.value);
+          await models.Fields.clean(fieldId, customFieldData.value);
         } catch (e) {
           throw new Error(e.message);
         }
-
-        result.push(
-          models.Fields.generateTypedItem(
-            field._id,
-            customFieldData.value,
-            field ? field.type || "" : "",
-            field?.validation,
-            customFieldData?.extraValue
-          )
+        const customFieldDataItem = await models.Fields.generateTypedItem(
+          fieldId,
+          customFieldData.value,
+          field ? field.type || "" : "",
+          field?.validation,
+          customFieldData?.extraValue
         );
+        console.log({ customFieldDataItem });
+        result.push(customFieldDataItem);
       }
 
       return result;
