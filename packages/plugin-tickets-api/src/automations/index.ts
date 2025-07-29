@@ -61,7 +61,7 @@ export default {
     subdomain,
     data: { target, config, relatedValueProps }
   }) => {
-    const models = generateModels(subdomain);
+    const models = await generateModels(subdomain);
 
     return await replacePlaceHolders({
       models,
@@ -70,12 +70,17 @@ export default {
       actionData: config,
       target: {
         ...target,
-        ['createdBy.department']: null,
-        ['createdBy.branch']: null,
-        ['createdBy.phone']: null,
-        ['customers.email']: null,
-        ['customers.phone']: null,
-        ['customers.fullName']: null
+        ['createdBy.department']: '-',
+        ['createdBy.branch']: '-',
+        ['createdBy.phone']: '-',
+        ['createdBy.fullName']: '-',
+        ['createdBy.email']: '-',
+        ['customers.email']: '-',
+        ['customers.phone']: '-',
+        ['customers.fullName']: '-',
+        ['branches.title']: '-',
+        link: '-',
+        pipelineLabels: '-'
       },
       relatedValueProps,
       complexFields: ['productsData']

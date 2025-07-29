@@ -32,6 +32,7 @@ const configQueries = {
       pipelineId,
       perPage = 50,
       page = 1,
+      skipStageIds = [],
     }: {
       startDate1: Date;
       startDate2: Date;
@@ -40,6 +41,7 @@ const configQueries = {
       pipelineId: string;
       perPage: number;
       page: number;
+      skipStageIds: string[];
     },
     { models, subdomain }: IContext
   ) {
@@ -52,12 +54,14 @@ const configQueries = {
       isRPC: true,
     });
     const stageIds = stages.map(x => x._id) || [];
+    const newArray = stageIds.filter(item => !skipStageIds?.includes(item));
+
     const deals = await sendSalesMessage({
       subdomain,
       action: "deals.find",
       data: {
         query: {
-          stageId: { $in: stageIds },
+          stageId: { $in: newArray },
           productsData: {
             $elemMatch: {
               startDate: {
@@ -86,11 +90,13 @@ const configQueries = {
       endDate,
       startDate,
       pipelineId,
+      skipStageIds = [],
     }: {
       startDate: Date;
       endDate: Date;
       pipelineId: string;
       ids: string[];
+      skipStageIds: string[];
     },
     { models, subdomain }: IContext
   ) {
@@ -103,11 +109,13 @@ const configQueries = {
       isRPC: true,
     });
     const stageIds = stages.map(x => x._id) || [];
+    const newArray = stageIds.filter(item => !skipStageIds?.includes(item));
+
     const deals = await sendSalesMessage({
       subdomain,
       action: "deals.find",
       data: {
-        stageId: { $in: stageIds },
+        stageId: { $in: newArray },
         productsData: {
           $elemMatch: {
             $or: [

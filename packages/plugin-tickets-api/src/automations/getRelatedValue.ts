@@ -1,13 +1,15 @@
 import { IUser } from '@erxes/api-utils/src/types';
 import { IModels } from '../connectionResolver';
 import { sendCommonMessage, sendCoreMessage } from '../messageBroker';
+import { getEnv } from '@erxes/api-utils/src';
+import * as moment from 'moment';
 
 export const getRelatedValue = async (
   models: IModels,
   subdomain: string,
   target,
   targetKey,
-  relatedValueProps?: any
+  relatedValueProps: any = {}
 ) => {
   if (
     [
@@ -177,6 +179,52 @@ export const getRelatedValue = async (
     });
   }
 
+  if (targetKey === 'link') {
+    const DOMAIN = getEnv({
+      name: 'DOMAIN'
+    });
+    const stage = await models.Stages.getStage(target.stageId);
+    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+    const board = await models.Boards.getBoard(pipeline.boardId);
+
+    return `${DOMAIN}/ticket/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${target._id}`;
+  }
+
+  if (targetKey === 'pipelineLabels') {
+    const labels = await models.PipelineLabels.find({
+      _id: { $in: target?.labelIds || [] }
+    }).lean();
+
+    return `${labels.map(({ name }) => name).filter(Boolean) || '-'}`;
+  }
+  if (targetKey.includes('branches.')) {
+    const branches = await sendCoreMessage({
+      subdomain,
+      action: 'branches.find',
+      data: {
+        query: { _id: { $in: target?.branchIds || [] } },
+        fields: { title: 1 }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    return `${branches.map(({ title }) => title).filter(Boolean) || '-'}`;
+  }
+
+  if (
+    [
+      'createdAt',
+      'startDate',
+      'closeDate',
+      'stageChangedDate',
+      'modifiedAt'
+    ].includes(targetKey)
+  ) {
+    const dateValue = targetKey[targetKey];
+    return moment(dateValue).format('YYYY-MM-DD HH:mm');
+  }
+
   return false;
 };
 
@@ -204,7 +252,10 @@ const generateCustomFieldsDataValue = async ({
     data: {
       query: {
         _id: fieldId,
-        type: { $in: ['users'] }
+        $or: [
+          { type: 'users' },
+          { type: 'input', validation: { $in: ['date', 'datetime'] } }
+        ]
       }
     },
     isRPC: true,
@@ -234,6 +285,17 @@ const generateCustomFieldsDataValue = async ({
       )
       .filter(Boolean)
       .join(', ');
+  }
+  const isISODate = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(
+    customFieldData?.value
+  );
+
+  if (
+    field?.type === 'input' &&
+    ['date', 'datetime'].includes(field.validation) &&
+    isISODate
+  ) {
+    return moment(customFieldData.value).format('YYYY-MM-DD HH:mm');
   }
 };
 
@@ -307,12 +369,12 @@ const generateCreatedByFieldValue = async ({
   target: any;
 }) => {
   const [_, userField] = targetKey.split('.');
-  const user = await sendCoreMessage({
+  const user = (await sendCoreMessage({
     subdomain,
     action: 'users.findOne',
     data: { _id: target?.userId },
     isRPC: true
-  });
+  })) as IUser;
   if (userField === 'branch') {
     const branches = await sendCoreMessage({
       subdomain,
@@ -341,9 +403,23 @@ const generateCreatedByFieldValue = async ({
   }
 
   if (userField === 'phone') {
-    const { details } = (user || {}) as IUser;
+    const { details } = user || {};
 
     return `${details?.operatorPhone || ''}`;
+  }
+
+  if (userField === 'email') {
+    return `${user?.email || '-'}`;
+  }
+
+  if (userField === 'fullName') {
+    const { details, username } = user || {};
+    return (
+      details?.fullName ||
+      `${details?.firstName || ''} ${details?.lastName || ''}` ||
+      username ||
+      '-'
+    );
   }
 };
 
