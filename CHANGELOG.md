@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.15.5](https://github.com/erxes/erxes/compare/2.15.4...2.15.5) (2025-07-29)
+
+### Features
+
+* add new fields and enhance related value retrieval in automation ([6bc253a](https://github.com/erxes/erxes/commit/6bc253a713b51ec1df7c522d7de5d355afd1452e))
+* enhance automation placeholders and related value retrieval ([5d3e1da](https://github.com/erxes/erxes/commit/5d3e1da38ffb2166cb8d0de1c7f1e732280b1524))
+
+### Bug Fixes
+
+* **pms:**  pms rooms ([a034c8d](https://github.com/erxes/erxes/commit/a034c8dfa12f33e1a3653a3a12d40403e3e72141))
+* update URL in getRelatedValue to point to ticket board ([e1a9076](https://github.com/erxes/erxes/commit/e1a90767fe7d25569d626172b2d35247fe6bf252))
+
+## [2.15.4](https://github.com/erxes/erxes/compare/2.15.3...2.15.4) (2025-07-28)
+
+### Features
+
+* add new fields for automation and enhance target structure ([7ae2c09](https://github.com/erxes/erxes/commit/7ae2c09b4375294e68ff8a6c008c0a62f3190670))
+* **tickets:** add tag UI and fix pipeline integration ([f7c2e96](https://github.com/erxes/erxes/commit/f7c2e966f9caace3bcb1a7d5d10cb8c5993ba3cc))
+
+### Bug Fixes
+
+* loyalty with qrCode some bug ([3ef4dbd](https://github.com/erxes/erxes/commit/3ef4dbdf2ab838f3283f0e3af3334c684bbeda4c))
+
 ## [2.15.3](https://github.com/erxes/erxes/compare/2.15.2...2.15.3) (2025-07-23)
 
 ### Features

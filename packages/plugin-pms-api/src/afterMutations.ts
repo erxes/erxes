@@ -1,21 +1,21 @@
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import * as moment from 'moment';
-import { nanoid } from 'nanoid';
-import { IModels } from './connectionResolver';
-import { sendSalesMessage } from './messageBroker';
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
+import * as moment from "moment";
+import { nanoid } from "nanoid";
+import { IModels } from "./connectionResolver";
+import { sendSalesMessage } from "./messageBroker";
 
 export default {
-  'sales:deal': ['update']
+  "sales:deal": ["update"],
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action, user } = params;
 
-  if (type === 'sales:deal') {
-    if (action === 'update') {
+  if (type === "sales:deal") {
+    if (action === "update") {
       const deal = params.updatedDocument;
       const oldDeal = params.object;
-      const destinationStageId = deal.stageId || '';
+      const destinationStageId = deal.stageId || "";
 
       if (!(destinationStageId && destinationStageId !== oldDeal.stageId)) {
         return;
@@ -23,12 +23,12 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
       const stage = await sendSalesMessage({
         subdomain,
-        action: 'stages.findOne',
+        action: "stages.findOne",
         data: { _id: destinationStageId },
         isRPC: true,
-        defaultValue: {}
+        defaultValue: {},
       });
-      console.log('stage', stage);
+      console.log("stage", stage);
 
       return;
     }

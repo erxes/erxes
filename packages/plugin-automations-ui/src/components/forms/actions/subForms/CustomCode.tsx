@@ -2,13 +2,13 @@ import React from 'react';
 import { IAction } from '@erxes/ui-automations/src/types';
 import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import { BoardHeader, DrawerDetail } from '@erxes/ui-automations/src/styles';
-import { __ } from 'coreui/utils';
 import Editor from 'react-simple-code-editor';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
+import { __ } from '@erxes/ui/src';
 
 type Props = {
   closeModal: () => void;
@@ -46,19 +46,19 @@ class Delay extends React.Component<Props, State> {
   renderContent() {
     const { config } = this.state;
 
-    const onChangeValue = code => this.onChangeField('code', code);
+    const onChangeValue = (code) => this.onChangeField('code', code);
 
     return (
       <DrawerDetail>
         <FormGroup>
           <BoardHeader>
-            <div className="header-row">
+            <div className='header-row'>
               <ControlLabel required={true}>{__('Value')}</ControlLabel>
             </div>
             <Editor
               value={config.code || ''}
               onValueChange={onChangeValue}
-              highlight={code => highlight(code, languages.javascript)}
+              highlight={(code) => highlight(code, languages.javascript)}
               padding={10}
               style={{
                 fontFamily: '"Fira code", "Fira Mono", monospace',

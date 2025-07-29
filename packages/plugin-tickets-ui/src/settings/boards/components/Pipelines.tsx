@@ -98,7 +98,7 @@ function Pipelines(props: Props) {
     setIsDragDisabled(!isDragDisabled);
   };
 
-  const searchHandler = event => {
+  const searchHandler = (event) => {
     const searchValue = event.target.value.toLowerCase();
     const { pipelines } = props;
 
@@ -107,7 +107,7 @@ function Pipelines(props: Props) {
     let updatedPipelines = pipelines;
 
     if (searchValue) {
-      updatedPipelines = pipelines.filter(p =>
+      updatedPipelines = pipelines.filter((p) =>
         p.name.toLowerCase().includes(searchValue)
       );
     }
@@ -127,7 +127,7 @@ function Pipelines(props: Props) {
       sortItems(sortedPipelines, sortDirection, sortField);
     }
 
-    return sortedPipelines.map(pipeline => (
+    return sortedPipelines.map((pipeline) => (
       <PipelineRow
         key={pipeline._id}
         pipeline={pipeline}
