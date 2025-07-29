@@ -165,6 +165,11 @@ const ProductGroupList = (props: Props) => {
             </th>
             <th>
               <SortHandler
+                label={__("Sort Number")}
+              />
+            </th>
+            <th>
+              <SortHandler
                 label={__("Ratio")}
               />
             </th>

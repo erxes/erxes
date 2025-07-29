@@ -184,6 +184,7 @@ export type ProductRulesRemoveMutationResponse = {
 export interface IEbarimtProductGroupDoc {
   mainProductId?: string;
   subProductId?: string;
+  sortNum: number;
   ratio?: number;
   isActive: boolean;
 

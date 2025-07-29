@@ -4,6 +4,7 @@ import { field, schemaHooksWrapper } from './utils';
 export interface IProductGroup {
   mainProductId: string;
   subProductId: string;
+  sortNum: number;
   ratio?: number;
   isActive: boolean;
   modifiedBy?: string;
@@ -25,6 +26,7 @@ export const productGroupSchema = schemaHooksWrapper(
 
     mainProductId: field({ type: String, label: 'Main Product', unique: true }),
     subProductId: field({ type: String, label: 'Sub Product' }),
+    sortNum: field({ type: Number, label: 'Sort Number', default: 1 }),
     ratio: field({ type: Number, label: 'ratio', optional: true }),
     isActive: field({ type: Boolean, label: 'isActive' }),
   }),

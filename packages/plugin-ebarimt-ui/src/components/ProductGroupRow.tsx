@@ -58,6 +58,7 @@ function IProductGroupRow({ productGroup, isChecked, toggleBulk }: Props) {
 
       <td key={'mainProduct'}>{`${productGroup.mainProduct?.code} - ${productGroup.mainProduct?.name}`}</td>
       <td key={'subProduct'}>{`${productGroup.subProduct?.code} - ${productGroup.subProduct?.name}`}</td>
+      <td key={'sortNum'}>{displayValue(productGroup, 'sortNum')}</td>
       <td key={'ratio'}>{displayValue(productGroup, 'ratio')}</td>
       <td key={'isActive'}>{displayValue(productGroup, 'isActive')}</td>
       <td key={'actions'}>
