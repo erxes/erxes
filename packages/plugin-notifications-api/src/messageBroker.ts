@@ -80,7 +80,7 @@ const sendNotification = async (
   const toEmails: string[] = [];
 
   for (const recipient of recipients) {
-    if (recipient.email) {
+    if (recipient.email && recipient.getNotificationByEmail) {
       toEmails.push(recipient.email);
     }
   }
