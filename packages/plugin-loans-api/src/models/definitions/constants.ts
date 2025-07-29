@@ -1,13 +1,13 @@
 export const REPAYMENT_TYPE = [
   { label: 'Equal Principal Payment', value: 'equal' }, // undsen tulbur tentsuu
   { label: 'Fixed Rate Payment', value: 'fixed' }, // niit tulbur tentsuu
-  { label: 'Last of date', value: 'last' }, // niit tulbur tentsuu
+  { label: 'Last of date', value: 'last' } // niit tulbur tentsuu
 ];
 
 export const REPAYMENT = {
   EQUAL: 'equal', // undsen tulbur tentsuu
   FIXED: 'fixed', // niit tulbur tentsuu
-  LAST: 'last', // hugatsaanii etsest neg udaa
+  LAST: 'last' // hugatsaanii etsest neg udaa
 };
 
 export const CONTRACT_STATUS = {
@@ -15,7 +15,20 @@ export const CONTRACT_STATUS = {
   NORMAL: 'normal',
   CLOSED: 'closed',
   PAUSE: 'pause',
-  ALL: ['draft', 'normal', 'closed', 'pause']
+  EXPIRED: 'expired',
+  ABNORMAL: 'abnormal',
+  SUSPICIOUS: 'suspicious',
+  BAD: 'bad',
+  ALL: [
+    'draft',
+    'normal',
+    'closed',
+    'pause',
+    'expired',
+    'abnormal',
+    'suspicious',
+    'bad'
+  ]
 };
 
 export const LOSS_CALC_TYPE = {
@@ -60,7 +73,16 @@ export const SCHEDULE_STATUS = {
   GIVE: 'give', // өгсөн талынх
   COMPLETE: 'complete', // үлдэгдэлгүй болсон
 
-  ALL: ['pending', 'done', 'skipped', 'pre', 'less', 'expired', 'give', 'complete']
+  ALL: [
+    'pending',
+    'done',
+    'skipped',
+    'pre',
+    'less',
+    'expired',
+    'give',
+    'complete'
+  ]
 };
 
 export const LEASE_TYPES = {
