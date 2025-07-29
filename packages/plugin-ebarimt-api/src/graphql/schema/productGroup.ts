@@ -6,6 +6,7 @@ export const types = `
     modifiedBy: String
     mainProductId: String
     subProductId: String
+    sortNum: Float
     ratio: Float
     isActive: Boolean
 
@@ -25,6 +26,7 @@ const queryParams = `
 const mutationParams = `
   mainProductId: String
   subProductId: String
+  sortNum: Float
   ratio: Float
   isActive: Boolean
 `;

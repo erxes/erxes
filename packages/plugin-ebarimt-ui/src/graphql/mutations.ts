@@ -77,6 +77,7 @@ const ebarimtProductRulesRemove = `
 const mutationGroupParamsDef = `
   $mainProductId: String
   $subProductId: String
+  $sortNum: Float
   $ratio: Float
   $isActive: Boolean
 `;
@@ -84,6 +85,7 @@ const mutationGroupParamsDef = `
 const mutationGroupParamsVal = `
   mainProductId: $mainProductId
   subProductId: $subProductId
+  sortNum: $sortNum
   ratio: $ratio
   isActive: $isActive
 `;

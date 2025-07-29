@@ -61,7 +61,7 @@ export const sortBuilder = params => {
     return { [sortField]: sortDirection };
   }
 
-  return { createdAt: 1 };
+  return { sortNum: 1, createdAt: 1 };
 };
 
 const queries = {
