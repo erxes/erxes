@@ -19,6 +19,8 @@ export default {
       return;
     }
 
+    console.log('cpCustomerHandle:', 'customer:', data.customer?._id, 'company:', data.company?._id)
+
     const models = await generateModels(subdomain);
 
     const syncLogDoc = {

@@ -29,6 +29,8 @@ const msdynamicSyncMutations = {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
 
+    console.log('msdynamicSyncMutations', 'toSyncMsdProducts', action, brandId)
+
     switch (action) {
       case 'CREATE': {
         for (const product of products) {
@@ -76,7 +78,7 @@ const msdynamicSyncMutations = {
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
-
+    console.log('msdynamicSyncMutations', 'toSyncMsdPrices', brandId)
     const updatePrices: any[] = [];
     const createPrices: any[] = [];
     const error: any[] = [];
@@ -260,6 +262,8 @@ const msdynamicSyncMutations = {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
 
+    console.log('msdynamicSyncMutations', 'toSyncMsdProductCategories', brandId)
+
     switch (action) {
       case 'CREATE': {
         for (const category of categories) {
@@ -323,7 +327,7 @@ const msdynamicSyncMutations = {
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
-
+    console.log('msdynamicSyncMutations', 'toSyncMsdCustomers', brandId, action)
     try {
       switch (action) {
         case 'CREATE': {
@@ -389,6 +393,7 @@ const msdynamicSyncMutations = {
     try {
       const configs = await getConfig(subdomain, 'DYNAMIC', {});
       const config = configs[order.scopeBrandIds[0] || 'noBrand'];
+      console.log('msdynamicSyncMutations', 'toSendMsdOrders', orderIds)
 
       response = await orderToDynamic(
         subdomain,
