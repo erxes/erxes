@@ -2212,6 +2212,10 @@ const fieldFormatter = async (data, filter, subdomain) => {
 
     const { field = '', fieldObject = {} } = item || {}
 
+    if (!field || !fieldObject.type) {
+      continue
+    }
+
     const fieldTypes = Object.keys(FIELD_TYPES)
 
     if (field && fieldTypes.includes(fieldObject.type)) {
@@ -2313,7 +2317,7 @@ export const formatData = async (data, filter, type, subdomain) => {
 
     if (item.hasOwnProperty('field') && item.hasOwnProperty('fieldObject')) {
       
-      const { type } = item['fieldObject']
+      const { type = '' } = item['fieldObject'] || {}
 
       const fields = fieldValues[type]
 
