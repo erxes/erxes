@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.15.6](https://github.com/erxes/erxes/compare/2.15.5...2.15.6) (2025-07-30)
+
+### Bug Fixes
+
+* ebarimt group products with sortNumber ([63ad4ab](https://github.com/erxes/erxes/commit/63ad4ab21d3c3e9e2458eed794e56988978b5ead))
+
 ## [2.15.5](https://github.com/erxes/erxes/compare/2.15.4...2.15.5) (2025-07-29)
 
 ### Features
