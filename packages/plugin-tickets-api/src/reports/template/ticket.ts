@@ -2619,7 +2619,7 @@ export const ticketCharts = [
 
       return {
         title,
-        ...buildData({ chartType, data: tickets, filter, type: "ticket" }),
+        ...await buildData({ chartType, data: tickets, filter, type: "ticket", subdomain }),
       };
     },
     filterTypes: [
