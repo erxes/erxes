@@ -330,6 +330,12 @@ export const generateFields = async ({ subdomain, data }) => {
       },
       {
         _id: Math.random(),
+        name: 'createdBy.position',
+        label: 'Created by Position',
+        type: 'String'
+      },
+      {
+        _id: Math.random(),
         name: 'customers.email',
         label: 'Customers Email',
         type: 'String'
