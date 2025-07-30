@@ -556,8 +556,7 @@ const callsMutations = {
         customer._id,
         callConversation?.conversationId,
       );
-
-      return 'Success';
+      return customer;
     } catch (error) {
       throw error;
     }
