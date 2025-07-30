@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.15.7](https://github.com/erxes/erxes/compare/2.15.6...2.15.7) (2025-07-30)
+
+### Features
+
+* implement email automation features ([4eea104](https://github.com/erxes/erxes/commit/4eea104cf288e5a64ae065ff69f23b26324fe0d1))
+
 ## [2.15.6](https://github.com/erxes/erxes/compare/2.15.5...2.15.6) (2025-07-30)
 
 ### Bug Fixes
