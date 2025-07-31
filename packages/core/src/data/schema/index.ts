@@ -149,6 +149,12 @@ import {
   mutations as ProductRuleMutations
 } from './productRule';
 
+import {
+  types as LabelTypes,
+  queries as LabelQueries,
+  mutations as LabelMutations
+} from './labels'; 
+
 export let types = ({ inboxEnabled }) => {
   return `
   scalar JSON
@@ -206,6 +212,7 @@ export let types = ({ inboxEnabled }) => {
   ${RateTypes}
   ${BundleTypes}
   ${ProductRuleTypes}
+  ${LabelTypes}
   `;
 };
 
@@ -240,6 +247,7 @@ export let queries = `
   ${RateQueries}
   ${BundleQueries}
   ${ProductRuleQueries}
+  ${LabelQueries}
 `;
 
 export let mutations = `
@@ -268,6 +276,7 @@ export let mutations = `
   ${RateMutations}
   ${BundleMutations}
   ${ProductRuleMutations}
+  ${LabelMutations}
 `;
 
 export let subscriptions = `

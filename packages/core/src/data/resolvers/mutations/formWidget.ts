@@ -173,12 +173,12 @@ function updateCustomerDoc(
     customerDoc.links = links;
   }
 
-  if (customerDoc.email && !customer.emails.includes(customerDoc.email)) {
-    customerDoc.emails = [...customer.emails, customerDoc.email];
+  if (customerDoc.email && !customer.emails.find(e => e.email === customerDoc.email)) {
+    customerDoc.emails = [...customer.emails, { email: customerDoc.email }];
   }
 
-  if (customerDoc.phone && !customer.phones.includes(customerDoc.phone)) {
-    customerDoc.phones = [...customer.phones, customerDoc.phone];
+  if (customerDoc.phone && !customer.phones.find(p => p.phone === customerDoc.phone)) {
+    customerDoc.phones = [...customer.phones, { phone: customerDoc.phone }];
   }
 
   return customerDoc;
@@ -378,8 +378,8 @@ const mutations = {
     if (!customer) {
       customer = await models.Customers.createCustomer({
         ...customerDoc,
-        emails: [customerDoc.email],
-        phones: [customerDoc.phone],
+        emails: [{ email: customerDoc.email, type: 'primary' }],
+        phones: [{ phone: customerDoc.phone, type: 'primary' }],
         primaryEmail: saveAsCustomer ? customerDoc.email : null,
         primaryPhone: saveAsCustomer ? customerDoc.phone : null,
         state: saveAsCustomer ? 'customer' : 'lead',

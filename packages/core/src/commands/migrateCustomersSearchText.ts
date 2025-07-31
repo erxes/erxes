@@ -20,8 +20,8 @@ let Customers: Collection<any>;
 const fillSearchText = (doc) => {
 
     const searchText = [
-        (doc.emails || []).join(" "),
-        (doc.phones || []).join(" "),
+        (doc.emails || []).map(e => e.email).join(" "),
+        (doc.phones || []).map(p => p.phone).join(" "),
         doc.firstName || "",
         doc.lastName || "",
         doc.middleName || "",

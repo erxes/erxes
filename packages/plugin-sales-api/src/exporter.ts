@@ -530,7 +530,7 @@ const fillValue = async (
       value = customerRows
         .map(customer => {
              return customer.primaryPhone || 
-             (customer.phones && customer.phones.length ? customer.phones[0] : '');
+             (customer.phones && customer.phones.length ? customer.phones[0].phone : '');
         })
         .join(", ")
     }

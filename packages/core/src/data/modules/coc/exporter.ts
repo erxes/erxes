@@ -187,10 +187,10 @@ export const fillValue = async (
     // customer fields
 
     case "emails":
-      value = (item.emails || []).join(", ");
+      value = (item.emails || []).map(e => e.email).join(", ");
       break;
     case "phones":
-      value = (item.phones || []).join(", ");
+      value = (item.phones || []).map(p => p.phone).join(", ");
       break;
     case "mergedIds":
       const customers: ICustomerDocument[] | null = await models.Customers.find(

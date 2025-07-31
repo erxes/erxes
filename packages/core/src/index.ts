@@ -399,7 +399,7 @@ app.get("/verify", async (req, res) => {
     return res.send("Customer email does not match");
   }
 
-  if (customer.emails?.findIndex(e => e === email) === -1) {
+  if (customer.emails?.findIndex(e => e.email === email) === -1) {
     return res.send("Customer email does not match");
   }
 

@@ -151,10 +151,10 @@ export const fillCellValue = async (
 
   switch (colName) {
     case 'emails':
-      cellValue = (item.emails || []).join(', ');
+      cellValue = (item.emails || []).map(e => e.email).join(', ');
       break;
     case 'phones':
-      cellValue = (item.phones || []).join(', ');
+      cellValue = (item.phones || []).map(p => p.phone).join(', ');
       break;
     case 'names':
       cellValue = (item.names || []).join(', ');
