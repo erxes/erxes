@@ -178,6 +178,7 @@ export const getRelatedValue = async (
       target,
       targetKey,
       subdomain,
+      relatedValueProps,
     });
   }
 
@@ -234,10 +235,12 @@ const generateCustomFieldsDataValue = async ({
   targetKey,
   subdomain,
   target,
+  relatedValueProps,
 }: {
   targetKey: string;
   subdomain: string;
   target: any;
+  relatedValueProps: any;
 }) => {
   const [_, fieldId] = targetKey.split("customFieldsData.");
   const customFieldData = (target?.customFieldsData || []).find(
@@ -274,11 +277,21 @@ const generateCustomFieldsDataValue = async ({
       action: "users.find",
       data: {
         query: { _id: { $in: customFieldData?.value || [] } },
-        fields: { details: 1 },
       },
       isRPC: true,
       defaultValue: [],
     });
+
+    if (!!relatedValueProps[targetKey]) {
+      const { key, filter } = relatedValueProps[targetKey] || {};
+
+      const result = users
+        .filter((user) => (filter ? user[filter.key] === filter.value : user))
+        .map((user) => user[key])
+        .join(", ");
+
+      return result;
+    }
 
     return users
       .map(
@@ -376,12 +389,12 @@ const generateCreatedByFieldValue = async ({
     action: "users.findOne",
     data: { _id: target?.userId },
     isRPC: true,
-  })) as {positionIds:string[]}&IUser;
+  })) as { positionIds: string[] } & IUser;
   if (userField === "branch") {
     const branches = await sendCoreMessage({
       subdomain,
       action: "branches.find",
-      data: { query:{_id: {$in:user?.branchIds || []}} },
+      data: { query: { _id: { $in: user?.branchIds || [] } } },
       isRPC: true,
       defaultValue: [],
     });
@@ -394,7 +407,7 @@ const generateCreatedByFieldValue = async ({
     const departments = await sendCoreMessage({
       subdomain,
       action: "departments.find",
-      data: { _id: {$in:user?.departmentIds || []} },
+      data: { _id: { $in: user?.departmentIds || [] } },
       isRPC: true,
       defaultValue: [],
     });
@@ -424,19 +437,22 @@ const generateCreatedByFieldValue = async ({
     );
   }
 
-  if(userField === 'position'){
-    if(user?.positionIds?.length){
-      const positions:any[] = await sendCoreMessage({
+  if (userField === "position") {
+    if (user?.positionIds?.length) {
+      const positions: any[] = await sendCoreMessage({
         subdomain,
-        action:"positions.find",
-        data:{query:{_id:{$in:user?.positionIds || []}}},
-        isRPC:true,
-        defaultValue:[]
-      })
+        action: "positions.find",
+        data: { query: { _id: { $in: user?.positionIds || [] } } },
+        isRPC: true,
+        defaultValue: [],
+      });
 
-      return (positions || []).map(({title})=>title).filter(Boolean).join(', ')
+      return (positions || [])
+        .map(({ title }) => title)
+        .filter(Boolean)
+        .join(", ");
     }
-    return user?.details?.position
+    return user?.details?.position;
   }
 };
 

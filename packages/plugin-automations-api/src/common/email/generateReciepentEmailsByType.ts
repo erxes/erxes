@@ -88,8 +88,6 @@ export class GenerateEmailsByType {
 
     if (!attributes.length) return [];
 
-    console.log({ attributes });
-
     for (const attribute of attributes) {
       if (attribute === "triggerExecutors") {
         const executorEmails = await this.getSegmentEmails(
