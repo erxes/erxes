@@ -39,7 +39,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, onCancel }) => {
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="accountType" className="text-black">Account Type</Label>
+            <Label htmlFor="accountType" className="text-black">Type</Label>
             <Select value={accountType} onValueChange={(value: AccountType) => setAccountType(value)}>
               <SelectTrigger className="mt-1 text-black">
                 <SelectValue placeholder="Select account type" />
@@ -82,7 +82,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, onCancel }) => {
           )}
           
           <div>
-            <Label htmlFor="bankAddress" className="text-black">Bank Address</Label>
+            <Label htmlFor="bankAddress" className="text-black">Bank Account</Label>
             <Input
               id="bankAddress"
               type="text"
@@ -100,7 +100,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, onCancel }) => {
               className="flex-1"
               disabled={!isFormValid()}
             >
-              Nehemjlel uusgeh
+              Create invoice
             </Button>
             <Button 
               type="button"
