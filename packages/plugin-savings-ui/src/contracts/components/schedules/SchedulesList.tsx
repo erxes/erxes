@@ -1,4 +1,4 @@
-import { Spinner, Table } from '@erxes/ui/src';
+import { Table } from '@erxes/ui/src';
 
 import { ContractsTableWrapper } from '../../styles';
 import { ITransaction } from '../../../transactions/types';
@@ -9,17 +9,10 @@ import { __ } from 'coreui/utils';
 interface IProps {
   contractId: string;
   transactions: ITransaction[];
-  loading: boolean;
-  currentYear: number;
-  onClickYear: (year: number) => void;
 }
 
 const SchedulesList = (props: IProps) => {
-  const { transactions, loading } = props;
-
-  if (loading) {
-    return <Spinner />;
-  }
+  const { transactions } = props;
 
   return (
     <ContractsTableWrapper>
@@ -32,14 +25,12 @@ const SchedulesList = (props: IProps) => {
             <th>{__('Amount')}</th>
             <th>{__('Stored Interest')}</th>
             <th>{__('Total')}</th>
+            <th>{__('Status')}</th>
           </tr>
         </thead>
         <tbody id="schedules">
           {transactions.map((transaction) => (
-            <ScheduleRow
-              transaction={transaction}
-              key={transaction._id}
-            ></ScheduleRow>
+            <ScheduleRow transaction={transaction} key={transaction._id} />
           ))}
         </tbody>
       </Table>

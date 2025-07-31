@@ -51,7 +51,7 @@ export const createSavingMessage = async (
 
   let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
-  if (preSuccessValue) {
+  if (preSuccessValue || savingContract.isSyncedPolaris) {
     return await updateSaving(
       subdomain,
       models,

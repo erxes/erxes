@@ -1,13 +1,15 @@
-import { IContext } from '../../../connectionResolver';
-import { paginate } from '@erxes/api-utils/src';
-import { escapeRegExp, getPureDate } from '@erxes/api-utils/src/core';
-import { getLoanDetail } from '../../../utils/loan/getLoanDetail';
-import { getDepositStatement } from '../../../utils/deposit/getDepositStatement';
-import { getDepositBalance } from '../../../utils/deposit/getDepositBalance';
-import { getLoanCollaterials } from '../../../utils/loan/getLoanCollaterials';
-import { getSavingTransactions } from '../../../utils/saving/getSavingTransactions';
-import { getConfig } from '../../../utils/utils';
-//
+import { IContext } from "../../../connectionResolver";
+import { paginate } from "@erxes/api-utils/src";
+import { escapeRegExp, getPureDate } from "@erxes/api-utils/src/core";
+import { getLoanDetail } from "../../../utils/loan/getLoanDetail";
+import { getDepositStatement } from "../../../utils/deposit/getDepositStatement";
+import { getDepositBalance } from "../../../utils/deposit/getDepositBalance";
+import { getLoanCollaterials } from "../../../utils/loan/getLoanCollaterials";
+import { getSavingTransactions } from "../../../utils/saving/getSavingTransactions";
+import { getConfig } from "../../../utils/utils";
+import { getSavingDetail } from "../../../utils/saving/getSavingDetail";
+import { getDepositDetail } from "../../../utils/deposit/getDepositDetail";
+
 const generateFilter = (params) => {
   const {
     userId,
@@ -18,7 +20,7 @@ const generateFilter = (params) => {
     searchConsume,
     searchSend,
     searchResponse,
-    searchError,
+    searchError
   } = params;
 
   const query: any = {};
@@ -27,7 +29,7 @@ const generateFilter = (params) => {
     query.createdBy = userId;
   }
   if (contentType) {
-    query.contentType = { $regex: `.*${escapeRegExp(contentType)}.*` }; 
+    query.contentType = { $regex: `.*${escapeRegExp(contentType)}.*` };
   }
   if (contentId) {
     query.contentId = contentId;
@@ -72,23 +74,27 @@ const polarisQueries = {
 
   async getPolarisData(_root, params, { subdomain }: IContext) {
     const { method, data } = params;
-    const polarisConfig = await getConfig(subdomain, 'POLARIS', {})
+    const polarisConfig = await getConfig(subdomain, "POLARIS", {});
     switch (method) {
-      case 'getLoanDetail':
+      case "getLoanDetail":
         return await getLoanDetail(subdomain, polarisConfig, data);
-      case 'getDepositStatement':
+      case "getDepositStatement":
         return await getDepositStatement(subdomain, polarisConfig, data);
-      case 'getDepositBalance':
+      case "getDepositBalance":
         return await getDepositBalance(subdomain, polarisConfig, data);
-      case 'getLoanCollaterals':
+      case "getLoanCollaterals":
         return await getLoanCollaterials(subdomain, polarisConfig, data);
-      case 'getSavingTransactions':
+      case "getSavingTransactions":
         return await getSavingTransactions(subdomain, polarisConfig, data);
+      case "getSavingDetail":
+        return await getSavingDetail(subdomain, polarisConfig, data);
+      case "getDepositDetail":
+        return await getDepositDetail(subdomain, polarisConfig, data);
 
       default:
         break;
     }
-  },
+  }
 };
 
 export default polarisQueries;

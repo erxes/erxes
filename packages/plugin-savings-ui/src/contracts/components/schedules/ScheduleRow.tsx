@@ -11,7 +11,7 @@ type Props = {
 };
 
 function ScheduleRow({ transaction }: Props) {
-  const renderCell = name => {
+  const renderCell = (name) => {
     return (
       <>
         <DidAmount> {(transaction[name] || 0).toLocaleString()}</DidAmount>
@@ -27,6 +27,7 @@ function ScheduleRow({ transaction }: Props) {
       <td>{renderCell('payment')}</td>
       <td>{renderCell('storedInterest')}</td>
       <td>{renderCell('total')}</td>
+      <td>{transaction?.isSyncedTransaction ? 'Synced' : 'Not synced'}</td>
     </ExtraRow>
   );
 }

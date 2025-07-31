@@ -22,9 +22,23 @@ const depositActive = `
   }
 `;
 
+const syncSavingTransactions = `
+  mutation sendSavingAmount($data: JSON) {
+    sendSavingAmount(data: $data)
+  }
+`;
+
+const syncDepositTransactions = `
+  mutation sendDepositAmount($data: JSON) {
+    sendDepositAmount(data: $data)
+  }
+`;
+
 export default {
   sendSaving,
   savingActive,
   sendDeposit,
   depositActive,
+  syncSavingTransactions,
+  syncDepositTransactions
 };
