@@ -25,7 +25,6 @@ const SelectPaymentTypeMain = () => {
   const {
     showUserForm,
     shouldShowPrintable,
-    isPrinting,
     error,
     startPrint,
     cancelPrint,

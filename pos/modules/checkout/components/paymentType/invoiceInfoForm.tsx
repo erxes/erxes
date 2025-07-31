@@ -11,8 +11,6 @@ interface UserInfoFormProps {
   onCancel: () => void;
 }
 
-type AccountType = "person" | "company";
-
 const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, onCancel }) => {
   const [userName, setUserName] = useAtom(userNameAtom);
   const [userBankAddress, setUserBankAddress] = useAtom(userBankAddressAtom);
@@ -26,12 +24,14 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, onCancel }) => {
   };
 
   const isFormValid = () => {
-    const baseValid = userName.trim() && userBankAddress.trim();
+    const baseValid = userName.trim() && userBankAddress.trim() && expiryDays >= 1 && expiryDays <= 365;
     if (accountType === "company") {
       return baseValid && companyRegister.trim();
     }
     return baseValid;
   };
+
+  const isExpiryDaysValid = expiryDays >= 1 && expiryDays <= 365;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -41,7 +41,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, onCancel }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="accountType" className="text-black">Account Type</Label>
-            <Select value={accountType} onValueChange={(value: AccountType) => setAccountType(value)}>
+            <Select value={accountType} onValueChange={(value) => setAccountType(value as "person" | "company")}>
               <SelectTrigger className="mt-1 text-black">
                 <SelectValue placeholder="Select account type" />
               </SelectTrigger>
@@ -103,11 +103,19 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, onCancel }) => {
               min="1"
               max="365"
               value={expiryDays}
-              onChange={(e) => setExpiryDays(Number(e.target.value))}
+              onChange={(e) => {
+                const value = Number(e.target.value);
+                if (!isNaN(value) && value >= 0) {
+                  setExpiryDays(value);
+                }
+              }}
               placeholder="Enter payment deadline in days"
               className="mt-1 text-black"
               required
             />
+            {!isExpiryDaysValid && expiryDays > 0 && (
+              <p className="text-red-500 text-xs mt-1">Please enter a value between 1 and 365 days</p>
+            )}
           </div>
           
           <div className="flex gap-2 pt-4">
