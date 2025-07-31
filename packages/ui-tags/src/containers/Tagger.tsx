@@ -1,21 +1,21 @@
-import { Alert } from '@erxes/ui/src/utils';
+import { Alert } from "@erxes/ui/src/utils";
 import {
   ITag,
   ITagTypes,
   TagsQueryResponse,
   TagMutationResponse,
-} from '../types';
-import { mutations, queries } from '../graphql';
+} from "../types";
+import { mutations, queries } from "../graphql";
 
-import React from 'react';
-import Tagger from '../components/Tagger';
-import { gql } from '@apollo/client';
-import { useQuery, useMutation } from '@apollo/client';
+import React from "react";
+import Tagger from "../components/Tagger";
+import { gql } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 
 type Props = {
   // targets can be conversation, customer, company etc ...
   targets?: any[];
-  event?: 'onClick' | 'onExit';
+  event?: "onClick" | "onExit";
   type: ITagTypes | string;
   successCallback?: () => void;
   className?: string;
@@ -46,7 +46,7 @@ const TaggerContainer = (props: Props) => {
     gql(mutations.tagsTag),
     {
       refetchQueries: props.refetchQueries,
-    },
+    }
   );
 
   const { type, targets = [], successCallback } = props;
@@ -122,7 +122,6 @@ const TaggerContainer = (props: Props) => {
     onLoadMore,
     tag,
   };
-
   return <Tagger {...updatedProps} />;
 };
 

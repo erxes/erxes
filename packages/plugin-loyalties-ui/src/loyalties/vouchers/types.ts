@@ -10,6 +10,8 @@ export interface IVoucher extends IVoucherDoc {
   _id: string;
   owner: IUser;
   campaign: IVoucherCampaign;
+
+  ownerIds?: string[];
 }
 
 export interface IOwnerVoucher {

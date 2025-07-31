@@ -1,6 +1,6 @@
 // Settings
 
-import { ebarimtProductRuleFields, responseFields } from "./queries";
+import { ebarimtProductGroupFields, ebarimtProductRuleFields, responseFields } from "./queries";
 
 const updateConfigs = `
   mutation configsUpdate($configsMap: JSON!) {
@@ -74,6 +74,44 @@ const ebarimtProductRulesRemove = `
   }
 `;
 
+const mutationGroupParamsDef = `
+  $mainProductId: String
+  $subProductId: String
+  $sortNum: Float
+  $ratio: Float
+  $isActive: Boolean
+`;
+
+const mutationGroupParamsVal = `
+  mainProductId: $mainProductId
+  subProductId: $subProductId
+  sortNum: $sortNum
+  ratio: $ratio
+  isActive: $isActive
+`;
+
+const ebarimtProductGroupCreate = `
+  mutation ebarimtProductGroupCreate(${mutationGroupParamsDef}) {
+    ebarimtProductGroupCreate(${mutationGroupParamsVal}) {
+      ${ebarimtProductGroupFields}
+    }
+  }
+`;
+
+const ebarimtProductGroupUpdate = `
+  mutation ebarimtProductGroupUpdate($_id: String!, ${mutationGroupParamsDef}) {
+    ebarimtProductGroupUpdate(_id: $_id, ${mutationGroupParamsVal}) {
+      ${ebarimtProductGroupFields}
+    }
+  }
+`;
+
+const ebarimtProductGroupsRemove = `
+  mutation ebarimtProductGroupsRemove($ids: [String]) {
+    ebarimtProductGroupsRemove(ids: $ids)
+  }
+`;
+
 export default {
   updateConfigs,
   putResponseReturnBill,
@@ -81,4 +119,7 @@ export default {
   ebarimtProductRuleCreate,
   ebarimtProductRuleUpdate,
   ebarimtProductRulesRemove,
+  ebarimtProductGroupCreate,
+  ebarimtProductGroupUpdate,
+  ebarimtProductGroupsRemove,
 };

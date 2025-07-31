@@ -399,7 +399,7 @@ export const taskCharts = [
 
       return {
         title,
-        ...buildData({ chartType, data: tasks, filter, type: "task" }),
+        ...await buildData({ chartType, data: tasks, filter, type: "task", subdomain }),
       };
     },
     filterTypes: [

@@ -1,14 +1,14 @@
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 
-import CommonForm from "@erxes/ui-settings/src/common/components/Form";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
-import { IEmailTemplate } from "../types";
-import React from "react";
-import RichTextEditor from "@erxes/ui/src/containers/RichTextEditor";
-import { gql, useQuery } from "@apollo/client";
+import CommonForm from '@erxes/ui-settings/src/common/components/Form';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
+import { IEmailTemplate } from '../types';
+import React from 'react';
+import RichTextEditor from '@erxes/ui/src/containers/RichTextEditor';
+import { gql, useQuery } from '@apollo/client';
 
 type Props = {
   object?: IEmailTemplate;
@@ -17,6 +17,7 @@ type Props = {
   additionalToolbarContent?: (props: {
     onClick: (placeholder: string) => void;
   }) => React.ReactNode;
+  contentTypeConfig?: any;
 } & ICommonFormProps;
 
 type State = {
@@ -28,7 +29,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     super(props);
 
     this.state = {
-      content: (props.object && props.object.content) || ""
+      content: (props.object && props.object.content) || ''
     };
   }
 
@@ -52,6 +53,8 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
+    const { contentType, contentTypeConfig, additionalToolbarContent } =
+      this.props || {};
     const object = this.props.object || ({} as IEmailTemplate);
 
     return (
@@ -60,9 +63,9 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
             {...formProps}
-            name="name"
+            name='name'
             defaultValue={object.name}
-            type="text"
+            type='text'
             required={true}
             autoFocus={true}
           />
@@ -76,9 +79,10 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             autoGrow={true}
             autoGrowMinHeight={300}
             isSubmitted={formProps.isSaved}
-            name={`emailTemplates_${object._id || "create"}`}
-            contentType={this?.props?.contentType}
-            additionalToolbarContent={this.props?.additionalToolbarContent}
+            name={`emailTemplates_${object._id || 'create'}`}
+            contentType={contentType}
+            contentTypeConfig={contentTypeConfig}
+            additionalToolbarContent={additionalToolbarContent}
           />
         </FormGroup>
       </>
@@ -91,7 +95,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return (
       <CommonForm
         {...this.props}
-        name="email template"
+        name='email template'
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
         object={object}

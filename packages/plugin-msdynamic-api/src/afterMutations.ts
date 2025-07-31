@@ -31,6 +31,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
     return;
   }
 
+  console.log('afterMutationHandlers:', subdomain, type, action, params.object?._id)
+
   const models = await generateModels(subdomain);
 
   const syncLogDoc = {

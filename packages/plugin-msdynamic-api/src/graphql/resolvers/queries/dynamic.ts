@@ -116,6 +116,8 @@ const msdynamicQueries = {
       throw new Error('MS Dynamic config not found.');
     }
 
+    console.log('msdProductsRemainder:', brandId, productCodes, posToken, branchId)
+
     const { itemApi, username, password, reminderCode } = config;
 
     let filterSection = productCodes

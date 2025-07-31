@@ -1,3 +1,6 @@
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
 import {
   Button,
   ControlLabel,
@@ -5,23 +8,19 @@ import {
   FormControl,
   FormGroup,
 } from "@erxes/ui/src/components";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import { IVoucher, IVoucherDoc } from "../types";
 import {
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
 } from "@erxes/ui/src/styles/eindex";
-
-import React from "react";
-import SelectCampaigns from "../../containers/SelectCampaigns";
-import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
-import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import { __ } from "@erxes/ui/src/utils";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import React from "react";
+import SelectClientPortalUser from "../../../common/SelectClientPortalUsers";
 import { queries as campaignQueries } from "../../../configs/voucherCampaign/graphql";
 import { getOwnerTypes } from "../../common/constants";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-import SelectClientPortalUser from "../../../common/SelectClientPortalUsers";
+import SelectCampaigns from "../../containers/SelectCampaigns";
+import { IVoucher, IVoucherDoc } from "../types";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -31,6 +30,7 @@ type Props = {
 };
 
 type State = {
+  tagIds: string[];
   voucher: IVoucher;
 };
 
@@ -49,6 +49,7 @@ class VoucherForm extends React.Component<Props, State> {
     }
 
     this.state = {
+      tagIds: [],
       voucher,
     };
   }
@@ -64,6 +65,7 @@ class VoucherForm extends React.Component<Props, State> {
 
     return {
       _id: finalValues._id,
+      tagIds: this.state.tagIds,
       ...this.state.voucher,
     };
   };
@@ -101,9 +103,50 @@ class VoucherForm extends React.Component<Props, State> {
     this.setState({ voucher: { ...voucher, [name]: value } });
   };
 
-  onChangeOwnerId = (ownerId) => {
+  onChangeOwnerId = (ownerIds: string | string[]) => {
     const { voucher } = this.state;
-    this.setState({ voucher: { ...voucher, ownerId } });
+
+    if (ownerIds && !Array.isArray(ownerIds)) {
+      return this.setState({
+        voucher: {
+          ...voucher,
+          ownerId: ownerIds,
+        },
+      });
+    }
+
+    this.setState({
+      voucher: {
+        ...voucher,
+        ownerIds: (ownerIds || []) as string[], 
+      },
+    });
+  };
+
+  renderTag = () => {
+    const { voucher, tagIds } = this.state;
+
+    const { ownerType } = voucher;
+
+    if (ownerType !== "customer" || this.props.voucher) {
+      return null;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>Tag</ControlLabel>
+        <SelectTags
+          initialValue={tagIds}
+          tagsType={`core:${ownerType}`}
+          label="Tags"
+          name="tagIds"
+          multi={true}
+          onSelect={(value) =>
+            this.setState({ tagIds: Array.isArray(value) ? value : [value] })
+          }
+        />
+      </FormGroup>
+    );
   };
 
   renderOwner = () => {
@@ -111,14 +154,16 @@ class VoucherForm extends React.Component<Props, State> {
 
     const { ownerType } = voucher;
 
+    const initialValue = this.props.voucher ? voucher.ownerId : voucher.ownerIds;
+
     switch (ownerType) {
       case "customer":
         return (
           <SelectCustomers
             label="Customer"
             name="ownerId"
-            multi={false}
-            initialValue={voucher.ownerId}
+            multi={!this.props.voucher}
+            initialValue={initialValue}
             onSelect={this.onChangeOwnerId}
           />
         );
@@ -127,8 +172,8 @@ class VoucherForm extends React.Component<Props, State> {
           <SelectTeamMembers
             label="Team member"
             name="ownerId"
-            multi={false}
-            initialValue={voucher.ownerId}
+            multi={!this.props.voucher}
+            initialValue={initialValue}
             onSelect={this.onChangeOwnerId}
           />
         );
@@ -137,8 +182,8 @@ class VoucherForm extends React.Component<Props, State> {
           <SelectCompanies
             label="Company"
             name="ownerId"
-            multi={false}
-            initialValue={voucher.ownerId}
+            multi={!this.props.voucher}
+            initialValue={initialValue}
             onSelect={this.onChangeOwnerId}
           />
         );
@@ -148,8 +193,8 @@ class VoucherForm extends React.Component<Props, State> {
             <SelectClientPortalUser
               label="Client portal User"
               name="ownerId"
-              multi={false}
-              initialValue={voucher.ownerId}
+              multi={!this.props.voucher}
+              initialValue={initialValue}
               onSelect={this.onChangeOwnerId}
             />
           )
@@ -200,6 +245,8 @@ class VoucherForm extends React.Component<Props, State> {
               ))}
             </FormControl>
           </FormGroup>
+
+          {this.renderTag()}
 
           <FormGroup>
             <ControlLabel required={true}>Owner</ControlLabel>

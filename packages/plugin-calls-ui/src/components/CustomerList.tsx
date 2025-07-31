@@ -13,9 +13,10 @@ type Props = {
   disabled: boolean;
   phoneNumber: string;
   conversationId: string;
+  setCustomer: any;
 };
 const CustomerList = (props: Props) => {
-  const { inboxId, disabled, phoneNumber, conversationId } = props;
+  const { inboxId, disabled, phoneNumber, conversationId, setCustomer } = props;
 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
@@ -29,6 +30,7 @@ const CustomerList = (props: Props) => {
         closeModal={handleClose}
         phoneNumber={phoneNumber}
         conversationId={conversationId}
+        setCustomer={setCustomer}
       />
     );
   };

@@ -1,8 +1,6 @@
 import { useState } from "react"
 import { paymentTypesAtom } from "@/store/config.store"
 import { useAtomValue } from "jotai"
-
-import { IPaymentType } from "@/types/config.types"
 import { BANK_CARD_TYPES } from "@/lib/constants"
 import { getLocal, getPaymentType, setLocal } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -14,6 +12,7 @@ const GolomtConfig = () => {
   const paymentTypes = useAtomValue(paymentTypesAtom) || []
   const paymentType = getPaymentType(paymentTypes, BANK_CARD_TYPES.GOLOMT)
   const [terminalID, setTerminalID] = useState(getLocal("golomtId") || "")
+  const [portNo, setPortNo] = useState(getLocal("golomtPortNo") || "")
 
   if (!paymentType) {
     return null
@@ -22,6 +21,7 @@ const GolomtConfig = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLocal("golomtId", terminalID)
+    setLocal("golomtPortNo", portNo)
     toast({ description: "Амжилттай" })
   }
 
@@ -35,6 +35,12 @@ const GolomtConfig = () => {
           required
           value={terminalID}
           onChange={(e) => setTerminalID(e.target.value)}
+        />
+        <Input
+          id="golomtPortNo"
+          placeholder="Терминалийн dev-PORT-г оруулана уу"
+          value={portNo}
+          onChange={(e) => setPortNo(e.target.value)}
         />
         <Button className="font-semibold">Хадгалах</Button>
       </div>
