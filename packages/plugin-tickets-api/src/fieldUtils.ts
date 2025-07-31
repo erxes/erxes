@@ -2,14 +2,14 @@ import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import { generateModels, IModels } from './connectionResolver';
 import {
   BOARD_ITEM_EXPORT_EXTENDED_FIELDS,
-  BOARD_ITEM_EXTENDED_FIELDS
+  BOARD_ITEM_EXTENDED_FIELDS,
 } from './constants';
 import { sendCoreMessage } from './messageBroker';
 
 const generateProductsOptions = async (
   name: string,
   label: string,
-  type: string
+  type: string,
 ) => {
   return {
     _id: Math.random(),
@@ -18,15 +18,15 @@ const generateProductsOptions = async (
     type,
     selectionConfig: {
       queryName: 'products',
-      labelField: 'name'
-    }
+      labelField: 'name',
+    },
   };
 };
 
 const generateProductsCategoriesOptions = async (
   name: string,
   label: string,
-  type: string
+  type: string,
 ) => {
   return {
     _id: Math.random(),
@@ -35,8 +35,8 @@ const generateProductsCategoriesOptions = async (
     type,
     selectionConfig: {
       queryName: 'productCategories',
-      labelField: 'name'
-    }
+      labelField: 'name',
+    },
   };
 };
 
@@ -44,7 +44,7 @@ const generateContactsOptions = async (
   name: string,
   label: string,
   type: string,
-  selectionConfig?: any
+  selectionConfig?: any,
 ) => {
   return {
     _id: Math.random(),
@@ -54,8 +54,8 @@ const generateContactsOptions = async (
     selectionConfig: {
       ...selectionConfig,
       labelField: 'primaryEmail',
-      multi: true
-    }
+      multi: true,
+    },
   };
 };
 
@@ -63,7 +63,7 @@ const generateUsersOptions = async (
   name: string,
   label: string,
   type: string,
-  selectionConfig: any
+  selectionConfig: any,
 ) => {
   return {
     _id: Math.random(),
@@ -73,8 +73,8 @@ const generateUsersOptions = async (
     selectionConfig: {
       ...selectionConfig,
       queryName: 'users',
-      labelField: 'email'
-    }
+      labelField: 'email',
+    },
   };
 };
 
@@ -82,7 +82,7 @@ const generateStructuresOptions = async (
   name: string,
   label: string,
   type: string,
-  selectionConfig?: any
+  selectionConfig?: any,
 ) => {
   return {
     _id: Math.random(),
@@ -91,8 +91,8 @@ const generateStructuresOptions = async (
     type,
     selectionConfig: {
       ...selectionConfig,
-      labelField: 'title'
-    }
+      labelField: 'title',
+    },
   };
 };
 
@@ -103,7 +103,7 @@ const getStageOptions = async (models: IModels, pipelineId) => {
   for (const stage of stages) {
     options.push({
       value: stage._id,
-      label: stage.name || ''
+      label: stage.name || '',
     });
   }
 
@@ -112,7 +112,7 @@ const getStageOptions = async (models: IModels, pipelineId) => {
     name: 'stageId',
     label: 'Stage',
     type: 'stage',
-    selectOptions: options
+    selectOptions: options,
   };
 };
 
@@ -123,7 +123,7 @@ const getPipelineLabelOptions = async (models: IModels, pipelineId) => {
   for (const label of labels) {
     options.push({
       value: label._id,
-      label: label.name
+      label: label.name,
     });
   }
 
@@ -132,7 +132,7 @@ const getPipelineLabelOptions = async (models: IModels, pipelineId) => {
     name: 'labelIds',
     label: 'Labels',
     type: 'label',
-    selectOptions: options
+    selectOptions: options,
   };
 };
 
@@ -140,16 +140,16 @@ const generateTagOptions = async (
   subdomain,
   name: string,
   label: string,
-  type: string
+  type: string,
 ) => {
   const options = await sendCoreMessage({
     subdomain,
     action: 'tagFind',
     data: {
-      type: 'tickets:ticket'
+      type: 'tickets:ticket',
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   return {
@@ -159,8 +159,8 @@ const generateTagOptions = async (
     type,
     selectOptions: options.map(({ _id, name }) => ({
       value: _id,
-      label: name
-    }))
+      label: name,
+    })),
   };
 };
 
@@ -207,7 +207,7 @@ export const generateFields = async ({ subdomain, data }) => {
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
         ];
       }
     }
@@ -217,28 +217,28 @@ export const generateFields = async ({ subdomain, data }) => {
     'userId',
     'Created by',
     'user',
-    { multi: false }
+    { multi: false },
   );
 
   const modifiedByOptions = await generateUsersOptions(
     'modifiedBy',
     'Modified by',
     'user',
-    { multi: false }
+    { multi: false },
   );
 
   const assignedUserOptions = await generateUsersOptions(
     'assignedUserIds',
     'Assigned to',
     'user',
-    { multi: false }
+    { multi: false },
   );
 
   const watchedUserOptions = await generateUsersOptions(
     'watchedUserIds',
     'Watched users',
     'user',
-    { multi: true }
+    { multi: true },
   );
 
   const customersOptions = await generateContactsOptions(
@@ -246,8 +246,8 @@ export const generateFields = async ({ subdomain, data }) => {
     'Customers',
     'contact',
     {
-      queryName: 'customers'
-    }
+      queryName: 'customers',
+    },
   );
 
   const companiesOptions = await generateContactsOptions(
@@ -255,44 +255,43 @@ export const generateFields = async ({ subdomain, data }) => {
     'Companies',
     'contact',
     {
-      queryName: 'companies'
-    }
+      queryName: 'companies',
+    },
   );
 
   const branchesOptions = await generateStructuresOptions(
     'branchIds',
     'Branches',
     'structure',
-    { queryName: 'branches' }
+    { queryName: 'branches' },
   );
 
   const departmentsOptions = await generateStructuresOptions(
     'departmentIds',
     'Departments',
     'structure',
-    { queryName: 'departments' }
+    { queryName: 'departments' },
   );
 
   const tagsOptions = await generateTagOptions(
     subdomain,
     'tagIds',
     'Tags',
-    'tags'
+    'tags',
   );
-
   fields = [
     ...fields,
     ...[
       createdByOptions,
       modifiedByOptions,
+      branchesOptions,
       assignedUserOptions,
       watchedUserOptions,
       customersOptions,
       companiesOptions,
-      branchesOptions,
       departmentsOptions,
-      tagsOptions
-    ]
+      tagsOptions,
+    ],
   ];
 
   if (usageType === 'automations') {
@@ -302,68 +301,74 @@ export const generateFields = async ({ subdomain, data }) => {
         _id: Math.random(),
         name: 'createdBy.email',
         label: 'Created by Email',
-        type: 'String'
+        type: 'String',
       },
       {
         _id: Math.random(),
         name: 'createdBy.fullName',
         label: 'Created by Full Name',
-        type: 'String'
+        type: 'String',
       },
       {
         _id: Math.random(),
         name: 'createdBy.phone',
         label: 'Created by Phone',
-        type: 'String'
+        type: 'String',
       },
       {
         _id: Math.random(),
         name: 'createdBy.branch',
         label: 'Created by Branch',
-        type: 'String'
+        type: 'String',
       },
       {
         _id: Math.random(),
         name: 'createdBy.department',
         label: 'Created by Department',
+        type: 'String',
+      },
+      {
+        _id: Math.random(),
+        name: 'createdBy.position',
+        label: 'Created by Position',
         type: 'String'
       },
       {
         _id: Math.random(),
         name: 'customers.email',
         label: 'Customers Email',
-        type: 'String'
+        type: 'String',
       },
       {
         _id: Math.random(),
         name: 'customers.phone',
         label: 'Customers phone',
-        type: 'String'
+        type: 'String',
       },
       {
         _id: Math.random(),
         name: 'customers.fullName',
         label: 'Customers FullName',
-        type: 'String'
+        type: 'String',
       },
       {
         _id: Math.random(),
         name: 'link',
         label: 'Link',
-        type: 'String'
+        type: 'String',
       },
       {
         _id: Math.random(),
         name: 'pipelineLabels',
         label: 'Pipeline Labels',
-        type: 'String'
+        type: 'String',
       },
       {
         _id: Math.random(),
         name: 'branches.title',
         label: 'Branches title',
-        type: 'String'
-      }
+        type: 'String',
+      },
     ];
   }
 
@@ -371,21 +376,20 @@ export const generateFields = async ({ subdomain, data }) => {
     const productOptions = await generateProductsOptions(
       'productsData.productId',
       'Product',
-      'product'
+      'product',
     );
 
     const productsCategoriesOptions = await generateProductsCategoriesOptions(
       'productsData.categoryId',
       'Product Categories',
-      'select'
+      'select',
     );
 
     fields = [
       ...fields,
-      ...[productOptions, productsCategoriesOptions, assignedUserOptions]
+      ...[productOptions, productsCategoriesOptions, assignedUserOptions],
     ];
   }
-
   if (type === 'ticket' && usageType === 'export') {
     const extendFieldsExport = [
       { _id: Math.random(), name: 'productsData.name', label: 'Product Name' },
@@ -394,8 +398,8 @@ export const generateFields = async ({ subdomain, data }) => {
       {
         _id: Math.random(),
         name: 'productsData.department',
-        label: 'Department'
-      }
+        label: 'Department',
+      },
     ];
 
     fields = [...fields, ...extendFieldsExport];
@@ -405,7 +409,7 @@ export const generateFields = async ({ subdomain, data }) => {
     const extendExport = [
       { _id: Math.random(), name: 'boardId', label: 'Board' },
       { _id: Math.random(), name: 'pipelineId', label: 'Pipeline' },
-      { _id: Math.random(), name: 'labelIds', label: 'Label' }
+      { _id: Math.random(), name: 'labelIds', label: 'Label' },
     ];
 
     fields = [...fields, ...extendExport];
@@ -417,18 +421,18 @@ export const generateFields = async ({ subdomain, data }) => {
           subdomain,
           action: 'segmentFindOne',
           data: { _id: segmentId },
-          isRPC: true
+          isRPC: true,
         })
       : null;
 
     const labelOptions = await getPipelineLabelOptions(
       models,
-      pipelineId || (segment ? segment.pipelineId : null)
+      pipelineId || (segment ? segment.pipelineId : null),
     );
 
     const stageOptions = await getStageOptions(
       models,
-      pipelineId || (segment ? segment.pipelineId : null)
+      pipelineId || (segment ? segment.pipelineId : null),
     );
 
     fields = [...fields, stageOptions, labelOptions];
@@ -437,7 +441,7 @@ export const generateFields = async ({ subdomain, data }) => {
       _id: Math.random(),
       name: 'stageId',
       label: 'Stage',
-      type: 'stage'
+      type: 'stage',
     };
 
     fields = [...fields, stageOptions];

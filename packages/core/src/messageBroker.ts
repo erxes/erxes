@@ -564,6 +564,17 @@ export const setupMessageConsumers = async (): Promise<void> => {
     };
   });
 
+  consumeRPCQueue('core:positions.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { query } = data;
+
+    return {
+      status: 'success',
+      data: await models.Positions.find(query).lean(),
+    };
+  });
+
   consumeRPCQueue('core:branches.aggregate', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

@@ -222,6 +222,7 @@ export const ebarimtProductGroupFields = `
   modifiedBy
   mainProductId
   subProductId
+  sortNum
   ratio
   isActive
 

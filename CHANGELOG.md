@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.15.8](https://github.com/erxes/erxes/compare/2.15.7...2.15.8) (2025-07-31)
+
+### Bug Fixes
+
+* correct data structure in getRelatedValue automation ([6dea839](https://github.com/erxes/erxes/commit/6dea83972c41fb170c215baf0db0e77a21e54d66))
+
+## [2.15.7](https://github.com/erxes/erxes/compare/2.15.6...2.15.7) (2025-07-30)
+
+### Features
+
+* implement email automation features ([4eea104](https://github.com/erxes/erxes/commit/4eea104cf288e5a64ae065ff69f23b26324fe0d1))
+
+## [2.15.6](https://github.com/erxes/erxes/compare/2.15.5...2.15.6) (2025-07-30)
+
+### Bug Fixes
+
+* ebarimt group products with sortNumber ([63ad4ab](https://github.com/erxes/erxes/commit/63ad4ab21d3c3e9e2458eed794e56988978b5ead))
+
 ## [2.15.5](https://github.com/erxes/erxes/compare/2.15.4...2.15.5) (2025-07-29)
 
 ### Features

@@ -1,6 +1,4 @@
-import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
 import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
-import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
 import {
   Button,
   ControlLabel,
@@ -16,8 +14,7 @@ import {
   IButtonMutateProps,
   IFormProps,
 } from "@erxes/ui/src/types";
-import React, { useEffect, useState } from "react";
-import { TAX_TYPES } from "../constants";
+import React, { useState } from "react";
 import { IEbarimtProductGroup, IEbarimtProductGroupDoc } from "../types";
 
 type Props = {
@@ -27,6 +24,7 @@ type Props = {
 };
 
 type State = {
+  sortNum: number;
   mainProductId?: string;
   subProductId?: string;
   ratio?: number;
@@ -36,7 +34,7 @@ type State = {
 const ProductGroupForm = (props: Props) => {
   const { productGroup, closeModal, renderButton } = props;
 
-  const [state, setState] = useState<State>(productGroup || { isActive: true });
+  const [state, setState] = useState<State>(productGroup || { isActive: true, sortNum: 1 });
 
   const generateDoc = (values: { _id: string } & IEbarimtProductGroupDoc) => {
     const finalValues = values;
@@ -48,6 +46,8 @@ const ProductGroupForm = (props: Props) => {
     return {
       _id: finalValues._id,
       ...state,
+      ratio: state.ratio && Number(state.ratio) || 0,
+      sortNum: Number(state.sortNum) || 1,
     };
   };
 
@@ -95,6 +95,11 @@ const ProductGroupForm = (props: Props) => {
                 multi={false}
               />
             </FormGroup>
+            {renderFormGroup('sortNum', 'Sort Number', {
+              ...formProps,
+              type: 'number',
+              value: Number(state.sortNum) || 0,
+            })}
             {renderFormGroup('ratio', 'Ratio', {
               ...formProps,
               type: 'number',

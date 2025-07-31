@@ -3143,7 +3143,7 @@ export const dealCharts = [
 
       return {
         title,
-        ...buildData({ chartType, data: deals, filter, type: "deal" }),
+        ...await buildData({ chartType, data: deals, filter, type: "deal", subdomain }),
         ...buildOptions(filter),
       };
     },

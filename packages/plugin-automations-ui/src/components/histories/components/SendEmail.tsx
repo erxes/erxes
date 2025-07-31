@@ -1,7 +1,7 @@
-import React from 'react';
-import EmailTemplate from '@erxes/ui-emailtemplates/src/components/EmailTemplate';
-import { ControlLabel, FormGroup, Label, Tip, __ } from '@erxes/ui/src';
-import { LabelContainer } from '../styles';
+import React from "react";
+import EmailTemplate from "@erxes/ui-emailtemplates/src/components/EmailTemplate";
+import { ControlLabel, FormGroup, Label, Tip, __ } from "@erxes/ui/src";
+import { LabelContainer } from "../styles";
 
 type Props = {
   result: any;
@@ -19,50 +19,51 @@ class SendEmail extends React.Component<Props> {
 
     return (
       <FormGroup>
-        <ControlLabel>{__('Email Template')}</ControlLabel>
+        <ControlLabel>{__("Email Template")}</ControlLabel>
         <EmailTemplate
           templateId={actionConfig?.templateId}
           template={{ content: result.customHtml }}
           onlyPreview
+          refetch={() => null}
         />
       </FormGroup>
     );
   }
 
-  renderEmails({ fromEmail, title, responses }) {
-    const getLabelColor = response => {
+  renderEmails({ fromEmail, title, responses, ccEmails = [] }) {
+    const getLabelColor = (response) => {
       if (response?.messageId) {
-        return 'success';
+        return "success";
       }
       if (response?.error) {
-        return 'danger';
+        return "danger";
       }
-      return 'default';
+      return "default";
     };
 
-    const getLabelText = response => {
+    const getLabelText = (response) => {
       if (response.error) {
-        return typeof response?.error === 'object'
+        return typeof response?.error === "object"
           ? JSON.stringify(response.error || {})
           : `${response?.error}`;
       }
 
       if (response.messageId) {
-        return 'Sent';
+        return "Sent";
       }
 
-      return '';
+      return "";
     };
 
     return (
       <ul>
         <li>
           <strong>From: </strong>
-          {`${fromEmail || ''}`}
+          {`${fromEmail || ""}`}
         </li>
         <li>
           <strong>Subject: </strong>
-          {`${title || ''}`}
+          {`${title || ""}`}
         </li>
         <li>
           <LabelContainer>
@@ -70,9 +71,15 @@ class SendEmail extends React.Component<Props> {
             {responses.map((response, i) => (
               <Tip key={i} text={getLabelText(response)}>
                 <Label lblStyle={getLabelColor(response)}>
-                  {response?.toEmail || ''}
+                  {response?.toEmail || ""}
                 </Label>
               </Tip>
+            ))}
+            <strong>CC:</strong>
+            {ccEmails.map((ccEmail) => (
+              <Label key={ccEmail} lblStyle='simple'>
+                {ccEmail || ""}
+              </Label>
             ))}
           </LabelContainer>
         </li>

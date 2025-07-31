@@ -10,10 +10,12 @@ type Props = {
   closeModal: () => void;
   phoneNumber: string;
   conversationId: string;
+  setCustomer: any;
 };
 
 const SelectCustomerContainer = (props: Props) => {
-  const { inboxId, closeModal, phoneNumber, conversationId } = props;
+  const { inboxId, closeModal, phoneNumber, conversationId, setCustomer } =
+    props;
 
   const { data, loading: customersLoading } = useQuery(
     gql(queries.callCustomers),
@@ -53,6 +55,9 @@ const SelectCustomerContainer = (props: Props) => {
 
       if (response.data?.callSelectCustomer === 'failed') {
         Alert.error('Failed to save customer');
+      }
+      if (response.data?.callSelectCustomer?.firstName) {
+        setCustomer(response.data?.callSelectCustomer);
       } else {
         Alert.success(`Save to customer ${selectedCustomer.firstName}`);
         closeModal();

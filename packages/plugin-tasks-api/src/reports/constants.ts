@@ -245,3 +245,26 @@ export const PRIORITY = [
   { label: 'Medium', value: 'Medium' },
   { label: 'Low', value: 'Low' },
 ];
+
+export const FIELD_TYPES = {
+  product: {
+    action: 'products',
+    query: (fields: string[]) => ({ query: { _id: { $in: fields } } })
+  },
+  customer: {
+    action: 'customers',
+    query: (fields: string[]) => ({ _id: { $in: fields } })
+  },
+  users: {
+    action: 'users',
+    query: (fields: string[]) => ({ query: { _id: { $in: fields } } })
+  },
+  branch: {
+    action: 'branches',
+    query: (fields: string[]) => ({ query: { _id: { $in: fields } } })
+  },
+  department: {
+    action: 'departments',
+    query: (fields: string[]) => ({ _id: { $in: fields } })
+  }
+};

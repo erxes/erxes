@@ -1,9 +1,9 @@
-import { sendCoreMessage, sendInboxMessage } from "../messageBroker";
-import { PROBABILITY_CLOSED, PROBABILITY_OPEN, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP } from './constants';
-import { IModels } from "../connectionResolver";
+import { getService, getServices, isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import * as dayjs from 'dayjs';
 import * as isoWeek from 'dayjs/plugin/isoWeek';
-import { getService, getServices, isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+import { IModels } from "../connectionResolver";
+import { sendCoreMessage, sendInboxMessage } from "../messageBroker";
+import { COLLECTION_MAP, DIMENSION_MAP, FIELD_MAP, FIELD_TYPES, PROBABILITY_CLOSED, PROBABILITY_OPEN } from './constants';
 const util = require('util');
 
 dayjs.extend(isoWeek);
@@ -279,6 +279,17 @@ export const buildPipeline = (filter, type, matchFilter) => {
       },
       {
         $unwind: "$customFieldValues"
+      },
+      {
+        $lookup: {
+          from: "form_fields",
+          localField: "customFieldsData.field",
+          foreignField: "_id",
+          as: "field"
+        }
+      },
+      {
+        $unwind: "$field"
       },
     );
   }
@@ -644,7 +655,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     }
   }
 
-  if (dimensions.includes("card") || dimensions.includes("number")) {
+  if (dimensions.includes("card") || dimensions.includes("number") || dimensions.includes("field")) {
     groupKey.$group.doc = { $first: "$$ROOT" };
   }
 
@@ -1062,6 +1073,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
   if (dimensions.includes("field")) {
     projectionFields.field = "$_id.field"
+    projectionFields.fieldObject = "$doc.field"
   }
 
   if (dimensions.includes("card")) {
@@ -1760,11 +1772,70 @@ export const formatFrequency = (frequencyType, frequency) => {
   return format
 }
 
-export const formatData = (data, filter, type) => {
+const fieldFormatter = async (data, filter, subdomain) => {
+
+  const { dimension = [] } = filter || {}
+
+  if(!dimension.includes("field")) {
+    return {}
+  }
+
+  const moduleFields = {}
+
+  for (const item of data) {
+    if (!item['field']) {
+      continue
+    }
+
+    const { field = '', fieldObject = {} } = item || {}
+
+    if (!field || !fieldObject.type) {
+      continue
+    }
+
+    const fieldTypes = Object.keys(FIELD_TYPES)
+
+    if (field && fieldTypes.includes(fieldObject.type)) {
+
+      if (!moduleFields[fieldObject.type]) {
+        moduleFields[fieldObject.type] = []
+      }
+
+      moduleFields[fieldObject.type].push(field)
+    }
+  }
+
+  const moduleValues = {}
+
+  for (const key of Object.keys(moduleFields)) {
+    const fields = moduleFields[key];
+  
+    const { action, query } = FIELD_TYPES[key];
+    const data = query(fields) || {};
+  
+    if (Object.keys(data).length) {
+      const values = await sendCoreMessage({
+        subdomain,
+        action: `${action}.find`,
+        data,
+        isRPC: true,
+        defaultValue: []
+      });
+  
+      moduleValues[key] = values;
+    }
+  }
+
+  return moduleValues
+}
+
+export const formatData = async (data, filter, type, subdomain) => {
 
   const { dateRange, startDate, endDate, frequencyType } = filter
 
   const formattedData = [...data]
+
+  const fieldValues = await fieldFormatter(formattedData, filter, subdomain) || {}
 
   formattedData.forEach(item => {
 
@@ -1802,16 +1873,29 @@ export const formatData = (data, filter, type) => {
 
       ['boardId', 'pipelineId', 'itemId'].forEach((key) => delete item[key]);
     }
+
+    if (item.hasOwnProperty('field') && item.hasOwnProperty('fieldObject')) {
+      
+      const { type = '' } = item['fieldObject'] || {}
+
+      const fields = fieldValues[type]
+
+      if (fields?.length) {
+        const field = fields.find(field => field._id === item.field) || {}
+
+        item.field = field?.title || field?.name || field?.firstName || field?.details?.fullName || field?.email
+      }
+    }
   })
 
   return formattedData
 }
 
-export const buildData = ({ chartType, data, filter, type }) => {
+export const buildData = async ({ chartType, data, filter, type, subdomain }) => {
 
   const { measure, dimension, rowDimension, colDimension } = filter
 
-  const formattedData = formatData(data, filter, type);
+  const formattedData = await formatData(data, filter, type, subdomain);
 
   switch (chartType) {
     case 'bar':
