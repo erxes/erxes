@@ -119,6 +119,15 @@ export const setupMessageConsumers = async () => {
     }
   );
 
+  consumeQueue(
+    "clientportal:changeCustomer",
+    async ({ subdomain, data: { customerId, customerIds } }) => {
+      const models = await generateModels(subdomain);
+
+      await models.ClientPortalUsers.changeCustomer(customerId, customerIds);
+    }
+  );
+  
   /**
    * Send notification to client portal
    * @param {Object} data

@@ -78,7 +78,10 @@ const IncomingCall = (props: Props, context) => {
     currentCallConversationId,
     inboxId,
   } = props;
-  const primaryPhone = customer?.primaryPhone || '';
+
+  const [customerDetail, setCustomer] = useState(customer);
+
+  const primaryPhone = customerDetail?.primaryPhone || '';
 
   const navigate = useNavigate();
 
@@ -237,13 +240,13 @@ const IncomingCall = (props: Props, context) => {
     const inCall = type === 'incall' ? true : false;
     const hasChannel = channels?.length > 0;
     const channelName = channels?.[0]?.name || '';
-    const fullName = renderFullName(customer || '', false);
+    const fullName = renderFullName(customerDetail || '', false);
     const hasGroupName = call.groupName || '';
 
     return (
       <NameCardContainer>
         <h5>{__('Call')}</h5>
-        <Avatar user={customer} size={inCall ? 72 : 30} />
+        <Avatar user={customerDetail} size={inCall ? 72 : 30} />
         <h4>{fullName === 'Unknown' ? phoneNumber : fullName}</h4>
         {primaryPhone && (
           <PhoneNumber>
@@ -325,6 +328,7 @@ const IncomingCall = (props: Props, context) => {
               ? false
               : true,
             onClickKeyPad,
+            setCustomer,
           )}
         </>
       );

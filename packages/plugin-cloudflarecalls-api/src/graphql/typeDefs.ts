@@ -31,40 +31,8 @@ const types = `
     ${integrationCommonFields}
   }
 
-  type CallChannel {
-    _id: String!
-    name: String!
-    description: String
-    integrationIds: [String]
-    memberIds: [String]
-    createdAt: Date
-    userId: String!
-    conversationCount: Int
-    openConversationCount: Int
 
-    members: [User]
-  }
-
-  type CallConversation {
-    _id: String 
-    erxesApiId: String
-    integrationId: String
-    customerPhone: String
-    operatorPhone: String
-    callId: String
-    channels: [CallChannel]
-  }
-
-  type CallConversationDetail {
-    customer: Customer
-    channels: [CallChannel]
-  }
-  type CallActiveSession {
-    _id: String
-    userId: String
-    lastLoginDeviceId: String
-  }
-   type CallHistory {
+   type CloudflareCallHistory {
     _id: String
     operatorPhone: String
     customerPhone: String
@@ -113,20 +81,6 @@ export const subscriptions = `
   cloudflareReceivedCall(roomState: String, audioTrack: String): CloudflareCall
   `;
 
-const commonHistoryFields = `
-  operatorPhone: String
-  customerPhone: String
-  callDuration: Int
-  callStartTime: Date
-  callEndTime: Date
-  callType: String
-  callStatus: String
-  timeStamp: Float
-  inboxIntegrationId: String
-  transferedCallStatus: String
-  endedBy: String
-`;
-
 const mutationFilterParams = `
   callStatus: String
   callType: String
@@ -145,7 +99,7 @@ const queries = `
   cloudflareCallsIntegrationDetail(integrationId: String!): CloudflareCallsIntegrationDetailResponse
   cloudflareCallsUserIntegrations: [CloudflareCallsIntegrationDetailResponse]
   cloudflareCallsCustomerDetail(customerPhone: String): Customer
-  cloudflareCallsHistories(${filterParams}, skip: Int): [CallHistory]
+  cloudflareCallsHistories(${filterParams}, skip: Int): [CloudflareCallHistory]
   cloudflareCallsHistoriesTotalCount(${filterParams}, skip: Int): Int
   cloudflareCallsGetConfigs: JSON
   cloudflareCallsGetIntegrations: [CloudflareIntegration]

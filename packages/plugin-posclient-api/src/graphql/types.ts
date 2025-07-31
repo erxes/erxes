@@ -9,7 +9,7 @@ export interface IContext {
   res: express.Response;
   requestInfo: any;
   user: IUserDocument;
-  posUser: IPosUserDocument;
+  posUser?: IPosUserDocument;
   config: IConfigDocument;
   models: IModels;
   subdomain: string;

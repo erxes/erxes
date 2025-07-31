@@ -1,3 +1,4 @@
+import { Icon, ModalTrigger } from '@erxes/ui/src';
 import {
   Actions,
   IframeFullScreen,
@@ -6,11 +7,11 @@ import {
   TemplateBox,
   TemplateBoxInfo,
   TemplateInfo
-} from "../styles";
-import { Icon, ModalTrigger } from "@erxes/ui/src";
+} from '../styles';
 
-import React from "react";
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
+import React from 'react';
+import { IEmailTemplate } from '../types';
 
 type Props = {
   handleSelect?: (_id: string) => void;
@@ -19,6 +20,11 @@ type Props = {
   selectedTemplateId?: string;
   onlyPreview?: boolean;
   width?: string;
+  additionalAction?: (
+    template: IEmailTemplate,
+    refetch: () => void
+  ) => JSX.Element;
+  refetch: () => void;
 };
 
 const EmailTemplate = (props: Props) => {
@@ -28,32 +34,34 @@ const EmailTemplate = (props: Props) => {
     handleSelect,
     templateId,
     onlyPreview,
-    width
+    width,
+    additionalAction,
+    refetch
   } = props;
   const { _id, name, createdAt, modifiedAt, createdUser, content } = template;
 
   const renderDate = (createdAt, modifiedAt) => {
     if (createdAt === modifiedAt) {
       if (createdAt === null) {
-        return "-";
+        return '-';
       }
 
-      return dayjs(createdAt).format("DD MMM YYYY");
+      return dayjs(createdAt).format('DD MMM YYYY');
     }
 
-    return dayjs(modifiedAt).format("DD MMM YYYY");
+    return dayjs(modifiedAt).format('DD MMM YYYY');
   };
 
-  const renderView = content => {
+  const renderView = (content) => {
     const trigger = (
       <div>
-        <Icon icon="eye" /> View
+        <Icon icon='eye' /> View
       </div>
     );
     const form = () => {
       return (
         <IframeFullScreen>
-          <iframe title="content-iframe" srcDoc={content} />
+          <iframe title='content-iframe' srcDoc={content} />
         </IframeFullScreen>
       );
     };
@@ -63,8 +71,8 @@ const EmailTemplate = (props: Props) => {
         content={form}
         trigger={trigger}
         hideHeader={true}
-        title=""
-        size="lg"
+        title=''
+        size='lg'
       />
     );
   };
@@ -72,10 +80,11 @@ const EmailTemplate = (props: Props) => {
   const renderActions = () => {
     return (
       <Actions>
+        {additionalAction && additionalAction(template, refetch)}
         {renderView(content)}
         {!onlyPreview && (
           <div onClick={handleSelect && handleSelect.bind(this, templateId)}>
-            <Icon icon="clicker" /> Select
+            <Icon icon='clicker' /> Select
           </div>
         )}
       </Actions>
@@ -85,14 +94,14 @@ const EmailTemplate = (props: Props) => {
   return (
     <Template
       key={_id}
-      className={selectedTemplateId === _id ? "active" : ""}
+      className={selectedTemplateId === _id ? 'active' : ''}
       width={width}
       isPreview={onlyPreview}
     >
       <TemplateBox>
         {renderActions()}
         <IframePreview>
-          <iframe title="content-iframe" srcDoc={content} />
+          <iframe title='content-iframe' srcDoc={content} />
         </IframePreview>
       </TemplateBox>
       <TemplateBoxInfo>

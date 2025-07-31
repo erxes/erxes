@@ -9,8 +9,8 @@ import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import CustomCode from './subForms/CustomCode';
 import Delay from './subForms/Delay';
 import { renderDynamicComponent } from '../../../utils';
-import SendMail from './subForms/SendMail';
 import WorkFlow from '../../../containers/forms/actions/subForms/Workflow';
+import SendEmail from './subForms/sendEmail';
 type Props = {
   onSave: () => void;
   closeModal: () => void;
@@ -31,7 +31,7 @@ const renderExtraContent = (props) => {
     setProperty: <SetProperty {...props} />,
     if: <IfForm {...props} />,
     customCode: <CustomCode {...props} />,
-    sendEmail: <SendMail {...props} />,
+    sendEmail: <SendEmail {...props} />,
     workflow: <WorkFlow {...props} />
   };
 
@@ -69,15 +69,15 @@ class DefaultForm extends React.Component<Props> {
         </div>
         <ModalFooter>
           <Button
-            btnStyle="simple"
-            size="small"
-            icon="times-circle"
+            btnStyle='simple'
+            size='small'
+            icon='times-circle'
             onClick={closeModal}
           >
             {__('Cancel')}
           </Button>
 
-          <Button btnStyle="success" icon="checked-1" onClick={onSave}>
+          <Button btnStyle='success' icon='checked-1' onClick={onSave}>
             Saves
           </Button>
         </ModalFooter>

@@ -67,7 +67,7 @@ export const setupMessageConsumers = async () => {
 
   consumeRPCQueue(
     "ebarimt:putresponses.returnBill",
-    async ({ subdomain, data: { contentType, contentId, number, config } }) => {
+    async ({ subdomain, data: { contentType, contentId, number, config, user } }) => {
       const models = await generateModels(subdomain);
       const mainConfig = {
         ...(await getConfig(subdomain, "EBARIMT", {})),
@@ -78,7 +78,8 @@ export const setupMessageConsumers = async () => {
         status: "success",
         data: await models.PutResponses.returnBill(
           { contentType, contentId, number },
-          mainConfig
+          mainConfig,
+          user
         )
       };
     }

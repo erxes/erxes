@@ -2,7 +2,7 @@ import * as _ from "underscore";
 import {
   putCreateLog as commonPutCreateLog,
   putDeleteLog as commonPutDeleteLog,
-  putUpdateLog as commonPutUpdateLog
+  putUpdateLog as commonPutUpdateLog,
 } from "@erxes/api-utils/src/logUtils";
 
 import { generateModels, IModels } from "./connectionResolver";
@@ -42,7 +42,7 @@ export const putCreateLog = async (
     subdomain,
     {
       ...params,
-      type: `pms:${params.type}`
+      type: `pms:${params.type}`,
     },
     user
   );
@@ -63,7 +63,7 @@ export const putUpdateLog = async (
     subdomain,
     {
       ...params,
-      type: `pms:${params.type}`
+      type: `pms:${params.type}`,
     },
     user
   );
@@ -90,14 +90,14 @@ export default {
   collectItems: async ({ subdomain, data }) => {
     const { contentId } = data;
     console.log("logs pms", data);
-    const customer = await sendCoreMessage({
-      subdomain,
-      action: "customers.findOne",
-      isRPC: true,
-      data: {
-        _id: contentId
-      }
-    });
+    // const customer = await sendCoreMessage({
+    //   subdomain,
+    //   action: "customers.findOne",
+    //   isRPC: true,
+    //   data: {
+    //     _id: contentId
+    //   }
+    // });
 
     // if (!customer?.primaryPhone) {
     //   return {
@@ -136,7 +136,7 @@ export default {
     // }
     return {
       status: "success",
-      data: []
+      data: [],
     };
-  }
+  },
 };

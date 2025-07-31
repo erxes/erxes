@@ -7,7 +7,7 @@ import usePaymentType from "./usePaymentType"
 export const initialData = {
   operationCode: "26",
   amount: "0",
-  bandwidth: "115200",
+  bandWidth: "115200",
   timeout: "540000",
   currencyCode: "496",
   cMode: "",
@@ -16,6 +16,7 @@ export const initialData = {
   cardEntryMode: "",
   fileData: "",
   requestID: "0",
+  portNo: "9",
 }
 
 const GOLOMT_DEFAULT_PATH = "http://localhost:8500"
@@ -27,6 +28,7 @@ export const endPoint = (data: object, path?: string) =>
   `${formatPath(path)}/requestToPos/message?data=${convertToBase64(data)}`
 
 const terminalID = getLocal("golomtId")
+const devicePortNo = getLocal("golomtPortNo")
 
 const useGolomt = () => {
   const { type } = usePaymentType(BANK_CARD_TYPES.GOLOMT) || {}
@@ -43,6 +45,9 @@ export const useGolomtTransaction = (options: {
   const { port } = config || {}
 
   const sendData = { ...initialData, ...config, terminalID }
+  if (devicePortNo) {
+    sendData.portNo = devicePortNo;
+  }
 
   const sendTransaction = async (variables: {
     _id: string
