@@ -498,7 +498,6 @@ const generateRelatedValueUserProps = ({
           }
         }
 
-        // keep the user in all other cases
         return true;
       }
 
