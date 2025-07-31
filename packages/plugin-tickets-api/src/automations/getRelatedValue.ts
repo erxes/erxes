@@ -394,7 +394,7 @@ const generateCreatedByFieldValue = async ({
     const departments = await sendCoreMessage({
       subdomain,
       action: "departments.find",
-      data: { query:{_id: {$in:user?.departmentIds || []}} },
+      data: { _id: {$in:user?.departmentIds || []} },
       isRPC: true,
       defaultValue: [],
     });
