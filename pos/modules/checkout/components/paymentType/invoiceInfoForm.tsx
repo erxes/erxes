@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { userNameAtom, userBankAddressAtom, accountTypeAtom, companyRegisterAtom } from "@/store";
+import { userNameAtom, userBankAddressAtom, accountTypeAtom, companyRegisterAtom, invoiceExpiryDaysAtom } from "@/store";
 
 interface UserInfoFormProps {
   onSubmit: () => void;
@@ -18,6 +18,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, onCancel }) => {
   const [userBankAddress, setUserBankAddress] = useAtom(userBankAddressAtom);
   const [accountType, setAccountType] = useAtom(accountTypeAtom);
   const [companyRegister, setCompanyRegister] = useAtom(companyRegisterAtom);
+  const [expiryDays, setExpiryDays] = useAtom(invoiceExpiryDaysAtom);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +40,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, onCancel }) => {
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="accountType" className="text-black">Type</Label>
+            <Label htmlFor="accountType" className="text-black">Account Type</Label>
             <Select value={accountType} onValueChange={(value: AccountType) => setAccountType(value)}>
               <SelectTrigger className="mt-1 text-black">
                 <SelectValue placeholder="Select account type" />
@@ -82,13 +83,28 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, onCancel }) => {
           )}
           
           <div>
-            <Label htmlFor="bankAddress" className="text-black">Bank Account</Label>
+            <Label htmlFor="bankAddress" className="text-black">Bank Address</Label>
             <Input
               id="bankAddress"
               type="text"
               value={userBankAddress}
               onChange={(e) => setUserBankAddress(e.target.value)}
               placeholder="Enter your bank address"
+              className="mt-1 text-black"
+              required
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="expiryDays" className="text-black">Payment Deadline (Days)</Label>
+            <Input
+              id="expiryDays"
+              type="number"
+              min="1"
+              max="365"
+              value={expiryDays}
+              onChange={(e) => setExpiryDays(Number(e.target.value))}
+              placeholder="Enter payment deadline in days"
               className="mt-1 text-black"
               required
             />
@@ -100,7 +116,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, onCancel }) => {
               className="flex-1"
               disabled={!isFormValid()}
             >
-              Create invoice
+              Нэхэмжлэл үүсгэх
             </Button>
             <Button 
               type="button"

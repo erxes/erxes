@@ -55,6 +55,7 @@ export const userNameAtom = atomWithStorage<string>("userName", "");
 export const userBankAddressAtom = atomWithStorage<string>("userBankAddress", "");
 export const accountTypeAtom = atomWithStorage<'person' | 'company'>('accountType', 'person');
 export const companyRegisterAtom = atomWithStorage<string>('companyRegister', '');
+export const invoiceExpiryDaysAtom = atomWithStorage<number>('invoiceExpiryDays', 14);
 
 export const printModalOpenAtom = atom<boolean>(false)
 

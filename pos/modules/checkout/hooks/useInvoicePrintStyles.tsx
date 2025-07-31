@@ -27,7 +27,7 @@ const printTheme = {
   },
 } as const
 
-export const usePrintStyles = () => {
+export const useInvoicePrintStyles = () => {
   return useMemo(() => ({
     userInfo: {
       container: {

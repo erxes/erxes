@@ -8,24 +8,26 @@ import {
   userNameAtom, 
   userBankAddressAtom, 
   companyRegisterAtom, 
-  accountTypeAtom 
+  accountTypeAtom,
+  invoiceExpiryDaysAtom
 } from "@/store"
 import { formatNum } from "@/lib/utils"
 import { totalAmountAtom, cartAtom } from "@/store/cart.store"
-import { usePrintStyles } from "../../hooks/usePrintStyles"
+import { useInvoicePrintStyles } from "../../hooks/useInvoicePrintStyles"
 
-const UserInfo = () => {
+const InvoiceInfo = () => {
   const userName = useAtomValue(userNameAtom)
   const userBankAddress = useAtomValue(userBankAddressAtom)
   const company = useAtomValue(companyRegisterAtom)
   const accountType = useAtomValue(accountTypeAtom)
+  const expiryDays = useAtomValue(invoiceExpiryDaysAtom)
   const total = useAtomValue(totalAmountAtom)
   const cartItems = useAtomValue(cartAtom)
 
-  const { userInfo, table, columnWidths } = usePrintStyles()
+  const { userInfo, table, columnWidths } = useInvoicePrintStyles()
 
   const transactionDate = useMemo(() => new Date(), [])
-  const deadlineDate = useMemo(() => addDays(transactionDate, 14), [transactionDate])
+  const deadlineDate = useMemo(() => addDays(transactionDate, expiryDays), [transactionDate, expiryDays])
   const isCompany = accountType === "company"
   
   return (
@@ -168,7 +170,7 @@ const UserInfo = () => {
               {deadlineDate.toLocaleDateString()}
             </p>
             <p style={userInfo.deadlineNote}>
-              (14 хоногийн дотор төлнө үү)
+              ({expiryDays} хоногийн дотор төлнө үү)
             </p>
           </div>
         </div>
@@ -184,4 +186,4 @@ const UserInfo = () => {
   )
 }
 
-export default UserInfo
+export default InvoiceInfo

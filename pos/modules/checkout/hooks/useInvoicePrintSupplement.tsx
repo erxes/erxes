@@ -3,7 +3,7 @@ import { useRef, useEffect } from "react"
 import { printModalOpenAtom, userBankAddressAtom, userNameAtom } from "@/store"
 import { createPrintDocument, replaceTemplateVariables } from "../utils/printUtils"
 
-export const usePrintDocument = () => {
+export const useInvoicePrintSupplement = () => {
   const userName = useAtomValue(userNameAtom)
   const userBankAddress = useAtomValue(userBankAddressAtom)
   const setPrintOpen = useSetAtom(printModalOpenAtom)
