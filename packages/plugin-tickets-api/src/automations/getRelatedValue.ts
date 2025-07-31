@@ -272,7 +272,8 @@ const generateCustomFieldsDataValue = async ({
   }
 
   if (field?.type === "users") {
-    const users: IUser[] = await sendCoreMessage({
+    console.log({ cusIds: customFieldData?.value });
+    const users = await sendCoreMessage({
       subdomain,
       action: "users.find",
       data: {
@@ -282,13 +283,19 @@ const generateCustomFieldsDataValue = async ({
       defaultValue: [],
     });
 
+    console.log({ relatedValueProps, targetKey });
+
     if (!!relatedValueProps[targetKey]) {
       const { key, filter } = relatedValueProps[targetKey] || {};
+
+      console.log({ users: JSON.stringify(users) });
 
       const result = users
         .filter((user) => (filter ? user[filter.key] === filter.value : user))
         .map((user) => user[key])
         .join(", ");
+
+      console.log({ result });
 
       return result;
     }
@@ -404,6 +411,7 @@ const generateCreatedByFieldValue = async ({
     return `${branch?.title || ""}`;
   }
   if (userField === "department") {
+    console.log({ ids: user?.departmentIds });
     const departments = await sendCoreMessage({
       subdomain,
       action: "departments.find",
@@ -412,7 +420,10 @@ const generateCreatedByFieldValue = async ({
       defaultValue: [],
     });
 
+    console.log({ deps: JSON.stringify(departments) });
+
     const department = (departments || [])[0] || {};
+    console.log({ department });
 
     return `${department?.title || ""}`;
   }
