@@ -1,10 +1,10 @@
-import fetch from "node-fetch";
+import fetch from 'node-fetch';
 import {
   IContext,
   sendPosMessage,
   sendCoreMessage
-} from "../../../messageBroker";
-import { getConfig } from "../../../utils";
+} from '../../../messageBroker';
+import { getConfig } from '../../../utils';
 
 const msdynamicCheckMutations = {
   async toCheckMsdProducts(
@@ -12,8 +12,8 @@ const msdynamicCheckMutations = {
     { brandId }: { brandId: string },
     { subdomain }: IContext
   ) {
-    const configs = await getConfig(subdomain, "DYNAMIC", {});
-    const config = configs[brandId || "noBrand"];
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[brandId || 'noBrand'];
 
     const updateProducts: any = [];
     const createProducts: any = [];
@@ -21,13 +21,15 @@ const msdynamicCheckMutations = {
     let matchedCount = 0;
 
     if (!config.itemApi || !config.username || !config.password) {
-      throw new Error("MS Dynamic config not found.");
+      throw new Error('MS Dynamic config not found.');
     }
+
+    console.log('msdynamicCheckMutations', 'toCheckMsdProducts', config.title)
 
     const { itemApi, username, password } = config;
 
-    const productQry: any = { status: { $ne: "deleted" } };
-    if (brandId && brandId !== "noBrand") {
+    const productQry: any = { status: { $ne: 'deleted' } };
+    if (brandId && brandId !== 'noBrand') {
       productQry.scopeBrandIds = { $in: [brandId] };
     } else {
       productQry.$or = [
@@ -39,7 +41,7 @@ const msdynamicCheckMutations = {
     try {
       const products = await sendCoreMessage({
         subdomain,
-        action: "products.find",
+        action: 'products.find',
         data: {
           query: productQry,
         },
@@ -52,11 +54,11 @@ const msdynamicCheckMutations = {
         `${itemApi}?$filter=Item_Category_Code ne '' and Blocked ne true and Allow_Ecommerce eq true`,
         {
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            Accept: "application/json",
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Accept: 'application/json',
             Authorization: `Basic ${Buffer.from(
               `${username}:${password}`
-            ).toString("base64")}`
+            ).toString('base64')}`
           },
           timeout: 180000
         }
@@ -90,7 +92,7 @@ const msdynamicCheckMutations = {
         }
       }
     } catch (e) {
-      console.log(e, "error");
+      console.log(e, 'error');
     }
 
     return {
@@ -117,8 +119,8 @@ const msdynamicCheckMutations = {
     { brandId, categoryId }: { brandId: string; categoryId: string },
     { subdomain }: IContext
   ) {
-    const configs = await getConfig(subdomain, "DYNAMIC", {});
-    const config = configs[brandId || "noBrand"];
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[brandId || 'noBrand'];
 
     const updateCategories: any = [];
     const createCategories: any = [];
@@ -126,24 +128,26 @@ const msdynamicCheckMutations = {
     let matchedCount = 0;
 
     if (!config.itemCategoryApi || !config.username || !config.password) {
-      throw new Error("MS Dynamic config not found.");
+      throw new Error('MS Dynamic config not found.');
     }
+
+    console.log('msdynamicCheckMutations', 'toCheckMsdProductCategories', config.title)
 
     const { itemCategoryApi, username, password } = config;
 
     try {
       const categoriesCount = await sendCoreMessage({
         subdomain,
-        action: "categories.count",
-        data: { query: { status: { $ne: "deleted" } } },
+        action: 'categories.count',
+        data: { query: { status: { $ne: 'deleted' } } },
         isRPC: true
       });
 
       const categories = await sendCoreMessage({
         subdomain,
-        action: "categories.find",
+        action: 'categories.find',
         data: {
-          query: { status: { $ne: "deleted" } },
+          query: { status: { $ne: 'deleted' } },
           limit: categoriesCount
         },
         isRPC: true
@@ -151,11 +155,11 @@ const msdynamicCheckMutations = {
 
       const response = await fetch(itemCategoryApi, {
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          Accept: "application/json",
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/json',
           Authorization: `Basic ${Buffer.from(
             `${username}:${password}`
-          ).toString("base64")}`
+          ).toString('base64')}`
         }
       }).then(res => res.json());
 
@@ -191,7 +195,7 @@ const msdynamicCheckMutations = {
         }
       }
     } catch (e) {
-      console.log(e, "error");
+      console.log(e, 'error');
     }
 
     return {
@@ -218,8 +222,8 @@ const msdynamicCheckMutations = {
     { brandId }: { brandId: string },
     { subdomain }: IContext
   ) {
-    const configs = await getConfig(subdomain, "DYNAMIC", {});
-    const config = configs[brandId || "noBrand"];
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[brandId || 'noBrand'];
 
     const createCustomers: any = [];
     const updateCustomers: any = [];
@@ -227,15 +231,17 @@ const msdynamicCheckMutations = {
     let matchedCount = 0;
 
     if (!config.customerApi || !config.username || !config.password) {
-      throw new Error("MS Dynamic config not found.");
+      throw new Error('MS Dynamic config not found.');
     }
+
+    console.log('msdynamicCheckMutations', 'toCheckMsdCustomers', config.title)
 
     const { customerApi, username, password } = config;
 
     try {
       const companies = await sendCoreMessage({
         subdomain,
-        action: "companies.findActiveCompanies",
+        action: 'companies.findActiveCompanies',
         data: {},
         isRPC: true,
         defaultValue: {}
@@ -243,7 +249,7 @@ const msdynamicCheckMutations = {
 
       const customers = await sendCoreMessage({
         subdomain,
-        action: "customers.findActiveCustomers",
+        action: 'customers.findActiveCustomers',
         data: {},
         isRPC: true,
         defaultValue: {}
@@ -254,17 +260,17 @@ const msdynamicCheckMutations = {
 
       const response = await fetch(customerApi, {
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          Accept: "application/json",
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/json',
           Authorization: `Basic ${Buffer.from(
             `${username}:${password}`
-          ).toString("base64")}`
+          ).toString('base64')}`
         },
         timeout: 60000
       }).then(res => res.json());
 
       const resultCodes =
-        response.value.map(r => r.No.replace(/\s/g, "")) || [];
+        response.value.map(r => r.No.replace(/\s/g, '')) || [];
 
       const companyByCode = {};
       const customerByCode = {};
@@ -287,8 +293,8 @@ const msdynamicCheckMutations = {
 
       /* company and customer rquest function*/
       const companyRequest = resCompany => {
-        if (companyCodes.includes(resCompany.No.replace(/\s/g, ""))) {
-          const company = companyByCode[resCompany.No.replace(/\s/g, "")];
+        if (companyCodes.includes(resCompany.No.replace(/\s/g, ''))) {
+          const company = companyByCode[resCompany.No.replace(/\s/g, '')];
 
           if (resCompany?.Name === company.primaryName) {
             matchedCount = matchedCount + 1;
@@ -301,8 +307,8 @@ const msdynamicCheckMutations = {
       };
 
       const customerRequest = resCompany => {
-        if (customerCodes.includes(resCompany.No.replace(/\s/g, ""))) {
-          const customer = customerByCode[resCompany.No.replace(/\s/g, "")];
+        if (customerCodes.includes(resCompany.No.replace(/\s/g, ''))) {
+          const customer = customerByCode[resCompany.No.replace(/\s/g, '')];
 
           if (resCompany?.Name === customer.firstName) {
             matchedCount = matchedCount + 1;
@@ -317,11 +323,11 @@ const msdynamicCheckMutations = {
       /* ---------------------- */
 
       for (const resCompany of response.value) {
-        if (resCompany?.Partner_Type === "Company") {
+        if (resCompany?.Partner_Type === 'Company') {
           companyRequest(resCompany);
         }
 
-        if (resCompany?.Partner_Type === "Person") {
+        if (resCompany?.Partner_Type === 'Person') {
           if (resCompany.VAT_Registration_No.length === 7) {
             companyRequest(resCompany);
           } else {
@@ -330,21 +336,21 @@ const msdynamicCheckMutations = {
         }
 
         if (
-          resCompany?.Partner_Type === " " &&
+          resCompany?.Partner_Type === ' ' &&
           resCompany.VAT_Registration_No
         ) {
           companyRequest(resCompany);
         }
 
         if (
-          resCompany?.Partner_Type === " " &&
+          resCompany?.Partner_Type === ' ' &&
           !resCompany.VAT_Registration_No
         ) {
           customerRequest(resCompany);
         }
       }
     } catch (e) {
-      console.log(e, "error");
+      console.log(e, 'error');
     }
 
     return {
@@ -371,29 +377,31 @@ const msdynamicCheckMutations = {
     { ids, brandId }: { ids: string[]; brandId: string },
     { subdomain }: IContext
   ) {
-    const configs = await getConfig(subdomain, "DYNAMIC", {});
-    const config = configs[brandId || "noBrand"];
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[brandId || 'noBrand'];
 
     if (!config.salesApi || !config.username || !config.password) {
-      throw new Error("MS Dynamic config not found.");
+      throw new Error('MS Dynamic config not found.');
     }
+
+    console.log('msdynamicCheckMutations', 'toCheckMsdSynced', config.title)
 
     const { salesApi, username, password } = config;
 
-    let filterSection = "";
+    let filterSection = '';
     let dynamicNo = [] as any;
     let dynamicId = [] as any;
 
     const orders = await sendPosMessage({
       subdomain,
-      action: "orders.find",
+      action: 'orders.find',
       data: { _id: { $in: ids } },
       isRPC: true
     });
 
     for (const order of orders) {
       if (order.syncErkhetInfo) {
-        let dynNo = "";
+        let dynNo = '';
         try {
           const syncErkhetInfo = JSON.parse(order.syncErkhetInfo);
           dynNo = syncErkhetInfo.no;
@@ -414,17 +422,17 @@ const msdynamicCheckMutations = {
         filterSection += `No eq '${no}' or `;
       }
 
-      filterSection = filterSection.slice(0, -4) + "";
+      filterSection = filterSection.slice(0, -4) + '';
     }
 
     const url = `${salesApi}?$filter=(${filterSection})`;
 
     const response = await fetch(url, {
       headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
         Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-          "base64"
+          'base64'
         )}`
       },
       timeout: 60000

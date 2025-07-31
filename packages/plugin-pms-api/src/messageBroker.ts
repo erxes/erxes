@@ -1,21 +1,21 @@
-import { sendMessage, MessageArgsOmitService } from '@erxes/api-utils/src/core';
-import { generateModels } from './connectionResolver';
+import { sendMessage, MessageArgsOmitService } from "@erxes/api-utils/src/core";
+import { generateModels } from "./connectionResolver";
 import {
   consumeQueue,
-  consumeRPCQueue
-} from '@erxes/api-utils/src/messageBroker';
-import { afterMutationHandlers } from './afterMutations';
+  consumeRPCQueue,
+} from "@erxes/api-utils/src/messageBroker";
+import { afterMutationHandlers } from "./afterMutations";
 
 export const setupMessageConsumers = async () => {
-  consumeRPCQueue('pms:branch.count', async ({ subdomain, data }) => {
+  consumeRPCQueue("pms:branch.count", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const count = await models.TmsBranch.countDocuments();
     return {
-      status: 'success',
-      data: count
+      status: "success",
+      data: count,
     };
   });
-  consumeQueue('pms:afterMutation', async ({ subdomain, data }) => {
+  consumeQueue("pms:afterMutation", async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;
   });
@@ -25,8 +25,8 @@ export const sendProductsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'core',
-    ...args
+    serviceName: "core",
+    ...args,
   });
 };
 
@@ -34,8 +34,8 @@ export const sendContactsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'core',
-    ...args
+    serviceName: "core",
+    ...args,
   });
 };
 
@@ -43,8 +43,8 @@ export const sendSalesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'sales',
-    ...args
+    serviceName: "sales",
+    ...args,
   });
 };
 
@@ -52,8 +52,8 @@ export const sendPosMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'pos',
-    ...args
+    serviceName: "pos",
+    ...args,
   });
 };
 
@@ -61,8 +61,8 @@ export const sendEbarimtMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'ebarimt',
-    ...args
+    serviceName: "ebarimt",
+    ...args,
   });
 };
 
@@ -70,8 +70,8 @@ export const sendCoreMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'core',
-    ...args
+    serviceName: "core",
+    ...args,
   });
 };
 
@@ -79,7 +79,7 @@ export const sendNotificationsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'notifications',
-    ...args
+    serviceName: "notifications",
+    ...args,
   });
 };

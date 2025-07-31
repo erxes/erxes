@@ -445,6 +445,7 @@ export type ConvertToMutationVariables = {
   _id: string;
   itemId?: string;
   itemName?: string;
+  branchIds?: string[];
   stageId?: string;
 };
 

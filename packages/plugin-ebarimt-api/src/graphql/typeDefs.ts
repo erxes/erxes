@@ -8,6 +8,11 @@ import {
   queries as productRuleQueries,
   types as productRuleTypes
 } from './schema/productRule';
+import {
+  mutations as productGroupMutations,
+  queries as productGroupQueries,
+  types as productGroupTypes
+} from './schema/productGroup';
 
 import gql from 'graphql-tag';
 
@@ -18,15 +23,18 @@ const typeDefs = async () => {
     
     ${ebarimtTypes}
     ${productRuleTypes}
+    ${productGroupTypes}
     
     extend type Query {
       ${ebarimtQueries}
       ${productRuleQueries}
+      ${productGroupQueries}
     }
 
     extend type Mutation {
       ${ebarimtMutations}
       ${productRuleMutations}
+      ${productGroupMutations}
     }
 
   `;

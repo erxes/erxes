@@ -82,6 +82,10 @@ export const getOwnerPrimaryInfo = (type, owner) => {
 
 const AdditionalRow = ({ usageLogs }: any) => {
   const renderContent = (usageLog) => {
+    if (!usageLog) {
+      return null;
+    }
+
     return (
       <tr>
         <td>{usageLog.target || "-"}</td>

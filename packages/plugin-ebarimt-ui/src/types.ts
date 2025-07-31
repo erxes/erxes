@@ -1,5 +1,8 @@
 // SETTINGS
 
+import { IProduct } from "@erxes/ui-products/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+
 export type IConfigsMap = { [key: string]: any };
 
 export type IConfig = {
@@ -50,6 +53,8 @@ export type IPutResponse = {
 
   createdAt: Date;
   modifiedAt: Date;
+  userId?: string;
+  user?: IUser;
 
   _id: string;
   id: string;
@@ -176,6 +181,40 @@ export type ProductRulesRemoveMutationResponse = {
   productRuleRemove: (params: { variables: ProductRuleRemoveMutationVariables }) => Promise<any>;
 };
 
+export interface IEbarimtProductGroupDoc {
+  mainProductId?: string;
+  subProductId?: string;
+  sortNum: number;
+  ratio?: number;
+  isActive: boolean;
+
+  mainProduct?: IProduct;
+  subProduct?: IProduct;
+}
+
+export interface IEbarimtProductGroup extends IEbarimtProductGroupDoc {
+  _id: string;
+  createdAt: Date;
+  modifiedAt: Date;
+  modifiedBy: string;
+}
+
+// mutation types
+export type ProductGroupAddMutationResponse = {
+  productRuleAdd: (params: { variables: IEbarimtProductGroup }) => Promise<any>;
+};
+
+export type ProductGroupEditMutationResponse = {
+  productRuleEdit: (params: { variables: IEbarimtProductGroupDoc }) => Promise<any>;
+};
+
+export type ProductGroupRemoveMutationVariables = {
+  ids: string[];
+};
+
+export type ProductGroupsRemoveMutationResponse = {
+  productRuleRemove: (params: { variables: ProductGroupRemoveMutationVariables }) => Promise<any>;
+};
 
 // query types
 
@@ -198,6 +237,28 @@ export type ProductRulesQueryResponse = {
 
 export type ProductRulesCountQueryResponse = {
   ebarimtProductRulesCount: number;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type ProductGroupListQueryVariables = {
+  page?: number;
+  perPage?: number;
+  sortField?: string;
+  sortDirection?: number;
+  searchValue?: string,
+  productId?: string,
+  status?: string,
+};
+
+export type ProductGroupsQueryResponse = {
+  ebarimtProductGroups: IEbarimtProductGroup[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type ProductGroupsCountQueryResponse = {
+  ebarimtProductGroupsCount: number;
   loading: boolean;
   refetch: () => void;
 };

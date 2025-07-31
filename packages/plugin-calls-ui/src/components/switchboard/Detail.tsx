@@ -18,19 +18,22 @@ const slideIn = keyframes`
   to { transform: translateX(0); opacity: 1; }
 `;
 
-// Main Container - Better responsive handling
+// Main Container - Fixed viewport approach
 const DashboardContainer = styled.div`
-  min-height: 100vh;
+  height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 1rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevent main container scroll */
 
   @media (min-width: 768px) {
     padding: 2rem;
   }
 `;
 
-// Header - Improved mobile layout
+// Header - Fixed height
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
@@ -39,6 +42,7 @@ const Header = styled.div`
   animation: ${fadeIn} 0.6s ease-out;
   flex-wrap: wrap;
   gap: 1rem;
+  flex-shrink: 0; /* Prevent header from shrinking */
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -84,13 +88,14 @@ const LiveClock = styled.div`
   }
 `;
 
-// Status Cards - Better grid behavior
+// Status Cards - Fixed height
 const StatusCardsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   animation: ${fadeIn} 0.8s ease-out;
+  flex-shrink: 0; /* Prevent cards from shrinking */
 
   @media (min-width: 768px) {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -139,13 +144,39 @@ const StatusCard = styled.div`
   }
 `;
 
-// Main Grid - Better responsive behavior
+const ScrollableContent = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+
+  /* Custom scrollbar */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+`;
+
+// Main Grid - Responsive layout
 const MainGrid = styled.div`
   display: grid;
   gap: 1.5rem;
   animation: ${fadeIn} 1s ease-out;
+  min-height: 0; /* Important for flex children */
 
-  /* Single column on mobile */
+  /* Single column on mobile and tablet */
   grid-template-columns: 1fr;
 
   /* Two columns on larger screens */
@@ -155,7 +186,7 @@ const MainGrid = styled.div`
   }
 `;
 
-// Agent Table - Improved scrolling and layout
+// Agent Table - Better height management
 const AgentTableContainer = styled.div`
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -163,11 +194,14 @@ const AgentTableContainer = styled.div`
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   overflow: hidden;
-
-  /* Prevent container from growing too tall */
-  max-height: 600px;
   display: flex;
   flex-direction: column;
+  min-height: 500px; /* Minimum height */
+  max-height: 70vh; /* Maximum height based on viewport */
+
+  @media (max-width: 1199px) {
+    max-height: 60vh; /* Smaller on mobile */
+  }
 `;
 
 const TableHeader = styled.div`
@@ -187,26 +221,26 @@ const TableHeader = styled.div`
 `;
 
 const TableContainer = styled.div`
-  overflow: auto;
   flex: 1;
+  overflow-y: auto;
+  min-height: 0; /* Important for flex children */
 
   /* Custom scrollbar */
   &::-webkit-scrollbar {
     width: 8px;
-    height: 8px;
   }
 
   &::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.05);
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.2);
     border-radius: 4px;
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.3);
   }
 `;
 
@@ -217,7 +251,7 @@ const Table = styled.table`
 `;
 
 const TableHeaderRow = styled.thead`
-  background: rgba(248, 250, 252, 0.9);
+  background: rgba(248, 250, 252, 0.95);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -242,22 +276,28 @@ const TableRow = styled.tr`
   animation: ${slideIn} 0.3s ease-out;
 
   &:hover {
-    background: rgba(248, 250, 252, 0.5);
+    background: rgba(248, 250, 252, 0.7);
   }
 
   td {
-    padding: 1rem 1.5rem;
+    padding: 1.25rem 1.5rem;
     border-bottom: 1px solid rgba(226, 232, 240, 0.3);
     vertical-align: middle;
 
     &:first-child {
       font-weight: 600;
+      padding-top: 1.5rem;
+      padding-bottom: 1.5rem;
     }
   }
 
   /* Alternate row colors for better readability */
   &:nth-child(even) {
-    background: rgba(248, 250, 252, 0.2);
+    background: rgba(248, 250, 252, 0.3);
+  }
+
+  &:nth-child(even):hover {
+    background: rgba(248, 250, 252, 0.8);
   }
 `;
 
@@ -275,6 +315,7 @@ const StatusBadge = styled.span<StatusBadgeProps>`
   font-weight: 600;
   border: 1px solid;
   white-space: nowrap;
+  margin: 0.625rem 0;
 
   ${(props) => {
     switch (props.status) {
@@ -332,15 +373,16 @@ const TimeCell = styled.span`
   color: #64748b;
 `;
 
-// Call Status - Better scrolling and compact layout
+// Call Status - Better height management
 const CallStatusContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  min-height: 0;
 
-  /* On mobile, we want these to stack properly */
+  /* On mobile, ensure proper spacing */
   @media (max-width: 1199px) {
-    margin-top: 1rem;
+    margin-top: 2rem;
   }
 `;
 
@@ -351,11 +393,14 @@ const CallStatusCard = styled.div`
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   overflow: hidden;
-
-  /* Prevent cards from growing too tall */
-  max-height: 400px;
   display: flex;
   flex-direction: column;
+  min-height: 200px;
+  max-height: 35vh; /* Responsive max height */
+
+  @media (max-width: 1199px) {
+    max-height: 300px;
+  }
 `;
 
 interface CallStatusHeaderProps {
@@ -380,9 +425,10 @@ const CallStatusHeader = styled.div<CallStatusHeaderProps>`
 `;
 
 const CallStatusBody = styled.div`
-  padding: 1.25rem;
   flex: 1;
-  overflow: auto;
+  overflow-y: auto;
+  padding: 1.25rem;
+  min-height: 0;
 
   /* Custom scrollbar */
   &::-webkit-scrollbar {
@@ -390,12 +436,16 @@ const CallStatusBody = styled.div`
   }
 
   &::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.05);
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.2);
     border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
   }
 `;
 
@@ -403,11 +453,6 @@ const CallItemsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  max-height: 250px;
-  overflow-y: auto;
-
-  /* Smooth scrolling */
-  scroll-behavior: smooth;
 `;
 
 const CallItem = styled.div<any>`
@@ -415,13 +460,18 @@ const CallItem = styled.div<any>`
   border: 1px solid
     ${(props: any) => props.borderColor || 'rgba(245, 158, 11, 0.2)'};
   border-radius: 12px;
-  padding: 1rem;
+  padding: 1.25rem;
+  margin-bottom: 0.75rem;
   transition: all 0.3s ease;
   animation: ${slideIn} 0.3s ease-out;
 
   &:hover {
     transform: translateX(4px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
   }
 `;
 
@@ -446,7 +496,6 @@ const CallNumber = styled.span`
   align-items: center;
   gap: 0.5rem;
 
-  /* Truncate long numbers on small screens */
   @media (max-width: 480px) {
     max-width: 200px;
     overflow: hidden;
@@ -500,6 +549,7 @@ const CompactStatusIndicator = styled.div`
     border-radius: 12px;
     padding: 1rem;
     margin-bottom: 1rem;
+    flex-shrink: 0;
 
     .status-item {
       text-align: center;
@@ -626,8 +676,11 @@ const EnhancedCallCenterDashboard: React.FC<DashboardProps> = ({
     [actualProceedingList],
   );
 
-  // Get member data
-  const members = parsedMemberData.member || [];
+  const members =
+    parsedMemberData.member && parsedMemberData.member.length > 0
+      ? parsedMemberData.member
+      : [];
+
   const waitingCalls = parsedWaitingData.member || [];
   const activeCalls = parsedProceedingData.member || [];
 
@@ -647,7 +700,7 @@ const EnhancedCallCenterDashboard: React.FC<DashboardProps> = ({
       busyAgents,
       pausedAgents,
       unavailableAgents,
-      activeCallsCount: busyAgents, // Use busy agents count for active calls
+      activeCallsCount: busyAgents,
       waitingCallsCount: waitingCalls.length,
     };
   }, [members, waitingCalls]);
@@ -668,7 +721,6 @@ const EnhancedCallCenterDashboard: React.FC<DashboardProps> = ({
       if (priorityA !== priorityB) {
         return priorityA - priorityB;
       }
-      // Secondary sort by extension number
       return a.member_extension.localeCompare(b.member_extension);
     });
   }, [members]);
@@ -693,7 +745,6 @@ const EnhancedCallCenterDashboard: React.FC<DashboardProps> = ({
         </LiveClock>
       </Header>
 
-      {/* Compact mobile status indicator */}
       <CompactStatusIndicator>
         <div className="status-item">
           <span className="count">{stats.totalAgents}</span>
@@ -755,154 +806,156 @@ const EnhancedCallCenterDashboard: React.FC<DashboardProps> = ({
         </StatusCard>
       </StatusCardsGrid>
 
-      <MainGrid>
-        <AgentTableContainer>
-          <TableHeader>
-            <h2>👨‍💼 Agent Status ({members.length})</h2>
-          </TableHeader>
+      <ScrollableContent>
+        <MainGrid>
+          <AgentTableContainer>
+            <TableHeader>
+              <h2>👨‍💼 Agent Status ({members.length})</h2>
+            </TableHeader>
 
-          <TableContainer>
-            <Table>
-              <TableHeaderRow>
-                <tr>
-                  <th>Status</th>
-                  <th>Extension</th>
-                  <th>Name</th>
-                  <th>Answered</th>
-                  <th>Abandoned</th>
-                  <th>Talk Time</th>
-                  <th>Last Action</th>
-                </tr>
-              </TableHeaderRow>
-              <tbody>
-                {sortedAgents.length === 0 ? (
+            <TableContainer>
+              <Table>
+                <TableHeaderRow>
                   <tr>
-                    <td
-                      colSpan={7}
-                      style={{ textAlign: 'center', padding: '2rem' }}
-                    >
-                      <EmptyState>
-                        <div className="empty-icon">👨‍💼</div>
-                        <div className="empty-text">No agents available</div>
-                      </EmptyState>
-                    </td>
+                    <th>Status</th>
+                    <th>Extension</th>
+                    <th>Name</th>
+                    <th>Answered</th>
+                    <th>Abandoned</th>
+                    <th>Talk Time</th>
+                    <th>Last Action</th>
                   </tr>
+                </TableHeaderRow>
+                <tbody>
+                  {sortedAgents.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={7}
+                        style={{ textAlign: 'center', padding: '2rem' }}
+                      >
+                        <EmptyState>
+                          <div className="empty-icon">👨‍💼</div>
+                          <div className="empty-text">No agents available</div>
+                        </EmptyState>
+                      </td>
+                    </tr>
+                  ) : (
+                    sortedAgents.map((agent, index) => (
+                      <TableRow key={agent.member_extension || index}>
+                        <td>
+                          <StatusBadge status={agent.status}>
+                            <span>{getStatusIcon(agent.status)}</span>
+                            {agent.status}
+                          </StatusBadge>
+                        </td>
+                        <td>
+                          <ExtensionCell>
+                            {agent.member_extension}
+                          </ExtensionCell>
+                        </td>
+                        <td>{agent.first_name}</td>
+                        <td>{agent.answer || 0}</td>
+                        <td>{agent.abandon || 0}</td>
+                        <td>
+                          <TimeCell>{formatTime(agent.talktime)}</TimeCell>
+                        </td>
+                        <td>
+                          <TimeCell>{formatDate(agent.pausetime)}</TimeCell>
+                        </td>
+                      </TableRow>
+                    ))
+                  )}
+                </tbody>
+              </Table>
+            </TableContainer>
+          </AgentTableContainer>
+
+          <CallStatusContainer>
+            <CallStatusCard>
+              <CallStatusHeader gradient="linear-gradient(135deg, #f59e0b 0%, #d97706 100%)">
+                <h3>⏳ Waiting Calls ({stats.waitingCallsCount})</h3>
+              </CallStatusHeader>
+              <CallStatusBody>
+                {stats.waitingCallsCount === 0 ? (
+                  <EmptyState>
+                    <div className="empty-icon">⏳</div>
+                    <div className="empty-text">No waiting calls</div>
+                  </EmptyState>
                 ) : (
-                  sortedAgents.map((agent, index) => (
-                    <TableRow key={agent.member_extension || index}>
-                      <td>
-                        <StatusBadge status={agent.status}>
-                          <span>{getStatusIcon(agent.status)}</span>
-                          {agent.status}
-                        </StatusBadge>
-                      </td>
-                      <td>
-                        <ExtensionCell>{agent.member_extension}</ExtensionCell>
-                      </td>
-                      <td>{agent.first_name}</td>
-                      <td>{agent.answer || 0}</td>
-                      <td>{agent.abandon || 0}</td>
-                      <td>
-                        <TimeCell>{formatTime(agent.talktime)}</TimeCell>
-                      </td>
-                      <td>
-                        <TimeCell>{formatDate(agent.pausetime)}</TimeCell>
-                      </td>
-                    </TableRow>
-                  ))
+                  <CallItemsContainer>
+                    {waitingCalls.map((call, index) => (
+                      <CallItem
+                        key={`waiting-${index}`}
+                        bgColor="rgba(245, 158, 11, 0.1)"
+                        borderColor="rgba(245, 158, 11, 0.2)"
+                      >
+                        <CallItemHeader>
+                          <CallNumber>
+                            📱 {call.callerid || `Call ${index + 1}`}
+                          </CallNumber>
+                          <CallTime color="#d97706">
+                            {formatWaitTime(call.starttime) || '00:00'}
+                          </CallTime>
+                        </CallItemHeader>
+                        <CallDetails>
+                          <span>💭</span>
+                          <span>Waiting in queue</span>
+                        </CallDetails>
+                      </CallItem>
+                    ))}
+                  </CallItemsContainer>
                 )}
-              </tbody>
-            </Table>
-          </TableContainer>
-        </AgentTableContainer>
+              </CallStatusBody>
+            </CallStatusCard>
 
-        <CallStatusContainer>
-          {/* Waiting Calls */}
-          <CallStatusCard>
-            <CallStatusHeader gradient="linear-gradient(135deg, #f59e0b 0%, #d97706 100%)">
-              <h3>⏳ Waiting Calls ({stats.waitingCallsCount})</h3>
-            </CallStatusHeader>
-            <CallStatusBody>
-              {stats.waitingCallsCount === 0 ? (
-                <EmptyState>
-                  <div className="empty-icon">⏳</div>
-                  <div className="empty-text">No waiting calls</div>
-                </EmptyState>
-              ) : (
-                <CallItemsContainer>
-                  {waitingCalls.map((call, index) => (
-                    <CallItem
-                      key={`waiting-${index}`}
-                      bgColor="rgba(245, 158, 11, 0.1)"
-                      borderColor="rgba(245, 158, 11, 0.2)"
-                    >
-                      <CallItemHeader>
-                        <CallNumber>
-                          📱 {call.callerid || `Call ${index + 1}`}
-                        </CallNumber>
-                        <CallTime color="#d97706">
-                          {formatWaitTime(call.starttime) || '00:00'}
-                        </CallTime>
-                      </CallItemHeader>
-                      <CallDetails>
-                        <span>💭</span>
-                        <span>Waiting in queue</span>
-                      </CallDetails>
-                    </CallItem>
-                  ))}
-                </CallItemsContainer>
-              )}
-            </CallStatusBody>
-          </CallStatusCard>
+            <CallStatusCard>
+              <CallStatusHeader gradient="linear-gradient(135deg, #10b981 0%, #059669 100%)">
+                <h3>💬 Active Calls ({stats.busyAgents})</h3>
+              </CallStatusHeader>
+              <CallStatusBody>
+                {stats.busyAgents === 0 ? (
+                  <EmptyState>
+                    <div className="empty-icon">💬</div>
+                    <div className="empty-text">No active calls</div>
+                  </EmptyState>
+                ) : (
+                  <CallItemsContainer>
+                    {members
+                      .filter((agent) => agent.status === 'InUse')
+                      .map((agent) => {
+                        const matchingCall = activeCalls?.find(
+                          (call) => call.calleeid === agent.member_extension,
+                        );
+                        const callerId = matchingCall
+                          ? matchingCall.callerid
+                          : `External Call`;
 
-          {/* Active Calls */}
-          <CallStatusCard>
-            <CallStatusHeader gradient="linear-gradient(135deg, #10b981 0%, #059669 100%)">
-              <h3>💬 Active Calls ({stats.busyAgents})</h3>
-            </CallStatusHeader>
-            <CallStatusBody>
-              {stats.busyAgents === 0 ? (
-                <EmptyState>
-                  <div className="empty-icon">💬</div>
-                  <div className="empty-text">No active calls</div>
-                </EmptyState>
-              ) : (
-                <CallItemsContainer>
-                  {members
-                    .filter((agent) => agent.status === 'InUse')
-                    .map((agent) => {
-                      const matchingCall = activeCalls?.find(
-                        (call) => call.calleeid === agent.member_extension,
-                      );
-                      const callerId = matchingCall
-                        ? matchingCall.callerid
-                        : `External Call`;
-
-                      return (
-                        <CallItem
-                          key={`active-${agent.member_extension}`}
-                          bgColor="rgba(16, 185, 129, 0.1)"
-                          borderColor="rgba(16, 185, 129, 0.2)"
-                        >
-                          <CallItemHeader>
-                            <CallNumber>📱 {callerId}</CallNumber>
-                            <CallTime color="#059669">Talking</CallTime>
-                          </CallItemHeader>
-                          <CallDetails>
-                            <span>👤</span>
-                            <span>{agent.first_name}</span>
-                            <span>•</span>
-                            <span>Ext: {agent.member_extension}</span>
-                          </CallDetails>
-                        </CallItem>
-                      );
-                    })}
-                </CallItemsContainer>
-              )}
-            </CallStatusBody>
-          </CallStatusCard>
-        </CallStatusContainer>
-      </MainGrid>
+                        return (
+                          <CallItem
+                            key={`active-${agent.member_extension}`}
+                            bgColor="rgba(16, 185, 129, 0.1)"
+                            borderColor="rgba(16, 185, 129, 0.2)"
+                          >
+                            <CallItemHeader>
+                              <CallNumber>📱 {callerId}</CallNumber>
+                              <CallTime color="#059669">Talking</CallTime>
+                            </CallItemHeader>
+                            <CallDetails>
+                              <span>👤</span>
+                              <span>{agent?.first_name}</span>
+                              <span>•</span>
+                              <span>Ext: {agent?.member_extension}</span>
+                            </CallDetails>
+                          </CallItem>
+                        );
+                      })}
+                  </CallItemsContainer>
+                )}
+              </CallStatusBody>
+            </CallStatusCard>
+          </CallStatusContainer>
+        </MainGrid>
+      </ScrollableContent>
     </DashboardContainer>
   );
 };

@@ -148,7 +148,7 @@ const mutations = `
   callsUpdateConfigs(configsMap: JSON!): JSON
   callsPauseAgent(status: String!, integrationId: String!): String
   callTransfer(extensionNumber: String!, integrationId: String!, direction: String): String
-  callSelectCustomer(customerId: String!, conversationId: String!, phoneNumber: String!, integrationId: String!): String
+  callSelectCustomer(customerId: String!, conversationId: String!, phoneNumber: String!, integrationId: String!): Customer
 `;
 
 const typeDefs = async () => {

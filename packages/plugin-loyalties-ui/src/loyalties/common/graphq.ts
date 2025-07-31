@@ -36,12 +36,16 @@ export const commonDefs = `
   $campaignId: String,
   $usedAt: Date,
   $ownerType: String,
-  $ownerId: String
+  $ownerId: String,
+  $ownerIds: [String],
+  $tagIds: [String]
 `;
 
 export const commonVariables = `
   campaignId: $campaignId,
   usedAt: $usedAt,
   ownerType: $ownerType,
-  ownerId: $ownerId
+  ownerId: $ownerId,
+  ownerIds: $ownerIds,
+  tagIds: $tagIds
 `;
