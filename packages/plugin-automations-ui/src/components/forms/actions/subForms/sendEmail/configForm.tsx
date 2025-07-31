@@ -6,23 +6,23 @@ import {
   ModalTrigger,
   SelectTeamMembers,
   __,
-  colors
-} from '@erxes/ui/src';
+  colors,
+} from "@erxes/ui/src";
 
-import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
-import { ItemRow } from '@erxes/ui-automations/src/components/forms/actions/ItemRow';
-import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
-import { DrawerDetail, ItemRowHeader } from '@erxes/ui-automations/src/styles';
-import EmailTemplate from '@erxes/ui-emailtemplates/src/containers/EmailTemplate';
-import { IEmailTemplate } from '@erxes/ui-emailtemplates/src/types';
-import { FlexRow } from '@erxes/ui-settings/src/styles';
-import React from 'react';
-import { RecipientsForm } from './recipientForm';
-import { EmailTemplatesList } from './emailTemplatesList';
-import { checkToFieldConfigured } from './utils';
-import { EditEmailTemplateForm } from './editEmailTemplateForm';
-import { IAction } from '@erxes/ui-automations/src/types';
-import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
+import Common from "@erxes/ui-automations/src/components/forms/actions/Common";
+import { ItemRow } from "@erxes/ui-automations/src/components/forms/actions/ItemRow";
+import PlaceHolderInput from "@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput";
+import { DrawerDetail, ItemRowHeader } from "@erxes/ui-automations/src/styles";
+import EmailTemplate from "@erxes/ui-emailtemplates/src/containers/EmailTemplate";
+import { IEmailTemplate } from "@erxes/ui-emailtemplates/src/types";
+import { FlexRow } from "@erxes/ui-settings/src/styles";
+import React from "react";
+import { RecipientsForm } from "./recipientForm";
+import { EmailTemplatesList } from "./emailTemplatesList";
+import { checkToFieldConfigured } from "./utils";
+import { EditEmailTemplateForm } from "./editEmailTemplateForm";
+import { IAction } from "@erxes/ui-automations/src/types";
+import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
 
 type Props = {
   emailRecipientsConst: { type: string; name: string; label: string }[];
@@ -45,7 +45,7 @@ export const ConfigForm = ({
   triggerConfig,
   setConfig,
   triggerType,
-  additionalAttributes
+  additionalAttributes,
 }: Props) => {
   const onSelect = (value, name) => {
     setConfig({ ...config, [name]: value });
@@ -60,31 +60,31 @@ export const ConfigForm = ({
     >
       <DrawerDetail>
         <ItemRow
-          title={__('Sender')}
-          description={__('Who is sending email')}
+          title={__("Sender")}
+          description={__("Who is sending email")}
           buttonText='sender'
           isDone={config?.fromUserId}
           config={config}
           content={(doc, onChange) => (
             <FormGroup>
-              <ControlLabel>{'Sender'}</ControlLabel>
+              <ControlLabel>{"Sender"}</ControlLabel>
               <SelectTeamMembers
                 name='fromUserId'
                 initialValue={doc?.fromUserId || config?.fromUserId}
-                label={__('Select sender user')}
+                label={__("Select sender user")}
                 onSelect={(value, name) => onChange({ ...doc, [name]: value })}
                 filterParams={{
-                  status: 'Verified'
+                  status: "Verified",
                 }}
                 multi={false}
               />
             </FormGroup>
           )}
-          onSave={({ fromUserId }) => onSelect(fromUserId, 'fromUserId')}
-          subContent={config?.fromUserId ? '' : 'Select Sender'}
+          onSave={({ fromUserId }) => onSelect(fromUserId, "fromUserId")}
+          subContent={config?.fromUserId ? "" : "Select Sender"}
         />
         <ItemRow
-          title={__('Reciepent')}
+          title={__("Reciepent")}
           description=''
           buttonText='select recipients'
           config={config}
@@ -93,25 +93,24 @@ export const ConfigForm = ({
             <RecipientsForm
               config={doc}
               onChangeConfig={onChange}
-              emailRecipientsConst={emailRecipientsConst}
               triggerConfig={triggerConfig}
               triggerType={triggerType}
               additionalAttributes={additionalAttributes}
             />
           )}
           onSave={setConfig}
-          subContent={config?.to ? '' : 'Select recipients'}
+          subContent={config?.to ? "" : "Select recipients"}
         />
         <ItemRow
-          title={__('Subject')}
-          description={__('Configure the subject of the email')}
+          title={__("Subject")}
+          description={__("Configure the subject of the email")}
           buttonText='subject'
           config={config}
           isDone={config?.subject}
           content={(doc, onChange) => (
             <PlaceHolderInput
               inputName='subject'
-              label={__('Email Subject')}
+              label={__("Email Subject")}
               config={doc}
               onChange={() => null}
               onKeyPress={(e: any) => {
@@ -121,21 +120,21 @@ export const ConfigForm = ({
               triggerType={triggerType}
             />
           )}
-          subContent={__(config?.subject ? '' : 'Enter subject')}
+          subContent={__(config?.subject ? "" : "Enter subject")}
           onSave={(doc) => setConfig({ ...config, ...doc })}
         />
 
         <FlexRow $justifyContent='space-between'>
           <FlexRow $alignItems='baseline'>
-            <ItemRowHeader>{__('Selected Email Template')}</ItemRowHeader>
+            <ItemRowHeader>{__("Selected Email Template")}</ItemRowHeader>
             <Icon
               color={colors.colorCoreGreen}
               icon='check-circle'
-              style={{ paddingLeft: '6px' }}
+              style={{ paddingLeft: "6px" }}
             />
           </FlexRow>
           <ModalTrigger
-            title={__('Email Templates')}
+            title={__("Email Templates")}
             size='xl'
             trigger={
               <Button btnStyle='white'>{__(`Change email template`)}</Button>

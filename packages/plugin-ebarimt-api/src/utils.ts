@@ -416,7 +416,7 @@ const calcGrouped = async (models: IModels, activeProductsData: any[]) => {
 
   const productsIds = productsData.map(item => item.productId);
 
-  const groups = await models.ProductGroups.find({ isActive: true, mainProductId: { $in: productsIds }, subProductId: { $in: productsIds } }).lean();
+  const groups = await models.ProductGroups.find({ isActive: true, mainProductId: { $in: productsIds }, subProductId: { $in: productsIds } }).sort({ sortNum: 1 }).lean();
   const addProdData: any[] = [];
 
   for (const group of groups) {
@@ -525,7 +525,7 @@ export const getPostData = async (subdomain, models: IModels, config, deal, paym
         };
       }),
     nonCashAmounts: Object.keys(deal.paymentsData || {}).filter(pay => !preTaxPaymentTypes.includes(pay)).filter(pay => pay !== 'cash').map(pay => ({
-      amount: deal.paymentsData[pay].amount, 
+      amount: deal.paymentsData[pay].amount,
       type: pay
     }))
   };

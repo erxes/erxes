@@ -75,6 +75,7 @@ export default {
         ['createdBy.phone']: '-',
         ['createdBy.fullName']: '-',
         ['createdBy.email']: '-',
+        ['createdBy.position']: '-',
         ['customers.email']: '-',
         ['customers.phone']: '-',
         ['customers.fullName']: '-',

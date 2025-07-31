@@ -115,6 +115,7 @@ export const callActions = (
   gotoDetail,
   disableDetail,
   onClickKeyPad,
+  setCustomer,
 ) => {
   return (
     <InCallFooter>
@@ -161,6 +162,7 @@ export const callActions = (
               inboxId={inboxId}
               phoneNumber={phoneNumber}
               conversationId={conversationId}
+              setCustomer={setCustomer}
             />
 
             <p style={{ marginRight: '10px' }}>Select Customer</p>

@@ -1,8 +1,8 @@
-import { IUser } from '@erxes/api-utils/src/types';
-import { IModels } from '../connectionResolver';
-import { sendCommonMessage, sendCoreMessage } from '../messageBroker';
-import { getEnv } from '@erxes/api-utils/src';
-import * as moment from 'moment';
+import { IUser } from "@erxes/api-utils/src/types";
+import { IModels } from "../connectionResolver";
+import { sendCommonMessage, sendCoreMessage } from "../messageBroker";
+import { getEnv } from "@erxes/api-utils/src";
+import * as moment from "moment";
 
 export const getRelatedValue = async (
   models: IModels,
@@ -13,18 +13,18 @@ export const getRelatedValue = async (
 ) => {
   if (
     [
-      'userId',
-      'assignedUserId',
-      'closedUserId',
-      'ownerId',
-      'createdBy'
+      "userId",
+      "assignedUserId",
+      "closedUserId",
+      "ownerId",
+      "createdBy",
     ].includes(targetKey)
   ) {
     const user = await sendCoreMessage({
       subdomain,
-      action: 'users.findOne',
+      action: "users.findOne",
       data: { _id: target[targetKey] },
-      isRPC: true
+      isRPC: true,
     });
 
     if (!!relatedValueProps[targetKey]) {
@@ -33,97 +33,97 @@ export const getRelatedValue = async (
     }
 
     return (
-      (user && ((user.detail && user.detail.fullName) || user.email)) || ''
+      (user && ((user.detail && user.detail.fullName) || user.email)) || ""
     );
   }
 
   if (
-    ['participatedUserIds', 'assignedUserIds', 'watchedUserIds'].includes(
+    ["participatedUserIds", "assignedUserIds", "watchedUserIds"].includes(
       targetKey
     )
   ) {
     const users = await sendCoreMessage({
       subdomain,
-      action: 'users.find',
+      action: "users.find",
       data: {
         query: {
-          _id: { $in: target[targetKey] }
-        }
+          _id: { $in: target[targetKey] },
+        },
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (!!relatedValueProps[targetKey]) {
-      const { key, filter } = relatedValueProps[targetKey] || {};
-      return users
-        .filter((user) => (filter ? user[filter.key] === filter.value : user))
-        .map((user) => user[key])
-        .join(', ');
+      return generateRelatedValueUserProps({
+        targetKey,
+        users,
+        relatedValueProps,
+      });
     }
 
     return (
       users.map(
         (user) => (user.detail && user.detail.fullName) || user.email
       ) || []
-    ).join(', ');
+    ).join(", ");
   }
 
-  if (targetKey === 'tagIds') {
+  if (targetKey === "tagIds") {
     const tags = await sendCommonMessage({
       subdomain,
-      serviceName: 'core',
-      action: 'tagFind',
+      serviceName: "core",
+      action: "tagFind",
       data: { _id: { $in: target[targetKey] } },
-      isRPC: true
+      isRPC: true,
     });
 
-    return (tags.map((tag) => tag.name) || []).join(', ');
+    return (tags.map((tag) => tag.name) || []).join(", ");
   }
 
-  if (targetKey === 'labelIds') {
+  if (targetKey === "labelIds") {
     const labels = await models.PipelineLabels.find({
-      _id: { $in: target[targetKey] }
+      _id: { $in: target[targetKey] },
     });
 
-    return (labels.map((label) => label.name) || []).join(', ');
+    return (labels.map((label) => label.name) || []).join(", ");
   }
 
-  if (['initialStageId', 'stageId'].includes(targetKey)) {
+  if (["initialStageId", "stageId"].includes(targetKey)) {
     const stage = await models.Stages.findOne({
-      _id: target[targetKey]
+      _id: target[targetKey],
     });
 
-    return (stage && stage.name) || '';
+    return (stage && stage.name) || "";
   }
 
-  if (['sourceConversationIds'].includes(targetKey)) {
+  if (["sourceConversationIds"].includes(targetKey)) {
     const conversations = await sendCommonMessage({
       subdomain,
-      serviceName: 'inbox',
-      action: 'conversations.find',
+      serviceName: "inbox",
+      action: "conversations.find",
       data: { _id: { $in: target[targetKey] } },
-      isRPC: true
+      isRPC: true,
     });
 
-    return (conversations.map((c) => c.content) || []).join(', ');
+    return (conversations.map((c) => c.content) || []).join(", ");
   }
 
-  if (['customers', 'companies'].includes(targetKey)) {
+  if (["customers", "companies"].includes(targetKey)) {
     const relTypeConst = {
-      companies: 'company',
-      customers: 'customer'
+      companies: "company",
+      customers: "customer",
     };
 
     const contactIds = await sendCoreMessage({
       subdomain,
-      action: 'conformities.savedConformity',
+      action: "conformities.savedConformity",
       data: {
-        mainType: 'ticket',
+        mainType: "ticket",
         mainTypeId: target._id,
-        relTypes: [relTypeConst[targetKey]]
+        relTypes: [relTypeConst[targetKey]],
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const upperCasedTargetKey =
@@ -134,7 +134,7 @@ export const getRelatedValue = async (
       action: `${targetKey}.findActive${upperCasedTargetKey}`,
       data: { selector: { _id: { $in: contactIds } } },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     if (relatedValueProps && !!relatedValueProps[targetKey]) {
@@ -144,44 +144,45 @@ export const getRelatedValue = async (
           filter ? contacts[filter.key] === filter.value : contacts
         )
         .map((contacts) => contacts[key])
-        .join(', ');
+        .join(", ");
     }
 
-    const result = activeContacts.map((contact) => contact?._id).join(', ');
+    const result = activeContacts.map((contact) => contact?._id).join(", ");
     return result;
   }
 
-  if (targetKey.includes('productsData')) {
-    const [_parentFieldName, childFieldName] = targetKey.split('.');
+  if (targetKey.includes("productsData")) {
+    const [_parentFieldName, childFieldName] = targetKey.split(".");
 
-    if (childFieldName === 'amount') {
+    if (childFieldName === "amount") {
       return generateTotalAmount(target.productsData);
     }
   }
 
-  if ((targetKey || '').includes('createdBy.')) {
+  if ((targetKey || "").includes("createdBy.")) {
     return await generateCreatedByFieldValue({ subdomain, target, targetKey });
   }
 
-  if (targetKey.includes('customers.')) {
+  if (targetKey.includes("customers.")) {
     const result = await generateCustomersFielValue({
       target,
       targetKey,
-      subdomain
+      subdomain,
     });
     return result;
   }
-  if (targetKey.includes('customFieldsData.')) {
+  if (targetKey.includes("customFieldsData.")) {
     return await generateCustomFieldsDataValue({
       target,
       targetKey,
-      subdomain
+      subdomain,
+      relatedValueProps,
     });
   }
 
-  if (targetKey === 'link') {
+  if (targetKey === "link") {
     const DOMAIN = getEnv({
-      name: 'DOMAIN'
+      name: "DOMAIN",
     });
     const stage = await models.Stages.getStage(target.stageId);
     const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
@@ -190,39 +191,39 @@ export const getRelatedValue = async (
     return `${DOMAIN}/ticket/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${target._id}`;
   }
 
-  if (targetKey === 'pipelineLabels') {
+  if (targetKey === "pipelineLabels") {
     const labels = await models.PipelineLabels.find({
-      _id: { $in: target?.labelIds || [] }
+      _id: { $in: target?.labelIds || [] },
     }).lean();
 
-    return `${labels.map(({ name }) => name).filter(Boolean) || '-'}`;
+    return `${labels.map(({ name }) => name).filter(Boolean) || "-"}`;
   }
-  if (targetKey.includes('branches.')) {
+  if (targetKey.includes("branches.")) {
     const branches = await sendCoreMessage({
       subdomain,
-      action: 'branches.find',
+      action: "branches.find",
       data: {
         query: { _id: { $in: target?.branchIds || [] } },
-        fields: { title: 1 }
+        fields: { title: 1 },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
-    return `${branches.map(({ title }) => title).filter(Boolean) || '-'}`;
+    return `${branches.map(({ title }) => title).filter(Boolean) || "-"}`;
   }
 
   if (
     [
-      'createdAt',
-      'startDate',
-      'closeDate',
-      'stageChangedDate',
-      'modifiedAt'
+      "createdAt",
+      "startDate",
+      "closeDate",
+      "stageChangedDate",
+      "modifiedAt",
     ].includes(targetKey)
   ) {
     const dateValue = targetKey[targetKey];
-    return moment(dateValue).format('YYYY-MM-DD HH:mm');
+    return moment(dateValue).format("YYYY-MM-DD HH:mm");
   }
 
   return false;
@@ -231,13 +232,15 @@ export const getRelatedValue = async (
 const generateCustomFieldsDataValue = async ({
   targetKey,
   subdomain,
-  target
+  target,
+  relatedValueProps,
 }: {
   targetKey: string;
   subdomain: string;
   target: any;
+  relatedValueProps: any;
 }) => {
-  const [_, fieldId] = targetKey.split('customFieldsData.');
+  const [_, fieldId] = targetKey.split("customFieldsData.");
   const customFieldData = (target?.customFieldsData || []).find(
     ({ field }) => field === fieldId
   );
@@ -248,90 +251,97 @@ const generateCustomFieldsDataValue = async ({
 
   const field = await sendCoreMessage({
     subdomain,
-    action: 'fields.findOne',
+    action: "fields.findOne",
     data: {
       query: {
         _id: fieldId,
         $or: [
-          { type: 'users' },
-          { type: 'input', validation: { $in: ['date', 'datetime'] } }
-        ]
-      }
+          { type: "users" },
+          { type: "input", validation: { $in: ["date", "datetime"] } },
+        ],
+      },
     },
     isRPC: true,
-    defaultValue: null
+    defaultValue: null,
   });
 
   if (!field) {
     return;
   }
 
-  if (field?.type === 'users') {
-    const users: IUser[] = await sendCoreMessage({
+  if (field?.type === "users") {
+    const users = await sendCoreMessage({
       subdomain,
-      action: 'users.find',
+      action: "users.find",
       data: {
         query: { _id: { $in: customFieldData?.value || [] } },
-        fields: { details: 1 }
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
+
+    if (!!relatedValueProps[targetKey]) {
+      return generateRelatedValueUserProps({
+        targetKey,
+        users,
+        relatedValueProps,
+      });
+    }
 
     return users
       .map(
         ({ details }) =>
-          `${details?.firstName || ''} ${details?.lastName || ''}`
+          `${details?.firstName || ""} ${details?.lastName || ""}`
       )
       .filter(Boolean)
-      .join(', ');
+      .join(", ");
   }
   const isISODate = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(
     customFieldData?.value
   );
 
   if (
-    field?.type === 'input' &&
-    ['date', 'datetime'].includes(field.validation) &&
+    field?.type === "input" &&
+    ["date", "datetime"].includes(field.validation) &&
     isISODate
   ) {
-    return moment(customFieldData.value).format('YYYY-MM-DD HH:mm');
+    return moment(customFieldData.value).format("YYYY-MM-DD HH:mm");
   }
 };
 
 const generateCustomersFielValue = async ({
   targetKey,
   subdomain,
-  target
+  target,
 }: {
   targetKey: string;
   subdomain: string;
   target: any;
 }) => {
-  const [_, fieldName] = targetKey.split('.');
+  const [_, fieldName] = targetKey.split(".");
 
   const customerIds = await sendCoreMessage({
     subdomain,
-    action: 'conformities.savedConformity',
+    action: "conformities.savedConformity",
     data: {
-      mainType: 'ticket',
+      mainType: "ticket",
       mainTypeId: target._id,
-      relTypes: ['customer']
+      relTypes: ["customer"],
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   const customers: any[] =
     (await sendCoreMessage({
       subdomain,
-      action: 'customers.find',
+      action: "customers.find",
       data: { _id: { $in: customerIds } },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     })) || [];
 
-  if (fieldName === 'email') {
+  if (fieldName === "email") {
     return customers
       .map((customer) =>
         customer?.primaryEmail
@@ -339,9 +349,9 @@ const generateCustomersFielValue = async ({
           : (customer?.emails || [])[0]
       )
       .filter(Boolean)
-      .join(', ');
+      .join(", ");
   }
-  if (fieldName === 'phone') {
+  if (fieldName === "phone") {
     return customers
       .map((customer) =>
         customer?.primaryPhone
@@ -349,77 +359,95 @@ const generateCustomersFielValue = async ({
           : (customer?.phones || [])[0]
       )
       .filter(Boolean)
-      .join(', ');
+      .join(", ");
   }
-  if (fieldName === 'fullName') {
+  if (fieldName === "fullName") {
     return customers
-      .map(({ firstName = '', lastName = '' }) => `${firstName} ${lastName}`)
+      .map(({ firstName = "", lastName = "" }) => `${firstName} ${lastName}`)
       .filter(Boolean)
-      .join(', ');
+      .join(", ");
   }
 };
 
 const generateCreatedByFieldValue = async ({
   targetKey,
   subdomain,
-  target
+  target,
 }: {
   targetKey: string;
   subdomain: string;
   target: any;
 }) => {
-  const [_, userField] = targetKey.split('.');
+  const [_, userField] = targetKey.split(".");
   const user = (await sendCoreMessage({
     subdomain,
-    action: 'users.findOne',
+    action: "users.findOne",
     data: { _id: target?.userId },
-    isRPC: true
-  })) as IUser;
-  if (userField === 'branch') {
+    isRPC: true,
+  })) as { positionIds: string[] } & IUser;
+  if (userField === "branch") {
     const branches = await sendCoreMessage({
       subdomain,
-      action: 'branches.find',
-      data: { _id: user?.branchIds || [] },
+      action: "branches.find",
+      data: { query: { _id: { $in: user?.branchIds || [] } } },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const branch = (branches || [])[0] || {};
 
-    return `${branch?.title || ''}`;
+    return `${branch?.title || ""}`;
   }
-  if (userField === 'department') {
+  if (userField === "department") {
     const departments = await sendCoreMessage({
       subdomain,
-      action: 'departments.find',
-      data: { _id: user?.departmentIds || [] },
+      action: "departments.find",
+      data: { _id: { $in: user?.departmentIds || [] } },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const department = (departments || [])[0] || {};
 
-    return `${department?.title || ''}`;
+    return `${department?.title || ""}`;
   }
 
-  if (userField === 'phone') {
+  if (userField === "phone") {
     const { details } = user || {};
 
-    return `${details?.operatorPhone || ''}`;
+    return `${details?.operatorPhone || ""}`;
   }
 
-  if (userField === 'email') {
-    return `${user?.email || '-'}`;
+  if (userField === "email") {
+    return `${user?.email || "-"}`;
   }
 
-  if (userField === 'fullName') {
+  if (userField === "fullName") {
     const { details, username } = user || {};
     return (
       details?.fullName ||
-      `${details?.firstName || ''} ${details?.lastName || ''}` ||
+      `${details?.firstName || ""} ${details?.lastName || ""}` ||
       username ||
-      '-'
+      "-"
     );
+  }
+
+  if (userField === "position") {
+    if (user?.positionIds?.length) {
+      const positions: any[] = await sendCoreMessage({
+        subdomain,
+        action: "positions.find",
+        data: { query: { _id: { $in: user?.positionIds || [] } } },
+        isRPC: true,
+        defaultValue: [],
+      });
+
+      return (positions || [])
+        .map(({ title }) => title)
+        .filter(Boolean)
+        .join(", ");
+    }
+    return user?.details?.position;
   }
 };
 
@@ -435,4 +463,49 @@ const generateTotalAmount = (productsData) => {
   });
 
   return totalAmount;
+};
+
+const generateRelatedValueUserProps = ({
+  users = [],
+  relatedValueProps = {},
+  targetKey,
+}: {
+  users: any[];
+  relatedValueProps: any;
+  targetKey: string;
+}) => {
+  const { key, filter } = relatedValueProps[targetKey] || {};
+
+  const result = users
+    .filter((user) => {
+      if (filter) {
+        const fieldValue = user[filter.key];
+
+        if (filter.value != null && filter.value !== "") {
+          // filter.value is set → exclude if field matches
+          if (fieldValue === filter.value) {
+            return false; // skip this user
+          }
+        } else {
+          // filter.value is null/undefined/empty → exclude if field exists with value
+          if (
+            Object.prototype.hasOwnProperty.call(user, filter.key) &&
+            fieldValue !== null &&
+            fieldValue !== undefined &&
+            fieldValue !== ""
+          ) {
+            return false; // skip this user
+          }
+        }
+
+        return true;
+      }
+
+      return user;
+      // filter ? user[filter.key] === filter.value : user
+    })
+    .map((user) => user[key])
+    .join(", ");
+
+  return result;
 };
