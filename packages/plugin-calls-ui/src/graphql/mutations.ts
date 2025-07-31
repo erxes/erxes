@@ -145,7 +145,13 @@ const callTransfer = `
 
 const callSelectCustomer = `
   mutation callSelectCustomer($integrationId: String!, $customerId: String!, $phoneNumber: String!, $conversationId: String!) {
-    callSelectCustomer(integrationId: $integrationId, customerId: $customerId, phoneNumber: $phoneNumber, conversationId: $conversationId)
+    callSelectCustomer(integrationId: $integrationId, customerId: $customerId, phoneNumber: $phoneNumber, conversationId: $conversationId){
+      firstName
+      lastName
+      primaryPhone
+      phones
+      _id
+    }
 }`;
 
 export default {

@@ -1,9 +1,9 @@
-import { Counts, QueryResponse } from '@erxes/ui/src/types';
+import { Counts, QueryResponse } from "@erxes/ui/src/types";
 
-import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
-import { ICompany } from '../companies/types';
-import { ITag } from '@erxes/ui-tags/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
+import { IActivityLog } from "@erxes/ui-log/src/activityLogs/types";
+import { ICompany } from "../companies/types";
+import { ITag } from "@erxes/ui-tags/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
 
 export interface IVisitorContact {
   email?: string;
@@ -24,6 +24,7 @@ export interface ICustomerDoc {
   middleName?: string;
   lastName?: string;
   phones?: string[];
+  registrationNumber?: string;
   sex?: number;
   primaryPhone?: string;
   primaryEmail?: string;

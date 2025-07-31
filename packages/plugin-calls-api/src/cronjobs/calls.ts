@@ -68,7 +68,7 @@ export default {
     ) {
       return;
     }
-
+    console.log('call cron running ...');
     const models = await generateModels(subdomain);
     const integrations = await models.Integrations.find({
       'queues.0': { $exists: true },

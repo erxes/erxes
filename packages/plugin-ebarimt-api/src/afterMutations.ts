@@ -48,7 +48,8 @@ export const afterMutationHandlers = async (
             contentId: deal._id,
             number: deal.number
           },
-          returnConfig
+          returnConfig,
+          user
         );
 
         if (returnResponses.length) {
@@ -129,7 +130,8 @@ export const afterMutationHandlers = async (
         try {
           const { putData, innerData } = await models.PutResponses.putData(
             ebarimtData,
-            config
+            config,
+            user
           );
 
           putData && ebarimtResponses.push(putData);

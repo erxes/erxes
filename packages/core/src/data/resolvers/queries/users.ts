@@ -1,7 +1,7 @@
 import { IContext, IModels } from "../../../connectionResolver";
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from "@erxes/api-utils/src/permissions";
 import { escapeRegExp, getConfig, paginate } from "../../utils";
 
@@ -84,7 +84,7 @@ export class Builder {
     // filter by segment
     if (this.params.segment) {
       const segment = await this.models.Segments.findOne({
-        _id: this.params.segment
+        _id: this.params.segment,
       });
 
       await this.segmentFilter(segment);
@@ -96,9 +96,9 @@ export class Builder {
       query: {
         bool: {
           must: this.positiveList,
-          must_not: this.negativeList
-        }
-      }
+          must_not: this.negativeList,
+        },
+      },
     };
 
     let totalCount = 0;
@@ -108,7 +108,7 @@ export class Builder {
       action: "count",
       index: this.contentType,
       body: queryOptions,
-      defaultValue: 0
+      defaultValue: 0,
     });
 
     totalCount = totalCountResponse.count;
@@ -117,19 +117,19 @@ export class Builder {
       subdomain: this.subdomain,
       action,
       index: this.contentType,
-      body: queryOptions
+      body: queryOptions,
     });
 
-    const list = response.hits.hits.map(hit => {
+    const list = response.hits.hits.map((hit) => {
       return {
         _id: hit._id,
-        ...hit._source
+        ...hit._source,
       };
     });
 
     return {
       list,
-      totalCount
+      totalCount,
     };
   }
 }
@@ -164,14 +164,14 @@ const getChildIds = async (model, ids) => {
   const orderQry: any[] = [];
   for (const item of items) {
     orderQry.push({
-      order: { $regex: new RegExp(`^${escapeRegExp(item.order)}`) }
+      order: { $regex: new RegExp(`^${escapeRegExp(item.order)}`) },
     });
   }
 
   const allItems = await model.find({
-    $or: orderQry
+    $or: orderQry,
   });
-  return allItems.map(i => i._id);
+  return allItems.map((i) => i._id);
 };
 
 const queryBuilder = async (
@@ -195,11 +195,11 @@ const queryBuilder = async (
     departmentIds,
     branchIds,
     segment,
-    segmentData
+    segmentData,
   } = params;
 
   const selector: any = {
-    isActive
+    isActive,
   };
 
   let andCondition: any[] = [];
@@ -210,7 +210,7 @@ const queryBuilder = async (
       { employeeId: new RegExp(`.*${params.searchValue}.*`, "i") },
       { username: new RegExp(`.*${params.searchValue}.*`, "i") },
       { "details.fullName": new RegExp(`.*${params.searchValue}.*`, "i") },
-      { "details.position": new RegExp(`.*${params.searchValue}.*`, "i") }
+      { "details.position": new RegExp(`.*${params.searchValue}.*`, "i") },
     ];
 
     selector.$or = fields;
@@ -281,7 +281,7 @@ const queryBuilder = async (
         !branchUserIds.includes(user._id)
       ) {
         customCond.push({
-          branchIds: { $in: await getChildIds(models.Branches, branchIds) }
+          branchIds: { $in: await getChildIds(models.Branches, branchIds) },
         });
       }
 
@@ -292,27 +292,25 @@ const queryBuilder = async (
       ) {
         customCond.push({
           departmentIds: {
-            $in: await getChildIds(models.Departments, departmentIds)
-          }
+            $in: await getChildIds(models.Departments, departmentIds),
+          },
         });
       }
 
       andCondition = customCond.length ? [{ $or: customCond }] : [];
     }
-  } else {
-    if (branchIds && branchIds.length) {
-      selector.branchIds = {
-        $in: await getChildIds(models.Branches, branchIds)
-      };
-    }
-
-    if (departmentIds && departmentIds.length) {
-      selector.departmentIds = {
-        $in: await getChildIds(models.Departments, departmentIds)
-      };
-    }
   }
 
+  if (branchIds && branchIds.length) {
+    selector.branchIds = {
+      $in: await getChildIds(models.Branches, branchIds),
+    };
+  }
+  if (departmentIds && departmentIds.length) {
+    selector.departmentIds = {
+      $in: await getChildIds(models.Departments, departmentIds),
+    };
+  }
   if (unitId) {
     const unit = await models.Units.getUnit({ _id: unitId });
 
@@ -330,7 +328,7 @@ const queryBuilder = async (
 
     const { list } = await qb.runQueries();
 
-    selector._id = { $in: list.map(l => l._id) };
+    selector._id = { $in: list.map((l) => l._id) };
   }
 
   if (andCondition.length) {
@@ -352,7 +350,7 @@ const userQueries = {
     const selector = {
       ...userBrandIdsSelector,
       ...(await queryBuilder(models, args, subdomain, user)),
-      ...NORMAL_USER_SELECTOR
+      ...NORMAL_USER_SELECTOR,
     };
 
     const { sortField, sortDirection } = args;
@@ -373,7 +371,7 @@ const userQueries = {
     {
       isActive,
       ids,
-      assignedToMe
+      assignedToMe,
     }: { isActive: boolean; ids: string[]; assignedToMe: string },
     { userBrandIdsSelector, user, models }: IContext
   ) {
@@ -390,7 +388,7 @@ const userQueries = {
     }
 
     return models.Users.find({ ...selector, ...NORMAL_USER_SELECTOR }).sort({
-      username: 1
+      username: 1,
     });
   },
 
@@ -412,7 +410,7 @@ const userQueries = {
     const selector = {
       ...userBrandIdsSelector,
       ...(await queryBuilder(models, args, subdomain, user)),
-      ...NORMAL_USER_SELECTOR
+      ...NORMAL_USER_SELECTOR,
     };
 
     return models.Users.find(selector).countDocuments();
@@ -438,7 +436,7 @@ const userQueries = {
    */
   async userMovements(_root, args, { models }: IContext) {
     return await models.UserMovements.find(args).sort({ createdAt: -1 });
-  }
+  },
 };
 
 requireLogin(userQueries, "usersTotalCount");

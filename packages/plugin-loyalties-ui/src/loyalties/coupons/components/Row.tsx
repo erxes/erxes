@@ -4,13 +4,13 @@ import {
   Table,
   TextInfo,
   Tip,
-} from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils';
-import * as dayjs from 'dayjs';
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { STATUS_MODE } from '../constants';
-import { ICoupon } from '../types';
+} from "@erxes/ui/src/components";
+import { __, Alert } from "@erxes/ui/src/utils";
+import * as dayjs from "dayjs";
+import React, { useState } from "react";
+import styled from "styled-components";
+import { STATUS_MODE } from "../constants";
+import { ICoupon } from "../types";
 
 type Props = {
   item: ICoupon;
@@ -53,14 +53,14 @@ const SubTable = styled(Table)`
 
 export const getOwnerPrimaryInfo = (type, owner) => {
   if (!owner || !type) {
-    return '-';
+    return "-";
   }
 
   return (
     {
       customer: [
         owner?.primaryEmail,
-        `${owner?.firstName ?? ''} ${owner?.lastName ?? ''}`.trim(),
+        `${owner?.firstName ?? ""} ${owner?.lastName ?? ""}`.trim(),
         owner?.phones?.[0],
       ],
       user: [
@@ -73,24 +73,28 @@ export const getOwnerPrimaryInfo = (type, owner) => {
       cpUser: [
         owner?.email,
         owner?.username,
-        `${owner?.firstName ?? ''} ${owner?.lastName ?? ''}`.trim(),
+        `${owner?.firstName ?? ""} ${owner?.lastName ?? ""}`.trim(),
         owner?.phone,
       ],
-    }[type]?.find((value) => value) || '-'
+    }[type]?.find((value) => value) || "-"
   );
 };
 
 const AdditionalRow = ({ usageLogs }: any) => {
   const renderContent = (usageLog) => {
+    if (!usageLog) {
+      return null;
+    }
+
     return (
       <tr>
-        <td>{usageLog.target || '-'}</td>
-        <td>{usageLog.targetType || '-'}</td>
+        <td>{usageLog.target || "-"}</td>
+        <td>{usageLog.targetType || "-"}</td>
         <td>{getOwnerPrimaryInfo(usageLog.ownerType, usageLog.owner)}</td>
         <td>
           {usageLog.usedDate
-            ? dayjs(usageLog.usedDate).format('YYYY/MM/DD LT')
-            : '-'}
+            ? dayjs(usageLog.usedDate).format("YYYY/MM/DD LT")
+            : "-"}
         </td>
       </tr>
     );
@@ -125,11 +129,11 @@ const Row = (props: Props) => {
 
     return (
       <ActionButtons>
-        <Tip text={__(toggleRow ? 'Collapse' : 'Expand')} placement="top">
+        <Tip text={__(toggleRow ? "Collapse" : "Expand")} placement="top">
           <Button
             btnStyle="link"
             onClick={() => setToggleRow(!toggleRow)}
-            icon={toggleRow ? 'angle-up' : 'angle-down'}
+            icon={toggleRow ? "angle-up" : "angle-down"}
           />
         </Tip>
       </ActionButtons>
@@ -139,16 +143,29 @@ const Row = (props: Props) => {
   return (
     <>
       <tr key={item._id}>
-        <td>{item.campaign?.title || '-'}</td>
-        <td>{item.code || '-'}</td>
+        <td>{item.campaign?.title || "-"}</td>
+        <td>
+          <span
+            onClick={() => {
+              if (item.code) {
+                navigator.clipboard.writeText(item.code);
+                Alert.success("Copied to clipboard");
+              }
+            }}
+            style={{ cursor: item.code ? "pointer" : "default" }}
+            title={item.code ? "Click to copy" : ""}
+          >
+            {item.code || "-"}
+          </span>
+        </td>
         <td>{item.usageCount || 0}</td>
-        <td>{item.usageLimit || '-'}</td>
+        <td>{item.usageLimit || "-"}</td>
         <td>
           <TextInfo $textStyle={STATUS_MODE[item.status]}>
-            {item.status || '-'}
+            {item.status || "-"}
           </TextInfo>
         </td>
-        <td>{dayjs(item.createdAt).format('YYYY/MM/DD LT') || '-'}</td>
+        <td>{dayjs(item.createdAt).format("YYYY/MM/DD LT") || "-"}</td>
         <td>{renderActions()}</td>
       </tr>
 
@@ -156,7 +173,7 @@ const Row = (props: Props) => {
         <tr>
           <td
             colSpan={columnLength}
-            style={{ textAlign: 'left', backgroundColor: '#FAFAFA' }}
+            style={{ textAlign: "left", backgroundColor: "#FAFAFA" }}
           >
             <AdditionalRow usageLogs={item.usageLogs as any} />
           </td>

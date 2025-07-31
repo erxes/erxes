@@ -1,5 +1,13 @@
+import { getEnv } from "@erxes/api-utils/src";
+import { getOrganizations } from "@erxes/api-utils/src/saas/saas";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import { IModels } from "./connectionResolver";
-import { sendCoreMessage } from "./messageBroker";
+import { collections } from "./constants";
+import {
+  sendClientPortalMessage,
+  sendCommonMessage,
+  sendCoreMessage,
+} from "./messageBroker";
 import { VOUCHER_STATUS } from "./models/definitions/constants";
 
 interface IProductD {
@@ -7,6 +15,8 @@ interface IProductD {
   quantity: number;
   unitPrice: number;
 }
+
+const availableVoucherTypes = ["bonus", "discount"];
 
 export const getChildCategories = async (subdomain: string, categoryIds) => {
   const childs = await sendCoreMessage({
@@ -19,6 +29,209 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
 
   const catIds: string[] = (childs || []).map((ch) => ch._id) || [];
   return Array.from(new Set(catIds));
+};
+
+export const getChildTags = async (subdomain: string, tagIds) => {
+  const childs = await sendCoreMessage({
+    subdomain,
+    action: "tagWithChilds",
+    data: {
+      query: { _id: { $in: tagIds } },
+    },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  const allTagIds: string[] = (childs || []).map((ch) => ch._id) || [];
+  return Array.from(new Set(allTagIds));
+};
+
+export const applyRestriction = async ({
+  subdomain,
+  restrictions,
+  products,
+}: {
+  subdomain: string;
+  restrictions: Record<string, any>;
+  products: IProductD[];
+}) => {
+  const {
+    categoryIds = [],
+    excludeCategoryIds = [],
+    productIds = [],
+    excludeProductIds = [],
+    tagIds = [],
+    excludeTagIds = [],
+  } = restrictions || {};
+
+  const inputProductsIds = products.map((p) => p.productId);
+
+  const [includedCategoryIds, excludedCategoryIds] = await Promise.all([
+    categoryIds.length ? getChildCategories(subdomain, categoryIds) : [],
+    excludeCategoryIds.length
+      ? getChildCategories(subdomain, excludeCategoryIds)
+      : [],
+  ]);
+
+  const [includedTagIds, excludedTagIds] = await Promise.all([
+    tagIds.length ? getChildTags(subdomain, tagIds) : [],
+    excludeTagIds.length ? getChildTags(subdomain, excludeTagIds) : [],
+  ]);
+
+  const query: Record<string, any> = {
+    _id: {
+      $in: productIds.length ? productIds : inputProductsIds,
+      $nin: excludeProductIds,
+    },
+  };
+
+  if (includedCategoryIds.length || excludedCategoryIds.length) {
+    query.categoryId = {
+      ...(includedCategoryIds.length && { $in: includedCategoryIds }),
+      ...(excludedCategoryIds.length && { $nin: excludedCategoryIds }),
+    };
+  }
+
+  if (includedTagIds.length || excludedTagIds.length) {
+    query.tagIds = {
+      ...(includedTagIds.length && { $in: includedTagIds }),
+      ...(excludedTagIds.length && { $nin: excludedTagIds }),
+    };
+  }
+
+  const productDocs = await sendCoreMessage({
+    subdomain,
+    action: "products.find",
+    data: { query },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  const productMap = new Map(products.map((p) => [p.productId, p]));
+
+  const totalAmount = productDocs.reduce((sum, { _id }) => {
+    const item = productMap.get(_id);
+    return sum + (item ? item.quantity * item.unitPrice : 0);
+  }, 0);
+
+  return { productDocs, restrictedAmount: totalAmount };
+};
+
+export const directVoucher = async ({
+  result,
+  ownerType,
+  ownerId,
+  models,
+  subdomain,
+  products,
+}) => {
+  const NOW = new Date();
+  const productsIds = products.map((p) => p.productId);
+
+  const activeCampaignIds = await models.Vouchers.find({
+    ownerType,
+    ownerId,
+    status: { $in: ["new"] },
+  }).distinct("campaignId");
+
+  for (const voucherType of availableVoucherTypes) {
+    const campaign = await models.VoucherCampaigns.find({
+      _id: { $in: activeCampaignIds },
+      finishDateOfUse: { $gte: NOW },
+      voucherType: { $in: [voucherType] },
+    }).lean();
+
+    const vouchers = await models.Vouchers.aggregate([
+      {
+        $match: {
+          ownerType,
+          ownerId,
+          status: { $in: ["new"] },
+          campaignId: { $in: campaign.map((c) => c._id) },
+        },
+      },
+      {
+        $lookup: {
+          from: "voucher_campaigns",
+          localField: "campaignId",
+          foreignField: "_id",
+          as: "campaign_doc",
+        },
+      },
+      {
+        $project: {
+          campaignId: 1,
+          createdAt: 1,
+          modifiedAt: 1,
+          usedAt: 1,
+          userId: 1,
+
+          ownerType: 1,
+          ownerId: 1,
+          campaign: { $arrayElemAt: ["$campaign_doc", 0] },
+          bonusInfo: 1,
+        },
+      },
+    ]);
+
+    if (voucherType === "bonus") {
+      for (const voucher of vouchers) {
+        for (const productId of productsIds) {
+          if (voucher.campaign.bonusProductId === productId) {
+            result[productId].voucherCampaignId = voucher.campaignId;
+            result[productId].voucherId = voucher._id;
+            result[productId].potentialBonus +=
+              voucher.campaign.bonusCount -
+              (voucher.bonusInfo || []).reduce(
+                (sum, i) => sum + i.usedCount,
+                0
+              );
+            result[productId].type = voucherType;
+            result[productId].discount = 100;
+            result[productId].bonusName = voucher.campaign.title;
+          }
+        }
+      }
+    }
+
+    if (voucherType === "discount") {
+      for (const voucher of vouchers) {
+        const { title, kind, value, restrictions } = voucher.campaign;
+
+        const { productDocs, restrictedAmount } = await applyRestriction({
+          subdomain,
+          restrictions,
+          products,
+        });
+
+        for (const product of productDocs) {
+          const { _id } = product;
+
+          const item = products.find((p) => p.productId === _id) || {};
+
+          const discount = calculateDiscount({
+            kind,
+            value,
+            product: {
+              ...item,
+              discount: result[_id].discount || 0,
+            },
+            totalAmount: restrictedAmount,
+          });
+
+          result[_id] = {
+            ...result[_id],
+            voucherCampaignId: voucher.campaignId,
+            voucherId: voucher._id,
+            discount,
+            voucherName: title,
+            type: voucherType,
+            sumDiscount: result[_id].sumDiscount + discount,
+          };
+        }
+      }
+    }
+  }
 };
 
 export const checkVouchersSale = async (
@@ -37,10 +250,30 @@ export const checkVouchersSale = async (
     return "No Data";
   }
 
-  const now = new Date();
-  const productsIds = products.map((p) => p.productId);
+  if (ownerType === "customer") {
+    const customerRelatedClientPortalUser = await sendClientPortalMessage({
+      subdomain,
+      action: "clientPortalUsers.findOne",
+      data: {
+        $or: [{ _id: ownerId }, { erxesCustomerId: ownerId }],
+      },
+      isRPC: true,
+      defaultValue: null,
+    });
 
-  for (const productId of productsIds) {
+    if (customerRelatedClientPortalUser) {
+      ownerId = customerRelatedClientPortalUser._id;
+      ownerType = "cpUser";
+    }
+  }
+
+  const totalAmount = products.reduce((sum, product) => {
+    return sum + product.quantity * product.unitPrice;
+  }, 0);
+
+  for (const product of products) {
+    const { productId } = product || {};
+
     if (!Object.keys(result).includes(productId)) {
       result[productId] = {
         voucherCampaignId: "",
@@ -52,165 +285,14 @@ export const checkVouchersSale = async (
     }
   }
 
-  const voucherProject = {
-    campaignId: 1,
-    createdAt: 1,
-    modifiedAt: 1,
-    usedAt: 1,
-    userId: 1,
-
-    ownerType: 1,
-    ownerId: 1,
-    campaign: { $arrayElemAt: ["$campaign_doc", 0] },
-  };
-  const lookup = {
-    from: "voucher_campaigns",
-    localField: "campaignId",
-    foreignField: "_id",
-    as: "campaign_doc",
-  };
-
-  const voucherFilter = { ownerType, ownerId, status: { $in: ["new"] } };
-
-  const activeVouchers = await models.Vouchers.find(voucherFilter).lean();
-
-  const activeCampaignIds = activeVouchers.map((v) => v.campaignId);
-
-  const campaignFilter = {
-    _id: { $in: activeCampaignIds },
-    finishDateOfUse: { $gte: now },
-  };
-
-  // bonus
-  const bonusCampaign = await models.VoucherCampaigns.find({
-    ...campaignFilter,
-    voucherType: { $in: ["bonus"] },
-  }).lean();
-
-  const bonusVouchers = await models.Vouchers.aggregate([
-    {
-      $match: {
-        ...voucherFilter,
-        campaignId: { $in: bonusCampaign.map((c) => c._id) },
-      },
-    },
-    {
-      $lookup: lookup,
-    },
-    {
-      $project: {
-        ...voucherProject,
-        bonusInfo: 1,
-      },
-    },
-  ]);
-
-  for (const bonusVoucher of bonusVouchers) {
-    for (const productId of productsIds) {
-      if (bonusVoucher.campaign.bonusProductId === productId) {
-        result[productId].voucherCampaignId = bonusVoucher.campaignId;
-        result[productId].voucherId = bonusVoucher._id;
-        result[productId].potentialBonus +=
-          bonusVoucher.campaign.bonusCount -
-          (bonusVoucher.bonusInfo || []).reduce(
-            (sum, i) => sum + i.usedCount,
-            0
-          );
-        result[productId].type = "bonus";
-        result[productId].discount = 100;
-        result[productId].bonusName = bonusVoucher.campaign.title;
-      }
-    }
-  }
-
-  // discount
-  const discountCampaigns = await models.VoucherCampaigns.find({
-    ...campaignFilter,
-    voucherType: { $in: ["discount"] },
-  }).lean();
-
-  const discountVouchers = await models.Vouchers.aggregate([
-    {
-      $match: {
-        ...voucherFilter,
-        campaignId: { $in: discountCampaigns.map((c) => c._id) },
-      },
-    },
-    {
-      $lookup: lookup,
-    },
-    {
-      $project: {
-        ...voucherProject,
-      },
-    },
-  ]);
-
-  const productCatIds = discountCampaigns.reduce(
-    (catIds, c) => catIds.concat(c.productCategoryIds),
-    [] as string[]
-  );
-
-  const categoryIdsByCampaignId = {};
-  let allCatIds: string[] = [];
-  for (const campaign of discountCampaigns) {
-    if (Object.keys(categoryIdsByCampaignId).includes(campaign._id)) {
-      categoryIdsByCampaignId[campaign._id] = [];
-    }
-    const catIds = await getChildCategories(subdomain, [
-      ...new Set(productCatIds),
-    ]);
-    categoryIdsByCampaignId[campaign._id] = catIds;
-    allCatIds = allCatIds.concat(catIds);
-  }
-
-  const catProducts = await sendCoreMessage({
+  await directVoucher({
+    result,
+    ownerType,
+    ownerId,
+    models,
     subdomain,
-    action: "products.find",
-    data: {
-      query: { categoryId: { $in: allCatIds } },
-      sort: { _id: 1, categoryId: 1 },
-    },
-    isRPC: true,
-    defaultValue: [],
+    products,
   });
-
-  const productIdsByCatId = {};
-  for (const pr of catProducts) {
-    if (!Object.keys(productIdsByCatId).includes(pr.categoryId)) {
-      productIdsByCatId[pr.categoryId] = [];
-    }
-
-    productIdsByCatId[pr.categoryId].push(pr._id);
-  }
-
-  for (const discountVoucher of discountVouchers) {
-    const catIds = categoryIdsByCampaignId[discountVoucher.campaignId];
-    let productIds = discountVoucher.campaign.productIds || [];
-
-    for (const catId of catIds) {
-      productIds = productIds.concat(productIdsByCatId[catId] || []);
-    }
-
-    for (const productId of productsIds) {
-      if (productIds.includes(productId)) {
-        if (
-          result[productId].discount < discountVoucher.campaign.discountPercent
-        ) {
-          result[productId] = {
-            ...result[productId],
-            voucherCampaignId: discountVoucher.campaignId,
-            voucherId: discountVoucher._id,
-            discount: discountVoucher.campaign.discountPercent,
-            voucherName: discountVoucher.campaign.title,
-            type: "discount",
-          };
-        }
-        result[productId].sumDiscount +=
-          discountVoucher.campaign.discountPercent;
-      }
-    }
-  }
 
   if (voucherId) {
     const voucherCampaign = await models.Vouchers.checkVoucher({
@@ -219,49 +301,13 @@ export const checkVouchersSale = async (
       ownerId,
     });
 
-    const { title, kind, value, restrictions } = voucherCampaign;
+    const { title, kind, value, restrictions = {} } = voucherCampaign;
 
-    const {
-      categoryIds = [],
-      excludeCategoryIds = [],
-      productIds = [],
-      excludeProductIds = [],
-      tagIds = [],
-      excludeTagIds = [],
-    } = restrictions || {};
-
-    const productDocs = await sendCoreMessage({
+    const { productDocs, restrictedAmount } = await applyRestriction({
       subdomain,
-      action: "products.find",
-      data: {
-        query: {
-          _id: {
-            $in: [...productsIds, ...productIds],
-            $nin: excludeProductIds,
-          },
-          categoryId: {
-            ...(categoryIds.length ? { $in: categoryIds } : {}),
-            $nin: excludeCategoryIds,
-          },
-          tagIds: {
-            ...(tagIds.length ? { $in: tagIds } : {}),
-            $nin: excludeTagIds,
-          },
-        },
-      },
-      isRPC: true,
-      defaultValue: [],
+      restrictions,
+      products,
     });
-
-    const totalAmount = productDocs.reduce((sum, doc) => {
-      const { _id } = doc;
-
-      const item: IProductD =
-        products.find((p) => p.productId === _id) || ({} as IProductD);
-      sum += item.quantity * item.unitPrice;
-
-      return sum;
-    }, 0);
 
     await models.Vouchers.checkVoucher({
       voucherId,
@@ -286,7 +332,7 @@ export const checkVouchersSale = async (
             ...item,
             discount: result[_id].discount || 0,
           },
-          totalAmount,
+          totalAmount: restrictedAmount,
         }),
         voucherName: title,
         type: "voucher",
@@ -301,49 +347,13 @@ export const checkVouchersSale = async (
       ownerId,
     });
 
-    const { title, kind, value, restrictions } = couponCampaign;
+    const { title, kind, value, restrictions = {} } = couponCampaign;
 
-    const {
-      categoryIds = [],
-      excludeCategoryIds = [],
-      productIds = [],
-      excludeProductIds = [],
-      tagIds = [],
-      excludeTagIds = [],
-    } = restrictions || {};
-
-    const productDocs = await sendCoreMessage({
+    const { productDocs, restrictedAmount } = await applyRestriction({
       subdomain,
-      action: "products.find",
-      data: {
-        query: {
-          _id: {
-            $in: [...productsIds, ...productIds],
-            $nin: excludeProductIds,
-          },
-          categoryId: {
-            ...(categoryIds.length ? { $in: categoryIds } : {}),
-            $nin: excludeCategoryIds,
-          },
-          tagIds: {
-            ...(tagIds.length ? { $in: tagIds } : {}),
-            $nin: excludeTagIds,
-          },
-        },
-      },
-      isRPC: true,
-      defaultValue: [],
+      restrictions,
+      products,
     });
-
-    const totalAmount = productDocs.reduce((sum, doc) => {
-      const { _id } = doc;
-
-      const item: IProductD =
-        products.find((p) => p.productId === _id) || ({} as IProductD);
-      sum += item.quantity * item.unitPrice;
-
-      return sum;
-    }, 0);
 
     await models.Coupons.checkCoupon({
       code: couponCode,
@@ -367,7 +377,7 @@ export const checkVouchersSale = async (
             ...item,
             discount: result[_id].discount || 0,
           },
-          totalAmount,
+          totalAmount: restrictedAmount,
         }),
         couponName: title,
         type: "coupon",
@@ -380,6 +390,7 @@ export const checkVouchersSale = async (
 
 export const confirmVoucherSale = async (
   models: IModels,
+  subdomain: string,
   checkInfo: {
     [productId: string]: {
       voucherId: string;
@@ -397,6 +408,23 @@ export const confirmVoucherSale = async (
   }
 ) => {
   const { couponCode, voucherId, totalAmount, ...usageInfo } = extraInfo || {};
+
+  if (extraInfo?.ownerType === "customer" && extraInfo?.ownerId) {
+    const customerRelatedClientPortalUser = await sendClientPortalMessage({
+      subdomain,
+      action: "clientPortalUsers.findOne",
+      data: {
+        erxesCustomerId: extraInfo.ownerId,
+      },
+      isRPC: true,
+      defaultValue: null,
+    });
+
+    if (customerRelatedClientPortalUser) {
+      usageInfo.ownerId = customerRelatedClientPortalUser._id;
+      usageInfo.ownerType = "cpUser";
+    }
+  }
 
   if (couponCode) {
     await models.Coupons.redeemCoupon({
@@ -519,17 +547,17 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
   try {
     if (kind === "percent") {
       if (product?.discount) {
-        return product?.discount + value;
+        return Math.min(product.discount + value, 100);
       }
 
-      return value;
+      return Math.min(value, 100);
     }
 
     if (!product || !totalAmount) {
       return 0;
     }
 
-    const productPrice = product.unitPrice * product.quantity;
+    const productPrice = product.unitPrice * (product.quantity || 1);
 
     if (productPrice <= 0) {
       return 0;
@@ -540,12 +568,80 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
     const discount = (productDiscount / productPrice) * 100;
 
     if (product?.discount) {
-      return discount + product?.discount;
+      return Math.min(discount + product.discount, 100);
     }
 
-    return discount;
+    return Math.min(discount, 100);
   } catch (error) {
     console.error("Error calculating discount:", error.message);
     return 0;
+  }
+};
+
+export const handleLoyaltyReward = async ({ subdomain }) => {
+  if (!isEnabled("automations")) return;
+
+  const VERSION = getEnv({ name: "VERSION" });
+
+  const NOW = new Date();
+  const NOW_MONTH = NOW.getMonth() + 1;
+
+  for (const collectionName of Object.keys(collections)) {
+    const query = collections[collectionName](NOW_MONTH) || {};
+
+    if (VERSION && VERSION === "saas") {
+      const orgs = await getOrganizations();
+
+      const enabledOrganizations = orgs.filter((org) => !org?.isDisabled);
+
+      for (const org of enabledOrganizations) {
+        const targets =
+          (await sendCoreMessage({
+            subdomain: org.subdomain,
+            action: `${collectionName}.find`,
+            data: query,
+            isRPC: true,
+            defaultValue: [],
+          })) || [];
+
+        if (targets.length === 0) return;
+
+        sendCommonMessage({
+          subdomain: org.subdomain,
+          serviceName: "automations",
+          action: "trigger",
+          data: {
+            type: "loyalties:reward",
+            targets,
+          },
+          defaultValue: [],
+          isRPC: true,
+        });
+      }
+      continue;
+    } else {
+      const targets =
+        (await sendCoreMessage({
+          subdomain,
+          action: `${collectionName}.find`,
+          data: query,
+          isRPC: true,
+          defaultValue: [],
+        })) || [];
+
+      if (targets.length === 0) return;
+
+      sendCommonMessage({
+        subdomain,
+        serviceName: "automations",
+        action: "trigger",
+        data: {
+          type: "loyalties:reward",
+          targets,
+        },
+        defaultValue: [],
+        isRPC: true,
+      });
+    }
   }
 };

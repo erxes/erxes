@@ -5,7 +5,7 @@ import {
   commonTypes,
   conformityQueryFields,
   copyParams,
-} from './common';
+} from "./common";
 
 export const types = ({ contacts, clientPortal }) => `
   type TicketListItem {
@@ -16,16 +16,17 @@ export const types = ({ contacts, clientPortal }) => `
   type Ticket @key(fields: "_id") {
     _id: String!
     source: String
-    ${contacts
-    ? `
+    ${
+      contacts
+        ? `
       companies: [Company]
       customers: [Customer]
       `
-    : ''
-  }
+        : ""
+    }
 
     tags: [Tag]
-    ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ''}
+    ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ""}
 
     ${commonTypes}
   }
@@ -113,10 +114,11 @@ export const queries = `
 const ticketMutationParams = `
   source: String,
   type: String,
+  isCheckUserTicket: Boolean
 `;
 
 export const mutations = `
-  ticketsAdd(name: String!, ${copyParams}, ${ticketMutationParams}, ${commonMutationParams}): Ticket
+  ticketsAdd(name: String, ${copyParams}, ${ticketMutationParams}, ${commonMutationParams}): Ticket
   ticketsEdit(_id: String!, name: String, ${ticketMutationParams}, ${commonMutationParams}): Ticket
   ticketsChange(${commonDragParams}): Ticket
   ticketsRemove(_id: String!): Ticket

@@ -13,13 +13,17 @@ import { StripeAPI } from '../../../api/stripe/api';
 import ErxesPayment from '../../../api/ErxesPayment';
 
 const mutations = {
-  async paymentAdd(_root, doc: IPayment, { models, subdomain }: IContext) {
+  async paymentAdd(_root, doc: IPayment & { currency?: string }, { models, subdomain }: IContext) {
     const DOMAIN = getEnv({ name: 'DOMAIN' })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
       : 'http://localhost:4000';
     const domain = DOMAIN.replace('<subdomain>', subdomain);
     const acceptedCurrencies = PAYMENTS[doc.kind].acceptedCurrencies;
     doc.acceptedCurrencies = acceptedCurrencies;
+
+    if (doc.config?.currency) {
+      doc.acceptedCurrencies = [doc.config.currency];
+    }
 
     if (doc.kind === 'qpayQuickqr') {
       const api = new QPayQuickQrAPI(doc.config);
@@ -47,7 +51,7 @@ const mutations = {
     if (doc.kind === 'pocket') {
       const pocketApi = new PocketAPI(doc.config, domain);
       try {
-        await pocketApi.resiterWebhook(payment._id);
+        await pocketApi.registerWebhook(payment._id);
       } catch (e) {
         await models.PaymentMethods.removePayment(payment._id);
         throw new Error(`Error while registering pocket webhook: ${e.message}`);
@@ -90,7 +94,8 @@ const mutations = {
       status,
       kind,
       config,
-    }: { _id: string; name: string; status: string; kind: string; config: any },
+      currency
+    }: { _id: string; name: string; status: string; kind: string; config: any, currency?: string },
     { models }: IContext
   ) {
     const { acceptedCurrencies } = PAYMENTS[kind];
@@ -116,13 +121,19 @@ const mutations = {
       }
     }
 
-    return await models.PaymentMethods.updatePayment(_id, {
+    const doc: any = {
       name,
       status,
       kind,
       config,
       acceptedCurrencies,
-    });
+    }
+
+    if (currency) {
+      doc.acceptedCurrencies = [currency];
+    }
+
+    return await models.PaymentMethods.updatePayment(_id, doc);
   },
 };
 

@@ -151,8 +151,8 @@ const productDetail = `
 `;
 
 const productCategories = `
-  query productCategories($status: String, $brand: String) {
-    productCategories(status: $status, brand: $brand) {
+  query productCategories($status: String, $brand: String, $searchValue: String) {
+    productCategories(status: $status, brand: $brand, searchValue: $searchValue) {
       _id
       name
       order

@@ -11,10 +11,15 @@ import BankAmountUi from "./bank-amount-ui"
 import { onError } from '@/components/ui/use-toast'
 
 const Golomt = () => {
-  const paymentTypes = useAtomValue(paymentTypesAtom) || []
-  const [response, setResponse] = useAtom(golomtResponseAtom)
-  const [loading, setLoading] = useState(false)
-  const terminalID = getLocal("golomtId")
+  const paymentTypes = useAtomValue(paymentTypesAtom) || [];
+  const [response, setResponse] = useAtom(golomtResponseAtom);
+  const [loading, setLoading] = useState(false);
+  const terminalID = getLocal("golomtId");
+  const devicePortNo = getLocal("golomtPortNo");
+
+  if (devicePortNo) {
+    initialData.portNo = devicePortNo as string;
+  }
 
   const golomt = paymentTypes.find((pt) => pt.type === BANK_CARD_TYPES.GOLOMT)
 

@@ -35,7 +35,7 @@ export const types = `
     codesCount: Int,
 
     kind: Kind
-    value: Int
+    value: Float
     restrictions: JSON
   }
 `;
@@ -72,7 +72,7 @@ const VoucherCampaignDoc = `
   lotteryCount: Float,
 
   kind: Kind
-  value: Int
+  value: Float
   restrictions: JSON
 `;
 

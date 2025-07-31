@@ -40,6 +40,10 @@ const Sidebar: React.FC = () => {
           '/erxes-plugin-ebarimt/settings/product-rule',
           'Product rules on TAX',
         )}
+        {renderListItem(
+          '/erxes-plugin-ebarimt/settings/product-group',
+          'Product groups',
+        )}
       </List>
     </LeftSidebar>
   );

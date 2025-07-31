@@ -1,34 +1,34 @@
 import {
   IActionsMap,
   ITrigger,
-  TriggerType
-} from './models/definitions/automaions';
+  TriggerType,
+} from "./models/definitions/automaions";
 
-import { ACTIONS } from './constants';
+import { ACTIONS } from "./constants";
 import {
   EXECUTION_STATUS,
   IExecAction,
-  IExecutionDocument
-} from './models/definitions/executions';
+  IExecutionDocument,
+} from "./models/definitions/executions";
 
-import { getActionsMap } from './helpers';
-import { sendCommonMessage, sendSegmentsMessage } from './messageBroker';
+import { getActionsMap } from "./helpers";
+import { sendCommonMessage, sendSegmentsMessage } from "./messageBroker";
 
-import { debugError } from '@erxes/api-utils/src/debuggers';
-import { IModels } from './connectionResolver';
-import { handleEmail } from './common/emailUtils';
-import { setActionWait } from './actions/wait';
+import { debugError } from "@erxes/api-utils/src/debuggers";
+import { setActionWait } from "./actions/wait";
+import { executeEmailAction } from "./common/email/executeEmailWorkflow";
+import { IModels } from "./connectionResolver";
 
 export const getEnv = ({
   name,
-  defaultValue
+  defaultValue,
 }: {
   name: string;
   defaultValue?: string;
 }): string => {
   const value = process.env[name];
 
-  if (!value && typeof defaultValue !== 'undefined') {
+  if (!value && typeof defaultValue !== "undefined") {
     return defaultValue;
   }
 
@@ -36,7 +36,7 @@ export const getEnv = ({
     debugError(`Missing environment variable configuration for ${name}`);
   }
 
-  return value || '';
+  return value || "";
 };
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -49,9 +49,9 @@ export const isInSegment = async (
 
   const response = await sendSegmentsMessage({
     subdomain,
-    action: 'isInSegment',
+    action: "isInSegment",
     data: { segmentId, idToCheck: targetId },
-    isRPC: true
+    isRPC: true,
   });
 
   return response;
@@ -68,7 +68,7 @@ export const executeActions = async (
     execution.status = EXECUTION_STATUS.COMPLETE;
     await execution.save();
 
-    return 'finished';
+    return "finished";
   }
 
   const action = actionsMap[currentActionId];
@@ -76,7 +76,7 @@ export const executeActions = async (
     execution.status = EXECUTION_STATUS.MISSID;
     await execution.save();
 
-    return 'missed action';
+    return "missed action";
   }
 
   execution.status = EXECUTION_STATUS.ACTIVE;
@@ -85,7 +85,7 @@ export const executeActions = async (
     actionId: currentActionId,
     actionType: action.type,
     actionConfig: action.config,
-    nextActionId: action.nextActionId
+    nextActionId: action.nextActionId,
   };
 
   let actionResponse: any = null;
@@ -97,7 +97,7 @@ export const executeActions = async (
       execution.status = EXECUTION_STATUS.WAITING;
       execution.actions = [...(execution.actions || []), execAction];
       await execution.save();
-      return 'paused';
+      return "paused";
     }
 
     if (action.type === ACTIONS.IF) {
@@ -130,51 +130,51 @@ export const executeActions = async (
 
     if (action.type === ACTIONS.SET_PROPERTY) {
       const { module } = action.config;
-      const [serviceName, collectionType] = module.split(':');
+      const [serviceName, collectionType] = module.split(":");
 
       actionResponse = await sendCommonMessage({
         subdomain,
         serviceName,
-        action: 'automations.receiveActions',
+        action: "automations.receiveActions",
         data: {
           triggerType,
-          actionType: 'set-property',
+          actionType: "set-property",
           action,
           execution,
-          collectionType
+          collectionType,
         },
-        isRPC: true
+        isRPC: true,
       });
     }
 
     if (action.type === ACTIONS.SEND_EMAIL) {
       try {
-        actionResponse = await handleEmail({
+        actionResponse = await executeEmailAction({
           subdomain,
           target: execution.target,
           triggerType,
           config: action.config,
-          execution
+          execution,
         });
       } catch (err) {
         actionResponse = err.messsage;
       }
     }
 
-    if (action.type.includes('create')) {
-      const [serviceName, type] = action.type.split(':');
+    if (action.type.includes("create")) {
+      const [serviceName, type] = action.type.split(":");
 
       actionResponse = await sendCommonMessage({
         subdomain,
         serviceName,
-        action: 'automations.receiveActions',
+        action: "automations.receiveActions",
         data: {
-          actionType: 'create',
+          actionType: "create",
           action,
           execution,
-          collectionType: type.replace('.create', '')
+          collectionType: type.replace(".create", ""),
         },
-        isRPC: true
+        isRPC: true,
       });
 
       if (actionResponse?.objToWait) {
@@ -182,10 +182,10 @@ export const executeActions = async (
           ...actionResponse.objToWait,
           execution,
           action,
-          result: actionResponse?.result
+          result: actionResponse?.result,
         });
 
-        return 'paused';
+        return "paused";
       }
 
       if (actionResponse.error) {
@@ -215,8 +215,8 @@ export const executeActions = async (
 };
 
 const isDiffValue = (latest, target, field) => {
-  if (field.includes('customFieldsData') || field.includes('trackedData')) {
-    const [ct, fieldId] = field.split('.');
+  if (field.includes("customFieldsData") || field.includes("trackedData")) {
+    const [ct, fieldId] = field.split(".");
     const latestFoundItem = latest[ct].find((i) => i.field === fieldId);
     const targetFoundItem = target[ct].find((i) => i.field === fieldId);
 
@@ -240,7 +240,7 @@ const isDiffValue = (latest, target, field) => {
     }
   };
 
-  const extractFields = field.split('.');
+  const extractFields = field.split(".");
 
   let latestValue = latest;
   let targetValue = target;
@@ -262,7 +262,7 @@ export const calculateExecution = async ({
   subdomain,
   automationId,
   trigger,
-  target
+  target,
 }: {
   models: IModels;
   subdomain: string;
@@ -275,15 +275,15 @@ export const calculateExecution = async ({
 
   try {
     if (!!isCustom) {
-      const [serviceName, collectionType] = (trigger?.type || '').split(':');
+      const [serviceName, collectionType] = (trigger?.type || "").split(":");
 
       const isValid = await sendCommonMessage({
         subdomain,
         serviceName,
-        action: 'automations.checkCustomTrigger',
+        action: "automations.checkCustomTrigger",
         data: { collectionType, automationId, trigger, target, config },
         isRPC: true,
-        defaultValue: false
+        defaultValue: false,
       });
       if (!isValid) {
         return;
@@ -300,7 +300,7 @@ export const calculateExecution = async ({
       targetId: target._id,
       target,
       status: EXECUTION_STATUS.ERROR,
-      description: `An error occurred while checking the is in segment: "${e.message}"`
+      description: `An error occurred while checking the is in segment: "${e.message}"`,
     });
     return;
   }
@@ -308,7 +308,7 @@ export const calculateExecution = async ({
   const executions = await models.Executions.find({
     automationId,
     triggerId: id,
-    targetId: target._id
+    targetId: target._id,
   })
     .sort({ createdAt: -1 })
     .limit(1)
@@ -345,7 +345,7 @@ export const calculateExecution = async ({
     targetId: target._id,
     target,
     status: EXECUTION_STATUS.ACTIVE,
-    description: `Met enrollement criteria`
+    description: `Met enrollement criteria`,
   });
 };
 
@@ -353,14 +353,14 @@ const isWaitingDateConfig = (dateConfig) => {
   if (dateConfig) {
     const NOW = new Date();
 
-    if (dateConfig.type === 'range') {
+    if (dateConfig.type === "range") {
       const { startDate, endDate } = dateConfig;
       if (startDate < NOW && endDate > NOW) {
         return true;
       }
     }
 
-    if (dateConfig?.type === 'cycle') {
+    if (dateConfig?.type === "cycle") {
       const { frequencyType } = dateConfig;
 
       const generateDate = (inputDate, isMonth?) => {
@@ -373,7 +373,7 @@ const isWaitingDateConfig = (dateConfig) => {
         );
       };
 
-      if (frequencyType === 'everyYear') {
+      if (frequencyType === "everyYear") {
         const startDate = generateDate(dateConfig.startDate);
         if (dateConfig?.endDate) {
           const endDate = generateDate(dateConfig.endDate);
@@ -386,7 +386,7 @@ const isWaitingDateConfig = (dateConfig) => {
           return true;
         }
       }
-      if (frequencyType === 'everyMonth') {
+      if (frequencyType === "everyMonth") {
         const startDate = generateDate(dateConfig.startDate, true);
         if (dateConfig?.endDate) {
           const endDate = generateDate(dateConfig.endDate, true);
@@ -411,7 +411,7 @@ export const receiveTrigger = async ({
   models,
   subdomain,
   type,
-  targets
+  targets,
 }: {
   models: IModels;
   subdomain: string;
@@ -419,15 +419,15 @@ export const receiveTrigger = async ({
   targets: any[];
 }) => {
   const automations = await models.Automations.find({
-    status: 'active',
+    status: "active",
     $or: [
       {
-        'triggers.type': { $in: [type] }
+        "triggers.type": { $in: [type] },
       },
       {
-        'triggers.type': { $regex: `^${type}\\..*` }
-      }
-    ]
+        "triggers.type": { $regex: `^${type}\\..*` },
+      },
+    ],
   }).lean();
 
   if (!automations.length) {
@@ -450,7 +450,7 @@ export const receiveTrigger = async ({
           subdomain,
           automationId: automation._id,
           trigger,
-          target
+          target,
         });
 
         if (execution) {
@@ -475,11 +475,11 @@ export const executePrevAction = async (
   const { query = {} } = data;
 
   const lastExecution = await models.Executions.findOne(query).sort({
-    createdAt: -1
+    createdAt: -1,
   });
 
   if (!lastExecution) {
-    throw new Error('No execution found');
+    throw new Error("No execution found");
   }
 
   const { actions = [] } = lastExecution;
@@ -491,7 +491,7 @@ export const executePrevAction = async (
   }
 
   const automation = await models.Automations.findOne({
-    _id: lastExecution.automationId
+    _id: lastExecution.automationId,
   });
 
   if (!automation) {
@@ -512,7 +512,7 @@ export const executePrevAction = async (
   });
 
   if (!prevAction) {
-    throw new Error('No previous action found for execution');
+    throw new Error("No previous action found for execution");
   }
 
   await executeActions(

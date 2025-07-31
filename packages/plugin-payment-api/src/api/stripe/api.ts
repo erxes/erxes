@@ -147,7 +147,7 @@ export class StripeAPI {
   }
 
   async registerWebhook(paymentId: string) {
-    const webhookUrl = `${this.domain}/pl:payment/callback/${PAYMENTS.stripe.kind}?paymentId=${paymentId}`;
+    const webhookUrl = `${this.domain}/pl-payment/callback/${PAYMENTS.stripe.kind}?paymentId=${paymentId}`;
     try {
       const list = (await this.getWebhooks()) || [];
       if (list.findIndex((e) => e.url === webhookUrl) > -1) {

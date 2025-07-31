@@ -2045,7 +2045,14 @@ module.exports = {
             }
           ]
         }
-      }
+      },
+      "essyncer": [
+        {
+          "name": "vouchers",
+          "schema": "{'userId': { 'type': 'keyword' },'ownerType': { 'type': 'keyword' },'ownerId': { 'type': 'keyword' },'campaignId': { 'type': 'keyword' }}",
+          "script": ""
+        }
+      ]
     }
   },
   "webhooks": {

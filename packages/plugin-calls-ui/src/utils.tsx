@@ -26,6 +26,18 @@ export const formatPhone = (phone) => {
   return num;
 };
 
+export function sanitizePhoneNumber(phone: string): string {
+  if (!phone) return '';
+
+  const digits = phone.replace(/\D/g, '');
+
+  if (digits.startsWith('976') && digits.length > 8) {
+    return digits.slice(3);
+  }
+
+  return digits;
+}
+
 const formatNumber = (n: number) => {
   return n.toLocaleString('en-US', {
     minimumIntegerDigits: 2,
@@ -103,6 +115,7 @@ export const callActions = (
   gotoDetail,
   disableDetail,
   onClickKeyPad,
+  setCustomer,
 ) => {
   return (
     <InCallFooter>
@@ -149,6 +162,7 @@ export const callActions = (
               inboxId={inboxId}
               phoneNumber={phoneNumber}
               conversationId={conversationId}
+              setCustomer={setCustomer}
             />
 
             <p style={{ marginRight: '10px' }}>Select Customer</p>

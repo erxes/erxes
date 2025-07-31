@@ -329,7 +329,7 @@ const Form = (props: Props) => {
   const renderSaveButton = (formProps) => {
     const { values, isSubmitted } = formProps;
 
-    if (currentTab === "code") {
+    if (currentTab === "code" || couponCampaign) {
       return renderButton({
         name: "codeConfig",
         values: generateDoc(values),

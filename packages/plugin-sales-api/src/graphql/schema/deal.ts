@@ -4,10 +4,10 @@ import {
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
-  copyParams
+  copyParams,
 } from "./common";
 
-export const types = ({ contacts, clientPortal }) => `
+export const types = ({ contacts, clientPortal, loyalty }) => `
   type DealListItem @key(fields: "_id") {
     products: JSON
     unUsedAmount: JSON
@@ -15,6 +15,8 @@ export const types = ({ contacts, clientPortal }) => `
     customFieldsData: JSON
     
     ${commonListTypes}
+
+    ${loyalty ? `loyalty: [LoyaltyEntity]` : ""}
   }
 
   type Deal @key(fields: "_id") {
@@ -36,6 +38,7 @@ export const types = ({ contacts, clientPortal }) => `
     products: JSON
     productsData: JSON
     paymentsData: JSON
+    extraData: JSON
     ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ""}
 
     ${commonTypes}
