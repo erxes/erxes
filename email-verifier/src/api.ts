@@ -72,12 +72,8 @@ export const bulk = async (emails: string[], hostname: string) => {
     defaultValue: 'mailsso',
   });
 
-  const oneMonthAgo = new Date();
-  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-
   const emailsOnDb = await Emails.find({
     email: { $in: emails },
-    verifiedAt: { $gt: oneMonthAgo },
   });
 
   const emailsMap: Array<{ email: string; status: string }> = emailsOnDb.map(
@@ -103,7 +99,7 @@ export const bulk = async (emails: string[], hostname: string) => {
   unverifiedEmails = unverifiedEmails.filter(
     (email) => isValidEmail(email) && isValidDomain(email)
   );
-  
+  console.debug('Invalid emails:', unverifiedEmails.length);
   if (invalidEntries.length > 0) {
         await sendRequest({
       url: `${hostname}/verifier/webhook`,
@@ -113,7 +109,7 @@ export const bulk = async (emails: string[], hostname: string) => {
       },
     });
   }
-
+  console.debug('Verified emails:', verifiedEmails.length);
   if (verifiedEmails.length > 0) {
     try {
       
@@ -128,7 +124,7 @@ export const bulk = async (emails: string[], hostname: string) => {
       throw e;
     }
   }
-
+  console.debug('Unverified emails:', unverifiedEmails.length);
   if (unverifiedEmails.length > 0) {
     if (MAIL_VERIFIER_SERVICE === 'clearout') {
       try {
