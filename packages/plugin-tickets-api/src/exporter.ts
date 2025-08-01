@@ -214,6 +214,8 @@ const fillTicketProductValue = async (subdomain, column, item) => {
         value = productData.maxQuantity;
         break;
     }
+      
+      
 
     result[column] = value;
 
@@ -503,6 +505,19 @@ const fillValue = async (
       value = notes
         .map((note: any) => removeTag(note.content) || "")
         .join(", ");
+
+      break;
+
+    case "tagIds":
+      const tags = await models.Tags.find({ _id: { $in: item.tagIds || [] } });
+
+      let tagNames = "";
+
+      for (const tag of tags) {
+        tagNames = tagNames.concat(tag.name, " ");
+      }
+
+      value = tagNames || "-";
 
       break;
 
