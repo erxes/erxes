@@ -51,6 +51,7 @@ type State = {
   erxesForms: IErxesForm[];
   isPrivate: boolean;
   isScheduled: boolean;
+  showMore: boolean;
 };
 
 class ArticleForm extends React.Component<Props, State> {
@@ -75,8 +76,11 @@ class ArticleForm extends React.Component<Props, State> {
       scheduledDate:
         article.status === 'scheduled' ? article.scheduledDate : undefined,
       pdfAttachment: article.pdfAttachment || undefined,
+      showMore: false
     };
   }
+
+
 
   componentDidUpdate(prevProps) {
     const { topics, currentCategoryId } = this.props;
@@ -168,10 +172,14 @@ class ArticleForm extends React.Component<Props, State> {
   onChange = (content: string) => {
     this.setState({ content });
   };
-
+ 
   onChangeReactions = (options: OnChangeValue<IOption, true>) => {
     this.setState({ reactionChoices: options.map((option) => option.value) });
   };
+
+  toggleShowMore = () => {
+  this.setState((prevState) => ({ showMore: !prevState.showMore }));
+};
 
   onChangeAttachments = (attachments: IAttachment[]) =>
     this.setState({ attachments });
@@ -405,80 +413,62 @@ class ArticleForm extends React.Component<Props, State> {
             defaultValue={object.summary}
           />
         </FormGroup>
+<FlexContent style={{ gap: '12px', alignItems: 'center' }}>
+  <FlexItem count={2}>
+    <FormGroup>
+      <ControlLabel required>{__('Reactions')}</ControlLabel>
+      <Select
+        isMulti
+        value={articleReactions.filter((o) =>
+          reactionChoices.includes(o.value)
+        )}
+        options={articleReactions}
+        onChange={this.onChangeReactions}
+        placeholder={__('Select')}
+      />
+    </FormGroup>
+  </FlexItem>
 
+  <FlexItem count={2}>
+    <FormGroup>
+      <ControlLabel required>{__('Is Private')}</ControlLabel>
+      <FormControl
+        componentclass='checkbox'
+        checked={isPrivate}
+        onChange={this.onChangeIsCheckDate}
+      />
+    </FormGroup>
+  </FlexItem>
+
+  <FlexItem count={2}>
+    <FormGroup>
+      <ControlLabel required>{__('Status')}</ControlLabel>
+      <FormControl
+        {...formProps}
+        name='status'
+        componentclass='select'
+        placeholder={__('Select')}
+        defaultValue={object.status || 'draft'}
+        required
+        onChange={(e: any) => {
+          const value = e.target.value;
+          this.setState({
+            isScheduled: value === 'scheduled',
+            scheduledDate: value === 'scheduled' ? new Date(Date.now() + 3600000) : undefined,
+          });
+          return value;
+        }}
+      >
+        {['draft', 'scheduled', 'publish'].map((value) => (
+          <option key={value} value={value}>
+            {value}
+          </option>
+        ))}
+      </FormControl>
+    </FormGroup>
+  </FlexItem>
+</FlexContent>
         <FlexContent>
-          <FlexItem count={3}>
-            <FormGroup>
-              <ControlLabel required={true}>{__('Reactions')}</ControlLabel>
-              <Select
-                isMulti={true}
-                value={articleReactions.filter((o) =>
-                  reactionChoices.includes(o.value)
-                )}
-                options={articleReactions}
-                onChange={this.onChangeReactions}
-                placeholder={__('Select')}
-              />
-            </FormGroup>
-          </FlexItem>
-          <FlexItem count={3} hasSpace={true}>
-            <FormGroup>
-              <ControlLabel required={true}>{__('is private')}</ControlLabel>
-              <FormControl
-                componentclass='checkbox'
-                checked={isPrivate}
-                onChange={this.onChangeIsCheckDate}
-              />
-            </FormGroup>
-          </FlexItem>
-        </FlexContent>
-
-        <FlexContent>
-          <FlexItem count={3}>{this.renderTopics(formProps)}</FlexItem>
-          <FlexItem count={3} hasSpace={true}>
-            {this.renderCategories(formProps)}
-          </FlexItem>
-        </FlexContent>
-
-        <FlexContent>
-          <FlexItem count={3}>
-            <FormGroup>
-              <ControlLabel required={true}>{__('Status')}</ControlLabel>
-              <FormControl
-                {...formProps}
-                name='status'
-                componentclass='select'
-                placeholder={__('Select')}
-                defaultValue={object.status || 'draft'}
-                required={true}
-                onChange={(e: any) => {
-                  if (e.target.value === 'scheduled') {
-                    this.setState({
-                      isScheduled: true,
-                      scheduledDate: new Date(Date.now() + 1000 * 60 * 60),
-                    });
-                  } else {
-                    this.setState({
-                      isScheduled: false,
-                      scheduledDate: undefined,
-                    });
-                  }
-
-                  return e.target.value;
-                }}
-              >
-                {[
-                  { value: 'draft' },
-                  { value: 'scheduled' },
-                  { value: 'publish' },
-                ].map((op) => (
-                  <option key={op.value} value={op.value}>
-                    {op.value}
-                  </option>
-                ))}
-              </FormControl>
-            </FormGroup>
-          </FlexItem>
           {this.state.isScheduled && (
             <FlexItem count={3} hasSpace={true}>
               <FormGroup>
@@ -499,7 +489,24 @@ class ArticleForm extends React.Component<Props, State> {
             </FlexItem>
           )}
         </FlexContent>
-
+        <FlexContent>
+          <FlexItem count={3}>{this.renderTopics(formProps)}</FlexItem>
+          <FlexItem count={3} hasSpace={true}>
+            {this.renderCategories(formProps)}
+          </FlexItem>
+        </FlexContent>
+        <FormGroup>
+         <Button
+          btnStyle='primary'
+          size='small'
+          onClick={this.toggleShowMore}
+          icon={this.state.showMore ? 'chevron-up' : 'chevron-down'}
+        >
+        {this.state.showMore ? 'Hide more' : 'More'}
+         </Button>
+        </FormGroup>
+        {this.state.showMore && (
+          <>
         <FormGroup>
           <ControlLabel>{__('Image')}</ControlLabel>
           <Uploader
@@ -612,7 +619,8 @@ class ArticleForm extends React.Component<Props, State> {
             Add another form
           </Button>
         </FormGroup>
-
+        </>
+        )}
         <FormGroup>
           <ControlLabel required={true}>{__('Content')}</ControlLabel>
           <RichTextEditor

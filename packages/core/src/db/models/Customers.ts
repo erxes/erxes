@@ -7,7 +7,7 @@ import { ICustomField } from '@erxes/api-utils/src/definitions/common';
 import {
   customerSchema,
   ICustomer,
-  ICustomerDocument
+  ICustomerDocument,
 } from './definitions/customers';
 import { IModels } from '../../connectionResolver';
 import {
@@ -149,58 +149,58 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       customerFields: ICustomerFieldsInput,
       idsToExclude?: string[] | string
     ) {
-      const query: { status: {}; [key: string]: any } = {
-        status: { $ne: 'deleted' }
+      const query: { status: {};[key: string]: any } = {
+        status: { $ne: 'deleted' },
       };
       let previousEntry;
 
-      // Adding exclude operator to the query
-      if (idsToExclude) {
-        query._id =
-          idsToExclude instanceof Array
-            ? { $nin: idsToExclude }
-            : { $ne: idsToExclude };
-      }
+      // // Adding exclude operator to the query
+      // if (idsToExclude) {
+      //   query._id =
+      //     idsToExclude instanceof Array
+      //       ? { $nin: idsToExclude }
+      //       : { $ne: idsToExclude };
+      // }
 
-      if (!customerFields) {
-        return;
-      }
+      // if (!customerFields) {
+      //   return;
+      // }
 
       if (customerFields.primaryEmail) {
         // check duplication from primaryEmail
         previousEntry = await models.Customers.find({
           ...query,
-          primaryEmail: customerFields.primaryEmail
+          primaryEmail: customerFields.primaryEmail,
         });
 
-        if (previousEntry.length > 0) {
-          throw new Error('Duplicated email');
-        }
-      }
+      //   if (previousEntry.length > 0) {
+      //     throw new Error('Duplicated email');
+      //   }
+      // }
 
       if (customerFields.primaryPhone) {
         // check duplication from primaryPhone
         previousEntry = await models.Customers.find({
           ...query,
-          primaryPhone: customerFields.primaryPhone
+          primaryPhone: customerFields.primaryPhone,
         });
 
-        if (previousEntry.length > 0) {
-          throw new Error('Duplicated phone');
-        }
-      }
+      //   if (previousEntry.length > 0) {
+      //     throw new Error('Duplicated phone');
+      //   }
+      // }
 
       if (customerFields.code) {
         // check duplication from code
         previousEntry = await models.Customers.find({
           ...query,
-          code: customerFields.code
+          code: customerFields.code,
         });
 
-        if (previousEntry.length > 0) {
-          throw new Error('Duplicated code');
-        }
-      }
+      //   if (previousEntry.length > 0) {
+      //     throw new Error('Duplicated code');
+      //   }
+      // }
     }
 
     public static getCustomerName(customer: ICustomer) {
@@ -284,12 +284,18 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         doc.ownerId = user._id;
       }
 
-      if (doc.primaryEmail && !doc.emails) {
-        doc.emails = [doc.primaryEmail];
+      if (doc.emails) {
+
+        const { email } = doc.emails.find(email => email.type === 'primary') || {}
+
+        doc.primaryEmail = email
       }
 
-      if (doc.primaryPhone && !doc.phones) {
-        doc.phones = [doc.primaryPhone];
+      if (doc.phones) {
+
+        const { phone } = doc.phones.find(phone => phone.type === 'primary') || {}
+
+        doc.primaryPhone = phone
       }
 
       doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
@@ -358,19 +364,25 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         console.log(doc.customFieldsData);
       }
 
-      if (doc.primaryEmail) {
-        if (doc.primaryEmail !== oldCustomer.primaryEmail) {
+      if (doc.emails) {
+
+        const { email } = doc.emails.find(email => email.type === 'primary') || {}
+
+        if (email !== oldCustomer.primaryEmail) {
           doc.emailValidationStatus = 'unknown';
 
-          validateSingle(subdomain, { email: doc.primaryEmail });
+          validateSingle(subdomain, { email });
         }
       }
 
-      if (doc.primaryPhone) {
-        if (doc.primaryPhone !== oldCustomer.primaryPhone) {
+      if (doc.phones) {
+
+        const { phone } = doc.phones.find(phone => phone.type === 'primary') || {}
+
+        if (phone !== oldCustomer.primaryPhone) {
           doc.phoneValidationStatus = 'unknown';
 
-          validateSingle(subdomain, { phone: doc.primaryPhone });
+          validateSingle(subdomain, { phone });
         }
       }
 
@@ -544,15 +556,15 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       let customFieldsData: ICustomField[] = [];
       let state: any = '';
 
-      let emails: string[] = [];
-      let phones: string[] = [];
+      let emails: IEmail[] = [];
+      let phones: IPhone[] = [];
 
       if (customerFields.primaryEmail) {
-        emails.push(customerFields.primaryEmail);
+        emails.push({ type: 'primary', email: customerFields.primaryEmail });
       }
 
       if (customerFields.primaryPhone) {
-        phones.push(customerFields.primaryPhone);
+        phones.push({ type: 'primary', phone: customerFields.primaryPhone });
       }
 
       for (const customerId of customerIds) {
@@ -735,8 +747,8 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       customData = {},
       customer?: ICustomerDocument
     ) {
-      let emails: string[] = [];
-      let phones: string[] = [];
+      let emails: IEmail[] = [];
+      let phones: IPhone[] = [];
       let deviceTokens: string[] = [];
 
       // extract basic fields from customData

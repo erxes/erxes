@@ -5,15 +5,15 @@ import {
   SidebarList,
 } from "@erxes/ui/src/layout/styles";
 
-import { GENDER_TYPES } from "../../constants";
-import { ICustomer } from "../../types";
 import { IField } from "@erxes/ui/src/types";
-import { IFieldsVisibility } from "../../types";
-import PrimaryEmail from "./PrimaryEmail";
-import PrimaryPhone from "./PrimaryPhone";
-import React from "react";
 import { __ } from "@erxes/ui/src/utils";
 import dayjs from "dayjs";
+import React from "react";
+import { GENDER_TYPES } from "../../constants";
+import { InfoRow } from "../../styles";
+import { ICustomer, IFieldsVisibility } from "../../types";
+import PrimaryEmail from "./PrimaryEmail";
+import PrimaryPhone from "./PrimaryPhone";
 
 type Props = {
   customer: ICustomer;
@@ -27,14 +27,10 @@ type Props = {
 class DetailInfo extends React.PureComponent<Props> {
   renderRow(field, value, type?) {
     const { fieldsVisibility, isDetail } = this.props;
-
     const isVisibleKey = isDetail ? "isVisibleInDetail" : "isVisible";
-
     const visibility = fieldsVisibility(isVisibleKey);
 
-    if (!visibility[field]) {
-      return null;
-    }
+    if (!visibility[field]) return null;
 
     const label = visibility[field];
 
@@ -71,23 +67,61 @@ class DetailInfo extends React.PureComponent<Props> {
     );
   }
 
-  renderPhone(status?: string, phone?: string) {
-    return (
-      <li>
-        <FieldStyle>{__("Primary phone")}:</FieldStyle>
-        <SidebarCounter>
-          <PrimaryPhone phone={phone} status={status} />
-        </SidebarCounter>
-      </li>
-    );
-  }
-
   renderPosition(customer) {
     if (!this.props.hasPosition) {
       return null;
     }
 
     return this.renderRow("position", customer.position);
+  }
+
+  renderPhones(
+    status?: string,
+    phones?: { phone: string; type: string }[],
+    primaryPhone?: string
+  ) {
+    const hasPrimaryPhone = (phones || []).find(
+      (phone) => phone?.type === "primary"
+    );
+
+    if (!hasPrimaryPhone && primaryPhone) {
+      phones = [{ phone: primaryPhone, type: "primary" }, ...(phones || [])];
+    }
+
+    if (!phones?.length) {
+      return (
+        <li>
+          <FieldStyle>{__("Phones")}</FieldStyle>
+          <SidebarCounter>{__("-")}</SidebarCounter>
+        </li>
+      );
+    }
+
+    const renderPhone = ({ phone, type }: { phone?: string; type: string }) => {
+      const capitalizedType = type.replace(/^./, (char) => char.toUpperCase());
+
+      return (
+        <InfoRow key={`${type}-${phone}`}>
+          <SidebarCounter>
+            <PrimaryPhone
+              phone={phone}
+              {...(type === "primary" ? { status } : {})}
+            />
+          </SidebarCounter>
+          <SidebarCounter>{capitalizedType}</SidebarCounter>
+        </InfoRow>
+      );
+    };
+
+    return (
+      <li style={{ display: "flex", flexDirection: "column" }}>
+        <InfoRow>
+          <FieldStyle>{__("Phones")}</FieldStyle>
+          <FieldStyle>{__("Type")}</FieldStyle>
+        </InfoRow>
+        {phones.map(renderPhone)}
+      </li>
+    );
   }
 
   render() {
@@ -104,8 +138,9 @@ class DetailInfo extends React.PureComponent<Props> {
           customer.emailValidationStatus,
           customer.primaryEmail
         )}
-        {this.renderPhone(
+        {this.renderPhones(
           customer.phoneValidationStatus,
+          customer.phones,
           customer.primaryPhone
         )}
         {this.renderPosition(customer)}
@@ -119,7 +154,7 @@ class DetailInfo extends React.PureComponent<Props> {
         {this.renderRow("pronoun", GENDER_TYPES()[customer.sex || 0])}
         {this.renderRow(
           "birthDate",
-          customer.birthDate && dayjs(customer.birthDate).format("MMM,DD YYYY")
+          customer.birthDate && dayjs(customer.birthDate).format("MMM, DD YYYY")
         )}
         {this.renderRow("isSubscribed", customer.isSubscribed)}
         {this.renderRow("score", customer.score)}

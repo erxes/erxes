@@ -506,6 +506,19 @@ const fillValue = async (
 
       break;
 
+    case "tagIds":
+      const tags = await models.Tags.find({ _id: { $in: item.tagIds || [] } });
+
+      let tagNames = "";
+
+      for (const tag of tags) {
+        tagNames = tagNames.concat(tag.name, " ");
+      }
+
+      value = tagNames || "-";
+
+      break;
+
     default:
       break;
   }
