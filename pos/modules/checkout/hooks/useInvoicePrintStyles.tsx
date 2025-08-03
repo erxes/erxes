@@ -80,8 +80,6 @@ export const useInvoicePrintStyles = () => {
       },
       
       dateSection: {
-        backgroundColor: printTheme.colors.background,
-        padding: printTheme.spacing.md,
         fontSize: printTheme.typography.base,
         color: printTheme.colors.primary,
         marginBottom: printTheme.spacing.md,
@@ -148,7 +146,6 @@ export const useInvoicePrintStyles = () => {
     table: {
       container: {
         width: '100%',
-        border: `1px solid ${printTheme.colors.tableBorder}`,
         marginTop: printTheme.spacing.md,
         marginBottom: printTheme.spacing.md,
       },

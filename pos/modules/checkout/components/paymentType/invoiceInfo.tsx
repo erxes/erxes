@@ -24,11 +24,24 @@ const InvoiceInfo = () => {
   const total = useAtomValue(totalAmountAtom)
   const cartItems = useAtomValue(cartAtom)
 
-  const { userInfo, table, columnWidths } = useInvoicePrintStyles()
+  const { userInfo, table } = useInvoicePrintStyles()
 
   const transactionDate = useMemo(() => new Date(), [])
   const deadlineDate = useMemo(() => addDays(transactionDate, expiryDays), [transactionDate, expiryDays])
   const isCompany = accountType === "company"
+  const totals = useMemo(() => {
+    const totalWithoutVat = cartItems.reduce((sum, item) => {
+      const totalItemPrice = item.count * item.unitPrice
+      return sum + (totalItemPrice / 1.1)
+    }, 0)
+    const vatAmount = total - totalWithoutVat
+    
+    return {
+      subtotal: totalWithoutVat,
+      vat: vatAmount,
+      total: total
+    }
+  }, [cartItems, total])
   
   return (
     <div style={userInfo.container}>
@@ -46,107 +59,6 @@ const InvoiceInfo = () => {
         <div style={userInfo.userInfoItem}>
           <strong>Банкны дансны дугаар:</strong> MN{userBankAddress}
         </div>
-        <div style={userInfo.totalAmount}>
-          <strong>Нийт төлбөр:</strong> {formatNum(total)}₮
-        </div>
-      </div>
-      
-      <div style={userInfo.sectionDivider}>
-        <h3 style={userInfo.heading}>Захиалгын мэдээлэл</h3>
-        
-        {cartItems.length === 0 ? (
-          <div style={userInfo.emptyCart}>
-            Захиалга хоосон байна
-          </div>
-        ) : (
-          <div style={table.container}>
-            <table style={table.table}>
-              <thead>
-                <tr style={table.header}>
-                  <th style={{
-                    ...table.headerCellCenter,
-                    width: columnWidths.index
-                  }}>
-                    #
-                  </th>
-                  <th style={table.headerCell}>
-                    Бүтээгдэхүүн
-                  </th>
-                  <th style={{
-                    ...table.headerCellCenter,
-                    width: columnWidths.quantity
-                  }}>
-                    Тоо ширхэг
-                  </th>
-                  <th style={{
-                    ...table.headerCellRight,
-                    width: columnWidths.unitPrice
-                  }}>
-                    Нэгжийн үнэ
-                  </th>
-                  <th style={{
-                    ...table.headerCellRight,
-                    width: columnWidths.withoutVat
-                  }}>
-                    НӨАТ-гүй үнэ
-                  </th>
-                  <th style={{
-                    ...table.headerCellRight,
-                    width: columnWidths.totalPrice
-                  }}>
-                    Нийт үнэ
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {cartItems.map((item, index) => {
-                  const totalItemPrice = item.count * item.unitPrice;
-                  const withoutVatPrice = totalItemPrice / 1.1;
-                  
-                  return (
-                    <tr key={item._id}>
-                      <td style={table.cellCenter}>
-                        {index + 1}
-                      </td>
-                      <td style={table.cell}>
-                        <div>
-                          <div style={table.productName}>
-                            {item.productName}
-                          </div>
-                          {item.isTake && (
-                            <div style={table.takeAwayLabel}>
-                              ✓ Авч явах
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td style={table.cellCenter}>
-                        {item.count}
-                      </td>
-                      <td style={table.cellRight}>
-                        {formatNum(item.unitPrice)}₮
-                      </td>
-                      <td style={table.cellRight}>
-                        {formatNum(Math.round(withoutVatPrice))}₮
-                      </td>
-                      <td style={table.cellRightBold}>
-                        {formatNum(totalItemPrice)}₮
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      <div style={userInfo.infoSection}>
-        <p>
-          <strong>{userName}</strong> {isCompany ? "байгууллагыг" : "нэр дээрх хүнийг"}{" "}
-          <strong>MN{userBankAddress}</strong> дугаартай банкны данс руу{" "}
-          <strong>{formatNum(total)}₮</strong> төгрөгийн төлбөрийг нэхэмжилж байна.
-        </p>
       </div>
 
       <div style={userInfo.dateSection}>
@@ -174,6 +86,139 @@ const InvoiceInfo = () => {
             </p>
           </div>
         </div>
+      </div>
+      
+      <div style={userInfo.sectionDivider}>
+        <h3 style={userInfo.heading}>Захиалгын мэдээлэл</h3>
+        
+        {cartItems.length === 0 ? (
+          <div style={userInfo.emptyCart}>
+            Захиалга хоосон байна
+          </div>
+        ) : (
+          <>
+            <div style={table.container}>
+              <table style={{...table.table, fontSize: '12px'}}>
+                <thead>
+                  <tr style={table.header}>
+                    <th style={{
+                      ...table.headerCellCenter,
+                      width: '50px',
+                      padding: '8px 6px'
+                    }}>
+                      #
+                    </th>
+                    <th style={{...table.headerCell, padding: '8px 6px'}}>
+                      Бүтээгдэхүүн
+                    </th>
+                    <th style={{
+                      ...table.headerCellCenter,
+                      width: '80px',
+                      padding: '8px 6px'
+                    }}>
+                      Тоо ширхэг
+                    </th>
+                    <th style={{
+                      ...table.headerCellRight,
+                      width: '100px',
+                      padding: '8px 6px'
+                    }}>
+                      Нэгжийн үнэ
+                    </th>
+                    <th style={{
+                      ...table.headerCellRight,
+                      width: '100px',
+                      padding: '8px 6px'
+                    }}>
+                      Нийт үнэ
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cartItems.map((item, index) => {
+                    const totalItemPrice = item.count * item.unitPrice;
+                    
+                    return (
+                      <tr key={item._id}>
+                        <td style={{...table.cellCenter, padding: '6px'}}>
+                          {index + 1}
+                        </td>
+                        <td style={{...table.cell, padding: '6px'}}>
+                          <div>
+                            <div style={table.productName}>
+                              {item.productName}
+                            </div>
+                            {item.isTake && (
+                              <div style={{...table.takeAwayLabel, fontSize: '10px'}}>
+                                ✓ Авч явах
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td style={{...table.cellCenter, padding: '6px'}}>
+                          {item.count}
+                        </td>
+                        <td style={{...table.cellRight, padding: '6px'}}>
+                          {formatNum(item.unitPrice)}₮
+                        </td>
+                        <td style={{...table.cellRightBold, padding: '6px'}}>
+                          {formatNum(totalItemPrice)}₮
+                        </td>
+                      </tr>
+                    )
+                  })}
+                  <tr style={{borderTop: '2px solid #374151'}}>
+                    <td style={{...table.cell, padding: '6px', border: 'none'}} colSpan={3}></td>
+                    <td style={{...table.cellRight, padding: '6px', fontWeight: 'bold'}}>
+                      НӨАТ-гүй дүн:
+                    </td>
+                    <td style={{...table.cellRightBold, padding: '6px'}}>
+                      {formatNum(Math.round(totals.subtotal))}₮
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td style={{...table.cell, padding: '6px', border: 'none'}} colSpan={3}></td>
+                    <td style={{...table.cellRight, padding: '6px', fontWeight: 'bold'}}>
+                      НӨАТ (10%):
+                    </td>
+                    <td style={{...table.cellRightBold, padding: '6px'}}>
+                      {formatNum(Math.round(totals.vat))}₮
+                    </td>
+                  </tr>
+                  
+                  <tr style={{backgroundColor: '#f3f4f6'}}>
+                    <td style={{...table.cell, padding: '8px', border: 'none'}} colSpan={3}></td>
+                    <td style={{
+                      ...table.cellRight, 
+                      padding: '8px', 
+                      fontWeight: 'bold',
+                      fontSize: '14px'
+                    }}>
+                      Нийт төлбөр:
+                    </td>
+                    <td style={{
+                      ...table.cellRightBold, 
+                      padding: '8px',
+                      fontSize: '14px',
+                      color: '#059669'
+                    }}>
+                      {formatNum(totals.total)}₮
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </div>
+
+      <div style={userInfo.infoSection}>
+        <p>
+          <strong>{userName}</strong> {isCompany ? "байгууллагыг" : "нэр дээрх хүнийг"}{" "}
+          <strong>MN{userBankAddress}</strong> дугаартай банкны данс руу{" "}
+          <strong>{formatNum(total)}₮</strong> төгрөгийн төлбөрийг нэхэмжилж байна.
+        </p>
       </div>
 
       <div style={userInfo.signatureSection}>
