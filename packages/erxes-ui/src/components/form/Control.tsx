@@ -53,6 +53,7 @@ type Props = {
   fixed?: number; // useNumberFormat is true then used
   hideBottomBorder?: boolean;
   onDoubleClick?: (e: React.FormEvent<HTMLElement>) => void;
+  readOnly?: boolean
 };
 
 const renderElement = (Element, attributes, type, child) => {
@@ -126,6 +127,7 @@ class FormControl extends React.Component<Props> {
       align: props.align,
       className: props.className,
       onDoubleClick: props.onDoubleClick,
+      readOnly: props.readOnly
     };
 
     if (elementType === "select") {

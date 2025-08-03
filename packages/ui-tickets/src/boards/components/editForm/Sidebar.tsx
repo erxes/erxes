@@ -13,6 +13,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   item: IItem;
+  relations: any;
   saveItem: (doc: { [key: string]: any }) => void;
   sidebar?: (
     saveItem?: (doc: { [key: string]: any }) => void,
@@ -33,13 +34,13 @@ type Props = {
 
 class Sidebar extends React.Component<Props> {
   render() {
-    const { item, saveItem, sidebar, childrenSection, currentUser } =
-      this.props;
+    const { item, saveItem, sidebar, childrenSection } = this.props;
     const userOnChange = (usrs) => saveItem({ assignedUserIds: usrs });
     const onChangeStructure = (values, name) => saveItem({ [name]: values });
     const assignedUserIds = (item.assignedUsers || []).map((user) => user._id);
     const branchIds = item?.branchIds;
     const departmentIds = item?.departmentIds;
+
     return (
       <RightContent>
         <FormGroup>
