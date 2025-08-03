@@ -1,31 +1,32 @@
-import { IEditFormContent, IOptions } from "../../boards/types";
-import { ITicket, ITicketParams } from "../types";
-import React, { useEffect, useState } from "react";
-import Select, { components } from "react-select";
-import { __, loadDynamicComponent } from "@erxes/ui/src/utils";
+import { IEditFormContent, IOptions } from '../../boards/types';
+import { ITicket, ITicketParams } from '../types';
+import React, { useEffect, useState } from 'react';
+import Select, { components } from 'react-select';
+import { __, loadDynamicComponent } from '@erxes/ui/src/utils';
 
-import { Capitalize } from "@erxes/ui-settings/src/permissions/styles";
-import ChildrenSection from "../../boards/containers/editForm/ChildrenSection";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import EditForm from "../../boards/components/editForm/EditForm";
-import { Flex } from "@erxes/ui/src/styles/main";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import { INTEGRATION_KINDS } from "@erxes/ui/src/constants/integrations";
-import { ISelectedOption } from "@erxes/ui/src/types";
-import { IUser } from "@erxes/ui/src/auth/types";
-import Left from "../../boards/components/editForm/Left";
-import PortableDeals from "@erxes/ui-sales/src/deals/components/PortableDeals";
-import PortablePurchase from "@erxes/ui-purchases/src/purchases/components/PortablePurchases";
-import PortableTasks from "@erxes/ui-tasks/src/tasks/components/PortableTasks";
-import Sidebar from "../../boards/components/editForm/Sidebar";
-import Top from "../../boards/components/editForm/Top";
-import queryString from "query-string";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-import FormControl from "@erxes/ui/src/components/form/Control";
+import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';
+import ChildrenSection from '../../boards/containers/editForm/ChildrenSection';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import EditForm from '../../boards/components/editForm/EditForm';
+import { Flex } from '@erxes/ui/src/styles/main';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
+import { ISelectedOption } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Left from '../../boards/components/editForm/Left';
+import PortableDeals from '@erxes/ui-sales/src/deals/components/PortableDeals';
+import PortablePurchase from '@erxes/ui-purchases/src/purchases/components/PortablePurchases';
+import PortableTasks from '@erxes/ui-tasks/src/tasks/components/PortableTasks';
+import Sidebar from '../../boards/components/editForm/Sidebar';
+import Top from '../../boards/components/editForm/Top';
+import queryString from 'query-string';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import FormControl from '@erxes/ui/src/components/form/Control';
 
 type Props = {
   options: IOptions;
   item: ITicket;
+  relations: any;
   addItem: (doc: ITicketParams, callback: () => void, msg?: string) => void;
   saveItem: (doc: ITicketParams, callback?: (item) => void) => void;
   copyItem: (itemId: string, callback: (item) => void) => void;
@@ -39,7 +40,7 @@ type Props = {
       status,
       timeSpent,
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
-    callback?: () => void
+    callback?: () => void,
   ) => void;
   currentUser: IUser;
   synchSingleCard: (id: string) => void;
@@ -49,7 +50,7 @@ export default function TicketEditForm(props: Props) {
   const item = props.item;
   const [source, setSource] = useState(item.source);
   const [isCheckUserTicket, setIsCheckUserTicket] = useState(
-    item.isCheckUserTicket
+    item.isCheckUserTicket,
   );
 
   const [refresh, setRefresh] = useState(false);
@@ -63,8 +64,8 @@ export default function TicketEditForm(props: Props) {
     }));
 
     sourceValues.push({
-      label: __("Other"),
-      value: "other",
+      label: __('Other'),
+      value: 'other',
     });
 
     const onToggleChange = (value: boolean) => {
@@ -77,7 +78,7 @@ export default function TicketEditForm(props: Props) {
     );
 
     const onSourceChange = (option) => {
-      const value = option ? option.value : "";
+      const value = option ? option.value : '';
 
       setSource(value);
 
@@ -107,7 +108,7 @@ export default function TicketEditForm(props: Props) {
         <FormGroup>
           <ControlLabel>Source</ControlLabel>
           <Select
-            placeholder={__("Select a source")}
+            placeholder={__('Select a source')}
             value={sourceValues.find((s) => s.value === source)}
             options={sourceValues}
             onChange={onSourceChange}
@@ -137,26 +138,49 @@ export default function TicketEditForm(props: Props) {
   function renderItems() {
     return (
       <>
-        {isEnabled("sales") && (
-          <PortableDeals mainType="ticket" mainTypeId={props.item._id} />
-        )}
-        {isEnabled("purchases") && (
-          <PortablePurchase mainType="ticket" mainTypeId={props.item._id} />
-        )}
+        {props.relations.map((relation) => {
+          switch (relation.type) {
+            case 'dealIds':
+              return isEnabled('sales') ? (
+                <PortableDeals
+                  key={relation._id}
+                  mainType="ticket"
+                  mainTypeId={props.item._id}
+                />
+              ) : null;
 
-        {isEnabled("tasks") && (
-          <PortableTasks mainType="ticket" mainTypeId={props.item._id} />
-        )}
+            case 'purchaseIds':
+              return isEnabled('purchases') ? (
+                <PortablePurchase
+                  key={relation._id}
+                  mainType="ticket"
+                  mainTypeId={props.item._id}
+                />
+              ) : null;
+
+            case 'taskIds':
+              return isEnabled('tasks') ? (
+                <PortableTasks
+                  key={relation._id}
+                  mainType="ticket"
+                  mainTypeId={props.item._id}
+                />
+              ) : null;
+
+            default:
+              return null;
+          }
+        })}
 
         {loadDynamicComponent(
-          "ticketRightSidebarSection",
+          'ticketRightSidebarSection',
           {
             id: props.item._id,
-            mainType: "ticket",
+            mainType: 'ticket',
             mainTypeId: props.item._id,
             object: props.item,
           },
-          true
+          true,
         )}
       </>
     );
@@ -167,7 +191,7 @@ export default function TicketEditForm(props: Props) {
 
     const updatedProps = {
       ...props,
-      type: "ticket",
+      type: 'ticket',
       itemId: item._id,
       stageId: item.stageId,
       pipelineId: item.pipeline._id,
@@ -223,6 +247,7 @@ export default function TicketEditForm(props: Props) {
           <Sidebar
             options={options}
             item={item}
+            relations={props.relations}
             sidebar={renderSidebar}
             saveItem={saveItem}
             renderItems={renderItems}

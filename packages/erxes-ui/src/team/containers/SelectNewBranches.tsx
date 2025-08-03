@@ -284,16 +284,11 @@ const SelectNewBranches: React.FC<SelectNewBranchesProps> = ({
     onSelect([], name);
   };
 
-  // Get display text for the selector
-  const getDisplayText = (): string => {
-    if (selectedIds.length === 0) {
-      return __('Choose branches');
-    } else if (selectedIds.length === 1) {
-      const branch = branches.find((b) => b._id === selectedIds[0]);
-      return branch ? branch.title : __('1 branch selected');
-    } else {
-      return `${selectedIds.length} ${__('branches selected')}`;
-    }
+  // Get selected branches for display
+  const getSelectedBranches = () => {
+    return selectedIds
+      .map((id) => branches.find((b) => b._id === id))
+      .filter(Boolean);
   };
 
   if (loading) return <div className="loading">{__('Loading...')}</div>;
@@ -313,19 +308,58 @@ const SelectNewBranches: React.FC<SelectNewBranchesProps> = ({
         className={`dropdown-trigger ${isOpen ? 'open' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="display-text">{getDisplayText()}</span>
-        <span className="dropdown-arrow">{isOpen ? '▲' : '▼'}</span>
-        {selectedIds.length > 0 && (
-          <span
-            className="clear-button"
-            onClick={(e) => {
-              e.stopPropagation();
-              clearSelections();
-            }}
-          >
-            ✕
-          </span>
-        )}
+        <div className="trigger-content">
+          {selectedIds.length === 0 ? (
+            <span className="placeholder-text">{__('Choose branches')}</span>
+          ) : selectedIds.length === 1 ? (
+            <span className="display-text">
+              {branches.find((b) => b._id === selectedIds[0])?.title}
+            </span>
+          ) : (
+            <div className="multi-selection">
+              <span className="count-text">
+                {selectedIds.length} {__('branches selected')}
+              </span>
+              <div className="selected-tags">
+                {getSelectedBranches()
+                  .slice(0, 3)
+                  ?.map((branch, index) => (
+                    <span key={branch?._id} className="tag">
+                      {branch?.title}
+                      <span
+                        className="tag-remove"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSelection(branch?._id || '');
+                        }}
+                      >
+                        ×
+                      </span>
+                    </span>
+                  ))}
+                {selectedIds.length > 3 && (
+                  <span className="more-count">
+                    +{selectedIds.length - 3} {__('more')}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="trigger-actions">
+          <span className="dropdown-arrow">{isOpen ? '▲' : '▼'}</span>
+          {selectedIds.length > 0 && (
+            <span
+              className="clear-button"
+              onClick={(e) => {
+                e.stopPropagation();
+                clearSelections();
+              }}
+            >
+              ✕
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Dropdown content */}
@@ -333,12 +367,11 @@ const SelectNewBranches: React.FC<SelectNewBranchesProps> = ({
         <div className="dropdown-content">
           <input
             type="text"
-            placeholder={__('  Search branches... (by name or code)')}
+            placeholder={__('Search branches... (by name or code)')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
             onClick={(e) => e.stopPropagation()}
-            style={{ marginLeft: '5px' }}
           />
 
           <div className="branch-list">
@@ -406,7 +439,7 @@ const SelectNewBranches: React.FC<SelectNewBranchesProps> = ({
 
     .dropdown-trigger {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
       padding: 8px 12px;
       background: #fff;
@@ -427,13 +460,84 @@ const SelectNewBranches: React.FC<SelectNewBranchesProps> = ({
       border-bottom-right-radius: 0;
     }
 
-    .display-text {
+    .trigger-content {
       flex: 1;
+      min-width: 0;
+    }
+
+    .trigger-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+
+    .placeholder-text, .display-text {
       color: #333;
       font-size: 14px;
+      display: block;
+    }
+
+    .placeholder-text {
+      color: #999;
+    }
+
+    .multi-selection {
+      width: 100%;
+    }
+
+    .count-text {
+      color: #666;
+      font-size: 12px;
+      font-weight: 500;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .selected-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      background: #e3f2fd;
+      color: #1565c0;
+      padding: 2px 6px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+      max-width: 120px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    .tag-remove {
+      margin-left: 4px;
+      color: #1976d2;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0 2px;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+
+    .tag-remove:hover {
+      background: rgba(25, 118, 210, 0.1);
+    }
+
+    .more-count {
+      color: #666;
+      font-size: 11px;
+      font-style: italic;
+      padding: 2px 4px;
     }
 
     .dropdown-arrow {
