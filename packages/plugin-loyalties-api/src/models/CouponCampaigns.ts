@@ -7,6 +7,7 @@ import {
   ICouponCampaign,
   ICouponCampaignDocument,
 } from "./definitions/couponCampaigns";
+import { validCampaign } from './utils';
 
 export interface ICouponCampaignModel extends Model<ICouponCampaignDocument> {
   getCouponCampaign(_id: string): Promise<ICouponCampaignDocument>;
@@ -43,6 +44,8 @@ export const loadCouponCampaignClass = (
       const { codeRule } = doc || {};
 
       const { pattern, charSet } = codeRule || {};
+
+      validCampaign(doc);
 
       if (charSet) {
         if (!Array.isArray(charSet)) {

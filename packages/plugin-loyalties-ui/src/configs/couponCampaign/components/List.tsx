@@ -17,7 +17,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from '../../general/components/Sidebar';
 import Form from '../containers/Form';
 import { ICouponCampaign } from '../types';
-import Row from './Row';
+import Row from '../containers/Row';
 
 type Props = {
   couponCampaigns: ICouponCampaign[];
