@@ -188,7 +188,7 @@ export const loadTagClass = models => {
 
       const tag = await models.Tags.getTag(_id);
 
-      // Generatingg  order
+      // Generating order
       const order = await this.generateOrder(parentTag, doc);
 
       const childTags = await models.Tags.find({
