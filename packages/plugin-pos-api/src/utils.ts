@@ -269,11 +269,19 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
     }
 
     if (phone) {
-      pushInfo.phones = phone;
+      if(moduleTxt === 'customers') {
+        pushInfo.phones = { phone, type: 'other'};
+      } else {
+        pushInfo.phones = phone;
+      }
     }
 
     if (email) {
-      pushInfo.emails = email;
+      if(moduleTxt === 'customers') {
+        pushInfo.emails = { email, type: 'other'};
+      } else {
+        pushInfo.emails = email;
+      }
     }
 
     if (Object.keys(pushInfo).length) {

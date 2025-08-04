@@ -18,8 +18,8 @@ import {
   customerSchema,
   ICustomer,
   ICustomerDocument,
-  IEmail,
-  IPhone,
+  ICustomerEmail,
+  ICustomerPhone,
 } from "./definitions/customers";
 
 interface IGetCustomerParams {
@@ -380,6 +380,24 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         }
       }
 
+      if (doc.emailValidationStatus) {
+        doc.emails = (doc.emails || []).map((email) => {
+          if (email.type === "primary") {
+            return { ...email, status: doc.emailValidationStatus };
+          }
+          return email;
+        });
+      }
+
+      if (doc.phoneValidationStatus) {
+        doc.phones = (doc.phones || []).map((phone) => {
+          if (phone.type === "primary") {
+            return { ...phone, status: doc.phoneValidationStatus };
+          }
+          return phone;
+        });
+      }
+
       const pssDoc = await models.Customers.calcPSS({
         ...oldCustomer,
         ...doc,
@@ -550,8 +568,8 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       let customFieldsData: ICustomField[] = [];
       let state: any = "";
 
-      let emails: IEmail[] = [];
-      let phones: IPhone[] = [];
+      let emails: ICustomerEmail[] = [];
+      let phones: ICustomerPhone[] = [];
 
       if (customerFields.primaryEmail) {
         emails.push({ type: "primary", email: customerFields.primaryEmail });
@@ -741,8 +759,8 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       customData = {},
       customer?: ICustomerDocument
     ) {
-      let emails: IEmail[] = [];
-      let phones: IPhone[] = [];
+      let emails: ICustomerEmail[] = [];
+      let phones: ICustomerPhone[] = [];
       let deviceTokens: string[] = [];
 
       // extract basic fields from customData
@@ -956,7 +974,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
           { _id: customerId },
           {
             $set: { "visitorContactInfo.phone": value },
-            $push: { phones: value },
+            $push: { phones: { phone: value, type: "other" } },
           }
         );
 

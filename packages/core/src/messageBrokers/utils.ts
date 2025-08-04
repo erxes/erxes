@@ -239,14 +239,14 @@ export const findCompany = async (
   if (!company && doc.email) {
     company = await Companies.findOne({
       ...defaultFilter,
-      $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
+      $or: [{ "emails.email": { $in: [doc.email] } }, { primaryEmail: doc.email }]
     }).lean();
   }
 
   if (!company && doc.phone) {
     company = await Companies.findOne({
       ...defaultFilter,
-      $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
+      $or: [{ "phones.phone": { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
     }).lean();
   }
 

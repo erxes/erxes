@@ -52,21 +52,6 @@ class DetailInfo extends React.PureComponent<Props> {
     );
   }
 
-  renderEmail(status?: string, email?: string) {
-    return (
-      <li>
-        <FieldStyle>{__("Primary Email")}:</FieldStyle>
-        <SidebarCounter>
-          <PrimaryEmail
-            email={email}
-            status={status}
-            customerId={this.props.customer._id}
-          />
-        </SidebarCounter>
-      </li>
-    );
-  }
-
   renderPosition(customer) {
     if (!this.props.hasPosition) {
       return null;
@@ -75,40 +60,44 @@ class DetailInfo extends React.PureComponent<Props> {
     return this.renderRow("position", customer.position);
   }
 
-  renderPhones(
-    status?: string,
-    phones?: { phone: string; type: string; status?: string }[],
-    primaryPhone?: string
+  renderContactInfo(
+    contactType: "phone" | "email",
+    items: any[] | undefined,
+    customerId?: string
   ) {
-    const hasPrimaryPhone = (phones || []).find(
-      (phone) => phone?.type === "primary"
-    );
+    const label = contactType?.replace(/^./, (c) => c.toUpperCase()) + "s";
 
-    if (!hasPrimaryPhone && primaryPhone) {
-      phones = [{ phone: primaryPhone, type: "primary", status }, ...(phones || [])];
-    }
-
-    if (!phones?.length) {
+    if (!items?.length) {
       return (
         <li>
-          <FieldStyle>{__("Phones")}</FieldStyle>
+          <FieldStyle>{__(label)}</FieldStyle>
           <SidebarCounter>{__("-")}</SidebarCounter>
         </li>
       );
     }
 
-    const renderPhone = ({ phone, type, status }: { phone?: string; type: string; status?: string }) => {
-      const capitalizedType = type.replace(/^./, (char) => char.toUpperCase());
+    const FieldComponents = {
+      phone: PrimaryPhone,
+      email: PrimaryEmail,
+    };
+
+    const renderItem = ({ [contactType]: value, type, status }: any) => {
+      const itemType = type?.replace(/^./, (c) => c.toUpperCase());
+
+      const InfoComponent = FieldComponents[contactType];
+
+      const infoProps = {
+        [contactType]: value,
+        status,
+        customerId: customerId!,
+      };
 
       return (
-        <InfoRow key={`${type}-${phone}`}>
+        <InfoRow key={`${type}-${value}`}>
           <SidebarCounter>
-            <PrimaryPhone
-              phone={phone}
-              status={status}
-            />
+            <InfoComponent {...infoProps} />
           </SidebarCounter>
-          <SidebarCounter>{capitalizedType}</SidebarCounter>
+          <SidebarCounter>{itemType}</SidebarCounter>
         </InfoRow>
       );
     };
@@ -116,10 +105,10 @@ class DetailInfo extends React.PureComponent<Props> {
     return (
       <li style={{ display: "flex", flexDirection: "column" }}>
         <InfoRow>
-          <FieldStyle>{__("Phones")}</FieldStyle>
+          <FieldStyle>{__(label)}</FieldStyle>
           <FieldStyle>{__("Type")}</FieldStyle>
         </InfoRow>
-        {phones.map(renderPhone)}
+        {items.map(renderItem)}
       </li>
     );
   }
@@ -133,16 +122,9 @@ class DetailInfo extends React.PureComponent<Props> {
 
     return (
       <SidebarList className="no-link" $isGrid={isGrid}>
+        {this.renderContactInfo("phone", customer.phones)}
+        {this.renderContactInfo("email", customer.emails, customer._id)}
         {this.renderRow("code", customer.code)}
-        {this.renderEmail(
-          customer.emailValidationStatus,
-          customer.primaryEmail
-        )}
-        {this.renderPhones(
-          customer.phoneValidationStatus,
-          customer.phones,
-          customer.primaryPhone
-        )}
         {this.renderPosition(customer)}
         {this.renderRow(
           "owner",

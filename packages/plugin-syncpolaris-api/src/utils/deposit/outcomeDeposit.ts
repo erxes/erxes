@@ -30,7 +30,7 @@ export const outcomeDeposit = async (subdomain, polarisConfig, params) => {
     tcustAddr: customerData.firstName,
     tcustRegister: customerData.registerCode,
     tcustRegisterMask: "3",
-    tcustContact: customerData.phones[0].phone,
+    tcustContact: customerData.phones[0]?.phone,
     tranAmt: transaction.total,
     tranCurCode: transaction.currency,
     sourceType: "OI",

@@ -174,11 +174,11 @@ function updateCustomerDoc(
   }
 
   if (customerDoc.email && !customer.emails.find(e => e.email === customerDoc.email)) {
-    customerDoc.emails = [...customer.emails, { email: customerDoc.email }];
+    customerDoc.emails = [...customer.emails, { email: customerDoc.email, type: 'other' }];
   }
 
   if (customerDoc.phone && !customer.phones.find(p => p.phone === customerDoc.phone)) {
-    customerDoc.phones = [...customer.phones, { phone: customerDoc.phone }];
+    customerDoc.phones = [...customer.phones, { phone: customerDoc.phone, type: 'other' }];
   }
 
   return customerDoc;

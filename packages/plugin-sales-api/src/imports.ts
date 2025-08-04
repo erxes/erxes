@@ -124,8 +124,8 @@ export default {
                     $or: [
                       { $in: ['$primaryEmail', values] },
                       { $in: ['$primaryPhone', values] },
-                      { $in: ['$emails', values] },
-                      { $in: ['$phones', values] },
+                      { $in: ['$emails.email', values] },
+                      { $in: ['$phones.phone', values] },
                       { $in: ['$code', values] },
                     ],
                   },

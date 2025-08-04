@@ -51,14 +51,16 @@ export interface IAddress {
   short: string;
 }
 
-export interface IEmail {
+export interface ICustomerEmail {
   type: string,
-  email: string
+  email: string,
+  status?: string
 }
 
-export interface IPhone {
+export interface ICustomerPhone {
   type: string,
-  phone: string
+  phone: string,
+  status?: string
 }
 
 export interface ICustomer {
@@ -71,10 +73,10 @@ export interface ICustomer {
   birthDate?: Date;
   sex?: number;
   primaryEmail?: string;
-  emails?: IEmail[];
+  emails?: ICustomerEmail[];
   avatar?: string;
   primaryPhone?: string;
-  phones?: IPhone[];
+  phones?: ICustomerPhone[];
   primaryAddress?: IAddress;
   addresses?: IAddress[];
 

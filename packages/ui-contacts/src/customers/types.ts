@@ -23,12 +23,12 @@ export interface ICustomerDoc {
   firstName?: string;
   middleName?: string;
   lastName?: string;
-  phones?: { phone: string; type: string }[];
+  phones?: { phone: string; type: string, status?: string }[];
   registrationNumber?: string;
   sex?: number;
   primaryPhone?: string;
   primaryEmail?: string;
-  emails?: string[];
+  emails?: { email: string; type: string, status?: string }[];
   avatar?: string;
   state?: string;
   ownerId?: string;

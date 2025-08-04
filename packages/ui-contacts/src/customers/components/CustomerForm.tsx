@@ -1,4 +1,4 @@
-import { Alert, __, getConstantFromStore } from "@erxes/ui/src/utils";
+import { IUser, IUserLinks } from "@erxes/ui/src/auth/types";
 import {
   DateContainer,
   FormColumn,
@@ -7,36 +7,31 @@ import {
   ScrollWrapper,
 } from "@erxes/ui/src/styles/main";
 import {
-  EMAIL_VALIDATION_STATUSES,
-  PHONE_VALIDATION_STATUSES,
-} from "../constants";
-import {
   IButtonMutateProps,
   IFormProps,
   IQueryParams,
 } from "@erxes/ui/src/types";
-import { ICustomer, ICustomerDoc } from "../types";
-import { IUser, IUserLinks } from "@erxes/ui/src/auth/types";
-import { genderChoices, isValidPhone } from "../utils";
+import { Alert, __, getConstantFromStore } from "@erxes/ui/src/utils";
 import { getVersion } from "@erxes/ui/src/utils/core";
+import {
+  EMAIL_VALIDATION_STATUSES,
+  PHONE_VALIDATION_STATUSES,
+} from "../constants";
+import { ICustomer, ICustomerDoc } from "../types";
+import { genderChoices } from "../utils";
 
-import AutoCompletionSelect from "@erxes/ui/src/components/AutoCompletionSelect";
+import RelationForm from "@erxes/ui-forms/src/forms/containers/RelationForm";
 import AvatarUpload from "@erxes/ui/src/components/AvatarUpload";
 import Button from "@erxes/ui/src/components/Button";
 import CollapseContent from "@erxes/ui/src/components/CollapseContent";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
 import Form from "@erxes/ui/src/components/form/Form";
-import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import React from "react";
-import RelationForm from "@erxes/ui-forms/src/forms/containers/RelationForm";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import validator from "validator";
-import SelectWrapper from "./Select";
-import EditablePhoneList from "./EditablePhoneList";
-import EditableEmailList from "./EditableEmailList";
-import { confirm } from "@erxes/ui/src/utils";
+import React from "react";
+import InputRow from "./InputRow";
 // import { automationsRemoveNote } from "@erxes/ui-automations/src/graphql/resolvers/mutations/automations";
 
 type Props = {
@@ -57,16 +52,15 @@ type State = {
   hasAuthority: string;
   users: IUser[];
   avatar: string;
-  phones?: { phone: string; type: string }[];
   showPhoneEditor: boolean;
   primaryPhone?: string;
   birthDate: string;
   primaryEmail?: string;
-  emails?: { email: string; type: string }[];
   relationData?: any;
+
+  emails?: { email: string; type: string }[];
+  phones?: { phone: string; type: string }[];
 };
-
-
 
 class CustomerForm extends React.Component<Props, State> {
   constructor(props) {
@@ -83,34 +77,9 @@ class CustomerForm extends React.Component<Props, State> {
       users: [],
       birthDate: customer.birthDate,
       avatar: customer.avatar,
-        primaryEmail: customer.primaryEmail,
-  emails: (() => {
-    const emailList = customer.emails || [];
 
-    if (
-      customer.primaryEmail &&
-      !emailList.some((e) => e.email === customer.primaryEmail)
-    ) {
-      return [{ type: "primary", email: customer.primaryEmail }, ...emailList];
-    }
-
-    return emailList;
-  })(),
-      primaryPhone: customer.primaryPhone,
-      phones: (() => {
-      const phoneList = customer.phones || [];
-
-  // If primaryPhone is defined and not in phoneList already, prepend it
-  if (
-    customer.primaryPhone &&
-    !phoneList.some((p) => p.phone === customer.primaryPhone)
-  ) {
-    return [{ type: "primary", phone: customer.primaryPhone }, ...phoneList];
-  }
-
-  return phoneList;
-})(),
-
+      emails: customer.emails,
+      phones: customer.phones,
     };
   }
 
@@ -265,37 +234,6 @@ class CustomerForm extends React.Component<Props, State> {
     }
   };
 
-  onPhoneListChange = async (phones: { phone: string; type: string }[]) => {
-  const seen = new Set<string>();
-  const filtered: { phone: string; type: string }[] = [];
-
-  for (const p of phones) {
-    const normalized = p.phone.trim().replace(/[\s+()-]/g, "");
-
-    if (seen.has(normalized)) {
-      const confirmed = await confirm("Duplicate number is detected. Do you want to remove it?", {
-        okLabel: "Yes, remove it",
-        cancelLabel: "No, keep it",
-      });
-
-      if (!confirmed) {
-        Alert.info("Duplicate number removed.");
-        continue; 
-      }
-      //keep it
-    }
-
-    seen.add(normalized);
-    filtered.push(p);
-  }
-    this.setState({ phones: filtered });
-  };
-
-  onEmailListChange = (emails: { email: string; type: string }[]) => {
-  this.setState({ emails });
-  };
-
-
   saveAndRedirect = (type: string) => {
     const { changeRedirectType } = this.props;
 
@@ -344,13 +282,36 @@ class CustomerForm extends React.Component<Props, State> {
     );
   }
 
+  renderContactRow(forType: "phone" | "email") {
+    const { customer = {}, autoCompletionQuery } = this.props || {};
+
+    const field = `${forType}s`;
+
+    const onChange = (values: any[]) => {
+      this.setState({ [field]: values } as unknown as Pick<State, keyof State>);
+    };
+
+    return (
+      <>
+        <ControlLabel>{forType}</ControlLabel>
+        <InputRow
+          forType={forType}
+          data={customer[field] || []}
+          onChange={onChange}
+          query={autoCompletionQuery}
+          queryName="customers"
+        />
+      </>
+    );
+  }
+
   renderContent = (formProps: IFormProps) => {
     const { VERSION } = getVersion();
     const { closeModal, renderButton, autoCompletionQuery } = this.props;
     const { values, isSubmitted, resetSubmit } = formProps;
 
     const customer = this.props.customer || ({} as ICustomer);
-    const { primaryEmail, primaryPhone, ownerId } = customer;
+    const { ownerId } = customer;
 
     return (
       <>
@@ -417,23 +378,7 @@ class CustomerForm extends React.Component<Props, State> {
                     defaultValue={customer.registrationNumber || ""}
                   />
                 </FormGroup>
-                <FormGroup> 
-                <ControlLabel>Email</ControlLabel>
-                 <EditableEmailList
-                  emails={
-                  this.state.emails && this.state.emails.length > 0
-                  ? this.state.emails
-                  : customer.emails?.length
-                  ? customer.emails.map((e) =>
-                  typeof e === 'string' ? { email: e, type: 'primary' } : e
-                    )
-                  : customer.primaryEmail
-                  ? [{ email: customer.primaryEmail, type: 'primary' }]
-                  : []
-                  }
-                  onChange={this.onEmailListChange}
-                  />
-                </FormGroup>
+                <FormGroup>{this.renderContactRow("email")}</FormGroup>
                 <FormGroup>
                   <ControlLabel>Primary email verification status</ControlLabel>
                   <FormControl
@@ -490,21 +435,7 @@ class CustomerForm extends React.Component<Props, State> {
                   },
                   "date"
                 )}
-              <FormGroup>
-              <ControlLabel>Phone</ControlLabel>
-              <EditablePhoneList
-              phones={
-              this.state.phones && this.state.phones.length > 0
-                ? this.state.phones
-                : customer.phones?.length
-                ? customer.phones
-                : customer.primaryPhone
-                ? [{ phone: customer.primaryPhone, type: "primary" }]
-                : []
-              }
-              onChange={this.onPhoneListChange}
-              />
-              </FormGroup>
+                <FormGroup>{this.renderContactRow("phone")}</FormGroup>
                 <FormGroup>
                   <ControlLabel>Primary phone verification status</ControlLabel>
                   <FormControl
