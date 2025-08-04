@@ -1,4 +1,4 @@
-import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
+import { Title } from "@erxes/ui-settings/src/styles";
 import {
   Button,
   DataWithLoader,
@@ -8,17 +8,15 @@ import {
   Pagination,
   Table,
 } from "@erxes/ui/src/components";
-import {
-  Title,
-} from "@erxes/ui-settings/src/styles";
+import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
 
-import Form from "../containers/Form";
-import { IVoucherCampaign } from "../types";
+import { BarItems, Wrapper } from "@erxes/ui/src/layout";
 import React, { useState } from "react";
-import Row from "./Row";
-import Sidebar from "../../general/components/Sidebar";
-import { Wrapper, BarItems } from "@erxes/ui/src/layout";
 import { useLocation, useNavigate } from "react-router-dom";
+import Sidebar from "../../general/components/Sidebar";
+import Form from "../containers/Form";
+import Row from "../containers/Row";
+import { IVoucherCampaign } from "../types";
 
 type Props = {
   voucherCampaigns: IVoucherCampaign[];

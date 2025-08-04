@@ -269,11 +269,11 @@ const AttrubutionInput = ({
   return (
     <PlaceHolderInput
       config={config}
-      triggerType={triggerType}
+      triggerType={triggerType.split(".")[0]}
       inputName='attributionMails'
       placeholder={__("Please select  some attributes from attributes section")}
       label='Dynamic mails'
-      attrTypes={["user", "contact", "segment"]}
+      attrTypes={["user", "contact", "segment", "users"]}
       attrWithSegmentConfig={triggerType === "forms:form_submission"}
       triggerConfig={triggerConfig}
       onChange={onChange}

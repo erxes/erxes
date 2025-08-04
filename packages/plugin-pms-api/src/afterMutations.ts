@@ -1,7 +1,3 @@
-import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
-import * as moment from "moment";
-import { nanoid } from "nanoid";
-import { IModels } from "./connectionResolver";
 import { sendSalesMessage } from "./messageBroker";
 
 export default {
@@ -9,7 +5,7 @@ export default {
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
-  const { type, action, user } = params;
+  const { type, action } = params;
 
   if (type === "sales:deal") {
     if (action === "update") {

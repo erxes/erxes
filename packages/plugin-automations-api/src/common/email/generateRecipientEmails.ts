@@ -75,8 +75,6 @@ const collectEmails = async (
         continue;
       }
 
-      console.log(config, { type, key });
-
       if (type === "attributionMail") {
         const emails = await emailsGeneratorByType.getAttributionEmails(
           { serviceName, contentType },

@@ -83,6 +83,17 @@ const StageSelector = ({
     [stagesData]
   );
 
+  const refundStages = useMemo(() => {
+    const selectedStageIds = state.stageIds || []; 
+  
+    return (stagesData?.salesStages || [])
+      .filter(({ _id }) => !selectedStageIds.includes(_id)) 
+      .map(({ _id, name }) => ({
+        label: name,
+        value: _id,
+      }));
+  }, [stagesData, state.stageIds]);
+
   return (
     <FlexRow>
       <FormGroup>
@@ -123,6 +134,30 @@ const StageSelector = ({
               {
                 ...state,
                 stageIds: [
+                  ...new Set([
+                    ...(selectedOptions?.map(({ value }) => value) || []),
+                  ]),
+                ],
+              },
+              index
+            )
+          }
+          isClearable
+          isMulti
+        />
+      </FormGroup>
+      <FormGroup>
+        <ControlLabel>{__("Refund Stages")}</ControlLabel>
+        <Select
+          id="refundStages"
+          isLoading={stagesLoading}
+          value={refundStages.filter(({ value }) => state.refundStageIds?.includes(value))}
+          options={refundStages}
+          onChange={(selectedOptions) =>
+            onChange(
+              {
+                ...state,
+                refundStageIds: [
                   ...new Set([
                     ...(selectedOptions?.map(({ value }) => value) || []),
                   ]),

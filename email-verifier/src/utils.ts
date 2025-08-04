@@ -272,7 +272,6 @@ export const verifyOnMailsso = async (email: string, hostname: string) => {
     );
 
     const data = await response.json();
-    console.log("*********** ",data)
     const res = data.data;
     console.log("Ressss ",res)
 
@@ -337,6 +336,7 @@ export const bulkMailsso = async (emails: string[], hostname?: string) => {
     .then((response) => response.json())
     .then(async (result) => {
       const listIds = await getArray(redisKey);
+      console.debug('Bulk mailsso result:', result);
 
       listIds.push({ listId: result.id, hostname });
 

@@ -1,5 +1,33 @@
 # Changelog
 
+## [2.16.0](https://github.com/erxes/erxes/compare/2.15.8...2.16.0) (2025-08-03)
+
+### Features
+
+* enhance logging capabilities with new schemas ([df822a3](https://github.com/erxes/erxes/commit/df822a3f3b17a2da6a2cc1c0024ee5696a10ed04))
+* **tickets:** Add ability to hide relations & fix ui branch ([9359000](https://github.com/erxes/erxes/commit/9359000f7b6a8a4e10df720d2e8d926f3a20eb99))
+
+### Bug Fixes
+
+* **pms:** edit aftermutations ([6894e40](https://github.com/erxes/erxes/commit/6894e409be5c440d465b8910692f7034d7ac3c9b))
+* **pms:** filter pms rooms ([2d9028c](https://github.com/erxes/erxes/commit/2d9028c35d6bf8131c3a1fe86fbc21e189a259be))
+* release.yaml ([c2e00ea](https://github.com/erxes/erxes/commit/c2e00ea41672040d2d899a3718581a60fe3034d0))
+* **tms:** cronjobs ([15e585c](https://github.com/erxes/erxes/commit/15e585cfa22f8db9bf30b1f71109f605b264420e))
+* **tms:** date_status field ([559a623](https://github.com/erxes/erxes/commit/559a623540293004ce8621334bdd759eb9a21b7e))
+* **tms:** filter remove time ([4996959](https://github.com/erxes/erxes/commit/4996959d63ac35f8ef39c66b9c9e6250f4d1b48c))
+* **tms:** order query ([96d5179](https://github.com/erxes/erxes/commit/96d5179f745f12892216ca9c9f43eae06b40fb26))
+* **tms:** orderadd by systemuser ([0880aa3](https://github.com/erxes/erxes/commit/0880aa3cbd11ab8b138403c510efe604e2e2f053))
+* **tms:** query tours ([3391248](https://github.com/erxes/erxes/commit/3391248bf8f1cd034083dc748f48128a822f2560))
+* **tms:** spelling error ([33212a3](https://github.com/erxes/erxes/commit/33212a3d856e8dfa0fdabb7b76066aec7394bf08))
+* **tms:** tourgroup ([65da785](https://github.com/erxes/erxes/commit/65da7858e16898d4fcbf43f2f6ce05063ab6e99d))
+* **tms:** update itinerary ([1525689](https://github.com/erxes/erxes/commit/15256898f1cc33625ea644bf129fc00934c76ae2))
+
+## [2.15.8](https://github.com/erxes/erxes/compare/2.15.7...2.15.8) (2025-07-31)
+
+### Bug Fixes
+
+* correct data structure in getRelatedValue automation ([6dea839](https://github.com/erxes/erxes/commit/6dea83972c41fb170c215baf0db0e77a21e54d66))
+
 ## [2.15.7](https://github.com/erxes/erxes/compare/2.15.6...2.15.7) (2025-07-30)
 
 ### Features

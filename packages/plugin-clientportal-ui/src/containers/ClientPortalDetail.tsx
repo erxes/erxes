@@ -1,19 +1,20 @@
-import Spinner from "@erxes/ui/src/components/Spinner";
-import Alert from "@erxes/ui/src/utils/Alert";
-import * as routerUtils from "@erxes/ui/src/utils/router";
-import { gql } from "@apollo/client";
-import React from "react";
-import { useQuery, useMutation } from "@apollo/client";
+import Spinner from '@erxes/ui/src/components/Spinner';
+import Alert from '@erxes/ui/src/utils/Alert';
+import * as routerUtils from '@erxes/ui/src/utils/router';
+import { gql } from '@apollo/client';
+import React from 'react';
+import { useQuery, useMutation } from '@apollo/client';
 
-import ClientPortalDetail from "../components/ClientPortalDetail";
-import mutations from "../graphql/mutations";
-import queries from "../graphql/queries";
-import { ClientPortalConfig, ClientPortalConfigQueryResponse } from "../types";
-import { useLocation, useNavigate } from "react-router-dom";
+import ClientPortalDetail from '../components/ClientPortalDetail';
+import mutations from '../graphql/mutations';
+import queries from '../graphql/queries';
+import { ClientPortalConfig, ClientPortalConfigQueryResponse } from '../types';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { removeTypename } from '@erxes/ui/src/utils';
 
 type Props = {
   queryParams: any;
-  kind: "client" | "vendor";
+  kind: 'client' | 'vendor';
   closeModal?: () => void;
 };
 
@@ -27,6 +28,7 @@ function ClientPortalDetailContainer(props: Props) {
     {
       variables: { _id: queryParams._id },
       skip: !queryParams._id,
+      fetchPolicy: 'cache-and-network',
     }
   );
 
@@ -42,6 +44,16 @@ function ClientPortalDetailContainer(props: Props) {
     const config: any = { _id: queryParams._id, kind, ...doc };
     delete config.__typename;
 
+    if (config.tokiConfig) {
+      const clean = removeTypename(config.tokiConfig);
+      config.tokiConfig = clean;
+    }
+
+    if (config.environmentVariables) {
+      const clean = removeTypename(config.environmentVariables);
+      config.environmentVariables = clean;
+    }
+
     mutate({ variables: { config } })
       .then((response = {}) => {
         const { clientPortalConfigUpdate = {} } = response.data || {};
@@ -52,7 +64,7 @@ function ClientPortalDetailContainer(props: Props) {
           });
         }
 
-        Alert.success("Successfully updated the Business portal config");
+        Alert.success('Successfully updated the Business portal config');
 
         if (closeModal) {
           closeModal();
@@ -65,7 +77,7 @@ function ClientPortalDetailContainer(props: Props) {
     ...props,
     queryParams,
     loading,
-    config: data.clientPortalGetConfig || { tokenPassMethod: "cookie" },
+    config: data.clientPortalGetConfig || { tokenPassMethod: 'cookie' },
     handleUpdate,
   };
 
