@@ -73,8 +73,9 @@ export const bulk = async (emails: string[], hostname: string) => {
     defaultValue: 'mailsso',
   });
 
+  
   const emailsOnDb = await Emails.find({
-    email: { $in: emails },
+    email: { $in: emails, status: {$ne: EMAIL_VALIDATION_STATUSES.UNKNOWN}},
   });
   console.debug('Emails on DB:', emailsOnDb.length);
   const emailsMap: Array<{ email: string; status: string }> = emailsOnDb.map(
