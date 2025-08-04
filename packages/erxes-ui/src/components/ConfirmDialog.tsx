@@ -217,6 +217,7 @@ class ConfirmDialog extends React.Component<Props, State> {
           errors={errors}
           autoFocus={true}
           onChange={this.handleChange}
+          autoComplete={hasPasswordConfirm ? "new-password" : ""}
         />
       </>
     );

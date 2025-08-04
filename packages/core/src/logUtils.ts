@@ -22,6 +22,12 @@ import { generateModels, IModels } from "./connectionResolver";
 import { configSchema } from "./db/models/definitions/configs";
 import { emailTemplateSchema } from "./db/models/definitions/emailTemplates";
 import { ITagDocument } from "./db/models/definitions/tags";
+import { customerSchema } from "./db/models/definitions/customers";
+import { companySchema } from "./db/models/definitions/companies";
+import {
+  productCategorySchema,
+  productSchema
+} from "./db/models/definitions/products";
 
 const LOG_MAPPINGS = [
   {
@@ -47,6 +53,22 @@ const LOG_MAPPINGS = [
   {
     name: MODULE_NAMES.EMAIl_TEMPLATE,
     schemas: [emailTemplateSchema]
+  },
+  {
+    name: MODULE_NAMES.CUSTOMER,
+    schemas: [customerSchema]
+  },
+  {
+    name: MODULE_NAMES.COMPANY,
+    schemas: [companySchema]
+  },
+  {
+    name: MODULE_NAMES.PRODUCT,
+    schemas: [productSchema]
+  },
+  {
+    name: MODULE_NAMES.PRODUCT_CATEGORY,
+    schemas: [productCategorySchema]
   }
 ];
 
@@ -77,7 +99,7 @@ const gatherTagNames = async (
     if (children.length > 0) {
       options.push({
         relatedIds: doc.relatedIds,
-        name: children.map(c => c.name)
+        name: children.map((c) => c.name)
       });
     }
   }
@@ -166,7 +188,7 @@ export const putActivityLog = async (
   });
 };
 
-export const prepareCocLogData = coc => {
+export const prepareCocLogData = (coc) => {
   // condition logic was in ActivityLogs model before
   let action = "create";
   let content: string[] = [];
@@ -228,7 +250,7 @@ export default {
     };
   },
 
-  collectItems: async ({ }) => {
+  collectItems: async ({}) => {
     return {
       status: "success",
       data: {}
