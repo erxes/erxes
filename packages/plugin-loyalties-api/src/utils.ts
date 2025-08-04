@@ -1,4 +1,5 @@
 import { getEnv } from "@erxes/api-utils/src";
+import { debugError } from "@erxes/api-utils/src/debuggers";
 import { getOrganizations } from "@erxes/api-utils/src/saas/saas";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import { IModels } from "./connectionResolver";
@@ -642,6 +643,69 @@ export const handleLoyaltyReward = async ({ subdomain }) => {
         defaultValue: [],
         isRPC: true,
       });
+    }
+  }
+};
+
+export const doScoreCampaign = async (models: IModels, data) => {
+  const { ownerType, ownerId, actionMethod, targetId } = data;
+
+  try {
+    await models.ScoreCampaigns.checkScoreAviableSubtract(data);
+
+    const scoreLog =
+      (await models.ScoreLogs.find({
+        ownerId,
+        ownerType,
+        targetId,
+        action: actionMethod,
+      }).lean()) || [];
+
+    if (scoreLog.length) {
+      return;
+    }
+
+    return await models.ScoreCampaigns.doCampaign(data);
+  } catch (error) {
+    debugError(error);
+    throw new Error(error.message);
+  }
+};
+
+export const refundLoyaltyScore = async (
+  models: IModels,
+  { targetId, ownerType, ownerId, scoreCampaignIds, checkInId }
+) => {
+  if (!scoreCampaignIds.length) return;
+
+  const scoreCampaigns =
+    (await models.ScoreCampaigns.find({
+      _id: { $in: scoreCampaignIds },
+    }).lean()) || [];
+
+  for (const scoreCampaign of scoreCampaigns) {
+    const { additionalConfig } = scoreCampaign || {};
+
+    const checkInIds =
+      additionalConfig?.cardBasedRule?.flatMap(
+        ({ refundStageIds }) => refundStageIds
+      ) || [];
+
+    if (checkInIds.includes(checkInId)) {
+      try {
+        await models.ScoreCampaigns.refundLoyaltyScore(
+          targetId,
+          ownerType,
+          ownerId
+        );
+      } catch (error) {
+        if (
+          error.message ===
+          "Cannot refund loyalty score cause already refunded loyalty score"
+        ) {
+          return;
+        }
+      }
     }
   }
 };

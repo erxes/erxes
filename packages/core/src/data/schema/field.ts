@@ -114,7 +114,7 @@ export const fieldsQueries = `
   fields(contentType: String!, contentTypeId: String, isVisible: Boolean, searchable: Boolean, isVisibleToCreate: Boolean, pipelineId: String, groupIds: [String],isDefinedByErxes:Boolean,isDisabled:Boolean): [Field]
   fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, config: JSON, onlyDates: Boolean): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
-  fieldsGetRelations(contentType: String!, isVisibleToCreate: Boolean): [Field]
+  fieldsGetRelations(contentType: String!, isVisibleToCreate: Boolean, isVisible: Boolean): [Field]
   fieldByCode(contentType: String!, code: String): Field
 `;
 

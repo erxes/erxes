@@ -4,8 +4,12 @@ import {
 } from '../messageBroker';
 
 export const validCampaign = doc => {
+
+  if (!doc.startDate || !doc.endDate || !doc.finishDateOfUse) {
+    return
+  }
+
   if (
-    !doc.startDate ||
     doc.startDate.getTime() - new Date().getTime() < -24 * 1000 * 60 * 60
   ) {
     throw new Error('The start date must be in the future');
