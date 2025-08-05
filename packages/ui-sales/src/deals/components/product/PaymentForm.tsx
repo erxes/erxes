@@ -234,9 +234,6 @@ class PaymentForm extends React.Component<Props, State> {
     const { paymentsData, payInfoByType = {} } = this.state;
     const NAME = type.name || type.type;
     const thisPayInfo = payInfoByType[NAME] || {};
-    const thisPayConfig = JSON.parse(type?.config || '{}') || {}
-
-    const isQrFeild = thisPayConfig?.require === 'qrCode' || false
 
     const onChange = (e) => {
       if (
@@ -304,7 +301,7 @@ class PaymentForm extends React.Component<Props, State> {
               ...paymentsData,
               [NAME]: {
                 amount: 0,
-                currency: ''
+                currency: 'MNT'
               }
             }
             this.setState({
@@ -349,7 +346,14 @@ class PaymentForm extends React.Component<Props, State> {
       <Flex key={type.name} >
         <ContentColumn>
           <FlexRowGap>
-            <ControlLabel>{__(type.title)}</ControlLabel>
+            <ControlLabel>
+              {__(type.title)}
+              {thisPayInfo.hasPopup && (
+                thisPayInfo.validQr &&
+                <Icon icon="key-skeleton-alt" size={16} /> ||
+                <Icon icon="lock" size={16} />
+              ) || ''}
+            </ControlLabel>
             <OwnerScoreCampaignScore
               type={type}
               dealQuery={this.props.dealQuery}
@@ -362,10 +366,10 @@ class PaymentForm extends React.Component<Props, State> {
           <FormControl
             value={paymentsData[NAME] ? paymentsData[NAME].amount : ""}
             type="number"
-            placeholder={__(isQrFeild ? "Read QRCODE" : "Type amount")}
+            placeholder={__(thisPayInfo.hasPopup ? "Read QRCODE" : "Type amount")}
             min={0}
             name={NAME}
-            readOnly={isQrFeild}
+            readOnly={thisPayInfo.hasPopup && !thisPayInfo.validQr}
             onChange={onChange}
             onClick={onClick}
           />
