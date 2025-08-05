@@ -1,8 +1,74 @@
+import mongoose, { Document, Schema } from "mongoose";
+import { field, schemaHooksWrapper } from "./models/definitions/utils";
 import { generateModels } from './connectionResolver';
 import { sendCommonMessage } from './messageBroker';
 import _ from 'lodash';
 
-const setRelatedIds = async (models, tag) => {
+export interface ITag {
+  name: string;
+  type: string;
+  colorCode?: string;
+  objectCount?: number;
+  parentId?: string;
+}
+
+export interface ITagDocument extends ITag, Document {
+  _id: string;
+  createdAt: Date;
+  order?: string;
+  relatedIds?: string[];
+}
+
+export interface ITagModel extends mongoose.Model<ITagDocument> {
+  // Add any static methods here if needed
+}
+
+export const loadTagClass = () => {
+  class Tag {
+    // Add any static methods here if needed
+  }
+  
+  tagSchema.loadClass(Tag);
+  return tagSchema;
+};
+
+export const tagSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    name: field({ type: String, label: "Name" }),
+    type: field({
+      type: String,
+      label: "Type",
+      index: true
+    }),
+    colorCode: field({ type: String, label: "Color code" }),
+    createdAt: field({ type: Date, label: "Created at" }),
+    objectCount: field({ type: Number, label: "Object count" }),
+    order: field({ type: String, label: "Order", index: true }),
+    parentId: field({
+      type: String,
+      optional: true,
+      index: true,
+      label: "Parent"
+    }),
+    relatedIds: field({
+      type: [String],
+      optional: true,
+      label: "Children tag ids"
+    })
+  }),
+  "erxes_tags"
+);
+
+// For tags query performance
+tagSchema.index({ type: 1, order: 1, name: 1 });
+
+// Define model parameter type for helper functions
+type ModelsParam = {
+  Tags: ITagModel;
+};
+
+const setRelatedIds = async (models: ModelsParam, tag: ITagDocument) => {
   if (tag.parentId) {
     const parentTag = await models.Tags.findOne({ _id: tag.parentId });
 
@@ -21,7 +87,7 @@ const setRelatedIds = async (models, tag) => {
   }
 };
 
-const removeRelatedIds = async (models, tag) => {
+const removeRelatedIds = async (models: ModelsParam, tag: ITagDocument) => {
   const tags = await models.Tags.find({ relatedIds: { $in: [tag._id] } });
   if (tags.length === 0) return;
 
@@ -68,15 +134,15 @@ export default {
         { multi: true }
       );
 
-      // Set related tagIds for each tag
+      // Update tag hierarchies
       const tags = await models.Tags.find({ _id: { $in: tagIds } });
-
       for (const tag of tags) {
         await setRelatedIds(models, tag);
       }
 
       response = await model.find({ _id: { $in: targetIds } }).lean();
 
+      // Trigger automations
       sendCommonMessage({
         serviceName: 'automations',
         subdomain,
@@ -98,11 +164,13 @@ export default {
     const model: any = models.Tickets;
 
     if (action === 'remove') {
+      // Remove tag from tickets
       await model.updateMany(
         { tagIds: { $in: [sourceId] } },
         { $pull: { tagIds: { $in: [sourceId] } } }
       );
 
+      // Clean up hierarchy
       const tag = await models.Tags.findOne({ _id: sourceId });
       if (tag) {
         await removeRelatedIds(models, tag);
@@ -110,16 +178,19 @@ export default {
     }
 
     if (action === 'merge') {
+      // Find tickets with source tag
       const itemIds = await model
         .find({ tagIds: { $in: [sourceId] } }, { _id: 1 })
         .distinct('_id');
 
+      // Replace source tag with destination tag
       await model.updateMany(
         { _id: { $in: itemIds } },
         { $set: { 'tagIds.$[elem]': destId } },
         { arrayFilters: [{ elem: { $eq: sourceId } }] }
       );
 
+      // Update tag hierarchies
       const sourceTag = await models.Tags.findOne({ _id: sourceId });
       const destTag = await models.Tags.findOne({ _id: destId });
 

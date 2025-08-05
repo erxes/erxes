@@ -508,18 +508,23 @@ const fillValue = async (
 
       break;
 
-    case "tagIds":
-      const tags = await models.Tags.find({ _id: { $in: item.tagIds || [] } });
+    case "tagIds": {
+  const tagIds = item.tagIds || [];
 
-      let tagNames = "";
+  console.log("Input tagIds:", tagIds);
 
-      for (const tag of tags) {
-        tagNames = tagNames.concat(tag.name, " ");
-      }
+  const tags = await models.Tags.find({ _id: { $in: tagIds } }).lean();
 
-      value = tagNames || "-";
+  console.log("Found tags:", tags);
 
-      break;
+  const tagNames = tags.map(tag => tag.name);
+  console.log("Mapped tag names:", tagNames);
+
+  value = tagNames.length > 0 ? tagNames.join(", ") : "-";
+  break;
+}
+
+
 
     default:
       break;
