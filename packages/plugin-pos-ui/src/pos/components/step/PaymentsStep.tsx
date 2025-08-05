@@ -256,9 +256,10 @@ const PaymentsStep = (props: Props) => {
             </Description>
             <Description>
               Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: "skipEbarimt: true",
-              Харилцагч сонгосон үед л харагдах бол: "mustCustomer: true", Хэрэв
-              хуваах боломжгүй бол: "notSplit: true" Урьдчилж төлсөн төлбөрөөр
-              (Татвар тооцсон) бол: "preTax: true"
+              Харилцагч сонгосон үед л харагдах бол: "mustCustomer: true",
+              Хэрэв хуваах боломжгүй бол: "notSplit: true"
+              Урьдчилж төлсөн төлбөрөөр (Татвар тооцсон) бол: "preTax: true"
+              Хэрэв тухайн төлбөр дээр бэлдэц нэхэмжлэх хэвлэх бол: "printInvoice: true"
             </Description>
 
             <FormGroup>
