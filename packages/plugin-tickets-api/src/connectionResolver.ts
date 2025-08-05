@@ -42,6 +42,7 @@ import {
 } from "./models/PipelineTemplates";
 import { IPipelineTemplateDocument } from "./models/definitions/pipelineTemplates";
 import { createGenerateModels } from "@erxes/api-utils/src/core";
+import { ITagDocument, ITagModel, loadTagClass } from './tags'; // Updated import
 
 export interface IModels {
   Boards: IBoardModel;
@@ -53,6 +54,7 @@ export interface IModels {
   PipelineLabels: IPipelineLabelModel;
   PipelineTemplates: IPipelineTemplateModel;
   Comments: ICommentModel;
+  Tags: ITagModel; // Added Tags model
 }
 
 export interface IContext extends IMainContext {
@@ -81,6 +83,7 @@ export const loadClasses = (
     "tickets_stages",
     loadStageClass(models, subdomain)
   );
+  
   models.Tickets = db.model<ITicketDocument, ITicketModel>(
     "tickets",
     loadTicketClass(models, subdomain)
@@ -90,22 +93,33 @@ export const loadClasses = (
     "tickets_checklists",
     loadChecklistClass(models, subdomain)
   );
+  
   models.ChecklistItems = db.model<IChecklistItemDocument, IChecklistItemModel>(
     "tickets_checklist_items",
     loadItemClass(models, subdomain)
   );
+  
   models.PipelineLabels = db.model<IPipelineLabelDocument, IPipelineLabelModel>(
     "tickets_pipeline_labels",
     loadPipelineLabelClass(models)
   );
+  
   models.PipelineTemplates = db.model<
     IPipelineTemplateDocument,
     IPipelineTemplateModel
   >("tickets_pipeline_templates", loadPipelineTemplateClass(models, subdomain));
+  
   models.Comments = db.model<ICommentDocument, ICommentModel>(
     'ticket_comments',
     loadCommentClass(models)
   );
+  
+  // Added Tags model initialization
+  models.Tags = db.model<ITagDocument, ITagModel>(
+    'tags', // ticket_tags doesn't work cause data stored as tags
+    loadTagClass() // Loading tag class
+  );
+
   return models;
 };
 
