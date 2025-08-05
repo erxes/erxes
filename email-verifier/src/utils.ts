@@ -103,7 +103,6 @@ export const getEnv = ({
 
 export const isValidDomain = async (email) => {
   const domain = email.split('@')[1];
-
   const cachedDomainResponse = await redis.get(`verifier:${domain}`);
 
   if (!cachedDomainResponse) {
@@ -125,7 +124,7 @@ export const isValidDomain = async (email) => {
   return cachedDomainResponse === 'valid' ? true : false;
 };
 
-export const isValidEmail = (email) => {
+export const isFormatValid = (email: string) => {
   const complexEmailRegex =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
@@ -207,7 +206,6 @@ export const verifyOnClearout = async (email: string, hostname: string) => {
     ).then((r) => r.json());
 
     if (response.status !== 'success') {
-      
       body = {
         email: { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN },
         source: EMAIL_VALIDATION_SOURCES.CLEAROUT,
@@ -217,7 +215,6 @@ export const verifyOnClearout = async (email: string, hostname: string) => {
     const { data } = response;
 
     if (data.status === 'valid') {
-      
       body = {
         email: { email, status: EMAIL_VALIDATION_STATUSES.VALID },
         source: EMAIL_VALIDATION_SOURCES.CLEAROUT,
@@ -225,7 +222,6 @@ export const verifyOnClearout = async (email: string, hostname: string) => {
     }
 
     if (['unknown', 'invalid'].includes(data.status)) {
-      
       body = {
         email: { email, status: data.status },
         source: EMAIL_VALIDATION_SOURCES.CLEAROUT,
@@ -251,7 +247,6 @@ export const verifyOnClearout = async (email: string, hostname: string) => {
     });
   } catch (e) {
     debugError(`Error occurred during request sending: ${e.message}`);
-    
   }
 };
 
@@ -273,10 +268,9 @@ export const verifyOnMailsso = async (email: string, hostname: string) => {
 
     const data = await response.json();
     const res = data.data;
-    console.log("Ressss ",res)
+    console.log('Ressss ', res);
 
     if (res.result !== 'deliverable') {
-      
       body = {
         email: { email, status: EMAIL_VALIDATION_STATUSES.INVALID },
         source: EMAIL_VALIDATION_SOURCES.MAILSSO,
@@ -284,7 +278,6 @@ export const verifyOnMailsso = async (email: string, hostname: string) => {
 
       status = EMAIL_VALIDATION_STATUSES.INVALID;
     } else {
-      
       body = {
         email: { email, status: EMAIL_VALIDATION_STATUSES.VALID },
         source: EMAIL_VALIDATION_SOURCES.MAILSSO,
@@ -324,7 +317,7 @@ export const bulkMailsso = async (emails: string[], hostname?: string) => {
   const MAILS_SO_KEY = getEnv({ name: 'MAILS_SO_KEY' });
   const body = { emails };
   const redisKey = 'erxes_email_verifier_list_ids';
-
+  console.debug('Bulk mailsso started, total emails:', emails.length);
   fetch('https://api.mails.so/v1/batch', {
     method: 'POST',
     headers: {
@@ -365,7 +358,7 @@ export const bulkClearOut = async (emails: string[], hostname: string) => {
   const emailsMapped = [];
 
   for (const email of emails) {
-    if (!isValidEmail(email)) {
+    if (!isFormatValid(email)) {
       continue;
     }
 
@@ -388,7 +381,7 @@ export const bulkClearOut = async (emails: string[], hostname: string) => {
 
     await sendFile(url, CLEAR_OUT_API_KEY, tmpFile.name, hostname, redisKey);
   } catch (e) {
-        throw e;
+    throw e;
   }
 };
 
@@ -455,7 +448,6 @@ export const getResult = async (listId: string, hostname: string) => {
       }
     }
 
-    
     await sendRequest({
       url: `${hostname}/verifier/webhook`,
       method: 'POST',

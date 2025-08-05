@@ -502,29 +502,38 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         throw new Error("Please provide owner & target");
       }
 
-      const scoreLog = await models.ScoreLogs.findOne({
+      let scoreLog = await models.ScoreLogs.findOne({
         targetId,
         ownerId,
         action: "subtract",
       });
 
       if (!scoreLog) {
-        throw new Error("Cannot find score log on this target");
-      }
-      if (
-        await models.ScoreLogs.exists({
+        scoreLog = await models.ScoreLogs.findOne({
           targetId,
           ownerId,
-          action: "refund",
-          sourceScoreLogId: scoreLog._id,
-        })
-      ) {
+          action: "add",
+        });
+
+        if (!scoreLog) {
+          throw new Error("Cannot find score log on this target");
+        }
+      }
+
+      const refundScoreLog = await models.ScoreLogs.exists({
+        targetId,
+        ownerId,
+        action: "refund",
+        sourceScoreLogId: scoreLog._id,
+      })
+
+      if (refundScoreLog) {
         throw new Error(
           "Cannot refund loyalty score cause already refunded loyalty score"
         );
       }
 
-      let { changeScore, campaignId } = scoreLog;
+      let { changeScore, campaignId, action } = scoreLog;
 
       const campaign = await models.ScoreCampaigns.findOne({ _id: campaignId });
       if (!campaign) {
@@ -533,18 +542,28 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         );
       }
 
-      const addedScoreLogs = await models.ScoreLogs.find({
-        targetId,
-        ownerId,
-        action: "add",
-      });
-
-      if (addedScoreLogs) {
-        const totalAddedScore = addedScoreLogs.reduce(
-          (acc, curr) => acc + curr.changeScore,
-          0
-        );
-        changeScore = changeScore - totalAddedScore;
+      let refundAmount: number;
+  
+      if (action === "subtract") {
+        const addedScoreLogs = await models.ScoreLogs.find({
+          targetId,
+          ownerId,
+          action: "add",
+        });
+    
+        if (addedScoreLogs && addedScoreLogs.length > 0) {
+          const totalAddedScore = addedScoreLogs.reduce(
+            (acc, curr) => acc + curr.changeScore,
+            0
+          );
+          refundAmount = changeScore - totalAddedScore;
+        } else {
+          refundAmount = changeScore;
+        }
+      } else if (action === "add") {
+        refundAmount = -changeScore;
+      } else {
+        throw new Error(`Unsupported action type for refund: ${action}`);
       }
 
       const { fieldId } = campaign;
@@ -561,7 +580,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         customFieldData.field === fieldId
           ? {
               ...customFieldData,
-              value: (customFieldData?.value || 0) + changeScore,
+              value: (customFieldData?.value || 0) + refundAmount,
             }
           : customFieldData
       );
@@ -583,7 +602,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       return await models.ScoreLogs.create({
         ownerId,
         ownerType,
-        changeScore,
+        changeScore: refundAmount,
         createdAt: new Date(),
         campaignId: campaign._id,
         serviceName: scoreLog.serviceName,
