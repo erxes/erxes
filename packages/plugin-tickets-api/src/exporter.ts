@@ -512,9 +512,8 @@ const fillValue = async (
      const tagIds = item.tagIds || [];
      const tags = await models.Tags.find({ _id: { $in: tagIds } }).lean();
      const tagNames = tags.map(tag => tag.name);
-
-      value = tagNames.length > 0 ? tagNames.join(", ") : "-";
-      break;
+     value = tagNames.length > 0 ? tagNames.join(", ") : "-";
+     break;
 }
 
 
