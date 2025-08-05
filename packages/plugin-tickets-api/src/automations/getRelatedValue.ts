@@ -54,13 +54,11 @@ export const getRelatedValue = async (
     });
 
     if (!!relatedValueProps[targetKey]) {
-      const { key, filter } = relatedValueProps[targetKey] || {};
-
-      const result = users
-        .filter((user) => (filter ? user[filter.key] === filter.value : user))
-        .map((user) => user[key])
-        .join(", ");
-      return result;
+      return generateRelatedValueUserProps({
+        targetKey,
+        users,
+        relatedValueProps,
+      });
     }
 
     return (
@@ -272,7 +270,7 @@ const generateCustomFieldsDataValue = async ({
   }
 
   if (field?.type === "users") {
-    const users: IUser[] = await sendCoreMessage({
+    const users = await sendCoreMessage({
       subdomain,
       action: "users.find",
       data: {
@@ -283,14 +281,11 @@ const generateCustomFieldsDataValue = async ({
     });
 
     if (!!relatedValueProps[targetKey]) {
-      const { key, filter } = relatedValueProps[targetKey] || {};
-
-      const result = users
-        .filter((user) => (filter ? user[filter.key] === filter.value : user))
-        .map((user) => user[key])
-        .join(", ");
-
-      return result;
+      return generateRelatedValueUserProps({
+        targetKey,
+        users,
+        relatedValueProps,
+      });
     }
 
     return users
@@ -468,4 +463,49 @@ const generateTotalAmount = (productsData) => {
   });
 
   return totalAmount;
+};
+
+const generateRelatedValueUserProps = ({
+  users = [],
+  relatedValueProps = {},
+  targetKey,
+}: {
+  users: any[];
+  relatedValueProps: any;
+  targetKey: string;
+}) => {
+  const { key, filter } = relatedValueProps[targetKey] || {};
+
+  const result = users
+    .filter((user) => {
+      if (filter) {
+        const fieldValue = user[filter.key];
+
+        if (filter.value != null && filter.value !== "") {
+          // filter.value is set → exclude if field matches
+          if (fieldValue === filter.value) {
+            return false; // skip this user
+          }
+        } else {
+          // filter.value is null/undefined/empty → exclude if field exists with value
+          if (
+            Object.prototype.hasOwnProperty.call(user, filter.key) &&
+            fieldValue !== null &&
+            fieldValue !== undefined &&
+            fieldValue !== ""
+          ) {
+            return false; // skip this user
+          }
+        }
+
+        return true;
+      }
+
+      return user;
+      // filter ? user[filter.key] === filter.value : user
+    })
+    .map((user) => user[key])
+    .join(", ");
+
+  return result;
 };

@@ -12,8 +12,10 @@ import {
 import {
   checkVouchersSale,
   confirmVoucherSale,
+  doScoreCampaign,
   handleLoyaltyReward,
   handleScore,
+  refundLoyaltyScore,
 } from "./utils";
 
 export const setupMessageConsumers = async () => {
@@ -122,7 +124,16 @@ export const setupMessageConsumers = async () => {
     const models = await generateModels(subdomain);
 
     return {
-      data: await models.ScoreCampaigns.doCampaign(data),
+      data: await doScoreCampaign(models, data),
+      status: "success",
+    };
+  });
+
+  consumeRPCQueue("loyalties:refundLoyaltyScore", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await refundLoyaltyScore(models, data),
       status: "success",
     };
   });

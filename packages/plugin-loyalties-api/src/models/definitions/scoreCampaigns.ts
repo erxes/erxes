@@ -28,6 +28,7 @@ export interface IScoreCampaign {
 
   onlyClientPortal?: boolean
   restrictions?: any
+  additionalConfig?: any
 }
 
 export interface IScoreCampaignDocuments extends Document, IScoreCampaign {

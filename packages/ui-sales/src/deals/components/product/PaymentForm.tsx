@@ -234,6 +234,9 @@ class PaymentForm extends React.Component<Props, State> {
     const { paymentsData, payInfoByType = {} } = this.state;
     const NAME = type.name || type.type;
     const thisPayInfo = payInfoByType[NAME] || {};
+    const thisPayConfig = JSON.parse(type?.config || '{}') || {}
+
+    const isQrFeild = thisPayConfig?.require === 'qrCode' || false
 
     const onChange = (e) => {
       if (
@@ -359,10 +362,10 @@ class PaymentForm extends React.Component<Props, State> {
           <FormControl
             value={paymentsData[NAME] ? paymentsData[NAME].amount : ""}
             type="number"
-            placeholder={__("Type amount")}
+            placeholder={__(isQrFeild ? "Read QRCODE" : "Type amount")}
             min={0}
             name={NAME}
-            disabled={thisPayInfo.maxVal === 0 && !thisPayInfo.hasPopup}
+            readOnly={isQrFeild}
             onChange={onChange}
             onClick={onClick}
           />
