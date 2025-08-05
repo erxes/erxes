@@ -509,19 +509,12 @@ const fillValue = async (
       break;
 
     case "tagIds": {
-  const tagIds = item.tagIds || [];
+     const tagIds = item.tagIds || [];
+     const tags = await models.Tags.find({ _id: { $in: tagIds } }).lean();
+     const tagNames = tags.map(tag => tag.name);
 
-  console.log("Input tagIds:", tagIds);
-
-  const tags = await models.Tags.find({ _id: { $in: tagIds } }).lean();
-
-  console.log("Found tags:", tags);
-
-  const tagNames = tags.map(tag => tag.name);
-  console.log("Mapped tag names:", tagNames);
-
-  value = tagNames.length > 0 ? tagNames.join(", ") : "-";
-  break;
+      value = tagNames.length > 0 ? tagNames.join(", ") : "-";
+      break;
 }
 
 
