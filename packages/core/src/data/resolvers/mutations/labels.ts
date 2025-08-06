@@ -1,21 +1,25 @@
 import { IContext } from "../../../connectionResolver";
-import { ILabel } from "../../../db/models/definitions/labels";
+import { IContactLabel } from "../../../db/models/definitions/contactLabels";
 
-const labelMutations = {
-  async saveLabel(_root: undefined, doc: ILabel, { models, user }: IContext) {
-    return models.Labels.saveLabel(
+const contactLabelMutations = {
+  async saveContactLabel(
+    _root: undefined,
+    doc: IContactLabel,
+    { models, user }: IContext
+  ) {
+    return models.ContactLabels.saveContactLabel(
       { ...doc, name: doc.name.toLowerCase() },
       user
     );
   },
 
-  async removeLabel(
+  async removeContactLabel(
     _root: undefined,
     { name }: { name: string },
     { models }: IContext
   ) {
-    return models.Labels.removeLabel(name);
+    return models.ContactLabels.removeContactLabel(name);
   },
 };
 
-export default labelMutations;
+export default contactLabelMutations;

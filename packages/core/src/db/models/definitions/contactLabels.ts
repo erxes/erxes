@@ -1,17 +1,17 @@
 import { Document, Schema } from "mongoose";
 import { field } from "./utils";
 
-export interface ILabel {
+export interface IContactLabel {
   name: string;
   forType: string;
   userId?: string;
 }
 
-export interface ILabelDocument extends ILabel, Document {
+export interface IContactLabelDocument extends IContactLabel, Document {
   _id: string;
 }
 
-export const labelSchema = new Schema({
+export const contactLabelSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, required: true }),
   forType: field({ type: String, required: true }),

@@ -15,8 +15,8 @@ const FormWrapper = styled(CommonFormWrapper)`
 `;
 
 const LABEL_QUERY = gql(`
-  query Labels($forType: String!) {
-    labels(forType: $forType) {
+  query ContactLabels($forType: String!) {
+    contactLabels(forType: $forType) {
       name
       forType
       type
@@ -25,14 +25,17 @@ const LABEL_QUERY = gql(`
 `);
 
 const LABEL_MUTATION = gql(`
-  mutation SaveLabel($name: String!, $forType: String!) {
-    saveLabel(name: $name, forType: $forType) {
+  mutation SaveContactLabel($name: String!, $forType: String!) {
+    saveContactLabel(name: $name, forType: $forType) {
       name
       forType
       type
     }
   }
 `);
+
+const generateId = () =>
+  `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
 type Props = {
   label: string;
@@ -84,7 +87,7 @@ const LabelSelect = (props: Props) => {
 
   const selectedOption = options
     .flatMap((group) => group.options)
-    .find((option) => option.value === label);
+    .find((option) => option.value === label.toLowerCase());
 
   const handleChange = (selectedOption: any) => {
     onChange(selectedOption);
@@ -112,9 +115,9 @@ type RowProps = {
   query: string;
   queryName: string;
   forType: string;
-  labels: any[];
+  contactLabels: any[];
   onChange: (values: any[]) => void;
-  saveLabel: (inputValue: string) => void;
+  saveContactLabel: (inputValue: string) => void;
 };
 
 const Input = (props: any) => {
@@ -194,26 +197,34 @@ const Input = (props: any) => {
 };
 
 const Row = (props: RowProps) => {
-  const { data, labels, forType, onChange, saveLabel } = props;
+  const { data, contactLabels, forType, onChange, saveContactLabel } = props;
 
   const [values, setValues] = useState<any[]>([]);
 
   useEffect(() => {
     const hasPrimary = data.some((item) => item.type === "primary");
 
+    const dataWithIds = data.map((item) => ({
+      ...item,
+      _tempId: item._tempId || generateId(),
+    }));
+
     setValues([
-      ...data,
+      ...dataWithIds,
       {
+        _tempId: generateId(),
         type: hasPrimary ? "other" : "primary",
         [forType]: "",
       },
     ]);
   }, [data]);
 
-  const validateValues = (values) => {
+  const validateValues = (values: any[]) => {
     if (!values.length) return [];
 
-    return values.filter((value) => value?.type && value?.[forType]);
+    return values
+      .filter((value) => value?.type && value?.[forType])
+      .map(({ _tempId, ...rest }) => rest);
   };
 
   const handleInputChange = (index: number, value: string) => {
@@ -238,7 +249,11 @@ const Row = (props: RowProps) => {
       return setValues((prevValues) => {
         const updatedValues = [...prevValues];
 
-        updatedValues.push({ type: "other", [forType]: "" });
+        updatedValues.push({
+          _tempId: generateId(),
+          type: "other",
+          [forType]: "",
+        });
 
         return updatedValues;
       });
@@ -278,15 +293,15 @@ const Row = (props: RowProps) => {
     <FormGroup>
       {values.map((value, index) => {
         return (
-          <FormWrapper key={index}>
+          <FormWrapper key={value._tempId}>
             <LabelSelect
               selectedLabels={values.map((v) => v.type)}
               label={value.type}
-              labels={labels}
+              labels={contactLabels}
               onChange={(selectedOption) =>
                 handleLabelChange(selectedOption, index)
               }
-              saveLabel={saveLabel}
+              saveLabel={saveContactLabel}
             />
 
             <Input
@@ -328,7 +343,7 @@ const RowWrapper = (props: WrapperProps) => {
     },
   });
 
-  const [labelSave] = useMutation(LABEL_MUTATION, {
+  const [contactLabelSave] = useMutation(LABEL_MUTATION, {
     refetchQueries: [
       {
         query: LABEL_QUERY,
@@ -339,12 +354,12 @@ const RowWrapper = (props: WrapperProps) => {
     ],
   });
 
-  const saveLabel = (inputValue: string) => {
-    labelSave({
+  const saveContactLabel = (inputValue: string) => {
+    contactLabelSave({
       variables: { name: inputValue, forType },
     })
       .then((res) => {
-        const { _id } = res.data.saveLabel;
+        const { _id } = res.data.saveContactLabel;
 
         if (_id) {
           refetch();
@@ -355,8 +370,8 @@ const RowWrapper = (props: WrapperProps) => {
 
   const extendedProps = {
     ...props,
-    saveLabel,
-    labels: data?.labels || [],
+    saveContactLabel,
+    contactLabels: data?.contactLabels || [],
   };
 
   return <Row {...extendedProps} />;

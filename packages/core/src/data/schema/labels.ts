@@ -1,5 +1,5 @@
 export const types = `
-    type Label {
+    type ContactLabel {
         name: String!
         forType: String!
         type: String
@@ -7,7 +7,7 @@ export const types = `
 `;
 
 export const queries = `
-    labels(forType: String!, userId: String): [Label]
+    contactLabels(forType: String!, userId: String): [ContactLabel]
 `;
 
 const mutationParams = `
@@ -16,6 +16,6 @@ const mutationParams = `
 `;
 
 export const mutations = `
-    saveLabel(${mutationParams}): Label
-    removeLabel(name: String!): Label
+    saveContactLabel(${mutationParams}): ContactLabel 
+    removeContactLabel(name: String!): ContactLabel
 `;

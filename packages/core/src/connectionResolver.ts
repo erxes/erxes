@@ -136,8 +136,8 @@ import { IDashboardModel, loadDashboardClass } from './db/models/Dashboard';
 import { ISectionModel, loadSectionClass } from './db/models/Section';
 import { IChartModel, loadChartClass } from './db/models/Chart';
 import { IReportModel, loadReportClass } from './db/models/Report';
-import { ILabelModel, loadLabelClass } from './db/models/Labels';
-import { ILabelDocument } from './db/models/definitions/labels';
+import { IContactLabelModel, loadContactLabelClass } from './db/models/ContactLabels';
+import { IContactLabelDocument } from './db/models/definitions/contactLabels';
 
 import { IDataLoaders } from './data/dataLoaders';
 import {
@@ -211,7 +211,7 @@ export interface IModels {
   BundleCondition: IBundleConditionModel;
   BundleRule: IBundleRuleModel;
   ProductRules: IProductRuleModel;
-  Labels: ILabelModel;
+  ContactLabels: IContactLabelModel;
 }
 
 export interface IContext extends IMainContext {
@@ -414,10 +414,10 @@ export const loadClasses = (
     'product_rules',
     loadProductRuleClass(models, subdomain)
   );
-
-  models.Labels = db.model<ILabelDocument, ILabelModel>(
-    'labels',
-    loadLabelClass(models)
+  
+  models.ContactLabels = db.model<IContactLabelDocument, IContactLabelModel>(
+    'contact_labels',
+    loadContactLabelClass(models)
   );
 
   return models;
