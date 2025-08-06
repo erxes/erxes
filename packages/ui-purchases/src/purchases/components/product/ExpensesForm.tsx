@@ -12,20 +12,13 @@ const ExpensesForm = ({
   onChangeExpensesData,
 }) => {
   const onChangeField = (field, value, expenseId: string) => {
-    const updatedExpensesData = expensesData;
-    if (updatedExpensesData) {
-      const expenseData = updatedExpensesData.find((p) => p._id === expenseId);
-      if (expenseData) {
-        expenseData[field] = value;
-      }
-      onChangeExpensesData(updatedExpensesData);
-    }
+    const updatedExpensesData = (expensesData || []).map(ed => ed._id === expenseId && { ...ed, [field]: value } || { ...ed });
+    onChangeExpensesData(updatedExpensesData);
   };
 
-  const deleteElement = (index) => {
-    const newItems = [...expensesData];
-    newItems.splice(index, 1);
-    onChangeExpensesData(newItems);
+  const deleteElement = (expenseId) => {
+    const updatedExpensesData = (expensesData || []).filter(ed => ed._id !== expenseId);
+    onChangeExpensesData(updatedExpensesData);
   };
 
   const addElement = () => {
@@ -89,10 +82,11 @@ const ExpensesForm = ({
               <td>
                 <Select
                   placeholder={__("Select a name")}
-                  value={nameOptions.find(
-                    (option) => option.value === element.name
-                  )}
-                  options={nameOptions}
+                  value={{
+                    value: element.name,
+                    label: element.name,
+                  }}
+                  options={[...nameOptions]}
                   onChange={(value: any) =>
                     onChangeField("name", value.value, element._id)
                   }
@@ -114,7 +108,7 @@ const ExpensesForm = ({
                   btnStyle="simple"
                   type="button"
                   icon="times"
-                  onClick={() => deleteElement(index)}
+                  onClick={() => deleteElement(element._id)}
                 ></Button>
               </td>
             </tr>

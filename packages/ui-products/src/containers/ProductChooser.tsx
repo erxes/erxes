@@ -47,7 +47,8 @@ const ProductChooser: React.FC<Props> = ({
   );
   const [searchValue, setSearchValue] = useState<string | undefined>("");
 
-  const parsedQuery = queryString.parse(location.search);
+  const parsedQuery = location.pathname.includes('sales') && queryString.parse(location.search) || {};
+  location.pathname
 
   const [products, setProducts] = useState<IProduct[]>([]);
 
@@ -125,9 +126,8 @@ const ProductChooser: React.FC<Props> = ({
 
   const renderName = (product: IProduct) => {
     if (product.code && product.subUoms?.length) {
-      return `${product.code} - ${product.name} ~${
-        Math.round((1 / (product.subUoms[0].ratio || 1)) * 100) / 100
-      } - ${product.unitPrice}`;
+      return `${product.code} - ${product.name} ~${Math.round((1 / (product.subUoms[0].ratio || 1)) * 100) / 100
+        } - ${product.unitPrice}`;
     }
     if (product.code) {
       return `${product.code} - ${product.name} - ${product.unitPrice.toLocaleString() || ""}`;
