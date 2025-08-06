@@ -16,9 +16,9 @@ const contactLabelMutations = {
   async removeContactLabel(
     _root: undefined,
     { name }: { name: string },
-    { models }: IContext
+    { models, user }: IContext
   ) {
-    return models.ContactLabels.removeContactLabel(name);
+    return models.ContactLabels.removeContactLabel(name, user);
   },
 };
 
