@@ -18,6 +18,8 @@ let Customers;
 const command = async () => {
   const organizations = await getOrganizations();
 
+  console.time("start time");
+
   for (const org of organizations) {
     try {
       console.debug(MONGO_URL, org._id);
@@ -52,6 +54,11 @@ const command = async () => {
         }
 
         for (const email of emails) {
+          if (!email || typeof email !== "string") {
+            console.warn(`Skipping invalid email for customer ${_id}:`, email);
+            continue;
+          }
+
           if (email === primaryEmail) {
             newEmails.push({
               email,
@@ -70,6 +77,11 @@ const command = async () => {
         }
 
         for (const phone of phones) {
+          if (!phone || typeof phone !== "string") {
+            console.warn(`Skipping invalid phone for customer ${_id}:`, phone);
+            continue;
+          }
+
           if (phone === primaryPhone) {
             newPhones.push({
               phone,
@@ -96,7 +108,7 @@ const command = async () => {
   }
 
   console.debug(`Process finished at: ${new Date()}`);
-  console.timeEnd("end time");
+  console.timeEnd("start time");
 
   process.exit();
 };

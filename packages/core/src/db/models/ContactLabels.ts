@@ -13,12 +13,19 @@ export interface IContactLabelModel extends Model<IContactLabelDocument> {
     doc: IContactLabel,
     user: IUserDocument
   ): Promise<IContactLabelDocument>;
-  removeContactLabel(name: string): Promise<IContactLabelDocument>;
+  removeContactLabel(
+    name: string,
+    user: IUserDocument
+  ): Promise<IContactLabelDocument>;
 }
 
 export const loadContactLabelClass = (models: IModels) => {
   class ContactLabel {
     public static async validateLabel(doc: IContactLabelDocument) {
+      if (!doc.name?.trim()) {
+        throw new Error("Label name is required");
+      }
+
       const defaultLabel = DEFAULT_LABELS[doc.forType];
 
       if (!defaultLabel) {
@@ -42,21 +49,26 @@ export const loadContactLabelClass = (models: IModels) => {
     ) {
       await this.validateLabel(doc);
 
-      const label = await models.ContactLabels.findOne({ name: doc.name });
-
-      if (label) {
-        return models.ContactLabels.findOneAndUpdate(
-          { name: doc.name },
-          { $set: { ...doc, userId: user._id } },
-          { new: true }
-        );
-      }
-
-      return models.ContactLabels.create({ ...doc, userId: user._id });
+      return models.ContactLabels.findOneAndUpdate(
+        { name: doc.name, forType: doc.forType, userId: user._id },
+        {
+          $setOnInsert: {
+            createdAt: new Date(),
+          },
+          $set: {
+            updatedAt: new Date(),
+          },
+        },
+        { upsert: true, new: true }
+      );
     }
 
-    public static async removeContactLabel(name: string) {
-      return models.ContactLabels.findOneAndDelete({ name });
+    public static async removeContactLabel(name: string, user: IUserDocument) {
+      if (!name?.trim()) {
+        throw new Error("Label name is required");
+      }
+
+      return models.ContactLabels.findOneAndDelete({ name, userId: user._id });
     }
   }
 

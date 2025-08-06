@@ -1,4 +1,3 @@
-import { chunkArray } from "@erxes/api-utils/src";
 import EditorAttributeUtil from "@erxes/api-utils/src/editorAttributeUtils";
 import { customFieldsDataByFieldCode } from "@erxes/api-utils/src/fieldUtils";
 import { getServices } from "@erxes/api-utils/src/serviceDiscovery";
@@ -166,7 +165,7 @@ export const findCustomer = async (
     customer = await Customers.findOne({
       ...defaultFilter,
       $or: [
-        { emails: { $in: [doc.customerPrimaryEmail] } },
+        { "emails.email": { $in: [doc.customerPrimaryEmail] } },
         { primaryEmail: doc.customerPrimaryEmail }
       ]
     }).lean();
@@ -176,7 +175,7 @@ export const findCustomer = async (
     customer = await Customers.findOne({
       ...defaultFilter,
       $or: [
-        { phones: { $in: [doc.customerPrimaryPhone] } },
+        { "phones.phone": { $in: [doc.customerPrimaryPhone] } },
         { primaryPhone: doc.customerPrimaryPhone }
       ]
     }).lean();
@@ -239,14 +238,14 @@ export const findCompany = async (
   if (!company && doc.email) {
     company = await Companies.findOne({
       ...defaultFilter,
-      $or: [{ "emails.email": { $in: [doc.email] } }, { primaryEmail: doc.email }]
+      $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
     }).lean();
   }
 
   if (!company && doc.phone) {
     company = await Companies.findOne({
       ...defaultFilter,
-      $or: [{ "phones.phone": { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
+      $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
     }).lean();
   }
 

@@ -295,11 +295,11 @@ export default {
               }
 
               if (property.name === "phones" && value) {
-                doc.phones = value.split(",").map(p => ({ phone: p }));
+                doc.phones = value.split(",").map(phone => ({ phone, type: "other" }));
               }
 
               if (property.name === "emails" && value) {
-                doc.emails = value.split(",").map(p => ({ email: p }));
+                doc.emails = value.split(",").map(email => ({ email, type: "other" }));
               }
 
               if (property.name === "names" && value) {

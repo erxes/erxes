@@ -270,7 +270,7 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
 
     if (phone) {
       if(moduleTxt === 'customers') {
-        pushInfo.phones = { phone, type: 'other'};
+        pushInfo.phones = [{ phone, type: 'other'}];
       } else {
         pushInfo.phones = phone;
       }
@@ -278,7 +278,7 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
 
     if (email) {
       if(moduleTxt === 'customers') {
-        pushInfo.emails = { email, type: 'other'};
+        pushInfo.emails = [{ email, type: 'other'}];
       } else {
         pushInfo.emails = email;
       }
