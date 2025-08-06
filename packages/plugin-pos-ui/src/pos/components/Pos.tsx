@@ -272,7 +272,6 @@ const Pos = (props: Props) => {
                 onChange={onChange}
                 pos={state.pos}
                 groups={state.groups}
-                catProdMappings={state.pos.catProdMappings || []}
               />
             </Step>
             <Step

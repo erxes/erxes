@@ -121,8 +121,8 @@ const pipelinesUpdateOrder = `
 `;
 
 const manageExpenses = `
-  mutation purchasesManageExpenses($expenseDocs: [ExpenseInput]) {
-    purchasesManageExpenses(expenseDocs: $expenseDocs) {
+  mutation manageExpenses($expenseDocs: [ExpenseInput]) {
+    manageExpenses(expenseDocs: $expenseDocs) {
       _id,
       name,
       description,

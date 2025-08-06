@@ -9,8 +9,8 @@ import {
   bulkClearOut,
   bulkMailsso,
   getEnv,
+  isFormatValid,
   isValidDomain,
-  isValidEmail,
   sendRequest,
   verifyOnClearout,
   verifyOnMailsso
@@ -26,7 +26,7 @@ export const single = async (email: string, hostname: string) => {
 
   email = email.toString();
 
-  if (!isValidEmail(email)) {
+  if (!isFormatValid(email)) {
         return { email, status: EMAIL_VALIDATION_STATUSES.INVALID };
   }
 
@@ -67,16 +67,16 @@ export const single = async (email: string, hostname: string) => {
 };
 
 export const bulk = async (emails: string[], hostname: string) => {
-  console.debug('Bulk email verification started, total emails:', emails.length);
   const MAIL_VERIFIER_SERVICE = getEnv({
     name: 'MAIL_VERIFIER_SERVICE',
     defaultValue: 'mailsso',
   });
 
+
   const emailsOnDb = await Emails.find({
     email: { $in: emails },
-  });
-  console.debug('Emails on DB:', emailsOnDb.length);
+  }).lean();
+
   const emailsMap: Array<{ email: string; status: string }> = emailsOnDb.map(
     ({ email, status }) => ({
       email,
@@ -87,20 +87,24 @@ export const bulk = async (emails: string[], hostname: string) => {
 
   const verifiedEmails = emailsMap.map((verified) => ({
     email: verified.email,
-    status: verified.status,
+    status: EMAIL_VALIDATION_STATUSES.VALID,
   }));
+
+  console.debug('Verified emails:', verifiedEmails.length);
 
   let unverifiedEmails: string[] = emails.filter(
     (email) => !verifiedEmails.some((e) => e.email === email)
   );
   const invalidEntries = unverifiedEmails.filter(
-    (email) => !isValidEmail(email) || !isValidDomain(email)
+    (email) => !isFormatValid(email)
   );
 
   unverifiedEmails = unverifiedEmails.filter(
-    (email) => isValidEmail(email) && isValidDomain(email)
+    (email) => isFormatValid(email)
   );
-  console.debug('Invalid emails:', unverifiedEmails.length);
+  console.debug('unverified emails:', unverifiedEmails.length);
+
+  console.debug('Invalid emails:', invalidEntries.length);
   if (invalidEntries.length > 0) {
         await sendRequest({
       url: `${hostname}/verifier/webhook`,
@@ -136,6 +140,7 @@ export const bulk = async (emails: string[], hostname: string) => {
     }
 
     if (MAIL_VERIFIER_SERVICE === 'mailsso') {
+      console.debug('Bulk email verification started, total emails:', emails.length);
       try {
         await bulkMailsso(unverifiedEmails, hostname);
       } catch (e) {

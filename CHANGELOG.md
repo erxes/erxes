@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.16.1](https://github.com/erxes/erxes/compare/2.16.0...2.16.1) (2025-08-06)
+
+### Features
+
+* pos with invoice ([#6087](https://github.com/erxes/erxes/issues/6087)) ([20f12a5](https://github.com/erxes/erxes/commit/20f12a513505c4d44d2ebbbf83ff4945353c2c35))
+
+### Bug Fixes
+
+* paymentform ([0eacfa5](https://github.com/erxes/erxes/commit/0eacfa5e14e50a0aaf1d3b45af7dad6ed476f10e))
+* purchase manage expenses ([b45ccac](https://github.com/erxes/erxes/commit/b45ccac87e63c6d96116caff6c9133141bc4a9c5))
+
 ## [2.16.0](https://github.com/erxes/erxes/compare/2.15.8...2.16.0) (2025-08-03)
 
 ### Features
