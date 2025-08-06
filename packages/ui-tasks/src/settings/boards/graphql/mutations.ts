@@ -120,21 +120,8 @@ const pipelinesUpdateOrder = `
   }
 `;
 
-const manageExpenses = `
-  mutation tasksManageExpenses($expenseDocs: [ExpenseInput]) {
-    tasksManageExpenses(expenseDocs: $expenseDocs) {
-      _id,
-      name,
-      description,
-      createdAt,
-      createdBy
-    }
-  }
-`;
-
 export default {
   boardAdd,
-  manageExpenses,
   boardEdit,
   boardRemove,
   pipelineAdd,

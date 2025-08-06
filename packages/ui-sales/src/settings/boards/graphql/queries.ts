@@ -93,23 +93,10 @@ const boardDetail = `
   }
 `;
 
-const expenses = `
-  query expenses {
-	  expenses {
-      _id
-      name
-      description
-      createdAt
-      createdBy
-    }
-  }
-`;
-
 export default {
   boards,
   pipelines,
   stages,
   boardGetLast,
-  boardDetail,
-  expenses
+  boardDetail
 };

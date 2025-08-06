@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.16.2](https://github.com/erxes/erxes/compare/2.16.1...2.16.2) (2025-08-06)
+
+### Bug Fixes
+
+* purchase ([#6100](https://github.com/erxes/erxes/issues/6100)) ([679ab14](https://github.com/erxes/erxes/commit/679ab145a6f46bad7828967647511bdf2be79fa5))
+
 ## [2.16.1](https://github.com/erxes/erxes/compare/2.16.0...2.16.1) (2025-08-06)
 
 ### Features
