@@ -12,7 +12,9 @@ const ExpensesForm = ({
   onChangeExpensesData,
 }) => {
   const onChangeField = (field, value, expenseId: string) => {
-    const updatedExpensesData = (expensesData || []).map(ed => ed._id === expenseId && { ...ed, [field]: value } || { ...ed });
+    const updatedExpensesData = (expensesData || []).map(ed =>
+      ed._id === expenseId ? { ...ed, [field]: value } : { ...ed }
+    );
     onChangeExpensesData(updatedExpensesData);
   };
 

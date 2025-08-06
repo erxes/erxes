@@ -59,13 +59,15 @@ function ExpensesForm() {
   };
 
   const changeElement = (_id, key, value) => {
-    const updatedElements = elements.map(el => el._id === _id && {...el, [key]: value} || { ...el });
+    const updatedElements = elements.map(el =>
+      el._id === _id ? { ...el, [key]: value } : { ...el }
+    );
     setElements(updatedElements);
   };
 
   const deleteElement = (_id) => {
     const updatedElements = elements.filter(e => e._id !== _id)
-    console.log(updatedElements, 'aaaaaaaaaaaaaaaaaaaaa')
+
     setElements(updatedElements);
   };
 
