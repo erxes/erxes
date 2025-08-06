@@ -55,22 +55,22 @@ export default {
     data: { sourceId, destId, action },
   }) => {
     const models = await generateModels(subdomain);
-    const model: any = models.Tickets;
 
     if (action === 'remove') {
-      await model.updateMany(
+      await models.Tickets.updateMany(
         { tagIds: { $in: [sourceId] } },
         { $pull: { tagIds: { $in: [sourceId] } } }
       );
     }
 
     if (action === 'merge') {
-      const itemIds = await model
-        .find({ tagIds: { $in: [sourceId] } }, { _id: 1 })
-        .distinct('_id');
+      const itemIds = await models.Tickets.find(
+        { tagIds: { $in: [sourceId] } },
+        { _id: 1 }
+      ).distinct('_id');
 
       // add to the new destination
-      await model.updateMany(
+      await models.Tickets.updateMany(
         { _id: { $in: itemIds } },
         { $set: { 'tagIds.$[elem]': destId } },
         { arrayFilters: [{ elem: { $eq: sourceId } }] }
