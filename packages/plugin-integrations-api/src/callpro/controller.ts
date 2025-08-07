@@ -151,7 +151,7 @@ const init = async (app) => {
                 integrationId: integration.erxesApiId,
                 primaryPhone: numberFrom,
                 isUser: true,
-                phones: [numberFrom],
+                phones: [{ phone: numberFrom, type: 'other'}],
               }),
             },
             isRPC: true,

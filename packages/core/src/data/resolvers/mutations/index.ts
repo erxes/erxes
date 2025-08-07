@@ -28,6 +28,7 @@ import charts from './chart';
 import exchangeRates from './exchangeRates';
 import bundle from './bundle';
 import productRules from './productRules';
+import labels from './labels';
 
 import {
   fieldMutations as fields,
@@ -65,4 +66,5 @@ export default {
   ...exchangeRates,
   ...bundle,
   ...productRules,
+  ...labels,
 };

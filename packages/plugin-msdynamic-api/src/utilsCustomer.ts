@@ -498,7 +498,7 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
       firstName: doc?.Name || 'default',
       code: doc.No,
       primaryPhone: doc?.Mobile_Phone_No,
-      phones: [doc?.Phone_No],
+      phones: [{ phone: doc?.Mobile_Phone_No, type: 'other'}],
       customFieldsData: updateCustomFieldData,
       scopeBrandIds: brandIds,
       state: 'customer',

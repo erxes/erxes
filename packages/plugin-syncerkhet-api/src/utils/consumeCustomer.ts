@@ -59,8 +59,8 @@ export const consumeCustomer = async (subdomain, doc, old_code, action) => {
         code: doc.code,
         primaryEmail: doc.mail,
         primaryPhone: doc.phone,
-        emails: [doc.mail],
-        phones: [doc.phone]
+        emails: [{ email: doc.mail, type: 'other' }],
+        phones: [{ phone: doc.phone, type: 'other' }]
       };
 
       if (customer) {

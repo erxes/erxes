@@ -199,7 +199,7 @@ const Row = (props: Props) => {
     switch (type) {
       case "customer":
       case "company":
-        return owner?.phones?.length ? owner.phones[0] : "-";
+        return owner?.phones?.length ? owner.phones[0].phone : "-";
       case "user":
         return owner?.primaryPhone || owner?.details?.operatorPhone || "-";
       case "cpUser":

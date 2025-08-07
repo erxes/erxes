@@ -317,7 +317,7 @@ const generateCustomersFielValue = async ({
       .map((customer) =>
         customer?.primaryEmail
           ? customer?.primaryEmail
-          : (customer?.emails || [])[0]
+          : (customer?.emails || [])[0]?.email
       )
       .filter(Boolean)
       .join(', ');
@@ -327,7 +327,7 @@ const generateCustomersFielValue = async ({
       .map((customer) =>
         customer?.primaryPhone
           ? customer?.primaryPhone
-          : (customer?.phones || [])[0]
+          : (customer?.phones || [])[0]?.phone
       )
       .filter(Boolean)
       .join(', ');

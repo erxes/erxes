@@ -51,6 +51,18 @@ export interface IAddress {
   short: string;
 }
 
+export interface ICustomerEmail {
+  type: string,
+  email: string,
+  status?: string
+}
+
+export interface ICustomerPhone {
+  type: string,
+  phone: string,
+  status?: string
+}
+
 export interface ICustomer {
   state?: "visitor" | "lead" | "customer";
 
@@ -61,10 +73,10 @@ export interface ICustomer {
   birthDate?: Date;
   sex?: number;
   primaryEmail?: string;
-  emails?: string[];
+  emails?: ICustomerEmail[];
   avatar?: string;
   primaryPhone?: string;
-  phones?: string[];
+  phones?: ICustomerPhone[];
   primaryAddress?: IAddress;
   addresses?: IAddress[];
 
@@ -152,6 +164,32 @@ const getEnum = (fieldName: string): string[] => {
   return CUSTOMER_SELECT_OPTIONS[fieldName].map((option) => option.value);
 };
 
+export const phoneSchema = new Schema({
+  phone: { type: String, label: "Phone"},
+  type: { type: String },
+  status: { 
+    type: String,
+    enum: getEnum("PHONE_VALIDATION_STATUSES"),
+    default: "unknown",
+    label: "Phone validation status",
+    esType: "keyword",
+    selectOptions: CUSTOMER_SELECT_OPTIONS.PHONE_VALIDATION_STATUSES,
+  }
+}, {_id: false})
+
+export const emailSchema = new Schema({
+  email: { type: String, label: "Email"},
+  type: { type: String },
+  status: { 
+    type: String,
+    enum: getEnum("EMAIL_VALIDATION_STATUSES"),
+    default: "unknown",
+    label: "Email validation status",
+    esType: "keyword",
+    selectOptions: CUSTOMER_SELECT_OPTIONS.EMAIL_VALIDATION_STATUSES,
+  }
+}, {_id: false})
+
 export const customerSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
@@ -196,7 +234,7 @@ export const customerSchema = schemaWrapper(
       optional: true,
       esType: "email",
     }),
-    emails: field({ type: [String], optional: true, label: "Emails" }),
+    emails: field({ type: [emailSchema], optional: true, label: "Emails" }),
     emailValidationStatus: field({
       type: String,
       enum: getEnum("EMAIL_VALIDATION_STATUSES"),
@@ -216,7 +254,7 @@ export const customerSchema = schemaWrapper(
       label: "Primary Phone",
       optional: true,
     }),
-    phones: field({ type: [String], optional: true, label: "Phones" }),
+    phones: field({ type: [phoneSchema], optional: true, label: "Phones" }),
 
     primaryAddress: field({
       type: Object,

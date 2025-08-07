@@ -122,10 +122,10 @@ export const fillCellValue = async (
     // customer fields
 
     case "emails":
-      cellValue = (item.emails || []).join(", ");
+      cellValue = (item.emails || []).map(e => e.email).join(", ");
       break;
     case "phones":
-      cellValue = (item.phones || []).join(", ");
+      cellValue = (item.phones || []).map(e => e.phone).join(", ");
       break;
     case "mergedIds":
       const customers: ICustomerDocument[] | null = await models.Customers.find(
