@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import SettingsTrigger from "@/modules/orders/components/DeliveryInputs/trigger"
 import useOrderCU from "@/modules/orders/hooks/useOrderCU"
 import { configAtom } from "@/store/config.store"
+import { printConfigurationsAtom } from "@/store"
 import {
   activeOrderIdAtom,
   buttonTypeAtom,
@@ -32,7 +33,11 @@ const BuyAction = () => {
   const router = useRouter()
 
   const config = useAtomValue(configAtom)
+  const printConfigurations = useAtomValue(printConfigurationsAtom)
   const { isActive, isPrint } = config?.kitchenScreen || {}
+  
+  const enabledConfigs = printConfigurations.filter(config => config.enabled)
+  const shouldUsePrintConfigs = enabledConfigs.length > 0
 
   const onCompleted = (_id: string, isPre?: boolean) => {
     if (buttonType === "pay") {
@@ -40,7 +45,7 @@ const BuyAction = () => {
     } else if (
       buttonType === "kitchen" ||
       buttonType === "customer" ||
-      (buttonType === "order" && !isActive && isPrint && !isPre)
+      (buttonType === "order" && !isActive && (isPrint || shouldUsePrintConfigs) && !isPre)
     ) {
       setShowRecieptId(_id + (buttonType === "customer" ? "?customer" : ""))
     }

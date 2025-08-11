@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { queries } from "@/modules/orders/graphql"
 import { queries as productQueries } from "@/modules/products/graphql"
-import { categoriesToPrintAtom, printOnlyNewItemsAtom } from "@/store"
+import { categoriesToPrintAtom, printOnlyNewItemsAtom, printConfigurationsAtom } from "@/store"
 import { configAtom } from "@/store/config.store"
 import { useLazyQuery, useQuery } from "@apollo/client"
 import { format } from "date-fns"
@@ -32,26 +32,57 @@ const filterProductsNeedProcess = (
 const Progress = () => {
   const searchParams = useSearchParams()
   const slug = searchParams.get("id")
+  const configId = searchParams.get("config")
   const id = slug?.split("?")[0]
   const forCustomer = slug?.split("?")[1] === "customer"
   const onlyNewItems = useAtomValue(printOnlyNewItemsAtom)
   const categoryOrders = useAtomValue(categoriesToPrintAtom)
+  const printConfigurations = useAtomValue(printConfigurationsAtom)
   const [itemsToPrint, setItemsToPrint] = useState<OrderItem[]>([])
+  const [groupedItems, setGroupedItems] = useState<{[key: string]: OrderItem[]}>({})
   const { name } = useAtomValue(configAtom) || {}
+
+  const currentConfig = configId 
+    ? printConfigurations.find(config => config.id === configId)
+    : null
 
   const [getCategoryOrders, ordersQuery] = useLazyQuery(
     productQueries.getCategoryOrders,
     {
       onCompleted({ poscProducts }) {
+        const categoriesToUse = currentConfig ? currentConfig.categories : categoryOrders
         const productsNeedProcess = filterProductsNeedProcess(
           poscProducts,
-          categoryOrders
+          categoriesToUse
         )
         const checkedItems = onlyNewItems
           ? items?.filter((item: OrderItem) =>
               productsNeedProcess.includes(item.productId)
             )
           : items || []
+        
+        if (currentConfig && currentConfig.categories.length > 0) {
+          const grouped: {[key: string]: OrderItem[]} = {}
+          currentConfig.categories.forEach(categoryOrder => {
+            const categoryProducts = poscProducts
+              .filter((product: IProduct) => product?.category?.order?.includes(categoryOrder))
+              .map((product: IProduct) => product._id)
+            
+            const categoryItems = checkedItems.filter((item: OrderItem) => 
+              categoryProducts.includes(item.productId)
+            )
+            
+            if (categoryItems.length > 0) {
+              const sampleProduct = poscProducts.find((product: IProduct) => 
+                categoryProducts.includes(product._id)
+              )
+              const categoryName = sampleProduct?.category?.name || categoryOrder.split('/').pop() || categoryOrder
+              grouped[categoryName] = categoryItems
+            }
+          })
+          setGroupedItems(grouped)
+        }
+        
         setItemsToPrint(checkedItems)
       },
     }
@@ -61,7 +92,9 @@ const Progress = () => {
     variables: { id },
     fetchPolicy: "network-only",
     onCompleted({ orderDetail }) {
-      if ((!onlyNewItems && !categoryOrders.length) || forCustomer) {
+      const categoriesToUse = currentConfig ? currentConfig.categories : categoryOrders
+      
+      if (forCustomer) {
         return window.print()
       }
 
@@ -76,7 +109,7 @@ const Progress = () => {
 
       const itemsToProcess = onlyNewItems ? newItems : orderDetail.items || []
 
-      if (categoryOrders.length) {
+      if (categoriesToUse.length > 0) {
         return getCategoryOrders({
           variables: {
             ids: itemsToProcess.map((item: OrderItem) => item.productId),
@@ -112,11 +145,11 @@ const Progress = () => {
     if (forCustomer) {
       return items
     }
-    if (onlyNewItems || categoryOrders.length) {
+    if (onlyNewItems || categoryOrders.length || currentConfig) {
       return itemsToPrint
     }
     return items || []
-  }, [forCustomer, onlyNewItems, categoryOrders.length, itemsToPrint, items])
+  }, [forCustomer, onlyNewItems, categoryOrders.length, currentConfig, itemsToPrint, items])
 
   if (loading || ordersQuery.loading) return <div />
 
@@ -139,20 +172,49 @@ const Progress = () => {
           {forCustomer && <span className="w-1/4 text-right">Үнэ</span>}
         </div>
         <Separator />
-        {printItems.map((item: OrderItem) => (
-          <div className="flex items-center" key={item._id}>
-            <span className="flex-auto">{item.productName}</span>
-            <span>
-              x{item.count}{" "}
-              {item.status === ORDER_ITEM_STATUSES.CONFIRM && "!!!"}
-            </span>
-            {forCustomer && (
-              <span className="ml-1 w-1/4 text-right">
-                {(item.unitPrice * item.count).toLocaleString()}
+        {currentConfig && Object.keys(groupedItems).length > 0 ? (
+          Object.entries(groupedItems).map(([categoryName, categoryItems], index) => (
+            <div key={categoryName}>
+              {index > 0 && (
+                <div className="my-2">
+                  <div className="border-t border-dashed border-gray-400 my-1"></div>
+                </div>
+              )}
+              {Object.keys(groupedItems).length > 1 && (
+                <div className="font-semibold text-xs mb-1 uppercase">{categoryName}</div>
+              )}
+              {categoryItems.map((item: OrderItem) => (
+                <div className="flex items-center" key={item._id}>
+                  <span className="flex-auto">{item.productName}</span>
+                  <span>
+                    x{item.count}{" "}
+                    {item.status === ORDER_ITEM_STATUSES.CONFIRM && "!!!"}
+                  </span>
+                  {forCustomer && (
+                    <span className="ml-1 w-1/4 text-right">
+                      {(item.unitPrice * item.count).toLocaleString()}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          ))
+        ) : (
+          printItems.map((item: OrderItem) => (
+            <div className="flex items-center" key={item._id}>
+              <span className="flex-auto">{item.productName}</span>
+              <span>
+                x{item.count}{" "}
+                {item.status === ORDER_ITEM_STATUSES.CONFIRM && "!!!"}
               </span>
-            )}
-          </div>
-        ))}
+              {forCustomer && (
+                <span className="ml-1 w-1/4 text-right">
+                  {(item.unitPrice * item.count).toLocaleString()}
+                </span>
+              )}
+            </div>
+          ))
+        )}
       </div>
       {!!description && (
         <div>

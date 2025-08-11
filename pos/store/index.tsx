@@ -81,6 +81,18 @@ export const categoriesToPrintAtom = atomWithStorage<string[]>(
   []
 )
 
+export interface PrintConfiguration {
+  id: string
+  name: string
+  categories: string[]
+  enabled: boolean
+}
+
+export const printConfigurationsAtom = atomWithStorage<PrintConfiguration[]>(
+  "printConfigurations",
+  []
+)
+
 export const mobileTabAtom = atomWithStorage<"products" | "checkout">(
   "mobileTab",
   "products"

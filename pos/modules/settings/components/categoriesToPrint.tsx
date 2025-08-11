@@ -1,5 +1,9 @@
 import useProductCategories from "@/modules/products/hooks/useProductCategories"
-import { categoriesToPrintAtom } from "@/store"
+import {
+  categoriesToPrintAtom,
+  printConfigurationsAtom,
+  PrintConfiguration,
+} from "@/store"
 import { configAtom } from "@/store/config.store"
 import { useAtom, useAtomValue } from "jotai"
 
@@ -10,6 +14,9 @@ import Loader from "@/components/ui/loader"
 const CategoriesToPrint = () => {
   const [categoriesToPrint, setCategoriesToPrint] = useAtom(
     categoriesToPrintAtom
+  )
+  const [printConfigurations, setPrintConfigurations] = useAtom(
+    printConfigurationsAtom
   )
   const config = useAtomValue(configAtom)
   const { isActive, isPrint } = config?.kitchenScreen || {}
@@ -57,17 +64,79 @@ const CategoriesToPrint = () => {
     return rCategories
   }
 
+  const firstFilterCategories = getMainCategories(rootCategories)
+  const firstFilterOptions = firstFilterCategories
+    .filter((category) => category.order && category.name)
+    .sort((a, b) => (a.order || "").localeCompare(b.order || ""))
+    .map((category) => {
+      const depth = (category.order || "").split("/").length - 1
+      const indent = "  ".repeat(depth)
+      return {
+        label: `${indent}${category.name}`,
+        value: category.order || "",
+        category: category,
+      }
+    })
+
+  const firstFilterCategoryOrders = new Set(firstFilterCategories.map(cat => cat.order))
+  const secondFilterOptions = (categories || [])
+    .filter((category) => 
+      category.order && 
+      category.name && 
+      !firstFilterCategoryOrders.has(category.order)
+    )
+    .sort((a, b) => (a.order || "").localeCompare(b.order || ""))
+    .map((category) => {
+      const depth = (category.order || "").split("/").length - 1
+      const indent = "  ".repeat(depth)
+      return {
+        label: `${indent}${category.name}`,
+        value: category.order || "",
+        category: category,
+      }
+    })
+
+  const handlePrintConfigChange = (selectedCategories: string[]) => {
+    if (selectedCategories.length === 0) {
+      setPrintConfigurations([])
+      return
+    }
+
+    const categoryNames = selectedCategories
+      .map((order) => {
+        const category = secondFilterOptions.find((opt) => opt.value === order)
+        return category?.category?.name || (order || "").split("/").pop() || order
+      })
+      .join(" + ")
+
+    const newConfig: PrintConfiguration = {
+      id: "main",
+      name: categoryNames,
+      categories: selectedCategories,
+      enabled: true,
+    }
+
+    setPrintConfigurations([newConfig])
+  }
+
   return (
-    <FacetedFilter
-      options={getMainCategories(rootCategories).map((category) => ({
-        label: category.name,
-        value: category.order,
-      }))}
-      title="Бэлтгэх ангилалууд"
-      className="mb-5"
-      values={categoriesToPrint}
-      onSelect={(value) => setCategoriesToPrint(value)}
-    />
+    <div className="space-y-4">
+      <FacetedFilter
+        options={firstFilterOptions}
+        title="Бэлтгэх ангилалууд (Хуучин)"
+        className="mb-5"
+        values={categoriesToPrint}
+        onSelect={(value) => setCategoriesToPrint(value)}
+      />
+
+      <FacetedFilter
+        options={secondFilterOptions}
+        title="Бэлтгэх ангилалууд"
+        className="mb-5"
+        values={printConfigurations[0]?.categories || []}
+        onSelect={handlePrintConfigChange}
+      />
+    </div>
   )
 }
 
