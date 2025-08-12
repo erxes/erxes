@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.16.3](https://github.com/erxes/erxes/compare/2.16.2...2.16.3) (2025-08-12)
+
+### Bug Fixes
+
+* enhance error handling and code consistency in ticket tagging ([3fafab3](https://github.com/erxes/erxes/commit/3fafab3ed87a35c0281b3d8d8f001f684368f5de))
+* posclient report filter startNumber only 8length ([152110f](https://github.com/erxes/erxes/commit/152110f3f47f1cc5820ac400a0c758a61780feca))
+* **ticket:** Add user fetching by selected branch during filtering recovery ([ff631dc](https://github.com/erxes/erxes/commit/ff631dc999275dc79cf4d260761b382626da76ae))
+* users query when isAssignee without filter branchIds ([f6f2a84](https://github.com/erxes/erxes/commit/f6f2a84cd09cf305bee4ef794c72ff783d7fb0ba))
+
 ## [2.16.2](https://github.com/erxes/erxes/compare/2.16.1...2.16.2) (2025-08-06)
 
 ### Bug Fixes
