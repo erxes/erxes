@@ -355,7 +355,7 @@ export const renderFullName = (data, noPhone?: boolean) => {
   }
 
   if (data.emails && data.emails.length > 0) {
-    return data.emails[0] || "Unknown";
+    return data.emails[0]?.email || "Unknown";
   }
 
   const { visitorContactInfo } = data;
