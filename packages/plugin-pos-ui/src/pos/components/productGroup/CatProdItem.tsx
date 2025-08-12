@@ -34,7 +34,7 @@ const CatProdItem = (props: Props) => {
 
   const onSelectChange = (field: string, value: any) => {
     setState((prevState) => ({ ...prevState, [field]: value }));
-    editMapping({ ...state, _id: item._id });
+    editMapping({ _id: item._id, ...state, [field]: value });
   };
 
   const onChangeInput = (e) => {
@@ -42,7 +42,7 @@ const CatProdItem = (props: Props) => {
     const value = e.target.value;
 
     setState((prevState) => ({ ...prevState, [name]: value }));
-    editMapping({ ...state, _id: item._id });
+    editMapping({ _id: item._id, ...state, [name]: value });
   };
 
   return (

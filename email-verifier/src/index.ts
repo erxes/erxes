@@ -96,6 +96,7 @@ app.use((error, _req, res, _next) => {
 const { PORT } = process.env;
 
 app.listen(PORT, async () => {
+  console.debug('Server is now running on', PORT);
   await connect();
 });
 
