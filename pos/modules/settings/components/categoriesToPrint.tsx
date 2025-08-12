@@ -61,26 +61,30 @@ const CategoriesToPrint = () => {
   }
 
   const addNewFilter = () => {
-    setCategoriesToPrint([...categoriesToPrint, []])
+    setCategoriesToPrint((prev) => [...prev, []])
   }
 
   const removeFilter = (index: number) => {
     if (categoriesToPrint.length > 1) {
-      setCategoriesToPrint(categoriesToPrint.filter((_, i) => i !== index))
+      setCategoriesToPrint((prev) =>
+        prev.length > 1 ? prev.filter((_, i) => i !== index) : prev
+      )
     }
   }
 
   const updateFilter = (index: number, value: string[]) => {
-    const updated = [...categoriesToPrint]
-    updated[index] = value
-    setCategoriesToPrint(updated)
+    setCategoriesToPrint((prev) => {
+      const updated = [...prev]
+      updated[index] = value
+      return updated
+    })
   }
 
   return (
     <div className="space-y-3 w-full">
       {categoriesToPrint.map((filterGroup, index) => (
         <div
-          key={`category-filter-${index}`}
+          key={`category-filter-${index}-${(filterGroup || []).join("|")}`}
           className="flex items-center gap-2"
         >
           <div className="flex-1">
@@ -101,6 +105,7 @@ const CategoriesToPrint = () => {
               size="sm"
               onClick={() => removeFilter(index)}
               className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+              aria-label={`Remove filter group ${index + 1}`}
             >
               ❌
             </Button>
