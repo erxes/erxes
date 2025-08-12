@@ -124,6 +124,7 @@ export const inputs = `
         postId: String
         language: String
         title: String
+        type: String
         content: String
         excerpt: String
         customFieldsData: JSON

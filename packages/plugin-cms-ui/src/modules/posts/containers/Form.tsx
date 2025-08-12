@@ -9,6 +9,7 @@ import Alert from '@erxes/ui/src/utils/Alert';
 import { useNavigate, useParams } from 'react-router-dom';
 import { WEB_DETAIL } from '../../web/queries';
 import { IPostTranslation } from '../../../types';
+import { TRANSLATIONS } from '../../commonQueries';
 
 type Props = {
   id?: string;
@@ -31,7 +32,7 @@ const FormContainer = (props: Props) => {
   });
 
   const { data: translationsData, loading: translationsLoading } = useQuery(
-    queries.POST_TRANSLATIONS,
+    TRANSLATIONS,
     {
       variables: {
         postId: postId,
@@ -82,7 +83,7 @@ const FormContainer = (props: Props) => {
               },
             };
             editTranslationMutation({
-              variables
+              variables,
             });
           });
         }

@@ -22,26 +22,10 @@ mutation PostsDelete($id: String!) {
 }
 `;
 
-const ADD_TRANSLATION = gql`
-mutation CmsPostsAddTranslation($input: PostTranslationInput!) {
-  cmsPostsAddTranslation(input: $input) {
-    _id
-  }
-}
-`;
 
-const EDIT_TRANSLATION = gql`
-mutation CmsPostsEditTranslation( $input: PostTranslationInput!) {
-  cmsPostsEditTranslation(input: $input) {
-    _id
-  }
-}
-`;
 
 export default {
   POST_ADD,
   POST_EDIT,
   POST_REMOVE,
-  ADD_TRANSLATION,
-  EDIT_TRANSLATION,
 };

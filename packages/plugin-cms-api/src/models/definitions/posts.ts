@@ -1,8 +1,15 @@
 import { Document, Schema } from 'mongoose';
 import slugify from 'slugify';
-import {nanoid} from 'nanoid';
-import { attachmentSchema, IAttachment, IPdfAttachment } from '@erxes/api-utils/src/types';
-import { customFieldSchema, ICustomField } from '@erxes/api-utils/src/definitions/common';
+import { nanoid } from 'nanoid';
+import {
+  attachmentSchema,
+  IAttachment,
+  IPdfAttachment,
+} from '@erxes/api-utils/src/types';
+import {
+  customFieldSchema,
+  ICustomField,
+} from '@erxes/api-utils/src/definitions/common';
 
 export interface IPost {
   clientPortalId: string;
@@ -14,7 +21,7 @@ export interface IPost {
   type: string;
   status?: 'draft' | 'published' | 'scheduled' | 'archived';
   tagIds?: string[];
-  authorKind?: 'user' | 'clientPortalUser'
+  authorKind?: 'user' | 'clientPortalUser';
   authorId?: string;
   featured?: boolean;
   featuredDate?: Date | null;
@@ -42,6 +49,7 @@ export interface IPost {
 export interface IPostTranslation {
   postId: string;
   language: string;
+  type: string;
   title: string;
   content: string;
   excerpt: string;
@@ -70,16 +78,24 @@ export const postSchema = new Schema<IPostDocument>(
     content: { type: String },
     excerpt: { type: String, default: '', optional: true },
     categoryIds: { type: [String], ref: 'PostCategory' },
-    status: { type: String, default: 'draft', enum: ['draft', 'published', 'scheduled', 'archived'] },
-    tagIds: { type: [String]},
-    authorKind: { type: String, default: 'user', enum: ['user', 'clientPortalUser'] },
+    status: {
+      type: String,
+      default: 'draft',
+      enum: ['draft', 'published', 'scheduled', 'archived'],
+    },
+    tagIds: { type: [String] },
+    authorKind: {
+      type: String,
+      default: 'user',
+      enum: ['user', 'clientPortalUser'],
+    },
     authorId: { type: String, ref: 'User' },
     viewCount: { type: Number, default: 0 },
     publishedDate: { type: Date },
 
     featured: { type: Boolean, default: false },
     featuredDate: { type: Date },
-  
+
     scheduledDate: { type: Date },
     autoArchiveDate: { type: Date },
 
@@ -95,24 +111,29 @@ export const postSchema = new Schema<IPostDocument>(
     videoUrl: { type: String, label: 'Video URL' },
 
     customFieldsData: { type: [customFieldSchema], optional: true },
-
   },
   { timestamps: true }
 );
 
-postSchema.index({ slug: 1, clientPortalId: 1 }, { unique: true, sparse: true });
-
-
-export const postTranslationSchema = new Schema<IPostTranslationDocument>(
-  {
-    _id: { type: String, default: () => nanoid() },
-    postId: { type: String, required: true },
-    language: { type: String, required: true },
-    title: { type: String, required: true },
-    content: { type: String, required: true },
-    excerpt: { type: String, required: true },
-    customFieldsData: { type: [customFieldSchema], optional: true },
-  },
+postSchema.index(
+  { slug: 1, clientPortalId: 1 },
+  { unique: true, sparse: true }
 );
+
+export const postTranslationSchema = new Schema<IPostTranslationDocument>({
+  _id: { type: String, default: () => nanoid() },
+  postId: { type: String, required: true },
+  type: {
+    type: String,
+    required: true,
+    enum: ['post', 'category', 'menu', 'page', 'tag'],
+    default: 'post',
+  },
+  language: { type: String, required: true },
+  title: { type: String, required: true },
+  content: { type: String, required: true },
+  excerpt: { type: String, required: true },
+  customFieldsData: { type: [customFieldSchema], optional: true },
+});
 
 postTranslationSchema.index({ postId: 1, language: 1 }, { unique: true });
