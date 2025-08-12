@@ -301,16 +301,17 @@ const queryBuilder = async (
     }
   }
 
-  if (branchIds && branchIds.length) {
+  if (branchIds && branchIds.length && !isAssignee) {
     selector.branchIds = {
       $in: await getChildIds(models.Branches, branchIds),
     };
   }
-  if (departmentIds && departmentIds.length) {
+  if (departmentIds && departmentIds.length && !isAssignee) {
     selector.departmentIds = {
       $in: await getChildIds(models.Departments, departmentIds),
     };
   }
+
   if (unitId) {
     const unit = await models.Units.getUnit({ _id: unitId });
 
