@@ -7,8 +7,7 @@ import {
 } from "./styles";
 import { ILogs } from "../../types";
 import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
-import { __, getEnv } from "@erxes/ui/src/utils";
-import { readFile, renderUserFullName } from "@erxes/ui/src/utils";
+import { __, getEnv , readFile, renderUserFullName } from "@erxes/ui/src/utils";
 
 import AckList from "../../containers/file/AckList";
 import Attachment from "@erxes/ui/src/components/Attachment";
@@ -88,7 +87,7 @@ const FileDetail = (props: Props) => {
       <DocumentPreview>
         <h3>Preview</h3>
 
-        <iframe src={readUrl()} />
+        <iframe src={readUrl()} title = 'Previewer'/>
       </DocumentPreview>
     );
   };
@@ -216,7 +215,7 @@ const FileDetail = (props: Props) => {
   };
 
   const renderDetailInfo = () => {
-    const isFolder = item.folderId ? false : true;
+    const isFolder = !item.folderId;
 
     if (isFolder || item.type === "dynamic") {
       return (
