@@ -76,9 +76,9 @@ export const printOnlyNewItemsAtom = atomWithStorage<boolean>(
   false
 )
 
-export const categoriesToPrintAtom = atomWithStorage<string[]>(
+export const categoriesToPrintAtom = atomWithStorage<string[][]>(
   "categoriesToPrint",
-  []
+  [[]]
 )
 
 export const mobileTabAtom = atomWithStorage<"products" | "checkout">(

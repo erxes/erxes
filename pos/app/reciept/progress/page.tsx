@@ -35,24 +35,39 @@ const Progress = () => {
   const id = slug?.split("?")[0]
   const forCustomer = slug?.split("?")[1] === "customer"
   const onlyNewItems = useAtomValue(printOnlyNewItemsAtom)
-  const categoryOrders = useAtomValue(categoriesToPrintAtom)
-  const [itemsToPrint, setItemsToPrint] = useState<OrderItem[]>([])
+  const categoryOrderses = useAtomValue(categoriesToPrintAtom)
+  const [itemsToPrint, setItemsToPrint] = useState<OrderItem[][]>([])
   const { name } = useAtomValue(configAtom) || {}
 
   const [getCategoryOrders, ordersQuery] = useLazyQuery(
     productQueries.getCategoryOrders,
     {
       onCompleted({ poscProducts }) {
-        const productsNeedProcess = filterProductsNeedProcess(
-          poscProducts,
-          categoryOrders
-        )
-        const checkedItems = onlyNewItems
-          ? items?.filter((item: OrderItem) =>
-              productsNeedProcess.includes(item.productId)
-            )
-          : items || []
-        setItemsToPrint(checkedItems)
+        const allFilteredItems: OrderItem[][] = []
+
+        for (const filterGroup of categoryOrderses) {
+          if (filterGroup.length === 0) continue
+
+          const productsNeedProcess = filterProductsNeedProcess(
+            poscProducts,
+            filterGroup
+          )
+          const checkedItems = (
+            onlyNewItems
+              ? items?.filter(
+                  (item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE
+                )
+              : items || []
+          ).filter((item: OrderItem) =>
+            productsNeedProcess.includes(item.productId)
+          )
+
+          if (checkedItems.length > 0) {
+            allFilteredItems.push(checkedItems)
+          }
+        }
+
+        setItemsToPrint(allFilteredItems)
       },
     }
   )
@@ -61,7 +76,9 @@ const Progress = () => {
     variables: { id },
     fetchPolicy: "network-only",
     onCompleted({ orderDetail }) {
-      if ((!onlyNewItems && !categoryOrders.length) || forCustomer) {
+      const hasFilters = categoryOrderses.some((group) => group.length > 0)
+
+      if ((!onlyNewItems && !hasFilters) || forCustomer) {
         return window.print()
       }
 
@@ -76,7 +93,7 @@ const Progress = () => {
 
       const itemsToProcess = onlyNewItems ? newItems : orderDetail.items || []
 
-      if (categoryOrders.length) {
+      if (hasFilters) {
         return getCategoryOrders({
           variables: {
             ids: itemsToProcess.map((item: OrderItem) => item.productId),
@@ -84,7 +101,7 @@ const Progress = () => {
         })
       }
 
-      setItemsToPrint(itemsToProcess)
+      setItemsToPrint([itemsToProcess])
     },
   })
 
@@ -112,11 +129,19 @@ const Progress = () => {
     if (forCustomer) {
       return items
     }
-    if (onlyNewItems || categoryOrders.length) {
+    const hasFilters = categoryOrderses.some((group) => group.length > 0)
+    if (hasFilters) {
       return itemsToPrint
     }
+    if (onlyNewItems) {
+      return (
+        items?.filter(
+          (item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE
+        ) || []
+      )
+    }
     return items || []
-  }, [forCustomer, onlyNewItems, categoryOrders.length, itemsToPrint, items])
+  }, [forCustomer, onlyNewItems, categoryOrderses, itemsToPrint, items])
 
   if (loading || ordersQuery.loading) return <div />
 
@@ -139,20 +164,49 @@ const Progress = () => {
           {forCustomer && <span className="w-1/4 text-right">Үнэ</span>}
         </div>
         <Separator />
-        {printItems.map((item: OrderItem) => (
-          <div className="flex items-center" key={item._id}>
-            <span className="flex-auto">{item.productName}</span>
-            <span>
-              x{item.count}{" "}
-              {item.status === ORDER_ITEM_STATUSES.CONFIRM && "!!!"}
-            </span>
-            {forCustomer && (
-              <span className="ml-1 w-1/4 text-right">
-                {(item.unitPrice * item.count).toLocaleString()}
-              </span>
-            )}
-          </div>
-        ))}
+
+        {forCustomer
+          ?
+            printItems.map((item: OrderItem) => (
+              <div className="flex items-center" key={item._id}>
+                <span className="flex-auto">{item.productName}</span>
+                <span>
+                  x{item.count}{" "}
+                  {item.status === ORDER_ITEM_STATUSES.CONFIRM && "!!!"}
+                </span>
+                <span className="ml-1 w-1/4 text-right">
+                  {(item.unitPrice * item.count).toLocaleString()}
+                </span>
+              </div>
+            ))
+          : Array.isArray(printItems[0])
+          ? 
+            printItems.map((groupItems: OrderItem[], groupIndex: number) => (
+              <div key={groupIndex}>
+                {groupIndex > 0 && (
+                  <div className="my-3 border-t border-dashed" />
+                )}
+                {groupItems.map((item: OrderItem) => (
+                  <div className="flex items-center" key={item._id}>
+                    <span className="flex-auto">{item.productName}</span>
+                    <span>
+                      x{item.count}{" "}
+                      {item.status === ORDER_ITEM_STATUSES.CONFIRM && "!!!"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ))
+          : 
+            printItems.map((item: OrderItem) => (
+              <div className="flex items-center" key={item._id}>
+                <span className="flex-auto">{item.productName}</span>
+                <span>
+                  x{item.count}{" "}
+                  {item.status === ORDER_ITEM_STATUSES.CONFIRM && "!!!"}
+                </span>
+              </div>
+            ))}
       </div>
       {!!description && (
         <div>
