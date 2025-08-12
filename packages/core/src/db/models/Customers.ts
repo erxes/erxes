@@ -1,24 +1,26 @@
-import { Model } from 'mongoose';
+import { Model } from "mongoose";
 
-import { sendToWebhook, validSearchText } from '@erxes/api-utils/src';
+import { sendToWebhook, validSearchText } from "@erxes/api-utils/src";
 
-import { ICustomField } from '@erxes/api-utils/src/definitions/common';
+import { ICustomField } from "@erxes/api-utils/src/definitions/common";
 
-import {
-  customerSchema,
-  ICustomer,
-  ICustomerDocument
-} from './definitions/customers';
-import { IModels } from '../../connectionResolver';
+import { IUserDocument } from "@erxes/api-utils/src/types";
+import { IModels } from "../../connectionResolver";
+import { ACTIVITY_CONTENT_TYPES } from "../../data/modules/coc/constants";
+import { validateSingle } from "../../data/modules/coc/verifierUtils";
+import { prepareCocLogData, putActivityLog } from "../../logUtils";
 import {
   sendClientPortalMessage,
   sendEngagesMessage,
-  sendInboxMessage
-} from '../../messageBroker';
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import { prepareCocLogData, putActivityLog } from '../../logUtils';
-import { validateSingle } from '../../data/modules/coc/verifierUtils';
-import { ACTIVITY_CONTENT_TYPES } from '../../data/modules/coc/constants';
+  sendInboxMessage,
+} from "../../messageBroker";
+import {
+  customerSchema,
+  ICustomer,
+  ICustomerDocument,
+  ICustomerEmail,
+  ICustomerPhone,
+} from "./definitions/customers";
 
 interface IGetCustomerParams {
   email?: string;
@@ -149,63 +151,55 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       customerFields: ICustomerFieldsInput,
       idsToExclude?: string[] | string
     ) {
-      const query: { status: {}; [key: string]: any } = {
-        status: { $ne: 'deleted' }
-      };
-      let previousEntry;
-
-      // Adding exclude operator to the query
-      if (idsToExclude) {
-        query._id =
-          idsToExclude instanceof Array
-            ? { $nin: idsToExclude }
-            : { $ne: idsToExclude };
-      }
-
-      if (!customerFields) {
-        return;
-      }
-
-      if (customerFields.primaryEmail) {
-        // check duplication from primaryEmail
-        previousEntry = await models.Customers.find({
-          ...query,
-          primaryEmail: customerFields.primaryEmail
-        });
-
-        if (previousEntry.length > 0) {
-          throw new Error('Duplicated email');
-        }
-      }
-
-      if (customerFields.primaryPhone) {
-        // check duplication from primaryPhone
-        previousEntry = await models.Customers.find({
-          ...query,
-          primaryPhone: customerFields.primaryPhone
-        });
-
-        if (previousEntry.length > 0) {
-          throw new Error('Duplicated phone');
-        }
-      }
-
-      if (customerFields.code) {
-        // check duplication from code
-        previousEntry = await models.Customers.find({
-          ...query,
-          code: customerFields.code
-        });
-
-        if (previousEntry.length > 0) {
-          throw new Error('Duplicated code');
-        }
-      }
+      // const query: { status: {};[key: string]: any } = {
+      //   status: { $ne: 'deleted' },
+      // };
+      // let previousEntry;
+      // // Adding exclude operator to the query
+      // if (idsToExclude) {
+      //   query._id =
+      //     idsToExclude instanceof Array
+      //       ? { $nin: idsToExclude }
+      //       : { $ne: idsToExclude };
+      // }
+      // if (!customerFields) {
+      //   return;
+      // }
+      // if (customerFields.primaryEmail) {
+      //   // check duplication from primaryEmail
+      //   previousEntry = await models.Customers.find({
+      //     ...query,
+      //     primaryEmail: customerFields.primaryEmail,
+      //   });
+      //   if (previousEntry.length > 0) {
+      //     throw new Error('Duplicated email');
+      //   }
+      // }
+      // if (customerFields.primaryPhone) {
+      //   // check duplication from primaryPhone
+      //   previousEntry = await models.Customers.find({
+      //     ...query,
+      //     primaryPhone: customerFields.primaryPhone,
+      //   });
+      //   if (previousEntry.length > 0) {
+      //     throw new Error('Duplicated phone');
+      //   }
+      // }
+      // if (customerFields.code) {
+      //   // check duplication from code
+      //   previousEntry = await models.Customers.find({
+      //     ...query,
+      //     code: customerFields.code,
+      //   });
+      //   if (previousEntry.length > 0) {
+      //     throw new Error('Duplicated code');
+      //   }
+      // }
     }
 
     public static getCustomerName(customer: ICustomer) {
       if (customer.firstName || customer.lastName) {
-        return (customer.firstName || '') + ' ' + (customer.lastName || '');
+        return (customer.firstName || "") + " " + (customer.lastName || "");
       }
 
       if (customer.primaryEmail || customer.primaryPhone) {
@@ -218,12 +212,12 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         return visitorContactInfo.phone || visitorContactInfo.email;
       }
 
-      return 'Unknown';
+      return "Unknown";
     }
 
     public static async findActiveCustomers(selector, fields, skip?, limit?) {
       return models.Customers.find(
-        { ...selector, status: { $ne: 'deleted' } },
+        { ...selector, status: { $ne: "deleted" } },
         fields
       )
         .skip(skip || 0)
@@ -238,7 +232,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       const customer = await models.Customers.findOne({ _id }).lean();
 
       if (!customer) {
-        throw new Error('Customer not found');
+        throw new Error("Customer not found");
       }
 
       return customer;
@@ -249,18 +243,18 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
      */
     public static async createVisitor(): Promise<string> {
       const customer = await models.Customers.create({
-        state: 'visitor',
+        state: "visitor",
         createdAt: new Date(),
-        modifiedAt: new Date()
+        modifiedAt: new Date(),
       });
 
       await putActivityLog(subdomain, {
-        action: 'createCocLog',
+        action: "createCocLog",
         data: {
           coc: customer,
-          contentType: 'customer',
-          ...prepareCocLogData(customer)
-        }
+          contentType: "customer",
+          ...prepareCocLogData(customer),
+        },
       });
 
       return customer._id;
@@ -284,12 +278,18 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         doc.ownerId = user._id;
       }
 
-      if (doc.primaryEmail && !doc.emails) {
-        doc.emails = [doc.primaryEmail];
+      if (doc.emails) {
+        const { email } =
+          doc.emails.find((email) => email.type === "primary") || {};
+
+        doc.primaryEmail = email;
       }
 
-      if (doc.primaryPhone && !doc.phones) {
-        doc.phones = [doc.primaryPhone];
+      if (doc.phones) {
+        const { phone } =
+          doc.phones.find((phone) => phone.type === "primary") || {};
+
+        doc.primaryPhone = phone;
       }
 
       doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
@@ -306,30 +306,30 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         createdAt: new Date(),
         modifiedAt: new Date(),
         ...doc,
-        ...pssDoc
+        ...pssDoc,
       });
 
       if (
         (doc.primaryEmail && !doc.emailValidationStatus) ||
-        (doc.primaryEmail && doc.emailValidationStatus === 'unknown')
+        (doc.primaryEmail && doc.emailValidationStatus === "unknown")
       ) {
         validateSingle(subdomain, { email: doc.primaryEmail });
       }
 
       if (
         (doc.primaryPhone && !doc.phoneValidationStatus) ||
-        (doc.primaryPhone && doc.phoneValidationStatus === 'unknown')
+        (doc.primaryPhone && doc.phoneValidationStatus === "unknown")
       ) {
         validateSingle(subdomain, { phone: doc.primaryPhone });
       }
 
       await putActivityLog(subdomain, {
-        action: 'createCocLog',
+        action: "createCocLog",
         data: {
           coc: customer,
-          contentType: 'customer',
-          ...prepareCocLogData(customer)
-        }
+          contentType: "customer",
+          ...prepareCocLogData(customer),
+        },
       });
 
       return models.Customers.getCustomer(customer._id);
@@ -358,25 +358,49 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         console.log(doc.customFieldsData);
       }
 
-      if (doc.primaryEmail) {
-        if (doc.primaryEmail !== oldCustomer.primaryEmail) {
-          doc.emailValidationStatus = 'unknown';
+      if (doc.emails) {
+        const { email } =
+          doc.emails.find((email) => email.type === "primary") || {};
 
-          validateSingle(subdomain, { email: doc.primaryEmail });
+        if (email !== oldCustomer.primaryEmail) {
+          doc.emailValidationStatus = "unknown";
+
+          validateSingle(subdomain, { email });
         }
       }
 
-      if (doc.primaryPhone) {
-        if (doc.primaryPhone !== oldCustomer.primaryPhone) {
-          doc.phoneValidationStatus = 'unknown';
+      if (doc.phones) {
+        const { phone } =
+          doc.phones.find((phone) => phone.type === "primary") || {};
 
-          validateSingle(subdomain, { phone: doc.primaryPhone });
+        if (phone !== oldCustomer.primaryPhone) {
+          doc.phoneValidationStatus = "unknown";
+
+          validateSingle(subdomain, { phone });
         }
+      }
+
+      if (doc.emailValidationStatus) {
+        doc.emails = (doc.emails || []).map((email) => {
+          if (email.type === "primary") {
+            return { ...email, status: doc.emailValidationStatus };
+          }
+          return email;
+        });
+      }
+
+      if (doc.phoneValidationStatus) {
+        doc.phones = (doc.phones || []).map((phone) => {
+          if (phone.type === "primary") {
+            return { ...phone, status: doc.phoneValidationStatus };
+          }
+          return phone;
+        });
       }
 
       const pssDoc = await models.Customers.calcPSS({
         ...oldCustomer,
-        ...doc
+        ...doc,
       });
 
       await models.Customers.updateOne(
@@ -408,8 +432,8 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         {
           $set: {
             isOnline: false,
-            lastSeenAt: new Date()
-          }
+            lastSeenAt: new Date(),
+          },
         },
         { new: true }
       );
@@ -421,53 +445,53 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
      * Calc customer profileScore, searchText and state
      */
     public static async calcPSS(customer: any) {
-      const nullValues = ['', null];
+      const nullValues = ["", null];
 
       let possibleLead = false;
       let score = 0;
       let searchText = (customer.emails || [])
-        .join(' ')
-        .concat(' ', (customer.phones || []).join(' '));
+        .join(" ")
+        .concat(" ", (customer.phones || []).join(" "));
 
-      if (!nullValues.includes(customer.firstName || '')) {
+      if (!nullValues.includes(customer.firstName || "")) {
         score += 10;
         possibleLead = true;
-        searchText = searchText.concat(' ', customer.firstName || '');
+        searchText = searchText.concat(" ", customer.firstName || "");
       }
 
       if (!nullValues.includes(customer.middleName)) {
         score += 5;
         possibleLead = true;
-        searchText = searchText.concat(' ', customer.middleName || '');
+        searchText = searchText.concat(" ", customer.middleName || "");
       }
 
-      if (!nullValues.includes(customer.lastName || '')) {
+      if (!nullValues.includes(customer.lastName || "")) {
         score += 5;
         possibleLead = true;
-        searchText = searchText.concat(' ', customer.lastName || '');
+        searchText = searchText.concat(" ", customer.lastName || "");
       }
 
-      if (!nullValues.includes(customer.code || '')) {
+      if (!nullValues.includes(customer.code || "")) {
         score += 10;
         possibleLead = true;
-        searchText = searchText.concat(' ', customer.code || '');
+        searchText = searchText.concat(" ", customer.code || "");
       }
 
-      if (!nullValues.includes(customer.primaryEmail || '')) {
+      if (!nullValues.includes(customer.primaryEmail || "")) {
         possibleLead = true;
         score += 15;
 
         if (!customer.emails?.includes(customer.primaryEmail)) {
-          searchText = searchText.concat(' ', customer.primaryEmail || '');
+          searchText = searchText.concat(" ", customer.primaryEmail || "");
         }
       }
 
-      if (!nullValues.includes(customer.primaryPhone || '')) {
+      if (!nullValues.includes(customer.primaryPhone || "")) {
         possibleLead = true;
         score += 10;
 
         if (!customer.phones?.includes(customer.primaryPhone)) {
-          searchText = searchText.concat(' ', customer.primaryPhone || '');
+          searchText = searchText.concat(" ", customer.primaryPhone || "");
         }
       }
 
@@ -476,19 +500,19 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         score += 5;
 
         searchText = searchText.concat(
-          ' ',
-          customer.visitorContactInfo.email || '',
-          ' ',
-          customer.visitorContactInfo.phone || ''
+          " ",
+          customer.visitorContactInfo.email || "",
+          " ",
+          customer.visitorContactInfo.phone || ""
         );
       }
 
       searchText = validSearchText([searchText]);
 
-      let state = customer.state || 'visitor';
+      let state = customer.state || "visitor";
 
-      if (possibleLead && state !== 'customer') {
-        state = 'lead';
+      if (possibleLead && state !== "customer") {
+        state = "lead";
       }
 
       return { profileScore: score, searchText, state };
@@ -499,29 +523,29 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
     public static async removeCustomers(customerIds: string[]) {
       // Removing every modules that associated with customer
       await putActivityLog(subdomain, {
-        action: 'removeActivityLogs',
-        data: { type: ACTIVITY_CONTENT_TYPES.CUSTOMER, itemIds: customerIds }
+        action: "removeActivityLogs",
+        data: { type: ACTIVITY_CONTENT_TYPES.CUSTOMER, itemIds: customerIds },
       });
 
       await sendInboxMessage({
         subdomain,
-        action: 'removeCustomersConversations',
-        data: { customerIds }
+        action: "removeCustomersConversations",
+        data: { customerIds },
       });
       await sendEngagesMessage({
         subdomain,
-        action: 'removeCustomersEngages',
-        data: { customerIds }
+        action: "removeCustomersEngages",
+        data: { customerIds },
       });
 
       await models.InternalNotes.deleteMany({
         contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
-        contentTypeIds: customerIds
+        contentTypeIds: customerIds,
       });
 
       await models.Conformities.removeConformities({
-        mainType: 'customer',
-        mainTypeIds: customerIds
+        mainType: "customer",
+        mainTypeIds: customerIds,
       });
 
       return models.Customers.deleteMany({ _id: { $in: customerIds } });
@@ -542,17 +566,17 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       let scopeBrandIds: string[] = [];
       let tagIds: string[] = [];
       let customFieldsData: ICustomField[] = [];
-      let state: any = '';
+      let state: any = "";
 
-      let emails: string[] = [];
-      let phones: string[] = [];
+      let emails: ICustomerEmail[] = [];
+      let phones: ICustomerPhone[] = [];
 
       if (customerFields.primaryEmail) {
-        emails.push(customerFields.primaryEmail);
+        emails.push({ type: "primary", email: customerFields.primaryEmail });
       }
 
       if (customerFields.primaryPhone) {
-        phones.push(customerFields.primaryPhone);
+        phones.push({ type: "primary", phone: customerFields.primaryPhone });
       }
 
       for (const customerId of customerIds) {
@@ -565,13 +589,13 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
           // merge custom fields data
           customFieldsData = [
             ...customFieldsData,
-            ...(customerObj.customFieldsData || [])
+            ...(customerObj.customFieldsData || []),
           ];
 
           // Merging scopeBrandIds
           scopeBrandIds = [
             ...scopeBrandIds,
-            ...(customerObj.scopeBrandIds || [])
+            ...(customerObj.scopeBrandIds || []),
           ];
 
           const customerTags: string[] = customerObj.tagIds || [];
@@ -587,7 +611,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
           state = customerObj.state;
 
           await models.Customers.findByIdAndUpdate(customerId, {
-            $set: { status: 'deleted' }
+            $set: { status: "deleted" },
           });
         }
       }
@@ -610,7 +634,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
           mergedIds: customerIds,
           emails,
           phones,
-          state
+          state,
         },
         user
       );
@@ -618,31 +642,31 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       // Updating every modules associated with customers
 
       await models.Conformities.changeConformity({
-        type: 'customer',
+        type: "customer",
         newTypeId: customer._id,
-        oldTypeIds: customerIds
+        oldTypeIds: customerIds,
       });
 
       await sendInboxMessage({
         subdomain,
-        action: 'changeCustomer',
-        data: { customerId: customer._id, customerIds }
+        action: "changeCustomer",
+        data: { customerId: customer._id, customerIds },
       });
       await sendEngagesMessage({
         subdomain,
-        action: 'changeCustomer',
-        data: { customerId: customer._id, customerIds }
+        action: "changeCustomer",
+        data: { customerId: customer._id, customerIds },
       });
       await sendClientPortalMessage({
         subdomain,
-        action: 'changeCustomer',
-        data: { customerId: customer._id, customerIds }
+        action: "changeCustomer",
+        data: { customerId: customer._id, customerIds },
       });
 
       await models.InternalNotes.updateMany(
         {
-          contentType: 'core:customer',
-          contentTypeId: { $in: customerIds || [] }
+          contentType: "core:customer",
+          contentTypeId: { $in: customerIds || [] },
         },
         { contentTypeId: customer._id }
       );
@@ -658,37 +682,37 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       email,
       phone,
       code,
-      cachedCustomerId
+      cachedCustomerId,
     }: IGetCustomerParams) {
       let customer: ICustomerDocument | null = null;
 
-      const defaultFilter = { status: { $ne: 'deleted' } };
+      const defaultFilter = { status: { $ne: "deleted" } };
 
       if (cachedCustomerId) {
         customer = await models.Customers.findOne({
           ...defaultFilter,
-          _id: cachedCustomerId
+          _id: cachedCustomerId,
         }).lean();
       }
 
       if (!customer && email) {
         customer = await models.Customers.findOne({
           ...defaultFilter,
-          $or: [{ emails: { $in: [email] } }, { primaryEmail: email }]
+          $or: [{ emails: { $in: [email] } }, { primaryEmail: email }],
         }).lean();
       }
 
       if (!customer && phone) {
         customer = await models.Customers.findOne({
           ...defaultFilter,
-          $or: [{ phones: { $in: [phone] } }, { primaryPhone: phone }]
+          $or: [{ phones: { $in: [phone] } }, { primaryPhone: phone }],
         }).lean();
       }
 
       if (!customer && code) {
         customer = await models.Customers.findOne({
           ...defaultFilter,
-          code
+          code,
         }).lean();
       }
 
@@ -704,7 +728,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
           );
 
           customer = await models.Customers.findOne({
-            _id: customer._id
+            _id: customer._id,
           }).lean();
         }
       }
@@ -735,8 +759,8 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       customData = {},
       customer?: ICustomerDocument
     ) {
-      let emails: string[] = [];
-      let phones: string[] = [];
+      let emails: ICustomerEmail[] = [];
+      let phones: ICustomerPhone[] = [];
       let deviceTokens: string[] = [];
 
       // extract basic fields from customData
@@ -794,14 +818,14 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
      */
     public static async createMessengerCustomer({
       doc,
-      customData
+      customData,
     }: ICreateMessengerCustomerParams) {
       this.fixListFields(doc, customData);
 
       const { customFieldsData, trackedData } =
         await models.Fields.generateCustomFieldsData(
           customData,
-          'core:customer'
+          "core:customer"
         );
 
       return this.createCustomer({
@@ -810,7 +834,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         customFieldsData,
         lastSeenAt: new Date(),
         isOnline: true,
-        sessionCount: 1
+        sessionCount: 1,
       });
     }
 
@@ -820,7 +844,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
     public static async updateMessengerCustomer({
       _id,
       doc,
-      customData
+      customData,
     }: IUpdateMessengerCustomerParams) {
       const customer = await models.Customers.getCustomer(_id);
 
@@ -829,13 +853,13 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       const { customFieldsData, trackedData } =
         await models.Fields.generateCustomFieldsData(
           customData,
-          'core:customer'
+          "core:customer"
         );
 
       const modifier: any = {
         ...doc,
-        state: doc.isUser ? 'customer' : customer.state,
-        modifiedAt: new Date()
+        state: doc.isUser ? "customer" : customer.state,
+        modifiedAt: new Date(),
       };
 
       if (trackedData && trackedData.length > 0) {
@@ -867,8 +891,8 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       const query: any = {
         $set: {
           lastSeenAt: now,
-          isOnline: true
-        }
+          isOnline: true,
+        },
       };
 
       // Preventing session count to increase on page every refresh
@@ -896,7 +920,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       await models.Customers.findByIdAndUpdate(
         { _id },
         {
-          $set: { state: value }
+          $set: { state: value },
         }
       );
 
@@ -910,7 +934,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       await models.Customers.findByIdAndUpdate(
         { _id },
         {
-          $set: { location: browserInfo }
+          $set: { location: browserInfo },
         }
       );
 
@@ -930,27 +954,27 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
       let customer = await models.Customers.getCustomer(customerId);
 
-      webhookData.type = 'customer';
+      webhookData.type = "customer";
       webhookData.object = customer;
 
-      if (type === 'email') {
+      if (type === "email") {
         await models.Customers.updateOne(
           { _id: customerId },
           {
-            $set: { 'visitorContactInfo.email': value },
-            $push: { emails: value }
+            $set: { "visitorContactInfo.email": value },
+            $push: { emails: value },
           }
         );
 
         webhookData.newData = { email: value };
       }
 
-      if (type === 'phone') {
+      if (type === "phone") {
         await models.Customers.updateOne(
           { _id: customerId },
           {
-            $set: { 'visitorContactInfo.phone': value },
-            $push: { phones: value }
+            $set: { "visitorContactInfo.phone": value },
+            $push: { phones: { phone: value, type: "other" } },
           }
         );
 
@@ -964,10 +988,10 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       await sendToWebhook({
         subdomain,
         data: {
-          action: 'update',
-          type: 'core:customer',
-          params: webhookData
-        }
+          action: "update",
+          type: "core:customer",
+          params: webhookData,
+        },
       });
 
       const pssDoc = await models.Customers.calcPSS(customer);
@@ -983,7 +1007,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       status: string
     ) {
       const set: any =
-        type !== 'email'
+        type !== "email"
           ? { phoneValidationStatus: status }
           : { emailValidationStatus: status };
 
