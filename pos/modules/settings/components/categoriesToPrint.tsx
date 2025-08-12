@@ -2,12 +2,12 @@ import useProductCategories from "@/modules/products/hooks/useProductCategories"
 import { categoriesToPrintAtom } from "@/store"
 import { configAtom } from "@/store/config.store"
 import { useAtom, useAtomValue } from "jotai"
-import { Plus, X } from "lucide-react"
+import { Plus } from "lucide-react"
 
 import { ICategory } from "@/types/product.types"
+import { Button } from "@/components/ui/button"
 import { FacetedFilter } from "@/components/ui/faceted-filter"
 import Loader from "@/components/ui/loader"
-import { Button } from "@/components/ui/button"
 
 const CategoriesToPrint = () => {
   const [categoriesToPrint, setCategoriesToPrint] = useAtom(
@@ -79,7 +79,10 @@ const CategoriesToPrint = () => {
   return (
     <div className="space-y-3 w-full">
       {categoriesToPrint.map((filterGroup, index) => (
-        <div key={index} className="flex items-center gap-2">
+        <div
+          key={`category-filter-${index}`}
+          className="flex items-center gap-2"
+        >
           <div className="flex-1">
             <FacetedFilter
               options={getMainCategories(rootCategories).map((category) => ({
@@ -91,7 +94,7 @@ const CategoriesToPrint = () => {
               onSelect={(value) => updateFilter(index, value)}
             />
           </div>
-          
+
           {categoriesToPrint.length > 1 && (
             <Button
               variant="ghost"
@@ -104,7 +107,7 @@ const CategoriesToPrint = () => {
           )}
         </div>
       ))}
-      
+
       <Button
         variant="outline"
         size="sm"
