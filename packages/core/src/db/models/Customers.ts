@@ -779,8 +779,12 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       }
 
       if (doc.email) {
-        if (!emails.includes(doc.email)) {
-          emails.push(doc.email);
+        const strEmails = emails.map(e => e.email)
+        if (!strEmails.includes(doc.email)) {
+          emails.push({
+            type: 'primary',
+            email: doc.email
+          })
         }
 
         doc.primaryEmail = doc.email;
@@ -789,8 +793,12 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       }
 
       if (doc.phone) {
-        if (!phones.includes(doc.phone)) {
-          phones.push(doc.phone);
+        const strPhones = phones.map(p => p.phone)
+        if (!strPhones.includes(doc.phone)) {
+          phones.push({
+            type: 'primary',
+            phone: doc.phone
+          });
         }
 
         doc.primaryPhone = doc.phone;
