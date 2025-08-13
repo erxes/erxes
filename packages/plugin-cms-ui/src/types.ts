@@ -54,8 +54,8 @@ export interface IPostTranslation {
   language: string;
   title: string;
   type: string;
-  content: string;
-  excerpt: string;
+  content?: string;
+  excerpt?: string;
   customFieldsData?: {
     [key: string]: any;
   };

@@ -15,11 +15,13 @@ import CategoryForm from '../containers/Form';
 type Props = {
   level: number;
   category: any;
+  website: any;
+  refetch?: () => void;
   remove: (_id: string) => void;
 };
 
 const Row = (props: Props) => {
-  const { category, level, remove } = props;
+  const { category, level, remove, website, refetch } = props;
   const user = category.lastModifiedBy;
 
   const renderRemoveAction = () => {
@@ -44,7 +46,13 @@ const Row = (props: Props) => {
   };
 
   const formContent = (formProps) => (
-    <CategoryForm {...formProps} category={category} clientPortalId={category.clientPortalId} />
+    <CategoryForm
+      {...formProps}
+      category={category}
+      clientPortalId={category.clientPortalId}
+      website={website}
+      refetch={refetch}
+    />
   );
 
   return (

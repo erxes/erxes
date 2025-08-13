@@ -64,7 +64,14 @@ const ProductForm = (props: Props) => {
 
     return {
       ...finalValues,
+      clientPortalId,
     };
+  };
+
+  const onSave = () => {
+    const doc = generateDoc();
+    
+    props.onSubmit(doc, translations);
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -320,7 +327,7 @@ const ProductForm = (props: Props) => {
               Close
             </Button>
 
-            <Button btnStyle='success' type='submit' icon='check-circle'>
+            <Button btnStyle='success' type='submit' icon='check-circle' onClick={onSave}>
               Save
             </Button>
           </ModalFooter>

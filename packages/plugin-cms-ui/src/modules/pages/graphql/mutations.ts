@@ -9,8 +9,8 @@ const PAGE_ADD = gql`
 `;
 
 const PAGE_EDIT = gql`
-  mutation PagesEdit($id: String!, $input: PageInput!) {
-    cmsPagesEdit(_id: $id, input: $input) {
+  mutation PagesEdit($_id: String!, $input: PageInput!) {
+    cmsPagesEdit(_id: $_id, input: $input) {
       _id
     }
   }

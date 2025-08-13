@@ -132,7 +132,7 @@ export const postTranslationSchema = new Schema<IPostTranslationDocument>({
   language: { type: String, required: true },
   title: { type: String, required: true },
   content: { type: String, required: true },
-  excerpt: { type: String, required: true },
+  excerpt: { type: String, required: false },
   customFieldsData: { type: [customFieldSchema], optional: true },
 });
 
