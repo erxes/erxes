@@ -449,9 +449,9 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
       let possibleLead = false;
       let score = 0;
-      let searchText = (customer.emails || [])
+      let searchText = (customer.emails?.map(e => e.email) || [])
         .join(" ")
-        .concat(" ", (customer.phones || []).join(" "));
+        .concat(" ", (customer.phones?.map(p => p.phone) || []).join(" "));
 
       if (!nullValues.includes(customer.firstName || "")) {
         score += 10;
@@ -481,7 +481,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         possibleLead = true;
         score += 15;
 
-        if (!customer.emails?.includes(customer.primaryEmail)) {
+        if (!customer.emails?.some(e => e?.email === customer.primaryEmail)) {
           searchText = searchText.concat(" ", customer.primaryEmail || "");
         }
       }
@@ -490,7 +490,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         possibleLead = true;
         score += 10;
 
-        if (!customer.phones?.includes(customer.primaryPhone)) {
+        if (!customer.phones?.some(p => p?.phone === customer.primaryPhone)) {
           searchText = searchText.concat(" ", customer.primaryPhone || "");
         }
       }
@@ -620,9 +620,15 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       scopeBrandIds = Array.from(new Set(scopeBrandIds));
       tagIds = Array.from(new Set(tagIds));
 
-      // Removing Duplicated Emails from customer
-      emails = Array.from(new Set(emails));
-      phones = Array.from(new Set(phones));
+      // Remove duplicates by email
+      emails = Array.from(
+        new Map(emails.map(e => [e.email, e])).values()
+      );
+      
+      // Remove duplicates by phone
+      phones = Array.from(
+        new Map(phones.map(p => [p.phone, p])).values()
+      );
 
       // Creating customer with properties
       const customer = await this.createCustomer(
@@ -698,14 +704,14 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       if (!customer && email) {
         customer = await models.Customers.findOne({
           ...defaultFilter,
-          $or: [{ emails: { $in: [email] } }, { primaryEmail: email }],
+          $or: [{ "emails.email": { $in: [email] } }, { primaryEmail: email }],
         }).lean();
       }
 
       if (!customer && phone) {
         customer = await models.Customers.findOne({
           ...defaultFilter,
-          $or: [{ phones: { $in: [phone] } }, { primaryPhone: phone }],
+          $or: [{ "phones.phone": { $in: [phone] } }, { primaryPhone: phone }],
         }).lean();
       }
 
@@ -970,7 +976,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
           { _id: customerId },
           {
             $set: { "visitorContactInfo.email": value },
-            $push: { emails: value },
+            $push: { emails: { email: value, type: "other" } },
           }
         );
 
