@@ -362,6 +362,10 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         const { email } =
           doc.emails.find((email) => email?.type === "primary") || {};
 
+        if (email) {
+          doc.primaryEmail = email;
+        }
+
         if (email !== oldCustomer.primaryEmail) {
           doc.emailValidationStatus = "unknown";
 
@@ -372,6 +376,10 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       if (doc.phones) {
         const { phone } =
           doc.phones.find((phone) => phone?.type === "primary") || {};
+
+        if (phone) {
+          doc.primaryPhone = phone;
+        }
 
         if (phone !== oldCustomer.primaryPhone) {
           doc.phoneValidationStatus = "unknown";
