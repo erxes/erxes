@@ -820,7 +820,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       doc,
       customData,
     }: ICreateMessengerCustomerParams) {
-      this.fixListFields(doc, customData);
+      doc = this.fixListFields(doc, customData);
 
       const { customFieldsData, trackedData } =
         await models.Fields.generateCustomFieldsData(
@@ -848,7 +848,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
     }: IUpdateMessengerCustomerParams) {
       const customer = await models.Customers.getCustomer(_id);
 
-      this.fixListFields(doc, customData, customer);
+      doc = this.fixListFields(doc, customData, customer);
 
       const { customFieldsData, trackedData } =
         await models.Fields.generateCustomFieldsData(
