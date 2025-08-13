@@ -81,7 +81,13 @@ class DetailInfo extends React.PureComponent<Props> {
       email: PrimaryEmail,
     };
 
-    const renderItem = ({ [contactType]: value, type, status }: any) => {
+    const renderItem = (item: any) => {
+      if (!item) {
+        return <></>;
+      }
+
+      const { [contactType]: value, type, status } = item || {};
+
       const itemType = type?.replace(/^./, (c) => c.toUpperCase());
 
       const InfoComponent = FieldComponents[contactType];

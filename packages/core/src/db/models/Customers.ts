@@ -360,7 +360,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
       if (doc.emails) {
         const { email } =
-          doc.emails.find((email) => email.type === "primary") || {};
+          doc.emails.find((email) => email?.type === "primary") || {};
 
         if (email !== oldCustomer.primaryEmail) {
           doc.emailValidationStatus = "unknown";
@@ -371,7 +371,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
       if (doc.phones) {
         const { phone } =
-          doc.phones.find((phone) => phone.type === "primary") || {};
+          doc.phones.find((phone) => phone?.type === "primary") || {};
 
         if (phone !== oldCustomer.primaryPhone) {
           doc.phoneValidationStatus = "unknown";
@@ -382,7 +382,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
       if (doc.emailValidationStatus) {
         doc.emails = (doc.emails || []).map((email) => {
-          if (email.type === "primary") {
+          if (email?.type === "primary") {
             return { ...email, status: doc.emailValidationStatus };
           }
           return email;
@@ -391,7 +391,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
       if (doc.phoneValidationStatus) {
         doc.phones = (doc.phones || []).map((phone) => {
-          if (phone.type === "primary") {
+          if (phone?.type === "primary") {
             return { ...phone, status: doc.phoneValidationStatus };
           }
           return phone;

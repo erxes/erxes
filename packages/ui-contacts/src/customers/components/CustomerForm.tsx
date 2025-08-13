@@ -53,9 +53,7 @@ type State = {
   users: IUser[];
   avatar: string;
   showPhoneEditor: boolean;
-  primaryPhone?: string;
   birthDate: string;
-  primaryEmail?: string;
   relationData?: any;
 
   emails?: { email: string; type: string }[];
@@ -110,9 +108,6 @@ class CustomerForm extends React.Component<Props, State> {
       description: finalValues.description,
       code: finalValues.code,
       emails: this.state.emails || [],
-      primaryPhone:
-        this.state.phones?.find((p) => p.type === "primary")?.phone || "",
-      primaryEmail: this.state.primaryEmail || "",
       emailValidationStatus: finalValues.emailValidationStatus,
       registrationNumber: finalValues.registrationNumber,
       phoneValidationStatus: finalValues.phoneValidationStatus,
@@ -211,14 +206,6 @@ class CustomerForm extends React.Component<Props, State> {
         <FormControl {...props} />
       </FormGroup>
     );
-  };
-
-  onEmailChange = ({ options, selectedOption }) => {
-    this.setState({ emails: options, primaryEmail: selectedOption });
-  };
-
-  onPhoneChange = ({ options, selectedOption }) => {
-    this.setState({ phones: options, primaryPhone: selectedOption });
   };
 
   onOwnerChange = (ownerId) => {
