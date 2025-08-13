@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.16.4](https://github.com/erxes/erxes/compare/2.16.3...2.16.4) (2025-08-13)
+
+### Bug Fixes
+
+* emails format widget connect customer ([fee074e](https://github.com/erxes/erxes/commit/fee074e62bdeb5de992409b0a944e6cab2d397c7))
+
 ## [2.16.3](https://github.com/erxes/erxes/compare/2.16.2...2.16.3) (2025-08-12)
 
 ### Bug Fixes
