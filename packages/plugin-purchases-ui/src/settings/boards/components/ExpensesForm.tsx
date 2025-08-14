@@ -58,18 +58,16 @@ function ExpensesForm() {
     });
   };
 
-  const changeElement = (index, key, value) => {
-    const updatedElements = [...elements];
-    updatedElements[index] = {
-      ...updatedElements[index],
-      [key]: value
-    };
+  const changeElement = (_id, key, value) => {
+    const updatedElements = elements.map(el =>
+      el._id === _id ? { ...el, [key]: value } : { ...el }
+    );
     setElements(updatedElements);
   };
 
-  const deleteElement = index => {
-    const updatedElements = [...elements];
-    updatedElements.splice(index, 1);
+  const deleteElement = (_id) => {
+    const updatedElements = elements.filter(e => e._id !== _id)
+
     setElements(updatedElements);
   };
 
@@ -138,15 +136,15 @@ function ExpensesForm() {
                       </tr>
                     </thead>
                     <tbody>
-                      {(elements || []).map((element, index) => (
-                        <tr key={index}>
+                      {(elements || []).map((element) => (
+                        <tr key={element._id}>
                           <td>
                             <FormControl
                               type="text"
                               placeholder={__("Enter name")}
                               defaultValue={element.name}
                               onChange={(e: any) =>
-                                changeElement(index, "name", e.target.value)
+                                changeElement(element._id, "name", e.target.value)
                               }
                             />
                           </td>
@@ -157,7 +155,7 @@ function ExpensesForm() {
                               placeholder={__("Enter description")}
                               onChange={(e: any) =>
                                 changeElement(
-                                  index,
+                                  element._id,
                                   "description",
                                   e.target.value
                                 )
@@ -170,7 +168,7 @@ function ExpensesForm() {
                               btnStyle="simple"
                               type="button"
                               icon="times"
-                              onClick={() => deleteElement(index)}
+                              onClick={() => deleteElement(element._id)}
                             ></Button>
                           </td>
                         </tr>

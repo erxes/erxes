@@ -279,8 +279,8 @@ const widgetMutations = {
         doc: {
           firstName,
           lastName,
-          emails,
-          phones
+          emails: emails?.map(email => ({ email, type: 'other'})),
+          phones: phones?.map(phone => ({ phone, type: 'other'})),
         }
       },
       isRPC: true,

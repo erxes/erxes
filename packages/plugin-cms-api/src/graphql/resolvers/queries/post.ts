@@ -24,6 +24,7 @@ export const queryBuilder = async (args: any, models: IModels) => {
   if (args.categoryIds) {
     query.categoryIds = { $in: args.categoryIds };
   }
+  
 
   if (args.tagIds) {
     query.tagIds = { $in: args.tagIds };

@@ -10,7 +10,7 @@ const reportQueries = {
   ) {
     const report: any = {};
 
-    let beginNumber: any = posNumber;
+    let beginNumber: any = posNumber?.substring(0, 8);
 
     if (!beginNumber) {
       const tempNumber = await generateOrderNumber(models, config);

@@ -61,7 +61,7 @@ export const getOwnerPrimaryInfo = (type, owner) => {
       customer: [
         owner?.primaryEmail,
         `${owner?.firstName ?? ""} ${owner?.lastName ?? ""}`.trim(),
-        owner?.phones?.[0],
+        owner?.phones?.find(p => p.type === 'primary')?.phone,
       ],
       user: [
         owner?.email,

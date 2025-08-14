@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import mongoose, { Document, Schema } from "mongoose";
 import { field, schemaHooksWrapper } from "./models/definitions/utils";
 import { generateModels } from './connectionResolver';
@@ -120,26 +121,66 @@ const removeRelatedIds = async (models: ModelsParam, tag: ITagDocument) => {
 
   await models.Tags.bulkWrite(doc);
 };
+=======
+import { debugError } from '@erxes/api-utils/src/debuggers';
+import { generateModels } from './connectionResolver';
+import { sendCommonMessage } from './messageBroker';
+>>>>>>> ba48ae9ef3022f066baf7df462675dc0961d2dc1
 
 export default {
   types: [
     {
-      description: "Tickets",
-      type: "ticket"
-    }
+      description: 'Tickets',
+      type: 'ticket',
+    },
   ],
 
   tag: async ({ subdomain, data }) => {
-    const { type, targetIds, tagIds, _ids, action } = data;
+    try {
+      const { type, targetIds, tagIds, _ids, action } = data;
 
+<<<<<<< HEAD
     const models = await generateModels(subdomain);
     const model: any = models.Tickets;
 
     let response = {};
+=======
+      const models = await generateModels(subdomain);
 
-    if (action === "count") {
-      response = await model.countDocuments({ tagIds: { $in: _ids } });
+      let response = {};
+>>>>>>> ba48ae9ef3022f066baf7df462675dc0961d2dc1
+
+      if (action === 'count') {
+        response = await models.Tickets.countDocuments({
+          tagIds: { $in: _ids },
+        });
+      }
+
+      if (action === 'tagObject') {
+        await models.Tickets.updateMany(
+          { _id: { $in: targetIds } },
+          { $set: { tagIds } }
+        );
+
+        response = await models.Tickets.find({
+          _id: { $in: targetIds },
+        }).lean();
+        sendCommonMessage({
+          serviceName: 'automations',
+          subdomain,
+          action: 'trigger',
+          data: {
+            type: 'tickets:ticket',
+            targets: [response],
+          },
+        });
+      }
+
+      return response;
+    } catch (error) {
+      debugError(`Ticket:tag`, error);
     }
+<<<<<<< HEAD
 
     if (action === "tagObject") {
       await model.updateMany(
@@ -176,12 +217,24 @@ export default {
   },
 
   fixRelatedItems: async ({ subdomain, data: { sourceId, destId, action } }) => {
-    const models = await generateModels(subdomain);
-    const model: any = models.Tickets;
+=======
+  },
 
+  fixRelatedItems: async ({
+    subdomain,
+    data: { sourceId, destId, action },
+  }) => {
+>>>>>>> ba48ae9ef3022f066baf7df462675dc0961d2dc1
+    const models = await generateModels(subdomain);
+
+<<<<<<< HEAD
     if (action === "remove") {
       // Remove tag from tickets
       await model.updateMany(
+=======
+    if (action === 'remove') {
+      await models.Tickets.updateMany(
+>>>>>>> ba48ae9ef3022f066baf7df462675dc0961d2dc1
         { tagIds: { $in: [sourceId] } },
         { $pull: { tagIds: { $in: [sourceId] } } }
       );
@@ -193,6 +246,7 @@ export default {
       }
     }
 
+<<<<<<< HEAD
     if (action === "merge") {
       // Find tickets with source tag
       const itemIds = await model
@@ -201,8 +255,18 @@ export default {
 
       // Replace source tag with destination tag
       await model.updateMany(
+=======
+    if (action === 'merge') {
+      const itemIds = await models.Tickets.find(
+        { tagIds: { $in: [sourceId] } },
+        { _id: 1 }
+      ).distinct('_id');
+
+      // add to the new destination
+      await models.Tickets.updateMany(
+>>>>>>> ba48ae9ef3022f066baf7df462675dc0961d2dc1
         { _id: { $in: itemIds } },
-        { $set: { "tagIds.$[elem]": destId } },
+        { $set: { 'tagIds.$[elem]': destId } },
         { arrayFilters: [{ elem: { $eq: sourceId } }] }
       );
 
@@ -215,5 +279,5 @@ export default {
         await setRelatedIds(models, destTag);
       }
     }
-  }
+  },
 };

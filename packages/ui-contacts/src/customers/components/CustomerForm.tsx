@@ -1,4 +1,4 @@
-import { Alert, __, getConstantFromStore } from "@erxes/ui/src/utils";
+import { IUser, IUserLinks } from "@erxes/ui/src/auth/types";
 import {
   DateContainer,
   FormColumn,
@@ -7,32 +7,32 @@ import {
   ScrollWrapper,
 } from "@erxes/ui/src/styles/main";
 import {
-  EMAIL_VALIDATION_STATUSES,
-  PHONE_VALIDATION_STATUSES,
-} from "../constants";
-import {
   IButtonMutateProps,
   IFormProps,
   IQueryParams,
 } from "@erxes/ui/src/types";
-import { ICustomer, ICustomerDoc } from "../types";
-import { IUser, IUserLinks } from "@erxes/ui/src/auth/types";
-import { genderChoices, isValidPhone } from "../utils";
+import { Alert, __, getConstantFromStore } from "@erxes/ui/src/utils";
 import { getVersion } from "@erxes/ui/src/utils/core";
+import {
+  EMAIL_VALIDATION_STATUSES,
+  PHONE_VALIDATION_STATUSES,
+} from "../constants";
+import { ICustomer, ICustomerDoc } from "../types";
+import { genderChoices } from "../utils";
 
-import AutoCompletionSelect from "@erxes/ui/src/components/AutoCompletionSelect";
+import RelationForm from "@erxes/ui-forms/src/forms/containers/RelationForm";
 import AvatarUpload from "@erxes/ui/src/components/AvatarUpload";
 import Button from "@erxes/ui/src/components/Button";
 import CollapseContent from "@erxes/ui/src/components/CollapseContent";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
 import Form from "@erxes/ui/src/components/form/Form";
-import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import React from "react";
-import RelationForm from "@erxes/ui-forms/src/forms/containers/RelationForm";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import validator from "validator";
+import React from "react";
+import InputRow from "./InputRow";
+// import { automationsRemoveNote } from "@erxes/ui-automations/src/graphql/resolvers/mutations/automations";
 
 type Props = {
   currentUser: IUser;
@@ -52,12 +52,12 @@ type State = {
   hasAuthority: string;
   users: IUser[];
   avatar: string;
-  phones?: string[];
-  emails?: string[];
-  primaryPhone?: string;
+  showPhoneEditor: boolean;
   birthDate: string;
-  primaryEmail?: string;
   relationData?: any;
+
+  emails?: { email: string; type: string }[];
+  phones?: { phone: string; type: string }[];
 };
 
 class CustomerForm extends React.Component<Props, State> {
@@ -71,11 +71,13 @@ class CustomerForm extends React.Component<Props, State> {
       ownerId: customer.ownerId || userId,
       isSubscribed: customer.isSubscribed || "Yes",
       hasAuthority: customer.hasAuthority || "No",
+      showPhoneEditor: false,
       users: [],
       birthDate: customer.birthDate,
       avatar: customer.avatar,
-      primaryEmail: customer.primaryEmail,
-      primaryPhone: customer.primaryPhone,
+
+      emails: customer.emails,
+      phones: customer.phones,
     };
   }
 
@@ -105,6 +107,7 @@ class CustomerForm extends React.Component<Props, State> {
       leadStatus: finalValues.leadStatus,
       description: finalValues.description,
       code: finalValues.code,
+      emails: this.state.emails || [],
       emailValidationStatus: finalValues.emailValidationStatus,
       registrationNumber: finalValues.registrationNumber,
       phoneValidationStatus: finalValues.phoneValidationStatus,
@@ -205,14 +208,6 @@ class CustomerForm extends React.Component<Props, State> {
     );
   };
 
-  onEmailChange = ({ options, selectedOption }) => {
-    this.setState({ emails: options, primaryEmail: selectedOption });
-  };
-
-  onPhoneChange = ({ options, selectedOption }) => {
-    this.setState({ phones: options, primaryPhone: selectedOption });
-  };
-
   onOwnerChange = (ownerId) => {
     this.setState({ ownerId });
   };
@@ -274,13 +269,36 @@ class CustomerForm extends React.Component<Props, State> {
     );
   }
 
+  renderContactRow(forType: "phone" | "email") {
+    const { customer = {}, autoCompletionQuery } = this.props || {};
+
+    const field = `${forType}s`;
+
+    const onChange = (values: any[]) => {
+      this.setState({ [field]: values } as unknown as Pick<State, keyof State>);
+    };
+
+    return (
+      <>
+        <ControlLabel>{forType}</ControlLabel>
+        <InputRow
+          forType={forType}
+          data={customer[field] || []}
+          onChange={onChange}
+          query={autoCompletionQuery}
+          queryName="customers"
+        />
+      </>
+    );
+  }
+
   renderContent = (formProps: IFormProps) => {
     const { VERSION } = getVersion();
     const { closeModal, renderButton, autoCompletionQuery } = this.props;
     const { values, isSubmitted, resetSubmit } = formProps;
 
     const customer = this.props.customer || ({} as ICustomer);
-    const { primaryEmail, primaryPhone, ownerId } = customer;
+    const { ownerId } = customer;
 
     return (
       <>
@@ -347,21 +365,7 @@ class CustomerForm extends React.Component<Props, State> {
                     defaultValue={customer.registrationNumber || ""}
                   />
                 </FormGroup>
-                <FormGroup>
-                  <ControlLabel required={true}>Email</ControlLabel>
-                  <AutoCompletionSelect
-                    required={true}
-                    defaultValue={primaryEmail}
-                    defaultOptions={this.getEmailsOptions(customer)}
-                    autoCompletionType="emails"
-                    placeholder="Enter an email"
-                    queryName="customers"
-                    query={autoCompletionQuery}
-                    checkFormat={validator.isEmail}
-                    onChange={this.onEmailChange}
-                  />
-                </FormGroup>
-
+                <FormGroup>{this.renderContactRow("email")}</FormGroup>
                 <FormGroup>
                   <ControlLabel>Primary email verification status</ControlLabel>
                   <FormControl
@@ -418,21 +422,7 @@ class CustomerForm extends React.Component<Props, State> {
                   },
                   "date"
                 )}
-
-                <FormGroup>
-                  <ControlLabel>Phone</ControlLabel>
-                  <AutoCompletionSelect
-                    defaultValue={primaryPhone}
-                    defaultOptions={this.getPhonesOptions(customer)}
-                    autoCompletionType="phones"
-                    placeholder="Enter a phone"
-                    queryName="customers"
-                    query={autoCompletionQuery}
-                    checkFormat={isValidPhone}
-                    onChange={this.onPhoneChange}
-                  />
-                </FormGroup>
-
+                <FormGroup>{this.renderContactRow("phone")}</FormGroup>
                 <FormGroup>
                   <ControlLabel>Primary phone verification status</ControlLabel>
                   <FormControl

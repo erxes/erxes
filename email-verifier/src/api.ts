@@ -67,17 +67,16 @@ export const single = async (email: string, hostname: string) => {
 };
 
 export const bulk = async (emails: string[], hostname: string) => {
-  console.debug('Bulk email verification started, total emails:', emails.length);
   const MAIL_VERIFIER_SERVICE = getEnv({
     name: 'MAIL_VERIFIER_SERVICE',
     defaultValue: 'mailsso',
   });
 
-  
+
   const emailsOnDb = await Emails.find({
-    email: { $in: emails, status: {$ne: EMAIL_VALIDATION_STATUSES.UNKNOWN}},
-  });
-  console.debug('Emails on DB:', emailsOnDb.length);
+    email: { $in: emails },
+  }).lean();
+
   const emailsMap: Array<{ email: string; status: string }> = emailsOnDb.map(
     ({ email, status }) => ({
       email,
@@ -88,7 +87,7 @@ export const bulk = async (emails: string[], hostname: string) => {
 
   const verifiedEmails = emailsMap.map((verified) => ({
     email: verified.email,
-    status: verified.status,
+    status: EMAIL_VALIDATION_STATUSES.VALID,
   }));
 
   console.debug('Verified emails:', verifiedEmails.length);
