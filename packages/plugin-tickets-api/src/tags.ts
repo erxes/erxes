@@ -68,7 +68,17 @@ type ModelsParam = {
   Tags: ITagModel;
 };
 
-const setRelatedIds = async (models: ModelsParam, tag: ITagDocument) => {
+const setRelatedIds = async (
+  models: ModelsParam,
+  tag: ITagDocument,
+  visitedIds: Set<string> = new Set()
+) => {
+  // Prevent cycles
+  if (visitedIds.has(tag._id.toString())) {
+    return;
+  }
+  visitedIds.add(tag._id.toString());
+
   if (tag.parentId) {
     const parentTag = await models.Tags.findOne({ _id: tag.parentId });
 
@@ -77,15 +87,19 @@ const setRelatedIds = async (models: ModelsParam, tag: ITagDocument) => {
       relatedIds.push(tag._id);
       relatedIds = _.union(relatedIds, parentTag.relatedIds || []);
 
-      await models.Tags.updateOne({ _id: parentTag._id }, { $set: { relatedIds } });
+      await models.Tags.updateOne(
+        { _id: parentTag._id },
+        { $set: { relatedIds } }
+      );
 
       const updated = await models.Tags.findOne({ _id: tag.parentId });
       if (updated) {
-        await setRelatedIds(models, updated);
+        await setRelatedIds(models, updated, visitedIds);
       }
     }
   }
 };
+
 
 const removeRelatedIds = async (models: ModelsParam, tag: ITagDocument) => {
   const tags = await models.Tags.find({ relatedIds: { $in: [tag._id] } });
@@ -133,11 +147,13 @@ export default {
         { $set: { tagIds } },
         { multi: true }
       );
-
+      
+  
       // Update tag hierarchies
       const tags = await models.Tags.find({ _id: { $in: tagIds } });
+      const visitedIds = new Set<string>();
       for (const tag of tags) {
-        await setRelatedIds(models, tag);
+        await setRelatedIds(models, tag, visitedIds);
       }
 
       response = await model.find({ _id: { $in: targetIds } }).lean();
