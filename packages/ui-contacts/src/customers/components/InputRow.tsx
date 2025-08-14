@@ -202,21 +202,23 @@ const Row = (props: RowProps) => {
   const [values, setValues] = useState<any[]>([]);
 
   useEffect(() => {
-    const hasPrimary = data.some((item) => item?.type === "primary");
+    if (!values?.length) {
+      const hasPrimary = data.some((item) => item?.type === "primary");
 
-    const dataWithIds = data.map((item) => ({
-      ...item,
-      _tempId: item?._tempId || generateId(),
-    }));
+      const dataWithIds = data.map((item) => ({
+        ...item,
+        _tempId: item?._tempId || generateId(),
+      }));
 
-    setValues([
-      ...dataWithIds,
-      {
-        _tempId: generateId(),
-        type: hasPrimary ? "other" : "primary",
-        [forType]: "",
-      },
-    ]);
+      setValues([
+        ...dataWithIds,
+        {
+          _tempId: generateId(),
+          type: hasPrimary ? "other" : "primary",
+          [forType]: "",
+        },
+      ]);
+    }
   }, [data]);
 
   const validateValues = (values: any[]) => {
