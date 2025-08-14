@@ -20,12 +20,12 @@ export interface ITagDocument extends ITag, Document {
 }
 
 export interface ITagModel extends mongoose.Model<ITagDocument> {
-  // Add any static methods here if needed
+
 }
 
 export const loadTagClass = () => {
   class Tag {
-    // Add any static methods here if needed
+
   }
   
   tagSchema.loadClass(Tag);
@@ -110,8 +110,8 @@ const removeRelatedIds = async (models: ModelsParam, tag: ITagDocument) => {
 export default {
   types: [
     {
-      description: 'Tickets',
-      type: 'ticket'
+      description: "Tickets",
+      type: "ticket"
     }
   ],
 
@@ -123,11 +123,11 @@ export default {
 
     let response = {};
 
-    if (action === 'count') {
+    if (action === "count") {
       response = await model.countDocuments({ tagIds: { $in: _ids } });
     }
 
-    if (action === 'tagObject') {
+    if (action === "tagObject") {
       await model.updateMany(
         { _id: { $in: targetIds } },
         { $set: { tagIds } },
@@ -144,11 +144,11 @@ export default {
 
       // Trigger automations
       sendCommonMessage({
-        serviceName: 'automations',
+        serviceName: "automations",
         subdomain,
-        action: 'trigger',
+        action: "trigger",
         data: {
-          type: 'tickets:ticket',
+          type: "tickets:ticket",
           targets: [response]
         },
         isRPC: true,
@@ -163,7 +163,7 @@ export default {
     const models = await generateModels(subdomain);
     const model: any = models.Tickets;
 
-    if (action === 'remove') {
+    if (action === "remove") {
       // Remove tag from tickets
       await model.updateMany(
         { tagIds: { $in: [sourceId] } },
@@ -177,16 +177,16 @@ export default {
       }
     }
 
-    if (action === 'merge') {
+    if (action === "merge") {
       // Find tickets with source tag
       const itemIds = await model
         .find({ tagIds: { $in: [sourceId] } }, { _id: 1 })
-        .distinct('_id');
+        .distinct("_id");
 
       // Replace source tag with destination tag
       await model.updateMany(
         { _id: { $in: itemIds } },
-        { $set: { 'tagIds.$[elem]': destId } },
+        { $set: { "tagIds.$[elem]": destId } },
         { arrayFilters: [{ elem: { $eq: sourceId } }] }
       );
 
