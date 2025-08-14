@@ -88,14 +88,14 @@ const setRelatedIds = async (
       relatedIds.push(tag._id);
       relatedIds = _.union(relatedIds, parentTag.relatedIds || []);
 
-      await models.Tags.updateOne(
-        { _id: parentTag._id },
-        { $set: { relatedIds } }
+      const toAdd = _.uniq([tag._id, ...(tag.relatedIds || [])]);
+      const updatedParent = await models.Tags.findByIdAndUpdate(
+        parentTag._id,
+        { $addToSet: { relatedIds: { $each: toAdd } } },
+        { new: true }
       );
-
-      const updated = await models.Tags.findOne({ _id: tag.parentId });
-      if (updated) {
-        await setRelatedIds(models, updated, visitedIds);
+      if (updatedParent) {
+        await setRelatedIds(models, updatedParent, visitedIds);
       }
     }
   }
