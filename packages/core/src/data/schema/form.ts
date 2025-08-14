@@ -24,7 +24,7 @@ export const types = (inboxEnabled) => `
 
   type Form @key(fields: "_id") {
     _id: String!
-    name: String!
+    name: String
     title: String
     code: String
     type: String

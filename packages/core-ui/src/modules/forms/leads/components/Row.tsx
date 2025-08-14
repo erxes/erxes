@@ -201,7 +201,7 @@ const Row = ({
       </td>
       <td>
         <RowTitle>
-          <Link to={`/forms/leads/edit/${form._id}`}>{form.name}</Link>
+          <Link to={`/forms/leads/edit/${form._id}`}>{form.name || ''}</Link>
         </RowTitle>
       </td>
       <td>
