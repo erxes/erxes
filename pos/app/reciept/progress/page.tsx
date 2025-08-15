@@ -23,8 +23,8 @@ const filterProductsNeedProcess = (
     .filter((product: IProduct) =>
       categoryOrders?.length > 0
         ? categoryOrders.some((order) =>
-            product?.category?.order?.includes(order)
-          )
+          product?.category?.order?.includes(order)
+        )
         : true
     )
     .map((product: IProduct) => product._id)
@@ -57,8 +57,8 @@ const Progress = () => {
           const baseItems = items || []
           const filteredByStatus = onlyNewItems
             ? baseItems.filter(
-                (item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE
-              )
+              (item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE
+            )
             : baseItems
           const checkedItems = filteredByStatus.filter((item: OrderItem) =>
             productsNeedProcess.includes(item.productId)
@@ -69,10 +69,10 @@ const Progress = () => {
           }
         }
 
-        
+
         if (allFilteredItems.length === 0) {
           const baseItems = items || []
-          const itemsToProcess = onlyNewItems 
+          const itemsToProcess = onlyNewItems
             ? baseItems.filter((item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE)
             : baseItems
           setItemsToPrint([itemsToProcess])
@@ -215,7 +215,24 @@ const Progress = () => {
               (groupItems: OrderItem[], groupIndex: number) => (
                 <div key={`filter-group-${groupIndex}`}>
                   {groupIndex > 0 && (
-                    <div className="my-3 border-t border-dashed" />
+                    <>
+                      <div className="my-3 border-t border-dashed" />
+                      <div className="flex items-center justify-between font-semibold text-xs">
+                        <span>{name}</span>
+                        <span>#{(number || "").split("_")[1]}</span>
+                      </div>
+                      <div>
+                        Огноо:{" "}
+                        <span className="font-semibold">
+                          {modifiedAt && format(new Date(modifiedAt), "yyyy.MM.dd HH:mm:ss")}
+                        </span>
+                      </div>
+                      <div className="flex items-center font-semibold">
+                        <span className="flex-auto">Бараа</span>
+                        <span>Т/Ш</span>
+                        {forCustomer && <span className="w-1/4 text-right">Үнэ</span>}
+                      </div>
+                    </>
                   )}
                   {groupItems.map((item: OrderItem) => (
                     <div className="flex items-center" key={item._id}>
