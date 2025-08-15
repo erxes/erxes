@@ -1,5 +1,5 @@
-import * as mongoose from "mongoose";
-import { IContext as IMainContext } from "@erxes/api-utils/src";
+import * as mongoose from 'mongoose';
+import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   IBoardModel,
   IPipelineModel,
@@ -7,42 +7,42 @@ import {
   loadBoardClass,
   loadPipelineClass,
   loadStageClass
-} from "./models/Boards";
+} from './models/Boards';
 import {
   IChecklistItemModel,
   loadClass as loadChecklistClass,
   loadItemClass
-} from "./models/Checklists";
+} from './models/Checklists';
 
-import { ITicketModel, loadTicketClass } from "./models/Tickets";
-import { IChecklistModel } from "./models/Checklists";
+import { ITicketModel, loadTicketClass } from './models/Tickets';
+import { IChecklistModel } from './models/Checklists';
 import {
   IBoardDocument,
   IPipelineDocument,
   IStageDocument
-} from "./models/definitions/boards";
-import { ITicketDocument } from "./models/definitions/tickets";
+} from './models/definitions/boards';
+import { ITicketDocument } from './models/definitions/tickets';
 import {
   IChecklistDocument,
   IChecklistItemDocument
-} from "./models/definitions/checklists";
-import { IPipelineLabelDocument } from "./models/definitions/pipelineLabels";
-import { ICommentDocument } from "./models/definitions/comments";
+} from './models/definitions/checklists';
+import { IPipelineLabelDocument } from './models/definitions/pipelineLabels';
+import { ICommentDocument } from './models/definitions/comments';
 import {
   IPipelineLabelModel,
   loadPipelineLabelClass
-} from "./models/PipelineLabels";
+} from './models/PipelineLabels';
 import {
   ICommentModel,
   loadCommentClass
-} from "./models/Comments";
+} from './models/Comments';
 import {
   IPipelineTemplateModel,
   loadPipelineTemplateClass
-} from "./models/PipelineTemplates";
-import { IPipelineTemplateDocument } from "./models/definitions/pipelineTemplates";
-import { createGenerateModels } from "@erxes/api-utils/src/core";
-import { ITagDocument, ITagModel, loadTagClass } from './tags'; // Updated import
+} from './models/PipelineTemplates';
+import { IPipelineTemplateDocument } from './models/definitions/pipelineTemplates';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
+import { ITagDocument, ITagModel, loadTagClass } from './tags';
 
 export interface IModels {
   Boards: IBoardModel;
@@ -54,7 +54,7 @@ export interface IModels {
   PipelineLabels: IPipelineLabelModel;
   PipelineTemplates: IPipelineTemplateModel;
   Comments: ICommentModel;
-  Tags: ITagModel; // Added Tags model
+  Tags: ITagModel;
 }
 
 export interface IContext extends IMainContext {
@@ -70,54 +70,54 @@ export const loadClasses = (
   const models = {} as IModels;
 
   models.Boards = db.model<IBoardDocument, IBoardModel>(
-    "tickets_boards",
+    'tickets_boards',
     loadBoardClass(models, subdomain)
   );
 
   models.Pipelines = db.model<IPipelineDocument, IPipelineModel>(
-    "tickets_pipelines",
+    'tickets_pipelines',
     loadPipelineClass(models, subdomain)
   );
 
   models.Stages = db.model<IStageDocument, IStageModel>(
-    "tickets_stages",
+    'tickets_stages',
     loadStageClass(models, subdomain)
   );
-  
+
   models.Tickets = db.model<ITicketDocument, ITicketModel>(
-    "tickets",
+    'tickets',
     loadTicketClass(models, subdomain)
   );
 
   models.Checklists = db.model<IChecklistDocument, IChecklistModel>(
-    "tickets_checklists",
+    'tickets_checklists',
     loadChecklistClass(models, subdomain)
   );
-  
+
   models.ChecklistItems = db.model<IChecklistItemDocument, IChecklistItemModel>(
-    "tickets_checklist_items",
+    'tickets_checklist_items',
     loadItemClass(models, subdomain)
   );
-  
+
   models.PipelineLabels = db.model<IPipelineLabelDocument, IPipelineLabelModel>(
-    "tickets_pipeline_labels",
+    'tickets_pipeline_labels',
     loadPipelineLabelClass(models)
   );
-  
+
   models.PipelineTemplates = db.model<
     IPipelineTemplateDocument,
     IPipelineTemplateModel
-  >("tickets_pipeline_templates", loadPipelineTemplateClass(models, subdomain));
-  
+  >('tickets_pipeline_templates', loadPipelineTemplateClass(models, subdomain));
+
   models.Comments = db.model<ICommentDocument, ICommentModel>(
     'ticket_comments',
     loadCommentClass(models)
   );
-  
-  // Added Tags model initialization
+
+  // ✅ Tags from core
   models.Tags = db.model<ITagDocument, ITagModel>(
-    'tags', // ticket_tags doesn't work cause data stored as tags
-    loadTagClass() // Loading tag class
+    'ticket_tags',
+    loadTagClass(models)
   );
 
   return models;
