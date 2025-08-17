@@ -46,7 +46,7 @@ export const tagSchema = new Schema<ITagDocument, ITagModel>(
   { timestamps: true }
 );
 
-// Class loader
+// Classloader
 export const loadTagClass = (models: IModels) => {
   class Tag {
     public static async getTag(_id: string) {
