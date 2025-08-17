@@ -101,7 +101,7 @@ export const loadTagClass = (models: IModels) => {
     }
 
     public static async updateTag(_id: string, doc: ITag) {
-      // Validate tag name
+      // Validate tag doc name
       if (doc.name && doc.name.includes('/')) {
         throw new Error("Tag name cannot contain forward slashes");
       }

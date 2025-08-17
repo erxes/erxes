@@ -114,7 +114,7 @@ export const loadClasses = (
     loadCommentClass(models)
   );
 
-  // ✅ Tags from core
+  // Tags from tags.ts
   models.Tags = db.model<ITagDocument, ITagModel>(
     'ticket_tags',
     loadTagClass(models)
