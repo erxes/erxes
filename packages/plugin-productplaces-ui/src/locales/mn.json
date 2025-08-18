@@ -1,0 +1,19 @@
+{
+    "Exclude categories" : "Ангилалыг хасах",
+    "Choose categories to exclude" : "Хасах ангиллыг сонгоно уу",
+    "Product Tags" : "Бүтээгдэхүүний шошго",
+    "Choose product tag" : "Бүтээгдэхүүний шошгыг сонгоно уу",
+    "Exclude tags" : "Шошгуудыг хасах",
+    "Exclude products" : "Бүтээгдэхүүнийг оруулахгүй",
+    "Segment" : "Сегмент",
+    "Low UnitPrice" : "Нэгжийн үнэ бага",
+    "Set department" : "Хэсгийг тохируулах",
+    "Settings" : "Тохиргоо",
+    "Print config" : "Хэвлэх тохиргоо",
+    "Print configs" : "Тохиргоог хэвлэх",
+    "Stage in products places config" : "Бүтээгдэхүүний байршил дахь үе шат",
+    "Stage in products splits config" : "Бүтээгдэхүүн хуваах тохиргооны үе шат",
+    "Stage in products prints config" : "Бүтээгдэхүүний үе шат нь тохиргоог хэвлэдэг",
+    "Places config" : "Газрын тохиргоо",
+    "Places configs" : "Байршлын тохиргоо"
+}
