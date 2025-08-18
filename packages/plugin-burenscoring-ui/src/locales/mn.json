@@ -1,0 +1,19 @@
+{
+    "Scoring" : "Оноо",
+    "Burenscorings" : "Буренскоринг",
+    "Theres no burenscoring" : "Буренскоп байхгүй",
+    "Register number" : "Бүртгэлийн дугаар",
+    "Choose scoring type" : "Онооны төрлийг сонгоно уу",
+    "Score": "Оноо",
+    "Type": "Төрөл",
+    "get Date": "Огноо авах",
+    "See related scoring.." : "Холбогдох оноог харна уу..",
+    "Customer Scoring" : "Хэрэглэгчийн оноо",
+    "No scoring" : "Оноо байхгүй",
+    "Buren Scoring config" : "Buren Scoring тохиргоо",
+    "client id" : "үйлчлүүлэгчийн ID",
+    "secret Key" : "нууц түлхүүр",
+    "Choose field" : "талбар-г сонгоно уу",
+    "Save" : "Хадгалах",
+    "You successfully score a " : "Та амжилттай оноо авсан "
+}
