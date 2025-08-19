@@ -195,8 +195,8 @@ class WidgetForm extends React.Component<Props, State> {
 
               <FormControl id="brandId" componentclass="select" required={true}>
                 <option />
-                {this.props.brands.map((b, index) => (
-                  <option key={`brand-${index}`} value={b._id}>
+                {this.props.brands.map((b) => (
+                  <option key={`brand-${b._id}`} value={b._id}>
                     {b.name}
                   </option>
                 ))}
