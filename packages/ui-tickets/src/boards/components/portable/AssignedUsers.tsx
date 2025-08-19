@@ -28,7 +28,7 @@ export default function AssignedUsers(props: Props) {
         name="assignedUserIds"
         onSelect={onChange}
         filterParams={{
-          isAssignee: true,
+          isAssignee: !props.branchIds?.length,
           branchIds: props.branchIds,
         }}
       />
