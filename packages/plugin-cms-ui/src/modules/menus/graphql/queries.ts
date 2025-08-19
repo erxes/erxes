@@ -1,4 +1,4 @@
-import { gql } from '@erxes/ui/src/utils';
+import { gql } from '@apollo/client';
 
 export const menuList = gql`
   query cmsMenuList($clientPortalId: String, $kind: String) {

@@ -1,13 +1,13 @@
-import { useLocation, useNavigate } from 'react-router-dom';
-import React, { useState } from 'react';
+import { useMutation, useQuery } from '@apollo/client';
 import { router } from '@erxes/ui/src/utils';
-import { IMenu } from '../types';
-import { useQuery } from '@apollo/client';
-import { gql } from '@apollo/client';
-import { menuList } from '../graphql/queries';
-import { removeMenu } from '../graphql/mutations';
-import { useMutation } from '@apollo/client';
+import React, { useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import List from '../components/List';
+import { REMOVE_MENU } from '../graphql/mutations';
+import { menuList } from '../graphql/queries';
+import { IMenu } from '../types';
+import { WEB_DETAIL } from '../../web/queries';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   queryParams: any;
@@ -15,21 +15,24 @@ type Props = {
 
 const ListContainer: React.FC<Props> = (props) => {
   const { queryParams } = props;
-  const [bulk, setBulk] = useState<IMenu[]>([]);
-  const [isAllSelected, setIsAllSelected] = useState(false);
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { cpId = '' } = useParams<{ cpId: string }>();
 
-  const { data, loading, refetch } = useQuery(gql(menuList), {
+  const { data: webData, loading: webLoading } = useQuery(WEB_DETAIL, {
+    variables: {
+      id: cpId,
+    },
+  });
+
+  const { data, loading, refetch } = useQuery(menuList, {
     variables: {
       ...router.generatePaginationParams(queryParams || {}),
-      searchValue: queryParams.searchValue,
+      clientPortalId: cpId,
     },
     fetchPolicy: 'network-only',
   });
 
-  const [removeMutation] = useMutation(gql(removeMenu), {
-    refetchQueries: [{ query: gql(menuList) }],
+  const [removeMutation] = useMutation(REMOVE_MENU, {
+    refetchQueries: [{ query: menuList }],
   });
 
   const remove = (menuId: string) => {
@@ -40,41 +43,9 @@ const ListContainer: React.FC<Props> = (props) => {
     });
   };
 
-  const toggleBulk = (menu: IMenu, isChecked?: boolean) => {
-    let updatedBulk = [...bulk];
-
-    if (isChecked === undefined) {
-      if (bulk.find((item) => item._id === menu._id)) {
-        updatedBulk = updatedBulk.filter((item) => item._id !== menu._id);
-      } else {
-        updatedBulk.push(menu);
-      }
-    } else {
-      if (isChecked) {
-        if (!updatedBulk.find((item) => item._id === menu._id)) {
-          updatedBulk.push(menu);
-        }
-      } else {
-        updatedBulk = updatedBulk.filter((item) => item._id !== menu._id);
-      }
-    }
-
-    setBulk(updatedBulk);
-    setIsAllSelected(false);
-  };
-
-  const toggleAll = (menus: IMenu[], isChecked: boolean) => {
-    if (isChecked) {
-      setBulk(menus);
-    } else {
-      setBulk([]);
-    }
-    setIsAllSelected(isChecked);
-  };
-
-  const search = (searchValue: string) => {
-    router.setParams(navigate, location, { searchValue });
-  };
+  if (loading || webLoading) {
+    return <Spinner />;
+  }
 
   const menus = (data && data.cmsMenuList) || [];
   const totalCount = (data && data.cmsMenuList.length) || 0;
@@ -84,14 +55,14 @@ const ListContainer: React.FC<Props> = (props) => {
     totalCount,
     loading,
     remove,
-    toggleBulk,
-    toggleAll,
-    isAllSelected,
-    history: { ...location, push: navigate },
+    website: webData?.clientPortalGetConfig,
+    clientPortalId: cpId,
+    refetch,
     queryParams,
   };
 
   return <List {...updatedProps} />;
+// return (<>hi</>)
 };
 
 export default ListContainer;

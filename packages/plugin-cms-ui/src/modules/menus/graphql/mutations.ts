@@ -1,4 +1,4 @@
-import { gql } from '@erxes/ui/src/utils';
+import { gql } from '@apollo/client';
 
 const commonParams = `
   $parentId: String
@@ -26,7 +26,7 @@ const commonVariables = `
   target: $target
 `;
 
-export const addMenu = gql`
+export const ADD_MENU = gql`
   mutation cmsAddMenu(${commonParams}) {
     cmsAddMenu(
       input: {
@@ -47,7 +47,7 @@ export const addMenu = gql`
   }
 `;
 
-export const editMenu = gql`
+export const EDIT_MENU = gql`
   mutation cmsEditMenu($_id: String!, ${commonParams}) {
     cmsEditMenu(
       _id: $_id,
@@ -69,7 +69,7 @@ export const editMenu = gql`
   }
 `;
 
-export const removeMenu = gql`
+export const REMOVE_MENU = gql`
   mutation cmsRemoveMenu($_id: String!) {
     cmsRemoveMenu(_id: $_id)
   }

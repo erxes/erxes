@@ -1,64 +1,78 @@
+import { RowTitle } from '@erxes/ui-engage/src/styles';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Tip from '@erxes/ui/src/components/Tip';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import { DateWrapper } from '@erxes/ui/src/styles/main';
+import { __ } from '@erxes/ui/src/utils/core';
+import dayjs from 'dayjs';
 import React from 'react';
+import PageForm from '../containers/Form';
 import { IMenu } from '../types';
-import { __ } from '@erxes/ui/src/utils';
-import { Link } from 'react-router-dom';
-import { FormControl } from '@erxes/ui/src/components/form';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { ActionButtons, Button, Icon, Tip } from '@erxes/ui/src';
 
 type Props = {
   menu: IMenu;
-  isChecked: boolean;
-  toggleBulk: (menu: IMenu, isChecked?: boolean) => void;
-  remove: (menuId: string) => void;
+  remove: (_id: string) => void;
+  refetch?: () => void;
+  clientPortalId: string;
+  website?: any;
 };
 
-const Row: React.FC<Props> = (props) => {
-  const { menu, isChecked, toggleBulk, remove } = props;
+const Row = (props: Props) => {
+  const { menu, remove, clientPortalId } = props;
 
-  const onChange = (e) => {
-    if (toggleBulk) {
-      toggleBulk(menu, e.target.checked);
-    }
+  const renderRemoveAction = () => {
+    const onClick = () => {
+      remove(menu._id);
+    };
+
+    return (
+      <Tip text={__('Delete')} placement='top'>
+        <Button
+          id='directionDelete'
+          btnStyle='link'
+          onClick={onClick}
+          icon='times-circle'
+        />
+      </Tip>
+    );
   };
 
-  const onClick = (e) => {
-    e.stopPropagation();
+  const getFullName = (doc: any) => {
+    return doc.details ? doc.details.fullName : 'Unknown';
   };
 
-  const onRemove = () => {
-    remove(menu._id);
-  };
+  const formContent = (formProps: any) => (
+    <PageForm
+      {...formProps}
+      menu={menu}
+      clientPortalId={clientPortalId}
+      refetch={props.refetch}
+      website={props.website}
+    />
+  );
 
   return (
     <tr>
-      <td id="menusCheckBox" onClick={onClick}>
-        <FormControl
-          checked={isChecked}
-          componentClass="checkbox"
-          onChange={onChange}
-        />
+      <td key={menu._id + 'name'}>
+        <RowTitle>{menu.label}</RowTitle>
       </td>
-      <td>{menu.label}</td>
-      <td>{menu.url || '-'}</td>
-      <td>{menu.order || '-'}</td>
-      <td>
-        {menu.target === '_blank' ? 'New Tab' : 'Same Tab'}
+
+      <td key={menu._id + 'slug'}>
+        <RowTitle>{`${menu.url}` || 'Undefined'} </RowTitle>
       </td>
+
       <td>
         <ActionButtons>
-          <Tip text={__('Edit')} placement="top">
-            <Link to={`/cms/menus/edit/${menu._id}`}>
-              <Button btnStyle="link" icon="edit" />
-            </Link>
-          </Tip>
-          <Tip text={__('Delete')} placement="top">
-            <Button
-              btnStyle="link"
-              onClick={onRemove}
-              icon="times-circle"
-            />
-          </Tip>
+          <ModalTrigger
+            title={'Edit page'}
+            trigger={<Button btnStyle='link' icon='edit-3' />}
+            content={formContent}
+            size={'lg'}
+          />
+          {renderRemoveAction()}
         </ActionButtons>
       </td>
     </tr>

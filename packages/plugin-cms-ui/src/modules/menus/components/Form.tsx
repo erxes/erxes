@@ -1,114 +1,235 @@
+import { IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { IMenu } from '../types';
-import { __ } from '@erxes/ui/src/utils';
-import { FormGroup, ControlLabel, FormControl, Button } from '@erxes/ui/src/components';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { __ } from '@erxes/ui/src/utils/core';
+import { IPostTranslation } from '../../../types';
 
 type Props = {
-  menu?: IMenu;
+  clientPortalId: string;
+  menu?: any;
+  website?: any;
+  translations?: IPostTranslation[];
+  onSubmit: (doc: any, translations?: IPostTranslation[]) => void;
   closeModal: () => void;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  refetch?: () => void;
 };
 
-const Form: React.FC<Props> = (props) => {
-  const { menu, closeModal, renderButton } = props;
+const ProductForm = (props: Props) => {
+  const { website } = props;
+  const [currentLanguage, setCurrentLanguage] = React.useState(
+    website.language
+  );
 
-  const generateDoc = (values: {
-    _id?: string;
-    label: string;
-    url: string;
-    order: string;
-    target: string;
-  }) => {
-    const finalValues = values;
+  const [translations, setTranslations] = React.useState<IPostTranslation[]>(
+    props.translations || []
+  );
 
-    if (menu) {
-      finalValues._id = menu._id;
+  const [menu, setMenu] = React.useState<any>(
+    props.menu || {
+      label: '',
+      url: '',
+     
     }
+  );
+
+  React.useEffect(() => {}, [menu]);
+
+  const generateDoc = () => {
+    const finalValues: any = {};
+    const keysToDelete = [
+      '__typename',
+      '_id',
+      'createdAt',
+      'createdUser',
+      'updatedAt',
+      'createdUserId',
+    ];
+    Object.keys(menu).forEach((key) => {
+      if (keysToDelete.indexOf(key) !== -1) {
+        return;
+      }
+
+      if (menu[key] !== undefined) {
+        finalValues[key] = menu[key];
+      }
+    });
 
     return {
-      _id: finalValues._id,
-      label: finalValues.label,
-      url: finalValues.url,
-      order: parseInt(finalValues.order, 10),
-      target: finalValues.target
+      ...finalValues,
     };
   };
 
+  const onSave = () => {
+    props.onSubmit(generateDoc(), translations);
+  };
+
+  const getName = () => {
+    if (currentLanguage === website.language) {
+      return menu.label;
+    }
+
+    const translation = translations.find(
+      (t) => t.language === currentLanguage
+    );
+
+    return translation ? translation.title : '';
+  };
+
   const renderContent = (formProps: IFormProps) => {
-    const { values, isSubmitted } = formProps;
-    const object = menu || { url: '', label: '', order: 0, target: '_self' };
+    const { closeModal } = props;
+    const { isSubmitted } = formProps;
 
     return (
       <>
+        {website.languages.length > 1 && (
+          <FormGroup>
+            <ControlLabel>{__('Language')}</ControlLabel>
+            <FormControl
+              {...formProps}
+              id={'language'}
+              name={'language'}
+              componentclass='select'
+              placeholder={__('Select language')}
+              required={true}
+              defaultValue={currentLanguage}
+              value={currentLanguage}
+              onChange={(e: any) => {
+                setCurrentLanguage(e.target.value);
+              }}
+              options={website.languages.map((lang) => ({
+                value: lang,
+                label: lang,
+              }))}
+            />
+          </FormGroup>
+        )}
         <FormGroup>
-          <ControlLabel required={true}>{__('Label')}</ControlLabel>
+          <ControlLabel>{__('Label')}</ControlLabel>
           <FormControl
             {...formProps}
-            name="label"
-            defaultValue={object.label}
+            id={'label'}
+            name={'label'}
             required={true}
-            autoFocus={true}
+            defaultValue={getName()}
+            value={getName()}
+            onChange={(e: any) => {
+              const nameValue = e.target.value;
+              const slugValue = nameValue
+                .toLowerCase()
+                .trim()
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-]+/g, '')
+                .replace(/-+/g, '-');
+
+              if (currentLanguage === website.language) {
+                setMenu({
+                  ...menu,
+                  label: e.target.value,
+                  url: slugValue,
+                });
+              } else {
+                const translation = translations.find(
+                  (t) => t.language === currentLanguage
+                );
+
+                if (translation) {
+                  setTranslations(
+                    translations.map((t) =>
+                      t.language === currentLanguage
+                        ? {
+                            ...t,
+                            content: e.target.value,
+                            title: e.target.value,
+                          }
+                        : t
+                    )
+                  );
+                } else {
+                  setTranslations([
+                    ...translations,
+                    {
+                      title: e.target.value,
+                      excerpt: e.target.value,
+                      customFieldsData: {},
+                      postId: menu._id,
+                      type: 'menu',
+                      language: currentLanguage,
+                      content: e.target.value,
+                    },
+                  ]);
+                }
+              }
+            }}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>{__('URL')}</ControlLabel>
+          <ControlLabel>{__('URL')}</ControlLabel>
           <FormControl
             {...formProps}
-            name="url"
-            defaultValue={object.url}
+            id={'url'}
+            name={'url'}
             required={true}
+            defaultValue={menu.url}
+            value={menu.url}
+            onChange={(e: any) => {
+              setMenu({
+                ...menu,
+                url: `${e.target.value}`,
+              });
+            }}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Order')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="order"
-            type="number"
-            defaultValue={object.order}
-          />
-        </FormGroup>
+          <ControlLabel>{__('Status')}</ControlLabel>
 
-        <FormGroup>
-          <ControlLabel>{__('Target')}</ControlLabel>
           <FormControl
-            {...formProps}
-            name="target"
-            componentClass="select"
-            defaultValue={object.target}
+            name='status'
+            componentclass='select'
+            placeholder={__('Select status')}
+            defaultValue={menu.status || 'inactive'}
+            required={true}
+            onChange={(e: any) => {
+              setMenu({
+                ...menu,
+                status: e.target.value,
+              });
+            }}
           >
-            <option value="_self">Same Tab</option>
-            <option value="_blank">New Tab</option>
+            {['active', 'inactive'].map((op) => (
+              <option key={op} value={op}>
+                {op}
+              </option>
+            ))}
           </FormControl>
         </FormGroup>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            type="button"
-            onClick={closeModal}
-            icon="times-circle"
-          >
-            {__('Cancel')}
+          <Button btnStyle='simple' onClick={closeModal} icon='times-circle'>
+            Close
           </Button>
-
-          {renderButton({
-            name: 'menu',
-            values: generateDoc(values),
-            isSubmitted,
-            callback: closeModal,
-            object: menu,
-          })}
+          <Button
+            btnStyle='success'
+            type='submit'
+            icon='check-circle'
+            disabled={isSubmitted}
+            onClick={onSave}
+          >
+            {isSubmitted ? 'Saving' : 'Save'}
+          </Button>
         </ModalFooter>
       </>
     );
   };
 
-  return renderContent({});
+  return <Form renderContent={renderContent} />;
 };
 
-export default Form;
+export default ProductForm;

@@ -1,101 +1,143 @@
+import Button from '@erxes/ui/src/components/Button';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import Table from '@erxes/ui/src/components/table';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { BarItems, Contents } from '@erxes/ui/src/layout/styles';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import { IMenu } from '../types';
-import { __, router } from '@erxes/ui/src/utils';
-import { BarItems, Wrapper } from '@erxes/ui/src/layout';
-import { FormControl, Pagination, Table } from '@erxes/ui/src/components';
-import { Title } from '@erxes/ui-settings/src/styles';
+import { EmptyState, EmptyText, EmptyTitle } from '../../../styles';
+import MenuForm from '../containers/Form';
+
+import Submenu from '@erxes/ui/src/components/subMenu/Submenu';
+import { menu } from '../../../routes';
+import { IWebSite } from '../../../types';
 import Row from './Row';
 
 type Props = {
-  menus: IMenu[];
+  website: IWebSite;
+  clientPortalId: string;
+  menus: any[];
   totalCount: number;
-  loading: boolean;
-  remove: (menuId: string) => void;
-  toggleBulk: (menu: IMenu, isChecked?: boolean) => void;
-  toggleAll: (targets: IMenu[], isChecked: boolean) => void;
-  isAllSelected: boolean;
-  history: any;
   queryParams: any;
+  loading: boolean;
+  remove: (productId: string) => void;
+  refetch?: () => void;
 };
 
-const List: React.FC<Props> = (props) => {
-  const {
-    menus,
-    totalCount,
-    loading,
-    remove,
-    toggleBulk,
-    toggleAll,
-    isAllSelected,
-    history,
-    queryParams
-  } = props;
+const List = (props: Props) => {
+  const { totalCount, queryParams, loading, menus, remove } = props;
 
   const renderRow = () => {
     return menus.map((menu) => (
-      <Row
-        key={menu._id}
-        menu={menu}
-        isChecked={isAllSelected}
-        toggleBulk={toggleBulk}
-        remove={remove}
-      />
+      <React.Fragment key={menu._id}>
+        <Row
+          menu={menu}
+          remove={remove}
+          refetch={props.refetch}
+          clientPortalId={props.clientPortalId}
+          website={props.website}
+        />
+      </React.Fragment>
     ));
   };
 
-  const searchHandler = (e) => {
-    const { value } = e.currentTarget as HTMLInputElement;
+  //   queryParams.loadingMainQuery = loading;
+  //   const actionBarLeft: React.ReactNode;
 
-    router.setParams(history, { searchValue: value });
-    router.setParams(history, { page: 1 });
-  };
+  const trigger = (
+    <Button btnStyle='primary' size='small' icon='plus-circle'>
+      Add menu
+    </Button>
+  );
 
-  const moveCursorAtTheEnd = (e) => {
-    const tmpValue = e.target.value;
-    e.target.value = '';
-    e.target.value = tmpValue;
-  };
+  const formContent = (formProps: any) => (
+    <MenuForm
+      {...formProps}
+      clientPortalId={props.clientPortalId}
+      refetch={props.refetch}
+      website={props.website}
+    />
+  );
 
-  return (
-    <Wrapper
-      header={<Wrapper.Header title={__('Menus')} />}
-      actionBar={
-        <BarItems>
-          <FormControl
-            type="text"
-            placeholder={__('Type to search')}
-            onChange={searchHandler}
-            value={router.getParam(history, 'searchValue')}
-            autoFocus={true}
-            onFocus={moveCursorAtTheEnd}
-          />
-        </BarItems>
-      }
-      footer={<Pagination count={totalCount} />}
-      content={
-        <Table hover={true}>
+  const righActionBar = (
+    <BarItems>
+      <ModalTrigger
+        size='lg'
+        title='Add menu'
+        autoOpenKey='showAppAddModal'
+        trigger={trigger}
+        content={formContent}
+      />
+    </BarItems>
+  );
+
+  const breadcrumb = [
+    { title: 'Websites', link: '/cms' },
+    {
+      title: props.website?.name,
+      link: '/cms/website/' + props.clientPortalId + '/menus',
+    },
+    { title: __('Menus') },
+  ];
+
+  const leftActionBar = (
+    <BarItems>
+      <Submenu items={menu(props.clientPortalId)} />
+    </BarItems>
+  );
+
+  const actionBar = (
+    <Wrapper.ActionBar right={righActionBar} left={leftActionBar} />
+  );
+
+  const content = (
+    <Contents $hasBorder={true}>
+      <div style={{ flex: 1 }}>
+        <Table $whiteSpace='nowrap' $hover={true}>
           <thead>
             <tr>
-              <th style={{ width: 60 }}>
-                <FormControl
-                  checked={isAllSelected}
-                  componentClass="checkbox"
-                  onChange={() => toggleAll(menus, !isAllSelected)}
-                />
-              </th>
-              <th>{__('Label')}</th>
-              <th>{__('URL')}</th>
-              <th>{__('Order')}</th>
-              <th>{__('Target')}</th>
+              <th>{__('Name')}</th>
+              <th>{__('Path')}</th>
+              <th>{__('Last modified date')}</th>
+              <th>{__('Last modified by')}</th>
               <th>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody>{renderRow()}</tbody>
         </Table>
-      }
-      hasBorder={true}
-      transparent={true}
-    />
+      </div>
+    </Contents>
+  );
+  return (
+    <>
+      <Wrapper
+        transparent={false}
+        header={
+          <Wrapper.Header
+            title={__('Menu')}
+            queryParams={queryParams}
+            breadcrumb={breadcrumb}
+          />
+        }
+        actionBar={actionBar}
+        footer={<Pagination count={totalCount} />}
+        content={
+          <DataWithLoader
+            data={content}
+            loading={loading}
+            count={props.totalCount}
+            emptyContent={
+              <EmptyState>
+                <EmptyTitle>No Menus Yet</EmptyTitle>
+                <EmptyText>Create your first menu</EmptyText>
+              </EmptyState>
+            }
+          />
+        }
+      />
+    </>
   );
 };
 

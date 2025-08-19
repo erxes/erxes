@@ -9,7 +9,7 @@ import Alert from '@erxes/ui/src/utils/Alert';
 import { useNavigate, useParams } from 'react-router-dom';
 import { WEB_DETAIL } from '../../web/queries';
 import { IPostTranslation } from '../../../types';
-import { TRANSLATIONS } from '../../commonQueries';
+import { ADD_TRANSLATION, EDIT_TRANSLATION, TRANSLATIONS } from '../../commonQueries';
 
 type Props = {
   id?: string;
@@ -52,9 +52,9 @@ const FormContainer = (props: Props) => {
 
   const [editMutation] = useMutation(mutations.POST_EDIT);
 
-  const [addTranslationMutation] = useMutation(mutations.ADD_TRANSLATION);
+  const [addTranslationMutation] = useMutation(ADD_TRANSLATION);
 
-  const [editTranslationMutation] = useMutation(mutations.EDIT_TRANSLATION);
+  const [editTranslationMutation] = useMutation(EDIT_TRANSLATION);
 
   if (loading) {
     return <Spinner />;

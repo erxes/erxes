@@ -61,6 +61,19 @@ const CustomPostTypes = asyncComponent(
     )
 )
 
+const Menus = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - Menus" */ './modules/menus/containers/List'
+    )
+)
+
+const MenusComponent = () => {
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
+  return <Menus queryParams={queryParams} />;
+}
+
 const CategoriesComponent = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
@@ -190,6 +203,12 @@ const routes = () => (
       element={<CustomPostTypes />}
     />
 
+    <Route
+      key='/cms/website/:cpId/menus'
+      path='/cms/website/:cpId/menus'
+      element={<MenusComponent />}
+    />
+
   </Routes>
 );
 
@@ -198,6 +217,7 @@ export const menu = (clientPortalId: string) => [
   { title: 'Categories', link: '/cms/website/' + clientPortalId + '/categories' },
   { title: 'Tags', link: '/cms/website/' + clientPortalId + '/tags' },
   { title: 'Pages', link: '/cms/website/' + clientPortalId + '/pages' },
+  { title: 'Menus', link: '/cms/website/' + clientPortalId + '/menus' },
   { title: 'Custom Post Types', link: '/cms/website/' + clientPortalId + '/custom-post-types' },
   { title: 'Custom Fields', link: '/cms/website/' + clientPortalId + '/custom-fields' },
   
