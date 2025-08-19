@@ -41,6 +41,7 @@ const FormContainer = (props: Props) => {
     }
   );
   const onSubmit = (doc: any, translations?: IPostTranslation[]) => {
+
     if (props.menu?._id) {
       editMutation({
         variables: {
@@ -69,9 +70,14 @@ const FormContainer = (props: Props) => {
         }
       });
     } else {
+      const input = {
+        ...doc,
+        clientPortalId,
+      };
+
       addMutation({
         variables: {
-          input: { ...doc, clientPortalId },
+          input,
         },
       }).then((res: any) => {
         if (translations && translations.length > 0) {

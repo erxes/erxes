@@ -130,6 +130,9 @@ const mutations = {
       case 'tag':
         model = models.PostTags;
         break;
+      case 'menu':
+        model = models.MenuItems;
+        break;
       default:
         throw new Error('Invalid type');
     }

@@ -34,7 +34,7 @@ const ProductForm = (props: Props) => {
     props.menu || {
       label: '',
       url: '',
-     
+      kind: '',
     }
   );
 
@@ -42,14 +42,7 @@ const ProductForm = (props: Props) => {
 
   const generateDoc = () => {
     const finalValues: any = {};
-    const keysToDelete = [
-      '__typename',
-      '_id',
-      'createdAt',
-      'createdUser',
-      'updatedAt',
-      'createdUserId',
-    ];
+    const keysToDelete = ['__typename', '_id'];
     Object.keys(menu).forEach((key) => {
       if (keysToDelete.indexOf(key) !== -1) {
         return;
@@ -169,47 +162,45 @@ const ProductForm = (props: Props) => {
           />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>{__('URL')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            id={'url'}
-            name={'url'}
-            required={true}
-            defaultValue={menu.url}
-            value={menu.url}
-            onChange={(e: any) => {
-              setMenu({
-                ...menu,
-                url: `${e.target.value}`,
-              });
-            }}
-          />
-        </FormGroup>
+        {website.language === currentLanguage && (
+          <>
+            <FormGroup>
+              <ControlLabel>{__('URL')}</ControlLabel>
+              <FormControl
+                {...formProps}
+                id={'url'}
+                name={'url'}
+                required={true}
+                defaultValue={menu.url}
+                value={menu.url}
+                onChange={(e: any) => {
+                  setMenu({
+                    ...menu,
+                    url: `${e.target.value}`,
+                  });
+                }}
+              />
+            </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>{__('Status')}</ControlLabel>
-
-          <FormControl
-            name='status'
-            componentclass='select'
-            placeholder={__('Select status')}
-            defaultValue={menu.status || 'inactive'}
-            required={true}
-            onChange={(e: any) => {
-              setMenu({
-                ...menu,
-                status: e.target.value,
-              });
-            }}
-          >
-            {['active', 'inactive'].map((op) => (
-              <option key={op} value={op}>
-                {op}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('Kind')}</ControlLabel>
+              <FormControl
+                {...formProps}
+                id={'kind'}
+                name={'kind'}
+                required={true}
+                defaultValue={menu.kind}
+                value={menu.kind}
+                onChange={(e: any) => {
+                  setMenu({
+                    ...menu,
+                    kind: e.target.value,
+                  });
+                }}
+              />
+            </FormGroup>
+          </>
+        )}
 
         <ModalFooter>
           <Button btnStyle='simple' onClick={closeModal} icon='times-circle'>

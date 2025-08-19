@@ -56,9 +56,10 @@ export interface IPostTranslation {
   type: string;
   content?: string;
   excerpt?: string;
-  customFieldsData?: {
-    [key: string]: any;
-  };
+  customFieldsData?: Array<{
+    field: string;
+    value: Record<string, any>[]; // array of key-value objects
+  }>;
 }
 
 

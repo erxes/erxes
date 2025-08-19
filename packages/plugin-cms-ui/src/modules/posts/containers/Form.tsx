@@ -56,7 +56,7 @@ const FormContainer = (props: Props) => {
 
   const [editTranslationMutation] = useMutation(EDIT_TRANSLATION);
 
-  if (loading) {
+  if (loading || translationsLoading || webLoading) {
     return <Spinner />;
   }
 
@@ -105,7 +105,7 @@ const FormContainer = (props: Props) => {
           translations.forEach((translation) => {
             addTranslationMutation({
               variables: {
-                input: { ...translation, postId: res.data.cmsPostsAdd._id },
+                input: { ...translation, postId: res.data.cmsPostsAdd._id, type:'post' },
               },
             });
           });

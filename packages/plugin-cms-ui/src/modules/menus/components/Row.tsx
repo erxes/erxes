@@ -64,6 +64,10 @@ const Row = (props: Props) => {
         <RowTitle>{`${menu.url}` || 'Undefined'} </RowTitle>
       </td>
 
+      <td key={menu._id + 'kind'}>
+        <RowTitle>{menu.kind}</RowTitle>
+      </td>
+
       <td>
         <ActionButtons>
           <ModalTrigger

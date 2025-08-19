@@ -23,8 +23,8 @@ const LeftSidebar: React.FC<Props> = (props: Props) => (
     <MainSection {...props} />
     <CategorySection {...props} />
     <TagsSection {...props} />
-    <CustomFieldsSection {...props} isDetail={true} />
-    <CustomPostTypeGroup {...props} customFieldsData={props.post.customFieldsData || []} />
+    {/* <CustomFieldsSection {...props} isDetail={true} /> */}
+    <CustomPostTypeGroup  {...props} />
   </Sidebar>
 );
 

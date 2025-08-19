@@ -100,8 +100,8 @@ const List = (props: Props) => {
             <tr>
               <th>{__('Name')}</th>
               <th>{__('Path')}</th>
-              <th>{__('Last modified date')}</th>
-              <th>{__('Last modified by')}</th>
+              <th>{__('Kind')}</th>
+              
               <th>{__('Actions')}</th>
             </tr>
           </thead>

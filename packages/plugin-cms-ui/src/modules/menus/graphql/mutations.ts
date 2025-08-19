@@ -1,37 +1,9 @@
 import { gql } from '@apollo/client';
 
-const commonParams = `
-  $parentId: String
-  $clientPortalId: String
-  $label: String
-  $contentType: String
-  $contentTypeID: String
-  $kind: String
-  $icon: String
-  $url: String
-  $order: Int
-  $target: String
-`;
-
-const commonVariables = `
-  parentId: $parentId
-  clientPortalId: $clientPortalId
-  label: $label
-  contentType: $contentType
-  contentTypeID: $contentTypeID
-  kind: $kind
-  icon: $icon
-  url: $url
-  order: $order
-  target: $target
-`;
-
 export const ADD_MENU = gql`
-  mutation cmsAddMenu(${commonParams}) {
+  mutation cmsAddMenu($input: MenuItemInput!) {
     cmsAddMenu(
-      input: {
-        ${commonVariables}
-      }
+      input: $input
     ) {
       _id
       parentId
@@ -48,12 +20,10 @@ export const ADD_MENU = gql`
 `;
 
 export const EDIT_MENU = gql`
-  mutation cmsEditMenu($_id: String!, ${commonParams}) {
+  mutation cmsEditMenu($_id: String!, $input: MenuItemInput!) {
     cmsEditMenu(
       _id: $_id,
-      input: {
-        ${commonVariables}
-      }
+      input: $input
     ) {
       _id
       parentId
