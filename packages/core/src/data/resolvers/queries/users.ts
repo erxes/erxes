@@ -348,13 +348,16 @@ const userQueries = {
     args: IListArgs,
     { userBrandIdsSelector, models, subdomain, user }: IContext
   ) {
-    const selector = {
-      ...userBrandIdsSelector,
-      ...(await queryBuilder(models, args, subdomain, user)),
-      ...NORMAL_USER_SELECTOR,
-    };
+    const { branchIds, sortField, sortDirection } = args;
 
-    const { sortField, sortDirection } = args;
+    const baseSelector = await queryBuilder(models, args, subdomain, user);
+
+    const selector: any = {
+      ...userBrandIdsSelector,
+      ...baseSelector,
+      ...NORMAL_USER_SELECTOR,
+      ...(branchIds?.length ? { branchIds: { $in: branchIds } } : {}),
+    };
 
     const sort =
       sortField && sortDirection
