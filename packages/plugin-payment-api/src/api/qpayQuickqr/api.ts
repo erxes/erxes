@@ -227,32 +227,69 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
     }
   }
 
-  async updateExistingMerchant(args: any) {
-    console.debug('Updating existing merchant:', { registerNumber: args.registerNumber });
-    const list = await this.list();
 
-    if (list.rows && list.rows.length > 0) {
-      const existingMerchant = list.rows.find(
-        (item) => item.register_number === args.registerNumber
-      );
-      const path =
-        existingMerchant?.type === 'COMPANY'
-          ? meta.paths.company
-          : meta.paths.person;
-      if (existingMerchant) {
-        return this.makeRequest<IMerchantResponse>({
-          method: 'PUT',
-          path: `${path}/${existingMerchant.id}`,
-          data: {
-            ...args,
-            business_name: args.businessName,
-            register_number: args.registerNumber,
-            mcc_code: args.mccCode,
-          },
-        });
-      }
+  async updateExistingMerchant(args: any) {
+    console.debug('Updating existing merchant:', {
+      registerNumber: args.registerNumber,
+    });
+
+    const existingMerchant = await this.findExistingMerchant(
+      args.registerNumber,
+    );
+    const path =
+      existingMerchant?.type === 'COMPANY'
+        ? meta.paths.company
+        : meta.paths.person;
+    if (existingMerchant) {
+      return this.makeRequest<IMerchantResponse>({
+        method: 'PUT',
+        path: `${path}/${existingMerchant.id}`,
+        data: {
+          ...args,
+          business_name: args.businessName,
+          register_number: args.registerNumber,
+          mcc_code: args.mccCode,
+        },
+      });
     }
   }
+
+  async findExistingMerchant(registerNumber: string): Promise<any | null> {
+    let pageNumber = 1;
+    const pageLimit = 20;
+
+    while (true) {
+      console.debug(`Fetching merchants - Page: ${pageNumber}`);
+      const list = await this.makeRequest<IMerchantResponse>({
+        method: 'POST',
+        path: meta.paths.merchantList,
+        data: {
+          offset: {
+            page_number: pageNumber,
+            page_limit: pageLimit,
+          },
+        },
+      });
+
+      const found = list.rows?.find(
+        (item) => item.register_number === registerNumber,
+      );
+
+      if (found) {
+        return found;
+      }
+
+      // Stop if we’ve reached the end
+      if (!list.rows || list.rows.length < pageLimit) {
+        break;
+      }
+
+      pageNumber++;
+    }
+
+    return null;
+  }
+
 
   async createInvoice(invoice: ITransactionDocument) {
     console.debug('Creating invoice:', { amount: invoice.amount });
