@@ -98,23 +98,21 @@ const InventoryPrice = ({
     };
 
     return (
-      <>
-        <Table $hover={true}>
-          <thead>
-            <tr>
-              <th>{__("Code")}</th>
-              <th>{__("Unit price")}</th>
-              <th>{__("Ending Date")}</th>
-              {action === "UPDATE" ? <th>{__("Update Status")}</th> : <></>}
-              {action === "MATCH" ? <th>{__("Matched Status")}</th> : <></>}
-              {action === "CREATE" ? <th>{__("Create Status")}</th> : <></>}
-              {action === "DELETE" ? <th>{__("Delete Status")}</th> : <></>}
-              {action === "ERROR" ? <th>{__("Error Status")}</th> : <></>}
-            </tr>
-          </thead>
-          <tbody>{renderRow(data, action)}</tbody>
-        </Table>
-      </>
+      <Table $hover={true}>
+        <thead>
+          <tr>
+            <th>{__("Code")}</th>
+            <th>{__("Unit price")}</th>
+            <th>{__("Ending Date")}</th>
+            {action === "UPDATE" ? <th>{__("Update Status")}</th> : <></>}
+            {action === "MATCH" ? <th>{__("Matched Status")}</th> : <></>}
+            {action === "CREATE" ? <th>{__("Create Status")}</th> : <></>}
+            {action === "DELETE" ? <th>{__("Delete Status")}</th> : <></>}
+            {action === "ERROR" ? <th>{__("Error Status")}</th> : <></>}
+          </tr>
+        </thead>
+        <tbody>{renderRow(data, action)}</tbody>
+      </Table>
     );
   };
 
