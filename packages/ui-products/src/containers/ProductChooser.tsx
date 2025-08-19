@@ -47,7 +47,7 @@ const ProductChooser: React.FC<Props> = ({
   );
   const [searchValue, setSearchValue] = useState<string | undefined>("");
 
-  const parsedQuery = location.pathname.includes('sales') && queryString.parse(location.search) || {};
+  const parsedQuery = location.pathname.includes('deal') && queryString.parse(location.search) || {};
 
   const [products, setProducts] = useState<IProduct[]>([]);
 
