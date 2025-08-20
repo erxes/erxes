@@ -37,8 +37,8 @@ export const inputs = `
 `;
 
 export const queries = `
-    cmsCategories(clientPortalId: String, searchValue: String, status: CategoryStatus, page: Int, perPage: Int, sortField: String, sortDirection: String): [PostCategory]
-    cmsCategory(_id: String, slug: String): PostCategory
+    cmsCategories(clientPortalId: String, searchValue: String, status: CategoryStatus, page: Int, perPage: Int, sortField: String, sortDirection: String, language: String): [PostCategory]
+    cmsCategory(_id: String, slug: String, language: String): PostCategory
 `;
 
 export const mutations = `

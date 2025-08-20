@@ -8,17 +8,20 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
-
+import { IPostTranslation } from '../../../types';
 
 type Props = {
   clientPortalId: string;
   tag?: any;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  website?: any;
+  translations?: IPostTranslation[];
+  onSubmit: (doc: any, translations?: IPostTranslation[]) => void;
   closeModal: () => void;
   refetch?: () => void;
 };
 
 const TagForm = (props: Props) => {
+  const { website } = props;
   const [tag, setTag] = React.useState<any>(
     props.tag || {
       slug: '',
@@ -26,84 +29,131 @@ const TagForm = (props: Props) => {
     }
   );
 
+  const [currentLanguage, setCurrentLanguage] = React.useState(
+    website.language
+  );
+
+  const [translations, setTranslations] = React.useState<IPostTranslation[]>(
+    props.translations || []
+  );
+
   React.useEffect(() => {}, [tag]);
 
-  const generateDoc = () => {
-    const finalValues: any = {};
 
-    if (props.tag) {
-      finalValues._id = props.tag._id;
+  const onSave = () => {
+    
+
+    props.onSubmit({name: tag.name, slug: tag.slug}, translations);
+  };
+
+  const getName = () => {
+    if (currentLanguage === website.language) {
+      return tag.name;
     }
 
-    Object.keys(tag).forEach((key) => {
-      if (tag[key] !== undefined) {
-        finalValues[key] = tag[key];
-      }
-    });
+    const translation = translations.find(
+      (t) => t.language === currentLanguage
+    );
 
-    return {
-      ...finalValues,
-    };
+    return translation ? translation.title : '';
   };
 
   const renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = props;
+    const { closeModal } = props;
     const { isSubmitted } = formProps;
-
-    const renderInput = (
-      name: string,
-      type: string,
-      value: any,
-      label: string,
-      required?: boolean,
-      useNumberFormat?: boolean
-    ) => {
-      const onChangeInput = (e: any) => {
-        setTag({
-          ...tag,
-          [name]: e.target.value,
-        });
-      };
-
-      return (
-        <FormGroup>
-          <ControlLabel>{__(label)}</ControlLabel>
-          <FormControl
-            {...formProps}
-            id={name}
-            name={name}
-            type={type}
-            required={required}
-            useNumberFormat={useNumberFormat}
-            defaultValue={value}
-            value={value}
-            onChange={onChangeInput}
-          />
-        </FormGroup>
-      );
-    };
 
     return (
       <>
-        {renderInput('name', 'text', tag.name, 'Name', true)}
+          {website.languages.length > 1 && (
+            <FormGroup>
+              <ControlLabel>{__('Language')}</ControlLabel>
+              <FormControl
+                {...formProps}
+                id={'language'}
+                name={'language'}
+                componentclass='select'
+                placeholder={__('Select language')}
+                required={true}
+                defaultValue={currentLanguage}
+                value={currentLanguage}
+                onChange={(e: any) => {
+                  setCurrentLanguage(e.target.value);
+                }}
+                options={website.languages.map((lang) => ({
+                  value: lang,
+                  label: lang,
+                }))}
+              />
+            </FormGroup>
+          )}
+        {/* {renderInput('name', 'text', tag.name, 'Name', true)} */}
+
+        <FormGroup>
+          <ControlLabel>{__('Name')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            id={'name'}
+            name={'name'}
+            type={'text'}
+            required={true}
+            defaultValue={getName()}
+            value={getName()}
+            onChange={(e: any) => {
+              if (currentLanguage === website.language) {
+                setTag({
+                  ...tag,
+                  name: e.target.value,
+                });
+              } else {
+                const translation = translations.find(
+                  (t) => t.language === currentLanguage
+                );
+
+                if (translation) {
+                  setTranslations(
+                    translations.map((t) =>
+                      t.language === currentLanguage
+                        ? {
+                            ...t,
+                            content: e.target.value,
+                            title: e.target.value,
+                          }
+                        : t
+                    )
+                  );
+                } else {
+                  setTranslations([
+                    ...translations,
+                    {
+                      title: e.target.value,
+                      excerpt: e.target.value,
+                      customFieldsData: {},
+                      postId: tag._id,
+                      type: 'tag',
+                      language: currentLanguage,
+                      content: e.target.value,
+                    },
+                  ]);
+                }
+              }
+            }}
+          />
+        </FormGroup>
 
         <ModalFooter>
           <Button btnStyle='simple' onClick={closeModal} icon='times-circle'>
             Close
           </Button>
 
-          {renderButton({
-            name: 'tag',
-            values: generateDoc(),
-            isSubmitted,
-            callback: () => {
-              if (props.refetch) {
-                props.refetch();
-              }
-              closeModal();
-            },
-            object: tag,
-          })}
+          <Button
+            btnStyle='success'
+            type='submit'
+            icon='check-circle'
+            disabled={isSubmitted}
+            onClick={onSave}
+          >
+            {isSubmitted ? 'Saving' : 'Save'}
+          </Button>
         </ModalFooter>
       </>
     );
