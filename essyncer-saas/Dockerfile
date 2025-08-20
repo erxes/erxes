@@ -18,11 +18,8 @@ RUN apt-get update \
 
 COPY . .
 
-# Install the missing MongoDB driver and ensure dependencies
 RUN cd src/syncer \
  && go get github.com/joho/godotenv \
- && go get go.mongodb.org/mongo-driver/mongo@v1.3.0 \
- && go get go.mongodb.org/mongo-driver/mongo/options \
  && dep ensure
 
 CMD ["go", "run", "src/syncer/main.go"]
