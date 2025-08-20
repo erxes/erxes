@@ -63,7 +63,7 @@ const FormContainer = (props: Props) => {
             });
           });
         }
-        Alert.success('You successfully edited a category', 1500);
+        Alert.success('You successfully edited a tag', 1500);
         if (props.refetch) {
           props.refetch();
         }
@@ -86,7 +86,7 @@ const FormContainer = (props: Props) => {
             });
           });
         }
-        Alert.success('You successfully added a category', 1500);
+        Alert.success('You successfully added a tag', 1500);
         if (props.refetch) {
           props.refetch();
         }
