@@ -1,25 +1,25 @@
-FROM golang:1.14.2
+FROM golang:1.21.4
 
 WORKDIR /essyncer/
 
-ENV GOPATH=/essyncer
-ENV PATH="/essyncer/build/linux-amd64:$PATH"
+# Install necessary tools
+RUN apt-get update && \
+    apt-get install -y vim unzip && \
+    rm -rf /var/lib/apt/lists/*
 
-# Update
-RUN apt-get update \
- && apt-get install -y vim \
- && apt-get install -y go-dep unzip \
- # monstache
- && wget -q --show-progress https://github.com/rwynn/monstache/releases/download/v6.7.0/monstache-dfba1c2.zip \
- && unzip monstache-dfba1c2.zip \
- && rm monstache-dfba1c2.zip \
- && mkdir bin && mkdir src \
- && rm -rf /var/lib/apt/lists/*
+# Download and install monstache
+RUN wget -q --show-progress https://github.com/rwynn/monstache/releases/download/v6.7.0/monstache-dfba1c2.zip && \
+    unzip monstache-dfba1c2.zip && \
+    rm monstache-dfba1c2.zip && \
+    mkdir -p bin
 
+# Copy source code
 COPY . .
 
-RUN cd src/syncer \
- && go get github.com/joho/godotenv \
- && dep ensure
+# Initialize Go modules and download dependencies
+RUN cd src/syncer && \
+    go mod init syncer && \
+    go mod tidy && \
+    go mod download
 
 CMD ["go", "run", "src/syncer/main.go"]
