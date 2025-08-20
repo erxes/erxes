@@ -64,7 +64,7 @@ const FormContainer = (props: Props) => {
             });
           });
         }
-        Alert.success('You successfully edited a category', 1500);
+        Alert.success('You successfully edited a page', 1500);
         if (props.refetch) {
           props.refetch();
         }
@@ -87,7 +87,7 @@ const FormContainer = (props: Props) => {
             });
           });
         }
-        Alert.success('You successfully added a category', 1500);
+        Alert.success('You successfully added a page', 1500);
         if (props.refetch) {
           props.refetch();
         }
