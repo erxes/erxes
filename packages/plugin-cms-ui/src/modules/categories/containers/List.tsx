@@ -9,7 +9,7 @@ import { useParams } from 'react-router-dom';
 import { WEB_DETAIL } from '../../web/queries';
 
 type Props = {
-  refetch: () => void;
+  
   queryParams: any;
 };
 

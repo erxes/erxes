@@ -9,11 +9,10 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
 import { IPostTranslation } from '../../../types';
-import CustomPostTypeGroup from '../../fieldGroups/CustomPostTypeGroup';
 
 type Props = {
   clientPortalId: string;
-  page?: any;
+  menu?: any;
   website?: any;
   translations?: IPostTranslation[];
   onSubmit: (doc: any, translations?: IPostTranslation[]) => void;
@@ -31,33 +30,26 @@ const ProductForm = (props: Props) => {
     props.translations || []
   );
 
-  const [page, setPage] = React.useState<any>(
-    props.page || {
-      slug: '',
-      name: '',
-      status: 'active',
+  const [menu, setMenu] = React.useState<any>(
+    props.menu || {
+      label: '',
+      url: '',
+      kind: '',
     }
   );
 
-  React.useEffect(() => {}, [page]);
+  React.useEffect(() => {}, [menu]);
 
   const generateDoc = () => {
     const finalValues: any = {};
-    const keysToDelete = [
-      '__typename',
-      '_id',
-      'createdAt',
-      'createdUser',
-      'updatedAt',
-      'createdUserId',
-    ];
-    Object.keys(page).forEach((key) => {
+    const keysToDelete = ['__typename', '_id'];
+    Object.keys(menu).forEach((key) => {
       if (keysToDelete.indexOf(key) !== -1) {
         return;
       }
 
-      if (page[key] !== undefined) {
-        finalValues[key] = page[key];
+      if (menu[key] !== undefined) {
+        finalValues[key] = menu[key];
       }
     });
 
@@ -72,7 +64,7 @@ const ProductForm = (props: Props) => {
 
   const getName = () => {
     if (currentLanguage === website.language) {
-      return page.name;
+      return menu.label;
     }
 
     const translation = translations.find(
@@ -111,11 +103,11 @@ const ProductForm = (props: Props) => {
           </FormGroup>
         )}
         <FormGroup>
-          <ControlLabel>{__('Name')}</ControlLabel>
+          <ControlLabel>{__('Label')}</ControlLabel>
           <FormControl
             {...formProps}
-            id={'name'}
-            name={'name'}
+            id={'label'}
+            name={'label'}
             required={true}
             defaultValue={getName()}
             value={getName()}
@@ -129,10 +121,10 @@ const ProductForm = (props: Props) => {
                 .replace(/-+/g, '-');
 
               if (currentLanguage === website.language) {
-                setPage({
-                  ...page,
-                  name: e.target.value,
-                  slug: slugValue,
+                setMenu({
+                  ...menu,
+                  label: e.target.value,
+                  url: slugValue,
                 });
               } else {
                 const translation = translations.find(
@@ -158,8 +150,8 @@ const ProductForm = (props: Props) => {
                       title: e.target.value,
                       excerpt: e.target.value,
                       customFieldsData: {},
-                      postId: page._id,
-                      type: 'page',
+                      postId: menu._id,
+                      type: 'menu',
                       language: currentLanguage,
                       content: e.target.value,
                     },
@@ -170,65 +162,44 @@ const ProductForm = (props: Props) => {
           />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>{__('Path')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            id={'path'}
-            name={'path'}
-            required={true}
-            defaultValue={page.slug}
-            value={page.slug}
-            onChange={(e: any) => {
-              setPage({
-                ...page,
-                slug: `${e.target.value}`,
-              });
-            }}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>{__('Status')}</ControlLabel>
-
-          <FormControl
-            name='status'
-            componentclass='select'
-            placeholder={__('Select status')}
-            defaultValue={page.status || 'inactive'}
-            required={true}
-            onChange={(e: any) => {
-              setPage({
-                ...page,
-                status: e.target.value,
-              });
-            }}
-          >
-            {['active', 'inactive'].map((op) => (
-              <option key={op} value={op}>
-                {op}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
-
-        {props.page && (
-          <FormGroup>
-            <ControlLabel>{__('Custom Fields')}</ControlLabel>
-            <div style={{ paddingTop: 10 }}>
-              <CustomPostTypeGroup
-                clientPortalId={props.clientPortalId}
-                page={page}
-                customFieldsData={page.customFieldsData || []}
-                onChange={(field, value) => {
-                  setPage({
-                    ...page,
-                    [field]: value,
+        {website.language === currentLanguage && (
+          <>
+            <FormGroup>
+              <ControlLabel>{__('URL')}</ControlLabel>
+              <FormControl
+                {...formProps}
+                id={'url'}
+                name={'url'}
+                required={true}
+                defaultValue={menu.url}
+                value={menu.url}
+                onChange={(e: any) => {
+                  setMenu({
+                    ...menu,
+                    url: `${e.target.value}`,
                   });
                 }}
               />
-            </div>
-          </FormGroup>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>{__('Kind')}</ControlLabel>
+              <FormControl
+                {...formProps}
+                id={'kind'}
+                name={'kind'}
+                required={true}
+                defaultValue={menu.kind}
+                value={menu.kind}
+                onChange={(e: any) => {
+                  setMenu({
+                    ...menu,
+                    kind: e.target.value,
+                  });
+                }}
+              />
+            </FormGroup>
+          </>
         )}
 
         <ModalFooter>

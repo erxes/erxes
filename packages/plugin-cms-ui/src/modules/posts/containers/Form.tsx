@@ -9,6 +9,7 @@ import Alert from '@erxes/ui/src/utils/Alert';
 import { useNavigate, useParams } from 'react-router-dom';
 import { WEB_DETAIL } from '../../web/queries';
 import { IPostTranslation } from '../../../types';
+import { ADD_TRANSLATION, EDIT_TRANSLATION, TRANSLATIONS } from '../../commonQueries';
 
 type Props = {
   id?: string;
@@ -31,7 +32,7 @@ const FormContainer = (props: Props) => {
   });
 
   const { data: translationsData, loading: translationsLoading } = useQuery(
-    queries.POST_TRANSLATIONS,
+    TRANSLATIONS,
     {
       variables: {
         postId: postId,
@@ -51,11 +52,11 @@ const FormContainer = (props: Props) => {
 
   const [editMutation] = useMutation(mutations.POST_EDIT);
 
-  const [addTranslationMutation] = useMutation(mutations.ADD_TRANSLATION);
+  const [addTranslationMutation] = useMutation(ADD_TRANSLATION);
 
-  const [editTranslationMutation] = useMutation(mutations.EDIT_TRANSLATION);
+  const [editTranslationMutation] = useMutation(EDIT_TRANSLATION);
 
-  if (loading) {
+  if (loading || translationsLoading || webLoading) {
     return <Spinner />;
   }
 
@@ -82,7 +83,7 @@ const FormContainer = (props: Props) => {
               },
             };
             editTranslationMutation({
-              variables
+              variables,
             });
           });
         }
@@ -104,7 +105,7 @@ const FormContainer = (props: Props) => {
           translations.forEach((translation) => {
             addTranslationMutation({
               variables: {
-                input: { ...translation, postId: res.data.cmsPostsAdd._id },
+                input: { ...translation, postId: res.data.cmsPostsAdd._id, type:'post' },
               },
             });
           });

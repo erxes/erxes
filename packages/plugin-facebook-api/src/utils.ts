@@ -40,7 +40,7 @@ export const graphRequest = {
 
   delete(...args): any {
     return this.base("del", ...args);
-  }
+  },
 };
 export const getPostDetails = async (
   pageId: string,
@@ -83,13 +83,13 @@ export const getPageList = async (
   for (const page of response.data) {
     const integration = await models.Integrations.findOne({
       facebookPageIds: page.id,
-      kind
+      kind,
     });
 
     pages.push({
       id: page.id,
       name: page.name,
-      isUsed: integration ? true : false
+      isUsed: integration ? true : false,
     });
   }
 
@@ -114,7 +114,7 @@ export const refreshPageAccesToken = async (
   integration: IIntegrationDocument
 ) => {
   const account = await models.Accounts.getAccount({
-    _id: integration.accountId
+    _id: integration.accountId,
   });
 
   const facebookPageTokensMap = integration.facebookPageTokensMap || {};
@@ -143,23 +143,23 @@ export const subscribePage = async (
   pageId,
   pageToken
 ): Promise<{ success: true } | any> => {
-
   let subscribed_fields = [
     "conversations",
     "feed",
     "messages",
-    "standby",
-    "messaging_handovers"
-  ]
+    "messaging_handovers",
+  ];
 
-  const bot = await models.Bots.findOne({ pageId })
+  const bot = await models.Bots.findOne({ pageId });
 
   if (bot) {
-    subscribed_fields = [...new Set([...subscribed_fields, ...BOT_SUBSCRIBE_FIELDS])]
+    subscribed_fields = [
+      ...new Set([...subscribed_fields, ...BOT_SUBSCRIBE_FIELDS]),
+    ];
   }
 
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
-    subscribed_fields
+    subscribed_fields,
   });
 };
 
@@ -259,7 +259,7 @@ export const uploadMedia = async (
       Body: response.body,
       ACL: "public-read",
       ContentDisposition: "inline", // Set this header to make it viewable in the browser
-      ContentType: video ? "video/mp4" : "image/jpeg" // Set the appropriate Content-Type
+      ContentType: video ? "video/mp4" : "image/jpeg", // Set the appropriate Content-Type
     };
 
     const data = await s3.upload(uploadParams).promise(); // Use .promise() for cleaner code
@@ -345,7 +345,7 @@ export const sendReply = async (
   integrationId: string
 ) => {
   const integration = await models.Integrations.getIntegration({
-    erxesApiId: integrationId
+    erxesApiId: integrationId,
   });
 
   const { facebookPageTokensMap = {} } = integration;
@@ -366,13 +366,14 @@ export const sendReply = async (
 
   try {
     const response = await graphRequest.post(`${url}`, pageAccessToken, {
-      ...data
+      ...data,
     });
     debugFacebook(`Successfully sent data to facebook ${JSON.stringify(data)}`);
     return response;
   } catch (e) {
     debugError(
-      `Error ocurred while trying to send post request to facebook ${e.message
+      `Error ocurred while trying to send post request to facebook ${
+        e.message
       } data: ${JSON.stringify(data)}`
     );
 
@@ -415,9 +416,9 @@ export const generateAttachmentMessages = (
       attachment: {
         type,
         payload: {
-          url
-        }
-      }
+          url,
+        },
+      },
     });
   }
 
@@ -477,7 +478,7 @@ export const fetchPagesPostsList = async (
   });
 
   const allPosts = await Promise.all(postsPromises);
-  return allPosts.flat()
+  return allPosts.flat();
 };
 export const checkFacebookPages = async (models: IModels, pages: any) => {
   for (const page of pages) {
@@ -507,7 +508,7 @@ export const getAdapter = async (models: IModels): Promise<any> => {
     app_secret: FACEBOOK_APP_SECRET,
     getAccessTokenForPage: async (pageId: string) => {
       return accessTokensByPageId[pageId];
-    }
+    },
   });
 };
 
@@ -517,7 +518,7 @@ export const createAWS = async (subdomain: string) => {
     AWS_COMPATIBLE_SERVICE_ENDPOINT,
     AWS_BUCKET,
     AWS_SECRET_ACCESS_KEY,
-    AWS_ACCESS_KEY_ID
+    AWS_ACCESS_KEY_ID,
   } = await getFileUploadConfigs(subdomain);
 
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
@@ -531,7 +532,7 @@ export const createAWS = async (subdomain: string) => {
     s3ForcePathStyle?: boolean;
   } = {
     accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
   };
 
   if (AWS_FORCE_PATH_STYLE === "true") {

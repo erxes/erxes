@@ -19,6 +19,7 @@ const queries = {
       perPage = 20,
       sortField = 'name',
       sortDirection = 'asc',
+      language,
     } = args;
     const clientPortalId = args.clientPortalId || context.clientPortalId;
     const query = {
@@ -44,17 +45,31 @@ const queries = {
    */
   async cmsCategory(_parent: any, args: any, context: IContext): Promise<any> {
     const { models, clientPortalId } = context;
-    const { _id, slug } = args;
+    const { _id, slug, language } = args;
 
     if (!_id && !slug) {
       return null;
     }
 
-    if (slug) {
-      return models.Categories.findOne({ slug, clientPortalId });
+    const category = await models.Categories.findOne({ _id });
+
+    if (!category) {
+      return null;
     }
 
-    return models.Categories.findOne({ _id });
+    if (!language) {
+      return category;
+    }
+
+    const translation = await models.PostTranslations.findOne({
+      postId: _id,
+      language,
+    }).lean();
+
+    category.name = translation?.title || category.name;
+    category.description = translation?.excerpt || category.description;
+
+    return category;
   },
 };
 
