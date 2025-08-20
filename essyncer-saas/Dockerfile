@@ -5,12 +5,10 @@ WORKDIR /essyncer-saas/
 ENV GOPATH=/essyncer-saas
 ENV PATH="/essyncer-saas/build/linux-amd64:$PATH"
 
-# Install only unzip which is available in the base image
-RUN apt-get install -y unzip
-
-# Download monstache
+# Use the original working approach - download and extract monstache without unzip
 RUN wget -q https://github.com/rwynn/monstache/releases/download/v6.7.0/monstache-dfba1c2.zip && \
-    unzip monstache-dfba1c2.zip && \
+    # Use busybox unzip (available in base image) instead of apt-get
+    busybox unzip monstache-dfba1c2.zip && \
     rm monstache-dfba1c2.zip && \
     mkdir -p bin src
 
