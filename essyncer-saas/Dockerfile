@@ -1,5 +1,4 @@
-FROM golang:1.21-bookworm  # Or another supported version
-
+FROM golang:1.21-bookworm
 WORKDIR /essyncer-saas/
 
 ENV GOPATH=/essyncer-saas
