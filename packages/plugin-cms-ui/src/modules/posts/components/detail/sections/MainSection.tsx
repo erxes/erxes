@@ -174,6 +174,9 @@ const MainSection = (props: Props) => {
                       required={true}
                     >
                       {data?.cmsCustomPostTypes?.map((postType, index) => {
+                        if (postType._id === 'page' || postType._id === 'category') {
+                          return null;
+                        }
                         return (
                           <option value={postType._id} key={index}>
                             {postType.label.charAt(0).toUpperCase() +

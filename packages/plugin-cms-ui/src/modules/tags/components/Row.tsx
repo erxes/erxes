@@ -14,10 +14,13 @@ import TagForm from '../containers/Form';
 type Props = {
   tag: any;
   remove: (_id: string) => void;
+  refetch?: () => void;
+  clientPortalId: string;
+  website?: any;
 };
 
 const Row = (props: Props) => {
-  const { tag, remove } = props;
+  const { tag, remove, refetch, clientPortalId, website } = props;
   const user = tag.lastModifiedBy;
 
   const renderRemoveAction = () => {
@@ -26,12 +29,12 @@ const Row = (props: Props) => {
     };
 
     return (
-      <Tip text={__('Delete')} placement="top">
+      <Tip text={__('Delete')} placement='top'>
         <Button
-          id="directionDelete"
-          btnStyle="link"
+          id='directionDelete'
+          btnStyle='link'
           onClick={onClick}
-          icon="times-circle"
+          icon='times-circle'
         />
       </Tip>
     );
@@ -41,14 +44,20 @@ const Row = (props: Props) => {
     return doc.details ? doc.details.fullName : 'Unknown';
   };
 
-  const formContent = formProps => (
-    <TagForm {...formProps} category={tag} />
+  const formContent = (formProps) => (
+    <TagForm
+      {...formProps}
+      tag={tag}
+      clientPortalId={clientPortalId}
+      website={website}
+      refetch={refetch}
+    />
   );
 
   return (
     <tr>
       <td key={tag._id + 'name'}>
-        <RowTitle>{ tag.name || 'Undefined'}</RowTitle>
+        <RowTitle>{tag.name || 'Undefined'}</RowTitle>
       </td>
 
       <td key={tag._id + 'slug'}>
@@ -56,10 +65,8 @@ const Row = (props: Props) => {
       </td>
 
       <td>
-        <Icon icon="calender" />{' '}
-        <DateWrapper>
-          {dayjs(tag.lastModifiedAt).format('lll')}
-        </DateWrapper>
+        <Icon icon='calender' />{' '}
+        <DateWrapper>{dayjs(tag.lastModifiedAt).format('lll')}</DateWrapper>
       </td>
 
       <td>
@@ -71,7 +78,7 @@ const Row = (props: Props) => {
         <ActionButtons>
           <ModalTrigger
             title={'Edit tag'}
-            trigger={<Button btnStyle="link" icon="edit-3" />}
+            trigger={<Button btnStyle='link' icon='edit-3' />}
             content={formContent}
             size={'lg'}
           />

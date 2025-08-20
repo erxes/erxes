@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.16.5](https://github.com/erxes/erxes/compare/2.16.4...2.16.5) (2025-08-20)
+
+### Features
+
+* **tickets:** user enable filtering by branchIds ([39701cf](https://github.com/erxes/erxes/commit/39701cf1dfd0637c51a4df951d2c9a489bf9c5c3))
+
+### Bug Fixes
+
+* **facebook:** remove invalid standby field from page subscription ([#6107](https://github.com/erxes/erxes/issues/6107)) ([c2b9067](https://github.com/erxes/erxes/commit/c2b9067171e0e0aab73f17c4aed59bf96c8ecfa7))
+* pos progress bill print per config ([#6102](https://github.com/erxes/erxes/issues/6102)) ([9953c50](https://github.com/erxes/erxes/commit/9953c500d0a3fa678c813c50f654d7595fa6275a))
+* productChooser with pipelineId on deal ([ca0080d](https://github.com/erxes/erxes/commit/ca0080d03865a268d5b57aa81307eeba33b5d041))
+
 ## [2.16.4](https://github.com/erxes/erxes/compare/2.16.3...2.16.4) (2025-08-13)
 
 ### Bug Fixes

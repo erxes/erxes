@@ -32,7 +32,7 @@ const List = (props: Props) => {
   const renderRow = () => {
     return tags.map((tag) => (
       <React.Fragment key={tag._id}>
-        <Row tag={tag} remove={remove} />
+        <Row tag={tag} remove={remove} refetch={props.refetch} clientPortalId={props.clientPortalId} website={props.website} />
       </React.Fragment>
     ));
   };
@@ -48,6 +48,7 @@ const List = (props: Props) => {
       {...formProps}
       clientPortalId={props.clientPortalId}
       refetch={props.refetch}
+      website={props.website}
     />
   );
 
