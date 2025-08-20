@@ -2,22 +2,23 @@ import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Submenu from '@erxes/ui/src/components/subMenu/Submenu';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems, Contents } from '@erxes/ui/src/layout/styles';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import { menu } from '../../../routes';
 import { EmptyState, EmptyText, EmptyTitle } from '../../../styles';
+import MenuForm from '../containers/Form';
+
+import Submenu from '@erxes/ui/src/components/subMenu/Submenu';
+import { menu } from '../../../routes';
 import { IWebSite } from '../../../types';
-import CategoryForm from '../containers/Form';
 import Row from './Row';
 
 type Props = {
   website: IWebSite;
   clientPortalId: string;
-  categoryTree: any[];
+  menus: any[];
   totalCount: number;
   queryParams: any;
   loading: boolean;
@@ -26,26 +27,33 @@ type Props = {
 };
 
 const List = (props: Props) => {
-  const { totalCount, queryParams, loading, categoryTree, remove } = props;
+  const { totalCount, queryParams, loading, menus, remove } = props;
 
-  const renderRow = (categories, level = 0) => {
-    return categories.map((category) => (
-      <React.Fragment key={category._id}>
-        <Row category={category} remove={remove} refetch={props.refetch} level={level} website={props.website} />
-        {category.children.length > 0 &&
-          renderRow(category.children, level + 1)}
+  const renderRow = () => {
+    return menus.map((menu) => (
+      <React.Fragment key={menu._id}>
+        <Row
+          menu={menu}
+          remove={remove}
+          refetch={props.refetch}
+          clientPortalId={props.clientPortalId}
+          website={props.website}
+        />
       </React.Fragment>
     ));
   };
 
+  //   queryParams.loadingMainQuery = loading;
+  //   const actionBarLeft: React.ReactNode;
+
   const trigger = (
     <Button btnStyle='primary' size='small' icon='plus-circle'>
-      Add category
+      Add menu
     </Button>
   );
 
-  const formContent = (formProps) => (
-    <CategoryForm
+  const formContent = (formProps: any) => (
+    <MenuForm
       {...formProps}
       clientPortalId={props.clientPortalId}
       refetch={props.refetch}
@@ -57,7 +65,7 @@ const List = (props: Props) => {
     <BarItems>
       <ModalTrigger
         size='lg'
-        title='Add category'
+        title='Add menu'
         autoOpenKey='showAppAddModal'
         trigger={trigger}
         content={formContent}
@@ -69,9 +77,9 @@ const List = (props: Props) => {
     { title: 'Websites', link: '/cms' },
     {
       title: props.website?.name,
-      link: '/cms/website/' + props.clientPortalId + '/categories',
+      link: '/cms/website/' + props.clientPortalId + '/menus',
     },
-    { title: __('Categories') },
+    { title: __('Menus') },
   ];
 
   const leftActionBar = (
@@ -91,26 +99,24 @@ const List = (props: Props) => {
           <thead>
             <tr>
               <th>{__('Name')}</th>
-              <th>{__('Slug')}</th>
-              <th>{__('Description')}</th>
-              <th>{__('Last modified date')}</th>
-              <th>{__('Last modified by')}</th>
+              <th>{__('Path')}</th>
+              <th>{__('Kind')}</th>
+              
               <th>{__('Actions')}</th>
             </tr>
           </thead>
-          <tbody>{renderRow(categoryTree)}</tbody>
+          <tbody>{renderRow()}</tbody>
         </Table>
       </div>
     </Contents>
   );
-
   return (
     <>
       <Wrapper
         transparent={false}
         header={
           <Wrapper.Header
-            title={__('Category')}
+            title={__('Menu')}
             queryParams={queryParams}
             breadcrumb={breadcrumb}
           />
@@ -124,8 +130,8 @@ const List = (props: Props) => {
             count={props.totalCount}
             emptyContent={
               <EmptyState>
-                <EmptyTitle>No Categories Yet</EmptyTitle>
-                <EmptyText>Create your first category</EmptyText>
+                <EmptyTitle>No Menus Yet</EmptyTitle>
+                <EmptyText>Create your first menu</EmptyText>
               </EmptyState>
             }
           />

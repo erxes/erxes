@@ -1,4 +1,4 @@
-export const types =`
+export const types = `
     type PostTag {
         _id: String!
         clientPortalId: String!
@@ -22,8 +22,8 @@ export const inputs = `
 `;
 
 export const queries = `
-    cmsTags(clientPortalId: String, searchValue: String, page: Int, perPage: Int, sortField: String, sortDirection: String): [PostTag]
-    cmsTag(_id: String, slug: String): PostTag
+    cmsTags(clientPortalId: String, searchValue: String, page: Int, perPage: Int, sortField: String, sortDirection: String, language: String): [PostTag]
+    cmsTag(_id: String, slug: String, language: String): PostTag
 `;
 
 export const mutations = `

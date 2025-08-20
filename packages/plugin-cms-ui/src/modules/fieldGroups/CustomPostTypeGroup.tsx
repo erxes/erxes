@@ -5,17 +5,21 @@ import React from 'react';
 import queries from './graphql/queries';
 
 import Group from './CustomPostTypeFields';
+import { IPostTranslation, IWebSite } from '../../types';
 type Props = {
   clientPortalId: string;
   post?: any;
-  customFieldsData?: any[];
   category?: any;
   page?: any;
+  website: IWebSite;
+  currentLanguage: string;
+  translations: IPostTranslation[];
+  setTranslations: (translations: IPostTranslation[]) => void;
   onChange: (field: string, value: any) => void;
 };
 
 const CustomPostTypeGroup = (props: Props) => {
-  const customFieldsData = props.customFieldsData || [];
+  const customFieldsData = props.post?.customFieldsData || [];
   const { data, loading: fieldsGroupsQueryLoading } = useQuery(queries.LIST, {
     variables: {
       clientPortalId: props.clientPortalId,
@@ -23,12 +27,7 @@ const CustomPostTypeGroup = (props: Props) => {
       categoryId: props.category?._id,
       pageId: props.page?._id,
     },
-    skip: props.post?.type === 'post',
   });
-
-  if (props.post?.type === 'post') {
-    return null;
-  }
 
   if (fieldsGroupsQueryLoading) {
     return <Spinner />;
