@@ -31,8 +31,8 @@ export const inputs = `
 `
 
 export const queries = `
-    cmsMenuList(clientPortalId: String, kind: String): [MenuItem]
-    cmsMenu(_id: String!): MenuItem
+    cmsMenuList(clientPortalId: String, kind: String, language: String): [MenuItem]
+    cmsMenu(_id: String!, language: String): MenuItem
 `
 
 export const mutations = `

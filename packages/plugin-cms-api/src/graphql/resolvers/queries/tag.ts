@@ -51,16 +51,12 @@ const queries = {
       return acc;
     }, {});
 
-    console.log("translationsMap", translationsMap);
-
     const tagsWithTranslations = tags.map((tag) => {
       const translation = translationsMap[tag._id.toString()];
       tag.name = translation?.title || tag.name;
- 
+
       return tag;
     });
-
-    console.log("tagsWithTranslations", tagsWithTranslations);
 
     return tagsWithTranslations;
   },
@@ -70,17 +66,41 @@ const queries = {
    */
   async cmsTag(_parent: any, args: any, context: IContext): Promise<any> {
     const { models } = context;
-    const { _id, slug } = args;
+    const { _id, slug, language } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
     if (!_id && !slug) {
       return null;
     }
 
-    if (slug) {
-      return models.PostTags.findOne({ slug, clientPortalId });
+    let translation: any = null;
+    let tag: any = null;
+
+    if (language) {
+      translation = await models.PostTranslations.findOne({
+        postId: _id,
+        language,
+      }).lean();
     }
 
-    return models.PostTags.findOne({ _id });
+    if (slug) {
+      tag = await models.PostTags.findOne({ slug, clientPortalId }).lean();
+    } else if (_id) {
+      tag = await models.PostTags.findOne({ _id }).lean();
+    }
+
+    if (!tag) {
+      return null;
+    }
+
+    if (!language) {
+      return tag;
+    }
+
+    if (translation) {
+      tag.name = translation.title || tag.name;
+    }
+
+    return tag;
   },
 };
 
