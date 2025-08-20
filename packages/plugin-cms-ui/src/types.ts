@@ -53,11 +53,13 @@ export interface IPostTranslation {
   postId: string;
   language: string;
   title: string;
-  content: string;
-  excerpt: string;
-  customFieldsData: {
-    [key: string]: any;
-  };
+  type: string;
+  content?: string;
+  excerpt?: string;
+  customFieldsData?: Array<{
+    field: string;
+    value: Record<string, any>[]; // array of key-value objects
+  }>;
 }
 
 

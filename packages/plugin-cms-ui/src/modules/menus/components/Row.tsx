@@ -10,9 +10,10 @@ import { __ } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import React from 'react';
 import PageForm from '../containers/Form';
+import { IMenu } from '../types';
 
 type Props = {
-  page: any;
+  menu: IMenu;
   remove: (_id: string) => void;
   refetch?: () => void;
   clientPortalId: string;
@@ -20,12 +21,11 @@ type Props = {
 };
 
 const Row = (props: Props) => {
-  const { page, remove } = props;
-  const user = page.createdUser;
+  const { menu, remove, clientPortalId } = props;
 
   const renderRemoveAction = () => {
     const onClick = () => {
-      remove(page._id);
+      remove(menu._id);
     };
 
     return (
@@ -47,8 +47,8 @@ const Row = (props: Props) => {
   const formContent = (formProps: any) => (
     <PageForm
       {...formProps}
-      page={page}
-      clientPortalId={page.clientPortalId}
+      menu={menu}
+      clientPortalId={clientPortalId}
       refetch={props.refetch}
       website={props.website}
     />
@@ -56,27 +56,16 @@ const Row = (props: Props) => {
 
   return (
     <tr>
-      <td key={page._id + 'name'}>
-        <RowTitle>{page.name}</RowTitle>
+      <td key={menu._id + 'name'}>
+        <RowTitle>{menu.label}</RowTitle>
       </td>
 
-      <td key={page._id + 'slug'}>
-        <RowTitle>{`${page.slug}` || 'Undefined'} </RowTitle>
+      <td key={menu._id + 'slug'}>
+        <RowTitle>{`${menu.url}` || 'Undefined'} </RowTitle>
       </td>
 
-      <td>
-        <Icon icon='calender' />{' '}
-        <DateWrapper>{dayjs(page.createdAt).format('lll')}</DateWrapper>
-      </td>
-
-      <td>
-        <Icon icon='calender' />{' '}
-        <DateWrapper>{dayjs(page.updatedAt).format('lll')}</DateWrapper>
-      </td>
-
-      <td>
-        <NameCard.Avatar user={user} size={20} />
-        <RowTitle>{(user && getFullName(user)) || 'Unknown'} </RowTitle>
+      <td key={menu._id + 'kind'}>
+        <RowTitle>{menu.kind}</RowTitle>
       </td>
 
       <td>
