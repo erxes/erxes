@@ -2,12 +2,11 @@ FROM golang:1.21
 
 WORKDIR /essyncer/
 
-ENV GOPATH=/essyncer
 ENV PATH="/essyncer/build/linux-amd64:$PATH"
 
-# Update and install dependencies
+# Install OS dependencies
 RUN apt-get update \
- && apt-get install -y vim unzip \
+ && apt-get install -y vim unzip wget \
  && rm -rf /var/lib/apt/lists/*
 
 # Download monstache
@@ -16,14 +15,18 @@ RUN wget -q https://github.com/rwynn/monstache/releases/download/v6.7.0/monstach
  && rm monstache-dfba1c2.zip \
  && mkdir -p bin src
 
+# Copy only go.mod and go.sum first for caching
+COPY src/syncer/go.mod src/syncer/go.sum ./src/syncer/
+
+# Download Go module dependencies
+RUN cd src/syncer && go mod download
+
+# Copy rest of the code
 COPY . .
 
-# Install Go dependencies
-RUN cd src/syncer \
- && go get github.com/joho/godotenv \
- && go get go.mongodb.org/mongo-driver/mongo \
- && go get go.mongodb.org/mongo-driver/bson \
- && go get go.mongodb.org/mongo-driver/bson/primitive \
- && go get go.mongodb.org/mongo-driver/mongo/options
+WORKDIR /essyncer/src/syncer
 
-CMD ["go", "run", "src/syncer/main.go"]
+# Build binary
+RUN go build -o essyncer main.go
+
+CMD ["./essyncer"]
