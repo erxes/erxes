@@ -1,30 +1,24 @@
-FROM golang:1.21-alpine
+FROM golang:1.14.2
 
-WORKDIR /app
+WORKDIR /essyncer/
 
-RUN apk update && \
-    apk add --no-cache vim unzip && \
-    rm -rf /var/cache/apk/*
+ENV GOPATH=/essyncer
+ENV PATH="/essyncer/build/linux-amd64:$PATH"
 
-# Download and extract monstache correctly
-RUN wget -q https://github.com/rwynn/monstache/releases/download/v6.7.0/monstache-dfba1c2.zip -O /tmp/monstache.zip && \
-    unzip /tmp/monstache.zip -d /tmp/ && \
-    mv /tmp/build/linux-amd64/monstache /usr/local/bin/ && \
-    rm -rf /tmp/monstache.zip /tmp/build && \
-    chmod +x /usr/local/bin/monstache
+# Update and install dependencies
+RUN apt-get update \
+ && apt-get install -y vim unzip \
+ && rm -rf /var/lib/apt/lists/*
 
-ENV GO111MODULE=on
-ENV GOPROXY=https://proxy.golang.org,direct
-ENV GOSUMDB=sum.golang.org
-
-COPY go.mod go.sum ./
-
-RUN go mod download -x && \
-    go mod verify
+# Download monstache
+RUN wget -q https://github.com/rwynn/monstache/releases/download/v6.7.0/monstache-dfba1c2.zip \
+ && unzip monstache-dfba1c2.zip \
+ && rm monstache-dfba1c2.zip \
+ && mkdir -p bin src
 
 COPY . .
 
-WORKDIR /app/src/syncer
+# Just run go get which will pull all dependencies from imports
+RUN cd src/syncer && go get -d -v .
 
-# Use go run as you originally wanted
-CMD ["go", "run", "main.go"]
+CMD ["go", "run", "src/syncer/main.go"]
