@@ -1,4 +1,4 @@
-FROM golang:1.14.2
+FROM golang:1.21
 
 WORKDIR /essyncer/
 
@@ -18,7 +18,12 @@ RUN wget -q https://github.com/rwynn/monstache/releases/download/v6.7.0/monstach
 
 COPY . .
 
-# Just run go get which will pull all dependencies from imports
-RUN cd src/syncer && go get -d -v .
+# Install Go dependencies
+RUN cd src/syncer \
+ && go get github.com/joho/godotenv \
+ && go get go.mongodb.org/mongo-driver/mongo \
+ && go get go.mongodb.org/mongo-driver/bson \
+ && go get go.mongodb.org/mongo-driver/bson/primitive \
+ && go get go.mongodb.org/mongo-driver/mongo/options
 
 CMD ["go", "run", "src/syncer/main.go"]
