@@ -508,11 +508,24 @@ const fillValue = async (
 
       break;
 
-    case "tagIds":
-      const tags = await models.Tags.find({ _id: { $in: item.tagIds || [] } });
-      const tagNames = tags.map(tag => tag.name).join(' ');
-      value = tagNames || "-";
-      break;
+   case "tagIds":
+    const names: string[] = [];
+  
+    for (const tagId of item.tagIds || []) {
+    
+    const tag = await sendCoreMessage({
+      action: "tagFindOne",
+      data: { _id: tagId },
+      isRPC: true,
+      defaultValue: null,
+      subdomain: ""
+    });
+
+        if (tag) names.push(tag.name);
+    }
+
+    value = names.join(", ");
+    break;
 
 
     default:

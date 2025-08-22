@@ -42,7 +42,6 @@ import {
 } from './models/PipelineTemplates';
 import { IPipelineTemplateDocument } from './models/definitions/pipelineTemplates';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
-import { ITagDocument, ITagModel, loadTagClass } from './tags';
 
 export interface IModels {
   Boards: IBoardModel;
@@ -54,7 +53,6 @@ export interface IModels {
   PipelineLabels: IPipelineLabelModel;
   PipelineTemplates: IPipelineTemplateModel;
   Comments: ICommentModel;
-  Tags: ITagModel;
 }
 
 export interface IContext extends IMainContext {
@@ -112,12 +110,6 @@ export const loadClasses = (
   models.Comments = db.model<ICommentDocument, ICommentModel>(
     'ticket_comments',
     loadCommentClass(models)
-  );
-
-  // Tags from tags.ts
-  models.Tags = db.model<ITagDocument, ITagModel>(
-    'ticket_tags',
-    loadTagClass(models)
   );
 
   return models;
