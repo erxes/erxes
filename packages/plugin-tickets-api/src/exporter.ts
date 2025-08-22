@@ -214,6 +214,8 @@ const fillTicketProductValue = async (subdomain, column, item) => {
         value = productData.maxQuantity;
         break;
     }
+      
+      
 
     result[column] = value;
 
@@ -505,6 +507,26 @@ const fillValue = async (
         .join(", ");
 
       break;
+
+   case "tagIds":
+    const names: string[] = [];
+  
+    for (const tagId of item.tagIds || []) {
+    
+    const tag = await sendCoreMessage({
+      action: "tagFindOne",
+      data: { _id: tagId },
+      isRPC: true,
+      defaultValue: null,
+      subdomain: ""
+    });
+
+        if (tag) names.push(tag.name);
+    }
+
+    value = names.join(", ");
+    break;
+
 
     default:
       break;

@@ -1,6 +1,5 @@
-import { debugError } from '@erxes/api-utils/src/debuggers';
-import { generateModels } from './connectionResolver';
-import { sendCommonMessage } from './messageBroker';
+import { generateModels, IModels } from './connectionResolver';
+import { sendCoreMessage } from './messageBroker';
 
 export default {
   types: [
@@ -11,70 +10,119 @@ export default {
   ],
 
   tag: async ({ subdomain, data }) => {
-    try {
-      const { type, targetIds, tagIds, _ids, action } = data;
+    const { targetIds, tagIds, _ids, action } = data;
+    const models: IModels = await generateModels(subdomain);
+    const model: any = models.Tickets;
+    let response = {};
 
-      const models = await generateModels(subdomain);
-
-      let response = {};
-
-      if (action === 'count') {
-        response = await models.Tickets.countDocuments({
-          tagIds: { $in: _ids },
-        });
-      }
-
-      if (action === 'tagObject') {
-        await models.Tickets.updateMany(
-          { _id: { $in: targetIds } },
-          { $set: { tagIds } }
-        );
-
-        response = await models.Tickets.find({
-          _id: { $in: targetIds },
-        }).lean();
-        sendCommonMessage({
-          serviceName: 'automations',
-          subdomain,
-          action: 'trigger',
-          data: {
-            type: 'tickets:ticket',
-            targets: [response],
-          },
-        });
-      }
-
-      return response;
-    } catch (error) {
-      debugError(`Ticket:tag`, error);
+    if (action === 'count') {
+      response = await model.countDocuments({ tagIds: { $in: _ids } });
     }
+
+    if (action === 'tagObject') {
+      // Update ticket tagIds
+      await model.updateMany(
+        { _id: { $in: targetIds } },
+        { $set: { tagIds } },
+        { multi: true }
+      );
+
+      // Also update the core tags service
+      await sendCoreMessage({
+        subdomain,
+        action: 'tags.tagObject',
+        data: {
+          type: 'tickets:ticket',
+          targetIds,
+          tagIds,
+        },
+        isRPC: true,
+      });
+
+      // Notify Core Tags plugin
+      await sendCoreMessage({
+        subdomain,
+        action: 'setRelatedIds',
+        data: { tagIds },
+        isRPC: false,
+      });
+
+      // Fetch updated tickets
+      response = await model.find({ _id: { $in: targetIds } }).lean();
+
+      // Trigger tickets update in Core
+      await sendCoreMessage({
+        subdomain,
+        action: 'trigger',
+        data: {
+          type: 'tickets:ticket',
+          targets: response,
+        },
+        isRPC: true,
+        defaultValue: null,
+      });
+    }
+
+    return response;
   },
 
-  fixRelatedItems: async ({
-    subdomain,
-    data: { sourceId, destId, action },
-  }) => {
-    const models = await generateModels(subdomain);
+  fixRelatedItems: async ({ subdomain, data: { sourceId, destId, action } }) => {
+    const models: IModels = await generateModels(subdomain);
+    const model: any = models.Tickets;
 
     if (action === 'remove') {
-      await models.Tickets.updateMany(
+      await model.updateMany(
         { tagIds: { $in: [sourceId] } },
-        { $pull: { tagIds: { $in: [sourceId] } } }
+        { $pull: { tagIds: sourceId } }
       );
+
+      await sendCoreMessage({
+        subdomain,
+        action: 'removeRelatedIds',
+        data: { tagId: sourceId },
+        isRPC: false,
+      });
     }
 
     if (action === 'merge') {
-      const itemIds = await models.Tickets.find(
-        { tagIds: { $in: [sourceId] } },
-        { _id: 1 }
-      ).distinct('_id');
+      const itemIds = await model
+        .find({ tagIds: { $in: [sourceId] } }, { _id: 1 })
+        .distinct('_id');
 
-      // add to the new destination
-      await models.Tickets.updateMany(
+      await model.updateMany(
         { _id: { $in: itemIds } },
         { $set: { 'tagIds.$[elem]': destId } },
         { arrayFilters: [{ elem: { $eq: sourceId } }] }
       );
+
+      await sendCoreMessage({
+        subdomain,
+        action: 'mergeRelatedIds',
+        data: { sourceId, destId },
+        isRPC: false,
+      });
     }
   },
 };
+
+export const findTags = async (subdomain: string, data: any) => {
+  return sendCoreMessage({
+    subdomain,
+    action: "tagFind",
+    data,
+    isRPC: true,
+    defaultValue: [],
+  });
+};
+
+export const findTagOne = async (subdomain: string, data: any) => {
+  return sendCoreMessage({
+    subdomain,
+    action: "tagFindOne",
+    data,
+    isRPC: true,
+    defaultValue: null,
+  });
+};
+
+

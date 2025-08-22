@@ -14,7 +14,6 @@ import {
   queries as dealQueries,
   types as dealTypes,
 } from "./schema/deal";
-
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import { types as CommonTypes } from "./schema/common";
 import {
@@ -47,13 +46,13 @@ const typeDefs = async () => {
     extend type User @key(fields: "_id") {
       _id: String! @external
     }
-  
+
     extend type Branch @key(fields: "_id") {
-          _id: String! @external
+      _id: String! @external
     }
 
     extend type Department @key(fields: "_id") {
-          _id: String! @external
+      _id: String! @external
     }
 
     ${
@@ -62,7 +61,7 @@ const typeDefs = async () => {
         extend type Company @key(fields: "_id") {
           _id: String! @external
         }
-  
+
         extend type Customer @key(fields: "_id") {
           _id: String! @external
         }
@@ -70,12 +69,10 @@ const typeDefs = async () => {
         : ""
     }
 
-  
-        extend type Tag @key(fields: "_id") {
-          _id: String! @external
-        }
-   
-    
+    extend type Tag @key(fields: "_id") {
+      _id: String! @external
+    }
+
     ${
       clientPortalEnabled
         ? `
@@ -88,27 +85,27 @@ const typeDefs = async () => {
 
     ${
       loyaltyEnabled
-        ? `extend type Voucher @key(fields: "_id") {
-        _id: String! @external
-      }
-      
-      extend type Coupon @key(fields: "_id") {
-        _id: String! @external
-      }
+        ? `
+        extend type Voucher @key(fields: "_id") {
+          _id: String! @external
+        }
 
-      union LoyaltyEntity = Voucher | Coupon
+        extend type Coupon @key(fields: "_id") {
+          _id: String! @external
+        }
+
+        union LoyaltyEntity = Voucher | Coupon
       `
         : ""
     }
 
     ${boardTypes()}
     ${dealTypes(isEnabledTable)}
-
     ${plTypes}
     ${ptTypes}
     ${CommonTypes}
     ${checkListTypes}
-    
+
     extend type Query {
       ${boardQueries}
       ${dealQueries}
@@ -116,7 +113,7 @@ const typeDefs = async () => {
       ${ptQueries}
       ${checkListQueries}
     }
-    
+
     extend type Mutation {
       ${boardMutations}
       ${dealMutations}

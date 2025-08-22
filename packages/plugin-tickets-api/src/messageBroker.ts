@@ -606,7 +606,7 @@ export const setupMessageConsumers = async () => {
         data: filter
       };
     }
-  );
+  );  
 };
 
 export const sendInternalNotesMessage = async (

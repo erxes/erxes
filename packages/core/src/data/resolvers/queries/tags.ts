@@ -137,13 +137,10 @@ const tagQueries = {
     }
 
     const tags = await paginate(
-      models.Tags.find(selector).sort({
-        order: 1
-      }),
-      pagintationArgs
-    );
-
-    return tags;
+     models.Tags.find(selector).sort({ order: 1 }),
+     pagintationArgs
+     );
+     return tags;
   },
 
   /**
