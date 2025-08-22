@@ -1,26 +1,43 @@
-import { generateOrderNumber } from '../../utils/orderUtils';
 import { IContext } from '../../types';
 import { IProductDocument } from '../../../models/definitions/products';
+import { getPureDate } from '@erxes/api-utils/src';
+
+const getDateFilter = (dateType, startDate, endDate) => {
+  if (dateType === 'created') {
+    return { createdAt: { $gte: getPureDate(startDate), $lte: getPureDate(endDate) } }
+  }
+  if (dateType === 'modified') {
+    return { modifiedAt: { $gte: getPureDate(startDate), $lte: getPureDate(endDate) } }
+  }
+  if (dateType === 'due') {
+    return { dueDate: { $ne: null, $gte: getPureDate(startDate), $lte: getPureDate(endDate) } }
+  }
+  if (dateType === 'close') {
+    return { closeDate: { $ne: null, $gte: getPureDate(startDate), $lte: getPureDate(endDate) } }
+  }
+  if (dateType === 'return') {
+    return { 'returnInfo.returnAt': { $ne: null, $gte: getPureDate(startDate), $lte: getPureDate(endDate) } }
+  }
+  return {
+    paidDate: { $ne: null, $gte: getPureDate(startDate), $lte: getPureDate(endDate) }
+  }
+}
 
 const reportQueries = {
   async dailyReport(
     _root,
-    { posUserIds, posNumber }: { posUserIds: string[]; posNumber?: string },
+    { posUserIds, dateType, startDate, endDate }: { posUserIds: string[]; dateType?: string, startDate: Date, endDate: Date },
     { models, config }: IContext
   ) {
     const report: any = {};
-
-    let beginNumber: any = posNumber?.substring(0, 8);
-
-    if (!beginNumber) {
-      const tempNumber = await generateOrderNumber(models, config);
-      beginNumber = tempNumber.split('_')[0];
-    }
+    // dateType: created | modified | paid | due | close | return
+    const dateFilter = getDateFilter(dateType, startDate, endDate)
 
     const orderQuery = {
-      paidDate: { $ne: null },
-      number: { $regex: new RegExp(beginNumber) },
-      posToken: config.token
+      $and: [
+        { ...dateFilter },
+        { posToken: config.token }
+      ]
     };
     const users = await models.PosUsers.find({
       _id: { $in: posUserIds }
@@ -78,6 +95,7 @@ const reportQueries = {
         ...orderQuery,
         userId: user._id
       }).lean();
+
       const orderIds = orders.map(o => o._id);
       const groupedItems = await models.OrderItems.aggregate([
         { $match: { orderId: { $in: orderIds } } },
@@ -144,11 +162,13 @@ const reportQueries = {
         });
       }
 
-      report[user._id] = {
-        user,
-        ordersAmounts: { ...ordersAmount, count: orders.length },
-        items
-      };
+      if (orders.length) {
+        report[user._id] = {
+          user,
+          ordersAmounts: { ...ordersAmount, count: orders.length },
+          items
+        };
+      }
     }
 
     return {

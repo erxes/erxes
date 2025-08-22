@@ -31,7 +31,8 @@ export const displayAmountAtom = atom<number>((get) =>
 
 export const customerSearchAtom = atom<string>("")
 
-export const reportDateAtom = atom<Date | null>(null)
+export const reportStartDateAtom = atom<Date | null>(null)
+export const reportEndDateAtom = atom<Date | null>(null)
 
 export const productCountAtom = atom<number>(0)
 
