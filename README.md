@@ -136,3 +136,22 @@ For general help using erxes, please refer to the erxes documentation. For addit
 ## License
 See the <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" >**LICENSE**</a> file for licensing information.
 
+## Deploying to Vercel
+
+You can deploy the Next.js apps to Vercel individually:
+
+- client-portal: contains `vercel.json` configured for static export (`out/`).
+- exm: contains `vercel.json` configured for static export (`out/`).
+- web-call: contains `vercel.json` configured for standard Next.js hosting.
+
+Steps:
+
+1. Install dependencies for the app you want to deploy (example for web-call):
+   - `cd web-call && yarn install`
+2. Push the repository to GitHub/GitLab/Bitbucket and import the app directory in Vercel.
+3. In Vercel project settings, set Framework Preset to Next.js (auto-detected) and keep the default Build Command (`yarn build`).
+4. For `client-portal` and `exm`, Output Directory is `out` (auto from `vercel.json`). For `web-call`, no output directory override is needed.
+5. Ensure Node.js version is 18.x. A `.node-version` file is provided in each app directory.
+
+Environment variables: configure any required variables in Vercel Project Settings → Environment Variables. Re-deploy after changes.
+
