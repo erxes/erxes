@@ -46,15 +46,45 @@ export default (props: {
       const includeCustomFieldOnSelectLabel =
         customField && user[customField] ? user[customField] : "";
 
+      // Extract position titles
+      const positionTitles = user.positions
+        ? user.positions.map((pos) => pos.title).join(", ")
+        : "";
+
+      const branchTitles = user.branches
+        ? user.branches
+            .slice(0, 2)
+            .map((branch) => branch.title)
+            .join(", ") +
+          (user.branches.length > 2 ? ` +${user.branches.length - 2}` : "") // Нэмэлт салбаруудын тоо
+        : "";
+
+      const displayName =
+        details.shortName || details.fullName?.split(" ")[0] || user.email;
+
       const generateLabel =
+        displayName +
+        (positionTitles ? ` • ${positionTitles}` : "") +
+        (branchTitles ? ` • ${branchTitles}` : "") +
+        (includeCustomFieldOnSelectLabel
+          ? ` • ${includeCustomFieldOnSelectLabel}`
+          : "");
+
+      const fullLabel =
         (details.fullName || user.email) +
-        "\t" +
-        includeCustomFieldOnSelectLabel;
+        (positionTitles ? ` • ${positionTitles}` : "") +
+        (user.branches
+          ? ` • ${user.branches.map((b) => b.title).join(", ")}`
+          : "") +
+        (includeCustomFieldOnSelectLabel
+          ? ` • ${includeCustomFieldOnSelectLabel}`
+          : "");
 
       return {
         value: user._id,
         label: generateLabel,
         avatar: details.avatar,
+        fullLabel: fullLabel,
       };
     });
   }
