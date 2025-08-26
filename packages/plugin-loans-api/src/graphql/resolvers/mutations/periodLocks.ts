@@ -1,12 +1,16 @@
-import { checkPermission } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
-import { sendMessageBroker } from '../../../messageBroker';
+import { checkPermission } from "@erxes/api-utils/src";
+import { IContext } from "../../../connectionResolver";
+import { sendMessageBroker } from "../../../messageBroker";
 import {
   IPeriodLock,
   IPeriodLockDocument
-} from '../../../models/definitions/periodLocks';
-import { createLog, deleteLog, updateLog } from '../../../logUtils';
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+} from "../../../models/definitions/periodLocks";
+import { createLog, deleteLog, updateLog } from "../../../logUtils";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+import { Queue } from "bullmq";
+import redis from "@erxes/api-utils/src/redis";
+
+const myQueue = new Queue("periodLock", { connection: redis as any });
 
 const periodLockMutations = {
   periodLocksAdd: async (
@@ -15,20 +19,29 @@ const periodLockMutations = {
     { user, models, subdomain }: IContext
   ) => {
     doc.createdBy = user._id;
-    const periodLock = await models.PeriodLocks.createPeriodLock(
-      doc,
-      subdomain
-    );
+    // const periodLock = await models.PeriodLocks.createPeriodLock(
+    //   doc,
+    //   subdomain
+    // );
 
-    const logData = {
-      type: 'periodLock',
-      object: periodLock,
-      extraParams: { models }
-    };
+    const date = new Date();
 
-    await createLog(subdomain, user, logData);
+    const job = await myQueue.add(`periodLock-${date.toDateString()}`, {
+      subdomain,
+      date
+    });
 
-    return periodLock;
+    console.log(job.id, "job");
+
+    // const logData = {
+    //   type: "periodLock",
+    //   object: periodLock,
+    //   extraParams: { models }
+    // };
+
+    // await createLog(subdomain, user, logData);
+
+    return "periodLock";
   },
   /**
    * Updates a periodLock
@@ -46,7 +59,7 @@ const periodLockMutations = {
     );
 
     const logData = {
-      type: 'periodLock',
+      type: "periodLock",
       object: periodLock,
       extraParams: { models }
     };
@@ -73,19 +86,19 @@ const periodLockMutations = {
     await models.PeriodLocks.removePeriodLocks(periodLockIds);
 
     for (const periodLock of periodLocks) {
-      if(isEnabled('syncerkhet'))
+      if (isEnabled("syncerkhet"))
         await sendMessageBroker(
           {
-            action: 'deleteTransaction',
+            action: "deleteTransaction",
             subdomain,
             data: { orderId: periodLock._id, config: {} },
             isRPC: true
           },
-          'syncerkhet'
+          "syncerkhet"
         );
 
       const logData = {
-        type: 'periodLock',
+        type: "periodLock",
         object: periodLock,
         extraParams: { models }
       };
@@ -97,8 +110,8 @@ const periodLockMutations = {
   }
 };
 
-checkPermission(periodLockMutations, 'periodLocksAdd', 'managePeriodLocks');
-checkPermission(periodLockMutations, 'periodLocksEdit', 'managePeriodLocks');
-checkPermission(periodLockMutations, 'periodLocksRemove', 'managePeriodLocks');
+checkPermission(periodLockMutations, "periodLocksAdd", "managePeriodLocks");
+checkPermission(periodLockMutations, "periodLocksEdit", "managePeriodLocks");
+checkPermission(periodLockMutations, "periodLocksRemove", "managePeriodLocks");
 
 export default periodLockMutations;

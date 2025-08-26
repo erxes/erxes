@@ -169,3 +169,14 @@ export const dealContract = async (
     firstSchedules: bulkEntries,
   };
 };
+
+export const getLastTransaction = async (transactions: any[]) => {
+  if (!transactions || transactions.length === 0) return null;
+
+  return transactions.reduce((latest, current) => {
+    return new Date(current.payDate).getTime() >
+      new Date(latest.payDate).getTime()
+      ? current
+      : latest;
+  });
+};

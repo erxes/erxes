@@ -1,21 +1,16 @@
-import { fetchPolaris, getContract } from '../utils';
+import { fetchPolaris } from "../utils";
+import * as moment from "moment";
 
 export const getCloseLoanDetail = async (
   subdomain,
   polarisConfig,
-  classification
+  contract
 ) => {
-  const loanContract = await getContract(
-    subdomain,
-    classification.contractId,
-    'loans'
-  );
-
-  const loanCloseDetail = [loanContract.number, loanContract.endDate];
+  const loanCloseDetail = [contract.number, moment().format("YYYY-MM-DD")];
 
   const loanChangeClassificationReponse = await fetchPolaris({
     subdomain,
-    op: '13610266',
+    op: "13610266",
     data: loanCloseDetail,
     polarisConfig
   });
