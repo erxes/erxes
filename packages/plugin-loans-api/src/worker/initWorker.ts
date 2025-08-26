@@ -4,6 +4,7 @@ import { generateModels } from "../connectionResolver";
 import { getLastTransaction } from "../utils";
 import * as moment from "moment";
 import { getConfig } from "../messageBroker";
+import { calcInterest } from "../models/utils/utils";
 
 export const initWorker = () => {
   const worker = new Worker(
@@ -61,15 +62,15 @@ export const initWorker = () => {
               const diffInDays = today.diff(lastDate, "days");
 
               if (diffInDays >= config.badExpirationDay) {
-                classification = "bad";
+                classification = "BAD";
               } else if (diffInDays >= config.negativeExpirationDay) {
-                classification = "suspicious";
+                classification = "NEGATIVE";
               } else if (diffInDays >= config.doubtExpirationDay) {
-                classification = "abnormal";
+                classification = "DOUBTFUL";
               } else if (diffInDays >= config.expiredExpirationDay) {
-                classification = "expired";
+                classification = "EXPIRED";
               } else {
-                classification = "normal";
+                classification = "NORMAL";
               }
             }
 
@@ -86,6 +87,28 @@ export const initWorker = () => {
             );
 
             console.log("Last payDate:", latestSchedules);
+
+            // const interest = calcInterest({
+            //     balance: latestSchedules[0].balance ,
+            //     interestRate: latestSchedules[0].interestRate,
+            //     dayOfMonth: diffDay,
+            //     fixed: calculationFixed
+            //   });
+
+            // export const calcInterest = ({
+            //   balance,
+            //   interestRate,
+            //   dayOfMonth = 30,
+            //   fixed = 2
+            // }: {
+            //   balance: number;
+            //   interestRate: number;
+            //   fixed?: number;
+            //   dayOfMonth?: number;
+            // }): number => {
+            //   const interest = new BigNumber(interestRate).div(100).div(365)
+            //   return new BigNumber(balance).multipliedBy(interest).multipliedBy(dayOfMonth).dp(fixed, BigNumber.ROUND_HALF_UP).toNumber()
+            // };
 
             // await models.Contracts.updateOne(
             //   { _id: contract._id },
