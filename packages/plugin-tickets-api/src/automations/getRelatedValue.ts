@@ -378,13 +378,14 @@ const generateCreatedByFieldValue = async ({
   subdomain: string;
   target: any;
 }) => {
-  const [_, userField] = targetKey.split(".");
+  const [_, userField, userSubField] = targetKey.split(".");
   const user = (await sendCoreMessage({
     subdomain,
     action: "users.findOne",
     data: { _id: target?.userId },
     isRPC: true,
   })) as { positionIds: string[] } & IUser;
+
   if (userField === "branch") {
     const branches = await sendCoreMessage({
       subdomain,
@@ -393,6 +394,23 @@ const generateCreatedByFieldValue = async ({
       isRPC: true,
       defaultValue: [],
     });
+
+    if (userSubField === "parent") {
+      const parents = await sendCoreMessage({
+        subdomain,
+        action: "branches.find",
+        data: {
+          query: {
+            _id: { $in: (branches || []).map(({ parentId }) => parentId) },
+          },
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
+      const parent = (parents || [])[0] || {};
+
+      return `${parent?.title || ""}`;
+    }
 
     const branch = (branches || [])[0] || {};
 
