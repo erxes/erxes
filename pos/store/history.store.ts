@@ -24,6 +24,7 @@ export const openReturnDialogAtom = atom<string | null>(null)
 export const filterAtom = atom<IFilter>({
   ...defaultFilter,
   statuses: ORDER_STATUSES.ALL,
+  types: []
 })
 
 export const detailIdAtom = atom<string | null>(null)
