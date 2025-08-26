@@ -415,12 +415,12 @@ const orderMutations = {
         paidDate: { $exists: false },
         status: {
           $in: [
-            "new",
-            "doing",
-            "done",
-            "complete",
-            "reDoing",
-            "pending"
+            ORDER_STATUSES.NEW,
+            ORDER_STATUSES.DOING,
+            ORDER_STATUSES.DONE,
+            ORDER_STATUSES.COMPLETE,
+            ORDER_STATUSES.REDOING,
+            ORDER_STATUSES.PENDING,
           ]
         },
         origin: 'qrMenu',
@@ -508,7 +508,7 @@ const orderMutations = {
 
     if (
       order.type === "delivery" &&
-      order.status === "done" &&
+      order.status === ORDER_STATUSES.DONE &&
       (order.deliveryInfo || order.description) &&
       order.customerId
     ) {

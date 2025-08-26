@@ -1,16 +1,20 @@
 "use client";
 
-import { reportDateAtom } from "@/store";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { reportEndDateAtom, reportStartDateAtom } from "@/store";
 import { LazyQueryExecFunction, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format, isFuture } from "date-fns";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { SearchIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-import { combineDateTime } from "../utils/date";
-import type { Customer } from "@/types/customer.types";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { FacetedFilter } from "@/components/ui/faceted-filter";
@@ -23,7 +27,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { currentUserAtom } from "@/store/config.store";
+import type { Customer } from "@/types/customer.types";
 import { queries } from "../graphql";
+import { combineDateTime } from "../utils/date";
 import { TimePicker } from "./timePicker";
 
 interface DailyReportResponse {
@@ -35,32 +42,38 @@ interface DailyReportResponse {
 const FormSchema = z
   .object({
     posUserIds: z.array(z.string()).optional(),
-    posNumber: z
+    dateType: z.string().optional(),
+    startDate: z
       .date({
         required_error: "Тайлан шүүх өдрөө сонгоно уу",
-      })
-      .nullable(),
-    time: z
+      }),
+    startTime: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format"),
+    endDate: z
+      .date({
+        required_error: "Тайлан шүүх өдрөө сонгоно уу",
+      }),
+    endTime: z
       .string()
       .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format"),
   })
   .superRefine((data, ctx) => {
-    if (!data.posNumber) {
+    if (!data.startDate) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ["posNumber"],
+        path: ["startDate"],
         message: "Тайлан шүүх өдрөө сонгоно уу",
       });
       return;
     }
-
-    const combinedDate = combineDateTime(data.posNumber, data.time);
-    if (combinedDate && isFuture(combinedDate)) {
+    if (!data.endDate) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ["posNumber", "time"],
-        message: "Ирээдүйн цаг оруулах боломжгүй",
+        path: ["endDate"],
+        message: "Тайлан шүүх өдрөө сонгоно уу",
       });
+      return;
     }
   });
 
@@ -68,7 +81,9 @@ type FormValues = z.infer<typeof FormSchema>;
 
 interface ReportVariables {
   posUserIds?: string[];
-  posNumber: string;
+  dateType?: string;
+  startDate: Date;
+  endDate: Date;
 }
 
 interface ReportFormProps {
@@ -79,28 +94,51 @@ interface ReportFormProps {
 const LOADING_TEXT = "Уншиж байна...";
 
 const ReportForm = ({ getReport, loading }: ReportFormProps) => {
-  const setReportDate = useSetAtom(reportDateAtom);
+  const setReportStartDate = useSetAtom(reportStartDateAtom);
+  const setReportEndDate = useSetAtom(reportEndDateAtom);
+  const currentUser = useAtomValue(currentUserAtom);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      posNumber: new Date(),
-      time: "00:00",
+      posUserIds: currentUser?._id && [currentUser?._id] || [],
+      dateType: 'paid',
+      startDate: new Date(),
+      startTime: "00:00",
+      endDate: new Date(),
+      endTime: "23:59",
     },
   });
 
   const onSubmit = async (data: FormValues) => {
     try {
-      if (!data.posNumber) {
-        form.setError("posNumber", {
+      if (!data.startDate) {
+        form.setError("startDate", {
           type: "manual",
           message: "Тайлан шүүх өдрөө сонгоно уу",
         });
         return;
       }
 
-      const combinedDate = combineDateTime(data.posNumber, data.time);
-      if (!combinedDate) {
-        form.setError("time", {
+      if (!data.endDate) {
+        form.setError("endDate", {
+          type: "manual",
+          message: "Тайлан шүүх өдрөө сонгоно уу",
+        });
+        return;
+      }
+
+      const combinedBDate = combineDateTime(data.startDate, data.startTime);
+      if (!combinedBDate) {
+        form.setError("startTime", {
+          type: "manual",
+          message: "Invalid date-time combination",
+        });
+        return;
+      }
+      const combinedEDate = combineDateTime(data.endDate, data.endTime);
+      if (!combinedEDate) {
+        form.setError("endTime", {
           type: "manual",
           message: "Invalid date-time combination",
         });
@@ -110,13 +148,18 @@ const ReportForm = ({ getReport, loading }: ReportFormProps) => {
       const result = await getReport({
         variables: {
           posUserIds: data.posUserIds || [],
-          posNumber: format(combinedDate, "yyyyMMddHHmm"),
+          dateType: data.dateType,
+          startDate: combinedBDate,
+          endDate: combinedEDate,
         },
       });
 
       if (result.data) {
-        if (!Number.isNaN(combinedDate.getTime())) {
-          setReportDate(combinedDate);
+        if (!Number.isNaN(combinedBDate.getTime())) {
+          setReportStartDate(combinedBDate);
+        }
+        if (!Number.isNaN(combinedEDate.getTime())) {
+          setReportEndDate(combinedEDate);
         }
       } else {
         console.error("No data returned from the report query");
@@ -177,35 +220,107 @@ const ReportForm = ({ getReport, loading }: ReportFormProps) => {
         />
         <FormField
           control={form.control}
-          name="posNumber"
+          name="dateType"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="block">Oгноо</FormLabel>
+              <FormLabel>Огнооны төрөл</FormLabel>
               <FormControl>
-                <DatePicker
-                  date={field.value || new Date()}
-                  setDate={field.onChange}
-                  toDate={new Date()}
-                  className="w-full"
-                />
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="col-span-2">
+                    <SelectValue placeholder="Ангилал сонгох" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="paid">
+                      Төлсөн | Paid
+                    </SelectItem>
+                    <SelectItem value="created">
+                      Үүсгэсэн | Created
+                    </SelectItem>
+                    <SelectItem value="modified">
+                      Сүүлд өөрчилсөн | Modified
+                    </SelectItem>
+                    <SelectItem value="due">
+                      Гүйцэтгэх | Due
+                    </SelectItem>
+                    <SelectItem value="close">
+                      Хаагдсан | Close
+                    </SelectItem>
+                    <SelectItem value="return">
+                      Буцаасан | Return
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="time"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Цаг</FormLabel>
-              <FormControl>
-                <TimePicker value={field.value} onChange={field.onChange} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid md:grid-cols-2 items-end gap-y-3 gap-x-2">
+          <FormField
+            control={form.control}
+            name="startDate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="block">Эхлэл - Oгноо</FormLabel>
+                <FormControl>
+                  <DatePicker
+                    date={field.value}
+                    setDate={field.onChange}
+                    toDate={new Date()}
+                    className="w-full"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="startTime"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="block">Цаг</FormLabel>
+                <FormControl>
+                  <TimePicker value={field.value} onChange={field.onChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="grid md:grid-cols-2 items-end gap-y-3 gap-x-2">
+          <FormField
+            control={form.control}
+            name="endDate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="block">Төгсгөл - Oгноо</FormLabel>
+                <FormControl>
+                  <DatePicker
+                    date={field.value}
+                    setDate={field.onChange}
+                    toDate={new Date()}
+                    className="w-full"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="endTime"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="block">Цаг</FormLabel>
+                <FormControl>
+                  <TimePicker value={field.value} onChange={field.onChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <Button
           type="submit"
           className="w-full"

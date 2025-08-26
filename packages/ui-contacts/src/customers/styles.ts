@@ -336,6 +336,31 @@ const AvatarWrapper = styledTS<{
   }
 `;
 
+const InfoRow = styledTS<{ $isLast?: boolean }>(styled.div)`
+  display: flex;
+  justify-content: space-between;
+
+  > div {
+    margin: 0px;
+    padding: 4px 0px;
+
+    > a {
+      margin: 0;
+      border: none;
+      align-items: unset;
+      color: ${colors.colorCoreGray};
+      
+      > div {
+        padding: 0;
+      }
+    }
+
+    &:last-child {
+      text-align: right;
+    } 
+  }
+`;
+
 export {
   InfoDetail,
   InfoAvatar,
@@ -353,5 +378,6 @@ export {
   MailBox,
   CustomPadding,
   BoxPadding,
-  AvatarWrapper
+  AvatarWrapper,
+  InfoRow
 };

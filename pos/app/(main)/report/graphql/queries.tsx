@@ -10,8 +10,8 @@ const users = gql`
 `
 
 const report = gql`
-  query DailyReport($posUserIds: [String], $posNumber: String) {
-    dailyReport(posUserIds: $posUserIds, posNumber: $posNumber) {
+  query DailyReport($posUserIds: [String], $dateType: String, $startDate: Date, $endDate: Date) {
+    dailyReport(posUserIds: $posUserIds, dateType: $dateType, startDate: $startDate, endDate: $endDate) {
       report
     }
   }

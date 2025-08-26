@@ -21,8 +21,8 @@ const fillSearchText = (doc) => {
 
     const searchText = [
         (doc.names || []).join(" "),
-        (doc.emails || []).join(" "),
-        (doc.phones || []).join(" "),
+        (doc.emails || []).map(e => e.email).join(" "),
+        (doc.phones || []).map(p => p.phone).join(" "),
         doc.website || "",
         doc.industry || "",
         doc.plan || "",

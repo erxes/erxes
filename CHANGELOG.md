@@ -1,5 +1,49 @@
 # Changelog
 
+## [2.16.5](https://github.com/erxes/erxes/compare/2.16.4...2.16.5) (2025-08-20)
+
+### Features
+
+* **tickets:** user enable filtering by branchIds ([39701cf](https://github.com/erxes/erxes/commit/39701cf1dfd0637c51a4df951d2c9a489bf9c5c3))
+
+### Bug Fixes
+
+* **facebook:** remove invalid standby field from page subscription ([#6107](https://github.com/erxes/erxes/issues/6107)) ([c2b9067](https://github.com/erxes/erxes/commit/c2b9067171e0e0aab73f17c4aed59bf96c8ecfa7))
+* pos progress bill print per config ([#6102](https://github.com/erxes/erxes/issues/6102)) ([9953c50](https://github.com/erxes/erxes/commit/9953c500d0a3fa678c813c50f654d7595fa6275a))
+* productChooser with pipelineId on deal ([ca0080d](https://github.com/erxes/erxes/commit/ca0080d03865a268d5b57aa81307eeba33b5d041))
+
+## [2.16.4](https://github.com/erxes/erxes/compare/2.16.3...2.16.4) (2025-08-13)
+
+### Bug Fixes
+
+* emails format widget connect customer ([fee074e](https://github.com/erxes/erxes/commit/fee074e62bdeb5de992409b0a944e6cab2d397c7))
+
+## [2.16.3](https://github.com/erxes/erxes/compare/2.16.2...2.16.3) (2025-08-12)
+
+### Bug Fixes
+
+* enhance error handling and code consistency in ticket tagging ([3fafab3](https://github.com/erxes/erxes/commit/3fafab3ed87a35c0281b3d8d8f001f684368f5de))
+* posclient report filter startNumber only 8length ([152110f](https://github.com/erxes/erxes/commit/152110f3f47f1cc5820ac400a0c758a61780feca))
+* **ticket:** Add user fetching by selected branch during filtering recovery ([ff631dc](https://github.com/erxes/erxes/commit/ff631dc999275dc79cf4d260761b382626da76ae))
+* users query when isAssignee without filter branchIds ([f6f2a84](https://github.com/erxes/erxes/commit/f6f2a84cd09cf305bee4ef794c72ff783d7fb0ba))
+
+## [2.16.2](https://github.com/erxes/erxes/compare/2.16.1...2.16.2) (2025-08-06)
+
+### Bug Fixes
+
+* purchase ([#6100](https://github.com/erxes/erxes/issues/6100)) ([679ab14](https://github.com/erxes/erxes/commit/679ab145a6f46bad7828967647511bdf2be79fa5))
+
+## [2.16.1](https://github.com/erxes/erxes/compare/2.16.0...2.16.1) (2025-08-06)
+
+### Features
+
+* pos with invoice ([#6087](https://github.com/erxes/erxes/issues/6087)) ([20f12a5](https://github.com/erxes/erxes/commit/20f12a513505c4d44d2ebbbf83ff4945353c2c35))
+
+### Bug Fixes
+
+* paymentform ([0eacfa5](https://github.com/erxes/erxes/commit/0eacfa5e14e50a0aaf1d3b45af7dad6ed476f10e))
+* purchase manage expenses ([b45ccac](https://github.com/erxes/erxes/commit/b45ccac87e63c6d96116caff6c9133141bc4a9c5))
+
 ## [2.16.0](https://github.com/erxes/erxes/compare/2.15.8...2.16.0) (2025-08-03)
 
 ### Features

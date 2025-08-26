@@ -31,15 +31,12 @@ const List = (props: Props) => {
   const renderRow = (categories, level = 0) => {
     return categories.map((category) => (
       <React.Fragment key={category._id}>
-        <Row category={category} remove={remove} level={level} />
+        <Row category={category} remove={remove} refetch={props.refetch} level={level} website={props.website} />
         {category.children.length > 0 &&
           renderRow(category.children, level + 1)}
       </React.Fragment>
     ));
   };
-
-  //   queryParams.loadingMainQuery = loading;
-  //   const actionBarLeft: React.ReactNode;
 
   const trigger = (
     <Button btnStyle='primary' size='small' icon='plus-circle'>
@@ -52,6 +49,7 @@ const List = (props: Props) => {
       {...formProps}
       clientPortalId={props.clientPortalId}
       refetch={props.refetch}
+      website={props.website}
     />
   );
 

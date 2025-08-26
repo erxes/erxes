@@ -1,4 +1,4 @@
-import channelQueries from '@erxes/ui-settings/src/channels/graphql/queries';
+import channelQueries from "@erxes/ui-settings/src/channels/graphql/queries";
 
 const nameFields = `
   firstName
@@ -96,6 +96,12 @@ const users = `
       brandIds
       score
       positionIds
+      positions{
+       title
+      }
+      branches {
+        title
+      }
       details {
         ${detailFields}
       }

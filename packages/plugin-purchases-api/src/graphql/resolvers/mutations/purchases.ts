@@ -30,7 +30,7 @@ const purchaseMutations = {
    * Edit, Add , Delete expense mutation
    */
 
-  async manageExpenses(
+  async purchaseManageExpenses(
     _root,
     doc: { expenseDocs: IExpense[] },
     { user, models }: IContext

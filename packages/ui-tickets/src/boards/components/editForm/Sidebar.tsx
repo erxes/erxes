@@ -10,6 +10,8 @@ import SelectNewBranches from '@erxes/ui/src/team/containers/SelectNewBranches';
 
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { pipeline } from 'stream';
+import { currentUser } from '@erxes/ui/src/auth/graphql';
 
 type Props = {
   item: IItem;
@@ -64,7 +66,6 @@ class Sidebar extends React.Component<Props> {
             initialValue={assignedUserIds}
             onSelect={userOnChange}
             filterParams={{
-              isAssignee: true,
               departmentIds,
               branchIds,
             }}
