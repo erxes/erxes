@@ -1,9 +1,10 @@
-import React from 'react';
-import { __ } from 'coreui/utils';
-import { IContract } from '../../types';
-import TransactionContainer from '../../containers/Transaction';
-import TransactionHistories from '../../containers/TransactionHistories';
-import { Tabs } from '..';
+import React from "react";
+import { __ } from "coreui/utils";
+import { IContract } from "../../types";
+import TransactionContainer from "../../containers/Transaction";
+import TransactionHistories from "../../containers/TransactionHistories";
+import { Tabs } from "..";
+import CloseLoanInfo from "../../containers/CloseLoanInfo";
 
 interface IProps {
   contract: IContract;
@@ -21,6 +22,10 @@ function PolarisData(props: IProps) {
         {
           label: __(`Sync Histories`),
           component: <TransactionHistories {...props} />
+        },
+        {
+          label: __(`Loan Close`),
+          component: <CloseLoanInfo {...props} />
         }
       ]}
     />

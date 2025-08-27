@@ -1,4 +1,4 @@
-import { fetchPolaris, getFullDate, updateContract } from "../utils";
+import { fetchPolaris, updateContract } from "../utils";
 import { updateSchedule } from "./updateSchedule";
 
 const getMethod = (contract) => {
@@ -40,7 +40,7 @@ export const createLoanSchedule = async (
 
   const sendData = [
     contract.number,
-    getFullDate(contract.startDate),
+    contract.startDate,
     contract.leaseAmount,
     getMethod(contract),
     "M",
@@ -52,11 +52,11 @@ export const createLoanSchedule = async (
     0,
     0,
     "SIMPLE_INT",
-    getFullDate(contract.endDate),
+    contract.endDate,
     null,
     contract.description,
     [],
-    [],
+    []
   ];
 
   const schedule = await fetchPolaris({

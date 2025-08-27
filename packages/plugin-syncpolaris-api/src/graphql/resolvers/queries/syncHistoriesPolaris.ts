@@ -9,6 +9,7 @@ import { getSavingTransactions } from "../../../utils/saving/getSavingTransactio
 import { getConfig } from "../../../utils/utils";
 import { getSavingDetail } from "../../../utils/saving/getSavingDetail";
 import { getDepositDetail } from "../../../utils/deposit/getDepositDetail";
+import { getCloseLoanDetail } from "../../../utils/loan/getCloseLoanDetail";
 
 const generateFilter = (params) => {
   const {
@@ -90,6 +91,8 @@ const polarisQueries = {
         return await getSavingDetail(subdomain, polarisConfig, data);
       case "getDepositDetail":
         return await getDepositDetail(subdomain, polarisConfig, data);
+      case "getCloseLoanDetail":
+        return await getCloseLoanDetail(subdomain, polarisConfig, data);
 
       default:
         break;

@@ -1,21 +1,21 @@
-import { generateModels } from './connectionResolver';
-import { createCustomer } from './utils/customer/createCustomer';
-import { getCustomerFromPolaris } from './utils/customer/getCustomerDetail';
-import { updateCustomer } from './utils/customer/updateCustomer';
-import { createChangeClassification } from './utils/loan/changeClassification';
-import { createLoan } from './utils/loan/createLoan';
-import { createLoanGive } from './utils/loan/loanGive';
-import { createLoanRepayment } from './utils/loan/loanRepayment';
-import { updateLoan } from './utils/loan/updateLoan';
-import { createSaving } from './utils/saving/createSaving';
-import { incomeSaving } from './utils/saving/incomeSaving';
-import { outcomeSaving } from './utils/saving/outcomeSaving';
-import { updateSaving } from './utils/saving/updateSaving';
-import { getConfig } from './utils/utils';
+import { generateModels } from "./connectionResolver";
+import { createCustomer } from "./utils/customer/createCustomer";
+import { getCustomerFromPolaris } from "./utils/customer/getCustomerDetail";
+import { updateCustomer } from "./utils/customer/updateCustomer";
+import { createChangeClassification } from "./utils/loan/changeClassification";
+import { createLoan } from "./utils/loan/createLoan";
+import { createLoanGive } from "./utils/loan/loanGive";
+import { createLoanRepayment } from "./utils/loan/loanRepayment";
+import { updateLoan } from "./utils/loan/updateLoan";
+import { createSaving } from "./utils/saving/createSaving";
+import { incomeSaving } from "./utils/saving/incomeSaving";
+import { outcomeSaving } from "./utils/saving/outcomeSaving";
+import { updateSaving } from "./utils/saving/updateSaving";
+import { getConfig } from "./utils/utils";
 
 const allowTypes = {
-  'core:customer': ['create', 'update'],
-  'core:company': ['create', 'update'],
+  "core:customer": ["create", "update"],
+  "core:company": ["create", "update"],
   //deposit
   // "savings:transaction": ["create"],
   //saving
@@ -23,14 +23,14 @@ const allowTypes = {
   //loan
   // 'loans:contract': ['create', 'update'],
   // "loans:classification": ["create"],
-  'loans:transaction': ['create']
+  "loans:transaction": ["create"]
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action, user } = params;
 
   const models = await generateModels(subdomain);
-  const polarisConfig = await getConfig(subdomain, 'POLARIS', {});
+  const polarisConfig = await getConfig(subdomain, "POLARIS", {});
 
   if (
     !polarisConfig ||
@@ -43,7 +43,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
   }
 
   const syncLogDoc = {
-    type: '',
+    type: "",
     contentType: type,
     contentId: params.object._id,
     createdAt: new Date(),
@@ -72,7 +72,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
   try {
     switch (type) {
-      case 'core:customer':
+      case "core:customer":
         response = await customerMethod(
           subdomain,
           models,
@@ -81,7 +81,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           params
         );
         break;
-      case 'savings:contract':
+      case "savings:contract":
         response = await savingContractMethod(
           action,
           preSuccessValue,
@@ -93,7 +93,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           user
         );
         break;
-      case 'savings:transaction':
+      case "savings:transaction":
         response = await savingsTransactionMethod(
           subdomain,
           models,
@@ -102,7 +102,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           params
         );
         break;
-      case 'loans:contract':
+      case "loans:contract":
         response = await loansContractMethod(
           action,
           preSuccessValue,
@@ -113,7 +113,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           params
         );
         break;
-      case 'loans:classification':
+      case "loans:classification":
         response = await createChangeClassification(
           subdomain,
           models,
@@ -122,7 +122,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           params
         );
         break;
-      case 'loans:transaction':
+      case "loans:transaction":
         response = await loansTransactionMethod(
           subdomain,
           models,
@@ -185,7 +185,7 @@ const savingContractMethod = async (
   params,
   user
 ) => {
-  if (action === 'create' || action === 'update') {
+  if (action === "create" || action === "update") {
     if (!preSuccessValue) {
       return await createSaving(
         subdomain,
@@ -214,7 +214,7 @@ const savingsTransactionMethod = async (
   syncLog,
   params
 ) => {
-  if (params.object.transactionType === 'income') {
+  if (params.object.transactionType === "income") {
     return await incomeSaving(
       subdomain,
       // models,
@@ -224,7 +224,7 @@ const savingsTransactionMethod = async (
     );
   }
 
-  if (params.object.transactionType === 'outcome') {
+  if (params.object.transactionType === "outcome") {
     return await outcomeSaving(
       subdomain,
       models,
@@ -244,7 +244,7 @@ const loansContractMethod = async (
   syncLog,
   params
 ) => {
-  if (action === 'create' || action === 'update') {
+  if (action === "create" || action === "update") {
     if (!preSuccessValue) {
       return await createLoan(
         subdomain,
@@ -265,7 +265,7 @@ const loansTransactionMethod = async (
   syncLog,
   params
 ) => {
-  if (params.object.transactionType === 'repayment') {
+  if (params.object.transactionType === "repayment") {
     return await createLoanRepayment(
       subdomain,
       models,
@@ -273,16 +273,6 @@ const loansTransactionMethod = async (
       params.object
     );
   }
-
-  // if (params.object.transactionType === 'give') {
-  //   return await createLoanGive(
-  //     subdomain,
-  //     // models,
-  //     polarisConfig,
-  //     // syncLog,
-  //     params.object
-  //   );
-  // }
 };
 
 export default allowTypes;

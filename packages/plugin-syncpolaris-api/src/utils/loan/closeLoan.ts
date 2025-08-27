@@ -1,14 +1,15 @@
-import { fetchPolaris, getDepositAccount, getContract } from '../utils';
+import { fetchPolaris, getDepositAccount, getContract } from "../utils";
 
 export const createLoanClose = async (
   subdomain,
+  models,
   polarisConfig,
   transaction
 ) => {
   const loanContract = await getContract(
     subdomain,
     { _id: transaction.contractId },
-    'loans'
+    "loans"
   );
 
   const depositAccount = await getDepositAccount(
@@ -21,13 +22,13 @@ export const createLoanClose = async (
     txnAmount: transaction.total,
     curCode: transaction.currency,
     rate: 1,
-    rateTypeId: '4',
+    rateTypeId: "4",
     contAcntCode: depositAccount.number,
     contAmount: transaction.total,
     contRate: 1,
     contCurCode: transaction.currency,
-    txnDesc: transaction.description,
-    sourceType: 'OI',
+    txnDesc: transaction.description ?? "haav",
+    sourceType: "OI",
     isPreview: 0,
     isPreviewFee: null,
     isTmw: 1,
@@ -35,26 +36,26 @@ export const createLoanClose = async (
       [
         {
           acntCode: depositAccount.transAccount,
-          acntType: 'INCOME'
+          acntType: "INCOME"
         },
         {
           acntCode: loanContract.number,
-          acntType: 'EXPENSE'
+          acntType: "EXPENSE"
         }
       ],
       13600107
     ],
     addParams: [
       {
-        contAcntType: 'CASA',
-        chkAcntInt: 'N'
+        contAcntType: "CASA",
+        chkAcntInt: "N"
       }
     ]
   };
 
   const loanGiveReponse = await fetchPolaris({
     subdomain,
-    op: '13610267',
+    op: "13610267",
     data: [loanClose],
     polarisConfig
   });
