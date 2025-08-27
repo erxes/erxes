@@ -28,8 +28,9 @@ RUN wget -q --show-progress https://github.com/rwynn/monstache/releases/download
 
 COPY . .
 
-# Install Go dependencies using dep
+# Install Go dependencies using dep - force update
 RUN cd src/syncer \
+ && rm -f Gopkg.lock \
  && dep ensure -v
 
 CMD ["go", "run", "src/syncer/main.go"]
