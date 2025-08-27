@@ -32,4 +32,5 @@ RUN cd src/syncer \
  && go get go.mongodb.org/mongo-driver/bson/primitive \
  && go get go.mongodb.org/mongo-driver/mongo/options
 
+
 CMD ["go", "run", "src/syncer/main.go"]
