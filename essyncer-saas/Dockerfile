@@ -30,6 +30,6 @@ COPY . .
 
 # Install Go dependencies using dep
 RUN cd src/syncer \
- && dep ensure
+ && dep ensure -v
 
 CMD ["go", "run", "src/syncer/main.go"]
