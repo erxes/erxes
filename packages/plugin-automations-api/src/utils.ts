@@ -142,6 +142,7 @@ export const executeActions = async (
           action,
           execution,
           collectionType,
+          value: action.config.value,
         },
         isRPC: true,
       });
