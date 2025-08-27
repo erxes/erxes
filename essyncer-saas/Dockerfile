@@ -14,8 +14,8 @@ RUN apt-get update \
     git \
  && rm -rf /var/lib/apt/lists/*
 
-# Install dep
-RUN go install github.com/golang/dep/cmd/dep@latest
+# Install dep (compatible version for Go 1.19)
+RUN go install github.com/golang/dep/cmd/dep@v0.5.4
 
 # Download and install monstache
 RUN wget -q --show-progress https://github.com/rwynn/monstache/releases/download/v6.7.0/monstache-dfba1c2.zip \
