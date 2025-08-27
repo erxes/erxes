@@ -56,7 +56,7 @@ export default (props: {
             .slice(0, 2)
             .map((branch) => branch.title)
             .join(", ") +
-          (user.branches.length > 2 ? ` +${user.branches.length - 2}` : "") // Нэмэлт салбаруудын тоо
+          (user.branches.length > 2 ? ` +${user.branches.length - 2}` : "")
         : "";
 
       const displayName =
