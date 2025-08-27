@@ -158,6 +158,23 @@ const insightQueries = {
 
         return chartResult;
     },
+
+    async insightPinnedList(_root, { }, { models, user }: IContext) {
+        const dashboards = await models.Dashboards.find({ userIds: { $in: [user._id] } }) || [];
+        const reports = await models.Reports.find({ userIds: { $in: [user._id] } }) || [];
+
+        const dashboardsWithType = dashboards.map(dashboard => ({
+            ...dashboard.toObject(),
+            type: 'dashboard'
+        }));
+
+        const reportsWithType = reports.map(report => ({
+            ...report.toObject(),
+            type: 'report'
+        }));
+
+        return [...dashboardsWithType, ...reportsWithType];
+    },
 }
 
 export default insightQueries

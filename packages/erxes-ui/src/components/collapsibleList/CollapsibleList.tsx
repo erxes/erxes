@@ -120,7 +120,7 @@ class CollapsibleList extends React.Component<Props, State> {
     if (keyCount) {
       return (
         <FlexBetween>
-          {item.code} - {item.title || item.name}
+          {item.code ? `${item.code} - ` : ''}{item.title || item.name}
           <ItemCount className="product-count">{item[keyCount]}</ItemCount>
         </FlexBetween>
       );

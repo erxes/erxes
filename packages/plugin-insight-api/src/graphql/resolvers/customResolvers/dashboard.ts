@@ -45,4 +45,15 @@ export default {
       _id,
     }));
   },
+  async isPinned(dashboard: IDashboardDocument, { }, { models, user }: IContext) {
+
+    const { userIds } = dashboard
+
+    if ((userIds || []).includes(user._id)) {
+      return true
+    }
+
+    return false
+
+  },
 };

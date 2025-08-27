@@ -114,6 +114,7 @@ const reportParams = `
   $name: String,
   $sectionId: String
   $visibility: VisibilityType,
+  $userId: String,
   $assignedUserIds: [String],
   $assignedDepartmentIds: [String],
   $tagIds: [String],
@@ -126,6 +127,7 @@ const reportVariables = `
   name: $name,
   sectionId : $sectionId
   visibility: $visibility,
+  userId: $userId,
   assignedUserIds: $assignedUserIds,
   assignedDepartmentIds: $assignedDepartmentIds,
   tagIds: $tagIds,
@@ -179,18 +181,14 @@ const reportAdd = `
 const reportEdit = `
   mutation reportEdit($_id: String!, ${reportParams}) {
     reportEdit(_id: $_id, ${reportVariables}) {
-      name
-      visibility
-      assignedUserIds
-      assignedDepartmentIds
-      tagIds
+      _id
     }
   }
 `;
 
 const reportRemove = `
-  mutation reportRemoveMany($ids: [String]!) {
-    reportRemoveMany(ids: $ids)
+  mutation reportRemove($id: String!) {
+    reportRemove(_id: $id)
   }
 `;
 
@@ -244,6 +242,7 @@ const dashboardParams = `
   $name: String,
   $sectionId: String,
   $visibility: VisibilityType,
+  $userId: String,
   $assignedUserIds: [String],
   $assignedDepartmentIds: [String],
   $serviceTypes: [String]
@@ -255,6 +254,7 @@ const dashboardVariables = `
   name: $name,
   sectionId: $sectionId,
   visibility: $visibility,
+  userId: $userId,
   assignedUserIds: $assignedUserIds,
   assignedDepartmentIds: $assignedDepartmentIds,
   serviceTypes: $serviceTypes

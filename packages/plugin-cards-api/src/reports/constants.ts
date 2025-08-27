@@ -177,6 +177,7 @@ export const DATERANGE_TYPES = [
     { label: 'Yesterday', value: 'yesterday' },
     { label: 'This Week', value: 'thisWeek' },
     { label: 'Last Week', value: 'lastWeek' },
+    { label: 'Last 2 Week', value: 'last2Week' },
     { label: 'This Month', value: 'thisMonth' },
     { label: 'Last Month', value: 'lastMonth' },
     { label: 'This Year', value: 'thisYear' },

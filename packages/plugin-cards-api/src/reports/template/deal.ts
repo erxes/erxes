@@ -2850,7 +2850,7 @@ export const dealCharts = [
 
             const title = 'Total Deals Count';
 
-            return { title, ...buildData({ chartType, data: deals, filter }), ...buildOptions(filter) };
+            return { title, ...buildData({ chartType, data: deals, filter, type: "deal" }), ...buildOptions(filter) };
         },
         filterTypes: [
             // DIMENSION FILTER
@@ -2864,6 +2864,14 @@ export const dealCharts = [
                         logicFieldValue: 'pivotTable',
                     },
                 ],
+                fieldValueOptions: [
+                    {
+                        fieldName: 'showTotal',
+                        fieldType: 'checkbox',
+                        fieldLabel: 'Show total',
+                        fieldDefaultValue: false
+                    }
+                ],
                 fieldOptions: DIMENSION_OPTIONS,
                 fieldLabel: 'Select row',
             },
@@ -2876,6 +2884,14 @@ export const dealCharts = [
                         logicFieldName: 'chartType',
                         logicFieldValue: 'pivotTable',
                     },
+                ],
+                fieldValueOptions: [
+                    {
+                        fieldName: 'showTotal',
+                        fieldType: 'checkbox',
+                        fieldLabel: 'Show total',
+                        fieldDefaultValue: false
+                    }
                 ],
                 fieldOptions: DIMENSION_OPTIONS,
                 fieldLabel: 'Select column',

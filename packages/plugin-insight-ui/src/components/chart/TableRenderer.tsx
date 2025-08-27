@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { commarizeNumbers } from "../../utils";
+import { formatNumbers } from "../../utils";
 import { colors } from "@erxes/ui/src/styles";
 import { ChartTable, ScrollWrapper } from "../../styles";
 
@@ -56,7 +56,7 @@ type Props = {
 const TableList = (props: Props) => {
   const { dataset: { data = [], labels = [], title }, filters, setFilter } = props;
 
-  const headers: any = labels?.length ? [title?.split(" ").at(-1), 'Total Count'] : data.length > 0 ? Object.keys(data[0]) : []
+  const headers: any = labels?.length ? [title?.split(" ").at(-1), 'Total Count'] : data.length > 0 ? Object.keys(data[0]).filter(key => key !== 'url') : []
   const array = labels?.length ? labels : data || []
 
   const checkSortActive = (field, direction) => {
@@ -99,6 +99,14 @@ const TableList = (props: Props) => {
     )
   }
 
+  const handleRowClick = (item) => {
+    const { url } = item
+
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  }
+
   return (
     <ScrollWrapper>
       <ChartTable>
@@ -114,7 +122,7 @@ const TableList = (props: Props) => {
 
             if (labels?.length) {
               return (
-                <tr key={index}>
+                <tr key={index} onDoubleClick={() => handleRowClick(item)}>
                   <td>
                     <b>{item}</b>
                   </td>
@@ -123,14 +131,46 @@ const TableList = (props: Props) => {
               )
             }
 
+            if (item.hasOwnProperty('total')) {
+              return (
+                <tr key={index} onDoubleClick={() => handleRowClick(item)}>
+                  <td colSpan={item['total']}>Total</td>
+                  {(headers || []).map(header => {
+                    if (header in item) {
+
+                      if (["count", "totalAmount", "averageAmount", "unusedAmount", "forecastAmount"].includes(header)) {
+                        return <td>{formatNumbers(item[header], "commarize") || '-'}</td>;
+                      }
+
+                      if (["totalDuration", "averageDuration"].includes(header)) {
+                        return <td>{formatNumbers(item[header], "time", "x") || '-'}</td>;
+                      }
+
+                      return (
+                        <td key={header}>{item[header] || '-'}</td>
+                      );
+                    }
+                  })}
+                </tr>
+              );
+            }
+
             return (
-              <tr key={index}>
+              <tr key={index} onDoubleClick={() => handleRowClick(item)}>
                 {(headers || []).map(header => {
                   if (header === 'description') {
                     return <td dangerouslySetInnerHTML={{ __html: item[header] }} />
                   }
 
-                  return <td key={header} >{commarizeNumbers(item[header]) || '-'}</td>
+                  if (["count", "totalAmount", "averageAmount", "unusedAmount", "forecastAmount"].includes(header)) {
+                    return <td>{formatNumbers(item[header], "commarize") || '-'}</td>;
+                  }
+
+                  if (["totalDuration", "averageDuration"].includes(header)) {
+                    return <td>{formatNumbers(item[header], "time", "x") || '-'}</td>;
+                  }
+
+                  return <td>{item[header] || '-'}</td>;
                 })}
               </tr>
             )

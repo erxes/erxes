@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { ChartType, Colors, Tooltip } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Chart from 'chart.js/auto';
@@ -6,14 +6,14 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 
 import {
   DATALABELS_CONFIGS,
-  DEFAULT_BACKGROUND_COLORS,
-  DEFAULT_BORDER_COLORS,
+  DEFAULT_CHART_COLORS,
   horizontalDottedLine
 } from './utils';
 import {
   commarizeNumbers,
   formatNumbers,
 } from '../../utils';
+import ChartLegend from './ChartLegend';
 
 
 Chart.register([Colors, ChartDataLabels, Tooltip]); 
@@ -29,6 +29,7 @@ interface IChartProps {
   loading?: boolean;
   chartVariables?: any
   chartHeight?: number;
+  filter?: any;
 }
 
 const ChartRenderer = (props: IChartProps) => {
@@ -42,8 +43,25 @@ const ChartRenderer = (props: IChartProps) => {
     loading,
     chartHeight,
     options,
-    chartVariables
+    chartVariables,
+    filter
   } = props;
+
+  const [chartInstance, setChartInstance] = useState<Chart | null>(null);
+
+  const [chartData, setChartData] = useState({
+    labels: labels,
+    datasets: datasets?.length ? datasets : dataset || [
+      {
+        label: title || 'Default Dataset',
+        data,
+        backgroundColor: DEFAULT_CHART_COLORS,
+        borderColor: DEFAULT_CHART_COLORS.map(color => color.replace('0.6', '1')),
+        borderWidth: 1,
+        hidden: false
+      }
+    ]
+  })
 
   const { templateType } = chartVariables
 
@@ -52,28 +70,15 @@ const ChartRenderer = (props: IChartProps) => {
   }
 
   const chartRef = useRef<HTMLCanvasElement>(null);
-  const formatType = templateType.toLowerCase().includes('time') ? 'time' : undefined
-
-  const chartData = {
-    labels: labels,
-    datasets: datasets?.length ? datasets : dataset || [
-      {
-        label: title || 'Default Dataset',
-        data,
-        backgroundColor: DEFAULT_BACKGROUND_COLORS,
-        borderColor: DEFAULT_BORDER_COLORS,
-        borderWidth: 1,
-      }
-    ],
-  };
+  const formatType = templateType.toLowerCase().includes('time') || (filter?.measure || []).some((measure) => measure?.toLowerCase().includes('time') || measure?.toLowerCase().includes('duration')) ? 'time' : undefined
 
   const datalabelsConfig = DATALABELS_CONFIGS[chartType]
 
-  let plugins: any = {
+  let plugins = {
     datalabels: {
       display: 'auto',
       formatter: (value, ctx) => {
-        return formatNumbers(value, 'y', formatType)
+        return formatNumbers(value, formatType, 'y')
       },
       ...datalabelsConfig
     },
@@ -90,7 +95,7 @@ const ChartRenderer = (props: IChartProps) => {
           }
 
           if (formatType === 'time') {
-            return formatNumbers(value, 'x', formatType)
+            return formatNumbers(value, formatType, 'x')
           }
 
           label += commarizeNumbers(value);
@@ -98,14 +103,16 @@ const ChartRenderer = (props: IChartProps) => {
           return label;
         }
       }
+    },
+    legend: {
+      display: false
     }
   };
 
   if (options && Object.keys(options).length) {
     plugins = {
       ...plugins,
-      legend: { labels: { boxWidth: 0, boxHeight: 0 } },
-      ...(options?.hasOwnProperty('plugins') ? options.plugins : {})
+      ...(options?.hasOwnProperty('plugins') ? options.plugins : {}),
     };
   }
 
@@ -113,13 +120,12 @@ const ChartRenderer = (props: IChartProps) => {
     type: chartType,
     data: chartData,
     plugins: [ChartDataLabels, horizontalDottedLine],
-    // plugins: [ChartDataLabels],
     options: {
       scales: {
         y: {
           ticks: {
             callback: ((context, index) => {
-              return formatNumbers(context, 'y', formatType)
+              return formatNumbers(context, formatType, 'y')
             })
           }
         }
@@ -137,18 +143,55 @@ const ChartRenderer = (props: IChartProps) => {
   useEffect(() => {
     if (chartRef.current) {
       const chart: any = new Chart(chartRef.current, DEFAULT_CONFIG);
+
+      setChartInstance(chart);
+
       return () => {
         chart.destroy();
       };
     }
   }, [chartType]);
 
+  useEffect(() => {
+    if (chartInstance) {
+      chartInstance.data = chartData;
+      chartInstance.update();
+    }
+
+  }, [chartData, chartInstance]);
+
+  const handleLegendClick = (index: number) => {
+    if (chartInstance) {
+      setChartData(prevData => {
+        const newData = { ...prevData };
+        newData.datasets = [...prevData.datasets];
+        newData.datasets[index] = { ...newData.datasets[index] };
+        newData.datasets[index].hidden = !newData.datasets[index].hidden;
+        return newData;
+      });
+    }
+  }
+
+  const handleColorChange = (index: number, color: string) => {
+    if (chartInstance) {
+      setChartData(prevData => {
+        const newData = { ...prevData };
+        newData.datasets = [...prevData.datasets];
+        newData.datasets[index] = { ...newData.datasets[index] };
+        newData.datasets[index].backgroundColor = color;
+        newData.datasets[index].borderColor = color.replace('0.6', '1');
+        return newData;
+      });
+    }
+  }
+
   return (
     <div
       className="canvas"
-      style={{ width: `auto`, height: `${chartHeight}px`, display: 'flex', justifyContent: 'center' }}
+      style={{ width: `auto`, height: `${chartHeight}px`, display: 'flex', justifyContent: 'center', position: 'relative' }}
     >
-      <canvas ref={chartRef} />
+      <ChartLegend chart={chartData} onClick={handleLegendClick} onColorChange={handleColorChange} />
+      <canvas ref={chartRef} style={{ marginTop: '30px' }} />
     </div>
   );
 };

@@ -206,7 +206,7 @@ export const abbrevateNumbers = (number) => {
   }
 };
 
-export const formatNumbers = (value: number, axis?: string, type?: string) => {
+export const formatNumbers = (value: number, type?: string, axis?: string) => {
 
   if (!value) {
     return "-"
@@ -339,4 +339,71 @@ export const compareValues = (a: any, b: any, operator: string) => {
     default:
       return a === b;
   }
+}
+
+export const hexToRgba = (hex: string, alpha: number) => {
+
+  const bigint = parseInt(hex.slice(1), 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+
+  return `rgba(${r},${g},${b},${alpha})`;
+};
+
+export const rgbaToHex = (rgba: string) => {
+
+  if (typeof rgba !== 'string') return null
+
+  const rgbaValues = rgba.match(/\d+/g);
+  if (!rgbaValues || rgbaValues.length < 3) return null;
+
+  const r = parseInt(rgbaValues[0]).toString(16).padStart(2, '0');
+  const g = parseInt(rgbaValues[1]).toString(16).padStart(2, '0');
+  const b = parseInt(rgbaValues[2]).toString(16).padStart(2, '0');
+
+  return `#${r}${g}${b}`;
+};
+
+export const generateInitialOptions = (options, selectedValues) => {
+  if (!selectedValues) {
+    selectedValues = [];
+  }
+
+  if (!Array.isArray(selectedValues)) {
+    selectedValues = [selectedValues];
+  }
+
+  const selectedValueArray = selectedValues.map(item => {
+    if (typeof item === 'string') {
+      return { value: item };
+    }
+
+    if (typeof item === 'object') {
+      return {
+        value: item.value,
+        extraValues: { ...item }
+      };
+    }
+  }).filter(item => item);
+
+  return selectedValueArray.map(selectedValue => {
+    const matchedOption = options.find(option => option.value === selectedValue.value);
+
+    if (matchedOption) {
+      const updatedOption = { ...matchedOption, ...selectedValue.extraValues };
+      return updatedOption;
+    }
+
+  }).filter(item => item);
+};
+
+export const arrayMove = (array: any[], from: number, to: number) => {
+  const slicedArray = array.slice();
+  slicedArray.splice(
+    to < 0 ? array.length + to : to,
+    0,
+    slicedArray.splice(from, 1)[0]
+  );
+  return slicedArray;
 }

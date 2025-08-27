@@ -1,5 +1,5 @@
 import { sendCoreMessage, sendFormsMessage, sendInboxMessage, sendLogsMessage, sendTagsMessage } from "../messageBroker";
-import { NOW, PROBABILITY_CLOSED, PROBABILITY_OPEN, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP, GOAL_MAP, MONTH_NAMES } from './constants';
+import { NOW, PROBABILITY_CLOSED, PROBABILITY_OPEN, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP } from './constants';
 import { IModels } from "../connectionResolver";
 import * as dayjs from 'dayjs';
 import * as isoWeek from 'dayjs/plugin/isoWeek';
@@ -169,7 +169,14 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
     const { dimension, measure, userType = 'userId', frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt", sortBy, goalType, colDimension, rowDimension } = filter
 
-    const dimensions = colDimension?.length || rowDimension?.length ? [...colDimension, ...rowDimension] : Array.isArray(dimension) ? dimension : dimension?.split(",") || []
+    let dimensions
+
+    if (colDimension?.length || rowDimension?.length) {
+        dimensions = [...colDimension.map(col => col.value), ...rowDimension.map(row => row.value)]
+    } else {
+        dimensions = Array.isArray(dimension) ? dimension : dimension?.split(",") || []
+    }
+
     const measures = Array.isArray(measure) ? measure : measure?.split(",") || []
 
     const pipeline: any[] = [];
@@ -637,12 +644,56 @@ export const buildPipeline = (filter, type, matchFilter) => {
         };
     }
 
-    pipeline.push({
+    const groupKey: any = {
         $group: {
             _id: groupKeys,
             ...actions,
         }
-    });
+    }
+
+    if (dimensions.includes("card") || dimensions.includes("number")) {
+        groupKey.$group.doc = { $first: "$$ROOT" };
+    }
+
+    pipeline.push(groupKey);
+
+    if (dimensions.includes("card") || dimensions.includes("number")) {
+        pipeline.push(
+            {
+                $lookup: {
+                    from: "stages",
+                    localField: "doc.stageId",
+                    foreignField: "_id",
+                    as: "stage"
+                }
+            },
+            {
+                $unwind: "$stage"
+            },
+            {
+                $lookup: {
+                    from: "pipelines",
+                    localField: "stage.pipelineId",
+                    foreignField: "_id",
+                    as: "pipeline"
+                }
+            },
+            {
+                $unwind: "$pipeline"
+            },
+            {
+                $lookup: {
+                    from: "boards",
+                    localField: "pipeline.boardId",
+                    foreignField: "_id",
+                    as: "board"
+                }
+            },
+            {
+                $unwind: "$board"
+            }
+        )
+    }
 
     if (dimensions.includes("frequency")) {
         pipeline.push({ $sort: { _id: 1 } })
@@ -1120,6 +1171,12 @@ export const buildPipeline = (filter, type, matchFilter) => {
         projectionFields.assignedTo = "$assignedTo";
     }
 
+    if (dimensions.includes("card") || dimensions.includes("number")) {
+        projectionFields.itemId = '$doc._id';
+        projectionFields.pipelineId = '$pipeline._id';
+        projectionFields.boardId = '$board._id';
+    }
+
     pipeline.push({ $project: projectionFields });
 
     if (filter.amountRange) {
@@ -1169,26 +1226,21 @@ export const returnDateRange = (
     startDate: Date,
     endDate: Date,
 ) => {
-    const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
-    const endOfToday = new Date(NOW.setHours(23, 59, 59, 999));
-    const startOfYesterday = new Date(dayjs(NOW).add(-1, 'day').toDate().setHours(0, 0, 0, 0),);
-    const startOfTheDayBeforeYesterday = new Date(dayjs(NOW).add(-2, 'day').toDate().setHours(0, 0, 0, 0),);
-
     let $gte;
     let $lte;
 
     switch (dateRange) {
         case 'today':
-            $gte = startOfToday;
-            $lte = endOfToday;
+            $gte = dayjs(NOW).startOf('day').toDate();;
+            $lte = dayjs(NOW).endOf('day').toDate();;
             break;
         case 'yesterday':
-            $gte = startOfYesterday;
-            $lte = startOfToday;
+            $gte = dayjs(NOW).subtract(1, 'day').startOf('day').toDate();
+            $lte = dayjs(NOW).subtract(1, 'day').endOf('day').toDate();
             break;
         case 'last72h':
-            $gte = startOfTheDayBeforeYesterday;
-            $lte = startOfToday;
+            $gte = dayjs(NOW).subtract(3, 'day').startOf('day').toDate();
+            $lte = dayjs(NOW).endOf('day').toDate();
             break;
         case 'thisWeek':
             $gte = dayjs(NOW).startOf('week').toDate();
@@ -1654,13 +1706,13 @@ export const formatFrequency = (frequencyType, frequency) => {
     return format
 }
 
-export const formatData = (data, filter) => {
+export const formatData = (data, filter, type) => {
 
     const { dateRange, startDate, endDate, frequencyType } = filter
 
     const formattedData = [...data]
 
-    formattedData.map(item => {
+    formattedData.forEach(item => {
 
         if (item.hasOwnProperty('frequency')) {
             const frequency = item['frequency']
@@ -1670,14 +1722,14 @@ export const formatData = (data, filter) => {
             item['frequency'] = formatFrequency(formatData, frequency)
         }
 
-        ['createdBy', 'modifiedBy', 'assignedTo'].map(key => {
+        ['createdBy', 'modifiedBy', 'assignedTo'].forEach(key => {
             if (item.hasOwnProperty(key)) {
                 const user = item[key]
                 item[key] = user.details?.fullName || `${user.details?.firstName} ${user.details?.lastName}` || user.email
             }
         });
 
-        ['createdAt', 'modifiedAt', 'startDate', 'closeDate', 'stageChangedDate'].map(key => {
+        ['createdAt', 'modifiedAt', 'startDate', 'closeDate', 'stageChangedDate'].forEach(key => {
             if (item.hasOwnProperty(key)) {
                 const date = item[key]
                 item[key] = dayjs(date).format('YYYY/MM/DD h:mm A')
@@ -1690,16 +1742,22 @@ export const formatData = (data, filter) => {
                 delete item[key];
             }
         });
+
+        if (item.hasOwnProperty('itemId') && item.hasOwnProperty('pipelineId') && item.hasOwnProperty('boardId')) {
+            item.url = `/${type}/board?id=${item.boardId}&pipelineId=${item.pipelineId}&itemId=${item.itemId}`;
+
+            ['boardId', 'pipelineId', 'itemId'].forEach((key) => delete item[key]);
+        }
     })
 
     return formattedData
 }
 
-export const buildData = ({ chartType, data, filter }) => {
+export const buildData = ({ chartType, data, filter, type }) => {
 
     const { measure, dimension, rowDimension, colDimension } = filter
 
-    const formattedData = formatData(data, filter);
+    const formattedData = formatData(data, filter, type);
 
     switch (chartType) {
         case 'bar':
@@ -1710,7 +1768,7 @@ export const buildData = ({ chartType, data, filter }) => {
         case 'polarArea':
             return buildChartData(formattedData, measure, dimension, filter)
         case 'table':
-            return buildTableData(formattedData, measure, dimension)
+            return buildTableData(formattedData, measure, dimension, colDimension, rowDimension)
         case 'pivotTable':
             return buildPivotTableData(data, rowDimension, colDimension, measure)
         case 'number':
@@ -1808,10 +1866,16 @@ export const buildChartData = (data: any, measures: any, dimensions: any, filter
     return datasets
 }
 
-export const buildTableData = (data: any, measures: any, dimensions: any) => {
+export const buildTableData = (data: any, measures: any, dimensions: any, colDimension: any[], rowDimension: any[]) => {
+
+    if (colDimension?.length || rowDimension?.length) {
+        dimensions = [...colDimension.map(col => col.value), ...rowDimension.map(row => row.value)]
+    } else {
+        dimensions = Array.isArray(dimensions) ? dimensions : dimensions?.split(",") || []
+    }
 
     const reorderedData = data.map(item => {
-        const order = {};
+        const order: any = {};
 
         if (dimensions?.length) {
             dimensions.forEach(dimension => {
@@ -1825,6 +1889,10 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
             });
         }
 
+        if (item.hasOwnProperty("url")) {
+            order.url = item.url || ''
+        }
+
         return order;
     });
 
@@ -1832,9 +1900,12 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
 
     if (measures?.length) {
         total = data.reduce((acc, item) => {
+
+            acc['total'] = dimensions?.length
+
             measures.forEach(measure => {
-                if (item[measure] !== undefined) {
-                    acc[measure] = (acc[measure] || 0) + item[measure];
+                if (item[DEAL_LABELS[measure]] !== undefined) {
+                    acc[measure] = (acc[measure] || 0) + item[DEAL_LABELS[measure]];
                 }
             });
 
@@ -1944,7 +2015,6 @@ const rd = /\d/;
 const rz = /^0/;
 
 export const naturalSort = (as: any, bs: any) => {
-    // nulls first
     if (bs !== null && as === null) {
         return -1;
     }
@@ -1952,7 +2022,20 @@ export const naturalSort = (as: any, bs: any) => {
         return 1;
     }
 
-    // then raw NaNs
+    if (typeof as === 'boolean') {
+        return -1;
+    }
+    if (typeof bs === 'boolean') {
+        return 1;
+    }
+
+    if (!as || as.trim() === "") {
+        return 1;
+    }
+    if (!bs || bs.trim() === "") {
+        return -1;
+    }
+
     if (typeof as === 'number' && isNaN(as)) {
         return -1;
     }
@@ -1960,7 +2043,6 @@ export const naturalSort = (as: any, bs: any) => {
         return 1;
     }
 
-    // numbers and numbery strings group together
     const nas = Number(as);
     const nbs = Number(bs);
     if (nas < nbs) {
@@ -1970,7 +2052,6 @@ export const naturalSort = (as: any, bs: any) => {
         return 1;
     }
 
-    // within that, true numbers before numbery strings
     if (typeof as === 'number' && typeof bs !== 'number') {
         return -1;
     }
@@ -1981,7 +2062,6 @@ export const naturalSort = (as: any, bs: any) => {
         return 0;
     }
 
-    // 'Infinity' is a textual number, so less than 'A'
     if (isNaN(nbs) && !isNaN(nas)) {
         return -1;
     }
@@ -1989,7 +2069,6 @@ export const naturalSort = (as: any, bs: any) => {
         return 1;
     }
 
-    // finally, "smart" string sorting per http://stackoverflow.com/a/4373421/112871
     let a: any = String(as);
     let b: any = String(bs);
     if (a === b) {
@@ -1999,7 +2078,6 @@ export const naturalSort = (as: any, bs: any) => {
         return a > b ? 1 : -1;
     }
 
-    // special treatment for strings containing digits
     a = a.match(rx);
     b = b.match(rx);
     while (a.length && b.length) {
@@ -2033,8 +2111,8 @@ export const arrSort = (attrs: any) => {
     let a;
     const sortersArr = (() => {
         const result: any[] = [];
-        for (a of Array.from(attrs)) {
-            result.push(getSort({}, a));
+        for (a of Array.from(attrs) as any) {
+            result.push(getSort({}, a.value));
         }
         return result;
     })();
@@ -2083,67 +2161,94 @@ const aggregator = (rowKey: any[], colKey: any[], vals?: string[]) => {
     };
 };
 
+const subarrays = (array: any[]) => array.map((d, i) => array.slice(0, i + 1));
+
+export const transformData = (data, cols) => {
+    return data.map(row => {
+        const newRow = [...row];
+
+        if (row.length < cols.length) {
+            const lastIndex = newRow.length - 1;
+            if (newRow[lastIndex] !== undefined && cols[lastIndex + 1]?.showTotal) {
+                newRow[lastIndex] = `${newRow[lastIndex]} Total`;
+            } else {
+                return null;
+            }
+        }
+
+        return newRow;
+    }).filter(row => row !== null);
+}
+
 export const createPivotTable = (data: any, rows: any, cols: any, vals: any) => {
     const tree: any = {}
-    const rowKeys: any[] = [];
-    const colKeys: any[] = [];
+    const mainRowKeys: any[] = []
+    const mainColKeys: any[] = []
     const rowTotals: any = {}
     const colTotals: any = {}
     const allTotal = aggregator([], [], vals);
 
     data.forEach((record: any) => {
 
-        const colKey: any = [];
-        const rowKey: any = [];
+        let colKeys: any[] = [];
+        let rowKeys: any[] = [];
 
         for (const x of Array.from(cols) as any) {
-            colKey.push(x in record ? record[x] : 'null');
+            colKeys.push(x.value in record ? record[x.value] : 'null');
         }
 
         for (const x of Array.from(rows) as any) {
-            rowKey.push(x in record ? record[x] : 'null');
+            rowKeys.push(x.value in record ? record[x.value] : 'null');
         }
 
-        const flatRowKey = rowKey.join(String.fromCharCode(0));
-        const flatColKey = colKey.join(String.fromCharCode(0));
+        colKeys = subarrays(colKeys);
+        rowKeys = subarrays(rowKeys);
 
         allTotal.push(record);
 
-        if (rowKey.length !== 0) {
-            if (!rowTotals[flatRowKey]) {
-                rowKeys.push(rowKey);
-                rowTotals[flatRowKey] = aggregator(rowKey, [], vals);
-            }
-            rowTotals[flatRowKey].push(record);
-        }
+        for (const rowKey of rowKeys) {
+            const flatRowKey = rowKey.join(String.fromCharCode(0));
 
-        if (colKey.length !== 0) {
-            if (!colTotals[flatColKey]) {
-                colKeys.push(colKey);
-                colTotals[flatColKey] = aggregator([], colKey, vals);
-            }
-            colTotals[flatColKey].push(record);
-        }
+            for (const colKey of colKeys) {
+                const flatColKey = colKey.join(String.fromCharCode(0));
 
-        if (colKey.length !== 0 && rowKey.length !== 0) {
-            if (!tree[flatRowKey]) {
-                tree[flatRowKey] = {};
-            }
+                if (rowKey.length !== 0) {
+                    if (!rowTotals[flatRowKey]) {
+                        mainRowKeys.push(rowKey);
+                        rowTotals[flatRowKey] = aggregator(rowKey, [], vals);
+                    }
+                    rowTotals[flatRowKey].push(record);
+                }
 
-            if (!tree[flatRowKey][flatColKey]) {
-                tree[flatRowKey][flatColKey] = aggregator(
+                if (colKey.length !== 0) {
+                    if (!colTotals[flatColKey]) {
+                        mainColKeys.push(colKey);
+                        colTotals[flatColKey] = aggregator([], colKey, vals);
+                    }
+                    colTotals[flatColKey].push(record);
+                }
+
+                if (colKey.length !== 0 && rowKey.length !== 0) {
+                    if (!tree[flatRowKey]) {
+                        tree[flatRowKey] = {};
+                    }
+
+                    if (!tree[flatRowKey][flatColKey]) {
+                        tree[flatRowKey][flatColKey] = aggregator(
                     rowKey,
                     colKey,
                     vals
-                );
-            }
+                        );
+                    }
 
-            tree[flatRowKey][flatColKey].push(record);
+                    tree[flatRowKey][flatColKey].push(record);
+                }
+            }
         }
     })
 
-    const sortedRowKeys = sortKeys(rowKeys, rows)
-    const sortedColKeys = sortKeys(colKeys, cols)
+    const sortedRowKeys = sortKeys(mainRowKeys, rows)
+    const sortedColKeys = sortKeys(mainColKeys, cols)
 
     return {
         tree,
@@ -2194,7 +2299,7 @@ export const spanSize = (arr: any[], i: number, j: number) => {
     return len;
 };
 
-export const buildPivotTableData = (data: any, rows: string[], cols: string[], value: any) => {
+export const buildPivotTableData = (data: any, rows: any[], cols: any[], value: any) => {
 
     const { tree, rowKeys, colKeys, rowTotals, colTotals, allTotal } = createPivotTable(data, rows, cols, value)
 
@@ -2202,8 +2307,9 @@ export const buildPivotTableData = (data: any, rows: string[], cols: string[], v
 
     const headerRows = (rows || []).map((row: any, rowIndex: any) => {
         const headerCell = {
-            content: row,
-            rowspan: cols.length + 1
+            content: row.value,
+            rowspan: cols.length + 1,
+            className: 'sticky-col pl-0'
         };
 
         return headerCell
@@ -2211,24 +2317,41 @@ export const buildPivotTableData = (data: any, rows: string[], cols: string[], v
 
     headers.push(headerRows);
 
-    (cols || []).map((_, colIndex: number) => {
+    (cols || []).forEach((_, colIndex: number) => {
+        const transformedColKeys = transformData(colKeys, cols)
+        const headerCols: any[] = []
 
-        const headerCols: any[] = colKeys.map((colKey: any, colKeyIndex: number) => {
-            const colspan = spanSize(colKeys, colKeyIndex, colIndex);
+        transformedColKeys.forEach((colKey: any, colKeyIndex: number) => {
+            const colspan = spanSize(transformedColKeys, colKeyIndex, colIndex);
 
-            const headerCell = {
+            const colGap = cols.length - colKey.length;
+
+            if (!colKey[colIndex]) {
+                return null
+            }
+
+            const headerCell: any = {
                 content: colKey[colIndex],
                 colspan: colspan === -1 ? 0 : colspan
             };
 
-            return headerCell
+            if (colGap) {
+                const currentCol: any = cols[cols.length - colGap]
+                headerCell.rowspan = !currentCol.showTotal ? 0 : colGap + 1
+            }
+
+            headerCols.push(headerCell)
         });
 
         if (colIndex === 0) {
 
-            const headerTotalColCell = {
+            let headerTotalColCell: any = {
                 content: "Totals",
                 rowspan: cols.length
+            }
+
+            if (!cols[0].showTotal) {
+                headerTotalColCell = null
             }
 
             headers.push([...headerCols, headerTotalColCell])
@@ -2246,18 +2369,32 @@ export const buildPivotTableData = (data: any, rows: string[], cols: string[], v
 
         const totalAggregator = rowTotals[flatRowKey]
 
+        const rowGap = rows.length - rowKey.length
+
         const bodyRow: any[] = rowKey.map((row: any, rowIndex: number) => {
 
             const colspan = spanSize(rowKeys, rowKeyIndex, rowIndex);
 
             const bodyCell = {
                 content: row,
-                rowspan: colspan === -1 ? 0 : colspan,
-                className: 'pl-0'
+                rowspan: colspan === -1 ? 0 : colspan === 1 ? colspan : rowGap ? colspan + 1 : colspan - 1,
+                className: `pl-0 sticky-col ${rowGap ? 'subTotal' : ''}`
             };
 
             return bodyCell
         })
+
+        let subTotalCell: any = null;
+
+        const row = rows[rows.length - rowGap]
+
+        if (rowGap && row.showTotal) {
+            subTotalCell = {
+                content: `${rowKey[rowKey.length - 1]} Total`,
+                colspan: rowGap + 1,
+                className: "pl-0 subTotal sticky-col"
+            };
+        }
 
         const bodyCol = colKeys.map((colKey: any, colIndex: number) => {
 
@@ -2265,37 +2402,65 @@ export const buildPivotTableData = (data: any, rows: string[], cols: string[], v
 
             const aggregator = tree[flatRowKey][flatColKey]
 
-            const bodyCell = {
+            const colGap = cols.length - colKey.length;
+
+            const row = rows[rows.length - rowGap]
+            const col = cols[cols.length - colGap]
+
+            let bodyCell: any = {
                 content: aggregator?.value() || '-',
+                colspan: (colGap && !col.showTotal) ? 0 : 1,
+                className: colGap || rowGap ? 'subTotal' : ''
             };
 
+            if (rowGap) {
+                bodyCell.rowspan = (rowGap && !row.showTotal) ? 0 : 1
+            }
+
             if (colIndex === 0) {
-                Object.assign(bodyCell, { className: 'pl-0' })
+                Object.assign(bodyCell, { className: `pl-0 ${colGap || rowGap ? 'subTotal' : ''}` })
             }
 
             return bodyCell
         })
 
-        const totalColCell = {
-            content: totalAggregator.value(),
+        let totalColCell: any = {
+            content: totalAggregator.value() / cols.length || '-',
+            colspan: rowGap && !row.showTotal ? 0 : 1,
             className: "total"
         }
 
-        body.push([...bodyRow, ...bodyCol, totalColCell])
+        if (!cols[0].showTotal) {
+            totalColCell = null
+        }
+
+        body.push([...bodyRow, subTotalCell, ...bodyCol, totalColCell])
     })
 
-    const totalRowCell = {
+    let totalRowCell: any = {
         content: "Totals",
         colspan: rows.length,
-        className: "total"
+        className: "total sticky-col"
+    }
+
+    if (!rows[0].showTotal) {
+        totalRowCell = null
     }
 
     const totalColCell = colKeys.map((colKey: any, colIndex: number) => {
 
         const totalAggregator = colTotals[colKey.join(String.fromCharCode(0))]
 
+        const colGap = cols.length - colKey.length;
+        const col = cols[cols.length - colGap]
+
+        if (!rows[0].showTotal) {
+            return null
+        }
+
         const totalCell = {
-            content: totalAggregator?.value() || '-',
+            content: totalAggregator?.value() / rows.length || '-',
+            colspan: (colGap && !col.showTotal) ? 0 : 1,
             className: "total"
         }
 
@@ -2306,9 +2471,13 @@ export const buildPivotTableData = (data: any, rows: string[], cols: string[], v
         return totalCell
     })
 
-    const grandTotalCell = { content: allTotal, className: "total" }
+    let grandTotalCell: any = null
+
+    if (rows[0].showTotal && cols[0].showTotal) {
+        grandTotalCell = { content: allTotal, className: "total" }
+    }
 
     body.push([totalRowCell, ...totalColCell, grandTotalCell])
 
-    return { headers, body }
+    return { headers, body, rowAttributes: rows }
 }

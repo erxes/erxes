@@ -58,5 +58,16 @@ export default {
             },
             isRPC: true
         });
-    }
+    },
+    async isPinned(report: IReportDocument, { }, { models, user }: IContext) {
+
+        const { userIds } = report
+
+        if ((userIds || []).includes(user._id)) {
+            return true
+        }
+
+        return false
+
+    },
 };

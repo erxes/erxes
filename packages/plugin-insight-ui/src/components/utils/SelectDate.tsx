@@ -62,9 +62,9 @@ const SelectDate = (props: Props) => {
                     ? {
                         value: 'customDate',
                         label: `
-                  ${startDate ? dayjs(startDate).format(dateFormat) : ''}
-                  ${endDate ? ' - ' + dayjs(endDate).format(dateFormat) : ''}
-                `
+                            ${startDate ? dayjs(startDate).format(dateFormat) : ''}
+                            ${endDate ? ' - ' + dayjs(endDate).format(dateFormat) : ''}
+                        `
                     }
                     : option
             );

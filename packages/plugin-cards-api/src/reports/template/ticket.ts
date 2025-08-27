@@ -2481,7 +2481,7 @@ export const ticketCharts = [
 
             const title = 'Total Tickets Count';
 
-            return { title, ...buildData({ chartType, data: tickets, filter }) };
+            return { title, ...buildData({ chartType, data: tickets, filter, type: "ticket" }) };
         },
         filterTypes: [
             // DIMENSION FILTER
