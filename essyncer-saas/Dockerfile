@@ -14,6 +14,9 @@ RUN apt-get update \
     git \
  && rm -rf /var/lib/apt/lists/*
 
+# Install dep
+RUN go install github.com/golang/dep/cmd/dep@latest
+
 # Download and install monstache
 RUN wget -q --show-progress https://github.com/rwynn/monstache/releases/download/v6.7.0/monstache-dfba1c2.zip \
  && unzip monstache-dfba1c2.zip \
@@ -22,15 +25,8 @@ RUN wget -q --show-progress https://github.com/rwynn/monstache/releases/download
 
 COPY . .
 
-# Install Go dependencies and build
+# Install Go dependencies using dep
 RUN cd src/syncer \
- && go mod init syncer \
- && go get github.com/joho/godotenv \
- && go get github.com/olivere/elastic \
- && go get go.mongodb.org/mongo-driver/mongo \
- && go get go.mongodb.org/mongo-driver/bson \
- && go get go.mongodb.org/mongo-driver/bson/primitive \
- && go get go.mongodb.org/mongo-driver/mongo/options
-
+ && dep ensure
 
 CMD ["go", "run", "src/syncer/main.go"]
