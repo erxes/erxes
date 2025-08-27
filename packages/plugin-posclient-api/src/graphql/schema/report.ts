@@ -5,5 +5,5 @@ export const types = `
 `;
 
 export const queries = `
-  dailyReport(posUserIds: [String], posNumber: String): DailyReport
+  dailyReport(posUserIds: [String], dateType: String, startDate: Date, endDate: Date): DailyReport
 `;

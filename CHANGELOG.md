@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.16.6](https://github.com/erxes/erxes/compare/2.16.5...2.16.6) (2025-08-26)
+
+### Features
+
+* **cms:** add tag, menu, page, category translations ([#6108](https://github.com/erxes/erxes/issues/6108)) ([35ec836](https://github.com/erxes/erxes/commit/35ec8360b1d3aa43965b266e477b3cc6db39eaf0))
+* **erxes-ui:** improve user option labels with positions and branches ([3313556](https://github.com/erxes/erxes/commit/33135564866c2f40fb50e5e929fed2e0e5995bf2))
+* **tickets-api:** add new fields for branches and createdBy parent in field generation and related value automation ([cb5d476](https://github.com/erxes/erxes/commit/cb5d4764bed3c9ff15755f11a3361466227ff14e))
+
+### Bug Fixes
+
+* pos orders filter by types ([2fa0b51](https://github.com/erxes/erxes/commit/2fa0b517f588ccbf52680b620cdc6633f71e024b))
+* **pos:** pos daily report filter with startDate and endDate ([3eabd3f](https://github.com/erxes/erxes/commit/3eabd3fb2826da6c41d70dccb0705564ce260904))
+
 ## [2.16.5](https://github.com/erxes/erxes/compare/2.16.4...2.16.5) (2025-08-20)
 
 ### Features

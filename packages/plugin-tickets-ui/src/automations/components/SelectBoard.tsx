@@ -8,6 +8,7 @@ import React from "react";
 import { queries as boardQueries } from "@erxes/ui-tickets/src/boards/graphql";
 import client from "@erxes/ui/src/apolloClient";
 import { gql } from "@apollo/client";
+import BoardSelect from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
 
 type Props = {
   config: any;
@@ -67,7 +68,7 @@ export default class SelectBoard extends React.Component<Props, State> {
   };
 
   onChange = stageId => {
-    this.overlay.hide();
+    this?.overlay?.hide();
 
     const { config, setConfig, inputName } = this.props;
     const { stages = [] } = this.state;
@@ -94,16 +95,16 @@ export default class SelectBoard extends React.Component<Props, State> {
       <Popover
         trigger={
           <span>
-            {__("Stages")} <Icon icon="angle-down" />
+            {__("Stages")} <Icon icon='angle-down' />
           </span>
         }
-        placement="top"
+        placement='top'
         innerRef={this.overlay}
       >
         <Attributes>
           <React.Fragment>
-            {/* <BoardSelect
-              type={type.includes("tickets:") ? type.slice(6) : type}
+            <BoardSelect
+              type={"tickets"}
               stageId={this.state.stageId}
               boardId={this.state.boardId}
               pipelineId={this.state.pipelineId}
@@ -111,7 +112,7 @@ export default class SelectBoard extends React.Component<Props, State> {
               onChangePipeline={plIdOnChange}
               onChangeBoard={brIdOnChange}
               autoSelectStage={false}
-            /> */}
+            />
           </React.Fragment>
         </Attributes>
       </Popover>

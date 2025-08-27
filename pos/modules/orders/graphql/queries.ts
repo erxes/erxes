@@ -239,6 +239,7 @@ export const ordersCheckCompany = `
 export const queryParamsDefs = `
   $searchValue: String,
   $statuses: [String],
+  $types: [String],
   $customerId: String,
   $customerType: String,
   $startDate: Date,
@@ -258,6 +259,7 @@ export const queryParamsDefs = `
 export const queryParamsValues = `
   searchValue: $searchValue,
   statuses: $statuses,
+  types: $types,
   customerId: $customerId,
   customerType: $customerType,
   startDate: $startDate,

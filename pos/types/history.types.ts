@@ -1,6 +1,7 @@
 export interface IFilter {
   searchValue: string
   statuses: string[]
+  types?: string[]
   customerId: string | null
   startDate?: string
   endDate?: string
