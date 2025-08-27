@@ -2,8 +2,8 @@ import { fetchPolaris, getDepositAccount, getContract } from "../utils";
 
 export const createLoanClose = async (
   subdomain,
+  models,
   polarisConfig,
-  config,
   transaction
 ) => {
   const loanContract = await getContract(
@@ -27,7 +27,7 @@ export const createLoanClose = async (
     contAmount: transaction.total,
     contRate: 1,
     contCurCode: transaction.currency,
-    txnDesc: transaction.description,
+    txnDesc: transaction.description ?? "haav",
     sourceType: "OI",
     isPreview: 0,
     isPreviewFee: null,
