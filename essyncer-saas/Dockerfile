@@ -4,6 +4,7 @@ WORKDIR /essyncer-saas/
 
 ENV GOPATH=/essyncer-saas
 ENV PATH="/essyncer-saas/build/linux-amd64:$PATH"
+ENV GO111MODULE=off
 
 # Update and install dependencies
 RUN apt-get update \
