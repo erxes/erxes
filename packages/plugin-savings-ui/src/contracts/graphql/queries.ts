@@ -1,6 +1,6 @@
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields,
+  conformityQueryFields
 } from '@erxes/ui-sales/src/conformity';
 
 export const contractFields = `
@@ -144,6 +144,7 @@ export const contractDetailFields = `
     primaryName
     website
   }
+  savingTransactionHistory
   interestGiveType
   closeOrExtendConfig
   depositAccount
@@ -227,5 +228,5 @@ export default {
   closeInfo,
   documents,
   savingsContractsAlert,
-  getPolarisData,
+  getPolarisData
 };

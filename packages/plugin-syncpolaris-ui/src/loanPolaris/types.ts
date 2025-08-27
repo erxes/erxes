@@ -1,5 +1,6 @@
-import { IProduct } from '@erxes/ui-products/src/types';
-import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { IProduct } from "@erxes/ui-products/src/types";
+import { ICompany } from "@erxes/ui-contacts/src/companies/types";
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
 
 export interface IContract {
   _id: string;
@@ -81,10 +82,70 @@ export interface IContract {
   isActiveLoan: boolean;
   isSyncedSchedules: boolean;
   isSyncedCollateral: boolean;
+  loanTransactionHistory?: ITransaction[];
 }
 
 export interface IContractDoc extends IContract {
   _id: string;
+}
+
+export interface ITransactionDoc {
+  contractId: string;
+  createdAt: Date;
+  createdBy?: string;
+  customerId?: string;
+  companyId?: string;
+  transactionType: string;
+  invoiceNumber?: string;
+  payDate: Date;
+  description?: string;
+  payment: number;
+  interestEve: number;
+  interestNonce: number;
+  loss: number;
+  insurance: number;
+  debt: number;
+  total: number;
+  futureDebt?: number;
+  debtTenor?: number;
+  isSyncedTransaction?: boolean;
+}
+
+export interface ITransaction extends ITransactionDoc {
+  _id: string;
+  company?: ICompany;
+  customer?: ICustomer;
+  contract?: IContract;
+  invoice?: IInvoiceDoc;
+  ebarimt?: any;
+  calcedInfo?: any;
+  invoiceId?: any;
+}
+
+export interface IInvoiceDoc {
+  contractId: string;
+  createdAt: Date;
+  createdBy?: string;
+  customerId?: string;
+  companyId?: string;
+  number: string;
+  status: string;
+  payDate: Date;
+  payment: number;
+  interestEve: number;
+  interestNonce: number;
+  loss: number;
+  insurance: number;
+  debt: number;
+  total: number;
+}
+
+export interface IInvoice extends IInvoiceDoc {
+  _id: string;
+  company?: ICompany;
+  customer?: ICustomer;
+  contract?: IContract;
+  transaction?: ITransactionDoc;
 }
 
 export interface IContractTypeDoc {
@@ -302,4 +363,12 @@ export type ActiveLoanMutationResponse = {
   loanContractActive: (params: {
     variables: { contractNumber: string };
   }) => Promise<any>;
+};
+
+export type LoanTransactionMutationResponse = {
+  loanGiveTransaction: (params: { variables: { data: any } }) => Promise<any>;
+};
+
+export type LoanCloseMutationResponse = {
+  closeLoanRepayment: (params: { variables: { data: any } }) => Promise<any>;
 };

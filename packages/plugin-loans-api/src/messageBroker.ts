@@ -4,7 +4,6 @@ import { generateModels } from './connectionResolver';
 import fetch from 'node-fetch';
 import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 import { getCloseInfo } from './models/utils/closeUtils';
-import { IConfig } from './interfaces/config';
 import { dealContract } from './utils';
 
 type CustomFieldType = 'core:customer';
@@ -15,7 +14,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
-      data: await models.Contracts.find(data).lean(),
+      data: await models.Contracts.find(data).lean()
     };
   });
 
@@ -24,7 +23,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
-      data: await models.Contracts.findOne(data).lean(),
+      data: await models.Contracts.findOne(data).lean()
     };
   });
 
@@ -35,7 +34,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: 'success',
-        data: await models.FirstSchedules.findOne(data).lean(),
+        data: await models.FirstSchedules.findOne(data).lean()
       };
     }
   );
@@ -47,7 +46,7 @@ export const setupMessageConsumers = async () => {
     const result = await models.Contracts.updateOne(selector, modifier);
     return {
       status: 'success',
-      data: result,
+      data: result
     };
   });
 
@@ -56,12 +55,12 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
       const contract = await models.Contracts.getContract({
-        _id: data.contractId,
+        _id: data.contractId
       });
       const closeInfo = await getCloseInfo(models, contract, data.closeDate);
       return {
         status: 'success',
-        data: closeInfo,
+        data: closeInfo
       };
     }
   );
@@ -73,7 +72,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: 'success',
-        data: await dealContract(dealId, args, models, subdomain),
+        data: await dealContract(dealId, args, models, subdomain)
       };
     }
   );
@@ -82,7 +81,7 @@ export const setupMessageConsumers = async () => {
     const models = await generateModels(subdomain);
     return {
       status: 'success',
-      data: await models.ContractTypes.findOne(data).lean(),
+      data: await models.ContractTypes.findOne(data).lean()
     };
   });
 
@@ -90,7 +89,7 @@ export const setupMessageConsumers = async () => {
     const models = await generateModels(subdomain);
     return {
       status: 'success',
-      data: await models.LoanPurpose.findOne(data).lean(),
+      data: await models.LoanPurpose.findOne(data).lean()
     };
   });
 
@@ -100,7 +99,7 @@ export const setupMessageConsumers = async () => {
       const models = await generateModels(subdomain);
       return {
         status: 'success',
-        data: await models.CollateralTypes.findOne(data).lean(),
+        data: await models.CollateralTypes.findOne(data).lean()
       };
     }
   );
@@ -110,7 +109,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
-      data: await models.ContractTypes.find(data).lean(),
+      data: await models.ContractTypes.find(data).lean()
     };
   });
 
@@ -119,7 +118,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
-      data: await models.Transactions.find(data).lean(),
+      data: await models.Transactions.find(data).lean()
     };
   });
 
@@ -132,14 +131,29 @@ export const setupMessageConsumers = async () => {
       return {
         status: 'success',
         data: await models.Transactions.find({
-          contractId: { $in: contracts.map((c) => c._id) },
-        }).lean(),
+          contractId: { $in: contracts.map((c) => c._id) }
+        }).lean()
       };
     }
   );
+
+  consumeRPCQueue(
+    'savings:transactions.update',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { selector, modifier } = data;
+      const result = await models.Transactions.updateOne(selector, modifier);
+
+      return {
+        status: 'success',
+        data: result
+      };
+    }
+  );
+
   consumeRPCQueue('loans:transaction', async ({ subdomain, data }) => {
     return {
-      status: 'success',
+      status: 'success'
     };
   });
   consumeRPCQueue(
@@ -149,7 +163,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         data: await models.FirstSchedules.insertMany(data),
-        status: 'success',
+        status: 'success'
       };
     }
   );
@@ -158,7 +172,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       data: await models.FirstSchedules.insertMany(data),
-      status: 'success',
+      status: 'success'
     };
   });
 };
@@ -178,7 +192,7 @@ export const sendMessageBroker = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: name,
-    ...args,
+    ...args
   });
 };
 
@@ -187,7 +201,7 @@ export const sendCoreMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args,
+    ...args
   });
 };
 
@@ -196,7 +210,7 @@ export const sendSalesMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'sales',
-    ...args,
+    ...args
   });
 };
 
@@ -205,7 +219,7 @@ export const sendReactionsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'reactions',
-    ...args,
+    ...args
   });
 };
 
@@ -213,7 +227,7 @@ export const sendCommonMessage = async (
   args: MessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    ...args,
+    ...args
   });
 };
 
@@ -229,16 +243,16 @@ export const getFieldObject = async (
     data: {
       query: {
         contentType: customFieldType,
-        code: { $exists: true, $ne: '' },
+        code: { $exists: true, $ne: '' }
       },
       projection: {
         groupId: 1,
         code: 1,
-        _id: 1,
-      },
+        _id: 1
+      }
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   return fields.find((row) => row.code === code);
@@ -266,7 +280,7 @@ export const getConfig = async (
     action: 'getConfig',
     data: { code, defaultValue },
     isRPC: true,
-    defaultValue,
+    defaultValue
   });
 };
 
@@ -298,7 +312,7 @@ export const sendSms = async (
             key: MESSAGE_PRO_API_KEY,
             from: MESSAGE_PRO_PHONE_NUMBER,
             to: phoneNumber,
-            text: content,
+            text: content
           })
       );
 

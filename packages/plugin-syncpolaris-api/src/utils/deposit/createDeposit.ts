@@ -45,7 +45,7 @@ export const createDeposit = async (
 
   let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
-  if (preSuccessValue) {
+  if (preSuccessValue || deposit.isSyncedPolaris) {
     return await updateDeposit(
       subdomain,
       models,
