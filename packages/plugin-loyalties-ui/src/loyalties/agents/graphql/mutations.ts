@@ -10,10 +10,6 @@ const addEditParamDefs = `
   $startDay: Date,
   $endDay: Date,
   $hasReturn: Boolean!,
-  $returnAmount: Float,
-  $returnPercent: Float,
-  $prepaidPercent: Float,
-  $discountPercent: Float,
   $productRuleIds: [String]
 `;
 
@@ -29,10 +25,6 @@ const addEditParams = `
   startDay: $startDay,
   endDay: $endDay,
   hasReturn: $hasReturn,
-  returnAmount: $returnAmount,
-  returnPercent: $returnPercent,
-  prepaidPercent: $prepaidPercent,
-  discountPercent: $discountPercent,
   productRuleIds: $productRuleIds
 `;
 

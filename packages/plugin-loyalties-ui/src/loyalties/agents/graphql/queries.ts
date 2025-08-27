@@ -11,18 +11,14 @@ const agentFields = `
   startDay
   endDay
   hasReturn
-  returnAmount
-  returnPercent
-  prepaidPercent
-  discountPercent
   productRuleIds
 
   rulesOfProducts
 `;
 
 const agentDetail = `
-  query agentDetail {
-    agentDetail {
+  query agentDetail($_id: String) {
+    agentDetail(_id: $_id) {
       ${agentFields}
     }
   }

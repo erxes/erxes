@@ -39,9 +39,7 @@ class AgentForm extends React.Component<Props, State> {
 
     const initialValue = {
       hasReturn: false,
-      status: 'draft',
-      prepaidPercent: 0,
-      discountPercent: 0
+      status: 'draft'
     };
 
     const { agent = initialValue as IAgent } = props;
@@ -102,25 +100,6 @@ class AgentForm extends React.Component<Props, State> {
     const updated: any = { ...this.state.agent, hasReturn: checked };
 
     this.setState({ agent: updated });
-  }
-
-  renderNumberFields = (formProps, label: string, fieldName: string, defaultValue: number | undefined) => {
-    return (
-      <FormColumn>
-        <FormGroup>
-          <ControlLabel>{label}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name={fieldName}
-            type="number"
-            min={0}
-            max={100}
-            onChange={this.onInputChange}
-            defaultValue={defaultValue}
-          />
-        </FormGroup>
-      </FormColumn>
-    );
   }
 
   renderDateFields = (formProps, label: string, fieldName: string, defaultValue: Date | undefined, format?: string) => {
@@ -226,13 +205,6 @@ class AgentForm extends React.Component<Props, State> {
               defaultChecked={agent.hasReturn}
             />
           </FormGroup>
-
-          <FormWrapper>
-            {agent.hasReturn ? this.renderNumberFields(formProps, 'Return Amount', 'returnAmount', agent.returnAmount) : null}
-            {agent.hasReturn ? this.renderNumberFields(formProps, 'Return Percent', 'returnPercent', agent.returnPercent) : null}
-            {!agent.hasReturn ? this.renderNumberFields(formProps, 'Prepaid Percent', 'prepaidPercent', agent.prepaidPercent) : null}
-            {!agent.hasReturn ? this.renderNumberFields(formProps, 'Discount Percent', 'discountPercent', agent.discountPercent) : null}
-          </FormWrapper>
 
           <FormWrapper>
             {this.renderDateFields(formProps, 'Start Date', 'startDate', agent.startDate)}

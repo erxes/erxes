@@ -10,10 +10,6 @@ const fieldDefs = `
   startDay: Date,
   endDay: Date,
   hasReturn: Boolean!,
-  returnAmount: Float,
-  returnPercent: Float,
-  prepaidPercent: Float,
-  discountPercent: Float,
   productRuleIds: [String]
 `;
 
