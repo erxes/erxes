@@ -321,6 +321,7 @@ class SelectWithSearch extends React.Component<
         onInputChange={onSearch}
         options={selectOptions}
         isMulti={multi}
+        closeMenuOnSelect={!multi}
         styles={customStyles}
         menuPortalTarget={menuPortalTarget}
       />
