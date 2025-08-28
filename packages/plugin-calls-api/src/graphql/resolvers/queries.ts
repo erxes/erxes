@@ -35,7 +35,7 @@ const callsQueries = {
       serviceName: 'core',
       action: 'customers.findOne',
       data: {
-        primaryPhone: customerPhone,
+        customerPrimaryPhone: customerPhone,
       },
       defaultValue: null,
     });
@@ -293,7 +293,7 @@ const callsQueries = {
       data: {
         $or: [
           { primaryPhone: phoneNumber },
-          { "phones.phone": { $in: [phoneNumber] } },
+          { 'phones.phone': { $in: [phoneNumber] } },
         ],
       },
       defaultValue: null,

@@ -78,7 +78,6 @@ const IncomingCall = (props: Props, context) => {
     currentCallConversationId,
     inboxId,
   } = props;
-
   const [customerDetail, setCustomer] = useState(customer);
 
   const primaryPhone = customerDetail?.primaryPhone || '';
@@ -100,6 +99,10 @@ const IncomingCall = (props: Props, context) => {
   let direction = context.call?.direction?.split('/')[1];
   direction = direction?.toLowerCase() || '';
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    setCustomer(customer);
+  }, [customer]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
