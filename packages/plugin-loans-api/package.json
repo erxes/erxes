@@ -8,6 +8,7 @@
   "dependencies": {
     "@erxes/api-utils": "*",
     "bignumber.js": "^9.1.2",
+    "bullmq": "^5.56.0",
     "xlsx-populate": "^1.20.1"
   }
 }

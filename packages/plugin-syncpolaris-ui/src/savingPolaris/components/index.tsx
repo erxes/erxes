@@ -4,6 +4,8 @@ import { __ } from 'coreui/utils';
 import { IContract } from '../types';
 import PolarisSection from './PolarisSection';
 import SavingActive from '../containers/ActiveContainer';
+import Transaction from './Transaction/index';
+import SavingInfo from './SavingInfo';
 
 interface IProps {
   contract: IContract;
@@ -25,6 +27,14 @@ function PolarisData(props: IProps) {
         {
           label: __(`Active Saving contract`),
           component: <SavingActive {...props} />
+        },
+        {
+          label: __(`Send Transaction`),
+          component: <Transaction {...props} />
+        },
+        {
+          label: __(`Polaris Saving Detail`),
+          component: <SavingInfo contract={props.contract} />
         }
       ]}
     />

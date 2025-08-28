@@ -8,11 +8,12 @@ import { ScrollTableColls } from '../../styles';
 import withConsumer from '../../../withConsumer';
 
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { ITransaction } from '../../../transactions/types';
 
 type Props = {
   contractId: string;
   contractNumber: string;
-  isFirst: boolean;
+  transactions: ITransaction[];
 };
 
 const ActivityInputs = asyncComponent(
@@ -29,14 +30,14 @@ const ActivityLogs = asyncComponent(
     )
 );
 
-function ScheduleSection({ contractId, isFirst, contractNumber }: Props) {
+function ScheduleSection({ contractId, contractNumber, transactions }: Props) {
   return (
     <>
-      <Box title={__('Transactions')} name="showSchedules" isOpen={!isFirst}>
+      <Box title={__('Transactions')} name="showSchedules" isOpen={true}>
         <ScrollTableColls>
           <SchedulesList
             contractId={contractId}
-            isFirst={isFirst}
+            transactions={transactions}
           ></SchedulesList>
         </ScrollTableColls>
       </Box>
@@ -53,7 +54,7 @@ function ScheduleSection({ contractId, isFirst, contractNumber }: Props) {
           contentId={contractId}
           contentType="savingContract"
           extraTabs={[
-            { name: 'savings:interestStore', label: 'Interest store' },
+            { name: 'savings:interestStore', label: 'Interest store' }
           ]}
           activityRenderItem={ActivityItem}
         />

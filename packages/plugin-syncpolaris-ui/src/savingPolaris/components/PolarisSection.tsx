@@ -4,7 +4,6 @@ import React from 'react';
 
 import { ScrollTableColls } from '../styles';
 import Icon from '@erxes/ui/src/components/Icon';
-import { IUser } from '@erxes/ui/src/auth/types';
 import confirm from '@erxes/ui/src/utils/confirmation/confirm';
 import Alert from '@erxes/ui/src/utils/Alert';
 import { IContractDoc } from '../types';
@@ -12,14 +11,12 @@ import PolarisList from './PolarisList';
 
 type Props = {
   contract: IContractDoc;
-  currentUser: IUser;
   savingHistories: any[];
   reSendContract: (data: any) => void;
   sendDeposit: (data: any) => void;
 };
 
 function PolarisSection({
-  currentUser,
   contract,
   savingHistories,
   reSendContract,

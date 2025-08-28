@@ -43,6 +43,7 @@ export interface IContract {
   blockAmount: number;
   isSyncedPolaris?: boolean;
   isActiveSaving?: boolean;
+  savingTransactionHistory?: ITransaction[];
 }
 
 export interface IContractDoc extends IContract {
@@ -66,6 +67,32 @@ export interface IList {
   error: string;
   content: string;
   createdUser: any;
+}
+
+export interface ITransactionDoc {
+  number?: string;
+  contractId?: string;
+  customerId?: string;
+  companyId?: string;
+  transactionType: string;
+  description?: string;
+  payDate: Date;
+  payment?: number;
+  currency?: string;
+  storedInterest?: number;
+  total: number;
+  balance?: number;
+  isSyncedTransaction?: boolean;
+}
+
+export interface ITransaction extends ITransactionDoc {
+  _id: string;
+  invoiceId?: string;
+  closeInterestRate?: number;
+  closeInterest?: number;
+  interestRate?: number;
+  savingAmount?: number;
+  futureDebt?: number;
 }
 
 export type savingHistoryQueryResponse = {
@@ -103,5 +130,17 @@ export type SendDepositMutationResponse = {
 export type DepositActiveMutationResponse = {
   depositContractActive: (params: {
     variables: { contractNumber: string };
+  }) => Promise<any>;
+};
+
+export type SavingTransactionMutationResponse = {
+  syncSavingTransactions: (params: {
+    variables: { data: any };
+  }) => Promise<any>;
+};
+
+export type DepositTransactionMutationResponse = {
+  syncDepositTransactions: (params: {
+    variables: { data: any };
   }) => Promise<any>;
 };
