@@ -1,12 +1,12 @@
-import { IItem, IOptions } from '../../types';
-import TicketTimer, { STATUS_TYPES } from '@erxes/ui/src/components/Timer';
+import { IItem, IOptions } from "../../types";
+import TicketTimer, { STATUS_TYPES } from "@erxes/ui/src/components/Timer";
 
-import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
-import CompanySection from '@erxes/ui-contacts/src/companies/components/CompanySection';
-import CustomFieldsSection from '../../containers/editForm/CustomFieldsSection';
-import CustomerSection from '@erxes/ui-contacts/src/customers/components/CustomerSection';
-import React from 'react';
-import { RightContent } from '../../styles/item';
+import ActionSection from "@erxes/ui-contacts/src/customers/containers/ActionSection";
+import CompanySection from "@erxes/ui-contacts/src/companies/components/CompanySection";
+import CustomFieldsSection from "../../containers/editForm/CustomFieldsSection";
+import CustomerSection from "@erxes/ui-contacts/src/customers/components/CustomerSection";
+import React from "react";
+import { RightContent } from "../../styles/item";
 
 type Props = {
   item: IItem;
@@ -20,7 +20,7 @@ type Props = {
       status,
       timeSpent,
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
-    callback?: () => void,
+    callback?: () => void
   ) => void;
 };
 
@@ -34,7 +34,6 @@ class SidebarConformity extends React.Component<Props> {
 
   render() {
     const { item, options, renderItems, updateTimeTrack } = this.props;
-
     const timeTrack = item.timeTrack || {
       timeSpent: 0,
       status: STATUS_TYPES.STOPPED,
@@ -46,8 +45,8 @@ class SidebarConformity extends React.Component<Props> {
           {this.props.relations &&
             this.props.relations.map((relation) => {
               if (
-                relation.type === 'companyIds' ||
-                relation.relationType === 'core:company'
+                relation.type === "companyIds" ||
+                relation.relationType === "core:company"
               ) {
                 return (
                   <CompanySection
@@ -59,8 +58,8 @@ class SidebarConformity extends React.Component<Props> {
               }
 
               if (
-                relation.type === 'customerIds' ||
-                relation.relationType === 'core:customer'
+                relation.type === "customerIds" ||
+                relation.relationType === "core:customer"
               ) {
                 return (
                   <CustomerSection
@@ -72,17 +71,23 @@ class SidebarConformity extends React.Component<Props> {
                 );
               }
 
+              if (
+                relation.type === "trackingIds" ||
+                relation.relationType === "tickets:tracking"
+              ) {
+                return (
+                  <TicketTimer
+                    taskId={item._id}
+                    status={timeTrack.status}
+                    timeSpent={timeTrack.timeSpent}
+                    startDate={timeTrack.startDate}
+                    update={updateTimeTrack}
+                  />
+                );
+              }
               return null;
             })}
         </>
-
-        <TicketTimer
-          taskId={item._id}
-          status={timeTrack.status}
-          timeSpent={timeTrack.timeSpent}
-          startDate={timeTrack.startDate}
-          update={updateTimeTrack}
-        />
 
         {renderItems()}
 
