@@ -45,6 +45,7 @@ type Props = {
     extraValue?: string;
   }) => void;
   onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
+  branchIds?: string[];
 };
 
 type State = {
@@ -69,7 +70,6 @@ export default class GenerateField extends React.Component<Props, State> {
 
   generateState = (props) => {
     const { field, defaultValue } = props;
-
     const state = {
       value: defaultValue,
       checkBoxValues: [],
@@ -338,9 +338,9 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderUser({ id, value }) {
+    const { branchIds } = this.props;
     const onSelect = (e) => {
       const { onValueChange } = this.props;
-
       if (onValueChange) {
         this.setState({ value: e });
 
@@ -355,6 +355,10 @@ export default class GenerateField extends React.Component<Props, State> {
         multi={true}
         initialValue={value}
         onSelect={onSelect}
+        filterParams={{
+          isAssignee: !branchIds?.length,
+          branchIds: branchIds,
+        }}
       />
     );
   }
