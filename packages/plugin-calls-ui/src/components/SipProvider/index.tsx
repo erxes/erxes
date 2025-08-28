@@ -401,6 +401,7 @@ export default class SipProvider extends React.Component<
       sessionTimersExpires,
       no_answer_timeout: 3600,
       session_timers: true,
+      register_expires: 60,
     };
 
     this.ua.call(destination, options);
@@ -524,6 +525,7 @@ export default class SipProvider extends React.Component<
         password,
         sockets: [socket],
         register: autoRegister,
+        register_expires: 60,
       } as any;
 
       this.ua = new JsSIP.UA(options);
@@ -670,6 +672,31 @@ export default class SipProvider extends React.Component<
             groupName,
           });
         }
+
+        rtcSession.connection.addEventListener(
+          'icegatheringstatechange',
+          () => {
+            console.log(
+              'ICE gathering state:',
+              rtcSession.connection.iceGatheringState,
+            );
+          },
+        );
+
+        rtcSession.connection.addEventListener(
+          'iceconnectionstatechange',
+          () => {
+            console.log(
+              'ICE connection state:',
+              rtcSession.connection.iceConnectionState,
+            );
+          },
+        );
+
+        rtcSession.connection.addEventListener('signalingstatechange', () => {
+          console.log('Signaling state:', rtcSession.connection.signalingState);
+        });
+
         const diversionHeader = rtcRequest.getHeader('Diversion');
         const timeStamp = rtcRequest.getHeader('Timestamp') || 0;
         const { rtcSession: rtcSessionInState } = this.state;
