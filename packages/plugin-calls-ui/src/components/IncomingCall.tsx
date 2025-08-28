@@ -78,7 +78,7 @@ const IncomingCall = (props: Props, context) => {
     currentCallConversationId,
     inboxId,
   } = props;
-  const [customerDetail, setCustomer] = useState(customer);
+  const [customerDetail, setCustomer] = useState<ICustomer>(customer);
 
   const primaryPhone = customerDetail?.primaryPhone || '';
 
@@ -246,11 +246,21 @@ const IncomingCall = (props: Props, context) => {
     const fullName = renderFullName(customerDetail || '', false);
     const hasGroupName = call.groupName || '';
 
+    const isPrimaryPhone = customerDetail?.phones?.some(
+      (phone) => phone.phone === phoneNumber && phone.type === 'primary',
+    );
+
     return (
       <NameCardContainer>
         <h5>{__('Call')}</h5>
         <Avatar user={customerDetail} size={inCall ? 72 : 30} />
-        <h4>{fullName === 'Unknown' ? phoneNumber : fullName}</h4>
+        <h4>
+          {fullName === 'Unknown'
+            ? phoneNumber
+            : isPrimaryPhone
+              ? fullName
+              : fullName + `${!type ? '( Maybe )' : ''}`}
+        </h4>
         {primaryPhone && (
           <PhoneNumber>
             {primaryPhone}
