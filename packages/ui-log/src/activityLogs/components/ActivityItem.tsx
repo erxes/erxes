@@ -12,7 +12,7 @@ import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
 import Tip from "@erxes/ui/src/components/Tip";
 import ContactsActivityLog from "@erxes/ui-contacts/src/components/activityLogs/activityLog";
 import TaggedLog from "@erxes/ui-tags/src/components/activityLogs/activityLog";
-import PropertiesLog from "@erxes/ui-forms/src/activityLogs/activityLog";
+// import PropertiesLog from "@erxes/ui-forms/src/activityLogs/activityLog";
 type Props = {
   activity: IActivityLog;
   currentUser: IUser;
@@ -53,13 +53,13 @@ class ActivityItem extends React.Component<Props> {
     const pluginName = contentType.split(":")[0];
 
     if (action === "properties") {
-      return (
-        <PropertiesLog
-          activity={activity}
-          contentType={contentType}
-          currentUser={currentUser}
-        />
-      );
+      // return (
+      //   <PropertiesLog
+      //     activity={activity}
+      //     contentType={contentType}
+      //     currentUser={currentUser}
+      //   />
+      // );
     }
     if (pluginName === "core") {
       switch (action) {
