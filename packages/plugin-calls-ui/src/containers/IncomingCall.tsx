@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { gql, useMutation } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
 import { Alert } from '@erxes/ui/src/utils';
 import { ICustomer } from '../types';
@@ -7,7 +7,7 @@ import IncomingCall from '../components/IncomingCall';
 import { __ } from '@erxes/ui/src/utils/core';
 import { callPropType } from '../lib/types';
 import { extractPhoneNumberFromCounterpart } from '../utils';
-import { mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
 
 interface IProps {
   closeModal?: () => void;
@@ -18,6 +18,8 @@ interface IProps {
 
 const IncomingCallContainer = (props: IProps, context) => {
   const [customer, setCustomer] = useState<any>({} as ICustomer);
+  const [customers, setCustomers] = useState<any>([]);
+
   const [channels, setChannels] = useState<any>();
 
   const [hasMicrophone, setHasMicrophone] = useState(false);
@@ -36,6 +38,12 @@ const IncomingCallContainer = (props: IProps, context) => {
     callUserIntegrations?.[0]?.inboxId;
 
   const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
+  const { data, loading } = useQuery(gql(queries.callCustomers), {
+    fetchPolicy: 'network-only',
+    variables: {
+      phoneNumber,
+    },
+  });
 
   useEffect(() => {
     navigator.mediaDevices
@@ -55,11 +63,13 @@ const IncomingCallContainer = (props: IProps, context) => {
       });
 
     if (phoneNumber && call?.id) {
+      if (!loading) setCustomers(data?.callCustomers);
+
       createCustomerMutation({
         variables: {
           inboxIntegrationId: inboxId,
           primaryPhone: phoneNumber,
-          queueName: call.groupName || ''
+          queueName: call.groupName || '',
         },
       })
         .then(({ data }: any) => {
@@ -70,10 +80,11 @@ const IncomingCallContainer = (props: IProps, context) => {
           Alert.error(e.message);
         });
     }
-  }, [phoneNumber, call?.id]);
+  }, [phoneNumber, call?.id, data, loading]);
 
   return (
     <IncomingCall
+      customers={customers}
       customer={customer}
       channels={channels}
       hasMicrophone={hasMicrophone}

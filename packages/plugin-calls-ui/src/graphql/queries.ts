@@ -199,9 +199,15 @@ const callCustomers = `
     callCustomers(phoneNumber: $phoneNumber){
       primaryPhone
       phone
+      phones
       lastName
       firstName
       _id
+      getTags {
+        type
+        _id
+        name
+      }
     }
 }
 `;
