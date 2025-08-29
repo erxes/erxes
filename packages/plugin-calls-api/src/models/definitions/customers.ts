@@ -8,6 +8,7 @@ export interface ICustomer {
   primaryPhone: string | number;
   erxesApiId?: string;
   status: string;
+  phone: string;
 }
 
 export type ICustomerDocument = HydratedDocument<ICustomer>;
@@ -28,4 +29,5 @@ export const customerSchema: Schema<ICustomer, ICustomerModel> = new Schema<
   },
   inboxIntegrationId: { type: String, label: 'Inbox integration id' },
   status: { type: String, label: 'status' },
+  phone: { type: String, label: 'phone' },
 });

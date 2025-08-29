@@ -27,6 +27,7 @@ const customersAdd = `
         tagIds
         lastName
         firstName
+        phones
       }
   }
 }

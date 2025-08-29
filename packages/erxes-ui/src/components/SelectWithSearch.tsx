@@ -16,10 +16,8 @@ import { graphql } from "@apollo/client/react/hoc";
 import styled from "styled-components";
 
 const SelectOption = styled.div`
-  overflow: hidden;
   white-space: nowrap;
-  text-overflow: ellipsis;
-  max-width: 300px;
+  min-width: 300px;
 `;
 
 export const SelectValue = styled.div`
@@ -28,10 +26,10 @@ export const SelectValue = styled.div`
   align-items: center;
   margin-left: -2px;
   padding-left: 18px;
-  max-width: 250px;
+  max-width: 300px;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 
   img {
     position: absolute;
@@ -47,14 +45,6 @@ export const Avatar = styled.img`
   object-fit: cover;
   float: left;
   margin-right: 5px;
-`;
-
-const SelectWrapper = styled.div`
-  position: relative;
-
-  .Select-clear-zone {
-    visibility: hidden;
-  }
 `;
 
 const ClearButton = styled.div`
@@ -289,15 +279,27 @@ class SelectWithSearch extends React.Component<
     };
 
     const MultiValue = (props: MultiValueProps<any, boolean, any>) => {
+      const { data, innerProps } = props;
+
+      const displayText = data.selectedLabel || data.label;
+
       return (
         <components.MultiValue
           {...props}
-          innerProps={{
-            ...props.innerProps,
-            title: props.data.fullLabel || props.data.label,
-          }}
+          innerProps={{ ...innerProps, title: data.fullLabel || data.label }}
         >
-          {selectItemRenderer(props.data, showAvatar, SelectValue)}
+          <SelectValue>
+            {data.avatar && (
+              <Avatar
+                src={
+                  props.data.avatar
+                    ? readFile(props.data.avatar, 40)
+                    : "/images/avatar-colored.svg"
+                }
+              />
+            )}
+            {displayText}
+          </SelectValue>
         </components.MultiValue>
       );
     };
@@ -318,6 +320,7 @@ class SelectWithSearch extends React.Component<
         onInputChange={onSearch}
         options={selectOptions}
         isMulti={multi}
+        closeMenuOnSelect={!multi}
         styles={customStyles}
         menuPortalTarget={menuPortalTarget}
       />
@@ -364,6 +367,7 @@ const withQuery = ({ customQuery }) =>
             fetchPolicy: "network-only",
             variables: {
               ids: initialValues,
+              excludeIds: true,
               ...filterParams,
             },
           };

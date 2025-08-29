@@ -15,8 +15,13 @@ import {
   InputBar,
   KeyPadContainer,
   KeyPadFooter,
+  MaybeContainer,
+  MaybeItem,
+  MaybeList,
   NameCardContainer,
   PhoneNumber,
+  TagItem,
+  TagsContainer,
 } from '../styles';
 import React, { useEffect, useRef, useState } from 'react';
 import { callActions, endCallOption, renderKeyPad } from '../utils';
@@ -31,6 +36,7 @@ import { useNavigate } from 'react-router-dom';
 
 type Props = {
   customer: ICustomer;
+  customers: ICustomer[];
   channels: any;
   hasMicrophone: boolean;
   phoneNumber: string;
@@ -77,9 +83,14 @@ const IncomingCall = (props: Props, context) => {
     hideIncomingCall,
     currentCallConversationId,
     inboxId,
+    customers,
   } = props;
+  const primaryCustomer =
+    customers.find((c) =>
+      c.phones?.some((p) => p.phone === phoneNumber && p.type === 'primary'),
+    ) || customers[0];
 
-  const [customerDetail, setCustomer] = useState(customer);
+  const [customerDetail, setCustomer] = useState<ICustomer>(primaryCustomer);
 
   const primaryPhone = customerDetail?.primaryPhone || '';
 
@@ -100,6 +111,10 @@ const IncomingCall = (props: Props, context) => {
   let direction = context.call?.direction?.split('/')[1];
   direction = direction?.toLowerCase() || '';
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    setCustomer(customer);
+  }, [customer]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -237,31 +252,65 @@ const IncomingCall = (props: Props, context) => {
   };
 
   const renderUserInfo = (type?: string) => {
-    const inCall = type === 'incall' ? true : false;
+    const inCall = type === 'incall';
     const hasChannel = channels?.length > 0;
     const channelName = channels?.[0]?.name || '';
-    const fullName = renderFullName(customerDetail || '', false);
     const hasGroupName = call.groupName || '';
+
+    if (!customers || customers.length === 0) {
+      return (
+        <NameCardContainer>
+          <h5>{__('Call')}</h5>
+          <Avatar size={inCall ? 72 : 30} />
+          <h4>{phoneNumber}</h4>
+        </NameCardContainer>
+      );
+    }
+
+    const otherCustomers = customers.filter(
+      (c) => c._id !== customerDetail._id,
+    );
+
+    const fullName = renderFullName(customerDetail, false);
+    const primaryCustomerTags = customerDetail.getTags || [];
 
     return (
       <NameCardContainer>
         <h5>{__('Call')}</h5>
+
         <Avatar user={customerDetail} size={inCall ? 72 : 30} />
         <h4>{fullName === 'Unknown' ? phoneNumber : fullName}</h4>
-        {primaryPhone && (
-          <PhoneNumber>
-            {primaryPhone}
-            {hasGroupName && (
-              <span>
-                {__('from')} {hasGroupName}
-              </span>
-            )}
-            {hasChannel && (
-              <span>
-                {__('is calling to')} {channelName}
-              </span>
-            )}
-          </PhoneNumber>
+
+        <PhoneNumber>
+          {hasGroupName && (
+            <span>
+              {__('from')} {hasGroupName}
+            </span>
+          )}
+          {hasChannel && (
+            <span>
+              {__('is calling to')} {channelName}
+            </span>
+          )}
+        </PhoneNumber>
+
+        {primaryCustomerTags.length > 0 && (
+          <TagsContainer>
+            {primaryCustomerTags.map((tag) => (
+              <TagItem key={tag._id}>{tag.name}</TagItem>
+            ))}
+          </TagsContainer>
+        )}
+
+        {!inCall && otherCustomers.length > 0 && (
+          <MaybeContainer>
+            <b>{__('Maybe')}:</b>
+            <MaybeList>
+              {otherCustomers.map((c) => (
+                <MaybeItem key={c._id}>{renderFullName(c, false)}</MaybeItem>
+              ))}
+            </MaybeList>
+          </MaybeContainer>
         )}
       </NameCardContainer>
     );

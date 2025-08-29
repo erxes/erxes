@@ -1,34 +1,69 @@
 import { generateFields } from "./fieldUtils";
 import { generateSystemFields, getBoardsAndPipelines } from "./utils";
 
-const relations = type => {
+const relations = (type) => {
   return [
     {
       name: "companyIds",
       label: "Companies",
-      relationType: "core:company"
+      relationType: "core:company",
     },
     {
       name: "customerIds",
       label: "Customers",
-      relationType: "core:customer"
+      relationType: "core:customer",
     },
     {
       name: "purchaseIds",
       label: "Purchases",
-      relationType: "purchases:purchase"
+      relationType: "purchases:purchase",
     },
     {
       name: "taskIds",
       label: "Tasks",
-      relationType: "tasks:task"
+      relationType: "tasks:task",
     },
     {
       name: "dealIds",
       label: "Deals",
-      relationType: "sales:deal"
-    }
-  ].filter(r => r.relationType !== type);
+      relationType: "sales:deal",
+    },
+    {
+      name: "companyIds",
+      label: "Companies",
+      relationType: "core:company",
+    },
+    {
+      name: "departmentsIds",
+      label: "Departments",
+      relationType: "tickets:department",
+    },
+    {
+      name: "sourceIds",
+      label: "Source",
+      relationType: "tickets:source",
+    },
+    {
+      name: "trackingIds",
+      label: "Time tracking",
+      relationType: "tickets:tracking",
+    },
+    {
+      name: "vendorIds",
+      label: "Vendor",
+      relationType: "tickets:vendor",
+    },
+    {
+      name: "clientIds",
+      label: "Client",
+      relationType: "tickets:client",
+    },
+    {
+      name: "childrenIds",
+      label: "Children",
+      relationType: "tickets:children",
+    },
+  ].filter((r) => r.relationType !== type);
 };
 
 export default {
@@ -38,9 +73,9 @@ export default {
       type: "ticket",
       relations: [
         ...relations("tickets:ticket"),
-        { name: "carIds", label: "Cars", relationType: "cars:car" }
-      ]
-    }
+        { name: "carIds", label: "Cars", relationType: "cars:car" },
+      ],
+    },
   ],
   fields: generateFields,
   groupsFilter: async ({ data: { config, contentType } }) => {
@@ -57,30 +92,30 @@ export default {
         {
           $or: [
             {
-              "config.boardIds": boardId
+              "config.boardIds": boardId,
             },
             {
               "config.boardIds": {
-                $size: 0
-              }
-            }
-          ]
+                $size: 0,
+              },
+            },
+          ],
         },
         {
           $or: [
             {
-              "config.pipelineIds": pipelineId
+              "config.pipelineIds": pipelineId,
             },
             {
               "config.pipelineIds": {
-                $size: 0
-              }
-            }
-          ]
-        }
-      ]
+                $size: 0,
+              },
+            },
+          ],
+        },
+      ],
     };
   },
   fieldsGroupsHook: ({ data }) => getBoardsAndPipelines(data),
-  systemFields: generateSystemFields
+  systemFields: generateSystemFields,
 };

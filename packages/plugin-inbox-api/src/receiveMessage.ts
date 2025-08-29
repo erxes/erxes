@@ -56,8 +56,7 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
       });
 
     if (primaryPhone) {
-      customer = await getCustomer({ primaryPhone });
-      console.log(customer, 'customercustomer');
+      customer = await getCustomer({ customerPrimaryPhone: primaryPhone });
       if (customer) {
         try {
           await sendCoreMessage({
