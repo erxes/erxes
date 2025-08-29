@@ -3,7 +3,7 @@ import * as compose from "lodash.flowright";
 import Select, {
   MultiValueProps,
   OnChangeValue,
-  components
+  components,
 } from "react-select";
 import { __, confirm, readFile, withProps } from "../utils";
 
@@ -15,23 +15,26 @@ import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import styled from "styled-components";
 
+const SelectOption = styled.div`
+  white-space: nowrap;
+  min-width: 300px;
+`;
+
 export const SelectValue = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   margin-left: -2px;
   padding-left: 18px;
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   img {
     position: absolute;
     left: 0;
   }
-`;
-
-const SelectOption = styled.div`
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 `;
 
 export const Avatar = styled.img`
@@ -42,14 +45,6 @@ export const Avatar = styled.img`
   object-fit: cover;
   float: left;
   margin-right: 5px;
-`;
-
-const SelectWrapper = styled.div`
-  position: relative;
-
-  .Select-clear-zone {
-    visibility: hidden;
-  }
 `;
 
 const ClearButton = styled.div`
@@ -120,7 +115,7 @@ class SelectWithSearch extends React.Component<
       selectedValues: props.initialValues,
       searchValue: "",
       selectedOptions: undefined,
-      totalOptions: undefined
+      totalOptions: undefined,
     };
 
     this.timer = 0;
@@ -150,20 +145,20 @@ class SelectWithSearch extends React.Component<
       const datas = customQuery[queryName] || [];
 
       const totalOptions = this.state.totalOptions || ([] as IOption[]);
-      const totalOptionsValues = totalOptions.map(option => option.value);
+      const totalOptionsValues = totalOptions.map((option) => option.value);
 
       const uniqueLoadedOptions = generateOptions(
-        datas.filter(data => !totalOptionsValues.includes(data._id))
+        datas.filter((data) => !totalOptionsValues.includes(data._id))
       );
 
       const updatedTotalOptions = [
         ...new Set([
           ...(this.props.exactFilter ? [] : selectedOptions || []),
-          ...uniqueLoadedOptions
-        ])
+          ...uniqueLoadedOptions,
+        ]),
       ];
 
-      const upSelectedOptions = updatedTotalOptions.filter(option =>
+      const upSelectedOptions = updatedTotalOptions.filter((option) =>
         selectedValues.includes(option.value)
       );
 
@@ -173,14 +168,14 @@ class SelectWithSearch extends React.Component<
         !upSelectedOptions.length
       ) {
         this.setState({
-          selectedValues: []
+          selectedValues: [],
         });
         this.props.onSelect([], this.props.name);
       }
 
       this.setState({
         totalOptions: updatedTotalOptions,
-        selectedOptions: upSelectedOptions
+        selectedOptions: upSelectedOptions,
       });
     }
   }
@@ -203,7 +198,7 @@ class SelectWithSearch extends React.Component<
     return null;
   };
 
-  onClear = e => {
+  onClear = (e) => {
     confirm().then(() => {
       this.props.onSelect([], this.props.name);
       this.setState({ selectedValues: [], selectedOptions: [] });
@@ -221,19 +216,19 @@ class SelectWithSearch extends React.Component<
       customOption,
       showAvatar = true,
       menuPortalTarget,
-      customStyles
+      customStyles,
     } = this.props;
 
     const { totalOptions, selectedOptions } = this.state;
 
     const selectMultiple = (ops: OnChangeValue<IOption, true>) => {
-      const selectedOptionsValues = ops.map(option => option.value);
+      const selectedOptionsValues = ops.map((option) => option.value);
 
       onSelect(selectedOptionsValues, name);
 
       this.setState({
         selectedValues: selectedOptionsValues,
-        selectedOptions: [...ops]
+        selectedOptions: [...ops],
       });
     };
 
@@ -245,7 +240,7 @@ class SelectWithSearch extends React.Component<
 
       this.setState({
         selectedValues: [selectedOptionValue],
-        selectedOptions: [{ ...selectedOption }]
+        selectedOptions: [{ ...selectedOption }],
       });
     };
 
@@ -269,23 +264,45 @@ class SelectWithSearch extends React.Component<
       selectOptions.unshift(customOption);
     }
 
-    const Option = props => {
+    const Option = (props: any) => {
       return (
-        <components.Option {...props}>
+        <components.Option
+          {...props}
+          innerProps={{
+            ...props.innerProps,
+            title: props.data.fullLabel || props.data.label,
+          }}
+        >
           {selectItemRenderer(props.data, showAvatar, SelectOption)}
         </components.Option>
       );
     };
 
-    const MultiValue = ({
-      children,
-      ...props
-    }: MultiValueProps<any, boolean, any>) => (
-      <components.MultiValue {...props}>
-        {selectItemRenderer(props.data, showAvatar, SelectValue)}
-      </components.MultiValue>
-    );
+    const MultiValue = (props: MultiValueProps<any, boolean, any>) => {
+      const { data, innerProps } = props;
 
+      const displayText = data.selectedLabel || data.label;
+
+      return (
+        <components.MultiValue
+          {...props}
+          innerProps={{ ...innerProps, title: data.fullLabel || data.label }}
+        >
+          <SelectValue>
+            {data.avatar && (
+              <Avatar
+                src={
+                  props.data.avatar
+                    ? readFile(props.data.avatar, 40)
+                    : "/images/avatar-colored.svg"
+                }
+              />
+            )}
+            {displayText}
+          </SelectValue>
+        </components.MultiValue>
+      );
+    };
     const filterOption = (_option, _inputValue): boolean => true;
 
     return (
@@ -303,6 +320,7 @@ class SelectWithSearch extends React.Component<
         onInputChange={onSearch}
         options={selectOptions}
         isMulti={multi}
+        closeMenuOnSelect={!multi}
         styles={customStyles}
         menuPortalTarget={menuPortalTarget}
       />
@@ -323,7 +341,7 @@ const withQuery = ({ customQuery }) =>
           searchValue,
           filterParams,
           initialValues,
-          abortController
+          abortController,
         }) => {
           const context = { fetchOptions: { signal: abortController.signal } };
 
@@ -333,10 +351,10 @@ const withQuery = ({ customQuery }) =>
               variables: {
                 ids: initialValues,
                 excludeIds: true,
-                ...filterParams
+                ...filterParams,
               },
               fetchPolicy: "network-only",
-              notifyOnNetworkStatusChange: true
+              notifyOnNetworkStatusChange: true,
             };
           }
 
@@ -349,10 +367,11 @@ const withQuery = ({ customQuery }) =>
             fetchPolicy: "network-only",
             variables: {
               ids: initialValues,
-              ...filterParams
-            }
+              excludeIds: true,
+              ...filterParams,
+            },
           };
-        }
+        },
       })
     )(SelectWithSearch)
   );

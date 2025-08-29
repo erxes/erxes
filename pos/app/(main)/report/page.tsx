@@ -17,7 +17,9 @@ interface DailyReportResponse {
 
 interface ReportVariables {
   posUserIds?: string[];
-  posNumber: string;
+  dateType?: string,
+  startDate: Date,
+  endDate: Date
 }
 
 const Report = () => {

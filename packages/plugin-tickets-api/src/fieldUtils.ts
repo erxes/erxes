@@ -331,7 +331,7 @@ export const generateFields = async ({ subdomain, data }) => {
         _id: Math.random(),
         name: 'createdBy.position',
         label: 'Created by Position',
-        type: 'String'
+        type: 'String',
       },
       {
         _id: Math.random(),
@@ -367,6 +367,18 @@ export const generateFields = async ({ subdomain, data }) => {
         _id: Math.random(),
         name: 'branches.title',
         label: 'Branches title',
+        type: 'String',
+      },
+      {
+        _id: Math.random(),
+        name: 'branches.parent',
+        label: 'Branches parent',
+        type: 'String',
+      },
+      {
+        _id: Math.random(),
+        name: 'createdBy.branch.parent',
+        label: 'Created by Parent of Branch',
         type: 'String',
       },
     ];

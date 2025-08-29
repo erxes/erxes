@@ -1119,7 +1119,38 @@ const Td = styledTS<{ color?: string; fontWeight?: string }>(styled.td)`
     font-weight: ${(props) => props.fontWeight && props.fontWeight} !important;
   }
 `;
+const MaybeContainer = styled.div`
+  margin-top: 12px;
+  padding-left: 8px;
+  color: #f0f0f0; // text color өөрчилж болно
+  font-size: 14px;
+`;
 
+const MaybeList = styled.ul`
+  list-style: disc;
+  padding-left: 20px; // bullet-ийн зай
+  margin-top: 4px;
+`;
+
+const MaybeItem = styled.li`
+  margin-bottom: 4px;
+  color: #e0e0e0;
+  font-size: 14px;
+`;
+const TagsContainer = styled.div`
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin: 4px 0;
+`;
+
+const TagItem = styled.span`
+  background-color: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #666;
+`;
 export {
   ActivityRow,
   ActivityIcon,
@@ -1140,4 +1171,9 @@ export {
   Label,
   Th,
   Td,
+  MaybeContainer,
+  MaybeItem,
+  MaybeList,
+  TagsContainer,
+  TagItem,
 };

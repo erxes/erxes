@@ -234,6 +234,24 @@ export const updateContract = async (
   });
 };
 
+export const updateTransaction = async (
+  subdomain,
+  selector,
+  updateData,
+  serviceName
+) => {
+  return await sendCommonMessage({
+    subdomain,
+    action: "transactions.update",
+    serviceName: serviceName,
+    data: {
+      selector: selector,
+      modifier: updateData
+    },
+    isRPC: true
+  });
+};
+
 export const getUser = async (subdomain, id) => {
   return await sendCommonMessage({
     subdomain,

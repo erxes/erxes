@@ -1,14 +1,14 @@
-const dotenv = require('dotenv');
-const fetch = require('node-fetch');
-const http = require('http');
-const { MongoClient } = require('mongodb');
-const moment = require('moment');
-const BigNumber = require('bignumber.js').BigNumber;
+const dotenv = require("dotenv");
+const fetch = require("node-fetch");
+const http = require("http");
+const { MongoClient } = require("mongodb");
+const moment = require("moment");
+const BigNumber = require("bignumber.js").BigNumber;
 
 dotenv.config();
 
 // const { MONGO_URL } = process.env;
-const MONGO_URL = 'mongodb://127.0.0.1:27017/erxes?directConnection=true';
+const MONGO_URL = "mongodb://127.0.0.1:27017/erxes?directConnection=true";
 
 if (!MONGO_URL) {
   throw new Error(`Environment variable MONGO_URL not set.`);
@@ -22,6 +22,7 @@ let LoanContractTypes;
 let LoanFirstSchedules;
 let LoanSchedules;
 let LoanTransaction;
+let LoanCollateralType;
 let Products;
 let ProductCategories;
 let LoanPurpose;
@@ -29,9 +30,9 @@ let Branches;
 let Users;
 
 const nanoid = (len = 21) => {
-  const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  const charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-  let randomString = '';
+  let randomString = "";
 
   for (let i = 0; i < len; i++) {
     const position = Math.floor(Math.random() * charSet.length);
@@ -45,14 +46,14 @@ const fetchPolaris = async (op, body) => {
   const headers = {
     Op: op,
     Cookie: `NESSESSION=03tv40BnPzFEEcGgsFxkhrAUTN7Awh`,
-    Company: '13',
-    Role: '45',
-    'Content-Type': 'application/json'
+    Company: "13",
+    Role: "45",
+    "Content-Type": "application/json"
   };
   const url = `http://202.131.242.158:4139/nesWeb/NesFront`;
   const requestOptions = {
     url,
-    method: 'POST',
+    method: "POST",
     headers,
     body: JSON.stringify(body),
     agent: new http.Agent({ keepAlive: true })
@@ -87,17 +88,18 @@ const command = async () => {
   db = client.db();
   console.log(Boolean(db));
 
-  Customers = db.collection('customers');
-  LoanContracts = db.collection('loan_contracts');
-  LoanContractTypes = db.collection('loan_contract_types');
-  LoanFirstSchedules = db.collection('loan_first_schedules');
-  LoanSchedules = db.collection('loan_schedules');
-  LoanTransaction = db.collection('loan_transactions');
-  Products = db.collection('products');
-  ProductCategories = db.collection('product_categories');
-  LoanPurpose = db.collection('loan_purposes');
-  Branches = db.collection('branches');
-  Users = db.collection('users');
+  Customers = db.collection("customers");
+  LoanContracts = db.collection("loan_contracts");
+  LoanContractTypes = db.collection("loan_contract_types");
+  LoanFirstSchedules = db.collection("loan_first_schedules");
+  LoanSchedules = db.collection("loan_schedules");
+  LoanTransaction = db.collection("loan_transactions");
+  LoanCollateralType = db.collection("loan_collateral_types");
+  Products = db.collection("products");
+  ProductCategories = db.collection("product_categories");
+  LoanPurpose = db.collection("loan_purposes");
+  Branches = db.collection("branches");
+  Users = db.collection("users");
 
   console.log(`Process start at: ${new Date()}`);
   const customerFilter = { code: { $exists: true } };
@@ -120,25 +122,23 @@ const command = async () => {
         continue;
       }
 
-      const pLoanContracts = await fetchPolaris('13610210', [
+      const pLoanContracts = await fetchPolaris("13610210", [
         customer.code,
         0,
         20
       ]);
 
       const filteredContracts = pLoanContracts.filter(
-        (contract) => contract.statusName !== 'Хаасан'
+        (contract) => contract.statusName !== "Хаасан"
       );
 
       for (const pLoanContract of filteredContracts) {
-        console.log('---------------------------------------------');
-
-        const contractDetail = await fetchPolaris('13610200', [
+        const contractDetail = await fetchPolaris("13610200", [
           pLoanContract.acntCode,
           0
         ]);
 
-        const collaterals = await fetchPolaris('13610904', [
+        const collaterals = await fetchPolaris("13610904", [
           pLoanContract.acntCode
         ]);
 
@@ -175,16 +175,16 @@ const command = async () => {
             _id: nanoid(),
             contractTypeId: contractType._id,
             number: contractDetail.acntCode,
-            repayment: 'fixed',
-            leaseType: 'finance',
+            repayment: "fixed",
+            leaseType: "finance",
             currency: contractDetail.curCode,
-            branchId: branch ? branch._id : '',
+            branchId: branch ? branch._id : "",
             customerType:
-              contractDetail.custType === 0 ? 'customer' : 'company',
+              contractDetail.custType === 0 ? "customer" : "company",
             customerId: customer._id,
             tenor: contractDetail.termLen,
-            loanPurpose: subPurpose ? subPurpose._id : '',
-            loanDestination: purpose ? purpose._id : '',
+            loanPurpose: subPurpose ? subPurpose._id : "",
+            loanDestination: purpose ? purpose._id : "",
             isSyncedPolaris: true,
             isActiveLoan: true,
             leaseAmount: contractDetail.approvAmount,
@@ -193,15 +193,15 @@ const command = async () => {
             contractDate: new Date(contractDetail.approvDate),
             endDate: new Date(contractDetail.endDate),
             createdAt: new Date(),
-            leasingExpertId: user ? user._id : '',
-            holidayType: 'before',
+            leasingExpertId: user ? user._id : "",
+            holidayType: "before",
             useManualNumbering: null,
-            status: 'normal',
-            classification: 'NORMAL',
+            status: "normal",
+            classification: "NORMAL",
             marginAmount: null,
             feeAmount: 0,
             lossPercent: 20,
-            lossCalcType: 'fromInterest',
+            lossCalcType: "fromInterest",
             skipAmountCalcMonth: null,
             insuranceAmount: 0,
             debt: null,
@@ -214,14 +214,13 @@ const command = async () => {
             insurancesData: [],
             relCustomers: [],
             customFieldsData: [],
-            scheduleDays: [],
-            isSyncedSchedules: true,
-            isSyncedCollateral: true
+            scheduleDays: []
           };
 
           const updatedDocument = await syncCollateral(
             ProductCategories,
             Products,
+            LoanCollateralType,
             collaterals,
             document
           );
@@ -234,7 +233,7 @@ const command = async () => {
            * sync loan schedules
            */
 
-          const pLoanSchedules = await fetchPolaris('13610203', [
+          const pLoanSchedules = await fetchPolaris("13610203", [
             pLoanContract.acntCode
           ]);
 
@@ -249,10 +248,10 @@ const command = async () => {
            * sync loan transaction
            */
 
-          const huulga = await fetchPolaris('13610201', [
+          const huulga = await fetchPolaris("13610201", [
             pLoanContract.acntCode,
-            moment(pLoanContract.startDate).format('YYYY-MM-DD'),
-            moment(pLoanContract.endDate).format('YYYY-MM-DD'),
+            moment(pLoanContract.startDate).format("YYYY-MM-DD"),
+            moment(pLoanContract.endDate).format("YYYY-MM-DD"),
             0,
             100
           ]);
@@ -281,7 +280,7 @@ command();
 
 const dateGroup = async (data, aprvAmnt) => {
   if (!data || !Array.isArray(data.txns)) {
-    throw new Error('Invalid input: data.txns must be an array');
+    throw new Error("Invalid input: data.txns must be an array");
   }
 
   // Step 1: Filter transactions with income !== 0
@@ -303,7 +302,7 @@ const dateGroup = async (data, aprvAmnt) => {
 
 const getMostFrequentPaymentDay = async (schedule) => {
   if (!Array.isArray(schedule) || schedule.length === 0) {
-    throw new Error('Invalid schedule data');
+    throw new Error("Invalid schedule data");
   }
 
   const dayCounts = {};
@@ -319,7 +318,7 @@ const getMostFrequentPaymentDay = async (schedule) => {
 };
 
 const getFullDate = (date) => {
-  return new Date(moment(date).format('YYYY-MM-DD'));
+  return new Date(moment(date).format("YYYY-MM-DD"));
 };
 
 const getDiffDay = (fromDate, toDate) => {
@@ -340,7 +339,7 @@ const getAmountByPriority = (total, params) => {
   } = params;
 
   const result = {
-    status: 'less',
+    status: "less",
     didPayment: 0,
     didLoss: 0,
     didInterestEve: 0,
@@ -392,7 +391,7 @@ const getAmountByPriority = (total, params) => {
     return result;
   }
 
-  result.status = 'done';
+  result.status = "done";
   result.didPayment = payment;
   mainAmount = mainAmount - payment;
   if (insurance > mainAmount) {
@@ -425,7 +424,7 @@ const calcLoss = async (contract, paymentInfo, lossPercent, diff) => {
   let result = 0;
 
   switch (contract.lossCalcType) {
-    case 'fromAmount':
+    case "fromAmount":
       result = new BigNumber(paymentInfo.payment)
         .multipliedBy(new BigNumber(lossPercent).div(100))
         .multipliedBy(diff)
@@ -433,7 +432,7 @@ const calcLoss = async (contract, paymentInfo, lossPercent, diff) => {
         .toNumber();
       break;
 
-    case 'fromInterest':
+    case "fromInterest":
       result = new BigNumber(paymentInfo.interest)
         .multipliedBy(new BigNumber(lossPercent).div(100))
         .multipliedBy(diff)
@@ -441,7 +440,7 @@ const calcLoss = async (contract, paymentInfo, lossPercent, diff) => {
         .toNumber();
       break;
 
-    case 'fromTotalPayment':
+    case "fromTotalPayment":
       result = new BigNumber(
         new BigNumber(paymentInfo.payment).plus(paymentInfo.interest)
       )
@@ -844,7 +843,7 @@ const fixFutureSchedulesLast = async (
     let payment = 0;
     let total = 0;
 
-    if (contract.repayment === 'fixed') {
+    if (contract.repayment === "fixed") {
       total = futureSch.total;
       payment = total - interest - futureSch.insurance;
     } else {
@@ -1056,7 +1055,7 @@ const afterPayTrInSchedule = async (LoanSchedules, foundCT, tr) => {
   // payment iig tulvul balance uldeh yostoi baidgaas undeslev
   let didBalance = (preSchedule.didBalance ?? 0) - didPayment;
   if (didBalance <= 0) {
-    status = 'complete';
+    status = "complete";
     surplus = didBalance * -1;
     didBalance = 0;
   }
@@ -1134,7 +1133,7 @@ const afterPayTrInSchedule = async (LoanSchedules, foundCT, tr) => {
   if (updStatusSchedules?.length) {
     await LoanSchedules.updateMany(
       { _id: { $in: updStatusSchedules.map((u) => u._id) } },
-      { $set: { status: 'skipped' } }
+      { $set: { status: "skipped" } }
     );
   }
 
@@ -1154,7 +1153,7 @@ const afterPayTrInSchedule = async (LoanSchedules, foundCT, tr) => {
 };
 
 const getCorrectDate = (genDate, holidayType, weekends, perHolidays) => {
-  if (!['before', 'after'].includes(holidayType)) {
+  if (!["before", "after"].includes(holidayType)) {
     return genDate;
   }
 
@@ -1166,11 +1165,11 @@ const getCorrectDate = (genDate, holidayType, weekends, perHolidays) => {
     perHolidays.find((ph) => ph.month === month + 1 && ph.day === day)
   ) {
     let multiplier = 1;
-    if (holidayType === 'before') {
+    if (holidayType === "before") {
       multiplier = -1;
     }
     return getCorrectDate(
-      new Date(moment(genDate).add(multiplier, 'day').format('YYYY-MM-DD')),
+      new Date(moment(genDate).add(multiplier, "day").format("YYYY-MM-DD")),
       holidayType,
       weekends,
       perHolidays
@@ -1227,8 +1226,8 @@ const generateDates = (
 
     mainDate = new Date(
       moment(new Date(year, month, 1))
-        .add(1, 'M')
-        .format('YYYY-MM-DD')
+        .add(1, "M")
+        .format("YYYY-MM-DD")
     );
   }
 
@@ -1236,18 +1235,18 @@ const generateDates = (
 };
 
 const addMonths = (date, months) => {
-  return new Date(moment(new Date(date)).add(months, 'M').format('YYYY-MM-DD'));
+  return new Date(moment(new Date(date)).add(months, "M").format("YYYY-MM-DD"));
 };
 
 const getSkipDate = (currentDate, skipMonth, skipDay) => {
   if (skipDay) {
     return new Date(
-      moment(new Date(currentDate)).add(skipDay, 'day').format('YYYY-MM-DD')
+      moment(new Date(currentDate)).add(skipDay, "day").format("YYYY-MM-DD")
     );
   }
   if (skipMonth) {
     return new Date(
-      moment(new Date(currentDate)).add(skipMonth, 'M').format('YYYY-MM-DD')
+      moment(new Date(currentDate)).add(skipMonth, "M").format("YYYY-MM-DD")
     );
   }
   return;
@@ -1373,7 +1372,7 @@ const getEqualPay = async ({
     return 0;
   }
 
-  let currentDate = getFullDate(moment(startDate).add(-1, 'day').toDate());
+  let currentDate = getFullDate(moment(startDate).add(-1, "day").toDate());
   let mainRatio = new BigNumber(0);
   let ratio = 1;
   for (let i = 0; i < paymentDates.length; i++) {
@@ -1592,7 +1591,7 @@ const scheduleHelper = async (
   );
 
   switch (repayment) {
-    case 'equal':
+    case "equal":
       const payment = new BigNumber(balance - (salvageAmount || 0))
         .div(paymentDates.length)
         .dp(calculationFixed, BigNumber.ROUND_HALF_UP)
@@ -1618,7 +1617,7 @@ const scheduleHelper = async (
           _id: nanoid(),
           createdAt: new Date(),
           contractId,
-          version: '0',
+          version: "0",
           payDate: currentDate,
           interestRate: perMonth.interestRate ?? 0,
           balance: balance,
@@ -1635,7 +1634,7 @@ const scheduleHelper = async (
 
       break;
 
-    case 'last': {
+    case "last": {
       const calcedOne = await calcAllMonthLast({
         currentDate,
         balance,
@@ -1652,7 +1651,7 @@ const scheduleHelper = async (
           _id: nanoid(),
           createdAt: new Date(),
           contractId,
-          version: '0',
+          version: "0",
           payDate: endDate,
           interestRate: calcedOne.interestRate,
           balance: 0,
@@ -1703,7 +1702,7 @@ const scheduleHelper = async (
           _id: nanoid(),
           createdAt: new Date(),
           contractId,
-          version: '0',
+          version: "0",
           payDate: currentDate,
           interestRate: perMonth.interestRate,
           balance,
@@ -1852,7 +1851,7 @@ const generateSchedules = async (LoanSchedules, contract, unUsedBalance) => {
         startDate,
         stepRule.scheduleDays || contract.scheduleDays,
         tenor,
-        contract.holidayType || 'exact',
+        contract.holidayType || "exact",
         contract.weekends || [],
         perHolidays,
         stepRule.firstPayDate
@@ -1893,7 +1892,7 @@ const generateSchedules = async (LoanSchedules, contract, unUsedBalance) => {
       startDate,
       contract.scheduleDays,
       tenor,
-      contract.holidayType || 'exact',
+      contract.holidayType || "exact",
       contract.weekends || [],
       perHolidays,
       (bulkEntries.length && contract.firstPayDate) || undefined
@@ -1935,7 +1934,7 @@ const firstGiveTr = async (LoanSchedules, foundCT, tr) => {
   await LoanSchedules.insertOne({
     _id: nanoid(),
     contractId: foundCT._id,
-    status: 'give',
+    status: "give",
     payDate: getFullDate(tr.payDate),
     balance: new BigNumber(tr.total || 0).toNumber(),
     didBalance: new BigNumber(tr.total || 0).toNumber(),
@@ -1993,7 +1992,7 @@ const afterGiveTrInSchedule = async (LoanSchedules, foundCT, tr) => {
   const currentSchedule = await LoanSchedules.insertOne({
     _id: nanoid(),
     contractId: foundCT._id,
-    status: 'give',
+    status: "give",
     payDate: getFullDate(tr.payDate),
     balance: new BigNumber(tr.total || 0).plus(amounts.balance).toNumber(),
     didBalance: new BigNumber(tr.total || 0)
@@ -2048,6 +2047,7 @@ const afterGiveTrInSchedule = async (LoanSchedules, foundCT, tr) => {
 const syncCollateral = async (
   ProductCategories,
   Products,
+  LoanCollateralType,
   collaterals,
   document
 ) => {
@@ -2055,11 +2055,24 @@ const syncCollateral = async (
     document.collateralsData = [];
 
     for (const item of collaterals) {
-      const detailCollateral = await fetchPolaris('13610906', [item.acntCode]);
+      const detailCollateral = await fetchPolaris("13610906", [item.acntCode]);
+      let createdCollateralType;
 
       const product = await Products.findOne({
         code: item.acntCode
       });
+
+      const collateralType = await LoanCollateralType.findOne({
+        code: detailCollateral.prodCode
+      });
+
+      if (!collateralType) {
+        createdCollateralType = await LoanCollateralType.insertOne({
+          _id: nanoid(),
+          code: detailCollateral.prodCode,
+          name: detailCollateral.name
+        });
+      }
 
       if (!product) {
         let categoryId;
@@ -2075,7 +2088,7 @@ const syncCollateral = async (
             name: `${item.acntName} ${item.linkTypeName}`,
             code: detailCollateral.acntCode,
             order: `${detailCollateral.acntCode}/`,
-            status: 'active',
+            status: "active",
             createdAt: new Date()
           });
 
@@ -2093,6 +2106,9 @@ const syncCollateral = async (
 
         document.collateralsData.push({
           _id: nanoid(),
+          collateralTypeId: collateralType
+            ? collateralType._id
+            : createdCollateralType.insertedId,
           collateralId: createProduct.insertedId,
           cost: detailCollateral.price,
           percent: 0,
@@ -2106,6 +2122,9 @@ const syncCollateral = async (
         // Optional: If you want to handle case when product exists
         document.collateralsData.push({
           _id: nanoid(),
+          collateralTypeId: collateralType
+            ? collateralType._id
+            : createdCollateralType.insertedId,
           collateralId: product._id,
           cost: detailCollateral.useAmount,
           percent: 0,
@@ -2116,6 +2135,10 @@ const syncCollateral = async (
           vinNumber: detailCollateral.key
         });
       }
+    }
+
+    if (document.collateralsData.length > 0) {
+      document.isSyncedCollateral = true;
     }
   }
 
@@ -2132,7 +2155,7 @@ const syncSchedules = async (
     const schedules = pLoanSchedules.map((schedule) => ({
       _id: nanoid(),
       contractId: loanContract.insertedId.toString(),
-      status: 'pending',
+      status: "pending",
       payDate: new Date(schedule.schdDate),
       balance: schedule.totalAmount,
       interestNonce: schedule.intAmount,
@@ -2147,7 +2170,8 @@ const syncSchedules = async (
       {
         $set: {
           firstPayDate: new Date(pLoanSchedules[0].schdDate),
-          scheduleDays: [await getMostFrequentPaymentDay(pLoanSchedules)]
+          scheduleDays: [await getMostFrequentPaymentDay(pLoanSchedules)],
+          isSyncedSchedules: true
         }
       }
     );
@@ -2172,7 +2196,7 @@ const syncTransactions = async (
     if (data.outcome === aprvAmnt || data.balance === aprvAmnt) {
       const doc = {
         _id: nanoid(),
-        transactionType: 'give',
+        transactionType: "give",
         contractId: loanContract.insertedId,
         payDate: new Date(data.postDate),
         total: data.outcome,
@@ -2198,7 +2222,7 @@ const syncTransactions = async (
         description: data.txnDesc,
         currency: data.curCode,
         payment: data.income,
-        transactionType: 'repayment',
+        transactionType: "repayment",
         calcInterest: 0,
         storedInterest: 0,
         commitmentInterest: 0,

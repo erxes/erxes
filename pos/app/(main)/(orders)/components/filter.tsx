@@ -5,7 +5,7 @@ import { SetAtom } from "@/store"
 import { defaultFilter } from "@/store/history.store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { formatISO, setHours, setMinutes, setSeconds, subDays } from "date-fns"
-import { SetStateAction } from "jotai"
+import { SetStateAction, useAtomValue } from "jotai"
 import { SearchIcon, XIcon } from "lucide-react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -33,6 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+import { allowTypesAtom } from "@/store/config.store"
 
 const toEnd = (d: string | Date) =>
   setHours(setMinutes(setSeconds(new Date(d), 59), 59), 23)
@@ -52,6 +53,7 @@ const FormSchema = z.object({
     })
     .optional(),
   statuses: z.array(z.string()).optional(),
+  types: z.array(z.string()).optional(),
   isPaid: z.string(),
   sort: z.string().optional(),
   slotCode: z.string(),
@@ -72,6 +74,8 @@ const Filter = ({
   const { searchValue, startDate, endDate, sortField, sortDirection } =
     defaultFilter
 
+  const configTypes = useAtomValue(allowTypesAtom)
+
   const defaultValues = {
     searchValue,
     range: {
@@ -79,6 +83,7 @@ const Filter = ({
       to: new Date(endDate || defaultFilter.startDate),
     },
     statuses: allowedStatuses || ORDER_STATUSES.ALL,
+    types: [],
     isPaid: "all",
     slotCode: "all",
     isPreExclude: false,
@@ -98,6 +103,7 @@ const Filter = ({
     dueRange,
     range,
     statuses,
+    types,
     isPaid,
     sort,
     slotCode,
@@ -111,6 +117,7 @@ const Filter = ({
       page: 1,
       searchValue,
       statuses: (statuses || []) as IOrderStatus[],
+      types: types || undefined,
       startDate: formatISO(new Date(from || subDays(new Date(), 10))),
       endDate: formatISO(toEnd(to || new Date())),
       isPaid: isPaid === "all" ? undefined : isPaid === "paid",
@@ -165,7 +172,7 @@ const Filter = ({
             name="statuses"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Хайх</FormLabel>
+                <FormLabel>Төлөв</FormLabel>
                 <FormControl>
                   <FacetedFilter
                     options={(allowedStatuses || ORDER_STATUSES.ALL).map(
@@ -174,7 +181,28 @@ const Filter = ({
                         value: status,
                       })
                     )}
-                    title="Төлөв сонгох"
+                    values={field.value}
+                    onSelect={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="types"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Төрөл</FormLabel>
+                <FormControl>
+                  <FacetedFilter
+                    options={(configTypes || [])
+                      .map((tp) => ({
+                        label: tp,
+                        value: tp,
+                      }))}
                     values={field.value}
                     onSelect={field.onChange}
                   />

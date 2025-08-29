@@ -6,7 +6,7 @@ export const getOrCreateCustomer = async (
   subdomain: string,
   callAccount: any,
 ) => {
-  const { inboxIntegrationId, primaryPhone } = callAccount;
+  const { inboxIntegrationId, primaryPhone, phoneType } = callAccount;
   let customer = await models.Customers.findOne({
     primaryPhone,
     status: 'completed',
@@ -37,7 +37,7 @@ export const getOrCreateCustomer = async (
             integrationId: inboxIntegrationId,
             primaryPhone: primaryPhone,
             isUser: true,
-            phone: [primaryPhone],
+            phones: [{ type: phoneType || 'primary', phone: primaryPhone }],
             kind: 'calls',
           }),
         },
@@ -59,7 +59,7 @@ export const createCustomer = async (
   subdomain: string,
   docs: any,
 ) => {
-  const { inboxIntegrationId, primaryPhone, customerId } = docs;
+  const { inboxIntegrationId, primaryPhone, customerId, phoneType } = docs;
   let customer;
   if (customerId) {
     let customer = await models.Customers.findOne({
@@ -88,7 +88,7 @@ export const createCustomer = async (
         payload: JSON.stringify({
           integrationId: inboxIntegrationId,
           isUser: true,
-          phone: [primaryPhone],
+          phones: [{ type: phoneType || 'primary', phone: primaryPhone }],
           kind: 'calls',
         }),
       },

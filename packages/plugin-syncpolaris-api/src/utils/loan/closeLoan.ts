@@ -1,67 +1,61 @@
-import {
-  fetchPolaris,
-  getDepositAccount,
-  getContract,
-  getProduct,
-} from '../utils';
+import { fetchPolaris, getDepositAccount, getContract } from "../utils";
 
-export const createLoanClose = async (subdomain, polarisConfig, transaction) => {
-  const depositAccount = await getDepositAccount(
-    subdomain,
-    transaction.customerId,
-  );
-
+export const createLoanClose = async (
+  subdomain,
+  models,
+  polarisConfig,
+  transaction
+) => {
   const loanContract = await getContract(
     subdomain,
     { _id: transaction.contractId },
-    'loans',
+    "loans"
   );
 
-  const loanContractType = await getProduct(
+  const depositAccount = await getDepositAccount(
     subdomain,
-    loanContract.contractTypeId,
-    'loans',
+    loanContract.customerId
   );
 
   const loanClose = {
-    txnAcntCode: loanContractType.transAccount,
+    txnAcntCode: loanContract.number,
     txnAmount: transaction.total,
     curCode: transaction.currency,
     rate: 1,
-    rateTypeId: '4',
+    rateTypeId: "4",
     contAcntCode: depositAccount.number,
     contAmount: transaction.total,
     contRate: 1,
     contCurCode: transaction.currency,
-    txnDesc: transaction.description,
-    sourceType: 'OI',
+    txnDesc: transaction.description ?? "haav",
+    sourceType: "OI",
     isPreview: 0,
     isPreviewFee: null,
     isTmw: 1,
     aspParam: [
       [
         {
-          acntCode: loanContractType.transAccount,
-          acntType: 'INCOME',
+          acntCode: depositAccount.transAccount,
+          acntType: "INCOME"
         },
         {
-          acntCode: depositAccount.number,
-          acntType: 'EXPENSE',
-        },
+          acntCode: loanContract.number,
+          acntType: "EXPENSE"
+        }
       ],
-      13600107,
+      13600107
     ],
     addParams: [
       {
-        contAcntType: 'CASA',
-        chkAcntInt: 'N',
-      },
-    ],
+        contAcntType: "CASA",
+        chkAcntInt: "N"
+      }
+    ]
   };
 
   const loanGiveReponse = await fetchPolaris({
     subdomain,
-    op: '13610267',
+    op: "13610267",
     data: [loanClose],
     polarisConfig
   });

@@ -1,5 +1,5 @@
-import { generateModels } from '../../connectionResolver';
-import { sendCoreMessage } from '../../messageBroker';
+import { generateModels } from "../../connectionResolver";
+import { sendCoreMessage } from "../../messageBroker";
 import {
   customFieldToObject,
   fetchPolaris,
@@ -7,17 +7,16 @@ import {
   getBranch,
   getCollateralType,
   sendMessageBrokerData,
-  updateContract
-} from '../utils';
-import { integrateCollateralToLoan } from './integrateCollateralToLoan';
-import { openCollateral } from './openCollateral';
+  updateContract,
+} from "../utils";
+import { integrateCollateralToLoan } from "./integrateCollateralToLoan";
+import { openCollateral } from "./openCollateral";
 
 export const createCollateral = async (
   subdomain: string,
   polarisConfig,
-  data: any
+  loan: any
 ) => {
-  const loan = data.contract;
   let collateralObj;
 
   const models = await generateModels(subdomain);
@@ -27,13 +26,13 @@ export const createCollateral = async (
   let collateralRes;
 
   const syncLogDoc = {
-    type: '',
-    contentType: 'loans:contract',
+    type: "",
+    contentType: "loans:contract",
     contentId: collateral.collateralId,
     createdAt: new Date(),
-    createdBy: '',
+    createdBy: "",
     consumeData: collateral,
-    consumeStr: JSON.stringify(collateral)
+    consumeStr: JSON.stringify(collateral),
   };
 
   let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
@@ -42,81 +41,81 @@ export const createCollateral = async (
 
   const customer = await sendMessageBrokerData(
     subdomain,
-    'core',
-    'customers.findOne',
+    "core",
+    "customers.findOne",
     { _id: loan.customerId }
   );
 
   const customerData = await customFieldToObject(
     subdomain,
-    'core:customer',
+    "core:customer",
     customer
   );
 
   const collateralType = await getCollateralType(
     subdomain,
     collateral.collateralTypeId,
-    'loans'
+    "loans"
   );
 
   const product = await sendCoreMessage({
     subdomain,
-    action: 'products.findOne',
+    action: "products.findOne",
     data: { _id: collateral.collateralId },
-    isRPC: true
+    isRPC: true,
   });
 
   const polarisCollateral = await fetchPolarisWithoutError({
     subdomain,
-    op: '13610906',
+    op: "13610906",
     data: [product.code],
-    polarisConfig
+    polarisConfig,
   });
 
   let sendData = {
     name: product.name,
     name2: product.name,
     custCode: customer.code,
-    prodCode: collateralType?.code || '',
-    prodType: 'COLL',
-    collType: '2',
+    prodCode: collateralType?.code || "",
+    prodType: "COLL",
+    collType: "2",
     brchCode: branch.code,
     addrId: 300001,
-    addrDetail: 'Address detail',
-    status: 'N',
-    maskCode4: 'ГД',
-    mask2Code4: 'ГД',
-    description: 'collateral.description',
+    addrDetail: "Address detail",
+    status: "N",
+    maskCode4: "ГД",
+    mask2Code4: "ГД",
+    description: "collateral.description",
     qty: 4,
     unitPrice: collateral.cost,
     price: collateral.cost,
-    curCode: 'MNT',
+    curCode: "MNT",
     priceDate: new Date(),
     prvnReleasePrcnt: 10,
     maskType: 4,
     allowQty: 1,
-    maskCode: 'ГД',
-    maskCode2: 'ГД',
-    marketValueType: '0',
+    maskCode: "ГД",
+    maskCode2: "ГД",
+    marketValueType: "0",
     marketValueDate: new Date(),
     marketValue: collateral.marginAmount,
     registerCode: customerData.registerCode,
-    identityType: 'NES'
+    identityType: "NES",
   };
 
   if (
     customer?.code &&
     collateral?.cost &&
     customerData?.registerCode != null &&
-    polarisCollateral === 'error'
+    polarisCollateral === "error"
   ) {
     collateralRes = await fetchPolaris({
       subdomain,
-      op: '13610900',
+      op: "13610900",
       data: [sendData],
       models,
       polarisConfig,
-      syncLog
+      syncLog,
     });
 
     if (collateralRes.acntCode) {
@@ -129,17 +128,17 @@ export const createCollateral = async (
       );
       await sendCoreMessage({
         subdomain,
-        action: 'products.updateProduct',
+        action: "products.updateProduct",
         data: {
           _id: product._id,
-          doc: { ...product, code: collateralRes.acntCode }
+          doc: { ...product, code: collateralRes.acntCode },
         },
-        isRPC: true
+        isRPC: true,
       });
     }
   }
 
-  if (polarisCollateral !== 'error') {
+  if (polarisCollateral !== "error") {
     collateralObj = JSON.parse(polarisCollateral);
   }
 
@@ -156,7 +155,7 @@ export const createCollateral = async (
       {
         code: integrationCode,
         amount: collateral.marginAmount,
-        loanNumber: loan.number
+        loanNumber: loan.number,
       }
     );
 
@@ -165,7 +164,7 @@ export const createCollateral = async (
         subdomain,
         { _id: loan._id },
         { $set: { isSyncedCollateral: true } },
-        'loans'
+        "loans"
       );
     }
   }

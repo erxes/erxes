@@ -72,6 +72,7 @@ export default {
         ...target,
         ['createdBy.department']: '-',
         ['createdBy.branch']: '-',
+        ['createdBy.branch.parent']: '-',
         ['createdBy.phone']: '-',
         ['createdBy.fullName']: '-',
         ['createdBy.email']: '-',
@@ -80,6 +81,8 @@ export default {
         ['customers.phone']: '-',
         ['customers.fullName']: '-',
         ['branches.title']: '-',
+        ['branches.parent']: '-',
+
         link: '-',
         pipelineLabels: '-'
       },

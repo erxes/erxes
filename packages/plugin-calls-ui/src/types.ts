@@ -16,7 +16,7 @@ export interface ICustomerDoc {
   firstName?: string;
   middleName?: string;
   lastName?: string;
-  phones?: string[];
+  phones?: any[];
   primaryPhone?: string;
 }
 
