@@ -298,7 +298,6 @@ class SelectWithSearch extends React.Component<
                 }
               />
             )}
-            {/* Нэр */}
             {displayText}
           </SelectValue>
         </components.MultiValue>
@@ -321,6 +320,7 @@ class SelectWithSearch extends React.Component<
         onInputChange={onSearch}
         options={selectOptions}
         isMulti={multi}
+        closeMenuOnSelect={!multi}
         styles={customStyles}
         menuPortalTarget={menuPortalTarget}
       />
@@ -367,6 +367,7 @@ const withQuery = ({ customQuery }) =>
             fetchPolicy: "network-only",
             variables: {
               ids: initialValues,
+              excludeIds: true,
               ...filterParams,
             },
           };
