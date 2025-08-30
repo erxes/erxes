@@ -360,7 +360,14 @@ export const customerSchema = schemaWrapper(
       index: true,
       label: "Tags",
     }),
-
+    
+    brand: field({
+      type: String,
+      label: "Brand",
+      optional: true,
+      esType: "keyword",
+    }),
+    
     // Merged customer ids
     mergedIds: field({ type: [String], optional: true }),
 

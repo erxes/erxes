@@ -13,7 +13,7 @@ export const types = ({ contacts, clientPortal, loyalty }) => `
     unUsedAmount: JSON
     amount: JSON
     customFieldsData: JSON
-    
+
     ${commonListTypes}
 
     ${loyalty ? `loyalty: [LoyaltyEntity]` : ""}
@@ -41,6 +41,8 @@ export const types = ({ contacts, clientPortal, loyalty }) => `
     extraData: JSON
     ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ""}
 
+    ${loyalty ? `loyalty: [LoyaltyEntity]` : ""}
+
     ${commonTypes}
   }
 
@@ -60,7 +62,6 @@ export const types = ({ contacts, clientPortal, loyalty }) => `
     quantity: Int
     unitPrice: Float
   }
-
 `;
 
 const dealMutationParams = `
@@ -139,21 +140,12 @@ const archivedDealsParams = `
 
 export const queries = `
   dealDetail(_id: String!, clientPortalCard: Boolean): Deal
-  checkDiscount(_id: String!,products:[SalesProductField], couponCode: String, voucherId: String):JSON
+  checkDiscount(_id: String!, products: [SalesProductField], couponCode: String, voucherId: String): JSON
   deals(${listQueryParams}): [DealListItem]
   dealsTotalCount(${listQueryParams}): Int
-  archivedDeals(
-    page: Int
-    perPage: Int
-    ${archivedDealsParams}
-  ): [Deal]
-  archivedDealsCount(
-    ${archivedDealsParams}
-  ): Int
-  dealsTotalAmounts(
-    ${commonQueryParams}
-    ${conformityQueryFields}
-  ): [SalesTotalForType]
+  archivedDeals(page: Int, perPage: Int, ${archivedDealsParams}): [Deal]
+  archivedDealsCount(${archivedDealsParams}): Int
+  dealsTotalAmounts(${commonQueryParams} ${conformityQueryFields}): [SalesTotalForType]
 `;
 
 export const mutations = `
@@ -168,3 +160,4 @@ export const mutations = `
   dealsEditProductData(proccessId: String, dealId: String, dataId: String, doc: JSON): JSON
   dealsDeleteProductData(proccessId: String, dealId: String, dataId: String): JSON
 `;
+
