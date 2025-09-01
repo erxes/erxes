@@ -94,7 +94,7 @@ func fetchPluginsFromURL(url string) ([]byte, error) {
 }
 
 func main() {
-	mongoURL := os.Getenv("MONGO_URL")
+	mongoURL := os.Getenv("MONGO_URL") + "&maxPoolSize=1&minPoolSize=0&connectTimeoutMS=90000"
 	coreMongoURL := os.Getenv("CORE_MONGO_URL") + "&connect=direct"
 	elasticsearchURL := os.Getenv("ELASTICSEARCH_URL")
 
@@ -168,9 +168,13 @@ func main() {
 	}
 
 	// Set client options
-	clientOptions := options.Client().ApplyURI(coreMongoURL)
+	clientOptions := options.Client().
+    ApplyURI(coreMongoURL).
+    SetMaxPoolSize(1).          // connection pool хамгийн ихдээ 5
+    SetMinPoolSize(0).          // хамгийн багадаа 1
+    SetHeartbeatInterval(30 * time.Second). // server discovery interval багасгана
+    SetConnectTimeout(10 * time.Second)     // connect хийх timeout
 
-	// Connect to MongoDB
 	client, err := mongo.Connect(ctx, clientOptions)
 
 	if err != nil {
