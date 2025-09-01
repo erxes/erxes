@@ -22,7 +22,7 @@ import React from "react";
 import Tip from "@erxes/ui/src/components/Tip";
 import _ from "lodash";
 import { checkLogic } from "../utils";
-
+import PropertiesLog from "../../../activityLogs/component/PropertiesLog";
 declare const navigator: any;
 
 type Props = {
@@ -398,7 +398,6 @@ class GenerateGroup extends React.Component<Props, State> {
       isDetail,
       collapseCallback,
     } = this.props;
-
     const childGroups = fieldsGroups.filter(
       (gro) => gro.parentId === fieldGroup._id
     );
@@ -801,7 +800,6 @@ class GenerateGroups extends React.Component<
         </DynamicContent>
       );
     }
-
     return this.renderGroups(groups);
   }
 }
