@@ -10,7 +10,6 @@ import SelectNewBranches from "@erxes/ui/src/team/containers/SelectNewBranches";
 
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import { IUser } from "@erxes/ui/src/auth/types";
-import { pipeline } from "stream";
 
 type Props = {
   item: IItem;
