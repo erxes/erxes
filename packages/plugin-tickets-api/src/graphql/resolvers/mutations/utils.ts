@@ -278,7 +278,7 @@ export const itemsEdit = async (
     // clean custom field values
     const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
     if (pipeline) {
-      putActivityLog(subdomain, {
+      await putActivityLog(subdomain, {
         action: "createPropertiesLog",
         data: {
           contentId: _id,

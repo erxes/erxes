@@ -22,7 +22,6 @@ import React from "react";
 import Tip from "@erxes/ui/src/components/Tip";
 import _ from "lodash";
 import { checkLogic } from "../utils";
-import PropertiesLog from "../../../activityLogs/component/PropertiesLog";
 declare const navigator: any;
 
 type Props = {

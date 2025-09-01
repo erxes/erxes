@@ -10,42 +10,45 @@ import { renderUserFullName } from "@erxes/ui/src/utils";
 import GenerateCustomFields from "@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields";
 
 type PropertiesLogProps = {
-  activity: any;
-  fieldsGroups: any;
+  activity: {
+    createdAt: string;
+    createdByDetail?: {
+      type?: string;
+      content?: any;
+    };
+    content?: {
+      customFieldsData?: Array<{ field: string; value: any }>;
+    };
+  };
+  fieldsGroups: any[];
 };
 
 const PropertiesLog: React.FC<PropertiesLogProps> = ({
   activity,
   fieldsGroups,
 }) => {
-  const renderContent = () => {
-    const { createdByDetail, content } = activity;
-    const fields = fieldsGroups?.fieldsGroups || [];
-    const { customFieldsData = [] } = content || {};
-    let userName = "Unknown";
-    if (createdByDetail?.type === "user") {
-      userName = renderUserFullName(createdByDetail.content);
-    }
+  const { createdByDetail, content, createdAt } = activity;
 
-    const updatedProps = {
-      isDetail: false,
-      customFieldsData: customFieldsData,
-      fieldsGroups: fields,
-    };
+  const fields = fieldsGroups || [];
+  const customFieldsData = content?.customFieldsData ?? [];
 
-    return (
-      <span>
-        {userName} change Properties to
-        <GenerateCustomFields {...updatedProps} />
-      </span>
-    );
-  };
-
-  const { createdAt } = activity;
+  const userName =
+    createdByDetail?.type === "user"
+      ? renderUserFullName(createdByDetail.content)
+      : "Unknown";
 
   return (
     <FlexCenterContent>
-      <FlexBody>{renderContent()}</FlexBody>
+      <FlexBody>
+        <span>
+          {userName} changed properties to{" "}
+          <GenerateCustomFields
+            isDetail={false}
+            customFieldsData={customFieldsData}
+            fieldsGroups={fields}
+          />
+        </span>
+      </FlexBody>
       <Tip text={dayjs(createdAt).format("llll")}>
         <ActivityDate>{dayjs(createdAt).format("MMM D, h:mm A")}</ActivityDate>
       </Tip>
