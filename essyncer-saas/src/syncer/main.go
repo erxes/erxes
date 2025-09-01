@@ -94,211 +94,211 @@ func fetchPluginsFromURL(url string) ([]byte, error) {
 }
 
 func main() {
-	mongoURL := os.Getenv("MONGO_URL") + "&maxPoolSize=1&minPoolSize=0&connectTimeoutMS=90000"
-	coreMongoURL := os.Getenv("CORE_MONGO_URL") + "&connect=direct"
-	elasticsearchURL := os.Getenv("ELASTICSEARCH_URL")
+	// mongoURL := os.Getenv("MONGO_URL") + "&maxPoolSize=1&minPoolSize=0&connectTimeoutMS=90000"
+	// coreMongoURL := os.Getenv("CORE_MONGO_URL") + "&connect=direct"
+	// elasticsearchURL := os.Getenv("ELASTICSEARCH_URL")
 
-	var ctx = context.TODO()
+	// var ctx = context.TODO()
 
-	// Fetch plugins.json from URL
-	pluginsURL := "https://pub-b4000d5767e14a6f835f4e70b3470577.r2.dev/plugins.json" // Replace with the actual URL
-	byteValue, err := fetchPluginsFromURL(pluginsURL)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// // Fetch plugins.json from URL
+	// pluginsURL := "https://pub-b4000d5767e14a6f835f4e70b3470577.r2.dev/plugins.json" // Replace with the actual URL
+	// byteValue, err := fetchPluginsFromURL(pluginsURL)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	var plugins Plugins
-	if err := json.Unmarshal(byteValue, &plugins); err != nil {
-		log.Fatal(err)
-	}
+	// var plugins Plugins
+	// if err := json.Unmarshal(byteValue, &plugins); err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	fmt.Println("Successfully fetched plugins.json", plugins)
-	fmt.Println("Mongo url ", mongoURL)
-	fmt.Println("Elasticsearch url ", elasticsearchURL)
+	// fmt.Println("Successfully fetched plugins.json", plugins)
+	// fmt.Println("Mongo url ", mongoURL)
+	// fmt.Println("Elasticsearch url ", elasticsearchURL)
 
-	var nested_type = `{
-		"type" : "nested",
-		"properties" : {
-			"field": {
-				"type": "keyword"
-			},
-			"value" : {
-				"type": "object",
-				"enabled" : false
-			},
-			"stringValue": {
-				"type" : "text"
-			},
-			"numberValue": {
-				"type" : "float"
-			},
-			"dateValue": {
-				"type" : "date" 
-			}
-		}
-	}`
+	// var nested_type = `{
+	// 	"type" : "nested",
+	// 	"properties" : {
+	// 		"field": {
+	// 			"type": "keyword"
+	// 		},
+	// 		"value" : {
+	// 			"type": "object",
+	// 			"enabled" : false
+	// 		},
+	// 		"stringValue": {
+	// 			"type" : "text"
+	// 		},
+	// 		"numberValue": {
+	// 			"type" : "float"
+	// 		},
+	// 		"dateValue": {
+	// 			"type" : "date" 
+	// 		}
+	// 	}
+	// }`
 
-	fmt.Println("Starting put template")
+	// fmt.Println("Starting put template")
 
-	putTemplate("events", fmt.Sprintf(`{
-		"organizationId": {
-			"type": "keyword"
-		},
-		"type": {
-			"type": "keyword"
-		},
-		"name": {
-			"type": "keyword"
-		},
-		"customerId": {
-			"type": "keyword"
-		},
-    	"attributes" : %s
-	}`, nested_type))
+	// putTemplate("events", fmt.Sprintf(`{
+	// 	"organizationId": {
+	// 		"type": "keyword"
+	// 	},
+	// 	"type": {
+	// 		"type": "keyword"
+	// 	},
+	// 	"name": {
+	// 		"type": "keyword"
+	// 	},
+	// 	"customerId": {
+	// 		"type": "keyword"
+	// 	},
+  //   	"attributes" : %s
+	// }`, nested_type))
 
-	for i := 0; i < len(plugins.Plugins); i++ {
-		var collections = plugins.Plugins[i].Collections
+	// for i := 0; i < len(plugins.Plugins); i++ {
+	// 	var collections = plugins.Plugins[i].Collections
 
-		for j := 0; j < len(collections); j++ {
-			var collection = collections[j]
-			var content = strings.Replace(collection.Schema, "'", "\"", -1)
-			content = strings.Replace(content, "<nested>", nested_type, -1)
-			putTemplate(collection.Name, content)
-		}
-	}
+	// 	for j := 0; j < len(collections); j++ {
+	// 		var collection = collections[j]
+	// 		var content = strings.Replace(collection.Schema, "'", "\"", -1)
+	// 		content = strings.Replace(content, "<nested>", nested_type, -1)
+	// 		putTemplate(collection.Name, content)
+	// 	}
+	// }
 
-	// Set client options
-	clientOptions := options.Client().
-    ApplyURI(coreMongoURL).
-    SetMaxPoolSize(1).          // connection pool хамгийн ихдээ 5
-    SetMinPoolSize(0).          // хамгийн багадаа 1
-    SetHeartbeatInterval(30 * time.Second). // server discovery interval багасгана
-    SetConnectTimeout(10 * time.Second)     // connect хийх timeout
+	// // Set client options
+	// clientOptions := options.Client().
+  //   ApplyURI(coreMongoURL).
+  //   SetMaxPoolSize(1).          // connection pool хамгийн ихдээ 5
+  //   SetMinPoolSize(0).          // хамгийн багадаа 1
+  //   SetHeartbeatInterval(30 * time.Second). // server discovery interval багасгана
+  //   SetConnectTimeout(10 * time.Second)     // connect хийх timeout
 
-	client, err := mongo.Connect(ctx, clientOptions)
+	// client, err := mongo.Connect(ctx, clientOptions)
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	defer client.Disconnect(ctx)
+	// defer client.Disconnect(ctx)
 
-	organizationsCollection := client.Database("erxes_core").Collection("organizations")
+	// organizationsCollection := client.Database("erxes_core").Collection("organizations")
 
-	findOptions := options.Find()
+	// findOptions := options.Find()
 
-	cursor, err := organizationsCollection.Find(ctx, bson.M{}, findOptions)
+	// cursor, err := organizationsCollection.Find(ctx, bson.M{}, findOptions)
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	type Organization struct {
-		ID primitive.ObjectID `bson:"_id"`
-	}
+	// type Organization struct {
+	// 	ID primitive.ObjectID `bson:"_id"`
+	// }
 
-	var organizations []Organization
+	// var organizations []Organization
 
-	if err = cursor.All(ctx, &organizations); err != nil {
-		log.Fatal(err)
-	}
+	// if err = cursor.All(ctx, &organizations); err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	fmt.Println("Creating mongo-elastic.toml file", coreMongoURL, len(organizations))
+	// fmt.Println("Creating mongo-elastic.toml file", coreMongoURL, len(organizations))
 
-	f, _ := os.Create("mongo-elastic.toml")
+	// f, _ := os.Create("mongo-elastic.toml")
 
-	var header = fmt.Sprintf(`
-		mongo-url="%s"
-		elasticsearch-urls=["%s"]
-		verbose=true
-	`, mongoURL, elasticsearchURL)
+	// var header = fmt.Sprintf(`
+	// 	mongo-url="%s"
+	// 	elasticsearch-urls=["%s"]
+	// 	verbose=true
+	// `, mongoURL, elasticsearchURL)
 
-	f.WriteString(header)
+	// f.WriteString(header)
 
-	var namespaces []string
-	var scripts []string
+	// var namespaces []string
+	// var scripts []string
 
-	var possible_dbs []string
-	var possible_collections []string
+	// var possible_dbs []string
+	// var possible_collections []string
 
-	for i := 0; i < len(organizations); i++ {
-		var organization = organizations[i]
-		var orgID = organization.ID.Hex()
+	// for i := 0; i < len(organizations); i++ {
+	// 	var organization = organizations[i]
+	// 	var orgID = organization.ID.Hex()
 
-		possible_dbs = append(possible_dbs, fmt.Sprintf(`erxes_%s`, orgID))
-	}
+	// 	possible_dbs = append(possible_dbs, fmt.Sprintf(`erxes_%s`, orgID))
+	// }
 
-	for i := 0; i < len(plugins.Plugins); i++ {
-		var plugin = plugins.Plugins[i]
-		var collections = plugin.Collections
+	// for i := 0; i < len(plugins.Plugins); i++ {
+	// 	var plugin = plugins.Plugins[i]
+	// 	var collections = plugin.Collections
 
-		for j := 0; j < len(collections); j++ {
-			var collection = collections[j]
+	// 	for j := 0; j < len(collections); j++ {
+	// 		var collection = collections[j]
 
-			scripts = append(scripts, collection.Script)
+	// 		scripts = append(scripts, collection.Script)
 
-			possible_collections = append(possible_collections, collection.Name)
+	// 		possible_collections = append(possible_collections, collection.Name)
 
-			for i := 0; i < len(organizations); i++ {
-				var organization = organizations[i]
-				var orgID = organization.ID.Hex()
+	// 		for i := 0; i < len(organizations); i++ {
+	// 			var organization = organizations[i]
+	// 			var orgID = organization.ID.Hex()
 		
-				namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.%s"`, orgID, collection.Name))
-			}
+	// 			namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.%s"`, orgID, collection.Name))
+	// 		}
 
-		}
-	}
+	// 	}
+	// }
 
-	var possible_collections_str = strings.Join(possible_collections, "|")
+	// var possible_collections_str = strings.Join(possible_collections, "|")
 
-	var namespace_regex = fmt.Sprintf("^erxes_.+.(%s)", possible_collections_str)
+	// var namespace_regex = fmt.Sprintf("^erxes_.+.(%s)", possible_collections_str)
 
-	f.WriteString(`
-		index-as-update=true
-		prune-invalid-json = true
-		direct-read-split-max = 1
-		elasticsearch-max-bytes = 2000000
-		elasticsearch-max-conns = 2
-	`)
+	// f.WriteString(`
+	// 	index-as-update=true
+	// 	prune-invalid-json = true
+	// 	direct-read-split-max = 1
+	// 	elasticsearch-max-bytes = 2000000
+	// 	elasticsearch-max-conns = 2
+	// `)
 
-	f.WriteString(fmt.Sprintf("direct-read-namespaces=[%s]", strings.Join(namespaces, ",")))
+	// f.WriteString(fmt.Sprintf("direct-read-namespaces=[%s]", strings.Join(namespaces, ",")))
 
-	f.WriteString(fmt.Sprintf(`
-		namespace-regex = "^%s$"
-		routing-namespaces = [ "" ]
-		delete-index-pattern = "erxes_*"
+	// f.WriteString(fmt.Sprintf(`
+	// 	namespace-regex = "^%s$"
+	// 	routing-namespaces = [ "" ]
+	// 	delete-index-pattern = "erxes_*"
 
-		[[script]]
-		script = """
-		module.exports = function(doc, ns) {
-			var organizationId = ns.replace("erxes_","").split(".")[0]
-			var index = ns.replace(organizationId, "").replace("_.", "__");
+	// 	[[script]]
+	// 	script = """
+	// 	module.exports = function(doc, ns) {
+	// 		var organizationId = ns.replace("erxes_","").split(".")[0]
+	// 		var index = ns.replace(organizationId, "").replace("_.", "__");
 
-			%s
+	// 		%s
 
-			doc._meta_monstache = {
-				id: organizationId + '__' + doc._id.toString(),
-				index: index
-			};
+	// 		doc._meta_monstache = {
+	// 			id: organizationId + '__' + doc._id.toString(),
+	// 			index: index
+	// 		};
 
-			doc.organizationId = organizationId;
+	// 		doc.organizationId = organizationId;
 
-			return doc;
-		}
-		"""
-	`, namespace_regex, strings.Join(scripts, " ")))
+	// 		return doc;
+	// 	}
+	// 	"""
+	// `, namespace_regex, strings.Join(scripts, " ")))
 
-	f.Close()
+	// f.Close()
 
-	fmt.Println("Before mongo-elastic.toml run")
+	// fmt.Println("Before mongo-elastic.toml run")
 
-	cmd := exec.Command("monstache", "-f", "mongo-elastic.toml")
+	// cmd := exec.Command("monstache", "-f", "mongo-elastic.toml")
 
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	// cmd.Stdin = os.Stdin
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
 
-	cmd.Run()
+	// cmd.Run()
 
-	fmt.Println("Running mongo-elastic.toml")
+	// fmt.Println("Running mongo-elastic.toml")
 }
