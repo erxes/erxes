@@ -12,7 +12,7 @@ import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
 import Tip from "@erxes/ui/src/components/Tip";
 import ContactsActivityLog from "@erxes/ui-contacts/src/components/activityLogs/activityLog";
 import TaggedLog from "@erxes/ui-tags/src/components/activityLogs/activityLog";
-
+import PropertiesLog from "@erxes/ui-forms/src/activityLogs/activityLog";
 type Props = {
   activity: IActivityLog;
   currentUser: IUser;
@@ -25,7 +25,6 @@ type Props = {
 class ActivityItem extends React.Component<Props> {
   render() {
     const { activity, currentUser } = this.props;
-
     const { contentType, _id, contentTypeDetail, action } = activity;
 
     const type = contentType.split(":")[1];
@@ -53,6 +52,15 @@ class ActivityItem extends React.Component<Props> {
 
     const pluginName = contentType.split(":")[0];
 
+    if (action === "properties") {
+      return (
+        <PropertiesLog
+          activity={activity}
+          contentType={contentType}
+          currentUser={currentUser}
+        />
+      );
+    }
     if (pluginName === "core") {
       switch (action) {
         case "tagged":
@@ -102,7 +110,7 @@ class ActivityItem extends React.Component<Props> {
       }
 
       if (kind) {
-        const p = plugins.find(pl => pl.name === kind);
+        const p = plugins.find((pl) => pl.name === kind);
 
         if (p) {
           scope = p.scope;
@@ -120,7 +128,7 @@ class ActivityItem extends React.Component<Props> {
                 contentType,
                 activity,
                 currentUser,
-                conversationId: _id
+                conversationId: _id,
               }}
             />
           </ErrorBoundary>
