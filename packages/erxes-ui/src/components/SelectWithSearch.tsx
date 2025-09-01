@@ -121,27 +121,34 @@ class SelectWithSearch extends React.Component<
     this.timer = 0;
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    const { queryName, customQuery, initialValues, generateOptions } =
-      nextProps;
+  componentDidUpdate(prevProps: Props) {
+    const {
+      queryName,
+      customQuery,
+      generateOptions,
+      exactFilter,
+      name,
+      initialValues,
+      filterParams,
+    } = this.props;
+    const { selectedValues } = this.state;
 
-    const { initialValuesProvided } = this.props;
-    const { selectedValues, selectedOptions } = this.state;
+    if (prevProps.initialValues !== initialValues) {
+      this.setState({ selectedValues: initialValues || [] });
 
-    // trigger clearing values by initialValues prop
-    if (
-      initialValuesProvided &&
-      (!initialValues || !initialValues.length) &&
-      selectedValues.length
-    ) {
-      this.setState({ selectedValues: [] });
+      if (this.state.totalOptions && initialValues?.length) {
+        const upSelectedOptions = this.state.totalOptions.filter((option) =>
+          initialValues.includes(option.value)
+        );
+        this.setState({ selectedOptions: upSelectedOptions });
+      }
     }
 
-    if (initialValues?.length) {
-      this.setState({ selectedValues: initialValues });
+    if (prevProps.filterParams?.branchIds !== filterParams?.branchIds) {
+      this.setState({ totalOptions: undefined, selectedOptions: undefined });
     }
 
-    if (customQuery.loading !== this.props.customQuery.loading) {
+    if (prevProps.customQuery.loading && !customQuery.loading) {
       const datas = customQuery[queryName] || [];
 
       const totalOptions = this.state.totalOptions || ([] as IOption[]);
@@ -152,25 +159,20 @@ class SelectWithSearch extends React.Component<
       );
 
       const updatedTotalOptions = [
-        ...new Set([
-          ...(this.props.exactFilter ? [] : selectedOptions || []),
-          ...uniqueLoadedOptions,
-        ]),
-      ];
+        ...(this.state.selectedOptions || []),
+        ...uniqueLoadedOptions,
+        ...totalOptions,
+      ].filter(
+        (opt, idx, arr) => arr.findIndex((o) => o.value === opt.value) === idx
+      );
 
       const upSelectedOptions = updatedTotalOptions.filter((option) =>
         selectedValues.includes(option.value)
       );
 
-      if (
-        this.props.exactFilter &&
-        selectedValues?.length &&
-        !upSelectedOptions.length
-      ) {
-        this.setState({
-          selectedValues: [],
-        });
-        this.props.onSelect([], this.props.name);
+      if (exactFilter && selectedValues?.length && !upSelectedOptions.length) {
+        this.setState({ selectedValues: [] });
+        this.props.onSelect([], name);
       }
 
       this.setState({
@@ -344,14 +346,19 @@ const withQuery = ({ customQuery }) =>
           abortController,
         }) => {
           const context = { fetchOptions: { signal: abortController.signal } };
+          const branchIds = filterParams?.branchIds || [];
+
+          const isAssignee = branchIds.length === 0;
 
           if (searchValue === "reload") {
             return {
               context,
               variables: {
-                ids: initialValues,
+                ids: initialValues || [],
                 excludeIds: true,
                 ...filterParams,
+                isAssignee,
+                branchIds,
               },
               fetchPolicy: "network-only",
               notifyOnNetworkStatusChange: true,
@@ -359,16 +366,20 @@ const withQuery = ({ customQuery }) =>
           }
 
           if (searchValue) {
-            return { context, variables: { searchValue, ...filterParams } };
+            return {
+              context,
+              variables: { searchValue, ...filterParams },
+            };
           }
 
           return {
             context,
             fetchPolicy: "network-only",
             variables: {
-              ids: initialValues,
-              excludeIds: true,
+              ids: initialValues || [],
               ...filterParams,
+              isAssignee,
+              branchIds,
             },
           };
         },
@@ -428,6 +439,14 @@ class Wrapper extends React.Component<
 
     this.setState({ searchValue, abortController: new AbortController() });
   };
+
+  componentDidUpdate(prevProps: WrapperProps) {
+    if (
+      prevProps.filterParams?.branchIds !== this.props.filterParams?.branchIds
+    ) {
+      this.search("reload");
+    }
+  }
 
   render() {
     const { searchValue, abortController } = this.state;
