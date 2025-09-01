@@ -1,36 +1,27 @@
-FROM golang:1.19-bullseye
+FROM golang:1.14.2
 
-WORKDIR /essyncer-saas/
+WORKDIR /elkSyncer/
 
-ENV GOPATH=/essyncer-saas
-ENV PATH="/essyncer-saas/build/linux-amd64:$PATH"
-ENV GO111MODULE=off
+ENV GOPATH=/elkSyncer
+ENV PATH="/elkSyncer/build/linux-amd64:$PATH"
 
-# Update and install dependencies
+# Update
 RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-    vim \
-    wget \
-    unzip \
-    git \
-    curl \
+ && apt-get install -y vim \
+ && apt-get install -y go-dep unzip \
+ # monstache
+ && wget -q --show-progress https://github.com/erxes/monstache/archive/rel6.zip \
+ && unzip rel6.zip \
+ && rm rel6.zip \
+ && cp -r monstache-rel6/build . \
+ && rm -rf monstache-rel6 \
+ && mkdir bin && mkdir src \
  && rm -rf /var/lib/apt/lists/*
-
-# Install dep using pre-built binary (compatible with Go 1.19)
-RUN curl -L -o /usr/local/bin/dep https://github.com/golang/dep/releases/download/v0.5.4/dep-linux-amd64 \
- && chmod +x /usr/local/bin/dep
-
-# Download and install monstache
-RUN wget -q --show-progress https://github.com/rwynn/monstache/releases/download/v6.7.0/monstache-dfba1c2.zip \
- && unzip monstache-dfba1c2.zip \
- && rm monstache-dfba1c2.zip \
- && mkdir -p bin src
 
 COPY . .
 
-# Install Go dependencies using dep - force update
 RUN cd src/syncer \
- && rm -f Gopkg.lock \
- && dep ensure -v
+ && go get github.com/joho/godotenv \
+ && dep ensure
 
 CMD ["go", "run", "src/syncer/main.go"]
