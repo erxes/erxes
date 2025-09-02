@@ -190,10 +190,13 @@ func main() {
 	defer client.Disconnect(ctx)
 
 	organizationsCollection := client.Database("erxes_core").Collection("organizations")
+	threeMinutesAgo := time.Now().Add(-3 * time.Month)
 
 	findOptions := options.Find()
 
-	cursor, err := organizationsCollection.Find(ctx, bson.M{}, findOptions)
+	cursor, err := organizationsCollection.Find(ctx, bson.M{"lastActiveDate": bson.M{
+					"$gte": threeMinutesAgo,
+			},}, findOptions)
 
 	if err != nil {
 		log.Fatal(err)
