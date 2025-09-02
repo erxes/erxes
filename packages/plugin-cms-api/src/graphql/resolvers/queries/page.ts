@@ -43,6 +43,7 @@ const queries = {
     const pagesWithTranslations = pages.map((page) => {
       const translation = translationsMap[page._id.toString()];
       page.name = translation?.title || page.name;
+      page.description = translation?.content || page.description;
 
       return page;
     });
@@ -106,7 +107,7 @@ const queries = {
     const pagesWithTranslations = pages.map((page) => {
       const translation = translationsMap[page._id.toString()];
       page.name = translation?.title || page.name;
-      page.description = translation?.excerpt || page.description;
+      page.description = translation?.content || page.description;
       return page;
     });
 
@@ -146,7 +147,7 @@ const queries = {
     }).lean();
 
     page.name = translation?.title || page.name;
-    page.description = translation?.excerpt || page.description;
+    page.description = translation?.content || page.description;
 
     return page;
   },
