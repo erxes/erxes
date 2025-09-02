@@ -199,16 +199,36 @@ export const getRelatedValue = async (
     return `${labels.map(({ name }) => name).filter(Boolean) || "-"}`;
   }
   if (targetKey.includes("branches.")) {
+    const [_, subFieldName] = targetKey.split(".");
     const branches = await sendCoreMessage({
       subdomain,
       action: "branches.find",
       data: {
         query: { _id: { $in: target?.branchIds || [] } },
-        fields: { title: 1 },
+        fields: { title: 1, parentId: 1 },
       },
       isRPC: true,
       defaultValue: [],
     });
+
+    if (subFieldName === "parent") {
+      const parents = await sendCoreMessage({
+        subdomain,
+        action: "branches.find",
+        data: {
+          query: {
+            _id: {
+              $in: (branches || []).map(({ parentId }) => parentId) || [],
+            },
+          },
+          fields: { title: 1 },
+        },
+
+        isRPC: true,
+        defaultValue: [],
+      });
+      return `${parents.map(({ title }) => title).filter(Boolean) || "-"}`;
+    }
 
     return `${branches.map(({ title }) => title).filter(Boolean) || "-"}`;
   }
