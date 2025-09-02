@@ -107,11 +107,6 @@ const command = async () => {
 
         bulkOps = [];
       }
-
-      await Customers.updateOne(
-        { _id },
-        { $set: { emails: newEmails, phones: newPhones } }
-      );
     }
 
     if (bulkOps.length > 0) {
