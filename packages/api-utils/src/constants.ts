@@ -191,3 +191,11 @@ export const USER_ROLES = {
   USER: 'user',
   ALL: ['system', 'user']
 };
+
+export const OBJECT_RELATIONS = {
+  PARENT: 'parent',
+  CHILD: 'child',
+  IRRELEVANT: 'irrelevant',
+  SAME: 'same',
+  ALL: ['parent', 'child', 'irrelevant', 'same']
+};

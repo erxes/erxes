@@ -97,3 +97,9 @@ export const EXPENSE_DIVIDE_TYPES = {
   AMOUNT: "amount",
   ALL: ["quantity", "amount"]
 };
+
+export const AGENT_TYPES = {
+  CUSTOMER: 'customer',
+  COMPANY: 'company',
+  ALL: ['customer', 'company']
+};
