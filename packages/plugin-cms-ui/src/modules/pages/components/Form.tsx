@@ -86,6 +86,23 @@ const ProductForm = (props: Props) => {
     const { closeModal } = props;
     const { isSubmitted } = formProps;
 
+    const keyMap = {
+      name: 'title',
+      description: 'content',
+    };
+
+    const getValue = (key: string) => {
+      if (currentLanguage === website.language) {
+        return page[key];
+      }
+
+      const translation = translations.find(
+        (t) => t.language === currentLanguage
+      );
+
+      return translation ? translation[keyMap[key]] : '';
+    };
+
     return (
       <>
         {website.languages.length > 1 && (
@@ -117,8 +134,8 @@ const ProductForm = (props: Props) => {
             id={'name'}
             name={'name'}
             required={true}
-            defaultValue={getName()}
-            value={getName()}
+            defaultValue={getValue('name')}
+            value={getValue('name')}
             onChange={(e: any) => {
               const nameValue = e.target.value;
               const slugValue = nameValue
@@ -131,7 +148,7 @@ const ProductForm = (props: Props) => {
               if (currentLanguage === website.language) {
                 setPage({
                   ...page,
-                  name: e.target.value,
+                  name: nameValue,
                   slug: slugValue,
                 });
               } else {
@@ -145,8 +162,7 @@ const ProductForm = (props: Props) => {
                       t.language === currentLanguage
                         ? {
                             ...t,
-                            content: e.target.value,
-                            title: e.target.value,
+                            title: nameValue,
                           }
                         : t
                     )
@@ -155,9 +171,59 @@ const ProductForm = (props: Props) => {
                   setTranslations([
                     ...translations,
                     {
-                      title: e.target.value,
-                      excerpt: e.target.value,
-                      customFieldsData: {},
+                      content: '',
+                      excerpt: '',
+
+                      postId: page._id,
+                      type: 'page',
+                      language: currentLanguage,
+                      title: nameValue,
+                    },
+                  ]);
+                }
+              }
+            }}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>{__('Description')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            id={'description'}
+            name={'description'}
+            required={true}
+            defaultValue={getValue('description')}
+            value={getValue('description')}
+            onChange={(e: any) => {
+              if (currentLanguage === website.language) {
+                setPage({
+                  ...page,
+                  description: e.target.value,
+                });
+              } else {
+                const translation = translations.find(
+                  (t) => t.language === currentLanguage
+                );
+
+                if (translation) {
+                  setTranslations(
+                    translations.map((t) =>
+                      t.language === currentLanguage
+                        ? {
+                            ...t,
+                            content: e.target.value,
+                          }
+                        : t
+                    )
+                  );
+                } else {
+                  setTranslations([
+                    ...translations,
+                    {
+                      title: '',
+                      excerpt: '',
+
                       postId: page._id,
                       type: 'page',
                       language: currentLanguage,
