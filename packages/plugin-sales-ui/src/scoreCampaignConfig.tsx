@@ -83,6 +83,17 @@ const StageSelector = ({
     [stagesData]
   );
 
+  const refundStages = useMemo(() => {
+    const selectedStageIds = state.stageIds || []; 
+  
+    return (stagesData?.salesStages || [])
+      .filter(({ _id }) => !selectedStageIds.includes(_id)) 
+      .map(({ _id, name }) => ({
+        label: name,
+        value: _id,
+      }));
+  }, [stagesData, state.stageIds]);
+
   return (
     <FlexRow>
       <FormGroup>
@@ -135,6 +146,30 @@ const StageSelector = ({
           isMulti
         />
       </FormGroup>
+      <FormGroup>
+        <ControlLabel>{__("Refund Stages")}</ControlLabel>
+        <Select
+          id="refundStages"
+          isLoading={stagesLoading}
+          value={refundStages.filter(({ value }) => state.refundStageIds?.includes(value))}
+          options={refundStages}
+          onChange={(selectedOptions) =>
+            onChange(
+              {
+                ...state,
+                refundStageIds: [
+                  ...new Set([
+                    ...(selectedOptions?.map(({ value }) => value) || []),
+                  ]),
+                ],
+              },
+              index
+            )
+          }
+          isClearable
+          isMulti
+        />
+      </FormGroup>
       <Button
         btnStyle="danger"
         icon="trash-alt"
@@ -170,7 +205,7 @@ const ScoreCampaignConfig = ({ onChange, config }) => {
           <ControlLabel>{__("Discount check (optional)")}</ControlLabel>
           <FormControl
             componentclass="checkbox"
-            checked={config.discountCheck || false}
+            checked={config?.discountCheck || false}
             onChange={(e: any) =>
               onChange({ ...config, discountCheck: e.target.checked })
             }

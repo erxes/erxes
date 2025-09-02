@@ -189,8 +189,8 @@ const formSubmissionTotalCount = `
 `;
 
 const relations = `
-query FieldsGetRelations($contentType: String!, $isVisibleToCreate: Boolean) {
-  fieldsGetRelations(contentType: $contentType, isVisibleToCreate: $isVisibleToCreate) {
+query FieldsGetRelations($contentType: String!, $isVisibleToCreate: Boolean, $isVisible: Boolean) {
+  fieldsGetRelations(contentType: $contentType, isVisibleToCreate: $isVisibleToCreate, isVisible: $isVisible) {
     _id
     contentType
     name

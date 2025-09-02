@@ -94,9 +94,3 @@ export const ACTIVITY_CONTENT_TYPES = {
 
   ALL: ["ticket", "task", "product", "growthHack", "checklist"]
 };
-
-export const EXPENSE_DIVIDE_TYPES = {
-  QUANTITY: "quantity",
-  AMOUNT: "amount",
-  ALL: ["quantity", "amount"]
-};

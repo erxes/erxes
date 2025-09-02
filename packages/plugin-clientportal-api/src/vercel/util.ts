@@ -4,7 +4,10 @@ import fetch from 'node-fetch';
 import * as path from 'path';
 import simpleGit from 'simple-git';
 import * as tmp from 'tmp';
-import { IClientPortalDocument } from '../models/definitions/clientPortal';
+import {
+  EnvironmentVariable,
+  IClientPortalDocument,
+} from '../models/definitions/clientPortal';
 import { sendCommonMessage } from '../messageBroker';
 
 const buildConfigs = (
@@ -259,14 +262,22 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
     // const layoutPath = path.join(tmpDir, 'app', 'layout.tsx');
     const dataPath = path.join(tmpDir, 'data', 'configs.json');
 
+    const env: any = {
+      ERXES_API_URL: `${domain}/graphql`,
+      ERXES_URL: domain,
+      ERXES_FILE_URL: `${domain}/read-file?key=`,
+      ERXES_CP_ID: config._id,
+      ERXES_APP_TOKEN: config.erxesAppToken,
+    };
+
+    const { environmentVariables = [] } = config;
+
+    for (const environmentVariable of environmentVariables) {
+      env[environmentVariable.key] = environmentVariable.value;
+    }
+
     const projectConfig = `export default {
-      env: {
-        ERXES_API_URL: "${domain}/graphql",
-        ERXES_URL: "${domain}",
-        ERXES_FILE_URL: "${domain}/read-file?key=",
-        ERXES_CP_ID: "${config._id}",
-        ERXES_APP_TOKEN: "${config.erxesAppToken}",
-      },
+      env: ${JSON.stringify(env, null, 2)},
       images: {
         unoptimized: true,
         remotePatterns: [
@@ -298,10 +309,7 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
 
     if (config.icon) {
       const iconPath = path.join(tmpDir, 'app', 'favicon.ico');
-      await downloadImage(
-        `${domain}/read-file?key=${config.icon}`,
-        iconPath
-      );
+      await downloadImage(`${domain}/read-file?key=${config.icon}`, iconPath);
     }
 
     const files = allFilePaths(tmpDir).map((filePath, index) => {
@@ -457,4 +465,4 @@ export const getDeploymentEvents = async (id: string) => {
   );
 
   return await response.json();
-}
+};

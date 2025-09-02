@@ -360,6 +360,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
 
       query.$or = [
         { email: new RegExp(`.*${searchValue}.*`, 'i') },
+        { registrationNumber: new RegExp(`.*${searchValue}.*`, 'i') },
         { employeeId: new RegExp(`.*${searchValue}.*`, 'i') },
         { username: new RegExp(`.*${searchValue}.*`, 'i') },
         { 'details.fullName': new RegExp(`.*${searchValue}.*`, 'i') },
@@ -560,6 +561,17 @@ export const setupMessageConsumers = async (): Promise<void> => {
     return {
       status: 'success',
       data: await models.Brands.updateBrand(data._id, data.fields),
+    };
+  });
+
+  consumeRPCQueue('core:positions.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { query } = data;
+
+    return {
+      status: 'success',
+      data: await models.Positions.find(query).lean(),
     };
   });
 
@@ -1093,17 +1105,6 @@ export const setupMessageConsumers = async (): Promise<void> => {
       const models = await generateModels(subdomain);
 
       return models.Fields.insertMany(fields);
-    }
-  );
-
-  consumeRPCQueue(
-    'core:fields.prepareCustomFieldsData',
-    async ({ subdomain, data }) => {
-      const models = await generateModels(subdomain);
-      return {
-        status: 'success',
-        data: await models.Fields.prepareCustomFieldsData(data),
-      };
     }
   );
 

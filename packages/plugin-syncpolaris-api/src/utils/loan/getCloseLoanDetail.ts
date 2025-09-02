@@ -1,28 +1,18 @@
-import { fetchPolaris, getClassificationCode, getContract } from '../utils';
-import { IPolarisClassification } from './types';
+import { fetchPolaris } from "../utils";
 
-export const getCloseLoanDetail = async (subdomain, polarisConfig, classification) => {
-  const loanContract = await getContract(
-    subdomain,
-    classification.contractId,
-    'loans',
-  );
-
-  const loanChangeClassification: IPolarisClassification = {
-    operCode: '13610279',
-    txnAcntCode: loanContract.number,
-    newValue: getClassificationCode(classification.newClassification),
-    txnDesc: classification.description,
-    sourceType: 'OI',
-    identityType: '',
-  };
+export const getCloseLoanDetail = async (
+  subdomain,
+  polarisConfig,
+  classification
+) => {
+  const loanCloseDetail = [classification.number, new Date()];
 
   const loanChangeClassificationReponse = await fetchPolaris({
     subdomain,
-    op: '13610279',
-    data: [loanChangeClassification],
+    op: "13610266",
+    data: loanCloseDetail,
     polarisConfig
   });
 
-  return loanChangeClassificationReponse.txnJrno;
+  return loanChangeClassificationReponse;
 };

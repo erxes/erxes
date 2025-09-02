@@ -32,6 +32,7 @@ import {
 } from "./cart.store"
 import { allowTypesAtom, permissionConfigAtom } from "./config.store"
 import { paymentSheetAtom } from "./ui.store"
+import { fixNum } from '@/lib/utils'
 
 // order
 export const activeOrderIdAtom = atomWithStorage<string | null>(
@@ -118,7 +119,7 @@ export const splitOrderItemsAtom = atom<{
 
   const getItems = (type: "main" | "sub") =>
     get(cartAtom).map((item) => {
-      const percentCount = (item.count * percent) / 100
+      const percentCount = fixNum((item.count * percent)) / 100
       return {
         ...item,
         count: type === "main" ? item.count - percentCount : percentCount,
@@ -132,7 +133,7 @@ export const splitOrderItemsAtom = atom<{
 })
 
 export const payByProductTotalAtom = atom<number>((get) =>
-  get(payByProductAtom).reduce((prev, pr) => prev + pr.count * pr.unitPrice, 0)
+  get(payByProductAtom).reduce((prev, pr) => prev + fixNum(pr.count * pr.unitPrice), 0)
 )
 export const paidProductsAtom = atomWithStorage<PayByProductItem[]>(
   "paidProducts",
@@ -269,7 +270,7 @@ export const setOrderStatesAtom = atom(
   }
 )
 export const setOnOrderChangeAtom = atom(
-  () => {},
+  () => { },
   (get, set) => {
     set(refetchUserAtom, true)
     set(refetchOrderAtom, true)
@@ -282,10 +283,10 @@ export const openCancelDialogAtom = atom<string | null>(null)
 export const setOpenCancelDialogAtom = atom(get => null, (get, set) => {
   const totalPaidAmount = get(getTotalPaidAmountAtom)
   const activeOrderId = get(activeOrderIdAtom)
-  if (typeof totalPaidAmount === 'number' && 
-     totalPaidAmount <= 0 && 
-     activeOrderId && 
-     get(openCancelDialogAtom) !== activeOrderId) {  
+  if (typeof totalPaidAmount === 'number' &&
+    totalPaidAmount <= 0 &&
+    activeOrderId &&
+    get(openCancelDialogAtom) !== activeOrderId) {
     set(openCancelDialogAtom, activeOrderId)
   }
 })

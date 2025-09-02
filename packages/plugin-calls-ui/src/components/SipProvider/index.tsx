@@ -670,6 +670,7 @@ export default class SipProvider extends React.Component<
             groupName,
           });
         }
+
         const diversionHeader = rtcRequest.getHeader('Diversion');
         const timeStamp = rtcRequest.getHeader('Timestamp') || 0;
         const { rtcSession: rtcSessionInState } = this.state;

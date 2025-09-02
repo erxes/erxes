@@ -25,6 +25,7 @@ type Props = {
   currentProduct?: string;
   closeModal?: () => void;
   dealQuery: IDeal;
+  extraData: any;
 };
 
 const ProductFormContainer: React.FC<Props> = ({
@@ -38,6 +39,7 @@ const ProductFormContainer: React.FC<Props> = ({
   currentProduct,
   closeModal,
   dealQuery,
+  extraData,
 }) => {
   const { data: productCategoriesData, loading: loadingCategories } =
     useQuery<ProductCategoriesQueryResponse>(gql(queries.productCategories));
@@ -85,6 +87,7 @@ const ProductFormContainer: React.FC<Props> = ({
           pipelineDetail: pipelineDetailData?.salesPipelineDetail,
           currencies: configs.dealCurrency || [],
           currentUser,
+          extraData,
         };
 
         return <ProductForm {...extendedProps} />;

@@ -1,14 +1,14 @@
 import type {
   MessageArgs,
-  MessageArgsOmitService
+  MessageArgsOmitService,
 } from "@erxes/api-utils/src/core";
 import {
   checkWaitingResponseAction,
-  doWaitingResponseAction
+  doWaitingResponseAction,
 } from "./actions/wait";
 import {
   consumeQueue,
-  consumeRPCQueue
+  consumeRPCQueue,
 } from "@erxes/api-utils/src/messageBroker";
 import { executePrevAction, receiveTrigger } from "./utils";
 
@@ -57,13 +57,12 @@ export const setupMessageConsumers = async () => {
       targets,
       executionId
     );
-    console.log({ waitingExecution });
 
     if (waitingExecution) {
       await doWaitingResponseAction(models, subdomain, data, waitingExecution);
       return {
         status: "success",
-        data: "complete"
+        data: "complete",
       };
     }
 
@@ -71,12 +70,12 @@ export const setupMessageConsumers = async () => {
       await receiveTrigger({ models, subdomain, type, targets });
       return {
         status: "success",
-        data: "complete"
+        data: "complete",
       };
     } catch (error) {
       return {
         status: "error",
-        errorMessage: error?.message || "error"
+        errorMessage: error?.message || "error",
       };
     }
   });
@@ -88,16 +87,16 @@ export const setupMessageConsumers = async () => {
       const result = await models.Automations.find({
         "triggers.type": data.query.triggerType,
         "triggers.config.botId": data.query.botId,
-        status: "active"
+        status: "active",
       }).lean();
       return {
         status: "success",
-        data: result
+        data: result,
       };
     } catch (error) {
       return {
         status: "error",
-        errorMessage: error?.message || "error"
+        errorMessage: error?.message || "error",
       };
     }
   });
@@ -108,7 +107,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: "success",
-      data: await models.Automations.countDocuments(query)
+      data: await models.Automations.countDocuments(query),
     };
   });
 
@@ -118,7 +117,7 @@ export const setupMessageConsumers = async () => {
       const models = await generateModels(subdomain);
       return {
         status: "success",
-        data: await executePrevAction(models, subdomain, data)
+        data: await executePrevAction(models, subdomain, data),
       };
     }
   );
@@ -130,7 +129,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: "success",
-        data: await models.Executions.find(data)
+        data: await models.Executions.find(data),
       };
     }
   );
@@ -140,7 +139,7 @@ export const sendCommonMessage = async (
   args: MessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    ...args
+    ...args,
   });
 };
 
@@ -149,7 +148,7 @@ export const sendCoreMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "core",
-    ...args
+    ...args,
   });
 };
 
@@ -158,6 +157,6 @@ export const sendSegmentsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "core",
-    ...args
+    ...args,
   });
 };

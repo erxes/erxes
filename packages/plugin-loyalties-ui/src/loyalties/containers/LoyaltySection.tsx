@@ -1,18 +1,18 @@
-import { withProps } from '@erxes/ui/src/utils';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import LoyaltySection from '../components/LoyaltySection';
-import { queries as voucherQueries } from '../vouchers/graphql';
-import { queries as spinQueries } from '../spins/graphql';
-import { queries as donateQueries } from '../donates/graphql';
-import { queries as lotteryQueries } from '../lotteries/graphql';
-import { queries as scoreLogQueries } from '../scorelogs/graphql';
-import { VouchersQueryResponse } from '../vouchers/types';
-import { SpinsQueryResponse } from '../spins/types';
-import { DonatesQueryResponse } from '../donates/types';
-import { LotteriesQueryResponse } from '../lotteries/types';
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils";
+import * as compose from "lodash.flowright";
+import React from "react";
+import LoyaltySection from "../components/LoyaltySection";
+import { queries as donateQueries } from "../donates/graphql";
+import { DonatesQueryResponse } from "../donates/types";
+import { queries as lotteryQueries } from "../lotteries/graphql";
+import { LotteriesQueryResponse } from "../lotteries/types";
+import { queries as scoreLogQueries } from "../scorelogs/graphql";
+import { queries as spinQueries } from "../spins/graphql";
+import { SpinsQueryResponse } from "../spins/types";
+import { queries as voucherQueries } from "../vouchers/graphql";
+import { OwnerVouchersQueryResponse } from "../vouchers/types";
 
 type IProps = {
   ownerType?: string;
@@ -20,7 +20,7 @@ type IProps = {
 };
 
 type FinalProps = {
-  vouchersQuery: VouchersQueryResponse;
+  ownerVouchersQuery: OwnerVouchersQueryResponse;
   spinsQuery: SpinsQueryResponse;
   donatesQuery: DonatesQueryResponse;
   lotteriesQuery: LotteriesQueryResponse;
@@ -32,24 +32,24 @@ class LoyaltySectionContainer extends React.Component<FinalProps> {
     const {
       ownerId,
       ownerType,
-      vouchersQuery,
+      ownerVouchersQuery,
       lotteriesQuery,
       spinsQuery,
       donatesQuery,
-      scoreLogsQuery
+      scoreLogsQuery,
     } = this.props;
 
     if (
-      vouchersQuery.loading ||
+      ownerVouchersQuery.loading ||
       lotteriesQuery.loading ||
       spinsQuery.loading ||
-      donatesQuery.loading || 
+      donatesQuery.loading ||
       scoreLogsQuery.loading
     ) {
       return null;
     }
 
-    const vouchers = vouchersQuery.vouchers || [];
+    const ownerVouchers = ownerVouchersQuery.ownerVouchers || [];
     const spins = spinsQuery.spins || [];
     const donates = donatesQuery.donates || [];
     const lotteries = lotteriesQuery.lotteries || [];
@@ -59,11 +59,11 @@ class LoyaltySectionContainer extends React.Component<FinalProps> {
       ...this.props,
       ownerId,
       ownerType,
-      vouchers,
+      ownerVouchers,
       lotteries,
       spins,
       donates,
-      scoreLogs
+      scoreLogs,
       // onclick
     };
     return <LoyaltySection {...extendedProps} />;
@@ -74,21 +74,21 @@ export default withProps<IProps>(
   compose(
     graphql<
       IProps,
-      VouchersQueryResponse,
+      OwnerVouchersQueryResponse,
       { ownerType: string; ownerId: string }
-    >(gql(voucherQueries.vouchers), {
-      name: 'vouchersQuery',
-      options: ({ ownerType, ownerId }) => ({
-        variables: { ownerType, ownerId }
-      })
+    >(gql(voucherQueries.ownerVouchers), {
+      name: "ownerVouchersQuery",
+      options: ({ ownerId }) => ({
+        variables: { ownerId },
+      }),
     }),
     graphql<IProps, SpinsQueryResponse, { ownerType: string; ownerId: string }>(
       gql(spinQueries.spins),
       {
-        name: 'spinsQuery',
+        name: "spinsQuery",
         options: ({ ownerType, ownerId }) => ({
-          variables: { ownerType, ownerId }
-        })
+          variables: { ownerType, ownerId },
+        }),
       }
     ),
     graphql<
@@ -96,30 +96,30 @@ export default withProps<IProps>(
       LotteriesQueryResponse,
       { ownerType: string; ownerId: string }
     >(gql(lotteryQueries.lotteries), {
-      name: 'lotteriesQuery',
+      name: "lotteriesQuery",
       options: ({ ownerType, ownerId }) => ({
-        variables: { ownerType, ownerId }
-      })
+        variables: { ownerType, ownerId },
+      }),
     }),
     graphql<
       IProps,
       DonatesQueryResponse,
       { ownerType: string; ownerId: string }
     >(gql(donateQueries.donates), {
-      name: 'donatesQuery',
+      name: "donatesQuery",
       options: ({ ownerType, ownerId }) => ({
-        variables: { ownerType, ownerId }
-      })
+        variables: { ownerType, ownerId },
+      }),
     }),
     graphql<
       IProps,
       DonatesQueryResponse,
       { ownerType: string; ownerId: string }
     >(gql(scoreLogQueries.getScoreLogs), {
-      name: 'scoreLogsQuery',
+      name: "scoreLogsQuery",
       options: ({ ownerType, ownerId }) => ({
-        variables: { ownerType, ownerId }
-      })
+        variables: { ownerType, ownerId },
+      }),
     })
   )(LoyaltySectionContainer)
 );

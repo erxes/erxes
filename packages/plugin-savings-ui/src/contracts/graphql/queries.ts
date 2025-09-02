@@ -1,7 +1,7 @@
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
-} from "@erxes/ui-sales/src/conformity";
+} from '@erxes/ui-sales/src/conformity';
 
 export const contractFields = `
   _id
@@ -34,6 +34,8 @@ export const contractFields = `
   isDeposit
   customFieldsData
   blockAmount
+  isSyncedPolaris
+  isActiveSaving
 `;
 
 const listParamsDef = `
@@ -142,6 +144,7 @@ export const contractDetailFields = `
     primaryName
     website
   }
+  savingTransactionHistory
   interestGiveType
   closeOrExtendConfig
   depositAccount

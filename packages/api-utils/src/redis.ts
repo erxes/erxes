@@ -12,6 +12,7 @@ const redis = SKIP_REDIS
       port: parseInt(REDIS_PORT || '6379', 10),
       password: REDIS_PASSWORD,
       connectTimeout: 20_000,
+      maxRetriesPerRequest:null,
       reconnectOnError: (error) => {
         const targetErrors = [/READONLY/, /ETIMEDOUT/];
         if (

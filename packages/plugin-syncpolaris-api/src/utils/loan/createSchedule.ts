@@ -1,15 +1,16 @@
-import { fetchPolaris, getFullDate } from '../utils';
+import { fetchPolaris, updateContract } from "../utils";
+import { updateSchedule } from "./updateSchedule";
 
 const getMethod = (contract) => {
   if (contract.stepRules?.length) {
-    return '4'
+    return "4";
   }
 
   switch (contract.repayment) {
-    case 'equal':
-      return '3';
-    case 'fixed':
-      return '1';
+    case "equal":
+      return "3";
+    case "fixed":
+      return "1";
 
     default:
       break;
@@ -18,23 +19,31 @@ const getMethod = (contract) => {
 
 const getHolidayMethod = (method) => {
   switch (method) {
-    case 'before':
-      return '1';
-    case 'after':
-      return '3';
+    case "before":
+      return "1";
+    case "after":
+      return "3";
 
     default:
-      return '2';
+      return "2";
   }
 };
 
-export const createLoanSchedule = async (subdomain: string, polarisConfig, contract: any) => {
+export const createLoanSchedule = async (
+  subdomain: string,
+  polarisConfig,
+  contract
+) => {
+  if (contract.isSyncedSchedules) {
+    await updateSchedule(subdomain, polarisConfig, contract);
+  }
+
   const sendData = [
     contract.number,
-    getFullDate(contract.startDate),
+    contract.startDate,
     contract.leaseAmount,
     getMethod(contract),
-    'M',
+    "M",
     null,
     contract.scheduleDays?.[0],
     contract.scheduleDays?.[1] ?? null,
@@ -42,18 +51,27 @@ export const createLoanSchedule = async (subdomain: string, polarisConfig, contr
     0,
     0,
     0,
-    'SIMPLE_INT',
-    getFullDate(contract.endDate),
+    "SIMPLE_INT",
+    contract.endDate,
     null,
     contract.description,
     [],
     []
   ];
 
-  return await fetchPolaris({
-    op: '13610258',
+  const schedule = await fetchPolaris({
+    op: "13610258",
     data: sendData,
     subdomain,
     polarisConfig,
   });
+
+  await updateContract(
+    subdomain,
+    { _id: contract._id },
+    { $set: { isSyncedSchedules: true } },
+    "loans"
+  );
+
+  return schedule;
 };

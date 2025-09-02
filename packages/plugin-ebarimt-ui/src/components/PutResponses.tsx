@@ -60,6 +60,9 @@ const PutResponses: React.FC<IProps> = (props: IProps) => {
               <SortHandler sortField={'billId'} label={__('BillID')} />
             </th>
             <th>
+              <SortHandler sortField={'billIds'} label={__('SubBillIDs')} />
+            </th>
+            <th>
               <SortHandler sortField={'number'} label={__('Number')} />
             </th>
             <th>
@@ -86,6 +89,7 @@ const PutResponses: React.FC<IProps> = (props: IProps) => {
                 label={__("Inactive ID")}
               />
             </th>
+            <th>User</th>
             <th>Үйлдлүүд</th>
           </tr>
         </thead>

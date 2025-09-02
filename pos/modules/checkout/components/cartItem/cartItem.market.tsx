@@ -10,6 +10,7 @@ import { OrderItem } from "@/types/order.types"
 import { Button } from "@/components/ui/button"
 import { FocusChanger } from "@/components/ui/focus-changer"
 import { Input } from "@/components/ui/input"
+import { fixNum } from '@/lib/utils'
 
 const CartItem = ({
   _id,
@@ -78,7 +79,7 @@ const CartItem = ({
         <span className="w-6/12">
           <ProductPrice
             productId={productId}
-            unitPrice={unitPrice * count}
+            unitPrice={fixNum(unitPrice * count)}
             className="text-xs font-extrabold"
           />
         </span>

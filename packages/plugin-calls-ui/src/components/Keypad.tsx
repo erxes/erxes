@@ -80,12 +80,11 @@ const KeyPad = (props: Props, context) => {
   const defaultCallIntegration = localStorage.getItem(
     'config:call_integrations',
   );
-
   const [selectFocus, setSelectFocus] = useState(false);
   const [number, setNumber] = useState(phoneNumber || '');
   const [code, setCode] = useState('0');
   const [dialCode, setDialCode] = useState('');
-
+  const [customerDetail, setCustomer] = useState(customer);
   const [showTrigger, setShowTrigger] = useState(false);
   const [showKeyPad, setShowKeyPad] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -100,7 +99,7 @@ const KeyPad = (props: Props, context) => {
   );
   const [isPaused, setPaused] = useState(!!(agentStatus === 'paused'));
 
-  const shrink = customer ? true : false;
+  const shrink = customerDetail ? true : false;
 
   const formatedPhone = formatPhone(number);
   const ourPhone = callUserIntegrations?.map((user) => ({
@@ -394,7 +393,7 @@ const KeyPad = (props: Props, context) => {
     if (!shrink) {
       return (
         <>
-          {renderFullName(customer || '', true)}
+          {renderFullName(customerDetail || '', true)}
           <PhoneNumber $shrink={shrink}>{showNumber}</PhoneNumber>
         </>
       );
@@ -429,6 +428,8 @@ const KeyPad = (props: Props, context) => {
               <PhoneNumber>{number}</PhoneNumber>
             </NameCardContainer>
             {callActions(
+              phoneNumber,
+              currentCallConversationId,
               isMuted,
               handleAudioToggle,
               handleCallStop,
@@ -441,6 +442,7 @@ const KeyPad = (props: Props, context) => {
                 ? false
                 : true,
               onClickKeyPad,
+              setCustomer,
             )}
           </IncomingContent>
         </IncomingContainer>
@@ -464,6 +466,8 @@ const KeyPad = (props: Props, context) => {
               {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
             </p>
             {callActions(
+              phoneNumber,
+              currentCallConversationId,
               isMuted,
               handleAudioToggle,
               handleCallStop,
@@ -476,6 +480,7 @@ const KeyPad = (props: Props, context) => {
                 ? false
                 : true,
               onClickKeyPad,
+              setCustomer,
             )}
           </IncomingContent>
         </IncomingContainer>

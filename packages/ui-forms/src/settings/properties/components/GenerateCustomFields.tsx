@@ -22,7 +22,6 @@ import React from "react";
 import Tip from "@erxes/ui/src/components/Tip";
 import _ from "lodash";
 import { checkLogic } from "../utils";
-
 declare const navigator: any;
 
 type Props = {
@@ -201,6 +200,8 @@ class GenerateGroup extends React.Component<Props, State> {
       updatedState.extraValues = extraValues;
     }
 
+    console.log({ updatedState });
+
     this.setState(updatedState);
     if (this.props.onValuesChange) {
       this.props.onValuesChange(updatedState);
@@ -209,11 +210,14 @@ class GenerateGroup extends React.Component<Props, State> {
 
   onAddGroupInput = () => {
     const { fieldGroup } = this.props;
-    const { data } = this.state;
+    const { data = {} } = this.state;
 
-    data[fieldGroup._id].push({});
+    const fieldGroupData = data[fieldGroup._id];
 
-    this.setState({ data, editing: true });
+    this.setState({
+      data: { ...data, [fieldGroup._id]: [...(fieldGroupData || [{}]), {}] },
+      editing: true,
+    });
   };
 
   onRemoveGroupInput = (index: number) => {
@@ -266,7 +270,7 @@ class GenerateGroup extends React.Component<Props, State> {
 
     const { data } = this.state;
     const { fields = [], isMultiple } = fieldGroup;
-
+    const branchIds = object.branchIds || [];
     const groupData = data[fieldGroup._id] || [];
     const isVisibleKey = isDetail ? "isVisibleInDetail" : "isVisible";
 
@@ -350,6 +354,7 @@ class GenerateGroup extends React.Component<Props, State> {
               return (
                 <GenerateField
                   field={field}
+                  branchIds={branchIds}
                   key={index}
                   onValueChange={(val) => this.onChange(groupDataIndex, val)}
                   defaultValue={
@@ -392,7 +397,6 @@ class GenerateGroup extends React.Component<Props, State> {
       isDetail,
       collapseCallback,
     } = this.props;
-
     const childGroups = fieldsGroups.filter(
       (gro) => gro.parentId === fieldGroup._id
     );
@@ -795,7 +799,6 @@ class GenerateGroups extends React.Component<
         </DynamicContent>
       );
     }
-
     return this.renderGroups(groups);
   }
 }

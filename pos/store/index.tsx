@@ -31,7 +31,8 @@ export const displayAmountAtom = atom<number>((get) =>
 
 export const customerSearchAtom = atom<string>("")
 
-export const reportDateAtom = atom<Date | null>(null)
+export const reportStartDateAtom = atom<Date | null>(null)
+export const reportEndDateAtom = atom<Date | null>(null)
 
 export const productCountAtom = atom<number>(0)
 
@@ -50,6 +51,27 @@ export const orderNotificationEnabledAtom = atomWithStorage<boolean>(
   false
 )
 
+// supplement
+export const userNameAtom = atomWithStorage<string>("userName", "")
+export const userBankAddressAtom = atomWithStorage<string>(
+  "userBankAddress",
+  ""
+)
+export const accountTypeAtom = atomWithStorage<"person" | "company">(
+  "accountType",
+  "person"
+)
+export const companyRegisterAtom = atomWithStorage<string>(
+  "companyRegister",
+  ""
+)
+export const invoiceExpiryDaysAtom = atomWithStorage<number>(
+  "invoiceExpiryDays",
+  14
+)
+
+export const printModalOpenAtom = atom<boolean>(false)
+
 // dialog
 
 export const checkoutModalViewAtom = atom<string>("")
@@ -67,9 +89,42 @@ export const printOnlyNewItemsAtom = atomWithStorage<boolean>(
   false
 )
 
-export const categoriesToPrintAtom = atomWithStorage<string[]>(
+const migrateCategoriesData = (stored: any): string[][] => {
+  if (!stored) return [[]]
+  if (Array.isArray(stored) && stored.length > 0 && Array.isArray(stored[0])) {
+    return stored as string[][]
+  }
+  if (
+    Array.isArray(stored) &&
+    stored.length > 0 &&
+    typeof stored[0] === "string"
+  ) {
+    return [stored as string[]]
+  }
+  return [[]]
+}
+
+export const categoriesToPrintAtom = atomWithStorage<string[][]>(
   "categoriesToPrint",
-  []
+  [[]],
+  {
+    getItem: (key, initialValue) => {
+      try {
+        const stored = localStorage.getItem(key)
+        if (stored === null) return initialValue
+        const parsed = JSON.parse(stored)
+        return migrateCategoriesData(parsed)
+      } catch {
+        return initialValue
+      }
+    },
+    setItem: (key, value) => {
+      localStorage.setItem(key, JSON.stringify(value))
+    },
+    removeItem: (key) => {
+      localStorage.removeItem(key)
+    },
+  }
 )
 
 export const mobileTabAtom = atomWithStorage<"products" | "checkout">(

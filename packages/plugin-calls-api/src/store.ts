@@ -1,13 +1,12 @@
 import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
-import { ICustomer } from './models/definitions/customers';
 
 export const getOrCreateCustomer = async (
   models: IModels,
   subdomain: string,
   callAccount: any,
 ) => {
-  const { inboxIntegrationId, primaryPhone } = callAccount;
+  const { inboxIntegrationId, primaryPhone, phoneType } = callAccount;
   let customer = await models.Customers.findOne({
     primaryPhone,
     status: 'completed',
@@ -38,7 +37,8 @@ export const getOrCreateCustomer = async (
             integrationId: inboxIntegrationId,
             primaryPhone: primaryPhone,
             isUser: true,
-            phone: [primaryPhone],
+            phones: [{ type: phoneType || 'primary', phone: primaryPhone }],
+            kind: 'calls',
           }),
         },
         isRPC: true,
@@ -50,6 +50,56 @@ export const getOrCreateCustomer = async (
       await models.Customers.deleteOne({ _id: customer._id });
       throw new Error(e);
     }
+  }
+  return customer;
+};
+
+export const createCustomer = async (
+  models: IModels,
+  subdomain: string,
+  docs: any,
+) => {
+  const { inboxIntegrationId, primaryPhone, customerId, phoneType } = docs;
+  let customer;
+  if (customerId) {
+    let customer = await models.Customers.findOne({
+      primaryPhone: primaryPhone,
+      erxesApiId: customerId,
+    });
+    return customer;
+  }
+
+  try {
+    customer = await models.Customers.create({
+      inboxIntegrationId,
+      erxesApiId: null,
+      primaryPhone: primaryPhone,
+    });
+  } catch (e) {
+    throw new Error(e);
+  }
+
+  try {
+    const apiCustomerResponse = await sendInboxMessage({
+      subdomain,
+      action: 'integrations.receive',
+      data: {
+        action: 'get-create-update-customer',
+        payload: JSON.stringify({
+          integrationId: inboxIntegrationId,
+          isUser: true,
+          phones: [{ type: phoneType || 'primary', phone: primaryPhone }],
+          kind: 'calls',
+        }),
+      },
+      isRPC: true,
+    });
+    customer.erxesApiId = apiCustomerResponse._id;
+
+    await customer.save();
+  } catch (e) {
+    await models.Customers.deleteOne({ _id: customer._id });
+    throw new Error(e);
   }
   return customer;
 };

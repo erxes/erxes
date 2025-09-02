@@ -10,7 +10,9 @@ on:
     paths:
       - "packages/erxes-ui/**"
       - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
+      - "packages/ui-tickets/**"
+      - "packages/ui-sales/**"
+      - "packages/ui-tasks/**"
       - "packages/ui-forms/**"
       - "packages/ui-inbox/**"
       - "packages/ui-knowledgebase/**"
@@ -34,7 +36,9 @@ on:
     paths:
       - "packages/erxes-ui/**"
       - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
+      - "packages/ui-tickets/**"
+      - "packages/ui-sales/**"
+      - "packages/ui-tasks/**"
       - "packages/ui-forms/**"
       - "packages/ui-inbox/**"
       - "packages/ui-knowledgebase/**"
@@ -57,10 +61,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js 18.17.x
+      - name: Use Node.js 18.20.x
         uses: actions/setup-node@v4
         with:
-          node-version: 18.17.x
+          node-version: 18.20.x
 
       # https://github.com/actions/cache/blob/main/examples.md#node---yarn
       - name: Get yarn cache directory path

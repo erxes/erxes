@@ -17,7 +17,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue("savings:contract.findOne", async ({ subdomain, data }) => {
+  consumeRPCQueue("savings:contracts.findOne", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -124,6 +124,20 @@ export const setupMessageConsumers = async () => {
       };
     }
   );
+
+  consumeRPCQueue(
+    "savings:transactions.update",
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { selector, modifier } = data;
+      const result = await models.Transactions.updateOne(selector, modifier);
+
+      return {
+        status: "success",
+        data: result
+      };
+    }
+  );
 };
 
 export const getConfig = async (
@@ -157,6 +171,7 @@ export const sendMessageBroker = async (
     | "ebarimt"
     | "loans"
     | "khanbank"
+    | "syncpolaris"
 ): Promise<any> => {
   return sendMessage({
     serviceName: name,

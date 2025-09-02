@@ -42,6 +42,12 @@ const ProductRule = asyncComponent(() =>
   )
 );
 
+const ProductGroup = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "ProductGroup" */ './containers/ProductGroupList'
+  )
+);
+
 const GeneralSetting = () => {
   return <Settings component={GeneralSettings} configCode="EBARIMT" />;
 };
@@ -99,6 +105,16 @@ const ProductRuleComponent = () => {
   );
 };
 
+const ProductGroupComponent = () => {
+  const location = useLocation();
+  
+  return (
+    <ProductGroup
+      queryParams={queryString.parse(location.search)}
+    />
+  );
+};
+
 const routes = () => {
   return (
     <Routes>
@@ -126,6 +142,10 @@ const routes = () => {
       <Route
         path="/erxes-plugin-ebarimt/settings/product-rule"
         element={<ProductRuleComponent/>}
+      />
+      <Route
+        path="/erxes-plugin-ebarimt/settings/product-group"
+        element={<ProductGroupComponent/>}
       />
     </Routes>
   );

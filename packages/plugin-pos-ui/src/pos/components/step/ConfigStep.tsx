@@ -28,7 +28,6 @@ type Props = {
   onChange: (name: "pos" | "description" | "groups", value: any) => void;
   pos: IPos;
   groups: IProductGroup[];
-  catProdMappings: CatProd[];
 };
 
 type State = {
@@ -44,7 +43,7 @@ type State = {
 };
 
 const ConfigStep = (props: Props) => {
-  const { onChange, pos, groups, catProdMappings } = props;
+  const { onChange, pos, groups } = props;
 
   const [state, setState] = useState<State>({
     groups: props.groups || [],

@@ -35,21 +35,40 @@ const ConfigForm: React.FC<Props> = ({
     metaData = PAYMENTCONFIGS.find((p) => p.kind === payment.kind);
   }
 
-  const callbackUrl = `${getEnv().REACT_APP_API_URL}/pl:payment/callback/${metaData.kind}`;
+  const callbackUrl = `${getEnv().REACT_APP_API_URL}/pl-payment/callback/${metaData.kind}`;
   const [state, setState] = useState<State>({
     paymentName: name,
     configMap: config,
   });
 
   const generateDoc = (values: { paymentName: string; configMap: any }) => {
-    const generatedValues = {
-      name: values.paymentName,
+    const generatedValues: any = {
       kind: metaData.kind,
       status: 'active',
-      config: values.configMap,
+      name: values.paymentName,
     };
 
-    return payment ? { ...generatedValues, id: payment._id } : generatedValues;
+    // Only include configMap if it's different from the original
+    if (JSON.stringify(values.configMap) !== JSON.stringify(config)) {
+      generatedValues.config = values.configMap;
+    }
+
+    // If it's an existing payment and there are changes, include the ID
+    if (payment && Object.keys(generatedValues).length > 0) {
+      generatedValues.id = payment._id;
+      return generatedValues;
+    }
+
+    // For new payments or if nothing changed, return all values
+    return payment
+      ? { ...generatedValues, id: payment._id }
+      : {
+          ...generatedValues,
+          kind: metaData.kind,
+          status: 'active',
+          name: values.paymentName,
+          config: values.configMap,
+        };
   };
 
   const onChangeConfig = (
@@ -82,7 +101,7 @@ const ConfigForm: React.FC<Props> = ({
 
     if (key === 'paymentName') {
       value = state[key as keyof State];
-    }else{
+    } else {
       value = state.configMap[key];
     }
     return (
@@ -124,6 +143,23 @@ const ConfigForm: React.FC<Props> = ({
             return renderItem(key, label, type);
           })}
 
+          {metaData?.kind === 'golomt' && (
+            <FormGroup>
+              <ControlLabel>{__('Currency')}</ControlLabel>
+              <FormControl
+                defaultValue={'MNT'}
+                componentclass='select'
+                onChange={(e: any) => onChangeConfig('currency', e)}
+                value={state.configMap.currency || 'MNT'}
+              >
+                <option value='MNT'>MNT</option>
+                <option value='USD'>USD</option>
+                <option value='CNY'>CNY</option>
+                <option value='EUR'>EUR</option>
+              </FormControl>
+            </FormGroup>
+          )}
+
           {metaData?.showCallback && (
             <>
               <FormGroup>
@@ -136,6 +172,19 @@ const ConfigForm: React.FC<Props> = ({
                   </p>
                 }
                 <FormControl defaultValue={callbackUrl} disabled={true} />
+              </FormGroup>
+            </>
+          )}
+
+          {metaData?.kind === 'golomt' && (
+            <>
+              <FormGroup>
+                <ControlLabel>{__('Notification URL')}</ControlLabel>
+                {<p>{__('Please provide this URL to Golomt Bank')}</p>}
+                <FormControl
+                  defaultValue={`${getEnv().REACT_APP_API_URL}/pl-payment/notification/golomt`}
+                  disabled={true}
+                />
               </FormGroup>
             </>
           )}

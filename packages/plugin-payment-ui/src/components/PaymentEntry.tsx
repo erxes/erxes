@@ -132,7 +132,7 @@ function Entry({ payment, getClassName, toggleBox, paymentsCount }: Props) {
       <Box onClick={() => toggleBox(kind)} isInMessenger={inMessenger}>
         <img
           alt='logo'
-          src={`${getEnv().REACT_APP_API_URL}/pl:payment/static/${logo}`}
+          src={`${getEnv().REACT_APP_API_URL}/pl-payment/static/${logo}`}
         />
         <h5>
           {name} {getCount(kind, paymentsCount)}

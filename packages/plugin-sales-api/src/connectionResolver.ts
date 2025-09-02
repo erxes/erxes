@@ -13,8 +13,6 @@ import {
   loadClass as loadChecklistClass,
   loadItemClass
 } from "./models/Checklists";
-
-import { loadExpenseClass } from "./models/Expenses";
 import { IDealModel, loadDealClass } from "./models/Deals";
 import { IChecklistModel } from "./models/Checklists";
 import {
@@ -38,14 +36,11 @@ import {
 } from "./models/PipelineTemplates";
 import { IPipelineTemplateDocument } from "./models/definitions/pipelineTemplates";
 import { createGenerateModels } from "@erxes/api-utils/src/core";
-import { IExpenseModel } from "./models/Expenses";
-import { IExpenseDocument } from "./models/definitions/expenses";
 
 export interface IModels {
   Boards: IBoardModel;
   Pipelines: IPipelineModel;
   Stages: IStageModel;
-  Expenses: IExpenseModel;
   Deals: IDealModel;
   Checklists: IChecklistModel;
   ChecklistItems: IChecklistItemModel;
@@ -68,11 +63,6 @@ export const loadClasses = (
   models.Boards = db.model<IBoardDocument, IBoardModel>(
     "sales_boards",
     loadBoardClass(models, subdomain)
-  );
-
-  models.Expenses = db.model<IExpenseDocument, IExpenseModel>(
-    "sales_expenses",
-    loadExpenseClass(models, subdomain)
   );
 
   models.Pipelines = db.model<IPipelineDocument, IPipelineModel>(

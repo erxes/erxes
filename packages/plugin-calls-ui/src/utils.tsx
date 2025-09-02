@@ -12,6 +12,7 @@ import DialogComponent from './components/Dialog';
 import { Icon } from '@erxes/ui/src/components';
 import { __ } from '@erxes/ui/src/utils';
 import moment from 'moment';
+import CustomerList from './components/CustomerList';
 
 export const formatPhone = (phone) => {
   var num;
@@ -24,6 +25,18 @@ export const formatPhone = (phone) => {
 
   return num;
 };
+
+export function sanitizePhoneNumber(phone: string): string {
+  if (!phone) return '';
+
+  const digits = phone.replace(/\D/g, '');
+
+  if (digits.startsWith('976') && digits.length > 8) {
+    return digits.slice(3);
+  }
+
+  return digits;
+}
 
 const formatNumber = (n: number) => {
   return n.toLocaleString('en-US', {
@@ -91,6 +104,8 @@ export const endCallOption = (endCall, onClickKeyPad) => {
 };
 
 export const callActions = (
+  phoneNumber,
+  conversationId,
   isMuted,
   handleAudioToggle,
   endCall,
@@ -100,6 +115,7 @@ export const callActions = (
   gotoDetail,
   disableDetail,
   onClickKeyPad,
+  setCustomer,
 ) => {
   return (
     <InCallFooter>
@@ -117,7 +133,7 @@ export const callActions = (
           </div>
           <div>
             <DialogComponent
-              title={__("Transfer call")}
+              title={__('Transfer call')}
               inboxId={inboxId}
               disabled={disableTransferCall}
               direction={direction}
@@ -138,6 +154,18 @@ export const callActions = (
             </CallAction>
 
             {__('Keypad')}
+          </div>
+          <div>
+            <CustomerList
+              title={__('Select Customer')}
+              disabled={false}
+              inboxId={inboxId}
+              phoneNumber={phoneNumber}
+              conversationId={conversationId}
+              setCustomer={setCustomer}
+            />
+
+            <p style={{ marginRight: '10px' }}>Select Customer</p>
           </div>
         </InnerActions>
         <div>

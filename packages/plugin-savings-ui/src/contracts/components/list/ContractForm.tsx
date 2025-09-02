@@ -179,13 +179,13 @@ class ContractForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeField = e => {
+  onChangeField = (e) => {
     const name = (e.target as HTMLInputElement).name;
     const value = (e.target as HTMLInputElement).value;
     this.setState({ [name]: value } as any);
   };
 
-  onSelectContractType = value => {
+  onSelectContractType = (value) => {
     const contractTypeObj: IContractType = ContractTypeById[value];
 
     var changingStateValue: any = { contractTypeId: value };
@@ -209,7 +209,7 @@ class ContractForm extends React.Component<Props, State> {
     this.setState({ ...changingStateValue });
   };
 
-  onSelectCustomer = value => {
+  onSelectCustomer = (value) => {
     this.setState({
       customerId: value
     });
@@ -221,7 +221,7 @@ class ContractForm extends React.Component<Props, State> {
     } as any);
   };
 
-  onCheckCustomerType = e => {
+  onCheckCustomerType = (e) => {
     this.setState({
       customerType: e.target.checked ? "company" : "customer"
     });
@@ -249,11 +249,11 @@ class ContractForm extends React.Component<Props, State> {
     const { closeModal, renderButton, change } = this.props;
     const { values, isSubmitted } = formProps;
 
-    const onChangeStartDate = value => {
+    const onChangeStartDate = (value) => {
       this.setState({ startDate: value });
     };
 
-    const onChangeBranchId = value => {
+    const onChangeBranchId = (value) => {
       this.setState({ branchId: value });
     };
 
@@ -422,8 +422,11 @@ class ContractForm extends React.Component<Props, State> {
                     label={__("Choose an contract")}
                     name="depositAccount"
                     initialValue={this.state.depositAccount}
-                    filterParams={{ isDeposit: true }}
-                    onSelect={v => {
+                    filterParams={{
+                      isDeposit: true,
+                      customerId: this.state.customerId
+                    }}
+                    onSelect={(v) => {
                       if (typeof v === "string") {
                         this.setState({
                           depositAccount: v

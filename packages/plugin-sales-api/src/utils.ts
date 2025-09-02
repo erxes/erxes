@@ -126,7 +126,7 @@ export const generateConditionStageIds = async (
 
 export const getContentItem = async (subdomain, data) => {
   const models = await generateModels(subdomain);
-
+  
   const { Deals, Stages } = models;
   const { action, content, contentType, contentId } = data;
 
@@ -167,44 +167,12 @@ export const getContentItem = async (subdomain, data) => {
     };
   }
 
-  if (action === "moved") {
-    let item = {};
-
-    switch (type) {
-      case "deal":
-        item = await Deals.getDeal(contentId);
-        break;
-
-      default:
-        break;
-    }
-
-    const { oldStageId, destinationStageId } = content;
-
-    const destinationStage = await Stages.findOne({
-      _id: destinationStageId
-    }).lean();
-    const oldStage = await Stages.findOne({ _id: oldStageId }).lean();
-
-    if (destinationStage && oldStage) {
-      return {
-        destinationStage: destinationStage.name,
-        oldStage: oldStage.name,
-        item
-      };
-    }
-
-    return {
-      text: content.text
-    };
-  }
-
   if (action === "assignee") {
     let addedUsers: IUserDocument[] = [];
     let removedUsers: IUserDocument[] = [];
 
     if (content) {
-      addedUsers = await sendCoreMessage({
+      addedUsers = content.addedUserIds?.length ? await sendCoreMessage({
         subdomain,
         action: "users.find",
         data: {
@@ -214,9 +182,9 @@ export const getContentItem = async (subdomain, data) => {
         },
         isRPC: true,
         defaultValue: []
-      });
+      }) : [];
 
-      removedUsers = await sendCoreMessage({
+      removedUsers = content.removedUserIds?.length ? await sendCoreMessage({
         subdomain,
         action: "users.find",
         data: {
@@ -226,7 +194,7 @@ export const getContentItem = async (subdomain, data) => {
         },
         isRPC: true,
         defaultValue: []
-      });
+      }) : [];
     }
 
     return { addedUsers, removedUsers };

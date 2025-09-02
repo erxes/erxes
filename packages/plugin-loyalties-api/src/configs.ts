@@ -9,8 +9,9 @@ import typeDefs from './graphql/typeDefs';
 import logs from './logUtils';
 import { setupMessageConsumers } from './messageBroker';
 import * as permissions from './permissions';
-import changeStream from './changeStream';
 import { buildFile } from './export';
+import segments from './segments';
+import forms from './forms';
 
 export default {
   name: 'loyalties',
@@ -21,6 +22,8 @@ export default {
     automations,
     // for fixing permissions
     permissions,
+    segments,
+    forms,
   },
   graphql: async () => {
     return {
@@ -50,9 +53,8 @@ export default {
         res.attachment(`${result.name}.xlsx`);
 
         return res.send(result.response);
-      }),
+      })
     );
   },
-  changeStream,
   setupMessageConsumers,
 };

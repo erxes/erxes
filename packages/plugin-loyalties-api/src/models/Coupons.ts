@@ -2,6 +2,7 @@ import { Model } from "mongoose";
 import { customAlphabet } from "nanoid";
 import { IModels } from "../connectionResolver";
 import { CHAR_SET, CODE_STATUS } from "./definitions/constants";
+import { ICouponCampaignDocument } from "./definitions/couponCampaigns";
 import {
   couponSchema,
   ICouponDocument,
@@ -20,7 +21,7 @@ export interface ICouponModel extends Model<ICouponDocument> {
     code: string;
     ownerId?: string;
     totalAmount?: number;
-  }): Promise<string>;
+  }): Promise<ICouponCampaignDocument>;
   redeemCoupon({
     code,
     usageInfo,
@@ -80,16 +81,20 @@ export const loadCouponClass = (models: IModels, _subdomain: string) => {
         throw new Error("Campaign not found");
       }
 
-      if (totalAmount && couponCampaign.restrictions.minimumSpend > totalAmount) {
-        throw new Error(
-          `This coupon requires a minimum spend of ${couponCampaign.restrictions.minimumSpend}`
-        );
-      }
+      if (totalAmount && couponCampaign.restrictions) {
+        const { minimumSpend, maximumSpend } = couponCampaign.restrictions;
 
-      if (totalAmount && totalAmount > couponCampaign.restrictions.maximumSpend) {
-        throw new Error(
-          `This coupon allows a maximum spend of ${couponCampaign.restrictions.maximumSpend}`
-        );
+        if (maximumSpend && maximumSpend < totalAmount) {
+          throw new Error(
+            `This coupon allows a maximum spend of ${maximumSpend}`
+          );
+        }
+
+        if (minimumSpend && minimumSpend > totalAmount) {
+          throw new Error(
+            `This coupon requires a minimum spend of ${minimumSpend}`
+          );
+        }
       }
 
       if (couponCampaign.status !== "active") {
@@ -106,7 +111,7 @@ export const loadCouponClass = (models: IModels, _subdomain: string) => {
         );
       }
 
-      return couponCampaign._id;
+      return couponCampaign;
     }
 
     public static async generateCodes(config) {

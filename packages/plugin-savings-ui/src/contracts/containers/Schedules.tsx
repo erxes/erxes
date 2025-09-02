@@ -1,39 +1,19 @@
-import { gql } from '@apollo/client';
 import { Bulk } from '@erxes/ui/src';
-import React, { useState } from 'react';
+import React from 'react';
 import SchedulesList from '../components/schedules/SchedulesList';
-import { queries } from '../graphql';
-import { SchedulesQueryResponse } from '../types';
-import { useQuery } from '@apollo/client';
+import { ITransaction } from '../../transactions/types';
 
 type Props = {
   contractId: string;
-  isFirst: boolean;
+  transactions: ITransaction[];
 };
 
 const SchedulesListContainer = (props: Props) => {
-  const [loading, setLoading] = useState(false);
-  const { contractId, isFirst } = props;
-
-  const schedulesQuery = useQuery<SchedulesQueryResponse>(
-    gql(queries.schedules),
-    {
-      skip: !contractId,
-      variables: {
-        contractId,
-        isFirst,
-        year: new Date().getFullYear(),
-      },
-      fetchPolicy: 'network-only',
-    },
-  );
-
-  const transactions = schedulesQuery?.data?.savingsTransactions || [];
+  const { transactions } = props;
 
   const updatedProps = {
     ...props,
-    transactions,
-    loading: schedulesQuery.loading || loading,
+    transactions
   };
 
   const contractsList = (props) => {

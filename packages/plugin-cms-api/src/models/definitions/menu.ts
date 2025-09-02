@@ -10,7 +10,7 @@ export interface IMenuItem {
   icon: string;
   url: string;
   parentId?: string;
-  order?: number;
+  order: number;
   target?: string;
 }
 
@@ -25,7 +25,7 @@ export const menuItemSchema = new Schema<IMenuItemDocument>(
     label: { type: String, required: true },
     contentType: { type: String },
     contentTypeID: { type: String },
-    kind: { type: String, required: true },
+    kind: { type: String, required: true }, 
     icon: { type: String },
     url: { type: String },
     parentId: { type: String },

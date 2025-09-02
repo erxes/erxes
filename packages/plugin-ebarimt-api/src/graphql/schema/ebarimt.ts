@@ -1,4 +1,12 @@
 export const types = `
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  extend type Product @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type AutomationResponse {
     content: JSON
     responseId: String
@@ -39,6 +47,8 @@ export const types = `
 
     createdAt: Date
     modifiedAt: Date
+    userId: String
+    user: User
 
     id: String
     posId: Float
@@ -83,6 +93,7 @@ export const queries = `
   putResponsesAmount(${queryParams}): Float
   getDealLink(_id: String): String
   ebarimtGetCompany(companyRD: String!): JSON
+  putResponseDetail(contentType: String, contentId: String, stageId: String, isTemp: Boolean): PutResponse
 `;
 
 export const mutations = `

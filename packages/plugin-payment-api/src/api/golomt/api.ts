@@ -6,15 +6,126 @@ import { BaseAPI } from '../base';
 import { PAYMENTS, PAYMENT_STATUS } from '../constants';
 import { IGolomtInvoice } from '../types';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 
 export const hmac256 = (key, message) => {
   const hash = crypto.createHmac('sha256', key).update(message);
   return hash.digest('hex');
 };
 
+export const notificationHandler = async (
+  models: IModels,
+  subdomain: string,
+  data: any,
+  res: any
+) => {
+  const { errorCode, transactionId, errorDesc } = data;
+
+  if (errorCode !== '000') {
+    res.status(400).json({ status: 'error', message: errorDesc });
+    return;
+  }
+
+  const transaction = await models.Transactions.getTransaction({
+    'details.golomtTransactionId': transactionId,
+  });
+
+  const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
+
+  if (payment.kind !== 'golomt') {
+    res.status(400).json({ status: 'error', message: 'Payment method kind is mismatched' });
+    return;
+  }
+
+  try {
+    const api = new GolomtAPI(payment.config);
+    const status = await api.checkInvoice(transaction);
+
+    if (status !== PAYMENT_STATUS.PAID) {
+      return transaction;
+    }
+
+    transaction.status = status;
+    transaction.updatedAt = new Date();
+
+    await transaction.save();
+
+    graphqlPubsub.publish(`transactionUpdated:${transaction.invoiceId}`, {
+      transactionUpdated: {
+        _id: transaction._id,
+        status: 'paid',
+        amount: transaction.amount,
+        paymentKind: transaction.paymentKind,
+      },
+    });
+    const invoice = await models.Invoices.getInvoice({
+      _id: transaction.invoiceId,
+    });
+    const result = await models.Invoices.checkInvoice(invoice._id, subdomain);
+
+    if (result === 'paid') {
+      graphqlPubsub.publish(`invoiceUpdated:${invoice._id}`, {
+        invoiceUpdated: {
+          _id: transaction.invoiceId,
+          status: 'paid',
+        },
+      });
+    }
+
+    const [serviceName] = invoice.contentType.split(':');
+
+    if (await isEnabled(serviceName)) {
+      try {
+        sendMessage(`${serviceName}:paymentTransactionCallback`, {
+          subdomain,
+          data: {
+            ...transaction,
+            apiResponse: 'success',
+          },
+          defaultValue: null,
+        });
+
+        if (result === 'paid') {
+          sendMessage(`${serviceName}:paymentCallback`, {
+            subdomain,
+            data: {
+              ...invoice,
+              status: 'paid',
+            },
+          });
+
+          if (invoice.callback) {
+            try {
+              await fetch(invoice.callback, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  _id: invoice._id,
+                  amount: invoice.amount,
+                  status: 'paid',
+                }),
+              });
+            } catch (e) {
+              console.error('Error: ', e);
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error: ', e);
+      }
+    }
+  } catch (e) {
+    throw new Error(e.message);
+  }
+};
+
 export const golomtCallbackHandler = async (models: IModels, data: any) => {
   const transaction = await models.Transactions.getTransaction({
-    _id: data.invoice,
+    _id: data.transactionId,
   });
 
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
@@ -70,7 +181,7 @@ export class GolomtAPI extends BaseAPI {
     const data: IGolomtInvoice = {
       amount: '1',
       checksum: hmac256(this.key, transactionId + 1 + 'GET' + callback),
-      transactionId: transactionId,
+      transactionId,
       genToken: 'N',
       socialDeeplink: 'Y',
       callback,
@@ -87,7 +198,7 @@ export class GolomtAPI extends BaseAPI {
         },
         data,
       }).then((r) => r.json());
-      
+
       if (res.status && res.status !== 200) {
         throw new Error(res.message);
       }
@@ -101,12 +212,18 @@ export class GolomtAPI extends BaseAPI {
   async createInvoice(transaction: ITransactionDocument) {
     const amount = transaction.amount.toString();
 
-    const callback = `${this.domain}/pl:payment/callback/golomt`;
+    const callback = `${this.domain}/pl-payment/callback/golomt?transactionId=${transaction._id}`;
+
+    let transactionId = transaction._id;
+
+    if (transaction.details?.golomtTransactionId) {
+      transactionId = transaction.details.golomtTransactionId;
+    }
 
     const data: IGolomtInvoice = {
       amount,
-      checksum: hmac256(this.key, transaction._id + amount + 'GET' + callback),
-      transactionId: transaction._id,
+      checksum: hmac256(this.key, transactionId + amount + 'GET' + callback),
+      transactionId,
       genToken: 'N',
       socialDeeplink: 'Y',
       callback,
@@ -131,9 +248,12 @@ export class GolomtAPI extends BaseAPI {
   }
 
   private async check(transaction: any) {
+    const transactionId =
+      transaction.details?.golomtTransactionId || transaction._id;
+
     const data = {
-      transactionId: transaction._id,
-      checksum: hmac256(this.key, transaction._id + transaction._id),
+      transactionId,
+      checksum: hmac256(this.key, transactionId + transactionId),
     };
     try {
       const response = await this.request({

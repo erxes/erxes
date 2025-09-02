@@ -1,8 +1,8 @@
-import { Popover } from '@headlessui/react';
-import React from 'react';
-import Tagger from '../containers/Tagger';
-import { __ } from '@erxes/ui/src/utils';
-import { PopoverButton, PopoverHeader } from '@erxes/ui/src/styles/main';
+import { Popover } from "@headlessui/react";
+import React from "react";
+import Tagger from "../containers/Tagger";
+import { __ } from "@erxes/ui/src/utils";
+import { PopoverButton, PopoverHeader } from "@erxes/ui/src/styles/main";
 
 type Props = {
   type: string;
@@ -29,13 +29,13 @@ function TaggerPopover(props: Props) {
   } = props;
 
   return (
-    <Popover style={{ position: 'relative' }}>
+    <Popover style={{ position: "relative" }}>
       <Popover.Button>
         <PopoverButton>{trigger}</PopoverButton>
       </Popover.Button>
 
-      <Popover.Panel style={{ position: 'absolute', zIndex: 10 }}>
-        <PopoverHeader>{__('Choose your tags')}</PopoverHeader>
+      <Popover.Panel style={{ position: "absolute", zIndex: 10 }}>
+        <PopoverHeader>{__("Choose your tags")}</PopoverHeader>
         <Tagger
           parentTagId={parentTagId}
           event="onExit"

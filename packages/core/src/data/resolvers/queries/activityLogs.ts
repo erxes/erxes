@@ -117,9 +117,9 @@ const activityLogQueries = {
 moduleRequireLogin(activityLogQueries);
 
 export default activityLogQueries;
+
 export const Activities = async (subdomain,models, query) => {
     const { contentId, contentType, activityType } = query;
-    console.log(query,'query')
     const activities: any[] = [];
 
     if (activityType && activityType !== "activity") {

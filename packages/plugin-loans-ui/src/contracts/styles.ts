@@ -518,6 +518,11 @@ const ButtonWrapper = styled.div`
   padding: ${dimensions.unitSpacing}px !important;
 `;
 
+const ContractList = styled.div`
+  padding: 10px 20px;
+  color: ${colors.colorCoreGray};
+`;
+
 export {
   TrNumberCols,
   TrRows,
@@ -529,6 +534,7 @@ export {
   Name,
   ContractsTableWrapper,
   CollateralLogo,
+  ContractList,
   List,
   FlexItem,
   DidAmount,

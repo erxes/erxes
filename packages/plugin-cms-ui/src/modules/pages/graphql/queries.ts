@@ -9,6 +9,7 @@ const PAGE_LIST = gql`
       pages {
         _id
         name
+        description
         slug
         clientPortalId
         createdAt
@@ -40,6 +41,7 @@ query Page($id: String) {
     _id
     clientPortalId
     name
+    description
     type
     slug
     content

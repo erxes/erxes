@@ -14,15 +14,20 @@ type Props = {
 };
 
 const SelectionConfigLabel = ({ selectionConfig, propertyValue }) => {
-  const { queryName, labelField, valueField = "_id" } = selectionConfig;
+  const {
+    queryName,
+    labelField,
+    valueField = "_id",
+    idsField = "ids",
+  } = selectionConfig;
 
   if (!queryName && !labelField) {
     return propertyValue;
   }
 
   const query = `
-    query ${queryName}($ids: [String]) {
-      ${queryName}(ids: $ids) {
+    query ${queryName}($${idsField}: [String]) {
+      ${queryName}(${idsField}: $${idsField}) {
         ${labelField},${valueField}
       }
     }
@@ -33,7 +38,7 @@ const SelectionConfigLabel = ({ selectionConfig, propertyValue }) => {
     : [propertyValue];
 
   const { data, loading } = useQuery(gql(query), {
-    variables: { ids },
+    variables: { [idsField]: ids },
   });
 
   if (loading) {

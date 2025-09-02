@@ -2,59 +2,113 @@ import GenerateField from '@erxes/ui-forms/src/settings/properties/components/Ge
 import { SidebarContent } from '@erxes/ui-forms/src/settings/properties/styles';
 import Button from '@erxes/ui/src/components/Button';
 import React from 'react';
+import { IPostTranslation, IWebSite } from '../../types';
+
+type CustomField = {
+  field: string;
+  value: Record<string, any>[]; // array of key-value objects
+};
 
 type Props = {
   clientPortalId: string;
-  customFieldsData: any;
+  customFieldsData?: CustomField[];
+  website: IWebSite;
+  currentLanguage: string;
+  translations: IPostTranslation[];
+  setTranslations: (translations: IPostTranslation[]) => void;
   group: any;
   onChange: (field: string, value: any) => void;
 };
 
 const CustomPostTypeFields = (props: Props) => {
-  const [hasChanges, setHasChanges] = React.useState(false);
-  const { customFieldsData, group } = props;
-  const [initialData, setInitialData] = React.useState(customFieldsData);
+  const { group, website, currentLanguage, customFieldsData, translations } = props;
 
+  const isDefaultLanguage = currentLanguage === website.language;
+
+  const [localData, setLocalData] = React.useState<CustomField[]>([]);
+  const [hasChanges, setHasChanges] = React.useState(false);
+
+  // Sync localData whenever language or incoming props change
   React.useEffect(() => {
-    setInitialData(customFieldsData);
-  }, [customFieldsData]);
+    if (isDefaultLanguage) {
+      setLocalData(customFieldsData || []);
+    } else {
+      const translation = translations.find((t) => t.language === currentLanguage);
+      setLocalData(translation?.customFieldsData || []);
+    }
+    setHasChanges(false);
+  }, [customFieldsData, translations, currentLanguage, isDefaultLanguage]);
 
   const onChangeValue = ({ _id, value }: { _id: string; value: any }) => {
-    const fieldIndex = customFieldsData.findIndex((c) => c.field === _id);
+    const fieldIndex = localData.findIndex((f) => f.field === _id);
+    let updatedFields: CustomField[];
 
     if (fieldIndex !== -1) {
-      customFieldsData[fieldIndex].value = value;
-      props.onChange('customFieldsData', customFieldsData);
+      // Update existing field
+      updatedFields = localData.map((f, i) =>
+        i === fieldIndex ? { ...f, value } : f
+      );
     } else {
-      props.onChange('customFieldsData', [
-        ...customFieldsData,
-        {
-          field: _id,
-          value,
-        },
-      ]);
+      // Add new field
+      updatedFields = [...localData, { field: _id, value }];
     }
 
+    setLocalData(updatedFields);
     setHasChanges(true);
+
+    if (isDefaultLanguage) {
+      props.onChange('customFieldsData', updatedFields);
+    } else {
+      props.setTranslations((prev) => {
+        const exists = prev.find((t) => t.language === currentLanguage);
+
+        if (exists) {
+          return prev.map((t) =>
+            t.language === currentLanguage
+              ? { ...t, customFieldsData: updatedFields }
+              : t
+          );
+        }
+
+        return [
+          ...prev,
+          {
+            language: currentLanguage,
+            title: '',
+            content: '',
+            excerpt: '',
+            postId: '',
+            type: '',
+            customFieldsData: updatedFields,
+          },
+        ];
+      });
+    }
   };
 
   const handleCancel = () => {
-    props.onChange('customFieldsData', initialData);
+    if (isDefaultLanguage) {
+      setLocalData(customFieldsData || []);
+    } else {
+      const translation = translations.find((t) => t.language === currentLanguage);
+      setLocalData(translation?.customFieldsData || []);
+    }
     setHasChanges(false);
   };
 
   return (
     <SidebarContent>
-      {group.fields.map((field: any, index) => (
-        <GenerateField
-          field={field}
-          key={index}
-          onValueChange={onChangeValue}
-          defaultValue={
-            customFieldsData.find((c) => c.field === field._id)?.value
-          }
-        />
-      ))}
+      {group.fields.map((field: any) => {
+        const existingField = localData.find((f) => f.field === field._id);
+        return (
+          <GenerateField
+            key={`${currentLanguage}-${field._id}`}
+            field={field}
+            onValueChange={onChangeValue}
+            defaultValue={existingField?.value ?? []} // because value is always an array
+          />
+        );
+      })}
 
       {hasChanges && (
         <div
@@ -66,7 +120,7 @@ const CustomPostTypeFields = (props: Props) => {
             marginTop: '10px',
           }}
         >
-          <Button btnStyle='simple' onClick={handleCancel}>
+          <Button btnStyle="simple" onClick={handleCancel}>
             Cancel
           </Button>
         </div>

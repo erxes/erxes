@@ -7,10 +7,10 @@ import CustomFieldsSection from "../../containers/editForm/CustomFieldsSection";
 import CustomerSection from "@erxes/ui-contacts/src/customers/components/CustomerSection";
 import React from "react";
 import { RightContent } from "../../styles/item";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   item: IItem;
+  relations: any;
   saveItem: (doc: { [key: string]: any }) => void;
   options: IOptions;
   renderItems: () => React.ReactNode;
@@ -18,7 +18,7 @@ type Props = {
     {
       _id,
       status,
-      timeSpent
+      timeSpent,
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
     callback?: () => void
   ) => void;
@@ -34,30 +34,60 @@ class SidebarConformity extends React.Component<Props> {
 
   render() {
     const { item, options, renderItems, updateTimeTrack } = this.props;
-
     const timeTrack = item.timeTrack || {
       timeSpent: 0,
-      status: STATUS_TYPES.STOPPED
+      status: STATUS_TYPES.STOPPED,
     };
 
     return (
       <RightContent>
         <>
-          <CompanySection mainType={options.type} mainTypeId={item._id} />
-          <CustomerSection
-            mainType={options.type}
-            mainTypeId={item._id}
-            actionSection={ActionSection}
-          />
-        </>
+          {this.props.relations &&
+            this.props.relations.map((relation) => {
+              if (
+                relation.type === "companyIds" ||
+                relation.relationType === "core:company"
+              ) {
+                return (
+                  <CompanySection
+                    key={relation._id}
+                    mainType={options.type}
+                    mainTypeId={item._id}
+                  />
+                );
+              }
 
-        <TicketTimer
-          taskId={item._id}
-          status={timeTrack.status}
-          timeSpent={timeTrack.timeSpent}
-          startDate={timeTrack.startDate}
-          update={updateTimeTrack}
-        />
+              if (
+                relation.type === "customerIds" ||
+                relation.relationType === "core:customer"
+              ) {
+                return (
+                  <CustomerSection
+                    key={relation._id}
+                    mainType={options.type}
+                    mainTypeId={item._id}
+                    actionSection={ActionSection}
+                  />
+                );
+              }
+
+              if (
+                relation.type === "trackingIds" ||
+                relation.relationType === "tickets:tracking"
+              ) {
+                return (
+                  <TicketTimer
+                    taskId={item._id}
+                    status={timeTrack.status}
+                    timeSpent={timeTrack.timeSpent}
+                    startDate={timeTrack.startDate}
+                    update={updateTimeTrack}
+                  />
+                );
+              }
+              return null;
+            })}
+        </>
 
         {renderItems()}
 

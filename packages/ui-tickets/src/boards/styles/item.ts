@@ -171,6 +171,26 @@ export const AddContent = styled.div`
   }
 `;
 
+export const NewBranch = styled.div`
+  display: flex;
+  .branch-selector-container {
+    min-width: 100%;
+  }
+  input[type="checkbox"] {
+    border: none;
+    height: 12px;
+    max-width: 10px;
+    padding: 5px 0;
+    color: #444;
+    border-bottom: 1px solid;
+    border-color: ${colors.borderDarker};
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    font-size: 14px;
+    position: relative;
+  }
+`;
 export const TitleRow = styled.div`
   display: flex;
   align-items: center;
@@ -417,7 +437,7 @@ export const StageItem = styledTS<{ $isPass: boolean }>(styled.li)`
     background: ${colors.colorWhite};
     display: inline-block;
   }
-  
+
   i {
     font-size: 30px;
     margin: 0 -3px;

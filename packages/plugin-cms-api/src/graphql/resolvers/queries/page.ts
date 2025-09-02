@@ -5,7 +5,7 @@ import { IContext } from '../../../connectionResolver';
 const queries = {
   cmsPages: async (parent: any, args: any, context: IContext) => {
     const { models } = context;
-    const { page, perPage, searchValue } = args;
+    const { page, perPage, searchValue, language } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
 
     if (!clientPortalId) {
@@ -22,15 +22,33 @@ const queries = {
         { slug: { $regex: searchValue, $options: 'i' } },
       ];
     }
+    const pages = await paginate(models.Pages.find(query), { page, perPage });
 
-    if (page && perPage) {
-      return paginate(models.Pages.find(query).sort({ createdAt: 1 }), {
-        page,
-        perPage,
-      });
+    if (!language) {
+      return pages;
     }
 
-    return models.Pages.find(query).sort({ createdAt: 1 });
+    const pageIds = pages.map((page) => page._id);
+
+    const translations = await models.PostTranslations.find({
+      postId: { $in: pageIds },
+      language,
+    }).lean();
+
+    const translationsMap = translations.reduce((acc, translation) => {
+      acc[translation.postId.toString()] = translation;
+      return acc;
+    }, {});
+
+    const pagesWithTranslations = pages.map((page) => {
+      const translation = translationsMap[page._id.toString()];
+      page.name = translation?.title || page.name;
+      page.description = translation?.content || page.description;
+
+      return page;
+    });
+
+    return pagesWithTranslations;
   },
 
   cmsPageList: async (parent: any, args: any, context: IContext) => {
@@ -41,6 +59,7 @@ const queries = {
       sortField = 'createdAt',
       sortDirection = 'desc',
       searchValue,
+      language,
     } = args;
 
     const clientPortalId = context.clientPortalId || args.clientPortalId;
@@ -69,12 +88,40 @@ const queries = {
 
     const totalPages = Math.ceil(totalCount / perPage);
 
-    return { totalCount, totalPages, currentPage: page, pages };
+    if (!language) {
+      return { totalCount, totalPages, currentPage: page, pages };
+    }
+
+    const pageIds = pages.map((page) => page._id);
+
+    const translations = await models.PostTranslations.find({
+      postId: { $in: pageIds },
+      language,
+    }).lean();
+
+    const translationsMap = translations.reduce((acc, translation) => {
+      acc[translation.postId.toString()] = translation;
+      return acc;
+    }, {});
+
+    const pagesWithTranslations = pages.map((page) => {
+      const translation = translationsMap[page._id.toString()];
+      page.name = translation?.title || page.name;
+      page.description = translation?.content || page.description;
+      return page;
+    });
+
+    return {
+      totalCount,
+      totalPages,
+      currentPage: page,
+      pages: pagesWithTranslations,
+    };
   },
 
   cmsPage: async (parent: any, args: any, context: IContext) => {
     const { models, clientPortalId } = context;
-    const { _id, slug } = args;
+    const { _id, slug, language } = args;
 
     if (!_id && !slug) {
       return null;
@@ -84,7 +131,25 @@ const queries = {
       return models.Pages.findOne({ slug, clientPortalId });
     }
 
-    return models.Pages.findOne({ _id });
+    const page = await models.Pages.findOne({ _id });
+
+    if (!page) {
+      return null;
+    }
+
+    if (!language) {
+      return page;
+    }
+
+    const translation = await models.PostTranslations.findOne({
+      postId: _id,
+      language,
+    }).lean();
+
+    page.name = translation?.title || page.name;
+    page.description = translation?.content || page.description;
+
+    return page;
   },
 };
 

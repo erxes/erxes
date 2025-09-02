@@ -145,6 +145,12 @@ export type TokiConfig = {
   apiKey: string;
   username: string;
   password: string;
+  production?: boolean;
+};
+
+export type EnvironmentVariable = {
+  key: string;
+  value: string;
 };
 
 export type ClientPortalConfig = {
@@ -213,6 +219,7 @@ export type ClientPortalConfig = {
   tokiConfig?: TokiConfig;
   language?: string;
   languages?: string[];
+  environmentVariables?: EnvironmentVariable[];
 };
 
 export type Styles = {

@@ -1,5 +1,456 @@
 # Changelog
 
+## [2.16.6](https://github.com/erxes/erxes/compare/2.16.5...2.16.6) (2025-08-26)
+
+### Features
+
+* **cms:** add tag, menu, page, category translations ([#6108](https://github.com/erxes/erxes/issues/6108)) ([35ec836](https://github.com/erxes/erxes/commit/35ec8360b1d3aa43965b266e477b3cc6db39eaf0))
+* **erxes-ui:** improve user option labels with positions and branches ([3313556](https://github.com/erxes/erxes/commit/33135564866c2f40fb50e5e929fed2e0e5995bf2))
+* **tickets-api:** add new fields for branches and createdBy parent in field generation and related value automation ([cb5d476](https://github.com/erxes/erxes/commit/cb5d4764bed3c9ff15755f11a3361466227ff14e))
+
+### Bug Fixes
+
+* pos orders filter by types ([2fa0b51](https://github.com/erxes/erxes/commit/2fa0b517f588ccbf52680b620cdc6633f71e024b))
+* **pos:** pos daily report filter with startDate and endDate ([3eabd3f](https://github.com/erxes/erxes/commit/3eabd3fb2826da6c41d70dccb0705564ce260904))
+
+## [2.16.5](https://github.com/erxes/erxes/compare/2.16.4...2.16.5) (2025-08-20)
+
+### Features
+
+* **tickets:** user enable filtering by branchIds ([39701cf](https://github.com/erxes/erxes/commit/39701cf1dfd0637c51a4df951d2c9a489bf9c5c3))
+
+### Bug Fixes
+
+* **facebook:** remove invalid standby field from page subscription ([#6107](https://github.com/erxes/erxes/issues/6107)) ([c2b9067](https://github.com/erxes/erxes/commit/c2b9067171e0e0aab73f17c4aed59bf96c8ecfa7))
+* pos progress bill print per config ([#6102](https://github.com/erxes/erxes/issues/6102)) ([9953c50](https://github.com/erxes/erxes/commit/9953c500d0a3fa678c813c50f654d7595fa6275a))
+* productChooser with pipelineId on deal ([ca0080d](https://github.com/erxes/erxes/commit/ca0080d03865a268d5b57aa81307eeba33b5d041))
+
+## [2.16.4](https://github.com/erxes/erxes/compare/2.16.3...2.16.4) (2025-08-13)
+
+### Bug Fixes
+
+* emails format widget connect customer ([fee074e](https://github.com/erxes/erxes/commit/fee074e62bdeb5de992409b0a944e6cab2d397c7))
+
+## [2.16.3](https://github.com/erxes/erxes/compare/2.16.2...2.16.3) (2025-08-12)
+
+### Bug Fixes
+
+* enhance error handling and code consistency in ticket tagging ([3fafab3](https://github.com/erxes/erxes/commit/3fafab3ed87a35c0281b3d8d8f001f684368f5de))
+* posclient report filter startNumber only 8length ([152110f](https://github.com/erxes/erxes/commit/152110f3f47f1cc5820ac400a0c758a61780feca))
+* **ticket:** Add user fetching by selected branch during filtering recovery ([ff631dc](https://github.com/erxes/erxes/commit/ff631dc999275dc79cf4d260761b382626da76ae))
+* users query when isAssignee without filter branchIds ([f6f2a84](https://github.com/erxes/erxes/commit/f6f2a84cd09cf305bee4ef794c72ff783d7fb0ba))
+
+## [2.16.2](https://github.com/erxes/erxes/compare/2.16.1...2.16.2) (2025-08-06)
+
+### Bug Fixes
+
+* purchase ([#6100](https://github.com/erxes/erxes/issues/6100)) ([679ab14](https://github.com/erxes/erxes/commit/679ab145a6f46bad7828967647511bdf2be79fa5))
+
+## [2.16.1](https://github.com/erxes/erxes/compare/2.16.0...2.16.1) (2025-08-06)
+
+### Features
+
+* pos with invoice ([#6087](https://github.com/erxes/erxes/issues/6087)) ([20f12a5](https://github.com/erxes/erxes/commit/20f12a513505c4d44d2ebbbf83ff4945353c2c35))
+
+### Bug Fixes
+
+* paymentform ([0eacfa5](https://github.com/erxes/erxes/commit/0eacfa5e14e50a0aaf1d3b45af7dad6ed476f10e))
+* purchase manage expenses ([b45ccac](https://github.com/erxes/erxes/commit/b45ccac87e63c6d96116caff6c9133141bc4a9c5))
+
+## [2.16.0](https://github.com/erxes/erxes/compare/2.15.8...2.16.0) (2025-08-03)
+
+### Features
+
+* enhance logging capabilities with new schemas ([df822a3](https://github.com/erxes/erxes/commit/df822a3f3b17a2da6a2cc1c0024ee5696a10ed04))
+* **tickets:** Add ability to hide relations & fix ui branch ([9359000](https://github.com/erxes/erxes/commit/9359000f7b6a8a4e10df720d2e8d926f3a20eb99))
+
+### Bug Fixes
+
+* **pms:** edit aftermutations ([6894e40](https://github.com/erxes/erxes/commit/6894e409be5c440d465b8910692f7034d7ac3c9b))
+* **pms:** filter pms rooms ([2d9028c](https://github.com/erxes/erxes/commit/2d9028c35d6bf8131c3a1fe86fbc21e189a259be))
+* release.yaml ([c2e00ea](https://github.com/erxes/erxes/commit/c2e00ea41672040d2d899a3718581a60fe3034d0))
+* **tms:** cronjobs ([15e585c](https://github.com/erxes/erxes/commit/15e585cfa22f8db9bf30b1f71109f605b264420e))
+* **tms:** date_status field ([559a623](https://github.com/erxes/erxes/commit/559a623540293004ce8621334bdd759eb9a21b7e))
+* **tms:** filter remove time ([4996959](https://github.com/erxes/erxes/commit/4996959d63ac35f8ef39c66b9c9e6250f4d1b48c))
+* **tms:** order query ([96d5179](https://github.com/erxes/erxes/commit/96d5179f745f12892216ca9c9f43eae06b40fb26))
+* **tms:** orderadd by systemuser ([0880aa3](https://github.com/erxes/erxes/commit/0880aa3cbd11ab8b138403c510efe604e2e2f053))
+* **tms:** query tours ([3391248](https://github.com/erxes/erxes/commit/3391248bf8f1cd034083dc748f48128a822f2560))
+* **tms:** spelling error ([33212a3](https://github.com/erxes/erxes/commit/33212a3d856e8dfa0fdabb7b76066aec7394bf08))
+* **tms:** tourgroup ([65da785](https://github.com/erxes/erxes/commit/65da7858e16898d4fcbf43f2f6ce05063ab6e99d))
+* **tms:** update itinerary ([1525689](https://github.com/erxes/erxes/commit/15256898f1cc33625ea644bf129fc00934c76ae2))
+
+## [2.15.8](https://github.com/erxes/erxes/compare/2.15.7...2.15.8) (2025-07-31)
+
+### Bug Fixes
+
+* correct data structure in getRelatedValue automation ([6dea839](https://github.com/erxes/erxes/commit/6dea83972c41fb170c215baf0db0e77a21e54d66))
+
+## [2.15.7](https://github.com/erxes/erxes/compare/2.15.6...2.15.7) (2025-07-30)
+
+### Features
+
+* implement email automation features ([4eea104](https://github.com/erxes/erxes/commit/4eea104cf288e5a64ae065ff69f23b26324fe0d1))
+
+## [2.15.6](https://github.com/erxes/erxes/compare/2.15.5...2.15.6) (2025-07-30)
+
+### Bug Fixes
+
+* ebarimt group products with sortNumber ([63ad4ab](https://github.com/erxes/erxes/commit/63ad4ab21d3c3e9e2458eed794e56988978b5ead))
+
+## [2.15.5](https://github.com/erxes/erxes/compare/2.15.4...2.15.5) (2025-07-29)
+
+### Features
+
+* add new fields and enhance related value retrieval in automation ([6bc253a](https://github.com/erxes/erxes/commit/6bc253a713b51ec1df7c522d7de5d355afd1452e))
+* enhance automation placeholders and related value retrieval ([5d3e1da](https://github.com/erxes/erxes/commit/5d3e1da38ffb2166cb8d0de1c7f1e732280b1524))
+
+### Bug Fixes
+
+* **pms:**  pms rooms ([a034c8d](https://github.com/erxes/erxes/commit/a034c8dfa12f33e1a3653a3a12d40403e3e72141))
+* update URL in getRelatedValue to point to ticket board ([e1a9076](https://github.com/erxes/erxes/commit/e1a90767fe7d25569d626172b2d35247fe6bf252))
+
+## [2.15.4](https://github.com/erxes/erxes/compare/2.15.3...2.15.4) (2025-07-28)
+
+### Features
+
+* add new fields for automation and enhance target structure ([7ae2c09](https://github.com/erxes/erxes/commit/7ae2c09b4375294e68ff8a6c008c0a62f3190670))
+* **tickets:** add tag UI and fix pipeline integration ([f7c2e96](https://github.com/erxes/erxes/commit/f7c2e966f9caace3bcb1a7d5d10cb8c5993ba3cc))
+
+### Bug Fixes
+
+* loyalty with qrCode some bug ([3ef4dbd](https://github.com/erxes/erxes/commit/3ef4dbdf2ab838f3283f0e3af3334c684bbeda4c))
+
+## [2.15.3](https://github.com/erxes/erxes/compare/2.15.2...2.15.3) (2025-07-23)
+
+### Features
+
+* ebarimt grouped by some product config ([#6091](https://github.com/erxes/erxes/issues/6091)) ([5fee820](https://github.com/erxes/erxes/commit/5fee8206054a4e44f43580d4fb4b72aab8d6320c))
+
+### Bug Fixes
+
+* display user names in customProperties and prevent undefined fieldData errors  ([a9f05d8](https://github.com/erxes/erxes/commit/a9f05d81f445b2ab5648cc5fed4c445a617f1677))
+
+## [2.15.2](https://github.com/erxes/erxes/compare/2.15.1...2.15.2) (2025-07-21)
+
+### Features
+
+* Loyalty with qrcode on sales payments ([#6088](https://github.com/erxes/erxes/issues/6088)) ([3bfba84](https://github.com/erxes/erxes/commit/3bfba841757ce81307e540f8855042bce7adb912))
+
+### Bug Fixes
+
+* description ([c87cf36](https://github.com/erxes/erxes/commit/c87cf364d97b781bbcbc3a32a47f06a52ff3af7f))
+
+## [2.15.1](https://github.com/erxes/erxes/compare/2.15.0...2.15.1) (2025-07-09)
+
+### Bug Fixes
+
+* **cp:** apollo client uri ([0b69071](https://github.com/erxes/erxes/commit/0b690710943a57b602ad2bcf22e25e0e82fca13d))
+* Ebarimt improve, putResponseDetail and put response with user, and golomt pos terminal devPort configure ([#6084](https://github.com/erxes/erxes/issues/6084)) ([549d7cf](https://github.com/erxes/erxes/commit/549d7cf1ad7e24205508f9754c106967854fcc5e))
+* **pms:** add after mutation consumer in pms ([4293010](https://github.com/erxes/erxes/commit/4293010729988e6d71605266b6e16175b0f8768a))
+* **pms:** afterMutation miss typo plugin name ([4bd79fe](https://github.com/erxes/erxes/commit/4bd79fe1eb7aa8e73fb149ebe4208a29fd621f0c))
+* **pms:** revert configs ([1fd0b22](https://github.com/erxes/erxes/commit/1fd0b22581894f94e4197664ecb441fd42718969))
+* pos golomt terminal with diff portNo ([3cf7f00](https://github.com/erxes/erxes/commit/3cf7f00cdd56fc841c3fa3c00631b0d00f6b1623))
+* **ticket:** little issues ([5c31448](https://github.com/erxes/erxes/commit/5c314484c3fed92502367ad58af123efd300f714))
+* **tickets:** debug ([4229377](https://github.com/erxes/erxes/commit/422937774a859b29c9a45b0715e05c0f54fe7c26))
+* **tms:** update ([86294e6](https://github.com/erxes/erxes/commit/86294e6dd85c73e0134c11b8d583a9cd540b7943))
+
+## [2.15.0](https://github.com/erxes/erxes/compare/2.14.5...2.15.0) (2025-07-02)
+
+### Features
+
+* **ticket:** Add user fetching by selected branch during filtering ([7084e41](https://github.com/erxes/erxes/commit/7084e41df7d248dd01c12f282c24badbfcb26b43))
+* **tickets:** add search functionality to SelectNewBranches component ([0f670df](https://github.com/erxes/erxes/commit/0f670dfd80917fcbbea9924e6f424ad6373279a9))
+
+### Bug Fixes
+
+* can't send target as trigger when tagged object ([a71b98e](https://github.com/erxes/erxes/commit/a71b98e27b15f47e03fda57b7790bdbabef5a990))
+* **essyncer:** allow lookup by registration number ([ec085d8](https://github.com/erxes/erxes/commit/ec085d8e712df256719b9164667ca6346d090a7d))
+* sales deal stageId not newly ([bc621f6](https://github.com/erxes/erxes/commit/bc621f6c320a9d3d0488b9fb2d46f81a3218b265))
+* **tickets:** searchable contact rd and branch select ([8af43d4](https://github.com/erxes/erxes/commit/8af43d4facc781efc42498b61395ecc4aaee049b))
+## [2.15.0-rc.0](https://github.com/erxes/erxes/compare/2.14.5...2.15.0) (2025-06-17)
+
+## [2.15.0-rc.0](https://github.com/erxes/erxes/compare/2.14.0...2.15.0-rc.0) (2025-06-17)
+## [2.14.5](https://github.com/erxes/erxes/compare/2.14.4...2.14.5) (2025-06-30)
+
+### Features
+
+* **tickets:** add new branch-selector component ([5241d85](https://github.com/erxes/erxes/commit/5241d85281243531aea963e0fb381646f8f26792))
+
+### Bug Fixes
+
+* **loyalties:**  cronjob ([05f0ca0](https://github.com/erxes/erxes/commit/05f0ca0ecef74e885de6983e7958ad31135006cf))
+* sales products sticky 2 columns ([0998d6f](https://github.com/erxes/erxes/commit/0998d6fceb96c8f445240497d52a6c568e0760b3))
+* sales with pricing bonus product addition 0 amounts row ([9f5cd5d](https://github.com/erxes/erxes/commit/9f5cd5d190d233b678fde4315717b4063e385e82))
+
+## [2.14.4](https://github.com/erxes/erxes/compare/2.14.3...2.14.4) (2025-06-26)
+
+### Bug Fixes
+
+* sales deal products data save then old sort ([3c98a87](https://github.com/erxes/erxes/commit/3c98a87a62e16d8ac71da9d8e6162400bf579498))
+
+## [2.14.3](https://github.com/erxes/erxes/compare/2.14.2...2.14.3) (2025-06-25)
+
+### Bug Fixes
+
+* sales deal detail with assignee activity log ([c48b018](https://github.com/erxes/erxes/commit/c48b0181ca3f47ae40159361e1113781bc219cdc))
+
+## [2.14.2](https://github.com/erxes/erxes/compare/2.14.1...2.14.2) (2025-06-23)
+
+### Features
+
+* **clientportal:** toki invoice check ([f8d7bb5](https://github.com/erxes/erxes/commit/f8d7bb5b436e4ffc88b631b9ee6a221556b39ac3))
+
+## [2.14.1](https://github.com/erxes/erxes/compare/2.14.0...2.14.1) (2025-06-19)
+
+### Bug Fixes
+
+* sales deal stageId not newly ([a64c392](https://github.com/erxes/erxes/commit/a64c39257993c6889f9dfc347c9d419a544fc418))
+
+## [2.14.0](https://github.com/erxes/erxes/compare/2.14.0-rc.4...2.14.0) (2025-06-17)
+
+### Bug Fixes
+
+* **clientPortal:** correct notification logic in cardUpdateHandler ([#6062](https://github.com/erxes/erxes/issues/6062)) ([caff152](https://github.com/erxes/erxes/commit/caff1529b565650430c5379baff2c9fb18af803c))
+* deals assignedusers related by productsData assignedUser ([3b561fe](https://github.com/erxes/erxes/commit/3b561fed3295f6951af29b3396bb8be6932b9260))
+
+## [2.14.0-rc.4](https://github.com/erxes/erxes/compare/2.14.0-rc.3...2.14.0-rc.4) (2025-06-17)
+
+### Bug Fixes
+
+* sales editForm stageNotFound error ([c92d2c1](https://github.com/erxes/erxes/commit/c92d2c14a5f2f7c5327fae5e42e4f140cd3d3af7))
+
+## [2.14.0-rc.3](https://github.com/erxes/erxes/compare/2.13.4...2.14.0-rc.3) (2025-06-16)
+
+### Features
+
+* **clientportal:** introduce environment variables ([#6059](https://github.com/erxes/erxes/issues/6059)) ([3c52dd8](https://github.com/erxes/erxes/commit/3c52dd81d38cff00d4c9db1b5c09c3924efcacfe))
+
+### Bug Fixes
+
+* **assets:** permission ([4d14da5](https://github.com/erxes/erxes/commit/4d14da53552ebc114ff3f8223dfba7ed00aacdb5))
+* pos order to deal when without branch or allBranch condition ([4eff734](https://github.com/erxes/erxes/commit/4eff7340c8a650c6af5dab8884c9005603eda309))
+## [2.13.4](https://github.com/erxes/erxes/compare/2.13.4...2.14.0-rc.3) (2025-06-12)
+
+### Bug Fixes
+
+* fixNumber some case ([74da81f](https://github.com/erxes/erxes/commit/74da81f09e26896ceae40399741011069783a3ef))
+## [2.13.3](https://github.com/erxes/erxes/compare/2.13.4...2.14.0-rc.3) (2025-06-12)
+
+### Features
+
+* **calls:** Improve Grandstream API auth and session handling ([4b84df5](https://github.com/erxes/erxes/commit/4b84df53748a564da5407f3258f29b11a234745b))
+* **ticket:** add Chingeltei ticket functionality ([#6053](https://github.com/erxes/erxes/issues/6053)) ([2195d6f](https://github.com/erxes/erxes/commit/2195d6f7398ec919782420d73eb76beb9a3c35b2))
+## [2.13.2](https://github.com/erxes/erxes/compare/2.13.4...2.14.0-rc.3) (2025-06-06)
+## [2.13.1](https://github.com/erxes/erxes/compare/2.13.4...2.14.0-rc.3) (2025-06-05)
+
+### Bug Fixes
+
+* deals assigned users from check productsData assignedUser ([42482f2](https://github.com/erxes/erxes/commit/42482f23070d319640700526e45350ff5d98037a))
+* ebarimt sub id show ([9e9f680](https://github.com/erxes/erxes/commit/9e9f680d2895f58515c39c3b696872aa7ec1ee89))
+## [2.14.0-rc.2](https://github.com/erxes/erxes/compare/2.13.4...2.14.0-rc.3) (2025-06-15)
+
+### Bug Fixes
+
+* **segments:** pass whole associationFilters not one by ones ([4bdccd6](https://github.com/erxes/erxes/commit/4bdccd62f21778645c8e5dcbd99adef128d2b7e5))
+## [2.14.0-rc.1](https://github.com/erxes/erxes/compare/2.13.4...2.14.0-rc.3) (2025-06-12)
+
+### Bug Fixes
+
+* **cards:** able to sync changes on stage changes ([3bc8c72](https://github.com/erxes/erxes/commit/3bc8c72c1b98669221d8041fbb4893f4d2fa501c))
+## [2.14.0-rc.0](https://github.com/erxes/erxes/compare/2.13.4...2.14.0-rc.3) (2025-06-03)
+
+### Features
+
+* brenscoring and Loansresearch improve ([#5937](https://github.com/erxes/erxes/issues/5937)) ([328c5c2](https://github.com/erxes/erxes/commit/328c5c2f8a84c1d82876558561fffaf6b2ee73be))
+* burenscore deal side bar add ([#5952](https://github.com/erxes/erxes/issues/5952)) ([c449eb8](https://github.com/erxes/erxes/commit/c449eb822bea66fb39d6789741a682960f8b1499))
+* danRule add on contract type ([99b7e3f](https://github.com/erxes/erxes/commit/99b7e3f8c4fc00d046e4d73bf6c97de0d5706cb0))
+* loans contract improve ([#5948](https://github.com/erxes/erxes/issues/5948)) ([168ba97](https://github.com/erxes/erxes/commit/168ba97969972722434ae95d2e77114f239c951a))
+* loans research sales pipeline data add ([fa1cecd](https://github.com/erxes/erxes/commit/fa1cecdd1cb22d6c070fd4d31cde0ae089883d4b))
+* loansresearch number value fixed ([f8c661c](https://github.com/erxes/erxes/commit/f8c661c7a4919ae8144a2998d924473a82676c4d))
+* loansresearch number value fixed on sales side bar ([8a2621e](https://github.com/erxes/erxes/commit/8a2621e19fb6764f050cecfba00a7b3699717a16))
+* permission add on loan research ([#5889](https://github.com/erxes/erxes/issues/5889)) ([29ed04a](https://github.com/erxes/erxes/commit/29ed04ad75263e041e8e47fe144ad56932d3f0da))
+* syncpolaris with Loans and saving improve ([#6016](https://github.com/erxes/erxes/issues/6016)) ([28dfe2b](https://github.com/erxes/erxes/commit/28dfe2b48355232fa5bc35abc3b90282b16a2437))
+
+### Bug Fixes
+
+* **burenscoring:** update ui view on sales detail ([1f34719](https://github.com/erxes/erxes/commit/1f34719be5d6b724b036e8116d3259753d383718))
+* calc schedule with last type ([7974f04](https://github.com/erxes/erxes/commit/7974f043828d9bcb652f4853734b904385fc4ffb))
+* contract from refactor ([d7697b5](https://github.com/erxes/erxes/commit/d7697b5dcdf67edd70dfcc94e687a2320deda06b))
+* **deal:** update product ui ([5f7e585](https://github.com/erxes/erxes/commit/5f7e5850759d157c3377dfde55342fe42de65572))
+* fake contract on deal ([8594950](https://github.com/erxes/erxes/commit/85949509ec59fc806de6ac9c3c3c519a8d8e2c74))
+* import * as _ from 'lodash'; ([ec497da](https://github.com/erxes/erxes/commit/ec497da4adc487bec2530ee25f3f4057ab3308b1))
+* little ([9d2c9f2](https://github.com/erxes/erxes/commit/9d2c9f237bc2e947f8ff1a880b6c7c0dbed61f3e))
+* little ([71b9264](https://github.com/erxes/erxes/commit/71b9264ed8798644a65cc15b3aa6a2f44301e475))
+* little contract from ([3f96974](https://github.com/erxes/erxes/commit/3f9697403539bd8566aa80bf5699714ef4ab5bd9))
+* loan contract section on deal ([91741d4](https://github.com/erxes/erxes/commit/91741d44acbe76167f2dd39412da95ade3f1ca0c))
+* loans calc diff day ([26ca5dc](https://github.com/erxes/erxes/commit/26ca5dc5da11ee0a3cde69491e255d269f269930))
+* loans calculation ([571b408](https://github.com/erxes/erxes/commit/571b408f0a1a34fbc5f8e6c1232ebdcc0b6aec15))
+* loans contracts filter by status ([ef20b43](https://github.com/erxes/erxes/commit/ef20b43d93b7106bf9258a5ccf7c8cc8147ec911))
+* loans contracttype config ([f0b60f9](https://github.com/erxes/erxes/commit/f0b60f9f53c9949687c6735647d9dc084dd7ff71))
+* loans contracttype config ([cd76141](https://github.com/erxes/erxes/commit/cd76141499ad8282069bb11e513aefff92765a0a))
+* loans contractype with some rules ([7b774f3](https://github.com/erxes/erxes/commit/7b774f353ca8357fbff8880b249f8843967b5393))
+* Loans customer rightSidebar ([#5953](https://github.com/erxes/erxes/issues/5953)) ([a5e226d](https://github.com/erxes/erxes/commit/a5e226d7de02b31c912a9c7d1fdf2c1eaa9145d2))
+* loans date is equal ([b080a35](https://github.com/erxes/erxes/commit/b080a358d8b06a313ea10cf70dc8cebfa945a16b))
+* Loans improve ([#5959](https://github.com/erxes/erxes/issues/5959)) ([8f5ebea](https://github.com/erxes/erxes/commit/8f5ebea1e5143e0cd084cb2fd933ccdae9e824e3))
+* loans overPayUtils ([136c615](https://github.com/erxes/erxes/commit/136c6155df4bd3233225a6adc78e6db37398ca21))
+* loans repayment type checker ([ad17556](https://github.com/erxes/erxes/commit/ad175563a02bada2eeee2be66d9af37b0a74b3d0))
+* loans some bug ([4b80251](https://github.com/erxes/erxes/commit/4b8025139abe558331f203566482647ee8496479))
+* **loans:** contact detail view ([f334133](https://github.com/erxes/erxes/commit/f334133fe22b24c542138bf3be0fd1ed7aaaea80))
+* Loansresearch improve ([#5891](https://github.com/erxes/erxes/issues/5891)) ([eaecc96](https://github.com/erxes/erxes/commit/eaecc96b5a823207a7b6c67cf3932374a854c5d7))
+* Loansresearch improve ([#5895](https://github.com/erxes/erxes/issues/5895)) ([34abb10](https://github.com/erxes/erxes/commit/34abb1011d66bad67a83878b462eecb09c1ecc5b))
+* Loansresearch improve ([#5970](https://github.com/erxes/erxes/issues/5970)) ([49e9900](https://github.com/erxes/erxes/commit/49e990088120249fc1babdb4471881b8aa67a302))
+* Loansresearch improve, after sync xypdan data ([#5897](https://github.com/erxes/erxes/issues/5897)) ([d4412a8](https://github.com/erxes/erxes/commit/d4412a8bab85be379537f9b620080e14eb86cbfd))
+* Loansresearch improve, from new contracts debt amount calc ([#5969](https://github.com/erxes/erxes/issues/5969)) ([8da2109](https://github.com/erxes/erxes/commit/8da21098160c4c8b4da433388c68e864663309af))
+* Loansresearch recalc and loan contract improve ([#5975](https://github.com/erxes/erxes/issues/5975)) ([b7f36ff](https://github.com/erxes/erxes/commit/b7f36ff9e3904b4d391ba37935b1e82a2c54977d))
+* part of give transaction logic and loans type refactor ([99fc85d](https://github.com/erxes/erxes/commit/99fc85d1167709dc6842bd14c1358b2f1147404f))
+* posclient product sync allow null taxRule ([d2039d5](https://github.com/erxes/erxes/commit/d2039d509ad7e9c079c2999fb7df771d4aa0b1ef))
+* **sales:** fix contract apply button ([820aaf7](https://github.com/erxes/erxes/commit/820aaf71723f59aada39a728a6388842a25161d7))
+* **sales:** update deal edit form ([fa39af7](https://github.com/erxes/erxes/commit/fa39af7ac3a0bd2a12b5eec029c6535853db41ce))
+* schedule utils repayment default is fixed ([6dfb5a0](https://github.com/erxes/erxes/commit/6dfb5a0f321915655b8971d4ef959a99edb24bac))
+* syncpolaris and loans and savings improve ([#5990](https://github.com/erxes/erxes/issues/5990)) ([e8e113d](https://github.com/erxes/erxes/commit/e8e113dad5bf299117b0e54092afcc8113d34daf))
+* unusedBalance has not schedules ([f52e223](https://github.com/erxes/erxes/commit/f52e223fa9c09f64f70f24a730d40c8b4c1dfcae))
+* update cis ([8c34f38](https://github.com/erxes/erxes/commit/8c34f38741586798d70d5e6f1b3d3c70026763d4))
+* update contractType ([00fac50](https://github.com/erxes/erxes/commit/00fac50ffcf7d5ac5bb60a2cd752a0a24992909b))
+* update pluginsMap ([8f81a49](https://github.com/erxes/erxes/commit/8f81a49bfd478470a71ce79ca605eaeadbc8ffa5))
+* update pluginsMap ([c8ea762](https://github.com/erxes/erxes/commit/c8ea76279e3e20347d4b211e56146c4597f6baba))
+* update pluginsMap ([41d9b0a](https://github.com/erxes/erxes/commit/41d9b0a024e05d5ccddecfc57b80d48ab56123b1))
+* update pluginsMap ([78c44eb](https://github.com/erxes/erxes/commit/78c44eb329c5d1b6b6be4200bae6b57d8e22a8c4))
+* update pluginsMap ([381666d](https://github.com/erxes/erxes/commit/381666d475e84b4dbee6d86763454d46edaa1ea6))
+* xyp deal sidebar ([43cb3b8](https://github.com/erxes/erxes/commit/43cb3b8e343ff100f2dd2a0e14f0d91bc99ad5b3))
+* xyp image ([8fcf3fa](https://github.com/erxes/erxes/commit/8fcf3fab38ab2774851fe04f47073a6cb565f582))
+* xypDataByObject grouped by serviceName ([dbf4e8b](https://github.com/erxes/erxes/commit/dbf4e8b8e4e6ce8bdcf02c9b3a7b0743c80795b0))
+
+### Performance Improvements
+
+* **sales:** Fix properties view in full edit sales form ([8dc2b79](https://github.com/erxes/erxes/commit/8dc2b79f7c081b367d136a37a3cdb6d5ac960097))
+* **sales:** fix xyp data on sales detail ([4f116e7](https://github.com/erxes/erxes/commit/4f116e70055cfe66068522ffa82eeb077d68545f))
+* **sales:** fix xyp data on small sales detail ([a1f0c17](https://github.com/erxes/erxes/commit/a1f0c172b290001568d0ad097a5bf949ea00136e))
+* **sales:** Update salespipeline ui ([#5898](https://github.com/erxes/erxes/issues/5898)) ([b536b05](https://github.com/erxes/erxes/commit/b536b053d28443bd6e281e3d064bc5c4a7c35b9a))
+
+## [2.14.0-rc.2](https://github.com/erxes/erxes/compare/2.14.0-rc.1...2.14.0-rc.2) (2025-06-15)
+
+### Bug Fixes
+
+* **segments:** pass whole associationFilters not one by ones ([4bdccd6](https://github.com/erxes/erxes/commit/4bdccd62f21778645c8e5dcbd99adef128d2b7e5))
+
+## [2.14.0-rc.1](https://github.com/erxes/erxes/compare/2.14.0-rc.0...2.14.0-rc.1) (2025-06-12)
+
+### Bug Fixes
+
+* **cards:** able to sync changes on stage changes ([3bc8c72](https://github.com/erxes/erxes/commit/3bc8c72c1b98669221d8041fbb4893f4d2fa501c))
+* CI up node version and some ubuntu version ([#6049](https://github.com/erxes/erxes/issues/6049)) ([548636a](https://github.com/erxes/erxes/commit/548636a0fbbd7d32f3761d6ddaad94034ce22525))
+## [2.13.0](https://github.com/erxes/erxes/compare/2.14.0-rc.0...2.14.0-rc.1) (2025-06-03)
+
+### Bug Fixes
+
+* release.yaml ([ce1f20a](https://github.com/erxes/erxes/commit/ce1f20aac27a59d71ab1ef1807891f8010b23a28))
+
+## [2.14.0-rc.0](https://github.com/erxes/erxes/compare/2.12.3...2.14.0-rc.0) (2025-06-03)
+## [2.13.0](https://github.com/erxes/erxes/compare/2.12.3...2.13.0) (2025-06-03)
+
+### Features
+
+* clientportal and cms translations ([#6044](https://github.com/erxes/erxes/issues/6044)) ([8f05d90](https://github.com/erxes/erxes/commit/8f05d90693c065523cf79493162eb7fef52b9814))
+* **clientportal:** introduce production field to toki config ([f5c1744](https://github.com/erxes/erxes/commit/f5c174417a63f8af62bc906d30bb88f0d423a23a))
+* syncpolaris with Loans and saving improve ([#6016](https://github.com/erxes/erxes/issues/6016)) ([28dfe2b](https://github.com/erxes/erxes/commit/28dfe2b48355232fa5bc35abc3b90282b16a2437))
+
+### Bug Fixes
+
+* **cards:** add related ticket ([f05690d](https://github.com/erxes/erxes/commit/f05690d5a5365a41867fb3d03af5d3902c6f70f4))
+* **cards:** related cards ([a5966f8](https://github.com/erxes/erxes/commit/a5966f8a4c0bfd52188a33f28668b50d414d1fa0))
+* **clientportal:** fix tokiconfig bug ([04d0538](https://github.com/erxes/erxes/commit/04d0538e6e442eab84cac3f5ed553293dcaf0175))
+* get cards association types ([d88d0ab](https://github.com/erxes/erxes/commit/d88d0ab3b9a6d6d6d48ef27b3e8df39bd4fee4e5))
+* improve syncpolaris and loans, savings ([#6047](https://github.com/erxes/erxes/issues/6047)) ([e2ab9db](https://github.com/erxes/erxes/commit/e2ab9db81935f7a284d867d4f23fa5bb107622ba))
+* **products:** filter & bugs ([04b27b9](https://github.com/erxes/erxes/commit/04b27b98656e7eaa73b40f25efc36899136bf633))
+* release.yaml ([ce1f20a](https://github.com/erxes/erxes/commit/ce1f20aac27a59d71ab1ef1807891f8010b23a28))
+* **sales:** add some attributes in document ([acbb9ab](https://github.com/erxes/erxes/commit/acbb9ab04eab286cc5cd9996e4acc288493e5298))
+* **tms:** advancecheck ([52ef4a6](https://github.com/erxes/erxes/commit/52ef4a6f248638dc9ba65e752dc69aed2b9409df))
+* **tms:** changes ([55e744c](https://github.com/erxes/erxes/commit/55e744c5a91afc8b3205a8f16b206d4f7fa6d79b))
+* **tms:** join percent ([9338bad](https://github.com/erxes/erxes/commit/9338badb44ce77cc1105b521b7a5c214e78aeca3))
+* **tms:** notification & payment ([31bedd6](https://github.com/erxes/erxes/commit/31bedd617310c5a23b59dfa3cd34dfd562e9ac24))
+* **tms:** status group ([1b532e3](https://github.com/erxes/erxes/commit/1b532e38c74a3fb6d4dea9e005e194863c0c239c))
+* **tms:** tour fields ([a2611fe](https://github.com/erxes/erxes/commit/a2611fe781549af3316728bceb8658d252d6579f))
+* **tms:** update notifications ([7bd4201](https://github.com/erxes/erxes/commit/7bd420157043b662d829bc0e5d69d2b1474b0aa7))
+* **tms:** update payment and logs ([2d27d37](https://github.com/erxes/erxes/commit/2d27d378712306e6d595bb5ecd2a6cf329279e4a))
+* **tms:** update tour ([569cccf](https://github.com/erxes/erxes/commit/569cccfbdf19d4dc60478a745741481291308add))
+## [2.13.0-rc.0](https://github.com/erxes/erxes/compare/2.12.3...2.14.0-rc.0) (2025-05-18)
+
+### Features
+
+* brenscoring and Loansresearch improve ([#5937](https://github.com/erxes/erxes/issues/5937)) ([328c5c2](https://github.com/erxes/erxes/commit/328c5c2f8a84c1d82876558561fffaf6b2ee73be))
+* burenscore deal side bar add ([#5952](https://github.com/erxes/erxes/issues/5952)) ([c449eb8](https://github.com/erxes/erxes/commit/c449eb822bea66fb39d6789741a682960f8b1499))
+* **cards:** product bundle ([409458b](https://github.com/erxes/erxes/commit/409458bc3a7326e72b3b7f4c2b0a0b5f5a5e5a03))
+* danRule add on contract type ([99b7e3f](https://github.com/erxes/erxes/commit/99b7e3f8c4fc00d046e4d73bf6c97de0d5706cb0))
+* loans contract improve ([#5948](https://github.com/erxes/erxes/issues/5948)) ([168ba97](https://github.com/erxes/erxes/commit/168ba97969972722434ae95d2e77114f239c951a))
+* loans research sales pipeline data add ([fa1cecd](https://github.com/erxes/erxes/commit/fa1cecdd1cb22d6c070fd4d31cde0ae089883d4b))
+* loansresearch number value fixed ([f8c661c](https://github.com/erxes/erxes/commit/f8c661c7a4919ae8144a2998d924473a82676c4d))
+* loansresearch number value fixed on sales side bar ([8a2621e](https://github.com/erxes/erxes/commit/8a2621e19fb6764f050cecfba00a7b3699717a16))
+* permission add on loan research ([#5889](https://github.com/erxes/erxes/issues/5889)) ([29ed04a](https://github.com/erxes/erxes/commit/29ed04ad75263e041e8e47fe144ad56932d3f0da))
+## [2.13.0-rc.0](https://github.com/erxes/erxes/compare/2.12.3...2.13.0) (2025-05-18)
+
+### Features
+
+* **cards:** product bundle ([409458b](https://github.com/erxes/erxes/commit/409458bc3a7326e72b3b7f4c2b0a0b5f5a5e5a03))
+* **product:** add new bundle feature on product ([30668c2](https://github.com/erxes/erxes/commit/30668c27a2215c40749981835b32d72d5ca7c03a))
+* **product:** bundle ([9caba47](https://github.com/erxes/erxes/commit/9caba47c4d003916d9f3d3d44e19d4f40192c0d0))
+
+### Bug Fixes
+
+* accountings query with record ([ef9a54b](https://github.com/erxes/erxes/commit/ef9a54b3e5529980aecbf176870618ba7d1e4fdf))
+* **burenscoring:** update ui view on sales detail ([1f34719](https://github.com/erxes/erxes/commit/1f34719be5d6b724b036e8116d3259753d383718))
+* calc schedule with last type ([7974f04](https://github.com/erxes/erxes/commit/7974f043828d9bcb652f4853734b904385fc4ffb))
+* contract from refactor ([d7697b5](https://github.com/erxes/erxes/commit/d7697b5dcdf67edd70dfcc94e687a2320deda06b))
+* **deal:** update product ui ([5f7e585](https://github.com/erxes/erxes/commit/5f7e5850759d157c3377dfde55342fe42de65572))
+* fake contract on deal ([8594950](https://github.com/erxes/erxes/commit/85949509ec59fc806de6ac9c3c3c519a8d8e2c74))
+* import * as _ from 'lodash'; ([ec497da](https://github.com/erxes/erxes/commit/ec497da4adc487bec2530ee25f3f4057ab3308b1))
+* little ([9d2c9f2](https://github.com/erxes/erxes/commit/9d2c9f237bc2e947f8ff1a880b6c7c0dbed61f3e))
+* little ([71b9264](https://github.com/erxes/erxes/commit/71b9264ed8798644a65cc15b3aa6a2f44301e475))
+* little contract from ([3f96974](https://github.com/erxes/erxes/commit/3f9697403539bd8566aa80bf5699714ef4ab5bd9))
+* loan contract section on deal ([91741d4](https://github.com/erxes/erxes/commit/91741d44acbe76167f2dd39412da95ade3f1ca0c))
+* loans calc diff day ([26ca5dc](https://github.com/erxes/erxes/commit/26ca5dc5da11ee0a3cde69491e255d269f269930))
+* loans calculation ([571b408](https://github.com/erxes/erxes/commit/571b408f0a1a34fbc5f8e6c1232ebdcc0b6aec15))
+* loans contracts filter by status ([ef20b43](https://github.com/erxes/erxes/commit/ef20b43d93b7106bf9258a5ccf7c8cc8147ec911))
+* loans contracttype config ([f0b60f9](https://github.com/erxes/erxes/commit/f0b60f9f53c9949687c6735647d9dc084dd7ff71))
+* loans contracttype config ([cd76141](https://github.com/erxes/erxes/commit/cd76141499ad8282069bb11e513aefff92765a0a))
+* loans contractype with some rules ([7b774f3](https://github.com/erxes/erxes/commit/7b774f353ca8357fbff8880b249f8843967b5393))
+* Loans customer rightSidebar ([#5953](https://github.com/erxes/erxes/issues/5953)) ([a5e226d](https://github.com/erxes/erxes/commit/a5e226d7de02b31c912a9c7d1fdf2c1eaa9145d2))
+* loans date is equal ([b080a35](https://github.com/erxes/erxes/commit/b080a358d8b06a313ea10cf70dc8cebfa945a16b))
+* Loans improve ([#5959](https://github.com/erxes/erxes/issues/5959)) ([8f5ebea](https://github.com/erxes/erxes/commit/8f5ebea1e5143e0cd084cb2fd933ccdae9e824e3))
+* loans overPayUtils ([136c615](https://github.com/erxes/erxes/commit/136c6155df4bd3233225a6adc78e6db37398ca21))
+* loans repayment type checker ([ad17556](https://github.com/erxes/erxes/commit/ad175563a02bada2eeee2be66d9af37b0a74b3d0))
+* loans some bug ([4b80251](https://github.com/erxes/erxes/commit/4b8025139abe558331f203566482647ee8496479))
+* **loans:** contact detail view ([f334133](https://github.com/erxes/erxes/commit/f334133fe22b24c542138bf3be0fd1ed7aaaea80))
+* Loansresearch improve ([#5891](https://github.com/erxes/erxes/issues/5891)) ([eaecc96](https://github.com/erxes/erxes/commit/eaecc96b5a823207a7b6c67cf3932374a854c5d7))
+* Loansresearch improve ([#5895](https://github.com/erxes/erxes/issues/5895)) ([34abb10](https://github.com/erxes/erxes/commit/34abb1011d66bad67a83878b462eecb09c1ecc5b))
+* Loansresearch improve ([#5970](https://github.com/erxes/erxes/issues/5970)) ([49e9900](https://github.com/erxes/erxes/commit/49e990088120249fc1babdb4471881b8aa67a302))
+* Loansresearch improve, after sync xypdan data ([#5897](https://github.com/erxes/erxes/issues/5897)) ([d4412a8](https://github.com/erxes/erxes/commit/d4412a8bab85be379537f9b620080e14eb86cbfd))
+* Loansresearch improve, from new contracts debt amount calc ([#5969](https://github.com/erxes/erxes/issues/5969)) ([8da2109](https://github.com/erxes/erxes/commit/8da21098160c4c8b4da433388c68e864663309af))
+* Loansresearch recalc and loan contract improve ([#5975](https://github.com/erxes/erxes/issues/5975)) ([b7f36ff](https://github.com/erxes/erxes/commit/b7f36ff9e3904b4d391ba37935b1e82a2c54977d))
+* part of give transaction logic and loans type refactor ([99fc85d](https://github.com/erxes/erxes/commit/99fc85d1167709dc6842bd14c1358b2f1147404f))
+* posclient product sync allow null taxRule ([d2039d5](https://github.com/erxes/erxes/commit/d2039d509ad7e9c079c2999fb7df771d4aa0b1ef))
+* **sales:** fix contract apply button ([820aaf7](https://github.com/erxes/erxes/commit/820aaf71723f59aada39a728a6388842a25161d7))
+* **sales:** update deal edit form ([fa39af7](https://github.com/erxes/erxes/commit/fa39af7ac3a0bd2a12b5eec029c6535853db41ce))
+* schedule utils repayment default is fixed ([6dfb5a0](https://github.com/erxes/erxes/commit/6dfb5a0f321915655b8971d4ef959a99edb24bac))
+* syncpolaris and loans and savings improve ([#5990](https://github.com/erxes/erxes/issues/5990)) ([e8e113d](https://github.com/erxes/erxes/commit/e8e113dad5bf299117b0e54092afcc8113d34daf))
+* unusedBalance has not schedules ([f52e223](https://github.com/erxes/erxes/commit/f52e223fa9c09f64f70f24a730d40c8b4c1dfcae))
+* update cis ([8c34f38](https://github.com/erxes/erxes/commit/8c34f38741586798d70d5e6f1b3d3c70026763d4))
+* update contractType ([00fac50](https://github.com/erxes/erxes/commit/00fac50ffcf7d5ac5bb60a2cd752a0a24992909b))
+* update pluginsMap ([8f81a49](https://github.com/erxes/erxes/commit/8f81a49bfd478470a71ce79ca605eaeadbc8ffa5))
+* update pluginsMap ([c8ea762](https://github.com/erxes/erxes/commit/c8ea76279e3e20347d4b211e56146c4597f6baba))
+* update pluginsMap ([41d9b0a](https://github.com/erxes/erxes/commit/41d9b0a024e05d5ccddecfc57b80d48ab56123b1))
+* update pluginsMap ([78c44eb](https://github.com/erxes/erxes/commit/78c44eb329c5d1b6b6be4200bae6b57d8e22a8c4))
+* update pluginsMap ([381666d](https://github.com/erxes/erxes/commit/381666d475e84b4dbee6d86763454d46edaa1ea6))
+* xyp deal sidebar ([43cb3b8](https://github.com/erxes/erxes/commit/43cb3b8e343ff100f2dd2a0e14f0d91bc99ad5b3))
+* xyp image ([8fcf3fa](https://github.com/erxes/erxes/commit/8fcf3fab38ab2774851fe04f47073a6cb565f582))
+* xypDataByObject grouped by serviceName ([dbf4e8b](https://github.com/erxes/erxes/commit/dbf4e8b8e4e6ce8bdcf02c9b3a7b0743c80795b0))
+
+### Performance Improvements
+
+* **sales:** Fix properties view in full edit sales form ([8dc2b79](https://github.com/erxes/erxes/commit/8dc2b79f7c081b367d136a37a3cdb6d5ac960097))
+* **sales:** fix xyp data on sales detail ([4f116e7](https://github.com/erxes/erxes/commit/4f116e70055cfe66068522ffa82eeb077d68545f))
+* **sales:** fix xyp data on small sales detail ([a1f0c17](https://github.com/erxes/erxes/commit/a1f0c172b290001568d0ad097a5bf949ea00136e))
+* **sales:** Update salespipeline ui ([#5898](https://github.com/erxes/erxes/issues/5898)) ([b536b05](https://github.com/erxes/erxes/commit/b536b053d28443bd6e281e3d064bc5c4a7c35b9a))
+
 ## [2.13.0-rc.0](https://github.com/erxes/erxes/compare/2.12.0...2.13.0-rc.0) (2025-05-18)
 
 ### Bug Fixes

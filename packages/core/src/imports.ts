@@ -137,7 +137,7 @@ export default {
               }
 
               if (property.name === "emails" && value) {
-                doc.emails = value.split(",");
+                doc.emails = value.split(",").map(e => ({ email: e }));
               }
 
               if (property.name === "names" && value) {

@@ -124,6 +124,7 @@ export const inputs = `
         postId: String
         language: String
         title: String
+        type: String
         content: String
         excerpt: String
         customFieldsData: JSON
@@ -132,8 +133,8 @@ export const inputs = `
 
 export const queries = `
     cmsPost(_id: String, slug: String, language: String): Post
-    cmsPosts(clientPortalId: String, featured: Boolean,type: String, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: String, language: String): [Post]
-    cmsPostList(clientPortalId: String, featured: Boolean, type: String, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: String, language: String): PostList
+    cmsPosts(clientPortalId: String, featured: Boolean,type: String, categoryIds: [String], searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: String, language: String, language: String): [Post]
+    cmsPostList(clientPortalId: String, featured: Boolean, type: String, categoryIds: [String], searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: String, language: String, language: String): PostList
     cmsPostTranslations(postId: String): [PostTranslation]
 `;
 

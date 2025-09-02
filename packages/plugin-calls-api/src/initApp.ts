@@ -3,6 +3,7 @@ import * as bodyParser from 'body-parser';
 import systemStatus from './systemStatus';
 import app from '@erxes/api-utils/src/app';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { getEnv } from '@erxes/api-utils/src';
 
 const rawBodySaver = (req, _res, buf, encoding) => {
   if (buf && buf.length) {
@@ -36,46 +37,56 @@ const initApp = async () => {
 
   // init bots
   app.post('/call/receiveWaitingCall', async (req, res) => {
-    try {
-      const data = JSON.parse(JSON.stringify(req.body));
-      const history = JSON.parse(JSON.stringify(data.history));
-      console.log('received waiting call:', history);
-      graphqlPubsub.publish(`waitingCallReceived`, {
-        waitingCallReceived: history,
-      });
-      res.status(200).json({ message: 'Call received successfully' });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
+    console.log('received...');
+    const CALL_CRON_ENABLED = getEnv({ name: 'CALL_CRON_ENABLED' });
+    if (!CALL_CRON_ENABLED) {
+      try {
+        const data = JSON.parse(JSON.stringify(req.body));
+        const history = JSON.parse(JSON.stringify(data.history));
+        console.log('received waiting call:', history);
+        graphqlPubsub.publish(`waitingCallReceived`, {
+          waitingCallReceived: history,
+        });
+        res.status(200).json({ message: 'Call received successfully' });
+      } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
     }
   });
 
   app.post('/call/receiveTalkingCall', async (req, res) => {
-    try {
-      const data = JSON.parse(JSON.stringify(req.body));
-      const history = JSON.parse(JSON.stringify(data.history));
-      console.log('received talking call:', history);
-      graphqlPubsub.publish(`talkingCallReceived`, {
-        talkingCallReceived: history,
-      });
-      res.status(200).json({ message: 'Call received successfully' });
-    } catch (error) {
-      console.error('Error receive talking the call:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+    const CALL_CRON_ENABLED = getEnv({ name: 'CALL_CRON_ENABLED' });
+    if (!CALL_CRON_ENABLED) {
+      try {
+        const data = JSON.parse(JSON.stringify(req.body));
+        const history = JSON.parse(JSON.stringify(data.history));
+        console.log('received talking call:', history);
+        graphqlPubsub.publish(`talkingCallReceived`, {
+          talkingCallReceived: history,
+        });
+        res.status(200).json({ message: 'Call received successfully' });
+      } catch (error) {
+        console.error('Error receive talking the call:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
     }
   });
 
   app.post('/call/receiveAgents', async (req, res) => {
-    try {
-      const data = JSON.parse(JSON.stringify(req.body));
-      const history = JSON.parse(JSON.stringify(data.history));
-      console.log('received agent history:', history);
-      graphqlPubsub.publish(`agentCallReceived`, {
-        agentCallReceived: history,
-      });
-      res.status(200).json({ message: 'Call Agents received successfully' });
-    } catch (error) {
-      console.error('Error receive agents the call:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+    const CALL_CRON_ENABLED = getEnv({ name: 'CALL_CRON_ENABLED' });
+    if (!CALL_CRON_ENABLED) {
+      try {
+        const data = JSON.parse(JSON.stringify(req.body));
+        const history = JSON.parse(JSON.stringify(data.history));
+        console.log('received agent history:', history);
+        graphqlPubsub.publish(`agentCallReceived`, {
+          agentCallReceived: history,
+        });
+        res.status(200).json({ message: 'Call Agents received successfully' });
+      } catch (error) {
+        console.error('Error receive agents the call:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
     }
   });
   // Error handling middleware

@@ -22,7 +22,6 @@ export const customPostTypeSchema = new Schema<ICustomPostTypeDocument>(
   {
     _id: { type: String, default: () => nanoid() },
     clientPortalId: { type: String, required: true },
-
     label: { type: String, required: true },
     pluralLabel: { type: String, required: true },
     code: { type: String, required: true },
@@ -32,4 +31,4 @@ export const customPostTypeSchema = new Schema<ICustomPostTypeDocument>(
   { timestamps: true }
 );
 
-customPostTypeSchema.index({ name: 1, clientPortalId: 1 }, { unique: true });
+customPostTypeSchema.index({ code: 1, clientPortalId: 1 }, { unique: true });

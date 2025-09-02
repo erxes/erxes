@@ -9,6 +9,12 @@ const vouchersAdd = `
   }
 `;
 
+const vouchersAddMany = `
+  mutation vouchersAddMany(${commonDefs}, $status: String) {
+    vouchersAddMany(${commonVariables}, status: $status)
+  }
+`;
+
 const vouchersEdit = `
   mutation vouchersEdit($_id: String!, ${commonDefs}, $status: String) {
     vouchersEdit(_id: $_id, ${commonVariables}, status: $status) {
@@ -25,6 +31,7 @@ const vouchersRemove = `
 
 export default {
   vouchersAdd,
+  vouchersAddMany,
   vouchersEdit,
   vouchersRemove
 };

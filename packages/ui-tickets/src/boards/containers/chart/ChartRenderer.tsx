@@ -18,7 +18,7 @@ export default function ChartRendererContainer({
   pipelineId,
   type,
   stackBy,
-  chartType
+  chartType,
 }: Props) {
   const { data, loading, error } = useQuery(
     gql(queries.itemsCountByAssignedUser),
@@ -26,11 +26,11 @@ export default function ChartRendererContainer({
       variables: {
         pipelineId,
         type,
-        stackBy: stackBy || 'stage'
-      }
-    }
+        stackBy: stackBy || 'stage',
+      },
+    },
   );
-
+  console.log(loading, 'loading...');
   if (loading) {
     return <Spinner />;
   }
@@ -43,7 +43,7 @@ export default function ChartRendererContainer({
   const assignees = data.itemsCountByAssignedUser?.usersWithInfo || [];
 
   if (items.length === 0) {
-    return <EmptyState text='No data' icon='piechart' />;
+    return <EmptyState text="No data" icon="piechart" />;
   }
 
   return (

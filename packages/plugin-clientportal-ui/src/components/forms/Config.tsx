@@ -592,18 +592,23 @@ function General({
   };
 
   const renderTokiConfig = () => {
-    const config = tokiConfig || {
+    const config = { ...(tokiConfig || {
       apiKey: '',
       merchantId: '',
       username: '',
       password: '',
-    };
+      production: false,
+    })};
 
     const handleChange = (e) => {
       const key = e.currentTarget.id;
       const value = (e.currentTarget as HTMLInputElement).value;
 
       config[key] = value;
+
+      if (key === 'production') {
+        config[key] = e.currentTarget.checked;
+      }
 
       handleFormChange('tokiConfig', config);
     };
@@ -657,6 +662,19 @@ function General({
               name='password'
               value={config.password}
               onChange={handleChange}
+            />
+          </FlexContent>
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Production</ControlLabel>
+
+          <FlexContent>
+            <FormControl
+              id='production'
+              name='production'
+              checked={config.production}
+              onChange={handleChange}
+              componentclass='checkbox'
             />
           </FlexContent>
         </FormGroup>

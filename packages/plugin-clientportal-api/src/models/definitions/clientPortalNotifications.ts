@@ -10,6 +10,7 @@ export interface ICPNotification {
   clientPortalId: string;
   eventData?: any | null;
   groupId?: string;
+  type?: string;
 }
 
 export interface ICPNotificationDocument extends ICPNotification, Document {
@@ -18,6 +19,7 @@ export interface ICPNotificationDocument extends ICPNotification, Document {
   receiver: string;
   createdAt: Date;
   isRead: boolean;
+  type?: string;
 }
 
 export const cpNotificationSchema = new Schema({
@@ -50,10 +52,13 @@ export const cpNotificationSchema = new Schema({
   groupId: field({
     type: String,
     optional: true
+  }),
+  type: field({
+    type: String
   })
 });
 
-cpNotificationSchema.index(
-  { createdAt: 1, receiver: 1, clientPortalId: 1 },
-  { expireAfterSeconds: 60 * 60 * 24 * 30 }
-);
+// cpNotificationSchema.index(
+//   { createdAt: 1, receiver: 1, clientPortalId: 1 },
+//   { expireAfterSeconds: 60 * 60 * 24 * 30 }
+// );

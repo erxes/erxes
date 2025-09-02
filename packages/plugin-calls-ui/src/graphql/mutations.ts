@@ -27,6 +27,7 @@ const customersAdd = `
         tagIds
         lastName
         firstName
+        phones
       }
   }
 }
@@ -143,6 +144,17 @@ const callTransfer = `
     callTransfer(extensionNumber: $extensionNumber, integrationId: $integrationId, direction: $direction)
 }`;
 
+const callSelectCustomer = `
+  mutation callSelectCustomer($integrationId: String!, $customerId: String!, $phoneNumber: String!, $conversationId: String!) {
+    callSelectCustomer(integrationId: $integrationId, customerId: $customerId, phoneNumber: $phoneNumber, conversationId: $conversationId){
+      firstName
+      lastName
+      primaryPhone
+      phones
+      _id
+    }
+}`;
+
 export default {
   customersAdd,
   conversationMessageAdd,
@@ -156,4 +168,5 @@ export default {
   callHistoryEditStatus,
   callPauseAgent,
   callTransfer,
+  callSelectCustomer,
 };

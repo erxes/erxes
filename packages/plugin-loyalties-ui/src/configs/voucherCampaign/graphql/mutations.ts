@@ -19,7 +19,7 @@ const paramDefs = `
   $lotteryCount: Float,
 
   $kind: Kind
-  $value: Int
+  $value: Float
   $restrictions: JSON
 `;
 

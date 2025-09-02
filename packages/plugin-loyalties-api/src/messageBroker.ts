@@ -9,7 +9,14 @@ import {
   consumeQueue,
   consumeRPCQueue,
 } from "@erxes/api-utils/src/messageBroker";
-import { checkVouchersSale, confirmVoucherSale, handleScore } from "./utils";
+import {
+  checkVouchersSale,
+  confirmVoucherSale,
+  doScoreCampaign,
+  handleLoyaltyReward,
+  handleScore,
+  refundLoyaltyScore,
+} from "./utils";
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue(
@@ -41,12 +48,19 @@ export const setupMessageConsumers = async () => {
     };
   });
 
+  consumeQueue("loyalties:handleLoyaltyReward", async ({ subdomain }) => {
+    return {
+      data: await handleLoyaltyReward({ subdomain }),
+      status: "success",
+    };
+  });
+
   consumeQueue("loyalties:confirmLoyalties", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { checkInfo, extraInfo } = data;
 
     return {
-      data: await confirmVoucherSale(models, checkInfo, extraInfo),
+      data: await confirmVoucherSale(models, subdomain, checkInfo, extraInfo),
       status: "success",
     };
   });
@@ -110,7 +124,16 @@ export const setupMessageConsumers = async () => {
     const models = await generateModels(subdomain);
 
     return {
-      data: await models.ScoreCampaigns.doCampaign(data),
+      data: await doScoreCampaign(models, data),
+      status: "success",
+    };
+  });
+
+  consumeRPCQueue("loyalties:refundLoyaltyScore", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await refundLoyaltyScore(models, data),
       status: "success",
     };
   });

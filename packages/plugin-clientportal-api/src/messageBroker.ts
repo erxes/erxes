@@ -119,6 +119,15 @@ export const setupMessageConsumers = async () => {
     }
   );
 
+  consumeQueue(
+    "clientportal:changeCustomer",
+    async ({ subdomain, data: { customerId, customerIds } }) => {
+      const models = await generateModels(subdomain);
+
+      await models.ClientPortalUsers.changeCustomer(customerId, customerIds);
+    }
+  );
+
   /**
    * Send notification to client portal
    * @param {Object} data
@@ -161,14 +170,18 @@ export const setupMessageConsumers = async () => {
             updateOne: { filter: selector, update: { $set: doc } }
           });
         } else {
+          const customerSelector: any = {
+            ...(doc?.email && { primaryEmail: doc.email }),
+            ...(doc?.phone && { primaryPhone: doc.phone })
+          };
           const customer = await sendCoreMessage({
             subdomain,
             action: "customers.findOne",
-            data: { primaryEmail: doc.email },
+            data: customerSelector,
             isRPC: true
           });
 
-          if (doc.email && customer) {
+          if (customer) {
             doc.erxesCustomerId = customer._id;
             doc.createdAt = new Date();
             doc.modifiedAt = new Date();
@@ -179,7 +192,7 @@ export const setupMessageConsumers = async () => {
       }
 
       return {
-        data: models.ClientPortalUsers.bulkWrite(operations),
+        data: await models.ClientPortalUsers.bulkWrite(operations),
         status: "success"
       };
     }
@@ -297,7 +310,6 @@ export const sendNotificationsMessage = async (
     ...args
   });
 };
-
 
 export const sendPurchasesMessage = async (
   args: MessageArgsOmitService

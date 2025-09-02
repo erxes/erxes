@@ -44,7 +44,7 @@ const dealQueries = {
       args,
       user,
       "deal",
-      { productsData: 1 },
+      { productsData: 1, extraData: 1 },
       getExtraFields,
       serverTiming
     );
