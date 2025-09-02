@@ -179,9 +179,12 @@ class SelectWithSearch extends React.Component<
 
       this.setState({
         totalOptions: updatedTotalOptions,
-        selectedOptions: upSelectedOptions.length
-          ? upSelectedOptions
-          : this.state.selectedOptions,
+        selectedOptions:
+          exactFilter && selectedValues?.length && !upSelectedOptions.length
+            ? []
+            : upSelectedOptions.length
+              ? upSelectedOptions
+              : this.state.selectedOptions,
       });
     }
   }
