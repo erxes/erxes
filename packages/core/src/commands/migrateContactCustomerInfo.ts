@@ -26,9 +26,12 @@ const command = async () => {
 
     Customers = db.collection("customers");
 
-    const customers = await Customers.find({}).toArray();
+    const customers = await Customers.find({}, { batchSize: 1000 });
 
-    for (const customer of customers) {
+    let bulkOps: any[] = [];
+    let counter = 0;
+
+    for await (const customer of customers) {
       const {
         _id,
         primaryEmail,
@@ -88,10 +91,35 @@ const command = async () => {
         newPhones.push({ phone, type: "other", status: "unknown" });
       }
 
+      bulkOps.push({
+        updateOne: {
+          filter: { _id },
+          update: { $set: { emails: newEmails, phones: newPhones } },
+        },
+      });
+
+      if (bulkOps.length === 1000) {
+        await Customers.bulkWrite(bulkOps, { ordered: false });
+
+        counter += bulkOps.length;
+
+        console.log(`Processed ${counter} customers`);
+
+        bulkOps = [];
+      }
+
       await Customers.updateOne(
         { _id },
         { $set: { emails: newEmails, phones: newPhones } }
       );
+    }
+
+    if (bulkOps.length > 0) {
+      await Customers.bulkWrite(bulkOps, { ordered: false });
+
+      counter += bulkOps.length;
+
+      console.log(`Processed ${counter} customers (final)`);
     }
   } catch (e) {
     console.error("Error occurred: ", e);
