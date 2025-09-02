@@ -15,8 +15,6 @@ RUN apt-get update \
  && unzip monstache-dfba1c2.zip \
  && rm monstache-dfba1c2.zip \
  && mkdir bin && mkdir src \
- #  && curl -L -o /usr/local/bin/dep https://github.com/golang/dep/releases/download/v0.5.4/dep-linux-amd64 \
- #  && chmod +x /usr/local/bin/dep \
  && rm -rf /var/lib/apt/lists/*
 
 COPY . .
@@ -26,6 +24,5 @@ RUN ls -lah \
  && cd src/syncer \
  && ls -lah \
  && go get github.com/joho/godotenv
- #  && dep ensure
 
 CMD ["go", "run", "src/syncer/main.go"]

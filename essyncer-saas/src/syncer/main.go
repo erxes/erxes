@@ -95,7 +95,11 @@ func fetchPluginsFromURL(url string) ([]byte, error) {
 }
 
 func main() {
-	mongoURL := os.Getenv("MONGO_URL") + "?maxPoolSize=2&minPoolSize=1&connectTimeoutMS=10000"
+	maxPoolSize := os.Getenv("MaxPoolSize")
+	if maxPoolSize == "" {
+    maxPoolSize = "5" // default утга
+	}
+	mongoURL := os.Getenv("MONGO_URL") + "?maxPoolSize="+ maxPoolSize +"&minPoolSize=1&connectTimeoutMS=10000"
 	coreMongoURL := os.Getenv("CORE_MONGO_URL") + "?connect=direct"
 	elasticsearchURL := os.Getenv("ELASTICSEARCH_URL")
 
@@ -294,7 +298,7 @@ func main() {
 
 	fmt.Println("Before mongo-elastic.toml run")
 
-	cmd := exec.Command("build/linux-amd64/monstache", "-f", "mongo-elastic.toml")
+	cmd := exec.Command("monstache", "-f", "mongo-elastic.toml")
 
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
