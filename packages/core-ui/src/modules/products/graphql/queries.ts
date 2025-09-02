@@ -172,6 +172,10 @@ const productRules = `
       excludeTagIds
       unitPrice
       bundleId
+      returnAmount
+      returnPercent
+      prepaidPercent
+      discountPercent
 
       categories {
         name

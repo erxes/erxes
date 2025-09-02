@@ -144,7 +144,11 @@ const productRuleParamDefs = `
   $productIds: [String],
   $excludeProductIds: [String],
   $tagIds: [String],
-  $excludeTagIds: [String]
+  $excludeTagIds: [String],
+  $returnAmount: Float,
+  $returnPercent: Float,
+  $prepaidPercent: Float,
+  $discountPercent: Float
 `;
 
 const productRuleParams = `
@@ -156,7 +160,11 @@ const productRuleParams = `
   productIds: $productIds,
   excludeProductIds: $excludeProductIds,
   tagIds: $tagIds,
-  excludeTagIds: $excludeTagIds
+  excludeTagIds: $excludeTagIds,
+  returnAmount: $returnAmount,
+  returnPercent: $returnPercent,
+  prepaidPercent: $prepaidPercent,
+  discountPercent: $discountPercent
 `;
 
 const productRulesAdd = `

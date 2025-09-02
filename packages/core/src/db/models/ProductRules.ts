@@ -54,6 +54,18 @@ const prepareDoc = (doc: IProductRule): IProductRule => {
   };
 }
 
+const validateDoc = (doc: IProductRule, hasReturn: boolean) => {
+  const { returnAmount, returnPercent, prepaidPercent, discountPercent } = doc;
+
+  if (hasReturn && !(returnAmount || returnPercent)) {
+    throw new Error('Either return amount or percent must be > 0');
+  }
+
+  if (!hasReturn && !(prepaidPercent || discountPercent)) {
+    throw new Error('Either prepaid or discount percent must be > 0')
+  }
+}
+
 export const loadProductRuleClass = (models: IModels, _subdomain: string) => {
   class ProductRule {
     public static async getRule(_id: string) {
@@ -67,6 +79,8 @@ export const loadProductRuleClass = (models: IModels, _subdomain: string) => {
     }
 
     public static async createRule(doc: IProductRule) {
+      validateDoc(doc, false);
+
       const preparedDoc = prepareDoc(doc);
 
       await checkCategoryHierarchy(models, preparedDoc);
@@ -76,6 +90,8 @@ export const loadProductRuleClass = (models: IModels, _subdomain: string) => {
 
     public static async updateRule(_id: string, doc: IProductRule) {
       const rule = await models.ProductRules.getRule(_id);
+
+      validateDoc(doc, false);
 
       const preparedDoc = prepareDoc(doc);
 

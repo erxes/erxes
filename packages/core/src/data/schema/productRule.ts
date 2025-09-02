@@ -7,7 +7,11 @@ const productRuleDefs = `
   excludeTagIds: [String],
   unitPrice: Float!,
   bundleId: String,
-  name: String!
+  name: String!,
+  returnAmount: Float,
+  returnPercent: Float,
+  prepaidPercent: Float,
+  discountPercent: Float
 `;
 
 export const types = `
