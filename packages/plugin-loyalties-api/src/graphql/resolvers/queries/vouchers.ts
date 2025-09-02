@@ -1,10 +1,13 @@
 import { paginate } from "@erxes/api-utils/src/core";
 import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { SortOrder } from "mongoose";
 import { IContext } from "../../../connectionResolver";
 import { ICommonParams } from "../../../models/definitions/common";
 import { CAMPAIGN_STATUS } from "../../../models/definitions/constants";
 
-const generateFilter = (params: ICommonParams) => {
+const generateFilter = (
+  params: ICommonParams & { fromDate: string; toDate: string }
+) => {
   const filter: any = {};
 
   if (params.campaignId) {
@@ -22,11 +25,27 @@ const generateFilter = (params: ICommonParams) => {
   if (params.ownerId) {
     filter.ownerId = params.ownerId;
   }
+
+  if (params.fromDate) {
+    filter.createdAt = { $gte: new Date(params.fromDate) };
+  }
+
+  if (params.toDate) {
+    filter.createdAt = {
+      ...(filter.createdAt || {}),
+      $lt: new Date(params.toDate),
+    };
+  }
+
   return filter;
 };
 
 const voucherQueries = {
-  async vouchers(_root, params: ICommonParams, { models }: IContext) {
+  async vouchers(
+    _root,
+    params: ICommonParams & { fromDate: string; toDate: string },
+    { models }: IContext
+  ) {
     const filter: any = generateFilter(params);
     return paginate(models.Vouchers.find(filter), params);
   },
@@ -82,10 +101,20 @@ const voucherQueries = {
     return results;
   },
 
-  async vouchersMain(_root, params: ICommonParams, { models }: IContext) {
+  async vouchersMain(
+    _root,
+    params: ICommonParams & { fromDate: string; toDate: string },
+    { models }: IContext
+  ) {
+    const { sortField = "createdAt", sortDirection = -1 } = params;
     const filter: any = generateFilter(params);
 
-    const list = await paginate(models.Vouchers.find(filter), params);
+    const list = await paginate(
+      models.Vouchers.find(filter).sort({
+        [sortField]: sortDirection as SortOrder,
+      }),
+      params
+    );
 
     const totalCount = await models.Vouchers.find(filter).countDocuments();
 
