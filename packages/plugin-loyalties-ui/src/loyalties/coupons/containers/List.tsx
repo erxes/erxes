@@ -16,7 +16,7 @@ const ListContainer = (props: Props) => {
     fetchPolicy: "network-only",
   });
 
-  const { list = [], totalCount = 0 } = data.coupons || {};
+  const { list = [], totalCount = 0 } = data?.coupons || {};
 
   const finalProps = {
     ...props,

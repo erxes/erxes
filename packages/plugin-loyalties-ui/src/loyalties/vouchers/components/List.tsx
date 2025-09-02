@@ -69,7 +69,11 @@ const VouchersList = (props: IProps) => {
         </thead>
         <tbody>
           {(vouchers || []).map((voucher) => (
-            <Row voucher={voucher} queryParams={queryParams} />
+            <Row
+              key={voucher._id}
+              voucher={voucher}
+              queryParams={queryParams}
+            />
           ))}
         </tbody>
       </Table>

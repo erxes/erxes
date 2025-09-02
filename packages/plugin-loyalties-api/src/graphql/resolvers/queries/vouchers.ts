@@ -6,7 +6,7 @@ import { ICommonParams } from "../../../models/definitions/common";
 import { CAMPAIGN_STATUS } from "../../../models/definitions/constants";
 
 const generateFilter = (
-  params: ICommonParams & { fromDate: string; toDate: string }
+  params: ICommonParams & { fromDate: string; toDate?: string }
 ) => {
   const filter: any = {};
 
@@ -43,7 +43,7 @@ const generateFilter = (
 const voucherQueries = {
   async vouchers(
     _root,
-    params: ICommonParams & { fromDate: string; toDate: string },
+    params: ICommonParams & { fromDate: string; toDate?: string },
     { models }: IContext
   ) {
     const filter: any = generateFilter(params);
@@ -103,7 +103,7 @@ const voucherQueries = {
 
   async vouchersMain(
     _root,
-    params: ICommonParams & { fromDate: string; toDate: string },
+    params: ICommonParams & { fromDate: string; toDate?: string },
     { models }: IContext
   ) {
     const { sortField = "createdAt", sortDirection = -1 } = params;
