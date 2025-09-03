@@ -17,7 +17,7 @@ export const loadTagClass = (models: IModels) => {
 
       const tag = await models.Tags.findOne({
         $or: [{ _id }, { name }],
-      });
+      }).lean();
 
       if (tag?.name === name) {
         throw new Error(`A tag named ${name} already exists`);
@@ -27,12 +27,12 @@ export const loadTagClass = (models: IModels) => {
         throw new Error('Nested group is not allowed 1');
       }
 
-      if (_id === parentId) {
+      if (String(_id) === String(parentId)) {
         throw new Error('Group cannot be itself');
       }
 
       if (parentId) {
-        const parentTag = await models.Tags.findOne({ _id: parentId });
+        const parentTag = await models.Tags.findOne({ _id: parentId }).lean();
 
         if (!parentTag) {
           throw new Error('Group not found');
@@ -48,8 +48,8 @@ export const loadTagClass = (models: IModels) => {
       }
 
       if (tag) {
-        const parentTag = await models.Tags.findOne({ _id: tag.parentId });
-        const childTags = await models.Tags.find({ parentId: tag._id });
+        const parentTag = await models.Tags.findOne({ _id: tag.parentId }).lean();
+        const childTags = await models.Tags.find({ parentId: tag._id }).lean();
 
         if (parentTag?.isGroup && isGroup) {
           throw new Error('Nested group is not allowed 3');
