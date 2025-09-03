@@ -33,7 +33,8 @@ const command = async () => {
   const COLLECTIONS = {
     // IMPORTANT: Do not add collections here unless they have a `type` (contentType) field.
     // This script will break or have no effect if the collection does not contain `type`.
-    // tags: db.collection('tags'), // Note: 'tags' no longer include a contentType field
+
+    tags: db.collection('tags'),
   };
 
   try {

@@ -10,6 +10,7 @@ export const tagSchema = schemaWrapper(
       parentId: { type: String, label: 'Parent' },
       relatedIds: { type: [String], label: 'Children tag ids' },
       isGroup: { type: Boolean, label: 'Is group', default: false },
+      type: { type: String, label: 'Content type' },
     },
     {
       timestamps: true,
@@ -17,4 +18,4 @@ export const tagSchema = schemaWrapper(
   ),
 );
 
-tagSchema.index({ _id: 1, name: 1, parentId: 1 });
+tagSchema.index({ _id: 1, name: 1, parentId: 1, type: 1 });
