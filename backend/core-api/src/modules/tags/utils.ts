@@ -1,33 +1,35 @@
 import { ITagDocument } from 'erxes-api-shared/core-types';
-import { getPlugin } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
 // set related tags
 export const setRelatedTagIds = async (models: IModels, tag: ITagDocument) => {
-  if (tag.parentId) {
-    const parentTag = await models.Tags.findOne({ _id: tag.parentId });
+  if (!tag.parentId) {
+    return;
+  }
 
-    if (parentTag) {
-      let relatedIds: string[];
+  const parentTag = await models.Tags.findOne({ _id: tag.parentId });
 
-      relatedIds = tag.relatedIds || [];
-      relatedIds.push(tag._id);
+  if (!parentTag) {
+    return;
+  }
 
-      relatedIds = [
-        ...new Set([...relatedIds, ...(parentTag.relatedIds || [])]),
-      ];
+  const relatedIds: string[] = [tag._id, ...(tag.relatedIds || [])];
 
-      await models.Tags.updateOne(
-        { _id: parentTag._id },
-        { $set: { relatedIds } },
-      );
+  await models.Tags.updateOne(
+    { _id: parentTag._id },
+    {
+      $set: {
+        relatedIds: [
+          ...new Set([...relatedIds, ...(parentTag.relatedIds || [])]),
+        ],
+      },
+    },
+  );
 
-      const updated = await models.Tags.findOne({ _id: tag.parentId });
+  const updated = await models.Tags.findOne({ _id: tag.parentId });
 
-      if (updated) {
-        await setRelatedTagIds(models, updated);
-      }
-    }
+  if (updated) {
+    await setRelatedTagIds(models, updated);
   }
 };
 
@@ -65,11 +67,4 @@ export const removeRelatedTagIds = async (
   });
 
   await models.Tags.bulkWrite(doc);
-};
-
-export const getContentTypes = async (serviceName) => {
-  const service = await getPlugin(serviceName);
-  const meta = service.config.meta || {};
-  const types = (meta.tags && meta.tags.types) || [];
-  return types.map((type) => `${serviceName}:${type.type}`);
 };

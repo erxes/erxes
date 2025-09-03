@@ -33,8 +33,7 @@ const command = async () => {
   const COLLECTIONS = {
     // IMPORTANT: Do not add collections here unless they have a `type` (contentType) field.
     // This script will break or have no effect if the collection does not contain `type`.
-
-    tags: db.collection('tags'),
+    // tags: db.collection('tags'), // Note: 'tags' no longer include a contentType field
   };
 
   try {
@@ -60,6 +59,8 @@ const command = async () => {
   }
 
   console.log(`Process finished at: ${new Date().toISOString()}`);
+
+  process.exit();
 };
 
 command();

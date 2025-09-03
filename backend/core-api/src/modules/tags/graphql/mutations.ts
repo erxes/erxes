@@ -98,18 +98,4 @@ export const tagMutations = {
   ) {
     return models.Tags.removeTag(_id);
   },
-
-  /**
-   * Merge tags
-   */
-  async tagsMerge(
-    _parent: undefined,
-    { sourceId, destId }: { sourceId: string; destId: string },
-    { models }: IContext,
-  ) {
-    // remove old tag
-    await models.Tags.removeTag(sourceId);
-
-    return models.Tags.getTag(destId);
-  },
 };
