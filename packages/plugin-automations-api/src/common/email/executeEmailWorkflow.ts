@@ -22,7 +22,7 @@ export const executeEmailAction = async ({
       return { error: "Something went wrong fetching data" };
     }
 
-    const responses = await sendEmails({
+    const response = await sendEmails({
       subdomain,
       params,
     });
@@ -31,10 +31,10 @@ export const executeEmailAction = async ({
       subdomain,
       triggerType,
       target,
-      responses,
+      response,
     });
 
-    return { ...params, responses };
+    return { ...params, response };
   } catch (err) {
     return { error: err.message };
   }

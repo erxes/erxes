@@ -83,20 +83,18 @@ export const setActivityLog = async ({
   subdomain,
   triggerType,
   target,
-  responses,
+  response,
 }) => {
-  for (const response of responses || []) {
-    if (response?.messageId) {
-      await putActivityLog(subdomain, {
-        action: "putActivityLog",
-        data: {
-          contentType: triggerType,
-          contentId: target._id,
-          createdBy: "automation",
-          action: "sendEmail",
-        },
-      });
-    }
+  if (response?.messageId) {
+    await putActivityLog(subdomain, {
+      action: "putActivityLog",
+      data: {
+        contentType: triggerType,
+        contentId: target._id,
+        createdBy: "automation",
+        action: "sendEmail",
+      },
+    });
   }
 };
 
