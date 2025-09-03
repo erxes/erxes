@@ -8,6 +8,7 @@ export const types = `
     parentId: String
     relatedIds: [String]
     isGroup: Boolean
+    type: String
     
     createdAt: Date
   }
@@ -20,11 +21,13 @@ export const types = `
 `;
 
 const queryParams = `
+  type: String,
   searchValue: String,
   parentId: String,
   ids: [String],
   excludeIds: Boolean,
   isGroup: Boolean,
+  instanceId: String,
 
   sortField: String,
 
@@ -38,6 +41,7 @@ export const queries = `
 `;
 
 const mutationParams = `
+  type: String,
   colorCode: String,
   parentId: String,
   isGroup: Boolean,

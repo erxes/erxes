@@ -4,9 +4,21 @@ import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
 const generateFilter = async ({ params, commonQuerySelector, models }) => {
-  const { searchValue, parentId, ids, excludeIds, isGroup } = params;
+  const { searchValue, parentId, ids, excludeIds, isGroup, type } = params;
 
   const filter: FilterQuery<ITagFilterQueryParams> = { ...commonQuerySelector };
+
+  if (type) {
+    let contentType = type;
+
+    const [_pluginName, _moduleName, instanceId] = contentType.split(':');
+
+    if (!instanceId && params.instanceId) {
+      contentType = `${contentType}:${params.instanceId}`;
+    }
+
+    filter.type = contentType;
+  }
 
   if (searchValue) {
     filter.name = new RegExp(`.*${searchValue}.*`, 'i');

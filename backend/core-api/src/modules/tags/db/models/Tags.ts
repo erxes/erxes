@@ -15,33 +15,48 @@ export const loadTagClass = (models: IModels) => {
     public static async validate(_id: string | null, doc: ITag) {
       const { name, parentId, isGroup } = doc;
 
-      const tag = await models.Tags.findOne({ name });
+      const tag = await models.Tags.findOne({
+        $or: [{ _id }, { name }],
+      });
 
-      if (tag && tag._id !== _id) {
-        throw new Error('There is already a tag with this name');
+      if (tag?.name === name) {
+        throw new Error(`A tag named ${name} already exists`);
+      }
+
+      if (tag?.isGroup && isGroup) {
+        throw new Error('Nested group is not allowed 1');
+      }
+
+      if (_id === parentId) {
+        throw new Error('Group cannot be itself');
       }
 
       if (parentId) {
         const parentTag = await models.Tags.findOne({ _id: parentId });
 
-        if (!parentTag?.isGroup) {
+        if (!parentTag) {
+          throw new Error('Group not found');
+        }
+
+        if (!parentTag.isGroup) {
           throw new Error('Parent tag must be a group');
         }
+
+        if ((isGroup || tag?.isGroup) && parentTag?.isGroup) {
+          throw new Error('Nested group is not allowed 2 ');
+        }
       }
 
-      if (isGroup && parentId) {
-        throw new Error('Group tag cannot have parent tag');
-      }
+      if (tag) {
+        const parentTag = await models.Tags.findOne({ _id: tag.parentId });
+        const childTags = await models.Tags.find({ parentId: tag._id });
 
-      if (_id) {
-        const existingTag = await models.Tags.findOne({ _id });
-
-        if (isGroup && parentId) {
-          throw new Error('Group tag cannot have parent tag');
+        if (parentTag?.isGroup && isGroup) {
+          throw new Error('Nested group is not allowed 3');
         }
 
-        if (!existingTag?.isGroup && isGroup && existingTag?.parentId) {
-          throw new Error('Cannot convert a nested tag into a group');
+        if (!isGroup && childTags.length) {
+          throw new Error('Group has tags');
         }
       }
     }
@@ -71,9 +86,19 @@ export const loadTagClass = (models: IModels) => {
 
       const tag = await models.Tags.getTag(_id);
 
-      const updated = await models.Tags.findOneAndUpdate({ _id }, doc, {
-        new: true,
-      });
+      const childTags = await models.Tags.find({ parentId: tag._id });
+
+      if (childTags.length) {
+        await removeRelatedTagIds(models, tag);
+      }
+
+      const updated = await models.Tags.findOneAndUpdate(
+        { _id: tag._id },
+        doc,
+        {
+          new: true,
+        },
+      );
 
       if (updated) {
         await setRelatedTagIds(models, updated);

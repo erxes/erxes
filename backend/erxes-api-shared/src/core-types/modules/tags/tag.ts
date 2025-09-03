@@ -6,6 +6,7 @@ export interface ITag {
   parentId?: string;
   relatedIds?: string[];
   isGroup?: boolean;
+  type?: string;
 }
 
 export interface ITagDocument extends ITag, Document {
