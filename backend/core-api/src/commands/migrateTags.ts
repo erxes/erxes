@@ -37,6 +37,7 @@ const command = async () => {
 
   console.log(`Process finished at: ${new Date().toISOString()}`);
 
+  await client.close();
   process.exit();
 };
 

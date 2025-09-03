@@ -76,7 +76,7 @@ export const loadTagClass = (models: IModels) => {
       });
 
       if (updated) {
-        await setRelatedTagIds(models, tag);
+        await setRelatedTagIds(models, updated);
       }
 
       return updated;
