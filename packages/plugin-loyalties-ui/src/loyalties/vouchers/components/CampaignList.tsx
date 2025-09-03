@@ -1,15 +1,13 @@
-import { DataWithLoader, Icon, Tip } from "@erxes/ui/src/components";
-import { Sidebar, Wrapper } from "@erxes/ui/src/layout";
+import { Box, DataWithLoader, DropdownToggle, Icon, Tip } from "@erxes/ui/src";
 import { __, router } from "@erxes/ui/src/utils";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
-import { IVoucherCampaign } from "../../../configs/voucherCampaign/types";
-import { Link } from "react-router-dom";
-import React from "react";
-import { SidebarListItem } from "../../common/styles";
+import { colors, SidebarList } from "@erxes/ui/src";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
 import queryString from "query-string";
-
-const { Section } = Wrapper.Sidebar;
+import React from "react";
+import { IVoucherCampaign } from "../../../configs/voucherCampaign/types";
+import { ExtraButtons } from "../../../styles";
 
 interface IProps {
   queryParams: any;
@@ -23,20 +21,19 @@ const List = (props: IProps) => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const { queryParams, voucherCampaigns, loading } = props;
+
   const clearCategoryFilter = () => {
-    router.setParams(navigate, location, { campaignId: null });
+    router.removeParams(navigate, location, "campaignId");
   };
 
   const isActive = (id: string) => {
-    const { queryParams } = props;
     const currentGroup = queryParams?.campaignId || "";
 
     return currentGroup === id;
   };
 
   const renderContent = () => {
-    const { voucherCampaigns, queryParams } = props;
-
     const otherParams = { ...queryParams };
     delete otherParams.campaignId;
     const qryString = queryString.stringify(otherParams);
@@ -44,79 +41,58 @@ const List = (props: IProps) => {
     const result: React.ReactNode[] = [];
 
     for (const campaign of voucherCampaigns || []) {
-      const name = `${campaign.title} (${campaign.vouchersCount})`;
+      const name = `${campaign.title} `;
 
-      let link;
-      switch (campaign.voucherType) {
-        case "lottery":
-          link = `/lotteries?${qryString}&voucherCampaignId=${campaign._id}`;
-          break;
-
-        case "spin":
-          link = `/spins?${qryString}&voucherCampaignId=${campaign._id}`;
-          break;
-
-        default:
-          link = `?${qryString}&campaignId=${campaign._id}`;
-      }
+      const VOUCHER_TYPES = {
+        spin: `/spins?${qryString}&voucherCampaignId=${campaign._id}`,
+        lottery: `/lotteries?${qryString}&voucherCampaignId=${campaign._id}`,
+        default: `?${qryString}&campaignId=${campaign._id}`,
+      };
 
       result.push(
-        <SidebarListItem
-          key={campaign._id}
-          $isActive={isActive(campaign?._id || "")}
-        >
-          <Link to={link}>{name}</Link>
-        </SidebarListItem>
+        <li key={campaign._id}>
+          <Link
+            to={VOUCHER_TYPES[campaign.voucherType] || VOUCHER_TYPES.default}
+            className={isActive(campaign?._id || "") ? "active" : ""}
+            style={{ color: colors.linkPrimary, fontWeight: 500 }}
+          >
+            {name}
+          </Link>
+        </li>
       );
     }
 
-    return result;
+    return <SidebarList>{result}</SidebarList>;
   };
 
-  const renderCategoryHeader = () => {
-    return (
-      <>
-        <Section.Title>
-          <Link to={`/erxes-plugin-loyalty/settings/voucher`}>
-            <Icon icon="cog" />
-            {__("Manage Voucher Campaigns")}
-          </Link>
-          <Section.QuickButtons>
-            {router.getParam(location, "campaignId") && (
-              <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
-                <Tip text={__("Clear filter")} placement="bottom">
-                  <Icon icon="cancel-1" />
-                </Tip>
-              </a>
-            )}
-          </Section.QuickButtons>
-        </Section.Title>
-      </>
-    );
-  };
+  const extraButtons = (
+    <ExtraButtons>
+      {queryParams["campaignId"] && (
+        <Tip text={"Clear Filter"}>
+          <Icon icon="times-circle" onClick={() => clearCategoryFilter()} />
+        </Tip>
+      )}
+      <Dropdown as={DropdownToggle} toggleComponent={<Icon icon="cog" />}>
+        <Link
+          to={`/erxes-plugin-loyalty/settings/voucher`}
+          style={{ color: colors.linkPrimary, fontWeight: 500 }}
+        >
+          {__("Manage Voucher Campaigns")}
+        </Link>
+      </Dropdown>
+    </ExtraButtons>
+  );
 
-  const renderCategoryList = () => {
-    const { voucherCampaignsCount, loading } = props;
-
-    return (
+  return (
+    <Box title="Filter by Voucher Campaign" extraButtons={extraButtons} isOpen>
       <DataWithLoader
         data={renderContent()}
         loading={loading}
-        count={voucherCampaignsCount}
-        emptyText="There is no voucher campaigns"
+        emptyText="There is no Voucher Campaigns"
         emptyIcon="folder-2"
         size="small"
       />
-    );
-  };
-
-  return (
-    <Sidebar hasBorder>
-      <Section maxHeight={188} $collapsible={props.voucherCampaignsCount > 5}>
-        {renderCategoryHeader()}
-        {renderCategoryList()}
-      </Section>
-    </Sidebar>
+    </Box>
   );
 };
 

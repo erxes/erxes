@@ -1,28 +1,40 @@
-import { Alert, router } from "@erxes/ui/src/utils";
-import { Bulk, Spinner } from "@erxes/ui/src/components";
-import { mutations, queries } from "../graphql";
 import { useMutation, useQuery } from "@apollo/client";
+import { Alert, router } from "@erxes/ui/src/utils";
+import { mutations, queries } from "../graphql";
 
-import List from "../components/List";
+import { gql } from "@apollo/client";
 import React from "react";
 import { queries as campaignQueries } from "../../../configs/voucherCampaign/graphql";
-import { gql } from "@apollo/client";
+import List from "../components/List";
 
 type Props = {
   queryParams: any;
 };
 
-const VoucherListContainer = ({ queryParams }: Props) => {
-  const {
-    loading: mainQueryLoading,
-    data: mainQueryData,
-    refetch: refetchMainQuery,
-  } = useQuery(gql(queries.vouchersMain), {
-    variables: generateParams(queryParams),
-    fetchPolicy: "network-only",
-  });
+const generateParams = (queryParams) => ({
+  ...router.generatePaginationParams(queryParams || {}),
+  ids: queryParams.ids,
+  campaignId: queryParams.campaignId,
+  status: queryParams.status,
+  ownerId: queryParams.ownerId,
+  ownerType: queryParams.ownerType,
+  searchValue: queryParams.searchValue,
+  fromDate: queryParams.fromDate,
+  toDate: queryParams.toDate,
+  sortField: queryParams.orderType,
+  sortDirection: Number(queryParams.order) || undefined,
+});
 
-  const { loading: campaignQueryLoading, data: campaignQueryData } = useQuery(
+const VoucherListContainer = ({ queryParams }: Props) => {
+  const { loading: mainQueryLoading, data: mainQueryData } = useQuery(
+    gql(queries.vouchersMain),
+    {
+      variables: generateParams(queryParams),
+      fetchPolicy: "network-only",
+    }
+  );
+
+  const { data: campaignQueryData } = useQuery(
     gql(campaignQueries.voucherCampaignDetail),
     {
       variables: { id: queryParams.campaignId },
@@ -39,10 +51,9 @@ const VoucherListContainer = ({ queryParams }: Props) => {
     ],
   });
 
-  const handleRemoveVouchers = ({ voucherIds }, emptyBulk) => {
+  const handleRemoveVouchers = ({ voucherIds }) => {
     removeVouchers({ variables: { _ids: voucherIds } })
       .then(() => {
-        emptyBulk();
         Alert.success("You successfully deleted a voucher");
       })
       .catch((e) => {
@@ -50,15 +61,13 @@ const VoucherListContainer = ({ queryParams }: Props) => {
       });
   };
 
-  if (mainQueryLoading || campaignQueryLoading) {
-    return <Spinner />;
-  }
-
   const list = mainQueryData?.vouchersMain?.list || [];
   const totalCount = mainQueryData?.vouchersMain?.totalCount || 0;
   const currentCampaign = campaignQueryData?.voucherCampaignDetail;
 
   const updatedProps = {
+    loading: mainQueryLoading,
+    queryParams,
     totalCount,
     searchValue: queryParams.searchValue || "",
     vouchers: list,
@@ -66,27 +75,7 @@ const VoucherListContainer = ({ queryParams }: Props) => {
     removeVouchers: handleRemoveVouchers,
   };
 
-  const refetch = () => {
-    refetchMainQuery();
-  };
-
-  const vouchersList = (props) => {
-    return <List {...updatedProps} {...props} />;
-  };
-
-  return <Bulk content={vouchersList} refetch={refetch} />;
+  return <List {...updatedProps} />;
 };
-
-const generateParams = (queryParams) => ({
-  ...router.generatePaginationParams(queryParams || {}),
-  ids: queryParams.ids,
-  campaignId: queryParams.campaignId,
-  status: queryParams.status,
-  ownerId: queryParams.ownerId,
-  ownerType: queryParams.ownerType,
-  searchValue: queryParams.searchValue,
-  sortField: queryParams.sortField,
-  sortDirection: Number(queryParams.sortDirection) || undefined,
-});
 
 export default VoucherListContainer;

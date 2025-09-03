@@ -14,9 +14,15 @@ export const types = `
   }
 `;
 
+const queryParams = `
+  ${commonFilters}
+  fromDate: String
+  toDate: String
+`
+
 export const queries = `
-  vouchersMain(${commonFilters}): VoucherMain
-  vouchers(${commonFilters}): [Voucher]
+  vouchersMain(${queryParams}): VoucherMain
+  vouchers(${queryParams}): [Voucher]
   ownerVouchers(ownerId: String!): JSON
   voucherDetail(_id: String!): Voucher
 `;
