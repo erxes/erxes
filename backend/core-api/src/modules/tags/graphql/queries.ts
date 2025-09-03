@@ -1,39 +1,28 @@
 import { ITagFilterQueryParams } from '@/tags/@types/tag';
-import { cursorPaginate, getPlugin, getPlugins } from 'erxes-api-shared/utils';
+import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
-import { getContentTypes } from '../utils';
 
 const generateFilter = async ({ params, commonQuerySelector, models }) => {
-  const { type, searchValue, tagIds, parentId, ids, excludeIds } = params;
+  const { searchValue, parentId, ids, excludeIds, isGroup } = params;
 
   const filter: FilterQuery<ITagFilterQueryParams> = { ...commonQuerySelector };
-
-  if (type) {
-    const [serviceName, contentType] = type.split(':');
-
-    if (contentType === 'all') {
-      const contentTypes: string[] = await getContentTypes(serviceName);
-      filter.type = { $in: contentTypes };
-    } else {
-      filter.type = type;
-    }
-  }
 
   if (searchValue) {
     filter.name = new RegExp(`.*${searchValue}.*`, 'i');
   }
 
-  if (tagIds) {
-    filter._id = { $in: tagIds };
+  if (ids?.length) {
+    filter._id = { [excludeIds ? '$nin' : '$in']: ids };
   }
 
-  if (ids && ids.length > 0) {
-    filter._id = { [excludeIds ? '$nin' : '$in']: ids };
+  if (isGroup) {
+    filter.isGroup = isGroup;
   }
 
   if (parentId) {
     const parentTag = await models.Tags.find({ parentId }).distinct('_id');
+
     let ids = [parentId, ...parentTag];
 
     const getChildTags = async (parentTagIds: string[]) => {
@@ -56,33 +45,6 @@ const generateFilter = async ({ params, commonQuerySelector, models }) => {
 };
 
 export const tagQueries = {
-  /**
-   * Get tag types
-   */
-  async tagsGetTypes() {
-    const services = await getPlugins();
-
-    const fieldTypes: Array<{ description: string; contentType: string }> = [];
-
-    for (const serviceName of services) {
-      const service = await getPlugin(serviceName);
-      const meta = service.config.meta || {};
-
-      if (meta.tags) {
-        const types = meta.tags.types || [];
-
-        for (const type of types) {
-          fieldTypes.push({
-            description: type.description,
-            contentType: `${serviceName}:${type.type}`,
-          });
-        }
-      }
-    }
-
-    return fieldTypes;
-  },
-
   /**
    * Get tags
    */
@@ -130,14 +92,11 @@ export const tagQueries = {
     return models.Tags.countDocuments(selector);
   },
 
-  /**
-   * Get one tag
-   */
   async tagDetail(
     _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,
   ) {
-    return models.Tags.findOne({ _id });
+    return models.Tags.getTag(_id);
   },
 };
