@@ -224,7 +224,7 @@ export default class GenerateField extends React.Component<Props, State> {
       return (
         <Datetime
           {...attrs}
-          value={value}
+          value={value || new Date()}
           dateFormat="YYYY/MM/DD"
           timeFormat="HH:mm"
           closeOnSelect={true}
