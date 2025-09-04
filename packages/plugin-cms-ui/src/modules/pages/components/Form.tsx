@@ -1,4 +1,4 @@
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 
 import Button from '@erxes/ui/src/components/Button';
@@ -8,20 +8,29 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { IPostTranslation } from '../../../types';
 import CustomPostTypeGroup from '../../fieldGroups/CustomPostTypeGroup';
 
 type Props = {
   clientPortalId: string;
   page?: any;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  website?: any;
+  translations?: IPostTranslation[];
+  onSubmit: (doc: any, translations?: IPostTranslation[]) => void;
   closeModal: () => void;
   refetch?: () => void;
 };
 
 const ProductForm = (props: Props) => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { website } = props;
+  const [currentLanguage, setCurrentLanguage] = React.useState(
+    website.language
+  );
+
+  const [translations, setTranslations] = React.useState<IPostTranslation[]>(
+    props.translations || []
+  );
+
   const [page, setPage] = React.useState<any>(
     props.page || {
       slug: '',
@@ -34,7 +43,14 @@ const ProductForm = (props: Props) => {
 
   const generateDoc = () => {
     const finalValues: any = {};
-    const keysToDelete = ['__typename', '_id', 'createdAt', 'createdUser', 'updatedAt','createdUserId'];
+    const keysToDelete = [
+      '__typename',
+      '_id',
+      'createdAt',
+      'createdUser',
+      'updatedAt',
+      'createdUserId',
+    ];
     Object.keys(page).forEach((key) => {
       if (keysToDelete.indexOf(key) !== -1) {
         return;
@@ -50,53 +66,50 @@ const ProductForm = (props: Props) => {
     };
   };
 
+  const onSave = () => {
+    props.onSubmit(generateDoc(), translations);
+  };
+
+  const getName = () => {
+    if (currentLanguage === website.language) {
+      return page.name;
+    }
+
+    const translation = translations.find(
+      (t) => t.language === currentLanguage
+    );
+
+    return translation ? translation.title : '';
+  };
+
   const renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = props;
+    const { closeModal } = props;
     const { isSubmitted } = formProps;
-
-    const renderInput = (
-      name: string,
-      type: string,
-      value: any,
-      label: string,
-      required?: boolean,
-      useNumberFormat?: boolean
-    ) => {
-      const onChangeInput = (e: any) => {
-        if (name === 'name') {
-          setPage({
-            ...page,
-            name: e.target.value,
-            slug: `${e.target.value}`,
-          });
-        }
-
-        setPage({
-          ...page,
-          [name]: e.target.value,
-        });
-      };
-
-      return (
-        <FormGroup>
-          <ControlLabel>{__(label)}</ControlLabel>
-          <FormControl
-            {...formProps}
-            id={name}
-            name={name}
-            type={type}
-            required={required}
-            useNumberFormat={useNumberFormat}
-            defaultValue={value}
-            value={value}
-            onChange={onChangeInput}
-          />
-        </FormGroup>
-      );
-    };
 
     return (
       <>
+        {website.languages.length > 1 && (
+          <FormGroup>
+            <ControlLabel>{__('Language')}</ControlLabel>
+            <FormControl
+              {...formProps}
+              id={'language'}
+              name={'language'}
+              componentclass='select'
+              placeholder={__('Select language')}
+              required={true}
+              defaultValue={currentLanguage}
+              value={currentLanguage}
+              onChange={(e: any) => {
+                setCurrentLanguage(e.target.value);
+              }}
+              options={website.languages.map((lang) => ({
+                value: lang,
+                label: lang,
+              }))}
+            />
+          </FormGroup>
+        )}
         <FormGroup>
           <ControlLabel>{__('Name')}</ControlLabel>
           <FormControl
@@ -104,8 +117,8 @@ const ProductForm = (props: Props) => {
             id={'name'}
             name={'name'}
             required={true}
-            defaultValue={page.name}
-            value={page.name}
+            defaultValue={getName()}
+            value={getName()}
             onChange={(e: any) => {
               const nameValue = e.target.value;
               const slugValue = nameValue
@@ -115,11 +128,44 @@ const ProductForm = (props: Props) => {
                 .replace(/[^a-z0-9-]+/g, '')
                 .replace(/-+/g, '-');
 
-              setPage({
-                ...page,
-                name: nameValue,
-                slug: slugValue,
-              });
+              if (currentLanguage === website.language) {
+                setPage({
+                  ...page,
+                  name: e.target.value,
+                  slug: slugValue,
+                });
+              } else {
+                const translation = translations.find(
+                  (t) => t.language === currentLanguage
+                );
+
+                if (translation) {
+                  setTranslations(
+                    translations.map((t) =>
+                      t.language === currentLanguage
+                        ? {
+                            ...t,
+                            content: e.target.value,
+                            title: e.target.value,
+                          }
+                        : t
+                    )
+                  );
+                } else {
+                  setTranslations([
+                    ...translations,
+                    {
+                      title: e.target.value,
+                      excerpt: e.target.value,
+                      customFieldsData: {},
+                      postId: page._id,
+                      type: 'page',
+                      language: currentLanguage,
+                      content: e.target.value,
+                    },
+                  ]);
+                }
+              }
             }}
           />
         </FormGroup>
@@ -189,20 +235,15 @@ const ProductForm = (props: Props) => {
           <Button btnStyle='simple' onClick={closeModal} icon='times-circle'>
             Close
           </Button>
-
-          {renderButton({
-            name: 'page',
-            values: generateDoc(),
-            isSubmitted,
-            callback: () => {
-              if (props.refetch) {
-                props.refetch();
-              }
-
-              closeModal();
-            },
-            object: page,
-          })}
+          <Button
+            btnStyle='success'
+            type='submit'
+            icon='check-circle'
+            disabled={isSubmitted}
+            onClick={onSave}
+          >
+            {isSubmitted ? 'Saving' : 'Save'}
+          </Button>
         </ModalFooter>
       </>
     );

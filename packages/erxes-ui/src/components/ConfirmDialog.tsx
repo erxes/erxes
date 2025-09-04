@@ -60,7 +60,7 @@ type Props = {
     hasPasswordConfirm?: boolean;
   };
   confirmation?: string;
-  proceed: (value?: string) => void;
+  proceed: (value?: string | boolean) => void;
   dismiss: () => void;
 };
 
@@ -83,6 +83,7 @@ class ConfirmDialog extends React.Component<Props, State> {
 
   dismiss = () => {
     this.setState({ show: false }, () => {
+      this.props.proceed(false);
       this.props.dismiss();
     });
   };
@@ -91,7 +92,7 @@ class ConfirmDialog extends React.Component<Props, State> {
     const { options = {} } = this.props;
     const { hasPasswordConfirm = false } = options;
     this.setState({ show: false }, () => {
-      this.props.proceed(hasPasswordConfirm ? this.state.confirm : "");
+      this.props.proceed(hasPasswordConfirm ? this.state.confirm : true);
     });
   }
 
@@ -217,6 +218,7 @@ class ConfirmDialog extends React.Component<Props, State> {
           errors={errors}
           autoFocus={true}
           onChange={this.handleChange}
+          autoComplete={hasPasswordConfirm ? "new-password" : ""}
         />
       </>
     );

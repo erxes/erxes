@@ -30,7 +30,7 @@ function CustomerRow({ item, toggleBulk, isChecked, type }: Props) {
       <td>{type === "core:customer" ? item?.code : item?.number}</td>
       <td>{type === "core:customer" ? item?.lastName : item?.status}</td>
       <td>{type === "core:customer" ? item?.firstName : item?.startDate}</td>
-      <td>{type === "core:customer" ? item?.phones : item?.endDate}</td>
+      <td>{type === "core:customer" ? item?.phones[0]?.phone : item?.endDate}</td>
     </tr>
   );
 }

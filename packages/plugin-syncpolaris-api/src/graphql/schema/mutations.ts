@@ -13,4 +13,5 @@ export const mutations = `
   loanContractActive(contractNumber: String!): JSON
   loanGiveTransaction(data: JSON): JSON
   createLoanRepayment(data: JSON): JSON
+  closeLoanRepayment(data: JSON): JSON
 `;

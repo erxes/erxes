@@ -207,14 +207,14 @@ export class PocketAPI extends BaseAPI {
   //   return
   // }
 
-  async resiterWebhook(paymentId: string) {
+  async registerWebhook(paymentId: string) {
     try {
       await this.request({
         method: 'POST',
         path: PAYMENTS.pocket.actions.webhook,
         headers: await this.getHeaders(),
         data: {
-          fallBackUrl: `${this.domain}/pl:payment/callback/${PAYMENTS.pocket.kind}?paymentId=${paymentId}`,
+          fallBackUrl: `${this.domain}/pl-payment/callback/${PAYMENTS.pocket.kind}?paymentId=${paymentId}`,
         },
       });
     } catch (e) {

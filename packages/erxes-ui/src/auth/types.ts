@@ -1,5 +1,5 @@
-import { IBrand } from '../brands/types';
-import { QueryResponse } from '../types';
+import { IBrand } from "../brands/types";
+import { QueryResponse } from "../types";
 
 export interface IOnboardingHistory {
   _id: string;
@@ -82,7 +82,7 @@ export interface ICharge {
   emailVerification: IChargeItemInfo;
   phoneVerification: IChargeItemInfo;
   whiteLabel: IChargeItemInfo;
-  'twitter-dm': IChargeItemInfo;
+  "twitter-dm": IChargeItemInfo;
   sms: IChargeItemInfo;
 }
 
@@ -121,6 +121,16 @@ export interface IUserOrganization {
   subdomain: string;
 }
 
+export interface IUserPosition {
+  __typename?: string;
+  title: string;
+}
+
+export interface IUserBranch {
+  __typename?: string;
+  title: string;
+}
+
 export interface IUser extends IUserDoc {
   _id: string;
   brands?: IBrand[];
@@ -129,7 +139,8 @@ export interface IUser extends IUserDoc {
   branchIds: string[];
   departmentIds: string[];
   positionIds: string[];
-  positions?: any[];
+  positions?: IUserPosition[];
+  branches?: IUserBranch[];
   customFieldsData?: {
     [key: string]: any;
   };

@@ -13,6 +13,7 @@ export interface IScoreLog {
   serviceName?: string;
   sourceScoreLogId?: string;
   targetId?: string;
+  action?: string;
 }
 
 export interface IScoreLogDocument extends IScoreLog, Document {

@@ -190,7 +190,6 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
           targetId: (order as any)?._id
         }
       },
-      isRPC: true
     });
   } catch (e) {
     throw new Error(e.message);
@@ -270,11 +269,19 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
     }
 
     if (phone) {
-      pushInfo.phones = phone;
+      if(moduleTxt === 'customers') {
+        pushInfo.phones = [{ phone, type: 'other'}];
+      } else {
+        pushInfo.phones = phone;
+      }
     }
 
     if (email) {
-      pushInfo.emails = email;
+      if(moduleTxt === 'customers') {
+        pushInfo.emails = [{ email, type: 'other'}];
+      } else {
+        pushInfo.emails = email;
+      }
     }
 
     if (Object.keys(pushInfo).length) {
@@ -306,15 +313,26 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     stageId: deliveryConfig.stageId,
     assignedUserIds: deliveryConfig.assignedUserIds,
     watchedUserIds: deliveryConfig.watchedUserIds,
-    productsData: doneOrder.items.map((i) => ({
-      productId: i.productId,
-      uom: 'PC',
-      currency: 'MNT',
-      quantity: i.count,
-      unitPrice: i.unitPrice,
-      amount: i.count * i.unitPrice,
-      tickUsed: true
-    }))
+    productsData: doneOrder.items.map((i) => {
+      const amount = i.count * i.unitPrice;
+
+      if (i.discountPercent && i.discountAmount && i.unitPrice && i.count) {
+        i.unitPrice = (i.unitPrice * i.count + i.discountAmount) / i.count;
+      }
+
+      return {
+        productId: i.productId,
+        uom: 'PC',
+        currency: 'MNT',
+        quantity: i.count,
+        unitPrice: i.unitPrice,
+        amount,
+        discount: i.discountAmount,
+        discountPercent: i.discountPercent,
+        tickUsed: true
+      }
+    }),
+    extraData: doneOrder.extraInfo,
   };
 
   if (deliveryConfig.mapCustomField) {
@@ -549,16 +567,27 @@ const createDealPerOrder = async ({
         description: `<p>${newOrder.description}</p>`,
         stageId: currentCardsConfig.stageId,
         assignedUserIds: currentCardsConfig.assignedUserIds,
-        productsData: (newOrder.items || []).map((i) => ({
-          productId: i.productId,
-          uom: 'PC',
-          currency: 'MNT',
-          quantity: i.count,
-          unitPrice: i.unitPrice,
-          amount: i.count * (i.unitPrice || 0),
-          tickUsed: true
-        })),
-        paymentsData
+        productsData: (newOrder.items || []).map((i) => {
+          const amount = i.count * (i.unitPrice || 0);
+
+          if (i.discountPercent && i.discountAmount && i.unitPrice && i.count) {
+            i.unitPrice = (i.unitPrice * i.count + i.discountAmount) / i.count;
+          }
+
+          return {
+            productId: i.productId,
+            uom: 'PC',
+            currency: 'MNT',
+            quantity: i.count,
+            unitPrice: i.unitPrice,
+            amount,
+            discount: i.discountAmount,
+            discountPercent: i.discountPercent,
+            tickUsed: true
+          }
+        }),
+        paymentsData,
+        extraData: newOrder.extraInfo,
       },
       isRPC: true,
       defaultValue: {}

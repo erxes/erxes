@@ -1,12 +1,15 @@
-import { getFullDate, getTomorrow } from "./utils";
 import { paginate, regexSearchText } from "@erxes/api-utils/src";
+import * as moment from "moment";
+import { nanoid } from "nanoid";
+import { IContext } from "../../../connectionResolver";
 import {
   sendLoansMessage,
   sendPosMessage,
   sendSalesMessage
 } from "../../../messageBroker";
-import { IContext } from "../../../connectionResolver";
-import { getCompanyInfo, getConfig } from "../../../utils";
+import { getEbarimtData, IDoc } from "../../../models/utils";
+import { getCompanyInfo, getConfig, getPostData } from "../../../utils";
+import { getFullDate, getTomorrow } from "./utils";
 
 const generateFilter = async (subdomain, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -155,7 +158,7 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
 };
 
 export const sortBuilder = params => {
-  const {sortField, sortDirection = 0} = params;  
+  const { sortField, sortDirection = 0 } = params;
 
   if (sortField) {
     return { [sortField]: sortDirection };
@@ -175,7 +178,7 @@ const genDuplicatedFilter = async params => {
   const ced = new Date(endDate);
   if (
     ((ced ? ced.getTime() : 0) - (csd ? csd.getTime() : 0)) /
-      (1000 * 60 * 60 * 24) >
+    (1000 * 60 * 60 * 24) >
     32
   ) {
     throw new Error("The date range exceeds one month");
@@ -227,6 +230,90 @@ const queries = {
     return models.PutResponses.find(filter).countDocuments();
   },
 
+  putResponseDetail: async (
+    _root,
+    { contentType, contentId, stageId, isTemp }: { contentType: string, contentId: string, stageId?: string, isTemp: boolean },
+    { subdomain, models }: IContext
+  ) => {
+    const putHistory = await models.PutResponses.putHistory({ contentType, contentId });
+    if (putHistory) {
+      return putHistory;
+    }
+
+    if (!isTemp) {
+      throw new Error('has not ebarimt')
+    }
+
+    if (contentType === 'deal') {
+      const deal = await sendSalesMessage({
+        subdomain,
+        action: 'deals.findOne',
+        data: { _id: contentId },
+        isRPC: true,
+        defaultValue: {},
+      });
+
+      stageId = stageId || deal.stageId;
+
+      if (!deal?._id || !stageId) {
+        throw new Error('Deal not found')
+      }
+
+      const configs = await getConfig(subdomain, "stageInEbarimt", {});
+
+      if (!Object.keys(configs).includes(stageId)) {
+        throw new Error('Ebarimt config not found')
+      }
+
+      const config = {
+        ...(await getConfig(subdomain, "EBARIMT", {})),
+        ...configs[stageId]
+      };
+
+      const pipeline = await sendSalesMessage({
+        subdomain,
+        action: 'pipelines.findOne',
+        data: { stageId: stageId || deal.stageId },
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      const ebarimtData: IDoc = await getPostData(subdomain, models, config, deal, pipeline.paymentTypes);
+      const { status, msg, data, innerData } = await getEbarimtData({
+        config,
+        doc: ebarimtData
+      });
+
+      if (status !== "ok" || (!data && !innerData)) {
+        return {
+          _id: nanoid(),
+          id: "Error",
+          status: "ERROR",
+          message: msg
+        };
+      }
+      if (data) {
+        return {
+          _id: nanoid(),
+          ...data,
+          id: "Түр баримт",
+          status: "SUCCESS",
+          date: moment(new Date()).format('"yyyy-MM-dd HH:mm:ss'),
+          registerNo: config.companyRD || ""
+        };
+      }
+      if (innerData) {
+        return {
+          ...innerData,
+          id: "Түр баримт",
+          status: "SUCCESS",
+          date: moment(new Date()).format('"yyyy-MM-dd HH:mm:ss'),
+          registerNo: config.companyRD || ""
+        };
+      }
+    }
+  },
+
   putResponsesAmount: async (
     _root,
     params,
@@ -261,7 +348,7 @@ const queries = {
     const ced = new Date(createdEndDate);
     if (
       ((ced ? ced.getTime() : 0) - (csd ? csd.getTime() : 0)) /
-        (1000 * 60 * 60 * 24) >
+      (1000 * 60 * 60 * 24) >
       32
     ) {
       throw new Error("The date range exceeds one month");

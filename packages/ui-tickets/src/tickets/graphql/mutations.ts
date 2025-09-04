@@ -3,7 +3,7 @@ import {
   commonDragVariables,
   commonFields,
   commonMutationParams,
-  commonMutationVariables
+  commonMutationVariables,
 } from "../../boards/graphql/mutations";
 import { ticketFields } from "./queries";
 
@@ -19,7 +19,7 @@ const copyVariables = `$customerIds: [String], $companyIds: [String], $labelIds:
 const copyParams = `customerIds: $customerIds, companyIds: $companyIds, labelIds: $labelIds`;
 
 const ticketsAdd = `
-  mutation ticketsAdd($name: String!, ${copyVariables}, ${ticketMutationVariables}, ${commonMutationVariables}) {
+  mutation ticketsAdd($name: String, ${copyVariables}, ${ticketMutationVariables}, ${commonMutationVariables}) {
     ticketsAdd(name: $name, ${copyParams}, ${ticketMutationParams}, ${commonMutationParams}) {
       ${ticketFields}
       ${commonFields}
@@ -83,5 +83,5 @@ export default {
   ticketsChange,
   ticketsWatch,
   ticketsArchive,
-  ticketsCopy
+  ticketsCopy,
 };

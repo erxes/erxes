@@ -41,7 +41,7 @@ class VoucherFromContainer extends React.Component<FinalProps> {
 
       return (
         <ButtonMutate
-          mutation={object ? mutations.vouchersEdit : mutations.vouchersAdd}
+          mutation={object ? mutations.vouchersEdit : mutations.vouchersAddMany}
           variables={values}
           callback={afterSave}
           refetchQueries={getRefetchQueries()}

@@ -118,6 +118,7 @@ export interface IFieldGroup extends IVisibility {
 
   logics?: ILogic[];
   logicAction?: string;
+  isMultiple?: boolean;
 }
 
 export interface IFieldGroupDocument extends IFieldGroup, Document {

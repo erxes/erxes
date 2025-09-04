@@ -1,3 +1,5 @@
+import { isEnabled } from "@erxes/ui/src/utils/core";
+
 const createTicketComment = `
   mutation createTicketComment(
     $ticketId: String!
@@ -99,6 +101,25 @@ export const commonListFields = `
     name
     colorCode
   }
+  
+  ${isEnabled('loyalties') ? `
+    loyalty {
+      ... on Voucher {
+        campaign {
+          title
+          kind
+          value
+        }
+      }
+      ... on Coupon {
+        campaign {
+          title
+          kind
+          value
+        }
+      }
+    }
+  ` : ''}
 `;
 
 export const commonFields = `

@@ -186,6 +186,7 @@ export const types = `
 export const ordersQueryParams = `
   searchValue: String,
   statuses: [String],
+  types: [String],
   saleStatus: String,
   customerId: String,
   customerType: String,

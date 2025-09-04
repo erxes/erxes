@@ -1,4 +1,4 @@
-import { customerFields } from './queries';
+import { customerFields } from "./queries";
 
 const commonFields = `
   $avatar: String,
@@ -9,8 +9,8 @@ const commonFields = `
   $birthDate:Date,
   $primaryEmail: String,
   $primaryPhone: String,
-  $phones: [String],
-  $emails: [String],
+  $phones: JSON,
+  $emails: JSON,
   $ownerId: String,
   $position: String,
   $department: String,
@@ -22,6 +22,7 @@ const commonFields = `
   $customFieldsData: JSON,
   $code: String
   $emailValidationStatus: String
+  $registrationNumber: String,
   $phoneValidationStatus: String
 `;
 
@@ -47,6 +48,7 @@ const commonVariables = `
   customFieldsData: $customFieldsData,
   code: $code,
   emailValidationStatus: $emailValidationStatus,
+  registrationNumber: $registrationNumber,
   phoneValidationStatus: $phoneValidationStatus,
 `;
 
@@ -116,5 +118,5 @@ export default {
   customersMerge,
   customersVerify,
   customersChangeVerificationStatus,
-  customersChangeStateBulk
+  customersChangeStateBulk,
 };

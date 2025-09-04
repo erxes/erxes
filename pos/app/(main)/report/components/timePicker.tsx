@@ -71,9 +71,9 @@ export function TimePicker({ value, onChange }: Readonly<TimePickerProps>) {
 
   return (
     <div className="flex items-center gap-2">
-      <div className="relative">
+      <div className="relative w-1/3">
         <Select value={hour12.toString().padStart(2, "0")} onValueChange={handleHourChange}>
-          <SelectTrigger className="w-16 sm:w-20 h-10">
+          <SelectTrigger>
             <SelectValue placeholder="HH" />
           </SelectTrigger>
           <SelectContent>
@@ -90,9 +90,9 @@ export function TimePicker({ value, onChange }: Readonly<TimePickerProps>) {
 
       <span className="text-muted-foreground">:</span>
 
-      <div className="relative">
+      <div className="relative w-1/3">
         <Select value={minutes.toString().padStart(2, "0")} onValueChange={handleMinuteChange}>
-          <SelectTrigger className="w-16 sm:w-20 h-10">
+          <SelectTrigger>
             <SelectValue placeholder="MM" />
           </SelectTrigger>
           <SelectContent className="max-h-60 overflow-y-auto">
@@ -107,9 +107,9 @@ export function TimePicker({ value, onChange }: Readonly<TimePickerProps>) {
         </Select>
       </div>
 
-      <div className="relative">
+      <div className="relative w-1/3">
         <Select value={period} onValueChange={handlePeriodChange}>
-          <SelectTrigger className="w-16 sm:w-24 h-10">
+          <SelectTrigger>
             <SelectValue placeholder="AM/PM" />
           </SelectTrigger>
           <SelectContent>

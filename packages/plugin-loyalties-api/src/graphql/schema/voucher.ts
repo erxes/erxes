@@ -5,6 +5,7 @@ export const types = `
     ${commonTypes}
     status: String
     bonusInfo: JSON
+    campaign: VoucherCampaign
   }
 
   type VoucherMain {
@@ -22,11 +23,16 @@ export const queries = `
 
 const VoucherDoc = `
   ${commonInputs}
+
+  ownerIds: [String]
+  tagIds: [String]
+
   status: String
 `;
 
 export const mutations = `
   vouchersAdd(${VoucherDoc}): Voucher
+  vouchersAddMany(${VoucherDoc}): String
   vouchersEdit(_id: String!, ${VoucherDoc}): Voucher
   vouchersRemove(_ids: [String]): JSON
   buyVoucher(campaignId: String, ownerType: String, ownerId: String, count: Int): Voucher

@@ -132,21 +132,8 @@ const pipelinesUpdateOrder = `
   }
 `;
 
-const manageExpenses = `
-  mutation salesManageExpenses($expenseDocs: [ExpenseInput]) {
-    salesManageExpenses(expenseDocs: $expenseDocs) {
-      _id,
-      name,
-      description,
-      createdAt,
-      createdBy
-    }
-  }
-`;
-
 export default {
   boardAdd,
-  manageExpenses,
   boardEdit,
   boardRemove,
   pipelineAdd,

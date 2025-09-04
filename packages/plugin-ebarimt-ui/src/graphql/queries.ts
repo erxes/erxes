@@ -83,6 +83,17 @@ export const responseFields = `
 
   createdAt
   modifiedAt
+  userId
+  user {
+    _id
+    username
+    email
+    details {
+      fullName
+      firstName
+      lastName
+    }
+  }
 
   id
   posId
@@ -204,6 +215,71 @@ const ebarimtProductRulesCount = `
   }
 `;
 
+export const ebarimtProductGroupFields = `
+  _id
+  createdAt
+  modifiedAt
+  modifiedBy
+  mainProductId
+  subProductId
+  sortNum
+  ratio
+  isActive
+
+  mainProduct {
+    _id
+    code
+    name
+  }
+  subProduct {
+    _id
+    code
+    name
+  }
+  modifiedUser {
+    _id
+    email
+  }
+`;
+
+const productGroupQryParamsDef = `
+  $searchValue: String,
+  $productId: String,
+  $status: String,
+`;
+
+const productGroupQryParamsVal = `
+  searchValue: $searchValue,
+  productId: $productId,
+  status: $status,
+`;
+
+const ebarimtProductGroups = `
+  query ebarimtProductGroups(
+    ${productGroupQryParamsDef}
+    $page: Int
+    $perPage: Int
+    $sortField: String
+    $sortDirection: Int
+  ) {
+    ebarimtProductGroups(
+      ${productGroupQryParamsVal}
+      page: $page
+      perPage: $perPage
+      sortField: $sortField
+      sortDirection: $sortDirection
+    ) {
+      ${ebarimtProductGroupFields}
+    }
+  }
+`;
+
+const ebarimtProductGroupsCount = `
+  query ebarimtProductGroupsCount(${productGroupQryParamsDef}) {
+    ebarimtProductGroupsCount(${productGroupQryParamsVal})
+  }
+`;
+
 export default {
   configs,
   putResponses,
@@ -216,4 +292,6 @@ export default {
   putResponsesDuplicatedDetail,
   ebarimtProductRules,
   ebarimtProductRulesCount,
+  ebarimtProductGroups,
+  ebarimtProductGroupsCount,
 };

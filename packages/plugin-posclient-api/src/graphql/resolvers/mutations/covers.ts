@@ -4,6 +4,9 @@ import { IContext } from '../../types';
 
 const coverMutations = {
   async coversAdd(_root, doc: ICover, { posUser, config, models }: IContext) {
+    if (!posUser) {
+      throw new Error('Must login');
+    }
     return await models.Covers.createCover({
       ...doc,
       posToken: config.token,
@@ -17,6 +20,10 @@ const coverMutations = {
     doc: ICover & { _id: string },
     { posUser, config, models }: IContext
   ) {
+    if (!posUser) {
+      throw new Error('Must login');
+    }
+
     const cover = await models.Covers.getCover(doc._id);
 
     if (cover.status === 'confirm') {
@@ -43,6 +50,10 @@ const coverMutations = {
     { _id }: { _id: string },
     { posUser, config, models }: IContext
   ) {
+    if (!posUser) {
+      throw new Error('Must login');
+    }
+
     const cover = await models.Covers.getCover(_id);
 
     if (cover.status === 'confirm') {
@@ -64,6 +75,10 @@ const coverMutations = {
     { _id }: { _id: string },
     { posUser, config, models, subdomain }: IContext
   ) {
+    if (!posUser) {
+      throw new Error('Must login');
+    }
+
     const cover = await models.Covers.getCover(_id);
 
     if (cover.status === 'confirm') {

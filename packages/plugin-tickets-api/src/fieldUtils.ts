@@ -9,7 +9,7 @@ import { sendCoreMessage } from './messageBroker';
 const generateProductsOptions = async (
   name: string,
   label: string,
-  type: string
+  type: string,
 ) => {
   return {
     _id: Math.random(),
@@ -26,7 +26,7 @@ const generateProductsOptions = async (
 const generateProductsCategoriesOptions = async (
   name: string,
   label: string,
-  type: string
+  type: string,
 ) => {
   return {
     _id: Math.random(),
@@ -44,7 +44,7 @@ const generateContactsOptions = async (
   name: string,
   label: string,
   type: string,
-  selectionConfig?: any
+  selectionConfig?: any,
 ) => {
   return {
     _id: Math.random(),
@@ -63,7 +63,7 @@ const generateUsersOptions = async (
   name: string,
   label: string,
   type: string,
-  selectionConfig: any
+  selectionConfig: any,
 ) => {
   return {
     _id: Math.random(),
@@ -82,7 +82,7 @@ const generateStructuresOptions = async (
   name: string,
   label: string,
   type: string,
-  selectionConfig?: any
+  selectionConfig?: any,
 ) => {
   return {
     _id: Math.random(),
@@ -140,7 +140,7 @@ const generateTagOptions = async (
   subdomain,
   name: string,
   label: string,
-  type: string
+  type: string,
 ) => {
   const options = await sendCoreMessage({
     subdomain,
@@ -217,28 +217,28 @@ export const generateFields = async ({ subdomain, data }) => {
     'userId',
     'Created by',
     'user',
-    { multi: false }
+    { multi: false },
   );
 
   const modifiedByOptions = await generateUsersOptions(
     'modifiedBy',
     'Modified by',
     'user',
-    { multi: false }
+    { multi: false },
   );
 
   const assignedUserOptions = await generateUsersOptions(
     'assignedUserIds',
     'Assigned to',
     'user',
-    { multi: false }
+    { multi: false },
   );
 
   const watchedUserOptions = await generateUsersOptions(
     'watchedUserIds',
     'Watched users',
     'user',
-    { multi: true }
+    { multi: true },
   );
 
   const customersOptions = await generateContactsOptions(
@@ -247,7 +247,7 @@ export const generateFields = async ({ subdomain, data }) => {
     'contact',
     {
       queryName: 'customers',
-    }
+    },
   );
 
   const companiesOptions = await generateContactsOptions(
@@ -256,56 +256,145 @@ export const generateFields = async ({ subdomain, data }) => {
     'contact',
     {
       queryName: 'companies',
-    }
+    },
   );
 
   const branchesOptions = await generateStructuresOptions(
     'branchIds',
     'Branches',
     'structure',
-    { queryName: 'branches' }
+    { queryName: 'branches' },
   );
 
   const departmentsOptions = await generateStructuresOptions(
     'departmentIds',
     'Departments',
     'structure',
-    { queryName: 'departments' }
+    { queryName: 'departments' },
   );
 
   const tagsOptions = await generateTagOptions(
     subdomain,
     'tagIds',
     'Tags',
-    'tags'
+    'tags',
   );
-
   fields = [
     ...fields,
     ...[
       createdByOptions,
       modifiedByOptions,
+      branchesOptions,
       assignedUserOptions,
       watchedUserOptions,
       customersOptions,
       companiesOptions,
-      branchesOptions,
       departmentsOptions,
       tagsOptions,
     ],
   ];
 
+  if (usageType === 'automations') {
+    fields = [
+      ...fields,
+      {
+        _id: Math.random(),
+        name: 'createdBy.email',
+        label: 'Created by Email',
+        type: 'String',
+      },
+      {
+        _id: Math.random(),
+        name: 'createdBy.fullName',
+        label: 'Created by Full Name',
+        type: 'String',
+      },
+      {
+        _id: Math.random(),
+        name: 'createdBy.phone',
+        label: 'Created by Phone',
+        type: 'String',
+      },
+      {
+        _id: Math.random(),
+        name: 'createdBy.branch',
+        label: 'Created by Branch',
+        type: 'String',
+      },
+      {
+        _id: Math.random(),
+        name: 'createdBy.department',
+        label: 'Created by Department',
+        type: 'String',
+      },
+      {
+        _id: Math.random(),
+        name: 'createdBy.position',
+        label: 'Created by Position',
+        type: 'String',
+      },
+      {
+        _id: Math.random(),
+        name: 'customers.email',
+        label: 'Customers Email',
+        type: 'String',
+      },
+      {
+        _id: Math.random(),
+        name: 'customers.phone',
+        label: 'Customers phone',
+        type: 'String',
+      },
+      {
+        _id: Math.random(),
+        name: 'customers.fullName',
+        label: 'Customers FullName',
+        type: 'String',
+      },
+      {
+        _id: Math.random(),
+        name: 'link',
+        label: 'Link',
+        type: 'String',
+      },
+      {
+        _id: Math.random(),
+        name: 'pipelineLabels',
+        label: 'Pipeline Labels',
+        type: 'String',
+      },
+      {
+        _id: Math.random(),
+        name: 'branches.title',
+        label: 'Branches title',
+        type: 'String',
+      },
+      {
+        _id: Math.random(),
+        name: 'branches.parent',
+        label: 'Branches parent',
+        type: 'String',
+      },
+      {
+        _id: Math.random(),
+        name: 'createdBy.branch.parent',
+        label: 'Created by Parent of Branch',
+        type: 'String',
+      },
+    ];
+  }
+
   if (type === 'ticket' && usageType !== 'export') {
     const productOptions = await generateProductsOptions(
       'productsData.productId',
       'Product',
-      'product'
+      'product',
     );
 
     const productsCategoriesOptions = await generateProductsCategoriesOptions(
       'productsData.categoryId',
       'Product Categories',
-      'select'
+      'select',
     );
 
     fields = [
@@ -313,7 +402,6 @@ export const generateFields = async ({ subdomain, data }) => {
       ...[productOptions, productsCategoriesOptions, assignedUserOptions],
     ];
   }
-
   if (type === 'ticket' && usageType === 'export') {
     const extendFieldsExport = [
       { _id: Math.random(), name: 'productsData.name', label: 'Product Name' },
@@ -351,12 +439,12 @@ export const generateFields = async ({ subdomain, data }) => {
 
     const labelOptions = await getPipelineLabelOptions(
       models,
-      pipelineId || (segment ? segment.pipelineId : null)
+      pipelineId || (segment ? segment.pipelineId : null),
     );
 
     const stageOptions = await getStageOptions(
       models,
-      pipelineId || (segment ? segment.pipelineId : null)
+      pipelineId || (segment ? segment.pipelineId : null),
     );
 
     fields = [...fields, stageOptions, labelOptions];

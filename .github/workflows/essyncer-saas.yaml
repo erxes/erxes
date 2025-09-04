@@ -9,14 +9,14 @@ on:
       - v2
     paths:
       - "essyncer-saas/**"
-      - ".github/workflows/essyncer.yaml"
+      - ".github/workflows/essyncer-saas.yaml"
 
   pull_request:
     branches:
       - master
       - rc
       - dev
-      - v1
+      - v2
     paths:
       - "essyncer-saas/**"
       - ".github/workflows/essyncer-saas.yaml"

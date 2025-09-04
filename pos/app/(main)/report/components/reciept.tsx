@@ -1,4 +1,4 @@
-import { reportDateAtom } from "@/store"
+import { reportStartDateAtom, reportEndDateAtom } from "@/store"
 import { paymentTypesAtom } from "@/store/config.store"
 import { format } from "date-fns"
 import { useAtomValue } from "jotai"
@@ -18,7 +18,8 @@ const Flex = ({
 
 const Receipt = ({ date, report }: any) => {
   const paymentTypes = useAtomValue(paymentTypesAtom)
-  const reportDate = useAtomValue(reportDateAtom)
+  const reportStartDate = useAtomValue(reportStartDateAtom)
+  const reportEndDate = useAtomValue(reportEndDateAtom)
 
   if (!report) {
     return null
@@ -129,7 +130,7 @@ const Receipt = ({ date, report }: any) => {
         <div className="font-bold text-xs">Өдрийн тайлан</div>
         <p>
           Хамаарах:{" "}
-          <b>{format(reportDate || new Date(), "yyyy.MM.dd HH:mm")}</b>
+          <b>{format(reportStartDate || new Date(), "yyyy.MM.dd HH:mm")} - {format(reportEndDate || new Date(), "yyyy.MM.dd HH:mm")}</b>
         </p>
         <p>Хэвлэсэн: {format(new Date(), "yyyy.MM.dd HH:mm")}</p>
       </header>

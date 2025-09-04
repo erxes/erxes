@@ -1,6 +1,6 @@
-import { IProduct } from '@erxes/ui-products/src/types';
-import { ICompany } from '@erxes/ui-contacts/src/companies/types';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import { ICompany } from "@erxes/ui-contacts/src/companies/types";
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { IProduct } from "@erxes/ui-products/src/types";
 
 export interface IContract {
   _id: string;
@@ -367,4 +367,8 @@ export type ActiveLoanMutationResponse = {
 
 export type LoanTransactionMutationResponse = {
   loanGiveTransaction: (params: { variables: { data: any } }) => Promise<any>;
+};
+
+export type LoanCloseMutationResponse = {
+  closeLoanRepayment: (params: { variables: { data: any } }) => Promise<any>;
 };

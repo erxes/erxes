@@ -417,7 +417,7 @@ export const loadUserClass = (models: IModels) => {
           $set: {
             password: await this.generatePassword(password),
             isActive: true,
-            registrationToken: undefined,
+            registrationToken: null,
             username,
             details: {
               fullName,

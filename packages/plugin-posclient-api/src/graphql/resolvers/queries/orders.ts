@@ -17,6 +17,7 @@ interface ISearchParams {
   customerType?: string;
   isPaid?: boolean;
   statuses: string[];
+  types: string[];
   saleStatus: string;
   dueStartDate?: Date;
   dueEndDate?: Date;
@@ -28,6 +29,7 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
   const {
     searchValue,
     statuses,
+    types,
     saleStatus,
     customerId,
     startDate,
@@ -63,6 +65,10 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
 
   if (saleStatus) {
     filter.saleStatus = saleStatus;
+  }
+
+  if (types?.length) {
+    filter.type = { $in: types };
   }
 
   if (statuses.length) {

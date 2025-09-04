@@ -5,7 +5,7 @@ const POST_LIST = gql`
     $clientPortalId: String!
     $type: String
     $featured: Boolean
-    $categoryId: String
+    $categoryIds: [String]
     $searchValue: String
     $status: PostStatus
     $page: Int
@@ -18,7 +18,7 @@ const POST_LIST = gql`
       clientPortalId: $clientPortalId
       featured: $featured
       type: $type
-      categoryId: $categoryId
+      categoryIds: $categoryIds
       searchValue: $searchValue
       status: $status
       page: $page
@@ -194,22 +194,7 @@ const POST = gql`
   }
 `;
 
-
-const POST_TRANSLATIONS = gql`
-query CmsPostTranslations($postId: String) {
-  cmsPostTranslations(postId: $postId) {
-    _id
-    content
-    customFieldsData
-    excerpt
-    language
-    postId
-    title
-  }
-}
-`;
 export default {
   POST_LIST,
   POST,
-  POST_TRANSLATIONS,
-  };
+};

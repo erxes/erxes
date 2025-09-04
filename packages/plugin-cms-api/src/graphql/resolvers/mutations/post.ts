@@ -17,7 +17,7 @@ const mutations = {
     const { models, user, clientPortalId } = context;
     const { input } = args;
     input.authorId = user._id;
-    
+
     if (clientPortalId) {
       input.clientPortalId = clientPortalId;
     }
@@ -113,10 +113,35 @@ const mutations = {
   ): Promise<any> => {
     const { models } = context;
     const { input } = args;
-    const post = await models.Posts.findOne({ _id: input.postId });
-    if (!post) {
-      throw new Error('Post not found');
+    const { type } = input;
+
+    let model: any;
+
+    switch (type) {
+      case 'post':
+        model = models.Posts;
+        break;
+      case 'page':
+        model = models.Pages;
+        break;
+      case 'category':
+        model = models.Categories;
+        break;
+      case 'tag':
+        model = models.PostTags;
+        break;
+      case 'menu':
+        model = models.MenuItems;
+        break;
+      default:
+        throw new Error('Invalid type');
     }
+
+    const object = await model.findOne({ _id: input.postId });
+    if (!object) {
+      throw new Error('Object not found');
+    }
+
     return models.PostTranslations.createPostTranslation(input);
   },
 
@@ -126,13 +151,19 @@ const mutations = {
     context: IContext
   ): Promise<any> => {
     const { models } = context;
-    const {  input } = args;
-    const translation = await models.PostTranslations.findOne({ language: input.language, postId: input.postId });
+    const { input } = args;
+    const translation = await models.PostTranslations.findOne({
+      language: input.language,
+      postId: input.postId,
+    });
     if (!translation) {
       return models.PostTranslations.createPostTranslation(input);
     }
-  
-    return models.PostTranslations.updatePostTranslation(translation._id, input);
+
+    return models.PostTranslations.updatePostTranslation(
+      translation._id,
+      input
+    );
   },
 };
 

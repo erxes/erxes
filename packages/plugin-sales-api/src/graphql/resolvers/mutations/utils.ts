@@ -1,5 +1,17 @@
-import resolvers from "..";
 import { fixNum } from "@erxes/api-utils/src/core";
+import { nanoid } from "nanoid";
+import resolvers from "..";
+import {
+  IItemCommonFields,
+  IItemDragCommonFields,
+  IStageDocument,
+} from "../../../models/definitions/boards";
+import { BOARD_STATUSES } from "../../../models/definitions/constants";
+import {
+  IDeal,
+  IDealDocument,
+  IProductData,
+} from "../../../models/definitions/deals";
 import {
   destroyBoardItemRelations,
   getCollection,
@@ -8,24 +20,24 @@ import {
   getItem,
   getNewOrder,
 } from "../../../models/utils";
-import {
-  IItemCommonFields,
-  IItemDragCommonFields,
-  IStageDocument,
-} from "../../../models/definitions/boards";
-import {
-  BOARD_STATUSES,
-} from "../../../models/definitions/constants";
-import { IDeal, IDealDocument, IProductData } from "../../../models/definitions/deals";
 
+import { can, checkUserIds } from "@erxes/api-utils/src";
+import { debugError } from "@erxes/api-utils/src/debuggers";
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
+import { IUserDocument } from "@erxes/api-utils/src/types";
+import { generateModels, IModels } from "../../../connectionResolver";
 import {
   putActivityLog,
   putCreateLog,
   putDeleteLog,
   putUpdateLog,
 } from "../../../logUtils";
-import { can, checkUserIds } from "@erxes/api-utils/src";
+import {
+  sendCoreMessage,
+  sendLoyaltiesMessage,
+  sendNotificationsMessage,
+  sendPricingMessage,
+} from "../../../messageBroker";
 import {
   copyChecklists,
   copyPipelineLabels,
@@ -34,15 +46,6 @@ import {
   prepareBoardItemDoc,
   sendNotifications,
 } from "../../utils";
-import { IUserDocument } from "@erxes/api-utils/src/types";
-import { generateModels, IModels } from "../../../connectionResolver";
-import {
-  sendCoreMessage,
-  sendLoyaltiesMessage,
-  sendNotificationsMessage,
-  sendPricingMessage,
-} from "../../../messageBroker";
-import { debugError } from "@erxes/api-utils/src/debuggers";
 
 export const itemResolver = async (
   models: IModels,
@@ -339,22 +342,24 @@ export const itemsEdit = async (
       doc.assignedUserIds
     );
 
-    const activityContent = { addedUserIds, removedUserIds };
+    if (addedUserIds?.length || removedUserIds?.length) {
+      const activityContent = { addedUserIds, removedUserIds };
 
-    putActivityLog(subdomain, {
-      action: "createAssigneLog",
-      data: {
-        contentId: _id,
-        userId: user._id,
-        contentType: type,
-        content: activityContent,
-        action: "assignee",
-        createdBy: user._id,
-      },
-    });
+      putActivityLog(subdomain, {
+        action: "createAssigneLog",
+        data: {
+          contentId: _id,
+          userId: user._id,
+          contentType: type,
+          content: activityContent,
+          action: "assignee",
+          createdBy: user._id,
+        },
+      });
 
-    notificationDoc.invitedUsers = addedUserIds;
-    notificationDoc.removedUsers = removedUserIds;
+      notificationDoc.invitedUsers = addedUserIds;
+      notificationDoc.removedUsers = removedUserIds;
+    }
   }
 
   await sendNotifications(models, subdomain, notificationDoc);
@@ -365,8 +370,9 @@ export const itemsEdit = async (
       action: "sendMobileNotification",
       data: {
         title: notificationDoc?.item?.name,
-        body: `${user?.details?.fullName || user?.details?.shortName
-          } has updated`,
+        body: `${
+          user?.details?.fullName || user?.details?.shortName
+        } has updated`,
         receivers: notificationDoc?.item?.assignedUserIds,
         data: {
           type,
@@ -876,11 +882,91 @@ export const generateTotalAmount = (productsData) => {
   return totalAmount;
 };
 
+const subtractScoreCampaign = async (
+  subdomain: string,
+  paymentType: any,
+  doc: IDeal,
+  customerId: string,
+  target: any,
+  _id: string
+) => {
+  if (!paymentType) {
+    return;
+  }
+
+  const { scoreCampaignId, title } = paymentType || {};
+
+  if (!scoreCampaignId) {
+    return;
+  }
+
+  const scoreCampaign = await sendLoyaltiesMessage({
+    subdomain,
+    action: "scoreCampaign.findOne",
+    data: { _id: scoreCampaignId },
+    defaultValue: null,
+    isRPC: true,
+  });
+
+  if (!scoreCampaign) {
+    return;
+  }
+
+  const { additionalConfig = {} } = scoreCampaign || {};
+
+  const stageIds =
+    additionalConfig?.cardBasedRule?.flatMap(({ stageIds }) => stageIds) || [];
+
+  if (stageIds.includes(doc.stageId)) {
+    await sendLoyaltiesMessage({
+      subdomain,
+      action: "doScoreCampaign",
+      data: {
+        ownerType: "customer",
+        ownerId: customerId,
+        campaignId: scoreCampaignId,
+        target,
+        actionMethod: "subtract",
+        serviceName: "sales",
+        targetId: _id,
+      },
+      isRPC: true,
+    }).catch((error) => {
+      debugError(error);
+      throw new Error(error.message);
+    });
+  }
+};
+
+const refundScoreCampaign = async (
+  subdomain: string,
+  _id: string,
+  customerId: string,
+  pipeline: any,
+  checkInId: string
+) => {
+  await sendLoyaltiesMessage({
+    subdomain,
+    action: "refundLoyaltyScore",
+    data: {
+      targetId: _id,
+      ownerType: "customer",
+      ownerId: customerId,
+
+      scoreCampaignIds: (pipeline?.paymentTypes || []).map(
+        ({ scoreCampaignId }) => scoreCampaignId
+      ),
+      checkInId,
+    },
+    isRPC: true,
+  });
+};
+
 export const doScoreCampaign = async (
   subdomain: string,
   models: IModels,
   _id: string,
-  doc: IDeal
+  doc: IDeal,
 ) => {
   if (!doc?.paymentsData) {
     return;
@@ -893,7 +979,6 @@ export const doScoreCampaign = async (
   const pipeline = await models.Pipelines.findOne({
     _id: stage?.pipelineId,
     "paymentTypes.scoreCampaignId": { $exists: true },
-    "paymentTypes.type": { $in: types },
   });
 
   const target: any = {
@@ -904,91 +989,42 @@ export const doScoreCampaign = async (
     totalAmount: generateTotalAmount(doc.productsData),
   };
 
-  if (pipeline) {
-    const [customerId] = (await getCustomerIds(subdomain, "deal", _id)) || [];
+  const [customerId] = (await getCustomerIds(subdomain, "deal", _id)) || [];
 
-    if (customerId) {
-      const scoreCampaignTypes = (pipeline?.paymentTypes || []).filter(
-        ({ scoreCampaignId }) => !!scoreCampaignId
-      );
-      target.excludeAmount = Object.entries(doc.paymentsData)
-        .filter(
-          ([type]) => !scoreCampaignTypes.map(({ type }) => type).includes(type)
-        )
-        .map(([type, obj]) => ({
-          type,
-          ...obj,
-        }))
-        .reduce((sum, payment) => sum + (payment?.amount || 0), 0);
-      for (const type of types) {
-        const paymentType = scoreCampaignTypes.find(
-          (paymentType) => paymentType.type === type
-        );
-        if (paymentType) {
-          const { scoreCampaignId, title } = paymentType || {};
-          if (!scoreCampaignId) {
-            continue;
-          }
-
-          const scoreCampaign = await sendLoyaltiesMessage({
-            subdomain,
-            action: "scoreCampaign.findOne",
-            data: { _id: scoreCampaignId },
-            defaultValue: null,
-            isRPC: true,
-          });
-
-          if (scoreCampaign) {
-            const { additionalConfig = {} } = scoreCampaign || {};
-
-            const stageIds = additionalConfig?.cardBasedRule?.flatMap(
-              ({ stageIds }) => stageIds
-            ) || [];
-
-            if (stageIds.includes(doc.stageId)) {
-              await sendLoyaltiesMessage({
-                subdomain,
-                action: "checkScoreAviableSubtract",
-                data: {
-                  ownerType: "customer",
-                  ownerId: customerId,
-                  campaignId: scoreCampaignId,
-                  target,
-                  targetId: _id,
-                },
-                isRPC: true,
-                defaultValue: false,
-              }).catch((error) => {
-                if (error.message === "There has no enough score to subtract") {
-                  throw new Error(
-                    `There has no enough score to subtract using ${title}`
-                  );
-                }
-                throw new Error(error.message);
-              });
-              await sendLoyaltiesMessage({
-                subdomain,
-                action: "doScoreCampaign",
-                data: {
-                  ownerType: "customer",
-                  ownerId: customerId,
-                  campaignId: scoreCampaignId,
-                  target,
-                  actionMethod: "subtract",
-                  serviceName: "sales",
-                  targetId: _id,
-                },
-                isRPC: true,
-              }).catch((error) => {
-                debugError(error);
-                throw new Error(error.message);
-              });
-            }
-          }
-        }
-      }
-    }
+  if (!pipeline || !customerId) {
+    return;
   }
+
+  const scoreCampaignTypes = (pipeline?.paymentTypes || []).filter(
+    ({ scoreCampaignId }) => !!scoreCampaignId
+  );
+
+  target.excludeAmount = Object.entries(doc.paymentsData)
+    .filter(
+      ([type]) => !scoreCampaignTypes.map(({ type }) => type).includes(type)
+    )
+    .map(([type, obj]) => ({
+      type,
+      ...obj,
+    }))
+    .reduce((sum, payment) => sum + (payment?.amount || 0), 0);
+
+  for (const type of types) {
+    const paymentType = scoreCampaignTypes.find(
+      (paymentType) => paymentType.type === type
+    );
+
+    await subtractScoreCampaign(
+      subdomain,
+      paymentType,
+      doc,
+      customerId,
+      target,
+      _id
+    );
+  }
+
+  await refundScoreCampaign(subdomain, _id, customerId, pipeline, doc.stageId);
 };
 
 export const confirmLoyalties = async (
@@ -1019,7 +1055,7 @@ export const confirmLoyalties = async (
         },
       },
     });
-  } catch (e) { }
+  } catch (e) {}
 };
 
 export const checkPricing = async (
@@ -1029,7 +1065,9 @@ export const checkPricing = async (
 ) => {
   let pricing: any = {};
 
-  const activeProductsData = deal.productsData?.filter(pd => pd.tickUsed) || [];
+  const activeProductsData =
+    deal.productsData?.filter((pd) => pd.tickUsed && !pd.bonusCount) || [];
+
   if (!activeProductsData.length) {
     return deal.productsData;
   }
@@ -1037,25 +1075,29 @@ export const checkPricing = async (
   const stage = await models.Stages.getStage(deal.stageId);
 
   try {
-    const totalAmount = activeProductsData.reduce((sum, pd) => sum + (pd.amount || 0), 0)
+    const totalAmount = activeProductsData.reduce(
+      (sum, pd) => sum + (pd.amount || 0),
+      0
+    );
     pricing = await sendPricingMessage({
       subdomain,
-      action: 'checkPricing',
+      action: "checkPricing",
       data: {
-        prioritizeRule: 'exclude',
+        prioritizeRule: "exclude",
         totalAmount,
-        departmentId: deal.departmentIds?.length && deal.departmentIds[0] || '',
-        branchId: deal.branchIds?.length && deal.branchIds[0] || '',
+        departmentId:
+          (deal.departmentIds?.length && deal.departmentIds[0]) || "",
+        branchId: (deal.branchIds?.length && deal.branchIds[0]) || "",
         pipelineId: stage.pipelineId,
-        products: activeProductsData.map(i => ({
+        products: activeProductsData.map((i) => ({
           itemId: i._id,
           productId: i.productId,
           quantity: i.quantity,
           price: i.unitPrice,
-        }))
+        })),
       },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
     });
   } catch (e) {
     console.log(e.message);
@@ -1064,7 +1106,7 @@ export const checkPricing = async (
   let bonusProductsToAdd: any = {};
 
   for (const item of activeProductsData || []) {
-    const discount = pricing[item._id ?? ''];
+    const discount = pricing[item._id ?? ""];
 
     if (discount) {
       if (discount.bonusProducts.length !== 0) {
@@ -1073,49 +1115,49 @@ export const checkPricing = async (
             bonusProductsToAdd[bonusProduct].count += 1;
           } else {
             bonusProductsToAdd[bonusProduct] = {
-              count: 1
+              count: 1,
             };
           }
         }
       }
-      item.discountPercent = fixNum(discount.value * 100 / (item.unitPrice ?? 1), 8)
+      item.discountPercent = fixNum(
+        (discount.value * 100) / (item.unitPrice ?? 1),
+        8
+      );
       item.discount = fixNum(discount.value * item.quantity);
       item.amount = fixNum((item.unitPrice - discount.value) * item.quantity);
     }
   }
 
+  const addBonusPData: IProductData[] = [];
+
   for (const bonusProductId of Object.keys(bonusProductsToAdd)) {
-    const orderIndex = activeProductsData.findIndex(
-      (docItem: any) => docItem.productId === bonusProductId
-    );
+    const bonusProduct: any = {
+      _id: nanoid(),
+      productId: bonusProductId,
+      bonusCount: bonusProductsToAdd[bonusProductId].count,
+      unitPrice: 0,
+      quantity: bonusProductsToAdd[bonusProductId].count,
+      amount: 0,
+      tickUsed: true,
+    };
 
-    if (orderIndex === -1) {
-      const bonusProduct: any = {
-        productId: bonusProductId,
-        unitPrice: 0,
-        quantity: bonusProductsToAdd[bonusProductId].count,
-        amount: 0,
-        tickUsed: true
-      };
-
-      activeProductsData.push(bonusProduct);
-    } else {
-      const item = activeProductsData[orderIndex];
-
-      item.bonusCount = bonusProductsToAdd[bonusProductId].count;
-
-      if ((item.bonusCount || 0) > item.quantity) {
-        item.quantity = item.bonusCount || 0;
-      }
-      item.discountPercent = fixNum(100 * (1 - (item.quantity - (item.bonusCount || 0)) / item.quantity), 8);
-      item.discount = fixNum((item.unitPrice / 100 * item.discountPercent) * item.quantity);
-    }
+    addBonusPData.push(bonusProduct);
   }
 
-  return [...activeProductsData, ...(deal.productsData?.filter(pd => !pd.tickUsed) || [])];
+  return [
+    ...(deal.productsData || [])
+      .filter((pd) => !pd.bonusCount)
+      .map((pd) => activeProductsData.find((apd) => apd._id === pd._id) || pd),
+    ...addBonusPData,
+  ];
 };
 
-export const checkAssignedUserFromPData = (oldAllUserIds?: string[], assignedUsersPdata?: string[], oldPData?: IProductData[]) => {
+export const checkAssignedUserFromPData = (
+  oldAllUserIds?: string[],
+  assignedUsersPdata?: string[],
+  oldPData?: IProductData[]
+) => {
   let assignedUserIds = oldAllUserIds || [];
 
   const oldAssignedUserPdata = (oldPData || [])
@@ -1133,5 +1175,6 @@ export const checkAssignedUserFromPData = (oldAllUserIds?: string[], assignedUse
       (userId) => !removedUserIds.includes(userId)
     );
   }
-  return assignedUserIds;
-}
+
+  return { assignedUserIds, addedUserIds, removedUserIds };
+};

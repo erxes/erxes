@@ -1,38 +1,38 @@
-import { Alert, __, getConstantFromStore } from "@erxes/ui/src/utils";
+import { IUser, IUserLinks } from "@erxes/ui/src/auth/types";
 import {
   DateContainer,
   FormColumn,
   FormWrapper,
   ModalFooter,
-  ScrollWrapper
+  ScrollWrapper,
 } from "@erxes/ui/src/styles/main";
-import {
-  EMAIL_VALIDATION_STATUSES,
-  PHONE_VALIDATION_STATUSES
-} from "../constants";
 import {
   IButtonMutateProps,
   IFormProps,
-  IQueryParams
+  IQueryParams,
 } from "@erxes/ui/src/types";
-import { ICustomer, ICustomerDoc } from "../types";
-import { IUser, IUserLinks } from "@erxes/ui/src/auth/types";
-import { genderChoices, isValidPhone } from "../utils";
+import { Alert, __, getConstantFromStore } from "@erxes/ui/src/utils";
 import { getVersion } from "@erxes/ui/src/utils/core";
+import {
+  EMAIL_VALIDATION_STATUSES,
+  PHONE_VALIDATION_STATUSES,
+} from "../constants";
+import { ICustomer, ICustomerDoc } from "../types";
+import { genderChoices } from "../utils";
 
-import AutoCompletionSelect from "@erxes/ui/src/components/AutoCompletionSelect";
+import RelationForm from "@erxes/ui-forms/src/forms/containers/RelationForm";
 import AvatarUpload from "@erxes/ui/src/components/AvatarUpload";
 import Button from "@erxes/ui/src/components/Button";
 import CollapseContent from "@erxes/ui/src/components/CollapseContent";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
 import Form from "@erxes/ui/src/components/form/Form";
-import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import React from "react";
-import RelationForm from "@erxes/ui-forms/src/forms/containers/RelationForm";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import validator from "validator";
+import React from "react";
+import InputRow from "./InputRow";
+// import { automationsRemoveNote } from "@erxes/ui-automations/src/graphql/resolvers/mutations/automations";
 
 type Props = {
   currentUser: IUser;
@@ -52,12 +52,12 @@ type State = {
   hasAuthority: string;
   users: IUser[];
   avatar: string;
-  phones?: string[];
-  emails?: string[];
-  primaryPhone?: string;
+  showPhoneEditor: boolean;
   birthDate: string;
-  primaryEmail?: string;
   relationData?: any;
+
+  emails?: { email: string; type: string }[];
+  phones?: { phone: string; type: string }[];
 };
 
 class CustomerForm extends React.Component<Props, State> {
@@ -71,11 +71,13 @@ class CustomerForm extends React.Component<Props, State> {
       ownerId: customer.ownerId || userId,
       isSubscribed: customer.isSubscribed || "Yes",
       hasAuthority: customer.hasAuthority || "No",
+      showPhoneEditor: false,
       users: [],
       birthDate: customer.birthDate,
       avatar: customer.avatar,
-      primaryEmail: customer.primaryEmail,
-      primaryPhone: customer.primaryPhone
+
+      emails: customer.emails,
+      phones: customer.phones,
     };
   }
 
@@ -89,7 +91,7 @@ class CustomerForm extends React.Component<Props, State> {
 
     const links = {};
 
-    getConstantFromStore("social_links").forEach(link => {
+    getConstantFromStore("social_links").forEach((link) => {
       links[link.value] = finalValues[link.value];
     });
 
@@ -105,14 +107,16 @@ class CustomerForm extends React.Component<Props, State> {
       leadStatus: finalValues.leadStatus,
       description: finalValues.description,
       code: finalValues.code,
+      emails: this.state.emails || [],
       emailValidationStatus: finalValues.emailValidationStatus,
+      registrationNumber: finalValues.registrationNumber,
       phoneValidationStatus: finalValues.phoneValidationStatus,
       links,
-      relationData: this.state.relationData
+      relationData: this.state.relationData,
     };
   };
 
-  onAvatarUpload = url => {
+  onAvatarUpload = (url) => {
     this.setState({ avatar: url });
   };
 
@@ -204,19 +208,11 @@ class CustomerForm extends React.Component<Props, State> {
     );
   };
 
-  onEmailChange = ({ options, selectedOption }) => {
-    this.setState({ emails: options, primaryEmail: selectedOption });
-  };
-
-  onPhoneChange = ({ options, selectedOption }) => {
-    this.setState({ phones: options, primaryPhone: selectedOption });
-  };
-
-  onOwnerChange = ownerId => {
+  onOwnerChange = (ownerId) => {
     this.setState({ ownerId });
   };
 
-  onDateChange = birthDate => {
+  onDateChange = (birthDate) => {
     const currentDate = new Date();
     if (currentDate > birthDate) {
       this.setState({ birthDate });
@@ -233,7 +229,7 @@ class CustomerForm extends React.Component<Props, State> {
     }
   };
 
-  onEmailVerificationStatusChange = e => {
+  onEmailVerificationStatusChange = (e) => {
     const { changeVerificationStatus } = this.props;
 
     if (changeVerificationStatus) {
@@ -241,7 +237,7 @@ class CustomerForm extends React.Component<Props, State> {
     }
   };
 
-  onPhoneVerificationStatusChange = e => {
+  onPhoneVerificationStatusChange = (e) => {
     const { changeVerificationStatus } = this.props;
 
     if (changeVerificationStatus) {
@@ -267,9 +263,32 @@ class CustomerForm extends React.Component<Props, State> {
         ...formProps,
         name: link.value,
         defaultValue: links[link.value] || "",
-        type: "url"
+        type: "url",
       },
       "link"
+    );
+  }
+
+  renderContactRow(forType: "phone" | "email") {
+    const { customer = {}, autoCompletionQuery } = this.props || {};
+
+    const field = `${forType}s`;
+
+    const onChange = (values: any[]) => {
+      this.setState({ [field]: values } as unknown as Pick<State, keyof State>);
+    };
+
+    return (
+      <>
+        <ControlLabel>{forType}</ControlLabel>
+        <InputRow
+          forType={forType}
+          data={customer[field] || []}
+          onChange={onChange}
+          query={autoCompletionQuery}
+          queryName="customers"
+        />
+      </>
     );
   }
 
@@ -279,7 +298,7 @@ class CustomerForm extends React.Component<Props, State> {
     const { values, isSubmitted, resetSubmit } = formProps;
 
     const customer = this.props.customer || ({} as ICustomer);
-    const { primaryEmail, primaryPhone, ownerId } = customer;
+    const { ownerId } = customer;
 
     return (
       <>
@@ -300,7 +319,7 @@ class CustomerForm extends React.Component<Props, State> {
                 {this.renderFormGroup("Code", {
                   ...formProps,
                   name: "code",
-                  defaultValue: customer.code || ""
+                  defaultValue: customer.code || "",
                 })}
 
                 {this.renderFormGroup(
@@ -310,7 +329,7 @@ class CustomerForm extends React.Component<Props, State> {
                     name: "ownerId",
                     initialValue: ownerId,
                     onSelect: this.onOwnerChange,
-                    multi: false
+                    multi: false,
                   },
                   "selectMember"
                 )}
@@ -339,20 +358,14 @@ class CustomerForm extends React.Component<Props, State> {
                 </FormGroup>
 
                 <FormGroup>
-                  <ControlLabel required={true}>Email</ControlLabel>
-                  <AutoCompletionSelect
-                    required={true}
-                    defaultValue={primaryEmail}
-                    defaultOptions={this.getEmailsOptions(customer)}
-                    autoCompletionType="emails"
-                    placeholder="Enter an email"
-                    queryName="customers"
-                    query={autoCompletionQuery}
-                    checkFormat={validator.isEmail}
-                    onChange={this.onEmailChange}
+                  <ControlLabel>Registration Number</ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    name="registrationNumber"
+                    defaultValue={customer.registrationNumber || ""}
                   />
                 </FormGroup>
-
+                <FormGroup>{this.renderContactRow("email")}</FormGroup>
                 <FormGroup>
                   <ControlLabel>Primary email verification status</ControlLabel>
                   <FormControl
@@ -370,13 +383,13 @@ class CustomerForm extends React.Component<Props, State> {
                   name: "sex",
                   componentclass: "select",
                   defaultValue: customer.sex || 0,
-                  options: genderChoices(__)
+                  options: genderChoices(__),
                 })}
 
                 {this.renderFormGroup("Department", {
                   ...formProps,
                   name: "department",
-                  defaultValue: customer.department || ""
+                  defaultValue: customer.department || "",
                 })}
 
                 {this.renderFormGroup("Description", {
@@ -384,7 +397,7 @@ class CustomerForm extends React.Component<Props, State> {
                   name: "description",
                   defaultValue: customer.description || "",
                   max: 140,
-                  componentclass: "textarea"
+                  componentclass: "textarea",
                 })}
               </FormColumn>
               <FormColumn>
@@ -405,25 +418,11 @@ class CustomerForm extends React.Component<Props, State> {
                     name: "birthDate",
                     placeholder: "Birthday",
                     value: this.state.birthDate,
-                    onChange: this.onDateChange
+                    onChange: this.onDateChange,
                   },
                   "date"
                 )}
-
-                <FormGroup>
-                  <ControlLabel>Phone</ControlLabel>
-                  <AutoCompletionSelect
-                    defaultValue={primaryPhone}
-                    defaultOptions={this.getPhonesOptions(customer)}
-                    autoCompletionType="phones"
-                    placeholder="Enter a phone"
-                    queryName="customers"
-                    query={autoCompletionQuery}
-                    checkFormat={isValidPhone}
-                    onChange={this.onPhoneChange}
-                  />
-                </FormGroup>
-
+                <FormGroup>{this.renderContactRow("phone")}</FormGroup>
                 <FormGroup>
                   <ControlLabel>Primary phone verification status</ControlLabel>
                   <FormControl
@@ -438,7 +437,7 @@ class CustomerForm extends React.Component<Props, State> {
                 {this.renderFormGroup("Position", {
                   ...formProps,
                   name: "position",
-                  defaultValue: customer.position || ""
+                  defaultValue: customer.position || "",
                 })}
 
                 {this.renderFormGroup("Has Authority", {
@@ -450,17 +449,17 @@ class CustomerForm extends React.Component<Props, State> {
                       childnode: "Yes",
                       value: "Yes",
                       checked: this.state.hasAuthority === "Yes",
-                      onChange: e =>
-                        this.setState({ hasAuthority: e.target.value })
+                      onChange: (e) =>
+                        this.setState({ hasAuthority: e.target.value }),
                     },
                     {
                       childnode: "No",
                       value: "No",
                       checked: this.state.hasAuthority === "No",
-                      onChange: e =>
-                        this.setState({ hasAuthority: e.target.value })
-                    }
-                  ]
+                      onChange: (e) =>
+                        this.setState({ hasAuthority: e.target.value }),
+                    },
+                  ],
                 })}
 
                 {this.renderFormGroup("Subscribed", {
@@ -472,17 +471,17 @@ class CustomerForm extends React.Component<Props, State> {
                       childnode: "Yes",
                       value: "Yes",
                       checked: this.state.isSubscribed === "Yes",
-                      onChange: e =>
-                        this.setState({ isSubscribed: e.target.value })
+                      onChange: (e) =>
+                        this.setState({ isSubscribed: e.target.value }),
                     },
                     {
                       childnode: "No",
                       value: "No",
                       checked: this.state.isSubscribed === "No",
-                      onChange: e =>
-                        this.setState({ isSubscribed: e.target.value })
-                    }
-                  ]
+                      onChange: (e) =>
+                        this.setState({ isSubscribed: e.target.value }),
+                    },
+                  ],
                 })}
               </FormColumn>
             </FormWrapper>
@@ -528,7 +527,7 @@ class CustomerForm extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             object: this.props.customer,
-            resetSubmit
+            resetSubmit,
           })}
 
           {!this.props.customer && (

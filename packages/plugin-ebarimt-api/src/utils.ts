@@ -411,6 +411,63 @@ const calcPreTaxPercentage = (paymentTypes, deal) => {
   return { itemAmountPrePercent, preTaxPaymentTypes }
 }
 
+const calcGrouped = async (models: IModels, activeProductsData: any[]) => {
+  let productsData = activeProductsData.map((pd, ind) => ({ ...pd, ind }));
+
+  const productsIds = productsData.map(item => item.productId);
+
+  const groups = await models.ProductGroups.find({ isActive: true, mainProductId: { $in: productsIds }, subProductId: { $in: productsIds } }).sort({ sortNum: 1 }).lean();
+  const addProdData: any[] = [];
+
+  for (const group of groups) {
+    const { mainProductId, subProductId } = group;
+    const mainData = productsData.find(pd => pd.productId === mainProductId && pd.quantity);
+    const subData = productsData.find(pd => pd.productId === subProductId && pd.quantity);
+
+    if (mainData && subData) {
+      const quantity = Math.min(mainData.quantity, subData.quantity);
+      const mainRatio = quantity / mainData.quantity;
+      const subRatio = quantity / subData.quantity;
+      addProdData.push({
+        ...mainData,
+        _id: `${mainData._id}@${subData._id}`,
+        quantity,
+        amount: fixNum(mainData.amount * mainRatio + subData.amount * subRatio),
+        discount: fixNum((mainData.discount ?? 0) * mainRatio + (subData.discount ?? 0) * subRatio),
+        unitPrice: fixNum(mainData.unitPrice + subData.unitPrice),
+      })
+
+      productsData = productsData.map(pd => {
+        if (pd._id === mainData._id) {
+          const newQuantity = fixNum(pd.quantity - quantity);
+          const amountRatio = newQuantity / pd.quantity;
+          return {
+            ...pd,
+            quantity: newQuantity,
+            amount: fixNum(mainData.amount * amountRatio),
+            discount: fixNum((mainData.discount ?? 0) * amountRatio),
+          }
+        }
+        if (pd._id === subData._id) {
+          const newQuantity = fixNum(pd.quantity - quantity);
+          const amountRatio = newQuantity / pd.quantity;
+          return {
+            ...pd,
+            quantity: newQuantity,
+            amount: fixNum(subData.amount * amountRatio),
+            discount: fixNum((subData.discount ?? 0) * amountRatio),
+          }
+        }
+        return pd
+      })
+    }
+  }
+
+  const newProductsData = [...productsData.filter(pd => pd.quantity), ...addProdData];
+
+  return newProductsData.sort((a, b) => a.ind - b.ind);
+}
+
 export const getPostData = async (subdomain, models: IModels, config, deal, paymentTypes) => {
   const { type, customerCode, customerName, customerTin } = await checkBillType(
     subdomain,
@@ -418,7 +475,7 @@ export const getPostData = async (subdomain, models: IModels, config, deal, paym
     deal
   );
 
-  const activeProductsData = deal.productsData.filter(prData => prData.tickUsed);
+  const activeProductsData = await calcGrouped(models, deal.productsData.filter(prData => prData.tickUsed));
   const productsIds = activeProductsData.map(item => item.productId);
 
   const firstProducts = await sendCoreMessage({
@@ -445,26 +502,31 @@ export const getPostData = async (subdomain, models: IModels, config, deal, paym
     customerTin,
 
     details: activeProductsData
-      .map(prData => {
+      .filter(prData => {
         const product = productsById[prData.productId];
         if (!product) {
-          return;
+          return false;
         }
-
+        return true;
+      })
+      .map(prData => {
+        const product = productsById[prData.productId];
         const tempAmount = prData.amount;
         const minusAmount = (tempAmount / 100) * itemAmountPrePercent;
         const totalAmount = fixNum(tempAmount - minusAmount, 4);
 
         return {
+          recId: prData._id,
           product,
           quantity: prData.quantity,
-          totalDiscount: (prData.discountAmount ?? 0) + minusAmount,
+          totalDiscount: (prData.discount ?? 0) + minusAmount,
           unitPrice: prData.unitPrice,
           totalAmount
         };
       }),
-    nonCashAmounts: Object.keys(deal.paymentsData || {}).filter(pay => !preTaxPaymentTypes.includes(pay)).map(pay => ({
-      amount: deal.paymentsData[pay].amount
+    nonCashAmounts: Object.keys(deal.paymentsData || {}).filter(pay => !preTaxPaymentTypes.includes(pay)).filter(pay => pay !== 'cash').map(pay => ({
+      amount: deal.paymentsData[pay].amount,
+      type: pay
     }))
   };
 };

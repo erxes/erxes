@@ -171,6 +171,10 @@ export interface IUserModel extends Model<IUserDocument> {
     oldClientPortalId: string,
     newClientPortalId: string
   ): Promise<{ userIds: string[]; clientPortalId: string }>;
+  changeCustomer(
+    newCustomerId: string,
+    customerIds: string[]
+  ): Promise<IClientPortalDocument[]>;
 }
 
 export const loadClientPortalUserClass = (models: IModels) => {
@@ -1313,6 +1317,21 @@ export const loadClientPortalUserClass = (models: IModels) => {
       const updatedUsers = await models.ClientPortalUsers.updateMany(
         { _id: { $in: userIdsToUpdate } },
         { $set: { clientPortalId: newClientPortalId, modifiedAt: new Date() } }
+      );
+
+      return updatedUsers;
+    }
+
+    /**
+     * Transfers erxes customer id to another customer
+     */
+    public static async changeCustomer(
+      newCustomerId: string,
+      customerIds: string[]
+    ) {
+      const updatedUsers = await models.ClientPortalUsers.updateMany(
+        { erxesCustomerId: { $in: customerIds } },
+        { $set: { erxesCustomerId: newCustomerId } }
       );
 
       return updatedUsers;

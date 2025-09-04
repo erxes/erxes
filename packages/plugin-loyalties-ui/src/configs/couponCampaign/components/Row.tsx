@@ -4,21 +4,25 @@ import {
   FormControl,
   ModalTrigger,
   TextInfo,
-} from '@erxes/ui/src/components';
-import * as dayjs from 'dayjs';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import Form from '../containers/Form';
-import { ICouponCampaign } from '../types';
+  Toggle,
+} from "@erxes/ui/src/components";
+import * as dayjs from "dayjs";
+import React from "react";
+import { Link } from "react-router-dom";
+import Form from "../containers/Form";
+import { ICouponCampaign } from "../types";
+// @ts-ignore
+import WithPermission from "coreui/withPermission";
 
 type Props = {
   couponCampaign: ICouponCampaign;
   toggleBulk: (couponCampaign: ICouponCampaign, isChecked?: boolean) => void;
   isChecked: boolean;
+  handleStatus: () => void;
 };
 
 const Row = (props: Props) => {
-  const { couponCampaign, toggleBulk, isChecked } = props;
+  const { couponCampaign, toggleBulk, isChecked, handleStatus } = props;
 
   const { _id, title, startDate, kind, endDate, finishDateOfUse, status } =
     couponCampaign;
@@ -52,12 +56,17 @@ const Row = (props: Props) => {
         />
       </td>
       <td>{title}</td>
-      <td>{dayjs(startDate).format('YYYY-MM-DD')}</td>
-      <td>{dayjs(endDate).format('YYYY-MM-DD')}</td>
-      <td>{dayjs(finishDateOfUse).format('YYYY-MM-DD')}</td>
+      <td>{dayjs(startDate).format("YYYY-MM-DD")}</td>
+      <td>{dayjs(endDate).format("YYYY-MM-DD")}</td>
+      <td>{dayjs(finishDateOfUse).format("YYYY-MM-DD")}</td>
       <td>{kind}</td>
-      <td>
-        <TextInfo>{status}</TextInfo>
+      <td onClick={onClick}>
+        <WithPermission
+          action="manageLoyalties"
+          fallbackComponent={<TextInfo>{status}</TextInfo>}
+        >
+          <Toggle checked={status === "active"} onChange={handleStatus} />
+        </WithPermission>
       </td>
       <td onClick={onClick}>
         <ActionButtons>
@@ -71,7 +80,7 @@ const Row = (props: Props) => {
 
   return (
     <ModalTrigger
-      size={'lg'}
+      size={"lg"}
       title="Edit coupon campaign"
       trigger={trigger}
       autoOpenKey="showCouponCampaignModal"

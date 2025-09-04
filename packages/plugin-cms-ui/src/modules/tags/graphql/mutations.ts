@@ -9,8 +9,8 @@ mutation CmsTagsAdd($input: PostTagInput!) {
 `;
 
 const TAG_EDIT = gql`
-mutation CmsTagsEdit($id: String!, $input: PostTagInput!) {
-  cmsTagsEdit(_id: $id, input: $input) {
+mutation CmsTagsEdit($_id: String!, $input: PostTagInput!) {
+  cmsTagsEdit(_id: $_id, input: $input) {
     _id
   }
 }

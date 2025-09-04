@@ -2,19 +2,24 @@ import {
   FormControl,
   ModalTrigger,
   TextInfo,
-} from '@erxes/ui/src/components';
-import Button from '@erxes/ui/src/components/Button';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { VOUCHER_TYPES } from '../../../constants';
-import Form from '../containers/Form';
-import { IVoucherCampaign } from '../types';
+  Toggle,
+} from "@erxes/ui/src/components";
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import Button from "@erxes/ui/src/components/Button";
+import * as dayjs from "dayjs";
+import React from "react";
+import { Link } from "react-router-dom";
+import { VOUCHER_TYPES } from "../../../constants";
+import Form from "../containers/Form";
+import { IVoucherCampaign } from "../types";
+// @ts-ignore
+import WithPermission from "coreui/withPermission";
 
 type Props = {
   voucherCampaign: IVoucherCampaign;
   isChecked: boolean;
   toggleBulk: (voucherCampaign: IVoucherCampaign, isChecked?: boolean) => void;
+  handleStatus: () => void;
 };
 
 class Row extends React.Component<Props> {
@@ -30,7 +35,7 @@ class Row extends React.Component<Props> {
   };
 
   render() {
-    const { voucherCampaign, toggleBulk, isChecked } = this.props;
+    const { voucherCampaign, toggleBulk, isChecked, handleStatus } = this.props;
 
     const onChange = (e) => {
       if (toggleBulk) {
@@ -62,17 +67,22 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>{title}</td>
-        <td>{new Date(startDate).toLocaleDateString()}</td>
-        <td>{new Date(endDate).toLocaleDateString()}</td>
-        <td>{new Date(finishDateOfUse).toLocaleDateString()}</td>
+        <td>{dayjs(startDate).format("YYYY-MM-DD")}</td>
+        <td>{dayjs(endDate).format("YYYY-MM-DD")}</td>
+        <td>{dayjs(finishDateOfUse).format("YYYY-MM-DD")}</td>
         <td>{(VOUCHER_TYPES[voucherType] || {}).label}</td>
-        <td>
-          <TextInfo>{status}</TextInfo>
+        <td onClick={onClick}>
+          <WithPermission
+            action="manageLoyalties"
+            fallbackComponent={<TextInfo>{status}</TextInfo>}
+          >
+            <Toggle checked={status === "active"} onChange={handleStatus} />
+          </WithPermission>
         </td>
         <td onClick={onClick}>
           <ActionButtons>
             <Link to={`/vouchers?campaignId=${_id}`}>
-              <Button btnStyle='link' icon='list-2' />
+              <Button btnStyle="link" icon="list-2" />
             </Link>
           </ActionButtons>
         </td>
@@ -81,7 +91,7 @@ class Row extends React.Component<Props> {
 
     return (
       <ModalTrigger
-        size={'lg'}
+        size={"lg"}
         title="Edit voucher campaign"
         trigger={trigger}
         autoOpenKey="showProductModal"
