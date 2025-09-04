@@ -33,11 +33,7 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
 
   const doc = JSON.parse(payload || "{}");
 
-<<<<<<< HEAD
   if (action === "get-create-update-customer") {
-=======
-  if (action === 'get-create-update-customer') {
->>>>>>> 1e951faf72f0bedcb27e9c49eff1cee5198bda02
     const integration = await Integrations.findOne({
       _id: doc.integrationId,
     });
@@ -102,11 +98,7 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
     return sendSuccess({ _id: customer._id });
   }
 
-<<<<<<< HEAD
   if (action === "create-or-update-conversation") {
-=======
-  if (action === 'create-or-update-conversation') {
->>>>>>> 1e951faf72f0bedcb27e9c49eff1cee5198bda02
     const {
       conversationId,
       content,
