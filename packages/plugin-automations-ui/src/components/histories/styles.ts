@@ -1,6 +1,6 @@
-import styled from 'styled-components';
-import { dimensions, colors } from '@erxes/ui/src/styles';
-import { FilterItem } from '@erxes/ui-settings/src/permissions/styles';
+import styled from "styled-components";
+import { dimensions, colors } from "@erxes/ui/src/styles";
+import { FilterItem } from "@erxes/ui-settings/src/permissions/styles";
 
 export const HistoriesWrapper = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -31,4 +31,5 @@ export const LabelContainer = styled.div`
   flex-direction: row;
   flex-wrap: wrap;
   gap: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  padding: 12px;
 `;

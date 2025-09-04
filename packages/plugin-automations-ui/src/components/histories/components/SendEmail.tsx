@@ -9,6 +9,29 @@ type Props = {
   hideTemplate?: boolean;
 };
 
+const getLabelColor = (response) => {
+  if (response?.messageId) {
+    return "success";
+  }
+  if (response?.error) {
+    return "danger";
+  }
+  return "default";
+};
+
+const getLabelText = (response) => {
+  if (response.error) {
+    return typeof response?.error === "object"
+      ? JSON.stringify(response.error || {})
+      : `${response?.error}`;
+  }
+
+  if (response.messageId) {
+    return "Sent";
+  }
+
+  return "";
+};
 class SendEmail extends React.Component<Props> {
   constructor(props) {
     super(props);
@@ -30,36 +53,14 @@ class SendEmail extends React.Component<Props> {
     );
   }
 
-  renderEmails({ fromEmail, title, responses, ccEmails = [] }) {
-    const getLabelColor = (response) => {
-      if (response?.messageId) {
-        return "success";
-      }
-      if (response?.error) {
-        return "danger";
-      }
-      return "default";
-    };
-
-    const getLabelText = (response) => {
-      if (response.error) {
-        return typeof response?.error === "object"
-          ? JSON.stringify(response.error || {})
-          : `${response?.error}`;
-      }
-
-      if (response.messageId) {
-        return "Sent";
-      }
-
-      return "";
-    };
+  renderEmails({ fromEmail, title, response }) {
+    const { toEmails = [], ccEmails = [] } = response || {};
 
     return (
       <ul>
         <li>
           <strong>From: </strong>
-          {`${fromEmail || ""}`}
+          {`${response?.from || ""}`}
         </li>
         <li>
           <strong>Subject: </strong>
@@ -68,13 +69,17 @@ class SendEmail extends React.Component<Props> {
         <li>
           <LabelContainer>
             <strong>To: </strong>
-            {responses.map((response, i) => (
+            {toEmails.map((toEmail, i) => (
               <Tip key={i} text={getLabelText(response)}>
                 <Label lblStyle={getLabelColor(response)}>
-                  {response?.toEmail || ""}
+                  {toEmail || ""}
                 </Label>
               </Tip>
             ))}
+          </LabelContainer>
+        </li>
+        <li>
+          <LabelContainer>
             <strong>CC:</strong>
             {ccEmails.map((ccEmail) => (
               <Label key={ccEmail} lblStyle='simple'>
