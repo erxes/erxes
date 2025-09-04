@@ -312,7 +312,11 @@ class SelectWithSearch extends React.Component<
         </components.MultiValue>
       );
     };
-    const filterOption = (_option, _inputValue): boolean => true;
+
+    const filterOption = (option, inputValue): boolean => {
+      if (!inputValue) return true;
+      return option.label.toLowerCase().includes(inputValue.toLowerCase());
+    };
 
     return (
       <Select
