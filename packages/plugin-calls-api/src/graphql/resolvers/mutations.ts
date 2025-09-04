@@ -551,11 +551,6 @@ const callsMutations = {
         { upsert: true },
       );
 
-      await createOrUpdateConversation(
-        subdomain,
-        customer._id,
-        callConversation?.conversationId,
-      );
       return customer;
     } catch (error) {
       throw error;

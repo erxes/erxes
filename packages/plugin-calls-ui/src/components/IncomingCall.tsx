@@ -1,11 +1,21 @@
 import * as PropTypes from 'prop-types';
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Alert, __ } from '@erxes/ui/src/utils';
+import Avatar from '@erxes/ui/src/components/nameCard/Avatar';
+import Icon from '@erxes/ui/src/components/Icon';
+import { renderFullName } from '@erxes/ui/src/utils/core';
+
 import {
   CALL_STATUS_ACTIVE,
   CALL_STATUS_IDLE,
   CALL_STATUS_STARTING,
 } from '../lib/enums';
+import { callPropType, sipPropType } from '../lib/types';
+import { ICustomer } from '../types';
+import { callActions, endCallOption, renderKeyPad } from '../utils';
+
 import {
   IncomingActionButton,
   IncomingButtonContainer,
@@ -23,16 +33,6 @@ import {
   TagItem,
   TagsContainer,
 } from '../styles';
-import React, { useEffect, useRef, useState } from 'react';
-import { callActions, endCallOption, renderKeyPad } from '../utils';
-import { callPropType, sipPropType } from '../lib/types';
-
-import Avatar from '@erxes/ui/src/components/nameCard/Avatar';
-import { ICustomer } from '../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { caller } from '../constants';
-import { renderFullName } from '@erxes/ui/src/utils/core';
-import { useNavigate } from 'react-router-dom';
 
 type Props = {
   customer: ICustomer;
@@ -45,13 +45,13 @@ type Props = {
   currentCallConversationId: string;
 };
 
+const formatNumber = (n: number) =>
+  n.toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false });
+
 const getSpentTime = (seconds: number) => {
   const hours = Math.floor(seconds / 3600);
-
   seconds -= hours * 3600;
-
   const minutes = Math.floor(seconds / 60);
-
   seconds -= minutes * 60;
 
   return (
@@ -65,56 +65,53 @@ const getSpentTime = (seconds: number) => {
   );
 };
 
-const formatNumber = (n: number) => {
-  return n.toLocaleString('en-US', {
-    minimumIntegerDigits: 2,
-    useGrouping: false,
-  });
-};
-
 const IncomingCall = (props: Props, context) => {
   const Sip = context;
-  const { mute, unmute, isMuted, isHolded, hold, unhold, call } = Sip;
+  const { mute, unmute, isMuted, call } = Sip;
   const {
     customer,
+    customers,
     hasMicrophone,
     phoneNumber,
     channels,
     hideIncomingCall,
     currentCallConversationId,
     inboxId,
-    customers,
   } = props;
-  const primaryCustomer =
-    customers.find((c) =>
-      c.phones?.some((p) => p.phone === phoneNumber && p.type === 'primary'),
-    ) || customers[0];
 
-  const [customerDetail, setCustomer] = useState<ICustomer>(primaryCustomer);
+  const [activeCustomer, setActiveCustomer] = useState<ICustomer | null>(
+    customer || null,
+  );
 
-  const primaryPhone = customerDetail?.primaryPhone || '';
+  useEffect(() => {
+    if (customers && customers.length > 0) {
+      const primary =
+        customers.find((c) =>
+          c.phones?.some(
+            (p) => p.phone === phoneNumber && p.type === 'primary',
+          ),
+        ) || customers[0];
+      setActiveCustomer(primary);
+    } else if (customer) {
+      setActiveCustomer(customer);
+    }
+  }, [customers, customer, phoneNumber]);
 
+  const primaryPhone = activeCustomer?.primaryPhone || '';
   const navigate = useNavigate();
 
-  const [haveIncomingCall, setHaveIncomingCall] = useState(
-    primaryPhone ? true : false,
-  );
+  const [haveIncomingCall, setHaveIncomingCall] = useState(!!primaryPhone);
   const [showKeyPad, setShowKeyPad] = useState(false);
   const [code, setCode] = useState('0');
-  const [selectFocus, setSelectFocus] = useState(false);
   const [dialCode, setDialCode] = useState('');
   const [timeSpent, setTimeSpent] = useState(0);
   const [status, setStatus] = useState(
-    call.status === CALL_STATUS_ACTIVE ? 'active' : 'pending',
+    call?.status === CALL_STATUS_ACTIVE ? 'active' : 'pending',
   );
 
-  let direction = context.call?.direction?.split('/')[1];
+  let direction = call?.direction?.split('/')[1];
   direction = direction?.toLowerCase() || '';
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  useEffect(() => {
-    setCustomer(customer);
-  }, [customer]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -123,13 +120,13 @@ const IncomingCall = (props: Props, context) => {
       audioRef.current.src = '/sound/incoming.mp3';
       audioRef.current.play();
     }
+
     if (status === 'accepted') {
       timer = setInterval(() => {
-        setTimeSpent((prevTimeSpent) => prevTimeSpent + 1);
+        setTimeSpent((prev) => prev + 1);
       }, 1000);
-    }
-    if (status !== 'accepted') {
-      if (call.status === CALL_STATUS_STARTING) {
+    } else {
+      if (call?.status === CALL_STATUS_STARTING) {
         localStorage.removeItem('transferredCallStatus');
       }
       setHaveIncomingCall(true);
@@ -142,46 +139,36 @@ const IncomingCall = (props: Props, context) => {
       }
       clearInterval(timer);
     };
-  }, [status, primaryPhone, audioRef.current]);
-
-  const endCall = () => {
-    onDeclineCall();
-  };
+  }, [status, primaryPhone]);
 
   const onAcceptCall = () => {
-    if (audioRef.current && audioRef.current.src) {
+    if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.src = '';
       audioRef.current.load();
     }
-    if (!hasMicrophone) {
-      return Alert.error('Check your microphone');
-    }
+    if (!hasMicrophone) return Alert.error('Check your microphone');
 
     setStatus('accepted');
-    const { answerCall, call } = context;
     setHaveIncomingCall(false);
-    if (answerCall && call?.status !== CALL_STATUS_IDLE) {
-      answerCall();
+    if (context.answerCall && call?.status !== CALL_STATUS_IDLE) {
+      context.answerCall();
     }
   };
 
   const onDeclineCall = () => {
-    if (audioRef.current && audioRef.current.src) {
+    if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.src = '';
       audioRef.current.load();
     }
     setHaveIncomingCall(false);
-    const { stopCall } = context;
-    if (stopCall) {
-      stopCall();
-    }
+    context.stopCall?.();
   };
 
-  const onClickKeyPad = () => {
-    setShowKeyPad(!showKeyPad);
-  };
+  const endCall = () => onDeclineCall();
+
+  const onClickKeyPad = () => setShowKeyPad(!showKeyPad);
 
   const handleAudioToggle = () => {
     if (!isMuted()) {
@@ -191,11 +178,9 @@ const IncomingCall = (props: Props, context) => {
     }
   };
 
-  const handNumPad = (e) => {
+  const handNumPad = (e: string) => {
     let num = code;
     let dialNumber = dialCode;
-
-    setSelectFocus(!selectFocus);
 
     if (e === 'delete') {
       num = code.slice(0, -1);
@@ -207,20 +192,13 @@ const IncomingCall = (props: Props, context) => {
         setCode(num);
       }
     } else {
-      // notfy by sound
-      const audio = new Audio('/sound/clickNumPad.mp3');
-      audio.play();
-
+      new Audio('/sound/clickNumPad.mp3').play();
       num += e;
       if (Sip.call?.status === CALL_STATUS_ACTIVE) {
         dialNumber += e;
-
-        const { sendDtmf } = context;
-        if (sendDtmf) {
-          sendDtmf(dialNumber);
-          setDialCode(dialNumber);
-          setCode(dialNumber);
-        }
+        context.sendDtmf?.(dialNumber);
+        setDialCode(dialNumber);
+        setCode(dialNumber);
       } else {
         setCode(num);
       }
@@ -233,31 +211,29 @@ const IncomingCall = (props: Props, context) => {
     });
   };
 
-  const renderKeyPadView = () => {
-    return (
-      <KeyPadContainer>
-        <InputBar $transparent={true} type="keypad">
-          <input
-            placeholder={__('0')}
-            name="searchValue"
-            value={code}
-            autoComplete="off"
-            type="number"
-          />
-        </InputBar>
-        {renderKeyPad(handNumPad, true)}
-        <KeyPadFooter>{endCallOption(endCall, onClickKeyPad)}</KeyPadFooter>
-      </KeyPadContainer>
-    );
-  };
+  const renderKeyPadView = () => (
+    <KeyPadContainer>
+      <InputBar $transparent={true} type="keypad">
+        <input
+          placeholder={__('0')}
+          name="searchValue"
+          value={code}
+          autoComplete="off"
+          type="number"
+        />
+      </InputBar>
+      {renderKeyPad(handNumPad, true)}
+      <KeyPadFooter>{endCallOption(endCall, onClickKeyPad)}</KeyPadFooter>
+    </KeyPadContainer>
+  );
 
   const renderUserInfo = (type?: string) => {
     const inCall = type === 'incall';
     const hasChannel = channels?.length > 0;
     const channelName = channels?.[0]?.name || '';
-    const hasGroupName = call.groupName || '';
+    const hasGroupName = call?.groupName || '';
 
-    if (!customers || customers.length === 0) {
+    if (!activeCustomer) {
       return (
         <NameCardContainer>
           <h5>{__('Call')}</h5>
@@ -267,18 +243,16 @@ const IncomingCall = (props: Props, context) => {
       );
     }
 
-    const otherCustomers = customers.filter(
-      (c) => c._id !== customerDetail._id,
-    );
+    const otherCustomers =
+      customers?.filter((c) => c._id !== activeCustomer._id) || [];
 
-    const fullName = renderFullName(customerDetail, false);
-    const primaryCustomerTags = customerDetail.getTags || [];
+    const fullName = renderFullName(activeCustomer, false);
+    const primaryCustomerTags = activeCustomer?.getTags || [];
 
     return (
       <NameCardContainer>
         <h5>{__('Call')}</h5>
-
-        <Avatar user={customerDetail} size={inCall ? 72 : 30} />
+        <Avatar user={activeCustomer} size={inCall ? 72 : 30} />
         <h4>{fullName === 'Unknown' ? phoneNumber : fullName}</h4>
 
         <PhoneNumber>
@@ -294,7 +268,7 @@ const IncomingCall = (props: Props, context) => {
           )}
         </PhoneNumber>
 
-        {primaryCustomerTags.length > 0 && (
+        {primaryCustomerTags?.length > 0 && inCall && (
           <TagsContainer>
             {primaryCustomerTags.map((tag) => (
               <TagItem key={tag._id}>{tag.name}</TagItem>
@@ -346,18 +320,16 @@ const IncomingCall = (props: Props, context) => {
   }
 
   if (status === 'accepted' && !haveIncomingCall && !hideIncomingCall) {
-    if (audioRef.current && audioRef.current.src) {
+    if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.src = '';
       audioRef.current.load();
     }
 
-    const renderContent = () => {
-      if (showKeyPad) {
-        return renderKeyPadView();
-      }
-
-      return (
+    const renderContent = () =>
+      showKeyPad ? (
+        renderKeyPadView()
+      ) : (
         <>
           {renderUserInfo('incall')}
           <p>
@@ -373,15 +345,12 @@ const IncomingCall = (props: Props, context) => {
             Sip.call?.status === CALL_STATUS_ACTIVE ? false : true,
             direction,
             gotoDetail,
-            currentCallConversationId && currentCallConversationId.length !== 0
-              ? false
-              : true,
+            !currentCallConversationId,
             onClickKeyPad,
-            setCustomer,
+            setActiveCustomer,
           )}
         </>
       );
-    };
 
     return hasMicrophone ? (
       <IncomingCallNav>
