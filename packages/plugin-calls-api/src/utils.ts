@@ -978,7 +978,9 @@ export const updateExistingConversation = async (
         payload: JSON.stringify({
           customerId: callCustomer.erxesApiId,
           conversationId: callConversation.conversationId,
+          integrationId: callConversation.inboxIntegrationId,
           updatedAt: new Date().toISOString(),
+          content: '',
         }),
       },
       isRPC: true,
