@@ -34,10 +34,35 @@ const queries = {
       ];
     }
 
-    return paginate(
+    const categories = await paginate(
       models.Categories.find(query).sort({ [sortField]: sortDirection }),
       { page, perPage }
     );
+
+    if (!language) {
+      return categories;
+    }
+
+    const categoryIds = categories.map((category) => category._id);
+
+    const translations = await models.PostTranslations.find({
+      postId: { $in: categoryIds },
+      language,
+    }).lean();
+
+    const translationsMap = translations.reduce((acc, translation) => {
+      acc[translation.postId.toString()] = translation;
+      return acc;
+    }, {});
+
+    const categoriesWithTranslations = categories.map((category) => {
+      const translation = translationsMap[category._id.toString()];
+      category.name = translation?.title || category.name;
+      category.description = translation?.excerpt || translation?.content || category.description;
+      return category;
+    });
+
+    return categoriesWithTranslations;
   },
 
   /**
@@ -67,7 +92,7 @@ const queries = {
     }).lean();
 
     category.name = translation?.title || category.name;
-    category.description = translation?.excerpt || category.description;
+    category.description = translation?.excerpt || translation?.content || category.description;
 
     return category;
   },

@@ -22,7 +22,6 @@ import React from "react";
 import Tip from "@erxes/ui/src/components/Tip";
 import _ from "lodash";
 import { checkLogic } from "../utils";
-
 declare const navigator: any;
 
 type Props = {
@@ -242,22 +241,22 @@ class GenerateGroup extends React.Component<Props, State> {
     return (
       <SidebarFooter>
         <Button
-          btnStyle='simple'
+          btnStyle="simple"
           onClick={this.cancelEditing}
-          icon='times-circle'
+          icon="times-circle"
         >
           Discard
         </Button>
         <div>
           {this.props.fieldGroup.isMultiple && isModal && (
-            <Tip placement='top' text='Add Group Input'>
-              <Button btnStyle='primary' onClick={this.onAddGroupInput}>
-                <Icon icon='plus-circle' />
+            <Tip placement="top" text="Add Group Input">
+              <Button btnStyle="primary" onClick={this.onAddGroupInput}>
+                <Icon icon="plus-circle" />
               </Button>
             </Tip>
           )}
           {this.props.object && (
-            <Button btnStyle='success' onClick={this.save} icon='check-circle'>
+            <Button btnStyle="success" onClick={this.save} icon="check-circle">
               Save
             </Button>
           )}
@@ -271,7 +270,7 @@ class GenerateGroup extends React.Component<Props, State> {
 
     const { data } = this.state;
     const { fields = [], isMultiple } = fieldGroup;
-
+    const branchIds = object.branchIds || [];
     const groupData = data[fieldGroup._id] || [];
     const isVisibleKey = isDetail ? "isVisibleInDetail" : "isVisible";
 
@@ -282,9 +281,9 @@ class GenerateGroup extends React.Component<Props, State> {
     if (fields.filter((e) => e[isVisibleKey]).length === 0) {
       return (
         <EmptyState
-          icon='folder-2'
+          icon="folder-2"
           text={`${fields.length} property(s) hidden.`}
-          size='small'
+          size="small"
         />
       );
     }
@@ -355,6 +354,7 @@ class GenerateGroup extends React.Component<Props, State> {
               return (
                 <GenerateField
                   field={field}
+                  branchIds={branchIds}
                   key={index}
                   onValueChange={(val) => this.onChange(groupDataIndex, val)}
                   defaultValue={
@@ -374,9 +374,9 @@ class GenerateGroup extends React.Component<Props, State> {
                 {isMultiple && (
                   <div style={{ textAlign: "right" }}>
                     <Button
-                      size='small'
-                      btnStyle='danger'
-                      icon='trash'
+                      size="small"
+                      btnStyle="danger"
+                      icon="trash"
                       onClick={() => this.onRemoveGroupInput(groupDataIndex)}
                     />
                   </div>
@@ -397,7 +397,6 @@ class GenerateGroup extends React.Component<Props, State> {
       isDetail,
       collapseCallback,
     } = this.props;
-
     const childGroups = fieldsGroups.filter(
       (gro) => gro.parentId === fieldGroup._id
     );
@@ -548,15 +547,15 @@ class GenerateGroup extends React.Component<Props, State> {
             <ModalTrigger
               title={fieldGroup.name}
               trigger={
-                <Icon icon='expand-arrows-alt' style={{ cursor: "pointer" }} />
+                <Icon icon="expand-arrows-alt" style={{ cursor: "pointer" }} />
               }
               content={() => this.modalContent()}
-              paddingContent='less-padding'
+              paddingContent="less-padding"
             />
           }
-          <Tip placement='top' text='Add Group Input'>
+          <Tip placement="top" text="Add Group Input">
             <button onClick={this.onAddGroupInput}>
-              <Icon icon='plus-circle' />
+              <Icon icon="plus-circle" />
             </button>
           </Tip>
         </FlexCenter>
@@ -567,10 +566,10 @@ class GenerateGroup extends React.Component<Props, State> {
         <ModalTrigger
           title={fieldGroup.name}
           trigger={
-            <Icon icon='expand-arrows-alt' style={{ cursor: "pointer" }} />
+            <Icon icon="expand-arrows-alt" style={{ cursor: "pointer" }} />
           }
           content={() => this.modalContent()}
-          paddingContent='less-padding'
+          paddingContent="less-padding"
         />
       );
     }
@@ -775,7 +774,7 @@ class GenerateGroups extends React.Component<
               );
 
               return (
-                <div className='custom-group' key={group._id}>
+                <div className="custom-group" key={group._id}>
                   <div
                     className={`custom-title ${group._id === this.state.currentFieldGroupId ? "active" : ""}`}
                     onClick={() =>
@@ -789,7 +788,7 @@ class GenerateGroups extends React.Component<
               );
             })}
             <DynamicContentLeftButtonWrapper>
-              <Button btnStyle='simple' icon='settings' block>
+              <Button btnStyle="simple" icon="settings" block>
                 {__("Manage properties")}
               </Button>
             </DynamicContentLeftButtonWrapper>
@@ -800,7 +799,6 @@ class GenerateGroups extends React.Component<
         </DynamicContent>
       );
     }
-
     return this.renderGroups(groups);
   }
 }

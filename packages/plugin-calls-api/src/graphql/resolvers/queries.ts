@@ -293,7 +293,7 @@ const callsQueries = {
       data: {
         $or: [
           { primaryPhone: phoneNumber },
-          { "phones.phone": { $in: [phoneNumber] } },
+          { 'phones.phone': { $in: [phoneNumber] } },
         ],
       },
       defaultValue: null,

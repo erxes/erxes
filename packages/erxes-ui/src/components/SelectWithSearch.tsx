@@ -16,10 +16,8 @@ import { graphql } from "@apollo/client/react/hoc";
 import styled from "styled-components";
 
 const SelectOption = styled.div`
-  overflow: hidden;
   white-space: nowrap;
-  text-overflow: ellipsis;
-  max-width: 300px;
+  min-width: 300px;
 `;
 
 export const SelectValue = styled.div`
@@ -28,10 +26,10 @@ export const SelectValue = styled.div`
   align-items: center;
   margin-left: -2px;
   padding-left: 18px;
-  max-width: 250px;
+  max-width: 300px;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 
   img {
     position: absolute;
@@ -47,14 +45,6 @@ export const Avatar = styled.img`
   object-fit: cover;
   float: left;
   margin-right: 5px;
-`;
-
-const SelectWrapper = styled.div`
-  position: relative;
-
-  .Select-clear-zone {
-    visibility: hidden;
-  }
 `;
 
 const ClearButton = styled.div`
@@ -131,27 +121,34 @@ class SelectWithSearch extends React.Component<
     this.timer = 0;
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    const { queryName, customQuery, initialValues, generateOptions } =
-      nextProps;
+  componentDidUpdate(prevProps: Props) {
+    const {
+      queryName,
+      customQuery,
+      generateOptions,
+      exactFilter,
+      name,
+      initialValues,
+      filterParams,
+    } = this.props;
+    const { selectedValues } = this.state;
 
-    const { initialValuesProvided } = this.props;
-    const { selectedValues, selectedOptions } = this.state;
+    if (prevProps.initialValues !== initialValues) {
+      this.setState({ selectedValues: initialValues || [] });
 
-    // trigger clearing values by initialValues prop
-    if (
-      initialValuesProvided &&
-      (!initialValues || !initialValues.length) &&
-      selectedValues.length
-    ) {
-      this.setState({ selectedValues: [] });
+      if (this.state.totalOptions && initialValues?.length) {
+        const upSelectedOptions = this.state.totalOptions.filter((option) =>
+          initialValues.includes(option.value)
+        );
+        this.setState({ selectedOptions: upSelectedOptions });
+      }
     }
 
-    if (initialValues?.length) {
-      this.setState({ selectedValues: initialValues });
+    if (prevProps.filterParams?.branchIds !== filterParams?.branchIds) {
+      this.setState({ totalOptions: undefined, selectedOptions: undefined });
     }
 
-    if (customQuery.loading !== this.props.customQuery.loading) {
+    if (prevProps.customQuery.loading && !customQuery.loading) {
       const datas = customQuery[queryName] || [];
 
       const totalOptions = this.state.totalOptions || ([] as IOption[]);
@@ -161,31 +158,33 @@ class SelectWithSearch extends React.Component<
         datas.filter((data) => !totalOptionsValues.includes(data._id))
       );
 
-      const updatedTotalOptions = [
-        ...new Set([
-          ...(this.props.exactFilter ? [] : selectedOptions || []),
-          ...uniqueLoadedOptions,
-        ]),
-      ];
+      const updatedTotalOptions = Array.from(
+        new Map(
+          [
+            ...(this.state.selectedOptions || []),
+            ...uniqueLoadedOptions,
+            ...totalOptions,
+          ].map((opt) => [opt.value, opt])
+        ).values()
+      );
 
       const upSelectedOptions = updatedTotalOptions.filter((option) =>
         selectedValues.includes(option.value)
       );
 
-      if (
-        this.props.exactFilter &&
-        selectedValues?.length &&
-        !upSelectedOptions.length
-      ) {
-        this.setState({
-          selectedValues: [],
-        });
-        this.props.onSelect([], this.props.name);
+      if (exactFilter && selectedValues?.length && !upSelectedOptions.length) {
+        this.setState({ selectedValues: [] });
+        this.props.onSelect([], name);
       }
 
       this.setState({
         totalOptions: updatedTotalOptions,
-        selectedOptions: upSelectedOptions,
+        selectedOptions:
+          exactFilter && selectedValues?.length && !upSelectedOptions.length
+            ? []
+            : upSelectedOptions.length
+              ? upSelectedOptions
+              : this.state.selectedOptions,
       });
     }
   }
@@ -289,19 +288,35 @@ class SelectWithSearch extends React.Component<
     };
 
     const MultiValue = (props: MultiValueProps<any, boolean, any>) => {
+      const { data, innerProps } = props;
+
+      const displayText = data.selectedLabel || data.label;
+
       return (
         <components.MultiValue
           {...props}
-          innerProps={{
-            ...props.innerProps,
-            title: props.data.fullLabel || props.data.label,
-          }}
+          innerProps={{ ...innerProps, title: data.fullLabel || data.label }}
         >
-          {selectItemRenderer(props.data, showAvatar, SelectValue)}
+          <SelectValue>
+            {data.avatar && (
+              <Avatar
+                src={
+                  props.data.avatar
+                    ? readFile(props.data.avatar, 40)
+                    : "/images/avatar-colored.svg"
+                }
+              />
+            )}
+            {displayText}
+          </SelectValue>
         </components.MultiValue>
       );
     };
-    const filterOption = (_option, _inputValue): boolean => true;
+
+    const filterOption = (option, inputValue): boolean => {
+      if (!inputValue) return true;
+      return option.label.toLowerCase().includes(inputValue.toLowerCase());
+    };
 
     return (
       <Select
@@ -318,6 +333,7 @@ class SelectWithSearch extends React.Component<
         onInputChange={onSearch}
         options={selectOptions}
         isMulti={multi}
+        closeMenuOnSelect={!multi}
         styles={customStyles}
         menuPortalTarget={menuPortalTarget}
       />
@@ -341,14 +357,19 @@ const withQuery = ({ customQuery }) =>
           abortController,
         }) => {
           const context = { fetchOptions: { signal: abortController.signal } };
+          const branchIds = filterParams?.branchIds || [];
+
+          const isAssignee = branchIds.length === 0;
 
           if (searchValue === "reload") {
             return {
               context,
               variables: {
-                ids: initialValues,
+                ids: initialValues || [],
                 excludeIds: true,
                 ...filterParams,
+                isAssignee,
+                branchIds,
               },
               fetchPolicy: "network-only",
               notifyOnNetworkStatusChange: true,
@@ -356,15 +377,20 @@ const withQuery = ({ customQuery }) =>
           }
 
           if (searchValue) {
-            return { context, variables: { searchValue, ...filterParams } };
+            return {
+              context,
+              variables: { searchValue, ...filterParams },
+            };
           }
 
           return {
             context,
             fetchPolicy: "network-only",
             variables: {
-              ids: initialValues,
+              ids: initialValues || [],
               ...filterParams,
+              isAssignee,
+              branchIds,
             },
           };
         },
@@ -424,6 +450,14 @@ class Wrapper extends React.Component<
 
     this.setState({ searchValue, abortController: new AbortController() });
   };
+
+  componentDidUpdate(prevProps: WrapperProps) {
+    if (
+      prevProps.filterParams?.branchIds !== this.props.filterParams?.branchIds
+    ) {
+      this.search("reload");
+    }
+  }
 
   render() {
     const { searchValue, abortController } = this.state;

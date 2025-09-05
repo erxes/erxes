@@ -172,6 +172,7 @@ function GenerateAddFormFields(props: Props) {
               field={field}
               key={index}
               onValueChange={onFieldsDataChange}
+              branchIds={selectedBranchIds}
               isEditing={true}
             />
           );
@@ -231,6 +232,7 @@ function GenerateAddFormFields(props: Props) {
                 field={field}
                 key={index}
                 onValueChange={onCustomFieldsDataChange}
+                branchIds={selectedBranchIds}
                 isEditing={true}
               />
             </AddContent>

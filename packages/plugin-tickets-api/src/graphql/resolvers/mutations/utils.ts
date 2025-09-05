@@ -276,6 +276,27 @@ export const itemsEdit = async (
 
   if (extendedDoc.customFieldsData) {
     // clean custom field values
+    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+    if (pipeline) {
+      await putActivityLog(subdomain, {
+        action: "createPropertiesLog",
+        data: {
+          contentId: _id,
+          userId: user._id,
+          contentType: type,
+          content: {
+            config: {
+              boardId: pipeline.boardId,
+              pipelineId: pipeline._id,
+            },
+            customFieldsData: extendedDoc.customFieldsData || [],
+          },
+          action: "properties",
+          createdBy: user._id,
+        },
+      });
+    }
+
     extendedDoc.customFieldsData = await sendCoreMessage({
       subdomain,
       action: "fields.prepareCustomFieldsData",
