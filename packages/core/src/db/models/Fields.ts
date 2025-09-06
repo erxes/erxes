@@ -470,8 +470,10 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         try {
           await models.Fields.clean(fieldId, customFieldData.value);
         } catch (e) {
-          throw new Error(e.message);
+          console.log(`An error occured in CLEAN while prepareCustomFieldsData: ${e.message}`);
+          continue;
         }
+
         const customFieldDataItem = await models.Fields.generateTypedItem(
           fieldId,
           customFieldData.value,
@@ -479,7 +481,6 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           field?.validation,
           customFieldData?.extraValue
         );
-        console.log({ customFieldDataItem });
         result.push(customFieldDataItem);
       }
 
