@@ -470,7 +470,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         try {
           await models.Fields.clean(fieldId, customFieldData.value);
         } catch (e) {
-          console.log(`An error occured in CLEAN while prepareCustomFieldsData: ${e.message}`);
+          console.log(`An error occured in CLEAN while prepareCustomFieldsData: ${e.message} ::: customFieldData ::: ${JSON.stringify(customFieldData)}`);
           continue;
         }
 
