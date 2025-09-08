@@ -264,7 +264,11 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       if (group && value && Array.isArray(value)) {
         for (const fieldValue of value as Array<Record<string, any>>) {
           for (const [key, value] of Object.entries(fieldValue)) {
-            this.clean(key, value);
+            try {
+              this.clean(key, value);
+            } catch (e) {
+              throw new Error(`check in array: ${e.message}`);
+            }
           }
         }
 
@@ -359,7 +363,13 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
       // validate individual fields
       for (const _id of ids) {
-        fixedValues[_id] = await this.clean(_id, data[_id]);
+        try {
+          fixedValues[_id] = await this.clean(_id, data[_id]);
+        } catch (e) {
+          console.log(`An error occured in CLEAN while cleanMulti: ${e.message} ::: customFieldData ::: ${JSON.stringify(data)}`);
+          continue;
+        }
+
       }
 
       return fixedValues;
