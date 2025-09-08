@@ -280,13 +280,13 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       const { type, validation } = field;
 
       // throw error helper
-      const throwError = message => {
-        throw new Error(`${field.text}: ${message}`);
+      const throwMsg = message => {
+        return `${field.text}: ${message}`;
       };
 
       // required
       if (field.isRequired && (!value || !value.toString().trim())) {
-        throwError("required");
+        throw new Error(throwMsg("required"))
       }
 
       if (value) {
@@ -295,7 +295,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           (type === "email" || validation === "email") &&
           !validator.isEmail(value)
         ) {
-          throwError("Invalid email");
+          throw new Error(throwMsg("Invalid email"));
         }
 
         // number
@@ -304,7 +304,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           validation === "number" &&
           !validator.isFloat(value.toString())
         ) {
-          throwError("Invalid number");
+          throw new Error(throwMsg("Invalid number"));
         }
 
         // date
@@ -312,7 +312,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           value = new Date(value);
 
           if (!isValidDate(value)) {
-            throwError("Invalid date");
+            throw new Error(throwMsg("Invalid date"));
           }
         }
 
@@ -321,7 +321,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           const { objectListConfigs = [] } = field;
 
           if (!objectListConfigs || !objectListConfigs.length) {
-            throwError("Object List don't have any keys");
+            throw new Error(throwMsg("Object List don't have any keys"));
           }
 
           const objects = value as any[];
