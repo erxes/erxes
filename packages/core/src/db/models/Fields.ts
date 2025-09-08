@@ -47,8 +47,8 @@ export interface IFieldModel extends Model<IFieldDocument> {
   updateField(_id: string, doc: IField): Promise<IFieldDocument>;
   removeField(_id: string): void;
   updateOrder(orders: IOrderInput[]): Promise<IFieldDocument[]>;
-  clean(_id: string, _value: string | Date | number): string | Date | number;
-  cleanMulti(data: { [key: string]: any }): any;
+  clean(_id: string, _value: string | Date | number): Promise<string | Date | number>;
+  cleanMulti(data: { [key: string]: any }): Promise<any>;
   generateTypedListFromMap(data: {
     [key: string]: any;
   }): Promise<ITypedListItem[]>;
@@ -264,7 +264,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       if (group && value && Array.isArray(value)) {
         for (const fieldValue of value as Array<Record<string, any>>) {
           for (const [key, value] of Object.entries(fieldValue)) {
-            this.clean(key, value);
+            await this.clean(key, value);
           }
         }
 
@@ -470,8 +470,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         try {
           await models.Fields.clean(fieldId, customFieldData.value);
         } catch (e) {
-          console.log(`An error occured in CLEAN while prepareCustomFieldsData: ${e.message} ::: customFieldData ::: ${JSON.stringify(customFieldData)}`);
-          continue;
+          throw new Error(e.message);
         }
 
         const customFieldDataItem = await models.Fields.generateTypedItem(
