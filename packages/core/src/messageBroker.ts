@@ -1112,10 +1112,16 @@ export const setupMessageConsumers = async (): Promise<void> => {
     'core:fields.prepareCustomFieldsData',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
-      return {
-        status: 'success',
-        data: await models.Fields.prepareCustomFieldsData(data),
-      };
+      try {
+        const result = await models.Fields.prepareCustomFieldsData(data);
+        return {
+          status: 'success',
+          data: result,
+        };
+      } catch (e) {
+        console.log(`consume prepareCustomFieldsData::: ${e.message}, ${data}`)
+        throw new Error(e.message)
+      }
     }
   );
 
