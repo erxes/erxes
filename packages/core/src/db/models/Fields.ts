@@ -264,7 +264,11 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       if (group && value && Array.isArray(value)) {
         for (const fieldValue of value as Array<Record<string, any>>) {
           for (const [key, value] of Object.entries(fieldValue)) {
-            this.clean(key, value);
+            try {
+              this.clean(key, value);
+            } catch (e) {
+              throw new Error(`check in array: ${e.message}`);
+            }
           }
         }
 
@@ -280,13 +284,13 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       const { type, validation } = field;
 
       // throw error helper
-      const throwError = message => {
-        throw new Error(`${field.text}: ${message}`);
+      const throwMsg = message => {
+        return `${field.text}: ${message}`;
       };
 
       // required
       if (field.isRequired && (!value || !value.toString().trim())) {
-        throwError("required");
+        throw new Error(throwMsg("required"))
       }
 
       if (value) {
@@ -295,7 +299,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           (type === "email" || validation === "email") &&
           !validator.isEmail(value)
         ) {
-          throwError("Invalid email");
+          throw new Error(throwMsg("Invalid email"));
         }
 
         // number
@@ -304,7 +308,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           validation === "number" &&
           !validator.isFloat(value.toString())
         ) {
-          throwError("Invalid number");
+          throw new Error(throwMsg("Invalid number"));
         }
 
         // date
@@ -312,7 +316,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           value = new Date(value);
 
           if (!isValidDate(value)) {
-            throwError("Invalid date");
+            throw new Error(throwMsg("Invalid date"));
           }
         }
 
@@ -321,7 +325,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           const { objectListConfigs = [] } = field;
 
           if (!objectListConfigs || !objectListConfigs.length) {
-            throwError("Object List don't have any keys");
+            throw new Error(throwMsg("Object List don't have any keys"));
           }
 
           const objects = value as any[];
@@ -359,7 +363,13 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
       // validate individual fields
       for (const _id of ids) {
-        fixedValues[_id] = await this.clean(_id, data[_id]);
+        try {
+          fixedValues[_id] = await this.clean(_id, data[_id]);
+        } catch (e) {
+          console.log(`An error occured in CLEAN while cleanMulti: ${e.message} ::: customFieldData ::: ${JSON.stringify(data)}`);
+          continue;
+        }
+
       }
 
       return fixedValues;
