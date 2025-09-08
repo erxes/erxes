@@ -47,7 +47,7 @@ export interface IFieldModel extends Model<IFieldDocument> {
   updateField(_id: string, doc: IField): Promise<IFieldDocument>;
   removeField(_id: string): void;
   updateOrder(orders: IOrderInput[]): Promise<IFieldDocument[]>;
-  clean(_id: string, _value: string | Date | number): string | Date | number;
+  clean(_id: string, _value: string | Date | number): Promise<string | Date | number>;
   cleanMulti(data: { [key: string]: any }): any;
   generateTypedListFromMap(data: {
     [key: string]: any;
@@ -264,11 +264,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       if (group && value && Array.isArray(value)) {
         for (const fieldValue of value as Array<Record<string, any>>) {
           for (const [key, value] of Object.entries(fieldValue)) {
-            try {
-              this.clean(key, value);
-            } catch (e) {
-              throw new Error(`check in array: ${e.message}`);
-            }
+            await this.clean(key, value);
           }
         }
 
@@ -284,13 +280,13 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       const { type, validation } = field;
 
       // throw error helper
-      const throwMsg = message => {
-        return `${field.text}: ${message}`;
+      const throwError = message => {
+        throw new Error(`${field.text}: ${message}`);
       };
 
       // required
       if (field.isRequired && (!value || !value.toString().trim())) {
-        throw new Error(throwMsg("required"))
+        throwError("required");
       }
 
       if (value) {
@@ -299,7 +295,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           (type === "email" || validation === "email") &&
           !validator.isEmail(value)
         ) {
-          throw new Error(throwMsg("Invalid email"));
+          throwError("Invalid email");
         }
 
         // number
@@ -308,7 +304,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           validation === "number" &&
           !validator.isFloat(value.toString())
         ) {
-          throw new Error(throwMsg("Invalid number"));
+          throwError("Invalid number");
         }
 
         // date
@@ -316,7 +312,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           value = new Date(value);
 
           if (!isValidDate(value)) {
-            throw new Error(throwMsg("Invalid date"));
+            throwError("Invalid date");
           }
         }
 
@@ -325,7 +321,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           const { objectListConfigs = [] } = field;
 
           if (!objectListConfigs || !objectListConfigs.length) {
-            throw new Error(throwMsg("Object List don't have any keys"));
+            throwError("Object List don't have any keys");
           }
 
           const objects = value as any[];
@@ -363,13 +359,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
       // validate individual fields
       for (const _id of ids) {
-        try {
-          fixedValues[_id] = await this.clean(_id, data[_id]);
-        } catch (e) {
-          console.log(`An error occured in CLEAN while cleanMulti: ${e.message} ::: customFieldData ::: ${JSON.stringify(data)}`);
-          continue;
-        }
-
+        fixedValues[_id] = await this.clean(_id, data[_id]);
       }
 
       return fixedValues;
@@ -480,8 +470,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         try {
           await models.Fields.clean(fieldId, customFieldData.value);
         } catch (e) {
-          console.log(`An error occured in CLEAN while prepareCustomFieldsData: ${e.message} ::: customFieldData ::: ${JSON.stringify(customFieldData)}`);
-          continue;
+          throw new Error(e.message)
         }
 
         const customFieldDataItem = await models.Fields.generateTypedItem(
