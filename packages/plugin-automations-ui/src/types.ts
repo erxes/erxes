@@ -157,7 +157,7 @@ export type AutomationHistoriesQueryResponse = {
   automationHistoriesTotalCount: number;
   automationHistories: IAutomationHistory[];
   loading: boolean;
-};
+} & QueryResponse;
 
 export type AutomationsCount = {
   total: number;
