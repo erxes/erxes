@@ -5,7 +5,6 @@ export default {
     const models = await generateModels(subdomain);
 
     const { docs } = data;
-    console.log({ docs });
 
     let updated = 0;
     const objects: any = [];
@@ -57,8 +56,6 @@ export default {
       let colIndex: number = 0;
       let subUomNames = [];
       let ratios = [];
-
-      console.log({ properties });
 
       // Iterating through detailed properties
       for (const property of properties) {
@@ -193,8 +190,6 @@ export default {
 
       bulkDoc.push(doc);
     }
-
-    console.log({ bulkDoc });
 
     return bulkDoc;
   }
