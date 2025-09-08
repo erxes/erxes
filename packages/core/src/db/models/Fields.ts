@@ -48,7 +48,7 @@ export interface IFieldModel extends Model<IFieldDocument> {
   removeField(_id: string): void;
   updateOrder(orders: IOrderInput[]): Promise<IFieldDocument[]>;
   clean(_id: string, _value: string | Date | number): Promise<string | Date | number>;
-  cleanMulti(data: { [key: string]: any }): any;
+  cleanMulti(data: { [key: string]: any }): Promise<any>;
   generateTypedListFromMap(data: {
     [key: string]: any;
   }): Promise<ITypedListItem[]>;
@@ -470,7 +470,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         try {
           await models.Fields.clean(fieldId, customFieldData.value);
         } catch (e) {
-          throw new Error(e.message)
+          throw new Error(e.message);
         }
 
         const customFieldDataItem = await models.Fields.generateTypedItem(
