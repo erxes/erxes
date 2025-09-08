@@ -1,6 +1,6 @@
-import { IProduct } from "@erxes/ui-products/src/types";
 import { ICompany } from "@erxes/ui-contacts/src/companies/types";
 import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { IProduct } from "@erxes/ui-products/src/types";
 
 export interface IContract {
   _id: string;
