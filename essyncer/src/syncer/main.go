@@ -75,7 +75,20 @@ type Collection struct {
 }
 
 func main() {
+	maxPoolSize := os.Getenv("MaxPoolSize")
+	if maxPoolSize == "" {
+    maxPoolSize = "5" // default утга
+	}
+	mongoParams := "maxPoolSize="+ maxPoolSize +"&minPoolSize=1&connectTimeoutMS=10000"
+
 	mongoURL := os.Getenv("MONGO_URL")
+	
+	if strings.Contains(mongoURL, "?") {
+		mongoURL = mongoURL + "&" + mongoParams
+	} else {
+		mongoURL = mongoURL + "?" + mongoParams
+	}
+
 	elasticsearchURL := os.Getenv("ELASTICSEARCH_URL")
 
 	jsonFile, err := os.Open("/data/essyncerData/plugins.json")
