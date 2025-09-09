@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.17.0](https://github.com/erxes/erxes/compare/2.16.7...2.17.0) (2025-09-09)
+
+### Features
+
+* **inbox:** add tag type and update search filter ([9dd3475](https://github.com/erxes/erxes/commit/9dd3475bb6f2064adc37b1270d69668692a57d78))
+* update cli version to 2.0.3 ([6804f5c](https://github.com/erxes/erxes/commit/6804f5ca1a389cd74ccfda57567cf84456fb5df9))
+
+### Bug Fixes
+
+* An error occured in CLEAN while prepareCustomFieldsData to continue ([97f1df1](https://github.com/erxes/erxes/commit/97f1df1c773b360ea5488a4da708fa212cdd66b2))
+* essyncer base version up and some mappings up  ([c4befba](https://github.com/erxes/erxes/commit/c4befbac04cce2c0170ea5717d04801b470e2589))
+* fields clean with await ([#6130](https://github.com/erxes/erxes/issues/6130)) ([4750c2c](https://github.com/erxes/erxes/commit/4750c2c76f7f8387fa9627a2392374fab50cd829))
+
 ## [2.16.7](https://github.com/erxes/erxes/compare/2.16.6...2.16.7) (2025-09-04)
 
 ### Features
