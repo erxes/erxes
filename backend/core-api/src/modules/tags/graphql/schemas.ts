@@ -10,6 +10,9 @@ export const types = `
     isGroup: Boolean
     type: String
     
+    objectCount: Int
+    totalObjectCount: Int
+    
     createdAt: Date
   }
 
@@ -35,6 +38,7 @@ const queryParams = `
 `;
 
 export const queries = `
+  tagsGetTypes: [JSON]
   tags(${queryParams}): TagsListResponse
   tagDetail(_id: String!): Tag
   tagsQueryCount(type: String, searchValue: String): Int

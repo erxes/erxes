@@ -26,7 +26,7 @@ const command = async () => {
     await Tags.updateMany(
       {},
       {
-        $unset: { objectCount: '', order: '', scopeBrandIds: '' },
+        $unset: { order: '', scopeBrandIds: '' },
         $set: { isGroup: false, parentId: '' }, // flatten parentId: no nested parent tags allowed
       },
     );
