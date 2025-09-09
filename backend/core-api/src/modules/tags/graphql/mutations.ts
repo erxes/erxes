@@ -44,7 +44,7 @@ export const tagMutations = {
     const tags = await models.Tags.find({
       type,
       _id: { $in: tagIds },
-      isGroup: false,
+      isGroup: { $ne: true },
     });
 
     if (tags.length !== tagIds.length) {

@@ -1,5 +1,5 @@
 import { ITagDocument } from 'erxes-api-shared/core-types';
-import { isEnabled, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
 // set related tags
@@ -76,10 +76,6 @@ export const countDocuments = async (
   _ids: string[],
 ) => {
   const [pluginName, moduleName] = type.split(':');
-
-  if (!isEnabled(pluginName)) {
-    return 0;
-  }
 
   const MODULE_NAMES = {
     customer: 'customers',
