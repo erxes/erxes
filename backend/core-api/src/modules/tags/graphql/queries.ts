@@ -1,5 +1,5 @@
 import { ITagFilterQueryParams } from '@/tags/@types/tag';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, getPlugin, getPlugins } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
@@ -57,6 +57,29 @@ const generateFilter = async ({ params, commonQuerySelector, models }) => {
 };
 
 export const tagQueries = {
+  /**
+   * Get tags types
+   */
+  async tagsGetTypes() {
+    const services = await getPlugins();
+    const fieldTypes: Array<{ description: string; contentType: string }> = [];
+    for (const serviceName of services) {
+      const service = await getPlugin(serviceName);
+      const meta = service.config.meta || {};
+      if (meta && meta.tags) {
+        const types = meta.tags.types || [];
+
+        for (const type of types) {
+          fieldTypes.push({
+            description: type.description,
+            contentType: `${serviceName}:${type.type}`,
+          });
+        }
+      }
+    }
+
+    return fieldTypes;
+  },
   /**
    * Get tags
    */

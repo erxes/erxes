@@ -1,4 +1,5 @@
 import { ITagDocument } from 'erxes-api-shared/core-types';
+import { isEnabled, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
 // set related tags
@@ -67,4 +68,32 @@ export const removeRelatedTagIds = async (
   });
 
   await models.Tags.bulkWrite(doc);
+};
+
+export const countDocuments = async (
+  subdomain: string,
+  type: string,
+  _ids: string[],
+) => {
+  const [pluginName, moduleName] = type.split(':');
+
+  if (!isEnabled(pluginName)) {
+    return 0;
+  }
+
+  const MODULE_NAMES = {
+    customer: 'customers',
+  };
+
+  return await sendTRPCMessage({
+    pluginName,
+    method: 'mutation',
+    module: MODULE_NAMES[moduleName] || moduleName,
+    action: 'tag',
+    input: {
+      type,
+      _ids,
+      action: 'count',
+    },
+  });
 };
