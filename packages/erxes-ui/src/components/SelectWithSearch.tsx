@@ -158,12 +158,14 @@ class SelectWithSearch extends React.Component<
         datas.filter((data) => !totalOptionsValues.includes(data._id))
       );
 
-      const updatedTotalOptions = [
-        ...(this.state.selectedOptions || []),
-        ...uniqueLoadedOptions,
-        ...totalOptions,
-      ].filter(
-        (opt, idx, arr) => arr.findIndex((o) => o.value === opt.value) === idx
+      const updatedTotalOptions = Array.from(
+        new Map(
+          [
+            ...(this.state.selectedOptions || []),
+            ...uniqueLoadedOptions,
+            ...totalOptions,
+          ].map((opt) => [opt.value, opt])
+        ).values()
       );
 
       const upSelectedOptions = updatedTotalOptions.filter((option) =>
@@ -177,7 +179,12 @@ class SelectWithSearch extends React.Component<
 
       this.setState({
         totalOptions: updatedTotalOptions,
-        selectedOptions: upSelectedOptions,
+        selectedOptions:
+          exactFilter && selectedValues?.length && !upSelectedOptions.length
+            ? []
+            : upSelectedOptions.length
+              ? upSelectedOptions
+              : this.state.selectedOptions,
       });
     }
   }
@@ -305,7 +312,11 @@ class SelectWithSearch extends React.Component<
         </components.MultiValue>
       );
     };
-    const filterOption = (_option, _inputValue): boolean => true;
+
+    const filterOption = (option, inputValue): boolean => {
+      if (!inputValue) return true;
+      return option.label.toLowerCase().includes(inputValue.toLowerCase());
+    };
 
     return (
       <Select

@@ -7,7 +7,7 @@ module.exports = [
   },
   {
     name: "conversation_messages",
-    schema: "{}",
+    schema: "{ 'formWidgetData': <nested>, 'attachments': <nested> }",
     script: "",
   },
   {

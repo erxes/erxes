@@ -1,12 +1,12 @@
 import { IContext } from "../../../connectionResolver";
-import { getConfig } from "../../../utils/utils";
-import { activeLoan } from "../../../utils/loan/activeLoan";
-import { createLoanMessage } from "../../../utils/loan/createLoanMessage";
 import { createCollateral } from "../../../utils/collateral/createCollateral";
+import { activeLoan } from "../../../utils/loan/activeLoan";
+import { createLoanClose } from "../../../utils/loan/closeLoan";
+import { createLoanMessage } from "../../../utils/loan/createLoanMessage";
 import { createLoanSchedule } from "../../../utils/loan/createSchedule";
 import { createLoanGive } from "../../../utils/loan/loanGive";
 import { createLoanRepayment } from "../../../utils/loan/loanRepayment";
-import { createLoanClose } from "../../../utils/loan/closeLoan";
+import { getConfig } from "../../../utils/utils";
 
 const loansMutations = {
   async sendContractToPolaris(
@@ -117,6 +117,6 @@ const loansMutations = {
     await createLoanClose(subdomain, models, config, data);
 
     return "success";
-  }
+  },
 };
 export default loansMutations;

@@ -93,10 +93,10 @@ export default function Repeat(props: Props) {
     <FormGroup key={`weekForm-${index}`}>
       <Select
         name="weekForm"
-        value={WEEK_OPTIONS.filter((o) => item.weekValue.includes(o.value))}
+        value={WEEK_OPTIONS.filter((o) => item.weekValue?.map(v => v.value).includes(o.value))}
         placeholder={__("Select a weekday")}
         options={WEEK_OPTIONS}
-        onChange={(value: any) => handleChange(index, "weekValue", value)}
+        onChange={(values: any) => handleChange(index, "weekValue", values)}
         isMulti={true}
       />
     </FormGroup>
@@ -109,7 +109,7 @@ export default function Repeat(props: Props) {
 
     for (let i = 1; i <= 31; i++) {
       options.push({
-        label: i,
+        label: i.toString(),
         value: i.toString(),
       });
     }
@@ -119,11 +119,11 @@ export default function Repeat(props: Props) {
         <Select
           name="monthForm"
           value={options.filter((o) =>
-            (item.monthValue || []).includes(o.value)
+            item.monthValue?.map(v => v.value).includes(o.value)
           )}
           placeholder={__("Select a day")}
           options={options}
-          onChange={(value: any) => handleChange(index, "monthValue", value)}
+          onChange={(values: any) => handleChange(index, "monthValue", values)}
           isMulti
         />
       </FormGroup>

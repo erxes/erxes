@@ -295,6 +295,16 @@ export const generateFields = async ({ subdomain, data }) => {
   ];
 
   if (usageType === 'automations') {
+    const customerFields = await sendCoreMessage({
+      subdomain,
+      isRPC: true,
+      action: `fieldsCombinedByContentType`,
+      data: {
+        contentType: 'core:customer',
+      },
+      defaultValue: [],
+    });
+
     fields = [
       ...fields,
       {
@@ -381,7 +391,13 @@ export const generateFields = async ({ subdomain, data }) => {
         label: 'Created by Parent of Branch',
         type: 'String',
       },
-    ];
+    ].concat(
+      (customerFields || []).map((customerField) => ({
+        ...customerField,
+        name: `customers.${customerField.name}`,
+        label: `Customers ${customerField.label}`,
+      })),
+    );
   }
 
   if (type === 'ticket' && usageType !== 'export') {

@@ -172,11 +172,14 @@ export const getRelatedValue = async (
     return result;
   }
   if (targetKey.includes("customFieldsData.")) {
+    const [_, fieldId] = targetKey.split("customFieldsData.");
+
     return await generateCustomFieldsDataValue({
       target,
-      targetKey,
+      fieldId,
       subdomain,
       relatedValueProps,
+      targetKey,
     });
   }
 
@@ -250,17 +253,18 @@ export const getRelatedValue = async (
 };
 
 const generateCustomFieldsDataValue = async ({
-  targetKey,
+  fieldId,
   subdomain,
   target,
   relatedValueProps,
+  targetKey,
 }: {
-  targetKey: string;
+  fieldId: string;
   subdomain: string;
   target: any;
+  targetKey: string;
   relatedValueProps: any;
 }) => {
-  const [_, fieldId] = targetKey.split("customFieldsData.");
   const customFieldData = (target?.customFieldsData || []).find(
     ({ field }) => field === fieldId
   );
@@ -311,7 +315,7 @@ const generateCustomFieldsDataValue = async ({
     return users
       .map(
         ({ details }) =>
-          `${details?.firstName || ""} ${details?.lastName || ""}`
+          `${details?.firstName || ""} ${details?.lastName || ""} ${details?.position || ""}`
       )
       .filter(Boolean)
       .join(", ");
@@ -327,6 +331,8 @@ const generateCustomFieldsDataValue = async ({
   ) {
     return moment(customFieldData.value).format("YYYY-MM-DD HH:mm");
   }
+
+  return customFieldData.value;
 };
 
 const generateCustomersFielValue = async ({
@@ -338,7 +344,7 @@ const generateCustomersFielValue = async ({
   subdomain: string;
   target: any;
 }) => {
-  const [_, fieldName] = targetKey.split(".");
+  const [_, fieldName, fieldId] = targetKey.split(".");
 
   const customerIds = await sendCoreMessage({
     subdomain,
@@ -387,6 +393,26 @@ const generateCustomersFielValue = async ({
       .filter(Boolean)
       .join(", ");
   }
+
+  if (fieldName === "customFieldsData" && fieldId) {
+    return customers
+      .map((customer) =>
+        generateCustomFieldsDataValue({
+          subdomain,
+          fieldId,
+          target: customer,
+          targetKey,
+          relatedValueProps: null,
+        })
+      )
+      .filter(Boolean)
+      .join(", ");
+  }
+
+  return customers
+    .map((customer) => customer[fieldName])
+    .filter(Boolean)
+    .join(", ");
 };
 
 const generateCreatedByFieldValue = async ({
