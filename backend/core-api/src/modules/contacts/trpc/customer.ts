@@ -229,8 +229,6 @@ export const customerRouter = t.router({
 
       let response = {};
 
-      console.log('input', input);
-
       if (action === 'count') {
         response = await models.Customers.countDocuments({
           tagIds: { $in: _ids },
