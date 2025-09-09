@@ -99,8 +99,22 @@ func main() {
 	if maxPoolSize == "" {
     maxPoolSize = "5" // default утга
 	}
-	mongoURL := os.Getenv("MONGO_URL") + "?maxPoolSize="+ maxPoolSize +"&minPoolSize=1&connectTimeoutMS=10000"
-	coreMongoURL := os.Getenv("CORE_MONGO_URL") + "?connect=direct"
+	mongoParams := "maxPoolSize="+ maxPoolSize +"&minPoolSize=1&connectTimeoutMS=10000"
+	mongoURL := os.Getenv("MONGO_URL")
+
+	if strings.Contains(mongoURL, "?") {
+		mongoURL = mongoURL + "&" + mongoParams
+	} else {
+		mongoURL = mongoURL + "?" + mongoParams
+	}
+
+	coreMongoURL := os.Getenv("CORE_MONGO_URL")
+	if strings.Contains(coreMongoURL, "?") {
+		coreMongoURL = coreMongoURL + "&" + "connect=direct"
+	} else {
+		coreMongoURL = coreMongoURL + "?" + "connect=direct"
+	}
+
 	elasticsearchURL := os.Getenv("ELASTICSEARCH_URL")
 
 	var ctx = context.TODO()
@@ -190,13 +204,10 @@ func main() {
 	defer client.Disconnect(ctx)
 
 	organizationsCollection := client.Database("erxes_core").Collection("organizations")
-	threeMinutesAgo := time.Now().Add(-3 * time.Month)
 
 	findOptions := options.Find()
 
-	cursor, err := organizationsCollection.Find(ctx, bson.M{"lastActiveDate": bson.M{
-					"$gte": threeMinutesAgo,
-			},}, findOptions)
+	cursor, err := organizationsCollection.Find(ctx, bson.M{}, findOptions)
 
 	if err != nil {
 		log.Fatal(err)
