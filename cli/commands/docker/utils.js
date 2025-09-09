@@ -35,7 +35,7 @@ const commonEnvs = configs => {
     rabbitmq.server_address ||
     db_server_address ||
     (isSwarm ? "erxes-dbs_rabbitmq" : "rabbitmq")
-    }:${db_server_address ? RABBITMQ_PORT : 5672}/${rabbitmq.vhost}`;
+  }:${db_server_address ? RABBITMQ_PORT : 5672}/${rabbitmq.vhost}`;
 
   return {
     ...be_env,
@@ -82,7 +82,7 @@ const mongoEnv = (configs, plugin) => {
     db_server_address || (isSwarm ? "erxes-dbs_mongo" : "mongo")
   }:${
     db_server_address ? MONGO_PORT : 27017
-    }/${db_name}?authSource=admin&replicaSet=rs0`;
+  }/${db_name}?authSource=admin&replicaSet=rs0`;
 
   return mongo_url;
 };
@@ -347,7 +347,7 @@ const deployDbs = async () => {
       environment: {
         "discovery.type": "single-node",
         "xpack.security.enabled": "true",
-        "ELASTIC_PASSWORD": configs.elasticsearch.password
+        ELASTIC_PASSWORD: configs.elasticsearch.password
       },
       ports: ["9200:9200"],
       networks: ["erxes"],
@@ -582,10 +582,10 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
     dockerComposeConfig.services.essyncer = {
       image: `erxes/essyncer:${essyncer_tag}`,
       environment: {
-        ELASTICSEARCH_URL: `http://elastic:${configs.elasticsearch.password}${
+        ELASTICSEARCH_URL: `http://elastic:${configs.elasticsearch.password}@${
           configs.db_server_address ||
           (isSwarm ? "erxes-dbs_elasticsearch" : "elasticsearch")
-          }:9200`,
+        }:9200`,
         MONGO_URL: `${mongoEnv(configs)}${
           (configs.essyncer || {}).mongoOptions || ""
         }`
@@ -718,7 +718,8 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           {
             name: "form_submissions",
             schema: "{ 'value': { 'type': 'text' } }",
-            script: "if (ns.indexOf('form_submissions') > -1) { if (doc.value && typeof doc.value === 'object') { doc.value = JSON.stringify(doc.value) }}"
+            script:
+              "if (ns.indexOf('form_submissions') > -1) { if (doc.value && typeof doc.value === 'object') { doc.value = JSON.stringify(doc.value) }}"
           },
           {
             name: "customers",
