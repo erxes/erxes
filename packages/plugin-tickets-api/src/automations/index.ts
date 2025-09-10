@@ -82,7 +82,6 @@ export default {
         ['customers.fullName']: '-',
         ['branches.title']: '-',
         ['branches.parent']: '-',
-
         link: '-',
         pipelineLabels: '-'
       },

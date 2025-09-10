@@ -49,7 +49,7 @@ export const generateEmailPayload = async ({
 
   replacedContent = await replaceDocuments(subdomain, replacedContent, target);
 
-  const { subject, content } = await sendCommonMessage({
+  const { subject, content = "" } = await sendCommonMessage({
     subdomain,
     serviceName,
     action: "automations.replacePlaceHolders",
@@ -81,6 +81,6 @@ export const generateEmailPayload = async ({
     fromEmail: formatFromEmail(sender, fromUserEmail),
     toEmails: filterOutSenderEmail(toEmails, fromUserEmail),
     ccEmails: filterOutSenderEmail(ccEmails, fromUserEmail),
-    customHtml: content,
+    customHtml: content.replace(/{{\s*([^}]+)\s*}}/g, "-"),
   };
 };
