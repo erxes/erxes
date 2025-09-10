@@ -9,8 +9,9 @@ import {
   AutomationHistoriesQueryResponse,
   IAutomation,
   ITrigger,
-  RemoveMutationResponse
+  RemoveMutationResponse,
 } from '../types';
+import { Button } from '@erxes/ui/src';
 
 type Props = {
   automation: IAutomation;
@@ -39,17 +40,23 @@ function HistoriesContainer(props: FinalProps) {
   if (automationHistoriesQuery.loading) {
     return null;
   }
-  const { automationHistories = [], automationHistoriesTotalCount = 0 } =
-    automationHistoriesQuery;
+  const {
+    automationHistories = [],
+    automationHistoriesTotalCount = 0,
+    refetch,
+  } = automationHistoriesQuery;
 
   return (
-    <Histories
-      automation={automation}
-      histories={automationHistories}
-      totalCount={automationHistoriesTotalCount}
-      triggersConst={triggersConst}
-      actionsConst={actionsConst}
-    />
+    <>
+      <Button onClick={() => refetch()}>Refetch</Button>
+      <Histories
+        automation={automation}
+        histories={automationHistories}
+        totalCount={automationHistoriesTotalCount}
+        triggersConst={triggersConst}
+        actionsConst={actionsConst}
+      />
+    </>
   );
 }
 
@@ -61,10 +68,10 @@ export default withProps<Props>(
         variables: {
           ...filterParams,
           automationId: automation._id,
-          page: filterParams.page
+          page: filterParams.page,
         },
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     })
   )(HistoriesContainer)
 );

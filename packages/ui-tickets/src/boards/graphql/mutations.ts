@@ -281,6 +281,7 @@ mutation conversationConvertToCard(
   $itemId: String
   $itemName: String
   $branchIds: [String]
+  $tagIds: [String]
   $labelIds: [String]
   $priority: String
   $stageId: String
@@ -298,6 +299,7 @@ mutation conversationConvertToCard(
     itemId: $itemId
     itemName: $itemName
     branchIds: $branchIds
+    tagIds: $tagIds
     labelIds: $labelIds
     priority: $priority
     stageId: $stageId

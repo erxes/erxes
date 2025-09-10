@@ -35,7 +35,7 @@ const callsQueries = {
       serviceName: 'core',
       action: 'customers.findOne',
       data: {
-        customerPrimaryPhone: customerPhone,
+        primaryPhone: customerPhone,
       },
       defaultValue: null,
     });

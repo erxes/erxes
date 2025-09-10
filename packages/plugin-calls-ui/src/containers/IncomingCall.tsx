@@ -38,10 +38,10 @@ const IncomingCallContainer = (props: IProps, context) => {
     callUserIntegrations?.[0]?.inboxId;
 
   const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
-  const { data, loading } = useQuery(gql(queries.callCustomers), {
+  const { data, loading } = useQuery(gql(queries.callCustomerDetail), {
     fetchPolicy: 'network-only',
     variables: {
-      phoneNumber,
+      customerPhone: phoneNumber,
     },
   });
 
@@ -61,10 +61,16 @@ const IncomingCallContainer = (props: IProps, context) => {
 
         Alert.error(errorMessage);
       });
+  }, []);
 
+  useEffect(() => {
+    if (!loading && data?.callsCustomerDetail) {
+      setCustomer(data.callsCustomerDetail);
+    }
+  }, [loading, data]);
+
+  useEffect(() => {
     if (phoneNumber && call?.id) {
-      if (!loading) setCustomers(data?.callCustomers);
-
       createCustomerMutation({
         variables: {
           inboxIntegrationId: inboxId,
@@ -73,14 +79,16 @@ const IncomingCallContainer = (props: IProps, context) => {
         },
       })
         .then(({ data }: any) => {
-          setCustomer(data.callAddCustomer?.customer);
-          setChannels(data.callAddCustomer?.channels);
+          if (data?.callAddCustomer?.customer) {
+            setCustomers([data.callAddCustomer.customer]);
+            setChannels(data.callAddCustomer.channels);
+          }
         })
         .catch((e) => {
           Alert.error(e.message);
         });
     }
-  }, [phoneNumber, call?.id, data, loading]);
+  }, [phoneNumber, call?.id]);
 
   return (
     <IncomingCall

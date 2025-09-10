@@ -1,4 +1,4 @@
-import { fetchPolaris, getDepositAccount, getContract } from "../utils";
+import { fetchPolaris, getContract, getDepositAccount } from "../utils";
 
 export const createLoanClose = async (
   subdomain,
@@ -36,28 +36,28 @@ export const createLoanClose = async (
       [
         {
           acntCode: depositAccount.transAccount,
-          acntType: "INCOME"
+          acntType: "INCOME",
         },
         {
           acntCode: loanContract.number,
-          acntType: "EXPENSE"
-        }
+          acntType: "EXPENSE",
+        },
       ],
-      13600107
+      13600107,
     ],
     addParams: [
       {
         contAcntType: "CASA",
-        chkAcntInt: "N"
-      }
-    ]
+        chkAcntInt: "N",
+      },
+    ],
   };
 
   const loanGiveReponse = await fetchPolaris({
     subdomain,
     op: "13610267",
     data: [loanClose],
-    polarisConfig
+    polarisConfig,
   });
 
   return loanGiveReponse.txnJrno;
