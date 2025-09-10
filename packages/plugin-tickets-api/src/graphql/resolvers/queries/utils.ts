@@ -500,9 +500,12 @@ export const generateCommonFilters = async (
       supervisorDepartmentIds.filter((id) =>
         pipelineDepartmentIds.includes(id)
       ) || [];
-    const isEligibleSeeAllCards = (pipeline.excludeCheckUserIds || []).includes(
-      currentUserId
-    );
+
+    const isEligibleSeeAllCards =
+      user.role === "system" ||
+      user.isOwner ||
+      (pipeline.excludeCheckUserIds || []).includes(currentUserId);
+
     if (
       commonIds?.length > 0 &&
       (pipeline.isCheckUser || pipeline.isCheckDepartment) &&

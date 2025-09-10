@@ -48,7 +48,7 @@ const commonEnvs = configs => {
     REDIS_PORT: db_server_address ? REDIS_PORT : 6379,
     REDIS_PASSWORD: redis.password || "",
     RABBITMQ_HOST: rabbitmq_host,
-    ELASTICSEARCH_URL: `http://elastic:${elasticsearch.password}${
+    ELASTICSEARCH_URL: `http://elastic:${elasticsearch.password}@${
       db_server_address ||
       (isSwarm ? "erxes-dbs_elasticsearch" : "elasticsearch")
     }:9200`,
