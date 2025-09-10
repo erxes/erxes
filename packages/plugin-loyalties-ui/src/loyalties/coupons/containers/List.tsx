@@ -1,9 +1,8 @@
-import { gql, useQuery } from '@apollo/client';
-import { Spinner } from '@erxes/ui/src/components';
-import { router } from '@erxes/ui/src/utils';
-import React from 'react';
-import List from '../components/List';
-import { queries } from '../graphql';
+import { gql, useQuery } from "@apollo/client";
+import { router } from "@erxes/ui/src/utils";
+import React from "react";
+import List from "../components/List";
+import { queries } from "../graphql";
 
 type Props = {
   queryParams: any;
@@ -14,14 +13,10 @@ const ListContainer = (props: Props) => {
 
   const { data, loading } = useQuery(gql(queries.coupons), {
     variables: generateParams(queryParams),
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
   });
 
-  if (loading) {
-    return <Spinner />;
-  }
-
-  const { list = [], totalCount = 0 } = data.coupons || {};
+  const { list = [], totalCount = 0 } = data?.coupons || {};
 
   const finalProps = {
     ...props,

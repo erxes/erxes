@@ -64,7 +64,6 @@ class VoucherForm extends React.Component<Props, State> {
     }
 
     return {
-      _id: finalValues._id,
       tagIds: this.state.tagIds,
       ...this.state.voucher,
     };
@@ -118,7 +117,7 @@ class VoucherForm extends React.Component<Props, State> {
     this.setState({
       voucher: {
         ...voucher,
-        ownerIds: (ownerIds || []) as string[], 
+        ownerIds: (ownerIds || []) as string[],
       },
     });
   };
@@ -154,7 +153,9 @@ class VoucherForm extends React.Component<Props, State> {
 
     const { ownerType } = voucher;
 
-    const initialValue = this.props.voucher ? voucher.ownerId : voucher.ownerIds;
+    const initialValue = this.props.voucher
+      ? voucher.ownerId
+      : voucher.ownerIds;
 
     switch (ownerType) {
       case "customer":
@@ -207,6 +208,7 @@ class VoucherForm extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const { voucher } = this.state;
+    const { voucher: initialVoucher } = this.props;
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
 
@@ -253,23 +255,25 @@ class VoucherForm extends React.Component<Props, State> {
             {this.renderOwner()}
           </FormGroup>
 
-          <FormGroup>
-            <ControlLabel required={true}>Status</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="status"
-              componentclass="select"
-              defaultValue={voucher.status}
-              required={true}
-              onChange={this.onChangeSelect}
-            >
-              {["new", "status"].map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </FormControl>
-          </FormGroup>
+          {initialVoucher?.campaignId && initialVoucher?.status === "new" && (
+            <FormGroup>
+              <ControlLabel required={true}>Status</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="status"
+                componentclass="select"
+                defaultValue={voucher.status}
+                required={true}
+                onChange={this.onChangeSelect}
+              >
+                {["new", "used"].map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+          )}
         </ScrollWrapper>
 
         <ModalFooter>

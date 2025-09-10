@@ -1,20 +1,24 @@
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup,
-} from "@erxes/ui/src/components/form";
-import { Icon, Tip } from "@erxes/ui/src/components";
-import { __, router } from "@erxes/ui/src/utils";
-import { useLocation, useNavigate } from "react-router-dom";
-
-import React from "react";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
-import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
-import { SidebarFilters } from "../../common/styles";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { EndDateContainer } from "@erxes/ui-forms/src/forms/styles";
 
-const { Section } = Wrapper.Sidebar;
+import { FieldStyle, SidebarList } from "@erxes/ui/src";
+import { Box, Icon, Tip } from "@erxes/ui/src/components";
+import { ControlLabel } from "@erxes/ui/src/components/form";
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { __, router } from "@erxes/ui/src/utils";
+import Datetime from "@nateradebaugh/react-datetime";
+import dayjs from "dayjs";
+import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import SelectClientPortalUser from "../../../common/SelectClientPortalUsers";
+import {
+  CustomRangeContainer,
+  ExtraButtons,
+  FilterContainer,
+} from "../../../styles";
+import { FILTER_OPTIONS } from "../../coupons/constants";
 
 interface IProps {
   queryParams: any;
@@ -24,118 +28,237 @@ const FilterCampaign = (props: IProps) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const clearCategoryFilter = () => {
-    router.setParams(navigate, location, {
-      ownerId: null,
-      ownerType: null,
-      status: null,
-    });
-  };
-
-  const setFilter = (name, value) => {
-    router.setParams(navigate, location, { [name]: value });
-  };
-
   const { queryParams } = props;
-  return (
-    <Sidebar>
-      <Section maxHeight={188} $collapsible={false}>
-        <Section.Title>
-          {__("Addition filters")}
-          <Section.QuickButtons>
-            {(router.getParam(location, "status") ||
-              router.getParam(location, "ownerType") ||
-              router.getParam(location, "ownerID")) && (
-              <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
-                <Tip text={__("Clear filter")} placement="bottom">
-                  <Icon icon="cancel-1" />
-                </Tip>
-              </a>
+
+  const clearCategoryFilter = (field?: string[]) => {
+    let params = [
+      "page",
+      "ownerType",
+      "orderType",
+      "order",
+      "ownerId",
+      "fromDate",
+      "toDate",
+    ];
+
+    if (field?.length) {
+      params = field;
+    }
+
+    router.removeParams(navigate, location, ...params);
+  };
+
+  const handleOnChange = (field, value) => {
+    value = String(value);
+
+    if (!value && field === "ownerType") {
+      return clearCategoryFilter(["ownerType", "ownerId"]);
+    }
+
+    if (!value && field === "orderType") {
+      return clearCategoryFilter(["orderType", "order"]);
+    }
+
+    if (!value) {
+      return clearCategoryFilter([field]);
+    }
+
+    if (field === "fromDate" || field === "toDate") {
+      value = dayjs(value).format("YYYY/MM/DD");
+    }
+
+    router.removeParams(navigate, location, "page", "perPage");
+    router.setParams(navigate, location, { [field]: value });
+  };
+
+  const renderOwner = () => {
+    if (queryParams.ownerType === "customer") {
+      return (
+        <SelectCustomers
+          label="Customers"
+          name="ownerId"
+          multi={false}
+          initialValue={queryParams?.ownerId}
+          onSelect={(value) => handleOnChange("ownerId", value)}
+        />
+      );
+    }
+
+    if (queryParams.ownerType === "user") {
+      return (
+        <SelectTeamMembers
+          label="Team Members"
+          name="ownerId"
+          multi={false}
+          initialValue={queryParams?.ownerId}
+          onSelect={(value) => handleOnChange("ownerId", value)}
+        />
+      );
+    }
+
+    if (queryParams.ownerType === "company") {
+      return (
+        <SelectCompanies
+          label="Company"
+          name="ownerId"
+          multi={false}
+          initialValue={queryParams?.ownerId}
+          onSelect={(value) => handleOnChange("ownerId", value)}
+        />
+      );
+    }
+
+    if (queryParams.ownerType === "cpUser") {
+      return (
+        <SelectClientPortalUser
+          label="Client Portal Users"
+          name="ownerId"
+          multi={false}
+          initialValue={queryParams?.ownerId}
+          onSelect={(value) => handleOnChange("ownerId", value)}
+        />
+      );
+    }
+
+    return <></>;
+  };
+
+  const renderDateRange = () => {
+    return (
+      <FilterContainer>
+        <ControlLabel>{`Created Date range:`}</ControlLabel>
+        <CustomRangeContainer>
+          <DateContainer>
+            <Datetime
+              dateFormat="YYYY/MM/DD"
+              value={queryParams["fromDate"] || null}
+              onChange={(date) => handleOnChange("fromDate", date)}
+              className={"filterDate"}
+              viewMode={"days"}
+              inputProps={{ placeholder: __("From") }}
+              timeFormat=""
+            />
+          </DateContainer>
+          <EndDateContainer>
+            <DateContainer>
+              <Datetime
+                dateFormat="YYYY/MM/DD"
+                value={queryParams["toDate"] || null}
+                onChange={(date) => handleOnChange("toDate", date)}
+                className={"filterDate"}
+                viewMode={"days"}
+                inputProps={{ placeholder: __("To") }}
+                timeFormat=""
+              />
+            </DateContainer>
+          </EndDateContainer>
+        </CustomRangeContainer>
+      </FilterContainer>
+    );
+  };
+
+  const renderExtraButtons = (field) => {
+    let content;
+
+    if (
+      field === "date" &&
+      (queryParams["fromDate"] || queryParams["toDate"])
+    ) {
+      content = (
+        <Icon
+          icon="times-circle"
+          onClick={() => clearCategoryFilter(["fromDate", "toDate"])}
+        />
+      );
+    }
+
+    if (queryParams[field]) {
+      content = (
+        <Icon icon="times-circle" onClick={() => handleOnChange(field, "")} />
+      );
+    }
+
+    return (
+      <ExtraButtons>
+        <Tip text={"Clear Filter"}>{content}</Tip>
+      </ExtraButtons>
+    );
+  };
+
+  const renderOptions = ({
+    field,
+    title,
+    child,
+    type,
+  }: {
+    field: string;
+    title: string;
+    type?: string;
+    child?: React.ReactNode;
+  }) => {
+    if (child) {
+      return (
+        <Box
+          title={__(`Filter by ${title}`)}
+          name={`showFilterBy${field}`}
+          isOpen={true}
+          extraButtons={renderExtraButtons(field)}
+        >
+          {child}
+        </Box>
+      );
+    }
+
+    const options = FILTER_OPTIONS[field][type] || FILTER_OPTIONS[field] || [];
+
+    return (
+      <Box
+        title={__(`Filter by ${title}`)}
+        name={`showFilterBy${field}`}
+        isOpen={true}
+        extraButtons={renderExtraButtons(field)}
+      >
+        {child || (
+          <SidebarList>
+            {options.map(({ value, label }) => {
+              return (
+                <li key={value}>
+                  <a
+                    href="#filter"
+                    tabIndex={0}
+                    className={
+                      queryParams[field] === String(value) ? "active" : ""
+                    }
+                    onClick={() => handleOnChange(field, value)}
+                  >
+                    <FieldStyle>{label}</FieldStyle>
+                  </a>
+                </li>
+              );
+            })}
+
+            {queryParams["ownerType"] && field === "ownerType" && (
+              <FilterContainer>{renderOwner()}</FilterContainer>
             )}
-          </Section.QuickButtons>
-        </Section.Title>
-        <SidebarFilters>
-          <FormGroup>
-            <ControlLabel>Status</ControlLabel>
-            <FormControl
-              name="status"
-              componentclass="select"
-              defaultValue={queryParams?.status || ""}
-              required={false}
-              onChange={(e) =>
-                setFilter("status", (e.currentTarget as HTMLInputElement).value)
-              }
-            >
-              <option key={""} value={""}>
-                {"All status"}
-              </option>
-              <option key={"new"} value={"new"}>
-                {"new"}
-              </option>
-              <option key={"used"} value={"used"}>
-                {"used"}
-              </option>
-            </FormControl>
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Owner type</ControlLabel>
-            <FormControl
-              name="ownerType"
-              componentclass="select"
-              defaultValue={queryParams?.ownerType || ""}
-              required={false}
-              onChange={(e) =>
-                setFilter(
-                  "ownerType",
-                  (e.currentTarget as HTMLInputElement).value
-                )
-              }
-            >
-              <option key={""} value={""}>
-                {"All types"}
-              </option>
-              <option key={"customer"} value={"customer"}>
-                {"customer"}
-              </option>
-              <option key={"user"} value={"user"}>
-                {"user"}
-              </option>
-              <option key={"company"} value={"company"}>
-                {"company"}
-              </option>
-            </FormControl>
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Customer</ControlLabel>
-            <SelectCustomers
-              customOption={{
-                value: "",
-                label: "All customers",
-              }}
-              label="Customer"
-              name="ownerId"
-              multi={false}
-              initialValue={queryParams?.ownerId || ""}
-              onSelect={(customerId) => setFilter("ownerId", customerId)}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Team member</ControlLabel>
-            <SelectTeamMembers
-              customOption={{
-                value: "",
-                label: "All team members",
-              }}
-              label="Team member"
-              name="ownerId"
-              multi={false}
-              initialValue={queryParams?.ownerId || ""}
-              onSelect={(userId) => setFilter("ownerId", userId)}
-            />
-          </FormGroup>
-        </SidebarFilters>
-      </Section>
-    </Sidebar>
+          </SidebarList>
+        )}
+      </Box>
+    );
+  };
+
+  return (
+    <>
+      {renderOptions({ field: "status", title: "Status", type: "voucher" })}
+      {renderOptions({ field: "ownerType", title: "Owner Type" })}
+      {renderOptions({ field: "orderType", title: "Order Type" })}
+      {queryParams["orderType"] &&
+        renderOptions({ field: "order", title: "Order" })}
+      {renderOptions({
+        field: "date",
+        title: "Date",
+        child: renderDateRange(),
+      })}
+    </>
   );
 };
 
