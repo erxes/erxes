@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.17.2](https://github.com/erxes/erxes/compare/2.17.1...2.17.2) (2025-09-11)
+
+### Bug Fixes
+
+* paymentTypes config format read eval ([1893cbc](https://github.com/erxes/erxes/commit/1893cbc30d0ce93f6339eb8c73e04effa9965ffb))
+
 ## [2.17.1](https://github.com/erxes/erxes/compare/2.17.0...2.17.1) (2025-09-10)
 
 ### Features
