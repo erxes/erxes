@@ -248,6 +248,7 @@ const convertParams = `
   itemId: String
   itemName: String
   branchIds: [String]
+  tagIds:[String]
   stageId: String
   customFieldsData: JSON
   priority: String

@@ -40,5 +40,5 @@ export default {
   sendLoanSchedules,
   loanContractActive,
   loanGiveTransaction,
-  closeLoanRepayment
+  closeLoanRepayment,
 };

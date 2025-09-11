@@ -350,12 +350,9 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
       if (doc.customFieldsData) {
         // clean custom field values
-        console.log(doc.customFieldsData);
-
         doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
           doc.customFieldsData
         );
-        console.log(doc.customFieldsData);
       }
 
       if (doc.emails) {

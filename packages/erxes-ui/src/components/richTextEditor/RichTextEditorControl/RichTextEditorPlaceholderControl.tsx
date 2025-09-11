@@ -27,7 +27,7 @@ const transformToGroupedOptions = (data: any) => {
   return Object.values(groups);
 };
 
-const MoreIcon = () => <Icon icon="angle-down" />;
+const MoreIcon = () => <Icon icon='angle-down' />;
 
 const DropdownIndicator: React.FC<DropdownIndicatorProps> = (props) => {
   return (
@@ -56,10 +56,10 @@ export const RichTextEditorPlaceholderControl = ({ placeholderProp }) => {
   return (
     <Select
       value={placeholderProp?.title}
-      placeholder="Attributes"
+      placeholder='Attributes'
       isMulti={false}
-      isSearchable={false}
-      menuPlacement="auto"
+      isSearchable={true}
+      menuPlacement='auto'
       maxMenuHeight={200}
       onChange={(val: any) => handlePlaceholder(val.value)}
       options={groupedOptions}
@@ -69,7 +69,7 @@ export const RichTextEditorPlaceholderControl = ({ placeholderProp }) => {
         Menu,
       }}
       menuPortalTarget={document.body}
-      styles={getReactSelectStyle(isSourceEnabled)}
+      styles={getReactSelectStyle(isSourceEnabled, { width: '300px' })}
     />
   );
 };

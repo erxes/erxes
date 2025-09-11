@@ -4,11 +4,20 @@ import { sendCommonMessage, sendCoreMessage } from "../messageBroker";
 import { getEnv } from "@erxes/api-utils/src";
 import * as moment from "moment";
 
+function resolvePlaceholder(obj, placeholder) {
+  const path = placeholder.replace(/[{}]/g, "").trim();
+
+  const keys = path.split(".");
+
+  // Walk through object
+  return keys.reduce((acc, key) => acc && acc[key], obj);
+}
+
 export const getRelatedValue = async (
   models: IModels,
   subdomain: string,
   target,
-  targetKey,
+  targetKey: string,
   relatedValueProps: any = {}
 ) => {
   if (
@@ -159,24 +168,77 @@ export const getRelatedValue = async (
     }
   }
 
-  if ((targetKey || "").includes("createdBy.")) {
-    return await generateCreatedByFieldValue({ subdomain, target, targetKey });
+  if (
+    ["createdBy.", "modifiedBy."].some((key) => (targetKey || "").includes(key))
+  ) {
+    const [targetField, userField, userSubField] = targetKey.split(".");
+
+    const targetFieldMap = {
+      createdBy: "userId",
+      modifiedBy: "modifiedBy",
+    };
+
+    const user = (await sendCoreMessage({
+      subdomain,
+      action: "users.findOne",
+      data: { _id: target[targetFieldMap[targetField]] },
+      isRPC: true,
+    })) as { positionIds: string[] } & IUser;
+    return await generateUserFieldValue({
+      subdomain,
+      user,
+      targetKey,
+    });
+  }
+
+  if (
+    ["assignedUsers.", "watchedUsers."].some((key) =>
+      (targetKey || "").includes(key)
+    )
+  ) {
+    // your logic here
+    const [targetField, userField, userSubField] = targetKey.split(".");
+
+    const fieldsMap = {
+      watchedUsers: "watchedUserIds",
+      assignedUsers: "assignedUserIds",
+    };
+
+    const users = (await sendCoreMessage({
+      subdomain,
+      action: "users.find",
+      data: { _id: { $in: target[fieldsMap[targetField]] } },
+      isRPC: true,
+    })) as ({ positionIds: string[] } & IUser)[];
+
+    return await Promise.all(
+      (users || []).map(
+        async (user) =>
+          await generateUserFieldValue({
+            subdomain,
+            user,
+            targetKey,
+          })
+      )
+    );
   }
 
   if (targetKey.includes("customers.")) {
-    const result = await generateCustomersFielValue({
+    return await generateCustomersFielValue({
       target,
       targetKey,
       subdomain,
     });
-    return result;
   }
-  if (targetKey.includes("customFieldsData.")) {
+  if (targetKey.startsWith("customFieldsData.")) {
+    const [_, fieldId] = targetKey.split("customFieldsData.");
+
     return await generateCustomFieldsDataValue({
       target,
-      targetKey,
+      fieldId,
       subdomain,
       relatedValueProps,
+      targetKey,
     });
   }
 
@@ -250,17 +312,18 @@ export const getRelatedValue = async (
 };
 
 const generateCustomFieldsDataValue = async ({
-  targetKey,
+  fieldId,
   subdomain,
   target,
   relatedValueProps,
+  targetKey,
 }: {
-  targetKey: string;
+  fieldId: string;
   subdomain: string;
   target: any;
+  targetKey: string;
   relatedValueProps: any;
 }) => {
-  const [_, fieldId] = targetKey.split("customFieldsData.");
   const customFieldData = (target?.customFieldsData || []).find(
     ({ field }) => field === fieldId
   );
@@ -275,10 +338,6 @@ const generateCustomFieldsDataValue = async ({
     data: {
       query: {
         _id: fieldId,
-        $or: [
-          { type: "users" },
-          { type: "input", validation: { $in: ["date", "datetime"] } },
-        ],
       },
     },
     isRPC: true,
@@ -311,7 +370,7 @@ const generateCustomFieldsDataValue = async ({
     return users
       .map(
         ({ details }) =>
-          `${details?.firstName || ""} ${details?.lastName || ""}`
+          `${details?.firstName || ""} ${details?.lastName || ""} ${details?.position || ""}`
       )
       .filter(Boolean)
       .join(", ");
@@ -327,6 +386,8 @@ const generateCustomFieldsDataValue = async ({
   ) {
     return moment(customFieldData.value).format("YYYY-MM-DD HH:mm");
   }
+
+  return customFieldData.value;
 };
 
 const generateCustomersFielValue = async ({
@@ -338,7 +399,7 @@ const generateCustomersFielValue = async ({
   subdomain: string;
   target: any;
 }) => {
-  const [_, fieldName] = targetKey.split(".");
+  const [targetField, fieldName, fieldId] = targetKey.split(".");
 
   const customerIds = await sendCoreMessage({
     subdomain,
@@ -351,7 +412,6 @@ const generateCustomersFielValue = async ({
     isRPC: true,
     defaultValue: [],
   });
-
   const customers: any[] =
     (await sendCoreMessage({
       subdomain,
@@ -387,24 +447,46 @@ const generateCustomersFielValue = async ({
       .filter(Boolean)
       .join(", ");
   }
+
+  if (fieldName === "customFieldsData" && fieldId) {
+    const results = await Promise.all(
+      customers.map(async (customer) => {
+        return await generateCustomFieldsDataValue({
+          subdomain,
+          fieldId,
+          target: customer,
+          targetKey,
+          relatedValueProps: null,
+        });
+      })
+    );
+
+    return results.filter(Boolean).join(", ");
+  }
+
+  return customers
+    .map((customer) =>
+      resolvePlaceholder(
+        customer,
+        targetKey.replace(new RegExp(`^${targetField}\\.`), "")
+      )
+    )
+    .filter(Boolean)
+    .join(", ");
 };
 
-const generateCreatedByFieldValue = async ({
+const generateUserFieldValue = async ({
   targetKey,
   subdomain,
-  target,
+
+  user,
 }: {
   targetKey: string;
   subdomain: string;
-  target: any;
+
+  user: { positionIds: string[] } & IUser;
 }) => {
-  const [_, userField, userSubField] = targetKey.split(".");
-  const user = (await sendCoreMessage({
-    subdomain,
-    action: "users.findOne",
-    data: { _id: target?.userId },
-    isRPC: true,
-  })) as { positionIds: string[] } & IUser;
+  const [targetField, userField, userSubField] = targetKey.split(".");
 
   if (userField === "branch") {
     const branches = await sendCoreMessage({
@@ -456,10 +538,6 @@ const generateCreatedByFieldValue = async ({
     return `${details?.operatorPhone || ""}`;
   }
 
-  if (userField === "email") {
-    return `${user?.email || "-"}`;
-  }
-
   if (userField === "fullName") {
     const { details, username } = user || {};
     return (
@@ -485,7 +563,29 @@ const generateCreatedByFieldValue = async ({
         .filter(Boolean)
         .join(", ");
     }
+
     return user?.details?.position;
+  }
+
+  if (userField === "customFieldsData" && userSubField) {
+    const result = await generateCustomFieldsDataValue({
+      subdomain,
+      fieldId: userSubField,
+      target: user,
+      targetKey,
+      relatedValueProps: null,
+    });
+
+    return result;
+  }
+
+  const replacedValue = resolvePlaceholder(
+    user,
+    targetKey.replace(new RegExp(`^${targetField}\\.`), "")
+  );
+
+  if (replacedValue) {
+    return replacedValue;
   }
 };
 

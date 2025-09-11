@@ -56,7 +56,7 @@ export const createLoanSchedule = async (
     null,
     contract.description,
     [],
-    []
+    [],
   ];
 
   const schedule = await fetchPolaris({

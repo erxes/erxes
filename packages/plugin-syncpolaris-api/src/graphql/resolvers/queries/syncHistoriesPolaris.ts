@@ -1,15 +1,15 @@
-import { IContext } from "../../../connectionResolver";
 import { paginate } from "@erxes/api-utils/src";
 import { escapeRegExp, getPureDate } from "@erxes/api-utils/src/core";
-import { getLoanDetail } from "../../../utils/loan/getLoanDetail";
-import { getDepositStatement } from "../../../utils/deposit/getDepositStatement";
+import { IContext } from "../../../connectionResolver";
 import { getDepositBalance } from "../../../utils/deposit/getDepositBalance";
+import { getDepositDetail } from "../../../utils/deposit/getDepositDetail";
+import { getDepositStatement } from "../../../utils/deposit/getDepositStatement";
+import { getCloseLoanDetail } from "../../../utils/loan/getCloseLoanDetail";
 import { getLoanCollaterials } from "../../../utils/loan/getLoanCollaterials";
+import { getLoanDetail } from "../../../utils/loan/getLoanDetail";
+import { getSavingDetail } from "../../../utils/saving/getSavingDetail";
 import { getSavingTransactions } from "../../../utils/saving/getSavingTransactions";
 import { getConfig } from "../../../utils/utils";
-import { getSavingDetail } from "../../../utils/saving/getSavingDetail";
-import { getDepositDetail } from "../../../utils/deposit/getDepositDetail";
-import { getCloseLoanDetail } from "../../../utils/loan/getCloseLoanDetail";
 
 const generateFilter = (params) => {
   const {
@@ -21,7 +21,7 @@ const generateFilter = (params) => {
     searchConsume,
     searchSend,
     searchResponse,
-    searchError
+    searchError,
   } = params;
 
   const query: any = {};
@@ -97,7 +97,7 @@ const polarisQueries = {
       default:
         break;
     }
-  }
+  },
 };
 
 export default polarisQueries;

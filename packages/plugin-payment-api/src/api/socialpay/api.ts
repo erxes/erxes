@@ -69,13 +69,14 @@ export class SocialPayAPI extends BaseAPI {
   }
 
   async authorize() {
+    // create test invoice to check credentials work
     const invoiceId = randomAlphanumeric(10);
     try {
       const data: ISocialPayInvoice = {
-        amount: '0',
+        amount: '100',
         checksum: hmac256(
           this.inStoreSPKey,
-          this.inStoreSPTerminal + invoiceId + 0
+          this.inStoreSPTerminal + invoiceId + 100
         ),
         invoice: invoiceId,
         terminal: this.inStoreSPTerminal,
@@ -87,6 +88,9 @@ export class SocialPayAPI extends BaseAPI {
         headers: { 'Content-Type': 'application/json' },
         data,
       }).then((r) => r.json());
+
+      console.log(body);
+      console.log(header);
 
       if (header.code !== 200) {
         throw new Error(body.error.errorDesc);

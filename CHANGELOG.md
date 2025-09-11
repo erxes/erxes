@@ -1,5 +1,50 @@
 # Changelog
 
+## [2.17.1](https://github.com/erxes/erxes/compare/2.17.0...2.17.1) (2025-09-10)
+
+### Features
+
+* enhance automation field generation and related value retrieval ([361f7de](https://github.com/erxes/erxes/commit/361f7de7a84fe8bf2411b92fbaa10f55da60a945))
+* **tickets:** allow system or owner users to see all tickets ([7441c63](https://github.com/erxes/erxes/commit/7441c63081842fa91e7888781962f5ad235769c4))
+
+### Bug Fixes
+
+* correct string interpolation and formatting in Docker utility functions ([358b0fd](https://github.com/erxes/erxes/commit/358b0fdb3ef88ad4857294a6c2eb20dcb87d6425))
+
+## [2.17.0](https://github.com/erxes/erxes/compare/2.16.7...2.17.0) (2025-09-09)
+
+### Features
+
+* **inbox:** add tag type and update search filter ([9dd3475](https://github.com/erxes/erxes/commit/9dd3475bb6f2064adc37b1270d69668692a57d78))
+* update cli version to 2.0.3 ([6804f5c](https://github.com/erxes/erxes/commit/6804f5ca1a389cd74ccfda57567cf84456fb5df9))
+
+### Bug Fixes
+
+* An error occured in CLEAN while prepareCustomFieldsData to continue ([97f1df1](https://github.com/erxes/erxes/commit/97f1df1c773b360ea5488a4da708fa212cdd66b2))
+* essyncer base version up and some mappings up  ([c4befba](https://github.com/erxes/erxes/commit/c4befbac04cce2c0170ea5717d04801b470e2589))
+* fields clean with await ([#6130](https://github.com/erxes/erxes/issues/6130)) ([4750c2c](https://github.com/erxes/erxes/commit/4750c2c76f7f8387fa9627a2392374fab50cd829))
+
+## [2.16.7](https://github.com/erxes/erxes/compare/2.16.6...2.16.7) (2025-09-04)
+
+### Features
+
+* **form:** select team members based on the branch ([feee3c3](https://github.com/erxes/erxes/commit/feee3c3ddf93d1251548442a4e07b263d808801c))
+* **tickets:** add toggle type for ticket relations in sidebar ([38246a0](https://github.com/erxes/erxes/commit/38246a033bddeba82787f94cff17384ffd9ab48f))
+* **tickets:** enhance getRelatedValue to include parent branch titles ([9c556f4](https://github.com/erxes/erxes/commit/9c556f411b668e27dd08a9792e5b551ba05dec9d))
+* **tickets:** generate custom fields log for ticket form ([8346014](https://github.com/erxes/erxes/commit/83460148e0e4c828058f08d6faa163d8e18c7269))
+* **tickets:** refactor branch UI ([1ee5de9](https://github.com/erxes/erxes/commit/1ee5de9b01954756627fb19821699b80dc4dda8c))
+* **ui-form:** set default value to current time ([cfcf621](https://github.com/erxes/erxes/commit/cfcf6219c2aee6a6b130d548210e9e49c4226295))
+
+### Bug Fixes
+
+* **calls:** select call customer ([8f351d0](https://github.com/erxes/erxes/commit/8f351d0875e896187ad23fa002f622d64de710a9))
+* **core-ui:** Assigned to field UI depends on branch selection ([e84656c](https://github.com/erxes/erxes/commit/e84656c3386453c3aaa229a997c60d01d35fb083))
+* **core-ui:** generateField add branch props ([9673190](https://github.com/erxes/erxes/commit/96731907b8075ffd7497275e50f0968f57cc32d6))
+* **core-ui:** properly handle selectedOptions in SelectWithSearch ([4399466](https://github.com/erxes/erxes/commit/4399466f0ac16feb029adf0c6d963bc26d7c93df))
+* loans, savings and syncpolaris improve ([#6113](https://github.com/erxes/erxes/issues/6113)) ([7143bf1](https://github.com/erxes/erxes/commit/7143bf141bf5d8db8e3d8a3aa5c2957e061e0391))
+* pricing repeat ui ([638fd1d](https://github.com/erxes/erxes/commit/638fd1d6744e9f11b1ca436dd9424caba9db74fd))
+* **tickets:** user query search  ([ddab9a2](https://github.com/erxes/erxes/commit/ddab9a2f6dc114206b5871d08fa78cf885438a6d))
+
 ## [2.16.6](https://github.com/erxes/erxes/compare/2.16.5...2.16.6) (2025-08-26)
 
 ### Features

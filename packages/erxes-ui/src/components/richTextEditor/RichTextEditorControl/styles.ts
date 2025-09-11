@@ -251,7 +251,7 @@ const FontSelectWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
     width: max-content;
     .Select-menu {
       max-height: ${({ $toolbarPlacement }) =>
-    $toolbarPlacement === 'top' ? '135px' : '216px'};
+        $toolbarPlacement === 'top' ? '135px' : '216px'};
     }
   }
 
@@ -325,7 +325,6 @@ const ColorPickerWrapper = styled.div`
   }
 `;
 
-
 const RichTextEditorMenuWrapper = styled.div`
   display: flex;
   padding: 0.2rem;
@@ -343,7 +342,10 @@ const RichTextEditorMenuPopoverWrapper = styled.div`
   }
 `;
 
-const getReactSelectStyle = (isSourceEnabled: boolean) => {
+const getReactSelectStyle = (
+  isSourceEnabled: boolean,
+  additionalMenuStyles?: { [key: string]: any }
+) => {
   return {
     container: (provided) => ({
       ...provided,
@@ -380,8 +382,9 @@ const getReactSelectStyle = (isSourceEnabled: boolean) => {
     }),
     option: (provided, { isSelected }) => ({
       ...provided,
-      backgroundColor: isSelected ? rgba(colors.colorSecondary, 0.15) 
-      : 'transparent',
+      backgroundColor: isSelected
+        ? rgba(colors.colorSecondary, 0.15)
+        : 'transparent',
       '&:hover': {
         cursor: 'pointer',
         backgroundColor: !isSelected && rgba(colors.colorSecondary, 0.05),
@@ -390,11 +393,11 @@ const getReactSelectStyle = (isSourceEnabled: boolean) => {
         backgroundColor: rgba(colors.colorSecondary, 0.15),
       },
       color: isSelected ? '#000' : '#444',
-    }
-    ),
+    }),
     menu: (provided) => ({
       ...provided,
       width: 'min-content',
+      ...(additionalMenuStyles || {}),
     }),
     menuPortal: (provided) => ({ ...provided, zIndex: 9999 }),
     input: (provided) => ({
@@ -418,8 +421,8 @@ const getReactSelectStyle = (isSourceEnabled: boolean) => {
       ...provided,
       height: '1.75rem',
     }),
-  }
-}
+  };
+};
 
 export {
   EditorControl,
@@ -440,5 +443,5 @@ export {
   PickerAction,
   RichTextEditorMenuWrapper,
   RichTextEditorMenuPopoverWrapper,
-  getReactSelectStyle
+  getReactSelectStyle,
 };
