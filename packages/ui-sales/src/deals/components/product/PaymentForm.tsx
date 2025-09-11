@@ -212,7 +212,7 @@ class PaymentForm extends React.Component<Props, State> {
         if (type.scoreCampaignId) {
           thisPayInfo.maxVal = this.state.checkOwnerScore ?? 0;
           try {
-            const config = JSON.parse(type.config);
+            const config = eval("(" + type.config + ")");
             if (config?.require === 'qrCode') {
               thisPayInfo.maxVal = 0;
               thisPayInfo.hasPopup = true;

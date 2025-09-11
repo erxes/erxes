@@ -9,7 +9,7 @@ import { getConfig, getPureDate } from "./utils";
 const calcPreTaxPercentage = (paymentTypes, order) => {
   let itemAmountPrePercent = 0;
   const preTaxPaymentTypes: string[] = (paymentTypes || []).filter(p =>
-    (p.config || '').includes('preTax: true')
+    (p.config || '').includes('preTax: true') || (p.config || '').includes('"preTax": true')
   ).map(p => p.type);
 
   if (
