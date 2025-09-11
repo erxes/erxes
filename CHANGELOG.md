@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.17.1](https://github.com/erxes/erxes/compare/2.17.0...2.17.1) (2025-09-10)
+
+### Features
+
+* enhance automation field generation and related value retrieval ([361f7de](https://github.com/erxes/erxes/commit/361f7de7a84fe8bf2411b92fbaa10f55da60a945))
+* **tickets:** allow system or owner users to see all tickets ([7441c63](https://github.com/erxes/erxes/commit/7441c63081842fa91e7888781962f5ad235769c4))
+
+### Bug Fixes
+
+* correct string interpolation and formatting in Docker utility functions ([358b0fd](https://github.com/erxes/erxes/commit/358b0fdb3ef88ad4857294a6c2eb20dcb87d6425))
+
 ## [2.17.0](https://github.com/erxes/erxes/compare/2.16.7...2.17.0) (2025-09-09)
 
 ### Features
