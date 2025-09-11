@@ -1,18 +1,18 @@
-import { validSearchText } from '@erxes/api-utils/src';
-import { IItemCommonFields } from './definitions/boards';
-import { BOARD_STATUSES, BOARD_TYPES } from './definitions/constants';
+import { validSearchText } from "@erxes/api-utils/src";
+import { IItemCommonFields } from "./definitions/boards";
+import { BOARD_STATUSES, BOARD_TYPES } from "./definitions/constants";
 
-import { configReplacer } from '../utils';
-import { putActivityLog } from '../logUtils';
-import { itemsAdd } from '../graphql/resolvers/mutations/utils';
-import { generateModels, IModels } from '../connectionResolver';
+import { configReplacer } from "../utils";
+import { putActivityLog } from "../logUtils";
+import { itemsAdd } from "../graphql/resolvers/mutations/utils";
+import { generateModels, IModels } from "../connectionResolver";
 import {
   sendCommonMessage,
   sendCoreMessage,
   sendInboxMessage,
-  sendInternalNotesMessage
-} from '../messageBroker';
-import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
+  sendInternalNotesMessage,
+} from "../messageBroker";
+import { getServices } from "@erxes/api-utils/src/serviceDiscovery";
 
 interface ISetOrderParam {
   collection: any;
@@ -65,11 +65,11 @@ export const bulkUpdateOrders = async ({
   }
 
   if (!bulkOps.length) {
-    return '';
+    return "";
   }
 
   await collection.bulkWrite(bulkOps);
-  return 'ok';
+  return "ok";
 };
 
 const randomBetween = (min: number, max: number) => {
@@ -155,10 +155,10 @@ export const fillSearchTextItem = (
   doc: IItemCommonFields,
   item?: IItemCommonFields
 ) => {
-  const document = item || { name: '', description: '' };
+  const document = item || { name: "", description: "" };
   Object.assign(document, doc);
 
-  return validSearchText([document.name || '', document.description || '']);
+  return validSearchText([document.name || "", document.description || ""]);
 };
 
 export const getCollection = (models: IModels, type: string) => {
@@ -202,17 +202,17 @@ export const getCompanyIds = async (
 ): Promise<string[]> => {
   const conformities = await sendCoreMessage({
     subdomain,
-    action: 'conformities.findConformities',
+    action: "conformities.findConformities",
     data: {
       mainType,
       mainTypeId,
-      relType: 'company',
+      relType: "company",
     },
     isRPC: true,
     defaultValue: [],
   });
 
-  return conformities.map(c => c.relTypeId);
+  return conformities.map((c) => c.relTypeId);
 };
 
 export const getCustomerIds = async (
@@ -222,17 +222,17 @@ export const getCustomerIds = async (
 ): Promise<string[]> => {
   const conformities = await sendCoreMessage({
     subdomain,
-    action: 'conformities.findConformities',
+    action: "conformities.findConformities",
     data: {
       mainType,
       mainTypeId,
-      relType: 'customer',
+      relType: "customer",
     },
     isRPC: true,
     defaultValue: [],
   });
 
-  return conformities.map(c => c.relTypeId);
+  return conformities.map((c) => c.relTypeId);
 };
 
 export const getInternalNoteIds = async (
@@ -242,7 +242,7 @@ export const getInternalNoteIds = async (
 ): Promise<string[]> => {
   const internalNotes = await sendInternalNotesMessage({
     subdomain,
-    action: 'findInternalNotes',
+    action: "findInternalNotes",
     data: {
       contentType,
       contentTypeId,
@@ -262,7 +262,7 @@ export const destroyBoardItemRelations = async (
   contentType: string
 ) => {
   await putActivityLog(subdomain, {
-    action: 'removeActivityLog',
+    action: "removeActivityLog",
     data: { contentTypeId },
   });
 
@@ -270,7 +270,7 @@ export const destroyBoardItemRelations = async (
 
   await sendCoreMessage({
     subdomain,
-    action: 'conformities.removeConformity',
+    action: "conformities.removeConformity",
     data: {
       mainType: contentType,
       mainTypeId: contentTypeId,
@@ -279,7 +279,7 @@ export const destroyBoardItemRelations = async (
 
   await sendInternalNotesMessage({
     subdomain,
-    action: 'removeInternalNotes',
+    action: "removeInternalNotes",
     data: {
       contentType: `tickets:${contentType}`,
       contentTypeIds: [contentTypeId],
@@ -313,7 +313,7 @@ const numberCalculator = (size: number, num?: any, skip?: boolean) => {
   num = num.toString();
 
   while (num.length < size) {
-    num = '0' + num;
+    num = "0" + num;
   }
 
   return num;
@@ -327,7 +327,7 @@ export const boardNumberGenerator = async (
   type?: string
 ) => {
   const replacedConfig = await configReplacer(config);
-  const re = replacedConfig + '[0-9]+$';
+  const re = replacedConfig + "[0-9]+$";
 
   let number;
 
@@ -351,7 +351,7 @@ export const boardNumberGenerator = async (
   }
 
   number =
-    replacedConfig + (await numberCalculator(parseInt(size, 10), '', skip));
+    replacedConfig + (await numberCalculator(parseInt(size, 10), "", skip));
 
   return number;
 };
@@ -364,7 +364,7 @@ export const generateBoardNumber = async (
   const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
   if (pipeline.numberSize) {
-    const { numberSize, numberConfig = '' } = pipeline;
+    const { numberSize, numberConfig = "" } = pipeline;
 
     const number = await boardNumberGenerator(
       models,
@@ -421,23 +421,23 @@ export const createBoardItem = async (
     );
   }
 
-  let action = 'create';
-  let content = '';
+  let action = "create";
+  let content = "";
 
   if (doc.sourceConversationIds && doc.sourceConversationIds.length > 0) {
-    action = 'convert';
+    action = "convert";
     content = item.sourceConversationIds.slice(-1)[0];
   }
 
   // create log
   await putActivityLog(subdomain, {
-    action: 'createBoardItem',
+    action: "createBoardItem",
     data: {
       item,
       contentType: type,
       action,
       content,
-      createdBy: item.userId || '',
+      createdBy: item.userId || "",
       contentId: item._id,
     },
   });
@@ -449,16 +449,16 @@ export const createBoardItem = async (
 const checkBookingConvert = async (subdomain: string, productId: string) => {
   const product = await sendCoreMessage({
     subdomain,
-    action: 'products.findOne',
+    action: "products.findOne",
     data: { _id: productId },
     isRPC: true,
   });
 
   let dealUOM = await sendCoreMessage({
     subdomain,
-    action: 'configs.getValues',
+    action: "configs.getValues",
     data: {
-      code: 'dealUOM',
+      code: "dealUOM",
     },
     isRPC: true,
     defaultValue: [],
@@ -466,9 +466,9 @@ const checkBookingConvert = async (subdomain: string, productId: string) => {
 
   let dealCurrency = await sendCoreMessage({
     subdomain,
-    action: 'configs.getValues',
+    action: "configs.getValues",
     data: {
-      code: 'dealCurrency',
+      code: "dealCurrency",
     },
     isRPC: true,
     defaultValue: [],
@@ -477,13 +477,13 @@ const checkBookingConvert = async (subdomain: string, productId: string) => {
   if (dealUOM.length > 0) {
     dealUOM = dealUOM[0];
   } else {
-    throw new Error('Please choose UNIT OF MEASUREMENT from general settings!');
+    throw new Error("Please choose UNIT OF MEASUREMENT from general settings!");
   }
 
   if (dealCurrency.length > 0) {
     dealCurrency = dealCurrency[0];
   } else {
-    throw new Error('Please choose currency from general settings!');
+    throw new Error("Please choose currency from general settings!");
   }
 
   return {
@@ -498,15 +498,7 @@ export const conversationConvertToCard = async (
   subdomain: string,
   args
 ) => {
-  const {
-    _id,
-    type,
-    itemId,
-    itemName,
-    stageId,
-    conversation,
-    user,
-  } = args;
+  const { _id, type, itemId, itemName, stageId, conversation, user } = args;
 
   const { collection, create, update } = getCollection(models, type);
 
@@ -536,23 +528,23 @@ export const conversationConvertToCard = async (
     item.userId = user._id;
 
     await putActivityLog(subdomain, {
-      action: 'createBoardItem',
+      action: "createBoardItem",
       data: {
         item,
         contentType: type,
-        action: 'convert',
+        action: "convert",
         content: conversation._id,
-        createdBy: item.userId || '',
+        createdBy: item.userId || "",
         contentId: item._id,
       },
     });
 
     const relTypeIds: string[] = [];
 
-    sourceConversationIds.forEach(async conversationId => {
+    sourceConversationIds.forEach(async (conversationId) => {
       const con = await sendInboxMessage({
         subdomain,
-        action: 'getConversation',
+        action: "getConversation",
         data: {
           conversationId,
         },
@@ -568,11 +560,11 @@ export const conversationConvertToCard = async (
     if (conversation.customerId) {
       await sendCoreMessage({
         subdomain,
-        action: 'conformities.addConformity',
+        action: "conformities.addConformity",
         data: {
           mainType: type,
           mainTypeId: item._id,
-          relType: 'customer',
+          relType: "customer",
           relTypeId: conversation.customerId,
         },
         isRPC: true,
@@ -598,7 +590,7 @@ export const updateName = async (
   type: string,
   itemId: string
 ) => {
-  const validTypes = ['deal', 'ticket', 'purchase', 'task'];
+  const validTypes = ["deal", "ticket", "purchase", "task"];
 
   if (!validTypes.includes(type)) {
     return;
@@ -615,13 +607,14 @@ export const updateName = async (
     let replacedName = pipeline?.nameConfig;
 
     if (pipeline?.nameConfig) {
-      const regex = /\{(\b\w+\.\b\w+)}/g;
+      const regex = /\{([^\}]+)\}/g;
+
       const matches = pipeline?.nameConfig?.match(regex) || [];
 
       let array: string[] = [];
 
       for (const x of matches) {
-        const pattern = x.replace('{', '').replace('}', '').split('.');
+        const pattern = x.replace("{", "").replace("}", "").split(".");
         const serviceName = pattern[0];
         array.push(serviceName);
       }
@@ -632,7 +625,7 @@ export const updateName = async (
 
       const customers = await sendCoreMessage({
         subdomain,
-        action: 'customers.find',
+        action: "customers.find",
         data: {
           _id: { $in: idsCustomers },
         },
@@ -642,7 +635,7 @@ export const updateName = async (
 
       const companies = await sendCoreMessage({
         subdomain,
-        action: 'companies.find',
+        action: "companies.find",
         data: {
           _id: { $in: idsCompanies },
         },
@@ -652,61 +645,69 @@ export const updateName = async (
       const enabledServices = await getServices();
 
       for (const serviceName of uniqueServices) {
-        const regex = new RegExp(`\\{\\b${serviceName}\\b.*?\\}`, 'g');
+        const regex = new RegExp(`\\{\\b${serviceName}\\b.*?\\}`, "g");
         const matches = pipeline?.nameConfig?.match(regex) || [];
 
         for (const match of matches) {
-          const pattern = match.replace('{', '').replace('}', '').split('.');
+          const pattern = match.replace("{", "").replace("}", "").split(".");
 
           if (
             pattern.length > 1 ||
             customers.length > 0 ||
             companies.length > 0
           ) {
-            if (serviceName === 'customer') {
+            if (serviceName === "customFieldsData") {
+              const fieldId = pattern[1];
+              const cf = customers[0]?.customFieldsData?.find(
+                (cf: any) => cf.field === fieldId
+              );
+              const cfValue = cf?.value || "";
+              replacedName = replacedName?.replace(match, cfValue);
+            }
+            if (serviceName === "customer") {
               switch (pattern[1]) {
-                case 'firstName':
+                case "firstName":
                   replacedName = replacedName?.replace(
                     match,
-                    customers[0]?.firstName || ''
+                    customers[0]?.firstName || ""
                   );
                   break;
-                case 'lastName':
+                case "lastName":
                   replacedName = replacedName?.replace(
                     match,
-                    customers[0]?.lastName || ''
+                    customers[0]?.lastName || ""
                   );
                   break;
-                case 'email':
+                case "email":
                   replacedName = replacedName?.replace(
                     match,
-                    customers[0]?.primaryEmail || ''
+                    customers[0]?.primaryEmail || ""
                   );
                   break;
-                case 'phone':
+                case "phone":
                   replacedName = replacedName?.replace(
                     match,
-                    customers[0]?.primaryPhone || ''
+                    customers[0]?.primaryPhone || ""
                   );
                   break;
-                case 'count':
+                case "count":
                   replacedName = replacedName?.replace(
                     match,
                     customers.length || 0
                   );
                   break;
                 default:
-                  replacedName = replacedName?.replace(match, '');
+                  replacedName = replacedName?.replace(match, "");
                   break;
               }
             }
-            if (serviceName === 'company') {
-              if (pattern[1] === 'name') {
+            if (serviceName === "company") {
+              if (pattern[1] === "name") {
                 replacedName = replacedName?.replace(
                   match,
-                  companies[0]?.primaryName || ''
+                  companies[0]?.primaryName || ""
                 );
-              } else if (pattern[1] === 'count') {
+              } else if (pattern[1] === "count") {
                 replacedName = replacedName?.replace(
                   match,
                   companies?.length || 0
@@ -718,7 +719,7 @@ export const updateName = async (
                 const result = await sendCommonMessage({
                   subdomain,
                   serviceName: serviceName,
-                  action: 'cards.updateCardsName',
+                  action: "cards.updateCardsName",
                   isRPC: true,
                   data: {
                     match: match,
@@ -728,7 +729,7 @@ export const updateName = async (
                   timeout: 50000,
                 });
 
-                replacedName = replacedName?.replace(match, result || '');
+                replacedName = replacedName?.replace(match, result || "");
               } catch (e) {
                 console.log(e);
               }
