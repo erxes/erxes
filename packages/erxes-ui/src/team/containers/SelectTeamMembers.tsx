@@ -55,7 +55,11 @@ const UserSelect: FC<Props> = ({
           includeCustomFieldOnSelectLabel;
 
         const positionTitles =
-          user.positions?.map((pos) => pos.title).join(", ") || "";
+          (user.positions?.length
+            ? user.positions.map((pos) => pos.title).join(", ")
+            : "") ||
+          details.position ||
+          "";
 
         const branchTitles = user.branches
           ? user.branches
