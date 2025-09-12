@@ -93,10 +93,10 @@ export class SocialPayAPI extends BaseAPI {
       console.log(header);
 
       if (header.code !== 200) {
-        throw new Error(body.error.errorDesc);
+        throw new Error('Something went wrong');
       }
 
-      if (body.error.errorDesc) {
+      if (body.error?.errorDesc) {
         throw new Error(body.error.errorDesc);
       }
 
