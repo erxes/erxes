@@ -1,5 +1,9 @@
 # Changelog
 
+## <small>2.17.3 (2025-09-12)</small>
+
+* feat(ticket): Add Attribution ([47cafdb](https://github.com/erxes/erxes/commit/47cafdb))
+
 ## [2.17.2](https://github.com/erxes/erxes/compare/2.17.1...2.17.2) (2025-09-11)
 
 ### Bug Fixes
