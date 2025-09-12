@@ -1,27 +1,27 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   BoardsQueryResponse,
-  StagesQueryResponse
-} from '@erxes/ui-tickets/src/boards/types';
+  StagesQueryResponse,
+} from "@erxes/ui-tickets/src/boards/types";
 
 import {
   BranchesQueryResponse,
-  DepartmentsQueryResponse
-} from '@erxes/ui/src/team/types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IOption } from '../types';
-import { IPipeline } from '@erxes/ui-tickets/src/boards/types';
-import PipelineForm from '../components/PipelineForm';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '@erxes/ui-tickets/src/settings/boards/graphql';
-import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
-import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
-import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
-import { withProps } from '@erxes/ui/src/utils';
+  DepartmentsQueryResponse,
+} from "@erxes/ui/src/team/types";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { IOption } from "../types";
+import { IPipeline } from "@erxes/ui-tickets/src/boards/types";
+import PipelineForm from "../components/PipelineForm";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "@erxes/ui-tickets/src/settings/boards/graphql";
+import { queries as teamQueries } from "@erxes/ui/src/team/graphql";
+import { queries as tagQueries } from "@erxes/ui-tags/src/graphql";
+import { TagsQueryResponse } from "@erxes/ui-tags/src/types";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   pipeline?: IPipeline;
@@ -39,6 +39,7 @@ type FinalProps = {
   departmentsQuery: DepartmentsQueryResponse;
   branchesQuery: BranchesQueryResponse;
   tagsQuery: TagsQueryResponse;
+  attributesQuery;
 } & Props;
 
 class PipelineFormContainer extends React.Component<FinalProps> {
@@ -51,7 +52,8 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       boardId,
       renderButton,
       options,
-      tagsQuery
+      tagsQuery,
+      attributesQuery,
     } = this.props;
 
     if (
@@ -59,6 +61,7 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       (boardsQuery && boardsQuery.loading) ||
       (departmentsQuery && departmentsQuery.loading) ||
       (branchesQuery && branchesQuery.loading) ||
+      attributesQuery.loading ||
       (tagsQuery && tagsQuery.loading)
     ) {
       return <Spinner />;
@@ -69,6 +72,7 @@ class PipelineFormContainer extends React.Component<FinalProps> {
     const departments = departmentsQuery.departments || [];
     const branches = branchesQuery.branches || [];
     const tags = tagsQuery.tags || [];
+    const attributesItems = attributesQuery.documentsGetEditorAttributes || [];
 
     const extendedProps = {
       ...this.props,
@@ -78,7 +82,8 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       branches,
       boardId,
       renderButton,
-      tags
+      tags,
+      attributesItems,
     };
 
     const Form = options?.PipelineForm || PipelineForm;
@@ -90,34 +95,43 @@ class PipelineFormContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql(gql(tagQueries.tags), {
-      name: 'tagsQuery',
+      name: "tagsQuery",
       options: (props: Props) => ({
-        variables: { type: `tickets:${props.type}` }
-      })
+        variables: { type: `tickets:${props.type}` },
+      }),
     }),
-
+    graphql<Props>(gql(queries.editorAttributes), {
+      name: "attributesQuery",
+      options: ({}) => {
+        return {
+          variables: {
+            contentType: "core:customer",
+          },
+        };
+      },
+    }),
     graphql<Props, StagesQueryResponse, { pipelineId: string }>(
       gql(queries.stages),
       {
-        name: 'stagesQuery',
-        skip: props => !props.pipeline,
+        name: "stagesQuery",
+        skip: (props) => !props.pipeline,
         options: ({ pipeline }: { pipeline?: IPipeline }) => ({
-          variables: { pipelineId: pipeline ? pipeline._id : '', isAll: true },
-          fetchPolicy: 'network-only'
-        })
+          variables: { pipelineId: pipeline ? pipeline._id : "", isAll: true },
+          fetchPolicy: "network-only",
+        }),
       }
     ),
     graphql<{}, DepartmentsQueryResponse>(gql(teamQueries.departments), {
-      name: 'departmentsQuery'
+      name: "departmentsQuery",
     }),
     graphql<{}, DepartmentsQueryResponse>(gql(teamQueries.branches), {
-      name: 'branchesQuery'
+      name: "branchesQuery",
     }),
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
-      name: 'boardsQuery',
+      name: "boardsQuery",
       options: ({ type }) => ({
-        variables: { type }
-      })
+        variables: { type },
+      }),
     })
   )(PipelineFormContainer)
 );

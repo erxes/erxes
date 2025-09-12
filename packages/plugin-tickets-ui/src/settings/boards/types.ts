@@ -1,4 +1,4 @@
-import { MutationVariables } from '@erxes/ui/src/types';
+import { MutationVariables } from "@erxes/ui/src/types";
 // mutations
 export type AddBoardMutationVariables = {
   name: string;
@@ -75,7 +75,7 @@ export type PipelineCopyMutationResponse = {
 };
 
 export type PipelineCopyMutation = ({
-  variables: PipelineCopyMutationVariables
+  variables: PipelineCopyMutationVariables,
 }) => Promise<any>;
 
 export type IOption = {
@@ -87,4 +87,14 @@ export type IOption = {
   additionalButton?: string;
   additionalButtonModal?: any;
   additionalButtonText?: string;
+};
+
+export type AttributeItem = {
+  name?: string;
+  value: string;
+};
+
+export type BoardConfig = {
+  label: string;
+  value: string;
 };

@@ -379,7 +379,7 @@ const calcProductsTaxRule = async (subdomain: string, models: IModels, config, p
 const calcPreTaxPercentage = (paymentTypes, deal) => {
   let itemAmountPrePercent = 0;
   const preTaxPaymentTypes: string[] = (paymentTypes || []).filter(p =>
-    (p.config || '').includes('preTax: true')
+    (p.config || '').includes('preTax: true') || (p.config || '').includes('"preTax": true')
   ).map(p => p.type);
 
   if (
