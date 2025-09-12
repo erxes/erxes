@@ -192,6 +192,7 @@ func main() {
 mongo-url="%s"
 elasticsearch-urls=["%s"]
 verbose=true
+resume=true
 direct-read-concur=1
 
 
