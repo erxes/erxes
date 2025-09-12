@@ -299,7 +299,7 @@ export const getTotalAmount = (items: IOrderItemInput[] = []): number => {
 const calcPreTaxPercentage = (paymentTypes, order) => {
   let itemAmountPrePercent = 0;
   const preTaxPaymentTypes: string[] = (paymentTypes || [])
-    .filter((p) => (p.config || '').includes('preTax: true'))
+    .filter((p) => (p.config || '').includes('preTax: true') || (p.config || '').includes('"preTax": true'))
     .map((p) => p.type);
 
   if (preTaxPaymentTypes.length && order.paidAmounts?.length) {
