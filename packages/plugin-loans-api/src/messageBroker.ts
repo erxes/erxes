@@ -223,6 +223,13 @@ export const sendReactionsMessage = async (
   });
 };
 
+export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
+  return sendMessage({
+    serviceName: 'clientportal',
+    ...args,
+  });
+};
+
 export const sendCommonMessage = async (
   args: MessageArgs & { serviceName: string }
 ): Promise<any> => {

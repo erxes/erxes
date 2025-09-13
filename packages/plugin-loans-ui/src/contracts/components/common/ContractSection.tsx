@@ -134,7 +134,6 @@ function Component({
           loading={false}
           scheduleYears={scheduleYears}
           currentYear={new Date().getFullYear()}
-          onClickYear={() => {}}
         />
       );
 
