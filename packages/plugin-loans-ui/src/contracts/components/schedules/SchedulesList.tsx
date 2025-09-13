@@ -1,12 +1,12 @@
 import { ISchedule, IScheduleYear } from "../../types";
 
 import Button from "@erxes/ui/src/components/Button";
-import React from "react";
-import ScheduleRow from "./ScheduleRow";
-import { ScheduleYears } from "../../styles";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import Table from "@erxes/ui/src/components/table";
 import { __ } from "coreui/utils";
+import React, { useState } from "react";
+import { ScheduleYears } from "../../styles";
+import ScheduleRow from "./ScheduleRow";
 
 interface IProps {
   contractId: string;
@@ -15,16 +15,32 @@ interface IProps {
   scheduleYears: IScheduleYear[];
   currentYear: number;
   leaseType?: string;
-  onClickYear: (year: number) => void;
 }
 
 const SchedulesList = (props: IProps) => {
-  const { schedules, loading, leaseType, scheduleYears, onClickYear } = props;
+  const {
+    schedules,
+    loading,
+    leaseType,
+    scheduleYears,
+    currentYear,
+  } = props;
+
+  const [toggleCurrentYear, setToggleCurrentYear] = useState<number | null>(
+    currentYear
+  );
 
   const renderYear = () => {
     return scheduleYears.map((item) => {
       return (
-        <Button key={item.year} onClick={() => onClickYear(item.year)}>
+        <Button
+          key={item.year}
+          onClick={() =>
+            setToggleCurrentYear(
+              toggleCurrentYear === item.year ? null : item.year
+            )
+          }
+        >
           {item.year}
         </Button>
       );
@@ -57,6 +73,7 @@ const SchedulesList = (props: IProps) => {
               schedule={schedule}
               key={schedule._id}
               leaseType={leaseType}
+              currentYear={toggleCurrentYear}
             />
           ))}
         </tbody>

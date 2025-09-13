@@ -92,3 +92,5 @@ export const SOCIALPAY_TOKEN_URL =
   'https://p2p.golomtbank.com/rpc/smartapptoken/';
 
 export const SOCIALPAY_API_URL = 'http://uat.golomtbank.com:8443';
+
+export const PASSWORD_HISTORY_LIMIT = 10;

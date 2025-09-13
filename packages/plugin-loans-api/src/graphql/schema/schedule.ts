@@ -2,6 +2,7 @@ export const types = () => `
   type LoanSchedule {
     _id: String
     contractId: String
+    contract: LoanContract
     version: String
     createdAt: Date
     status: String
@@ -40,9 +41,9 @@ export const types = () => `
 `;
 
 export const queries = `
-  cpSchedules(contractId: String!, status: String): [LoanSchedule]
   schedules(contractId: String!, isFirst: Boolean, year: Float): [LoanSchedule]
   scheduleYears(contractId: String!): [ScheduleYear]
+  userSchedules(userId: String!, contractIds: [String]): [LoanSchedule]
 `;
 
 export const mutations = `

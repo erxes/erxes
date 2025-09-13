@@ -46,6 +46,7 @@ import {
   prepareBoardItemDoc,
   sendNotifications,
 } from "../../utils";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 export const itemResolver = async (
   models: IModels,
@@ -968,7 +969,7 @@ export const doScoreCampaign = async (
   _id: string,
   doc: IDeal,
 ) => {
-  if (!doc?.paymentsData) {
+  if (!doc?.paymentsData || !isEnabled("loyalties")) {
     return;
   }
 
