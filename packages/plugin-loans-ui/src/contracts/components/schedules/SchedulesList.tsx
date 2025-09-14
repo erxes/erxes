@@ -18,16 +18,10 @@ interface IProps {
 }
 
 const SchedulesList = (props: IProps) => {
-  const {
-    schedules,
-    loading,
-    leaseType,
-    scheduleYears,
-    currentYear,
-  } = props;
+  const { schedules, loading, leaseType, scheduleYears, currentYear } = props;
 
   const [toggleCurrentYear, setToggleCurrentYear] = useState<number | null>(
-    currentYear
+    null
   );
 
   const renderYear = () => {
@@ -35,6 +29,7 @@ const SchedulesList = (props: IProps) => {
       return (
         <Button
           key={item.year}
+          btnStyle={toggleCurrentYear === item.year ? "success" : "primary"}
           onClick={() =>
             setToggleCurrentYear(
               toggleCurrentYear === item.year ? null : item.year
