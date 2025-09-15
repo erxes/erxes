@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.17.5](https://github.com/erxes/erxes/compare/2.17.4...2.17.5) (2025-09-15)
+
+### Bug Fixes
+
+* totalAmount save on deal ([2d450ec](https://github.com/erxes/erxes/commit/2d450ec8a10502d43ea47f858d472a8ba5d0ff76))
+
 ## <small>2.17.4 (2025-09-15)</small>
 
 * fix(erxes-ui): include details.position when positions are empty  ([74f9d8c](https://github.com/erxes/erxes/commit/74f9d8c))
