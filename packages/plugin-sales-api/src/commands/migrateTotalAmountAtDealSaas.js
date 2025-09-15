@@ -101,7 +101,6 @@ const command = async () => {
         console.log(e);
         continue;
       } finally {
-        console.log('ddddddddddddddddddddddddd')
         client.close();
       }
 
