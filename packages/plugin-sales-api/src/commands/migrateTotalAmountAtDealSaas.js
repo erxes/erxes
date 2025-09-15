@@ -63,7 +63,7 @@ const command = async () => {
         const Deals = db.collection('deals');
 
         let step = 0;
-        let per = 100;
+        let per = 1000;
 
         const summaryCount = await Deals.countDocuments({});
 
