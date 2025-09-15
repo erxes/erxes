@@ -1,5 +1,10 @@
 # Changelog
 
+## <small>2.17.4 (2025-09-15)</small>
+
+* fix(erxes-ui): include details.position when positions are empty  ([74f9d8c](https://github.com/erxes/erxes/commit/74f9d8c))
+* Update api.ts ([3c619ec](https://github.com/erxes/erxes/commit/3c619ec))
+
 ## <small>2.17.3 (2025-09-12)</small>
 
 * feat(ticket): Add Attribution ([47cafdb](https://github.com/erxes/erxes/commit/47cafdb))
