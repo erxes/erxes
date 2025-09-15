@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.17.6](https://github.com/erxes/erxes/compare/2.17.5...2.17.6) (2025-09-15)
+
+### Bug Fixes
+
+* payments type properties to set ([d5f7f0e](https://github.com/erxes/erxes/commit/d5f7f0e0ab094e3c4c360478c1723aac85af1dc3))
+
 ## [2.17.5](https://github.com/erxes/erxes/compare/2.17.4...2.17.5) (2025-09-15)
 
 ### Bug Fixes
