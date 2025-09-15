@@ -337,10 +337,16 @@ export const generateFields = async ({ subdomain, data }) => {
   fields.push({
     _id: Math.random(), name: `paymentsData.cash.amount`, label: 'Cash', type: "Number"
   });
-  
+
   const paymentTypes = await models.Pipelines.find(pipelineFilter).distinct("paymentTypes");
+  const types: string[] = [];
 
   for (const { type, title } of paymentTypes) {
+    if (types.includes(type)) {
+      continue;
+    }
+
+    types.push(type);
     fields.push({
       _id: Math.random(), name: `paymentsData.${type}.amount`, label: title, type: "Number"
     })
