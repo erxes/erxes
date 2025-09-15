@@ -1,6 +1,6 @@
 import { getNewOrder } from "../models/utils";
 import { NOTIFICATION_TYPES } from "../models/definitions/constants";
-import { IDealDocument } from "../models/definitions/deals";
+import { IDealDocument, IProductData } from "../models/definitions/deals";
 import { can, checkLogin } from "@erxes/api-utils/src";
 import * as _ from "underscore";
 import { IUserDocument } from "@erxes/api-utils/src/types";
@@ -121,7 +121,7 @@ export const sendNotifications = async (
         body: `${
           notificationDoc.createdUser?.details?.fullName ||
           notificationDoc.createdUser?.details?.shortName
-        } removed you from ${contentType}`,
+          } removed you from ${contentType}`,
         receivers: removedUsers.filter(id => id !== user._id),
         data: {
           type: contentType,
@@ -148,7 +148,7 @@ export const sendNotifications = async (
         body: `${
           notificationDoc.createdUser?.details?.fullName ||
           notificationDoc.createdUser?.details?.shortName
-        } invited you to the ${contentType}`,
+          } invited you to the ${contentType}`,
         receivers: invitedUsers.filter(id => id !== user._id),
         data: {
           type: contentType,
@@ -294,7 +294,7 @@ export const copyPipelineLabels = async (
   for (const label of oldLabels) {
     const exists =
       existingLabelsByUnique[
-        JSON.stringify({ name: label.name, colorCode: label.colorCode })
+      JSON.stringify({ name: label.name, colorCode: label.colorCode })
       ];
     if (!exists) {
       notExistingLabels.push({
@@ -417,3 +417,23 @@ export const prepareBoardItemDoc = async (
 
   return doc;
 };
+
+export const getTotalAmounts = async (productsData: IProductData[]) => {
+  // TODO: future list by currency
+  const result = {
+    totalAmount: 0,
+    unUsedTotalAmount: 0,
+    bothTotalAmount: 0,
+  }
+
+  for (const pData of productsData) {
+    result.bothTotalAmount += pData.amount ?? 0;
+
+    if (pData.tickUsed) {
+      result.totalAmount += pData.amount ?? 0;
+    } else {
+      result.unUsedTotalAmount += pData.amount ?? 0;
+    }
+  }
+  return result;
+}

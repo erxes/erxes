@@ -3,7 +3,7 @@ import { commonItemFieldsSchema, IItemCommonFields } from "./boards";
 
 import { field } from "./utils";
 
-export interface IProductData extends Document {
+export interface IProductData {
   _id?: string;
   productId: string;
   uom: string;
@@ -99,6 +99,9 @@ export const dealSchema = new Schema({
   ...commonItemFieldsSchema,
 
   productsData: field({ type: [productDataSchema], label: "Products" }),
+  totalAmount: field({ type: Number, label: "Total Amount", index: true }), // Amount
+  unUsedTotalAmount: field({ type: Number, label: "UnUsed TotalAmount" }), // Amount
+  bothTotalAmount: field({ type: Number, label: "Both Total Amount" }), // Amount
   paymentsData: field({ type: Object, optional: true, label: "Payments" }),
   extraData: field({ type: Object, optional: true })
 });
