@@ -10,6 +10,7 @@ export const TAGS_QUERY = gql`
     $direction: CURSOR_DIRECTION
     $ids: [String]
     $excludeIds: Boolean
+    $isGroup: Boolean
   ) {
     tags(
       type: $type
@@ -20,6 +21,7 @@ export const TAGS_QUERY = gql`
       cursor: $cursor
       limit: $limit
       direction: $direction
+      isGroup: $isGroup
     ) {
       list {
         _id
@@ -29,6 +31,9 @@ export const TAGS_QUERY = gql`
         totalObjectCount
         objectCount
         type
+        description
+        isGroup
+        createdAt
       }
       totalCount
       pageInfo {

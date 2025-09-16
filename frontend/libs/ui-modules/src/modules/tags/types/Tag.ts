@@ -3,15 +3,25 @@ import { MutationHookOptions, OperationVariables } from '@apollo/client';
 export interface ITag {
   _id: string;
   name: string;
-  type: string;
+  type?: string;
   colorCode?: string;
   createdAt?: string;
   cursor?: string;
   objectCount?: number;
   parentId?: string;
+  isGroup?: boolean;
   order?: string;
   relatedIds?: string[];
+  description?: string;
+  hasChildren: boolean;
   totalObjectCount?: number;
+}
+
+export interface ITagQueryResponse {
+  name: string;
+  type?: string;
+  isGroup: boolean;
+  parentId?: string | null;
 }
 
 export type ISelectTagsProviderProps = {

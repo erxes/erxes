@@ -8,6 +8,7 @@ export const types = `
     parentId: String
     relatedIds: [String]
     isGroup: Boolean
+    description: String
     type: String
     
     objectCount: Int
@@ -49,6 +50,7 @@ const mutationParams = `
   colorCode: String,
   parentId: String,
   isGroup: Boolean,
+  description: String,
 `;
 
 export const mutations = `

@@ -6,7 +6,7 @@ import { IContext } from '~/connectionResolvers';
 const generateFilter = async ({ params, commonQuerySelector, models }) => {
   const { searchValue, parentId, ids, excludeIds, isGroup, type } = params;
 
-  const filter: FilterQuery<ITagFilterQueryParams> = { ...commonQuerySelector };
+  const filter: FilterQuery<ITagFilterQueryParams> = { ...commonQuerySelector, type: { $in: [null, ''] } };
 
   if (type) {
     let contentType = type;

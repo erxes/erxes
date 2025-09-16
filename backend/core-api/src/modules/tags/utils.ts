@@ -81,6 +81,10 @@ export const countDocuments = async (
     customer: 'customers',
   };
 
+  if (!MODULE_NAMES[moduleName]) {
+    return 0;
+  }
+
   return await sendTRPCMessage({
     pluginName,
     method: 'mutation',

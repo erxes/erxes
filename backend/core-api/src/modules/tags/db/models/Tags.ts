@@ -15,17 +15,16 @@ export const loadTagClass = (models: IModels) => {
     public static async validate(_id: string | null, doc: ITag) {
       const { name, parentId, isGroup } = doc;
 
-      const tag = await models.Tags.findOne({
-        $or: [{ _id }, { name }],
+      const existingTag = await models.Tags.findOne({
+        name,
+        _id: { $ne: _id } 
       }).lean();
-
-      if (tag?.name === name) {
+        
+      if (existingTag) {
         throw new Error(`A tag named ${name} already exists`);
       }
 
-      if (tag?.isGroup && isGroup) {
-        throw new Error('Nested group is not allowed 1');
-      }
+      const tag = _id ? await models.Tags.findOne({ _id }).lean() : null;
 
       if (String(_id) === String(parentId)) {
         throw new Error('Group cannot be itself');
