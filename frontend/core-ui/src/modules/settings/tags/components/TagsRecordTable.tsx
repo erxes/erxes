@@ -1,221 +1,127 @@
-import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
-  Badge,
-  Combobox,
-  Command,
-  Input,
-  Popover,
   RecordTable,
-  RecordTableInlineCell,
   RecordTableTree,
-  useConfirm,
   useMultiQueryState,
-  useQueryState,
 } from 'erxes-ui';
-import { ITag, SelectTags, useTags } from 'ui-modules';
-import { useRemoveTag } from '../hooks/useRemoveTag';
-import { useTagsEdit } from '@/settings/tags/hooks/useTagsEdit';
+import { ITag, useTags } from 'ui-modules';
 import React from 'react';
-
-export const TagMoreColumnCell = ({
-  cell,
-}: {
-  cell: Cell<ITag & { hasChildren: boolean }, unknown>;
-}) => {
-  const confirmOptions = { confirmationValue: 'delete' };
-  const { confirm } = useConfirm();
-  const [, setOpen] = useQueryState('tagId');
-  const { removeTag, loading } = useRemoveTag();
-  const { _id } = cell.row.original;
-
-  const onRemove = () => {
-    confirm({
-      message: 'Are you sure you want to remove the selected?',
-      options: confirmOptions,
-    }).then(async () => {
-      try {
-        removeTag(_id);
-      } catch (e) {
-        console.error(e.message);
-      }
-    });
-  };
-  return (
-    <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
-      <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.List>
-            <Command.Item
-              value="edit"
-              onSelect={() => {
-                setOpen(_id);
-              }}
-            >
-              <IconEdit /> Edit
-            </Command.Item>
-            <Command.Item disabled={loading} value="remove" onSelect={onRemove}>
-              <IconTrash /> Delete
-            </Command.Item>
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
-  );
-};
-
-export const tagsColumns: ColumnDef<
-  ITag & { hasChildren: boolean; type?: string }
->[] = [
-  {
-    id: 'more',
-    cell: TagMoreColumnCell,
-    size: 33,
-  },
-  {
-    id: 'name',
-    header: 'Name',
-    accessorKey: 'name',
-    cell: ({ cell }) => {
-      const { tagsEdit, loading } = useTagsEdit();
-      const { _id, name, type } = cell.row.original;
-      const [open, setOpen] = React.useState<boolean>(false);
-      const [_name, setName] = React.useState<string>(name);
-
-      const onSave = () => {
-        if (name !== _name) {
-          tagsEdit({
-            variables: {
-              id: _id,
-              type: type,
-              name: _name,
-            },
-          });
-        }
-      };
-
-      const onChange = (el: React.ChangeEvent<HTMLInputElement>) => {
-        setName(el.currentTarget.value);
-      };
-
-      return (
-        <Popover
-          open={open}
-          onOpenChange={(open) => {
-            setOpen(open);
-            if (!open) {
-              onSave();
-            }
-          }}
-        >
-          <RecordTableInlineCell.Trigger>
-            <RecordTableTree.Trigger
-              order={cell.row.original.order || ''}
-              name={cell.getValue() as string}
-              hasChildren={cell.row.original.hasChildren}
-            >
-              {cell.getValue() as string}
-            </RecordTableTree.Trigger>
-          </RecordTableInlineCell.Trigger>
-          <RecordTableInlineCell.Content>
-            <Input value={_name} onChange={onChange} disabled={loading} />
-          </RecordTableInlineCell.Content>
-        </Popover>
-      );
-    },
-    size: 300,
-  },
-
-  {
-    header: 'Parent',
-    accessorKey: 'parentId',
-    cell: ({ cell }) => {
-      const { _id, name, type, parentId } = cell.row.original;
-      const { tagsEdit } = useTagsEdit();
-      return (
-        <SelectTags.InlineCell
-          scope="tag"
-          mode="single"
-          value={cell.getValue() as string}
-          onValueChange={(value) => {
-            if (value !== parentId) {
-              tagsEdit({
-                variables: {
-                  id: _id,
-                  type: type,
-                  name: name,
-                  parentId: value || undefined,
-                },
-              });
-            }
-          }}
-          tagType=""
-        />
-      );
-    },
-    size: 200,
-  },
-  {
-    header: 'Total item counts',
-    accessorKey: 'totalObjectCount',
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell className="justify-center">
-          <Badge variant={'secondary'}>
-            {(cell.getValue() as number) || 0}
-          </Badge>
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    header: 'Item counts',
-    accessorKey: 'objectCount',
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell className="justify-center">
-          <Badge variant={'secondary'}>
-            {(cell.getValue() as number) || 0}
-          </Badge>
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    header: 'Type',
-    accessorKey: 'type',
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell className="justify-center">
-          <Badge>{cell.getValue() as string}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
-    size: 250,
-  },
-];
+import { useTagContext } from '@/settings/tags/providers/TagProvider';
+import { tagsColumns } from './TagsColumns';
 
 export const TagsRecordTable = () => {
+  const { mode, targetGroupId } = useTagContext();
   const [queries] = useMultiQueryState<{
-    contentType: string;
     searchValue: string;
-  }>(['contentType', 'searchValue']);
-  const { contentType, searchValue } = queries;
+  }>([ 'searchValue']);
+  const { searchValue } = queries;
   const { tags, pageInfo, loading, handleFetchMore } = useTags({
     variables: {
-      type: contentType || '',
       searchValue: searchValue ?? undefined,
     },
   });
 
+  const transformedData = React.useMemo(() => {
+    const result: ITag[] = [];
+
+    if (mode === 'adding-tag' || mode === 'adding-group') {
+      result.push({
+        _id: 'new-item-temp',
+        name: '',
+        hasChildren: false,
+        isGroup: mode === 'adding-group',
+        colorCode: '',
+        description: '',
+      });
+    }
+
+    const existingTags = tags || [];
+    
+    if (existingTags.length === 0) {
+      return result;
+    }
+
+    const tagsById = new Map<string, ITag>();
+    const groups: ITag[] = [];
+    const childrenByParent = new Map<string, ITag[]>();
+    const standaloneTagsSet = new Set<string>();
+
+    existingTags.forEach((tag) => {
+      tagsById.set(tag._id, tag);
+      
+      if (tag.isGroup) {
+        groups.push(tag);
+      } else if (tag.parentId) {
+        if (!childrenByParent.has(tag.parentId)) {
+          childrenByParent.set(tag.parentId, []);
+        }
+        const parentChildren = childrenByParent.get(tag.parentId);
+        if (parentChildren) {
+          parentChildren.push(tag);
+        }
+      } else {
+        standaloneTagsSet.add(tag._id);
+      }
+    });
+
+    const sortByName = (a: ITag, b: ITag) => a.name.localeCompare(b.name);
+
+    const standaloneTags = Array.from(standaloneTagsSet)
+      .map(id => tagsById.get(id))
+      .filter((tag): tag is ITag => tag !== undefined)
+      .sort(sortByName);
+
+    standaloneTags.forEach((tag) => {
+      result.push({
+        ...tag,
+        hasChildren: false,
+        order: tag.name,
+      });
+    });
+
+    const sortedGroups = [...groups].sort(sortByName);
+    
+    sortedGroups.forEach((group) => {
+      const children = childrenByParent.get(group._id) || [];
+      
+      result.push({
+        ...group,
+        hasChildren: children.length > 0,
+        isGroup: true,
+        order: group.name,
+      });
+
+      if (mode === 'adding-tag-to-group' && targetGroupId === group._id) {
+        result.push({
+          _id: 'new-item-temp',
+          name: '',
+          hasChildren: false,
+          isGroup: false,
+          colorCode: '',
+          description: '',
+          parentId: group._id,
+          order: `${group.name}/new-item-temp`,
+        });
+      }
+
+      const sortedChildren = [...children].sort(sortByName);
+      sortedChildren.forEach((child) => {
+        result.push({
+          ...child,
+          hasChildren: false,
+          order: `${group.name}/${child.name}`,
+        });
+      });
+    });
+
+    return result;
+  }, [tags, mode, targetGroupId]);
+
+
   return (
     <RecordTable.Provider
       columns={tagsColumns}
-      data={tags || []}
-      className="m-3"
+      data={transformedData}
+      className="w-full [&_td:not(:last-child)]:border-r-0 [&_table]:w-full m-3"
       stickyColumns={['more', 'name']}
     >
       <RecordTableTree id="tags-list" ordered>

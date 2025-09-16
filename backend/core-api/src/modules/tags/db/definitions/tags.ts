@@ -11,6 +11,7 @@ export const tagSchema = schemaWrapper(
       relatedIds: { type: [String], label: 'Children tag ids' },
       isGroup: { type: Boolean, label: 'Is group', default: false },
       type: { type: String, label: 'Content type' },
+      description: { type: String, label: 'Description' },
       objectCount: { type: Number, label: 'Object count' },
     },
     {

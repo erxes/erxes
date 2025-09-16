@@ -12,6 +12,11 @@ export default {
     _args: undefined,
     { subdomain }: IContext,
   ) {
+
+    if(!tag.type) {
+      return 0;
+    }
+
     if (tag.relatedIds && tag.relatedIds.length > 0) {
       const tagIds = tag.relatedIds.concat(tag._id);
 
@@ -24,6 +29,10 @@ export default {
     _args: undefined,
     { subdomain }: IContext,
   ) {
+    if(!tag.type) {
+      return 0;
+    }
+
     return countDocuments(subdomain, tag.type, [tag._id]);
   },
 };
