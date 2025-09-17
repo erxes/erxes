@@ -358,6 +358,10 @@ export const renderFullName = (data, noPhone?: boolean) => {
     return data.emails[0]?.email || "Unknown";
   }
 
+  if (data.phones && data.phones.length > 0) {
+    return data.phones[0]?.phone || 'Unknown';
+  }
+
   const { visitorContactInfo } = data;
 
   if (visitorContactInfo) {
