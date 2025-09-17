@@ -13,6 +13,7 @@ export const tagSchema = schemaWrapper(
       type: { type: String, label: 'Content type' },
       description: { type: String, label: 'Description' },
       objectCount: { type: Number, label: 'Object count' },
+      order: { type: String, label: 'Order' },
     },
     {
       timestamps: true,

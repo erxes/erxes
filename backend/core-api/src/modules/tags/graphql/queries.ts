@@ -6,7 +6,10 @@ import { IContext } from '~/connectionResolvers';
 const generateFilter = async ({ params, commonQuerySelector, models }) => {
   const { searchValue, parentId, ids, excludeIds, isGroup, type } = params;
 
-  const filter: FilterQuery<ITagFilterQueryParams> = { ...commonQuerySelector, type: { $in: [null, ''] } };
+  const filter: FilterQuery<ITagFilterQueryParams> = {
+    ...commonQuerySelector,
+    type: { $in: [null, ''] },
+  };
 
   if (type) {
     let contentType = type;
@@ -96,7 +99,10 @@ export const tagQueries = {
 
     const { list, totalCount, pageInfo } = await cursorPaginate({
       model: models.Tags,
-      params,
+      params: {
+        orderBy: { order: 1 },
+        ...params,
+      },
       query: filter,
     });
 

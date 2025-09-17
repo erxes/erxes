@@ -8,6 +8,7 @@ export interface ITag {
   isGroup?: boolean;
   type: string;
   objectCount?: number;
+  order?: string;
 }
 
 export interface ITagDocument extends ITag, Document {
