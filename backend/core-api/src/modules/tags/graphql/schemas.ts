@@ -11,6 +11,7 @@ export const types = `
     description: String
     type: String
     
+    order: String
     objectCount: Int
     totalObjectCount: Int
     

@@ -1,6 +1,7 @@
 import { tagSchema } from '@/tags/db/definitions/tags';
 import { removeRelatedTagIds, setRelatedTagIds } from '@/tags/utils';
 import { ITag, ITagDocument } from 'erxes-api-shared/core-types';
+import { escapeRegExp } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 export interface ITagModel extends Model<ITagDocument> {
@@ -17,9 +18,9 @@ export const loadTagClass = (models: IModels) => {
 
       const existingTag = await models.Tags.findOne({
         name,
-        _id: { $ne: _id } 
+        _id: { $ne: _id },
       }).lean();
-        
+
       if (existingTag) {
         throw new Error(`A tag named ${name} already exists`);
       }
@@ -47,7 +48,10 @@ export const loadTagClass = (models: IModels) => {
       }
 
       if (tag) {
-        const parentTag = await models.Tags.findOne({ _id: tag.parentId }).lean();
+        const parentTag = await models.Tags.findOne({
+          _id: tag.parentId,
+        }).lean();
+
         const childTags = await models.Tags.find({ parentId: tag._id }).lean();
 
         if (parentTag?.isGroup && isGroup) {
@@ -73,7 +77,12 @@ export const loadTagClass = (models: IModels) => {
     public static async createTag(doc: ITag) {
       await this.validate(null, doc);
 
-      const tag = await models.Tags.create(doc);
+      const order = await this.generateOrder(doc);
+
+      const tag = await models.Tags.create({
+        ...doc,
+        order,
+      });
 
       await setRelatedTagIds(models, tag);
 
@@ -85,15 +94,48 @@ export const loadTagClass = (models: IModels) => {
 
       const tag = await models.Tags.getTag(_id);
 
-      const childTags = await models.Tags.find({ parentId: tag._id });
+      const order = await this.generateOrder(doc);
+
+      const childTags = await models.Tags.find({
+        $and: [
+          { _id: { $ne: _id } },
+          { order: { $regex: new RegExp(escapeRegExp(tag.order || ''), 'i') } },
+        ],
+      });
 
       if (childTags.length) {
+        const bulkDoc: Array<{
+          updateOne: {
+            filter: { _id: string };
+            update: { $set: { order: string } };
+          };
+        }> = [];
+
+        // updating child categories order
+        childTags.forEach(async (childTag) => {
+          let childOrder = childTag.order || '';
+
+          childOrder = childOrder.replace(tag.order || '', order);
+
+          bulkDoc.push({
+            updateOne: {
+              filter: { _id: childTag._id },
+              update: { $set: { order: childOrder } },
+            },
+          });
+        });
+
+        await models.Tags.bulkWrite(bulkDoc);
+
         await removeRelatedTagIds(models, tag);
       }
 
       const updated = await models.Tags.findOneAndUpdate(
         { _id: tag._id },
-        doc,
+        {
+          ...doc,
+          order,
+        },
         {
           new: true,
         },
@@ -121,6 +163,14 @@ export const loadTagClass = (models: IModels) => {
       await removeRelatedTagIds(models, tag);
 
       return models.Tags.deleteOne({ _id });
+    }
+
+    public static async generateOrder({ name, parentId }: ITag) {
+      const tag = await models.Tags.findOne({ _id: parentId }).lean();
+
+      const order = tag?.order ? `${tag.order}${name}/` : `${name}/`;
+
+      return order;
     }
   }
 
