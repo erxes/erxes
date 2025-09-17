@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.17.7](https://github.com/erxes/erxes/compare/2.17.6...2.17.7) (2025-09-17)
+
+### Bug Fixes
+
+* add phones when render full name ([b774f77](https://github.com/erxes/erxes/commit/b774f775df12f4e368dd3e71ff227c2ccb85b400))
+* **calls:** fix minus waiting call sec ([688f447](https://github.com/erxes/erxes/commit/688f447a1b1806f6f8897c62e1a4521b403b1545))
+
 ## [2.17.6](https://github.com/erxes/erxes/compare/2.17.5...2.17.6) (2025-09-15)
 
 ### Bug Fixes
