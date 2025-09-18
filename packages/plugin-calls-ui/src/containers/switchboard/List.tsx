@@ -11,7 +11,14 @@ type IProps = {
 };
 
 function ListContainer(props: IProps) {
+  const config = JSON.parse(
+    localStorage.getItem('config:call_integrations') || '{}',
+  );
   const { data, loading } = useQuery(gql(queries.callQueueList), {
+    variables: {
+      integrationId: config?.inboxId,
+    },
+    skip: !config.inboxId,
     nextFetchPolicy: 'network-only',
   });
 

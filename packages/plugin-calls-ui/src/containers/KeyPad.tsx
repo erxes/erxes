@@ -11,6 +11,7 @@ type IProps = {
   setConfig: any;
   phoneNumber: any;
   currentCallConversationId: string;
+  currentIntegrationId: string;
 };
 
 const KeyPadContainer = (props: IProps) => {
@@ -19,6 +20,7 @@ const KeyPadContainer = (props: IProps) => {
     setConfig,
     phoneNumber,
     currentCallConversationId,
+    currentIntegrationId,
   } = props;
 
   const [customer, setCustomer] = useState<any>(undefined);
@@ -33,7 +35,7 @@ const KeyPadContainer = (props: IProps) => {
     refetch,
   } = useQuery(gql(queries.callGetAgentStatus), {
     variables: {
-      integrationId: 'Nhl5BLfo37dsYqgQohcqF',
+      integrationId: currentIntegrationId || '',
     },
     fetchPolicy: 'network-only',
   });

@@ -1,4 +1,4 @@
-import { Schema, Document, HydratedDocument } from 'mongoose';
+import { Schema, HydratedDocument } from 'mongoose';
 import { field } from './utils';
 import { ICustomerModel } from '../Customers';
 

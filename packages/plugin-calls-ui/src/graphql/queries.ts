@@ -171,8 +171,8 @@ const callExtensionList = `
 `;
 
 const callQueueList = `
-  query callQueueList {
-  callQueueList
+  query callQueueList($integrationId: String!) {
+  callQueueList(integrationId: $integrationId)
 }
 `;
 
