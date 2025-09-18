@@ -31,6 +31,7 @@ export const TagsRecordTable = () => {
         isGroup: mode === 'adding-group',
         colorCode: '',
         description: '',
+        order: '',
       });
     }
 
@@ -40,57 +41,13 @@ export const TagsRecordTable = () => {
       return result;
     }
 
-    const tagsById = new Map<string, ITag>();
-    const groups: ITag[] = [];
-    const childrenByParent = new Map<string, ITag[]>();
-    const standaloneTagsSet = new Set<string>();
-
     existingTags.forEach((tag) => {
-      tagsById.set(tag._id, tag);
-      
-      if (tag.isGroup) {
-        groups.push(tag);
-      } else if (tag.parentId) {
-        if (!childrenByParent.has(tag.parentId)) {
-          childrenByParent.set(tag.parentId, []);
-        }
-        const parentChildren = childrenByParent.get(tag.parentId);
-        if (parentChildren) {
-          parentChildren.push(tag);
-        }
-      } else {
-        standaloneTagsSet.add(tag._id);
-      }
-    });
-
-    const sortByName = (a: ITag, b: ITag) => a.name.localeCompare(b.name);
-
-    const standaloneTags = Array.from(standaloneTagsSet)
-      .map(id => tagsById.get(id))
-      .filter((tag): tag is ITag => tag !== undefined)
-      .sort(sortByName);
-
-    standaloneTags.forEach((tag) => {
       result.push({
         ...tag,
-        hasChildren: false,
-        order: tag.name,
-      });
-    });
-
-    const sortedGroups = [...groups].sort(sortByName);
-    
-    sortedGroups.forEach((group) => {
-      const children = childrenByParent.get(group._id) || [];
-      
-      result.push({
-        ...group,
-        hasChildren: children.length > 0,
-        isGroup: true,
-        order: group.name,
+        hasChildren: existingTags.some(t => t.parentId === tag._id) && tag.isGroup,
       });
 
-      if (mode === 'adding-tag-to-group' && targetGroupId === group._id) {
+      if (mode === 'adding-tag-to-group' && targetGroupId === tag._id && tag.isGroup) {
         result.push({
           _id: 'new-item-temp',
           name: '',
@@ -98,19 +55,10 @@ export const TagsRecordTable = () => {
           isGroup: false,
           colorCode: '',
           description: '',
-          parentId: group._id,
-          order: `${group.name}/new-item-temp`,
+          parentId: tag._id,
+          order: `${tag.order}new-item-temp/`,
         });
       }
-
-      const sortedChildren = [...children].sort(sortByName);
-      sortedChildren.forEach((child) => {
-        result.push({
-          ...child,
-          hasChildren: false,
-          order: `${group.name}/${child.name}`,
-        });
-      });
     });
 
     return result;

@@ -9,8 +9,8 @@ export interface ITag {
   cursor?: string;
   objectCount?: number;
   parentId?: string;
-  isGroup?: boolean;
-  order?: string;
+  isGroup: boolean;
+  order: string;
   relatedIds?: string[];
   description?: string;
   hasChildren: boolean;
