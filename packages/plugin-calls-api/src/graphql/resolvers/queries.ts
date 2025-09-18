@@ -64,12 +64,71 @@ const callsQueries = {
     return models.Configs.find({}).lean();
   },
 
-  async callGetAgentStatus(_root, _args, { models, user }: IContext) {
-    const operator = await models.Operators.findOne({ userId: user._id });
-    if (operator) {
-      return operator.status;
+  async callGetAgentStatus(
+    _root,
+    { queue, integrationId },
+    { models, user }: IContext,
+  ) {
+    const queueData = (await sendToGrandStream(
+      models,
+      {
+        path: 'api',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: {
+          request: {
+            action: 'getCallQueuesMemberMessage',
+            extension: '6501',
+          },
+        },
+        integrationId: 'Nhl5BLfo37dsYqgQohcqF',
+        retryCount: 3,
+        isConvertToJson: true,
+        isAddExtention: false,
+      },
+      user,
+    )) as any;
+
+    if (queueData && queueData.response) {
+      const { CallQueueMembersMessage } = queueData?.response;
+
+      CallQueueMembersMessage.member;
+      const integration = await models.Integrations.findOne({
+        inboxId: 'Nhl5BLfo37dsYqgQohcqF',
+      }).lean();
+
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
+      const operator = integration.operators.find(
+        (operator) => operator.userId === user?._id,
+      );
+
+      const extentionNumber = operator?.gsUsername || '1001';
+      if (CallQueueMembersMessage) {
+        const status =
+          CallQueueMembersMessage.member.find(
+            (member) => member.member_extension === extentionNumber,
+          )?.status || '';
+
+        const operator = await models.Operators.getOperator(user._id);
+
+        if (status) {
+          if (operator) {
+            await models.Operators.updateOperator(user._id, status);
+            return status;
+          } else if (!operator) {
+            await models.Operators.create({
+              userId: user._id,
+              status,
+              extension: extentionNumber,
+            });
+          }
+          return status;
+        }
+      }
+      return 'unAvialable';
     }
-    return 'unAvailable';
   },
 
   async callExtensionList(
@@ -84,7 +143,6 @@ const callsQueries = {
     if (!integration) {
       throw new Error('Integration not found');
     }
-    console.log(integration, 'integration');
     const queueData = (await sendToGrandStream(
       models,
       {
@@ -162,21 +220,17 @@ const callsQueries = {
         },
         user,
       );
-      console.log('1:', rawResponse);
 
       rawResponse = await rawResponse?.text();
-      console.log('2');
 
       if (typeof rawResponse !== 'string') {
         throw new Error('Expected string response from Grandstream');
       }
-      console.log(rawResponse, 'rawResponse');
 
       let parsedResponse: any;
 
       try {
         parsedResponse = JSON.parse(rawResponse);
-        console.log('3');
 
         if (parsedResponse?.status === -6) {
           console.warn('Grandstream status -6, clearing callCookie');
@@ -195,10 +249,8 @@ const callsQueries = {
           return [];
         }
       }
-      console.log('4:', parsedResponse?.root_statistics);
 
       const queuesData = parsedResponse?.root_statistics?.queue ?? [];
-      console.log('queuesData:', queuesData);
       const seen = new Set<string>();
       const result: any = [];
 
@@ -210,7 +262,6 @@ const callsQueries = {
           queuesFromResponse = [queuesData];
         }
       }
-      console.log(queuesFromResponse, 'queuesFromResponse');
       for (const integration of integrations) {
         const { queues: allowedQueues } = integration;
         if (!Array.isArray(allowedQueues)) continue;
@@ -227,7 +278,6 @@ const callsQueries = {
           }
         }
       }
-      console.log(result, 'result');
       return result;
     } catch (error) {
       console.error(

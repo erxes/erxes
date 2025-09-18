@@ -950,6 +950,11 @@ const EnhancedCallCenterDashboard: React.FC<DashboardProps> = ({
                               <span>{agent?.first_name}</span>
                               <span>•</span>
                               <span>Ext: {agent?.member_extension}</span>
+                              <span>
+                                Time:
+                                {formatWaitTime(matchingCall?.bridge_time) ||
+                                  '00:00'}
+                              </span>
                             </CallDetails>
                           </CallItem>
                         );

@@ -32,6 +32,9 @@ const KeyPadContainer = (props: IProps) => {
     loading,
     refetch,
   } = useQuery(gql(queries.callGetAgentStatus), {
+    variables: {
+      integrationId: 'Nhl5BLfo37dsYqgQohcqF',
+    },
     fetchPolicy: 'network-only',
   });
 
@@ -59,7 +62,7 @@ const KeyPadContainer = (props: IProps) => {
       },
     })
       .then(() => {
-        const isPaused = agentStatus === 'yes' ? 'paused' : 'unpaused';
+        const isPaused = agentStatus === 'yes' ? 'Paused' : 'Idle';
 
         Alert.success(`Successfully ${isPaused}`);
         refetch();
@@ -68,8 +71,7 @@ const KeyPadContainer = (props: IProps) => {
         Alert.error(e.message);
       });
   };
-
-  const agentStatus = agentStatusData?.callGetAgentStatus || '';
+  const agentStatus = (agentStatusData?.callGetAgentStatus || '').trim();
   return (
     <KeyPad
       addCustomer={createCustomer}

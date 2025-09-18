@@ -86,7 +86,7 @@ export const sendToGrandStream = async (
       wsServer,
       args.isCronRunning || false,
     );
-
+    console.log(cookie, 'cookie');
     const operator = integration.operators.find(
       (op) => op.userId === user?._id,
     );
@@ -214,7 +214,7 @@ export const getOrSetCallCookie = async (
       if (loginData.status === 0 && loginData.response?.cookie) {
         const { cookie } = loginData.response;
         await redis.set(cookieKey, cookie, 'EX', expiryInSeconds);
-        console.log(`[${userType}] New cookie stored for ${wsServer}.`);
+        console.log(`[${userType}] New cookie stored for ${wsServer}.`, cookie);
         return cookie;
       }
 
