@@ -71,8 +71,9 @@ export const formatFromEmail = (sender, fromUserEmail) => {
 
 export const getConfig = (configs, code, defaultValue?: string) => {
   const version = getEnv({ name: "VERSION" });
+  const NODE_ENV = getEnv({ name: "NODE_ENV" });
 
-  if (version === "saas") {
+  if (version === "saas" || NODE_ENV === "development") {
     return getEnv({ name: code, defaultValue });
   }
 
@@ -83,20 +84,18 @@ export const setActivityLog = async ({
   subdomain,
   triggerType,
   target,
-  responses,
+  response,
 }) => {
-  for (const response of responses || []) {
-    if (response?.messageId) {
-      await putActivityLog(subdomain, {
-        action: "putActivityLog",
-        data: {
-          contentType: triggerType,
-          contentId: target._id,
-          createdBy: "automation",
-          action: "sendEmail",
-        },
-      });
-    }
+  if (response?.messageId) {
+    await putActivityLog(subdomain, {
+      action: "putActivityLog",
+      data: {
+        contentType: triggerType,
+        contentId: target._id,
+        createdBy: "automation",
+        action: "sendEmail",
+      },
+    });
   }
 };
 

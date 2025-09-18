@@ -50,7 +50,7 @@ const pipelines = `
       createdUser{
         details {
           fullName
-        } 
+        }
       }
     }
   }
@@ -87,10 +87,20 @@ const boardDetail = `
   }
 `;
 
+const editorAttributes = `
+  query documentsGetEditorAttributes($contentType: String!) {
+    documentsGetEditorAttributes(contentType: $contentType) {
+      value
+      name
+    }
+  }
+`;
+
 export default {
   boards,
   pipelines,
   stages,
   boardGetLast,
-  boardDetail
+  boardDetail,
+  editorAttributes,
 };

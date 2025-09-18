@@ -594,12 +594,17 @@ const formatWaitTime = (starttime: string): string => {
   try {
     const start = new Date(starttime);
     const now = new Date();
-    const diffMs = now.getTime() - start.getTime();
+
+    let diffMs = now.getTime() - start.getTime();
+    if (diffMs < 0) diffMs = 0;
+
     const diffMinutes = Math.floor(diffMs / (1000 * 60));
     const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
 
-    return `${diffMinutes.toString().padStart(2, '0')}:${diffSeconds.toString().padStart(2, '0')}`;
-  } catch (error) {
+    return `${diffMinutes.toString().padStart(2, '0')}:${diffSeconds
+      .toString()
+      .padStart(2, '0')}`;
+  } catch {
     return '00:00';
   }
 };

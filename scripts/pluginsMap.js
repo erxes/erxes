@@ -393,7 +393,7 @@ module.exports = {
         },
         {
           "name": "conversation_messages",
-          "schema": "{}",
+          "schema": "{ 'formWidgetData': <nested>, 'attachments': <nested> }",
           "script": ""
         },
         {
@@ -874,8 +874,8 @@ module.exports = {
       "essyncer": [
         {
           "name": "deals",
-          "schema": "{ 'userId': { 'type': 'keyword' }, 'stageId': { 'type': 'keyword' }, 'modifiedBy': { 'type': 'keyword' }, 'status': { 'type': 'keyword' }, 'assignedUserIds': { 'type': 'keyword' }, 'watchedUserIds': { 'type': 'keyword' }, 'labelIds': { 'type': 'keyword' }, 'customFieldsData': <nested> }",
-          "script": "if(ns.indexOf('deals') > -1) { if (doc.productsData) { var productsDataString = JSON.stringify(doc.productsData); var amount = 0; var productsData = JSON.parse(productsDataString); for (var i = 0; i < productsData.length; i++){ amount = amount + productsData[i].amount; } doc.amount = amount; } } "
+          "schema": "{ 'userId': { 'type': 'keyword' }, 'stageId': { 'type': 'keyword' }, 'modifiedBy': { 'type': 'keyword' }, 'status': { 'type': 'keyword' }, 'assignedUserIds': { 'type': 'keyword' }, 'watchedUserIds': { 'type': 'keyword' }, 'labelIds': { 'type': 'keyword' }, 'totalAmount': {'type': 'float'}, 'unUsedTotalAmount': {'type': 'float'}, 'bothTotalAmount': {'type': 'float'},'customFieldsData': <nested> }",
+          "script": ""
         },
         {
           "name": "sales_stages",
@@ -4035,8 +4035,8 @@ module.exports = {
       "essyncer": [
         {
           "name": "xyp_datas",
-          "schema": "{}",
-          "script": ""
+          "schema": "{ 'createdAt': { 'type': 'date' }, 'data': <nested> }",
+          "script": "if (ns.indexOf('xyp_datas') > -1) { if (doc.data) { doc.data.forEach(function(d) { if (d.data) { delete d.data; } }); } }"
         }
       ]
     }

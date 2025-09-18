@@ -2,8 +2,10 @@ import { checkUserIds } from "@erxes/api-utils/src";
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import { checkPermission } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
+import { putActivityLog } from "../../../logUtils";
 import { IItemDragCommonFields } from "../../../models/definitions/boards";
 import { IDeal, IProductData } from "../../../models/definitions/deals";
+import { getTotalAmounts } from "../../utils";
 import {
   checkAssignedUserFromPData,
   checkPricing,
@@ -17,7 +19,6 @@ import {
   itemsEdit,
   itemsRemove,
 } from "./utils";
-import { putActivityLog } from "../../../logUtils";
 
 interface IDealsEdit extends IDeal {
   _id: string;
@@ -217,7 +218,13 @@ const dealMutations = {
       addDocs
     );
 
-    await models.Deals.updateOne({ _id: dealId }, { $set: { productsData, assignedUserIds } });
+    await models.Deals.updateOne({ _id: dealId }, {
+      $set: {
+        productsData,
+        assignedUserIds,
+        ...await getTotalAmounts(productsData)
+      }
+    });
 
     if (addedUserIds?.length || removedUserIds?.length) {
       const activityContent = { addedUserIds, removedUserIds };
@@ -297,16 +304,21 @@ const dealMutations = {
     { models, subdomain, user }: IContext
   ) {
     const deal = await models.Deals.getDeal(dealId);
-    const oldPData = (deal.productsData || []).find(
-      (pdata) => pdata.id === dataId
+
+    if (!deal.productsData?.length) {
+      throw new Error("Deals productData not found");
+    }
+
+    const oldPData = (deal.productsData).find(
+      (pdata) => pdata._id === dataId
     );
 
     if (!oldPData) {
       throw new Error("Deals productData not found");
     }
 
-    const productsData = (deal.productsData || []).map((data) =>
-      data.id === dataId ? { ...doc } : data
+    const productsData: IProductData[] = deal.productsData?.map((data) =>
+      data._id === dataId ? { ...doc } : data
     );
 
     const possibleAssignedUsersIds: string[] = (deal.productsData || [])
@@ -323,7 +335,13 @@ const dealMutations = {
       deal.productsData
     );
 
-    await models.Deals.updateOne({ _id: dealId }, { $set: { productsData, assignedUserIds } });
+    await models.Deals.updateOne({ _id: dealId }, {
+      $set: {
+        productsData,
+        assignedUserIds,
+        ...await getTotalAmounts(productsData)
+      }
+    });
 
     if (addedUserIds?.length || removedUserIds?.length) {
       const activityContent = { addedUserIds, removedUserIds };
@@ -400,7 +418,7 @@ const dealMutations = {
     const deal = await models.Deals.getDeal(dealId);
 
     const oldPData = (deal.productsData || []).find(
-      (pdata) => pdata.id === dataId
+      (pdata) => pdata._id === dataId
     );
 
     if (!oldPData) {
@@ -408,10 +426,15 @@ const dealMutations = {
     }
 
     const productsData = (deal.productsData || []).filter(
-      (data) => data.id !== dataId
+      (data) => data._id !== dataId
     );
 
-    await models.Deals.updateOne({ _id: dealId }, { $set: { productsData } });
+    await models.Deals.updateOne({ _id: dealId }, {
+      $set: {
+        productsData,
+        ...await getTotalAmounts(productsData)
+      }
+    });
 
     const stage = await models.Stages.getStage(deal.stageId);
     const updatedItem =

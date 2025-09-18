@@ -295,62 +295,28 @@ export const generateFields = async ({ subdomain, data }) => {
   ];
 
   if (usageType === 'automations') {
+    const customerFields = await sendCoreMessage({
+      subdomain,
+      isRPC: true,
+      action: `fieldsCombinedByContentType`,
+      data: {
+        contentType: 'core:customer',
+      },
+      defaultValue: [],
+    });
+
+    const userFields = await sendCoreMessage({
+      subdomain,
+      isRPC: true,
+      action: `fieldsCombinedByContentType`,
+      data: {
+        contentType: 'core:user',
+      },
+      defaultValue: [],
+    });
+
     fields = [
       ...fields,
-      {
-        _id: Math.random(),
-        name: 'createdBy.email',
-        label: 'Created by Email',
-        type: 'String',
-      },
-      {
-        _id: Math.random(),
-        name: 'createdBy.fullName',
-        label: 'Created by Full Name',
-        type: 'String',
-      },
-      {
-        _id: Math.random(),
-        name: 'createdBy.phone',
-        label: 'Created by Phone',
-        type: 'String',
-      },
-      {
-        _id: Math.random(),
-        name: 'createdBy.branch',
-        label: 'Created by Branch',
-        type: 'String',
-      },
-      {
-        _id: Math.random(),
-        name: 'createdBy.department',
-        label: 'Created by Department',
-        type: 'String',
-      },
-      {
-        _id: Math.random(),
-        name: 'createdBy.position',
-        label: 'Created by Position',
-        type: 'String',
-      },
-      {
-        _id: Math.random(),
-        name: 'customers.email',
-        label: 'Customers Email',
-        type: 'String',
-      },
-      {
-        _id: Math.random(),
-        name: 'customers.phone',
-        label: 'Customers phone',
-        type: 'String',
-      },
-      {
-        _id: Math.random(),
-        name: 'customers.fullName',
-        label: 'Customers FullName',
-        type: 'String',
-      },
       {
         _id: Math.random(),
         name: 'link',
@@ -381,7 +347,33 @@ export const generateFields = async ({ subdomain, data }) => {
         label: 'Created by Parent of Branch',
         type: 'String',
       },
-    ];
+    ].concat(
+      (customerFields || []).map((customerField) => ({
+        ...customerField,
+        name: `customers.${customerField.name}`,
+        label: `Customers ${customerField.label}`,
+      })),
+      (userFields || []).map((userField) => ({
+        ...userField,
+        name: `modifiedBy.${userField.name}`,
+        label: `Modified By ${userField.label}`,
+      })),
+      (userFields || []).map((userField) => ({
+        ...userField,
+        name: `createdBy.${userField.name}`,
+        label: `Created By ${userField.label}`,
+      })),
+      (userFields || []).map((userField) => ({
+        ...userField,
+        name: `assignedUsers.${userField.name}`,
+        label: `Assigned users ${userField.label}`,
+      })),
+      (userFields || []).map((userField) => ({
+        ...userField,
+        name: `watchedUsers.${userField.name}`,
+        label: `Watched users ${userField.label}`,
+      })),
+    );
   }
 
   if (type === 'ticket' && usageType !== 'export') {

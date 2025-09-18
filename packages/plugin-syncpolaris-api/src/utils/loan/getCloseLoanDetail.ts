@@ -11,7 +11,7 @@ export const getCloseLoanDetail = async (
     subdomain,
     op: "13610266",
     data: loanCloseDetail,
-    polarisConfig
+    polarisConfig,
   });
 
   return loanChangeClassificationReponse;
