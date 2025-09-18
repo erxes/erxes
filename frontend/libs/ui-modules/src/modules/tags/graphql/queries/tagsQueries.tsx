@@ -34,6 +34,7 @@ export const TAGS_QUERY = gql`
         description
         isGroup
         createdAt
+        order
       }
       totalCount
       pageInfo {

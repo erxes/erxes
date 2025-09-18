@@ -41,7 +41,7 @@ const MoveTagPopover: React.FC<{
     variables: {
       isGroup: true,
     },
-    skip: !open
+    skip: !open,
   });
 
   const handleMove = (newParentId: string | null) => {
@@ -309,7 +309,7 @@ export const tagsColumns: ColumnDef<ITag>[] = [
       }
 
       const { tagsEdit, loading } = useTagsEdit();
-      const { _id, name, isGroup, order, hasChildren } = row;
+      const { _id, name, isGroup, order } = row;
       const [editingTagId, setEditingTagId] = useQueryState('editingTagId');
       const [open, setOpen] = React.useState<boolean>(false);
       const [_name, setName] = React.useState<string>(name);
@@ -356,7 +356,7 @@ export const tagsColumns: ColumnDef<ITag>[] = [
             <RecordTableTree.Trigger
               order={order || ''}
               name={cell.getValue() as string}
-              hasChildren={isGroup || hasChildren}
+              hasChildren={isGroup}
             >
               <div className="flex items-center gap-2 min-w-0">
                 <span

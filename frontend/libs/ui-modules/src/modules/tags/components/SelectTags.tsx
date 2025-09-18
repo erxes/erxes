@@ -5,8 +5,8 @@ import {
   PopoverScoped,
   RecordTableInlineCell,
   Popover,
-  SelectTree,
   TextOverflowTooltip,
+  SelectTree,
 } from 'erxes-ui';
 import { useTags } from '../hooks/useTags';
 import { useDebounce } from 'use-debounce';
@@ -131,15 +131,39 @@ export const SelectTagsCommand = ({
             show={!disableCreateOption && !loading && !tags?.length}
           />
           <Combobox.Empty loading={loading} error={error} />
-          {tags?.map((tag) => (
-            <SelectTagsItem
-              key={tag._id}
-              tag={{
-                ...tag,
-                hasChildren: tags.some((t) => t.parentId === tag._id),
-              }}
-            />
-          ))}
+          {tags
+            ?.filter((tag) => !tag.parentId && !tag.isGroup)
+            ?.map((tag) => (
+              <SelectTagsItem
+                key={tag._id}
+                tag={{
+                  ...tag,
+                  hasChildren: false,
+                }}
+              />
+            ))}
+          
+          {tags
+            ?.filter(
+              (tag) => tag.isGroup && tags.some((t) => t.parentId === tag._id),
+            )
+            ?.map((tag) => (
+              <Command.Group key={tag._id} heading={tag.name}>
+                {tags
+                  .filter((t) => t.parentId === tag._id)
+                  .map((childTag) => (
+                    <SelectTagsItem
+                      key={childTag._id}
+                      tag={{
+                        ...childTag,
+                        hasChildren: tags.some(
+                          (t) => t.parentId === childTag._id,
+                        ),
+                      }}
+                    />
+                  ))}
+              </Command.Group>
+            ))}
           <Combobox.FetchMore
             fetchMore={handleFetchMore}
             currentLength={tags?.length || 0}
@@ -180,21 +204,15 @@ export const SelectTagsItem = ({
 }) => {
   const { onSelect, selectedTags } = useSelectTagsContext();
   const isSelected = selectedTags.some((t) => t._id === tag._id);
+
   return (
-    <SelectTree.Item
-      key={tag._id}
-      _id={tag._id}
-      name={tag.name}
-      order={tag.order || ''}
-      hasChildren={tag.hasChildren}
-      selected={isSelected}
-      onSelect={() => onSelect(tag)}
-    >
+    <Command.Item onSelect={() => onSelect(tag)}>
       <TextOverflowTooltip
         value={tag.name}
         className="flex-auto w-auto font-medium"
       />
-    </SelectTree.Item>
+      <Combobox.Check checked={isSelected} />
+    </Command.Item>
   );
 };
 
