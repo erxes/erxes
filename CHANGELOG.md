@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.17.8](https://github.com/erxes/erxes/compare/2.17.7...2.17.8) (2025-09-18)
+
+### Bug Fixes
+
+* **inbox:** correctly set primary phone and prevent duplicate conversations ([a0f42e6](https://github.com/erxes/erxes/commit/a0f42e6703344215fc3d16b495f72431fa8273b2))
+
 ## [2.17.7](https://github.com/erxes/erxes/compare/2.17.6...2.17.7) (2025-09-17)
 
 ### Bug Fixes
