@@ -73,6 +73,11 @@ export interface IScoreParams {
   page?: number;
   perPage?: number;
   campaignId?: string;
+  action?: string;
+  number?: string;
+  boardId?: string;
+  pipelineId?: string;
+  stageId?: string;
 }
 
 export const attachmentSchema = new Schema(

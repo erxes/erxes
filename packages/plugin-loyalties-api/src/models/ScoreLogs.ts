@@ -10,10 +10,9 @@ import {
   IScoreLogDocument,
   scoreLogSchema,
 } from "./definitions/scoreLog";
-import { getOwner } from "./utils";
+import { getOwner, scoreStatistic, targetFilter } from "./utils";
 
 import { debugError } from "@erxes/api-utils/src/debuggers";
-import * as dayjs from "dayjs";
 import { IScoreParams } from "./definitions/common";
 
 const OWNER_TYPES = {
@@ -39,7 +38,7 @@ export interface IScoreLogModel extends Model<IScoreLogDocument> {
   changeOwnersScore(doc): Promise<IScoreLogDocument>;
 }
 
-const generateFilter = (params: IScoreParams) => {
+const generateFilter = async (params: IScoreParams, subdomain: string) => {
   let filter: any = {};
 
   if (params.ownerType) {
@@ -66,6 +65,16 @@ const generateFilter = (params: IScoreParams) => {
     filter.campaignId = params.campaignId;
   }
 
+  if (params.action) {
+    filter.action = params.action;
+  }
+
+  await targetFilter({
+    filter,
+    params,
+    subdomain,
+  });
+
   return filter;
 };
 
@@ -89,7 +98,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         sortField = "createdAt",
       } = doc;
 
-      const filter = generateFilter(doc);
+      const filter = await generateFilter(doc, subdomain);
 
       const aggregation: any = [
         {
@@ -154,170 +163,9 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     }
 
     public static async getStatistic(doc: IScoreParams) {
-      const filter = generateFilter(doc);
+      const filter = await generateFilter(doc, subdomain);
 
-      const pipeline = [
-        { $match: { ...filter } },
-        {
-          $group: {
-            _id: null,
-            totalPointEarned: {
-              $sum: {
-                $cond: {
-                  if: {
-                    $or: [
-                      { $eq: ["$action", "add"] },
-                      { $gt: ["$changeScore", 0] },
-                    ],
-                  },
-                  then: "$changeScore",
-                  else: 0,
-                },
-              },
-            },
-            totalPointRedeemed: {
-              $sum: {
-                $cond: {
-                  if: {
-                    $or: [
-                      { $eq: ["$action", "subtract"] },
-                      { $lt: ["$changeScore", 0] },
-                    ],
-                  },
-                  then: { $abs: "$changeScore" },
-                  else: 0,
-                },
-              },
-            },
-            activeLoyaltyMembers: {
-              $addToSet: {
-                $cond: [
-                  {
-                    $and: [
-                      { $ifNull: ["$ownerId", false] },
-                      { $ifNull: ["$ownerType", false] },
-                    ],
-                  },
-                  "$ownerId",
-                  null,
-                ],
-              },
-            },
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            totalPointEarned: 1,
-            totalPointRedeemed: 1,
-            totalPointBalance: {
-              $subtract: ["$totalPointEarned", "$totalPointRedeemed"],
-            },
-            activeLoyaltyMembers: { $size: "$activeLoyaltyMembers" },
-          },
-        },
-      ];
-
-      const currentMonthStart = dayjs().subtract(1, "month").toDate();
-      const currentMonthEnd = dayjs().toDate();
-
-      const monthlyActiveUsersPipeline = [
-        {
-          $match: {
-            createdAt: { $gte: currentMonthStart, $lte: currentMonthEnd },
-          },
-        },
-        {
-          $group: {
-            _id: "$ownerId",
-          },
-        },
-        {
-          $count: "count",
-        },
-      ];
-
-      const targetIds = await models.ScoreLogs.find(filter)
-        .distinct("targetId")
-        .exec();
-
-      const [mostRedeemedProductCategory] = await sendCommonMessage({
-        serviceName: "pos",
-        subdomain,
-        action: "orders.aggregate",
-        data: {
-          aggregate: [
-            {
-              $match: {
-                _id: { $in: targetIds || [] },
-              },
-            },
-            {
-              $unwind: "$items",
-            },
-            {
-              $group: {
-                _id: "$items.productId",
-                count: { $sum: 1 },
-              },
-            },
-            {
-              $lookup: {
-                from: "products",
-                localField: "_id",
-                foreignField: "_id",
-                as: "product",
-              },
-            },
-            {
-              $unwind: "$product",
-            },
-            {
-              $lookup: {
-                from: "product_categories",
-                localField: "product.categoryId",
-                foreignField: "_id",
-                as: "productCategory",
-              },
-            },
-            {
-              $unwind: "$productCategory",
-            },
-            {
-              $project: {
-                productCategory: 1,
-                count: 1,
-              },
-            },
-            {
-              $sort: {
-                count: -1,
-              },
-            },
-            {
-              $limit: 1,
-            },
-          ],
-        },
-        isRPC: true,
-        defaultValue: [],
-      });
-
-      const [statistic] = await models.ScoreLogs.aggregate(pipeline);
-      const [monthlyActiveUsers] = await models.ScoreLogs.aggregate(
-        monthlyActiveUsersPipeline
-      );
-
-      return {
-        ...statistic,
-        redemptionRate: statistic?.totalPointEarned
-          ? ((statistic.totalPointRedeemed ?? 0) / statistic.totalPointEarned) *
-            100
-          : 0,
-        mostRedeemedProductCategory:
-          mostRedeemedProductCategory?.productCategory?.name || "",
-        monthlyActiveUsers: monthlyActiveUsers?.count || 0,
-      };
+      return scoreStatistic({ models, subdomain, filter });
     }
 
     public static async changeOwnersScore(doc: IScoreLog) {

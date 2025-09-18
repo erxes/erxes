@@ -24,6 +24,11 @@ const generateParams = ({ queryParams }: { queryParams: any }) => ({
   sortDirection: Number(queryParams.order) || undefined,
   fromDate: queryParams.fromDate,
   toDate: queryParams.toDate,
+  boardId: queryParams.boardId,
+  pipelineId: queryParams.pipelineId,
+  stageId: queryParams.stageId,
+  number: queryParams.number,
+  action: queryParams.action,
 });
 
 const ScoreLogsListContainer = (props: Props) => {
