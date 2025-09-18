@@ -1,4 +1,4 @@
-import { commonParamsDef, commonParamsValue } from '../../common/graphq';
+import { commonParamsDef, commonParamsValue } from "../../common/graphq";
 
 const commonFields = `
   ownerId
@@ -26,8 +26,8 @@ const commonFields = `
 `;
 
 const getScoreLogs = `
-query scoreLogList(${commonParamsDef},$fromDate: String,$orderType:String, $order: String, $toDate: String){
-  scoreLogList(${commonParamsValue},fromDate: $fromDate,orderType:$orderType, order: $order, toDate: $toDate){
+query scoreLogList(${commonParamsDef},$fromDate: String,$orderType:String, $order: String, $toDate: String, $boardId: String, $pipelineId: String, $stageId: String, $number: String, $action: String){
+  scoreLogList(${commonParamsValue},fromDate: $fromDate,orderType:$orderType, order: $order, toDate: $toDate, boardId: $boardId, pipelineId: $pipelineId, stageId: $stageId, number: $number, action: $action){
     list{
       ${commonFields}
     }
@@ -38,8 +38,8 @@ query scoreLogList(${commonParamsDef},$fromDate: String,$orderType:String, $orde
 `;
 
 const getScoreLogStatistics = `
-  query ScoreLogStatistics(${commonParamsDef},$fromDate: String,$orderType:String, $order: String, $toDate: String) {
-    scoreLogStatistics(${commonParamsValue},fromDate: $fromDate,orderType:$orderType, order: $order, toDate: $toDate)
+  query ScoreLogStatistics(${commonParamsDef},$fromDate: String,$orderType:String, $order: String, $toDate: String, $boardId: String, $pipelineId: String, $stageId: String, $number: String, $action: String) {
+    scoreLogStatistics(${commonParamsValue},fromDate: $fromDate,orderType:$orderType, order: $order, toDate: $toDate, boardId: $boardId, pipelineId: $pipelineId, stageId: $stageId, number: $number, action: $action)
   }
 `;
 

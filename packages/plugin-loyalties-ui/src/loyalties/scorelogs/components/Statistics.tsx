@@ -76,7 +76,7 @@ type Props = {
 };
 
 const Statistics = ({ statistics }: Props) => {
-  const [expand, setExpand] = useState<boolean>(false);
+  const [expand, setExpand] = useState<boolean>(true);
 
   const onClick = () => {
     if (Object.keys(statistics)?.length) {

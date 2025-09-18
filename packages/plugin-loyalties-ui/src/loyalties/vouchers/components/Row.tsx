@@ -1,98 +1,61 @@
-import * as dayjs from "dayjs";
-import _ from "lodash";
-import Form from "../containers/Form";
-import React from "react";
-import { FlexItem } from "../../common/styles";
-import {
-  formatValue,
-  renderFullName,
-  renderUserFullName,
-} from "@erxes/ui/src/utils";
-import { FormControl } from "@erxes/ui/src/components/form";
+import { ModalTrigger, TextInfo } from "@erxes/ui/src/components";
 import { IQueryParams } from "@erxes/ui/src/types";
-import { IVoucher } from "../types";
-import { IVoucherCampaign } from "../../../configs/voucherCampaign/types";
+import { formatValue } from "@erxes/ui/src/utils/core";
+import * as dayjs from "dayjs";
+import React from "react";
 import { Link } from "react-router-dom";
-import { ModalTrigger } from "@erxes/ui/src/components";
+import { IVoucherCampaign } from "../../../configs/voucherCampaign/types";
+import { STATUS_MODE } from "../../coupons/constants";
+import Form from "../containers/Form";
+import { IVoucher } from "../types";
 
 type Props = {
   voucher: IVoucher;
   currentCampaign?: IVoucherCampaign;
-  isChecked: boolean;
-  toggleBulk: (voucher: IVoucher, isChecked?: boolean) => void;
   queryParams: IQueryParams;
 };
 
-class VoucherRow extends React.Component<Props> {
-  displayValue(voucher, name) {
-    const value = _.get(voucher, name);
+const Row = (props: Props) => {
+  const { voucher } = props;
 
-    if (name === "primaryName") {
-      return <FlexItem>{formatValue(voucher.primaryName)}</FlexItem>;
-    }
-
-    return formatValue(value);
-  }
-
-  onChange = (e) => {
-    const { toggleBulk, voucher } = this.props;
-    if (toggleBulk) {
-      toggleBulk(voucher, e.target.checked);
-    }
+  const OWNER_DETAILS = {
+    customer: `/contacts/details/${voucher.ownerId}`,
+    user: `/settings/team/details/${voucher.ownerId}`,
+    company: `/companies/details/${voucher.ownerId}`,
+    cpUser: `/settings/client-portal/users/details/${voucher.ownerId}`,
   };
 
-  renderOwner = () => {
-    const { voucher } = this.props;
-    if (!voucher.owner || !voucher.owner._id) {
+  const renderOwner = (type, owner) => {
+    if (!owner || !type) {
       return "-";
     }
 
-    if (voucher.ownerType === "customer") {
-      return (
-        <FlexItem>
-          <Link to={`/contacts/details/${voucher.ownerId}`}>
-            {formatValue(renderFullName(voucher.owner))}
-          </Link>
-        </FlexItem>
-      );
-    }
+    const ownerInfo =
+      {
+        customer: [
+          owner?.primaryEmail,
+          `${owner?.firstName ?? ""} ${owner?.lastName ?? ""}`.trim(),
+          owner?.phones?.find((p) => p.type === "primary")?.phone,
+        ],
+        user: [
+          owner?.email,
+          owner?.details?.fullName,
+          owner?.primaryPhone,
+          owner?.details?.operatorPhone,
+        ],
+        company: [owner?.primaryEmail, owner?.primaryName, owner?.phones?.[0]],
+        cpUser: [
+          owner?.email,
+          owner?.username,
+          `${owner?.firstName ?? ""} ${owner?.lastName ?? ""}`.trim(),
+          owner?.phone,
+        ],
+      }[type]?.find((value) => value) || "-";
 
-    if (voucher.ownerType === "user") {
-      return (
-        <FlexItem>
-          <Link to={`/settings/team/details/${voucher.ownerId}`}>
-            {formatValue(renderUserFullName(voucher.owner))}
-          </Link>
-        </FlexItem>
-      );
-    }
-
-    if (voucher.ownerType === "company") {
-      return (
-        <FlexItem>
-          <Link to={`/companies/details/${voucher.ownerId}`}>
-            {formatValue(this.displayValue(voucher.owner, "name"))}
-          </Link>
-        </FlexItem>
-      );
-    }
-
-    if (voucher.ownerType === "cpUser") {
-      return (
-        <FlexItem>
-          <Link to={`/settings/client-portal/users/details/${voucher.ownerId}`}>
-            {voucher?.owner?.email || ""}
-          </Link>
-        </FlexItem>
-      );
-    }
-
-    return "";
+    return <Link to={OWNER_DETAILS[type]}>{formatValue(ownerInfo)}</Link>;
   };
 
-  modalContent = (props) => {
-    const { voucher } = this.props;
-
+  const modalContent = (props) => {
     const updatedProps = {
       ...props,
       voucher,
@@ -101,55 +64,27 @@ class VoucherRow extends React.Component<Props> {
     return <Form {...updatedProps} />;
   };
 
-  render() {
-    const { voucher, isChecked, currentCampaign } = this.props;
+  const trigger = (
+    <tr key={voucher._id}>
+      <td>{dayjs(voucher.createdAt).format("YYYY/MM/DD LT") || "-"}</td>
+      <td>{voucher.ownerType}</td>
+      <td>{renderOwner(voucher.ownerType, voucher.owner)}</td>
+      <td>
+        <TextInfo $textStyle={STATUS_MODE[voucher.status]}>
+          {voucher.status || "-"}
+        </TextInfo>
+      </td>
+    </tr>
+  );
 
-    const onClick = (e) => {
-      e.stopPropagation();
-    };
+  return (
+    <ModalTrigger
+      title={`Edit voucher`}
+      trigger={trigger}
+      autoOpenKey="showProductModal"
+      content={modalContent}
+    />
+  );
+};
 
-    const renderCheckbox = () => {
-      if (
-        !currentCampaign ||
-        ["spin", "lottery"].includes(currentCampaign.voucherType)
-      ) {
-        return;
-      }
-      return (
-        <td onClick={onClick}>
-          <FormControl
-            checked={isChecked}
-            componentclass="checkbox"
-            onChange={this.onChange}
-          />
-        </td>
-      );
-    };
-
-    const trigger = (
-      <tr>
-        {renderCheckbox()}
-        <td key={"createdAt"}>{dayjs(voucher.createdAt).format("lll")} </td>
-        <td key={"ownerType"}>{this.displayValue(voucher, "ownerType")}</td>
-        <td key={"ownerId"} onClick={onClick}>
-          {this.renderOwner()}
-        </td>
-        <td key={"status"}>{this.displayValue(voucher, "status")}</td>
-        <td key={"actions"} onClick={onClick}>
-          .
-        </td>
-      </tr>
-    );
-
-    return (
-      <ModalTrigger
-        title={`Edit voucher`}
-        trigger={trigger}
-        autoOpenKey="showProductModal"
-        content={this.modalContent}
-      />
-    );
-  }
-}
-
-export default VoucherRow;
+export default Row;
