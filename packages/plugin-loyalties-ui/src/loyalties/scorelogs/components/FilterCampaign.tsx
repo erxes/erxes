@@ -165,8 +165,6 @@ const FilterCampaign = (props: Props) => {
   const renderTarget = () => {
     const { number, boardId, pipelineId, stageId } = filterParams;
 
-    console.log("filterParams", filterParams);
-
     return (
       <FilterContainer>
         <BoardSelectContainer
@@ -264,7 +262,10 @@ const FilterCampaign = (props: Props) => {
       );
     }
 
-    const options = FILTER_OPTIONS[field][type] || FILTER_OPTIONS[field] || [];
+    const options =
+      type && FILTER_OPTIONS[field]?.[type]
+        ? FILTER_OPTIONS[field][type]
+        : FILTER_OPTIONS[field] || [];
 
     return (
       <Box
@@ -273,30 +274,28 @@ const FilterCampaign = (props: Props) => {
         isOpen={true}
         extraButtons={renderExtraButtons(field)}
       >
-        {
-          <SidebarList>
-            {options.map(({ value, label }) => {
-              return (
-                <li key={value}>
-                  <a
-                    href="#filter"
-                    tabIndex={0}
-                    className={
-                      queryParams[field] === String(value) ? "active" : ""
-                    }
-                    onClick={() => handleOnChange(field, value)}
-                  >
-                    <FieldStyle>{label}</FieldStyle>
-                  </a>
-                </li>
-              );
-            })}
+        <SidebarList>
+          {options.map(({ value, label }) => {
+            return (
+              <li key={value}>
+                <a
+                  href="#filter"
+                  tabIndex={0}
+                  className={
+                    queryParams[field] === String(value) ? "active" : ""
+                  }
+                  onClick={() => handleOnChange(field, value)}
+                >
+                  <FieldStyle>{label}</FieldStyle>
+                </a>
+              </li>
+            );
+          })}
 
-            {queryParams["ownerType"] && field === "ownerType" && (
-              <FilterContainer>{renderOwner()}</FilterContainer>
-            )}
-          </SidebarList>
-        }
+          {queryParams["ownerType"] && field === "ownerType" && (
+            <FilterContainer>{renderOwner()}</FilterContainer>
+          )}
+        </SidebarList>
       </Box>
     );
   };
