@@ -911,39 +911,6 @@ export const getCoreCustomer = async (subdomain, customerId) => {
   }
 };
 
-export const createOrUpdateConversation = async (
-  subdomain,
-  customerId,
-  conversationId,
-) => {
-  try {
-    await sendInboxMessage({
-      subdomain: subdomain,
-      action: 'integrations.receive',
-      data: {
-        action: 'create-or-update-conversation',
-        payload: JSON.stringify({
-          customerId,
-          conversationId,
-          updatedAt: new Date().toISOString(),
-        }),
-      },
-      isRPC: true,
-    });
-  } catch (error) {
-    throw new Error('Failed to create or update conversation');
-  }
-  try {
-    const models = await generateModels(subdomain);
-    await models.CallHistory.updateOne(
-      { conversationId: conversationId },
-      { $set: { customerId } },
-    );
-  } catch (error) {
-    throw new Error('Failed to update existing call history');
-  }
-};
-
 export const validateIntegration = async (models, integrationId) => {
   try {
     const integration = await models.Integrations.findOne({
