@@ -90,6 +90,7 @@ const sidebarConversations = `
         state
         avatar
         visitorContactInfo
+        phones
       }
       tagIds
       tags {
@@ -326,7 +327,7 @@ const generateCustomerDetailQuery = (params) => {
     showCustomFields = false,
     showCompanies = false,
     showTags = false,
-    showSegments = false
+    showSegments = false,
   } = params || {};
 
   let fields = `
@@ -435,5 +436,5 @@ export default {
   generateCustomerDetailQuery,
   convertToInfo,
   postInfo,
-  instagramPostInfo
+  instagramPostInfo,
 };
