@@ -1,5 +1,9 @@
 # Changelog
 
+## <small>2.17.9 (2025-09-19)</small>
+
+* revert: create inbox message ([a745ac7](https://github.com/erxes/erxes/commit/a745ac7))
+
 ## [2.17.8](https://github.com/erxes/erxes/compare/2.17.7...2.17.8) (2025-09-18)
 
 ### Bug Fixes
