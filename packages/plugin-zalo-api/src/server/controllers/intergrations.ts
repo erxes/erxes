@@ -173,7 +173,7 @@ export const removeIntegration = async (
     throw new Error('Integration not found');
   }
 
-  const { _id, kind, accountId, erxesApiId } = integration;
+  const { _id, kind, erxesApiId } = integration;
 
   // const account = await models.Accounts.findOne({ _id: accountId });
 
