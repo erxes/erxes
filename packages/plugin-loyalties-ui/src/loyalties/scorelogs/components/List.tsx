@@ -6,20 +6,20 @@ import {
   Pagination,
   Table,
   __,
-} from '@erxes/ui/src';
+} from "@erxes/ui/src";
 
-import { Title } from '@erxes/ui-settings/src/styles';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { SimpleButton } from '@erxes/ui/src/styles/main';
-import { can } from '@erxes/ui/src/utils/core';
-import React, { useState } from 'react';
-import { menuLoyalties } from '../../common/constants';
-import Sidebar from '../components/Sidebar';
-import Form from '../containers/Form';
-import { IScoreLogParams } from '../types';
-import Row from './Row';
-import Statistics from './Statistics';
+import { Title } from "@erxes/ui-settings/src/styles";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { Wrapper } from "@erxes/ui/src/layout";
+import { SimpleButton } from "@erxes/ui/src/styles/main";
+import { can } from "@erxes/ui/src/utils/core";
+import React, { useState } from "react";
+import { menuLoyalties } from "../../common/constants";
+import Sidebar from "../components/Sidebar";
+import Form from "../containers/Form";
+import { IScoreLogParams } from "../types";
+import Row from "./Row";
+import Statistics from "./Statistics";
 
 type Props = {
   loading: boolean;
@@ -27,33 +27,40 @@ type Props = {
   scoreLogs: IScoreLogParams[];
   statistics: any;
   total: number;
-  currentUser: IUser
+  currentUser: IUser;
   refetch: (variables: any) => void;
 };
 
 const tablehead = [
-  'Owner Name',
-  'Email',
-  'Phone',
-  'Owner Type',
-  'Total Score',
-  'Actions',
+  "Owner Name",
+  "Email",
+  "Phone",
+  "Owner Type",
+  "Total Score",
+  "Actions",
 ];
 
 const ScoreLogsListComponent = (props: Props) => {
-  const { loading, queryParams, scoreLogs, statistics, total, currentUser, refetch } = props;
+  const {
+    loading,
+    queryParams,
+    scoreLogs,
+    statistics,
+    total,
+    currentUser,
+    refetch,
+  } = props;
 
   const [toggleSidebar, setToggleSidebar] = useState<boolean>(false);
 
   const modalContent = (props) => <Form {...props} />;
 
   const renderForm = () => {
-
-    if (!can('adjustLoyaltyScore', currentUser)) {
-      return null
+    if (!can("adjustLoyaltyScore", currentUser)) {
+      return null;
     }
 
-    const trigger = <Button btnStyle="success">{__('Give Score')}</Button>;
+    const trigger = <Button btnStyle="success">{__("Give Score")}</Button>;
 
     return (
       <ModalTrigger
@@ -68,7 +75,7 @@ const ScoreLogsListComponent = (props: Props) => {
 
   const header = (
     <Wrapper.Header
-      title={__('Score') + `(${total})`}
+      title={__("Score") + `(${total})`}
       submenu={menuLoyalties}
     />
   );
@@ -77,7 +84,7 @@ const ScoreLogsListComponent = (props: Props) => {
     <Wrapper.ActionBar
       right={renderForm()}
       left={
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <SimpleButton
             id="btn-inbox-channel-visible"
             $isActive={toggleSidebar}
@@ -111,7 +118,12 @@ const ScoreLogsListComponent = (props: Props) => {
       </thead>
       <tbody>
         {scoreLogs?.map((p, i) => (
-          <Row key={i} scoreLog={p} headers={tablehead} />
+          <Row
+            key={i}
+            scoreLog={p}
+            headers={tablehead}
+            queryParams={queryParams}
+          />
         ))}
       </tbody>
     </Table>
@@ -122,7 +134,9 @@ const ScoreLogsListComponent = (props: Props) => {
       header={header}
       leftSidebar={sideBar}
       actionBar={actionBar}
-      mainHead={<Statistics statistics={statistics} />}
+      mainHead={
+        <Statistics statistics={statistics} queryParams={queryParams} />
+      }
       content={
         <DataWithLoader
           data={content}

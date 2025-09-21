@@ -62,8 +62,8 @@ const FilterCampaign = (props: Props) => {
   };
 
   const handleOnChange = (field, value) => {
-    if (typeof value === "object" && value !== null) {
-      value = value.currentTarget.value;
+    if (field === "number" && value !== null) {
+      value = value?.currentTarget?.value || "";
     }
 
     value = String(value);
@@ -186,7 +186,6 @@ const FilterCampaign = (props: Props) => {
             name="number"
             onChange={(event) => handleOnChange("number", event)}
             defaultValue={number}
-            autoFocus={true}
           />
         </FormGroup>
       </FilterContainer>

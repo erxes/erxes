@@ -118,47 +118,16 @@ export const getOwner = async (subdomain, ownerType, ownerId) => {
 };
 
 export const targetFilter = async ({ filter, params, subdomain }) => {
-  const { boardId, pipelineId, stageId, number } = params;
+  const { stageId, number } = params;
 
-  if (!boardId && !pipelineId && !stageId && !number) {
+  if (!stageId && !number) {
     return;
   }
 
-  let pipelineIds: string[] = [];
   let stageIds: string[] = [];
   let dealIds: string[] = [];
 
   filter.serviceName = "sales";
-
-  if (boardId) {
-    const pipelines = await sendCommonMessage({
-      serviceName: "sales",
-      subdomain,
-      action: "pipelines.find",
-      data: { boardId },
-      isRPC: true,
-      defaultValue: [],
-    });
-
-    pipelineIds = pipelines.map((p) => p._id);
-  }
-
-  if (pipelineId) {
-    pipelineIds = [pipelineId];
-  }
-
-  if (pipelineIds.length) {
-    const stages = await sendCommonMessage({
-      serviceName: "sales",
-      subdomain,
-      action: "stages.find",
-      data: { pipelineId: { $in: pipelineIds } },
-      isRPC: true,
-      defaultValue: [],
-    });
-
-    stageIds = stages.map((s) => s._id);
-  }
 
   if (stageId) {
     stageIds = [stageId];
@@ -192,7 +161,10 @@ export const targetFilter = async ({ filter, params, subdomain }) => {
       : dealsByNumber.map((d) => d._id);
   }
 
-  filter.targetId = { $in: [...new Set(dealIds)] };
+  filter.targetId = {
+    ...(filter.targetId || {}),
+    $in: [...new Set(dealIds)],
+  };
 };
 
 export const scoreActiveUsers = async ({ models }) => {
@@ -240,13 +212,37 @@ export const scoreActiveUsers = async ({ models }) => {
   };
 };
 
-export const scorePoint = async ({ models, subdomain, filter }) => {
+export const scorePoint = async ({ doc, models, filter }) => {
+  const { stageId, number } = doc;
+
+  const refundedTargetIds = await models.ScoreLogs.distinct("targetId", {
+    action: "refund",
+  });
+
+  let filterAggregate: any[] = [];
+
+  if (stageId || number) {
+    const lookup = [
+      {
+        $lookup: {
+          from: "deals",
+          localField: "targetId",
+          foreignField: "_id",
+          as: "target",
+        },
+      },
+      {
+        $unwind: "$target",
+      },
+    ];
+
+    filterAggregate.push(...lookup);
+  }
+
   const totalPointEarned = {
     $sum: {
       $cond: {
-        if: {
-          $or: [{ $eq: ["$action", "add"] }, { $gt: ["$changeScore", 0] }],
-        },
+        if: { $eq: ["$action", "add"] },
         then: "$changeScore",
         else: 0,
       },
@@ -256,9 +252,7 @@ export const scorePoint = async ({ models, subdomain, filter }) => {
   const totalPointRedeemed = {
     $sum: {
       $cond: {
-        if: {
-          $or: [{ $eq: ["$action", "subtract"] }, { $lt: ["$changeScore", 0] }],
-        },
+        if: { $eq: ["$action", "subtract"] },
         then: { $abs: "$changeScore" },
         else: 0,
       },
@@ -266,7 +260,16 @@ export const scorePoint = async ({ models, subdomain, filter }) => {
   };
 
   const pointPipeline = [
-    { $match: { ...filter } },
+    ...filterAggregate,
+    {
+      $match: {
+        ...filter,
+        targetId: {
+          $nin: refundedTargetIds,
+          ...(filter.targetId || {}),
+        },
+      },
+    },
     {
       $group: {
         _id: null,
@@ -294,92 +297,147 @@ export const scorePoint = async ({ models, subdomain, filter }) => {
   };
 };
 
-export const scoreProducts = async ({ models, subdomain, filter }) => {
-  const targetIds = await models.ScoreLogs.find(filter).distinct("targetId");
+export const scoreProducts = async ({ doc, models, filter }) => {
+  const { stageId, number } = doc;
 
-  const [mostRedeemedProductCategory] = await sendCommonMessage({
-    serviceName: "pos",
-    subdomain,
-    action: "orders.aggregate",
-    data: {
-      aggregate: [
-        {
-          $match: {
-            _id: { $in: targetIds || [] },
-          },
+  let filterAggregate: any[] = [];
+
+  if (stageId || number) {
+    const lookup = [
+      {
+        $lookup: {
+          from: "deals",
+          localField: "targetId",
+          foreignField: "_id",
+          as: "target",
         },
-        {
-          $unwind: "$items",
+      },
+      {
+        $unwind: "$target",
+      },
+    ];
+
+    filterAggregate.push(...lookup);
+  }
+
+  const [mostRedeemedProductCategory] = await models.ScoreLogs.aggregate([
+    ...filterAggregate,
+    {
+      $match: {
+        ...filter,
+        targetId: {
+          ...(filter.targetId || {}),
+          $exists: true,
         },
-        {
-          $group: {
-            _id: "$items.productId",
-            count: { $sum: 1 },
-          },
-        },
-        {
-          $lookup: {
-            from: "products",
-            localField: "_id",
-            foreignField: "_id",
-            as: "product",
-          },
-        },
-        {
-          $unwind: "$product",
-        },
-        {
-          $lookup: {
-            from: "product_categories",
-            localField: "product.categoryId",
-            foreignField: "_id",
-            as: "productCategory",
-          },
-        },
-        {
-          $unwind: "$productCategory",
-        },
-        {
-          $project: {
-            productCategory: 1,
-            count: 1,
-          },
-        },
-        {
-          $sort: {
-            count: -1,
-          },
-        },
-        {
-          $limit: 1,
-        },
-      ],
+      },
     },
-    isRPC: true,
-    defaultValue: [],
-  });
+    {
+      $lookup: {
+        from: "deals",
+        localField: "targetId",
+        foreignField: "_id",
+        as: "dealTarget",
+      },
+    },
+    {
+      $unwind: {
+        path: "$dealTarget",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $unwind: {
+        path: "$dealTarget.productsData",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: "pos_orders",
+        localField: "targetId",
+        foreignField: "_id",
+        as: "orderTarget",
+      },
+    },
+    {
+      $unwind: {
+        path: "$orderTarget",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $unwind: {
+        path: "$orderTarget.items",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $addFields: {
+        productId: {
+          $ifNull: [
+            "$orderTarget.items.productId",
+            "$dealTarget.productsData.productId",
+          ],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: "$productId",
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $lookup: {
+        from: "products",
+        localField: "_id",
+        foreignField: "_id",
+        as: "product",
+      },
+    },
+    { $unwind: "$product" },
+    {
+      $lookup: {
+        from: "product_categories",
+        localField: "product.categoryId",
+        foreignField: "_id",
+        as: "productCategory",
+      },
+    },
+    { $unwind: "$productCategory" },
+    {
+      $group: {
+        _id: "$productCategory._id",
+        name: { $first: "$productCategory.name" },
+        totalCount: { $sum: "$count" },
+      },
+    },
+    {
+      $sort: { totalCount: -1 },
+    },
+    { $limit: 1 },
+  ]);
 
   return {
-    mostRedeemedProductCategory:
-      mostRedeemedProductCategory?.productCategory?.name || "",
+    mostRedeemedProductCategory: mostRedeemedProductCategory?.name || "",
   };
 };
 
-export const scoreStatistic = async ({ models, subdomain, filter }) => {
+export const scoreStatistic = async ({ doc, models, subdomain, filter }) => {
   const { monthlyActiveUsers, totalActiveUsers } = await scoreActiveUsers({
     models,
   });
 
   const { totalPointEarned, totalPointRedeemed, totalPointBalance } =
     await scorePoint({
+      doc,
       models,
-      subdomain,
       filter,
     });
 
   const { mostRedeemedProductCategory } = await scoreProducts({
+    doc,
     models,
-    subdomain,
     filter,
   });
 
