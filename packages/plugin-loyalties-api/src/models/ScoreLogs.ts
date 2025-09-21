@@ -10,7 +10,7 @@ import {
   IScoreLogDocument,
   scoreLogSchema,
 } from "./definitions/scoreLog";
-import { getOwner, scoreStatistic, targetFilter } from "./utils";
+import { getOwner, scoreStatistic } from "./utils";
 
 import { debugError } from "@erxes/api-utils/src/debuggers";
 import { IScoreParams } from "./definitions/common";
@@ -38,8 +38,17 @@ export interface IScoreLogModel extends Model<IScoreLogDocument> {
   changeOwnersScore(doc): Promise<IScoreLogDocument>;
 }
 
-const generateFilter = async (params: IScoreParams, subdomain: string) => {
-  let filter: any = {};
+const generateFilter = async (
+  params: IScoreParams,
+  models: IModels,
+  subdomain: string
+) => {
+  let filter: any = {
+    changeScore: {
+      $gte: Number.NEGATIVE_INFINITY,
+      $lte: Number.POSITIVE_INFINITY,
+    },
+  };
 
   if (params.ownerType) {
     filter.ownerType = params.ownerType;
@@ -66,14 +75,26 @@ const generateFilter = async (params: IScoreParams, subdomain: string) => {
   }
 
   if (params.action) {
+    const refundedTargetIds = await models.ScoreLogs.distinct("targetId", {
+      action: "refund",
+    });
+
+    if (refundedTargetIds?.length) {
+      filter.targetId = {
+        $nin: refundedTargetIds,
+      };
+    }
+
     filter.action = params.action;
   }
 
-  await targetFilter({
-    filter,
-    params,
-    subdomain,
-  });
+  if (params.stageId) {
+    filter["target.stageId"] = params.stageId;
+  }
+
+  if (params.number) {
+    filter["target.number"] = params.number;
+  }
 
   return filter;
 };
@@ -96,11 +117,34 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         perPage = 20,
         sortDirection = -1,
         sortField = "createdAt",
+        stageId,
+        number,
       } = doc;
 
-      const filter = await generateFilter(doc, subdomain);
+      const filter = await generateFilter(doc, models, subdomain);
+
+      let filterAggregate: any[] = [];
+
+      if (stageId || number) {
+        const lookup = [
+          {
+            $lookup: {
+              from: "deals",
+              localField: "targetId",
+              foreignField: "_id",
+              as: "target",
+            },
+          },
+          {
+            $unwind: "$target",
+          },
+        ];
+
+        filterAggregate.push(...lookup);
+      }
 
       const aggregation: any = [
+        ...filterAggregate,
         {
           $match: { ...filter },
         },
@@ -163,9 +207,9 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     }
 
     public static async getStatistic(doc: IScoreParams) {
-      const filter = await generateFilter(doc, subdomain);
+      const filter = await generateFilter(doc, models, subdomain);
 
-      return scoreStatistic({ models, subdomain, filter });
+      return scoreStatistic({ doc, models, filter });
     }
 
     public static async changeOwnersScore(doc: IScoreLog) {

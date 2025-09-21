@@ -60,3 +60,8 @@ scoreLogSchema.index({
   createdAt: 1,
   changeScore: 1,
 });
+
+scoreLogSchema.index({
+  targetId: 1,
+  action: 1,
+});

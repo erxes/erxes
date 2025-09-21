@@ -1,7 +1,7 @@
-import { colors, dimensions, Icon } from '@erxes/ui/src';
-import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors, dimensions, Icon } from "@erxes/ui/src";
+import React, { useState } from "react";
+import styled, { css } from "styled-components";
+import styledTS from "styled-components-ts";
 
 const StaticValue = styledTS(styled.div)`
     font-weight: 600;
@@ -22,13 +22,13 @@ const MainDescription = styledTS<{
     cursor: pointer;
   
     ${(props) => css`
-      height: ${props.$expand === false && '0px'};
+      height: ${props.$expand === false && "0px"};
     `}
   
     h4 {
       margin: 0;
-      padding-bottom: ${(props) => (props.$expand ? '5px' : '0')};
-      font-size: ${(props) => (props.$expand ? '18px' : '15px')};
+      padding-bottom: ${(props) => (props.$expand ? "5px" : "0")};
+      font-size: ${(props) => (props.$expand ? "18px" : "15px")};
       font-weight: 500;
     }
 `;
@@ -59,24 +59,34 @@ const CardContent = styledTS(styled.div)`
     justify-content: space-between;
 `;
 
-const STATISTIC_MAP = {
-  totalPointEarned: { label: 'Total Point Earned', icon: 'file-search-alt' },
-  totalPointBalance: { label: 'Points Balance', icon: 'calender' },
-  activeLoyaltyMembers: { label: 'Active Loyalty Members', icon: 'user' },
-  redemptionRate: { label: 'Redemption Rates', icon: 'chart-line' },
-  mostRedeemedProductCategory: {
-    label: 'Top Redeemed Product Catalogy',
-    icon: 'chart-line',
-  },
-  monthlyActiveUsers: { label: 'Mounthly Active Users', icon: 'user' },
-};
-
 type Props = {
   statistics: any;
+  queryParams: any;
 };
 
-const Statistics = ({ statistics }: Props) => {
+const Statistics = ({ statistics, queryParams }: Props) => {
+  const { action } = queryParams;
+
   const [expand, setExpand] = useState<boolean>(true);
+
+  const STATISTIC_MAP = {
+    totalPointEarned: {
+      label: "Total Point Earned",
+      icon: "file-search-alt",
+    },
+    totalPointRedeemed: {
+      label: "Total Point Spent",
+      icon: "file-search-alt",
+    },
+    totalPointBalance: { label: "Points Balance", icon: "calender" },
+    activeLoyaltyMembers: { label: "Active Loyalty Members", icon: "user" },
+    redemptionRate: { label: "Redemption Rates", icon: "chart-line" },
+    mostRedeemedProductCategory: {
+      label: "Top Redeemed Product Catalogy",
+      icon: "chart-line",
+    },
+    monthlyActiveUsers: { label: "Mounthly Active Users", icon: "user" },
+  };
 
   const onClick = () => {
     if (Object.keys(statistics)?.length) {
@@ -89,13 +99,28 @@ const Statistics = ({ statistics }: Props) => {
       return <h4>Score Statistics</h4>;
     }
 
+    const filteredStats = Object.entries(statistics || {}).filter(([key]) => {
+      if (action && key === "totalPointBalance") return false;
+
+      if (["totalPointEarned", "totalPointRedeemed"].includes(key)) {
+        if (action === "subtract") return key === "totalPointRedeemed";
+        return key === "totalPointEarned";
+      }
+      return true;
+    });
+
     return (
       <>
-        {Object.entries(statistics).map(([key, value]: any) => {
-          if (!STATISTIC_MAP[key] || !value) return <></>;
+        {filteredStats.map(([key, value]: any) => {
+          if (!STATISTIC_MAP[key] || value === null || value === undefined)
+            return <></>;
 
-          if (key === 'redemptionRate') {
+          if (key === "redemptionRate") {
             value = `${value.toFixed(1)} %`;
+          }
+
+          if (value === 0 || value === "") {
+            value = "-";
           }
 
           return (
@@ -105,7 +130,11 @@ const Statistics = ({ statistics }: Props) => {
                 {STATISTIC_MAP[key].label}
               </CardTitle>
               <CardContent>
-                <StaticValue>{value}</StaticValue>
+                <StaticValue>
+                  {typeof value === "number"
+                    ? Math.abs(value).toLocaleString()
+                    : value}
+                </StaticValue>
               </CardContent>
             </Card>
           );
