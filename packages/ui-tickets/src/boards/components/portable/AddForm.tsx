@@ -73,7 +73,11 @@ class AddForm extends React.Component<Props, State> {
     super(props);
     this.state = {
       disabled: false,
-      boardId: props.boardId || "",
+      boardId:
+        localStorage.getItem(`${props.options.type}boardId`) ||
+        props.boardId ||
+        "",
+
       pipelineId: props.pipelineId || "",
       stageId: props.stageId || "",
       cardId: props.cardId || "",
@@ -107,6 +111,9 @@ class AddForm extends React.Component<Props, State> {
     }
 
     this.setState({ [name]: value } as unknown as Pick<State, keyof State>);
+    // const proccessId = Math.random().toString();
+    // const stringifiedState = JSON.stringify(this.state);
+    // localStorage.setItem(`ticket_convert_${proccessId}`, stringifiedState);
   };
 
   save = (e) => {

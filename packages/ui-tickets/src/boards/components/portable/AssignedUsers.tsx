@@ -12,10 +12,11 @@ type Props = {
 
 export default function AssignedUsers(props: Props) {
   const { field } = props;
-  const onChange = (userIds) => {
-    const { onChangeField } = props;
 
-    onChangeField(field.field, userIds);
+  const onChange = (value: string[] | string, _name: string) => {
+    const { onChangeField } = props;
+    const normalized = Array.isArray(value) ? value : [value];
+    onChangeField(field.field, normalized);
   };
 
   return (
