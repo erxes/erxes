@@ -33,10 +33,11 @@ export const scoreLogSchema = new Schema({
   }),
   campaignId: field({
     type: String,
+    index: true,
     label: "Campaign ID",
     optional: true,
   }),
-  ownerId: field({ type: String, label: "Owner" }),
+  ownerId: field({ type: String, index: true, label: "Owner" }),
   changeScore: field({ type: Number, label: "Changed Score" }),
   description: field({ type: String, label: "Description" }),
   serviceName: field({ type: String, label: "Service name" }),
@@ -58,7 +59,9 @@ scoreLogSchema.index({
   ownerId: 1,
   createdAt: 1,
   changeScore: 1,
+});
+
+scoreLogSchema.index({
   targetId: 1,
   action: 1,
-  campaignId: 1,
 });
