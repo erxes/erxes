@@ -79,9 +79,11 @@ const generateFilter = async (
       action: "refund",
     });
 
-    filter.targetId = {
-      $nin: refundedTargetIds,
-    };
+    if (refundedTargetIds?.length) {
+      filter.targetId = {
+        $nin: refundedTargetIds,
+      };
+    }
 
     filter.action = params.action;
   }
@@ -207,7 +209,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     public static async getStatistic(doc: IScoreParams) {
       const filter = await generateFilter(doc, models, subdomain);
 
-      return scoreStatistic({ doc, models, subdomain, filter });
+      return scoreStatistic({ doc, models, filter });
     }
 
     public static async changeOwnersScore(doc: IScoreLog) {

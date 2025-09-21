@@ -423,7 +423,7 @@ export const scoreProducts = async ({ doc, models, filter }) => {
   };
 };
 
-export const scoreStatistic = async ({ doc, models, subdomain, filter }) => {
+export const scoreStatistic = async ({ doc, models, filter }) => {
   const { monthlyActiveUsers, totalActiveUsers } = await scoreActiveUsers({
     models,
   });

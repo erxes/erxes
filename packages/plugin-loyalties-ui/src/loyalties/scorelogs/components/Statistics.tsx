@@ -99,7 +99,7 @@ const Statistics = ({ statistics, queryParams }: Props) => {
       return <h4>Score Statistics</h4>;
     }
 
-    const filteredStats = Object.entries(statistics).filter(([key]) => {
+    const filteredStats = Object.entries(statistics || {}).filter(([key]) => {
       if (action && key === "totalPointBalance") return false;
 
       if (["totalPointEarned", "totalPointRedeemed"].includes(key)) {
