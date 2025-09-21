@@ -7,26 +7,45 @@ export const getOrCreateCustomer = async (
   callAccount: any,
 ) => {
   const { inboxIntegrationId, primaryPhone, phoneType } = callAccount;
+
+  // Эхлээд тухайн утасны дугаараар хайж үзэх
   let customer = await models.Customers.findOne({
     primaryPhone,
     status: 'completed',
   });
+
   if (!customer) {
-    try {
-      customer = await models.Customers.create({
-        inboxIntegrationId,
-        erxesApiId: null,
-        primaryPhone: primaryPhone,
-        status: 'pending',
-      });
-    } catch (e) {
-      if (e.message.includes('duplicate')) {
-        return await getOrCreateCustomer(models, subdomain, callAccount);
-      } else {
-        throw new Error(e);
+    // Pending статустай customer байгаа эсэхийг шалгах
+    const pendingCustomer = await models.Customers.findOne({
+      primaryPhone,
+      status: 'pending',
+    });
+
+    if (pendingCustomer) {
+      // Pending customer байвал түүнийг ашиглах
+      customer = pendingCustomer;
+    } else {
+      try {
+        // Шинэ customer үүсгэх
+        customer = await models.Customers.create({
+          inboxIntegrationId,
+          erxesApiId: undefined, // null биш undefined ашиглах
+          primaryPhone: primaryPhone,
+          status: 'pending',
+        });
+      } catch (e) {
+        // Duplicate алдаанд давтан оролдох
+        if (e.message.includes('duplicate') || e.code === 11000) {
+          console.log('Duplicate error, retrying...', e);
+          return await getOrCreateCustomer(models, subdomain, callAccount);
+        } else {
+          console.log('Customer creation error:', e);
+          throw new Error(e.message || e);
+        }
       }
     }
 
+    // API-д customer үүсгэх оролдлого
     try {
       const apiCustomerResponse = await sendInboxMessage({
         subdomain,
@@ -43,14 +62,19 @@ export const getOrCreateCustomer = async (
         },
         isRPC: true,
       });
+
       customer.erxesApiId = apiCustomerResponse._id;
       customer.status = 'completed';
       await customer.save();
     } catch (e) {
-      await models.Customers.deleteOne({ _id: customer._id });
-      throw new Error(e);
+      console.log('API customer creation error:', e);
+      if (customer && customer.status === 'pending') {
+        await models.Customers.deleteOne({ _id: customer._id });
+      }
+      throw new Error(e.message || e);
     }
   }
+
   return customer;
 };
 
