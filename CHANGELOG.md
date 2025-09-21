@@ -1,5 +1,7 @@
 # Changelog
 
+## [2.17.10](https://github.com/erxes/erxes/compare/2.17.9...2.17.10) (2025-09-21)
+
 ## <small>2.17.9 (2025-09-19)</small>
 
 * revert: create inbox message ([a745ac7](https://github.com/erxes/erxes/commit/a745ac7))
