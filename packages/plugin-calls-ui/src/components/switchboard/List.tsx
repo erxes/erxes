@@ -178,24 +178,27 @@ function List(props: IProps) {
         <SwitchboardPreview>
           <Header fontSize="18px">{list.queue}</Header>
           <Header bottomBorder={true}>
-            {progressBar(list.answered_rate, '#x', '200px')}
+            {progressBar(
+              list.answeredRate || list.answered_rate,
+              '#x',
+              '200px',
+            )}
           </Header>
           <ContainerRow>
             <Row>
-              <p>Total Calls:</p> <span> {list.total_calls}</span>
+              <p>Total Calls:</p> <span> {list.totalCalls}</span>
             </Row>
             <Row>
-              <p>Answered Calls:</p> <span>{list.answered_calls}</span>
+              <p>Answered Calls:</p> <span>{list.answeredCalls}</span>
             </Row>
             <Row>
-              <p> Abandoned Calls:</p> <span>{list.abandoned_calls}</span>
+              <p> Abandoned Calls:</p> <span>{list.abandonedCalls}</span>
             </Row>
             <Row>
-              <p>Average Wait time:</p> <span>{formatTime(list.avg_wait)}</span>
+              <p>Average Wait time:</p> <span>{formatTime(list.avgWait)}</span>
             </Row>
             <Row>
-              <p>Average Talk time:</p>{' '}
-              <span> {formatTime(list.avg_talk)}</span>
+              <p>Average Talk time:</p> <span> {formatTime(list.avgTalk)}</span>
             </Row>
           </ContainerRow>
         </SwitchboardPreview>

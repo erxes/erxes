@@ -97,8 +97,7 @@ const KeyPad = (props: Props, context) => {
   const [timeSpent, setTimeSpent] = useState(
     call?.startTime ? calculateTimeElapsed(call.startTime) : 0,
   );
-  const [isPaused, setPaused] = useState(!!(agentStatus === 'paused'));
-
+  const [isPaused, setPaused] = useState(agentStatus === 'Paused');
   const shrink = customerDetail ? true : false;
 
   const formatedPhone = formatPhone(number);
@@ -117,9 +116,12 @@ const KeyPad = (props: Props, context) => {
   }, [selectFocus]);
 
   useEffect(() => {
-    setNumber(phoneNumber);
     setPaused(agentStatus === 'pause' ? true : false);
   }, [phoneNumber, loading]);
+
+  useEffect(() => {
+    setPaused(agentStatus === 'Paused');
+  }, [agentStatus]);
 
   useEffect(() => {
     let timer;

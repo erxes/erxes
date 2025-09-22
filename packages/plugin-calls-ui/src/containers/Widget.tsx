@@ -1,5 +1,5 @@
-import React from "react";
-import Widget from "../components/Widget";
+import React from 'react';
+import Widget from '../components/Widget';
 
 type Props = {
   callUserIntegrations: any;
@@ -7,6 +7,7 @@ type Props = {
   setHideIncomingCall?: (isHide: boolean) => void;
   hideIncomingCall?: boolean;
   currentCallConversationId: string;
+  currentIntegrationId: string;
 };
 
 const WidgetContainer = (props: Props) => {

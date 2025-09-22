@@ -40,24 +40,45 @@ const callsMutations = {
   },
 
   async callAddCustomer(_root, args, { models, subdomain }: IContext) {
-    const integration = await findIntegration(subdomain, args);
-    const customer = await getOrCreateCustomer(models, subdomain, args);
+    const { primaryPhone } = args;
 
-    const channels = await sendInboxMessage({
-      subdomain,
-      action: 'channels.find',
-      data: {
-        integrationIds: { $in: [integration.inboxId] },
-      },
-      isRPC: true,
-    });
-    return {
-      customer: customer?.erxesApiId && {
-        __typename: 'Customer',
-        _id: customer.erxesApiId,
-      },
-      channels,
-    };
+    const lockKey = `${subdomain}:customer:create:${primaryPhone}`;
+    let lock;
+
+    try {
+      lock = await redlock.lock(lockKey, 30000);
+
+      const integration = await findIntegration(subdomain, args);
+
+      let customer = await getOrCreateCustomer(models, subdomain, args);
+
+      const channels = await sendInboxMessage({
+        subdomain,
+        action: 'channels.find',
+        data: {
+          integrationIds: { $in: [integration.inboxId] },
+        },
+        isRPC: true,
+      });
+
+      return {
+        customer: customer?.erxesApiId && {
+          __typename: 'Customer',
+          _id: customer.erxesApiId,
+        },
+        channels,
+      };
+    } catch (error) {
+      throw error;
+    } finally {
+      if (lock) {
+        try {
+          await lock.unlock();
+        } catch (unlockError) {
+          console.error('Failed to release lock:', unlockError);
+        }
+      }
+    }
   },
 
   async callUpdateActiveSession(
@@ -120,6 +141,9 @@ const callsMutations = {
     doc: ICallHistory,
     { user, models, subdomain }: IContext,
   ) {
+    if (doc.callStatus !== 'active' && doc.callStatus !== 'connected') {
+      throw new Error('CallHistoryAdd should only be used for answered calls');
+    }
     const history = await acceptCall(
       models,
       subdomain,
@@ -151,6 +175,7 @@ const callsMutations = {
     const history = await models.CallHistory.findOne({
       _id,
     });
+
     if (history && history.callStatus === 'active') {
       let callStatus = doc.callStatus;
       if (doc.transferredCallStatus) {
@@ -161,9 +186,11 @@ const callsMutations = {
         timeStamp: doc.timeStamp,
         callStatus: 'cancelled',
       });
+
       if (doc.timeStamp === 0) {
         doc.timeStamp = Date.now().toString();
       }
+
       await models.CallHistory.updateOne(
         { _id },
         {
@@ -209,6 +236,7 @@ const callsMutations = {
           },
         },
       );
+
       const callRecordUrl = await getRecordUrl(doc, user, models, subdomain);
       if (
         callRecordUrl &&
@@ -229,12 +257,41 @@ const callsMutations = {
       doc.timeStamp &&
       doc.timeStamp !== 0
     ) {
-      const cancelledCall = await models.CallHistory.findOne({
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const existingCalls = await models.CallHistory.find({
         timeStamp: doc.timeStamp,
+        customerPhone: doc.customerPhone,
       });
-      if (cancelledCall) {
-        return 'Already exists this history';
+
+      if (existingCalls.length > 0) {
+        const activeCall = existingCalls.find(
+          (call) => call.callStatus === 'active',
+        );
+        const nonCancelledCall = existingCalls.find(
+          (call) => call.callStatus !== 'cancelled',
+        );
+
+        if (activeCall) {
+          return 'Active call already exists for this timestamp';
+        }
+
+        if (nonCancelledCall) {
+          return 'Call history already exists for this timestamp';
+        }
       }
+
+      const recentTimeWindow = new Date(Date.now() - 10 * 1000);
+      const recentCalls = await models.CallHistory.find({
+        customerPhone: doc.customerPhone,
+        callStatus: doc.callStatus,
+        createdAt: { $gte: recentTimeWindow },
+      });
+
+      if (recentCalls.length > 0) {
+        return 'Recent call history already exists';
+      }
+
       const integration = await findIntegration(subdomain, {
         inboxIntegrationId: doc.inboxIntegrationId,
         queueName: doc.queueName,
@@ -245,20 +302,34 @@ const callsMutations = {
       );
       if (!operator) throw new Error('Operator not found');
 
-      const lockKey = `${subdomain}:call:history:${doc.timeStamp}`;
+      const lockKey = `${subdomain}:call:history:${doc.timeStamp}:${doc.customerPhone}`;
       let lock;
 
       try {
         lock = await redlock.lock(lockKey, 60000);
-        const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
 
-        const oldHistory = await models.CallHistory.findOne({
+        const doubleCheckCalls = await models.CallHistory.find({
+          timeStamp: doc.timeStamp,
           customerPhone: doc.customerPhone,
-          callStatus: doc.callStatus,
-          createdAt: { $gte: twoMinutesAgo },
         });
 
-        if (oldHistory) return 'Call history already exists';
+        const activeCallAfterLock = doubleCheckCalls.find(
+          (call) => call.callStatus === 'active',
+        );
+        if (activeCallAfterLock) {
+          return 'Active call exists - cancelled call creation aborted';
+        }
+
+        const duplicateCheck = doubleCheckCalls.find(
+          (call) =>
+            call.callStatus === doc.callStatus &&
+            call.customerPhone === doc.customerPhone &&
+            Math.abs(new Date(call.createdAt).getTime() - Date.now()) < 30000,
+        );
+
+        if (duplicateCheck) {
+          return 'Duplicate call prevented';
+        }
 
         const history = new models.CallHistory({
           ...doc,
@@ -269,14 +340,13 @@ const callsMutations = {
           updatedBy: doc.endedBy ? user._id : null,
         });
 
-        await history.save();
-
         let customer = await models.Customers.findOne({
           primaryPhone: doc.customerPhone,
         });
         if (!customer || !customer.erxesApiId) {
           customer = await getOrCreateCustomer(models, subdomain, doc);
         }
+
         // Update conversation via API
         try {
           const apiConversationResponse = await sendInboxMessage({
@@ -317,8 +387,9 @@ const callsMutations = {
           },
         });
 
-        return 'Successfully edited';
+        return 'Successfully created cancelled call history';
       } catch (e) {
+        console.error(`Error processing cancelled call history:`, e);
         throw new Error(`Error processing call history: ${e.message}`);
       } finally {
         if (lock) {
