@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { Schema, Document } from 'mongoose';
 import { field } from './utils';
 
 export interface ICallQueueStatistics extends Document {
