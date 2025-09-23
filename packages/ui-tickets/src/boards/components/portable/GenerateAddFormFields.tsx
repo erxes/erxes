@@ -139,6 +139,10 @@ function GenerateAddFormFields(props: Props) {
                 field={field}
                 onChangeField={setAssignedUserIds}
                 branchIds={selectedBranchIds || []}
+                assignedUserIds={assignedUserIds || []}
+                onSelect={(assignedUserIds) =>
+                  onChangeFieldWithStorage("assignedUserIds", assignedUserIds)
+                }
               />
             );
           }
@@ -173,7 +177,6 @@ function GenerateAddFormFields(props: Props) {
           }
 
           if (field.field === "departmentIds") {
-            console.log(state.departmentIds, "state.departmentIds");
             return (
               <FormGroup>
                 <ControlLabel>Departments</ControlLabel>

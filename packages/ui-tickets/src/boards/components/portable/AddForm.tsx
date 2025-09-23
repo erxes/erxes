@@ -111,9 +111,6 @@ class AddForm extends React.Component<Props, State> {
     }
 
     this.setState({ [name]: value } as unknown as Pick<State, keyof State>);
-    // const proccessId = Math.random().toString();
-    // const stringifiedState = JSON.stringify(this.state);
-    // localStorage.setItem(`ticket_convert_${proccessId}`, stringifiedState);
   };
 
   save = (e) => {

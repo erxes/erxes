@@ -8,16 +8,12 @@ type Props = {
   field: IField;
   onChangeField: (name: any, value: any) => void;
   branchIds?: string[];
+  assignedUserIds?: string[];
+  onSelect: (value: string[] | string, name: string) => void;
 };
 
 export default function AssignedUsers(props: Props) {
-  const { field } = props;
-
-  const onChange = (value: string[] | string, _name: string) => {
-    const { onChangeField } = props;
-    const normalized = Array.isArray(value) ? value : [value];
-    onChangeField(field.field, normalized);
-  };
+  const { field, assignedUserIds, onSelect } = props;
 
   return (
     <FormGroup>
@@ -27,7 +23,8 @@ export default function AssignedUsers(props: Props) {
       <SelectTeamMembers
         label="Choose users"
         name="assignedUserIds"
-        onSelect={onChange}
+        initialValue={assignedUserIds || []}
+        onSelect={onSelect}
         filterParams={{
           isAssignee: !props.branchIds?.length,
           branchIds: props.branchIds,
