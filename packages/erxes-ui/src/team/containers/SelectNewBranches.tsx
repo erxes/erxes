@@ -66,6 +66,15 @@ const SelectNewBranches: React.FC<SelectNewBranchesProps> = ({
 
   const branches = useMemo(() => data?.branches || [], [data]);
 
+  useEffect(() => {
+    const value = initialValue
+      ? Array.isArray(initialValue)
+        ? initialValue
+        : [initialValue]
+      : [];
+    setSelectedIds(value);
+  }, [initialValue]);
+
   // Click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
