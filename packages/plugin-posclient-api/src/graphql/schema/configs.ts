@@ -25,6 +25,7 @@ export const types = `
     footerText: String
     headerText: String
     hasCopy: Boolean
+    hasSumQty: Boolean
   }
 
   type PoscCatProd {
