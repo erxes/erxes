@@ -26,12 +26,12 @@ const Stocks = ({ receipts }: { receipts: IReceipt[] }) => {
 
     return (
       <div>
-        <div className="space-y-1" key={receipt._id}>
+        <div className="space-y-1 pb-1" key={receipt._id}>
           {(items || []).map((item, ind) => renderItem(item, ind))}
         </div>
         {
           hasSumQty && (
-            <div className="pt-1 border-t">
+            <div className="pt-0.5 pb-0 border-t">
               <div className="flex items-start leading-none">
                 <div className="w-6/12 line-clamp-2">Хөл дүн: </div>
                 <div className="w-3/12 text-center">

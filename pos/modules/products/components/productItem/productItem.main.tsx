@@ -97,7 +97,8 @@ const ProductItem = ({
             </HoverCard>
           ) : (
             <span>{`/ ${remainder}/`}</span>
-          ))}
+          ))
+        }
       </p>
     </div>
   )
