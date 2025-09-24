@@ -1,5 +1,4 @@
 import { AddContent, AddRow, NewBranch } from "../../styles/item";
-
 import AssignedUsers from "./AssignedUsers";
 import GenerateField from "@erxes/ui-forms/src/settings/properties/components/GenerateField";
 import { IField } from "@erxes/ui/src/types";
@@ -7,12 +6,11 @@ import { LogicParams } from "@erxes/ui-forms/src/settings/properties/types";
 import PipelineLabels from "./PipelineLabels";
 import { checkLogic } from "@erxes/ui-forms/src/settings/properties/utils";
 import SelectNewBranches from "@erxes/ui/src/team/containers/SelectNewBranches";
-
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 type Props = {
   object: any;
@@ -20,14 +18,59 @@ type Props = {
   customFieldsData: any;
   onChangeField: (name: any, value: any) => void;
   pipelineId: string;
+  storageKey?: string;
 };
 
 function GenerateAddFormFields(props: Props) {
   const customFields = props.fields.filter((f) => !f.isDefinedByErxes);
   const fields = props.fields.filter((f) => f.isDefinedByErxes);
   const [selectedBranchIds, setSelectedBranchIds] = useState<string[]>([]);
+  const [assignedUserIds, setAssignedUserIds] = useState<string[]>(() => {
+    const saved = localStorage.getItem("assignedUserIds");
+    return saved ? JSON.parse(saved) : [];
+  });
 
-  const { customFieldsData, onChangeField } = props;
+  const [state, setState] = useState<any>({});
+
+  useEffect(() => {
+    const key = props.storageKey || "AddFormState";
+    let saved = JSON.parse(localStorage.getItem(key) || "{}");
+    if (!saved || !Object.keys(saved).length) {
+      // fallback to legacy key
+      saved = JSON.parse(localStorage.getItem("AddFormState") || "{}");
+    }
+    if (saved && Object.keys(saved).length) {
+      setState(saved);
+      setSelectedBranchIds(saved.branchIds || []);
+      setAssignedUserIds(saved.assignedUserIds || []);
+      if (saved.branchIds) {
+        props.onChangeField("branchIds", saved.branchIds);
+      }
+      if (saved.assignedUserIds) {
+        props.onChangeField("assignedUserIds", saved.assignedUserIds);
+      }
+    } else if (props.object) {
+      setSelectedBranchIds(props.object.branchIds || []);
+      setAssignedUserIds(props.object.assignedUserIds || []);
+      setState(props.object);
+    }
+  }, [props.storageKey]);
+
+  const onChangeFieldWithStorage = (name: string, value: any) => {
+    props.onChangeField(name, value);
+    const newState = { ...state, [name]: value };
+    setState(newState);
+    const key = props.storageKey || "AddFormState";
+    localStorage.setItem(key, JSON.stringify(newState));
+    if (name === "assignedUserIds") {
+      setAssignedUserIds(value);
+    }
+    if (key !== "AddFormState") {
+      // keep legacy key in sync for compatibility
+      localStorage.setItem("AddFormState", JSON.stringify(newState));
+    }
+  };
+
   const onCustomFieldsDataChange = ({
     _id,
     name,
@@ -40,43 +83,30 @@ function GenerateAddFormFields(props: Props) {
     extraValue?: string;
   }) => {
     if (name === "isCheckUserTicket") {
-      onChangeField(name, value);
+      onChangeFieldWithStorage(name, value);
       return;
     }
 
-    const field = customFieldsData.find((c) => c.field === _id);
+    const field = props.customFieldsData.find((c) => c.field === _id);
 
-    // check nested logics and clear field value
     for (const f of customFields) {
       const logics = f.logics || [];
-
-      if (!logics.length) {
+      if (!logics.length) continue;
+      if (logics.findIndex((l) => l.fieldId && l.fieldId.includes(_id)) === -1)
         continue;
-      }
 
-      if (
-        logics.findIndex((l) => l.fieldId && l.fieldId.includes(_id)) === -1
-      ) {
-        continue;
-      }
-
-      customFieldsData.forEach((c) => {
-        if (c.field === f._id) {
-          c.value = "";
-        }
+      props.customFieldsData.forEach((c) => {
+        if (c.field === f._id) c.value = "";
       });
     }
 
     if (field) {
       field.value = value;
-      if (extraValue) {
-        field.extraValue = extraValue;
-      }
-
-      onChangeField("customFieldsData", customFieldsData);
+      if (extraValue) field.extraValue = extraValue;
+      onChangeFieldWithStorage("customFieldsData", props.customFieldsData);
     } else {
-      onChangeField("customFieldsData", [
-        ...customFieldsData,
+      onChangeFieldWithStorage("customFieldsData", [
+        ...props.customFieldsData,
         { field: _id, value, extraValue },
       ]);
     }
@@ -85,7 +115,7 @@ function GenerateAddFormFields(props: Props) {
   const onFieldsDataChange = ({ _id, value }) => {
     const field = fields.find((c) => c._id === _id);
     if (field && field.field) {
-      onChangeField(field.field, value);
+      onChangeFieldWithStorage(field.field, value);
     }
   };
 
@@ -98,7 +128,7 @@ function GenerateAddFormFields(props: Props) {
               <PipelineLabels
                 field={field}
                 pipelineId={props.pipelineId}
-                onChangeField={onChangeField}
+                onChangeField={onChangeFieldWithStorage}
               />
             );
           }
@@ -107,8 +137,12 @@ function GenerateAddFormFields(props: Props) {
             return (
               <AssignedUsers
                 field={field}
-                onChangeField={onChangeField}
-                branchIds={selectedBranchIds}
+                onChangeField={setAssignedUserIds}
+                branchIds={selectedBranchIds || []}
+                assignedUserIds={assignedUserIds || []}
+                onSelect={(assignedUserIds) =>
+                  onChangeFieldWithStorage("assignedUserIds", assignedUserIds)
+                }
               />
             );
           }
@@ -119,18 +153,24 @@ function GenerateAddFormFields(props: Props) {
                 <SelectNewBranches
                   name="branchIds"
                   label="Filter by branches"
-                  initialValue={[]}
-                  onSelect={(branchIds) => {
+                  initialValue={selectedBranchIds}
+                  onSelect={(branchIds, _name) => {
                     const normalized = Array.isArray(branchIds)
                       ? branchIds
                       : [branchIds];
+
+                    if (
+                      JSON.stringify(selectedBranchIds) !==
+                      JSON.stringify(normalized)
+                    ) {
+                      setAssignedUserIds([]);
+                      onChangeFieldWithStorage("assignedUserIds", []);
+                    }
+
                     setSelectedBranchIds(normalized);
-                    onChangeField("branchIds", normalized);
+                    onChangeFieldWithStorage("branchIds", normalized);
                   }}
-                  filterParams={{
-                    withoutUserFilter: true,
-                    searchValue: "search term",
-                  }}
+                  filterParams={{ withoutUserFilter: true, searchValue: "" }}
                 />
               </NewBranch>
             );
@@ -143,15 +183,16 @@ function GenerateAddFormFields(props: Props) {
                 <SelectDepartments
                   label="Choose department"
                   name="departments"
-                  initialValue={[]}
+                  initialValue={state.departmentIds || []}
                   multi={true}
-                  onSelect={(departmentIds) => {
-                    onChangeField("departmentIds", departmentIds);
-                  }}
+                  onSelect={(departmentIds) =>
+                    onChangeFieldWithStorage("departmentIds", departmentIds)
+                  }
                 />
               </FormGroup>
             );
           }
+
           if (field.field === "tagIds") {
             return (
               <FormGroup>
@@ -160,13 +201,14 @@ function GenerateAddFormFields(props: Props) {
                   tagsType="tickets:ticket"
                   name="tagIds"
                   label="Choose tags"
-                  initialValue={[]}
-                  onSelect={(tags) => onChangeField("tagIds", tags)}
+                  initialValue={state.tagIds || []}
+                  onSelect={(tags) => onChangeFieldWithStorage("tagIds", tags)}
                   multi={true}
                 />
               </FormGroup>
             );
           }
+
           return (
             <GenerateField
               field={field}
@@ -187,15 +229,13 @@ function GenerateAddFormFields(props: Props) {
 
       {customFields.map((field, index) => {
         if (field.logics && field.logics.length > 0) {
-          const data = {};
-
-          customFieldsData.forEach((f) => {
+          const data: any = {};
+          props.customFieldsData.forEach((f) => {
             data[f.field] = f.value;
           });
 
           const logics: LogicParams[] = field.logics.map((logic) => {
             let { fieldId = "" } = logic;
-
             if (fieldId.includes("customFieldsData")) {
               fieldId = fieldId.split(".")[1];
               return {
@@ -207,9 +247,7 @@ function GenerateAddFormFields(props: Props) {
                 type: field.type,
               };
             }
-
             const object = props.object || {};
-
             return {
               fieldId,
               operator: logic.logicOperator,
@@ -220,9 +258,7 @@ function GenerateAddFormFields(props: Props) {
             };
           });
 
-          if (!checkLogic(logics)) {
-            return null;
-          }
+          if (!checkLogic(logics)) return null;
         }
 
         return (

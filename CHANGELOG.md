@@ -1,5 +1,13 @@
 # Changelog
 
+## <small>2.17.11 (2025-09-23)</small>
+
+* feat(inbox): add required and default values to createdUserId, kind, createdA ([eb81bf8](https://github.com/erxes/erxes/commit/eb81bf8))
+* feat(ticket): add custom fields and persist ticket in localStorage ([318ce88](https://github.com/erxes/erxes/commit/318ce88))
+* fix(calls):  duplicate histories, unknown caller, call dashboard and pause issues fixed (#6154) ([2579d98](https://github.com/erxes/erxes/commit/2579d98)), closes [#6154](https://github.com/erxes/erxes/issues/6154)
+* fix(tourism): fix ([d90ffd2](https://github.com/erxes/erxes/commit/d90ffd2))
+* pass ci ([b9812d2](https://github.com/erxes/erxes/commit/b9812d2))
+
 ## [2.17.10](https://github.com/erxes/erxes/compare/2.17.9...2.17.10) (2025-09-21)
 
 ## <small>2.17.9 (2025-09-19)</small>

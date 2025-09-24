@@ -37,6 +37,7 @@ const KeyPadContainer = (props: IProps) => {
     variables: {
       integrationId: currentIntegrationId || '',
     },
+    skip: !currentIntegrationId,
     fetchPolicy: 'network-only',
   });
 

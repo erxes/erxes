@@ -73,7 +73,11 @@ class AddForm extends React.Component<Props, State> {
     super(props);
     this.state = {
       disabled: false,
-      boardId: props.boardId || "",
+      boardId:
+        localStorage.getItem(`${props.options.type}boardId`) ||
+        props.boardId ||
+        "",
+
       pipelineId: props.pipelineId || "",
       stageId: props.stageId || "",
       cardId: props.cardId || "",
