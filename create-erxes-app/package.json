@@ -36,5 +36,9 @@
   },
   "bugs": {
     "url": "https://github.com/erxes/erxes/issues"
+  },
+  "resolutions": {
+    "cross-spawn": "7.0.5",
+    "tmp": "0.2.4"
   }
 }
