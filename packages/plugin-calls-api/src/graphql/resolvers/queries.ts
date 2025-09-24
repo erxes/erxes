@@ -91,7 +91,7 @@ const callsQueries = {
             extension: queue,
           },
         },
-        integrationId: 'Nhl5BLfo37dsYqgQohcqF',
+        integrationId: integrationId,
         retryCount: 3,
         isConvertToJson: true,
         isAddExtention: false,
