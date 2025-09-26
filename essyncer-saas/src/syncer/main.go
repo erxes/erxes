@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
+	// "os/exec"
 	"strings"
 	"time"
 
@@ -208,7 +208,7 @@ elasticsearch-max-conns = 2
 	f.WriteString(header)
 
 	// Build namespaces & scripts
-	var namespaces []string
+	// var namespaces []string
 	var scripts []string
 	var collections []string
 
@@ -222,7 +222,7 @@ elasticsearch-max-conns = 2
 		}
 	}
 
-	directReadNamespaces := strings.Join(namespaces, ",")
+	// directReadNamespaces := strings.Join(namespaces, ",")
 	collectionsRegex := strings.Join(collections, "|")
 	namespaceRegex := fmt.Sprintf("^erxes_.+.(%s)$", collectionsRegex)
 
