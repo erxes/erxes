@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.17.12](https://github.com/erxes/erxes/compare/2.17.11...2.17.12) (2025-09-26)
+
+### Bug Fixes
+
+* pos - show remainder on coffeeshop theme ([2c01bd1](https://github.com/erxes/erxes/commit/2c01bd139d0ff1597cb51996f3b51c6514ec1c84))
+* pos ebarimt show choice sum quantity ([3b6f1b6](https://github.com/erxes/erxes/commit/3b6f1b6e1eceb4e6f3a3957f5eb5413c8adc2ca4))
+* pos ebarimt with discount ([65867b3](https://github.com/erxes/erxes/commit/65867b35716c6b807586235223438f273e021947))
+
 ## <small>2.17.11 (2025-09-23)</small>
 
 * feat(inbox): add required and default values to createdUserId, kind, createdA ([eb81bf8](https://github.com/erxes/erxes/commit/eb81bf8))
