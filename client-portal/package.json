@@ -25,7 +25,7 @@
     "graphql-ws": "^5.11.2",
     "i18n-react": "^0.7.0",
     "lodash": "^4.17.15",
-    "next": "10.0.5",
+    "next": "14.2.32",
     "next-routes": "^1.4.2",
     "react": "17.0.1",
     "react-beautiful-dnd": "^13.1.1",
@@ -55,5 +55,23 @@
     "tslint-react": "^5.0.0",
     "typescript": "^4.1.3",
     "validator": "^13.5.2"
+  },
+  "resolutions": {
+    "minimist": "1.2.6",
+    "loader-utils": "2.0.3",
+    "elliptic": "6.6.1",
+    "cipher-base": "1.0.5",
+    "sha.js": "2.4.12",
+    "json5": "2.2.2",
+    "pbkdf2": "3.1.3",
+    "qs": "6.9.7",
+    "body-parser": "1.20.3",
+    "browserify-sign": "4.2.2",
+    "cross-fetch": "3.1.5",
+    "express": "4.20.0",
+    "color-string": "1.5.5",
+    "send": "0.19.0",
+    "serve-static": "1.16.0",
+    "cookie": "0.7.0"
   }
 }
