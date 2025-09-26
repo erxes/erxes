@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	// "os/exec"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -183,6 +183,9 @@ func main() {
 		}
 	}
 
+	fmt.Println("Fetched organizations:", len(orgIDs))
+
+
 	// Generate TOML
 	f, err := os.Create("mongo-elastic.toml")
 	if err != nil {
@@ -253,10 +256,10 @@ module.exports = function(doc, ns) {
 `, namespaceRegex, strings.Join(scripts, "\n")))
 
 	// Run Monstache
-	// fmt.Println("Running monstache with mongo-elastic.toml ...")
-	// // cmd := exec.Command("monstache", "-f", "mongo-elastic.toml")
-	// cmd.Stdin = os.Stdin
-	// cmd.Stdout = os.Stdout
-	// cmd.Stderr = os.Stderr
-	// cmd.Run()
+	fmt.Println("Running monstache with mongo-elastic.toml ...")
+	cmd := exec.Command("monstache", "-f", "mongo-elastic.toml")
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Run()
 }
