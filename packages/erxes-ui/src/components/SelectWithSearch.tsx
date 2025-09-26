@@ -451,14 +451,6 @@ class Wrapper extends React.Component<
     this.setState({ searchValue, abortController: new AbortController() });
   };
 
-  componentDidUpdate(prevProps: WrapperProps) {
-    if (
-      prevProps.filterParams?.branchIds !== this.props.filterParams?.branchIds
-    ) {
-      this.search("reload");
-    }
-  }
-
   render() {
     const { searchValue, abortController } = this.state;
     const { initialValue } = this.props;
@@ -471,7 +463,6 @@ class Wrapper extends React.Component<
       initialValues =
         typeof initialValue === "string" ? [initialValue] : initialValue;
     }
-
     return (
       <Component
         {...this.props}

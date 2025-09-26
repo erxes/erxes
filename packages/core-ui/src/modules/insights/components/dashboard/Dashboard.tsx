@@ -1,28 +1,26 @@
-import { ChartTitle, ContentContainer, DragField } from "../../styles";
 import React, { useRef, useState } from "react";
+import { ContentContainer, DragField } from "../../styles";
 import { defaultLayout, deserializeItem } from "../../utils";
 
+import { Title } from "@erxes/ui-settings/src/styles";
 import { BarItems } from "@erxes/ui/src";
 import Button from "@erxes/ui/src/components/Button";
-import { CSSTransition } from "react-transition-group";
-import ChartRenderer from "../../containers/chart/ChartRenderer";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
-import Form from "../../containers/chart/Form";
-import { IDashboard } from "../../types";
 import Icon from "@erxes/ui/src/components/Icon";
 import PageContent from "@erxes/ui/src/layout/components/PageContent";
-import Participators from "../utils/Participators";
-import { RightDrawerContainer } from "../../styles";
-import SelectMembersPopover from "../utils/SelectMembersPopover";
-import { Title } from "@erxes/ui-settings/src/styles";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { __ } from "@erxes/ui/src/utils/index";
 import confirm from "@erxes/ui/src/utils/confirmation/confirm";
-import { getEnv } from "@erxes/ui/src/utils/index";
+import { __, getEnv } from "@erxes/ui/src/utils/index";
 import queryString from "query-string";
+import { CSSTransition } from "react-transition-group";
+import Form from "../../containers/chart/Form";
+import { RightDrawerContainer } from "../../styles";
+import { IDashboard } from "../../types";
 import ChartGridLayout from "../chart/ChartGridLayout";
+import Participators from "../utils/Participators";
+import SelectMembersPopover from "../utils/SelectMembersPopover";
 
 type Props = {
   queryParams: any;
@@ -44,7 +42,7 @@ const Dashboard = (props: Props) => {
     dashboardChartsEdit,
     dashboardDuplicate,
     dashboardRemove,
-    chartDuplicate
+    chartDuplicate,
   } = props;
 
   const { charts = [] } = dashboard;
@@ -170,9 +168,7 @@ const Dashboard = (props: Props) => {
     });
 
     const { REACT_APP_API_URL } = getEnv();
-    window.open(
-      `${REACT_APP_API_URL}/chart-table-export?${stringified}`
-    );
+    window.open(`${REACT_APP_API_URL}/chart-table-export?${stringified}`);
   };
 
   const renderChart = (chart: any, index: number) => {
@@ -186,7 +182,7 @@ const Dashboard = (props: Props) => {
       <div
         key={chart._id || Math.random()}
         data-grid={defaultLayout(chart, index)}
-        style={{ overflow: "hidden" }}
+        style={{ overflow: "hidden", paddingBottom: "50px" }}
       >
         <ChartGridLayout
           queryParams={queryParams}

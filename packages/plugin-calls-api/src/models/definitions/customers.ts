@@ -1,4 +1,4 @@
-import { Schema, Document, HydratedDocument } from 'mongoose';
+import { Schema, HydratedDocument } from 'mongoose';
 import { field } from './utils';
 import { ICustomerModel } from '../Customers';
 
@@ -21,6 +21,7 @@ export const customerSchema: Schema<ICustomer, ICustomerModel> = new Schema<
   erxesApiId: {
     type: String,
     label: 'Customer id at contacts-api',
+    sparse: true,
     unique: true,
   },
   primaryPhone: {

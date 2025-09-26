@@ -24,6 +24,9 @@ const generateParams = ({ queryParams }: { queryParams: any }) => ({
   sortDirection: Number(queryParams.order) || undefined,
   fromDate: queryParams.fromDate,
   toDate: queryParams.toDate,
+  stageId: queryParams.stageId,
+  number: queryParams.number,
+  action: queryParams.action,
 });
 
 const ScoreLogsListContainer = (props: Props) => {
@@ -36,6 +39,7 @@ const ScoreLogsListContainer = (props: Props) => {
 
   const { data: statistic } = useQuery(gql(queries.getScoreLogStatistics), {
     variables: generateParams({ queryParams }),
+    fetchPolicy: "cache-first",
   });
 
   const { list, total } = data?.scoreLogList || {};

@@ -48,6 +48,7 @@ export interface IEbarimtConfig {
   headerText?: string
   footerText?: string
   hasCopy?: boolean
+  hasSumQty?: boolean
   ebarimtUrl?: string
   companyRD?: string
   companyName?: string

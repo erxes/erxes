@@ -1,7 +1,7 @@
 import {
   __,
   ActionButtons,
-  Button,
+  Alert,
   colors,
   Icon,
   Table,
@@ -50,6 +50,7 @@ const SubTable = styled(Table)`
 type Props = {
   headers: string[];
   scoreLog: IScoreLogParams;
+  queryParams: any;
 };
 
 const AdditionalRow = ({ scoreLogs }: { scoreLogs: IScoreLogParams[] }) => {
@@ -64,7 +65,20 @@ const AdditionalRow = ({ scoreLogs }: { scoreLogs: IScoreLogParams[] }) => {
           <td rowSpan={target?.length || 1}>
             {dayjs(scoreLog.createdAt).format("YYYY/MM/DD") || "-"}
           </td>
-          <td rowSpan={target?.length || 1}>{target?.number || "-"}</td>
+          <td rowSpan={target?.length || 1}>
+            <span
+              onClick={() => {
+                if (target?.number) {
+                  navigator.clipboard.writeText(target?.number);
+                  Alert.success("Copied to clipboard");
+                }
+              }}
+              style={{ cursor: target?.number ? "pointer" : "default" }}
+              title={target?.number ? "Click to copy" : ""}
+            >
+              {target?.number || "-"}
+            </span>
+          </td>
           <td rowSpan={target?.length || 1}>{type || "-"}</td>
           <td>{target?.unitPrice || "-"}</td>
           <td>{target?.count || target?.quantity || "-"}</td>
@@ -72,7 +86,7 @@ const AdditionalRow = ({ scoreLogs }: { scoreLogs: IScoreLogParams[] }) => {
             {((scoreLog.action === "add" ||
               (!scoreLog.action && scoreLog.changeScore > 0)) && (
               <>
-                {scoreLog.changeScore} <Icon icon="arrow-up" />
+                {scoreLog.changeScore.toLocaleString()} <Icon icon="arrow-up" />
               </>
             )) ||
               "-"}
@@ -81,7 +95,8 @@ const AdditionalRow = ({ scoreLogs }: { scoreLogs: IScoreLogParams[] }) => {
             {((scoreLog.action === "subtract" ||
               (!scoreLog.action && scoreLog.changeScore < 0)) && (
               <>
-                {Math.abs(scoreLog.changeScore)} <Icon icon="arrow-down" />
+                {Math.abs(scoreLog.changeScore).toLocaleString()}{" "}
+                <Icon icon="arrow-down" />
               </>
             )) ||
               "-"}
@@ -90,7 +105,7 @@ const AdditionalRow = ({ scoreLogs }: { scoreLogs: IScoreLogParams[] }) => {
             {((scoreLog.action === "refund" ||
               (!scoreLog.action && scoreLog.changeScore < 0)) && (
               <>
-                {Math.abs(scoreLog.changeScore)}{" "}
+                {Math.abs(scoreLog.changeScore).toLocaleString()}{" "}
                 <Icon icon="refresh-1" color={colors.colorCoreBlue} />
               </>
             )) ||
@@ -131,7 +146,7 @@ const AdditionalRow = ({ scoreLogs }: { scoreLogs: IScoreLogParams[] }) => {
 };
 
 const Row = (props: Props) => {
-  const { scoreLog, headers } = props;
+  const { scoreLog, headers, queryParams } = props;
 
   const [toggleRow, setToggleRow] = useState(false);
 
@@ -211,7 +226,13 @@ const Row = (props: Props) => {
 
   const score = (scoreLogs, initialTotalScore) => {
     if (typeof initialTotalScore === "number") {
-      return Math.round(initialTotalScore * 100) / 100;
+      if (queryParams?.action === "subtract") {
+        return Math.abs(
+          Math.round(initialTotalScore * 100) / 100
+        ).toLocaleString();
+      }
+
+      return (Math.round(initialTotalScore * 100) / 100).toLocaleString();
     }
 
     if (Array.isArray(scoreLogs) && scoreLogs.length > 0) {
@@ -225,7 +246,11 @@ const Row = (props: Props) => {
         }
       }
 
-      return Math.round(total * 100) / 100;
+      if (queryParams?.action === "subtract") {
+        return Math.abs(Math.round(total * 100) / 100).toLocaleString();
+      }
+
+      return (Math.round(total * 100) / 100).toLocaleString();
     }
 
     return "-";
@@ -233,13 +258,13 @@ const Row = (props: Props) => {
 
   return (
     <>
-      <tr key={scoreLog.ownerId}>
-        <td>{name(scoreLog.ownerType, scoreLog.owner)}</td>
+      <tr key={scoreLog.ownerId} onClick={() => setToggleRow(!toggleRow)}>
+        <td>{name(scoreLog.ownerType, scoreLog.owner)}</td>{" "}
         <td>{email(scoreLog.ownerType, scoreLog.owner)}</td>
         <td>{phone(scoreLog.ownerType, scoreLog.owner)}</td>
         <td>{scoreLog.ownerType}</td>
         <td>{score(scoreLog.scoreLogs, scoreLog.totalScore)}</td>
-        <td>
+        <td onClick={(e) => e.stopPropagation()}>
           <ActionButtons>
             <Link
               to={`/${route(scoreLog.ownerType)}/details/${scoreLog.ownerId}`}
@@ -248,13 +273,6 @@ const Row = (props: Props) => {
                 <Icon icon="external-link-alt" />
               </Tip>
             </Link>
-            <Tip text={__(toggleRow ? "Collapse" : "Expand")} placement="top">
-              <Button
-                btnStyle="link"
-                onClick={() => setToggleRow(!toggleRow)}
-                icon={toggleRow ? "angle-up" : "angle-down"}
-              />
-            </Tip>
           </ActionButtons>
         </td>
       </tr>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { gql } from "@apollo/client";
 import { Menu } from "@headlessui/react";
@@ -83,7 +83,8 @@ interface IProps {
 const CustomersList: React.FC<IProps> = props => {
   const navigate = useNavigate();
   const location = useLocation();
-  let timer;
+
+ const timerRef = useRef<number | null>(null);
 
   const [searchValue, setSearchValue] = useState<string | undefined>(
     props.searchValue
@@ -215,19 +216,19 @@ const CustomersList: React.FC<IProps> = props => {
   };
 
   const search = e => {
-    if (timer) {
-      clearTimeout(timer);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
     }
 
     const { type } = props;
-    const searchValue = e.target.value;
+    const value = e.target.value;
 
-    setSearchValue(searchValue);
+    setSearchValue(value);
     setSearchType(type);
 
-    timer = setTimeout(() => {
-      router.removeParams(navigate, location, "page");
-      router.setParams(navigate, location, { searchValue });
+    timerRef.current = window.setTimeout(() => {
+      router.removeParams(navigate, location, "page", true);
+      router.setParams(navigate, location, { searchValue: value, page: 1 });
     }, 500);
   };
 

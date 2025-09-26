@@ -101,7 +101,7 @@ const init = async (app) => {
         phoneNumber: numberTo,
       }).lean();
 
-      if(!integration) {
+      if (!integration) {
         throw new Error(`Integration phoneNumber=${numberTo} not found`);
       }
 
@@ -151,7 +151,7 @@ const init = async (app) => {
                 integrationId: integration.erxesApiId,
                 primaryPhone: numberFrom,
                 isUser: true,
-                phones: [{ phone: numberFrom, type: 'other'}],
+                phones: [{ phone: numberFrom, type: 'other' }],
               }),
             },
             isRPC: true,
@@ -212,6 +212,7 @@ const init = async (app) => {
               payload: JSON.stringify({
                 content: disp,
                 conversationId: conversation.erxesApiId,
+                integrationId: integration._id,
                 owner,
               }),
             },

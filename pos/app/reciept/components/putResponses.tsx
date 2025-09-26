@@ -20,8 +20,8 @@ export const PutResponse = ({
     <div className={cn("space-y-1")}>
       {!type && (
         <div className="flex items-center">
-          <p className="w-10 font-semibold">ДДТД:</p>
-          <p>{id}</p>
+          <p className="w-10 font-medium">ДДТД:</p>
+          <p className="font-normal">{id}</p>
         </div>
       )}
       <Stocks receipts={receipts || []} />

@@ -159,8 +159,8 @@ const callsGetConfigs = `
 `;
 
 const callGetAgentStatus = `
-  query callGetAgentStatus {
-    callGetAgentStatus
+  query callGetAgentStatus($integrationId: String!) {
+    callGetAgentStatus(integrationId: $integrationId)
   }
 `;
 
@@ -171,8 +171,8 @@ const callExtensionList = `
 `;
 
 const callQueueList = `
-  query callQueueList {
-  callQueueList
+  query callQueueList($integrationId: String!) {
+  callQueueList(integrationId: $integrationId)
 }
 `;
 

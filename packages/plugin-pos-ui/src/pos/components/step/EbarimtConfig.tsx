@@ -53,6 +53,7 @@ const EbarimtConfig = (props: Props) => {
         headerText: '',
         footerText: '',
         hasCopy: false,
+        hasSumQty: false,
       }
   );
 
@@ -202,16 +203,15 @@ const EbarimtConfig = (props: Props) => {
               </BlockRow>
             ) || <></>}
           </Block>
-          <Block />
           <Block>
             <h4>{__('UI Config')}</h4>
             <BlockRow>
               {renderInput('headerText', 'Header text', '', 'text', true)}
               {renderInput('footerText', 'Footer text', '', 'text', true)}
               {renderCheckbox('hasCopy', 'Has copy', '')}
+              {renderCheckbox('hasSumQty', 'Has summary qty', '')}
             </BlockRow>
           </Block>
-          <Block />
         </LeftItem>
       </FlexColumn>
     </FlexItem>

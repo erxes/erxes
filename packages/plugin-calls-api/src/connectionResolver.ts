@@ -6,7 +6,7 @@ import { IIntegrationModel, loadIntegrationClass } from './models/Integrations';
 import { IIntegrationDocument } from './models/definitions/integrations';
 import { ICustomerModel, loadCustomerClass } from './models/Customers';
 
-import { ICustomer, ICustomerDocument } from './models/definitions/customers';
+import { ICustomer } from './models/definitions/customers';
 import { IActiveSessionDocument } from './models/definitions/activeSessions';
 import {
   IActiveSessionModel,
@@ -24,6 +24,11 @@ import {
 } from './models/Configs';
 import { IOperatorDocuments } from './models/definitions/operators';
 import { IOperatorModel, loadOperatorClass } from './models/Operators';
+import {
+  ICallQueueStatisticsModel,
+  loadCallQueueClass,
+} from './models/QueueStatistics';
+import { ICallQueueStatisticsDocuments } from './models/definitions/queueStatistics';
 export interface IModels {
   Integrations: IIntegrationModel;
   Customers: ICustomerModel;
@@ -31,6 +36,7 @@ export interface IModels {
   CallHistory: ICallHistoryModel;
   Configs: IConfigModel;
   Operators: IOperatorModel;
+  CallQueueStatistics: ICallQueueStatisticsModel;
 }
 
 export interface IContext extends IMainContext {
@@ -65,6 +71,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'calls_operators',
     loadOperatorClass(models),
   );
+
+  models.CallQueueStatistics = db.model<
+    ICallQueueStatisticsDocuments,
+    ICallQueueStatisticsModel
+  >('calls_queue_statistics', loadCallQueueClass());
 
   return models;
 };

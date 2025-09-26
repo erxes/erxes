@@ -1,5 +1,49 @@
 # Changelog
 
+## <small>2.17.11 (2025-09-23)</small>
+
+* feat(inbox): add required and default values to createdUserId, kind, createdA ([eb81bf8](https://github.com/erxes/erxes/commit/eb81bf8))
+* feat(ticket): add custom fields and persist ticket in localStorage ([318ce88](https://github.com/erxes/erxes/commit/318ce88))
+* fix(calls):  duplicate histories, unknown caller, call dashboard and pause issues fixed (#6154) ([2579d98](https://github.com/erxes/erxes/commit/2579d98)), closes [#6154](https://github.com/erxes/erxes/issues/6154)
+* fix(tourism): fix ([d90ffd2](https://github.com/erxes/erxes/commit/d90ffd2))
+* pass ci ([b9812d2](https://github.com/erxes/erxes/commit/b9812d2))
+
+## [2.17.10](https://github.com/erxes/erxes/compare/2.17.9...2.17.10) (2025-09-21)
+
+## <small>2.17.9 (2025-09-19)</small>
+
+* revert: create inbox message ([a745ac7](https://github.com/erxes/erxes/commit/a745ac7))
+
+## [2.17.8](https://github.com/erxes/erxes/compare/2.17.7...2.17.8) (2025-09-18)
+
+### Bug Fixes
+
+* **inbox:** correctly set primary phone and prevent duplicate conversations ([a0f42e6](https://github.com/erxes/erxes/commit/a0f42e6703344215fc3d16b495f72431fa8273b2))
+
+## [2.17.7](https://github.com/erxes/erxes/compare/2.17.6...2.17.7) (2025-09-17)
+
+### Bug Fixes
+
+* add phones when render full name ([b774f77](https://github.com/erxes/erxes/commit/b774f775df12f4e368dd3e71ff227c2ccb85b400))
+* **calls:** fix minus waiting call sec ([688f447](https://github.com/erxes/erxes/commit/688f447a1b1806f6f8897c62e1a4521b403b1545))
+
+## [2.17.6](https://github.com/erxes/erxes/compare/2.17.5...2.17.6) (2025-09-15)
+
+### Bug Fixes
+
+* payments type properties to set ([d5f7f0e](https://github.com/erxes/erxes/commit/d5f7f0e0ab094e3c4c360478c1723aac85af1dc3))
+
+## [2.17.5](https://github.com/erxes/erxes/compare/2.17.4...2.17.5) (2025-09-15)
+
+### Bug Fixes
+
+* totalAmount save on deal ([2d450ec](https://github.com/erxes/erxes/commit/2d450ec8a10502d43ea47f858d472a8ba5d0ff76))
+
+## <small>2.17.4 (2025-09-15)</small>
+
+* fix(erxes-ui): include details.position when positions are empty  ([74f9d8c](https://github.com/erxes/erxes/commit/74f9d8c))
+* Update api.ts ([3c619ec](https://github.com/erxes/erxes/commit/3c619ec))
+
 ## <small>2.17.3 (2025-09-12)</small>
 
 * feat(ticket): Add Attribution ([47cafdb](https://github.com/erxes/erxes/commit/47cafdb))
