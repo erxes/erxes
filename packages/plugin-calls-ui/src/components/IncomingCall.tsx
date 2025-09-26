@@ -290,7 +290,7 @@ const IncomingCall = (props: Props, context) => {
     );
   };
 
-  if (haveIncomingCall) {
+  if (haveIncomingCall && !hideIncomingCall) {
     return (
       <>
         <audio ref={audioRef} loop autoPlay />

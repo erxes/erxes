@@ -594,12 +594,17 @@ const formatWaitTime = (starttime: string): string => {
   try {
     const start = new Date(starttime);
     const now = new Date();
-    const diffMs = now.getTime() - start.getTime();
+
+    let diffMs = now.getTime() - start.getTime();
+    if (diffMs < 0) diffMs = 0;
+
     const diffMinutes = Math.floor(diffMs / (1000 * 60));
     const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
 
-    return `${diffMinutes.toString().padStart(2, '0')}:${diffSeconds.toString().padStart(2, '0')}`;
-  } catch (error) {
+    return `${diffMinutes.toString().padStart(2, '0')}:${diffSeconds
+      .toString()
+      .padStart(2, '0')}`;
+  } catch {
     return '00:00';
   }
 };
@@ -945,6 +950,11 @@ const EnhancedCallCenterDashboard: React.FC<DashboardProps> = ({
                               <span>{agent?.first_name}</span>
                               <span>•</span>
                               <span>Ext: {agent?.member_extension}</span>
+                              <span>
+                                Time:
+                                {formatWaitTime(matchingCall?.bridge_time) ||
+                                  '00:00'}
+                              </span>
                             </CallDetails>
                           </CallItem>
                         );

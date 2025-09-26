@@ -1,258 +1,158 @@
-import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
 import {
   Button,
   DataWithLoader,
   FormControl,
+  Icon,
   ModalTrigger,
   Pagination,
-  SortHandler,
   Table,
 } from "@erxes/ui/src/components";
-import {
-  MainStyleCount as Count,
-  MainStyleTitle as Title,
-} from "@erxes/ui/src/styles/eindex";
 import { IQueryParams } from "@erxes/ui/src/types";
+import { __, router } from "@erxes/ui/src/utils";
 
-import { BarItems } from "@erxes/ui/src/layout/styles";
-import { IVoucher } from "../types";
-import { IVoucherCampaign } from "../../../configs/voucherCampaign/types";
-import { LoyaltiesTableWrapper } from "../../common/styles";
-import React, {useState} from "react";
-import Sidebar from "./Sidebar";
-import VoucherForm from "../containers/Form";
-import VoucherRow from "./Row";
+import { Title } from "@erxes/ui-settings/src/styles";
+import { BarItems } from "@erxes/ui/src";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { SimpleButton } from "@erxes/ui/src/styles/main";
+import React, { useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { IVoucherCampaign } from "../../../configs/voucherCampaign/types";
 import { menuLoyalties } from "../../common/constants";
-import { useLocation, useNavigate } from 'react-router-dom';
-
+import VoucherForm from "../containers/Form";
+import { IVoucher } from "../types";
+import Row from "./Row";
+import Sidebar from "./Sidebar";
 interface IProps {
   vouchers: IVoucher[];
   currentCampaign?: IVoucherCampaign;
   loading: boolean;
   searchValue: string;
   totalCount: number;
-  // TODO: check is below line not throwing error ?
-  toggleBulk: () => void;
-  toggleAll: (targets: IVoucher[], containerId: string) => void;
-  bulk: any[];
-  isAllSelected: boolean;
-  emptyBulk: () => void;
-  removeVouchers: (
-    doc: { voucherIds: string[] },
-    emptyBulk: () => void
-  ) => void;
+  removeVouchers: ({ voucherIds }: { voucherIds: string[] }) => void;
   queryParams: IQueryParams;
 }
 
-const VouchersList=(props: IProps) => {
-  let timer;
-  const [searchValue, setSearchValue] = useState(props.searchValue)
+const VouchersList = (props: IProps) => {
+  const { queryParams, loading, vouchers, totalCount } = props;
+
+  const timerRef = useRef<number | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  
-  const onChange = () => {
-    const { toggleAll, vouchers } = props;
-    toggleAll(vouchers, "vouchers");
-  };
+
+  const [searchValue, setSearchValue] = useState(queryParams.searchValue);
+  const [toggleSidebar, setToggleSidebar] = useState<boolean>(true);
 
   const search = (e) => {
-    if (timer) {
-      clearTimeout(timer);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
     }
 
-    const searchValue = e.target.value;
+    const value = e.target.value;
+    setSearchValue(value);
 
-    setSearchValue( searchValue );
-    timer = setTimeout(() => {
+    timerRef.current = window.setTimeout(() => {
       router.removeParams(navigate, location, "page");
-      router.setParams(navigate, location, { searchValue });
+      router.setParams(navigate, location, { searchValue: value });
     }, 500);
   };
 
-  const removeVouchers = (vouchers) => {
-    const voucherIds: string[] = [];
-
-    vouchers.forEach((voucher) => {
-      voucherIds.push(voucher._id);
-    });
-
-    props.removeVouchers({ voucherIds }, props.emptyBulk);
-  };
-
-  const moveCursorAtTheEnd = (e) => {
-    const tmpValue = e.target.value;
-    e.target.value = "";
-    e.target.value = tmpValue;
-  };
-
-    const {
-      vouchers,
-      loading,
-      toggleBulk,
-      bulk,
-      isAllSelected,
-      totalCount,
-      queryParams,
-      currentCampaign,
-    } = props;
-
-    const renderCheckbox = () => {
-      if (
-        !currentCampaign ||
-        ["spin", "lottery"].includes(currentCampaign.voucherType)
-      ) {
-        return;
-      }
-      return (
-        <th>
-          <FormControl
-            checked={isAllSelected}
-            componentclass="checkbox"
-            onChange={onChange}
-          />
-        </th>
-      );
-    };
-
-    const mainContent = (
-      <LoyaltiesTableWrapper>
-        <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
-          <thead>
-            <tr>
-              {renderCheckbox()}
-              <th>
-                <SortHandler sortField={"createdAt"} label={__("Created")} />
-              </th>
-              <th>
-                <SortHandler sortField={"ownerType"} label={__("Owner Type")} />
-              </th>
-              <th>
-                <SortHandler sortField={"ownerId"} label={__("Owner")} />
-              </th>
-              <th>
-                <SortHandler sortField={"status"} label={__("Status")} />
-              </th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="vouchers">
-            {vouchers.map((voucher) => (
-              <VoucherRow
-                voucher={voucher}
-                isChecked={bulk.includes(voucher)}
-                key={voucher._id}
-                toggleBulk={toggleBulk}
-                currentCampaign={currentCampaign}
-                queryParams={queryParams}
-              />
-            ))}
-          </tbody>
-        </Table>
-      </LoyaltiesTableWrapper>
+  const renderContent = () => {
+    return (
+      <Table>
+        <thead>
+          <tr>
+            <th>Created At</th>
+            <th>Owner Type</th>
+            <th>Owner</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {(vouchers || []).map((voucher) => (
+            <Row
+              key={voucher._id}
+              voucher={voucher}
+              queryParams={queryParams}
+            />
+          ))}
+        </tbody>
+      </Table>
     );
+  };
 
-    const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
+  const voucherForm = (props) => {
+    return <VoucherForm {...props} queryParams={queryParams} />;
+  };
+
+  const renderActions = () => {
+    const formTrigger = (
+      <Button btnStyle="success" icon="plus-circle">
         Add voucher
       </Button>
     );
 
-    const voucherForm = (props) => {
-      return <VoucherForm {...props} queryParams={queryParams} />;
-    };
+    const left = (
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <SimpleButton
+          id="btn-inbox-channel-visible"
+          $isActive={toggleSidebar}
+          onClick={() => setToggleSidebar(!toggleSidebar)}
+        >
+          <Icon icon="subject" />
+        </SimpleButton>
+        <Title>{`All voucher List (${totalCount})`}</Title>
+      </div>
+    );
 
-    const actionBarRight = () => {
-      if (bulk.length > 0) {
-        const onClick = () =>
-          confirm()
-            .then(() => {
-              removeVouchers(bulk);
-            })
-            .catch((error) => {
-              Alert.error(error.message);
-            });
+    const right = (
+      <BarItems>
+        <FormControl
+          type="text"
+          placeholder={__("Type to search")}
+          onChange={search}
+          value={searchValue}
+          autoFocus={true}
+        />
+        <ModalTrigger
+          title={__("New Voucher")}
+          trigger={formTrigger}
+          autoOpenKey="showVoucherModal"
+          content={voucherForm}
+          backDrop="static"
+        />
+      </BarItems>
+    );
 
-        return (
-          <BarItems>
-            <Button
-              btnStyle="danger"
-              size="small"
-              icon="cancel-1"
-              onClick={onClick}
-            >
-              Delete
-            </Button>
-          </BarItems>
-        );
+    return <Wrapper.ActionBar left={left} right={right} />;
+  };
+
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__(`Vouchers`) + ` (${totalCount})`}
+          submenu={menuLoyalties}
+        />
       }
-      return (
-        <BarItems>
-          <FormControl
-            type="text"
-            placeholder={__("Type to search")}
-            onChange={search}
-            value={searchValue}
-            autoFocus={true}
-            onFocus={moveCursorAtTheEnd}
-          />
-
-          <ModalTrigger
-            title={__("New voucher")}
-            trigger={addTrigger}
-            autoOpenKey="showVoucherModal"
-            content={voucherForm}
-            backDrop="static"
-          />
-        </BarItems>
-      );
-    };
-
-    const actionBarLeft = (
-      <Title>
-        {(currentCampaign &&
-          `${currentCampaign.voucherType}: ${currentCampaign.title}`) ||
-          "All voucher campaigns"}{" "}
-      </Title>
-    );
-    const actionBar = (
-      <Wrapper.ActionBar right={actionBarRight()} left={actionBarLeft} />
-    );
-
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__(`Vouchers`) + ` (${totalCount})`}
-            submenu={menuLoyalties}
-          />
-        }
-        actionBar={actionBar}
-        footer={<Pagination count={totalCount} />}
-        leftSidebar={
-          <Sidebar
-            loadingMainQuery={loading}
-            queryParams={queryParams}
-          />
-        }
-        content={
-          <>
-            <Count>
-              {totalCount} voucher{totalCount > 1 && "s"}
-            </Count>
-            <DataWithLoader
-              data={mainContent}
-              loading={loading}
-              count={vouchers.length}
-              emptyText="Add in your first voucher!"
-              emptyImage="/images/actions/1.svg"
-            />
-          </>
-        }
-        hasBorder
-      />
-    );
-  
-}
+      actionBar={renderActions()}
+      footer={<Pagination count={totalCount} />}
+      leftSidebar={
+        toggleSidebar && (
+          <Sidebar loadingMainQuery={loading} queryParams={queryParams} />
+        )
+      }
+      content={
+        <DataWithLoader
+          data={renderContent()}
+          loading={loading}
+          count={vouchers.length}
+          emptyText="Add in your first voucher!"
+          emptyImage="/images/actions/1.svg"
+        />
+      }
+      hasBorder
+    />
+  );
+};
 
 export default VouchersList;

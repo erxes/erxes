@@ -242,7 +242,6 @@ const SipProviderContainer = (props) => {
       },
     ],
   };
-
   return (
     <CallWrapper>
       <SipProvider
@@ -264,6 +263,7 @@ const SipProviderContainer = (props) => {
             )}
             <WidgetContainer
               {...props}
+              currentIntegrationId={defaultIntegration.inboxId}
               callUserIntegrations={callUserIntegrations}
               setConfig={handleSetConfig}
               setHideIncomingCall={setHideIncomingCall}
