@@ -21,6 +21,7 @@ export interface IEbarimtConfig {
   reverseCtaxRules?: string[],
   footerText?: string;
   hasCopy: boolean;
+  hasSumQty: boolean;
 }
 
 interface IConfigColors {
@@ -132,6 +133,7 @@ const ebarimtConfigSchema = new Schema(
     reverseCtaxRules: field({ type: [String], optional: true, label: 'reverseCtaxRules' }),
     footerText: field({ type: String, optional: true, label: 'Footer text' }),
     hasCopy: field({ type: Boolean, optional: true }),
+    hasSumQty: field({ type: Boolean, optional: true }),
   },
   { _id: false },
 );

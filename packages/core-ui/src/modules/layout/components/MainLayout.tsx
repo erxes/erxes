@@ -55,125 +55,125 @@ class MainLayout extends React.Component<IProps, State> {
 
       const { currentOrganization } = currentUser;
 
-      if (VERSION && VERSION === "saas" && currentOrganization) {
-        const details = currentUser.details || {};
-        const links = currentUser.links || {};
+      // if (VERSION && VERSION === "saas" && currentOrganization) {
+      //   const details = currentUser.details || {};
+      //   const links = currentUser.links || {};
 
-        const {
-          name,
-          subdomain,
-          plan,
-          expiryDate,
-          createdAt,
-          promoCodes,
-          isWhiteLabel,
-          isPaid,
-          bundleNames = [],
-          experienceName,
-        } = currentOrganization;
+      //   const {
+      //     name,
+      //     subdomain,
+      //     plan,
+      //     expiryDate,
+      //     createdAt,
+      //     promoCodes,
+      //     isWhiteLabel,
+      //     isPaid,
+      //     bundleNames = [],
+      //     experienceName,
+      //   } = currentOrganization;
 
-        const setupService = currentOrganization.setupService || {};
+      //   const setupService = currentOrganization.setupService || {};
 
-        (window as any).erxesSettings = {
-          messenger: {
-            email: currentUser.email,
-            brand_id: "5fkS4v",
-            data: {
-              isOwner: currentUser.isOwner ? "true" : "false",
-              firstName: details.fullName || "",
-              avatar: details.avatar || "",
-              position: details.position || "",
-              description: details.description || "",
-              username: currentUser.username,
-              organizationName: name,
-              organizationSubDomain: subdomain,
-              organizationExpierence: experienceName,
-              organizationBundles: bundleNames.map((b) => b).join(", "),
-              organizationPlan: plan,
-              organizationIsPaid: isPaid ? "true" : "false",
-              organizationIsExpired:
-                plan === "growth" && !isPaid ? "true" : "false",
-              organizationExpiryDate:
-                expiryDate && dayjs(expiryDate).format("YYYY-MM-DD"),
-              promoCodeCount: promoCodes ? promoCodes.length : 0,
-              isWhiteLabel: isWhiteLabel ? "true" : "false",
-              isDataImportSetupService: setupService.dataImport
-                ? "true"
-                : "false",
-              isEventTrackingInstallationSetupService:
-                setupService.eventTrackingInstallation ? "true" : "false",
-              isWidgetInstallationSetupService: setupService.widgetInstallation
-                ? "true"
-                : "false",
-              isWebhookSetupService: setupService.webhooks ? "true" : "false",
-              organizationCreatedAt:
-                createdAt && dayjs(createdAt).format("YYYY-MM-DD"),
-              "links.linkedIn": links.linkedIn || "",
-              "links.twitter": links.twitter || "",
-              "links.facebook": links.facebook || "",
-              "links.whatsapp": links.whatsapp || "",
-              "links.github": links.github || "",
-              "links.youtube": links.youtube || "",
-              "links.website": links.website || "",
-              isSubscribed: currentUser.isSubscribed,
-            },
-            companyData: {
-              name,
-              organizationName: name,
-              organizationSubDomain: subdomain,
-              organizationPlan: plan,
-              organizationExpiryDate: expiryDate,
-              organizationCreatedAt: createdAt,
-              isWhiteLabel,
-              organizationIsPaid: isPaid,
-              organizationBundles: bundleNames,
-              organizationExpierence: experienceName,
-              organizationCharges: JSON.stringify(currentOrganization.charge),
-            },
-          },
-        };
+      //   (window as any).erxesSettings = {
+      //     messenger: {
+      //       email: currentUser.email,
+      //       brand_id: "5fkS4v",
+      //       data: {
+      //         isOwner: currentUser.isOwner ? "true" : "false",
+      //         firstName: details.fullName || "",
+      //         avatar: details.avatar || "",
+      //         position: details.position || "",
+      //         description: details.description || "",
+      //         username: currentUser.username,
+      //         organizationName: name,
+      //         organizationSubDomain: subdomain,
+      //         organizationExpierence: experienceName,
+      //         organizationBundles: bundleNames.map((b) => b).join(", "),
+      //         organizationPlan: plan,
+      //         organizationIsPaid: isPaid ? "true" : "false",
+      //         organizationIsExpired:
+      //           plan === "growth" && !isPaid ? "true" : "false",
+      //         organizationExpiryDate:
+      //           expiryDate && dayjs(expiryDate).format("YYYY-MM-DD"),
+      //         promoCodeCount: promoCodes ? promoCodes.length : 0,
+      //         isWhiteLabel: isWhiteLabel ? "true" : "false",
+      //         isDataImportSetupService: setupService.dataImport
+      //           ? "true"
+      //           : "false",
+      //         isEventTrackingInstallationSetupService:
+      //           setupService.eventTrackingInstallation ? "true" : "false",
+      //         isWidgetInstallationSetupService: setupService.widgetInstallation
+      //           ? "true"
+      //           : "false",
+      //         isWebhookSetupService: setupService.webhooks ? "true" : "false",
+      //         organizationCreatedAt:
+      //           createdAt && dayjs(createdAt).format("YYYY-MM-DD"),
+      //         "links.linkedIn": links.linkedIn || "",
+      //         "links.twitter": links.twitter || "",
+      //         "links.facebook": links.facebook || "",
+      //         "links.whatsapp": links.whatsapp || "",
+      //         "links.github": links.github || "",
+      //         "links.youtube": links.youtube || "",
+      //         "links.website": links.website || "",
+      //         isSubscribed: currentUser.isSubscribed,
+      //       },
+      //       companyData: {
+      //         name,
+      //         organizationName: name,
+      //         organizationSubDomain: subdomain,
+      //         organizationPlan: plan,
+      //         organizationExpiryDate: expiryDate,
+      //         organizationCreatedAt: createdAt,
+      //         isWhiteLabel,
+      //         organizationIsPaid: isPaid,
+      //         organizationBundles: bundleNames,
+      //         organizationExpierence: experienceName,
+      //         organizationCharges: JSON.stringify(currentOrganization.charge),
+      //       },
+      //     },
+      //   };
 
-        (() => {
-          const script = document.createElement("script");
-          script.src =
-            "https://w.office.erxes.io/build/messengerWidget.bundle.js";
-          script.async = true;
+      //   (() => {
+      //     const script = document.createElement("script");
+      //     script.src =
+      //       "https://w.office.erxes.io/build/messengerWidget.bundle.js";
+      //     script.async = true;
 
-          const entry = document.getElementsByTagName(
-            "script"
-          )[0] as HTMLScriptElement;
-          entry.parentNode
-            ? entry.parentNode.insertBefore(script, entry)
-            : null;
-        })();
-      } else {
-        const { REACT_APP_HIDE_MESSENGER } = getEnv();
+      //     const entry = document.getElementsByTagName(
+      //       "script"
+      //     )[0] as HTMLScriptElement;
+      //     entry.parentNode
+      //       ? entry.parentNode.insertBefore(script, entry)
+      //       : null;
+      //   })();
+      // } else {
+      //   const { REACT_APP_HIDE_MESSENGER } = getEnv();
 
-        if (!REACT_APP_HIDE_MESSENGER) {
-          const userDetail = (currentUser && currentUser.details) || {
-            firstName: "",
-            lastName: "",
-          };
-          (window as any).erxesSettings = {
-            messenger: {
-              brand_id: "5fkS4v",
-              email: (currentUser && currentUser.email) || "",
-              firstName: userDetail.firstName,
-              lastName: userDetail.lastName,
-            },
-          };
+      //   if (!REACT_APP_HIDE_MESSENGER) {
+      //     const userDetail = (currentUser && currentUser.details) || {
+      //       firstName: "",
+      //       lastName: "",
+      //     };
+      //     (window as any).erxesSettings = {
+      //       messenger: {
+      //         brand_id: "5fkS4v",
+      //         email: (currentUser && currentUser.email) || "",
+      //         firstName: userDetail.firstName,
+      //         lastName: userDetail.lastName,
+      //       },
+      //     };
 
-          const script = document.createElement("script");
-          script.src =
-            "https://w.office.erxes.io/build/messengerWidget.bundle.js";
-          const entry = document.getElementsByTagName(
-            "script"
-          )[0] as HTMLScriptElement;
-          entry.parentNode
-            ? entry.parentNode.insertBefore(script, entry)
-            : null;
-        }
-      }
+      //     const script = document.createElement("script");
+      //     script.src =
+      //       "https://w.office.erxes.io/build/messengerWidget.bundle.js";
+      //     const entry = document.getElementsByTagName(
+      //       "script"
+      //     )[0] as HTMLScriptElement;
+      //     entry.parentNode
+      //       ? entry.parentNode.insertBefore(script, entry)
+      //       : null;
+      //   }
+      // }
 
       (window as any).wootricSettings = {
         email: currentUser.email, // Required to uniquely identify a user. Email is recommended but this can be any unique identifier.

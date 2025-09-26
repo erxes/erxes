@@ -12,6 +12,7 @@ import {
 import { itemsEdit, publishHelper } from "./graphql/resolvers/mutations/utils";
 import {
   createConformity,
+  getTotalAmounts,
   notifiedUserIds,
   sendNotifications
 } from "./graphql/utils";
@@ -357,6 +358,10 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
 
+      if (modifier.productsData) {
+        modifier.productsData = modifier.productsData.filter((pd) => pd);
+        Object.assign(modifier, { ...await getTotalAmounts(modifier.productsData) })
+      }
       return {
         data: await models.Deals.updateMany(selector, modifier),
         status: "success"
@@ -368,6 +373,11 @@ export const setupMessageConsumers = async () => {
     "sales:deals.updateOne",
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
+
+      if (modifier.productsData) {
+        modifier.productsData = modifier.productsData.filter((pd) => pd);
+        Object.assign(modifier, { ...await getTotalAmounts(modifier.productsData) })
+      }
 
       return {
         data: await models.Deals.updateOne(selector, modifier),

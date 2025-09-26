@@ -329,6 +329,29 @@ export const generateFields = async ({ subdomain, data }) => {
     ]
   ];
 
+  const pipelineFilter: any = {}
+  if (pipelineId) {
+    pipelineFilter._id = pipelineId
+  }
+
+  fields.push({
+    _id: Math.random(), name: `paymentsData.cash.amount`, label: 'Cash', type: "Number"
+  });
+
+  const paymentTypes = await models.Pipelines.find(pipelineFilter).distinct("paymentTypes");
+  const types: string[] = [];
+
+  for (const { type, title } of paymentTypes) {
+    if (types.includes(type)) {
+      continue;
+    }
+
+    types.push(type);
+    fields.push({
+      _id: Math.random(), name: `paymentsData.${type}.amount`, label: title, type: "Number"
+    })
+  }
+
   if (usageType === 'automations') {
     fields = [
       ...fields,
@@ -436,11 +459,11 @@ export const generateFields = async ({ subdomain, data }) => {
   if (segmentId || pipelineId) {
     const segment = segmentId
       ? await sendCoreMessage({
-          subdomain,
-          action: 'segmentFindOne',
-          data: { _id: segmentId },
-          isRPC: true
-        })
+        subdomain,
+        action: 'segmentFindOne',
+        data: { _id: segmentId },
+        isRPC: true
+      })
       : null;
 
     const labelOptions = await getPipelineLabelOptions(

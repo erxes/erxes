@@ -31,6 +31,20 @@ export const replacePlaceHolders = async ({
       );
 
       for (const fieldKey of fieldKeys) {
+        const replacedValue = await getRelatedValue(
+          models,
+          subdomain,
+          target,
+          fieldKey,
+          relatedValueProps
+        );
+
+        if (replacedValue) {
+          actionData[actionDataKey] = actionData[actionDataKey].replace(
+            `{{ ${fieldKey} }}`,
+            replacedValue
+          );
+        }
         const targetKey = targetKeys.find(
           (targetKey) => targetKey === fieldKey
         );

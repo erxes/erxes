@@ -2,7 +2,11 @@ import { forwardRef, useState } from "react"
 import dynamic from "next/dynamic"
 import { addToCartAtom } from "@/store/cart.store"
 import { useSetAtom } from "jotai"
-
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
 import { IProduct } from "@/types/product.types"
 import { cn } from "@/lib/utils"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
@@ -62,12 +66,14 @@ const ProductContent = ({
   description,
   hasSimilarity,
   code,
+  remainder,
+  remainders,
 }: IProduct) => (
   <>
     <ProductItemImage src={attachment?.url || ""} />
     <ProductItemTitle>{`${code} - ${name}`}</ProductItemTitle>
-    <ProductItemDescription description={description} />
-    <ProductItemPriceWithWrapper unitPrice={unitPrice}>
+    <ProductItemDescription description={description ?? ''} />
+    <ProductItemPriceWithWrapper unitPrice={unitPrice} remainder={remainder} remainders={remainders}>
       {hasSimilarity && (
         <Button className="absolute h-auto rounded-r-none right-0 px-3 border-r">
           Сонгох...
@@ -141,15 +147,45 @@ export const ProductItemPriceWithWrapper = ({
   children,
   className,
   unitPrice,
+  remainder,
+  remainders,
 }: {
   children: React.ReactNode
   className?: string
-  unitPrice?: number
+  unitPrice?: number,
+  remainder?: number,
+  remainders?: { location: string; remainder: number }[],
 }) => {
   return (
     <div className={cn("flex items-center justify-between", className)}>
       <div className="font-black text-base">
         {(unitPrice || 0).toLocaleString()}₮
+        {typeof remainder === "number" &&
+          (remainders && remainders?.length > 1 ? (
+            <HoverCard>
+              <HoverCardTrigger>{"/" + remainder + "/"}</HoverCardTrigger>
+              <HoverCardContent className="w-48">
+                <div className="flex flex-col border border-b-0">
+                  {remainders?.map(({ location, remainder }) => (
+                    <div
+                      key={location}
+                      className="flex items-center border-b font-semibold"
+                    >
+                      <span className="flex-1 border-r p-1 text-left text-neutral-600">
+                        {location}
+                      </span>
+                      <span className="flex-1 p-1 text-right ">
+                        {remainder}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </HoverCardContent>
+            </HoverCard>
+          ) : (
+            <span>{`/ ${remainder}/`}</span>
+          ))
+        }
       </div>
       {children}
     </div>
