@@ -168,7 +168,10 @@ func main() {
 	defer client.Disconnect(ctx)
 
 	orgColl := client.Database("erxes_core").Collection("organizations")
-	orgIDsInterface, err := orgColl.Distinct(ctx, "_id", bson.M{})
+	sixMonthsAgo := time.Now().AddDate(0, -6, 0)
+	orgIDsInterface, err := orgColl.Distinct(ctx, "_id", bson.M{"lastActiveDate": bson.M{
+            "$gte": sixMonthsAgo,
+        }})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -213,9 +216,9 @@ elasticsearch-max-conns = 2
 		for _, coll := range plugin.Collections {
 			scripts = append(scripts, coll.Script)
 			collections = append(collections, coll.Name)
-			for _, orgID := range orgIDs {
-				namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.%s"`, orgID, coll.Name))
-			}
+			// for _, orgID := range orgIDs {
+			// 	namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.%s"`, orgID, coll.Name))
+			// }
 		}
 	}
 
@@ -224,7 +227,7 @@ elasticsearch-max-conns = 2
 	namespaceRegex := fmt.Sprintf("^erxes_.+.(%s)$", collectionsRegex)
 
 	// Write TOML body
-	f.WriteString(fmt.Sprintf("direct-read-namespaces=[%s]\n", directReadNamespaces))
+	// f.WriteString(fmt.Sprintf("direct-read-namespaces=[%s]\n", directReadNamespaces))
 	f.WriteString(fmt.Sprintf(`
 namespace-regex="%s"
 routing-namespaces=[""]
