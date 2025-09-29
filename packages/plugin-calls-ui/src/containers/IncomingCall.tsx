@@ -13,6 +13,7 @@ interface IProps {
   closeModal?: () => void;
   callUserIntegrations: any;
   hideIncomingCall?: boolean;
+  setHideIncomingCall?: (isHide: boolean) => void;
   currentCallConversationId: string;
 }
 
@@ -69,6 +70,11 @@ const IncomingCallContainer = (props: IProps, context) => {
     }
   }, [loading, data]);
 
+  useEffect(() => {
+    if (props.hideIncomingCall) {
+      props.setHideIncomingCall?.(false);
+    }
+  }, []);
   useEffect(() => {
     if (phoneNumber && call?.id) {
       createCustomerMutation({
