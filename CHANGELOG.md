@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.17.13](https://github.com/erxes/erxes/compare/2.17.12...2.17.13) (2025-09-29)
+
+### Features
+
+* add resume option to main.go configuration ([7d20e0e](https://github.com/erxes/erxes/commit/7d20e0e3f5f08b1cef53692583c1811fd19a44b6))
+* enhance email generation with dynamic from email placeholder ([9068bee](https://github.com/erxes/erxes/commit/9068bee7de60c20e091dc9f2f1303a3698eba518))
+* filter organizations by last active date in main.go ([fdbfcf5](https://github.com/erxes/erxes/commit/fdbfcf5424d4cef4bf089f95706aa28495f02ec6))
+
+### Bug Fixes
+
+* mongo-driver version 1.7 ([b2845a8](https://github.com/erxes/erxes/commit/b2845a85de5ab19b37813326f16a8faa84af7ce8))
+
 ## [2.17.12](https://github.com/erxes/erxes/compare/2.17.11...2.17.12) (2025-09-26)
 
 ### Bug Fixes
