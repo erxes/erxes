@@ -61,6 +61,8 @@ interface IConversationConvert {
   itemId: string;
   stageId: string;
   itemName: string;
+  isCheckUser?: boolean;
+  isHideName?: boolean;
   customFieldsData?: { [key: string]: any };
   branchIds?: string[];
   priority?: string;

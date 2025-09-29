@@ -21,6 +21,7 @@ export const commonMutationVariables = `
   $tagIds: [String]
   $branchIds:[String],
   $departmentIds:[String]
+  $isHideName: Boolean
 `;
 
 export const commonMutationParams = `
@@ -32,6 +33,7 @@ export const commonMutationParams = `
   closeDate: $closeDate,
   description: $description,
   isCheckUserTicket: $isCheckUserTicket,
+  isHideName: $isHideName,
   assignedUserIds: $assignedUserIds,
   order: $order,
   attachments: $attachments,
@@ -134,6 +136,7 @@ export const commonFields = `
   closeDate
   description
   isCheckUserTicket
+  isHideName
   priority
   assignedUsers {
     _id
@@ -280,6 +283,8 @@ mutation conversationConvertToCard(
   $description: String
   $itemId: String
   $itemName: String
+  $isCheckUser: Boolean
+  $isHideName: Boolean
   $branchIds: [String]
   $tagIds: [String]
   $labelIds: [String]
@@ -298,6 +303,8 @@ mutation conversationConvertToCard(
     description: $description
     itemId: $itemId
     itemName: $itemName
+    isCheckUser: $isCheckUser
+    isHideName: $isHideName
     branchIds: $branchIds
     tagIds: $tagIds
     labelIds: $labelIds

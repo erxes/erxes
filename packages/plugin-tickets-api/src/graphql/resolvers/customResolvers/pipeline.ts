@@ -2,7 +2,7 @@ import { IContext } from "../../../connectionResolver";
 import { IPipelineDocument } from "../../../models/definitions/boards";
 import {
   BOARD_TYPES,
-  VISIBLITIES
+  VISIBLITIES,
 } from "../../../models/definitions/constants";
 import { generateTicketCommonFilters } from "../queries/utils";
 
@@ -17,9 +17,9 @@ export default {
 
   members(pipeline: IPipelineDocument, {}) {
     if (pipeline.visibility === VISIBLITIES.PRIVATE && pipeline.memberIds) {
-      return pipeline.memberIds.map(memberId => ({
+      return pipeline.memberIds.map((memberId) => ({
         __typename: "User",
-        _id: memberId
+        _id: memberId,
       }));
     }
 
@@ -67,7 +67,7 @@ export default {
           subdomain,
           user._id,
           {
-            pipelineId: pipeline._id
+            pipelineId: pipeline._id,
           }
         );
 
@@ -80,8 +80,8 @@ export default {
     if (pipeline.tagId) {
       return {
         __typename: "Tag",
-        _id: pipeline.tagId
+        _id: pipeline.tagId,
       };
     }
-  }
+  },
 };

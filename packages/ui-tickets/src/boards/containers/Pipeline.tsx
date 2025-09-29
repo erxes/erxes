@@ -6,7 +6,7 @@ import {
   IOptions,
   IPipeline,
   IStageMap,
-  StagesQueryResponse
+  StagesQueryResponse,
 } from "../types";
 import { PipelineConsumer, PipelineProvider } from "./PipelineContext";
 import React, { Component } from "react";
@@ -71,7 +71,7 @@ class WithStages extends Component<WithStagesQueryProps> {
       queryParams,
       stagesQuery,
       navigate,
-      location
+      location,
     } = this.props;
 
     const stagesCount = this.countStages(stageMap);
@@ -108,7 +108,7 @@ class WithStages extends Component<WithStagesQueryProps> {
             refetchStage,
             onLoadStage,
             onAddItem,
-            onRemoveItem
+            onRemoveItem,
           }) => (
             <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
               <Droppable
@@ -117,7 +117,7 @@ class WithStages extends Component<WithStagesQueryProps> {
                 direction="horizontal"
                 ignoreContainerClipping={true}
               >
-                {provided => (
+                {(provided) => (
                   <Container
                     ref={provided.innerRef}
                     {...provided.droppableProps}
@@ -204,7 +204,7 @@ const WithQuery = withProps<WithQueryProps>(
         pipeline,
         queryParams,
         options: { getExtraParams },
-        abortController
+        abortController,
       }) => ({
         variables: {
           pipelineId: pipeline._id,
@@ -220,12 +220,12 @@ const WithQuery = withProps<WithQueryProps>(
           branchIds: queryParams.branchIds,
           departmentIds: queryParams.departmentIds,
           segment: queryParams.segment,
-          segmentData: queryParams.segmentData
+          segmentData: queryParams.segmentData,
         },
         context: {
-          fetchOptions: { signal: abortController && abortController.signal }
-        }
-      })
+          fetchOptions: { signal: abortController && abortController.signal },
+        },
+      }),
     })
   )(WithStagesQuery)
 );
@@ -246,7 +246,7 @@ class WithData extends React.Component<Props> {
   render() {
     const updatedProps = {
       ...this.props,
-      abortController: this.abortController
+      abortController: this.abortController,
     };
 
     return <WithQuery {...updatedProps} />;

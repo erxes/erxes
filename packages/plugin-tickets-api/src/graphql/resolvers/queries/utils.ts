@@ -583,6 +583,18 @@ export const generateCommonFilters = async (
         });
       }
     }
+
+    const orConditions: any[] = [{ userId: currentUserId }];
+
+    if (pipeline.isCheckBranch && user?.branchIds?.length) {
+      orConditions.push({ branchIds: { $in: user.branchIds } });
+    }
+
+    if (pipeline.isCheckDepartment && user?.departmentIds?.length) {
+      orConditions.push({ departmentIds: { $in: user.departmentIds } });
+    }
+
+    filter.$or = orConditions;
   }
 
   if (userIds) {
