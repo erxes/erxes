@@ -46,6 +46,8 @@ const commonPipelineParamsDef = `
   $isCheckDate: Boolean
   $isCheckUser: Boolean
   $isCheckDepartment: Boolean
+  $isCheckBranch: Boolean
+  $isHideName: Boolean
   $excludeCheckUserIds: [String],
   $numberConfig: String
   $numberSize: String
@@ -71,6 +73,8 @@ const commonPipelineParams = `
   isCheckDate: $isCheckDate,
   isCheckUser: $isCheckUser,
   isCheckDepartment: $isCheckDepartment
+  isCheckBranch: $isCheckBranch
+  isHideName: $isHideName
   excludeCheckUserIds: $excludeCheckUserIds,
   numberConfig: $numberConfig
   numberSize: $numberSize
@@ -129,5 +133,5 @@ export default {
   pipelinesArchive,
   pipelinesCopied,
   pipelineRemove,
-  pipelinesUpdateOrder
+  pipelinesUpdateOrder,
 };

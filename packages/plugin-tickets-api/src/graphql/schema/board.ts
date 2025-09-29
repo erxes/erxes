@@ -39,6 +39,8 @@ export const types = () => `
     isCheckDate: Boolean
     isCheckUser: Boolean
     isCheckDepartment: Boolean
+    isCheckBranch: Boolean
+    isHideName: Boolean
     excludeCheckUserIds: [String]
     numberConfig: String
     numberSize: String
@@ -181,6 +183,8 @@ const pipelineParams = `
   isCheckDate: Boolean
   isCheckUser: Boolean
   isCheckDepartment: Boolean
+  isCheckBranch: Boolean
+  isHideName: Boolean
   excludeCheckUserIds: [String],
   numberConfig: String,
   numberSize: String,

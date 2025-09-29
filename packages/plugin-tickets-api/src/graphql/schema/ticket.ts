@@ -115,6 +115,7 @@ const ticketMutationParams = `
   source: String,
   type: String,
   isCheckUserTicket: Boolean
+  isHideName: Boolean
 `;
 
 export const mutations = `

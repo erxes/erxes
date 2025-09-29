@@ -233,6 +233,7 @@ const pipelineDetail = `
       isWatched
       hackScoringType
       tagId
+      isHideName
     }
   }
 `;
@@ -439,5 +440,5 @@ export default {
   boardContentTypeDetail,
   boardLogs,
   documents,
-  tickets
+  tickets,
 };
