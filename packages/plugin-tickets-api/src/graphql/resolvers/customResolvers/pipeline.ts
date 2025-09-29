@@ -60,7 +60,6 @@ export default {
     _args,
     { user, models, subdomain }: IContext
   ) {
-    console.log("1");
     switch (pipeline.type) {
       case BOARD_TYPES.TICKET: {
         const filter = await generateTicketCommonFilters(
