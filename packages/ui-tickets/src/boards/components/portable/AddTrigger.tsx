@@ -1,7 +1,7 @@
-import AddForm from '../../containers/portable/AddForm';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import { IOptions } from '../../types';
+import AddForm from "../../containers/portable/AddForm";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import { IOptions } from "../../types";
 
 type Props = {
   relType: string;
@@ -15,7 +15,7 @@ export default (props: Props) => {
 
   const trigger = <a href="#title">{options.texts.addText}</a>;
 
-  const content = formProps => (
+  const content = (formProps) => (
     <AddForm
       options={options}
       {...formProps}

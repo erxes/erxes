@@ -1,12 +1,12 @@
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { queries } from '../graphql';
-import { __, Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import Stage from '../components/stage/Stage';
-import { mutations } from '../graphql';
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { queries } from "../graphql";
+import { __, Alert, confirm, withProps } from "@erxes/ui/src/utils";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import Stage from "../components/stage/Stage";
+import { mutations } from "../graphql";
 import {
   IFilterParams,
   IItem,
@@ -15,13 +15,13 @@ import {
   ItemsQueryResponse,
   RemoveStageMutation,
   SaveItemMutation,
-  StagesSortItemsMutationResponse
-} from '../types';
+  StagesSortItemsMutationResponse,
+} from "../types";
 
 type StageProps = {
   stage: IStage;
   index: number;
-  loadingState: 'readyToLoad' | 'loaded';
+  loadingState: "readyToLoad" | "loaded";
   items: IItem[];
   length: number;
   queryParams: IFilterParams;
@@ -32,6 +32,7 @@ type StageProps = {
   refetchStage: (stageId: string) => void;
   onAddItem: (stageId: string, item: IItem, aboveItemId?: string) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
+  pipelineDetail?: any;
 };
 
 type FinalStageProps = {
@@ -45,7 +46,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
   componentWillReceiveProps(nextProps: FinalStageProps) {
     const { stage, loadingState, onLoad, itemsQuery, options } = nextProps;
 
-    if (itemsQuery && !itemsQuery.loading && loadingState !== 'loaded') {
+    if (itemsQuery && !itemsQuery.loading && loadingState !== "loaded") {
       // Send loaded items to PipelineContext so that context is able to set it
       // to global itemsMap
       const items = itemsQuery[options.queriesName.itemsQuery] || [];
@@ -74,17 +75,17 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
           stageId: stage._id,
           pipelineId: stage.pipelineId,
           skip: items.length,
-          ...getFilterParams(queryParams, options.getExtraParams)
+          ...getFilterParams(queryParams, options.getExtraParams),
         },
-        fetchPolicy: 'network-only'
+        fetchPolicy: "network-only",
       })
       .then(({ data }: any) => {
         onLoad(stage._id, [
           ...items,
-          ...(data[options.queriesName.itemsQuery] || [])
+          ...(data[options.queriesName.itemsQuery] || []),
         ]);
       })
-      .catch(e => {
+      .catch((e) => {
         console.log(e.message);
       });
   };
@@ -93,17 +94,17 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
     const { removeStageMutation, refetchStages, stage } = this.props;
 
     const message =
-      'This will permanently delete any items related to this stage. Are you absolutely sure?';
+      "This will permanently delete any items related to this stage. Are you absolutely sure?";
 
     confirm(message, { hasDeleteConfirm: true })
       .then(() => {
         removeStageMutation({ variables: { _id: id } }).then(() => {
-          Alert.success('You have successfully removed a stage');
+          Alert.success("You have successfully removed a stage");
 
           refetchStages({ pipelineId: stage.pipelineId });
         });
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -113,9 +114,9 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
 
     const stageId = stage._id;
 
-    confirm(__('Archive All Cards in This List?')).then(() => {
+    confirm(__("Archive All Cards in This List?")).then(() => {
       const proccessId = Math.random().toString();
-      localStorage.setItem('proccessId', proccessId);
+      localStorage.setItem("proccessId", proccessId);
 
       client
         .mutate({
@@ -124,12 +125,12 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
           refetchQueries: [
             {
               query: gql(queries.stageDetail),
-              variables: { _id: stageId, proccessId }
-            }
-          ]
+              variables: { _id: stageId, proccessId },
+            },
+          ],
         })
         .then(() => {
-          Alert.success('Archive Items has been archived.');
+          Alert.success("Archive Items has been archived.");
 
           onLoad(stageId, []);
         })
@@ -146,14 +147,14 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
 
     confirm(__(`Are you sure to sort by ${description} ?`)).then(() => {
       const proccessId = Math.random().toString();
-      localStorage.setItem('proccessId', proccessId);
+      localStorage.setItem("proccessId", proccessId);
       stagesSortItemsMutation({
         variables: {
           stageId,
           type: options.type,
           proccessId,
-          sortType: type
-        }
+          sortType: type,
+        },
       })
         .then(() => {
           this.props.refetchStage(stageId);
@@ -167,18 +168,18 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
   archiveList = () => {
     const { stage, refetchStages, options } = this.props;
 
-    confirm(__('Archive this list?')).then(() => {
+    confirm(__("Archive this list?")).then(() => {
       client
         .mutate({
           mutation: gql(mutations.stagesEdit),
           variables: {
             _id: stage._id,
             type: options.type,
-            status: 'archived'
-          }
+            status: "archived",
+          },
         })
         .then(() => {
-          Alert.success('Archive List has been archived.');
+          Alert.success("Archive List has been archived.");
 
           refetchStages({ pipelineId: stage.pipelineId });
         })
@@ -198,16 +199,19 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       options,
       onAddItem,
       onRemoveItem,
-      loadingState
+      loadingState,
+      pipelineDetail,
     } = this.props;
-
     const loadingItems = () => {
-      if ((itemsQuery && !itemsQuery.loading) || loadingState !== 'loaded') {
+      if ((itemsQuery && !itemsQuery.loading) || loadingState !== "loaded") {
         return true;
       }
 
       return false;
     };
+
+    const isHideName =
+      pipelineDetail?.ticketsPipelineDetail?.isHideName ?? false;
 
     return (
       <Stage
@@ -224,6 +228,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         loadMore={this.loadMore}
         onAddItem={onAddItem}
         onRemoveItem={onRemoveItem}
+        isHideName={isHideName}
       />
     );
   }
@@ -252,7 +257,7 @@ const getFilterParams = (
     assignedToMe: queryParams.assignedToMe,
     startDate: queryParams.startDate,
     endDate: queryParams.endDate,
-    ...getExtraParams(queryParams)
+    ...getExtraParams(queryParams),
   };
 };
 
@@ -262,27 +267,34 @@ const withQuery = ({ options }) => {
   return withProps<WithQueryProps>(
     compose(
       graphql<WithQueryProps>(gql(options.queries.itemsQuery), {
-        name: 'itemsQuery',
-        skip: ({ loadingState }) => loadingState !== 'readyToLoad',
+        name: "itemsQuery",
+        skip: ({ loadingState }) => loadingState !== "readyToLoad",
         options: ({ stage, queryParams, loadingState, abortController }) => ({
           variables: {
             stageId: stage._id,
             pipelineId: stage.pipelineId,
-            ...getFilterParams(queryParams, options.getExtraParams)
+            ...getFilterParams(queryParams, options.getExtraParams),
           },
           context: {
-            fetchOptions: { signal: abortController && abortController.signal }
+            fetchOptions: { signal: abortController && abortController.signal },
           },
           fetchPolicy:
-            loadingState === 'readyToLoad' ? 'network-only' : 'cache-only',
-          notifyOnNetworkStatusChange: loadingState === 'readyToLoad'
-        })
+            loadingState === "readyToLoad" ? "network-only" : "cache-only",
+          notifyOnNetworkStatusChange: loadingState === "readyToLoad",
+        }),
       }),
       graphql<WithQueryProps>(gql(mutations.stagesRemove), {
-        name: 'removeStageMutation'
+        name: "removeStageMutation",
       }),
       graphql<WithQueryProps>(gql(mutations.stagesSortItems), {
-        name: 'stagesSortItemsMutation'
+        name: "stagesSortItemsMutation",
+      }),
+
+      graphql<WithQueryProps>(gql(queries.pipelineDetail), {
+        name: "pipelineDetail",
+        options: ({ stage }) => ({
+          variables: { _id: stage.pipelineId || "" },
+        }),
       })
     )(StageContainer)
   );
@@ -308,7 +320,7 @@ class WithData extends React.Component<StageProps> {
 
     const updatedProps = {
       ...this.props,
-      abortController: this.abortController
+      abortController: this.abortController,
     };
 
     return <Component {...updatedProps} />;
