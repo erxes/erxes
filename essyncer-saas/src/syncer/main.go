@@ -183,6 +183,9 @@ func main() {
 		}
 	}
 
+	fmt.Println("Fetched organizations:", len(orgIDs))
+
+
 	// Generate TOML
 	f, err := os.Create("mongo-elastic.toml")
 	if err != nil {
@@ -208,7 +211,7 @@ elasticsearch-max-conns = 2
 	f.WriteString(header)
 
 	// Build namespaces & scripts
-	var namespaces []string
+	// var namespaces []string
 	var scripts []string
 	var collections []string
 
@@ -222,7 +225,7 @@ elasticsearch-max-conns = 2
 		}
 	}
 
-	directReadNamespaces := strings.Join(namespaces, ",")
+	// directReadNamespaces := strings.Join(namespaces, ",")
 	collectionsRegex := strings.Join(collections, "|")
 	namespaceRegex := fmt.Sprintf("^erxes_.+.(%s)$", collectionsRegex)
 
@@ -253,10 +256,10 @@ module.exports = function(doc, ns) {
 `, namespaceRegex, strings.Join(scripts, "\n")))
 
 	// Run Monstache
-	// fmt.Println("Running monstache with mongo-elastic.toml ...")
-	// // cmd := exec.Command("monstache", "-f", "mongo-elastic.toml")
-	// cmd.Stdin = os.Stdin
-	// cmd.Stdout = os.Stdout
-	// cmd.Stderr = os.Stderr
-	// cmd.Run()
+	fmt.Println("Running monstache with mongo-elastic.toml ...")
+	cmd := exec.Command("monstache", "-f", "mongo-elastic.toml")
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Run()
 }

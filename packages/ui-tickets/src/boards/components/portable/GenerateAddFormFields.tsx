@@ -228,6 +228,12 @@ function GenerateAddFormFields(props: Props) {
       })}
 
       {customFields.map((field, index) => {
+        const currentValue =
+          field.type === "isCheckUserTicket"
+            ? state.isCheckUserTicket ?? false
+            : props.customFieldsData.find((c) => c.field === field._id)
+                ?.value || "";
+
         if (field.logics && field.logics.length > 0) {
           const data: any = {};
           props.customFieldsData.forEach((f) => {
@@ -262,17 +268,20 @@ function GenerateAddFormFields(props: Props) {
         }
 
         return (
-          <AddRow key={index}>
-            <AddContent>
-              <GenerateField
-                field={field}
-                key={index}
-                onValueChange={onCustomFieldsDataChange}
-                branchIds={selectedBranchIds}
-                isEditing={true}
-              />
-            </AddContent>
-          </AddRow>
+          <>
+            <AddRow key={index}>
+              <AddContent>
+                <GenerateField
+                  field={field}
+                  key={index}
+                  defaultValue={currentValue}
+                  onValueChange={onCustomFieldsDataChange}
+                  branchIds={selectedBranchIds}
+                  isEditing={true}
+                />
+              </AddContent>
+            </AddRow>
+          </>
         );
       })}
     </>

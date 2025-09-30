@@ -498,7 +498,16 @@ export const conversationConvertToCard = async (
   subdomain: string,
   args
 ) => {
-  const { _id, type, itemId, itemName, stageId, conversation, user } = args;
+  const {
+    _id,
+    type,
+    itemId,
+    itemName,
+    stageId,
+    conversation,
+    user,
+    isCheckUser,
+  } = args;
 
   const { collection, create, update } = getCollection(models, type);
 
@@ -579,6 +588,7 @@ export const conversationConvertToCard = async (
     doc.stageId = stageId;
     doc.sourceConversationIds = [_id];
     doc.customerIds = [conversation.customerId];
+    doc.isCheckUserTicket = isCheckUser;
 
     const item = await itemsAdd(models, subdomain, doc, type, create, user);
 

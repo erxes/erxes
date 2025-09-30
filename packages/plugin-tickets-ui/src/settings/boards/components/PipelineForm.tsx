@@ -73,6 +73,11 @@ const PipelineForm = (props: Props) => {
   const [isCheckUser, setIsCheckUser] = useState(
     pipeline ? pipeline.isCheckUser : false
   );
+  const [isCheckBranch, setIsCheckBranch] = useState(
+    pipeline ? pipeline.isCheckBranch : false
+  );
+  const [isHideName, setIsHideName] = useState(pipeline?.isHideName ?? false);
+
   const [isCheckDepartment, setIsCheckDepartment] = useState(
     pipeline ? pipeline.isCheckDepartment : false
   );
@@ -163,6 +168,8 @@ const PipelineForm = (props: Props) => {
       bgColor: backgroundColor,
       isCheckDate,
       isCheckUser,
+      isCheckBranch,
+      isHideName,
       isCheckDepartment,
       excludeCheckUserIds,
       numberConfig,
@@ -194,6 +201,20 @@ const PipelineForm = (props: Props) => {
           config={nameConfig || ""}
           attributesItems={props.attributesItems || []}
         />
+        <FormGroup>
+          <div
+            className="header-row"
+            style={{ display: "flex", alignItems: "center", gap: "10px" }}
+          >
+            <ControlLabel>Hide name</ControlLabel>
+            <FormControl
+              componentclass="checkbox"
+              checked={isHideName}
+              onChange={(e: any) => setIsHideName(e.target.checked)}
+              placeholder="Choose an attribute or any number you prefer"
+            />
+          </div>
+        </FormGroup>
       </FormGroup>
     );
   };
@@ -274,31 +295,34 @@ const PipelineForm = (props: Props) => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
     setIsCheckUser(isChecked);
   };
+  const onChangeIsBranch = (e) => {
+    const isCheckBranch = (e.currentTarget as HTMLInputElement).checked;
+    setIsCheckBranch(isCheckBranch);
+  };
 
   const onChangeIsCheckDepartment = (e) => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
     setIsCheckDepartment(isChecked);
   };
-
   const renderDominantUsers = () => {
-    if (!isCheckUser && !isCheckDepartment) {
-      return;
+    if (isCheckUser) {
+      return (
+        <FormGroup>
+          <SelectMemberStyled>
+            <ControlLabel>Users eligible to see all {props.type}</ControlLabel>
+
+            <SelectTeamMembers
+              label="Choose members"
+              name="excludeCheckUserIds"
+              initialValue={excludeCheckUserIds}
+              onSelect={onChangeDominantUsers}
+            />
+          </SelectMemberStyled>
+        </FormGroup>
+      );
     }
 
-    return (
-      <FormGroup>
-        <SelectMemberStyled>
-          <ControlLabel>Users eligible to see all {props.type}</ControlLabel>
-
-          <SelectTeamMembers
-            label="Choose members"
-            name="excludeCheckUserIds"
-            initialValue={excludeCheckUserIds}
-            onSelect={onChangeDominantUsers}
-          />
-        </SelectMemberStyled>
-      </FormGroup>
-    );
+    return null;
   };
 
   const renderBoards = () => {
@@ -457,6 +481,18 @@ const PipelineForm = (props: Props) => {
                 />
               </span>
             </FlexItem>
+            <FlexItem>
+              <ControlLabel>
+                {__(`Show only branch user’s ${props.type} (created)`)}
+              </ControlLabel>
+              <span style={{ marginLeft: "10px" }}>
+                <FormControl
+                  componentclass="checkbox"
+                  checked={isCheckBranch}
+                  onChange={onChangeIsBranch}
+                />
+              </span>
+            </FlexItem>
           </FlexContent>
         </FormGroup>
 
@@ -476,8 +512,7 @@ const PipelineForm = (props: Props) => {
             </FlexItem>
             <FlexItem>
               <ControlLabel>
-                {__(`Show only user’s assigned (created)`)} {props.type}{" "}
-                {__(`by department`)}
+                {__(`Show only department user’s ${props.type} (created)`)}
               </ControlLabel>
               <span style={{ marginLeft: "10px" }}>
                 <FormControl

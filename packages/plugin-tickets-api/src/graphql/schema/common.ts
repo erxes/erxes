@@ -80,6 +80,7 @@ export const commonTypes = `
   customProperties: JSON
   type: String
   isCheckUserTicket: Boolean
+  isHideName: Boolean
 `;
 
 export const commonMutationParams = `

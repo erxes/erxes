@@ -247,6 +247,8 @@ const convertParams = `
   type: String!
   itemId: String
   itemName: String
+  isCheckUser: Boolean
+  isHideName: Boolean
   branchIds: [String]
   tagIds:[String]
   stageId: String

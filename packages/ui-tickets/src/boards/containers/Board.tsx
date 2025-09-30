@@ -26,12 +26,11 @@ type WrapperProps = {
 
 function Board(props: Props & WrapperProps) {
   const { queryParams, options, viewType } = props;
-
   const { loading, data } = useQuery<PipelineDetailQueryResponse>(
     gql(queries.pipelineDetail),
     {
       variables: { _id: queryParams && queryParams.pipelineId },
-      skip: !queryParams.pipelineId
+      skip: !queryParams.pipelineId,
     }
   );
 
