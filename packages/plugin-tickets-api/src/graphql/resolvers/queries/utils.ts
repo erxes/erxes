@@ -785,7 +785,7 @@ export const generateTicketCommonFilters = async (
     currentUserId,
     args
   );
-
+  console.log("generateTicketCommonFilters", filter);
   if (extraParams) {
     filter = await generateExtraFilters(filter, extraParams);
   }
