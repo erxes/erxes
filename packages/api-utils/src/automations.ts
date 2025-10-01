@@ -201,7 +201,7 @@ const getPerValue = async (args: {
     sendCommonMessage,
     execution
   } = args;
-  let { field, operator, value } = rule;
+  let { field, operator, value,isExpression } = rule;
 
   const op1Type = typeof convertOp1(relatedItem, field);
 
@@ -243,6 +243,10 @@ const getPerValue = async (args: {
   ).config;
 
   if (updatedValue.match(/^[0-9+\-*/\s().]+$/)) {
+    updatedValue = eval(updatedValue.replace(/{{.*}}/, '0'));
+  }
+
+  if(isExpression){
     updatedValue = eval(updatedValue.replace(/{{.*}}/, '0'));
   }
 
