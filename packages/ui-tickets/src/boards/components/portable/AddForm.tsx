@@ -72,25 +72,29 @@ type State = {
 class AddForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
-    const initialStageId =
-      props.stageId ||
-      localStorage.getItem(`${props.options.type}_stageId`) ||
-      "";
-
     this.state = {
       isHideName: JSON.parse(
         localStorage.getItem(`${props.options.type}_isHideName`) || "false"
       ),
       disabled: false,
       boardId:
-        localStorage.getItem(`${props.options.type}_boardId`) ||
+        JSON.parse(
+          localStorage.getItem(`${props.options.type}_boardId`) || "null"
+        ) ||
         props.boardId ||
         "",
       pipelineId:
-        localStorage.getItem(`${props.options.type}_pipelineId`) ||
+        JSON.parse(
+          localStorage.getItem(`${props.options.type}_pipelineId`) || "null"
+        ) ||
         props.pipelineId ||
         "",
-      stageId: initialStageId,
+      stageId:
+        JSON.parse(
+          localStorage.getItem(`${props.options.type}_stageId`) || "null"
+        ) ||
+        props.stageId ||
+        "",
       cardId: props.cardId || "",
       cards: [],
       name:
@@ -146,6 +150,7 @@ class AddForm extends React.Component<Props, State> {
       );
     }
   }
+
   onChangeField = (name: string, value: any) => {
     if (name === "stageId") {
       const { fetchCards } = this.props;
@@ -156,23 +161,18 @@ class AddForm extends React.Component<Props, State> {
           });
         }
       });
-
-      localStorage.setItem(`${this.props.options.type}_stageId`, value);
     }
 
     if (name === "pipelineId") {
       this.props.refetchFields({ pipelineId: value as string });
-      localStorage.setItem(`${this.props.options.type}_pipelineId`, value);
     }
 
     this.setState({ [name]: value } as unknown as Pick<State, keyof State>);
 
-    if (name !== "stageId" && name !== "pipelineId") {
-      localStorage.setItem(
-        `${this.props.options.type}_${name}`,
-        JSON.stringify(value)
-      );
-    }
+    localStorage.setItem(
+      `${this.props.options.type}_${name}`,
+      JSON.stringify(value)
+    );
   };
 
   save = (e) => {
@@ -335,6 +335,7 @@ class AddForm extends React.Component<Props, State> {
 
   renderSelect() {
     const { showSelect, options } = this.props;
+
     if (!showSelect) {
       return null;
     }
@@ -397,6 +398,7 @@ class AddForm extends React.Component<Props, State> {
 
   render() {
     const { stages, showStageSelect, isHideName } = this.props;
+
     let stageValues: any;
 
     if (stages && stages.length > 0) {
