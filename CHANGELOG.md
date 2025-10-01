@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.17.14](https://github.com/erxes/erxes/compare/2.17.13...2.17.14) (2025-10-01)
+
+### Features
+
+* enhance automation rule handling with expression support ([3bec802](https://github.com/erxes/erxes/commit/3bec802070a5dcebf628ef9ec3f466691e8527fe))
+
+### Bug Fixes
+
+* cars from clientportal many car many customer ([e292f02](https://github.com/erxes/erxes/commit/e292f0256e55fb1e41866c004c38eba5c6737b9b))
+* posclient groupedSimilarity products with remainder ([2865741](https://github.com/erxes/erxes/commit/28657419a64d2aad9181d46009d9fc70f59aa516))
+* posclient similarity chosen page with remainder ([b34cb62](https://github.com/erxes/erxes/commit/b34cb62cf7385262175805d111050294b5a05be7))
+* posclient similarity chosen page with remainder ([937ff54](https://github.com/erxes/erxes/commit/937ff54dcf60caabc2ba39bd54c2d216f9784b44))
+
 ## [2.17.13](https://github.com/erxes/erxes/compare/2.17.12...2.17.13) (2025-09-29)
 
 ### Features
