@@ -9,6 +9,7 @@ import {
   putDeleteLog,
   putUpdateLog,
 } from '@erxes/api-utils/src/logUtils';
+import { ICar, ICarDocument } from '../../../models/definitions/cars';
 
 const carMutations = {
   carsAdd: async (_root, doc, { user, docModifier, models, subdomain }) => {
@@ -20,7 +21,6 @@ const carMutations = {
         type: 'cars:car',
         newData: doc,
         object: car,
-        extraParams: { models },
         description: `"${car.plateNumber}" has been created`,
       },
       user
@@ -40,7 +40,6 @@ const carMutations = {
         object: car,
         newData: { ...doc },
         updatedDocument: updated,
-        extraParams: { models },
         description: `"${car.plateNumber}" has been updated`,
       },
       user
@@ -65,7 +64,6 @@ const carMutations = {
           type: 'cars:car',
           object: car,
           description: `"${car.plateNumber}" has been deleted`,
-          extraParams: { models },
         },
         user
       );
@@ -94,7 +92,6 @@ const carMutations = {
         newData: { ...doc, order: carCategory.order },
         object: carCategory,
         description: `"${carCategory.name}" has been created`,
-        extraParams: { models },
       },
       user
     );
@@ -120,7 +117,6 @@ const carMutations = {
         newData: doc,
         updatedDocument: updated,
         description: `"${carCategory.name}" has been updated`,
-        extraParams: { models },
       },
       user
     );
@@ -144,7 +140,6 @@ const carMutations = {
         type: 'cars:car-category',
         object: carCategory,
         description: `"${carCategory.name}" has been deleted`,
-        extraParams: { models },
       },
       user
     );
@@ -152,29 +147,62 @@ const carMutations = {
     return removed;
   },
 
-  cpCarsAdd: async (_root, doc, { docModifier, models }) => {
-    const car = await models.Cars.createCar(docModifier(doc));
+  cpCarsAdd: async (_root, { customerId, companyId, ...doc }: ICar & { customerId: string, companyId: string }, { docModifier, models, subdomain, user }: IContext) => {
+    let car: ICarDocument | null = await models.Cars.findOne({
+      status: { $ne: 'Deleted' },
+      $or: [
+        { plateNumber: doc.plateNumber },
+        { vinNumber: doc.vinNumber }
+      ]
+    }).lean();
 
-    if (doc.customerId) {
+    if (car) {
+      car = await models.Cars.updateCar(car._id, doc);
+      await putUpdateLog(
+        subdomain,
+        {
+          type: 'cars:car',
+          object: car,
+          newData: { ...doc },
+          updatedDocument: doc,
+          description: `"${car.plateNumber}" has been updated at cp create`,
+        },
+        user
+      );
+    } else {
+      car = await models.Cars.createCar(docModifier(doc));
+      await putCreateLog(
+        subdomain,
+        {
+          type: 'cars:car',
+          newData: doc,
+          object: car,
+          description: `"${car.plateNumber}" has been created at cp`,
+        },
+        user
+      );
+    }
+
+    if (customerId) {
       await sendCoreMessage({
-        subdomain: models.subdomain,
+        subdomain,
         action: 'conformities.addConformities',
         data: {
           mainType: 'customer',
-          mainTypeId: doc.customerId,
+          mainTypeId: customerId,
           relType: 'car',
           relTypeId: car._id,
         },
       });
     }
 
-    if (doc.companyId) {
+    if (companyId) {
       await sendCoreMessage({
-        subdomain: models.subdomain,
+        subdomain,
         action: 'conformities.addConformities',
         data: {
           mainType: 'company',
-          mainTypeId: doc.companyId,
+          mainTypeId: companyId,
           relType: 'car',
           relTypeId: car._id,
         },
@@ -184,15 +212,65 @@ const carMutations = {
     return car;
   },
 
-  cpCarsEdit: async (_root, { _id, ...doc }, { models }) => {
-    await models.Cars.getCar(_id);
+  cpCarsEdit: async (_root, { _id, customerId, companyId, ...doc }: ICarDocument & { customerId: string, companyId: string }, { models, subdomain, user }: IContext) => {
+    const car = await models.Cars.getCar(_id);
+
+    const relTypeIds = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.savedConformies',
+      data: {
+        mainType: 'car',
+        mainTypeId: car._id,
+        relTypes: ['customer', 'company'],
+      },
+    });
+
+    if (!relTypeIds.includes(customerId) && !relTypeIds.includes(companyId)) {
+      throw new Error ('Cant edit this car, not a customer or company car')
+    }
+
     const updated = await models.Cars.updateCar(_id, doc);
+    await putUpdateLog(
+      subdomain,
+      {
+        type: 'cars:car',
+        object: car,
+        newData: { ...doc },
+        updatedDocument: updated,
+        description: `"${car.plateNumber}" has been updated at cp`,
+      },
+      user
+    );
 
     return updated;
   },
 
-  cpCarsRemove: async (_root, { carIds }: { carIds: string[] }, { models }) => {
-    await models.Cars.removeCars(carIds);
+  cpCarsRemove: async (_root, { carIds, customerId, companyId }: { carIds: string[], customerId: string, companyId: string }, { models, subdomain, user }) => {
+    if (customerId) {
+      await sendCoreMessage({
+        subdomain,
+        action: 'conformities.deleteConformity',
+        data: {
+          mainType: 'customer',
+          mainTypeId: customerId,
+          relType: 'car',
+          relTypeIds: carIds,
+        },
+      });
+    }
+    if (companyId) {
+      await sendCoreMessage({
+        subdomain,
+        action: 'conformities.deleteConformity',
+        data: {
+          mainType: 'company',
+          mainTypeId: companyId,
+          relType: 'car',
+          relTypeIds: carIds,
+        },
+      });
+    }
+
     return carIds;
   },
 };
