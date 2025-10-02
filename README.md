@@ -4,7 +4,9 @@
  <img src="https://github.com/erxes/erxes/assets/1748857/53a70732-7385-475d-9cb5-efd0ec801db5" alt="erxes logo" width="20%" />
 </p>
 
-<p align="center">Experience Operating System (XOS) that unifies marketing, sales, operations, and support — run your core business seamlessly while replacing HubSpot, Zendesk, ActiveCampaign, and more..</p>
+<p align="center">**ONE PLATFORM. EVERY EXPERIENCE**</p>
+
+<p align="center">Experience Operating System (XOS) that unifies marketing, sales, operations, and support — run your core business seamlessly while replacing HubSpot, Zendesk, Linear, Wix and more.</p>
 
 <p align="center">
   <a href="https://erxes.io/">Website</a>
@@ -25,9 +27,6 @@
    <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md">
       <img alt="License Badge" src="https://img.shields.io/badge/license-AGPLv3-brightgreen">
   </a>
-    <a href="https://ossrank.com/p/416">
-      <img alt="Ossrank" src="https://shields.io/endpoint?url=https://ossrank.com/shield/416">
-  </a>
   <a href="#">
       <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/erxes/erxes">
   </a>
@@ -37,7 +36,7 @@
 </p>
 
 <p align="center">
- <a href="https://erxes.io" target="_blank" rel="noopener noreferrer"><img src="https://erxes-docs.s3.us-west-2.amazonaws.com/xos.jpeg" width="100%" alt="erxes: the source available experience management infrastructure">
+ <a href="https://erxes.io" target="_blank" rel="noopener noreferrer"><img src="https://imagedelivery.net/5m26Aj-CutMXPPNacMs_yQ/e2382b5d-cdbf-4365-7238-e79db8cb6000/public" width="100%" alt="erxes: the source available experience management infrastructure">
 </a>
 </p>
 
@@ -72,13 +71,13 @@ erxes is composed of 2 main components: **Core** & **Plugins**
 
 - **erxes | Frontline** - Frontline powers your customer-facing teams in one place. Omnichannel conversations, tickets, tasks - all seamless.
 - **erxes | Operation**  – Keep projects on track with tasks, team resources, and cycle management in one workspace.
-- **erxes | Sales**  – Publish anywhere with corporate sites, e-commerce, scheduling, and knowledge base tools.
-- **erxes | Content** - Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up, or embed placements.
-- **erxes | Accounting** – Simplify finances with accounting and salary management built into your workflow.
-- **erxes | Tour**  – Run tours and properties seamlessly with booking and management systems in one place.
-- **erxes | Property**  – Oversee real estate with stacking plans, leasing, asset management, community, and investment platforms.
-- **erxes | Team**  – Empower people with directories, time clocks, chat, updates, training, and rewards.
-- **erxes | Finance**   – Power your bank with e-banking, mobile apps, core banking, and scoring systems and many more. 
+- **erxes | Sales**  – Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up, or embed placements.
+- **erxes | Content** - Publish anywhere with headless website, corporate sites, e-commerce, scheduling, knowledge base, and help center tools. ![EE License Only](https://img.shields.io/badge/license-EE%20Only-orange.svg)
+- **erxes | Accounting** – Simplify finances with accounting and salary management built into your workflow. ![EE License Only](https://img.shields.io/badge/license-EE%20Only-orange.svg)
+- **erxes | Tour**  – Run tours and properties seamlessly with booking and management systems in one place. ![EE License Only](https://img.shields.io/badge/license-EE%20Only-orange.svg)
+- **erxes | Property**  – Oversee real estate with stacking plans, financing & leasing, asset management, community, and investment platforms. ![EE License Only](https://img.shields.io/badge/license-EE%20Only-orange.svg)
+- **erxes | Team**  – Empower people with directories, time clocks, chat, updates, training, and rewards. ![EE License Only](https://img.shields.io/badge/license-EE%20Only-orange.svg)
+- **erxes | Finance**   – Power your bank and non-banking organization with e-banking, mobile apps, core banking, and scoring systems and many more. ![EE License Only](https://img.shields.io/badge/license-EE%20Only-orange.svg)
 
 ## Getting Started
 
