@@ -4,8 +4,6 @@
  <img src="https://github.com/erxes/erxes/assets/1748857/53a70732-7385-475d-9cb5-efd0ec801db5" alt="erxes logo" width="20%" />
 </p>
 
-<p align="center">**ONE PLATFORM. EVERY EXPERIENCE**</p>
-
 <p align="center">Experience Operating System (XOS) that unifies marketing, sales, operations, and support — run your core business seamlessly while replacing HubSpot, Zendesk, Linear, Wix and more.</p>
 
 <p align="center">
