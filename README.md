@@ -62,7 +62,7 @@ erxes is a secure, self-hosted, and scalable source available experience managem
 ## erxes Core & Plugins
 erxes is composed of 2 main components: **Core** & **Plugins**
 
-**Core:** It contains the project's core five modules which goes with all plugins - **Contacts**, **Products**, **Segments**, **Automation**, **Documents**
+**Core:** It contains the core five modules which goes with all plugins - **Contacts**, **Products**, **Segments**, **Automation**, **Documents**
 
 
 **Plugins:** erxes comes with a set of plugins that allow you to create unique business experiences. Below is a list of some plugins you can choose from our **<a href="https://erxes.io/marketplace" >marketplace</a>** after you’ve finished installing erxes XOS:
