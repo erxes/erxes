@@ -7,16 +7,17 @@ import {
   SelectTeamMembers,
   SelectWithSearch,
   __,
-} from '@erxes/ui/src';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+} from "@erxes/ui/src";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
 
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import { IFormProps } from '@erxes/ui/src/types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import React, { useState } from 'react';
-import SelectClientPortalUser from '../../../common/SelectClientPortalUsers';
-import { getOwnerTypes } from '../../common/constants';
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import { IFormProps } from "@erxes/ui/src/types";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import React, { useState } from "react";
+import SelectClientPortalUser from "../../../common/SelectClientPortalUsers";
+import { getOwnerTypes } from "../../common/constants";
+import TargetChooser from "./TargetChooser";
 
 type Props = {
   renderButton: (props: any) => JSX.Element;
@@ -24,8 +25,10 @@ type Props = {
 };
 
 type State = {
-  ownerType: string;
+  targetId: string;
+  serviceName: string;
   ownerId: string;
+  ownerType: string;
   changeScore: number;
   campaignId?: string;
 };
@@ -39,11 +42,16 @@ const campaignQuery = `
 `;
 
 const ScoreForm = ({ renderButton, closeModal }: Props) => {
-  const [{ ownerId, ownerType, changeScore, campaignId }, setState] = useState({
-    ownerType: 'customer',
-    ownerId: '',
+  const [
+    { targetId, serviceName, ownerId, ownerType, changeScore, campaignId },
+    setState,
+  ] = useState({
+    targetId: "",
+    serviceName: "",
+    ownerType: "customer",
+    ownerId: "",
     changeScore: 0,
-    campaignId: '',
+    campaignId: "",
   } as State);
 
   const handleOwnerType = (e) => {
@@ -53,10 +61,14 @@ const ScoreForm = ({ renderButton, closeModal }: Props) => {
 
   const renderOwner = () => {
     const handleOwnerId = (id) => {
+      if (!id) {
+        setState((prev) => ({ ...prev, targetId: "", serviceName: "" }));
+      }
+
       setState((prev) => ({ ...prev, ownerId: id }));
     };
 
-    if (ownerType === 'customer') {
+    if (ownerType === "customer") {
       return (
         <SelectCustomers
           label="Customer"
@@ -68,7 +80,7 @@ const ScoreForm = ({ renderButton, closeModal }: Props) => {
       );
     }
 
-    if (ownerType === 'user') {
+    if (ownerType === "user") {
       return (
         <SelectTeamMembers
           label="Team Member"
@@ -80,7 +92,7 @@ const ScoreForm = ({ renderButton, closeModal }: Props) => {
       );
     }
 
-    if (ownerType === 'company') {
+    if (ownerType === "company") {
       return (
         <SelectCompanies
           label="Compnay"
@@ -92,7 +104,7 @@ const ScoreForm = ({ renderButton, closeModal }: Props) => {
       );
     }
 
-    if (isEnabled('clientportal') && ownerType === 'cpUser') {
+    if (isEnabled("clientportal") && ownerType === "cpUser") {
       return (
         <SelectClientPortalUser
           label="Client Portal User"
@@ -112,6 +124,8 @@ const ScoreForm = ({ renderButton, closeModal }: Props) => {
       ...values,
       changeScore: Number(values?.changeScore || 0),
       ownerId,
+      targetId,
+      serviceName,
       campaignId: campaignId || undefined,
     };
   };
@@ -122,7 +136,7 @@ const ScoreForm = ({ renderButton, closeModal }: Props) => {
     return (
       <>
         <FormGroup>
-          <ControlLabel required>{__('Owner type')}</ControlLabel>
+          <ControlLabel required>{__("Owner type")}</ControlLabel>
           <FormControl
             {...formProps}
             name="ownerType"
@@ -139,15 +153,15 @@ const ScoreForm = ({ renderButton, closeModal }: Props) => {
           </FormControl>
         </FormGroup>
         <FormGroup>
-          <ControlLabel required>{__('Owner')}</ControlLabel>
+          <ControlLabel required>{__("Owner")}</ControlLabel>
           {renderOwner()}
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{`${__('Score campaign')} (optional)`}</ControlLabel>
+          <ControlLabel required>{__("Score campaign")}</ControlLabel>
           <SelectWithSearch
-            label={'Score Campaigns'}
+            label={"Score Campaigns"}
             queryName="scoreCampaigns"
-            name={'campaignId'}
+            name={"campaignId"}
             initialValue={campaignId}
             generateOptions={(list) =>
               list.map(({ _id, title }) => ({
@@ -161,8 +175,23 @@ const ScoreForm = ({ renderButton, closeModal }: Props) => {
             customQuery={campaignQuery}
           />
         </FormGroup>
+        {ownerId && (
+          <FormGroup>
+            <div style={{ marginBottom: "10px" }}>
+              <ControlLabel required>{__("Target")}</ControlLabel>
+            </div>
+            <TargetChooser
+              formProps={formProps}
+              ownerId={ownerId}
+              ownerType={ownerType}
+              onChange={(targetId, serviceName) =>
+                setState((prev) => ({ ...prev, targetId, serviceName }))
+              }
+            />
+          </FormGroup>
+        )}
         <FormGroup>
-          <ControlLabel required>{__('Score')}</ControlLabel>
+          <ControlLabel required>{__("Score")}</ControlLabel>
           <FormControl
             {...formProps}
             name="changeScore"
@@ -176,10 +205,10 @@ const ScoreForm = ({ renderButton, closeModal }: Props) => {
         </FormGroup>
         <ModalFooter>
           <Button btnStyle="simple" icon="cancel-1" onClick={closeModal}>
-            {__('Close')}
+            {__("Close")}
           </Button>
           {renderButton({
-            name: 'score',
+            name: "score",
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,
