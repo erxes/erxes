@@ -52,10 +52,12 @@ export const handleMagiclink = async (req: any, res) => {
 
     const models = await generateModels(subdomain);
     const { user }: any = jwt.verify(state, models.Users.getSecret());
+    const organization = await getOrganizationDetail({ subdomain, models });
+
 
     await setCookie(res, user, subdomain, state.toString());
 
-    return res.redirect(`https://${subdomain}.app.erxes.io`);
+    return res.redirect(`https://${subdomain}.${organization?.isNext ? "next" : "app"}.erxes.io`);
   } catch (e) {
     debugBase(e.message);
 
@@ -64,7 +66,7 @@ export const handleMagiclink = async (req: any, res) => {
 };
 
 export const handleCoreLogin = async (req: any, res) => {
-  const { token } = req.query;
+  const { token,isNext } = req.query;
   const subdomain = getSubdomain(req);
 
   // already signed in
@@ -96,11 +98,11 @@ export const handleCoreLogin = async (req: any, res) => {
       await setCookie(res, systemUser, subdomain, createToken.toString());
     }
 
-    return res.redirect(`https://${subdomain}.app.erxes.io`);
+    return res.redirect(`https://${subdomain}.${isNext ? "next" : "app"}.erxes.io`);
   } catch (e) {
     debugBase(e.message);
 
-    return res.redirect(`https://${subdomain}.app.erxes.io`);
+    return res.redirect(`https://${subdomain}.${isNext ? "next" : "app"}.erxes.io`);
   }
 };
 
