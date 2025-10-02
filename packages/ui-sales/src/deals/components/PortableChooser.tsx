@@ -23,6 +23,7 @@ export default (props: IProps) => {
     mainType,
     mainTypeId,
     relType: "deal",
+    isSaved: true,
     noSkipArchive: true,
     sortField: "createdAt",
     sortDirection: 1,

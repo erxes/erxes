@@ -3,7 +3,6 @@ import PortableChooser from "@erxes/ui-sales/src/deals/components/PortableChoose
 import { FlexRow } from "@erxes/ui-settings/src/styles";
 import { Button, Icon } from "@erxes/ui/src";
 import Spinner from "@erxes/ui/src/components/Spinner";
-import { IFormProps } from "@erxes/ui/src/types";
 import gql from "graphql-tag";
 import React, { useEffect, useState } from "react";
 import styledTS from "styled-components";
@@ -46,18 +45,17 @@ const OwnerBoxWrapper = styledTS<
 `;
 
 type Props = {
-  formProps: IFormProps;
   ownerId: string;
   ownerType: string;
   onChange: (targetId: string, serviceName: string) => void;
 };
 
-const TargetChooser = ({ formProps, ownerId, ownerType, onChange }: Props) => {
+const TargetChooser = ({ ownerId, ownerType, onChange }: Props) => {
   const [state, setState] = useState<any>({
     currentTarget: {},
     selectedTarget: {},
-    ownerId: ownerId,
-    ownerType: ownerType,
+    ownerId,
+    ownerType,
   });
 
   useEffect(() => {
@@ -139,6 +137,8 @@ const TargetChooser = ({ formProps, ownerId, ownerType, onChange }: Props) => {
     if (serviceConfig.name === "pos") {
       return renderBox(serviceConfig);
     }
+
+    return <></>;
   };
 
   return (

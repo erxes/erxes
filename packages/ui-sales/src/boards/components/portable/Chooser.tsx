@@ -73,7 +73,7 @@ const Chooser = (props: Props) => {
       clearTimeout(timerRef.current);
     }
 
-    const value = e.target.value;
+    const { value } = e.target;
 
     timerRef.current = setTimeout(() => {
       onFilter({ search: value });
@@ -129,7 +129,7 @@ const Chooser = (props: Props) => {
 
     return (
       <li
-        key={Math.random()}
+        key={item._id}
         onClick={() => {
           onChoose(item);
           closeModal();

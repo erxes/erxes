@@ -61,7 +61,7 @@ const ScoreForm = ({ renderButton, closeModal }: Props) => {
 
   const renderOwner = () => {
     const handleOwnerId = (id) => {
-      if (!id) {
+      if (!id || id !== ownerId) {
         setState((prev) => ({ ...prev, targetId: "", serviceName: "" }));
       }
 
@@ -181,7 +181,6 @@ const ScoreForm = ({ renderButton, closeModal }: Props) => {
               <ControlLabel required>{__("Target")}</ControlLabel>
             </div>
             <TargetChooser
-              formProps={formProps}
               ownerId={ownerId}
               ownerType={ownerType}
               onChange={(targetId, serviceName) =>
