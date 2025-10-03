@@ -1,0 +1,30 @@
+import { z } from 'zod';
+
+export const PIPELINE_CREATE_SCHEMA = z.object({
+    name: z.string(),
+    visibility: z.string(),
+    boardId: z.string(),
+    tagId: z.string().optional(),
+    departmentIds: z.array(z.string()).optional(),
+    branchIds: z.array(z.string()).optional(),
+    memberIds: z.array(z.string()).optional(),
+    numberConfig: z.string().optional(),
+    numberSize: z.string().optional(),
+    nameConfig: z.string().optional(),
+    isCheckDate: z.boolean().optional(),
+    isCheckUser: z.boolean().optional(),
+    isCheckDepartment: z.boolean().optional(),
+    excludeCheckUserIds: z.array(z.string()).optional(),
+    stages: z.array(z.object({
+        _id: z.string(),
+       age: z.number().optional(),
+       code: z.string().optional(),
+       type: z.string().optional(),
+       canMoveMemberIds: z.array(z.string()).optional(),
+       canEditMemberIds: z.array(z.string()).optional(),
+       name: z.string(),
+       probability: z.string(),
+       status: z.string().optional(),
+       visibility: z.string().optional(),
+    })).optional(),
+});

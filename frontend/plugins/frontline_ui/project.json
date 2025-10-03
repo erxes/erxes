@@ -1,0 +1,61 @@
+{
+  "name": "frontline_ui",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "frontend/plugins/frontline_ui/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/rspack:rspack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "web",
+        "outputPath": "dist/frontend/plugins/frontline_ui",
+        "main": "frontend/plugins/frontline_ui/src/main.ts",
+        "tsConfig": "frontend/plugins/frontline_ui/tsconfig.app.json",
+        "rspackConfig": "frontend/plugins/frontline_ui/rspack.config.ts",
+        "assets": ["frontend/plugins/frontline_ui/src/assets"]
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production",
+          "optimization": true,
+          "sourceMap": false,
+          "rspackConfig": "frontend/plugins/frontline_ui/rspack.config.prod.ts"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/rspack:module-federation-dev-server",
+      "options": {
+        "buildTarget": "frontline_ui:build:development",
+        "port": 3005
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "buildTarget": "frontline_ui:build:production"
+        }
+      }
+    },
+    "serve-static": {
+      "executor": "@nx/rspack:module-federation-static-server",
+      "defaultConfiguration": "production",
+      "options": {
+        "serveTarget": "frontline_ui:serve"
+      },
+      "configurations": {
+        "development": {
+          "serveTarget": "frontline_ui:serve:development"
+        },
+        "production": {
+          "serveTarget": "frontline_ui:serve:production"
+        }
+      }
+    }
+  }
+}
