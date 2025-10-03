@@ -18,7 +18,7 @@
     "erxes-icon": "^1.2.1",
     "graphql": "^16.7.1",
     "graphql-ws": "^5.5.5",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "lodash.flowright": "^3.5.0",
     "posthog-js": "^1.139.2",
     "query-string": "^5.0.0",

@@ -29,7 +29,7 @@
     "i18n-react": "^0.7.0",
     "lodash": "^4.17.21",
     "lodash.flowright": "^3.5.0",
-    "next": "10.0.5",
+    "next": "14.2.32",
     "next-routes": "^1.4.2",
     "query-string": "^5.0.0",
     "react": "17.0.1",

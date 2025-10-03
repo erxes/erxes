@@ -10,7 +10,7 @@
     "@nateradebaugh/react-datetime": "4.0.0-rc.10",
     "dayjs": "1.8.15",
     "interactjs": "^1.10.17",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "lodash.flowright": "3.5.0",
     "query-string": "^5.0.0",
     "react": "16.14.0",

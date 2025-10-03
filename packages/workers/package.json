@@ -22,7 +22,7 @@
     "validator": "^13.5.2",
     "aws-sdk": "^2.151.0",
     "faker": "^4.1.0",
-    "multer": "^1.4.2",
+    "multer": "^2.0.2",
     "tmp": "^0.2.3",
     "pdf-poppler":"^0.2.1",
     "form-data":"^4.0.1",
