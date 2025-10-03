@@ -1,0 +1,54 @@
+name: CI plugin--accounting_api
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/plugins/accounting_api/**'
+      - 'backend/erxes-api-shared/**'
+      - '.github/workflows/ci-api-accounting.yml'
+  pull_request:
+    paths:
+      - 'backend/plugins/accounting_api/**'
+      - 'backend/erxes-api-shared/**'
+      - '.github/workflows/ci-api-accounting.yml'
+
+jobs:
+  core-api-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build shared module
+        run: |
+          export NX_DAEMON=false
+          pnpm nx build erxes-api-shared
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        run: |
+          export NX_DAEMON=false
+          pnpm nx docker-build accounting_api
+          docker tag erxes/erxes-next-accounting_api erxes/erxes-next-accounting_api:latest
+          docker tag erxes/erxes-next-accounting_api erxes/erxes-next-accounting_api:${{ github.sha }}
+          docker push erxes/erxes-next-accounting_api:latest
+          docker push erxes/erxes-next-accounting_api:${{ github.sha }}
+        if: github.event_name != 'pull_request'
