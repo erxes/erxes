@@ -1,0 +1,66 @@
+{
+  "migrations": [
+    {
+      "version": "20.2.0-beta.5",
+      "description": "Update TypeScript ESLint packages to v8.13.0 if they are already on v8",
+      "implementation": "./src/migrations/update-20-2-0/update-typescript-eslint-v8-13-0",
+      "package": "@nx/eslint",
+      "name": "update-typescript-eslint-v8.13.0"
+    },
+    {
+      "version": "20.3.0-beta.1",
+      "description": "Update ESLint flat config to include .cjs, .mjs, .cts, and .mts files in overrides (if needed)",
+      "implementation": "./src/migrations/update-20-3-0/add-file-extensions-to-overrides",
+      "package": "@nx/eslint",
+      "name": "add-file-extensions-to-overrides"
+    },
+    {
+      "cli": "nx",
+      "version": "20.2.0-beta.2",
+      "description": "Update the ModuleFederationConfig import use @nx/module-federation.",
+      "factory": "./src/migrations/update-20-2-0/migrate-mf-imports-to-new-package",
+      "package": "@nx/react",
+      "name": "update-20-2-0-update-module-federation-config-import"
+    },
+    {
+      "cli": "nx",
+      "version": "20.2.0-beta.2",
+      "description": "Update the withModuleFederation import use @nx/module-federation/webpack.",
+      "factory": "./src/migrations/update-20-2-0/migrate-with-mf-import-to-new-package",
+      "package": "@nx/react",
+      "name": "update-20-2-0-update-with-module-federation-import"
+    },
+    {
+      "cli": "nx",
+      "version": "20.3.0-beta.2",
+      "description": "If workspace includes Module Federation projects, ensure the new @nx/module-federation package is installed.",
+      "factory": "./src/migrations/update-20-3-0/ensure-nx-module-federation-package",
+      "package": "@nx/react",
+      "name": "ensure-nx-module-federation-package"
+    },
+    {
+      "cli": "nx",
+      "version": "20.4.0-beta.0",
+      "description": "Add NX_MF_DEV_REMOTES to inputs for task hashing when '@nx/webpack:webpack' or '@nx/rspack:rspack' is used for Module Federation.",
+      "factory": "./src/migrations/update-18-0-0/add-mf-env-var-to-target-defaults",
+      "package": "@nx/react",
+      "name": "add-mf-env-var-to-target-defaults"
+    },
+    {
+      "cli": "nx",
+      "version": "20.2.0-beta.3",
+      "description": "Update the withModuleFederation import use @nx/module-federation/rspack.",
+      "factory": "./src/migrations/update-20-2-0/migrate-with-mf-import-to-new-package",
+      "package": "@nx/rspack",
+      "name": "update-20-2-0-update-with-module-federation-import"
+    },
+    {
+      "cli": "nx",
+      "version": "20.3.0-beta.2",
+      "description": "If workspace includes Module Federation projects, ensure the new @nx/module-federation package is installed.",
+      "factory": "./src/migrations/update-20-3-0/ensure-nx-module-federation-package",
+      "package": "@nx/rspack",
+      "name": "ensure-nx-module-federation-package"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "payment_api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/main.ts && pnpm dev:widget",
+    "dev:widget": "vite --config src/widget/vite.config.ts",
+    "build:widget": "vite build --config src/widget/vite.config.ts",
+    "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "start": "node -r tsconfig-paths/register dist/src/main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@stripe/react-stripe-js": "^2.8.1",
+    "@stripe/stripe-js": "^4.9.0",
+    "erxes-api-shared": "workspace:^",
+    "qrcode": "^1.5.0",
+    "stripe": "^17.2.1"
+  }
+}

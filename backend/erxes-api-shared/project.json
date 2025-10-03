@@ -1,0 +1,21 @@
+{
+  "name": "erxes-api-shared",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "backend/erxes-api-shared/src",
+  "projectType": "library",
+  "tags": ["scope:shared"],
+  "targets": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [
+        "{projectRoot}/dist",
+        "{projectRoot}/utils/package.json",
+        "{projectRoot}/utils/dist",
+        "{projectRoot}/core-types/package.json",
+        "{projectRoot}/core-types/dist",
+        "{projectRoot}/core-modules/package.json",
+        "{projectRoot}/core-modules/dist"
+      ]
+    }
+  }
+}

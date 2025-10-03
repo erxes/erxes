@@ -1,0 +1,46 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "allowJs": false,
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "paths": {
+      "erxes-ui/*": [
+        "frontend/libs/erxes-ui/src/*"
+      ],
+      "erxes-ui": [
+        "frontend/libs/erxes-ui/src"
+      ],
+      "~/*": [
+        "frontend/plugins/payment_ui/src/*"
+      ],
+      "~": [
+        "frontend/plugins/payment_ui/src"
+      ],
+      "@/*": [
+        "frontend/plugins/payment_ui/src/modules/*"
+      ],
+      "@": [
+        "frontend/plugins/payment_ui/src/modules"
+      ],
+      "ui-modules/*": [
+        "frontend/libs/ui-modules/src/*"
+      ],
+      "ui-modules": [
+        "frontend/libs/ui-modules/src"
+      ]
+    }
+  },
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ],
+  "extends": "../../../tsconfig.base.json"
+}

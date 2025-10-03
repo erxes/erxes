@@ -1,0 +1,61 @@
+{
+  "name": "operation_ui",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "frontend/plugins/operation_ui/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/rspack:rspack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "web",
+        "outputPath": "dist/frontend/plugins/operation_ui",
+        "main": "frontend/plugins/operation_ui/src/main.ts",
+        "tsConfig": "frontend/plugins/operation_ui/tsconfig.app.json",
+        "rspackConfig": "frontend/plugins/operation_ui/rspack.config.ts",
+        "assets": ["frontend/plugins/operation_ui/src/assets"]
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production",
+          "optimization": true,
+          "sourceMap": false,
+          "rspackConfig": "frontend/plugins/operation_ui/rspack.config.prod.ts"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/rspack:module-federation-dev-server",
+      "options": {
+        "buildTarget": "operation_ui:build:development",
+        "port": 3006
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "buildTarget": "operation_ui:build:production"
+        }
+      }
+    },
+    "serve-static": {
+      "executor": "@nx/rspack:module-federation-static-server",
+      "defaultConfiguration": "production",
+      "options": {
+        "serveTarget": "operation_ui:serve"
+      },
+      "configurations": {
+        "development": {
+          "serveTarget": "operation_ui:serve:development"
+        },
+        "production": {
+          "serveTarget": "operation_ui:serve:production"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', sans-serif;
+    --font-mono: 'Roboto Mono', monospace;
+    --background: 0 0% 100%;
+    --foreground: 240 6% 10%;
+    --primary: 244 76% 59%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 244 53% 85%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 2% 45%;
+    --accent: 240 3% 96%;
+    --accent-foreground: 240 3% 66%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 142 71% 45%;
+    --warning: 25 80% 63%;
+    --scroll: 240 5% 83%;
+    --border: 240 6% 90%; /* gray/3 */
+    --input: 240 6% 90%; /* gray/3 */
+    --ring: 244 76% 59%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%; /* gray/1 */
+    --shadow: 0, 0%, 0%, 0.05;
+  }
+  .dark {
+    --background: 0 0% 9%; /* primary/white */
+    --foreground: 240 6% 97%; /* primary/black */
+    --primary: 244 76% 59%; /* primary/purple */
+    --primary-foreground: 0 0% 100%; /* primary/white */
+    --secondary: 244 53% 16%; /* secondary/purple */
+    --muted: 0 0% 14%; /* secondary/gray */
+    --muted-foreground: 0 2% 64%; /* grey/6 */
+    --accent: 240 3% 13%; /* grey/2 */
+    --accent-foreground: 240 3% 43%; /* grey/5 */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 142 71% 45%;
+    --warning: 25 80% 63%;
+    --scroll: 240 5% 26%; /* grey/4 */
+    --border: 240 6% 19%; /* gray/3 */
+    --input: 240 6% 19%; /* gray/3 */
+    --ring: 244 76% 50%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 11%; /* gray/1 */
+    --shadow: 0, 0%, 100%, 0.05;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+  h1 {
+    @apply text-2xl font-bold;
+  }
+  h2 {
+    @apply text-xl font-bold;
+  }
+  h3 {
+    @apply text-base font-bold;
+  }
+}
+
+@layer utilities {
+  .hide-scroll {
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .styled-scroll {
+    /* Custom scrollbar for Chrome, Safari and Opera */
+    &::-webkit-scrollbar {
+      width: 1px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: hsl(var(--border));
+      border-radius: 10px;
+      border: 3px solid hsl(var(--background));
+    }
+
+    /* Custom scrollbar for IE, Edge and Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+}

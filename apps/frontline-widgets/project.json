@@ -1,0 +1,55 @@
+{
+  "name": "frontline-widgets",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/frontline-widgets/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/rspack:rspack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "web",
+        "outputPath": "dist/apps/frontline-widgets",
+        "main": "apps/frontline-widgets/src/main.tsx",
+        "tsConfig": "apps/frontline-widgets/tsconfig.app.json",
+        "rspackConfig": "apps/frontline-widgets/rspack.config.js",
+        "assets": [
+          "apps/frontline-widgets/src/favicon.ico",
+          "apps/frontline-widgets/src/assets"
+        ]
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production",
+          "optimization": true,
+          "sourceMap": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/rspack:dev-server",
+      "options": {
+        "buildTarget": "frontline-widgets:build:development"
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "buildTarget": "frontline-widgets:build:production"
+        }
+      }
+    },
+    "serve-static": {
+      "executor": "@nx/web:file-server",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "frontline-widgets:build",
+        "spa": true
+      }
+    }
+  }
+}

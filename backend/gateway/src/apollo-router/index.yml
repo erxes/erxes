@@ -1,0 +1,245 @@
+version: '3.7'
+
+networks:
+  erxes:
+    driver: overlay
+
+services:
+  coreui:
+    image: erxes/erxes-next-ui:latest
+    environment:
+      REACT_APP_PUBLIC_PATH: ''
+      REACT_APP_CDN_HOST: https://officenext.erxes.io/widgets
+      REACT_APP_API_URL: https://officenext.erxes.io/gateway
+      REACT_APP_DASHBOARD_URL: https://officenext.erxes.io/dashboard/api
+      REACT_APP_API_SUBSCRIPTION_URL: wss://officenext.erxes.io/gateway/graphql
+      NGINX_PORT: 80
+      NGINX_HOST: officenext.erxes.io
+      NODE_ENV: production
+      REACT_APP_FILE_UPLOAD_MAX_SIZE: 524288000
+      REACT_APP_RELEASE: master
+    ports:
+      - 3000:80
+    networks:
+      - erxes
+    deploy: &default_deploy
+      mode: replicated
+      replicas: 2
+      update_config:
+        order: start-first
+        failure_action: rollback
+        delay: 1s
+
+  plugin-core-api:
+    image: erxes/erxes-next-core-api:latest
+    environment:
+      OTEL_SERVICE_NAME: plugin-core-api
+      SERVICE_NAME: core-api
+      PORT: 80
+      CLIENT_PORTAL_DOMAINS: http://localhost:8080,http://localhost:7002,http://192.168.43.156:7002/
+      JWT_TOKEN_SECRET: e0f3e51e3b0e026feb8eb53ba79d876f
+      LOAD_BALANCER_ADDRESS: http://plugin-core-api
+      MONGO_URL: mongodb://erxes:kpnt4Qzrazxxqw13eaeSFU@10.0.3.3:27017/erxes?authSource=admin&replicaSet=rs0
+      NODE_INSPECTOR: null
+      EMAIL_VERIFIER_ENDPOINT: https://email-verifier.erxes.io
+      ELASTIC_APM_HOST_NAME: null
+      DEBUG: '*error*'
+      NODE_ENV: production
+      DOMAIN: https://officenext.erxes.io
+      WIDGETS_DOMAIN: https://officenext.erxes.io/widgets
+      REDIS_HOST: 10.0.3.3
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: pXwPM2Gz12dM9TKzsdwkYawk9
+      RABBITMQ_HOST: amqp://erxes:fAXkiGHctXpPHRyfOOjSxcaA@erxes-dbs_rabbitmq:5672/
+      RELEASE: master
+      VERSION: os
+      MESSAGE_BROKER_PREFIX: ''
+      ENABLED_PLUGINS: 'frontline,operation,sales'
+    extra_hosts:
+      - mongo:10.0.3.3
+    networks:
+      - erxes
+    deploy: *default_deploy
+
+  service-automations:
+    image: erxes/erxes-next-automations:latest
+    environment:
+      OTEL_SERVICE_NAME: automations
+      SERVICE_NAME: automations
+      PORT: 80
+      CLIENT_PORTAL_DOMAINS: http://localhost:8080,http://localhost:7002,http://192.168.43.156:7002/
+      JWT_TOKEN_SECRET: e0f3e51e3b0e026feb8eb53ba79d876f
+      LOAD_BALANCER_ADDRESS: http://plugin-automations-api
+      MONGO_URL: mongodb://erxes:kpnt4Qzrazxxqw13eaeSFU@10.0.3.3:27017/erxes?authSource=admin&replicaSet=rs0
+      NODE_INSPECTOR: null
+      ELASTIC_APM_HOST_NAME: null
+      DEBUG: '*error*'
+      NODE_ENV: production
+      DOMAIN: https://officenext.erxes.io
+      WIDGETS_DOMAIN: https://officenext.erxes.io/widgets
+      REDIS_HOST: 10.0.3.3
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: pXwPM2Gz12dM9TKzsdwkYawk9
+      RELEASE: master
+      VERSION: os
+      MESSAGE_BROKER_PREFIX: ''
+    extra_hosts:
+      - mongo:10.0.3.3
+    networks:
+      - erxes
+    deploy: *default_deploy
+
+  service-logs:
+    image: erxes/erxes-next-logs:latest
+    environment:
+      OTEL_SERVICE_NAME: logs-service
+      SERVICE_NAME: logs-service
+      PORT: 80
+      CLIENT_PORTAL_DOMAINS: http://localhost:8080,http://localhost:7002,http://192.168.43.156:7002/
+      JWT_TOKEN_SECRET: e0f3e51e3b0e026feb8eb53ba79d876f
+      LOAD_BALANCER_ADDRESS: http://plugin-logs-api
+      MONGO_URL: mongodb://erxes:kpnt4Qzrazxxqw13eaeSFU@10.0.3.3:27017/erxes?authSource=admin&replicaSet=rs0
+      NODE_INSPECTOR: null
+      ELASTIC_APM_HOST_NAME: null
+      DEBUG: '*error*'
+      NODE_ENV: production
+      DOMAIN: https://officenext.erxes.io
+      WIDGETS_DOMAIN: https://officenext.erxes.io/widgets
+      REDIS_HOST: 10.0.3.3
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: pXwPM2Gz12dM9TKzsdwkYawk9
+      RELEASE: master
+      VERSION: os
+      MESSAGE_BROKER_PREFIX: ''
+    extra_hosts:
+      - mongo:10.0.3.3
+    networks:
+      - erxes
+    deploy: *default_deploy
+
+  plugin-frontline-api:
+    image: erxes/erxes-next-frontline_api:latest
+    environment:
+      OTEL_SERVICE_NAME: frontline
+      SERVICE_NAME: frontline
+      PORT: 80
+      CLIENT_PORTAL_DOMAINS: http://localhost:8080,http://localhost:7002,http://192.168.43.156:7002/
+      JWT_TOKEN_SECRET: e0f3e51e3b0e026feb8eb53ba79d876f
+      LOAD_BALANCER_ADDRESS: http://plugin-frontline-api
+      MONGO_URL: mongodb://erxes:kpnt4Qzrazxxqw13eaeSFU@10.0.3.3:27017/erxes?authSource=admin&replicaSet=rs0
+      NODE_INSPECTOR: null
+      ELASTIC_APM_HOST_NAME: null
+      DEBUG: '*error*'
+      NODE_ENV: production
+      DOMAIN: https://officenext.erxes.io
+      ENDPOINT_URL: https://enterprise.erxes.io
+      WIDGETS_DOMAIN: https://officenext.erxes.io/widgets
+      REDIS_HOST: 10.0.3.3
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: pXwPM2Gz12dM9TKzsdwkYawk9
+      ELASTICSEARCH_URL: http://erxes-dbs_elasticsearch:9200
+      RELEASE: master
+      VERSION: os
+      CALL_API_USER: recApi
+      CALL_API_PASSWORD: recApi13
+      CALL_WS_API_USER: wsApi
+      CALL_WS_API_PASSWORD: wsApi13
+      CALL_WS_SERVER: call.erxes.io
+      TIMEZONE: 8
+
+    extra_hosts:
+      - mongo:10.0.3.3
+    networks:
+      - erxes
+    deploy: *default_deploy
+
+  plugin-operation-api:
+    image: erxes/erxes-next-operation_api:latest
+    environment:
+      OTEL_SERVICE_NAME: operation
+      SERVICE_NAME: operation
+      PORT: 80
+      CLIENT_PORTAL_DOMAINS: http://localhost:8080,http://localhost:7002,http://192.168.43.156:7002/
+      JWT_TOKEN_SECRET: e0f3e51e3b0e026feb8eb53ba79d876f
+      LOAD_BALANCER_ADDRESS: http://plugin-operation-api
+      MONGO_URL: mongodb://erxes:kpnt4Qzrazxxqw13eaeSFU@10.0.3.3:27017/erxes?authSource=admin&replicaSet=rs0
+      NODE_INSPECTOR: null
+      ELASTIC_APM_HOST_NAME: null
+      DEBUG: '*error*'
+      NODE_ENV: production
+      DOMAIN: https://officenext.erxes.io
+      REDIS_HOST: 10.0.3.3
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: pXwPM2Gz12dM9TKzsdwkYawk9
+      ELASTICSEARCH_URL: http://erxes-dbs_elasticsearch:9200
+      RELEASE: master
+      VERSION: os
+    extra_hosts:
+      - mongo:10.0.3.3
+    networks:
+      - erxes
+    deploy: *default_deploy
+  plugin-sales-api:
+    image: erxes/erxes-next-sales_api:latest
+    environment:
+      OTEL_SERVICE_NAME: sales
+      SERVICE_NAME: sales
+      PORT: 80
+      CLIENT_PORTAL_DOMAINS: http://localhost:8080,http://localhost:7002,http://192.168.43.156:7002/
+      JWT_TOKEN_SECRET: e0f3e51e3b0e026feb8eb53ba79d876f
+      LOAD_BALANCER_ADDRESS: http://plugin-sales-api
+      MONGO_URL: mongodb://erxes:kpnt4Qzrazxxqw13eaeSFU@10.0.3.3:27017/erxes?authSource=admin&replicaSet=rs0
+      NODE_INSPECTOR: null
+      ELASTIC_APM_HOST_NAME: null
+      DEBUG: '*error*'
+      NODE_ENV: production
+      DOMAIN: https://officenext.erxes.io
+      REDIS_HOST: 10.0.3.3
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: pXwPM2Gz12dM9TKzsdwkYawk9
+      ELASTICSEARCH_URL: http://erxes-dbs_elasticsearch:9200
+      RELEASE: master
+      VERSION: os
+    extra_hosts:
+      - mongo:10.0.3.3
+    networks:
+      - erxes
+    deploy: *default_deploy
+  gateway:
+    image: erxes/erxes-next-gateway:latest
+    environment:
+      OTEL_SERVICE_NAME: gateway
+      SERVICE_NAME: gateway
+      PORT: 80
+      LOAD_BALANCER_ADDRESS: http://gateway
+      JWT_TOKEN_SECRET: e0f3e51e3b0e026feb8eb53ba79d876f
+      CLIENT_PORTAL_DOMAINS: http://localhost:8080,http://localhost:7002,http://192.168.43.156:7002/
+      MONGO_URL: mongodb://erxes:kpnt4Qzrazxxqw13eaeSFU@10.0.3.3:27017/erxes?authSource=admin&replicaSet=rs0
+      NODE_INSPECTOR: null
+      ELASTIC_APM_HOST_NAME: null
+      DEBUG: '*error*'
+      NODE_ENV: production
+      DOMAIN: https://officenext.erxes.io
+      WIDGETS_DOMAIN: https://officenext.erxes.io/widgets
+      REDIS_HOST: 10.0.3.3
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: pXwPM2Gz12dM9TKzsdwkYawk9
+      RABBITMQ_HOST: amqp://erxes:fAXkiGHctXpPHRyfOOjSxcaA@erxes-dbs_rabbitmq:5672/
+      ELASTICSEARCH_URL: http://erxes-dbs_elasticsearch:9200
+      RELEASE: master
+      VERSION: os
+      MESSAGE_BROKER_PREFIX: ''
+      ALLOWED_ORIGINS: .*
+      INTROSPECTION: 'true'
+      ENABLED_PLUGINS: 'frontline,operation,sales'
+    healthcheck:
+      test: ['CMD', 'curl', '-i', 'http://localhost:80/health']
+      interval: 30s
+      start_period: 30s
+    extra_hosts:
+      - mongo:10.0.3.3
+    ports:
+      - 3300:80
+    networks:
+      - erxes
+    deploy: *default_deploy

@@ -1,0 +1,31 @@
+# Build output
+dist
+**/dist
+
+# Nx cache and config
+.nx
+.cache
+
+# Version control
+.git
+.gitignore
+
+# Dependencies
+node_modules
+.pnpm-store
+
+# Environment files
+.env
+.env.*
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# IDE and OS
+.vscode
+.idea
+.DS_Store
+*.swp
+*.swo

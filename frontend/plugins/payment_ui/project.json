@@ -1,0 +1,65 @@
+{
+  "name": "payment_ui",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "frontend/plugins/payment_ui/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/rspack:rspack",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "web",
+        "outputPath": "dist/frontend/plugins/payment_ui",
+        "main": "frontend/plugins/payment_ui/src/main.ts",
+        "tsConfig": "frontend/plugins/payment_ui/tsconfig.app.json",
+        "rspackConfig": "frontend/plugins/payment_ui/rspack.config.ts",
+        "assets": [
+          "frontend/plugins/payment_ui/src/assets"
+        ]
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production",
+          "optimization": true,
+          "sourceMap": false,
+          "rspackConfig": "frontend/plugins/payment_ui/rspack.config.prod.ts"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/rspack:module-federation-dev-server",
+      "options": {
+        "buildTarget": "payment_ui:build:development",
+        "port": 3006
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "buildTarget": "payment_ui:build:production"
+        }
+      }
+    },
+    "serve-static": {
+      "executor": "@nx/rspack:module-federation-static-server",
+      "defaultConfiguration": "production",
+      "options": {
+        "serveTarget": "payment_ui:serve"
+      },
+      "configurations": {
+        "development": {
+          "serveTarget": "payment_ui:serve:development"
+        },
+        "production": {
+          "serveTarget": "payment_ui:serve:production"
+        }
+      }
+    }
+  }
+}
