@@ -13,7 +13,6 @@ const relatedServices = (
       if (target.isFormSubmission) {
         return { sourceConversationIds: { $in: [target.conversationId] } };
       }
-      await new Promise((resolve) => setTimeout(resolve, 3000));
 
       const relTypeIds = await sendCommonMessage({
         subdomain,
@@ -27,7 +26,6 @@ const relatedServices = (
         isRPC: true,
         defaultValue: []
       });
-      console.log('relTypeIds', relTypeIds,triggerCollectionType,moduleCollectionType);
 
       if (!relTypeIds.length) {
         return;

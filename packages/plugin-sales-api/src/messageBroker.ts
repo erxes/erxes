@@ -320,7 +320,7 @@ export const setupMessageConsumers = async () => {
       data: {}
     };
   });
-  consumeRPCQueue("sales:deals.generateAmounts", async productsData => {
+  consumeRPCQueue("sales:deals.generateAmounts", async (productsData) => {
     return { data: generateAmounts(productsData), status: "success" };
   });
 
@@ -360,7 +360,9 @@ export const setupMessageConsumers = async () => {
 
       if (modifier.productsData) {
         modifier.productsData = modifier.productsData.filter((pd) => pd);
-        Object.assign(modifier, { ...await getTotalAmounts(modifier.productsData) })
+        Object.assign(modifier, {
+          ...(await getTotalAmounts(modifier.productsData))
+        });
       }
       return {
         data: await models.Deals.updateMany(selector, modifier),
@@ -376,7 +378,9 @@ export const setupMessageConsumers = async () => {
 
       if (modifier.productsData) {
         modifier.productsData = modifier.productsData.filter((pd) => pd);
-        Object.assign(modifier, { ...await getTotalAmounts(modifier.productsData) })
+        Object.assign(modifier, {
+          ...(await getTotalAmounts(modifier.productsData))
+        });
       }
 
       return {
@@ -549,15 +553,21 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data: { module, target, triggerType } }) => {
       let filter;
 
-      if (module.includes("contacts")) {
+      if (module.includes("core")) {
+        const [_triggerService, triggerCollectionType] = triggerType
+          .replace(/\./g, ":")
+          .split(":");
+        const [_moduleService, moduleCollectionType] = module
+          .replace(/\./g, ":")
+          .split(":");
         const relTypeIds = await sendCommonMessage({
           subdomain,
           serviceName: "core",
           action: "conformities.savedConformity",
           data: {
-            mainType: triggerType.split(":")[1],
+            mainType: triggerCollectionType,
             mainTypeId: target._id,
-            relTypes: [module.split(":")[1]]
+            relTypes: [moduleCollectionType]
           },
           isRPC: true,
           defaultValue: []
