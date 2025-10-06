@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.17.16](https://github.com/erxes/erxes/compare/2.17.15...2.17.16) (2025-10-06)
+
+### Bug Fixes
+
+* add delay and logging in relatedServices function of getItems automation ([e7a81bb](https://github.com/erxes/erxes/commit/e7a81bb8e1d3eb1c16ad22799d870b9c2974920d))
+* update related service name from 'contacts' to 'core' in getItems automation ([3da6e99](https://github.com/erxes/erxes/commit/3da6e997b778d78ab8a24ab4602cc3a9f57dabed))
+
 ## [2.17.15](https://github.com/erxes/erxes/compare/2.17.14...2.17.15) (2025-10-06)
 
 ### Bug Fixes
