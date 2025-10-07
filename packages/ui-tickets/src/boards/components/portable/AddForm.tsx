@@ -72,29 +72,25 @@ type State = {
 class AddForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
+    const initialStageId =
+      props.stageId ||
+      localStorage.getItem(`${props.options.type}_stageId`) ||
+      "";
+
     this.state = {
       isHideName: JSON.parse(
         localStorage.getItem(`${props.options.type}_isHideName`) || "false"
       ),
       disabled: false,
       boardId:
-        JSON.parse(
-          localStorage.getItem(`${props.options.type}_boardId`) || "null"
-        ) ||
+        localStorage.getItem(`${props.options.type}_boardId`) ||
         props.boardId ||
         "",
       pipelineId:
-        JSON.parse(
-          localStorage.getItem(`${props.options.type}_pipelineId`) || "null"
-        ) ||
+        localStorage.getItem(`${props.options.type}_pipelineId`) ||
         props.pipelineId ||
         "",
-      stageId:
-        JSON.parse(
-          localStorage.getItem(`${props.options.type}_stageId`) || "null"
-        ) ||
-        props.stageId ||
-        "",
+      stageId: initialStageId,
       cardId: props.cardId || "",
       cards: [],
       name:
@@ -150,7 +146,6 @@ class AddForm extends React.Component<Props, State> {
       );
     }
   }
-
   onChangeField = (name: string, value: any) => {
     if (name === "stageId") {
       const { fetchCards } = this.props;
@@ -161,18 +156,23 @@ class AddForm extends React.Component<Props, State> {
           });
         }
       });
+
+      localStorage.setItem(`${this.props.options.type}_stageId`, value);
     }
 
     if (name === "pipelineId") {
       this.props.refetchFields({ pipelineId: value as string });
+      localStorage.setItem(`${this.props.options.type}_pipelineId`, value);
     }
 
     this.setState({ [name]: value } as unknown as Pick<State, keyof State>);
 
-    localStorage.setItem(
-      `${this.props.options.type}_${name}`,
-      JSON.stringify(value)
-    );
+    if (name !== "stageId" && name !== "pipelineId") {
+      localStorage.setItem(
+        `${this.props.options.type}_${name}`,
+        JSON.stringify(value)
+      );
+    }
   };
 
   save = (e) => {
@@ -335,7 +335,6 @@ class AddForm extends React.Component<Props, State> {
 
   renderSelect() {
     const { showSelect, options } = this.props;
-
     if (!showSelect) {
       return null;
     }
@@ -343,9 +342,18 @@ class AddForm extends React.Component<Props, State> {
     const { stageId, pipelineId, boardId } = this.state;
 
     const stgIdOnChange = (stgId) => this.onChangeField("stageId", stgId);
-    const plIdOnChange = (plId) => this.onChangeField("pipelineId", plId);
+
     const brIdOnChange = (brId) => this.onChangeField("boardId", brId);
 
+    const plIdOnChange = (plId, _stages, isHideName) => {
+      this.onChangeField("pipelineId", plId);
+      const hidden = !!isHideName;
+      localStorage.setItem(
+        `${this.props.options.type}_isHideName`,
+        JSON.stringify(hidden)
+      );
+      this.setState({ isHideName: hidden });
+    };
     return (
       <BoardSelectWrapper>
         <BoardSelect
@@ -397,8 +405,11 @@ class AddForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { stages, showStageSelect, isHideName } = this.props;
-
+    const { stages, showStageSelect } = this.props;
+    const isHideName =
+      this.state.isHideName !== undefined
+        ? this.state.isHideName
+        : this.props.isHideName;
     let stageValues: any;
 
     if (stages && stages.length > 0) {

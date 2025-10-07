@@ -128,6 +128,7 @@ const pipelines = `
       startDate
       endDate
       itemsTotalCount
+      isHideName
     }
   }
 `;
