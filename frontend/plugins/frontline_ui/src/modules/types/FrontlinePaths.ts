@@ -1,8 +1,8 @@
 export enum FrontlinePaths {
-  Inbox = '/inbox',
-  Integrations = '/integrations',
-  IntegrationDetail = '/integrations/:integrationType',
-  IntegrationConfig = '/integrations-config',
-  ErxesMessengerPreview = '/integrations/erxes-messenger-preview',
+  IntegrationConfig = '/config',
+  ErxesMessengerPreview = '/erxes-messenger-preview',
   Channels = '/channels',
+  ChannelDetails = 'details/:id',
+  ChannelMembers = 'members/:id',
+  ChannelIntegrations = 'details/:id/:integrationType',
 }

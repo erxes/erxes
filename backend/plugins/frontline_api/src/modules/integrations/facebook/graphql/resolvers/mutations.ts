@@ -5,7 +5,7 @@ import {
 } from '@/integrations/facebook/helpers';
 import { IReplyParams } from '@/integrations/facebook/@types/utils';
 import { sendReply } from '@/integrations/facebook/utils';
-import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
+import { sendNotifications } from '~/modules/inbox/graphql/resolvers/mutations/conversations';
 export const facebookMutations = {
   async facebookUpdateConfigs(_root, { configsMap }, { subdomain }: IContext) {
     await updateConfigs(subdomain, configsMap);

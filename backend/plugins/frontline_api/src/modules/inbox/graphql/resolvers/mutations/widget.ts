@@ -26,17 +26,13 @@ export const pConversationClientMessageInserted = async (
 
   let channelMemberIds: string[] = [];
 
-  if (integration) {
-    const channels = await models.Channels.find(
-      {
-        integrationIds: { $in: [integration._id] },
-      },
-      { _id: 1, memberIds: 1 },
-    );
+  if (integration?.channelId) {
+    const members = await models.ChannelMembers.find(
+      { channelId: integration.channelId },
+      { memberId: 1 },
+    ).lean();
 
-    for (const channel of channels) {
-      channelMemberIds = [...channelMemberIds, ...(channel.memberIds || [])];
-    }
+    channelMemberIds = members.map((m) => m.memberId.toString());
   }
   if (!conversation) {
     console.warn(`Conversation not found for message: ${message._id}`);

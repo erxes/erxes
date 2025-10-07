@@ -1,10 +1,10 @@
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import mongoose from 'mongoose';
-import { IChannelDocument } from '@/inbox/@types/channels';
-import { IIntegrationDocument } from '@/inbox/@types/integrations';
-import { IConversationDocument } from '@/inbox/@types/conversations';
-import { IMessageDocument } from '@/inbox/@types/conversationMessages';
+
+import { IIntegrationDocument } from '~/modules/inbox/@types/integrations';
+import { IConversationDocument } from '~/modules/inbox/@types/conversations';
+import { IMessageDocument } from '~/modules/inbox/@types/conversationMessages';
 import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
 import { IFacebookLogDocument } from '@/integrations/facebook/@types/logs';
 import { IFacebookAccountDocument } from '@/integrations/facebook/@types/accounts';
@@ -15,7 +15,10 @@ import { IFacebookCommentConversationDocument } from '@/integrations/facebook/@t
 import { IFacebookCommentConversationReplyDocument } from '@/integrations/facebook/@types/comment_conversations_reply';
 import { IFacebookPostConversationDocument } from '@/integrations/facebook/@types/postConversations';
 import { IFacebookConfigDocument } from '@/integrations/facebook/@types/config';
-import { IChannelModel, loadChannelClass } from '@/inbox/db/models/Channels';
+import {
+  IChannelModel,
+  loadChannelClass,
+} from '~/modules/channel/db/models/Channel';
 import {
   IIntegrationModel,
   loadClass as loadIntegrationClass,
@@ -23,11 +26,11 @@ import {
 import {
   IConversationModel,
   loadClass as loadConversationClass,
-} from '@/inbox/db/models/Conversations';
+} from '~/modules/inbox/db/models/Conversations';
 import {
   IMessageModel,
   loadClass as loadMessageClass,
-} from '@/inbox/db/models/ConversationMessages';
+} from '~/modules/inbox/db/models/ConversationMessages';
 import {
   IFacebookIntegrationModel,
   loadFacebookIntegrationClass,
@@ -123,10 +126,21 @@ import {
   ILogImapDocument,
   loadImapLogClass,
 } from '~/modules/integrations/imap/models';
+import {
+  IChannelMemberModel,
+  loadChannelMemberClass,
+} from '~/modules/channel/db/models/ChannelMembers';
+import {
+  IChannelDocument,
+  IChannelMemberDocument,
+} from '~/modules/channel/@types/channel';
 import { ICallQueueStatisticsDocuments } from '~/modules/integrations/call/@types/queueStatistics';
 export interface IModels {
-  //inbox
+  //channel
   Channels: IChannelModel;
+  ChannelMembers: IChannelMemberModel;
+
+  //inbox
   Integrations: IIntegrationModel;
   Conversations: IConversationModel;
   ConversationMessages: IMessageModel;
@@ -173,6 +187,10 @@ export const loadClasses = (
   models.Channels = db.model<IChannelDocument, IChannelModel>(
     'channels',
     loadChannelClass(models),
+  );
+  models.ChannelMembers = db.model<IChannelMemberDocument, IChannelMemberModel>(
+    'channel_members',
+    loadChannelMemberClass(models),
   );
   models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>(
     'integrations',

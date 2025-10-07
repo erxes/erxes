@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const EM_CONFIG_SCHEMA = z.object({
   name: z.string().min(1, 'Name is required'),
   brandId: z.string(),
-  channelIds: z.array(z.string()),
+  channelId: z.string(),
   botSetup: z
     .object({
       greetingMessage: z.string().optional(),

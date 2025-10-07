@@ -1,6 +1,6 @@
 import { GET_CONVERSATIONS } from '@/inbox/conversations/graphql/queries/getConversations';
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { IConversation } from '../../types/Conversation';
+import { ConversationStatus, IConversation } from '../../types/Conversation';
 import {
   EnumCursorDirection,
   ICursorListResponse,
@@ -82,25 +82,24 @@ export const useConversations = (
         if (subscriptionData.data) {
           setNewMessagesCount((prev) => prev + 1);
         }
-        return prev;
-        // if (!subscriptionData.data || !prev) return prev;
-        // const newMessage =
-        //   subscriptionData.data.conversationClientMessageInserted;
-        // const index = prev.conversations.list.findIndex(
-        //   (conversation) => conversation._id === newMessage._id,
-        // );
-        // const list = [...prev.conversations.list];
-        // if (index === -1) {
-        //   list.unshift(newMessage);
-        // } else {
-        //   list.splice(index, 1, {
-        //     ...list[index],
-        //     readUserIds: list[index].readUserIds?.filter((id) => id !== userId),
-        //     status: ConversationStatus.OPEN,
-        //     content: newMessage.content,
-        //   });
-        // }
-        // return { ...prev, conversations: { ...prev.conversations, list } };
+        if (!subscriptionData.data || !prev) return prev;
+        const newMessage =
+          subscriptionData.data.conversationClientMessageInserted;
+        const index = prev.conversations.list.findIndex(
+          (conversation) => conversation._id === newMessage._id,
+        );
+        const list = [...prev.conversations.list];
+        if (index === -1) {
+          list.unshift(newMessage);
+        } else {
+          list.splice(index, 1, {
+            ...list[index],
+            readUserIds: list[index].readUserIds?.filter((id) => id !== userId),
+            status: ConversationStatus.OPEN,
+            content: newMessage.content,
+          });
+        }
+        return { ...prev, conversations: { ...prev.conversations, list } };
       },
     });
 

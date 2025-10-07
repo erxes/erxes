@@ -15,9 +15,9 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import { useChannels } from '../hooks/useChannels';
 import { IconTopologyStar3 } from '@tabler/icons-react';
 import { useDebounce } from 'use-debounce';
+import { useGetChannels } from '@/channels/hooks/useGetChannels';
 
 const SelectChannelProvider = ({
   children,
@@ -88,17 +88,15 @@ export const SelectChannelsContent = () => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const { onSelect, channels } = useSelectChannelContext();
-  const {
-    channels: channelsData,
-    loading,
-    error,
-    handleFetchMore,
-    channelsTotalCount,
-  } = useChannels({
+  const { channels: channelsData, loading } = useGetChannels({
     variables: {
       searchValue: debouncedSearch,
     },
   });
+
+  // Mock the missing properties for now
+
+  const channelsTotalCount = channelsData?.length || 0;
 
   return (
     <Command shouldFilter={false}>
@@ -110,7 +108,6 @@ export const SelectChannelsContent = () => {
         onValueChange={setSearch}
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
-        <Combobox.Empty loading={loading} error={error} />
         {channels.length > 0 && (
           <>
             {channels.map((channel) => (
@@ -126,12 +123,14 @@ export const SelectChannelsContent = () => {
             <Command.Separator className="my-1" />
           </>
         )}
-
         {channelsData && channelsData?.length > 0 && (
           <>
             {channelsData
-              .filter((channel) => !channels.some((c) => c._id === channel._id))
-              .map((channel) => (
+              .filter(
+                (channel: IChannel) =>
+                  !channels.some((c) => c._id === channel._id),
+              )
+              .map((channel: IChannel) => (
                 <Command.Item
                   key={channel._id}
                   value={channel._id}
@@ -142,7 +141,7 @@ export const SelectChannelsContent = () => {
               ))}
 
             <Combobox.FetchMore
-              fetchMore={handleFetchMore}
+              fetchMore={() => ({})}
               currentLength={channelsData.length}
               totalCount={channelsTotalCount || 0}
             />
@@ -223,6 +222,7 @@ export const SelectChannelFilterBar = ({
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
+  console.log('called select channel filter...');
   const [channelId, setChannelId] = useQueryState<string | string[]>(
     queryKey || 'channelId',
   );
