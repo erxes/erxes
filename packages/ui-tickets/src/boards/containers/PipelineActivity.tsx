@@ -5,7 +5,7 @@ import {
   IPipeline,
   ActivityLogsByActionQueryResponse,
   IOptions,
-  InternalNotesByActionQueryResponse
+  InternalNotesByActionQueryResponse,
 } from "../types";
 import { gql } from "@apollo/client";
 import { withProps } from "@erxes/ui/src/utils";
@@ -13,7 +13,6 @@ import { graphql } from "@apollo/client/react/hoc";
 import { generatePaginationParams } from "@erxes/ui/src/utils/router";
 import { queries } from "../graphql";
 import ActivityLogs from "../components/activityLogs/ActivityLogs";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   pipeline: IPipeline;
@@ -76,17 +75,17 @@ const ActivityList = (props: WithStagesProps) => {
     refetchQueries: commonOptions(queryParams),
     activityLogsByAction: list,
     count: totalCount,
-    errorMessage: error || ""
+    errorMessage: error || "",
   };
 
   return <ActivityLogs {...updatedProps} />;
 };
 
-const commonOptions = queryParams => {
+const commonOptions = (queryParams) => {
   const variables = {
     action: queryParams.action,
     contentType: `tickets:${queryParams.type}`,
-    ...generatePaginationParams(queryParams)
+    ...generatePaginationParams(queryParams),
   };
 
   return [{ query: gql(queries.activityLogsByAction), variables }];
@@ -96,7 +95,7 @@ const commonParams = (queryParams, options) => ({
   contentType: `tickets:${options.type}`,
   pipelineId: queryParams.pipelineId,
   page: parseInt(queryParams.page || "1", 10),
-  perPage: parseInt(queryParams.perPage || "10", 10)
+  perPage: parseInt(queryParams.perPage || "10", 10),
 });
 
 export default withProps<Props>(
@@ -108,18 +107,18 @@ export default withProps<Props>(
         options: ({ queryParams, options }) => ({
           variables: {
             ...commonParams(queryParams, options),
-            action: queryParams.action
-          }
-        })
+            action: queryParams.action,
+          },
+        }),
       }
     ),
     graphql<Props>(gql(queries.internalNotesByAction), {
       name: "internalNotesByActionQuery",
       options: ({ queryParams, options }) => ({
         variables: {
-          ...commonParams(queryParams, options)
-        }
-      })
+          ...commonParams(queryParams, options),
+        },
+      }),
     })
   )(ActivityList)
 );

@@ -1,17 +1,16 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import BoardSelect from '../components/BoardSelect';
-import { queries } from '../graphql';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import { Alert, withProps } from "@erxes/ui/src/utils";
+import BoardSelect from "../components/BoardSelect";
+import { queries } from "../graphql";
 import {
   BoardsQueryResponse,
   IStage,
   PipelinesQueryResponse,
   StagesQueryResponse,
-} from '../types';
-
+} from "../types";
 type Props = {
   type: string;
   stageId?: string;
@@ -19,7 +18,11 @@ type Props = {
   pipelineId: string;
   callback?: () => void;
   onChangeStage?: (stageId: string) => void;
-  onChangePipeline: (pipelineId: string, stages: IStage[]) => void;
+  onChangePipeline: (
+    pipelineId: string,
+    stages: IStage[],
+    isHideName?: boolean
+  ) => void;
   onChangeBoard: (boardId: string) => void;
   autoSelectPipeline?: boolean;
   autoSelectStage?: boolean;
@@ -47,12 +50,12 @@ class BoardSelectContainer extends React.Component<FinalProps> {
           this.onChangePipeline(pipelines[0]._id);
         }
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
 
-  onChangePipeline = (pipelineId: string) => {
+  onChangePipeline = (pipelineId: string, isHideName?: boolean) => {
     const { stagesQuery } = this.props;
 
     stagesQuery
@@ -60,17 +63,17 @@ class BoardSelectContainer extends React.Component<FinalProps> {
       .then(({ data }) => {
         const stages = data.ticketsStages;
 
-        this.props.onChangePipeline(pipelineId, stages);
+        this.props.onChangePipeline(pipelineId, stages, isHideName);
 
         if (
           stages &&
           stages.length > 0 &&
-          typeof this.props.autoSelectStage === 'undefined'
+          typeof this.props.autoSelectStage === "undefined"
         ) {
           this.onChangeStage(stages[0]._id);
         }
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -91,7 +94,6 @@ class BoardSelectContainer extends React.Component<FinalProps> {
     const boards = boardsQuery.ticketsBoards || [];
     const pipelines = pipelinesQuery.ticketsPipelines || [];
     const stages = stagesQuery.ticketsStages || [];
-
     const extendedProps = {
       ...this.props,
       boards,
@@ -101,7 +103,6 @@ class BoardSelectContainer extends React.Component<FinalProps> {
       onChangePipeline: this.onChangePipeline,
       onChangeStage: this.onChangeStage,
     };
-
     return <BoardSelect {...extendedProps} />;
   }
 }
@@ -109,7 +110,7 @@ class BoardSelectContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props, BoardsQueryResponse>(gql(queries.boards), {
-      name: 'boardsQuery',
+      name: "boardsQuery",
       options: ({ type }) => ({
         variables: { type },
       }),
@@ -117,8 +118,8 @@ export default withProps<Props>(
     graphql<Props, PipelinesQueryResponse, { boardId: string }>(
       gql(queries.pipelines),
       {
-        name: 'pipelinesQuery',
-        options: ({ boardId = '' }) => ({
+        name: "pipelinesQuery",
+        options: ({ boardId = "" }) => ({
           variables: { boardId },
         }),
       }
@@ -126,8 +127,8 @@ export default withProps<Props>(
     graphql<Props, StagesQueryResponse, { pipelineId: string }>(
       gql(queries.stages),
       {
-        name: 'stagesQuery',
-        options: ({ pipelineId = '' }) => ({
+        name: "stagesQuery",
+        options: ({ pipelineId = "" }) => ({
           variables: { pipelineId },
         }),
       }

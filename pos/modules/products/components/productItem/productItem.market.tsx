@@ -7,7 +7,7 @@ import { IProduct } from "@/types/product.types"
 import { CommandItem } from "@/components/ui/command"
 
 const ProductItem = (props: IProduct) => {
-  const { name, code } = props
+  const { name, code, remainder, unitPrice } = props
   const addToCart = useSetAtom(addToCartAtom)
   const closePopover = useSetAtom(searchPopoverAtom)
   const changeFocus = useSetAtom(changeFocusAtom)
@@ -22,7 +22,7 @@ const ProductItem = (props: IProduct) => {
     <CommandItem onSelect={onSelect} onClick={onSelect}>
       <SearchIcon className="mr-2 h-4 w-4 text-black/60" />
       <span>
-        {name} - {code}
+        {code} - {name} - ₮{unitPrice} {remainder && `/${remainder}/` || ''}
       </span>
     </CommandItem>
   )

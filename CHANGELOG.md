@@ -1,5 +1,53 @@
 # Changelog
 
+## [2.17.16](https://github.com/erxes/erxes/compare/2.17.15...2.17.16) (2025-10-06)
+
+### Bug Fixes
+
+* add delay and logging in relatedServices function of getItems automation ([e7a81bb](https://github.com/erxes/erxes/commit/e7a81bb8e1d3eb1c16ad22799d870b9c2974920d))
+* update related service name from 'contacts' to 'core' in getItems automation ([3da6e99](https://github.com/erxes/erxes/commit/3da6e997b778d78ab8a24ab4602cc3a9f57dabed))
+
+## [2.17.15](https://github.com/erxes/erxes/compare/2.17.14...2.17.15) (2025-10-06)
+
+### Bug Fixes
+
+* **pos:** check barcode and shop theme show unitPrice and remainder ([3be14d7](https://github.com/erxes/erxes/commit/3be14d7770c316f092be3bb3e2d57275711eff3d))
+* posclient sync util performance ([1d01f51](https://github.com/erxes/erxes/commit/1d01f519fb0aae8175b61ee6540beb9e6c8969e2))
+* update redirect logic in handleMagiclink and handleCoreLogin to support dynamic subdomain routing based on organization type ([a1967ec](https://github.com/erxes/erxes/commit/a1967ec9a5a7f8ccb37002d7149e086bc7ae3785))
+
+## [2.17.14](https://github.com/erxes/erxes/compare/2.17.13...2.17.14) (2025-10-01)
+
+### Features
+
+* enhance automation rule handling with expression support ([3bec802](https://github.com/erxes/erxes/commit/3bec802070a5dcebf628ef9ec3f466691e8527fe))
+
+### Bug Fixes
+
+* cars from clientportal many car many customer ([e292f02](https://github.com/erxes/erxes/commit/e292f0256e55fb1e41866c004c38eba5c6737b9b))
+* posclient groupedSimilarity products with remainder ([2865741](https://github.com/erxes/erxes/commit/28657419a64d2aad9181d46009d9fc70f59aa516))
+* posclient similarity chosen page with remainder ([b34cb62](https://github.com/erxes/erxes/commit/b34cb62cf7385262175805d111050294b5a05be7))
+* posclient similarity chosen page with remainder ([937ff54](https://github.com/erxes/erxes/commit/937ff54dcf60caabc2ba39bd54c2d216f9784b44))
+
+## [2.17.13](https://github.com/erxes/erxes/compare/2.17.12...2.17.13) (2025-09-29)
+
+### Features
+
+* add resume option to main.go configuration ([7d20e0e](https://github.com/erxes/erxes/commit/7d20e0e3f5f08b1cef53692583c1811fd19a44b6))
+* enhance email generation with dynamic from email placeholder ([9068bee](https://github.com/erxes/erxes/commit/9068bee7de60c20e091dc9f2f1303a3698eba518))
+* filter organizations by last active date in main.go ([fdbfcf5](https://github.com/erxes/erxes/commit/fdbfcf5424d4cef4bf089f95706aa28495f02ec6))
+
+### Bug Fixes
+
+* mongo-driver version 1.7 ([b2845a8](https://github.com/erxes/erxes/commit/b2845a85de5ab19b37813326f16a8faa84af7ce8))
+
+## [2.17.12](https://github.com/erxes/erxes/compare/2.17.11...2.17.12) (2025-09-26)
+
+### Bug Fixes
+
+* pos - show remainder on coffeeshop theme ([2c01bd1](https://github.com/erxes/erxes/commit/2c01bd139d0ff1597cb51996f3b51c6514ec1c84))
+* pos ebarimt show choice sum quantity ([3b6f1b6](https://github.com/erxes/erxes/commit/3b6f1b6e1eceb4e6f3a3957f5eb5413c8adc2ca4))
+* pos ebarimt with discount ([65867b3](https://github.com/erxes/erxes/commit/65867b35716c6b807586235223438f273e021947))
+
 ## <small>2.17.11 (2025-09-23)</small>
 
 * feat(inbox): add required and default values to createdUserId, kind, createdA ([eb81bf8](https://github.com/erxes/erxes/commit/eb81bf8))

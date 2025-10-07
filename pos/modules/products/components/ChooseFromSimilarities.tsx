@@ -65,10 +65,10 @@ const ChooseFromSimilarities = (
 
         groups.map(
           (group: Group) =>
-            (radioData = {
-              ...radioData,
-              [group.fieldId]: getFieldValues(group.fieldId),
-            })
+          (radioData = {
+            ...radioData,
+            [group.fieldId]: getFieldValues(group.fieldId),
+          })
         )
 
         setGroups(radioData)
@@ -76,14 +76,14 @@ const ChooseFromSimilarities = (
     },
   })
   const { products, groups } = data?.poscProductSimilarities || {}
-  const { attachment, name, description, unitPrice } = chosen || {}
+  const { attachment, name, description, unitPrice, remainder, remainders } = chosen || {}
 
   const flattenProducts = (products || []).map(
     ({ customFieldsData, ...product }: IProduct) => {
       let flattenProduct: any = { ...product }
-      ;(customFieldsData || []).forEach((field) => {
-        flattenProduct[field.field] = field.value
-      })
+        ; (customFieldsData || []).forEach((field) => {
+          flattenProduct[field.field] = field.value
+        })
       return flattenProduct
     }
   )
@@ -130,8 +130,8 @@ const ChooseFromSimilarities = (
         className="max-w-[300px] mx-auto"
       />
       <ProductItemTitle>{name}</ProductItemTitle>
-      <ProductItemDescription description={description} />
-      <ProductItemPriceWithWrapper unitPrice={unitPrice}>
+      <ProductItemDescription description={description ?? ''} />
+      <ProductItemPriceWithWrapper unitPrice={unitPrice} remainder={remainder} remainders={remainders}>
         <ProductItemButton onClick={handleAdd}>Нэмэх</ProductItemButton>
       </ProductItemPriceWithWrapper>
       {Object.keys(properties).map((id) => (

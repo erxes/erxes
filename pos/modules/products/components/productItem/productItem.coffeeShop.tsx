@@ -159,7 +159,7 @@ export const ProductItemPriceWithWrapper = ({
   return (
     <div className={cn("flex items-center justify-between", className)}>
       <div className="font-black text-base">
-        {(unitPrice || 0).toLocaleString()}₮
+        {(unitPrice || 0).toLocaleString()}₮{" "}
         {typeof remainder === "number" &&
           (remainders && remainders?.length > 1 ? (
             <HoverCard>

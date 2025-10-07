@@ -201,7 +201,7 @@ const getPerValue = async (args: {
     sendCommonMessage,
     execution
   } = args;
-  let { field, operator, value } = rule;
+  let { field, operator, value, isExpression } = rule;
 
   const op1Type = typeof convertOp1(relatedItem, field);
 
@@ -231,18 +231,21 @@ const getPerValue = async (args: {
 
   let op1 = convertOp1(relatedItem, field);
 
-  let updatedValue = (
-    await replacePlaceHolders({
-      models,
-      subdomain,
-      getRelatedValue,
-      actionData: { config: value },
-      target,
-      isRelated: op1Type === 'string' ? true : false
-    })
-  ).config;
+  let updatedValue =
+    (
+      await replacePlaceHolders({
+        models,
+        subdomain,
+        getRelatedValue,
+        actionData: { config: value },
+        target,
+        isRelated: op1Type === 'string' ? true : false
+      })
+    ).config || '';
 
-  if (updatedValue.match(/^[0-9+\-*/\s().]+$/)) {
+  if (isExpression) {
+    updatedValue = eval(updatedValue.replace(/{{.*}}/, '0'));
+  } else if (updatedValue.match(/^[0-9+\-*/\s().]+$/)) {
     updatedValue = eval(updatedValue.replace(/{{.*}}/, '0'));
   }
 
