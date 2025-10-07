@@ -10,6 +10,7 @@ import {
   getCustomerIds,
   getNewOrder,
   getTotalAmounts,
+  sendNotifications,
 } from '~/modules/sales/utils';
 import {
   checkAssignedUserFromPData,
@@ -118,32 +119,12 @@ export const dealMutations = {
       throw new Error('Deal not found');
     }
 
-    // await sendNotifications(models, subdomain, {
-    //   item,
-    //   user,
-    //   type: `${type}Delete`,
-    //   action: `deleted ${type}:`,
-    //   content: `'${item.name}'`,
-    //   contentType: type,
-    // });
-
-    // if (item?.assignedUserIds && item?.assignedUserIds?.length > 0) {
-    //   sendCoreMessage({
-    //     subdomain: 'os',
-    //     action: 'sendMobileNotification',
-    //     data: {
-    //       title: `${item.name}`,
-    //       body: `${
-    //         user?.details?.fullName || user?.details?.shortName
-    //       } deleted the ${type}`,
-    //       receivers: item?.assignedUserIds,
-    //       data: {
-    //         type,
-    //         id: item._id,
-    //       },
-    //     },
-    //   });
-    // }
+    await sendNotifications(models, {
+      item,
+      user,
+      action: `deleted deal:`,
+      content: `'${item.name}'`,
+    });
 
     await destroyBoardItemRelations(models, item._id);
 

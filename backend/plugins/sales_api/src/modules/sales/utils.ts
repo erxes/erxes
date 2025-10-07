@@ -15,6 +15,7 @@ import {
   IDealDocument,
   IDealQueryParams,
   IPipeline,
+  IPipelineDocument,
   IProductData,
   IStageDocument,
 } from './@types';
@@ -1072,4 +1073,130 @@ export const convertNestedDate = (obj: any) => {
   }
 
   return obj;
+};
+
+export const sendNotification = async ({
+  userIds, data, allowMultiple
+}: {
+  userIds?: string[],
+  data: {
+    title: string;
+    message: string;
+    type?: 'info' | 'success' | 'warning' | 'error';
+    fromUserId?: string;
+    contentType: string; // 'frontline:conversation', 'sales:deal', etc.
+    contentTypeId?: string; // target object ID
+    // Additional data
+    priority?: 'low' | 'medium' | 'high' | 'urgent';
+    priorityLevel?: 1 | 2 | 3 | 4;
+    metadata?: any; // plugin-specific data
+    action?: string; // crud
+    kind?: 'system' | 'user';
+  }
+  allowMultiple?: boolean;
+}) => {
+  await sendTRPCMessage({
+    method: 'mutation',
+    pluginName: 'core',
+    action: 'create',
+    module: 'notifications',
+    input: { userIds, data: { ...data, allowMultiple } },
+    defaultValue: undefined
+  });
+}
+
+export const notifiedUserIds = async (models: IModels, item: IDealDocument, stage?: IStageDocument, pipeline?: IPipelineDocument) => {
+  let userIds: string[] = [];
+
+  userIds = userIds.concat(item.assignedUserIds || []);
+
+  userIds = userIds.concat(item.watchedUserIds || []);
+
+  if (!stage) {
+    stage = await models.Stages.getStage(item.stageId);
+  }
+  if (!pipeline) {
+    pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+  }
+
+  userIds = userIds.concat(pipeline.watchedUserIds || []);
+
+  return userIds;
+};
+
+export const sendNotifications = async (
+  models: IModels,
+  {
+    item,
+    user,
+    action,
+    content,
+    invitedUsers,
+    removedUsers
+  }: {
+    item: IDealDocument
+    user: IUserDocument,
+    action: string,
+    content: string,
+    invitedUsers?: string[],
+    removedUsers?: string[]
+  }
+) => {
+  const stage = await models.Stages.getStage(item.stageId);
+  const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+
+  const title = `deal updated`;
+
+  if (!content) {
+    content = `deal '${item.name}'`;
+  }
+
+  const usersToExclude = [
+    ...(removedUsers || []),
+    ...(invitedUsers || []),
+    user._id
+  ];
+
+  // exclude current user, invited user and removed users
+  const receivers = (await notifiedUserIds(models, item, stage, pipeline)).filter(id => {
+    return usersToExclude.indexOf(id) < 0;
+  });
+
+  const notificationDoc = {
+    createdUser: user,
+    title,
+    contentType: 'sales:deal',
+    contentTypeId: item._id,
+    action: action ? action : `has updated deal`,
+    message: content,
+    link: `/deal/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
+  };
+
+  if (removedUsers && removedUsers.length > 0) {
+    sendNotification({
+      userIds: removedUsers.filter(id => id !== user._id), data: {
+        ...notificationDoc,
+        action: `removed you from deal`,
+        message: `'${item.name}'`,
+      }
+    });
+  }
+
+  if (invitedUsers && invitedUsers.length > 0) {
+    sendNotification({
+      userIds: invitedUsers.filter(id => id !== user._id),
+      data: {
+        ...notificationDoc,
+        action: `invited you to the deal: `,
+        message: `'${item.name}'`,
+      }
+    });
+  }
+
+  sendNotification({
+    userIds: receivers,
+    data: {
+      ...notificationDoc
+    }
+  });
 };

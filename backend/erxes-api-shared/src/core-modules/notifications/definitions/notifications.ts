@@ -50,6 +50,7 @@ export const notificationSchema = new Schema(
       type: String,
       enum: ['info', 'success', 'warning', 'error'],
       required: true,
+      default: 'info'
     },
 
     userId: {

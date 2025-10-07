@@ -11,7 +11,7 @@ import {
   subscriptionWrapper,
 } from '../utils';
 import { models } from 'mongoose';
-import { createConformity, destroyBoardItemRelations, getNewOrder } from '~/modules/sales/utils';
+import { createConformity, destroyBoardItemRelations, getNewOrder, sendNotifications } from '~/modules/sales/utils';
 
 export const addDeal = async ({
   models, doc, user
@@ -59,17 +59,17 @@ export const addDeal = async ({
     customerIds: doc.customerIds,
   });
 
-  //   if (user) {
-  //     const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+  if (user) {
+    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
-  // sendNotifications(models, subdomain, {
-  //   item,
-  //   user,
-  //   type: `${type}Add`,
-  //   action: `invited you to the ${pipeline.name}`,
-  //   content: `'${item.name}'.`,
-  //   contentType: type,
-  // });
+
+    await sendNotifications(models, {
+      item: deal,
+      user,
+      action: `invited you to the ${pipeline.name}`,
+      content: `'${deal.name}'.`,
+    });
+  }
 
   await subscriptionWrapper(models, {
     action: 'create',
@@ -233,24 +233,7 @@ export const editDeal = async ({
     notificationDoc.removedUsers = removedUserIds;
   }
 
-  // await sendNotifications(models, subdomain, notificationDoc);
-
-  if (!notificationDoc.invitedUsers && !notificationDoc.removedUsers) {
-    // sendCoreMessage({
-    //   subdomain: "os",
-    //   action: "sendMobileNotification",
-    //   data: {
-    //     title: notificationDoc?.item?.name,
-    //     body: `${user?.details?.fullName || user?.details?.shortName
-    //       } has updated`,
-    //     receivers: notificationDoc?.item?.assignedUserIds,
-    //     data: {
-    //       type,
-    //       id: _id,
-    //     },
-    //   },
-    // });
-  }
+  await sendNotifications(models, notificationDoc);
 
   // exclude [null]
   if (doc.tagIds && doc.tagIds.length) {
@@ -264,49 +247,6 @@ export const editDeal = async ({
     oldDeal,
     pipelineId: stage.pipelineId,
   });
-
-  // if (updatedStage.pipelineId !== stage.pipelineId) {
-  //   graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
-  //     salesPipelinesChanged: {
-  //       _id: stage.pipelineId,
-  //       processId,
-  //       action: "itemRemove",
-  //       data: {
-  //         item: oldDeal,
-  //         oldStageId: stage._id,
-  //       },
-  //     },
-  //   });
-  //   graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
-  //     salesPipelinesChanged: {
-  //       _id: updatedStage.pipelineId,
-  //       processId,
-  //       action: "itemAdd",
-  //       data: {
-  //         item: {
-  //           ...updatedItem._doc,
-  //           ...(await itemResolver(models, subdomain, user, type, updatedItem)),
-  //         },
-  //         aboveItemId: "",
-  //         destinationStageId: updatedStage._id,
-  //       },
-  //     },
-  //   });
-  // } else {
-  //   graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
-  //     salesPipelinesChanged: {
-  //       _id: stage.pipelineId,
-  //       processId,
-  //       action: "itemUpdate",
-  //       data: {
-  //         item: {
-  //           ...updatedItem._doc,
-  //           ...(await itemResolver(models, subdomain, user, type, updatedItem)),
-  //         },
-  //       },
-  //     },
-  //   });
-  // }
 
   // await doScoreCampaign(subdomain, models, _id, updatedItem);
 
