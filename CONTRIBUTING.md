@@ -5,7 +5,7 @@ Thank you for considering to contribute to erxes! This document will outline how
 **Prerequisites**
 
 - You have to be familiar with GitHub Issues and Pull Requests
-- You should to read the <a href="https://docs.erxes.io/" target="_blank">docs</a>.
+- You should to read the <a href="https://erxes.io/docs/local-setup" target="_blank">docs</a>.
 - You make sure you set up a test project with erxes
 
 **Issues before PRs**
@@ -58,7 +58,7 @@ All PRs should include tests for the changes that are included. We have two type
 - We generally encourage to document your changes through comments in your code.
 - If you alter user-facing behavior, you must provide documentation for such changes.
 - All methods and endpoints should be documented using <a href="https://jsdoc.app/" target="_blank">JSDoc</a> and <a href="https://www.npmjs.com/package/swagger-inline" target="_blank">swagger-inline</a>.
-- Afterwars, if you're contributing to our documentation about changes you made to erxes codebase make sure to also check out <a href="https://docs.erxes.io/" target="_blank">the contribution guidelines on our documentation website.</a>
+- Afterwars, if you're contributing to our documentation about changes you made to erxes codebase make sure to also check out <a href="https://erxes.io/docs/local-setup" target="_blank">the contribution guidelines on our documentation website.</a>
 
 ## Release
 
