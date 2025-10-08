@@ -11,7 +11,7 @@ export const useFloatingWidgetsModules = () => {
   const plugins = Object.values(pluginsMetaData);
 
   return plugins.flatMap((plugin) =>
-    plugin.modules
+    (plugin.modules || [])
       .filter((module) => module.hasFloatingWidget)
       .map((module) => ({
         ...module,

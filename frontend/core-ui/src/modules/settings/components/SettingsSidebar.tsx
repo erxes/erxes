@@ -27,7 +27,7 @@ export function SettingsSidebar() {
         const groupedModules = new Map<string, IUIConfig['modules']>();
 
         Object.values(pluginsMetaData).forEach((plugin) => {
-          const settingsModules = plugin.modules
+          const settingsModules = (plugin.modules || [])
             .filter((module) => module.hasSettings || module.settingsOnly)
             .map((module) => ({
               ...module,
@@ -109,7 +109,6 @@ export const SettingsNavigationGroup = ({
   name: string;
   children: React.ReactNode;
 }) => {
-
   if (React.Children.count(children) === 0) return null;
 
   return (
