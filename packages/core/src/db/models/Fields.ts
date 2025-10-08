@@ -767,47 +767,60 @@ export const loadGroupClass = (models: IModels) => {
             const contentType = `${serviceName}:${type.type}`;
             const relations = type.relations || [];
 
+            // Deduplicate relations
+            const uniqueRelations = relations.filter(
+              (rel, idx, arr) =>
+                arr.findIndex(
+                  (r) =>
+                    r.name === rel.name && r.relationType === rel.relationType
+                ) === idx
+            );
+
+            // Document for the basic information group
             const doc = {
               name: "Basic information",
               contentType,
               order: 0,
               isDefinedByErxes: true,
               description: `Basic information of a ${type.type}`,
-              isVisible: true
+              isVisible: true,
             };
 
+            // Check if basic group exists
             const existingGroup = await models.FieldsGroups.find({
               contentType: doc.contentType,
-              isDefinedByErxes: true
+              isDefinedByErxes: true,
             });
 
-            if (relations.length > 0) {
+            // Handle relations
+            if (uniqueRelations.length > 0) {
+              // Check for existing Relations group by code
               let relationGroup = await models.FieldsGroups.findOne({
                 contentType,
-                name: "Relations"
+                code: `${contentType}:relations`,
               });
 
               if (!relationGroup) {
                 relationGroup = await models.FieldsGroups.create({
                   name: "Relations",
-                  contentType: `${contentType}`,
+                  contentType,
                   order: 1,
                   isDefinedByErxes: true,
                   code: `${contentType}:relations`,
                   description: `Relations of a ${type.type}`,
-                  isVisible: true
+                  isVisible: true,
                 });
               }
 
-              for (const [index, value] of relations.entries()) {
+              for (const [index, value] of uniqueRelations.entries()) {
+                // Check if field already exists in this group
                 const relationField = await models.Fields.findOne({
                   contentType,
-                  type: value.name
+                  type: value.name,
+                  groupId: relationGroup._id,
                 });
 
-                if (relationField) {
-                  continue;
-                }
+                if (relationField) continue;
 
                 await models.Fields.create({
                   contentType,
@@ -818,12 +831,13 @@ export const loadGroupClass = (models: IModels) => {
                   isDefinedByErxes: true,
                   relationType: value.relationType,
                   isVisible: false,
-                  isVisibleInDetail: false
+                  isVisibleInDetail: false,
                 });
               }
             }
 
-            const basicGroup = existingGroup.find(x => !x.code);
+            // Handle basic information group
+            const basicGroup = existingGroup.find((x) => !x.code);
             if (basicGroup) {
               await models.Fields.updateSystemFields(
                 basicGroup._id,
@@ -834,7 +848,6 @@ export const loadGroupClass = (models: IModels) => {
             }
 
             const fieldGroup = await models.FieldsGroups.create(doc);
-
             await models.Fields.createSystemFields(
               fieldGroup._id,
               serviceName,
@@ -844,6 +857,7 @@ export const loadGroupClass = (models: IModels) => {
         }
       }
     }
+
 
     /*
      * Update given fieldsGroups orders
