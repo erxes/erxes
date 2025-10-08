@@ -26,6 +26,10 @@ export const AutomationRoutes = () => {
           path={AutomationsPath.Detail}
           element={<AutomationDetailPage />}
         />
+        <Route
+          path={AutomationsPath.Create}
+          element={<AutomationDetailPage />}
+        />
       </Routes>
       <AutomationsPageEffect />
     </Suspense>
