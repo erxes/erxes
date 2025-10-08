@@ -97,9 +97,9 @@ export const countByTag = async (
   const tags = await sendTRPCMessage({
     method: 'query',
     pluginName: 'core',
-    module: 'core',
-    action: 'tagFind',
-    input: { data: { type } },
+    module: 'tags',
+    action: 'find',
+    input: { query: { type } },
     defaultValue: [],
   });
   for (const tag of tags) {
@@ -365,7 +365,7 @@ export const updateMobileAmount = async (
       //     items,
       //   },
       // });
-      sendTRPCMessage({
+      await sendTRPCMessage({
         pluginName: 'sales',
         module: 'pos',
         action: 'createOrUpdateOrders',

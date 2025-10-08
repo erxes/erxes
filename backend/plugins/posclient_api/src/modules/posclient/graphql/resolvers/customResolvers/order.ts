@@ -7,7 +7,7 @@ import { fakePutData } from '@/posclient/utils/orderUtils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export default {
-  async items(order: IOrderDocument, {}, { models }: IContext) {
+  async items(order: IOrderDocument, _params, { models }: IContext) {
     return await models.OrderItems.find({ orderId: order._id }).lean();
   },
 
@@ -88,11 +88,15 @@ export default {
     };
   },
 
-  async user(order: IOrderDocument, {}, { models }: IContext) {
+  async user(order: IOrderDocument, _params, { models }: IContext) {
     return models.PosUsers.findOne({ _id: order.userId });
   },
 
-  async putResponses(order: IOrderDocument, {}, { models, config }: IContext) {
+  async putResponses(
+    order: IOrderDocument,
+    _params,
+    { models, config }: IContext,
+  ) {
     if (order.billType === '9') {
       const items: IOrderItemDocument[] = await models.OrderItems.find({
         orderId: order._id,
@@ -142,7 +146,7 @@ export default {
     return putResponses.filter((pr) => !excludeIds.includes(pr._id));
   },
 
-  async deal(order: IOrderDocument, {}, { subdomain }: IContext) {
+  async deal(order: IOrderDocument, _params, { subdomain }: IContext) {
     if (!order.convertDealId) {
       return null;
     }
@@ -157,7 +161,7 @@ export default {
     });
   },
 
-  async dealLink(order: IOrderDocument, {}, { subdomain }: IContext) {
+  async dealLink(order: IOrderDocument, _params, { subdomain }: IContext) {
     if (!order.convertDealId) {
       return null;
     }
