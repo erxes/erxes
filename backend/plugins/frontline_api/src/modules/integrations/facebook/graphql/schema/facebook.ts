@@ -143,7 +143,7 @@ const commonBotParams = `
   accountId:String,
   pageId:String,
   persistentMenus:[BotPersistentMenuInput],
-  greetText:String
+  greetText:String,
   tag:String,
   isEnabledBackBtn:Boolean,
   backButtonText:String
