@@ -138,8 +138,23 @@ export const queries = `
   facebookGetBotPost(botId:String,postId:String):JSON
 `;
 
+const commonBotParams = `
+  name:String,
+  accountId:String,
+  pageId:String,
+  persistentMenus:[BotPersistentMenuInput],
+  greetText:String
+  tag:String,
+  isEnabledBackBtn:Boolean,
+  backButtonText:String
+`;
+
 export const mutations = `
   facebookUpdateConfigs(configsMap: JSON!): JSON
+  facebookMessengerAddBot(${commonBotParams}):JSON
+  facebookMessengerUpdateBot(_id:String,${commonBotParams}):JSON
+  facebookMessengerRemoveBot(_id:String):JSON
+  facebookMessengerRepairBot(_id:String):JSON
   facebookRepair(_id: String!): JSON
   facebookReplyToComment(conversationId: String, commentId: String, content: String): FacebookComment
 `;

@@ -59,7 +59,7 @@ export const loadFacebookBotClass = (models: IModels) => {
       const account = await models.FacebookAccounts.findOne({ _id: accountId });
 
       if (!account) {
-        throw new Error('Something went wrong');
+        throw new Error('Account not found');
       }
 
       let pageTokenResponse;
