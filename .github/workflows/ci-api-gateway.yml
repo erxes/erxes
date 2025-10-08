@@ -38,7 +38,6 @@ jobs:
       - name: Build gateway
         run: pnpm nx build gateway
 
-      # Buildx setup
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
