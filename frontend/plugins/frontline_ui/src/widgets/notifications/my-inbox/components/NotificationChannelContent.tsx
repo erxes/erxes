@@ -60,7 +60,7 @@ export const NotificationChannelContent = ({
           </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-semibold">
-              {fromUser?.details?.fullName || fromUser.email}
+              {fromUser?.details?.fullName || fromUser?.email}
             </span>
           </div>
         </div>
@@ -77,7 +77,7 @@ export const NotificationChannelContent = ({
       <p className="text-accent-foreground">{date}</p>
       <Button variant={'secondary'}>
         <Link to={`/settings/team-member?user_id=${fromUserId}`}>
-          {`View ${fromUser?.details?.fullName || fromUser.email}`}
+          {`View ${fromUser?.details?.fullName || fromUser?.email}`}
         </Link>
       </Button>
     </div>

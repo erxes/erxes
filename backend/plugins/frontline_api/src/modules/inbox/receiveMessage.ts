@@ -1,4 +1,4 @@
-import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
+import { CONVERSATION_STATUSES } from '~/modules/inbox/db/definitions/constants';
 import { generateModels } from '~/connectionResolvers';
 import { RPError, RPResult, RPSuccess } from 'erxes-api-shared/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
@@ -85,7 +85,7 @@ export const receiveInboxMessage = async (
         input: {
           doc: {
             ...doc,
-            scopeBrandIds: integration.brandId,
+            // scopeBrandIds: integration.brandId,
           },
         },
       });

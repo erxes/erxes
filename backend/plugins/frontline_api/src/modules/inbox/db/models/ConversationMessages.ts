@@ -1,12 +1,12 @@
 import { stripHtml } from 'string-strip-html';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { messageSchema } from '@/inbox/db/definitions/conversationMessages';
+import { messageSchema } from '~/modules/inbox/db/definitions/conversationMessages';
 import {
   IMessage,
   IMessageDocument,
-} from '@/inbox/@types/conversationMessages';
-import { MESSAGE_TYPES } from '@/inbox/db/definitions/constants';
+} from '~/modules/inbox/@types/conversationMessages';
+import { MESSAGE_TYPES } from '~/modules/inbox/db/definitions/constants';
 
 export interface IMessageModel extends Model<IMessageDocument> {
   getMessage(_id: string): Promise<IMessageDocument>;

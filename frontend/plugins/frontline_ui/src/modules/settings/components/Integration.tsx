@@ -1,7 +1,6 @@
 import { cn } from 'erxes-ui';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useIntegrationContext } from '../hooks/useIntegrationContext';
 import { useIntegrationsCounts } from '../hooks/useIntegrationsCounts';
 
 type Props = {
@@ -20,7 +19,7 @@ export const Integration = React.forwardRef<HTMLButtonElement, Props>(
       skip: !to,
     });
     return (
-      <Link to={{ pathname: `/settings/inbox/details/${to}` }}>
+      <Link to={{ pathname: `/settings/frontline/inbox/details/${to}` }}>
         <button
           ref={ref}
           {...rest}

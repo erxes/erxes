@@ -10,7 +10,6 @@ export const GET_CONVERSATIONS = gql`
     $channelId: String
     $status: String
     $unassigned: String
-    $brandId: String
     $tag: String
     $integrationType: String
     $starred: String
@@ -25,7 +24,6 @@ export const GET_CONVERSATIONS = gql`
       channelId: $channelId
       status: $status
       unassigned: $unassigned
-      brandId: $brandId
       tag: $tag
       integrationType: $integrationType
       starred: $starred

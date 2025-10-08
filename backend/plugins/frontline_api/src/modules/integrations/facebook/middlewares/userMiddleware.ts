@@ -1,5 +1,5 @@
 import { getSubdomain } from 'erxes-api-shared/utils';
-import { receiveInboxMessage } from '@/inbox/receiveMessage';
+import { receiveInboxMessage } from '~/modules/inbox/receiveMessage';
 export let userIds: string[] = [];
 
 export const userMiddleware = async (req, _res, next) => {

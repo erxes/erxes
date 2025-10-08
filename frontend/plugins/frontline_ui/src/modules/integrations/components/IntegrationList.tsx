@@ -1,7 +1,7 @@
 import { IconSearch } from '@tabler/icons-react';
 import { Card, Command, getPluginAssetsUrl, Input, Skeleton } from 'erxes-ui';
 import { INTEGRATIONS } from '../constants/integrations';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { IntegrationLogo } from './IntegrationLogo';
 import { IntegrationType } from '@/types/Integration';
 import { gql, useQuery } from '@apollo/client';
@@ -9,14 +9,14 @@ import { gql, useQuery } from '@apollo/client';
 export const IntegrationList = () => {
   return (
     <Command>
-      <div className="relative m-1 mb-8">
+      {/* <div className="relative m-1 mb-8">
         <Command.Primitive.Input placeholder="Search integrations" asChild>
           <Input className="pl-8" placeholder="Search integrations" />
         </Command.Primitive.Input>
         <div className="absolute left-2 top-1/2 -translate-y-1/2">
           <IconSearch className="size-4 text-accent-foreground" />
         </div>
-      </div>
+      </div> */}
       <Command.List className="p-0">
         <Command.Group
           heading="Integrations"
@@ -46,13 +46,17 @@ export const IntegrationCard = ({
   integration: (typeof INTEGRATIONS)[keyof typeof INTEGRATIONS];
   integrationType: IntegrationType;
 }) => {
+  const { id: channelId } = useParams();
   return (
     <Command.Primitive.Item asChild key={integrationType}>
-      <Link to={`/settings/inbox/integrations/${integrationType}`}>
+      <Link
+        to={`/settings/frontline/channels/details/${channelId}/${integrationType}`}
+      >
         <Card className="h-full p-3 flex flex-col gap-2 rounded-lg">
           <IntegrationIntro
             integration={integration}
             integrationType={integrationType}
+            channelId={channelId}
           />
         </Card>
       </Link>
@@ -63,9 +67,11 @@ export const IntegrationCard = ({
 export const IntegrationIntro = ({
   integration,
   integrationType,
+  channelId,
 }: {
   integration?: (typeof INTEGRATIONS)[keyof typeof INTEGRATIONS];
   integrationType: IntegrationType;
+  channelId?: string;
 }) => {
   if (!integration) {
     return null;
@@ -82,7 +88,10 @@ export const IntegrationIntro = ({
           {integration.name}
         </h6>
         <div className="text-xs text-muted-foreground font-mono ml-auto">
-          <IntegrationCount kind={integrationType} />
+          <IntegrationCount
+            kind={integrationType}
+            channelId={channelId || ''}
+          />
         </div>
       </div>
       <div className="text-sm text-muted-foreground font-medium">
@@ -92,17 +101,24 @@ export const IntegrationIntro = ({
   );
 };
 
-const IntegrationCount = ({ kind }: { kind: string }) => {
+const IntegrationCount = ({
+  kind,
+  channelId,
+}: {
+  kind: string;
+  channelId: string;
+}) => {
   const { data, loading } = useQuery(
     gql`
-      query IntegrationsTotalCount($kind: String) {
-        integrationsTotalCount(kind: $kind) {
+      query IntegrationsTotalCount($kind: String, $channelId: String!) {
+        integrationsTotalCount(kind: $kind, channelId: $channelId) {
           total
         }
       }
     `,
     {
       variables: {
+        channelId: channelId || '',
         kind,
       },
     },

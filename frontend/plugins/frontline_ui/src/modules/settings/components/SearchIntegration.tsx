@@ -54,7 +54,7 @@ export const SearchIntegration = () => {
         />
         <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
           {isLoading ? (
-            <Spinner size={'small'} />
+            <Spinner size={'sm'} />
           ) : (
             <IconSearch size={16} aria-hidden="true" />
           )}

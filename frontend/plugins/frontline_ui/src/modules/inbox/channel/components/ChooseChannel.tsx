@@ -1,4 +1,3 @@
-import { useChannelsByMembers } from '@/inbox/channel/hooks/useChannels';
 import {
   cn,
   Collapsible,
@@ -12,8 +11,7 @@ import { useAtom } from 'jotai';
 import { IChannel } from '@/inbox/types/Channel';
 import { IconCheck } from '@tabler/icons-react';
 import { channelCollapsibleState } from '@/inbox/channel/states/channelCollapsibleState';
-import { useSetAtom } from 'jotai';
-import { selectMainFilterState } from '@/inbox/states/inboxLayoutState';
+import { useGetChannels } from '@/channels/hooks/useGetChannels';
 
 export const ChooseChannel = () => {
   const [open, setOpen] = useAtom(channelCollapsibleState);
@@ -26,7 +24,7 @@ export const ChooseChannel = () => {
     >
       <Collapsible.TriggerButton className="flex-none">
         <Collapsible.TriggerIcon className="group-data-[state=open]/channel:rotate-180" />
-        Channels
+        {'Channels'}
       </Collapsible.TriggerButton>
       <Collapsible.Content className=" flex flex-col gap-1 overflow-hidden">
         <ChooseChannelContent open={open} />
@@ -36,7 +34,7 @@ export const ChooseChannel = () => {
 };
 
 const ChooseChannelContent = ({ open }: { open: boolean }) => {
-  const { channels, loading } = useChannelsByMembers({
+  const { channels, loading } = useGetChannels({
     skip: !open,
   });
 
@@ -75,13 +73,11 @@ const ChooseChannelContent = ({ open }: { open: boolean }) => {
 
 const ChannelItem = ({ _id, name }: IChannel) => {
   const [channelId, setChannelId] = useQueryState<string>('channelId');
-  const selectMainFilter = useSetAtom(selectMainFilterState);
 
   const isActive = channelId === _id;
 
   const handleClick = () => {
     setChannelId(_id === channelId ? null : _id);
-    selectMainFilter();
   };
 
   return (
@@ -95,7 +91,6 @@ const ChannelItem = ({ _id, name }: IChannel) => {
     >
       {isActive && <IconCheck className="absolute left-1.5" />}
       <TextOverflowTooltip value={name} />
-      <span className="ml-auto text-xs text-accent-foreground pr-2">0</span>
     </Command.Item>
   );
 };

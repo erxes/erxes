@@ -1,6 +1,6 @@
-import { channelQueries } from '@/inbox/graphql/resolvers/queries/channels';
-import { conversationQueries } from '@/inbox/graphql/resolvers/queries/conversations';
-import { integrationQueries } from '@/inbox/graphql/resolvers/queries/integrations';
+import { channelQueries } from '~/modules/channel/graphql/resolvers/queries/channel';
+import { conversationQueries } from '~/modules/inbox/graphql/resolvers/queries/conversations';
+import { integrationQueries } from '~/modules/inbox/graphql/resolvers/queries/integrations';
 import { facebookQueries } from '@/integrations/facebook/graphql/resolvers/queries';
 import callQueries from '@/integrations/call/graphql/resolvers/queries';
 import { imapQueries } from '@/integrations/imap/graphql/resolvers/queries';

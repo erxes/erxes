@@ -253,9 +253,9 @@ const webhookDataSchema = new Schema(
 // schema for integration document
 export const integrationSchema = schemaWrapper(
   new Schema({
-    _id: mongooseStringRandomId,
+    _id: { type: String, label: '_id' },
     createdUserId: { type: String, label: 'Created by' },
-
+    channelId: { type: String, label: 'Channel id' },
     kind: {
       type: String,
       label: 'Kind',
@@ -263,7 +263,6 @@ export const integrationSchema = schemaWrapper(
     createdAt: { type: 'Date', label: 'Created at' },
 
     name: { type: String, label: 'Name' },
-    brandId: { type: String, label: 'Brand' },
 
     tagIds: { type: [String], label: 'Tags', index: true },
     formId: { type: String, label: 'Form' },

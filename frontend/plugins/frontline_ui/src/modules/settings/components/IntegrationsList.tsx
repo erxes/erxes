@@ -35,6 +35,7 @@ export const IntegrationsList = () => {
   const { integrations, loading, error } = useIntegrations({
     variables: {
       kind: params?.kind,
+      channelId: params?.channelId,
     },
     skip: !params?.kind,
   });
@@ -110,19 +111,6 @@ export const integrationTypeColumns: ColumnDef<IIntegrationColumnDef>[] = [
         </RecordTableInlineCell>
       );
     },
-  },
-  {
-    id: 'brandId',
-    accessorKey: 'brandId',
-    header: () => <RecordTable.InlineHead label="Brand" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
-    },
-    size: 235,
   },
   {
     id: 'isActive',

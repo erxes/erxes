@@ -9,7 +9,7 @@ import { Button, PageContainer } from 'erxes-ui';
 
 import { InboxSettingsTopbar } from '../settings/components/InboxSettingsTopbar';
 import { InboxSettingsSidebar } from '../settings/components/Sidebar';
-import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { Outlet, Route, Routes } from 'react-router-dom';
 import { PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
 import { IconMailFilled } from '@tabler/icons-react';
 import { FrontlinePaths } from '@/types/FrontlinePaths';
@@ -23,7 +23,7 @@ export const IntegrationSettingsPage = lazy(() =>
 
 export const ChannelsSettingsPage = lazy(() =>
   import('~/pages/ChannelsSettingsPage').then((module) => ({
-    default: module.default,
+    default: module.ChannelsSettingsPage,
   })),
 );
 
@@ -82,22 +82,10 @@ const InboxSettings = () => {
               </div>
             }
           >
-            <Route path="/" element={<Navigate to="integrations" replace />} />
-            <Route
-              path={FrontlinePaths.Integrations}
-              element={<IntegrationSettingsPage />}
-            />
-            <Route
-              path={FrontlinePaths.IntegrationDetail}
-              element={<IntegrationDetailPage />}
-            />
+            <Route path="/" element={<IntegrationSettingsPage />} />
             <Route
               path={FrontlinePaths.IntegrationConfig}
               element={<IntegrationConfigPage />}
-            />
-            <Route
-              path={FrontlinePaths.Channels}
-              element={<ChannelsSettingsPage />}
             />
           </Route>
           <Route

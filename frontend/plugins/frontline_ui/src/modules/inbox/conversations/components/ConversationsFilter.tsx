@@ -33,7 +33,8 @@ export const FilterConversationsPopover = () => {
     unassigned: boolean;
     awaitingResponse: boolean;
     participated: boolean;
-  }>(['status', 'unassigned', 'awaitingResponse', 'participated']);
+    channelId: string;
+  }>(['status', 'unassigned', 'awaitingResponse', 'participated', 'channelId']);
   const { status, unassigned, awaitingResponse, participated } = queries || {};
 
   return (
@@ -135,7 +136,15 @@ export const ConversationFilterBar = ({
     awaitingResponse: boolean;
     participated: boolean;
     created: Date;
-  }>(['status', 'unassigned', 'awaitingResponse', 'participated', 'created']);
+    channelId: string;
+  }>([
+    'status',
+    'unassigned',
+    'awaitingResponse',
+    'participated',
+    'created',
+    'channelId',
+  ]);
 
   if (Object.values(filterStates).length === 0) {
     return null;

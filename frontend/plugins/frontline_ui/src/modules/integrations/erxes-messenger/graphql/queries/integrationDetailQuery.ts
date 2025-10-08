@@ -5,9 +5,8 @@ export const EM_INTEGRATION_DETAIL_QUERY = gql`
     integrationDetail(_id: $_id) {
       _id
       name
-      brandId
       languageCode
-      channels {
+      channel {
         _id
       }
       messengerData

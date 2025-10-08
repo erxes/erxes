@@ -1,17 +1,15 @@
 import {
-  IIntegrationDocument,
   IIntegration,
   IMessengerData,
   IUiOptions,
   ITicketData,
   IOnboardingParamsEdit,
   IArchiveParams,
-} from '@/inbox/@types/integrations';
+} from '~/modules/inbox/@types/integrations';
 import { IContext, IModels } from '~/connectionResolvers';
-import { IExternalIntegrationParams } from '@/inbox/db/models/Integrations';
+import { IExternalIntegrationParams } from '~/modules/inbox/db/models/Integrations';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { getUniqueValue } from 'erxes-api-shared/utils';
-import { IChannelDocument } from '@/inbox/@types/channels';
 import {
   facebookUpdateIntegrations,
   facebookRemoveIntegrations,
@@ -24,6 +22,7 @@ import {
   callRemoveIntergration,
   callUpdateIntegration,
 } from '~/modules/integrations/call/messageBroker';
+import { IChannelDocument } from '~/modules/channel/@types/channel';
 
 interface IntegrationParams {
   integrationId: string;
@@ -39,6 +38,7 @@ interface UpdateIntegrationDoc {
   accountId: string;
   kind: string;
   integrationId: string;
+  channelId: string;
   data?: string;
 }
 
@@ -184,41 +184,6 @@ export const sendRepairIntegration = async (
   }
 };
 
-const createIntegration = async (
-  models: IModels,
-  doc: IIntegration,
-  integration: IIntegrationDocument,
-) => {
-  if (doc.channelIds) {
-    await models.Channels.updateMany(
-      { _id: { $in: doc.channelIds } },
-      { $push: { integrationIds: integration._id } },
-    );
-  }
-  return integration;
-};
-
-const editIntegration = async (
-  fields: IIntegration,
-  integration: IIntegrationDocument,
-  updated: IIntegrationDocument,
-  models: IModels,
-) => {
-  await models.Channels.updateMany(
-    { integrationIds: integration._id },
-    { $pull: { integrationIds: integration._id } },
-  );
-
-  if (fields.channelIds) {
-    await models.Channels.updateMany(
-      { _id: { $in: fields.channelIds } },
-      { $push: { integrationIds: integration._id } },
-    );
-  }
-
-  return updated;
-};
-
 export const integrationMutations = {
   /**
    * Creates a new messenger onboarding
@@ -235,7 +200,7 @@ export const integrationMutations = {
     if (integrationsCount > 0) {
       return models.Integrations.findOne();
     }
-    const brand = await sendTRPCMessage({
+    await sendTRPCMessage({
       pluginName: 'core',
       method: 'mutation',
       module: 'brands',
@@ -248,16 +213,32 @@ export const integrationMutations = {
     })) as IChannelDocument;
 
     if (!channel) {
-      channel = await models.Channels.createChannel(
-        { name: 'Default channel', memberIds: [user._id] },
-        user._id,
-      );
+      channel = await models.Channels.createChannel({
+        channelDoc: { name: 'Default channel' },
+        adminId: user._id,
+        memberIds: [],
+      });
+      await models.ChannelMembers.create({
+        channelId: channel._id,
+        memberId: user._id,
+      });
+    } else {
+      const isMember = await models.ChannelMembers.exists({
+        channelId: channel._id,
+        memberId: user._id,
+      });
+
+      if (!isMember) {
+        await models.ChannelMembers.create({
+          channelId: channel._id,
+          memberId: user._id,
+        });
+      }
     }
 
     const integrationDocs = {
       name: 'Default brand',
-      channelIds: [channel._id],
-      brandId: brand._id,
+      channelId: channel._id,
       messengerData: {},
     } as IIntegration;
 
@@ -268,12 +249,10 @@ export const integrationMutations = {
 
     const uiOptions = { ...doc };
 
-    await models.Integrations.saveMessengerAppearanceData(
+    return await models.Integrations.saveMessengerAppearanceData(
       integration._id,
       uiOptions,
     );
-
-    return createIntegration(models, integrationDocs, integration);
   },
 
   async integrationsEditMessengerOnboarding(
@@ -281,7 +260,7 @@ export const integrationMutations = {
     { _id, brandId, ...fields }: any,
     { models }: IContext,
   ) {
-    const brand = await sendTRPCMessage({
+    await sendTRPCMessage({
       pluginName: 'core',
       method: 'mutation',
       module: 'brands',
@@ -289,14 +268,19 @@ export const integrationMutations = {
       input: { _id: brandId, fields: { name: fields.brandName } },
     });
     const integration = await models.Integrations.getIntegration({ _id });
+
+    if (!integration) {
+      throw new Error('Integration not found');
+    }
+
     const channel = await models.Channels.findOne({
       name: 'Default channel',
     });
 
     const integrationDocs = {
       name: 'Default brand',
-      brandId: brand._id,
-      channelIds: [channel?._id],
+      // brandId: brand._id,
+      channelId: channel?._id,
     } as IIntegration;
 
     const updated = await models.Integrations.updateMessengerIntegration(
@@ -306,12 +290,10 @@ export const integrationMutations = {
 
     const uiOptions = { logo: fields.logo, color: fields.color };
 
-    await models.Integrations.saveMessengerAppearanceData(
+    return await models.Integrations.saveMessengerAppearanceData(
       updated._id,
       uiOptions,
     );
-
-    return editIntegration(integrationDocs, integration, updated, models);
   },
 
   /**
@@ -323,12 +305,7 @@ export const integrationMutations = {
     doc: IIntegration,
     { user, models }: IContext,
   ) {
-    const integration = await models.Integrations.createMessengerIntegration(
-      doc,
-      user._id,
-    );
-
-    return createIntegration(models, doc, integration);
+    return await models.Integrations.createMessengerIntegration(doc, user._id);
   },
 
   /**
@@ -340,12 +317,12 @@ export const integrationMutations = {
     { models }: IContext,
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
-    const updated = await models.Integrations.updateMessengerIntegration(
-      _id,
-      fields,
-    );
 
-    return editIntegration(fields, integration, updated, models);
+    if (!integration) {
+      throw new Error('Integration not found');
+    }
+
+    return await models.Integrations.updateMessengerIntegration(_id, fields);
   },
 
   /**
@@ -381,12 +358,7 @@ export const integrationMutations = {
     doc: IIntegration,
     { user, models }: IContext,
   ) {
-    const integration = await models.Integrations.createLeadIntegration(
-      doc,
-      user._id,
-    );
-
-    return createIntegration(models, doc, integration);
+    return await models.Integrations.createLeadIntegration(doc, user._id);
   },
 
   /**
@@ -399,9 +371,11 @@ export const integrationMutations = {
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
 
-    const updated = await models.Integrations.updateLeadIntegration(_id, doc);
+    if (!integration) {
+      throw new Error('Integration not found');
+    }
 
-    return editIntegration(doc, integration, updated, models);
+    return await models.Integrations.updateLeadIntegration(_id, doc);
   },
 
   /**
@@ -428,21 +402,10 @@ export const integrationMutations = {
       }
     }
 
-    if (doc.channelIds && doc.channelIds.length === 0) {
-      throw new Error('Channel must be chosen');
-    }
-
     const integration = await models.Integrations.createExternalIntegration(
       modifiedDoc,
       user._id,
     );
-
-    if (doc.channelIds) {
-      await models.Channels.updateMany(
-        { _id: { $in: doc.channelIds } },
-        { $push: { integrationIds: integration._id } },
-      );
-    }
 
     const kind = doc.kind.split('-')[0];
     if (kind === 'cloudflarecalls') {
@@ -470,13 +433,12 @@ export const integrationMutations = {
 
   async integrationsEditCommonFields(
     _root,
-    { _id, name, brandId, channelIds, details },
+    { _id, name, details, channelId },
     { models, subdomain }: IContext,
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
 
-    const doc: any = { name, brandId, details };
-
+    const doc: any = { name, details };
     let { kind } = integration;
     if (kind === 'facebook-messenger' || kind === 'facebook-post') {
       kind = 'facebook';
@@ -484,21 +446,12 @@ export const integrationMutations = {
     if (kind === 'instagram-messenger' || kind === 'instagram-post') {
       kind = 'instagram';
     }
-    await models.Integrations.updateOne({ _id }, { $set: doc });
-
-    const updated = await models.Integrations.getIntegration({ _id });
-
-    await models.Channels.updateMany(
-      { integrationIds: integration._id },
-      { $pull: { integrationIds: integration._id } },
+    await models.Integrations.updateOne(
+      { _id },
+      { $set: { ...doc, ...(channelId && { channelId }) } },
     );
 
-    if (channelIds) {
-      await models.Channels.updateMany(
-        { _id: { $in: channelIds } },
-        { $push: { integrationIds: integration._id } },
-      );
-    }
+    const updated = await models.Integrations.getIntegration({ _id });
 
     const serviceName = integration.kind.split('-')[0];
     await sendUpdateIntegration(subdomain, serviceName, {
@@ -508,6 +461,7 @@ export const integrationMutations = {
         accountId: doc.accountId,
         kind: kind,
         integrationId: integration._id,
+        channelId: doc.channelId,
         data: details ? JSON.stringify(details) : '',
       },
     });

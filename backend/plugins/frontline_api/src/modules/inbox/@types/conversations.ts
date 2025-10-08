@@ -55,7 +55,6 @@ export interface IConversationListParams
   status?: string;
   unassigned?: string;
   awaitingResponse?: string;
-  brandId?: string;
   tag?: string;
   integrationType?: string;
   participating?: string;

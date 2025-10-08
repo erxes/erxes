@@ -28,7 +28,7 @@ export const FacebookIntegrationSetup = () => {
     defaultValues: {
       name: '',
       brandId: '',
-      channelIds: [],
+      channelId: '',
     },
   });
 
@@ -49,7 +49,7 @@ export const FacebookIntegrationSetup = () => {
         name: data.name,
         brandId: data.brandId,
         accountId,
-        channelIds: data.channelIds,
+        channelId: data.channelId,
         data: {
           pageIds: [pageId],
         },
@@ -121,15 +121,14 @@ export const FacebookIntegrationSetup = () => {
               )}
             />
             <Form.Field
-              name="channelIds"
+              name="channelId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Channels</Form.Label>
+                  <Form.Label>Channel</Form.Label>
                   <SelectChannel.FormItem
                     className="flex w-full"
                     value={field.value || []}
                     onValueChange={field.onChange}
-                    mode="multiple"
                   />
                   <Form.Description>
                     Which specific Channel does this integration belong to?
