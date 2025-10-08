@@ -1,0 +1,127 @@
+import {
+  graphqlAttachmentType,
+  graphqlAttachmentInput,
+  graphqlPdfAttachmentType,
+  graphqlPdfAttachmentInput,
+} from 'erxes-api-shared/utils';
+
+const commonFieldDefs = `
+  _id: String!
+  name: String
+  description: String
+  attachment: Attachment
+  code: String
+`;
+// ${graphqlAttachmentType}
+// ${graphqlAttachmentInput}
+// ${graphqlPdfAttachmentType}
+// ${graphqlPdfAttachmentInput}
+export const types = `
+
+
+
+  type PosProductCategory {
+    ${commonFieldDefs}
+    parentId: String
+    meta: String
+    order: String!
+    isRoot: Boolean
+    productCount: Int
+    maskType: String
+    mask: JSON
+    isSimilarity: Boolean
+    similarities: JSON
+  }
+
+  type PoscProduct {
+    ${commonFieldDefs}
+    shortName: String
+    type: String
+    barcodes: [String]
+    barcodeDescription: String
+    unitPrice: Float
+    categoryId: String
+    customFieldsData: JSON
+    customFieldsDataByFieldCode: JSON
+    createdAt: Date
+    tagIds: [String]
+    vendorId: String
+    attachmentMore: [Attachment]
+    uom: String
+    subUoms: JSON
+    category: PosProductCategory
+    remainder: Float
+    soonIn: Float
+    soonOut: Float
+    remainders: [JSON]
+    isCheckRem: Boolean
+    hasSimilarity: Boolean
+    pdfAttachment: PdfAttachment
+  }
+
+  type PoscProductSimilarityGroup {
+    title: String
+    fieldId: String
+  }
+  type PoscProductSimilarity {
+    products: [PoscProduct],
+    groups: [PoscProductSimilarityGroup],
+  }
+`;
+
+const productsQueryParams = `
+  type: String,
+  categoryId: String,
+  searchValue: String,
+  vendorId: String,
+  tag: String,
+  tags: [String]
+  excludeTags: [String]
+  tagWithRelated: Boolean
+  ids: [String],
+  excludeIds: Boolean,
+  segment: String,
+  segmentData: String,
+  isKiosk: Boolean,
+  groupedSimilarity: String,
+  categoryMeta: String,
+  image: String,
+`;
+
+const productCategoriesParams = `
+  parentId: String,
+  withChild: Boolean,
+  searchValue: String,
+  status: String,
+  excludeEmpty: Boolean,
+  meta: String,
+  isKiosk: Boolean,
+  ids: [String],
+  excludeIds: Boolean,
+`;
+const commonParams = `
+  page: Int,
+  perPage: Int,
+  sortField: String,
+  sortDirection: Int,
+`;
+
+export const queries = `
+  poscProductCategories(
+    ${productCategoriesParams}
+    ${commonParams}
+  ): [PosProductCategory]
+  poscProductCategoriesTotalCount(${productCategoriesParams}): Int
+  poscProductCategoryDetail(_id: String): PosProductCategory
+
+  poscProducts(
+    ${productsQueryParams}
+    ${commonParams}
+  ): [PoscProduct]
+  poscProductsTotalCount(
+    ${productsQueryParams}
+  ): Int
+  poscProductDetail(_id: String, branchId: String): PoscProduct
+  getPriceInfo(productId: String!): String
+  poscProductSimilarities(_id: String!, groupedSimilarity: String, branchId: String): PoscProductSimilarity
+`;

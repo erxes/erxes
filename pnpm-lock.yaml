@@ -1496,6 +1496,24 @@ importers:
         specifier: ^0.5.48
         version: 0.5.48
 
+  backend/plugins/posclient_api:
+    dependencies:
+      aws-sdk:
+        specifier: ^2.1692.0
+        version: 2.1692.0
+      debug:
+        specifier: ^4.4.0
+        version: 4.4.0(supports-color@5.5.0)
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../erxes-api-shared
+      fbgraph:
+        specifier: ^1.4.4
+        version: 1.4.4
+      moment-timezone:
+        specifier: ^0.5.48
+        version: 0.5.48
+
   backend/plugins/sales_api:
     dependencies:
       erxes-api-shared:

@@ -1,0 +1,139 @@
+import { attachmentSchema, customFieldSchema, ICustomField } from './common';
+import { Document, Schema } from 'mongoose';
+import {
+  field,
+  getDateFieldDefinition,
+  schemaHooksWrapper,
+  schemaWrapper,
+} from './utils';
+import {
+  PRODUCT_CATEGORY_STATUSES,
+  PRODUCT_STATUSES,
+  PRODUCT_TYPES,
+} from './constants';
+
+const subUomSchema = new Schema({
+  _id: field({ pkey: true }),
+  uom: field({ type: String, label: 'Sub unit of measurement' }),
+  ratio: field({ type: Number, label: 'ratio of sub uom to main uom' }),
+});
+
+export const productSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    categoryId: field({ type: String, label: 'Category' }),
+    name: field({ type: String, label: 'Name' }),
+    shortName: field({ type: String, optional: true, label: 'Short name' }),
+    code: field({ type: String, label: 'Code' }),
+    barcodes: field({
+      type: [String],
+      optional: true,
+      label: 'Barcodes',
+      index: true,
+    }),
+    barcodeDescription: field({
+      type: String,
+      optional: true,
+      label: 'Barcode Description',
+    }),
+    description: field({ type: String, optional: true, label: 'Description' }),
+    attachment: field({ type: attachmentSchema }),
+    createdAt: getDateFieldDefinition('Created at'),
+    type: field({
+      type: String,
+      enum: PRODUCT_TYPES.ALL,
+      default: PRODUCT_TYPES.PRODUCT,
+      label: 'Type',
+    }),
+    tagIds: field({
+      type: [String],
+      optional: true,
+      label: 'Tags',
+      index: true,
+    }),
+    uom: field({
+      type: String,
+      optional: true,
+      label: 'Main unit of measurement',
+    }),
+    subUoms: field({
+      type: [subUomSchema],
+      optional: true,
+      label: 'Sum unit of measurements',
+    }),
+    prices: field({
+      type: Object,
+      label: 'Unit price by token',
+    }),
+    taxRules: field({
+      type: Object,
+      optional: true,
+      label: 'tax rules by token',
+    }),
+    customFieldsData: field({
+      type: [customFieldSchema],
+      optional: true,
+      label: 'Custom fields data',
+    }),
+    status: field({
+      type: String,
+      enum: PRODUCT_STATUSES.ALL,
+      optional: true,
+      label: 'Status',
+      default: 'active',
+      esType: 'keyword',
+      index: true,
+    }),
+    vendorId: field({ type: String, optional: true, label: 'Vendor' }),
+    mergedIds: field({ type: [String], optional: true }),
+    attachmentMore: field({ type: [attachmentSchema] }),
+    tokens: field({ type: [String] }),
+    isCheckRems: field({
+      type: Object,
+      optional: true,
+      label: 'check remainder by token',
+    }),
+    sameMasks: field({ type: [String] }),
+    sameDefault: field({ type: [String] }),
+    pdfAttachment: field({
+      type: Object,
+      optional: true,
+      label: 'PDF attachment',
+    }),
+  }),
+);
+
+export const productCategorySchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    order: field({ type: String, label: 'Order' }),
+    parentId: field({ type: String, optional: true, label: 'Parent' }),
+    name: field({ type: String, label: 'Name' }),
+    code: field({ type: String, label: 'Code' }),
+    description: field({ type: String, optional: true, label: 'Description' }),
+    meta: field({ type: String, optional: true, label: 'Meta' }),
+    attachment: field({ type: attachmentSchema }),
+    status: field({
+      type: String,
+      enum: PRODUCT_CATEGORY_STATUSES.ALL,
+      optional: true,
+      label: 'Status',
+      default: 'active',
+      esType: 'keyword',
+      index: true,
+    }),
+    createdAt: getDateFieldDefinition('Created at'),
+    tokens: field({ type: [String] }),
+    mask: field({ type: Object, label: 'Mask' }),
+    isSimilarity: field({ type: Boolean, label: 'is Similiraties' }),
+    similarities: field({
+      type: [{ id: String, groupId: String, fieldId: String, title: String }],
+    }),
+    maskType: field({
+      type: String,
+      optional: true,
+      label: 'Mask type',
+    }),
+  }),
+  'erxes_productCategorySchema',
+);

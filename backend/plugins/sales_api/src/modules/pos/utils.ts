@@ -28,7 +28,7 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
     pluginName: 'core',
     module: 'productCategories',
     action: 'withChilds',
-    input: { ids: categoryIds },
+    input: { _ids: categoryIds },
     defaultValue: [],
   });
 
@@ -93,8 +93,8 @@ export const getBranchesUtil = async (
   return await sendCoreMessage({
     method: 'query',
     pluginName: 'core',
-    module: 'structure',
-    action: 'branches.find',
+    module: 'branches',
+    action: 'find',
     input: {
       query: { _id: { $in: healthyBranchIds } },
       fields: {
