@@ -16,7 +16,7 @@ export const usePluginsModules = () => {
     if (pluginsMetaData) {
       const pluginsModules = Object.values(pluginsMetaData || {}).flatMap(
         (plugin) =>
-          plugin.modules.map((module) => ({
+          (plugin.modules || []).map((module) => ({
             ...module,
             pluginName: plugin.name,
           })),
