@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { coverSchema } from '../definitions/covers';
 import { ICover, ICoverDocument } from '@/posclient/@types/cover';
 

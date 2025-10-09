@@ -9,7 +9,9 @@ export default async function posUserMiddleware(
   let token;
   try {
     token = req.cookies['pos-auth-token'];
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+  }
 
   if (token) {
     try {

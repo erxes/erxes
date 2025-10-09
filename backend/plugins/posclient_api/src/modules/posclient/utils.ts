@@ -410,7 +410,7 @@ export const prepareSettlePayment = async (
     orderId: order._id,
   }).lean();
 
-  await validateOrderPayment(order, { billType });
+  validateOrderPayment(order, { billType });
   const now = new Date();
 
   const ebarimtConfig: any = config.ebarimtConfig;

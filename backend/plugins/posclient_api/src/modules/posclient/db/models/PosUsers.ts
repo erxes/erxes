@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcryptjs';
-import * as crypto from 'crypto';
+import * as crypto from 'node:crypto';
 import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
 import sha256 from 'sha256';
@@ -142,7 +142,7 @@ export const loadPosUserClass = (models) => {
         : { email: doc.email };
       const user = await models.PosUsers.findOne(query);
 
-      if (user && user._id) {
+      if (user?._id) {
         const tokens = user.tokens || [];
         if (!tokens.includes(token)) {
           tokens.push(token);
@@ -221,6 +221,7 @@ export const loadPosUserClass = (models) => {
         _id = user._id;
         // if refresh token is expired then force to login
       } catch (e) {
+        console.log(e);
         return {};
       }
 
@@ -265,7 +266,7 @@ export const loadPosUserClass = (models) => {
         tokens: { $in: [config.token] },
       });
       console.log('user', user);
-      if (!user || !user.password) {
+      if (!user?.password) {
         // user with provided email not found
         throw new Error('Invalid login');
       }

@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { orderSchema } from '../definitions/orders';
 import { IOrder, IOrderDocument } from '@/posclient/@types/orders';
 

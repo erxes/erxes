@@ -1,10 +1,3 @@
-import {
-  graphqlAttachmentType,
-  graphqlAttachmentInput,
-  graphqlPdfAttachmentType,
-  graphqlPdfAttachmentInput,
-} from 'erxes-api-shared/utils';
-
 const commonFieldDefs = `
   _id: String!
   name: String
@@ -12,14 +5,8 @@ const commonFieldDefs = `
   attachment: Attachment
   code: String
 `;
-// ${graphqlAttachmentType}
-// ${graphqlAttachmentInput}
-// ${graphqlPdfAttachmentType}
-// ${graphqlPdfAttachmentInput}
+
 export const types = `
-
-
-
   type PosProductCategory {
     ${commonFieldDefs}
     parentId: String

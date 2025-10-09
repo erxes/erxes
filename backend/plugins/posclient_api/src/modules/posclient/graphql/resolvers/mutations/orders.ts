@@ -102,8 +102,7 @@ export const getStatus = (config, buttonType, doc, order?) => {
 
     if (
       [ORDER_STATUSES.COMPLETE, ORDER_STATUSES.DONE].includes(order.status) &&
-      doc.items &&
-      doc.items.length
+      doc?.items?.length
     ) {
       const newItems =
         doc.items.filter((i) => i.status === ORDER_ITEM_STATUSES.NEW) || [];

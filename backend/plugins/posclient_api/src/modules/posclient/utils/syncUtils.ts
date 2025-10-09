@@ -221,42 +221,33 @@ export const extractConfig = async (subdomain, doc) => {
   const FILE_PATH = `${await getServerAddress(subdomain, 'core')}/read-file`;
 
   try {
-    uiOptions.favIcon =
-      uiOptions.favIcon && uiOptions.favIcon.indexOf('http') === -1
-        ? `${FILE_PATH}?key=${uiOptions.favIcon}`
-        : uiOptions.favIcon;
+    uiOptions.favIcon = uiOptions?.favIcon?.includes('http')
+      ? `${FILE_PATH}?key=${uiOptions.favIcon}`
+      : uiOptions.favIcon;
 
-    uiOptions.logo =
-      uiOptions.logo && uiOptions.logo.indexOf('http') === -1
-        ? `${FILE_PATH}?key=${uiOptions.logo}`
-        : uiOptions.logo;
+    uiOptions.logo = uiOptions?.logo?.includes('http')
+      ? `${FILE_PATH}?key=${uiOptions.logo}`
+      : uiOptions.logo;
 
-    uiOptions.bgImage =
-      uiOptions.bgImage && uiOptions.bgImage.indexOf('http') === -1
-        ? `${FILE_PATH}?key=${uiOptions.bgImage}`
-        : uiOptions.bgImage;
+    uiOptions.bgImage = uiOptions?.bgImage?.includes('http')
+      ? `${FILE_PATH}?key=${uiOptions.bgImage}`
+      : uiOptions.bgImage;
 
-    uiOptions.receiptIcon =
-      uiOptions.receiptIcon && uiOptions.receiptIcon.indexOf('http') === -1
-        ? `${FILE_PATH}?key=${uiOptions.receiptIcon}`
-        : uiOptions.receiptIcon;
+    uiOptions.receiptIcon = uiOptions?.receiptIcon?.includes('http')
+      ? `${FILE_PATH}?key=${uiOptions.receiptIcon}`
+      : uiOptions.receiptIcon;
 
-    uiOptions.kioskHeaderImage =
-      uiOptions.kioskHeaderImage &&
-      uiOptions.kioskHeaderImage.indexOf('http') === -1
-        ? `${FILE_PATH}?key=${uiOptions.kioskHeaderImage}`
-        : uiOptions.kioskHeaderImage;
+    uiOptions.kioskHeaderImage = uiOptions?.kioskHeaderImage?.includes('http')
+      ? `${FILE_PATH}?key=${uiOptions.kioskHeaderImage}`
+      : uiOptions.kioskHeaderImage;
 
-    uiOptions.mobileAppImage =
-      uiOptions.mobileAppImage &&
-      uiOptions.mobileAppImage.indexOf('http') === -1
-        ? `${FILE_PATH}?key=${uiOptions.mobileAppImage}`
-        : uiOptions.mobileAppImage;
+    uiOptions.mobileAppImage = uiOptions?.mobileAppImage?.includes('http')
+      ? `${FILE_PATH}?key=${uiOptions.mobileAppImage}`
+      : uiOptions.mobileAppImage;
 
-    uiOptions.qrCodeImage =
-      uiOptions.qrCodeImage && uiOptions.qrCodeImage.indexOf('http') === -1
-        ? `${FILE_PATH}?key=${uiOptions.qrCodeImage}`
-        : uiOptions.qrCodeImage;
+    uiOptions.qrCodeImage = uiOptions?.qrCodeImage?.includes('http')
+      ? `${FILE_PATH}?key=${uiOptions.qrCodeImage}`
+      : uiOptions.qrCodeImage;
   } catch (e) {
     console.log(e.message);
   }
@@ -401,8 +392,7 @@ export const receiveProductCategory = async (models: IModels, data) => {
 
 export const receiveUser = async (models: IModels, data) => {
   const { action = '', object = {}, updatedDocument = {}, token } = data;
-  const userId =
-    updatedDocument && updatedDocument._id ? updatedDocument._id : '';
+  const userId = updatedDocument?._id ? updatedDocument._id : '';
 
   // user create logic will be implemented in pos config changes
   const user = await models.PosUsers.findOne({ _id: userId });
