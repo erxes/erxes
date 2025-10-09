@@ -1,7 +1,7 @@
-import AddForm from '../../containers/portable/AddForm';
-import { IOptions } from '../../types';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
+import AddForm from "../../containers/portable/AddForm";
+import { IOptions } from "../../types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
 
 type Props = {
   relType: string;
@@ -16,7 +16,7 @@ type Props = {
   type?: string;
   description?: string;
   attachments?: any[];
-  
+
   autoOpenKey?: string;
 };
 
@@ -34,15 +34,15 @@ export default function ConvertTrigger(props: Props) {
     subject,
     description,
     attachments,
-    
-    autoOpenKey
+
+    autoOpenKey,
   } = props;
 
   if (url) {
     return (
       <a
         onClick={() => {
-          window.open(url, '_blank');
+          window.open(url, "_blank");
         }}
         id={autoOpenKey}
       >
@@ -52,8 +52,7 @@ export default function ConvertTrigger(props: Props) {
   }
 
   const trigger = <a id={autoOpenKey}>{title}</a>;
-
-  const content = formProps => (
+  const content = (formProps) => (
     <AddForm
       options={options}
       {...formProps}
@@ -67,7 +66,6 @@ export default function ConvertTrigger(props: Props) {
       assignedUserIds={assignedUserIds}
       sourceConversationId={sourceConversationId}
       showSelect={true}
-     
     />
   );
 

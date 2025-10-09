@@ -755,94 +755,128 @@ export const loadGroupClass = (models: IModels) => {
      */
     public static async createSystemGroupsFields() {
       const services = await getServices();
+      console.log("Services fetched:", services);
 
       for (const serviceName of services) {
         const service = await getService(serviceName);
         const meta = service.config?.meta || {};
+        console.log(`Processing service: ${serviceName}`);
 
-        if (meta && meta.forms && meta.forms.systemFieldsAvailable) {
-          const types = meta.forms.types || [];
+        if (!meta?.forms?.systemFieldsAvailable) {
+          console.log(`No system fields available for service: ${serviceName}`);
+          continue;
+        }
 
-          for (const type of types) {
-            const contentType = `${serviceName}:${type.type}`;
-            const relations = type.relations || [];
+        const types = meta.forms.types || [];
+        for (const type of types) {
+          const contentType = `${serviceName}:${type.type}`;
+          const relations = type.relations || [];
+          console.log(`Processing type: ${type.type} (${contentType})`);
 
-            const doc = {
-              name: "Basic information",
+          // Deduplicate relations
+          const uniqueRelations = relations.filter(
+            (rel, idx, arr) =>
+              arr.findIndex(
+                (r) => r.name === rel.name && r.relationType === rel.relationType
+              ) === idx
+          );
+          console.log(`Unique relations for ${contentType}:`, uniqueRelations);
+
+
+          // Basic info group doc
+          const basicDoc = {
+            name: "Basic information",
+            contentType,
+            order: 0,
+            isDefinedByErxes: true,
+            description: `Basic information of a ${type.type}`,
+            isVisible: true,
+          };
+
+          const existingGroups = await models.FieldsGroups.find({
+            contentType,
+            isDefinedByErxes: true,
+          });
+
+             // --- Relations group ---
+
+            let relationGroup = await models.FieldsGroups.findOne({
               contentType,
-              order: 0,
-              isDefinedByErxes: true,
-              description: `Basic information of a ${type.type}`,
-              isVisible: true
-            };
-
-            const existingGroup = await models.FieldsGroups.find({
-              contentType: doc.contentType,
-              isDefinedByErxes: true
+              code: `${contentType}:relations`,
             });
 
-            if (relations.length > 0) {
-              let relationGroup = await models.FieldsGroups.findOne({
+            if (!relationGroup) {
+              relationGroup = await models.FieldsGroups.create({
+                name: "Relations",
                 contentType,
-                name: "Relations"
+                order: 1,
+                isDefinedByErxes: true,
+                code: `${contentType}:relations`,
+                description: `Relations of a ${type.type}`,
+                isVisible: true,
+              });
+              console.log(`Created Relations group for ${contentType}`);
+            } else {
+              console.log(`Relations group already exists for ${contentType}`);
+            }
+
+            for (const [index, value] of uniqueRelations.entries()) {
+              const relationField = await models.Fields.findOne({
+                contentType,
+                type: value.name,
+                groupId: relationGroup._id,
               });
 
-              if (!relationGroup) {
-                relationGroup = await models.FieldsGroups.create({
-                  name: "Relations",
-                  contentType: `${contentType}`,
-                  order: 1,
-                  isDefinedByErxes: true,
-                  code: `${contentType}:relations`,
-                  description: `Relations of a ${type.type}`,
-                  isVisible: true
-                });
+              if (relationField) {
+                console.log(
+                  `Relation field '${value.name}' already exists in ${contentType}`
+                );
+                continue;
               }
 
-              for (const [index, value] of relations.entries()) {
-                const relationField = await models.Fields.findOne({
-                  contentType,
-                  type: value.name
-                });
+              await models.Fields.create({
+                contentType,
+                groupId: relationGroup._id,
+                text: value.label,
+                type: value.name,
+                order: index,
+                isDefinedByErxes: true,
+                relationType: value.relationType,
+                isVisible: false,
+                isVisibleInDetail: false,
+              });
 
-                if (relationField) {
-                  continue;
-                }
-
-                await models.Fields.create({
-                  contentType,
-                  groupId: relationGroup._id,
-                  text: value.label,
-                  type: value.name,
-                  order: index,
-                  isDefinedByErxes: true,
-                  relationType: value.relationType,
-                  isVisible: false,
-                  isVisibleInDetail: false
-                });
-              }
-            }
-
-            const basicGroup = existingGroup.find(x => !x.code);
-            if (basicGroup) {
-              await models.Fields.updateSystemFields(
-                basicGroup._id,
-                serviceName,
-                type.type
+              console.log(
+                `Created relation field '${value.name}' for ${contentType}`
               );
-              continue;
             }
 
-            const fieldGroup = await models.FieldsGroups.create(doc);
 
-            await models.Fields.createSystemFields(
-              fieldGroup._id,
+          // --- Basic information group ---
+          const basicGroup = existingGroups.find((x) => !x.code);
+          if (basicGroup) {
+            await models.Fields.updateSystemFields(
+              basicGroup._id,
               serviceName,
               type.type
             );
+            console.log(`Updated basic information group for ${contentType}`);
+            continue;
           }
+
+          const fieldGroup = await models.FieldsGroups.create(basicDoc);
+          console.log(`Created basic information group for ${contentType}`);
+
+          await models.Fields.createSystemFields(
+            fieldGroup._id,
+            serviceName,
+            type.type
+          );
+          console.log(`Created system fields for ${contentType}`);
         }
       }
+
+      console.log("Finished creating system groups and fields.");
     }
 
     /*
