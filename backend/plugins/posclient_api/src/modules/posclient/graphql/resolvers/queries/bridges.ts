@@ -122,7 +122,7 @@ const bridgesQueries = {
         return users.map((user) => ({
           _id: user._id,
           code: user.code,
-          primaryPhone: (user.details && user.details.operatorPhone) || '',
+          primaryPhone: user?.details?.operatorPhone || '',
           primaryEmail: user.email,
           firstName: `${user.firstName || ''} ${user.lastName || ''}`,
           lastName: user.username,
@@ -244,7 +244,7 @@ const bridgesQueries = {
         return {
           _id: user._id,
           code: user.code,
-          primaryPhone: (user.details && user.details.operatorPhone) || '',
+          primaryPhone: user?.details?.operatorPhone || '',
           primaryEmail: user.email,
           firstName: `${user.firstName || ''} ${user.lastName || ''}`,
           lastName: user.username,

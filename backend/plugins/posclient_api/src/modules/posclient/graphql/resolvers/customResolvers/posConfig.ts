@@ -7,7 +7,7 @@ export default {
   },
 
   allowTypes(config: IConfigDocument, _args, { models }: IContext) {
-    if (!config.allowTypes || !config.allowTypes.length) {
+    if (!config?.allowTypes?.length) {
       return ['eat', 'take', 'delivery'];
     }
     return config.allowTypes;

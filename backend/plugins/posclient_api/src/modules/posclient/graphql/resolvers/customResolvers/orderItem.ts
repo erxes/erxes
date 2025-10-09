@@ -26,6 +26,6 @@ export default {
       attachment: { url: '' },
     };
 
-    return product.attachment && product.attachment.url;
+    return product?.attachment?.url;
   },
 };

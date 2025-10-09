@@ -11,11 +11,11 @@ export default {
   },
 
   unitPrice(product: IProductDocument, _args, { config }: IContext) {
-    return (product.prices || {})[config.token] || 0;
+    return product?.prices?.[config.token] || 0;
   },
 
   isCheckRem(product: IProductDocument, _args, { config }: IContext) {
-    return (product.isCheckRems || {})[config.token] || false;
+    return product?.isCheckRems?.[config.token] || false;
   },
 
   async category(product: IProductDocument, _, { models }: IContext) {

@@ -2,7 +2,6 @@ import { IContext } from '@/posclient/@types/types';
 import { IOrderItemDocument } from '~/modules/posclient/@types/orderItems';
 import { IOrderDocument } from '~/modules/posclient/@types/orders';
 import { IEbarimtDocument } from '~/modules/posclient/@types/putResponses';
-// import { sendSalesMessage, sendCoreMessage } from '../../messageBroker';
 import { fakePutData } from '@/posclient/utils/orderUtils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
@@ -59,7 +58,7 @@ export default {
       return {
         _id: user._id,
         code: user.code,
-        primaryPhone: (user.details && user.details.operatorPhone) || '',
+        primaryPhone: user?.details?.operatorPhone || '',
         primaryEmail: user.email,
         firstName: `${user.firstName || ''} ${user.lastName || ''}`,
         lastName: user.username,
@@ -138,7 +137,7 @@ export default {
       isInner: true,
     }).lean();
 
-    if (innerItems && innerItems.length) {
+    if (innerItems?.length) {
       const response = await fakePutData(models, innerItems, order, config);
       putResponses.push(response as any);
     }
@@ -165,12 +164,7 @@ export default {
     if (!order.convertDealId) {
       return null;
     }
-    // return await sendSalesMessage({
-    //   subdomain,
-    //   action: 'getLink',
-    //   data: { _id: order.convertDealId, type: 'deal' },
-    //   isRPC: true,
-    // });
+
     return await sendTRPCMessage({
       method: 'query',
       pluginName: 'sales',
