@@ -51,10 +51,7 @@ const checkContinuingRequest = async (models, contentType, contentId) => {
 
   if (continuePutResponses.length) {
     for (const cpr of continuePutResponses) {
-      if (
-        (new Date().getTime() - new Date(cpr.createdAt).getTime()) / 1000 <
-        10
-      ) {
+      if ((Date.now() - new Date(cpr.createdAt).getTime()) / 1000 < 10) {
         throw new Error(
           'The previously submitted data has not yet been processed',
         );

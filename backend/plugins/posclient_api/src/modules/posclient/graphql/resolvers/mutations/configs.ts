@@ -1,9 +1,4 @@
-import {
-  authCookieOptions,
-  getEnv,
-  redis,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
+import { authCookieOptions } from 'erxes-api-shared/utils';
 
 // import { connectToMessageBroker } from '@erxes/api-utils/src/messageBroker';
 // import { setupMessageConsumers, sendPosMessage } from '../../../messageBroker';
@@ -93,25 +88,28 @@ const configMutations = {
     }
     const responseData = await response.json();
 
+    const {
+      pos = {},
+      adminUsers = [],
+      cashiers = [],
+      productGroups = [],
+      slots = [],
+    } = responseData;
+
     switch (type) {
       case 'config':
-        const { pos = {}, adminUsers = [], cashiers = [] } = responseData;
         await models.Configs.updateConfig(config._id, {
           ...(await extractConfig(subdomain, pos)),
           token: config.token,
         });
-
         await importUsers(models, cashiers, config.token);
         await importUsers(models, adminUsers, config.token, true);
-
         break;
       case 'products':
-        const { productGroups = [] } = responseData;
         await preImportProducts(models, token, productGroups);
         await importProducts(subdomain, models, token, productGroups);
         break;
       case 'slots':
-        const { slots = [] } = responseData;
         await importSlots(models, slots, token);
         break;
       case 'productsConfigs':

@@ -30,7 +30,7 @@ import {
 } from 'erxes-api-shared/utils';
 import { IContext, IOrderInput } from '@/posclient/@types/types';
 import { IConfig, IConfigDocument } from '~/modules/posclient/@types/configs';
-import { IOrderDocument, IPaidAmount } from '~/modules/posclient/@types/orders';
+import { IPaidAmount } from '~/modules/posclient/@types/orders';
 import { IPosUserDocument } from '~/modules/posclient/@types/posUsers';
 import { IOrderItemInput } from '~/modules/posclient/@types/types';
 import { checkSlotStatus } from '~/modules/posclient/utils/slots';

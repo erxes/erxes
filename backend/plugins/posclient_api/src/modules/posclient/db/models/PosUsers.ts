@@ -58,7 +58,8 @@ export const loadPosUserClass = (models) => {
     }
 
     public static checkPassword(password: string) {
-      if (!password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/)) {
+      const regex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+      if (!regex.exec(password)) {
         throw new Error(
           'Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters',
         );

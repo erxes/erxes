@@ -1,6 +1,9 @@
 import { IProductCategoryDocument } from 'erxes-api-shared/core-types';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { escapeRegExp, paginate } from 'erxes-api-shared/utils';
+import {
+  escapeRegExp,
+  paginate,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IConfigDocument } from '~/modules/posclient/@types/configs';
 import { IContext } from '~/modules/posclient/@types/types';
@@ -47,7 +50,7 @@ export interface ICategoryParams extends ICommonParams {
   status: string;
   excludeEmpty?: boolean;
   meta?: string;
-  isKiosk: Boolean;
+  isKiosk: boolean;
   ids?: string[];
   excludeIds?: boolean;
 }
