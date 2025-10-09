@@ -14,7 +14,7 @@ import { customerDetailActiveActionTabAtom } from '@/contacts/states/customerDet
 // import { AddInternalNotes } from '@/internal-notes/components/AddInternalNotes';
 import { useAtom, useSetAtom } from 'jotai';
 import { useRelationWidget } from 'ui-modules';
-import { useRelationWidgetsModules } from '@/widgets/hooks/useRelationWidgetsModules';
+import { useRelationWidgetsModules } from '@/widgets/hooks/useRelationWidgets';
 import { useCustomerDetailWithQuery } from '../../hooks/useCustomerDetailWithQuery';
 
 export const CustomerDetailActions = () => {

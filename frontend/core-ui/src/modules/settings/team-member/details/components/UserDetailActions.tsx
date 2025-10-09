@@ -1,6 +1,6 @@
 import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
 import { teamMemberDetailActiveActionTabAtom } from '@/settings/team-member/states/teamMemberDetailStates';
-import { useRelationWidgetsModules } from '@/widgets/hooks/useRelationWidgetsModules';
+import { useRelationWidgetsModules } from '@/widgets/hooks/useRelationWidgets';
 import { Icon, IconX } from '@tabler/icons-react';
 import { Button, Resizable, SideMenu } from 'erxes-ui';
 import { useAtom } from 'jotai';
@@ -37,7 +37,8 @@ export const UserDetailActions = () => {
               title={item.name}
             >
               <RelationWidget
-                module={item}
+                module={item.name}
+                pluginName={item.pluginName}
                 contentId={userId || ''}
                 contentType="core:user"
               />

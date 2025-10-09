@@ -45,7 +45,7 @@ export const ErxesMessengerPreview = lazy(() =>
   })),
 );
 
-const InboxSettings = () => {
+export const InboxSettings = () => {
   const [integrations, setIntegrations] =
     useState<Record<string, IIntegrationItem>>(INTEGRATIONS);
   const [otherIntegrations, setOtherIntegrations] =
@@ -110,5 +110,3 @@ const InboxSettings = () => {
     </IntegrationContext.Provider>
   );
 };
-
-export default InboxSettings;

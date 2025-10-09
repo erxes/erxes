@@ -10,7 +10,7 @@ import { CyclesPage } from '~/pages/CyclesPage';
 import { CycleDetailPage } from '~/pages/CycleDetailPage';
 import { TasksLayout } from '@/task/components/TasksLayout';
 
-const taskMain = () => {
+const OperationMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
@@ -43,4 +43,4 @@ const taskMain = () => {
   );
 };
 
-export default taskMain;
+export default OperationMain;

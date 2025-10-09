@@ -42,7 +42,6 @@ export const RenderPluginsComponentWrapper = ({
         <RenderPluginsComponent
           pluginName={`${pluginName}_ui`}
           remoteModuleName="automationsWidget"
-          moduleName={moduleName}
           props={props}
         />
       </ErrorBoundary>

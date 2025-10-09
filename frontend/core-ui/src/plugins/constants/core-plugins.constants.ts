@@ -10,10 +10,9 @@ import {
   IconSpiral,
   IconUser,
 } from '@tabler/icons-react';
-import { IUIConfig } from 'erxes-ui';
 
-export const GET_CORE_MODULES = (version?: boolean): IUIConfig['modules'] => {
-  const MODULES: IUIConfig['modules'] = [
+export const GET_CORE_MODULES = (version?: boolean) => {
+  const MODULES = [
     {
       name: 'contacts',
       icon: IconAddressBook,
@@ -74,18 +73,21 @@ export const GET_CORE_MODULES = (version?: boolean): IUIConfig['modules'] => {
         icon: IconChartPie,
         path: 'segments',
         hasSettings: false,
+        submenus: [],
       },
       {
         name: 'automations',
         icon: IconAffiliate,
         path: 'automations',
         hasSettings: true,
+        submenus: [],
       },
       {
         name: 'documents',
         icon: IconFile,
         path: 'documents',
         hasSettings: false,
+        submenus: [],
       },
     );
   }
