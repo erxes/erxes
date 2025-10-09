@@ -17,7 +17,17 @@ import * as typeDefDetails from './schema/schema';
 // load environment variables
 dotenv.config();
 
-let apolloServer;
+class ApolloServerInstance {
+  private static instance: ApolloServer | null = null;
+
+  static getInstance(): ApolloServer | null {
+    return this.instance;
+  }
+
+  static setInstance(server: ApolloServer): void {
+    this.instance = server;
+  }
+}
 
 export const initApolloServer = async (app, httpServer) => {
   const { types, queries, mutations } = typeDefDetails;
@@ -38,19 +48,22 @@ export const initApolloServer = async (app, httpServer) => {
     `);
   };
 
-  apolloServer = new ApolloServer({
-    schema: buildSubgraphSchema([
-      {
-        typeDefs: await typeDefs(),
-        resolvers: {
-          ...resolvers,
-          Mutation: wrapApolloMutations(resolvers?.Mutation || {}, ['login']),
+  ApolloServerInstance.setInstance(
+    new ApolloServer({
+      schema: buildSubgraphSchema([
+        {
+          typeDefs: await typeDefs(),
+          resolvers: {
+            ...resolvers,
+            Mutation: wrapApolloMutations(resolvers?.Mutation || {}, ['login']),
+          },
         },
-      },
-    ]),
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-  });
+      ]),
+      plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    }),
+  );
 
+  const apolloServer = ApolloServerInstance.getInstance();
   await apolloServer.start();
 
   app.use(
@@ -71,4 +84,4 @@ export const initApolloServer = async (app, httpServer) => {
   return apolloServer;
 };
 
-export default apolloServer;
+export default ApolloServerInstance.getInstance();
