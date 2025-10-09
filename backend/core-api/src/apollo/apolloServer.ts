@@ -17,17 +17,15 @@ import * as typeDefDetails from './schema/schema';
 // load environment variables
 dotenv.config();
 
-class ApolloServerInstance {
-  private static instance: ApolloServer | null = null;
+let apolloServer: ApolloServer | null = null;
 
-  static getInstance(): ApolloServer | null {
-    return this.instance;
-  }
+export const getApolloServer = (): ApolloServer | null => {
+  return apolloServer;
+};
 
-  static setInstance(server: ApolloServer): void {
-    this.instance = server;
-  }
-}
+export const setApolloServer = (server: ApolloServer): void => {
+  apolloServer = server;
+};
 
 export const initApolloServer = async (app, httpServer) => {
   const { types, queries, mutations } = typeDefDetails;
@@ -48,27 +46,26 @@ export const initApolloServer = async (app, httpServer) => {
     `);
   };
 
-  ApolloServerInstance.setInstance(
-    new ApolloServer({
-      schema: buildSubgraphSchema([
-        {
-          typeDefs: await typeDefs(),
-          resolvers: {
-            ...resolvers,
-            Mutation: wrapApolloMutations(resolvers?.Mutation || {}, ['login']),
-          },
+  const server = new ApolloServer({
+    schema: buildSubgraphSchema([
+      {
+        typeDefs: await typeDefs(),
+        resolvers: {
+          ...resolvers,
+          Mutation: wrapApolloMutations(resolvers?.Mutation || {}, ['login']),
         },
-      ]),
-      plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-    }),
-  );
+      },
+    ]),
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  });
 
-  const apolloServer = ApolloServerInstance.getInstance();
-  await apolloServer.start();
+  setApolloServer(server);
+
+  await server.start();
 
   app.use(
     '/graphql',
-    expressMiddleware(apolloServer, {
+    expressMiddleware(server, {
       context: generateApolloContext<IMainContext>(
         async (subdomain, context) => {
           const models = await generateModels(subdomain);
@@ -81,7 +78,7 @@ export const initApolloServer = async (app, httpServer) => {
     }),
   );
 
-  return apolloServer;
+  return server;
 };
 
-export default ApolloServerInstance.getInstance();
+export default getApolloServer();
