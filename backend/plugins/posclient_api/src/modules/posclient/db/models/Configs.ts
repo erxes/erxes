@@ -71,7 +71,7 @@ export interface IProductsConfigModel extends Model<IProductsConfigDocument> {
   createOrUpdateConfig({
     code,
     value,
-  }: IProductsConfig): IProductsConfigDocument;
+  }: IProductsConfig): Promise<IProductsConfigDocument>;
   constants();
 }
 

@@ -41,7 +41,7 @@ export interface IPosUserModel extends Model<IPosUserDocument> {
   posLogin(
     params: IPosLoginParams,
     config: IConfigDocument,
-  ): { token: string; refreshToken: string };
+  ): Promise<{ token: string; refreshToken: string }>;
   getTokenFields(user: IPosUserDocument);
 }
 

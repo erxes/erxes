@@ -90,30 +90,31 @@ export const getStatus = (config, buttonType, doc, order?) => {
 
   const type = config.kitchenScreen.showType;
 
-  if (order && order.status) {
-    if (
-      type === 'paid' &&
-      order.status === ORDER_STATUSES.PENDING &&
-      doc.paidDate &&
-      !order.isPre
-    ) {
-      return ORDER_STATUSES.NEW;
-    }
-
-    if (
-      [ORDER_STATUSES.COMPLETE, ORDER_STATUSES.DONE].includes(order.status) &&
-      doc?.items?.length
-    ) {
-      const newItems =
-        doc.items.filter((i) => i.status === ORDER_ITEM_STATUSES.NEW) || [];
-      if (newItems.length) {
-        return ORDER_STATUSES.REDOING;
-      }
-    }
-
-    return order.status;
+  if (
+    order?.status &&
+    type === 'paid' &&
+    order.status === ORDER_STATUSES.PENDING &&
+    doc.paidDate &&
+    !order.isPre
+  ) {
+    return ORDER_STATUSES.NEW;
   }
 
+  if (
+    order?.status &&
+    [ORDER_STATUSES.COMPLETE, ORDER_STATUSES.DONE].includes(order.status) &&
+    doc?.items?.length
+  ) {
+    const newItems =
+      doc.items.filter((i) => i.status === ORDER_ITEM_STATUSES.NEW) || [];
+    if (newItems.length) {
+      return ORDER_STATUSES.REDOING;
+    }
+  }
+
+  if (order?.status) {
+    return order.status;
+  }
   if (type === 'click' && buttonType !== 'order') {
     return ORDER_STATUSES.COMPLETE;
   }
@@ -678,7 +679,7 @@ const orderMutations: Record<string, any> = {
       orderId: order._id,
     }).lean();
 
-    await validateOrderPayment(order, doc);
+    validateOrderPayment(order, doc);
     const now = new Date();
 
     const ebarimtConfig: any = config.ebarimtConfig;
@@ -1153,7 +1154,7 @@ const orderMutations: Record<string, any> = {
       orderId: order._id,
     }).lean();
 
-    await validateOrderPayment(order, { billType: BILL_TYPES.INNER });
+    validateOrderPayment(order, { billType: BILL_TYPES.INNER });
     const now = new Date();
 
     try {
