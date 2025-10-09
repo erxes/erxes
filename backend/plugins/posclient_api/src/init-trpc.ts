@@ -1,6 +1,3 @@
-import { dealTrpcRouter } from '@/sales/trpc/deal';
-import { posTrpcRouter } from '@/pos/trpc/pos';
-
 import { initTRPC } from '@trpc/server';
 
 import {
@@ -8,13 +5,15 @@ import {
   MessageProps,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
-import { IModels } from '~/connectionResolvers';
 
-export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
+import { IModels } from './connectionResolvers';
+import { posclientTrpcRouter } from '~/modules/posclient/trpc/posclient';
 
-const t = initTRPC.context<SalesTRPCContext>().create();
+export type PosTRPCContext = ITRPCContext<{ models: IModels }>;
 
-export const appRouter = t.mergeRouters(dealTrpcRouter, posTrpcRouter);
+const t = initTRPC.context<PosTRPCContext>().create();
+
+export const appRouter = t.mergeRouters(posclientTrpcRouter);
 
 export type AppRouter = typeof appRouter;
 

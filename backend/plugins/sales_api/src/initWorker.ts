@@ -1,8 +1,9 @@
-import { IPosDocument } from "@/pos/@types/pos";
+import { IPosDocument } from '@/pos/@types/pos';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const sendPosclientHealthCheck = async ({
   subdomain,
-  pos
+  pos,
 }: {
   subdomain: string;
   pos: IPosDocument;
@@ -10,12 +11,19 @@ export const sendPosclientHealthCheck = async ({
   const { ALL_AUTO_INIT } = process.env;
 
   if (
-    [true, "true", "True", "1"].includes(ALL_AUTO_INIT || "") ||
+    [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') ||
     pos.onServer
   ) {
-    return { healthy: "ok" };
+    return { healthy: 'ok' };
   }
-
+  sendTRPCMessage({
+    pluginName: 'sales',
+    method: 'query',
+    module: 'pos',
+    action: 'health_check',
+    input: { channelToken: pos.token },
+    defaultValue: { healthy: 'no' },
+  });
   // return await sendMessage({
   //   subdomain,
   //   isRPC: true,
@@ -28,37 +36,37 @@ export const sendPosclientHealthCheck = async ({
   // });
 };
 
-export const sendPosclientMessage = async (
-  args: any & { pos: IPosDocument }
-) => {
-  const { action, pos } = args;
+export const sendPosclientMessage = async (args: any) => {
+  const { action, pos, data } = args;
   let lastAction = action;
-  let serviceName = "posclient";
+  let serviceName = 'posclient';
 
   const { ALL_AUTO_INIT } = process.env;
 
   if (
-    ![true, "true", "True", "1"].includes(ALL_AUTO_INIT || "") &&
+    ![true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') &&
     !pos.onServer
   ) {
     lastAction = `posclient:${action}_${pos.token}`;
-    serviceName = "";
+    serviceName = '';
     args.data.thirdService = true;
     args.isMQ = true;
 
     if (args.isRPC) {
       const response = await sendPosclientHealthCheck(args);
-      if (!response || response.healthy !== "ok") {
-        throw new Error("syncing error not connected posclient");
+      if (!response || response.healthy !== 'ok') {
+        throw new Error('syncing error not connected posclient');
       }
     }
   }
-
   args.data.token = pos.token;
 
-  // return await sendMessage({
-  //   serviceName,
-  //   ...args,
-  //   action: lastAction
-  // });
+  return await sendTRPCMessage({
+    pluginName: 'posclient',
+    method: 'query',
+    module: 'posclient',
+    action: lastAction,
+    input: { data: { ...data, token: pos.token } },
+    defaultValue: '',
+  });
 };
