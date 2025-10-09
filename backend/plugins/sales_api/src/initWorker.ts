@@ -36,9 +36,7 @@ export const sendPosclientHealthCheck = async ({
   // });
 };
 
-export const sendPosclientMessage = async (
-  args: any & { pos: IPosDocument },
-) => {
+export const sendPosclientMessage = async (args: any) => {
   const { action, pos, data } = args;
   let lastAction = action;
   let serviceName = 'posclient';

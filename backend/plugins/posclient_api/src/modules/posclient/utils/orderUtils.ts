@@ -78,7 +78,7 @@ export const generateOrderNumber = async (
     const latestSuffix =
       (suffixParts.length === 2 && suffixParts[1]) || suffixParts[0];
 
-    const latestNum = parseInt(latestSuffix, 10);
+    const latestNum = Number.parseInt(latestSuffix, 10);
     const addend =
       (config &&
         config.maxSkipNumber &&

@@ -211,7 +211,7 @@ const generateFilter = async (
   if (categoryMeta) {
     let categoryFilter: any[] = [];
 
-    if (!isNaN(Number(categoryMeta))) {
+    if (!Number.isNaN(Number(categoryMeta))) {
       categoryFilter = [
         {
           $project: {
@@ -297,7 +297,7 @@ const generateFilterCat = async ({
   }
 
   if (meta) {
-    if (!isNaN(meta)) {
+    if (!Number.isNaN(meta)) {
       filter.meta = { $lte: Number(meta) };
     } else {
       filter.meta = meta;

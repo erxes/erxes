@@ -23,9 +23,9 @@ export const checkDirectDiscount = (
 
   if (!staffConfig?.directDiscount) return output;
 
-  const limitPercent = parseFloat(staffConfig?.directDiscountLimit);
+  const limitPercent = Number.parseFloat(staffConfig?.directDiscountLimit);
 
-  if (isNaN(limitPercent)) return output;
+  if (Number.isNaN(limitPercent)) return output;
 
   if (
     (!directIsAmount && directDiscount > limitPercent) ||
@@ -59,7 +59,7 @@ const applyDiscount = (
   for (const item of items || []) {
     item.unitPrice = item.unitPrice || 0;
 
-    const discountValue = parseFloat(
+    const discountValue = Number.parseFloat(
       ((item.unitPrice * directDiscount) / 100).toFixed(2),
     );
     item.unitPrice -= discountValue;

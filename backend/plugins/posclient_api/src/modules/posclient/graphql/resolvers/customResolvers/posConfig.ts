@@ -6,7 +6,7 @@ export default {
     return await models.PosSlots.find({ posId: config.posId });
   },
 
-  allowTypes(config: IConfigDocument, _args, {}: IContext) {
+  allowTypes(config: IConfigDocument, _args, { models }: IContext) {
     if (!config.allowTypes || !config.allowTypes.length) {
       return ['eat', 'take', 'delivery'];
     }

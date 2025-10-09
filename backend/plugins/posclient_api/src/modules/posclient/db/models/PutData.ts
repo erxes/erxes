@@ -56,7 +56,7 @@ const isValidBarcode = (barcode: string): boolean => {
 
   const lastDigit = Number(barcode.substring(barcode.length - 1));
   let checkSum = 0;
-  if (isNaN(lastDigit)) {
+  if (Number.isNaN(lastDigit)) {
     return false;
   } // not a valid upc/ean
 
@@ -68,7 +68,7 @@ const isValidBarcode = (barcode: string): boolean => {
     evenTotal = 0;
 
   for (let i = 0; i < arr.length; i++) {
-    if (isNaN(arr[i])) {
+    if (Number.isNaN(arr[i])) {
       return false;
     } // can't be a valid upc/ean we're checking for
 

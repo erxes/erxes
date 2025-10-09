@@ -75,7 +75,7 @@ startPlugin({
       origin: [
         ...(process.env.ALLOWED_ORIGINS || '')
           .split(',')
-          .map((c) => c && RegExp(c)),
+          .map((c) => c && new RegExp(c)),
       ],
     }),
   ],
