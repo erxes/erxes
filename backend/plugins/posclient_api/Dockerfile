@@ -1,7 +1,8 @@
 # Base image
 FROM node:22-alpine AS base
 WORKDIR /app
-RUN npm install -g pnpm
+RUN npm install -g pnpm --ignore-scripts
+
 
 # Dependencies (production only)
 FROM base AS deps
@@ -12,7 +13,8 @@ COPY backend/plugins/posclient_api/package.json backend/plugins/posclient_api/
 COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
 
 # Install only production dependencies
-RUN pnpm install --prod --frozen-lockfile
+RUN pnpm install --prod --frozen-lockfile --ignore-scripts
+
 
 # Runtime image
 FROM base AS runtime

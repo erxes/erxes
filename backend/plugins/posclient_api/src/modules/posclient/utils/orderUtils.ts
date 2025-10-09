@@ -31,6 +31,7 @@ import { getCompanyInfo } from '~/modules/posclient/db/models/PutData';
 import { IOrderInput, IOrderItemInput } from '~/modules/posclient/@types/types';
 import { IProductDocument } from '~/modules/posclient/@types/products';
 import { IPayment } from '~/modules/posclient/graphql/resolvers/mutations/orders';
+import { cryptoRandom } from '~/modules/posclient/utils';
 
 export const generateOrderNumber = async (
   models: IModels,
@@ -83,7 +84,7 @@ export const generateOrderNumber = async (
       (config &&
         config.maxSkipNumber &&
         config.maxSkipNumber > 1 &&
-        Math.round(Math.random() * (config.maxSkipNumber - 1) + 1)) ||
+        Math.round(cryptoRandom() * (config.maxSkipNumber - 1) + 1)) ||
       1;
 
     suffix = String(latestNum + addend).padStart(4, '0');
@@ -636,7 +637,7 @@ export const prepareOrderDoc = async (
         );
 
         items.push({
-          _id: Math.random().toString(),
+          _id: cryptoRandom().toString(),
           productId: addProduct._id,
           count: toAddItem.count,
           unitPrice: fixedUnitPrice,
@@ -662,7 +663,7 @@ export const prepareOrderDoc = async (
       const deliveryUnitPrice =
         (deliveryProd.prices || {})[config.token || ''] || 0;
       items.push({
-        _id: Math.random().toString(),
+        _id: cryptoRandom().toString(),
         productId: deliveryProd._id,
         count: 1,
         unitPrice: deliveryUnitPrice,

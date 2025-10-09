@@ -23,6 +23,7 @@ import {
   prepareEbarimtData,
   validateOrderPayment,
 } from '~/modules/posclient/utils/orderUtils';
+import * as crypto from 'node:crypto';
 
 export interface ICountBy {
   [index: string]: number;
@@ -450,7 +451,7 @@ export const prepareSettlePayment = async (
         innerData && ebarimtResponses.push(innerData);
       } catch (e) {
         ebarimtResponses.push({
-          _id: `Err${Math.random()}`,
+          _id: `Err${cryptoRandom()}`,
           id: 'Error',
           type: ebarimtData.type,
           date: moment(new Date()).format('"yyyy-MM-dd HH:mm:ss'),
@@ -634,4 +635,11 @@ export const prepareSettlePayment = async (
 };
 function debugError(arg0: string) {
   throw new Error('Function not implemented.');
+}
+export function cryptoRandom() {
+  // Generate a random 6-byte buffer (48 bits of entropy)
+  const randomBuffer = crypto.randomBytes(6);
+  // Convert to a number between 0 and 1
+  const randomNumber = randomBuffer.readUIntBE(0, 6) / 0x1000000000000; // 2^48
+  return randomNumber;
 }
