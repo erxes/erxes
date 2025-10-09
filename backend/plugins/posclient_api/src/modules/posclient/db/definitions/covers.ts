@@ -1,4 +1,4 @@
-import { Document, Schema } from 'mongoose';
+import { Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
 const coverSummarySchema = new Schema(

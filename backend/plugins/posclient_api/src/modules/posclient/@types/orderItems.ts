@@ -1,5 +1,5 @@
 import { IAttachment } from 'erxes-api-shared/core-types';
-import { Document, Schema } from 'mongoose';
+import { Document } from 'mongoose';
 
 export interface IOrderItem {
   createdAt?: Date;

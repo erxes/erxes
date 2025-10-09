@@ -1,4 +1,3 @@
-import { IAttachment } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
 export interface IEbarimtConfig {

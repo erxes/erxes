@@ -1,4 +1,4 @@
-import { Document, Schema } from 'mongoose';
+import { Schema } from 'mongoose';
 import { field, getDateFieldDefinition } from './utils';
 
 const ebarimtConfigSchema = new Schema(

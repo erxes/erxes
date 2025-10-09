@@ -1,4 +1,4 @@
-import { Document, Schema } from 'mongoose';
+import { Schema } from 'mongoose';
 import { ORDER_ITEM_STATUSES } from './constants';
 import {
   field,

@@ -1,5 +1,5 @@
-import { attachmentSchema, customFieldSchema, ICustomField } from './common';
-import { Document, Schema } from 'mongoose';
+import { attachmentSchema, customFieldSchema } from './common';
+import { Schema } from 'mongoose';
 import {
   field,
   getDateFieldDefinition,

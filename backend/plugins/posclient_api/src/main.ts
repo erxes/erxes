@@ -46,17 +46,15 @@ startPlugin({
 
     if (req?.posConfig?._id) {
       context.config = req.posConfig;
-    } else {
-      if (models) {
-        if (
-          (await models.Configs.find({
-            status: { $ne: 'deleted' },
-          }).countDocuments()) === 1
-        ) {
-          context.config = await models.Configs.findOne({
-            status: { $ne: 'deleted' },
-          }).lean();
-        }
+    } else if (models) {
+      if (
+        (await models.Configs.find({
+          status: { $ne: 'deleted' },
+        }).countDocuments()) === 1
+      ) {
+        context.config = await models.Configs.findOne({
+          status: { $ne: 'deleted' },
+        }).lean();
       }
     }
 
@@ -72,11 +70,10 @@ startPlugin({
     posConfigMiddleware,
     cors({
       credentials: true,
-      origin: [
-        ...(process.env.ALLOWED_ORIGINS || '')
+      origin:
+        (process.env.ALLOWED_ORIGINS || '')
           .split(',')
-          .map((c) => c && new RegExp(c)),
-      ],
+          .map((c) => c && new RegExp(c)) || [],
     }),
   ],
   trpcAppRouter: {
