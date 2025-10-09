@@ -18,9 +18,8 @@ import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "@erxes/ui/src/utils";
 import { NotWrappable } from "@erxes/ui-settings/src/permissions/styles";
 import ModalTrigger from "modules/common/components/ModalTrigger";
-import PermissionFixer from "./PermissionFixer";
+import PropertyFixer from "./PropertyFixer";
 
-// =================== Props ===================
 type Props = {
   queryParams: any;
   refetch?: () => void;
@@ -48,7 +47,6 @@ type Props = {
   fieldsGroupFix?: () => void;
 };
 
-// =================== Component ===================
 class Properties extends React.Component<
   Props,
   { fieldsGroups: IFieldGroup[]; fieldsGroupsWithParent: IFieldGroup[] }
@@ -87,17 +85,15 @@ class Properties extends React.Component<
     });
   };
 
-  // =================== Fix Permissions Modal ===================
   renderPermissionFixer = (modalProps) => {
     const updatedProps = {
       ...modalProps,
       fixProperties: this.props.fieldsGroupFix,
     };
 
-    return <PermissionFixer {...updatedProps} />;
+    return <PropertyFixer {...updatedProps} />;
   };
 
-  // =================== Add Group & Field Dropdown ===================
   renderAddGroupDropdown = () => {
     const { queryParams, fieldsGroups, currentType } = this.props;
 
@@ -163,7 +159,6 @@ class Properties extends React.Component<
     );
   };
 
-  // =================== Action Bar ===================
   renderActionBar = () => {
     const { currentType } = this.props;
 
@@ -208,7 +203,6 @@ class Properties extends React.Component<
     );
   };
 
-  // =================== Property Rows ===================
   renderRow = (group: IFieldGroup) => {
     const {
       queryParams,
@@ -257,7 +251,6 @@ class Properties extends React.Component<
     );
   };
 
-  // =================== Properties List ===================
   renderProperties = () => {
     const { fieldsGroups } = this.props;
 
@@ -282,7 +275,6 @@ class Properties extends React.Component<
     );
   };
 
-  // =================== Main Render ===================
   render() {
     const { currentType, services } = this.props;
 
