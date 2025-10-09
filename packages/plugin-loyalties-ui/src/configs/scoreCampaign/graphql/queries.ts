@@ -41,6 +41,15 @@ const scoreCampaigns = `
     }
 `;
 
+const scoreCampaign = `
+  query ScoreCampaign($_id: String) {
+    scoreCampaign(_id: $_id) {
+      ${fields}
+    }
+  }
+`;
+
 export default {
   scoreCampaigns,
+  scoreCampaign,
 };
