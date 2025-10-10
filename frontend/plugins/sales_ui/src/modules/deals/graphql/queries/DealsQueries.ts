@@ -198,10 +198,12 @@ export const GET_DEAL_DETAIL = gql`
         _id
         title
       }
+      departmentIds
       branches {
         _id
         title
       }
+      branchIds
       companies {
         _id
         primaryName

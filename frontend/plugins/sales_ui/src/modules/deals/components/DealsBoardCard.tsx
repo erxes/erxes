@@ -1,5 +1,5 @@
 import { BoardCardProps, Separator } from 'erxes-ui';
-import { atom, useAtomValue, useSetAtom } from 'jotai';
+import { atom, useAtomValue } from 'jotai';
 
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { ItemFooter } from '@/deals/cards/components/item/Footer';
@@ -8,7 +8,7 @@ import Labels from '@/deals/cards/components/detail/overview/label/Labels';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { allDealsMapState } from '@/deals/components/DealsBoard';
-import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
+import { useDealDetailSheetQueryParam } from '@/deals/states/dealDetailSheetState';
 
 export const dealBoardItemAtom = atom(
   (get) => (id: string) => get(allDealsMapState)[id],
@@ -25,7 +25,7 @@ export const DealsBoardCard = ({ id }: BoardCardProps) => {
     closeDate,
     labels,
   } = useAtomValue(dealBoardItemAtom)(id);
-  const setActiveDeal = useSetAtom(dealDetailSheetState);
+  const [, setActiveDeal] = useDealDetailSheetQueryParam();
 
   return (
     <div onClick={() => setActiveDeal(_id)}>

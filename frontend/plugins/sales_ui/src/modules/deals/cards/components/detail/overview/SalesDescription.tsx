@@ -23,7 +23,7 @@ const SalesDescription = ({
   const [description, setDescription] = useState<Block[]>(dealDescription);
 
   const editor = useBlockEditor({
-    // initialContent: [dealDescription],
+    initialContent: [dealDescription],
   });
 
   const { editDeals, loading } = useDealsContext();

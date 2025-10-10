@@ -69,21 +69,20 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
         </div>
         <div>
           <h4 className="uppercase text-sm text-gray-500 pb-2">Departments</h4>
-          <SelectDepartments
+
+          <SelectDepartments.InlineCell
             mode="multiple"
-            value={(deal.departments || []).map(
-              (department) => department?._id || '',
-            )}
+            value={deal.departmentIds}
             onValueChange={(value) =>
-              handleDealFieldChange('departments', value)
+              handleDealFieldChange('departmentIds', value)
             }
           />
         </div>
         <div>
           <h4 className="uppercase text-sm text-gray-500 pb-2">Branches</h4>
-          <SelectBranches
+          <SelectBranches.InlineCell
             mode="multiple"
-            value={(deal.branches || []).map((branch) => branch?._id || '')}
+            value={deal.branchIds}
             onValueChange={(value) => handleDealFieldChange('branchIds', value)}
           />
         </div>
@@ -94,17 +93,19 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
             value={(deal.customers || []).map(
               (customer) => customer?._id || '',
             )}
-            onValueChange={(value) => handleConformityChange('customer', value)}
+            onValueChange={(value) =>
+              handleConformityChange('customerIds', value)
+            }
           />
         </div>
         <div>
           <h4 className="uppercase text-sm text-gray-500 pb-2">Companies</h4>
           <SelectCompany
             mode="multiple"
-            value={(deal.customers || []).map(
-              (customer) => customer?._id || '',
-            )}
-            onValueChange={(value) => handleConformityChange('company', value)}
+            value={(deal.companies || []).map((company) => company?._id || '')}
+            onValueChange={(value) =>
+              handleConformityChange('companyIds', value)
+            }
           />
         </div>
       </div>
