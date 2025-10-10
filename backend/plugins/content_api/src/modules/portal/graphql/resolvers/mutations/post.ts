@@ -106,7 +106,7 @@ const mutations = {
     return models.Posts.toggleFeatured(_id);
   },
 
-  cmsPostsAddTranslation: async (
+  cmsAddTranslation: async (
     _parent: any,
     args: any,
     context: IContext,
@@ -154,7 +154,7 @@ const mutations = {
     return models.PostTranslations.createPostTranslation(input);
   },
 
-  cmsPostsEditTranslation: async (
+  cmsEditTranslation: async (
     _parent: any,
     args: any,
     context: IContext,
