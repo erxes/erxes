@@ -18,6 +18,8 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { cn, ScrollArea } from 'erxes-ui';
+import { Portal } from 'radix-ui';
 import {
   createContext,
   type HTMLAttributes,
@@ -25,8 +27,6 @@ import {
   useContext,
   useState,
 } from 'react';
-import { ScrollArea, cn } from 'erxes-ui';
-import { Portal } from 'radix-ui';
 export type { DragEndEvent } from '@dnd-kit/core';
 
 type KanbanItemProps = {
@@ -64,7 +64,7 @@ export const KanbanBoard = ({ id, children, className }: KanbanBoardProps) => {
   return (
     <div
       className={cn(
-        'flex size-full min-h-40 min-w-80 flex-col overflow-hidden transition-all bg-gradient-to-b from-[#e0e7ff] to-[#e0e7ff50] rounded-md',
+        'flex size-full min-h-40 min-w-80 flex-col overflow-hidden transition-all bg-gradient-to-b from-[#e0e7ff] to-[#e0e7ff50]  dark:from-[#1e293b] dark:to-[#1e293b80] rounded-md',
         isOver && 'shadow-focus',
         className,
       )}
