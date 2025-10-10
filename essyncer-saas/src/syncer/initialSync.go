@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/olivere/elastic"
@@ -86,7 +87,7 @@ func putTemplate(index string, mapping string) {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Created template %s: %+v\n", index, res)
+	// Template created
 }
 
 func getMongoClient(uri string, maxPool uint64) (*mongo.Client, context.Context) {
@@ -104,25 +105,124 @@ func getMongoClient(uri string, maxPool uint64) (*mongo.Client, context.Context)
 	return client, ctx
 }
 
+func processBatch(start, end int, orgIDs []string, plugins []Plugin, scripts []string, mongoURL, elasticURL string, wg *sync.WaitGroup, results chan error) {
+	defer wg.Done()
+	
+	// Build namespaces for this batch
+	var batchNamespaces []string
+	for _, plugin := range plugins {
+		for _, coll := range plugin.Collections {
+			for _, orgID := range orgIDs[start:end] {
+				batchNamespaces = append(batchNamespaces, fmt.Sprintf(`"erxes_%s.%s"`, orgID, coll.Name))
+			}
+		}
+	}
+
+	// Create TOML per batch
+	f, err := os.Create(fmt.Sprintf("mongo-elastic-batch-%d-%d.toml", start, end-1))
+	if err != nil {
+		results <- err
+		return
+	}
+
+	// Prepare TOML header template - Ultra-conservative for 2vCPU/4GB Elasticsearch
+	header := fmt.Sprintf(`
+    mongo-url="%s"
+    elasticsearch-urls=["%s"]
+    verbose=false
+    resume=true
+    direct-read-concur=4
+    
+    index-as-update=true
+    prune-invalid-json = true
+    direct-read-split-max = 4
+    elasticsearch-max-bytes = 5000000
+    elasticsearch-max-conns = 8
+    elasticsearch-bulk-actions = 1000
+    elasticsearch-bulk-size = 5
+    elasticsearch-bulk-flush-interval = "2s"
+    `, mongoURL, elasticURL)
+
+	// Write header
+	f.WriteString(header)
+
+	// Write multi-line namespaces for better parser performance
+	f.WriteString("direct-read-namespaces=[\n")
+	for _, ns := range batchNamespaces {
+		f.WriteString(fmt.Sprintf("%s,\n", ns))
+	}
+	f.WriteString("]\n")
+
+	// Write remaining TOML and script
+	f.WriteString(fmt.Sprintf(`
+    routing-namespaces=[""]
+    delete-index-pattern="erxes_*"
+    
+    [[script]]
+    script="""
+    module.exports = function(doc, ns) {
+        var organizationId = ns.replace("erxes_","").split(".")[0]
+        var index = ns.replace(organizationId,"").replace("_.","__");
+    
+        %s
+    
+        doc._meta_monstache = {
+            id: organizationId + '__' + doc._id.toString(),
+            index: index
+        };
+    
+        doc.organizationId = organizationId;
+        return doc;
+    }
+    """
+    `, strings.Join(scripts, "\n")))
+
+	f.Close()
+
+	// Run Monstache with conservative settings and retries for this batch
+	maxRetries := 3
+	var runErr error
+	for attempt := 1; attempt <= maxRetries; attempt++ {
+		// Running monstache for batch
+		// Add performance flags to monstache command with conservative settings
+		cmd := exec.Command("monstache", "-f", fmt.Sprintf("mongo-elastic-batch-%d-%d.toml", start, end-1), "-log-level", "warn")
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		runErr = cmd.Run()
+		// Batch completed
+		if runErr == nil {
+			break
+		}
+		// Longer backoff for retries to give servers time to recover
+		time.Sleep(time.Duration(attempt*attempt) * 10 * time.Second)
+	}
+	
+	// Clean up the temporary file
+	os.Remove(fmt.Sprintf("mongo-elastic-batch-%d-%d.toml", start, end-1))
+	
+	results <- runErr
+}
+
 func main() {
-	// Environment & Mongo URL
-	maxPool := uint64(2)
+	// Environment & Mongo URL - Ultra-conservative limits for 16vCPU/32GB MongoDB
+	maxPool := uint64(10) // Very conservative for 16vCPU/32GB MongoDB
 	if val := os.Getenv("MaxPoolSize"); val != "" {
 		fmt.Sscanf(val, "%d", &maxPool)
 	}
 
 	mongoURL := os.Getenv("MONGO_URL")
 	if strings.Contains(mongoURL, "?") {
-		mongoURL += "&maxPoolSize=5&minPoolSize=1&connectTimeoutMS=10000"
+		mongoURL += "&maxPoolSize=20&minPoolSize=5&connectTimeoutMS=10000&maxIdleTimeMS=30000&serverSelectionTimeoutMS=10000&maxConnecting=5"
 	} else {
-		mongoURL += "?maxPoolSize=5&minPoolSize=1&connectTimeoutMS=10000"
+		mongoURL += "?maxPoolSize=20&minPoolSize=5&connectTimeoutMS=10000&maxIdleTimeMS=30000&serverSelectionTimeoutMS=10000&maxConnecting=5"
 	}
 
 	coreMongoURL := os.Getenv("CORE_MONGO_URL")
 	if strings.Contains(coreMongoURL, "?") {
-		coreMongoURL += "&connect=direct"
+		coreMongoURL += "&connect=direct&maxPoolSize=15&minPoolSize=3&connectTimeoutMS=10000&maxConnecting=3"
 	} else {
-		coreMongoURL += "?connect=direct"
+		coreMongoURL += "?connect=direct&maxPoolSize=15&minPoolSize=3&connectTimeoutMS=10000&maxConnecting=3"
 	}
 
 	plugins, err := fetchPlugins(os.Getenv("PLUGINS_JSON_URL"))
@@ -131,7 +231,6 @@ func main() {
 	}
 
 	fmt.Println("Fetched plugins:", len(plugins))
-	fmt.Println("Mongo URL:", mongoURL)
 
 	nestedType := `{
 		"type": "nested",
@@ -156,7 +255,6 @@ func main() {
 	// Create plugin templates
 	for _, plugin := range plugins {
 		for _, coll := range plugin.Collections {
-			fmt.Println("Collection Name",coll.Name)
 			content := strings.ReplaceAll(coll.Schema, "'", "\"")
 			content = strings.ReplaceAll(content, "<nested>", nestedType)
 			putTemplate(coll.Name, content)
@@ -186,21 +284,23 @@ func main() {
 	fmt.Println("Fetched organizations:", len(orgIDs))
 
 
-    // Prepare TOML header template
+    // Prepare TOML header template - Optimized for performance
     elasticURL := os.Getenv("ELASTICSEARCH_URL")
     header := fmt.Sprintf(`
     mongo-url="%s"
     elasticsearch-urls=["%s"]
-    verbose=true
+    verbose=false
     resume=true
-    direct-read-concur=1
-    
+    direct-read-concur=8
     
     index-as-update=true
     prune-invalid-json = true
-    direct-read-split-max = 1
-    elasticsearch-max-bytes = 2000000
-    elasticsearch-max-conns = 2
+    direct-read-split-max = 8
+    elasticsearch-max-bytes = 10000000
+    elasticsearch-max-conns = 20
+    elasticsearch-bulk-actions = 2000
+    elasticsearch-bulk-size = 10
+    elasticsearch-bulk-flush-interval = "1s"
     `, mongoURL, elasticURL)
 
 	// Build namespaces & scripts
@@ -218,89 +318,73 @@ func main() {
 		}
 	}
 
-    // Batching to avoid very large direct-read-namespaces and long single runs
-    batchSize := 300
+    // Batching optimized for 4k databases with 46GB data
+    // Smaller batches to avoid memory issues with large datasets
+    batchSize := 200 // Optimized for 4k databases - smaller batches prevent memory overflow
     if v := os.Getenv("BATCH_SIZE"); v != "" {
         fmt.Sscanf(v, "%d", &batchSize)
     }
 
-    // Build scripts once (already populated above). Now loop orgIDs in batches
+    // Process batches in parallel - ultra-conservative for server protection
+    maxConcurrentBatches := 2 // Very conservative to protect both MongoDB and Elasticsearch
+    if v := os.Getenv("MAX_CONCURRENT_BATCHES"); v != "" {
+        fmt.Sscanf(v, "%d", &maxConcurrentBatches)
+    }
+    
+    var wg sync.WaitGroup
+    results := make(chan error, maxConcurrentBatches)
+    semaphore := make(chan struct{}, maxConcurrentBatches)
+    
+    fmt.Printf("Processing %d organizations in batches of %d with %d concurrent workers\n", 
+        len(orgIDs), batchSize, maxConcurrentBatches)
+    
+    // Track progress for large dataset
+    var completedBatches int32
+    var totalBatches = int32((len(orgIDs) + batchSize - 1) / batchSize)
+    startTime := time.Now()
+    
     for start := 0; start < len(orgIDs); start += batchSize {
         end := start + batchSize
         if end > len(orgIDs) {
             end = len(orgIDs)
         }
-
-        // Build namespaces for this batch
-        var batchNamespaces []string
-        for _, plugin := range plugins {
-            for _, coll := range plugin.Collections {
-                for _, orgID := range orgIDs[start:end] {
-                    batchNamespaces = append(batchNamespaces, fmt.Sprintf(`"erxes_%s.%s"`, orgID, coll.Name))
+        
+        // Acquire semaphore
+        semaphore <- struct{}{}
+        wg.Add(1)
+        
+        go func(s, e int) {
+            defer func() { 
+                <-semaphore // Release semaphore
+                completedBatches++
+                if completedBatches%10 == 0 || completedBatches == totalBatches {
+                    elapsed := time.Since(startTime)
+                    rate := float64(completedBatches) / elapsed.Minutes()
+                    remaining := float64(totalBatches-completedBatches) / rate
+                    fmt.Printf("Progress: %d/%d batches (%.1f%%) - Rate: %.1f batches/min - ETA: %.1f min\n", 
+                        completedBatches, totalBatches, 
+                        float64(completedBatches)/float64(totalBatches)*100, 
+                        rate, remaining)
                 }
-            }
-        }
-
-        // Create TOML per batch
-        f, err := os.Create("mongo-elastic.toml")
+            }()
+            processBatch(s, e, orgIDs, plugins, scripts, mongoURL, elasticURL, &wg, results)
+        }(start, end)
+    }
+    
+    // Wait for all batches to complete
+    go func() {
+        wg.Wait()
+        close(results)
+    }()
+    
+    // Check for errors
+    for err := range results {
         if err != nil {
-            log.Fatal(err)
-        }
-
-        // Write header
-        f.WriteString(header)
-
-        // Write multi-line namespaces for better parser performance
-        f.WriteString("direct-read-namespaces=[\n")
-        for _, ns := range batchNamespaces {
-            f.WriteString(fmt.Sprintf("%s,\n", ns))
-        }
-        f.WriteString("]\n")
-
-        // Write remaining TOML and script
-        f.WriteString(fmt.Sprintf(`
-    routing-namespaces=[""]
-    delete-index-pattern="erxes_*"
-    
-    [[script]]
-    script="""
-    module.exports = function(doc, ns) {
-        var organizationId = ns.replace("erxes_","").split(".")[0]
-        var index = ns.replace(organizationId,"").replace("_.","__");
-    
-        %s
-    
-        doc._meta_monstache = {
-            id: organizationId + '__' + doc._id.toString(),
-            index: index
-        };
-    
-        doc.organizationId = organizationId;
-        return doc;
-    }
-    """
-    `,  strings.Join(scripts, "\n")))
-
-        f.Close()
-
-        // Run Monstache with simple retries for this batch
-        maxRetries := 3
-        var runErr error
-        for attempt := 1; attempt <= maxRetries; attempt++ {
-            fmt.Printf("Running monstache for batch %d-%d (attempt %d) ...\n", start, end-1, attempt)
-            cmd := exec.Command("monstache", "-f", "mongo-elastic.toml")
-            cmd.Stdin = os.Stdin
-            cmd.Stdout = os.Stdout
-            cmd.Stderr = os.Stderr
-            runErr = cmd.Run()
-			fmt.Printf("Completed batch %d-%d at %v\n", start, end-1, time.Now())
-            if runErr == nil {
-				break
-            }
-            time.Sleep(time.Duration(attempt) * 5 * time.Second)
-        }
-        if runErr != nil {
-            log.Fatal(runErr)
+            log.Fatal("Batch processing failed:", err)
         }
     }
+    
+    totalTime := time.Since(startTime)
+    fmt.Printf("All batches completed successfully in %.2f minutes!\n", totalTime.Minutes())
+    fmt.Printf("Average processing rate: %.2f batches/minute\n", float64(totalBatches)/totalTime.Minutes())
 }
