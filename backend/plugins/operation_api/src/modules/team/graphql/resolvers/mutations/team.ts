@@ -1,7 +1,8 @@
 import { TeamMemberRoles } from '@/team/@types/team';
 import { checkUserRole } from '@/utils';
-import { requireLogin, sendNotification } from 'erxes-api-shared/core-modules';
+import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
+import { createNotifications } from '~/utils/notifications';
 
 export const teamMutations = {
   teamAdd: async (
@@ -94,40 +95,15 @@ export const teamMutations = {
       allowedRoles: [TeamMemberRoles.ADMIN, TeamMemberRoles.LEAD],
     });
 
-    for (const memberId of memberIds) {
-      const teamMember = await models.TeamMember.findOne({
-        memberId,
-        teamId: _id,
-      });
-
-      if (!teamMember) {
-        sendNotification(subdomain, {
-          title: 'Team Invitation',
-          message: `You have been invited to join a new team!`,
-          type: 'info',
-          userIds: [memberId],
-          priority: 'low',
-          kind: 'system',
-          contentType: 'operation:team.invite',
-        });
-      } else {
-        const team = await models.Team.findOne({ _id });
-
-        sendNotification(subdomain, {
-          title: 'Team Invitation',
-          message: `You have been invited to join the ${
-            team?.name || 'a'
-          } team.`,
-          userIds: [memberId],
-          fromUserId: user._id,
-          contentType: `operation:team`,
-          contentTypeId: _id,
-          type: 'info',
-          priority: 'low',
-          kind: 'user',
-        });
-      }
-    }
+    await createNotifications({
+      contentType: 'team',
+      contentTypeId: _id,
+      fromUserId: user._id,
+      subdomain,
+      notificationType: 'team',
+      userIds: memberIds,
+      action: 'teamAddMembers',
+    });
 
     return models.TeamMember.createTeamMembers(
       memberIds.map((memberId) => ({
