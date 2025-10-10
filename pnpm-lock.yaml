@@ -927,24 +927,6 @@ importers:
         specifier: ^7.0.4
         version: 7.1.5(@types/node@18.16.9)(jiti@1.21.7)(less@4.1.3)(sass@1.86.3)(stylus@0.64.0)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
 
-  backend/plugins/pos_api:
-    dependencies:
-      aws-sdk:
-        specifier: ^2.1692.0
-        version: 2.1692.0
-      debug:
-        specifier: ^4.4.0
-        version: 4.4.0(supports-color@5.5.0)
-      erxes-api-shared:
-        specifier: workspace:^
-        version: link:../../erxes-api-shared
-      fbgraph:
-        specifier: ^1.4.4
-        version: 1.4.4
-      moment-timezone:
-        specifier: ^0.5.48
-        version: 0.5.48
-
   backend/plugins/posclient_api:
     dependencies:
       aws-sdk:
