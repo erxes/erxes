@@ -1,4 +1,4 @@
-import { markResolvers } from 'erxes-api-shared/utils/apollo/wrapperResolvers';
+import { markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 export const authQueries = {

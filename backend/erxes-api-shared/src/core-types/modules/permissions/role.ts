@@ -1,5 +1,5 @@
-import { ICursorPaginateParams } from '@/core-types/common';
 import { Document } from 'mongoose';
+import { ICursorPaginateParams } from '../../common';
 
 export enum Roles {
   OWNER = 'owner',
