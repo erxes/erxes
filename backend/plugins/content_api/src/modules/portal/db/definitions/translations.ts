@@ -11,6 +11,21 @@ export const postTranslationSchema = new Schema<IPostTranslationDocument>({
   content: { type: String, required: true },
   excerpt: { type: String, required: true },
   customFieldsData: { type: [customFieldSchema], optional: true },
+  type: {
+    type: String,
+    required: true,
+    enum: [
+      'post',
+      'category',
+      'menu',
+      'page',
+      'tag',
+      'knowledgeBaseCategory',
+      'knowledgeBaseTopic',
+      'knowledgeBaseArticle',
+    ],
+    default: 'post',
+  },
 });
 
 postTranslationSchema.index({ postId: 1, language: 1 }, { unique: true });

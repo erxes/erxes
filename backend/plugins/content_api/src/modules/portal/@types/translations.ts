@@ -7,6 +7,7 @@ export interface IPostTranslation {
   content: string;
   excerpt: string;
   customFieldsData?: ICustomField[];
+  type: string;
 }
 
 export interface IPostTranslationDocument extends IPostTranslation, Document {

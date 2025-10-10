@@ -1,5 +1,6 @@
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { IPostTagDocument } from '../../../@types/post';
 
 const queries = {
   /**
@@ -10,6 +11,7 @@ const queries = {
     const {
       searchValue,
       status,
+      language,
     } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
     const query = {
@@ -30,7 +32,30 @@ const queries = {
       query,
     });
 
-    return { list, totalCount, pageInfo };
+    if (!language) {
+      return { list, totalCount, pageInfo };
+    }
+
+    const tagIds = list.map((tag) => tag._id);
+
+    const translations = await models.PostTranslations.find({
+      postId: { $in: tagIds },
+      language,
+    }).lean();
+
+    const tagsWithTranslations = list.map((tag) => {
+      const translation = translations.find(
+        (translation) => translation.postId === tag._id,
+      );
+      return {
+        ...tag,
+        ...(translation && {
+          name: translation.title || tag.name,
+        }),
+      };
+    });
+
+    return { list: tagsWithTranslations, totalCount, pageInfo };
   },
 
   /**
@@ -38,17 +63,38 @@ const queries = {
    */
   async cmsTag(_parent: any, args: any, context: IContext): Promise<any> {
     const { models } = context;
-    const { _id, slug } = args;
+    const { _id, slug, language } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
     if (!_id && !slug) {
       return null;
     }
 
+    let tag: IPostTagDocument | null = null;
     if (slug) {
-      return models.PostTags.findOne({ slug, clientPortalId });
+      tag = await models.PostTags.findOne({ slug, clientPortalId });
+    } else {
+      tag = await models.PostTags.findOne({ _id });
     }
 
-    return models.PostTags.findOne({ _id });
+    if (!tag) {
+      return null;
+    }
+
+    if (!language) {
+      return tag;
+    }
+
+    const translation = await models.PostTranslations.findOne({
+      postId: tag._id,
+      language,
+    });
+
+    return {
+      ...tag,
+      ...(translation && {
+        name: translation.title || tag.name,
+      }),
+    };
   },
 };
 

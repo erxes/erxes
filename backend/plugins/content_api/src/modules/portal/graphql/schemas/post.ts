@@ -113,6 +113,7 @@ export const inputs = `
         content: String
         excerpt: String
         customFieldsData: JSON
+        type: String
     }
 `;
 

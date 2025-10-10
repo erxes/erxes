@@ -113,10 +113,44 @@ const mutations = {
   ): Promise<any> => {
     const { models } = context;
     const { input } = args;
-    const post = await models.Posts.findOne({ _id: input.postId });
-    if (!post) {
-      throw new Error('Post not found');
+    const { type } = input;
+
+    let model: any;
+
+    switch (type) {
+      case 'post':
+        model = models.Posts;
+        break;
+      case 'page':
+        model = models.Pages;
+        break;
+      case 'category':
+        model = models.Categories;
+        break;
+      case 'tag':
+        model = models.PostTags;
+        break;
+      case 'menu':
+        model = models.MenuItems;
+        break;
+      case 'knowledgeBaseCategory':
+        model = models.KnowledgeBaseCategories;
+        break;
+      case 'knowledgeBaseTopic':
+        model = models.KnowledgeBaseTopics;
+        break;
+      case 'knowledgeBaseArticle':
+        model = models.KnowledgeBaseArticles;
+        break;
+      default:
+        throw new Error('Invalid type');
     }
+
+    const object = await model.findOne({ _id: input.postId });
+    if (!object) {
+      throw new Error('Object not found');
+    }
+
     return models.PostTranslations.createPostTranslation(input);
   },
 
