@@ -80,7 +80,10 @@ export const useCreateAppRouter = () => {
                   element={<AutomationRoutes />}
                 />
               )}
-              <Route path={AppPath.LogsCatchAll} element={<LogRoutes />} />
+              
+              {isOS && (
+                <Route path={AppPath.LogsCatchAll} element={<LogRoutes />} />
+              )}
 
               {isOS && (
                 <Route

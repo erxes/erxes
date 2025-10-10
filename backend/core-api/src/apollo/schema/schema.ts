@@ -142,15 +142,20 @@ import {
 } from '@/logs/graphql/schema';
 
 import {
-  mutations as NotificationsMutations,
-  queries as NotificationsQueries,
-  types as NotificationsTypes,
-} from '@/notifications/graphql/schema';
-import{
   mutations as InternalNoteMutations,
   queries as InternalNoteQueries,
   types as InternalNoteTypes,
 } from '@/internalNote/graphql/schemas';
+import {
+  mutations as NotificationsMutations,
+  queries as NotificationsQueries,
+  types as NotificationsTypes,
+} from '@/notifications/graphql/schema';
+import {
+  mutations as RoleMutations,
+  queries as RoleQueries,
+  types as RoleTypes,
+} from '@/permissions/graphql/schemas/role';
 
 export const types = `
     enum CacheControlScope {
@@ -192,6 +197,7 @@ export const types = `
     ${LogsTypes}
     ${NotificationsTypes}
     ${InternalNoteTypes}
+    ${RoleTypes}
   `;
 
 export const queries = `
@@ -221,6 +227,7 @@ export const queries = `
     ${LogsQueries}
      ${NotificationsQueries}
     ${InternalNoteQueries}
+    ${RoleQueries}
   `;
 
 export const mutations = `
@@ -249,6 +256,7 @@ export const mutations = `
     ${AutomationsMutations}
     ${NotificationsMutations}
     ${InternalNoteMutations}
+    ${RoleMutations}
   `;
 
 export default { types, queries, mutations };

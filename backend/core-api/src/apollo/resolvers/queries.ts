@@ -20,6 +20,7 @@ import { segmentQueries } from '@/segments/graphql/resolvers';
 import { tagQueries } from '@/tags/graphql/queries';
 
 import { notificationQueries } from '@/notifications/graphql/resolver/queries';
+import { roleQueries } from '@/permissions/graphql/resolvers/queries/role';
 
 export const queries = {
   ...contactQueries,
@@ -43,4 +44,5 @@ export const queries = {
   ...logQueries,
   ...notificationQueries,
   ...internalNoteQueries,
+  ...roleQueries,
 };

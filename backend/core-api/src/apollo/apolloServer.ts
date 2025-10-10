@@ -3,15 +3,15 @@ import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { buildSubgraphSchema } from '@apollo/subgraph';
 import * as dotenv from 'dotenv';
+import { IMainContext } from 'erxes-api-shared/core-types';
 import {
-  generateApolloContext,
   apolloCommonTypes,
-  wrapApolloMutations,
+  generateApolloContext,
+  wrapApolloResolvers,
 } from 'erxes-api-shared/utils';
 import { gql } from 'graphql-tag';
 import { generateModels } from '../connectionResolvers';
 import resolvers from './resolvers';
-import { IMainContext } from 'erxes-api-shared/core-types';
 
 import * as typeDefDetails from './schema/schema';
 // load environment variables
@@ -42,10 +42,7 @@ export const initApolloServer = async (app, httpServer) => {
     schema: buildSubgraphSchema([
       {
         typeDefs: await typeDefs(),
-        resolvers: {
-          ...resolvers,
-          Mutation: wrapApolloMutations(resolvers?.Mutation || {}, ['login']),
-        },
+        resolvers: wrapApolloResolvers(resolvers),
       },
     ]),
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
