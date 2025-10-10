@@ -16,10 +16,10 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
       input: {
         query: {
           _id: { $in: pos.adminIds },
-          isActive: true
+          isActive: true,
         },
-        fields: USER_FIELDS
-      }
+        fields: USER_FIELDS,
+      },
     });
   }
 
@@ -32,10 +32,10 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
       input: {
         query: {
           _id: { $in: pos.cashierIds },
-          isActive: true
+          isActive: true,
         },
-        fields: USER_FIELDS
-      }
+        fields: USER_FIELDS,
+      },
     });
   }
 
@@ -47,7 +47,7 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
       getRemainderApiUrl: configs.getRemainderApiUrl,
       apiKey: configs.apiKey,
       apiSecret: configs.apiSecret,
-      apiToken: configs.apiToken
+      apiToken: configs.apiToken,
     };
   }
 
@@ -57,7 +57,7 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
 export const getProductsData = async (
   subdomain: string,
   models: IModels,
-  pos: IPosDocument
+  pos: IPosDocument,
 ) => {
   const groups = await models.ProductGroups.groups(pos._id);
 
@@ -65,7 +65,7 @@ export const getProductsData = async (
   if (pos.isCheckRemainder && pos.checkExcludeCategoryIds.length) {
     checkExcludeCategoryIds = await getChildCategories(
       subdomain,
-      pos.checkExcludeCategoryIds
+      pos.checkExcludeCategoryIds,
     );
   }
 
@@ -74,25 +74,27 @@ export const getProductsData = async (
   for (const group of groups) {
     const includeCatIds = await getChildCategories(
       subdomain,
-      group.categoryIds
+      group.categoryIds,
     );
     const excludeCatIds = await getChildCategories(
       subdomain,
-      group.excludedCategoryIds
+      group.excludedCategoryIds,
     );
 
     const productCategoryIds = includeCatIds.filter(
-      c => !excludeCatIds.includes(c)
+      (c) => !excludeCatIds.includes(c),
     );
 
     const productCategories = await sendTRPCMessage({
       pluginName: 'core',
       module: 'productCategories',
       action: 'find',
-      input: { query: { _id: { $in: productCategoryIds } }, sort: { order: 1 } },
-      defaultValue: []
-    })
-
+      input: {
+        query: { _id: { $in: productCategoryIds } },
+        sort: { order: 1 },
+      },
+      defaultValue: [],
+    });
     const categories: any[] = [];
 
     for (const category of productCategories) {
@@ -106,11 +108,11 @@ export const getProductsData = async (
         attachment: category.attachment,
         meta: category.meta,
         isSimilarity: category.isSimilarity,
-        similarities: category.similarities
+        similarities: category.similarities,
       });
     }
 
-    const categoryIds = categories.map(cat => cat._id);
+    const categoryIds = categories.map((cat) => cat._id);
     const productsByCatId = {};
 
     const products: any[] = await sendTRPCMessage({
@@ -121,13 +123,17 @@ export const getProductsData = async (
         query: {
           status: { $ne: 'deleted' },
           categoryId: { $in: categoryIds },
-          _id: { $nin: group.excludedProductIds }
+          _id: { $nin: group.excludedProductIds },
         },
       },
-      defaultValue: []
-    })
+      defaultValue: [],
+    });
 
-    const productsById = await calcProductsTaxRule(subdomain, pos.ebarimtConfig, products);
+    const productsById = await calcProductsTaxRule(
+      subdomain,
+      pos.ebarimtConfig,
+      products,
+    );
 
     const pricing = await sendTRPCMessage({
       pluginName: 'loyalty',
@@ -138,16 +144,16 @@ export const getProductsData = async (
         totalAmount: 0,
         departmentId: pos.departmentId,
         branchId: pos.branchId,
-        products: products.map(p => ({
+        products: products.map((p) => ({
           itemId: p._id,
           productId: p._id,
           quantity: 1,
-          price: p.unitPrice
-        }))
+          price: p.unitPrice,
+        })),
       },
       // timeout: 290000
       defaultValue: {},
-    })
+    });
 
     for (const productId of Object.keys(productsById)) {
       const product = productsById[productId];
@@ -179,10 +185,10 @@ export const getProductsData = async (
 
     productGroups.push({
       ...group,
-      categories: categories.map(category => ({
+      categories: categories.map((category) => ({
         ...category,
-        products: productsByCatId[category._id] || []
-      }))
+        products: productsByCatId[category._id] || [],
+      })),
     });
   } // end product group for loop
 
@@ -205,19 +211,18 @@ export const getProductsData = async (
       pluginName: 'core',
       module: 'products',
       action: 'find',
-      input: { query: { _id: { $in: followProductIds } }, },
+      input: { query: { _id: { $in: followProductIds } } },
       defaultValue: [],
-    })
+    });
 
     productGroups.push({
       categories: [
         {
-          products: followProducts
-        }
-      ]
+          products: followProducts,
+        },
+      ],
     });
   }
-
   return productGroups;
 };
 
@@ -232,7 +237,7 @@ export const posInit = async (req, res) => {
   }
 
   const data: any = await getConfigData(subdomain, {
-    ...pos
+    ...pos,
   });
   data.productGroups = await getProductsData(subdomain, models, pos);
   data.posId = pos._id;
@@ -259,11 +264,11 @@ export const posSyncConfig = async (req, res) => {
       return res.send(await getConfigData(subdomain, pos));
     case 'products':
       return res.send({
-        productGroups: await getProductsData(subdomain, models, pos)
+        productGroups: await getProductsData(subdomain, models, pos),
       });
     case 'slots':
       return res.send({
-        slots: await models.PosSlots.find({ posId: pos._id }).lean()
+        slots: await models.PosSlots.find({ posId: pos._id }).lean(),
       });
     case 'productsConfigs':
       return res.send(
@@ -271,8 +276,8 @@ export const posSyncConfig = async (req, res) => {
           pluginName: 'core',
           module: 'productConfigs',
           action: 'getConfig',
-          input: { code: 'similarityGroup', defaultValue: {} }
-        })
+          input: { code: 'similarityGroup', defaultValue: {} },
+        }),
       );
   }
 
@@ -301,7 +306,7 @@ export const unfetchOrderInfo = async (req, res) => {
 
   await models.PosOrders.updateOne(
     { _id: orderId },
-    { $set: { syncedErkhet: false } }
+    { $set: { syncedErkhet: false } },
   );
   return res.send({ status: 'done' });
 };
