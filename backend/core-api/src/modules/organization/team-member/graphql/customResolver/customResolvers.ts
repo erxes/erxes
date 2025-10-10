@@ -21,6 +21,12 @@ export default {
     return 'Verified';
   },
 
+  async role(user: IUserDocument, _args: undefined, { models }: IContext) {
+    const { role } = await models.Roles.getRole(user._id);
+
+    return role;
+  },
+
   //   async currentOrganization(_user, _args, { subdomain, models }: IContext) {
   //     const organization = await getOrganizationDetail({ subdomain, models });
 

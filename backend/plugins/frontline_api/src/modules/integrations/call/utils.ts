@@ -60,6 +60,7 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
   if (retryCount <= 0) {
     throw new Error('Retry limit exceeded.');
   }
+
   const integration = await models.CallIntegrations.findOne({
     inboxId: integrationId,
   }).lean();
@@ -75,6 +76,16 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
   }
 
   cookie = cookie?.toString();
+
+  const isValid = await validateCookie(wsServer, cookie);
+  if (!isValid) {
+    await redis.del('callCookie');
+    cookie = await getOrSetCallCookie(wsServer);
+    if (!cookie) {
+      throw new Error('Failed to refresh cookie');
+    }
+    cookie = cookie.toString();
+  }
 
   const requestOptions: RequestInit & { headers: HeadersInit } = {
     method,
@@ -115,11 +126,13 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
           user,
         )) as any;
       }
+
       if (isGetExtension) {
         return { response, extensionNumber };
       }
       return response;
     }
+
     if (isGetExtension) {
       return { res, extensionNumber };
     }
@@ -128,6 +141,31 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
   } catch (error) {
     console.error('Error in sendToGrandStream:', error);
     throw error;
+  }
+};
+
+const validateCookie = async (
+  wsServer: string,
+  cookie: string,
+): Promise<boolean> => {
+  try {
+    const requestOptions: RequestInit & { headers: HeadersInit } = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        request: {
+          action: 'getSystemStatus',
+          cookie,
+        },
+      }),
+    };
+
+    const res = await sendRequest(`https://${wsServer}/api`, requestOptions);
+    const response = await res.json();
+    return response.status !== -6;
+  } catch (error) {
+    console.error('Error validating cookie:', error);
+    return false;
   }
 };
 
@@ -142,17 +180,14 @@ export const getOrSetCallCookie = async (wsServer) => {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
   // }
 
-  // Validate credentials
   if (!CALL_API_USER || !CALL_API_PASSWORD) {
     throw new Error('Regular API credentials missing!');
   }
-  // Create unique cookie keys
   const cookieKey = 'callCookie';
   const apiUser = CALL_API_USER;
   const apiPassword = CALL_API_PASSWORD;
   const expiry = CALL_API_EXPIRY;
 
-  // Check existing cookie
   const callCookie = await redis.get(cookieKey);
   if (callCookie) {
     console.log(`Using existing regular cookie:`, callCookie);
@@ -160,7 +195,6 @@ export const getOrSetCallCookie = async (wsServer) => {
   }
 
   try {
-    // Authentication logic
     const challengeResponse = await sendRequest(`https://${wsServer}/api`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -174,7 +208,7 @@ export const getOrSetCallCookie = async (wsServer) => {
     });
 
     const data = await challengeResponse.json();
-    const { challenge } = data?.response;
+    const { challenge } = data?.response ?? {};
 
     const token = crypto
       .createHash('md5')
@@ -424,8 +458,7 @@ function sanitizeFileName(rawFileName: string): string {
 }
 export const cfRecordUrl = async (params, user, models, subdomain) => {
   try {
-    const { fileDir, recordfiles, inboxIntegrationId, retryCount } =
-      params;
+    const { fileDir, recordfiles, inboxIntegrationId, retryCount } = params;
 
     if (!recordfiles) {
       throw new Error('Missing required parameter: recordfiles');

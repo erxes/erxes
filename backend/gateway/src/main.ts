@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv';
+
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -27,6 +29,8 @@ import {
 import * as fs from 'fs';
 import * as path from 'path';
 
+dotenv.config();
+
 const port = process.env.PORT ? Number(process.env.PORT) : 4000;
 const { DOMAIN } = process.env;
 
@@ -34,7 +38,7 @@ const corsOptions = {
   credentials: true,
   origin: [
     ...(DOMAIN ? [DOMAIN] : []),
-    ...(isDev ? ['http://localhost:3001','http://localhost:5173'] : []),
+    ...(isDev ? ['http://localhost:3001', 'http://localhost:5173'] : []),
   ],
 };
 
