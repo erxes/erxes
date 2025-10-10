@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv';
+
 import { spawn, ChildProcess, execSync } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -10,6 +12,8 @@ import {
 } from '~/apollo-router/paths';
 import supergraphCompose from '~/apollo-router/supergraph-compose';
 import { isDev } from 'erxes-api-shared/utils';
+
+dotenv.config();
 
 const {
   DOMAIN,

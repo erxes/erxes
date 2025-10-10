@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv';
+
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -26,6 +28,8 @@ import {
 } from './subscription';
 import * as fs from 'fs';
 import * as path from 'path';
+
+dotenv.config();
 
 const port = process.env.PORT ? Number(process.env.PORT) : 4000;
 const { DOMAIN } = process.env;

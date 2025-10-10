@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv';
+
 import * as jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
 import { NextFunction, Request, Response } from 'express';
@@ -7,6 +9,8 @@ import { setUserHeader } from 'erxes-api-shared/utils';
 import { userActionsMap } from 'erxes-api-shared/core-modules';
 import { USER_ROLES } from 'erxes-api-shared/core-modules';
 import { IModels, generateModels } from '../connectionResolver';
+
+dotenv.config();
 
 export default async function userMiddleware(
   req: Request & { user?: any },
