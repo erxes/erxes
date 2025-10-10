@@ -5,6 +5,8 @@ import { toast, useQueryState } from "erxes-ui";
 
 import { GET_DEAL_DETAIL } from "@/deals/graphql/queries/DealsQueries";
 import { IPipelineLabel } from "@/deals/types/pipelines";
+import { dealDetailSheetState } from "@/deals/states/dealDetailSheetState";
+import { useAtom } from "jotai";
 
 export const usePipelineLabelDetail = (
     options?: QueryHookOptions<{ salesPipelineLabelDetail: IPipelineLabel }>,
@@ -166,8 +168,8 @@ export const usePipelineLabelAdd = (options?: MutationHookOptions<any, any>) => 
 
   export const usePipelineLabelLabel = (options?: MutationHookOptions<any, any>) => {
     const [pipelineId] = useQueryState('pipelineId');
-    const [_id] = useQueryState('salesItemId');
-    
+    const [_id] = useAtom(dealDetailSheetState);
+
     const [labelPipelineLabel, { loading, error }] = useMutation(LABEL_PIPELINE_LABEL, {
       ...options,
       variables: {

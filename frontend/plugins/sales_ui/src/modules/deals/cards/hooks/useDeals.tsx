@@ -7,6 +7,7 @@ import {
 } from '@/deals/graphql/mutations/DealsMutations';
 import {
   EnumCursorDirection,
+  ICursorListResponse,
   mergeCursorData,
   toast,
   useQueryState,
@@ -16,46 +17,57 @@ import {
   GET_DEALS,
   GET_DEAL_DETAIL,
 } from '@/deals/graphql/queries/DealsQueries';
-import { IDeal, IDealList } from '@/deals/types/deals';
 import {
   MutationHookOptions,
   QueryHookOptions,
   useMutation,
   useQuery,
 } from '@apollo/client';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { DEAL_LIST_CHANGED } from '~/modules/deals/graphql/subscriptions/dealListChange';
+import { IDeal } from '@/deals/types/deals';
 import { currentUserState } from 'ui-modules';
-import { useAtomValue } from 'jotai';
+import { dealCreateDefaultValuesState } from '@/deals/states/dealCreateSheetState';
+import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useEffect } from 'react';
 
+interface IDealChanged {
+  salesDealListChanged: {
+    action: string;
+    deal: IDeal;
+  };
+}
+
 export const useDeals = (
-  options?: QueryHookOptions<{ deals: IDealList }>,
+  options?: QueryHookOptions<ICursorListResponse<IDeal>>,
   pipelineId?: string,
 ) => {
-  const { data, loading, error, fetchMore, refetch, subscribeToMore } =
-    useQuery<{
-      deals: IDealList;
-    }>(GET_DEALS, {
-      ...options,
-      variables: {
-        ...options?.variables,
-      },
-    });
+  const { data, loading, fetchMore, subscribeToMore } = useQuery<
+    ICursorListResponse<IDeal>
+  >(GET_DEALS, {
+    ...options,
+    variables: { ...options?.variables },
+    skip: options?.skip,
+    fetchPolicy: 'cache-and-network',
+    onError: (e) => {
+      toast({
+        title: 'Error',
+        description: e.message,
+        variant: 'destructive',
+      });
+    },
+  });
 
+  const currentUser = useAtomValue(currentUserState);
   const [qryStrPipelineId] = useQueryState('pipelineId');
 
   const lastPipelineId = pipelineId || qryStrPipelineId || '';
 
-  const currentUser = useAtomValue(currentUserState);
-  const { deals } = data || {};
-
-  const { list = [], pageInfo, totalCount = 0 } = deals || {};
-
-  const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const { list: deals, pageInfo, totalCount } = data?.deals || {};
 
   useEffect(() => {
-    const unsubscribe = subscribeToMore<any>({
+    const unsubscribe = subscribeToMore<IDealChanged>({
       document: DEAL_LIST_CHANGED,
       variables: {
         pipelineId: lastPipelineId,
@@ -80,9 +92,9 @@ export const useDeals = (
         }
 
         if (action === 'edit') {
-          updatedList = currentList.map((item: IDeal) => {
-            return item._id === deal._id ? { ...item, ...deal } : item;
-          });
+          updatedList = currentList.map((item: IDeal) =>
+            item._id === deal._id ? { ...item, ...deal } : item,
+          );
         }
 
         if (action === 'remove') {
@@ -145,23 +157,18 @@ export const useDeals = (
   };
 
   return {
-    deals: data?.deals,
     loading,
-    error,
+    deals,
     handleFetchMore,
     pageInfo,
-    hasPreviousPage,
-    hasNextPage,
-    refetch,
     totalCount,
-    list,
   };
 };
 
 export const useDealDetail = (
   options?: QueryHookOptions<{ dealDetail: IDeal }>,
 ) => {
-  const [_id] = useQueryState('salesItemId');
+  const [activeDealId] = useAtom(dealDetailSheetState);
 
   const { data, loading, error } = useQuery<{ dealDetail: IDeal }>(
     GET_DEAL_DETAIL,
@@ -169,9 +176,9 @@ export const useDealDetail = (
       ...options,
       variables: {
         ...options?.variables,
-        _id,
+        _id: activeDealId,
       },
-      skip: !_id,
+      skip: !activeDealId,
     },
   );
 
@@ -179,7 +186,7 @@ export const useDealDetail = (
 };
 
 export function useDealsEdit(options?: MutationHookOptions<any, any>) {
-  const [_id] = useQueryState('salesItemId');
+  const [_id] = useAtom(dealDetailSheetState);
 
   const [editDeals, { loading, error }] = useMutation(EDIT_DEALS, {
     ...options,
@@ -187,39 +194,14 @@ export function useDealsEdit(options?: MutationHookOptions<any, any>) {
       ...options?.variables,
       _id,
     },
-    optimisticResponse: ({ _id, name }) => ({
-      dealsEdit: { __typename: 'Deal', _id, name },
-    }),
-    update: (cache, { data }) => {
-      const updatedDeal = data?.dealsEdit;
-      if (!updatedDeal) return;
-
-      const existing = cache.readQuery<{ deals: IDealList }>({
-        query: GET_DEALS,
-      });
-      if (!existing?.deals) return;
-
-      cache.writeQuery({
-        query: GET_DEALS,
-        data: {
-          deals: {
-            ...existing.deals,
-            list: existing.deals.list.map((d) =>
-              d._id === updatedDeal._id ? { ...d, ...updatedDeal } : d,
-            ),
+    refetchQueries: _id
+      ? [
+          {
+            query: GET_DEAL_DETAIL,
+            variables: { ...options?.variables, _id },
           },
-        },
-      });
-    },
-    refetchQueries: [
-      {
-        query: GET_DEAL_DETAIL,
-        variables: {
-          ...options?.variables,
-          _id,
-        },
-      },
-    ],
+        ]
+      : [],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
@@ -245,15 +227,15 @@ export function useDealsEdit(options?: MutationHookOptions<any, any>) {
 }
 
 export function useDealsAdd(options?: MutationHookOptions<any, any>) {
-  const [_id] = useQueryState('salesItemId');
-  const [stageId] = useQueryState('stageId');
+  const [_id] = useAtom(dealDetailSheetState);
+  const [defaultValues] = useAtom(dealCreateDefaultValuesState);
 
   const [addDeals, { loading, error }] = useMutation(ADD_DEALS, {
     ...options,
     variables: {
       ...options?.variables,
       _id,
-      stageId,
+      stageId: defaultValues?.stageId,
     },
     refetchQueries: [
       {
@@ -288,7 +270,7 @@ export function useDealsAdd(options?: MutationHookOptions<any, any>) {
 }
 
 export function useDealsRemove(options?: MutationHookOptions<any, any>) {
-  const [_id] = useQueryState('salesItemId');
+  const [_id] = useAtom(dealDetailSheetState);
 
   const [removeDeals, { loading, error }] = useMutation(REMOVE_DEALS, {
     ...options,

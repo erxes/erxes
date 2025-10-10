@@ -11,7 +11,8 @@ import { MutationHookOptions, useMutation } from '@apollo/client';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 
 import { GET_CHECKLISTS } from '@/deals/graphql/queries/ChecklistQueries';
-import { useQueryState } from 'erxes-ui';
+import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
+import { useAtom } from 'jotai';
 
 type AddChecklistResult = {
   checklistsAdd: IChecklist;
@@ -23,7 +24,7 @@ type AddChecklistItemResult = {
 export function useChecklistsAdd(
   options?: MutationHookOptions<AddChecklistResult, any>,
 ) {
-  const [contentTypeId] = useQueryState('salesItemId');
+  const [contentTypeId] = useAtom(dealDetailSheetState);
 
   const [checklistsAdd, { loading, error }] = useMutation(ADD_CHECKLISTS, {
     ...options,
@@ -53,7 +54,7 @@ export function useChecklistsAdd(
 export function useChecklistsRemove(
   options?: MutationHookOptions<AddChecklistItemResult, any>,
 ) {
-  const [contentTypeId] = useQueryState('salesItemId');
+  const [contentTypeId] = useAtom(dealDetailSheetState);
 
   const [salesChecklistsRemove, { loading, error }] = useMutation(
     REMOVE_CHECKLISTS,
@@ -150,7 +151,7 @@ export function useChecklistItemsReorder(
 export const useChecklists = (
   options?: QueryHookOptions<{ salesChecklists: IChecklist[] }>,
 ) => {
-  const [contentTypeId] = useQueryState('salesItemId');
+  const [contentTypeId] = useAtom(dealDetailSheetState);
 
   const { data, loading, error } = useQuery<{ salesChecklists: IChecklist[] }>(
     GET_CHECKLISTS,

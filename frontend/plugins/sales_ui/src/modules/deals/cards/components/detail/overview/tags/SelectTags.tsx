@@ -1,12 +1,14 @@
 import { ITag, useGiveTags, useTags } from 'ui-modules';
 import { IconSettings, IconTag } from '@tabler/icons-react';
-import { Input, Popover, Spinner, useQueryState } from 'erxes-ui';
+import { Input, Popover, Spinner } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 
 import { Link } from 'react-router-dom';
 import { TagTree } from './TagTree';
 import Tags from './Tags';
 import { buildTree } from './BuildTree';
+import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
+import { useAtom } from 'jotai';
 
 const SelectTags = ({
   dealTags,
@@ -20,7 +22,7 @@ const SelectTags = ({
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set(tagIds));
 
-  const [targetId] = useQueryState<string>('salesItemId');
+  const [targetId] = useAtom(dealDetailSheetState);
 
   const {
     tags = [],
@@ -86,7 +88,7 @@ const SelectTags = ({
             />
             {loading || giveTagsLoading ? (
               <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Spinner size="small" />
+                <Spinner size="sm" />
               </div>
             ) : tags.length === 0 ? (
               <div className="text-sm text-gray-400 py-4 text-center">

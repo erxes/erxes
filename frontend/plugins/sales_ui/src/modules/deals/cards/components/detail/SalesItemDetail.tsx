@@ -1,4 +1,4 @@
-import { Resizable, Sheet, cn, useQueryState } from 'erxes-ui';
+import { Resizable, Sheet, cn } from 'erxes-ui';
 import {
   SalesDetailLeftSidebar,
   SalesDetailTabContent,
@@ -9,15 +9,20 @@ import { IDeal } from '@/deals/types/deals';
 import Overview from './overview/Overview';
 import { SalesDetailActions } from './SalesDetailActions';
 import { SalesItemDetailHeader } from './SalesItemDetailHeader';
+import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
+import { useAtom } from 'jotai';
 import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 
 export const SalesItemDetail = () => {
-  const [open, setOpen] = useQueryState<string>('salesItemId');
+  const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
 
   const { deal, loading } = useDealDetail();
 
   return (
-    <Sheet open={!!open && !loading} onOpenChange={() => setOpen(null)}>
+    <Sheet
+      open={!!activeDealId && !loading}
+      onOpenChange={() => setActiveDealId(null)}
+    >
       <DealsProvider>
         <Sheet.View
           className={cn(

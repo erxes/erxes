@@ -29,7 +29,7 @@ export const useStages = (
     },
   );
 
-  return { stages: data?.salesStages, loading, error };
+  return { stages: data?.salesStages || [], loading, error };
 };
 
 export const useStagesOrder = (options?: MutationHookOptions<any, any>) => {
