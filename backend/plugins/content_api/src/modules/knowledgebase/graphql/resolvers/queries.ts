@@ -57,43 +57,47 @@ const knowledgeBaseQueries: any = {
     const language = args.language;
     const selector: any = buildQuery(args);
     let sort: any = { createdDate: -1 };
-
+  
     if (args.topicIds && args.topicIds.length > 0) {
       const categoryIds = await models.KnowledgeBaseCategories.find({
         topicId: { $in: args.topicIds },
       }).distinct('_id');
-
+  
       selector.categoryId = { $in: categoryIds };
-
       delete selector.topicIds;
     }
-
+  
     if (args.sortField) {
       sort = { [args.sortField]: args.sortDirection };
     }
-
+  
     const { list, totalCount, pageInfo } =
       await cursorPaginate<IArticleDocument>({
         model: models.KnowledgeBaseArticles,
         params: args,
         query: selector,
       });
-
+  
     if (!language) {
       return { list, totalCount, pageInfo };
     }
-
+  
     const articleIds = list.map((article) => article._id);
-
+  
     const translations = await models.PostTranslations.find({
       postId: { $in: articleIds },
       language,
     }).lean();
-
+  
+    // ✅ Build a translation map for O(1) lookup
+    const translationMap = translations.reduce((acc, t) => {
+      acc[t.postId.toString()] = t;
+      return acc;
+    }, {} as Record<string, any>);
+  
     const articlesWithTranslations = list.map((article) => {
-      const translation = translations.find(
-        (translation) => translation.postId === article._id,
-      );
+      const translation = translationMap[article._id.toString()];
+  
       return {
         ...article,
         ...(translation && {
@@ -103,10 +107,10 @@ const knowledgeBaseQueries: any = {
         }),
       };
     });
-
+  
     return { list: articlesWithTranslations, totalCount, pageInfo };
   },
-
+  
   /**
    * Article detail
    */
@@ -209,10 +213,14 @@ const knowledgeBaseQueries: any = {
       language: args.language,
     });
 
+    // ✅ Build a translation map for O(1) lookup
+    const translationMap = translations.reduce((acc, t) => {
+      acc[t.postId.toString()] = t;
+      return acc;
+    }, {} as Record<string, any>);
+
     const categoriesWithTranslations = list.map((category) => {
-      const translation = translations.find(
-        (translation) => translation.postId === category._id,
-      );
+      const translation = translationMap[category._id.toString()];
       return {
         ...category,
         ...(translation && {
@@ -307,10 +315,14 @@ const knowledgeBaseQueries: any = {
       language: params.language,
     });
 
+    // ✅ Build a translation map for O(1) lookup
+    const translationMap = translations.reduce((acc, t) => {
+      acc[t.postId.toString()] = t;
+      return acc;
+    }, {} as Record<string, any>);
+
     const topicsWithTranslations = list.map((topic) => {
-      const translation = translations.find(
-        (translation) => translation.postId === topic._id,
-      );
+      const translation = translationMap[topic._id.toString()];
       return {
         ...topic,
         ...(translation && {

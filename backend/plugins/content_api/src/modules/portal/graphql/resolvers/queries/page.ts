@@ -40,10 +40,14 @@ const queries = {
       language,
     }).lean();
 
+    // ✅ Build a translation map for O(1) lookup
+    const translationMap = translations.reduce((acc, t) => {
+      acc[t.postId.toString()] = t;
+      return acc;
+    }, {} as Record<string, any>);
+
     const pagesWithTranslations = list.map((page) => {
-      const translation = translations.find(
-        (translation) => translation.postId === page._id,
-      );
+      const translation = translationMap[page._id.toString()];
       return {
         ...page,
         ...(translation && {
@@ -94,10 +98,14 @@ const queries = {
       language,
     }).lean();
 
+    // ✅ Build a translation map for O(1) lookup
+    const translationMap = translations.reduce((acc, t) => {
+      acc[t.postId.toString()] = t;
+      return acc;
+    }, {} as Record<string, any>);
+
     const pagesWithTranslations = list.map((page) => {
-      const translation = translations.find(
-        (translation) => translation.postId === page._id,
-      );
+      const translation = translationMap[page._id.toString()];
       return {
         ...page,
         ...(translation && {

@@ -31,10 +31,14 @@ const queries = {
       language,
     }).lean();
 
+    // ✅ Build a translation map for O(1) lookup
+    const translationMap = translations.reduce((acc, t) => {
+      acc[t.postId.toString()] = t;
+      return acc;
+    }, {} as Record<string, any>);
+
     const menusWithTranslations = menus.map((menu) => {
-      const translation = translations.find(
-        (translation) => translation.postId === menu._id,
-      );
+      const translation = translationMap[menu._id.toString()];
       return {
         ...menu,
         ...(translation && {
