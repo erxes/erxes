@@ -115,7 +115,9 @@ const createRouterConfig = async () => {
     },
     supergraph: {
       listen: `127.0.0.1:${apolloRouterPort}`,
-      introspection: (INTROSPECTION || '').trim().toLowerCase() === 'true',
+      introspection:
+        NODE_ENV === 'development' ||
+        (INTROSPECTION || '').trim().toLowerCase() === 'true',
     },
   };
 
