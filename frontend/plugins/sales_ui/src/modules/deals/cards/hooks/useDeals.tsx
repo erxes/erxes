@@ -237,14 +237,6 @@ export function useDealsAdd(options?: MutationHookOptions<any, any>) {
       _id,
       stageId: defaultValues?.stageId,
     },
-    refetchQueries: [
-      {
-        query: GET_DEALS,
-        variables: {
-          ...options?.variables,
-        },
-      },
-    ],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
@@ -278,14 +270,6 @@ export function useDealsRemove(options?: MutationHookOptions<any, any>) {
       ...options?.variables,
       _id,
     },
-    refetchQueries: [
-      {
-        query: GET_DEALS,
-        variables: {
-          ...options?.variables,
-        },
-      },
-    ],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
@@ -316,14 +300,6 @@ export function useDealsChange(options?: MutationHookOptions<any, any>) {
     variables: {
       ...options?.variables,
     },
-    refetchQueries: [
-      {
-        query: GET_DEALS,
-        variables: {
-          ...options?.variables,
-        },
-      },
-    ],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
@@ -354,14 +330,6 @@ export function useDealsArchive(options?: MutationHookOptions<any, any>) {
     variables: {
       ...options?.variables,
     },
-    refetchQueries: [
-      {
-        query: GET_DEALS,
-        variables: {
-          ...options?.variables,
-        },
-      },
-    ],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
