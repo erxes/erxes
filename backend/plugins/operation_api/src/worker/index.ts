@@ -10,7 +10,7 @@ export const initMQWorkers = async (redis: any) => {
   await myQueue.upsertJobScheduler(
     'operations-daily-cycles-check',
     {
-      pattern: '0 0 * * *',
+      pattern: '0 * * * *',
       tz: 'UTC',
     },
     {

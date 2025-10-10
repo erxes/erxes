@@ -10,6 +10,7 @@ const generalSettingsSchema = z.object({
   CHECK_TEAM_MEMBER_SHOWN: z.boolean(),
   BRANCHES_MASTER_TEAM_MEMBERS_IDS: z.string().array(),
   DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS: z.string().array(),
+  TIMEZONE: z.string(),
 });
 
 export { generalSettingsSchema };

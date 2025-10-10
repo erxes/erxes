@@ -4,6 +4,7 @@ import {
   TSettingPath,
 } from '@/types/paths/SettingsPath';
 import {
+  IconAdjustmentsAlt,
   IconChessKnight,
   IconFile,
   IconMail,
@@ -121,6 +122,11 @@ export const SETTINGS_PATH_DATA: { [key: string]: TSettingPath[] } = {
   ],
   nav: [
     {
+      name: 'General',
+      icon: IconAdjustmentsAlt,
+      path: SettingsWorkspacePath.General,
+    },
+    {
       name: 'Team member',
       icon: IconUsersGroup,
       path: SettingsWorkspacePath.TeamMember,
@@ -130,11 +136,6 @@ export const SETTINGS_PATH_DATA: { [key: string]: TSettingPath[] } = {
       icon: IconUserCog,
       path: SettingsWorkspacePath.Permissions,
     },
-    // {
-    //   name: 'General',
-    //   icon: IconAdjustmentsAlt,
-    //   path: SettingsWorkspacePath.General,
-    // },
     {
       name: 'File upload',
       icon: IconFile,
