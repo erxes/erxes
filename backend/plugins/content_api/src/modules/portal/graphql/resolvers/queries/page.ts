@@ -1,159 +1,77 @@
-import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { IPageDocument } from '../../../@types/page';
+import { BaseQueryResolver, FIELD_MAPPINGS } from '@/portal/utils/base-resolvers';
+import { getQueryBuilder } from '@/portal/utils/query-builders';
 
-const queries = {
-  cmsPages: async (parent: any, args: any, context: IContext) => {
-    const { models } = context;
-    const { searchValue, language } = args;
+class PageQueryResolver extends BaseQueryResolver {
+  async cmsPages(_parent: any, args: any, context: IContext) {
+    const { language } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
 
     if (!clientPortalId) {
       throw new Error('clientPortalId is required');
     }
 
-    const query: any = {
-      clientPortalId,
-    };
+    const queryBuilder = getQueryBuilder('page', this.models);
+    const query = queryBuilder.buildQuery({ ...args, clientPortalId });
 
-    if (searchValue) {
-      query.$or = [
-        { name: { $regex: searchValue, $options: 'i' } },
-        { slug: { $regex: searchValue, $options: 'i' } },
-      ];
-    }
-
-    const { list } = await cursorPaginate({
-      model: models.Pages,
-      params: args,
+    const { list } = await this.getListWithTranslations(
+      this.models.Pages,
       query,
-    });
+      { ...args, clientPortalId, language },
+      FIELD_MAPPINGS.PAGE
+    );
 
-    if (!language) {
-      return list;
-    }
+    return list;
+  }
 
-    const pageIds = list.map((page) => page._id);
-
-    const translations = await models.PostTranslations.find({
-      postId: { $in: pageIds },
-      language,
-    }).lean();
-
-    // ✅ Build a translation map for O(1) lookup
-    const translationMap = translations.reduce((acc, t) => {
-      acc[t.postId.toString()] = t;
-      return acc;
-    }, {} as Record<string, any>);
-
-    const pagesWithTranslations = list.map((page) => {
-      const translation = translationMap[page._id.toString()];
-      return {
-        ...page,
-        ...(translation && {
-          name: translation.title || page.name,
-          description: translation.content || page.description,
-        }),
-      };
-    });
-
-    return pagesWithTranslations;
-  },
-
-  cmsPageList: async (parent: any, args: any, context: IContext) => {
-    const { models } = context;
-    const { language, searchValue } = args;
-
+  async cmsPageList(_parent: any, args: any, context: IContext) {
+    const { language } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
 
     if (!clientPortalId) {
       throw new Error('clientPortalId is required');
     }
 
-    const query: any = {
-      clientPortalId,
-    };
+    const queryBuilder = getQueryBuilder('page', this.models);
+    const query = queryBuilder.buildQuery({ ...args, clientPortalId });
 
-    if (searchValue) {
-      query.$or = [
-        { name: { $regex: searchValue, $options: 'i' } },
-        { slug: { $regex: searchValue, $options: 'i' } },
-      ];
-    }
-
-    const { list, totalCount, pageInfo } = await cursorPaginate({
-      model: models.Pages,
-      params: args,
+    return this.getListWithTranslations(
+      this.models.Pages,
       query,
-    });
+      { ...args, clientPortalId, language },
+      FIELD_MAPPINGS.PAGE
+    );
+  }
 
-    if (!language) {
-      return { list, totalCount, pageInfo };
-    }
-
-    const pageIds = list.map((page) => page._id);
-
-    const translations = await models.PostTranslations.find({
-      postId: { $in: pageIds },
-      language,
-    }).lean();
-
-    // ✅ Build a translation map for O(1) lookup
-    const translationMap = translations.reduce((acc, t) => {
-      acc[t.postId.toString()] = t;
-      return acc;
-    }, {} as Record<string, any>);
-
-    const pagesWithTranslations = list.map((page) => {
-      const translation = translationMap[page._id.toString()];
-      return {
-        ...page,
-        ...(translation && {
-          name: translation.title || page.name,
-          description: translation.content || page.description,
-        }),
-      };
-    });
-
-    return { list: pagesWithTranslations, totalCount, pageInfo };
-  },
-
-  cmsPage: async (parent: any, args: any, context: IContext) => {
-    const { models, clientPortalId } = context;
+  async cmsPage(_parent: any, args: any, context: IContext) {
+    const { clientPortalId } = context;
     const { _id, slug, language } = args;
 
     if (!_id && !slug) {
       return null;
     }
 
-    let page: IPageDocument | null = null;
+    let query: any = {};
     if (slug) {
-      page = await models.Pages.findOne({ slug, clientPortalId });
+      query = { slug, clientPortalId };
     } else {
-      page = await models.Pages.findOne({ _id });
+      query = { _id };
     }
 
-    if (!page) {
-      return null;
-    }
-
-    if (!language) {
-      return page;
-    }
-
-    const translation = await models.PostTranslations.findOne({
-      postId: page._id,
+    return this.getItemWithTranslation(
+      this.models.Pages,
+      query,
       language,
-    });
+      FIELD_MAPPINGS.PAGE
+    );
+  }
+}
 
-    return {
-      ...page,
-      ...(translation && {
-        name: translation.title || page.name,
-        description: translation.content || page.description,
-      }),
-    };
-  },
+const resolver = new PageQueryResolver({} as IContext);
+const queries = {
+  cmsPages: resolver.cmsPages.bind(resolver),
+  cmsPageList: resolver.cmsPageList.bind(resolver),
+  cmsPage: resolver.cmsPage.bind(resolver),
 };
 
 export default queries;

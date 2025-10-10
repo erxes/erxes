@@ -1,154 +1,58 @@
-import {
-  checkPermission,
-  moduleRequireLogin,
-} from 'erxes-api-shared/core-modules';
-import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { BaseQueryResolver, FIELD_MAPPINGS } from '@/portal/utils/base-resolvers';
+import { getQueryBuilder } from '@/portal/utils/query-builders';
+import { PermissionManager } from '@/portal/utils/permission-utils';
 import {
   IArticleDocument,
   ICategoryDocument,
   ITopicDocument,
 } from '@/knowledgebase/@types/knowledgebase';
 
-const buildQuery = (args: any) => {
-  const qry: any = {};
+class KnowledgeBaseQueryResolver extends BaseQueryResolver {
 
-  const keys = ['codes', 'categoryIds', 'articleIds', 'topicIds'];
-
-  keys.forEach((key) => {
-    if (args[key] && args[key].length > 0) {
-      const field = key.replace('s', '');
-      qry[field] = { $in: args[key] };
-    }
-  });
-
-  if (args.searchValue && args.searchValue.trim()) {
-    qry.$or = [
-      { title: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
-      { content: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
-      { summary: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
-    ];
-  }
-
-  if (args.brandId) {
-    qry.brandId = args.brandId;
-  }
-
-  if (args.icon) {
-    qry.icon = args.icon;
-  }
-
-  if (args?.ids?.length) {
-    qry._id = { $in: args.ids };
-  }
-
-  if (args?.status) {
-    qry.status = args.status;
-  }
-
-  return qry;
-};
-
-const knowledgeBaseQueries: any = {
   /**
    * Article list
    */
-  async knowledgeBaseArticles(_root, args, { models }: IContext) {
-    const language = args.language;
-    const selector: any = buildQuery(args);
+  async knowledgeBaseArticles(_root: any, args: any, { models }: IContext) {
+    const queryBuilder = getQueryBuilder('knowledgebase', models);
+    const selector = await queryBuilder.buildArticleQuery(args);
     let sort: any = { createdDate: -1 };
-  
-    if (args.topicIds && args.topicIds.length > 0) {
-      const categoryIds = await models.KnowledgeBaseCategories.find({
-        topicId: { $in: args.topicIds },
-      }).distinct('_id');
-  
-      selector.categoryId = { $in: categoryIds };
-      delete selector.topicIds;
-    }
   
     if (args.sortField) {
       sort = { [args.sortField]: args.sortDirection };
     }
   
-    const { list, totalCount, pageInfo } =
-      await cursorPaginate<IArticleDocument>({
-        model: models.KnowledgeBaseArticles,
-        params: args,
-        query: selector,
-      });
+    const { list, totalCount, pageInfo } = await this.getListWithTranslations(
+      models.KnowledgeBaseArticles,
+      selector,
+      args,
+      FIELD_MAPPINGS.KNOWLEDGE_BASE_ARTICLE
+    );
   
-    if (!language) {
-      return { list, totalCount, pageInfo };
-    }
-  
-    const articleIds = list.map((article) => article._id);
-  
-    const translations = await models.PostTranslations.find({
-      postId: { $in: articleIds },
-      language,
-    }).lean();
-  
-    // ✅ Build a translation map for O(1) lookup
-    const translationMap = translations.reduce((acc, t) => {
-      acc[t.postId.toString()] = t;
-      return acc;
-    }, {} as Record<string, any>);
-  
-    const articlesWithTranslations = list.map((article) => {
-      const translation = translationMap[article._id.toString()];
-  
-      return {
-        ...article,
-        ...(translation && {
-          title: translation.title || article.title,
-          content: translation.content || article.content,
-          summary: translation.excerpt || article.summary,
-        }),
-      };
-    });
-  
-    return { list: articlesWithTranslations, totalCount, pageInfo };
-  },
+    return { list, totalCount, pageInfo };
+  }
   
   /**
    * Article detail
    */
   async knowledgeBaseArticleDetail(
-    _root,
+    _root: any,
     { _id, language }: { _id: string; language: string },
     { models }: IContext,
   ) {
-    const article = await models.KnowledgeBaseArticles.findOne({ _id });
-
-    if (!language) {
-      return article;
-    }
-
-    if (!article) {
-      throw new Error('Article not found');
-    }
-
-    const translation = await models.PostTranslations.findOne({
-      postId: article._id,
+    return this.getItemWithTranslation(
+      models.KnowledgeBaseArticles,
+      { _id },
       language,
-    });
-
-    return {
-      ...article,
-      ...(translation && {
-        title: translation.title || article.title,
-        content: translation.content || article.content,
-        summary: translation.excerpt || article.summary,
-      }),
-    };
-  },
+      FIELD_MAPPINGS.KNOWLEDGE_BASE_ARTICLE
+    );
+  }
 
   /**
-   * Article detail anc increase a view count
+   * Article detail and increase view count
    */
   async knowledgeBaseArticleDetailAndIncViewCount(
-    _root,
+    _root: any,
     { _id, language }: { _id: string; language: string },
     { models }: IContext,
   ) {
@@ -158,248 +62,146 @@ const knowledgeBaseQueries: any = {
       { new: true },
     );
 
-    if (!language) {
-      return article;
-    }
-
     if (!article) {
       throw new Error('Article not found');
     }
 
-    const translation = await models.PostTranslations.findOne({
-      postId: article._id,
-      language,
-    });
+    if (!language) {
+      return article;
+    }
 
-    return {
-      ...article,
-      ...(translation && {
-        title: translation.title || article.title,
-        content: translation.content || article.content,
-        summary: translation.excerpt || article.summary,
-      }),
-    };
-  },
+    const translation = await this.getTranslation(article._id, language);
+    return this.applyTranslationsToItem(article, translation, FIELD_MAPPINGS.KNOWLEDGE_BASE_ARTICLE);
+  }
 
   /**
    * Total article count
    */
-  async knowledgeBaseArticlesTotalCount(_root, args, { models }: IContext) {
-    const qry: any = buildQuery(args);
+  async knowledgeBaseArticlesTotalCount(_root: any, args: any, { models }: IContext) {
+    const queryBuilder = getQueryBuilder('knowledgebase', models);
+    const qry = await queryBuilder.buildArticleQuery(args);
 
     return models.KnowledgeBaseArticles.find(qry).countDocuments();
-  },
+  }
 
   /**
    * Category list
    */
-  async knowledgeBaseCategories(_root, args, { models }: IContext) {
-    const qry: any = buildQuery(args);
+  async knowledgeBaseCategories(_root: any, args: any, { models }: IContext) {
+    const queryBuilder = getQueryBuilder('knowledgebase', models);
+    const qry = queryBuilder.buildQuery(args);
 
-    const { list, totalCount, pageInfo } =
-      await cursorPaginate<ICategoryDocument>({
-        model: models.KnowledgeBaseCategories,
-        params: args,
-        query: qry,
-      });
-
-    if (!args.language) {
-      return { list, totalCount, pageInfo };
-    }
-
-    const categoryIds = list.map((category) => category._id);
-    const translations = await models.PostTranslations.find({
-      postId: { $in: categoryIds },
-      language: args.language,
-    });
-
-    // ✅ Build a translation map for O(1) lookup
-    const translationMap = translations.reduce((acc, t) => {
-      acc[t.postId.toString()] = t;
-      return acc;
-    }, {} as Record<string, any>);
-
-    const categoriesWithTranslations = list.map((category) => {
-      const translation = translationMap[category._id.toString()];
-      return {
-        ...category,
-        ...(translation && {
-          title: translation.title || category.title,
-          description: translation.content || category.description,
-        }),
-      };
-    });
-
-    return { list: categoriesWithTranslations, totalCount, pageInfo };
-  },
+    return this.getListWithTranslations(
+      models.KnowledgeBaseCategories,
+      qry,
+      args,
+      FIELD_MAPPINGS.KNOWLEDGE_BASE_CATEGORY
+    );
+  }
 
   /**
    * Category detail
    */
   async knowledgeBaseCategoryDetail(
-    _root,
+    _root: any,
     { _id, language }: { _id: string; language: string },
     { models }: IContext,
   ) {
-    const category = await models.KnowledgeBaseCategories.findOne({ _id });
-
-    if (!language) {
-      return category;
-    }
-
-    if (!category) {
-      throw new Error('Category not found');
-    }
-
-    const translation = await models.PostTranslations.findOne({
-      postId: category._id,
+    return this.getItemWithTranslation(
+      models.KnowledgeBaseCategories,
+      { _id },
       language,
-    });
-
-    return {
-      ...category,
-      ...(translation && {
-        title: translation.title || category.title,
-        description: translation.content || category.description,
-      }),
-    };
-  },
+      FIELD_MAPPINGS.KNOWLEDGE_BASE_CATEGORY
+    );
+  }
 
   /**
    * Category total count
    */
   async knowledgeBaseCategoriesTotalCount(
-    _root,
+    _root: any,
     args: { topicIds: string[]; codes: string[] },
     { models }: IContext,
   ) {
-    const qry: any = buildQuery(args);
+    const queryBuilder = getQueryBuilder('knowledgebase', models);
+    const qry = queryBuilder.buildQuery(args);
 
     return models.KnowledgeBaseCategories.find(qry).countDocuments();
-  },
+  }
 
   /**
    * Get last category
    */
   async knowledgeBaseCategoriesGetLast(
-    _root,
-    _args,
+    _root: any,
+    _args: any,
     { commonQuerySelector, models }: IContext,
   ) {
     return models.KnowledgeBaseCategories.findOne(commonQuerySelector).sort({
       createdDate: -1,
     });
-  },
+  }
 
   /**
    * Topic list
    */
-  async knowledgeBaseTopics(_root, params, { models }: IContext) {
-    const query: any = buildQuery(params);
+  async knowledgeBaseTopics(_root: any, params: any, { models }: IContext) {
+    const queryBuilder = getQueryBuilder('knowledgebase', models);
+    const query = queryBuilder.buildQuery(params);
 
-    const { list, totalCount, pageInfo } = await cursorPaginate<ITopicDocument>(
-      {
-        model: models.KnowledgeBaseTopics,
-        params,
-        query,
-      },
+    return this.getListWithTranslations(
+      models.KnowledgeBaseTopics,
+      query,
+      params,
+      FIELD_MAPPINGS.KNOWLEDGE_BASE_TOPIC
     );
-
-    if (!params.language) {
-      return { list, totalCount, pageInfo };
-    }
-
-    const topicIds = list.map((topic) => topic._id);
-    const translations = await models.PostTranslations.find({
-      postId: { $in: topicIds },
-      language: params.language,
-    });
-
-    // ✅ Build a translation map for O(1) lookup
-    const translationMap = translations.reduce((acc, t) => {
-      acc[t.postId.toString()] = t;
-      return acc;
-    }, {} as Record<string, any>);
-
-    const topicsWithTranslations = list.map((topic) => {
-      const translation = translationMap[topic._id.toString()];
-      return {
-        ...topic,
-        ...(translation && {
-          title: translation.title || topic.title,
-          description: translation.content || topic.description,
-        }),
-      };
-    });
-
-    return { list: topicsWithTranslations, totalCount, pageInfo };
-  },
+  }
 
   /**
    * Topic detail
    */
   async knowledgeBaseTopicDetail(
-    _root,
+    _root: any,
     { _id, language }: { _id: string; language: string },
     { models }: IContext,
   ) {
-    const topic = await models.KnowledgeBaseTopics.findOne({ _id });
-
-    if (!language) {
-      return topic;
-    }
-
-    if (!topic) {
-      throw new Error('Topic not found');
-    }
-
-    const translation = await models.PostTranslations.findOne({
-      postId: topic._id,
+    return this.getItemWithTranslation(
+      models.KnowledgeBaseTopics,
+      { _id },
       language,
-    });
-
-    return {
-      ...topic,
-      ...(translation && {
-        title: translation.title || topic.title,
-        description: translation.content || topic.description,
-      }),
-    };
-  },
+      FIELD_MAPPINGS.KNOWLEDGE_BASE_TOPIC
+    );
+  }
 
   /**
    * Total topic count
    */
   async knowledgeBaseTopicsTotalCount(
-    _root,
-    _args,
+    _root: any,
+    _args: any,
     { commonQuerySelector, models }: IContext,
   ) {
     return models.KnowledgeBaseTopics.find(
       commonQuerySelector,
     ).countDocuments();
-  },
+  }
+}
+
+const resolver = new KnowledgeBaseQueryResolver({} as IContext);
+const knowledgeBaseQueries: any = {
+  knowledgeBaseArticles: resolver.knowledgeBaseArticles.bind(resolver),
+  knowledgeBaseArticleDetail: resolver.knowledgeBaseArticleDetail.bind(resolver),
+  knowledgeBaseArticleDetailAndIncViewCount: resolver.knowledgeBaseArticleDetailAndIncViewCount.bind(resolver),
+  knowledgeBaseArticlesTotalCount: resolver.knowledgeBaseArticlesTotalCount.bind(resolver),
+  knowledgeBaseCategories: resolver.knowledgeBaseCategories.bind(resolver),
+  knowledgeBaseCategoryDetail: resolver.knowledgeBaseCategoryDetail.bind(resolver),
+  knowledgeBaseCategoriesTotalCount: resolver.knowledgeBaseCategoriesTotalCount.bind(resolver),
+  knowledgeBaseCategoriesGetLast: resolver.knowledgeBaseCategoriesGetLast.bind(resolver),
+  knowledgeBaseTopics: resolver.knowledgeBaseTopics.bind(resolver),
+  knowledgeBaseTopicDetail: resolver.knowledgeBaseTopicDetail.bind(resolver),
+  knowledgeBaseTopicsTotalCount: resolver.knowledgeBaseTopicsTotalCount.bind(resolver),
 };
 
-moduleRequireLogin(knowledgeBaseQueries);
-
-checkPermission(
-  knowledgeBaseQueries,
-  'knowledgeBaseArticles',
-  'showKnowledgeBase',
-  [],
-);
-checkPermission(
-  knowledgeBaseQueries,
-  'knowledgeBaseTopics',
-  'showKnowledgeBase',
-  [],
-);
-checkPermission(
-  knowledgeBaseQueries,
-  'knowledgeBaseCategories',
-  'showKnowledgeBase',
-  [],
-);
+PermissionManager.applyKnowledgeBaseQueryPermissions(knowledgeBaseQueries);
 
 export default knowledgeBaseQueries;

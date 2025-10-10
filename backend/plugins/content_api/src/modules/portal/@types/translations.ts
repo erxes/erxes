@@ -1,6 +1,6 @@
 import { ICustomField } from 'erxes-api-shared/core-types';
 
-export interface IPostTranslation {
+export interface ITranslation {
   postId: string;
   language: string;
   title: string;
@@ -10,7 +10,7 @@ export interface IPostTranslation {
   type: string;
 }
 
-export interface IPostTranslationDocument extends IPostTranslation, Document {
+export interface ITranslationDocument extends ITranslation, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;

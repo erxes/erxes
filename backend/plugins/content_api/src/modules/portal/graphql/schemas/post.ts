@@ -121,7 +121,7 @@ export const queries = `
     cmsPost(_id: String, slug: String, language: String): Post
     cmsPosts(clientPortalId: String, featured: Boolean,type: String, categoryId: String, searchValue: String, status: PostStatus, tagIds: [String], sortField: String, sortDirection: String, language: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): [Post]
     cmsPostList(clientPortalId: String, featured: Boolean, type: String, categoryId: String, searchValue: String, status: PostStatus, tagIds: [String], sortField: String, sortDirection: String, language: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): PostList
-    cmsPostTranslations(postId: String): [PostTranslation]
+    cmsTranslations(postId: String): [Translation]
 `;
 
 export const mutations = `

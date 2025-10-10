@@ -1,9 +1,9 @@
-import { IPostTranslationDocument } from '@/portal/@types/translations';
+import { ITranslationDocument } from '@/portal/@types/translations';
 import { customFieldSchema } from 'erxes-api-shared/core-modules';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 
-export const postTranslationSchema = new Schema<IPostTranslationDocument>({
+export const translationSchema = new Schema<ITranslationDocument>({
   _id: mongooseStringRandomId,
   postId: { type: String, required: true },
   language: { type: String, required: true },
@@ -28,4 +28,4 @@ export const postTranslationSchema = new Schema<IPostTranslationDocument>({
   },
 });
 
-postTranslationSchema.index({ postId: 1, language: 1 }, { unique: true });
+translationSchema.index({ postId: 1, language: 1 }, { unique: true });

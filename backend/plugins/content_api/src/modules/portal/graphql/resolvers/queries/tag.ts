@@ -38,7 +38,7 @@ const queries = {
 
     const tagIds = list.map((tag) => tag._id);
 
-    const translations = await models.PostTranslations.find({
+    const translations = await models.Translations.find({
       postId: { $in: tagIds },
       language,
     }).lean();
@@ -88,7 +88,7 @@ const queries = {
       return tag;
     }
 
-    const translation = await models.PostTranslations.findOne({
+    const translation = await models.Translations.findOne({
       postId: tag._id,
       language,
     });

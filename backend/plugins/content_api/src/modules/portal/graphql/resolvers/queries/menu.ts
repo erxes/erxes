@@ -26,7 +26,7 @@ const queries = {
 
     const menuIds = menus.map((menu) => menu._id);
 
-    const translations = await models.PostTranslations.find({
+    const translations = await models.Translations.find({
       postId: { $in: menuIds },
       language,
     }).lean();
@@ -64,7 +64,7 @@ const queries = {
       return menu;
     }
 
-    const translation = await models.PostTranslations.findOne({
+    const translation = await models.Translations.findOne({
       postId: menu._id,
       language,
     });
