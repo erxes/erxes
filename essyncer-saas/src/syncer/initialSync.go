@@ -187,7 +187,7 @@ func processBatch(start, end int, orgIDs []string, plugins []Plugin, scripts []s
 	for attempt := 1; attempt <= maxRetries; attempt++ {
 		// Running monstache for batch
 		// Add performance flags to monstache command with conservative settings
-		cmd := exec.Command("monstache", "-f", fmt.Sprintf("mongo-elastic-batch-%d-%d.toml", start, end-1), "-log-level", "warn")
+		cmd := exec.Command("monstache", "-f", "mongo-elastic-batch-%d-%d.toml")
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
