@@ -3,7 +3,7 @@ import React, { useReducer, useRef, useState } from "react";
 import { gql, useQuery } from "@apollo/client";
 import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
 import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
-import { FlexRow } from "@erxes/ui-settings/src/styles";
+import { ContentBox, FlexRow, Title } from "@erxes/ui-settings/src/styles";
 import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
 import {
   Button,
@@ -20,11 +20,9 @@ import {
   TabTitle,
 } from "@erxes/ui/src/components";
 import Popover from "@erxes/ui/src/components/Popover";
-import {
-  FormColumn,
-  FormWrapper,
-  ModalFooter,
-} from "@erxes/ui/src/styles/main";
+import { Wrapper } from "@erxes/ui/src/layout";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { __, loadDynamicComponent } from "@erxes/ui/src/utils";
 import {
@@ -34,10 +32,10 @@ import {
   PaddingTop,
   Row,
 } from "../../../styles";
+import Sidebar from "../../general/components/Sidebar";
 import mutations from "../graphql/mutations";
 
 type Props = {
-  closeModal: () => void;
   campaign?: any;
   refetch?: () => void;
 };
@@ -50,6 +48,14 @@ type FormProps = {
   serviceName: string;
 };
 
+const breadcrumb = [
+  { title: __("Settings"), link: "/settings" },
+  {
+    title: __("Loyalties Config"),
+    link: "/erxes-plugin-loyalty/settings/general",
+  },
+  { title: __("Score Campaign") },
+];
 const OWNER_TYPES = [
   {
     value: "customer",
@@ -123,10 +129,10 @@ const Attributions = ({ ref, serviceName, onChange }) => {
       innerRef={ref}
       trigger={
         <AttributeTrigger>
-          {__("Attribution")} <Icon icon="angle-down" />
+          {__("Attribution")} <Icon icon='angle-down' />
         </AttributeTrigger>
       }
-      placement="top"
+      placement='top'
       closeAfterSelect={true}
     >
       {(close) => (
@@ -135,7 +141,7 @@ const Attributions = ({ ref, serviceName, onChange }) => {
             <FormGroup>
               <ControlLabel>{__("Search")}</ControlLabel>
               <FormControl
-                placeholder="Type to search"
+                placeholder='Type to search'
                 value={searchValue}
                 onChange={onSearch}
               />
@@ -180,7 +186,7 @@ const ActionForm = ({
       style={{ display: "grid", gridTemplateColumns: "80% 20%", gap: "16px" }}
     >
       <FormGroup>
-        <Row $justifyContent="space-between">
+        <Row $justifyContent='space-between'>
           <ControlLabel>{"Score Value"}</ControlLabel>
           <Attributions
             ref={ref}
@@ -190,9 +196,10 @@ const ActionForm = ({
         </Row>
         <FormControl
           {...formProps}
-          name="placeholder"
+          name='placeholder'
+          componentclass='textarea'
           required
-          placeholder="Type a placeholder for subtract score"
+          placeholder='Type a placeholder for subtract score'
           value={state?.placeholder || ""}
           onChange={handleChange}
         />
@@ -203,10 +210,10 @@ const ActionForm = ({
           <ControlLabel>{"Currency ratio"}</ControlLabel>
           <FormControl
             {...formProps}
-            name="currencyRatio"
+            name='currencyRatio'
             required
-            type="number"
-            placeholder="Type a currency ratio"
+            type='number'
+            placeholder='Type a currency ratio'
             value={state?.currencyRatio || ""}
             onChange={handleChange}
           />
@@ -240,12 +247,12 @@ const SelectFieldGroup = ({ contentType, dispatch, state }) => {
 
   return (
     <FormGroup>
-      <FlexRow $justifyContent="space-between">
+      <FlexRow $justifyContent='space-between'>
         <ControlLabel>{__("Field Group")}</ControlLabel>
         <Button
-          target="__blank"
-          icon="plus-1"
-          btnStyle="white"
+          target='__blank'
+          icon='plus-1'
+          btnStyle='white'
           href={`/settings/properties?type=${contentType}`}
         >
           {__("New Group")}
@@ -254,8 +261,8 @@ const SelectFieldGroup = ({ contentType, dispatch, state }) => {
       <SelectWithSearch
         initialValue={state?.fieldGroupId}
         customQuery={query}
-        queryName="fieldsGroups"
-        name="fieldGroupId"
+        queryName='fieldsGroups'
+        name='fieldGroupId'
         label={`${label} Field Groups`}
         filterParams={{ contentType, isDefinedByErxes: false }}
         onSelect={(value) => dispatch({ fieldGroupId: value })}
@@ -284,8 +291,8 @@ const SelectField = ({ state, contentType, dispatch }) => {
         <SelectWithSearch
           initialValue={state?.fieldId}
           customQuery={query}
-          queryName="fields"
-          name="fieldId"
+          queryName='fields'
+          name='fieldId'
           label={`Select field`}
           filterParams={{
             contentType,
@@ -320,7 +327,7 @@ const SelectFieldTabContent = ({
         <FlexRow>
           <FormControl
             {...formProps}
-            name="fieldName"
+            name='fieldName'
             required={currentTab === "exists" && campaign?.fieldId}
             disabled={
               !!campaign?.fieldName && campaign?.fieldId && !isFieldEditing
@@ -330,7 +337,7 @@ const SelectFieldTabContent = ({
           />
           {!!campaign?.fieldName && campaign?.fieldId && (
             <Button
-              icon="pencil"
+              icon='pencil'
               btnStyle={isFieldEditing ? "simple" : "white"}
               onClick={() => setFieldEdit(!isFieldEditing)}
             />
@@ -380,9 +387,9 @@ const SelectService = ({ state, dispatch }) => {
               <span>{serviceConfig?.label || "-"}</span>
               {isSelected && serviceConfig?.isAviableAdditionalConfig ? (
                 <ModalTrigger
-                  title="Service Configurations"
-                  size="lg"
-                  trigger={<Button btnStyle="link" icon="settings" />}
+                  title='Service Configurations'
+                  size='lg'
+                  trigger={<Button btnStyle='link' icon='settings' />}
                   content={() =>
                     loadDynamicComponent("scoreCampaignConfig", {
                       config: state?.additionalConfig,
@@ -402,8 +409,8 @@ const SelectService = ({ state, dispatch }) => {
   );
 };
 
-export default function Form({ campaign, closeModal, refetch }: Props) {
-  const [currentTab, setCurrentTab] = useState("add");
+export default function Form({ campaign, refetch }: Props) {
+  const [currentTab, setCurrentTab] = useState(campaign?.fieldOrigin || "add");
   const [currentFieldTab, setCurrentFieldTab] = useState<"new" | "exists">(
     !!campaign && !campaign?.fieldName ? "exists" : "new"
   );
@@ -412,22 +419,11 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
   const ref = useRef<any>(null);
 
   const generateDoc = (values) => {
-    const object = { ...values, ...state };
-    const prevFieldId = campaign?.fieldId;
-    if (
-      state.fieldId !== prevFieldId &&
-      !!campaign?.fieldName &&
-      currentFieldTab === "exists"
-    ) {
-      object.fieldName = "";
-    }
-    if (
-      !!state?.fieldName &&
-      currentFieldTab === "new" &&
-      !campaign?.fieldName
-    ) {
-      object.fieldId === "";
-    }
+    const object = {
+      ...values,
+      ...state,
+      fieldOrigin: currentTab === "add" ? "new" : "exists",
+    };
 
     return object;
   };
@@ -458,7 +454,7 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
         variables={values}
         callback={callback}
         isSubmitted={isSubmitted}
-        type="submit"
+        type='submit'
         uppercase={false}
         successMessage={`You successfully ${
           object ? "updated" : "added"
@@ -478,7 +474,7 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
               <ControlLabel required={true}>Product Category</ControlLabel>
               <SelectProductCategory
                 label={__("Choose product category")}
-                name="categoryIds"
+                name='categoryIds'
                 initialValue={restrictions?.categoryIds || []}
                 onSelect={(categoryIds) =>
                   dispatch({ restrictions: { ...restrictions, categoryIds } })
@@ -494,7 +490,7 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
               </ControlLabel>
               <SelectProductCategory
                 label={__("Choose product category")}
-                name="excludeCategoryIds"
+                name='excludeCategoryIds'
                 initialValue={restrictions?.excludeCategoryIds || []}
                 onSelect={(excludeCategoryIds) =>
                   dispatch({
@@ -512,7 +508,7 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
               <ControlLabel required={true}>Product</ControlLabel>
               <SelectProducts
                 label={__("Filter by products")}
-                name="productIds"
+                name='productIds'
                 multi={true}
                 initialValue={restrictions?.productIds || []}
                 onSelect={(productIds) =>
@@ -526,7 +522,7 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
               <ControlLabel required={true}>Or Exclude Product</ControlLabel>
               <SelectProducts
                 label={__("Filter by products")}
-                name="excludeProductIds"
+                name='excludeProductIds'
                 multi={true}
                 initialValue={restrictions?.excludeProductIds || []}
                 onSelect={(excludeProductIds) =>
@@ -544,10 +540,10 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
               <ControlLabel required={true}>Tag</ControlLabel>
               <SelectTags
                 label={__("Filter by tag")}
-                name="tagIds"
+                name='tagIds'
                 multi={true}
                 initialValue={restrictions?.tagIds || []}
-                tagsType="core:product"
+                tagsType='core:product'
                 onSelect={(tagIds) =>
                   dispatch({ restrictions: { ...restrictions, tagIds } })
                 }
@@ -559,10 +555,10 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
               <ControlLabel required={true}>Or Exclude Tag</ControlLabel>
               <SelectTags
                 label={__("Filter by tag")}
-                name="excludeTagIds"
+                name='excludeTagIds'
                 multi={true}
                 initialValue={restrictions?.excludeTagIds || []}
-                tagsType="core:product"
+                tagsType='core:product'
                 onSelect={(excludeTagIds) =>
                   dispatch({ restrictions: { ...restrictions, excludeTagIds } })
                 }
@@ -603,156 +599,160 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
 
     return (
       <>
-        <FormGroup>
-          <ControlLabel required>{__("Title")}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="title"
-            required
-            defaultValue={state.title}
-            onChange={onChangeInput}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>{__("Description")}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="description"
-            required
-            componentclass="textarea"
-            defaultValue={state.description}
-            onChange={onChangeInput}
-          />
-        </FormGroup>
-
-        {renderRestrictionForm()}
-
-        <SelectService state={state} dispatch={dispatch} />
-        {state.serviceName && (
-          <>
-            <Tabs>
-              <TabTitle
-                className={currentTab === "add" ? "active" : ""}
-                onClick={() => setCurrentTab("add")}
-              >
-                {__("Add")}
-              </TabTitle>
-              <TabTitle
-                className={currentTab === "subtract" ? "active" : ""}
-                onClick={() => setCurrentTab("subtract")}
-              >
-                {__("Subtract")}
-              </TabTitle>
-            </Tabs>
-            {renderContent()}
-            <FormGroup>
-              <ControlLabel>{__("Apply Score To")}</ControlLabel>
-              <FlexRow>
-                {OWNER_TYPES.map(({ label, value, icon }) => (
-                  <OwnerBox
-                    key={value}
-                    $isSelected={value === state?.ownerType}
-                    onClick={() => dispatch({ ownerType: value })}
-                  >
-                    <Icon icon={icon} size={16} />
-                    <span>{label}</span>
-                  </OwnerBox>
-                ))}
-              </FlexRow>
-            </FormGroup>
-
-            {state.ownerType === "customer" && (
-              <FormGroup>
-                <ControlLabel>
-                  {__("Only client portal (optional)")}
-                </ControlLabel>
-                <FormControl
-                  {...formProps}
-                  componentclass="checkbox"
-                  checked={state.onlyClientPortal || false}
-                  onChange={(e: any) =>
-                    dispatch({ onlyClientPortal: e.target.checked })
-                  }
-                />
-              </FormGroup>
-            )}
-
-            {state.ownerType && (
-              <>
-                <SelectFieldGroup
-                  contentType={
-                    OWNER_TYPES.find(({ value }) => value === state.ownerType)
-                      ?.type
-                  }
-                  state={state}
-                  dispatch={dispatch}
-                />
-
-                {state?.fieldGroupId && (
-                  <>
-                    <Tabs>
-                      <TabTitle
-                        className={currentFieldTab === "new" ? "active" : ""}
-                        onClick={() => setCurrentFieldTab("new")}
-                      >
-                        {__("New")}
-                      </TabTitle>
-                      <TabTitle
-                        className={currentFieldTab === "exists" ? "active" : ""}
-                        onClick={() => setCurrentFieldTab("exists")}
-                      >
-                        {__("Exists")}
-                      </TabTitle>
-                    </Tabs>
-                    <PaddingTop>
-                      <SelectFieldTabContent
-                        currentTab={currentFieldTab}
-                        formProps={formProps}
-                        isFieldEditing={isFieldEditing}
-                        setFieldEdit={setFieldEdit}
-                        campaign={campaign}
-                        state={state}
-                        dispatch={dispatch}
-                        onChangeInput={onChangeInput}
-                        contentType={
-                          OWNER_TYPES.find(
-                            ({ value }) => value === state.ownerType
-                          )?.type
-                        }
-                      />
-                    </PaddingTop>
-                  </>
-                )}
-              </>
-            )}
-          </>
-        )}
-
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={closeModal}
-            icon="times-circle"
-            uppercase={false}
-          >
-            {__("Close")}
-          </Button>
-
-          {renderButton({
+        <Wrapper.ActionBar
+          left={<Title $capitalize={true}>{__("Score Campaign")}</Title>}
+          right={renderButton({
             name: "score Campaign",
             values: generateDoc(values),
             isSubmitted,
             callback: () => {
-              closeModal();
               refetch && refetch();
             },
             object: campaign,
           })}
-        </ModalFooter>
+        />
+        <ContentBox>
+          <FormGroup>
+            <ControlLabel required>{__("Title")}</ControlLabel>
+            <FormControl
+              {...formProps}
+              name='title'
+              required
+              defaultValue={state.title}
+              onChange={onChangeInput}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>{__("Description")}</ControlLabel>
+            <FormControl
+              {...formProps}
+              name='description'
+              required
+              componentclass='textarea'
+              defaultValue={state.description}
+              onChange={onChangeInput}
+            />
+          </FormGroup>
+
+          {renderRestrictionForm()}
+
+          <SelectService state={state} dispatch={dispatch} />
+          {state.serviceName && (
+            <>
+              <Tabs>
+                <TabTitle
+                  className={currentTab === "add" ? "active" : ""}
+                  onClick={() => setCurrentTab("add")}
+                >
+                  {__("Add")}
+                </TabTitle>
+                <TabTitle
+                  className={currentTab === "subtract" ? "active" : ""}
+                  onClick={() => setCurrentTab("subtract")}
+                >
+                  {__("Subtract")}
+                </TabTitle>
+              </Tabs>
+              {renderContent()}
+              <FormGroup>
+                <ControlLabel>{__("Apply Score To")}</ControlLabel>
+                <FlexRow>
+                  {OWNER_TYPES.map(({ label, value, icon }) => (
+                    <OwnerBox
+                      key={value}
+                      $isSelected={value === state?.ownerType}
+                      onClick={() => dispatch({ ownerType: value })}
+                    >
+                      <Icon icon={icon} size={16} />
+                      <span>{label}</span>
+                    </OwnerBox>
+                  ))}
+                </FlexRow>
+              </FormGroup>
+
+              {state.ownerType === "customer" && (
+                <FormGroup>
+                  <ControlLabel>
+                    {__("Only client portal (optional)")}
+                  </ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    componentclass='checkbox'
+                    checked={state.onlyClientPortal || false}
+                    onChange={(e: any) =>
+                      dispatch({ onlyClientPortal: e.target.checked })
+                    }
+                  />
+                </FormGroup>
+              )}
+
+              {state.ownerType && (
+                <>
+                  <SelectFieldGroup
+                    contentType={
+                      OWNER_TYPES.find(({ value }) => value === state.ownerType)
+                        ?.type
+                    }
+                    state={state}
+                    dispatch={dispatch}
+                  />
+
+                  {state?.fieldGroupId && (
+                    <>
+                      <Tabs>
+                        <TabTitle
+                          className={currentFieldTab === "new" ? "active" : ""}
+                          onClick={() => setCurrentFieldTab("new")}
+                        >
+                          {__("New")}
+                        </TabTitle>
+                        <TabTitle
+                          className={
+                            currentFieldTab === "exists" ? "active" : ""
+                          }
+                          onClick={() => setCurrentFieldTab("exists")}
+                        >
+                          {__("Exists")}
+                        </TabTitle>
+                      </Tabs>
+                      <PaddingTop>
+                        <SelectFieldTabContent
+                          currentTab={currentFieldTab}
+                          formProps={formProps}
+                          isFieldEditing={isFieldEditing}
+                          setFieldEdit={setFieldEdit}
+                          campaign={campaign}
+                          state={state}
+                          dispatch={dispatch}
+                          onChangeInput={onChangeInput}
+                          contentType={
+                            OWNER_TYPES.find(
+                              ({ value }) => value === state.ownerType
+                            )?.type
+                          }
+                        />
+                      </PaddingTop>
+                    </>
+                  )}
+                </>
+              )}
+            </>
+          )}
+        </ContentBox>
       </>
     );
   };
 
-  return <CommonForm renderContent={renderForm} />;
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header title={__("Score Campaign")} breadcrumb={breadcrumb} />
+      }
+      content={<CommonForm renderContent={renderForm} />}
+      leftSidebar={<Sidebar />}
+      transparent={true}
+      hasBorder={true}
+    />
+  );
 }

@@ -14,6 +14,21 @@ const getPaymentsAttributes = async (subdomain) => {
   }));
 };
 
+const getCustomerFields = async (subdomain) => {
+  const customerFields = await sendCoreMessage({
+    subdomain,
+    action: "fields.fieldsCombinedByContentType",
+    data: { contentType: "core:customer" },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  return customerFields.map((field) => ({
+    label: `Customer ${field.label}`,
+    value: `customer-${field.name}`,
+  }));
+};
+
 const applyProductRestrictions = async ({ target, campaign, subdomain }) => {
   if (!campaign?.restrictions || !target?.productsData)
     return { target, excludedProductsAmount: 0 };
@@ -95,10 +110,51 @@ const applyProductRestrictions = async ({ target, campaign, subdomain }) => {
   return { target, excludedProductsAmount: excludedAmount };
 };
 
+const generateCustomerData = async (
+  subdomain: string,
+  campaign: any,
+  actionMethod: "add" | "subtract",
+  target: { _id: string } & IDeal
+) => {
+  const methodConfig = campaign[actionMethod] || {};
+
+  const placeholder = methodConfig?.placeholder;
+
+  const attributes = placeholder.match(/\{\{\s*([^}]+)\s*\}\}/g);
+
+  const attributesValues = attributes.map((attribute) =>
+    attribute.replace(/\{\{\s*|\s*\}\}/g, "")
+  );
+  if (attributesValues.some((value) => value.includes("customer-"))) {
+    const customerIds = await sendCoreMessage({
+      subdomain,
+      action: "conformities.savedConformity",
+      data: {
+        mainType: "deal",
+        mainTypeId: target?._id,
+        relTypes: ["customer"],
+      },
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    if (customerIds.length) {
+      const customer = await sendCoreMessage({
+        subdomain,
+        action: "customers.findOne",
+        data: { _id: { $in: customerIds } },
+        isRPC: true,
+        defaultValue: [],
+      });
+      return customer;
+    }
+  }
+};
 export const extendLoyaltyTarget = async (
   models: IModels,
-  target: IDeal,
-  campaign,
+  target: { _id: string } & IDeal,
+  campaign = {},
+  actionMethod: "add" | "subtract",
   subdomain: string
 ) => {
   const { target: updatedTarget, excludedProductsAmount } =
@@ -145,7 +201,13 @@ export const extendLoyaltyTarget = async (
     }
   }
 
-  return { totalAmount, excludeAmount, ...updatedTarget };
+  const customer = await generateCustomerData(
+    subdomain,
+    campaign,
+    actionMethod,
+    target
+  );
+  return { totalAmount, excludeAmount, ...updatedTarget, customer };
 };
 
 export default {
@@ -154,7 +216,10 @@ export default {
   icon: "piggy-bank",
   isAviableAdditionalConfig: true,
   extendTargetAutomation: true,
-  targetExtender: async ({ subdomain, data: { target, campaignId } }) => {
+  targetExtender: async ({
+    subdomain,
+    data: { target, campaignId, actionMethod },
+  }) => {
     const models = await generateModels(subdomain);
 
     const scoreCampaign = await sendLoyaltiesMessage({
@@ -165,7 +230,13 @@ export default {
       defaultValue: {},
     });
 
-    return await extendLoyaltyTarget(models, target, scoreCampaign, subdomain);
+    return await extendLoyaltyTarget(
+      models,
+      target,
+      scoreCampaign,
+      actionMethod,
+      subdomain
+    );
   },
   getScoreCampaingAttributes: async ({ subdomain }) => {
     return [
@@ -176,6 +247,7 @@ export default {
         value: "excludeAmount",
       },
       ...(await getPaymentsAttributes(subdomain)),
+      ...(await getCustomerFields(subdomain)),
     ];
   },
 };

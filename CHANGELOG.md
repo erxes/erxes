@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.17.17](https://github.com/erxes/erxes/compare/2.17.16...2.17.17) (2025-10-09)
+
+### Features
+
+* **core:**  Create Relations group if not exists ([902dd7a](https://github.com/erxes/erxes/commit/902dd7a41621dba59ef1d548af98dbace4e377b6))
+* enhance score campaign functionality with new field origin and improved placeholder resolution ([929362b](https://github.com/erxes/erxes/commit/929362b8af15a3923c23840c30f2be88a20395de))
+
 ## [2.17.16](https://github.com/erxes/erxes/compare/2.17.15...2.17.16) (2025-10-06)
 
 ### Bug Fixes
