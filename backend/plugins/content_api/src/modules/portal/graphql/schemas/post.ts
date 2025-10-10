@@ -67,7 +67,7 @@ export const types = `
         pageInfo: PageInfo
     }
 
-    type PostTranslation {
+    type Translation {
         _id: String!
         postId: String
         language: String
@@ -106,7 +106,7 @@ export const inputs = `
         type: String
     }
 
-    input PostTranslationInput {
+    input TranslationInput {
         postId: String
         language: String
         title: String
@@ -126,12 +126,13 @@ export const queries = `
 
 export const mutations = `
     cmsPostsAdd(input: PostInput!): Post
-    cmsPostsAddTranslation(input: PostTranslationInput!): PostTranslation
     cmsPostsEdit(_id: String!, input: PostInput!): Post
-    cmsPostsEditTranslation(input: PostTranslationInput!): PostTranslation
     cmsPostsRemove(_id: String!): JSON
     cmsPostsChangeStatus(_id: String!, status: PostStatus!): Post
     cmsPostsToggleFeatured(_id: String!): Post
 
     cmsPostsIncrementViewCount(_id: String!): Post
+
+    cmsAddTranslation(input: TranslationInput!): Translation
+    cmsEditTranslation(input: TranslationInput!): Translation
 `;
