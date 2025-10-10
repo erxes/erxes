@@ -12,6 +12,7 @@ import {
   SelectMember,
 } from 'ui-modules';
 
+import { DealsTotalCount } from '@/deals/components/DealsTotalCount';
 import { IDeal } from '@/deals/types/deals';
 import { SalesFilterState } from '@/deals/actionBar/types/actionBarTypes';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
@@ -45,7 +46,7 @@ export const SalesFilter = () => {
     <Filter id="sales-filter">
       <Filter.Bar className="overflow-auto styled-scroll">
         <SalesFilterBar queries={queries} />
-        <div className="flex flex-wrap items-center gap-2 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
           <Filter.Popover scope={'sales-page'}>
             <Filter.Trigger isFiltered={hasFilters} />
             <Combobox.Content>
@@ -64,6 +65,7 @@ export const SalesFilter = () => {
             </Filter.View>
           </Filter.Dialog>
         </div>
+        <DealsTotalCount />
       </Filter.Bar>
     </Filter>
   );
