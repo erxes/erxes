@@ -293,8 +293,9 @@ func main() {
             cmd.Stdout = os.Stdout
             cmd.Stderr = os.Stderr
             runErr = cmd.Run()
+			fmt.Printf("Completed batch %d-%d at %v\n", start, end-1, time.Now())
             if runErr == nil {
-                break
+				break
             }
             time.Sleep(time.Duration(attempt) * 5 * time.Second)
         }
