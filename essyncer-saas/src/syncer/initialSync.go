@@ -86,6 +86,8 @@ func putTemplate(index string, mapping string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Printf("Created template %s: %+v\n", index, res)
+
 
 	// Template created
 }
@@ -284,24 +286,8 @@ func main() {
 	fmt.Println("Fetched organizations:", len(orgIDs))
 
 
-    // Prepare TOML header template - Optimized for performance
+    // Get Elasticsearch URL for batch processing
     elasticURL := os.Getenv("ELASTICSEARCH_URL")
-    header := fmt.Sprintf(`
-    mongo-url="%s"
-    elasticsearch-urls=["%s"]
-    verbose=false
-    resume=true
-    direct-read-concur=8
-    
-    index-as-update=true
-    prune-invalid-json = true
-    direct-read-split-max = 8
-    elasticsearch-max-bytes = 10000000
-    elasticsearch-max-conns = 20
-    elasticsearch-bulk-actions = 2000
-    elasticsearch-bulk-size = 10
-    elasticsearch-bulk-flush-interval = "1s"
-    `, mongoURL, elasticURL)
 
 	// Build namespaces & scripts
 	var namespaces []string
