@@ -702,7 +702,7 @@ export const getItemList = async (
       // hasNotified: notification ? false : true,
       customers: getCocsByItemId(item._id, customerIdsByItemId, customers),
       companies: getCocsByItemId(item._id, companyIdsByItemId, companies),
-      ...(getExtraFields ? await getExtraFields(item) : {}),
+      ...(getExtraFields ? getExtraFields(item) : {}),
     });
   }
 
