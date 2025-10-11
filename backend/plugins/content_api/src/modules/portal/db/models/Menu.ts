@@ -25,6 +25,19 @@ export const loadMenuItemClass = (models: IModels) => {
         doc.url = slugify(doc.label, { lower: true });
       }
 
+      if (!doc.order) {
+        // find max order
+        const lastMenuItem = await models.MenuItems.findOne({
+          clientPortalId: doc.clientPortalId,
+        }).sort({ order: -1 }).lean();
+  
+        if (lastMenuItem?.order) {
+          doc.order = lastMenuItem.order + 1;
+        } else {
+          doc.order = 1;
+        }
+      }
+
       return models.MenuItems.create(doc);
     };
 

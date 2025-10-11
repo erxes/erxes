@@ -1,83 +1,77 @@
-import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { BaseQueryResolver, FIELD_MAPPINGS } from '@/portal/utils/base-resolvers';
+import { getQueryBuilder } from '@/portal/utils/query-builders';
 
-const queries = {
-  cmsPages: async (parent: any, args: any, context: IContext) => {
-    const { models } = context;
-    const { searchValue } = args;
+class PageQueryResolver extends BaseQueryResolver {
+  async cmsPages(_parent: any, args: any, context: IContext) {
+    const { language } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
 
     if (!clientPortalId) {
       throw new Error('clientPortalId is required');
     }
 
-    const query: any = {
-      clientPortalId,
-    };
+    const queryBuilder = getQueryBuilder('page', this.models);
+    const query = queryBuilder.buildQuery({ ...args, clientPortalId });
 
-    if (searchValue) {
-      query.$or = [
-        { name: { $regex: searchValue, $options: 'i' } },
-        { slug: { $regex: searchValue, $options: 'i' } },
-      ];
-    }
-
-    const { list } = await cursorPaginate({
-      model: models.Pages,
-      params: args,
+    const { list } = await this.getListWithTranslations(
+      this.models.Pages,
       query,
-    });
+      { ...args, clientPortalId, language },
+      FIELD_MAPPINGS.PAGE
+    );
 
-    return list
-  },
+    return list;
+  }
 
-  cmsPageList: async (parent: any, args: any, context: IContext) => {
-    const { models } = context;
-    const {
- 
-      searchValue,
-    } = args;
-
+  async cmsPageList(_parent: any, args: any, context: IContext) {
+    const { language } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
 
     if (!clientPortalId) {
       throw new Error('clientPortalId is required');
     }
 
-    const query: any = {
-      clientPortalId,
-    };
+    const queryBuilder = getQueryBuilder('page', this.models);
+    const query = queryBuilder.buildQuery({ ...args, clientPortalId });
 
-    if (searchValue) {
-      query.$or = [
-        { name: { $regex: searchValue, $options: 'i' } },
-        { slug: { $regex: searchValue, $options: 'i' } },
-      ];
-    }
-
-    const { list, totalCount, pageInfo } = await cursorPaginate({
-      model: models.Pages,
-      params: args,
+    return this.getListWithTranslations(
+      this.models.Pages,
       query,
-    });
+      { ...args, clientPortalId, language },
+      FIELD_MAPPINGS.PAGE
+    );
+  }
 
-    return { list, totalCount, pageInfo };
-  },
-
-  cmsPage: async (parent: any, args: any, context: IContext) => {
-    const { models, clientPortalId } = context;
-    const { _id, slug } = args;
+  async cmsPage(_parent: any, args: any, context: IContext) {
+    const { clientPortalId } = context;
+    const { _id, slug, language } = args;
 
     if (!_id && !slug) {
       return null;
     }
 
+    let query: any = {};
     if (slug) {
-      return models.Pages.findOne({ slug, clientPortalId });
+      query = { slug, clientPortalId };
+    } else {
+      query = { _id };
     }
 
-    return models.Pages.findOne({ _id });
-  },
+    return this.getItemWithTranslation(
+      this.models.Pages,
+      query,
+      language,
+      FIELD_MAPPINGS.PAGE
+    );
+  }
+}
+
+const resolver = new PageQueryResolver({} as IContext);
+const queries = {
+  cmsPages: resolver.cmsPages.bind(resolver),
+  cmsPageList: resolver.cmsPageList.bind(resolver),
+  cmsPage: resolver.cmsPage.bind(resolver),
 };
 
 export default queries;

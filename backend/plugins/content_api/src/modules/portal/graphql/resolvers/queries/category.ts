@@ -1,59 +1,57 @@
-import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { BaseQueryResolver, FIELD_MAPPINGS } from '@/portal/utils/base-resolvers';
+import { getQueryBuilder } from '@/portal/utils/query-builders';
 
-const queries = {
+class CategoryQueryResolver extends BaseQueryResolver {
   /**
    * Cms categories list
    */
-  async cmsCategories(
-    _parent: any,
-    args: any,
-    context: IContext
-  ): Promise<any> {
-    const { models } = context;
-    const {
-      searchValue,
-      status,
-    } = args;
+  async cmsCategories(_parent: any, args: any, context: IContext): Promise<any> {
+    const { language } = args;
     const clientPortalId = args.clientPortalId || context.clientPortalId;
-    const query = {
-      clientPortalId,
-      ...(status && { status }),
-    };
+    
+    const queryBuilder = getQueryBuilder('category', this.models);
+    const query = queryBuilder.buildQuery({ ...args, clientPortalId });
 
-    if (searchValue) {
-      query.$or = [
-        { name: { $regex: searchValue, $options: 'i' } },
-        { slug: { $regex: searchValue, $options: 'i' } },
-      ];
-    }
-
-    const { list, totalCount, pageInfo } = await cursorPaginate({
-      model: models.Categories,
-      params: args,
+    return this.getListWithTranslations(
+      this.models.Categories,
       query,
-    });
-
-    return { list, totalCount, pageInfo };
-  },
+      { ...args, clientPortalId, language },
+      FIELD_MAPPINGS.CATEGORY
+    );
+  }
 
   /**
    * Cms category
    */
   async cmsCategory(_parent: any, args: any, context: IContext): Promise<any> {
-    const { models, clientPortalId } = context;
-    const { _id, slug } = args;
+    const { clientPortalId } = context;
+    const { _id, slug, language } = args;
 
     if (!_id && !slug) {
       return null;
     }
 
+    let query: any = {};
     if (slug) {
-      return models.Categories.findOne({ slug, clientPortalId });
+      query = { slug, clientPortalId };
+    } else {
+      query = { _id };
     }
 
-    return models.Categories.findOne({ _id });
-  },
+    return this.getItemWithTranslation(
+      this.models.Categories,
+      query,
+      language,
+      FIELD_MAPPINGS.CATEGORY
+    );
+  }
+}
+
+const resolver = new CategoryQueryResolver({} as IContext);
+const queries = {
+  cmsCategories: resolver.cmsCategories.bind(resolver),
+  cmsCategory: resolver.cmsCategory.bind(resolver),
 };
 
 export default queries;

@@ -1,82 +1,52 @@
-import {
-  checkPermission,
-  requireLogin,
-} from 'erxes-api-shared/core-modules';
-
 import { IContext } from '~/connectionResolvers';
+import { BaseMutationResolver } from '@/portal/utils/base-resolvers';
+import { PermissionManager } from '@/portal/utils/permission-utils';
+import { getTranslationService } from '@/portal/utils/translation-utils';
 
-const mutations = {
+class PostMutationResolver extends BaseMutationResolver {
   /**
    * Cms post add
    */
-  cmsPostsAdd: async (
-    _parent: any,
-    args: any,
-    context: IContext,
-  ): Promise<any> => {
-    const { models, user, clientPortalId } = context;
+  async cmsPostsAdd(_parent: any, args: any, context: IContext): Promise<any> {
+    const { user } = context;
     const { input } = args;
     input.authorId = user._id;
 
-    if (clientPortalId) {
-      input.clientPortalId = clientPortalId;
-    }
-
-    return models.Posts.createPost(input);
-  },
+    return this.create(this.models.Posts, input, user._id);
+  }
 
   /**
    * Cms post edit
    */
-  cmsPostsEdit: async (
-    _parent: any,
-    args: any,
-    context: IContext,
-  ): Promise<any> => {
-    const { models } = context;
+  async cmsPostsEdit(_parent: any, args: any, context: IContext): Promise<any> {
     const { _id, input } = args;
-
-    return models.Posts.updatePost(_id, input);
-  },
+    return this.models.Posts.updatePost(_id, input);
+  }
 
   /**
    * Cms post delete
    */
-  cmsPostsRemove: async (
-    _parent: any,
-    args: any,
-    context: IContext,
-  ): Promise<any> => {
-    const { models } = context;
+  async cmsPostsRemove(_parent: any, args: any, context: IContext): Promise<any> {
     const { _id } = args;
-
-    await models.PostTranslations.deleteMany({ postId: _id });
-    return models.Posts.deleteOne({ _id });
-  },
+    const translationService = getTranslationService(this.models);
+    
+    await translationService.deleteTranslations(_id);
+    return this.models.Posts.deleteOne({ _id });
+  }
 
   /**
    * Cms post change status
    */
-  cmsPostsChangeStatus: async (
-    _parent: any,
-    args: any,
-    context: IContext,
-  ): Promise<any> => {
-    const { models } = context;
+  async cmsPostsChangeStatus(_parent: any, args: any, context: IContext): Promise<any> {
     const { _id, status } = args;
-
-    return models.Posts.changeStatus(_id, status);
-  },
+    return this.models.Posts.changeStatus(_id, status);
+  }
 
   /**
    * Cms post increment view count
    */
-  cmsPostsIncrementViewCount: async (
-    _parent: any,
-    args: any,
-    context: IContext,
-  ): Promise<any> => {
-    const { models, session } = context;
+  async cmsPostsIncrementViewCount(_parent: any, args: any, context: IContext): Promise<any> {
+    const { session } = context;
     const { _id } = args;
 
     if (!session.viewedPosts) {
@@ -84,74 +54,64 @@ const mutations = {
     }
 
     if (!session.viewedPosts.includes(_id)) {
-      await models.Posts.increaseViewCount(_id);
+      await this.models.Posts.increaseViewCount(_id);
       session.viewedPosts.push(_id);
       await session.save();
     }
 
-    return models.Posts.findOne({ _id });
-  },
+    return this.models.Posts.findOne({ _id });
+  }
 
   /**
    * Cms post toggle featured
    */
-  cmsPostsToggleFeatured: async (
-    _parent: any,
-    args: any,
-    context: IContext,
-  ): Promise<any> => {
-    const { models } = context;
+  async cmsPostsToggleFeatured(_parent: any, args: any, context: IContext): Promise<any> {
     const { _id } = args;
+    return this.models.Posts.toggleFeatured(_id);
+  }
 
-    return models.Posts.toggleFeatured(_id);
-  },
-
-  cmsPostsAddTranslation: async (
-    _parent: any,
-    args: any,
-    context: IContext,
-  ): Promise<any> => {
-    const { models } = context;
+  /**
+   * Add translation
+   */
+  async cmsAddTranslation(_parent: any, args: any, context: IContext): Promise<any> {
     const { input } = args;
-    const post = await models.Posts.findOne({ _id: input.postId });
-    if (!post) {
-      throw new Error('Post not found');
-    }
-    return models.PostTranslations.createPostTranslation(input);
-  },
-
-  cmsPostsEditTranslation: async (
-    _parent: any,
-    args: any,
-    context: IContext,
-  ): Promise<any> => {
-    const { models } = context;
-    const { input } = args;
-    const translation = await models.PostTranslations.findOne({
-      language: input.language,
-      postId: input.postId,
-    });
-    if (!translation) {
-      return models.PostTranslations.createPostTranslation(input);
+    const translationService = getTranslationService(this.models);
+    
+    translationService.validateTranslationInput(input);
+    
+    const model = translationService.getModelByType(input.type);
+    const object = await model.findOne({ _id: input.postId });
+    
+    if (!object) {
+      throw new Error('Object not found');
     }
 
-    return models.PostTranslations.updatePostTranslation(
-      translation._id,
-      input,
-    );
-  },
+    return translationService.createOrUpdateTranslation(input);
+  }
+
+  /**
+   * Edit translation
+   */
+  async cmsEditTranslation(_parent: any, args: any, context: IContext): Promise<any> {
+    const { input } = args;
+    const translationService = getTranslationService(this.models);
+    
+    return translationService.createOrUpdateTranslation(input);
+  }
+}
+
+const resolver = new PostMutationResolver({} as IContext);
+const mutations = {
+  cmsPostsAdd: resolver.cmsPostsAdd.bind(resolver),
+  cmsPostsEdit: resolver.cmsPostsEdit.bind(resolver),
+  cmsPostsRemove: resolver.cmsPostsRemove.bind(resolver),
+  cmsPostsChangeStatus: resolver.cmsPostsChangeStatus.bind(resolver),
+  cmsPostsIncrementViewCount: resolver.cmsPostsIncrementViewCount.bind(resolver),
+  cmsPostsToggleFeatured: resolver.cmsPostsToggleFeatured.bind(resolver),
+  cmsAddTranslation: resolver.cmsAddTranslation.bind(resolver),
+  cmsEditTranslation: resolver.cmsEditTranslation.bind(resolver),
 };
 
-requireLogin(mutations, 'cmsPostsAdd');
-requireLogin(mutations, 'cmsPostsEdit');
-requireLogin(mutations, 'cmsPostsRemove');
-requireLogin(mutations, 'cmsPostsChangeStatus');
-requireLogin(mutations, 'cmsPostsToggleFeatured');
-
-checkPermission(mutations, 'cmsPostsAdd', 'manageCms', []);
-checkPermission(mutations, 'cmsPostsEdit', 'manageCms', []);
-checkPermission(mutations, 'cmsPostsRemove', 'manageCms', []);
-checkPermission(mutations, 'cmsPostsChangeStatus', 'manageCms', []);
-checkPermission(mutations, 'cmsPostsToggleFeatured', 'manageCms', []);
+PermissionManager.applyCmsPermissions(mutations);
 
 export default mutations;

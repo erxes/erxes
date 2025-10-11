@@ -170,19 +170,19 @@ const cursorParams = `
 `;
 
 export const queries = `
-  knowledgeBaseTopics(${cursorParams}, brandId: String, codes: [String]): KnowledgeBaseTopicsListResponse
-  knowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
+  knowledgeBaseTopics(${cursorParams}, brandId: String, codes: [String], language: String): KnowledgeBaseTopicsListResponse
+  knowledgeBaseTopicDetail(_id: String!, language: String): KnowledgeBaseTopic
   knowledgeBaseTopicsTotalCount: Int
 
-  knowledgeBaseCategories(${cursorParams},ids:[String] topicIds: [String], codes: [String],icon:String): [KnowledgeBaseCategory]
-  knowledgeBaseCategoryDetail(_id: String!): KnowledgeBaseCategory
+  knowledgeBaseCategories(${cursorParams},ids:[String] topicIds: [String], codes: [String],icon:String, language: String): KnowledgeBaseCategoriesListResponse
+  knowledgeBaseCategoryDetail(_id: String!, language: String): KnowledgeBaseCategory
   knowledgeBaseCategoriesTotalCount(topicIds: [String], codes: [String]): Int
   knowledgeBaseCategoriesGetLast: KnowledgeBaseCategory
 
-  knowledgeBaseArticles(searchValue: String, ${cursorParams}, categoryIds: [String],articleIds:[String], codes: [String], topicIds: [String], sortField:String, sortDirection: Int, status: String): KnowledgeBaseArticlesListResponse
-  knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
-  knowledgeBaseArticleDetailAndIncViewCount(_id: String!): KnowledgeBaseArticle
-  knowledgeBaseArticlesTotalCount(categoryIds: [String], codes: [String], articleIds:[String], topicIds: [String], status: String): Int
+  knowledgeBaseArticles(searchValue: String, ${cursorParams}, categoryIds: [String],articleIds:[String], codes: [String], topicIds: [String], sortField:String, sortDirection: Int, status: String, language: String): KnowledgeBaseArticlesListResponse
+  knowledgeBaseArticleDetail(_id: String!, language: String): KnowledgeBaseArticle
+  knowledgeBaseArticleDetailAndIncViewCount(_id: String!, language: String): KnowledgeBaseArticle
+  knowledgeBaseArticlesTotalCount(categoryIds: [String], codes: [String], articleIds:[String], topicIds: [String], status: String, language: String): Int
 `;
 
 export const mutations = `
