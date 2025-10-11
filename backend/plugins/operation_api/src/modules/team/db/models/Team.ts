@@ -104,7 +104,16 @@ export const loadTeamClass = (models: IModels) => {
 
       await models.TeamMember.createTeamMembers(roles);
 
-      await models.Status.createDefaultStatuses(team._id);
+      const defaultStatuses = await models.Status.createDefaultStatuses(team._id);
+
+      // Set the first status (backlog) as the default status for the team
+      if (defaultStatuses.length > 0) {
+        await models.Team.findOneAndUpdate(
+          { _id: team._id },
+          { $set: { defaultStatusId: defaultStatuses[0]._id } }
+        );
+        team.defaultStatusId = defaultStatuses[0]._id.toString();
+      }
 
       return team;
     }

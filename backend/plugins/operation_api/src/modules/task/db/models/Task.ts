@@ -113,6 +113,15 @@ export const loadTaskClass = (models: IModels) => {
 
       const nextNumber = (result?.maxNumber || 0) + 1;
 
+      // If no status is provided, use the team's default status
+      if (!doc.status) {
+        const team = await models.Team.findOne({ _id: doc.teamId });
+        
+        if (team?.defaultStatusId) {
+          doc.status = team.defaultStatusId;
+        }
+      }
+
       const status = await models.Status.getStatus(doc.status || '');
 
       doc.statusType = status.type;

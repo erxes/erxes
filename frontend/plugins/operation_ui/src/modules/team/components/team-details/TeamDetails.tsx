@@ -4,6 +4,7 @@ import { UpdateTeamForm } from '@/team/components/team-details/UpdateTeamForm';
 import { EstimateSection } from '@/team/components/team-details/EstimateSection';
 import { StatusSection } from '@/team/components/team-details/SatusSection';
 import { CycleSection } from '@/team/components/team-details/CycleSection';
+import { DefaultStatusSection } from '@/team/components/team-details/DefaultStatusSection';
 
 import { useParams } from 'react-router-dom';
 import { DeleteTeamForm } from '@/team/components/team-details/DeleteTeamForm';
@@ -27,6 +28,7 @@ export const TeamDetails = () => {
       <MemberSection team={team} />
       <EstimateSection team={team} />
       <StatusSection team={team} />
+      <DefaultStatusSection team={team} />
       <CycleSection team={team} />
       <DeleteTeamForm />
     </div>
