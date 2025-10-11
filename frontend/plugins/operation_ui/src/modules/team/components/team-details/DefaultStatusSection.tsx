@@ -9,6 +9,14 @@ interface StatusChoice {
   label: string;
 }
 
+/**
+ * DefaultStatusSection component allows team admins to configure the default
+ * status that will be automatically assigned to newly created tasks.
+ * 
+ * @param {object} props - Component props
+ * @param {ITeam} props.team - The team object containing configuration
+ * @returns {JSX.Element | null} The default status configuration section or null if loading
+ */
 export const DefaultStatusSection = ({ team }: { team: ITeam }) => {
   const { updateTeam } = useTeamUpdate();
   const { toast } = useToast();
@@ -19,6 +27,12 @@ export const DefaultStatusSection = ({ team }: { team: ITeam }) => {
 
   const statusChoices: StatusChoice[] = data?.getStatusesChoicesByTeam || [];
 
+  /**
+   * Handles the change of default status selection.
+   * Updates the team's default status and shows appropriate toast notifications.
+   * 
+   * @param {string} value - The selected status ID
+   */
   function handleStatusChange(value: string) {
     updateTeam({
       variables: {

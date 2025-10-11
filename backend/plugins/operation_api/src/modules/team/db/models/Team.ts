@@ -80,6 +80,17 @@ export const loadTeamClass = (models: IModels) => {
       return models.Team.find(query).lean();
     }
 
+    /**
+     * Creates a new team with default status configuration.
+     * Automatically sets the first default status (backlog) as the team's
+     * default status for new tasks created without an explicit status.
+     * 
+     * @param {object} params - The team creation parameters
+     * @param {ITeam} params.teamDoc - The team document to create
+     * @param {string[]} params.memberIds - Array of member IDs to add to the team
+     * @param {string} params.adminId - The ID of the user creating the team (will be admin)
+     * @returns {Promise<ITeamDocument>} The created team document with default status configured
+     */
     public static async createTeam({
       teamDoc,
       memberIds,

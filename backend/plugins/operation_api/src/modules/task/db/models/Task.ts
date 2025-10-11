@@ -97,6 +97,18 @@ export const loadTaskClass = (models: IModels) => {
       return models.Task.find(query).lean();
     }
 
+    /**
+     * Creates a new task with auto-assignment of default status.
+     * If no status is provided in the task document, automatically assigns
+     * the team's configured default status to ensure consistent task creation.
+     * 
+     * @param {object} params - The task creation parameters
+     * @param {ITask} params.doc - The task document to create
+     * @param {string} params.userId - The ID of the user creating the task
+     * @param {string} params.subdomain - The subdomain for notifications
+     * @returns {Promise<ITaskDocument>} The created task document
+     * @throws {Error} If task project is not in the team or cycle is completed
+     */
     public static async createTask({
       doc,
       userId,
