@@ -126,6 +126,9 @@ export const loadTaskClass = (models: IModels) => {
       const nextNumber = (result?.maxNumber || 0) + 1;
 
       // If no status is provided, use the team's default status
+      // Note: This adds a DB lookup for the team when status is not provided.
+      // For better performance, consider passing defaultStatusId in the request
+      // context or requiring callers to always provide a status explicitly.
       if (!doc.status) {
         const team = await models.Team.findOne({ _id: doc.teamId });
         
