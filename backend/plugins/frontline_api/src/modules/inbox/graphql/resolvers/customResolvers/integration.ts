@@ -1,4 +1,4 @@
-import { IIntegrationDocument } from '@/inbox/@types/integrations';
+import { IIntegrationDocument } from '~/modules/inbox/@types/integrations';
 import { IContext } from '~/connectionResolvers';
 import { facebookStatus } from '@/integrations/facebook/messageBroker';
 export const integrationStatus = async (
@@ -33,17 +33,17 @@ export default {
   async __resolveReference({ _id }, { models }: IContext) {
     return models.Integrations.findOne({ _id });
   },
-  brand(integration: IIntegrationDocument) {
-    if (!integration.brandId) {
-      return null;
-    }
-    return (
-      integration.brandId && {
-        __typename: 'Brand',
-        _id: integration.brandId,
-      }
-    );
-  },
+  // brand(integration: IIntegrationDocument) {
+  //   if (!integration.brandId) {
+  //     return null;
+  //   }
+  //   return (
+  //     integration.brandId && {
+  //       __typename: 'Brand',
+  //       _id: integration.brandId,
+  //     }
+  //   );
+  // },
 
   async form(
     integration: IIntegrationDocument,

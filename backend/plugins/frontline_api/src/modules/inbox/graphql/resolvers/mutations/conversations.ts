@@ -1,11 +1,11 @@
 import * as _ from 'underscore';
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { IConversationDocument } from '@/inbox/@types/conversations';
+import { IConversationDocument } from '~/modules/inbox/@types/conversations';
 import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
-import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
+import { CONVERSATION_STATUSES } from '~/modules/inbox/db/definitions/constants';
 import { generateModels, IContext, IModels } from '~/connectionResolvers';
-import { IConversationMessageAdd } from '@/inbox/@types/conversationMessages';
-import { AUTO_BOT_MESSAGES } from '@/inbox/db/definitions/constants';
+import { IConversationMessageAdd } from '~/modules/inbox/@types/conversationMessages';
+import { AUTO_BOT_MESSAGES } from '~/modules/inbox/db/definitions/constants';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
 import { graphqlPubsub } from 'erxes-api-shared/utils';

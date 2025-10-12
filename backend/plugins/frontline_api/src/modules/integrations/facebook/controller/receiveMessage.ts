@@ -2,10 +2,10 @@ import { IModels } from '~/connectionResolvers';
 import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
 import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
 import { getOrCreateCustomer } from '@/integrations/facebook/controller/store';
-import { receiveInboxMessage } from '@/inbox/receiveMessage';
+import { receiveInboxMessage } from '~/modules/inbox/receiveMessage';
 import { debugFacebook } from '@/integrations/facebook/debuggers';
 import { Activity } from '@/integrations/facebook/@types/utils';
-import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
+import { pConversationClientMessageInserted } from '~/modules/inbox/graphql/resolvers/mutations/widget';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import {
   checkIsBot,

@@ -8,9 +8,9 @@ import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
 import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
 import { IFacebookCustomer } from '@/integrations/facebook/@types/customers';
 import { getFacebookUser } from '@/integrations/facebook/utils';
-import { receiveInboxMessage } from '@/inbox/receiveMessage';
+import { receiveInboxMessage } from '~/modules/inbox/receiveMessage';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
+import { pConversationClientMessageInserted } from '~/modules/inbox/graphql/resolvers/mutations/widget';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import {
   getPostLink,

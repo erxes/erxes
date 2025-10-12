@@ -684,7 +684,6 @@ export const checkForExistingIntegrations = async (
     wsServer: details.wsServer, // Match same wsServer
     queues: { $in: queues }, // Check if any queue already exists
   }).lean();
-
   if (existingIntegrations.length > 0) {
     existingIntegrations.forEach((existingIntegration) => {
       if (existingIntegration.inboxId.toString() !== integrationId.toString()) {
@@ -714,9 +713,8 @@ export const updateIntegrationQueues = async (
       integrationId,
     );
     const { queues } = checkedIntegration;
-
     // Prepare update data
-    const updateData = { $set: { queues, ...details } };
+    const updateData = { $set: { queues, ...details }, $upsert: true };
 
     // Update the integration
     const integration = await models.CallIntegrations.findOneAndUpdate(

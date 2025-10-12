@@ -1,4 +1,4 @@
-import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
+import { pConversationClientMessageInserted } from '~/modules/inbox/graphql/resolvers/mutations/widget';
 import { debugError } from '@/integrations/facebook/debuggers';
 import { checkContentConditions } from '@/integrations/facebook/meta/automation/utils/messageUtils';
 import {

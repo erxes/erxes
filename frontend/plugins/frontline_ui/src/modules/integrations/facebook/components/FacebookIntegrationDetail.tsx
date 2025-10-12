@@ -134,14 +134,13 @@ export const FacebookIntegrationEditForm = ({
               )}
             />
             <Form.Field
-              name="channelIds"
+              name="channelId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Channels</Form.Label>
+                  <Form.Label>Channel</Form.Label>
                   <SelectChannel.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
-                    mode="multiple"
                   />
                   <Form.Message />
                 </Form.Item>

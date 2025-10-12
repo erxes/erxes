@@ -1,4 +1,4 @@
-import { IConversationDocument } from '@/inbox/@types/conversations';
+import { IConversationDocument } from '~/modules/inbox/@types/conversations';
 
 import { IContext } from '~/connectionResolvers';
 

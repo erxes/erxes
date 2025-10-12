@@ -38,7 +38,7 @@ export const erxesMessengerSetSetupAtom = atom(
         name: payload?.name || '',
         brandId: payload?.brandId || '',
         languageCode: payload?.languageCode || DEFAULT_LANGUAGE,
-        channelIds: payload?.channels?.map((channel) => channel._id) || [],
+        channelId: payload?.channels?.map((channel) => channel._id)?.[0] || '',
         botSetup: {
           greetingMessage: payload?.messengerData?.botGreetMessage,
           persistentMenus: payload?.messengerData?.persistentMenus,

@@ -5,7 +5,7 @@ import {
   sendReply,
   generateAttachmentMessages,
 } from '@/integrations/facebook/utils';
-import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
+import { sendNotifications } from '~/modules/inbox/graphql/resolvers/mutations/conversations';
 
 /**
  * Handle requests from erxes api
