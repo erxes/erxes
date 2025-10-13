@@ -201,7 +201,7 @@ export function useDealsEdit(options?: MutationHookOptions<any, any>) {
         ? [
             {
               query: GET_DEAL_DETAIL,
-              variables: { ...options?.variables, _id },
+              variables: { ...options?.variables, _id: salesItemId || _id },
             },
           ]
         : [],
