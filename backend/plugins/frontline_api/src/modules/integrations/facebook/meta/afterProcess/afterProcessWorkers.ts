@@ -1,6 +1,6 @@
 import { IAfterProcessRule } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { IFacebookIntegrationDocument } from '~/modules/integrations/facebook/@types/integrations';
+import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
 
 export const facebookAfterProcessWorkers = {
   rules: [

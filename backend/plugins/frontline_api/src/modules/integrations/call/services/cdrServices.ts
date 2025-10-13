@@ -7,10 +7,10 @@ import {
   extractOperatorId,
   findOrCreateCdr,
   getConversationContent,
-} from '~/modules/integrations/call/services/cdrUtils';
-import { getOrCreateCustomer } from '~/modules/integrations/call/store';
-import { createOrUpdateErxesConversation } from '~/modules/integrations/call/utils';
-import { pConversationClientMessageInserted } from '~/modules/inbox/graphql/resolvers/mutations/widget';
+} from '@/integrations/call/services/cdrUtils';
+import { getOrCreateCustomer } from '@/integrations/call/store';
+import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
+import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 
 export const receiveCdr = async (models: IModels, subdomain, params) => {
   debugCall(`Request to get post data with: ${JSON.stringify(params)}`);

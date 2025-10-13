@@ -1,7 +1,7 @@
 import { Model } from 'mongoose';
 
-import { ICallQueueStatisticsDocuments } from '~/modules/integrations/call/@types/queueStatistics';
-import { queueStatisticsSchema } from '~/modules/integrations/call/db/definitions/queueStatistics';
+import { ICallQueueStatisticsDocuments } from '@/integrations/call/@types/queueStatistics';
+import { queueStatisticsSchema } from '@/integrations/call/db/definitions/queueStatistics';
 
 export interface ICallQueueStatisticsModel
   extends Model<ICallQueueStatisticsDocuments> {}

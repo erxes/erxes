@@ -1,9 +1,9 @@
 import { getEnv, getSubdomain, graphqlPubsub } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
-import { receiveCdr } from '~/modules/integrations/call/services/cdrServices';
+import { receiveCdr } from '@/integrations/call/services/cdrServices';
 
 import express from 'express';
-import redis from '~/modules/integrations/call/redlock';
+import redis from '@/integrations/call/redlock';
 
 const authenticateApi = async (req, res, next) => {
   const erxesApiId = req.headers['x-integration-id'];

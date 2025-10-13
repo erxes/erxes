@@ -6,18 +6,18 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import {
   mapCdrToCallHistory,
   sendToGrandStream,
-} from '~/modules/integrations/call/utils';
+} from '@/integrations/call/utils';
 import {
   calculateAbandonmentRate,
   calculateAverageHandlingTime,
   calculateAverageSpeedOfAnswer,
   calculateFirstCallResolution,
   calculateServiceLevel,
-} from '~/modules/integrations/call/statistics';
-import { INotesParams } from '~/modules/integrations/call/@types/conversationNotes';
-import { IMessageDocument } from '~/modules/inbox/@types/conversationMessages';
-import { ICallHistory } from '~/modules/integrations/call/@types/histories';
-import { selectRelevantCdr } from '~/modules/integrations/call/services/cdrUtils';
+} from '@/integrations/call/statistics';
+import { INotesParams } from '@/integrations/call/@types/conversationNotes';
+import { IMessageDocument } from '@/inbox/@types/conversationMessages';
+import { ICallHistory } from '@/integrations/call/@types/histories';
+import { selectRelevantCdr } from '@/integrations/call/services/cdrUtils';
 
 const callQueries = {
   async callsIntegrationDetail(_root, { integrationId }, { models }: IContext) {

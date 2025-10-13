@@ -5,13 +5,13 @@ export const CREATE_EM_MESSENGER_MUTATION = gql`
     $name: String!
     $brandId: String!
     $languageCode: String
-    $channelIds: [String]
+    $channelId: [String]
   ) {
     integrationsCreateMessengerIntegration(
       name: $name
       brandId: $brandId
       languageCode: $languageCode
-      channelIds: $channelIds
+      channelId: $channelId
     ) {
       _id
       brand {
@@ -26,11 +26,13 @@ export const CREATE_EM_MESSENGER_MUTATION = gql`
 export const SAVE_EM_CONFIGS_MUTATION = gql`
   mutation integrationsSaveMessengerConfigs(
     $_id: String!
+    $channelId: String!
     $messengerData: IntegrationMessengerData
     $callData: IntegrationCallData
   ) {
     integrationsSaveMessengerConfigs(
       _id: $_id
+      channelId: $channelId
       messengerData: $messengerData
       callData: $callData
     ) {
@@ -42,9 +44,14 @@ export const SAVE_EM_CONFIGS_MUTATION = gql`
 export const SAVE_EM_APPEARANCE_MUTATION = gql`
   mutation integrationsSaveMessengerAppearanceData(
     $_id: String!
+    $channelId: String!
     $uiOptions: MessengerUiOptions
   ) {
-    integrationsSaveMessengerAppearanceData(_id: $_id, uiOptions: $uiOptions) {
+    integrationsSaveMessengerAppearanceData(
+      _id: $_id
+      channelId: $channelId
+      uiOptions: $uiOptions
+    ) {
       _id
     }
   }

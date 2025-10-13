@@ -1,7 +1,7 @@
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import mongoose from 'mongoose';
-import { IChannelDocument } from '@/inbox/@types/channels';
+
 import { IIntegrationDocument } from '@/inbox/@types/integrations';
 import { IConversationDocument } from '@/inbox/@types/conversations';
 import { IMessageDocument } from '@/inbox/@types/conversationMessages';
@@ -15,11 +15,11 @@ import { IFacebookCommentConversationDocument } from '@/integrations/facebook/@t
 import { IFacebookCommentConversationReplyDocument } from '@/integrations/facebook/@types/comment_conversations_reply';
 import { IFacebookPostConversationDocument } from '@/integrations/facebook/@types/postConversations';
 import { IFacebookConfigDocument } from '@/integrations/facebook/@types/config';
-import { IChannelModel, loadChannelClass } from '@/inbox/db/models/Channels';
+import { IChannelModel, loadChannelClass } from '@/channel/db/models/Channel';
 import {
   IIntegrationModel,
   loadClass as loadIntegrationClass,
-} from '~/modules/inbox/db/models/Integrations';
+} from '@/inbox/db/models/Integrations';
 import {
   IConversationModel,
   loadClass as loadConversationClass,
@@ -71,43 +71,43 @@ import {
 import {
   ICallCdrModel,
   loadCallCdrClass,
-} from '~/modules/integrations/call/db/models/Cdrs';
+} from '@/integrations/call/db/models/Cdrs';
 import {
   ICallHistoryModel,
   loadCallHistoryClass,
-} from '~/modules/integrations/call/db/models/Histories';
+} from '@/integrations/call/db/models/Histories';
 import {
   ICallCustomerModel,
   loadCallCustomerClass,
-} from '~/modules/integrations/call/db/models/Customers';
+} from '@/integrations/call/db/models/Customers';
 import {
   ICallIntegrationModel,
   loadCallIntegrationClass,
-} from '~/modules/integrations/call/db/models/Integrations';
+} from '@/integrations/call/db/models/Integrations';
 import {
   ICallConfigModel,
   loadCallConfigClass,
-} from '~/modules/integrations/call/db/models/Configs';
+} from '@/integrations/call/db/models/Configs';
 import {
   ICallOperatorModel,
   loadCallOperatorClass,
-} from '~/modules/integrations/call/db/models/Operators';
+} from '@/integrations/call/db/models/Operators';
 
 import {
   ICallQueueStatisticsModel,
   loadCallQueueClass,
-} from '~/modules/integrations/call/db/models/QueueStatistics';
-import { ICallCdrDocument } from '~/modules/integrations/call/@types/cdrs';
-import { ICallOperatorDocuments } from '~/modules/integrations/call/@types/operators';
-import { ICallConfigDocument } from '~/modules/integrations/call/@types/config';
-import { ICallHistoryDocument } from '~/modules/integrations/call/@types/histories';
-import { ICallCustomer } from '~/modules/integrations/call/@types/customers';
-import { ICallIntegrationDocument } from '~/modules/integrations/call/@types/integrations';
-import { IFacebookBotDocument } from '~/modules/integrations/facebook/db/definitions/bots';
+} from '@/integrations/call/db/models/QueueStatistics';
+import { ICallCdrDocument } from '@/integrations/call/@types/cdrs';
+import { ICallOperatorDocuments } from '@/integrations/call/@types/operators';
+import { ICallConfigDocument } from '@/integrations/call/@types/config';
+import { ICallHistoryDocument } from '@/integrations/call/@types/histories';
+import { ICallCustomer } from '@/integrations/call/@types/customers';
+import { ICallIntegrationDocument } from '@/integrations/call/@types/integrations';
+import { IFacebookBotDocument } from '@/integrations/facebook/db/definitions/bots';
 import {
   IFacebookBotModel,
   loadFacebookBotClass,
-} from '~/modules/integrations/facebook/db/models/Bots';
+} from '@/integrations/facebook/db/models/Bots';
 
 import {
   ICustomerImapDocument,
@@ -122,11 +122,22 @@ import {
   ILogImapModel,
   ILogImapDocument,
   loadImapLogClass,
-} from '~/modules/integrations/imap/models';
-import { ICallQueueStatisticsDocuments } from '~/modules/integrations/call/@types/queueStatistics';
+} from '@/integrations/imap/models';
+import {
+  IChannelMemberModel,
+  loadChannelMemberClass,
+} from '@/channel/db/models/ChannelMembers';
+import {
+  IChannelDocument,
+  IChannelMemberDocument,
+} from '@/channel/@types/channel';
+import { ICallQueueStatisticsDocuments } from '@/integrations/call/@types/queueStatistics';
 export interface IModels {
-  //inbox
+  //channel
   Channels: IChannelModel;
+  ChannelMembers: IChannelMemberModel;
+
+  //inbox
   Integrations: IIntegrationModel;
   Conversations: IConversationModel;
   ConversationMessages: IMessageModel;
@@ -173,6 +184,10 @@ export const loadClasses = (
   models.Channels = db.model<IChannelDocument, IChannelModel>(
     'channels',
     loadChannelClass(models),
+  );
+  models.ChannelMembers = db.model<IChannelMemberDocument, IChannelMemberModel>(
+    'channel_members',
+    loadChannelMemberClass(models),
   );
   models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>(
     'integrations',

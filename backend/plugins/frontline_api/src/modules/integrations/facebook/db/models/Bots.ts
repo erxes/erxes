@@ -3,9 +3,9 @@ import { IFacebookBotDocument, facebookBotSchema } from '../definitions/bots';
 import {
   getPageAccessToken,
   graphRequest,
-} from '~/modules/integrations/facebook/utils';
+} from '@/integrations/facebook/utils';
 import { IModels } from '~/connectionResolvers';
-import { BOT_SUBSCRIBE_FIELDS } from '~/modules/integrations/facebook/constants';
+import { BOT_SUBSCRIBE_FIELDS } from '@/integrations/facebook/constants';
 
 const validateDoc = async (models: IModels, doc: any, isUpdate?: boolean) => {
   if (!doc.name) {

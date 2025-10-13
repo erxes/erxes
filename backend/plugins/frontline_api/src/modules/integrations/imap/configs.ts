@@ -14,7 +14,7 @@
 // } from './utils';
 // import { getSaasOrganizations } from 'erxes-api-shared/utils';
 // import express from 'express';
-// import { debugError } from '~/modules/inbox/utils';
+// import { debugError } from '@/inbox/utils';
 
 // const app = express();
 
