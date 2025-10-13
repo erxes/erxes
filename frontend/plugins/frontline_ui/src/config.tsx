@@ -16,7 +16,6 @@ const FrontlineSubGroups = lazy(() =>
 
 export const CONFIG: IUIConfig = {
   name: 'frontline',
-  icon: IconStackFront,
   navigationGroup: {
     name: 'frontline',
     icon: IconStackFront,

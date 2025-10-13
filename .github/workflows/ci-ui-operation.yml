@@ -1,22 +1,32 @@
-name: CI plugin--operation_api
+name: CI plugin-operation_ui
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'backend/plugins/operation_api/**'
-      - 'backend/erxes-api-shared/**'
-      - '.github/workflows/ci-api-operation.yml'
+      - 'frontend/plugins/operation_ui/**'
+      - 'frontend/libs/**'
+      - '.github/workflows/ci-ui-operation.yml'
   pull_request:
     paths:
-      - 'backend/plugins/operation_api/**'
-      - 'backend/erxes-api-shared/**'
-      - '.github/workflows/ci-api-operation.yml'
+      - 'frontend/plugins/operation_ui/**'
+      - 'frontend/libs/**'
+      - '.github/workflows/ci-ui-operation.yml'
+
+permissions:
+  actions: read
+  contents: read
+  packages: write
+  id-token: write
 
 jobs:
-  operation_api-ci:
+  operation_ui-ci:
     runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,23 +42,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build shared module
+      - name: Build operation UI
         run: |
           export NX_DAEMON=false
-          pnpm nx build erxes-api-shared
+          pnpm nx build operation_ui
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build and push Docker image
+      - name: Sync to Cloudflare R2
         run: |
-          export NX_DAEMON=false
-          pnpm nx docker-build operation_api
-          docker tag erxes/erxes-next-operation_api erxes/erxes-next-operation_api:latest
-          docker tag erxes/erxes-next-operation_api erxes/erxes-next-operation_api:${{ github.sha }}
-          docker push erxes/erxes-next-operation_api:latest
-          docker push erxes/erxes-next-operation_api:${{ github.sha }}
-        if: github.event_name != 'pull_request'
+          aws s3 sync dist/frontend/plugins/operation_ui s3://erxes-next/latest/operation_ui/ \
+            --endpoint-url https://7c8392aff8ac4518aa06dfa4b6337ef2.r2.cloudflarestorage.com

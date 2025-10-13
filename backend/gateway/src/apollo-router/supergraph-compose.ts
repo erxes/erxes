@@ -7,9 +7,9 @@ import { execSync } from 'child_process';
 import isSameFile from '~/util/is-same-file';
 import * as yaml from 'yaml';
 
-const { NODE_ENV, SUPERGRAPH_POLL_INTERVAL_MS } = process.env;
-
 dotenv.config();
+
+const { NODE_ENV, SUPERGRAPH_POLL_INTERVAL_MS } = process.env;
 
 type SupergraphConfig = {
   federation_version: string;

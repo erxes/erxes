@@ -1,3 +1,4 @@
+import { GraphQLResolveInfo } from 'graphql';
 import { SortOrder } from 'mongoose';
 import { IUserDocument } from './modules/team-member/user';
 
@@ -99,3 +100,20 @@ export interface IPageInfo {
   startCursor: string | null;
   endCursor: string | null;
 }
+
+export interface IResolverSymbol {
+  skipPermission?: boolean;
+}
+
+export type Resolver<
+  Parent = any,
+  Args = any,
+  Context = { subdomain: string } & IMainContext,
+  Result = any,
+> = ((
+  parent: Parent,
+  args: Args,
+  context: Context,
+  info: GraphQLResolveInfo,
+) => Promise<Result> | Result) &
+  IResolverSymbol;
