@@ -7,12 +7,19 @@ import {
 } from 'erxes-ui';
 import { IconSandbox, IconSettings } from '@tabler/icons-react';
 
+import { AddDealSheet } from '@/deals/components/AddDealSheet';
 import { Link } from 'react-router-dom';
 import MainActionBar from '@/deals/actionBar/components/MainActionBar';
 import { PageHeader } from 'ui-modules';
 import { SalesItemDetail } from '@/deals/cards/components/detail/SalesItemDetail';
 import { SalesLeftSidebar } from '@/deals/components/SalesLeftSidebar';
-import { StagesList } from '@/deals/stage/components/StagesList';
+import { lazy } from 'react';
+
+const DealBoard = lazy(() =>
+  import('@/deals/components/DealsBoard').then((mod) => ({
+    default: mod.DealsBoard,
+  })),
+);
 
 export const SalesIndexPage = () => {
   return (
@@ -36,6 +43,7 @@ export const SalesIndexPage = () => {
             <Separator.Inline />
             <PageHeader.FavoriteToggleButton />
           </PageHeader.Start>
+          <AddDealSheet />
           <PageHeader.End>
             <Button variant="outline" asChild>
               <Link to="/settings/deals">
@@ -45,12 +53,13 @@ export const SalesIndexPage = () => {
             </Button>
           </PageHeader.End>
         </PageHeader>
+
         <PageContainer className="overflow-hidden">
           <PageSubHeader>
             <MainActionBar />
           </PageSubHeader>
 
-          <StagesList />
+          <DealBoard />
           <SalesItemDetail />
         </PageContainer>
       </div>

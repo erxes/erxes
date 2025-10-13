@@ -77,6 +77,7 @@ import {
   IProductDocument,
   IProductsConfigDocument,
   IRelationDocument,
+  IRoleDocument,
   ITagDocument,
   IUomDocument,
   IUserDocument,
@@ -146,6 +147,10 @@ import {
   notificationSchema,
 } from 'erxes-api-shared/core-modules';
 import {
+  IRoleModel,
+  loadRoleClass,
+} from '~/modules/permissions/db/models/Roles';
+import {
   IAutomationModel,
   loadClass as loadAutomationClass,
 } from './modules/automations/db/models/Automations';
@@ -163,6 +168,7 @@ export interface IModels {
   Configs: IConfigModel;
   Permissions: IPermissionModel;
   UsersGroups: IUserGroupModel;
+  Roles: IRoleModel;
   Tags: ITagModel;
   InternalNotes: IInternalNoteModel;
   Products: IProductModel;
@@ -242,6 +248,11 @@ export const loadClasses = (
   models.Permissions = db.model<IPermissionDocument, IPermissionModel>(
     'permissions',
     loadPermissionClass(models),
+  );
+
+  models.Roles = db.model<IRoleDocument, IRoleModel>(
+    'roles',
+    loadRoleClass(models),
   );
 
   models.UsersGroups = db.model<IUserGroupDocument, IUserGroupModel>(

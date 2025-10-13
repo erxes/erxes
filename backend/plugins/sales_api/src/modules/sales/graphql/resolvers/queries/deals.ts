@@ -662,7 +662,7 @@ export const dealQueries = {
       return [];
     });
 
-    const products = await sendTRPCMessage({
+    const products = dealProductIds.length && await sendTRPCMessage({
       pluginName: 'core',
       method: 'query',
       module: 'products',
@@ -673,7 +673,7 @@ export const dealQueries = {
         },
       },
       defaultValue: [],
-    });
+    }) || [];
 
     for (const deal of deals) {
       let pd = deal.productsData;

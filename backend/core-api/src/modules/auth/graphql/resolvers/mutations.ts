@@ -2,12 +2,13 @@ import {
   authCookieOptions,
   getEnv,
   logHandler,
+  markResolvers,
   redis,
   updateSaasOrganization,
 } from 'erxes-api-shared/utils';
-import { IContext } from '~/connectionResolvers';
 import { WorkOS } from '@workos-inc/node';
 import * as jwt from 'jsonwebtoken';
+import { IContext } from '~/connectionResolvers';
 import {
   getCallbackRedirectUrl,
   isValidEmail,
@@ -239,3 +240,7 @@ export const authMutations = {
     return 'success';
   },
 };
+
+markResolvers(authMutations, {
+  skipPermission: true,
+});

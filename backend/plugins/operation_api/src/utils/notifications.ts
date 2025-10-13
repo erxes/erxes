@@ -8,6 +8,10 @@ const getTitle = (contentType: string) => {
   if (contentType === 'project') {
     return 'Project';
   }
+
+  if (contentType === 'team') {
+    return 'Team';
+  }
 };
 
 const getMessage = (contentType: string, notificationType: string) => {
@@ -22,6 +26,8 @@ const getMessage = (contentType: string, notificationType: string) => {
       return 'You have been assigned to project';
     case 'note':
       return `You have been mentioned in note ${contentType}`;
+    case 'team':
+      return 'You have been invited to team';
     default:
       return 'Notification';
   }

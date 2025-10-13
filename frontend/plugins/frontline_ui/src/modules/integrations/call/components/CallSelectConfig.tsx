@@ -1,10 +1,11 @@
 import { Button, Dialog, Input, Label, Select } from 'erxes-ui';
-import { ICallConfig } from '@/integrations/call/types/callTypes';
-import { useState } from 'react';
-import { MembersInline } from 'ui-modules';
 import { useAtom, useSetAtom } from 'jotai';
+
+import { ICallConfig } from '@/integrations/call/types/callTypes';
+import { MembersInline } from 'ui-modules';
 import { callConfigAtom } from '@/integrations/call/states/sipStates';
 import { callSelectConfigDialogAtom } from '@/integrations/call/states/callSelectConfigDialogAtom';
+import { useState } from 'react';
 
 export const CallSelectConfig = ({
   callUserIntegrations,
@@ -58,7 +59,7 @@ export const CallSelectConfig = ({
           <div className="space-y-2">
             <Label>Queues</Label>
             <Input
-              value={selectedIntegration?.queues.join(', ')}
+              value={selectedIntegration?.queues?.join(', ')}
               disabled
               readOnly
               placeholder="queues"
