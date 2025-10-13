@@ -40,14 +40,7 @@ async function validateCompanyAccess(subdomain, erxesApiId, cdrData) {
     }
 
     const { src_trunk_name, dst_trunk_name } = cdrData;
-    console.log(
-      'integration.srcTrunk::',
-      integration.srcTrunk,
-      src_trunk_name,
-      '----',
-      integration.dstTrunk,
-      dst_trunk_name,
-    );
+
     const hasTrunkAccess =
       integration.srcTrunk === src_trunk_name ||
       integration.dstTrunk === dst_trunk_name;

@@ -29,8 +29,8 @@ startPlugin({
   expressRouter: router,
   onServerInit: async (app) => {
     await initCallApp(app);
-    const VERSION = getEnv({ name: 'VERSION' });
-    if (!VERSION || (VERSION && VERSION !== 'saas')) {
+    const CALL_WS_SERVER = getEnv({ name: 'CALL_WS_SERVER' });
+    if (CALL_WS_SERVER) {
       await initWebsocketService();
     }
   },

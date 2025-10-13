@@ -6,7 +6,7 @@ import {
   IOnboardingParamsEdit,
   IArchiveParams,
 } from '@/inbox/@types/integrations';
-import { IContext, IModels } from '~/connectionResolvers';
+import { IContext } from '~/connectionResolvers';
 import { IExternalIntegrationParams } from '@/inbox/db/models/Integrations';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { getUniqueValue } from 'erxes-api-shared/utils';
