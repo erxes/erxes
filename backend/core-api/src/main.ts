@@ -7,6 +7,7 @@ import * as http from 'http';
 import { appRouter } from '~/init-trpc';
 import { initApolloServer } from './apollo/apolloServer';
 import { router } from './routes';
+import * as dotenv from 'dotenv';
 
 import {
   closeMongooose,
@@ -21,6 +22,8 @@ import { generateModels } from './connectionResolvers';
 import meta from './meta';
 import './meta/automations';
 import './segments';
+
+dotenv.config();
 
 const { DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_DOMAINS } = process.env;
 
@@ -53,7 +56,7 @@ const corsOptions = {
     if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ''))) {
       callback(null, true);
     } else {
-      console.error('Origin not allowed:', origin);
+      console.error('Origin not allowed:', origin, allowedOrigins);
       callback(new Error('Not allowed by CORS'));
     }
   },
