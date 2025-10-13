@@ -80,7 +80,7 @@ process.stdin.resume(); // so the program will not close instantly
 
 async function leaveServiceDiscovery() {
   try {
-    console.log(`$service-logs left ${port}`);
+    console.log(`service-v3logs left ${port}`);
     console.log('Left from service discovery');
   } catch (e) {
     console.error(e);

@@ -72,11 +72,11 @@ export const joinErxesGateway = async ({
 
   await redis.set(`service-v3-${name}`, address);
 
-  console.log(`$service-${name} joined with ${address}`);
+  console.log(`service-v3${name} joined with ${address}`);
 };
 
 export const leaveErxesGateway = async (name: string, port: number) => {
-  console.log(`$service-${name} left ${port}`);
+  console.log(`service-v3${name} left ${port}`);
 };
 
 export const isEnabled = async (name: string) => {
