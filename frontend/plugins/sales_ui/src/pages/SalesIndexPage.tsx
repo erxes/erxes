@@ -12,7 +12,6 @@ import { Link } from 'react-router-dom';
 import MainActionBar from '@/deals/actionBar/components/MainActionBar';
 import { PageHeader } from 'ui-modules';
 import { SalesItemDetail } from '@/deals/cards/components/detail/SalesItemDetail';
-import { SalesLeftSidebar } from '@/deals/components/SalesLeftSidebar';
 import { lazy } from 'react';
 
 const DealBoard = lazy(() =>
@@ -24,7 +23,6 @@ const DealBoard = lazy(() =>
 export const SalesIndexPage = () => {
   return (
     <div className="flex h-full overflow-hidden w-full">
-      <SalesLeftSidebar />
       <div className="flex flex-col h-full w-full overflow-hidden">
         <PageHeader>
           <PageHeader.Start>
