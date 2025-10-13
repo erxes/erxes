@@ -87,7 +87,7 @@ export const getCallbackRedirectUrl = (
   const isProduction = process.env.NODE_ENV === 'production';
 
   if (isProduction) {
-    return `https://${subdomain}.api.erxes.io/api/${callbackUrl}`;
+    return `https://${subdomain}.next.erxes.io/gateway/pl:core/${callbackUrl}`;
   }
 
   return `http://localhost:4000/${callbackUrl}`;
