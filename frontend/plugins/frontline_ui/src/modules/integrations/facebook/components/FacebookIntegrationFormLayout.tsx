@@ -27,6 +27,14 @@ export const FacebookIntegrationFormSheet = () => {
           </Button>
         </Sheet.Trigger>
         <Sheet.View>
+          <Sheet.Header>
+            <Sheet.Title>Add Facebook Messenger</Sheet.Title>
+            <Sheet.Description>
+              Configure your Facebook Messenger integration to connect with your
+              Facebook pages and manage conversations.
+            </Sheet.Description>
+            <Sheet.Close />
+          </Sheet.Header>
           <FacebookIntegrationAdd />
         </Sheet.View>
       </Sheet>
@@ -59,6 +67,10 @@ export const FacebookIntegrationFormLayout = ({
     <>
       <Sheet.Header>
         <Sheet.Title>Add Facebook Messenger</Sheet.Title>
+        <Sheet.Description>
+          Configure your Facebook Messenger integration to connect with your
+          Facebook pages and manage conversations.
+        </Sheet.Description>
         <Sheet.Close />
       </Sheet.Header>
       <Sheet.Content className="flex flex-col overflow-hidden">
