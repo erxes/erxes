@@ -239,7 +239,7 @@ export const destroyBoardItemRelations = async (
   //     data: { contentTypeId },
   //   });
 
-  await models.Checklists.removeChecklists([contentTypeId]);
+  models.Checklists.removeChecklists([contentTypeId]);
 
   //   await sendCoreMessage({
   //     subdomain,
