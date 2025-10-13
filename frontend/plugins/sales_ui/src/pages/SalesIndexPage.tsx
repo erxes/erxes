@@ -48,7 +48,7 @@ export const SalesIndexPage = () => {
             <Button variant="outline" asChild>
               <Link to="/settings/deals">
                 <IconSettings />
-                Go to settings
+                Go to Sales Pipeline settings
               </Link>
             </Button>
           </PageHeader.End>

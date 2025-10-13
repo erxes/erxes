@@ -1,6 +1,6 @@
 'use client';
 
-import { Resizable, Sheet, cn } from 'erxes-ui';
+import { Resizable, Sheet, cn, useQueryState } from 'erxes-ui';
 import {
   SalesDetailLeftSidebar,
   SalesDetailTabContent,
@@ -12,28 +12,34 @@ import { IDeal } from '@/deals/types/deals';
 import Overview from './overview/Overview';
 import { SalesDetailActions } from './SalesDetailActions';
 import { SalesItemDetailHeader } from './SalesItemDetailHeader';
+import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
+import { useAtom } from 'jotai';
 import { useDealDetail } from '@/deals/cards/hooks/useDeals';
-import { useDealDetailSheetQueryParam } from '@/deals/states/dealDetailSheetState';
 
 export const SalesItemDetail = () => {
-  const [activeDealId, setActiveDealId] = useDealDetailSheetQueryParam();
+  const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
+  const [salesItemId, setSalesItemId] = useQueryState<string>('salesItemId');
 
   const { deal, loading } = useDealDetail();
 
-  const [isOpen, setIsOpen] = useState(!!activeDealId && !loading);
+  const [isOpen, setIsOpen] = useState(
+    (!!activeDealId || !!salesItemId) && !loading,
+  );
 
   useEffect(() => {
-    setIsOpen(!!activeDealId && !loading);
-  }, [activeDealId, loading]);
+    setIsOpen((!!activeDealId || !!salesItemId) && !loading);
+  }, [activeDealId, salesItemId, loading]);
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      setActiveDealId(null);
+      setSalesItemId(null);
+    }
+  };
 
   return (
-    <Sheet
-      open={isOpen}
-      onOpenChange={(open) => {
-        setIsOpen(open);
-        if (!open) setActiveDealId(null);
-      }}
-    >
+    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <DealsProvider>
         <Sheet.View
           className={cn(
