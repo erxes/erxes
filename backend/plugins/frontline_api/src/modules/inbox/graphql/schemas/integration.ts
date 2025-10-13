@@ -46,13 +46,7 @@ export const types = `
     webhookData: JSON
     channelId: String
 
-<<<<<<< Updated upstream
     channel: Channel
-=======
-    brand: Brand
-    facebookPage: JSON
-    channels: [Channel]
->>>>>>> Stashed changes
 
 
     healthStatus: JSON
@@ -63,6 +57,7 @@ export const types = `
 
     details: JSON
     callData: CloudflareCallsData
+    facebookPage: JSON
   }
   type IntegrationRespone {
     list: [Integration],
