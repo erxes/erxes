@@ -63,6 +63,10 @@ export const taskQueries = {
       filterQuery.projectId = filter.projectId;
     }
 
+    if (filter.milestoneId) {
+      filterQuery.milestoneId = filter.milestoneId;
+    }
+
     if (filter.estimatePoint) {
       filterQuery.estimatePoint = filter.estimatePoint;
     }
