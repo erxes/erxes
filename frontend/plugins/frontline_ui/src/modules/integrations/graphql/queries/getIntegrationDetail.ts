@@ -17,9 +17,11 @@ export const GET_INTEGRATION_DETAIL = gql`
       isConnected
       channels {
         _id
+        name
       }
       departmentIds
       details
+      facebookPage
       callData {
         secondPageHeader
         secondPageDescription
