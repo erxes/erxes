@@ -6,11 +6,12 @@ import {
   Separator,
 } from 'erxes-ui';
 import { IconSandbox, IconSettings } from '@tabler/icons-react';
+import { Link, useSearchParams } from 'react-router-dom';
 
 import { AddDealSheet } from '@/deals/components/AddDealSheet';
-import { Link } from 'react-router-dom';
 import MainActionBar from '@/deals/actionBar/components/MainActionBar';
 import { PageHeader } from 'ui-modules';
+import { SalesBreadCrumb } from '@/deals/components/breadcrumb/SalesBreadCrumb';
 import { SalesItemDetail } from '@/deals/cards/components/detail/SalesItemDetail';
 import { lazy } from 'react';
 
@@ -21,6 +22,10 @@ const DealBoard = lazy(() =>
 );
 
 export const SalesIndexPage = () => {
+  const [searchParams] = useSearchParams();
+  const boardId = searchParams.get('boardId');
+  const pipelineId = searchParams.get('pipelineId');
+
   return (
     <div className="flex h-full overflow-hidden w-full">
       <div className="flex flex-col h-full w-full overflow-hidden">
@@ -32,14 +37,16 @@ export const SalesIndexPage = () => {
                   <Button variant="ghost" asChild>
                     <Link to="/sales">
                       <IconSandbox />
-                      Sales
+                      Sales Pipeline
                     </Link>
                   </Button>
                 </Breadcrumb.Item>
+                <Separator.Inline />
+                {boardId && (
+                  <SalesBreadCrumb boardId={boardId} pipelineId={pipelineId} />
+                )}
               </Breadcrumb.List>
             </Breadcrumb>
-            <Separator.Inline />
-            <PageHeader.FavoriteToggleButton />
           </PageHeader.Start>
           <AddDealSheet />
           <PageHeader.End>
