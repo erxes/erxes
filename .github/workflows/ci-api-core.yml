@@ -35,8 +35,8 @@ jobs:
       - name: Build shared module
         run: pnpm nx build erxes-api-shared
 
-      - name: Build core_api
-        run: pnpm nx build core_api
+      - name: Build core-api
+        run: pnpm nx build core-api
 
       # Buildx setup
       - name: Set up QEMU
