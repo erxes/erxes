@@ -1,10 +1,6 @@
 'use client';
 
 import { Resizable, Sheet, cn, useQueryState } from 'erxes-ui';
-import {
-  SalesDetailLeftSidebar,
-  SalesDetailTabContent,
-} from './SalesDetailLeftSidebar';
 import { useEffect, useState } from 'react';
 
 import { DealsProvider } from '@/deals/context/DealContext';
@@ -43,7 +39,7 @@ export const SalesItemDetail = () => {
       <DealsProvider>
         <Sheet.View
           className={cn(
-            'p-0 md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl',
+            'p-0 md:max-w-screen-lg flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
           )}
           onEscapeKeyDown={(e) => {
             e.preventDefault();
@@ -58,17 +54,7 @@ export const SalesItemDetail = () => {
                   className="flex-auto min-h-full overflow-hidden"
                 >
                   <Resizable.Panel>
-                    <SalesDetailLeftSidebar>
-                      <SalesDetailTabContent value="overview">
-                        <Overview deal={deal || ({} as IDeal)} />
-                      </SalesDetailTabContent>
-                      <SalesDetailTabContent value="plugins">
-                        Custom Plugins
-                      </SalesDetailTabContent>
-                      <SalesDetailTabContent value="properties">
-                        Custom properties
-                      </SalesDetailTabContent>
-                    </SalesDetailLeftSidebar>
+                    <Overview deal={deal || ({} as IDeal)} />
                   </Resizable.Panel>
                   <SalesDetailActions />
                 </Resizable.PanelGroup>
