@@ -46,7 +46,13 @@ export const types = `
     webhookData: JSON
     channelId: String
 
+<<<<<<< Updated upstream
     channel: Channel
+=======
+    brand: Brand
+    facebookPage: JSON
+    channels: [Channel]
+>>>>>>> Stashed changes
 
 
     healthStatus: JSON
