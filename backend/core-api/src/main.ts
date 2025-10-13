@@ -21,7 +21,6 @@ import { generateModels } from './connectionResolvers';
 import meta from './meta';
 import './meta/automations';
 import './segments';
-import { json } from 'stream/consumers';
 
 const { DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_DOMAINS } = process.env;
 
@@ -59,8 +58,6 @@ const corsOptions = {
     }
   },
 };
-
-console.log('allowedOrigins', JSON.stringify(allowedOrigins, null, 2));
 
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));

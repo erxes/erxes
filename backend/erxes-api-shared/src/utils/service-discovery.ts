@@ -35,7 +35,7 @@ export const getPlugin = async (
   }
 
   const result: ServiceInfo = {
-    address: (await redis.get(`service-${name}`)) || '',
+    address: (await redis.get(`service-v3-${name}`)) || '',
     config: { meta: {} },
   };
 
@@ -70,7 +70,7 @@ export const joinErxesGateway = async ({
     LOAD_BALANCER_ADDRESS ||
     `http://${isDev ? 'localhost' : `plugin-${name}-api`}:${port}`;
 
-  await redis.set(`service-${name}`, address);
+  await redis.set(`service-v3-${name}`, address);
 
   console.log(`$service-${name} joined with ${address}`);
 };
@@ -91,7 +91,7 @@ const pluginAddressCache = {} as any;
 
 export const getPluginAddress = async (name: string) => {
   if (!pluginAddressCache[name]) {
-    pluginAddressCache[name] = await redis.get(`service-${name}`);
+    pluginAddressCache[name] = await redis.get(`service-v3-${name}`);
   }
   return pluginAddressCache[name];
 };
