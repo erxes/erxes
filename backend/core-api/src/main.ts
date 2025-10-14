@@ -7,6 +7,7 @@ import * as http from 'http';
 import { appRouter } from '~/init-trpc';
 import { initApolloServer } from './apollo/apolloServer';
 import { router } from './routes';
+import * as dotenv from 'dotenv';
 
 import {
   closeMongooose,
@@ -21,6 +22,8 @@ import { generateModels } from './connectionResolvers';
 import meta from './meta';
 import './meta/automations';
 import './segments';
+
+dotenv.config();
 
 const { DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_DOMAINS } = process.env;
 
@@ -39,27 +42,33 @@ app.use(
 
 app.use(cookieParser());
 
-const allowedOrigins = [
-  ...(DOMAIN ? [DOMAIN] : []),
-  ...(isDev ? ['http://localhost:3001', 'http://localhost:5173'] : []),
-  ...(ALLOWED_DOMAINS || '').split(','),
-  ...(CLIENT_PORTAL_DOMAINS || '').split(','),
-  ...(process.env.ALLOWED_ORIGINS || '').split(',').map((c) => c && RegExp(c)),
-];
+// const corsOptions = {
+//   credentials: true,
+//   origin: (origin, callback) => {
+//     if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ''))) {
+//       callback(null, true);
+//     } else {
+//       console.error('Origin not allowed:', origin, allowedOrigins);
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+// };
 
 const corsOptions = {
   credentials: true,
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ''))) {
-      callback(null, true);
-    } else {
-      console.error('Origin not allowed:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: [
+    DOMAIN || 'http://localhost:3001',
+    ...(isDev ? ['http://localhost:3001'] : []),
+    ALLOWED_DOMAINS || 'http://localhost:3200',
+    ...(CLIENT_PORTAL_DOMAINS || '').split(','),
+    ...(process.env.ALLOWED_ORIGINS || '')
+      .split(',')
+      .map((c) => c && RegExp(c)),
+  ],
 };
 
 app.use(cors(corsOptions));
+
 app.options('*', cors(corsOptions));
 app.use(router);
 

@@ -4,8 +4,8 @@ import { IModels } from '~/connectionResolvers';
 import {
   IConversation,
   IConversationDocument,
-} from '~/modules/inbox/@types/conversations';
-import { conversationNotifReceivers } from '~/modules/inbox/graphql/resolvers/mutations/conversations';
+} from '@/inbox/@types/conversations';
+import { conversationNotifReceivers } from '@/inbox/graphql/resolvers/mutations/conversations';
 
 export const conversationAfterProcessWorkers = {
   rules: [

@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv';
+
 import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
 import retry from '../util/retry';
 import fetch from 'node-fetch';
@@ -7,6 +9,8 @@ export type ErxesProxyTarget = {
   address: string;
   config: any;
 };
+
+dotenv.config();
 
 const { MAX_PLUGIN_RETRY } = process.env;
 

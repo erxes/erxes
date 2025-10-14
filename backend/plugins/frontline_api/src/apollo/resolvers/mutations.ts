@@ -1,4 +1,4 @@
-import { channelMutations } from '@/inbox/graphql/resolvers/mutations/channels';
+import { channelMutations } from '@/channel/graphql/resolvers/mutations/channel';
 import { conversationMutations } from '@/inbox/graphql/resolvers/mutations/conversations';
 import { integrationMutations } from '@/inbox/graphql/resolvers/mutations/integrations';
 import { facebookMutations } from '@/integrations/facebook/graphql/resolvers/mutations';

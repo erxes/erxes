@@ -1,6 +1,6 @@
 import { Select, Spinner, cn } from 'erxes-ui';
 
-import { useDealsContext } from '@/deals/context/DealContext';
+import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 
 const PRIORITY_COLORS: Record<string, string> = {
   critical: 'bg-red-500',
@@ -16,7 +16,7 @@ const Priority = ({
   priority: string;
   dealId: string;
 }) => {
-  const { editDeals, loading } = useDealsContext();
+  const { editDeals, loading } = useDealsEdit();
 
   const onChangePriority = (value: string) => {
     editDeals({

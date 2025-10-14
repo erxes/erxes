@@ -8,7 +8,7 @@
 //   sendImapMessage,
 //   sendInboxMessage,
 // } from './messageBroker';
-// import { IIntegrationImapDocument } from '~/modules/integrations/imap/models';
+// import { IIntegrationImapDocument } from '@/integrations/imap/models';
 // import { throttle } from 'lodash';
 // import { redlock } from './redlock';
 // const { NODE_ENV } = process.env;

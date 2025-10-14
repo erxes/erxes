@@ -30,6 +30,7 @@ export const IntegrationsRecordTable = ({
   const { integrations, loading, handleFetchMore } = useIntegrations({
     variables: {
       kind: params?.integrationType,
+      channelId: params?.id,
     },
     skip: !params?.integrationType,
     errorPolicy: 'all',
@@ -120,19 +121,6 @@ export const integrationTypeColumns = ({
     header: () => <RecordTable.InlineHead label="Name" />,
     cell: ({ cell }) => <NameField cell={cell} />,
     size: 250,
-  },
-  {
-    id: 'brandId',
-    accessorKey: 'brandId',
-    header: () => <RecordTable.InlineHead label="Brand" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <BrandsInline brandIds={[cell.getValue() as string]} />
-        </RecordTableInlineCell>
-      );
-    },
-    size: 235,
   },
   {
     id: 'isActive',

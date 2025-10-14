@@ -6,7 +6,7 @@ import {
   ICallHistoryDocument,
   ICallHistoryFilterOptions,
   ICallHistoryUpdate,
-} from '~/modules/integrations/call/@types/histories';
+} from '@/integrations/call/@types/histories';
 import { IModels } from '~/connectionResolvers';
 
 /**

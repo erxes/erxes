@@ -15,22 +15,22 @@ import { integrationSchema } from '@/inbox/db/definitions/integrations';
 export interface IMessengerIntegration {
   kind: string;
   name: string;
-  brandId: string;
+  // brandId: string;
   languageCode: string;
-  channelIds?: string[];
+  channelId: string;
 }
 
 export interface IExternalIntegrationParams {
   kind: string;
   name: string;
-  brandId: string;
+  // brandId: string;
   accountId: string;
-  channelIds?: string[];
+  channelId: string;
 }
 
 interface IIntegrationBasicInfo {
   name: string;
-  brandId: string;
+  // brandId: string;
 }
 
 /**
@@ -198,7 +198,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
           $project: {
             isActive: 1,
             name: 1,
-            brandId: 1,
+            // brandId: 1,
             tagIds: 1,
             formId: 1,
             kind: 1,
@@ -255,7 +255,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
     ) {
       const integration = await models.Integrations.findOne({
         kind: 'messenger',
-        brandId: doc.brandId,
+        // brandId: doc.brandId,
       });
 
       if (integration) {
@@ -275,7 +275,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       const integration = await models.Integrations.findOne({
         _id: { $ne: _id },
         kind: 'messenger',
-        brandId: doc.brandId,
+        // brandId: doc.brandId,
       });
 
       if (integration) {
@@ -464,15 +464,10 @@ export const loadClass = (models: IModels, subdomain: string) => {
         userId,
       );
 
-      const channelIds = await models.Channels.find(
-        { integrationIds: { $in: [id] } },
-        { _id: 1 },
-      ).lean();
-
-      if (channelIds.length > 0) {
-        await models.Channels.updateMany(
-          { _id: { $in: channelIds } },
-          { $push: { integrationIds: newIntegration._id } },
+      if (sourceIntegration.channelId) {
+        await models.Integrations.updateOne(
+          { _id: newIntegration._id },
+          { $set: { channelId: sourceIntegration.channelId } },
         );
       }
 

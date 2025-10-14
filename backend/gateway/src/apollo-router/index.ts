@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv';
+
 import { spawn, ChildProcess, execSync } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -10,6 +12,8 @@ import {
 } from '~/apollo-router/paths';
 import supergraphCompose from '~/apollo-router/supergraph-compose';
 import { isDev } from 'erxes-api-shared/utils';
+
+dotenv.config();
 
 const {
   DOMAIN,
@@ -115,7 +119,9 @@ const createRouterConfig = async () => {
     },
     supergraph: {
       listen: `127.0.0.1:${apolloRouterPort}`,
-      introspection: (INTROSPECTION || '').trim().toLowerCase() === 'true',
+      introspection:
+        NODE_ENV === 'development' ||
+        (INTROSPECTION || '').trim().toLowerCase() === 'true',
     },
   };
 

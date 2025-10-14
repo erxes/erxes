@@ -1,9 +1,6 @@
 import { Model } from 'mongoose';
 import { CDRSchema } from '../definitions/cdrs';
-import {
-  ICallCdr,
-  ICallCdrDocument,
-} from '~/modules/integrations/call/@types/cdrs';
+import { ICallCdr, ICallCdrDocument } from '@/integrations/call/@types/cdrs';
 import { IModels } from '~/connectionResolvers';
 
 export interface ICallCdrModel extends Model<ICallCdrDocument> {

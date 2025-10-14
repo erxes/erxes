@@ -1,9 +1,15 @@
 import {
   IconBriefcase,
-  IconSandbox,
   IconCashRegister,
+  IconSandbox,
 } from '@tabler/icons-react';
-import { lazy, Suspense } from 'react';
+import { Suspense, lazy } from 'react';
+
+const MainNavigation = lazy(() =>
+  import('./modules/MainNavigation').then((module) => ({
+    default: module.MainNavigation,
+  })),
+);
 
 const SalesNavigation = lazy(() =>
   import('./modules/SalesNavigation').then((module) => ({
@@ -20,6 +26,11 @@ export const CONFIG = {
     name: 'sales',
     icon: IconBriefcase,
     content: () => (
+      <Suspense fallback={<div />}>
+        <MainNavigation />
+      </Suspense>
+    ),
+    subGroups: () => (
       <Suspense fallback={<div />}>
         <SalesNavigation />
       </Suspense>

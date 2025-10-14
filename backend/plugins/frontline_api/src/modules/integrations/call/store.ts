@@ -6,9 +6,9 @@ import {
   sendToGrandStream,
   toCamelCase,
 } from './utils';
-import { IOrignalCallCdr } from '~/modules/integrations/call/@types/cdrs';
-import { ICallCustomer } from '~/modules/integrations/call/@types/customers';
-import { receiveInboxMessage } from '~/modules/inbox/receiveMessage';
+import { IOrignalCallCdr } from '@/integrations/call/@types/cdrs';
+import { ICallCustomer } from '@/integrations/call/@types/customers';
+import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 
 export const getOrCreateCustomer = async (

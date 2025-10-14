@@ -69,9 +69,9 @@ httpServer.listen(port, async () => {
     LOAD_BALANCER_ADDRESS ||
     `http://${isDev ? 'localhost' : serviceName}:${port}`;
 
-  await redis.set(`service-logs`, address);
+  await redis.set(`service-v3-logs`, address);
 
-  console.log(`service-logs joined with ${address}`);
+  console.log(`service-v3-logs joined with ${address}`);
   await initMQWorkers(redis);
 });
 
@@ -80,7 +80,7 @@ process.stdin.resume(); // so the program will not close instantly
 
 async function leaveServiceDiscovery() {
   try {
-    console.log(`$service-logs left ${port}`);
+    console.log(`service-v3logs left ${port}`);
     console.log('Left from service discovery');
   } catch (e) {
     console.error(e);

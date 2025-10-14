@@ -72,7 +72,10 @@ export const FacebookIntegrationEditForm = ({
 
   useEffect(() => {
     if (integrationDetail) {
-      form.reset(integrationDetail);
+      form.reset({
+        ...integrationDetail,
+        channelIds: integrationDetail.channels?.map((c) => c._id) || [],
+      });
     }
   }, [integrationDetail, form]);
 
@@ -110,6 +113,27 @@ export const FacebookIntegrationEditForm = ({
         >
           <div className="p-6 pb-8 space-y-6">
             <Form.Field
+              name="facebookPage"
+              render={({ field }) => {
+                const page = Array.isArray(field.value)
+                  ? field.value[0]
+                  : field.value;
+                return (
+                  <Form.Item>
+                    <Form.Label>Page Name</Form.Label>
+                    <Form.Control>
+                      <Input
+                        name={field.name}
+                        value={page?.name ?? ''}
+                        disabled
+                        readOnly
+                      />
+                    </Form.Control>
+                  </Form.Item>
+                );
+              }}
+            />
+            <Form.Field
               name="name"
               render={({ field }) => (
                 <Form.Item>
@@ -134,14 +158,13 @@ export const FacebookIntegrationEditForm = ({
               )}
             />
             <Form.Field
-              name="channelIds"
+              name="channelId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Channels</Form.Label>
+                  <Form.Label>Channel</Form.Label>
                   <SelectChannel.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
-                    mode="multiple"
                   />
                   <Form.Message />
                 </Form.Item>

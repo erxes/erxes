@@ -1,7 +1,7 @@
 import { generateFieldsFromSchema } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { generateFieldBotOptions } from '~/modules/integrations/facebook/utils';
+import { generateFieldBotOptions } from '@/integrations/facebook/utils';
 
 export const generateFacebookFields = async (models: IModels, data) => {
   const { collectionType } = data;

@@ -20,6 +20,7 @@ import { characterLimitPlugin } from '@escape.tech/graphql-armor-character-limit
 import { maxDepthPlugin } from '@escape.tech/graphql-armor-max-depth';
 
 dotenv.config();
+
 const { GRAPHQL_LIMITER } = process.env;
 
 export async function applyGraphqlLimiters(app: Express) {

@@ -100,24 +100,6 @@ export const GET_STAGES = gql`
   }
 `;
 
-export const GET_STAGE_DETAIL = gql`
-  query SalesStageDetail(
-    $_id: String!,
-    ${commonParams}
-  ) {
-    salesStageDetail(
-      _id: $_id,
-      ${commonParamDefs}
-    ) {
-      _id
-      name
-      pipelineId
-      amount
-      itemsTotalCount
-    }
-  }
-`;
-
 export const GET_CONVERSION_STAGES = gql`
   query SalesStages(
     ${stageParams}
