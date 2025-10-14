@@ -1,3 +1,10 @@
+import styles from './index.css';
+
+// Inject styles into the page
+const styleElement = document.createElement('style');
+styleElement.textContent = styles;
+document.head.appendChild(styleElement);
+
 const isMobile =
   navigator.userAgent.match(/iPhone/i) ||
   navigator.userAgent.match(/iPad/i) ||

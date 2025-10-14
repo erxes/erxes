@@ -64,7 +64,7 @@
     "compile:index": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc apps/frontline-widgets/src/index.ts --outDir dist/apps/frontline-widgets --module es2015 --target es2015 --lib es2015,dom --skipLibCheck --declaration false"
+        "command": "esbuild apps/frontline-widgets/src/index.ts --bundle --outfile=dist/apps/frontline-widgets/index.js --format=iife --target=es2015 --minify --loader:.css=text"
       }
     }
   }
