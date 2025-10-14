@@ -1,8 +1,9 @@
-import { IconCaretRightFilled } from '@tabler/icons-react';
 import { Collapsible, Sidebar } from 'erxes-ui/components';
+import { Link, useLocation } from 'react-router-dom';
+
+import { IconCaretRightFilled } from '@tabler/icons-react';
 import { cn } from 'erxes-ui/lib';
 import { forwardRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
 
 export const NavigationMenuLinkItem = forwardRef<
   React.ElementRef<typeof Sidebar.MenuButton>,
@@ -11,6 +12,7 @@ export const NavigationMenuLinkItem = forwardRef<
     icon?: React.ElementType;
     path: string;
     pathPrefix?: string;
+    isActive?: boolean;
   }
 >(
   (
@@ -21,6 +23,7 @@ export const NavigationMenuLinkItem = forwardRef<
       pathPrefix,
       children,
       className,
+      isActive: isActiveProp,
       ...props
     },
     ref,
@@ -28,11 +31,12 @@ export const NavigationMenuLinkItem = forwardRef<
     const { pathname } = useLocation();
     const fullPath = pathPrefix ? `${pathPrefix}/${path}` : path;
     const isActive = pathname.startsWith(`/${fullPath}`);
+
     return (
       <Sidebar.MenuItem>
         <Sidebar.MenuButton
           asChild
-          isActive={isActive}
+          isActive={isActiveProp ? isActiveProp : isActive}
           ref={ref}
           className={className}
           {...props}

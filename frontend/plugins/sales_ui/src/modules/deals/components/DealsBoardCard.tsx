@@ -1,4 +1,4 @@
-import { BoardCardProps, Separator } from 'erxes-ui';
+import { BoardCardProps, Separator, useQueryState } from 'erxes-ui';
 import { atom, useAtomValue } from 'jotai';
 
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
@@ -8,7 +8,8 @@ import Labels from '@/deals/cards/components/detail/overview/label/Labels';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { allDealsMapState } from '@/deals/components/DealsBoard';
-import { useDealDetailSheetQueryParam } from '@/deals/states/dealDetailSheetState';
+import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
+import { useSetAtom } from 'jotai';
 
 export const dealBoardItemAtom = atom(
   (get) => (id: string) => get(allDealsMapState)[id],
@@ -25,10 +26,16 @@ export const DealsBoardCard = ({ id }: BoardCardProps) => {
     closeDate,
     labels,
   } = useAtomValue(dealBoardItemAtom)(id);
-  const [, setActiveDeal] = useDealDetailSheetQueryParam();
+  const [, setSalesItemId] = useQueryState<string>('salesItemId');
+  const setActiveDealAtom = useSetAtom(dealDetailSheetState);
+
+  const onCardClick = () => {
+    setSalesItemId(_id);
+    setActiveDealAtom(_id);
+  };
 
   return (
-    <div onClick={() => setActiveDeal(_id)}>
+    <div onClick={() => onCardClick()}>
       <div className="flex items-center justify-between h-9 px-1.5">
         <DateSelectDeal
           value={startDate}

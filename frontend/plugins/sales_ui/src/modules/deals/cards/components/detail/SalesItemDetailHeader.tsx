@@ -17,7 +17,9 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
   const [name, setName] = useState(deal?.name || 'Untitled deal');
 
   const handleName = () => {
-    if (!name) return;
+    if (!deal || !name.trim()) return;
+
+    if (name === deal.name) return;
 
     editDeals({
       variables: {
