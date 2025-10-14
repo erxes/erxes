@@ -73,6 +73,8 @@ const productSimilarities = gql`
         description
         unitPrice
         name
+        remainder
+        remainders
         attachment {
           url
         }

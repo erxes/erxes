@@ -11,7 +11,7 @@ import {
   LoadingContent,
   StageFooter,
   StageRoot,
-  StageTitle
+  StageTitle,
 } from "../../styles/stage";
 import { IItem, IOptions, IStage } from "../../types";
 import { __, isEnabled } from "@erxes/ui/src/utils/core";
@@ -40,6 +40,7 @@ type Props = {
   archiveItems: () => void;
   archiveList: () => void;
   sortItems: (type: string, description: string) => void;
+  isHideName?: boolean;
 };
 
 type State = {
@@ -59,7 +60,7 @@ export default class Stage extends React.Component<Props, State> {
     this.state = {
       showSortOptions: false,
       renderModal: false,
-      items: []
+      items: [],
     };
   }
 
@@ -131,8 +132,8 @@ export default class Stage extends React.Component<Props, State> {
   };
 
   toggleModal = () => {
-    this.setState(prevState => ({
-      renderModal: !prevState.renderModal
+    this.setState((prevState) => ({
+      renderModal: !prevState.renderModal,
     }));
     this.onClosePopover();
   };
@@ -290,9 +291,8 @@ export default class Stage extends React.Component<Props, State> {
   };
 
   renderAddItemTrigger() {
-    const { options, stage, onAddItem } = this.props;
+    const { options, stage, onAddItem, isHideName } = this.props;
     const addText = options.texts.addText;
-
     const trigger = (
       <StageFooter>
         <AddNew>
@@ -308,10 +308,11 @@ export default class Stage extends React.Component<Props, State> {
       callback: (item: IItem) => onAddItem(stage._id, item),
       stageId: stage._id,
       pipelineId: stage.pipelineId,
-      aboveItemId: ""
+      aboveItemId: "",
+      isHideName: isHideName,
     };
 
-    const content = props => <AddForm {...props} {...formProps} />;
+    const content = (props) => <AddForm {...props} {...formProps} />;
 
     return <ModalTrigger title={addText} trigger={trigger} content={content} />;
   }

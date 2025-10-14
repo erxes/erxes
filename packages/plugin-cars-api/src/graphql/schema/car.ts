@@ -143,5 +143,5 @@ export const mutations = `
   carCategoriesRemove(_id: String!): JSON
   cpCarsAdd(${commonFields}, customerId: String, companyId: String): Car
   cpCarsEdit(_id: String!, ${commonFields}, customerId: String, companyId: String): Car
-  cpCarsRemove(carIds: [String]): [String]
+  cpCarsRemove(carIds: [String], customerId: String, customerId: String): [String]
 `;

@@ -86,6 +86,8 @@ export interface IPipeline {
   itemsTotalCount?: number;
   isCheckDate?: boolean;
   isCheckUser?: boolean;
+  isCheckBranch?: boolean;
+  isHideName?: boolean;
   isCheckDepartment?: boolean;
   excludeCheckUserIds?: string[];
   numberConfig?: string;
@@ -122,6 +124,7 @@ export interface IItemParams {
   branchIds?: string[];
   departmentIds?: string[];
   isCheckUserTicket?: boolean;
+  isHideName?: boolean;
 }
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
@@ -234,6 +237,7 @@ export interface IItem {
   departmentIds: string[];
   branchIds: string[];
   isCheckUserTicket?: boolean;
+  isHideName?: boolean;
 }
 
 export interface IDraggableLocation {
@@ -445,6 +449,8 @@ export type ConvertToMutationVariables = {
   _id: string;
   itemId?: string;
   itemName?: string;
+  isCheckUser?: boolean;
+  isHideName?: boolean;
   branchIds?: string[];
   tagIds?: string[];
   stageId?: string;

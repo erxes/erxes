@@ -12,7 +12,7 @@ import { Model } from 'mongoose';
 import { validSearchText } from '@erxes/api-utils/src';
 
 export interface ICarModel extends Model<ICarDocument> {
-  createCar(doc: ICar, user: any): Promise<ICarDocument>;
+  createCar(doc: ICar, user?: any): Promise<ICarDocument>;
   getCar(_id: string): Promise<ICarDocument>;
   updateCar(_id: string, doc: ICar): Promise<ICarDocument>;
   removeCars(carIds: string[]): Promise<ICarDocument>;
@@ -45,7 +45,7 @@ export const loadCarClass = models => {
       },
       idsToExclude?: string[] | string
     ) {
-      const query: { status: {}; [key: string]: any } = {
+      const query: { status: {};[key: string]: any } = {
         status: { $ne: 'Deleted' }
       };
       let previousEntry;
@@ -109,7 +109,7 @@ export const loadCarClass = models => {
     /**
      * Create a car
      */
-    public static async createCar(doc, user) {
+    public static async createCar(doc, user?) {
       // Checking duplicated fields of car
       await models.Cars.checkDuplication(doc);
 
@@ -142,7 +142,7 @@ export const loadCarClass = models => {
         { $set: { ...doc, searchText, modifiedAt: new Date() } }
       );
 
-      return models.Cars.findOne({ _id });
+      return models.Cars.findOne({ _id }).lean();
     }
 
     /**

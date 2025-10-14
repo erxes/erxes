@@ -14,16 +14,16 @@ const BarcodeListener = ({ children }: { children: React.ReactNode }) => {
     ({ key }: { key: string }) => {
       const date = new Date()
       const diff =
-        differenceInMilliseconds(date, new Date(changeDate || 0)) < 30
+        differenceInMilliseconds(date, new Date(changeDate || 0)) < 50;
 
       if ((key || "").length === 1) {
-        setValue((prev) => (diff ? prev + key : key.toString()))
-        return setChangeDate(date)
+        setValue((prev) => (diff ? prev + key : key.toString()));
+        return setChangeDate(date);
       }
 
       if (key === "Enter" && value.length > 4 && diff) {
-        setBarcode(value)
-        setValue("")
+        setBarcode(value);
+        setValue("");
       }
     },
     [changeDate, setBarcode, value]

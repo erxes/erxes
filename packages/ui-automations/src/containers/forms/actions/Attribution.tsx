@@ -66,6 +66,7 @@ export default withProps<Props>(
           variables: {
             contentType: triggerType,
             config: attrConfig ? attrConfig : undefined,
+            usageType: "automations",
           },
         }),
       }

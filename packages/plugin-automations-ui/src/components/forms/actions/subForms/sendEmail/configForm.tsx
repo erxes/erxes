@@ -78,6 +78,17 @@ export const ConfigForm = ({
                 }}
                 multi={false}
               />
+              <PlaceHolderInput
+                inputName='fromEmailPlaceHolder'
+                label='Dynamic From Email'
+                config={doc}
+                onChange={() => null}
+                onKeyPress={(e: any) => {
+                  const { name, value } = e.currentTarget as HTMLInputElement;
+                  onChange({ [name]: value });
+                }}
+                triggerType={triggerType}
+              />
             </FormGroup>
           )}
           onSave={({ fromUserId }) => onSelect(fromUserId, "fromUserId")}

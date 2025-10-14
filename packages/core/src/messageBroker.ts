@@ -183,6 +183,18 @@ export const setupMessageConsumers = async (): Promise<void> => {
     }
   );
 
+  consumeQueue(
+    'core:conformities.deleteConformities',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Conformities.deleteConformities(data),
+      };
+    }
+  );
+
   consumeRPCQueue(
     'core:conformities.getConformities',
     async ({ subdomain, data }) => {
