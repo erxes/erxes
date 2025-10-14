@@ -1,4 +1,4 @@
-import { cn, IAttachment } from 'erxes-ui';
+import { cn, IAttachment, readImage } from 'erxes-ui';
 import { useFbMessengerMessageContext } from '../contexts/FbMessengerMessageContext';
 import { useAtomValue } from 'jotai';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
@@ -110,7 +110,7 @@ const Attachments = ({ attachments }: { attachments?: IAttachment[] }) => {
 const Attachment = ({ attachment }: { attachment: IAttachment }) => {
   return (
     <img
-      src={attachment.url}
+      src={readImage(attachment.url)}
       alt={attachment.name}
       className="w-full aspect-square object-cover rounded bg-accent"
     />
