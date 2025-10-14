@@ -67,6 +67,7 @@ const queries = {
     const translation = await models.Translations.findOne({
       postId: menu._id,
       language,
+      type: 'menu',
     });
 
     return {

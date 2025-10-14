@@ -1,4 +1,5 @@
 import { IModels } from '~/connectionResolvers';
+import { escapeRegExp } from 'erxes-api-shared/src/utils';
 
 export interface QueryBuilderArgs {
   searchValue?: string;
@@ -31,8 +32,9 @@ export class BaseQueryBuilder {
   protected addSearchQuery(query: any, searchValue: string, searchFields: string[]): void {
     if (!searchValue?.trim()) return;
 
-    const searchRegex = { $regex: `.*${searchValue.trim()}.*`, $options: 'i' };
-    query.$or = searchFields.map(field => ({ [field]: searchRegex }));
+    const pattern = escapeRegExp(searchValue.trim());
+    const regex = new RegExp(pattern, 'i');
+    query.$or = searchFields.map(field => ({ [field]: regex }));
   }
 
   /**
@@ -88,6 +90,8 @@ export class PostQueryBuilder extends BaseQueryBuilder {
 
       if (customType) {
         query.type = customType._id;
+      } else {
+        query.type = 'post';
       }
     }
 

@@ -91,6 +91,7 @@ const queries = {
     const translation = await models.Translations.findOne({
       postId: tag._id,
       language,
+      type: 'tag',
     });
 
     return {

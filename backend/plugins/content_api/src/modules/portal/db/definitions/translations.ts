@@ -28,4 +28,4 @@ export const translationSchema = new Schema<ITranslationDocument>({
   },
 });
 
-translationSchema.index({ postId: 1, language: 1 }, { unique: true });
+translationSchema.index({ postId: 1, language: 1, type: 1 }, { unique: true });
