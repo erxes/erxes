@@ -8,11 +8,21 @@ import {
 import { STATUS_TYPES } from '~/modules/status/constants/types';
 
 export const milestoneQueries = {
+  getMilestone: async (
+    _root: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) => {
+    return models.Milestone.getMilestone(_id);
+  },
   milestones: async (
     _root: undefined,
     params: IMilestoneParams,
     { models }: IContext,
   ) => {
+
+    const {projectId, searchValue} = params; 
+
     const { list, totalCount, pageInfo } =
       await cursorPaginate<IMilestoneDocument>({
         model: models.Milestone,
@@ -20,7 +30,7 @@ export const milestoneQueries = {
           ...params,
           orderBy: { isActive: -1, isCompleted: 1, startDate: 1 },
         },
-        query: { projectId: params.projectId },
+        query: { projectId: projectId, name: new RegExp(`.*${searchValue}.*`, 'i') },
       });
 
     return { list, totalCount, pageInfo };
@@ -91,8 +101,7 @@ export const milestoneQueries = {
       },
       {
         $project: {
-          _id: 0,
-          milestoneId: '$_id',
+          _id: 1,
           name: 1,
           targetDate: 1,
           totalScope: 1,

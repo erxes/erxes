@@ -16,7 +16,7 @@ export const types = `
   }
 
   type MilestoneProgress {
-    milestoneId: String
+    _id: String
     name: String
     targetDate: Date
     totalScope: Int
@@ -27,10 +27,12 @@ export const types = `
 
 const queryParams = `
     projectId: String!
+    searchValue: String
     ${GQL_CURSOR_PARAM_DEFS}
 `;
 
 export const queries = `
+    getMilestone(_id: String!): Milestone
     milestones(${queryParams}): MilestoneListResponse
     milestoneProgress(projectId: String!): [MilestoneProgress]
 `;

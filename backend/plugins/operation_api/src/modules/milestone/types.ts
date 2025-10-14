@@ -1,4 +1,4 @@
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
+import { ICursorPaginateParams, IListParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
 export interface IMilestone {
@@ -16,6 +16,6 @@ export interface IMilestoneDocument extends IMilestone, Document {
   updatedAt?: Date;
 }
 
-export interface IMilestoneParams extends ICursorPaginateParams {
+export interface IMilestoneParams extends IListParams,ICursorPaginateParams {
   projectId: string;
 }
