@@ -50,6 +50,22 @@
         "buildTarget": "frontline-widgets:build",
         "spa": true
       }
+    },
+
+    "build:widgets": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/frontline-widgets",
+        "command": "pnpm build"
+      },
+      "dependsOn": ["build"]
+    },
+
+    "compile:index": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc apps/frontline-widgets/src/index.ts --outDir dist/apps/frontline-widgets --module es2015 --target es2015 --lib es2015,dom --skipLibCheck --declaration false"
+      }
     }
   }
 }

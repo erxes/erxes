@@ -1,5 +1,3 @@
-import './index.css';
-
 const isMobile =
   navigator.userAgent.match(/iPhone/i) ||
   navigator.userAgent.match(/iPad/i) ||
