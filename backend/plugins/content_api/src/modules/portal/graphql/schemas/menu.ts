@@ -39,8 +39,8 @@ export const inputs = `
 `;
 
 export const queries = `
-    cmsMenuList(clientPortalId: String, kind: String, ${GQL_CURSOR_PARAM_DEFS}): MenuItemResponse
-    cmsMenu(_id: String!): MenuItem
+    cmsMenuList(clientPortalId: String, kind: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): MenuItemResponse
+    cmsMenu(_id: String!, language: String): MenuItem
 `;
 
 export const mutations = `
