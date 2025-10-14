@@ -1,5 +1,6 @@
 import { ErxesLogoIcon } from '@/auth/components/Logo';
 import { Polygons } from '@/auth/components/Polygons';
+import { IconScubaDivingTankFilled } from '@tabler/icons-react';
 import { cn, Spinner, TextEffect } from 'erxes-ui';
 import { AnimatePresence, motion, Variants } from 'motion/react';
 import { useEffect, useState } from 'react';
@@ -12,7 +13,7 @@ export const LoadingScreen = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="absolute inset-0 w-full h-full overflow-hidden bg-[radial-gradient(50%_100%_at_50%_0%,#F0F1FE_0%,#F7F8FA_100%)]"
+          className="absolute inset-0 w-full h-full overflow-hidden bg-[radial-gradient(50%_100%_at_50%_0%,#F0F1FE_0%,#F7F8FA_100%)] dark:bg-[radial-gradient(50%_100%_at_50%_0%,#0D0D0D_0%,#161616_100%)]"
         >
           <Polygons
             variant="welcome"
@@ -57,7 +58,9 @@ export const TextAnimation = () => {
 
   return (
     <div className="relative inline-block whitespace-nowrap text-center">
-      <p className="opacity-0 h-0">Welcome</p>
+      <IconScubaDivingTankFilled className="opacity-0 h-0">
+        Welcome
+      </IconScubaDivingTankFilled>
 
       <AnimatePresence mode="popLayout">
         <motion.div
@@ -74,7 +77,7 @@ export const TextAnimation = () => {
 
           {currentIndex === 1 && (
             <div className="relative w-0 mx-auto">
-              <p
+              <div
                 className={cn(
                   'text-sm text-muted-foreground inline-flex gap-1 items-center text-nowrap transition-transform duration-1000 left-0 -translate-x-12',
                   showMoreText && '-translate-x-1/2',
@@ -86,7 +89,7 @@ export const TextAnimation = () => {
                     good things come to those who wait!
                   </TextEffect>
                 )}
-              </p>
+              </div>
             </div>
           )}
         </motion.div>
