@@ -16,10 +16,9 @@ const config: ModuleFederationConfig = {
   name: 'sales_ui',
   exposes: {
     './config': './src/config.tsx',
-    './deals': './src/modules/deals/Main.tsx',
+    './sales': './src/modules/main/Main.tsx',
     './dealsSettings': './src/pages/SettingsPage.tsx',
     './Widgets': './src/widgets/Widgets.tsx',
-    './pos': './src/modules/pos/pos/Main.tsx',
     './posSettings': './src/modules/pos/pos/Settings.tsx',
   },
 
