@@ -149,6 +149,7 @@ export const authMutations = {
   ) {
     assertSaasEnvironment();
     const WORKOS_API_KEY = getEnv({ name: 'WORKOS_API_KEY', subdomain });
+    const CORE_DOMAIN = getEnv({ name: 'CORE_DOMAIN', subdomain });
 
     const workosClient = new WorkOS(WORKOS_API_KEY);
 
@@ -163,7 +164,7 @@ export const authMutations = {
 
     const authorizationURL = workosClient.sso.getAuthorizationUrl({
       provider: 'GoogleOAuth',
-      redirectUri: getCallbackRedirectUrl(subdomain, 'sso-callback'),
+      redirectUri: `${CORE_DOMAIN}/saas-sso-callback`,
 
       clientId: getEnv({ name: 'WORKOS_PROJECT_ID', subdomain }),
       state,
@@ -184,6 +185,7 @@ export const authMutations = {
     assertSaasEnvironment();
 
     const WORKOS_API_KEY = getEnv({ name: 'WORKOS_API_KEY', subdomain });
+    const CORE_DOMAIN = getEnv({ name: 'CORE_DOMAIN', subdomain });
     const workosClient = new WorkOS(WORKOS_API_KEY);
 
     if (!isValidEmail(email)) {
@@ -223,7 +225,7 @@ export const authMutations = {
       email,
       type: 'MagicLink',
       state: token,
-      redirectURI: getCallbackRedirectUrl(subdomain, 'ml-callback'),
+      redirectURI: `${CORE_DOMAIN}/saas-ml-callback`,
     });
 
     await sendSaasMagicLinkEmail({

@@ -3,7 +3,7 @@ import {
   IconCalendarEventFilled,
 } from '@tabler/icons-react';
 import { format } from 'date-fns';
-import { Badge, Button, CalendarNew, Popover, Separator } from 'erxes-ui';
+import { Badge, Button, Calendar, Popover, Separator } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { currentUserState, MembersInline } from 'ui-modules';
 
@@ -72,7 +72,7 @@ export const KanbanDatePicker = ({
         </Button>
       </Popover.Trigger>
       <Popover.Content className="p-0 max-w-none w-auto overflow-hidden">
-        <CalendarNew
+        <Calendar
           mode="single"
           selected={date}
           onSelect={(date) => onChange(date as Date)}
