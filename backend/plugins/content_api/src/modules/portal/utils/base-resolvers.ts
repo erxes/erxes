@@ -1,12 +1,17 @@
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext, IModels } from '~/connectionResolvers';
+import { SortOrder } from 'mongoose';
 
-export interface BaseQueryArgs {
+export interface BaseQueryArgs  {
   searchValue?: string;
   language?: string;
   clientPortalId?: string;
   status?: string;
+  limit?: number;
+  cursor?: string;
+  direction?: 'forward' | 'backward';
+  orderBy?: Record<string, SortOrder>;
   [key: string]: any;
 }
 
@@ -59,11 +64,11 @@ export class BaseQueryResolver {
       if (!translation) return item;
 
       const translatedItem = { ...item };
-      Object.entries(fieldMappings).forEach(([originalField, translationField]) => {
-        if (translation[translationField]) {
-          (translatedItem as any)[originalField] = translation[translationField];
-        }
-      });
+     Object.entries(fieldMappings).forEach(([originalField, translationField]) => {
+      if (Object.prototype.hasOwnProperty.call(translation, translationField) && translation[translationField] !== undefined) {
+        (translatedItem as any)[originalField] = translation[translationField];
+      }
+    });
 
       return translatedItem;
     });
@@ -80,8 +85,8 @@ export class BaseQueryResolver {
     if (!translation) return item;
 
     const translatedItem = { ...item };
-    Object.entries(fieldMappings).forEach(([originalField, translationField]) => {
-      if (translation[translationField]) {
+ Object.entries(fieldMappings).forEach(([originalField, translationField]) => {
+      if (Object.prototype.hasOwnProperty.call(translation, translationField) && translation[translationField] !== undefined) {
         (translatedItem as any)[originalField] = translation[translationField];
       }
     });
@@ -131,13 +136,13 @@ export class BaseQueryResolver {
   /**
    * Generic list query with translation support
    */
-  protected async getListWithTranslations<T>(
+  protected async getListWithTranslations<T extends { _id: string }>(
     model: any,
     query: any,
     args: BaseQueryArgs,
     fieldMappings: Record<string, string>
   ): Promise<{ list: T[]; totalCount: number; pageInfo: any }> {
-    const { list, totalCount, pageInfo } = await cursorPaginate<T>({
+    const { list, totalCount, pageInfo } = await cursorPaginate<any>({
       model,
       params: args,
       query,
@@ -147,9 +152,13 @@ export class BaseQueryResolver {
       return { list, totalCount, pageInfo };
     }
 
+    if (!args.clientPortalId && !this.context.clientPortalId) {
+      throw new Error('Client portal ID is required');
+    }
+
     const shouldSkip = await this.shouldSkipTranslation(
-      args.clientPortalId || this.context.clientPortalId,
-      args.language
+      args.clientPortalId || this.context.clientPortalId || '',
+      args.language || ''
     );
 
     if (shouldSkip) {
@@ -178,7 +187,7 @@ export class BaseQueryResolver {
     if (!language) return item;
 
     const shouldSkip = await this.shouldSkipTranslation(
-      this.context.clientPortalId,
+      this.context.clientPortalId || '',
       language
     );
 

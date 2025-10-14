@@ -74,8 +74,8 @@ export class PostQueryBuilder extends BaseQueryBuilder {
     this.addFieldFilter(query, 'status', args.status);
     this.addFieldFilter(query, 'authorId', args.authorId);
     this.addFieldFilter(query, 'featured', args.featured);
-    this.addArrayFilter(query, 'categoryIds', args.categoryIds);
-    this.addArrayFilter(query, 'tagIds', args.tagIds);
+    this.addArrayFilter(query, 'categoryIds', args.categoryIds || []);
+    this.addArrayFilter(query, 'tagIds', args.tagIds || []);
 
     // Handle post type
     if (args.type === 'post') {
@@ -175,7 +175,7 @@ export class KnowledgeBaseQueryBuilder extends BaseQueryBuilder {
       }).distinct('_id');
 
       query.categoryId = { $in: categoryIds };
-      delete query.topicIds;
+      delete query.topicId;
     }
 
     return query;

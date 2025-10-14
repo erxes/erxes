@@ -111,8 +111,8 @@ export class TranslationService {
     if (!translation) return item;
 
     const translatedItem = { ...item };
-    Object.entries(fieldMappings).forEach(([originalField, translationField]) => {
-      if (translation[translationField]) {
+   Object.entries(fieldMappings).forEach(([originalField, translationField]) => {
+      if (Object.prototype.hasOwnProperty.call(translation, translationField) && translation[translationField] !== undefined) {
         (translatedItem as any)[originalField] = translation[translationField];
       }
     });
