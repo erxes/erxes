@@ -25,7 +25,6 @@
   width: 56px;
   opacity: 0;
   transition: box-shadow 0.3s ease-in-out, opacity 0.3s;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
   border-radius: 50%;
 }
 

@@ -3,11 +3,10 @@ import { postMessage } from '../lib/utils';
 
 export function App() {
   const [isMessengerVisible, setIsMessengerVisible] = useState(false);
-  const [isSmallContainer, setIsSmallContainer] = useState(false);
+  const [isSmallContainer] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
-      console.log('postMessage');
       window.parent.postMessage(
         {
           fromErxes: true,
@@ -25,9 +24,7 @@ export function App() {
     }, 1000);
 
     return () => {
-      window.removeEventListener('message', (event) => {
-        console.log('event', event.data);
-      });
+      window.removeEventListener('message', () => null);
     };
   }, []);
 
@@ -50,9 +47,7 @@ export function App() {
     });
 
     return () => {
-      window.removeEventListener('message', (event) => {
-        console.log('event', event.data);
-      });
+      window.removeEventListener('message', () => null);
     };
   }, [isMessengerVisible, isSmallContainer]);
 

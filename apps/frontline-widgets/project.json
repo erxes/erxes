@@ -17,7 +17,8 @@
         "rspackConfig": "apps/frontline-widgets/rspack.config.js",
         "assets": [
           "apps/frontline-widgets/src/favicon.ico",
-          "apps/frontline-widgets/src/assets"
+          "apps/frontline-widgets/src/assets",
+          "apps/frontline-widgets/src/demo.html"
         ]
       },
       "configurations": {
@@ -31,6 +32,7 @@
         }
       }
     },
+
     "serve": {
       "executor": "@nx/rspack:dev-server",
       "options": {
@@ -52,19 +54,28 @@
       }
     },
 
-    "build:widgets": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "apps/frontline-widgets",
-        "command": "pnpm build"
-      },
-      "dependsOn": ["build"]
-    },
-
     "compile:index": {
       "executor": "nx:run-commands",
       "options": {
         "command": "esbuild apps/frontline-widgets/src/index.ts --bundle --outfile=dist/apps/frontline-widgets/index.js --format=iife --target=es2015 --minify --loader:.css=text"
+      }
+    },
+
+    "compile:index:watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "esbuild apps/frontline-widgets/src/index.ts --bundle --outfile=dist/apps/frontline-widgets/index.js --format=iife --target=es2015 --sourcemap --loader:.css=text --watch"
+      }
+    },
+
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "nx serve frontline-widgets",
+          "nx compile:index:watch frontline-widgets"
+        ],
+        "parallel": true
       }
     }
   }

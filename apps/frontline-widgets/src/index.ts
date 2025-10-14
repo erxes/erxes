@@ -243,7 +243,6 @@ window.addEventListener('message', handleMessageEvent);
 
 window.addEventListener('message', async (event) => {
   const { data } = event;
-  console.log('data', data);
   const { isVisible, message, isSmallContainer } = data || {};
 
   //   listenForCommonRequests(event, messengerIframe);
