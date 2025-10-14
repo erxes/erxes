@@ -256,6 +256,7 @@ const SipProviderContainer = (props) => {
             {state?.callDirection === CALL_DIRECTION_INCOMING && (
               <IncomingCallContainer
                 {...props}
+                setHideIncomingCall={setHideIncomingCall}
                 callUserIntegrations={callUserIntegrations}
                 hideIncomingCall={hideIncomingCall}
                 currentCallConversationId={currentCallConversationId || ''}

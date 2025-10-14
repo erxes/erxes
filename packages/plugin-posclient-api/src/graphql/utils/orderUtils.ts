@@ -387,13 +387,14 @@ export const prepareEbarimtData = async (
         const tempAmount = (item.count ?? 0) * (item.unitPrice ?? 0);
         const minusAmount = (tempAmount / 100) * itemAmountPrePercent;
         const totalAmount = fixNum(tempAmount - minusAmount);
+        const totalDiscount = (item.discountAmount ?? 0) + minusAmount;
 
         return {
           recId: item._id,
           product,
           quantity: item.count,
-          unitPrice: item.unitPrice ?? 0,
-          totalDiscount: (item.discountAmount ?? 0) + minusAmount,
+          unitPrice: fixNum((totalAmount + totalDiscount) / item.count || 1),
+          totalDiscount,
           totalAmount,
         };
       }),
@@ -880,7 +881,7 @@ export const fakePutData = async (
             productById[item.productId].name,
           measureUnit: productById[item.productId].uom || 'ш',
           qty: item.count,
-          unitPrice: item.unitPrice,
+          unitPrice: fixNum((((item.unitPrice ?? 0) * item.count) + (item.discountAmount ?? 0)) / (item.count || 1)),
           totalAmount: (item.unitPrice ?? 0) * item.count,
           totalVAT: 0,
           totalCityTax: 0,

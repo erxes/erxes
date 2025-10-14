@@ -31,7 +31,7 @@ const commonTypes = `
 `;
 
 const updateVisibleFields = `
-  $_id: String!, 
+  $_id: String!,
   $isVisible: Boolean,
   $isVisibleInDetail: Boolean
 `;
@@ -176,6 +176,11 @@ const groupsUpdateOrder = `
   }
 `;
 
+const fieldsGroupFix = `
+  mutation fieldsGroupFix {
+    fieldsGroupFix
+  }
+`;
 export default {
   fieldsGroupsAdd,
   fieldsGroupsEdit,
@@ -187,5 +192,6 @@ export default {
   fieldsRemove,
   fieldsUpdateVisible,
   fieldsUpdateOrder,
-  groupsUpdateOrder
+  groupsUpdateOrder,
+  fieldsGroupFix,
 };

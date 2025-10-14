@@ -131,3 +131,7 @@ export type FieldsGroupsEditMutationResponse = {
     variables: FieldsGroupsMutationVariables;
   }) => Promise<any>;
 };
+
+export type fieldsGroupFixMutationResponse = {
+  fieldsGroupFix: () => Promise<any>;
+};

@@ -9,7 +9,7 @@ import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
 import {
   IField,
   IFieldDocument,
-  IFieldGroup
+  IFieldGroup,
 } from "../../../db/models/definitions/fields";
 
 interface IFieldsEdit extends IField {
@@ -35,7 +35,7 @@ interface IFieldsBulkAddAndEditParams {
 
 const fieldsGroupsHook = async (
   subdomain: string,
-  doc: IFieldGroup
+  doc: IFieldGroup,
 ): Promise<IFieldGroup> => {
   const services = await getServices();
 
@@ -54,7 +54,7 @@ const fieldsGroupsHook = async (
         action: "fieldsGroupsHook",
         isRPC: true,
         data: doc,
-        defaultValue: doc
+        defaultValue: doc,
       });
     }
   }
@@ -69,7 +69,7 @@ const fieldMutations = {
   async fieldsAdd(_root, args: IField, { user, models, subdomain }: IContext) {
     const field = await models.Fields.createField({
       ...args,
-      lastUpdatedUserId: user._id
+      lastUpdatedUserId: user._id,
     });
 
     await putCreateLog(
@@ -79,9 +79,9 @@ const fieldMutations = {
         type: "field",
         newData: args,
         object: field,
-        description: `Field "${args.text}" has been created`
+        description: `Field "${args.text}" has been created`,
       },
-      user
+      user,
     );
 
     return field;
@@ -90,7 +90,7 @@ const fieldMutations = {
   async fieldsBulkAction(
     _root,
     args: IFieldsBulkAddAndEditParams,
-    { user, models }: IContext
+    { user, models }: IContext,
   ) {
     const { contentType, contentTypeId, newFields, updatedFields } = args;
     const tempFieldIdsMap: { [key: string]: string } = {};
@@ -113,7 +113,7 @@ const fieldMutations = {
         ...f,
         contentType,
         contentTypeId,
-        lastUpdatedUserId: user._id
+        lastUpdatedUserId: user._id,
       });
 
       if (tempId) {
@@ -137,7 +137,7 @@ const fieldMutations = {
         ...f,
         contentType,
         contentTypeId,
-        lastUpdatedUserId: user._id
+        lastUpdatedUserId: user._id,
       });
 
       if (f.tempFieldId) {
@@ -159,13 +159,13 @@ const fieldMutations = {
 
       const field = await models.Fields.updateField(_id, {
         ...doc,
-        lastUpdatedUserId: user._id
+        lastUpdatedUserId: user._id,
       });
 
       response.push(field);
     }
 
-    const parentFields = response.filter(f => f.type === "parentField");
+    const parentFields = response.filter((f) => f.type === "parentField");
 
     for (const f of parentFields) {
       for (const subFieldId of f.subFieldIds || []) {
@@ -178,8 +178,8 @@ const fieldMutations = {
             await models.Fields.updateOne(
               { _id: f._id },
               {
-                $set: set
-              }
+                $set: set,
+              },
             );
           }
         }
@@ -195,11 +195,11 @@ const fieldMutations = {
   async fieldsEdit(
     _root,
     { _id, ...doc }: IFieldsEdit,
-    { user, models }: IContext
+    { user, models }: IContext,
   ) {
     return models.Fields.updateField(_id, {
       ...doc,
-      lastUpdatedUserId: user._id
+      lastUpdatedUserId: user._id,
     });
   },
 
@@ -216,7 +216,7 @@ const fieldMutations = {
   async fieldsUpdateOrder(
     _root,
     { orders }: { orders: IOrderInput[] },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Fields.updateOrder(orders);
   },
@@ -227,13 +227,13 @@ const fieldMutations = {
   async fieldsUpdateVisible(
     _root,
     { _id, isVisible, isVisibleInDetail }: IUpdateVisibleParams,
-    { user, models }: IContext
+    { user, models }: IContext,
   ) {
     return models.Fields.updateFieldsVisible(
       _id,
       user._id,
       isVisible,
-      isVisibleInDetail
+      isVisibleInDetail,
     );
   },
 
@@ -245,9 +245,9 @@ const fieldMutations = {
     {
       _id,
       isVisibleToCreate,
-      isRequired
+      isRequired,
     }: { _id: string; isVisibleToCreate?: boolean; isRequired?: boolean },
-    { user, models, docModifier }: IContext
+    { user, models, docModifier }: IContext,
   ) {
     const doc: any = { lastUpdatedUserId: user._id };
 
@@ -261,17 +261,17 @@ const fieldMutations = {
 
     await models.Fields.updateOne(
       {
-        _id
+        _id,
       },
       {
-        $set: docModifier(doc)
-      }
+        $set: docModifier(doc),
+      },
     );
 
     return models.Fields.findOne({
-      _id
+      _id,
     });
-  }
+  },
 };
 
 const fieldsGroupsMutations = {
@@ -281,12 +281,12 @@ const fieldsGroupsMutations = {
   async fieldsGroupsAdd(
     _root,
     doc: IFieldGroup,
-    { user, docModifier, models, subdomain }: IContext
+    { user, docModifier, models, subdomain }: IContext,
   ) {
     doc = await fieldsGroupsHook(subdomain, doc);
 
     const fieldGroup = await models.FieldsGroups.createGroup(
-      docModifier({ ...doc, lastUpdatedUserId: user._id })
+      docModifier({ ...doc, lastUpdatedUserId: user._id }),
     );
 
     await putCreateLog(
@@ -296,9 +296,9 @@ const fieldsGroupsMutations = {
         type: "field_group",
         newData: doc,
         object: fieldGroup,
-        description: `Field group "${doc.name}" has been created`
+        description: `Field group "${doc.name}" has been created`,
       },
-      user
+      user,
     );
 
     return fieldGroup;
@@ -310,13 +310,13 @@ const fieldsGroupsMutations = {
   async fieldsGroupsEdit(
     _root,
     { _id, ...doc }: IFieldsGroupsEdit,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     doc = await fieldsGroupsHook(subdomain, doc);
 
     return models.FieldsGroups.updateGroup(_id, {
       ...doc,
-      lastUpdatedUserId: user._id
+      lastUpdatedUserId: user._id,
     });
   },
 
@@ -326,7 +326,7 @@ const fieldsGroupsMutations = {
   async fieldsGroupsRemove(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.FieldsGroups.removeGroup(_id);
   },
@@ -337,13 +337,13 @@ const fieldsGroupsMutations = {
   async fieldsGroupsUpdateVisible(
     _root,
     { _id, isVisible, isVisibleInDetail }: IUpdateVisibleParams,
-    { user, models }: IContext
+    { user, models }: IContext,
   ) {
     return models.FieldsGroups.updateGroupVisible(
       _id,
       user._id,
       isVisible,
-      isVisibleInDetail
+      isVisibleInDetail,
     );
   },
 
@@ -353,10 +353,14 @@ const fieldsGroupsMutations = {
   async fieldsGroupsUpdateOrder(
     _root,
     { orders }: { orders: IOrderInput[] },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.FieldsGroups.updateOrder(orders);
-  }
+  },
+
+  async fieldsGroupFix(_root, _params, { models }: IContext) {
+    await models.FieldsGroups.createSystemGroupsFields();
+  },
 };
 
 checkPermission(fieldMutations, "fieldsAdd", "manageForms");
@@ -373,12 +377,12 @@ checkPermission(fieldsGroupsMutations, "fieldsGroupsRemove", "manageForms");
 checkPermission(
   fieldsGroupsMutations,
   "fieldsGroupsUpdateVisible",
-  "manageForms"
+  "manageForms",
 );
 checkPermission(
   fieldsGroupsMutations,
   "fieldsGroupsUpdateOrder",
-  "manageForms"
+  "manageForms",
 );
 
 export { fieldsGroupsMutations, fieldMutations };

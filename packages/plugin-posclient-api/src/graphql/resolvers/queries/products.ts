@@ -360,10 +360,17 @@ const productQueries = {
     }
 
     if (groupedSimilarity) {
-      return await getSimilaritiesProducts(models, filter, sortParams, {
+      const groupedProducts = await getSimilaritiesProducts(models, filter, sortParams, {
         groupedSimilarity,
         ...paginationArgs
       });
+
+      return checkRemainders(
+        subdomain,
+        config,
+        groupedProducts,
+        branchId || ''
+      );
     }
 
     const paginatedProducts = await paginate(

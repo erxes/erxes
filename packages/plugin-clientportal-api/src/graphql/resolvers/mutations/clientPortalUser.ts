@@ -383,7 +383,7 @@ export const clientPortalUserMutations = {
     if (!user) {
       user = await models.ClientPortalUsers.create({
         googleId: id,
-        email,
+        email: trimmedMail,
         avatar: picture,
         username: email,
         lastName: family_name,
@@ -521,7 +521,8 @@ export const clientPortalUserMutations = {
     }
 
     if (email) {
-      query.email = email;
+      // regex email with any case
+      query.email = { $regex: email, $options: 'i' };
     }
 
     if (phone) {

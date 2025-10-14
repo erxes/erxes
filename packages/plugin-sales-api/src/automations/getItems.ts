@@ -8,7 +8,7 @@ const relatedServices = (
   target: any
 ) => [
   {
-    name: 'contacts',
+    name: 'core',
     filter: async () => {
       if (target.isFormSubmission) {
         return { sourceConversationIds: { $in: [target.conversationId] } };

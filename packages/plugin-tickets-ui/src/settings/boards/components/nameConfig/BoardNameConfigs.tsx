@@ -20,9 +20,6 @@ function BoardNumber({ config, onChange, attributesItems = [] }: Props) {
     ...BOARD_NAMES_CONFIGS,
   ];
 
-  console.log("Merged Board Configs:", mergedBoardConfigs);
-  console.log("Config:", config);
-
   return (
     <Input
       onChange={onChange}
