@@ -21,10 +21,12 @@
   border: none;
   z-index: 2147483649;
   overflow: hidden;
-  height: 60px;
-  width: 60px;
+  height: 56px;
+  width: 56px;
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: box-shadow 0.3s ease-in-out, opacity 0.3s;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
 }
 
 .erxes-messenger-hidden {

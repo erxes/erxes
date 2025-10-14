@@ -218,11 +218,12 @@ const handleMessageEvent = async (event: MessageEvent) => {
       background-repeat: no-repeat;
       background-size: 20px;
       position: fixed;
-      box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+      top: 0;
+      left: 0;
       line-height: 56px;
       pointer-events: auto;
       text-align: center;
-      transition: box-shadow 0.3s ease-in-out, background-image 0.3s ease-in;
+      transition: background-image 0.3s ease-in;
       z-index: 2147483646;
       border-radius: 50%;
       display: flex;
