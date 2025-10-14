@@ -1,13 +1,5 @@
 import { IModels } from '~/connectionResolvers';
-
-export interface TranslationConfig {
-  postId: string;
-  language: string;
-  title?: string;
-  content?: string;
-  excerpt?: string;
-  customFieldsData?: any;
-}
+import { ITranslation } from '../@types/translations';
 
 export interface TranslationFieldMapping {
   [originalField: string]: string;
@@ -47,7 +39,7 @@ export class TranslationService {
   /**
    * Create or update translation
    */
-  async createOrUpdateTranslation(input: TranslationConfig): Promise<any> {
+  async createOrUpdateTranslation(input: ITranslation): Promise<any> {
     const existingTranslation = await this.models.Translations.findOne({
       language: input.language,
       postId: input.postId,
