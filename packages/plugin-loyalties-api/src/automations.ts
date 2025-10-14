@@ -668,18 +668,19 @@ const docScoreCampaign = async ({
   const { extendTargetAutomation } =
     (await getLoyatyCampaignConfig(serviceName)) || {};
 
-  console.log({ extendTargetAutomation, serviceName });
-
   if (extendTargetAutomation) {
     target = await sendCommonMessage({
       subdomain,
       serviceName,
       action: "targetExtender",
-      data: { target, campaignId: config.campaignId },
+      data: {
+        target,
+        campaignId: config.campaignId,
+        actionMethod: config.action,
+      },
       isRPC: true,
       defaultValue: target,
     });
-    console.log({ target });
   }
 
   return await models.ScoreCampaigns.doCampaign({

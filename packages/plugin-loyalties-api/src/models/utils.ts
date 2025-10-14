@@ -455,3 +455,140 @@ export const scoreStatistic = async ({ doc, models, filter }) => {
     monthlyActiveUsers,
   };
 };
+
+export const resolvePlaceholderValue = (target: any, attribute: string) => {
+  const [propertyName, valueToCheck, valueField] = attribute.split("-");
+
+  const parent = target[propertyName] || {};
+  // Case 1: customer-customFieldsData-1  (look up in customFieldsData)
+  if (valueToCheck?.includes("customFieldsData")) {
+    const fieldId = attribute.split(".").pop(); // extract the field number after '.'
+    const obj = (parent.customFieldsData || []).find(
+      (item: any) => item.field === fieldId
+    );
+    return obj?.value ?? "0";
+  }
+
+  // Case 2: paymentsData-loyalty-amount  (find in array/object by type)
+  if (valueToCheck && valueField) {
+    const obj = Array.isArray(parent)
+      ? parent.find((item: any) => item.type === valueToCheck)
+      : parent[valueToCheck] || {};
+    return obj[valueField] || "0";
+  }
+
+  // Case 3: customer-loyalty (simple nested property)
+  if (valueToCheck) {
+    const property = parent[valueToCheck];
+    return typeof property === "object"
+      ? property?.value || "0"
+      : property || "0";
+  }
+
+  // Case 4: simple top-level value (e.g. {{score}})
+  return target[attribute] || "0";
+};
+
+export const handleOnUpdateCampaignScoreField = async ({
+  doc,
+  subdomain,
+  scoreCampaign,
+}) => {
+  const isNewField =
+    doc.fieldName && doc.fieldOrigin === "new" && !doc?.fieldId;
+
+  if (doc.fieldName && doc.fieldOrigin === "new" && !doc?.fieldId) {
+    const field = await sendCoreMessage({
+      subdomain,
+      action: "fields.create",
+      data: {
+        text: doc.fieldName,
+        groupId: doc.fieldGroupId,
+        type: "input",
+        validation: "number",
+        contentType: `core:${doc.ownerType}`,
+        isDisabled: true,
+      },
+      defaultValue: null,
+      isRPC: true,
+    });
+    doc.fieldId = field._id;
+  } else {
+    const modifiedFieldData: any = {};
+
+    if (doc.fieldGroupId !== scoreCampaign.fieldGroupId) {
+      if (doc.fieldOrigin === "exists") {
+        throw new Error("You cannot modify the field group of the score field");
+      }
+      modifiedFieldData.groupId = doc.fieldGroupId;
+    }
+
+    if (
+      doc.fieldName !== scoreCampaign.fieldName &&
+      doc.fieldId === scoreCampaign.fieldId &&
+      doc.fieldOrigin === "new"
+    ) {
+      modifiedFieldData.text = doc.fieldName;
+    }
+
+    if (Object.keys(modifiedFieldData).length > 0) {
+      await sendCoreMessage({
+        subdomain,
+        action: "fields.updateOne",
+        data: {
+          selector: { _id: scoreCampaign.fieldId },
+          modifier: { $set: modifiedFieldData },
+        },
+        isRPC: true,
+      });
+    }
+  }
+
+  return doc;
+};
+
+export const handleOnCreateCampaignScoreField = async ({ doc, subdomain }) => {
+  if (doc.fieldGroupId) {
+    if (doc.fieldId && doc.fieldOrigin === "exists") {
+      const field = await sendCoreMessage({
+        subdomain,
+        action: "fields.findOne",
+        data: {
+          query: { _id: doc.fieldId },
+        },
+        defaultValue: null,
+        isRPC: true,
+      });
+
+      if (!field) {
+        throw new Error("Cannot find field from database");
+      }
+
+      if (!field.isDisabled) {
+        throw new Error("Somehing went wrong field is not supported");
+      }
+    } else {
+      if (!doc?.fieldName && doc.fieldOrigin === "new") {
+        throw new Error("Please provide a field name that for score field");
+      }
+
+      const field = await sendCoreMessage({
+        subdomain,
+        action: "fields.create",
+        data: {
+          text: doc.fieldName,
+          groupId: doc.fieldGroupId,
+          type: "input",
+          validation: "number",
+          contentType: `core:${doc.ownerType}`,
+          isDisabled: true,
+        },
+        defaultValue: null,
+        isRPC: true,
+      });
+
+      doc.fieldId = field._id;
+    }
+  }
+  return doc;
+};

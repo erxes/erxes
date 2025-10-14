@@ -10,6 +10,7 @@ const mutationParams = `
     $fieldGroupId:String
     $fieldName: String
     $fieldId: String
+    $fieldOrigin: String
     $serviceName:String,
     $additionalConfig:JSON
 
@@ -28,6 +29,7 @@ const mutationParamsDef = `
     fieldGroupId: $fieldGroupId
     fieldName: $fieldName
     fieldId: $fieldId
+    fieldOrigin: $fieldOrigin
     serviceName:$serviceName
     additionalConfig:$additionalConfig
 
