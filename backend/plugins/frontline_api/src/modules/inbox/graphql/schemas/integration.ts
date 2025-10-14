@@ -57,6 +57,7 @@ export const types = `
 
     details: JSON
     callData: CloudflareCallsData
+    facebookPage: JSON
   }
   type IntegrationRespone {
     list: [Integration],

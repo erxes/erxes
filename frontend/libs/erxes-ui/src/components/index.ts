@@ -6,7 +6,6 @@ export * from './badge';
 export * from './breadcrumb';
 export * from './button';
 export * from './calendar';
-export * from './calendar-new';
 export * from './card';
 export * from './charts';
 export * from './checkbox';
