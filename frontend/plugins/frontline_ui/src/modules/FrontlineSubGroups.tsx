@@ -12,15 +12,15 @@ export const FrontlineSubGroups = () => {
 
   return (
     <>
-      <FrontlineActions />
-      <NavigationMenuGroup name="Integration types">
-        <ChooseIntegrationTypeContent />
-      </NavigationMenuGroup>
       <Sidebar.Group>
         <Sidebar.GroupLabel asChild>
           <ChooseChannel />
         </Sidebar.GroupLabel>
       </Sidebar.Group>
+      <FrontlineActions />
+      <NavigationMenuGroup name="Integration types">
+        <ChooseIntegrationTypeContent />
+      </NavigationMenuGroup>
     </>
   );
 };

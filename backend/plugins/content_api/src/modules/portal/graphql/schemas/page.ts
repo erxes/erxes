@@ -68,9 +68,9 @@ export const inputs = `
 `;
 
 export const queries = `
-    cmsPage(_id: String, slug: String): Page
-    cmsPages(clientPortalId: String, searchValue: String, ${GQL_CURSOR_PARAM_DEFS}): [Page]
-    cmsPageList(clientPortalId: String, searchValue: String, ${GQL_CURSOR_PARAM_DEFS}): PageList
+    cmsPage(_id: String, slug: String, language: String): Page
+    cmsPages(clientPortalId: String, searchValue: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): [Page]
+    cmsPageList(clientPortalId: String, searchValue: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): PageList
 `;
 
 export const mutations = `
