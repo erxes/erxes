@@ -84,6 +84,11 @@ export const loadMilestoneClass = (models: IModels) => {
         createdBy: user._id,
       });
 
+      await models.Task.updateMany(
+        { milestoneId: _id },
+        { $set: { milestoneId: null } },
+      );
+
       return await models.Milestone.findOneAndDelete({
         _id,
       });

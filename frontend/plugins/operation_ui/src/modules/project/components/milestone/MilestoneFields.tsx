@@ -1,7 +1,7 @@
 import { IconCalendarTime } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import { Button, Calendar, Combobox, Form, Popover } from 'erxes-ui';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 export const MilestoneFields = ({
@@ -18,11 +18,31 @@ export const MilestoneFields = ({
   setActiveMilestone: (milestoneId: string | null) => void;
 }) => {
   const nameInputRef = useRef<HTMLInputElement | null>(null);
+  const milestoneRef = useRef<HTMLDivElement>(null);
+
   const [open, setOpen] = useState(false);
 
   const { control, watch, handleSubmit } = useFormContext();
 
   const targetDateValue = watch('targetDate');
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (open) return;
+
+      if (
+        milestoneRef.current &&
+        !milestoneRef.current.contains(e.target as Node)
+      ) {
+        setActiveMilestone(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [milestoneRef, open]);
 
   if (!isActive) {
     return (
@@ -51,7 +71,7 @@ export const MilestoneFields = ({
       variant="ghost"
       size="lg"
     >
-      <div onKeyDown={handleKeyDown}>
+      <div onKeyDown={handleKeyDown} ref={milestoneRef}>
         <form
           onSubmit={handleSubmit(onSubmit, (error) => console.log(error))}
           className="w-full h-full flex items-center"
@@ -61,7 +81,7 @@ export const MilestoneFields = ({
               name="name"
               control={control}
               render={({ field }) => (
-                <Form.Item>
+                <Form.Item className="w-full">
                   <input
                     {...field}
                     ref={nameInputRef}
@@ -74,7 +94,7 @@ export const MilestoneFields = ({
               )}
             />
             <Popover open={open} onOpenChange={setOpen}>
-              <Popover.Trigger asChild>
+              <Popover.Trigger asChild className="cursor-pointer">
                 {targetDateValue ? (
                   <span>{format(targetDateValue, 'MMM d')}</span>
                 ) : (

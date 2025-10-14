@@ -47,5 +47,5 @@ const mutationParams = `
 export const mutations = `
     createMilestone(${mutationParams}): Milestone
     updateMilestone(_id: String! ${mutationParams}): Milestone
-    removeMilestone(_id: String!): JSON
+    removeMilestone(_id: String!): Milestone
 `;

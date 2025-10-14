@@ -1,7 +1,9 @@
 import { PROJECTS_CURSOR_SESSION_KEY } from '@/project/constants/ProjectSessionKey';
+import { REMOVE_MILESTONE_MUTATION } from '@/project/graphql/mutation/removeMilestone';
 import { UPDATE_MILESTONE_MUTATION } from '@/project/graphql/mutation/updateMilestone';
 import { useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
+import { GET_PROJECT_PROGRESS_BY_MILESTONE } from '../graphql/queries/getProjectProgressByMilestone';
 
 export const useUpdateMilestone = () => {
   const { toast } = useToast();
@@ -42,8 +44,39 @@ export const useUpdateMilestone = () => {
     },
   );
 
+  const [removeMilestoneMutation] = useMutation(REMOVE_MILESTONE_MUTATION, {
+    onError: (e) => {
+      toast({
+        title: 'Error',
+        description: e.message,
+        variant: 'destructive',
+      });
+    },
+    update: (cache, { data }) => {
+      const removedId = data.removeMilestone._id;
+
+      const existingData = cache.readQuery<{ milestoneProgress: any[] }>({
+        query: GET_PROJECT_PROGRESS_BY_MILESTONE,
+        variables: { projectId: data.removeMilestone.projectId },
+      });
+
+      if (!existingData) return;
+
+      cache.writeQuery({
+        query: GET_PROJECT_PROGRESS_BY_MILESTONE,
+        variables: { projectId: data.removeMilestone.projectId },
+        data: {
+          milestoneProgress: existingData.milestoneProgress.filter(
+            (milestone) => milestone._id !== removedId,
+          ),
+        },
+      });
+    },
+  });
+
   return {
     updateMilestone: updateMilestoneMutation,
+    removeMilestone: removeMilestoneMutation,
     loading,
     error,
   };
