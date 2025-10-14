@@ -453,7 +453,7 @@ const productQueries = {
 
     if (groupedSimilarity === 'config') {
       const getRegex = str => {
-        return ['*', '.', '_'].includes(str) ? new RegExp(
+        return /[*._]/.test(str) ? new RegExp(
           `^${str
             .replace(/\./g, '\\.')
             .replace(/\*/g, '.')
@@ -562,15 +562,16 @@ const productQueries = {
       let products = await models.Products.find(filters)
         .sort({ code: 1 });
       if (!products.length) {
-        products = await checkRemainders(
+        products = [product];
+      }
+
+      return {
+        products: await checkRemainders(
           subdomain,
           config,
-          [product],
+          products,
           branchId || ''
-        );
-      }
-      return {
-        products,
+        ),
         groups
       };
     }
