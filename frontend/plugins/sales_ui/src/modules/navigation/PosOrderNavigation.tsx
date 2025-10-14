@@ -72,7 +72,7 @@ function PosItem({ pos }: posItemProps) {
           </Collapsible.Trigger>
           <PosActionsMenu pos={pos} />
         </div>
-        <Collapsible.Content className="pt-1">
+        <Collapsible.Content className="pt-1 ">
           <Sidebar.GroupContent>
             <Sidebar.Menu>
               <NavigationMenuLinkItem
