@@ -15,6 +15,7 @@ export const taskSchema = new Schema(
     targetDate: { type: Date, label: 'Target Date' },
     cycleId: { type: Schema.Types.ObjectId, label: 'Cycle ID' },
     projectId: { type: Schema.Types.ObjectId, label: 'Project ID' },
+    milestoneId: { type: Schema.Types.ObjectId, label: 'Milestone ID' },
     estimatePoint: { type: Number, label: 'Estimate Point', default: 0 },
     statusChangedDate: {
       type: Date,
