@@ -5,10 +5,10 @@ import {
   PageSubHeader,
   Separator,
 } from 'erxes-ui';
-import { IconSandbox, IconSettings } from '@tabler/icons-react';
 import { Link, useSearchParams } from 'react-router-dom';
 
 import { AddDealSheet } from '@/deals/components/AddDealSheet';
+import { IconSandbox } from '@tabler/icons-react';
 import MainActionBar from '@/deals/actionBar/components/MainActionBar';
 import { PageHeader } from 'ui-modules';
 import { SalesBreadCrumb } from '@/deals/components/breadcrumb/SalesBreadCrumb';
@@ -49,14 +49,6 @@ export const SalesIndexPage = () => {
             </Breadcrumb>
           </PageHeader.Start>
           <AddDealSheet />
-          <PageHeader.End>
-            <Button variant="outline" asChild>
-              <Link to="/settings/deals">
-                <IconSettings />
-                Go to Sales Pipeline settings
-              </Link>
-            </Button>
-          </PageHeader.End>
         </PageHeader>
 
         <PageContainer className="overflow-hidden">
