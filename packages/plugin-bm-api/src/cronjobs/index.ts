@@ -14,7 +14,7 @@ const handleBmCronjob = async ({ subdomain }) => {
     },
     { $set: { date_status: 'completed' } }
   );
-    const update2 = await models.Tours.updateMany(
+    const update2 = await models.Tours.updateMany( // fixes legacy records with the typo
     {
       date_status: 'compeleted'
     },
