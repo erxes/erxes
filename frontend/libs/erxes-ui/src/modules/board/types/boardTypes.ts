@@ -16,6 +16,9 @@ export type BoardItemProps = {
 export type BoardColumnProps = {
   id: string;
   name: string;
+  type?: string;
+  probability?: string;
+  itemsTotalCount?: number;
 } & Record<string, unknown>;
 
 export type BoardHeaderProps = HTMLAttributes<HTMLDivElement>;

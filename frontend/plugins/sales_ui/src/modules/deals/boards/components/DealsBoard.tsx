@@ -2,23 +2,18 @@ import {
   Board,
   BoardColumnProps,
   BoardItemProps,
-  Button,
   EnumCursorDirection,
   Skeleton,
   SkeletonArray,
   useQueryState,
 } from 'erxes-ui';
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
-import {
-  dealCreateDefaultValuesState,
-  dealCreateSheetState,
-} from '@/deals/states/dealCreateSheetState';
 import { useDeals, useDealsChange } from '@/deals/cards/hooks/useDeals';
 
-import { DealsBoardCard } from '@/deals/components/DealsBoardCard';
+import { DealsBoardCard } from '@/deals/boards/components/DealsBoardCard';
+import { DealsBoardColumnHeader } from '@/deals/boards/components/DealsBoardColumnHeader';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { IDeal } from '@/deals/types/deals';
-import { IconPlus } from '@tabler/icons-react';
 import { StagesLoading } from '@/deals/components/loading/StagesLoading';
 import clsx from 'clsx';
 import { dealCountByBoardAtom } from '@/deals/states/dealsTotalCountState';
@@ -46,6 +41,8 @@ export const DealsBoard = () => {
     id: stage._id,
     name: stage.name,
     type: stage.type,
+    probability: stage.probability,
+    itemsTotalCount: stage.itemsTotalCount,
   }));
 
   const [deals, setDeals] = useAtom(fetchedDealsState);
@@ -244,19 +241,11 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
 
   return (
     <>
-      <Board.Header>
-        <h4 className="capitalize flex items-center gap-1 pl-1">
-          {column.name}
-          <span className="text-accent-foreground font-medium pl-1">
-            {loading ? (
-              <Skeleton className="size-4 rounded" />
-            ) : (
-              totalCount || 0
-            )}
-          </span>
-        </h4>
-        <DealCreateSheetTrigger stageId={column.id} />
-      </Board.Header>
+      <DealsBoardColumnHeader
+        column={column}
+        loading={loading}
+        totalCount={totalCount || 0}
+      />
       <Board.Cards id={column.id} items={boardCards.map((deal) => deal.id)}>
         {loading ? (
           <SkeletonArray
@@ -308,21 +297,5 @@ export const DealCardsFetchMore = ({
     <div ref={bottomRef}>
       <Skeleton className="p-12 w-full rounded shadow-xs opacity-80" />
     </div>
-  );
-};
-
-const DealCreateSheetTrigger = ({ stageId }: { stageId: string }) => {
-  const setOpenCreateDeal = useSetAtom(dealCreateSheetState);
-  const setDefaultValues = useSetAtom(dealCreateDefaultValuesState);
-
-  const handleClick = () => {
-    setDefaultValues({ stageId });
-    setOpenCreateDeal(true);
-  };
-
-  return (
-    <Button variant="ghost" size="icon" onClick={handleClick}>
-      <IconPlus />
-    </Button>
   );
 };

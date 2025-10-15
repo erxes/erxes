@@ -7,7 +7,7 @@ import Labels from '@/deals/cards/components/detail/overview/label/Labels';
 // import { SelectCompany } from 'ui-modules';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
-import { allDealsMapState } from '@/deals/components/DealsBoard';
+import { allDealsMapState } from '@/deals/boards/components/DealsBoard';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useSetAtom } from 'jotai';
 

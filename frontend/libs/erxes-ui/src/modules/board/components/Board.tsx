@@ -238,7 +238,7 @@ const BoardProvider = <
 export const BoardHeader = ({ className, ...props }: BoardHeaderProps) => (
   <div
     className={cn(
-      'm-0 px-2 h-10 flex-none font-semibold text-sm flex items-center justify-between',
+      'm-0 px-2 min-h-10 flex-none font-semibold text-sm flex items-center justify-between',
       className,
     )}
     {...props}

@@ -16,7 +16,7 @@ import { SalesItemDetail } from '@/deals/cards/components/detail/SalesItemDetail
 import { lazy } from 'react';
 
 const DealBoard = lazy(() =>
-  import('@/deals/components/DealsBoard').then((mod) => ({
+  import('@/deals/boards/components/DealsBoard').then((mod) => ({
     default: mod.DealsBoard,
   })),
 );
