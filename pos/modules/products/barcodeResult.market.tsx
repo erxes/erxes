@@ -45,13 +45,12 @@ const BarcodeResult = () => {
 
   useEffect(() => {
     if (loading) return
-    if (!!barcode) {
+    if (!!searchValue) {
       getProducts({
         variables: { searchValue, perPage: 5 },
       })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [barcode])
+  }, [searchValue, barcode])
 
   if (loading)
     return (

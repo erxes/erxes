@@ -10,7 +10,7 @@ const fieldCommonFields = `
   order: Int
   associatedFieldId: String
   logicAction: String
-  
+
   column: Int
   pageNumber: Int
   code: String
@@ -204,4 +204,5 @@ export const fieldsGroupsMutations = `
   fieldsGroupsRemove(_id: String!): JSON
   fieldsGroupsUpdateVisible(_id: String, isVisible: Boolean, isVisibleInDetail: Boolean) : FieldsGroup
   fieldsGroupsUpdateOrder(orders: [OrderItem]): [FieldsGroup]
+  fieldsGroupFix:[String]
 `;

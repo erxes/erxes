@@ -251,14 +251,14 @@ class SetProperty extends React.Component<Props, State> {
             />
           </FormGroup>
 
-        {/* <Row> */}
+          {/* <Row> */}
 
           <PlaceHolderInput
             inputName='value'
             label='Value'
             config={rule}
             onChange={onChangeValue}
-            triggerType={triggerType.split('.')[0]}
+            triggerType={triggerType.split(".")[0]}
             type={type}
             fieldType={this.getFieldType(chosenField)}
             isMulti={this.getIsMulti(chosenField)}
@@ -271,9 +271,15 @@ class SetProperty extends React.Component<Props, State> {
             selectConfig={chosenField?.selectionConfig}
             attrWithSegmentConfig={true}
             additionalContent={additionalContent()}
+            componentClass={rule.isExpression ? "textarea" : "input"}
           />
 
-          <Button btnStyle={rule.isExpression?"white":"simple"} onClick={()=>onChangeValue({isExpression:!rule?.isExpression})}>{__("Is Expression")}</Button>
+          <Button
+            btnStyle={rule.isExpression ? "white" : "simple"}
+            onClick={() => onChangeValue({ isExpression: !rule?.isExpression })}
+          >
+            {__("Is Expression")}
+          </Button>
 
           <FormGroup>
             <ControlLabel>{__("Forward to")}</ControlLabel>

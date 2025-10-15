@@ -38,7 +38,7 @@ export const orderItemSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     createdAt: getDateFieldDefinition('Created at'),
-    productId: field({ type: String, label: 'Product' }),
+    productId: field({ type: String, label: 'Product', index: true }),
     productName: field({ type: String, label: 'Product Name if subtoken' }),
     byDevice: field({ type: Object, optional: true, label: 'Device By count' }), // if qrMenu set
     count: getNumberFieldDefinition({ label: 'Count', positive: true }),

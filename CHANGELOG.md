@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.17.17](https://github.com/erxes/erxes/compare/2.17.16...2.17.17) (2025-10-09)
+
+### Features
+
+* **core:**  Create Relations group if not exists ([902dd7a](https://github.com/erxes/erxes/commit/902dd7a41621dba59ef1d548af98dbace4e377b6))
+* enhance score campaign functionality with new field origin and improved placeholder resolution ([929362b](https://github.com/erxes/erxes/commit/929362b8af15a3923c23840c30f2be88a20395de))
+
+## [2.17.16](https://github.com/erxes/erxes/compare/2.17.15...2.17.16) (2025-10-06)
+
+### Bug Fixes
+
+* add delay and logging in relatedServices function of getItems automation ([e7a81bb](https://github.com/erxes/erxes/commit/e7a81bb8e1d3eb1c16ad22799d870b9c2974920d))
+* update related service name from 'contacts' to 'core' in getItems automation ([3da6e99](https://github.com/erxes/erxes/commit/3da6e997b778d78ab8a24ab4602cc3a9f57dabed))
+
+## [2.17.15](https://github.com/erxes/erxes/compare/2.17.14...2.17.15) (2025-10-06)
+
+### Bug Fixes
+
+* **pos:** check barcode and shop theme show unitPrice and remainder ([3be14d7](https://github.com/erxes/erxes/commit/3be14d7770c316f092be3bb3e2d57275711eff3d))
+* posclient sync util performance ([1d01f51](https://github.com/erxes/erxes/commit/1d01f519fb0aae8175b61ee6540beb9e6c8969e2))
+* update redirect logic in handleMagiclink and handleCoreLogin to support dynamic subdomain routing based on organization type ([a1967ec](https://github.com/erxes/erxes/commit/a1967ec9a5a7f8ccb37002d7149e086bc7ae3785))
+
 ## [2.17.14](https://github.com/erxes/erxes/compare/2.17.13...2.17.14) (2025-10-01)
 
 ### Features

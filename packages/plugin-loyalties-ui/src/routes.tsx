@@ -12,6 +12,19 @@ const ScoreCampaigns = asyncComponent(
     )
 );
 
+const ScoreCampaignEdit = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ScoreCampaignsEdit" */ "./configs/scoreCampaign/containers/Form"
+    )
+);
+const ScoreCampaignCreate = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ScoreCampaignsEdit" */ "./configs/scoreCampaign/components/Form"
+    )
+);
+
 const VoucherCampaigns = asyncComponent(
   () =>
     import(
@@ -91,9 +104,7 @@ const Lotteries = asyncComponent(
 
 const Spins = asyncComponent(
   () =>
-    import(
-      /* webpackChunkName: "Spins" */ "./loyalties/spins/containers/List"
-    )
+    import(/* webpackChunkName: "Spins" */ "./loyalties/spins/containers/List")
 );
 
 const Donates = asyncComponent(
@@ -125,7 +136,10 @@ const Assignments = asyncComponent(
 );
 
 const Agents = asyncComponent(
-  () => import(/* webpackChunkName: "Agents" */ "./loyalties/agents/containers/List")
+  () =>
+    import(
+      /* webpackChunkName: "Agents" */ "./loyalties/agents/containers/List"
+    )
 );
 
 const ScoreCampaignList = () => {
@@ -248,71 +262,79 @@ const routes = () => {
   return (
     <Routes>
       <Route
-        path="/erxes-plugin-loyalty/settings/general"
+        path='/erxes-plugin-loyalty/settings/general'
         element={<Settings />}
       />
 
       <Route
-        path="/erxes-plugin-loyalty/settings/score"
+        path='/erxes-plugin-loyalty/settings/score'
         element={<ScoreCampaignList />}
+      />
+      <Route
+        path='/erxes-plugin-loyalty/settings/score/edit/:id'
+        element={<ScoreCampaignEdit />}
+      />
+      <Route
+        path='/erxes-plugin-loyalty/settings/score/create'
+        element={<ScoreCampaignCreate />}
       />
 
       <Route
-        path="/erxes-plugin-loyalty/settings/voucher"
+        path='/erxes-plugin-loyalty/settings/voucher'
         element={<VoucherCampaignList />}
       />
 
       <Route
-        path="/erxes-plugin-loyalty/settings/lottery"
+        path='/erxes-plugin-loyalty/settings/lottery'
         element={<LotteryCampaignList />}
       />
 
       <Route
-        path="/erxes-plugin-loyalty/settings/spin"
+        path='/erxes-plugin-loyalty/settings/spin'
         element={<SpinCampaignList />}
       />
 
       <Route
-        path="/erxes-plugin-loyalty/settings/donate"
+        path='/erxes-plugin-loyalty/settings/donate'
         element={<DonateCampaignList />}
       />
 
       <Route
-        path="/erxes-plugin-loyalty/settings/assignment"
+        path='/erxes-plugin-loyalty/settings/assignment'
         element={<AssignmentCampaignList />}
       />
 
       <Route
-        path="/erxes-plugin-loyalty/settings/assignment/create"
+        path='/erxes-plugin-loyalty/settings/assignment/create'
         element={<AssignmentCampaignCreate />}
       />
 
       <Route
-        path="/erxes-plugin-loyalty/settings/assignment/edit"
+        path='/erxes-plugin-loyalty/settings/assignment/edit'
         element={<AssignmentCampaignEdit />}
       />
 
       <Route
-        path="/erxes-plugin-loyalty/settings/coupon"
+        path='/erxes-plugin-loyalty/settings/coupon'
         element={<CouponCampaignList />}
       />
 
-      <Route path="/lotteryAward" element={<AwardComponent />} />
+      <Route path='/lotteryAward' element={<AwardComponent />} />
 
-      <Route path="/vouchers" element={<VouchersComponent />} />
+      <Route path='/vouchers' element={<VouchersComponent />} />
 
-      <Route path="/lotteries" element={<LotteriesComponent />} />
+      <Route path='/lotteries' element={<LotteriesComponent />} />
 
-      <Route path="/spins" element={<SpinsComponent />} />
+      <Route path='/spins' element={<SpinsComponent />} />
 
-      <Route path="/donates" element={<DonatesComponent />} />
+      <Route path='/donates' element={<DonatesComponent />} />
 
-      <Route path="/score" element={<Scorelogs />} />
+      <Route path='/score' element={<Scorelogs />} />
 
-      <Route path="/assignments" element={<AssignmentsComponent />} />
+      <Route path='/assignments' element={<AssignmentsComponent />} />
 
-      <Route path="/agents" element={<AgentList />} />
-      <Route path="/coupons" element={<CouponsComponent />} />
+      <Route path='/agents' element={<AgentList />} />
+      <Route path='/coupons' element={<CouponsComponent />} />
     </Routes>
   );
 };

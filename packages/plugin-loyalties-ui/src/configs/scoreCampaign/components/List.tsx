@@ -1,6 +1,7 @@
 import { FilterContainer, FlexRow, Title } from "@erxes/ui-settings/src/styles";
 import {
   __,
+  ActionButtons,
   Button,
   DataWithLoader,
   FormControl,
@@ -11,7 +12,7 @@ import {
 } from "@erxes/ui/src";
 import { Wrapper } from "@erxes/ui/src/layout";
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "../../general/components/Sidebar";
 import { IScoreCampaign } from "../types";
 import Form from "./Form";
@@ -38,6 +39,7 @@ type Props = {
   refetch: () => void;
   onRemove: () => void;
   onChangeStatus: (_id: string, status: "published" | "draft") => void;
+  loading: boolean;
 };
 
 export default function List({
@@ -51,6 +53,7 @@ export default function List({
   onRemove,
   refetch,
   onChangeStatus,
+  loading,
 }: Props) {
   let timer;
 
@@ -87,9 +90,9 @@ export default function List({
     if (bulk.length) {
       return (
         <Button
-          btnStyle="danger"
-          size="small"
-          icon="cancel-1"
+          btnStyle='danger'
+          size='small'
+          icon='cancel-1'
           onClick={onRemove}
         >
           Remove
@@ -97,32 +100,23 @@ export default function List({
       );
     }
 
-    const trigger = (
-      <Button btnStyle="success" icon="plus-circle">
-        Add score campaign
-      </Button>
-    );
-
     return (
       <FilterContainer>
         <FlexRow>
           <FormControl
-            type="text"
+            type='text'
             placeholder={__("Type to search")}
             onChange={search}
             value={searchValue}
             autoFocus={true}
             onFocus={moveCursorAtTheEnd}
           />
-          <ModalTrigger
-            size={"xl"}
-            title={__("Add score campaign")}
-            trigger={trigger}
-            autoOpenKey="showProductModal"
-            content={({ closeModal }) => (
-              <Form refetch={refetch} closeModal={closeModal} />
-            )}
-          />
+
+          <Link to={`/erxes-plugin-loyalty/settings/score/create`}>
+            <Button btnStyle='success' icon='plus-circle'>
+              Add score campaign
+            </Button>
+          </Link>
         </FlexRow>
       </FilterContainer>
     );
@@ -139,7 +133,7 @@ export default function List({
           <th>
             <FormControl
               checked={isAllSelected}
-              componentclass="checkbox"
+              componentclass='checkbox'
               onChange={onChange}
             />
           </th>
@@ -177,10 +171,10 @@ export default function List({
       content={
         <DataWithLoader
           data={content}
-          loading={false}
+          loading={loading}
           count={totalCount}
-          emptyText="There is no data"
-          emptyImage="/images/actions/5.svg"
+          emptyText='There is no data'
+          emptyImage='/images/actions/5.svg'
         />
       }
       leftSidebar={<Sidebar />}

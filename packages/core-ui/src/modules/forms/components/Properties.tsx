@@ -1,3 +1,4 @@
+import React from "react";
 import Button from "@erxes/ui/src/components/Button";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
@@ -10,14 +11,15 @@ import PropertyForm from "@erxes/ui-forms/src/settings/properties/containers/Pro
 import PropertyGroupForm from "@erxes/ui-forms/src/settings/properties/containers/PropertyGroupForm";
 import { PropertyList } from "@erxes/ui-forms/src/settings/properties/styles";
 import PropertyRow from "./PropertyRow";
-import React from "react";
 import Sidebar from "./Sidebar";
 import SortableList from "@erxes/ui/src/components/SortableList";
 import { Title } from "@erxes/ui-settings/src/styles";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "@erxes/ui/src/utils";
+import { NotWrappable } from "@erxes/ui-settings/src/permissions/styles";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import PropertyFixer from "./PropertyFixer";
 
-// Props
 type Props = {
   queryParams: any;
   refetch?: () => void;
@@ -42,6 +44,7 @@ type Props = {
   updateFieldOrder: (fields: IField[]) => any;
   updateGroupOrder: (groups: IFieldGroup[]) => void;
   services: string[];
+  fieldsGroupFix?: () => void;
 };
 
 class Properties extends React.Component<
@@ -55,108 +58,43 @@ class Properties extends React.Component<
 
     this.state = {
       fieldsGroups: fieldsGroups.filter(
-        (gro) => !gro.isDefinedByErxes && !gro.parentId
+        (gro) => !gro.isDefinedByErxes && !gro.parentId,
       ),
       fieldsGroupsWithParent: fieldsGroups.filter(
-        (gro) => !gro.isDefinedByErxes && gro.parentId
+        (gro) => !gro.isDefinedByErxes && gro.parentId,
       ),
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: Props) {
     if (this.props.fieldsGroups !== nextProps.fieldsGroups) {
       this.setState({
         fieldsGroups: nextProps.fieldsGroups.filter(
-          (gro) => !gro.isDefinedByErxes && !gro.parentId
+          (gro) => !gro.isDefinedByErxes && !gro.parentId,
         ),
         fieldsGroupsWithParent: nextProps.fieldsGroups.filter(
-          (gro) => !gro.isDefinedByErxes && gro.parentId
+          (gro) => !gro.isDefinedByErxes && gro.parentId,
         ),
       });
     }
   }
 
-  onChangeFieldGroups = (fieldsGroups) => {
+  onChangeFieldGroups = (fieldsGroups: IFieldGroup[]) => {
     this.setState({ fieldsGroups }, () => {
       this.props.updateGroupOrder(this.state.fieldsGroups);
     });
   };
 
-  renderRow = (group) => {
-    const {
-      queryParams,
-      removePropertyGroup,
-      removeProperty,
-      updatePropertyVisible,
-      updatePropertyDetailVisible,
-      updatePropertySystemFields,
-      updateFieldOrder,
-      updateGroupOrder,
-    } = this.props;
+  renderPermissionFixer = (modalProps) => {
+    const updatedProps = {
+      ...modalProps,
+      fixProperties: this.props.fieldsGroupFix,
+    };
 
-    const { fieldsGroupsWithParent } = this.state;
-
-    return (
-      <PropertyRow
-        key={group._id}
-        group={group}
-        groupsWithParents={fieldsGroupsWithParent}
-        queryParams={queryParams}
-        updateGroupOrder={updateGroupOrder}
-        removePropertyGroup={removePropertyGroup}
-        removeProperty={removeProperty}
-        updatePropertyVisible={updatePropertyVisible}
-        updateFieldOrder={updateFieldOrder}
-        updatePropertyDetailVisible={updatePropertyDetailVisible}
-        updatePropertySystemFields={updatePropertySystemFields}
-      />
-    );
+    return <PropertyFixer {...updatedProps} />;
   };
 
-  renderSortableList = () => {
-    const { fieldsGroups } = this.state;
-
-    if (fieldsGroups.length === 0) {
-      return null;
-    }
-
-    return (
-      <SortableList
-        fields={fieldsGroups}
-        child={(group) => this.renderRow(group)}
-        onChangeFields={this.onChangeFieldGroups}
-        isModal={true}
-        showDragHandler={false}
-        droppableId="property-group"
-      />
-    );
-  };
-
-  renderProperties = () => {
-    const { fieldsGroups } = this.props;
-
-    if (fieldsGroups.length === 0) {
-      return (
-        <EmptyState
-          icon="paragraph"
-          text="There aren't any groups and fields"
-        />
-      );
-    }
-
-    const defaultGroups = fieldsGroups.filter(
-      (group) => group.isDefinedByErxes
-    );
-
-    return (
-      <PropertyList>
-        {defaultGroups.map((group) => this.renderRow(group))}
-        {this.renderSortableList()}
-      </PropertyList>
-    );
-  };
-
-  renderActionBar = () => {
+  renderAddGroupDropdown = () => {
     const { queryParams, fieldsGroups, currentType } = this.props;
 
     if (currentType === "device") {
@@ -164,7 +102,6 @@ class Properties extends React.Component<
     }
 
     let size;
-
     if (["task", "deal", "ticket", "purchase"].includes(currentType)) {
       size = "lg";
     }
@@ -213,12 +150,128 @@ class Properties extends React.Component<
         isMenuWidthFit={true}
         toggleComponent={
           <Button btnStyle="success" icon="plus-circle">
-            {__("Add Group & Field ")}
+            {__("Add Group & Field")}
             <Icon icon="angle-down" />
           </Button>
         }
         modalMenuItems={menuItems}
       />
+    );
+  };
+
+  renderActionBar = () => {
+    const { currentType } = this.props;
+
+    if (currentType === "device") {
+      return null;
+    }
+
+    const fixTrigger = (
+      <Button id="fix-permissions" btnStyle="simple" icon="wrench">
+        {__("Fix properties")}
+      </Button>
+    );
+
+    const addGroupDropdown = this.renderAddGroupDropdown();
+
+    const actionBarRight = (
+      <NotWrappable
+        style={{ display: "flex", gap: "8px", alignItems: "center" }}
+      >
+        <ModalTrigger
+          title={__("Fix Properties")}
+          trigger={fixTrigger}
+          content={this.renderPermissionFixer}
+        />
+        {addGroupDropdown}
+      </NotWrappable>
+    );
+
+    const title = (
+      <Title $capitalize={true}>
+        {currentType} {__("Properties")}
+      </Title>
+    );
+
+    return (
+      <Wrapper.ActionBar
+        background="bgWhite"
+        left={title}
+        right={actionBarRight}
+        wideSpacing={true}
+      />
+    );
+  };
+
+  renderRow = (group: IFieldGroup) => {
+    const {
+      queryParams,
+      removePropertyGroup,
+      removeProperty,
+      updatePropertyVisible,
+      updatePropertyDetailVisible,
+      updatePropertySystemFields,
+      updateFieldOrder,
+      updateGroupOrder,
+    } = this.props;
+
+    const { fieldsGroupsWithParent } = this.state;
+
+    return (
+      <PropertyRow
+        key={group._id}
+        group={group}
+        groupsWithParents={fieldsGroupsWithParent}
+        queryParams={queryParams}
+        updateGroupOrder={updateGroupOrder}
+        removePropertyGroup={removePropertyGroup}
+        removeProperty={removeProperty}
+        updatePropertyVisible={updatePropertyVisible}
+        updateFieldOrder={updateFieldOrder}
+        updatePropertyDetailVisible={updatePropertyDetailVisible}
+        updatePropertySystemFields={updatePropertySystemFields}
+      />
+    );
+  };
+
+  renderSortableList = () => {
+    const { fieldsGroups } = this.state;
+
+    if (fieldsGroups.length === 0) return null;
+
+    return (
+      <SortableList
+        fields={fieldsGroups}
+        child={(group) => this.renderRow(group)}
+        onChangeFields={this.onChangeFieldGroups}
+        isModal={true}
+        showDragHandler={false}
+        droppableId="property-group"
+      />
+    );
+  };
+
+  renderProperties = () => {
+    const { fieldsGroups } = this.props;
+
+    if (fieldsGroups.length === 0) {
+      return (
+        <EmptyState
+          icon="paragraph"
+          text="There aren't any groups and fields"
+        />
+      );
+    }
+
+    const defaultGroups = fieldsGroups.filter(
+      (group) => group.isDefinedByErxes,
+    );
+
+    return (
+      <PropertyList>
+        {defaultGroups.map((group) => this.renderRow(group))}
+        {this.renderSortableList()}
+      </PropertyList>
     );
   };
 
@@ -231,34 +284,21 @@ class Properties extends React.Component<
       { title: __(`${currentType} properties`) },
     ];
 
-    const title = (
-      <Title $capitalize={true}>
-        {currentType} {__("properties")}
-      </Title>
-    );
-
     const headerDescription = (
       <HeaderDescription
         icon="/images/actions/26.svg"
         title={__("Properties")}
         description={`${__(
-          "The quick view finder helps you to view basic information on both companies and customers alike"
+          "The quick view finder helps you to view basic information on both companies and customers alike",
         )}.${__(
-          "Add groups and fields of the exact information you want to see"
+          "Add groups and fields of the exact information you want to see",
         )}`}
       />
     );
 
     return (
       <Wrapper
-        actionBar={
-          <Wrapper.ActionBar
-            background="bgWhite"
-            left={title}
-            right={this.renderActionBar()}
-            wideSpacing={true}
-          />
-        }
+        actionBar={this.renderActionBar()}
         header={
           <Wrapper.Header title={__(currentType)} breadcrumb={breadcrumb} />
         }

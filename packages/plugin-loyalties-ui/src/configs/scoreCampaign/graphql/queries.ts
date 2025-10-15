@@ -47,7 +47,16 @@ const GET_SERVICES_QUERY = `
   }
 `;
 
+const scoreCampaign = `
+  query ScoreCampaign($_id: String) {
+    scoreCampaign(_id: $_id) {
+      ${fields}
+    }
+  }
+`;
+
 export default {
   scoreCampaigns,
   GET_SERVICES_QUERY,
+  scoreCampaign,
 };

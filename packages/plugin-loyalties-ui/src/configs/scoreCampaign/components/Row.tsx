@@ -11,6 +11,7 @@ import Form from "./Form";
 import { Badge } from "../../../styles";
 // @ts-ignore
 import WithPermission from "coreui/withPermission";
+import { Link } from "react-router-dom";
 
 type Props = {
   campaign: IScoreCampaign;
@@ -51,7 +52,7 @@ export default function Row({
       <td onClick={(e) => e.stopPropagation()}>
         <FormControl
           checked={isChecked}
-          componentclass="checkbox"
+          componentclass='checkbox'
           onChange={onChange}
         />
       </td>
@@ -59,7 +60,7 @@ export default function Row({
       <td>{campaign.ownerType}</td>
       <td>
         <WithPermission
-          action="manageLoyalties"
+          action='manageLoyalties'
           fallbackComponent={<Badge>{campaign.status}</Badge>}
         >
           <Toggle checked={statuses[campaign.status]} onChange={handleStatus} />
@@ -67,18 +68,11 @@ export default function Row({
       </td>
       <td>
         <ActionButtons>
-          <ModalTrigger
-            size="xl"
-            title="Edit score campaign"
-            content={({ closeModal }) => (
-              <Form
-                closeModal={closeModal}
-                campaign={campaign}
-                refetch={refetch}
-              />
-            )}
-            trigger={<Button icon="edit-3" btnStyle="link" />}
-          />
+          <Link
+            to={`/erxes-plugin-loyalty/settings/score/edit/${campaign._id}`}
+          >
+            <Button icon='edit-3' btnStyle='link' />
+          </Link>
         </ActionButtons>
       </td>
     </tr>

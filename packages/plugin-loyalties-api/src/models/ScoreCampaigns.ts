@@ -9,7 +9,12 @@ import {
   SCORE_CAMPAIGN_STATUSES,
   scoreCampaignSchema,
 } from "./definitions/scoreCampaigns";
-import { getOwner } from "./utils";
+import {
+  getOwner,
+  handleOnCreateCampaignScoreField,
+  handleOnUpdateCampaignScoreField,
+  resolvePlaceholderValue,
+} from "./utils";
 
 type DoCampaingTypes = {
   serviceName: string;
@@ -71,48 +76,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       doc: IScoreCampaign,
       user: IUserDocument
     ) {
-      if (doc.fieldGroupId) {
-        if (doc.fieldId) {
-          const field = await sendCoreMessage({
-            subdomain,
-            action: "fields.findOne",
-            data: {
-              query: { _id: doc.fieldId },
-            },
-            defaultValue: null,
-            isRPC: true,
-          });
-
-          if (!field) {
-            throw new Error("Cannot find field from database");
-          }
-
-          if (!field.isDisabled) {
-            throw new Error("Somehing went wrong field is not supported");
-          }
-        } else {
-          if (!doc?.fieldName) {
-            throw new Error("Please provide a field name that for score field");
-          }
-
-          const field = await sendCoreMessage({
-            subdomain,
-            action: "fields.create",
-            data: {
-              text: doc.fieldName,
-              groupId: doc.fieldGroupId,
-              type: "input",
-              validation: "number",
-              contentType: `core:${doc.ownerType}`,
-              isDisabled: true,
-            },
-            defaultValue: null,
-            isRPC: true,
-          });
-
-          doc.fieldId = field._id;
-        }
-      }
+      doc = await handleOnCreateCampaignScoreField({ doc, subdomain });
 
       const result = await models.ScoreCampaigns.create({
         ...doc,
@@ -139,36 +103,20 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
     ) {
       const scoreCampaign = await this.getScoreCampaign(_id);
 
-      if (scoreCampaign.ownerType !== doc.ownerType) {
+      if (
+        !!scoreCampaign?.ownerType &&
+        scoreCampaign.ownerType !== doc.ownerType
+      ) {
         throw new Error(
           "You cannot modify the ownership type of the score field."
         );
       }
 
-      const modifiedFieldData: any = {};
-
-      if (doc.fieldGroupId !== scoreCampaign.fieldGroupId) {
-        modifiedFieldData.groupId = doc.fieldGroupId;
-      }
-
-      if (
-        doc.fieldName !== scoreCampaign.fieldName &&
-        doc.fieldId === scoreCampaign.fieldId
-      ) {
-        modifiedFieldData.text = doc.fieldName;
-      }
-
-      if (Object.keys(modifiedFieldData).length > 0) {
-        await sendCoreMessage({
-          subdomain,
-          action: "fields.updateOne",
-          data: {
-            selector: { _id: scoreCampaign.fieldId },
-            modifier: { $set: modifiedFieldData },
-          },
-          isRPC: true,
-        });
-      }
+      doc = await handleOnUpdateCampaignScoreField({
+        doc,
+        subdomain,
+        scoreCampaign,
+      });
       await putUpdateLog(
         models,
         subdomain,
@@ -247,25 +195,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       );
 
       for (const attribute of attributes) {
-        const [propertyName, valueToCheck, valueField] = attribute.split("-");
-
-        if (valueToCheck && valueField) {
-          const obj = (target[propertyName] || []).find(
-            (item) => item.type === valueToCheck
-          );
-
-          if (obj) {
-            placeholder = placeholder.replace(
-              `{{ ${propertyName}-${valueToCheck}-${valueField} }}`,
-              obj[valueField] || "0"
-            );
-          }
-        } else {
-          placeholder = placeholder.replace(
-            `{{ ${attribute} }}`,
-            target[attribute]
-          );
-        }
+        placeholder = resolvePlaceholderValue(target, attribute);
       }
 
       let changeScore = (eval(placeholder) || 0) * Number(currencyRatio) || 0;
@@ -357,35 +287,23 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       let { placeholder = "", currencyRatio = 0 } = campaign[actionMethod];
 
       const matches = (placeholder || "").match(/\{\{\s*([^}]+)\s*\}\}/g);
-      const attributes = (matches || []).map((match) =>
-        match.replace(/\{\{\s*|\s*\}\}/g, "")
-      );
+      const attributes = [
+        ...new Set(
+          (matches || []).map((match) => match.replace(/\{\{\s*|\s*\}\}/g, ""))
+        ),
+      ];
 
       for (const attribute of attributes) {
-        const [propertyName, valueToCheck, valueField] = attribute.split("-");
-
-        if (valueToCheck && valueField) {
-          const obj = (target[propertyName] || []).find(
-            (item) => item.type === valueToCheck
-          );
-          if (obj) {
-            placeholder = placeholder.replace(
-              `{{ ${propertyName}-${valueToCheck}-${valueField} }}`,
-              obj[valueField] || "0"
-            );
-          }
-        } else {
-          placeholder = placeholder.replace(
-            `{{ ${attribute} }}`,
-            target[attribute]
-          );
-        }
+        const placeholderValue = resolvePlaceholderValue(target, attribute);
+        placeholder = placeholder.replaceAll(
+          `{{ ${attribute} }}`,
+          placeholderValue
+        );
       }
 
       const changeScore = (eval(placeholder) || 0) * Number(currencyRatio) || 0;
-
       if (!changeScore) {
-        return
+        return;
       }
 
       // const scoreLog = await models.ScoreLogs.findOne({
@@ -479,7 +397,11 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         );
       }
 
-      await this.updateOwnerScore({ ownerId, ownerType, updatedCustomFieldsData });
+      await this.updateOwnerScore({
+        ownerId,
+        ownerType,
+        updatedCustomFieldsData,
+      });
 
       return await models.ScoreLogs.create({
         ownerId,
@@ -525,7 +447,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         ownerId,
         action: "refund",
         sourceScoreLogId: scoreLog._id,
-      })
+      });
 
       if (refundScoreLog) {
         throw new Error(
@@ -543,14 +465,14 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       }
 
       let refundAmount: number;
-  
+
       if (action === "subtract") {
         const addedScoreLogs = await models.ScoreLogs.find({
           targetId,
           ownerId,
           action: "add",
         });
-    
+
         if (addedScoreLogs && addedScoreLogs.length > 0) {
           const totalAddedScore = addedScoreLogs.reduce(
             (acc, curr) => acc + curr.changeScore,
