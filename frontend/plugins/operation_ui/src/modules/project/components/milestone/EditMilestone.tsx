@@ -27,7 +27,10 @@ export const EditMilestone = ({
 
   const handleClick = () => {
     setValue('name', milestone.name);
-    setValue('targetDate', new Date(milestone.targetDate));
+    setValue(
+      'targetDate',
+      milestone.targetDate ? new Date(milestone.targetDate) : undefined,
+    );
 
     setActiveMilestone(milestone._id);
   };
