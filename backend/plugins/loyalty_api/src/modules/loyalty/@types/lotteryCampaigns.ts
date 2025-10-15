@@ -1,0 +1,25 @@
+import { Document, Schema } from 'mongoose';
+import { field } from './utils';
+import { ICommonCampaignFields, ICommonCampaignDocument } from './common';
+
+export interface ILotteryAward extends Document {
+  _id: string;
+  name: string;
+  voucherCampaignId: string;
+  count: number;
+  wonLotteryIds: string[];
+}
+
+export interface ILotteryCampaign extends ICommonCampaignFields {
+  numberFormat: string;
+  buyScore: number;
+
+  awards: ILotteryAward[];
+}
+
+export interface ILotteryCampaignDocument
+  extends ILotteryCampaign,
+    ICommonCampaignDocument,
+    Document {
+  _id: string;
+}
