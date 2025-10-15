@@ -15,7 +15,7 @@ interface PluginConfig {
 
 export const isDev = NODE_ENV === 'development';
 
-export const keyForConfig = (name: string) => `service:config:${name}`;
+export const keyForConfig = (name: string) => `erxesservice:config:${name}`;
 
 export const getPlugins = async (): Promise<string[]> => {
   const enabledServices: any[] =
@@ -35,7 +35,7 @@ export const getPlugin = async (
   }
 
   const result: ServiceInfo = {
-    address: (await redis.get(`service-v3-${name}`)) || '',
+    address: (await redis.get(`erxes-service-${name}`)) || '',
     config: { meta: {} },
   };
 
@@ -70,13 +70,13 @@ export const joinErxesGateway = async ({
     LOAD_BALANCER_ADDRESS ||
     `http://${isDev ? 'localhost' : `plugin-${name}-api`}:${port}`;
 
-  await redis.set(`service-v3-${name}`, address);
+  await redis.set(`erxes-service-${name}`, address);
 
-  console.log(`service-v3${name} joined with ${address}`);
+  console.log(`erxes-service${name} joined with ${address}`);
 };
 
 export const leaveErxesGateway = async (name: string, port: number) => {
-  console.log(`service-v3${name} left ${port}`);
+  console.log(`erxes-service${name} left ${port}`);
 };
 
 export const isEnabled = async (name: string) => {
@@ -91,7 +91,7 @@ const pluginAddressCache = {} as any;
 
 export const getPluginAddress = async (name: string) => {
   if (!pluginAddressCache[name]) {
-    pluginAddressCache[name] = await redis.get(`service-v3-${name}`);
+    pluginAddressCache[name] = await redis.get(`erxes-service-${name}`);
   }
   return pluginAddressCache[name];
 };

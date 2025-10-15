@@ -1,29 +1,35 @@
-import { createGenerateModels } from 'erxes-api-shared/utils';
-import { IMainContext } from 'erxes-api-shared/core-types';
 import { ITaskDocument } from '@/task/@types/task';
 import { ITeamDocument, ITeamMemberDocument } from '@/team/@types/team';
+import { IMainContext } from 'erxes-api-shared/core-types';
+import { createGenerateModels } from 'erxes-api-shared/utils';
 
 import mongoose from 'mongoose';
 
-import { loadTaskClass, ITaskModel } from '@/task/db/models/Task';
-import { loadTeamClass, ITeamModel } from '@/team/db/models/Team';
 import {
-  loadTeamMemberClass,
-  ITeamMemberModel,
-} from '@/team/db/models/TeamMembers';
-import { loadStatusClass, IStatusModel } from '@/status/db/models/Status';
-import { IStatusDocument } from '@/status/@types/status';
-import { loadProjectClass, IProjectModel } from '@/project/db/models/Project';
-import { IProjectDocument } from '@/project/@types/project';
-import { loadNoteClass, INoteModel } from '@/note/db/models/Note';
-import { INoteDocument } from '@/note/types';
-import {
-  loadActivityClass,
   IActivityModel,
+  loadActivityClass,
 } from '@/activity/db/models/Activity';
 import { IActivityDocument } from '@/activity/types';
-import { loadCycleClass, ICycleModel } from '@/cycle/db/models/Cycle';
+import { ICycleModel, loadCycleClass } from '@/cycle/db/models/Cycle';
 import { ICycleDocument } from '@/cycle/types';
+import { INoteModel, loadNoteClass } from '@/note/db/models/Note';
+import { INoteDocument } from '@/note/types';
+import { IProjectDocument } from '@/project/@types/project';
+import { IProjectModel, loadProjectClass } from '@/project/db/models/Project';
+import { IStatusDocument } from '@/status/@types/status';
+import { IStatusModel, loadStatusClass } from '@/status/db/models/Status';
+import { ITaskModel, loadTaskClass } from '@/task/db/models/Task';
+import { ITeamModel, loadTeamClass } from '@/team/db/models/Team';
+import {
+  ITeamMemberModel,
+  loadTeamMemberClass,
+} from '@/team/db/models/TeamMembers';
+
+import {
+  IMilestoneModel,
+  loadMilestoneClass,
+} from '@/milestone/db/models/Milestone';
+import { IMilestoneDocument } from '@/milestone/types';
 
 export interface IModels {
   Task: ITaskModel;
@@ -34,6 +40,7 @@ export interface IModels {
   Note: INoteModel;
   Activity: IActivityModel;
   Cycle: ICycleModel;
+  Milestone: IMilestoneModel;
 }
 
 export interface IContext extends IMainContext {
@@ -82,6 +89,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Cycle = db.model<ICycleDocument, ICycleModel>(
     'operation_cycles',
     loadCycleClass(models),
+  );
+
+  models.Milestone = db.model<IMilestoneDocument, IMilestoneModel>(
+    'operation_milestones',
+    loadMilestoneClass(models),
   );
 
   return models;

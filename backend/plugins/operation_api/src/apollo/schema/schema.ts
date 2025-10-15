@@ -5,37 +5,43 @@ import {
 } from '@/task/graphql/schemas/task';
 
 import {
+  mutations as ProjectMutations,
   queries as ProjectQueries,
   types as ProjectTypes,
-  mutations as ProjectMutations,
 } from '@/project/graphql/schema/project';
 
 import {
+  mutations as TeamMutations,
   queries as TeamQueries,
   types as TeamTypes,
-  mutations as TeamMutations,
 } from '@/team/graphql/schemas/team';
 
-import {
-  queries as StatusQueries,
-  types as StatusTypes,
-  mutations as StatusMutations,
-} from '@/status/graphql/schema/status';
-import {
-  queries as NoteQueries,
-  types as NoteTypes,
-  mutations as NoteMutations,
-} from '@/note/graphql/schemas/note';
 import {
   queries as ActivityQueries,
   types as ActivityTypes,
 } from '@/activity/graphql/schemas/activity';
+import {
+  mutations as NoteMutations,
+  queries as NoteQueries,
+  types as NoteTypes,
+} from '@/note/graphql/schemas/note';
+import {
+  mutations as StatusMutations,
+  queries as StatusQueries,
+  types as StatusTypes,
+} from '@/status/graphql/schema/status';
 
 import {
+  mutations as CycleMutations,
   queries as CycleQueries,
   types as CycleTypes,
-  mutations as CycleMutations,
 } from '@/cycle/graphql/schemas/cycle';
+
+import {
+  mutations as MilestoneMutations,
+  queries as MilestoneQueries,
+  types as MilestoneTypes,
+} from '@/milestone/graphql/schemas/milestone';
 
 export const types = `
   ${TaskTypes}
@@ -45,6 +51,7 @@ export const types = `
   ${NoteTypes}
   ${ActivityTypes}
   ${CycleTypes}
+  ${MilestoneTypes}
 `;
 
 export const queries = `
@@ -55,6 +62,7 @@ export const queries = `
   ${NoteQueries}
   ${ActivityQueries}
   ${CycleQueries}
+  ${MilestoneQueries}
 `;
 
 export const mutations = `
@@ -64,6 +72,7 @@ export const mutations = `
   ${StatusMutations}
   ${NoteMutations}
   ${CycleMutations}
+  ${MilestoneMutations}
 `;
 
 export default { types, queries, mutations };
