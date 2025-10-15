@@ -1,4 +1,5 @@
 import { GET_MILESTONE } from '@/project/graphql/queries/getMilestone';
+import { IMilestone } from '@/project/types';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 
 interface IGetMilestoneQueryResponse {

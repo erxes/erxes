@@ -16,7 +16,6 @@ import {
   Popover,
   PopoverScoped,
   useFilterContext,
-  useFilterQueryState,
   useQueryState,
 } from 'erxes-ui';
 import React, { useState } from 'react';
@@ -195,6 +194,7 @@ const SelectMilestoneProvider = ({
 
   const { milestones, handleFetchMore, totalCount, loading } = useMilestones({
     variables: { projectId, searchValue: debouncedSearch },
+    skip: !projectId,
   });
 
   return (
@@ -278,7 +278,7 @@ const SelectMilestoneFilterBar = ({ projectId }: { projectId?: string }) => {
 };
 
 const SelectMilestoneFilterView = ({ projectId }: { projectId?: string }) => {
-  const [milestone, setMilestone] = useFilterQueryState<string>('milestone');
+  const [milestone, setMilestone] = useQueryState<string>('milestone');
   const { resetFilterState } = useFilterContext();
   return (
     <Filter.View filterKey="milestone">

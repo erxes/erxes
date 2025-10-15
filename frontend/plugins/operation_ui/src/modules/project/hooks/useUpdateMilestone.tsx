@@ -31,14 +31,19 @@ export const useUpdateMilestone = () => {
         });
       },
       update: (cache, { data }) => {
+        const updatedMilestone = data?.updateMilestone;
+        if (!updatedMilestone) {
+          return;
+        }
+
         cache.modify({
           id: cache.identify({
             __typename: 'MilestoneProgress',
-            _id: data.updateMilestone._id,
+            _id: updatedMilestone._id,
           }),
           fields: {
-            name: () => data.updateMilestone.name,
-            targetDate: () => data.updateMilestone.targetDate,
+            name: () => updatedMilestone.name,
+            targetDate: () => updatedMilestone.targetDate,
           },
         });
       },
@@ -54,20 +59,25 @@ export const useUpdateMilestone = () => {
       });
     },
     update: (cache, { data }) => {
-      const removedId = data.removeMilestone._id;
+      const removedMilestone = data?.removeMilestone;
+      if (!removedMilestone) {
+        return;
+      }
+
+      const removedId = removedMilestone._id;
 
       const existingData = cache.readQuery<{
         milestoneProgress: Array<IMilestone & IMilestoneProgress>;
       }>({
         query: GET_PROJECT_PROGRESS_BY_MILESTONE,
-        variables: { projectId: data.removeMilestone.projectId },
+        variables: { projectId: removedMilestone.projectId },
       });
 
       if (!existingData) return;
 
       cache.writeQuery({
         query: GET_PROJECT_PROGRESS_BY_MILESTONE,
-        variables: { projectId: data.removeMilestone.projectId },
+        variables: { projectId: removedMilestone.projectId },
         data: {
           milestoneProgress: existingData.milestoneProgress.filter(
             (milestone) => milestone._id !== removedId,

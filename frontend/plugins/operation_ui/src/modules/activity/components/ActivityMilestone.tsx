@@ -25,7 +25,7 @@ export const ActivityMilestone = ({
       <div className="inline-flex items-center gap-1">
         removed milestone
         <span className="font-bold">
-          <MilestoneInline milestoneId={metadata.newValue} />
+          <MilestoneInline milestoneId={metadata.previousValue || ''} />
         </span>
       </div>
     );

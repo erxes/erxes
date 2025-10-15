@@ -38,7 +38,10 @@ export const loadMilestoneClass = (models: IModels) => {
       doc: IMilestone,
       user: IUserDocument,
     ): Promise<IMilestoneDocument> {
-      const milestone = await models.Milestone.create(doc);
+      const milestone = await models.Milestone.create({
+        ...doc,
+        createdBy: user._id,
+      });
 
       await models.Activity.createActivity({
         action: 'CREATED',

@@ -21,7 +21,7 @@ export const useGetProjectProgressByMilestone = (options: QueryHookOptions) => {
   useEffect(() => {
     const unsubscribe = subscribeToMore({
       document: TASK_LIST_CHANGED,
-      variables: { projectId: options.variables?._id },
+      variables: { projectId: options.variables?.projectId },
       updateQuery: () => {
         refetch();
       },

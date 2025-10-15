@@ -73,7 +73,7 @@ export const MilestoneFields = ({
     >
       <div onKeyDown={handleKeyDown} ref={milestoneRef}>
         <form
-          onSubmit={handleSubmit(onSubmit, (error) => console.log(error))}
+          onSubmit={handleSubmit(onSubmit)}
           className="w-full h-full flex items-center"
         >
           <div className="w-full flex justify-between items-center">

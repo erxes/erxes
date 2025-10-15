@@ -1,5 +1,5 @@
 import { cursorPaginate } from 'erxes-api-shared/utils';
-import { Types } from 'mongoose';
+import { FilterQuery, Types } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import {
   IMilestoneDocument,
@@ -23,6 +23,14 @@ export const milestoneQueries = {
 
     const {projectId, searchValue} = params; 
 
+    const filter: FilterQuery<IMilestoneParams> = {
+      projectId: projectId,
+    }
+
+    if(searchValue) {
+      filter.name = new RegExp(`.*${searchValue}.*`, 'i')
+    }
+
     const { list, totalCount, pageInfo } =
       await cursorPaginate<IMilestoneDocument>({
         model: models.Milestone,
@@ -30,7 +38,7 @@ export const milestoneQueries = {
           ...params,
           orderBy: { isActive: -1, isCompleted: 1, startDate: 1 },
         },
-        query: { projectId: projectId, name: new RegExp(`.*${searchValue}.*`, 'i') },
+        query: filter,
       });
 
     return { list, totalCount, pageInfo };
