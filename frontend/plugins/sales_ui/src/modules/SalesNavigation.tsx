@@ -180,7 +180,7 @@ function SalesItem({ name, Icon }: { name: string; Icon: Icon }) {
     }
 
     if (!selectedBoardId && !storedBoardId && lastBoard) {
-      const baseUrl = `/deals/?boardId=${lastBoard._id}`;
+      const baseUrl = `/deals?boardId=${lastBoard._id}`;
 
       const url =
         lastBoard.pipelines && lastBoard.pipelines.length > 0
@@ -192,7 +192,7 @@ function SalesItem({ name, Icon }: { name: string; Icon: Icon }) {
 
     if (!selectedBoardId && storedBoardId && storedPipelineId) {
       navigate(
-        `/deals/?boardId=${storedBoardId}&pipelineId=${storedPipelineId}`,
+        `/deals?boardId=${storedBoardId}&pipelineId=${storedPipelineId}`,
       );
     }
   }, [

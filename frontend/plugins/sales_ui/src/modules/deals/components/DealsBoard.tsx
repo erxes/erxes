@@ -19,6 +19,7 @@ import { DealsBoardCard } from '@/deals/components/DealsBoardCard';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { IDeal } from '@/deals/types/deals';
 import { IconPlus } from '@tabler/icons-react';
+import { StagesLoading } from '@/deals/components/loading/StagesLoading';
 import clsx from 'clsx';
 import { dealCountByBoardAtom } from '@/deals/states/dealsTotalCountState';
 import { useEffect } from 'react';
@@ -34,7 +35,7 @@ export const DealsBoard = () => {
   const { changeDeals } = useDealsChange();
   const [pipelineId] = useQueryState<string>('pipelineId');
 
-  const { stages } = useStages({
+  const { stages, loading: stagesLoading } = useStages({
     variables: {
       pipelineId,
     },
@@ -143,12 +144,16 @@ export const DealsBoard = () => {
     }));
   };
 
+  if (stagesLoading) {
+    return <StagesLoading />;
+  }
   return (
     <Board.Provider
       columns={columns}
       data={deals}
       onDragEnd={handleDragEnd}
       boardId={clsx('deals-board', pipelineId)}
+      emptyUrl={'/settings/deals'}
     >
       {(column) => (
         <Board id={column.id} key={column.id} sortBy="updated">
