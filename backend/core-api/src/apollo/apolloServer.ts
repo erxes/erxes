@@ -55,6 +55,7 @@ export const initApolloServer = async (app, httpServer) => {
     expressMiddleware(apolloServer, {
       context: generateApolloContext<IMainContext>(
         async (subdomain, context) => {
+          console.log('subdomain');
           const models = await generateModels(subdomain);
 
           context.models = models;
