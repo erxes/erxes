@@ -123,6 +123,7 @@ const ScoreForm = ({ renderButton, closeModal }: Props) => {
     return {
       ...values,
       changeScore: Number(values?.changeScore || 0),
+      description: 'manual',
       ownerId,
       targetId,
       serviceName,

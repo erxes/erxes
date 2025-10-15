@@ -85,7 +85,11 @@ const generateFilter = async (
       };
     }
 
-    filter.action = params.action;
+    if (params.action === 'manual') {
+      filter.description = new RegExp(`.*manual.*`, 'i');
+    } else {
+      filter.action = params.action;
+    }
   }
 
   if (params.stageId) {
