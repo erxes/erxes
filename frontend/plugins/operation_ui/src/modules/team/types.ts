@@ -27,6 +27,7 @@ export interface ITeam {
   createdAt: string;
   updatedAt: string;
   cycleEnabled: boolean;
+  defaultStatusId?: string;
   taskCount: number;
   memberCount: number;
 }

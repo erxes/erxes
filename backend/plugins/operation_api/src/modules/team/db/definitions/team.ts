@@ -8,6 +8,7 @@ export const teamSchema = new Schema(
     description: { type: String, label: 'Description' },
     estimateType: { type: Number, label: 'Estimate Type' },
     cycleEnabled: { type: Boolean, label: 'Cycle Enabled', default: false },
+    defaultStatusId: { type: Schema.Types.ObjectId, label: 'Default Status ID' },
   },
   {
     timestamps: true,

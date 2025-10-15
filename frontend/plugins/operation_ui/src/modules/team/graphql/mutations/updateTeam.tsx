@@ -9,6 +9,7 @@ export const UPDATE_TEAM = gql`
     $memberIds: [String]
     $estimateType: Int
     $cycleEnabled: Boolean
+    $defaultStatusId: String
   ) {
     teamUpdate(
       _id: $_id
@@ -18,6 +19,7 @@ export const UPDATE_TEAM = gql`
       memberIds: $memberIds
       estimateType: $estimateType
       cycleEnabled: $cycleEnabled
+      defaultStatusId: $defaultStatusId
     ) {
       _id
     }
