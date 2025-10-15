@@ -3,7 +3,7 @@ import { initTRPC } from '@trpc/server';
 import { ITRPCContext } from 'erxes-api-shared/utils';
 
 import { z } from 'zod';
-import { generateFacebookFields } from '~/modules/integrations/facebook/fieldUtils';
+import { generateFacebookFields } from '@/integrations/facebook/fieldUtils';
 import { IModels } from './connectionResolvers';
 import { conversationTrpcRouter } from './modules/inbox/trpc/conversation';
 import { inboxTrpcRouter } from './modules/inbox/trpc/inbox';

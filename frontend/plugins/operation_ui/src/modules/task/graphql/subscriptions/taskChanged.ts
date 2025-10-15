@@ -21,6 +21,7 @@ export const TASK_CHANGED = gql`
         cycleId
         projectId
         estimatePoint
+        milestoneId
       }
     }
   }

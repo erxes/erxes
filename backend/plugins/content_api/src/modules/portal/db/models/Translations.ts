@@ -1,44 +1,44 @@
 import { Model } from 'mongoose';
 
 import {
-  IPostTranslation,
-  IPostTranslationDocument,
+  ITranslation,
+  ITranslationDocument,
 } from '@/portal/@types/translations';
-import { postTranslationSchema } from '@/portal/db/definitions/translations';
+import { translationSchema } from '@/portal/db/definitions/translations';
 import { IModels } from '~/connectionResolvers';
 
-export interface IPostTranslationModel extends Model<IPostTranslationDocument> {
-  createPostTranslation: (
-    doc: IPostTranslation,
-  ) => Promise<IPostTranslationDocument>;
-  updatePostTranslation: (
+export interface ITranslationModel extends Model<ITranslationDocument> {
+  createTranslation: (
+    doc: ITranslation,
+  ) => Promise<ITranslationDocument>;
+  updateTranslation: (
     _id: string,
-    doc: IPostTranslation,
-  ) => Promise<IPostTranslationDocument>;
-  deletePostTranslation: (_id: string) => Promise<IPostTranslationDocument>;
+    doc: ITranslation,
+  ) => Promise<ITranslationDocument>;
+  deleteTranslation: (_id: string) => Promise<ITranslationDocument>;
 }
 
-export const loadPostTranslationClass = (models: IModels) => {
-  class PostTranslations {
-    public static async createPostTranslation(doc: IPostTranslation) {
-      return await models.PostTranslations.create(doc);
+export const loadTranslationClass = (models: IModels) => {
+  class Translations {
+    public static async createTranslation(doc: ITranslation) {
+      return await models.Translations.create(doc);
     }
 
-    public static async updatePostTranslation(
+    public static async updateTranslation(
       _id: string,
-      doc: IPostTranslation,
+      doc: ITranslation,
     ) {
-      return await models.PostTranslations.findByIdAndUpdate(_id, doc, {
+      return await models.Translations.findByIdAndUpdate(_id, doc, {
         new: true,
       });
     }
 
-    public static async deletePostTranslation(_id: string) {
-      return await models.PostTranslations.findByIdAndDelete(_id);
+    public static async deleteTranslation(_id: string) {
+      return await models.Translations.findByIdAndDelete(_id);
     }
   }
 
-  postTranslationSchema.loadClass(PostTranslations);
+  translationSchema.loadClass(Translations);
 
-  return postTranslationSchema;
+  return translationSchema;
 };

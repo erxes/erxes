@@ -5,7 +5,7 @@ import { IFacebookConversation } from '@/integrations/facebook/@types/conversati
 import {
   TBotConfigMessageButton,
   TBotData,
-} from '~/modules/integrations/facebook/meta/automation/types/automationTypes';
+} from '@/integrations/facebook/meta/automation/types/automationTypes';
 
 export const triggerFacebookAutomation = async (
   subdomain: string,

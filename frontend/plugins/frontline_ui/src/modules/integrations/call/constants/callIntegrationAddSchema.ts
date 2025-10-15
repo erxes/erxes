@@ -18,9 +18,6 @@ export const CALL_INTEGRATION_FORM_SCHEMA = z.object({
       userId: z.string().optional(),
       gsUsername: z.string().min(1),
       gsPassword: z.string().min(1),
-      gsForwardAgent: z.boolean().optional(),
     }),
   ),
-  brandId: z.string().min(1),
-  channelIds: z.array(z.string().min(1)),
 });

@@ -34,7 +34,7 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
       name: config?.name,
       brandId: config?.brandId,
       languageCode: settings?.languageCode || DEFAULT_LANGUAGE,
-      channelIds: config?.channelIds || [],
+      channelId: config?.channelId || '',
     },
     saveConfigVariables: {
       messengerData: {

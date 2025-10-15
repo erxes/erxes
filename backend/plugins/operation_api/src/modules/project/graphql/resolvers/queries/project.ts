@@ -9,7 +9,7 @@ import { differenceInCalendarDays } from 'date-fns';
 import { requireLogin } from 'erxes-api-shared/core-modules';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import moment from 'moment';
-import { FilterQuery } from 'mongoose';
+import { FilterQuery, Types } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
 export const projectQueries = {
@@ -102,13 +102,13 @@ export const projectQueries = {
 
   getProjectProgress: async (
     _parent: undefined,
-    { _id },
+    { _id }: { _id: string },
     { models }: IContext,
   ) => {
     const result = await models.Task.aggregate([
       {
         $match: {
-          projectId: _id,
+          projectId: new Types.ObjectId(_id),
         },
       },
       {
@@ -201,13 +201,13 @@ export const projectQueries = {
 
   getProjectProgressByMember: async (
     _parent: undefined,
-    { _id },
+    { _id }: { _id: string },
     { models }: IContext,
   ) => {
     return models.Task.aggregate([
       {
         $match: {
-          projectId: _id,
+          projectId: new Types.ObjectId(_id),
         },
       },
       {
@@ -340,13 +340,13 @@ export const projectQueries = {
 
   getProjectProgressByTeam: async (
     _parent: undefined,
-    { _id },
+    { _id }: { _id: string },
     { models }: IContext,
   ) => {
     return models.Task.aggregate([
       {
         $match: {
-          projectId: _id,
+          projectId: new Types.ObjectId(_id),
         },
       },
       {
@@ -479,7 +479,7 @@ export const projectQueries = {
 
   getProjectProgressChart: async (
     _parent: undefined,
-    { _id },
+    { _id }: { _id: string },
     { models }: IContext,
   ) => {
     const project = await models.Project.findOne({ _id });
@@ -490,7 +490,7 @@ export const projectQueries = {
 
     const [totalScopeResult] = await models.Task.aggregate([
       {
-        $match: { projectId: _id },
+        $match: { projectId: new Types.ObjectId(_id) },
       },
       {
         $match: { statusType: { $ne: STATUS_TYPES.CANCELLED } },

@@ -12,4 +12,5 @@ export const addTaskSchema = z.object({
   projectId: z.string().optional(),
   cycleId: z.string().optional(),
   estimatePoint: z.number().min(0, 'Estimate point is required'),
+  milestoneId: z.string().optional(),
 });

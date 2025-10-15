@@ -1,3 +1,4 @@
+import { markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 export const authQueries = {
@@ -16,3 +17,7 @@ export const authQueries = {
     return result;
   },
 };
+
+markResolvers(authQueries, {
+  skipPermission: true,
+});

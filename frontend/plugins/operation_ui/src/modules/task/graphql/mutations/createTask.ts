@@ -13,6 +13,7 @@ export const CREATE_TASK_MUTATION = gql`
     $assigneeId: String
     $cycleId: String
     $projectId: String
+    $milestoneId: String
   ) {
     createTask(
       name: $name
@@ -26,6 +27,7 @@ export const CREATE_TASK_MUTATION = gql`
       assigneeId: $assigneeId
       cycleId: $cycleId
       projectId: $projectId
+      milestoneId: $milestoneId
     ) {
       _id
     }

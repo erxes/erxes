@@ -1,6 +1,8 @@
 import { IIntegrationDocument } from '@/inbox/@types/integrations';
 import { IContext } from '~/connectionResolvers';
 import { facebookStatus } from '@/integrations/facebook/messageBroker';
+import { graphRequest } from '@/integrations/facebook/utils';
+import { IFacebookPageResponse } from '@/integrations/facebook/@types/integrations';
 export const integrationStatus = async (
   serviceName: string,
   subdomain: string,
@@ -33,17 +35,17 @@ export default {
   async __resolveReference({ _id }, { models }: IContext) {
     return models.Integrations.findOne({ _id });
   },
-  brand(integration: IIntegrationDocument) {
-    if (!integration.brandId) {
-      return null;
-    }
-    return (
-      integration.brandId && {
-        __typename: 'Brand',
-        _id: integration.brandId,
-      }
-    );
-  },
+  // brand(integration: IIntegrationDocument) {
+  //   if (!integration.brandId) {
+  //     return null;
+  //   }
+  //   return (
+  //     integration.brandId && {
+  //       __typename: 'Brand',
+  //       _id: integration.brandId,
+  //     }
+  //   );
+  // },
 
   async form(
     integration: IIntegrationDocument,
@@ -130,5 +132,60 @@ export default {
       return null;
     }
     return serviceName;
+  },
+
+  async facebookPage(
+    integration: IIntegrationDocument,
+    _args,
+    { models }: IContext,
+  ) {
+    const serviceName = integration.kind.includes('facebook')
+      ? 'facebook'
+      : integration.kind;
+
+    if (serviceName !== 'facebook') return null;
+
+    try {
+      const facebookIntegration = await models.FacebookIntegrations.findOne({
+        erxesApiId: integration._id,
+      });
+
+      if (
+        !facebookIntegration ||
+        !Array.isArray(facebookIntegration.facebookPageIds)
+      ) {
+        console.warn('No facebookIntegration or no facebookPageIds found');
+        return null;
+      }
+
+      const results = await Promise.all(
+        facebookIntegration.facebookPageIds.map(async (pageId) => {
+          const token = facebookIntegration.facebookPageTokensMap?.[pageId];
+          if (!token) {
+            console.warn(`Token not found for pageId: ${pageId}`);
+            return null;
+          }
+
+          try {
+            const response = (await graphRequest.get(
+              `/${pageId}?fields=id,name`,
+              token,
+            )) as IFacebookPageResponse;
+            return response ? { pageId, ...response } : null;
+          } catch (err) {
+            console.error(`Failed to fetch page ${pageId}:`, err);
+            return null;
+          }
+        }),
+      );
+
+      const filtered = results.filter(Boolean) as ({
+        pageId: string;
+      } & IFacebookPageResponse)[];
+      return filtered.length > 0 ? filtered : null;
+    } catch (error) {
+      console.error('Failed to fetch Facebook pages:', error);
+      throw error;
+    }
   },
 };

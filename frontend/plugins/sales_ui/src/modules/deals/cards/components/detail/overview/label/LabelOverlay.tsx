@@ -8,10 +8,12 @@ import {
 
 import { IPipelineLabel } from '@/deals/types/pipelines';
 import LabelForm from './LabelForm';
+import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
+import { useAtom } from 'jotai';
 
 const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
   const [pipelineId] = useQueryState('pipelineId');
-  const [targetId] = useQueryState('salesItemId');
+  const [targetId] = useAtom(dealDetailSheetState);
 
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);

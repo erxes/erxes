@@ -1,8 +1,8 @@
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
-import { ICallOperatorDocuments } from '~/modules/integrations/call/@types/operators';
-import { operatorSchema } from '~/modules/integrations/call/db/definitions/operators';
+import { ICallOperatorDocuments } from '@/integrations/call/@types/operators';
+import { operatorSchema } from '@/integrations/call/db/definitions/operators';
 
 export interface ICallOperatorModel extends Model<ICallOperatorDocuments> {
   getOperator(userId: string): Promise<ICallOperatorDocuments>;

@@ -17,8 +17,9 @@ const config: ModuleFederationConfig = {
   exposes: {
     './config': './src/config.tsx',
     './frontline': './src/modules/Main.tsx',
-    './inboxSettings': './src/modules/inbox/Settings.tsx',
+    './configsSettings': './src/modules/integrations-config/Settings.tsx',
     './ticketSettings': './src/modules/ticket/Settings.tsx',
+    './channelsSettings': './src/modules/channels/Settings.tsx',
     './automationsWidget':
       './src/widgets/automations/components/AutomationRemoteEntry.tsx',
     './notificationWidget':

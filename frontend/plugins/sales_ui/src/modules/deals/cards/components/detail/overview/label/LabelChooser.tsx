@@ -1,7 +1,7 @@
 import { IPipelineLabel } from '@/deals/types/pipelines';
 import { IconPlus } from '@tabler/icons-react';
 import LabelOverlay from './LabelOverlay';
-import Labels from './Labels';
+import Labels from '@/deals/cards/components/detail/overview/label/Labels';
 import { Popover } from 'erxes-ui';
 
 const LabelChooser = ({ labels }: { labels: IPipelineLabel[] }) => {

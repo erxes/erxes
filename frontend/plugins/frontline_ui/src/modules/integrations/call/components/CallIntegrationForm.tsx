@@ -3,8 +3,7 @@ import { Button, Sheet, Form, Input, Checkbox, Spinner } from 'erxes-ui';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { CALL_INTEGRATION_FORM_SCHEMA } from '@/integrations/call/constants/callIntegrationAddSchema';
 import { z } from 'zod';
-import { SelectBrand, SelectMember } from 'ui-modules';
-import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import { SelectMember } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { callEditSheetAtom } from '@/integrations/call/states/callEditSheetAtom';
 
@@ -88,33 +87,7 @@ export const CallIntegrationForm = ({
               </Form.Item>
             )}
           />
-          <Form.Field
-            name="brandId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Select brand</Form.Label>
-                <SelectBrand.FormItem
-                  value={field.value}
-                  onValueChange={(val) => field.onChange(val)}
-                />
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            name="channelIds"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Select channels</Form.Label>
-                <SelectChannel.FormItem
-                  value={field.value}
-                  mode="multiple"
-                  onValueChange={(val) => field.onChange(val)}
-                />
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+
           <Form.Field
             name="srcTrunk"
             render={({ field }) => (
@@ -202,7 +175,6 @@ export const CallIntegrationForm = ({
                 userId: undefined,
                 gsUsername: '',
                 gsPassword: '',
-                gsForwardAgent: false,
               })
             }
           >

@@ -164,36 +164,34 @@ export default class Builder {
     };
   }
 
-  /*
-   * find integrationIds from channel && brand
-   */
   public async integrationsFilter(): Promise<IIntersectIntegrationIds> {
-    // find all posssible integrations
     let availIntegrationIds: string[] = [];
 
-    const channelQuery =
-      this.user.role && this.user.role === 'system'
-        ? {}
-        : {
-            memberIds: this.user._id,
-          };
+    if (this.user.role === 'system') {
+      const integrations = await this.models.Integrations.find({}).lean();
+      availIntegrationIds = integrations.map((i) => i._id.toString());
+    } else {
+      const channelMemberships = await this.models.ChannelMembers.find({
+        memberId: this.user._id,
+      }).lean();
+      let channelIds = channelMemberships.map((m) => m.channelId);
 
-    const channels = await this.models.Channels.find(channelQuery);
+      if (this.params.channelId) {
+        channelIds = [this.params.channelId];
+      }
 
-    if (channels.length === 0) {
-      return {
-        integrationId: { $in: [] },
-      };
+      if (channelIds.length === 0) {
+        return { integrationId: { $in: [] } };
+      }
+
+      const integrations = await this.models.Integrations.find({
+        channelId: { $in: channelIds },
+      }).lean();
+
+      availIntegrationIds = integrations
+        .map((i) => i._id.toString())
+        .filter((id) => this.activeIntegrationIds.includes(id));
     }
-
-    channels.forEach((channel) => {
-      availIntegrationIds = _.union(
-        availIntegrationIds,
-        (channel.integrationIds || []).filter((id) =>
-          this.activeIntegrationIds.includes(id),
-        ),
-      );
-    });
 
     const nestedIntegrationIds: Array<{ integrationId: { $in: string[] } }> = [
       { integrationId: { $in: availIntegrationIds } },
@@ -208,10 +206,7 @@ export default class Builder {
     // filter by brand
     if (this.params.brandId) {
       const brandQuery = await this.brandFilter(this.params.brandId);
-
-      if (brandQuery) {
-        nestedIntegrationIds.push(brandQuery);
-      }
+      if (brandQuery) nestedIntegrationIds.push(brandQuery);
     }
 
     return this.intersectIntegrationIds(...nestedIntegrationIds);
@@ -221,20 +216,24 @@ export default class Builder {
   public async channelFilter(
     channelId: string,
   ): Promise<{ integrationId: IIn }> {
-    const channel = await this.models.Channels.getChannel(channelId);
-    const memberIds = channel.memberIds || [];
+    const isMember = await this.models.ChannelMembers.exists({
+      channelId,
+      memberId: this.user._id,
+    });
 
-    if (!memberIds.includes(this.user._id)) {
-      return {
-        integrationId: {
-          $in: [],
-        },
-      };
+    if (!isMember) {
+      return { integrationId: { $in: [] } };
     }
+
+    const integrations = await this.models.Integrations.find({
+      channelId,
+    }).lean();
+
+    const integrationIds = integrations.map((i) => i._id.toString());
 
     return {
       integrationId: {
-        $in: (channel.integrationIds || []).filter((id) =>
+        $in: integrationIds.filter((id) =>
           this.activeIntegrationIds.includes(id),
         ),
       },
@@ -245,19 +244,15 @@ export default class Builder {
   public async brandFilter(
     brandId: string,
   ): Promise<{ integrationId: IIn } | undefined> {
-    const integrations = await this.models.Integrations.findIntegrations({
+    const integrations = await this.models.Integrations.find({
       brandId,
-    });
+    }).lean();
 
-    if (integrations.length === 0) {
-      return;
-    }
+    if (integrations.length === 0) return;
 
-    const integrationIds = _.pluck(integrations, '_id');
+    const integrationIds = integrations.map((i) => i._id.toString());
 
-    return {
-      integrationId: { $in: integrationIds },
-    };
+    return { integrationId: { $in: integrationIds } };
   }
 
   // filter all unassigned

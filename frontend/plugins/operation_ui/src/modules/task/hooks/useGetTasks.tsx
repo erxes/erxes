@@ -1,20 +1,20 @@
-import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_TASKS } from '@/task/graphql/queries/getTasks';
+import { TASK_LIST_CHANGED } from '@/task/graphql/subscriptions/taskListChanged';
 import { ITask } from '@/task/types';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
-  mergeCursorData,
-  validateFetchMore,
   EnumCursorDirection,
   ICursorListResponse,
-  useToast,
   isUndefinedOrNull,
+  mergeCursorData,
   useNonNullMultiQueryState,
+  useToast,
+  validateFetchMore,
 } from 'erxes-ui';
-import { useParams } from 'react-router-dom';
-import { currentUserState } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
-import { TASK_LIST_CHANGED } from '@/task/graphql/subscriptions/taskListChanged';
+import { useParams } from 'react-router-dom';
+import { currentUserState } from 'ui-modules';
 
 const TASKS_PER_PAGE = 30;
 
@@ -29,14 +29,15 @@ export const useTasksVariables = (
   variables?: QueryHookOptions<ICursorListResponse<ITask>>['variables'],
 ) => {
   const { teamId } = useParams();
-  const { searchValue, assignee, team, priority, status } =
+  const { searchValue, assignee, team, priority, status, milestone } =
     useNonNullMultiQueryState<{
       searchValue: string;
       assignee: string;
       team: string;
       priority: string;
       status: string;
-    }>(['searchValue', 'assignee', 'team', 'priority', 'status']);
+      milestone: string;
+    }>(['searchValue', 'assignee', 'team', 'priority', 'status', 'milestone']);
   const currentUser = useAtomValue(currentUserState);
 
   return {
@@ -52,6 +53,7 @@ export const useTasksVariables = (
     priority: priority,
     status: teamId ? status : undefined,
     statusType: teamId ? undefined : status,
+    milestoneId: milestone,
     ...variables,
     ...(!variables?.teamId &&
       !variables?.userId &&

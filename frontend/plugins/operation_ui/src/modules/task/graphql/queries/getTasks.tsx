@@ -1,5 +1,5 @@
-import gql from 'graphql-tag';
 import { GQL_PAGE_INFO } from 'erxes-ui';
+import gql from 'graphql-tag';
 
 export const GET_TASKS = gql`
   query GetTasks(
@@ -25,6 +25,7 @@ export const GET_TASKS = gql`
         cycleId
         projectId
         estimatePoint
+        milestoneId
       } 
       ${GQL_PAGE_INFO}
       totalCount

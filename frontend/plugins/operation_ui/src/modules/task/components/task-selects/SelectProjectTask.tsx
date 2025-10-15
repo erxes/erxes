@@ -255,7 +255,7 @@ const SelectProjectRoot = ({
         updateTask({
           variables: {
             _id: taskId,
-            projectId: value,
+            projectId: value || null,
           },
         });
         setOpen(false);

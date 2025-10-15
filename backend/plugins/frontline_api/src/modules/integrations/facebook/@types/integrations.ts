@@ -16,3 +16,8 @@ export interface IFacebookIntegrationDocument
     Document {
   _id: string;
 }
+
+export interface IFacebookPageResponse {
+  id: string;
+  name: string;
+}

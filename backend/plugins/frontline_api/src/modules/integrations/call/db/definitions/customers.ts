@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose';
 import { field } from '../utils';
-import { ICallCustomerModel } from '~/modules/integrations/call/db/models/Customers';
-import { ICallCustomer } from '~/modules/integrations/call/@types/customers';
+import { ICallCustomerModel } from '@/integrations/call/db/models/Customers';
+import { ICallCustomer } from '@/integrations/call/@types/customers';
 
 export const customerSchema: Schema<ICallCustomer, ICallCustomerModel> =
   new Schema<ICallCustomer, ICallCustomerModel>({
