@@ -225,7 +225,7 @@ export const loadTaskClass = (models: IModels) => {
 
         rest.number = nextNumber;
         rest.status = newStatus?._id;
-        rest.cycleId = '';
+        rest.cycleId = null;
       }
 
       await createActivity({
