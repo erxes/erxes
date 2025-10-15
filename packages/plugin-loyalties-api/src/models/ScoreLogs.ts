@@ -86,7 +86,7 @@ const generateFilter = async (
     }
 
     if (params.action === 'manual') {
-      filter.description = new RegExp(`.*manual.*`, 'i');
+      filter.description = /^manual/i;
     } else {
       filter.action = params.action;
     }
