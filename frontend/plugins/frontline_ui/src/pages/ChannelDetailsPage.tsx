@@ -28,7 +28,7 @@ export const ChannelDetailsPage = () => {
       </div>
 
       <section className="mx-auto max-w-4xl w-full relative">
-        <div className="flex items-center">
+        <div className="flex items-center aa">
           <ChannelDetails />
         </div>
       </section>

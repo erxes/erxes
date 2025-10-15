@@ -12,6 +12,7 @@ import {
   Switch,
   Textarea,
   Tooltip,
+  useQueryState,
 } from 'erxes-ui';
 import {
   EMLayout,
@@ -25,15 +26,18 @@ import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/compo
 import { useCreateMessenger } from '@/integrations/erxes-messenger/hooks/useCreateMessenger';
 import { useSetAtom } from 'jotai';
 import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
+import { useParams } from 'react-router';
 
 type EMConfigFormValues = z.infer<typeof EM_CONFIG_SCHEMA>;
 
 export const EMConfig = () => {
+  const { id } = useParams();
+  console.log('first', id);
   const form = useForm<EMConfigFormValues>({
     resolver: zodResolver(EM_CONFIG_SCHEMA),
     defaultValues: {
       name: '',
-      brandId: '',
+      channelId: id,
     },
   });
 
@@ -83,34 +87,6 @@ export const EMConfig = () => {
                       <Form.Control>
                         <Input {...field} />
                       </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                <Form.Field
-                  name="brandId"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Brand</Form.Label>
-                      <SelectBrand.FormItem
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        className="max-w-96"
-                      />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                <Form.Field
-                  name="channelId"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Channel</Form.Label>
-                      <SelectChannel.FormItem
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        className="max-w-96"
-                      />
                       <Form.Message />
                     </Form.Item>
                   )}

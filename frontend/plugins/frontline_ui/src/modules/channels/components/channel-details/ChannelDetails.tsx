@@ -11,7 +11,7 @@ export const ChannelDetails = () => {
   if (loading) return null;
   if (!channel) return <div>Not found</div>;
   return (
-    <div className="w-full px-4 sm:px-8 lg:px-16 flex flex-col gap-4">
+    <div className="w-full px-4 sm:px-8 lg:px-16 flex h-full flex-col gap-4 overflow-y-scroll">
       <span className="flex justify-between">
         <h1 className="text-2xl font-semibold">{channel.name}</h1>
       </span>
@@ -23,6 +23,7 @@ export const ChannelDetails = () => {
       <MemberSection channel={channel} />
       {/* <IntegrationsSection channel={channel} /> */}
       <IntegrationList />
+      {/* <IntegrationList /> */}
     </div>
   );
 };
