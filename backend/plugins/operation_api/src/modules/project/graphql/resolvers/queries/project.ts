@@ -8,6 +8,7 @@ import { STATUS_TYPES } from '@/status/constants/types';
 import { differenceInCalendarDays } from 'date-fns';
 import { requireLogin } from 'erxes-api-shared/core-modules';
 import { cursorPaginate } from 'erxes-api-shared/utils';
+import moment from 'moment';
 import { FilterQuery, Types } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
@@ -597,7 +598,7 @@ export const projectQueries = {
           baseDate,
         );
       }
-      chartData.chartData = fillMissingDays([], baseDate, totalDays);
+      chartData.chartData = fillMissingDays([], moment(baseDate), totalDays);
     }
     if (
       chartDataAggregation.length > 0 &&
@@ -613,7 +614,7 @@ export const projectQueries = {
         if (chartDataAggregation.length < 7) {
           chartData.chartData = fillMissingDays(
             chartDataAggregation,
-            baseDate,
+            moment(baseDate),
             7,
           );
 
@@ -641,7 +642,7 @@ export const projectQueries = {
 
         chartData.chartData = fillMissingDays(
           chartDataAggregation,
-          startDate,
+          moment(startDate),
           totalDays,
         );
         return chartData;
@@ -660,7 +661,7 @@ export const projectQueries = {
 
         chartData.chartData = fillMissingDays(
           chartDataAggregation,
-          startDate,
+          moment(startDate),
           totalDays,
         );
         return chartData;
