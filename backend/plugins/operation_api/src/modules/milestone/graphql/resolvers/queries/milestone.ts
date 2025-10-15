@@ -36,7 +36,7 @@ export const milestoneQueries = {
         model: models.Milestone,
         params: {
           ...params,
-          orderBy: { isActive: -1, isCompleted: 1, startDate: 1 },
+          orderBy: { createdAt: -1 },
         },
         query: filter,
       });

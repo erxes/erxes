@@ -42,7 +42,7 @@ export const MilestoneFields = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [milestoneRef, open]);
+  }, [milestoneRef, open, setActiveMilestone]);
 
   if (!isActive) {
     return (
