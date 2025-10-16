@@ -115,14 +115,18 @@ export function SettingsRoutes() {
           path={SettingsPath.Experience}
           element={<SettingsExperiencePage />}
         /> */}
-        <Route
-          path={SettingsWorkspacePath.FileUpload}
-          element={<SettingsFileUpload />}
-        />
-        <Route
-          path={SettingsWorkspacePath.MailConfig}
-          element={<SettingsMailConfig />}
-        />
+        {isOs && (
+          <Route
+            path={SettingsWorkspacePath.FileUpload}
+            element={<SettingsFileUpload />}
+          />
+        )}
+        {isOs && (
+          <Route
+            path={SettingsWorkspacePath.MailConfig}
+            element={<SettingsMailConfig />}
+          />
+        )}
         <Route
           path={SettingsWorkspacePath.General}
           element={<GeneralSettings />}
