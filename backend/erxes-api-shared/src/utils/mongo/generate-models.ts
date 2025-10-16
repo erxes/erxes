@@ -46,7 +46,7 @@ export const createGenerateModels = <IModels>(
   connect();
 
   if (VERSION && VERSION !== 'saas') {
-    let models: IModels | null = null;
+    const models: IModels | null = null;
     return async function genereteModels(
       hostnameOrSubdomain: string,
     ): Promise<IModels> {
@@ -67,6 +67,8 @@ export const createGenerateModels = <IModels>(
     ): Promise<IModels> {
       let subdomain: string = hostnameOrSubdomain;
 
+      console.log(subdomain, 'subdomain1');
+
       if (!subdomain) {
         throw new Error(`Subdomain is \`${subdomain}\``);
       }
@@ -75,6 +77,8 @@ export const createGenerateModels = <IModels>(
       if (subdomain && subdomain.includes('.')) {
         subdomain = getSubdomain(hostnameOrSubdomain);
       }
+
+      console.log(subdomain, 'subdomain2');
 
       await getSaasCoreConnection();
 

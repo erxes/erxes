@@ -53,7 +53,7 @@ export const SalesItemDetail = () => {
                   direction="horizontal"
                   className="flex-auto min-h-full overflow-hidden"
                 >
-                  <Resizable.Panel>
+                  <Resizable.Panel className="!overflow-y-auto">
                     <Overview deal={deal || ({} as IDeal)} />
                   </Resizable.Panel>
                   <SalesDetailActions />
