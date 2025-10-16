@@ -166,9 +166,8 @@ export const SETTINGS_PATH_DATA: { [key: string]: TSettingPath[] } = {
 
 export const GET_SETTINGS_PATH_DATA = (version?: boolean) => {
 
-  const account = SETTINGS_PATH_DATA.account;
-
-  const nav = SETTINGS_PATH_DATA.nav;
+  const account = [...SETTINGS_PATH_DATA.account]; 
+  const nav = [...SETTINGS_PATH_DATA.nav];
 
   if (version) {
     nav.push({
@@ -176,7 +175,7 @@ export const GET_SETTINGS_PATH_DATA = (version?: boolean) => {
       icon: IconFile,
       path: SettingsWorkspacePath.FileUpload,
     },
-  {
+    {
       name: 'Mail config',
       icon: IconMail,
       path: SettingsWorkspacePath.MailConfig,
