@@ -16,7 +16,7 @@ import { currentUserState } from 'ui-modules/states';
 import { useAtomValue } from 'jotai';
 import { Button, cn } from 'erxes-ui';
 import { motion } from 'framer-motion';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   TSocialItem,
@@ -247,28 +247,9 @@ const VideoPlayerWithTabs = ({
   tabItems?: TVideoTabItem[];
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isInView, setIsInView] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsInView(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 },
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
 
   const handleTimeUpdate = () => {
     if (videoRef.current) {
@@ -359,33 +340,24 @@ const VideoPlayerWithTabs = ({
 
       <div
         ref={containerRef}
-        className="relative w-full aspect-video border border-foreground/10 overflow-hidden bg-foreground/10 p-2 rounded-[20px]"
+        className="relative w-full border border-foreground/10 overflow-hidden bg-foreground/10 p-2 rounded-[20px]"
       >
-        {isInView && (
-          <>
-            {!isLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              </div>
-            )}
-            <video
-              ref={videoRef}
-              src={src}
-              controls
-              className={`w-full h-full object-cover transition-opacity duration-300 bg-background rounded-xl border border-foreground/10 ${
-                isLoaded ? 'opacity-100' : 'opacity-0'
-              }`}
-              onLoadedData={() => setIsLoaded(true)}
-              onTimeUpdate={handleTimeUpdate}
-              preload="metadata"
-            />
-          </>
-        )}
-        {!isInView && (
-          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-            Video will load when visible
+        {!isLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         )}
+        <video
+          ref={videoRef}
+          src={src}
+          controls
+          className={`w-full h-full transition-opacity duration-300 bg-background rounded-xl border border-foreground/10 overflow-hidden ${
+            isLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
+          onLoadedData={() => setIsLoaded(true)}
+          onTimeUpdate={handleTimeUpdate}
+          preload="metadata"
+        />
       </div>
     </div>
   );

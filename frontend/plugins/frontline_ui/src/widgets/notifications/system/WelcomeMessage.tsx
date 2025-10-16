@@ -1,13 +1,14 @@
 import {
-  IconForms,
   IconBrandTrello,
-  IconMessage,
-  IconChartCovariate,
   IconTicket,
   IconBriefcase,
   IconMessageCircle,
   IconMessage2,
   IconMail,
+  IconStackFront,
+  IconAffiliate,
+  IconSparkles,
+  IconGraph,
 } from '@tabler/icons-react';
 import {
   WelcomeNotificationContentLayout,
@@ -18,10 +19,10 @@ import {
 export const OnboardingSteps: TOnboardingStepItem[] = [
   {
     icon: <IconMail size={24} />,
-    title: 'Team inbox',
+    title: 'Inbox',
     forOwner: false,
     description:
-      'Built with ShadCN and Radix UI for a more accessible interface.',
+      'Manage all your conversations from every channel in one place.',
     action: {
       label: 'Try it out now',
       to: '#',
@@ -32,7 +33,7 @@ export const OnboardingSteps: TOnboardingStepItem[] = [
     title: 'Ticket',
     forOwner: false,
     description:
-      'Built with ShadCN and Radix UI for a more accessible interface.',
+      'Turn important conversations into tasks for better follow-up.',
     action: {
       label: 'Try it out now',
       to: '#',
@@ -75,29 +76,34 @@ export const OnboardingSteps: TOnboardingStepItem[] = [
 
 const TabItems: TVideoTabItem[] = [
   {
-    label: 'Pop-up forms',
-    icon: <IconForms className="size-4" />,
+    label: 'Frontline',
+    icon: <IconStackFront className="size-4" />,
     time: 0,
   },
   {
-    label: 'Contacts',
+    label: 'Inbox',
     icon: <IconMail className="size-4" />,
-    time: 2.1,
+    time: 28.7,
   },
   {
     label: 'Ticket management',
     icon: <IconBrandTrello className="size-4" />,
-    time: 3.7,
+    time: 52.5,
   },
   {
-    label: 'Business messenger',
-    icon: <IconMessage className="size-4" />,
-    time: 10.5,
+    label: 'Automation',
+    icon: <IconAffiliate className="size-4" />,
+    time: 74.5,
+  },
+  {
+    label: 'Ai assistant',
+    icon: <IconSparkles className="size-4" />,
+    time: 94.4,
   },
   {
     label: 'Insight',
-    icon: <IconChartCovariate className="size-4" />,
-    time: 34.4,
+    icon: <IconGraph className="size-4" />,
+    time: 112.4,
   },
 ];
 
@@ -107,7 +113,7 @@ export const WelcomeMessageContent = () => {
       title="erxes Frontline"
       description="Engage customers, respond quickly, improve satisfaction"
       tabItems={TabItems}
-      videoSrc="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+      videoSrc="https://pub-3bcba1ff529f4ce3bf25b4e16962c239.r2.dev/frontline-web.mp4"
       onboardingSteps={OnboardingSteps}
     />
   );
