@@ -23,7 +23,11 @@ export const ErxesMessengerActions = ({
 }) => {
   const setEditId = useSetAtom(erxesMessengerSetupEditSheetOpenAtom);
   return (
-    <Button variant="outline" onClick={() => setEditId(cell.row.original._id)}>
+    <Button
+      variant="outline"
+      size={'icon'}
+      onClick={() => setEditId(cell.row.original._id)}
+    >
       <IconEdit />
     </Button>
   );

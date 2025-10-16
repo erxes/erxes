@@ -7,15 +7,16 @@ export const useIntegrationDetail = ({
 }: {
   integrationId: string | null;
 }) => {
-  const { data, loading } = useQuery<{ integrationDetail: IIntegrationDetail }>(
-    GET_INTEGRATION_DETAIL,
-    {
-      variables: {
-        id: integrationId,
-      },
-      skip: !integrationId,
+  const { data, loading } = useQuery<{
+    integrationDetail: IIntegrationDetail & {
+      facebookPage: { _id: string; name: string; pageId: string }[];
+    };
+  }>(GET_INTEGRATION_DETAIL, {
+    variables: {
+      id: integrationId,
     },
-  );
+    skip: !integrationId,
+  });
 
   return {
     integrationDetail: data?.integrationDetail,
