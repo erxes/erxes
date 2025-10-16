@@ -46,7 +46,7 @@ export const FacebookIntegrationSetup = () => {
           : IntegrationType.FACEBOOK_MESSENGER,
         name: data.name,
         accountId,
-        channelId: channelId || '',
+        channelId: channelId as string,
         data: {
           pageIds: [pageId],
         },

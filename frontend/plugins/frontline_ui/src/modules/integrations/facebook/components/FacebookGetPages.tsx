@@ -76,7 +76,7 @@ export const FacebookGetPages = () => {
                 >
                   <RadioGroup.Item
                     value={page.id}
-                    checked={selectedPage ? true : undefined}
+                    checked={selectedPage === page.id}
                     className="bg-background"
                     onClick={() => setSelectedPage(page.id)}
                   />

@@ -20,7 +20,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 import { FACEBOOK_INTEGRATION_SCHEMA } from '@/integrations/facebook/constants/FbMessengerSchema';
-import { useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router-dom';
 import { useSetAtom } from 'jotai';
 import {
   facebookFormSheetAtom,
@@ -154,7 +154,7 @@ export const FacebookIntegrationEditForm = ({
               <Input
                 id="pageName"
                 value={integrationDetail?.facebookPage?.[0]?.name}
-                className='mt-2'
+                className="mt-2"
                 readOnly
               />
             </div>

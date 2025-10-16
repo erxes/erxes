@@ -1,4 +1,5 @@
 import * as graph from 'fbgraph';
+import crypto from 'crypto';
 import { getSubdomain } from 'erxes-api-shared/utils';
 import { getConfig } from '@/integrations/facebook/commonUtils';
 import { generateModels } from '~/connectionResolvers';
@@ -43,12 +44,19 @@ export const loginMiddleware = async (req, res) => {
   // so we'll redirect to the oauth dialog
   if (!req.query.code) {
     // Encode channelId in the state parameter to preserve it through OAuth flow
+    // Option 1: Add HMAC signature for integrity
     const stateData = JSON.stringify({
       redirectUrl: `${API_DOMAIN}/pl:frontline/facebook`,
       channelId: channelId || '',
     });
-    const encodedState = Buffer.from(stateData).toString('base64');
-    
+    const signature = crypto
+      .createHmac('sha256', FACEBOOK_APP_SECRET!)
+      .update(stateData)
+      .digest('hex');
+    const encodedState = Buffer.from(
+      JSON.stringify({ data: stateData, sig: signature }),
+    ).toString('base64');
+
     const authUrl = graph.getOauthUrl({
       client_id: conf.client_id,
       redirect_uri: conf.redirect_uri,
@@ -80,12 +88,15 @@ export const loginMiddleware = async (req, res) => {
 
   return graph.authorize(config, async (_err, facebookRes) => {
     const { access_token } = facebookRes;
-    
+
     // Decode channelId from state parameter
     let decodedChannelId = channelId;
     if (req.query.state) {
       try {
-        const decodedState = Buffer.from(req.query.state as string, 'base64').toString('utf-8');
+        const decodedState = Buffer.from(
+          req.query.state as string,
+          'base64',
+        ).toString('utf-8');
         const stateData = JSON.parse(decodedState);
         decodedChannelId = stateData.channelId;
       } catch (error) {

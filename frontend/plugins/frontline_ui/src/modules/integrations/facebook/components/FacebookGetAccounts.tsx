@@ -19,7 +19,7 @@ import {
   FacebookIntegrationFormLayout,
   FacebookIntegrationFormSteps,
 } from './FacebookIntegrationForm';
-import { useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
 import { useFacebookPages } from '../hooks/useFacebookPages';
 
 export const FacebookGetAccounts = () => {
@@ -45,7 +45,13 @@ export const FacebookGetAccounts = () => {
 
   const handleFacebookLogin = () => {
     setIsLoggingIn(true);
-    window.location.href = `${REACT_APP_API_URL}/pl:frontline/facebook/fblogin?kind=facebook&channelId=${channelId}`;
+
+    const encodedUrl = new URLSearchParams({
+      kind: 'facebook',
+      channelId: channelId || '',
+    }).toString();
+
+    window.location.href = `${REACT_APP_API_URL}/pl:frontline/facebook/fblogin?${encodedUrl}}`;
   };
 
   const onNext = () => setActiveStep(2);
@@ -141,7 +147,7 @@ export const FacebookGetAccounts = () => {
                 >
                   <RadioGroup.Item
                     value={account._id}
-                    checked={selectedAccount ? true : undefined}
+                    checked={selectedAccount === account._id}
                     className="bg-background"
                     onClick={() => setSelectedAccount(account._id)}
                   />
