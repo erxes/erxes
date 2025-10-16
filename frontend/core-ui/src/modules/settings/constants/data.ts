@@ -11,8 +11,7 @@ import {
   IconPassword,
   IconTag,
   IconUserCircle,
-  IconUserCog,
-  IconUsersGroup,
+  IconUsersGroup
 } from '@tabler/icons-react';
 
 export const KEY_LABELS = {
@@ -131,21 +130,21 @@ export const SETTINGS_PATH_DATA: { [key: string]: TSettingPath[] } = {
       icon: IconUsersGroup,
       path: SettingsWorkspacePath.TeamMember,
     },
-    {
-      name: 'Permissions',
-      icon: IconUserCog,
-      path: SettingsWorkspacePath.Permissions,
-    },
-    {
-      name: 'File upload',
-      icon: IconFile,
-      path: SettingsWorkspacePath.FileUpload,
-    },
-    {
-      name: 'Mail config',
-      icon: IconMail,
-      path: SettingsWorkspacePath.MailConfig,
-    },
+    // {
+    //   name: 'Permissions',
+    //   icon: IconUserCog,
+    //   path: SettingsWorkspacePath.Permissions,
+    // },
+    // {
+    //   name: 'File upload',
+    //   icon: IconFile,
+    //   path: SettingsWorkspacePath.FileUpload,
+    // },
+    // {
+    //   name: 'Mail config',
+    //   icon: IconMail,
+    //   path: SettingsWorkspacePath.MailConfig,
+    // },
 
     // {
     //   name: 'Structure',
@@ -164,3 +163,28 @@ export const SETTINGS_PATH_DATA: { [key: string]: TSettingPath[] } = {
     },
   ],
 };
+
+export const GET_SETTINGS_PATH_DATA = (version?: boolean) => {
+
+  const account = SETTINGS_PATH_DATA.account;
+
+  const nav = SETTINGS_PATH_DATA.nav;
+
+  if (version) {
+    nav.push({
+      name: 'File upload',
+      icon: IconFile,
+      path: SettingsWorkspacePath.FileUpload,
+    },
+  {
+      name: 'Mail config',
+      icon: IconMail,
+      path: SettingsWorkspacePath.MailConfig,
+    });
+  }
+
+  return {
+    account,
+    nav,
+  }
+}
