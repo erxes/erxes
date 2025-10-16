@@ -1,21 +1,24 @@
-import { IconCaretRightFilled, IconChartHistogram } from '@tabler/icons-react';
-import {
-  Button,
-  SideMenu,
-  Collapsible,
-  Tabs,
-  ToggleGroup,
-  Separator,
-} from 'erxes-ui';
-import { ProgressChart } from '@/project/components/details/ProgressChart';
 import { Progress } from '@/project/components/details/Progress';
 import { ProgressByMember } from '@/project/components/details/ProgressByMember';
 import { ProgressByTeam } from '@/project/components/details/ProgressByTeam';
+import { ProgressChart } from '@/project/components/details/ProgressChart';
+import ProjectMilestone from '@/project/components/details/ProjectMilestone';
+import { IconCaretRightFilled, IconChartHistogram } from '@tabler/icons-react';
+import {
+  Button,
+  Collapsible,
+  ScrollArea,
+  Separator,
+  SideMenu,
+  Tabs,
+  ToggleGroup,
+} from 'erxes-ui';
 import { useState } from 'react';
 
 export enum ProjectsSideWidgetTabsEnum {
   Assignees = 'assignees',
   Teams = 'teams',
+  Milestones = 'milestones',
 }
 
 export const ProjectsSideWidget = ({ projectId }: { projectId: string }) => {
@@ -49,6 +52,9 @@ export const ProjectsSideWidget = ({ projectId }: { projectId: string }) => {
             <Tabs.Content value={ProjectsSideWidgetTabsEnum.Teams}>
               <ProgressByTeam projectId={projectId} />
             </Tabs.Content>
+            <Tabs.Content value={ProjectsSideWidgetTabsEnum.Milestones}>
+              <ProjectMilestone projectId={projectId} />
+            </Tabs.Content>
           </ProjectsSideWidgetTabs>
         </>
       </SideMenu.Content>
@@ -73,7 +79,7 @@ export const ProjectsSideWidgetTabs = ({
   );
   return (
     <>
-      <div className="p-4 space-y-3">
+      <div className="p-4 space-y-3 overflow-hidden flex-auto flex flex-col">
         <ToggleGroup
           type="single"
           variant="outline"
@@ -99,9 +105,20 @@ export const ProjectsSideWidgetTabs = ({
           >
             Teams
           </ToggleGroup.Item>
+          <ToggleGroup.Item
+            value={ProjectsSideWidgetTabsEnum.Milestones}
+            className="flex-auto"
+          >
+            Milestones
+          </ToggleGroup.Item>
         </ToggleGroup>
-        <Tabs value={value} defaultValue={ProjectsSideWidgetTabsEnum.Teams}>
-          {children}
+        <Tabs
+          value={value}
+          defaultValue={ProjectsSideWidgetTabsEnum.Teams}
+          className="overflow-auto flex-auto"
+          asChild
+        >
+          <ScrollArea>{children}</ScrollArea>
         </Tabs>
       </div>
       <Separator />

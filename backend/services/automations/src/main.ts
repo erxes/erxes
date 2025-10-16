@@ -69,9 +69,9 @@ httpServer.listen(port, async () => {
     LOAD_BALANCER_ADDRESS ||
     `http://${isDev ? 'localhost' : serviceName}:${port}`;
 
-  await redis.set(`service-v3-logs`, address);
+  await redis.set(`erxes-service-logs`, address);
 
-  console.log(`service-v3-logs joined with ${address}`);
+  console.log(`erxes-service-logs joined with ${address}`);
   await initMQWorkers(redis);
 });
 
@@ -79,7 +79,7 @@ process.stdin.resume();
 
 async function leaveServiceDiscovery() {
   try {
-    console.log(`service-v3automations left ${port}`);
+    console.log(`erxes-serviceautomations left ${port}`);
     debugInfo('Left from service discovery');
   } catch (e) {
     debugError(e);

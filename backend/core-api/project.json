@@ -10,6 +10,7 @@
       "cache": true,
       "options": {
         "cwd": "backend/core-api",
+        "assets": ["backend/core-api/src/private/**/*"],
         "commands": ["pnpm build"]
       },
       "dependsOn": ["^build", "build:packageJson"]
@@ -22,6 +23,7 @@
         "tsConfig": "backend/core-api/tsconfig.build.json",
         "outputPath": "backend/core-api/dist",
         "updateBuildableProjectDepsInPackageJson": true,
+        "assets": ["backend/core-api/src/private/**/*"],
 
         "buildableProjectDepsInPackageJsonType": "dependencies"
       }
