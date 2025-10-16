@@ -67,7 +67,7 @@ export const checkCycle = async (job: Job) => {
   const endCycles = await models.Cycle.find({
     isActive: true,
     isCompleted: false,
-    endDate: { $gte: utcStart, $lte: utcEnd },
+    endDate: { $lte: utcEnd },
   });
 
   if (endCycles?.length) {
@@ -79,7 +79,7 @@ export const checkCycle = async (job: Job) => {
   const startCycles = await models.Cycle.find({
     isActive: false,
     isCompleted: false,
-    startDate: { $gte: utcStart, $lte: utcEnd },
+    startDate: { $lte: utcEnd },
   });
 
   if (startCycles?.length) {
