@@ -22,7 +22,7 @@ export interface IPipelineModel extends Model<IPipelineDocument> {
   updateOrder(orders: IOrderInput[]): Promise<IPipelineDocument[]>;
   watchPipeline(_id: string, isAdd: boolean, userId: string): void;
   removePipeline(_id: string, checked?: boolean): object;
-  archivePipeline(_id: string, status?: string): object;
+  archivePipeline(_id: string, status?: string): Promise<object>;
 }
 
 export const loadPipelineClass = (models: IModels) => {
@@ -114,14 +114,15 @@ export const loadPipelineClass = (models: IModels) => {
     /**
      * Archive a pipeline
      */
-    public static async archivePipeline(_id: string) {
+    public static async archivePipeline(_id: string, status?: string) {
       const pipeline = await models.Pipelines.getPipeline(_id);
-      const status =
+      const newStatus = status || (
         pipeline.status === SALES_STATUSES.ACTIVE
           ? SALES_STATUSES.ARCHIVED
-          : SALES_STATUSES.ACTIVE;
+          : SALES_STATUSES.ACTIVE
+      );
 
-      await models.Pipelines.updateOne({ _id }, { $set: { status } });
+      await models.Pipelines.updateOne({ _id }, { $set: { status: newStatus } });
     }
 
     public static watchPipeline(_id: string, isAdd: boolean, userId: string) {

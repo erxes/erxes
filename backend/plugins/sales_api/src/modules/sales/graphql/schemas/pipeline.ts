@@ -107,6 +107,6 @@ export const mutations = `
   salesPipelinesUpdateOrder(orders: [SalesOrderItem]): [SalesPipeline]
   salesPipelinesWatch(_id: String!, isAdd: Boolean): SalesPipeline
   salesPipelinesRemove(_id: String!): JSON
-  salesPipelinesArchive(_id: String!): JSON
+  salesPipelinesArchive(_id: String!, status: String): JSON
   salesPipelinesCopied(_id: String!): JSON
 `;
