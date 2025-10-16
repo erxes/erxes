@@ -1,29 +1,43 @@
-import { IProduct } from 'ui-modules/modules';
+import { IProduct } from '../types/Product';
+import { ProductsInline } from './ProductsInline';
 import {
   Button,
-  Combobox,
-  Command,
-  Filter,
   Input,
   Sheet,
   Separator,
   ScrollArea,
   Tooltip,
   Spinner,
+  cn,
 } from 'erxes-ui';
-import { useState } from 'react';
-import { IconPlus, IconSearch, IconX } from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
+import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import { useProducts } from '../hooks/useProducts';
 import { useInView } from 'react-intersection-observer';
+import { AddProduct } from './AddProduct';
+import { useDebounce } from 'use-debounce';
+import { GET_PRODUCTS } from '../graphql/queries/productsQueries';
+
+interface SelectProductsProps {
+  onSelect: (productIds: string[], products?: IProduct[]) => void;
+  children: React.ReactNode;
+  productIds?: string[];
+}
+
+interface ProductsListProps {
+  selectedProducts: IProduct[];
+  setSelectedProducts: React.Dispatch<React.SetStateAction<IProduct[]>>;
+  selectedProductIds: string[];
+  setSelectedProductIds: React.Dispatch<React.SetStateAction<string[]>>;
+}
 
 export const SelectProductsBulk = ({
   onSelect,
   children,
-}: {
-  onSelect: (productIds: string[], products?: IProduct[]) => void;
-  children: React.ReactNode;
-}) => {
+  productIds,
+}: SelectProductsProps) => {
   const [open, setOpen] = useState(false);
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>{children}</Sheet.Trigger>
@@ -34,97 +48,115 @@ export const SelectProductsBulk = ({
           </div>
           <Sheet.Close />
         </Sheet.Header>
-        <SelectProductsBulkContent setOpen={setOpen} onSelect={onSelect} />
+        <SelectProductsBulkContent
+          setOpen={setOpen}
+          onSelect={onSelect}
+          productIds={productIds}
+        />
       </Sheet.View>
     </Sheet>
   );
 };
 
-export const SelectProductsBulkContent = ({
+const SelectProductsBulkContent = ({
   setOpen,
   onSelect,
+  productIds,
 }: {
   setOpen: (open: boolean) => void;
   onSelect: (productIds: string[], products?: IProduct[]) => void;
+  productIds?: string[];
 }) => {
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<IProduct[]>([]);
+
+  useEffect(() => {
+    if (productIds?.length) {
+      setSelectedProductIds(productIds);
+    }
+  }, [productIds]);
+
+  const handleAddProduct = (data: { productsAdd: { _id: string } }) => {
+    setSelectedProductIds((prev) => [...prev, data.productsAdd._id]);
+  };
+
+  const handleSelect = () => {
+    onSelect(
+      selectedProducts.map((p) => p._id),
+      selectedProducts,
+    );
+    setOpen(false);
+  };
+
   return (
     <>
       <Sheet.Content className="grid grid-cols-2 overflow-hidden">
         <ProductsList
           selectedProducts={selectedProducts}
+          selectedProductIds={selectedProductIds}
+          setSelectedProductIds={setSelectedProductIds}
           setSelectedProducts={setSelectedProducts}
         />
         <SelectedProductsList
           selectedProducts={selectedProducts}
+          selectedProductIds={selectedProductIds}
+          setSelectedProductIds={setSelectedProductIds}
           setSelectedProducts={setSelectedProducts}
         />
       </Sheet.Content>
-      <Sheet.Footer>
-        <Sheet.Close asChild>
-          <Button variant="secondary" className="bg-border">
-            Cancel
-          </Button>
-        </Sheet.Close>
-        <Button
-          onClick={() => {
-            onSelect(
-              selectedProducts.map((p) => p._id),
-              selectedProducts,
-            );
-            setOpen(false);
+      <Sheet.Footer className="sm:justify-between">
+        <AddProduct
+          options={{
+            onCompleted: handleAddProduct,
+            refetchQueries: [GET_PRODUCTS],
           }}
-        >
-          Add Many Products
-        </Button>
+        />
+        <div className="flex items-center gap-2">
+          <Sheet.Close asChild>
+            <Button variant="secondary" className="bg-border">
+              Cancel
+            </Button>
+          </Sheet.Close>
+          <Button onClick={handleSelect}>Add Many Products</Button>
+        </div>
       </Sheet.Footer>
     </>
   );
 };
 
-export const ProductsList = ({
-  selectedProducts,
+const ProductsList = ({
   setSelectedProducts,
-}: {
-  selectedProducts: IProduct[];
-  setSelectedProducts: (products: IProduct[]) => void;
-}) => {
-  const { products, loading, handleFetchMore, totalCount, error } =
-    useProducts();
+  selectedProductIds,
+  setSelectedProductIds,
+}: ProductsListProps) => {
+  const [search, setSearch] = useState('');
+  const [debouncedSearch] = useDebounce(search, 500);
+
+  const { products, handleFetchMore, totalCount } = useProducts({
+    variables: {
+      searchValue: debouncedSearch,
+    },
+  });
 
   const { ref: bottomRef } = useInView({
     onChange: (inView) => inView && handleFetchMore(),
   });
 
+  const handleProductSelect = (product: IProduct) => {
+    setSelectedProducts((prev) => [...prev, product]);
+    setSelectedProductIds((prev) => [...prev, product._id]);
+  };
+
   return (
     <div className="border-r overflow-hidden flex flex-col">
       <div className="p-4">
-        <Filter id="products-list-filter">
-          <div className="flex items-center gap-4">
-            <Input placeholder="Search products" />
-
-            <Filter.Popover scope="products-list-filter">
-              <Filter.Trigger />
-              <Combobox.Content>
-                <Filter.View>
-                  <Command>
-                    <Filter.CommandInput
-                      placeholder="Filter"
-                      variant="secondary"
-                      className="bg-background"
-                    />
-                    <Command.List className="p-1">
-                      <Filter.Item value="searchValue" inDialog>
-                        <IconSearch />
-                        Search
-                      </Filter.Item>
-                    </Command.List>
-                  </Command>
-                </Filter.View>
-              </Combobox.Content>
-            </Filter.Popover>
-          </div>
-        </Filter>
+        <div className="flex items-center gap-4">
+          <Input
+            placeholder="Search products"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
         <div className="text-accent-foreground text-xs mt-4">
           {totalCount} results
         </div>
@@ -133,29 +165,33 @@ export const ProductsList = ({
       <ScrollArea>
         <div className="p-4 flex flex-col gap-1">
           <Tooltip.Provider>
-            {products.map(
-              (product) =>
-                !selectedProducts.includes(product) && (
-                  <Tooltip>
-                    <Tooltip.Trigger asChild>
-                      <Button
-                        key={product._id}
-                        variant="ghost"
-                        className="min-h-9 h-auto justify-start font-normal whitespace-normal max-w-full text-left"
-                        onClick={() => {
-                          setSelectedProducts([...selectedProducts, product]);
-                        }}
-                      >
-                        <div>{product.name}</div>
+            {products.map((product) => {
+              const isSelected = selectedProductIds.includes(product._id);
+              return (
+                <Tooltip key={product._id}>
+                  <Tooltip.Trigger asChild>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        'min-h-9 h-auto justify-start font-normal whitespace-normal max-w-full text-left',
+                        isSelected && 'bg-primary/10 hover:bg-primary/10',
+                      )}
+                      onClick={() => handleProductSelect(product)}
+                    >
+                      <div>{product.name}</div>
+                      {isSelected ? (
+                        <IconCheck className="ml-auto" />
+                      ) : (
                         <IconPlus className="ml-auto" />
-                      </Button>
-                    </Tooltip.Trigger>
-                    <Tooltip.Content>
-                      <span className="opacity-50">#</span> {product.code}
-                    </Tooltip.Content>
-                  </Tooltip>
-                ),
-            )}
+                      )}
+                    </Button>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content>
+                    <span className="opacity-50">#</span> {product.code}
+                  </Tooltip.Content>
+                </Tooltip>
+              );
+            })}
 
             {products.length < totalCount && (
               <div className="flex items-center gap-2 px-2 h-8" ref={bottomRef}>
@@ -172,41 +208,41 @@ export const ProductsList = ({
   );
 };
 
-export const SelectedProductsList = ({
+const SelectedProductsList = ({
   selectedProducts,
+  selectedProductIds,
   setSelectedProducts,
-}: {
-  selectedProducts: IProduct[];
-  setSelectedProducts: (products: IProduct[]) => void;
-}) => {
+  setSelectedProductIds,
+}: ProductsListProps) => {
+  const handleRemoveProduct = (productId: string) => {
+    setSelectedProducts((prev) => prev.filter((p) => p._id !== productId));
+    setSelectedProductIds((prev) => prev.filter((id) => id !== productId));
+  };
+
   return (
     <ScrollArea className="h-full">
       <div className="p-4 flex flex-col gap-1">
         <div className="text-accent-foreground text-xs px-3 mb-1">Added</div>
-        <Tooltip.Provider>
-          {selectedProducts.map((product) => (
-            <Tooltip>
-              <Tooltip.Trigger asChild>
-                <Button
-                  key={product._id}
-                  variant="ghost"
-                  className="min-h-9 h-auto justify-start font-normal whitespace-normal max-w-full text-left"
-                  onClick={() => {
-                    setSelectedProducts(
-                      selectedProducts.filter((p) => p._id !== product._id),
-                    );
-                  }}
-                >
-                  <div>{product.name}</div>
-                  <IconX className="ml-auto" />
-                </Button>
-              </Tooltip.Trigger>
-              <Tooltip.Content>
-                <span className="opacity-50">#</span> {product.code}
-              </Tooltip.Content>
-            </Tooltip>
-          ))}
-        </Tooltip.Provider>
+        {selectedProductIds.map((productId) => {
+          const product = selectedProducts.find((p) => p._id === productId);
+          return (
+            <Button
+              key={productId}
+              variant="ghost"
+              className="min-h-9 h-auto justify-start font-normal whitespace-normal max-w-full text-left"
+              onClick={() => handleRemoveProduct(productId)}
+            >
+              <ProductsInline
+                productIds={[productId]}
+                products={product ? [product] : []}
+                updateProducts={(products) =>
+                  setSelectedProducts((prev) => [...prev, ...products])
+                }
+              />
+              <IconX className="ml-auto" />
+            </Button>
+          );
+        })}
       </div>
     </ScrollArea>
   );

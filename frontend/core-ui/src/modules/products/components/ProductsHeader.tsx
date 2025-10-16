@@ -3,7 +3,7 @@ import { IconCube } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
-import { ProductAddSheet } from '../add-products/components/ProductAddSheet';
+import { ProductAddSheet } from './ProductAddSheet';
 export const ProductsHeader = () => {
   return (
     <PageHeader>

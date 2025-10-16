@@ -1,6 +1,6 @@
 import * as z from 'zod';
 
-export const productFormSchema = z.object({
+export const PRODUCT_FORM_SCHEMA = z.object({
   name: z
     .string()
     .min(2, 'Name must be at least 2 characters')
@@ -43,5 +43,3 @@ export const productFormSchema = z.object({
     .min(1, 'UOM is required'),
   subUoms: z.any().optional(),
 });
-
-export type ProductFormValues = z.infer<typeof productFormSchema>;
