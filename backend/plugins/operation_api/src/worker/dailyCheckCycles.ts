@@ -45,16 +45,24 @@ export const dailyCheckCycles = async () => {
 export const checkCycle = async (job: Job) => {
   const { subdomain, timezone = 'UTC' } = job?.data ?? {};
 
+  console.log('timezone', timezone)
+
   const tzToday = tz(new Date(), timezone);
 
-  if (tzToday.hour() !== 0) {
-    return;
-  }
+  console.log('tzToday', tzToday)
+  console.log('tzToday.hour', tzToday.hour())
+
+  // if (tzToday.hour() !== 0) {
+  //   return;
+  // }
 
   const models = await generateModels(subdomain);
 
   const utcStart = tzToday.startOf('day').toDate();
   const utcEnd = tzToday.endOf('day').toDate();
+
+  console.log('utcStart', utcStart)
+  console.log('utcEnd', utcEnd)
 
   const endCycles = await models.Cycle.find({
     isActive: true,
