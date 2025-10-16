@@ -32,7 +32,6 @@ type EMConfigFormValues = z.infer<typeof EM_CONFIG_SCHEMA>;
 
 export const EMConfig = () => {
   const { id } = useParams();
-  console.log('first', id);
   const form = useForm<EMConfigFormValues>({
     resolver: zodResolver(EM_CONFIG_SCHEMA),
     defaultValues: {
