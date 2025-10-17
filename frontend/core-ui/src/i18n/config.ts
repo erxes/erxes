@@ -18,7 +18,7 @@ export const defaultI18nOptions: InitOptions = {
     order: ['cookie', 'localStorage', 'header'],
   },
   backend: {
-    loadPath: `${REACT_APP_API_URL}/pl:core/locales/{{lng}}.json`,
+    loadPath: `${REACT_APP_API_URL}/locales/{{lng}}.json`,
   },
   react: {
     useSuspense: true,
