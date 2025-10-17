@@ -13,7 +13,7 @@ import { retryGetProxyTargets } from '~/proxy/targets';
 import { startRouter, stopRouter } from '~/apollo-router';
 import userMiddleware from '~/middlewares/userMiddleware';
 import { initMQWorkers } from '~/mq/workers/workers';
-import { applyProxiesCoreless, applyProxyToCore } from '~/proxy/middleware';
+import { applyProxiesCoreless } from '~/proxy/middleware';
 
 import { isDev, redis } from 'erxes-api-shared/utils';
 import { applyGraphqlLimiters } from '~/middlewares/graphql-limiter';
