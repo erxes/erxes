@@ -1,14 +1,12 @@
 import {
   IconBrandTrello,
   IconTicket,
-  IconBriefcase,
-  IconMessageCircle,
   IconMessage2,
   IconMail,
   IconStackFront,
+  IconPhone,
   IconAffiliate,
-  IconSparkles,
-  IconGraph,
+  IconInfoCircle,
 } from '@tabler/icons-react';
 import {
   WelcomeNotificationContentLayout,
@@ -25,7 +23,7 @@ export const OnboardingSteps: TOnboardingStepItem[] = [
       'Manage all your conversations from every channel in one place.',
     action: {
       label: 'Try it out now',
-      to: '#',
+      to: '/frontline/inbox',
     },
   },
   {
@@ -36,40 +34,38 @@ export const OnboardingSteps: TOnboardingStepItem[] = [
       'Turn important conversations into tasks for better follow-up.',
     action: {
       label: 'Try it out now',
-      to: '#',
+      to: '/frontline/ticket',
     },
   },
   {
-    icon: <IconBriefcase size={24} />,
-    title: 'Deal',
+    icon: <IconAffiliate size={24} />,
+    title: 'Integration',
     forOwner: false,
-    description:
-      'Built with ShadCN and Radix UI for a more accessible interface.',
+    description: 'Connect all your communication channels seamlessly.',
     action: {
       label: 'Try it out now',
-      to: '#',
+      to: '/settings/frontline/config',
     },
   },
   {
-    icon: <IconMessageCircle size={24} />,
-    title: 'Business messenger',
+    icon: <IconInfoCircle size={24} />,
+    title: 'Help Center',
     forOwner: false,
-    description:
-      'Built with ShadCN and Radix UI for a more accessible interface.',
+    description: 'Build a knowledge base for your customers.',
     action: {
-      label: 'Try it out now',
-      to: '#',
+      label: 'coming soon...',
+      to: false,
     },
   },
   {
     icon: <IconMessage2 size={24} />,
-    title: 'Business messenger',
+    title: 'Messenger',
     forOwner: false,
     description:
-      'Built with ShadCN and Radix UI for a more accessible interface.',
+      'Chat with your customers instantly through your website or app.',
     action: {
-      label: 'Try it out now',
-      to: '#',
+      label: 'coming soon...',
+      to: false,
     },
   },
 ];
@@ -83,27 +79,27 @@ const TabItems: TVideoTabItem[] = [
   {
     label: 'Inbox',
     icon: <IconMail className="size-4" />,
-    time: 28.7,
+    time: 34.6,
   },
   {
     label: 'Ticket management',
     icon: <IconBrandTrello className="size-4" />,
-    time: 52.5,
+    time: 87,
   },
   {
-    label: 'Automation',
+    label: 'Help center',
+    icon: <IconInfoCircle className="size-4" />,
+    time: 99,
+  },
+  {
+    label: 'Call center',
+    icon: <IconPhone className="size-4" />,
+    time: 109,
+  },
+  {
+    label: 'Integration',
     icon: <IconAffiliate className="size-4" />,
-    time: 74.5,
-  },
-  {
-    label: 'Ai assistant',
-    icon: <IconSparkles className="size-4" />,
-    time: 94.4,
-  },
-  {
-    label: 'Insight',
-    icon: <IconGraph className="size-4" />,
-    time: 112.4,
+    time: 118.8,
   },
 ];
 
@@ -114,6 +110,7 @@ export const WelcomeMessageContent = () => {
       description="Engage customers, respond quickly, improve satisfaction"
       tabItems={TabItems}
       videoSrc="https://pub-3bcba1ff529f4ce3bf25b4e16962c239.r2.dev/frontline-web.mp4"
+      videoPoster="https://pub-3bcba1ff529f4ce3bf25b4e16962c239.r2.dev/erxes-frontline-thumbnail.png"
       onboardingSteps={OnboardingSteps}
     />
   );

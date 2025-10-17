@@ -155,14 +155,25 @@ const OnboardingStepsSection = ({
           {item.description}
         </p>
       </div>
-      <Button asChild size="sm" variant="ghost" className="self-start mt-auto">
-        <Link to={item.action.to} className="hover:bg-background">
-          <span className="text-primary font-semibold text-base flex items-center gap-1 break-words">
-            <span className="truncate">{item.action.label}</span>
-            <IconArrowRight className="size-4 flex-shrink-0" />
-          </span>
-        </Link>
-      </Button>
+      {item.action.to ? (
+        <Button
+          asChild
+          size="sm"
+          variant="ghost"
+          className="self-start mt-auto"
+        >
+          <Link to={item.action.to} className="hover:bg-background">
+            <span className="text-primary font-semibold text-base flex items-center gap-1 break-words">
+              <span className="truncate">{item.action.label}</span>
+              <IconArrowRight className="size-4 flex-shrink-0" />
+            </span>
+          </Link>
+        </Button>
+      ) : (
+        <span className="text-muted-foreground/70 font-semibold text-base flex items-center gap-1 break-words truncate ">
+          {item.action.label}
+        </span>
+      )}
     </div>
   );
 
@@ -242,9 +253,11 @@ const OnboardingStepsSection = ({
 const VideoPlayerWithTabs = ({
   src,
   tabItems,
+  poster,
 }: {
   src: string;
   tabItems?: TVideoTabItem[];
+  poster?: string;
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -351,6 +364,7 @@ const VideoPlayerWithTabs = ({
           ref={videoRef}
           src={src}
           controls
+          poster={poster}
           className={`w-full h-full transition-opacity duration-300 bg-background rounded-xl border border-foreground/10 overflow-hidden ${
             isLoaded ? 'opacity-100' : 'opacity-0'
           }`}
@@ -368,6 +382,7 @@ export const WelcomeNotificationContentLayout = ({
   description,
   tabItems,
   videoSrc,
+  videoPoster,
   onboardingSteps,
   isPlugin = true,
 }: {
@@ -375,6 +390,7 @@ export const WelcomeNotificationContentLayout = ({
   description: string;
   tabItems?: TVideoTabItem[];
   videoSrc: string;
+  videoPoster?: string;
   onboardingSteps: TOnboardingStepItem[];
   isPlugin?: boolean;
 }) => {
@@ -412,7 +428,11 @@ export const WelcomeNotificationContentLayout = ({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.6 }}
           >
-            <VideoPlayerWithTabs src={videoSrc} tabItems={tabItems} />
+            <VideoPlayerWithTabs
+              src={videoSrc}
+              tabItems={tabItems}
+              poster={videoPoster}
+            />
           </motion.div>
           <OnboardingStepsSection
             isOwner={currentUser?.isOwner || false}
