@@ -14,9 +14,43 @@ export default {
       talkingCallReceived(extension: String): String
       agentCallReceived(extension: String): String
       queueRealtimeUpdate(extension: String): String
+      ticketPipelineChanged(filter: TicketsPipelineFilter): TaskSubscription
+      ticketPipelineListChanged: PipelineSubscription
+      ticketChanged(_id: String!): TicketSubscription
+      ticketListChanged: TicketSubscription
+      ticketStatusChanged(_id: String!): StatusSubscription
+      ticketStatusListChanged: StatusSubscription
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
+      // --- Ticket Pipeline ---
+      ticketPipelineChanged: {
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(`ticketPipelineChanged:${_id}`),
+      },
+      ticketPipelineListChanged: {
+        subscribe: () =>
+          graphqlPubsub.asyncIterator('ticketPipelineListChanged'),
+      },
+
+      // --- Ticket Status ---
+      ticketStatusChanged: {
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(`ticketStatusChanged:${_id}`),
+      },
+      ticketStatusListChanged: {
+        subscribe: () => graphqlPubsub.asyncIterator('ticketStatusListChanged'),
+      },
+
+      // --- Ticket ---
+      ticketChanged: {
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(`ticketChanged:${_id}`),
+      },
+      ticketListChanged: {
+        subscribe: () => graphqlPubsub.asyncIterator('ticketListChanged'),
+      },
+
       /*
        * Listen for conversation changes like status, assignee, read state
        */
