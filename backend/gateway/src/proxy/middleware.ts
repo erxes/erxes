@@ -6,8 +6,6 @@ import { apolloRouterPort } from '../apollo-router';
 import { Express } from 'express';
 dotenv.config();
 
-const { NODE_ENV } = process.env;
-
 const onProxyReq = (proxyReq, req: any) => {
   console.log('onProxyReq', req);
   proxyReq.setHeader('hostname', req.hostname);
@@ -47,21 +45,4 @@ export async function applyProxiesCoreless(
       }),
     );
   }
-}
-
-export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
-  const core = targets.find((t) => t.name === 'core');
-
-  if (!core) {
-    throw new Error('core service not found');
-  }
-  app.use('/trpc', forbid);
-  app.use(
-    '/',
-    createProxyMiddleware({
-      target:
-        NODE_ENV === 'production' ? core.address : 'http://localhost:3300',
-      onProxyReq,
-    }),
-  );
 }
