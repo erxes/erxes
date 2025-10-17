@@ -8,19 +8,14 @@ import { Queue } from 'bullmq';
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
-import { createProxyMiddleware } from 'http-proxy-middleware';
 
 import { retryGetProxyTargets } from '~/proxy/targets';
 import { startRouter, stopRouter } from '~/apollo-router';
 import userMiddleware from '~/middlewares/userMiddleware';
 import { initMQWorkers } from '~/mq/workers/workers';
-import {
-  applyProxiesCoreless,
-  applyProxyToCore,
-  proxyReq,
-} from '~/proxy/middleware';
+import { applyProxiesCoreless, applyProxyToCore } from '~/proxy/middleware';
 
-import { getPlugin, isDev, redis } from 'erxes-api-shared/utils';
+import { isDev, redis } from 'erxes-api-shared/utils';
 import { applyGraphqlLimiters } from '~/middlewares/graphql-limiter';
 import {
   startSubscriptionServer,
