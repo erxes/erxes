@@ -81,42 +81,42 @@ app.get('/locales/:lng', async (req, res) => {
     res.status(500).send('Error fetching services');
   }
 });
-app.use('/pl:serviceName', async (req, res) => {
-  try {
-    const serviceName: string = req.params.serviceName.replace(':', '');
-    const path = req.path;
+// app.use('/pl:serviceName', async (req, res) => {
+//   try {
+//     const serviceName: string = req.params.serviceName.replace(':', '');
+//     const path = req.path;
 
-    // Forbid access to trpc endpoints
-    if (path.startsWith('/trpc')) {
-      return res.status(403).json({
-        error: 'Access to trpc endpoints through plugin proxy is forbidden',
-      });
-    }
+//     // Forbid access to trpc endpoints
+//     if (path.startsWith('/trpc')) {
+//       return res.status(403).json({
+//         error: 'Access to trpc endpoints through plugin proxy is forbidden',
+//       });
+//     }
 
-    const service = await getPlugin(serviceName);
+//     const service = await getPlugin(serviceName);
 
-    const targetUrl = service.address;
+//     const targetUrl = service.address;
 
-    if (targetUrl) {
-      // Proxy the request to the target service using the custom headers
-      return createProxyMiddleware({
-        target: targetUrl,
-        changeOrigin: true, // Change the origin header to the target URL's origin
-        on: {
-          proxyReq,
-        },
-        pathRewrite: {
-          [`^/pl:${serviceName}`]: '/', // Rewriting the path if needed
-        },
-      })(req, res); // Forward the request to the target service
-    } else {
-      // Service not found, return 404
-      res.status(404).send('Service not found');
-    }
-  } catch {
-    res.status(500).send('Error fetching services');
-  }
-});
+//     if (targetUrl) {
+//       // Proxy the request to the target service using the custom headers
+//       return createProxyMiddleware({
+//         target: targetUrl,
+//         changeOrigin: true, // Change the origin header to the target URL's origin
+//         on: {
+//           proxyReq,
+//         },
+//         pathRewrite: {
+//           [`^/pl:${serviceName}`]: '/', // Rewriting the path if needed
+//         },
+//       })(req, res); // Forward the request to the target service
+//     } else {
+//       // Service not found, return 404
+//       res.status(404).send('Service not found');
+//     }
+//   } catch {
+//     res.status(500).send('Error fetching services');
+//   }
+// });
 
 let httpServer: http.Server;
 
@@ -137,7 +137,7 @@ async function start() {
 
     // Apply the initial proxy middleware
     applyGraphqlLimiters(app);
-    applyProxiesCoreless(app);
+    applyProxiesCoreless(app, global.currentTargets);
     applyProxyToCore(app, global.currentTargets);
 
     // Start the HTTP server
