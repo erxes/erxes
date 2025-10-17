@@ -30,7 +30,7 @@ export const ticketQueries = {
     if (filter.createdBy) filterQuery.createdBy = filter.createdBy;
     if (filter.assigneeId) filterQuery.assigneeId = filter.assigneeId;
     if (filter.channelId) filterQuery.channelId = filter.channelId;
-
+    if (filter.pipelineId) filterQuery.pipelineId = filter.pipelineId;
     if (filter.userId && !filter.channelId && !filter.assigneeId) {
       filterQuery.assigneeId = filter.userId;
     }
