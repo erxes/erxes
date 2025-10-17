@@ -7,7 +7,6 @@ import { Express } from 'express';
 dotenv.config();
 
 const onProxyReq = (proxyReq, req: any) => {
-  console.log('onProxyReq', req);
   proxyReq.setHeader('hostname', req.hostname);
   proxyReq.setHeader('userid', req.user ? req.user._id : '');
   fixRequestBody(proxyReq, req);
