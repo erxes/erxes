@@ -22,7 +22,7 @@ async function initFederation() {
       </StrictMode>,
     );
   } else {
-    fetch(`${REACT_APP_API_URL}/get-frontend-plugins`)
+    fetch(`${REACT_APP_API_URL}/pl:core/get-frontend-plugins`)
       .then((res) => res.json())
       .then((data) => {
         init({
