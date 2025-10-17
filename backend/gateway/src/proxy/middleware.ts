@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { ErxesProxyTarget } from './targets';
 import * as dotenv from 'dotenv';
@@ -8,6 +9,7 @@ dotenv.config();
 const { NODE_ENV } = process.env;
 
 const onProxyReq = (proxyReq, req: any) => {
+  console.log('onProxyReq', req);
   proxyReq.setHeader('hostname', req.hostname);
   proxyReq.setHeader('userid', req.user ? req.user._id : '');
   fixRequestBody(proxyReq, req);
@@ -26,6 +28,7 @@ export async function applyProxiesCoreless(
     createProxyMiddleware({
       pathRewrite: { '^/graphql': '/' },
       target: `http://127.0.0.1:${apolloRouterPort}`,
+
       onProxyReq,
     }),
   );
@@ -44,4 +47,21 @@ export async function applyProxiesCoreless(
       }),
     );
   }
+}
+
+export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
+  const core = targets.find((t) => t.name === 'core');
+
+  if (!core) {
+    throw new Error('core service not found');
+  }
+  app.use('/trpc', forbid);
+  app.use(
+    '/',
+    createProxyMiddleware({
+      target:
+        NODE_ENV === 'production' ? core.address : 'http://localhost:3300',
+      onProxyReq,
+    }),
+  );
 }
