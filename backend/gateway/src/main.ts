@@ -133,7 +133,6 @@ async function start() {
     // Apply the initial proxy middleware
     applyGraphqlLimiters(app);
     applyProxiesCoreless(app, global.currentTargets);
-    applyProxyToCore(app, global.currentTargets);
 
     // Start the HTTP server
     httpServer = http.createServer(app);
