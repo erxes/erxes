@@ -1,6 +1,5 @@
 import { ErxesLogoIcon } from '@/auth/components/Logo';
 import { Polygons } from '@/auth/components/Polygons';
-import { IconScubaDivingTankFilled } from '@tabler/icons-react';
 import { cn, Spinner, TextEffect } from 'erxes-ui';
 import { AnimatePresence, motion, Variants } from 'motion/react';
 import { useEffect, useState } from 'react';
@@ -25,9 +24,6 @@ export const LoadingScreen = () => {
             <IconAnimation />
           </div>
           <TextAnimation />
-          {/* <p className="text-sm text-accent-foreground">
-              Just a moment... good things come to those who wait!
-            </p> */}
         </div>
       </div>
     </div>
@@ -58,10 +54,6 @@ export const TextAnimation = () => {
 
   return (
     <div className="relative inline-block whitespace-nowrap text-center">
-      <IconScubaDivingTankFilled className="opacity-0 h-0">
-        Welcome
-      </IconScubaDivingTankFilled>
-
       <AnimatePresence mode="popLayout">
         <motion.div
           initial="initial"
