@@ -3,10 +3,10 @@ import { Schema } from 'mongoose';
 export const statusSchema = new Schema(
   {
     name: { type: String, required: true },
-    pipelineId: { type: String },
+    pipelineId: { type: String, ref: 'frontline_tickets_pipeline' },
     channelId: {
       type: String,
-      ref: 'Channel',
+      ref: 'channels',
       required: true,
       index: true,
     },

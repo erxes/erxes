@@ -7,7 +7,7 @@ export const ticketPipelineSchema = new Schema(
     description: String,
     channelId: {
       type: String,
-      ref: 'Channel',
+      ref: 'channels',
       required: true,
       index: true,
     },

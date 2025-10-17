@@ -36,20 +36,17 @@ export const ticketQueries = {
       filterQuery.assigneeId = filter.userId;
     }
 
-    const { list, totalCount, pageInfo } =
-      await cursorPaginate<ITicketDocument>({
-        model: models.Ticket,
-        params: {
-          ...filter,
-          orderBy: {
-            order: 'asc',
-            createdAt: 'asc',
-          },
+    return await cursorPaginate<ITicketDocument>({
+      model: models.Ticket,
+      params: {
+        ...filter,
+        orderBy: {
+          statusType: 'asc',
+          createdAt: 'asc',
         },
-        query: filterQuery,
-      });
-
-    return { list, totalCount, pageInfo };
+      },
+      query: filterQuery,
+    });
   },
 };
 

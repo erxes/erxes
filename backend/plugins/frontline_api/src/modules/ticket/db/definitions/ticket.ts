@@ -5,11 +5,17 @@ export const ticketSchema = new Schema(
     name: { type: String, required: true },
     channelId: { type: String, ref: 'Channel', required: true },
     pipelineId: {
-      type: Schema.Types.ObjectId,
-      ref: 'TicketPipeline',
+      type: String,
+      ref: 'frontline_tickets_pipeline',
       required: true,
     },
-    statusId: { type: Schema.Types.ObjectId, ref: 'Status', required: true },
+    status: { type: Schema.Types.ObjectId, label: 'Status ID', required: true },
+
+    statusId: {
+      type: String,
+      ref: 'frontline_tickets_pipeline_status',
+      required: true,
+    },
     description: String,
     type: {
       type: String,
