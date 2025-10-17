@@ -121,9 +121,15 @@ export function Members() {
 const MemberRowSkeleton = () => {
   return (
     <Table.Row className="shadow-xs">
-      <Table.Cell className="font-medium border-none pl-2 w-auto">
+      <Table.Cell className="font-medium border-none pl-2 w-auto flex gap-2 items-center">
+        <Skeleton className="h-6 w-6 rounded-full" />
         <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-6 w-8 rounded-full" />
+      </Table.Cell>
+      <Table.Cell className="border-none px-2  ">
+        <Skeleton className="h-4 w-48" />
+      </Table.Cell>
+      <Table.Cell className="border-none w-8 ">
+        <Skeleton className="size-5" />
       </Table.Cell>
     </Table.Row>
   );

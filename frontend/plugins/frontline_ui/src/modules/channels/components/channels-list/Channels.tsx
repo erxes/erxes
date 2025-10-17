@@ -41,7 +41,7 @@ export function Channels() {
                     <Table.Row
                       key={channel._id}
                       onClick={() => onClick(channel._id)}
-                      className="hover:cursor-pointer shadow-xs"
+                      className="cursor-pointer shadow-xs"
                     >
                       <Table.Cell className="font-medium border-none pl-2 w-auto ">
                         <span className="w-full flex gap-2 text-base font-medium">

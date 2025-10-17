@@ -4,6 +4,7 @@ import { UpdateChannelForm } from '@/channels/components/channel-details/UpdateC
 import { useGetChannel } from '@/channels/hooks/useGetChannel';
 import { IntegrationList } from '@/integrations/components/IntegrationList';
 import { useParams } from 'react-router-dom';
+import { PipelinesSection } from '@/channels/components/channel-details/PipelinesSection';
 
 export const ChannelDetails = () => {
   const { id } = useParams();
@@ -21,6 +22,7 @@ export const ChannelDetails = () => {
         </section>
       </div>
       <MemberSection channel={channel} />
+      <PipelinesSection channelId={channel._id} />
       {/* <IntegrationsSection channel={channel} /> */}
       <IntegrationList />
     </div>

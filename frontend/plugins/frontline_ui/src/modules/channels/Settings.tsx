@@ -27,6 +27,12 @@ export const IntegrationConfigPage = lazy(() =>
   })),
 );
 
+export const ChannelPipelinesPage = lazy(() =>
+  import('~/pages/ChannelPipelinesPage').then((module) => ({
+    default: module.ChannelPipelinesPage,
+  })),
+);
+
 const ChannelsSettings = () => {
   return (
     <Suspense fallback={<div />}>
@@ -63,6 +69,10 @@ const ChannelsSettings = () => {
         <Route
           path={FrontlinePaths.ErxesMessengerPreview}
           element={<ErxesMessengerPreview />}
+        />
+        <Route
+          path={FrontlinePaths.ChannelPipelines}
+          element={<ChannelPipelinesPage />}
         />
       </Routes>
     </Suspense>
