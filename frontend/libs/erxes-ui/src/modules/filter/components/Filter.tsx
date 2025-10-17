@@ -122,7 +122,12 @@ const FilterPopover = ({
     } else {
       goBackToPreviousHotkeyScope();
     }
-  }, [open]);
+  }, [
+    goBackToPreviousHotkeyScope,
+    open,
+    scope,
+    setHotkeyScopeAndMemorizePreviousScope,
+  ]);
 
   return (
     <Popover

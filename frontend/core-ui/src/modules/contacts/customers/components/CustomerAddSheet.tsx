@@ -15,6 +15,7 @@ export const CustomerAddSheet = () => {
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
+
   const onOpen = () => {
     setOpen(true);
     setHotkeyScopeAndMemorizePreviousScope(
