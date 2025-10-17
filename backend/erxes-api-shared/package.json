@@ -28,7 +28,7 @@
     "@elastic/elasticsearch": "7",
     "@sniptt/guards": "^0.2.0",
     "@trpc/client": "^11.0.0",
-    "@trpc/server": "^11.0.0",
+    "@trpc/server": "^11.1.1",
     "bullmq": "^5.40.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
