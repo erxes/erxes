@@ -1,6 +1,6 @@
 import { IconCreditCard, IconEdit, IconTrash } from '@tabler/icons-react';
 import dayjs from 'dayjs';
-import { Button, REACT_APP_API_URL, Table } from 'erxes-ui';
+import { Button, REACT_APP_GATEWAY_URL, Table } from 'erxes-ui';
 import { IPaymentDocument } from '~/modules/payment/types/Payment';
 import { paymentKind } from '~/modules/payment/utils';
 
@@ -33,7 +33,7 @@ const PaymentTable = ({ payments, onEdit, onDelete }: Props) => {
                       <div className="p-2 rounded-full text-white">
                         <img
                           className="w-6 h-6 object-contain rounded-md"
-                          src={`${REACT_APP_API_URL}/pl:payment/static/images/payments/${payment.kind}.png`}
+                          src={`${REACT_APP_GATEWAY_URL}/pl:payment/static/images/payments/${payment.kind}.png`}
                           alt={paymentKind(payment.kind)?.name}
                         />
                       </div>

@@ -1,84 +1,48 @@
-import * as dotenv from 'dotenv';
-import { Express, Request, Response } from 'express';
+// @ts-nocheck
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
-
-import { apolloRouterPort } from '~/apollo-router';
-import { ErxesProxyTarget } from '~/proxy/targets';
-
+import { ErxesProxyTarget } from './targets';
+import * as dotenv from 'dotenv';
+import { apolloRouterPort } from '../apollo-router';
+import { Express } from 'express';
 dotenv.config();
 
-const { NODE_ENV } = process.env;
-
-// Shared proxyReq handler
-export const proxyReq = (proxyReq: any, req: Request) => {
-  // preserve original host safely
-  proxyReq.setHeader('x-original-host', req.hostname);
-
-  if ((req as any).user?._id) {
-    proxyReq.setHeader('x-user-id', (req as any).user._id);
-  }
-
+const onProxyReq = (proxyReq, req: any) => {
+  console.log('onProxyReq', req);
+  proxyReq.setHeader('hostname', req.hostname);
+  proxyReq.setHeader('userid', req.user ? req.user._id : '');
   fixRequestBody(proxyReq, req);
 };
 
-const forbid = (_req: Request, res: Response) => {
-  res.status(403).send('Forbidden');
+const forbid = (_req, res) => {
+  res.status(403).send();
 };
 
-/**
- * Proxy GraphQL → Apollo Router (used when Coreless)
- */
-export async function applyProxiesCoreless(app: Express) {
+export async function applyProxiesCoreless(
+  app: Express,
+  targets: ErxesProxyTarget[],
+) {
   app.use(
     '^/graphql',
     createProxyMiddleware({
       pathRewrite: { '^/graphql': '/' },
       target: `http://127.0.0.1:${apolloRouterPort}`,
-      changeOrigin: true,
-      xfwd: true,
-      on: {
-        proxyReq,
-        error(err, _req, res) {
-          console.error('[Coreless Proxy Error]', err.message);
-          (res as Response).status(502).send('Apollo Router unavailable');
-        },
-      },
+
+      onProxyReq,
     }),
   );
-}
 
-/**
- * Proxy → Core service (legacy / OS version)
- */
-export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
-  const core = targets.find((t) => t.name === 'core');
+  for (const target of targets) {
+    const path = `^/pl(-|:)${target.name}`;
 
-  if (!core) {
-    throw new Error('core service not found in proxy targets');
+    app.use(`${path}/trpc`, forbid);
+
+    app.use(
+      path,
+      createProxyMiddleware({
+        pathRewrite: { [path]: '/' },
+        target: target.address,
+        onProxyReq,
+      }),
+    );
   }
-
-  console.log(
-    `[applyProxyToCore] Forwarding → ${
-      NODE_ENV === 'production' ? core.address : 'http://localhost:3300'
-    }`,
-  );
-
-  app.use('/trpc', forbid);
-
-  app.use(
-    '/',
-    createProxyMiddleware({
-      target:
-        NODE_ENV === 'production' ? core.address : 'http://localhost:3300',
-      changeOrigin: true,
-      xfwd: true,
-      on: {
-        proxyReq,
-        error(err, _req, res) {
-          console.error('[Core Proxy Error]', err.message);
-          (res as Response).status(502).send('Core service unavailable');
-        },
-      },
-    }),
-  );
 }
