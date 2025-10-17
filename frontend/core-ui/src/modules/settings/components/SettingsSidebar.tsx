@@ -8,7 +8,7 @@ import { AppPath } from '@/types/paths/AppPath';
 import { useAtomValue } from 'jotai';
 import { pluginsConfigState } from 'ui-modules';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
-import { SETTINGS_PATH_DATA } from '../constants/data';
+import { GET_SETTINGS_PATH_DATA } from '../constants/data';
 
 import React, { useMemo } from 'react';
 import { usePageTrackerStore } from 'react-page-tracker';
@@ -20,6 +20,7 @@ export function SettingsSidebar() {
   const version = useVersion();
 
   const CORE_MODULES = GET_CORE_MODULES(version);
+  const SETTINGS_PATH_DATA = GET_SETTINGS_PATH_DATA(version);
 
   const pluginsWithSettingsModules: Map<string, IUIConfig['modules']> =
     useMemo(() => {

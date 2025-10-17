@@ -120,7 +120,7 @@ const clientPortalMutations = {
 
     await models.Posts.deleteMany({ clientPortalId: _id });
 
-    await models.PostTranslations.deleteMany({ clientPortalId: _id });
+    await models.Translations.deleteMany({ clientPortalId: _id });
 
     await models.Pages.deleteMany({ clientPortalId: _id });
 

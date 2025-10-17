@@ -2,7 +2,7 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   GET_ASSIGNED_PRODUCTS,
   GET_PRODUCTS,
-} from '../graphql/queries/getProducts';
+} from '../graphql/queries/productsQueries';
 import { IProduct } from '../types/Product';
 import { EnumCursorDirection, ICursorListResponse } from 'erxes-ui';
 
@@ -53,8 +53,9 @@ export const useProducts = (
   };
 };
 
-
-export const useProductsInline = (options?: QueryHookOptions<ICursorListResponse<IProduct>>) => {
+export const useProductsInline = (
+  options?: QueryHookOptions<ICursorListResponse<IProduct>>,
+) => {
   const { data, loading, error } = useQuery<ICursorListResponse<IProduct>>(
     GET_ASSIGNED_PRODUCTS,
     options,

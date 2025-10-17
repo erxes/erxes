@@ -1,9 +1,9 @@
-import { redis, startPlugin } from 'erxes-api-shared/utils';
+import { redis, startPlugin, wrapApolloResolvers } from 'erxes-api-shared/utils';
+import { Router } from 'express';
 import { typeDefs } from '~/apollo/typeDefs';
+import { initMQWorkers } from '~/worker';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
-import { Router } from 'express';
-import { initMQWorkers } from '~/worker';
 
 export const router: Router = Router();
 
@@ -12,7 +12,7 @@ startPlugin({
   port: 3306,
   graphql: async () => ({
     typeDefs: await typeDefs(),
-    resolvers,
+    resolvers: wrapApolloResolvers(resolvers),
   }),
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(

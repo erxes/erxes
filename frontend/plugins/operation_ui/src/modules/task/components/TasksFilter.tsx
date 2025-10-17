@@ -1,31 +1,34 @@
+import { SelectPriority } from '@/operation/components/SelectPriority';
+import { SelectStatus } from '@/operation/components/SelectStatus';
+import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
+import { TasksTotalCount } from '@/task/components/TasksTotalCount';
+import { SelectAssigneeTask } from '@/task/components/task-selects/SelectAssigneeTask';
+import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
+import { TASKS_CURSOR_SESSION_KEY } from '@/task/constants';
+import { SelectTeam } from '@/team/components/SelectTeam';
 import {
   IconAlertSquareRounded,
   IconProgressCheck,
   IconSearch,
+  IconSquareRotated,
   IconUser,
   IconUsers,
 } from '@tabler/icons-react';
-import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
-import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
-import { TasksTotalCount } from '@/task/components/TasksTotalCount';
-import { TASKS_CURSOR_SESSION_KEY } from '@/task/constants';
-import { SelectPriority } from '@/operation/components/SelectPriority';
-import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
-import { useParams } from 'react-router-dom';
-import { SelectAssigneeTask } from '@/task/components/task-selects/SelectAssigneeTask';
 import clsx from 'clsx';
-import { SelectTeam } from '@/team/components/SelectTeam';
-import { SelectStatus } from '@/operation/components/SelectStatus';
+import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { useParams } from 'react-router-dom';
+import { SelectMilestone } from './task-selects/SelectMilestone';
 
 const TasksFilterPopover = () => {
-  const { teamId } = useParams();
+  const { teamId, projectId } = useParams();
   const [queries] = useMultiQueryState<{
     searchValue: string;
     assignee: string;
     team: string;
     priority: string;
     status: string;
-  }>(['searchValue', 'assignee', 'team', 'priority', 'status']);
+    milestone: string;
+  }>(['searchValue', 'assignee', 'team', 'priority', 'status', 'milestone']);
 
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
@@ -67,6 +70,12 @@ const TasksFilterPopover = () => {
                   <IconProgressCheck />
                   Status
                 </Filter.Item>
+                {(projectId && !queries?.milestone) && (
+                  <Filter.Item value="milestone">
+                    <IconSquareRotated />
+                    Milestone
+                  </Filter.Item>
+                )}
               </Command.List>
             </Command>
           </Filter.View>
@@ -77,6 +86,9 @@ const TasksFilterPopover = () => {
             <SelectStatusTask.FilterView teamId={teamId} />
           ) : (
             <SelectStatus.FilterView />
+          )}
+          {(projectId && !queries?.milestone) && (
+            <SelectMilestone.FilterView projectId={projectId || ''} />
           )}
         </Combobox.Content>
       </Filter.Popover>
@@ -90,15 +102,16 @@ const TasksFilterPopover = () => {
 };
 
 export const TasksFilter = () => {
-  const { teamId } = useParams();
+  const { teamId, projectId } = useParams();
   const [queries] = useMultiQueryState<{
     searchValue: string;
     assignee: string;
     team: string;
     priority: string;
     status: string;
-  }>(['searchValue', 'assignee', 'team', 'priority', 'status']);
-  const { searchValue } = queries || {};
+    milestone: string;
+  }>(['searchValue', 'assignee', 'team', 'priority', 'status', 'milestone']);
+  const { searchValue, milestone } = queries || {};
 
   return (
     <Filter id="Tasks-filter" sessionKey={TASKS_CURSOR_SESSION_KEY}>
@@ -151,6 +164,16 @@ export const TasksFilter = () => {
           </Filter.BarName>
           <SelectAssigneeTask.FilterBar />
         </Filter.BarItem>
+
+        {(projectId && milestone) && (
+          <Filter.BarItem queryKey="milestone">
+            <Filter.BarName>
+              <IconSquareRotated />
+              Milestone
+            </Filter.BarName>
+            <SelectMilestone.FilterBar projectId={projectId} />
+          </Filter.BarItem>
+        )}
         <TasksFilterPopover />
         <TasksTotalCount />
       </Filter.Bar>

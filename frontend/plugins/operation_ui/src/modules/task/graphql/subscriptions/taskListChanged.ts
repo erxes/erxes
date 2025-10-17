@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client';
 
-export const TASK_LIST_CHANGED = gql`
+export const 
+TASK_LIST_CHANGED = gql`
   subscription operationTaskListChanged($filter: ITaskFilter) {
     operationTaskListChanged(filter: $filter) {
       type
@@ -21,6 +22,7 @@ export const TASK_LIST_CHANGED = gql`
         cycleId
         projectId
         estimatePoint
+        milestoneId
       }
     }
   }

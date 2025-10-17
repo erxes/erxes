@@ -20,6 +20,7 @@ import { SelectProject } from '@/task/components/task-selects/SelectProjectTask'
 import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstimatedPointTask';
 import { SelectCycle } from '@/task/components/task-selects/SelectCycle';
 import { ConverToProject } from '@/task/components/task-selects/ConvertToProject';
+import { SelectMilestone } from '@/task/components/task-selects/SelectMilestone';
 
 export const TaskFields = ({ task }: { task: ITask }) => {
   const {
@@ -33,6 +34,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
     projectId,
     estimatePoint,
     cycleId,
+    milestoneId,
   } = task || {};
 
   const startDate = (task as any)?.startDate;
@@ -144,6 +146,12 @@ export const TaskFields = ({ task }: { task: ITask }) => {
           value={estimatePoint}
           taskId={taskId}
           teamId={teamId}
+          variant="detail"
+        />
+        <SelectMilestone
+          value={milestoneId || ''}
+          taskId={taskId}
+          projectId={projectId}
           variant="detail"
         />
       </div>
