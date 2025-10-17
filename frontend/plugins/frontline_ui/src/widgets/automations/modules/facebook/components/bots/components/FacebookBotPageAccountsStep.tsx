@@ -8,7 +8,7 @@ import {
   Command,
   Input,
   RadioGroup,
-  REACT_APP_API_URL,
+  REACT_APP_GATEWAY_URL,
   Spinner,
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
@@ -37,7 +37,7 @@ export const FacebookBotPageAccountsStep = ({
           </div>
           <Button variant="ghost" className="text-primary" asChild>
             <a
-              href={`${REACT_APP_API_URL}/pl:frontline/facebook/fblogin?kind=${IntegrationType.FACEBOOK_MESSENGER}`}
+              href={`${REACT_APP_GATEWAY_URL}/pl:frontline/facebook/fblogin?kind=${IntegrationType.FACEBOOK_MESSENGER}`}
               target="_blank"
               rel="noreferrer"
             >
