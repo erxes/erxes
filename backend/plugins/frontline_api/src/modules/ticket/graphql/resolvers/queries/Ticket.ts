@@ -24,9 +24,10 @@ export const ticketQueries = {
     if (filter.statusType !== undefined)
       filterQuery.statusType = filter.statusType;
     if (filter.priority !== undefined) filterQuery.priority = filter.priority;
-    if (filter.startDate) filterQuery.startDate = { $gte: filter.startDate };
-    if (filter.targetDate) filterQuery.targetDate = { $gte: filter.targetDate };
-    if (filter.createdAt) filterQuery.createdAt = { $gte: filter.createdAt };
+    filterQuery.startDate = buildDateQuery(filter.startDate);
+    filterQuery.targetDate = buildDateQuery(filter.targetDate);
+    filterQuery.createdAt = buildDateQuery(filter.createdAt);
+
     if (filter.createdBy) filterQuery.createdBy = filter.createdBy;
     if (filter.assigneeId) filterQuery.assigneeId = filter.assigneeId;
     if (filter.channelId) filterQuery.channelId = filter.channelId;
@@ -41,7 +42,7 @@ export const ticketQueries = {
         params: {
           ...filter,
           orderBy: {
-            statusType: 'asc',
+            order: 'asc',
             createdAt: 'asc',
           },
         },
@@ -50,6 +51,16 @@ export const ticketQueries = {
 
     return { list, totalCount, pageInfo };
   },
+};
+
+export const buildDateQuery = (value?: Date | { from?: Date; to?: Date }) => {
+  if (!value) return undefined;
+  if (value instanceof Date) return { $gte: value };
+
+  const query: any = {};
+  if (value.from) query.$gte = value.from;
+  if (value.to) query.$lte = value.to;
+  return query;
 };
 
 requireLogin(ticketQueries, 'getTicket');

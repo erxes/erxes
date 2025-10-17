@@ -4,6 +4,10 @@ import {
   IListParams,
 } from 'erxes-api-shared/core-types';
 
+type DateRange = {
+  from?: Date;
+  to?: Date;
+};
 export interface ITicket {
   name: string;
   channelId: string;
@@ -17,10 +21,10 @@ export interface ITicket {
   status?: string;
   assigneeId?: string;
   createdBy?: string;
-  startDate?: Date;
-  targetDate?: Date;
-  createdAt?: Date;
-  statusChangedDate?: Date;
+  startDate?: Date | DateRange;
+  targetDate?: Date | DateRange;
+  createdAt?: Date | DateRange;
+  statusChangedDate?: Date | DateRange;
   statusType?: number;
 }
 

@@ -66,13 +66,7 @@ export const loadStatusClass = (models: IModels) => {
     }
 
     public static async removeStatus(_id: string) {
-      const ticket = await models.Ticket.findOne({ status: _id }).lean();
-
-      if (ticket) {
-        throw new Error('Status is used by task');
-      }
-
-      return await models.Status.deleteOne({ _id });
+      return models.Status.removeStatus(_id);
     }
   }
 

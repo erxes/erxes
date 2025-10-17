@@ -49,7 +49,7 @@ export const mutations = `
     _id: String!
     name: String
     description: String
-    userId : String
+    userId: String
     order: Int
   ): Pipeline
 

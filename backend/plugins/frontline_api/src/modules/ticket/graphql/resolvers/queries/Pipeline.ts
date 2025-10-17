@@ -39,24 +39,21 @@ export const pipelineQueries = {
       filterQuery.createdBy = filter.createdBy;
     }
 
-    if (filter.userId && !filter.channelId) {
-      filterQuery.assigneeId = filter.userId;
+    if (filter.userId) {
+      filterQuery.userId = filter.userId;
     }
 
-    const { list, totalCount, pageInfo } =
-      await cursorPaginate<ITicketPipelineDocument>({
-        model: models.Pipeline,
-        params: {
-          ...filter,
-          orderBy: {
-            statusType: 'asc',
-            createdAt: 'asc',
-          },
+    return await cursorPaginate<ITicketPipelineDocument>({
+      model: models.Pipeline,
+      params: {
+        ...filter,
+        orderBy: {
+          order: 'asc',
+          createdAt: 'asc',
         },
-        query: filterQuery,
-      });
-
-    return { list, totalCount, pageInfo };
+      },
+      query: filterQuery,
+    });
   },
 };
 
