@@ -66,7 +66,7 @@ export const loadStatusClass = (models: IModels) => {
     }
 
     public static async removeStatus(_id: string) {
-      return models.Status.removeStatus(_id);
+      return models.Status.deleteOne({ _id });
     }
   }
 
