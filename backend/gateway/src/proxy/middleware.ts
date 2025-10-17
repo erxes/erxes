@@ -45,21 +45,3 @@ export async function applyProxiesCoreless(
     );
   }
 }
-
-// this has to be applied last, just like 404 route handlers are applied last
-export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
-  const core = targets.find((t) => t.name === 'core');
-
-  if (!core) {
-    throw new Error('core service not found');
-  }
-  app.use('/rpc', forbid);
-  app.use(
-    '/',
-    createProxyMiddleware({
-      target:
-        NODE_ENV === 'production' ? core.address : 'http://localhost:3300',
-      onProxyReq,
-    }),
-  );
-}
