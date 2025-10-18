@@ -36,6 +36,7 @@ export const TICKET_DEFAULT_STATUSES = [
     name: 'closed',
     type: TICKET_STATUS_TYPES.CLOSED,
     color: '#6B7280',
+    order: 4,
   },
   {
     name: 'cancelled',

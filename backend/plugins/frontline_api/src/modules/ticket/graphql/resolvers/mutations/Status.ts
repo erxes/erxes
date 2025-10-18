@@ -59,6 +59,6 @@ export const statusMutations = {
   },
 };
 
-requireLogin(statusMutations, 'createStatus');
-requireLogin(statusMutations, 'updateStatus');
+requireLogin(statusMutations, 'addTicketStatus');
+requireLogin(statusMutations, 'updateTicketStatus');
 requireLogin(statusMutations, 'deleteTicketStatus');

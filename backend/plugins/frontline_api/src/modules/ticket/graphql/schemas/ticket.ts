@@ -41,7 +41,6 @@ export const types = `
     userId: String
     name: String
     statusType: Int
-    estimate: String
 
     ${GQL_CURSOR_PARAM_DEFS}
   }

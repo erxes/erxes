@@ -203,7 +203,7 @@ export const loadClasses = (
     loadPipelineClass(models),
   );
   models.Status = db.model<IStatusDocument, IStatusModel>(
-    'frontline_tickets_pipelines_status',
+    'frontline_tickets_pipeline_status',
     loadStatusClass(models),
   );
 
