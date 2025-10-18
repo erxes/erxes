@@ -47,7 +47,7 @@ export const WelcomeMessageContent = () => {
     <WelcomeNotificationContentLayout
       title="Welcome to erxes"
       description="A New Experience Begins!"
-      videoSrc="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+      videoSrc="https://pub-3bcba1ff529f4ce3bf25b4e16962c239.r2.dev/intro.mp4"
       onboardingSteps={OnboardingSteps}
     />
   );
