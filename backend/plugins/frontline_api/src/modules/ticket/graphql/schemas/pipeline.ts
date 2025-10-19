@@ -10,6 +10,7 @@ export const types = `
     userId: String
     createdAt: Date
     updatedAt: Date
+    user: User
   }
 
   type PipelineSubscription {
