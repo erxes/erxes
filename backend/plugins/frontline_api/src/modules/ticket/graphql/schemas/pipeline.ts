@@ -41,7 +41,6 @@ export const mutations = `
     name: String!
     channelId: String!
     description: String
-    userId: String
     order: Int
   ): Pipeline
 
@@ -49,7 +48,6 @@ export const mutations = `
     _id: String!
     name: String
     description: String
-    userId: String
     order: Int
   ): Pipeline
 
