@@ -5,7 +5,6 @@ import {
 } from 'erxes-api-shared/core-types';
 
 export interface ITicketPipeline {
-  _id?: string;
   name: string;
   description?: string;
   channelId: string;

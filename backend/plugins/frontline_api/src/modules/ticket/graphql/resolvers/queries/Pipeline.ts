@@ -13,7 +13,10 @@ export const pipelineQueries = {
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return models.Pipeline.getPipeline(_id);
+    const data = await models.Pipeline.getPipeline(_id);
+
+    console.log(data, 'data');
+    return data;
   },
 
   getTicketPipelines: async (

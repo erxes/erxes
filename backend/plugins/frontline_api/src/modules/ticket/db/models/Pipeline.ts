@@ -26,7 +26,7 @@ export const loadPipelineClass = (models: IModels) => {
     public static async getPipeline(
       _id: string,
     ): Promise<ITicketPipelineDocument> {
-      const pipeline = await models.Pipeline.findOne({ _id });
+      const pipeline = await models.Pipeline.findOne({ _id }).lean();
       if (!pipeline) throw new Error('Pipeline not found');
       return pipeline;
     }
@@ -34,7 +34,7 @@ export const loadPipelineClass = (models: IModels) => {
     public static async getPipelines(
       channelId: string,
     ): Promise<ITicketPipelineDocument[]> {
-      return models.Pipeline.find({ channelId }).sort({ order: 1 });
+      return models.Pipeline.find({ channelId }).sort({ order: 1 }).lean();
     }
 
     public static async addPipeline(

@@ -2,8 +2,8 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useGetPipelines } from '@/settings/hooks/useGetPipelines';
 export const PipelineDetail = () => {
-  const { id: pipelineId } = useParams<{ id: string; pipelineId: string }>();
-
+  const { pipelineId } = useParams<{ pipelineId: string }>();
+  console.log(pipelineId);
   const { pipeline } = useGetPipelines(pipelineId);
 
   return (

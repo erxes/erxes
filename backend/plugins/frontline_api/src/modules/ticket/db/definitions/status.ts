@@ -1,7 +1,9 @@
 import { Schema } from 'mongoose';
+import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
 export const statusSchema = new Schema(
   {
+    _id: mongooseStringRandomId,
     name: { type: String, required: true },
     pipelineId: { type: String, ref: 'frontline_tickets_pipeline' },
     channelId: {

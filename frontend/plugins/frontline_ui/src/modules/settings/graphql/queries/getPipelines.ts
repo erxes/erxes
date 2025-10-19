@@ -18,6 +18,12 @@ export const GET_TICKET_PIPELINES = gql`
           }
         }
       }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
       totalCount
     }
   }
