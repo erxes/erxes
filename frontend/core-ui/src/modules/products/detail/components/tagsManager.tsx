@@ -79,7 +79,7 @@ export function TagsManager({
     setIsEditingTags(true);
 
     try {
-      await productsEdit({
+        productsEdit({
         variables: {
           _id: productId,
           tagsId: selectedTags,
