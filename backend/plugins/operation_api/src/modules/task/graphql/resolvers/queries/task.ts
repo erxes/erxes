@@ -52,7 +52,11 @@ export const taskQueries = {
     }
 
     if (filter.assigneeId) {
-      filterQuery.assigneeId = filter.assigneeId;
+      if (filter.assigneeId === 'no-assignee') {
+        filterQuery.assigneeId = { $exists: false };
+      } else {
+        filterQuery.assigneeId = filter.assigneeId;
+      }
     }
 
     if (filter.cycleId) {

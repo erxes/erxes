@@ -131,9 +131,9 @@ const SelectAssigneeFilterView = ({
     <Filter.View filterKey="assignee">
       <SelectAssigneeProvider
         mode="single"
-        value={assignee || ''}
+        value={assignee === 'no-assignee' ? '' : assignee ?? undefined}
         onValueChange={(value) => {
-          setAssignee(value as string);
+          setAssignee(value === null ? 'no-assignee' : (value as string));
           resetFilterState();
         }}
       >
@@ -162,6 +162,7 @@ export const SelectAssigneeFilterBar = ({
         }
         setOpen(false);
       }}
+      allowUnassigned={true}
     >
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
