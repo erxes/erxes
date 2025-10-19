@@ -10,7 +10,13 @@ export const GET_TICKET_PIPELINES = gql`
         description
         name
         updatedAt
-        userId
+        createdUser {
+          _id
+          details {
+            avatar
+            fullName
+          }
+        }
       }
       totalCount
     }

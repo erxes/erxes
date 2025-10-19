@@ -42,11 +42,11 @@ export const pipelineQueries = {
     return await cursorPaginate<ITicketPipelineDocument>({
       model: models.Pipeline,
       params: {
-        ...filter,
         orderBy: {
           order: 'asc',
           createdAt: 'asc',
         },
+        ...filter,
       },
       query: filterQuery,
     });

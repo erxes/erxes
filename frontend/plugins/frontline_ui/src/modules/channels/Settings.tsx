@@ -8,6 +8,7 @@ import { SettingsHeader } from 'ui-modules';
 import { ChannelDetailsPage } from '~/pages/ChannelDetailsPage';
 import { ChannelMembersPage } from '~/pages/ChannelMembersPage';
 import { ChannelsSettingsIndexPage } from '~/pages/ChannelsSettingsIndexPage';
+import { PipelineDetailPage } from '~/pages/PIpelineDetailPage';
 
 export const IntegrationDetailPage = lazy(() =>
   import('~/pages/IntegrationDetailPage').then((module) => ({
@@ -73,6 +74,10 @@ const ChannelsSettings = () => {
         <Route
           path={FrontlinePaths.ChannelPipelines}
           element={<ChannelPipelinesPage />}
+        />
+        <Route
+          path={FrontlinePaths.PipelineDetail}
+          element={<PipelineDetailPage />}
         />
       </Routes>
     </Suspense>

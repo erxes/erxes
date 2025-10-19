@@ -1,13 +1,23 @@
 import { Skeleton, Table, TextOverflowTooltip } from 'erxes-ui';
 import { format } from 'date-fns';
 import { useGetPipelines } from '@/settings/hooks/usePipelines';
+import { useNavigate } from 'react-router-dom';
+import { MembersInline } from 'ui-modules';
 
 export const PipelinesList = ({ channelId }: { channelId: string }) => {
   const { pipelines, loading } = useGetPipelines({
     variables: {
-      channelId,
+      filter: { channelId },
     },
   });
+
+  const navigate = useNavigate();
+
+  const onClick = (pipelineId: string) => {
+    navigate(
+      `/settings/frontline/channels/${channelId}/pipelines/${pipelineId}`,
+    );
+  };
 
   return (
     <div className="overflow-auto h-full px-8">
@@ -18,8 +28,7 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
               <Table.Head className="w-auto rounded-tl-md pl-2">
                 Name
               </Table.Head>
-              <Table.Head className="w-20">User</Table.Head>
-              <Table.Head className="w-20">Tasks</Table.Head>
+              <Table.Head className="w-64">Created By</Table.Head>
               <Table.Head className="w-32">Updated At</Table.Head>
               <Table.Head className="w-32">Created At</Table.Head>
             </Table.Row>
@@ -32,7 +41,7 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
               : pipelines?.map((pipeline) => (
                   <Table.Row
                     key={pipeline._id}
-                    // onClick={() => onClick(pipeline._id)}
+                    onClick={() => onClick(pipeline._id)}
                     className="hover:cursor-pointer shadow-xs "
                   >
                     <Table.Cell className="font-medium border-none pl-2 w-auto ">
@@ -43,13 +52,15 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
                         <TextOverflowTooltip value={pipeline.name} />
                       </span>
                     </Table.Cell>
-                    <Table.Cell className="border-none px-2 w-20">
-                      {pipeline.userId}
+                    <Table.Cell className="border-none px-2 ">
+                      <div className="flex items-center gap-2 text-base font-medium">
+                        <MembersInline members={[pipeline.createdUser]} />
+                      </div>
                     </Table.Cell>
-                    <Table.Cell className="border-none px-2 w-20">
+                    <Table.Cell className="border-none px-2 ">
                       {format(pipeline.updatedAt, 'MMM d, yyyy')}
                     </Table.Cell>
-                    <Table.Cell className="border-none px-2 w-32 text-muted-foreground">
+                    <Table.Cell className="border-none px-2 text-muted-foreground">
                       {format(pipeline.createdAt, 'MMM d, yyyy')}
                     </Table.Cell>
                   </Table.Row>

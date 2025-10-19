@@ -13,7 +13,7 @@ export function Channels() {
   const { channels, loading } = useGetChannels();
   const navigate = useNavigate();
   const onClick = (channelId: string) => {
-    navigate(`/settings/frontline/channels/details/${channelId}`);
+    navigate(`/settings/frontline/channels/${channelId}`);
   };
   return (
     <div className="overflow-hidden h-full px-8">

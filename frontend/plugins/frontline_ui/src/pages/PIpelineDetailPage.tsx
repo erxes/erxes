@@ -1,11 +1,13 @@
 import { Breadcrumb } from 'erxes-ui';
 import { IconArrowLeft } from '@tabler/icons-react';
-import { TeamDetails } from '@/team/components/team-details/TeamDetails';
-import { useNavigate } from 'react-router-dom';
+
+import { PipelineDetail } from '@/settings/components/pipelines/PipelineDetail';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from 'erxes-ui';
 
-export const TeamDetailPage = () => {
+export const PipelineDetailPage = () => {
   const navigate = useNavigate();
+  const { id: channelId } = useParams<{ id: string; pipelineId: string }>();
 
   return (
     <div>
@@ -17,10 +19,14 @@ export const TeamDetailPage = () => {
                 <Button
                   variant="ghost"
                   className="text-foreground font-semibold"
-                  onClick={() => navigate('/settings/operation/team')}
+                  onClick={() =>
+                    navigate(
+                      `/settings/frontline/channels/${channelId}/pipelines`,
+                    )
+                  }
                 >
                   <IconArrowLeft size={16} className="stroke-foreground" />
-                  Teams
+                  Pipelines
                 </Button>
               </Breadcrumb.Link>
             </Breadcrumb.Item>
@@ -29,7 +35,7 @@ export const TeamDetailPage = () => {
       </div>
       <section className="mx-auto max-w-2xl w-full relative">
         <div className="flex items-center">
-          <TeamDetails />
+          <PipelineDetail />
         </div>
       </section>
     </div>

@@ -39,17 +39,20 @@ export interface IPipeline {
   name: string;
   updatedAt: string;
   userId: string;
+  createdUser: IUser;
 }
 
 export interface ITicketsPipelineFilter {
-  channelId: string;
-  cursor?: string;
-  aggregationPipeline?: JSON;
-  cursorMode?: 'inclusive' | 'exclusive';
-  direction?: 'forward' | 'backward';
-  limit?: number;
-  name?: string;
-  orderBy?: JSON;
-  sort?: string;
-  userId?: string;
+  filter: {
+    channelId?: string;
+    cursor?: string;
+    aggregationPipeline?: JSON;
+    cursorMode?: 'inclusive' | 'exclusive';
+    direction?: 'forward' | 'backward';
+    limit?: number;
+    name?: string;
+    orderBy?: any;
+    sortMode?: string;
+    userId?: string;
+  };
 }

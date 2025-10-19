@@ -7,7 +7,7 @@ export const PipelinesSection = ({ channelId }: { channelId: string }) => {
   return (
     <div
       className="w-full border border-muted-foreground/15 rounded-md hover:bg-sidebar/50 cursor-pointer"
-      onClick={() => navigate(`/settings/frontline/channels/pipelines/${channelId}`)}
+      onClick={() => navigate(`/settings/frontline/channels/${channelId}/pipelines`)}
     >
       <section className="w-full p-4">
         <div className="flex items-center justify-between">

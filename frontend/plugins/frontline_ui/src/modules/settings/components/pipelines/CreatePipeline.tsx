@@ -61,7 +61,7 @@ export const CreatePipeline = () => {
         onCompleted: (data) => {
           toast({ title: 'Success!' });
           navigate(
-            `/settings/operation/pipeline/details/${data.createPipeline._id}`,
+            `/settings/frontline/channels/${channelId}/pipelines/${data.addPipeline._id}`,
           );
           form.reset();
           _setOpen(false);
@@ -74,7 +74,7 @@ export const CreatePipeline = () => {
           }),
       });
     },
-    [addPipeline, toast, _setOpen, form, navigate],
+    [addPipeline, toast, _setOpen, form, navigate, channelId],
   );
   if (!channelId) return null;
   return (

@@ -21,6 +21,17 @@ export const useGetPipelines = (
   const { data, loading } = useQuery<
     IGetPipelinesResponse,
     ITicketsPipelineFilter
-  >(GET_TICKET_PIPELINES, options);
+  >(GET_TICKET_PIPELINES, {
+    ...options,
+    variables: {
+      ...options?.variables,
+      filter: {
+        orderBy: {
+          createdAt: -1,
+        },
+        ...(options?.variables?.filter || {}),
+      },
+    },
+  });
   return { pipelines: data?.getTicketPipelines?.list, loading };
 };
