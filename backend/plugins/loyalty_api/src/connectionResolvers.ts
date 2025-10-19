@@ -4,6 +4,8 @@ import { createGenerateModels } from 'erxes-api-shared/utils';
 
 import mongoose from 'mongoose';
 
+import { ICouponDocument } from '@/coupon/@types/coupon';
+import { ICouponModel, loadCouponClass } from '@/coupon/db/models/coupon';
 import { IPricingModel, loadPricingClass } from '@/pricing/db/models/pricing';
 import { IVoucherDocument } from '@/voucher/@types/voucher';
 import { IVoucherModel, loadVoucherClass } from '@/voucher/db/models/voucher';
@@ -11,6 +13,7 @@ import { IVoucherModel, loadVoucherClass } from '@/voucher/db/models/voucher';
 export interface IModels {
   Pricing: IPricingModel;
   Voucher: IVoucherModel;
+  Coupon: ICouponModel;
 }
 
 export interface IContext extends IMainContext {
@@ -28,6 +31,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Voucher = db.model<IVoucherDocument, IVoucherModel>(
     'voucher',
     loadVoucherClass(models),
+  );
+
+  models.Coupon = db.model<ICouponDocument, ICouponModel>(
+    'coupon',
+    loadCouponClass(models),
   );
 
   return models;
