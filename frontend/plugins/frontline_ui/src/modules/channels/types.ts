@@ -30,3 +30,26 @@ export interface IChannelMember {
 export type TChannelForm = z.infer<typeof CHANNEL_SCHEMA>;
 
 export type TChannelMemberForm = z.infer<typeof CHANNEL_MEMBER_FORM_SCHEMA>;
+
+export interface IPipeline {
+  _id: string;
+  channelId: string;
+  createdAt: string;
+  description: string;
+  name: string;
+  updatedAt: string;
+  userId: string;
+}
+
+export interface ITicketsPipelineFilter {
+  channelId: string;
+  cursor?: string;
+  aggregationPipeline?: JSON;
+  cursorMode?: 'inclusive' | 'exclusive';
+  direction?: 'forward' | 'backward';
+  limit?: number;
+  name?: string;
+  orderBy?: JSON;
+  sort?: string;
+  userId?: string;
+}

@@ -59,20 +59,5 @@ const GET_CHANNEL_MEMBERS = gql`
     }
   }
 `;
-const GET_CHANNEL_PIPELINES = gql`
-  query GetTicketPipelines($filter: TicketsPipelineFilter) {
-    getTicketPipelines(filter: $filter) {
-      list {
-        _id
-        channelId
-        createdAt
-        description
-        name
-        updatedAt
-        userId
-      }
-      totalCount
-    }
-  }
-`;
-export { GET_CHANNELS, GET_CHANNEL, GET_CHANNEL_MEMBERS, GET_CHANNEL_PIPELINES };
+
+export { GET_CHANNELS, GET_CHANNEL, GET_CHANNEL_MEMBERS  };

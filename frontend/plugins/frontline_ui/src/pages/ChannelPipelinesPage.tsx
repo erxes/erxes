@@ -1,5 +1,17 @@
+import { PipelinesList } from '@/settings/components/pipelines/PipelinesList';
+import { useParams } from 'react-router-dom';
+import { CreatePipeline } from '@/settings/components/pipelines/CreatePipeline';
+
 export const ChannelPipelinesPage = () => {
+  const { id: channelId } = useParams<{ id: string }>();
+  if (!channelId) return null;
   return (
-    <div>ChannelPipelinesPage</div>
-  )
-}
+    <div className="h-screen">
+      <div className="ml-auto flex justify-between px-8 py-6">
+        <h1 className="text-xlfont-semibold">Pipelines</h1>
+        <CreatePipeline />
+      </div>
+      <PipelinesList channelId={channelId} />
+    </div>
+  );
+};
