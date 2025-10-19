@@ -9,7 +9,6 @@ export const ticketSchema = new Schema(
       ref: 'frontline_tickets_pipeline',
       required: true,
     },
-    status: { type: Schema.Types.ObjectId, label: 'Status ID', required: true },
 
     statusId: {
       type: String,
@@ -27,7 +26,6 @@ export const ticketSchema = new Schema(
     attachments: [{ filename: String, url: String }],
     labelIds: [String],
     tagIds: [String],
-    assigneeId: { type: Schema.Types.ObjectId, ref: 'User' },
     userId: { type: String, ref: 'User' },
     startDate: Date,
     targetDate: Date,

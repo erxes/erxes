@@ -14,7 +14,6 @@ export interface ITicket {
   pipelineId: string;
   statusId: string;
   description?: string;
-  type?: 'bug' | 'task' | 'feature' | 'question' | 'incident';
   priority?: number;
   labelIds?: string[];
   tagIds?: string[];
