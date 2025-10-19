@@ -29,17 +29,18 @@ export const useTasksVariables = (
   variables?: QueryHookOptions<ICursorListResponse<ITask>>['variables'],
 ) => {
   const { teamId } = useParams();
-  const { searchValue, assignee, team, priority, status, milestone, tags, cycleFilter } =
+  const { searchValue, assignee, team, priority, status, milestone, tags, cycleFilter, createdBy } =
     useNonNullMultiQueryState<{
       searchValue: string;
       assignee: string;
+      createdBy: string;
       team: string;
       priority: string;
       status: string;
       milestone: string;
       tags: string[];
       cycleFilter: string;
-    }>(['searchValue', 'assignee', 'team', 'priority', 'status', 'milestone', 'tags', 'cycleFilter']);
+    }>(['searchValue', 'assignee', 'team', 'priority', 'status', 'milestone', 'tags', 'cycleFilter', 'createdBy']);
   const currentUser = useAtomValue(currentUserState);
 
   return {
@@ -51,6 +52,7 @@ export const useTasksVariables = (
     direction: 'forward',
     name: searchValue,
     assigneeId: assignee,
+    createdBy: createdBy,
     teamId: teamId || team,
     priority: priority,
     status: teamId ? status : undefined,
