@@ -1,10 +1,10 @@
 import { Document } from 'mongoose';
 
-export interface IPricing {
+export interface IVoucher {
   name?: string;
 }
 
-export interface IPricingDocument extends IPricing, Document {
+export interface IVoucherDocument extends IVoucher, Document {
   createdAt: Date;
   updatedAt: Date;
 }

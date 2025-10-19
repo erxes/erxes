@@ -2,7 +2,7 @@ import { Schema } from 'mongoose';
 
 import { schemaWrapper } from 'erxes-api-shared/utils';
 
-export const pricingSchema = schemaWrapper(
+export const voucherSchema = schemaWrapper(
   new Schema(
     {
       name: { type: String, label: 'Name' },
