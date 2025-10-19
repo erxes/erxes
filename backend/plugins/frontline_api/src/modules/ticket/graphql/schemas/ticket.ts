@@ -11,7 +11,7 @@ export const types = `
     labelIds: [String]
     tagIds: [String]
     assigneeId: String
-    createdBy: String
+    userId: String
     startDate: Date
     targetDate: Date
     createdAt: Date
@@ -32,7 +32,6 @@ export const types = `
     status: String
     priority: Int
     assigneeId: String
-    createdBy: String
     labelIds: [String]
     tagIds: [String]
     startDate: Date

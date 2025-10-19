@@ -48,7 +48,7 @@ export const loadTicketClass = (models: IModels) => {
       if (params.priority) query.priority = params.priority;
       if (params.labelIds) query.labelIds = { $in: params.labelIds };
       if (params.tagIds) query.tagIds = { $in: params.tagIds };
-      if (params.createdBy) query.createdBy = params.createdBy;
+      if (params.userId) query.userId = params.userId;
       if (params.startDate) query.startDate = { $gte: params.startDate };
       if (params.targetDate) query.targetDate = { $lte: params.targetDate };
       if (params.createdAt) query.createdAt = { $gte: params.createdAt };

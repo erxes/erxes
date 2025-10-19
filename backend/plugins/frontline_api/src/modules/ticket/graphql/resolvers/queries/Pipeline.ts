@@ -35,10 +35,6 @@ export const pipelineQueries = {
       filterQuery.channelId = filter.channelId;
     }
 
-    if (filter.createdBy) {
-      filterQuery.createdBy = filter.createdBy;
-    }
-
     if (filter.userId) {
       filterQuery.userId = filter.userId;
     }

@@ -11,7 +11,7 @@ export const PipelineMutations = {
   ) => {
     const pipeline = await models.Pipeline.addPipeline({
       ...params,
-      createdBy: user._id,
+      userId: user._id,
     });
 
     graphqlPubsub.publish(`ticketPipelineChanged:${pipeline._id}`, {

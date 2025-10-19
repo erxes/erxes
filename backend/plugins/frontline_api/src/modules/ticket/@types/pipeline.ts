@@ -10,7 +10,6 @@ export interface ITicketPipeline {
   description?: string;
   channelId: string;
   userId?: string;
-  createdBy?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

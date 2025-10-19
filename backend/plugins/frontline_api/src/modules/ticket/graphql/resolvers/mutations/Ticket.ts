@@ -11,7 +11,7 @@ export const ticketMutations = {
   ) => {
     const ticket = await models.Ticket.addTicket({
       ...params,
-      createdBy: user._id,
+      userId: user._id,
     });
 
     graphqlPubsub.publish(`ticketChanged:${ticket._id}`, {

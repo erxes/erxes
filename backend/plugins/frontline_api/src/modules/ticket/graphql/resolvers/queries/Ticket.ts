@@ -28,7 +28,6 @@ export const ticketQueries = {
     filterQuery.targetDate = buildDateQuery(filter.targetDate);
     filterQuery.createdAt = buildDateQuery(filter.createdAt);
 
-    if (filter.createdBy) filterQuery.createdBy = filter.createdBy;
     if (filter.assigneeId) filterQuery.assigneeId = filter.assigneeId;
     if (filter.channelId) filterQuery.channelId = filter.channelId;
     if (filter.pipelineId) filterQuery.pipelineId = filter.pipelineId;

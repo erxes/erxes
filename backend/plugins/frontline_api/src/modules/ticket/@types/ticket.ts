@@ -20,7 +20,7 @@ export interface ITicket {
   tagIds?: string[];
   status?: string;
   assigneeId?: string;
-  createdBy?: string;
+  userId?: string;
   startDate?: Date | DateRange;
   targetDate?: Date | DateRange;
   createdAt?: Date | DateRange;

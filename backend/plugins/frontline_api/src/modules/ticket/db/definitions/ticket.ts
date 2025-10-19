@@ -28,7 +28,7 @@ export const ticketSchema = new Schema(
     labelIds: [String],
     tagIds: [String],
     assigneeId: { type: Schema.Types.ObjectId, ref: 'User' },
-    createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    userId: { type: String, ref: 'User' },
     startDate: Date,
     targetDate: Date,
     statusChangedDate: Date,
