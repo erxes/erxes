@@ -54,7 +54,7 @@ on:
       - "packages/plugin-pricing-ui/**"
       - ".github/workflows/plugin-pricing-ui.yaml"
 
-jobs: 
+jobs:
   ui:
     runs-on: ubuntu-22.04
 
@@ -90,8 +90,8 @@ jobs:
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_V2 }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_V2 }}
           aws-region: us-west-2
 
       - name: Deploy
