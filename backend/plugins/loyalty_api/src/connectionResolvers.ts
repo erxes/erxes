@@ -6,6 +6,8 @@ import mongoose from 'mongoose';
 
 import { ICouponDocument } from '@/coupon/@types/coupon';
 import { ICouponModel, loadCouponClass } from '@/coupon/db/models/coupon';
+import { IDonateDocument } from '@/donate/@types/donate';
+import { IDonateModel, loadDonateClass } from '@/donate/db/models/donate';
 import { ILotteryDocument } from '@/lottery/@types/lottery';
 import { ILotteryModel, loadLotteryClass } from '@/lottery/db/models/lottery';
 import { IPricingModel, loadPricingClass } from '@/pricing/db/models/pricing';
@@ -23,6 +25,7 @@ export interface IModels {
   Score: IScoreModel;
   Lottery: ILotteryModel;
   Spin: ISpinModel;
+  Donate: IDonateModel;
 }
 
 export interface IContext extends IMainContext {
@@ -60,6 +63,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Spin = db.model<ISpinDocument, ISpinModel>(
     'loyalty_spin',
     loadSpinClass(models),
+  );
+
+  models.Donate = db.model<IDonateDocument, IDonateModel>(
+    'loyalty_donate',
+    loadDonateClass(models),
   );
 
   return models;
