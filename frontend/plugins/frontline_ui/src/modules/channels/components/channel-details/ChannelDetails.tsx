@@ -22,7 +22,7 @@ export const ChannelDetails = () => {
         </section>
       </div>
       <MemberSection channel={channel} />
-      <PipelinesSection channelId={channel._id} />
+      <PipelinesSection channel={channel} />
       {/* <IntegrationsSection channel={channel} /> */}
       <IntegrationList />
     </div>

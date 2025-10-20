@@ -8,7 +8,7 @@ export const useGetPipelines = (_id?: string) => {
   });
 
   return {
-    pipeline: data?.getPipeline,
+    pipeline: data?.getTicketPipeline,
     loading,
     error,
   };

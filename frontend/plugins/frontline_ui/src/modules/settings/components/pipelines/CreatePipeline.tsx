@@ -29,7 +29,7 @@ export const CreatePipeline = () => {
     resolver: zodResolver(PIPELINE_FORM_SCHEMA),
   });
 
-  const { addPipeline, loading } = usePipelineAdd();
+  const { addPipeline } = usePipelineAdd();
   const { toast } = useToast();
 
   const navigate = useNavigate();

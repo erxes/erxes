@@ -16,6 +16,7 @@ export interface IChannel {
   createdAt: string;
   updatedAt: string;
   memberCount: number;
+  pipelineCount: number;
 }
 
 export interface IChannelMember {

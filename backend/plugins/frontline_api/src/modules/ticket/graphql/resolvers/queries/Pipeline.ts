@@ -15,7 +15,6 @@ export const pipelineQueries = {
   ) => {
     const data = await models.Pipeline.getPipeline(_id);
 
-    console.log(data, 'data');
     return data;
   },
 

@@ -30,6 +30,7 @@ const GET_CHANNEL = gql`
       _id
       icon
       name
+      pipelineCount
       description
       createdAt
       updatedAt
@@ -60,4 +61,4 @@ const GET_CHANNEL_MEMBERS = gql`
   }
 `;
 
-export { GET_CHANNELS, GET_CHANNEL, GET_CHANNEL_MEMBERS  };
+export { GET_CHANNELS, GET_CHANNEL, GET_CHANNEL_MEMBERS };

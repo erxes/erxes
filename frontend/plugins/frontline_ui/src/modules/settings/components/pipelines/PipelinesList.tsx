@@ -46,9 +46,6 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
                   >
                     <Table.Cell className="font-medium border-none pl-2 w-auto ">
                       <span className="w-full flex gap-2 text-base font-medium">
-                        {/* <span className="[1lh] flex items-center">
-                          <IconComponent name={team.icon} className="size-4" />
-                        </span> */}
                         <TextOverflowTooltip value={pipeline.name} />
                       </span>
                     </Table.Cell>
@@ -75,17 +72,17 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
 const TableRowSkeleton = () => {
   return (
     <Table.Row className="shadow-xs">
-      <Table.Cell className="w-auto pl-8 border-none">
-        <Skeleton className="h-4 w-10" />
+      <Table.Cell className="w-auto pl-2 border-none">
+        <Skeleton className="h-4 w-20" />
       </Table.Cell>
-      <Table.Cell className="w-20 border-none">
-        <Skeleton className="h-4 w-5" />
+      <Table.Cell className="w-64 border-none pl-2">
+        <Skeleton className="h-4 w-32" />
       </Table.Cell>
-      <Table.Cell className="w-20 border-none">
-        <Skeleton className="h-4 w-5" />
+      <Table.Cell className="w-32 border-none pl-2">
+        <Skeleton className="h-4 w-20" />
       </Table.Cell>
-      <Table.Cell className="w-32 pr-8 border-none">
-        <Skeleton className="h-4 w-16" />
+      <Table.Cell className="w-32 pl-2 border-none">
+        <Skeleton className="h-4 w-20" />
       </Table.Cell>
     </Table.Row>
   );
