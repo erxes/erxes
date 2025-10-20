@@ -328,7 +328,7 @@ export function useDealsChange(options?: MutationHookOptions<any, any>) {
 }
 
 export function useDealsArchive(options?: MutationHookOptions<any, any>) {
-  const [archiveDeals, { loading, error }] = useMutation(DEALS_ARCHIVE, {
+  const [archiveDealsBase, { loading, error }] = useMutation(DEALS_ARCHIVE, {
     ...options,
     variables: {
       ...options?.variables,
@@ -349,6 +349,12 @@ export function useDealsArchive(options?: MutationHookOptions<any, any>) {
       });
     },
   });
+
+  const archiveDeals = (stageId: string) =>
+    archiveDealsBase({
+      variables: { stageId },
+      refetchQueries: [{ query: GET_DEALS, variables: { stageId } }],
+    });
 
   return {
     archiveDeals,

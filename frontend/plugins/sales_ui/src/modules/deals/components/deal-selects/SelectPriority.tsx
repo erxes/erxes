@@ -3,6 +3,9 @@ import {
   Command,
   Filter,
   PopoverScoped,
+  SelectOperationContent,
+  SelectTriggerOperation,
+  SelectTriggerVariant,
   useQueryState,
 } from 'erxes-ui';
 import {
@@ -11,11 +14,6 @@ import {
   PriorityTitle,
 } from '@/deals/components/deal-selects/PriorityInline';
 import React, { useState } from 'react';
-import {
-  SelectOperationContent,
-  SelectTriggerOperation,
-  SelectTriggerVariant,
-} from '@/deals/components/deal-selects/SelectOperation';
 
 import { PROJECT_PRIORITIES_OPTIONS } from '@/deals/constants/cards';
 import clsx from 'clsx';
