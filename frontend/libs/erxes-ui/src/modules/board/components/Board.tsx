@@ -281,7 +281,7 @@ export const BoardRoot = ({
       ref={setNodeRef}
       data-type="column"
       className={cn(
-        'flex size-full min-h-[400px] min-w-80 flex-col overflow-hidden transition-all bg-gradient-to-b from-[#e0e7ff] to-[#e0e7ff50] rounded-t-md dark:from-primary/40 dark:to-primary/20 relative',
+        'flex min-h-[400px] min-w-80 flex-col overflow-hidden transition-all bg-gradient-to-b from-[#e0e7ff] to-[#e0e7ff50] rounded-t-md dark:from-primary/40 dark:to-primary/20 relative',
         isActive && 'shadow-lg shadow-purple-400/40 dark:shadow-primary/30',
         className,
       )}

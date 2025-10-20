@@ -139,11 +139,13 @@ export const DealsBoard = () => {
       return updated;
     });
 
-    setDealCountByBoard((prev) => ({
-      ...prev,
-      [activeItem?.stageId]: prev[activeItem?.stageId] - 1 || 0,
-      [overColumnId]: (prev[overColumnId] || 0) + 1,
-    }));
+    if (activeItem.stageId !== overColumnId) {
+      setDealCountByBoard((prev) => ({
+        ...prev,
+        [activeItem?.stageId]: prev[activeItem?.stageId] - 1 || 0,
+        [overColumnId]: (prev[overColumnId] || 0) + 1,
+      }));
+    }
   };
 
   if (stagesLoading) {

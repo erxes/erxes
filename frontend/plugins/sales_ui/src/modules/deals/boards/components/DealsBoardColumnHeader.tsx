@@ -45,7 +45,7 @@ export const DealsBoardColumnHeader = ({
     confirm({
       message: `Are you sure you want to archive all cards in this list?`,
     }).then(() => {
-      archiveDeals({ variables: { stageId: id } });
+      archiveDeals(id);
     });
   };
 
@@ -69,7 +69,7 @@ export const DealsBoardColumnHeader = ({
     confirm({
       message: `Are you sure you want to sort this list by ${sortType}?`,
     }).then(() => {
-      sortItems({ variables: { stageId: id, sortType } });
+      sortItems(id, sortType);
     });
     setShowSortOptions(false);
   };
