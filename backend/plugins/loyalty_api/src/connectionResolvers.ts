@@ -11,6 +11,8 @@ import { ILotteryModel, loadLotteryClass } from '@/lottery/db/models/lottery';
 import { IPricingModel, loadPricingClass } from '@/pricing/db/models/pricing';
 import { IScoreDocument } from '@/score/@types/score';
 import { IScoreModel, loadScoreClass } from '@/score/db/models/score';
+import { ISpinDocument } from '@/spin/@types/spin';
+import { ISpinModel, loadSpinClass } from '@/spin/db/models/spin';
 import { IVoucherDocument } from '@/voucher/@types/voucher';
 import { IVoucherModel, loadVoucherClass } from '@/voucher/db/models/voucher';
 
@@ -20,6 +22,7 @@ export interface IModels {
   Coupon: ICouponModel;
   Score: IScoreModel;
   Lottery: ILotteryModel;
+  Spin: ISpinModel;
 }
 
 export interface IContext extends IMainContext {
@@ -52,6 +55,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Lottery = db.model<ILotteryDocument, ILotteryModel>(
     'loyalty_lottery',
     loadLotteryClass(models),
+  );
+
+  models.Spin = db.model<ISpinDocument, ISpinModel>(
+    'loyalty_spin',
+    loadSpinClass(models),
   );
 
   return models;
