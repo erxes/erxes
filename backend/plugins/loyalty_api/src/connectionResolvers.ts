@@ -6,17 +6,20 @@ import mongoose from 'mongoose';
 
 import { ICouponDocument } from '@/coupon/@types/coupon';
 import { ICouponModel, loadCouponClass } from '@/coupon/db/models/coupon';
+import { ILotteryDocument } from '@/lottery/@types/lottery';
+import { ILotteryModel, loadLotteryClass } from '@/lottery/db/models/lottery';
 import { IPricingModel, loadPricingClass } from '@/pricing/db/models/pricing';
+import { IScoreDocument } from '@/score/@types/score';
+import { IScoreModel, loadScoreClass } from '@/score/db/models/score';
 import { IVoucherDocument } from '@/voucher/@types/voucher';
 import { IVoucherModel, loadVoucherClass } from '@/voucher/db/models/voucher';
-import { IScoreDocument } from './modules/score/@types/score';
-import { IScoreModel, loadScoreClass } from './modules/score/db/models/score';
 
 export interface IModels {
   Pricing: IPricingModel;
   Voucher: IVoucherModel;
   Coupon: ICouponModel;
   Score: IScoreModel;
+  Lottery: ILotteryModel;
 }
 
 export interface IContext extends IMainContext {
@@ -44,6 +47,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Score = db.model<IScoreDocument, IScoreModel>(
     'loyalty_score',
     loadScoreClass(models),
+  );
+
+  models.Lottery = db.model<ILotteryDocument, ILotteryModel>(
+    'loyalty_lottery',
+    loadLotteryClass(models),
   );
 
   return models;
