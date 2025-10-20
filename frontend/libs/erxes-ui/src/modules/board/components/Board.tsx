@@ -4,7 +4,7 @@ import type {
   DragStartEvent,
 } from '@dnd-kit/core';
 import {
-  closestCenter,
+  rectIntersection,
   DndContext,
   DragOverlay,
   KeyboardSensor,
@@ -84,6 +84,10 @@ const BoardCard = <T extends BoardItemProps = BoardItemProps>({
     isDragging,
   } = useSortable({
     id,
+    data: {
+      type: 'card',
+      id,
+    },
   });
   const { boardId } = useContext(BoardContext) as BoardContextProps;
   const activeCardId = useAtomValue(activeCardIdState(boardId));
@@ -93,7 +97,13 @@ const BoardCard = <T extends BoardItemProps = BoardItemProps>({
   };
   return (
     <>
-      <div style={style} {...listeners} {...attributes} ref={setNodeRef}>
+      <div
+        style={style}
+        {...listeners}
+        {...attributes}
+        ref={setNodeRef}
+        data-type="card"
+      >
         <div
           className={cn(
             'gap-4 rounded-lg shadow-sm outline-none bg-background',
@@ -171,14 +181,13 @@ const BoardProvider = <
 
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
-    if (!over) {
-      return;
-    }
+    if (!over) return;
+
     const activeItem = data.find((item) => item.id === active.id);
-    if (!activeItem) {
-      return;
-    }
+    if (!activeItem) return;
+
     const overItem = data.find((item) => item.id === over.id);
+
     if (overItem) {
       setDragOverBoardColumnId(overItem.column as string);
     } else {
@@ -215,7 +224,7 @@ const BoardProvider = <
   return (
     <BoardContext.Provider value={{ columns, data, boardId }}>
       <DndContext
-        collisionDetection={closestCenter}
+        collisionDetection={rectIntersection}
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}
         onDragStart={handleDragStart}
@@ -250,38 +259,50 @@ export const BoardRoot = ({
   children,
   className,
   sortBy,
-}: BoardProps & { sortBy?: string }) => {
+  isSorted,
+}: BoardProps & { sortBy?: string; isSorted?: boolean }) => {
   const { boardId } = useContext(BoardContext) as BoardContextProps;
   const dragOverBoardColumnId = useAtomValue(
     dragOverBoardColumnIdState(boardId),
   );
   const { isOver, setNodeRef } = useDroppable({
     id,
+    data: {
+      type: 'column',
+      id,
+    },
   });
+
+  // Determine if this column is active
+  const isActive = isOver || dragOverBoardColumnId === id;
 
   return (
     <div
+      ref={setNodeRef}
+      data-type="column"
       className={cn(
-        'flex size-full min-h-40 min-w-80 flex-col overflow-hidden transition-all bg-gradient-to-b from-[#e0e7ff] to-[#e0e7ff50] rounded-t-md dark:from-primary/40 dark:to-primary/20 relative',
+        'flex size-full min-h-[400px] min-w-80 flex-col overflow-hidden transition-all bg-gradient-to-b from-[#e0e7ff] to-[#e0e7ff50] rounded-t-md dark:from-primary/40 dark:to-primary/20 relative',
+        isActive && 'shadow-lg shadow-purple-400/40 dark:shadow-primary/30',
         className,
       )}
-      ref={setNodeRef}
     >
       {children}
-      <AnimatePresence>
-        {(isOver || dragOverBoardColumnId === id) && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.1 }}
-            className="absolute inset-0 top-8 rounded-t-md bg-background/30 backdrop-blur-sm flex items-center justify-center"
-          >
-            Board ordered by
-            <span className="font-medium capitalize ml-1">{sortBy}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {!isSorted && (
+        <AnimatePresence>
+          {(isOver || dragOverBoardColumnId === id) && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.1 }}
+              className="absolute inset-0 top-8 rounded-t-md bg-background/30 backdrop-blur-sm flex items-center justify-center"
+            >
+              Board ordered by
+              <span className="font-medium capitalize ml-1">{sortBy}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
     </div>
   );
 };

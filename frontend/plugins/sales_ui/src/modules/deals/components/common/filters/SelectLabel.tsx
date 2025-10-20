@@ -7,7 +7,10 @@ import {
   Popover,
   PopoverScoped,
   RecordTableInlineCell,
+  SelectOperationContent,
   SelectTree,
+  SelectTriggerOperation,
+  SelectTriggerVariant,
   TextOverflowTooltip,
   cn,
   useFilterContext,
@@ -23,8 +26,6 @@ import { useContext, useState } from 'react';
 
 import { LabelBadge } from './LabelBadge';
 import React from 'react';
-import { SelectOperationContent } from '@/deals/components/deal-selects/SelectOperation';
-import { SelectTriggerOperation } from '@/deals/components/deal-selects/SelectOperation';
 import { createContext } from 'react';
 import { useDebounce } from 'use-debounce';
 import { usePipelineLabels } from '@/deals/pipelines/hooks/usePipelineDetails';
@@ -476,7 +477,7 @@ export const SelectLabelsFilterBar = ({
   mode: 'single' | 'multiple';
   filterKey: string;
   label: string;
-  variant?: string;
+  variant?: `${SelectTriggerVariant}`;
   scope?: string;
 }) => {
   const [query, setQuery] = useQueryState<string[]>(filterKey);
@@ -487,11 +488,6 @@ export const SelectLabelsFilterBar = ({
   }
 
   return (
-    // <Filter.BarItem queryKey={filterKey}>
-    //   <Filter.BarName>
-    //     <IconLabel />
-    //     {label}
-    //   </Filter.BarName>
     <SelectLabelsProvider
       mode={mode}
       value={query || []}
@@ -505,15 +501,14 @@ export const SelectLabelsFilterBar = ({
       }}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant="filter">
+        <SelectTriggerOperation variant={variant || 'filter'}>
           <SelectLabelsValue />
         </SelectTriggerOperation>
-        <SelectOperationContent variant="filter">
+        <SelectOperationContent variant={variant || 'filter'}>
           <SelectLabelsContent />
         </SelectOperationContent>
       </PopoverScoped>
     </SelectLabelsProvider>
-    // </Filter.BarItem>
   );
 };
 
