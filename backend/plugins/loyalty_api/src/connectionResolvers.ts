@@ -22,6 +22,8 @@ import { ISpinDocument } from '@/spin/@types/spin';
 import { ISpinModel, loadSpinClass } from '@/spin/db/models/spin';
 import { IVoucherDocument } from '@/voucher/@types/voucher';
 import { IVoucherModel, loadVoucherClass } from '@/voucher/db/models/voucher';
+import { IAgentDocument } from './modules/agent/@types/agent';
+import { IAgentModel, loadAgentClass } from './modules/agent/db/models/Agent';
 
 export interface IModels {
   Pricing: IPricingModel;
@@ -32,6 +34,7 @@ export interface IModels {
   Spin: ISpinModel;
   Donate: IDonateModel;
   Assignment: IAssignmentModel;
+  Agent: IAgentModel;
 }
 
 export interface IContext extends IMainContext {
@@ -79,6 +82,16 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Assignment = db.model<IAssignmentDocument, IAssignmentModel>(
     'loyalty_assignment',
     loadAssignmentClass(models),
+  );
+
+  models.Assignment = db.model<IAssignmentDocument, IAssignmentModel>(
+    'loyalty_assignment',
+    loadAssignmentClass(models),
+  );
+
+  models.Agent = db.model<IAgentDocument, IAgentModel>(
+    'loyalty_agent',
+    loadAgentClass(models),
   );
 
   return models;
