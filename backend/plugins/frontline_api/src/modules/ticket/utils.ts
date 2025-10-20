@@ -26,3 +26,20 @@ export const checkChannel = async ({
     throw new Error('Channel is not found');
   }
 };
+
+export const checkPipeline = async ({
+  models,
+  pipelineId,
+}: {
+  models: IModels;
+  pipelineId?: string;
+}) => {
+  if (!pipelineId) {
+    throw new Error('PipelineId is required');
+  }
+  const pipeline = await models.Pipeline.findOne({ _id: pipelineId });
+  if (!pipeline) {
+    throw new Error('Pipeline is not found');
+  }
+  return pipeline;
+};

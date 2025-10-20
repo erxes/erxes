@@ -12,14 +12,14 @@ export const statusQueries = {
     return models.Status.getStatus(_id);
   },
 
-  getTicketStatusesChoicesChannel: async (
+  getTicketStatusesChoicesPipeline: async (
     _parent: undefined,
-    { channelId }: IStatusFilter,
+    { pipelineId }: IStatusFilter,
     { models }: IContext,
   ) => {
     const statuses = await Promise.all(
       Object.values(TICKET_STATUS_TYPES).map((type) =>
-        models.Status.getStatuses(channelId, type),
+        models.Status.getStatuses(pipelineId, type),
       ),
     );
 
@@ -33,15 +33,15 @@ export const statusQueries = {
 
   getTicketStatusesByType: async (
     _parent: undefined,
-    { channelId, type }: IStatusFilter,
+    { pipelineId, type }: IStatusFilter,
     { models }: IContext,
   ) => {
-    await models.Status.createDefaultStatuses(channelId);
+    await models.Status.createDefaultStatuses(pipelineId);
 
-    return models.Status.getStatuses(channelId, type);
+    return models.Status.getStatuses(pipelineId, type);
   },
 };
 
 requireLogin(statusQueries, 'getTicketStatus');
-requireLogin(statusQueries, 'getTicketStatusesChoicesChannel');
+requireLogin(statusQueries, 'getTicketStatusesChoicesPipeline');
 requireLogin(statusQueries, 'getTicketStatusesByType');

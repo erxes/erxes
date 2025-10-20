@@ -23,8 +23,8 @@ export const types = `
 
 export const queries = `
   getTicketStatus(_id: String!): TicketStatus
-  getTicketStatusesChoicesChannel(channelId: String!): JSON
-  getTicketStatusesByType(channelId: String! , type: Int!): [TicketStatus]
+  getTicketStatusesChoicesPipeline(pipelineId: String!): JSON
+  getTicketStatusesByType(pipelineId: String! , type: Int!): [TicketStatus]
 `;
 
 export const mutations = `

@@ -1,7 +1,7 @@
 import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { IStatusEditInput } from '@/ticket/@types/status';
-import { checkChannel } from '@/ticket/utils';
+import { checkPipeline } from '@/ticket/utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 
 export const statusMutations = {
@@ -10,7 +10,7 @@ export const statusMutations = {
     params: IStatusEditInput,
     { models }: IContext,
   ) => {
-    await checkChannel({ models, channelId: params.channelId });
+    await checkPipeline({ models, pipelineId: params.pipelineId });
     const status = await models.Status.addStatus(params);
 
     graphqlPubsub.publish(`ticketStatusChanged:${status._id}`, {
@@ -28,7 +28,7 @@ export const statusMutations = {
     { _id, ...params }: IStatusEditInput,
     { models }: IContext,
   ) => {
-    await checkChannel({ models, channelId: params.channelId });
+    await checkPipeline({ models, pipelineId: params.pipelineId });
     const updatedStatus = await models.Status.updateStatus(_id, params);
 
     graphqlPubsub.publish(`ticketStatusChanged:${updatedStatus._id}`, {

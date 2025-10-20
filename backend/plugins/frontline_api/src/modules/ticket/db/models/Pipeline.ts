@@ -40,7 +40,9 @@ export const loadPipelineClass = (models: IModels) => {
     public static async addPipeline(
       doc: ITicketPipeline,
     ): Promise<ITicketPipelineDocument> {
-      return models.Pipeline.create(doc);
+      const pipeline = await models.Pipeline.create(doc);
+      await models.Status.createDefaultStatuses(pipeline._id);
+      return pipeline;
     }
 
     public static async updatePipeline(

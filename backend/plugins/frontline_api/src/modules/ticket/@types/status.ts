@@ -29,5 +29,6 @@ export interface IStatusDocument extends IStatus, Document {
 
 export interface IStatusFilter {
   channelId: string;
-  type: number;
+  pipelineId: string;
+  type?: number;
 }

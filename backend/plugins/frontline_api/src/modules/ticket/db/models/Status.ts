@@ -6,9 +6,9 @@ import { generateDefaultStatuses } from '@/ticket/utils';
 
 export interface IStatusModel extends Model<IStatusDocument> {
   getStatus(_id: string): Promise<IStatusDocument>;
-  getStatuses(channelId: string, type?: number): Promise<IStatusDocument[]>;
+  getStatuses(pipelineId: string, type?: number): Promise<IStatusDocument[]>;
   addStatus(doc: IStatus): Promise<IStatusDocument>;
-  createDefaultStatuses(channelId: string): Promise<IStatusDocument[]>;
+  createDefaultStatuses(pipelineId: string): Promise<IStatusDocument[]>;
   updateStatus(_id: string, doc: IStatus): Promise<IStatusDocument>;
   removeStatus(_id: string): Promise<{ ok: number }>;
 }
@@ -26,10 +26,10 @@ export const loadStatusClass = (models: IModels) => {
     }
 
     public static async getStatuses(
-      channelId: string,
+      pipelineId: string,
       type: number,
     ): Promise<IStatusDocument[]> {
-      const query = { channelId } as any;
+      const query = { pipelineId } as any;
 
       if (type) {
         query.type = type;
@@ -40,7 +40,7 @@ export const loadStatusClass = (models: IModels) => {
 
     public static async addStatus(doc: IStatus): Promise<IStatusDocument> {
       const lastStatus = await models.Status.findOne({
-        channelId: doc.channelId,
+        pipelineId: doc.pipelineId,
         type: doc.type,
       }).sort({ order: -1 });
 
@@ -50,9 +50,9 @@ export const loadStatusClass = (models: IModels) => {
     }
 
     public static async createDefaultStatuses(
-      channelId: string,
+      pipelineId: string,
     ): Promise<IStatusDocument[]> {
-      const statuses = generateDefaultStatuses(channelId);
+      const statuses = generateDefaultStatuses(pipelineId);
 
       return models.Status.insertMany(statuses);
     }
