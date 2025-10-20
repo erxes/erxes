@@ -27,22 +27,22 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
 
   models.Pricing = db.model<IPricingDocument, IPricingModel>(
-    'pricing',
+    'loyalty_pricing',
     loadPricingClass(models),
   );
 
   models.Voucher = db.model<IVoucherDocument, IVoucherModel>(
-    'voucher',
+    'loyalty_voucher',
     loadVoucherClass(models),
   );
 
   models.Coupon = db.model<ICouponDocument, ICouponModel>(
-    'coupon',
+    'loyalty_coupon',
     loadCouponClass(models),
   );
 
   models.Score = db.model<IScoreDocument, IScoreModel>(
-    'score',
+    'loyalty_score',
     loadScoreClass(models),
   );
 
