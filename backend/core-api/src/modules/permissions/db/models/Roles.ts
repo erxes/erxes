@@ -32,7 +32,7 @@ import { roleSchema } from '../definitions/roles';
         }
   
         if (userRole.role === PERMISSION_ROLES.OWNER) {
-          if (role === PERMISSION_ROLES.OWNER) {
+          if (role !== PERMISSION_ROLES.OWNER) {
             throw new Error('Access denied');
           }
   

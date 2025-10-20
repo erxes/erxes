@@ -6,16 +6,18 @@ import {
   Sheet,
   usePreviousHotkeyScope,
   useScopedHotkeys,
-  useSetHotkeyScope,
 } from 'erxes-ui';
 import { useState } from 'react';
-import { AddProductForm } from './AddProductForm';
 import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
+import { AddProductForm } from 'ui-modules';
+import { productsQueries } from '../graphql';
 
 export const ProductAddSheet = () => {
-  const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
-  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
+  const {
+    setHotkeyScopeAndMemorizePreviousScope,
+    goBackToPreviousHotkeyScope,
+  } = usePreviousHotkeyScope();
 
   const onOpen = () => {
     setOpen(true);
@@ -23,12 +25,11 @@ export const ProductAddSheet = () => {
   };
 
   const onClose = () => {
-    setHotkeyScope(ProductHotKeyScope.ProductsPage);
     setOpen(false);
+    goBackToPreviousHotkeyScope();
   };
 
   useScopedHotkeys(`c`, () => onOpen(), ProductHotKeyScope.ProductsPage);
-  useScopedHotkeys(`esc`, () => onClose(), ProductHotKeyScope.ProductAddSheet);
 
   return (
     <Sheet
@@ -43,13 +44,11 @@ export const ProductAddSheet = () => {
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
-      <Sheet.View
-        className="sm:max-w-lg p-0"
-        onEscapeKeyDown={(e) => {
-          e.preventDefault();
-        }}
-      >
-        <AddProductForm onOpenChange={setOpen} />
+      <Sheet.View className="sm:max-w-lg p-0">
+        <AddProductForm
+          onOpenChange={setOpen}
+          options={{ refetchQueries: [productsQueries.productsMain] }}
+        />
       </Sheet.View>
     </Sheet>
   );

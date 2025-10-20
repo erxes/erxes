@@ -7,7 +7,6 @@ import { CategoryAddSheetHeader } from '../../components/AddProductCategoryForm'
 import { ProductCategoriesAddCoreFields } from './CategoryAddCoreFields';
 import { ProductCategoryAddMoreFields } from './CategoryAddMoreFields';
 import { useAddCategory } from '../hooks/useAddCategory';
-import { ProductAddCollapsible } from '@/products/add-products/components/ProductAddCollapsible';
 
 export function AddCategoryForm({
   onOpenChange,
@@ -74,9 +73,7 @@ export function AddCategoryForm({
           <ScrollArea className="h-full">
             <div className="p-5">
               <ProductCategoriesAddCoreFields form={form} />
-              <ProductAddCollapsible>
-                <ProductCategoryAddMoreFields form={form} />
-              </ProductAddCollapsible>
+              <ProductCategoryAddMoreFields form={form} />
             </div>
           </ScrollArea>
         </Sheet.Content>

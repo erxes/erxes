@@ -7,8 +7,8 @@ export const ChannelDetailsPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div>
-      <div className="px-4 h-16 flex items-center">
+    <div className="h-full flex flex-col">
+      <div className="px-4 h-16 flex items-center shrink-0">
         <Breadcrumb>
           <Breadcrumb.List>
             <Breadcrumb.Item>
@@ -27,8 +27,8 @@ export const ChannelDetailsPage = () => {
         </Breadcrumb>
       </div>
 
-      <section className="mx-auto max-w-4xl w-full relative">
-        <div className="flex items-center">
+      <section className="mx-auto max-w-4xl w-full relative h-full flex-1 overflow-y-hidden">
+        <div className="flex items-center h-full">
           <ChannelDetails />
         </div>
       </section>

@@ -2,22 +2,19 @@ import { gql } from '@apollo/client';
 
 export const CREATE_EM_MESSENGER_MUTATION = gql`
   mutation integrationsCreateEmMessengerIntegration(
+    $channelId: String!
     $name: String!
-    $brandId: String!
     $languageCode: String
-    $channelId: [String]
   ) {
     integrationsCreateMessengerIntegration(
-      name: $name
-      brandId: $brandId
-      languageCode: $languageCode
       channelId: $channelId
+      name: $name
+      languageCode: $languageCode
     ) {
       _id
-      brand {
+      channel {
         _id
         name
-        code
       }
     }
   }
