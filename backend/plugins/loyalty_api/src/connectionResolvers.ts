@@ -4,6 +4,11 @@ import { createGenerateModels } from 'erxes-api-shared/utils';
 
 import mongoose from 'mongoose';
 
+import { IAssignmentDocument } from '@/assignment/@types/assignment';
+import {
+  IAssignmentModel,
+  loadAssignmentClass,
+} from '@/assignment/db/models/assignment';
 import { ICouponDocument } from '@/coupon/@types/coupon';
 import { ICouponModel, loadCouponClass } from '@/coupon/db/models/coupon';
 import { IDonateDocument } from '@/donate/@types/donate';
@@ -26,6 +31,7 @@ export interface IModels {
   Lottery: ILotteryModel;
   Spin: ISpinModel;
   Donate: IDonateModel;
+  Assignment: IAssignmentModel;
 }
 
 export interface IContext extends IMainContext {
@@ -68,6 +74,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Donate = db.model<IDonateDocument, IDonateModel>(
     'loyalty_donate',
     loadDonateClass(models),
+  );
+
+  models.Assignment = db.model<IAssignmentDocument, IAssignmentModel>(
+    'loyalty_assignment',
+    loadAssignmentClass(models),
   );
 
   return models;
