@@ -65,7 +65,7 @@ export const getPostDetails = async (
   }
 };
 
-export const createAWS = async () => {
+export const createAWS = async (subdomain: string) => {
   const {
     AWS_FORCE_PATH_STYLE,
     AWS_COMPATIBLE_SERVICE_ENDPOINT,
@@ -157,7 +157,7 @@ export const uploadMedia = async (
   // 3. Upload to S3 (unchanged)
   const { AWS_BUCKET } = cachedUploadConfig;
   try {
-    const s3 = await createAWS();
+    const s3 = await createAWS(subdomain);
 
     // Additional security: Set timeout for fetch request
     const controller = new AbortController();
