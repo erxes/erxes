@@ -64,29 +64,33 @@ export const sendTRPCMessage = async ({
 
   let client;
 
-  if (VERSION && VERSION === 'saas') {
-    client = createTRPCUntypedClient({
-      links: [
-        httpBatchLink({
-          url: `https://${subdomain}.next.erxes.io/gateway/pl:${pluginName}/trpc`,
-        }),
-      ],
-    });
-  } else {
-    client = createTRPCUntypedClient({
-      links: [httpBatchLink({ url: `${pluginInfo.address}/trpc` })],
-    });
+  try {
+    if (VERSION && VERSION === 'saas') {
+      client = createTRPCUntypedClient({
+        links: [
+          httpBatchLink({
+            url: `https://${subdomain}.next.erxes.io/gateway/pl:${pluginName}/trpc`,
+          }),
+        ],
+      });
+    } else {
+      client = createTRPCUntypedClient({
+        links: [httpBatchLink({ url: `${pluginInfo.address}/trpc` })],
+      });
+    }
+
+    // Extract subdomain from context
+
+    const result = await client[method](
+      `${module}.${action}`,
+      { subdomain, ...input },
+      options,
+    );
+    return result || defaultValue;
+  } catch (e) {
+    console.log(e, 'e');
+    return defaultValue;
   }
-
-  // Extract subdomain from context
-
-  const result = await client[method](
-    `${module}.${action}`,
-    { subdomain, ...input },
-    options,
-  );
-
-  return result || defaultValue;
 };
 
 export const createTRPCContext =
