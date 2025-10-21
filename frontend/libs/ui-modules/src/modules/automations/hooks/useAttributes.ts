@@ -36,5 +36,6 @@ export const useAttributes = ({
   return {
     loading,
     groupAttributes,
+    attributes: fields,
   };
 };

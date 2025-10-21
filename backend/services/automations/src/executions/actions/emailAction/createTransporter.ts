@@ -1,5 +1,5 @@
+import { getConfig } from '@/utils/utils';
 import * as AWS from 'aws-sdk';
-import { getConfig } from 'erxes-api-shared/core-modules';
 import * as nodemailer from 'nodemailer';
 
 export const createTransporter = async ({ ses }) => {

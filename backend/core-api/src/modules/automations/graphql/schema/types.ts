@@ -132,6 +132,23 @@ const types = `
     relevantFile: String
     similarity: Float
   }
+
+  type AutomationEmailTemplate {
+    _id: String!
+    name: String!
+    description: String
+    content: String!
+    createdBy: String!
+    createdAt: Date
+    updatedAt: Date
+    createdUser: User
+  }
+
+  type AutomationEmailTemplatesListResponse {
+    list: [AutomationEmailTemplate]
+    totalCount: Float
+    pageInfo: PageInfo
+  }
 `;
 
 export default types;

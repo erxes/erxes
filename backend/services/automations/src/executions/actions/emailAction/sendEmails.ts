@@ -1,7 +1,7 @@
 import { getEnv } from 'erxes-api-shared/utils';
 import { createTransporter } from './createTransporter';
-import { getConfig } from 'erxes-api-shared/core-modules';
 import { debugError } from '@/debuuger';
+import { getConfig } from '@/utils/utils';
 
 export const sendEmails = async ({
   payload,

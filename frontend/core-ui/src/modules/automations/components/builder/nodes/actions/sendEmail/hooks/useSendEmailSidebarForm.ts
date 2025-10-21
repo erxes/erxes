@@ -3,18 +3,38 @@ import { useAutomationFormController } from '@/automations/hooks/useFormSetValue
 import { AutomationNodesType } from '@/automations/types';
 import { findTriggerForAction } from '@/automations/utils/automationBuilderUtils/triggerUtils';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { KeyboardEvent } from 'react';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { useForm, useFormContext, useWatch } from 'react-hook-form';
+import {
+  sendEmailConfigFormSchema,
+  TAutomationSendEmailConfig,
+} from '../states/sendEmailConfigForm';
 
 export const useSendEmailSidebarForm = (currentActionIndex: number) => {
   const configFieldNamePrefix: TAutomationActionConfigFieldPrefix = `${AutomationNodesType.Actions}.${currentActionIndex}.config`;
-
-  const { control } = useFormContext<TAutomationBuilderForm>();
+  const { control: automationBuilderFormControl } =
+    useFormContext<TAutomationBuilderForm>();
   const [triggers = [], actions = [], config = {}] =
     useWatch<TAutomationBuilderForm>({
-      control,
+      control: automationBuilderFormControl,
       name: ['triggers', 'actions', `${configFieldNamePrefix}`],
     });
+  const form = useForm<TAutomationSendEmailConfig>({
+    resolver: zodResolver(sendEmailConfigFormSchema),
+    defaultValues: {
+      fromUserId: config?.fromUserId || '',
+      fromEmailPlaceHolder: config?.fromEmailPlaceHolder || '',
+      customMails: config?.customMails || [],
+      attributionMails: config?.attributionMails || '',
+      teamMember: config?.teamMember || [],
+      customer: config?.customer || [],
+      subject: config?.subject || '',
+      emailTemplateId: config?.emailTemplateId || '',
+      content: config?.content || '',
+      type: config?.type || 'default',
+    },
+  });
 
   const contentType = findTriggerForAction(
     actions[currentActionIndex].id,
@@ -22,7 +42,7 @@ export const useSendEmailSidebarForm = (currentActionIndex: number) => {
     triggers,
   )?.type;
 
-  return { control, config, contentType };
+  return { form, contentType };
 };
 
 export const useSendEmailCustomMailField = (currentActionIndex: number) => {

@@ -4,6 +4,7 @@ import {
   getPlugin,
   getPlugins,
 } from 'erxes-api-shared/utils';
+import { SortOrder } from 'mongoose';
 
 import {
   AUTOMATION_ACTIONS,
@@ -20,6 +21,7 @@ import {
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 
 import { IContext } from '~/connectionResolvers';
+import { IAutomationEmailTemplateDocument } from 'erxes-api-shared/core-types';
 
 export interface IListArgs extends ICursorPaginateParams {
   status: string;
@@ -385,11 +387,68 @@ export const automationQueries = {
       status: embeddedFiles.length === files.length ? 'completed' : 'pending',
     };
   },
+
+  /**
+   * Email templates list
+   */
+  async automationEmailTemplates(
+    _root,
+    params: {
+      page?: number;
+      perPage?: number;
+      searchValue?: string;
+      sortField?: string;
+      sortDirection?: number;
+    },
+    { models }: IContext,
+  ) {
+    const { searchValue, sortField = 'createdAt', sortDirection = -1 } = params;
+
+    const filter: any = {};
+
+    if (searchValue) {
+      filter.$or = [
+        { name: new RegExp(`.*${searchValue}.*`, 'i') },
+        { description: new RegExp(`.*${searchValue}.*`, 'i') },
+      ];
+    }
+
+    const { list, totalCount, pageInfo } =
+      await cursorPaginate<IAutomationEmailTemplateDocument>({
+        model: models.AutomationEmailTemplates,
+        params: {
+          ...params,
+          orderBy: {
+            [sortField]: sortDirection as SortOrder,
+          },
+        },
+        query: filter,
+      });
+
+    return {
+      list,
+      totalCount,
+      pageInfo,
+    };
+  },
+
+  /**
+   * Get one email template
+   */
+  async automationEmailTemplateDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.AutomationEmailTemplates.getEmailTemplate(_id);
+  },
 };
 
 requireLogin(automationQueries, 'automationsMain');
 requireLogin(automationQueries, 'automationNotes');
 requireLogin(automationQueries, 'automationDetail');
+requireLogin(automationQueries, 'automationEmailTemplates');
+requireLogin(automationQueries, 'automationEmailTemplateDetail');
 
 checkPermission(automationQueries, 'automations', 'showAutomations', []);
 checkPermission(automationQueries, 'automationsMain', 'showAutomations', {

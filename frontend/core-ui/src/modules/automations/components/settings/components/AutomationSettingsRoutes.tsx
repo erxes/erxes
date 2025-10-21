@@ -25,6 +25,22 @@ const AutomationAiAgentsSettingsPage = lazy(() =>
   ).then((module) => ({ default: module.AutomationAiAgentsSettingsPage })),
 );
 
+const AutomationEmailTemplatesSettingsPage = lazy(() =>
+  import(
+    '~/pages/settings/workspace/automations/AutomationEmailTemplatesSettingsPage'
+  ).then((module) => ({
+    default: module.AutomationEmailTemplatesSettingsPage,
+  })),
+);
+
+const AutomationEmailTemplateDetailSettingsPage = lazy(() =>
+  import(
+    '~/pages/settings/workspace/automations/AutomationEmailTemplateDetailSettingsPage'
+  ).then((module) => ({
+    default: module.AutomationEmailTemplateDetailSettingsPage,
+  })),
+);
+
 export const AutomationSettingsRoutes = () => {
   return (
     <AutomationSettingsLayout>
@@ -44,6 +60,19 @@ export const AutomationSettingsRoutes = () => {
         <Route
           path="/agents/create"
           element={<AutomationAiAgentDetailSettingsPage />}
+        />
+
+        <Route
+          path="/email-templates"
+          element={<AutomationEmailTemplatesSettingsPage />}
+        />
+        <Route
+          path="/email-templates/:id"
+          element={<AutomationEmailTemplateDetailSettingsPage />}
+        />
+        <Route
+          path="/email-templates/create"
+          element={<AutomationEmailTemplateDetailSettingsPage />}
         />
       </Routes>
     </AutomationSettingsLayout>

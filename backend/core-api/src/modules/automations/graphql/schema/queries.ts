@@ -27,6 +27,14 @@ const historiesParams = `
   ids:[String]
 `;
 
+const emailTemplateParams = `
+  page: Int
+  perPage: Int
+  searchValue: String
+  sortField: String
+  sortDirection: Int
+`;
+
 const queries = `
   automationsMain(${queryParams}): AutomationsListResponse
   automations(${queryParams}): [Automation]
@@ -41,6 +49,8 @@ const queries = `
   automationsAiAgentDetail:JSON
   getTrainingStatus(agentId: String!): TrainingProgress!
   getAutomationWebhookEndpoint(_id:String!):String
+  automationEmailTemplates(${emailTemplateParams}): AutomationEmailTemplatesListResponse
+  automationEmailTemplateDetail(_id: String!): AutomationEmailTemplate
 `;
 
 export default queries;

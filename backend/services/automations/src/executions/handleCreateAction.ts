@@ -1,6 +1,7 @@
 import {
-  IAction,
-  IActionsMap,
+  EXECUTE_WAIT_TYPES,
+  IAutomationAction,
+  IAutomationActionsMap,
   IAutomationExecutionDocument,
   splitType,
 } from 'erxes-api-shared/core-modules';
@@ -11,8 +12,8 @@ import { generateModels } from '@/connectionResolver';
 export const handleCreateAction = async (
   subdomain: string,
   execution: IAutomationExecutionDocument,
-  action: IAction,
-  actionsMap: IActionsMap,
+  action: IAutomationAction,
+  actionsMap: IAutomationActionsMap,
 ) => {
   const [pluginName, moduleName, collectionType, actionType] = splitType(
     action.type,
@@ -54,7 +55,7 @@ export const handleCreateAction = async (
       currentActionId: action.id,
       responseActionId: action?.nextActionId,
       condition: {
-        type: 'checkObject',
+        type: EXECUTE_WAIT_TYPES.CHECK_OBJECT,
         contentType: contentType || action.type,
         propertyName,
         expectedState,

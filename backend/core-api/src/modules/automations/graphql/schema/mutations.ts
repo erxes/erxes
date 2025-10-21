@@ -24,6 +24,12 @@ const aiAgentParams = `
     config:JSON,
 `;
 
+const emailTemplateFields = `
+  name: String!
+  description: String
+  content: String!
+`;
+
 const mutations = `
   automationsAdd(${commonFields}): Automation
   automationsEdit(_id: String, ${commonFields}): Automation
@@ -41,6 +47,10 @@ const mutations = `
   startAiTraining(agentId: String!): TrainingProgress!
   getTrainingStatus(agentId: String!): TrainingProgress!
   generateAgentMessage(agentId: String!, prevQuestions:[String],question: String!): AiAgentMessage!
+  
+  automationEmailTemplatesAdd(${emailTemplateFields}): AutomationEmailTemplate
+  automationEmailTemplatesEdit(_id: String!, ${emailTemplateFields}): AutomationEmailTemplate
+  automationEmailTemplatesRemove(_id: String!): JSON
 `;
 
 export default mutations;

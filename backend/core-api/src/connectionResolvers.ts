@@ -162,6 +162,11 @@ import {
   IExecutionModel,
   loadClass as loadExecutionClass,
 } from './modules/automations/db/models/Executions';
+import {
+  IAutomationEmailTemplateModel,
+  loadAutomationEmailTemplateClass,
+} from './modules/automations/db/models/AutomationEmailTemplates';
+import { IAutomationEmailTemplateDocument } from 'erxes-api-shared/core-types';
 
 export interface IModels {
   Brands: IBrandModel;
@@ -197,6 +202,7 @@ export interface IModels {
   Documents: IDocumentModel;
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
+  AutomationEmailTemplates: IAutomationEmailTemplateModel;
   Logs: ILogModel;
   Notifications: Model<INotificationDocument>;
   EmailDeliveries: Model<IEmailDeliveryDocument>;
@@ -360,6 +366,11 @@ export const loadClasses = (
     IAutomationExecutionDocument,
     IExecutionModel
   >('automations_executions', loadExecutionClass(models));
+
+  models.AutomationEmailTemplates = db.model<
+    IAutomationEmailTemplateDocument,
+    IAutomationEmailTemplateModel
+  >('automation_email_templates', loadAutomationEmailTemplateClass(models));
 
   models.Notifications = db.model<
     INotificationDocument,

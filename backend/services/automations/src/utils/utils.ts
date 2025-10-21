@@ -1,7 +1,11 @@
-import { IAction, IActionsMap } from 'erxes-api-shared/core-modules';
+import {
+  IAutomationAction,
+  IAutomationActionsMap,
+} from 'erxes-api-shared/core-modules';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
-export const getActionsMap = async (actions: IAction[]) => {
-  const actionsMap: IActionsMap = {};
+export const getActionsMap = async (actions: IAutomationAction[]) => {
+  const actionsMap: IAutomationActionsMap = {};
 
   for (const action of actions) {
     actionsMap[action.id] = action;
@@ -51,4 +55,14 @@ const isDiffValue = (latest, target, field) => {
   }
 
   return false;
+};
+
+export const getConfig = async (code: string, defaultValue?: any) => {
+  return await sendTRPCMessage({
+    method: 'query',
+    pluginName: 'core',
+    module: 'config',
+    action: 'getConfig',
+    input: { code, defaultValue },
+  });
 };

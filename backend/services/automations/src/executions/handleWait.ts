@@ -1,6 +1,6 @@
 import {
   AUTOMATION_EXECUTION_STATUS,
-  IAction,
+  IAutomationAction,
   IAutomationExecAction,
   IAutomationExecutionDocument,
 } from 'erxes-api-shared/core-modules';
@@ -9,7 +9,7 @@ import { sendWorkerQueue } from 'erxes-api-shared/utils';
 export const handleWaitAction = async (
   subdomain: string,
   execution: IAutomationExecutionDocument,
-  action: IAction,
+  action: IAutomationAction,
   execAction: IAutomationExecAction,
 ) => {
   execution.waitingActionId = action.id;

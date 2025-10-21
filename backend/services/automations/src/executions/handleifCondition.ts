@@ -1,6 +1,6 @@
 import {
-  IAction,
-  IActionsMap,
+  IAutomationAction,
+  IAutomationActionsMap,
   IAutomationExecAction,
   IAutomationExecutionDocument,
 } from 'erxes-api-shared/core-modules';
@@ -11,9 +11,9 @@ export const handleifAction = async (
   subdomain: string,
   triggerType: string,
   execution: IAutomationExecutionDocument,
-  action: IAction,
+  action: IAutomationAction,
   execAction: IAutomationExecAction,
-  actionsMap: IActionsMap,
+  actionsMap: IAutomationActionsMap,
 ) => {
   let ifActionId: string;
 
