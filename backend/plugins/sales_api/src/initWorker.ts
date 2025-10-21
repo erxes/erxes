@@ -38,7 +38,7 @@ export const sendPosclientHealthCheck = async ({
   // });
 };
 
-export const sendPosclientMessage = async (args: any) => {
+export const sendPosclientMessage = async (subdomain: string, args: any) => {
   const { action, pos, data } = args;
   let lastAction = action;
   let serviceName = 'posclient';
@@ -67,10 +67,10 @@ export const sendPosclientMessage = async (args: any) => {
     subdomain,
 
     pluginName: 'posclient',
-    method: 'query',
+    method: lastAction === 'crudData' ? 'mutation' : 'query',
     module: 'posclient',
     action: lastAction,
-    input: { data: { ...data, token: pos.token } },
-    defaultValue: '',
+    input: { ...data, token: pos.token },
+    defaultValue: {},
   });
 };
