@@ -18,7 +18,6 @@ export const sendPosclientHealthCheck = async ({
   }
   sendTRPCMessage({
     subdomain,
-
     pluginName: 'sales',
     method: 'query',
     module: 'pos',
@@ -38,6 +37,7 @@ export const sendPosclientHealthCheck = async ({
   // });
 };
 
+export const sendPosclientMessage = async (subdomain: string, args: any) => {
 export const sendPosclientMessage = async (subdomain: string, args: any) => {
   const { action, pos, data } = args;
   let lastAction = action;
@@ -64,6 +64,9 @@ export const sendPosclientMessage = async (subdomain: string, args: any) => {
   args.data.token = pos.token;
 
   return await sendTRPCMessage({
+    subdomain,
+
+  const ret = await sendTRPCMessage({
     subdomain,
 
     pluginName: 'posclient',
