@@ -2,7 +2,7 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 const CustomFieldGroup = {
-  async fields(group: any) {
+  async fields(group: any, _params, { subdomain }: IContext) {
     const fields = await sendTRPCMessage({
       subdomain,
 

@@ -5,10 +5,10 @@ const clientPortalCommentMutations = {
   async clientPortalCommentsAdd(
     _root: any,
     args: { type: string; typeId: string; content: string; userType: string },
-    context: { portalUser: any; user: any; models: any },
+    context: { portalUser: any; user: any; models: any; subdomain: string },
   ) {
     const { type, typeId, content, userType } = args;
-    const { portalUser, user, models } = context;
+    const { portalUser, user, models, subdomain } = context;
 
     // Determine user ID based on user type
     const userId =

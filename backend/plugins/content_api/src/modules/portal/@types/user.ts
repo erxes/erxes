@@ -85,6 +85,7 @@ export interface IVerificationParams {
 
 export interface IContactsParams {
   models: IModels;
+  subdomain: string;
   clientPortalId: string;
   document: any;
   password?: string;
