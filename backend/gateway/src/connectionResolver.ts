@@ -3,6 +3,7 @@ import { createGenerateModels } from 'erxes-api-shared/utils';
 import { userSchema } from 'erxes-api-shared/core-modules';
 import { permissionSchema } from 'erxes-api-shared/core-modules';
 import { appSchema } from 'erxes-api-shared/core-modules';
+import { roleSchema } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 export interface IMainContext {
   res: any;
@@ -15,6 +16,7 @@ export interface IModels {
   Permissions: any;
   Apps: any;
   Clients: any;
+  Roles: any;
 }
 
 export interface IContext extends IMainContext {
@@ -29,6 +31,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Permissions = db.model('permissions', permissionSchema);
   models.Apps = db.model('apps', appSchema);
   models.Clients = db.model('clients', appSchema);
+  models.Roles = db.model('roles', roleSchema);
 
   return models;
 };
