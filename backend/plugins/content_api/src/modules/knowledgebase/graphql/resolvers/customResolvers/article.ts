@@ -17,11 +17,16 @@ export default {
       __typename: 'User',
     };
   },
-  publishedUser(article: IArticleDocument) {
+  publishedUser(
+    article: IArticleDocument,
+    _params: undefined,
+    { subdomain }: IContext,
+  ) {
     if (!article.publishedUserId) {
       return null;
     }
     return sendTRPCMessage({
+      subdomain,
       pluginName: 'core',
       module: 'users',
       action: 'findOne',

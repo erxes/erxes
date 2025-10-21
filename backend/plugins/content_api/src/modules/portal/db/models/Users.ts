@@ -240,6 +240,8 @@ export const loadUserClass = (models: IModels) => {
       // TODO: implement custom fields after forms migrated
       if (doc.customFieldsData) {
         doc.customFieldsData = await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'query',
           module: 'fields',
@@ -314,9 +316,11 @@ export const loadUserClass = (models: IModels) => {
       return user;
     }
 
-    public static async updateUser(_id, doc: IUser) {
+    public static async updateUser(_id, doc: IUser, subdomain: string) {
       if (doc.customFieldsData) {
         doc.customFieldsData = await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'query',
           module: 'fields',

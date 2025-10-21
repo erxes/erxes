@@ -143,6 +143,8 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       const [pluginName, type] = contentType.split(':');
 
       const result = await sendTRPCMessage({
+        subdomain,
+
         method: 'query',
         pluginName,
         module: `${type}s`,
@@ -512,6 +514,8 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       type: string,
     ) {
       const fields = await sendTRPCMessage({
+        subdomain,
+
         pluginName: serviceName,
         method: 'query',
         module: 'forms',
@@ -530,6 +534,8 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       type: string,
     ) {
       const fields = await sendTRPCMessage({
+        subdomain,
+
         pluginName: serviceName,
         method: 'query',
         module: 'forms',

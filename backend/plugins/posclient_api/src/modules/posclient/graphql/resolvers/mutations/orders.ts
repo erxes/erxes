@@ -529,6 +529,8 @@ const orderMutations: Record<string, any> = {
         //   data: { action: 'statusToDone', order, posToken: config.token },
         // });
         await sendTRPCMessage({
+          subdomain,
+
           method: 'query',
           pluginName: 'createOrUpdateOrders',
           module: 'pos',
@@ -622,6 +624,8 @@ const orderMutations: Record<string, any> = {
         // });
 
         await sendTRPCMessage({
+          subdomain,
+
           method: 'query',
           pluginName: 'sales',
           module: 'pos',
@@ -753,6 +757,8 @@ const orderMutations: Record<string, any> = {
         //   },
         // });
         await sendTRPCMessage({
+          subdomain,
+
           method: 'query',
           pluginName: 'sales',
           module: 'pos',
@@ -847,6 +853,8 @@ const orderMutations: Record<string, any> = {
         //   },
         // });
         await sendTRPCMessage({
+          subdomain,
+
           method: 'query',
           pluginName: 'sales',
           module: 'pos',
@@ -958,6 +966,8 @@ const orderMutations: Record<string, any> = {
       //   isRPC: true,
       // });
       const deal = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'sales',
         module: 'deal',
         action: 'findOne',
@@ -966,6 +976,8 @@ const orderMutations: Record<string, any> = {
       });
       if (deal) {
         const dealLink = await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'sales',
           module: 'deal',
           action: 'getLink',
@@ -1030,6 +1042,8 @@ const orderMutations: Record<string, any> = {
     //   defaultValue: {},
     // });
     const deal = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'sales',
       module: 'deal',
       action: 'createItem',
@@ -1054,6 +1068,8 @@ const orderMutations: Record<string, any> = {
         //   isRPC: true,
         // });
         await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           module: 'conformity',
           action: 'addConformity',
@@ -1198,6 +1214,8 @@ const orderMutations: Record<string, any> = {
         //   },
         // });
         await sendTRPCMessage({
+          subdomain,
+
           method: 'query',
           pluginName: 'sales',
           module: 'pos',
@@ -1344,6 +1362,8 @@ const orderMutations: Record<string, any> = {
       //   },
       // });
       await sendTRPCMessage({
+        subdomain,
+
         method: 'query',
         pluginName: 'sales',
         module: 'pos',

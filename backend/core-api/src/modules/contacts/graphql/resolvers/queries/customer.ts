@@ -18,9 +18,10 @@ export const customerQueries = {
   async customers(
     _parent: undefined,
     params: ICustomerQueryFilterParams,
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const filter: FilterQuery<ICustomerDocument> = await generateFilter(
+      subdomain,
       params,
       models,
     );

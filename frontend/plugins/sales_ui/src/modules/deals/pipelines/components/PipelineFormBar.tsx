@@ -39,6 +39,7 @@ export function PipelineFormBar() {
   const { stages: initialStages, loading: stagesLoading } = useStages({
     variables: {
       pipelineId,
+      isAll: true,
     },
   });
 

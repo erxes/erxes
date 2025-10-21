@@ -16,7 +16,7 @@ import {
   UiConfigFormValues,
   uiConfigSchema,
   FinanceConfigFormValues,
-  financeConfigSchema
+  financeConfigSchema,
 } from '../components/formSchema';
 
 const getDefaultFormStepData = (): FormStepData => ({
@@ -97,7 +97,7 @@ const getDefaultFormStepData = (): FormStepData => ({
 
 export const usePosCreateForm = () => {
   const [formStepData, setFormStepData] = useState<FormStepData>(
-    getDefaultFormStepData()
+    getDefaultFormStepData(),
   );
 
   const basicInfoForm = useForm<BasicInfoFormValues>({
@@ -146,9 +146,9 @@ export const usePosCreateForm = () => {
   };
 
   const updateFormStepData = (step: keyof FormStepData, data: any) => {
-    setFormStepData(prev => ({
+    setFormStepData((prev) => ({
       ...prev,
-      [step]: data
+      [step]: data,
     }));
   };
 

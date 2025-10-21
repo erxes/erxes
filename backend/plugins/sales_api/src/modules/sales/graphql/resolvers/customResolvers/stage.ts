@@ -23,12 +23,12 @@ export default {
   async unUsedAmount(
     stage: IStageDocument,
     _args,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
     { variableValues: args },
   ) {
     let amountsMap = {};
 
-    amountsMap = getAmountsMap(models, models.Deals, user, args, stage, false);
+    amountsMap = getAmountsMap(models, subdomain, models.Deals, user, args, stage, false);
 
     return amountsMap;
   },
@@ -36,12 +36,12 @@ export default {
   async amount(
     stage: IStageDocument,
     _args,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
     { variableValues: args },
   ) {
     let amountsMap = {};
 
-    amountsMap = getAmountsMap(models, models.Deals, user, args, stage);
+    amountsMap = getAmountsMap(models, subdomain, models.Deals, user, args, stage);
 
     return amountsMap;
   },
@@ -49,11 +49,12 @@ export default {
   async itemsTotalCount(
     stage: IStageDocument,
     _args,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
     { variableValues: args },
   ) {
     const filter = await generateFilter(
       models,
+      subdomain,
       user._id,
       { ...args, ...args.extraParams, stageId: stage._id, pipelineId: stage.pipelineId, },
     );
@@ -67,11 +68,12 @@ export default {
   async initialDealsTotalCount(
     stage: IStageDocument,
     _args,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
     { variableValues: args },
   ) {
     const filter = await generateFilter(
       models,
+      subdomain,
       user._id,
       { ...args, ...args.extraParams, initialStageId: stage._id }
     );
@@ -140,11 +142,12 @@ export default {
   async stayedDealsTotalCount(
     stage: IStageDocument,
     _args,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
     { variableValues: args },
   ) {
     const filter = await generateFilter(
       models,
+      subdomain,
       user._id,
       {
         ...args,

@@ -72,8 +72,8 @@ export const clientPortalUserMutations = {
   },
 
   async clientPortalUsersEdit(_root, args: any, { models }: IContext) {
-    const {_id, doc} = args;
-    return  models.Users.updateUser(_id, doc);
+    const { _id, doc } = args;
+    return models.Users.updateUser(_id, doc);
   },
 
   /**
@@ -197,6 +197,8 @@ export const clientPortalUserMutations = {
       // });
 
       let customer = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'customers',
@@ -227,6 +229,8 @@ export const clientPortalUserMutations = {
 
       if (!customer) {
         customer = await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'mutation',
           module: 'customers',
@@ -361,6 +365,8 @@ export const clientPortalUserMutations = {
     // });
 
     let customer = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'customers',
@@ -409,6 +415,8 @@ export const clientPortalUserMutations = {
 
     if (!customer) {
       customer = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'mutation',
         module: 'customers',
@@ -575,6 +583,8 @@ export const clientPortalUserMutations = {
       : passwordVerificationConfig.emailContent.replace(/{.*}/, phoneCode);
 
     await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'mutation',
       module: 'core',
@@ -839,6 +849,8 @@ export const clientPortalUserMutations = {
           `Your OTP is ${emailCode}`;
 
         await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'mutation',
           module: 'core',
@@ -986,6 +998,8 @@ export const clientPortalUserMutations = {
               `Your OTP is ${testEmailCode}`;
 
             await sendTRPCMessage({
+              subdomain,
+
               pluginName: 'core',
               method: 'mutation',
               module: 'core',
@@ -1022,6 +1036,8 @@ export const clientPortalUserMutations = {
         config.content.replace(/{.*}/, emailCode) || `Your OTP is ${emailCode}`;
 
       await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'mutation',
         module: 'core',
@@ -1154,6 +1170,8 @@ export const clientPortalUserMutations = {
     );
 
     const createdBy = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'users',
@@ -1326,6 +1344,8 @@ export const clientPortalUserMutations = {
     const { userId, erxesCompanyId, erxesCustomerId } = args;
 
     const company = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'companies',
@@ -1341,6 +1361,8 @@ export const clientPortalUserMutations = {
 
     try {
       await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'mutation',
         module: 'conformities',

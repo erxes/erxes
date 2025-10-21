@@ -27,6 +27,8 @@ export const allDealsMapState = atom<Record<string, IDeal>>({});
 
 export const DealsBoard = () => {
   const allDealsMap = useAtomValue(allDealsMapState);
+  const setAllDealsMap = useSetAtom(allDealsMapState);
+
   const { changeDeals } = useDealsChange();
   const [pipelineId] = useQueryState<string>('pipelineId');
 
@@ -63,87 +65,93 @@ export const DealsBoard = () => {
 
     if (!activeItem) return;
 
-    const overColumn =
+    const overColumnId =
       overItem?.stageId ||
       columns.find((col) => col.id === over.id)?.id ||
       columns[0]?.id;
 
-    let aboveItemId: string | null = null;
-
     setDeals((prev) => {
       let updated = [...prev];
+      const activeIndex = updated.findIndex((d) => d.id === activeItem._id);
+      if (activeItem.stageId !== overColumnId) {
+        updated[activeIndex] = {
+          ...updated[activeIndex],
+          column: overColumnId,
+          stageId: overColumnId,
+        };
+      } else {
+        const columnItems = updated.filter((d) => d.column === overColumnId);
 
-      // If moved to a different column
-      if (activeItem.stageId !== overColumn) {
-        updated = updated.map((deal) =>
-          deal.id === activeItem._id
-            ? { ...deal, column: overColumn, sort: new Date().toISOString() }
-            : deal,
+        const overIndex = columnItems.findIndex((d) => d.id === overItem?._id);
+
+        const activeIndexInColumn = columnItems.findIndex(
+          (d) => d.id === activeItem._id,
         );
 
-        const columnItems = updated
-          .filter((d) => d.column === overColumn && d.id !== activeItem._id)
-          .sort((a, b) =>
-            (a.sort?.toString() ?? '').localeCompare(b.sort?.toString() ?? ''),
-          );
+        if (activeIndexInColumn > -1)
+          columnItems.splice(activeIndexInColumn, 1);
 
-        const overIndex = columnItems.findIndex((c) => c.id === overItem?._id);
+        columnItems.splice(
+          overIndex === -1 ? columnItems.length : overIndex,
+          0,
+          {
+            ...activeItem,
+            column: overColumnId,
+            stageId: overColumnId,
+            id: activeItem._id,
+          },
+        );
 
-        aboveItemId =
-          overIndex === -1
-            ? columnItems[columnItems.length - 1]?.id ?? null
-            : columnItems[overIndex]?.id;
-      } else {
-        const columnItems = updated
-          .filter((d) => d.column === overColumn && d.id !== activeItem._id)
-          .sort((a, b) =>
-            (a.sort?.toString() ?? '').localeCompare(b.sort?.toString() ?? ''),
-          );
-
-        const overIndex = columnItems.findIndex((c) => c.id === overItem?._id);
-        aboveItemId =
-          overIndex === -1
-            ? columnItems[columnItems.length - 1]?.id ?? null
-            : columnItems[overIndex]?.id;
-
-        // Remove active item from old position
-        const fromIndex = updated.findIndex((d) => d.id === activeItem._id);
-        updated.splice(fromIndex, 1);
-
-        // Insert active item in new position
-        const insertIndex =
-          overIndex === -1
-            ? updated.filter((d) => d.column === overColumn).length
-            : updated.findIndex((d) => d.id === columnItems[overIndex].id);
-
-        updated.splice(insertIndex, 0, {
-          id: activeItem._id,
-          column: overColumn,
-          sort: new Date().toISOString(),
-        });
+        updated = [
+          ...updated.filter((d) => d.column !== overColumnId),
+          ...columnItems,
+        ];
       }
+
+      setAllDealsMap((prev) => ({
+        ...prev,
+        [activeItem._id]: {
+          ...activeItem,
+          stageId: overColumnId,
+          column: overColumnId,
+        },
+      }));
+
+      const columnItemsAfter = updated.filter((d) => d.column === overColumnId);
+
+      const activeNewIndex = columnItemsAfter.findIndex(
+        (d) => d.id === activeItem._id,
+      );
+      const aboveItemId =
+        activeNewIndex > 0
+          ? columnItemsAfter[activeNewIndex - 1].id
+          : undefined;
+
+      changeDeals({
+        variables: {
+          itemId: activeItem._id,
+          destinationStageId: overColumnId,
+          sourceStageId: activeItem.stageId,
+          aboveItemId,
+        },
+      });
 
       return updated;
     });
 
-    changeDeals({
-      variables: {
-        itemId: activeItem._id,
-        destinationStageId: overColumn,
-        aboveItemId: aboveItemId ?? undefined,
-      },
-    });
-
-    setDealCountByBoard((prev) => ({
-      ...prev,
-      [activeItem?.stageId]: prev[activeItem?.stageId] - 1 || 0,
-      [overColumn]: (prev[overColumn] || 0) + 1,
-    }));
+    if (activeItem.stageId !== overColumnId) {
+      setDealCountByBoard((prev) => ({
+        ...prev,
+        [activeItem?.stageId]: prev[activeItem?.stageId] - 1 || 0,
+        [overColumnId]: (prev[overColumnId] || 0) + 1,
+      }));
+    }
   };
 
   if (stagesLoading) {
     return <StagesLoading />;
   }
+
   return (
     <Board.Provider
       columns={columns}
@@ -153,7 +161,7 @@ export const DealsBoard = () => {
       emptyUrl={'/settings/deals'}
     >
       {(column) => (
-        <Board id={column.id} key={column.id} sortBy="updated">
+        <Board id={column.id} key={column.id} sortBy="updated" isSorted>
           <DealsBoardCards column={column} />
         </Board>
       )}
@@ -183,14 +191,7 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
     }
   }
 
-  const boardCards = dealCards
-    .filter((deal) => deal.column === column.id)
-    .sort((a, b) => {
-      if (a.sort && b.sort) {
-        return b.sort.toString().localeCompare(a.sort.toString());
-      }
-      return 0;
-    });
+  const boardCards = dealCards.filter((deal) => deal.column === column.id);
 
   const { deals, totalCount, loading, handleFetchMore } = useDeals({
     variables: {
@@ -214,7 +215,6 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
           ...deals.map((deal) => ({
             id: deal._id,
             column: deal.stageId,
-            sort: deal.createdAt,
           })),
         ];
       });
@@ -244,7 +244,7 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
       <DealsBoardColumnHeader
         column={column}
         loading={loading}
-        totalCount={totalCount || 0}
+        totalCount={dealCountByBoard[column.id] || 0}
       />
       <Board.Cards id={column.id} items={boardCards.map((deal) => deal.id)}>
         {loading ? (
@@ -259,6 +259,7 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
               id={deal.id}
               name={deal.name}
               column={column.id}
+              data={{ column: column.id }}
             >
               <DealsBoardCard id={deal.id} column={column.id} />
             </Board.Card>

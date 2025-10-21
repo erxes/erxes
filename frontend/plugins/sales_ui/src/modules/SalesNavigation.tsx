@@ -322,7 +322,7 @@ const ActionsMenu = () => {
 export const SalesNavigation = () => {
   return (
     <NavigationMenuGroup name="Sales Pipeline">
-      {groups.map((group) => (
+      {groups.map((group: { name: string; icon: Icon }) => (
         <SalesItem key={group.name} name={group.name} Icon={group.icon} />
       ))}
     </NavigationMenuGroup>
