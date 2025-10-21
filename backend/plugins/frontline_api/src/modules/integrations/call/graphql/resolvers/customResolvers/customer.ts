@@ -8,6 +8,8 @@ export default {
 
     // Fetch the user who sent the reply
     const customer = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'customers',

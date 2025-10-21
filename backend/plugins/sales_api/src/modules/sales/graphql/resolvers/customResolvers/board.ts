@@ -20,6 +20,8 @@ export default {
     }
 
     const userDetail = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'users',
@@ -34,6 +36,8 @@ export default {
     const branchIds = userDetail?.branchIds || [];
 
     const supervisorDepartmentIds = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'departments',

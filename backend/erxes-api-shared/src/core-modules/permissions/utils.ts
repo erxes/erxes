@@ -24,7 +24,8 @@ const resolverWrapper = async (
     for (const service of beforeResolvers[methodName]) {
       results = {
         ...results,
-        // ...(await sendTRPCMessage({
+        // ...(await sendTRPCMessage({subdomain,
+
         //   pluginName: service,
         //   method: 'query',
         //   module: service,
@@ -185,6 +186,8 @@ export const checkRolePermission = async (
   resolverKey: string,
 ) => {
   const { role } = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'roles',

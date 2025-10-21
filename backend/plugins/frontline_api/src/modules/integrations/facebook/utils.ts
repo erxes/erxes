@@ -73,6 +73,8 @@ export const createAWS = async () => {
     AWS_SECRET_ACCESS_KEY,
     AWS_ACCESS_KEY_ID,
   } = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'users',
@@ -129,6 +131,8 @@ export const uploadMedia = async (
     try {
       isFetchingConfig = true;
       cachedUploadConfig = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'users',
@@ -544,6 +548,8 @@ export const getFacebookUserProfilePic = async (
     );
 
     const { UPLOAD_SERVICE_TYPE } = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'users',

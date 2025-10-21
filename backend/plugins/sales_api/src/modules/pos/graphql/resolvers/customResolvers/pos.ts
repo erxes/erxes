@@ -1,11 +1,13 @@
-import { sendTRPCMessage } from "erxes-api-shared/utils";
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 const resolvers = {
-  user: async (pos,) => {
+  user: async (pos) => {
     if (!pos.userId) {
       return null;
     }
     return sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'users',
       action: 'findOne',
@@ -13,12 +15,14 @@ const resolvers = {
     });
   },
 
-  branchTitle: async (pos,) => {
+  branchTitle: async (pos) => {
     if (!pos.branchId) {
       return '';
     }
 
     const branch = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'branches',
       action: 'findOne',
@@ -28,12 +32,14 @@ const resolvers = {
     return branch?.title || '';
   },
 
-  departmentTitle: async (pos,) => {
+  departmentTitle: async (pos) => {
     if (!pos.departmentId) {
       return '';
     }
 
     const department = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'departments',
       action: 'findOne',
@@ -41,7 +47,7 @@ const resolvers = {
     });
 
     return department?.title || '';
-  }
+  },
 };
 
 export default resolvers;

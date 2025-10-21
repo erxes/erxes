@@ -8,6 +8,7 @@ import { getPlugin, isEnabled } from '../service-discovery';
 import { getSubdomain } from '../utils';
 
 export type MessageProps = {
+  subdomain: string;
   method?: 'query' | 'mutation';
   pluginName: string;
   module: string;
@@ -40,6 +41,7 @@ type TRPCContext = {
 };
 
 export const sendTRPCMessage = async ({
+  subdomain,
   pluginName,
   method,
   module,
@@ -62,7 +64,11 @@ export const sendTRPCMessage = async ({
     links: [httpBatchLink({ url: `${pluginInfo.address}/trpc` })],
   });
 
-  const result = await client[method](`${module}.${action}`, input, options);
+  const result = await client[method](
+    `${module}.${action}`,
+    { subdomain, ...input },
+    options,
+  );
 
   return result || defaultValue;
 };
@@ -88,7 +94,7 @@ export const createTRPCContext =
     return context as TContext & TRPCContext;
   };
 
-export type ITRPCContext<TExtraContext = {}> = Awaited<
+export type ITRPCContext<TExtraContext = object> = Awaited<
   ReturnType<typeof createTRPCContext<TExtraContext>>
 >;
 

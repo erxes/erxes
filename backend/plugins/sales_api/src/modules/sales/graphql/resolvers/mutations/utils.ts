@@ -11,14 +11,21 @@ import {
   subscriptionWrapper,
 } from '../utils';
 import { models } from 'mongoose';
-import { createConformity, destroyBoardItemRelations, getNewOrder, sendNotifications } from '~/modules/sales/utils';
+import {
+  createConformity,
+  destroyBoardItemRelations,
+  getNewOrder,
+  sendNotifications,
+} from '~/modules/sales/utils';
 
 export const addDeal = async ({
-  models, doc, user
+  models,
+  doc,
+  user,
 }: {
-  models: IModels,
-  doc: IDeal & { processId: string; aboveItemId: string },
-  user: IUserDocument
+  models: IModels;
+  doc: IDeal & { processId: string; aboveItemId: string };
+  user: IUserDocument;
 }) => {
   doc.initialStageId = doc.stageId;
   doc.watchedUserIds = user && [user._id];
@@ -37,6 +44,8 @@ export const addDeal = async ({
   if (extendedDoc.customFieldsData) {
     // clean custom field values
     extendedDoc.customFieldsData = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'mutation',
       module: 'fields',
@@ -62,7 +71,6 @@ export const addDeal = async ({
   if (user) {
     const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
-
     await sendNotifications(models, {
       item: deal,
       user,
@@ -77,7 +85,7 @@ export const addDeal = async ({
     pipelineId: stage.pipelineId,
   });
   return deal;
-}
+};
 
 export const editDeal = async ({
   user,
@@ -159,6 +167,8 @@ export const editDeal = async ({
   if (extendedDoc.customFieldsData) {
     // clean custom field values
     extendedDoc.customFieldsData = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'mutation',
       module: 'fields',

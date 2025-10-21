@@ -10,6 +10,8 @@ export const isInSegment = async (
   await delay(delayMs);
 
   return await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'segment',

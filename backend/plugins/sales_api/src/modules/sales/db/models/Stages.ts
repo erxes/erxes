@@ -77,6 +77,8 @@ export const loadStageClass = (models: IModels) => {
 
       if (stage.formId) {
         await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'mutation',
           module: 'forms',

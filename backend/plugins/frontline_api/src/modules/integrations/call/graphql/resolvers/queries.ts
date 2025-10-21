@@ -32,6 +32,8 @@ const callQueries = {
 
   async callsCustomerDetail(_root, { customerPhone }) {
     const customer = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'customers',

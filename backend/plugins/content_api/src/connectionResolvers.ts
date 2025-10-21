@@ -94,7 +94,7 @@ export interface IContext extends IMainContext {
   session: any;
   clientPortalId?: string;
   isPassed2FA?: boolean;
-  subdomain?: string;
+  subdomain: string;
 }
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
@@ -155,10 +155,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadPostClass(models),
   );
 
-  models.Translations = db.model<
-    ITranslationDocument,
-    ITranslationModel
-  >('cms_post_translations', loadTranslationClass(models));
+  models.Translations = db.model<ITranslationDocument, ITranslationModel>(
+    'cms_post_translations',
+    loadTranslationClass(models),
+  );
 
   models.Pages = db.model<IPageDocument, IPageModel>(
     'cms_pages',

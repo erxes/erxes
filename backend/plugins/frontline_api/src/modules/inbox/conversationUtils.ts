@@ -37,6 +37,8 @@ const countByChannels = async (
 // Count conversation by brand
 const countByBrands = async (qb: any, counts: ICountBy): Promise<ICountBy> => {
   const brands = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query', // this is a mutation, not a query
     module: 'brands',
@@ -61,6 +63,8 @@ const countByBrands = async (qb: any, counts: ICountBy): Promise<ICountBy> => {
 // Count converstaion by tag
 const countByTags = async (qb: any, counts: ICountBy): Promise<ICountBy> => {
   const tags = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query', // this is a mutation, not a query
     module: 'tags',

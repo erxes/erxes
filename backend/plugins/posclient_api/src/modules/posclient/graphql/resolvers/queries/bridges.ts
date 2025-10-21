@@ -19,6 +19,8 @@ const bridgesQueries = {
 
     if (type === 'company') {
       const companies = await sendTRPCMessage({
+        subdomain,
+
         method: 'query',
         pluginName: 'core',
         module: 'companies',
@@ -86,6 +88,8 @@ const bridgesQueries = {
 
     if (type === 'user') {
       const users = await sendTRPCMessage({
+        subdomain,
+
         method: 'query',
         pluginName: 'core',
         module: 'users',
@@ -131,6 +135,8 @@ const bridgesQueries = {
       return [];
     }
     const customers = await sendTRPCMessage({
+      subdomain,
+
       method: 'query',
       pluginName: 'core',
       module: 'customers',
@@ -181,6 +187,8 @@ const bridgesQueries = {
   ) {
     if (type === 'company') {
       const company = await sendTRPCMessage({
+        subdomain,
+
         method: 'query',
         pluginName: 'core',
         module: 'companies',
@@ -208,6 +216,8 @@ const bridgesQueries = {
 
     if (type === 'user') {
       const user = await sendTRPCMessage({
+        subdomain,
+
         method: 'query',
         pluginName: 'core',
         module: 'users',
@@ -253,6 +263,8 @@ const bridgesQueries = {
       return;
     }
     const customer = await sendTRPCMessage({
+      subdomain,
+
       method: 'query',
       pluginName: 'core',
       module: 'customers',

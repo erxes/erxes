@@ -84,6 +84,8 @@ export const pipelineMutations = {
     const pipeline = await models.Pipelines.getPipeline(_id);
 
     const relatedFieldsGroups = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'fieldsGroups',
@@ -101,6 +103,8 @@ export const pipelineMutations = {
       fieldGroup.pipelineIds = pipelineIds.filter((e) => e !== pipeline._id);
 
       await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'mutation',
         module: 'fieldsGroups', // ??

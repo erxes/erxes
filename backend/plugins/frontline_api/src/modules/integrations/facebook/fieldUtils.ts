@@ -54,6 +54,8 @@ export const generateFacebookFields = async (models: IModels, data) => {
   fields = await generateFieldBotOptions(models, fields);
 
   const customerFields = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'fields',

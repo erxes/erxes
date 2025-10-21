@@ -6,6 +6,8 @@ import { IPosDocument } from '~/modules/pos/@types/pos';
 const resolvers = {
   putResponses: async (order) => {
     return sendTRPCMessage({
+      subdomain,
+
       pluginName: 'ebarimt',
       module: 'putresponses',
       action: 'find',
@@ -55,11 +57,13 @@ const resolvers = {
       return null;
     }
     return await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'users',
       action: 'findOne',
       input: { _id: order.userId },
-    })
+    });
   },
 };
 

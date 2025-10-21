@@ -10,15 +10,17 @@ export default {
 
   async customers(deal: IDealDocument) {
     const customerIds = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'conformity',
       action: 'savedConformity',
       input: {
         mainType: 'deal',
         mainTypeId: deal._id,
-        relTypes: ['customer']
+        relTypes: ['customer'],
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     if (!customerIds.length) {
@@ -29,20 +31,21 @@ export default {
       __typename: 'Customer',
       _id: customerId,
     }));
-
   },
 
   async companies(deal: IDealDocument) {
     const customerIds = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'conformity',
       action: 'savedConformity',
       input: {
         mainType: 'deal',
         mainTypeId: deal._id,
-        relTypes: ['company']
+        relTypes: ['company'],
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     if (!customerIds.length) {
@@ -53,7 +56,6 @@ export default {
       __typename: 'Customer',
       _id: customerId,
     }));
-
   },
 
   async branches(deal: IDealDocument) {
@@ -99,6 +101,8 @@ export default {
     }
 
     const fields = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'fields',
@@ -143,7 +147,8 @@ export default {
   //     .filter((pd) => pd.productId)
   //     .map((pd) => pd.productId);
 
-  //   const allProducts = await sendTRPCMessage({
+  //   const allProducts = await sendTRPCMessage({subdomain,
+
   //     pluginName: 'core',
   //     method: 'query',
   //     module: 'products',
@@ -175,7 +180,8 @@ export default {
   //       fieldIds.push(customFieldData.field);
   //     }
 
-  //     const fields = await sendTRPCMessage({
+  //     const fields = await sendTRPCMessage({subdomain,
+
   //       pluginName: 'core',
   //       method: 'query',
   //       module: 'fields',
@@ -275,13 +281,15 @@ export default {
 
   async vendorCustomers(deal: IDealDocument) {
     return await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'content',
       module: 'portal',
       action: 'portalUserCard',
       input: {
         contentType: 'deal',
-        contentTypeId: deal.id
-      }
-    })
-  }
+        contentTypeId: deal.id,
+      },
+    });
+  },
 };

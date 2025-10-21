@@ -243,6 +243,8 @@ export const generatePostDoc = async (
   let generatedMediaUrls: string[] = [];
 
   const { UPLOAD_SERVICE_TYPE } = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'users',
