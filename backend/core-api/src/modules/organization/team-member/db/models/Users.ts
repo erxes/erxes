@@ -702,6 +702,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         username: user.username,
         code: user.code,
         departmentIds: user.departmentIds,
+        role: user.role,
       };
     }
 
@@ -712,6 +713,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
       const user = {
         _id: _user._id,
         isOwner: _user.isOwner,
+        role: _user.role,
       };
 
       const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
