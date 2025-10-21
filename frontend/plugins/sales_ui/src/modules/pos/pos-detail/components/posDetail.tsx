@@ -9,6 +9,7 @@ import {
   FinanceConfigFormValues,
   type PermissionFormValues,
   permissionSchema,
+  ProductFormValues,
 } from '@/pos/create-pos/components/formSchema';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,11 +31,20 @@ import DeliveryConfigForm from '@/pos/create-pos/components/delivery/delivery';
 import SyncCardForm from '@/pos/create-pos/components/sync/sync';
 import type { JSX } from 'react/jsx-runtime';
 import ProductForm from '@/pos/create-pos/components/product/product';
+import { usePosEditProductGroup } from '~/modules/pos/hooks/usePosEditProductGroup';
+import { useProductGroups } from '~/modules/pos/pos-detail/hooks/useProductGroup';
+import { useToast } from 'erxes-ui/hooks';
+import { TOAST_MESSAGES } from '~/modules/pos/constants';
 
 export const PosEdit = () => {
   const { posDetail } = usePosDetail();
+  const { toast } = useToast();
   const [posCategory, setPosCategory] = useAtom(posCategoryAtom);
   const { posEdit } = usePosEdit();
+  const { productGroupSave } = usePosEditProductGroup();
+  const { productGroups, refetch: refetchProductGroup } = useProductGroups(
+    posDetail?._id,
+  );
   const permissionFormRef = useRef<PermissionFormRef>(null);
 
   const basicInfoForm = useForm<BasicInfoFormValues>({
@@ -46,6 +56,17 @@ export const PosEdit = () => {
       scopeBrandIds: [],
       branchId: '',
       departmentId: '',
+    },
+  });
+  const productForm = useForm<ProductFormValues>({
+    defaultValues: {
+      productDetails: [],
+      catProdMappings: [],
+      initialCategoryIds: [],
+      kioskExcludeCategoryIds: [],
+      kioskExcludeProductIds: [],
+      checkExcludeCategoryIds: [],
+      productGroups: [],
     },
   });
 
@@ -132,15 +153,30 @@ export const PosEdit = () => {
         ? refIds.cashierIds
         : permissionValues.cashierIds;
 
+    const productValues = productForm.getValues();
+
     const finalData = {
       _id: posDetail._id,
       ...currentBasicInfo,
       ...permissionValues,
       adminIds: finalAdminIds,
       cashierIds: finalCashierIds,
+      catProdMappings: [
+        ...productValues.catProdMappings.map((item) => ({
+          _id: `${Math.random()}`,
+          name: item.name,
+          code: item.code,
+          categoryId: item.categoryId,
+          productId: item.productId,
+        })),
+      ],
+      initialCategoryIds: [...productValues.initialCategoryIds],
+      kioskExcludeCategoryIds: [...productValues.kioskExcludeCategoryIds],
+      kioskExcludeProductIds: [...productValues.kioskExcludeProductIds],
+      checkExcludeCategoryIds: [...productValues.checkExcludeCategoryIds],
     };
 
-    await posEdit(
+    const posEditResponse = await posEdit(
       {
         variables: finalData,
       },
@@ -163,6 +199,27 @@ export const PosEdit = () => {
         'permissionConfig',
       ],
     );
+    const finalDataProductGroup = {
+      posId: posDetail._id,
+      groups: [
+        ...productValues.productGroups.map((item) => ({
+          _id: `temporaryId.${Math.random()}`,
+          name: `temporaryId.${Math.random()}`,
+          categoryIds: item.categoryIds,
+          excludedCategoryIds: item.excludedCategoryIds,
+          excludedProductIds: item.excludedProductIds,
+        })),
+      ],
+    };
+    toast({
+      title: TOAST_MESSAGES.POS_EDITED,
+      description: `Saved`,
+      variant: 'destructive',
+    });
+    if (posEditResponse.data?.posEdit?._id) {
+      await productGroupSave({ variables: finalDataProductGroup }, []);
+      refetchProductGroup();
+    }
   };
 
   const getCategoryComponent = (
@@ -211,7 +268,11 @@ export const PosEdit = () => {
       </PosEditTabContent>
 
       <PosEditTabContent value="product">
-        <ProductForm posDetail={posDetail} />
+        <ProductForm
+          posDetail={posDetail}
+          productGroups={productGroups}
+          form={productForm}
+        />
       </PosEditTabContent>
 
       <PosEditTabContent value="appearance">
