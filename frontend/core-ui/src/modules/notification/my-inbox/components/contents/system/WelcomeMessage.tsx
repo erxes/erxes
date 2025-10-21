@@ -1,46 +1,68 @@
 import {
-  IconUsers,
-  IconSettings,
+  IconAddressBook,
+  IconShoppingCart,
+  IconChartPie,
+  IconAffiliate,
+  IconFile,
 } from '@tabler/icons-react';
-import { WelcomeNotificationContentLayout, TOnboardingStepItem } from 'ui-modules';
-
-
+import {
+  WelcomeNotificationContentLayout,
+  TOnboardingStepItem,
+} from 'ui-modules';
 const OnboardingSteps: TOnboardingStepItem[] = [
   {
-    icon: <IconUsers className="size-5" />,
-    title: 'Invite Your Team',
-    description:
-      'Collaborate better by inviting team members to join your workspace and start working together.',
+    icon: <IconAddressBook className="size-5" />,
+    title: 'Contacts',
+    description: 'Keep all customer and lead information in one hub.',
     action: {
-      label: 'Invite Team Member',
-      to: '/settings/team-member',
+      label: 'Try it out now',
+      to: '/contacts',
     },
   },
   {
-    icon: <IconSettings className="size-5" />,
-    title: 'Customize Your Workspace',
+    icon: <IconShoppingCart className="size-5" />,
+    title: 'Products',
     forOwner: true,
     description:
-      'Tailor your workspace to your preferences with customizable settings.',
+      'Manage and showcase all your products or services in one place.',
     action: {
-      label: 'Customize Workspace',
-      to: '/settings/workspace',
+      label: 'Try it out now',
+      to: '/products',
     },
   },
   {
-    icon: <IconSettings className="size-5" />,
-    title: 'Customize Your Workspace',
+    icon: <IconChartPie className="size-5" />,
+    title: 'Segments',
     forOwner: true,
     description:
-      'Tailor your workspace to your preferences with customizable settings.',
+      'Group customers by behavior, source, or data for targeted engagement.',
     action: {
-      label: 'Customize Workspace',
-      to: '/settings/workspace',
+      label: 'Try it out now',
+      to: '/segments',
+    },
+  },
+  {
+    icon: <IconAffiliate className="size-5" />,
+    title: 'Automation',
+    forOwner: true,
+    description: 'Automate repetitive tasks and save time.',
+    action: {
+      label: 'Try it out now',
+      to: '/automations',
+    },
+  },
+  {
+    icon: <IconFile className="size-5" />,
+    title: 'Documentation',
+    forOwner: true,
+    description:
+      'Store and organize your docs, link them to tickets, conversations and tasks.',
+    action: {
+      label: 'Try it out now',
+      to: '/documents',
     },
   },
 ];
-
-
 
 export const WelcomeMessageContent = () => {
   return (
