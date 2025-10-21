@@ -44,7 +44,7 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   }
 
   if (pos.erkhetConfig && pos.erkhetConfig.isSyncErkhet) {
-    const configs = await getConfig('ERKHET', {});
+    const configs = await getConfig(subdomain, 'ERKHET', {});
 
     data.pos.erkhetConfig = {
       ...pos.erkhetConfig,
@@ -303,7 +303,7 @@ export const unfetchOrderInfo = async (req, res) => {
   const models = await generateModels(subdomain);
 
   const { orderId, token } = req.body;
-  const erkhetConfig = await getConfig('ERKHET', {});
+  const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 
   if (
     !erkhetConfig ||

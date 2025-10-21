@@ -1,7 +1,8 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
 
 const resolvers = {
-  user: async (pos) => {
+  user: async (pos, _, { subdomain }: IContext) => {
     if (!pos.userId) {
       return null;
     }
@@ -15,7 +16,7 @@ const resolvers = {
     });
   },
 
-  branchTitle: async (pos) => {
+  branchTitle: async (pos, _, { subdomain }: IContext) => {
     if (!pos.branchId) {
       return '';
     }
@@ -32,7 +33,7 @@ const resolvers = {
     return branch?.title || '';
   },
 
-  departmentTitle: async (pos) => {
+  departmentTitle: async (pos, _, { subdomain }: IContext) => {
     if (!pos.departmentId) {
       return '';
     }

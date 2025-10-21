@@ -178,7 +178,7 @@ const generateFilterSubsQuery = async (params: any) => {
   return filter;
 };
 
-export const posOrderRecordsQuery = async (models, params, user?) => {
+export const posOrderRecordsQuery = async (models, subdomain, params, user?) => {
   const query = await generateFilterPosQuery(models, params, user?._id);
 
   const { perPage = 20, page = 1 } = params;
@@ -433,7 +433,7 @@ const queries = {
     return models.PosOrders.find(query).countDocuments();
   },
 
-  posOrderDetail: async (_root, { _id }, { models }: IContext) => {
+  posOrderDetail: async (_root, { _id }, { models, subdomain }: IContext) => {
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
       throw new Error(`PosOrder ${_id} not found`);
@@ -815,8 +815,8 @@ const queries = {
     };
   },
 
-  posOrderRecords: async (_root, params, { models, user }: IContext) => {
-    return posOrderRecordsQuery(models, params, user);
+  posOrderRecords: async (_root, params, { models, user, subdomain }: IContext) => {
+    return posOrderRecordsQuery(models, subdomain, params, user);
   },
 
   posOrderRecordsCount: async (_root, params, { models, user }: IContext) => {

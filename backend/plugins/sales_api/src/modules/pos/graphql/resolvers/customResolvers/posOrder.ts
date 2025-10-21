@@ -4,7 +4,7 @@ import { IPosOrderDocument } from '~/modules/pos/@types/orders';
 import { IPosDocument } from '~/modules/pos/@types/pos';
 
 const resolvers = {
-  putResponses: async (order) => {
+  putResponses: async (order, _, { subdomain }) => {
     return sendTRPCMessage({
       subdomain,
 
@@ -52,7 +52,7 @@ const resolvers = {
     }));
   },
 
-  user: async (order) => {
+  user: async (order, _, { subdomain }) => {
     if (!order.userId) {
       return null;
     }

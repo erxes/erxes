@@ -13,7 +13,7 @@ export const pipelineQueries = {
       boardId: string;
       isAll: boolean;
     } & ICursorPaginateParams,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
     const { boardId, isAll } = params;
 

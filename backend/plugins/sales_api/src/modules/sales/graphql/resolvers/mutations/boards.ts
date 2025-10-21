@@ -27,7 +27,7 @@ export const boardMutations = {
   async salesBoardsRemove(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const board = await models.Boards.getBoard(_id);
 

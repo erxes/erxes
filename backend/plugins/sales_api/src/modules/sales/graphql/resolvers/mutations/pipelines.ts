@@ -79,7 +79,7 @@ export const pipelineMutations = {
   async salesPipelinesRemove(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const pipeline = await models.Pipelines.getPipeline(_id);
 

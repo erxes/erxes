@@ -37,6 +37,7 @@ const isListEmpty = (value) => {
 
 export const generateFilter = async (
   models: IModels,
+  subdomain: string,
   userId: string,
   params: any,
 ) => {
@@ -541,12 +542,12 @@ export const generateFilter = async (
 
   if (segmentData) {
     const segment = JSON.parse(segmentData);
-    const itemIds = await fetchSegment('', {}, segment);
+    const itemIds = await fetchSegment(subdomain, '', {}, segment);
     filter._id = { $in: itemIds };
   }
 
   if (segment) {
-    const itemIds = await fetchSegment(segment);
+    const itemIds = await fetchSegment(subdomain,segment);
 
     filter._id = { $in: itemIds };
   }
@@ -665,8 +666,8 @@ export const dealQueries = {
   /**
    * Deals list
    */
-  async deals(_root, args: IDealQueryParams, { user, models }: IContext) {
-    const filter = await generateFilter(models, user._id, args);
+  async deals(_root, args: IDealQueryParams, { user, models, subdomain }: IContext) {
+    const filter = await generateFilter(models, subdomain, user._id, args);
 
     const getExtraFields = async (item: any) => ({
       amount: await dealResolvers.amount(item),
@@ -677,7 +678,7 @@ export const dealQueries = {
       list: deals,
       pageInfo,
       totalCount,
-    } = await getItemList(models, filter, args, user, getExtraFields);
+    } = await getItemList(models, subdomain, filter, args, user, getExtraFields);
 
     const dealProductIds = deals.flatMap((deal) => {
       if (deal.productsData && deal.productsData.length > 0) {
@@ -744,9 +745,9 @@ export const dealQueries = {
   async dealsTotalCount(
     _root,
     args: IDealQueryParams,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
-    const filter = await generateFilter(models, user._id, args);
+    const filter = await generateFilter(models, subdomain, user._id, args);
 
     return models.Deals.find(filter).countDocuments();
   },
@@ -768,9 +769,9 @@ export const dealQueries = {
   async dealsTotalAmounts(
     _root,
     args: IDealQueryParams,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
-    const filter = await generateFilter(models, user._id, args);
+    const filter = await generateFilter(models, subdomain, user._id, args);
 
     const amountList = await models.Deals.aggregate([
       {
@@ -912,7 +913,7 @@ export const dealQueries = {
   async dealDetail(
     _root,
     { _id, clientPortalCard }: { _id: string; clientPortalCard: boolean },
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
     const deal = await models.Deals.getDeal(_id);
 
@@ -921,7 +922,7 @@ export const dealQueries = {
       return deal;
     }
 
-    return checkItemPermByUser(models, user, deal);
+    return checkItemPermByUser(models, subdomain, user, deal);
   },
 
   //   async checkDiscount() {}

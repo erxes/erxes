@@ -1,7 +1,8 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
 
 const resolvers = {
-  category: async (posProduct) => {
+  category: async (posProduct, _, { subdomain }: IContext) => {
     return await sendTRPCMessage({
       subdomain,
 

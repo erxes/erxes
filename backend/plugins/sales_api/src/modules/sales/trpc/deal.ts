@@ -101,7 +101,7 @@ export const dealTrpcRouter = t.router({
       }),
 
     createItem: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { models } = ctx;
+      const { models, subdomain } = ctx;
       const { user, processId, ...doc } = input;
       if (!user || !processId) {
         return {
@@ -112,7 +112,7 @@ export const dealTrpcRouter = t.router({
       try {
         return {
           status: 'success',
-          data: await addDeal({ models, user, doc }),
+          data: await addDeal({ models, subdomain, user, doc }),
         };
       } catch (e) {
         return {
@@ -123,7 +123,7 @@ export const dealTrpcRouter = t.router({
     }),
 
     editItem: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { models } = ctx;
+      const { models, subdomain } = ctx;
 
       const { itemId, processId, user, ...doc } = input;
 
@@ -137,7 +137,7 @@ export const dealTrpcRouter = t.router({
       try {
         return {
           status: 'success',
-          data: await editDeal({ models, _id: itemId, doc, processId, user }),
+          data: await editDeal({ models, subdomain, _id: itemId, doc, processId, user }),
         };
       } catch (e) {
         return {
@@ -231,13 +231,14 @@ export const dealTrpcRouter = t.router({
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { filter, userId } = input;
-        const { models } = ctx;
-        return await generateFilter(models, userId, filter);
+        const { models, subdomain } = ctx;
+        return await generateFilter(models, subdomain, userId, filter);
       }),
   },
 });
 
 export const fetchSegment = async (
+  subdomain: string,
   segmentId: string,
   options?,
   segmentData?: any,

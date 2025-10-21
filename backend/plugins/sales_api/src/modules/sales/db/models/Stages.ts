@@ -15,7 +15,7 @@ export interface IStageModel extends Model<IStageDocument> {
   checkCodeDuplication(code: string): string;
 }
 
-export const loadStageClass = (models: IModels) => {
+export const loadStageClass = (models: IModels, subdomain: string) => {
   class Stage {
     /*
      * Get a stage

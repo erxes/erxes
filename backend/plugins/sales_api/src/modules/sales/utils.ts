@@ -416,6 +416,7 @@ export const archivedItemsCount = async (
 
 export const checkItemPermByUser = async (
   models: IModels,
+  subdomain: string,
   user: any,
   deal: IDeal,
 ) => {
@@ -497,6 +498,7 @@ export const checkItemPermByUser = async (
 
 export const getItemList = async (
   models: IModels,
+  subdomain: string,
   filter: any,
   args: IDealQueryParams,
   user: IUserDocument,
@@ -911,6 +913,7 @@ export const checkMovePermission = (
 
 export const getAmountsMap = async (
   models,
+  subdomain,
   collection,
   user,
   args,
@@ -918,7 +921,7 @@ export const getAmountsMap = async (
   tickUsed = true,
 ) => {
   const amountsMap = {};
-  const filter = await generateFilter(models, user._id, {
+  const filter = await generateFilter(models, subdomain, user._id, {
     ...args,
     ...args.extraParams,
     stageId: stage._id,
@@ -974,6 +977,7 @@ interface IConformityCreate extends IMainType {
 }
 
 export const getCompanyIds = async (
+  subdomain: string,
   mainType: string,
   mainTypeId: string,
 ): Promise<string[]> => {
@@ -993,6 +997,7 @@ export const getCompanyIds = async (
 };
 
 export const getCustomerIds = async (
+  subdomain: string,
   mainType: string,
   mainTypeId: string,
 ): Promise<string[]> => {
@@ -1012,6 +1017,7 @@ export const getCustomerIds = async (
 };
 
 export const createConformity = async ({
+  subdomain,
   companyIds,
   customerIds,
   mainType,

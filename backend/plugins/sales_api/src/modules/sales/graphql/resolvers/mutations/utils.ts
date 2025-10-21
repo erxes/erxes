@@ -20,10 +20,12 @@ import {
 
 export const addDeal = async ({
   models,
+  subdomain,
   doc,
   user,
 }: {
   models: IModels;
+  subdomain: string;
   doc: IDeal & { processId: string; aboveItemId: string };
   user: IUserDocument;
 }) => {
@@ -62,6 +64,7 @@ export const addDeal = async ({
   const stage = await models.Stages.getStage(deal.stageId);
 
   await createConformity({
+    subdomain,
     mainType: 'deal',
     mainTypeId: deal._id,
     companyIds: doc.companyIds,
@@ -90,11 +93,13 @@ export const addDeal = async ({
 export const editDeal = async ({
   user,
   models,
+  subdomain,
   _id,
   processId,
   doc,
 }: {
   models: IModels;
+  subdomain: string;
   _id: string;
   doc: IDeal;
   processId: string;
@@ -159,7 +164,7 @@ export const editDeal = async ({
   if (
     doc.status === 'archived' &&
     oldDeal.status === 'active' &&
-    !(await can('dealsArchive', user))
+    !(await can(subdomain, 'dealsArchive', user))
   ) {
     throw new Error('Permission denied');
   }
