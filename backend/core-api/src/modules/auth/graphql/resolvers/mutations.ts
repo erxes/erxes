@@ -208,7 +208,7 @@ export const authMutations = {
 
     const token = await jwt.sign(
       {
-        user: models.Users.getTokenFields(user),
+        user: await models.Users.getTokenFields(user),
         subdomain,
         redirectUri: getCallbackRedirectUrl(subdomain, 'ml-callback'),
       },
