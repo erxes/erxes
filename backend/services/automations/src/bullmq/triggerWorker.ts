@@ -1,5 +1,5 @@
 import type { Job } from 'bullmq';
-import { IJobData } from '@/bullmq';
+import { IJobData } from '@/bullmq/initMQWorkers';
 import { generateModels } from '@/connectionResolver';
 import { debugError, debugInfo } from '@/debuuger';
 import { checkIsWaitingAction } from '@/executions/checkIsWaitingActionTarget';

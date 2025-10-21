@@ -20,8 +20,8 @@ import rateLimit from 'express-rate-limit';
 import * as path from 'path';
 import { generateModels } from './connectionResolvers';
 import meta from './meta';
-import './meta/automations';
-import './segments';
+import { initAutomation } from './meta/automations';
+import { initSegmentCoreProducers } from './segments';
 
 dotenv.config();
 
@@ -110,6 +110,8 @@ httpServer.listen(port, async () => {
     hasSubscriptions: true,
     meta,
   });
+  await initAutomation(app);
+  await initSegmentCoreProducers(app);
 });
 
 // GRACEFULL SHUTDOWN

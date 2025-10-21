@@ -1,8 +1,7 @@
-import { UseFormReturn } from 'react-hook-form';
-import { segmentFormSchema } from '../states/segmentFormSchema';
 import { z } from 'zod';
+import { segmentFormSchema } from '../states/segmentFormSchema';
 
-export type SegmentFormProps = z.infer<typeof segmentFormSchema>;
+export type TSegmentForm = z.infer<typeof segmentFormSchema>;
 export interface ListQueryResponse {
   segments: ISegment[];
 }
@@ -37,8 +36,6 @@ export interface ICondition {
 
   config?: any;
 }
-
-export interface IConditionDocument extends ICondition, Document {}
 
 export interface ISegment {
   _id: string;
@@ -77,6 +74,7 @@ export type IField = {
     labelField: string;
     multi?: boolean;
   };
+  groupDetail?: any;
 };
 
 export type FieldQueryResponse = {
@@ -91,29 +89,24 @@ export type IFormFieldName =
 export type IProperty = {
   index: number;
   condition: ICondition;
-  contentType: string;
   remove: () => void;
   isFirst: boolean;
   isLast: boolean;
   total: number;
   parentFieldName?: `conditionSegments.${number}`;
-  form: UseFormReturn<SegmentFormProps>;
 };
 
 export type IPropertyField = {
   index: number;
-  form: UseFormReturn<SegmentFormProps>;
   fields: IField[];
   currentField?: IField;
   parentFieldName: IFormFieldName;
   defaultValue?: any;
   propertyTypes: any[];
-  contentType: string;
 };
 
 export type IPropertyCondtion = {
   index: number;
-  form: UseFormReturn<SegmentFormProps>;
   currentField?: IField;
   operators: IOperator[];
   parentFieldName: IFormFieldName;
@@ -122,7 +115,6 @@ export type IPropertyCondtion = {
 
 export type IPropertyInput = {
   index: number;
-  form: UseFormReturn<SegmentFormProps>;
   parentFieldName: IFormFieldName;
   defaultValue?: any;
   operators: IOperator[];

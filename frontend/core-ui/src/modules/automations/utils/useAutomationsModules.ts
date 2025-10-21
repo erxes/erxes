@@ -3,6 +3,7 @@ import { useAtom } from 'jotai';
 
 export const useAutomationsRemoteModules = (pluginName: string) => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
+
   if (!pluginsMetaData) {
     return { isEnabled: false };
   }
@@ -12,11 +13,12 @@ export const useAutomationsRemoteModules = (pluginName: string) => {
   const result = plugins
     .filter(({ name }) => name === pluginName)
     .flatMap((plugin) =>
-      (plugin.modules || []).map((module) => ({
-        ...module,
-        pluginName: plugin.name,
-      })),
+      (plugin.modules || [])
+        // .filter((module) => module.name === moduleName && module.hasAutomation)
+        .map((module) => ({
+          ...module,
+          pluginName: plugin.name,
+        })),
     );
-
   return { isEnabled: !!result?.length };
 };

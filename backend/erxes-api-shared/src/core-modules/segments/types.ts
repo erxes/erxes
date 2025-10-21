@@ -41,3 +41,10 @@ export interface IDependentService {
   twoWay?: boolean;
   associated?: boolean;
 }
+
+export enum TSegmentProducers {
+  PROPERTY_CONDITION_EXTENDER = 'propertyConditionExtender',
+  ASSOCIATION_FILTER = 'associationFilter',
+  INITIAL_SELECTOR = 'initialSelector',
+  ES_TYPES_MAP = 'esTypesMap',
+}

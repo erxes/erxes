@@ -3,7 +3,7 @@ import { IModels } from '@/connectionResolver';
 import { debugError } from '@/debuuger';
 import { executeActions } from '@/executions/executeActions';
 import { IAutomationWaitingActionDocument } from '@/mongo/waitingActionsToExecute';
-import { getActionsMap } from '@/utils/utils';
+import { getActionsMap } from '@/utils';
 
 export const executeWaitingAction = async (
   subdomain: string,

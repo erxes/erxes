@@ -1,5 +1,5 @@
 import { Input } from 'erxes-ui';
-import { Attributes } from 'ui-modules/modules/automations/components/Attributes';
+import { Attributes } from 'ui-modules/modules/automations/components/attributes/Attributes';
 import { IField } from 'ui-modules/modules/segments';
 
 type Props = {
@@ -11,6 +11,7 @@ type Props = {
   fieldType?: string;
   onlySet?: boolean;
   ref?: any;
+  additionalAttributes?: any[];
 };
 
 export const PlaceHolderInput = ({
@@ -22,9 +23,10 @@ export const PlaceHolderInput = ({
   isDisabled,
   fieldType,
   selectedField,
+  additionalAttributes,
 }: Props) => {
   return (
-    <div className="flex flex-row items-end gap-2">
+    <div className="flex flex-row gap-2">
       <Input
         value={value}
         placeholder="Value"
@@ -39,6 +41,7 @@ export const PlaceHolderInput = ({
         value={value}
         onSelect={onChange}
         isForSelectField={fieldType === 'select'}
+        customAttributions={additionalAttributes}
       />
     </div>
   );

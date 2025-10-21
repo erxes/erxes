@@ -1,7 +1,7 @@
 import { IModels } from '@/connectionResolver';
 import { calculateExecution } from '@/executions/calculateExecutions';
 import { executeActions } from '@/executions/executeActions';
-import { getActionsMap } from '@/utils/utils';
+import { getActionsMap } from '@/utils';
 
 export const receiveTrigger = async ({
   models,
@@ -16,14 +16,9 @@ export const receiveTrigger = async ({
 }) => {
   const automations = await models.Automations.find({
     status: 'active',
-    $or: [
-      {
-        'triggers.type': { $in: [type] },
-      },
-      {
-        'triggers.type': { $regex: `^${type}\\..*` },
-      },
-    ],
+    'triggers.type': {
+      $in: [type, new RegExp(`^${type}\\..*`)],
+    },
   }).lean();
 
   if (!automations.length) {
@@ -36,10 +31,6 @@ export const receiveTrigger = async ({
         if (!trigger.type.includes(type)) {
           continue;
         }
-
-        // if (isWaitingDateConfig(trigger?.config?.dateConfig)) {
-        //   continue;
-        // }
 
         const execution = await calculateExecution({
           models,

@@ -12,17 +12,15 @@ export const AutomationBotsRecordTable = () => {
       <RecordTable.Provider
         columns={automationFacebookBotsColumns}
         data={facebookMessengerBots || []}
+        className="h-full"
       >
-        <RecordTable.Scroll>
-          <RecordTable className="w-full">
-            <RecordTable.Header />
-            <RecordTable.Body>
-              {loading && <RecordTable.RowSkeleton rows={10} />}
-
-              <RecordTable.RowList />
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.Scroll>
+        <RecordTable className="w-full">
+          <RecordTable.Header />
+          <RecordTable.Body>
+            <RecordTable.RowList />
+            {loading && <RecordTable.RowSkeleton rows={10} />}
+          </RecordTable.Body>
+        </RecordTable>
       </RecordTable.Provider>
     </>
   );

@@ -21,7 +21,7 @@ import * as path from 'path';
 import {
   SegmentConfigs,
   startAutomations,
-  startSegments,
+  initSegmentProducers,
 } from '../core-modules';
 import { AutomationConfigs } from '../core-modules/automations/types';
 import { generateApolloContext } from './apollo';
@@ -288,15 +288,15 @@ export async function startPlugin(
     } = configs.meta || {};
 
     if (automations) {
-      await startAutomations(configs.name, automations);
+      await startAutomations(app, configs.name, automations);
     }
 
     if (segments) {
-      await startSegments(configs.name, segments);
+      await initSegmentProducers(app, configs.name, segments);
     }
 
     if (afterProcess) {
-      await startAfterProcess(configs.name, afterProcess);
+      await startAfterProcess(app, configs.name, afterProcess);
     }
 
     if (notificationModules) {

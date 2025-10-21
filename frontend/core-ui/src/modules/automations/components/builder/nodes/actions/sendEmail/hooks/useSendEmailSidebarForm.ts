@@ -1,20 +1,22 @@
-import { getContentType } from '@/automations/utils/automationBuilderUtils';
-import { TAutomationBuilderForm } from '@/automations/utils/AutomationFormDefinitions';
+import { TAutomationActionConfigFieldPrefix } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
+import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
+import { AutomationNodesType } from '@/automations/types';
+import { findTriggerForAction } from '@/automations/utils/automationBuilderUtils/triggerUtils';
+import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
+import { KeyboardEvent } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
-type TSendEmailConfigFieldName = `actions.${number}.config`;
-
 export const useSendEmailSidebarForm = (currentActionIndex: number) => {
-  const configFieldName: TSendEmailConfigFieldName = `actions.${currentActionIndex}.config`;
+  const configFieldNamePrefix: TAutomationActionConfigFieldPrefix = `${AutomationNodesType.Actions}.${currentActionIndex}.config`;
 
   const { control } = useFormContext<TAutomationBuilderForm>();
   const [triggers = [], actions = [], config = {}] =
     useWatch<TAutomationBuilderForm>({
       control,
-      name: ['triggers', 'actions', `${configFieldName}`],
+      name: ['triggers', 'actions', `${configFieldNamePrefix}`],
     });
 
-  const contentType = getContentType(
+  const contentType = findTriggerForAction(
     actions[currentActionIndex].id,
     actions,
     triggers,
@@ -24,18 +26,22 @@ export const useSendEmailSidebarForm = (currentActionIndex: number) => {
 };
 
 export const useSendEmailCustomMailField = (currentActionIndex: number) => {
-  const configFieldName: TSendEmailConfigFieldName = `actions.${currentActionIndex}.config`;
-  const { control, setValue } = useFormContext<TAutomationBuilderForm>();
-  const config = useWatch({ control, name: configFieldName });
+  const configFieldNamePrefix: TAutomationActionConfigFieldPrefix = `${AutomationNodesType.Actions}.${currentActionIndex}.config`;
+  const { control } = useFormContext<TAutomationBuilderForm>();
+  const { setAutomationBuilderFormValue } = useAutomationFormController();
+  const config = useWatch({ control, name: configFieldNamePrefix });
 
   const removeMail = (mail: string) => {
-    setValue(
-      `${configFieldName}.customMails`,
+    setAutomationBuilderFormValue(
+      `${configFieldNamePrefix}.customMails`,
       (config?.customMails || []).filter((value: string) => value !== mail),
     );
   };
 
-  const onChange = (e: any, onChange: (...props: any[]) => void) => {
+  const onChange = (
+    e: KeyboardEvent<HTMLInputElement>,
+    onChange: (...props: any[]) => void,
+  ) => {
     const { value } = e.currentTarget;
     if (
       e.key === 'Enter' &&

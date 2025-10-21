@@ -1,6 +1,10 @@
-import { IAction, ITrigger, IAutomationExecution } from './definitions';
+import {
+  IAutomationAction,
+  IAutomationTrigger,
+  IAutomationExecution,
+} from './definitions';
 
-type IContext = {
+export type IAutomationContext = {
   subdomain: string;
   processId?: string;
 };
@@ -55,13 +59,13 @@ export type AutomationConstants = IAutomationTriggersActionsConfig & {
 
 export interface AutomationWorkers {
   receiveActions?: (
-    context: IContext,
+    context: IAutomationContext,
     args: {
       moduleName: string;
       collectionType: string;
       actionType: string;
       triggerType: string;
-      action: IAction;
+      action: IAutomationAction;
       execution: { _id: string } & IAutomationExecution;
     },
   ) => Promise<{
@@ -75,15 +79,21 @@ export interface AutomationWorkers {
     };
   }>;
 
-  getRecipientsEmails?: (context: IContext, args: any) => Promise<any>;
-  replacePlaceHolders?: (context: IContext, args: any) => Promise<any>;
+  getRecipientsEmails?: (
+    context: IAutomationContext,
+    args: any,
+  ) => Promise<any>;
+  replacePlaceHolders?: (
+    context: IAutomationContext,
+    args: any,
+  ) => Promise<any>;
   checkCustomTrigger?: <TTarget = any, TConfig = any>(
-    context: IContext,
+    context: IAutomationContext,
     args: {
       moduleName: string;
       collectionType: string;
       automationId: string;
-      trigger: ITrigger;
+      trigger: IAutomationTrigger;
       target: TTarget;
       config: TConfig;
     },
@@ -142,23 +152,58 @@ export interface IPropertyProps<TModels> {
   relatedItems: any[];
   triggerType?: string;
 }
+export enum EXECUTE_WAIT_TYPES {
+  DELAY = 'delay',
+  IS_IN_SEGMENT = 'isInSegment',
+  CHECK_OBJECT = 'checkObject',
+  WEBHOOK = 'webhook',
+}
+
+export type TAutomationExecutionDelay = {
+  subdomain: string;
+  waitFor: number;
+  timeUnit: 'minute' | 'hour' | 'day' | 'month' | 'year';
+  startWaitingDate?: Date;
+};
+
+export type TAutomationExecutionCheckObject = {
+  contentType?: string;
+  shouldCheckOptionalConnect?: boolean;
+  targetId?: string;
+  expectedState: Record<string, any>;
+  propertyName: string;
+  expectedStateConjunction?: 'every' | 'some';
+  timeout?: Date;
+};
+
+export type TAutomationExecutionIsInSegment = {
+  targetId: string;
+  segmentId: string;
+};
+
+export type TAutomationExecutionWebhook = {
+  endpoint: string;
+  secret: string;
+  schema: any;
+};
 
 export type AutomationExecutionSetWaitCondition =
-  | {
-      type: 'delay';
-      subdomain: string;
-      waitFor: number;
-      timeUnit: 'minute' | 'hour' | 'day' | 'month' | 'year';
-      startWaitingDate?: Date;
-    }
-  | {
-      type: 'checkObject';
-      contentType?: string;
-      shouldCheckOptionalConnect?: boolean;
-      targetId?: string;
-      expectedState: Record<string, any>;
-      propertyName: string;
-      expectedStateConjunction?: 'every' | 'some';
-      timeout?: Date;
-    }
-  | { type: 'isInSegment'; targetId: string; segmentId: string };
+  | ({
+      type: EXECUTE_WAIT_TYPES.DELAY;
+    } & TAutomationExecutionDelay)
+  | ({
+      type: EXECUTE_WAIT_TYPES.CHECK_OBJECT;
+    } & TAutomationExecutionCheckObject)
+  | ({
+      type: EXECUTE_WAIT_TYPES.IS_IN_SEGMENT;
+    } & TAutomationExecutionIsInSegment)
+  | ({
+      type: EXECUTE_WAIT_TYPES.WEBHOOK;
+    } & TAutomationExecutionWebhook);
+
+export enum TAutomationProducers {
+  RECEIVE_ACTIONS = 'receiveActions',
+  GET_RECIPIENTS_EMAILS = 'getRecipientsEmails',
+  REPLACE_PLACEHOLDERS = 'replacePlaceHolders',
+  CHECK_CUSTOM_TRIGGER = 'checkCustomTrigger',
+}

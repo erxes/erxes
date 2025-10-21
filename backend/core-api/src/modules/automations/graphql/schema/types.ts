@@ -21,6 +21,15 @@ const commonActionTypes = `
   nextActionId: String
 `;
 
+const workflowTypes = `
+  id:String
+  automationId:String
+  name:String
+  description:String
+  config:JSON
+  position:JSON
+`;
+
 const types = `
   type Trigger {
     ${commonTriggerTypes}
@@ -30,6 +39,10 @@ const types = `
 
   type Action {
     ${commonActionTypes}
+  }
+
+  type Workflow {
+    ${workflowTypes}
   }
 
   type Automation {
@@ -43,6 +56,7 @@ const types = `
     tagIds:[String]
     triggers: [Trigger]
     actions: [Action]
+    workflows: [Workflow]
 
     createdUser: User
     updatedUser: User
@@ -99,6 +113,24 @@ const types = `
 
   input ActionInput {
     ${commonActionTypes}
+  }
+
+  input WorkflowInput {
+    ${workflowTypes}
+  }
+
+  type TrainingProgress {
+    agentId: String!
+    totalFiles: Int!
+    processedFiles: Int!
+    status: String!
+    error: String
+  }
+
+  type AiAgentMessage {
+    message: String!
+    relevantFile: String
+    similarity: Float
   }
 `;
 

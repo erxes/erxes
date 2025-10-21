@@ -45,6 +45,7 @@ export const segmentFormSchema = z.object({
   name: z.string(),
   subOf: z.string().optional(),
   description: z.string().optional(),
+  color: z.string().optional(),
   config: z.record(z.any()),
   conditionSegments: z
     .array(

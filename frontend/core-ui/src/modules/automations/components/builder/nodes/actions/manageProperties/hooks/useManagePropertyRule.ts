@@ -1,52 +1,44 @@
+import { TManagePropertiesForm } from '@/automations/components/builder/nodes/actions/manageProperties/states/managePropertiesForm';
 import { PROPERTY_OPERATOR } from '@/automations/constants';
-import {
-  IManagePropertyField,
-  IManagePropertyFieldName,
-  IManagePropertyRule,
-  OperatorType,
-} from '../types/ManagePropertyTypes';
-import { UseFormSetValue } from 'react-hook-form';
-import { TAutomationBuilderForm } from '@/automations/utils/AutomationFormDefinitions';
+import { useFieldArray, useFormContext } from 'react-hook-form';
+import { getFieldsProperties, groupFieldsByType } from 'ui-modules';
 
-function capitalizeFirstLetter(string: string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
+export const useManagePropertyRule = ({
+  propertyType,
+  index,
+  rule,
+}: {
+  propertyType: string;
+  index: number;
+  rule: TManagePropertiesForm['rules'][number];
+}) => {
+  const { control } = useFormContext<TManagePropertiesForm>();
+  const { fields = [] } = getFieldsProperties(propertyType);
+  const { remove } = useFieldArray({
+    control,
+    name: 'rules',
+  });
+  const groups = groupFieldsByType(fields || []);
 
-export const useManagePropertyRule = (
-  rules: IManagePropertyRule[],
-  index: number,
-  fieldName: IManagePropertyFieldName,
-  setValue: UseFormSetValue<TAutomationBuilderForm>,
-  fields: IManagePropertyField[],
-  rule: IManagePropertyRule,
-) => {
-  const handleChange = (name: string, value: any) => {
-    const updatedRules = [...rules];
-    updatedRules[index] = { ...updatedRules[index], [name]: value };
-    setValue(`${fieldName}.rules` as any, updatedRules);
-  };
+  const handleRemove = () => remove(index);
 
-  const selectedField = fields.find((field) => field.name === rule.field);
-
-  const handleRemove = () => {
-    setValue(
-      `${fieldName}.rules` as any,
-      rules.filter((_, ruleIndex) => index !== ruleIndex),
-    );
-  };
+  const selectedField = fields.find((f) => f.name === rule.field);
 
   const operatorType = selectedField?.name?.includes('customFieldsData')
-    ? capitalizeFirstLetter(selectedField?.validation || 'String')
-    : selectedField?.type || '';
+    ? (selectedField?.validation as string) || 'String'
+    : (selectedField?.type as string) || 'Default';
 
   const operators =
-    PROPERTY_OPERATOR[operatorType as OperatorType] ||
-    PROPERTY_OPERATOR.Default;
+    PROPERTY_OPERATOR[
+      (operatorType as unknown as keyof typeof PROPERTY_OPERATOR) || 'Default'
+    ] || PROPERTY_OPERATOR.Default;
 
   return {
-    handleRemove,
+    control,
     operators,
-    handleChange,
+    operatorType,
     selectedField,
+    groups,
+    handleRemove,
   };
 };

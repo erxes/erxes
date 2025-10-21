@@ -56,8 +56,6 @@ export const useFacebookBotSave = () => {
  */
 
 export const useFacebookBotForm = (facebookBotId: string | null) => {
-  const atomAccountId = useAtomValue(selectedFacebookAccountAtom);
-  const atomPageId = useAtomValue(selectedFacebookPageAtom);
   const { data, loading: loadingDetail } =
     useQuery<FacebookBotDetailQueryResponse>(FACEBOOK_BOT_DETAIL, {
       variables: { _id: facebookBotId },
@@ -87,7 +85,5 @@ export const useFacebookBotForm = (facebookBotId: string | null) => {
     loadingDetail,
 
     formDefaultValues,
-    atomAccountId,
-    atomPageId,
   };
 };

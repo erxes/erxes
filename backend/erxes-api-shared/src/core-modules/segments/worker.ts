@@ -1,51 +1,70 @@
-import {
-  createMQWorkerWithListeners,
-  initializePluginConfig,
-  keyForConfig,
-  redis,
-} from '../../utils';
-import { SegmentConfigs } from './types';
+import { initializePluginConfig, createTRPCContext } from '../../utils';
+import { SegmentConfigs, TSegmentProducers } from './types';
+import { Express } from 'express';
+import * as trpcExpress from '@trpc/server/adapters/express';
+import { initTRPC } from '@trpc/server';
+import { nanoid } from 'nanoid';
+import { z } from 'zod';
 
-export const startSegments = (pluginName: string, config: SegmentConfigs) => {
-  return new Promise<void>((resolve, reject) => {
-    try {
-      createMQWorkerWithListeners(
-        pluginName,
-        'segments',
-        async ({ name, id, data: jobData }) => {
-          try {
-            const { subdomain, data } = jobData;
+export const initSegmentProducers = async (
+  app: Express,
+  pluginName: string,
+  config: SegmentConfigs,
+) => {
+  await initializePluginConfig(pluginName, 'segments', config);
 
-            if (!subdomain) {
-              throw new Error('You should provide subdomain on message');
-            }
+  const t = initTRPC
+    .context<{ subdomain: string; processId: string }>()
+    .create();
 
-            const resolverName = name as keyof SegmentConfigs;
+  const {
+    propertyConditionExtender,
+    associationFilter,
+    initialSelector,
+    esTypesMap,
+  } = config || {};
 
-            if (
-              !(name in config) ||
-              typeof config[resolverName] !== 'function'
-            ) {
-              throw new Error(`Segments method ${name} not registered`);
-            }
+  const routes: Record<
+    string,
+    ReturnType<typeof t.procedure.query | typeof t.procedure.mutation>
+  > = {};
 
-            const resolver = config[resolverName];
-
-            return await resolver({ subdomain }, data);
-          } catch (error: any) {
-            console.error(`Error processing job ${id}: ${error.message}`);
-            throw error;
-          }
-        },
-        redis,
-        async () => {
-          await initializePluginConfig(pluginName, 'segments', config);
-
-          resolve();
-        },
+  if (propertyConditionExtender) {
+    routes[TSegmentProducers.PROPERTY_CONDITION_EXTENDER] = t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) =>
+        propertyConditionExtender(ctx, input),
       );
-    } catch (error) {
-      reject(error);
-    }
+  }
+
+  if (associationFilter) {
+    routes[TSegmentProducers.ASSOCIATION_FILTER] = t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => associationFilter(ctx, input));
+  }
+
+  if (initialSelector) {
+    routes[TSegmentProducers.INITIAL_SELECTOR] = t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => initialSelector(ctx, input));
+  }
+
+  if (esTypesMap) {
+    routes[TSegmentProducers.ES_TYPES_MAP] = t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => esTypesMap(ctx, input));
+  }
+
+  const segmentsRouter = t.router(routes);
+
+  const trpcMiddleware = trpcExpress.createExpressMiddleware({
+    router: segmentsRouter,
+    createContext: createTRPCContext(async (_subdomain, context) => {
+      const processId = nanoid(12);
+      context.processId = processId;
+      return context;
+    }),
   });
+
+  app.use('/segments', trpcMiddleware);
 };

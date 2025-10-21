@@ -1,19 +1,12 @@
+import { TAfterProcessProducers } from 'erxes-api-shared/core-modules';
 import {
   getPlugin,
   getPlugins,
   IAfterProcessRule,
-  sendWorkerMessage,
+  sendCoreModuleProducer,
   TAfterProcessRule,
 } from 'erxes-api-shared/utils';
 import { AfterProcessProps } from '~/types';
-
-interface WorkerMessage {
-  pluginName: string;
-  queueName: string;
-  jobName: string;
-  subdomain: string;
-  data: any;
-}
 
 type ProcessHandlerProps = {
   subdomain: string;
@@ -40,18 +33,6 @@ function getAllKeys(obj, prefix = '') {
   return keys;
 }
 
-const sendProcessMessage = async (message: WorkerMessage): Promise<void> => {
-  try {
-    sendWorkerMessage(message);
-  } catch (error) {
-    console.error(
-      `Failed to send worker message: ${
-        error instanceof Error ? error.message : 'Unknown error'
-      }`,
-    );
-  }
-};
-
 const handleAfterMutation = ({
   subdomain,
   pluginName,
@@ -62,12 +43,11 @@ const handleAfterMutation = ({
   const { mutationName } = payload || {};
 
   if (mutationNames.includes(mutationName)) {
-    sendProcessMessage({
+    sendCoreModuleProducer({
       pluginName,
-      queueName: 'afterProcess',
-      jobName: 'onAfterMutation',
-      subdomain,
-      data: payload,
+      moduleName: 'afterProcess',
+      producerName: TAfterProcessProducers.AFTER_MUTATION,
+      input: payload,
     });
   }
 };
@@ -99,12 +79,11 @@ const handleUpdatedDocument = ({
     }
 
     if (shouldSend) {
-      sendProcessMessage({
+      sendCoreModuleProducer({
         pluginName,
-        queueName: 'afterProcess',
-        jobName: 'onDocumentUpdated',
-        subdomain,
-        data: { ...payload, contentType },
+        moduleName: 'afterProcess',
+        producerName: TAfterProcessProducers.AFTER_DOCUMENT_UPDATED,
+        input: { ...payload, contentType },
       });
     }
   }
@@ -130,12 +109,11 @@ const handleCreateDocument = ({
     }
 
     if (shouldSend) {
-      sendProcessMessage({
+      sendCoreModuleProducer({
         pluginName,
-        queueName: 'afterProcess',
-        jobName: 'onDocumentCreated',
-        subdomain,
-        data: { ...payload, contentType },
+        moduleName: 'afterProcess',
+        producerName: TAfterProcessProducers.AFTER_DOCUMENT_CREATED,
+        input: { ...payload, contentType },
       });
     }
   }
@@ -150,12 +128,11 @@ const handleAfterAPIRequest = ({
   const { paths = [] } = rule as TAfterProcessRule['AfterAPIRequest'];
   const { path } = payload || {};
   if (paths.includes(path)) {
-    sendProcessMessage({
+    sendCoreModuleProducer({
       pluginName,
-      queueName: 'afterProcess',
-      jobName: 'onAfterApiRequest',
-      subdomain,
-      data: payload,
+      moduleName: 'afterProcess',
+      producerName: TAfterProcessProducers.AFTER_API_REQUEST,
+      input: payload,
     });
   }
 };
@@ -170,12 +147,11 @@ const handleAfterAuth = ({
   const { types = [] } = rule as TAfterProcessRule['AfterAuth'];
 
   if (types.includes(action)) {
-    sendProcessMessage({
+    sendCoreModuleProducer({
       pluginName,
-      queueName: 'afterProcess',
-      jobName: 'onAfterAuth',
-      subdomain,
-      data: {
+      moduleName: 'afterProcess',
+      producerName: TAfterProcessProducers.AFTER_AUTH,
+      input: {
         processId: payload.processId,
         userId: payload.userId,
         email: payload.email,

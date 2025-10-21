@@ -1,12 +1,13 @@
 import moment from 'moment';
+import { pluralFormation, sendCoreModuleProducer } from '../../utils';
+import { sendTRPCMessage } from '../../utils/trpc';
 import { AUTOMATION_PROPERTY_OPERATORS, STATIC_PLACEHOLDER } from './constants';
-import { pluralFormation, sendWorkerMessage } from '../../utils';
 import {
   IPerValueProps,
   IPropertyProps,
   IReplacePlaceholdersProps,
+  TAutomationProducers,
 } from './types';
-import { sendTRPCMessage } from '../../utils/trpc';
 
 export const splitType = (type: string) => {
   return type.replace(/\./g, ':').split(':');
@@ -182,16 +183,16 @@ const getPerValue = async <TModels>({
 
     value =
       (
-        await sendWorkerMessage({
+        await sendCoreModuleProducer({
+          moduleName: 'automations',
           pluginName: relatedPluginName,
-          queueName: 'automations',
-          jobName: 'replacePlaceHolders',
-          subdomain,
-          data: {
+          producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
+          input: {
             execution,
             target,
             config: { value },
           },
+          defaultValue: value,
         })
       )?.value || value;
   }

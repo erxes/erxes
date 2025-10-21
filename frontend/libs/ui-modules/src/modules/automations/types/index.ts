@@ -1,9 +1,9 @@
 import React from 'react';
 
-export type IActionProps = {
+export type TAutomationActionProps<TConfig = any> = {
   currentActionIndex: number;
-  currentAction: IAction;
-  handleSave: (config: any) => void;
+  currentAction: TAutomationAction<TConfig>;
+  handleSave: (config: TConfig) => void;
 };
 
 type WorkflowConnection = {
@@ -11,7 +11,7 @@ type WorkflowConnection = {
   targetId: string;
 };
 
-export type OptionalConnect = {
+export type TAutomationOptionalConnect = {
   sourceId: string;
   actionId: string;
   optionalConnectId: string;
@@ -19,11 +19,11 @@ export type OptionalConnect = {
 
 type IConfig = {
   workflowConnection?: WorkflowConnection;
-  optionalConnect?: OptionalConnect[];
+  optionalConnect?: TAutomationOptionalConnect[];
   [key: string]: any;
 };
 
-export type IAction<TConfig = any> = {
+export type TAutomationAction<TConfig = any> = {
   id: string;
   type: string;
   icon?: string;
@@ -32,7 +32,7 @@ export type IAction<TConfig = any> = {
   nextActionId?: string;
   isAvailable?: boolean;
   style?: any;
-  config: TConfig & IConfig;
+  config?: TConfig & IConfig;
   position?: any;
   isAvailableOptionalConnect?: boolean;
   workflowId?: string;
@@ -41,7 +41,7 @@ export type IAction<TConfig = any> = {
   count?: number;
 };
 
-export type ITrigger<TConfig = any> = {
+export type TAutomationTrigger<TConfig = any> = {
   id: string;
   type: string;
   icon?: string;
@@ -56,6 +56,15 @@ export type ITrigger<TConfig = any> = {
   workflowId?: string;
 
   count?: number;
+};
+
+export type TAutomationWorkflowNode = {
+  id: string;
+  name: string;
+  description: string;
+  config: any;
+  automationId: string;
+  position?: any;
 };
 
 export interface IAutomationHistoryAction {
@@ -96,7 +105,7 @@ export type AutomationTriggerFormProps<TConfig = any> =
       submit: () => void;
     }>;
     componentType: 'triggerForm';
-    activeTrigger: ITrigger<TConfig>;
+    activeTrigger: TAutomationTrigger<TConfig>;
     onSaveTriggerConfig: (config: TConfig) => void;
   };
 
@@ -106,7 +115,7 @@ export type AutomationActionFormProps<TConfig = any> =
       submit: () => void;
     }>;
     componentType: 'actionForm';
-    currentAction: IAction<TConfig>;
+    currentAction: TAutomationAction<TConfig>;
     onSaveActionConfig: (config: TConfig) => void;
   };
 
@@ -121,12 +130,9 @@ export type AutomationActionNodeConfigProps<
   TTriggerConfig = any,
 > = BaseAutomationRemoteProps & {
   componentType: 'actionNodeConfiguration';
-  currentAction?: any;
+  actionData: TAutomationAction<TActionConfig>;
   config?: TActionConfig;
-  trigger?: ITrigger<TTriggerConfig>;
-  OptionConnectHandle?:
-    | (({ optionalId }: { optionalId: string }) => React.ReactNode)
-    | null;
+  trigger?: TAutomationTrigger<TTriggerConfig>;
 };
 
 export type AutomationExecutionHistoryNameProps<TTarget = any> = {
@@ -141,6 +147,12 @@ export type AutomationExecutionActionResultProps = {
   result: IAutomationHistoryAction['result'];
 };
 
+export type AutomationCustomWaitEventFormProps<TConfig = any> = {
+  componentType: 'waitEvent';
+  config: TConfig;
+  actionData: TAutomationAction;
+};
+
 export type AutomationRemoteEntryProps =
   | AutomationTriggerFormProps
   | AutomationActionFormProps
@@ -148,6 +160,7 @@ export type AutomationRemoteEntryProps =
   | AutomationActionNodeConfigProps
   | AutomationExecutionHistoryNameProps
   | AutomationExecutionActionResultProps
+  | AutomationCustomWaitEventFormProps
   | { componentType: 'automationBotsContent' };
 
 export type AutomationRemoteEntryTypes = {
@@ -174,6 +187,12 @@ export type IAutomationsTriggerConfigConstants = {
   }[];
 };
 
+export type IAutomationsActionFolkConfig = {
+  key: string;
+  label: string;
+  type: 'default' | 'success' | 'error';
+};
+
 export type IAutomationsActionConfigConstants = {
   type: string;
   icon: string;
@@ -182,4 +201,10 @@ export type IAutomationsActionConfigConstants = {
   isAvailableOptionalConnect?: boolean;
   emailRecipientsConst?: any;
   connectableActionTypes?: string[];
+  canBeTarget: boolean;
+  folks?: IAutomationsActionFolkConfig[];
 };
+
+export type IAutomationNodeConfigConstants =
+  | IAutomationsTriggerConfigConstants
+  | IAutomationsActionConfigConstants;

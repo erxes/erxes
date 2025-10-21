@@ -1,53 +1,76 @@
+import { initializePluginConfig } from '../../utils';
+import { createTRPCContext } from '../../utils/trpc';
 import {
-  createMQWorkerWithListeners,
-  initializePluginConfig,
-  redis
-} from '../../utils';
-import { AutomationConfigs } from './types';
+  AutomationConfigs,
+  IAutomationContext,
+  TAutomationProducers,
+} from './types';
+import { Express } from 'express';
+import * as trpcExpress from '@trpc/server/adapters/express';
+import { AnyProcedure, initTRPC } from '@trpc/server';
+import { z } from 'zod';
+import { nanoid } from 'nanoid';
 
 export const startAutomations = async (
+  app: Express,
   pluginName: string,
   config: AutomationConfigs,
 ) => {
   await initializePluginConfig(pluginName, 'automations', config);
+  const t = initTRPC.context<IAutomationContext>().create();
 
-  return new Promise<void>((resolve, reject) => {
-    try {
-      createMQWorkerWithListeners(
-        pluginName,
-        'automations',
-        async ({ name, id, data: jobData }) => {
-          try {
-            const { subdomain, data } = jobData;
+  const {
+    receiveActions,
+    getRecipientsEmails,
+    replacePlaceHolders,
+    checkCustomTrigger,
+  } = config || {};
 
-            if (!subdomain) {
-              throw new Error('You should provide subdomain on message');
-            }
+  const automationProcedures: Partial<
+    Record<TAutomationProducers, AnyProcedure>
+  > = {};
 
-            const resolverName = name as keyof AutomationConfigs;
+  if (receiveActions) {
+    automationProcedures[TAutomationProducers.RECEIVE_ACTIONS] = t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => receiveActions(ctx, input));
+  }
 
-            if (
-              !(name in config) ||
-              typeof config[resolverName] !== 'function'
-            ) {
-              throw new Error(`Automations method ${name} not registered`);
-            }
+  if (getRecipientsEmails) {
+    automationProcedures[TAutomationProducers.GET_RECIPIENTS_EMAILS] =
+      t.procedure
+        .input(z.any())
+        .mutation(async ({ ctx, input }) => getRecipientsEmails(ctx, input));
+  }
 
-            const resolver = config[resolverName];
+  if (replacePlaceHolders) {
+    automationProcedures[TAutomationProducers.REPLACE_PLACEHOLDERS] =
+      t.procedure
+        .input(z.any())
+        .mutation(async ({ ctx, input }) => replacePlaceHolders(ctx, input));
+  }
 
-            return await resolver({ subdomain }, data);
-          } catch (error: any) {
-            console.error(`Error processing job ${id}: ${error.message}`);
-            throw error;
-          }
-        },
-        redis,
-        () => {
-          resolve();
-        },
-      );
-    } catch (error) {
-      reject(error);
-    }
+  if (checkCustomTrigger) {
+    automationProcedures[TAutomationProducers.CHECK_CUSTOM_TRIGGER] =
+      t.procedure
+        .input(z.any())
+        .mutation(async ({ ctx, input }) => checkCustomTrigger(ctx, input));
+  }
+
+  const automationsRouter = t.router(automationProcedures);
+
+  const trpcMiddleware = trpcExpress.createExpressMiddleware({
+    router: automationsRouter,
+    createContext: createTRPCContext<IAutomationContext>(
+      async (_subdomain, context) => {
+        const processId = nanoid(12);
+
+        context.processId = processId;
+
+        return context;
+      },
+    ),
   });
+
+  app.use('/automations', trpcMiddleware);
 };

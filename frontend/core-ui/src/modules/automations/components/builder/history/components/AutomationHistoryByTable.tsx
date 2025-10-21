@@ -1,15 +1,16 @@
-import { coreActionNames } from '@/automations/components/builder/nodes/actions/CoreActions';
-import { SendEmail } from '@/automations/components/builder/nodes/actions/sendEmail/components/SendEmail';
-import { RenderPluginsComponentWrapper } from '@/automations/utils/RenderPluginsComponentWrapper';
+import { isCoreAutomationActionType } from '@/automations/components/builder/nodes/actions/coreAutomationActions';
+import { AutomationSendEmailActionResult } from '@/automations/components/builder/nodes/actions/sendEmail/components/SendEmailActionResult';
+import { useAutomation } from '@/automations/context/AutomationProvider';
+import { RenderPluginsComponentWrapper } from '@/automations/components/common/RenderPluginsComponentWrapper';
 import { format, isValid } from 'date-fns';
-import { isEnabled, RelativeDateDisplay, Table } from 'erxes-ui';
+import { RelativeDateDisplay, Table } from 'erxes-ui';
 import {
-  getAutomationTypes,
+  splitAutomationNodeType,
   IAutomationHistory,
   IAutomationHistoryAction,
-  IAutomationsActionConfigConstants,
-  IAutomationsTriggerConfigConstants,
 } from 'ui-modules';
+import { useAutomationsRemoteModules } from '@/automations/utils/useAutomationsModules';
+import { TAutomationActionComponent } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 
 export const ExecutionActionResult = ({
   action,
@@ -45,14 +46,18 @@ export const ExecutionActionResult = ({
   }
 
   if (action.actionType === 'sendEmail') {
-    return <SendEmail.ActionResult result={result} />;
+    return <AutomationSendEmailActionResult result={result} />;
   }
 
-  const isCoreAction = coreActionNames.includes(action?.actionType);
+  const isCoreAction = isCoreAutomationActionType(
+    action?.actionType,
+    TAutomationActionComponent.ActionResult,
+  );
 
-  const [pluginName, moduleName] = getAutomationTypes(action?.actionType);
+  const [pluginName, moduleName] = splitAutomationNodeType(action?.actionType);
+  const { isEnabled } = useAutomationsRemoteModules(pluginName);
 
-  if (!isCoreAction && isEnabled(pluginName) && moduleName) {
+  if (!isCoreAction && isEnabled) {
     return (
       <RenderPluginsComponentWrapper
         pluginName={pluginName}
@@ -70,16 +75,11 @@ export const ExecutionActionResult = ({
 };
 
 export const AutomationHistoryByTable = ({
-  constants,
   history,
 }: {
   history: IAutomationHistory;
-  constants: {
-    triggersConst: IAutomationsTriggerConfigConstants[];
-    actionsConst: IAutomationsActionConfigConstants[];
-  };
 }) => {
-  const { actionsConst } = constants;
+  const { actionsConst } = useAutomation();
   const { actions = [] } = history;
 
   return (

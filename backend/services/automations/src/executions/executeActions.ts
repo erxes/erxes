@@ -1,21 +1,22 @@
+import { executeCoreActions } from '@/executions/executeCoreActions';
+import { executeCreateAction } from '@/executions/actions/executeCreateAction';
+import { handleExecutionActionResponse } from '@/executions/handleExecutionActionResponse';
+import { handleExecutionError } from '@/executions/handleExecutionError';
 import {
+  AUTOMATION_CORE_ACTIONS,
   AUTOMATION_EXECUTION_STATUS,
-  IActionsMap,
+  IAutomationActionsMap,
   IAutomationExecAction,
   IAutomationExecutionDocument,
+  splitType,
 } from 'erxes-api-shared/core-modules';
-import { ACTIONS } from '@/constants';
-import { handleCreateAction } from '@/executions/handleCreateAction';
-import { handleifAction } from '@/executions/handleifCondition';
-import { handleSetPropertyAction } from '@/executions/handleSetProperty';
-import { handleWaitAction } from '@/executions/handleWait';
-import { handleEmail } from '@/utils/actions/email';
+import { getPlugins } from 'erxes-api-shared/utils';
 
 export const executeActions = async (
   subdomain: string,
   triggerType: string,
   execution: IAutomationExecutionDocument,
-  actionsMap: IActionsMap,
+  actionsMap: IAutomationActionsMap,
   currentActionId?: string,
 ): Promise<string | null | undefined> => {
   if (!currentActionId) {
@@ -43,70 +44,56 @@ export const executeActions = async (
   };
 
   let actionResponse: any = null;
+  const actionType = action.type;
 
   try {
-    if (action.type === ACTIONS.WAIT) {
-      await handleWaitAction(subdomain, execution, action, execAction);
-      return 'paused';
-    }
-
-    if (action.type === ACTIONS.IF) {
-      return handleifAction(
-        subdomain,
+    if (
+      Object.values(AUTOMATION_CORE_ACTIONS).find(
+        (value) => actionType === value,
+      )
+    ) {
+      const coreActionResponse = await executeCoreActions(
         triggerType,
+        actionType,
+        subdomain,
         execution,
         action,
         execAction,
         actionsMap,
       );
-    }
 
-    if (action.type === ACTIONS.SET_PROPERTY) {
-      actionResponse = await handleSetPropertyAction(
-        subdomain,
-        action,
-        triggerType,
-        execution,
-      );
-    }
+      if (coreActionResponse.shouldBreak) {
+        return;
+      }
+      actionResponse = coreActionResponse.actionResponse;
+    } else {
+      const [serviceName, _module, _collection, method] = splitType(actionType);
+      const isRemoteAction = (await getPlugins()).includes(serviceName);
 
-    if (action.type === ACTIONS.SEND_EMAIL) {
-      // try {
-      actionResponse = await handleEmail({
-        subdomain,
-        target: execution.target,
-        triggerType,
-        config: action.config,
-        execution,
-      });
-      // } catch (err) {
-      //   actionResponse = err.message;
-      // }
-    }
+      if (isRemoteAction) {
+        throw new Error('Plugin not enabled');
+      }
 
-    if (action.type.includes('create')) {
-      actionResponse = await handleCreateAction(
-        subdomain,
-        execution,
-        action,
-        actionsMap,
-      );
-      if (actionResponse === 'paused') {
-        return 'paused';
+      if (isRemoteAction) {
+        if (method === 'create') {
+          const createActionResponse = await executeCreateAction(
+            subdomain,
+            execution,
+            action,
+          );
+          if (createActionResponse.shouldBreak) {
+            return 'paused';
+          }
+          actionResponse = createActionResponse.actionResponse;
+        }
       }
     }
   } catch (e) {
-    execAction.result = { error: e.message, result: e.result };
-    execution.actions = [...(execution.actions || []), execAction];
-    execution.status = AUTOMATION_EXECUTION_STATUS.ERROR;
-    execution.description = `An error occurred while working action: ${action.type}`;
-    await execution.save();
+    await handleExecutionError(e, actionType, execution, execAction);
     return;
   }
 
-  execAction.result = actionResponse;
-  execution.actions = [...(execution.actions || []), execAction];
-  execution = await execution.save();
+  await handleExecutionActionResponse(actionResponse, execution, execAction);
 
   return executeActions(
     subdomain,

@@ -1,15 +1,10 @@
 import { cn } from 'erxes-ui';
-import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { useFieldArray } from 'react-hook-form';
+import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
 import { SegmentGroup } from './SegmentGroup';
-import { SegmentFormProps } from '../../types';
 
-export const SegmentGroups = ({
-  form,
-  contentType,
-}: {
-  form: UseFormReturn<SegmentFormProps>;
-  contentType: string;
-}) => {
+export const SegmentGroups = () => {
+  const { form } = useSegment();
   const { watch, control, setValue } = form;
   const { fields, remove } = useFieldArray({
     control,
@@ -73,8 +68,6 @@ export const SegmentGroups = ({
             )}
             <div className={cn('relative pt-4', { 'pl-12': total > 1 })}>
               <SegmentGroup
-                form={form}
-                contentType={contentType}
                 parentFieldName={`conditionSegments.${index}`}
                 onRemove={() => remove(index)}
               />

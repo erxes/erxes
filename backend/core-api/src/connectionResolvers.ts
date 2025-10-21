@@ -139,7 +139,11 @@ import { IInternalNoteDocument } from '@/internalNote/types';
 import { ILogModel, loadLogsClass } from '@/logs/db/models/Logs';
 
 import {
+  AiAgentDocument,
+  aiAgentSchema,
+  aiEmbeddingSchema,
   emailDeliverySchema,
+  IAiEmbeddingDocument,
   IAutomationDocument,
   IAutomationExecutionDocument,
   IEmailDeliveryDocument,
@@ -196,6 +200,8 @@ export interface IModels {
   Logs: ILogModel;
   Notifications: Model<INotificationDocument>;
   EmailDeliveries: Model<IEmailDeliveryDocument>;
+  AiAgents: Model<AiAgentDocument>;
+  AiEmbeddings: Model<IAiEmbeddingDocument>;
 }
 
 export interface IContext extends IMainContext {
@@ -364,6 +370,15 @@ export const loadClasses = (
     IEmailDeliveryDocument,
     Model<IEmailDeliveryDocument>
   >('email_deliveries', emailDeliverySchema);
+  models.AiAgents = db.model<AiAgentDocument, Model<AiAgentDocument>>(
+    'automations_ai_agents',
+    aiAgentSchema,
+  );
+
+  models.AiEmbeddings = db.model<
+    IAiEmbeddingDocument,
+    Model<IAiEmbeddingDocument>
+  >('ai_embeddings', aiEmbeddingSchema);
 
   const db_name = db.name;
 

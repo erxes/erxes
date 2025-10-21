@@ -7,6 +7,7 @@ export const AUTOMATION_EDIT = gql`
     $status: String
     $triggers: [TriggerInput]
     $actions: [ActionInput]
+    $workflows: [WorkflowInput]
   ) {
     automationsEdit(
       _id: $id
@@ -14,6 +15,7 @@ export const AUTOMATION_EDIT = gql`
       status: $status
       triggers: $triggers
       actions: $actions
+      workflows: $workflows
     ) {
       _id
       name
@@ -28,12 +30,14 @@ export const AUTOMATION_CREATE = gql`
     $status: String
     $triggers: [TriggerInput]
     $actions: [ActionInput]
+    $workflows: [WorkflowInput]
   ) {
     automationsAdd(
       name: $name
       status: $status
       triggers: $triggers
       actions: $actions
+      workflows: $workflows
     ) {
       _id
       name

@@ -4,7 +4,7 @@ const queryParams = `
   page: Int
   perPage: Int
   ids: [String]
-  excludeIds: Boolean
+  excludeIds: [String]
   searchValue: String
   sortField: String
   sortDirection: Int
@@ -34,10 +34,13 @@ const queries = `
   automationNotes(automationId: String!, triggerId: String, actionId: String): [AutomationNote]
   automationHistories(${GQL_CURSOR_PARAM_DEFS},${historiesParams}): AutomationHistories
   automationHistoriesTotalCount(${historiesParams}):Int
-  automationConfigPrievewCount(config: JSON): Int
   automationsTotalCount(status: String): automationsTotalCountResponse
   automationConstants: JSON
   automationBotsConstants:JSON
+  automationsAiAgents(kind:String):JSON
+  automationsAiAgentDetail:JSON
+  getTrainingStatus(agentId: String!): TrainingProgress!
+  getAutomationWebhookEndpoint(_id:String!):String
 `;
 
 export default queries;

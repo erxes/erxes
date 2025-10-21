@@ -5,6 +5,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { generateModels, IModels } from '../connectionResolvers';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { Express } from 'express';
 
 const getRelatedValue = async (
   models: IModels,
@@ -123,126 +124,127 @@ const getItems = async (
   return filter ? model.find(filter) : [];
 };
 
-export default startAutomations('core', {
-  receiveActions: async (
-    { subdomain },
-    { action, execution, triggerType, actionType },
-  ) => {
-    const models = await generateModels(subdomain);
+export const initAutomation = (app: Express) =>
+  startAutomations(app, 'core', {
+    receiveActions: async (
+      { subdomain },
+      { action, execution, triggerType, actionType },
+    ) => {
+      const models = await generateModels(subdomain);
 
-    if (actionType === 'set-property') {
-      const { module, rules } = action.config;
+      if (actionType === 'set-property') {
+        const { module, rules } = action.config;
 
-      const relatedItems = await getItems(
-        subdomain,
-        module,
-        execution,
-        triggerType,
-      );
+        const relatedItems = await getItems(
+          subdomain,
+          module,
+          execution,
+          triggerType,
+        );
 
-      const result = await setProperty({
+        const result = await setProperty({
+          models,
+          subdomain,
+          getRelatedValue,
+          module: module.includes('lead') ? 'core:customer' : module,
+          rules,
+          execution,
+          relatedItems,
+          triggerType,
+        });
+        return { result };
+      }
+      return { result: 'Hello World Core' };
+    },
+    replacePlaceHolders: async ({ subdomain }, { data }) => {
+      const { target, config, relatedValueProps } = data || {};
+      const models = await generateModels(subdomain);
+
+      return await replacePlaceHolders<IModels>({
         models,
         subdomain,
-        getRelatedValue,
-        module: module.includes('lead') ? 'core:customer' : module,
-        rules,
-        execution,
-        relatedItems,
-        triggerType,
-      });
-      return { result };
-    }
-    return { result: 'Hello World Core' };
-  },
-  replacePlaceHolders: async ({ subdomain }, { data }) => {
-    const { target, config, relatedValueProps } = data || {};
-    const models = await generateModels(subdomain);
-
-    return await replacePlaceHolders<IModels>({
-      models,
-      subdomain,
-      target,
-      actionData: config,
-      customResolver: {
-        resolver: getRelatedValue,
-        props: relatedValueProps,
-      },
-    });
-  },
-  getRecipientsEmails: async ({ subdomain }, { data }) => {
-    const models = await generateModels(subdomain);
-    const { type, config } = data;
-
-    const ids = config[`${type}Ids`];
-
-    const commonFilter = {
-      _id: { $in: Array.isArray(ids) ? ids : [ids] },
-    };
-
-    if (type === 'user') {
-      const result = await models.Users.find(commonFilter).distinct('email');
-
-      return result;
-    }
-
-    const CONTACT_TYPES = {
-      lead: {
-        model: models.Customers,
-        filter: { ...commonFilter },
-      },
-      customer: {
-        model: models.Customers,
-        filter: {
-          ...commonFilter,
+        target,
+        actionData: config,
+        customResolver: {
+          resolver: getRelatedValue,
+          props: relatedValueProps,
         },
-      },
-      company: {
-        model: models.Companies,
-        filter: { ...commonFilter },
-      },
-    };
+      });
+    },
+    getRecipientsEmails: async ({ subdomain }, { data }) => {
+      const models = await generateModels(subdomain);
+      const { type, config } = data;
 
-    const { model, filter } = CONTACT_TYPES[type];
+      const ids = config[`${type}Ids`];
 
-    return await model.find(filter).distinct('primaryEmail');
-  },
-  constants: {
-    triggers: [
-      {
-        type: 'core:user',
-        icon: 'Users',
-        label: 'Team member',
-        description:
-          'Start with a blank workflow that enrolls and is triggered off team members',
-      },
-      {
-        type: 'core:customer',
-        icon: 'UsersGroup',
-        label: 'Customer',
-        description:
-          'Start with a blank workflow that enrolls and is triggered off Customers',
-      },
-      {
-        type: 'core:lead',
-        icon: 'UsersGroup',
-        label: 'Lead',
-        description:
-          'Start with a blank workflow that enrolls and is triggered off Leads',
-      },
-      {
-        type: 'core:company',
-        icon: 'Building',
-        label: 'Company',
-        description:
-          'Start with a blank workflow that enrolls and is triggered off company',
-      },
-      {
-        type: 'core:form_submission',
-        icon: 'Forms',
-        label: 'Form submission',
-        description:
-          'Start with a blank workflow that enrolls and is triggered off form submission',
-      },
-    ],
-  },
-});
+      const commonFilter = {
+        _id: { $in: Array.isArray(ids) ? ids : [ids] },
+      };
+
+      if (type === 'user') {
+        const result = await models.Users.find(commonFilter).distinct('email');
+
+        return result;
+      }
+
+      const CONTACT_TYPES = {
+        lead: {
+          model: models.Customers,
+          filter: { ...commonFilter },
+        },
+        customer: {
+          model: models.Customers,
+          filter: {
+            ...commonFilter,
+          },
+        },
+        company: {
+          model: models.Companies,
+          filter: { ...commonFilter },
+        },
+      };
+
+      const { model, filter } = CONTACT_TYPES[type];
+
+      return await model.find(filter).distinct('primaryEmail');
+    },
+    constants: {
+      triggers: [
+        {
+          type: 'core:user',
+          icon: 'Users',
+          label: 'Team member',
+          description:
+            'Start with a blank workflow that enrolls and is triggered off team members',
+        },
+        {
+          type: 'core:customer',
+          icon: 'UsersGroup',
+          label: 'Customer',
+          description:
+            'Start with a blank workflow that enrolls and is triggered off Customers',
+        },
+        {
+          type: 'core:lead',
+          icon: 'UsersGroup',
+          label: 'Lead',
+          description:
+            'Start with a blank workflow that enrolls and is triggered off Leads',
+        },
+        {
+          type: 'core:company',
+          icon: 'Building',
+          label: 'Company',
+          description:
+            'Start with a blank workflow that enrolls and is triggered off company',
+        },
+        {
+          type: 'core:form_submission',
+          icon: 'Forms',
+          label: 'Form submission',
+          description:
+            'Start with a blank workflow that enrolls and is triggered off form submission',
+        },
+      ],
+    },
+  });

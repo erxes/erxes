@@ -5,7 +5,7 @@ import {
   IConditionsForPreview,
   IField,
   IOperator,
-  SegmentFormProps,
+  TSegmentForm,
 } from '../types';
 
 import { Path } from 'react-hook-form';
@@ -21,8 +21,8 @@ export function startCase(str: string) {
     .replace(/\b\w/g, (char) => char.toUpperCase()); // capitalize first letter of each word
 }
 
-export const groupFieldsByType = (fields: any[]) => {
-  return fields.reduce((acc: any, field) => {
+export const groupFieldsByType = (fields: IField[]) => {
+  return fields.reduce((acc: Record<string, Array<IField>>, field) => {
     const { value } = field || {};
     let key;
 
@@ -110,7 +110,7 @@ export const getSegmentFormDefaultValues = (
     getSubSegments,
   } = segment;
 
-  const values: SegmentFormProps = {
+  const values: TSegmentForm = {
     name: name || '',
     description: description || '',
     config: config || {},

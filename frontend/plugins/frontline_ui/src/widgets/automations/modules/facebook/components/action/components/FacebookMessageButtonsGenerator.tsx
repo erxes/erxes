@@ -12,22 +12,27 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { IconGripVertical, IconX } from '@tabler/icons-react';
-import { Button, Card, cn, Input, Label } from 'erxes-ui';
-import { TBotMessageButton } from '../states/replyMessageActionForm';
-import { generateAutomationElementId } from 'ui-modules';
+import { IconGripVertical, IconPlus, IconX } from '@tabler/icons-react';
+import { Button, Card, cn, Input } from 'erxes-ui';
 import React from 'react';
+import { generateAutomationElementId } from 'ui-modules';
+import { TBotMessageButton } from '../states/replyMessageActionForm';
 
 export const FacebookMessageButtonsGenerator = ({
   buttons = [],
   setButtons,
-  addButtonText = '+ Add button',
+  addButtonContent = (
+    <>
+      <IconPlus />
+      add button
+    </>
+  ),
   limit,
   ContentBeforeInput,
 }: {
   buttons: { disableRemoveButton?: boolean } & TBotMessageButton[];
   setButtons: (buttons: TBotMessageButton[]) => void;
-  addButtonText?: string;
+  addButtonContent?: React.ReactNode;
   limit: number;
   ContentBeforeInput?: ({
     button,
@@ -100,11 +105,11 @@ export const FacebookMessageButtonsGenerator = ({
       </DndContext>
       <Button
         variant="secondary"
-        className="w-full"
+        className="w-full font-mono uppercase font-semibold text-xs text-accent-foreground"
         disabled={buttons.length >= limit}
         onClick={onAddButton}
       >
-        <Label>{addButtonText}</Label>
+        {addButtonContent}
       </Button>
     </>
   );
@@ -173,7 +178,9 @@ const FacebookMessageButton = ({
       ref={setNodeRef}
       style={style}
       {...(button.isEditing ? {} : { ...attributes })}
-      className={'px-3 py-2 flex flex-row gap-2 items-center justify-between'}
+      className={
+        'px-3 py-2 flex flex-row gap-2 items-center justify-between rounded'
+      }
       onDoubleClick={() => handleChangeButton({ ...button, isEditing: true })}
     >
       <div
@@ -196,7 +203,7 @@ const FacebookMessageButton = ({
           handleChangeButton={handleChangeButton}
         />
       ) : null}
-      <div className="flex-1 border rounded-lg p-2 flex items-center">
+      <div className="flex-1 border rounded p-2 flex items-center">
         {button?.isEditing ? (
           <Input
             autoFocus
@@ -220,7 +227,7 @@ const FacebookMessageButton = ({
             {button.link}
           </a>
         ) : (
-          <span className="font-mono font-bold text-foreground text-sm">
+          <span className="font-mono font-medium text-foreground text-sm">
             {button.text || 'Type a button label'}
           </span>
         )}

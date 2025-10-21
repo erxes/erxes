@@ -1,20 +1,29 @@
-import { TAutomationBuilderForm } from '@/automations/utils/AutomationFormDefinitions';
+import {
+  delayConfigFormSchema,
+  TDelayConfigForm,
+} from '@/automations/components/builder/nodes/actions/delay/states/delayConfigForm';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { ChangeEvent } from 'react';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 
-export const useDelay = (currentActionIndex: number) => {
-  const configField: `actions.${number}.config` = `actions.${currentActionIndex}.config`;
-  const { control, setValue } = useFormContext<TAutomationBuilderForm>();
+export const useDelay = (config: TDelayConfigForm) => {
+  const form = useForm<TDelayConfigForm>({
+    resolver: zodResolver(delayConfigFormSchema),
+    defaultValues: { ...config },
+  });
+  const { control, setValue, handleSubmit } = form;
 
   const { value, type } =
-    useWatch<TAutomationBuilderForm>({ control, name: configField }) || {};
+    useWatch<TDelayConfigForm>({
+      control,
+    }) || {};
 
   const handleValueChange = (
     e: ChangeEvent<HTMLInputElement>,
     onChange: (...event: any[]) => void,
   ) => {
     let { value } = e.currentTarget;
-    let intervalType: 'minute' | 'hour' | 'day' | 'month' | 'year' | undefined;
+    let intervalType: TDelayConfigForm['type'];
 
     const numericValue = Number(value);
     const set = (newValue: string, newType: typeof intervalType) => {
@@ -41,9 +50,10 @@ export const useDelay = (currentActionIndex: number) => {
     }
 
     if (intervalType) {
-      setValue(`${configField}.type`, intervalType);
+      setValue('type', intervalType);
     }
 
+    console.log({ value: typeof value });
     onChange(value);
   };
 
@@ -64,11 +74,17 @@ export const useDelay = (currentActionIndex: number) => {
     const max = maxValues[type] ?? Infinity;
 
     if (numericValue > max) {
-      setValue(`${configField}.value`, '1');
+      setValue('value', '1');
     }
 
     onChange(type);
   };
 
-  return { control, configField, handleValueChange, handleIntervalChange };
+  return {
+    form,
+    control,
+    handleValueChange,
+    handleIntervalChange,
+    handleSubmit,
+  };
 };

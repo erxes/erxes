@@ -8,7 +8,7 @@ import { customAlphabet } from 'nanoid';
  * @returns An array of type parts (e.g., ['pluginName', 'moduleName', 'type']).
  */
 
-export const getAutomationTypes = (type?: string): string[] => {
+export const splitAutomationNodeType = (type?: string): string[] => {
   return (type || '').replace(':', '.').split('.');
 };
 

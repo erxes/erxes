@@ -1,11 +1,10 @@
+import { automationColumns } from '@/automations/components/list/AutomationColumns';
+import { AutomationRecordTableFilters } from '@/automations/components/list/AutomationRecordTableFilters';
 import { useAutomationsRecordTable } from '@/automations/hooks/useAutomationsRecordTable';
 import { IconAffiliate, IconSettings } from '@tabler/icons-react';
 import { Breadcrumb, Button, RecordTable, Separator, Spinner } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
-
-import { automationColumns } from './AutomationColumns';
-import { AutomationRecordTableFilters } from './AutomationRecordTableFilters';
 
 export const AutomationsRecordTable = () => {
   const {

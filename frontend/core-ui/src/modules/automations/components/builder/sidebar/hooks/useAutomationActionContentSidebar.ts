@@ -1,51 +1,22 @@
+import { isCoreAutomationActionType } from '@/automations/components/builder/nodes/actions/coreAutomationActions';
+import { TAutomationActionComponent } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { useAutomation } from '@/automations/context/AutomationProvider';
+import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
 import { toggleAutomationBuilderOpenSidebar } from '@/automations/states/automationState';
-import { TAutomationBuilderForm } from '@/automations/utils/AutomationFormDefinitions';
+import { AutomationNodesType, NodeData } from '@/automations/types';
+import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
+import { Node, useReactFlow } from '@xyflow/react';
+import { toast } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { lazy } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
-
-const Delay = lazy(() =>
-  import('../../nodes/actions/delay/components/Delay').then((module) => ({
-    default: module.Delay.SideBarContent,
-  })),
-);
-
-const Branches = lazy(() =>
-  import('../../nodes/actions/branches/components/Branches').then((module) => ({
-    default: module.Branches,
-  })),
-);
-
-const ManageProperties = lazy(() =>
-  import(
-    '../../nodes/actions/manageProperties/component/ManageProperties'
-  ).then((module) => ({
-    default: module.ManageProperties.SideBarContent,
-  })),
-);
-const AutomationSendEmail = lazy(() =>
-  import('../../nodes/actions/sendEmail/components/SendEmail').then(
-    (module) => ({
-      default: module.SendEmail.SideBarContent,
-    }),
-  ),
-);
-
-const Actions: Record<
-  string,
-  React.LazyExoticComponent<React.ComponentType<any>>
-> = {
-  delay: Delay,
-  if: Branches,
-  setProperty: ManageProperties,
-  sendEmail: AutomationSendEmail,
-};
+import { splitAutomationNodeType } from 'ui-modules';
 
 export const useAutomationActionContentSidebar = () => {
   const { queryParams, setQueryParams } = useAutomation();
-  const { control, setValue } = useFormContext<TAutomationBuilderForm>();
+  const { control } = useFormContext<TAutomationBuilderForm>();
+  const { setAutomationBuilderFormValue } = useAutomationFormController();
   const toggleSideBarOpen = useSetAtom(toggleAutomationBuilderOpenSidebar);
+  const { getNode, updateNodeData } = useReactFlow<Node<NodeData>>();
 
   // Watch all actions once
   const actions = useWatch({ control, name: 'actions' }) || [];
@@ -59,15 +30,44 @@ export const useAutomationActionContentSidebar = () => {
   const currentAction = currentIndex >= 0 ? actions[currentIndex] : null;
 
   // Pick component from Actions map or fallback to null
-  const Component = currentAction ? Actions[currentAction.type] ?? null : null;
+
+  const isCoreActionComponent = isCoreAutomationActionType(
+    currentAction?.type || '',
+    TAutomationActionComponent.Sidebar,
+  );
+
+  const [pluginName, moduleName] = splitAutomationNodeType(
+    currentAction?.type || '',
+  );
+
+  const onSaveActionConfigCallback = () => {
+    setQueryParams({ activeNodeId: null });
+    toggleSideBarOpen();
+    toast({
+      title: 'Action configuration added successfully.',
+    });
+  };
+
+  const onSaveActionConfig = (config: any) => {
+    setAutomationBuilderFormValue(
+      `${AutomationNodesType.Actions}.${currentIndex}.config`,
+      config,
+    );
+    if (currentAction) {
+      const node = getNode(currentAction.id);
+      updateNodeData(currentAction.id, { ...node?.data, config });
+    }
+    onSaveActionConfigCallback();
+  };
 
   return {
-    Component,
-    control,
+    isCoreActionComponent,
     currentIndex,
     currentAction,
     setQueryParams,
-    setValue,
     toggleSideBarOpen,
+    onSaveActionConfig,
+    pluginName,
+    moduleName,
   };
 };

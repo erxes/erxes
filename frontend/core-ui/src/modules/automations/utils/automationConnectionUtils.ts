@@ -1,127 +1,27 @@
-import { NodeData } from '@/automations/types';
-import { Connection, Edge, EdgeProps, getOutgoers, Node } from '@xyflow/react';
-import { SetStateAction } from 'jotai';
-import { Dispatch } from 'react';
-import { IAction, ITrigger, OptionalConnect } from 'ui-modules';
+import { CONNECTION_PROPERTY_NAME_MAP } from '@/automations/constants';
+import {
+  AutomationNodeType,
+  ConnectionInfo,
+  NodeData,
+} from '@/automations/types';
+import { checkValidOptionalConnect } from '@/automations/utils/automationBuilderUtils/connectionUtils';
+import { Connection, Edge, getOutgoers, Node } from '@xyflow/react';
 
-export const connectionHandler = (
-  triggers: ITrigger[],
-  actions: IAction[],
-  info: any,
-  actionId: any,
-  workFlowActions: { workflowId: string; actions: IAction[] }[],
-) => {
-  const { sourceId, type, connectType, optionalConnectId } = info || {};
-
-  if (type === 'trigger') {
-    const trigger = triggers.find((t) => t.id.toString() === sourceId);
-
-    if (trigger) {
-      trigger.actionId = actionId;
-
-      if (info?.workflowId) {
-        trigger.workflowId = info.workflowId;
-      }
-    }
-  } else {
-    const sourceAction = actions.find((a) => a.id.toString() === sourceId);
-
-    if (sourceAction) {
-      if (sourceAction.type === 'if') {
-        if (!sourceAction.config) {
-          sourceAction.config = {};
-        }
-
-        const [sourceHandle] = info.sourceHandle.split('-');
-
-        sourceAction.config[sourceHandle] = actionId;
-      }
-
-      if (connectType === 'optional') {
-        const sourceConfig = sourceAction?.config || {};
-
-        const optionalConnects = sourceConfig?.optionalConnects || [];
-
-        //update optionalConnects if optional connect exists in sourceAction
-        let updatedOptionalConnects = optionalConnects.map(
-          (optConnect: OptionalConnect) =>
-            optConnect.sourceId === sourceId &&
-            optConnect.optionalConnectId === info.optionalConnectId
-              ? { ...optConnect, actionId }
-              : optConnect,
-        );
-
-        // add optionalConnect if optional connect not exists in sourceAction
-        if (
-          !optionalConnects.some(
-            (optConnect: OptionalConnect) =>
-              optConnect.sourceId === sourceId &&
-              optConnect.optionalConnectId === info?.optionalConnectId,
-          )
-        ) {
-          updatedOptionalConnects.push({
-            sourceId,
-            actionId,
-            optionalConnectId: info?.optionalConnectId,
-          });
-        }
-
-        // disconnect optionalConnect if optional connect exists in sourceAction but info.optionalConnectId is undefined
-
-        if (
-          optionalConnects.some(
-            (optConnect: OptionalConnect) =>
-              optConnect.sourceId === sourceId &&
-              optConnect.optionalConnectId === optionalConnectId,
-          )
-        ) {
-          updatedOptionalConnects = optionalConnects.filter(
-            (optConnect: OptionalConnect) =>
-              optConnect.optionalConnectId !== optionalConnectId,
-          );
-        }
-
-        sourceAction.config = {
-          ...sourceConfig,
-          optionalConnects: updatedOptionalConnects,
-        };
-      } else {
-        sourceAction.nextActionId = actionId;
-      }
-    }
-
-    const workflow = workFlowActions.find(
-      ({ workflowId, actions }) =>
-        workflowId === info?.workflowId &&
-        actions.some(({ id }) => id.toString() === sourceId),
-    );
-
-    if (workflow) {
-      const sourceAction = actions.find(({ id }) => id === workflow.workflowId);
-
-      if (sourceAction) {
-        sourceAction.config = {
-          ...(sourceAction.config || {}),
-          workflowConnection: { sourceId, targetId: actionId },
-        };
-      }
-    }
-  }
-
-  return { triggers, actions };
-};
-
-export const generateConnect = (
+export const generateConnectInfo = (
   params: Connection,
-  source?: Node<NodeData>,
-) => {
-  const { sourceHandle } = params;
+  source: Node<NodeData>,
+  target: Node<NodeData>,
+): ConnectionInfo => {
+  const { sourceHandle, targetHandle } = params;
 
-  let info: any = {
+  const info: ConnectionInfo = {
     ...params,
     sourceId: params.source,
     targetId: params.target,
-    type: source?.data?.nodeType,
+    sourceType: source.data.nodeType,
+    targetType: target.data.nodeType,
+    sourceIndex: source.data.nodeIndex,
+    targetIndex: target.data.nodeIndex,
   };
 
   if (sourceHandle) {
@@ -131,21 +31,12 @@ export const generateConnect = (
       info.connectType = 'optional';
     }
   }
-
-  // const targetWorkflow = workFlowActions?.find(({ actions }) =>
-  //   actions.some(action => action.id === info.targetId)
-  // );
-  // if (targetWorkflow) {
-  //   info.workflowId = targetWorkflow.workflowId;
-  // }
-
-  // const sourceWorkflow = workFlowActions?.find(({ actions }) =>
-  //   actions.some(action => action.id === info.sourceId)
-  // );
-
-  // if (sourceWorkflow && info.targetId) {
-  //   info.workflowId = sourceWorkflow.workflowId;
-  // }
+  if (targetHandle?.includes('workflow')) {
+    const [_, automationId, actionId] = targetHandle.split('-');
+    info.automationId = automationId;
+    info.actionId = actionId;
+    info.connectType = 'workflow';
+  }
 
   return info;
 };
@@ -167,7 +58,7 @@ export const checkIsValidConnect = ({
   const source = nodes.find((node) => node.id === connection.source);
 
   const hasCycle = (node: Node<NodeData>, visited = new Set()) => {
-    if (node?.data?.nodeType === 'trigger') return true;
+    if (node?.data?.nodeType === AutomationNodeType.Trigger) return true;
     if (visited.has(node.id)) return false;
 
     visited.add(node.id);
@@ -180,6 +71,52 @@ export const checkIsValidConnect = ({
 
   if (!target || !source) {
     return false;
+  }
+
+  const connectionInfo = generateConnectInfo(connection, source, target);
+
+  if (connectionInfo.connectType === 'optional') {
+    if (!checkValidOptionalConnect(source)) {
+      return false;
+    }
+  }
+
+  if (source.data.type === 'if') {
+    const [sourceHandleType] = (connection.sourceHandle || '').split('-');
+
+    if (!!source.data?.config[sourceHandleType]) {
+      return false;
+    }
+  }
+
+  if (source.data.nodeType !== AutomationNodeType.Workflow) {
+    const fieldName = CONNECTION_PROPERTY_NAME_MAP[source.data.nodeType];
+    if (!!source.data[fieldName]) {
+      return false;
+    }
+  }
+
+  if (source.data.nodeType === AutomationNodeType.Trigger) {
+    const targetId = target.data.id;
+    const trigger = nodes.find(
+      (node) =>
+        node.data.actionId === targetId &&
+        node.data.nodeType === AutomationNodeType.Trigger,
+    );
+    if (trigger && source.data.type !== trigger?.data.type) {
+      return false;
+    }
+
+    // check if the trigger is already connected to another triggers
+
+    const node = nodes.find(
+      ({ data }) =>
+        data.nodeType === AutomationNodeType.Trigger &&
+        data.actionId === targetId,
+    ) as Node<NodeData>;
+    if (node) {
+      return false;
+    }
   }
 
   const allNodes = [...triggersConst, ...actionsConst];
@@ -195,43 +132,10 @@ export const checkIsValidConnect = ({
   return !hasCycle(target);
 };
 
-export const onDisconnect = ({
-  edge,
-  setEdges,
-  nodes,
-  triggers,
-  actions,
-}: {
-  edge: EdgeProps;
-  setEdges: Dispatch<SetStateAction<Edge<EdgeProps>[]>>;
-  nodes: Node<NodeData>[];
-  triggers: ITrigger[];
-  actions: IAction[];
-}) => {
-  setEdges((eds: Edge<EdgeProps>[]) => eds.filter((e) => e.id !== edge.id));
-  const info: any = { source: edge.source, target: undefined };
-
-  const sourceNode = nodes.find((n) => n.id === edge.source);
-
-  if ((edge?.sourceHandleId || '').includes(sourceNode?.id || '')) {
-    const [_action, _sourceId, optionalConnectId] = (edge.id || '').split('-');
-    info.optionalConnectId = optionalConnectId;
-    info.connectType = 'optional';
-  }
-
-  connectionHandler(
-    triggers,
-    actions,
-    generateConnect(
-      {
-        source: edge.source,
-        target: edge.target,
-        sourceHandle: edge.sourceHandleId || '',
-        targetHandle: edge.targetHandleId || '',
-      },
-      sourceNode,
-    ),
-    info.targetId,
-    [],
-  );
+export const splitAwaitingConnectionId = (awaitingToConnectNodeId: string) => {
+  return awaitingToConnectNodeId.split('__') as [
+    AutomationNodeType.Trigger | AutomationNodeType.Action,
+    string,
+    string | undefined,
+  ];
 };

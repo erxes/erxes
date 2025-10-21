@@ -1,14 +1,14 @@
+import { splitType, TSegmentProducers } from 'erxes-api-shared/core-modules';
 import {
   fetchByQuery,
   generateElkIds,
   getPlugin,
-  sendWorkerMessage,
+  sendCoreModuleProducer,
 } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { SEGMENT_DATE_OPERATORS, SEGMENT_NUMBER_OPERATORS } from '../constants';
 import { ICondition, ISegment } from '../db/definitions/segments';
 import { IOptions } from '../types';
-import { splitType } from 'erxes-api-shared/core-modules';
 
 const generateDefaultSelector = ({ defaultMustSelector, isInitialCall }) => {
   if (isInitialCall && defaultMustSelector) {
@@ -113,12 +113,11 @@ export const generateQueryBySegment = async (
           continue;
         }
         if (esTypesMapAvailable) {
-          const response = await sendWorkerMessage({
-            subdomain,
+          const response = await sendCoreModuleProducer({
+            module: 'segments',
             pluginName,
-            queueName: 'segments',
-            jobName: 'esTypesMap',
-            data: {
+            producerName: TSegmentProducers.ES_TYPES_MAP,
+            input: {
               collectionType,
             },
           });
@@ -127,12 +126,11 @@ export const generateQueryBySegment = async (
         }
 
         if (initialSelectorAvailable) {
-          const { negative, positive } = await sendWorkerMessage({
-            subdomain,
+          const { negative, positive } = await sendCoreModuleProducer({
+            module: 'segments',
             pluginName,
-            queueName: 'segments',
-            jobName: 'initialSelector',
-            data: {
+            producerName: TSegmentProducers.INITIAL_SELECTOR,
+            input: {
               segment,
               options,
             },
@@ -231,12 +229,12 @@ export const generateQueryBySegment = async (
               continue;
             }
             const { positive, ignoreThisPostiveQuery } =
-              await sendWorkerMessage({
-                subdomain,
+              await sendCoreModuleProducer({
+                module: 'segments',
                 pluginName: propertyPluginName,
-                queueName: 'segments',
-                jobName: 'propertyConditionExtender',
-                data: { condition, positiveQuery },
+                producerName: TSegmentProducers.PROPERTY_CONDITION_EXTENDER,
+                input: { condition, positiveQuery },
+                defaultValue: { positive: null, ignoreThisPostiveQuery: false },
               });
 
             if (positive) {
@@ -590,12 +588,11 @@ const associationPropertyFilter = async (
   const segmentMeta = (plugin.config.meta || {}).segments;
 
   if (segmentMeta && segmentMeta.associationFilterAvailable) {
-    return await sendWorkerMessage({
-      subdomain,
+    return await sendCoreModuleProducer({
+      module: 'segments',
       pluginName,
-      queueName: 'segments',
-      jobName: 'associationFilter',
-      data: {
+      producerName: TSegmentProducers.ASSOCIATION_FILTER,
+      input: {
         mainType,
         propertyType,
         positiveQuery,
