@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.17.18](https://github.com/erxes/erxes/compare/2.17.17...2.17.18) (2025-10-21)
+
+### Features
+
+* **core:** add fieldsGroupFix mutation for fixing property groups ([8d1e0df](https://github.com/erxes/erxes/commit/8d1e0df1d1929d2d1edacdf384b63897c849a9e6))
+* **syncer:** add logging for template creation and update Elasticsearch URL handling in initial sync ([3fc6b98](https://github.com/erxes/erxes/commit/3fc6b980acbb1f289991742d51d5ccdfd10db762))
+* **syncer:** implement batch processing for MongoDB to Elasticsearch synchronization with improved concurrency and performance settings ([79208e4](https://github.com/erxes/erxes/commit/79208e4f11aad7eb3857b0d5a86dd29197096395))
+
+### Bug Fixes
+
+* similiraties products per with remainder ([1e5a11d](https://github.com/erxes/erxes/commit/1e5a11d3f3359aa44e9981f199ca2a7b7c27d753))
+* **syncer:** remove unnecessary performance flags from monstache command in initial sync ([a7d3f10](https://github.com/erxes/erxes/commit/a7d3f10d66a7efcca5d1a36226efc4c1614fbc07))
+* tourism update ([1e8b627](https://github.com/erxes/erxes/commit/1e8b627f80b47c2137d81f7efec1c1fdae85037b))
+
 ## [2.17.17](https://github.com/erxes/erxes/compare/2.17.16...2.17.17) (2025-10-09)
 
 ### Features
