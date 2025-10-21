@@ -93,7 +93,7 @@ export const loadClasses = (
 
   models.Stages = db.model<IStageDocument, IStageModel>(
     'sales_stages',
-    loadStageClass(models),
+    loadStageClass(models, subdomain),
   );
 
   models.Deals = db.model<IDealDocument, IDealModel>(

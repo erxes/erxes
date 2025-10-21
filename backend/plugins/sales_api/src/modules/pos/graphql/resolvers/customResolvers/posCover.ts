@@ -1,8 +1,9 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { ICover } from '~/modules/pos/@types/covers';
+import { IContext } from '~/connectionResolvers';
 
 export default {
-  async user(cover: ICover) {
+  async user(cover: ICover, _, { subdomain }: IContext) {
     if (!cover.userId) {
       return null;
     }
@@ -17,7 +18,7 @@ export default {
     });
   },
 
-  async createdUser(cover: ICover) {
+  async createdUser(cover: ICover, _, { subdomain }: IContext) {
     if (!cover.createdBy) {
       return null;
     }
@@ -31,7 +32,7 @@ export default {
     });
   },
 
-  async modifiedUser(cover: ICover) {
+  async modifiedUser(cover: ICover, _, { subdomain }: IContext) {
     if (!cover.modifiedBy) {
       return null;
     }

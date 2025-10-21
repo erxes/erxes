@@ -4,26 +4,26 @@ import { checkUserIds, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IDeal } from '~/modules/sales/@types';
 import {
+  createConformity,
+  getNewOrder,
+  sendNotifications,
+} from '~/modules/sales/utils';
+import {
   changeItemStatus,
   checkAssignedUserFromPData,
   copyPipelineLabels,
   itemMover,
   subscriptionWrapper,
 } from '../utils';
-import { models } from 'mongoose';
-import {
-  createConformity,
-  destroyBoardItemRelations,
-  getNewOrder,
-  sendNotifications,
-} from '~/modules/sales/utils';
 
 export const addDeal = async ({
   models,
+  subdomain,
   doc,
   user,
 }: {
   models: IModels;
+  subdomain: string;
   doc: IDeal & { processId: string; aboveItemId: string };
   user: IUserDocument;
 }) => {
@@ -61,7 +61,7 @@ export const addDeal = async ({
 
   const stage = await models.Stages.getStage(deal.stageId);
 
-  await createConformity({
+  await createConformity(subdomain, {
     mainType: 'deal',
     mainTypeId: deal._id,
     companyIds: doc.companyIds,
@@ -71,7 +71,7 @@ export const addDeal = async ({
   if (user) {
     const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
-    await sendNotifications(models, {
+    await sendNotifications(models, subdomain, {
       item: deal,
       user,
       action: `invited you to the ${pipeline.name}`,
@@ -90,11 +90,13 @@ export const addDeal = async ({
 export const editDeal = async ({
   user,
   models,
+  subdomain,
   _id,
   processId,
   doc,
 }: {
   models: IModels;
+  subdomain: string;
   _id: string;
   doc: IDeal;
   processId: string;
@@ -159,7 +161,7 @@ export const editDeal = async ({
   if (
     doc.status === 'archived' &&
     oldDeal.status === 'active' &&
-    !(await can('dealsArchive', user))
+    !(await can(subdomain, 'dealsArchive', user))
   ) {
     throw new Error('Permission denied');
   }
@@ -243,7 +245,7 @@ export const editDeal = async ({
     notificationDoc.removedUsers = removedUserIds;
   }
 
-  await sendNotifications(models, notificationDoc);
+  await sendNotifications(models, subdomain, notificationDoc);
 
   // exclude [null]
   if (doc.tagIds && doc.tagIds.length) {

@@ -416,6 +416,7 @@ export const archivedItemsCount = async (
 
 export const checkItemPermByUser = async (
   models: IModels,
+  subdomain: string,
   user: any,
   deal: IDeal,
 ) => {
@@ -497,6 +498,7 @@ export const checkItemPermByUser = async (
 
 export const getItemList = async (
   models: IModels,
+  subdomain: string,
   filter: any,
   args: IDealQueryParams,
   user: IUserDocument,
@@ -911,6 +913,7 @@ export const checkMovePermission = (
 
 export const getAmountsMap = async (
   models,
+  subdomain,
   collection,
   user,
   args,
@@ -918,7 +921,7 @@ export const getAmountsMap = async (
   tickUsed = true,
 ) => {
   const amountsMap = {};
-  const filter = await generateFilter(models, user._id, {
+  const filter = await generateFilter(models, subdomain, user._id, {
     ...args,
     ...args.extraParams,
     stageId: stage._id,
@@ -974,6 +977,7 @@ interface IConformityCreate extends IMainType {
 }
 
 export const getCompanyIds = async (
+  subdomain: string,
   mainType: string,
   mainTypeId: string,
 ): Promise<string[]> => {
@@ -993,6 +997,7 @@ export const getCompanyIds = async (
 };
 
 export const getCustomerIds = async (
+  subdomain: string,
   mainType: string,
   mainTypeId: string,
 ): Promise<string[]> => {
@@ -1011,12 +1016,10 @@ export const getCustomerIds = async (
   });
 };
 
-export const createConformity = async ({
-  companyIds,
-  customerIds,
-  mainType,
-  mainTypeId,
-}: IConformityCreate) => {
+export const createConformity = async (
+  subdomain: string,
+  { companyIds, customerIds, mainType, mainTypeId }: IConformityCreate,
+) => {
   const companyConformities: IConformityAdd[] = (companyIds || []).map(
     (companyId) => ({
       mainType,
@@ -1091,10 +1094,12 @@ export const convertNestedDate = (obj: any) => {
 };
 
 export const sendNotification = async ({
+  subdomain,
   userIds,
   data,
   allowMultiple,
 }: {
+  subdomain: string;
   userIds?: string[];
   data: {
     title: string;
@@ -1150,6 +1155,7 @@ export const notifiedUserIds = async (
 
 export const sendNotifications = async (
   models: IModels,
+  subdomain: string,
   {
     item,
     user,
@@ -1200,6 +1206,7 @@ export const sendNotifications = async (
 
   if (removedUsers && removedUsers.length > 0) {
     sendNotification({
+      subdomain,
       userIds: removedUsers.filter((id) => id !== user._id),
       data: {
         ...notificationDoc,
@@ -1211,6 +1218,7 @@ export const sendNotifications = async (
 
   if (invitedUsers && invitedUsers.length > 0) {
     sendNotification({
+      subdomain,
       userIds: invitedUsers.filter((id) => id !== user._id),
       data: {
         ...notificationDoc,
@@ -1221,6 +1229,7 @@ export const sendNotifications = async (
   }
 
   sendNotification({
+    subdomain,
     userIds: receivers,
     data: {
       ...notificationDoc,

@@ -4,7 +4,7 @@ import { getConfig } from '@/pos/utils';
 import { IContext } from '~/connectionResolvers';
 
 const resolvers = {
-  user: async (order) => {
+  user: async (order, _, { subdomain }: IContext) => {
     if (!order.userId) {
       return null;
     }
@@ -23,7 +23,7 @@ const resolvers = {
     return pos ? pos.name : '';
   },
 
-  customer: async (order) => {
+  customer: async (order, _, { subdomain }: IContext) => {
     if (!order.customerId) {
       return null;
     }
@@ -102,18 +102,18 @@ const resolvers = {
     return {};
   },
 
-  syncedErkhet: async (order) => {
+  syncedErkhet: async (order, _, { subdomain }: IContext) => {
     if (order.syncedErkhet) {
       return true;
     }
-    const erkhetConfig = await getConfig('ERKHET', {});
+    const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
     if (!erkhetConfig || !erkhetConfig.apiToken) {
       return true;
     }
     return order.syncedErkhet;
   },
 
-  putResponses: async (order) => {
+  putResponses: async (order, _, { subdomain }: IContext) => {
     sendTRPCMessage({
       subdomain,
 
@@ -129,7 +129,7 @@ const resolvers = {
     });
   },
 
-  async deal(order: IPosOrderDocument) {
+  async deal(order: IPosOrderDocument, _, { subdomain }: IContext) {
     if (!order.convertDealId) {
       return null;
     }
@@ -144,7 +144,7 @@ const resolvers = {
     });
   },
 
-  async dealLink(order: IPosOrderDocument) {
+  async dealLink(order: IPosOrderDocument, _, { subdomain }: IContext) {
     if (!order.convertDealId) {
       return null;
     }

@@ -6,7 +6,7 @@ export default {
   async pipelines(
     board: IBoardDocument,
     _args: undefined,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
     if (board.pipelines) {
       return board.pipelines;

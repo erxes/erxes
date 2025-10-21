@@ -24,7 +24,7 @@ export const dailyCheckCycles = async () => {
     return 'success';
   } else {
     const timezone = await sendTRPCMessage({
-      subdomain,
+      subdomain: 'os',
 
       pluginName: 'core',
       method: 'query',
