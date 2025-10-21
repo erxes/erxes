@@ -5,7 +5,7 @@ import TaxTrs from './taxTrs';
 import { InvIncomeExpenseTrs } from './invIncome';
 
 export const commonUpdate = async (
-  _subdomain: string,
+  subdomain: string,
   models: IModels,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
@@ -29,7 +29,7 @@ export const commonUpdate = async (
     case 'receivable':
     case 'payable': {
       const detail = doc.details[0] || {};
-      const currencyTrClass = new CurrencyTr(models, doc);
+      const currencyTrClass = new CurrencyTr(models, subdomain, doc);
       await currencyTrClass.checkValidationCurrency();
 
       const taxTrsClass = new TaxTrs(

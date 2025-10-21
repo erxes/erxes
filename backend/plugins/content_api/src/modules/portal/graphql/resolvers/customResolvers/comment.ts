@@ -7,7 +7,7 @@ export default {
     return models.Comments.findOne({ _id });
   },
 
-  async createdUser(comment: ICommentDocument, _args, { models }: IContext) {
+  async createdUser(comment: ICommentDocument, _args, { models, subdomain }: IContext) {
     if (comment.userType === 'team') {
       const user = await sendTRPCMessage({
         subdomain,
