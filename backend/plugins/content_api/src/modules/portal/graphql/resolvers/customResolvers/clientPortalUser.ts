@@ -40,9 +40,9 @@ const ClientPortalUser = {
 
   async companyName(user) {
     if (user.erxesCompanyId) {
-
-
       const company = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'core',

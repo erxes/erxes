@@ -50,6 +50,8 @@ const getSegmentEmails = async ({
   const { triggerConfig, targetId } = execution;
 
   const contentTypeIds = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'segments',
@@ -182,6 +184,8 @@ export const getEmailRecipientTypes = async () => {
 
 const getTeamMemberEmails = async ({ subdomain, params }) => {
   const users = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'users',
@@ -314,6 +318,8 @@ export const generateDoc = async ({
 
   if (fromUserId) {
     const fromUser = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'users',
@@ -431,6 +437,8 @@ const sendEmails = async ({
   const { toEmails = [], fromEmail, title, customHtml, attachments } = params;
 
   const configs = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'configs',

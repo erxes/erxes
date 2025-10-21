@@ -229,6 +229,8 @@ export const portalUserRouter = t.router({
           });
         } else {
           const customer = await sendTRPCMessage({
+            subdomain,
+
             pluginName: 'core',
             method: 'query',
             module: 'customers',

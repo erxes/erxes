@@ -32,11 +32,11 @@ const SettingsMailConfig = lazy(() =>
     default: module.MailConfigPage,
   })),
 );
-// const GeneralSettings = lazy(() =>
-//   import('~/pages/settings/workspace/GeneralSettingsPage').then((module) => ({
-//     default: module.GeneralSettingsPage,
-//   })),
-// );
+const GeneralSettings = lazy(() =>
+  import('~/pages/settings/workspace/GeneralSettingsPage').then((module) => ({
+    default: module.GeneralSettingsPage,
+  })),
+);
 const TeamMemberSettings = lazy(() =>
   import('~/pages/settings/workspace/TeamMemberPage').then((module) => ({
     default: module.TeamMemberPage,
@@ -115,18 +115,22 @@ export function SettingsRoutes() {
           path={SettingsPath.Experience}
           element={<SettingsExperiencePage />}
         /> */}
+        {isOs && (
+          <Route
+            path={SettingsWorkspacePath.FileUpload}
+            element={<SettingsFileUpload />}
+          />
+        )}
+        {isOs && (
+          <Route
+            path={SettingsWorkspacePath.MailConfig}
+            element={<SettingsMailConfig />}
+          />
+        )}
         <Route
-          path={SettingsWorkspacePath.FileUpload}
-          element={<SettingsFileUpload />}
-        />
-        <Route
-          path={SettingsWorkspacePath.MailConfig}
-          element={<SettingsMailConfig />}
-        />
-        {/* <Route
           path={SettingsWorkspacePath.General}
           element={<GeneralSettings />}
-        /> */}
+        />
         <Route
           path={SettingsWorkspacePath.TeamMember}
           element={<TeamMemberSettings />}

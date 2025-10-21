@@ -1,7 +1,12 @@
 const { MongoClient } = require('mongodb');
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 const MONGO_URL =
-  process.argv[2] || 'mongodb://localhost:27017/erxes?directConnection=true';
+  process.env.MONGO_URL ||
+  'mongodb://localhost:27017/erxes?directConnection=true';
+
+console.log(MONGO_URL, 'MONGO_URL');
 
 if (!MONGO_URL) {
   throw new Error('MONGO_URL not provided');

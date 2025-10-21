@@ -18,6 +18,7 @@ export const GET_TASK = gql`
       cycleId
       projectId
       estimatePoint
+      milestoneId
     }
   }
 `;

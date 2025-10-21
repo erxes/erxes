@@ -10,6 +10,8 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   // collect admin users
   if (pos.adminIds) {
     data.adminUsers = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'users',
       action: 'find',
@@ -26,6 +28,8 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   // collect cashiers
   if (pos.cashierIds) {
     data.cashiers = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'users',
       action: 'find',
@@ -40,7 +44,7 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   }
 
   if (pos.erkhetConfig && pos.erkhetConfig.isSyncErkhet) {
-    const configs = await getConfig('ERKHET', {});
+    const configs = await getConfig(subdomain, 'ERKHET', {});
 
     data.pos.erkhetConfig = {
       ...pos.erkhetConfig,
@@ -86,6 +90,8 @@ export const getProductsData = async (
     );
 
     const productCategories = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'productCategories',
       action: 'find',
@@ -116,6 +122,8 @@ export const getProductsData = async (
     const productsByCatId = {};
 
     const products: any[] = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'products',
       action: 'find',
@@ -136,6 +144,8 @@ export const getProductsData = async (
     );
 
     const pricing = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'loyalty',
       module: 'pricing',
       action: 'checkPricing',
@@ -208,6 +218,8 @@ export const getProductsData = async (
 
   if (followProductIds.length) {
     const followProducts = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'products',
       action: 'find',
@@ -273,6 +285,8 @@ export const posSyncConfig = async (req, res) => {
     case 'productsConfigs':
       return res.send(
         await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           module: 'productConfigs',
           action: 'getConfig',
@@ -289,7 +303,7 @@ export const unfetchOrderInfo = async (req, res) => {
   const models = await generateModels(subdomain);
 
   const { orderId, token } = req.body;
-  const erkhetConfig = await getConfig('ERKHET', {});
+  const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 
   if (
     !erkhetConfig ||

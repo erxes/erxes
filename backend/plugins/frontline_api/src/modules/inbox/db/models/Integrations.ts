@@ -255,7 +255,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
     ) {
       const integration = await models.Integrations.findOne({
         kind: 'messenger',
-        // brandId: doc.brandId,
+        channelId: doc.channelId,
       });
 
       if (integration) {
@@ -275,11 +275,11 @@ export const loadClass = (models: IModels, subdomain: string) => {
       const integration = await models.Integrations.findOne({
         _id: { $ne: _id },
         kind: 'messenger',
-        // brandId: doc.brandId,
+        channelId: doc.channelId,
       });
 
       if (integration) {
-        throw new Error('Duplicated messenger for single brand');
+        throw new Error('Duplicated messenger for single channel');
       }
 
       await models.Integrations.updateOne(

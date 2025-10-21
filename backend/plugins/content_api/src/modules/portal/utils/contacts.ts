@@ -86,6 +86,8 @@ export const handleContacts = async (args: IContactsParams) => {
 
 const findOrCreateCustomer = async (email: string, phone: string, doc: any) => {
   let customer = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'customers',
@@ -97,6 +99,8 @@ const findOrCreateCustomer = async (email: string, phone: string, doc: any) => {
 
   if (!customer) {
     customer = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'mutation',
       module: 'customers',
@@ -116,6 +120,8 @@ const findOrCreateCustomer = async (email: string, phone: string, doc: any) => {
 
 const findOrCreateCompany = async (email: string, phone: string, doc: any) => {
   let company = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'companies',
@@ -127,6 +133,8 @@ const findOrCreateCompany = async (email: string, phone: string, doc: any) => {
 
   if (!company) {
     company = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'mutation',
       module: 'companies',

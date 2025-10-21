@@ -21,6 +21,8 @@ export const sendCoreMessage = async (
   args: MessageProps & { pluginName?: string },
 ): Promise<any> => {
   return await sendTRPCMessage({
+    subdomain,
+
     ...args,
     pluginName: 'core',
   });

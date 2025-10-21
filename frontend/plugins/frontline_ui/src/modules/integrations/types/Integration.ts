@@ -3,6 +3,7 @@ export interface IIntegration {
   name: string;
   kind: string;
   channelId: string;
+  channel: any;
 }
 
 export interface IIntegrationDetail extends IIntegration {

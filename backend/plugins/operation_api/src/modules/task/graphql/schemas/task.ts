@@ -18,6 +18,7 @@ export const types = `
     cycleId: String
     projectId: String
     teamId: String
+    milestoneId: String
     estimatePoint: Int
     statusChangedDate: Date
     number: Int
@@ -47,6 +48,7 @@ export const types = `
     name:String
     statusType: Int
     estimate: String
+    milestoneId: String
 
     ${GQL_CURSOR_PARAM_DEFS}
   }
@@ -71,6 +73,7 @@ const createTaskParams = `
   cycleId: String
   projectId: String
   estimatePoint: Int
+  milestoneId: String
 `;
 
 const updateTaskParams = `
@@ -88,6 +91,7 @@ const updateTaskParams = `
   cycleId: String
   projectId: String
   estimatePoint: Int
+  milestoneId: String
 
 `;
 

@@ -64,7 +64,7 @@ export const KanbanBoard = ({ id, children, className }: KanbanBoardProps) => {
   return (
     <div
       className={cn(
-        'flex size-full min-h-40 min-w-80 flex-col overflow-hidden transition-all bg-gradient-to-b from-[#e0e7ff] to-[#e0e7ff50] rounded-md',
+        'flex size-full min-h-40 min-w-80 flex-col overflow-hidden transition-all bg-gradient-to-b from-[#e0e7ff] to-[#e0e7ff50] dark:from-primary/40 dark:to-primary/20 rounded-md',
         isOver && 'shadow-focus',
         className,
       )}

@@ -46,3 +46,16 @@ export const GET_PRODUCT_INLINE = gql`
     }
   }
 `;
+
+export const UOM_QUERY = gql`
+  query uoms {
+    uoms {
+      _id
+      name
+      code
+      createdAt
+      isForSubscription
+      subscriptionConfig
+    }
+  }
+`;

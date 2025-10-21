@@ -11,6 +11,7 @@ import { generateModels } from '~/connectionResolvers';
 import { saveValidatedToken } from '~/modules/auth/utils';
 import jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
+
 const setCookie = async (
   res: Response,
   user: any,
@@ -133,5 +134,45 @@ export const assertSaasEnvironment = () => {
 
   if (VERSION !== 'saas') {
     throw new Error('This operation is only allowed in saas version.');
+  }
+};
+
+export const handleCoreLogin = async (req: any, res) => {
+  const { token } = req.query;
+  const subdomain = getSubdomain(req);
+
+  // already signed in
+  if (req.user) {
+    return res.redirect('/');
+  }
+
+  if (!token) {
+    return res.redirect('/');
+  }
+
+  const models = await generateModels(subdomain);
+
+  try {
+    const { user }: any = jwt.verify(token, models.Users.getSecret());
+
+    const systemUser = await models.Users.findOne({
+      email: user.email,
+      isActive: true,
+      isOwner: true,
+    });
+
+    if (systemUser) {
+      const [createToken] = await models.Users.createTokens(
+        systemUser,
+        models.Users.getSecret(),
+      );
+
+      await setCookie(res, systemUser, subdomain, createToken.toString());
+    }
+
+    return res.redirect(`https://${subdomain}.next.erxes.io`);
+  } catch (e) {
+    console.error(e.message);
+    return res.redirect(`https://${subdomain}.next.erxes.io`);
   }
 };

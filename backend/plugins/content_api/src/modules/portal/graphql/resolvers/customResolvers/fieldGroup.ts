@@ -3,9 +3,9 @@ import { IContext } from '~/connectionResolvers';
 
 const CustomFieldGroup = {
   async fields(group: any) {
-
-
     const fields = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'core',

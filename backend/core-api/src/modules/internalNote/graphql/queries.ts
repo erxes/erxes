@@ -40,11 +40,13 @@ export const internalNoteQueries = {
   async internalNotesByAction(
     _parent: undefined,
     { contentType, pipelineId, page = 1, perPage = 10 }: IInternalNoteParams,
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const [pluginName, moduleName] = contentType.split(':');
 
     const contentIds = await sendTRPCMessage({
+      subdomain,
+
       pluginName,
       method: 'query',
       module: moduleName,
