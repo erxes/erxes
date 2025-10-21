@@ -10,10 +10,9 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
 import { IPosOrder, IPosOrderDocument } from './@types/orders';
 import { IPosDocument } from './@types/pos';
-import { sendCoreMessage } from '~/trpc/init-trpc';
 import { sendPosclientHealthCheck, sendPosclientMessage } from '~/initWorker';
 
-export const getConfig = async (code: string, defaultValue?: any) => {
+export const getConfig = async (subdomain: string, code: string, defaultValue?: any) => {
   return await sendTRPCMessage({
     subdomain,
 
@@ -41,7 +40,9 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
 };
 
 const getChildTags = async (subdomain: string, tagIds) => {
-  const childs = await sendCoreMessage({
+  const childs = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     module: 'tag',
     action: 'findWithChild',
@@ -94,7 +95,7 @@ export const getBranchesUtil = async (
     }
   }
 
-  return await sendCoreMessage({
+  return await sendTRPCMessage({
     subdomain,
     method: 'query',
     pluginName: 'core',
@@ -212,7 +213,9 @@ const otherPlugins = async (subdomain, newOrder, oldOrder?, userId?) => {
     afterMutations['pos:order']['synced'] &&
     afterMutations['pos:order']['synced'].length
   ) {
-    const user = await sendCoreMessage({
+    const user = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'users',
       action: 'users.findOne',
@@ -499,7 +502,7 @@ export const statusToDone = async ({
 
     // paid order info to offline pos
     if (toPos) {
-      await sendPosclientMessage(subdomain, {
+      await sendPosclientMessage({
         subdomain,
         action: 'erxes-posclient-to-pos-api',
         data: {
@@ -908,7 +911,7 @@ export const syncOrderFromClient = async ({
 
     // paid order info to offline pos
     if (toPos) {
-      await sendPosclientMessage(subdomain, {
+      await sendPosclientMessage({
         subdomain,
         action: 'erxes-posclient-to-pos-api',
         data: {
@@ -935,7 +938,7 @@ export const syncOrderFromClient = async ({
       }).lean();
 
       if (toCancelPos) {
-        await sendPosclientMessage(subdomain, {
+        await sendPosclientMessage({
           subdomain,
           action: 'erxes-posclient-to-pos-api-remove',
           data: {
@@ -976,7 +979,7 @@ export const syncOrderFromClient = async ({
   ).map((r) => r._id);
 
   // return info saved
-  await sendPosclientMessage(subdomain, {
+  await sendPosclientMessage({
     subdomain,
     action: `updateSynced`,
     data: {

@@ -26,7 +26,7 @@ export default {
       salesDealListChanged: {
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator('salesDealListChanged'),
-          async (payload, variables) => {
+          async (payload, variables, { subdomain }) => {
             const { deal, oldDeal, pipelineIds } = payload.salesDealListChanged;
 
             const { userId, pipelineId, filter } = variables;

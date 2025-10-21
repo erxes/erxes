@@ -17,14 +17,3 @@ const t = initTRPC.context<SalesTRPCContext>().create();
 export const appRouter = t.mergeRouters(dealTrpcRouter, posTrpcRouter);
 
 export type AppRouter = typeof appRouter;
-
-export const sendCoreMessage = async (
-  args: MessageProps & { pluginName?: string },
-): Promise<any> => {
-  return await sendTRPCMessage({
-    subdomain,
-
-    ...args,
-    pluginName: 'core',
-  });
-};

@@ -62,7 +62,6 @@ export const sendTRPCMessage = async ({
 
   const VERSION = getEnv({ name: 'VERSION' });
 
-<<<<<<< HEAD
   let client;
 
   if (VERSION && VERSION === 'saas') {
@@ -81,8 +80,6 @@ export const sendTRPCMessage = async ({
 
   // Extract subdomain from context
 
-=======
->>>>>>> 3e99781b09 (fix send trpc message)
   const result = await client[method](
     `${module}.${action}`,
     { subdomain, ...input },

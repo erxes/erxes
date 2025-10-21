@@ -1,13 +1,13 @@
-import { IModels } from '~/connectionResolvers';
-import { sendPosclientMessage } from '~/initWorker';
 import { IPosSlotDocument } from '@/pos/@types/orders';
 import { IPosDocument } from '@/pos/@types/pos';
 import { getConfigData, getProductsData } from '@/pos/routes';
+import { IModels } from '~/connectionResolvers';
+import { sendPosclientMessage } from '~/initWorker';
 
 export const syncPosToClient = async (subdomain: string, pos: IPosDocument) => {
   const configData = await getConfigData(subdomain, pos);
 
-  return await sendPosclientMessage(subdomain, {
+  return await sendPosclientMessage({
     subdomain,
     action: 'configs.manage',
     data: {
@@ -23,7 +23,7 @@ export const syncRemovePosToClient = async (
   subdomain: string,
   pos: IPosDocument,
 ) => {
-  return await sendPosclientMessage(subdomain, {
+  return await sendPosclientMessage({
     subdomain,
     action: 'configs.remove',
     data: {
@@ -43,7 +43,7 @@ export const syncProductGroupsToClient = async (
 ) => {
   const productGroups = await getProductsData(subdomain, models, pos);
 
-  await sendPosclientMessage(subdomain, {
+  await sendPosclientMessage({
     subdomain,
     action: 'crudData',
     data: {
@@ -60,7 +60,7 @@ export const syncSlotsToClient = async (
   pos: IPosDocument,
   slots: IPosSlotDocument[],
 ) => {
-  await sendPosclientMessage(subdomain, {
+  await sendPosclientMessage({
     subdomain,
     action: 'crudData',
     data: {

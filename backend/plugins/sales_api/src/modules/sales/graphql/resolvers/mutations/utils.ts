@@ -4,19 +4,17 @@ import { checkUserIds, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IDeal } from '~/modules/sales/@types';
 import {
+  createConformity,
+  getNewOrder,
+  sendNotifications,
+} from '~/modules/sales/utils';
+import {
   changeItemStatus,
   checkAssignedUserFromPData,
   copyPipelineLabels,
   itemMover,
   subscriptionWrapper,
 } from '../utils';
-import { models } from 'mongoose';
-import {
-  createConformity,
-  destroyBoardItemRelations,
-  getNewOrder,
-  sendNotifications,
-} from '~/modules/sales/utils';
 
 export const addDeal = async ({
   models,
@@ -63,8 +61,7 @@ export const addDeal = async ({
 
   const stage = await models.Stages.getStage(deal.stageId);
 
-  await createConformity({
-    subdomain,
+  await createConformity(subdomain, {
     mainType: 'deal',
     mainTypeId: deal._id,
     companyIds: doc.companyIds,
@@ -74,7 +71,7 @@ export const addDeal = async ({
   if (user) {
     const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
-    await sendNotifications(models, {
+    await sendNotifications(models, subdomain, {
       item: deal,
       user,
       action: `invited you to the ${pipeline.name}`,
@@ -248,7 +245,7 @@ export const editDeal = async ({
     notificationDoc.removedUsers = removedUserIds;
   }
 
-  await sendNotifications(models, notificationDoc);
+  await sendNotifications(models, subdomain, notificationDoc);
 
   // exclude [null]
   if (doc.tagIds && doc.tagIds.length) {

@@ -1,4 +1,3 @@
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IDeal, IDealDocument, IProductData } from '~/modules/sales/@types';
 import { SALES_STATUSES } from '~/modules/sales/constants';
@@ -111,7 +110,7 @@ export const dealMutations = {
   async dealsRemove(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
     const item = await models.Deals.findOne({ _id });
 
@@ -119,7 +118,7 @@ export const dealMutations = {
       throw new Error('Deal not found');
     }
 
-    await sendNotifications(models, {
+    await sendNotifications(models, subdomain,{
       item,
       user,
       action: `deleted deal:`,
@@ -199,8 +198,7 @@ export const dealMutations = {
     const companyIds = await getCompanyIds(subdomain, 'deal', _id);
     const customerIds = await getCustomerIds(subdomain, 'deal', _id);
 
-    await createConformity({
-      subdomain,
+    await createConformity(subdomain, {
       mainType: 'deal',
       mainTypeId: clone._id,
       customerIds,
