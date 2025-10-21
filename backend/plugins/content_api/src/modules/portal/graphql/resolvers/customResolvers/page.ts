@@ -14,12 +14,12 @@ const Page = {
     };
   },
 
-  async customFieldsMap(page: IPageDocument, _params, { models }: IContext) {
+  async customFieldsMap(page: IPageDocument, _params, { models, subdomain }: IContext) {
     const fieldGroups = await models.CustomFieldGroups.find({
       enabledPageIds: page._id,
     }).lean();
 
-    return await buildCustomFieldsMap(fieldGroups, page.customFieldsData);
+    return await buildCustomFieldsMap(subdomain, fieldGroups, page.customFieldsData);
   },
 };
 

@@ -1,7 +1,7 @@
 import { isEnabled, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
-export const getConfig = async (code: string, defaultValue?: string) => {
+export const getConfig = async (subdomain: string, code: string, defaultValue?: string) => {
   const configs = await sendTRPCMessage({
     subdomain,
 
@@ -44,18 +44,21 @@ export const getConfigByHost = async (
 };
 
 export const sendSms = async (
+  subdomain: string,
   type: string,
   phoneNumber: string,
   content: string,
 ) => {
   if (type === 'messagePro') {
     const MESSAGE_PRO_API_KEY = await getConfig(
+      subdomain,
       'MESSAGE_PRO_API_KEY',
 
       '',
     );
 
     const MESSAGE_PRO_PHONE_NUMBER = await getConfig(
+      subdomain,
       'MESSAGE_PRO_PHONE_NUMBER',
 
       '',
@@ -101,6 +104,7 @@ export const sendSms = async (
 };
 
 export const buildCustomFieldsMap = async (
+  subdomain: string,
   fieldGroups: any[],
   customFieldsData: any,
 ) => {
@@ -129,7 +133,10 @@ export const buildCustomFieldsMap = async (
   return jsonMap;
 };
 
-export const customFieldsDataByFieldCode = async (object) => {
+export const customFieldsDataByFieldCode = async (
+  subdomain: string,
+  object,
+) => {
   const customFieldsData =
     object.customFieldsData && object.customFieldsData.toObject
       ? object.customFieldsData.toObject()
