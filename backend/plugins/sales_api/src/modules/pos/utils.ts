@@ -95,6 +95,7 @@ export const getBranchesUtil = async (
   }
 
   return await sendCoreMessage({
+    subdomain,
     method: 'query',
     pluginName: 'core',
     module: 'branches',
@@ -498,7 +499,7 @@ export const statusToDone = async ({
 
     // paid order info to offline pos
     if (toPos) {
-      await sendPosclientMessage({
+      await sendPosclientMessage(subdomain, {
         subdomain,
         action: 'erxes-posclient-to-pos-api',
         data: {
@@ -907,7 +908,7 @@ export const syncOrderFromClient = async ({
 
     // paid order info to offline pos
     if (toPos) {
-      await sendPosclientMessage({
+      await sendPosclientMessage(subdomain, {
         subdomain,
         action: 'erxes-posclient-to-pos-api',
         data: {
@@ -934,7 +935,7 @@ export const syncOrderFromClient = async ({
       }).lean();
 
       if (toCancelPos) {
-        await sendPosclientMessage({
+        await sendPosclientMessage(subdomain, {
           subdomain,
           action: 'erxes-posclient-to-pos-api-remove',
           data: {
@@ -975,7 +976,7 @@ export const syncOrderFromClient = async ({
   ).map((r) => r._id);
 
   // return info saved
-  await sendPosclientMessage({
+  await sendPosclientMessage(subdomain, {
     subdomain,
     action: `updateSynced`,
     data: {

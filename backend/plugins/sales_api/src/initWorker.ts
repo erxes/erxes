@@ -18,7 +18,6 @@ export const sendPosclientHealthCheck = async ({
   }
   sendTRPCMessage({
     subdomain,
-
     pluginName: 'sales',
     method: 'query',
     module: 'pos',

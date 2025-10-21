@@ -5,7 +5,7 @@ import {
 } from '@trpc/client';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import { getPlugin, isEnabled } from '../service-discovery';
-import { getSubdomain } from '../utils';
+import { getEnv, getSubdomain } from '../utils';
 
 export type MessageProps = {
   subdomain: string;
@@ -60,10 +60,29 @@ export const sendTRPCMessage = async ({
 
   const pluginInfo = await getPlugin(pluginName);
 
-  const client = createTRPCUntypedClient({
-    links: [httpBatchLink({ url: `${pluginInfo.address}/trpc` })],
-  });
+  const VERSION = getEnv({ name: 'VERSION' });
 
+<<<<<<< HEAD
+  let client;
+
+  if (VERSION && VERSION === 'saas') {
+    client = createTRPCUntypedClient({
+      links: [
+        httpBatchLink({
+          url: `https://${subdomain}.next.erxes.com/gateway/pl:${pluginName}/trpc`,
+        }),
+      ],
+    });
+  } else {
+    client = createTRPCUntypedClient({
+      links: [httpBatchLink({ url: `${pluginInfo.address}/trpc` })],
+    });
+  }
+
+  // Extract subdomain from context
+
+=======
+>>>>>>> 3e99781b09 (fix send trpc message)
   const result = await client[method](
     `${module}.${action}`,
     { subdomain, ...input },
@@ -81,7 +100,8 @@ export const createTRPCContext =
     ) => Promise<TContext & TRPCContext>,
   ) =>
   async ({ req }: trpcExpress.CreateExpressContextOptions) => {
-    const subdomain = getSubdomain(req);
+    // Extract subdomain from request body/input instead of headers
+    const subdomain = req.body?.input?.subdomain || getSubdomain(req);
 
     const context: TRPCContext = {
       subdomain,
