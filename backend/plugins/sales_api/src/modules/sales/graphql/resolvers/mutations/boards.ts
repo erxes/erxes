@@ -32,6 +32,8 @@ export const boardMutations = {
     const board = await models.Boards.getBoard(_id);
 
     const relatedFieldsGroups = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'fieldsGroups',
@@ -49,6 +51,8 @@ export const boardMutations = {
       fieldGroup.boardIds = boardIds.filter((e) => e !== board._id);
 
       await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'mutation',
         module: 'fieldsGroups',

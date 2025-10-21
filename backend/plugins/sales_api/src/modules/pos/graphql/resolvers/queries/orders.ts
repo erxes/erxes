@@ -1,6 +1,13 @@
-import { SUBSCRIPTION_INFO_STATUS } from "@/pos/db/definitions/constants";
-import { escapeRegExp, getPureDate, getToday, getTomorrow, sendTRPCMessage, shortStrToDate } from "erxes-api-shared/utils";
-import { IContext, IModels } from "~/connectionResolvers";
+import { SUBSCRIPTION_INFO_STATUS } from '@/pos/db/definitions/constants';
+import {
+  escapeRegExp,
+  getPureDate,
+  getToday,
+  getTomorrow,
+  sendTRPCMessage,
+  shortStrToDate,
+} from 'erxes-api-shared/utils';
+import { IContext, IModels } from '~/connectionResolvers';
 
 export const paginate = (
   collection,
@@ -9,12 +16,12 @@ export const paginate = (
     page?: number;
     perPage?: number;
     excludeIds?: boolean;
-  }
+  },
 ) => {
   const { page = 0, perPage = 0, ids, excludeIds } = params || { ids: null };
 
-  const _page = Number(page || "1");
-  const _limit = Number(perPage || "100");
+  const _page = Number(page || '1');
+  const _limit = Number(perPage || '100');
 
   if (ids && ids.length > 0) {
     return excludeIds ? collection.limit(_limit) : collection;
@@ -23,11 +30,7 @@ export const paginate = (
   return collection.limit(_limit).skip((_page - 1) * _limit);
 };
 
-const generateFilterPosQuery = async (
-  models,
-  params,
-  currentUserId
-) => {
+const generateFilterPosQuery = async (models, params, currentUserId) => {
   const query: any = {};
   const {
     search,
@@ -45,13 +48,13 @@ const generateFilterPosQuery = async (
     statuses,
     excludeStatuses,
     hasPaidDate,
-    brandId
+    brandId,
   } = params;
 
   if (search) {
     query.$or = [
       { number: { $regex: new RegExp(search) } },
-      { origin: { $regex: new RegExp(search) } }
+      { origin: { $regex: new RegExp(search) } },
     ];
   }
 
@@ -61,8 +64,8 @@ const generateFilterPosQuery = async (
 
   if (customerType) {
     query.customerType =
-      customerType === "customer"
-        ? { $in: [customerType, "", undefined, null] }
+      customerType === 'customer'
+        ? { $in: [customerType, '', undefined, null] }
         : customerType;
   }
 
@@ -81,7 +84,7 @@ const generateFilterPosQuery = async (
 
   if (brandId) {
     const pos = await models.Pos.findOne({
-      scopeBrandIds: { $in: [brandId] }
+      scopeBrandIds: { $in: [brandId] },
     }).lean();
     query.posToken = pos?.token || '';
   }
@@ -93,11 +96,11 @@ const generateFilterPosQuery = async (
 
   if (userId) {
     let lastUserId = userId;
-    if (userId === "me") {
+    if (userId === 'me') {
       lastUserId = currentUserId;
     }
-    if (userId === "nothing") {
-      lastUserId = "";
+    if (userId === 'nothing') {
+      lastUserId = '';
     }
     query.userId = lastUserId;
   }
@@ -132,7 +135,7 @@ const generateFilterPosQuery = async (
     query.paidDate = { $exists: true };
   }
 
-  if (paidDate === "today" || !Object.keys(query).length) {
+  if (paidDate === 'today' || !Object.keys(query).length) {
     const now = new Date();
 
     const startDate = getToday(now);
@@ -168,40 +171,34 @@ const generateFilterSubsQuery = async (params: any) => {
   if (params?.closeTo) {
     filter.items.closeDate = {
       ...(filter?.items?.closeDate || {}),
-      $lte: new Date(params.closeTo)
+      $lte: new Date(params.closeTo),
     };
   }
 
   return filter;
 };
 
-export const posOrderRecordsQuery = async (
-  models,
-  params,
-  user?
-) => {
-  const query = await generateFilterPosQuery(
-    models,
-    params,
-    user?._id
-  );
+export const posOrderRecordsQuery = async (models, params, user?) => {
+  const query = await generateFilterPosQuery(models, params, user?._id);
 
   const { perPage = 20, page = 1 } = params;
 
   const orders = await models.PosOrders.aggregate([
     { $match: query },
-    { $unwind: "$items" },
+    { $unwind: '$items' },
     { $sort: { createdAt: -1 } },
     { $skip: perPage * (page - 1) },
-    { $limit: perPage }
+    { $limit: perPage },
   ]);
 
-  const branchIds = orders.map(item => item.branchId);
+  const branchIds = orders.map((item) => item.branchId);
   const branches = await sendTRPCMessage({
+    subdomain,
+
     method: 'query',
     pluginName: 'core',
     module: 'branches',
-    action: "find",
+    action: 'find',
     input: { query: { _id: { $in: branchIds } } },
   });
 
@@ -210,12 +207,14 @@ export const posOrderRecordsQuery = async (
     branchById[branch._id] = branch;
   }
 
-  const departmentIds = orders.map(item => item.departmentId);
+  const departmentIds = orders.map((item) => item.departmentId);
   const departments = await sendTRPCMessage({
+    subdomain,
+
     method: 'query',
     pluginName: 'core',
     module: 'departments',
-    action: "find",
+    action: 'find',
     input: { _id: { $in: departmentIds } },
   });
 
@@ -224,12 +223,14 @@ export const posOrderRecordsQuery = async (
     departmentById[department._id] = department;
   }
 
-  const productsIds = orders.map(order => order.items.productId);
+  const productsIds = orders.map((order) => order.items.productId);
   const products = await sendTRPCMessage({
+    subdomain,
+
     method: 'query',
     pluginName: 'core',
     module: 'products',
-    action: "find",
+    action: 'find',
     input: { query: { _id: { $in: productsIds } }, limit: productsIds.length },
   });
 
@@ -238,12 +239,14 @@ export const posOrderRecordsQuery = async (
     productById[product._id] = product;
   }
 
-  const productCategoryIds = products.map(p => p.categoryId);
+  const productCategoryIds = products.map((p) => p.categoryId);
   const productCategories = await sendTRPCMessage({
+    subdomain,
+
     method: 'query',
     pluginName: 'core',
     module: 'productCategories',
-    action: "find",
+    action: 'find',
     input: { query: { _id: { $in: productCategoryIds } } },
   });
 
@@ -253,17 +256,19 @@ export const posOrderRecordsQuery = async (
   }
 
   const customerIds = orders
-    .filter(o => (o.customerType || "customer") === "customer" && o.customerId)
-    .map(o => o.customerId);
+    .filter(
+      (o) => (o.customerType || 'customer') === 'customer' && o.customerId,
+    )
+    .map((o) => o.customerId);
   const companyIds = orders
-    .filter(o => o.customerType === "company" && o.customerId)
-    .map(o => o.customerId);
+    .filter((o) => o.customerType === 'company' && o.customerId)
+    .map((o) => o.customerId);
   const userIds = orders
-    .map(o => o.userId)
+    .map((o) => o.userId)
     .concat(
       orders
-        .filter(o => o.customerType === "user" && o.customerId)
-        .map(o => o.customerId)
+        .filter((o) => o.customerType === 'user' && o.customerId)
+        .map((o) => o.customerId),
     );
 
   const customerById = {};
@@ -272,12 +277,14 @@ export const posOrderRecordsQuery = async (
 
   if (customerIds.length) {
     const customers = await sendTRPCMessage({
+      subdomain,
+
       method: 'query',
       pluginName: 'core',
       module: 'customers',
-      action: "find",
+      action: 'find',
       input: { _id: { $in: customerIds } },
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const customer of customers) {
@@ -287,12 +294,14 @@ export const posOrderRecordsQuery = async (
 
   if (companyIds.length) {
     const companies = await sendTRPCMessage({
+      subdomain,
+
       method: 'query',
       pluginName: 'core',
       module: 'companies',
-      action: "find",
+      action: 'find',
       input: { _id: { $in: companyIds } },
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const company of companies) {
@@ -301,12 +310,14 @@ export const posOrderRecordsQuery = async (
   }
 
   const users = await sendTRPCMessage({
+    subdomain,
+
     method: 'query',
     pluginName: 'core',
     module: 'users',
-    action: "find",
+    action: 'find',
     input: { query: { _id: { $in: userIds } } },
-    defaultValue: []
+    defaultValue: [],
   });
 
   for (const user of users) {
@@ -315,7 +326,7 @@ export const posOrderRecordsQuery = async (
 
   const posByToken = {};
   const poss = await models.Pos.find({
-    token: { $in: orders.map(o => o.posToken) }
+    token: { $in: orders.map((o) => o.posToken) },
   });
   for (const pos of poss) {
     posByToken[pos.token] = pos;
@@ -323,22 +334,22 @@ export const posOrderRecordsQuery = async (
 
   for (const order of orders) {
     order._id = `${order._id}_${order.items._id}`;
-    order.branch = branchById[order.branchId || ""];
-    order.department = departmentById[order.departmentId || ""];
-    const perProduct = productById[order.items.productId || ""] || {};
+    order.branch = branchById[order.branchId || ''];
+    order.department = departmentById[order.departmentId || ''];
+    const perProduct = productById[order.items.productId || ''] || {};
     order.items.product = perProduct;
     order.items.productCategory =
-      productCategoryById[perProduct.categoryId || ""];
+      productCategoryById[perProduct.categoryId || ''];
     order.items.manufactured = order.items.manufacturedDate
       ? new Date(
-        Number(shortStrToDate(order.items.manufacturedDate, 92, "h", "n"))
-      )
-      : "";
+          Number(shortStrToDate(order.items.manufacturedDate, 92, 'h', 'n')),
+        )
+      : '';
     order.user = userById[order.userId];
     order.posName = posByToken[order.posToken].name;
 
-    if (order.customerType === "company") {
-      const company = companyById[order.customerId || ""];
+    if (order.customerType === 'company') {
+      const company = companyById[order.customerId || ''];
       if (company) {
         order.customer = {
           _id: company._id,
@@ -346,27 +357,27 @@ export const posOrderRecordsQuery = async (
           primaryPhone: company.primaryPhone,
           firstName: company.primaryName,
           primaryEmail: company.primaryEmail,
-          lastName: ""
+          lastName: '',
         };
       }
     }
 
-    if (order.customerType === "user") {
+    if (order.customerType === 'user') {
       const user = userById[order.customerId];
       if (user) {
         order.customer = {
           _id: user._id,
           code: user.code,
-          primaryPhone: (user.details && user.details.operatorPhone) || "",
-          firstName: `${user.firstName || ""} ${user.lastName || ""}`,
+          primaryPhone: (user.details && user.details.operatorPhone) || '',
+          firstName: `${user.firstName || ''} ${user.lastName || ''}`,
           primaryEmail: user.email,
-          lastName: user.username
+          lastName: user.username,
         };
       }
     }
 
-    if (!order.customerType || order.customerType === "customer") {
-      const customer = customerById[order.customerId || ""];
+    if (!order.customerType || order.customerType === 'customer') {
+      const customer = customerById[order.customerId || ''];
 
       if (customer) {
         order.customer = {
@@ -375,7 +386,7 @@ export const posOrderRecordsQuery = async (
           primaryPhone: customer.primaryPhone,
           firstName: customer.firstName,
           primaryEmail: customer.primaryEmail,
-          lastName: customer.lastName
+          lastName: customer.lastName,
         };
       }
     }
@@ -387,58 +398,38 @@ export const posOrderRecordsQuery = async (
 export const posOrderRecordsCountQuery = async (
   models: IModels,
   params: any,
-  user?
+  user?,
 ) => {
-  const query = await generateFilterPosQuery(
-    models,
-    params,
-    user?._id
-  );
+  const query = await generateFilterPosQuery(models, params, user?._id);
 
   const orders = await models.PosOrders.aggregate([
     { $match: query },
-    { $unwind: "$items" },
-    { $project: { "items._id": 1 } }
+    { $unwind: '$items' },
+    { $project: { 'items._id': 1 } },
   ]);
 
   return orders.length;
 };
 
 const queries = {
-  posOrders: async (
-    _root,
-    params,
-    { models, user }: IContext
-  ) => {
-    const query = await generateFilterPosQuery(
-      models,
-      params,
-      user._id
-    );
+  posOrders: async (_root, params, { models, user }: IContext) => {
+    const query = await generateFilterPosQuery(models, params, user._id);
 
     let sort: any = { number: 1 };
     if (params.sortField && params.sortDirection) {
       sort = {
-        [params.sortField]: params.sortDirection
+        [params.sortField]: params.sortDirection,
       };
     }
 
     return paginate(models.PosOrders.find(query).sort({ ...sort }), {
       page: params.page,
-      perPage: params.perPage
+      perPage: params.perPage,
     });
   },
 
-  posOrdersTotalCount: async (
-    _root,
-    params,
-    { models, user }: IContext
-  ) => {
-    const query = await generateFilterPosQuery(
-      models,
-      params,
-      user._id
-    );
+  posOrdersTotalCount: async (_root, params, { models, user }: IContext) => {
+    const query = await generateFilterPosQuery(models, params, user._id);
     return models.PosOrders.find(query).countDocuments();
   },
 
@@ -447,20 +438,22 @@ const queries = {
     if (!order) {
       throw new Error(`PosOrder ${_id} not found`);
     }
-    const productIds = (order.items || []).map(i => i.productId);
+    const productIds = (order.items || []).map((i) => i.productId);
 
     const products = await sendTRPCMessage({
+      subdomain,
+
       method: 'query',
       pluginName: 'core',
       module: 'products',
-      action: "find",
+      action: 'find',
       input: {
         query: {
-          _id: { $in: productIds }
+          _id: { $in: productIds },
         },
-        sort: {}
+        sort: {},
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     const productById = {};
@@ -471,89 +464,81 @@ const queries = {
     const orderDetail = order as any;
 
     for (const item of orderDetail.items || []) {
-      item.productName = (productById[item.productId] || {}).name || "unknown";
+      item.productName = (productById[item.productId] || {}).name || 'unknown';
     }
 
     return orderDetail;
   },
 
-  posOrdersSummary: async (
-    _root,
-    params,
-    { models, user }: IContext
-  ) => {
-    const query = await generateFilterPosQuery(
-      models,
-      params,
-      user._id
-    );
+  posOrdersSummary: async (_root, params, { models, user }: IContext) => {
+    const query = await generateFilterPosQuery(models, params, user._id);
 
     const res = await models.PosOrders.aggregate([
       { $match: { ...query } },
       {
         $project: {
-          cashAmount: "$cashAmount",
-          mobileAmount: "$mobileAmount",
-          totalAmount: "$totalAmount",
-          finalAmount: "$finalAmount "
-        }
+          cashAmount: '$cashAmount',
+          mobileAmount: '$mobileAmount',
+          totalAmount: '$totalAmount',
+          finalAmount: '$finalAmount ',
+        },
       },
       {
         $group: {
-          _id: "",
-          cashAmount: { $sum: "$cashAmount" },
-          mobileAmount: { $sum: "$mobileAmount" },
-          totalAmount: { $sum: "$totalAmount" },
-          count: { $sum: 1 }
-        }
-      }
+          _id: '',
+          cashAmount: { $sum: '$cashAmount' },
+          mobileAmount: { $sum: '$mobileAmount' },
+          totalAmount: { $sum: '$totalAmount' },
+          count: { $sum: 1 },
+        },
+      },
     ]);
 
     const ordersAmount = res.length ? res[0] : {};
 
     const otherAmounts = await models.PosOrders.aggregate([
       { $match: { ...query } },
-      { $unwind: "$paidAmounts" },
+      { $unwind: '$paidAmounts' },
       {
         $project: {
-          type: "$paidAmounts.type",
-          amount: "$paidAmounts.amount",
-          token: "$posToken"
-        }
+          type: '$paidAmounts.type',
+          amount: '$paidAmounts.amount',
+          token: '$posToken',
+        },
       },
       {
         $lookup: {
-          from: "pos",
-          let: { letToken: "$token", letType: "$type" },
+          from: 'pos',
+          let: { letToken: '$token', letType: '$type' },
           pipeline: [
             {
-              $match: { $expr: { $eq: ["$token", "$$letToken"] } }
+              $match: { $expr: { $eq: ['$token', '$$letToken'] } },
             },
             {
-              $unwind: "$paymentTypes"
+              $unwind: '$paymentTypes',
             },
             {
               $project: {
-                type: "$paymentTypes.type",
-                title: "$paymentTypes.title"
-              }
+                type: '$paymentTypes.type',
+                title: '$paymentTypes.title',
+              },
             },
             {
-              $match: { $expr: { $eq: ["$type", "$$letType"] } }
-            }
+              $match: { $expr: { $eq: ['$type', '$$letType'] } },
+            },
           ],
-          as: "paymentInfo"
-        }
+          as: 'paymentInfo',
+        },
       },
       {
-        $unwind: { path: "$paymentInfo", preserveNullAndEmptyArrays: true }
+        $unwind: { path: '$paymentInfo', preserveNullAndEmptyArrays: true },
       },
       {
         $group: {
-          _id: { type: "$type", title: "$paymentInfo.title" },
-          amount: { $sum: "$amount" }
-        }
-      }
+          _id: { type: '$type', title: '$paymentInfo.title' },
+          amount: { $sum: '$amount' },
+        },
+      },
     ]);
 
     for (const amount of otherAmounts) {
@@ -564,31 +549,27 @@ const queries = {
     return ordersAmount;
   },
 
-  posOrdersGroupSummary: async (
-    _root,
-    params,
-    { models, user }: IContext
-  ) => {
+  posOrdersGroupSummary: async (_root, params, { models, user }: IContext) => {
     const query = await generateFilterPosQuery(
       models,
       params,
 
-      user._id
+      user._id,
     );
 
     const idGroup: any = {};
     const { groupField } = params;
 
     if (groupField) {
-      if (groupField === "date") {
+      if (groupField === 'date') {
         idGroup.paidDate = {
-          $dateToString: { format: "%Y-%m-%d", date: "$paidDate" }
+          $dateToString: { format: '%Y-%m-%d', date: '$paidDate' },
         };
       }
 
-      if (groupField === "time") {
+      if (groupField === 'time') {
         idGroup.paidDate = {
-          $dateToString: { format: "%Y-%m-%d %H", date: "$paidDate" }
+          $dateToString: { format: '%Y-%m-%d %H', date: '$paidDate' },
         };
       }
     }
@@ -597,76 +578,76 @@ const queries = {
       { $match: { ...query } },
       {
         $project: {
-          paidDate: "$paidDate",
-          cashAmount: "$cashAmount",
-          mobileAmount: "$mobileAmount",
-          totalAmount: "$totalAmount",
-          finalAmount: "$finalAmount "
-        }
+          paidDate: '$paidDate',
+          cashAmount: '$cashAmount',
+          mobileAmount: '$mobileAmount',
+          totalAmount: '$totalAmount',
+          finalAmount: '$finalAmount ',
+        },
       },
       {
         $group: {
           _id: idGroup,
-          cashAmount: { $sum: "$cashAmount" },
-          mobileAmount: { $sum: "$mobileAmount" },
-          totalAmount: { $sum: "$totalAmount" },
-          count: { $sum: 1 }
-        }
-      }
+          cashAmount: { $sum: '$cashAmount' },
+          mobileAmount: { $sum: '$mobileAmount' },
+          totalAmount: { $sum: '$totalAmount' },
+          count: { $sum: 1 },
+        },
+      },
     ]);
 
     const otherAmounts = await models.PosOrders.aggregate([
       { $match: { ...query } },
-      { $unwind: "$paidAmounts" },
+      { $unwind: '$paidAmounts' },
       {
         $project: {
-          paidDate: "$paidDate",
-          type: "$paidAmounts.type",
-          amount: "$paidAmounts.amount",
-          token: "$posToken"
-        }
+          paidDate: '$paidDate',
+          type: '$paidAmounts.type',
+          amount: '$paidAmounts.amount',
+          token: '$posToken',
+        },
       },
       {
         $lookup: {
-          from: "pos",
-          let: { letToken: "$token", letType: "$type" },
+          from: 'pos',
+          let: { letToken: '$token', letType: '$type' },
           pipeline: [
             {
-              $match: { $expr: { $eq: ["$token", "$$letToken"] } }
+              $match: { $expr: { $eq: ['$token', '$$letToken'] } },
             },
             {
-              $unwind: "$paymentTypes"
+              $unwind: '$paymentTypes',
             },
             {
               $project: {
-                type: "$paymentTypes.type",
-                title: "$paymentTypes.title"
-              }
+                type: '$paymentTypes.type',
+                title: '$paymentTypes.title',
+              },
             },
             {
-              $match: { $expr: { $eq: ["$type", "$$letType"] } }
-            }
+              $match: { $expr: { $eq: ['$type', '$$letType'] } },
+            },
           ],
-          as: "paymentInfo"
-        }
+          as: 'paymentInfo',
+        },
       },
       {
-        $unwind: { path: "$paymentInfo", preserveNullAndEmptyArrays: true }
+        $unwind: { path: '$paymentInfo', preserveNullAndEmptyArrays: true },
       },
       {
         $group: {
-          _id: { ...idGroup, type: "$type", title: "$paymentInfo.title" },
-          amount: { $sum: "$amount" }
-        }
-      }
+          _id: { ...idGroup, type: '$type', title: '$paymentInfo.title' },
+          amount: { $sum: '$amount' },
+        },
+      },
     ]);
 
     const summary = {};
     const columns = {
-      cashAmount: "cash amount",
-      mobileAmount: "mobile amount",
-      totalAmount: "total amount",
-      count: "count"
+      cashAmount: 'cash amount',
+      mobileAmount: 'mobile amount',
+      totalAmount: 'total amount',
+      count: 'count',
     };
 
     for (const mainAmount of mainAmounts) {
@@ -674,7 +655,7 @@ const queries = {
         cashAmount: mainAmount.cashAmount || 0,
         mobileAmount: mainAmount.mobileAmount || 0,
         totalAmount: mainAmount.totalAmount || 0,
-        count: mainAmount.count || 0
+        count: mainAmount.count || 0,
       };
     }
 
@@ -696,43 +677,39 @@ const queries = {
     return { amounts, columns };
   },
 
-  posProducts: async (
-    _root,
-    params,
-    { models, user, subdomain }: IContext
-  ) => {
-    const orderQuery = await generateFilterPosQuery(
-      models,
-      params,
-      user._id
-    );
+  posProducts: async (_root, params, { models, user, subdomain }: IContext) => {
+    const orderQuery = await generateFilterPosQuery(models, params, user._id);
     const query: any = {};
 
     if (params.categoryId) {
       const category = await sendTRPCMessage({
+        subdomain,
+
         method: 'query',
         pluginName: 'core',
         module: 'productCategories',
-        action: "findOne",
+        action: 'findOne',
         input: {
           _id: params.categoryId,
-          status: { $in: [null, "active"] }
+          status: { $in: [null, 'active'] },
         },
-        defaultValue: {}
+        defaultValue: {},
       });
 
       const productCategories = await sendTRPCMessage({
+        subdomain,
+
         method: 'query',
         pluginName: 'core',
         module: 'productCategories',
-        action: "find",
+        action: 'find',
         input: {
-          regData: category.order
+          regData: category.order,
         },
-        defaultValue: []
+        defaultValue: [],
       });
 
-      const product_category_ids = productCategories.map(p => p._id);
+      const product_category_ids = productCategories.map((p) => p._id);
 
       query.categoryId = { $in: product_category_ids };
     }
@@ -741,14 +718,14 @@ const queries = {
       const fields = [
         {
           name: {
-            $in: [new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, "i")]
-          }
+            $in: [new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, 'i')],
+          },
         },
         {
           code: {
-            $in: [new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, "i")]
-          }
-        }
+            $in: [new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, 'i')],
+          },
+        },
       ];
 
       query.$or = fields;
@@ -757,51 +734,55 @@ const queries = {
     const skip = params.page ? (params.page - 1) * limit : 0;
 
     const products = await sendTRPCMessage({
+      subdomain,
+
       method: 'query',
       pluginName: 'core',
       module: 'products',
-      action: "find",
+      action: 'find',
       input: {
         query,
         sort: {},
         skip,
-        limit
+        limit,
       },
     });
 
     const totalCount = await sendTRPCMessage({
+      subdomain,
+
       method: 'query',
       pluginName: 'core',
       module: 'products',
-      action: "count",
+      action: 'count',
       input: {
-        query
+        query,
       },
     });
 
-    const productIds = products.map(p => p._id);
+    const productIds = products.map((p) => p._id);
 
-    query["items.productId"] = { $in: productIds };
+    query['items.productId'] = { $in: productIds };
 
     const items = await models.PosOrders.aggregate([
       { $match: orderQuery },
-      { $unwind: "$items" },
-      { $match: { "items.productId": { $in: productIds } } },
+      { $unwind: '$items' },
+      { $match: { 'items.productId': { $in: productIds } } },
       {
         $project: {
-          productId: "$items.productId",
-          count: "$items.count",
-          date: "$paidDate",
-          amount: { $multiply: ["$items.unitPrice", "$items.count"] }
-        }
+          productId: '$items.productId',
+          count: '$items.count',
+          date: '$paidDate',
+          amount: { $multiply: ['$items.unitPrice', '$items.count'] },
+        },
       },
       {
         $group: {
-          _id: { productId: "$productId", hour: { $hour: "$date" } },
-          count: { $sum: "$count" },
-          amount: { $sum: "$amount" }
-        }
-      }
+          _id: { productId: '$productId', hour: { $hour: '$date' } },
+          count: { $sum: '$count' },
+          amount: { $sum: '$amount' },
+        },
+      },
     ]);
 
     const diffZone = process.env.TIMEZONE;
@@ -812,7 +793,7 @@ const queries = {
       product.amount = 0;
 
       const itemsByProduct =
-        items.filter(i => i._id.productId === product._id) || [];
+        items.filter((i) => i._id.productId === product._id) || [];
 
       for (const item of itemsByProduct) {
         const { _id, count, amount } = item;
@@ -829,28 +810,16 @@ const queries = {
     return {
       totalCount,
       products: products.filter(
-        p => !(p.status === "deleted" && !p.count && !p.amount)
-      )
+        (p) => !(p.status === 'deleted' && !p.count && !p.amount),
+      ),
     };
   },
 
-  posOrderRecords: async (
-    _root,
-    params,
-    { models, user }: IContext
-  ) => {
-    return posOrderRecordsQuery(
-      models,
-      params,
-      user
-    );
+  posOrderRecords: async (_root, params, { models, user }: IContext) => {
+    return posOrderRecordsQuery(models, params, user);
   },
 
-  posOrderRecordsCount: async (
-    _root,
-    params,
-    { models, user }: IContext
-  ) => {
+  posOrderRecordsCount: async (_root, params, { models, user }: IContext) => {
     return posOrderRecordsCountQuery(models, params, user);
   },
 
@@ -859,46 +828,46 @@ const queries = {
       models.PosOrders.aggregate([
         {
           $match: {
-            customerId: { $nin: [null, "", undefined] }
-          }
+            customerId: { $nin: [null, '', undefined] },
+          },
         },
         {
           $group: {
-            _id: "$customerId",
-            customerType: { $first: "$customerType" },
-            orders: { $push: "$$ROOT" }
-          }
+            _id: '$customerId',
+            customerType: { $first: '$customerType' },
+            orders: { $push: '$$ROOT' },
+          },
         },
         {
           $project: {
             _id: 1,
             customerType: 1,
             orders: 1,
-            totalOrders: { $size: "$orders" },
-            totalAmount: { $sum: "$orders.totalAmount" }
-          }
+            totalOrders: { $size: '$orders' },
+            totalAmount: { $sum: '$orders.totalAmount' },
+          },
         },
-        { $sort: { _id: -1 } }
+        { $sort: { _id: -1 } },
       ]),
-      params
+      params,
     );
   },
   posOrderCustomersTotalCount: async (
     _root,
     params,
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) => {
     const [{ totalDocuments }] = await models.PosOrders.aggregate([
       {
         $group: {
-          _id: "$customerId",
-          customerType: { $first: "$customerType" },
-          orders: { $push: "$$ROOT" }
-        }
+          _id: '$customerId',
+          customerType: { $first: '$customerType' },
+          orders: { $push: '$$ROOT' },
+        },
       },
       {
-        $count: "totalDocuments"
-      }
+        $count: 'totalDocuments',
+      },
     ]);
 
     return totalDocuments;
@@ -907,21 +876,21 @@ const queries = {
   async checkSubscription(
     _root,
     { customerId, productId, productIds },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const filter: any = {
       customerId,
-      "items.productId": productId,
-      "subscriptionInfo.status": SUBSCRIPTION_INFO_STATUS.ACTIVE,
-      "items.closeDate": { $gte: new Date() }
+      'items.productId': productId,
+      'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.ACTIVE,
+      'items.closeDate': { $gte: new Date() },
     };
 
     if (productIds) {
-      filter["items.productId"] = productIds;
+      filter['items.productId'] = productIds;
     }
 
     const subscription = await models.PosOrders.findOne(filter).sort({
-      createdAt: -1
+      createdAt: -1,
     });
 
     if (!subscription) {
@@ -934,42 +903,42 @@ const queries = {
   async posOrderBySubscriptions(
     _root,
     { page, perPage, ...params },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const filter = await generateFilterSubsQuery(params);
 
-    const _page = Number(page || "1");
-    const _limit = Number(perPage || "20");
+    const _page = Number(page || '1');
+    const _limit = Number(perPage || '20');
 
     return await models.PosOrders.aggregate([
       {
         $match: {
-          "subscriptionInfo.subscriptionId": { $nin: [null, "", undefined] },
-          customerId: { $nin: [null, "", undefined] },
-          ...filter
-        }
+          'subscriptionInfo.subscriptionId': { $nin: [null, '', undefined] },
+          customerId: { $nin: [null, '', undefined] },
+          ...filter,
+        },
       },
-      { $unwind: "$items" },
-      { $sort: { createdAt: -1, "items.closeDate": -1 } },
+      { $unwind: '$items' },
+      { $sort: { createdAt: -1, 'items.closeDate': -1 } },
       {
         $group: {
-          _id: "$subscriptionInfo.subscriptionId",
-          customerId: { $first: "$customerId" },
-          customerType: { $first: "$customerType" },
-          status: { $first: "$subscriptionInfo.status" },
-          closeDate: { $first: "$items.closeDate" },
-          createdAt: { $first: "$items.createdAt" },
+          _id: '$subscriptionInfo.subscriptionId',
+          customerId: { $first: '$customerId' },
+          customerType: { $first: '$customerType' },
+          status: { $first: '$subscriptionInfo.status' },
+          closeDate: { $first: '$items.closeDate' },
+          createdAt: { $first: '$items.createdAt' },
           orders: {
             $push: {
               $cond: {
-                if: { $ne: ["$items.closeDate", null] },
-                then: "$$ROOT",
-                else: "$$REMOVE"
-              }
-            }
-          }
-        }
-      }
+                if: { $ne: ['$items.closeDate', null] },
+                then: '$$ROOT',
+                else: '$$REMOVE',
+              },
+            },
+          },
+        },
+      },
     ])
       .skip((_page - 1) * _limit)
       .limit(_limit);
@@ -982,18 +951,18 @@ const queries = {
       {
         $match: {
           ...filter,
-          "subscriptionInfo.subscriptionId": { $nin: [null, "", undefined] },
-          customerId: { $nin: [null, "", undefined] }
-        }
+          'subscriptionInfo.subscriptionId': { $nin: [null, '', undefined] },
+          customerId: { $nin: [null, '', undefined] },
+        },
       },
-      { $group: { _id: "$subscriptionInfo.subscriptionId" } },
+      { $group: { _id: '$subscriptionInfo.subscriptionId' } },
       {
-        $count: "totalCount" // Count the unique groups
-      }
+        $count: 'totalCount', // Count the unique groups
+      },
     ]);
 
     return result?.totalCount || 0;
-  }
+  },
 };
 
 // checkPermission(queries, "posOrders", "showOrders");

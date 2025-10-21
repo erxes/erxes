@@ -38,6 +38,8 @@ const configQueries = {
       return {};
     }
     return await sendTRPCMessage({
+      subdomain,
+
       method: 'query',
       pluginName: 'sales',
       module: 'pos',

@@ -8,6 +8,8 @@ export default {
     }
 
     return await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'users',
       action: 'users.findOne',
@@ -20,6 +22,8 @@ export default {
       return null;
     }
     return sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'users',
       action: 'findOne',
@@ -32,6 +36,8 @@ export default {
       return null;
     }
     return sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'users',
       action: 'findOne',
@@ -42,5 +48,5 @@ export default {
   posName: async (cover, _, { models }) => {
     const pos = await models.Pos.findOne({ token: cover.posToken }).lean();
     return pos ? pos.name : '';
-  }
+  },
 };

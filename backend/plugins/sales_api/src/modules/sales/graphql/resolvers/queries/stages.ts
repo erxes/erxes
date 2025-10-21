@@ -6,7 +6,6 @@ import {
 
 import { IContext } from '~/connectionResolvers';
 import { SALES_STATUSES } from '~/modules/sales/constants';
-import { moduleRequireLogin } from 'erxes-api-shared/core-modules';
 
 export const stageQueries = {
   /**
@@ -25,7 +24,7 @@ export const stageQueries = {
       isNotLost: boolean;
       isAll: boolean;
     },
-    { user, models }: IContext,
+    { subdomain, user, models }: IContext,
   ) {
     const filter: any = {};
 
@@ -50,6 +49,7 @@ export const stageQueries = {
       ];
 
       const userDetail = await sendTRPCMessage({
+        subdomain,
         pluginName: 'core',
         method: 'query',
         module: 'users',

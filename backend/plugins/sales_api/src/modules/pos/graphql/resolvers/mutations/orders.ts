@@ -1,12 +1,12 @@
-import { sendTRPCMessage } from "erxes-api-shared/utils";
-import { IContext } from "~/connectionResolvers";
-import { getConfig } from "~/modules/pos/utils";
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
+import { getConfig } from '~/modules/pos/utils';
 
 const orderMutations = {
   async posOrderReturnBill(
     _root,
-    { _id }: { _id: string; },
-    { models }: IContext
+    { _id }: { _id: string },
+    { models }: IContext,
   ) {
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
@@ -23,6 +23,8 @@ const orderMutations = {
     const ebarimtMainConfig = await getConfig('EBARIMT', {});
 
     await sendTRPCMessage({
+      subdomain,
+
       method: 'query',
       pluginName: 'ebarimt',
       module: 'putresponses',
@@ -32,10 +34,12 @@ const orderMutations = {
         contentId: _id,
         number: order.number,
         config: { ...pos.ebarimtConfig, ...ebarimtMainConfig },
-      }
+      },
     });
 
     await sendTRPCMessage({
+      subdomain,
+
       method: 'mutation',
       pluginName: 'coreintegrations',
       module: 'syncerkhet',
@@ -52,8 +56,18 @@ const orderMutations = {
 
   async posOrderChangePayments(
     _root,
-    { _id, cashAmount, mobileAmount, paidAmounts }: { _id: string, cashAmount: number, mobileAmount: number, paidAmounts: { type: string; amount: number }[] },
-    { models, __ }: IContext
+    {
+      _id,
+      cashAmount,
+      mobileAmount,
+      paidAmounts,
+    }: {
+      _id: string;
+      cashAmount: number;
+      mobileAmount: number;
+      paidAmounts: { type: string; amount: number }[];
+    },
+    { models, __ }: IContext,
   ) {
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
@@ -64,19 +78,21 @@ const orderMutations = {
       throw new Error('Already returned');
     }
 
-    if (order.totalAmount !==
+    if (
+      order.totalAmount !==
       cashAmount +
-      mobileAmount +
-      (paidAmounts || []).reduce(
-        (sum, i) => Number(sum) + Number(i.amount),
-        0
-      )) {
+        mobileAmount +
+        (paidAmounts || []).reduce(
+          (sum, i) => Number(sum) + Number(i.amount),
+          0,
+        )
+    ) {
       throw new Error('not balanced');
     }
 
     await models.PosOrders.updateOne(
       { _id },
-      { $set: __({ cashAmount, mobileAmount, paidAmounts }) }
+      { $set: __({ cashAmount, mobileAmount, paidAmounts }) },
     );
     return models.PosOrders.findOne({ _id }).lean();
   },

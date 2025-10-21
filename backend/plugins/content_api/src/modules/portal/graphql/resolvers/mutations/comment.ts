@@ -51,6 +51,8 @@ const clientPortalCommentMutations = {
         //   defaultValue: [],
         // });
         const conformities = await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'query',
           module: 'conformities',
@@ -68,6 +70,8 @@ const clientPortalCommentMutations = {
         const mainTypeIds = conformities.map((item) => item.mainTypeId);
 
         const tickets = await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'frontline',
           method: 'query',
           module: 'tickets',
@@ -80,6 +84,8 @@ const clientPortalCommentMutations = {
         const stageIds = tickets.map((ticket) => ticket.stageId);
 
         const stages = await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'frontline',
           method: 'query',
           module: 'stages',
@@ -92,6 +98,8 @@ const clientPortalCommentMutations = {
         // Step 4: Find pipelines for the stages
         const pipelineIds = stages.map((stage) => stage.pipelineId);
         const pipelines = await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'frontline',
           method: 'query',
           module: 'pipelines',

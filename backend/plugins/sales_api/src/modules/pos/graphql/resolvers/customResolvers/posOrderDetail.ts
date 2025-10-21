@@ -9,6 +9,8 @@ const resolvers = {
       return null;
     }
     return await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'users',
       action: 'findOne',
@@ -28,11 +30,13 @@ const resolvers = {
 
     if (order.customerType === 'company') {
       const company = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         module: 'company',
         action: 'findOne',
-        input: { _id: order.customerId }
-      })
+        input: { _id: order.customerId },
+      });
 
       if (!company) {
         return;
@@ -49,11 +53,13 @@ const resolvers = {
 
     if (order.customerType === 'user') {
       const user = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         module: 'users',
         action: 'findOne',
-        input: { _id: order.customerId }
-      })
+        input: { _id: order.customerId },
+      });
 
       if (!user) {
         return;
@@ -71,10 +77,12 @@ const resolvers = {
 
     if (!order.customerType || order.customerType === 'customer') {
       const customer = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         module: 'customers',
         action: 'findOne',
-        input: { _id: order.customerId }
+        input: { _id: order.customerId },
       });
 
       if (!customer) {
@@ -107,6 +115,8 @@ const resolvers = {
 
   putResponses: async (order) => {
     sendTRPCMessage({
+      subdomain,
+
       pluginName: 'coreintegration',
       module: 'putresponses',
       action: 'find',
@@ -115,8 +125,8 @@ const resolvers = {
           contentType: 'pos',
           contentId: order._id,
         },
-      }
-    })
+      },
+    });
   },
 
   async deal(order: IPosOrderDocument) {
@@ -125,11 +135,13 @@ const resolvers = {
     }
 
     return await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'sales',
       module: 'deals',
       action: 'findOne',
-      input: { _id: order.convertDealId }
-    })
+      input: { _id: order.convertDealId },
+    });
   },
 
   async dealLink(order: IPosOrderDocument) {
@@ -138,6 +150,8 @@ const resolvers = {
     }
 
     return await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'sales',
       module: 'deals',
       action: 'getLink',

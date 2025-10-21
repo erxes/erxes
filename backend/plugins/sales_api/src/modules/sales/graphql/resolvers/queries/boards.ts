@@ -201,6 +201,8 @@ export const boardQueries = {
     }
 
     const users = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'users',
@@ -313,6 +315,8 @@ export const boardQueries = {
 
       if (content) {
         addedUsers = await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'query',
           module: 'users',
@@ -326,6 +330,8 @@ export const boardQueries = {
         });
 
         removedUsers = await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'query',
           module: 'users',
@@ -350,6 +356,8 @@ export const boardQueries = {
       result[ct] = [];
 
       const groups = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'forms',
@@ -366,6 +374,8 @@ export const boardQueries = {
         const { config = {} } = group;
 
         const fields = await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'query',
           module: 'forms',
@@ -426,6 +436,8 @@ export const boardQueries = {
     }
 
     const tags = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'tags',

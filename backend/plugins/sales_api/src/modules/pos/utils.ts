@@ -15,6 +15,8 @@ import { sendPosclientHealthCheck, sendPosclientMessage } from '~/initWorker';
 
 export const getConfig = async (code: string, defaultValue?: any) => {
   return await sendTRPCMessage({
+    subdomain,
+
     method: 'query',
     pluginName: 'core',
     module: 'config',
@@ -25,6 +27,8 @@ export const getConfig = async (code: string, defaultValue?: any) => {
 
 export const getChildCategories = async (subdomain: string, categoryIds) => {
   const childs = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     module: 'productCategories',
     action: 'withChilds',
@@ -91,6 +95,7 @@ export const getBranchesUtil = async (
   }
 
   return await sendCoreMessage({
+    subdomain,
     method: 'query',
     pluginName: 'core',
     module: 'branches',
@@ -138,6 +143,8 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
       ) {
         try {
           await sendTRPCMessage({
+            subdomain,
+
             pluginName: 'loyalty',
             module: 'scores',
             action: 'doScoreCampaign',
@@ -175,6 +182,8 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
 
   try {
     await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'loyalty',
       module: 'loyalty',
       action: 'confirmLoyalties',
@@ -280,6 +289,8 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
 
     if (Object.keys(pushInfo).length) {
       await sendTRPCMessage({
+        subdomain,
+
         method: 'mutation',
         pluginName: 'core',
         module: moduleTxt,
@@ -361,6 +372,8 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
 
   if ((doneOrder.deliveryInfo || {}).dealId) {
     const deal = await sendTRPCMessage({
+      subdomain,
+
       method: 'mutation',
       pluginName: 'sales',
       module: 'deals',
@@ -372,6 +385,8 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     });
 
     await sendTRPCMessage({
+      subdomain,
+
       method: 'mutation',
       pluginName: 'sales',
       module: 'deals',
@@ -387,6 +402,8 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     });
   } else {
     const deal = await sendTRPCMessage({
+      subdomain,
+
       method: 'mutation',
       pluginName: 'sales',
       module: 'deals',
@@ -402,6 +419,8 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       ['customer', 'company'].includes(doneOrder.customerType || 'customer')
     ) {
       await sendTRPCMessage({
+        subdomain,
+
         method: 'mutation',
         pluginName: 'core',
         module: 'conformities',
@@ -416,6 +435,8 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     }
 
     await sendTRPCMessage({
+      subdomain,
+
       method: 'mutation',
       pluginName: 'sales',
       module: 'deals',
@@ -478,7 +499,7 @@ export const statusToDone = async ({
 
     // paid order info to offline pos
     if (toPos) {
-      await sendPosclientMessage({
+      await sendPosclientMessage(subdomain, {
         subdomain,
         action: 'erxes-posclient-to-pos-api',
         data: {
@@ -547,6 +568,8 @@ const createDealPerOrder = async ({
     }
 
     const cardDeal = await sendTRPCMessage({
+      subdomain,
+
       method: 'mutation',
       pluginName: 'sales',
       module: 'deals',
@@ -572,6 +595,8 @@ const createDealPerOrder = async ({
 
     if (newOrder.customerId && cardDeal._id) {
       await sendTRPCMessage({
+        subdomain,
+
         method: 'mutation',
         pluginName: 'core',
         module: 'conformities',
@@ -585,6 +610,8 @@ const createDealPerOrder = async ({
       });
     }
     await sendTRPCMessage({
+      subdomain,
+
       method: 'mutation',
       pluginName: 'sales',
       module: 'deals',
@@ -622,6 +649,8 @@ const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
 
   if (newOrder.status === 'return') {
     resp = await sendTRPCMessage({
+      subdomain,
+
       method: 'mutation',
       pluginName: 'coreintegration',
       module: 'syncerkhet',
@@ -634,6 +663,8 @@ const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
     });
   } else {
     resp = await sendTRPCMessage({
+      subdomain,
+
       method: 'mutation',
       pluginName: 'coreintegration',
       module: 'syncerkhet',
@@ -681,6 +712,8 @@ const syncInventoriesRem = async ({
         (!oldBranchId || oldBranchId !== newOrder.branchId)
       ) {
         await sendTRPCMessage({
+          subdomain,
+
           method: 'mutation',
           pluginName: 'accounting',
           module: 'remainders',
@@ -699,6 +732,8 @@ const syncInventoriesRem = async ({
 
       if (oldBranchId && oldBranchId !== newOrder.branchId) {
         await sendTRPCMessage({
+          subdomain,
+
           method: 'mutation',
           pluginName: 'accounting',
           module: 'remainders',
@@ -727,6 +762,8 @@ const syncInventoriesRem = async ({
     (!oldBranchId || oldBranchId !== newOrder.branchId)
   ) {
     await sendTRPCMessage({
+      subdomain,
+
       method: 'mutation',
       pluginName: 'accounting',
       module: 'remainders',
@@ -746,6 +783,8 @@ const syncInventoriesRem = async ({
 
   if (oldBranchId && oldBranchId !== newOrder.branchId) {
     await sendTRPCMessage({
+      subdomain,
+
       method: 'mutation',
       pluginName: 'accounting',
       module: 'remainders',
@@ -788,6 +827,8 @@ export const syncOrderFromClient = async ({
     for (const response of responses || []) {
       if (response && response._id) {
         await sendTRPCMessage({
+          subdomain,
+
           method: 'mutation',
           pluginName: 'coreintegration',
           module: 'putresponses',
@@ -867,7 +908,7 @@ export const syncOrderFromClient = async ({
 
     // paid order info to offline pos
     if (toPos) {
-      await sendPosclientMessage({
+      await sendPosclientMessage(subdomain, {
         subdomain,
         action: 'erxes-posclient-to-pos-api',
         data: {
@@ -894,7 +935,7 @@ export const syncOrderFromClient = async ({
       }).lean();
 
       if (toCancelPos) {
-        await sendPosclientMessage({
+        await sendPosclientMessage(subdomain, {
           subdomain,
           action: 'erxes-posclient-to-pos-api-remove',
           data: {
@@ -922,6 +963,8 @@ export const syncOrderFromClient = async ({
 
   const syncedResponseIds = (
     (await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'coreintegration',
       module: 'putresponses',
       action: 'find',
@@ -933,7 +976,7 @@ export const syncOrderFromClient = async ({
   ).map((r) => r._id);
 
   // return info saved
-  await sendPosclientMessage({
+  await sendPosclientMessage(subdomain, {
     subdomain,
     action: `updateSynced`,
     data: {
@@ -1022,6 +1065,8 @@ export const calcProductsTaxRule = async (
   const vatRules =
     (config?.reverseVatRules?.length &&
       (await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'coreintegration',
         module: 'productRules',
         action: 'find',
@@ -1033,6 +1078,8 @@ export const calcProductsTaxRule = async (
   const ctaxRules =
     (config?.reverseCtaxRules?.length &&
       (await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'coreintegration',
         module: 'productRules',
         action: 'find',

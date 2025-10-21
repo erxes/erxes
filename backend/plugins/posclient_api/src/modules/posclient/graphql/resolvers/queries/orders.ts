@@ -252,6 +252,8 @@ const orderQueries = {
     //   isRPC: true,
     // });
     const info = await sendTRPCMessage({
+      subdomain,
+
       method: 'query',
       pluginName: 'sales',
       module: 'pos',

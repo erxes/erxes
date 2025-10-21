@@ -40,6 +40,8 @@ export const pipelineQueries = {
 
     if (!user.isOwner && !isAll) {
       const userDetail = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'users',
