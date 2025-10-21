@@ -1,18 +1,21 @@
-import * as _ from 'underscore';
 import {
-  redis,
-  isEnabled,
   checkServiceRunning,
-  sendWorkerMessage,
+  isEnabled,
+  redis,
+  sendTRPCMessage,
   sendWorkerQueue,
 } from 'erxes-api-shared/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import * as _ from 'underscore';
 import { IModels, generateModels } from '~/connectionResolvers';
+import { sendPosclientHealthCheck, sendPosclientMessage } from '~/initWorker';
 import { IPosOrder, IPosOrderDocument } from './@types/orders';
 import { IPosDocument } from './@types/pos';
-import { sendPosclientHealthCheck, sendPosclientMessage } from '~/initWorker';
 
-export const getConfig = async (subdomain: string, code: string, defaultValue?: any) => {
+export const getConfig = async (
+  subdomain: string,
+  code: string,
+  defaultValue?: any,
+) => {
   return await sendTRPCMessage({
     subdomain,
 

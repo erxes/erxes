@@ -3,9 +3,10 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const isInSegment = async (
+  subdomain: string,
   segmentId: string,
   targetId: string,
-  delayMs: number = 15000,
+  delayMs = 15000,
 ) => {
   await delay(delayMs);
 

@@ -62,16 +62,15 @@ export const sendPosclientMessage = async (args: any) => {
   }
   args.data.token = pos.token;
 
-  const input = { ...data, token: pos.token };
-
   const ret = await sendTRPCMessage({
     subdomain,
     pluginName: 'posclient',
     method: lastAction === 'crudData' ? 'mutation' : 'query',
     module: 'posclient',
     action: lastAction,
-    input: { ...input },
+    input: { ...data, token: pos.token },
     defaultValue: {},
   });
+
   return ret;
 };

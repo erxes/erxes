@@ -178,7 +178,12 @@ const generateFilterSubsQuery = async (params: any) => {
   return filter;
 };
 
-export const posOrderRecordsQuery = async (models, subdomain, params, user?) => {
+export const posOrderRecordsQuery = async (
+  models,
+  subdomain,
+  params,
+  user?,
+) => {
   const query = await generateFilterPosQuery(models, params, user?._id);
 
   const { perPage = 20, page = 1 } = params;
@@ -815,7 +820,11 @@ const queries = {
     };
   },
 
-  posOrderRecords: async (_root, params, { models, user, subdomain }: IContext) => {
+  posOrderRecords: async (
+    _root,
+    params,
+    { models, user, subdomain }: IContext,
+  ) => {
     return posOrderRecordsQuery(models, subdomain, params, user);
   },
 

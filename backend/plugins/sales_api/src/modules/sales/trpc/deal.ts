@@ -137,7 +137,14 @@ export const dealTrpcRouter = t.router({
       try {
         return {
           status: 'success',
-          data: await editDeal({ models, subdomain, _id: itemId, doc, processId, user }),
+          data: await editDeal({
+            models,
+            subdomain,
+            _id: itemId,
+            doc,
+            processId,
+            user,
+          }),
         };
       } catch (e) {
         return {
