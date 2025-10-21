@@ -43,7 +43,7 @@ export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
     throw new Error('core service not found');
   }
 
-  app.use('/trpc', forbid);
+  // app.use('/trpc', forbid);
   app.use(
     '/',
     createProxyMiddleware({
