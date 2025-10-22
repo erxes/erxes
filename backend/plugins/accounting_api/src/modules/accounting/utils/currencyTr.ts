@@ -40,7 +40,6 @@ export default class CurrencyTr {
 
     this.spotRate = await sendTRPCMessage({
       subdomain: this.subdomain,
-
       method: 'query',
       pluginName: 'core',
       module: 'exchangeRates',
