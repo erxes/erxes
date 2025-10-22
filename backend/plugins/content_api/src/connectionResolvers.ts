@@ -29,7 +29,7 @@ import {
   IPostDocument,
   IPostTagDocument,
 } from '@/portal/@types/post';
-import { IPostTranslationDocument } from '@/portal/@types/translations';
+import { ITranslationDocument } from '@/portal/@types/translations';
 import { IUserDocument } from '@/portal/@types/user';
 import { IUserCardDocument } from '@/portal/@types/userCard';
 import { ICommentModel, loadCommentClass } from '@/portal/db/models/Comment';
@@ -55,8 +55,8 @@ import { IPortalModel, loadPortalClass } from '@/portal/db/models/Portals';
 import { IPostModel, loadPostClass } from '@/portal/db/models/Posts';
 import { IPostTagModel, loadPostTagClass } from '@/portal/db/models/Tags';
 import {
-  IPostTranslationModel,
-  loadPostTranslationClass,
+  ITranslationModel,
+  loadTranslationClass,
 } from '@/portal/db/models/Translations';
 import { IUserModel, loadUserClass } from '@/portal/db/models/Users';
 import {
@@ -80,7 +80,7 @@ export interface IModels {
   CustomPostTypes: ICustomPostTypeModel;
   Categories: ICategoryModel;
   Posts: IPostModel;
-  PostTranslations: IPostTranslationModel;
+  Translations: ITranslationModel;
   Pages: IPageModel;
   PostTags: IPostTagModel;
   MenuItems: IMenuItemModel;
@@ -94,10 +94,10 @@ export interface IContext extends IMainContext {
   session: any;
   clientPortalId?: string;
   isPassed2FA?: boolean;
-  subdomain?: string;
+  subdomain: string;
 }
 
-export const loadClasses = (db: mongoose.Connection): IModels => {
+export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels => {
   const models = {} as IModels;
 
   models.Portals = db.model<IPortalDocument, IPortalModel>(
@@ -112,7 +112,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.Users = db.model<IUserDocument, IUserModel>(
     'client_portal_users',
-    loadUserClass(models),
+    loadUserClass(models, subdomain),
   );
 
   models.UserCards = db.model<IUserCardDocument, IUserCardModel>(
@@ -155,10 +155,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadPostClass(models),
   );
 
-  models.PostTranslations = db.model<
-    IPostTranslationDocument,
-    IPostTranslationModel
-  >('cms_post_translations', loadPostTranslationClass(models));
+  models.Translations = db.model<ITranslationDocument, ITranslationModel>(
+    'cms_post_translations',
+    loadTranslationClass(models),
+  );
 
   models.Pages = db.model<IPageDocument, IPageModel>(
     'cms_pages',

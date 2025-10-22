@@ -1,12 +1,13 @@
+import * as dotenv from 'dotenv';
+
+import { USER_ROLES, userActionsMap } from 'erxes-api-shared/core-modules';
+import { getSubdomain, redis, setUserHeader } from 'erxes-api-shared/utils';
+import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
-import { NextFunction, Request, Response } from 'express';
-import { redis } from 'erxes-api-shared/utils';
-import { getSubdomain } from 'erxes-api-shared/utils';
-import { setUserHeader } from 'erxes-api-shared/utils';
-import { userActionsMap } from 'erxes-api-shared/core-modules';
-import { USER_ROLES } from 'erxes-api-shared/core-modules';
 import { IModels, generateModels } from '../connectionResolver';
+
+dotenv.config();
 
 export default async function userMiddleware(
   req: Request & { user?: any },
@@ -212,6 +213,8 @@ export default async function userMiddleware(
       '_id email details isOwner groupIds brandIds username code departmentIds',
     ).lean();
 
+    const { role } = await models.Roles.findOne({ userId: userDoc._id }).lean();
+
     if (!userDoc) {
       return next();
     }
@@ -224,7 +227,7 @@ export default async function userMiddleware(
     }
 
     // save user in request
-    req.user = userDoc;
+    req.user = { ...userDoc, role };
     req.user.loginToken = token;
     req.user.sessionCode = req.headers.sessioncode || '';
 

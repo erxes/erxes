@@ -1,13 +1,18 @@
 import { getIntegrationsKinds } from '@/inbox/utils';
 import { IContext } from '~/connectionResolvers';
 import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
-import { IIntegrationDocument } from '~/modules/inbox/@types/integrations';
-import { IChannelDocument } from '@/inbox/@types/channels';
+import { IIntegrationDocument } from '@/inbox/@types/integrations';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-const generateFilterQuery = async (
-  { kind, channelId, brandId, searchValue, tag, status },
-  models,
-) => {
+import { IChannelDocument } from '@/channel/@types/channel';
+
+const generateFilterQuery = async ({
+  subdomain,
+  kind,
+  channelId,
+  searchValue,
+  tag,
+  status,
+}) => {
   const query: any = {};
 
   if (kind) {
@@ -16,13 +21,7 @@ const generateFilterQuery = async (
 
   // filter integrations by channel
   if (channelId) {
-    const channel = await models.Channels.getChannel(channelId);
-    query._id = { $in: channel.integrationIds || [] };
-  }
-
-  // filter integrations by brand
-  if (brandId) {
-    query.brandId = brandId;
+    query.channelId = channelId;
   }
 
   if (searchValue) {
@@ -33,6 +32,8 @@ const generateFilterQuery = async (
   if (tag) {
     try {
       const object = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'tags',
@@ -71,20 +72,19 @@ export const integrationQueries = {
       kind: string;
       searchValue: string;
       channelId: string;
-      brandId: string;
       tag: string;
       status: string;
       formLoadType: string;
       sortField: string;
       sortDirection: number;
     } & ICursorPaginateParams,
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
     if (!user) {
       throw new Error('User not authenticated');
     }
     let query = {
-      ...(await generateFilterQuery(args, models)),
+      ...(await generateFilterQuery({ subdomain, ...args })),
     };
     if (!user.isOwner) {
       query = {
@@ -176,13 +176,13 @@ export const integrationQueries = {
     args: {
       kind: string;
       channelId: string;
-      brandId: string;
+      // brandId: string;
       tag: string;
       searchValue: string;
       status: string;
       formLoadType: string;
     },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const counts = {
       total: 0,
@@ -194,7 +194,7 @@ export const integrationQueries = {
     };
 
     const qry = {
-      ...(await generateFilterQuery(args, models)),
+      ...(await generateFilterQuery({ subdomain, ...args })),
     };
 
     const count = async (query) => {
@@ -202,6 +202,8 @@ export const integrationQueries = {
     };
 
     const tags = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'tags',
@@ -233,41 +235,20 @@ export const integrationQueries = {
         : 0;
     }
 
-    // Counting integrations by channel
-    const channels = await models.Channels.find({}); // No need for 'as IChannelDocument[]' if models.Channels is typed
-    if (channels) {
+    const channels = await models.Channels.find({});
+    if (channels && channels.length > 0) {
       for (const channel of channels as IChannelDocument[]) {
         const countQueryResult = await count({
-          _id: { $in: channel.integrationIds },
+          channelId: channel._id,
           ...qry,
         });
 
-        counts.byChannel[channel._id as string] = !args.channelId
+        counts.byChannel[channel._id.toString()] = !args.channelId
           ? countQueryResult
-          : args.channelId === channel._id
+          : args.channelId === channel._id.toString()
           ? countQueryResult
           : 0;
       }
-    }
-
-    // Counting integrations by brand
-
-    const brands = await sendTRPCMessage({
-      pluginName: 'core',
-      method: 'query',
-      module: 'brands',
-      action: 'find',
-      input: {
-        query: {},
-      },
-    });
-    for (const brand of brands) {
-      const countQueryResult = await count({ brandId: brand._id, ...qry });
-      counts.byBrand[brand._id] = !args.brandId
-        ? countQueryResult
-        : args.brandId === brand._id
-        ? countQueryResult
-        : 0;
     }
 
     counts.byStatus.active = await count({ isActive: true, ...qry });

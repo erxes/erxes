@@ -6,8 +6,8 @@ import {
   createIntegration,
   removeIntegration,
   updateIntegration,
-} from '~/modules/integrations/call/helpers';
-import { selectRelevantCdr } from '~/modules/integrations/call/services/cdrUtils';
+} from '@/integrations/call/helpers';
+import { selectRelevantCdr } from '@/integrations/call/services/cdrUtils';
 
 export async function callCreateIntegration({ subdomain, data }) {
   try {

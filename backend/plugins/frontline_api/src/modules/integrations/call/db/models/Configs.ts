@@ -6,7 +6,7 @@ import { IModels } from '~/connectionResolvers';
 import {
   ICallConfig,
   ICallConfigDocument,
-} from '~/modules/integrations/call/@types/config';
+} from '@/integrations/call/@types/config';
 
 export const configSchema = new Schema({
   _id: field({ pkey: true }),

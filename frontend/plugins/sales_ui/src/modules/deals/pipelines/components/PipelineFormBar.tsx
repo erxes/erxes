@@ -33,16 +33,13 @@ export function PipelineFormBar() {
 
   const {
     methods,
-    methods: {
-      reset,
-      handleSubmit,
-      formState: { errors },
-    },
+    methods: { reset, handleSubmit },
   } = usePipelineForm();
-  console.log('ee', errors);
+
   const { stages: initialStages, loading: stagesLoading } = useStages({
     variables: {
       pipelineId,
+      isAll: true,
     },
   });
 

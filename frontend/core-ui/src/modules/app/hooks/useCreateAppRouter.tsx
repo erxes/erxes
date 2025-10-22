@@ -38,7 +38,7 @@ export const useCreateAppRouter = () => {
 
   return createBrowserRouter(
     createRoutesFromElements(
-      <Route element={<Providers />} loader={async () => Promise.resolve(null)}>
+      <Route element={<Providers />} loader={async () => null}>
         <Route path={AppPath.CreateOwner} element={<CreateOwnerPage />} />
         <Route element={<OrganizationProvider />}>
           <Route path={AppPath.Login} element={<LoginPage />} />
@@ -80,7 +80,10 @@ export const useCreateAppRouter = () => {
                   element={<AutomationRoutes />}
                 />
               )}
-              <Route path={AppPath.LogsCatchAll} element={<LogRoutes />} />
+              
+              {isOS && (
+                <Route path={AppPath.LogsCatchAll} element={<LogRoutes />} />
+              )}
 
               {isOS && (
                 <Route

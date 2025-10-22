@@ -1,4 +1,4 @@
-name: CI core-api
+name: CI plugin--core-api
 
 on:
   push:
@@ -61,5 +61,5 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            erxes/erxes-next-core_api:latest
-            erxes/erxes-next-core_api:${{ github.sha }}
+            erxes/erxes-next-core-api:latest
+            erxes/erxes-next-core-api:${{ github.sha }}

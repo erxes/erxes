@@ -48,12 +48,14 @@ export const commonParamDefs = `
 
 const stageParams = `
   $isNotLost: Boolean,
+  $isAll: Boolean,
   $pipelineId: String,
   ${commonParams}
 `;
 
 const stageParamDefs = `
   isNotLost: $isNotLost,
+  isAll: $isAll,
   pipelineId: $pipelineId,
   ${commonParamDefs}
 `;
@@ -96,24 +98,6 @@ export const GET_STAGES = gql`
       ${stageParamDefs}
     ) {
       ${stageCommon}
-    }
-  }
-`;
-
-export const GET_STAGE_DETAIL = gql`
-  query SalesStageDetail(
-    $_id: String!,
-    ${commonParams}
-  ) {
-    salesStageDetail(
-      _id: $_id,
-      ${commonParamDefs}
-    ) {
-      _id
-      name
-      pipelineId
-      amount
-      itemsTotalCount
     }
   }
 `;

@@ -1,6 +1,6 @@
 import { IContext } from '~/connectionResolvers';
-import { IFacebookBotDocument } from '~/modules/integrations/facebook/db/definitions/bots';
-import { graphRequest } from '~/modules/integrations/facebook/utils';
+import { IFacebookBotDocument } from '@/integrations/facebook/db/definitions/bots';
+import { graphRequest } from '@/integrations/facebook/utils';
 
 export default {
   async account(

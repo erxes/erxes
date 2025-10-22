@@ -27,6 +27,7 @@
     --radius: 0.5rem;
     --sidebar-background: 0 0% 98%; /* gray/1 */
     --shadow: 0, 0%, 0%, 0.05;
+    --border-shadow: 0, 0%, 0%, 0.05;
     --spacing: 0.25rem;
     --chart-1: 30 42% 55%;
     --chart-2: 185 52% 47%;
@@ -55,7 +56,8 @@
     --ring: 244 76% 50%;
     --radius: 0.5rem;
     --sidebar-background: 0 0% 11%; /* gray/1 */
-    --shadow: 0, 0%, 40%, 0.05;
+    --border-shadow: 240, 6%, 97%, 0.08;
+    --shadow: 0, 0%, 0%, 0.05;
     --chart-1: 264 58% 46%;
     --chart-2: 162 53% 61%;
     --chart-3: 70 75% 64%;

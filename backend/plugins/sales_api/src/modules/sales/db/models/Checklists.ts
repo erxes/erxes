@@ -14,7 +14,7 @@ import {
 
 export interface IChecklistModel extends Model<IChecklistDocument> {
   getChecklist(_id: string): Promise<IChecklistDocument>;
-  removeChecklists(contentTypeIds: string[]): void;
+  removeChecklists(contentTypeIds: string[]): Promise<void>;
   createChecklist(
     { contentType, contentTypeId, ...fields }: IChecklist,
     user: IUserDocument,

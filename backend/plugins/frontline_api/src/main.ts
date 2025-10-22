@@ -6,8 +6,8 @@ import { router } from '~/routes';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import automations from './meta/automations';
-import initCallApp from '~/modules/integrations/call/initApp';
-import { initWebsocketService } from '~/modules/integrations/call/webSocket';
+import initCallApp from '@/integrations/call/initApp';
+import { initWebsocketService } from '@/integrations/call/webSocket';
 
 startPlugin({
   name: 'frontline',
@@ -29,8 +29,8 @@ startPlugin({
   expressRouter: router,
   onServerInit: async (app) => {
     await initCallApp(app);
-    const VERSION = getEnv({ name: 'VERSION' });
-    if (!VERSION || (VERSION && VERSION !== 'saas')) {
+    const CALL_WS_SERVER = getEnv({ name: 'CALL_WS_SERVER' });
+    if (CALL_WS_SERVER) {
       await initWebsocketService();
     }
   },

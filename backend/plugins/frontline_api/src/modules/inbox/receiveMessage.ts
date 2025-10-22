@@ -44,6 +44,8 @@ export const receiveInboxMessage = async (
 
     const getCustomer = async (selector) => {
       return await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'customers',
@@ -55,6 +57,8 @@ export const receiveInboxMessage = async (
       customer = await getCustomer({ customerPrimaryPhone: primaryPhone });
       if (customer) {
         await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'mutation', // this is a mutation, not a query
           module: 'customers',
@@ -78,6 +82,8 @@ export const receiveInboxMessage = async (
       return sendSuccess({ _id: customer._id });
     } else {
       customer = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'mutation',
         module: 'customers',
@@ -85,7 +91,7 @@ export const receiveInboxMessage = async (
         input: {
           doc: {
             ...doc,
-            scopeBrandIds: integration.brandId,
+            // scopeBrandIds: integration.brandId,
           },
         },
       });
@@ -99,6 +105,8 @@ export const receiveInboxMessage = async (
 
     if (owner) {
       user = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'users',
@@ -201,6 +209,8 @@ export const receiveInboxMessage = async (
 
   if (action === 'get-configs') {
     const configs = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query', // this is a mutation, not a query
       module: 'config',
@@ -212,6 +222,8 @@ export const receiveInboxMessage = async (
 
   if (action === 'getUserIds') {
     const users = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'users',

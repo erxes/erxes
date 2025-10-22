@@ -30,8 +30,8 @@ export const inputs = `
 `;
 
 export const queries = `
-    cmsTags(clientPortalId: String, searchValue: String, sortField: String, sortDirection: String, ${GQL_CURSOR_PARAM_DEFS}): PostTagList
-    cmsTag(_id: String, slug: String): PostTag
+    cmsTags(clientPortalId: String, language: String, searchValue: String, sortField: String, sortDirection: String, ${GQL_CURSOR_PARAM_DEFS}): PostTagList
+    cmsTag(_id: String, slug: String, language: String): PostTag
 `;
 
 export const mutations = `

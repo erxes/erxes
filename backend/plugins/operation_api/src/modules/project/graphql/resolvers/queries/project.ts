@@ -8,7 +8,8 @@ import { STATUS_TYPES } from '@/status/constants/types';
 import { differenceInCalendarDays } from 'date-fns';
 import { requireLogin } from 'erxes-api-shared/core-modules';
 import { cursorPaginate } from 'erxes-api-shared/utils';
-import { FilterQuery } from 'mongoose';
+import moment from 'moment';
+import { FilterQuery, Types } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
 export const projectQueries = {
@@ -101,13 +102,13 @@ export const projectQueries = {
 
   getProjectProgress: async (
     _parent: undefined,
-    { _id },
+    { _id }: { _id: string },
     { models }: IContext,
   ) => {
     const result = await models.Task.aggregate([
       {
         $match: {
-          projectId: _id,
+          projectId: new Types.ObjectId(_id),
         },
       },
       {
@@ -200,13 +201,13 @@ export const projectQueries = {
 
   getProjectProgressByMember: async (
     _parent: undefined,
-    { _id },
+    { _id }: { _id: string },
     { models }: IContext,
   ) => {
     return models.Task.aggregate([
       {
         $match: {
-          projectId: _id,
+          projectId: new Types.ObjectId(_id),
         },
       },
       {
@@ -339,13 +340,13 @@ export const projectQueries = {
 
   getProjectProgressByTeam: async (
     _parent: undefined,
-    { _id },
+    { _id }: { _id: string },
     { models }: IContext,
   ) => {
     return models.Task.aggregate([
       {
         $match: {
-          projectId: _id,
+          projectId: new Types.ObjectId(_id),
         },
       },
       {
@@ -478,7 +479,7 @@ export const projectQueries = {
 
   getProjectProgressChart: async (
     _parent: undefined,
-    { _id },
+    { _id }: { _id: string },
     { models }: IContext,
   ) => {
     const project = await models.Project.findOne({ _id });
@@ -489,7 +490,7 @@ export const projectQueries = {
 
     const [totalScopeResult] = await models.Task.aggregate([
       {
-        $match: { projectId: _id },
+        $match: { projectId: new Types.ObjectId(_id) },
       },
       {
         $match: { statusType: { $ne: STATUS_TYPES.CANCELLED } },
@@ -597,7 +598,7 @@ export const projectQueries = {
           baseDate,
         );
       }
-      chartData.chartData = fillMissingDays([], baseDate, totalDays);
+      chartData.chartData = fillMissingDays([], moment(baseDate), totalDays);
     }
     if (
       chartDataAggregation.length > 0 &&
@@ -613,7 +614,7 @@ export const projectQueries = {
         if (chartDataAggregation.length < 7) {
           chartData.chartData = fillMissingDays(
             chartDataAggregation,
-            baseDate,
+            moment(baseDate),
             7,
           );
 
@@ -641,7 +642,7 @@ export const projectQueries = {
 
         chartData.chartData = fillMissingDays(
           chartDataAggregation,
-          startDate,
+          moment(startDate),
           totalDays,
         );
         return chartData;
@@ -660,7 +661,7 @@ export const projectQueries = {
 
         chartData.chartData = fillMissingDays(
           chartDataAggregation,
-          startDate,
+          moment(startDate),
           totalDays,
         );
         return chartData;

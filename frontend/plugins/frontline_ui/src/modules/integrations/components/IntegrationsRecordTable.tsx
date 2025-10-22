@@ -30,6 +30,7 @@ export const IntegrationsRecordTable = ({
   const { integrations, loading, handleFetchMore } = useIntegrations({
     variables: {
       kind: params?.integrationType,
+      channelId: params?.id,
     },
     skip: !params?.integrationType,
     errorPolicy: 'all',
@@ -42,7 +43,7 @@ export const IntegrationsRecordTable = ({
       stickyColumns={['name']}
     >
       <RecordTable.Scroll>
-        <RecordTable>
+        <RecordTable className="w-full">
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton
@@ -119,20 +120,7 @@ export const integrationTypeColumns = ({
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label="Name" />,
     cell: ({ cell }) => <NameField cell={cell} />,
-    size: 250,
-  },
-  {
-    id: 'brandId',
-    accessorKey: 'brandId',
-    header: () => <RecordTable.InlineHead label="Brand" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <BrandsInline brandIds={[cell.getValue() as string]} />
-        </RecordTableInlineCell>
-      );
-    },
-    size: 235,
+    size: 300,
   },
   {
     id: 'isActive',
@@ -143,7 +131,7 @@ export const integrationTypeColumns = ({
       return (
         <RecordTableInlineCell>
           <Badge
-            className="text-xs capitalize"
+            className="text-xs capitalize mx-auto"
             variant={status ? 'success' : 'destructive'}
           >
             {status ? 'Active' : 'Inactive'}
@@ -163,7 +151,7 @@ export const integrationTypeColumns = ({
       return (
         <RecordTableInlineCell>
           <Badge
-            className="text-xs capitalize"
+            className="text-xs capitalize mx-auto"
             variant={status === 'healthy' ? 'success' : 'destructive'}
           >
             {status}
@@ -179,13 +167,13 @@ export const integrationTypeColumns = ({
     cell: ({ cell }) => {
       const { isActive, _id, name } = cell.row.original;
       return (
-        <div className="flex items-center gap-1.5 px-2">
+        <div className="flex items-center gap-1.5 px-2 justify-center">
           <Actions cell={cell} />
           <ArchiveIntegration _id={_id} name={name} isActive={isActive} />
           <RemoveIntegration _id={_id} name={name} />
         </div>
       );
     },
-    size: 300,
+    size: 120,
   },
 ];

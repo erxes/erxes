@@ -1,19 +1,24 @@
 import {
   authCookieOptions,
   getEnv,
+  getPlugins,
   logHandler,
+  markResolvers,
   redis,
   updateSaasOrganization,
 } from 'erxes-api-shared/utils';
-import { IContext } from '~/connectionResolvers';
 import { WorkOS } from '@workos-inc/node';
 import * as jwt from 'jsonwebtoken';
+import { IContext } from '~/connectionResolvers';
 import {
   getCallbackRedirectUrl,
   isValidEmail,
   sendSaasMagicLinkEmail,
 } from '~/modules/auth/utils';
 import { assertSaasEnvironment } from '~/utils/saas';
+import {
+  sendNotification,
+} from 'erxes-api-shared/core-modules';
 
 type LoginParams = {
   email: string;
@@ -148,6 +153,7 @@ export const authMutations = {
   ) {
     assertSaasEnvironment();
     const WORKOS_API_KEY = getEnv({ name: 'WORKOS_API_KEY', subdomain });
+    const CORE_DOMAIN = getEnv({ name: 'CORE_DOMAIN', subdomain });
 
     const workosClient = new WorkOS(WORKOS_API_KEY);
 
@@ -162,7 +168,7 @@ export const authMutations = {
 
     const authorizationURL = workosClient.sso.getAuthorizationUrl({
       provider: 'GoogleOAuth',
-      redirectUri: getCallbackRedirectUrl(subdomain, 'sso-callback'),
+      redirectUri: `${CORE_DOMAIN}/saas-sso-callback`,
 
       clientId: getEnv({ name: 'WORKOS_PROJECT_ID', subdomain }),
       state,
@@ -183,6 +189,7 @@ export const authMutations = {
     assertSaasEnvironment();
 
     const WORKOS_API_KEY = getEnv({ name: 'WORKOS_API_KEY', subdomain });
+    const CORE_DOMAIN = getEnv({ name: 'CORE_DOMAIN', subdomain });
     const workosClient = new WorkOS(WORKOS_API_KEY);
 
     if (!isValidEmail(email)) {
@@ -201,7 +208,7 @@ export const authMutations = {
 
     const token = await jwt.sign(
       {
-        user: models.Users.getTokenFields(user),
+        user: await models.Users.getTokenFields(user),
         subdomain,
         redirectUri: getCallbackRedirectUrl(subdomain, 'ml-callback'),
       },
@@ -222,7 +229,7 @@ export const authMutations = {
       email,
       type: 'MagicLink',
       state: token,
-      redirectURI: getCallbackRedirectUrl(subdomain, 'ml-callback'),
+      redirectURI: `${CORE_DOMAIN}/saas-ml-callback`,
     });
 
     await sendSaasMagicLinkEmail({
@@ -236,6 +243,43 @@ export const authMutations = {
       lastActiveDate: Date.now(),
     });
 
+    if (!user.lastSeenAt) {
+      const pluginNames = await getPlugins();
+
+      for (const pluginName of pluginNames) {
+        if (pluginName === 'core') {
+          sendNotification(subdomain, {
+            title: 'Welcome to erxes 🎉',
+            message:
+              'We’re excited to have you on board! Explore the features, connect with your team, and start growing your business with erxes.',
+            type: 'info',
+            userIds: [user._id],
+            priority: 'low',
+            kind: 'system',
+            contentType: `${pluginName}:system.welcome`,
+          });
+
+          await user.updateOne({ $set: { lastSeenAt: new Date() } });
+
+          continue;
+        }
+
+        sendNotification(subdomain, {
+          title: `Get Started with ${pluginName}`,
+          message: `Excited to introduce ${pluginName}! Dive in to explore its features and see how it can help your business thrive.`,
+          type: 'info',
+          userIds: [user._id],
+          priority: 'low',
+          kind: 'system',
+          contentType: `${pluginName}:system.welcome`,
+        });
+      }
+    }
+
     return 'success';
   },
 };
+
+markResolvers(authMutations, {
+  skipPermission: true,
+});

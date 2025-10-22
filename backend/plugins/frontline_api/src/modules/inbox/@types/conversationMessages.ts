@@ -11,7 +11,6 @@ interface IEngageDataRulesDocument extends IEngageDataRules, Document {}
 
 export interface IEngageData {
   messageId: string;
-  brandId: string;
   content: string;
   fromUserId: string;
   kind: string;
@@ -34,7 +33,7 @@ export interface IMessage {
   visitorId?: string;
   userId?: string;
   fromBot?: boolean;
-  getStarted?:boolean
+  getStarted?: boolean;
   isCustomerRead?: boolean;
   formWidgetData?: any;
   botData?: any;
@@ -55,7 +54,6 @@ export interface IMessageDocument extends IMessage, Document {
   engageData?: IEngageDataDocument;
   createdAt: Date;
 }
-
 
 export interface IConversationMessageAdd {
   conversationId: string;

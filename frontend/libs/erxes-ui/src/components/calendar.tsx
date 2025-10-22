@@ -1,5 +1,12 @@
 import * as React from 'react';
-import { DayFlag, DayPicker, SelectionState, UI } from 'react-day-picker';
+import {
+  DayFlag,
+  DayPicker,
+  DropdownNavProps,
+  DropdownProps,
+  SelectionState,
+  UI,
+} from 'react-day-picker';
 
 import {
   IconChevronDown,
@@ -9,6 +16,7 @@ import {
 } from '@tabler/icons-react';
 
 import { buttonVariants } from './button';
+import { Select } from './select';
 import { cn } from '../lib/utils';
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
@@ -38,6 +46,17 @@ const getBaseClassNames = (customClassNames = {}) => ({
 
 export const Calendar = React.forwardRef<React.JSX.Element, CalendarProps>(
   ({ className, classNames, showOutsideDays, ...props }, ref) => {
+    const handleCalendarChange = (
+      _value: string | number,
+      _e: React.ChangeEventHandler<HTMLSelectElement>,
+    ) => {
+      const _event = {
+        target: {
+          value: String(_value),
+        },
+      } as React.ChangeEvent<HTMLSelectElement>;
+      _e(_event);
+    };
     return (
       <DayPicker
         showOutsideDays={showOutsideDays}
@@ -47,12 +66,12 @@ export const Calendar = React.forwardRef<React.JSX.Element, CalendarProps>(
           [UI.Month]: 'space-y-4 ml-0',
           [UI.MonthCaption]: 'flex justify-center items-center h-7',
           [UI.PreviousMonthButton]: cn(
-            buttonVariants({ variant: 'outline' }),
-            'absolute left-1 top-0 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
+            buttonVariants({ variant: 'secondary' }),
+            'absolute left-0 top-0 size-7 p-0',
           ),
           [UI.NextMonthButton]: cn(
-            buttonVariants({ variant: 'outline' }),
-            'absolute right-1 top-0 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
+            buttonVariants({ variant: 'secondary' }),
+            'absolute right-0 top-0 size-7 p-0',
           ),
           [UI.Weekdays]: 'flex',
           [UI.Weekday]:
@@ -60,7 +79,45 @@ export const Calendar = React.forwardRef<React.JSX.Element, CalendarProps>(
           [UI.Week]: 'flex w-full mt-2 gap-1',
           ...classNames,
         })}
+        captionLayout="dropdown"
+        defaultMonth={new Date()}
+        startMonth={new Date(1980, 6)}
+        endMonth={new Date(new Date().getFullYear() + 10, 11)}
         components={{
+          DropdownNav: (props: DropdownNavProps) => {
+            return (
+              <div className="flex w-full items-center gap-2 justify-center">
+                {props.children}
+              </div>
+            );
+          },
+          Dropdown: (props: DropdownProps) => {
+            return (
+              <Select
+                value={String(props.value)}
+                onValueChange={(value) => {
+                  if (props.onChange) {
+                    handleCalendarChange(value, props.onChange);
+                  }
+                }}
+              >
+                <Select.Trigger className="w-fit font-medium flex-none">
+                  <Select.Value className="gap-1" />
+                </Select.Trigger>
+                <Select.Content className="max-h-[min(26rem,var(--radix-select-content-available-height))]">
+                  {props.options?.map((option) => (
+                    <Select.Item
+                      key={option.value}
+                      value={String(option.value)}
+                      disabled={option.disabled}
+                    >
+                      {option.label}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+            );
+          },
           Chevron: ({ ...props }) => <Chevron {...props} />,
         }}
         {...props}

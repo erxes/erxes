@@ -21,45 +21,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-
       - name: Install dependencies
         run: pnpm install
 
       - name: Build shared module
-        run: pnpm nx build erxes-api-shared
-
-      - name: Build gateway
-        run: pnpm nx build gateway
-
-      # Buildx setup
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        run: |
+          export NX_DAEMON=false
+          pnpm nx build erxes-api-shared
 
       - name: Login to Docker Hub
-        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Docker image (multi-platform)
+      - name: Build and push Docker image
+        run: |
+          export NX_DAEMON=false
+          pnpm nx docker-build gateway
+          docker tag erxes/erxes-next-gateway erxes/erxes-next-gateway:latest
+          docker tag erxes/erxes-next-gateway erxes/erxes-next-gateway:${{ github.sha }}
+          docker push erxes/erxes-next-gateway:latest
+          docker push erxes/erxes-next-gateway:${{ github.sha }}
         if: github.event_name != 'pull_request'
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: backend/gateway/Dockerfile
-          push: true
-          platforms: linux/amd64,linux/arm64
-          tags: |
-            erxes/erxes-next-gateway:latest
-            erxes/erxes-next-gateway:${{ github.sha }}

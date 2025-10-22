@@ -4,8 +4,8 @@ import { IModels } from '~/connectionResolvers';
 import {
   ICallIntegration,
   ICallIntegrationDocument,
-} from '~/modules/integrations/call/@types/integrations';
-import { integrationSchema } from '~/modules/integrations/call/db/definitions/integrations';
+} from '@/integrations/call/@types/integrations';
+import { integrationSchema } from '@/integrations/call/db/definitions/integrations';
 
 export interface ICallIntegrationModel extends Model<ICallIntegrationDocument> {
   getIntegrations(userId: string): Promise<ICallIntegrationDocument>;

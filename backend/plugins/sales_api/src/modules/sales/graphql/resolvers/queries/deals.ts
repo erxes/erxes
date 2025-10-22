@@ -37,6 +37,7 @@ const isListEmpty = (value) => {
 
 export const generateFilter = async (
   models: IModels,
+  subdomain: string,
   userId: string,
   params: any,
 ) => {
@@ -92,9 +93,12 @@ export const generateFilter = async (
     closeDateEndDate,
     source,
   } = params;
-  Object.assign(filter, noSkipArchive
-    ? {}
-    : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined });
+  Object.assign(
+    filter,
+    noSkipArchive
+      ? {}
+      : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
+  );
 
   let filterIds: string[] = [];
 
@@ -115,6 +119,8 @@ export const generateFilter = async (
 
   if (branchIds) {
     const branches = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'branches',
@@ -131,6 +137,8 @@ export const generateFilter = async (
 
   if (departmentIds) {
     const departments = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'departments',
@@ -147,16 +155,18 @@ export const generateFilter = async (
 
   if (customerIds) {
     const relIds = await sendTRPCMessage({
+      subdomain,
+
       method: 'query',
       pluginName: 'core',
       module: 'conformity',
-      action: "filterConformity",
+      action: 'filterConformity',
       input: {
         mainType: 'customer',
         mainTypeIds: customerIds,
-        relType: 'deal'
+        relType: 'deal',
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     filterIds = relIds;
@@ -164,24 +174,26 @@ export const generateFilter = async (
 
   if (companyIds) {
     const relIds = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'conformity',
       action: 'filterConformity',
       input: {
         mainType: 'company',
         mainTypeIds: companyIds,
-        relType: 'deal'
+        relType: 'deal',
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     filterIds = filterIds.length
-      ? filterIds.filter(id => relIds.includes(id))
+      ? filterIds.filter((id) => relIds.includes(id))
       : relIds;
   }
 
   if (customerIds || companyIds) {
-    filter._id = { $in: filterIds }
+    filter._id = { $in: filterIds };
   }
 
   if (_ids && _ids.length) {
@@ -191,15 +203,17 @@ export const generateFilter = async (
   if (conformityMainType && conformityMainTypeId) {
     if (conformityIsSaved) {
       const relIds = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         module: 'conformity',
-        action: "savedConformity",
+        action: 'savedConformity',
         input: {
           mainType: conformityMainType,
           mainTypeId: conformityMainTypeId,
-          relTypes: ['deal']
+          relTypes: ['deal'],
         },
-        defaultValue: []
+        defaultValue: [],
       });
 
       filter._id = contains(relIds || []);
@@ -207,15 +221,17 @@ export const generateFilter = async (
 
     if (conformityIsRelated) {
       const relIds = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         module: 'conformity',
         action: 'conformities.relatedConformity',
         input: {
           mainType: conformityMainType,
           mainTypeId: conformityMainTypeId,
-          relType: 'deal'
+          relType: 'deal',
         },
-        defaultValue: []
+        defaultValue: [],
       });
 
       filter._id = contains(relIds);
@@ -394,6 +410,8 @@ export const generateFilter = async (
     const pipeline = await models.Pipelines.getPipeline(pipelineId);
 
     const user = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'users',
@@ -404,6 +422,8 @@ export const generateFilter = async (
     });
 
     const departments = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'departments',
@@ -432,6 +452,8 @@ export const generateFilter = async (
       // current user is supervisor in departments and this pipeline has included that some of user's departments
       // so user is eligible to see all cards of people who share same department.
       const otherDepartmentUsers = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'users',
@@ -469,6 +491,8 @@ export const generateFilter = async (
           );
 
           const otherDepartmentUsers = await sendTRPCMessage({
+            subdomain,
+
             pluginName: 'core',
             method: 'query',
             module: 'users',
@@ -518,12 +542,12 @@ export const generateFilter = async (
 
   if (segmentData) {
     const segment = JSON.parse(segmentData);
-    const itemIds = await fetchSegment('', {}, segment);
+    const itemIds = await fetchSegment(subdomain, '', {}, segment);
     filter._id = { $in: itemIds };
   }
 
   if (segment) {
-    const itemIds = await fetchSegment(segment);
+    const itemIds = await fetchSegment(subdomain,segment);
 
     filter._id = { $in: itemIds };
   }
@@ -538,19 +562,21 @@ export const generateFilter = async (
   }
   if (vendorCustomerIds?.length > 0) {
     const cards = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'content',
       module: 'portal',
       action: 'clientPortalUserCards',
       input: {
         contentType: 'deal',
-        cpUserId: { $in: vendorCustomerIds }
+        cpUserId: { $in: vendorCustomerIds },
       },
-      defaultValue: []
+      defaultValue: [],
     });
-    const cardIds = cards.map(d => d.contentTypeId);
+    const cardIds = cards.map((d) => d.contentTypeId);
     if (filter._id) {
       const ids = filter._id.$in;
-      const newIds = ids.filter(d => cardIds.includes(d));
+      const newIds = ids.filter((d) => cardIds.includes(d));
       filter._id = { $in: newIds };
     } else {
       filter._id = { $in: cardIds };
@@ -640,8 +666,8 @@ export const dealQueries = {
   /**
    * Deals list
    */
-  async deals(_root, args: IDealQueryParams, { user, models }: IContext) {
-    const filter = await generateFilter(models, user._id, args);
+  async deals(_root, args: IDealQueryParams, { user, models, subdomain }: IContext) {
+    const filter = await generateFilter(models, subdomain, user._id, args);
 
     const getExtraFields = async (item: any) => ({
       amount: await dealResolvers.amount(item),
@@ -652,7 +678,7 @@ export const dealQueries = {
       list: deals,
       pageInfo,
       totalCount,
-    } = await getItemList(models, filter, args, user, getExtraFields);
+    } = await getItemList(models, subdomain, filter, args, user, getExtraFields);
 
     const dealProductIds = deals.flatMap((deal) => {
       if (deal.productsData && deal.productsData.length > 0) {
@@ -662,18 +688,23 @@ export const dealQueries = {
       return [];
     });
 
-    const products = await sendTRPCMessage({
-      pluginName: 'core',
-      method: 'query',
-      module: 'products',
-      action: 'find',
-      input: {
-        query: {
-          _id: { $in: [...new Set(dealProductIds)] },
-        },
-      },
-      defaultValue: [],
-    });
+    const products =
+      (dealProductIds.length &&
+        (await sendTRPCMessage({
+          subdomain,
+
+          pluginName: 'core',
+          method: 'query',
+          module: 'products',
+          action: 'find',
+          input: {
+            query: {
+              _id: { $in: [...new Set(dealProductIds)] },
+            },
+          },
+          defaultValue: [],
+        }))) ||
+      [];
 
     for (const deal of deals) {
       let pd = deal.productsData;
@@ -714,9 +745,9 @@ export const dealQueries = {
   async dealsTotalCount(
     _root,
     args: IDealQueryParams,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
-    const filter = await generateFilter(models, user._id, args);
+    const filter = await generateFilter(models, subdomain, user._id, args);
 
     return models.Deals.find(filter).countDocuments();
   },
@@ -738,9 +769,9 @@ export const dealQueries = {
   async dealsTotalAmounts(
     _root,
     args: IDealQueryParams,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
-    const filter = await generateFilter(models, user._id, args);
+    const filter = await generateFilter(models, subdomain, user._id, args);
 
     const amountList = await models.Deals.aggregate([
       {
@@ -882,7 +913,7 @@ export const dealQueries = {
   async dealDetail(
     _root,
     { _id, clientPortalCard }: { _id: string; clientPortalCard: boolean },
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
     const deal = await models.Deals.getDeal(_id);
 
@@ -891,7 +922,7 @@ export const dealQueries = {
       return deal;
     }
 
-    return checkItemPermByUser(models, user, deal);
+    return checkItemPermByUser(models, subdomain, user, deal);
   },
 
   //   async checkDiscount() {}

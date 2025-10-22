@@ -1,17 +1,19 @@
 import { IContext } from '~/connectionResolvers';
 import {
-  IUser,
   IDetail,
-  ILink,
   IEmailSignature,
+  ILink,
+  IUser,
+  Resolver,
 } from 'erxes-api-shared/core-types';
+import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
 
 export interface IUsersEdit extends IUser {
   channelIds?: string[];
   _id: string;
 }
 
-export const userMutations = {
+export const userMutations: Record<string, Resolver> = {
   async usersCreateOwner(
     _parent: undefined,
     {
@@ -351,3 +353,5 @@ export const userMutations = {
     return;
   },
 };
+
+userMutations.usersCreateOwner.skipPermission = true;

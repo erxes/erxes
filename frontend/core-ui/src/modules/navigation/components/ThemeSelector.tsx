@@ -7,7 +7,7 @@ export const ThemeSelector = () => {
   const [theme, setTheme] = useAtom(themeState);
 
   return (
-    <div className="flex items-center gap-2 px-2 font-medium h-7">
+    <div className="flex items-center gap-2 px-2 font-medium h-7 text-sm">
       Change Theme
       <Tooltip.Provider delayDuration={100}>
         <ToggleGroup

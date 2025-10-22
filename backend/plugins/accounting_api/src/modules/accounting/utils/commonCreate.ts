@@ -4,7 +4,7 @@ import TaxTrs from './taxTrs';
 import { ITransaction, ITransactionDocument } from "../@types/transaction";
 import { InvIncomeExpenseTrs } from '~/modules/accounting/utils/invIncome';
 
-export const commonCreate = async (_subdomain: string, models: IModels, doc: ITransaction) => {
+export const commonCreate = async (subdomain: string, models: IModels, doc: ITransaction) => {
   let mainTr: ITransactionDocument | null = null;
   const otherTrs: ITransactionDocument[] = [];
   switch (doc.journal) {
@@ -17,7 +17,7 @@ export const commonCreate = async (_subdomain: string, models: IModels, doc: ITr
     case 'receivable':
     case 'payable': {
       const detail = doc.details[0] || {}
-      const currencyTrClass = new CurrencyTr(models, doc);
+      const currencyTrClass = new CurrencyTr(models, subdomain, doc);
       await currencyTrClass.checkValidationCurrency();
 
       const taxTrsClass = new TaxTrs(models, doc, detail?.side === 'dt' ? 'ct' : 'dt', true);

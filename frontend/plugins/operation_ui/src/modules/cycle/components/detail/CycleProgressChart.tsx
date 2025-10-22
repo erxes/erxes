@@ -107,6 +107,7 @@ export const CycleProgressChart = ({
             dot={false}
             connectNulls={true}
             strokeLinecap="round"
+            activeDot={{ fill: STATUS_COLORS.started, r: 4 }}
           />
           <Area
             dataKey="completed"
@@ -117,6 +118,7 @@ export const CycleProgressChart = ({
             dot={false}
             connectNulls={true}
             strokeLinecap="round"
+            activeDot={{ fill: STATUS_COLORS.completed, r: 4 }}
           />
         </AreaChart>
       </ChartContainer>

@@ -1,13 +1,12 @@
 import {
-  IconForms,
   IconBrandTrello,
-  IconMessage,
-  IconChartCovariate,
   IconTicket,
-  IconBriefcase,
-  IconMessageCircle,
   IconMessage2,
   IconMail,
+  IconStackFront,
+  IconPhone,
+  IconAffiliate,
+  IconInfoCircle,
 } from '@tabler/icons-react';
 import {
   WelcomeNotificationContentLayout,
@@ -18,13 +17,13 @@ import {
 export const OnboardingSteps: TOnboardingStepItem[] = [
   {
     icon: <IconMail size={24} />,
-    title: 'Team inbox',
+    title: 'Inbox',
     forOwner: false,
     description:
-      'Built with ShadCN and Radix UI for a more accessible interface.',
+      'Manage all your conversations from every channel in one place.',
     action: {
       label: 'Try it out now',
-      to: '#',
+      to: '/frontline/inbox',
     },
   },
   {
@@ -32,72 +31,75 @@ export const OnboardingSteps: TOnboardingStepItem[] = [
     title: 'Ticket',
     forOwner: false,
     description:
-      'Built with ShadCN and Radix UI for a more accessible interface.',
+      'Turn important conversations into tasks for better follow-up.',
     action: {
       label: 'Try it out now',
-      to: '#',
+      to: '/frontline/ticket',
     },
   },
   {
-    icon: <IconBriefcase size={24} />,
-    title: 'Deal',
+    icon: <IconAffiliate size={24} />,
+    title: 'Integration',
     forOwner: false,
-    description:
-      'Built with ShadCN and Radix UI for a more accessible interface.',
+    description: 'Connect all your communication channels seamlessly.',
     action: {
       label: 'Try it out now',
-      to: '#',
+      to: '/settings/frontline/config',
     },
   },
   {
-    icon: <IconMessageCircle size={24} />,
-    title: 'Business messenger',
+    icon: <IconInfoCircle size={24} />,
+    title: 'Help Center',
     forOwner: false,
-    description:
-      'Built with ShadCN and Radix UI for a more accessible interface.',
+    description: 'Build a knowledge base for your customers.',
     action: {
-      label: 'Try it out now',
-      to: '#',
+      label: 'coming soon...',
+      to: false,
     },
   },
   {
     icon: <IconMessage2 size={24} />,
-    title: 'Business messenger',
+    title: 'Messenger',
     forOwner: false,
     description:
-      'Built with ShadCN and Radix UI for a more accessible interface.',
+      'Chat with your customers instantly through your website or app.',
     action: {
-      label: 'Try it out now',
-      to: '#',
+      label: 'coming soon...',
+      to: false,
     },
   },
 ];
 
 const TabItems: TVideoTabItem[] = [
   {
-    label: 'Pop-up forms',
-    icon: <IconForms className="size-4" />,
+    label: 'Frontline',
+    icon: <IconStackFront className="size-4" />,
     time: 0,
   },
   {
-    label: 'Contacts',
+    label: 'Inbox',
     icon: <IconMail className="size-4" />,
-    time: 2.1,
+    time: 34.6,
   },
   {
     label: 'Ticket management',
     icon: <IconBrandTrello className="size-4" />,
-    time: 3.7,
+    time: 87,
   },
   {
-    label: 'Business messenger',
-    icon: <IconMessage className="size-4" />,
-    time: 10.5,
+    label: 'Help center',
+    icon: <IconInfoCircle className="size-4" />,
+    time: 99,
   },
   {
-    label: 'Insight',
-    icon: <IconChartCovariate className="size-4" />,
-    time: 34.4,
+    label: 'Call center',
+    icon: <IconPhone className="size-4" />,
+    time: 109,
+  },
+  {
+    label: 'Integration',
+    icon: <IconAffiliate className="size-4" />,
+    time: 118.8,
   },
 ];
 
@@ -107,7 +109,8 @@ export const WelcomeMessageContent = () => {
       title="erxes Frontline"
       description="Engage customers, respond quickly, improve satisfaction"
       tabItems={TabItems}
-      videoSrc="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+      videoSrc="https://pub-3bcba1ff529f4ce3bf25b4e16962c239.r2.dev/frontline-web.mp4"
+      videoPoster="https://pub-3bcba1ff529f4ce3bf25b4e16962c239.r2.dev/erxes-frontline-thumbnail.png"
       onboardingSteps={OnboardingSteps}
     />
   );

@@ -1,9 +1,12 @@
+import * as dotenv from 'dotenv';
 import { Express } from 'express';
 
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 
 import { apolloRouterPort } from '~/apollo-router';
 import { ErxesProxyTarget } from '~/proxy/targets';
+
+dotenv.config();
 
 const { NODE_ENV } = process.env;
 
@@ -40,7 +43,7 @@ export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
     throw new Error('core service not found');
   }
 
-  app.use('/trpc', forbid);
+  // app.use('/trpc', forbid);
   app.use(
     '/',
     createProxyMiddleware({

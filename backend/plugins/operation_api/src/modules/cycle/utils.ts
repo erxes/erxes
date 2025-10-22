@@ -1,6 +1,7 @@
 import { fillMissingDays } from '@/project/utils/charUtils';
 import { STATUS_TYPES } from '@/status/constants/types';
-import { differenceInCalendarDays, startOfDay } from 'date-fns';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { tz } from 'moment-timezone';
 import { Types } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
@@ -112,6 +113,7 @@ export const getCyclesProgress = async (
 };
 
 export const getCycleProgressChart = async (
+  subdomain: string,
   cycleId: string,
   assigneeId: string | undefined,
   models: IModels,
@@ -129,6 +131,19 @@ export const getCycleProgressChart = async (
   if (!cycle) {
     return [];
   }
+
+  const timezone = await sendTRPCMessage({
+    subdomain,
+
+    pluginName: 'core',
+    method: 'query',
+    module: 'configs',
+    action: 'getConfig',
+    input: {
+      code: 'TIMEZONE',
+    },
+    defaultValue: 'UTC',
+  });
 
   const [totalScopeResult] = await models.Task.aggregate([
     {
@@ -177,10 +192,10 @@ export const getCycleProgressChart = async (
     {
       $addFields: {
         dayDate: {
-          $dateFromParts: {
-            year: { $year: '$statusChangedDate' },
-            month: { $month: '$statusChangedDate' },
-            day: { $dayOfMonth: '$statusChangedDate' },
+          $dateToString: {
+            format: '%Y-%m-%d',
+            date: '$statusChangedDate',
+            timezone,
           },
         },
         isStarted: { $eq: ['$statusType', STATUS_TYPES.STARTED] },
@@ -210,7 +225,7 @@ export const getCycleProgressChart = async (
     {
       $project: {
         _id: 0,
-        date: { $dateToString: { format: '%Y-%m-%d', date: '$_id' } },
+        date: '$_id',
         started: 1,
         completed: 1,
       },
@@ -238,16 +253,12 @@ export const getCycleProgressChart = async (
     chartData: [],
   };
 
-  const start = startOfDay(new Date(cycle.startDate));
-  const end = startOfDay(new Date(cycle.endDate));
+  const start = tz(new Date(cycle.startDate), timezone);
+  const end = tz(new Date(cycle.endDate), timezone);
 
-  const days = differenceInCalendarDays(end, start) + 1;
+  const days = end.diff(start, 'days') + 1;
 
-  chartData.chartData = fillMissingDays(
-    chartDataAggregation,
-    cycle.startDate,
-    days,
-  );
+  chartData.chartData = fillMissingDays(chartDataAggregation, start, days);
 
   return chartData;
 };

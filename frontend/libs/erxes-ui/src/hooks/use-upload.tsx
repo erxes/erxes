@@ -180,7 +180,7 @@ export const useUpload = () => {
 
   const remove = ({
     fileName,
-    url = `${REACT_APP_API_URL}/pl:core/delete-file`,
+    url = `${REACT_APP_API_URL}/delete-file`,
     afterRemove,
   }: RemoveProps) => {
     setIsLoading(true);
