@@ -463,8 +463,8 @@ export const resolvePlaceholderValue = (target: any, attribute: string) => {
   // Case 1: customer-customFieldsData-1  (look up in customFieldsData)
   if (valueToCheck?.includes("customFieldsData")) {
     const fieldId = attribute.split(".").pop(); // extract the field number after '.'
-    const obj = (parent.customFieldsData || []).find(
-      (item: any) => item.field === fieldId
+    const obj = (parent?.customFieldsData || []).find(
+      (item: any) => item?.field === fieldId
     );
     return obj?.value ?? "0";
   }

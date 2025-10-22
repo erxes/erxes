@@ -18,6 +18,7 @@ type Props = {
   attrType?: string;
   attrTypes?: string[];
   onlySet?: boolean;
+  componentClass?: string;
 };
 
 type State = {
@@ -39,7 +40,7 @@ export default class Attribution extends React.Component<Props, State> {
   }
 
   getComma = preValue => {
-    if (this.props.fieldType === 'select' && preValue) {
+    if (this.props.fieldType === 'select' && preValue && this.props.componentClass !== 'textarea') {
       return ', ';
     }
 
