@@ -8,8 +8,8 @@ import { activeCost } from './inventories';
 import { createOrUpdateTr } from './utils';
 
 class InvSaleOutCostTrs {
-  private models: IModels;
-  private trDoc: ITransaction;
+  private readonly models: IModels;
+  private readonly trDoc: ITransaction;
   private outAccount: IAccountDocument;
   private costAccount: IAccountDocument;
 
@@ -21,7 +21,7 @@ class InvSaleOutCostTrs {
     this.trDoc = trDoc;
   }
 
-  public checkValidation = async () => {
+  public async checkValidation() {
     const { saleOutAccountId, saleCostAccountId } = this.trDoc.followInfos;
     if (!saleOutAccountId || !saleCostAccountId) {
       throw new Error('Must fill sale Out Account and Cost Account')
@@ -39,7 +39,7 @@ class InvSaleOutCostTrs {
     this.costAccount = costAccount;
   }
 
-  private cleanFollowTrs = async (oldTrs: ITransactionDocument[]) => {
+  private async cleanFollowTrs(oldTrs: ITransactionDocument[]) {
     if (!oldTrs.length) {
       return;
     }
@@ -53,7 +53,7 @@ class InvSaleOutCostTrs {
     return oldTr;
   }
 
-  public doTrs = async (transaction) => {
+  public async doTrs(transaction) {
     const { details } = transaction;
 
     const oldFollowOutTrs = await this.models.Transactions.find({

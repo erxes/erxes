@@ -5,8 +5,8 @@ import { ITransaction, ITransactionDocument, ITrDetail } from '../@types/transac
 import { createOrUpdateTr } from './utils';
 
 class InvMoveInTrs {
-  private models: IModels;
-  private trDoc: ITransaction;
+  private readonly models: IModels;
+  private readonly trDoc: ITransaction;
   private moveInAccount: IAccountDocument;
 
   constructor(
@@ -17,7 +17,7 @@ class InvMoveInTrs {
     this.trDoc = trDoc;
   }
 
-  public checkValidation = async () => {
+  public async checkValidation() {
     const { moveInAccountId, moveInBranchId, moveInDepartmentId } = this.trDoc.followInfos;
 
     if (!moveInBranchId || !moveInDepartmentId) {
@@ -37,7 +37,7 @@ class InvMoveInTrs {
     this.moveInAccount = moveInAccount;
   }
 
-  private cleanFollowTrs = async (oldTrs: ITransactionDocument[]) => {
+  private async cleanFollowTrs(oldTrs: ITransactionDocument[]) {
     if (!oldTrs.length) {
       return;
     }
@@ -51,7 +51,7 @@ class InvMoveInTrs {
     return oldTr;
   }
 
-  public doTrs = async (transaction) => {
+  public async doTrs(transaction) {
     const { details } = transaction;
 
     const oldFollowInTrs = await this.models.Transactions.find({

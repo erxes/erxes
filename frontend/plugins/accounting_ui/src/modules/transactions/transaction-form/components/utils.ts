@@ -12,13 +12,13 @@ export const getSumDtCt = (tr: ITransaction) => {
   let sumDt = 0;
   let sumCt = 0;
 
-  tr.details.forEach((detail) => {
+  for (const detail of tr.details) {
     if (detail.side === TR_SIDES.DEBIT) {
       sumDt += detail?.amount ?? 0;
     } else {
       sumCt += detail?.amount ?? 0;
     }
-  });
+  }
 
   return { sumDt, sumCt }
 }
