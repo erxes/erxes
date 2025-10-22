@@ -42,18 +42,6 @@ app.use(
 
 app.use(cookieParser());
 
-// const corsOptions = {
-//   credentials: true,
-//   origin: (origin, callback) => {
-//     if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ''))) {
-//       callback(null, true);
-//     } else {
-//       console.error('Origin not allowed:', origin, allowedOrigins);
-//       callback(new Error('Not allowed by CORS'));
-//     }
-//   },
-// };
-
 const corsOptions = {
   credentials: true,
   origin: [

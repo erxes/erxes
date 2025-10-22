@@ -44,22 +44,22 @@ const PluginAccounting = () => {
     <Suspense
       fallback={
         <div className="flex justify-center items-center h-full">
-          <Spinner size="small" />
+          <Spinner size="sm" />
         </div>
       }
     >
       <Routes>
-        <Route
-          path="/"
-          element={<TransactionList />}
-        />
+        <Route path="/" element={<TransactionList />} />
         <Route path="/main" element={<TransactionList />} />
         <Route path="/records" element={<TrRecordList />} />
         <Route path="/transaction/edit" element={<TransactionForm />} />
         <Route path="/transaction/create" element={<TransactionForm />} />
         <Route path="/adjustment" element={<AdjustmentsHomePage />} />
         <Route path="/adjustment/inventory" element={<AdjustInventoryList />} />
-        <Route path="/adjustment/inventory/detail" element={<AdjustInventoryDetail />} />
+        <Route
+          path="/adjustment/inventory/detail"
+          element={<AdjustInventoryDetail />}
+        />
       </Routes>
       <PageChangeEffect />
     </Suspense>
