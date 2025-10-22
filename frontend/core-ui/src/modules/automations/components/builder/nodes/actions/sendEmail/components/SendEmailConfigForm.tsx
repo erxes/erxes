@@ -55,8 +55,8 @@ export const SendEmailConfigForm = ({
             )}
           />
           {config.type === 'custom' && (
-            <Tabs>
-              <Tabs.List defaultValue="default">
+            <Tabs defaultValue="default">
+              <Tabs.List>
                 <Tabs.Trigger value="default" className="w-1/2">
                   Placeholder input
                 </Tabs.Trigger>

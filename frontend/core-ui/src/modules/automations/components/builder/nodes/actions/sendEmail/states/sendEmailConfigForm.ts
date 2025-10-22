@@ -10,6 +10,7 @@ export const sendEmailConfigFormSchema = z.object({
   subject: z.string(),
   emailTemplateId: z.string(),
   content: z.string(),
+  html: z.string(),
   type: z.enum(['default', 'custom']),
 });
 

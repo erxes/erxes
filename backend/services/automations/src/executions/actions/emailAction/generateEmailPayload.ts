@@ -16,23 +16,14 @@ export const generateEmailPayload = async ({
   triggerType,
   config,
 }) => {
-  const { templateId, fromUserId, fromEmailPlaceHolder, sender } = config;
+  const { fromUserId, fromEmailPlaceHolder, sender } = config;
   const [pluginName, type] = splitType(triggerType);
   const version = getEnv({ name: 'VERSION' });
   const DEFAULT_AWS_EMAIL = getEnv({ name: 'DEFAULT_AWS_EMAIL' });
 
   const MAIL_SERVICE = getEnv({ name: 'MAIL_SERVICE' });
 
-  // const template = await sendCoreMessage({
-  //   subdomain,
-  //   action: "emailTemplatesFindOne",
-  //   data: {
-  //     _id: templateId,
-  //   },
-  //   isRPC: true,
-  //   defaultValue: null,
-  // });
-  const template = { content: 'Hello World' };
+  const template = { content: config?.html || '' };
 
   let fromUserEmail = version === 'saas' ? DEFAULT_AWS_EMAIL : '';
 

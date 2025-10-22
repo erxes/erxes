@@ -1,15 +1,18 @@
 import { IconEdit } from '@tabler/icons-react';
 import {
   BlockEditor,
+  BlockEditorReadOnly,
   Button,
   IBlockEditor,
   Sheet,
   useBlockEditor,
 } from 'erxes-ui';
-import { useEffect, useRef, useState } from 'react';
-import { AssignMemberInEditor, AttributeInEditor } from 'ui-modules';
+import { useEffect, useState } from 'react';
+import { AttributeInEditor } from 'ui-modules';
 import { useAttributes } from 'ui-modules/modules/automations/hooks/useAttributes';
-import { EmailTemplateInEditor } from './EmailTemplateInEditor';
+import { EmailTemplateInEditor } from '@/automations/components/builder/nodes/actions/sendEmail/components/EmailTemplateInEditor';
+import { useFormContext } from 'react-hook-form';
+import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
 
 interface SendEmailEmailContentBuilderProps {
   content: string;
@@ -23,51 +26,24 @@ export const SendEmailEmailContentBuilder = ({
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const editor = useBlockEditor({});
-  const isEditing = useRef(false);
 
-  // Load content into editor when sheet opens
+  // Initialize editor with content on mount
   useEffect(() => {
-    if (!content || isEditing.current) return;
+    if (!content || !editor) return;
 
-    try {
-      const blocks = JSON.parse(content);
+    const loadInitialContent = async () => {
+      let blocks;
+
+      try {
+        blocks = JSON.parse(content);
+      } catch (_error) {
+        blocks = await editor.tryParseHTMLToBlocks(content);
+      }
       editor.replaceBlocks(editor.document, blocks);
-    } catch {
-      // If not JSON, treat as plain text
-      editor.replaceBlocks(editor.document, [
-        {
-          id: crypto.randomUUID(),
-          type: 'paragraph',
-          props: {
-            textColor: 'default',
-            backgroundColor: 'default',
-            textAlignment: 'left',
-          },
-          content: [
-            {
-              type: 'text',
-              text: content,
-              styles: {},
-            },
-          ],
-          children: [],
-        },
-      ]);
-    }
-  }, [content, editor]);
+    };
 
-  // Handle editor content changes
-  useEffect(() => {
-    const unsubscribe = editor.onChange((editor) => {
-      isEditing.current = true;
-      onChange(JSON.stringify(editor.document));
-      setTimeout(() => {
-        isEditing.current = false;
-      }, 100);
-    });
-
-    return unsubscribe;
-  }, [editor, onChange]);
+    loadInitialContent();
+  }, [editor, content]);
 
   return (
     <>
@@ -77,9 +53,10 @@ export const SendEmailEmailContentBuilder = ({
         onMouseLeave={() => setIsHovered(false)}
         onClick={() => setIsSheetOpen(true)}
       >
-        <div className="text-sm text-muted-foreground">
-          <BlockEditor editor={editor} readonly className="py-8 px-4" />
-        </div>
+        <BlockEditorReadOnly
+          content={content}
+          className="text-sm text-muted-foreground"
+        />
 
         {isHovered && (
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center">
@@ -99,17 +76,82 @@ export const SendEmailEmailContentBuilder = ({
         )}
       </div>
 
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <Sheet.View className="md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
-          <Sheet.Content className="my-8">
-            <BlockEditor editor={editor}>
-              <SendEmailEmailContentBuilderAttributes editor={editor} />
-              <EmailTemplateInEditor editor={editor} />
-            </BlockEditor>
-          </Sheet.Content>
-        </Sheet.View>
-      </Sheet>
+      <SendEmailEmailContentBuilderEditor
+        isSheetOpen={isSheetOpen}
+        setIsSheetOpen={setIsSheetOpen}
+        editor={editor}
+        onChange={onChange}
+      />
     </>
+  );
+};
+
+const SendEmailEmailContentBuilderEditor = ({
+  isSheetOpen,
+  setIsSheetOpen,
+  editor,
+  onChange,
+}: {
+  editor: IBlockEditor;
+  isSheetOpen: boolean;
+  setIsSheetOpen: (isOpen: boolean) => void;
+  onChange: (content: string) => void;
+}) => {
+  const { setValue } = useFormContext<TAutomationSendEmailConfig>();
+  const convertToEmailHTML = async () => {
+    // Converts the editor's contents from Block objects to HTML and store to state.
+    const html = await editor.blocksToFullHTML(editor.document);
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    // Select all elements with `data-inline-content-type="attribute"`
+    const attrElements = doc.querySelectorAll(
+      '[data-inline-content-type="attribute"]',
+    );
+
+    attrElements.forEach((el) => {
+      const value = el.getAttribute('data-value');
+      if (value) {
+        // Replace the element with `{{ value }}`
+        const templateText = doc.createTextNode(`{{ ${value} }}`);
+        el.replaceWith(templateText);
+      }
+    });
+    return doc.body.innerHTML;
+  };
+  const onSave = async () => {
+    onChange(JSON.stringify(editor.document));
+    const html = await convertToEmailHTML();
+    setValue('html', html);
+    setIsSheetOpen(false);
+  };
+
+  return (
+    <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+      <Sheet.View className="md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
+        <Sheet.Header>
+          <div className="space-y-1">
+            <Sheet.Title>Edit Email Content</Sheet.Title>
+            <Sheet.Description>
+              Edit the email content for the email action.
+            </Sheet.Description>
+          </div>
+          <Sheet.Close />
+        </Sheet.Header>
+        <Sheet.Content>
+          <BlockEditor editor={editor}>
+            <SendEmailEmailContentBuilderAttributes editor={editor} />
+            <EmailTemplateInEditor editor={editor} />
+          </BlockEditor>
+        </Sheet.Content>
+        <Sheet.Footer>
+          <Button variant="outline" onClick={() => setIsSheetOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={onSave}>Save</Button>
+        </Sheet.Footer>
+      </Sheet.View>
+    </Sheet>
   );
 };
 
