@@ -26,15 +26,15 @@ const commonFields = `
 `;
 
 const getScoreLogs = `
-query scoreLogList(${commonParamsDef},$fromDate: String,$orderType:String, $order: String, $toDate: String, $stageId: String, $number: String, $action: String){
-  scoreLogList(${commonParamsValue},fromDate: $fromDate,orderType:$orderType, order: $order, toDate: $toDate, stageId: $stageId, number: $number, action: $action){
-    list{
-      ${commonFields}
-    }
+  query scoreLogList(${commonParamsDef},$fromDate: String,$orderType:String, $order: String, $toDate: String, $stageId: String, $number: String, $action: String){
+    scoreLogList(${commonParamsValue},fromDate: $fromDate,orderType:$orderType, order: $order, toDate: $toDate, stageId: $stageId, number: $number, action: $action){
+      list{
+        ${commonFields}
+      }
 
-    total
+      total
+    }
   }
-}
 `;
 
 const getScoreLogStatistics = `
@@ -43,7 +43,14 @@ const getScoreLogStatistics = `
   }
 `;
 
+const GET_SERVICES_QUERY = `
+  query ScoreCampaignServices {
+    scoreCampaignServices
+  }
+`;
+
 export default {
   getScoreLogs,
   getScoreLogStatistics,
+  GET_SERVICES_QUERY,
 };

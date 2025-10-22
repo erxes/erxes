@@ -4,7 +4,9 @@ const params = `
   $description: String,
   $ownerId: String,
   $ownerType: String
-  $campaignId: String
+  $campaignId: String,
+  $targetId: String
+  $serviceName: String
 `;
 
 const paramsDef = `
@@ -13,7 +15,9 @@ const paramsDef = `
   description: $description,
   ownerId: $ownerId,
   ownerType: $ownerType,
-  campaignId: $campaignId
+  campaignId: $campaignId,
+  targetId: $targetId,
+  serviceName: $serviceName
 `;
 
 const changeScore = `
