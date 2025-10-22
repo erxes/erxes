@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.17.19](https://github.com/erxes/erxes/compare/2.17.18...2.17.19) (2025-10-22)
+
+### Bug Fixes
+
+* update regex for value replacement in automations and improve code formatting in RFEditor and SetProperty components ([d2b5b5e](https://github.com/erxes/erxes/commit/d2b5b5ea2a85494fe3a9a3bcfffea085df0c848a))
+
 ## [2.17.18](https://github.com/erxes/erxes/compare/2.17.17...2.17.18) (2025-10-21)
 
 ### Features
