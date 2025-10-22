@@ -2,20 +2,23 @@ import { CustomerType } from 'ui-modules';
 import { z } from 'zod';
 import { TR_SIDES, TrJournalEnum } from '../../types/constants';
 
+export const undefed = <T extends z.ZodTypeAny>(schema: T) =>
+  z.preprocess((val) => (val === null ? undefined : val), schema.optional());
+
 //#region common:
 export const vatSchema = z.object({
-  hasVat: z.boolean().nullish(),
-  handleVat: z.boolean().optional().nullish(),
-  afterVat: z.boolean().optional().nullish(),
-  vatRowId: z.string().optional().nullish(),
-  vatAmount: z.number().optional().nullish(),
+  hasVat: undefed(z.boolean()),
+  handleVat: undefed(z.boolean()),
+  afterVat: undefed(z.boolean()),
+  vatRowId: undefed(z.string()),
+  vatAmount: undefed(z.number()),
 });
 
 export const ctaxSchema = z.object({
-  hasCtax: z.boolean().nullish(),
-  handleCtax: z.boolean().optional().nullish(),
-  ctaxRowId: z.string().optional().nullish(),
-  ctaxAmount: z.number().optional().nullish(),
+  hasCtax: undefed(z.boolean()),
+  handleCtax: undefed(z.boolean()),
+  ctaxRowId: undefed(z.string()),
+  ctaxAmount: undefed(z.number()),
 });
 
 const accountSchema = z.object({
@@ -24,16 +27,16 @@ const accountSchema = z.object({
   name: z.string(),
   currency: z.string(),
   kind: z.string(),
-  branchId: z.string().optional(),
-  departmentId: z.string().optional(),
+  branchId: undefed(z.string()),
+  departmentId: undefed(z.string()),
   journal: z.string(),
 })
 
 export const baseTrDetailSchema = z.object({
   _id: z.string(),
-  transactionId: z.string().nullish(),
+  transactionId: undefed(z.string()),
 
-  accountId: z.string().nullish().refine((val) =>
+  accountId: undefed(z.string()).refine((val) =>
     val?.length,
     { message: 'Must fill account' }
   ),
@@ -43,53 +46,53 @@ export const baseTrDetailSchema = z.object({
     { message: 'wrong side aaaa' }
   ),
 
-  followInfos: z.object({}).nullish(), // rel backend
-  followExtras: z.object({}).nullish(), // followInfos to object
+  followInfos: undefed(z.object({})), // rel backend
+  followExtras: undefed(z.object({})), // followInfos to object
 
-  excludeVat: z.boolean().nullish(),
-  excludeCtax: z.boolean().nullish(),
+  excludeVat: undefed(z.boolean()),
+  excludeCtax: undefed(z.boolean()),
 
-  currencyAmount: z.number().nullish(),
-  customRate: z.number().nullish(),
-  assignedUserId: z.string().nullish(),
+  currencyAmount: undefed(z.number()),
+  customRate: undefed(z.number()),
+  assignedUserId: undefed(z.string()),
 
-  productId: z.string().nullish(),
-  count: z.number().nullish(),
-  unitPrice: z.number().nullish(),
+  productId: undefed(z.string()),
+  count: undefed(z.number()),
+  unitPrice: undefed(z.number()),
 
-  checked: z.boolean().default(false),
-  account: z.object({ ...accountSchema.shape }).nullish()
+  checked: undefed(z.boolean()),
+  account: undefed(z.object({ ...accountSchema.shape }))
 });
 
 export const currencyDetailSchema = z.object({
-  currency: z.string().nullish(),
-  currencyAmount: z.number().nullish(),
-  customRate: z.number().nullish(),
-  spotRate: z.number().nullish(),
-  followInfos: z.object({
+  currency: undefed(z.string()),
+  currencyAmount: undefed(z.number()),
+  customRate: undefed(z.number()),
+  spotRate: undefed(z.number()),
+  followInfos: undefed(z.object({
     currencyDiffAccountId: z.string(),
-  }).nullish(),
+  })),
 })
 
 export const baseTransactionSchema = z.object({
   _id: z.string(),
-  ptrId: z.string().optional(),
-  parentId: z.string().optional(),
+  ptrId: undefed(z.string()),
+  parentId: undefed(z.string()),
 
-  followInfos: z.object({}).nullish(),
+  followInfos: undefed(z.object({})),
 
-  description: z.string().nullish(),
+  description: undefed(z.string()),
   customerType: z.nativeEnum(CustomerType),
-  customerId: z.string().nullish(),
-  branchId: z.string().nullish(),
-  departmentId: z.string().nullish(),
-  assignedUserIds: z.array(z.string()).optional(),
+  customerId: undefed(z.string()),
+  branchId: undefed(z.string()),
+  departmentId: undefed(z.string()),
+  assignedUserIds: undefed(z.array(z.string())),
   details: z.array(baseTrDetailSchema).min(1),
 
   ...vatSchema.shape,
   ...ctaxSchema.shape,
 
-  extraData: z.object({}).nullish(),
+  extraData: undefed(z.object({})),
 });
 //#endregion common
 
@@ -150,8 +153,11 @@ export const transactionTaxSchema = z.object({
 export const invDetailSchema = z.object({
   ...baseTrDetailSchema.shape,
 }).extend({
-  productId: z.string(),
-  count: z.number().min(0),
+  productId: z.string().refine((val) =>
+    val?.length,
+    { message: 'Must fill product' }
+  ),
+  count: z.number().gt(0),
   unitPrice: z.number().min(0),
 });
 
@@ -173,7 +179,7 @@ export const transactionInvIncomeSchema = z.object({
       title: z.string(),
       rule: z.string(),
       amount: z.number().min(0),
-      accountId: z.string().nullish(),
+      accountId: undefed(z.string()),
     })).min(0)
   })
 });
@@ -182,7 +188,7 @@ export const transactionInvOutSchema = z.object({
   journal: z.literal(TrJournalEnum.INV_OUT),
   ...baseTransactionSchema.shape,
 }).extend({
-  customerId: z.string().nullish(),
+  customerId: undefed(z.string()),
   branchId: z.string(),
   departmentId: z.string(),
   details: z.array(z.object({
@@ -194,7 +200,7 @@ export const transactionInvMoveSchema = z.object({
   journal: z.literal(TrJournalEnum.INV_MOVE),
   ...baseTransactionSchema.shape,
 }).extend({
-  customerId: z.string().nullish(),
+  customerId: undefed(z.string()),
   branchId: z.string(),
   departmentId: z.string(),
   followInfos: z.object({
@@ -203,8 +209,7 @@ export const transactionInvMoveSchema = z.object({
     moveInDepartmentId: z.string(),
   }),
   followExtras: z.object({
-    moveInAccount: z.object({ ...accountSchema.shape }).nullish(),
-
+    moveInAccount: undefed(z.object({ ...accountSchema.shape })),
   }),
   details: z.array(z.object({
     ...invDetailSchema.shape,
@@ -215,17 +220,17 @@ export const transactionInvSaleSchema = z.object({
   journal: z.literal(TrJournalEnum.INV_SALE),
   ...baseTransactionSchema.shape,
 }).extend({
-  customerId: z.string().nullish(),
+  customerId: undefed(z.string()),
   branchId: z.string(),
   departmentId: z.string(),
   followInfos: z.object({
     saleOutAccountId: z.string(),
     saleCostAccountId: z.string(),
   }),
-  followExtras: z.object({
-    saleOutAccount: z.object({ ...accountSchema.shape }).nullish(),
-    saleCostAccount: z.object({ ...accountSchema.shape }).nullish()
-  }),
+  followExtras: undefed(z.object({
+    saleOutAccount: undefed(z.object({ ...accountSchema.shape })),
+    saleCostAccount: undefed(z.object({ ...accountSchema.shape }))
+  })),
   details: z.array(z.object({
     ...invDetailSchema.shape,
   })),
@@ -239,12 +244,12 @@ export const trDocSchema = z
     transactionBankSchema,
     transactionReceivableSchema,
     transactionPayableSchema,
+
     transactionInvIncomeSchema,
     transactionInvOutSchema,
     transactionInvMoveSchema,
     transactionInvSaleSchema,
-    // transactionInventorySchema,
-    // transactionFixedAssetSchema,
+
     transactionTaxSchema,
   ])
   // vat
@@ -281,8 +286,8 @@ export const trDocSchema = z
 // cash
 
 export const transactionGroupSchema = z.object({
-  parentId: z.string().optional(),
-  number: z.string().optional(),
+  parentId: undefed(z.string()),
+  number: undefed(z.string()),
   date: z.date(),
   trDocs: z
     .array(
@@ -290,3 +295,6 @@ export const transactionGroupSchema = z.object({
     )
     .min(1),
 });
+
+
+// gehdee detail: {name: z.string().optional()} invDetail: detail.omit().extend{name: z.string()} gehed optional uldeed invDetail: detail.omit({name: true}).extend{name: z.string()} gej baij optional arilna gesen ni yu bolchiv

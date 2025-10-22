@@ -60,39 +60,39 @@ export const InvMoveForm = ({
           )}
         />
         <Form.Field
-            control={form.control}
-            name={`trDocs.${index}.followInfos.moveInBranchId`}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Move incoming Branch</Form.Label>
-                <Form.Control>
-                  <SelectBranches.FormItem
-                    mode="single"
-                    value={field.value ?? ''}
-                    onValueChange={(branch) => field.onChange(branch)}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+          control={form.control}
+          name={`trDocs.${index}.followInfos.moveInBranchId`}
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Move incoming Branch</Form.Label>
+              <Form.Control>
+                <SelectBranches.FormItem
+                  mode="single"
+                  value={field.value ?? ''}
+                  onValueChange={(branch) => field.onChange(branch)}
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
         <Form.Field
-            control={form.control}
-            name={`trDocs.${index}.followInfos.moveInDepartmentId`}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Move incoming Department</Form.Label>
-                <Form.Control>
-                  <SelectDepartments.FormItem
-                    mode="single"
-                    value={field.value ?? ''}
-                    onValueChange={(department) => field.onChange(department)}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+          control={form.control}
+          name={`trDocs.${index}.followInfos.moveInDepartmentId`}
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Move incoming Department</Form.Label>
+              <Form.Control>
+                <SelectDepartments.FormItem
+                  mode="single"
+                  value={field.value ?? ''}
+                  onValueChange={(department) => field.onChange(department)}
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
       </div>
 
       <InventoryForm

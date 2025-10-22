@@ -20,6 +20,7 @@ import { useTransactionDetail } from '../hooks/useTransactionDetail';
 import { useTransactionsCreate } from '../hooks/useTransactionsCreate';
 import { useTransactionsUpdate } from '../hooks/useTransactionsUpdate';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cleanTrDocs } from './utils';
 
 // Memoize form fields to prevent unnecessary re-renders
 const FormFields = memo(
@@ -89,17 +90,7 @@ export const TransactionsGroupForm = () => {
 
   const onSubmit = (data: TAddTransactionGroup) => {
     // transactionGroup get
-    const trDocs = data.trDocs.map(trD => ({
-      ...trD,
-      followExtras: undefined,
-      details: trD.details.map(det => ({
-        ...det,
-        account: undefined,
-        checked: undefined,
-      })),
-      date: data.date,
-      number: data.number,
-    }));
+    const trDocs = cleanTrDocs(data);
 
     if (parentId) {
       updateTransaction({
@@ -116,7 +107,6 @@ export const TransactionsGroupForm = () => {
     if (error?.details?.length > 0) {
       setActiveJournal(error.details.findIndex((tab: any) => !!tab).toString());
     }
-    console.log(error);
   };
 
   useEffect(() => {
