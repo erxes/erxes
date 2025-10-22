@@ -12,7 +12,7 @@ export const commonSave = async (subdomain: string, models: IModels, doc: ITrans
   const otherTrs: ITransactionDocument[] = [];
 
   if (oldTr?.journal && oldTr.journal !== doc.journal) {
-    throw new Error('Not change journal')
+    throw new Error('Journal cannot be changed')
   }
 
 
@@ -32,7 +32,7 @@ export const commonSave = async (subdomain: string, models: IModels, doc: ITrans
       const taxTrsClass = new TaxTrs(models, doc, detail?.side === 'dt' ? 'ct' : 'dt', true);
       await taxTrsClass.checkTaxValidation();
 
-      const transaction = await await createOrUpdateTr(models, doc, oldTr);
+      const transaction = await createOrUpdateTr(models, doc, oldTr);
 
       mainTr = transaction
       const currencyTr = await currencyTrClass.doCurrencyTr(transaction)

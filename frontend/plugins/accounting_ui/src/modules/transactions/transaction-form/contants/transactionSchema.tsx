@@ -295,6 +295,3 @@ export const transactionGroupSchema = z.object({
     )
     .min(1),
 });
-
-
-// gehdee detail: {name: z.string().optional()} invDetail: detail.omit().extend{name: z.string()} gehed optional uldeed invDetail: detail.omit({name: true}).extend{name: z.string()} gej baij optional arilna gesen ni yu bolchiv
