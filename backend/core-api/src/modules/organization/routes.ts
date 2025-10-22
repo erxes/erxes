@@ -76,8 +76,8 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
         const enabledPluginsArray = ENABLED_PLUGINS.split(',');
         if (enabledPluginsArray.includes(pluginName)) {
           remotes.push({
-            name: `${key}_ui`,
-            entry: `https://plugins.erxes.io/latest/${key}_ui/remoteEntry.js`,
+            name: `${pluginName}_ui`,
+            entry: `https://plugins.erxes.io/latest/${pluginName}_ui/remoteEntry.js`,
           });
         }
       }
