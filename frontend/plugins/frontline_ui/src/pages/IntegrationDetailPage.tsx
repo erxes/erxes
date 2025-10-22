@@ -56,7 +56,7 @@ const CallIntegrationActions = lazy(() =>
 );
 
 export const IntegrationDetailPage = () => {
-  const { integrationType } = useParams();
+  const { integrationType, id } = useParams();
   const navigate = useNavigate();
 
   const integration =
@@ -68,7 +68,7 @@ export const IntegrationDetailPage = () => {
         <Button
           variant="ghost"
           className="text-muted-foreground"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate(`/settings/frontline/channels/details/${id}`)}
         >
           <IconChevronLeft />
           Integrations

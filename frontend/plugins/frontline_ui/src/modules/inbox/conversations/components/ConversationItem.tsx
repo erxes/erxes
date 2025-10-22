@@ -4,6 +4,7 @@ import {
   Checkbox,
   cn,
   RelativeDateDisplay,
+  TextOverflowTooltip,
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
@@ -70,7 +71,7 @@ export const ConversationItem = ({
         <ConversationSelector />
         <CustomersInline.Title className="w-56 truncate flex-none text-foreground" />
         <ConversationItemContent />
-        <div className="w-32 text-right flex-none">
+        <div className="w-auto text-right flex-none">
           <span> to </span>
           {channel && <span title={channel.name}>{channel.name}</span>}
           <span> via </span>
