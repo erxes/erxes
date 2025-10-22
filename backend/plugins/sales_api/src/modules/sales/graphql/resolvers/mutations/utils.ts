@@ -10,8 +10,7 @@ import {
   itemMover,
   subscriptionWrapper,
 } from '../utils';
-import { models } from 'mongoose';
-import { createConformity, destroyBoardItemRelations, getNewOrder, sendNotifications } from '~/modules/sales/utils';
+import { createConformity, getNewOrder, sendNotifications } from '~/modules/sales/utils';
 
 export const addDeal = async ({
   models, doc, user
@@ -59,17 +58,14 @@ export const addDeal = async ({
     customerIds: doc.customerIds,
   });
 
-  if (user) {
-    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+  const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
-
-    await sendNotifications(models, {
-      item: deal,
-      user,
-      action: `invited you to the ${pipeline.name}`,
-      content: `'${deal.name}'.`,
-    });
-  }
+  await sendNotifications(models, {
+    item: deal,
+    user,
+    action: `invited you to the ${pipeline.name}`,
+    content: `'${deal.name}'.`,
+  });
 
   await subscriptionWrapper(models, {
     action: 'create',
