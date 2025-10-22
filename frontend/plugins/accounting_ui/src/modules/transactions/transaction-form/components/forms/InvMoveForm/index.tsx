@@ -1,7 +1,7 @@
-import { SelectBranches, SelectDepartments, } from 'ui-modules';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { IAccount, JournalEnum } from '@/settings/account/types/Account';
 import { Form } from 'erxes-ui';
+import { SelectBranches, SelectDepartments, } from 'ui-modules';
 import { ITransactionGroupForm } from '../../../types/JournalForms';
 import {
   AccountField,
@@ -35,6 +35,7 @@ export const InvMoveForm = ({
           index={index}
           filter={{ journals: [JournalEnum.INVENTORY] }}
           allDetails={true}
+          labelTxt='Move Out Account'
         />
         <CustomerFields form={form} index={index} />
         <BranchField form={form} index={index} />

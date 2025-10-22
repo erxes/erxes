@@ -39,9 +39,9 @@ export const InventoryForm = ({
       >
         <InventoryTableHeader form={form} journalIndex={journalIndex} />
         <Table.Body className="overflow-hidden">
-          {fields.map((product, detailIndex) => (
+          {fields.map((detail, detailIndex) => (
             <InventoryRow
-              key={product.id}
+              key={detail._id}
               detailIndex={detailIndex}
               journalIndex={journalIndex}
               form={form}

@@ -87,7 +87,6 @@ export const TransactionsGroupForm = () => {
   const { createTransaction } = useTransactionsCreate();
   const { updateTransaction } = useTransactionsUpdate();
 
-
   const onSubmit = (data: TAddTransactionGroup) => {
     // transactionGroup get
     const trDocs = cleanTrDocs(data);

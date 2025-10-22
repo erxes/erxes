@@ -76,7 +76,7 @@ export const InventoryRow = ({
   });
 
   const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
-  
+
   useEffect(() => {
     const currIn = followTrDocs.find(
       (ftr) =>
@@ -108,6 +108,7 @@ export const InventoryRow = ({
             productId: moveDetail.productId,
             account: trDoc.followExtras?.moveInAccount,
             accountId: trDoc.followInfos?.moveInAccountId,
+
             side: TR_SIDES.DEBIT,
             count: moveDetail.count,
             unitPrice: moveDetail.unitPrice,

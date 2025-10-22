@@ -67,8 +67,8 @@ class InvMoveInTrs {
       number: transaction.number,
       date: transaction.date,
       description: transaction.description,
-      branchId: this.trDoc.followInfos.branchId,
-      departmentId: this.trDoc.followInfos.departmentId,
+      branchId: this.trDoc.followInfos.moveInBranchId,
+      departmentId: this.trDoc.followInfos.moveInDepartmentId,
       customerType: transaction.customerType,
       customerId: transaction.customerId,
       details: []
