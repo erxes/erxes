@@ -85,7 +85,11 @@ const generateFilter = async (
       };
     }
 
-    filter.action = params.action;
+    if (params.action === 'manual') {
+      filter.description = /^manual/i;
+    } else {
+      filter.action = params.action;
+    }
   }
 
   if (params.stageId) {
@@ -284,6 +288,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         description,
         createdBy = "",
         campaignId,
+        targetId,
+        serviceName,
       } = doc;
 
       const score = Number(changeScore);
@@ -291,6 +297,18 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       if (!owner) {
         throw new Error(`not fount ${ownerType}`);
+      }
+
+      if (targetId && serviceName) {
+        const target = await models.ScoreLogs.exists({
+          targetId,
+          serviceName,
+          action: 'add'
+        })
+
+        if (target) {
+          throw new Error("Already added loyalty score to this target");
+        }
       }
 
       let ownerScore = owner.score;
@@ -337,6 +355,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         createdBy,
         campaignId,
         action: "add",
+        targetId,
+        serviceName,
       });
     }
 
