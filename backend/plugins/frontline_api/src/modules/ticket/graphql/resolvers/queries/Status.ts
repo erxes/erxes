@@ -36,9 +36,7 @@ export const statusQueries = {
     { pipelineId, type }: IStatusFilter,
     { models }: IContext,
   ) => {
-    await models.Status.createDefaultStatuses(pipelineId);
-
-    return models.Status.getStatuses(pipelineId, type);
+    return await models.Status.getStatuses(pipelineId, type);
   },
 };
 

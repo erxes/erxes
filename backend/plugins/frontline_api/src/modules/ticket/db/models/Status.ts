@@ -54,7 +54,7 @@ export const loadStatusClass = (models: IModels) => {
     ): Promise<IStatusDocument[]> {
       const statuses = generateDefaultStatuses(pipelineId);
 
-      return models.Status.insertMany(statuses);
+      return models.Status.create(statuses);
     }
 
     public static async updateStatus(_id: string, doc: IStatus) {

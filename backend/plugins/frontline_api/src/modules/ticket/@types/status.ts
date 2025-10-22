@@ -2,7 +2,6 @@ import { Document } from 'mongoose';
 
 export interface IStatus {
   name: string;
-  channelId: string;
   pipelineId: string;
   description?: string;
   color?: string;
@@ -13,7 +12,6 @@ export interface IStatus {
 export interface IStatusEditInput extends IStatus {
   _id: string;
   name: string;
-  channelId: string;
   pipelineId: string;
   description?: string;
   color?: string;
@@ -28,7 +26,6 @@ export interface IStatusDocument extends IStatus, Document {
 }
 
 export interface IStatusFilter {
-  channelId: string;
   pipelineId: string;
   type?: number;
 }

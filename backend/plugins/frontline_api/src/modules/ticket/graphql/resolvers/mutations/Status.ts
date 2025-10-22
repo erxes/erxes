@@ -28,7 +28,6 @@ export const statusMutations = {
     { _id, ...params }: IStatusEditInput,
     { models }: IContext,
   ) => {
-    await checkPipeline({ models, pipelineId: params.pipelineId });
     const updatedStatus = await models.Status.updateStatus(_id, params);
 
     graphqlPubsub.publish(`ticketStatusChanged:${updatedStatus._id}`, {

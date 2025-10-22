@@ -3,8 +3,7 @@ export const types = `
   type TicketStatus {
     _id: String!
     name: String!
-    channelId: String!
-    pipelineId: String
+    pipelineId: String!
     description: String
     color: String
     order: Int
@@ -30,8 +29,7 @@ export const queries = `
 export const mutations = `
   addTicketStatus(
     name: String!
-    channelId: String!
-    pipelineId: String
+    pipelineId: String!
     description: String
     color: String
     order: Int
