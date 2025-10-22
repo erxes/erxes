@@ -5,9 +5,8 @@ import { checkDirectDiscount } from './directDiscount';
 import { checkLoyalties } from './loyalties';
 import { checkPricing } from './pricing';
 import { checkRemainders } from './products';
-import { getPureDate, fixNum } from 'erxes-api-shared/utils';
+import { getPureDate, fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { sendCoreMessage } from '~/init-trpc';
 import {
   IConfig,
   IConfigDocument,
@@ -490,7 +489,9 @@ export const prepareOrderDoc = async (
   if (
     products.find((product) => product?.type === PRODUCT_TYPES.SUBSCRIPTION)
   ) {
-    subscriptionUoms = await sendCoreMessage({
+    subscriptionUoms = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'uoms',
       action: 'uoms.find',

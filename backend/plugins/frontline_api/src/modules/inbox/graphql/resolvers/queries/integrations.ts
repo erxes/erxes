@@ -4,7 +4,9 @@ import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IIntegrationDocument } from '@/inbox/@types/integrations';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { IChannelDocument } from '@/channel/@types/channel';
+
 const generateFilterQuery = async ({
+  subdomain,
   kind,
   channelId,
   searchValue,
@@ -30,6 +32,8 @@ const generateFilterQuery = async ({
   if (tag) {
     try {
       const object = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'tags',
@@ -74,13 +78,13 @@ export const integrationQueries = {
       sortField: string;
       sortDirection: number;
     } & ICursorPaginateParams,
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
     if (!user) {
       throw new Error('User not authenticated');
     }
     let query = {
-      ...(await generateFilterQuery(args)),
+      ...(await generateFilterQuery({ subdomain, ...args })),
     };
     if (!user.isOwner) {
       query = {
@@ -178,7 +182,7 @@ export const integrationQueries = {
       status: string;
       formLoadType: string;
     },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const counts = {
       total: 0,
@@ -190,7 +194,7 @@ export const integrationQueries = {
     };
 
     const qry = {
-      ...(await generateFilterQuery(args)),
+      ...(await generateFilterQuery({ subdomain, ...args })),
     };
 
     const count = async (query) => {
@@ -198,6 +202,8 @@ export const integrationQueries = {
     };
 
     const tags = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'tags',

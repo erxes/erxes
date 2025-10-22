@@ -15,8 +15,14 @@ export default {
     return { __typename: 'Integration', _id: customer.integrationId };
   },
 
-  conversations: async (customer: ICustomerDocument) => {
+  conversations: async (
+    customer: ICustomerDocument,
+    _params: undefined,
+    { subdomain }: IContext,
+  ) => {
     return await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'frontline',
       method: 'query',
       module: 'inbox',

@@ -4,7 +4,7 @@ import {
   cn,
   Command,
   Input,
-  REACT_APP_GATEWAY_URL,
+  REACT_APP_API_URL,
   RadioGroup,
   Spinner,
 } from 'erxes-ui';
@@ -51,7 +51,7 @@ export const FacebookGetAccounts = () => {
       channelId: channelId || '',
     }).toString();
 
-    window.location.href = `${REACT_APP_GATEWAY_URL}/pl:frontline/facebook/fblogin?${encodedUrl}}`;
+    window.location.href = `${REACT_APP_API_URL}/pl:frontline/facebook/fblogin?${encodedUrl}}`;
   };
 
   const onNext = () => setActiveStep(2);

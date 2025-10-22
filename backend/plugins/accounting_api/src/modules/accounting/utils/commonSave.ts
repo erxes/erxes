@@ -7,7 +7,7 @@ import InvSaleOutCostTrs from "./invSale";
 import { createOrUpdateTr } from "./utils";
 import InvMoveInTrs from "./invMove";
 
-export const commonSave = async (_subdomain: string, models: IModels, doc: ITransaction, oldTr?: ITransactionDocument) => {
+export const commonSave = async (subdomain: string, models: IModels, doc: ITransaction, oldTr?: ITransactionDocument) => {
   let mainTr: ITransactionDocument | null = null;
   const otherTrs: ITransactionDocument[] = [];
 
@@ -26,7 +26,7 @@ export const commonSave = async (_subdomain: string, models: IModels, doc: ITran
     case 'receivable':
     case 'payable': {
       const detail = doc.details[0] || {}
-      const currencyTrClass = new CurrencyTr(models, doc);
+      const currencyTrClass = new CurrencyTr(models, subdomain, doc);
       await currencyTrClass.checkValidationCurrency();
 
       const taxTrsClass = new TaxTrs(models, doc, detail?.side === 'dt' ? 'ct' : 'dt', true);

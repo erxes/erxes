@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { mongooseField, schemaWrapper } from '../../../../utils';
+import { mongooseField, PERMISSION_ROLES, schemaWrapper } from '../../../../utils';
 
 export const userGroupSchema = schemaWrapper(
   new Schema({
@@ -33,4 +33,26 @@ export const permissionSchema = schemaWrapper(
     }),
     allowed: mongooseField({ type: Boolean, default: false, label: 'Allowed' }),
   }),
+);
+
+export const roleSchema = new Schema(
+  {
+    userId: { 
+      type: String,
+      label: 'User',
+      index: true,
+      unique: true,
+      required: true,
+    },
+    role: {
+      type: String,
+      enum: PERMISSION_ROLES.ALL,
+      label: 'Role',
+      index: true,
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  },
 );

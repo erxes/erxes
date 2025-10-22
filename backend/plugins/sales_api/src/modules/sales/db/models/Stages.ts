@@ -15,7 +15,7 @@ export interface IStageModel extends Model<IStageDocument> {
   checkCodeDuplication(code: string): string;
 }
 
-export const loadStageClass = (models: IModels) => {
+export const loadStageClass = (models: IModels, subdomain: string) => {
   class Stage {
     /*
      * Get a stage
@@ -77,6 +77,8 @@ export const loadStageClass = (models: IModels) => {
 
       if (stage.formId) {
         await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'mutation',
           module: 'forms',

@@ -196,7 +196,6 @@ export const createBoardItem = async (models: IModels, doc: IDeal) => {
   return item;
 };
 
-
 export const generateLastNum = async (models: IModels, doc: IPipeline) => {
   const replacedConfig = await configReplacer(doc.numberConfig);
   const re = replacedConfig + '[0-9]+$';
@@ -227,7 +226,6 @@ export const generateLastNum = async (models: IModels, doc: IPipeline) => {
     'lastNum',
   );
 };
-
 
 // Removes all board item related things
 export const destroyBoardItemRelations = async (
@@ -418,6 +416,7 @@ export const archivedItemsCount = async (
 
 export const checkItemPermByUser = async (
   models: IModels,
+  subdomain: string,
   user: any,
   deal: IDeal,
 ) => {
@@ -433,6 +432,8 @@ export const checkItemPermByUser = async (
   } = await models.Pipelines.getPipeline(stage.pipelineId);
 
   const supervisorDepartments = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'departments',
@@ -497,6 +498,7 @@ export const checkItemPermByUser = async (
 
 export const getItemList = async (
   models: IModels,
+  subdomain: string,
   filter: any,
   args: IDealQueryParams,
   user: IUserDocument,
@@ -587,6 +589,8 @@ export const getItemList = async (
   // }
 
   const companies = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'companies',
@@ -607,6 +611,8 @@ export const getItemList = async (
   });
 
   const customers = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'customers',
@@ -661,6 +667,8 @@ export const getItemList = async (
   // });
 
   const fields = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'fields',
@@ -905,6 +913,7 @@ export const checkMovePermission = (
 
 export const getAmountsMap = async (
   models,
+  subdomain,
   collection,
   user,
   args,
@@ -912,11 +921,12 @@ export const getAmountsMap = async (
   tickUsed = true,
 ) => {
   const amountsMap = {};
-  const filter = await generateFilter(
-    models,
-    user._id,
-    { ...args, ...args.extraParams, stageId: stage._id, pipelineId: stage.pipelineId },
-  );
+  const filter = await generateFilter(models, subdomain, user._id, {
+    ...args,
+    ...args.extraParams,
+    stageId: stage._id,
+    pipelineId: stage.pipelineId,
+  });
 
   const amountList = await collection.aggregate([
     {
@@ -967,69 +977,77 @@ interface IConformityCreate extends IMainType {
 }
 
 export const getCompanyIds = async (
+  subdomain: string,
   mainType: string,
-  mainTypeId: string
+  mainTypeId: string,
 ): Promise<string[]> => {
   return await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     module: 'conformity',
     action: 'savedConformity',
     input: {
       mainType,
       mainTypeId,
-      relTypes: ['company']
+      relTypes: ['company'],
     },
     defaultValue: [],
   });
 };
 
 export const getCustomerIds = async (
+  subdomain: string,
   mainType: string,
-  mainTypeId: string
+  mainTypeId: string,
 ): Promise<string[]> => {
   return await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     module: 'conformity',
     action: 'savedConformity',
     input: {
       mainType,
       mainTypeId,
-      relTypes: ['company']
+      relTypes: ['company'],
     },
     defaultValue: [],
   });
 };
 
-
 export const createConformity = async (
-  { companyIds, customerIds, mainType, mainTypeId }: IConformityCreate
+  subdomain: string,
+  { companyIds, customerIds, mainType, mainTypeId }: IConformityCreate,
 ) => {
   const companyConformities: IConformityAdd[] = (companyIds || []).map(
-    companyId => ({
+    (companyId) => ({
       mainType,
       mainTypeId,
-      relType: "company",
-      relTypeId: companyId
-    })
+      relType: 'company',
+      relTypeId: companyId,
+    }),
   );
 
   const customerConformities: IConformityAdd[] = (customerIds || []).map(
-    customerId => ({
+    (customerId) => ({
       mainType,
       mainTypeId,
-      relType: "customer",
-      relTypeId: customerId
-    })
+      relType: 'customer',
+      relTypeId: customerId,
+    }),
   );
 
   const allConformities = companyConformities.concat(customerConformities);
   if (allConformities.length) {
     await sendTRPCMessage({
+      subdomain,
+
       method: 'mutation',
       pluginName: 'core',
       module: 'conformity',
-      action: "addConformities",
-      input: allConformities
+      action: 'addConformities',
+      input: allConformities,
     });
   }
 };
@@ -1040,7 +1058,7 @@ export const getTotalAmounts = async (productsData: IProductData[]) => {
     totalAmount: 0,
     unUsedTotalAmount: 0,
     bothTotalAmount: 0,
-  }
+  };
 
   for (const pData of productsData) {
     result.bothTotalAmount += pData.amount ?? 0;
@@ -1052,20 +1070,20 @@ export const getTotalAmounts = async (productsData: IProductData[]) => {
     }
   }
   return result;
-}
+};
 
 export const convertNestedDate = (obj: any) => {
-  if (typeof obj !== "object" || obj === null) return obj;
+  if (typeof obj !== 'object' || obj === null) return obj;
 
   for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
       // Check if the key is one of the target comparison operators
       if (
-        ["$gte", "$lte", "$gt", "$lt"].includes(key) &&
-        typeof obj[key] === "string"
+        ['$gte', '$lte', '$gt', '$lt'].includes(key) &&
+        typeof obj[key] === 'string'
       ) {
         obj[key] = new Date(obj[key]); // Convert value to Date
-      } else if (typeof obj[key] === "object") {
+      } else if (typeof obj[key] === 'object') {
         // Recursively process nested objects
         obj[key] = convertNestedDate(obj[key]);
       }
@@ -1076,9 +1094,13 @@ export const convertNestedDate = (obj: any) => {
 };
 
 export const sendNotification = async ({
-  userIds, data, allowMultiple
+  subdomain,
+  userIds,
+  data,
+  allowMultiple,
 }: {
-  userIds?: string[],
+  subdomain: string;
+  userIds?: string[];
   data: {
     title: string;
     message: string;
@@ -1092,20 +1114,27 @@ export const sendNotification = async ({
     metadata?: any; // plugin-specific data
     action?: string; // crud
     kind?: 'system' | 'user';
-  }
+  };
   allowMultiple?: boolean;
 }) => {
   await sendTRPCMessage({
+    subdomain,
+
     method: 'mutation',
     pluginName: 'core',
     action: 'create',
     module: 'notifications',
     input: { userIds, data: { ...data, allowMultiple } },
-    defaultValue: undefined
+    defaultValue: undefined,
   });
-}
+};
 
-export const notifiedUserIds = async (models: IModels, item: IDealDocument, stage?: IStageDocument, pipeline?: IPipelineDocument) => {
+export const notifiedUserIds = async (
+  models: IModels,
+  item: IDealDocument,
+  stage?: IStageDocument,
+  pipeline?: IPipelineDocument,
+) => {
   let userIds: string[] = [];
 
   userIds = userIds.concat(item.assignedUserIds || []);
@@ -1126,21 +1155,22 @@ export const notifiedUserIds = async (models: IModels, item: IDealDocument, stag
 
 export const sendNotifications = async (
   models: IModels,
+  subdomain: string,
   {
     item,
     user,
     action,
     content,
     invitedUsers,
-    removedUsers
+    removedUsers,
   }: {
-    item: IDealDocument
-    user: IUserDocument,
-    action: string,
-    content: string,
-    invitedUsers?: string[],
-    removedUsers?: string[]
-  }
+    item: IDealDocument;
+    user: IUserDocument;
+    action: string;
+    content: string;
+    invitedUsers?: string[];
+    removedUsers?: string[];
+  },
 ) => {
   const stage = await models.Stages.getStage(item.stageId);
   const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
@@ -1154,11 +1184,13 @@ export const sendNotifications = async (
   const usersToExclude = [
     ...(removedUsers || []),
     ...(invitedUsers || []),
-    user._id
+    user._id,
   ];
 
   // exclude current user, invited user and removed users
-  const receivers = (await notifiedUserIds(models, item, stage, pipeline)).filter(id => {
+  const receivers = (
+    await notifiedUserIds(models, item, stage, pipeline)
+  ).filter((id) => {
     return usersToExclude.indexOf(id) < 0;
   });
 
@@ -1174,29 +1206,33 @@ export const sendNotifications = async (
 
   if (removedUsers && removedUsers.length > 0) {
     sendNotification({
-      userIds: removedUsers.filter(id => id !== user._id), data: {
+      subdomain,
+      userIds: removedUsers.filter((id) => id !== user._id),
+      data: {
         ...notificationDoc,
         action: `removed you from deal`,
         message: `'${item.name}'`,
-      }
+      },
     });
   }
 
   if (invitedUsers && invitedUsers.length > 0) {
     sendNotification({
-      userIds: invitedUsers.filter(id => id !== user._id),
+      subdomain,
+      userIds: invitedUsers.filter((id) => id !== user._id),
       data: {
         ...notificationDoc,
         action: `invited you to the deal: `,
         message: `'${item.name}'`,
-      }
+      },
     });
   }
 
   sendNotification({
+    subdomain,
     userIds: receivers,
     data: {
-      ...notificationDoc
-    }
+      ...notificationDoc,
+    },
   });
 };

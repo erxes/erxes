@@ -48,12 +48,14 @@ export const commonParamDefs = `
 
 const stageParams = `
   $isNotLost: Boolean,
+  $isAll: Boolean,
   $pipelineId: String,
   ${commonParams}
 `;
 
 const stageParamDefs = `
   isNotLost: $isNotLost,
+  isAll: $isAll,
   pipelineId: $pipelineId,
   ${commonParamDefs}
 `;

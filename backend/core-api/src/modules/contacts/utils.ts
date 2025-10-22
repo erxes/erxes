@@ -2,7 +2,11 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { CONTACT_STATUSES } from './constants';
 
-export const generateFilter = async (params: any, models: IModels) => {
+export const generateFilter = async (
+  subdomain: string,
+  params: any,
+  models: IModels,
+) => {
   const {
     searchValue,
     tagIds,
@@ -40,21 +44,21 @@ export const generateFilter = async (params: any, models: IModels) => {
     const relatedIntegrationIdSet = new Set();
 
     if (brandIds) {
-      const integrations = await findIntegrations({
+      const integrations = await findIntegrations(subdomain, {
         brandId: { $in: brandIds },
       });
       integrations.forEach((i) => relatedIntegrationIdSet.add(i._id));
     }
 
     if (integrationIds) {
-      const integrations = await findIntegrations({
+      const integrations = await findIntegrations(subdomain, {
         _id: { $in: integrationIds },
       });
       integrations.forEach((i) => relatedIntegrationIdSet.add(i._id));
     }
 
     if (integrationTypes) {
-      const integrations = await findIntegrations({
+      const integrations = await findIntegrations(subdomain, {
         kind: { $in: integrationTypes },
       });
       integrations.forEach((i) => relatedIntegrationIdSet.add(i._id));
@@ -169,8 +173,10 @@ export const createOrUpdate = async ({
   return collection.bulkWrite(operations);
 };
 
-export const findIntegrations = (query, options?) =>
+export const findIntegrations = (subdomain: string, query, options?) =>
   sendTRPCMessage({
+    subdomain,
+
     pluginName: 'frontline',
     method: 'query',
     module: 'integration',

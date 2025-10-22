@@ -1,5 +1,4 @@
 import * as graph from 'fbgraph';
-import crypto from 'crypto';
 import { getSubdomain } from 'erxes-api-shared/utils';
 import { getConfig } from '@/integrations/facebook/commonUtils';
 import { generateModels } from '~/connectionResolvers';
@@ -16,6 +15,7 @@ export const loginMiddleware = async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
   const { channelId } = req.query;
+
   const FACEBOOK_APP_ID = await getConfig(models, 'FACEBOOK_APP_ID');
   const FACEBOOK_APP_SECRET = await getConfig(models, 'FACEBOOK_APP_SECRET');
   const FACEBOOK_PERMISSIONS = await getConfig(
@@ -34,7 +34,7 @@ export const loginMiddleware = async (req, res) => {
   const conf = {
     client_id: FACEBOOK_APP_ID,
     client_secret: FACEBOOK_APP_SECRET,
-    scope: FACEBOOK_PERMISSIONS,
+    scope: FACEBOOK_PERMISSIONS + ',pages_read_engagement,pages_show_list',
     redirect_uri: FACEBOOK_LOGIN_REDIRECT_URL,
   };
 
@@ -43,25 +43,11 @@ export const loginMiddleware = async (req, res) => {
   // we don't have a code yet
   // so we'll redirect to the oauth dialog
   if (!req.query.code) {
-    // Encode channelId in the state parameter to preserve it through OAuth flow
-    // Option 1: Add HMAC signature for integrity
-    const stateData = JSON.stringify({
-      redirectUrl: `${API_DOMAIN}/pl:frontline/facebook`,
-      channelId: channelId || '',
-    });
-    const signature = crypto
-      .createHmac('sha256', FACEBOOK_APP_SECRET!)
-      .update(stateData)
-      .digest('hex');
-    const encodedState = Buffer.from(
-      JSON.stringify({ data: stateData, sig: signature }),
-    ).toString('base64');
-
     const authUrl = graph.getOauthUrl({
       client_id: conf.client_id,
       redirect_uri: conf.redirect_uri,
       scope: conf.scope,
-      state: encodedState,
+      state: `${API_DOMAIN}/pl:frontline/facebook`,
     });
 
     // checks whether a user denied the app facebook login/permissions
@@ -87,69 +73,60 @@ export const loginMiddleware = async (req, res) => {
   // we'll send that and get the access token
 
   return graph.authorize(config, async (_err, facebookRes) => {
-    const { access_token } = facebookRes;
-
-    // Decode channelId from state parameter
-    let decodedChannelId = channelId;
-    if (req.query.state) {
-      try {
-        const decodedState = Buffer.from(
-          req.query.state as string,
-          'base64',
-        ).toString('utf-8');
-        const stateData = JSON.parse(decodedState);
-        decodedChannelId = stateData.channelId;
-      } catch (error) {
-        debugFacebook('Error decoding state parameter:', error);
+    try {
+      if (_err) {
+        console.error('Facebook auth error:', _err);
+        return res.status(500).send('Facebook authorization failed');
       }
-    }
 
-    const userAccount: {
-      id: string;
-      first_name: string;
-      last_name: string;
-    } = await graphRequest.get(
-      'me?fields=id,first_name,last_name',
-      access_token,
-    );
-    const name = `${userAccount.first_name} ${userAccount.last_name}`;
-    const account = await models.FacebookAccounts.findOne({
-      uid: userAccount.id,
-    });
+      if (!facebookRes || !facebookRes.access_token) {
+        console.error('Facebook response invalid:', facebookRes);
+        return res.status(400).send('Invalid Facebook response');
+      }
 
-    let accountId: string;
+      const { access_token } = facebookRes;
 
-    if (account) {
-      await models.FacebookAccounts.updateOne(
-        { _id: account._id },
-        { $set: { token: access_token } },
+      const userAccount = await graphRequest.get(
+        'me?fields=id,first_name,last_name',
+        access_token,
       );
-      const integrations = await models.FacebookIntegrations.find({
-        accountId: account._id,
-      });
 
-      for (const integration of integrations) {
-        await repairIntegrations(subdomain, integration.erxesApiId);
-      }
-      accountId = account._id;
-    } else {
-      const newAccount = await models.FacebookAccounts.create({
-        token: access_token,
-        name,
-        kind: 'facebook',
+      const name = `${userAccount.first_name} ${userAccount.last_name}`;
+      const account = await models.FacebookAccounts.findOne({
         uid: userAccount.id,
       });
-      accountId = newAccount._id;
+
+      if (account) {
+        await models.FacebookAccounts.updateOne(
+          { _id: account._id },
+          { $set: { token: access_token } },
+        );
+        const integrations = await models.FacebookIntegrations.find({
+          accountId: account._id,
+        });
+
+        for (const integration of integrations) {
+          await repairIntegrations(subdomain, integration.erxesApiId);
+        }
+      } else {
+        await models.FacebookAccounts.create({
+          token: access_token,
+          name,
+          kind: 'facebook',
+          uid: userAccount.id,
+        });
+      }
+
+      const reactAppUrl = !DOMAIN.includes('zrok')
+        ? DOMAIN
+        : 'http://localhost:3001';
+
+      const url = `${reactAppUrl}/settings/frontline/channels/details/${channelId}/facebook-messenger?fbAuthorized=true&accountId=${account?._id}`;
+
+      return res.redirect(url);
+    } catch (error) {
+      console.error('Facebook login error:', error);
+      return res.status(500).send('Facebook login failed');
     }
-
-    const reactAppUrl = !DOMAIN.includes('zrok')
-      ? DOMAIN
-      : 'http://localhost:3001';
-
-    const url = `${reactAppUrl}/settings/frontline/channels/details/${decodedChannelId}/facebook-messenger?fbAuthorized=true&accountId=${accountId}`;
-
-    debugResponse(debugFacebook, req, url);
-
-    return res.redirect(url);
   });
 };

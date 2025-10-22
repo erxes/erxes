@@ -44,6 +44,8 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
     );
     if (matchedOperator) {
       const operator = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'users',

@@ -69,6 +69,8 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
       }
 
       const replacedContents = await sendTRPCMessage({
+        subdomain,
+
         pluginName,
         method: 'query',
         module: moduleName,

@@ -30,8 +30,10 @@ const callQueries = {
     return res;
   },
 
-  async callsCustomerDetail(_root, { customerPhone }) {
+  async callsCustomerDetail(_root, { customerPhone }, { subdomain }: IContext) {
     const customer = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'customers',

@@ -59,6 +59,8 @@ export const countBySegment = async (
   //   defaultValue: [],
   // });
   segments = await sendTRPCMessage({
+    subdomain,
+
     method: 'query',
     pluginName: 'core',
     module: 'core',
@@ -96,6 +98,8 @@ export const countByTag = async (
   //   defaultValue: [],
   // });
   const tags = await sendTRPCMessage({
+    subdomain,
+
     method: 'query',
     pluginName: 'core',
     module: 'tags',
@@ -163,6 +167,8 @@ export class Builder {
     //   segmentData,
     // );
     const selector = await sendTRPCMessage({
+      subdomain: this.subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'segments',
@@ -204,6 +210,8 @@ export class Builder {
       // });
 
       const segment = await sendTRPCMessage({
+        subdomain: this.subdomain,
+
         method: 'query',
         pluginName: 'core',
         module: 'core',
@@ -367,6 +375,8 @@ export const updateMobileAmount = async (
       //   },
       // });
       await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'sales',
         module: 'pos',
         action: 'createOrUpdateOrders',
@@ -520,6 +530,8 @@ export const prepareSettlePayment = async (
         //   defaultValue: [],
         // });
         uoms = await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           module: 'product',
           action: 'uoms.find',
@@ -583,6 +595,8 @@ export const prepareSettlePayment = async (
             //   defaultValue: null,
             // });
             uoms = await sendTRPCMessage({
+              subdomain,
+
               pluginName: 'sales',
               module: 'pos',
               action: 'orders.updateOne',
@@ -611,6 +625,8 @@ export const prepareSettlePayment = async (
       //   },
       // });
       await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'sales',
         module: 'pos',
         action: 'createOrUpdateOrders',
