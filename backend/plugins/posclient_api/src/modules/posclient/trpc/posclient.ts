@@ -20,7 +20,7 @@ export const posclientTrpcRouter = t.router({
   posclient: t.router({
     configs: t.router({
       manage: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-        const { data } = input;
+        const data = input;
         const { models, subdomain } = ctx;
         return {
           status: 'success',
@@ -68,7 +68,7 @@ export const posclientTrpcRouter = t.router({
         data: { healthy: 'ok' },
       };
     }),
-    crudData: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+    crudData: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { models, subdomain } = ctx;
       const { token, type } = input;
 

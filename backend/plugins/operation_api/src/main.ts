@@ -1,4 +1,8 @@
-import { redis, startPlugin, wrapApolloResolvers } from 'erxes-api-shared/utils';
+import {
+  redis,
+  startPlugin,
+  wrapApolloResolvers,
+} from 'erxes-api-shared/utils';
 import { Router } from 'express';
 import { typeDefs } from '~/apollo/typeDefs';
 import { initMQWorkers } from '~/worker';

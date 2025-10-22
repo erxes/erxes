@@ -1,13 +1,16 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { ICover } from '~/modules/pos/@types/covers';
+import { IContext } from '~/connectionResolvers';
 
 export default {
-  async user(cover: ICover) {
+  async user(cover: ICover, _, { subdomain }: IContext) {
     if (!cover.userId) {
       return null;
     }
 
     return await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'users',
       action: 'users.findOne',
@@ -15,11 +18,13 @@ export default {
     });
   },
 
-  async createdUser(cover: ICover) {
+  async createdUser(cover: ICover, _, { subdomain }: IContext) {
     if (!cover.createdBy) {
       return null;
     }
     return sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'users',
       action: 'findOne',
@@ -27,11 +32,13 @@ export default {
     });
   },
 
-  async modifiedUser(cover: ICover) {
+  async modifiedUser(cover: ICover, _, { subdomain }: IContext) {
     if (!cover.modifiedBy) {
       return null;
     }
     return sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'users',
       action: 'findOne',
@@ -42,5 +49,5 @@ export default {
   posName: async (cover, _, { models }) => {
     const pos = await models.Pos.findOne({ token: cover.posToken }).lean();
     return pos ? pos.name : '';
-  }
+  },
 };

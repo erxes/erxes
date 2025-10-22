@@ -84,14 +84,14 @@ app.get('/locales/:lng', async (req, res) => {
 app.use('/pl:serviceName', async (req, res) => {
   try {
     const serviceName: string = req.params.serviceName.replace(':', '');
-    const path = req.path;
+    // const path = req.path;
 
-    // Forbid access to trpc endpoints
-    if (path.startsWith('/trpc')) {
-      return res.status(403).json({
-        error: 'Access to trpc endpoints through plugin proxy is forbidden',
-      });
-    }
+    // // Forbid access to trpc endpoints
+    // if (path.startsWith('/trpc')) {
+    //   return res.status(403).json({
+    //     error: 'Access to trpc endpoints through plugin proxy is forbidden',
+    //   });
+    // }
 
     const service = await getPlugin(serviceName);
 
@@ -138,7 +138,7 @@ async function start() {
     // Apply the initial proxy middleware
     applyGraphqlLimiters(app);
     applyProxiesCoreless(app);
-    // applyProxyToCore(app, global.currentTargets);
+    applyProxyToCore(app, global.currentTargets);
 
     // Start the HTTP server
     httpServer = http.createServer(app);

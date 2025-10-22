@@ -296,29 +296,33 @@ const PipelineStageItem = (props: Props) => {
               </div>
             )}
           </div>
-
-          <div
-            className={`
+          <div className="flex items-center gap-3 mt-6">
+            <div
+              className={`
               flex items-center gap-1 text-xs text-purple-500 cursor-pointer
-              px-2 py-1 rounded bg-purple-50 hover:bg-purple-100 transition-colors duration-150
+              p-2 rounded bg-purple-50 hover:bg-purple-100 transition-colors duration-150
               select-none
             `}
-            onClick={() => setShowExtraFields(!showExtraFields)}
-          >
-            {showExtraFields
-              ? showTooltip(<IconChevronUp size={14} />, 'Hide extra fields')
-              : showTooltip(<IconChevronDown size={14} />, 'Show extra fields')}
-          </div>
+              onClick={() => setShowExtraFields(!showExtraFields)}
+            >
+              {showExtraFields
+                ? showTooltip(<IconChevronUp size={16} />, 'Hide extra fields')
+                : showTooltip(
+                    <IconChevronDown size={16} />,
+                    'Show extra fields',
+                  )}
+            </div>
 
-          <div
-            className={`
+            <div
+              className={`
               flex items-center gap-1 text-xs text-red-500 cursor-pointer
-              px-2 py-1 rounded bg-red-50 hover:bg-red-100 transition-colors duration-150
+              p-2 rounded bg-red-50 hover:bg-red-100 transition-colors duration-150
               select-none
             `}
-            onClick={onRemoveStage}
-          >
-            <IconTrashX size={14} />
+              onClick={onRemoveStage}
+            >
+              <IconTrashX size={16} />
+            </div>
           </div>
         </div>
       </div>

@@ -9,7 +9,7 @@ export type TOnboardingStepItem = {
   description: string;
   action: {
     label: string;
-    to: string;
+    to: string | false;
   };
 };
 export type TVideoTabItem = {

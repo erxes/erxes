@@ -8,17 +8,19 @@ export default {
     return models.Deals.findOne({ _id });
   },
 
-  async customers(deal: IDealDocument) {
+  async customers(deal: IDealDocument, _args: undefined, { subdomain }: IContext) {
     const customerIds = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'conformity',
       action: 'savedConformity',
       input: {
         mainType: 'deal',
         mainTypeId: deal._id,
-        relTypes: ['customer']
+        relTypes: ['customer'],
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     if (!customerIds.length) {
@@ -29,20 +31,21 @@ export default {
       __typename: 'Customer',
       _id: customerId,
     }));
-
   },
 
-  async companies(deal: IDealDocument) {
+  async companies(deal: IDealDocument, _args: undefined, { subdomain }: IContext) {
     const customerIds = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'conformity',
       action: 'savedConformity',
       input: {
         mainType: 'deal',
         mainTypeId: deal._id,
-        relTypes: ['company']
+        relTypes: ['company'],
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     if (!customerIds.length) {
@@ -53,10 +56,9 @@ export default {
       __typename: 'Customer',
       _id: customerId,
     }));
-
   },
 
-  async branches(deal: IDealDocument) {
+  async branches(deal: IDealDocument, _args: undefined, { subdomain }: IContext) {
     if (!deal.branchIds?.length) {
       return [];
     }
@@ -89,7 +91,7 @@ export default {
     }));
   },
 
-  async customPropertiesData(deal: IDealDocument) {
+  async customPropertiesData(deal: IDealDocument, _args: undefined, { subdomain }: IContext) {
     const customFieldsData = (deal?.customFieldsData as any[]) || [];
 
     const fieldIds = customFieldsData.map((customField) => customField.field);
@@ -99,6 +101,8 @@ export default {
     }
 
     const fields = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'fields',
@@ -143,7 +147,8 @@ export default {
   //     .filter((pd) => pd.productId)
   //     .map((pd) => pd.productId);
 
-  //   const allProducts = await sendTRPCMessage({
+  //   const allProducts = await sendTRPCMessage({subdomain,
+
   //     pluginName: 'core',
   //     method: 'query',
   //     module: 'products',
@@ -175,7 +180,8 @@ export default {
   //       fieldIds.push(customFieldData.field);
   //     }
 
-  //     const fields = await sendTRPCMessage({
+  //     const fields = await sendTRPCMessage({subdomain,
+
   //       pluginName: 'core',
   //       method: 'query',
   //       module: 'fields',
@@ -273,15 +279,17 @@ export default {
     return { __typename: 'User', _id: deal.userId };
   },
 
-  async vendorCustomers(deal: IDealDocument) {
+  async vendorCustomers(deal: IDealDocument, _args: undefined, { subdomain }: IContext) {
     return await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'content',
       module: 'portal',
       action: 'portalUserCard',
       input: {
         contentType: 'deal',
-        contentTypeId: deal.id
-      }
-    })
-  }
+        contentTypeId: deal.id,
+      },
+    });
+  },
 };

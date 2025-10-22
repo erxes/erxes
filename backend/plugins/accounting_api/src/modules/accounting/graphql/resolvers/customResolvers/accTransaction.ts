@@ -54,7 +54,11 @@ export default {
     };
   },
 
-  async customer(transaction: ITransactionDocument) {
+  async customer(
+    transaction: ITransactionDocument,
+    _params,
+    { subdomain }: IContext,
+  ) {
     if (!transaction.customerId) {
       return null;
     }
@@ -65,6 +69,8 @@ export default {
 
     if (transaction.customerType === 'company') {
       const company = await sendTRPCMessage({
+        subdomain,
+
         method: 'query',
         pluginName: 'core',
         module: 'company',
@@ -89,6 +95,8 @@ export default {
 
     if (transaction.customerType === 'user') {
       const user = await sendTRPCMessage({
+        subdomain,
+
         method: 'query',
         pluginName: 'core',
         module: 'users',
@@ -112,6 +120,8 @@ export default {
     }
 
     const customer = await sendTRPCMessage({
+      subdomain,
+
       method: 'query',
       pluginName: 'core',
       module: 'customer',
@@ -146,18 +156,23 @@ export default {
   },
 
   async ptrInfo(transaction: ITransactionDocument, _, { models }: IContext) {
-    const perPtrTrs = await models.Transactions.find({ ptrId: transaction.ptrId }, {
-      sumCt: 1, sumDt: 1, journal: 1
-    }).lean();
+    const perPtrTrs = await models.Transactions.find(
+      { ptrId: transaction.ptrId },
+      {
+        sumCt: 1,
+        sumDt: 1,
+        journal: 1,
+      },
+    ).lean();
 
-    const debit = perPtrTrs.reduce((sum, tr) => (tr.sumDt ?? 0) + sum, 0)
-    const credit = perPtrTrs.reduce((sum, tr) => (tr.sumCt ?? 0) + sum, 0)
+    const debit = perPtrTrs.reduce((sum, tr) => (tr.sumDt ?? 0) + sum, 0);
+    const credit = perPtrTrs.reduce((sum, tr) => (tr.sumCt ?? 0) + sum, 0);
     return {
       len: perPtrTrs.length,
-      activeLen: perPtrTrs.filter(tr => !tr.originId).length,
+      activeLen: perPtrTrs.filter((tr) => !tr.originId).length,
       status: perPtrTrs[0].ptrStatus,
       diff: Math.abs(debit - credit),
-      value: Math.max(debit, credit)
+      value: Math.max(debit, credit),
     };
-  }
+  },
 };

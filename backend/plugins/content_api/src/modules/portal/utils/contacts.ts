@@ -5,6 +5,7 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 export const handleContacts = async (args: IContactsParams) => {
   const {
     models,
+    subdomain,
     clientPortalId,
     document,
     password = random('Aa0!', 8),
@@ -22,7 +23,7 @@ export const handleContacts = async (args: IContactsParams) => {
   let user: any;
 
   if (type === 'customer') {
-    const customer = await findOrCreateCustomer(trimmedMail, phone, document);
+    const customer = await findOrCreateCustomer(subdomain, trimmedMail, phone, document);
     qry = { erxesCustomerId: customer._id, clientPortalId };
 
     user = await models.Users.findOne(qry);
@@ -49,7 +50,7 @@ export const handleContacts = async (args: IContactsParams) => {
   }
 
   if (type === 'company') {
-    const company = await findOrCreateCompany(trimmedMail, phone, document);
+    const company = await findOrCreateCompany(subdomain, trimmedMail, phone, document);
 
     qry = { erxesCompanyId: company._id, clientPortalId };
     user = await models.Users.findOne(qry);
@@ -84,8 +85,10 @@ export const handleContacts = async (args: IContactsParams) => {
 
 // Helpers
 
-const findOrCreateCustomer = async (email: string, phone: string, doc: any) => {
+const findOrCreateCustomer = async (subdomain: string, email: string, phone: string, doc: any) => {
   let customer = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'customers',
@@ -97,6 +100,8 @@ const findOrCreateCustomer = async (email: string, phone: string, doc: any) => {
 
   if (!customer) {
     customer = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'mutation',
       module: 'customers',
@@ -114,8 +119,10 @@ const findOrCreateCustomer = async (email: string, phone: string, doc: any) => {
   return customer;
 };
 
-const findOrCreateCompany = async (email: string, phone: string, doc: any) => {
+const findOrCreateCompany = async (subdomain: string, email: string, phone: string, doc: any) => {
   let company = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'companies',
@@ -127,6 +134,8 @@ const findOrCreateCompany = async (email: string, phone: string, doc: any) => {
 
   if (!company) {
     company = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'mutation',
       module: 'companies',
