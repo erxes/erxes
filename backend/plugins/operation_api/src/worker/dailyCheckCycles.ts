@@ -24,6 +24,8 @@ export const dailyCheckCycles = async () => {
     return 'success';
   } else {
     const timezone = await sendTRPCMessage({
+      subdomain: 'os',
+
       pluginName: 'core',
       method: 'query',
       module: 'configs',
@@ -45,12 +47,12 @@ export const dailyCheckCycles = async () => {
 export const checkCycle = async (job: Job) => {
   const { subdomain, timezone = 'UTC' } = job?.data ?? {};
 
-  console.log('timezone', timezone)
+  console.log('timezone', timezone);
 
   const tzToday = tz(new Date(), timezone);
 
-  console.log('tzToday', tzToday)
-  console.log('tzToday.hour', tzToday.hour())
+  console.log('tzToday', tzToday);
+  console.log('tzToday.hour', tzToday.hour());
 
   // if (tzToday.hour() !== 0) {
   //   return;
@@ -61,8 +63,8 @@ export const checkCycle = async (job: Job) => {
   const utcStart = tzToday.startOf('day').toDate();
   const utcEnd = tzToday.endOf('day').toDate();
 
-  console.log('utcStart', utcStart)
-  console.log('utcEnd', utcEnd)
+  console.log('utcStart', utcStart);
+  console.log('utcEnd', utcEnd);
 
   const endCycles = await models.Cycle.find({
     isActive: true,

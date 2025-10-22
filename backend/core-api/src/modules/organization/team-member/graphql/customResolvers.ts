@@ -132,9 +132,11 @@ export default {
   async permissionActions(
     user: IUserDocument,
     _args,
-    { models: { Permissions } }: IContext,
+    { models: { Permissions }, subdomain }: IContext,
   ) {
-    return getUserActionsMap(user, (query) => Permissions.find(query));
+    return getUserActionsMap(subdomain, user, (query) =>
+      Permissions.find(query),
+    );
   },
 
   async departments(user: IUserDocument, _args, { models }: IContext) {

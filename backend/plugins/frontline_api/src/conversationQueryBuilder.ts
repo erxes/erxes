@@ -89,6 +89,8 @@ export default class Builder {
   // filter by segment
   public async segmentFilter(segmentId: string): Promise<{ _id: IIn }> {
     const selector = await sendTRPCMessage({
+      subdomain: this.subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'segments',
@@ -318,6 +320,8 @@ export default class Builder {
     let ids: string[] = [];
 
     const tags = await sendTRPCMessage({
+      subdomain: this.subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'tags',

@@ -113,6 +113,7 @@ export const getCyclesProgress = async (
 };
 
 export const getCycleProgressChart = async (
+  subdomain: string,
   cycleId: string,
   assigneeId: string | undefined,
   models: IModels,
@@ -132,6 +133,8 @@ export const getCycleProgressChart = async (
   }
 
   const timezone = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'configs',

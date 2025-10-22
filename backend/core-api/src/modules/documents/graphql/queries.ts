@@ -129,6 +129,8 @@ export const documentQueries = {
     }
 
     return await sendTRPCMessage({
+      subdomain,
+
       pluginName: serviceName,
       method: 'query',
       module: 'documents',

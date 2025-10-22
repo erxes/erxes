@@ -34,33 +34,15 @@ const countByChannels = async (
   return counts;
 };
 
-// Count conversation by brand
-const countByBrands = async (qb: any, counts: ICountBy): Promise<ICountBy> => {
-  const brands = await sendTRPCMessage({
-    pluginName: 'core',
-    method: 'query', // this is a mutation, not a query
-    module: 'brands',
-    action: 'find',
-    input: {
-      doc: {
-        query: {},
-      },
-    },
-  });
-
-  for (const brand of brands) {
-    await qb.buildAllQueries();
-    await qb.brandFilter(brand._id);
-
-    counts[brand._id] = await qb.runQueries();
-  }
-
-  return counts;
-};
-
 // Count converstaion by tag
-const countByTags = async (qb: any, counts: ICountBy): Promise<ICountBy> => {
+const countByTags = async (
+  subdomain: string,
+  qb: any,
+  counts: ICountBy,
+): Promise<ICountBy> => {
   const tags = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query', // this is a mutation, not a query
     module: 'tags',
@@ -120,7 +102,7 @@ export const countByConversations = async (
       break;
 
     case 'byTags':
-      await countByTags(qb, counts);
+      await countByTags(subdomain, qb, counts);
       break;
   }
 

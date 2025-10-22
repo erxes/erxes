@@ -44,6 +44,8 @@ const getRelatedValue = async (
 
   if (targetKey === 'tagIds') {
     const tags = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'tags',
@@ -86,6 +88,8 @@ const getItems = async (
     moduleService === triggerService
   ) {
     const relTypeIds = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'conformities',
@@ -107,6 +111,8 @@ const getItems = async (
     filter = { _id: target._id };
   } else {
     filter = await sendTRPCMessage({
+      subdomain,
+
       pluginName: triggerService,
       method: 'query',
       module: 'conformities',
