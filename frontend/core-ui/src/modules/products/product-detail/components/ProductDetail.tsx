@@ -1,6 +1,7 @@
 import { Sheet, Spinner, useQueryState, Empty } from 'erxes-ui';
 import { useProductDetail } from '../hooks/useProductDetail';
 import { IconPackageOff } from '@tabler/icons-react';
+import { ProductDetailGeneral } from './ProductDetailGeneral';
 
 export const ProductDetail = () => {
   const [productId] = useQueryState<string>('product_id');
@@ -11,7 +12,7 @@ export const ProductDetail = () => {
     skip: !productId,
   });
 
-  if (true) return <Spinner />;
+  if (loading) return <Spinner />;
 
   if (!productDetail)
     return (
@@ -30,14 +31,16 @@ export const ProductDetail = () => {
 
   return (
     <>
-      <Sheet.Header className="border-b p-3 flex-row items-center space-y-0 gap-3">
-        <Sheet.Title>Product Detail</Sheet.Title>
+      <Sheet.Header className="border-b p-3 px-6 flex-row items-center space-y-0 gap-3">
+        <Sheet.Title>{productDetail.name}</Sheet.Title>
         <Sheet.Close />
         <Sheet.Description className="sr-only">
           Product Detail
         </Sheet.Description>
       </Sheet.Header>
-      <Sheet.Content></Sheet.Content>
+      <Sheet.Content className="p-6">
+        <ProductDetailGeneral {...productDetail} />
+      </Sheet.Content>
     </>
   );
 };
