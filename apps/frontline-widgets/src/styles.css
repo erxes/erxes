@@ -1,4 +1,116 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* You can add global styles to this file, and also import other style files */
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', sans-serif;
+    --font-mono: 'Roboto Mono', monospace;
+    --background: 0 0% 100%;
+    --foreground: 240 6% 10%;
+    --primary: 243 75% 59%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 244 53% 85%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 2% 45%;
+    --accent: 240 3% 96%;
+    --accent-foreground: 240 3% 66%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 142 71% 45%;
+    --warning: 25 80% 63%;
+    --info: 217 91% 60%;
+    --scroll: 240 5% 83%;
+    --border: 240 6% 90%; /* gray/3 */
+    --input: 240 6% 90%; /* gray/3 */
+    --ring: 244 76% 59%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%; /* gray/1 */
+    --shadow: 0, 0%, 0%, 0.05;
+    --spacing: 0.25rem;
+    --chart-1: 30 42% 55%;
+    --chart-2: 185 52% 47%;
+    --chart-3: 227 38% 39%;
+    --chart-4: 84 73% 68%;
+    --chart-5: 70 75% 64%;
+  }
+  .dark {
+    --background: 0 0% 9%; /* primary/white */
+    --foreground: 240 6% 97%; /* primary/black */
+    --primary: 243 75% 59%; /* primary/purple */
+    --primary-foreground: 0 0% 98%; /* primary/white */
+    --secondary: 244 53% 16%; /* secondary/purple */
+    --muted: 0 0% 14%; /* secondary/gray */
+    --muted-foreground: 0 2% 64%; /* grey/6 */
+    --accent: 240 3% 13%; /* grey/2 */
+    --accent-foreground: 240 3% 43%; /* grey/5 */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 142 71% 45%;
+    --warning: 25 80% 63%;
+    --info: 217 91% 60%;
+    --scroll: 240 5% 26%; /* grey/4 */
+    --border: 240 6% 19%; /* gray/3 */
+    --input: 240 6% 19%; /* gray/3 */
+    --ring: 244 76% 50%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 11%; /* gray/1 */
+    --shadow: 0, 0%, 40%, 0.05;
+    --chart-1: 264 58% 46%;
+    --chart-2: 162 53% 61%;
+    --chart-3: 70 75% 64%;
+    --chart-4: 304 68% 52%;
+    --chart-5: 16, 70%, 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+  h1 {
+    @apply text-2xl font-bold;
+  }
+  h2 {
+    @apply text-xl font-bold;
+  }
+  h3 {
+    @apply text-base font-bold;
+  }
+}
+
+@layer utilities {
+  .hide-scroll {
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .styled-scroll {
+    /* Custom scrollbar for Chrome, Safari and Opera */
+    &::-webkit-scrollbar {
+      width: 1px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: hsl(var(--border));
+      border-radius: 10px;
+      border: 3px solid hsl(var(--background));
+    }
+
+    /* Custom scrollbar for IE, Edge and Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+  .block-child > * {
+    @apply block !important;
+  }
+}

@@ -68,16 +68,14 @@ export const addDeal = async ({
     customerIds: doc.customerIds,
   });
 
-  if (user) {
-    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+  const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
-    await sendNotifications(models, subdomain, {
-      item: deal,
-      user,
-      action: `invited you to the ${pipeline.name}`,
-      content: `'${deal.name}'.`,
-    });
-  }
+  await sendNotifications(models, subdomain, {
+    item: deal,
+    user,
+    action: `invited you to the ${pipeline.name}`,
+    content: `'${deal.name}'.`,
+  });
 
   await subscriptionWrapper(models, {
     action: 'create',
