@@ -132,6 +132,8 @@ import {
   IChannelMemberDocument,
 } from '@/channel/@types/channel';
 import { ICallQueueStatisticsDocuments } from '@/integrations/call/@types/queueStatistics';
+import { IMessengerAppModel } from './modules/inbox/db/models/MessengerApps';
+import { IConfigModel } from './modules/inbox/@types/configs';
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -167,6 +169,9 @@ export interface IModels {
   ImapIntegrations: IIntegrationImapModel;
   ImapMessages: IMessageImapModel;
   ImapLogs: ILogImapModel;
+
+  MessengerApps: IMessengerAppModel;
+  Configs: IConfigModel;
 }
 
 export interface IContext extends IMainContext {
