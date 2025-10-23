@@ -1,5 +1,8 @@
 import * as dotenv from 'dotenv';
 import { redis } from './redis';
+import { getSaasOrganizationDetail } from './saas';
+import { getEnv } from './utils';
+import { IOrganizationCharge } from '../core-types';
 
 dotenv.config();
 
@@ -22,6 +25,40 @@ export const getPlugins = async (): Promise<string[]> => {
     process.env.ENABLED_PLUGINS?.split(',').map((plugin) => `${plugin}`) || [];
 
   return ['core', ...enabledServices];
+};
+
+export const getAvailablePlugins = async (
+  subdomain: string,
+): Promise<string[]> => {
+  const ENABLED_PLUGINS = getEnv({ name: 'ENABLED_PLUGINS' });
+  const VERSION = getEnv({ name: 'VERSION', defaultValue: 'os' });
+
+  if (VERSION && VERSION === 'saas') {
+    const organizationInfo = await getSaasOrganizationDetail({
+      subdomain,
+    });
+
+    const charges = organizationInfo.charge as IOrganizationCharge;
+
+    const plugins: string[] = [];
+
+    Object.keys(charges).forEach((key) => {
+      if (
+        (charges[key].purchased && charges[key].purchased > 0) ||
+        (charges[key].free && charges[key].free > 0)
+      ) {
+        const pluginName = key.split(':')[0];
+
+        const enabledPluginsArray = ENABLED_PLUGINS.split(',');
+        if (enabledPluginsArray.includes(pluginName)) {
+          plugins.push(pluginName);
+        }
+      }
+    });
+    return ['core', ...plugins];
+  } else {
+    return getPlugins();
+  }
 };
 
 type ServiceInfo = { address: string; config: any };

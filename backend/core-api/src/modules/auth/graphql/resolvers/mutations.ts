@@ -16,9 +16,7 @@ import {
   sendSaasMagicLinkEmail,
 } from '~/modules/auth/utils';
 import { assertSaasEnvironment } from '~/utils/saas';
-import {
-  sendNotification,
-} from 'erxes-api-shared/core-modules';
+import { sendNotification } from 'erxes-api-shared/core-modules';
 
 type LoginParams = {
   email: string;
@@ -28,8 +26,7 @@ type LoginParams = {
 
 export const authMutations = {
   /*
-   * Login
-   */
+   * Login   */
   async login(
     _parent: undefined,
     args: LoginParams,
