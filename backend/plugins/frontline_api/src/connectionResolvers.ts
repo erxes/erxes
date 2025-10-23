@@ -136,7 +136,11 @@ import {
   IMessengerAppModel,
   loadClass as loadMessengerAppClass,
 } from './modules/inbox/db/models/MessengerApps';
-import { IConfigModel, loadConfigClass } from './modules/inbox/@types/configs';
+import {
+  IConfigModel,
+  loadConfigClass,
+  IConfigDocument,
+} from './modules/inbox/@types/configs';
 import { IMessengerAppDocument } from './modules/inbox/db/definitions/messengerApps';
 export interface IModels {
   //channel
