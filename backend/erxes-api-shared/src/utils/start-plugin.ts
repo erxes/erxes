@@ -85,8 +85,8 @@ type ConfigTypes = {
     router: any;
     createContext: <TContext>(
       subdomain: string,
-      context: TRPCContext,
-    ) => Promise<TContext>;
+      context: any,
+    ) => Promise<TContext & TRPCContext>;
     securityConfig?: TRPCSecurityConfig;
   };
   meta?: IMeta;
