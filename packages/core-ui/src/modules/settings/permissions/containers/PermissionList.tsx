@@ -20,7 +20,7 @@ import React from "react";
 import { generatePaginationParams } from "modules/common/utils/router";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
-import { NavigateFunction } from 'react-router-dom';
+import { NavigateFunction } from "react-router-dom";
 
 type Props = {
   navigate: NavigateFunction;
@@ -51,20 +51,24 @@ const List = (props: FinalProps) => {
   } = props;
 
   // remove action
-  const remove = (id: string) => {
-    confirm("This will permanently delete are you absolutely sure?", {
-      hasDeleteConfirm: true,
-    }).then(() => {
-      removeMutation({
-        variables: { ids: [id] },
-      })
-        .then(() => {
-          Alert.success("You successfully deleted a permission.");
-        })
-        .catch((error) => {
-          Alert.error(error.message);
-        });
-    });
+  const remove = async (id: string) => {
+    try {
+      const confirmed = await confirm(
+        "This will permanently delete. Are you absolutely sure?",
+        { hasDeleteConfirm: true }
+      );
+
+      // if confirm returns false, just stop
+      if (!confirmed) {
+        return;
+      }
+
+      await removeMutation({ variables: { ids: [id] } });
+      Alert.success("You successfully deleted a permission.");
+    } catch (error) {
+      // If confirm() rejects (cancel clicked or dialog closed)
+      console.log("User cancelled or error occurred:", error);
+    }
   };
 
   const isLoading =
