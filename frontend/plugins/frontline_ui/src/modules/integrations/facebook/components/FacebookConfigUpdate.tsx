@@ -5,7 +5,9 @@ import {
   Form,
   Input,
   Skeleton,
+  Spinner,
   Textarea,
+  useConfirm,
 } from 'erxes-ui';
 import { useFacebookUpdateConfigs } from '../hooks/useFacebookUpdateConfigs';
 import { useForm } from 'react-hook-form';
@@ -46,6 +48,9 @@ export const FacebookConfigUpdateCollapse = () => {
 };
 
 export const FacebookConfigUpdate = () => {
+  const confirmationValue = 'update';
+  const { confirm } = useConfirm();
+  const confirmOptions = { confirmationValue };
   const form = useForm<z.infer<typeof facebookConfigSchema>>({
     resolver: zodResolver(facebookConfigSchema),
     defaultValues: {
@@ -68,10 +73,15 @@ export const FacebookConfigUpdate = () => {
   }, [loadingFacebookConfigs]);
 
   const onSubmit = (data: z.infer<typeof facebookConfigSchema>) => {
-    updateConfigs({
-      variables: {
-        configsMap: data,
-      },
+    confirm({
+      message: 'Are you sure you want to update the Facebook configs?',
+      options: confirmOptions,
+    }).then(() => {
+      updateConfigs({
+        variables: {
+          configsMap: data,
+        },
+      });
     });
   };
 
@@ -141,7 +151,7 @@ export const FacebookConfigUpdate = () => {
         />
         <Dialog.Footer className="col-span-2 items-center">
           <Button type="submit" disabled={loading}>
-            Save
+            {loading ? <Spinner /> : 'Save'}
           </Button>
         </Dialog.Footer>
       </form>
