@@ -2,17 +2,20 @@ import { Application } from 'express';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-import { createTRPCContext, TRPCContext } from './trpc';
-import { 
-  createTRPCSecurityMiddleware, 
+import { createTRPCContext, TRPCContext } from './utils';
+import {
+  createTRPCSecurityMiddleware,
   createTRPCSecurityLoggingMiddleware,
   defaultTRPCSecurityConfig,
-  TRPCSecurityConfig 
+  TRPCSecurityConfig,
 } from './trpc-middleware';
 
 export interface TRPCSetupOptions {
   router: any;
-  createContext: <TContext>(subdomain: string, context: any) => Promise<TContext & TRPCContext>;
+  createContext: <TContext>(
+    subdomain: string,
+    context: any,
+  ) => Promise<TContext & TRPCContext>;
   securityConfig?: TRPCSecurityConfig;
   rateLimitConfig?: {
     windowMs?: number;
@@ -36,7 +39,7 @@ export function setupTRPCRoute(app: Application, options: TRPCSetupOptions) {
           defaultSrc: ["'self'"],
           scriptSrc: ["'self'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
-          imgSrc: ["'self'", "data:", "https:"],
+          imgSrc: ["'self'", 'data:', 'https:'],
         },
       },
       crossOriginEmbedderPolicy: false,
@@ -44,7 +47,7 @@ export function setupTRPCRoute(app: Application, options: TRPCSetupOptions) {
   } = options;
 
   app.use(createTRPCSecurityLoggingMiddleware());
-  
+
   // Raw body parsing middleware for signature verification
   app.use('/trpc', (req, res, next) => {
     if (req.method === 'POST') {
@@ -61,7 +64,7 @@ export function setupTRPCRoute(app: Application, options: TRPCSetupOptions) {
       next();
     }
   });
-  
+
   const trpcRateLimit = rateLimit({
     windowMs: rateLimitConfig.windowMs,
     max: rateLimitConfig.max,
@@ -72,9 +75,9 @@ export function setupTRPCRoute(app: Application, options: TRPCSetupOptions) {
     standardHeaders: true,
     legacyHeaders: false,
   });
-  
+
   const trpcHelmet = helmet(helmetConfig);
-  
+
   app.use(
     '/trpc',
     trpcHelmet,

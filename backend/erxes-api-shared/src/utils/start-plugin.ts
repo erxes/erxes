@@ -34,10 +34,8 @@ import {
   joinErxesGateway,
   leaveErxesGateway,
 } from './service-discovery';
-import {  TRPCSecurityConfig } from './trpc-middleware';
-import { setupTRPCRoute } from './trpc-setup';
 import { getSubdomain } from './utils';
-import { TRPCContext } from './trpc';
+import { TRPCContext, TRPCSecurityConfig, setupTRPCRoute } from './trpc';
 
 dotenv.config();
 
@@ -170,7 +168,7 @@ export async function startPlugin(
   }
 
   if (configs.trpcAppRouter) {
-    const {router, createContext, securityConfig} = configs.trpcAppRouter;
+    const { router, createContext, securityConfig } = configs.trpcAppRouter;
     // Setup tRPC route with security middleware
     setupTRPCRoute(app, {
       router,

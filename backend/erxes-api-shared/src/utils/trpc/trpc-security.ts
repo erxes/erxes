@@ -1,10 +1,9 @@
 import * as crypto from 'crypto';
 import { Request } from 'express';
-import { redis } from './redis';
-import { sendWorkerQueue } from './mq-worker';
-import { getSubdomain } from './utils';
 import fetch from 'node-fetch';
-import { sendLogMessage } from './logs';
+import { sendLogMessage } from '../logs';
+import { redis } from '../redis';
+import { getSubdomain } from '../utils';
 
 export interface SignatureHeaders {
   'x-service-id': string;
@@ -23,7 +22,11 @@ export interface SignatureOptions {
 export function generateNonce(): string {
   return crypto.randomBytes(12).toString('hex');
 }
-export function createSignature(options: SignatureOptions & { pluginInfo: { subdomain: string; pluginName: string } }): SignatureHeaders {
+export function createSignature(
+  options: SignatureOptions & {
+    pluginInfo: { subdomain: string; pluginName: string };
+  },
+): SignatureHeaders {
   const {
     path,
     body,
@@ -40,7 +43,10 @@ export function createSignature(options: SignatureOptions & { pluginInfo: { subd
 
   const bodyHash = crypto.createHash('sha256').update(body).digest('hex');
   const canonical = `POST\n${path}\n${timestamp}\n${subdomain}\n${pluginName}\n${nonce}\n${bodyHash}`;
-  const signature = crypto.createHmac('sha256', hmacKey).update(canonical).digest('hex');
+  const signature = crypto
+    .createHmac('sha256', hmacKey)
+    .update(canonical)
+    .digest('hex');
 
   return {
     'x-service-id': pluginName,
@@ -59,15 +65,16 @@ export async function verifySignature(
     const timestamp = Number(req.header('x-timestamp'));
     const nonce = req.header('x-nonce');
     const signature = req.header('x-signature');
-    
+
     // Get raw body - try multiple sources
     let rawBody = '';
     if ((req as Request & { rawBody?: string }).rawBody) {
       rawBody = (req as Request & { rawBody?: string }).rawBody || '';
     } else if (req.body) {
-      rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+      rawBody =
+        typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
     }
-    
+
     // For TRPC batch requests, if body is empty object, treat as empty string
     if (rawBody === '{}' || rawBody === 'null') {
       rawBody = '';
@@ -85,12 +92,22 @@ export async function verifySignature(
 
     const now = Math.floor(Date.now() / 1000);
     if (Math.abs(now - timestamp) > maxAgeSeconds) {
-      console.error('Request timestamp too old:', { now, timestamp, diff: Math.abs(now - timestamp) });
+      console.error('Request timestamp too old:', {
+        now,
+        timestamp,
+        diff: Math.abs(now - timestamp),
+      });
       return false;
     }
 
     const nonceKey = `nonce:${serviceId}:${nonce}`;
-    const nonceExists = await redis.set(nonceKey, '1', 'EX', maxAgeSeconds * 2, 'NX');
+    const nonceExists = await redis.set(
+      nonceKey,
+      '1',
+      'EX',
+      maxAgeSeconds * 2,
+      'NX',
+    );
     if (!nonceExists) {
       console.error('Nonce already used or invalid:', nonce);
       return false;
@@ -99,19 +116,24 @@ export async function verifySignature(
     // For TRPC requests, include query parameters in the path
     const requestPath = req.originalUrl || req.url;
     const pathForSignature = requestPath.includes('?') ? requestPath : req.path;
-    
+
     // Ensure we're using the exact same path format as the client
     // Remove any leading slash inconsistencies
-    const normalizedPath = pathForSignature.startsWith('/') ? pathForSignature : `/${pathForSignature}`;
-    
+    const normalizedPath = pathForSignature.startsWith('/')
+      ? pathForSignature
+      : `/${pathForSignature}`;
+
     const bodyHash = crypto.createHash('sha256').update(rawBody).digest('hex');
-    
+
     // Extract subdomain from request or use default
     const requestSubdomain = getSubdomain(req);
-    
+
     // Create canonical string matching the client format
     const canonical = `POST\n${normalizedPath}\n${timestamp}\n${requestSubdomain}\n${serviceId}\n${nonce}\n${bodyHash}`;
-    const expectedSignature = crypto.createHmac('sha256', hmacKey).update(canonical).digest('hex');
+    const expectedSignature = crypto
+      .createHmac('sha256', hmacKey)
+      .update(canonical)
+      .digest('hex');
 
     const isValid = crypto.timingSafeEqual(
       new Uint8Array(Buffer.from(expectedSignature, 'hex')),
@@ -125,7 +147,7 @@ export async function verifySignature(
         canonical,
         path: normalizedPath,
         bodyHash,
-        rawBody: rawBody.substring(0, 100) + '...'
+        rawBody: rawBody.substring(0, 100) + '...',
       });
     }
 
@@ -140,16 +162,19 @@ export function getHmacKey(): string | null {
   return process.env.HMAC_KEY || null;
 }
 
-export function createSignedFetch(baseUrl: string, pluginInfo: { subdomain: string; pluginName: string }) {
+export function createSignedFetch(
+  baseUrl: string,
+  pluginInfo: { subdomain: string; pluginName: string },
+) {
   return async (input: RequestInfo | URL, options: any = {}) => {
     const url = typeof input === 'string' ? input : input.toString();
     const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-    
+
     // Parse URL to get path and query
     const urlObj = new URL(fullUrl);
     const path = urlObj.pathname;
     const query = urlObj.search;
-    
+
     // Handle body serialization for TRPC requests
     let body = '';
     if (options.body) {
@@ -159,15 +184,15 @@ export function createSignedFetch(baseUrl: string, pluginInfo: { subdomain: stri
         body = JSON.stringify(options.body);
       }
     }
-    
+
     const signaturePath = query ? `${path}${query}` : path;
-    
+
     const bodyForSignature = body || '';
-    
-    const signatureHeaders = createSignature({ 
-      path: signaturePath, 
-      body: bodyForSignature, 
-      pluginInfo 
+
+    const signatureHeaders = createSignature({
+      path: signaturePath,
+      body: bodyForSignature,
+      pluginInfo,
     });
 
     const signedOptions = {
@@ -183,10 +208,12 @@ export function createSignedFetch(baseUrl: string, pluginInfo: { subdomain: stri
   };
 }
 
-export function createSignatureVerificationMiddleware(maxAgeSeconds: number = 60) {
+export function createSignatureVerificationMiddleware(
+  maxAgeSeconds: number = 60,
+) {
   return async (req: Request, res: any, next: any) => {
     const isValid = await verifySignature(req, maxAgeSeconds);
-    
+
     if (!isValid) {
       sendLogMessage({
         subdomain: getSubdomain(req),
@@ -208,7 +235,7 @@ export function createSignatureVerificationMiddleware(maxAgeSeconds: number = 60
         message: 'Invalid signature or replay attack detected',
       });
     }
-    
+
     next();
   };
 }
