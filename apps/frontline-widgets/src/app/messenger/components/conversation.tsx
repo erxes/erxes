@@ -38,7 +38,7 @@ export function EmptyChat() {
                   }
                 />
                 <Avatar.Fallback>
-                  {supporter.details.firstName?.charAt(0)}
+                  {supporter.details.firstName?.charAt(0) || 'C'}
                 </Avatar.Fallback>
               </Avatar>
             ))}

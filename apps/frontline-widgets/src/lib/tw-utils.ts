@@ -150,13 +150,10 @@ export class TailwindThemeManager {
   applyUiOptions(uiOptions: IWidgetUiOptions): void {
     if (!uiOptions) return;
 
-    // Apply primary colors
+    // Apply primary colors only
     if (uiOptions.color) {
       this.applyPrimaryColors(uiOptions.color);
     }
-
-    // Set additional color variables that are commonly used
-    this.setCommonColorVariables(uiOptions);
 
     // Apply logo
     if (uiOptions.logo) {
@@ -178,13 +175,10 @@ export class TailwindThemeManager {
       
       this.setCustomProperty('--primary', primaryHslString);
 
-      // Set primary foreground
-      const primaryForeground = primary || ColorUtils.getContrastColor(primary);
+      // Set primary foreground based on contrast
+      const primaryForeground = ColorUtils.getContrastColor(primary);
       const primaryForegroundHsl = ColorUtils.hexToHsl(primaryForeground);
       this.setCustomProperty('--primary-foreground', ColorUtils.hslToString(primaryForegroundHsl));
-
-      // Generate accent colors based on primary
-      this.generateAccentColors(primaryHsl);
     } catch (error) {
       console.warn('Failed to apply primary colors:', error);
     }

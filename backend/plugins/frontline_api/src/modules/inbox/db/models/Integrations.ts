@@ -266,7 +266,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         throw new Error('Duplicated messenger for single brand');
       }
 
-      return this.createIntegration({ ...doc, kind: 'messenger' }, userId);
+      return this.createIntegration({ ...doc, kind: 'messenger', channelId: doc.channelIds?.[0] || '' }, userId);
     }
 
     /**
@@ -387,7 +387,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       doc: IExternalIntegrationParams,
       userId: string,
     ): Promise<IIntegrationDocument> {
-      return models.Integrations.createIntegration(doc, userId);
+      return models.Integrations.createIntegration({ ...doc, channelId: doc.channelIds?.[0] || '' }, userId);
     }
 
     /**
