@@ -47,6 +47,7 @@ export const commonTransactionFields = `
   follows {
     ${followTrType}
   }
+  followInfos
 
   branchId
   departmentId

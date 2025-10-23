@@ -1,5 +1,6 @@
 import { IContext } from "~/connectionResolvers";
 import { JOURNALS } from "@/accounting/@types/constants";
+import { activeCost } from "~/modules/accounting/utils/inventories";
 
 
 const configQueries = {
@@ -28,16 +29,7 @@ const configQueries = {
   }: {
     productIds: string[], accountId: string, branchId: string, departmentId: string
   }, { models }: IContext) {
-    const aggCosts = await models.AdjustInvDetails.aggregate([
-      { $match: { accountId, branchId, departmentId, productId: { $in: productIds || [] } } },
-    ]);
-
-    const result = {};
-    for (const detail of aggCosts) {
-      result[detail.productId] = { totalCost: detail.cost, unitCost: detail.unitCost, remainder: detail.remainder };
-    }
-
-    return result
+    return await activeCost(models, accountId, branchId, departmentId, productIds);
   },
 };
 
