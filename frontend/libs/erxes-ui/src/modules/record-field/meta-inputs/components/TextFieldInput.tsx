@@ -7,7 +7,7 @@ export const TextFieldInput = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <Input
         ref={ref}
-        className={cn('h-[34px] w-full rounded-none px-2', className)}
+        className={cn('h-cell w-full rounded-none px-2', className)}
         {...props}
       />
     );

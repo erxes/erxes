@@ -1,4 +1,4 @@
 export enum ProductsPath {
-  Index = '/',
+  Index = '/products',
   Categories = '/categories',
 }

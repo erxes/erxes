@@ -1,4 +1,4 @@
-import { FilterBar, DropdownMenu, Select, useQueryState } from 'erxes-ui';
+import { Filter, DropdownMenu, Select, useQueryState } from 'erxes-ui';
 
 const options = [
   { label: 'Product', value: 'product' },
@@ -35,9 +35,9 @@ export const ProductTypeFilterBar = () => {
 
   return (
     <Select value={filter || ''} onValueChange={setFilter}>
-      <FilterBar.SelectTrigger>
+      <Filter.BarButton>
         <Select.Value placeholder="Select type" />
-      </FilterBar.SelectTrigger>
+      </Filter.BarButton>
       <Select.Content>
         {options.map((option) => (
           <Select.Item value={option.value}>{option.label}</Select.Item>
