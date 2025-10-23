@@ -1,5 +1,7 @@
 # Changelog
 
+## [2.17.20](https://github.com/erxes/erxes/compare/2.17.19...2.17.20) (2025-10-23)
+
 ## [2.17.19](https://github.com/erxes/erxes/compare/2.17.18...2.17.19) (2025-10-22)
 
 ### Bug Fixes
