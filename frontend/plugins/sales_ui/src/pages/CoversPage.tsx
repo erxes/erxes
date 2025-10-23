@@ -1,9 +1,9 @@
 import { PageHeader } from 'ui-modules';
 import { Breadcrumb, Separator } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
-import { PosFilter } from '~/modules/pos/pos/PosFilter';
 import { PosBreadCrumb } from '~/modules/pos/pos/breadcumb/PosBreadCumb';
 import { CoversRecordTable } from '~/modules/pos/pos-covers/components/CoversRecordTable';
+import { PosCoversFilter } from '~/modules/pos/pos-covers/components/PosCoversFilter';
 
 export const CoversPage = () => {
   const { posId } = useParams();
@@ -24,9 +24,9 @@ export const CoversPage = () => {
           </Breadcrumb>
         </PageHeader.Start>
       </PageHeader>
-      <PageHeader>
-        <PosFilter />
-      </PageHeader>
+      {/* <PageHeader>
+        <PosCoversFilter />
+      </PageHeader> */}
       <CoversRecordTable />
     </>
   );

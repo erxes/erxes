@@ -12,7 +12,6 @@ import {
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
-  Badge,
 } from 'erxes-ui';
 
 import { IOrder } from '../../types/order';
@@ -22,8 +21,8 @@ export const orderColumns: ColumnDef<IOrder>[] = [
   ordersMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IOrder>,
   {
-    id: 'billNumber',
-    accessorKey: 'billNumber',
+    id: 'number',
+    accessorKey: 'number',
     header: () => (
       <RecordTable.InlineHead icon={IconLabel} label="Bill Number" />
     ),
@@ -36,16 +35,13 @@ export const orderColumns: ColumnDef<IOrder>[] = [
     },
   },
   {
-    id: 'date',
-    accessorKey: 'date',
+    id: 'paidDate',
+    accessorKey: 'paidDate',
     header: () => <RecordTable.InlineHead icon={IconMobiledata} label="Date" />,
     cell: ({ cell }) => {
-      const value = cell.getValue() as boolean;
       return (
         <RecordTableInlineCell>
-          <Badge variant={value ? 'success' : 'secondary'}>
-            {value ? 'Online' : 'Offline'}
-          </Badge>
+          <TextOverflowTooltip value={cell.getValue() as string} />
         </RecordTableInlineCell>
       );
     },
@@ -57,10 +53,10 @@ export const orderColumns: ColumnDef<IOrder>[] = [
       <RecordTable.InlineHead icon={IconPhone} label="Cash Amount" />
     ),
     cell: ({ cell }) => {
-      const value = cell.getValue() as boolean;
+      const value = cell.getValue() as number;
       return (
         <RecordTableInlineCell>
-          <Badge variant="default">{value ? 'On Server' : 'Local Only'}</Badge>
+          <TextOverflowTooltip value={value?.toLocaleString() || '0'} />
         </RecordTableInlineCell>
       );
     },
@@ -72,21 +68,23 @@ export const orderColumns: ColumnDef<IOrder>[] = [
       <RecordTable.InlineHead icon={IconBuilding} label="Mobile Amount" />
     ),
     cell: ({ cell }) => {
+      const value = cell.getValue() as number;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={value?.toLocaleString()} />
         </RecordTableInlineCell>
       );
     },
   },
   {
-    id: 'amount',
-    accessorKey: 'amount',
+    id: 'totalAmount',
+    accessorKey: 'totalAmount',
     header: () => <RecordTable.InlineHead icon={IconChartBar} label="Amount" />,
     cell: ({ cell }) => {
+      const value = cell.getValue() as number;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={value?.toLocaleString() || '0'} />
         </RecordTableInlineCell>
       );
     },
@@ -96,19 +94,17 @@ export const orderColumns: ColumnDef<IOrder>[] = [
     accessorKey: 'customer',
     header: () => <RecordTable.InlineHead icon={IconClock} label="Customer" />,
     cell: ({ cell }) => {
-      const rawDate = cell.getValue() as string;
-      const formattedDate = new Date(rawDate).toLocaleString();
-
+      const value = cell.getValue() as string;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={formattedDate} />
+          <TextOverflowTooltip value={value || 'N/A'} />
         </RecordTableInlineCell>
       );
     },
   },
   {
-    id: 'pos',
-    accessorKey: 'pos',
+    id: 'posName',
+    accessorKey: 'posName',
     header: () => <RecordTable.InlineHead icon={IconUser} label="Pos" />,
     cell: ({ cell }) => {
       return (
@@ -131,8 +127,8 @@ export const orderColumns: ColumnDef<IOrder>[] = [
     },
   },
   {
-    id: 'user',
-    accessorKey: 'user',
+    id: 'user.email',
+    accessorKey: 'user.email',
     header: () => <RecordTable.InlineHead icon={IconUser} label="User" />,
     cell: ({ cell }) => {
       return (
@@ -143,9 +139,9 @@ export const orderColumns: ColumnDef<IOrder>[] = [
     },
   },
   {
-    id: 'үйлдлүүд',
-    accessorKey: 'үйлдлүүд',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Үйлдлүүд" />,
+    id: 'actions',
+    accessorKey: 'actions',
+    header: () => <RecordTable.InlineHead icon={IconUser} label="Actions" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

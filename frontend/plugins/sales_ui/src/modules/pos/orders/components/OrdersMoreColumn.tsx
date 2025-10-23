@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { RecordTable } from 'erxes-ui';
 
 import { IOrder } from '~/modules/pos/types/order';
-import { renderingOrderDetailAtom } from '../../states/OrderDetail';
+import { renderingOrderDetailAtom } from '../../states/orderDetail';
 
 export const ordersMoreColumnCell = ({
   cell,

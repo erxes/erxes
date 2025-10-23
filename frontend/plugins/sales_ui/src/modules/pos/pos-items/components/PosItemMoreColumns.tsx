@@ -3,7 +3,7 @@ import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 import { RecordTable } from 'erxes-ui';
 import { renderingPosItemDetailAtom } from '../states/PosItemDetail';
-import { IPosItem } from '../types/PosItem';
+import { IPosItem } from '../types/posItem';
 
 export const PosItemMoreColumnCell = ({
   cell,

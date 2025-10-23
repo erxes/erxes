@@ -13,14 +13,15 @@ import {
   TextOverflowTooltip,
   RecordTableInlineCell,
   Badge,
+  Button,
 } from 'erxes-ui';
 
-import { ICover } from '../../types/Cover';
+import { ICovers } from '../types/posCover';
 import { coverMoreColumn } from './CoversMoreColumns';
 
-export const coverColumns: ColumnDef<ICover>[] = [
+export const coverColumns: ColumnDef<ICovers>[] = [
   coverMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<ICover>,
+  RecordTable.checkboxColumn as ColumnDef<ICovers>,
   {
     id: 'beginDate',
     accessorKey: 'beginDate',
@@ -42,32 +43,28 @@ export const coverColumns: ColumnDef<ICover>[] = [
       <RecordTable.InlineHead icon={IconMobiledata} label="End Date" />
     ),
     cell: ({ cell }) => {
-      const value = cell.getValue() as boolean;
       return (
         <RecordTableInlineCell>
-          <Badge variant={value ? 'success' : 'secondary'}>
-            {value ? 'Online' : 'Offline'}
-          </Badge>
+          <TextOverflowTooltip value={cell.getValue() as string} />
         </RecordTableInlineCell>
       );
     },
   },
   {
     id: 'pos',
-    accessorKey: 'pos',
+    accessorKey: 'name',
     header: () => <RecordTable.InlineHead icon={IconPhone} label="Pos" />,
     cell: ({ cell }) => {
-      const value = cell.getValue() as boolean;
       return (
         <RecordTableInlineCell>
-          <Badge variant="default">{value ? 'On Server' : 'Local Only'}</Badge>
+          <TextOverflowTooltip value={cell.getValue() as string} />
         </RecordTableInlineCell>
       );
     },
   },
   {
-    id: 'user',
-    accessorKey: 'user',
+    id: 'user.email',
+    accessorKey: 'createdBy',
     header: () => <RecordTable.InlineHead icon={IconBuilding} label="User" />,
     cell: ({ cell }) => {
       return (
@@ -86,7 +83,7 @@ export const coverColumns: ColumnDef<ICover>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          {/* <Button>Delete</Button> */}
         </RecordTableInlineCell>
       );
     },

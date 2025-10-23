@@ -2,13 +2,13 @@ import { Cell } from '@tanstack/react-table';
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 import { RecordTable } from 'erxes-ui';
-import { ICover } from '~/modules/pos/types/Cover';
-import { renderingCoverDetailAtom } from '../../states/CoverDetail';
+import { ICovers } from '../types/posCover';
+import { renderingCoverDetailAtom } from '../../states/coverDetail';
 
 export const coverMoreColumnCell = ({
   cell,
 }: {
-  cell: Cell<ICover, unknown>;
+  cell: Cell<ICovers, unknown>;
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const setRenderingCoverDetail = useSetAtom(renderingCoverDetailAtom);

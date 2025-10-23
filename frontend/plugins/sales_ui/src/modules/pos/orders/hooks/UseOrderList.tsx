@@ -1,38 +1,34 @@
+import queries from '../graphql/queries';
 import { useQuery } from '@apollo/client';
-import { queries } from '~/modules/pos/graphql';
-
-import { IOrder } from '~/modules/pos/types/order';
+import { IOrder } from '../../types/order';
 
 const POS_PER_PAGE = 30;
 
-export const useOrdersList = (options = {}) => {
-  const { data, loading, fetchMore } = useQuery(queries.posList, {
-    variables: {
-      perPage: POS_PER_PAGE,
-      ...options,
-    },
+export const useOrdersList = (options: { posId?: string } = {}) => {
+  const { posId, ...otherOptions } = options;
+
+  const variables: any = {
+    perPage: POS_PER_PAGE,
+    ...otherOptions,
+  };
+
+  if (posId) {
+    variables.posId = posId;
+  }
+
+  const { data, loading, fetchMore } = useQuery(queries.POS_ORDERS_QUERY, {
+    variables,
   });
-
-  const transformedPosList =
-    data?.posList?.map((order: IOrder) => ({
-      _id: order._id,
-      name: order.name,
-      isOnline: order.isOnline || false,
-      onServer: order.onServer || false,
-      branchTitle: order.branchTitle || '',
-      departmentTitle: order.departmentTitle || '',
-      createdAt: order.createdAt,
-      createdBy: order?.user?.details?.fullName || 'Admin',
+  const transformedPosOrderList =
+    data?.posOrders?.map((order: IOrder) => ({
+      ...order,
     })) || [];
-
   const handleFetchMore = () => {
-    if (!data?.ordersList) {
-      return;
-    }
+    if (!data?.posOrders) return;
 
     fetchMore({
       variables: {
-        page: Math.ceil(transformedPosList.length / POS_PER_PAGE) + 1,
+        page: Math.ceil(transformedPosOrderList.length / POS_PER_PAGE) + 1,
         perPage: POS_PER_PAGE,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
@@ -40,10 +36,7 @@ export const useOrdersList = (options = {}) => {
           return prev;
         }
         return Object.assign({}, prev, {
-          ordersList: [
-            ...(prev.ordersList || []),
-            ...fetchMoreResult.ordersList,
-          ],
+          posOrders: [...(prev.posOrders || []), ...fetchMoreResult.posOrders],
         });
       },
     });
@@ -51,11 +44,12 @@ export const useOrdersList = (options = {}) => {
 
   return {
     loading,
-    ordersList: transformedPosList,
-    totalCount: data?.ordersList?.length || 0,
+    ordersList: transformedPosOrderList,
+    totalCount: data?.posOrders?.length || 0,
     handleFetchMore,
     pageInfo: {
-      hasNextPage: transformedPosList.length < (data?.ordersList?.length || 0),
+      hasNextPage:
+        transformedPosOrderList.length < (data?.posOrders?.length || 0),
       hasPreviousPage: false,
       startCursor: null,
       endCursor: null,

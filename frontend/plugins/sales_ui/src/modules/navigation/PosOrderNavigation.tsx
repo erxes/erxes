@@ -84,43 +84,43 @@ function PosItem({ pos }: posItemProps) {
               />
               <NavigationMenuLinkItem
                 name="Pos Covers"
-                pathPrefix="sales/pos"
-                path={`pos${pos._id}/covers`}
+                pathPrefix="sales"
+                path={`pos/${pos._id}/covers`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
                 name="Pos By Items"
-                pathPrefix="sales/pos"
-                path={`pos${pos._id}/by-items`}
+                pathPrefix="sales"
+                path={`pos/${pos._id}/by-items`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
                 name="Pos Items"
-                pathPrefix="sales/pos"
+                pathPrefix="sales"
                 className="pl-6 font-medium"
                 icon={IconClipboard}
-                path={`pos${pos._id}/items`}
+                path={`pos/${pos._id}/items`}
               />
               <NavigationMenuLinkItem
-                name="Summary"
-                pathPrefix="operation/pos"
-                path={`${pos._id}/summary`}
+                name="Pos Summary"
+                pathPrefix="sales"
+                path={`pos/${pos._id}/summary`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
-                name="By Customer"
-                pathPrefix="operation/pos"
-                path={`${pos._id}/by-customer`}
+                name="Pos Orders By Customer"
+                pathPrefix="sales"
+                path={`pos/${pos._id}/orders-by-customer`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
-                name="By Subscription"
-                pathPrefix="operation/pos"
-                path={`${pos._id}/by-subscription`}
+                name="Pos Orders By Subscription"
+                pathPrefix="sales"
+                path={`pos/${pos._id}/orders-by-subscription`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />

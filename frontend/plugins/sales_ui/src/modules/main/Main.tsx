@@ -32,18 +32,50 @@ const PosItemsMain = lazy(() =>
   })),
 );
 
+const PosSummaryMain = lazy(() =>
+  import('~/pages/PosSummaryPage').then((module) => ({
+    default: module.PosSummaryPage,
+  })),
+);
+
+const PosOrdersByCustomerMain = lazy(() =>
+  import('~/pages/PosOrdersByCustomerPage').then((module) => ({
+    default: module.PosOrdersByCustomerPage,
+  })),
+);
+
+const PosOrdersBySubsMain = lazy(() =>
+  import('~/pages/PosOrderBySubsPage').then((module) => ({
+    default: module.PosOrderBySubsPage,
+  })),
+);
+
+const PosByItemsMain = lazy(() =>
+  import('~/pages/PosByitemsPage').then((module) => ({
+    default: module.PosByItemsPage,
+  })),
+);
+
 const App = () => {
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
         <Route path="/" element={<Navigate to="deals" replace />} />
         <Route path="/deals" element={<DealsMain />} />
-        <Route path="/pos" element={<Navigate to="orders" replace />} />
+        <Route path="/pos" element={<PosMain />} />
         <Route path="/pos/:posId/orders" element={<OrdersMain />} />
-        <Route path="/pos" element={<Navigate to="covers" replace />} />
         <Route path="/pos/:posId/covers" element={<CoversMain />} />
-        <Route path="/pos/:posId" element={<PosMain />} />
+        <Route path="/pos/:posId/by-items" element={<PosByItemsMain />} />
         <Route path="/pos/:posId/items" element={<PosItemsMain />} />
+        <Route path="/pos/:posId/summary" element={<PosSummaryMain />} />
+        <Route
+          path="/pos/:posId/orders-by-customer"
+          element={<PosOrdersByCustomerMain />}
+        />
+        <Route
+          path="/pos/:posId/orders-by-subscription"
+          element={<PosOrdersBySubsMain />}
+        />
       </Routes>
     </Suspense>
   );

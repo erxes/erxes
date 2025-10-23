@@ -1,49 +1,60 @@
 import { useQuery } from '@apollo/client';
-import { queries } from '~/modules/pos/graphql';
+import queries from '../graphql/queries';
 
-import { IOrder } from '~/modules/pos/types/order';
+interface ICovers {
+  _id: string;
+  posToken: string;
+  status: string;
+  beginDate: string;
+  endDate: string;
+  description: string;
+  userId: string;
+  note: string;
+  posName: string;
+  createdAt: string;
+  createdUser?: {
+    email: string;
+  };
+}
 
-const POS_PER_PAGE = 30;
+const COVERS_PER_PAGE = 30;
 
 export const useCoversList = (options = {}) => {
-  const { data, loading, fetchMore } = useQuery(queries.posList, {
+  const { data, loading, fetchMore } = useQuery(queries.posCovers, {
     variables: {
-      perPage: POS_PER_PAGE,
+      perPage: COVERS_PER_PAGE,
       ...options,
     },
   });
-
-  const transformedPosList =
-    data?.posList?.map((order: IOrder) => ({
-      _id: order._id,
-      name: order.name,
-      isOnline: order.isOnline || false,
-      onServer: order.onServer || false,
-      branchTitle: order.branchTitle || '',
-      departmentTitle: order.departmentTitle || '',
-      createdAt: order.createdAt,
-      createdBy: order?.user?.details?.fullName || 'Admin',
+  const transformedCoversList =
+    data?.posCovers?.map((cover: ICovers) => ({
+      _id: cover._id,
+      name: cover.posName,
+      status: cover.status,
+      beginDate: cover.beginDate,
+      endDate: cover.endDate,
+      description: cover.description,
+      note: cover.note,
+      createdAt: cover.createdAt,
+      createdBy: cover?.createdUser?.email || 'Unknown',
     })) || [];
 
   const handleFetchMore = () => {
-    if (!data?.ordersList) {
+    if (!data?.posCovers) {
       return;
     }
 
     fetchMore({
       variables: {
-        page: Math.ceil(transformedPosList.length / POS_PER_PAGE) + 1,
-        perPage: POS_PER_PAGE,
+        page: Math.ceil(transformedCoversList.length / COVERS_PER_PAGE) + 1,
+        perPage: COVERS_PER_PAGE,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) {
           return prev;
         }
         return Object.assign({}, prev, {
-          ordersList: [
-            ...(prev.ordersList || []),
-            ...fetchMoreResult.ordersList,
-          ],
+          posCovers: [...(prev.posCovers || []), ...fetchMoreResult.posCovers],
         });
       },
     });
@@ -51,11 +62,12 @@ export const useCoversList = (options = {}) => {
 
   return {
     loading,
-    coversList: transformedPosList,
-    totalCount: data?.ordersList?.length || 0,
+    coversList: transformedCoversList,
+    totalCount: data?.posCovers?.length || 0,
     handleFetchMore,
     pageInfo: {
-      hasNextPage: transformedPosList.length < (data?.ordersList?.length || 0),
+      hasNextPage:
+        transformedCoversList.length < (data?.posCovers?.length || 0),
       hasPreviousPage: false,
       startCursor: null,
       endCursor: null,

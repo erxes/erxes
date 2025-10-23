@@ -7,7 +7,6 @@ import { PosFilter } from '~/modules/pos/pos/PosFilter';
 import { OrderRecordTable } from '~/modules/pos/orders/components/OrderRecordTable';
 import { PosBreadCrumb } from '~/modules/pos/pos/breadcumb/PosBreadCumb';
 
-
 export const OrdersPage = () => {
   const { posId } = useParams();
 
@@ -27,10 +26,10 @@ export const OrdersPage = () => {
           </Breadcrumb>
         </PageHeader.Start>
       </PageHeader>
-      <PageHeader>
+      {/* <PageHeader>
         <PosFilter />
-      </PageHeader>
-      <OrderRecordTable />
+      </PageHeader> */}
+      <OrderRecordTable posId={posId} />
     </>
   );
 };

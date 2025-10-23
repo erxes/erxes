@@ -6,7 +6,7 @@ import {
   POS_CURSOR_SESSION_KEY,
 } from '../../constants/PosCursorSessionKey';
 
-export const useIsPosItemsLeadSessionKey = () => {
+export const useIsPosCoverLeadSessionKey = () => {
   const { pathname } = useLocation();
   const isLead = new RegExp(`(^|/)${PosPath.Leads}(/|$)`).test(pathname);
   return {

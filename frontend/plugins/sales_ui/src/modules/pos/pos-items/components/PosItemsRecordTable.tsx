@@ -1,23 +1,25 @@
 import { RecordTable } from 'erxes-ui';
 import { PosItemsCommandBar } from './pos-items-command-bar/PosItemsCommandBar';
-import { orderColumns } from './PosItemColumns';
-import { useOrdersList } from '../../orders/hooks/UseOrderList';
+import { PosItemColumns } from './PosItemColumns';
+import { usePosItemsList } from '../hooks/UsePosItemsList';
 
-export const PosItemsRecordTable = () => {
-  const { ordersList, handleFetchMore, loading, pageInfo } = useOrdersList();
+export const PosItemsRecordTable = ({ posId }: { posId?: string }) => {
+  const { posItemList, handleFetchMore, loading, pageInfo } = usePosItemsList({
+    posId,
+  });
 
   return (
     <RecordTable.Provider
-      columns={orderColumns}
-      data={ordersList}
+      columns={PosItemColumns}
+      data={posItemList}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'name']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={pageInfo?.hasPreviousPage}
         hasNextPage={pageInfo?.hasNextPage}
-        dataLength={ordersList?.length}
-        sessionKey="orders_cursor"
+        dataLength={posItemList?.length}
+        sessionKey="posItem_cursor"
       >
         <RecordTable>
           <RecordTable.Header />
