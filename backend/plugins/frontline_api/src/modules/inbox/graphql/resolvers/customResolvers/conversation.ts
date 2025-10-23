@@ -69,6 +69,8 @@ export default {
     const messages = await models.ConversationMessages.find({
       conversationId: conv._id,
     });
+
+    console.log('&&&&&&&&');
     return messages.filter((message) => message);
   },
 
