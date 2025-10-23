@@ -6,6 +6,7 @@ import {
 import * as trpcExpress from '@trpc/server/adapters/express';
 import { getPlugin, isEnabled } from '../service-discovery';
 import { getEnv, getSubdomain } from '../utils';
+import { createSignedFetch } from '../trpc-security';
 
 export type MessageProps = {
   subdomain: string;
@@ -36,7 +37,7 @@ export interface RPError {
 export type RPResult = RPSuccess | RPError;
 export type RP = (params: InterMessage) => RPResult | Promise<RPResult>;
 
-type TRPCContext = {
+export type TRPCContext = {
   subdomain: string;
 };
 
@@ -63,24 +64,37 @@ export const sendTRPCMessage = async ({
   const VERSION = getEnv({ name: 'VERSION' });
 
   let client;
+  let baseUrl: string;
 
   try {
     if (VERSION && VERSION === 'saas') {
+      baseUrl = `https://${subdomain}.next.erxes.io/gateway/pl:${pluginName}/trpc`;
+    } else {
+      baseUrl = `${pluginInfo.address}/trpc`;
+    }
+
+    // Check if HMAC key is configured - security is MANDATORY when key is present
+    const hasHmacKey = !!process.env.HMAC_KEY;
+
+    if (hasHmacKey) {
+      // Use signed fetch for secure communication
+      const signedFetch = createSignedFetch(baseUrl,{subdomain,pluginName});
       client = createTRPCUntypedClient({
         links: [
           httpBatchLink({
-            url: `https://${subdomain}.next.erxes.io/gateway/pl:${pluginName}/trpc`,
+            url: baseUrl,
+            fetch: signedFetch,
           }),
         ],
       });
     } else {
+      // Use regular fetch (no security)
       client = createTRPCUntypedClient({
-        links: [httpBatchLink({ url: `${pluginInfo.address}/trpc` })],
+        links: [httpBatchLink({ url: baseUrl })],
       });
     }
 
     // Extract subdomain from context
-
     const result = await client[method](
       `${module}.${action}`,
       { subdomain, ...input },
