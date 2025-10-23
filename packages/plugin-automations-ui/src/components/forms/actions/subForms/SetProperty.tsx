@@ -272,13 +272,13 @@ class SetProperty extends React.Component<Props, State> {
             attrWithSegmentConfig={true}
             additionalContent={additionalContent()}
             componentClass={rule.isExpression ? "textarea" : "input"}
-            customAttributions={!triggerType.includes(config?.module)?fields.map((f) => {
-              const moduleName:string =config.module.replace(":", ".").split(".")[1]
+            customAttributions={!triggerType.includes(config?.module)?fields.map(({label ='', name ='', type ='', validation =''}: FieldsCombinedByType) => {
+              const moduleName:string =config.module.replace(":", ".").split(".")[1] || ''
               return {
                 _id: String(Math.random()),
-                label: `${capitalizeFirstLetter(moduleName)} - ${f.label}`,
-                name: `${moduleName}.${f.name}`,
-                type: ['select','input'].includes(f.type) ? capitalizeFirstLetter(f.validation) : f.type,
+                label: `${capitalizeFirstLetter(moduleName)} - ${label}`,
+                name: `${moduleName}.${name}`,
+                type: ['select','input'].includes(type) ? capitalizeFirstLetter(validation || '') : type,
                 group:config.module
               }
             }):[]}
