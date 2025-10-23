@@ -328,7 +328,7 @@ export const removeItems = async (models: IModels, stageIds: string[]) => {
 
   const itemIds = items.map((i) => i._id);
 
-  await models.Checklists.removeChecklists(itemIds);
+  models.Checklists.removeChecklists(itemIds);
 
   //   await sendCoreMessage({
   //     subdomain,
