@@ -36,11 +36,10 @@ import {
 } from '@/integrations/imap/graphql/schema/imap';
 
 import {
-  mutations as WidgetMutations,
   queries as WidgetQueries,
   types as WidgetTypes,
+  mutations as WidgetMutations,
 } from '~/modules/inbox/graphql/schemas/widget';
-import { widgetMutations } from '~/modules/inbox/graphql/resolvers/mutations/widget';
 
 export const types = `
     ${ChannelsTypes}
@@ -68,6 +67,6 @@ export const mutations = `
    ${FacebookMutations}
    ${CallMutations}
    ${ImapMutations}
-   ${widgetMutations}
+   ${WidgetMutations}
 `;
 export default { types, queries, mutations };

@@ -64,10 +64,8 @@ export const mutations = `
       phone: String
       code: String
       isUser: Boolean
-  
       companyData: JSON
       data: JSON
-  
       visitorId: String
       cachedCustomerId: String
       deviceToken: String
