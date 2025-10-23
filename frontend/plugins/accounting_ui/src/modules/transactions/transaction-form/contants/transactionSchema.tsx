@@ -208,9 +208,9 @@ export const transactionInvMoveSchema = z.object({
     moveInBranchId: z.string(),
     moveInDepartmentId: z.string(),
   }),
-  followExtras: z.object({
+  followExtras: undefed(z.object({
     moveInAccount: undefed(z.object({ ...accountSchema.shape })),
-  }),
+  })),
   details: z.array(z.object({
     ...invDetailSchema.shape,
   })),

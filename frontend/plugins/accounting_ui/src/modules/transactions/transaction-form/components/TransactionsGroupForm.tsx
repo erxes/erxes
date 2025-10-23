@@ -103,8 +103,8 @@ export const TransactionsGroupForm = () => {
   };
 
   const onError = (error: any) => {
-    if (error?.details?.length > 0) {
-      setActiveJournal(error.details.findIndex((tab: any) => !!tab).toString());
+    if (error?.trDocs?.length > 0) {
+      setActiveJournal(error.trDocs.findIndex((tab: any) => !!tab).toString());
     }
   };
 

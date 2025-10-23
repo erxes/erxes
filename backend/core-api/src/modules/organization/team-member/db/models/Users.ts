@@ -3,7 +3,7 @@ import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
 import * as crypto from 'crypto';
 
-import { getPlugins, redis } from 'erxes-api-shared/utils';
+import { getAvailablePlugins, redis } from 'erxes-api-shared/utils';
 import {
   USER_ROLES,
   userSchema,
@@ -24,7 +24,6 @@ import {
 } from 'erxes-api-shared/core-types';
 
 import { USER_MOVEMENT_STATUSES } from 'erxes-api-shared/core-modules';
-import { title } from 'process';
 import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
 
 const SALT_WORK_FACTOR = 10;
@@ -251,7 +250,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
       models.Roles.create({
         userId: user._id,
         role: PERMISSION_ROLES.MEMBER,
-      })
+      });
 
       return user;
     }
@@ -704,7 +703,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         departmentIds: _user.departmentIds,
       };
 
-      const { role } = await models.Roles.findOne({ userId: user._id }) || {};
+      const { role } = (await models.Roles.findOne({ userId: user._id })) || {};
 
       if (role) {
         user['role'] = role;
@@ -722,7 +721,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         isOwner: _user.isOwner,
       };
 
-      const { role } = await models.Roles.findOne({ userId: user._id }) || {};
+      const { role } = (await models.Roles.findOne({ userId: user._id })) || {};
 
       if (role) {
         user['role'] = role;
@@ -823,7 +822,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
       }
 
       if (!user.lastSeenAt) {
-        const pluginNames = await getPlugins();
+        const pluginNames = await getAvailablePlugins(subdomain);
 
         for (const pluginName of pluginNames) {
           if (pluginName === 'core') {

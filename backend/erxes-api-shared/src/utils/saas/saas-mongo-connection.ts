@@ -149,7 +149,6 @@ export const getSaasOrganizationDetail = async ({
   subdomain,
 }: {
   subdomain: string;
-  models?: any;
 }) => {
   await getSaasCoreConnection();
 

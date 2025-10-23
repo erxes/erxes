@@ -31,7 +31,6 @@ router.get('/initial-setup', async (req: Request, res: Response) => {
   if (VERSION && VERSION === 'saas') {
     organizationInfo = await getSaasOrganizationDetail({
       subdomain,
-      models,
     });
 
     organizationInfo.type = 'saas';
@@ -57,11 +56,9 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
   if (VERSION === 'saas') {
     const remotes: { name: string; entry: string }[] = [];
     const subdomain = getSubdomain(_req);
-    const models = await generateModels(subdomain);
 
     const organizationInfo = await getSaasOrganizationDetail({
       subdomain,
-      models,
     });
 
     const charges = organizationInfo.charge as IOrganizationCharge;
