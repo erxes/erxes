@@ -1,6 +1,7 @@
-import { IconPlus, IconX } from '@tabler/icons-react';
-import { Button, cn, Tabs } from 'erxes-ui';
+import { IconPlus, IconX, IconZoomExclamation } from '@tabler/icons-react';
+import { Button, cn, Tabs, Tooltip } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
+import React, { useEffect } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { AddTransaction } from '../../components/AddTransaction';
 import { TR_JOURNAL_LABELS, TR_PERFECT_JOURNALS, TR_SIDES, TrJournalEnum } from '../../types/constants';
@@ -21,7 +22,6 @@ import { PayableTransaction } from './forms/PayableForm';
 import { ReceivableTransaction } from './forms/ReceivableForm';
 import { sumDtAndCt } from './Summary';
 import { TBalance } from './TBalance';
-import { useEffect } from 'react';
 
 // Separate the transaction form component to prevent unnecessary re-renders
 const TransactionForm = ({
@@ -53,6 +53,65 @@ const TransactionForm = ({
     return <InvSaleForm form={form} index={index} />;
   return null;
 };
+
+const ErrorTip = ({ index, errors }: { index: number, errors?: any }) => {
+  if (!errors?.trDocs?.length || !errors.trDocs[index]) {
+    return null;
+  }
+
+  const errs = errors.trDocs[index];
+
+  // Recursive renderer
+  const renderErrors = (obj: any, parentKey = ""): JSX.Element[] => {
+    const items: JSX.Element[] = [];
+
+    for (const key in obj) {
+      const val = obj[key];
+      const fullKey = parentKey ? `${parentKey}.${key}` : key;
+
+      if (Array.isArray(val)) {
+        val.forEach((item, idx) => {
+          items.push(
+            <React.Fragment key={`${fullKey}[${idx}]`}>
+              {renderErrors(item, `${fullKey}[${idx}]`)}
+            </React.Fragment>
+          );
+        });
+      } else if (typeof val === "object" && val !== null) {
+        if (val.message) {
+          items.push(
+            <li key={fullKey}>
+              <span className="font-medium text-red-400">{fullKey}</span>: {val.message}
+            </li>
+          );
+        } else {
+          items.push(
+            <React.Fragment key={fullKey}>
+              {renderErrors(val, fullKey)}
+            </React.Fragment>
+          );
+        }
+      }
+    }
+    return items;
+  };
+
+  return (
+    <Tooltip>
+      <Tooltip.Trigger tabIndex={-1}>
+        <IconZoomExclamation className="size-4 text-red-400 cursor-pointer" />
+      </Tooltip.Trigger>
+      <Tooltip.Content
+        side="bottom"
+        className="max-w-[300px] bg-white text-red-400 border border-red-50 rounded-md shadow-md p-2"
+      >
+        <ul className="text-sm space-y-1 list-disc pl-4">
+          {renderErrors(errs)}
+        </ul>
+      </Tooltip.Content>
+    </Tooltip>
+  );
+}
 
 export const TransactionsTabsList = ({
   form,
@@ -139,7 +198,7 @@ export const TransactionsTabsList = ({
             >
               <div>
                 {TR_JOURNAL_LABELS[field.journal]}
-
+                <ErrorTip errors={form.formState.errors} index={index} />
                 <Button
                   variant="ghost"
                   size="icon"

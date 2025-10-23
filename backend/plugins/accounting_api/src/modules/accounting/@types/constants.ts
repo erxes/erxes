@@ -83,8 +83,11 @@ export const JOURNALS = {
   TAX: 'tax',
   ALL: [
     'main', 'cash', 'bank', 'receivable', 'payable',
-    'inv_fb', 'invIncome', 'invOut', 'invMove', 'inv_adjust', 'inv_convert',
-    'inv_sale', 'inv_cost',
+    'inv_fb',
+    'invIncome', 'invOut',
+    'invMove', 'invMoveIn',
+    'invSale', 'invSaleOut', 'invSaleCost',
+    'inv_cost', 'inv_adjust', 'inv_convert',
     'inv_in_return', 'inv_sale_return',
     'expense', 'tax'
   ],
@@ -107,9 +110,15 @@ export const TR_FOLLOW_TYPES = {
   CTAX: 'ctax',
   CURRENCY_DIFF: 'currencyDiff',
   INV_INCOME_EXPENSE: 'invIncomeExpense',
-  ALL: ['vat', 'ctax', 'currencyDiff', 'invIncomeExpense',]
+  INV_SALE_OUT: 'invSaleOut',
+  INV_SALE_COST: 'invSaleCost',
+  INV_MOVE_IN: 'invMoveIn',
+  ALL: ['vat', 'ctax', 'currencyDiff', 'invIncomeExpense', 'invSaleOut', 'invSaleCost', 'invMoveIn']
 }
 
 export const TR_DETAIL_FOLLOW_TYPES = {
-  ALL: []
+  SALE_OUT: 'saleOut',
+  SALE_COST: 'saleCost',
+  MOVE_IN: 'moveIn',
+  ALL: ['saleOut', 'saleCost', 'moveIn']
 }

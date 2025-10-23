@@ -1,4 +1,18 @@
 import { ACCOUNT_JOURNALS, JOURNALS, ACCOUNT_KINDS } from '@/accounting/@types/constants';
+import { IModels } from '~/connectionResolvers';
+import { ITransaction, ITransactionDocument } from '../@types/transaction';
+
+export const createOrUpdateTr = async (
+  models: IModels,
+  doc: ITransaction,
+  oldTr?: ITransactionDocument
+): Promise<ITransactionDocument> => {
+  if (oldTr?._id) {
+    return await models.Transactions.updateTransaction(oldTr._id, { ...doc });
+  }
+
+  return await models.Transactions.createTransaction({ ...doc });
+}
 
 export const getSingleJournalByAccount = (accJournal?: string, accKind?: string) => {
 

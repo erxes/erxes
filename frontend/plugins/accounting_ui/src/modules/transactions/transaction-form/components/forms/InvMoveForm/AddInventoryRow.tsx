@@ -63,7 +63,7 @@ export const AddDetailRowButton = ({
       >
         <Button variant="secondary" className="bg-border">
           <IconPlus />
-          Add Many Productsdd
+          Add Many Products
         </Button>
       </SelectProductsBulk>
     </>

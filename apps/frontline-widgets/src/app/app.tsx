@@ -1,11 +1,20 @@
 import { useEffect, useState } from 'react';
 import { postMessage } from '../lib/utils';
+import { Header } from './messenger/components';
+import { useMessenger } from './messenger/hooks/useMessenger';
+import { Intro } from './messenger/components/intro';
+import { useConnect } from './messenger/hooks/useConnect';
+import { Skeleton } from 'erxes-ui';
 
 export function App() {
   const [isMessengerVisible, setIsMessengerVisible] = useState(false);
   const [isSmallContainer] = useState(false);
+  const { activeTab } = useMessenger();
+
+  const { loading: connecting } = useConnect({ brandId: 'dGt278' });
 
   useEffect(() => {
+    console.log('App component mounted');
     setTimeout(() => {
       window.parent.postMessage(
         {
@@ -51,7 +60,25 @@ export function App() {
     };
   }, [isMessengerVisible, isSmallContainer]);
 
-  return <div>Hello</div>;
+  const renderContent = () => {
+    switch (activeTab) {
+      default:
+        return <Intro />;
+    }
+  };
+
+  if (connecting) {
+    return <Skeleton className="h-full w-full" />;
+  }
+
+  return (
+    <div className="h-full">
+      <Header />
+      <div className="flex-1 flex flex-col justify-end overflow-y-hidden h-full bg-muted">
+        {renderContent()}
+      </div>
+    </div>
+  );
 }
 
 export default App;
