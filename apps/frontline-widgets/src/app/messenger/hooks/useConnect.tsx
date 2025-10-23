@@ -11,13 +11,13 @@ import { connect } from '../graphql';
 interface connectionProps {
   isCloudFlareEnabled?: boolean;
   isTicketEnabled?: boolean;
-  brandId: string;
+  channelId: string;
 }
 
 export const useConnect = ({
   isCloudFlareEnabled = false,
   isTicketEnabled = false,
-  brandId,
+  channelId,
 }: connectionProps) => {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -51,7 +51,7 @@ export const useConnect = ({
 
         const variables = email
           ? {
-              brandCode: brandId,
+              channelId,
               visitorId: null,
               cachedCustomerId: cachedCustomerId || undefined,
               email,
@@ -62,7 +62,7 @@ export const useConnect = ({
               companyData,
             }
           : {
-              brandCode: brandId,
+              channelId,
               visitorId,
               cachedCustomerId: cachedCustomerId || undefined,
               isUser: false,
@@ -103,7 +103,7 @@ export const useConnect = ({
     };
 
     executeConnection();
-  }, [isCloudFlareEnabled, isTicketEnabled, brandId]);
+  }, [isCloudFlareEnabled, isTicketEnabled, channelId]);
 
   return {
     result,

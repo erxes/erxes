@@ -8,7 +8,7 @@ export const types = `
       ticketData: JSON
       customerId: String
       visitorId: String
-      brand: Brand
+      channel: Channel
     }
     type TicketTypeMessenger {
       ticketLabel: String
@@ -47,7 +47,7 @@ export const types = `
 export const queries = `
     widgetsConversations(integrationId: String!, customerId: String, visitorId: String): [Conversation]
     widgetsConversationDetail(_id: String, integrationId: String!): ConversationDetailResponse
-    widgetsGetMessengerIntegration(brandCode: String!): Integration
+    widgetsGetMessengerIntegration(channelId: String!): Integration
    
     widgetsMessages(conversationId: String): [ConversationMessage]
     widgetsUnreadCount(conversationId: String): Int
@@ -59,15 +59,13 @@ export const queries = `
 
 export const mutations = `
     widgetsMessengerConnect(
-      brandCode: String!
+      channelId: String!
       email: String
       phone: String
       code: String
       isUser: Boolean
-  
       companyData: JSON
       data: JSON
-  
       visitorId: String
       cachedCustomerId: String
       deviceToken: String

@@ -820,6 +820,9 @@ importers:
       strip-html:
         specifier: ^1.0.2
         version: 1.0.2
+      uuid-by-string:
+        specifier: ^4.0.0
+        version: 4.0.0
 
   backend/plugins/frontline_api/dist:
     dependencies:

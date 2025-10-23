@@ -11,7 +11,9 @@ export function App() {
   const [isSmallContainer] = useState(false);
   const { activeTab } = useMessenger();
 
-  const { loading: connecting } = useConnect({ brandId: 'dGt278' });
+  const { loading: connecting } = useConnect({
+    channelId: 'JCwNcKRss4W94g8F5FKpw',
+  });
 
   useEffect(() => {
     console.log('App component mounted');

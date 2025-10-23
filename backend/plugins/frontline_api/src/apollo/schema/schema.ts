@@ -36,9 +36,9 @@ import {
 } from '@/integrations/imap/graphql/schema/imap';
 
 import {
-  mutations as WidgetMutations,
   queries as WidgetQueries,
   types as WidgetTypes,
+  mutations as WidgetMutations,
 } from '~/modules/inbox/graphql/schemas/widget';
 
 export const types = `

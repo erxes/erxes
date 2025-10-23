@@ -225,7 +225,7 @@ export const widgetMutations = {
   async widgetsMessengerConnect(
     _root,
     args: {
-      brandCode: string;
+      channelId: string;
       email?: string;
       phone?: string;
       code?: string;
@@ -239,7 +239,7 @@ export const widgetMutations = {
     { models, subdomain }: IContext,
   ) {
     const {
-      brandCode,
+      channelId,
       email,
       phone,
       code,
@@ -254,25 +254,16 @@ export const widgetMutations = {
 
     const customData = data;
 
-    const brand = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'brands',
-      action: 'findOne',
-      input: {
-        query: {
-          code: brandCode,
-        },
-      },
+    const channel = await models.Channels.findOne({
+      _id: channelId,
     });
-    if (!brand) {
-      throw new Error('Invalid configuration');
+    if (!channel) {
+      throw new Error('Channel not found');
     }
 
     // find integration
     const integration = await models.Integrations.findOne({
-      brandId: brand._id,
+      channelId: channel._id,
       kind: 'messenger',
     });
 
@@ -305,7 +296,6 @@ export const widgetMutations = {
         code,
         isUser,
         deviceToken,
-        scopeBrandIds: [brand._id],
       };
       customer = customer
         ? await sendTRPCMessage({
@@ -332,19 +322,7 @@ export const widgetMutations = {
             },
           });
     }
-    // if (visitorId) {
-    //   await sendTRPCMessage({subdomain,
-    //     pluginName: 'core',
-    //     method: 'mutation',
-    //     module: 'customers',
-    //     action: 'createMessengerCustomer',
-    //     input: {
-    //       query: {
-    //         customData,
-    //       },
-    //     },
-    //   });
-    // }
+
     // get or create company
     if (companyData && companyData.name) {
       let company = await sendTRPCMessage({
@@ -390,7 +368,6 @@ export const widgetMutations = {
           input: {
             query: {
               ...companyData,
-              scopeBrandIds: [brand._id],
             },
           },
         });
@@ -405,7 +382,6 @@ export const widgetMutations = {
             query: {
               _id: company._id,
               doc: companyData,
-              scopeBrandIds: [brand._id],
             },
           },
         });
@@ -457,8 +433,8 @@ export const widgetMutations = {
       messengerData: await getMessengerData(models, subdomain, integration),
       customerId: customer && customer._id,
       visitorId: customer ? null : visitorId,
-      brand: {
-        _id: brand._id,
+      channel: {
+        _id: channel._id,
       },
     };
   },
