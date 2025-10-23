@@ -34,6 +34,13 @@ export interface IListArgs extends ICursorPaginateParams {
   tagIds: string[];
   excludeIds: string[];
   triggerTypes: string[];
+  createdByIds: string[];
+  updatedByIds: string[];
+  createdAtFrom: Date;
+  createdAtTo: Date;
+  updatedAtFrom: Date;
+  updatedAtTo: Date;
+  actionTypes: string[];
 }
 
 export interface IHistoriesParams {
@@ -55,6 +62,13 @@ const generateFilter = (params: IListArgs) => {
     triggerTypes,
     ids,
     excludeIds = [],
+    createdByIds,
+    updatedByIds,
+    actionTypes,
+    createdAtFrom,
+    createdAtTo,
+    updatedAtFrom,
+    updatedAtTo,
   } = params;
 
   const filter: any = {
@@ -67,6 +81,7 @@ const generateFilter = (params: IListArgs) => {
 
   if (searchValue) {
     filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+    console.log(filter.name);
   }
 
   if (tagIds) {
@@ -77,11 +92,33 @@ const generateFilter = (params: IListArgs) => {
     filter['triggers.type'] = { $in: triggerTypes };
   }
 
+  if (actionTypes?.length) {
+    filter['actions.type'] = { $in: actionTypes };
+  }
+
   if (ids?.length) {
     filter._id = { $in: ids };
   }
   if (excludeIds.length) {
     filter._id = { $nin: excludeIds };
+  }
+  if (createdByIds?.length) {
+    filter.createdBy = { $in: createdByIds };
+  }
+  if (updatedByIds?.length) {
+    filter.updatedBy = { $in: updatedByIds };
+  }
+  if (createdAtFrom) {
+    filter.createdAt = { $gte: createdAtFrom };
+  }
+  if (createdAtTo) {
+    filter.createdAt = { ...(filter.createdAt || {}), $lte: createdAtTo };
+  }
+  if (updatedAtFrom) {
+    filter.updatedAt = { $gte: updatedAtFrom };
+  }
+  if (updatedAtTo) {
+    filter.updatedAt = { ...(filter.updatedAt || {}), $lte: updatedAtTo };
   }
 
   return filter;

@@ -1,14 +1,9 @@
 import { AutomationBuilderCanvas } from '@/automations/components/builder/AutomationBuilderCanvas';
-import {
-  automationBuilderPanelOpenState,
-  automationBuilderSiderbarOpenState,
-  toggleAutomationBuilderOpenPanel,
-  toggleAutomationBuilderOpenSidebar,
-} from '@/automations/states/automationState';
+import { useAutomation } from '@/automations/context/AutomationProvider';
 import { AutomationsHotKeyScope } from '@/automations/types';
 import {
   Icon,
-  IconLayoutBottombarExpand,
+  // IconLayoutBottombarExpand,
   IconLayoutSidebarRightExpand,
   IconProps,
 } from '@tabler/icons-react';
@@ -16,32 +11,30 @@ import {
   Badge,
   Button,
   Command,
-  PageSubHeader,
+  // PageSubHeader,
   Resizable,
+  Spinner,
   Tooltip,
-  usePreviousHotkeyScope,
   useScopedHotkeys,
 } from 'erxes-ui';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useMemo } from 'react';
+import { useAutomationBilderWorkSpace } from '@/automations/components/builder/hooks/useAutomationBilderWorkSpace';
 
-export const InspectorPanel = () => {
-  const isPanelOpen = useAtomValue(automationBuilderPanelOpenState);
-  const togglePanelOpen = useSetAtom(toggleAutomationBuilderOpenPanel);
-  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
-  const isOpenSideBar = useAtomValue(automationBuilderSiderbarOpenState);
-  const toggleSideBarOpen = useSetAtom(toggleAutomationBuilderOpenSidebar);
-  const onOpen = () => {
-    togglePanelOpen();
-    setHotkeyScopeAndMemorizePreviousScope(AutomationsHotKeyScope.Builder);
-  };
+export const AutomationBuilderWorkspace = () => {
+  const { loading } = useAutomation();
+
+  const {
+    // isPanelOpen,
+    // togglePanelOpen,
+    isOpenSideBar,
+    toggleSideBarOpen,
+    onOpen,
+    isMac,
+  } = useAutomationBilderWorkSpace();
 
   useScopedHotkeys(`mod+i`, () => onOpen(), AutomationsHotKeyScope.Builder);
-
-  const isMac = useMemo(
-    () => /Mac|iPod|iPhone|iPad/.test(navigator.platform),
-    [],
-  );
+  if (loading) {
+    return <Spinner />;
+  }
   return (
     <Resizable.PanelGroup direction="vertical" className="w-full h-full">
       {/* Canvas */}
@@ -52,7 +45,7 @@ export const InspectorPanel = () => {
       >
         <AutomationBuilderCanvas />
         <div className="bg-sidebar border-l h-full w-16 flex flex-col gap-2 items-center pt-2">
-          <ToggleButton
+          <AutomationBuilderPanelToggle
             isOpen={isOpenSideBar}
             onToggle={toggleSideBarOpen}
             openLabel="Hide Menu"
@@ -60,18 +53,20 @@ export const InspectorPanel = () => {
             shortcut={`${isMac ? '⌘' : 'Ctrl'}G`}
             IconComponent={IconLayoutSidebarRightExpand}
           />
-          <ToggleButton
+          {/* TODO: Add inspector panel when it is implemented */}
+          {/* <AutomationBuilderPanelToggle
             isOpen={isPanelOpen}
             onToggle={togglePanelOpen}
             openLabel="Hide Inspect"
             closedLabel="Show Inspect"
             shortcut={`${isMac ? '⌘' : 'Ctrl'}I`}
             IconComponent={IconLayoutBottombarExpand}
-          />
+          /> */}
         </div>
       </Resizable.Panel>
 
-      {isPanelOpen && (
+      {/* TODO: Add inspector panel when it is implemented */}
+      {/* {isPanelOpen && (
         <>
           <Resizable.Handle />
 
@@ -91,12 +86,12 @@ export const InspectorPanel = () => {
             </Resizable.PanelGroup>
           </Resizable.Panel>
         </>
-      )}
+      )} */}
     </Resizable.PanelGroup>
   );
 };
 
-const ToggleButton = ({
+const AutomationBuilderPanelToggle = ({
   isOpen,
   onToggle,
   openLabel,

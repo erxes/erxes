@@ -4,7 +4,6 @@ import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
 import { useNodeConnect } from '@/automations/hooks/useNodeConnect';
 import { useNodeEvents } from '@/automations/hooks/useNodeEvents';
-import { useReactFlowEdges } from '@/automations/hooks/useReactFlowEdges';
 import { NodeData } from '@/automations/types';
 import { automationDropHandler } from '@/automations/utils/automationBuilderUtils/dropNodeHandler';
 import { generateNodes } from '@/automations/utils/automationBuilderUtils/generateNodes';
@@ -17,7 +16,8 @@ import {
 import '@xyflow/react/dist/style.css';
 import { themeState } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
+import { generateEdges } from '@/automations/utils/automationBuilderUtils/generateEdges';
 
 export const useReactFlowEditor = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -36,8 +36,23 @@ export const useReactFlowEditor = () => {
   const { triggers, actions, workflows, getList } = useAutomationNodes();
   const { getNodes, addNodes } = useReactFlow<Node<NodeData>>();
 
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node<NodeData>>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<any>([]);
+  // Memoize nodes and edges generation to prevent multiple executions
+  const generatedNodes = useMemo(
+    () => generateNodes(triggers, actions, workflows),
+    [triggers, actions, workflows],
+  );
+
+  const computedEdges = useMemo(
+    () => generateEdges(triggers, actions, workflows, actionFolks),
+    [triggers, actions, workflows, actionFolks],
+  );
+
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node<NodeData>>(
+    generatedNodes || [],
+  );
+  const [edges, _setEdges, onEdgesChange] = useEdgesState<any>(
+    computedEdges || [],
+  );
 
   const { onNodeDoubleClick } = useNodeEvents();
   const { isValidConnection, onConnect, onAwaitingNodeConnection } =
@@ -86,21 +101,6 @@ export const useReactFlowEditor = () => {
       setAwaitingToConnectNodeId('');
     }
   };
-
-  // 1) Generate and set nodes when data changes
-  useEffect(() => {
-    const generatedNodes = generateNodes(triggers, actions, workflows);
-    setNodes(generatedNodes);
-  }, [triggers, actions, workflows]);
-
-  // 2) Sync edges with memoization and rAF to avoid infinite loops and dropped edges
-  useReactFlowEdges({
-    triggers,
-    actions,
-    workflows,
-    actionFolks,
-    setEdges,
-  });
 
   return {
     theme,

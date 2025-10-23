@@ -10,6 +10,14 @@ const queryParams = `
   sortDirection: Int
   status: String
   tagIds:[String]
+  createdByIds: [String]
+  updatedByIds: [String]
+  createdAtFrom: Date
+  createdAtTo: Date
+  updatedAtFrom: Date
+  updatedAtTo: Date
+  triggerTypes: [String]
+  actionTypes: [String]
 `;
 
 const historiesParams = `
@@ -35,8 +43,13 @@ const emailTemplateParams = `
   sortDirection: Int
 `;
 
+const listParams = `
+  ${queryParams}
+  ${GQL_CURSOR_PARAM_DEFS}
+`;
+
 const queries = `
-  automationsMain(${queryParams}): AutomationsListResponse
+  automationsMain(${listParams}): AutomationsListResponse
   automations(${queryParams}): [Automation]
   automationDetail(_id: String!): Automation
   automationNotes(automationId: String!, triggerId: String, actionId: String): [AutomationNote]

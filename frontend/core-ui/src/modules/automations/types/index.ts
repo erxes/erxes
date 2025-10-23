@@ -69,7 +69,7 @@ export interface IAutomationDoc {
   updatedAt?: string;
   createdAt?: string;
   updatedBy?: string;
-  createdBy?: string;
+  createdByIds?: string;
   updatedUser?: any;
   createdUser?: any;
   tags?: any[];
@@ -114,6 +114,7 @@ export enum AutomationsHotKeyScope {
   BuilderSideBar = 'automation-builder-sidebar',
   BuilderPanel = 'automation-builder-panel',
   HistoriesFilter = 'automation-histories-filter',
+  RecordTableFilter = 'automation-record-table-filter',
 }
 
 export enum AutomationsPath {

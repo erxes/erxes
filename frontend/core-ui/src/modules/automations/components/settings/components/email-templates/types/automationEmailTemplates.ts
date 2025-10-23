@@ -3,7 +3,7 @@ export interface IAutomationEmailTemplate {
   name: string;
   description?: string;
   content: string;
-  createdBy: string;
+  createdByIds: string;
   createdAt: string;
   updatedAt: string;
   createdUser?: {

@@ -1,5 +1,5 @@
 import { automationColumns } from '@/automations/components/list/AutomationColumns';
-import { AutomationRecordTableFilters } from '@/automations/components/list/AutomationRecordTableFilters';
+import { AutomationRecordTableFilters } from '@/automations/components/list/filters/AutomationRecordTableFilters';
 import { useAutomationsRecordTable } from '@/automations/hooks/useAutomationsRecordTable';
 import { IconAffiliate, IconSettings } from '@tabler/icons-react';
 import { Breadcrumb, Button, RecordTable, Separator, Spinner } from 'erxes-ui';

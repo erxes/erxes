@@ -67,6 +67,8 @@ export const STATUSES_BADGE_VARIABLES = {
 
 export const AUTOMATION_HISTORIES_CURSOR_SESSION_KEY =
   'automation-histories-cursor';
+export const AUTOMATION_RECORD_TABLE_FILTERS_SESSION_KEY =
+  'automation-record-table-filters-cursor';
 
 export const AUTOMATION_LIBRARY_TABS = [
   { value: AutomationNodeType.Trigger, label: 'Triggers' },
