@@ -1,5 +1,39 @@
-import { loyaltyQueries } from '@/loyalty/graphql/resolvers/queries/loyalty';
+import { Configs } from '~/modules/loyalty/graphql/resolvers/mutations';
+import {
+  DonateCampaigns,
+  Donates,
+  VoucherCampaigns,
+  Vouchers,
+  SpinCampaigns,
+  Spins,
+  LotteryCampaigns,
+  Lotteries,
+  Loyalties,
+  ScoreLogs,
+  Assignments,
+  AssignmentCampaigns,
+  ScoreCampaigns,
+  Agents,
+  CouponCampaigns,
+  Coupons,
+} from '~/modules/loyalty/graphql/resolvers/queries';
 
 export const queries = {
-  ...loyaltyQueries,
+  ...Configs,
+  ...DonateCampaigns,
+  ...Donates,
+  ...VoucherCampaigns,
+  ...Vouchers,
+  ...SpinCampaigns,
+  ...Spins,
+  ...LotteryCampaigns,
+  ...Lotteries,
+  ...Loyalties,
+  ...ScoreLogs,
+  ...Assignments,
+  ...AssignmentCampaigns,
+  ...ScoreCampaigns,
+  ...Agents,
+  ...CouponCampaigns,
+  ...Coupons,
 };

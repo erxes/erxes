@@ -8,6 +8,7 @@ import {
   IScoreLog,
 } from '~/modules/loyalty/@types/scoreLog';
 import { scoreLogSchema } from '~/modules/loyalty/db/definitions/scoreLog';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 const OWNER_TYPES = {
   customer: {
@@ -219,28 +220,55 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const score = Number(changeScore);
       const ownerFilter = { _id: { $in: ownerIds } };
 
-      const owners = await sendCommonMessage({
+      // const owners = await sendCommonMessage({
+      //   subdomain,
+      //   serviceName,
+      //   action: `${contentType}.find`,
+      //   data:
+      //     contentType === 'users'
+      //       ? { query: { ...ownerFilter } }
+      //       : { ...ownerFilter },
+      //   isRPC: true,
+      //   defaultValue: [],
+      // }).catch((error) => debugError(error.message));
+
+      const owners = await sendTRPCMessage({
         subdomain,
-        serviceName,
-        action: `${contentType}.find`,
-        data:
+        pluginName: serviceName,
+        module: `${contentType}`,
+        action: `find`,
+        input:
           contentType === 'users'
             ? { query: { ...ownerFilter } }
             : { ...ownerFilter },
-        isRPC: true,
         defaultValue: [],
       }).catch((error) => debugError(error.message));
-
       if (!owners?.length) {
         throw new Error('Not found owners');
       }
 
       try {
-        await sendCommonMessage({
+        // await sendCommonMessage({
+        //   subdomain,
+        //   serviceName,
+        //   action: `${contentType}.updateMany`,
+        //   data: {
+        //     selector: {
+        //       _id: { $in: owners.map((owner) => owner._id) },
+        //     },
+        //     modifier: {
+        //       $inc: { score },
+        //     },
+        //   },
+        //   isRPC: true,
+        // });
+
+        await sendTRPCMessage({
           subdomain,
-          serviceName,
-          action: `${contentType}.updateMany`,
-          data: {
+          pluginName: serviceName,
+          module: `${contentType}`,
+          action: `updateMany`,
+          input: {
             selector: {
               _id: { $in: owners.map((owner) => owner._id) },
             },
@@ -248,7 +276,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
               $inc: { score },
             },
           },
-          isRPC: true,
+          defaultValue: [],
         });
       } catch (error) {
         throw new Error(error.message);
@@ -346,12 +374,23 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         selector: any,
         modifier: any,
       ) =>
-        await sendCoreMessage({
+        // await sendCoreMessage({
+        //   subdomain,
+        //   action,
+        //   data: { selector, modifier },
+        //   isRPC: true,
+        //   defaultValue: null,
+        // });
+        await sendTRPCMessage({
           subdomain,
-          action,
-          data: { selector, modifier },
-          isRPC: true,
-          defaultValue: null,
+          pluginName: 'core',
+          module: `unkown`,
+          action: action,
+          input: {
+            selector,
+            modifier,
+          },
+          defaultValue: [],
         });
 
       const modifier: any = { $set: { score: newScore } };
@@ -370,11 +409,20 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           );
         }
 
-        const prepareCustomFieldsData = await sendCoreMessage({
+        // const prepareCustomFieldsData = await sendCoreMessage({
+        //   subdomain,
+        //   action: 'fields.prepareCustomFieldsData',
+        //   data: [{ field: campaign.fieldId, value: newScore }],
+        //   isRPC: true,
+        //   defaultValue: [],
+        // });
+
+        const prepareCustomFieldsData = await sendTRPCMessage({
           subdomain,
-          action: 'fields.prepareCustomFieldsData',
-          data: [{ field: campaign.fieldId, value: newScore }],
-          isRPC: true,
+          pluginName: 'core',
+          module: `fields`,
+          action: 'prepareCustomFieldsData',
+          input: [{ field: campaign.fieldId, value: newScore }],
           defaultValue: [],
         });
 
@@ -424,28 +472,45 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         return await updateEntity('companies.updateOne', selector, modifier);
       }
       if (ownerType === 'cpUser') {
-        const cpUser = await sendClientPortalMessage({
+        // const cpUser = await sendClientPortalMessage({
+        //   subdomain,
+        //   action: 'clientPortalUsers.findOne',
+        //   data: {
+        //     _id: ownerId,
+        //   },
+        //   isRPC: true,
+        //   defaultValue: null,
+        // });
+
+        const cpUser = await sendTRPCMessage({
           subdomain,
-          action: 'clientPortalUsers.findOne',
-          data: {
-            _id: ownerId,
-          },
-          isRPC: true,
-          defaultValue: null,
+          pluginName: 'core',
+          module: `clientPortalUsers`,
+          action: 'findOne',
+          input: { _id: ownerId },
+          defaultValue: [],
         });
 
         if (!cpUser) {
           throw new Error('Not Found Owner');
         }
-        return await sendCoreMessage({
+        // return await sendCoreMessage({
+        //   subdomain,
+        //   action: 'customers.updateOne',
+        //   data: {
+        //     selector: { _id: cpUser.erxesCustomerId },
+        //     modifier,
+        //   },
+        //   isRPC: true,
+        //   defaultValue: null,
+        // });
+        return await sendTRPCMessage({
           subdomain,
-          action: 'customers.updateOne',
-          data: {
-            selector: { _id: cpUser.erxesCustomerId },
-            modifier,
-          },
-          isRPC: true,
-          defaultValue: null,
+          pluginName: 'core',
+          module: `customers`,
+          action: 'updateOne',
+          input: { selector: { _id: cpUser.erxesCustomerId }, modifier },
+          defaultValue: [],
         });
       }
     }
@@ -455,3 +520,6 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
   return scoreLogSchema;
 };
+function debugError(message: any): any {
+  throw new Error('Function not implemented.');
+}

@@ -1,3 +1,4 @@
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { IBuyParams } from '~/modules/loyalty/@types/common';
@@ -59,8 +60,9 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
       const now = new Date();
 
-      const voucherCampaign =
-        await models.VoucherCampaigns.getVoucherCampaign(campaignId);
+      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(
+        campaignId,
+      );
 
       if (voucherCampaign.startDate > now || voucherCampaign.endDate < now) {
         throw new Error('Cannot create voucher: voucher is expired');
@@ -112,22 +114,35 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
       const now = new Date();
 
-      const voucherCampaign =
-        await models.VoucherCampaigns.getVoucherCampaign(campaignId);
+      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(
+        campaignId,
+      );
 
       if (voucherCampaign.startDate > now || voucherCampaign.endDate < now) {
         throw new Error('Cannot create voucher: campaign is expired');
       }
 
       if (tagIds?.length) {
-        const customers = await sendCoreMessage({
+        // const customers = await sendCoreMessage({
+        //   subdomain,
+        //   action: 'customers.find',
+        //   data: {
+        //     tagIds: { $in: tagIds },
+        //     ...(ownerIds?.length && { _id: { $in: ownerIds } }),
+        //   },
+        //   isRPC: true,
+        //   defaultValue: [],
+        // });
+
+        const customers = await sendTRPCMessage({
           subdomain,
-          action: 'customers.find',
-          data: {
+          pluginName: 'core',
+          module: `customers`,
+          action: 'find',
+          input: {
             tagIds: { $in: tagIds },
             ...(ownerIds?.length && { _id: { $in: ownerIds } }),
           },
-          isRPC: true,
           defaultValue: [],
         });
 
@@ -229,8 +244,9 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         throw new Error('can not buy voucher, owner is undefined');
       }
 
-      const voucherCampaign =
-        await models.VoucherCampaigns.getVoucherCampaign(campaignId);
+      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(
+        campaignId,
+      );
 
       if (!voucherCampaign.buyScore) {
         throw new Error('can not buy this voucher');

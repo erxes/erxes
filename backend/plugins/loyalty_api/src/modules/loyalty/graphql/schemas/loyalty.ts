@@ -1,18 +1,22 @@
 export const types = `
   type Loyalty {
-    _id: String
-    name: String
-    description: String
+    ownerId: String
+    ownerType: String
+    score: Float
+
+    vouchers: [Voucher]
+    lotteries: [Lottery]
+    spins: [Spin]
+    donates: [Donate]
   }
 `;
 
 export const queries = `
-  getLoyalty(_id: String!): Loyalty
-  getLoyaltys: [Loyalty]
+  loyalties(ownerType: String ownerId: String, statuses: [String]): Loyalty
+  checkLoyalties(ownerType: String, ownerId: String, products: JSON): JSON
 `;
 
 export const mutations = `
-  createLoyalty(name: String!): Loyalty
-  updateLoyalty(_id: String!, name: String!): Loyalty
-  removeLoyalty(_id: String!): Loyalty
+  confirmLoyalties(checkInfo: JSON): JSON
+  shareScore(ownerType: String, ownerId: String, score: Float, destinationOwnerId: String, destinationPhone: String, destinationEmail: String, destinationCode: String): String
 `;

@@ -40,87 +40,87 @@ export const MODULE_NAMES = {
   AGENT: 'agent',
 };
 
-const gatherAgentNames = async (
-  subdomain: string,
-  doc: IAgent | IAgentDocument,
-  prevList: LogDesc[],
-) => {
-  let options: LogDesc[] = [];
+// const gatherAgentNames = async (
+//   subdomain: string,
+//   doc: IAgent | IAgentDocument,
+//   prevList: LogDesc[],
+// ) => {
+//   let options: LogDesc[] = [];
 
-  if (prevList) {
-    options = prevList;
-  }
+//   if (prevList) {
+//     options = prevList;
+//   }
 
-  const params = { defaultValue: [], subdomain, isRPC: true };
+//   const params = { defaultValue: [], subdomain, isRPC: true };
 
-  if (doc.customerIds && doc.customerIds.length > 0) {
-    const customers = await sendCoreMessage({
-      ...params,
-      action: 'customers.find',
-      data: { _id: { $in: doc.customerIds } },
-    });
+//   if (doc.customerIds && doc.customerIds.length > 0) {
+//     const customers = await sendCoreMessage({
+//       ...params,
+//       action: 'customers.find',
+//       data: { _id: { $in: doc.customerIds } },
+//     });
 
-    options = await gatherNames({
-      foreignKey: 'customerIds',
-      prevList: options,
-      nameFields: ['firstName'],
-      items: customers,
-    });
-  }
+//     options = await gatherNames({
+//       foreignKey: 'customerIds',
+//       prevList: options,
+//       nameFields: ['firstName'],
+//       items: customers,
+//     });
+//   }
 
-  if (doc.companyIds && doc.companyIds.length > 0) {
-    const companies = await sendCoreMessage({
-      ...params,
-      action: 'companies.find',
-      data: { _id: { $in: doc.companyIds } },
-    });
+//   if (doc.companyIds && doc.companyIds.length > 0) {
+//     const companies = await sendCoreMessage({
+//       ...params,
+//       action: 'companies.find',
+//       data: { _id: { $in: doc.companyIds } },
+//     });
 
-    options = await gatherNames({
-      foreignKey: 'companyIds',
-      prevList: options,
-      nameFields: ['primaryName'],
-      items: companies,
-    });
-  }
+//     options = await gatherNames({
+//       foreignKey: 'companyIds',
+//       prevList: options,
+//       nameFields: ['primaryName'],
+//       items: companies,
+//     });
+//   }
 
-  if (doc.productRuleIds && doc.productRuleIds.length > 0) {
-    const rules = await sendCoreMessage({
-      ...params,
-      action: 'productRules.find',
-      data: { _ids: doc.productRuleIds },
-    });
+//   if (doc.productRuleIds && doc.productRuleIds.length > 0) {
+//     const rules = await sendCoreMessage({
+//       ...params,
+//       action: 'productRules.find',
+//       data: { _ids: doc.productRuleIds },
+//     });
 
-    options = await gatherNames({
-      foreignKey: 'productRuleIds',
-      prevList: options,
-      nameFields: ['name'],
-      items: rules,
-    });
-  }
+//     options = await gatherNames({
+//       foreignKey: 'productRuleIds',
+//       prevList: options,
+//       nameFields: ['name'],
+//       items: rules,
+//     });
+//   }
 
-  return options;
-};
+//   return options;
+// };
 
-const gatherDescriptions = async (
-  _args,
-  subdomain,
-  params: any,
-): Promise<IDescriptions> => {
-  const { action, object, updatedDocument, type } = params;
-  let extraDesc: LogDesc[] = [];
-  let description = `"${object.title}" has been ${action}d`;
+// const gatherDescriptions = async (
+//   _args,
+//   subdomain,
+//   params: any,
+// ): Promise<IDescriptions> => {
+//   const { action, object, updatedDocument, type } = params;
+//   let extraDesc: LogDesc[] = [];
+//   let description = `"${object.title}" has been ${action}d`;
 
-  if (type && type === MODULE_NAMES.AGENT) {
-    description = `"${object.number}" has been ${action}d`;
-    extraDesc = await gatherAgentNames(subdomain, object, extraDesc);
+//   if (type && type === MODULE_NAMES.AGENT) {
+//     description = `"${object.number}" has been ${action}d`;
+//     extraDesc = await gatherAgentNames(subdomain, object, extraDesc);
 
-    if (updatedDocument) {
-      extraDesc = await gatherAgentNames(subdomain, updatedDocument, extraDesc);
-    }
-  }
+//     if (updatedDocument) {
+//       extraDesc = await gatherAgentNames(subdomain, updatedDocument, extraDesc);
+//     }
+//   }
 
-  return { extraDesc, description };
-};
+//   return { extraDesc, description };
+// };
 
 export const putDeleteLog = async (
   models: IModels,
@@ -128,20 +128,19 @@ export const putDeleteLog = async (
   logDoc,
   user,
 ) => {
-  const { description, extraDesc } = await gatherDescriptions(
-    models,
-    subdomain,
-    {
-      ...logDoc,
-      action: LOG_ACTIONS.DELETE,
-    },
-  );
-
-  await commonPutDeleteLog(
-    subdomain,
-    { ...logDoc, description, extraDesc, type: `loyalties:${logDoc.type}` },
-    user,
-  );
+  // const { description, extraDesc } = await gatherDescriptions(
+  //   models,
+  //   subdomain,
+  //   {
+  //     ...logDoc,
+  //     action: LOG_ACTIONS.DELETE,
+  //   },
+  // );
+  // await commonPutDeleteLog(
+  //   subdomain,
+  //   { ...logDoc, description, extraDesc, type: `loyalties:${logDoc.type}` },
+  //   user,
+  // );
 };
 
 export const putUpdateLog = async (
@@ -150,20 +149,19 @@ export const putUpdateLog = async (
   logDoc,
   user,
 ) => {
-  const { description, extraDesc } = await gatherDescriptions(
-    models,
-    subdomain,
-    {
-      ...logDoc,
-      action: LOG_ACTIONS.UPDATE,
-    },
-  );
-
-  await commonPutUpdateLog(
-    subdomain,
-    { ...logDoc, description, extraDesc, type: `loyalties:${logDoc.type}` },
-    user,
-  );
+  // const { description, extraDesc } = await gatherDescriptions(
+  //   models,
+  //   subdomain,
+  //   {
+  //     ...logDoc,
+  //     action: LOG_ACTIONS.UPDATE,
+  //   },
+  // );
+  // await commonPutUpdateLog(
+  //   subdomain,
+  //   { ...logDoc, description, extraDesc, type: `loyalties:${logDoc.type}` },
+  //   user,
+  // );
 };
 
 export const putCreateLog = async (
@@ -172,48 +170,46 @@ export const putCreateLog = async (
   logDoc,
   user,
 ) => {
-  const { description, extraDesc } = await gatherDescriptions(
-    models,
-    subdomain,
-    {
-      ...logDoc,
-      action: LOG_ACTIONS.CREATE,
-    },
-  );
-
-  sendCommonMessage({
-    serviceName: 'core',
-    subdomain,
-    action: 'registerOnboardHistory',
-    data: {
-      type: `${logDoc.type}Create`,
-      user,
-    },
-  });
-
-  await commonPutCreateLog(
-    subdomain,
-    { ...logDoc, description, extraDesc, type: `loyalties:${logDoc.type}` },
-    user,
-  );
+  // const { description, extraDesc } = await gatherDescriptions(
+  //   models,
+  //   subdomain,
+  //   {
+  //     ...logDoc,
+  //     action: LOG_ACTIONS.CREATE,
+  //   },
+  // );
+  // sendCommonMessage({
+  //   serviceName: 'core',
+  //   subdomain,
+  //   action: 'registerOnboardHistory',
+  //   data: {
+  //     type: `${logDoc.type}Create`,
+  //     user,
+  //   },
+  // });
+  // await commonPutCreateLog(
+  //   subdomain,
+  //   { ...logDoc, description, extraDesc, type: `loyalties:${logDoc.type}` },
+  //   user,
+  // );
 };
 
 export default {
   getSchemaLabels: ({ data: { type } }) => ({
     status: 'success',
-    data: getSchemaLabels(type, [
-      {
-        name: 'donateCampaign',
-        schemas: [donateCampaignSchema, donateAwardSchema],
-      },
-      {
-        name: 'lotteryCampaign',
-        schemas: [lotteryCampaignSchema, lotteryAwardSchema],
-      },
-      { name: 'spinCampaign', schemas: [spinCampaignSchema, spinAwardSchema] },
-      { name: 'assignmentCampaign', schemas: [assignmentCampaignSchema] },
-      { name: 'voucherCampaign', schemas: [voucherCampaignSchema] },
-      { name: MODULE_NAMES.AGENT, schemas: [agentSchema] },
-    ]),
+    // data: getSchemaLabels(type, [
+    //   {
+    //     name: 'donateCampaign',
+    //     schemas: [donateCampaignSchema, donateAwardSchema],
+    //   },
+    //   {
+    //     name: 'lotteryCampaign',
+    //     schemas: [lotteryCampaignSchema, lotteryAwardSchema],
+    //   },
+    //   { name: 'spinCampaign', schemas: [spinCampaignSchema, spinAwardSchema] },
+    //   { name: 'assignmentCampaign', schemas: [assignmentCampaignSchema] },
+    //   { name: 'voucherCampaign', schemas: [voucherCampaignSchema] },
+    //   { name: MODULE_NAMES.AGENT, schemas: [agentSchema] },
+    // ]),
   }),
 };

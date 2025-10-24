@@ -1,9 +1,5 @@
-import * as dayjs from "dayjs";
-import {
-  sendClientPortalMessage,
-  sendCommonMessage,
-  sendCoreMessage,
-} from "../messageBroker";
+import dayjs from 'dayjs';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const validCampaign = (doc) => {
   if (!doc.startDate || !doc.endDate || !doc.finishDateOfUse) {
@@ -11,15 +7,15 @@ export const validCampaign = (doc) => {
   }
 
   if (doc.startDate.getTime() - new Date().getTime() < -24 * 1000 * 60 * 60) {
-    throw new Error("The start date must be in the future");
+    throw new Error('The start date must be in the future');
   }
 
   if (doc.endDate && doc.startDate > doc.endDate) {
-    throw new Error("The end date must be after from start date");
+    throw new Error('The end date must be after from start date');
   }
 
   if (doc.finishDateOfUse && doc.endDate > doc.finishDateOfUse) {
-    throw new Error("The finish date of use must be after from end date");
+    throw new Error('The finish date of use must be after from end date');
   }
 };
 
@@ -28,25 +24,25 @@ export const randomBetween = (min: number, max: number) => {
 };
 
 const RandomTypes = {
-  "0-9": "0123456789",
-  "a-z": "abcdefghijklmnopqrstuvwxyz",
-  "A-Z": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-  "a-Z": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
-  "0-z": "0123456789abcdefghijklmnopqrstuvwxyz",
-  "0-Z": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-  "0-zZ": "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  '0-9': '0123456789',
+  'a-z': 'abcdefghijklmnopqrstuvwxyz',
+  'A-Z': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  'a-Z': 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  '0-z': '0123456789abcdefghijklmnopqrstuvwxyz',
+  '0-Z': '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  '0-zZ': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
 };
 
 const generateRandom = (type: string, len: number) => {
-  const charSet = RandomTypes[type] || "0123456789";
+  const charSet = RandomTypes[type] || '0123456789';
 
-  let randomString = "";
+  let randomString = '';
 
   for (let i = 0; i < len; i++) {
     const position = Math.floor(Math.random() * charSet.length);
     randomString = `${randomString}${charSet.substring(
       position,
-      position + 1
+      position + 1,
     )}`;
   }
 
@@ -62,11 +58,11 @@ export const getRandomNumber = (number) => {
     let str = item;
 
     if (re.test(str)) {
-      const key = (str.match(/\[.-..?\]/g)[0] || "")
-        .replace("[", "")
-        .replace("]", "");
+      const key = (str.match(/\[.-..?\]/g)[0] || '')
+        .replace('[', '')
+        .replace(']', '');
       let len = Number(
-        (str.match(/ \* [0-9]* /g)[0] || "").substring(3) || "0"
+        (str.match(/ \* [0-9]* /g)[0] || '').substring(3) || '0',
       );
       if (isNaN(len)) {
         len = 8;
@@ -78,39 +74,67 @@ export const getRandomNumber = (number) => {
     result.push(str);
   }
 
-  return result.join("");
+  return result.join('');
 };
 
 export const getOwner = async (subdomain, ownerType, ownerId) => {
   switch (ownerType) {
-    case "customer":
-      return await sendCoreMessage({
+    case 'customer':
+      // return await sendCoreMessage({
+      //   subdomain,
+      //   action: 'customers.findOne',
+      //   data: { _id: ownerId },
+      //   isRPC: true,
+      // });
+      return await sendTRPCMessage({
         subdomain,
-        action: "customers.findOne",
-        data: { _id: ownerId },
-        isRPC: true,
+        pluginName: 'core',
+        module: 'customer',
+        action: 'findOne',
+        input: { _id: ownerId },
       });
-    case "user":
-      return await sendCoreMessage({
+    case 'user':
+      // return await sendCoreMessage({
+      //   subdomain,
+      //   action: 'users.findOne',
+      //   data: { _id: ownerId },
+      //   isRPC: true,
+      // });
+      return await sendTRPCMessage({
         subdomain,
-        action: "users.findOne",
-        data: { _id: ownerId },
-        isRPC: true,
+        pluginName: 'core',
+        module: 'user',
+        action: 'findOne',
+        input: { _id: ownerId },
       });
-    case "company":
-      return await sendCoreMessage({
+    case 'company':
+      // return await sendCoreMessage({
+      //   subdomain,
+      //   action: 'companies.findOne',
+      //   data: { _id: ownerId },
+      //   isRPC: true,
+      // });
+      return await sendTRPCMessage({
         subdomain,
-        action: "companies.findOne",
-        data: { _id: ownerId },
-        isRPC: true,
+        pluginName: 'core',
+        module: 'company',
+        action: 'findOne',
+        input: { _id: ownerId },
       });
-    case "cpUser":
-      return await sendClientPortalMessage({
+    case 'cpUser':
+      // return await sendClientPortalMessage({
+      //   subdomain,
+      //   action: 'clientPortalUsers.findOne',
+      //   data: { _id: ownerId },
+      //   isRPC: true,
+      //   defaultValue: null,
+      // });
+      return await sendTRPCMessage({
         subdomain,
-        action: "clientPortalUsers.findOne",
-        data: { _id: ownerId },
-        isRPC: true,
-        defaultValue: null,
+        pluginName: 'clientPortalUsers',
+        module: 'clientPortalUsers',
+        action: 'findOne',
+        input: { _id: ownerId },
       });
     default:
       return {};
@@ -127,35 +151,49 @@ export const targetFilter = async ({ filter, params, subdomain }) => {
   let stageIds: string[] = [];
   let dealIds: string[] = [];
 
-  filter.serviceName = "sales";
+  filter.serviceName = 'sales';
 
   if (stageId) {
     stageIds = [stageId];
   }
 
   if (stageIds.length) {
-    const deals = await sendCommonMessage({
-      serviceName: "sales",
+    // const deals = await sendCommonMessage({
+    //   serviceName: 'sales',
+    //   subdomain,
+    //   action: 'deals.find',
+    //   data: { stageId: { $in: stageIds } },
+    //   isRPC: true,
+    //   defaultValue: [],
+    // });
+    const deals = await sendTRPCMessage({
+      pluginName: 'sales',
+      module: 'deals',
       subdomain,
-      action: "deals.find",
-      data: { stageId: { $in: stageIds } },
-      isRPC: true,
+      action: 'find',
+      input: { stageId: { $in: stageIds } },
       defaultValue: [],
     });
-
     dealIds = deals.map((d) => d._id);
   }
 
   if (number) {
-    const dealsByNumber = await sendCommonMessage({
-      serviceName: "sales",
+    // const dealsByNumber = await sendCommonMessage({
+    //   serviceName: 'sales',
+    //   subdomain,
+    //   action: 'deals.find',
+    //   data: { number: { $regex: `${number}`, $options: 'mui' } },
+    //   isRPC: true,
+    //   defaultValue: [],
+    // });
+    const dealsByNumber = await sendTRPCMessage({
+      pluginName: 'sales',
+      module: 'deals',
       subdomain,
-      action: "deals.find",
-      data: { number: { $regex: `${number}`, $options: "mui" } },
-      isRPC: true,
+      action: 'find',
+      input: { number: { $regex: `${number}`, $options: 'mui' } },
       defaultValue: [],
     });
-
     dealIds = dealIds.length
       ? dealIds.filter((id) => dealsByNumber.some((d) => d._id === id))
       : dealsByNumber.map((d) => d._id);
@@ -168,7 +206,7 @@ export const targetFilter = async ({ filter, params, subdomain }) => {
 };
 
 export const scoreActiveUsers = async ({ models }) => {
-  const currentMonthStart = dayjs().subtract(1, "month").toDate();
+  const currentMonthStart = dayjs().subtract(1, 'month').toDate();
   const currentMonthEnd = dayjs().toDate();
 
   const monthlyActiveUsersPipeline = [
@@ -179,31 +217,31 @@ export const scoreActiveUsers = async ({ models }) => {
     },
     {
       $group: {
-        _id: "$ownerId",
+        _id: '$ownerId',
       },
     },
     {
-      $count: "count",
+      $count: 'count',
     },
   ];
 
   const [monthlyActiveUsers] = await models.ScoreLogs.aggregate(
-    monthlyActiveUsersPipeline
+    monthlyActiveUsersPipeline,
   );
 
   const totalActiveUsersPipeline = [
     {
       $group: {
-        _id: "$ownerId",
+        _id: '$ownerId',
       },
     },
     {
-      $count: "count",
+      $count: 'count',
     },
   ];
 
   const [totalActiveUsers] = await models.ScoreLogs.aggregate(
-    totalActiveUsersPipeline
+    totalActiveUsersPipeline,
   );
 
   return {
@@ -215,8 +253,8 @@ export const scoreActiveUsers = async ({ models }) => {
 export const scorePoint = async ({ doc, models, filter }) => {
   const { stageId, number } = doc;
 
-  const refundedTargetIds = await models.ScoreLogs.distinct("targetId", {
-    action: "refund",
+  const refundedTargetIds = await models.ScoreLogs.distinct('targetId', {
+    action: 'refund',
   });
 
   let filterAggregate: any[] = [];
@@ -225,14 +263,14 @@ export const scorePoint = async ({ doc, models, filter }) => {
     const lookup = [
       {
         $lookup: {
-          from: "deals",
-          localField: "targetId",
-          foreignField: "_id",
-          as: "target",
+          from: 'deals',
+          localField: 'targetId',
+          foreignField: '_id',
+          as: 'target',
         },
       },
       {
-        $unwind: "$target",
+        $unwind: '$target',
       },
     ];
 
@@ -242,8 +280,8 @@ export const scorePoint = async ({ doc, models, filter }) => {
   const totalPointEarned = {
     $sum: {
       $cond: {
-        if: { $eq: ["$action", "add"] },
-        then: "$changeScore",
+        if: { $eq: ['$action', 'add'] },
+        then: '$changeScore',
         else: 0,
       },
     },
@@ -252,8 +290,8 @@ export const scorePoint = async ({ doc, models, filter }) => {
   const totalPointRedeemed = {
     $sum: {
       $cond: {
-        if: { $eq: ["$action", "subtract"] },
-        then: { $abs: "$changeScore" },
+        if: { $eq: ['$action', 'subtract'] },
+        then: { $abs: '$changeScore' },
         else: 0,
       },
     },
@@ -282,7 +320,7 @@ export const scorePoint = async ({ doc, models, filter }) => {
         totalPointEarned: 1,
         totalPointRedeemed: 1,
         totalPointBalance: {
-          $subtract: ["$totalPointEarned", "$totalPointRedeemed"],
+          $subtract: ['$totalPointEarned', '$totalPointRedeemed'],
         },
       },
     },
@@ -306,14 +344,14 @@ export const scoreProducts = async ({ doc, models, filter }) => {
     const lookup = [
       {
         $lookup: {
-          from: "deals",
-          localField: "targetId",
-          foreignField: "_id",
-          as: "target",
+          from: 'deals',
+          localField: 'targetId',
+          foreignField: '_id',
+          as: 'target',
         },
       },
       {
-        $unwind: "$target",
+        $unwind: '$target',
       },
     ];
 
@@ -333,41 +371,41 @@ export const scoreProducts = async ({ doc, models, filter }) => {
     },
     {
       $lookup: {
-        from: "deals",
-        localField: "targetId",
-        foreignField: "_id",
-        as: "dealTarget",
+        from: 'deals',
+        localField: 'targetId',
+        foreignField: '_id',
+        as: 'dealTarget',
       },
     },
     {
       $unwind: {
-        path: "$dealTarget",
+        path: '$dealTarget',
         preserveNullAndEmptyArrays: true,
       },
     },
     {
       $unwind: {
-        path: "$dealTarget.productsData",
+        path: '$dealTarget.productsData',
         preserveNullAndEmptyArrays: true,
       },
     },
     {
       $lookup: {
-        from: "pos_orders",
-        localField: "targetId",
-        foreignField: "_id",
-        as: "orderTarget",
+        from: 'pos_orders',
+        localField: 'targetId',
+        foreignField: '_id',
+        as: 'orderTarget',
       },
     },
     {
       $unwind: {
-        path: "$orderTarget",
+        path: '$orderTarget',
         preserveNullAndEmptyArrays: true,
       },
     },
     {
       $unwind: {
-        path: "$orderTarget.items",
+        path: '$orderTarget.items',
         preserveNullAndEmptyArrays: true,
       },
     },
@@ -375,41 +413,41 @@ export const scoreProducts = async ({ doc, models, filter }) => {
       $addFields: {
         productId: {
           $ifNull: [
-            "$orderTarget.items.productId",
-            "$dealTarget.productsData.productId",
+            '$orderTarget.items.productId',
+            '$dealTarget.productsData.productId',
           ],
         },
       },
     },
     {
       $group: {
-        _id: "$productId",
+        _id: '$productId',
         count: { $sum: 1 },
       },
     },
     {
       $lookup: {
-        from: "products",
-        localField: "_id",
-        foreignField: "_id",
-        as: "product",
+        from: 'products',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'product',
       },
     },
-    { $unwind: "$product" },
+    { $unwind: '$product' },
     {
       $lookup: {
-        from: "product_categories",
-        localField: "product.categoryId",
-        foreignField: "_id",
-        as: "productCategory",
+        from: 'product_categories',
+        localField: 'product.categoryId',
+        foreignField: '_id',
+        as: 'productCategory',
       },
     },
-    { $unwind: "$productCategory" },
+    { $unwind: '$productCategory' },
     {
       $group: {
-        _id: "$productCategory._id",
-        name: { $first: "$productCategory.name" },
-        totalCount: { $sum: "$count" },
+        _id: '$productCategory._id',
+        name: { $first: '$productCategory.name' },
+        totalCount: { $sum: '$count' },
       },
     },
     {
@@ -419,7 +457,7 @@ export const scoreProducts = async ({ doc, models, filter }) => {
   ]);
 
   return {
-    mostRedeemedProductCategory: mostRedeemedProductCategory?.name || "",
+    mostRedeemedProductCategory: mostRedeemedProductCategory?.name || '',
   };
 };
 

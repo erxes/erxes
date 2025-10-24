@@ -9,6 +9,12 @@ import {
   SCORE_CAMPAIGN_STATUSES,
 } from '~/modules/loyalty/@types/scoreCampaigns';
 import { scoreCampaignSchema } from '~/modules/loyalty/db/definitions/scoreCampaigns';
+import {
+  putCreateLog,
+  putDeleteLog,
+  putUpdateLog,
+} from '~/modules/loyalty/logUtils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 type DoCampaingTypes = {
   serviceName: string;
@@ -72,16 +78,24 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
     ) {
       if (doc.fieldGroupId) {
         if (doc.fieldId) {
-          const field = await sendCoreMessage({
+          // const field = await sendCoreMessage({
+          //   subdomain,
+          //   action: 'fields.findOne',
+          //   data: {
+          //     query: { _id: doc.fieldId },
+          //   },
+          //   defaultValue: null,
+          //   isRPC: true,
+          // });
+          const field = await sendTRPCMessage({
             subdomain,
-            action: 'fields.findOne',
-            data: {
+            pluginName: 'core',
+            module: 'fields',
+            action: 'findOne',
+            input: {
               query: { _id: doc.fieldId },
             },
-            defaultValue: null,
-            isRPC: true,
           });
-
           if (!field) {
             throw new Error('Cannot find field from database');
           }
@@ -94,10 +108,26 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
             throw new Error('Please provide a field name that for score field');
           }
 
-          const field = await sendCoreMessage({
+          // const field = await sendCoreMessage({
+          //   subdomain,
+          //   action: 'fields.create',
+          //   data: {
+          //     text: doc.fieldName,
+          //     groupId: doc.fieldGroupId,
+          //     type: 'input',
+          //     validation: 'number',
+          //     contentType: `core:${doc.ownerType}`,
+          //     isDisabled: true,
+          //   },
+          //   defaultValue: null,
+          //   isRPC: true,
+          // });
+          const field = await sendTRPCMessage({
             subdomain,
-            action: 'fields.create',
-            data: {
+            pluginName: 'core',
+            module: 'fields',
+            action: 'create',
+            input: {
               text: doc.fieldName,
               groupId: doc.fieldGroupId,
               type: 'input',
@@ -105,10 +135,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
               contentType: `core:${doc.ownerType}`,
               isDisabled: true,
             },
-            defaultValue: null,
-            isRPC: true,
           });
-
           doc.fieldId = field._id;
         }
       }
@@ -158,14 +185,24 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       }
 
       if (Object.keys(modifiedFieldData).length > 0) {
-        await sendCoreMessage({
+        // await sendCoreMessage({
+        //   subdomain,
+        //   action: 'fields.updateOne',
+        //   data: {
+        //     selector: { _id: scoreCampaign.fieldId },
+        //     modifier: { $set: modifiedFieldData },
+        //   },
+        //   isRPC: true,
+        // });
+        await sendTRPCMessage({
           subdomain,
-          action: 'fields.updateOne',
-          data: {
+          pluginName: 'core',
+          module: 'fields',
+          action: 'updateOne',
+          input: {
             selector: { _id: scoreCampaign.fieldId },
             modifier: { $set: modifiedFieldData },
           },
-          isRPC: true,
         });
       }
       await putUpdateLog(
@@ -336,16 +373,24 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       }
 
       if (campaign.onlyClientPortal && ownerType === 'customer') {
-        const cpUser = await sendClientPortalMessage({
+        // const cpUser = await sendClientPortalMessage({
+        //   subdomain,
+        //   action: 'clientPortalUsers.findOne',
+        //   data: {
+        //     erxesCustomerId: owner._id,
+        //   },
+        //   isRPC: true,
+        //   defaultValue: null,
+        // });
+        const cpUser = await sendTRPCMessage({
           subdomain,
-          action: 'clientPortalUsers.findOne',
-          data: {
+          pluginName: 'clientPortalUsers',
+          module: 'clientPortalUsers',
+          action: 'findOne',
+          input: {
             erxesCustomerId: owner._id,
           },
-          isRPC: true,
-          defaultValue: null,
         });
-
         if (!cpUser) {
           throw new Error(
             'This campaign is only available to client portal users.',
@@ -452,14 +497,20 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
 
       let updatedCustomFieldsData;
 
-      const [preparedCustomFieldsData] = await sendCoreMessage({
+      // const [preparedCustomFieldsData] = await sendCoreMessage({
+      //   subdomain,
+      //   action: 'fields.prepareCustomFieldsData',
+      //   data: [{ field: campaign.fieldId, value: newScore }],
+      //   defaultValue: [],
+      //   isRPC: true,
+      // });
+      const [preparedCustomFieldsData] = await sendTRPCMessage({
         subdomain,
-        action: 'fields.prepareCustomFieldsData',
-        data: [{ field: campaign.fieldId, value: newScore }],
-        defaultValue: [],
-        isRPC: true,
+        pluginName: 'fields',
+        module: 'fields',
+        action: 'prepareCustomFieldsData',
+        input: [{ field: campaign.fieldId, value: newScore }],
       });
-
       if (
         !customFieldsData ||
         !(customFieldsData || []).find(
@@ -588,14 +639,21 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
           : customFieldData,
       );
 
-      const preparedCustomFieldsData = await sendCoreMessage({
+      // const preparedCustomFieldsData = await sendCoreMessage({
+      //   subdomain,
+      //   action: 'fields.prepareCustomFieldsData',
+      //   data: updatedCustomFieldsData,
+      //   defaultValue: [],
+      //   isRPC: true,
+      // });
+      const preparedCustomFieldsData = await sendTRPCMessage({
         subdomain,
-        action: 'fields.prepareCustomFieldsData',
-        data: updatedCustomFieldsData,
+        pluginName: 'fields',
+        module: 'fields',
+        action: 'prepareCustomFieldsData',
+        input: updatedCustomFieldsData,
         defaultValue: [],
-        isRPC: true,
       });
-
       await this.updateOwnerScore({
         ownerId,
         ownerType,
@@ -625,15 +683,26 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         customer: 'customers.updateOne',
         company: 'companies.updateOne',
       };
-      return await sendCoreMessage({
+      // return await sendCoreMessage({
+      //   subdomain,
+      //   action: actionsObj[ownerType],
+      //   data: {
+      //     selector: { _id: ownerId },
+      //     modifier: { $set: { customFieldsData: updatedCustomFieldsData } },
+      //   },
+      //   isRPC: true,
+      //   defaultValue: null,
+      // });
+      return await sendTRPCMessage({
         subdomain,
+        pluginName: 'core',
+        module: 'unknown',
         action: actionsObj[ownerType],
-        data: {
+        input: {
           selector: { _id: ownerId },
           modifier: { $set: { customFieldsData: updatedCustomFieldsData } },
         },
-        isRPC: true,
-        defaultValue: null,
+        defaultValue: [],
       });
     }
   }

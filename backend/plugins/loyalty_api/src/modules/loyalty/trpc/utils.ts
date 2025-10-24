@@ -51,6 +51,7 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
   //   defaultValue: [],
   // });
   const childs = await sendTRPCMessage({
+    subdomain: subdomain,
     pluginName: 'core',
     module: 'categories',
     action: 'withChilds',
@@ -72,6 +73,7 @@ export const getChildTags = async (subdomain: string, tagIds) => {
   //   defaultValue: [],
   // });
   const childs = await sendTRPCMessage({
+    subdomain: subdomain,
     pluginName: 'core',
     module: 'tag',
     action: 'tagWithChilds',
@@ -143,6 +145,7 @@ export const applyRestriction = async ({
   //   defaultValue: [],
   // });
   const productDocs = await sendTRPCMessage({
+    subdomain: subdomain,
     pluginName: 'core',
     module: 'products',
     action: 'find',
@@ -304,8 +307,8 @@ export const checkVouchersSale = async (
     // });
 
     const customerRelatedClientPortalUser = await sendTRPCMessage({
+      subdomain: subdomain,
       pluginName: 'clientportal',
-
       module: 'clientportalUsers',
       action: 'findOne',
       input: {
@@ -473,8 +476,8 @@ export const confirmVoucherSale = async (
     //   defaultValue: null,
     // });
     const customerRelatedClientPortalUser = await sendTRPCMessage({
+      subdomain: subdomain,
       pluginName: 'clientportal',
-
       module: 'clientportalUsers',
       action: 'findOne',
       input: { query: { erxesCustomerId: extraInfo.ownerId } },
@@ -552,6 +555,7 @@ export const isInSegment = async (
   //   isRPC: true,
   // });
   const response = await sendTRPCMessage({
+    subdomain: subdomain,
     pluginName: 'core',
     module: 'segment',
     action: 'isInSegment',
@@ -657,7 +661,7 @@ export const handleLoyaltyReward = async ({ subdomain }) => {
     const query = collections[collectionName](NOW_MONTH) || {};
 
     if (VERSION && VERSION === 'saas') {
-      const orgs = []; //await getOrganizations();
+      const orgs: any = []; //await getOrganizations();
       // todo
       const enabledOrganizations = orgs.filter((org) => !org?.isDisabled);
 
@@ -670,16 +674,15 @@ export const handleLoyaltyReward = async ({ subdomain }) => {
         //     isRPC: true,
         //     defaultValue: [],
         //   })) || [];
-        const targets =
-          (await sendTRPCMessage({
-            pluginName: 'core',
-            module: 'segment',
-            action: `${collectionName}.find`,
-            input: { query },
-            defaultValue: null,
-          })) || [];
-
-        if (targets.length === 0) return;
+        // const targets =
+        //   (await sendTRPCMessage({
+        //     pluginName: 'core',
+        //     module: 'segment',
+        //     action: `${collectionName}.find`,
+        //     input: { query },
+        //     defaultValue: null,
+        //   })) || [];
+        // if (targets.length === 0) return;
       }
       continue;
     } else {
@@ -691,16 +694,16 @@ export const handleLoyaltyReward = async ({ subdomain }) => {
       //     isRPC: true,
       //     defaultValue: [],
       //   })) || [];
-      const targets =
-        (await sendTRPCMessage({
-          pluginName: 'core',
-          module: 'segment',
-          action: `${collectionName}.find`,
-          input: { query },
-          defaultValue: null,
-        })) || [];
-      if (targets.length === 0) return;
-
+      // const targets =
+      //   (await sendTRPCMessage({
+      //   subdomain: subdomain,
+      //     pluginName: 'core',
+      //     module: 'segment',
+      //     action: `${collectionName}.find`,
+      //     input: { query },
+      //     defaultValue: null,
+      //   })) || [];
+      // if (targets.length === 0) return;
       // sendCommonMessage({
       //   subdomain,
       //   serviceName: 'automations',
@@ -712,13 +715,14 @@ export const handleLoyaltyReward = async ({ subdomain }) => {
       //   defaultValue: [],
       //   isRPC: true,
       // });
-      await sendTRPCMessage({
-        pluginName: 'core',
-        module: 'automations',
-        action: `trigger`,
-        input: { type: 'loyalties:reward', targets },
-        defaultValue: [],
-      });
+      // await sendTRPCMessage({
+      //   subdomain: subdomain,
+      //   pluginName: 'core',
+      //   module: 'automations',
+      //   action: `trigger`,
+      //   input: { type: 'loyalties:reward', targets },
+      //   defaultValue: [],
+      // });
     }
   }
 };
