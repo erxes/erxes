@@ -12,7 +12,7 @@ import { redlock } from '../../redlock';
 import {
   ICallHistory,
   ICallHistoryEdit,
-} from '~/modules/integrations/call/@types/histories';
+} from '@/integrations/call/@types/histories';
 import { getEnv, graphqlPubsub } from 'erxes-api-shared/utils';
 
 export interface ISession {

@@ -24,7 +24,7 @@ export const cycleQueries = {
           ...params,
           orderBy: { isActive: -1, isCompleted: 1, startDate: 1 },
         },
-        query: { teamId: params.teamId, isCompleted: false },
+        query: { teamId: params.teamId },
       },
     );
 
@@ -81,9 +81,9 @@ export const cycleQueries = {
   getCycleProgressChart: async (
     _parent: undefined,
     { _id, assigneeId },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) => {
-    return getCycleProgressChart(_id, assigneeId, models);
+    return getCycleProgressChart(subdomain, _id, assigneeId, models);
   },
 
   getCycleProgressByMember: async (

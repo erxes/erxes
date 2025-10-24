@@ -1,8 +1,8 @@
 import { FrontlineActions } from '@/FrontlineActions';
 import { ChooseIntegrationTypeContent } from '@/integrations/components/ChooseIntegrationType';
-import { NavigationMenuGroup } from 'erxes-ui';
+import { NavigationMenuGroup, Sidebar } from 'erxes-ui';
 import { useLocation } from 'react-router-dom';
-
+import { ChooseChannel } from '@/inbox/channel/components/ChooseChannel';
 export const FrontlineSubGroups = () => {
   const location = useLocation();
 
@@ -12,6 +12,11 @@ export const FrontlineSubGroups = () => {
 
   return (
     <>
+      <Sidebar.Group>
+        <Sidebar.GroupLabel asChild>
+          <ChooseChannel />
+        </Sidebar.GroupLabel>
+      </Sidebar.Group>
       <FrontlineActions />
       <NavigationMenuGroup name="Integration types">
         <ChooseIntegrationTypeContent />

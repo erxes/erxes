@@ -3,7 +3,7 @@ import { initTRPC } from '@trpc/server';
 import { ITRPCContext } from 'erxes-api-shared/utils';
 
 import { z } from 'zod';
-import { generateFacebookFields } from '~/modules/integrations/facebook/fieldUtils';
+import { generateFacebookFields } from '@/integrations/facebook/fieldUtils';
 import { IModels } from './connectionResolvers';
 import { conversationTrpcRouter } from './modules/inbox/trpc/conversation';
 import { inboxTrpcRouter } from './modules/inbox/trpc/inbox';
@@ -23,17 +23,17 @@ export const appRouter = t.mergeRouters(
         .input(
           z.object({
             moduleType: z.string(),
-            collectionType: z.string().optional(),
+            collectionType: z.string(),
             segmentId: z.string().optional(),
             usageType: z.string().optional(),
             config: z.record(z.any()).optional(),
           }),
         )
         .query(async ({ ctx, input }) => {
-          const { models } = ctx;
+          const { models, subdomain } = ctx;
           const { moduleType } = input;
           if (moduleType === 'facebook') {
-            return await generateFacebookFields(models, input);
+            return await generateFacebookFields(models, subdomain, input);
           }
 
           return [];

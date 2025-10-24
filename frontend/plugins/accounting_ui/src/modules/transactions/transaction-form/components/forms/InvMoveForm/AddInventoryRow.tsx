@@ -4,6 +4,7 @@ import { Button } from 'erxes-ui';
 import { useWatch } from 'react-hook-form';
 import { ITransactionGroupForm, TInvDetail } from '../../../types/JournalForms';
 import { getTempId } from '../../utils';
+import { SelectProductsBulk } from 'ui-modules';
 
 export const AddDetailRowButton = ({
   append,
@@ -15,6 +16,12 @@ export const AddDetailRowButton = ({
   append: (detail: TInvDetail | TInvDetail[]) => void;
 }) => {
   const { control } = form;
+  const productIds = useWatch({
+    control,
+    name: `trDocs.${journalIndex}.details`,
+  })
+    .map((detail) => detail.productId || '')
+    .filter((productId) => !!productId);
 
   const preDetails = useWatch({
     control,
@@ -43,20 +50,22 @@ export const AddDetailRowButton = ({
         <IconPlus />
         Add Empty Row
       </Button>
-      <Button
-        variant="secondary"
-        className="bg-border"
-        onClick={() =>
-          append([
-            detailDefaultValues,
-            detailDefaultValues,
-            detailDefaultValues,
-          ])
-        }
+      <SelectProductsBulk
+        productIds={productIds}
+        onSelect={(productIds) => {
+          append(
+            productIds.map((productId) => ({
+              ...detailDefaultValues,
+              productId,
+            })),
+          );
+        }}
       >
-        <IconPlus />
-        Add Many Products
-      </Button>
+        <Button variant="secondary" className="bg-border">
+          <IconPlus />
+          Add Many Products
+        </Button>
+      </SelectProductsBulk>
     </>
   );
 };

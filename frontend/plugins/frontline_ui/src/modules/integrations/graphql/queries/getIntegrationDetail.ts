@@ -6,7 +6,6 @@ export const GET_INTEGRATION_DETAIL = gql`
       _id
       kind
       name
-      brandId
       languageCode
       code
       tagIds
@@ -15,11 +14,13 @@ export const GET_INTEGRATION_DETAIL = gql`
       messengerData
       uiOptions
       isConnected
-      channels {
+      channel {
         _id
+        name
       }
       departmentIds
       details
+      facebookPage
       callData {
         secondPageHeader
         secondPageDescription

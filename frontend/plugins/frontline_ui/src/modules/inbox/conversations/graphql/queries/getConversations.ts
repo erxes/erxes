@@ -10,7 +10,6 @@ export const GET_CONVERSATIONS = gql`
     $channelId: String
     $status: String
     $unassigned: String
-    $brandId: String
     $tag: String
     $integrationType: String
     $starred: String
@@ -25,7 +24,6 @@ export const GET_CONVERSATIONS = gql`
       channelId: $channelId
       status: $status
       unassigned: $unassigned
-      brandId: $brandId
       tag: $tag
       integrationType: $integrationType
       starred: $starred
@@ -37,23 +35,48 @@ export const GET_CONVERSATIONS = gql`
       ${GQL_CURSOR_PARAMS}
     ) {
       list {
+      _id
+      content
+      createdAt
+      updatedAt
+      integrationId
+      customer {
         _id
-        content
-        createdAt
-        updatedAt
-        integrationId
-        customer {
-          _id
-          firstName
-          middleName
-          lastName
-          primaryEmail
-          avatar
-          primaryPhone
-        }
-        readUserIds
-        tagIds
+        firstName
+        middleName
+        lastName
+        primaryEmail
+        avatar
+        primaryPhone
+        __typename
       }
+      readUserIds
+      tagIds
+      __typename
+      assignedUserId
+      assignedUser {
+        _id
+        details {
+          avatar
+          fullName
+        }
+      }
+      integration {
+        _id
+        channelId
+        kind
+        name
+        channel {
+          updatedAt
+          name
+          memberCount
+          icon
+          description
+          createdAt
+          _id
+        }
+      }
+    }
       ${GQL_PAGE_INFO}
     }
   }

@@ -5,8 +5,8 @@ import { IModels } from '~/connectionResolvers';
 import {
   ICallCustomer,
   ICustomerDocument,
-} from '~/modules/integrations/call/@types/customers';
-import { customerSchema } from '~/modules/integrations/call/db/definitions/customers';
+} from '@/integrations/call/@types/customers';
+import { customerSchema } from '@/integrations/call/db/definitions/customers';
 
 export interface ICallCustomerModel extends Model<ICustomerDocument> {
   getCustomer(_id: string): Promise<ICustomerDocument>;

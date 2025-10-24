@@ -1,39 +1,39 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
+import { DateSelectTask } from '@/task/components/task-selects/DateSelectTask';
+import { SelectAssigneeTask } from '@/task/components/task-selects/SelectAssigneeTask';
+import { SelectCycle } from '@/task/components/task-selects/SelectCycle';
+import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstimatedPointTask';
+import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
+import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
+import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
+import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
+import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
+import { ITask } from '@/task/types';
+import { ITeam } from '@/team/types';
 import {
   IconAlertSquareRounded,
-  IconClipboard,
   IconCalendarFilled,
+  IconClipboard,
   IconHash,
   IconLabelFilled,
   IconProgressCheck,
+  IconRestore,
   IconUser,
   IconUsersGroup,
-  IconRestore,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
-import { DateSelectTask } from '@/task/components/task-selects/DateSelectTask';
-import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
+import clsx from 'clsx';
 import {
-  Badge,
   Input,
+  PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
-  PopoverScoped,
 } from 'erxes-ui';
-import { ITask } from '@/task/types';
-import { useState } from 'react';
-import { ITeam } from '@/team/types';
-import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
-import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstimatedPointTask';
-import clsx from 'clsx';
-import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
-import { SelectAssigneeTask } from '@/task/components/task-selects/SelectAssigneeTask';
-import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
-import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
-import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
 import { useSetAtom } from 'jotai';
-import { SelectCycle } from '@/task/components/task-selects/SelectCycle';
+import { useState } from 'react';
+import { SelectMilestone } from './task-selects/SelectMilestone';
 
 export const tasksColumns = (
   _teams: ITeam[] | undefined,
@@ -215,7 +215,24 @@ export const tasksColumns = (
       },
       size: 240,
     },
-
+    {
+      id: 'milestoneId',
+      accessorKey: 'milestoneId',
+      header: () => (
+        <RecordTable.InlineHead label="Milestone" icon={IconClipboard} />
+      ),
+      cell: ({ cell }) => {
+        return (
+          <SelectMilestone
+            value={cell.row.original.milestoneId || ''}
+            taskId={cell.row.original._id}
+            projectId={cell.row.original.projectId}
+            variant="table"
+          />
+        );
+      },
+      size: 240,
+    },
     {
       id: 'teamId',
       header: () => (

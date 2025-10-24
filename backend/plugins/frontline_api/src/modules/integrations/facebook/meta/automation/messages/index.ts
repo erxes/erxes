@@ -9,9 +9,9 @@ import {
 import { AutomationExecutionSetWaitCondition } from 'erxes-api-shared/core-modules';
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { IFacebookConversationDocument } from '~/modules/integrations/facebook/@types/conversations';
-import { IFacebookCustomerDocument } from '~/modules/integrations/facebook/@types/customers';
-import { TBotConfigMessage } from '~/modules/integrations/facebook/meta/automation/types/automationTypes';
+import { IFacebookConversationDocument } from '@/integrations/facebook/@types/conversations';
+import { IFacebookCustomerDocument } from '@/integrations/facebook/@types/customers';
+import { TBotConfigMessage } from '@/integrations/facebook/meta/automation/types/automationTypes';
 import { generateMessages, getData, sendMessage } from './utils';
 
 export const checkMessageTrigger = async (

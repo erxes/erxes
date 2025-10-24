@@ -1,4 +1,4 @@
-import { channelQueries } from '@/inbox/graphql/resolvers/queries/channels';
+import { channelQueries } from '@/channel/graphql/resolvers/queries/channel';
 import { conversationQueries } from '@/inbox/graphql/resolvers/queries/conversations';
 import { integrationQueries } from '@/inbox/graphql/resolvers/queries/integrations';
 import { facebookQueries } from '@/integrations/facebook/graphql/resolvers/queries';

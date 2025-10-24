@@ -131,8 +131,9 @@ export const AssignToField = ({ form, index }: ICommonFieldProps) => (
         <Form.Label>Assign To</Form.Label>
         <Form.Control>
           <SelectMember.FormItem
-            onValueChange={(user) => field.onChange(user)}
+            onValueChange={(users) => field.onChange(users || [])}
             value={field.value}
+            mode='multiple'
           />
         </Form.Control>
         <Form.Message />

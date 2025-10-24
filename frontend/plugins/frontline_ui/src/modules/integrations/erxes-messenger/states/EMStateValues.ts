@@ -32,9 +32,8 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
   return (config: z.infer<typeof EM_CONFIG_SCHEMA>) => ({
     createVariables: {
       name: config?.name,
-      brandId: config?.brandId,
+      channelId: config?.channelId,
       languageCode: settings?.languageCode || DEFAULT_LANGUAGE,
-      channelIds: config?.channelIds || [],
     },
     saveConfigVariables: {
       messengerData: {

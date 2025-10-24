@@ -1,14 +1,24 @@
-import { IconBriefcase, IconCashRegister } from '@tabler/icons-react';
-import { lazy, Suspense } from 'react';
+import {
+  IconBriefcase,
+  IconCashRegister,
+  IconSandbox,
+} from '@tabler/icons-react';
+import { Suspense, lazy } from 'react';
+
+const MainNavigation = lazy(() =>
+  import('./modules/MainNavigation').then((module) => ({
+    default: module.MainNavigation,
+  })),
+);
 
 const SalesNavigation = lazy(() =>
-  import('./modules/navigation/SalesNavigation').then((module) => ({
+  import('./modules/SalesNavigation').then((module) => ({
     default: module.SalesNavigation,
   })),
 );
 
 const PosOrderNavigation = lazy(() =>
-  import('./modules/navigation/PosOrderNavigation').then((module) => ({
+  import('./modules/pos/PosOrderNavigation').then((module) => ({
     default: module.PosOrderNavigation,
   })),
 );
@@ -23,23 +33,29 @@ export const CONFIG = {
     icon: IconBriefcase,
     content: () => (
       <Suspense fallback={<div />}>
-        <SalesNavigation />
+        <MainNavigation />
       </Suspense>
     ),
     subGroups: () => (
       <Suspense fallback={<div />}>
+        <SalesNavigation />
         <PosOrderNavigation />
       </Suspense>
     ),
   },
   modules: [
     {
-      name: 'sales',
-      icon: IconBriefcase,
-      path: 'sales',
-      hasSettings: false,
+      name: 'deals',
+      icon: IconSandbox,
+      path: 'deals',
+      hasSettings: true,
+    },
+    {
+      name: 'pos',
+      icon: IconCashRegister,
+      path: 'pos',
+      hasSettings: true,
       hasRelationWidget: true,
-      hasFloatingWidget: false,
     },
   ],
 };

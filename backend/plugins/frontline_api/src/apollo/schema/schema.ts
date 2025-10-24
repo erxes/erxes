@@ -3,7 +3,7 @@ import {
   mutations as ChannelsMutations,
   queries as ChannelsQueries,
   types as ChannelsTypes,
-} from '@/inbox/graphql/schemas/channel';
+} from '@/channel/graphql/schemas/channel';
 
 import {
   mutations as ConversationsMutations,

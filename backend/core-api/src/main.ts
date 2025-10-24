@@ -1,12 +1,13 @@
 import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import { isDev } from 'erxes-api-shared/utils';
+import { isDev, setupTRPCRoute } from 'erxes-api-shared/utils';
 import express from 'express';
 import * as http from 'http';
 import { appRouter } from '~/init-trpc';
 import { initApolloServer } from './apollo/apolloServer';
 import { router } from './routes';
+import * as dotenv from 'dotenv';
 
 import {
   closeMongooose,
@@ -21,7 +22,8 @@ import { generateModels } from './connectionResolvers';
 import meta from './meta';
 import './meta/automations';
 import './segments';
-import { json } from 'stream/consumers';
+
+dotenv.config();
 
 const { DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_DOMAINS } = process.env;
 
@@ -40,29 +42,21 @@ app.use(
 
 app.use(cookieParser());
 
-const allowedOrigins = [
-  ...(DOMAIN ? [DOMAIN] : []),
-  ...(isDev ? ['http://localhost:3001', 'http://localhost:5173'] : []),
-  ...(ALLOWED_DOMAINS || '').split(','),
-  ...(CLIENT_PORTAL_DOMAINS || '').split(','),
-  ...(process.env.ALLOWED_ORIGINS || '').split(',').map((c) => c && RegExp(c)),
-];
-
 const corsOptions = {
   credentials: true,
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ''))) {
-      callback(null, true);
-    } else {
-      console.error('Origin not allowed:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: [
+    DOMAIN || 'http://localhost:3001',
+    ...(isDev ? ['http://localhost:3001'] : []),
+    ALLOWED_DOMAINS || 'http://localhost:3200',
+    ...(CLIENT_PORTAL_DOMAINS || '').split(','),
+    ...(process.env.ALLOWED_ORIGINS || '')
+      .split(',')
+      .map((c) => c && RegExp(c)),
+  ],
 };
 
-console.log('allowedOrigins', JSON.stringify(allowedOrigins, null, 2));
-
 app.use(cors(corsOptions));
+
 app.options('*', cors(corsOptions));
 app.use(router);
 
@@ -86,19 +80,16 @@ app.get('/subscriptionPlugin.js', fileLimiter, async (_req, res) => {
   res.sendFile(apolloSubscriptionPath);
 });
 
-app.use(
-  '/trpc',
-  trpcExpress.createExpressMiddleware({
-    router: appRouter,
-    createContext: createTRPCContext(async (subdomain, context) => {
-      const models = await generateModels(subdomain);
+setupTRPCRoute(app, {
+  router: appRouter,
+  createContext: async (subdomain, context) => {
+    const models = await generateModels(subdomain);
 
-      context.models = models;
+    context.models = models;
 
-      return context;
-    }),
-  }),
-);
+    return context;
+  },
+});
 
 app.get('/health', async (_req, res) => {
   res.end('ok');

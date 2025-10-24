@@ -6,13 +6,13 @@ import FormData from 'form-data';
 import momentTz from 'moment-timezone';
 
 import type { RequestInit, HeadersInit } from 'node-fetch';
-import redis from '~/modules/integrations/call/redlock';
+import redis from '@/integrations/call/redlock';
 import { IModels, generateModels } from '~/connectionResolvers';
 import { getEnv } from 'erxes-api-shared/utils';
-import { ICallIntegrationDocument } from '~/modules/integrations/call/@types/integrations';
-import { receiveInboxMessage } from '~/modules/inbox/receiveMessage';
-import { ICallHistory } from '~/modules/integrations/call/@types/histories';
-import { ICallCdrDocument } from '~/modules/integrations/call/@types/cdrs';
+import { ICallIntegrationDocument } from '@/integrations/call/@types/integrations';
+import { receiveInboxMessage } from '@/inbox/receiveMessage';
+import { ICallHistory } from '@/integrations/call/@types/histories';
+import { ICallCdrDocument } from '@/integrations/call/@types/cdrs';
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET || 'secret';
 const MAX_RETRY_COUNT = 3;
@@ -684,7 +684,6 @@ export const checkForExistingIntegrations = async (
     wsServer: details.wsServer, // Match same wsServer
     queues: { $in: queues }, // Check if any queue already exists
   }).lean();
-
   if (existingIntegrations.length > 0) {
     existingIntegrations.forEach((existingIntegration) => {
       if (existingIntegration.inboxId.toString() !== integrationId.toString()) {
@@ -714,9 +713,8 @@ export const updateIntegrationQueues = async (
       integrationId,
     );
     const { queues } = checkedIntegration;
-
     // Prepare update data
-    const updateData = { $set: { queues, ...details } };
+    const updateData = { $set: { queues, ...details }, $upsert: true };
 
     // Update the integration
     const integration = await models.CallIntegrations.findOneAndUpdate(

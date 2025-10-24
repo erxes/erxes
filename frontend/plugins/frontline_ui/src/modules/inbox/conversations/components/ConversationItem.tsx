@@ -8,8 +8,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useConversationContext } from '../hooks/useConversationContext';
-import { useIntegrationInline } from '@/integrations/hooks/useIntegrations';
-import { BrandsInline, currentUserState, CustomersInline } from 'ui-modules';
+import { currentUserState, CustomersInline } from 'ui-modules';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { activeConversationState } from '../states/activeConversationState';
 import { ConversationIntegrationBadge } from '@/integrations/components/IntegrationBadge';
@@ -27,15 +26,9 @@ export const ConversationItem = ({
 }) => {
   const inboxLayout = useAtomValue(inboxLayoutState);
 
-  const { createdAt, updatedAt, customer, integrationId } =
+  const { createdAt, updatedAt, customer, integration } =
     useConversationContext();
-
-  const { integration } = useIntegrationInline({
-    variables: {
-      _id: integrationId,
-    },
-  });
-  const { brandId } = integration || {};
+  const { channel } = integration;
 
   if (inboxLayout === 'split') {
     return (
@@ -55,11 +48,13 @@ export const ConversationItem = ({
                   )}
                 </div>
               </div>
-              <div className="font-normal text-accent-foreground text-xs">
-                <BrandsInline
-                  brandIds={[brandId || '']}
-                  placeholder={brandId ? 'brand not found' : 'no brand'}
-                />
+              <div className="w-32 text-right flex-none">
+                <span> to </span>
+                {channel && <span title={channel.name}>{channel.name}</span>}
+                <span> via </span>
+                {integration && (
+                  <span title={integration.kind}>{integration.kind}</span>
+                )}
               </div>
             </div>
           </div>
@@ -75,8 +70,13 @@ export const ConversationItem = ({
         <ConversationSelector />
         <CustomersInline.Title className="w-56 truncate flex-none text-foreground" />
         <ConversationItemContent />
-        <div className="ml-auto font-medium text-accent-foreground w-32 truncate flex-none">
-          to <BrandsInline brandIds={[brandId || '']} />
+        <div className="w-32 text-right flex-none">
+          <span> to </span>
+          {channel && <span title={channel.name}>{channel.name}</span>}
+          <span> via </span>
+          {integration && (
+            <span title={integration.kind}>{integration.kind}</span>
+          )}
         </div>
         <div className="w-32 text-right flex-none">
           {createdAt && (

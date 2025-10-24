@@ -4,15 +4,13 @@ export const EDIT_INTEGRATION = gql`
   mutation IntegrationsEditCommonFields(
     $_id: String!
     $name: String!
-    $brandId: String!
-    $channelIds: [String]
+    $channelId: String!
     $details: JSON
   ) {
     integrationsEditCommonFields(
       _id: $_id
       name: $name
-      brandId: $brandId
-      channelIds: $channelIds
+      channelId: $channelId
       details: $details
     ) {
       _id

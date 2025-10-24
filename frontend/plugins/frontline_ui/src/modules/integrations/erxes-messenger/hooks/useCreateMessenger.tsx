@@ -18,7 +18,9 @@ export const useCreateMessenger = () => {
     SAVE_EM_CONFIGS_MUTATION,
   );
   const [saveAppearanceMutation, { loading: saveAppearanceLoading }] =
-    useMutation(SAVE_EM_APPEARANCE_MUTATION);
+    useMutation(SAVE_EM_APPEARANCE_MUTATION, {
+      refetchQueries: ['Integrations'],
+    });
 
   const readVariables = useAtomValue(erxesMessengerSetupValuesAtom);
 
@@ -38,6 +40,7 @@ export const useCreateMessenger = () => {
         saveConfigsMutation({
           variables: {
             _id,
+            channelId: createVariables.channelId,
             ...saveConfigVariables,
           },
           onError(e) {
@@ -51,6 +54,7 @@ export const useCreateMessenger = () => {
         saveAppearanceMutation({
           variables: {
             _id,
+            channelId: configFormValues.channelId,
             uiOptions,
           },
           onError(e) {

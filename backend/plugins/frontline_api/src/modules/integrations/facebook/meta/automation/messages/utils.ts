@@ -31,7 +31,7 @@ import {
   getUrl,
 } from '@/integrations/facebook/meta/automation/utils/messageUtils';
 import { sendReply } from '@/integrations/facebook/utils';
-import { IFacebookIntegrationDocument } from '~/modules/integrations/facebook/@types/integrations';
+import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
 
 export const generateMessages = async (
   subdomain: string,

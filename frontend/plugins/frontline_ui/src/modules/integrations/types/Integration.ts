@@ -2,9 +2,8 @@ export interface IIntegration {
   _id: string;
   name: string;
   kind: string;
-  brandId: string;
-  channelIds?: string[];
-  channels?: { _id: string }[];
+  channelId: string;
+  channel: any;
 }
 
 export interface IIntegrationDetail extends IIntegration {

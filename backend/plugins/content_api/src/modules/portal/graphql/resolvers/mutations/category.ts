@@ -1,83 +1,49 @@
-import {
-  checkPermission,
-  requireLogin,
-} from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
+import { BaseMutationResolver } from '@/portal/utils/base-resolvers';
+import { PermissionManager } from '@/portal/utils/permission-utils';
 
-const mutations = {
+class CategoryMutationResolver extends BaseMutationResolver {
   /**
    * Cms category add
    */
-  cmsCategoriesAdd: async (
-    _parent: any,
-    args: any,
-    context: IContext,
-  ): Promise<any> => {
-    const { models, clientPortalId } = context;
+  async cmsCategoriesAdd(_parent: any, args: any, context: IContext): Promise<any> {
     const { input } = args;
-
-    if (clientPortalId) {
-      input.clientPortalId = clientPortalId;
-    }
-
-    return models.Categories.createCategory(input);
-  },
+    return this.create(this.models.Categories, input);
+  }
 
   /**
    * Cms category edit
    */
-  cmsCategoriesEdit: async (
-    _parent: any,
-    args: any,
-    context: IContext,
-  ): Promise<any> => {
-    const { models, clientPortalId } = context;
+  async cmsCategoriesEdit(_parent: any, args: any, context: IContext): Promise<any> {
     const { _id, input } = args;
-
-    if (clientPortalId) {
-      input.clientPortalId = clientPortalId;
-    }
-
-    return models.Categories.updateCategory(_id, input);
-  },
+    return this.models.Categories.updateCategory(_id, input);
+  }
 
   /**
    * Cms category remove
    */
-  cmsCategoriesRemove: async (
-    _parent: any,
-    args: any,
-    context: IContext,
-  ): Promise<any> => {
-    const { models } = context;
+  async cmsCategoriesRemove(_parent: any, args: any, context: IContext): Promise<any> {
     const { _id } = args;
-
-    return models.Categories.deleteOne({ _id });
-  },
+    return this.remove(this.models.Categories, _id);
+  }
 
   /**
    * Cms category toggle status
    */
-  cmsCategoriesToggleStatus: async (
-    _parent: any,
-    args: any,
-    context: IContext,
-  ): Promise<any> => {
-    const { models } = context;
+  async cmsCategoriesToggleStatus(_parent: any, args: any, context: IContext): Promise<any> {
     const { _id } = args;
+    return this.models.Categories.toggleStatus(_id);
+  }
+}
 
-    return models.Categories.toggleStatus(_id);
-  },
+const resolver = new CategoryMutationResolver({} as IContext);
+const mutations = {
+  cmsCategoriesAdd: resolver.cmsCategoriesAdd.bind(resolver),
+  cmsCategoriesEdit: resolver.cmsCategoriesEdit.bind(resolver),
+  cmsCategoriesRemove: resolver.cmsCategoriesRemove.bind(resolver),
+  cmsCategoriesToggleStatus: resolver.cmsCategoriesToggleStatus.bind(resolver),
 };
 
-requireLogin(mutations, 'cmsCategoriesAdd');
-requireLogin(mutations, 'cmsCategoriesEdit');
-requireLogin(mutations, 'cmsCategoriesRemove');
-requireLogin(mutations, 'cmsCategoriesToggleStatus');
-
-checkPermission(mutations, 'cmsCategoriesAdd', 'manageCms', []);
-checkPermission(mutations, 'cmsCategoriesEdit', 'manageCms', []);
-checkPermission(mutations, 'cmsCategoriesRemove', 'manageCms', []);
-checkPermission(mutations, 'cmsCategoriesToggleStatus', 'manageCms', []);
+PermissionManager.applyCmsPermissions(mutations);
 
 export default mutations;

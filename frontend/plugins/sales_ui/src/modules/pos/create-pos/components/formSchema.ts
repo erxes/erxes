@@ -12,22 +12,26 @@ const uiOptionsSchema = z.object({
   receiptIcon: z.string().default(''),
   kioskHeaderImage: z.string().default(''),
   mobileAppImage: z.string().default(''),
-  qrCodeImage: z.string().default(''), 
+  qrCodeImage: z.string().default(''),
 });
 
 const productDetailSchema = z.object({
-  productId: z.string(),
-  categoryId: z.string().optional(),
+  excludedProductIds: z.array(z.string()).default([]),
+  excludedCategoryIds: z.array(z.string()).default([]),
+  categoryIds: z.array(z.string()).optional(),
   isRequired: z.boolean().default(false),
 });
 
 const catProdMappingSchema = z.object({
+  _id: z.string().optional(),
   categoryId: z.string(),
-  productIds: z.array(z.string()).default([]),
+  productId: z.string(),
+  name: z.string().optional(),
+  code: z.string().optional(),
 });
 
 const paymentTypeSchema = z.object({
-  _id: z.string().optional(), 
+  _id: z.string().optional(),
   type: z.string(),
   title: z.string(),
   icon: z.string(),
@@ -80,7 +84,7 @@ export const posDetailSchema = z.object({
     qrCodeImage: '',
   }),
   catProdMappings: z.array(catProdMappingSchema).default([]),
-  branchId: z.string().optional(), 
+  branchId: z.string().optional(),
   beginNumber: z.string().default(''),
   maxSkipNumber: z.number().min(0).default(5),
   scopeBrandIds: z.array(z.string()).default([]),
@@ -105,8 +109,8 @@ export const basicInfoSchema = z.object({
     .array(z.enum(['eat', 'take', 'delivery']))
     .min(1, 'At least one type is required'),
   scopeBrandIds: z.array(z.string()).default([]),
-  branchId: z.string().optional(), 
-  departmentId: z.string().optional(), 
+  branchId: z.string().optional(),
+  departmentId: z.string().optional(),
 });
 
 export const permissionSchema = z.object({
@@ -126,12 +130,13 @@ export const permissionSchema = z.object({
 });
 
 export const productSchema = z.object({
-  productDetails: z.array(productDetailSchema).default([]),
+  productDetails: z.array(z.string()).default([]),
   catProdMappings: z.array(catProdMappingSchema).default([]),
   initialCategoryIds: z.array(z.string()).default([]),
   kioskExcludeCategoryIds: z.array(z.string()).default([]),
   kioskExcludeProductIds: z.array(z.string()).default([]),
   checkExcludeCategoryIds: z.array(z.string()).default([]),
+  productGroups: z.array(productDetailSchema).default([]),
 });
 
 export const paymentSchema = z.object({
@@ -154,7 +159,7 @@ export const deliveryConfigSchema = z.object({
   assignedUsers: z.string().optional(),
   deliveryProduct: z.string().optional(),
   watchedUserIds: z.array(z.string()).default([]),
-  assignedUserIds: z.array(z.string()).default([])
+  assignedUserIds: z.array(z.string()).default([]),
 });
 
 export type BasicInfoFormValues = z.infer<typeof basicInfoSchema>;
@@ -186,7 +191,7 @@ export const combineFormData = (
     ...stepData.product,
     ...stepData.payment,
     ...stepData.uiConfig,
-    ...stepData.deliveryConfig, 
+    ...stepData.deliveryConfig,
     ...stepData.financeConfig,
     ...stepData.screenConfig,
   };

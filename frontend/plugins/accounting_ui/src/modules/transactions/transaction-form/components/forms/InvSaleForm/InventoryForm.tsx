@@ -2,7 +2,7 @@ import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import { Checkbox, RecordTableHotkeyProvider, Table, useSetHotkeyScope } from 'erxes-ui';
 import { useRef } from 'react';
 import { useFieldArray, useWatch } from 'react-hook-form';
-import { ITransactionGroupForm } from '../../../types/JournalForms';
+import { ITransactionGroupForm, TInvSaleJournal } from '../../../types/JournalForms';
 import { AddDetailRowButton } from './AddInventoryRow';
 import { InventoryRow } from './InventoryRow';
 import { RemoveButton } from './RemoveButton';
@@ -39,9 +39,9 @@ export const InventoryForm = ({
       >
         <InventoryTableHeader form={form} journalIndex={journalIndex} />
         <Table.Body className="overflow-hidden">
-          {fields.map((product, detailIndex) => (
+          {fields.map((detail, detailIndex) => (
             <InventoryRow
-              key={product.id}
+              key={detail._id}
               detailIndex={detailIndex}
               journalIndex={journalIndex}
               form={form}
@@ -77,7 +77,7 @@ const InventoryTableHeader = ({
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
-  });
+  }) as TInvSaleJournal;
 
   return (
     <Table.Header>

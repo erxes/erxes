@@ -1,4 +1,4 @@
-name: CI core-api
+name: CI plugin--core-api
 
 on:
   push:
@@ -21,14 +21,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
-          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
 
       - name: Install dependencies
         run: pnpm install
@@ -62,5 +61,5 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            erxes/erxes-next-core_api:latest
-            erxes/erxes-next-core_api:${{ github.sha }}
+            erxes/erxes-next-core-api:latest
+            erxes/erxes-next-core-api:${{ github.sha }}
