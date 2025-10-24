@@ -9,7 +9,12 @@ export const useDeleteTicketStatus = () => {
   const [_deleteStatus, { loading, error }] = useMutation(DELETE_TICKET_STATUS);
   const deleteStatus = (options: MutationHookOptions) => {
     return _deleteStatus({
-      refetchQueries: [GET_TICKET_STATUS_BY_TYPE],
+      refetchQueries: [
+        {
+          query: GET_TICKET_STATUS_BY_TYPE,
+          variables: { type: options.variables?.type },
+        },
+      ],
       onError: (e) => {
         toast({
           title: 'Error',

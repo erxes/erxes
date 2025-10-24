@@ -4,10 +4,10 @@ import { Button } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 export const PipelineDetailBreadcrumb = () => {
-  const { pipelineId } = useParams<{ pipelineId: string }>();
+  const { pipelineId, id } = useParams<{ pipelineId: string; id: string }>();
   const { pipeline } = useGetPipeline(pipelineId);
   return (
-    <Link to={`/settings/frontline/channels/${pipelineId}`}>
+    <Link to={`/settings/frontline/channels/${id}/pipelines/${pipelineId}`}>
       <Button variant="ghost" className="font-semibold">
         {pipeline?.name}
       </Button>

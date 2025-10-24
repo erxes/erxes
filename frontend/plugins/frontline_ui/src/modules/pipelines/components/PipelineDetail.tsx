@@ -14,7 +14,7 @@ export const PipelineDetail = () => {
   const { pipelineId } = useParams<{
     pipelineId: string;
   }>();
-  const { pipeline, loading } = useGetPipeline(pipelineId);
+  const { pipeline } = useGetPipeline(pipelineId);
 
   const { updatePipeline } = useUpdatePipeline();
 
@@ -27,7 +27,8 @@ export const PipelineDetail = () => {
       description: pipeline?.description || '',
       _id: pipelineId || '',
     });
-  }, [loading]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pipeline]);
 
   return (
     <div className="w-full px-4 sm:px-8 lg:px-16">

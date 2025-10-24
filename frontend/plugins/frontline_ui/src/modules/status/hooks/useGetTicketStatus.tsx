@@ -2,8 +2,7 @@ import { useQuery, QueryHookOptions } from '@apollo/client';
 import { GET_TICKET_STATUS_BY_TYPE } from '@/status/graphql/query/getTicketStatusByType';
 import { ITicketStatus, ITicketStatusChoice } from '@/status/types';
 import { useParams } from 'react-router';
-import { GET_TICKET_STATUS_BY_PIPELINE } from '../graphql/query/getTicketStatusesByPipelines';
-
+import { GET_TICKET_STATUS_BY_PIPELINE } from '@/status/graphql/query/getTicketStatusesByPipelines';
 
 interface IUseGetTicketStatusByTypeResponse {
   getTicketStatusesByType: ITicketStatus[];
@@ -19,7 +18,7 @@ export const useGetTicketStatus = (options?: QueryHookOptions) => {
         pipelineId,
         ...options?.variables,
       },
-      skip: !pipelineId
+      skip: !pipelineId,
     },
   );
 
@@ -29,24 +28,25 @@ export const useGetTicketStatus = (options?: QueryHookOptions) => {
 };
 
 interface IUseGetTicketStatusByPipelineResponse {
-  getTicketStatusesByType: ITicketStatusChoice[];
+  getTicketStatusesChoicesPipeline: ITicketStatusChoice[];
 }
 
 export const useGetTicketStatusesByPipeline = (options?: QueryHookOptions) => {
-   const { pipelineId } = useParams();
-  const { data, loading, error } = useQuery<IUseGetTicketStatusByPipelineResponse>(
-    GET_TICKET_STATUS_BY_PIPELINE,
-    {
-      ...options,
-      variables: {
-        pipelineId,
-        ...options?.variables,
+  const { pipelineId } = useParams();
+  const { data, loading, error } =
+    useQuery<IUseGetTicketStatusByPipelineResponse>(
+      GET_TICKET_STATUS_BY_PIPELINE,
+      {
+        ...options,
+        variables: {
+          pipelineId,
+          ...options?.variables,
+        },
+        skip: !pipelineId,
       },
-      skip: !pipelineId
-    },
-  );
+    );
 
-  const statuses = data?.getTicketStatusesByType;
+  const statuses = data?.getTicketStatusesChoicesPipeline;
 
   return { statuses, loading, error };
-}
+};
