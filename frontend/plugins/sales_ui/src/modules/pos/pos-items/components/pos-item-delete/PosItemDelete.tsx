@@ -41,7 +41,11 @@ export const PosItemDelete = ({
             onCompleted: () => {
               toast({
                 title: 'Success',
-                description: `pos item deleted successfully.`,
+                description: `${
+                  posItemCount > 1
+                    ? 'pos items deleted successfully.'
+                    : 'pos item deleted successfully.'
+                }`,
               });
 
               if (onDeleteSuccess) {

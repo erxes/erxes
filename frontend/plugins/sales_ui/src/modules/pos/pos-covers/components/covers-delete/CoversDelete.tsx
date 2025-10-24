@@ -26,7 +26,9 @@ export const CoverDelete = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${coverCount} selected cover?`,
+          message: `Are you sure you want to delete the ${coverCount} selected cover${
+            coverCount > 1 ? 's' : ''
+          }?`,
         }).then(() => {
           removePos(coverIds, {
             onError: (e: ApolloError) => {
@@ -39,7 +41,7 @@ export const CoverDelete = ({
             onCompleted: () => {
               toast({
                 title: 'Success',
-                description: `cover deleted successfully.`,
+                description: `${coverCount} covers deleted successfully.`,
               });
 
               if (onDeleteSuccess) {

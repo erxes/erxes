@@ -5,7 +5,7 @@ import { currentUserState } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 
 interface IGetPosQueryResponse {
-  getPosList: IPos[];
+  posList: IPos[];
 }
 
 export const useGetCurrentUsersPos = (
@@ -21,7 +21,7 @@ export const useGetCurrentUsersPos = (
     },
   });
 
-  const pos = data?.getPosList;
+  const pos = data?.posList;
 
   return { pos, loading };
 };

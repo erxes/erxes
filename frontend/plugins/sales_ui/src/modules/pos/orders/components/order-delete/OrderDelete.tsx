@@ -26,7 +26,9 @@ export const OrderDelete = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${orderCount} selected order?`,
+          message: `Are you sure you want to delete the ${orderCount} selected ${
+            orderCount === 1 ? 'order' : 'orders'
+          }?`,
         }).then(() => {
           removePos(orderIds, {
             onError: (e: ApolloError) => {
@@ -39,7 +41,9 @@ export const OrderDelete = ({
             onCompleted: () => {
               toast({
                 title: 'Success',
-                description: `pos deleted successfully.`,
+                description: `${
+                  orderCount === 1 ? 'Order' : 'Orders'
+                } deleted successfully.`,
               });
 
               if (onDeleteSuccess) {

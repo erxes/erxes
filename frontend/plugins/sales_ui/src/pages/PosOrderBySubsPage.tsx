@@ -3,7 +3,6 @@ import { Breadcrumb, Separator } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 import { PosBreadCrumb } from '~/modules/pos/pos/breadcumb/PosBreadCumb';
 import { PosOrdersBySubsRecordTable } from '~/modules/pos/pos-order-by-subsription/components/PosOrdersBySubsRecordTable';
-import { PosFilter } from '~/modules/pos/pos/PosFilter';
 
 export const PosOrderBySubsPage = () => {
   const { posId } = useParams();
@@ -24,9 +23,7 @@ export const PosOrderBySubsPage = () => {
           </Breadcrumb>
         </PageHeader.Start>
       </PageHeader>
-      {/* <PageHeader>
-        <PosFilter />
-      </PageHeader> */}
+
       <PosOrdersBySubsRecordTable posId={posId} />
     </>
   );

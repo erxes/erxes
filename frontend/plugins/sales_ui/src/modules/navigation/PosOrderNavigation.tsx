@@ -154,7 +154,7 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
   const { toast } = useToast();
 
   const handleCopyLink = async () => {
-    const posLink = `${window.location.origin}/operation/pos/${pos._id}/orders`;
+    const posLink = `${window.location.origin}/sales/pos/${pos._id}/orders`;
     try {
       await navigator.clipboard.writeText(posLink);
       toast({
@@ -165,7 +165,7 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
       toast({
         variant: 'destructive',
         title: 'Failed to copy link',
-        description: e as string,
+        description: e instanceof Error ? e.message : 'Unknown error',
       });
     }
   };
@@ -188,7 +188,7 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
         <DropdownMenu.Item
           className="cursor-pointer"
           onSelect={(e) => {
-            navigate(`/settings/operation/pos/details/${pos._id}`);
+            navigate(`/settings/sales/pos/details/${pos._id}`);
           }}
         >
           <IconSettings className="size-4" />

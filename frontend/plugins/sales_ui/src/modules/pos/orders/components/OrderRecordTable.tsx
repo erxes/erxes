@@ -1,8 +1,8 @@
 import { RecordTable } from 'erxes-ui';
 
-import { orderColumns } from './OrderColumns';
-import { useOrdersList } from '../hooks/UseOrderList';
-import { OrderCommandBar } from './order-command-bar/OrderCommandBar';
+import { orderColumns } from '@/pos/orders/components/OrderColumns';
+import { useOrdersList } from '@/pos/orders/hooks/UseOrderList';
+import { OrderCommandBar } from '@/pos/orders/components/order-command-bar/OrderCommandBar';
 
 export const OrderRecordTable = ({ posId }: { posId?: string }) => {
   const { ordersList, handleFetchMore, loading, pageInfo } = useOrdersList({

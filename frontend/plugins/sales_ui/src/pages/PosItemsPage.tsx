@@ -23,7 +23,6 @@ export const PosItemsPage = () => {
           </Breadcrumb>
         </PageHeader.Start>
       </PageHeader>
-
       <PosItemsRecordTable posId={posId} />
     </>
   );
