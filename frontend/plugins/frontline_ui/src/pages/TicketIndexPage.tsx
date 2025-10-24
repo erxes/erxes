@@ -2,7 +2,7 @@ import { Breadcrumb, Button, PageContainer, PageSubHeader } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { IconTicket, IconPlus } from '@tabler/icons-react';
-import { KanbanView } from '@/ticket/components/KanbanView';
+import { BoardView } from '@/ticket/components/BoardView';
 
 const TicketsIndexPage = () => {
   return (
@@ -31,7 +31,7 @@ const TicketsIndexPage = () => {
           </Button>
         </div>
       </PageSubHeader>
-      <KanbanView />
+      <BoardView />
     </PageContainer>
   );
 };

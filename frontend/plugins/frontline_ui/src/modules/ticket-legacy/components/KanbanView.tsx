@@ -10,7 +10,7 @@ import {
 import { useState } from 'react';
 import { Button } from 'erxes-ui';
 import { IconDots, IconPlus } from '@tabler/icons-react';
-import { KanbanViewCard } from '@/ticket/components/KanbanCard';
+import { KanbanViewCard } from '@/ticket-legacy/components/KanbanCard';
 
 const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
