@@ -15,10 +15,9 @@ import {
 } from 'erxes-ui';
 import { SelectMember, TagsFilter, SelectBrand } from 'ui-modules';
 
-import { PosHotKeyScope } from '../types/posHotkeyScope';
-
 import { PosTotalCount } from './PosTotalCount';
 import { useIsPosLeadSessionKey } from '../pos-detail/hooks/UsePosLeadSessionKey';
+import { PosHotKeyScope } from '../types/posHotKeyScope';
 const PosFilterPopover = () => {
   const [queries] = useMultiQueryState<{
     tags: string[];
