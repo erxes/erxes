@@ -26,7 +26,9 @@ export const ConversationItem = ({
 }) => {
   const inboxLayout = useAtomValue(inboxLayoutState);
 
-  const { createdAt, updatedAt, customer } = useConversationContext();
+  const { createdAt, updatedAt, customer, integration } =
+    useConversationContext();
+  const { channel } = integration;
 
   if (inboxLayout === 'split') {
     return (
@@ -46,6 +48,14 @@ export const ConversationItem = ({
                   )}
                 </div>
               </div>
+              <div className="w-32 text-right flex-none">
+                <span> to </span>
+                {channel && <span title={channel.name}>{channel.name}</span>}
+                <span> via </span>
+                {integration && (
+                  <span title={integration.kind}>{integration.kind}</span>
+                )}
+              </div>
             </div>
           </div>
           <ConversationItemContent />
@@ -60,7 +70,14 @@ export const ConversationItem = ({
         <ConversationSelector />
         <CustomersInline.Title className="w-56 truncate flex-none text-foreground" />
         <ConversationItemContent />
-
+        <div className="w-32 text-right flex-none">
+          <span> to </span>
+          {channel && <span title={channel.name}>{channel.name}</span>}
+          <span> via </span>
+          {integration && (
+            <span title={integration.kind}>{integration.kind}</span>
+          )}
+        </div>
         <div className="w-32 text-right flex-none">
           {createdAt && (
             <RelativeDateDisplay value={updatedAt || createdAt}>

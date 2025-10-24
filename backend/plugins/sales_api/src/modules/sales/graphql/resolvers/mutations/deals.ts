@@ -1,4 +1,3 @@
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IDeal, IDealDocument, IProductData } from '~/modules/sales/@types';
 import { SALES_STATUSES } from '~/modules/sales/constants';
@@ -27,9 +26,9 @@ export const dealMutations = {
   async dealsAdd(
     _root,
     doc: IDeal & { processId: string; aboveItemId: string },
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
-    return await addDeal({ models, user, doc });
+    return await addDeal({ models, subdomain, user, doc });
   },
 
   /**
@@ -38,9 +37,9 @@ export const dealMutations = {
   async dealsEdit(
     _root,
     { _id, processId, ...doc }: IDealDocument & { processId: string },
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
-    return await editDeal({ models, _id, processId, doc, user });
+    return await editDeal({ models, subdomain, _id, processId, doc, user });
   },
 
   /**
@@ -111,7 +110,7 @@ export const dealMutations = {
   async dealsRemove(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
     const item = await models.Deals.findOne({ _id });
 
@@ -119,7 +118,7 @@ export const dealMutations = {
       throw new Error('Deal not found');
     }
 
-    await sendNotifications(models, {
+    await sendNotifications(models, subdomain,{
       item,
       user,
       action: `deleted deal:`,
@@ -153,7 +152,7 @@ export const dealMutations = {
   async dealsCopy(
     _root,
     { _id, processId }: { _id: string; processId: string },
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
     const item = await models.Deals.findOne({ _id }).lean();
 
@@ -196,10 +195,10 @@ export const dealMutations = {
 
     const clone = await models.Deals.createDeal(doc);
 
-    const companyIds = await getCompanyIds('deal', _id);
-    const customerIds = await getCustomerIds('deal', _id);
+    const companyIds = await getCompanyIds(subdomain, 'deal', _id);
+    const customerIds = await getCustomerIds(subdomain, 'deal', _id);
 
-    await createConformity({
+    await createConformity(subdomain, {
       mainType: 'deal',
       mainTypeId: clone._id,
       customerIds,

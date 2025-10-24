@@ -3,7 +3,7 @@ import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
 import * as crypto from 'crypto';
 
-import { getPlugins, redis } from 'erxes-api-shared/utils';
+import { getAvailablePlugins, redis } from 'erxes-api-shared/utils';
 import {
   USER_ROLES,
   userSchema,
@@ -24,7 +24,6 @@ import {
 } from 'erxes-api-shared/core-types';
 
 import { USER_MOVEMENT_STATUSES } from 'erxes-api-shared/core-modules';
-import { title } from 'process';
 import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
 
 const SALT_WORK_FACTOR = 10;
@@ -126,7 +125,7 @@ export interface IUserModel extends Model<IUserDocument> {
     email: string;
     password?: string;
   }): Promise<IUserDocument>;
-  getTokenFields(user: IUserDocument);
+  getTokenFields(_user: IUserDocument): Promise<IUserDocument>;
   logout(_user: IUserDocument, token: string): Promise<string>;
   findUsers(query: any, options?: any): Promise<IUserDocument[]>;
   createSystemUser(doc: IAppDocument): IUserDocument;
@@ -251,7 +250,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
       models.Roles.create({
         userId: user._id,
         role: PERMISSION_ROLES.MEMBER,
-      })
+      });
 
       return user;
     }
@@ -691,18 +690,26 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
       return token;
     }
 
-    public static getTokenFields(user: IUserDocument) {
-      return {
-        _id: user._id,
-        email: user.email,
-        details: user.details,
-        isOwner: user.isOwner,
-        groupIds: user.groupIds,
-        brandIds: user.brandIds,
-        username: user.username,
-        code: user.code,
-        departmentIds: user.departmentIds,
+    public static async getTokenFields(_user: IUserDocument) {
+      const user = {
+        _id: _user._id,
+        email: _user.email,
+        details: _user.details,
+        isOwner: _user.isOwner,
+        groupIds: _user.groupIds,
+        brandIds: _user.brandIds,
+        username: _user.username,
+        code: _user.code,
+        departmentIds: _user.departmentIds,
       };
+
+      const { role } = (await models.Roles.findOne({ userId: user._id })) || {};
+
+      if (role) {
+        user['role'] = role;
+      }
+
+      return user;
     }
 
     /*
@@ -713,6 +720,12 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         _id: _user._id,
         isOwner: _user.isOwner,
       };
+
+      const { role } = (await models.Roles.findOne({ userId: user._id })) || {};
+
+      if (role) {
+        user['role'] = role;
+      }
 
       const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
 
@@ -809,7 +822,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
       }
 
       if (!user.lastSeenAt) {
-        const pluginNames = await getPlugins();
+        const pluginNames = await getAvailablePlugins(subdomain);
 
         for (const pluginName of pluginNames) {
           if (pluginName === 'core') {

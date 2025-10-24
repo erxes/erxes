@@ -4,6 +4,9 @@ import {
   Filter,
   Popover,
   PopoverScoped,
+  SelectOperationContent,
+  SelectTriggerOperation,
+  SelectTriggerVariant,
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
@@ -15,11 +18,6 @@ import {
   useSelectMemberContext,
   useUsers,
 } from 'ui-modules';
-import {
-  SelectOperationContent,
-  SelectTriggerOperation,
-  SelectTriggerVariant,
-} from '@/deals/components/deal-selects/SelectOperation';
 
 import { useAtomValue } from 'jotai';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';

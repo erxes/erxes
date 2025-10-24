@@ -72,8 +72,8 @@ export const clientPortalUserMutations = {
   },
 
   async clientPortalUsersEdit(_root, args: any, { models }: IContext) {
-    const {_id, doc} = args;
-    return  models.Users.updateUser(_id, doc);
+    const { _id, doc } = args;
+    return models.Users.updateUser(_id, doc);
   },
 
   /**
@@ -156,7 +156,7 @@ export const clientPortalUserMutations = {
   clientPortalFacebookAuthentication: async (
     _root,
     args: any,
-    { models, res }: IContext,
+    { models, subdomain, res }: IContext,
   ) => {
     const { clientPortalId, accessToken } = args;
 
@@ -197,6 +197,8 @@ export const clientPortalUserMutations = {
       // });
 
       let customer = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'customers',
@@ -227,6 +229,8 @@ export const clientPortalUserMutations = {
 
       if (!customer) {
         customer = await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'mutation',
           module: 'customers',
@@ -261,7 +265,7 @@ export const clientPortalUserMutations = {
   clientPortalGoogleAuthentication: async (
     _root,
     args: any,
-    { models, res }: IContext,
+    { models, subdomain, res }: IContext,
   ) => {
     const { clientPortalId, code } = args;
 
@@ -361,6 +365,8 @@ export const clientPortalUserMutations = {
     // });
 
     let customer = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'customers',
@@ -409,6 +415,8 @@ export const clientPortalUserMutations = {
 
     if (!customer) {
       customer = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'mutation',
         module: 'customers',
@@ -513,7 +521,7 @@ export const clientPortalUserMutations = {
       email: string;
       isSecondary: boolean;
     },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const { clientPortalId, phone, email, isSecondary = false } = args;
     const query: any = { clientPortalId };
@@ -562,7 +570,7 @@ export const clientPortalUserMutations = {
           )
         : passwordVerificationConfig.smsContent.replace(/{.*}/, phoneCode);
 
-      await sendSms(config.smsTransporterType, phone, smsContent);
+      await sendSms(subdomain, config.smsTransporterType, phone, smsContent);
 
       return 'sent';
     }
@@ -575,6 +583,8 @@ export const clientPortalUserMutations = {
       : passwordVerificationConfig.emailContent.replace(/{.*}/, phoneCode);
 
     await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'mutation',
       module: 'core',
@@ -614,7 +624,7 @@ export const clientPortalUserMutations = {
   clientPortalLoginWithPhone: async (
     _root,
     args: { phone: string; clientPortalId: string; deviceToken },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) => {
     const { phone, clientPortalId, deviceToken } = args;
 
@@ -677,6 +687,7 @@ export const clientPortalUserMutations = {
               `Your verification code is ${testPhoneCode}`;
 
             await sendSms(
+              subdomain,
               config.smsTransporterType
                 ? config.smsTransporterType
                 : 'messagePro',
@@ -705,6 +716,7 @@ export const clientPortalUserMutations = {
         `Your verification code is ${phoneCode}`;
 
       await sendSms(
+        subdomain,
         config.smsTransporterType ? config.smsTransporterType : 'messagePro',
         phone,
         body,
@@ -721,7 +733,7 @@ export const clientPortalUserMutations = {
       byEmail: boolean;
       deviceToken?: string;
     },
-    { models, portalUser }: IContext,
+    { models, portalUser, subdomain }: IContext,
   ) => {
     if (!portalUser) {
       throw new Error('User is not logged in');
@@ -783,6 +795,7 @@ export const clientPortalUserMutations = {
               `Your verification code is ${testPhoneCode}`;
 
             await sendSms(
+              subdomain,
               config.smsTransporterType
                 ? config.smsTransporterType
                 : 'messagePro',
@@ -814,6 +827,7 @@ export const clientPortalUserMutations = {
           `Your verification code is ${phoneCode}`;
 
         await sendSms(
+          subdomain,
           config.smsTransporterType ? config.smsTransporterType : 'messagePro',
           portalUser.phone,
           body,
@@ -839,6 +853,8 @@ export const clientPortalUserMutations = {
           `Your OTP is ${emailCode}`;
 
         await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'mutation',
           module: 'core',
@@ -925,7 +941,7 @@ export const clientPortalUserMutations = {
   clientPortalLoginWithMailOTP: async (
     _root,
     args: { email: string; clientPortalId: string; deviceToken },
-    { models, res }: IContext,
+    { models, subdomain, res }: IContext,
   ) => {
     const { email, clientPortalId, deviceToken } = args;
     const clientPortal = await models.Portals.getConfig(clientPortalId);
@@ -986,6 +1002,8 @@ export const clientPortalUserMutations = {
               `Your OTP is ${testEmailCode}`;
 
             await sendTRPCMessage({
+              subdomain,
+
               pluginName: 'core',
               method: 'mutation',
               module: 'core',
@@ -1022,6 +1040,8 @@ export const clientPortalUserMutations = {
         config.content.replace(/{.*}/, emailCode) || `Your OTP is ${emailCode}`;
 
       await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'mutation',
         module: 'core',
@@ -1108,7 +1128,7 @@ export const clientPortalUserMutations = {
       attachments: IAttachment[];
       description: string;
     },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) => {
     const { login, password, clientPortalId, attachments, description } = args;
 
@@ -1154,6 +1174,8 @@ export const clientPortalUserMutations = {
     );
 
     const createdBy = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'users',
@@ -1230,7 +1252,7 @@ export const clientPortalUserMutations = {
   UsersReplacePhone: async (
     _root,
     args: { clientPortalId: string; phone: string },
-    { models, portalUser }: IContext,
+    { models, portalUser, subdomain }: IContext,
   ) => {
     if (!portalUser) {
       throw new Error('login required');
@@ -1276,6 +1298,7 @@ export const clientPortalUserMutations = {
     );
 
     await sendSms(
+      subdomain,
       config.smsTransporterType ? config.smsTransporterType : 'messagePro',
       phone,
       config.content.replace(/{.*}/, code),
@@ -1317,7 +1340,7 @@ export const clientPortalUserMutations = {
   clientPortalUserAssignCompany: async (
     _root,
     args: { userId: string; erxesCompanyId: string; erxesCustomerId: string },
-    { models, portalUser, user }: IContext,
+    { models, portalUser, user, subdomain }: IContext,
   ) => {
     if (!portalUser && !user) {
       throw new Error('login required');
@@ -1326,6 +1349,8 @@ export const clientPortalUserMutations = {
     const { userId, erxesCompanyId, erxesCustomerId } = args;
 
     const company = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'companies',
@@ -1341,6 +1366,8 @@ export const clientPortalUserMutations = {
 
     try {
       await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'mutation',
         module: 'conformities',

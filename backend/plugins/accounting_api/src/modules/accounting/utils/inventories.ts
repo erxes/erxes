@@ -6,6 +6,19 @@ import { ADJ_INV_STATUSES, IAdjustInvDetailParams, IAdjustInventory, IAdjustInve
 import { JOURNALS, TR_STATUSES } from "../@types/constants";
 import { ITransactionDocument, ITrDetail } from "../@types/transaction";
 
+export const activeCost = async (models: IModels, accountId: string, branchId: string, departmentId: string, productIds: string[]) => {
+  const aggCosts = await models.AdjustInvDetails.aggregate([
+    { $match: { accountId, branchId, departmentId, productId: { $in: productIds || [] } } },
+  ]);
+
+  const result = {};
+  for (const detail of aggCosts) {
+    result[detail.productId] = { totalCost: detail.cost, unitCost: detail.unitCost, remainder: detail.remainder };
+  }
+
+  return result;
+}
+
 export const modifierWrapper = async (models: IModels, adjustInventory: IAdjustInventoryDocument, modifier: any, hasObj = false) => {
   const adjustId = adjustInventory._id;
 

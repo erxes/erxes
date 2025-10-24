@@ -13,7 +13,7 @@ export const internalNoteMutations = {
   async internalNotesAdd(
     _root: undefined,
     args: IInternalNote,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
     const { contentType, contentTypeId, mentionedUserIds = [] } = args;
 
@@ -37,6 +37,8 @@ export const internalNoteMutations = {
     };
 
     const updatedNotifDoc = await sendTRPCMessage({
+      subdomain,
+
       pluginName,
       method: 'query',
       module: moduleName,
@@ -53,6 +55,8 @@ export const internalNoteMutations = {
       const { item } = updatedNotifDoc;
 
       const relatedReceivers = await sendTRPCMessage({
+        subdomain,
+
         pluginName,
         method: 'query',
         module: moduleName,

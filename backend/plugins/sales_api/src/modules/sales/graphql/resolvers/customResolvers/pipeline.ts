@@ -55,9 +55,9 @@ export default {
   async itemsTotalCount(
     pipeline: IPipelineDocument,
     _args,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
-    const filter = await generateFilter(models, user._id, {
+    const filter = await generateFilter(models, subdomain, user._id, {
       pipelineId: pipeline._id,
     });
 

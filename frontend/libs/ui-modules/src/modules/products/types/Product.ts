@@ -1,4 +1,6 @@
 import { IAttachment } from 'erxes-ui';
+import { PRODUCT_FORM_SCHEMA } from '../constants/addProductFormSchema';
+import { z } from 'zod';
 
 export interface IProduct {
   _id: string;
@@ -28,3 +30,5 @@ export interface IUom {
   code: string;
   productCount: number;
 }
+
+export type IProductFormValues = z.infer<typeof PRODUCT_FORM_SCHEMA>;

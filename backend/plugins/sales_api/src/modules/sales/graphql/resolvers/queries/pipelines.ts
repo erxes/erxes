@@ -13,7 +13,7 @@ export const pipelineQueries = {
       boardId: string;
       isAll: boolean;
     } & ICursorPaginateParams,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
     const { boardId, isAll } = params;
 
@@ -40,6 +40,8 @@ export const pipelineQueries = {
 
     if (!user.isOwner && !isAll) {
       const userDetail = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'users',

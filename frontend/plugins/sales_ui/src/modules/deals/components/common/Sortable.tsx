@@ -54,7 +54,11 @@ export interface Props {
   modifiers?: Modifiers;
   renderItem?: any;
   removable?: boolean;
-  reorderItems?: typeof arrayMove;
+  reorderItems?: (
+    items: UniqueIdentifier[],
+    oldIndex: number,
+    newIndex: number,
+  ) => UniqueIdentifier[];
   strategy?: SortingStrategy;
   style?: React.CSSProperties;
   useDragOverlay?: boolean;
@@ -123,7 +127,7 @@ export function Sortable({
   reorderItems = arrayMove,
   strategy = rectSortingStrategy,
   style,
-  useDragOverlay = true,
+  useDragOverlay = false,
   wrapperStyle = () => ({}),
 }: Props) {
   const [items, setItems] = useState<UniqueIdentifier[]>(
