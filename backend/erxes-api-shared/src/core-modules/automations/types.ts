@@ -57,7 +57,7 @@ export type AutomationConstants = IAutomationTriggersActionsConfig & {
   bots?: IAutomationsBotsConfig[];
 };
 
-export interface AutomationWorkers {
+export interface AutomationProducers {
   receiveActions?: (
     context: IAutomationContext,
     args: {
@@ -100,8 +100,8 @@ export interface AutomationWorkers {
   ) => Promise<boolean>;
 }
 
-export interface AutomationConfigs extends AutomationWorkers {
-  constants: AutomationConstants;
+export interface AutomationConfigs extends AutomationProducers {
+  constants?: AutomationConstants;
 }
 
 export interface IReplacePlaceholdersProps<TModels> {

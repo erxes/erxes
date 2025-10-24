@@ -1,4 +1,9 @@
-import { IconPointerBolt, IconShare } from '@tabler/icons-react';
+import {
+  IconEdit,
+  IconPointerBolt,
+  IconShare,
+  IconTrash,
+} from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Avatar,
@@ -11,6 +16,7 @@ import {
   Switch,
   Label,
   Popover,
+  Command,
 } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { TAutomationAction, TAutomationTrigger, SelectTags } from 'ui-modules';
@@ -27,23 +33,27 @@ const generateUserName = (user: IUser) => {
   return user.email;
 };
 
-export const automationColumns: ColumnDef<IAutomation>[] = [
-  {
-    id: 'more',
-    cell: ({ cell }) => {
-      const { _id } = cell.row.original;
-      return (
-        <Link to={`/automations/edit/${_id}`}>
-          <RecordTable.MoreButton className="w-full h-full" />
-        </Link>
-      );
-    },
-    size: 40,
-  },
+const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<
+  { order: string; hasChildren: boolean } & IAutomation
+>;
+
+export const automationColumns: ColumnDef<
+  { order: string; hasChildren: boolean } & IAutomation
+>[] = [
+  checkBoxColumn,
   {
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label="Name" />,
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <Link to={`/automations/edit/${cell.row.original._id}`}>
+            {cell.getValue() as string}
+          </Link>
+        </RecordTableInlineCell>
+      );
+    },
     minSize: 120,
   },
   {

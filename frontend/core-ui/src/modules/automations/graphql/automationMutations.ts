@@ -1,5 +1,11 @@
 import { gql } from '@apollo/client';
 
+export const AUTOMATION_REMOVE = gql`
+  mutation AutomationsRemove($ids: [String]) {
+    automationsRemove(ids: $ids)
+  }
+`;
+
 export const AUTOMATION_EDIT = gql`
   mutation AutomationsEdit(
     $id: String

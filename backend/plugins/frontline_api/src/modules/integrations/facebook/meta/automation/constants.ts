@@ -9,7 +9,7 @@ export const facebookConstants = {
     },
     {
       type: 'frontline:facebook.comments.create',
-      icon: 'IconBubbleFilled',
+      icon: 'IconBrandFacebook',
       label: 'Send Facebook Comment',
       description: 'Send Facebook Comments',
     },
@@ -50,7 +50,7 @@ export const facebookConstants = {
     },
     {
       type: 'frontline:facebook.comments',
-      icon: 'IconBubbleFilled',
+      icon: 'IconBrandFacebook',
       label: 'Facebook Comments',
       description:
         'Start with a blank workflow that enrolls and is triggered off facebook comments',

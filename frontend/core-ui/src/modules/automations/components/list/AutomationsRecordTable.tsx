@@ -52,7 +52,7 @@ export const AutomationsRecordTable = () => {
       <RecordTable.Provider
         columns={automationColumns}
         data={list}
-        stickyColumns={['more', 'checkbox', 'avatar', 'name']}
+        stickyColumns={['checkbox', 'name']}
         className="m-3"
       >
         <RecordTable.CursorProvider

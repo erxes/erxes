@@ -183,13 +183,6 @@ export const AUTOMATION_TRIGGERS = [
     description:
       'Start with a blank workflow that enrolls and is triggered off company',
   },
-  {
-    type: AUTOMATION_CORE_TRIGGER_TYPES.FORM_SUBMISSION,
-    icon: 'IconForms',
-    label: 'Form submission',
-    description:
-      'Start with a blank workflow that enrolls and is triggered off form submission',
-  },
 ];
 
 export const AUTOMATION_CORE_PROPERTY_TYPES = [
