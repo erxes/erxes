@@ -6,6 +6,7 @@ export const types = `
     _id: String
     name: String
     description: String
+    pipelineId: String
     status: String
     priority: Int
     labelIds: [String]
@@ -31,6 +32,7 @@ export const types = `
     _id: String
     status: String
     priority: Int
+    pipelineId: String
     assigneeId: String
     labelIds: [String]
     tagIds: [String]
@@ -53,7 +55,8 @@ export const types = `
 const createTicketParams = `
   name: String!
   description: String
-  channelId: String!
+  channelId: String
+  pipelineId:String
   status: String
   priority: Int
   labelIds: [String]
@@ -68,6 +71,7 @@ const updateTicketParams = `
   name: String
   description: String
   channelId: String
+  pipelineId: String
   status: String
   priority: Int
   labelIds: [String]
