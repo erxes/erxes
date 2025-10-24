@@ -23,7 +23,7 @@ interface ISubscriptionData {
 interface IBotTypingSubscriptionData {
   conversationBotTypingStatus: {
     typing: boolean;
-  };
+  } | null;
 }
 
 export const useConversationDetail = (
@@ -91,8 +91,12 @@ export const useConversationDetail = (
       .subscribe({
         next({ data }) {
           if (data?.conversationBotTypingStatus) {
-            const { typing } = data.conversationBotTypingStatus;
-            setIsBotTyping(typing);
+            const typingData = data.conversationBotTypingStatus;
+            setIsBotTyping(
+              typeof typingData === 'object' && typingData !== null
+                ? (typingData as any).typing
+                : false,
+            );
           }
         },
       });

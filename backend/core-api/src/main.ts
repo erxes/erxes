@@ -46,7 +46,7 @@ const corsOptions = {
   credentials: true,
   origin: [
     DOMAIN || 'http://localhost:3001',
-    ...(isDev ? ['http://localhost:3001'] : []),
+    ...(isDev ? ['http://localhost:3001','http://localhost:4200'] : []),
     ALLOWED_DOMAINS || 'http://localhost:3200',
     ...(CLIENT_PORTAL_DOMAINS || '').split(','),
     ...(process.env.ALLOWED_ORIGINS || '')

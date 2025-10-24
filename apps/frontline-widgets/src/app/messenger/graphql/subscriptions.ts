@@ -11,7 +11,7 @@ const ConversationMessageInserted = gql`
 
 const conversationBotTypingStatus = `
   subscription conversationBotTypingStatus($_id: String!) {
-    conversationBotTypingStatus($_id: $_id)
+    conversationBotTypingStatus(_id: $_id)
   }
 `;
 

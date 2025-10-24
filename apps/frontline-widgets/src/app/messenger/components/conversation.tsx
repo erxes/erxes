@@ -26,10 +26,10 @@ export function EmptyChat() {
   return (
     <div className="flex flex-col gap-4 font-medium text-sm">
       <div className="my-auto flex items-center gap-2">
-        <AvatarGroup max={3}>
+        <AvatarGroup max={3} size="md">
           {list &&
             list?.map((supporter: ISupporter) => (
-              <Avatar className="border-2 border-sidebar">
+              <Avatar className="border-2 border-sidebar size-10" size="xl">
                 <Avatar.Image
                   src={readImage(supporter.details.avatar)}
                   className="shrink-0 object-cover"
@@ -83,12 +83,12 @@ export function ConversationMessage({
         role="tabpanel"
         id={messege?._id}
         tabIndex={0}
-        className="flex items-center gap-3 cursor-pointer p-3 hover:bg-accent rounded-md transition-all duration-300"
+        className="flex items-center gap-3 cursor-pointer p-3 hover:bg-primary/5 rounded-md transition-all duration-300"
         onClick={handleClick}
       >
-        <Avatar>
+        <Avatar className="size-10">
           <Avatar.Image className="shrink-0 object-cover" alt={'you'} />
-          <Avatar.Fallback>{'C'}</Avatar.Fallback>
+          <Avatar.Fallback className="bg-background">{'C'}</Avatar.Fallback>
         </Avatar>
         <div className="flex flex-col gap-1 text-sm font-medium text-muted-foreground overflow-x-hidden">
           <span
@@ -113,7 +113,7 @@ export function ConversationMessage({
         className="flex items-center gap-3 cursor-pointer p-3 hover:bg-accent rounded-md transition-all duration-300"
         onClick={handleClick}
       >
-        <Avatar>
+        <Avatar className="size-10 bg-background">
           <Avatar.Image
             src={readImage(user?.details?.avatar) || 'assets/user.webp'}
             className="shrink-0 object-cover"
@@ -166,23 +166,23 @@ export function OperatorMessage({
       <Tooltip.Trigger asChild>
         <Button
           variant="ghost"
-          className="flex group/operator-message items-end gap-2 p-0 mr-auto size-auto hover:bg-transparent"
+          className="flex group/operator-message items-end justify-start gap-2 p-0 mr-auto size-auto hover:bg-transparent"
         >
           {showAvatar ? (
-            <Avatar>
+            <Avatar className="size-8">
               <Avatar.Image
                 src={readImage(src || 'assets/user.webp')}
-                className="shrink-0 object-cover size-8"
+                className="shrink-0 object-cover"
                 alt="Erxes"
               />
-              <Avatar.Fallback>C</Avatar.Fallback>
+              <Avatar.Fallback className="bg-background">C</Avatar.Fallback>
             </Avatar>
           ) : (
             <div className="size-8" />
           )}
           <div
             className={cn(
-              'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-foreground text-left gap-1 px-3 py-2 bg-muted',
+              'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-foreground text-left gap-1 px-3 py-2 bg-background max-w-[70%] whitespace-break-spaces break-words break-all',
               isFirstMessage && 'rounded-md rounded-bl-sm rounded-t-lg',
               isLastMessage && 'rounded-md rounded-tl-sm rounded-b-lg',
               isMiddleMessage && 'rounded-r-md rounded-l-sm',

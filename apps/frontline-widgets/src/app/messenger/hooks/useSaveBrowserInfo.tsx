@@ -1,6 +1,6 @@
 import { SAVE_BROWSER_INFO } from '../graphql/mutations';
 import { IBrowserInfo } from '../types';
-import { apolloClient } from '@libs/apollo-client';
+import { useMutation } from '@apollo/client';
 import React from 'react';
 import { requestBrowserInfo } from '@libs/utils';
 import { useAtom, useSetAtom } from 'jotai';
@@ -16,6 +16,17 @@ export const useSaveBrowserInfo = () => {
   const setBrowserInfo = useSetAtom(browserInfoAtom);
   const setIsBrowserInfoSaved = useSetAtom(isBrowserInfoSavedAtom);
   const setLastUnreadMessage = useSetAtom(lastUnreadMessageAtom);
+
+  const [saveBrowserInfoMutation] = useMutation(SAVE_BROWSER_INFO, {
+    onCompleted: (data) => {
+      const { widgetsSaveBrowserInfo } = data || {};
+      setIsBrowserInfoSaved(true);
+      setLastUnreadMessage(widgetsSaveBrowserInfo);
+    },
+    onError: (error) => {
+      console.error('Error saving browser info:', error);
+    },
+  });
 
   React.useEffect(() => {
     try {
@@ -33,21 +44,8 @@ export const useSaveBrowserInfo = () => {
               browserInfo,
             };
 
-            apolloClient
-              .mutate({
-                mutation: SAVE_BROWSER_INFO,
-                variables,
-              })
-              .then((data) => {
-                const { widgetsSaveBrowserInfo } = data?.data || {};
-
-                setIsBrowserInfoSaved(true);
-                setLastUnreadMessage(widgetsSaveBrowserInfo);
-                setBrowserInfo(browserInfo);
-              })
-              .catch((error) => {
-                console.error('Error saving browser info:', error);
-              });
+            setBrowserInfo(browserInfo);
+            saveBrowserInfoMutation({ variables });
           },
         });
       };
@@ -58,5 +56,7 @@ export const useSaveBrowserInfo = () => {
   }, [
     connection.widgetsMessengerConnect.visitorId,
     connection.widgetsMessengerConnect.customerId,
+    saveBrowserInfoMutation,
+    setBrowserInfo,
   ]);
 };

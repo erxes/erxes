@@ -179,6 +179,9 @@ export class TailwindThemeManager {
       const primaryForeground = ColorUtils.getContrastColor(primary);
       const primaryForegroundHsl = ColorUtils.hexToHsl(primaryForeground);
       this.setCustomProperty('--primary-foreground', ColorUtils.hslToString(primaryForegroundHsl));
+
+      // Generate accent colors based on primary color
+      this.generateAccentColors(primaryHsl);
     } catch (error) {
       console.warn('Failed to apply primary colors:', error);
     }

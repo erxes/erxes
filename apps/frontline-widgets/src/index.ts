@@ -34,7 +34,22 @@ messengerIframeContainer.className = 'erxes-messenger-frame';
 // create messenger iframe
 const messengerIframe = document.createElement('iframe');
 messengerIframe.id = MESSENGER_IFRAME_ID;
-messengerIframe.src = 'http://localhost:4200';
+export const generateIntegrationUrl = (integrationKind: string): string => {
+  const script =
+    document.currentScript ||
+    (() => {
+      const scripts = document.getElementsByTagName('script');
+
+      return scripts[scripts.length - 1];
+    })();
+
+  if (script && script instanceof HTMLScriptElement) {
+    return script.src.replace(`index.js`, ``);
+  }
+
+  return '';
+};
+messengerIframe.src = generateIntegrationUrl('messenger');
 messengerIframe.style.display = 'none';
 messengerIframe.allow =
   'camera *; microphone *; clipboard-read; clipboard-write';
@@ -147,11 +162,11 @@ const setupShowMessengerProperty = (contentWindow: Window) => {
 };
 
 const sendMessageToIframe = (contentWindow: Window) => {
-  const setting = (window as any).erxesSettings?.messenger;
+  const settings = (window as any).erxesSettings?.messenger;
   contentWindow.postMessage(
     {
       fromPublisher: true,
-      setting,
+      settings,
       storage: getStorage(),
     },
     '*',
@@ -206,12 +221,12 @@ const handleMessageEvent = async (event: MessageEvent) => {
     const { color, logo: uiOptionsLogo } = uiOptions;
     const logo = uiOptionsLogo;
     backgroundImage = logo
-      ? `url(${baseUrl}/read-file?key=${encodeURIComponent(logo)}&width=20)`
+      ? `url(${baseUrl}/read-file?key=${encodeURIComponent(logo)})`
       : defaultLogo;
 
     (launcherBtn as HTMLElement).style.cssText = `
-      width: 56px;
-      height: 56px;
+      width: 48px;
+      height: 48px;
       font-smoothing: antialiased;
       animation: pop 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
       background-position: center;
@@ -220,7 +235,7 @@ const handleMessageEvent = async (event: MessageEvent) => {
       position: fixed;
       top: 0;
       left: 0;
-      line-height: 56px;
+      line-height: 48px;
       pointer-events: auto;
       text-align: center;
       transition: background-image 0.3s ease-in;
@@ -233,7 +248,7 @@ const handleMessageEvent = async (event: MessageEvent) => {
       background-color: ${color};
       color: ${color || '#673fbd'};
       background-image: ${backgroundImage};
-      background-size: ${logo ? '' : 'contain'};
+      background-size: ${logo ? 'cover' : 'contain'};
       background-position: center;
     `;
   }

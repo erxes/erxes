@@ -24,7 +24,8 @@ export const useConversations = (
         customerId: customerId || undefined,
         visitorId: visitorId || undefined,
       },
-      fetchPolicy: 'cache-and-network',
+      fetchPolicy: 'network-only',
+      skip: !integrationId,
     },
   );
 

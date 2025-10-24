@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { apolloClient } from '@libs/apollo-client';
+import { useEffect } from 'react';
+import { useMutation } from '@apollo/client';
 import { useSetAtom } from 'jotai';
 import { connectionAtom, integrationIdAtom, uiOptionsAtom } from '../states';
 import { IConnectionInfo, IWidgetUiOptions } from '../types/connection';
@@ -19,9 +19,6 @@ export const useConnect = ({
   isTicketEnabled = false,
   channelId,
 }: connectionProps) => {
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const setConnection = useSetAtom(connectionAtom);
   const setIntegrationId = useSetAtom(integrationIdAtom);
   const setUiOptions = useSetAtom(uiOptionsAtom);
@@ -30,52 +27,11 @@ export const useConnect = ({
   // Call useSaveBrowserInfo hook
   useSaveBrowserInfo();
 
-  useEffect(() => {
-    const executeConnection = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        let visitorId;
-
-        // if (!cachedCustomerId) {
-        const { getVisitorId } = await import('@libs/utils');
-
-        visitorId = await getVisitorId();
-        // }
-
-        const erxesSettings = getErxesSettings();
-        const messengerSettings = erxesSettings?.messenger;
-        const { email, phone, code, data, companyData } =
-          messengerSettings || {};
-
-        const variables = email
-          ? {
-              channelId,
-              visitorId: null,
-              cachedCustomerId: cachedCustomerId || undefined,
-              email,
-              isUser: true,
-              phone,
-              code,
-              data,
-              companyData,
-            }
-          : {
-              channelId,
-              visitorId,
-              cachedCustomerId: cachedCustomerId || undefined,
-              isUser: false,
-            };
-
-        const response = await apolloClient.mutate({
-          mutation: connect(isCloudFlareEnabled, isTicketEnabled),
-          variables,
-        });
-
-        setResult(response as any);
-
-        const connectionData = response?.data?.widgetsMessengerConnect;
+  const [connectMutation, { data, loading, error }] = useMutation(
+    connect(isCloudFlareEnabled, isTicketEnabled),
+    {
+      onCompleted: (response) => {
+        const connectionData = response?.widgetsMessengerConnect;
         if (connectionData) {
           setConnection((prev: IConnectionInfo) => ({
             ...prev,
@@ -94,19 +50,62 @@ export const useConnect = ({
             applyUiOptionsToTailwind(connectionData.uiOptions);
           }
         }
-      } catch (err) {
+      },
+      onError: (err) => {
         console.warn('useConnect error:', err);
-        setError(err as any);
-      } finally {
-        setLoading(false);
-      }
+      },
+    },
+  );
+
+  useEffect(() => {
+    const executeConnection = async () => {
+      if (!channelId) return;
+
+      let visitorId;
+
+      // if (!cachedCustomerId) {
+      const { getVisitorId } = await import('@libs/utils');
+
+      visitorId = await getVisitorId();
+      // }
+
+      const erxesSettings = getErxesSettings();
+      const messengerSettings = erxesSettings?.messenger;
+      const { email, phone, code, data, companyData } = messengerSettings || {};
+
+      const variables = email
+        ? {
+            channelId,
+            visitorId: null,
+            cachedCustomerId: cachedCustomerId || undefined,
+            email,
+            isUser: true,
+            phone,
+            code,
+            data,
+            companyData,
+          }
+        : {
+            channelId,
+            visitorId,
+            cachedCustomerId: cachedCustomerId || undefined,
+            isUser: false,
+          };
+
+      await connectMutation({ variables });
     };
 
     executeConnection();
-  }, [isCloudFlareEnabled, isTicketEnabled, channelId]);
+  }, [
+    isCloudFlareEnabled,
+    isTicketEnabled,
+    channelId,
+    cachedCustomerId,
+    connectMutation,
+  ]);
 
   return {
-    result,
+    result: data,
     loading,
     error,
   };

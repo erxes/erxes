@@ -20,7 +20,7 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
         <Input
           id={id}
           className={cn(
-            'border-none shadow-none placeholder:text-muted-foreground placeholder:font-medium placeholder:text-sm',
+            'border-none h-9 shadow-none placeholder:text-muted-foreground placeholder:font-medium placeholder:text-sm',
             className,
           )}
           placeholder="How can we help you?"
@@ -32,10 +32,10 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
           size="icon"
           type="submit"
           aria-label="Send"
-          className="aspect-square text-accent bg-primary"
+          className="aspect-square text-accent bg-primary size-8"
           disabled={isDisabled || loading}
         >
-          <IconArrowUp size={16} />
+          <IconArrowUp />
         </Button>
       </div>
     </form>
