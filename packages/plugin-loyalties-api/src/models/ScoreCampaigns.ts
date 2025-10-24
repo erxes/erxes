@@ -301,6 +301,8 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         );
       }
 
+      console.log({ placeholder });
+
       const changeScore = (eval(placeholder) || 0) * Number(currencyRatio) || 0;
       if (!changeScore) {
         return;
