@@ -131,9 +131,10 @@ export const orderColumns: ColumnDef<IOrder>[] = [
     accessorKey: 'user.email',
     header: () => <RecordTable.InlineHead icon={IconUser} label="User" />,
     cell: ({ cell }) => {
+      const value = cell.getValue() as string;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={value || 'N/A'} />
         </RecordTableInlineCell>
       );
     },

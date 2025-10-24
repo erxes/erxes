@@ -25,7 +25,6 @@ export const useOrdersList = (options: { posId?: string } = {}) => {
     })) || [];
   const handleFetchMore = () => {
     if (!data?.posOrders) return;
-
     fetchMore({
       variables: {
         page: Math.ceil(transformedPosOrderList.length / POS_PER_PAGE) + 1,

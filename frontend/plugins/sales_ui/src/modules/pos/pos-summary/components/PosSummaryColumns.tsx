@@ -10,14 +10,13 @@ import {
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
-  Badge,
 } from 'erxes-ui';
 
-import { ordersMoreColumn } from '../../orders/components/OrdersMoreColumn';
 import { IPosSummary } from '../types/posSummary';
+import { PosSummaryMoreColumn } from './PosSummaryMoreColumn';
 
 export const PosSummaryColumns: ColumnDef<IPosSummary>[] = [
-  ordersMoreColumn,
+  PosSummaryMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IPosSummary>,
   {
     id: 'paidDate',
