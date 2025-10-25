@@ -42,7 +42,7 @@ export const useGetTicketStatusesByPipeline = (options?: QueryHookOptions) => {
           pipelineId,
           ...options?.variables,
         },
-        skip: !pipelineId,
+        // skip: !pipelineId || !options?.variables?.pipelineId,
       },
     );
 

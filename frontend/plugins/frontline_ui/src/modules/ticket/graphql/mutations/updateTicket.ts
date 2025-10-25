@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
-export const UPDATE_TICKET = gql`
+export const UPDATE_TICKET_MUTATION = gql`
   mutation UpdateTicket(
-    $id: String!
+    $_id: String!
     $name: String
     $description: String
     $channelId: String
@@ -15,7 +15,7 @@ export const UPDATE_TICKET = gql`
     $targetDate: Date
   ) {
     updateTicket(
-      _id: $id
+      _id: $_id
       name: $name
       description: $description
       channelId: $channelId

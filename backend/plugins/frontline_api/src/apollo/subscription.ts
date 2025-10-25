@@ -14,10 +14,10 @@ export default {
       talkingCallReceived(extension: String): String
       agentCallReceived(extension: String): String
       queueRealtimeUpdate(extension: String): String
-      ticketPipelineChanged(filter: TicketsPipelineFilter): TaskSubscription
+      ticketPipelineChanged(filter: TicketsPipelineFilter): TicketSubscription 
       ticketPipelineListChanged: PipelineSubscription
       ticketChanged(_id: String!): TicketSubscription
-      ticketListChanged(filter: ITicketFilter):TicketSubscription
+      ticketListChanged(filter: ITicketFilter): TicketSubscription
       ticketStatusChanged(_id: String!): StatusSubscription
       ticketStatusListChanged: StatusSubscription
 		`,

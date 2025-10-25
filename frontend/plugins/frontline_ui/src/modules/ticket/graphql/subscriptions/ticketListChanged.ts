@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const TICKET_LIST_CHANGED = gql`
-  subscription ticketListChanged() {
-    ticketListChanged {
+  subscription ticketListChanged($filter: ITicketFilter) {
+    ticketListChanged(filter: $filter) {
       type
       ticket {
         _id
