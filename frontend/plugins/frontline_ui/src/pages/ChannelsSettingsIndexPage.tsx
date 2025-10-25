@@ -1,5 +1,5 @@
-import { Channels } from '@/channels/components/channels-list/Channels';
-import { CreateChannel } from '@/channels/components/channels-list/CreateChannel';
+import { Channels } from '@/channels/components/settings/channels-list/Channels';
+import { CreateChannel } from '@/channels/components/settings/channels-list/CreateChannel';
 
 export const ChannelsSettingsIndexPage = () => {
   return (
