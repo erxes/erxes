@@ -3,15 +3,19 @@ import { gql } from '@apollo/client';
 export const ADD_TAG = gql`
   mutation TagsAdd(
     $name: String!
-    $type: String!
+    $type: String
     $colorCode: String
     $parentId: String
+    $description: String
+    $isGroup: Boolean
   ) {
     tagsAdd(
       name: $name
       type: $type
       colorCode: $colorCode
       parentId: $parentId
+      description: $description
+      isGroup: $isGroup
     ) {
       _id
     }
@@ -22,9 +26,11 @@ export const EDIT_TAG = gql`
   mutation TagsEdit(
     $id: String!
     $name: String!
-    $type: String!
+    $type: String
     $colorCode: String
     $parentId: String
+    $description: String
+    $isGroup: Boolean
   ) {
     tagsEdit(
       _id: $id
@@ -32,6 +38,8 @@ export const EDIT_TAG = gql`
       type: $type
       colorCode: $colorCode
       parentId: $parentId
+      description: $description
+      isGroup: $isGroup
     ) {
       _id
     }

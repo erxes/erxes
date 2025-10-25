@@ -41,12 +41,13 @@ export const tagMutations = {
       );
     }
 
-    const existingTagsCount = await models.Tags.countDocuments({
-      _id: { $in: tagIds },
+    const tags = await models.Tags.find({
       type,
+      _id: { $in: tagIds },
+      isGroup: { $ne: true },
     });
 
-    if (existingTagsCount !== tagIds.length) {
+    if (tags.length !== tagIds.length) {
       throw new Error('Tag not found.');
     }
 
@@ -68,7 +69,7 @@ export const tagMutations = {
 
       return await model.updateMany(
         { _id: { $in: targetIds } },
-        { $set: { tagIds } },
+        { $set: { tagIds: tags.map((tag) => tag._id) } },
       );
     }
 
@@ -80,7 +81,7 @@ export const tagMutations = {
       module: moduleName,
       action: 'tag',
       input: {
-        tagIds,
+        tagIds: tags.map((tag) => tag._id),
         targetIds,
         type: moduleName,
         action: 'tagObject',
@@ -97,19 +98,5 @@ export const tagMutations = {
     { models }: IContext,
   ) {
     return models.Tags.removeTag(_id);
-  },
-
-  /**
-   * Merge tags
-   */
-  async tagsMerge(
-    _parent: undefined,
-    { sourceId, destId }: { sourceId: string; destId: string },
-    { models }: IContext,
-  ) {
-    // remove old tag
-    await models.Tags.removeTag(sourceId);
-
-    return models.Tags.getTag(destId);
   },
 };

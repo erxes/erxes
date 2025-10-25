@@ -9,6 +9,7 @@ export interface ITagFilterQueryParams
   type: string;
   tagIds?: string[];
   parentId?: string;
+  isGroup?: boolean;
   ids: string[];
   excludeIds: boolean;
 }

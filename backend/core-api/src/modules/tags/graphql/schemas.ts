@@ -1,19 +1,21 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
- type Tag @key(fields: "_id") @cacheControl(maxAge: 3) {
+  type Tag @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
     name: String
-    type: String
     colorCode: String
-    createdAt: Date
+    parentId: String
+    relatedIds: [String]
+    isGroup: Boolean
+    description: String
+    type: String
+    
+    order: String
     objectCount: Int
     totalObjectCount: Int
-    parentId: String
-    order: String
-    relatedIds: [String]
-
-    cursor: String
+    
+    createdAt: Date
   }
 
   type TagsListResponse {
@@ -26,10 +28,11 @@ export const types = `
 const queryParams = `
   type: String,
   searchValue: String,
-  tagIds: [String],
   parentId: String,
   ids: [String],
   excludeIds: Boolean,
+  isGroup: Boolean,
+  instanceId: String,
 
   sortField: String,
 
@@ -44,16 +47,16 @@ export const queries = `
 `;
 
 const mutationParams = `
-  name: String!,
-  type: String!,
+  type: String,
   colorCode: String,
   parentId: String,
+  isGroup: Boolean,
+  description: String,
 `;
 
 export const mutations = `
-  tagsAdd(${mutationParams}): Tag
-  tagsEdit(_id: String!, ${mutationParams}): Tag
-  tagsRemove(_id: String!): JSON
+  tagsAdd(name: String!, ${mutationParams}): Tag
+  tagsEdit(_id: String!, name: String, ${mutationParams}): Tag
   tagsTag(type: String!, targetIds: [String!]!, tagIds: [String!]!): JSON
-  tagsMerge(sourceId: String!, destId: String!): Tag
+  tagsRemove(_id: String!): JSON
 `;

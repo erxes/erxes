@@ -22,9 +22,6 @@ export const TagsSettingFilter = () => {
                 <Filter.CommandInput />
                 <Command.List>
                   <Filter.SearchValueTrigger />
-                  <Filter.Item value="contentType">
-                    <IconTagStarred /> Tags type
-                  </Filter.Item>
                 </Command.List>
               </Command>
             </Filter.View>
