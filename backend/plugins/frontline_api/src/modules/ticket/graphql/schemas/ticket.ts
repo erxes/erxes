@@ -7,7 +7,7 @@ export const types = `
     name: String
     description: String
     pipelineId: String
-    status: String
+    statusId: String
     priority: Int
     labelIds: [String]
     tagIds: [String]
@@ -30,7 +30,7 @@ export const types = `
 
   input ITicketFilter {
     _id: String
-    status: String
+    statusId: String
     priority: Int
     pipelineId: String
     assigneeId: String
@@ -57,7 +57,7 @@ const createTicketParams = `
   description: String
   channelId: String
   pipelineId:String
-  status: String
+  statusId: String!
   priority: Int
   labelIds: [String]
   tagIds: [String]
@@ -72,7 +72,7 @@ const updateTicketParams = `
   description: String
   channelId: String
   pipelineId: String
-  status: String
+  statusId: String
   priority: Int
   labelIds: [String]
   tagIds: [String]
