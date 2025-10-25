@@ -163,15 +163,21 @@ export const receiveMessage = async (
 
         await pConversationClientMessageInserted(subdomain, doc);
 
-        await graphqlPubsub.publish(
-          `conversationMessageInserted:${conversation.erxesApiId}`,
-          {
-            conversationMessageInserted: {
-              ...created.toObject(),
-              conversationId: conversation.erxesApiId,
+        try {
+          await graphqlPubsub.publish(
+            `conversationMessageInserted:${conversation.erxesApiId}`,
+            {
+              conversationMessageInserted: {
+                ...created.toObject(),
+                conversationId: conversation.erxesApiId,
+              },
             },
-          },
-        );
+          );
+        } catch (err) {
+          throw new Error(
+            'conversationMessageInserted Error publishing subscription:',
+          );
+        }
 
         conversationMessage = created;
 
