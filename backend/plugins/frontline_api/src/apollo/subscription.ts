@@ -17,7 +17,7 @@ export default {
       ticketPipelineChanged(filter: TicketsPipelineFilter): TaskSubscription
       ticketPipelineListChanged: PipelineSubscription
       ticketChanged(_id: String!): TicketSubscription
-      ticketListChanged(filter: ITicketFilter) TicketSubscription
+      ticketListChanged(filter: ITicketFilter):TicketSubscription
       ticketStatusChanged(_id: String!): StatusSubscription
       ticketStatusListChanged: StatusSubscription
 		`,
