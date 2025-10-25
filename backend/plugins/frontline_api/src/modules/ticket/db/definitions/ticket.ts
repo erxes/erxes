@@ -18,8 +18,8 @@ export const ticketSchema = new Schema(
     description: String,
     type: {
       type: String,
-      enum: ['bug', 'task', 'feature', 'question', 'incident'],
-      default: 'task',
+      enum: ['bug', 'ticket', 'feature', 'question', 'incident'],
+      default: 'ticket',
     },
     priority: { type: Number, default: 2 },
 
