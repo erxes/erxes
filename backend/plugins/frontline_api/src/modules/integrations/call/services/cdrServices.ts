@@ -12,6 +12,11 @@ import { getOrCreateCustomer } from '@/integrations/call/store';
 import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 
+function applyTimezoneOffset(date, timezoneOffsetHours = 8) {
+  const offsetMs = timezoneOffsetHours * 60 * 60 * 1000;
+  return new Date(date.getTime() - offsetMs);
+}
+
 export const receiveCdr = async (models: IModels, subdomain, params) => {
   debugCall(`Request to get post data with: ${JSON.stringify(params)}`);
 
@@ -79,8 +84,15 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
   } else {
     const startDate = new Date(params.start);
 
-    const startTime = new Date(startDate.getTime() - 30 * 1000);
-    const endTime = new Date(startDate.getTime() + 30 * 1000);
+    const timezoneOffset =
+      process.env.NODE_ENV === 'production'
+        ? Number(process.env.TIMEZONE || 0)
+        : 0;
+
+    const localDate = applyTimezoneOffset(startDate, timezoneOffset);
+
+    const startTime = new Date(localDate.getTime() - 30 * 1000);
+    const endTime = new Date(localDate.getTime() + 30 * 1000);
 
     const historySelector = {
       customerPhone: primaryPhone,
@@ -89,7 +101,6 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
     if (extension) {
       historySelector.extensionNumber = extension;
     }
-
     const callHistory = await models.CallHistory.findOne({
       ...historySelector,
     }).sort({ createdAt: -1 });
