@@ -5,7 +5,7 @@ export const types = `
   type Pipeline {
     _id: String!
     name: String!
-    channelId: String!
+    channelId: String
     description: String
     userId: String
     createdAt: Date
@@ -27,6 +27,7 @@ export const types = `
 
   input TicketsPipelineFilter {
     channelId: String
+    pipelineId:String
     userId: String
     name: String
     ${GQL_CURSOR_PARAM_DEFS}
@@ -41,7 +42,9 @@ export const queries = `
 export const mutations = `
   createPipeline(
     name: String!
-    channelId: String!
+    channelId: String
+    pipelineId:String
+    statusId:String
     description: String
     order: Int
   ): Pipeline
