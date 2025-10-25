@@ -71,6 +71,10 @@ export const taskQueries = {
       filterQuery.estimatePoint = filter.estimatePoint;
     }
 
+    if (filter.tagIds && filter.tagIds.length > 0) {
+      filterQuery.tagIds = { $in: filter.tagIds };
+    }
+
     if (filter.teamId && filter.projectId) {
       delete filterQuery.teamId;
     }
