@@ -24,9 +24,18 @@ export const ticketQueries = {
     if (filter.statusType !== undefined)
       filterQuery.statusType = filter.statusType;
     if (filter.priority !== undefined) filterQuery.priority = filter.priority;
-    filterQuery.startDate = buildDateQuery(filter.startDate);
-    filterQuery.targetDate = buildDateQuery(filter.targetDate);
-    filterQuery.createdAt = buildDateQuery(filter.createdAt);
+
+    if (filterQuery.startDate) {
+      buildDateQuery(filter.startDate);
+    }
+
+    if (filterQuery.targetDate) {
+      filterQuery.targetDate = buildDateQuery(filter.targetDate);
+    }
+
+    if (filterQuery.createdAt) {
+      filterQuery.createdAt = buildDateQuery(filter.createdAt);
+    }
 
     if (filter.assigneeId) filterQuery.assigneeId = filter.assigneeId;
     if (filter.channelId) filterQuery.channelId = filter.channelId;
