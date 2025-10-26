@@ -66,7 +66,7 @@ export const loadBoardClass = (models: IModels) => {
       }
 
       for (const pipeline of pipelines) {
-        models.Pipelines.removePipeline(pipeline._id, true);
+        await models.Pipelines.removePipeline(pipeline._id, true);
       }
 
       return models.Boards.deleteOne({ _id });
