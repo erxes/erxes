@@ -213,11 +213,11 @@ export default async function userMiddleware(
       '_id email details isOwner groupIds brandIds username code departmentIds',
     ).lean();
 
-    const { role } = await models.Roles.findOne({ userId: userDoc._id }).lean();
-
     if (!userDoc) {
       return next();
     }
+
+    const { role } = await models.Roles.getRole(userDoc._id);
 
     const validatedToken = await redis.get(`user_token_${user._id}_${token}`);
 
