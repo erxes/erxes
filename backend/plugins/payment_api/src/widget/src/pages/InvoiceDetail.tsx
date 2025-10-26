@@ -117,12 +117,14 @@ const InvoiceDetail = () => {
   };
 
   const postMessage = (message: any) => {
+    const targetOrigin = window.location.origin;
+
     if (window.opener) {
-      window.opener.postMessage(message, '*');
+      window.opener.postMessage(message, targetOrigin);
     }
 
     if (window.parent) {
-      window.parent.postMessage(message, '*');
+      window.parent.postMessage(message, targetOrigin);
     }
   };
 
