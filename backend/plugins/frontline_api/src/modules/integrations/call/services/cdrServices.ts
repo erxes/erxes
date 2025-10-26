@@ -82,28 +82,38 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
       integrationId: inboxId,
     });
   } else {
-    const startDate = new Date(params.start);
+    console.log('now date:', new Date(), params.start, typeof params.start);
 
-    const timezoneOffset =
-      process.env.NODE_ENV === 'production'
-        ? Number(process.env.TIMEZONE || 0)
-        : 0;
+    const [datePart, timePart] = params.start.split(' ');
+    const localTimeString = `${datePart}T${timePart}+08:00`;
+    const localStart = new Date(localTimeString);
+    const startDate = new Date(localStart.getTime());
+    const rangeSeconds = 30;
+    const startTime = new Date(startDate.getTime() - rangeSeconds * 1000);
+    const endTime = new Date(startDate.getTime() + rangeSeconds * 1000);
 
-    const localDate = applyTimezoneOffset(startDate, timezoneOffset);
-
-    const startTime = new Date(localDate.getTime() - 30 * 1000);
-    const endTime = new Date(localDate.getTime() + 30 * 1000);
-
-    const historySelector = {
+    const historySelector: Record<string, any> = {
       customerPhone: primaryPhone,
       createdAt: { $gte: startTime, $lte: endTime },
-    } as any;
+    };
+
     if (extension) {
       historySelector.extensionNumber = extension;
     }
-    const callHistory = await models.CallHistory.findOne({
-      ...historySelector,
-    }).sort({ createdAt: -1 });
+
+    const callHistory = await models.CallHistory.findOne(historySelector)
+      .sort({ createdAt: -1 })
+      .lean();
+
+    console.log({
+      now: new Date(),
+      paramsStart: params.start,
+      localStart,
+      startDate,
+      startTime,
+      endTime,
+      found: !!callHistory,
+    });
 
     const erxesPayload = {
       customerId: customer?.erxesApiId,
