@@ -1,4 +1,4 @@
-import { IUserDocument } from 'erxes-api-shared/core-types';
+import { IPropertyField, IUserDocument } from 'erxes-api-shared/core-types';
 import { Model } from 'mongoose';
 import validator from 'validator';
 import { IModels } from '~/connectionResolvers';
@@ -18,6 +18,7 @@ export interface IFieldModel extends Model<IFieldDocument> {
 
   validateFieldValue(_id: string, value: any): Promise<any>;
   validateFieldValues(customFieldsData: any): Promise<any>;
+  validatePropertyValues(propertiesFieldsData: any): Promise<any>;
 }
 
 export const loadFieldClass = (models: IModels, subdomain: string) => {
@@ -210,6 +211,43 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
             fieldId.toString(),
             customFieldData.value,
           );
+        } catch (e) {
+          throw new Error(e.message);
+        }
+      }
+    }
+
+    public static async validatePropertyValues(
+      propertiesFieldsData: IPropertyField,
+    ) {
+      for (const fieldName in propertiesFieldsData) {
+        const fieldValue = propertiesFieldsData[fieldName];
+
+        if (!fieldValue) {
+          continue;
+        }
+
+        const field = await models.Fields.findOne({
+          $or: [{ code: fieldName }, { _id: fieldName }],
+        }).lean();
+
+        const group = await models.FieldsGroups.findOne({
+          _id: fieldName,
+          isMultiple: true,
+        }).lean();
+
+        if (!field && !group) {
+          continue;
+        }
+
+        const fieldId = group?._id || field?._id;
+
+        if (!fieldId) {
+          continue;
+        }
+
+        try {
+          await this.validateFieldValue(fieldId.toString(), fieldValue);
         } catch (e) {
           throw new Error(e.message);
         }
