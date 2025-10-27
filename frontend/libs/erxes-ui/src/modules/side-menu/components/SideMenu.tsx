@@ -42,7 +42,7 @@ export const SideMenuContent = forwardRef<
     <Tabs.Content
       ref={ref}
       className={cn(
-        'data-[state=active]:border-l data-[state=active]:w-80 w-full transition-all flex flex-col overflow-hidden',
+        'data-[state=active]:border-l data-[state=active]:w-80 w-full transition-all data-[state=active]:flex flex-col overflow-hidden',
         className,
       )}
       {...props}

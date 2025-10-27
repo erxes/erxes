@@ -1,19 +1,27 @@
 import { createContext, useContext } from 'react';
+import { Icon } from '@tabler/icons-react';
 
 export type RelationWidgetProps = {
   module: string;
   pluginName: string;
   contentId: string;
   contentType: string;
+  customerId?: string;
+};
+
+export type RelationModules = {
+  name: string;
+  pluginName: string;
+  icon: Icon;
 };
 
 export const RelationWidgetContext = createContext<{
   RelationWidget: (props: RelationWidgetProps) => JSX.Element | null;
-  relationWidgetsModules: { name: string; pluginName: string }[];
+  relationWidgetsModules: RelationModules[];
 }>(
   {} as {
     RelationWidget: (props: any) => JSX.Element | null;
-    relationWidgetsModules: { name: string; pluginName: string }[];
+    relationWidgetsModules: RelationModules[];
   },
 );
 
@@ -24,7 +32,7 @@ export const RelationWidgetProvider = ({
 }: {
   children: React.ReactNode;
   RelationWidget: (props: RelationWidgetProps) => JSX.Element | null;
-  relationWidgetsModules: { name: string; pluginName: string }[];
+  relationWidgetsModules: RelationModules[];
 }) => {
   return (
     <RelationWidgetContext.Provider
