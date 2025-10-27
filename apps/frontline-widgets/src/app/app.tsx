@@ -14,9 +14,9 @@ export function App() {
   const [isSmallContainer] = useState(false);
   const { activeTab } = useMessenger();
   const [connection] = useAtom(connectionAtom);
-  const [channelId, setChannelId] = useState('');
+  const [integrationId, setIntegrationId] = useState('');
   const { loading: connecting } = useConnect({
-    channelId,
+    integrationId,
   });
 
   useEffect(() => {
@@ -50,8 +50,8 @@ export function App() {
 
     window.addEventListener('message', (event) => {
       if (event.data.fromPublisher) {
-        if (event.data?.settings?.channelId) {
-          setChannelId(event.data.settings.channelId);
+        if (event.data?.settings?.integrationId) {
+          setIntegrationId(event.data.settings.integrationId);
         }
 
         if (event.data.action === 'toggleMessenger') {

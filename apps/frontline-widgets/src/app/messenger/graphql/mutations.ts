@@ -44,7 +44,7 @@ const connect = (
   isTicketEnabled?: boolean,
 ) => gql`
   mutation connect(
-    $channelId: String!,
+    $integrationId: String!,
     $visitorId: String
     $cachedCustomerId: String,
     $email: String,
@@ -55,7 +55,7 @@ const connect = (
     $companyData: JSON,
     ) {
     widgetsMessengerConnect(
-      channelId: $channelId,
+      integrationId: $integrationId,
       visitorId: $visitorId,
       cachedCustomerId: $cachedCustomerId,
       email: $email,

@@ -11,13 +11,13 @@ import { connect } from '../graphql';
 interface connectionProps {
   isCloudFlareEnabled?: boolean;
   isTicketEnabled?: boolean;
-  channelId: string;
+  integrationId: string;
 }
 
 export const useConnect = ({
   isCloudFlareEnabled = false,
   isTicketEnabled = false,
-  channelId,
+  integrationId,
 }: connectionProps) => {
   const setConnection = useSetAtom(connectionAtom);
   const setIntegrationId = useSetAtom(integrationIdAtom);
@@ -59,7 +59,7 @@ export const useConnect = ({
 
   useEffect(() => {
     const executeConnection = async () => {
-      if (!channelId) return;
+      if (!integrationId) return;
 
       let visitorId;
 
@@ -75,7 +75,7 @@ export const useConnect = ({
 
       const variables = email
         ? {
-            channelId,
+            integrationId,
             visitorId: null,
             cachedCustomerId: cachedCustomerId || undefined,
             email,
@@ -86,7 +86,7 @@ export const useConnect = ({
             companyData,
           }
         : {
-            channelId,
+            integrationId,
             visitorId,
             cachedCustomerId: cachedCustomerId || undefined,
             isUser: false,
@@ -99,7 +99,7 @@ export const useConnect = ({
   }, [
     isCloudFlareEnabled,
     isTicketEnabled,
-    channelId,
+    integrationId,
     cachedCustomerId,
     connectMutation,
   ]);
