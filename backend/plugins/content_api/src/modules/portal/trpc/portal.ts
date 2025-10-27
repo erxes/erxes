@@ -79,7 +79,7 @@ export const portalRouter = t.router({
   sendSms: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
     const { type, to, content } = input;
     try {
-      await sendSms(type, to, content);
+      await sendSms(ctx.subdomain, type, to, content);
       return {
         status: 'success',
         data: {},
@@ -215,7 +215,7 @@ export const portalUserRouter = t.router({
   createOrUpdate: t.procedure
     .input(z.object({ rows: z.array(z.any()) }))
     .mutation(async ({ ctx, input }) => {
-      const { models } = ctx;
+      const { models, subdomain } = ctx;
       const operations: any[] = [];
 
       for (const { selector, doc } of input.rows) {
@@ -229,6 +229,8 @@ export const portalUserRouter = t.router({
           });
         } else {
           const customer = await sendTRPCMessage({
+            subdomain,
+
             pluginName: 'core',
             method: 'query',
             module: 'customers',

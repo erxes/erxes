@@ -21,6 +21,7 @@ export const useFacebookPages = () => {
         ? IntegrationType.FACEBOOK_POST
         : IntegrationType.FACEBOOK_MESSENGER,
     },
+    skip: !selectedAccount,
   });
 
   const { facebookGetPages = [] } = data || {};

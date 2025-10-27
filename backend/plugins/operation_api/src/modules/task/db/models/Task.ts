@@ -1,17 +1,17 @@
-import { Model, FlattenMaps, FilterQuery } from 'mongoose';
-import { Document } from 'mongodb';
-import { IModels } from '~/connectionResolvers';
-import { taskSchema } from '@/task/db/definitions/task';
+import { createActivity } from '@/activity/utils/createActivity';
+import { STATUS_TYPES } from '@/status/constants/types';
 import {
   ITask,
   ITaskDocument,
   ITaskFilter,
   ITaskUpdate,
 } from '@/task/@types/task';
-import { createActivity } from '@/activity/utils/createActivity';
-import { STATUS_TYPES } from '@/status/constants/types';
-import { createNotifications } from '~/utils/notifications';
+import { taskSchema } from '@/task/db/definitions/task';
+import { Document } from 'mongodb';
+import { FilterQuery, FlattenMaps, Model } from 'mongoose';
+import { IModels } from '~/connectionResolvers';
 import { IProject, IProjectDocument } from '~/modules/project/@types/project';
+import { createNotifications } from '~/utils/notifications';
 
 export interface ITaskModel extends Model<ITaskDocument> {
   getTask(_id: string): Promise<ITaskDocument>;
@@ -88,6 +88,10 @@ export const loadTaskClass = (models: IModels) => {
 
       if (params.projectId) {
         query.projectId = params.projectId;
+      }
+
+      if (params.milestoneId) {
+        query.milestoneId = params.milestoneId;
       }
 
       if (params.createdAt) {
@@ -221,7 +225,7 @@ export const loadTaskClass = (models: IModels) => {
 
         rest.number = nextNumber;
         rest.status = newStatus?._id;
-        rest.cycleId = '';
+        rest.cycleId = null;
       }
 
       await createActivity({

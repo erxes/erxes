@@ -19,9 +19,13 @@ import {
   FacebookIntegrationFormLayout,
   FacebookIntegrationFormSteps,
 } from './FacebookIntegrationForm';
+import { useParams } from 'react-router-dom';
+import { useFacebookPages } from '../hooks/useFacebookPages';
 
 export const FacebookGetAccounts = () => {
+  const { id: channelId } = useParams();
   const { facebookGetAccounts, loading } = useFacebookAccounts();
+  const { facebookGetPages } = useFacebookPages();
   const [selectedAccount, setSelectedAccount] = useAtom(
     selectedFacebookAccountAtom,
   );
@@ -41,7 +45,13 @@ export const FacebookGetAccounts = () => {
 
   const handleFacebookLogin = () => {
     setIsLoggingIn(true);
-    window.location.href = `${REACT_APP_API_URL}/pl:frontline/facebook/fblogin?kind=facebook`;
+
+    const encodedUrl = new URLSearchParams({
+      kind: 'facebook',
+      channelId: channelId || '',
+    }).toString();
+
+    window.location.href = `${REACT_APP_API_URL}/pl:frontline/facebook/fblogin?${encodedUrl}}`;
   };
 
   const onNext = () => setActiveStep(2);
@@ -137,9 +147,16 @@ export const FacebookGetAccounts = () => {
                 >
                   <RadioGroup.Item
                     value={account._id}
+                    checked={selectedAccount === account._id}
                     className="bg-background"
+                    onClick={() => setSelectedAccount(account._id)}
                   />
                   <div className="font-semibold">{account.name}</div>
+                  {selectedAccount && facebookGetPages?.length && (
+                    <div className="text-sm text-muted-foreground font-mono uppercase ml-auto">
+                      {facebookGetPages.length} pages
+                    </div>
+                  )}
                 </Command.Item>
               ))}
             </Command.List>

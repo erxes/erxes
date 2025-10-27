@@ -10,6 +10,7 @@ import {
   Form,
   Input,
   toast,
+  Label,
 } from 'erxes-ui';
 import { IconEdit } from '@tabler/icons-react';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
@@ -17,12 +18,48 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
-import { SelectBrand } from 'ui-modules';
-import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 import { FACEBOOK_INTEGRATION_SCHEMA } from '@/integrations/facebook/constants/FbMessengerSchema';
+import { useSearchParams } from 'react-router-dom';
+import { useSetAtom } from 'jotai';
+import {
+  facebookFormSheetAtom,
+  selectedFacebookAccountAtom,
+  activeFacebookFormStepAtom,
+} from '@/integrations/facebook/states/facebookStates';
 
 export const FacebookIntegrationDetail = ({ isPost }: { isPost?: boolean }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const setFacebookFormSheet = useSetAtom(facebookFormSheetAtom);
+  const setSelectedAccount = useSetAtom(selectedFacebookAccountAtom);
+  const setActiveStep = useSetAtom(activeFacebookFormStepAtom);
+
+  useEffect(() => {
+    const fbAuthorized = searchParams.get('fbAuthorized');
+    const accountId = searchParams.get('accountId');
+
+    if (fbAuthorized === 'true') {
+      setFacebookFormSheet(true);
+
+      // If accountId is provided, automatically select it and move to step 2
+      if (accountId) {
+        setSelectedAccount(accountId);
+        setActiveStep(2);
+      }
+
+      // Clean up the URL parameters
+      searchParams.delete('fbAuthorized');
+      searchParams.delete('accountId');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [
+    searchParams,
+    setSearchParams,
+    setFacebookFormSheet,
+    setSelectedAccount,
+    setActiveStep,
+  ]);
+
   return (
     <div>
       <FacebookIntegrationFormSheet isPost={isPost} />
@@ -73,8 +110,7 @@ export const FacebookIntegrationEditForm = ({
   useEffect(() => {
     if (integrationDetail) {
       form.reset({
-        ...integrationDetail,
-        channelIds: integrationDetail.channels?.map((c) => c._id) || [],
+        name: integrationDetail.name,
       });
     }
   }, [integrationDetail, form]);
@@ -83,7 +119,8 @@ export const FacebookIntegrationEditForm = ({
     editIntegration({
       variables: {
         _id: id,
-        ...data,
+        name: data.name,
+        channelId: integrationDetail?.channelId || '',
       },
       onCompleted: () => {
         setOpen(false);
@@ -112,27 +149,15 @@ export const FacebookIntegrationEditForm = ({
           })}
         >
           <div className="p-6 pb-8 space-y-6">
-            <Form.Field
-              name="facebookPage"
-              render={({ field }) => {
-                const page = Array.isArray(field.value)
-                  ? field.value[0]
-                  : field.value;
-                return (
-                  <Form.Item>
-                    <Form.Label>Page Name</Form.Label>
-                    <Form.Control>
-                      <Input
-                        name={field.name}
-                        value={page?.name ?? ''}
-                        disabled
-                        readOnly
-                      />
-                    </Form.Control>
-                  </Form.Item>
-                );
-              }}
-            />
+            <div>
+              <Label htmlFor="pageName">Page Name</Label>
+              <Input
+                id="pageName"
+                value={integrationDetail?.facebookPage?.[0]?.name}
+                className="mt-2"
+                readOnly
+              />
+            </div>
             <Form.Field
               name="name"
               render={({ field }) => (
@@ -141,32 +166,6 @@ export const FacebookIntegrationEditForm = ({
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="brandId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Brand</Form.Label>
-                  <SelectBrand.FormItem
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="channelId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Channel</Form.Label>
-                  <SelectChannel.FormItem
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  />
-                  <Form.Message />
                 </Form.Item>
               )}
             />

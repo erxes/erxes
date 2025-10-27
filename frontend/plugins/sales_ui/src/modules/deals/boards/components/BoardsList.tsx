@@ -82,11 +82,15 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
         className="w-full"
         to={`/settings/deals?activeBoardId=${board._id}`}
       >
-        <Sidebar.MenuButton isActive={isActive}>
+        <Sidebar.MenuButton className="h-auto" isActive={isActive}>
           {board.name}
         </Sidebar.MenuButton>
       </Link>
-      <div className="absolute right-0 flex items-center gap-1 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 pr-2">
+      <div
+        className={`absolute right-0 top-0 bottom-0 flex items-center gap-1 opacity-0 ${
+          isActive ? 'bg-primary/20' : 'bg-gray-100'
+        } translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 pr-2`}
+      >
         <button
           onClick={() => setBoardId(board._id)}
           className="text-gray-400 hover:text-blue-500 p-1 rounded transition-colors"

@@ -147,6 +147,9 @@ export const dealSchema = new Schema(
     },
 
     productsData: { type: [productDataSchema], label: 'Products' },
+    totalAmount: { type: Number, label: 'Total Amount', index: true },
+    unUsedTotalAmount: { type: Number, label: 'UnUsed TotalAmount' },
+    bothTotalAmount: { type: Number, label: 'Both Total Amount' },
     paymentsData: { type: Object, optional: true, label: 'Payments' },
     extraData: { type: Object, optional: true },
   },

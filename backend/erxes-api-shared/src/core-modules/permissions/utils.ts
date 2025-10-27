@@ -1,5 +1,5 @@
 import { IPermissionContext, IUserDocument, Resolver } from '../../core-types';
-import { getEnv, redis, sendTRPCMessage } from '../../utils';
+import { getEnv, redis } from '../../utils';
 import { getUserActionsMap } from './user-actions-map';
 
 export const getKey = (user: IUserDocument) => `user_permissions_${user._id}`;
@@ -24,7 +24,8 @@ const resolverWrapper = async (
     for (const service of beforeResolvers[methodName]) {
       results = {
         ...results,
-        // ...(await sendTRPCMessage({
+        // ...(await sendTRPCMessage({subdomain,
+
         //   pluginName: service,
         //   method: 'query',
         //   module: service,
@@ -69,6 +70,7 @@ export const permissionWrapper = (
 };
 
 export const can = async (
+  subdomain: string,
   action: string,
   user?: IUserDocument,
 ): Promise<boolean> => {
@@ -80,7 +82,7 @@ export const can = async (
     return true;
   }
 
-  const actionMap = await getUserActionsMap(user);
+  const actionMap = await getUserActionsMap(subdomain, user);
 
   if (!actionMap) {
     return false;
@@ -92,8 +94,11 @@ export const can = async (
 /*
  * Get allowed actions
  */
-export const getUserAllowedActions = async (user: any): Promise<string[]> => {
-  const map = await getUserActionsMap(user);
+export const getUserAllowedActions = async (
+  subdomain: string,
+  user: any,
+): Promise<string[]> => {
+  const map = await getUserActionsMap(subdomain, user);
 
   const allowedActions: string[] = [];
 
@@ -120,11 +125,11 @@ export const checkPermission = async (
     context: { user?: IUserDocument; [x: string]: any },
     info: any,
   ) => {
-    const { user } = context;
+    const { user, subdomain } = context;
 
     checkLogin(user);
 
-    const allowed = await can(actionName, user);
+    const allowed = await can(subdomain, actionName, user);
 
     if (!allowed) {
       if (defaultValue) {
@@ -180,21 +185,10 @@ export const moduleCheckPermission = async (
 };
 
 export const checkRolePermission = async (
-  subdomain: string,
-  userId: string,
+  user: IUserDocument,
   resolverKey: string,
 ) => {
-  const { role } = await sendTRPCMessage({
-    pluginName: 'core',
-    method: 'query',
-    module: 'roles',
-    action: 'findOne',
-    input: {
-      userId,
-      resolverKey,
-    },
-    defaultValue: { role: null },
-  });
+  const { role } = user || {};
 
   if (!role) {
     return false;
@@ -214,15 +208,11 @@ export const checkRolePermission = async (
 
 export const wrapPermission = (resolver: Resolver, resolverKey: string) => {
   return async (parent: any, args: any, context: any, info: any) => {
-    const { user, subdomain } = context;
+    const { user } = context;
 
     checkLogin(user);
 
-    const permission = await checkRolePermission(
-      subdomain,
-      user._id,
-      resolverKey,
-    );
+    const permission = await checkRolePermission(user, resolverKey);
 
     if (!permission) {
       throw new Error('Permission denied');

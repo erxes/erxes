@@ -21,7 +21,6 @@ import {
   ProductFormValues,
 } from '../../add-category/components/formSchema';
 import { CategoryUpdateMoreFields } from './CategoryUpdateMoreFields';
-import { ProductAddCollapsible } from '@/products/add-products/components/ProductAddCollapsible';
 
 export const CategoryDetailSheet = () => {
   const [activeTab] = useAtom(renderingCategoryDetailAtom);
@@ -125,9 +124,7 @@ export const CategoryDetailSheet = () => {
               <ScrollArea className="h-full">
                 <div className="p-5">
                   <CategoriesUpdateCoreFields form={form} />
-                  <ProductAddCollapsible>
-                    <CategoryUpdateMoreFields form={form} />
-                  </ProductAddCollapsible>
+                  <CategoryUpdateMoreFields form={form} />
                 </div>
               </ScrollArea>
             </Sheet.Content>

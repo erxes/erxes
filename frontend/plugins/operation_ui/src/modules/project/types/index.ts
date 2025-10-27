@@ -44,3 +44,17 @@ export interface IProjectProgressByTeam {
   totalStartedScope: number;
   totalCompletedScope: number;
 }
+
+export interface IMilestone {
+  _id: string;
+  name: string;
+  description: string;
+  targetDate: Date;
+  projectId: string;
+}
+
+export interface IMilestoneProgress {
+  totalScope: number;
+  totalStartedScope: number;
+  totalCompletedScope: number;
+}

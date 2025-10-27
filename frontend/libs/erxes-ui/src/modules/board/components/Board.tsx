@@ -4,7 +4,7 @@ import type {
   DragStartEvent,
 } from '@dnd-kit/core';
 import {
-  closestCenter,
+  rectIntersection,
   DndContext,
   DragOverlay,
   KeyboardSensor,
@@ -16,7 +16,7 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ScrollArea } from 'erxes-ui/components';
+import { ScrollArea, Button } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 import {
   BoardCardProps,
@@ -36,6 +36,8 @@ import {
 } from '../states/boardStates';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { AnimatePresence, motion } from 'motion/react';
+import { IconBrandTrello, IconSettings } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
 export type { DragEndEvent } from '@dnd-kit/core';
 
 const BoardCards = ({
@@ -82,6 +84,10 @@ const BoardCard = <T extends BoardItemProps = BoardItemProps>({
     isDragging,
   } = useSortable({
     id,
+    data: {
+      type: 'card',
+      id,
+    },
   });
   const { boardId } = useContext(BoardContext) as BoardContextProps;
   const activeCardId = useAtomValue(activeCardIdState(boardId));
@@ -91,7 +97,13 @@ const BoardCard = <T extends BoardItemProps = BoardItemProps>({
   };
   return (
     <>
-      <div style={style} {...listeners} {...attributes} ref={setNodeRef}>
+      <div
+        style={style}
+        {...listeners}
+        {...attributes}
+        ref={setNodeRef}
+        data-type="card"
+      >
         <div
           className={cn(
             'gap-4 rounded-lg shadow-sm outline-none bg-background',
@@ -136,6 +148,7 @@ const BoardProvider = <
   data,
   onDataChange,
   boardId,
+  emptyUrl,
   ...props
 }: BoardProviderProps<T, C>) => {
   const setActiveCardId = useSetAtom(activeCardIdState(boardId));
@@ -168,14 +181,13 @@ const BoardProvider = <
 
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
-    if (!over) {
-      return;
-    }
+    if (!over) return;
+
     const activeItem = data.find((item) => item.id === active.id);
-    if (!activeItem) {
-      return;
-    }
+    if (!activeItem) return;
+
     const overItem = data.find((item) => item.id === over.id);
+
     if (overItem) {
       setDragOverBoardColumnId(overItem.column as string);
     } else {
@@ -191,10 +203,28 @@ const BoardProvider = <
     onDragEnd?.(event);
   };
 
+  if (!columns || columns.length === 0) {
+    return (
+      <div className="flex h-full w-full flex-col items-center justify-center text-center p-6 gap-2">
+        <IconBrandTrello size={64} stroke={1.5} className="text-gray-300" />
+        <h2 className="text-lg font-semibold text-gray-600">No stages yet</h2>
+        <p className="text-md text-gray-500 mb-4">
+          Create a stage to start organizing your board.
+        </p>
+        <Button variant="outline" asChild>
+          <Link to={emptyUrl || '/settings'}>
+            <IconSettings />
+            Go to settings
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <BoardContext.Provider value={{ columns, data, boardId }}>
       <DndContext
-        collisionDetection={closestCenter}
+        collisionDetection={rectIntersection}
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}
         onDragStart={handleDragStart}
@@ -217,7 +247,7 @@ const BoardProvider = <
 export const BoardHeader = ({ className, ...props }: BoardHeaderProps) => (
   <div
     className={cn(
-      'm-0 px-2 h-10 flex-none font-semibold text-sm flex items-center justify-between',
+      'm-0 px-2 min-h-10 flex-none font-semibold text-sm flex items-center justify-between',
       className,
     )}
     {...props}
@@ -229,38 +259,50 @@ export const BoardRoot = ({
   children,
   className,
   sortBy,
-}: BoardProps & { sortBy?: string }) => {
+  isSorted,
+}: BoardProps & { sortBy?: string; isSorted?: boolean }) => {
   const { boardId } = useContext(BoardContext) as BoardContextProps;
   const dragOverBoardColumnId = useAtomValue(
     dragOverBoardColumnIdState(boardId),
   );
   const { isOver, setNodeRef } = useDroppable({
     id,
+    data: {
+      type: 'column',
+      id,
+    },
   });
+
+  // Determine if this column is active
+  const isActive = isOver || dragOverBoardColumnId === id;
 
   return (
     <div
+      ref={setNodeRef}
+      data-type="column"
       className={cn(
-        'flex size-full min-h-40 min-w-80 flex-col overflow-hidden transition-all bg-gradient-to-b from-[#e0e7ff] to-[#e0e7ff50] rounded-t-md dark:from-primary/40 dark:to-primary/20 relative',
+        'flex min-h-[400px] min-w-80 flex-col overflow-hidden transition-all bg-gradient-to-b from-[#e0e7ff] to-[#e0e7ff50] rounded-t-md dark:from-primary/40 dark:to-primary/20 relative',
+        isActive && 'shadow-lg shadow-purple-400/40 dark:shadow-primary/30',
         className,
       )}
-      ref={setNodeRef}
     >
       {children}
-      <AnimatePresence>
-        {(isOver || dragOverBoardColumnId === id) && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.1 }}
-            className="absolute inset-0 top-8 rounded-t-md bg-background/30 backdrop-blur-sm flex items-center justify-center"
-          >
-            Board ordered by
-            <span className="font-medium capitalize ml-1">{sortBy}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {!isSorted && (
+        <AnimatePresence>
+          {(isOver || dragOverBoardColumnId === id) && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.1 }}
+              className="absolute inset-0 top-8 rounded-t-md bg-background/30 backdrop-blur-sm flex items-center justify-center"
+            >
+              Board ordered by
+              <span className="font-medium capitalize ml-1">{sortBy}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
     </div>
   );
 };

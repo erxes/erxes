@@ -35,34 +35,22 @@ export default {
   async __resolveReference({ _id }, { models }: IContext) {
     return models.Integrations.findOne({ _id });
   },
-  // brand(integration: IIntegrationDocument) {
-  //   if (!integration.brandId) {
-  //     return null;
-  //   }
-  //   return (
-  //     integration.brandId && {
-  //       __typename: 'Brand',
-  //       _id: integration.brandId,
-  //     }
-  //   );
-  // },
 
-  async form(
-    integration: IIntegrationDocument,
-    _args,
-    { subdomain }: IContext,
-  ) {
+  async form(_args) {
     return null;
   },
 
-  async channels(
+  async channel(
     integration: IIntegrationDocument,
     _args,
     { models }: IContext,
   ) {
-    return models.Channels.find({
-      integrationIds: { $in: [integration._id] },
-    });
+    if (integration?.channelId) {
+      return models.Channels.findOne({
+        _id: integration.channelId,
+      });
+    }
+    return;
   },
 
   async tags(integration: IIntegrationDocument) {
@@ -72,27 +60,15 @@ export default {
     }));
   },
 
-  async websiteMessengerApps(
-    integration: IIntegrationDocument,
-    _args,
-    { models }: IContext,
-  ) {
+  async websiteMessengerApps(_args) {
     return [];
   },
 
-  async knowledgeBaseMessengerApps(
-    integration: IIntegrationDocument,
-    _args,
-    { models }: IContext,
-  ) {
+  async knowledgeBaseMessengerApps(_args) {
     return [];
   },
 
-  async leadMessengerApps(
-    integration: IIntegrationDocument,
-    _args,
-    { models }: IContext,
-  ) {
+  async leadMessengerApps(_args) {
     return [];
   },
 
@@ -119,11 +95,7 @@ export default {
     }
   },
 
-  async details(
-    integration: IIntegrationDocument,
-    _args,
-    { subdomain }: IContext,
-  ) {
+  async details(integration: IIntegrationDocument, _args) {
     const serviceName = integration.kind.includes('facebook')
       ? 'facebook'
       : integration.kind;

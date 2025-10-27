@@ -149,7 +149,7 @@ export interface IUserModel extends Model<IUserDocument> {
   ): Promise<{ userIds: string[]; clientPortalId: string }>;
 }
 
-export const loadUserClass = (models: IModels) => {
+export const loadUserClass = (models: IModels, subdomain: string) => {
   class User {
     public static async checkDuplication(
       userFields: {
@@ -240,6 +240,8 @@ export const loadUserClass = (models: IModels) => {
       // TODO: implement custom fields after forms migrated
       if (doc.customFieldsData) {
         doc.customFieldsData = await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'query',
           module: 'fields',
@@ -250,6 +252,7 @@ export const loadUserClass = (models: IModels) => {
 
       const user = await handleContacts({
         models,
+        subdomain,
         clientPortalId,
         document,
         password,
@@ -298,7 +301,7 @@ export const loadUserClass = (models: IModels) => {
           portal.otpConfig.content.replace(/{{.*}}/, phoneCode) ||
           `Your verification code is ${phoneCode}`;
 
-        await sendSms(portal.otpConfig.smsTransporterType, user.phone, smsBody);
+        await sendSms(subdomain, portal.otpConfig.smsTransporterType, user.phone, smsBody);
       }
 
       // TODO: consider following function necessary
@@ -314,9 +317,11 @@ export const loadUserClass = (models: IModels) => {
       return user;
     }
 
-    public static async updateUser(_id, doc: IUser) {
+    public static async updateUser(_id, doc: IUser, subdomain: string) {
       if (doc.customFieldsData) {
         doc.customFieldsData = await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'query',
           module: 'fields',
@@ -843,6 +848,7 @@ export const loadUserClass = (models: IModels) => {
 
       return await handleContacts({
         models,
+        subdomain,
         clientPortalId,
         document: doc,
         password,
@@ -880,6 +886,7 @@ export const loadUserClass = (models: IModels) => {
 
       const user = await handleContacts({
         models,
+        subdomain,
         clientPortalId,
         document: doc,
         password,
@@ -1093,6 +1100,7 @@ export const loadUserClass = (models: IModels) => {
       if (!user) {
         user = await handleContacts({
           models,
+          subdomain,
           clientPortalId: portal._id,
           document: { phone },
         });
@@ -1151,6 +1159,7 @@ export const loadUserClass = (models: IModels) => {
       if (!user) {
         user = await handleContacts({
           models,
+          subdomain,
           clientPortalId: portal._id,
           document: doc,
         });

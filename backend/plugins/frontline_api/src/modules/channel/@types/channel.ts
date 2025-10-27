@@ -3,6 +3,7 @@ export interface IChannel {
   name?: string;
   icon?: string;
   description?: string;
+  memberIds?: string[];
   userId?: string;
   conversationCount?: number;
   openConversationCount?: number;

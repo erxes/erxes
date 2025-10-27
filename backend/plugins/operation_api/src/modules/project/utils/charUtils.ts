@@ -1,4 +1,5 @@
 import { addDays, differenceInCalendarDays, format } from 'date-fns';
+import { Moment } from 'moment-timezone';
 
 export const fillUntilTargetDate = (
   data: { date: string; started: number; completed: number }[],
@@ -24,7 +25,7 @@ export const fillUntilTargetDate = (
 
 export const fillMissingDays = (
   data: { date: string; started: number; completed: number }[],
-  baseDate: Date,
+  baseDate: Moment,
   totalDays = 7,
 ) => {
   const filledData: { date: string; started: number; completed: number }[] = [];
@@ -32,8 +33,8 @@ export const fillMissingDays = (
   const mapDateToData = new Map(data.map((item) => [item.date, item]));
 
   for (let i = 0; i < totalDays; i++) {
-    const date = addDays(baseDate, i);
-    const key = format(date, 'yyyy-MM-dd');
+    const date = baseDate.clone().add(i, 'days');
+    const key = date.format('YYYY-MM-DD');
     const item = mapDateToData.get(key);
 
     if (item) {

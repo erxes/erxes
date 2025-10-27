@@ -12,7 +12,15 @@ export const getPtrStatus = async (models: IModels, transactions: ITransactionDo
     return PTR_STATUSES.DIFF;
   }
 
-  const accountIds = transactions.reduce((ids: string[], tr: ITransactionDocument) => ids.concat((tr.details || []).map(d => d.accountId)), [])
+  const accountIds = transactions.reduce(
+    (
+      ids: string[], tr: ITransactionDocument
+    ) => ids.concat(
+      (tr.details || []).map(d => d.accountId)
+    ),
+    []
+  );
+
   const accounts = await models.Accounts.find({ _id: { $in: accountIds } });
 
   const balanceTypes = [...new Set(accounts.map(a => a.isOutBalance))];
@@ -24,8 +32,32 @@ export const getPtrStatus = async (models: IModels, transactions: ITransactionDo
 }
 
 export const setPtrStatus = async (models: IModels, transactions: ITransactionDocument[]) => {
-  const status = await getPtrStatus(models, transactions);
-  await models.Transactions.updateMany({ _id: { $in: transactions.map(tr => tr._id) } }, { $set: { ptrStatus: status } });
+  const trsByPtrId = {};
+  let mainPtrId = '';
+  let resultStatus = PTR_STATUSES.DIFF;
 
-  return status;
+  for (const tr of transactions) {
+    if (!Object.keys(trsByPtrId).includes(tr.ptrId)) {
+      trsByPtrId[tr.ptrId] = [];
+    }
+    if (!mainPtrId && !tr.originId) {
+      mainPtrId = tr.ptrId
+    }
+
+    trsByPtrId[tr.ptrId].push(tr);
+  }
+
+  const ptrIds = Object.keys(trsByPtrId);
+
+  for (const ptrId of ptrIds) {
+    const trs = trsByPtrId[ptrId];
+    const status = await getPtrStatus(models, trs);
+
+    await models.Transactions.updateMany({ _id: { $in: trs.map(tr => tr._id) } }, { $set: { ptrStatus: status } });
+    if (ptrId === mainPtrId) {
+      resultStatus = status;
+    }
+  }
+
+  return resultStatus;
 }

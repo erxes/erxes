@@ -4,8 +4,10 @@ import { IPosOrderDocument } from '~/modules/pos/@types/orders';
 import { IPosDocument } from '~/modules/pos/@types/pos';
 
 const resolvers = {
-  putResponses: async (order) => {
+  putResponses: async (order, _, { subdomain }) => {
     return sendTRPCMessage({
+      subdomain,
+
       pluginName: 'ebarimt',
       module: 'putresponses',
       action: 'find',
@@ -50,16 +52,18 @@ const resolvers = {
     }));
   },
 
-  user: async (order) => {
+  user: async (order, _, { subdomain }) => {
     if (!order.userId) {
       return null;
     }
     return await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       module: 'users',
       action: 'findOne',
       input: { _id: order.userId },
-    })
+    });
   },
 };
 

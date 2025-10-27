@@ -405,7 +405,7 @@ export function createHealthRoute(serviceName: string) {
 export const checkServiceRunning = async (
   serviceName: 'automations' | 'logs' | 'notifications',
 ) => {
-  const address = await redis.get(`service-v3-${serviceName}`);
+  const address = await redis.get(`erxes-service-${serviceName}`);
   if (!address) return false;
 
   try {

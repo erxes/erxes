@@ -19,7 +19,9 @@ export const getCustomFields = async (
     isDefinedByErxes: false,
   };
 
-  validation && (qry.validation = validation);
+  if (validation) {
+    qry.validation = validation;
+  }
 
   return models.Fields.find(qry);
 };
@@ -85,6 +87,8 @@ export const fieldsCombinedByContentType = async (
 ) => {
   const [pluginName, moduleType, collectionType] = splitType(contentType);
   let fields = await sendTRPCMessage({
+    subdomain,
+
     pluginName,
     method: 'query',
     module: 'fields',

@@ -36,7 +36,6 @@ export const usePipelines = (
   >(GET_PIPELINES, {
     ...options,
     variables: {
-      isAll: true,
       ...options?.variables,
     },
   });

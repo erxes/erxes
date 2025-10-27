@@ -29,12 +29,12 @@ export default {
     return models.Categories.find({ _id: { $in: post.categoryIds } }).lean();
   },
 
-  async customFieldsMap(post: any, _params, { models }: IContext) {
+  async customFieldsMap(post: any, _params, { models, subdomain }: IContext) {
     const fieldGroups = await models.CustomFieldGroups.find({
       customPostTypeIds: post.type,
     }).lean();
 
-    return await buildCustomFieldsMap( fieldGroups, post.customFieldsData);
+    return await buildCustomFieldsMap(subdomain, fieldGroups, post.customFieldsData);
   },
 
   async customPostType(post: any, _params, { models }: IContext) {

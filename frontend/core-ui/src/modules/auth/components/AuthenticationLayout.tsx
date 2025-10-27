@@ -8,7 +8,7 @@ export const AuthenticationLayout = ({
   children,
 }: AuthenticationLayoutProps) => {
   return (
-    <div className="relative overflow-hidden lg:w-1/2 lg:flex-none flex-1 flex flex-col sm:pt-28 py-8 h-dvh bg-[radial-gradient(#F0F1FE,#F7F8FA)]">
+    <div className="relative overflow-hidden lg:w-1/2 lg:flex-none flex-1 flex flex-col sm:pt-28 py-8 h-dvh bg-[radial-gradient(#F0F1FE,#F7F8FA)] dark:bg-[radial-gradient(#0D0D0D,#161616)]">
       <div className="px-1 sm:px-6 mx-auto w-full max-w-md flex flex-col gap-8 relative">
         <div className="absolute inset-0 hidden sm:block">
           <Polygons

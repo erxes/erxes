@@ -114,6 +114,8 @@ const generateFilter = async (
       //   defaultValue: [],
       // });
       const tagObjs = await sendTRPCMessage({
+        subdomain,
+
         method: 'query',
         pluginName: 'core',
         module: 'tags',
@@ -139,6 +141,8 @@ const generateFilter = async (
       //   defaultValue: [],
       // });
       const tagObjs = await sendTRPCMessage({
+        subdomain,
+
         method: 'query',
         pluginName: 'core',
         module: 'tags',
