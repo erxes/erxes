@@ -32,7 +32,6 @@ const command = async () => {
     );
   } catch (e) {
     console.log(`Error occurred: ${e.message}`);
-    await client.close();
   }
 
   console.log(`Process finished at: ${new Date().toISOString()}`);
