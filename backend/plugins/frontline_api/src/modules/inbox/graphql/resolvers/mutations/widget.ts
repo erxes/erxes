@@ -225,7 +225,7 @@ export const widgetMutations = {
   async widgetsMessengerConnect(
     _root,
     args: {
-      channelId: string;
+      integrationId: string;
       email?: string;
       phone?: string;
       code?: string;
@@ -239,7 +239,7 @@ export const widgetMutations = {
     { models, subdomain }: IContext,
   ) {
     const {
-      channelId,
+      integrationId,
       email,
       phone,
       code,
@@ -254,22 +254,23 @@ export const widgetMutations = {
 
     const customData = data;
 
-    const channel = await models.Channels.findOne({
-      _id: channelId,
-    });
-    if (!channel) {
-      throw new Error('Channel not found');
-    }
-
     // find integration
     const integration = await models.Integrations.findOne({
-      channelId: channel._id,
+      _id: integrationId,
       kind: 'messenger',
     });
 
     if (!integration) {
       throw new Error('Integration not found');
     }
+
+    const channel = await models.Channels.findOne({
+      _id: integration.channelId,
+    });
+    if (!channel) {
+      throw new Error('Channel not found');
+    }
+
     let customer;
 
     if (cachedCustomerId || email || phone || code) {
