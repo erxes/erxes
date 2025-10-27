@@ -59,7 +59,7 @@ export const queries = `
 
 export const mutations = `
     widgetsMessengerConnect(
-      channelId: String!
+      integrationId: String!
       email: String
       phone: String
       code: String
