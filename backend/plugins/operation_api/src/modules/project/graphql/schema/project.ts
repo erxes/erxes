@@ -57,6 +57,7 @@ const createProjectParams = `
   status: Int
   priority: Int
   teamIds: [String!]!
+  tagIds: [String]
   startDate: Date
   targetDate: Date
 `;
@@ -70,6 +71,7 @@ const updateProjectParams = `
   status: Int
   priority: Int
   teamIds: [String]
+  tagIds: [String]
   startDate: Date
   targetDate: Date
 `;

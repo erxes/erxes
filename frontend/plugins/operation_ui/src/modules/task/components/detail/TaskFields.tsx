@@ -1,10 +1,4 @@
-import {
-  Input,
-  Separator,
-  useBlockEditor,
-  BlockEditor,
-  Button,
-} from 'erxes-ui';
+import { Input, Separator, useBlockEditor, BlockEditor } from 'erxes-ui';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import { useDebounce } from 'use-debounce';
 import { useEffect, useState } from 'react';
@@ -21,6 +15,7 @@ import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstim
 import { SelectCycle } from '@/task/components/task-selects/SelectCycle';
 import { ConverToProject } from '@/task/components/task-selects/ConvertToProject';
 import { SelectMilestone } from '@/task/components/task-selects/SelectMilestone';
+import { SelectTags } from 'ui-modules';
 
 export const TaskFields = ({ task }: { task: ITask }) => {
   const {
@@ -35,6 +30,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
     estimatePoint,
     cycleId,
     milestoneId,
+    tagIds,
   } = task || {};
 
   const startDate = (task as any)?.startDate;
@@ -154,6 +150,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
           projectId={projectId}
           variant="detail"
         />
+        <SelectTags.Detail targetIds={[taskId]} value={tagIds || []} />
       </div>
       <Separator className="my-4" />
       <div className="min-h-56 overflow-y-auto">
