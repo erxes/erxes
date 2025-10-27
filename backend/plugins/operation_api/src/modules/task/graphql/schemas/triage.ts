@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 export const types = `
   type Triage {
     _id: String
@@ -29,6 +31,8 @@ export const types = `
     updatedAt: Date
     name: String
     description: String
+
+    ${GQL_CURSOR_PARAM_DEFS}
   }
 `;
 

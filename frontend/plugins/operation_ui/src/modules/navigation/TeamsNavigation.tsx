@@ -22,7 +22,7 @@ import {
   IconDotsVertical,
   IconLink,
   IconSettings,
-  IconListCheck,
+  IconHelpSquareRounded,
 } from '@tabler/icons-react';
 
 type Team = {
@@ -78,6 +78,15 @@ function TeamItem({ team }: TeamItemProps) {
         <Collapsible.Content className="pt-1">
           <Sidebar.GroupContent>
             <Sidebar.Menu>
+              {team.triageEnabled && (
+                <NavigationMenuLinkItem
+                  name="Triage"
+                  pathPrefix="operation/team"
+                  path={`${team._id}/triage`}
+                  className="pl-6 font-medium"
+                  icon={IconHelpSquareRounded}
+                />
+              )}
               <NavigationMenuLinkItem
                 name="Projects"
                 pathPrefix="operation/team"
@@ -92,15 +101,7 @@ function TeamItem({ team }: TeamItemProps) {
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
-              {team.triageEnabled && (
-                <NavigationMenuLinkItem
-                  name="Triage"
-                  pathPrefix="operation/team"
-                  path={`${team._id}/triage`}
-                  className="pl-6 font-medium"
-                  icon={IconListCheck}
-                />
-              )}
+
               {team.cycleEnabled && (
                 <NavigationMenuLinkItem
                   name="Cycles"
