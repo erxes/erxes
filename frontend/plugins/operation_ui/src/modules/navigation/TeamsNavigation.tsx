@@ -22,6 +22,7 @@ import {
   IconDotsVertical,
   IconLink,
   IconSettings,
+  IconListCheck,
 } from '@tabler/icons-react';
 
 type Team = {
@@ -29,6 +30,7 @@ type Team = {
   name: string;
   icon?: string;
   cycleEnabled: boolean;
+  triageEnabled: boolean;
 };
 
 function LoadingSkeleton() {
@@ -90,6 +92,15 @@ function TeamItem({ team }: TeamItemProps) {
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
+              {team.triageEnabled && (
+                <NavigationMenuLinkItem
+                  name="Triage"
+                  pathPrefix="operation/team"
+                  path={`${team._id}/triage`}
+                  className="pl-6 font-medium"
+                  icon={IconListCheck}
+                />
+              )}
               {team.cycleEnabled && (
                 <NavigationMenuLinkItem
                   name="Cycles"

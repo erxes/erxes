@@ -6,6 +6,7 @@ export const RelationWidgets = ({
   contentId,
   contentType,
 }: IRelationWidgetProps) => {
+  console.log('module', module);
   if (module === 'tasks') {
     return <Task contentId={contentId} contentType={contentType} />;
   }

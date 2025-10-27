@@ -21,6 +21,7 @@ export const GET_TEAMS = gql`
       createdAt
       updatedAt
       cycleEnabled
+      triageEnabled
       taskCount
       memberCount
     }

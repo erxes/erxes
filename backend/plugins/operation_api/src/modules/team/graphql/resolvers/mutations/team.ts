@@ -42,6 +42,7 @@ export const teamMutations = {
       icon,
       estimateType,
       cycleEnabled,
+      triageEnabled,
     }: {
       _id: string;
       name: string;
@@ -49,6 +50,7 @@ export const teamMutations = {
       icon: string;
       estimateType: number;
       cycleEnabled: boolean;
+      triageEnabled: boolean;
     },
     { models, user }: IContext,
   ) => {
@@ -65,6 +67,7 @@ export const teamMutations = {
       icon,
       estimateType,
       cycleEnabled,
+      triageEnabled,
     });
   },
 

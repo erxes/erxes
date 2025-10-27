@@ -24,6 +24,7 @@ export const ConversationSideWidget = () => {
         return (
           <SideMenu.Content value={module.name} key={module.name}>
             <RelationWidget
+              key={module.name}
               module={module.name}
               pluginName={module.pluginName}
               contentId={_id}
@@ -43,6 +44,7 @@ export const ConversationSideWidget = () => {
         {relationWidgetsModules.map((module) => {
           return (
             <SideMenu.Trigger
+              key={module.name}
               value={module.name}
               label={module.name}
               Icon={module.icon}
