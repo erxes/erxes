@@ -51,9 +51,11 @@ export const ConversationItem = ({
               <div className="w-32 text-right flex-none">
                 <span> to </span>
                 {channel && <span title={channel.name}>{channel.name}</span>}
-                <span> via </span>
-                {integration && (
-                  <span title={integration.kind}>{integration.kind}</span>
+                {integration && integration.kind !== 'calls' && (
+                  <>
+                    <span> via </span>
+                    <span title={integration.kind}>{integration.kind}</span>
+                  </>
                 )}
               </div>
             </div>
@@ -70,7 +72,7 @@ export const ConversationItem = ({
         <ConversationSelector />
         <CustomersInline.Title className="w-56 truncate flex-none text-foreground" />
         <ConversationItemContent />
-        <div className="w-32 text-right flex-none">
+        <div className="truncate w-full h-4 [&_*]:text-sm [&_*]:leading-tight [&_*]:font-medium">
           <span> to </span>
           {channel && <span title={channel.name}>{channel.name}</span>}
           <span> via </span>

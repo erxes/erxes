@@ -1,4 +1,3 @@
-import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { isDev, setupTRPCRoute } from 'erxes-api-shared/utils';
@@ -11,7 +10,6 @@ import * as dotenv from 'dotenv';
 
 import {
   closeMongooose,
-  createTRPCContext,
   joinErxesGateway,
   leaveErxesGateway,
 } from 'erxes-api-shared/utils';
