@@ -8,6 +8,7 @@ import {
   useBlockEditor,
   BlockEditor,
 } from 'erxes-ui';
+import { SelectTags } from 'ui-modules';
 import { TAddProject, addProjectSchema } from '@/project/types';
 import { useCreateProject } from '@/project/hooks/useCreateProject';
 import { useForm } from 'react-hook-form';
@@ -37,6 +38,7 @@ export const AddProjectForm = ({ onClose }: { onClose: () => void }) => {
       priority: 0,
       leadId: undefined,
       targetDate: undefined,
+      tagIds: [] as string[],
     },
   });
   useEffect(() => {
@@ -196,6 +198,20 @@ export const AddProjectForm = ({ onClose }: { onClose: () => void }) => {
                     {...field}
                     type="target"
                     placeholder="Target Date"
+                  />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              name="tagIds"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item className="flex-shrink-0">
+                  <Form.Label className="sr-only">Tags</Form.Label>
+                  <SelectTags.FormItem
+                    mode="multiple"
+                    value={field.value || []}
+                    onValueChange={(value) => field.onChange(value)}
                   />
                 </Form.Item>
               )}
