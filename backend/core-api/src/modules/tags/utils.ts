@@ -86,6 +86,7 @@ export const countDocuments = async (
   }
 
   return await sendTRPCMessage({
+    subdomain,
     pluginName,
     method: 'mutation',
     module: MODULE_NAMES[moduleName] || moduleName,
