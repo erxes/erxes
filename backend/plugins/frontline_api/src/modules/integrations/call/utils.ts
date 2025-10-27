@@ -585,7 +585,6 @@ const isValidSubdomain = (subdomain) => {
 };
 
 export const getUrl = (subdomain) => {
-  const VERSION = getEnv({ name: 'VERSION' });
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
   if (!isValidSubdomain(subdomain)) {
