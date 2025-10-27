@@ -1,7 +1,7 @@
 import { PageHeader } from 'ui-modules';
 import { Breadcrumb, Separator } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
-import { PosBreadCrumb } from '~/modules/pos/pos/breadcumb/PosBreadCumb';
+import { PosBreadcrumb } from '~/modules/pos/pos/breadcumb/PosBreadcrumb';
 import { PosOrdersByCustomerRecordTable } from '~/modules/pos/pos-orders-by-customer/components/PosOrdersByCustomerRecordTable';
 
 export const PosOrdersByCustomerPage = () => {
@@ -15,7 +15,7 @@ export const PosOrdersByCustomerPage = () => {
             <Breadcrumb.List className="gap-1">
               {posId && (
                 <>
-                  <PosBreadCrumb />
+                  <PosBreadcrumb />
                   <Separator.Inline />
                 </>
               )}

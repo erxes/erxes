@@ -21,7 +21,7 @@ export const useGetCurrentUsersPos = (
     },
   });
 
-  const pos = data?.posList;
+  const pos = data?.posList;  
 
   return { pos, loading };
 };

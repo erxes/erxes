@@ -1,7 +1,6 @@
 import { useQuery, QueryHookOptions } from '@apollo/client';
-import { POS_LIST } from '~/modules/pos/graphql/queries/getPos';
-
-import { IPos } from '~/modules/pos/types/pos';
+import { POS_LIST } from '@/pos/graphql/queries/getPos';
+import { IPos } from '@/pos/types/pos';
 
 interface IGetPosQueryResponse {
   posList: IPos[];

@@ -1,13 +1,4 @@
-export interface IUser {
-  _id: string;
-  email?: string;
-  details: {
-    avatar: string;
-    fullName: string;
-    __typename: string;
-  };
-  __typename: string;
-}
+import { IUser } from 'ui-modules/modules';
 
 export interface IOrder {
   _id: string;

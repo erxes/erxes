@@ -81,11 +81,7 @@ export const coverColumns: ColumnDef<ICovers>[] = [
       <RecordTable.InlineHead icon={IconChartBar} label="Actions" />
     ),
     cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {/* <Button>Delete</Button> */}
-        </RecordTableInlineCell>
-      );
+      return <RecordTableInlineCell></RecordTableInlineCell>;
     },
   },
 ];

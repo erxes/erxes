@@ -196,34 +196,6 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
           <IconLink className="size-4" />
           Copy link
         </DropdownMenu.Item>
-
-        {/* <DropdownMenu.Item className="cursor-pointer">
-          <IconArchive className="size-4" />
-          Archive team
-        </DropdownMenu.Item>
-        <DropdownMenu.Sub>
-          <DropdownMenu.SubTrigger className="text-base justify-between">
-            <span className="flex items-center gap-2">
-              <IconBell className="size-4" />
-              Subscribe
-            </span>
-            <IconChevronRight className="size-4" />
-          </DropdownMenu.SubTrigger>
-          <DropdownMenu.SubContent>
-            <DropdownMenu.Item onClick={(e) => e.preventDefault()}>
-              <Checkbox />
-              An issue is added to the team
-            </DropdownMenu.Item>
-            <DropdownMenu.Item onClick={(e) => e.preventDefault()}>
-              <Checkbox />
-              An issue is marked completed or cancelled
-            </DropdownMenu.Item>
-            <DropdownMenu.Item onClick={(e) => e.preventDefault()}>
-              <Checkbox />
-              An issue is added to the triage queue
-            </DropdownMenu.Item>
-          </DropdownMenu.SubContent>
-        </DropdownMenu.Sub> */}
       </DropdownMenu.Content>
     </DropdownMenu>
   );

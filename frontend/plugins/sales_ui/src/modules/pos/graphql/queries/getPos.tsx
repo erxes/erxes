@@ -57,38 +57,6 @@ export const posCommonFields = `
   branchTitle
   departmentTitle
 `;
-// export const GET_POS = gql`
-//   query getPos(
-//     $name: String
-//     $userId: String
-//     $teamIds: [String]
-//     $projectId: String
-//   ) {
-//     getPos(
-//       name: $name
-//       userId: $userId
-//       teamIds: $teamIds
-//       projectId: $projectId
-//     ) {
-//       _id
-//       name
-//       isOnline
-//       onServer
-//       branchTitle
-//       departmentTitle
-//       createdAt
-//       updatedAt
-//       user {
-//         _id
-//         details {
-//           avatar
-//           fullName
-//         }
-//       }
-//     }
-//   }
-  
-// `;
 const commonParamDefs = `
   $page: Int,
   $perPage: Int
