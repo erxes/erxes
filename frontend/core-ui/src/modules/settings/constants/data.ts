@@ -11,7 +11,7 @@ import {
   IconPassword,
   IconTag,
   IconUserCircle,
-  IconUsersGroup
+  IconUsersGroup,
 } from '@tabler/icons-react';
 
 export const KEY_LABELS = {
@@ -108,16 +108,6 @@ export const SETTINGS_PATH_DATA: { [key: string]: TSettingPath[] } = {
       icon: IconUserCircle,
       path: SettingsPath.Profile,
     },
-    {
-      name: 'Change password',
-      icon: IconPassword,
-      path: SettingsPath.ChangePassword,
-    },
-    // {
-    //   name: 'Experience',
-    //   icon: IconColorSwatch,
-    //   path: SettingsPath.Experience,
-    // },
   ],
   nav: [
     {
@@ -165,25 +155,31 @@ export const SETTINGS_PATH_DATA: { [key: string]: TSettingPath[] } = {
 };
 
 export const GET_SETTINGS_PATH_DATA = (version?: boolean) => {
-
-  const account = [...SETTINGS_PATH_DATA.account]; 
+  const account = [...SETTINGS_PATH_DATA.account];
   const nav = [...SETTINGS_PATH_DATA.nav];
 
   if (version) {
-    nav.push({
-      name: 'File upload',
-      icon: IconFile,
-      path: SettingsWorkspacePath.FileUpload,
-    },
-    {
-      name: 'Mail config',
-      icon: IconMail,
-      path: SettingsWorkspacePath.MailConfig,
+    account.push({
+      name: 'Change password',
+      icon: IconPassword,
+      path: SettingsPath.ChangePassword,
     });
+    nav.push(
+      {
+        name: 'File upload',
+        icon: IconFile,
+        path: SettingsWorkspacePath.FileUpload,
+      },
+      {
+        name: 'Mail config',
+        icon: IconMail,
+        path: SettingsWorkspacePath.MailConfig,
+      },
+    );
   }
 
   return {
     account,
     nav,
-  }
-}
+  };
+};
