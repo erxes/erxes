@@ -15,9 +15,9 @@ import { integrationSchema } from '@/inbox/db/definitions/integrations';
 export interface IMessengerIntegration {
   kind: string;
   name: string;
-  brandId: string;
+  integrationId: string;
   languageCode: string;
-  channelIds?: string[];
+  channelId: string;
 }
 
 export interface IExternalIntegrationParams {
@@ -259,11 +259,11 @@ export const loadClass = (models: IModels, subdomain: string) => {
     ) {
       const integration = await models.Integrations.findOne({
         kind: 'messenger',
-        brandId: doc.brandId,
+        _id: doc.integrationId,
       });
 
       if (integration) {
-        throw new Error('Duplicated messenger for single brand');
+        throw new Error('Duplicated messenger');
       }
 
       return this.createIntegration({ ...doc, kind: 'messenger' }, userId);
@@ -276,16 +276,6 @@ export const loadClass = (models: IModels, subdomain: string) => {
       _id: string,
       doc: IMessengerIntegration,
     ) {
-      const integration = await models.Integrations.findOne({
-        _id: { $ne: _id },
-        kind: 'messenger',
-        brandId: doc.brandId,
-      });
-
-      if (integration) {
-        throw new Error('Duplicated messenger for single brand');
-      }
-
       await models.Integrations.updateOne(
         { _id },
         { $set: doc },
