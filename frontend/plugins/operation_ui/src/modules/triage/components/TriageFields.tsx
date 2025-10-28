@@ -6,6 +6,7 @@ import { Block } from '@blocknote/core';
 import { ITriage } from '@/triage/types/triage';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { SelectPriority } from '@/operation/components/SelectPriority';
+import { ConverToTask } from './triage-selects/ConvertToTask';
 
 export const TriageFields = ({ triage }: { triage: ITriage }) => {
   const {
@@ -88,6 +89,8 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
             });
           }}
         />
+
+        <ConverToTask triageId={triageId} />
       </div>
       <Separator className="my-4" />
       <div className="min-h-56 overflow-y-auto">
