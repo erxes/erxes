@@ -57,7 +57,18 @@ export type AutomationConstants = IAutomationTriggersActionsConfig & {
   bots?: IAutomationsBotsConfig[];
 };
 
+type TAutomationAdditionalAttribute = {
+  _id: number;
+  name: string;
+  group?: string;
+  label?: string;
+  type?: string;
+  validation?: string;
+  options?: string[];
+  selectOptions?: Array<{ label: string; value: string }>;
+}
 export interface AutomationProducers {
+
   receiveActions?: (
     context: IAutomationContext,
     args: {
@@ -83,6 +94,12 @@ export interface AutomationProducers {
     context: IAutomationContext,
     args: any,
   ) => Promise<any>;
+
+  getAdditionalAttributes?: (
+    context: IAutomationContext,
+    args: any,
+  ) => Promise<TAutomationAdditionalAttribute>;
+
   replacePlaceHolders?: (
     context: IAutomationContext,
     args: any,
@@ -206,4 +223,5 @@ export enum TAutomationProducers {
   GET_RECIPIENTS_EMAILS = 'getRecipientsEmails',
   REPLACE_PLACEHOLDERS = 'replacePlaceHolders',
   CHECK_CUSTOM_TRIGGER = 'checkCustomTrigger',
+  GET_ADDITIONAL_ATTRIBUTES = 'getAdditionalAttributes',
 }

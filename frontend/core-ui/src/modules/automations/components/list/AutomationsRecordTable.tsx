@@ -5,6 +5,7 @@ import { IconAffiliate, IconSettings } from '@tabler/icons-react';
 import { Breadcrumb, Button, RecordTable, Separator, Spinner } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
+import { AutomationRecordTableCommandBar } from '@/automations/components/list/AutomationRecordTableCommandBar';
 
 export const AutomationsRecordTable = () => {
   const {
@@ -75,6 +76,7 @@ export const AutomationsRecordTable = () => {
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.CursorProvider>
+        <AutomationRecordTableCommandBar />
       </RecordTable.Provider>
     </>
   );

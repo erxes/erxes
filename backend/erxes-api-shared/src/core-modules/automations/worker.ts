@@ -22,8 +22,9 @@ export const startAutomations = async (
   const {
     receiveActions,
     getRecipientsEmails,
-    replacePlaceHolders,
     checkCustomTrigger,
+    replacePlaceHolders,
+    getAdditionalAttributes,
   } = config || {};
 
   const automationProcedures: Partial<
@@ -41,6 +42,13 @@ export const startAutomations = async (
       t.procedure
         .input(z.any())
         .mutation(async ({ ctx, input }) => getRecipientsEmails(ctx, input));
+  }
+
+  if (getAdditionalAttributes) {
+    automationProcedures[TAutomationProducers.GET_ADDITIONAL_ATTRIBUTES] =
+      t.procedure
+        .input(z.any())
+        .mutation(async ({ ctx, input }) => getAdditionalAttributes(ctx, input));
   }
 
   if (replacePlaceHolders) {

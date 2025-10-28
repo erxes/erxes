@@ -6,6 +6,7 @@ import {
 } from '@trpc/client';
 
 type TCoreModuleProducer = {
+  subdomain: string;
   moduleName: 'automations' | 'segments' | 'afterProcess';
   producerName: string;
   method?: 'query' | 'mutation';
@@ -16,6 +17,7 @@ type TCoreModuleProducer = {
 };
 
 export const sendCoreModuleProducer = async ({
+  subdomain,
   moduleName,
   pluginName,
   method = 'mutation',

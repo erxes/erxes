@@ -1,16 +1,18 @@
-import { AUTOMATION_REMOVE } from '../graphql/automationMutations';
+import { AUTOMATION_REMOVE } from '@/automations/graphql/automationMutations';
+import { OperationVariables, useMutation } from '@apollo/client';
+import { AUTOMATIONS_MAIN_LIST } from '@/automations/graphql/automationQueries';
 
 export const useRemoveAutomations = () => {
-  // const [segmentsRemove, { loading }] = useMutation(AUTOMATION_REMOVE);
-  // const removeSegments = async (
-  //   segmentIds: string[],
-  //   options?: OperationVariables,
-  // ) => {
-  //   await segmentsRemove({
-  //     ...options,
-  //     variables: { ids: segmentIds, ...options?.variables },
-  //     refetchQueries: [SEGMENTS],
-  //   });
-  // };
-  // return { removeSegments, loading };
+  const [automationsRemove, { loading }] = useMutation(AUTOMATION_REMOVE);
+  const removeAutomations = async (
+    automationIds: string[],
+    options?: OperationVariables,
+  ) => {
+    await automationsRemove({
+      ...options,
+      variables: { ids: automationIds, ...options?.variables },
+      refetchQueries: [AUTOMATIONS_MAIN_LIST],
+    });
+  };
+  return { removeAutomations, loading };
 };

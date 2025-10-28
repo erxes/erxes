@@ -215,3 +215,8 @@ export interface ConnectionInfo {
   sourceIndex: number;
   targetIndex: number;
 }
+
+export type TAutomationRecordTableColumnDefData = {
+  order: string;
+  hasChildren: boolean;
+} & IAutomation;
