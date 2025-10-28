@@ -10,10 +10,12 @@ export const ConversationSideWidget = () => {
 
   return (
     <SideMenu>
-      <CustomerWidget
-        customerId={customerId || ''}
-        scope={InboxHotkeyScope.MainPage}
-      />
+      {customerId && (
+        <CustomerWidget
+          customerIds={[customerId]}
+          scope={InboxHotkeyScope.MainPage}
+        />
+      )}
 
       {relationWidgetsModules.map((module) => {
         return (

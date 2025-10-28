@@ -1,9 +1,8 @@
 import { AddTriageSheet } from '@/triage/components/add-triage/AddTriageSheet';
 import { useRelations } from '../hooks/useRelations';
-import { TaskDetail } from './TaskDetail';
-import { Spinner } from 'erxes-ui';
+import { TaskWidget } from './TaskWidget';
+import { ScrollArea, Spinner } from 'erxes-ui';
 import { useCreateRelation } from '../hooks/useCreateRelation';
-import { RelationsCard } from './RelationsCard';
 
 export const Task = ({
   contentId,
@@ -41,9 +40,13 @@ export const Task = ({
     return <AddTriageSheet onComplete={onComplete} />;
   }
 
-  return ownEntities?.map((entity) => (
-    <RelationsCard key={entity.contentId}>
-      <TaskDetail key={entity.contentId} taskId={entity.contentId} />
-    </RelationsCard>
-  ));
+  return (
+    <ScrollArea className="h-full flex-auto">
+      <div className="flex flex-col gap-4 p-4">
+        {ownEntities?.map((entity) => (
+          <TaskWidget key={entity.contentId} taskId={entity.contentId} />
+        ))}
+      </div>
+    </ScrollArea>
+  );
 };
