@@ -8,21 +8,13 @@ export const ConversationSideWidget = () => {
   const { customerId } = useConversationContext();
   return (
     <SideMenu>
-      <SideMenu.Content value="customer">
-        <SideMenu.Header Icon={IconUser} label="Customer Details" />
-        {customerId && (
-          <CustomerWidget
-            customerId={customerId}
-            scope={InboxHotkeyScope.MainPage}
-          />
-        )}
-      </SideMenu.Content>
+      <CustomerWidget
+        customerId={customerId || ''}
+        scope={InboxHotkeyScope.MainPage}
+      />
+
       <SideMenu.Sidebar>
-        <SideMenu.Trigger
-          value="customer"
-          label="Customer Details"
-          Icon={IconUser}
-        />
+        <SideMenu.Trigger value="customer" label="Customer" Icon={IconUser} />
       </SideMenu.Sidebar>
     </SideMenu>
   );
