@@ -6,6 +6,17 @@ const DefaultFields = () => {
   return (
     <div className="grid grid-cols-2 gap-6 mt-0.5">
       <div className="flex flex-col gap-2">
+        <Form.Label className="text-xs">Username</Form.Label>
+        <FormField
+          name={'username' as keyof FormType}
+          element="input"
+          attributes={{
+            type: 'text',
+            placeholder: 'Enter Username',
+          }}
+        />
+      </div>
+      <div className="flex flex-col gap-2 col-start-1">
         <Form.Label className="text-xs">First Name</Form.Label>
         <FormField
           name={'details.firstName' as keyof FormType}

@@ -115,6 +115,7 @@ export const uploadMedia = async (
   url: string,
   video: boolean,
 ) => {
+
   const mediaFile = `${randomAlphanumeric()}.${video ? 'mp4' : 'jpg'}`;
 
   const { AWS_BUCKET } = await sendTRPCMessage({
@@ -125,6 +126,35 @@ export const uploadMedia = async (
     action: 'getFileUploadConfigs',
     input: {},
   });
+  const mediaFile = `uploads/${randomAlphanumeric(16)}.${
+    video ? 'mp4' : 'jpg'
+  }`;
+  // 1. Cache Handling (with concurrency + TTL)
+  if (
+    !cachedUploadConfig ||
+    (Date.now() - lastFetchTime > CACHE_TTL_MS && !isFetchingConfig)
+  ) {
+    try {
+      isFetchingConfig = true;
+
+      cachedUploadConfig = await sendTRPCMessage({
+        subdomain,
+
+        pluginName: 'core',
+        method: 'query',
+        module: 'configs',
+        action: 'getFileUploadConfigs',
+        input: {},
+      });
+      lastFetchTime = Date.now();
+    } catch (err) {
+      debugError(`Failed to fetch upload config: ${err.message}`);
+      return null;
+    } finally {
+      isFetchingConfig = false;
+    }
+  }
+
 
   const s3 = await createAWS(subdomain);
 
