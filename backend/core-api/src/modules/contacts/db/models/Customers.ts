@@ -167,7 +167,6 @@ export const loadCustomerClass = (models: IModels) => {
         ...doc,
         ...pssDoc,
       });
-
       return models.Customers.getCustomer(customer._id);
     }
 
