@@ -1,0 +1,63 @@
+import { IconPlus } from '@tabler/icons-react';
+import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
+import {
+  Button,
+  Kbd,
+  Sheet,
+  usePreviousHotkeyScope,
+  useScopedHotkeys,
+  useSetHotkeyScope,
+} from 'erxes-ui';
+import { AddTriageForm } from '@/triage/components/add-triage/AddTriageForm';
+import { useAtom } from 'jotai';
+import { triageCreateSheetState } from '@/triage/states/triageCreateSheetState';
+
+export const AddTriageSheet = () => {
+  const setHotkeyScope = useSetHotkeyScope();
+  const [open, setOpen] = useAtom(triageCreateSheetState);
+  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
+  const onOpen = () => {
+    setOpen(true);
+    setHotkeyScopeAndMemorizePreviousScope(TaskHotKeyScope.TaskAddSheet);
+  };
+
+  const onClose = () => {
+    setHotkeyScope(TaskHotKeyScope.TaskAddSheet);
+    setOpen(false);
+  };
+
+  useScopedHotkeys(`c`, () => onOpen(), TaskHotKeyScope.TasksPage);
+  useScopedHotkeys(`esc`, () => onClose(), TaskHotKeyScope.TaskAddSheet);
+
+  return (
+    <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          Add triage
+          <Kbd>C</Kbd>
+        </Button>
+      </Sheet.Trigger>
+      <Sheet.View
+        className="sm:max-w-3xl w-full p-0"
+        onEscapeKeyDown={(e) => {
+          e.preventDefault();
+        }}
+      >
+        <AddTriageForm onClose={onClose} />
+      </Sheet.View>
+    </Sheet>
+  );
+};
+
+export const AddTaskSheetHeader = () => {
+  return (
+    <Sheet.Header className="p-5">
+      <Sheet.Title>Add triage</Sheet.Title>
+      <Sheet.Description className="sr-only">
+        Add a new triage .
+      </Sheet.Description>
+      <Sheet.Close />
+    </Sheet.Header>
+  );
+};

@@ -5,14 +5,14 @@ import { ITriageInput } from '@/task/@types/triage';
 export const triageMutations = {
   operationAddTriage: async (
     _parent: undefined,
-    params: ITriageInput,
+    { input }: { input: ITriageInput },
     { models, user, subdomain }: IContext,
   ) => {
     const triage = await models.Triage.createTriage({
       triage: {
-        name: params.name,
-        description: params.description,
-        teamId: params.teamId,
+        name: input.name,
+        description: input.description,
+        teamId: input.teamId,
         createdBy: user._id,
         type: 'triage',
         number: 0,

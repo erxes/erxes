@@ -7,14 +7,16 @@ export const types = `
     description: String
     teamId: String
     createdBy: String
+
+    number: Int
+    createdAt: Date
+    updatedAt: Date
   }
 
   input ITriageInput {
     name: String!
     description: String
     teamId: String!
-    number: Int
-    createdBy: String!
   }
 
   type TriageListResponse {
