@@ -226,7 +226,11 @@ const configMutations = {
   },
 
   refetchRemainder: async (_root, { categoryId, searchValue }: { categoryId?: string, searchValue?: string }, { models, subdomain, config }: IContext) => {
-    const { token } = config;
+    const { token, saveRemainder } = config;
+    if (!saveRemainder) {
+      return 'needless'
+    }
+
     const $and: any[] = [{}];
 
     const filter: any = {
