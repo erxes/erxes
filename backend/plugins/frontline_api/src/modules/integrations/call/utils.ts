@@ -605,6 +605,10 @@ export const getUrl = (subdomain) => {
     return `${domain}/upload-file`;
   }
 
+  if (VERSION === 'saas') {
+    return `${domain}/gateway/upload-file`;
+  }
+
   return `${domain}/gateway/pl:core/upload-file`;
 };
 

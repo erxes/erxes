@@ -10,15 +10,10 @@ export const ConversationSideWidget = () => {
 
   return (
     <SideMenu>
-      <SideMenu.Content value="customer">
-        <SideMenu.Header Icon={IconUser} label="Customer Details" />
-        {customerId && (
-          <CustomerWidget
-            customerId={customerId}
-            scope={InboxHotkeyScope.MainPage}
-          />
-        )}
-      </SideMenu.Content>
+      <CustomerWidget
+        customerId={customerId || ''}
+        scope={InboxHotkeyScope.MainPage}
+      />
 
       {relationWidgetsModules.map((module) => {
         return (
@@ -36,11 +31,7 @@ export const ConversationSideWidget = () => {
       })}
 
       <SideMenu.Sidebar>
-        <SideMenu.Trigger
-          value="customer"
-          label="Customer Details"
-          Icon={IconUser}
-        />
+        <SideMenu.Trigger value="customer" label="Customer" Icon={IconUser} />
         {relationWidgetsModules.map((module) => {
           return (
             <SideMenu.Trigger
