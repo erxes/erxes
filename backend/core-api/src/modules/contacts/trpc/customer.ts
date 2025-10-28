@@ -84,7 +84,6 @@ export const customerRouter = t.router({
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { doc } = input;
-        console.log(doc, 'doc________________________________..', input);
         const { models } = ctx;
 
         return models.Customers.createCustomer(doc);

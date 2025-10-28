@@ -17,7 +17,6 @@ export const getOrCreateCustomer = async (
   callAccount: any,
 ) => {
   const { inboxIntegrationId, primaryPhone } = callAccount;
-  console.log('3...');
   if (typeof primaryPhone !== 'string') {
     throw new Error('Invalid primaryPhone: must be a string');
   }
@@ -25,11 +24,8 @@ export const getOrCreateCustomer = async (
   let customer = await models.CallCustomers.findOne({
     primaryPhone: { $eq: primaryPhone },
   });
-  console.log('4...');
 
   if (!customer) {
-    console.log('5...');
-
     try {
       customer = await models.CallCustomers.create({
         inboxIntegrationId,
@@ -37,9 +33,7 @@ export const getOrCreateCustomer = async (
         primaryPhone,
         status: 'pending',
       });
-      console.log('6...');
     } catch (e: any) {
-      console.log('7...');
       if (e.message.includes('duplicate')) {
         // just fetch and return existing one
         customer = await models.CallCustomers.findOne({
@@ -49,8 +43,6 @@ export const getOrCreateCustomer = async (
         throw new Error(e);
       }
     }
-
-    console.log('8...');
 
     try {
       const data = {
@@ -63,28 +55,23 @@ export const getOrCreateCustomer = async (
         }),
       };
       const apiCustomerResponse = await receiveInboxMessage(subdomain, data);
-      console.log('9...');
 
       if (apiCustomerResponse.status === 'success') {
-        console.log('10...');
         if (customer) {
           customer.erxesApiId = apiCustomerResponse.data._id;
           customer.status = 'completed';
           await customer.save();
         }
       } else {
-        console.log('11...');
         throw new Error(
           `Customer creation failed: ${JSON.stringify(apiCustomerResponse)}`,
         );
       }
     } catch (e: any) {
-      console.log('12...');
       await models.CallCustomers.deleteOne({ _id: customer?._id });
       throw new Error(`Failed to sync with API: ${e.stack || e.message || e}`);
     }
   }
-  console.log('wahhahah');
   return customer;
 };
 

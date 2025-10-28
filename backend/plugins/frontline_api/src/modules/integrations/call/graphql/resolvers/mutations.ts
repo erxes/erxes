@@ -31,20 +31,14 @@ const callsMutations = {
   },
   async callAddCustomer(_root, args, { models, subdomain }: IContext) {
     const callIntegration = await findIntegration(subdomain, args);
-    console.log('1...');
-
     const customer = await getOrCreateCustomer(models, subdomain, args);
-    console.log('2...', customer);
-
     const integration = await models.Integrations.findOne({
       _id: callIntegration?.inboxId,
     });
-    console.log('3...');
 
     const channel = integration
       ? await models.Channels.findOne({ _id: integration.channelId })
       : null;
-    console.log('4.....');
 
     return {
       customer: customer?.erxesApiId

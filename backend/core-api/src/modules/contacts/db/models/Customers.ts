@@ -134,7 +134,6 @@ export const loadCustomerClass = (models: IModels) => {
       user?: IUserDocument,
     ): Promise<ICustomerDocument> {
       try {
-        console.log('called new customer...', doc);
         await this.checkDuplication(doc);
       } catch (e) {
         throw new Error(e.message);
@@ -168,7 +167,6 @@ export const loadCustomerClass = (models: IModels) => {
         ...doc,
         ...pssDoc,
       });
-      console.log(customer._id, 'end butsaasan');
       return models.Customers.getCustomer(customer._id);
     }
 
