@@ -2,6 +2,7 @@ import typeDefs from './graphql/typeDefs';
 import * as cors from 'cors';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
+import cronjobs from './cronjobs';
 import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { posInitialSetup } from './routes';
@@ -93,4 +94,7 @@ export default {
 
   onServerInit: async () => { },
   setupMessageConsumers,
+  meta: {
+    cronjobs,
+  },
 };

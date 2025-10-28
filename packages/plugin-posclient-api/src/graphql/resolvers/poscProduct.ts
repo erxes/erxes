@@ -1,6 +1,7 @@
 import { IContext } from '../../connectionResolver';
 import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
 import { IProductDocument } from '../../models/definitions/products';
+import { getRemBranchId } from '../utils/products';
 
 export default {
   async customFieldsDataByFieldCode(
@@ -13,6 +14,11 @@ export default {
 
   unitPrice(product: IProductDocument, _args, { config }: IContext) {
     return (product.prices || {})[config.token] || 0;
+  },
+
+  savedRemainder(product: IProductDocument, args, { config }: IContext) {
+    const remBranchId = getRemBranchId(config, args.branchId);
+    return (product.remainderByToken || {})[config.token][remBranchId] || 0;
   },
 
   isCheckRem(product: IProductDocument, _args, { config }: IContext) {

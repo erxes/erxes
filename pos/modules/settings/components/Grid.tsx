@@ -8,6 +8,7 @@ import SendData from "../SendData"
 import SyncConfig from "../SyncConfig"
 import SyncOrders from "../SyncOrders"
 import ErxesLink from "./ErxesLink"
+import FetchRemainders from "../FetchRemainders"
 
 const Grid = () => {
   const { branchId, departmentId, ebarimtConfig } =
@@ -20,6 +21,7 @@ const Grid = () => {
         <SyncConfig configType="products">Resync Products</SyncConfig>
         <SyncConfig configType="slots">Resync slots</SyncConfig>
         <SyncOrders />
+        <FetchRemainders />
         <DeleteOrders />
 
         {!!ebarimtConfig && <SendData />}

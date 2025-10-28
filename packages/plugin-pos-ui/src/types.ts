@@ -73,6 +73,7 @@ export type IPos = {
   allowTypes?: string[];
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
+  saveRemainder: boolean;
   banFractions: boolean;
 
   branchTitle?: string;
