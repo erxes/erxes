@@ -165,7 +165,8 @@ const getPerValue = async <TModels>({
   triggerType = '',
   execution,
 }: IPerValueProps<TModels>) => {
-  let { field = '', operator = '', value } = rule;
+  const { field = '', operator = '' } = rule;
+  let { value } = rule;
 
   const op1Type = typeof convertOp1(relatedItem, field);
 
@@ -325,6 +326,8 @@ export const setProperty = async <TModels>({
           const fieldId = field.replace(`${complexFieldKey}.`, '');
 
           const fieldDetail = await sendTRPCMessage({
+            subdomain,
+
             pluginName: 'core',
             method: 'query',
             module: 'fields',
@@ -333,6 +336,8 @@ export const setProperty = async <TModels>({
           });
 
           const complexFieldData = await sendTRPCMessage({
+            subdomain,
+
             pluginName: 'core',
             method: 'query',
             module: 'fields',
@@ -375,6 +380,8 @@ export const setProperty = async <TModels>({
 
     try {
       await sendTRPCMessage({
+        subdomain,
+
         method: 'mutation',
         pluginName: serviceName,
         module: pluralFormation(contentType),

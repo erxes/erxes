@@ -6,7 +6,7 @@ export default {
   async pipelines(
     board: IBoardDocument,
     _args: undefined,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
     if (board.pipelines) {
       return board.pipelines;
@@ -20,6 +20,8 @@ export default {
     }
 
     const userDetail = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'users',
@@ -34,6 +36,8 @@ export default {
     const branchIds = userDetail?.branchIds || [];
 
     const supervisorDepartmentIds = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'departments',

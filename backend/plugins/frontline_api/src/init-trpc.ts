@@ -23,17 +23,17 @@ export const appRouter = t.mergeRouters(
         .input(
           z.object({
             moduleType: z.string(),
-            collectionType: z.string().optional(),
+            collectionType: z.string(),
             segmentId: z.string().optional(),
             usageType: z.string().optional(),
             config: z.record(z.any()).optional(),
           }),
         )
         .query(async ({ ctx, input }) => {
-          const { models } = ctx;
+          const { models, subdomain } = ctx;
           const { moduleType } = input;
           if (moduleType === 'facebook') {
-            return await generateFacebookFields(models, input);
+            return await generateFacebookFields(models, subdomain, input);
           }
 
           return [];

@@ -22,6 +22,7 @@ const checkIsValidCustomTigger = async (
 
   return await sendCoreModuleProducer({
     moduleName: 'automations',
+    subdomain,
     pluginName,
     producerName: TAutomationProducers.CHECK_CUSTOM_TRIGGER,
     input: {

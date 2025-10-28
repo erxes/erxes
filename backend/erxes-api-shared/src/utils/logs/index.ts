@@ -1,4 +1,3 @@
-import { checkServiceRunning } from '../utils';
 import { ILogDoc } from '../../core-types';
 import { sendWorkerQueue } from '../mq-worker';
 import { initializePluginConfig } from '../service-discovery';
@@ -16,9 +15,6 @@ export const logHandler = async (
   onError?: any,
   skipSaveResult?: boolean,
 ) => {
-  if (!(await checkServiceRunning('logs'))) {
-    return await resolver();
-  }
 
   const payload = { ...(logDoc?.payload || {}) };
   const startDate = new Date();
@@ -200,4 +196,8 @@ export const startAfterProcess = async (
   });
 
   app.use('/after-process', trpcMiddleware);
+};
+
+export const sendLogMessage = async (logDoc: ILogDoc) => {
+  sendWorkerQueue('logs', 'put_log').add('put_log', logDoc);
 };

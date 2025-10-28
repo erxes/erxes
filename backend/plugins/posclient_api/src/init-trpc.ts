@@ -16,12 +16,3 @@ const t = initTRPC.context<PosTRPCContext>().create();
 export const appRouter = t.mergeRouters(posclientTrpcRouter);
 
 export type AppRouter = typeof appRouter;
-
-export const sendCoreMessage = async (
-  args: MessageProps & { pluginName?: string },
-): Promise<any> => {
-  return await sendTRPCMessage({
-    ...args,
-    pluginName: 'core',
-  });
-};

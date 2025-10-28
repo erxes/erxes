@@ -26,7 +26,7 @@ export default {
       salesDealListChanged: {
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator('salesDealListChanged'),
-          async (payload, variables) => {
+          async (payload, variables, { subdomain }) => {
             const { deal, oldDeal, pipelineIds } = payload.salesDealListChanged;
 
             const { userId, pipelineId, filter } = variables;
@@ -36,13 +36,15 @@ export default {
             }
 
             const filterParams = await sendTRPCMessage({
+              subdomain,
+
               pluginName: 'sales',
               module: 'deal',
               action: 'getFilterParams',
               input: {
                 filter,
-                userId
-              }
+                userId,
+              },
             });
 
             const matchesOld = sift(filterParams)(oldDeal);
@@ -52,7 +54,7 @@ export default {
               return false;
             }
 
-            payload.matches = { matchesOld, matchesNew }
+            payload.matches = { matchesOld, matchesNew };
             return true;
           },
         ),
@@ -60,14 +62,14 @@ export default {
           const { matchesOld, matchesNew } = payload.matches;
 
           if (matchesOld && !matchesNew) {
-            return { ...payload.salesDealListChanged, action: 'remove' }
+            return { ...payload.salesDealListChanged, action: 'remove' };
           }
 
           if (!matchesOld && matchesNew) {
-            return { ...payload.salesDealListChanged, action: 'add' }
+            return { ...payload.salesDealListChanged, action: 'add' };
           }
 
-          return { ...payload.salesDealListChanged, action: 'edit' }
+          return { ...payload.salesDealListChanged, action: 'edit' };
         },
       },
     };

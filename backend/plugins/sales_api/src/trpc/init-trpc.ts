@@ -1,13 +1,9 @@
-import { dealTrpcRouter } from '@/sales/trpc/deal';
 import { posTrpcRouter } from '@/pos/trpc/pos';
+import { dealTrpcRouter } from '@/sales/trpc/deal';
 
 import { initTRPC } from '@trpc/server';
 
-import {
-  ITRPCContext,
-  MessageProps,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
+import { ITRPCContext } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { z } from 'zod';
 import { generateSalesFields } from '~/modules/sales/fieldUtils';
@@ -45,12 +41,3 @@ export const appRouter = t.mergeRouters(
 );
 
 export type AppRouter = typeof appRouter;
-
-export const sendCoreMessage = async (
-  args: MessageProps & { pluginName?: string },
-): Promise<any> => {
-  return await sendTRPCMessage({
-    ...args,
-    pluginName: 'core',
-  });
-};

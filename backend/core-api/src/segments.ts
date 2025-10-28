@@ -110,6 +110,7 @@ export const initSegmentCoreProducers = (app: Express) =>
         }
 
         ids = await sendTRPCMessage({
+          subdomain,
           pluginName: serviceName,
           method: 'query',
           module: 'segments',

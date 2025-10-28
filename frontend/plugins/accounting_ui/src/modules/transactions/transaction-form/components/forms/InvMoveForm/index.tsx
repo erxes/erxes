@@ -1,7 +1,7 @@
-import { SelectBranches, SelectDepartments, } from 'ui-modules';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { IAccount, JournalEnum } from '@/settings/account/types/Account';
 import { Form } from 'erxes-ui';
+import { SelectBranches, SelectDepartments, } from 'ui-modules';
 import { ITransactionGroupForm } from '../../../types/JournalForms';
 import {
   AccountField,
@@ -35,6 +35,7 @@ export const InvMoveForm = ({
           index={index}
           filter={{ journals: [JournalEnum.INVENTORY] }}
           allDetails={true}
+          labelTxt='Move Out Account'
         />
         <CustomerFields form={form} index={index} />
         <BranchField form={form} index={index} />
@@ -60,39 +61,39 @@ export const InvMoveForm = ({
           )}
         />
         <Form.Field
-            control={form.control}
-            name={`trDocs.${index}.followInfos.moveInBranchId`}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Move incoming Branch</Form.Label>
-                <Form.Control>
-                  <SelectBranches.FormItem
-                    mode="single"
-                    value={field.value ?? ''}
-                    onValueChange={(branch) => field.onChange(branch)}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+          control={form.control}
+          name={`trDocs.${index}.followInfos.moveInBranchId`}
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Move incoming Branch</Form.Label>
+              <Form.Control>
+                <SelectBranches.FormItem
+                  mode="single"
+                  value={field.value ?? ''}
+                  onValueChange={(branch) => field.onChange(branch)}
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
         <Form.Field
-            control={form.control}
-            name={`trDocs.${index}.followInfos.moveInDepartmentId`}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Move incoming Department</Form.Label>
-                <Form.Control>
-                  <SelectDepartments.FormItem
-                    mode="single"
-                    value={field.value ?? ''}
-                    onValueChange={(department) => field.onChange(department)}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+          control={form.control}
+          name={`trDocs.${index}.followInfos.moveInDepartmentId`}
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Move incoming Department</Form.Label>
+              <Form.Control>
+                <SelectDepartments.FormItem
+                  mode="single"
+                  value={field.value ?? ''}
+                  onValueChange={(department) => field.onChange(department)}
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
       </div>
 
       <InventoryForm
