@@ -77,10 +77,11 @@ export const createAWS = async (subdomain: string) => {
 
     pluginName: 'core',
     method: 'query',
-    module: 'users',
+    module: 'configs',
     action: 'getFileUploadConfigs',
     input: {},
   });
+
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
     throw new Error('AWS credentials are not configured');
   }
@@ -109,17 +110,22 @@ export const createAWS = async (subdomain: string) => {
 
 // Define a simple in-memory cache (outside the function scope)
 
-type UploadConfig = { AWS_BUCKET: string };
-let cachedUploadConfig: UploadConfig | null = null;
-let isFetchingConfig = false; // Concurrency control
-let lastFetchTime = 0; // Time-based cache invalidation
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-
 export const uploadMedia = async (
   subdomain: string,
   url: string,
   video: boolean,
 ) => {
+
+  const mediaFile = `${randomAlphanumeric()}.${video ? 'mp4' : 'jpg'}`;
+
+  const { AWS_BUCKET } = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'configs',
+    action: 'getFileUploadConfigs',
+    input: {},
+  });
   const mediaFile = `uploads/${randomAlphanumeric(16)}.${
     video ? 'mp4' : 'jpg'
   }`;
@@ -130,12 +136,13 @@ export const uploadMedia = async (
   ) {
     try {
       isFetchingConfig = true;
+
       cachedUploadConfig = await sendTRPCMessage({
         subdomain,
 
         pluginName: 'core',
         method: 'query',
-        module: 'users',
+        module: 'configs',
         action: 'getFileUploadConfigs',
         input: {},
       });
@@ -148,54 +155,36 @@ export const uploadMedia = async (
     }
   }
 
-  // 2. Null check after potential fetch
-  if (!cachedUploadConfig) {
-    debugError(`Upload config unavailable after retry`);
-    return null;
-  }
 
-  // 3. Upload to S3 (unchanged)
-  const { AWS_BUCKET } = cachedUploadConfig;
+  const s3 = await createAWS(subdomain);
+
   try {
-    const s3 = await createAWS(subdomain);
-
-    // Additional security: Set timeout for fetch request
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-
-    try {
-      const response = await fetch(url, {
-        signal: controller.signal,
-        redirect: 'error', // Prevent redirects that could bypass our validation
-      });
-
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-      const buffer = Buffer.from(await response.arrayBuffer());
-      const data = await s3
-        .upload({
-          Bucket: AWS_BUCKET,
-          Key: mediaFile,
-          Body: buffer,
-          ACL: 'public-read',
-          ContentType: video ? 'video/mp4' : 'image/jpeg',
-        })
-        .promise();
-
-      return data.Location;
-    } finally {
-      clearTimeout(timeout);
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(
+        `uploadMedia: unexpected response ${response.statusText}`,
+      );
     }
+
+    // response.body → instead use arrayBuffer() to get binary data
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const uploadParams = {
+      Bucket: AWS_BUCKET,
+      Key: mediaFile,
+      Body: buffer,
+      ACL: 'public-read',
+      ContentDisposition: 'inline',
+      ContentType: video ? 'video/mp4' : 'image/jpeg',
+    };
+
+    const data = await s3.upload(uploadParams).promise();
+    return data.Location;
   } catch (e) {
-    debugError(`Upload failed: ${e.message}`);
+    debugError(`Error occurred while uploading media: ${e.message}`);
     return null;
   }
-};
-
-// 4. Manual cache invalidation (call this when configs change)
-export const invalidateUploadConfigCache = () => {
-  cachedUploadConfig = null;
-  lastFetchTime = 0;
 };
 
 export const getPageList = async (
@@ -552,7 +541,7 @@ export const getFacebookUserProfilePic = async (
 
       pluginName: 'core',
       method: 'query',
-      module: 'users',
+      module: 'configs',
       action: 'getFileUploadConfigs',
       input: {},
     });
