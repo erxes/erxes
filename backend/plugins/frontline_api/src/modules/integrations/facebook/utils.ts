@@ -77,10 +77,11 @@ export const createAWS = async (subdomain: string) => {
 
     pluginName: 'core',
     method: 'query',
-    module: 'users',
+    module: 'configs',
     action: 'getFileUploadConfigs',
     input: {},
   });
+
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
     throw new Error('AWS credentials are not configured');
   }
@@ -130,12 +131,13 @@ export const uploadMedia = async (
   ) {
     try {
       isFetchingConfig = true;
+
       cachedUploadConfig = await sendTRPCMessage({
         subdomain,
 
         pluginName: 'core',
-        method: 'query',
-        module: 'users',
+        method: 'query', // this is a mutation, not a query
+        module: 'configs',
         action: 'getFileUploadConfigs',
         input: {},
       });
@@ -551,8 +553,8 @@ export const getFacebookUserProfilePic = async (
       subdomain,
 
       pluginName: 'core',
-      method: 'query',
-      module: 'users',
+      method: 'query', // this is a mutation, not a query
+      module: 'configs',
       action: 'getFileUploadConfigs',
       input: {},
     });
@@ -563,6 +565,7 @@ export const getFacebookUserProfilePic = async (
         response.location,
         false,
       );
+      console.log(awsResponse, 'awsResponse');
 
       return awsResponse as string; // Ensure the return type is string
     }
