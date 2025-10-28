@@ -2,11 +2,11 @@ import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
   extend type User @key(fields: "_id") {
-    _id: String! @external
+    _id: String @external
   }
 
   extend type Product @key(fields: "_id") {
-    _id: String! @external
+    _id: String @external
   }
 
   type AutomationResponse {
