@@ -21,11 +21,6 @@ const PROFILE_ADVANCED_FIELDS = [
     field: { element: 'input', attributes: { type: 'text' } },
   },
   {
-    fieldLabel: 'User Name',
-    fieldName: 'username',
-    field: { element: 'input', attributes: { type: 'text' } },
-  },
-  {
     fieldLabel: 'Employee Id',
     fieldName: 'employeeId',
     fieldPath: 'details',
