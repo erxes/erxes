@@ -7,6 +7,7 @@ export const types = `
     description: String
     teamId: String
     createdBy: String
+    priority: Int
 
     number: Int
     createdAt: Date
@@ -17,6 +18,7 @@ export const types = `
     name: String!
     description: String
     teamId: String!
+    priority: Int
   }
 
   type TriageListResponse {
@@ -33,6 +35,7 @@ export const types = `
     updatedAt: Date
     name: String
     description: String
+    priority: Int
 
     ${GQL_CURSOR_PARAM_DEFS}
   }

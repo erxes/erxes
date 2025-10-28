@@ -11,6 +11,7 @@ export interface ITriage {
   createdBy: string;
   type: string;
   number: number;
+  priority: number;
 }
 
 export interface ITriageUpdate extends ITriage {
@@ -35,4 +36,5 @@ export interface ITriageInput {
   name: string;
   description: string;
   teamId: string;
+  priority: number;
 }

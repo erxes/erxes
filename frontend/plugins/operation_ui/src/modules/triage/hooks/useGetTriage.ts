@@ -4,14 +4,14 @@ import { useQuery } from '@apollo/client';
 import { useParams } from 'react-router';
 
 export const useGetTriage = () => {
-  const { id } = useParams();
+  const { triageId } = useParams();
   const { data, loading } = useQuery<{ operationGetTriage: ITriage }>(
     GET_TRIAGE,
-    { variables: { _id: id }, skip: !id },
+    { variables: { _id: triageId }, skip: !triageId },
   );
 
   return {
-    id,
+    triageId,
     triage: data?.operationGetTriage,
     loading,
   };

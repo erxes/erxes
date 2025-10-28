@@ -6,14 +6,12 @@ import { Triages } from './TriageList';
 
 export const TriageLayout = () => {
   const isMobile = useIsMobile();
-  const { id, teamId } = useParams();
-
-  console.log(teamId);
+  const { triageId } = useParams();
 
   if (isMobile) {
     return (
       <div className="flex flex-1 flex-col overflow-hidden">
-        {id ? (
+        {triageId ? (
           <>
             <TriageHeader />
             <TriageContent />

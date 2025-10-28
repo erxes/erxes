@@ -11,6 +11,7 @@ export const CREATE_TRIAGE_MUTATION = gql`
       number
       createdAt
       updatedAt
+      priority
     }
   }
 `;

@@ -20,6 +20,7 @@ import { useParams } from 'react-router-dom';
 import { currentUserState } from 'ui-modules';
 import { addTriageSchema, IAddTriage } from '@/triage/types/triage';
 import { useCreateTriage } from '@/triage/hooks/useCreateTriage';
+import { SelectPriority } from '@/operation/components/SelectPriority';
 
 export const AddTriageForm = ({ onClose }: { onClose: () => void }) => {
   const { teamId } = useParams<{
@@ -70,6 +71,7 @@ export const AddTriageForm = ({ onClose }: { onClose: () => void }) => {
         input: {
           ...data,
           description: JSON.stringify(descriptionContent),
+          priority: data.priority || 0,
         },
       },
       onCompleted: () => {
@@ -123,7 +125,19 @@ export const AddTriageForm = ({ onClose }: { onClose: () => void }) => {
               </Form.Item>
             )}
           />
-
+          <Form.Field
+            name="priority"
+            control={form.control}
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label className="sr-only">Priority</Form.Label>
+                <SelectPriority.FormItem
+                  value={field.value || 0}
+                  onValueChange={(value) => field.onChange(value)}
+                />
+              </Form.Item>
+            )}
+          />
           <Separator className="my-4" />
           <div className="flex-1 overflow-y-auto">
             <BlockEditor

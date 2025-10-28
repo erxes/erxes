@@ -2,10 +2,17 @@ import { Button, cn, RelativeDateDisplay } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
 import { ITriage } from '@/triage/types/triage';
 import { IconHelpSquareRounded } from '@tabler/icons-react';
+import { PriorityBadge } from '@/operation/components/PriorityInline';
 
-export const TriageItem = ({ _id, name, teamId, createdAt }: ITriage) => {
-  const { id } = useParams();
-  const isActive = id === _id;
+export const TriageItem = ({
+  _id,
+  name,
+  teamId,
+  createdAt,
+  priority,
+}: ITriage) => {
+  const { triageId } = useParams();
+  const isActive = triageId === _id;
 
   return (
     <Button
@@ -34,8 +41,14 @@ export const TriageItem = ({ _id, name, teamId, createdAt }: ITriage) => {
           >
             {name}
           </h4>
-          <div className={cn('text-muted-foreground')}>
-            <RelativeDateDisplay.Value value={createdAt} />
+          <div className={cn('text-xs flex items-center justify-between')}>
+            <div className="flex items-center gap-2">
+              <PriorityBadge priority={priority} />
+            </div>
+
+            <div className={cn('text-muted-foreground')}>
+              <RelativeDateDisplay.Value value={createdAt} />
+            </div>
           </div>
         </div>
       </Link>

@@ -16,6 +16,7 @@ export const triageMutations = {
         createdBy: user._id,
         type: 'triage',
         number: 0,
+        priority: input.priority || 0,
       },
       subdomain: subdomain,
     });
