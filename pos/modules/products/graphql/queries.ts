@@ -57,6 +57,7 @@ const products = gql`
       description
       remainder
       remainders
+      isCheckRem
       hasSimilarity
       attachment {
         url
@@ -75,6 +76,7 @@ const productSimilarities = gql`
         name
         remainder
         remainders
+        isCheckRem
         attachment {
           url
         }

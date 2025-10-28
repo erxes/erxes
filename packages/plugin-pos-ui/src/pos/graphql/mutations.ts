@@ -36,6 +36,7 @@ const commonFields = `
   $allowTypes: [String]
   $isCheckRemainder: Boolean
   $checkExcludeCategoryIds: [String]
+  $saveRemainder: Boolean
   $banFractions: Boolean
 `;
 
@@ -75,6 +76,7 @@ const commonVariables = `
   allowTypes: $allowTypes
   isCheckRemainder: $isCheckRemainder
   checkExcludeCategoryIds: $checkExcludeCategoryIds
+  saveRemainder: $saveRemainder
   banFractions: $banFractions
 `;
 
