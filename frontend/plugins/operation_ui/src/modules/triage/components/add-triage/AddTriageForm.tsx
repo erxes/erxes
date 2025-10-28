@@ -100,6 +100,7 @@ export const AddTriageForm = ({ onClose }: { onClose: () => void }) => {
                   onValueChange={(value) => {
                     field.onChange(value);
                   }}
+                  isTriageEnabled={true}
                   mode="single"
                 />
               </Form.Item>

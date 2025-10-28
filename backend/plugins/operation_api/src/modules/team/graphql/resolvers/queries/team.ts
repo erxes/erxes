@@ -31,6 +31,10 @@ export const teamQueries = {
       return models.Team.find({ _id: { $in: params.teamIds } });
     }
 
+    if (params.isTriageEnabled) {
+      return models.Team.find({ triageEnabled: true });
+    }
+
     if (params.projectId) {
       const teamIds = await models.Project.findOne({
         _id: params.projectId,
