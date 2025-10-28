@@ -303,7 +303,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     innerData = {
       _id: 'tempBill',
       id: 'tempBIll',
-      date: moment(new Date()).format('"yyyy-MM-DD HH:mm:ss'),
+      date: moment(new Date()).format('"YYYY-MM-DD HH:mm:ss'),
       createdAt: new Date(),
       modifiedAt: new Date(),
       status: 'SUCCESS',

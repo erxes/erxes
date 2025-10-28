@@ -18,7 +18,7 @@ export interface IProductRuleModel extends Model<IProductRuleDocument> {
 export const loadProductRuleClass = (models: IModels) => {
   class ProductRule {
     /**
-     * Create a putResponse
+     * Create a product rule
      */
     public static async createProductRule(doc: IProductRule) {
       return await models.ProductRules.create({
@@ -28,7 +28,7 @@ export const loadProductRuleClass = (models: IModels) => {
     }
 
     /**
-     * Update a putResponse
+     * Update a product rule
      */
     public static async updateProductRule(_id: string, doc: IProductRule) {
       return await models.ProductRules.updateOne(

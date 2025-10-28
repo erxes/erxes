@@ -170,7 +170,7 @@ const genDuplicatedFilter = async (params) => {
   const { startDate, endDate, billType } = params;
 
   if (!(startDate && endDate)) {
-    throw new Error('Please, Must choose date filters');
+    throw new Error('Please choose date filters');
   }
 
   const csd = new Date(startDate);
@@ -247,7 +247,7 @@ export const putResponseQueries = {
     }
 
     if (!isTemp) {
-      throw new Error('has not ebarimt');
+      throw new Error('Ebarimt not found');
     }
 
     if (contentType === 'deal') {
@@ -357,7 +357,7 @@ export const putResponseQueries = {
     const { createdStartDate, createdEndDate, paidDate } = params;
 
     if (!((createdStartDate && createdEndDate) || paidDate === 'today')) {
-      throw new Error('Please, Must choose date filters');
+      throw new Error('Please choose date filters');
     }
 
     const csd = new Date(createdStartDate);

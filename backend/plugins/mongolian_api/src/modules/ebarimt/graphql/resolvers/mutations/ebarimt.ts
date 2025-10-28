@@ -22,7 +22,7 @@ export const ebarimtMutations = {
     const { id, date } = putResponse;
 
     if (!id || !date) {
-      throw new Error('not found putResponses id or date');
+      throw new Error('not found putResponse id or date');
     }
 
     const data = {

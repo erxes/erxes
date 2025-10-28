@@ -1,18 +1,24 @@
-import { IEbarimtDocument } from '@/ebarimt/@types/ebarimt';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
 
 import mongoose from 'mongoose';
 
-import { IProductGroupDocument, IProductRuleDocument } from '@/ebarimt/@types';
+import {
+  IEbarimtDocument,
+  IProductGroupDocument,
+  IProductRuleDocument,
+} from '@/ebarimt/@types';
+
 import {
   IPutResponseModel,
   loadPutResponseClass,
-} from '@/ebarimt/db/models/ebarimt';
+} from '@/ebarimt/db/models/Ebarimt';
+
 import {
   IProductGroupModel,
   loadProductGroupClass,
 } from '@/ebarimt/db/models/ProductGroup';
+
 import {
   IProductRuleModel,
   loadProductRuleClass,
