@@ -1,17 +1,14 @@
 import { ITriage } from '@/triage/types/triage';
 import { GET_TRIAGE } from '@/triage/graphql/queries/getTriage';
-import { useQuery } from '@apollo/client';
-import { useParams } from 'react-router';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 
-export const useGetTriage = () => {
-  const { triageId } = useParams();
+export const useGetTriage = (options: QueryHookOptions) => {
   const { data, loading } = useQuery<{ operationGetTriage: ITriage }>(
     GET_TRIAGE,
-    { variables: { _id: triageId }, skip: !triageId },
+    { ...options },
   );
 
   return {
-    triageId,
     triage: data?.operationGetTriage,
     loading,
   };

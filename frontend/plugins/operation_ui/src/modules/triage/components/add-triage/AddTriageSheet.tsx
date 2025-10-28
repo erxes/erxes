@@ -11,7 +11,11 @@ import { AddTriageForm } from '@/triage/components/add-triage/AddTriageForm';
 import { useAtom } from 'jotai';
 import { triageCreateSheetState } from '@/triage/states/triageCreateSheetState';
 
-export const AddTriageSheet = () => {
+export const AddTriageSheet = ({
+  onComplete: onCompleteProp,
+}: {
+  onComplete?: (triageId: string) => void;
+}) => {
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useAtom(triageCreateSheetState);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -23,6 +27,12 @@ export const AddTriageSheet = () => {
   const onClose = () => {
     setHotkeyScope(TaskHotKeyScope.TaskAddSheet);
     setOpen(false);
+  };
+
+  const onCompleteForm = (triageId: string) => {
+    console.log('triageId', triageId);
+    onClose();
+    onCompleteProp?.(triageId);
   };
 
   useScopedHotkeys(`c`, () => onOpen(), TaskHotKeyScope.TasksPage);
@@ -42,7 +52,7 @@ export const AddTriageSheet = () => {
           e.preventDefault();
         }}
       >
-        <AddTriageForm onClose={onClose} />
+        <AddTriageForm onComplete={onCompleteForm} />
       </Sheet.View>
     </Sheet>
   );

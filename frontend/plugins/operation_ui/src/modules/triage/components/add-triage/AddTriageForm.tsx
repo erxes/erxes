@@ -21,8 +21,13 @@ import { currentUserState } from 'ui-modules';
 import { addTriageSchema, IAddTriage } from '@/triage/types/triage';
 import { useCreateTriage } from '@/triage/hooks/useCreateTriage';
 import { SelectPriority } from '@/operation/components/SelectPriority';
+import { toast } from 'erxes-ui';
 
-export const AddTriageForm = ({ onClose }: { onClose: () => void }) => {
+export const AddTriageForm = ({
+  onComplete,
+}: {
+  onComplete: (triageId: string) => void;
+}) => {
   const { teamId } = useParams<{
     teamId?: string;
   }>();
@@ -74,8 +79,15 @@ export const AddTriageForm = ({ onClose }: { onClose: () => void }) => {
           priority: data.priority || 0,
         },
       },
-      onCompleted: () => {
-        onClose();
+      onCompleted: ({ operationAddTriage }) => {
+        toast({
+          title: 'Success',
+          description: 'Triage created successfully',
+          variant: 'default',
+        });
+        console.log('operationAddTriage', operationAddTriage);
+
+        onComplete(operationAddTriage._id);
       },
     });
   };
@@ -149,19 +161,20 @@ export const AddTriageForm = ({ onClose }: { onClose: () => void }) => {
           </div>
         </Sheet.Content>
         <Sheet.Footer className="flex justify-end flex-shrink-0 gap-1 px-5">
-          <Button
-            type="button"
-            variant="ghost"
-            className="bg-background hover:bg-background/90"
-            onClick={() => {
-              onClose();
-              form.reset();
-              editor?.removeBlocks(editor?.document);
-              setDescriptionContent(undefined);
-            }}
-          >
-            Cancel
-          </Button>
+          <Sheet.Close asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              className="bg-background hover:bg-background/90"
+              onClick={() => {
+                form.reset();
+                editor?.removeBlocks(editor?.document);
+                setDescriptionContent(undefined);
+              }}
+            >
+              Cancel
+            </Button>
+          </Sheet.Close>
           <Button
             type="submit"
             className="bg-primary text-primary-foreground hover:bg-primary/90"

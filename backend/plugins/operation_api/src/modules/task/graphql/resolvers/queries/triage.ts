@@ -38,7 +38,7 @@ export const triageQueries = {
         params: {
           ...filter,
           orderBy: {
-            createdAt: 'asc',
+            createdAt: 'desc',
           },
         },
         query: filterQuery,

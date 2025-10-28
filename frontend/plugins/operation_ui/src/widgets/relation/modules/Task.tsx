@@ -1,5 +1,9 @@
+import { AddTriageSheet } from '@/triage/components/add-triage/AddTriageSheet';
 import { useRelations } from '../hooks/useRelations';
 import { TaskDetail } from './TaskDetail';
+import { Spinner } from 'erxes-ui';
+import { useCreateRelation } from '../hooks/useCreateRelation';
+import { RelationsCard } from './RelationsCard';
 
 export const Task = ({
   contentId,
@@ -12,12 +16,34 @@ export const Task = ({
     contentId,
     contentType,
   });
+  const { createRelation } = useCreateRelation();
 
   if (loading) {
-    return <div>loading...</div>;
+    return <Spinner containerClassName="py-20" />;
   }
 
-  return ownEntities?.map((entity) => {
-    return <TaskDetail key={entity.contentId} taskId={entity.contentId} />;
-  });
+  if (ownEntities?.length === 0) {
+    const onComplete = (triageId: string) => {
+      createRelation({
+        entities: [
+          {
+            contentType,
+            contentId,
+          },
+          {
+            contentType: 'operation:task',
+            contentId: triageId,
+          },
+        ],
+      });
+    };
+
+    return <AddTriageSheet onComplete={onComplete} />;
+  }
+
+  return ownEntities?.map((entity) => (
+    <RelationsCard key={entity.contentId}>
+      <TaskDetail key={entity.contentId} taskId={entity.contentId} />
+    </RelationsCard>
+  ));
 };
