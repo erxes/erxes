@@ -136,7 +136,7 @@ export const uploadMedia = async (
         subdomain,
 
         pluginName: 'core',
-        method: 'query', // this is a mutation, not a query
+        method: 'query',
         module: 'configs',
         action: 'getFileUploadConfigs',
         input: {},
@@ -553,7 +553,7 @@ export const getFacebookUserProfilePic = async (
       subdomain,
 
       pluginName: 'core',
-      method: 'query', // this is a mutation, not a query
+      method: 'query',
       module: 'configs',
       action: 'getFileUploadConfigs',
       input: {},
