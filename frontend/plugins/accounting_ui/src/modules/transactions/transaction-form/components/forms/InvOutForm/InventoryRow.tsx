@@ -15,7 +15,7 @@ import {
 } from 'erxes-ui';
 import { useWatch } from 'react-hook-form';
 import { SelectProduct } from 'ui-modules';
-import { ITransactionGroupForm } from '../../../types/JournalForms';
+import { ITransactionGroupForm, TInvOutJournal } from '../../../types/JournalForms';
 import { useEffect, useRef } from 'react';
 
 export const InventoryRow = ({
@@ -30,7 +30,7 @@ export const InventoryRow = ({
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
-  });
+  }) as TInvOutJournal;
 
   const detail = useWatch({
     control: form.control,
