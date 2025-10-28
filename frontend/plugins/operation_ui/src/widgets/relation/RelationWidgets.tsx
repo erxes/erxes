@@ -10,7 +10,7 @@ export const RelationWidgets = ({
     return <Task contentId={contentId} contentType={contentType} />;
   }
 
-  return <div>Operation Widget</div>;
+  return <div>Project Widget</div>;
 };
 
 export default RelationWidgets;
