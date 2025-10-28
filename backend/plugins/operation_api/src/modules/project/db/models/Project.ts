@@ -9,13 +9,14 @@ import {
 import { createActivity } from '@/activity/utils/createActivity';
 import { Document } from 'mongodb';
 import { FlattenMaps } from 'mongoose';
+import { IUserDocument } from 'erxes-api-shared/core-types';
 
 export interface IProjectModel extends Model<IProjectDocument> {
   getProject(_id: string): Promise<IProjectDocument>;
   getProjects(
     filter: any,
   ): Promise<FlattenMaps<IProjectDocument>[] | Document[]>;
-  createProject(doc: IProject): Promise<IProjectDocument>;
+  createProject(doc: IProject, user: IUserDocument): Promise<IProjectDocument>;
   updateProject({
     doc,
     userId,
@@ -28,7 +29,7 @@ export interface IProjectModel extends Model<IProjectDocument> {
   removeProject(projectId: string): Promise<{ ok: number }>;
 }
 
-export const loadProjectClass = (models: IModels) => {
+export const loadProjectClass = (models: IModels, subdomain: string) => {
   class Project {
     public static async getProject(_id: string) {
       const Project = await models.Project.findOne({ _id }).lean();
@@ -48,8 +49,34 @@ export const loadProjectClass = (models: IModels) => {
 
     public static async createProject(
       doc: IProject,
+      user: IUserDocument,
     ): Promise<FlattenMaps<IProjectDocument> | Document> {
-      return models.Project.insertOne(doc);
+      if (doc.convertedFromId) {
+        const existingProject = await models.Project.findOne({
+          convertedFromId: doc.convertedFromId,
+        });
+
+        if (existingProject) {
+          throw new Error('Project has been converted already.');
+        }
+      }
+
+      const project = await models.Project.insertOne(doc);
+
+      if (doc.convertedFromId && project.convertedFromId) {
+        models.Activity.createActivity({
+          contentId: project.convertedFromId,
+          action: 'CONVERTED',
+          module: 'CONVERT',
+          metadata: {
+            newValue: project._id.toString(),
+            previousValue: project.convertedFromId?.toString(),
+          },
+          createdBy: user._id,
+        });
+      }
+
+      return project;
     }
 
     public static async updateProject({

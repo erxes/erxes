@@ -10,6 +10,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { AddProjectForm } from './AddProjectForm';
+
 export const AddProjectSheet = () => {
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
@@ -42,7 +43,7 @@ export const AddProjectSheet = () => {
           e.preventDefault();
         }}
       >
-        <AddProjectForm onClose={onClose} />
+        <AddProjectForm onClose={onClose} onSuccess={onClose} />
       </Sheet.View>
     </Sheet>
   );

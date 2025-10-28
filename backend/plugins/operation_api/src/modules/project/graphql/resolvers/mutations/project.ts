@@ -17,20 +17,25 @@ export const projectMutations = {
       status,
       description,
       leadId,
+      convertedFromId,
     },
     { models, user }: IContext,
   ) => {
-    const createdProject = await models.Project.createProject({
-      name,
-      teamIds,
-      startDate,
-      targetDate,
-      priority,
-      status,
-      description,
-      leadId,
-      createdBy: user._id,
-    });
+    const createdProject = await models.Project.createProject(
+      {
+        name,
+        teamIds,
+        startDate,
+        targetDate,
+        priority,
+        status,
+        description,
+        leadId,
+        createdBy: user._id,
+        convertedFromId,
+      },
+      user,
+    );
     graphqlPubsub.publish(`operationProjectChanged:${createdProject._id}`, {
       operationProjectChanged: {
         type: 'create',

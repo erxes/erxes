@@ -19,8 +19,8 @@ import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
 import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
 import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstimatedPointTask';
 import { SelectCycle } from '@/task/components/task-selects/SelectCycle';
-import { ConverToProject } from '@/task/components/task-selects/ConvertToProject';
 import { SelectMilestone } from '@/task/components/task-selects/SelectMilestone';
+import { ConvertToProject } from '@/task/components/task-selects/ConvertToProject';
 
 export const TaskFields = ({ task }: { task: ITask }) => {
   const {
@@ -141,7 +141,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
           variant="detail"
           teamId={teamId}
         />
-        <ConverToProject taskId={taskId} />
+        <ConvertToProject task={task} />
         <SelectEstimatedPoint
           value={estimatePoint}
           taskId={taskId}

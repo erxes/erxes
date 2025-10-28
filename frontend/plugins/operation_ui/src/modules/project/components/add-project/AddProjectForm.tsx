@@ -21,8 +21,17 @@ import { SelectTeam } from '@/team/components/SelectTeam';
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
 import { SelectStatus } from '@/operation/components/SelectStatus';
+import { ITask } from '@/task/types';
 
-export const AddProjectForm = ({ onClose }: { onClose: () => void }) => {
+export const AddProjectForm = ({
+  onClose,
+  task,
+  onSuccess,
+}: {
+  onClose: () => void;
+  task?: ITask;
+  onSuccess: (newProjectId: string) => void;
+}) => {
   const { teamId } = useParams();
   const { createProject } = useCreateProject();
   const editor = useBlockEditor();
@@ -32,11 +41,12 @@ export const AddProjectForm = ({ onClose }: { onClose: () => void }) => {
     defaultValues: {
       teamIds: teamId ? [teamId] : [],
       icon: 'IconBox',
-      name: '',
+      name: task?.name || '',
       status: 1,
-      priority: 0,
-      leadId: undefined,
-      targetDate: undefined,
+      priority: task?.priority || 0,
+      leadId: task?.assigneeId || undefined,
+      targetDate: task?.targetDate ? new Date(task?.targetDate) : undefined,
+      convertedFromId: task?._id,
     },
   });
   useEffect(() => {
@@ -67,9 +77,14 @@ export const AddProjectForm = ({ onClose }: { onClose: () => void }) => {
         ...data,
         description: JSON.stringify(descriptionContent),
       },
+    }).then((data) => {
+      const newProjectId = data?.data.createProject._id;
+      onSuccess(newProjectId);
     });
+
     onClose();
   };
+
   return (
     <Form {...form}>
       <form

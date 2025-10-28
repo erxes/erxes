@@ -1,3 +1,4 @@
+import { GET_CONVERTED_PROJECT } from '@/project/graphql/queries/getConvertedProject';
 import { GET_PROJECTS } from '@/project/graphql/queries/getProjects';
 import { CONVERT_TO_PROJECT } from '@/task/graphql/mutations/convertProject';
 import { ApolloCache, useMutation } from '@apollo/client';
@@ -10,7 +11,7 @@ export const useConvertToProject = () => {
     CONVERT_TO_PROJECT,
     {
       update: (cache: ApolloCache<any>, { data }) => {
-        cache.updateQuery({ query: GET_PROJECTS }, (existingData) => {
+        cache.updateQuery({ query: GET_CONVERTED_PROJECT }, (existingData) => {
           if (!existingData || !existingData.projects.list) return existingData;
 
           return {

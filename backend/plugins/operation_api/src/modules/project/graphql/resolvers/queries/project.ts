@@ -100,6 +100,14 @@ export const projectQueries = {
     return { list, totalCount, pageInfo };
   },
 
+  getConvertedProject: async (
+    _parent: undefined,
+    { convertedFromId },
+    { models }: IContext,
+  ) => {
+    return await models.Project.findOne({ convertedFromId }).lean();
+  },
+
   getProjectProgress: async (
     _parent: undefined,
     { _id }: { _id: string },
