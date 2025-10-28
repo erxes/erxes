@@ -76,14 +76,17 @@ export interface IEbarimt {
   sendInfo?: any;
   modifiedAt?: Date;
   createdAt?: Date;
+  reportMonth?: string;
 }
 
 export interface IEbarimtFull {
   _id: string;
+  id?: string;
   number: string;
   contentType: string;
   contentId: string;
   userId?: string;
+  posId?: number;
   posToken?: string;
 
   totalAmount?: number;
@@ -113,13 +116,14 @@ export interface IEbarimtFull {
   sendInfo?: any;
   modifiedAt?: Date;
   createdAt: Date;
+  reportMonth?: string;
 }
 
 export interface IEbarimtDocument extends IEbarimt, Document {
   _id: string;
 }
 
-// Simplified schemas without subdomain wrappers
+
 const ItemSchema = new Schema({
   name: String,
   barCode: String,
@@ -135,7 +139,10 @@ const ItemSchema = new Schema({
   totalAmount: Number,
   recId: String,
   data: Schema.Types.Mixed,
-  productId: String
+  // From Schema 2
+  registerNo: String,
+  // From Schema 1
+  productId: String,
 });
 
 const ReceiptSchema = new Schema({
@@ -146,7 +153,7 @@ const ReceiptSchema = new Schema({
   merchantTin: String,
   bankAccountNo: String,
   data: Schema.Types.Mixed,
-  items: [ItemSchema]
+  items: [ItemSchema],
 });
 
 const PaymentSchema = new Schema({
@@ -154,54 +161,59 @@ const PaymentSchema = new Schema({
   exchangeCode: String,
   status: String,
   paidAmount: Number,
-  data: Schema.Types.Mixed
+  data: Schema.Types.Mixed,
 });
 
-// Apply timestamps automatically
-const EbarimtSchema = new Schema<IEbarimtDocument>({
-  userId: String,
-  number: String,
-  contentType: { type: String, required: true },
-  contentId: { type: String, required: true, index: true },
-  posToken: String,
+const EbarimtSchema = new Schema(
+  {
+    userId: String,
+    number: String,
+    contentType: { type: String, required: true },
+    contentId: { type: String, required: true, index: true },
+    posToken: String,
 
-  totalAmount: Number,
-  totalVAT: Number,
-  totalCityTax: Number,
-  districtCode: String,
-  branchNo: String,
-  merchantTin: String,
-  posNo: String,
-  customerTin: String,
-  customerName: String,
-  consumerNo: String,
-  type: String,
+    totalAmount: Number,
+    totalVAT: Number,
+    totalCityTax: Number,
+    districtCode: String,
+    branchNo: String,
+    merchantTin: String,
+    posNo: String,
+    customerTin: String,
+    customerName: String,
+    consumerNo: String,
+    type: String,
 
-  data: Schema.Types.Mixed,
-  receipts: [ReceiptSchema],
-  payments: [PaymentSchema],
+    // Newly added fields
+    inactiveId: String,
+    invoiceId: String,
+    easy: Boolean,
+    oldTaxType: String,
+    getInformation: String,
 
-  status: String,
-  message: String,
-  date: String,
-  registerNo: String,
-  qrData: String,
-  lottery: String,
-  state: String,
-  inactiveId: String,
-  sendInfo: Schema.Types.Mixed,
-}, { timestamps: true });
+    data: Schema.Types.Mixed,
+    receipts: [ReceiptSchema],
+    payments: [PaymentSchema],
 
-// Index for fast querying
-EbarimtSchema.index({ contentType: 1, contentId: 1 });
+    status: String,
+    message: String,
+    date: String,
+    registerNo: String,
+    qrData: String,
+    lottery: String,
+    state: String,
+    sendInfo: Schema.Types.Mixed,
+    reportMonth: String,
+  },
+  { timestamps: true }
+);
 
-// ------- EXPORT -------
+EbarimtSchema.index({ contentType: 1, contentId: 1, state: 1, type: 1 });
 
-export const EbarimtModel = model<IEbarimtDocument>(
+export const EbarimtModel = model<IEbarimt & Document>(
   'Ebarimt',
   EbarimtSchema,
   'erxes_ebarimt'
 );
 
-// Export schema for class loading
 export const ebarimtSchema = EbarimtSchema;

@@ -1,4 +1,4 @@
-export const types = `
+export const EbarimtProductGroupType = `
   type EbarimtProductGroup {
     _id: String
     createdAt: Date
@@ -13,7 +13,6 @@ export const types = `
     mainProduct: Product
     subProduct: Product
     modifiedUser: User
-
   }
 `;
 

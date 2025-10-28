@@ -1,8 +1,8 @@
-import * as moment from 'moment';
+import moment from 'moment';
 import { fixNum } from 'erxes-api-shared/utils';
-import { IEbarimt, IEbarimtFull } from '../definitions/ebarimt';
-import { IEbarimtConfig } from '../definitions/configs';
-import { getCompanyInfo } from '../../utils';
+import { IEbarimt, IEbarimtFull } from '@/ebarimt/db/definitions/ebarimt';
+import { IEbarimtConfig } from '@/ebarimt/db/definitions/configs';
+import { getCompanyInfo } from '../../../../utils/utils';
 
 export interface IDoc {
   contentType: string;
@@ -279,7 +279,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     };
 
     if (detailsFree.length) {
-      mainData.receipts?.push({
+      mainData?.receipts?.push({
         ...commonOderInfo,
         totalAmount: freeAmount,
         taxType: 'VAT_FREE',
@@ -288,7 +288,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     }
 
     if (details0.length) {
-      mainData.receipts?.push({
+      mainData?.receipts?.push({
         ...commonOderInfo,
         totalAmount: zeroAmount,
         taxType: 'VAT_ZERO',
@@ -297,7 +297,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     }
 
     if (details.length) {
-      mainData.receipts?.push({
+      mainData?.receipts?.push({
         ...commonOderInfo,
         totalAmount: ableAmount,
         totalVAT: ableVATAmount,
@@ -308,10 +308,10 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     }
 
     // payments
-    let cashAmount: number = fixNum(mainData.totalAmount) ?? 0;
+    let cashAmount: number = fixNum(mainData?.totalAmount) ?? 0;
     for (const payment of doc.nonCashAmounts) {
       const paidAmount = fixNum(payment.amount);
-      mainData.payments?.push({
+      mainData?.payments?.push({
         code: payment.type?.includes('card') || payment.type?.includes('Card') ? 'PAYMENT_CARD' : 'CASH',
         exchangeCode: '',
         status: 'PAID',
@@ -322,7 +322,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     }
 
     if (fixNum(cashAmount)) {
-      mainData.payments?.push({
+      mainData?.payments?.push({
         code: 'CASH',
         exchangeCode: '',
         status: 'PAID',

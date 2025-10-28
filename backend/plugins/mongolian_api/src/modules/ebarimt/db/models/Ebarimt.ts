@@ -4,7 +4,7 @@ import {
   IEbarimt,
   IEbarimtDocument,
   ebarimtSchema,
-} from '../definitions/ebarimt';
+} from '@/ebarimt/db/definitions/ebarimt';
 import { IEbarimtConfig } from '../definitions/configs';
 
 /**
@@ -22,10 +22,6 @@ export interface IDoc {
   receipts?: any[];
 }
 
-/**
- * Get Ebarimt data before posting
- * This function builds the correct payload and validates the structure.
- */
 export async function getEbarimtData({
   config,
   doc,
@@ -43,8 +39,6 @@ export async function getEbarimtData({
     if (!ebarimtUrl) {
       return { status: 'error', msg: 'Ebarimt API URL not configured' };
     }
-
-    // You may adjust endpoint or logic depending on ERP data flow
     const res = await fetch(`${ebarimtUrl}/rest/receipt/data`, {
       method: 'POST',
       body: JSON.stringify(doc),
@@ -58,9 +52,11 @@ export async function getEbarimtData({
 
     const json = await res.json();
 
-    // Typical structure: { data, innerData, msg, status }
     if (!json.data && !json.innerData) {
-      return { status: 'error', msg: json.msg || 'Empty response from Ebarimt' };
+      return {
+        status: 'error',
+        msg: json.msg || 'Empty response from Ebarimt',
+      };
     }
 
     return {
@@ -88,23 +84,29 @@ export interface IPutResponseModel extends Model<IEbarimtDocument> {
     config: IEbarimtConfig,
     user?: { _id: string },
   ): Promise<IEbarimtDocument[]>;
-  putHistory(args: { contentType: string; contentId: string }): Promise<IEbarimtDocument>;
-  putHistories(args: { contentType: string; contentId: string }): Promise<IEbarimtDocument[]>;
+  putHistory(args: {
+    contentType: string;
+    contentId: string;
+  }): Promise<IEbarimtDocument>;
+  putHistories(args: {
+    contentType: string;
+    contentId: string;
+  }): Promise<IEbarimtDocument[]>;
   createPutResponse(doc: IEbarimt): Promise<IEbarimtDocument>;
   updatePutResponse(_id: string, doc: IEbarimt): Promise<IEbarimtDocument>;
 }
 
-/**
- * Model loader with static Ebarimt handling logic
- */
 export const loadPutResponseClass = (models: {
   PutResponses: IPutResponseModel;
 }) => {
   class PutResponse {
-    public static async putData(doc: IDoc, config: IEbarimtConfig, user?: { _id: string }) {
+    public static async putData(
+      doc: IDoc,
+      config: IEbarimtConfig,
+      user?: { _id: string },
+    ) {
       const { contentId, contentType } = doc;
 
-      // Prevent re-submission
       const continuePutResponses = await models.PutResponses.find({
         contentType,
         contentId,
@@ -112,17 +114,20 @@ export const loadPutResponseClass = (models: {
       }).lean();
 
       for (const cpr of continuePutResponses) {
-  if (
-    cpr.createdAt &&
-    (Date.now() - new Date(cpr.createdAt).getTime()) / 1000 < 10
-  ) {
-    throw new Error('The previously submitted data has not yet been processed');
-  }
-       
-       
+        if (
+          cpr.createdAt &&
+          (Date.now() - new Date(cpr.createdAt).getTime()) / 1000 < 10
+        ) {
+          throw new Error(
+            'The previously submitted data has not yet been processed',
+          );
+        }
       }
 
-      const { status, msg, data, innerData } = await getEbarimtData({ config, doc });
+      const { status, msg, data, innerData } = await getEbarimtData({
+        config,
+        doc,
+      });
       if (status !== 'ok' || !(data || innerData)) {
         throw new Error(msg);
       }
@@ -141,7 +146,8 @@ export const loadPutResponseClass = (models: {
             prePutResponse.totalVAT === data.totalVAT &&
             prePutResponse.totalCityTax === data.totalCityTax &&
             prePutResponse.receipts?.length === data.receipts?.length &&
-            (prePutResponse.type || 'B2C_RECEIPT') === (data.type || 'B2C_RECEIPT');
+            (prePutResponse.type || 'B2C_RECEIPT') ===
+              (data.type || 'B2C_RECEIPT');
 
           if (sameData) {
             return {
@@ -156,15 +162,13 @@ export const loadPutResponseClass = (models: {
         }
 
         const resObj = await models.PutResponses.createPutResponse({
-  sendInfo: { ...data },
-  contentId,
-  contentType,
-  number: doc.number ?? '', 
-  customerName: data.customerName,
-  userId: user?._id,
-        
-         
- });
+          sendInfo: { ...data },
+          contentId,
+          contentType,
+          number: doc.number ?? '',
+          customerName: data.customerName,
+          userId: user?._id,
+        });
 
         const response = await fetch(`${config.ebarimtUrl}/rest/receipt`, {
           method: 'POST',
@@ -184,9 +188,12 @@ export const loadPutResponseClass = (models: {
           );
         }
 
-        await models.PutResponses.updatePutResponse(resObj._id, { ...response });
+        await models.PutResponses.updatePutResponse(resObj._id, {
+          ...response,
+        });
         result.putData =
-          (await models.PutResponses.findOne({ _id: resObj._id }).lean()) || undefined;
+          (await models.PutResponses.findOne({ _id: resObj._id }).lean()) ||
+          undefined;
       }
 
       if (innerData) {
@@ -196,7 +203,11 @@ export const loadPutResponseClass = (models: {
       return result;
     }
 
-    public static async returnBill(doc: any, config: IEbarimtConfig, user?: { _id: string }) {
+    public static async returnBill(
+      doc: any,
+      config: IEbarimtConfig,
+      user?: { _id: string },
+    ) {
       const url = config.ebarimtUrl || '';
       const { contentType, contentId } = doc;
 
@@ -258,7 +269,13 @@ export const loadPutResponseClass = (models: {
         .lean();
     }
 
-    public static async putHistory({ contentType, contentId }: { contentType: string; contentId: string }) {
+    public static async putHistory({
+      contentType,
+      contentId,
+    }: {
+      contentType: string;
+      contentId: string;
+    }) {
       return await models.PutResponses.findOne({
         contentId,
         contentType,
@@ -270,7 +287,13 @@ export const loadPutResponseClass = (models: {
         .lean();
     }
 
-    public static async putHistories({ contentType, contentId }: { contentType: string; contentId: string }) {
+    public static async putHistories({
+      contentType,
+      contentId,
+    }: {
+      contentType: string;
+      contentId: string;
+    }) {
       return await models.PutResponses.find({
         contentId,
         contentType,
@@ -283,7 +306,10 @@ export const loadPutResponseClass = (models: {
     }
 
     public static async createPutResponse(doc: IEbarimt) {
-      return await models.PutResponses.create({ ...doc, createdAt: new Date() });
+      return await models.PutResponses.create({
+        ...doc,
+        createdAt: new Date(),
+      });
     }
 
     public static async updatePutResponse(_id: string, doc: IEbarimt) {

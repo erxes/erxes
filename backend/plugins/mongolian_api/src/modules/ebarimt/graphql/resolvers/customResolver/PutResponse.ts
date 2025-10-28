@@ -1,6 +1,6 @@
-import { IEbarimtDocument } from '../../db/definitions/ebarimt';
+import { IEbarimtDocument } from '@/ebarimt/db/definitions/ebarimt';
 
-const putResponse = {
+export const putResponse = {
   async user(putResponse: IEbarimtDocument) {
     if (!putResponse.userId) {
       return;

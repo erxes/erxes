@@ -1,5 +1,5 @@
 import { cursorPaginate } from '../../../../../../../../erxes-api-shared/src/utils';
-import { IContext } from "../../../connectionResolver";
+import { IContext } from "../../../../../connectionResolver";
 
 const generateFilter = async (params) => {
   const filter: any = {};
@@ -38,7 +38,7 @@ export const sortBuilder = params => {
   return { createdAt: 1 };
 };
 
-const queries = {
+export const productRulesQueries = {
   ebarimtProductRules: async (
     _root,
     params,
@@ -65,4 +65,4 @@ const queries = {
   },
 };
 
-export default queries;
+export default productRulesQueries;

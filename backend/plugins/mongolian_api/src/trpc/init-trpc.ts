@@ -1,11 +1,11 @@
 import { initTRPC } from "@trpc/server";
 import { z } from "zod";
-import { ITRPCContext } from '../../../../../../erxes-api-shared/src/utils';
+import { ITRPCContext } from 'erxes-api-shared/src/utils';
 
 import { generateModels } from "../connectionResolver";
-import { afterMutationHandlers } from "../afterMutations";
-import { beforeResolverHandlers } from "../beforeResolvers";
-import { getCompanyInfo, getConfig } from "../utils";
+import { afterMutationHandlers } from "../modules/ebarimt/afterMutations";
+import { beforeResolverHandlers } from "../modules/ebarimt/beforeResolvers";
+import { getCompanyInfo, getConfig } from "../modules/ebarimt/utils";
 
 // --- Initialize TRPC with context type ---
 const t = initTRPC.context<ITRPCContext>().create();

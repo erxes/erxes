@@ -1,9 +1,12 @@
 import { Schema, model, Document } from 'mongoose';
+import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
 export interface IProductRule {
+  _id?: string;
+  id?: string;
   title: string;
 
-  // filters
+  // Filters
   productIds?: string[];
   productCategoryIds?: string[];
   excludeCategoryIds?: string[];
@@ -11,45 +14,55 @@ export interface IProductRule {
   tagIds?: string[];
   excludeTagIds?: string[];
 
-  // rules
+  // Rules
   kind: string; // vat, ctax
-
-  // vat
   taxType?: string;
   taxCode?: string;
   taxPercent?: number;
+
+  createdAt?: Date;
+  modifiedAt?: Date;
 }
 
 export interface IProductRuleDocument extends Document, IProductRule {
   _id: string;
+  id: string;
   createdAt: Date;
   modifiedAt: Date;
 }
 
-// ✅ Clean Mongoose schema, no subdomain, no wrapper
-const ProductRuleSchema = new Schema<IProductRuleDocument>(
+export const productRuleSchema = new Schema<IProductRuleDocument>(
   {
-    _id: { type: String, required: true },
-    title: { type: String, required: true },
+    _id: mongooseStringRandomId,
 
-    // filters
-    productIds: [{ type: String }],
-    productCategoryIds: [{ type: String }],
-    excludeCategoryIds: [{ type: String }],
-    excludeProductIds: [{ type: String }],
-    tagIds: [{ type: String }],
-    excludeTagIds: [{ type: String }],
+    id: { type: String, index: true },
 
-    // rule details
-    kind: { type: String, required: true }, // vat, ctax
-    taxType: { type: String },
-    taxCode: { type: String },
-    taxPercent: { type: Number },
+    title: { type: String, required: true, label: 'Title' },
+
+    // Filters
+    productIds: { type: [String], label: 'Product IDs' },
+    productCategoryIds: { type: [String], label: 'Product Category IDs' },
+    excludeCategoryIds: { type: [String], label: 'Excluded Category IDs' },
+    excludeProductIds: { type: [String], label: 'Excluded Product IDs' },
+    tagIds: { type: [String], label: 'Tag IDs' },
+    excludeTagIds: { type: [String], label: 'Excluded Tag IDs' },
+
+    // Rules
+    kind: { type: String, required: true, label: 'Kind (vat/ctax)' },
+    taxType: { type: String, label: 'Tax Type' },
+    taxCode: { type: String, label: 'Tax Code' },
+    taxPercent: { type: Number, label: 'Tax Percent' },
   },
   {
     timestamps: { createdAt: 'createdAt', updatedAt: 'modifiedAt' },
+    collection: 'erxes_ebarimt',
   }
 );
 
-// ✅ No schemaHooksWrapper, no subdomain prefix, single global model
-export const ProductRule = model<IProductRuleDocument>('product_rules', ProductRuleSchema);
+// keep `id` in sync with `_id`
+productRuleSchema.pre('save', function (next) {
+  if (!this.id) this.id = this._id;
+  next();
+});
+
+export const ProductRule = model<IProductRuleDocument>('product_rules', productRuleSchema);

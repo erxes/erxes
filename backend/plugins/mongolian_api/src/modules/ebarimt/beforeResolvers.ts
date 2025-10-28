@@ -1,4 +1,4 @@
-import { companyCheckCode, getCompanyInfo, getConfig } from "./utils";
+import { companyCheckCode, getCompanyInfo, getConfig } from '../../utils/utils';
 
 const resolvers = {
   contacts: ["companiesAdd", "companiesEdit"],
@@ -7,11 +7,11 @@ const resolvers = {
 
 export default resolvers;
 
-export const beforeResolverHandlers = async (params) => {
+export const beforeResolverHandlers = async (subdomain, params) => {
   const { resolver, args } = params;
 
   if (resolvers.sales.includes(resolver)) {
-    const mainConfig = await getConfig("EBARIMT", {});
+    const mainConfig = await getConfig(subdomain, "EBARIMT", {});
     if (
       args.customFieldsData?.length &&
       mainConfig?.dealBillType?.regNo &&
@@ -43,7 +43,7 @@ export const beforeResolverHandlers = async (params) => {
   }
 
   if (resolvers.contacts.includes(resolver)) {
-    return companyCheckCode(args);
+    return companyCheckCode(args, subdomain);
   }
 
   return args;

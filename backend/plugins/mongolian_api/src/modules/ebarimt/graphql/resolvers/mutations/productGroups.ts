@@ -1,8 +1,8 @@
-import { checkPermission } from '../../../../../../../../erxes-api-shared/src/core-modules';
-import { IContext } from '../../../connectionResolver';
-import { IProductGroup } from '../../../db/definitions/productGroup';
+import { checkPermission } from 'erxes-api-shared/src/core-modules';
+import { IContext } from '~/connectionResolver';
+import { IProductGroup } from '@/ebarimt/db/definitions/productGroup';
 
-const productGroupMutations = {
+export const productGroupMutations = {
   async ebarimtProductGroupCreate(
     _root: unknown,
     doc: IProductGroup,

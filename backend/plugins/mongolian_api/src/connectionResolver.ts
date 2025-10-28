@@ -1,12 +1,13 @@
 import * as mongoose from 'mongoose';
-import { IEbarimtDocument } from './db/definitions/ebarimt';
-import { IPutResponseModel, loadPutResponseClass } from './db/models/Ebarimt';
-import { IMainContext } from '../../../../../erxes-api-shared/src/core-types';
-import { createGenerateModels } from '../../../../../erxes-api-shared/src/utils/mongo/generate-models';
-import { IProductRuleDocument } from './db/definitions/productRule';
-import { IProductRuleModel, loadProductRuleClass } from './db/models/ProductRule';
-import { IProductGroupModel, loadProductGroupClass } from './db/models/ProductGroup';
-import { IProductGroupDocument } from './db/definitions/productGroup';
+import { IEbarimtDocument } from './modules/ebarimt/db/definitions/ebarimt';
+import { IPutResponseModel, loadPutResponseClass } from './modules/ebarimt/db/models/Ebarimt';
+import { IMainContext } from 'erxes-api-shared/src/core-types';
+import { createGenerateModels } from 'erxes-api-shared/src/utils/mongo/generate-models';
+import { IProductRuleDocument } from './modules/ebarimt/db/definitions/productRule';
+import { IProductRuleModel, loadProductRuleClass } from './modules/ebarimt/db/models/ProductRule';
+import { IProductGroupModel, loadProductGroupClass } from './modules/ebarimt/db/models/ProductGroup';
+import { IProductGroupDocument } from './modules/ebarimt/db/definitions/productGroup';
+
 
 export interface IModels {
   PutResponses: IPutResponseModel;
@@ -15,7 +16,9 @@ export interface IModels {
 }
 
 export interface IContext extends IMainContext {
-  models: IModels;
+ models: IModels;
+ subdomain: string;
+
 }
 
 export const loadClasses = (db: mongoose.Connection): IModels => {

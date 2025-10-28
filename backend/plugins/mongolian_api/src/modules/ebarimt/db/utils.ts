@@ -1,7 +1,5 @@
 import { nanoid } from 'nanoid';
 
-//Mongoose field options wrapper - simplified without subdomain
-
 export const field = (options: any) => {
   const { pkey, type, optional } = options;
 

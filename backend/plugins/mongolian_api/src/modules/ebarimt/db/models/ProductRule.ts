@@ -1,6 +1,6 @@
 import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
-import { IProductRule, IProductRuleDocument, productRuleSchema } from './definitions/productRule';
+import { IModels } from '~/connectionResolver';
+import { IProductRule, IProductRuleDocument, productRuleSchema } from '@/ebarimt/db/definitions/productRule';
 
 export interface IProductRuleModel extends Model<IProductRuleDocument> {
   createProductRule(doc: IProductRule): Promise<IProductRuleDocument>;

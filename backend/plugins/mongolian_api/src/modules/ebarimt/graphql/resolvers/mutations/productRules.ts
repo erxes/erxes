@@ -1,8 +1,8 @@
-import { checkPermission } from '../../../../../../../../erxes-api-shared/src/core-modules/permissions/utils';
-import { IContext } from '../../../connectionResolver';
-import { IProductRule } from '../../../db/definitions/productRule';
+import { checkPermission } from 'erxes-api-shared/src/core-modules/permissions/utils';
+import { IContext } from '~/connectionResolver';
+import { IProductRule } from '@/ebarimt/db/definitions/productRule';
 
-const productRuleMutations = {
+export const productRuleMutations = {
   async ebarimtProductRuleCreate(_root, doc: IProductRule, { models }: IContext) {
     return await models.ProductRules.createProductRule({ ...doc });
   },

@@ -1,6 +1,6 @@
-import { IProductGroupDocument } from '../../db/definitions/productGroup';
+import { IProductGroupDocument } from '@/ebarimt/db/definitions/productGroup';
 
-const productGroup = {
+export const productGroup = {
   async user(productGroup: IProductGroupDocument) {
     if (!productGroup.modifiedBy) {
       return;

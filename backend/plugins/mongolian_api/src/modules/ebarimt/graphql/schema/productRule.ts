@@ -1,4 +1,4 @@
-export const types = `
+export const EbarimtProductRuleType = `
   type EbarimtProductRule {
     _id: String
     createdAt: Date

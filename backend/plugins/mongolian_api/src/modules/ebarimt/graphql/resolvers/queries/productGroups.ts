@@ -1,10 +1,19 @@
 import { cursorPaginate } from 'erxes-api-shared/utils';
-import { IContext } from "../../../connectionResolver";
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/src/utils/trpc';
+import { IContext } from '~/connectionResolver';
+import { FilterQuery } from 'mongoose';
+import {
+  IProductGroup,
+  IProductGroupDocument,
+} from '~/modules/ebarimt/db/definitions/productGroup';
+import { IProductGroupParams } from '~/modules/ebarimt/@types';
 
-const generateFilter = async (params, commonQuerySelector) => {
-  const filter: any = { ...commonQuerySelector };
+const generateFilter = async (
+  params: IProductGroupParams,
+  subdomain: string,
+) => {
+  const filter: FilterQuery<IProductGroupDocument> = {};
 
   // Filter by productId — either as main or sub product
   if (params.productId) {
@@ -16,30 +25,39 @@ const generateFilter = async (params, commonQuerySelector) => {
 
   // Filter by search value (product name, code, or barcode)
   if (params.searchValue) {
-    const products = await sendTRPCMessage("core.products.find", {
-      query: {
-        $or: [
-          {
-            name: {
-              $regex: `.*${escapeRegExp(params.searchValue)}.*`,
-              $options: "i",
+    const products = await sendTRPCMessage({
+      subdomain: subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'find',
+      method: 'query',
+      input: {
+        query: {
+          $or: [
+            {
+              name: {
+                $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+                $options: 'i',
+              },
             },
-          },
-          {
-            code: {
-              $regex: `.*${escapeRegExp(params.searchValue)}.*`,
-              $options: "i",
+            {
+              code: {
+                $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+                $options: 'i',
+              },
             },
-          },
-          {
-            barcodes: {
-              $regex: `.*${escapeRegExp(params.searchValue)}.*`,
-              $options: "i",
+            {
+              barcodes: {
+                $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+                $options: 'i',
+              },
             },
-          },
-        ],
+          ],
+        },
+        fields: { _id: 1 },
       },
-      fields: { _id: 1 },
+      defaultValue: [],
+      options: {},
     });
 
     const productIds = products.map((p) => p._id);
@@ -52,7 +70,7 @@ const generateFilter = async (params, commonQuerySelector) => {
 
   // Filter by active/inactive status
   if (params.status) {
-    filter.isActive = params.status === "active";
+    filter.isActive = params.status === 'active';
   }
 
   return filter;
@@ -67,33 +85,31 @@ export const sortBuilder = (params) => {
   return { sortNum: 1, createdAt: 1 };
 };
 
-const queries = {
-  // cursorPaginated list of product groups
+export const productGroupQueries = {
+  // Cursor-paginated list of product groups
   ebarimtProductGroups: async (
     _root,
-    params,
-    { models }: IContext
+    params: IProductGroupParams,
+    { models, subdomain }: IContext,
   ) => {
-    const filter = await generateFilter(params);
+    const filter = await generateFilter(params, subdomain);
 
-    return await cursorPaginate(
-      models.ProductGroups.find(filter).sort(sortBuilder(params) as any),
-      {
-        page: params.page || 1,
-        perPage: params.perPage,
-      }
-    );
+    return await cursorPaginate({
+      model: models.ProductGroups,
+      params,
+      query: filter,
+    });
   },
 
   // Count query for product groups
   ebarimtProductGroupsCount: async (
     _root,
     params,
-    { models }: IContext
+    { models, subdomain }: IContext,
   ) => {
-    const filter = await generateFilter(params);
+    const filter = await generateFilter(params, subdomain);
     return models.ProductGroups.countDocuments(filter);
   },
 };
 
-export default queries;
+export default productGroupQueries;

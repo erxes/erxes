@@ -1,6 +1,6 @@
 import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
-import { IProductGroup, IProductGroupDocument, productGroupSchema } from './definitions/productGroup';
+import { IModels } from '~/connectionResolver';
+import { IProductGroup, IProductGroupDocument, productGroupSchema } from '@/ebarimt/db/definitions/productGroup';
 
 export interface IProductGroupModel extends Model<IProductGroupDocument> {
   createProductGroup(doc: IProductGroup): Promise<IProductGroupDocument>;

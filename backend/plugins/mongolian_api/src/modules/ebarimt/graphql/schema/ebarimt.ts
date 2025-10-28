@@ -1,19 +1,26 @@
-export const types = `
+
+export const UserType = `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
+`;
 
+export const ProductType = `
   extend type Product @key(fields: "_id") {
     _id: String! @external
   }
+`;
 
+export const AutomationResponseType = `
   type AutomationResponse {
     content: JSON
     responseId: String
     userId: String
     sessionCode: String
   }
+`;
 
+export const PutResponseType = `
   type PutResponse {
     _id: String
     number: String
@@ -58,8 +65,7 @@ export const types = `
     lottery: String
     date: String
   }
-`;
-
+`; 
 const queryParams = `
   page: Int
   perPage: Int
