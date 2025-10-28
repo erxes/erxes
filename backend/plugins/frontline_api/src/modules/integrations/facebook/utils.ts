@@ -565,7 +565,6 @@ export const getFacebookUserProfilePic = async (
         response.location,
         false,
       );
-      console.log(awsResponse, 'awsResponse');
 
       return awsResponse as string; // Ensure the return type is string
     }
