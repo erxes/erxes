@@ -48,7 +48,7 @@ const posCommonFields = `
   allowTypes: [String]
   isCheckRemainder: Boolean
   checkExcludeCategoryIds: [String]
-  saveRemainder: Boolean  
+  saveRemainder: Boolean
   banFractions: Boolean
 `;
 
