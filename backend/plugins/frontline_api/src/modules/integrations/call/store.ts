@@ -17,56 +17,74 @@ export const getOrCreateCustomer = async (
   callAccount: any,
 ) => {
   const { inboxIntegrationId, primaryPhone } = callAccount;
-
+  console.log('3...');
   if (typeof primaryPhone !== 'string') {
     throw new Error('Invalid primaryPhone: must be a string');
   }
+
   let customer = await models.CallCustomers.findOne({
     primaryPhone: { $eq: primaryPhone },
-    status: 'completed',
   });
+  console.log('4...');
+
   if (!customer) {
+    console.log('5...');
+
     try {
       customer = await models.CallCustomers.create({
         inboxIntegrationId,
         erxesApiId: null,
-        primaryPhone: primaryPhone,
+        primaryPhone,
         status: 'pending',
       });
-    } catch (e) {
+      console.log('6...');
+    } catch (e: any) {
+      console.log('7...');
       if (e.message.includes('duplicate')) {
-        return await getOrCreateCustomer(models, subdomain, callAccount);
+        // just fetch and return existing one
+        customer = await models.CallCustomers.findOne({
+          primaryPhone: { $eq: primaryPhone },
+        });
       } else {
         throw new Error(e);
       }
     }
+
+    console.log('8...');
 
     try {
       const data = {
         action: 'get-create-update-customer',
         payload: JSON.stringify({
           integrationId: inboxIntegrationId,
-          primaryPhone: primaryPhone,
+          primaryPhone,
           isUser: true,
           phones: [primaryPhone],
         }),
       };
       const apiCustomerResponse = await receiveInboxMessage(subdomain, data);
+      console.log('9...');
+
       if (apiCustomerResponse.status === 'success') {
-        customer.erxesApiId = apiCustomerResponse.data._id;
-        customer.status = 'completed';
-        await customer.save();
+        console.log('10...');
+        if (customer) {
+          customer.erxesApiId = apiCustomerResponse.data._id;
+          customer.status = 'completed';
+          await customer.save();
+        }
       } else {
+        console.log('11...');
         throw new Error(
           `Customer creation failed: ${JSON.stringify(apiCustomerResponse)}`,
         );
       }
     } catch (e: any) {
-      await models.CallCustomers.deleteOne({ _id: customer._id });
-      // Re-throw with added context, preserving original stack
+      console.log('12...');
+      await models.CallCustomers.deleteOne({ _id: customer?._id });
       throw new Error(`Failed to sync with API: ${e.stack || e.message || e}`);
     }
   }
+  console.log('wahhahah');
   return customer;
 };
 

@@ -54,8 +54,10 @@ export const receiveInboxMessage = async (
       });
     };
     if (primaryPhone) {
+      console.log(primaryPhone, 'primaryPhone');
       customer = await getCustomer({ customerPrimaryPhone: primaryPhone });
       if (customer) {
+        console.log('shine customer uussen bn..');
         await sendTRPCMessage({
           subdomain,
 
@@ -79,8 +81,11 @@ export const receiveInboxMessage = async (
     }
 
     if (customer) {
+      console.log('customer bn...', customer);
       return sendSuccess({ _id: customer._id });
     } else {
+      console.log('shine customer uusgene ..', doc);
+
       customer = await sendTRPCMessage({
         subdomain,
 
@@ -90,8 +95,10 @@ export const receiveInboxMessage = async (
         action: 'createCustomer',
         input: {
           doc: {
-            ...doc,
-            // scopeBrandIds: integration.brandId,
+            integrationId: 'Hn5bZRzQliUJD0PFrVJz1',
+            primaryPhone: '333999',
+            isUser: true,
+            phones: ['333999'],
           },
         },
       });
