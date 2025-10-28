@@ -3,6 +3,8 @@ import { useGetTriage } from '@/triage/hooks/useGetTriage';
 import { ITriage } from '@/triage/types/triage';
 import { NoTriageSelected } from './NoTriageSelected';
 import { TriageFields } from './TriageFields';
+import { TaskDetailSheet } from '@/task/components/TaskDetailSheet';
+import { Suspense } from 'react';
 
 export const TriageContent = () => {
   const { triage, loading } = useGetTriage();
@@ -24,10 +26,13 @@ export const TriageContent = () => {
 
 const TriageContentWrapper = ({ triage }: { triage: ITriage }) => {
   return (
-    <div className="h-full w-full flex overflow-auto">
-      <div className="w-full xl:max-w-3xl mx-auto py-12 px-6">
-        <TriageFields triage={triage} />
+    <Suspense>
+      <TaskDetailSheet />
+      <div className="h-full w-full flex overflow-auto">
+        <div className="w-full xl:max-w-3xl mx-auto py-12 px-6">
+          <TriageFields triage={triage} />
+        </div>
       </div>
-    </div>
+    </Suspense>
   );
 };

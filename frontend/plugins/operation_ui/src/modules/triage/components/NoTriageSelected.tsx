@@ -16,6 +16,8 @@ export const NoTriageSelected = () => {
       </div>
       <div className="text-accent-foreground mt-2 text-sm">
         Please select a triage to view its details.
+      </div>
+      <div className="mt-4 w-full flex justify-center">
         <AddTriageSheet />
       </div>
     </div>

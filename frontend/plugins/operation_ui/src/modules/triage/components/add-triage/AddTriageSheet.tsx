@@ -2,7 +2,6 @@ import { IconPlus } from '@tabler/icons-react';
 import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
 import {
   Button,
-  Kbd,
   Sheet,
   usePreviousHotkeyScope,
   useScopedHotkeys,
@@ -32,10 +31,9 @@ export const AddTriageSheet = () => {
   return (
     <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
       <Sheet.Trigger asChild>
-        <Button>
+        <Button variant="secondary">
           <IconPlus />
           Add triage
-          <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
       <Sheet.View

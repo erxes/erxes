@@ -2,14 +2,14 @@ import { useConvertTriage } from '@/triage/hooks/useConvertTriage';
 import { Button } from 'erxes-ui';
 
 export const ConverToTask = ({ triageId }: { triageId: string }) => {
-  const { convertTriageToTask } = useConvertTriage();
+  const { convertTriageToTask, loading } = useConvertTriage();
 
   const handleConvert = () => {
     convertTriageToTask({ variables: { id: triageId } });
   };
 
   return (
-    <Button variant="outline" onClick={handleConvert}>
+    <Button variant="outline" onClick={handleConvert} disabled={loading}>
       Accept as Task
     </Button>
   );
