@@ -4,14 +4,15 @@ import { createGenerateModels } from 'erxes-api-shared/utils';
 
 import mongoose from 'mongoose';
 
-import { IProductGroupDocument } from '@/ebarimt/@types/productGroup';
-import { IProductRuleDocument } from '@/ebarimt/@types/productRule';
+import { IProductGroupDocument, IProductRuleDocument } from '@/ebarimt/@types';
 import {
   IPutResponseModel,
   loadPutResponseClass,
 } from '@/ebarimt/db/models/ebarimt';
-import { IProductGroupModel } from '@/ebarimt/db/models/ProductGroup';
-import { loadProductGroupClass } from '@/ebarimt/db/models/Productgroup';
+import {
+  IProductGroupModel,
+  loadProductGroupClass,
+} from '@/ebarimt/db/models/ProductGroup';
 import {
   IProductRuleModel,
   loadProductRuleClass,
