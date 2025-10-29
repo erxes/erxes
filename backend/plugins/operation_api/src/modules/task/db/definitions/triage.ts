@@ -8,10 +8,7 @@ export const triageSchema = new Schema(
     createdBy: { type: String, label: 'Created By' },
     type: { type: String, label: 'Type' },
     number: { type: Number, label: 'Number', default: 0 },
-<<<<<<< HEAD
     priority: { type: Number, label: 'Priority', default: 0 },
-=======
->>>>>>> ac96c6c937 (add triage)
   },
   {
     timestamps: true,

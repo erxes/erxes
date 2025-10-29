@@ -16,7 +16,6 @@ export const ConversationSideWidget = () => {
           scope={InboxHotkeyScope.MainPage}
         />
       )}
-<<<<<<< HEAD
 
       {relationWidgetsModules.map((module) => {
         return (
@@ -32,8 +31,6 @@ export const ConversationSideWidget = () => {
           </SideMenu.Content>
         );
       })}
-=======
->>>>>>> f860b5627f (refactor: enhance UI components and optimize animations)
 
       <SideMenu.Sidebar>
         <SideMenu.Trigger value="customer" label="Customer" Icon={IconUser} />

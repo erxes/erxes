@@ -11,10 +11,7 @@ export interface ITriage {
   createdBy: string;
   type: string;
   number: number;
-<<<<<<< HEAD
   priority: number;
-=======
->>>>>>> ac96c6c937 (add triage)
 }
 
 export interface ITriageUpdate extends ITriage {
@@ -39,8 +36,5 @@ export interface ITriageInput {
   name: string;
   description: string;
   teamId: string;
-<<<<<<< HEAD
   priority: number;
-=======
->>>>>>> ac96c6c937 (add triage)
 }
