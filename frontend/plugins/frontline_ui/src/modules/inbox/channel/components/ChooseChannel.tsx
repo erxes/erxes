@@ -1,4 +1,5 @@
 import {
+  Button,
   cn,
   Collapsible,
   Command,
@@ -9,7 +10,7 @@ import {
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { IChannel } from '@/inbox/types/Channel';
-import { IconCheck } from '@tabler/icons-react';
+import { IconCheck, IconPlus } from '@tabler/icons-react';
 import { channelCollapsibleState } from '@/inbox/channel/states/channelCollapsibleState';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 
@@ -49,8 +50,9 @@ const ChooseChannelContent = ({ open }: { open: boolean }) => {
 
   if (!channels?.length)
     return (
-      <div className="text-sm text-accent-foreground ml-3 my-4">
+      <div className="text-sm text-accent-foreground ml-3 my-2 border border-dotted border-accent-foreground px-2 py-3 rounded-md gap-y-2 flex flex-col">
         No channels found
+        <CreateChannel />
       </div>
     );
 
@@ -92,5 +94,14 @@ const ChannelItem = ({ _id, name }: IChannel) => {
       {isActive && <IconCheck className="absolute left-1.5" />}
       <TextOverflowTooltip value={name} />
     </Command.Item>
+  );
+};
+
+export const CreateChannel = () => {
+  return (
+    <Button variant={'secondary'}>
+      <IconPlus />
+      Create channel
+    </Button>
   );
 };
