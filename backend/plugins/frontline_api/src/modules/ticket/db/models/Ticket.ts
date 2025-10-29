@@ -65,13 +65,51 @@ export const loadTicketClass = (models: IModels) => {
       return models.Ticket.create(doc);
     }
 
-    public static async updateTicket(
-      _id: string,
-      doc: ITicket,
-    ): Promise<ITicketDocument | null> {
+    public static async updateTicket({
+      doc,
+      userId,
+      subdomain,
+    }: {
+      doc: ITicketUpdate;
+      userId: string;
+      subdomain: string;
+    }) {
+      const { _id, ...rest } = doc;
+
+      const ticket = await models.Ticket.findOne({ _id });
+
+      if (!ticket) {
+        throw new Error('ticket not found');
+      }
+
+      if (doc.status && doc.status !== ticket.status) {
+        rest.statusChangedDate = new Date();
+        const status = await models.Status.getStatus(doc.status || '');
+        rest.statusType = status.type;
+      }
+
+      if (doc.pipelineId && doc.pipelineId !== ticket.pipelineId) {
+        const [result] = await models.Ticket.aggregate([
+          { $match: { pipelineId: doc.pipelineId } },
+          { $group: { _id: null, maxNumber: { $max: '$number' } } },
+        ]);
+
+        const status = await models.Status.getStatus(ticket.status || '');
+
+        const newStatus = await models.Status.findOne({
+          pipelineId: doc.pipelineId,
+          type: status.type,
+        });
+
+        const nextNumber = (result?.maxNumber || 0) + 1;
+
+        rest.number = nextNumber;
+        rest.status = newStatus?._id;
+      }
+
       return models.Ticket.findOneAndUpdate(
         { _id },
-        { $set: { ...doc } },
+        { $set: { ...rest } },
         { new: true },
       );
     }
