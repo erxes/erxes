@@ -22,8 +22,8 @@ export const SelectUOM = ({
       </Controller>
       <Select.Content>
         {uoms.length === 0 ? (
-          <div className="text-muted-foreground p-8 text-center">
-            No Result Found
+          <div className="text-muted-foreground text-base p-8 text-center">
+            No result found.
           </div>
         ) : (
           uoms.map((uom) => (
