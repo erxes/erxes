@@ -62,6 +62,12 @@ export const loadTicketClass = (models: IModels) => {
     }
 
     public static async addTicket(doc: ITicket): Promise<ITicketDocument> {
+      const status = await models.Status.getStatus(doc.statusId);
+
+      if (status && status.pipelineId) {
+        doc.pipelineId = status.pipelineId;
+      }
+
       return models.Ticket.create(doc);
     }
 
