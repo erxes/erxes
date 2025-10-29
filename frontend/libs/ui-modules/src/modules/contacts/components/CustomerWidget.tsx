@@ -174,7 +174,7 @@ const CustomerWidgetDetail = ({
             Overview
           </Button>
         </Collapsible.Trigger>
-        <Collapsible.Content className="pt-2">
+        <Collapsible.Content className="pt-4">
           {loading ? (
             <Spinner containerClassName="py-20" />
           ) : (

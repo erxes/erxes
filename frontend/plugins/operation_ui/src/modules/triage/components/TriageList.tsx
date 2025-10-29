@@ -1,4 +1,4 @@
-import { IconHelpSquareRounded } from '@tabler/icons-react';
+import { IconCaretLeftRight } from '@tabler/icons-react';
 import { Button, ScrollArea, Spinner } from 'erxes-ui';
 import { useInView } from 'react-intersection-observer';
 import { useGetTriages } from '@/triage/hooks/useGetTriages';
@@ -28,7 +28,7 @@ const TriageList = () => {
     return (
       <div className="h-full w-full flex flex-col gap-4 justify-center items-center text-accent-foreground">
         <div className="border border-dashed p-6 bg-sidebar rounded-xl">
-          <IconHelpSquareRounded />
+          <IconCaretLeftRight />
         </div>
         <span className="text-sm">No triages to display at the moment.</span>
       </div>

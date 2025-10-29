@@ -1,7 +1,7 @@
 import { useConvertTriage } from '@/triage/hooks/useConvertTriage';
 import { Button } from 'erxes-ui';
 
-export const ConverToTask = ({ triageId }: { triageId: string }) => {
+export const ConvertToTask = ({ triageId }: { triageId: string }) => {
   const { convertTriageToTask, loading } = useConvertTriage();
 
   const handleConvert = () => {

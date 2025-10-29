@@ -22,7 +22,7 @@ import {
   IconDotsVertical,
   IconLink,
   IconSettings,
-  IconHelpSquareRounded,
+  IconCaretLeftRight,
 } from '@tabler/icons-react';
 
 type Team = {
@@ -84,7 +84,7 @@ function TeamItem({ team }: TeamItemProps) {
                   pathPrefix="operation/team"
                   path={`${team._id}/triage`}
                   className="pl-6 font-medium"
-                  icon={IconHelpSquareRounded}
+                  icon={IconCaretLeftRight}
                 />
               )}
               <NavigationMenuLinkItem

@@ -7,15 +7,23 @@ import { TaskDetailSheet } from '@/task/components/TaskDetailSheet';
 import { Suspense } from 'react';
 import { useParams } from 'react-router';
 
-export const TriageContent = () => {
+export const TriageContent = ({
+  triageId: triageIdProp,
+}: {
+  triageId?: string;
+}) => {
   const { triageId } = useParams<{ triageId: string }>();
-  const { triage, loading } = useGetTriage({ variables: { _id: triageId } });
+  const triageIdToUse = triageIdProp || triageId;
+  const { triage, loading } = useGetTriage({
+    variables: { _id: triageIdToUse },
+    skip: !triageIdToUse,
+  });
 
   if (loading) {
     return <Spinner />;
   }
 
-  if (!triage || loading) {
+  if (!triageIdToUse || !triage) {
     return <NoTriageSelected />;
   }
 

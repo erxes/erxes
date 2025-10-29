@@ -6,7 +6,7 @@ import { Block } from '@blocknote/core';
 import { ITriage } from '@/triage/types/triage';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { SelectPriority } from '@/operation/components/SelectPriority';
-import { ConverToTask } from './triage-selects/ConvertToTask';
+import { ConvertToTask } from './triage-selects/ConvertToTask';
 
 export const TriageFields = ({ triage }: { triage: ITriage }) => {
   const {
@@ -55,6 +55,7 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedName]);
+
   useEffect(() => {
     if (!debouncedDescriptionContent) return;
     if (
@@ -71,6 +72,7 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedDescriptionContent]);
+
   return (
     <div className="flex flex-col gap-3">
       <Input
@@ -90,7 +92,7 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
           }}
         />
 
-        <ConverToTask triageId={triageId} />
+        <ConvertToTask triageId={triageId} />
       </div>
       <Separator className="my-4" />
       <div className="min-h-56 overflow-y-auto">

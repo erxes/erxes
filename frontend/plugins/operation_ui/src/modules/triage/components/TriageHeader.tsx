@@ -1,4 +1,4 @@
-import { IconHelpSquareRounded } from '@tabler/icons-react';
+import { IconCaretLeftRight } from '@tabler/icons-react';
 import { Button, Separator, Sidebar } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
 
@@ -12,7 +12,7 @@ export const TriageHeader = () => {
           <Sidebar.Trigger /> <Separator.Inline />
           <Button variant="ghost" asChild>
             <Link to={`/operation/team/${teamId}/triage`}>
-              <IconHelpSquareRounded />
+              <IconCaretLeftRight />
               Triage
             </Link>
           </Button>

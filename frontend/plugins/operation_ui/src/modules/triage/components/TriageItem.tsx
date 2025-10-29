@@ -1,7 +1,7 @@
 import { Button, cn, RelativeDateDisplay } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
 import { ITriage } from '@/triage/types/triage';
-import { IconHelpSquareRounded } from '@tabler/icons-react';
+import { IconCaretLeftRight } from '@tabler/icons-react';
 import { PriorityBadge } from '@/operation/components/PriorityInline';
 
 export const TriageItem = ({
@@ -26,11 +26,11 @@ export const TriageItem = ({
       <Link to={`/operation/team/${teamId}/triage/${_id}`}>
         <div
           className={cn(
-            'size-8 bg-foreground/5 rounded-full flex-none flex items-center justify-center relative',
+            'size-8 bg-foreground/5 rounded-full flex-none flex items-center justify-center relative text-muted-foreground',
             isActive && 'text-primary',
           )}
         >
-          <IconHelpSquareRounded />
+          <IconCaretLeftRight className="size-4" />
         </div>
         <div className="flex-auto space-y-2 overflow-hidden">
           <h4
