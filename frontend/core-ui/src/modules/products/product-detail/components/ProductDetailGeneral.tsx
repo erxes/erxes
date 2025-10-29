@@ -1,11 +1,12 @@
 import { CurrencyField, Input, Label } from 'erxes-ui';
-import { IProductDetail, SelectProductType } from 'ui-modules';
+import { IProductDetail, SelectCategory, SelectProductType } from 'ui-modules';
 
 export const ProductDetailGeneral = ({
   name,
   code,
   shortName,
   description,
+  categoryId,
   currency,
   unitPrice,
   type,
@@ -29,8 +30,8 @@ export const ProductDetailGeneral = ({
         <SelectProductType value={type} onValueChange={() => null} />
       </div>
       <div className="space-y-2">
-        <Label>Type</Label>
-        <SelectProductType value={type} onValueChange={() => null} />
+        <Label>Category</Label>
+        <SelectCategory selected={categoryId} onSelect={() => null} />
       </div>
       <div className="space-y-2 col-start-1">
         <Label>Currency</Label>
@@ -39,6 +40,9 @@ export const ProductDetailGeneral = ({
       <div className="space-y-2">
         <Label>Unit price</Label>
         <CurrencyField.ValueInput value={unitPrice} onChange={() => null} />
+      </div>
+      <div className="col-span-3">
+        <Label>Description</Label>
       </div>
     </div>
   );
