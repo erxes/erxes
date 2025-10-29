@@ -21,7 +21,7 @@ export const ContactsRoutes = () => {
     <Suspense fallback={<></>}>
       <Routes>
         <Route
-          path="/"
+          index
           element={
             <Navigate
               to={`${ContactsPath.Index}${ContactsPath.Customers}`}

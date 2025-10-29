@@ -1,4 +1,4 @@
-import { IAttachment } from 'erxes-ui';
+import { CurrencyCode, IAttachment } from 'erxes-ui';
 import { PRODUCT_FORM_SCHEMA } from '../constants/addProductFormSchema';
 import { z } from 'zod';
 
@@ -12,6 +12,7 @@ export interface IProduct {
   tagIds: string[];
   uom: string;
   type: 'product' | 'service' | 'unique' | 'subscription';
+  currency: CurrencyCode;
 }
 
 export interface IProductCategory {
@@ -29,6 +30,14 @@ export interface IUom {
   name: string;
   code: string;
   productCount: number;
+}
+
+export interface IProductDetail extends IProduct {
+  shortName: string;
+  description: string;
+  barcodeDescription: string;
+  barcodes: string[];
+  vendorId: string;
 }
 
 export type IProductFormValues = z.infer<typeof PRODUCT_FORM_SCHEMA>;

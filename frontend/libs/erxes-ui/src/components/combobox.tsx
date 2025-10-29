@@ -8,6 +8,7 @@ import { useInView } from 'react-intersection-observer';
 import { mergeRefs } from 'react-merge-refs';
 import { Skeleton } from './skeleton';
 import type { ApolloError } from '@apollo/client';
+import { Spinner } from './spinner';
 
 export const ComboboxTriggerBase = React.forwardRef<
   React.ElementRef<typeof Button>,
@@ -160,8 +161,11 @@ export const ComboboxFetchMore = React.forwardRef<
       {...props}
       className={cn(className)}
     >
+      <Spinner
+        className="size-4 text-muted-foreground"
+        containerClassName="w-auto flex-none mr-2"
+      />
       Load more...
-      <IconLoader className="w-4 h-4 animate-spin text-muted-foreground ml-auto" />
     </Command.Item>
   );
 });

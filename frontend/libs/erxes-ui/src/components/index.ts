@@ -16,6 +16,7 @@ export * from './command-bar';
 export * from './date-picker';
 export * from './dialog';
 export * from './dropdown-menu';
+export * from './empty';
 export * from './form';
 export * from './hover-card';
 export * from './input';
