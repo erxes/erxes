@@ -20,7 +20,7 @@ export const ticketQueries = {
       filterQuery.name = { $regex: filter.name, $options: 'i' };
     }
 
-    if (filter.status) filterQuery.status = filter.status;
+    if (filter.statusId) filterQuery.statusId = filter.statusId;
     if (filter.statusType !== undefined)
       filterQuery.statusType = filter.statusType;
     if (filter.priority !== undefined) filterQuery.priority = filter.priority;
