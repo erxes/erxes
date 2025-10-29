@@ -3,8 +3,10 @@ import {
   queries as PricingQueries,
   types as PricingTypes,
 } from '@/pricing/graphql/schemas/pricing';
+import { TypeExtensions } from './extensions';
 
 export const types = `
+  ${TypeExtensions}
   ${PricingTypes}
 `;
 
