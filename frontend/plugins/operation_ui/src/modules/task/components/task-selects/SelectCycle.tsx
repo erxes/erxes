@@ -12,11 +12,14 @@ import {
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import { SelectOperationContent } from '@/operation/components/SelectOperation';
 import { format } from 'date-fns';
+import { useGetCycle } from '@/cycle/hooks/useGetCycle';
 
 interface SelectCycleContextType {
   value?: string;
   onValueChange: (value: string) => void;
   activeCycles: ICycle[];
+  currentCycle?: ICycle;
+  loadingCycle?: boolean;
 }
 
 const SelectCycleContext = React.createContext<SelectCycleContextType | null>(
@@ -68,7 +71,7 @@ export const SelectCycleFormItem = ({
 };
 
 const SelectCycleValue = ({ placeholder }: { placeholder?: string }) => {
-  const { activeCycles, value } = useSelectCycleContext();
+  const { currentCycle, activeCycles, value } = useSelectCycleContext();
 
   if (!value)
     return (
@@ -82,17 +85,24 @@ const SelectCycleValue = ({ placeholder }: { placeholder?: string }) => {
 
   const selectedCycle = activeCycles.find((c) => c._id === value);
 
+  const displayCycle = currentCycle?.isCompleted ? currentCycle : selectedCycle;
+
+  const name =
+    currentCycle?.isCompleted && currentCycle?.name
+      ? currentCycle.name
+      : selectedCycle?.name || currentCycle?.name;
+
   return (
     <div className="flex items-center gap-2">
       <IconRestore className="size-4" />
       <span className="truncate font-medium">
-        {selectedCycle?.name}&nbsp;
+        {name}&nbsp;
         <span className="text-xs text-muted-foreground">
-          {selectedCycle?.startDate &&
-            format(new Date(selectedCycle.startDate), 'MMM dd')}
+          {displayCycle?.startDate &&
+            format(new Date(displayCycle.startDate), 'MMM dd')}
           -
-          {selectedCycle?.endDate &&
-            format(new Date(selectedCycle.endDate), 'MMM dd')}
+          {displayCycle?.endDate &&
+            format(new Date(displayCycle.endDate), 'MMM dd')}
         </span>
       </span>
     </div>
@@ -153,6 +163,8 @@ const SelectCycleProvider = ({
 }) => {
   const { team } = useGetTeam({ variables: { _id: teamId }, skip: !teamId });
   const { activeCycles } = useGetActiveCycles(teamId, taskId);
+  const { cycleDetail: currentCycle, loading: loadingCycle } =
+    useGetCycle(value);
 
   if (!team?.cycleEnabled) return null;
 
@@ -166,6 +178,8 @@ const SelectCycleProvider = ({
         value,
         onValueChange: handleValueChange,
         activeCycles: activeCycles || [],
+        currentCycle,
+        loadingCycle,
       }}
     >
       {children}
@@ -186,6 +200,29 @@ const SelectCycleRoot = ({
 }) => {
   const [open, setOpen] = useState(false);
   const { updateTask } = useUpdateTask();
+  const { cycleDetail: currentCycle, loading: loadingCycle } =
+    useGetCycle(value);
+
+  if (!currentCycle || loadingCycle || currentCycle.isCompleted) {
+    return (
+      <SelectCycleProvider
+        value={value}
+        onValueChange={(newValue) => {
+          updateTask({
+            variables: {
+              _id: taskId,
+              cycleId: newValue || null,
+            },
+          });
+          setOpen(false);
+        }}
+        teamId={teamId}
+        taskId={taskId}
+      >
+        <SelectCycleValue />
+      </SelectCycleProvider>
+    );
+  }
 
   return (
     <SelectCycleProvider
