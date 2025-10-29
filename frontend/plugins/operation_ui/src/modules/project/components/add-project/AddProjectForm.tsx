@@ -93,7 +93,7 @@ export const AddProjectForm = ({ onClose }: { onClose: () => void }) => {
           <IconChevronRight className="size-4" />
           <Sheet.Title className="">New project</Sheet.Title>
         </Sheet.Header>
-        <Sheet.Content className="px-7 py-4 gap-2 flex flex-col">
+        <Sheet.Content className="px-7 py-4 gap-2 flex flex-col min-h-0">
           <Form.Field
             control={form.control}
             name="icon"
@@ -202,11 +202,11 @@ export const AddProjectForm = ({ onClose }: { onClose: () => void }) => {
             />
           </div>
           <Separator className="my-4" />
-          <div className="flex-1 overflow-y-auto read-only">
+          <div className="flex-1 overflow-y-auto">
             <BlockEditor
               editor={editor}
               onChange={handleDescriptionChange}
-              className="min-h-full"
+              className="read-only min-h-full"
             />
           </div>
         </Sheet.Content>
