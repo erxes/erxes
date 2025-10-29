@@ -79,7 +79,7 @@ class AddForm extends React.Component<Props, State> {
 
     this.state = {
       isHideName: JSON.parse(
-        localStorage.getItem(`${props.options.type}_isHideName`) || "false"
+        localStorage.getItem(`${props.options.type}_isHideName`) || "false",
       ),
       disabled: false,
       boardId:
@@ -92,17 +92,17 @@ class AddForm extends React.Component<Props, State> {
         "",
       stageId: initialStageId,
       cardId: props.cardId || "",
+      description:
+        `${props.options.type}_description` || props.description || "",
       cards: [],
       name:
         localStorage.getItem(`${props.options.type}_name`) ||
         props.mailSubject ||
         "",
-      customFieldsData: JSON.parse(
-        localStorage.getItem(`${props.options.type}_customFieldsData`) || "[]"
-      ),
+      customFieldsData: [],
       fields:
         JSON.parse(
-          localStorage.getItem(`${props.options.type}_fields`) || "[]"
+          localStorage.getItem(`${props.options.type}_fields`) || "[]",
         ) ||
         props.fields ||
         [],
@@ -111,41 +111,11 @@ class AddForm extends React.Component<Props, State> {
       closeDate: props.closeDate || null,
       isCheckUserTicket: JSON.parse(
         localStorage.getItem(`${props.options.type}_isCheckUserTicket`) ||
-          "false"
+          "false",
       ),
     };
   }
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.fields !== this.props.fields && this.props.fields) {
-      const { options } = this.props;
 
-      const oldCustomFields = this.state.customFieldsData.filter(
-        (f) =>
-          !this.props.fields.find((fld) => fld._id === f.field)
-            ?.isDefinedByErxes
-      );
-
-      const newErxesFields = this.props.fields
-        .filter((f) => f.isDefinedByErxes)
-        .map((f) => ({ field: f._id, value: "" }));
-
-      const mergedCustomFields = [...oldCustomFields, ...newErxesFields];
-
-      this.setState({
-        fields: this.props.fields,
-        customFieldsData: mergedCustomFields,
-      });
-
-      localStorage.setItem(
-        `${options.type}_fields`,
-        JSON.stringify(this.props.fields || [])
-      );
-      localStorage.setItem(
-        `${options.type}_customFieldsData`,
-        JSON.stringify(mergedCustomFields)
-      );
-    }
-  }
   onChangeField = (name: string, value: any) => {
     if (name === "stageId") {
       const { fetchCards } = this.props;
@@ -170,7 +140,7 @@ class AddForm extends React.Component<Props, State> {
     if (name !== "stageId" && name !== "pipelineId") {
       localStorage.setItem(
         `${this.props.options.type}_${name}`,
-        JSON.stringify(value)
+        JSON.stringify(value),
       );
     }
   };
@@ -203,7 +173,6 @@ class AddForm extends React.Component<Props, State> {
     if (!stageId) {
       return Alert.error("No stage");
     }
-
     fields = fields.filter((field) => {
       const logics: LogicParams[] = (field.logics || []).map((logic) => {
         let { fieldId = "" } = logic;
@@ -229,7 +198,7 @@ class AddForm extends React.Component<Props, State> {
     });
 
     customFieldsData = customFieldsData.filter((customField) =>
-      fields.find((field) => field._id === customField.field)
+      fields.find((field) => field._id === customField.field),
     );
 
     for (const field of fields) {
@@ -350,7 +319,7 @@ class AddForm extends React.Component<Props, State> {
       const hidden = !!isHideName;
       localStorage.setItem(
         `${this.props.options.type}_isHideName`,
-        JSON.stringify(hidden)
+        JSON.stringify(hidden),
       );
       this.setState({ isHideName: hidden });
     };
