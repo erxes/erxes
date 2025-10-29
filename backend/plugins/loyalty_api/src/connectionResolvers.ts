@@ -24,17 +24,23 @@ import { IVoucherCampaignDocument } from '@/voucher/@types/campaign';
 import { IVoucherDocument } from '@/voucher/@types/voucher';
 import {
   IVoucherCampaignModel,
-  loadCampaignClass,
+  loadCampaignClass as loadVoucherCampaignClass,
 } from '@/voucher/db/models/Campaign';
 import { IVoucherModel, loadVoucherClass } from '@/voucher/db/models/voucher';
 import { IAgentDocument } from './modules/agent/@types/agent';
 import { IAgentModel, loadAgentClass } from './modules/agent/db/models/Agent';
+import { ICouponCampaignDocument } from './modules/coupon/@types/campaign';
+import {
+  ICouponCampaignModel,
+  loadCampaignClass as loadCouponCampaignClass,
+} from './modules/coupon/db/models/Campaign';
 
 export interface IModels {
   Pricing: IPricingModel;
   Voucher: IVoucherModel;
   VoucherCampaign: IVoucherCampaignModel;
   Coupon: ICouponModel;
+  CouponCampaign: ICouponCampaignModel;
   Score: IScoreModel;
   Lottery: ILotteryModel;
   Spin: ISpinModel;
@@ -64,12 +70,17 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.VoucherCampaign = db.model<
     IVoucherCampaignDocument,
     IVoucherCampaignModel
-  >('loyalty_voucher_campaign', loadCampaignClass(models));
+  >('loyalty_voucher_campaign', loadVoucherCampaignClass(models));
 
   models.Coupon = db.model<ICouponDocument, ICouponModel>(
     'loyalty_coupon',
     loadCouponClass(models),
   );
+
+  models.CouponCampaign = db.model<
+    ICouponCampaignDocument,
+    ICouponCampaignModel
+  >('loyalty_coupon_campaign', loadCouponCampaignClass(models));
 
   models.Score = db.model<IScoreDocument, IScoreModel>(
     'loyalty_score',

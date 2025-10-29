@@ -15,6 +15,17 @@ export const CAMPAIGN_STATUSES = {
 
 export const LOYALTY_STATUSES = {
   NEW: 'new',
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  EXPIRED: 'expired',
   REDEEMED: 'redeemed',
-  ALL: ['new', 'redeemed'],
+  ALL: ['new', 'active', 'inactive', 'expired', 'redeemed'],
+};
+
+export const LOYALTY_CHAR_SET = {
+  'A-Z': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  'a-z': 'abcdefghijklmnopqrstuvwxyz',
+  '0-9': '0123456789',
+  'А-Я': 'АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ',
+  'а-я': 'абвгдеёжзийклмнопрстуфхцчшщыэюя',
 };

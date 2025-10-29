@@ -42,14 +42,6 @@ const generateFilter = (params: IVoucherParams) => {
 };
 
 export const voucherQueries = {
-  getVoucher: async (
-    _parent: undefined,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) => {
-    return models.Voucher.getVoucher(_id);
-  },
-
   getVouchers: async (
     _parent: undefined,
     params: IVoucherParams,

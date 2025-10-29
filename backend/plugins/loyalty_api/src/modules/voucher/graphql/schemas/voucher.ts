@@ -6,7 +6,7 @@ export const types = `
     name: String
     description: String
     campaignId: String
-    ownerId: String
+    owner: Owner
     ownerType: String
     status: String
     createdBy: User

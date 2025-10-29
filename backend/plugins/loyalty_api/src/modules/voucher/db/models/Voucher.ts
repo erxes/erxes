@@ -49,8 +49,6 @@ export const loadVoucherClass = (models: IModels) => {
     }
 
     public static async createVoucher(doc: IVoucher, user: IUserDocument) {
-      await this.validateVoucher(doc);
-
       return models.Voucher.create({ ...doc, createdBy: user._id });
     }
 
@@ -59,8 +57,6 @@ export const loadVoucherClass = (models: IModels) => {
       doc: IVoucher,
       user: IUserDocument,
     ) {
-      await this.validateVoucher(doc);
-
       return await models.Voucher.findOneAndUpdate(
         { _id },
         { $set: { ...doc, updatedBy: user._id } },
@@ -72,22 +68,30 @@ export const loadVoucherClass = (models: IModels) => {
       return models.Voucher.findOneAndDelete({ _id: voucherId });
     }
 
-    public static async validateVoucher(doc: IVoucher) {
-      const { campaignId, ownerId, ownerType, status } = doc;
-
-      if (status && status === LOYALTY_STATUSES.REDEEMED) {
-        throw new Error('Voucher is already redeemed');
-      }
+    public static async checkVoucher(doc) {
+      const { voucherId, ownerId, ownerType } = doc;
 
       if (!ownerId || !ownerType) {
         throw new Error('Owner not defined');
       }
 
-      if (!campaignId) {
+      const voucher = await models.Voucher.getVoucher(voucherId);
+
+      if (voucher.ownerId !== ownerId || voucher.ownerType !== ownerType) {
+        throw new Error('Voucher redemption denied');
+      }
+
+      if (voucher.status !== LOYALTY_STATUSES.NEW) {
+        throw new Error('Voucher is already redeemed');
+      }
+
+      if (!voucher.campaignId) {
         throw new Error('This voucher is not associated with a campaign.');
       }
 
-      const campaign = await models.VoucherCampaign.getCampaign(campaignId);
+      const campaign = await models.VoucherCampaign.getCampaign(
+        voucher.campaignId,
+      );
 
       if (campaign.status === CAMPAIGN_STATUS.INACTIVE) {
         throw new Error('Campaign is not active');
@@ -97,26 +101,14 @@ export const loadVoucherClass = (models: IModels) => {
         throw new Error('Campaign is expired');
       }
 
-      return campaign;
-    }
+      const NOW = new Date();
 
-    public static async checkVoucher(doc: {
-      voucherId: string;
-      ownerId: string;
-      ownerType: OWNER_TYPES;
-    }) {
-      const { voucherId, ownerId, ownerType } = doc;
+      if (NOW < campaign.startDate) {
+        throw new Error('Campaign is not active yet');
+      }
 
-      const voucher = await models.Voucher.getVoucher(voucherId);
-
-      const campaign = await this.validateVoucher({
-        ...voucher,
-        ownerId,
-        ownerType,
-      });
-
-      if (voucher.ownerId !== ownerId || voucher.ownerType !== ownerType) {
-        throw new Error('You are not authorized to use this voucher.');
+      if (NOW > campaign.endDate) {
+        throw new Error('Campaign is expired');
       }
 
       return campaign;
@@ -145,7 +137,7 @@ export const loadVoucherClass = (models: IModels) => {
           },
         );
       } catch (error) {
-        throw new Error(`Error occurred while redeeming voucher ${error}`);
+        throw new Error(`Error occurred while redeeming voucher: ${error}`);
       }
     }
   }
