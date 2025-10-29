@@ -22,11 +22,7 @@ import {
   IconDotsVertical,
   IconLink,
   IconSettings,
-<<<<<<< HEAD
   IconCaretLeftRight,
-=======
-  IconListCheck,
->>>>>>> ac96c6c937 (add triage)
 } from '@tabler/icons-react';
 
 type Team = {
@@ -105,19 +101,6 @@ function TeamItem({ team }: TeamItemProps) {
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
-<<<<<<< HEAD
-
-=======
-              {team.triageEnabled && (
-                <NavigationMenuLinkItem
-                  name="Triage"
-                  pathPrefix="operation/team"
-                  path={`${team._id}/triage`}
-                  className="pl-6 font-medium"
-                  icon={IconListCheck}
-                />
-              )}
->>>>>>> ac96c6c937 (add triage)
               {team.cycleEnabled && (
                 <NavigationMenuLinkItem
                   name="Cycles"

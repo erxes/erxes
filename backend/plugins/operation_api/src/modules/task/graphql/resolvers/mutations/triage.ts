@@ -1,24 +1,15 @@
 import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
-<<<<<<< HEAD
 import { ITriage } from '@/task/@types/triage';
-=======
-import { ITriageInput } from '@/task/@types/triage';
->>>>>>> ac96c6c937 (add triage)
 
 export const triageMutations = {
   operationAddTriage: async (
     _parent: undefined,
-<<<<<<< HEAD
     { input }: { input: ITriage },
-=======
-    params: ITriageInput,
->>>>>>> ac96c6c937 (add triage)
     { models, user, subdomain }: IContext,
   ) => {
     const triage = await models.Triage.createTriage({
       triage: {
-<<<<<<< HEAD
         name: input.name,
         description: input.description,
         teamId: input.teamId,
@@ -26,21 +17,12 @@ export const triageMutations = {
         type: 'triage',
         number: 0,
         priority: input.priority || 0,
-=======
-        name: params.name,
-        description: params.description,
-        teamId: params.teamId,
-        createdBy: user._id,
-        type: 'triage',
-        number: 0,
->>>>>>> ac96c6c937 (add triage)
       },
       subdomain: subdomain,
     });
 
     return triage;
   },
-<<<<<<< HEAD
 
   operationUpdateTriage: async (
     _parent: undefined,
@@ -89,14 +71,8 @@ export const triageMutations = {
       throw new Error('Failed to convert triage to task');
     }
   },
-=======
->>>>>>> ac96c6c937 (add triage)
 };
 
 requireLogin(triageMutations, 'operationAddTriage');
 requireLogin(triageMutations, 'operationUpdateTriage');
-<<<<<<< HEAD
 requireLogin(triageMutations, 'operationConvertTriageToTask');
-=======
-requireLogin(triageMutations, 'operationCancelTriage');
->>>>>>> ac96c6c937 (add triage)
