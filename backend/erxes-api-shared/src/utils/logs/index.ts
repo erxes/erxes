@@ -1,3 +1,4 @@
+import { checkServiceRunning } from '../utils';
 import { ILogDoc } from '../../core-types';
 import { createMQWorkerWithListeners, sendWorkerQueue } from '../mq-worker';
 import { redis } from '../redis';
@@ -10,6 +11,9 @@ export const logHandler = async (
   onError?: any,
   skipSaveResult?: boolean,
 ) => {
+  if (!(await checkServiceRunning('logs'))) {
+    return await resolver();
+  }
 
   const payload = { ...(logDoc?.payload || {}) };
   const startDate = new Date();
@@ -178,8 +182,4 @@ export const startAfterProcess = async (
       reject(error);
     }
   });
-};
-
-export const sendLogMessage = async (logDoc: ILogDoc) => {
-  sendWorkerQueue('logs', 'put_log').add('put_log', logDoc);
 };
