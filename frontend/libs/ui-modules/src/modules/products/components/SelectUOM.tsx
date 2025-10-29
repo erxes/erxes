@@ -21,11 +21,17 @@ export const SelectUOM = ({
         </Select.Trigger>
       </Controller>
       <Select.Content>
-        {uoms.map((uom) => (
-          <Select.Item key={uom._id} value={uom._id}>
-            {uom.name}
-          </Select.Item>
-        ))}
+        {uoms.length === 0 ? (
+          <div className="text-muted-foreground p-8 text-center">
+            No Result Found
+          </div>
+        ) : (
+          uoms.map((uom) => (
+            <Select.Item key={uom._id} value={uom._id}>
+              {uom.name}
+            </Select.Item>
+          ))
+        )}
       </Select.Content>
     </Select>
   );
