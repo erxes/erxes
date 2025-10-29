@@ -1,12 +1,7 @@
-import {
-  RecordTableInlineCell,
-  Combobox,
-  Popover,
-  Badge,
-  Filter,
-  Form,
-  Button,
-} from 'erxes-ui';
+import { Badge, Button, Combobox, Form, Popover } from 'erxes-ui/components';
+
+import { Filter } from 'erxes-ui/modules/filter';
+import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
 
 export enum SelectTriggerVariant {
   TABLE = 'table',

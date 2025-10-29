@@ -1,5 +1,7 @@
 import { getPlugins } from 'erxes-api-shared/utils';
 import debug from 'debug';
+import { generateModels } from '~/connectionResolvers';
+import { getConfig } from '../integrations/facebook/commonUtils';
 
 export const debugInfo = debug(`erxes:info`);
 export const debugError = debug(`erxes:error`);
@@ -43,4 +45,48 @@ export const isServiceRunning = async (
   return (
     !!integrationKind && serviceNames.includes(integrationKind.split('-')[0])
   );
+};
+
+export interface RPSuccess {
+  status: 'success';
+  data?: any;
+}
+export interface RPError {
+  status: 'error';
+  errorMessage: string;
+}
+export type RPResult = RPSuccess | RPError;
+
+export const integrations = async ({ subdomain, data }) => {
+  const models = await generateModels(subdomain);
+
+  const { action } = data;
+
+  let response: RPResult = {
+    status: 'success',
+  };
+
+  try {
+    if (action === 'getTelnyxInfo') {
+      response.data = {
+        telnyxApiKey: await getConfig(models, 'TELNYX_API_KEY'),
+        integrations: await models.Integrations.find({ kind: 'telnyx' }),
+      };
+    }
+
+    if (action === 'getDetails') {
+      const integration = await models.Integrations.findOne({
+        erxesApiId: data.inboxId,
+      }).select(['-_id', '-kind', '-erxesApiId']);
+
+      response.data = integration;
+    }
+  } catch (e) {
+    response = {
+      status: 'error',
+      errorMessage: e.message,
+    };
+  }
+
+  return response;
 };

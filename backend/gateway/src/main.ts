@@ -8,14 +8,19 @@ import { Queue } from 'bullmq';
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 import { retryGetProxyTargets } from '~/proxy/targets';
 import { startRouter, stopRouter } from '~/apollo-router';
 import userMiddleware from '~/middlewares/userMiddleware';
 import { initMQWorkers } from '~/mq/workers/workers';
-import { applyProxiesCoreless } from '~/proxy/middleware';
+import {
+  applyProxiesCoreless,
+  applyProxyToCore,
+  proxyReq,
+} from '~/proxy/middleware';
 
-import { isDev, redis } from 'erxes-api-shared/utils';
+import { getPlugin, isDev, redis } from 'erxes-api-shared/utils';
 import { applyGraphqlLimiters } from '~/middlewares/graphql-limiter';
 import {
   startSubscriptionServer,
@@ -76,42 +81,42 @@ app.get('/locales/:lng', async (req, res) => {
     res.status(500).send('Error fetching services');
   }
 });
-// app.use('/pl:serviceName', async (req, res) => {
-//   try {
-//     const serviceName: string = req.params.serviceName.replace(':', '');
-//     const path = req.path;
+app.use('/pl:serviceName', async (req, res) => {
+  try {
+    const serviceName: string = req.params.serviceName.replace(':', '');
+    // const path = req.path;
 
-//     // Forbid access to trpc endpoints
-//     if (path.startsWith('/trpc')) {
-//       return res.status(403).json({
-//         error: 'Access to trpc endpoints through plugin proxy is forbidden',
-//       });
-//     }
+    // // Forbid access to trpc endpoints
+    // if (path.startsWith('/trpc')) {
+    //   return res.status(403).json({
+    //     error: 'Access to trpc endpoints through plugin proxy is forbidden',
+    //   });
+    // }
 
-//     const service = await getPlugin(serviceName);
+    const service = await getPlugin(serviceName);
 
-//     const targetUrl = service.address;
+    const targetUrl = service.address;
 
-//     if (targetUrl) {
-//       // Proxy the request to the target service using the custom headers
-//       return createProxyMiddleware({
-//         target: targetUrl,
-//         changeOrigin: true, // Change the origin header to the target URL's origin
-//         on: {
-//           proxyReq,
-//         },
-//         pathRewrite: {
-//           [`^/pl:${serviceName}`]: '/', // Rewriting the path if needed
-//         },
-//       })(req, res); // Forward the request to the target service
-//     } else {
-//       // Service not found, return 404
-//       res.status(404).send('Service not found');
-//     }
-//   } catch {
-//     res.status(500).send('Error fetching services');
-//   }
-// });
+    if (targetUrl) {
+      // Proxy the request to the target service using the custom headers
+      return createProxyMiddleware({
+        target: targetUrl,
+        changeOrigin: true, // Change the origin header to the target URL's origin
+        on: {
+          proxyReq,
+        },
+        pathRewrite: {
+          [`^/pl:${serviceName}`]: '/', // Rewriting the path if needed
+        },
+      })(req, res); // Forward the request to the target service
+    } else {
+      // Service not found, return 404
+      res.status(404).send('Service not found');
+    }
+  } catch {
+    res.status(500).send('Error fetching services');
+  }
+});
 
 let httpServer: http.Server;
 
@@ -132,7 +137,8 @@ async function start() {
 
     // Apply the initial proxy middleware
     applyGraphqlLimiters(app);
-    applyProxiesCoreless(app, global.currentTargets);
+    applyProxiesCoreless(app);
+    applyProxyToCore(app, global.currentTargets);
 
     // Start the HTTP server
     httpServer = http.createServer(app);

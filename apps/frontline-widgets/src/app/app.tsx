@@ -1,50 +1,57 @@
-import NxWelcome from './nx-welcome';
-
-import { Route, Routes, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { postMessage } from '../lib/utils';
 
 export function App() {
-  return (
-    <div>
-      <NxWelcome title="frontline-widgets" />
+  const [isMessengerVisible, setIsMessengerVisible] = useState(false);
+  const [isSmallContainer] = useState(false);
 
-      {/* START: routes */}
-      {/* These routes and navigation have been generated for you */}
-      {/* Feel free to move and update them to fit your needs */}
-      <br />
-      <hr />
-      <br />
-      <div role="navigation">
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/page-2">Page 2</Link>
-          </li>
-        </ul>
-      </div>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <div>
-              This is the generated root route.{' '}
-              <Link to="/page-2">Click here for page 2.</Link>
-            </div>
-          }
-        />
-        <Route
-          path="/page-2"
-          element={
-            <div>
-              <Link to="/">Click here to go back to root page.</Link>
-            </div>
-          }
-        />
-      </Routes>
-      {/* END: routes */}
-    </div>
-  );
+  useEffect(() => {
+    setTimeout(() => {
+      window.parent.postMessage(
+        {
+          fromErxes: true,
+          message: 'connected',
+          connectionInfo: {
+            widgetsMessengerConnect: {
+              uiOptions: {
+                color: 'red',
+              },
+            },
+          },
+        },
+        '*',
+      );
+    }, 1000);
+
+    return () => {
+      window.removeEventListener('message', () => null);
+    };
+  }, []);
+
+  useEffect(() => {
+    const toggle = () => {
+      // notify parent window launcher state
+      postMessage('fromMessenger', 'messenger', {
+        isVisible: !isMessengerVisible,
+        isSmallContainer,
+      });
+      setIsMessengerVisible(!isMessengerVisible);
+    };
+
+    window.addEventListener('message', (event) => {
+      if (event.data.fromPublisher) {
+        if (event.data.action === 'toggleMessenger') {
+          toggle();
+        }
+      }
+    });
+
+    return () => {
+      window.removeEventListener('message', () => null);
+    };
+  }, [isMessengerVisible, isSmallContainer]);
+
+  return <div>Hello</div>;
 }
 
 export default App;

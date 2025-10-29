@@ -31,7 +31,7 @@ export const tagMutations = {
       targetIds,
       tagIds,
     }: { type: string; targetIds: string[]; tagIds: string[] },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const [pluginName, moduleName] = type.split(':');
 
@@ -73,6 +73,8 @@ export const tagMutations = {
     }
 
     return await sendTRPCMessage({
+      subdomain,
+
       pluginName,
       method: 'mutation',
       module: moduleName,

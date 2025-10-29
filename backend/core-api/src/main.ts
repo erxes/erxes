@@ -1,7 +1,6 @@
-import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import { isDev } from 'erxes-api-shared/utils';
+import { isDev, setupTRPCRoute } from 'erxes-api-shared/utils';
 import express from 'express';
 import * as http from 'http';
 import { appRouter } from '~/init-trpc';
@@ -11,7 +10,6 @@ import * as dotenv from 'dotenv';
 
 import {
   closeMongooose,
-  createTRPCContext,
   joinErxesGateway,
   leaveErxesGateway,
 } from 'erxes-api-shared/utils';
@@ -41,18 +39,6 @@ app.use(
 );
 
 app.use(cookieParser());
-
-// const corsOptions = {
-//   credentials: true,
-//   origin: (origin, callback) => {
-//     if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ''))) {
-//       callback(null, true);
-//     } else {
-//       console.error('Origin not allowed:', origin, allowedOrigins);
-//       callback(new Error('Not allowed by CORS'));
-//     }
-//   },
-// };
 
 const corsOptions = {
   credentials: true,
@@ -92,19 +78,16 @@ app.get('/subscriptionPlugin.js', fileLimiter, async (_req, res) => {
   res.sendFile(apolloSubscriptionPath);
 });
 
-app.use(
-  '/trpc',
-  trpcExpress.createExpressMiddleware({
-    router: appRouter,
-    createContext: createTRPCContext(async (subdomain, context) => {
-      const models = await generateModels(subdomain);
+setupTRPCRoute(app, {
+  router: appRouter,
+  createContext: async (subdomain, context) => {
+    const models = await generateModels(subdomain);
 
-      context.models = models;
+    context.models = models;
 
-      return context;
-    }),
-  }),
-);
+    return context;
+  },
+});
 
 app.get('/health', async (_req, res) => {
   res.end('ok');

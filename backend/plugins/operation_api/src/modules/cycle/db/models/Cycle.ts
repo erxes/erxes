@@ -6,7 +6,7 @@ import {
   getCycleProgressChart,
   getCyclesProgress,
 } from '@/cycle/utils';
-import { format, isBefore, isSameDay, startOfDay } from 'date-fns';
+import { format, isBefore, isSameDay } from 'date-fns';
 import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
@@ -147,8 +147,13 @@ export const loadCycleClass = (models: IModels) => {
       );
     }
 
-    public static async endCycle(_id: string) {
-      const chartData = await getCycleProgressChart(_id, undefined, models);
+    public static async endCycle(_id: string, subdomain: string) {
+      const chartData = await getCycleProgressChart(
+        subdomain,
+        _id,
+        undefined,
+        models,
+      );
       const progress = await getCyclesProgress(_id, undefined, models);
       const progressByMember = await getCycleProgressByMember(
         _id,

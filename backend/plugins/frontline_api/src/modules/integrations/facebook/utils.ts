@@ -65,7 +65,7 @@ export const getPostDetails = async (
   }
 };
 
-export const createAWS = async () => {
+export const createAWS = async (subdomain: string) => {
   const {
     AWS_FORCE_PATH_STYLE,
     AWS_COMPATIBLE_SERVICE_ENDPOINT,
@@ -73,9 +73,11 @@ export const createAWS = async () => {
     AWS_SECRET_ACCESS_KEY,
     AWS_ACCESS_KEY_ID,
   } = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
-    module: 'users',
+    module: 'configs',
     action: 'getFileUploadConfigs',
     input: {},
   });
@@ -129,9 +131,11 @@ export const uploadMedia = async (
     try {
       isFetchingConfig = true;
       cachedUploadConfig = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
-        module: 'users',
+        module: 'configs',
         action: 'getFileUploadConfigs',
         input: {},
       });
@@ -153,7 +157,7 @@ export const uploadMedia = async (
   // 3. Upload to S3 (unchanged)
   const { AWS_BUCKET } = cachedUploadConfig;
   try {
-    const s3 = await createAWS();
+    const s3 = await createAWS(subdomain);
 
     // Additional security: Set timeout for fetch request
     const controller = new AbortController();
@@ -544,9 +548,11 @@ export const getFacebookUserProfilePic = async (
     );
 
     const { UPLOAD_SERVICE_TYPE } = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
-      module: 'users',
+      module: 'configs',
       action: 'getFileUploadConfigs',
       input: {},
     });

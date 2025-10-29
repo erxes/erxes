@@ -389,7 +389,7 @@ const PhoneListFieldRoot = forwardRef<
               acc.phoneValidationStatus =
                 phone.status || ValidationStatus.Invalid;
             } else if (phone.phone) {
-              acc.phones = [...acc.phones, phone.phone];
+              acc.phones = [...(acc.phones || []), phone.phone];
             }
 
             return acc;

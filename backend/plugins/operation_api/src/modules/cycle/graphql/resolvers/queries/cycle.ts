@@ -81,9 +81,9 @@ export const cycleQueries = {
   getCycleProgressChart: async (
     _parent: undefined,
     { _id, assigneeId },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) => {
-    return getCycleProgressChart(_id, assigneeId, models);
+    return getCycleProgressChart(subdomain, _id, assigneeId, models);
   },
 
   getCycleProgressByMember: async (

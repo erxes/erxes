@@ -56,6 +56,7 @@ export const getOrCreateCustomer = async (
   );
 
   const profile = fbUserProfilePic || fbUser.profile_pic;
+  console.log(profile, 'profile');
 
   // Save in integrations DB
   try {
@@ -87,7 +88,7 @@ export const getOrCreateCustomer = async (
     };
 
     const apiCustomerResponse = await receiveInboxMessage(subdomain, data);
-
+    console.log('get-create-update-customer', apiCustomerResponse);
     if (apiCustomerResponse.status === 'success') {
       customer.erxesApiId = apiCustomerResponse.data._id;
       await customer.save();
@@ -243,6 +244,8 @@ export const generatePostDoc = async (
   let generatedMediaUrls: string[] = [];
 
   const { UPLOAD_SERVICE_TYPE } = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'users',

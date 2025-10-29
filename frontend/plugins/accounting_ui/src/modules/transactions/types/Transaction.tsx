@@ -28,6 +28,7 @@ export interface ITrDetail {
   tempAmount?: number;
 
   account?: IAccount;
+  checked?: boolean;
   product?: IProduct;
 }
 
@@ -80,8 +81,8 @@ interface ICommontTr {
 
   extraData?: any;
 
-  sumDt: number;
-  sumCt: number;
+  sumDt?: number;
+  sumCt?: number;
   permission?: string;
 
   branch?: IBranch;
@@ -98,23 +99,4 @@ export interface ITrRecord extends ICommontTr {
   shortDetail: ITrDetail;
   detailInd: number;
   trId: string;
-}
-
-export interface ITrInput {
-  ptrId: string;
-  parentId: string;
-  number: string;
-  date: Date;
-  description: string;
-  journal: string;
-
-  branchId: string;
-  departmentId: string;
-  customerType: string;
-  customerId: string;
-  assignedUserIds?: [string];
-
-  accountId: string;
-  side: string;
-  amount: number;
 }
