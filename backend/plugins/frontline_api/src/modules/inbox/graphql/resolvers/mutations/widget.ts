@@ -38,8 +38,8 @@ export const pConversationClientMessageInserted = async (
 
     channelMemberIds = [
       ...channelMemberIds,
-      ...channelMembers.map((member: { _id: string }) =>
-        member?._id.toString(),
+      ...channelMembers.map((member: { memberId: string }) =>
+        member?.memberId.toString(),
       ),
     ];
   }
