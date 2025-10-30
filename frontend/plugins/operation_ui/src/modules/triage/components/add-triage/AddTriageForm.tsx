@@ -95,9 +95,7 @@ export const AddTriageForm = ({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit, (errors) => {
-          console.log(errors);
-        })}
+        onSubmit={form.handleSubmit(onSubmit)}
         className="h-full flex flex-col"
       >
         <Sheet.Header className="flex items-center gap-2 ">
@@ -166,9 +164,12 @@ export const AddTriageForm = ({
               type="button"
               variant="ghost"
               className="bg-background hover:bg-background/90"
-              onClick={() => {
+              onClick={async () => {
                 form.reset();
-                editor?.removeBlocks(editor?.document);
+                const doc = await editor?.document;
+                if (doc?.length) {
+                  editor?.removeBlocks(doc);
+                }
                 setDescriptionContent(undefined);
               }}
             >

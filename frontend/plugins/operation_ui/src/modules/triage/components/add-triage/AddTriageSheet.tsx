@@ -30,7 +30,6 @@ export const AddTriageSheet = ({
   };
 
   const onCompleteForm = (triageId: string) => {
-    console.log('triageId', triageId);
     onClose();
     onCompleteProp?.(triageId);
   };
@@ -55,17 +54,5 @@ export const AddTriageSheet = ({
         <AddTriageForm onComplete={onCompleteForm} />
       </Sheet.View>
     </Sheet>
-  );
-};
-
-export const AddTaskSheetHeader = () => {
-  return (
-    <Sheet.Header className="p-5">
-      <Sheet.Title>Add triage</Sheet.Title>
-      <Sheet.Description className="sr-only">
-        Add a new triage .
-      </Sheet.Description>
-      <Sheet.Close />
-    </Sheet.Header>
   );
 };
