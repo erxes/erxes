@@ -3,7 +3,6 @@ import { generateModels } from '~/connectionResolvers';
 import { RPError, RPResult, RPSuccess } from 'erxes-api-shared/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { pConversationClientMessageInserted } from './graphql/resolvers/mutations/widget';
 
 const sendError = (message): RPError => ({
   status: 'error',

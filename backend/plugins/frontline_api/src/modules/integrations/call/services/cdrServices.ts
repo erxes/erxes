@@ -146,6 +146,7 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
     ...cdr.toObject(),
     conversationId: cdr.conversationId,
   };
+  console.log('call subs called...');
   await pConversationClientMessageInserted(subdomain, doc);
 
   return 'success';
