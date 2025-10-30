@@ -4,7 +4,15 @@ import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
 const generateFilter = async ({ params, commonQuerySelector, models }) => {
-  const { searchValue, parentId, ids, excludeIds, isGroup, type } = params;
+  const {
+    searchValue,
+    parentId,
+    ids,
+    excludeIds,
+    isGroup,
+    type,
+    includeWorkspaceTags,
+  } = params;
 
   const filter: FilterQuery<ITagFilterQueryParams> = {
     ...commonQuerySelector,
@@ -20,7 +28,11 @@ const generateFilter = async ({ params, commonQuerySelector, models }) => {
       contentType = `${contentType}:${params.instanceId}`;
     }
 
-    filter.type = contentType;
+    if (includeWorkspaceTags) {
+      filter.type = { $in: [null, '', contentType] };
+    } else {
+      filter.type = contentType;
+    }
   }
 
   if (searchValue) {
