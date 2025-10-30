@@ -11,7 +11,22 @@ import {
 } from 'ui-modules/modules/documents/contexts/DocumentsInlineContext';
 import { useDocumentInline } from 'ui-modules/modules/documents/hooks/useDocumentInline';
 
-const DocumentsInlineRoot = (props: any) => {
+interface Document {
+  _id: string;
+  name: string;
+  [key: string]: any;
+}
+
+interface DocumentsInlineProviderProps {
+  children?: React.ReactNode;
+  documentIds?: string[];
+  documents?: Document[];
+  placeholder?: string;
+  updateDocuments?: (docs: Document[]) => void;
+}
+
+
+const DocumentsInlineRoot = (props: DocumentsInlineProviderProps) => {
   return (
     <DocumentsInlineProvider {...props}>
       <DocumentsInlineTitle />
@@ -25,10 +40,12 @@ const DocumentsInlineProvider = ({
   documents,
   placeholder,
   updateDocuments,
-}: any & {
-  children?: React.ReactNode;
-}) => {
-  const [_documents, _setDocuments] = useState<any[]>(documents || []);
+}: DocumentsInlineProviderProps) => {
+  const [_documents, _setDocuments] = useState<Document[]>(documents || []);
+
+  const handleUpdateDocuments = (docs: Document[]) => {
+    _setDocuments(docs);
+  };
 
   return (
     <DocumentsInlineContext.Provider
