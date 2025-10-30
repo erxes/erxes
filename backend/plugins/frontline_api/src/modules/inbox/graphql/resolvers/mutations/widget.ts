@@ -15,7 +15,6 @@ export const pConversationClientMessageInserted = async (
   );
 
   let integration;
-  console.log(conversation, 'conversation.integrationId');
 
   if (conversation) {
     integration = await models.Integrations.findOne(
@@ -33,8 +32,6 @@ export const pConversationClientMessageInserted = async (
       { channelId: integration.channelId },
       { _id: 1 },
     ).lean();
-
-    console.log(channelMembers, 'channelMembers');
 
     channelMemberIds = [
       ...channelMemberIds,
@@ -58,11 +55,7 @@ export const pConversationClientMessageInserted = async (
       'conversationMessageInserted Error publishing subscription:',
     );
   }
-  console.log(channelMemberIds, 'channelMemberIds', conversation, integration);
   for (const userId of channelMemberIds) {
-    console.log(
-      `aslkda conversationClientMessageInserted:${subdomain}:${userId}`,
-    );
     await graphqlPubsub.publish(
       `conversationClientMessageInserted:${subdomain}:${userId}`,
       {

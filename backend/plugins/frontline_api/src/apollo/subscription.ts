@@ -129,7 +129,6 @@ export default {
           },
           async (payload) => {
             const { conversation, integration } = payload;
-            console.log(conversation, integration, 'conversation, integration');
             if (!conversation) {
               return false;
             }
