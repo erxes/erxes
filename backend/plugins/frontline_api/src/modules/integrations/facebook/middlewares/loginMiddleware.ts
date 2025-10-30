@@ -11,6 +11,11 @@ import {
 import { repairIntegrations } from '@/integrations/facebook/helpers';
 import { getEnv } from 'erxes-api-shared/utils';
 
+interface FacebookLoginState {
+  channelId?: string;
+  redirectBase?: string;
+}
+
 export const loginMiddleware = async (req, res) => {
   try {
     const subdomain = getSubdomain(req);
@@ -43,10 +48,13 @@ export const loginMiddleware = async (req, res) => {
     debugRequest(debugFacebook, req);
 
     if (!req.query.code) {
-      const state = JSON.stringify({
+      const stateObj: FacebookLoginState = {
         channelId,
         redirectBase: `${API_DOMAIN}/pl:frontline/facebook`,
-      });
+      };
+
+      // JSON → Base64 encode
+      const state = Buffer.from(JSON.stringify(stateObj)).toString('base64');
 
       const authUrl = graph.getOauthUrl({
         client_id: conf.client_id,
@@ -64,15 +72,11 @@ export const loginMiddleware = async (req, res) => {
 
       return res.redirect(authUrl);
     }
-    interface FacebookLoginState {
-      channelId?: string;
-      redirectBase?: string;
-    }
 
     let parsedState: FacebookLoginState = {};
-
     try {
-      parsedState = JSON.parse(req.query.state || '{}') as FacebookLoginState;
+      const decoded = Buffer.from(req.query.state || '', 'base64').toString();
+      parsedState = JSON.parse(decoded);
     } catch (e) {
       console.warn('Failed to parse state:', req.query.state);
     }
@@ -124,7 +128,7 @@ export const loginMiddleware = async (req, res) => {
             accountId: account._id,
           });
 
-          accountId = account?._id;
+          accountId = account._id;
 
           for (const integration of integrations) {
             await repairIntegrations(subdomain, integration.erxesApiId);
@@ -137,7 +141,7 @@ export const loginMiddleware = async (req, res) => {
             uid: userAccount.id,
           });
 
-          accountId = newAccount?._id;
+          accountId = newAccount._id;
         }
 
         const reactAppUrl = !DOMAIN.includes('zrok')
