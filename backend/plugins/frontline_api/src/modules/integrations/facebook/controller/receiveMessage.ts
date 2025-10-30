@@ -19,9 +19,6 @@ export const receiveMessage = async (
   activity: Activity,
 ) => {
   try {
-    console.log(activity, 'activity');
-    console.log(integration, 'integration');
-
     debugFacebook(
       `Received message: ${activity.text} from ${activity.from.id}`,
     );
