@@ -43,9 +43,6 @@ const DocumentsInlineProvider = ({
 }: DocumentsInlineProviderProps) => {
   const [_documents, _setDocuments] = useState<Document[]>(documents || []);
 
-  const handleUpdateDocuments = (docs: Document[]) => {
-    _setDocuments(docs);
-  };
 
   return (
     <DocumentsInlineContext.Provider
