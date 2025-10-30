@@ -25,7 +25,7 @@ const DocumentsInlineProvider = ({
   documents,
   placeholder,
   updateDocuments,
-}: any & {
+}: any | {
   children?: React.ReactNode;
 }) => {
   const [_documents, _setDocuments] = useState<any[]>(documents || []);
