@@ -1,10 +1,12 @@
-import { Sheet, Spinner, useQueryState, Empty } from 'erxes-ui';
+import { Sheet, Spinner, useQueryState, Empty, ScrollArea } from 'erxes-ui';
 import { useProductDetail } from '../hooks/useProductDetail';
 import { IconPackageOff } from '@tabler/icons-react';
 import { ProductDetailGeneral } from './ProductDetailGeneral';
+import { PRODUCT_QUERY_KEY } from '../../constants/productQueryKey';
+import { ProductDetailBarcode } from './ProductDetailBarcode';
 
 export const ProductDetail = () => {
-  const [productId] = useQueryState<string>('product_id');
+  const [productId] = useQueryState<string>(PRODUCT_QUERY_KEY);
   const { productDetail, loading } = useProductDetail({
     variables: {
       _id: productId,
@@ -38,8 +40,13 @@ export const ProductDetail = () => {
           Product Detail
         </Sheet.Description>
       </Sheet.Header>
-      <Sheet.Content className="p-6">
-        <ProductDetailGeneral {...productDetail} />
+      <Sheet.Content className="p-6 bg-transparent border-b-0">
+        <ScrollArea>
+          <div className="grid grid-cols-3 gap-6">
+            <ProductDetailGeneral {...productDetail} />
+            <ProductDetailBarcode />
+          </div>
+        </ScrollArea>
       </Sheet.Content>
     </>
   );

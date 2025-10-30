@@ -19,6 +19,7 @@ export * from './dropdown-menu';
 export * from './empty';
 export * from './form';
 export * from './hover-card';
+export * from './info-card';
 export * from './input';
 export * from './kbd';
 export * from './label';
