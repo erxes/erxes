@@ -56,7 +56,6 @@ export const getOrCreateCustomer = async (
   );
 
   const profile = fbUserProfilePic || fbUser.profile_pic;
-  console.log(profile, 'profile');
 
   // Save in integrations DB
   try {
@@ -88,7 +87,6 @@ export const getOrCreateCustomer = async (
     };
 
     const apiCustomerResponse = await receiveInboxMessage(subdomain, data);
-    console.log('get-create-update-customer', apiCustomerResponse);
     if (apiCustomerResponse.status === 'success') {
       customer.erxesApiId = apiCustomerResponse.data._id;
       await customer.save();
