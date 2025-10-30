@@ -40,11 +40,13 @@ export const ProductDetail = () => {
           Product Detail
         </Sheet.Description>
       </Sheet.Header>
-      <Sheet.Content className="p-6 bg-transparent border-b-0">
-        <ScrollArea>
+      <Sheet.Content className="bg-transparent border-b-0 overflow-hidden">
+        <ScrollArea className="h-full" viewportClassName="p-6">
           <div className="grid grid-cols-3 gap-6">
             <ProductDetailGeneral {...productDetail} />
-            <ProductDetailBarcode />
+            <div className="flex gap-6 flex-col">
+              <ProductDetailBarcode />
+            </div>
           </div>
         </ScrollArea>
       </Sheet.Content>

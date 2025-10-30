@@ -4,6 +4,7 @@ import { BlockEditor } from './BlockEditor';
 import { Block } from '@blocknote/core';
 import { BlockEditorProps, IEditorProps } from '../types';
 import { cn } from 'erxes-ui/lib';
+import { parseBlocks } from '../utils';
 
 export const Editor = ({
   onChange,
@@ -13,22 +14,21 @@ export const Editor = ({
   isHTML = false,
   ...props
 }: Omit<BlockEditorProps, 'editor' | 'onChange'> & IEditorProps) => {
-  const editor = useBlockEditor();
-  const [mounted, setMounted] = useState(false);
-
-  const initialContentBlocks = useMemo(() => {
-    if (isHTML && initialContent) {
-      return editor?.tryParseHTMLToBlocks(initialContent);
-    }
-    return initialContent ? JSON.parse(initialContent) : undefined;
-  }, [initialContent, isHTML, editor]);
+  const editor = useBlockEditor({
+    initialContent: parseBlocks(initialContent || '') as Block[],
+  });
 
   useEffect(() => {
-    if (initialContentBlocks && !mounted) {
-      setMounted(true);
-      editor?.replaceBlocks(editor?.document, initialContentBlocks);
+    async function loadInitialHTML(initialHTML?: string) {
+      if (!initialHTML) return;
+      const blocks = await editor.tryParseHTMLToBlocks(initialHTML);
+      editor.replaceBlocks(editor.document, blocks);
     }
-  }, [editor, initialContentBlocks, mounted]);
+    if (isHTML) {
+      loadInitialHTML(initialContent);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor]);
 
   const handleChange = async () => {
     const content = await editor?.document;

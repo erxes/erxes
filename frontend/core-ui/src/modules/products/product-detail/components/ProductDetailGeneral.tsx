@@ -24,7 +24,6 @@ export const ProductDetailGeneral = ({
   const [description, setDescription] = useAtom<string | undefined>(
     descriptionAtom,
   );
-  console.log(description);
   return (
     <InfoCard title="Product Information" className="col-span-2">
       <InfoCard.Content>
@@ -65,6 +64,7 @@ export const ProductDetailGeneral = ({
             <Editor
               isHTML={true}
               initialContent={description}
+              className="h-auto"
               onChange={(value) => setDescription(value)}
             />
           </div>
