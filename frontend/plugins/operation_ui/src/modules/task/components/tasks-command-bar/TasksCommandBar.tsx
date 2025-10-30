@@ -106,7 +106,7 @@ export const TasksCommandBar = () => {
                 </Command.List>
               </Command>
             )}
-            {currentContent === 'status' && <TasksEditStatusContent />}
+            {currentContent === 'status' && <TasksEditStatusContent taskIds={taskIds} />}
             {currentContent === 'project' && <TasksAddProjectContent />}
             {currentContent === 'priority' && <TasksEditPriorityContent />}
           </Popover.Content>

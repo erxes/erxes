@@ -1,5 +1,8 @@
 import { IconChevronRight, IconProgressCheck } from '@tabler/icons-react';
 import { Command } from 'erxes-ui';
+import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
+import { useParams } from 'react-router';
+import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 
 export const TasksEditStatusTrigger = ({
   setCurrentContent,
@@ -22,6 +25,26 @@ export const TasksEditStatusTrigger = ({
   );
 };
 
-export const TasksEditStatusContent = () => {
-  return <div>Edit status</div>;
+export const TasksEditStatusContent = ({ taskIds }: { taskIds: string[] }) => {
+  const { teamId } = useParams<{ teamId: string }>();
+  const { updateTask } = useUpdateTask();
+  if (!teamId) return null;
+  return (
+    <SelectStatusTask.Provider
+      teamId={teamId}
+      value=""
+      onValueChange={(value) => {
+        taskIds.forEach((taskId) => {
+          updateTask({
+            variables: {
+              _id: taskId,
+              status: value,
+            },
+          });
+        });
+      }}
+    >
+      <SelectStatusTask.Content />
+    </SelectStatusTask.Provider>
+  );
 };

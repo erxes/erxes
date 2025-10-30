@@ -23,5 +23,5 @@ export const TasksEditPriorityTrigger = ({
 };
 
 export const TasksEditPriorityContent = () => {
-  return <div>Edit Priority</div>;
+  return <div>TasksEditPriorityContent</div>;
 };
