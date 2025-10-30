@@ -35,7 +35,7 @@ export const pConversationClientMessageInserted = async (
       },
       { _id: 1, memberIds: 1 },
     );
-
+    console.log(channels, 'channels___');
     for (const channel of channels) {
       channelMemberIds = [...channelMemberIds, ...(channel.memberIds || [])];
     }
