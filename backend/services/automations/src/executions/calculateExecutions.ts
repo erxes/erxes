@@ -57,7 +57,7 @@ const checkValidTrigger = async (
     if (!isValidCustomTigger) {
       return false;
     }
-  } else if (!(await isInSegment(contentId, target._id))) {
+  } else if (!(await isInSegment(subdomain, contentId, target._id))) {
     return false;
   }
 

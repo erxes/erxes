@@ -57,8 +57,13 @@ const isDiffValue = (latest, target, field) => {
   return false;
 };
 
-export const getConfig = async (code: string, defaultValue?: any) => {
+export const getConfig = async (
+  subdomain: string,
+  code: string,
+  defaultValue?: any,
+) => {
   return await sendTRPCMessage({
+    subdomain,
     method: 'query',
     pluginName: 'core',
     module: 'config',

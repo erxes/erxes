@@ -17,8 +17,15 @@ export const ManagePropertyRule = ({
   index,
   additionalAttributes,
 }: LocalRuleProps) => {
-  const { control, groups, operators, selectedField, handleRemove } =
-    useManagePropertyRule({ propertyType, index, rule });
+  const {
+    control,
+    groups,
+    operators,
+    selectedField,
+    handleRemove,
+    setManagePropertyRuleValue,
+  } = useManagePropertyRule({ propertyType, index, rule });
+
   return (
     <div className="border rounded p-4  mb-2 relative group">
       <div className="flex flex-row gap-4 mb-4  items-end">
@@ -102,11 +109,17 @@ export const ManagePropertyRule = ({
 
               <PlaceHolderInput
                 propertyType={propertyType}
-                isDisabled={operators.some((op) => op.value === rule.operator)}
+                isDisabled={!operators.some((op) => op.value === rule.operator)}
                 fieldType={selectedField?.type}
                 value={field.value ?? ''}
                 onChange={field.onChange}
                 additionalAttributes={additionalAttributes}
+                onChangeInputMode={(mode) =>
+                  setManagePropertyRuleValue(
+                    `rules.${index}.isExpression`,
+                    mode === 'expression',
+                  )
+                }
               />
 
               <Form.Message />

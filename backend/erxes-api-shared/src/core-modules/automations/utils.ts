@@ -185,6 +185,7 @@ const getPerValue = async <TModels>({
     value =
       (
         await sendCoreModuleProducer({
+          subdomain,
           moduleName: 'automations',
           pluginName: relatedPluginName,
           producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,

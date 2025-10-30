@@ -25,7 +25,11 @@ export const executeIfCondition = async (
     );
   }
 
-  const isIn = await isInSegment(action.config.contentId, execution.targetId);
+  const isIn = await isInSegment(
+    subdomain,
+    action.config.contentId,
+    execution.targetId,
+  );
   if (isIn) {
     ifActionId = action.config.yes;
   } else {

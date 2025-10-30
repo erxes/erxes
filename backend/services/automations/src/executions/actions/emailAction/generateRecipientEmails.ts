@@ -101,6 +101,7 @@ const collectEmails = async (
       if (!!reciepentTypePluginName) {
         const emails = await sendCoreModuleProducer({
           moduleName: 'automations',
+          subdomain,
           pluginName,
           producerName: TAutomationProducers.GET_RECIPIENTS_EMAILS,
           input: {

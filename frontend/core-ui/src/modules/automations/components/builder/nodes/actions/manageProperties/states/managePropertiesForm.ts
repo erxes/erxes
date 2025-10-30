@@ -4,6 +4,7 @@ const managePropertyRuleSchema = z.object({
   field: z.string().min(1, 'Field is required'),
   operator: z.string().min(1, 'Operator is required'),
   value: z.any().optional(),
+  isExpression: z.boolean().optional(),
 });
 
 export const managePropertiesFormSchema = z.object({

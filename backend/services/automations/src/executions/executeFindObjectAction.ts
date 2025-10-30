@@ -21,6 +21,7 @@ export const executeFindObjectAction = async (
   const [pluginName, moduleName] = splitType(propertyType);
 
   const object = await sendTRPCMessage({
+    subdomain,
     pluginName,
     module: moduleName,
     action: 'findOne',

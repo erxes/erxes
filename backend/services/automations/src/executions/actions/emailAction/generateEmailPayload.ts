@@ -45,6 +45,7 @@ export const generateEmailPayload = async ({
     fromUserEmail = emails[0];
   } else if (fromUserId) {
     const fromUser = await sendTRPCMessage({
+      subdomain,
       pluginName: 'core',
       module: 'users',
       action: 'findOne',
@@ -65,6 +66,7 @@ export const generateEmailPayload = async ({
 
   const { subject, content = '' } = await sendCoreModuleProducer({
     moduleName: 'automations',
+    subdomain,
     pluginName,
     producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
     input: {

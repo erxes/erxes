@@ -25,6 +25,7 @@ async function replacePlaceholders<T extends Record<string, any>>(
   const [pluginName] = splitType(triggerType);
   const result = await sendCoreModuleProducer({
     moduleName: 'automations',
+    subdomain,
     pluginName,
     producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
     input: {

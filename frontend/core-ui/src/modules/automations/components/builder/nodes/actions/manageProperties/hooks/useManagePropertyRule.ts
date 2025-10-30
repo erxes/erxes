@@ -12,7 +12,7 @@ export const useManagePropertyRule = ({
   index: number;
   rule: TManagePropertiesForm['rules'][number];
 }) => {
-  const { control } = useFormContext<TManagePropertiesForm>();
+  const { control, setValue } = useFormContext<TManagePropertiesForm>();
   const { fields = [] } = getFieldsProperties(propertyType);
   const { remove } = useFieldArray({
     control,
@@ -40,5 +40,6 @@ export const useManagePropertyRule = ({
     selectedField,
     groups,
     handleRemove,
+    setManagePropertyRuleValue: setValue,
   };
 };

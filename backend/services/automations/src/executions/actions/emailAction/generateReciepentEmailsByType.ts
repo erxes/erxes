@@ -28,6 +28,7 @@ export class EmailResolver {
 
   async resolveTeamMemberEmails(params: any) {
     const users = await sendTRPCMessage({
+      subdomain: this.subdomain,
       method: 'query',
       pluginName: 'core',
       module: 'users',
@@ -46,6 +47,7 @@ export class EmailResolver {
     const { triggerConfig, targetId } = this.execution || {};
 
     const contentTypeIds = await sendTRPCMessage({
+      subdomain: this.subdomain,
       method: 'query',
       pluginName: 'core',
       module: 'segments',
@@ -65,6 +67,7 @@ export class EmailResolver {
 
     return await sendCoreModuleProducer({
       moduleName: 'automations',
+      subdomain: this.subdomain,
       pluginName,
       producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
       input: {
@@ -115,6 +118,7 @@ export class EmailResolver {
     }
     const replacedContent = await sendCoreModuleProducer({
       moduleName: 'automations',
+      subdomain: this.subdomain,
       pluginName,
       producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
       input: {

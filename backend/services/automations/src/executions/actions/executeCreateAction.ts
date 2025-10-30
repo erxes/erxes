@@ -22,6 +22,7 @@ export const executeCreateAction = async (
   );
 
   const actionResponse = await sendCoreModuleProducer({
+    subdomain,
     moduleName: 'automations',
     pluginName,
     producerName: TAutomationProducers.RECEIVE_ACTIONS,

@@ -44,6 +44,7 @@ const handleAfterMutation = ({
 
   if (mutationNames.includes(mutationName)) {
     sendCoreModuleProducer({
+      subdomain,
       pluginName,
       moduleName: 'afterProcess',
       producerName: TAfterProcessProducers.AFTER_MUTATION,
@@ -80,6 +81,7 @@ const handleUpdatedDocument = ({
 
     if (shouldSend) {
       sendCoreModuleProducer({
+        subdomain,
         pluginName,
         moduleName: 'afterProcess',
         producerName: TAfterProcessProducers.AFTER_DOCUMENT_UPDATED,
@@ -110,6 +112,7 @@ const handleCreateDocument = ({
 
     if (shouldSend) {
       sendCoreModuleProducer({
+        subdomain,
         pluginName,
         moduleName: 'afterProcess',
         producerName: TAfterProcessProducers.AFTER_DOCUMENT_CREATED,
@@ -129,6 +132,7 @@ const handleAfterAPIRequest = ({
   const { path } = payload || {};
   if (paths.includes(path)) {
     sendCoreModuleProducer({
+      subdomain,
       pluginName,
       moduleName: 'afterProcess',
       producerName: TAfterProcessProducers.AFTER_API_REQUEST,
@@ -148,6 +152,7 @@ const handleAfterAuth = ({
 
   if (types.includes(action)) {
     sendCoreModuleProducer({
+      subdomain,
       pluginName,
       moduleName: 'afterProcess',
       producerName: TAfterProcessProducers.AFTER_AUTH,

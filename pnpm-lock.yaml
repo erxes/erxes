@@ -185,6 +185,9 @@ importers:
       framer-motion:
         specifier: ^12.0.6
         version: 12.6.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      frimousse:
+        specifier: ^0.3.0
+        version: 0.3.0(react@18.3.1)(typescript@5.7.3)
       graphql:
         specifier: ^16.10.0
         version: 16.10.0
@@ -826,6 +829,12 @@ importers:
       strip-html:
         specifier: ^1.0.2
         version: 1.0.2
+
+  backend/plugins/mongolian_api:
+    dependencies:
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../erxes-api-shared
 
   backend/plugins/operation_api:
     dependencies:
@@ -9753,6 +9762,15 @@ packages:
   fresh@0.5.2:
     resolution: {integrity: sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==}
     engines: {node: '>= 0.6'}
+
+  frimousse@0.3.0:
+    resolution: {integrity: sha512-kO6LMoKY/cLAYEhXXtqLRaLIE6L/DagpFPrUZaLv3LsUa1/8Iza3HhwZcgN8eZ+weXnhv69eoclNUPohcCa/IQ==}
+    peerDependencies:
+      react: ^18 || ^19
+      typescript: '>=5.1.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   from2@2.3.0:
     resolution: {integrity: sha512-OMcX/4IC/uqEPVgGeyfN22LJk6AZrMkRZHxcHBMBvHScDGgwTm2GT2Wkgtocyd3JfZffjj2kYUDXXII0Fk9W0g==}
@@ -27223,6 +27241,12 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
 
   fresh@0.5.2: {}
+
+  frimousse@0.3.0(react@18.3.1)(typescript@5.7.3):
+    dependencies:
+      react: 18.3.1
+    optionalDependencies:
+      typescript: 5.7.3
 
   from2@2.3.0:
     dependencies:

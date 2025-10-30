@@ -3,17 +3,20 @@ import { createTransporter } from './createTransporter';
 import { debugError } from '@/debuuger';
 import { getConfig } from '@/utils/utils';
 
-export const sendEmails = async ({
-  payload,
-}: {
-  payload: {
-    title: string;
-    fromEmail: string;
-    toEmails: string[];
-    ccEmails: string[];
-    customHtml: string;
-  };
-}) => {
+export const sendEmails = async (
+  subdomain: string,
+  {
+    payload,
+  }: {
+    payload: {
+      title: string;
+      fromEmail: string;
+      toEmails: string[];
+      ccEmails: string[];
+      customHtml: string;
+    };
+  },
+) => {
   const {
     toEmails = [],
     ccEmails = [],
@@ -24,11 +27,19 @@ export const sendEmails = async ({
 
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
-  const DEFAULT_EMAIL_SERVICE = await getConfig('DEFAULT_EMAIL_SERVICE', 'SES');
-  const COMPANY_EMAIL_FROM = await getConfig('COMPANY_EMAIL_FROM');
-  const AWS_SES_CONFIG_SET = await getConfig('AWS_SES_CONFIG_SET');
-  const AWS_SES_ACCESS_KEY_ID = await getConfig('AWS_SES_ACCESS_KEY_ID');
+  const DEFAULT_EMAIL_SERVICE = await getConfig(
+    subdomain,
+    'DEFAULT_EMAIL_SERVICE',
+    'SES',
+  );
+  const COMPANY_EMAIL_FROM = await getConfig(subdomain, 'COMPANY_EMAIL_FROM');
+  const AWS_SES_CONFIG_SET = await getConfig(subdomain, 'AWS_SES_CONFIG_SET');
+  const AWS_SES_ACCESS_KEY_ID = await getConfig(
+    subdomain,
+    'AWS_SES_ACCESS_KEY_ID',
+  );
   const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
+    subdomain,
     'AWS_SES_SECRET_ACCESS_KEY',
   );
 
@@ -44,6 +55,7 @@ export const sendEmails = async ({
 
   try {
     transporter = await createTransporter({
+      subdomain,
       ses: DEFAULT_EMAIL_SERVICE === 'SES',
     });
   } catch (e) {

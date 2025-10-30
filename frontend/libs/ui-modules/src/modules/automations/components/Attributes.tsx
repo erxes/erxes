@@ -104,7 +104,7 @@ export const Attributes = ({
               </Collapsible.Content>
             </Collapsible>
 
-            <RenderOptions selectOptions={selectOptions} />
+            {/* <RenderOptions selectOptions={selectOptions} /> */}
             <RenderSelection
               selectionConfig={selectionConfig}
               onSelect={onSelect}
@@ -116,7 +116,7 @@ export const Attributes = ({
   );
 };
 
-const RenderAttributes = ({
+export const RenderAttributes = ({
   contentType,
   attrConfig,
   customAttributions,
@@ -155,7 +155,10 @@ const RenderAttributes = ({
   });
 };
 
-const RenderSelection = ({ selectionConfig, onSelect }: SelectionProps) => {
+export const RenderSelection = ({
+  selectionConfig,
+  onSelect,
+}: SelectionProps) => {
   const { loading, items, totalCount, handleFetchMore } =
     useSelectionConfig(selectionConfig);
 
@@ -197,7 +200,13 @@ const RenderSelection = ({ selectionConfig, onSelect }: SelectionProps) => {
   );
 };
 
-const RenderOptions = ({ selectOptions }: { selectOptions: any[] }) => {
+export const RenderOptions = ({
+  selectOptions,
+  onSelect,
+}: {
+  selectOptions: any[];
+  onSelect: (value: string) => void;
+}) => {
   if (!selectOptions?.length) {
     return null;
   }
@@ -217,6 +226,7 @@ const RenderOptions = ({ selectOptions }: { selectOptions: any[] }) => {
             <Command.Item
               key={String(option.value)}
               value={String(option.value)}
+              onSelect={onSelect}
             >
               {option.label || '-'}
             </Command.Item>

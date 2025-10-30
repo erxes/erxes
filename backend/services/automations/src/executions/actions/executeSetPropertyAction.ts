@@ -16,6 +16,7 @@ export const executeSetPropertyAction = async (
   const [pluginName, moduleName, collectionType] = splitType(module);
 
   return await sendCoreModuleProducer({
+    subdomain,
     moduleName: 'automations',
     pluginName,
     producerName: TAutomationProducers.RECEIVE_ACTIONS,

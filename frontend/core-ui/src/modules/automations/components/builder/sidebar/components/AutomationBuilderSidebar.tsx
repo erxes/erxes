@@ -54,7 +54,7 @@ export const AutomationBuilderSidebar = () => {
   };
 
   useScopedHotkeys(`mod+g`, () => onOpen(), AutomationsHotKeyScope.Builder);
-  useScopedHotkeys(`esc`, () => onClose(), AutomationsHotKeyScope.Builder);
+  useScopedHotkeys(`mod+esc`, () => onClose(), AutomationsHotKeyScope.Builder);
 
   return (
     <AnimatePresence>

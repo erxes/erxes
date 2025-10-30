@@ -2,14 +2,18 @@ import { getConfig } from '@/utils/utils';
 import * as AWS from 'aws-sdk';
 import * as nodemailer from 'nodemailer';
 
-export const createTransporter = async ({ ses }) => {
+export const createTransporter = async ({ subdomain, ses }) => {
   if (ses) {
-    const AWS_SES_ACCESS_KEY_ID = await getConfig('AWS_SES_ACCESS_KEY_ID');
+    const AWS_SES_ACCESS_KEY_ID = await getConfig(
+      subdomain,
+      'AWS_SES_ACCESS_KEY_ID',
+    );
 
     const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
+      subdomain,
       'AWS_SES_SECRET_ACCESS_KEY',
     );
-    const AWS_REGION = await getConfig('AWS_REGION');
+    const AWS_REGION = await getConfig(subdomain, 'AWS_REGION');
 
     AWS.config.update({
       region: AWS_REGION,
@@ -22,11 +26,11 @@ export const createTransporter = async ({ ses }) => {
     });
   }
 
-  const MAIL_SERVICE = await getConfig('MAIL_SERVICE', '');
-  const MAIL_PORT = await getConfig('MAIL_PORT', '');
-  const MAIL_USER = await getConfig('MAIL_USER', '');
-  const MAIL_PASS = await getConfig('MAIL_PASS', '');
-  const MAIL_HOST = await getConfig('MAIL_HOST', '');
+  const MAIL_SERVICE = await getConfig(subdomain, 'MAIL_SERVICE', '');
+  const MAIL_PORT = await getConfig(subdomain, 'MAIL_PORT', '');
+  const MAIL_USER = await getConfig(subdomain, 'MAIL_USER', '');
+  const MAIL_PASS = await getConfig(subdomain, 'MAIL_PASS', '');
+  const MAIL_HOST = await getConfig(subdomain, 'MAIL_HOST', '');
 
   let auth;
 

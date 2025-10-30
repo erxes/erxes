@@ -98,7 +98,7 @@ export interface AutomationProducers {
   getAdditionalAttributes?: (
     context: IAutomationContext,
     args: any,
-  ) => Promise<TAutomationAdditionalAttribute>;
+  ) => Promise<Array<TAutomationAdditionalAttribute>>;
 
   replacePlaceHolders?: (
     context: IAutomationContext,

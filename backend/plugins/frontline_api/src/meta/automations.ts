@@ -6,12 +6,40 @@ import {
   IAutomationReceiveActionData,
   ICheckTriggerData,
 } from '@/integrations/facebook/meta/automation/types/automationTypes';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 const modules = {
   facebook: facebookAutomationWorkers,
 };
 
 type ModuleKeys = keyof typeof modules;
+
+const generateAdditionalAttributes = async (
+  subdomain: string,
+  contentType: string,
+  parents: { label: string; name: string }[],
+) => {
+  const fields = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    module: 'fields',
+    action: 'fieldsCombinedByContentType',
+    input: { contentType },
+    defaultValue: [],
+  });
+
+  let generatedFields = fields;
+
+  for (const parent of parents) {
+    generatedFields = generatedFields.map((field) => ({
+      ...field,
+      name: `${parent.name}.${field.name}`,
+      label: `${parent.label} ${field.label}`,
+    }));
+  }
+
+  return generatedFields;
+};
 
 function createActionData(
   args: IAutomationReceiveActionData,
@@ -66,5 +94,23 @@ export default {
     const context = { models, subdomain };
 
     return modules[moduleName as ModuleKeys].checkCustomTrigger(context, props);
+  },
+  getAdditionalAttributes: async ({ subdomain }) => {
+    const customerFields = await generateAdditionalAttributes(
+      subdomain,
+      'core:customer',
+      [{ label: 'Customer', name: 'customer' }],
+    );
+    const usersFields = await generateAdditionalAttributes(
+      subdomain,
+      'core:user',
+      [
+        { label: 'Created by', name: 'createdBy' },
+        { label: 'Modified by', name: 'modifiedBy' },
+        { label: 'Assigned to', name: 'assignedUserIds' },
+        { label: 'Watched users', name: 'watchedUserIds' },
+      ],
+    );
+    return [...customerFields, ...usersFields];
   },
 } as AutomationConfigs;
