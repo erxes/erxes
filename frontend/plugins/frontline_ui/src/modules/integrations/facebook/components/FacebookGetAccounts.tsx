@@ -24,6 +24,7 @@ import { useFacebookPages } from '../hooks/useFacebookPages';
 
 export const FacebookGetAccounts = () => {
   const { id: channelId } = useParams();
+
   const { facebookGetAccounts, loading } = useFacebookAccounts();
   const { facebookGetPages } = useFacebookPages();
   const [selectedAccount, setSelectedAccount] = useAtom(
@@ -46,12 +47,7 @@ export const FacebookGetAccounts = () => {
   const handleFacebookLogin = () => {
     setIsLoggingIn(true);
 
-    const encodedUrl = new URLSearchParams({
-      kind: 'facebook',
-      channelId: channelId || '',
-    }).toString();
-
-    window.location.href = `${REACT_APP_API_URL}/pl:frontline/facebook/fblogin?${encodedUrl}}`;
+    window.location.href = `${REACT_APP_API_URL}/pl:frontline/facebook/fblogin?kind=facebook&channelId=${channelId}`;
   };
 
   const onNext = () => setActiveStep(2);
