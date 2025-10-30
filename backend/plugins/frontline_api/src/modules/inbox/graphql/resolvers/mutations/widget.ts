@@ -29,20 +29,23 @@ export const pConversationClientMessageInserted = async (
   let channelMemberIds: string[] = [];
 
   if (integration) {
-    const channels = await models.Channels.find(
-      {
-        _id: { $in: [integration.channelId] },
-      },
-      { _id: 1, memberIds: 1 },
-    );
-    console.log(channels, 'channels___');
-    for (const channel of channels) {
-      channelMemberIds = [...channelMemberIds, ...(channel.memberIds || [])];
-    }
+    const channelMembers = await models.ChannelMembers.find(
+      { channelId: integration.channelId },
+      { _id: 1 },
+    ).lean();
+
+    console.log(channelMembers, 'channelMembers');
+
+    channelMemberIds = [
+      ...channelMemberIds,
+      ...channelMembers.map((member: { _id: string }) =>
+        member?._id.toString(),
+      ),
+    ];
   }
 
   try {
-    console.log(`conversationMessageInserted:${conversation?._id}`);
+    console.log(` conversationMessageInserted:${conversation?._id}`);
     await graphqlPubsub.publish(
       `conversationMessageInserted:${conversation?._id}`,
       {
@@ -59,7 +62,9 @@ export const pConversationClientMessageInserted = async (
   }
   console.log(channelMemberIds, 'channelMemberIds', conversation, integration);
   for (const userId of channelMemberIds) {
-    console.log(`conversationClientMessageInserted:${subdomain}:${userId}`);
+    console.log(
+      `aslkda conversationClientMessageInserted:${subdomain}:${userId}`,
+    );
     await graphqlPubsub.publish(
       `conversationClientMessageInserted:${subdomain}:${userId}`,
       {
