@@ -14,6 +14,8 @@ import { IconRepeat, IconTrash } from '@tabler/icons-react';
 import { currentUserState } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
+import { useUpdateTask } from '@/task/hooks/useUpdateTask';
+import { useRemoveTask } from '@/task/hooks/useRemoveTask';
 import {
   TasksEditStatusTrigger,
   TasksEditStatusContent,
@@ -26,18 +28,20 @@ import {
   TasksEditPriorityTrigger,
   TasksEditPriorityContent,
 } from './TasksEditPriority';
+import { TasksAssignToTrigger, TasksAssignToContent } from './TasksAssignTo';
 
 export const TasksCommandBar = () => {
+  const [open, setOpen] = useState(false);
   const { table } = RecordTable.useRecordTable();
   const currentUser = useAtomValue(currentUserState);
+  const { removeTask } = useRemoveTask();
+  const { updateTask } = useUpdateTask();
   const taskIds = table
     .getFilteredSelectedRowModel()
     .rows.map((row: Row<ITask>) => row.original._id);
-  console.log(taskIds);
 
   const [currentContent, setCurrentContent] = useState<string>('main');
 
-  console.log(currentContent);
   return (
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
@@ -46,7 +50,9 @@ export const TasksCommandBar = () => {
         </CommandBar.Value>
         <Separator.Inline />
         <Popover
-          onOpenChange={() => {
+          open={open}
+          onOpenChange={(open) => {
+            setOpen(open);
             setTimeout(() => {
               setCurrentContent('main');
             }, 100);
@@ -69,7 +75,22 @@ export const TasksCommandBar = () => {
                 <Command.Input></Command.Input>
                 <Command.List className="p-0">
                   <Command.Group className="p-1">
-                    <Command.Item className="w-full">
+                    <Command.Item
+                      className="w-full"
+                      onSelect={() => {
+                        taskIds.forEach((taskId) => {
+                          updateTask({
+                            variables: {
+                              _id: taskId,
+                              assigneeId: currentUser._id,
+                            },
+                            onCompleted: () => {
+                              setOpen(false);
+                            },
+                          });
+                        });
+                      }}
+                    >
                       <div className="flex gap-2 justify-start">
                         <div className="flex items-center justify-center">
                           <Avatar className="size-4">
@@ -84,6 +105,9 @@ export const TasksCommandBar = () => {
                         Assign to me
                       </div>
                     </Command.Item>
+                    <TasksAssignToTrigger
+                      setCurrentContent={setCurrentContent}
+                    />
                     <TasksEditStatusTrigger
                       setCurrentContent={setCurrentContent}
                     />
@@ -96,7 +120,18 @@ export const TasksCommandBar = () => {
                   </Command.Group>
                   <Command.Separator />
                   <Command.Group className="p-1">
-                    <Command.Item className="flex justify-between text-destructive">
+                    <Command.Item
+                      className="flex justify-between text-destructive"
+                      onSelect={() => {
+                        taskIds.forEach((taskId) => {
+                          removeTask(taskId, {
+                            onCompleted: () => {
+                              setOpen(false);
+                            },
+                          });
+                        });
+                      }}
+                    >
                       <div className="flex gap-2 items-center">
                         <IconTrash className="size-4" />
                         Delete
@@ -106,9 +141,18 @@ export const TasksCommandBar = () => {
                 </Command.List>
               </Command>
             )}
-            {currentContent === 'status' && <TasksEditStatusContent taskIds={taskIds} />}
-            {currentContent === 'project' && <TasksAddProjectContent />}
-            {currentContent === 'priority' && <TasksEditPriorityContent />}
+            {currentContent === 'status' && (
+              <TasksEditStatusContent taskIds={taskIds} setOpen={setOpen} />
+            )}
+            {currentContent === 'project' && (
+              <TasksAddProjectContent taskIds={taskIds} setOpen={setOpen} />
+            )}
+            {currentContent === 'priority' && (
+              <TasksEditPriorityContent taskIds={taskIds} setOpen={setOpen} />
+            )}
+            {currentContent === 'assignee' && (
+              <TasksAssignToContent taskIds={taskIds} setOpen={setOpen} />
+            )}
           </Popover.Content>
         </Popover>
       </CommandBar.Bar>

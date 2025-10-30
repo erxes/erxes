@@ -1,5 +1,7 @@
+import { SelectPriority } from '@/operation/components/SelectPriority';
 import { IconAlertSquareRounded, IconChevronRight } from '@tabler/icons-react';
 import { Command } from 'erxes-ui';
+import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 
 export const TasksEditPriorityTrigger = ({
   setCurrentContent,
@@ -22,6 +24,33 @@ export const TasksEditPriorityTrigger = ({
   );
 };
 
-export const TasksEditPriorityContent = () => {
-  return <div>TasksEditPriorityContent</div>;
+export const TasksEditPriorityContent = ({
+  taskIds,
+  setOpen,
+}: {
+  taskIds: string[];
+  setOpen: (open: boolean) => void;
+}) => {
+  const { updateTask } = useUpdateTask();
+
+  if (!taskIds) return null;
+  return (
+    <SelectPriority.Provider
+      onValueChange={(value) => {
+        taskIds.forEach((taskId) => {
+          updateTask({
+            variables: {
+              _id: taskId,
+              priority: value,
+            },
+            onCompleted: () => {
+              setOpen(false);
+            },
+          });
+        });
+      }}
+    >
+      <SelectPriority.Content />
+    </SelectPriority.Provider>
+  );
 };

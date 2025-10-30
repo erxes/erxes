@@ -1,6 +1,7 @@
 import { IconChevronRight, IconClipboard } from '@tabler/icons-react';
 import { Command } from 'erxes-ui';
-
+import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
+import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 export const TasksAddProjectTrigger = ({
   setCurrentContent,
 }: {
@@ -22,6 +23,31 @@ export const TasksAddProjectTrigger = ({
   );
 };
 
-export const TasksAddProjectContent = () => {
-  return <div>Add Projects</div>;
+export const TasksAddProjectContent = ({
+  taskIds,
+  setOpen,
+}: {
+  taskIds: string[];
+  setOpen: (open: boolean) => void;
+}) => {
+  const { updateTask } = useUpdateTask();
+  return (
+    <SelectProject.Provider
+      onValueChange={(value) => {
+        taskIds.forEach((taskId) => {
+          updateTask({
+            variables: {
+              _id: taskId,
+              projectId: value,
+            },
+            onCompleted: () => {
+              setOpen(false);
+            },
+          });
+        });
+      }}
+    >
+      <SelectProject.Content></SelectProject.Content>
+    </SelectProject.Provider>
+  );
 };
