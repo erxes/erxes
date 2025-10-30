@@ -15,9 +15,9 @@ export const pConversationClientMessageInserted = async (
   );
 
   let integration;
+  console.log(conversation, 'conversation.integrationId');
 
   if (conversation) {
-    console.log(conversation, 'conversation.integrationId');
     integration = await models.Integrations.findOne(
       {
         _id: conversation.integrationId,
