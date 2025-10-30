@@ -33,6 +33,7 @@ const queryParams = `
   excludeIds: Boolean,
   isGroup: Boolean,
   instanceId: String,
+  includeWorkspaceTags: Boolean,
 
   sortField: String,
 

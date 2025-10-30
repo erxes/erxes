@@ -72,7 +72,7 @@ const ProjectsFilterPopover = () => {
           {!teamId && <SelectTeam.FilterView />}
           <SelectPriority.FilterView />
           <SelectStatus.FilterView />
-          <TagsFilter.View />
+          <TagsFilter.View tagType="operation:project" />
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
@@ -135,7 +135,7 @@ export const ProjectsFilter = () => {
           </Filter.BarName>
           <SelectStatus.FilterBar />
         </Filter.BarItem>
-        <TagsFilter.Bar />
+        <TagsFilter.Bar tagType="operation:project" />
         <ProjectsFilterPopover />
         <ProjectsTotalCount />
       </Filter.Bar>

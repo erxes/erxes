@@ -89,7 +89,7 @@ const TasksFilterPopover = () => {
           ) : (
             <SelectStatus.FilterView />
           )}
-          <TagsFilter.View/>
+          <TagsFilter.View tagType="operation:task" />
           {(projectId && !queries?.milestone) && (
             <SelectMilestone.FilterView projectId={projectId || ''} />
           )}
@@ -168,7 +168,7 @@ export const TasksFilter = () => {
           </Filter.BarName>
           <SelectAssigneeTask.FilterBar />
         </Filter.BarItem>
-        <TagsFilter.Bar/>
+        <TagsFilter.Bar tagType="operation:task" />
         {(projectId && milestone) && (
           <Filter.BarItem queryKey="milestone">
             <Filter.BarName>

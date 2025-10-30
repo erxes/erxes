@@ -88,7 +88,7 @@ export const SelectTagsProvider = ({
 };
 
 export const SelectTagsCommand = ({
-  disableCreateOption,
+  disableCreateOption = true,
 }: {
   disableCreateOption?: boolean;
 }) => {
@@ -101,6 +101,7 @@ export const SelectTagsCommand = ({
     variables: {
       type: tagType,
       searchValue: debouncedSearch,
+      includeWorkspaceTags: true,
     },
     skip: !!noTagsSearchValue && debouncedSearch.includes(noTagsSearchValue),
     onCompleted(data) {
@@ -351,23 +352,25 @@ export const SelectTagsDetail = React.forwardRef<
         }}
         {...{ targetIds, tagType, value, mode, options }}
       >
-        <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-          <Popover.Trigger asChild>
-            <Button
-              ref={ref}
-              {...props}
-              className="w-min text-sm font-medium shadow-xs"
-              variant="outline"
-            >
-              Add Tags
-              <IconPlus className="text-lg" />
-            </Button>
-          </Popover.Trigger>
-          <Combobox.Content>
-            <SelectTagsContent />
-          </Combobox.Content>
-        </PopoverScoped>
-        <TagList />
+        <div className="flex items-center gap-2">
+          <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+            <Popover.Trigger asChild>
+              <Button
+                ref={ref}
+                {...props}
+                className="w-min text-sm font-medium shadow-xs"
+                variant="outline"
+              >
+                Add Tags
+                <IconPlus className="text-lg" />
+              </Button>
+            </Popover.Trigger>
+            <Combobox.Content>
+              <SelectTagsContent />
+            </Combobox.Content>
+          </PopoverScoped>
+          <TagList />
+        </div>
       </SelectTagsProvider>
     );
   },
