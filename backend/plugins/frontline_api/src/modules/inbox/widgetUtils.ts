@@ -51,8 +51,7 @@ export const getOrCreateEngageMessage = async (
 export const receiveVisitorDetail = async (subdomain: string, visitor) => {
   const { visitorId } = visitor;
 
-  delete visitor.visitorId;
-  delete visitor._id;
+  const { visitorId: _, _id: __, ...visitorData } = visitor;
 
   const customer = await sendTRPCMessage({
     subdomain,
@@ -62,7 +61,7 @@ export const receiveVisitorDetail = async (subdomain: string, visitor) => {
     action: 'updateOne',
     input: {
       selector: { visitorId },
-      modifier: { $set: visitor },
+      modifier: { $set: visitorData },
     },
   });
 
