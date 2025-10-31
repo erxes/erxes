@@ -3,7 +3,7 @@ import { IconAdjustmentsAlt } from '@tabler/icons-react';
 import { Handle, Node, NodeProps, Position } from '@xyflow/react';
 import { cn, IconComponent } from 'erxes-ui';
 import { memo } from 'react';
-import { NodeData } from '../../../types';
+import { AutomationNodeType, NodeData } from '../../../types';
 import { ErrorState } from '../../../utils/ErrorState';
 import { ActionNodeConfigurationContent } from './ActionNodeConfigurationContent';
 import { NodeDropdownActions } from './NodeDropdownActions';
@@ -58,7 +58,7 @@ const ActionNodeSourceHandler = ({
           addButtonClassName="hover:text-success hover:border-success"
           style={{ top: '50%' }}
           showAddButton={!config?.yes}
-          nodeType="action"
+          nodeType={AutomationNodeType.Action}
         >
           <div className="ml-4 text-xs text-muted-foreground fixed -top-2">
             True
@@ -72,7 +72,7 @@ const ActionNodeSourceHandler = ({
           addButtonClassName="hover:text-destructive hover:border-destructive"
           style={{ top: '80%' }}
           showAddButton={!config?.no}
-          nodeType="action"
+          nodeType={AutomationNodeType.Action}
         >
           <div className="ml-4 text-xs text-muted-foreground fixed -top-2">
             False
@@ -88,7 +88,7 @@ const ActionNodeSourceHandler = ({
       handlerId={id}
       addButtonClassName="hover:text-success  hover:border-success"
       showAddButton={!nextActionId}
-      nodeType="action"
+      nodeType={AutomationNodeType.Action}
     />
   );
 };
@@ -111,7 +111,8 @@ const ActionNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
       >
         <div className="p-3 flex items-center justify-between border-b border-muted">
           <div className="flex items-center gap-2 text-success/90">
-            {beforeTitleContent && beforeTitleContent(id, 'action')}
+            {beforeTitleContent &&
+              beforeTitleContent(id, AutomationNodeType.Action)}
 
             <div
               className={`size-6 rounded-full bg-success/10  flex items-center justify-center`}
