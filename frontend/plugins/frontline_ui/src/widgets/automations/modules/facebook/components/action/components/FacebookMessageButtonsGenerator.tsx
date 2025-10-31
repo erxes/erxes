@@ -168,6 +168,41 @@ const FacebookMessageButton = ({
     handleChangeButton(updatedButton);
   };
 
+  let content: React.ReactNode;
+  if (button?.isEditing) {
+    content = (
+      <Input
+        autoFocus
+        maxLength={20}
+        placeholder="Enter button text"
+        value={button.text || button.link}
+        onBlur={onSave}
+        onChange={onChangeButtonText}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.currentTarget.blur();
+          }
+        }}
+      />
+    );
+  } else if (button.link) {
+    content = (
+      <a
+        href={button.link}
+        target="__blank"
+        className="text-blue-500 hover:text-blue-500/70 transition ease-in-out"
+      >
+        {button.link}
+      </a>
+    );
+  } else {
+    content = (
+      <span className="font-mono font-bold text-foreground text-sm">
+        {button.text || 'Type a button label'}
+      </span>
+    );
+  }
+
   return (
     <Card
       ref={setNodeRef}
@@ -197,33 +232,7 @@ const FacebookMessageButton = ({
         />
       ) : null}
       <div className="flex-1 border rounded-lg p-2 flex items-center">
-        {button?.isEditing ? (
-          <Input
-            autoFocus
-            maxLength={20}
-            placeholder="Enter button text"
-            value={button.text || button.link}
-            onBlur={onSave}
-            onChange={onChangeButtonText}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.currentTarget.blur();
-              }
-            }}
-          />
-        ) : button.link ? (
-          <a
-            href={button.link}
-            target="__blank"
-            className="text-blue-500 hover:text-blue-500/70 transition ease-in-out"
-          >
-            {button.link}
-          </a>
-        ) : (
-          <span className="font-mono font-bold text-foreground text-sm">
-            {button.text || 'Type a button label'}
-          </span>
-        )}
+        {content}
       </div>
       <Button
         size="icon"
