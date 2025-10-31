@@ -12,6 +12,10 @@ const getTitle = (contentType: string) => {
   if (contentType === 'team') {
     return 'Team';
   }
+
+  if (contentType === 'triage') {
+    return 'Triage';
+  }
 };
 
 const getMessage = (contentType: string, notificationType: string) => {
@@ -25,9 +29,11 @@ const getMessage = (contentType: string, notificationType: string) => {
     case 'projectStatus':
       return 'You have been assigned to project';
     case 'note':
-      return `You have been mentioned in note ${contentType}`;
+      return `You have been mentioned in ${contentType}'s note`;
     case 'team':
       return 'You have been invited to team';
+    case 'triage':
+      return 'Your team has a new triage';
     default:
       return 'Notification';
   }

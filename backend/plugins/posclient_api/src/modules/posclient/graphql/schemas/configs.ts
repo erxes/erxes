@@ -84,6 +84,7 @@ export const types = `
     allowTypes: [String]
     isCheckRemainder: Boolean
     checkExcludeCategoryIds: [String]
+    saveRemainder: Boolean
     banFractions: Boolean
   }
 `;
@@ -94,6 +95,7 @@ export const mutations = `
   syncOrders: JSON
   deleteOrders: JSON
   posChooseConfig(token: String!): String
+  refetchRemainder(categoryId: String, searchValue: String): String
 `;
 
 export const queries = `
