@@ -1,27 +1,27 @@
 import * as bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
-import * as crypto from 'crypto';
 
-import { getAvailablePlugins, redis } from 'erxes-api-shared/utils';
 import {
-  USER_ROLES,
-  userSchema,
-  userMovemmentSchema,
   sendNotification,
+  USER_ROLES,
+  userMovemmentSchema,
+  userSchema,
 } from 'erxes-api-shared/core-modules';
+import { getAvailablePlugins, redis } from 'erxes-api-shared/utils';
 
 import { saveValidatedToken } from '@/auth/utils';
-import { IModels } from '~/connectionResolvers';
 import {
-  IUser,
-  IDetail,
-  ILink,
-  IUserMovementDocument,
-  IUserDocument,
-  IEmailSignature,
   IAppDocument,
+  IDetail,
+  IEmailSignature,
+  ILink,
+  IUser,
+  IUserDocument,
+  IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
+import { IModels } from '~/connectionResolvers';
 
 import { USER_MOVEMENT_STATUSES } from 'erxes-api-shared/core-modules';
 import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
@@ -703,7 +703,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         departmentIds: _user.departmentIds,
       };
 
-      const { role } = (await models.Roles.findOne({ userId: user._id })) || {};
+      const { role } = (await models.Roles.getRole(user._id)) || {};
 
       if (role) {
         user['role'] = role;
@@ -721,7 +721,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         isOwner: _user.isOwner,
       };
 
-      const { role } = (await models.Roles.findOne({ userId: user._id })) || {};
+      const { role } = (await models.Roles.getRole(user._id)) || {};
 
       if (role) {
         user['role'] = role;

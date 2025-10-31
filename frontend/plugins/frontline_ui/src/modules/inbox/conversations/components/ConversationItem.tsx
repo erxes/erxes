@@ -3,8 +3,8 @@ import {
   Button,
   Checkbox,
   cn,
+  IconComponent,
   RelativeDateDisplay,
-  RelativeDateDisplayShort,
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
@@ -45,13 +45,17 @@ export const ConversationItem = ({
                 <CustomersInline.Title className="truncate" />
                 <div className="ml-auto text-accent-foreground">
                   {createdAt && (
-                    <RelativeDateDisplayShort.Value
+                    <RelativeDateDisplay.Value
                       value={updatedAt || createdAt}
+                      isShort
                     />
                   )}
                 </div>
               </div>
-              <div className="w-auto text-left flex-none truncate">
+              <div className="w-auto text-left flex-none truncate flex items-center gap-1 text-xs">
+                {channel && (
+                  <IconComponent name={channel?.icon} className="size-3" />
+                )}
                 {channel && <span title={channel.name}>{channel.name}</span>}
               </div>
             </div>

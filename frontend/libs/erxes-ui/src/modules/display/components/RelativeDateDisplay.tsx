@@ -8,6 +8,11 @@ import {
 import React from 'react';
 import { Except } from 'type-fest';
 
+type RelativeDateDisplayProps = {
+  value: string;
+  isShort?: boolean;
+};
+
 const RelativeDateDisplayTooltip = React.forwardRef<
   React.ElementRef<typeof Tooltip.Trigger>,
   Except<React.ComponentPropsWithoutRef<typeof Tooltip.Trigger>, 'value'> & {
@@ -30,23 +35,15 @@ const RelativeDateDisplayTooltip = React.forwardRef<
 
 RelativeDateDisplayTooltip.displayName = 'RelativeDateDisplayTooltip';
 
-const RelativeDateDisplayValue = ({ value }: { value: string }) => {
+const RelativeDateDisplayValue = ({
+  value,
+  isShort,
+}: RelativeDateDisplayProps) => {
   const relativeDate = formatDateISOStringToRelativeDate(value);
-  return relativeDate;
-};
-
-const RelativeDateDisplayValueShort = ({ value }: { value: string }) => {
-  const relativeDate = formatDateISOStringToRelativeDateShort(value);
-  return relativeDate;
+  const relativeDateShort = formatDateISOStringToRelativeDateShort(value);
+  return isShort ? relativeDateShort : relativeDate;
 };
 
 export const RelativeDateDisplay = Object.assign(RelativeDateDisplayTooltip, {
   Value: RelativeDateDisplayValue,
 });
-
-export const RelativeDateDisplayShort = Object.assign(
-  RelativeDateDisplayTooltip,
-  {
-    Value: RelativeDateDisplayValueShort,
-  },
-);

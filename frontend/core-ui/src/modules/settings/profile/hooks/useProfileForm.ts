@@ -14,14 +14,14 @@ export const profileValidationSchema = z
     details: z
       .object({
         avatar: z.string().optional().nullable(),
-        firstName: z.string(),
-        lastName: z.string(),
+        firstName: z.string().optional().nullable(),
+        lastName: z.string().optional().nullable(),
         middleName: z.string().optional().nullable(),
         shortName: z.string().optional().nullable(),
         operatorPhone: z.string().optional().nullable(),
         birthDate: z.date().or(z.string()).optional().nullable(),
         workStartedDate: z.date().or(z.string()).optional().nullable(),
-        location: z.string().optional(),
+        location: z.string().optional().nullable(),
         employeeId: z.string().optional().nullable(),
       })
       .optional()

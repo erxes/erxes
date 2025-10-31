@@ -35,16 +35,17 @@ export const pConversationClientMessageInserted = async (
     },
     { integrationId: 1 },
   );
-  if (!conversation) {
-    console.warn(`Conversation not found for message: ${message._id}`);
-    return;
+
+  let integration;
+
+  if (conversation) {
+    integration = await models.Integrations.findOne(
+      {
+        _id: conversation.integrationId,
+      },
+      { _id: 1, name: 1, channelId: 1 },
+    );
   }
-  const integration = await models.Integrations.findOne(
-    {
-      _id: conversation.integrationId,
-    },
-    { _id: 1, name: 1 },
-  );
 
   let channelMemberIds: string[] = [];
 
@@ -65,19 +66,22 @@ export const pConversationClientMessageInserted = async (
       channelMemberIds = [...channelMemberIds, ...memberIds];
     }
   }
-  if (!conversation) {
-    console.warn(`Conversation not found for message: ${message._id}`);
-    return;
+
+  try {
+    await graphqlPubsub.publish(
+      `conversationMessageInserted:${conversation?._id}`,
+      {
+        conversationMessageInserted: message,
+        subdomain,
+        conversation,
+        integration,
+      },
+    );
+  } catch (err) {
+    throw new Error(
+      'conversationMessageInserted Error publishing subscription:',
+    );
   }
-  await graphqlPubsub.publish(
-    `conversationMessageInserted:${conversation._id}`,
-    {
-      conversationMessageInserted: message,
-      subdomain,
-      conversation,
-      integration,
-    },
-  );
 
   for (const userId of channelMemberIds) {
     await graphqlPubsub.publish(

@@ -23,7 +23,7 @@ export const appRouter = t.mergeRouters(
         .input(
           z.object({
             moduleType: z.string(),
-            collectionType: z.string().optional(),
+            collectionType: z.string(),
             segmentId: z.string().optional(),
             usageType: z.string().optional(),
             config: z.record(z.any()).optional(),

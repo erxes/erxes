@@ -77,7 +77,7 @@ export const createAWS = async (subdomain: string) => {
 
     pluginName: 'core',
     method: 'query',
-    module: 'users',
+    module: 'configs',
     action: 'getFileUploadConfigs',
     input: {},
   });
@@ -135,7 +135,7 @@ export const uploadMedia = async (
 
         pluginName: 'core',
         method: 'query',
-        module: 'users',
+        module: 'configs',
         action: 'getFileUploadConfigs',
         input: {},
       });
@@ -552,7 +552,7 @@ export const getFacebookUserProfilePic = async (
 
       pluginName: 'core',
       method: 'query',
-      module: 'users',
+      module: 'configs',
       action: 'getFileUploadConfigs',
       input: {},
     });
