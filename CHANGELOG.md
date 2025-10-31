@@ -1,5 +1,16 @@
 # Changelog
 
+## <small>2.17.22 (2025-10-31)</small>
+
+* fix: pos ui filter has a remainder ([0b283f6](https://github.com/erxes/erxes/commit/0b283f6))
+* fix: pos, temp save remainders, sort and filter remainder and price (#6547) ([3bf532a](https://github.com/erxes/erxes/commit/3bf532a)), closes [#6547](https://github.com/erxes/erxes/issues/6547)
+* fix: tourism update (#6543) ([d3a6611](https://github.com/erxes/erxes/commit/d3a6611)), closes [#6543](https://github.com/erxes/erxes/issues/6543)
+* fix(ticket): fix required field validation preventing ticket creation ([2e49065](https://github.com/erxes/erxes/commit/2e49065))
+* chore: pos fetch remainder refactor ([ee9a3a2](https://github.com/erxes/erxes/commit/ee9a3a2))
+* debug: add additional console logs for score calculations and updated custom fields in ScoreCampaign ([2d75db9](https://github.com/erxes/erxes/commit/2d75db9))
+* debug: add console logs for placeholder and parent object in ScoreCampaigns and utils ([6770877](https://github.com/erxes/erxes/commit/6770877))
+* debug: update console log to stringify parent object in resolvePlaceholderValue function ([d3448eb](https://github.com/erxes/erxes/commit/d3448eb))
+
 ## [2.17.21](https://github.com/erxes/erxes/compare/2.17.20...2.17.21) (2025-10-23)
 
 ## [2.17.20](https://github.com/erxes/erxes/compare/2.17.19...2.17.20) (2025-10-23)
