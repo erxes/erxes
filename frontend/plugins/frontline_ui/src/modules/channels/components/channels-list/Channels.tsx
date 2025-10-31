@@ -10,7 +10,7 @@ import {
 } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { ChannelsCommandBar } from './ChannelsCommandBar';
+import { ActionsCommandBar, ChannelsCommandBar } from './ChannelsCommandBar';
 
 export function Channels() {
   const { channels, loading } = useGetChannels();
@@ -29,6 +29,7 @@ export function Channels() {
     if (selected.length === channels?.length) setSelected([]);
     else setSelected(channels?.map((c) => c._id) || []);
   };
+
   return (
     <div className="overflow-hidden h-full px-8">
       <div className="bg-sidebar size-full border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">

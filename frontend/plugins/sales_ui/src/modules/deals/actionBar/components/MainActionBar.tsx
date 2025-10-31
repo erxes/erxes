@@ -16,7 +16,10 @@ const MainActionBar = () => {
             </Button>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content>
-            <DropdownMenu.Item>Resolve</DropdownMenu.Item>
+            <DropdownMenu.Item>
+              <Button>List</Button>
+              <Button>Board</Button>
+            </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu>
       </div>
