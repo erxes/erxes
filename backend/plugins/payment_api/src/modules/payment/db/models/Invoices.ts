@@ -6,10 +6,8 @@ import { IInvoice, IInvoiceDocument } from '~/modules/payment/@types/invoices';
 import { invoiceSchema } from '~/modules/payment/db/definitions/invoices';
 import redis from '~/utils/redis';
 
-
-
 export interface IInvoiceModel extends Model<IInvoiceDocument> {
-  getInvoice(doc: any, leanObject?: boolean): IInvoiceDocument;
+  getInvoice(doc: any, leanObject?: boolean): Promise<IInvoiceDocument>;
   createInvoice(doc: IInvoice, subdomain?: string): Promise<IInvoiceDocument>;
   updateInvoice(_id: string, doc: any): Promise<IInvoiceDocument>;
   cancelInvoice(_id: string): Promise<string>;
@@ -41,7 +39,7 @@ export const loadInvoiceClass = (models: IModels) => {
 
       if (doc.paymentIds && doc.paymentIds.length === 1) {
         const payment = await models.PaymentMethods.getPayment(
-          doc.paymentIds[0]
+          doc.paymentIds[0],
         );
 
         if (!payment) {
@@ -117,8 +115,8 @@ export const loadInvoiceClass = (models: IModels) => {
           // Process transactions in parallel for better performance
           const statusChecks = await Promise.all(
             unpaidTransactions.map((transaction) =>
-              models.Transactions.checkTransaction(transaction._id, subdomain)
-            )
+              models.Transactions.checkTransaction(transaction._id, subdomain),
+            ),
           );
 
           // Update transactions atomically using bulkWrite
@@ -141,7 +139,7 @@ export const loadInvoiceClass = (models: IModels) => {
           }
         } catch (error) {
           console.error(
-            `Error checking transaction statuses: ${error.message}`
+            `Error checking transaction statuses: ${error.message}`,
           );
         }
       }
@@ -173,7 +171,7 @@ export const loadInvoiceClass = (models: IModels) => {
 
       await models.Invoices.updateOne(
         { _id },
-        { $set: { status: PAYMENT_STATUS.PAID, resolvedAt: new Date() } }
+        { $set: { status: PAYMENT_STATUS.PAID, resolvedAt: new Date() } },
       );
 
       return PAYMENT_STATUS.PAID;
@@ -208,7 +206,7 @@ export const loadInvoiceClass = (models: IModels) => {
 
       await models.Invoices.updateOne(
         { _id },
-        { $set: { status: 'paid', resolvedAt: new Date() } }
+        { $set: { status: 'paid', resolvedAt: new Date() } },
       );
 
       return 'success';
