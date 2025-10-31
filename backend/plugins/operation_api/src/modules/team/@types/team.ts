@@ -6,6 +6,7 @@ export interface ITeam {
   description: string;
   estimateType: number;
   cycleEnabled?: boolean;
+  triageEnabled?: boolean;
 }
 
 export interface ITeamDocument extends ITeam, Document {
@@ -15,9 +16,11 @@ export interface ITeamDocument extends ITeam, Document {
 }
 
 export interface ITeamFilter extends ITeam {
+  teamId: string;
   userId: string;
   teamIds: string[];
   projectId: string;
+  isTriageEnabled: boolean;
 }
 
 export enum TeamMemberRoles {

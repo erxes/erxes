@@ -1,24 +1,18 @@
 import { IconRefresh, IconUserUp } from '@tabler/icons-react';
 import { Button, cn, NavigationMenuGroup, useQueryState } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { Link, useSearchParams } from 'react-router';
+import { Link } from 'react-router';
 import { currentUserState } from 'ui-modules';
 
 export const InboxActions = () => {
   const currentUser = useAtomValue(currentUserState);
   const [assignedTo, setAssignedTo] = useQueryState('assignedTo');
-  const [searchParams] = useSearchParams();
-
-  const hasNoSearchParams = [...searchParams].length === 0;
 
   return (
     <NavigationMenuGroup name="Actions">
       <Button
         variant="ghost"
-        className={cn(
-          'w-full justify-start flex-none',
-          hasNoSearchParams && 'bg-muted',
-        )}
+        className={cn('w-full justify-start flex-none')}
         asChild
       >
         <Link to="/frontline/inbox">

@@ -1,4 +1,4 @@
-import { Button, Skeleton, useQueryState } from 'erxes-ui';
+import { Button, Skeleton, TextOverflowTooltip, useQueryState } from 'erxes-ui';
 import { useUsedIntegrationTypes } from '../hooks/useUsedIntegrationTypes';
 import { IIntegrationType } from '../types/Integration';
 import { IconCheck } from '@tabler/icons-react';
@@ -30,7 +30,7 @@ export const IntegrationTypeItem = ({ _id, name }: IIntegrationType) => {
       onClick={handleClick}
     >
       {isActive && <IconCheck className="absolute left-1.5" />}
-      {name}
+      <TextOverflowTooltip value={name} />
     </Button>
   );
 };

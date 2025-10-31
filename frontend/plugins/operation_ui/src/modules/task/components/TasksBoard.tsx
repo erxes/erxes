@@ -31,7 +31,7 @@ const fetchedTasksState = atom<BoardItemProps[]>([]);
 export const allTasksMapState = atom<Record<string, ITask>>({});
 
 export const TasksBoard = () => {
-  const { teamId, cycleId } = useParams();
+  const { teamId } = useParams();
   const allTasksMap = useAtomValue(allTasksMapState);
   const { updateTask } = useUpdateTask();
 
@@ -45,7 +45,7 @@ export const TasksBoard = () => {
   const columns = statuses?.map((status) => ({
     id: status.value,
     name: status.label,
-    type: status.type,
+    type: status.type.toString(),
     color: status.color,
   }));
 
@@ -170,7 +170,7 @@ export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
     <>
       <Board.Header>
         <h4 className="capitalize flex items-center gap-1 pl-1">
-          <StatusInlineIcon statusType={column.type as number} />
+          <StatusInlineIcon statusType={column.type} />
           {column.name}
           <span className="text-accent-foreground font-medium pl-1">
             {loading ? (

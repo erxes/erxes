@@ -85,7 +85,7 @@ router.post('/upload-file', async (req: Request, res: Response) => {
   const subdomain = getSubdomain(req);
   const domain = DOMAIN.replace('<subdomain>', subdomain);
   const models = await generateModels(subdomain);
-
+  console.log('uploaded file...');
   const maxHeight = Number(req.query.maxHeight);
   const maxWidth = Number(req.query.maxWidth);
 
@@ -93,21 +93,27 @@ router.post('/upload-file', async (req: Request, res: Response) => {
     uploadDir: os.tmpdir(),
     keepExtensions: true,
   });
+  console.log('1...');
 
   form.parse(req, async (error, _fields, files) => {
+    console.log('2...');
+
     if (error) {
       return res
         .status(400)
         .send(`File upload parsing error: ${error.message}`);
     }
+    console.log('3...');
 
     const uploaded = files.file || files.upload;
 
     const file = Array.isArray(uploaded) ? uploaded[0] : uploaded;
+    console.log('4...');
 
     if (!file?.filepath || !isValidPath(file.filepath)) {
       return res.status(400).send('Invalid or unsafe file path');
     }
+    console.log('5...');
 
     const mimetype = file?.mimetype;
 
@@ -116,18 +122,24 @@ router.post('/upload-file', async (req: Request, res: Response) => {
         .status(400)
         .send('One or more files have unrecognized MIME type');
     }
+    console.log('6...');
 
     let processedFile = file;
 
     if (isImage(mimetype) && maxHeight && maxWidth) {
       processedFile = await resizeImage(file, maxWidth, maxHeight);
     }
+    console.log('7...');
 
     const status = await checkFile(models, processedFile, req.headers.source);
+    console.log('8...');
 
     if (status !== 'ok') {
+      console.log('9...');
+
       return res.status(400).send(status);
     }
+    console.log('10...');
 
     try {
       const result = await uploadFile(
@@ -136,9 +148,12 @@ router.post('/upload-file', async (req: Request, res: Response) => {
         !!files.upload,
         models,
       );
+      console.log('11...');
 
       res.send(result);
     } catch (e) {
+      console.log('12...');
+
       return res.status(500).send(filterXSS(e.message));
     }
   });

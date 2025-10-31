@@ -54,10 +54,13 @@ export const checkFile = async (
   if (!file) {
     throw new Error('Invalid file');
   }
-
+  console.log('20...');
   if (!isValidPath(file.filepath)) {
+    console.log('21...');
+
     throw new Error('Invalid or unsafe file path');
   }
+  console.log('22...');
 
   const { size } = file;
 
@@ -71,6 +74,7 @@ export const checkFile = async (
 
   // determine file type using magic numbers
   const ft = await fileTypeFromBuffer(buffer);
+  console.log('23...', ft);
 
   const unsupportedMimeTypes = [
     'text/csv',
@@ -87,10 +91,14 @@ export const checkFile = async (
     'application/vnd.ms-excel',
     'application/vnd.ms-powerpoint',
   ];
+  console.log(file.mimetype, 'file.mimetype');
   // allow csv, svg to be uploaded
   if (!ft && unsupportedMimeTypes.includes(file.mimetype)) {
+    console.log('25...');
+
     return 'ok';
   }
+  console.log('26...');
 
   if (!ft) {
     return 'Invalid file type';
@@ -116,7 +124,7 @@ export const checkFile = async (
   if (mime === 'application/x-msi' && oldMsOfficeDocs.includes(file.mimetype)) {
     return 'ok';
   }
-
+  console.log('27...', mime);
   const defaultMimeTypes = [
     'image/png',
     'image/jpeg',
@@ -128,22 +136,27 @@ export const checkFile = async (
     'audio/mp4',
     'audio/vnd.wave',
     'audio/wave',
+    'audio/wav',
   ];
 
   if (Array.isArray(source)) {
     source = source[0];
   }
+  console.log('28...');
 
   const UPLOAD_FILE_TYPES = await getConfig(
     source === 'widgets' ? 'WIDGETS_UPLOAD_FILE_TYPES' : 'UPLOAD_FILE_TYPES',
     '',
     models,
   );
+  console.log('29...');
 
   if (
     !(UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.includes(mime)) &&
     !defaultMimeTypes.includes(mime)
   ) {
+    console.log('30...');
+
     return 'Invalid configured file type';
   }
 
