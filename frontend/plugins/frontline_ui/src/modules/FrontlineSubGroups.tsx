@@ -6,11 +6,11 @@ import { TicketNavigations } from '@/ticket/components/ticket-navigations/Ticket
 export const FrontlineSubGroups = () => {
   const location = useLocation();
   const isInbox = location.pathname.startsWith('/frontline/inbox');
-  const isTicket = location.pathname.startsWith('/frontline/tickets');
-if (isInbox) {
-  <TicketNavigations/>
+  const isTickets = location.pathname.startsWith('/frontline/tickets');
+if (isTickets) {
+  return(<TicketNavigations/>)
 }
-if (!isTicket) return null
+if (!isInbox) return null
   return (
     <>
       <NavigationMenuGroup name="Channels">

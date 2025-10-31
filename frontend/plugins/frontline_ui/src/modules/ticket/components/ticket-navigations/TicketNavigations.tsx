@@ -39,7 +39,6 @@ function ChannelItem({ channel }: ChannelItemProps) {
             isActive={isActive}
             onClick={() => {
               setChannelId(channel._id);
-              setPipelineId(null);
             }}
           >
             <div className="flex items-center gap-2">
