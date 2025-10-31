@@ -5,6 +5,7 @@ import {
   getPluginAssetsUrl,
   Input,
   Skeleton,
+  Spinner,
 } from 'erxes-ui';
 import { Button } from 'erxes-ui';
 import { IntegrationLogo } from '@/integrations/components/IntegrationLogo';
@@ -140,8 +141,8 @@ export const CallConfigUpdate = () => {
           )}
         />
         <Dialog.Footer className="col-span-2 items-center">
-          <Button type="submit" disabled={loadingUpdate}>
-            Save
+       <Button type="submit" disabled={loadingUpdate}>
+            {loadingUpdate ? <Spinner /> : 'Save'}
           </Button>
         </Dialog.Footer>
       </form>
