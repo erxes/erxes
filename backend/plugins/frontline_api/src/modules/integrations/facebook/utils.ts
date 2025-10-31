@@ -81,7 +81,6 @@ export const createAWS = async (subdomain: string) => {
     action: 'getFileUploadConfigs',
     input: {},
   });
-
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
     throw new Error('AWS credentials are not configured');
   }
@@ -131,7 +130,6 @@ export const uploadMedia = async (
   ) {
     try {
       isFetchingConfig = true;
-
       cachedUploadConfig = await sendTRPCMessage({
         subdomain,
 

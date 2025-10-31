@@ -17,24 +17,28 @@ export const getOrCreateCustomer = async (
   callAccount: any,
 ) => {
   const { inboxIntegrationId, primaryPhone } = callAccount;
-
   if (typeof primaryPhone !== 'string') {
     throw new Error('Invalid primaryPhone: must be a string');
   }
+
   let customer = await models.CallCustomers.findOne({
     primaryPhone: { $eq: primaryPhone },
-    status: 'completed',
   });
+
   if (!customer) {
     try {
       customer = await models.CallCustomers.create({
         inboxIntegrationId,
         erxesApiId: null,
-        primaryPhone: primaryPhone,
+        primaryPhone,
         status: 'pending',
       });
-    } catch (e) {
+    } catch (e: any) {
       if (e.message.includes('duplicate')) {
+        // just fetch and return existing one
+        customer = await models.CallCustomers.findOne({
+          primaryPhone: { $eq: primaryPhone },
+        });
         return await getOrCreateCustomer(models, subdomain, callAccount);
       } else {
         throw new Error(e);
@@ -46,24 +50,26 @@ export const getOrCreateCustomer = async (
         action: 'get-create-update-customer',
         payload: JSON.stringify({
           integrationId: inboxIntegrationId,
-          primaryPhone: primaryPhone,
+          primaryPhone,
           isUser: true,
           phones: [primaryPhone],
         }),
       };
       const apiCustomerResponse = await receiveInboxMessage(subdomain, data);
+
       if (apiCustomerResponse.status === 'success') {
-        customer.erxesApiId = apiCustomerResponse.data._id;
-        customer.status = 'completed';
-        await customer.save();
+        if (customer) {
+          customer.erxesApiId = apiCustomerResponse.data._id;
+          customer.status = 'completed';
+          await customer.save();
+        }
       } else {
         throw new Error(
           `Customer creation failed: ${JSON.stringify(apiCustomerResponse)}`,
         );
       }
     } catch (e: any) {
-      await models.CallCustomers.deleteOne({ _id: customer._id });
-      // Re-throw with added context, preserving original stack
+      await models.CallCustomers.deleteOne({ _id: customer?._id });
       throw new Error(`Failed to sync with API: ${e.stack || e.message || e}`);
     }
   }

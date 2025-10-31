@@ -136,6 +136,7 @@ export const checkFile = async (
     'audio/mp4',
     'audio/vnd.wave',
     'audio/wave',
+    'audio/wav',
   ];
 
   if (Array.isArray(source)) {
@@ -148,11 +149,14 @@ export const checkFile = async (
     '',
     models,
   );
+  console.log('29...');
 
   if (
     !(UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.includes(mime)) &&
     !defaultMimeTypes.includes(mime)
   ) {
+    console.log('30...');
+
     return 'Invalid configured file type';
   }
 

@@ -1,23 +1,32 @@
-import { Task } from './modules/Task';
+import type { IRelationWidgetProps } from 'ui-modules';
+import { Suspense, lazy } from 'react';
+
+const Task = lazy(() =>
+  import('./modules/Task').then((module) => ({
+    default: module.Task,
+  })),
+);
+
+const ProjectWidget = lazy(() =>
+  import('./modules/ProjectWidget').then((module) => ({
+    default: module.ProjectWidget,
+  })),
+);
 
 export const RelationWidgets = ({
   module,
   contentId,
   contentType,
-}: {
-  module: any;
-  contentId: string;
-  contentType: string;
-}) => {
-  if (contentType === 'core:customer') {
-    const conversation = { customerId: contentId };
-    return <div>conversation</div>;
-  }
-  if (module === 'tasks') {
-    return <Task contentId={contentId} contentType={contentType} />;
-  }
-
-  return <div>Operation Widget</div>;
+}: IRelationWidgetProps) => {
+  return (
+    <Suspense>
+      {module === 'tasks' ? (
+        <Task contentId={contentId} contentType={contentType} />
+      ) : (
+        <ProjectWidget contentId={contentId} contentType={contentType} />
+      )}
+    </Suspense>
+  );
 };
 
 export default RelationWidgets;

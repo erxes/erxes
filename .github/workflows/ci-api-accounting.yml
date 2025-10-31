@@ -32,6 +32,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Set environment variables
+        run: |
+          echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+          echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
       - name: Build shared module
         run: |
           export NX_DAEMON=false
@@ -51,4 +56,4 @@ jobs:
           docker tag erxes/erxes-next-accounting_api erxes/erxes-next-accounting_api:${{ github.sha }}
           docker push erxes/erxes-next-accounting_api:latest
           docker push erxes/erxes-next-accounting_api:${{ github.sha }}
-        if: github.event_name != 'pull_request'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
