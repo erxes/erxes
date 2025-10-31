@@ -74,11 +74,11 @@ export class KhanbankAPI {
       //   isRPC: true,
       //   defaultValue: null,
       // });
-
       // return { accountNumber: this.accountNumber, ibanAcctNo: this.ibanAcctNo, ...account };
-    } catch (e) {
-      return { error: e.message };
+    } catch (e: any) {
+      throw new Error(e?.message || 'Unknown error');
     }
+
   }
 
   private async check(transaction: ITransactionDocument) {

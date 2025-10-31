@@ -41,9 +41,10 @@ export const loadPermissionClass = (models: IModels) => {
 
         actionObj = actionsMap[action];
 
-        if (actionObj && actionObj.use) {
-          entry.requiredActions = actionObj.use;
-        }
+       if (actionObj?.use) {
+         entry.requiredActions = actionObj.use;
+       }
+
 
         if (doc.userIds) {
           for (const userId of doc.userIds) {

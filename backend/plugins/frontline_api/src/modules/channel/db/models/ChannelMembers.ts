@@ -92,7 +92,11 @@ export const loadChannelMemberClass = (models: IModels) => {
     }
   }
 
+  // Load the class into the schema
   channelMembers.loadClass(ChannelMember);
+
+  // --- NEW: enforce unique membership per channel ---
+  channelMembers.index({ channelId: 1, memberId: 1 }, { unique: true });
 
   return channelMembers;
 };
