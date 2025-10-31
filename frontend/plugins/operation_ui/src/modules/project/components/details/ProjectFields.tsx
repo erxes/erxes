@@ -18,6 +18,7 @@ import { useGetProject } from '@/project/hooks/useGetProject';
 import { SelectProjectPriority } from '@/project/components/select/SelectProjectPriority';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { SelectProjectStatus } from '@/project/components/select/SelectProjectStatus';
+import { SelectTags } from 'ui-modules';
 
 export const ProjectFields = ({ projectId }: { projectId: string }) => {
   const { project } = useGetProject({
@@ -34,6 +35,7 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
     startDate,
     targetDate,
     description,
+    tagIds,
   } = project || {};
 
   const [descriptionContent, setDescriptionContent] = useState<
@@ -114,6 +116,18 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
           value={teamIds || []}
           projectId={projectId}
           variant="detail"
+        />
+        <SelectTags.Detail
+          value={tagIds || []}
+          tagType="operation:project"
+          onValueChange={(newTagIds: string[]) => {
+            updateProject({
+              variables: {
+                _id: projectId,
+                tagIds: newTagIds,
+              },
+            });
+          }}
         />
       </div>
       <Separator className="my-4" />

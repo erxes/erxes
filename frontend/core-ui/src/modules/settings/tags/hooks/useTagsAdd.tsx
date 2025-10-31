@@ -1,4 +1,5 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
+import { toast } from 'erxes-ui';
 import { ADD_TAG } from '../graphql/mutations/tagsMutations';
 
 export const useTagsAdd = () => {
@@ -10,7 +11,10 @@ export const useTagsAdd = () => {
       variables,
       refetchQueries: ['Tags'],
       onError(error) {
-        console.error(error);
+        toast({
+          title: error?.message || 'Failed to add tag',
+          variant: 'destructive',
+        });
       },
     });
   };

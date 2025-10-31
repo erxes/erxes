@@ -8,6 +8,7 @@ export const projectSchema = new Schema(
     priority: { type: Number, label: 'Priority', default: 0 },
     icon: { type: String, label: 'Icon', default: 'IconBox' },
     teamIds: { type: [Schema.Types.ObjectId], label: 'Team ID', required: true },
+    tagIds: { type: [String], label: 'Tag IDs' },
     startDate: { type: Date, label: 'Start Date', default: null },
     targetDate: { type: Date, label: 'Target Date', default: null },
     leadId: { type: String, label: 'Lead ID', default: null },

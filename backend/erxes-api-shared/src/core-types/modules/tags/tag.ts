@@ -2,15 +2,16 @@ import { Document } from 'mongoose';
 
 export interface ITag {
   name: string;
-  type: string;
   colorCode?: string;
-  objectCount?: number;
   parentId?: string;
+  relatedIds?: string[];
+  isGroup?: boolean;
+  type: string;
+  objectCount?: number;
+  order?: string;
 }
 
 export interface ITagDocument extends ITag, Document {
   _id: string;
   createdAt: Date;
-  order?: string;
-  relatedIds?: string[];
 }

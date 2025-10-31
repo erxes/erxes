@@ -15,6 +15,7 @@ export const GET_PROJECTS = gql`
         status
         priority
         teamIds
+        tagIds
         leadId
         startDate
         targetDate

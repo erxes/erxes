@@ -15,6 +15,7 @@ import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstim
 import { SelectCycle } from '@/task/components/task-selects/SelectCycle';
 import { ConverToProject } from '@/task/components/task-selects/ConvertToProject';
 import { SelectMilestone } from '@/task/components/task-selects/SelectMilestone';
+import { SelectTags } from 'ui-modules';
 
 export const TaskFields = ({ task }: { task: ITask }) => {
   const {
@@ -29,6 +30,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
     estimatePoint,
     cycleId,
     milestoneId,
+    tagIds,
   } = task || {};
 
   const startDate = (task as any)?.startDate;
@@ -147,6 +149,18 @@ export const TaskFields = ({ task }: { task: ITask }) => {
           taskId={taskId}
           projectId={projectId}
           variant="detail"
+        />
+        <SelectTags.Detail
+          value={tagIds || []}
+          tagType="operation:task"
+          onValueChange={(newTagIds: string[]) => {
+            updateTask({
+              variables: {
+                _id: taskId,
+                tagIds: newTagIds
+              },
+            });
+          }}
         />
       </div>
       <Separator className="my-4" />

@@ -17,6 +17,7 @@ export const projectMutations = {
       status,
       description,
       leadId,
+      tagIds,
     },
     { models, user }: IContext,
   ) => {
@@ -29,6 +30,7 @@ export const projectMutations = {
       status,
       description,
       leadId,
+      tagIds,
       createdBy: user._id,
     });
     graphqlPubsub.publish(`operationProjectChanged:${createdProject._id}`, {
