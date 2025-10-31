@@ -16,6 +16,7 @@ export interface ITeamDocument extends ITeam, Document {
 }
 
 export interface ITeamFilter extends ITeam {
+  teamId: string;
   userId: string;
   teamIds: string[];
   projectId: string;

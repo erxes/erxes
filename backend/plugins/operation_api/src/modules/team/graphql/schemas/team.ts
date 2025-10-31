@@ -29,7 +29,7 @@ export const types = `
 
 export const queries = `
     getTeam(_id: String!): Team
-    getTeams(name: String, userId: String, teamIds: [String], projectId: String, isTriageEnabled: Boolean): [Team]
+    getTeams(name: String, userId: String, teamIds: [String], projectId: String, isTriageEnabled: Boolean, teamId: String): [Team]
     getTeamMembers(teamId: String, teamIds: [String]): [TeamMember]
     getTeamEstimateChoises(teamId: String): JSON
 `;

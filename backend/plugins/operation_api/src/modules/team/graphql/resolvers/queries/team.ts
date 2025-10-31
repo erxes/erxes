@@ -27,12 +27,14 @@ export const teamQueries = {
     params: ITeamFilter,
     { models }: IContext,
   ) => {
-    if (params.teamIds && params.teamIds.length > 0) {
+    if (params.teamIds && params.teamIds.length > 0 && !params.userId) {
       return models.Team.find({ _id: { $in: params.teamIds } });
     }
 
-    if (params.isTriageEnabled) {
-      return models.Team.find({ triageEnabled: true });
+    if (params.isTriageEnabled || params.teamId) {
+      return models.Team.find({
+        $or: [{ triageEnabled: true }, { _id: params.teamId }],
+      });
     }
 
     if (params.projectId) {
