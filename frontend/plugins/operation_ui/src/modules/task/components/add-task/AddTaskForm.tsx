@@ -23,6 +23,7 @@ import {
   Input,
   Separator,
   Sheet,
+  useToast,
   useBlockEditor,
 } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
@@ -47,7 +48,6 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   const [defaultValuesState, setDefaultValues] = useAtom(
     taskCreateDefaultValuesState,
   );
-
   const { project } = useGetProject({
     variables: { _id: projectId || '' },
     skip: !projectId,
@@ -56,7 +56,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   const [_teamId, _setTeamId] = useState<string | undefined>(
     teamId ? teamId : project?.teamIds?.[0] ? project?.teamIds?.[0] : undefined,
   );
-
+  const { toast } = useToast();
   const defaultValues = {
     teamId: _teamId || undefined,
     name: '',
@@ -121,6 +121,11 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
       <form
         onSubmit={form.handleSubmit(onSubmit, (errors) => {
           console.log(errors);
+          toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: Object.entries(errors)[0][1].message,
+          });
         })}
         className="h-full flex flex-col"
       >
