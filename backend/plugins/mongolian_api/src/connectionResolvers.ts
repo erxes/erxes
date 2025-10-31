@@ -24,10 +24,14 @@ import {
   loadProductRuleClass,
 } from '@/ebarimt/db/models/ProductRule';
 
+import { ISyncLogDocument } from '@/erkhet/db/definition/syncLog';
+import { ISyncLogModel, loadSyncLogClass } from '@/erkhet/db/model/SyncLog';
+
 export interface IModels {
   PutResponses: IPutResponseModel;
   ProductRules: IProductRuleModel;
   ProductGroups: IProductGroupModel;
+  SyncLogs: ISyncLogModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -50,6 +54,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.ProductGroups = db.model<IProductGroupDocument, IProductGroupModel>(
     'ebarimt_product_groups',
     loadProductGroupClass(models),
+  );
+
+  models.SyncLogs = db.model<ISyncLogDocument, ISyncLogModel>(
+    'syncerkhet_synclogs',
+    loadSyncLogClass(models),
   );
 
   return models;

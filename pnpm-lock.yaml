@@ -821,6 +821,12 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
 
+  backend/plugins/mongolian_api:
+    dependencies:
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../erxes-api-shared
+
   backend/plugins/operation_api:
     dependencies:
       erxes-api-shared:
