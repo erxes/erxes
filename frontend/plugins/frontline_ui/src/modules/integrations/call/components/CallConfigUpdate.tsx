@@ -75,7 +75,7 @@ export const CallConfigUpdate = () => {
     });
   };
 
-  if (loadingUpdate) {
+  if (loading) {
     return (
       <div className="flex flex-col gap-4">
         <Skeleton className="h-8" />
