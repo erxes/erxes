@@ -101,6 +101,18 @@ export const loadTaskClass = (models: IModels) => {
       return models.Task.find(query).lean();
     }
 
+    /**
+     * Creates a new task with auto-assignment of default status.
+     * If no status is provided in the task document, automatically assigns
+     * the team's configured default status to ensure consistent task creation.
+     * 
+     * @param {object} params - The task creation parameters
+     * @param {ITask} params.doc - The task document to create
+     * @param {string} params.userId - The ID of the user creating the task
+     * @param {string} params.subdomain - The subdomain for notifications
+     * @returns {Promise<ITaskDocument>} The created task document
+     * @throws {Error} If task project is not in the team or cycle is completed
+     */
     public static async createTask({
       doc,
       userId,
@@ -116,6 +128,18 @@ export const loadTaskClass = (models: IModels) => {
       ]);
 
       const nextNumber = (result?.maxNumber || 0) + 1;
+
+      // If no status is provided, use the team's default status
+      // Note: This adds a DB lookup for the team when status is not provided.
+      // For better performance, consider passing defaultStatusId in the request
+      // context or requiring callers to always provide a status explicitly.
+      if (!doc.status) {
+        const team = await models.Team.findOne({ _id: doc.teamId });
+        
+        if (team?.defaultStatusId) {
+          doc.status = team.defaultStatusId;
+        }
+      }
 
       const status = await models.Status.getStatus(doc.status || '');
 

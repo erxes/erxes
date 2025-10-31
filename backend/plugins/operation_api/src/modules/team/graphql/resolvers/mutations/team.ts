@@ -42,6 +42,7 @@ export const teamMutations = {
       icon,
       estimateType,
       cycleEnabled,
+      defaultStatusId,
     }: {
       _id: string;
       name: string;
@@ -49,6 +50,7 @@ export const teamMutations = {
       icon: string;
       estimateType: number;
       cycleEnabled: boolean;
+      defaultStatusId?: string;
     },
     { models, user }: IContext,
   ) => {
@@ -59,12 +61,27 @@ export const teamMutations = {
       allowedRoles: [TeamMemberRoles.ADMIN, TeamMemberRoles.LEAD],
     });
 
+    // Validate that the defaultStatusId belongs to this team
+    if (defaultStatusId) {
+      const status = await models.Status.findOne({
+        _id: defaultStatusId,
+        teamId: _id,
+      });
+
+      if (!status) {
+        throw new Error(
+          'Invalid default status: Status must belong to this team',
+        );
+      }
+    }
+
     return models.Team.updateTeam(_id, {
       name,
       description,
       icon,
       estimateType,
       cycleEnabled,
+      defaultStatusId,
     });
   },
 
