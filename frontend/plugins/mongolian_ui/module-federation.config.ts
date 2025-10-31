@@ -15,9 +15,12 @@ const coreLibraries = new Set([
 const config: ModuleFederationConfig = {
   name: 'mongolian_ui',
   exposes: {
-    './config': './src/config.ts',
+    './config': './src/config.tsx',
     './ebarimt': './src/modules/ebarimt/Main.tsx',
     './ebarimtSettings': './src/modules/ebarimt/Settings.tsx',
+    './put-response': './src/modules/put-response/Main.tsx',
+    './by-date': './src/modules/by-date/Main.tsx',
+    './duplicated': './src/modules/duplicated/Main.tsx',
     './widgets': './src/widgets/Widgets.tsx',
   },
 
@@ -26,7 +29,6 @@ const config: ModuleFederationConfig = {
       return defaultConfig;
     }
 
-    // Returning false means the library is not shared.
     return false;
   },
 };
