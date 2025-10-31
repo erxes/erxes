@@ -120,7 +120,6 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit, (errors) => {
-          console.log(errors);
           toast({
             variant: 'destructive',
             title: 'Error',
