@@ -91,7 +91,6 @@ export const receiveInboxMessage = async (
         input: {
           doc: {
             ...doc,
-            // scopeBrandIds: integration.brandId,
           },
         },
       });

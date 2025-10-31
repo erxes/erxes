@@ -17,7 +17,7 @@ import {
   CONVERSATION_STATUSES,
   MESSAGE_TYPES,
 } from '~/modules/inbox/db/definitions/constants';
-import { debugError, handleAutomation } from '~/modules/inbox/utils';
+import { debugError } from '~/modules/inbox/utils';
 import strip from 'strip';
 import { IBrowserInfo } from 'erxes-api-shared/core-types';
 import { VERIFY_EMAIL_TRANSLATIONS } from '~/modules/inbox/constants';
@@ -35,16 +35,17 @@ export const pConversationClientMessageInserted = async (
     },
     { integrationId: 1 },
   );
-  if (!conversation) {
-    console.warn(`Conversation not found for message: ${message._id}`);
-    return;
+
+  let integration;
+
+  if (conversation) {
+    integration = await models.Integrations.findOne(
+      {
+        _id: conversation.integrationId,
+      },
+      { _id: 1, name: 1, channelId: 1 },
+    );
   }
-  const integration = await models.Integrations.findOne(
-    {
-      _id: conversation.integrationId,
-    },
-    { _id: 1, name: 1 },
-  );
 
   let channelMemberIds: string[] = [];
 
@@ -65,19 +66,22 @@ export const pConversationClientMessageInserted = async (
       channelMemberIds = [...channelMemberIds, ...memberIds];
     }
   }
-  if (!conversation) {
-    console.warn(`Conversation not found for message: ${message._id}`);
-    return;
+
+  try {
+    await graphqlPubsub.publish(
+      `conversationMessageInserted:${conversation?._id}`,
+      {
+        conversationMessageInserted: message,
+        subdomain,
+        conversation,
+        integration,
+      },
+    );
+  } catch (err) {
+    throw new Error(
+      'conversationMessageInserted Error publishing subscription:',
+    );
   }
-  await graphqlPubsub.publish(
-    `conversationMessageInserted:${conversation._id}`,
-    {
-      conversationMessageInserted: message,
-      subdomain,
-      conversation,
-      integration,
-    },
-  );
 
   for (const userId of channelMemberIds) {
     await graphqlPubsub.publish(
@@ -601,12 +605,6 @@ export const widgetMutations = {
     graphqlPubsub.publish(`conversationMessageInserted:${msg.conversationId}`, {
       conversationMessageInserted: msg,
     });
-    if (await isEnabled('automations')) {
-      await handleAutomation(subdomain, {
-        conversationMessage: msg, // Pass msg as conversationMessage
-        payload: payload,
-      });
-    }
 
     if (
       HAS_BOTENDPOINT_URL &&
@@ -989,16 +987,6 @@ export const widgetMutations = {
     graphqlPubsub.publish(`conversationMessageInserted:${msg.conversationId}`, {
       conversationMessageInserted: msg,
     });
-
-    const key = type.includes('persistentMenu') ? 'persistentMenuId' : 'btnId';
-    if (await isEnabled('automations')) {
-      if (key) {
-        await handleAutomation(subdomain, {
-          conversationMessage: msg,
-          payload: { [key]: payload, conversationId, customerId },
-        });
-      }
-    }
 
     return msg;
   },

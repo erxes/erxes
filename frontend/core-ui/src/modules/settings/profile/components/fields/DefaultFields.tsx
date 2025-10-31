@@ -15,7 +15,6 @@ const DefaultFields = () => {
             placeholder: 'Enter Username',
           }}
         />
-        <Form.Message />
       </div>
       <div className="flex flex-col gap-2 col-start-1">
         <Form.Label className="text-xs">First Name</Form.Label>

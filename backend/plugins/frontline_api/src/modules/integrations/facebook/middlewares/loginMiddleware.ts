@@ -95,7 +95,7 @@ export const loginMiddleware = async (req, res) => {
       const account = await models.FacebookAccounts.findOne({
         uid: userAccount.id,
       });
-
+      let accountId;
       if (account) {
         await models.FacebookAccounts.updateOne(
           { _id: account._id },
@@ -105,16 +105,20 @@ export const loginMiddleware = async (req, res) => {
           accountId: account._id,
         });
 
+        accountId = account?._id;
+
         for (const integration of integrations) {
           await repairIntegrations(subdomain, integration.erxesApiId);
         }
       } else {
-        await models.FacebookAccounts.create({
+        const newAccount = await models.FacebookAccounts.create({
           token: access_token,
           name,
           kind: 'facebook',
           uid: userAccount.id,
         });
+
+        accountId = newAccount?._id;
       }
 
       const reactAppUrl = !DOMAIN.includes('zrok')
