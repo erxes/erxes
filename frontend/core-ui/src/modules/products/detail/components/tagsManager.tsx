@@ -34,8 +34,8 @@ export function TagsManager({
   };
   const refreshData = async () => {
     try {
-      if (refetchTags) {
-        await refetchTags();
+      if (refetch) {
+        await refetch();
       }
       await client.refetchQueries({
         include: ['Tags'],
@@ -45,10 +45,9 @@ export function TagsManager({
         onTagsUpdated();
       }
     } catch (error) {
-      console.error('Error refreshing data:', error);
+      console.log('Error refreshing data', error);
     }
   };
-
   const handleRemoveTag = async () => {
     if (!tagToDelete) return;
 
