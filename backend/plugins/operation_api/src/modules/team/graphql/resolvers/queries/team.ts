@@ -31,7 +31,7 @@ export const teamQueries = {
       return models.Team.find({ _id: { $in: params.teamIds } });
     }
 
-    if (params.isTriageEnabled || params.teamId) {
+    if (params.isTriageEnabled) {
       return models.Team.find({
         $or: [{ triageEnabled: true }, { _id: params.teamId }],
       });
@@ -41,6 +41,11 @@ export const teamQueries = {
       const teamIds = await models.Project.findOne({
         _id: params.projectId,
       }).distinct('teamIds');
+
+      if (params.teamId) {
+        teamIds.push(params.teamId);
+      }
+
       return models.Team.find({ _id: { $in: teamIds } });
     }
 
@@ -48,6 +53,10 @@ export const teamQueries = {
       const teamIds = await models.TeamMember.find({
         memberId: params.userId,
       }).distinct('teamId');
+
+      if (params.teamId) {
+        teamIds.push(params.teamId);
+      }
 
       return models.Team.find({ _id: { $in: teamIds } });
     }
