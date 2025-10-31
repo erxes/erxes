@@ -132,7 +132,7 @@ export interface IUserModel extends Model<IUserDocument> {
     portal: IPortalDocument,
     doc: any,
     deviceToken?: string,
-  ): IUserDocument;
+  ): Promise<IUserDocument>;
   setSecondaryPassword(
     userId: string,
     secondaryPassword: string,
@@ -301,7 +301,12 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
           portal.otpConfig.content.replace(/{{.*}}/, phoneCode) ||
           `Your verification code is ${phoneCode}`;
 
-        await sendSms(subdomain, portal.otpConfig.smsTransporterType, user.phone, smsBody);
+        await sendSms(
+          subdomain,
+          portal.otpConfig.smsTransporterType,
+          user.phone,
+          smsBody,
+        );
       }
 
       // TODO: consider following function necessary
