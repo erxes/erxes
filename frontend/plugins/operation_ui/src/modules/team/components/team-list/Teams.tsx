@@ -4,7 +4,7 @@ import { useGetTeams } from '@/team/hooks/useGetTeams';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { IconUserX } from '@tabler/icons-react';
-import { CreateTeam } from './CreateTeam';
+import { CreateTeam } from '@/team/components/team-list/CreateTeam';
 export function Teams() {
   const { teams, loading } = useGetTeams();
   const navigate = useNavigate();
