@@ -8,7 +8,7 @@ export const triageMutations = {
     { input }: { input: ITriage },
     { models, user, subdomain }: IContext,
   ) => {
-    const triage = await models.Triage.createTriage({
+    return models.Triage.createTriage({
       triage: {
         name: input.name,
         description: input.description,
@@ -20,8 +20,6 @@ export const triageMutations = {
       },
       subdomain: subdomain,
     });
-
-    return triage;
   },
 
   operationUpdateTriage: async (
@@ -29,7 +27,7 @@ export const triageMutations = {
     { _id, input }: { _id: string; input: ITriage },
     { models, user }: IContext,
   ) => {
-    const triage = await models.Triage.updateTriage(_id, {
+    return models.Triage.updateTriage(_id, {
       name: input.name,
       description: input.description,
       teamId: input.teamId,
@@ -38,8 +36,6 @@ export const triageMutations = {
       number: 0,
       priority: input.priority || 0,
     });
-
-    return triage;
   },
 
   operationConvertTriageToTask: async (

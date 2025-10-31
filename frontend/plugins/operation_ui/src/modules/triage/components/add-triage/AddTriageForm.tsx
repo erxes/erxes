@@ -85,7 +85,6 @@ export const AddTriageForm = ({
           description: 'Triage created successfully',
           variant: 'default',
         });
-        console.log('operationAddTriage', operationAddTriage);
 
         onComplete(operationAddTriage._id);
       },
