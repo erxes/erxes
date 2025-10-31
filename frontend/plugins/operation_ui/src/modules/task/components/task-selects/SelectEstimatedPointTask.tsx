@@ -9,7 +9,7 @@ import {
   isUndefinedOrNull,
   PopoverScoped,
 } from 'erxes-ui';
-import { IconHash } from '@tabler/icons-react';
+import { IconTriangle } from '@tabler/icons-react';
 import { useGetEstimateChoiceByTeam } from '~/modules/task/hooks/useGetEstimateChoiceByTeam';
 import {
   SelectOperationContent,
@@ -103,7 +103,7 @@ const SelectEstimatedPointValue = ({
   if (!value) {
     return (
       <div className="flex items-center gap-2 text-accent-foreground">
-        <IconHash className="size-4 flex-shrink-0" />
+        <IconTriangle className="size-4 flex-shrink-0" />
         <span className="truncate font-medium">
           {placeholder || 'Select estimate'}
         </span>
@@ -117,7 +117,7 @@ const SelectEstimatedPointValue = ({
 
   return (
     <div className="flex items-center gap-2">
-      <IconHash className="size-4 flex-shrink-0" />
+      <IconTriangle className="size-4 flex-shrink-0" />
       <p className={cn('font-medium', className)}>{estimate?.label}</p>
     </div>
   );
@@ -136,7 +136,7 @@ const SelectEstimatedPointCommandItem = ({
       onSelect={() => onValueChange(estimate.value)}
     >
       <div className="flex items-center gap-2 flex-1">
-        <IconHash className="w-4 h-4" stroke={1.8} />
+        <IconTriangle className="w-4 h-4" stroke={1.8} />
         <span className="font-medium">{estimate.label}</span>
       </div>
       <Combobox.Check checked={value === estimate.value} />
