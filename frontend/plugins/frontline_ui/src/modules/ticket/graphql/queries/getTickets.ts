@@ -8,7 +8,7 @@ export const GET_TICKETS = gql`
         _id
         name
         description
-        status
+        statusId
         priority
         labelIds
         tagIds
@@ -21,6 +21,7 @@ export const GET_TICKETS = gql`
         channelId
         statusChangedDate
         number
+        pipelineId
       }
       ${GQL_PAGE_INFO}
       totalCount

@@ -6,7 +6,8 @@ export const UPDATE_TICKET_MUTATION = gql`
     $name: String
     $description: String
     $channelId: String
-    $status: String
+    $pipelineId: String
+    $statusId: String
     $priority: Int
     $labelIds: [String]
     $tagIds: [String]
@@ -19,7 +20,8 @@ export const UPDATE_TICKET_MUTATION = gql`
       name: $name
       description: $description
       channelId: $channelId
-      status: $status
+      pipelineId: $pipelineId
+      statusId: $statusId
       priority: $priority
       labelIds: $labelIds
       tagIds: $tagIds
@@ -28,21 +30,6 @@ export const UPDATE_TICKET_MUTATION = gql`
       targetDate: $targetDate
     ) {
       _id
-      name
-      description
-      status
-      priority
-      labelIds
-      tagIds
-      assigneeId
-      userId
-      startDate
-      targetDate
-      createdAt
-      updatedAt
-      channelId
-      statusChangedDate
-      number
     }
   }
 `;

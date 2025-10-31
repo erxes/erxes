@@ -12,7 +12,6 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
       filter: { channelId },
     },
   });
-
   const navigate = useNavigate();
 
   const onClick = (pipelineId: string) => {

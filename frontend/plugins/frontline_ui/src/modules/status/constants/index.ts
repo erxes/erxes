@@ -15,7 +15,6 @@ export const TICKET_STATUS_TYPE_NAMES = {
   [TICKET_STATUS_TYPES.CANCELLED]: 'Cancelled',
 };
 
-
 export const TICKET_DEFAULT_STATUSES = [
   {
     name: 'new',

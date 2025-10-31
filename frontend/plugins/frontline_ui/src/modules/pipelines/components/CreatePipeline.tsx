@@ -14,7 +14,7 @@ import React, { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { PIPELINE_FORM_SCHEMA } from '@/settings/schema/pipeline';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IPipeline } from '@/channels/types';
+import { IPipeline } from '@/pipelines/types';
 import { PipelineHotkeyScope } from '@/pipelines/types/PipelineHotkeyScope';
 import { useNavigate } from 'react-router';
 import { CreatePipelineForm } from './CreatePipelineForm';
@@ -102,7 +102,7 @@ export const CreatePipeline = () => {
         <Form {...form}>
           <form
             className="flex flex-col gap-0 size-full"
-            onSubmit={form.handleSubmit(submitHandler)}
+            onSubmit={form.handleSubmit(submitHandler, (e) => console.log(e))}
           >
             <Sheet.Header>
               <Sheet.Title>Add pipeline</Sheet.Title>

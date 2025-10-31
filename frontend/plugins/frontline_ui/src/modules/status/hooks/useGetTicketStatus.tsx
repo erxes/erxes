@@ -48,5 +48,5 @@ export const useGetTicketStatusesByPipeline = (options?: QueryHookOptions) => {
 
   const statuses = data?.getTicketStatusesChoicesPipeline;
 
-  return { statuses, loading, error };
+  return { statuses: statuses || [], loading, error };
 };

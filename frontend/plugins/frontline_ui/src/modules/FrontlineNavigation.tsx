@@ -49,9 +49,9 @@ export const FrontlineNavigation = () => {
       </div>
 
       <NavigationMenuLinkItem
-        name="Ticket"
+        name="Tickets"
         icon={IconMessageReply}
-        path="frontline/ticket"
+        path="frontline/tickets"
       />
 
       <IntegrationNavigation />

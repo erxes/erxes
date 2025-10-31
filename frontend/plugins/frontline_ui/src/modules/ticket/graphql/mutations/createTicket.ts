@@ -3,9 +3,10 @@ import { gql } from '@apollo/client';
 export const CREATE_TICKET = gql`
   mutation CreateTicket(
     $name: String!
-    $channelId: String!
+    $statusId: String!
     $description: String
-    $status: String
+    $channelId: String
+    $pipelineId: String
     $priority: Int
     $labelIds: [String]
     $tagIds: [String]
@@ -15,9 +16,10 @@ export const CREATE_TICKET = gql`
   ) {
     createTicket(
       name: $name
-      channelId: $channelId
+      statusId: $statusId
       description: $description
-      status: $status
+      channelId: $channelId
+      pipelineId: $pipelineId
       priority: $priority
       labelIds: $labelIds
       tagIds: $tagIds
@@ -26,21 +28,6 @@ export const CREATE_TICKET = gql`
       assigneeId: $assigneeId
     ) {
       _id
-      name
-      description
-      status
-      priority
-      labelIds
-      tagIds
-      assigneeId
-      userId
-      startDate
-      targetDate
-      createdAt
-      updatedAt
-      channelId
-      statusChangedDate
-      number
     }
   }
 `;

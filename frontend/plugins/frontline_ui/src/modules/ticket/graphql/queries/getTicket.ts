@@ -1,12 +1,12 @@
 import { gql } from '@apollo/client';
 
 export const GET_TICKET = gql`
-  query GetTicket($id: String!) {
-    getTicket(_id: $id) {
+  query GetTicket($_id: String!) {
+    getTicket(_id: $_id) {
       _id
       name
       description
-      status
+      statusId
       priority
       labelIds
       tagIds
@@ -19,6 +19,7 @@ export const GET_TICKET = gql`
       channelId
       statusChangedDate
       number
+      pipelineId
     }
   }
 `;

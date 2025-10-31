@@ -8,7 +8,7 @@ export const TICKET_LIST_CHANGED = gql`
         _id
         name
         description
-        status
+        statusId
         priority
         labelIds
         tagIds
@@ -21,6 +21,7 @@ export const TICKET_LIST_CHANGED = gql`
         channelId
         statusChangedDate
         number
+        pipelineId
       }
     }
   }

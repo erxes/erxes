@@ -20,6 +20,7 @@ const GET_CHANNELS = gql`
       createdAt
       updatedAt
       memberCount
+      pipelineCount
     }
   }
 `;

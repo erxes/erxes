@@ -17,3 +17,4 @@ export interface ITicketStatusChoice {
   color: string;
   type: number;
 }
+
