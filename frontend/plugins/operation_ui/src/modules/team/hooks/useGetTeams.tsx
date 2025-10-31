@@ -6,9 +6,13 @@ interface IGetTeamsQueryResponse {
   getTeams: ITeam[];
 }
 
-export const useGetTeams = (options?: QueryHookOptions<IGetTeamsQueryResponse>) => {
-  const { data, loading } =
-    useQuery<IGetTeamsQueryResponse>(GET_TEAMS, options);
+export const useGetTeams = (
+  options?: QueryHookOptions<IGetTeamsQueryResponse>,
+) => {
+  const { data, loading } = useQuery<IGetTeamsQueryResponse>(
+    GET_TEAMS,
+    options,
+  );
 
   const teams = data?.getTeams;
 

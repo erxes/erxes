@@ -45,12 +45,12 @@ export const SidebarAnimationContainer = ({
   isSettings: boolean;
 }) => {
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence mode="popLayout" initial={false}>
       <motion.div
         key={isSettings ? 'settings' : 'main'}
-        initial={{ opacity: 0, x: isSettings ? 20 : -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.3, ease: 'easeInOut' }}
+        initial={{ x: isSettings ? 20 : -20 }}
+        animate={{ x: 0 }}
+        transition={{ damping: 0 }}
         className="flex h-full w-full flex-col"
       >
         {children}
