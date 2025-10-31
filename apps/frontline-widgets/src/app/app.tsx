@@ -21,7 +21,6 @@ export function App() {
 
   useEffect(() => {
     if (!connecting && connection.widgetsMessengerConnect?.uiOptions) {
-      console.log('App component mounted, sending connectionInfo');
       window.parent.postMessage(
         {
           fromErxes: true,
@@ -32,10 +31,6 @@ export function App() {
         '*',
       );
     }
-
-    return () => {
-      window.removeEventListener('message', () => null);
-    };
   }, [connecting, connection]);
 
   useEffect(() => {
@@ -48,7 +43,7 @@ export function App() {
       setIsMessengerVisible(!isMessengerVisible);
     };
 
-    window.addEventListener('message', (event) => {
+    const handleMessage = (event: MessageEvent) => {
       if (event.data.fromPublisher) {
         if (event.data?.settings?.integrationId) {
           setIntegrationId(event.data.settings.integrationId);
@@ -58,10 +53,12 @@ export function App() {
           toggle();
         }
       }
-    });
+    };
+
+    window.addEventListener('message', handleMessage);
 
     return () => {
-      window.removeEventListener('message', () => null);
+      window.removeEventListener('message', handleMessage);
     };
   }, [isMessengerVisible, isSmallContainer]);
 

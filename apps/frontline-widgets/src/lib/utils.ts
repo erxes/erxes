@@ -78,7 +78,6 @@ export const requestBrowserInfo = ({
     if (messageHandler) {
       window.removeEventListener('message', messageHandler);
     }
-    console.log('requestBrowserInfo: Using fallback browser info');
     callback({
       remoteAddress: '',
       region: '',

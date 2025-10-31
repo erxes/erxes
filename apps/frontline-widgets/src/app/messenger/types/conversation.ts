@@ -81,6 +81,6 @@ export interface IConversationMessage {
 export interface ISupporter {
   _id: string;
   isActive: boolean;
-  iOnline: boolean;
+  isOnline: boolean;
   details: IDetail;
 }

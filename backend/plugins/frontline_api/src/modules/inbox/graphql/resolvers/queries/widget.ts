@@ -153,8 +153,6 @@ export const widgetQueries = {
         };
       }
 
-      console.log('as:', conversation.participatedUserIds);
-
       const [messages, participatedUsers, readUsers, supporters, isOnline] =
         await Promise.all([
           getWidgetMessages(models, conversation._id),

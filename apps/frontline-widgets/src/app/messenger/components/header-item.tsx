@@ -10,7 +10,7 @@ export function HeaderItem({ title, Icon, value, disabled }: IHeaderItem) {
     <Badge
       variant="info"
       aria-disabled={disabled}
-      onClick={() => !disabled && switchToTab(value as any)}
+      onClick={() => !disabled && switchToTab(value)}
       className={cn(
         'px-2 flex items-center gap-2 cursor-pointer rounded-sm bg-muted border-none text-accent-foreground',
         disabled && 'cursor-default',

@@ -3,6 +3,7 @@ import { readImage, formatDateISOStringToRelativeDate, cn } from 'erxes-ui';
 import { Button } from 'erxes-ui';
 import { Tooltip } from 'erxes-ui';
 import { format } from 'date-fns';
+import DOMPurify from 'dompurify';
 import {
   ReadConversationResult,
   useReadConversation,
@@ -29,7 +30,11 @@ export function EmptyChat() {
         <AvatarGroup max={3} size="md">
           {list &&
             list?.map((supporter: ISupporter) => (
-              <Avatar className="border-2 border-sidebar size-10" size="xl">
+              <Avatar
+                className="border-2 border-sidebar size-10"
+                size="xl"
+                key={supporter._id}
+              >
                 <Avatar.Image
                   src={readImage(supporter.details.avatar)}
                   className="shrink-0 object-cover"
@@ -47,7 +52,7 @@ export function EmptyChat() {
           Our usual reply time
         </span>{' '}
         <mark className="bg-transparent text-primary font-medium text-sm">
-          ({`a few ${responseRate}` || 'a few minutes'})
+          ({responseRate ? `a few ${responseRate}` : 'a few minutes'})
         </mark>
       </div>
     </div>
@@ -56,16 +61,16 @@ export function EmptyChat() {
 
 export function ConversationMessage({
   conversationId,
-  messege,
+  message,
 }: {
   conversationId: string;
-  messege?: IMessage;
+  message?: IMessage;
 }) {
   const setConversationId = useSetAtom(conversationIdAtom);
   const setActiveTab = useSetAtom(setActiveTabAtom);
 
   const { readConversation } = useReadConversation();
-  const { userId, customerId, user } = messege || {};
+  const { userId, customerId, user } = message || {};
 
   const handleClick = () => {
     readConversation({
@@ -81,7 +86,7 @@ export function ConversationMessage({
     return (
       <div
         role="tabpanel"
-        id={messege?._id}
+        id={message?._id}
         tabIndex={0}
         className="flex items-center gap-3 cursor-pointer p-3 hover:bg-primary/5 rounded-md transition-all duration-300"
         onClick={handleClick}
@@ -93,12 +98,14 @@ export function ConversationMessage({
         <div className="flex flex-col gap-1 text-sm font-medium text-muted-foreground overflow-x-hidden">
           <span
             className="truncate line-clamp-1 w-auto"
-            dangerouslySetInnerHTML={{ __html: messege?.content || '' }}
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(message?.content || ''),
+            }}
           />
           <span className="text-sm text-muted-foreground">
             {'you'} ·{' '}
             {formatDateISOStringToRelativeDate(
-              messege?.createdAt as unknown as string,
+              message?.createdAt as unknown as string,
             )}
           </span>
         </div>
@@ -108,7 +115,7 @@ export function ConversationMessage({
     return (
       <div
         role="tabpanel"
-        id={messege?._id}
+        id={message?._id}
         tabIndex={0}
         className="flex items-center gap-3 cursor-pointer p-3 hover:bg-accent rounded-md transition-all duration-300"
         onClick={handleClick}
@@ -126,13 +133,15 @@ export function ConversationMessage({
         <div className="flex flex-col gap-1 text-sm font-medium text-muted-foreground overflow-x-hidden">
           <span
             className="truncate line-clamp-1 w-auto"
-            dangerouslySetInnerHTML={{ __html: messege?.content || '' }}
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(message?.content || ''),
+            }}
           />
           <span className="text-sm text-muted-foreground">
             {user?.details?.fullName || user?.details?.firstName || 'operator'}{' '}
             ·{' '}
             {formatDateISOStringToRelativeDate(
-              messege?.createdAt as unknown as string,
+              message?.createdAt as unknown as string,
             )}
           </span>
         </div>

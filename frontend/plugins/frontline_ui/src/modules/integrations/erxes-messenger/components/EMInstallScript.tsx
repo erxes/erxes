@@ -9,11 +9,11 @@ type Props = {
 export function EMInstallScript({ integrationId }: Props) {
   const [copied, setCopied] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const API = 'http://localhost:4200';
+  const API = process.env.REACT_APP_EM_WIDGET_URL || 'http://localhost:4200';
   const script = `<script>
   window.erxesSettings = {
     messenger: {
-      integrationId: "${integrationId}",
+      integrationId: "${JSON.stringify(integrationId)}",
     },
   };
 
@@ -27,11 +27,17 @@ export function EMInstallScript({ integrationId }: Props) {
 </script>`;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(script);
-    setCopied(true);
-    setTimeout(() => {
-      setCopied(false);
-    }, 3000);
+    navigator.clipboard
+      .writeText(script)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => {
+          setCopied(false);
+        }, 3000);
+      })
+      .catch((err) => {
+        console.error('Failed to copy script:', err);
+      });
   };
 
   return (

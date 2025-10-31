@@ -6,7 +6,7 @@ import { IconEdit } from '@tabler/icons-react';
 import { EditErxesMessengerSheet } from './EditErxesMessengerSheet';
 import { useSetAtom } from 'jotai';
 import { erxesMessengerSetupEditSheetOpenAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
-import { EMInstallScript } from './EMInstallScript';
+import { EMInstallScript } from '@/integrations/erxes-messenger/components/EMInstallScript';
 
 export const ErxesMessengerDetail = () => {
   return (

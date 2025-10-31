@@ -29,7 +29,7 @@ export const useConversations = (
     },
   );
 
-  const lastMessegesByContent = useMemo(() => {
+  const lastMessagesByContent = useMemo(() => {
     return data?.widgetsConversations.map((conversation) => {
       return conversation.messages.find(
         (message) => message.content === conversation.content,
@@ -39,7 +39,7 @@ export const useConversations = (
 
   return {
     conversations: data?.widgetsConversations || [],
-    lastMesseges: lastMessegesByContent,
+    lastMesseges: lastMessagesByContent,
     loading,
     error,
   };

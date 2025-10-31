@@ -23,8 +23,8 @@ export const useSaveBrowserInfo = () => {
       setIsBrowserInfoSaved(true);
       setLastUnreadMessage(widgetsSaveBrowserInfo);
     },
-    onError: (error) => {
-      console.error('Error saving browser info:', error);
+    onError: () => {
+      // Error is silently handled by Apollo mutation
     },
   });
 
@@ -51,7 +51,7 @@ export const useSaveBrowserInfo = () => {
       };
       saveBrowserInfo();
     } catch (error) {
-      console.error('useSaveBrowserInfo: Error in effect:', error);
+      // Error is silently handled
     }
   }, [
     connection.widgetsMessengerConnect.visitorId,

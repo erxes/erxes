@@ -502,7 +502,7 @@ export const widgetMutations = {
         const timeDelayValue = isNaN(timeDelayIntValue) ? 0 : timeDelayIntValue;
 
         if (messageTime + timeDelayValue * 1000 > nowTime) {
-          const defaultValue = 'Video call request has already sent';
+          const defaultValue = 'Video call request has already been sent';
 
           const messageForDelay = integrationConfigs.find(
             (config) => config.code === 'VIDEO_CALL_MESSAGE_FOR_TIME_DELAY',

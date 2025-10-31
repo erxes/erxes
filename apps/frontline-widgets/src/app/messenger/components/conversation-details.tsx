@@ -10,8 +10,8 @@ import {
 } from '../states';
 import { Skeleton, cn } from 'erxes-ui';
 import { formatMessageDate, getDateKey } from '@libs/formatDate';
-import { DateSeparator } from './date-seperator';
-import { BotSeparator } from './bot-seperator';
+import { DateSeparator } from './date-separator';
+import { BotSeparator } from './bot-separator';
 import { TypingStatus } from './typing-status';
 
 const MESSAGE_GROUP_TIME_WINDOW = 5 * 60 * 1000; // 5 minutes in milliseconds

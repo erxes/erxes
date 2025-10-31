@@ -51,8 +51,8 @@ export const useConnect = ({
           }
         }
       },
-      onError: (err) => {
-        console.warn('useConnect error:', err);
+      onError: () => {
+        // Error is handled through the error return value
       },
     },
   );

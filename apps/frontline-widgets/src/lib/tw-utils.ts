@@ -183,7 +183,7 @@ export class TailwindThemeManager {
       // Generate accent colors based on primary color
       this.generateAccentColors(primaryHsl);
     } catch (error) {
-      console.warn('Failed to apply primary colors:', error);
+      // Error applying primary colors - continue with defaults
     }
   }
 
@@ -232,7 +232,7 @@ export class TailwindThemeManager {
         this.setCustomProperty('--ring', ColorUtils.hslToString(primaryHsl));
         
       } catch (error) {
-        console.warn('Failed to generate common colors from primary:', error);
+        // Error generating colors - use defaults
         this.setDefaultCommonColors();
       }
     } else {

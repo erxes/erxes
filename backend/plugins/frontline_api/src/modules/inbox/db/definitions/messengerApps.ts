@@ -26,7 +26,7 @@ export interface IWebsiteCredentials {
   url: string;
 }
 
-export type IMessengerAppCrendentials =
+export type IMessengerAppCredentials =
   | IGoogleCredentials
   | IKnowledgebaseCredentials
   | ILeadCredentials
@@ -37,7 +37,7 @@ export interface IMessengerApp {
   name: string;
   accountId?: string;
   showInInbox?: boolean;
-  credentials?: IMessengerAppCrendentials;
+  credentials?: IMessengerAppCredentials;
 }
 
 export interface IMessengerAppDocument extends IMessengerApp, Document {
