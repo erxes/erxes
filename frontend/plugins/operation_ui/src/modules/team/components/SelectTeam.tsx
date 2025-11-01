@@ -57,7 +57,7 @@ const SelectTeamProvider = ({
   isTriageEnabled?: boolean;
 }) => {
   const { teams, loading } = useGetCurrentUsersTeams({
-    variables: { isTriageEnabled },
+    variables: { isTriageEnabled, teamId: value },
   });
 
   const handleValueChange = (teamId: string) => {

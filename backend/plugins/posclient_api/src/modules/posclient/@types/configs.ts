@@ -82,6 +82,7 @@ export interface IConfig {
   allowTypes: string[];
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
+  saveRemainder: boolean;
   banFractions: boolean;
 }
 
