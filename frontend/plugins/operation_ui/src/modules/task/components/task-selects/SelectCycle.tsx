@@ -1,25 +1,22 @@
-import React from 'react';
-import { PopoverScoped, Combobox, Command } from 'erxes-ui';
 import { useGetActiveCycles } from '@/cycle/hooks/useGetActiveCycles';
-import { IconRestore } from '@tabler/icons-react';
-import { useState } from 'react';
-import { useGetTeam } from '@/team/hooks/useGetTeam';
 import { ICycle } from '@/cycle/types';
 import {
+  SelectOperationContent,
   SelectTriggerOperation,
   SelectTriggerVariant,
 } from '@/operation/components/SelectOperation';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
-import { SelectOperationContent } from '@/operation/components/SelectOperation';
+import { useGetTeam } from '@/team/hooks/useGetTeam';
+import { IconRestore } from '@tabler/icons-react';
 import { format } from 'date-fns';
-import { useGetCycle } from '@/cycle/hooks/useGetCycle';
+import { Combobox, Command, PopoverScoped } from 'erxes-ui';
+import React, { useState } from 'react';
 
 interface SelectCycleContextType {
   value?: string;
   onValueChange: (value: string) => void;
   activeCycles: ICycle[];
-  currentCycle?: ICycle;
-  loadingCycle?: boolean;
+  isCompleted?: boolean;
 }
 
 const SelectCycleContext = React.createContext<SelectCycleContextType | null>(
@@ -71,7 +68,7 @@ export const SelectCycleFormItem = ({
 };
 
 const SelectCycleValue = ({ placeholder }: { placeholder?: string }) => {
-  const { currentCycle, activeCycles, value } = useSelectCycleContext();
+  const { activeCycles, value } = useSelectCycleContext();
 
   if (!value)
     return (
@@ -85,24 +82,17 @@ const SelectCycleValue = ({ placeholder }: { placeholder?: string }) => {
 
   const selectedCycle = activeCycles.find((c) => c._id === value);
 
-  const displayCycle = currentCycle?.isCompleted ? currentCycle : selectedCycle;
-
-  const name =
-    currentCycle?.isCompleted && currentCycle?.name
-      ? currentCycle.name
-      : selectedCycle?.name || currentCycle?.name;
-
   return (
     <div className="flex items-center gap-2">
       <IconRestore className="size-4" />
       <span className="truncate font-medium">
-        {name}&nbsp;
+        {selectedCycle?.name}&nbsp;
         <span className="text-xs text-muted-foreground">
-          {displayCycle?.startDate &&
-            format(new Date(displayCycle.startDate), 'MMM dd')}
+          {selectedCycle?.startDate &&
+            format(new Date(selectedCycle.startDate), 'MMM dd')}
           -
-          {displayCycle?.endDate &&
-            format(new Date(displayCycle.endDate), 'MMM dd')}
+          {selectedCycle?.endDate &&
+            format(new Date(selectedCycle.endDate), 'MMM dd')}
         </span>
       </span>
     </div>
@@ -163,12 +153,18 @@ const SelectCycleProvider = ({
 }) => {
   const { team } = useGetTeam({ variables: { _id: teamId }, skip: !teamId });
   const { activeCycles } = useGetActiveCycles(teamId, taskId);
-  const { cycleDetail: currentCycle, loading: loadingCycle } =
-    useGetCycle(value);
 
   if (!team?.cycleEnabled) return null;
 
+  const selectedCycle = activeCycles?.find((c) => c._id === value);
+
+  const isCompleted = selectedCycle?.isCompleted && !selectedCycle?.isActive;
+
   const handleValueChange = (cycleId: string) => {
+    if (isCompleted) {
+      return;
+    }
+
     onValueChange(cycleId);
   };
 
@@ -178,12 +174,36 @@ const SelectCycleProvider = ({
         value,
         onValueChange: handleValueChange,
         activeCycles: activeCycles || [],
-        currentCycle,
-        loadingCycle,
+        isCompleted,
       }}
     >
       {children}
     </SelectCycleContext.Provider>
+  );
+};
+
+const SelectCycleRootContent = ({ 
+  open, 
+  setOpen, 
+  variant 
+}: { 
+  open: boolean; 
+  setOpen: (open: boolean) => void; 
+  variant: `${SelectTriggerVariant}`; 
+}) => {
+  const { isCompleted } = useSelectCycleContext();
+
+  return (
+    <PopoverScoped open={open} onOpenChange={setOpen}>
+      <SelectTriggerOperation variant={variant}>
+        <SelectCycleValue />
+      </SelectTriggerOperation>
+      {!isCompleted && (
+        <SelectOperationContent variant={variant}>
+          <SelectCycleContent />
+        </SelectOperationContent>
+      )}
+    </PopoverScoped>
   );
 };
 
@@ -200,29 +220,6 @@ const SelectCycleRoot = ({
 }) => {
   const [open, setOpen] = useState(false);
   const { updateTask } = useUpdateTask();
-  const { cycleDetail: currentCycle, loading: loadingCycle } =
-    useGetCycle(value);
-
-  if (!currentCycle || loadingCycle || currentCycle.isCompleted) {
-    return (
-      <SelectCycleProvider
-        value={value}
-        onValueChange={(newValue) => {
-          updateTask({
-            variables: {
-              _id: taskId,
-              cycleId: newValue || null,
-            },
-          });
-          setOpen(false);
-        }}
-        teamId={teamId}
-        taskId={taskId}
-      >
-        <SelectCycleValue />
-      </SelectCycleProvider>
-    );
-  }
 
   return (
     <SelectCycleProvider
@@ -239,14 +236,11 @@ const SelectCycleRoot = ({
       teamId={teamId}
       taskId={taskId}
     >
-      <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant={variant}>
-          <SelectCycleValue />
-        </SelectTriggerOperation>
-        <SelectOperationContent variant={variant}>
-          <SelectCycleContent />
-        </SelectOperationContent>
-      </PopoverScoped>
+      <SelectCycleRootContent 
+        open={open} 
+        setOpen={setOpen} 
+        variant={variant} 
+      />
     </SelectCycleProvider>
   );
 };
