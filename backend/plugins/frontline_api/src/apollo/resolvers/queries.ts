@@ -4,6 +4,7 @@ import { integrationQueries } from '@/inbox/graphql/resolvers/queries/integratio
 import { facebookQueries } from '@/integrations/facebook/graphql/resolvers/queries';
 import callQueries from '@/integrations/call/graphql/resolvers/queries';
 import { imapQueries } from '@/integrations/imap/graphql/resolvers/queries';
+import { widgetQueries } from '@/inbox/graphql/resolvers/queries/widget';
 
 export const queries = {
   ...channelQueries,
@@ -12,4 +13,5 @@ export const queries = {
   ...facebookQueries,
   ...callQueries,
   ...imapQueries,
+  ...widgetQueries,
 };

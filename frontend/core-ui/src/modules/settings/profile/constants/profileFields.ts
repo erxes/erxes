@@ -44,8 +44,6 @@ const PROFILE_ADVANCED_FIELDS = [
     fieldPath: 'details',
     field: { element: 'date', attributes: { withPresent: true } },
   },
-  // { fieldLabel: 'Positions', fieldName: 'positionIds', field: { element: 'select' } },
-  // { fieldLabel: 'Location', fieldName: 'location', fieldPath: 'details', field: { element: 'select' } },
 ];
 
 const PROFILE_LINK_FIELDS = [

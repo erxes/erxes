@@ -68,8 +68,14 @@
   * {
     @apply border-border;
   }
+  #root{
+    @apply h-full flex-1 flex flex-col overflow-hidden;
+  }
+  html{
+    @apply h-full;
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground h-full flex-col flex;
     font-feature-settings: 'rlig' 1, 'calt' 1;
   }
   h1 {

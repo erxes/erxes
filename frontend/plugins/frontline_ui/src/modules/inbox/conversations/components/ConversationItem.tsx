@@ -3,6 +3,7 @@ import {
   Button,
   Checkbox,
   cn,
+  IconComponent,
   RelativeDateDisplay,
   useMultiQueryState,
   useQueryState,
@@ -28,7 +29,7 @@ export const ConversationItem = ({
 
   const { createdAt, updatedAt, customer, integration } =
     useConversationContext();
-  const { channel } = integration;
+  const { channel } = integration || {};
 
   if (inboxLayout === 'split') {
     return (
@@ -40,23 +41,22 @@ export const ConversationItem = ({
           <div className="flex w-full gap-3 leading-tight">
             <ConversationSelector />
             <div className="flex-1 space-y-1">
-              <div className="flex gap-1 items-center">
+              <div className="flex items-center">
                 <CustomersInline.Title className="truncate" />
                 <div className="ml-auto text-accent-foreground">
                   {createdAt && (
-                    <RelativeDateDisplay.Value value={updatedAt || createdAt} />
+                    <RelativeDateDisplay.Value
+                      value={updatedAt || createdAt}
+                      isShort
+                    />
                   )}
                 </div>
               </div>
-              <div className="w-32 text-right flex-none">
-                <span> to </span>
-                {channel && <span title={channel.name}>{channel.name}</span>}
-                {integration && integration.kind !== 'calls' && (
-                  <>
-                    <span> via </span>
-                    <span title={integration.kind}>{integration.kind}</span>
-                  </>
+              <div className="w-auto text-left flex-none truncate flex items-center gap-1 text-xs">
+                {channel && (
+                  <IconComponent name={channel?.icon} className="size-3" />
                 )}
+                {channel && <span title={channel.name}>{channel.name}</span>}
               </div>
             </div>
           </div>
@@ -72,7 +72,7 @@ export const ConversationItem = ({
         <ConversationSelector />
         <CustomersInline.Title className="w-56 truncate flex-none text-foreground" />
         <ConversationItemContent />
-        <div className="truncate w-full h-4 [&_*]:text-sm [&_*]:leading-tight [&_*]:font-medium">
+        <div className="w-auto text-right flex-none">
           <span> to </span>
           {channel && <span title={channel.name}>{channel.name}</span>}
           <span> via </span>
@@ -107,7 +107,7 @@ export const ConversationItemContent = () => {
   }
 
   return (
-    <div className="truncate w-full h-4 [&_*]:text-sm [&_*]:leading-tight [&_*]:font-medium">
+    <div className="[&_*]:truncate w-full h-4 [&_*]:text-sm [&_*]:leading-tight [&_*]:font-medium">
       <BlockEditorReadOnly content={content} />
     </div>
   );
