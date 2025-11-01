@@ -86,19 +86,21 @@ export const useQuerySelectInputList = (
 
           // setCursor(prevPageInfo?.endCursor);
 
-          return Object.assign({}, prev, {
-            [queryName]: mergeCursorData({
-              direction: EnumCursorDirection.FORWARD,
-              fetchMoreResult: {
-                pageInfo: fetchMorePageInfo,
-                list: fetchMoreList,
-              },
-              prevResult: {
-                pageInfo: prevPageInfo,
-                list: prevList,
-              },
-            }),
-          });
+         return {
+           ...prev,
+           [queryName]: mergeCursorData({
+             direction: EnumCursorDirection.FORWARD,
+             fetchMoreResult: {
+               pageInfo: fetchMorePageInfo,
+               list: fetchMoreList,
+             },
+             prevResult: {
+               pageInfo: prevPageInfo,
+               list: prevList,
+             },
+           }),
+         };
+
         },
       });
     }

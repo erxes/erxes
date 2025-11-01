@@ -98,7 +98,7 @@ export interface IUserModel extends Model<IUserDocument> {
     email?: string;
     isRessetting?: boolean;
     testUserOTP?: number;
-  }): string;
+  }): Promise<string>;
   changePasswordWithCode({
     phone,
     code,
@@ -301,7 +301,12 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
           portal.otpConfig.content.replace(/{{.*}}/, phoneCode) ||
           `Your verification code is ${phoneCode}`;
 
-        await sendSms(subdomain, portal.otpConfig.smsTransporterType, user.phone, smsBody);
+        await sendSms(
+          subdomain,
+          portal.otpConfig.smsTransporterType,
+          user.phone,
+          smsBody,
+        );
       }
 
       // TODO: consider following function necessary

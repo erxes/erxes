@@ -62,6 +62,11 @@ export const sendPosclientMessage = async (args: any) => {
   }
   args.data.token = pos.token;
 
+  interface PosClientInput {
+    someField: string;
+    anotherField: number;
+  }
+
   const ret = await sendTRPCMessage({
     subdomain,
     pluginName: 'posclient',
