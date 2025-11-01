@@ -42,6 +42,7 @@ const useSelectTeamContext = () => {
 };
 
 const SelectTeamProvider = ({
+  isTriageEnabled = false,
   children,
   value,
   onValueChange,
@@ -53,8 +54,11 @@ const SelectTeamProvider = ({
   onValueChange: (value: string | string[]) => void;
   mode?: 'single' | 'multiple';
   setOpen?: (open: boolean) => void;
+  isTriageEnabled?: boolean;
 }) => {
-  const { teams, loading } = useGetCurrentUsersTeams();
+  const { teams, loading } = useGetCurrentUsersTeams({
+    variables: { isTriageEnabled, teamId: value },
+  });
 
   const handleValueChange = (teamId: string) => {
     if (!teamId) return;
@@ -234,10 +238,12 @@ const SelectTeamFormItem = ({
   value,
   onValueChange,
   mode = 'multiple',
+  isTriageEnabled = false,
 }: {
   value: string | string[];
   onValueChange: (value: string | string[]) => void;
   mode?: 'single' | 'multiple';
+  isTriageEnabled?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -246,6 +252,7 @@ const SelectTeamFormItem = ({
       onValueChange={onValueChange}
       mode={mode}
       setOpen={setOpen}
+      isTriageEnabled={isTriageEnabled}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
         <SelectTriggerOperation variant="form">
