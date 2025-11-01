@@ -43,7 +43,7 @@ export const AddProjectSheet = () => {
           e.preventDefault();
         }}
       >
-        <AddProjectForm onClose={onClose} onSuccess={onClose} />
+        <AddProjectForm onClose={onClose} />
       </Sheet.View>
     </Sheet>
   );

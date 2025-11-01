@@ -1,15 +1,14 @@
-import { Model } from 'mongoose';
-import { IModels } from '~/connectionResolvers';
-import { projectSchema } from '@/project/db/definitions/project';
+import { createActivity } from '@/activity/utils/createActivity';
 import {
   IProject,
   IProjectDocument,
   IProjectUpdate,
 } from '@/project/@types/project';
-import { createActivity } from '@/activity/utils/createActivity';
-import { Document } from 'mongodb';
-import { FlattenMaps } from 'mongoose';
+import { projectSchema } from '@/project/db/definitions/project';
 import { IUserDocument } from 'erxes-api-shared/core-types';
+import { Document } from 'mongodb';
+import { FlattenMaps, Model } from 'mongoose';
+import { IModels } from '~/connectionResolvers';
 
 export interface IProjectModel extends Model<IProjectDocument> {
   getProject(_id: string): Promise<IProjectDocument>;
@@ -20,11 +19,9 @@ export interface IProjectModel extends Model<IProjectDocument> {
   updateProject({
     doc,
     userId,
-    subdomain,
   }: {
     doc: IProjectUpdate;
     userId: string;
-    subdomain: string;
   }): Promise<FlattenMaps<IProjectDocument> | Document>;
   removeProject(projectId: string): Promise<{ ok: number }>;
 }
@@ -52,16 +49,20 @@ export const loadProjectClass = (models: IModels, subdomain: string) => {
       user: IUserDocument,
     ): Promise<FlattenMaps<IProjectDocument> | Document> {
       if (doc.convertedFromId) {
-        const existingProject = await models.Project.findOne({
+        const task = await models.Task.getTask(doc.convertedFromId);
+
+        doc.convertedFromId = task._id;
+
+        const project = await models.Project.findOne({
           convertedFromId: doc.convertedFromId,
         });
 
-        if (existingProject) {
+        if (project) {
           throw new Error('Project has been converted already.');
         }
       }
 
-      const project = await models.Project.insertOne(doc);
+      const project = await models.Project.create(doc);
 
       if (doc.convertedFromId && project.convertedFromId) {
         models.Activity.createActivity({
@@ -82,11 +83,9 @@ export const loadProjectClass = (models: IModels, subdomain: string) => {
     public static async updateProject({
       doc,
       userId,
-      subdomain,
     }: {
       doc: IProjectUpdate;
       userId: string;
-      subdomain: string;
     }) {
       const { _id, ...rest } = doc;
 

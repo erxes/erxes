@@ -55,7 +55,7 @@ export const projectMutations = {
   updateProject: async (
     _parent: undefined,
     params: IProjectUpdate,
-    { models, user, subdomain }: IContext,
+    { models, user }: IContext,
   ) => {
     const project = await models.Project.getProject(params._id);
     await checkUserRole({
@@ -68,7 +68,6 @@ export const projectMutations = {
     const updatedProject = await models.Project.updateProject({
       doc: params,
       userId: user._id,
-      subdomain,
     });
 
     graphqlPubsub.publish(`operationProjectChanged:${updatedProject._id}`, {

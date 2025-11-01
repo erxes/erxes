@@ -1,8 +1,8 @@
 import { AddProjectForm } from '@/project/components/add-project/AddProjectForm';
 import { useGetConvertedProject } from '@/project/hooks/getConvertedProject';
 import { ITask } from '@/task/types';
-import { Button, Sheet } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { Button, Sheet, Spinner } from 'erxes-ui';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
 export const ConvertToProject = ({ task }: { task: ITask }) => {
@@ -12,11 +12,12 @@ export const ConvertToProject = ({ task }: { task: ITask }) => {
   const onOpen = () => {
     setOpen(true);
   };
+
   const onClose = () => {
     setOpen(false);
   };
 
-  const { project, loading, refetch } = useGetConvertedProject({
+  const { project, loading } = useGetConvertedProject({
     variables: { convertedFromId: task._id },
   });
 
@@ -26,7 +27,7 @@ export const ConvertToProject = ({ task }: { task: ITask }) => {
         variant="outline"
         onClick={() => navigate(`/operation/projects/${project._id}/overview`)}
       >
-        Go to Project
+        {loading ? <Spinner /> : 'Go to Project'}
       </Button>
     );
   }
@@ -43,15 +44,7 @@ export const ConvertToProject = ({ task }: { task: ITask }) => {
             e.preventDefault();
           }}
         >
-          <AddProjectForm
-            task={task}
-            onClose={onClose}
-            onSuccess={(newProjectId) => {
-              refetch();
-              onClose();
-              navigate(`/operation/projects/${newProjectId}/overview`);
-            }}
-          />
+          <AddProjectForm task={task} onClose={onClose} />
         </Sheet.View>
       </Sheet>
     </>

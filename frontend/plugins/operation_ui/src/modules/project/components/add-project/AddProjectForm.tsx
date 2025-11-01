@@ -1,37 +1,36 @@
-import {
-  Form,
-  Input,
-  Sheet,
-  IconPicker,
-  Button,
-  Separator,
-  useBlockEditor,
-  BlockEditor,
-} from 'erxes-ui';
-import { TAddProject, addProjectSchema } from '@/project/types';
-import { useCreateProject } from '@/project/hooks/useCreateProject';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useState, useEffect } from 'react';
-import { Block } from '@blocknote/core';
-import { SelectLead, DateSelect } from '@/project/components/select';
-import { IconChevronRight } from '@tabler/icons-react';
-import { useParams } from 'react-router-dom';
-import { SelectTeam } from '@/team/components/SelectTeam';
 import { SelectPriority } from '@/operation/components/SelectPriority';
-import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
 import { SelectStatus } from '@/operation/components/SelectStatus';
+import { DateSelect, SelectLead } from '@/project/components/select';
+import { useCreateProject } from '@/project/hooks/useCreateProject';
+import { TAddProject, addProjectSchema } from '@/project/types';
 import { ITask } from '@/task/types';
+import { SelectTeam } from '@/team/components/SelectTeam';
+import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
+import { Block } from '@blocknote/core';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { IconChevronRight } from '@tabler/icons-react';
+import {
+  BlockEditor,
+  Button,
+  Form,
+  IconPicker,
+  Input,
+  Separator,
+  Sheet,
+  useBlockEditor,
+} from 'erxes-ui';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export const AddProjectForm = ({
   onClose,
   task,
-  onSuccess,
 }: {
   onClose: () => void;
   task?: ITask;
-  onSuccess: (newProjectId: string) => void;
 }) => {
+  const navigate = useNavigate();
   const { teamId } = useParams();
   const { createProject } = useCreateProject();
   const editor = useBlockEditor();
@@ -42,7 +41,7 @@ export const AddProjectForm = ({
       teamIds: teamId ? [teamId] : [],
       icon: 'IconBox',
       name: task?.name || '',
-      status: 1,
+      status: 2,
       priority: task?.priority || 0,
       leadId: task?.assigneeId || undefined,
       targetDate: task?.targetDate ? new Date(task?.targetDate) : undefined,
@@ -72,15 +71,18 @@ export const AddProjectForm = ({
   };
 
   const onSubmit = async (data: TAddProject) => {
-    createProject({
+    const project = await createProject({
       variables: {
         ...data,
         description: JSON.stringify(descriptionContent),
       },
-    }).then((data) => {
-      const newProjectId = data?.data.createProject._id;
-      onSuccess(newProjectId);
     });
+
+    if (project?.data?.createProject?.convertedFromId) {
+      navigate(
+        `/operation/projects/${project?.data?.createProject._id}/overview`,
+      );
+    }
 
     onClose();
   };
