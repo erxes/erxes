@@ -1,35 +1,50 @@
-# Base image
-FROM node:22-alpine AS base
-WORKDIR /app
-RUN npm install -g pnpm
+# Optimized multi-stage Dockerfile for core-api service
+FROM node:22-alpine AS build
 
-# Dependencies (production only)
-FROM base AS deps
+# Set working directory
+WORKDIR /app
+
 # Copy root manifests
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json nx.json ./
-# Copy only the package.json files for selective deps resolution
+
+# Copy service-specific package.json files
 COPY backend/core-api/package.json backend/core-api/
 COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
 
-# Install only production dependencies
-RUN pnpm install --prod --frozen-lockfile
+# Install pnpm and all dependencies (needed for build)
+RUN npm install -g pnpm
+RUN pnpm install --frozen-lockfile
 
-# Runtime image
-FROM base AS runtime
+# Copy source code
+COPY backend/core-api backend/core-api
+COPY backend/erxes-api-shared backend/erxes-api-shared
+
+# Build the service
+WORKDIR /app/backend/core-api
+ENV NX_DAEMON=false
+RUN npx nx build:packageJson core-api
+RUN npx nx build core-api
+
+# Production stage - optimized for size
+FROM node:22-alpine AS runtime
 WORKDIR /app
 
-# Copy built dist from CI (nx build already ran in workflow)
-COPY backend/core-api ./backend/core-api
-COPY backend/erxes-api-shared ./backend/erxes-api-shared
+# Copy built application
+COPY --from=build /app/backend/core-api/dist /app/backend/core-api/dist
+COPY --from=build /app/backend/erxes-api-shared /app/backend/erxes-api-shared
 
-# Copy production node_modules from deps stage
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/backend/core-api/node_modules ./backend/core-api/node_modules
-COPY --from=deps /app/backend/erxes-api-shared/node_modules ./backend/erxes-api-shared/node_modules
+# Copy only production dependencies
+COPY --from=build /app/backend/core-api/package.json /app/backend/core-api/
+COPY --from=build /app/backend/erxes-api-shared/package.json /app/backend/erxes-api-shared/
+
+# Install pnpm and production dependencies only
+RUN npm install -g pnpm
+WORKDIR /app/backend/core-api/dist
+RUN pnpm install --prod --frozen-lockfile
 
 # Environment & security
 ENV NODE_ENV=production
 USER 1000
 
-# Run app
-CMD ["node", "backend/core-api/dist/src/main.js"]
+# Start the application
+CMD ["node", "src/main.js"]

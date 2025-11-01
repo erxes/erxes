@@ -1,0 +1,132 @@
+name: Optimized Docker Build
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+
+env:
+  REGISTRY: ghcr.io
+  NAMESPACE: erxes
+  TAG: ${{ github.sha }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - core-api
+          - gateway
+          - plugins/accounting_api
+          - plugins/content_api
+          - plugins/frontline_api
+          - plugins/operation_api
+          - plugins/payment_api
+          - plugins/posclient_api
+          - plugins/sales_api
+          - plugins/tourism_api
+          - services/automations
+          - services/logs
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ matrix.service }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./backend
+        file: ./backend/${{ matrix.service }}/Dockerfile
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          BUILDKIT_INLINE_CACHE=1
+
+    - name: Analyze image size
+      run: |
+        echo "## Image Size Analysis for ${{ matrix.service }}" >> $GITHUB_STEP_SUMMARY
+        echo "| Service | Size |" >> $GITHUB_STEP_SUMMARY
+        echo "|---------|------|" >> $GITHUB_STEP_SUMMARY
+        docker images --format "table {{.Repository}}:{{.Tag}}\t{{.Size}}" | grep ${{ matrix.service }} >> $GITHUB_STEP_SUMMARY || echo "| ${{ matrix.service }} | Not built |" >> $GITHUB_STEP_SUMMARY
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/core-api:${{ env.TAG }}
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  performance-test:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Test image startup time
+      run: |
+        echo "## Performance Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "| Service | Startup Time | Memory Usage |" >> $GITHUB_STEP_SUMMARY
+        echo "|---------|---------------|-------------|" >> $GITHUB_STEP_SUMMARY
+        
+        # Test core-api startup
+        start_time=$(date +%s)
+        docker run --rm -d --name test-core-api ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/core-api:${{ env.TAG }}
+        sleep 5
+        end_time=$(date +%s)
+        startup_time=$((end_time - start_time))
+        memory_usage=$(docker stats --no-stream --format "{{.MemUsage}}" test-core-api | cut -d'/' -f1)
+        echo "| core-api | ${startup_time}s | ${memory_usage} |" >> $GITHUB_STEP_SUMMARY
+        docker stop test-core-api || true
