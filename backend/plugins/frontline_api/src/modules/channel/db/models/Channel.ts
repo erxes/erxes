@@ -33,8 +33,19 @@ export const loadChannelClass = (models: IModels) => {
      */
     public static async getChannel(_id: string): Promise<IChannelDocument> {
       const channel = await models.Channels.findOne({ _id }).lean();
+
       if (!channel) throw new Error('Channel not found');
-      return channel;
+
+      const pipelineCount = await models.Pipeline.countDocuments({
+        channelId: _id,
+      });
+
+      const data = {
+        ...channel,
+        pipelineCount,
+      };
+
+      return data;
     }
 
     public static async createChannel({

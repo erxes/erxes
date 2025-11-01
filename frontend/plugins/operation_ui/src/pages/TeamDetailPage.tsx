@@ -1,6 +1,5 @@
 import { Breadcrumb } from 'erxes-ui';
 import { IconArrowLeft } from '@tabler/icons-react';
-
 import { TeamDetails } from '@/team/components/team-details/TeamDetails';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'erxes-ui';

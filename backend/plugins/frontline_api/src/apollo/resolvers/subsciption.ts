@@ -48,7 +48,7 @@ const customerConnectionChanged = `
 
 const callReceived = `
 subscription phoneCallReceived($userId: String) {
-  phoneCallReceived(userId: $userId) 
+  phoneCallReceived(userId: $userId)
   }`;
 
 const callWaitingReceived = `
@@ -66,6 +66,102 @@ subscription agentCallReceived($extension: String) {
   agentCallReceived(extension: $extension)
   }`;
 
+const ticketPipelineChanged = `
+  subscription ticketPipelineChanged($_id: String!) {
+    ticketPipelineChanged(_id: $_id) {
+      type
+      pipeline {
+        _id
+        name
+        description
+        order
+        channelId
+      }
+    }
+  }
+`;
+
+const ticketPipelineListChanged = `
+  subscription ticketPipelineListChanged {
+    ticketPipelineListChanged {
+      type
+      pipeline {
+        _id
+        name
+        description
+        order
+        channelId
+      }
+    }
+  }
+`;
+
+const ticketChanged = `
+  subscription ticketChanged($_id: String!) {
+    ticketChanged(_id: $_id) {
+      type
+      ticket {
+        _id
+        name
+        channelId
+        pipelineId
+        statusId
+        type
+        priority
+      }
+    }
+  }
+`;
+
+const ticketListChanged = `
+  subscription ticketListChanged {
+    ticketListChanged {
+      type
+      ticket {
+        _id
+        name
+        channelId
+        pipelineId
+        statusId
+        type
+        priority
+      }
+    }
+  }
+`;
+
+const ticketStatusChanged = `
+  subscription ticketStatusChanged($_id: String!) {
+    ticketStatusChanged(_id: $_id) {
+      type
+      status {
+        _id
+        name
+        channelId
+        color
+        type
+        order
+      }
+    }
+  }
+`;
+
+const ticketStatusListChanged = `
+  subscription ticketStatusListChanged {
+    ticketStatusListChanged {
+      type
+      status {
+        _id
+        name
+        channelId
+        color
+        type
+        order
+      }
+    }
+  }
+`;
+
 export default {
   conversationChanged,
   conversationMessageInserted,
@@ -77,4 +173,10 @@ export default {
   callTalkingReceived,
   callWaitingReceived,
   callAgentReceived,
+  ticketPipelineChanged,
+  ticketPipelineListChanged,
+  ticketChanged,
+  ticketListChanged,
+  ticketStatusChanged,
+  ticketStatusListChanged,
 };
