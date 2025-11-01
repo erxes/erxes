@@ -83,7 +83,7 @@ export const checkCycle = async (job: Job) => {
       console.log('endDate', endDate);
       const endDateTz = tz(endDate, timezone);
       console.log('endDateTz', endDateTz);
-      if (endDateTz.isBetween(tzStart, tzEnd, null, '[]')) {
+      if (endDateTz.isBetween(tzStart, tzEnd, null, '(]')) {
         endCycleIds.push(_id);
       }
     }
@@ -111,7 +111,7 @@ export const checkCycle = async (job: Job) => {
 
       const startDateTz = tz(startDate, timezone);
 
-      if (startDateTz.isBetween(tzStart, tzEnd, null, '[]')) {
+      if (startDateTz.isBetween(tzStart, tzEnd, null, '(]')) {
         startCycleIds.push(_id);
       }
     }
