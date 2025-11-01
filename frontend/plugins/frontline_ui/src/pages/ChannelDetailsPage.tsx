@@ -1,4 +1,4 @@
-import { ChannelDetails } from '@/channels/components/channel-details/ChannelDetails';
+import { ChannelDetails } from '@/channels/components/settings/channel-details/ChannelDetails';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';

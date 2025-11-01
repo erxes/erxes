@@ -12,6 +12,7 @@ const TicketMain = () => {
     <Suspense fallback={<div />}>
       <Routes>
         <Route path="/" element={<Ticket />} />
+        <Route path="tickets" element={<Ticket />} />
       </Routes>
     </Suspense>
   );

@@ -61,8 +61,8 @@ export const TasksBoard = () => {
     const overItem = allTasksMap[over.id as string];
     const overColumn =
       overItem?.status ||
-      columns.find((col) => col.id === over.id)?.id ||
-      columns[0]?.id;
+      columns?.find((col) => col.id === over.id)?.id ||
+      columns?.[0]?.id;
 
     if (activeItem?.status === overColumn) {
       return;

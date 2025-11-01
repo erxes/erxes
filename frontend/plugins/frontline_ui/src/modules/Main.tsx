@@ -16,7 +16,7 @@ const Inbox = lazy(() =>
     default: module.default,
   })),
 );
-
+  
 const Ticket = lazy(() =>
   import('~/pages/TicketIndexPage').then((module) => ({
     default: module.default,
@@ -28,7 +28,7 @@ const IntegrationsMain = () => {
     <Suspense fallback={<div />}>
       <Routes>
         <Route path="/inbox" element={<Inbox />} />
-        <Route path="/ticket" element={<Ticket />} />
+        <Route path="/tickets" element={<Ticket />} />
         <Route path="/calls" element={<CallIndexPage />} />
         <Route path="/calls/:id" element={<CallDetailPage />} />
       </Routes>

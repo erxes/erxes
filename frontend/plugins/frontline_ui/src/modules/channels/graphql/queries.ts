@@ -20,6 +20,7 @@ const GET_CHANNELS = gql`
       createdAt
       updatedAt
       memberCount
+      pipelineCount
     }
   }
 `;
@@ -30,6 +31,7 @@ const GET_CHANNEL = gql`
       _id
       icon
       name
+      pipelineCount
       description
       createdAt
       updatedAt
