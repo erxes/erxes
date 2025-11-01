@@ -4,14 +4,27 @@ import {
   TextOverflowTooltip,
   Tooltip,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import {
   DocumentsInlineContext,
   useDocumentsInlineContext,
 } from 'ui-modules/modules/documents/contexts/DocumentsInlineContext';
 import { useDocumentInline } from 'ui-modules/modules/documents/hooks/useDocumentInline';
 
-const DocumentsInlineRoot = (props: any) => {
+export type Document = {
+  _id: string;
+  name: string;
+};
+
+interface DocumentsInlineProviderProps {
+  children?: ReactNode;
+  documentIds?: string[];
+  documents?: Document[];
+  placeholder?: string;
+  updateDocuments?: (documents: Document[]) => void;
+}
+
+const DocumentsInlineRoot = (props: DocumentsInlineProviderProps) => {
   return (
     <DocumentsInlineProvider {...props}>
       <DocumentsInlineTitle />
@@ -21,21 +34,19 @@ const DocumentsInlineRoot = (props: any) => {
 
 const DocumentsInlineProvider = ({
   children,
-  documentIds,
-  documents,
+  documentIds = [],
+  documents = [],
   placeholder,
   updateDocuments,
-}: any & {
-  children?: React.ReactNode;
-}) => {
-  const [_documents, _setDocuments] = useState<any[]>(documents || []);
+}: DocumentsInlineProviderProps) => {
+  const [_documents, _setDocuments] = useState<Document[]>(documents);
 
   return (
     <DocumentsInlineContext.Provider
       value={{
-        documents: documents || _documents,
+        documents: documents.length > 0 ? documents : _documents,
         loading: false,
-        documentIds: documentIds || [],
+        documentIds,
         placeholder: isUndefinedOrNull(placeholder)
           ? 'Select documents'
           : placeholder,
@@ -43,7 +54,7 @@ const DocumentsInlineProvider = ({
       }}
     >
       {children}
-      {documentIds?.map((documentId) => (
+      {documentIds.map((documentId) => (
         <DocumentsInlineEffectComponent
           key={documentId}
           documentId={documentId}
@@ -53,21 +64,21 @@ const DocumentsInlineProvider = ({
   );
 };
 
+interface DocumentsInlineEffectComponentProps {
+  documentId: string;
+}
+
 const DocumentsInlineEffectComponent = ({
   documentId,
-}: {
-  documentId: string;
-}) => {
+}: DocumentsInlineEffectComponentProps) => {
   const { documents, updateDocuments } = useDocumentsInlineContext();
   const { document } = useDocumentInline({
-    variables: {
-      _id: documentId,
-    },
+    variables: { _id: documentId },
     skip: !documentId || documents.some((b) => b._id === documentId),
   });
 
   useEffect(() => {
-    const newDocuments = [...documents].filter((b) => b._id !== documentId);
+    const newDocuments = documents.filter((b) => b._id !== documentId);
 
     if (document) {
       updateDocuments?.([...newDocuments, document]);

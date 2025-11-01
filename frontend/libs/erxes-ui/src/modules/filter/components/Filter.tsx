@@ -477,15 +477,13 @@ const FilterSearchValueBarItem = () => {
 
   return (
     <Filter.BarItem queryKey="searchValue">
-      <Filter.BarItem>
-        <Filter.BarName>
-          <IconSearch />
-          Search
-        </Filter.BarName>
-        <Filter.BarButton filterKey="searchValue" inDialog>
-          {searchValue}
-        </Filter.BarButton>
-      </Filter.BarItem>
+      <Filter.BarName>
+        <IconSearch />
+        Search
+      </Filter.BarName>
+      <Filter.BarButton filterKey="searchValue" inDialog>
+        {searchValue}
+      </Filter.BarButton>
     </Filter.BarItem>
   );
 };

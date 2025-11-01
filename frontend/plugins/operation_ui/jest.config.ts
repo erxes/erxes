@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable @typescript-eslint/no-var-requires */
 export default {
   displayName: 'operation-ui',
   preset: '../../../jest.preset.js',
