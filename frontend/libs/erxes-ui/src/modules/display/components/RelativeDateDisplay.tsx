@@ -1,7 +1,10 @@
 import { format } from 'date-fns';
 import { Tooltip } from 'erxes-ui/components';
 import { isUndefinedOrNull } from 'erxes-ui/utils';
-import { formatDateISOStringToRelativeDate } from 'erxes-ui/utils/localization/formatDateISOStringToRelativeDate';
+import {
+  formatDateISOStringToRelativeDate,
+  formatDateISOStringToRelativeDateShort,
+} from 'erxes-ui/utils/localization/formatDateISOStringToRelativeDate';
 import React from 'react';
 import { Except } from 'type-fest';
 
@@ -32,6 +35,18 @@ const RelativeDateDisplayValue = ({ value }: { value: string }) => {
   return relativeDate;
 };
 
+const RelativeDateDisplayValueShort = ({ value }: { value: string }) => {
+  const relativeDate = formatDateISOStringToRelativeDateShort(value);
+  return relativeDate;
+};
+
 export const RelativeDateDisplay = Object.assign(RelativeDateDisplayTooltip, {
   Value: RelativeDateDisplayValue,
 });
+
+export const RelativeDateDisplayShort = Object.assign(
+  RelativeDateDisplayTooltip,
+  {
+    Value: RelativeDateDisplayValueShort,
+  },
+);

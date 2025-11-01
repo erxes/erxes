@@ -4,6 +4,7 @@ import { integrationMutations } from '@/inbox/graphql/resolvers/mutations/integr
 import { facebookMutations } from '@/integrations/facebook/graphql/resolvers/mutations';
 import callMutations from '@/integrations/call/graphql/resolvers/mutations';
 import { imapMutations } from '@/integrations/imap/graphql/resolvers/mutations';
+import { widgetMutations } from '@/inbox/graphql/resolvers/mutations/widget';
 
 export const mutations = {
   ...channelMutations,
@@ -12,4 +13,5 @@ export const mutations = {
   ...facebookMutations,
   ...callMutations,
   ...imapMutations,
+  ...widgetMutations
 };

@@ -1,6 +1,7 @@
 import {
   differenceInDays,
   formatDistance,
+  formatDistanceStrict,
   isToday,
   startOfDay,
 } from 'date-fns';
@@ -22,4 +23,17 @@ export const formatDateISOStringToRelativeDate = (
     });
 
   return formatDistance(targetDate, now, { addSuffix: true });
+};
+
+export const formatDateISOStringToRelativeDateShort = (isoDate: string) => {
+  const now = new Date();
+  const targetDate = new Date(isoDate);
+
+  return formatDistanceStrict(targetDate, now)
+    .replace('days', 'd')
+    .replace('hours', 'h')
+    .replace('minutes', 'm')
+    .replace('minute', 'm')
+    .replace('seconds', 's')
+    .replace(' ', '');
 };

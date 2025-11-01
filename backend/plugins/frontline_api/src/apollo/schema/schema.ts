@@ -35,6 +35,12 @@ import {
   types as ImapTypes,
 } from '@/integrations/imap/graphql/schema/imap';
 
+import {
+  queries as WidgetQueries,
+  types as WidgetTypes,
+  mutations as WidgetMutations,
+} from '~/modules/inbox/graphql/schemas/widget';
+
 export const types = `
     ${ChannelsTypes}
     ${ConversationsTypes}
@@ -42,6 +48,7 @@ export const types = `
     ${FacebookTypes}
     ${CallTypes}
     ${ImapTypes}
+    ${WidgetTypes}
   `;
 export const queries = `
     ${ChannelsQueries}
@@ -50,6 +57,7 @@ export const queries = `
     ${FacebookQueries}
     ${CallQueries}
     ${ImapQueries}
+    ${WidgetQueries}
   `;
 
 export const mutations = `
@@ -59,5 +67,6 @@ export const mutations = `
    ${FacebookMutations}
    ${CallMutations}
    ${ImapMutations}
+   ${WidgetMutations}
 `;
 export default { types, queries, mutations };
