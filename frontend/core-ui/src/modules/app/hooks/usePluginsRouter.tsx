@@ -16,7 +16,6 @@ export const getPluginsRoutes = () => {
         pluginName: plugin.name,
       })),
   );
-
   return allModules.map((module) => (
     <Route
       key={module.name}

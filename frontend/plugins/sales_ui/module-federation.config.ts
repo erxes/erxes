@@ -19,7 +19,7 @@ const config: ModuleFederationConfig = {
     './deals': './src/modules/deals/Main.tsx',
     './dealsSettings': './src/pages/SettingsPage.tsx',
     './Widgets': './src/widgets/Widgets.tsx',
-    './pos': './src/modules/pos/pos/Main.tsx',
+    './pos': './src/modules/pos/Main.tsx',
     './posSettings': './src/modules/pos/pos/Settings.tsx',
   },
 
@@ -32,7 +32,6 @@ const config: ModuleFederationConfig = {
     return false;
   },
 };
-
 /**
  * Nx requires a default export of the config to allow correct resolution of the module federation graph.
  **/
