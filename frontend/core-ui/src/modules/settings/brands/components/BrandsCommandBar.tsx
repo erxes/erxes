@@ -6,6 +6,7 @@ import {
   Separator,
   useConfirm,
   RecordTable,
+  useToast,
 } from 'erxes-ui';
 import { useBrandsRemove } from '../hooks/useBrandsRemove';
 
@@ -13,6 +14,7 @@ export const BrandsCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
   const { brandsRemove } = useBrandsRemove();
   const { confirm } = useConfirm();
+  const { toast } = useToast();
 
   const confirmOptions = { confirmationValue: 'delete' };
 
@@ -28,6 +30,13 @@ export const BrandsCommandBar = () => {
         brandsRemove({
           variables: {
             ids,
+          },
+          onError: (error) => {
+            toast({
+              title: 'Error',
+              description: error.message,
+              variant: 'destructive',
+            });
           },
         });
       } catch (e) {

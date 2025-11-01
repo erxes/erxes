@@ -259,6 +259,8 @@ export const SelectAssigneeTaskFormItem = ({
 };
 
 export const SelectAssigneeTask = Object.assign(SelectAssigneeTaskRoot, {
+  Provider: SelectAssigneeProvider,
+  Content: SelectTeamMemberContent,
   FormItem: SelectAssigneeTaskFormItem,
   FilterView: SelectAssigneeFilterView,
   FilterBar: SelectAssigneeFilterBar,

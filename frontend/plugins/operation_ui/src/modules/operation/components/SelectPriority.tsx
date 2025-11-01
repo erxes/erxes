@@ -225,6 +225,8 @@ export const SelectPriorityFormItem = ({
 };
 
 export const SelectPriority = Object.assign(SelectPriorityRoot, {
+  Provider: SelectPriorityProvider,
+  Content: SelectPriorityContent,
   FilterBar: SelectPriorityFilterBar,
   FormItem: SelectPriorityFormItem,
   FilterView: SelectPriorityFilterView,
