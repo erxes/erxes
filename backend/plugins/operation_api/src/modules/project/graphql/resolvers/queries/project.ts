@@ -482,7 +482,7 @@ export const projectQueries = {
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    const project = await models.Project.findOne({ _id });
+    const project = await models.Project.findOne({ _id }).lean();
 
     if (!project) {
       return [];
@@ -490,7 +490,7 @@ export const projectQueries = {
 
     const [totalScopeResult] = await models.Task.aggregate([
       {
-        $match: { projectId: new Types.ObjectId(_id) },
+        $match: { projectId: project._id },
       },
       {
         $match: { statusType: { $ne: STATUS_TYPES.CANCELLED } },
@@ -527,7 +527,7 @@ export const projectQueries = {
     const chartDataAggregation = await models.Task.aggregate([
       {
         $match: {
-          projectId: _id,
+          projectId: project._id,
           statusType: { $in: [STATUS_TYPES.STARTED, STATUS_TYPES.COMPLETED] },
           statusChangedDate: { $ne: null },
         },

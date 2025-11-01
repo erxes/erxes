@@ -60,7 +60,7 @@ export const checkCycle = async (job: Job) => {
 
   const models = await generateModels(subdomain);
 
-  const tzStart = tzToday.clone().startOf('day');
+  const tzStart = tzToday.clone().startOf('day').subtract(1, 'day');
   const tzEnd = tzToday.clone().endOf('day');
 
   console.log('tzStart', tzStart);
