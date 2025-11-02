@@ -42,6 +42,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Set environment variables
+        run: |
+          echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+          echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
       - name: Build accounting UI
         run: |
           export NX_DAEMON=false

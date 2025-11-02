@@ -20,8 +20,7 @@ const setCookie = async (
 ) => {
   await saveValidatedToken(token, user);
 
-  const models = await generateModels(subdomain);
-  const organization = await getSaasOrganizationDetail({ subdomain, models });
+  const organization = await getSaasOrganizationDetail({ subdomain });
 
   const cookieOptions: any = authCookieOptions();
 

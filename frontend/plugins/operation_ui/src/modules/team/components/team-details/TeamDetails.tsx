@@ -7,6 +7,8 @@ import { CycleSection } from '@/team/components/team-details/CycleSection';
 
 import { useParams } from 'react-router-dom';
 import { DeleteTeamForm } from '@/team/components/team-details/DeleteTeamForm';
+import { TriageSection } from '@/team/components/team-details/TriageSection';
+
 export const TeamDetails = () => {
   const { id: teamId } = useParams();
   const { team, loading } = useGetTeam({ variables: { _id: teamId } });
@@ -28,6 +30,7 @@ export const TeamDetails = () => {
       <EstimateSection team={team} />
       <StatusSection team={team} />
       <CycleSection team={team} />
+      <TriageSection team={team} />
       <DeleteTeamForm />
     </div>
   );

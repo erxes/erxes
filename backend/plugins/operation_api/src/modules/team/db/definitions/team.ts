@@ -8,6 +8,7 @@ export const teamSchema = new Schema(
     description: { type: String, label: 'Description' },
     estimateType: { type: Number, label: 'Estimate Type' },
     cycleEnabled: { type: Boolean, label: 'Cycle Enabled', default: false },
+    triageEnabled: { type: Boolean, label: 'Triage Enabled', default: false },
   },
   {
     timestamps: true,

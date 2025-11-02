@@ -89,7 +89,7 @@ export const types = `
 
     currentOrganization: Organization
     organizations: [CookieOrganization]
-    
+    onboardingDone: Boolean
     groupIds: [String]
     isSubscribed: String
     isShowNotification: Boolean
@@ -199,4 +199,5 @@ export const mutations = `
   editOrganizationInfo(icon: String, logo: String, link: String, name: String, iconColor: String, backgroundColor: String, description: String, domain: String, favicon: String, textColor: String): Organization
   editOrganizationDomain(type: String, domain: String): Organization
   usersCreateOwner(email: String!, password: String!, firstName: String!, lastName: String, purpose: String, subscribeEmail: Boolean): String
+  usersSetOnboardingDone: Boolean
 `;

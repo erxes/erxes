@@ -27,14 +27,25 @@ export const teamQueries = {
     params: ITeamFilter,
     { models }: IContext,
   ) => {
-    if (params.teamIds && params.teamIds.length > 0) {
+    if (params.teamIds && params.teamIds.length > 0 && !params.userId) {
       return models.Team.find({ _id: { $in: params.teamIds } });
+    }
+
+    if (params.isTriageEnabled) {
+      return models.Team.find({
+        $or: [{ triageEnabled: true }, { _id: params.teamId }],
+      });
     }
 
     if (params.projectId) {
       const teamIds = await models.Project.findOne({
         _id: params.projectId,
       }).distinct('teamIds');
+
+      if (params.teamId) {
+        teamIds.push(params.teamId);
+      }
+
       return models.Team.find({ _id: { $in: teamIds } });
     }
 
@@ -42,6 +53,10 @@ export const teamQueries = {
       const teamIds = await models.TeamMember.find({
         memberId: params.userId,
       }).distinct('teamId');
+
+      if (params.teamId) {
+        teamIds.push(params.teamId);
+      }
 
       return models.Team.find({ _id: { $in: teamIds } });
     }
