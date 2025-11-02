@@ -6,7 +6,7 @@ import {
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem, DropdownMenu, Button } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
-
+import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
 export const FrontlineNavigation = () => {
   const navigate = useNavigate();
 
@@ -51,6 +51,7 @@ export const FrontlineNavigation = () => {
         icon={IconMessageReply}
         path="frontline/ticket"
       />
+      <IntegrationNavigation />
     </>
   );
 };
