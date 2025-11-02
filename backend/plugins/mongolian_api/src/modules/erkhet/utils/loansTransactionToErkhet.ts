@@ -1,27 +1,9 @@
-import { sendTRPCMessage } from "erxes-api-shared/src/utils"; 
-
-export const getPureDate = (date: Date) => {
-  const ndate = new Date(date);
-  const diffTimeZone = Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
-  return new Date(ndate.getTime() - diffTimeZone);
-};
-
-export const getConfig = async (subdomain, code, defaultValue) => {
-  return await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'configs',
-    action: 'getConfig',
-    input: { code, defaultValue },
-    defaultValue,
-  });
-};
+import { getConfig } from './utils';
 
 export const loansTransactionToErkhet = async (
   subdomain,
   generals: any[] = [],
-  orderId
+  orderId,
 ) => {
   const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 

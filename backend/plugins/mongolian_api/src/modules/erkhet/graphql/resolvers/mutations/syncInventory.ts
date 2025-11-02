@@ -1,11 +1,18 @@
-import { IContext } from '~/connectionResolvers';
-import { getConfig } from '~/modules/erkhet/utils/utils';
-import fetch from 'node-fetch';
+import {
+  consumeInventory,
+  consumeInventoryCategory,
+  getConfig,
+} from '@/erkhet/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/src/utils';
-import { consumeInventory, consumeInventoryCategory } from '~/modules/erkhet/utils/consumeInventory';
+import fetch from 'node-fetch';
+import { IContext } from '~/connectionResolvers';
 
-export const inventoryMutations = {
-  async toCheckProducts(_root, _params, { subdomain }: IContext) {
+const inventoryMutations = {
+  async toCheckProducts(
+    _root: undefined,
+    _params: undefined,
+    { subdomain }: IContext,
+  ) {
     const config = await getConfig(subdomain, 'ERKHET', {});
 
     if (!config.apiToken || !config.apiKey || !config.apiSecret) {
@@ -15,22 +22,22 @@ export const inventoryMutations = {
     const products = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
+      method: 'query',
       module: 'products',
       action: 'find',
       input: {
         query: { status: { $ne: 'deleted' } },
       },
-      method: 'query',
       defaultValue: [],
     });
 
     const productCategories = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'categories',
+      method: 'query',
+      module: 'productCategories',
       action: 'find',
       input: { query: {} },
-      method: 'query',
       defaultValue: [],
     });
 
@@ -118,7 +125,11 @@ export const inventoryMutations = {
     };
   },
 
-  async toCheckCategories(_root, _params, { subdomain }: IContext) {
+  async toCheckCategories(
+    _root: undefined,
+    _params: undefined,
+    { subdomain }: IContext,
+  ) {
     const config = await getConfig(subdomain, 'ERKHET', {});
 
     if (!config.apiToken || !config.apiKey || !config.apiSecret) {
@@ -128,13 +139,13 @@ export const inventoryMutations = {
     const categories = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'categories',
+      method: 'query',
+      module: 'productCategories',
       action: 'find',
       input: {
         query: { status: 'active' },
         sort: { order: 1 },
       },
-      method: 'query',
       defaultValue: [],
     });
 
@@ -180,7 +191,7 @@ export const inventoryMutations = {
         const response = await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
-          module: 'categories',
+          module: 'productCategories',
           action: 'findOne',
           input: { code },
           method: 'query',
@@ -207,7 +218,7 @@ export const inventoryMutations = {
   },
 
   async toSyncCategories(
-    _root,
+    _root: undefined,
     { action, categories }: { action: string; categories: any[] },
     { subdomain }: IContext,
   ) {
@@ -258,7 +269,7 @@ export const inventoryMutations = {
   },
 
   async toSyncProducts(
-    _root,
+    _root: undefined,
     { action, products }: { action: string; products: any[] },
     { subdomain }: IContext,
   ) {

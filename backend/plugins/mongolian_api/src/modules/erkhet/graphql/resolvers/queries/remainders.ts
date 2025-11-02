@@ -1,81 +1,11 @@
-import { IContext } from '~/connectionResolvers';
-import { getConfig } from '~/modules/erkhet/utils/utils';
+import { getConfig, getRemConfig } from '@/erkhet/utils';
+import { getPureDate, sendTRPCMessage } from 'erxes-api-shared/src/utils';
 import fetch from 'node-fetch';
-import { sendTRPCMessage } from 'erxes-api-shared/src/utils';
-import { getPureDate } from 'erxes-api-shared/src/utils';
+import { IContext } from '~/connectionResolvers';
 
-type IParams = {
-  stageId?: string;
-  pipelineId?: string;
-  posId?: string;
-  accountCodes?: string;
-  locationCodes?: string;
-  productIds?: string[];
-}
-
-const getRemConfig = async (
-  subdomain,
-  { stageId, pipelineId, posId, accountCodes, locationCodes }: IParams,
-) => {
-  if (stageId || pipelineId) {
-    if (!pipelineId) {
-      const pipeline = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'sales',
-        method: 'query',
-        module: 'pipelines',
-        action: 'findOne',
-        input: { stageId },
-        defaultValue: {},
-      });
-
-      pipelineId = pipeline?._id;
-    }
-
-    if (!pipelineId) {
-      return {};
-    }
-
-    const remConfigs = await getConfig(subdomain, 'remainderConfig');
-    const remConfig = remConfigs[pipelineId];
-
-    return {
-      account: remConfig?.account,
-      location: remConfig?.location,
-    };
-  }
-
-  if (posId) {
-    const posConfig = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'pos',
-      method: 'query',
-      module: 'configs',
-      action: 'findOne',
-      input: { _id: posId },
-      defaultValue: {},
-    });
-
-    const posErkhetConfig = await posConfig?.erkhetConfig;
-    return {
-      account: posErkhetConfig?.account,
-      location: posErkhetConfig?.location,
-    };
-  }
-
-  if (accountCodes?.length || locationCodes?.length) {
-    return {
-      account: accountCodes,
-      location: locationCodes,
-    };
-  }
-
-  return {};
-};
-
-export const erkhetQueries = {
+const erkhetQueries = {
   async erkhetRemainders(
-    _root,
+    _root: undefined,
     {
       productIds,
       stageId,
@@ -83,7 +13,14 @@ export const erkhetQueries = {
       posId,
       accountCodes,
       locationCodes,
-    }: IParams,
+    }: {
+      stageId?: string;
+      pipelineId?: string;
+      posId?: string;
+      accountCodes?: string;
+      locationCodes?: string;
+      productIds?: string[];
+    },
     { subdomain }: IContext,
   ) {
     const result: {
@@ -104,6 +41,7 @@ export const erkhetQueries = {
         accountCodes,
         locationCodes,
       });
+
       if (!remConfig?.account || !remConfig?.location) {
         return [];
       }
@@ -186,7 +124,7 @@ export const erkhetQueries = {
   },
 
   async erkhetDebt(
-    _root,
+    _root: undefined,
     {
       contentType,
       contentId,

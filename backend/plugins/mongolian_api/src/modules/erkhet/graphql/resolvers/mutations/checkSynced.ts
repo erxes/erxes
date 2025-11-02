@@ -1,12 +1,16 @@
-import { getConfig, sendCardInfo } from '../../../utils/utils';
-import { getPostData as getPostDataOrders } from '../../../utils/orders';
-import { getMoveData, getPostData } from '../../../utils/ebarimtData';
-import { generateModels, IContext } from '~/connectionResolvers';
+import {
+  getConfig,
+  getConfigPostData,
+  getMoveData,
+  getPosPostData,
+  sendCardInfo,
+} from '@/erkhet/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/src/utils';
+import { generateModels, IContext } from '~/connectionResolvers';
 
-export const checkSyncedMutations = {
+const checkSyncedMutations = {
   async toCheckSynced(
-    _root,
+    _root: undefined,
     { ids }: { ids: string[] },
     { subdomain }: IContext,
   ) {
@@ -52,7 +56,7 @@ export const checkSyncedMutations = {
   },
 
   async toSyncDeals(
-    _root,
+    _root: undefined,
     {
       dealIds,
       configStageId,
@@ -113,7 +117,7 @@ export const checkSyncedMutations = {
             defaultValue: {},
           });
 
-          const postData = await getPostData(
+          const postData = await getConfigPostData(
             subdomain,
             config,
             deal,
@@ -225,7 +229,7 @@ export const checkSyncedMutations = {
   },
 
   async toSyncOrders(
-    _root,
+    _root: undefined,
     { orderIds }: { orderIds: string[] },
     { subdomain, user }: IContext,
   ) {
@@ -237,11 +241,11 @@ export const checkSyncedMutations = {
 
     const orders = await sendTRPCMessage({
       subdomain,
-      pluginName: 'pos',
-      module: 'orders',
-      action: 'find',
-      input: { _id: { $in: orderIds } },
+      pluginName: 'sales',
       method: 'query',
+      module: 'pos',
+      action: 'orders.find',
+      input: { _id: { $in: orderIds } },
       defaultValue: [],
     });
 
@@ -249,11 +253,11 @@ export const checkSyncedMutations = {
     const models = await generateModels(subdomain);
     const poss = await sendTRPCMessage({
       subdomain,
-      pluginName: 'pos',
-      module: 'configs',
-      action: 'find',
-      input: { token: { $in: posTokens } },
+      pluginName: 'sales',
       method: 'query',
+      module: 'pos',
+      action: 'configs.find',
+      input: { token: { $in: posTokens } },
       defaultValue: [],
     });
 
@@ -263,7 +267,7 @@ export const checkSyncedMutations = {
     }
 
     const syncLogDoc = {
-      contentType: 'pos:order',
+      contentType: 'sales:pos:order',
       createdAt: new Date(),
       createdBy: user._id,
     };
@@ -278,12 +282,13 @@ export const checkSyncedMutations = {
       try {
         const pos = posByToken[order.posToken];
 
-        const postData = await getPostDataOrders(
+        const postData = await getPosPostData(
           subdomain,
           pos,
           order,
           pos.paymentTypes,
         );
+
         if (!postData) {
           result.skipped.push(order._id);
           throw new Error('maybe, has not config');
@@ -312,9 +317,9 @@ export const checkSyncedMutations = {
 
           await sendTRPCMessage({
             subdomain,
-            pluginName: 'pos',
-            module: 'orders',
-            action: 'updateOne',
+            pluginName: 'sales',
+            module: 'pos',
+            action: 'orders.updateOne',
             input: {
               selector: { _id: order._id },
               modifier: {

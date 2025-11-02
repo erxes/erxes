@@ -24,7 +24,7 @@ import {
   loadProductRuleClass,
 } from '@/ebarimt/db/models/ProductRule';
 
-import { ISyncLogDocument } from '@/erkhet/db/definition/syncLog';
+import { ISyncLogDocument } from '@/erkhet/@types';
 import { ISyncLogModel, loadSyncLogClass } from '@/erkhet/db/model/SyncLog';
 
 export interface IModels {

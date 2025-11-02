@@ -18,6 +18,12 @@ export const types = `
     createdUser: JSON
   }
 
+  type SyncHistoryListResponse {
+    list: [SyncHistory]
+    pageInfo: PageInfo
+    totalCount: Int
+  }
+
   type CheckResponse {
     _id: String
     isSynced: Boolean

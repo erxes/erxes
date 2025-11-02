@@ -1,7 +1,7 @@
-import { checkSyncedMutations } from '@/erkhet/graphql/resolvers/mutations/checkSynced';
-import { inventoryMutations } from '@/erkhet/graphql/resolvers/mutations/syncInventory';
+import checkSyncedMutations from './checkSynced';
+import inventoryMutations from './syncInventory';
 
-export const mutations = {
-    ...checkSyncedMutations,
-    ...inventoryMutations
+export const erkhetMutations = {
+  ...checkSyncedMutations,
+  ...inventoryMutations,
 };

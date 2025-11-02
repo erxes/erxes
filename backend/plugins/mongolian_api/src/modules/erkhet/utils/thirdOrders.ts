@@ -1,9 +1,8 @@
-import { getSubdomain } from 'erxes-api-shared/src/utils';
-import { IModels, generateModels } from '../../../connectionResolvers';
-import { sendTRPCMessage } from 'erxes-api-shared/src/utils';
+import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/src/utils';
+import { IModels, generateModels } from '~/connectionResolvers';
 import { getConfig, getPureDate } from './utils';
 
-export const getPostData = async (subdomain, userEmail, order) => {
+export const getOrderPostData = async (subdomain, userEmail, order) => {
   const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 
   if (!erkhetConfig?.apiKey || !erkhetConfig?.apiSecret) {
@@ -17,7 +16,7 @@ export const getPostData = async (subdomain, userEmail, order) => {
       (
         await sendTRPCMessage({
           subdomain,
-          pluginName: "core",
+          pluginName: 'core',
           module: 'users',
           action: 'findOne',
           input: { _id: order.userId },
@@ -59,17 +58,17 @@ export const getPostData = async (subdomain, userEmail, order) => {
       amount,
       discount: item.discountAmount,
       inventoryCode: productCodeById[item.productId],
-      workerEmail
+      workerEmail,
     });
   }
 
   const { payments } = order;
   const allowKeys = [
-    "cardAmount",
-    "card2Amount",
-    "cashAmount",
-    "mobileAmount",
-    "debtBarterAmount"
+    'cardAmount',
+    'card2Amount',
+    'cashAmount',
+    'mobileAmount',
+    'debtBarterAmount',
     // 'debtAmount',
   ];
 
@@ -82,7 +81,7 @@ export const getPostData = async (subdomain, userEmail, order) => {
   if (sumSaleAmount > 0.005) {
     payments.debtAmount = sumSaleAmount;
   } else if (sumSaleAmount < -0.005) {
-    throw new Error("overpayment");
+    throw new Error('overpayment');
   }
 
   const orderInfos = [
@@ -127,7 +126,7 @@ export const thirdOrderToErkhet = async (
     consumeStr: JSON.stringify(order),
   });
   try {
-    const postData = await getPostData(subdomain, userEmail, order);
+    const postData = await getOrderPostData(subdomain, userEmail, order);
     if (!postData) {
       return {
         status: 'success',

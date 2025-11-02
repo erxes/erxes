@@ -1,8 +1,12 @@
+import { ISyncHistoryParams } from '@/erkhet/@types';
+import {
+  cursorPaginate,
+  escapeRegExp,
+  getPureDate,
+} from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { cursorPaginate } from 'erxes-api-shared/utils';
-import { escapeRegExp, getPureDate } from 'erxes-api-shared/utils'
 
-const generateFilter = (params: any) => {
+const generateFilter = (params: ISyncHistoryParams) => {
   const {
     userId,
     startDate,
@@ -12,7 +16,7 @@ const generateFilter = (params: any) => {
     searchConsume,
     searchSend,
     searchResponse,
-    searchError
+    searchError,
   } = params;
 
   const query: any = {};
@@ -53,18 +57,30 @@ const generateFilter = (params: any) => {
   return query;
 };
 
-export const erkhetQueries = {
-  async syncHistories(_root: undefined, params, { models }: IContext) {
+const erkhetQueries = {
+  async syncHistories(
+    _root: undefined,
+    params: ISyncHistoryParams,
+    { models }: IContext,
+  ) {
     const selector = generateFilter(params);
+
     return await cursorPaginate({
-        model: models.SyncLogs, params, query: selector
+      model: models.SyncLogs,
+      params,
+      query: selector,
     });
   },
 
-  async syncHistoriesCount(_root: undefined, params, { models }: IContext) {
+  async syncHistoriesCount(
+    _root: undefined,
+    params: ISyncHistoryParams,
+    { models }: IContext,
+  ) {
     const selector = generateFilter(params);
+
     return models.SyncLogs.find(selector).countDocuments();
-  }
+  },
 };
 
 export default erkhetQueries;

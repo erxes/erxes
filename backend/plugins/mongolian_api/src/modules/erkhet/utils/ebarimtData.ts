@@ -1,29 +1,33 @@
-import fetch from "node-fetch";
-import { sendTRPCMessage } from "erxes-api-shared/src/utils";
-import { calcProductsTaxRule } from "./productsByTaxType";
+import { sendTRPCMessage } from 'erxes-api-shared/src/utils';
+import fetch from 'node-fetch';
+import { calcProductsTaxRule } from './productsByTaxType';
 
 export const validConfigMsg = async (config) => {
   if (!config.url) {
-    return "required url";
+    return 'required url';
   }
-  return "";
+  return '';
 };
 
 const calcPreTaxPercentage = (paymentTypes, deal) => {
   let itemAmountPrePercent = 0;
-  const preTaxPaymentTypes: string[] = (paymentTypes || []).filter((p) =>
-    (p.config || '').includes('preTax: true') || (p.config || '').includes('"preTax": true')
-    ).map((p) => p.type);
+  const preTaxPaymentTypes: string[] = (paymentTypes || [])
+    .filter(
+      (p) =>
+        (p.config || '').includes('preTax: true') ||
+        (p.config || '').includes('"preTax": true'),
+    )
+    .map((p) => p.type);
 
   if (
-    preTaxPaymentTypes.length && 
-    deal.paymentsData && 
+    preTaxPaymentTypes.length &&
+    deal.paymentsData &&
     Object.keys(deal.paymentsData).length
   ) {
     let preSentAmount = 0;
     for (const preTaxPaymentType of preTaxPaymentTypes) {
       const matchOrderPayKeys = Object.keys(deal.paymentsData).filter(
-        (pa) => pa === preTaxPaymentType
+        (pa) => pa === preTaxPaymentType,
       );
 
       if (matchOrderPayKeys.length) {
@@ -35,7 +39,9 @@ const calcPreTaxPercentage = (paymentTypes, deal) => {
     }
 
     const values: any[] = Object.values(deal.paymentsData);
-    const dealTotalPay = values.map((p) => p.amount).reduce((sum, cur) => sum + cur, 0);
+    const dealTotalPay = values
+      .map((p) => p.amount)
+      .reduce((sum, cur) => sum + cur, 0);
 
     if (preSentAmount && preSentAmount <= dealTotalPay) {
       itemAmountPrePercent = (preSentAmount / dealTotalPay) * 100;
@@ -44,27 +50,33 @@ const calcPreTaxPercentage = (paymentTypes, deal) => {
   return { itemAmountPrePercent, preTaxPaymentTypes };
 };
 
-export const getPostData = async (subdomain, config, deal, paymentTypes, dateType = "") => {
+export const getConfigPostData = async (
+  subdomain,
+  config,
+  deal,
+  paymentTypes,
+  dateType = '',
+) => {
   let billType = 1;
-  let customerCode = "";
+  let customerCode = '';
 
   const companyIds = await sendTRPCMessage({
     subdomain,
-    pluginName: "core",
-    module: "conformities",
-    action: "savedConformity",
-    method: "query",
-    input: { mainType: "deal", mainTypeId: deal._id, relTypes: ["company"] },
+    pluginName: 'core',
+    module: 'conformities',
+    action: 'savedConformity',
+    method: 'query',
+    input: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['company'] },
     defaultValue: [],
   });
 
   if (companyIds.length > 0) {
     const companies = await sendTRPCMessage({
       subdomain,
-      pluginName: "core",
-      module: "companies",
-      action: "findActiveCompanies",
-      method: "query",
+      pluginName: 'core',
+      module: 'companies',
+      action: 'findActiveCompanies',
+      method: 'query',
       input: {
         selector: { _id: { $in: companyIds } },
         fields: { _id: 1, code: 1 },
@@ -76,7 +88,9 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
     for (const company of companies) {
       if (re.test(company.code)) {
         const checkCompanyRes = await fetch(
-          `${config.checkCompanyUrl}?${new URLSearchParams({ regno: company.code })}`
+          `${config.checkCompanyUrl}?${new URLSearchParams({
+            regno: company.code,
+          })}`,
         ).then((res) => res.json());
 
         if (checkCompanyRes.found) {
@@ -91,21 +105,21 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
   if (billType === 1) {
     const customerIds = await sendTRPCMessage({
       subdomain,
-      pluginName: "core",
-      module: "conformities",
-      action: "savedConformity",
-      method: "query",
-      input: { mainType: "deal", mainTypeId: deal._id, relTypes: ["customer"] },
+      pluginName: 'core',
+      module: 'conformities',
+      action: 'savedConformity',
+      method: 'query',
+      input: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['customer'] },
       defaultValue: [],
     });
 
     if (customerIds.length > 0) {
       const customers = await sendTRPCMessage({
         subdomain,
-        pluginName: "core",
-        module: "customers",
-        action: "findActiveCustomers",
-        method: "query",
+        pluginName: 'core',
+        module: 'customers',
+        action: 'findActiveCustomers',
+        method: 'query',
         input: {
           selector: { _id: { $in: customerIds } },
           fields: { _id: 1, code: 1 },
@@ -113,7 +127,7 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
         defaultValue: [],
       });
 
-      customerCode = (customers.find((c) => c.code) || {}).code || "";
+      customerCode = (customers.find((c) => c.code) || {}).code || '';
     }
   }
 
@@ -128,10 +142,10 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
 
   const assignUsers = await sendTRPCMessage({
     subdomain,
-    pluginName: "core",
-    module: "users",
-    action: "find",
-    method: "query",
+    pluginName: 'core',
+    module: 'users',
+    action: 'find',
+    method: 'query',
     input: { query: { _id: { $in: assignUserIds } } },
     defaultValue: [],
   });
@@ -141,20 +155,32 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
     userEmailById[user._id] = user.email;
   }
 
-  const productsIds = deal.productsData.filter((pd) => pd.tickUsed).map((item) => item.productId);
+  const productsIds = deal.productsData
+    .filter((pd) => pd.tickUsed)
+    .map((item) => item.productId);
   const products = await sendTRPCMessage({
     subdomain,
-    pluginName: "core",
-    module: "products",
-    action: "find",
-    method: "query",
-    input: { query: { _id: { $in: productsIds } }, limit: deal.productsData.length },
+    pluginName: 'core',
+    module: 'products',
+    action: 'find',
+    method: 'query',
+    input: {
+      query: { _id: { $in: productsIds } },
+      limit: deal.productsData.length,
+    },
     defaultValue: [],
   });
 
-  const { productsById, oneMoreCtax, oneMoreVat } = await calcProductsTaxRule(subdomain, config, products)
+  const { productsById, oneMoreCtax, oneMoreVat } = await calcProductsTaxRule(
+    subdomain,
+    config,
+    products,
+  );
 
-  const { itemAmountPrePercent, preTaxPaymentTypes } = calcPreTaxPercentage(paymentTypes, deal);
+  const { itemAmountPrePercent, preTaxPaymentTypes } = calcPreTaxPercentage(
+    paymentTypes,
+    deal,
+  );
 
   const details: any[] = [];
 
@@ -167,10 +193,10 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
   if (branchIds.length) {
     const branches = await sendTRPCMessage({
       subdomain,
-      pluginName: "core",
-      module: "branches",
-      action: "find",
-      method: "query",
+      pluginName: 'core',
+      module: 'branches',
+      action: 'find',
+      method: 'query',
       input: { query: { _id: { $in: branchIds } } },
       defaultValue: [],
     });
@@ -180,10 +206,10 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
   if (departmentIds.length) {
     const departments = await sendTRPCMessage({
       subdomain,
-      pluginName: "core",
-      module: "departments",
-      action: "find",
-      method: "query",
+      pluginName: 'core',
+      module: 'departments',
+      action: 'find',
+      method: 'query',
       input: { _id: { $in: departmentIds } },
       defaultValue: [],
     });
@@ -199,17 +225,17 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
     }
 
     // if wrong productId then not sent
-    const product = productsById[productData.productId]
+    const product = productsById[productData.productId];
     if (!product) {
       continue;
     }
 
-    let otherCode: string = "";
+    let otherCode: string = '';
 
     if (productData.branchId || productData.departmentId) {
-      const branch = branchesById[productData.branchId || ""] || {};
-      const department = departmentsById[productData.departmentId || ""] || {};
-      otherCode = `${branch.code || ""}_${department.code || ""}`;
+      const branch = branchesById[productData.branchId || ''] || {};
+      const department = departmentsById[productData.departmentId || ''] || {};
+      otherCode = `${branch.code || ''}_${department.code || ''}`;
     }
 
     const tempAmount = productData.amount;
@@ -225,7 +251,7 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
       workerEmail:
         productData.assignUserId && userEmailById[productData.assignUserId],
 
-      taxRule: product.taxRule
+      taxRule: product.taxRule,
     });
   }
 
@@ -234,19 +260,21 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
   if (config.defaultPay) {
     const configure = {
       ...config,
-      prepay: "preAmount",
-      cash: "cashAmount",
-      bank: "mobileAmount",
-      pos: "cardAmount",
-      wallet: "debtAmount",
-      barter: "debtBarterAmount",
-      after: "debtAmount",
-      other: "debtAmount",
+      prepay: 'preAmount',
+      cash: 'cashAmount',
+      bank: 'mobileAmount',
+      pos: 'cardAmount',
+      wallet: 'debtAmount',
+      barter: 'debtBarterAmount',
+      after: 'debtAmount',
+      other: 'debtAmount',
     };
 
     let sumSaleAmount = details.reduce((sum, d) => sum + d.amount, 0);
 
-    for (const paymentKind of Object.keys(deal.paymentsData || []).filter(pay => !preTaxPaymentTypes.includes(pay))) {
+    for (const paymentKind of Object.keys(deal.paymentsData || []).filter(
+      (pay) => !preTaxPaymentTypes.includes(pay),
+    )) {
       const payment = deal.paymentsData[paymentKind];
       payments[configure[paymentKind]] =
         (payments[configure[paymentKind]] || 0) + payment.amount;
@@ -254,11 +282,12 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
     }
     // if payments is less sum sale amount then create debt
     if (sumSaleAmount > 0.005) {
-      payments[config.defaultPay] = 
-      (payments[config.defaultPay] || 0) + sumSaleAmount;
+      payments[config.defaultPay] =
+        (payments[config.defaultPay] || 0) + sumSaleAmount;
     } else if (sumSaleAmount < -0.005) {
       if ((payments[config.defaultPay] || 0) > 0.005) {
-        payments[config.defaultPay] = payments[config.defaultPay] + sumSaleAmount;
+        payments[config.defaultPay] =
+          payments[config.defaultPay] + sumSaleAmount;
       } else {
         for (const key of Object.keys(payments)) {
           if (payments[key] > 0.005) {
@@ -279,27 +308,27 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
   let checkDate = false;
 
   switch (dateType) {
-    case "lastMove":
+    case 'lastMove':
       date = new Date(deal.stageChangedDate).toISOString().slice(0, 10);
       break;
-    case "created":
+    case 'created':
       date = new Date(deal.createdAt).toISOString().slice(0, 10);
       break;
-    case "closeOrCreated":
+    case 'closeOrCreated':
       date = new Date(deal.closeDate || deal.createdAt)
-      .toISOString()
-      .slice(0, 10);
+        .toISOString()
+        .slice(0, 10);
       break;
-    case "closeOrMove":
+    case 'closeOrMove':
       date = new Date(deal.closeDate || deal.stageChangedDate)
-      .toISOString()
-      .slice(0, 10);
+        .toISOString()
+        .slice(0, 10);
       break;
-    case "firstOrMove":
+    case 'firstOrMove':
       date = new Date(deal.stageChangedDate).toISOString().slice(0, 10);
       checkDate = true;
       break;
-    case "firstOrCreated":
+    case 'firstOrCreated':
       date = new Date(deal.createdAt).toISOString().slice(0, 10);
       checkDate = true;
       break;
@@ -310,14 +339,15 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
       date,
       checkDate,
       orderId: deal._id,
-      number: deal.number || "",
+      number: deal.number || '',
       hasVat: config.hasVat || oneMoreVat || false,
       hasCitytax: config.hasCitytax || oneMoreCtax || false,
       billType,
       customerCode,
       description: deal.name,
       workerEmail:
-        (deal.assignedUserIds.length && userEmailById[deal.assignedUserIds[0]]) ||
+        (deal.assignedUserIds.length &&
+          userEmailById[deal.assignedUserIds[0]]) ||
         undefined,
       details,
       ...payments,
@@ -333,36 +363,35 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
   };
 };
 
-
-export const getMoveData = async (subdomain, config, deal, dateType = "") => {
-  let customerCode = "";
+export const getMoveData = async (subdomain, config, deal, dateType = '') => {
+  let customerCode = '';
 
   const companyIds = await sendTRPCMessage({
     subdomain,
-    pluginName: "core",
-    module: "conformities",
-    action: "savedConformity",
-    method: "query",
+    pluginName: 'core',
+    module: 'conformities',
+    action: 'savedConformity',
+    method: 'query',
     input: {
-      mainType: "deal",
+      mainType: 'deal',
       mainTypeId: deal._id,
-      relTypes: ["company"]
+      relTypes: ['company'],
     },
-    defaultValue: []
+    defaultValue: [],
   });
 
   if (companyIds.length > 0) {
     const companies = await sendTRPCMessage({
       subdomain,
-      pluginName: "core",
-      module: "companies",
-      action: "findActiveCompanies",
-      method: "query",
+      pluginName: 'core',
+      module: 'companies',
+      action: 'findActiveCompanies',
+      method: 'query',
       input: {
         selector: { _id: { $in: companyIds } },
-        fields: { _id: 1, code: 1 }
+        fields: { _id: 1, code: 1 },
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const company of companies) {
@@ -376,33 +405,33 @@ export const getMoveData = async (subdomain, config, deal, dateType = "") => {
   if (!customerCode) {
     const customerIds = await sendTRPCMessage({
       subdomain,
-      pluginName: "core",
-      module: "conformities",
-      action: "savedConformity",
-      method: "query",
+      pluginName: 'core',
+      module: 'conformities',
+      action: 'savedConformity',
+      method: 'query',
       input: {
-        mainType: "deal",
+        mainType: 'deal',
         mainTypeId: deal._id,
-        relTypes: ["customer"]
+        relTypes: ['customer'],
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     if (customerIds.length > 0) {
       const customers = await sendTRPCMessage({
         subdomain,
-        pluginName: "core",
-        module: "customers",
-        action: "findActiveCustomers",
-        method: "query",
+        pluginName: 'core',
+        module: 'customers',
+        action: 'findActiveCustomers',
+        method: 'query',
         input: {
           selector: { _id: { $in: customerIds } },
-          fields: { _id: 1, code: 1 }
+          fields: { _id: 1, code: 1 },
         },
-        defaultValue: []
+        defaultValue: [],
       });
 
-      customerCode = (customers.find(c => c.code) || {}).code || "";
+      customerCode = (customers.find((c) => c.code) || {}).code || '';
     }
   }
 
@@ -410,19 +439,19 @@ export const getMoveData = async (subdomain, config, deal, dateType = "") => {
     customerCode = config.defaultCustomer;
   }
 
-  const productsIds = deal.productsData.map(item => item.productId);
+  const productsIds = deal.productsData.map((item) => item.productId);
 
   const products = await sendTRPCMessage({
     subdomain,
-    pluginName: "core",
-    module: "products",
-    action: "find",
-    method: "query",
+    pluginName: 'core',
+    module: 'products',
+    action: 'find',
+    method: 'query',
     input: {
       query: { _id: { $in: productsIds } },
-      limit: deal.productsData.length
+      limit: deal.productsData.length,
     },
-    defaultValue: []
+    defaultValue: [],
   });
 
   const productCodeById = {};
@@ -432,22 +461,21 @@ export const getMoveData = async (subdomain, config, deal, dateType = "") => {
 
   const details: any[] = [];
 
-  const branchIds = deal.productsData.map(pd => pd.branchId) || [];
-  const departmentIds = deal.productsData.map(pd => pd.departmentId) || [];
+  const branchIds = deal.productsData.map((pd) => pd.branchId) || [];
+  const departmentIds = deal.productsData.map((pd) => pd.departmentId) || [];
 
   const branchesById = {};
   const departmentsById = {};
 
-
   if (branchIds.length) {
     const branches = await sendTRPCMessage({
       subdomain,
-      pluginName: "core",
-      module: "branches",
-      action: "find",
-      method: "query",
+      pluginName: 'core',
+      module: 'branches',
+      action: 'find',
+      method: 'query',
       input: { query: { _id: { $in: branchIds } } },
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const branch of branches) {
@@ -455,23 +483,21 @@ export const getMoveData = async (subdomain, config, deal, dateType = "") => {
     }
   }
 
-
   if (departmentIds.length) {
     const departments = await sendTRPCMessage({
       subdomain,
-      pluginName: "core",
-      module: "departments",
-      action: "find",
-      method: "query",
+      pluginName: 'core',
+      module: 'departments',
+      action: 'find',
+      method: 'query',
       input: { query: { _id: { $in: departmentIds } } },
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const department of departments) {
       departmentsById[department._id] = department;
     }
   }
-
 
   for (const productData of deal.productsData) {
     // not tickUsed product not sent
@@ -484,11 +510,11 @@ export const getMoveData = async (subdomain, config, deal, dateType = "") => {
       continue;
     }
 
-    let otherCode: string = "";
+    let otherCode: string = '';
     if (productData.branchId || productData.departmentId) {
-      const branch = branchesById[productData.branchId || ""] || {};
-      const department = departmentsById[productData.departmentId || ""] || {};
-      otherCode = `${branch.code || ""}_${department.code || ""}`;
+      const branch = branchesById[productData.branchId || ''] || {};
+      const department = departmentsById[productData.departmentId || ''] || {};
+      otherCode = `${branch.code || ''}_${department.code || ''}`;
     }
 
     details.push({
@@ -496,60 +522,58 @@ export const getMoveData = async (subdomain, config, deal, dateType = "") => {
       amount: productData.amount,
       discount: productData.discount,
       inventoryCode: productCodeById[productData.productId],
-      otherCode
+      otherCode,
     });
   }
-
 
   let date = new Date().toISOString().slice(0, 10);
   let checkDate = false;
 
   switch (dateType) {
-    case "lastMove":
+    case 'lastMove':
       date = new Date(deal.stageChangedDate).toISOString().slice(0, 10);
       break;
-    case "created":
+    case 'created':
       date = new Date(deal.createdAt).toISOString().slice(0, 10);
       break;
-    case "closeOrCreated":
+    case 'closeOrCreated':
       date = new Date(deal.closeDate || deal.createdAt)
-      .toISOString()
-      .slice(0, 10);
+        .toISOString()
+        .slice(0, 10);
       break;
-    case "closeOrMove":
+    case 'closeOrMove':
       date = new Date(deal.closeDate || deal.stageChangedDate)
-      .toISOString()
-      .slice(0, 10);
+        .toISOString()
+        .slice(0, 10);
       break;
-    case "firstOrMove":
+    case 'firstOrMove':
       date = new Date(deal.stageChangedDate).toISOString().slice(0, 10);
       checkDate = true;
       break;
-    case "firstOrCreated":
+    case 'firstOrCreated':
       date = new Date(deal.createdAt).toISOString().slice(0, 10);
       checkDate = true;
       break;
   }
-
 
   const orderInfos = [
     {
       date,
       checkDate,
       orderId: deal._id,
-      number: deal.number || "",
+      number: deal.number || '',
       customerCode,
       description: deal.name,
-      details
-    }
+      details,
+    },
   ];
 
   const sendConfig = {
     defaultCustomer: config.defaultCustomer,
-    catAccLocMap: (config.catAccLocMap || []).map(item => ({
+    catAccLocMap: (config.catAccLocMap || []).map((item) => ({
       ...item,
-      otherCode: `${item.branch || ""}_${item.department || ""}`
-    }))
+      otherCode: `${item.branch || ''}_${item.department || ''}`,
+    })),
   };
 
   const postData = {
@@ -558,7 +582,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = "") => {
     apiKey: config.apiKey,
     apiSecret: config.apiSecret,
     config: JSON.stringify(sendConfig),
-    orderInfos: JSON.stringify(orderInfos)
+    orderInfos: JSON.stringify(orderInfos),
   };
 
   return postData;

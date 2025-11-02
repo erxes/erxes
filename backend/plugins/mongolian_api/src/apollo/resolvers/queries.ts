@@ -1,8 +1,7 @@
 import { ebarimtQueries } from '@/ebarimt/graphql/resolvers/queries';
-import { erkhetQueries } from '@/erkhet/graphql/resolvers/queries/remainders';
-
+import { erkhetQueries } from '@/erkhet/graphql/resolvers/queries';
 
 export const queries = {
   ...ebarimtQueries,
-  ...erkhetQueries
+  ...erkhetQueries,
 };

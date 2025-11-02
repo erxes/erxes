@@ -1,5 +1,5 @@
-import { generateModels } from '../../../connectionResolvers';
 import { sendTRPCMessage } from 'erxes-api-shared/src/utils';
+import { generateModels } from '~/connectionResolvers';
 import { calcProductsTaxRule } from './productsByTaxType';
 import { getConfig, getPureDate } from './utils';
 
@@ -33,7 +33,7 @@ const calcPreTaxPercentage = (paymentTypes, order) => {
   return { itemAmountPrePercent, preTaxPaymentTypes };
 };
 
-export const getPostData = async (subdomain, pos, order, paymentTypes) => {
+export const getPosPostData = async (subdomain, pos, order, paymentTypes) => {
   let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 
   if (
@@ -176,25 +176,29 @@ export const getPostData = async (subdomain, pos, order, paymentTypes) => {
     {
       date: getPureDate(order.paidDate).toISOString().slice(0, 10),
       orderId: order._id,
-      hasVat: order.billType === '9' ? false : (
-        (order.taxInfo
-          ? order.taxInfo.hasVat
-          : pos.ebarimtConfig?.hasVat
-        ) || oneMoreVat || false
-      ),
-      hasCitytax: order.billType === '9' ? false : (
-        (order.taxInfo
-          ? order.taxInfo.hasCitytax
-          : pos.ebarimtConfig?.hasCitytax
-        ) || oneMoreCtax || false
-      ),
+      hasVat:
+        order.billType === '9'
+          ? false
+          : (order.taxInfo
+              ? order.taxInfo.hasVat
+              : pos.ebarimtConfig?.hasVat) ||
+            oneMoreVat ||
+            false,
+      hasCitytax:
+        order.billType === '9'
+          ? false
+          : (order.taxInfo
+              ? order.taxInfo.hasCitytax
+              : pos.ebarimtConfig?.hasCitytax) ||
+            oneMoreCtax ||
+            false,
       billType: order.billType,
       customerCode,
       description: `${pos.name}`,
-      number: `${pos.erkhetConfig.beginNumber || ""}${order.number}`,
+      number: `${pos.erkhetConfig.beginNumber || ''}${order.number}`,
       details,
-      ...payments
-    }
+      ...payments,
+    },
   ];
 
   let userEmail = pos.erkhetConfig.userEmail;
