@@ -25,7 +25,7 @@ export const ProductDetailGeneral = ({
     descriptionAtom,
   );
   return (
-    <InfoCard title="Product Information" className="col-span-2">
+    <InfoCard title="Product Information">
       <InfoCard.Content>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">

@@ -4,6 +4,9 @@ import { IconPackageOff } from '@tabler/icons-react';
 import { ProductDetailGeneral } from './ProductDetailGeneral';
 import { PRODUCT_QUERY_KEY } from '../../constants/productQueryKey';
 import { ProductDetailBarcode } from './ProductDetailBarcode';
+import { ProductDetailUom } from './ProductDetailUom';
+import { ProductDetailAttachment } from './ProductDetailAttachment';
+import { ProductDetailVariants } from './ProductDetailVariants';
 
 export const ProductDetail = () => {
   const [productId] = useQueryState<string>(PRODUCT_QUERY_KEY);
@@ -42,11 +45,24 @@ export const ProductDetail = () => {
       </Sheet.Header>
       <Sheet.Content className="bg-transparent border-b-0 overflow-hidden">
         <ScrollArea className="h-full" viewportClassName="p-6">
-          <div className="grid grid-cols-3 gap-6">
-            <ProductDetailGeneral {...productDetail} />
-            <div className="flex gap-6 flex-col">
-              <ProductDetailBarcode />
+          <div className="grid lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2 grid gap-4">
+              <ProductDetailGeneral {...productDetail} />
             </div>
+            <div className="grid gap-4 grid-cols-2 lg:grid-cols-1">
+              <div>
+                <ProductDetailBarcode />
+              </div>
+              <div>
+                <ProductDetailUom />
+              </div>
+            </div>
+          </div>
+          <div className="pt-4">
+            <ProductDetailAttachment />
+          </div>
+          <div className="pt-4">
+            <ProductDetailVariants />
           </div>
         </ScrollArea>
       </Sheet.Content>
