@@ -24,7 +24,7 @@ export const FrontlineNavigation = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="invisible group-hover/inbox:visible absolute top-1/2 -translate-y-1/2 right-2 text-muted-foreground"
+              className="invisible group-hover/inbox:visible absolute top-1/2 -translate-y-1/2 right-2 text-muted-foreground hover:bg-transparent hover:text-foreground"
               onClick={(e) => e.stopPropagation()}
             >
               <IconDotsVertical className="size-4" />

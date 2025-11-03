@@ -6,29 +6,39 @@ import {
   ScrollArea,
   TextOverflowTooltip,
   IconComponent,
-  Checkbox,
+  Button,
+  useConfirm,
+  Spinner,
+  Tooltip,
 } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import { ActionsCommandBar, ChannelsCommandBar } from './ChannelsCommandBar';
+import { type IChannel } from '@/channels/types';
+import { IconBrandTrello, IconTrash } from '@tabler/icons-react';
+import { useChannelRemove } from '@/channels/hooks/useChannelRemove';
 
 export function Channels() {
   const { channels, loading } = useGetChannels();
   const navigate = useNavigate();
-  const [selected, setSelected] = useState<string[]>([]);
   const onClick = (channelId: string) => {
     navigate(`/settings/frontline/channels/details/${channelId}`);
   };
-  const toggleSelect = (id: string) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id],
+  if (!loading && (!channels || channels.length === 0)) {
+    return (
+      <div className="overflow-hidden h-full px-8 flex flex-col">
+        <div className="bg-sidebar size-full border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
+          <div className="size-full flex flex-col items-center justify-center">
+            <IconBrandTrello size={64} stroke={1.5} className="text-gray-300" />
+            <h2 className="text-lg font-semibold text-gray-600">
+              No channels found
+            </h2>
+            <p className="text-md text-gray-500 mb-4">
+              Create a channel to start organizing your team.
+            </p>
+          </div>
+        </div>
+      </div>
     );
-  };
-
-  const toggleSelectAll = () => {
-    if (selected.length === channels?.length) setSelected([]);
-    else setSelected(channels?.map((c) => c._id) || []);
-  };
+  }
 
   return (
     <div className="overflow-hidden h-full px-8">
@@ -42,6 +52,7 @@ export function Channels() {
               <Table.Head className="w-20">Members</Table.Head>
               <Table.Head className="w-32">Created At</Table.Head>
               <Table.Head className="w-32">Updated At</Table.Head>
+              <Table.Head className="w-10"></Table.Head>
             </Table.Row>
           </Table.Header>
         </Table>
@@ -52,21 +63,12 @@ export function Channels() {
                 ? Array.from({ length: 3 }).map((_, index) => (
                     <TableRowSkeleton key={index} />
                   ))
-                : channels?.map((channel) => (
+                : channels?.map((channel: IChannel) => (
                     <Table.Row
                       key={channel._id}
                       onClick={() => onClick(channel._id)}
-                      className="hover:cursor-pointer shadow-xs"
+                      className="hover:cursor-pointer shadow-xs group/row"
                     >
-                      <Table.Cell className="w-10 pl-3 border-none">
-                        <Checkbox
-                          checked={selected.includes(channel._id)}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleSelect(channel._id);
-                          }}
-                        />
-                      </Table.Cell>
                       <Table.Cell className="font-medium border-none pl-2 w-auto ">
                         <span className="w-full flex gap-2 text-base font-medium">
                           <span className="[1lh] flex items-center">
@@ -79,23 +81,21 @@ export function Channels() {
                         </span>
                       </Table.Cell>
 
-                      <Table.Cell className="border-none px-2 w-20">
+                      <Table.Cell className="border-none px-2 w-20 text-center">
                         {channel.memberCount}
                       </Table.Cell>
                       <Table.Cell className="border-none px-2 w-32 text-muted-foreground">
-                        {channel.createdAt
-                          ? format(new Date(channel.createdAt), 'MMM d, yyyy')
-                          : ''}
+                        <DateDisplay date={channel.createdAt} />
                       </Table.Cell>
                       <Table.Cell className="border-none px-2 w-32 text-muted-foreground">
-                        {channel.updatedAt
-                          ? format(new Date(channel.updatedAt), 'MMM d, yyyy')
-                          : ''}
+                        <DateDisplay date={channel.updatedAt} />
+                      </Table.Cell>
+                      <Table.Cell className="border-none px-2 w-10">
+                        <DeleteChannel channelId={channel._id} />
                       </Table.Cell>
                     </Table.Row>
                   ))}
             </Table.Body>
-            <ChannelsCommandBar selected={selected} />
           </Table>
         </ScrollArea>
       </div>
@@ -123,3 +123,47 @@ const TableRowSkeleton = () => (
     </Table.Cell>
   </Table.Row>
 );
+
+export const DeleteChannel = ({ channelId }: { channelId: string }) => {
+  const confirmationValue = 'delete';
+  const confirmationMessage = 'Are you sure you want to delete this channel?';
+  const { removeChannel, loading } = useChannelRemove();
+  const { confirm } = useConfirm();
+  const onDelete = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    confirm({
+      message: confirmationMessage,
+      options: { confirmationValue },
+    }).then(() => {
+      removeChannel({ variables: { id: channelId } });
+    });
+  };
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="aspect-square text-muted-foreground hover:text-destructive hover:bg-transparent group-hover/row:visible invisible transition-all duration-[50ms] ease-linear"
+      onClick={onDelete}
+      disabled={loading}
+    >
+      {loading ? <Spinner size={'sm'} /> : <IconTrash />}
+    </Button>
+  );
+};
+
+export const DateDisplay = ({ date }: { date: string }) => {
+  return (
+    <Tooltip.Provider>
+      <Tooltip>
+        <Tooltip.Trigger>
+          <div className="te`xt-muted-foreground text-xs">
+            {date ? format(new Date(date), 'MMM d, yyyy') : ''}
+          </div>
+        </Tooltip.Trigger>
+        <Tooltip.Content>
+          {format(new Date(date), 'MMM d, yyyy HH:mm')}
+        </Tooltip.Content>
+      </Tooltip>
+    </Tooltip.Provider>
+  );
+};
