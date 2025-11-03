@@ -9,6 +9,11 @@ import {
   IAssignmentModel,
   loadAssignmentClass,
 } from '@/assignment/db/models/assignment';
+import { ICampaignDocument } from '@/campaign/@types';
+import {
+  ICampaignModel,
+  loadCampaignClass,
+} from '@/campaign/db/models/Campaign';
 import { ICouponDocument } from '@/coupon/@types/coupon';
 import { ICouponModel, loadCouponClass } from '@/coupon/db/models/coupon';
 import { IDonateDocument } from '@/donate/@types/donate';
@@ -20,24 +25,11 @@ import { IScoreDocument } from '@/score/@types/score';
 import { IScoreModel, loadScoreClass } from '@/score/db/models/score';
 import { ISpinDocument } from '@/spin/@types/spin';
 import { ISpinModel, loadSpinClass } from '@/spin/db/models/spin';
-import { IVoucherCampaignDocument } from '@/voucher/@types/campaign';
 import { IVoucherDocument } from '@/voucher/@types/voucher';
-import {
-  IVoucherCampaignModel,
-  loadCampaignClass,
-  loadCampaignClass as loadVoucherCampaignClass,
-} from '@/voucher/db/models/Campaign';
 import { IVoucherModel, loadVoucherClass } from '@/voucher/db/models/voucher';
 import { IAgentDocument } from './modules/agent/@types';
 import { IAgentModel, loadAgentClass } from './modules/agent/db/models/Agent';
-import { ICouponCampaignDocument } from './modules/coupon/@types/campaign';
-import {
-  ICouponCampaignModel,
-  loadCampaignClass as loadCouponCampaignClass,
-} from './modules/coupon/db/models/Campaign';
-import { IScoreCampaignDocument } from './modules/score/@types/campaign';
 import { IScoreLogDocument } from './modules/score/@types/scoreLog';
-import { IScoreCampaignModel } from './modules/score/db/models/Campaign';
 import {
   IScoreLogModel,
   loadScoreLogClass,
@@ -45,12 +37,10 @@ import {
 
 export interface IModels {
   Pricing: IPricingModel;
+  Campaign: ICampaignModel;
   Voucher: IVoucherModel;
-  VoucherCampaign: IVoucherCampaignModel;
   Coupon: ICouponModel;
-  CouponCampaign: ICouponCampaignModel;
   Score: IScoreModel;
-  ScoreCampaign: IScoreCampaignModel;
   ScoreLog: IScoreLogModel;
   Lottery: ILotteryModel;
   Spin: ISpinModel;
@@ -72,34 +62,24 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadPricingClass(models),
   );
 
+  models.Campaign = db.model<ICampaignDocument, ICampaignModel>(
+    'loyalty_campaign',
+    loadCampaignClass(models),
+  );
+
   models.Voucher = db.model<IVoucherDocument, IVoucherModel>(
     'loyalty_voucher',
     loadVoucherClass(models),
   );
-
-  models.VoucherCampaign = db.model<
-    IVoucherCampaignDocument,
-    IVoucherCampaignModel
-  >('loyalty_voucher_campaign', loadVoucherCampaignClass(models));
 
   models.Coupon = db.model<ICouponDocument, ICouponModel>(
     'loyalty_coupon',
     loadCouponClass(models),
   );
 
-  models.CouponCampaign = db.model<
-    ICouponCampaignDocument,
-    ICouponCampaignModel
-  >('loyalty_coupon_campaign', loadCouponCampaignClass(models));
-
   models.Score = db.model<IScoreDocument, IScoreModel>(
     'loyalty_score',
     loadScoreClass(models),
-  );
-
-  models.ScoreCampaign = db.model<IScoreCampaignDocument, IScoreCampaignModel>(
-    'loyalty_score_campaign',
-    loadCampaignClass(models),
   );
 
   models.ScoreLog = db.model<IScoreLogDocument, IScoreLogModel>(

@@ -48,7 +48,7 @@ export const loadCouponClass = (models: IModels) => {
         throw new Error('Campaign id is required');
       }
 
-      const campaign = await models.CouponCampaign.getCampaign(campaignId);
+      const campaign = await models.Campaign.getCampaign(campaignId);
       const coupon = await models.Coupon.getCoupon(code);
 
       if (coupon) {
@@ -189,9 +189,7 @@ export const loadCouponClass = (models: IModels) => {
         throw new Error('This voucher is not associated with a campaign.');
       }
 
-      const campaign = await models.CouponCampaign.getCampaign(
-        coupon.campaignId,
-      );
+      const campaign = await models.Campaign.getCampaign(coupon.campaignId);
 
       if (campaign.status === CAMPAIGN_STATUS.INACTIVE) {
         throw new Error('Campaign is not active');

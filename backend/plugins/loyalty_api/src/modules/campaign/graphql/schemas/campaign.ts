@@ -1,7 +1,7 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
-  type CouponCampaign {
+  type Campaign {
     _id: String
     name: String
     description: String
@@ -13,10 +13,12 @@ export const types = `
     createdBy: User
     updatedBy: User
     conditions: JSON
+
+    kind: String
   }
 
-  type CouponCampaignListRepsponse {
-    list: [CouponCampaign]
+  type CampaignListRepsponse {
+    list: [Campaign]
     pageInfo: PageInfo
     totalCount: Int
   }
@@ -33,12 +35,13 @@ const queryParams = `
 `;
 
 export const queries = `
-  getCouponCampaign(_id: String!): CouponCampaign
-  getCouponCampaigns(${queryParams}): CouponCampaignListRepsponse
+  getCampaign(_id: String!): Campaign
+  getCampaigns(${queryParams}): CampaignListRepsponse
 `;
 
 const mutationParams = `
   name: String!
+  kind: String!
   description: String
   startDate: String
   endDate: String
@@ -50,7 +53,7 @@ const mutationParams = `
 `;
 
 export const mutations = `
-  createCouponCampaign(${mutationParams}): CouponCampaign
-  updateCouponCampaign(_id: String!, ${mutationParams}): CouponCampaign
-  removeCouponCampaign(_id: String!): CouponCampaign
+  createCampaign(${mutationParams}): Campaign
+  updateCampaign(_id: String!, ${mutationParams}): Campaign
+  removeCampaign(_id: String!): Campaign
 `;

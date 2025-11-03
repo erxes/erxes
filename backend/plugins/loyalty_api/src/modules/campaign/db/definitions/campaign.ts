@@ -21,6 +21,8 @@ export const campaignSchema = schemaWrapper(
       updatedBy: { type: String, label: 'Updated by' },
 
       conditions: { type: Schema.Types.Mixed, label: 'Conditions' },
+
+      kind: { type: String, label: 'Kind', required: true },
     },
     {
       timestamps: true,

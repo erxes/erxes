@@ -71,7 +71,7 @@ export const couponQueries = {
         entry.coupons.push(coupon);
         entry.count += 1;
       } else {
-        const campaign = await models.CouponCampaign.findOne({
+        const campaign = await models.Campaign.findOne({
           _id: campaignId,
         }).lean();
 

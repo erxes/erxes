@@ -84,7 +84,7 @@ export const voucherQueries = {
 
     const campaignIds = Array.from(campaignVoucherMap.keys());
 
-    const campaigns = await models.VoucherCampaign.find({
+    const campaigns = await models.Campaign.find({
       _id: { $in: campaignIds },
       status: CAMPAIGN_STATUS.ACTIVE,
       startDate: { $lte: new Date() },

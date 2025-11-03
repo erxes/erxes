@@ -5,8 +5,8 @@ import { Model } from 'mongoose';
 import { OWNER_TYPES } from '~/@types';
 import { IModels } from '~/connectionResolvers';
 import { LOYALTY_STATUSES } from '~/constants';
+import { ICampaignDocument } from '~/modules/campaign/@types';
 import { CAMPAIGN_STATUS } from '~/modules/campaign/constants';
-import { IVoucherCampaignDocument } from '~/modules/voucher/@types/campaign';
 
 export interface IVoucherModel extends Model<IVoucherDocument> {
   getVoucher(_id: string): Promise<IVoucherDocument>;
@@ -23,7 +23,7 @@ export interface IVoucherModel extends Model<IVoucherDocument> {
     voucherId: string;
     ownerId: string;
     ownerType: OWNER_TYPES;
-  }): Promise<IVoucherCampaignDocument>;
+  }): Promise<ICampaignDocument>;
 
   redeemVoucher(doc: {
     voucherId: string;
@@ -89,9 +89,7 @@ export const loadVoucherClass = (models: IModels) => {
         throw new Error('This voucher is not associated with a campaign.');
       }
 
-      const campaign = await models.VoucherCampaign.getCampaign(
-        voucher.campaignId,
-      );
+      const campaign = await models.Campaign.getCampaign(voucher.campaignId);
 
       if (campaign.status === CAMPAIGN_STATUS.INACTIVE) {
         throw new Error('Campaign is not active');

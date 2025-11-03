@@ -1,21 +1,19 @@
-import {
-  IVoucherCampaign,
-  IVoucherCampaignParams,
-} from '@/voucher/@types/campaign';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
+import { ICampaign, ICampaignParams } from '~/modules/campaign/@types';
 
-const generateFilter = (params: IVoucherCampaignParams) => {
-  const filter: FilterQuery<IVoucherCampaign> = {};
-
+const generateFilter = (params: ICampaignParams) => {
   const {
+    kind,
     searchValue,
     status,
     fromDate,
     toDate,
     dateField = 'createdAt',
   } = params || {};
+
+  const filter: FilterQuery<ICampaign> = { kind };
 
   if (searchValue) {
     filter.$or = [
@@ -43,24 +41,24 @@ const generateFilter = (params: IVoucherCampaignParams) => {
   return filter;
 };
 
-export const voucherCampaignQueries = {
-  getVoucherCampaign: async (
+export const campaignQueries = {
+  getCampaign: async (
     _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return models.VoucherCampaign.getCampaign(_id);
+    return models.Campaign.getCampaign(_id);
   },
 
-  getVoucherCampaigns: async (
+  getCampaigns: async (
     _parent: undefined,
-    params: IVoucherCampaignParams,
+    params: ICampaignParams,
     { models }: IContext,
   ) => {
     const filter = generateFilter(params);
 
     return await cursorPaginate({
-      model: models.VoucherCampaign,
+      model: models.Campaign,
       params,
       query: filter,
     });
