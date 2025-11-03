@@ -1,60 +1,151 @@
-import { IScore, IScoreDocument } from '@/score/@types/score';
+import { IScoreDocument } from '@/score/@types/score';
+import { IScoreLog } from '@/score/@types/scoreLog';
 import { scoreSchema } from '@/score/db/definitions/score';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
 export interface IScoreModel extends Model<IScoreDocument> {
-  getScore(_id: string): Promise<IScoreDocument>;
-  getScores(): Promise<IScoreDocument[]>;
-  createScore(doc: IScore): Promise<IScoreDocument>;
-  updateScore(_id: string, doc: IScore): Promise<IScoreDocument>;
-  removeScore(ScoreId: string): Promise<{  ok: number }>;
+  getScore(ownerId: string, ownerType: string): Promise<IScoreDocument>;
+  changeScore(doc: IScoreLog): Promise<IScoreDocument>;
 }
 
 export const loadScoreClass = (models: IModels) => {
   class Score {
-    /**
-     * Retrieves score
-     */
-    public static async getScore(_id: string) {
-      const Score = await models.Score.findOne({ _id }).lean();
+    public static async getScore(ownerId: string, ownerType: string) {
+      const score = await models.Score.findOne({ ownerId, ownerType }).lean();
 
-      if (!Score) {
-        throw new Error('Score not found');
+      if (!score) {
+        return models.Score.create({ ownerId, ownerType, score: 0 });
       }
 
-      return Score;
+      return score;
     }
 
-    /**
-     * Retrieves all scores
-     */
-    public static async getScores(): Promise<IScoreDocument[]> {
-      return models.Score.find().lean();
-    }
-
-    /**
-     * Create a score
-     */
-    public static async createScore(doc: IScore): Promise<IScoreDocument> {
-      return models.Score.create(doc);
-    }
-
-    /*
-     * Update score
-     */
-    public static async updateScore(_id: string, doc: IScore) {
+    public static async updateScore(
+      ownerId: string,
+      ownerType: string,
+      score: number,
+    ) {
       return await models.Score.findOneAndUpdate(
-        { _id },
-        { $set: { ...doc } },
+        { ownerId, ownerType },
+        { $set: { score } },
+        { new: true },
       );
     }
 
-    /**
-     * Remove score
-     */
-    public static async removeScore(ScoreId: string[]) {
-      return models.Score.deleteOne({ _id: { $in: ScoreId } });
+    public static async changeScore(doc: IScoreLog) {
+      const { ownerId, ownerType } = doc;
+
+      const { score, change } = await this.validateScore(doc);
+
+      await models.ScoreLog.createScoreLog({ ...doc, change });
+
+      return await this.updateScore(ownerId, ownerType, score);
+    }
+
+    public static async validateScore(doc: IScoreLog) {
+      const { ownerId, ownerType, change, action, contentId, contentType } =
+        doc;
+
+      const { score } = await models.Score.getScore(ownerId, ownerType);
+
+      if (action === 'subtract') {
+        return await this.validateUsage(score, change);
+      }
+
+      if (action === 'refund') {
+        return await this.validateRefund(
+          ownerId,
+          ownerType,
+          contentId,
+          contentType,
+          score,
+        );
+      }
+
+      return { score: score + change, change };
+    }
+
+    public static async validateUsage(score: number, change: number) {
+      if (score - change < 0) {
+        throw new Error('There has no enough score to subtract');
+      }
+
+      return { score: score - change, change };
+    }
+
+    public static async validateRefund(
+      ownerId: string,
+      ownerType: string,
+      contentId: string,
+      contentType: string,
+      score: number,
+    ) {
+      let scoreLog = await models.ScoreLog.findOne({
+        ownerId,
+        ownerType,
+        contentId,
+        contentType,
+        action: 'subtract',
+      }).lean();
+
+      if (!scoreLog) {
+        scoreLog = await models.ScoreLog.findOne({
+          ownerId,
+          ownerType,
+          contentId,
+          contentType,
+          action: 'add',
+        }).lean();
+
+        if (!scoreLog) {
+          throw new Error('Cannot find score log on this target');
+        }
+      }
+
+      const refundScoreLog = await models.ScoreLog.exists({
+        ownerId,
+        ownerType,
+        contentId,
+        contentType,
+        action: 'refund',
+      }).lean();
+
+      if (refundScoreLog) {
+        throw new Error(
+          'Cannot refund loyalty score cause already refunded loyalty score',
+        );
+      }
+
+      let { change, action } = scoreLog;
+
+      let refundAmount: number;
+
+      if (action === 'subtract') {
+        const addedScoreLogs = await models.ScoreLog.find({
+          ownerId,
+          ownerType,
+          contentId,
+          contentType,
+          action: 'add',
+        }).lean();
+
+        if (addedScoreLogs && addedScoreLogs.length > 0) {
+          const totalAddedScore = addedScoreLogs.reduce(
+            (acc, curr) => acc + curr.change,
+            0,
+          );
+          refundAmount = change - totalAddedScore;
+        } else {
+          refundAmount = change;
+        }
+      } else if (action === 'add') {
+        refundAmount = -change;
+      } else {
+        throw new Error(`Unsupported action type for refund: ${action}`);
+      }
+
+      return { score: score + refundAmount, change: refundAmount };
     }
   }
 

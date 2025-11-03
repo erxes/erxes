@@ -1,7 +1,9 @@
 import { Document } from 'mongoose';
 
 export interface IScore {
-  name?: string;
+  ownerId: string;
+  ownerType: string;
+  score: number;
 }
 
 export interface IScoreDocument extends IScore, Document {
