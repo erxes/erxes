@@ -19,7 +19,8 @@ export const LOYALTY_STATUSES = {
   INACTIVE: 'inactive',
   EXPIRED: 'expired',
   REDEEMED: 'redeemed',
-  ALL: ['new', 'active', 'inactive', 'expired', 'redeemed'],
+  WON: 'won',
+  ALL: ['new', 'active', 'inactive', 'expired', 'redeemed', 'won'],
 };
 
 export const LOYALTY_CHAR_SET = {
@@ -28,4 +29,14 @@ export const LOYALTY_CHAR_SET = {
   '0-9': '0123456789',
   'А-Я': 'АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ',
   'а-я': 'абвгдеёжзийклмнопрстуфхцчшщыэюя',
+};
+
+export const LOYALTY_CHAR_SET_ADVANCED = {
+  '0-9': '0123456789',
+  'a-z': 'abcdefghijklmnopqrstuvwxyz',
+  'A-Z': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  'a-Z': 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  '0-z': '0123456789abcdefghijklmnopqrstuvwxyz',
+  '0-Z': '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  '0-zZ': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
 };
