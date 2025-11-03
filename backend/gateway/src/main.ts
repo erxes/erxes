@@ -38,7 +38,7 @@ const corsOptions = {
   credentials: true,
   origin: [
     ...(DOMAIN ? [DOMAIN] : []),
-    ...(isDev ? ['http://localhost:3001', 'http://localhost:5173'] : []),
+    ...(isDev ? ['http://localhost:3001', 'http://localhost:5173', 'http://localhost:4200'] : []),
   ],
 };
 

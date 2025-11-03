@@ -132,6 +132,16 @@ import {
   IChannelMemberDocument,
 } from '@/channel/@types/channel';
 import { ICallQueueStatisticsDocuments } from '@/integrations/call/@types/queueStatistics';
+import {
+  IMessengerAppModel,
+  loadClass as loadMessengerAppClass,
+} from './modules/inbox/db/models/MessengerApps';
+import {
+  IConfigModel,
+  loadConfigClass,
+  IConfigDocument,
+} from './modules/inbox/@types/configs';
+import { IMessengerAppDocument } from './modules/inbox/db/definitions/messengerApps';
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -167,6 +177,9 @@ export interface IModels {
   ImapIntegrations: IIntegrationImapModel;
   ImapMessages: IMessageImapModel;
   ImapLogs: ILogImapModel;
+
+  MessengerApps: IMessengerAppModel;
+  Configs: IConfigModel;
 }
 
 export interface IContext extends IMainContext {
@@ -302,6 +315,14 @@ export const loadClasses = (
   models.ImapLogs = db.model<ILogImapDocument, ILogImapModel>(
     'imap_logs',
     loadImapLogClass(models),
+  );
+  models.MessengerApps = db.model<IMessengerAppDocument, IMessengerAppModel>(
+    'messenger_apps',
+    loadMessengerAppClass(models),
+  );
+  models.Configs = db.model<IConfigDocument, IConfigModel>(
+    'configs',
+    loadConfigClass(models),
   );
   return models;
 };

@@ -8,6 +8,13 @@ import {
 } from './constants';
 import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 
+export interface IAttachment {
+  name: string;
+  url: string;
+  size: number;
+  type: string;
+}
+
 const messengerOnlineHoursSchema = new Schema(
   {
     day: { type: String },
@@ -230,6 +237,14 @@ export const leadDataSchema = new Schema(
   { _id: false },
 );
 
+const colorDefinitionSchema = new Schema(
+  {
+    DEFAULT: { type: String },
+    foreground: { type: String },
+  },
+  { _id: false },
+);
+
 // subdocument schema for messenger UiOptions
 const uiOptionsSchema = new Schema(
   {
@@ -237,6 +252,7 @@ const uiOptionsSchema = new Schema(
     textColor: { type: String },
     wallpaper: { type: String },
     logo: { type: String },
+    primary: { type: colorDefinitionSchema },
   },
   { _id: false },
 );
