@@ -36,6 +36,7 @@ jobs:
         run: |
           echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
           echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
       - name: Build shared module
         run: pnpm nx build erxes-api-shared
 
@@ -66,4 +67,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: |
             erxes/erxes-next-tourism_api:latest
-            erxes/erxes-next-tourism_api:${{ github.sha }}
+            erxes/erxes-next-tourism_api:${{ env.DATE }}-${{ env.SHORT_SHA }}

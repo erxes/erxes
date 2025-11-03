@@ -18,7 +18,7 @@ const NotificationsWidgets = (props: any) => {
 
     return <NotificationComponent {...props} />;
   }
- 
+
   return <TaskDetails taskId={contentTypeId} />;
 };
 

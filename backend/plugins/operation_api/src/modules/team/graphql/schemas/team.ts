@@ -12,7 +12,7 @@ export const types = `
         createdAt: Date
         updatedAt: Date
         cycleEnabled: Boolean
-
+        triageEnabled: Boolean
         taskCount: Int
         memberCount: Int
     }
@@ -29,14 +29,14 @@ export const types = `
 
 export const queries = `
     getTeam(_id: String!): Team
-    getTeams(name: String, userId: String, teamIds: [String], projectId: String): [Team]
+    getTeams(name: String, userId: String, teamIds: [String], projectId: String, isTriageEnabled: Boolean, teamId: String): [Team]
     getTeamMembers(teamId: String, teamIds: [String]): [TeamMember]
     getTeamEstimateChoises(teamId: String): JSON
 `;
 
 export const mutations = `
     teamAdd(name: String!, description: String, icon: String!, memberIds: [String]): Team
-    teamUpdate(_id: String!, name: String, description: String, icon: String, memberIds: [String], estimateType: Int, cycleEnabled: Boolean): Team
+    teamUpdate(_id: String!, name: String, description: String, icon: String, memberIds: [String], estimateType: Int, cycleEnabled: Boolean, triageEnabled: Boolean): Team
     teamRemove(_id: String!): Team
     teamAddMembers(_id: String!, memberIds: [String]): [TeamMember]
     teamRemoveMember(teamId: String!, memberId: String!): TeamMember

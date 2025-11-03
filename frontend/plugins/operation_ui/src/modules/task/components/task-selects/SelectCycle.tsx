@@ -1,22 +1,22 @@
-import React from 'react';
-import { PopoverScoped, Combobox, Command } from 'erxes-ui';
 import { useGetActiveCycles } from '@/cycle/hooks/useGetActiveCycles';
-import { IconRestore } from '@tabler/icons-react';
-import { useState } from 'react';
-import { useGetTeam } from '@/team/hooks/useGetTeam';
 import { ICycle } from '@/cycle/types';
 import {
+  SelectOperationContent,
   SelectTriggerOperation,
   SelectTriggerVariant,
 } from '@/operation/components/SelectOperation';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
-import { SelectOperationContent } from '@/operation/components/SelectOperation';
+import { useGetTeam } from '@/team/hooks/useGetTeam';
+import { IconRestore } from '@tabler/icons-react';
 import { format } from 'date-fns';
+import { Combobox, Command, PopoverScoped } from 'erxes-ui';
+import React, { useState } from 'react';
 
 interface SelectCycleContextType {
   value?: string;
   onValueChange: (value: string) => void;
   activeCycles: ICycle[];
+  isCompleted?: boolean;
 }
 
 const SelectCycleContext = React.createContext<SelectCycleContextType | null>(
@@ -156,7 +156,15 @@ const SelectCycleProvider = ({
 
   if (!team?.cycleEnabled) return null;
 
+  const selectedCycle = activeCycles?.find((c) => c._id === value);
+
+  const isCompleted = selectedCycle?.isCompleted && !selectedCycle?.isActive;
+
   const handleValueChange = (cycleId: string) => {
+    if (isCompleted) {
+      return;
+    }
+
     onValueChange(cycleId);
   };
 
@@ -166,10 +174,36 @@ const SelectCycleProvider = ({
         value,
         onValueChange: handleValueChange,
         activeCycles: activeCycles || [],
+        isCompleted,
       }}
     >
       {children}
     </SelectCycleContext.Provider>
+  );
+};
+
+const SelectCycleRootContent = ({ 
+  open, 
+  setOpen, 
+  variant 
+}: { 
+  open: boolean; 
+  setOpen: (open: boolean) => void; 
+  variant: `${SelectTriggerVariant}`; 
+}) => {
+  const { isCompleted } = useSelectCycleContext();
+
+  return (
+    <PopoverScoped open={open} onOpenChange={setOpen}>
+      <SelectTriggerOperation variant={variant}>
+        <SelectCycleValue />
+      </SelectTriggerOperation>
+      {!isCompleted && (
+        <SelectOperationContent variant={variant}>
+          <SelectCycleContent />
+        </SelectOperationContent>
+      )}
+    </PopoverScoped>
   );
 };
 
@@ -202,14 +236,11 @@ const SelectCycleRoot = ({
       teamId={teamId}
       taskId={taskId}
     >
-      <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant={variant}>
-          <SelectCycleValue />
-        </SelectTriggerOperation>
-        <SelectOperationContent variant={variant}>
-          <SelectCycleContent />
-        </SelectOperationContent>
-      </PopoverScoped>
+      <SelectCycleRootContent 
+        open={open} 
+        setOpen={setOpen} 
+        variant={variant} 
+      />
     </SelectCycleProvider>
   );
 };

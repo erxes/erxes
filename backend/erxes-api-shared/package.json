@@ -46,8 +46,7 @@
     "tslib": "^2.3.0",
     "zod": "3.23.8",
     "express-rate-limit": "^6.11.0",
-    "node-fetch": "^2.6.7",
-    "helmet": "^8.1.0"
+    "node-fetch": "^2.6.7"
   },
   "preconstruct": {
     "tsconfig": "tsconfig.lib.json",
