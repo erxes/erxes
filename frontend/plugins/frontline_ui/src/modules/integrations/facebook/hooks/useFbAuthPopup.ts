@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 export const useFbAuthPopup = (onClose?: () => void) => {
+  console.log(useFbAuthPopup, 'useFbAuthPopup');
   const popupRef = useRef<Window | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 

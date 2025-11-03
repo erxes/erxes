@@ -34,6 +34,7 @@ export const FacebookGetAccounts = () => {
   const { popupWindow } = useFbAuthPopup(() => refetch());
 
   const handleFacebookLogin = () => {
+    console.log('handleFacebookLogin', handleFacebookLogin);
     setIsLoggingIn(true);
     popupWindow(
       `${REACT_APP_API_URL}/pl:frontline/facebook/fblogin`,
