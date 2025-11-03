@@ -131,12 +131,18 @@ export const Status = ({
           </span>
         </div>
       </span>
-      <StatusOptionMenu statusId={status._id} statusType={status.type}/>
+      <StatusOptionMenu statusId={status._id} statusType={status.type} />
     </div>
   );
 };
 
-const StatusOptionMenu = ({ statusId, statusType }: { statusId: string; statusType: number }) => {
+const StatusOptionMenu = ({
+  statusId,
+  statusType,
+}: {
+  statusId: string;
+  statusType: number;
+}) => {
   const setEditingStatus = useSetAtom(editingStatusState);
   const { toast } = useToast();
   const { deleteStatus } = useDeleteTicketStatus(statusType);
@@ -296,7 +302,10 @@ export const StatusForm = ({
                               : undefined,
                           }}
                         >
-                          <StatusInlineIcon statusType={statusType} color={field.value} />
+                          <StatusInlineIcon
+                            statusType={statusType}
+                            color={field.value}
+                          />
                         </Button>
                       </ColorPicker.Trigger>
                       <ColorPicker.Content />
@@ -356,10 +365,7 @@ export const StatusGroup = ({ statusType }: { statusType: number }) => {
   const [_statuses, _setStatuses] = useState<ITicketStatus[]>([]);
 
   useEffect(() => {
-    if (
-      statuses.length > 0 &&
-      JSON.stringify(statuses) !== JSON.stringify(_statuses)
-    ) {
+    if (JSON.stringify(statuses) !== JSON.stringify(_statuses)) {
       _setStatuses(statuses);
     }
   }, [_statuses, statuses]);
@@ -377,7 +383,7 @@ export const StatusGroup = ({ statusType }: { statusType: number }) => {
     if (oldIndex === -1 || newIndex === -1) return;
 
     const newOrder = arrayMove(_statuses, oldIndex, newIndex);
-
+    const previousOrder = _statuses;
     _setStatuses(newOrder);
 
     newOrder.forEach((status, index) => {
@@ -388,7 +394,7 @@ export const StatusGroup = ({ statusType }: { statusType: number }) => {
             order: index,
           },
           onError: (error) => {
-            _setStatuses(_statuses);
+            _setStatuses(previousOrder);
             toast({
               title: 'Error',
               description: error.message,

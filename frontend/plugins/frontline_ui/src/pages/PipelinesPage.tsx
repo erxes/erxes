@@ -8,7 +8,7 @@ export const ChannelPipelinesPage = () => {
   return (
     <div className="h-screen">
       <div className="ml-auto flex justify-between px-8 py-6">
-        <h1 className="text-xlfont-semibold">Pipelines</h1>
+        <h1 className="text-xl font-semibold">Pipelines</h1>
         <CreatePipeline />
       </div>
       <PipelinesList channelId={channelId} />
