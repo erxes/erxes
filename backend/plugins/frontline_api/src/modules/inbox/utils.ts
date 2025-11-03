@@ -47,6 +47,44 @@ export const isServiceRunning = async (
   );
 };
 
+export const handleAutomation = async (
+  subdomain: string,
+  {
+    conversationMessage,
+    payload,
+  }: {
+    conversationMessage: any;
+    payload: any;
+  },
+) => {
+  const target = { ...conversationMessage.toObject() };
+  const type = 'inbox:messages';
+  if (payload) {
+    if (typeof payload === 'string') {
+      target.payload = JSON.parse(payload || '{}');
+    } else {
+      target.payload = payload;
+    }
+  }
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'automations',
+    method: 'mutation',
+    module: 'triggers',
+    action: 'trigger',
+    input: {
+      type,
+      targets: [target],
+    },
+  })
+    .catch((err) => {
+      debugError(`Error sending automation message: ${err.message}`);
+      throw err;
+    })
+    .then(() => {
+      debugInfo(`Sent message successfully`);
+    });
+};
 export interface RPSuccess {
   status: 'success';
   data?: any;
