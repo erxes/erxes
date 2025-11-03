@@ -1,57 +1,89 @@
-import { IAgent, IAgentDocument } from '@/agent/@types/agent';
+import { IAgent, IAgentDocument } from '@/agent/@types';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
+import { AGENT_STATUSES } from '../../constants';
 import { agentSchema } from '../definitions/agent';
 
 export interface IAgentModel extends Model<IAgentDocument> {
   getAgent(_id: string): Promise<IAgentDocument>;
-  getAgents(): Promise<IAgentDocument[]>;
   createAgent(doc: IAgent): Promise<IAgentDocument>;
   updateAgent(_id: string, doc: IAgent): Promise<IAgentDocument>;
   removeAgent(AgentId: string): Promise<{ ok: number }>;
 }
 
+const validateDoc = (doc: IAgent) => {
+  const {
+    number,
+    status,
+    hasReturn,
+    returnAmount,
+    returnPercent,
+    prepaidPercent,
+    discountPercent,
+    customerIds = [],
+    companyIds = [],
+  } = doc;
+
+  if (!number) {
+    throw new Error('Agent number is missing');
+  }
+
+  if (!AGENT_STATUSES.ALL.includes(status)) {
+    throw new Error('Invalid status value');
+  }
+
+  if (hasReturn && !(returnAmount || returnPercent)) {
+    throw new Error('Either return amount or percent must be > 0');
+  }
+
+  if (!hasReturn && !(prepaidPercent || discountPercent)) {
+    throw new Error('Either prepaid or discount percent must be > 0');
+  }
+
+  if (customerIds.length > 0 && companyIds.length > 0) {
+    throw new Error(
+      'Choose only customers or companies at once, not both at the same time',
+    );
+  }
+};
+
 export const loadAgentClass = (models: IModels) => {
   class Agent {
-    /**
-     * Retrieves agent
-     */
     public static async getAgent(_id: string) {
-      const Agent = await models.Agent.findOne({ _id }).lean();
+      const agent = await models.Agent.findOne({ _id });
 
-      if (!Agent) {
+      if (!agent) {
         throw new Error('Agent not found');
       }
 
-      return Agent;
+      return agent;
     }
 
-    /**
-     * Retrieves all agents
-     */
-    public static async getAgents(): Promise<IAgentDocument[]> {
-      return models.Agent.find().lean();
-    }
+    public static async createAgent(doc: IAgent) {
+      validateDoc(doc);
 
-    /**
-     * Create a agent
-     */
-    public static async createAgent(doc: IAgent): Promise<IAgentDocument> {
       return models.Agent.create(doc);
     }
 
-    /*
-     * Update agent
-     */
     public static async updateAgent(_id: string, doc: IAgent) {
-      return await models.Agent.findOneAndUpdate({ _id }, { $set: { ...doc } });
+      const agent = await models.Agent.getAgent(_id);
+
+      validateDoc(doc);
+
+      await models.Agent.updateOne(
+        { _id: agent._id },
+        { $set: doc },
+        { runValidators: true },
+      );
+
+      return models.Agent.findOne({ _id });
     }
 
-    /**
-     * Remove agent
-     */
-    public static async removeAgent(AgentId: string[]) {
-      return models.Agent.deleteOne({ _id: { $in: AgentId } });
+    // TODO: put relevant checks to remove it or not
+    public static async removeAgent(_id: string) {
+      const agent = await models.Agent.getAgent(_id);
+
+      return models.Agent.deleteOne({ _id: agent._id });
     }
   }
 

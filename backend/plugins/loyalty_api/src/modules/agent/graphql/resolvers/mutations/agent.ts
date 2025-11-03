@@ -1,19 +1,22 @@
+import { IAgent } from '@/agent/@types';
 import { IContext } from '~/connectionResolvers';
 
 export const agentMutations = {
-  createAgent: async (_parent: undefined, { name }, { models }: IContext) => {
-    return models.Agent.createAgent({ name });
+  agentsAdd: async (_root: undefined, doc: IAgent, { models }: IContext) => {
+    return await models.Agent.createAgent(doc);
   },
-
-  updateAgent: async (
-    _parent: undefined,
-    { _id, name },
+  agentsEdit: async (
+    _root: undefined,
+    { _id, ...doc }: IAgent & { _id: string },
     { models }: IContext,
   ) => {
-    return models.Agent.updateAgent(_id, { name });
+    return await models.Agent.updateAgent(_id, doc);
   },
-
-  removeAgent: async (_parent: undefined, { _id }, { models }: IContext) => {
-    return models.Agent.removeAgent(_id);
+  agentsRemove: async (
+    _root: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) => {
+    return await models.Agent.removeAgent(_id);
   },
 };

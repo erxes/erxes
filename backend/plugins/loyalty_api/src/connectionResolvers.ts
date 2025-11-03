@@ -28,7 +28,7 @@ import {
   loadCampaignClass as loadVoucherCampaignClass,
 } from '@/voucher/db/models/Campaign';
 import { IVoucherModel, loadVoucherClass } from '@/voucher/db/models/voucher';
-import { IAgentDocument } from './modules/agent/@types/agent';
+import { IAgentDocument } from './modules/agent/@types';
 import { IAgentModel, loadAgentClass } from './modules/agent/db/models/Agent';
 import { ICouponCampaignDocument } from './modules/coupon/@types/campaign';
 import {
