@@ -1,5 +1,4 @@
 import {
-  TICKET_STATUS_TYPES,
   TICKET_STATUS_TYPE_NAMES,
 } from '@/status/constants';
 import {
