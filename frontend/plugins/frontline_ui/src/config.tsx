@@ -56,6 +56,7 @@ export const CONFIG: IUIConfig = {
       icon: IconMail,
       path: 'frontline',
       hasSettings: false,
+      hasAutomation: true,
     },
   ],
 };

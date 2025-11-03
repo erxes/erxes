@@ -2,14 +2,14 @@ import {
   findObjectConfigFormSchema,
   TAutomationFindObjectConfig,
 } from '@/automations/components/builder/nodes/actions/findObject/states/findObjectConfigForm';
-import { AutomationCoreConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
+import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useFormValidationErrorHandler } from '@/automations/hooks/useFormValidationErrorHandler';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, Select } from 'erxes-ui';
 import { useMemo } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
-import { PlaceHolderInput, TAutomationActionProps } from 'ui-modules';
+import { PlaceholderInput, TAutomationActionProps } from 'ui-modules';
 
 export const FindObjectConfigForm = ({
   currentAction,
@@ -41,7 +41,7 @@ export const FindObjectConfigForm = ({
 
   return (
     <FormProvider {...form}>
-      <AutomationCoreConfigFormWrapper
+      <AutomationConfigFormWrapper
         onSave={form.handleSubmit(handleSave, handleValidationErrors)}
       >
         <Form.Field
@@ -97,7 +97,7 @@ export const FindObjectConfigForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>Property Value</Form.Label>
-                <PlaceHolderInput
+                <PlaceholderInput
                   propertyType={propertyType}
                   isDisabled={!propertyField || !propertyType}
                   value={field.value ?? ''}
@@ -108,7 +108,7 @@ export const FindObjectConfigForm = ({
             )}
           />
         </div>
-      </AutomationCoreConfigFormWrapper>
+      </AutomationConfigFormWrapper>
     </FormProvider>
   );
 };

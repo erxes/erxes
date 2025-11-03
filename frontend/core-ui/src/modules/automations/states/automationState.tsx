@@ -34,3 +34,5 @@ export const automationAiAgentIsStartedTrainingState = atomWithStorage<boolean>(
   'automationAiStartedTraining',
   true,
 );
+
+// export const automationBuilder

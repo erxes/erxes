@@ -42,6 +42,7 @@ export const CONFIG = {
       icon: IconSandbox,
       path: 'deals',
       hasSettings: true,
+      hasAutomation: true,
     },
     {
       name: 'pos',

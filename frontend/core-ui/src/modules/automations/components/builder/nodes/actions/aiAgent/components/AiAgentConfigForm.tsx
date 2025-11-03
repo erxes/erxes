@@ -5,7 +5,7 @@ import {
   aiAgentConfigFormSchema,
   TAiAgentConfigForm,
 } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
-import { AutomationCoreConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
+import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { useAiAgents } from '@/automations/components/settings/components/agents/hooks/useAiAgents';
 import { useFormValidationErrorHandler } from '@/automations/hooks/useFormValidationErrorHandler';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,7 +35,7 @@ export const AIAgentConfigForm = ({
 
   return (
     <FormProvider {...form}>
-      <AutomationCoreConfigFormWrapper
+      <AutomationConfigFormWrapper
         onSave={handleSubmit(handleSave, handleValidationErrors)}
       >
         <Form.Field
@@ -108,7 +108,7 @@ export const AIAgentConfigForm = ({
             )}
           />
         )}
-      </AutomationCoreConfigFormWrapper>
+      </AutomationConfigFormWrapper>
     </FormProvider>
   );
 };

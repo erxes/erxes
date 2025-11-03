@@ -1,9 +1,9 @@
 import { useAutomation } from '@/automations/context/AutomationProvider';
 
 export const useActionNodeSourceHandler = (type: string) => {
-  const { actionsConst } = useAutomation();
+  const { actionConstMap } = useAutomation();
 
-  const action = actionsConst.find((action) => action.type === type);
+  const action = actionConstMap.get(type);
 
   const hasFolks = action?.folks?.length;
 

@@ -26,7 +26,7 @@ export const RenderPluginsComponentWrapper = ({
 
   if (!isEnabled) {
     return (
-      <p className="flex flex-row gap-2 items-center ml-4">
+      <p className="flex flex-row gap-2 items-center size-full justify-center">
         {`Plugin ${pluginName} disabled`}
         <IconInfoTriangle className="size-3 text-destructive" />
       </p>

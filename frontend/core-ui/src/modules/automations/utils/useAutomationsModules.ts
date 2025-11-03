@@ -14,7 +14,7 @@ export const useAutomationsRemoteModules = (pluginName: string) => {
     .filter(({ name }) => name === pluginName)
     .flatMap((plugin) =>
       (plugin.modules || [])
-        // .filter((module) => module.name === moduleName && module.hasAutomation)
+        .filter((module) => module.hasAutomation)
         .map((module) => ({
           ...module,
           pluginName: plugin.name,

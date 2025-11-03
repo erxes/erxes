@@ -1,6 +1,6 @@
 import { Card, Form, Input, Select } from 'erxes-ui';
 import { TAutomationActionProps } from 'ui-modules';
-import { AutomationCoreConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
+import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { FormProvider } from 'react-hook-form';
 import { useDelay } from '@/automations/components/builder/nodes/actions/delay/hooks/useDelay';
 
@@ -17,7 +17,7 @@ export const DelayConfigForm = ({
   } = useDelay(currentAction?.config || {});
   return (
     <FormProvider {...form}>
-      <AutomationCoreConfigFormWrapper onSave={handleSubmit(handleSave)}>
+      <AutomationConfigFormWrapper onSave={handleSubmit(handleSave)}>
         <Card.Content className="flex space-x-4">
           <Form.Field
             name="value"
@@ -63,7 +63,7 @@ export const DelayConfigForm = ({
             )}
           />
         </Card.Content>
-      </AutomationCoreConfigFormWrapper>
+      </AutomationConfigFormWrapper>
     </FormProvider>
   );
 };

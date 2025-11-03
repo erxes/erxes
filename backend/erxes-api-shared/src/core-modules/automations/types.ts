@@ -24,6 +24,12 @@ export type IAutomationsTriggerConfig = {
   connectableActionTypes?: string[];
 };
 
+export type IAutomationsActionConfigFolkConfig = {
+  key: string;
+  label: string;
+  type: TAutomationActionFolks;
+};
+
 export type IAutomationsActionConfig = {
   type: string;
   icon: string;
@@ -32,6 +38,10 @@ export type IAutomationsActionConfig = {
   isAvailableOptionalConnect?: boolean;
   emailRecipientsConst?: any;
   connectableActionTypes?: string[];
+  isTargetSource?: boolean;
+  targetSourceType?: string;
+  allowTargetFromActions?: boolean;
+  folks?: IAutomationsActionConfigFolkConfig[];
 };
 
 export type IAutomationsBotsConfig = {
@@ -66,9 +76,8 @@ type TAutomationAdditionalAttribute = {
   validation?: string;
   options?: string[];
   selectOptions?: Array<{ label: string; value: string }>;
-}
+};
 export interface AutomationProducers {
-
   receiveActions?: (
     context: IAutomationContext,
     args: {
@@ -224,4 +233,10 @@ export enum TAutomationProducers {
   REPLACE_PLACEHOLDERS = 'replacePlaceHolders',
   CHECK_CUSTOM_TRIGGER = 'checkCustomTrigger',
   GET_ADDITIONAL_ATTRIBUTES = 'getAdditionalAttributes',
+}
+
+export enum TAutomationActionFolks {
+  DEFAULT = 'default',
+  SUCCESS = 'success',
+  ERROR = 'error',
 }

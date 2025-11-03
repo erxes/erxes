@@ -12,11 +12,11 @@ export const ActionNodeConfigurationContent = ({
 
   const actionData = useWatch({ control, name: `actions.${data.nodeIndex}` });
 
+  const { Component } = useActionNodeConfiguration(data, actionData);
+
   if (!actionData) {
     return null;
   }
-
-  const { Component } = useActionNodeConfiguration(data, actionData);
 
   return Component;
 };

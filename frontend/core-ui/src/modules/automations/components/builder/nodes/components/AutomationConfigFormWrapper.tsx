@@ -1,6 +1,6 @@
 import { Button } from 'erxes-ui';
 
-export const AutomationCoreConfigFormWrapper = ({
+export const AutomationConfigFormWrapper = ({
   children,
   onSave,
 }: {

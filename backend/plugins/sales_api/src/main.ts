@@ -4,6 +4,7 @@ import resolvers from './apollo/resolvers';
 import { typeDefs } from './apollo/typeDefs';
 import { generateModels } from './connectionResolvers';
 import { router } from './routes';
+import automations from './meta/automations';
 
 startPlugin({
   name: 'sales',
@@ -43,6 +44,7 @@ startPlugin({
     // await initMQWorkers(redis);
   },
   meta: {
+    automations,
     notificationModules: [
       {
         name: 'deals',

@@ -88,33 +88,25 @@ export const checkIsValidConnect = ({
       return false;
     }
   }
+  if (source.data.nodeType === AutomationNodeType.Trigger) {
+    // disallow connecting a trigger to another trigger
+    if (target.data.nodeType === AutomationNodeType.Trigger) {
+      return false;
+    }
+
+    const targetId = target.id;
+    const existingTrigger = nodes.find(
+      ({ data }) =>
+        data.nodeType === AutomationNodeType.Trigger &&
+        data.actionId === targetId,
+    ) as Node<NodeData> | undefined;
+
+    if (existingTrigger) return false;
+  }
 
   if (source.data.nodeType !== AutomationNodeType.Workflow) {
     const fieldName = CONNECTION_PROPERTY_NAME_MAP[source.data.nodeType];
     if (!!source.data[fieldName]) {
-      return false;
-    }
-  }
-
-  if (source.data.nodeType === AutomationNodeType.Trigger) {
-    const targetId = target.data.id;
-    const trigger = nodes.find(
-      (node) =>
-        node.data.actionId === targetId &&
-        node.data.nodeType === AutomationNodeType.Trigger,
-    );
-    if (trigger && source.data.type !== trigger?.data.type) {
-      return false;
-    }
-
-    // check if the trigger is already connected to another triggers
-
-    const node = nodes.find(
-      ({ data }) =>
-        data.nodeType === AutomationNodeType.Trigger &&
-        data.actionId === targetId,
-    ) as Node<NodeData>;
-    if (node) {
       return false;
     }
   }

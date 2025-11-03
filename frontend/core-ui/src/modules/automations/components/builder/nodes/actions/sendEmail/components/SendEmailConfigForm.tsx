@@ -1,17 +1,10 @@
-import { SendEmailConfigFormRow } from '@/automations/components/builder/nodes/actions/sendEmail/components/SendEmailConfigFormRow';
-import { SendEmailCustomMailsInput } from '@/automations/components/builder/nodes/actions/sendEmail/components/SendEmailCustomMailsInput';
 import { useSendEmailSidebarForm } from '@/automations/components/builder/nodes/actions/sendEmail/hooks/useSendEmailSidebarForm';
 import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
-import { AutomationCoreConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
+import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { useFormValidationErrorHandler } from '@/automations/hooks/useFormValidationErrorHandler';
-import { Form, Label, RadioGroup, Tabs } from 'erxes-ui';
+import { Collapsible, Form, Label, RadioGroup, Separator } from 'erxes-ui';
 import { FormProvider } from 'react-hook-form';
-import {
-  PlaceHolderInput,
-  SelectCustomer,
-  SelectMember,
-  TAutomationActionProps,
-} from 'ui-modules';
+import { PlaceholderInput, TAutomationActionProps } from 'ui-modules';
 import { SendEmailEmailContentBuilder } from './SendEmailEmailContentBuilder';
 
 export const SendEmailConfigForm = ({
@@ -23,22 +16,19 @@ export const SendEmailConfigForm = ({
   });
   const { form, contentType } = useSendEmailSidebarForm(currentActionIndex);
 
-  const config = form.getValues();
-
   return (
     <FormProvider {...form}>
-      <AutomationCoreConfigFormWrapper
+      <AutomationConfigFormWrapper
         onSave={form.handleSubmit(handleSave, handleValidationErrors)}
       >
-        <SendEmailConfigFormRow
-          title="Sender"
-          subContent="Who is sending email"
-          isDone={!!config?.fromUserId}
-        >
-          <Form.Field
-            name="type"
-            control={form.control}
-            render={({ field }) => (
+        <Form.Field
+          name="type"
+          control={form.control}
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>
+                Sender<span className="text-destructive">*</span>
+              </Form.Label>
               <RadioGroup
                 value={field.value}
                 onValueChange={(value) => field.onChange(value)}
@@ -52,74 +42,123 @@ export const SendEmailConfigForm = ({
                   <Label htmlFor="custom-sender">Custom sender email</Label>
                 </label>
               </RadioGroup>
-            )}
-          />
-          <Form.Field
-            name="fromEmailPlaceHolder"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item className="py-4">
-                <PlaceHolderInput
-                  onlySet
-                  propertyType={contentType || ''}
-                  {...field}
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          name="type"
+          control={form.control}
+          render={({ field }) => {
+            if (field.value === 'custom') {
+              return (
+                <Form.Field
+                  name="fromEmailPlaceHolder"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Form.Item className="py-4">
+                      <PlaceholderInput
+                        propertyType={contentType || ''}
+                        {...field}
+                        enabled={{
+                          attribute: true,
+                          call_user: {
+                            enabled: true,
+                            selectFieldName: 'email',
+                          },
+                        }}
+                      />
+                    </Form.Item>
+                  )}
                 />
-              </Form.Item>
-            )}
-          />
-        </SendEmailConfigFormRow>
+              );
+            }
 
-        <SendEmailConfigFormRow
-          title="Recipient"
-          subContent="Who is recipients"
-          isDone={!!config!!?.attributionMails}
-        >
-          <Form.Field
-            name="attributionMails"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <PlaceHolderInput propertyType={contentType || ''} {...field} />
-              </Form.Item>
-            )}
-          />
-        </SendEmailConfigFormRow>
+            return <></>;
+          }}
+        />
 
-        <SendEmailConfigFormRow
-          title="Subject"
-          subContent="Configure the subject of the email"
-          isDone={!!config?.subject}
-        >
-          <Form.Field
-            name="subject"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item className="py-4">
-                <PlaceHolderInput propertyType={contentType || ''} {...field} />
-              </Form.Item>
-            )}
-          />
-        </SendEmailConfigFormRow>
+        <Separator className="space-y-2" />
 
-        <SendEmailConfigFormRow
-          title="Email Content"
-          subContent="Select a template or create custom content"
-          isDone={!!config?.content}
-        >
-          <Form.Field
-            name="content"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <SendEmailEmailContentBuilder
-                  content={field.value || ''}
-                  onChange={field.onChange}
-                />
-              </Form.Item>
-            )}
-          />
-        </SendEmailConfigFormRow>
-      </AutomationCoreConfigFormWrapper>
+        <Form.Field
+          name="toEmailsPlaceHolders"
+          control={form.control}
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>
+                To<span className="text-destructive">*</span>
+              </Form.Label>
+              <PlaceholderInput
+                propertyType={contentType || ''}
+                {...field}
+                enabled={{
+                  attribute: true,
+                  call_user: {
+                    enabled: true,
+                    selectFieldName: 'email',
+                  },
+                }}
+              />
+              <Collapsible>
+                <Collapsible.Trigger className="group">
+                  <Form.Label className="group-data-[state=open]:text-destructive cursor-pointer pb-2">
+                    CC
+                  </Form.Label>
+                </Collapsible.Trigger>
+                <Collapsible.Content>
+                  <Form.Field
+                    name="ccEmailsPlaceHolders"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Form.Item>
+                        <PlaceholderInput
+                          propertyType={contentType || ''}
+                          {...field}
+                          enabled={{
+                            attribute: true,
+                            call_user: {
+                              enabled: true,
+                              selectFieldName: 'email',
+                            },
+                          }}
+                        />
+                      </Form.Item>
+                    )}
+                  />
+                </Collapsible.Content>
+              </Collapsible>
+            </Form.Item>
+          )}
+        />
+        <Separator className="space-y-2" />
+        <Form.Field
+          name="subject"
+          control={form.control}
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>
+                Subject<span className="text-destructive">*</span>
+              </Form.Label>
+              <PlaceholderInput propertyType={contentType || ''} {...field} />
+            </Form.Item>
+          )}
+        />
+        <Separator className="space-y-2" />
+        <Form.Field
+          name="content"
+          control={form.control}
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>
+                Email Content<span className="text-destructive">*</span>
+              </Form.Label>
+              <SendEmailEmailContentBuilder
+                content={field.value || ''}
+                onChange={field.onChange}
+              />
+            </Form.Item>
+          )}
+        />
+      </AutomationConfigFormWrapper>
     </FormProvider>
   );
 };

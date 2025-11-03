@@ -13,7 +13,7 @@ export const useAttributes = ({
   attrConfig,
   customAttributions,
 }: {
-  contentType: string;
+  contentType?: string;
   attrConfig: any;
   customAttributions?: any[];
 }) => {
@@ -24,6 +24,7 @@ export const useAttributes = ({
         contentType,
         config: attrConfig || undefined,
       },
+      skip: !contentType,
     },
   );
 

@@ -8,7 +8,7 @@ import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
 import { AutomationNodesType } from '@/automations/types';
-import { getAllTriggersForAction } from '@/automations/utils/automationBuilderUtils/triggerUtils';
+import { getTriggerOfAction } from '@/automations/utils/automationBuilderUtils/triggerUtils';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -19,29 +19,23 @@ export function useWaitEventConfigForm(
   currentActionIndex: number,
 ) {
   const { actionsConst } = useAutomation();
-  const { actions } = useAutomationNodes();
+  const { actions, triggers } = useAutomationNodes();
 
-  const { getValues, watch } = useFormContext<TAutomationBuilderForm>();
+  const { watch } = useFormContext<TAutomationBuilderForm>();
   const { setAutomationBuilderFormValue } = useAutomationFormController();
   const configFieldNamePrefix: TAutomationActionConfigFieldPrefix = `${AutomationNodesType.Actions}.${currentActionIndex}.config`;
 
   const config = watch(configFieldNamePrefix) as TAutomationWaitEventConfig;
 
-  const triggers = getAllTriggersForAction(
-    currentAction.id,
-    getValues('actions'),
-    getValues('triggers'),
-  );
-
-  const nonCustomTriggers = triggers.filter(({ trigger }) => !trigger.isCustom);
+  const trigger = getTriggerOfAction(currentAction.id, actions, triggers);
 
   // Auto-select single non-custom trigger if present and none selected yet
   useEffect(() => {
     const selectedId = config?.targetTriggerId;
-    if (!selectedId && nonCustomTriggers.length === 1) {
+    if (!selectedId && trigger && !trigger?.isCustom) {
       setAutomationBuilderFormValue(
         `${configFieldNamePrefix}.targetTriggerId`,
-        nonCustomTriggers[0].trigger.id,
+        trigger.id,
         {
           shouldDirty: true,
           shouldTouch: true,
@@ -50,21 +44,21 @@ export function useWaitEventConfigForm(
     }
   }, [
     config?.targetTriggerId,
-    nonCustomTriggers.length,
+    trigger,
     setAutomationBuilderFormValue,
     configFieldNamePrefix,
   ]);
 
   let waitEventOptions = WAIT_EVENT_TYPES;
 
-  if (!nonCustomTriggers?.length) {
+  if (!trigger?.isCustom) {
     waitEventOptions = waitEventOptions.filter(
       ({ type }) => type !== WaitEventTargetTypes.Trigger,
     );
   }
 
   const actionTypesCanBeTarget = actionsConst
-    .filter(({ canBeTarget }) => canBeTarget)
+    .filter(({ isTargetSource }) => isTargetSource)
     .map(({ type }) => type);
 
   const actionsCanBeTarget = actions.filter(({ type }) =>

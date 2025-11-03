@@ -1,5 +1,5 @@
 import { Input, Select } from 'erxes-ui';
-import { PlaceHolderInput } from 'ui-modules/modules/automations/components/PlaceHolderInput';
+import { PlaceholderInput } from 'ui-modules';
 
 interface JSONPropertyEditorProps {
   type: string;
@@ -14,10 +14,14 @@ export function JSONPropertyEditor({
 }: JSONPropertyEditorProps) {
   if (type === 'string' || type === 'expression') {
     return (
-      <PlaceHolderInput
+      <PlaceholderInput
         propertyType="core:automation"
         value={value ?? ''}
         onChange={onApply}
+        onlyFixed
+        enabled={{
+          attribute: true,
+        }}
       />
     );
   }

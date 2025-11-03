@@ -22,8 +22,9 @@ export const salesAutomationContants = {
       icon: 'IconPigMoney',
       label: 'Create deal',
       description: 'Create deal',
-      isAvailable: true,
-      isAvailableOptionalConnect: true,
+      isTargetSource: true,
+      targetSourceType: 'sales:deal',
+      allowTargetFromActions: true,
     },
     {
       type: 'sales:checklist.create',

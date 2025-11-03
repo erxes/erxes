@@ -1,4 +1,3 @@
-import { WaitEventConfigTriggerSelector } from '@/automations/components/builder/nodes/actions/waitEvent/components/WaitEventConfigTriggerSelector';
 import { useWaitEventConfigContent } from '@/automations/components/builder/nodes/actions/waitEvent/hooks/useWaitEventConfigContent';
 import { TAutomationWaitEventConfig } from '@/automations/components/builder/nodes/actions/waitEvent/type/waitEvent';
 import { TAutomationActionConfigFieldPrefix } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
@@ -39,11 +38,6 @@ export function WaitEventConfigSegmentForm({
 
   return (
     <>
-      <WaitEventConfigTriggerSelector
-        targetType={targetType}
-        actionId={action.id}
-        configFieldNamePrefix={configFieldNamePrefix}
-      />
       <Form.Field
         name={`${configFieldNamePrefix}.segmentId`}
         control={control}

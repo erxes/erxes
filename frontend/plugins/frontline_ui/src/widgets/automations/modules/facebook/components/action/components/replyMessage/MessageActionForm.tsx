@@ -45,7 +45,7 @@ export const MessageActionForm = ({
 
   return (
     <ReplyMessageProvider form={form}>
-      <div className="w-[670px] ">
+      <div className="w-[670px]">
         <MessageSequenceHeader />
         <FacebookMessages />
       </div>

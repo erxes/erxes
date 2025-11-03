@@ -9,7 +9,7 @@ import {
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { AttributeInEditor } from 'ui-modules';
-import { useAttributes } from 'ui-modules/modules/automations/hooks/useAttributes';
+import { useAttributes } from 'ui-modules';
 import { EmailTemplateInEditor } from '@/automations/components/builder/nodes/actions/sendEmail/components/EmailTemplateInEditor';
 import { useFormContext } from 'react-hook-form';
 import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';

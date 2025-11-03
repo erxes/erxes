@@ -2,20 +2,18 @@ import { useManagePropertyRule } from '@/automations/components/builder/nodes/ac
 import { TManagePropertiesForm } from '@/automations/components/builder/nodes/actions/manageProperties/states/managePropertiesForm';
 import { IconTrash } from '@tabler/icons-react';
 import { Button, Form, Select } from 'erxes-ui';
-import { PlaceHolderInput } from 'ui-modules';
+import { PlaceholderInput } from 'ui-modules';
 
 interface LocalRuleProps {
   rule: TManagePropertiesForm['rules'][number];
   index: number;
   propertyType: string;
-  additionalAttributes: any[];
 }
 
 export const ManagePropertyRule = ({
   rule,
   propertyType,
   index,
-  additionalAttributes,
 }: LocalRuleProps) => {
   const {
     control,
@@ -107,13 +105,12 @@ export const ManagePropertyRule = ({
             <Form.Item>
               <Form.Label>Value</Form.Label>
 
-              <PlaceHolderInput
+              <PlaceholderInput
                 propertyType={propertyType}
                 isDisabled={!operators.some((op) => op.value === rule.operator)}
-                fieldType={selectedField?.type}
+                // fieldType={selectedField?.type}
                 value={field.value ?? ''}
                 onChange={field.onChange}
-                additionalAttributes={additionalAttributes}
                 onChangeInputMode={(mode) =>
                   setManagePropertyRuleValue(
                     `rules.${index}.isExpression`,

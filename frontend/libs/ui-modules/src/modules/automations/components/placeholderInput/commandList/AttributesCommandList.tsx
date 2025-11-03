@@ -7,7 +7,7 @@ export const AttributesCommandList = ({
   customAttributions,
   onSelect,
 }: {
-  contentType: string;
+  contentType?: string;
   attrConfig: any;
   customAttributions?: any[];
   onSelect: (value: string) => void;

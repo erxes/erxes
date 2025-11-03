@@ -7,7 +7,7 @@ import {
   Node,
 } from '@xyflow/react';
 import { cn } from 'erxes-ui';
-import { IAutomationsActionFolkConfig } from 'ui-modules/modules/automations/types';
+import { IAutomationsActionFolkConfig } from 'ui-modules';
 
 const getFolkTypeFn = (
   actionFolks: Record<string, IAutomationsActionFolkConfig[]>,

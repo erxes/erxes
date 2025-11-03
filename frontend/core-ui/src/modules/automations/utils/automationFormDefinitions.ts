@@ -60,6 +60,7 @@ const automationActionSchema = z.object({
   isCustom: z.boolean().readonly().optional(),
   position: automationNodePositionSchema,
   workflowId: z.string().optional(),
+  targetActionId: z.string().optional(),
 });
 
 const automationWorkflowSchema = z.object({

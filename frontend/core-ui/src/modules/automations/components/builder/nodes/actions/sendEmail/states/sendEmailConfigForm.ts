@@ -3,6 +3,8 @@ import { z } from 'zod';
 export const sendEmailConfigFormSchema = z.object({
   fromUserId: z.string(),
   fromEmailPlaceHolder: z.string(),
+  toEmailsPlaceHolders: z.string(),
+  ccEmailsPlaceHolders: z.string(),
   customMails: z.array(z.string()),
   attributionMails: z.string(),
   teamMember: z.array(z.string()),

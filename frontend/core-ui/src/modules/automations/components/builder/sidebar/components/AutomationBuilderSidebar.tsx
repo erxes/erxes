@@ -1,4 +1,4 @@
-import { AutomationActionContentSidebar } from '@/automations/components/builder/sidebar/components/content/AutomationActionContentSidebar';
+import { AutomationActionContentSidebar } from '@/automations/components/builder/sidebar/components/content/action/AutomationActionContentSidebar';
 import { AutomationTriggerContentSidebar } from '@/automations/components/builder/sidebar/components/content/trigger/components/AutomationTriggerContentSidebar';
 import { AutomationNodeLibrarySidebar } from '@/automations/components/builder/sidebar/components/library/AutomationNodeLibrarySidebar';
 import { useAutomationBuilderSidebarHooks } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSidebarHooks';
@@ -21,6 +21,7 @@ import {
 } from 'erxes-ui';
 import { AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
+import { AutomationActionTargetSelector } from './content/action/AutomationActionTargetSelector';
 
 export const AutomationBuilderSidebar = () => {
   const { awaitingToConnectNodeId } = useAutomation();
@@ -126,6 +127,7 @@ const AutomationBuilderSidebarHeader = ({
           </Button>
         </div>
       </Card.Header>
+      <AutomationActionTargetSelector activeNode={activeNode} />
       <Separator />
     </>
   );

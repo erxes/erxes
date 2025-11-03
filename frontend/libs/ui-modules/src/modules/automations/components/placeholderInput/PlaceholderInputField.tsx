@@ -1,8 +1,9 @@
 import { Input, Textarea } from 'erxes-ui';
 import { forwardRef, useMemo } from 'react';
-import { SuggestionConfig, SuggestionType } from '../constants';
+import { usePlaceholderInputContext } from '../../contexts/PlaceholderInputContext';
+import { SuggestionType } from '../../types/placeholderInputTypes';
 
-interface PlaceholderInputFieldProps {
+type PlaceholderInputFieldProps = {
   value: string;
   onChange: (value: string) => void;
   onKeyDown: (
@@ -16,33 +17,21 @@ interface PlaceholderInputFieldProps {
   ) => void;
   isDisabled?: boolean;
   readOnly?: boolean;
-  enabledTypes: Record<SuggestionType, boolean>;
-  inputMode: 'expression' | 'fixed';
-  suggestionConfigs: SuggestionConfig[];
-}
+};
 
 export const PlaceholderInputField = forwardRef<
   HTMLInputElement | HTMLTextAreaElement,
   PlaceholderInputFieldProps
 >(
   (
-    {
-      value,
-      onChange,
-      onKeyDown,
-      onBlur,
-      onFocus,
-      isDisabled,
-      readOnly,
-      enabledTypes,
-      inputMode,
-      suggestionConfigs,
-    },
+    { value, onChange, onKeyDown, onBlur, onFocus, isDisabled, readOnly },
     ref,
   ) => {
+    const { enabledTypes, inputVariant, suggestionConfigs } =
+      usePlaceholderInputContext();
     const placeholderText = useMemo(() => {
       const enabledConfigs = suggestionConfigs.filter(
-        (config) => enabledTypes[config.type],
+        (config) => enabledTypes[config.type as SuggestionType],
       );
       const core = enabledConfigs
         .map((c) => `${c.trigger} for ${c.title.toLowerCase()}`)
@@ -50,7 +39,7 @@ export const PlaceholderInputField = forwardRef<
       return `Type ${core}`;
     }, [enabledTypes, suggestionConfigs]);
 
-    if (inputMode === 'expression') {
+    if (inputVariant === 'expression') {
       return (
         <Textarea
           ref={ref as React.ForwardedRef<HTMLTextAreaElement>}

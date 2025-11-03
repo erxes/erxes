@@ -39,6 +39,7 @@ export type TAutomationAction<TConfig = any> = {
   isCustom?: boolean;
 
   count?: number;
+  targetActionId?: string;
 };
 
 export type TAutomationTrigger<TConfig = any> = {
@@ -117,6 +118,8 @@ export type AutomationActionFormProps<TConfig = any> =
     componentType: 'actionForm';
     currentAction: TAutomationAction<TConfig>;
     onSaveActionConfig: (config: TConfig) => void;
+    trigger?: TAutomationTrigger;
+    targetType?: string;
   };
 
 export type AutomationTriggerConfigProps<TConfig = any> =
@@ -163,13 +166,20 @@ export type AutomationRemoteEntryProps =
   | AutomationCustomWaitEventFormProps
   | { componentType: 'automationBotsContent' };
 
+export type AutomationRemoteEntryComponentType =
+  AutomationRemoteEntryProps['componentType'];
+
+type ExtractPropsByComponentType<T, C extends string> = T extends {
+  componentType: C;
+}
+  ? T
+  : never;
+
 export type AutomationRemoteEntryTypes = {
-  TriggerForm: AutomationTriggerFormProps;
-  ActionForm: AutomationActionFormProps;
-  TriggerNodeConfig: AutomationTriggerConfigProps;
-  ActionNodeConfig: AutomationActionNodeConfigProps;
-  HistoryName: AutomationExecutionHistoryNameProps;
-  ActionResult: AutomationExecutionActionResultProps;
+  [K in AutomationRemoteEntryComponentType]: ExtractPropsByComponentType<
+    AutomationRemoteEntryProps,
+    K
+  >;
 };
 
 export type IAutomationsTriggerConfigConstants = {
@@ -201,7 +211,9 @@ export type IAutomationsActionConfigConstants = {
   isAvailableOptionalConnect?: boolean;
   emailRecipientsConst?: any;
   connectableActionTypes?: string[];
-  canBeTarget: boolean;
+  isTargetSource?: boolean;
+  targetSourceType?: string;
+  allowTargetFromActions?: boolean;
   folks?: IAutomationsActionFolkConfig[];
 };
 

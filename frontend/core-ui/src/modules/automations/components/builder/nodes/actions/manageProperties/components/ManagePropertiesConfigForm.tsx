@@ -4,19 +4,12 @@ import {
   managePropertiesFormSchema,
   TManagePropertiesForm,
 } from '@/automations/components/builder/nodes/actions/manageProperties/states/managePropertiesForm';
-import { AutomationCoreConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
+import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { useFormValidationErrorHandler } from '@/automations/hooks/useFormValidationErrorHandler';
-import { ReachableTrigger } from '@/automations/utils/automationBuilderUtils/triggerUtils';
-import { TAutomationBuilderActions } from '@/automations/utils/automationFormDefinitions';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { Alert, Button, Form, Label, Select } from 'erxes-ui';
-import {
-  FormProvider,
-  useForm,
-  useFormContext,
-  useWatch,
-} from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { TAutomationAction, TAutomationActionProps } from 'ui-modules';
 
 const generateDefaultValues = (currentAction: TAutomationAction) => {
@@ -39,13 +32,10 @@ export const ManagePropertiesConfigForm = ({
     resolver: zodResolver(managePropertiesFormSchema),
     defaultValues: generateDefaultValues(currentAction),
   });
-  const {
-    propertyTypes,
-    propertyType,
-    nonCustomTriggers,
-    actionsCanBeTarget,
-    additionalAttributes,
-  } = useManagePropertySidebarContent(currentAction, form);
+  const { propertyTypes, propertyType } = useManagePropertySidebarContent(
+    currentAction,
+    form,
+  );
 
   if (!propertyType) {
     return (
@@ -64,16 +54,16 @@ export const ManagePropertiesConfigForm = ({
 
   return (
     <FormProvider {...form}>
-      <AutomationCoreConfigFormWrapper
+      <AutomationConfigFormWrapper
         onSave={form.handleSubmit(handleSave, handleValidationErrors)}
       >
         <div className="w-[500px]">
-          <SelectManagePropertyTriggerTarget
+          {/* <SelectManagePropertyTriggerTarget
             nonCustomTriggers={nonCustomTriggers}
-          />
-          <SelectManagePropertyActionTarget
+          /> */}
+          {/* <SelectManagePropertyActionTarget
             actionsCanBeTarget={actionsCanBeTarget}
-          />
+          /> */}
           <Form.Field
             control={form.control}
             name="module"
@@ -109,7 +99,6 @@ export const ManagePropertiesConfigForm = ({
                     rule={rule}
                     index={index}
                     propertyType={propertyType}
-                    additionalAttributes={additionalAttributes}
                   />
                 ))}
                 <Button
@@ -128,89 +117,7 @@ export const ManagePropertiesConfigForm = ({
             )}
           />
         </div>
-      </AutomationCoreConfigFormWrapper>
+      </AutomationConfigFormWrapper>
     </FormProvider>
-  );
-};
-
-const SelectManagePropertyTriggerTarget = ({
-  nonCustomTriggers,
-}: {
-  nonCustomTriggers: ReachableTrigger[];
-}) => {
-  const { control } = useFormContext<TManagePropertiesForm>();
-
-  if (nonCustomTriggers?.length <= 1) {
-    return null;
-  }
-
-  return (
-    <Form.Field
-      control={control}
-      name="targetTriggerId"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>Select trigger</Form.Label>
-          <Select value={field.value} onValueChange={field.onChange}>
-            <Select.Trigger>
-              <Select.Value placeholder="Select a trigger" />
-            </Select.Trigger>
-            <Select.Content>
-              {nonCustomTriggers.map(({ trigger }) => (
-                <Select.Item key={trigger.id} value={trigger.id}>
-                  {trigger.label || trigger.type}
-                </Select.Item>
-              ))}
-            </Select.Content>
-          </Select>
-          <Form.Description>
-            Choose which trigger’s context to use for properties.
-          </Form.Description>
-          <Form.Message />
-        </Form.Item>
-      )}
-    />
-  );
-};
-
-const SelectManagePropertyActionTarget = ({
-  actionsCanBeTarget,
-}: {
-  actionsCanBeTarget: TAutomationBuilderActions;
-}) => {
-  const { control } = useFormContext<TManagePropertiesForm>();
-
-  const module = useWatch({ control, name: 'module' });
-
-  if (actionsCanBeTarget?.length <= 1) {
-    return null;
-  }
-
-  return (
-    <Form.Field
-      control={control}
-      name="targetActionId"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>Select action</Form.Label>
-          <Select value={field.value} onValueChange={field.onChange}>
-            <Select.Trigger>
-              <Select.Value placeholder="Select an action" />
-            </Select.Trigger>
-            <Select.Content>
-              {actionsCanBeTarget.map((a) => (
-                <Select.Item key={a.id} value={a.id}>
-                  {a.label || a.type}
-                </Select.Item>
-              ))}
-            </Select.Content>
-          </Select>
-          <Form.Description>
-            Optionally choose a targetable action’s context.
-          </Form.Description>
-          <Form.Message />
-        </Form.Item>
-      )}
-    />
   );
 };

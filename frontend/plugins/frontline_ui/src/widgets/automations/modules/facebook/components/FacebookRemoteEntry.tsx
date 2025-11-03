@@ -1,6 +1,7 @@
 import {
   AutomationRemoteEntryProps,
   AutomationRemoteEntryTypes,
+  AutomationRemoteEntryWrapper,
   splitAutomationNodeType,
 } from 'ui-modules';
 import { ActionMessageConfigContent } from './action/components/replyMessage/ActionMessageConfigContent';
@@ -17,40 +18,55 @@ import { ActionCommentConfigContent } from '~/widgets/automations/modules/facebo
 export const FacebookRemoteEntry = (props: AutomationRemoteEntryProps) => {
   const { componentType = '' } = props;
 
+  return (
+    <AutomationRemoteEntryWrapper
+      props={props}
+      remoteEntries={{
+        actionForm: renderActionForm,
+        triggerForm: renderTriggerForm,
+        triggerConfigContent: TriggerConfigContent,
+        actionNodeConfiguration: renderActionNodeContent,
+        automationBotsContent: AutomationBotsRecordTable,
+        historyName: AutomationHistoryName,
+        historyActionResult: AutomationHistoryResult,
+      }}
+    />
+  );
+
   switch (componentType) {
     case 'actionForm':
       return renderActionForm(
-        props as AutomationRemoteEntryTypes['ActionForm'],
+        props as AutomationRemoteEntryTypes['actionForm'],
       );
 
     case 'triggerForm':
       return renderTriggerForm(
-        props as AutomationRemoteEntryTypes['TriggerForm'],
+        props as AutomationRemoteEntryTypes['triggerForm'],
       );
 
     case 'triggerConfigContent':
       return (
         <TriggerConfigContent
-          {...(props as AutomationRemoteEntryTypes['TriggerNodeConfig'])}
+          {...(props as AutomationRemoteEntryTypes['triggerConfigContent'])}
         />
       );
 
     case 'actionNodeConfiguration':
       return renderActionNodeContent(
-        props as AutomationRemoteEntryTypes['ActionNodeConfig'],
+        props as AutomationRemoteEntryTypes['actionNodeConfiguration'],
       );
     case 'automationBotsContent':
       return <AutomationBotsRecordTable />;
     case 'historyName':
       return (
         <AutomationHistoryName
-          {...(props as AutomationRemoteEntryTypes['HistoryName'])}
+          {...(props as AutomationRemoteEntryTypes['historyName'])}
         />
       );
     case 'historyActionResult':
       return (
         <AutomationHistoryResult
-          {...(props as AutomationRemoteEntryTypes['ActionResult'])}
+          {...(props as AutomationRemoteEntryTypes['historyActionResult'])}
         />
       );
 
@@ -60,7 +76,7 @@ export const FacebookRemoteEntry = (props: AutomationRemoteEntryProps) => {
 };
 
 function renderActionNodeContent(
-  props: AutomationRemoteEntryTypes['ActionNodeConfig'],
+  props: AutomationRemoteEntryTypes['actionNodeConfiguration'],
 ) {
   const actionType = props?.type || '';
   const [_pluginName, _moduleName, contentType] =
@@ -76,7 +92,7 @@ function renderActionNodeContent(
   }
 }
 
-function renderActionForm(props: AutomationRemoteEntryTypes['ActionForm']) {
+function renderActionForm(props: AutomationRemoteEntryTypes['actionForm']) {
   const actionType = props.currentAction?.type || '';
   const [_pluginName, _moduleName, contentType] =
     splitAutomationNodeType(actionType);
@@ -91,7 +107,7 @@ function renderActionForm(props: AutomationRemoteEntryTypes['ActionForm']) {
   }
 }
 
-function renderTriggerForm(props: AutomationRemoteEntryTypes['TriggerForm']) {
+function renderTriggerForm(props: AutomationRemoteEntryTypes['triggerForm']) {
   const triggerType = props.activeTrigger?.type || '';
   const [_pluginName, _moduleName, contentType] =
     splitAutomationNodeType(triggerType);

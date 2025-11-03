@@ -25,13 +25,9 @@ import {
   generateConnectInfo,
   splitAwaitingConnectionId,
 } from '@/automations/utils/automationConnectionUtils';
-import {
-  TAutomationBuilderActions,
-  TAutomationBuilderForm,
-} from '@/automations/utils/automationFormDefinitions';
+import { TAutomationBuilderActions } from '@/automations/utils/automationFormDefinitions';
 import { Connection, EdgeProps, Node, useReactFlow } from '@xyflow/react';
 import { useCallback, useMemo } from 'react';
-import { useFormContext } from 'react-hook-form';
 import {
   IAutomationsActionFolkConfig,
   TAutomationWorkflowNode,
@@ -43,8 +39,7 @@ export const useNodeConnect = () => {
   const { getNodes, getEdges, getNode, addEdges, setEdges, updateNodeData } =
     useReactFlow<Node<NodeData>>();
 
-  const nodes = getNodes();
-  const edges = getEdges();
+  // Read nodes/edges on demand within callbacks to avoid stale closures
 
   const { triggersConst, actionsConst, actionFolks } = useAutomation();
 
@@ -68,11 +63,11 @@ export const useNodeConnect = () => {
         sourceNode,
       );
 
+      const generatedNodeData = generateNodeData(sourceNode, sourceType, {
+        nodeIndex: sourceIndex,
+      });
       // Update React Flow node data
-      updateNodeData(
-        sourceNode.id,
-        generateNodeData(sourceNode, sourceType, { nodeIndex: sourceIndex }),
-      );
+      updateNodeData(sourceNode.id, generatedNodeData);
       const folksMap = new Map<string, IAutomationsActionFolkConfig[]>(
         Object.entries(actionFolks),
       );
@@ -177,20 +172,20 @@ export const useNodeConnect = () => {
         onConnection(info);
       }
     },
-    [nodes, getNode],
+    [getNode, onConnection],
   );
 
   const isValidConnection = useCallback(
     (connection: Connection) =>
       checkIsValidConnect({
-        nodes,
-        edges,
+        nodes: getNodes(),
+        edges: getEdges(),
         connection,
         triggersConst,
         actionsConst,
       }),
 
-    [nodes, edges],
+    [getNodes, getEdges, triggersConst, actionsConst],
   );
 
   const onAwaitingNodeConnection = (

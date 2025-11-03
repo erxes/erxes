@@ -1,11 +1,12 @@
 import type React from 'react';
 
-import { useState, useCallback, useEffect, RefObject, useMemo } from 'react';
-import { SuggestionType, TRIGGER_TO_TYPE } from '../constants';
+import { RefObject, useCallback, useEffect, useMemo, useState } from 'react';
+import { buildSuggestionMaps } from '../utils/placeHolderUtils';
+import { SuggestionType } from '../types/placeholderInputTypes';
 
 type PlaceholderInputTriggerDetectionProps = {
   value: string;
-  setValue: (value: string) => void;
+  onChange: (value: string) => void;
   inputRef: RefObject<HTMLInputElement | HTMLTextAreaElement> | null;
   enabledTypes?: Record<SuggestionType, boolean>;
   overrideTriggerToType?: Record<string, SuggestionType>;
@@ -13,7 +14,7 @@ type PlaceholderInputTriggerDetectionProps = {
 
 export function usePlaceHolderInputTriggerDetection({
   value,
-  setValue,
+  onChange,
   inputRef,
   enabledTypes,
   overrideTriggerToType,
@@ -26,8 +27,9 @@ export function usePlaceHolderInputTriggerDetection({
   const [triggerPosition, setTriggerPosition] = useState(0);
   const [cursorPosition, setCursorPosition] = useState(0);
 
-  const triggerToType = useMemo(
-    () => overrideTriggerToType || TRIGGER_TO_TYPE,
+  const suggestionTriggerTypesMap = useMemo(
+    () =>
+      overrideTriggerToType || buildSuggestionMaps().suggestionTriggerTypesMap,
     [overrideTriggerToType],
   );
 
@@ -36,12 +38,12 @@ export function usePlaceHolderInputTriggerDetection({
     if (!inputRef?.current) return;
 
     const cursorPos = inputRef.current.selectionStart || 0;
-    const textBeforeCursor = value.slice(0, cursorPos);
+    const textBeforeCursor = (value || '').slice(0, cursorPos);
     // Find the last trigger character before cursor
     let lastTriggerPos = -1;
     let lastTriggerChar = '';
 
-    for (const [char, type] of Object.entries(triggerToType)) {
+    for (const [char, type] of Object.entries(suggestionTriggerTypesMap)) {
       // Skip if this type is not enabled
       if (enabledTypes && !enabledTypes[type]) {
         continue;
@@ -60,7 +62,7 @@ export function usePlaceHolderInputTriggerDetection({
       // Only show if there's no space after trigger (still typing the query)
       if (!textAfterTrigger.includes(' ')) {
         setShowSuggestions(true);
-        setSuggestionType(triggerToType[lastTriggerChar]);
+        setSuggestionType(suggestionTriggerTypesMap[lastTriggerChar]);
         setSearchQuery(textAfterTrigger);
         setTriggerPosition(lastTriggerPos);
         setCursorPosition(cursorPos);
@@ -69,7 +71,7 @@ export function usePlaceHolderInputTriggerDetection({
     }
 
     setShowSuggestions(false);
-  }, [value, inputRef, enabledTypes, triggerToType]);
+  }, [value, inputRef, enabledTypes, suggestionTriggerTypesMap]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -89,7 +91,7 @@ export function usePlaceHolderInputTriggerDetection({
       const afterCursor = value.slice(cursorPosition);
       const newValue = `${beforeTrigger}${suggestion}${afterCursor}`;
 
-      setValue(newValue);
+      onChange(newValue);
       setShowSuggestions(false);
 
       // Set cursor position after inserted text
@@ -99,7 +101,7 @@ export function usePlaceHolderInputTriggerDetection({
         inputRef?.current?.focus();
       }, 0);
     },
-    [value, triggerPosition, cursorPosition, inputRef, setValue],
+    [value, triggerPosition, cursorPosition, inputRef, onChange],
   );
 
   const closeSuggestions = useCallback(() => {

@@ -1,3 +1,5 @@
+import { TAutomationActionFolks } from './types';
+
 export const AUTOMATION_PROPERTY_OPERATORS = {
   SET: 'set',
   CONCAT: 'concat',
@@ -93,8 +95,8 @@ export const AUTOMATION_ACTIONS = [
     label: 'Branches',
     description: 'Create simple or if/then branches',
     folks: [
-      { key: 'yes', label: 'Yes', type: 'success' },
-      { key: 'no', label: 'No', type: 'error' },
+      { key: 'yes', label: 'Yes', type: TAutomationActionFolks.SUCCESS },
+      { key: 'no', label: 'No', type: TAutomationActionFolks.ERROR },
     ],
   },
   {
@@ -103,8 +105,8 @@ export const AUTOMATION_ACTIONS = [
     label: 'Find object',
     description: 'Find object',
     folks: [
-      { key: 'isExists', label: 'Has', type: 'success' },
-      { key: 'notExists', label: 'None', type: 'error' },
+      { key: 'isExists', label: 'Has', type: TAutomationActionFolks.SUCCESS },
+      { key: 'notExists', label: 'None', type: TAutomationActionFolks.ERROR },
     ],
   },
   {
@@ -113,6 +115,7 @@ export const AUTOMATION_ACTIONS = [
     label: 'Manage properties',
     description:
       'Update existing default or custom properties for Contacts, Companies, Cards, Conversations',
+    allowTargetFromActions: true,
   },
   {
     type: AUTOMATION_CORE_ACTIONS.DELAY,

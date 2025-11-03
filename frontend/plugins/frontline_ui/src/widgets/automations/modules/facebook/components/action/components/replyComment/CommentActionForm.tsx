@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, Textarea, toast } from 'erxes-ui';
 import { useImperativeHandle } from 'react';
 import { useForm } from 'react-hook-form';
-import { Attributes, AutomationActionFormProps } from 'ui-modules';
+import { AutomationActionFormProps } from 'ui-modules';
 import { InputTextCounter } from '~/widgets/automations/modules/facebook/components/action/components/InputTextCounter';
 import {
   commentActionFormSchema,
@@ -45,12 +45,12 @@ export const CommentActionForm = ({
                     limit={8000}
                   />
                 </div>
-                <Attributes
+                {/* <Attributes
                   contentType="frontline:facebook.comments"
                   value={field.value}
                   onSelect={field.onChange}
                   buttonText="Attributes"
-                />
+                /> */}
               </Form.Label>
               <Form.Control>
                 <Textarea {...field} placeholder="Enter your text" />

@@ -1,30 +1,21 @@
 import { Button, Popover, ToggleGroup } from 'erxes-ui';
-import { SuggestionConfig, SuggestionType } from '../constants';
+import { usePlaceholderInputContext } from '../../contexts/PlaceholderInputContext';
+import { SuggestionType } from '../../types/placeholderInputTypes';
 
 interface PlaceholderInputHeaderProps {
-  inputMode: 'expression' | 'fixed';
-  onInputModeChange: (mode: 'expression' | 'fixed') => void;
-  enabledTypes: Record<SuggestionType, boolean>;
-  suggestionConfigs: SuggestionConfig[];
-  onlyExpression?: boolean;
-  onlyFixed?: boolean;
   hideModeToggle?: boolean;
   hideInfoPopover?: boolean;
 }
 
-export function PlaceholderInputHeader({
-  inputMode,
-  onInputModeChange,
-  enabledTypes,
-  suggestionConfigs,
-  onlyExpression = false,
-  onlyFixed = false,
+function PlaceholderInputHeaderComponent({
   hideModeToggle = false,
   hideInfoPopover = false,
 }: PlaceholderInputHeaderProps) {
+  const { inputVariant, onInputModeChange, enabledTypes, suggestionConfigs } =
+    usePlaceholderInputContext();
   // Filter suggestion configs based on enabled types
   const enabledConfigs = suggestionConfigs.filter(
-    (config) => enabledTypes[config.type],
+    (config) => enabledTypes[config.type as SuggestionType],
   );
 
   return (
@@ -34,18 +25,14 @@ export function PlaceholderInputHeader({
           type="single"
           size="sm"
           className="max-w-32"
-          value={inputMode}
+          value={inputVariant}
           onValueChange={(value) =>
-            onInputModeChange(value as 'expression' | 'fixed')
+            onInputModeChange?.(value as 'expression' | 'fixed')
           }
           variant="outline"
         >
-          {!onlyFixed && (
-            <ToggleGroup.Item value="fixed">Fixed</ToggleGroup.Item>
-          )}
-          {!onlyExpression && (
-            <ToggleGroup.Item value="expression">Expression</ToggleGroup.Item>
-          )}
+          <ToggleGroup.Item value="fixed">Fixed</ToggleGroup.Item>
+          <ToggleGroup.Item value="expression">Expression</ToggleGroup.Item>
         </ToggleGroup>
       )}
       {!hideInfoPopover && (
@@ -74,3 +61,7 @@ export function PlaceholderInputHeader({
     </div>
   );
 }
+
+PlaceholderInputHeaderComponent.displayName = 'PlaceholderInput.Header';
+
+export const PlaceholderInputHeader = PlaceholderInputHeaderComponent;

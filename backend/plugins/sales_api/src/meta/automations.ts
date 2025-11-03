@@ -1,3 +1,4 @@
+import { AutomationConfigs } from 'erxes-api-shared/core-modules';
 import {
   IAutomationReceiveActionData,
   ICheckTriggerData,
@@ -39,4 +40,4 @@ export default {
 
     return modules[moduleName as ModuleKeys].checkCustomTrigger(context, props);
   },
-};
+} as AutomationConfigs;

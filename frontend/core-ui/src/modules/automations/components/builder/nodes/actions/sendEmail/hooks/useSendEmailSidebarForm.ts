@@ -1,7 +1,7 @@
 import { TAutomationActionConfigFieldPrefix } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
 import { AutomationNodesType } from '@/automations/types';
-import { findTriggerForAction } from '@/automations/utils/automationBuilderUtils/triggerUtils';
+import { getTriggerOfAction } from '@/automations/utils/automationBuilderUtils/triggerUtils';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { KeyboardEvent } from 'react';
@@ -25,6 +25,8 @@ export const useSendEmailSidebarForm = (currentActionIndex: number) => {
     defaultValues: {
       fromUserId: config?.fromUserId || '',
       fromEmailPlaceHolder: config?.fromEmailPlaceHolder || '',
+      toEmailsPlaceHolders: config?.toEmailsPlaceHolders || [],
+      ccEmailsPlaceHolders: config?.ccEmailsPlaceHolders || [],
       customMails: config?.customMails || [],
       attributionMails: config?.attributionMails || '',
       teamMember: config?.teamMember || [],
@@ -36,7 +38,7 @@ export const useSendEmailSidebarForm = (currentActionIndex: number) => {
     },
   });
 
-  const contentType = findTriggerForAction(
+  const contentType = getTriggerOfAction(
     actions[currentActionIndex].id,
     actions,
     triggers,

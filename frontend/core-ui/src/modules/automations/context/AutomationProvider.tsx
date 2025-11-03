@@ -55,6 +55,8 @@ interface AutomationContextType {
   clear: () => void;
   reactFlowInstance: ReactFlowInstance<Node<NodeData>, Edge<EdgeProps>> | null;
   setReactFlowInstance: OnInit<Node<NodeData>, Edge<EdgeProps>>;
+  actionConstMap: Map<string, IAutomationsActionConfigConstants>;
+  triggerConstMap: Map<string, IAutomationsTriggerConfigConstants>;
 }
 
 const AutomationContext = createContext<AutomationContextType | null>(null);
@@ -104,6 +106,13 @@ export const AutomationProvider = ({
     (actionsConst || []).map((a: any) => [a.type, a.folks || []]),
   );
 
+  const actionConstMap = new Map<string, IAutomationsActionConfigConstants>(
+    actionsConst.map((a) => [a.type, a]),
+  );
+  const triggerConstMap = new Map<string, IAutomationsTriggerConfigConstants>(
+    triggersConst.map((t) => [t.type, t]),
+  );
+
   useEffect(() => {
     if (data?.automationConstants && !cached) {
       setCached({
@@ -133,6 +142,8 @@ export const AutomationProvider = ({
         clear,
         reactFlowInstance,
         setReactFlowInstance,
+        actionConstMap,
+        triggerConstMap,
       }}
     >
       {children}

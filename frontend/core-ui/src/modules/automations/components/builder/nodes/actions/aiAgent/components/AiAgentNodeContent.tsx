@@ -1,6 +1,6 @@
 import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
 import { NodeContentComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
-import { useAutomationOptionalConnect } from 'ui-modules/modules/automations/hooks/useAutomationOptionalConnect';
+import { useAutomationOptionalConnect } from 'ui-modules';
 
 export const AiAgentNodeContent = (
   props: NodeContentComponentProps<TAiAgentConfigForm>,
