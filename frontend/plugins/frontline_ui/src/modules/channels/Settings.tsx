@@ -8,6 +8,7 @@ import { SettingsHeader } from 'ui-modules';
 import { ChannelDetailsPage } from '~/pages/ChannelDetailsPage';
 import { ChannelMembersPage } from '~/pages/ChannelMembersPage';
 import { ChannelsSettingsIndexPage } from '~/pages/ChannelsSettingsIndexPage';
+import { FBAuth } from '~/pages/IntegrationFacebookAuth';
 
 export const IntegrationDetailPage = lazy(() =>
   import('~/pages/IntegrationDetailPage').then((module) => ({
@@ -24,6 +25,12 @@ export const ErxesMessengerPreview = lazy(() =>
 export const IntegrationConfigPage = lazy(() =>
   import('~/pages/IntegrationConfigPage').then((module) => ({
     default: module.IntegrationConfigPage,
+  })),
+);
+
+export const IntegrationFbAuthPage = lazy(() =>
+  import('~/pages/IntegrationFacebookAuth').then((module) => ({
+    default: module.FBAuth,
   })),
 );
 
@@ -64,6 +71,7 @@ const ChannelsSettings = () => {
           path={FrontlinePaths.ErxesMessengerPreview}
           element={<ErxesMessengerPreview />}
         />
+        <Route path={FrontlinePaths.FbAuth} element={<FBAuth />} />
       </Routes>
     </Suspense>
   );
