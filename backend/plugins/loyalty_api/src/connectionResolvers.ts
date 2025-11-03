@@ -107,11 +107,6 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadAssignmentClass(models),
   );
 
-  models.Assignment = db.model<IAssignmentDocument, IAssignmentModel>(
-    'loyalty_assignment',
-    loadAssignmentClass(models),
-  );
-
   models.Agent = db.model<IAgentDocument, IAgentModel>(
     'loyalty_agent',
     loadAgentClass(models),
