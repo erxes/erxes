@@ -1,3 +1,4 @@
+import { IUserDocument } from 'erxes-api-shared/core-types';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { IDonate, IDonateDocument } from '../../@types/donate';
@@ -5,56 +6,95 @@ import { donateSchema } from '../definitions/donate';
 
 export interface IDonateModel extends Model<IDonateDocument> {
   getDonate(_id: string): Promise<IDonateDocument>;
-  getDonates(): Promise<IDonateDocument[]>;
-  createDonate(doc: IDonate): Promise<IDonateDocument>;
-  updateDonate(_id: string, doc: IDonate): Promise<IDonateDocument>;
+  createDonate(doc: IDonate, user: IUserDocument): Promise<IDonateDocument>;
   removeDonate(DonateId: string): Promise<{ ok: number }>;
 }
 
 export const loadDonateClass = (models: IModels) => {
   class Donate {
-    /**
-     * Retrieves donate
-     */
     public static async getDonate(_id: string) {
-      const Donate = await models.Donate.findOne({ _id }).lean();
+      const donate = await models.Donate.findOne({ _id });
 
-      if (!Donate) {
-        throw new Error('Donate not found');
+      if (!donate) {
+        throw new Error('not found donate rule');
       }
 
-      return Donate;
+      return donate;
     }
 
-    /**
-     * Retrieves all donates
-     */
-    public static async getDonates(): Promise<IDonateDocument[]> {
-      return models.Donate.find().lean();
+    public static async createDonate(doc: IDonate, user: IUserDocument) {
+      const { donateScore, ownerId, ownerType, campaignId } = doc;
+      if (!donateScore) {
+        throw new Error('Not create donate, score is NaN');
+      }
+
+      if (!ownerId || !ownerType) {
+        throw new Error('Not create donate, owner is undefined');
+      }
+
+      const donateCampaign = await models.Campaign.getCampaign(campaignId);
+
+      const now = new Date();
+
+      if (donateCampaign.startDate > now || donateCampaign.endDate < now) {
+        throw new Error('Not create donate, expired');
+      }
+
+      if ((donateCampaign.conditions?.maxScore || 0) < donateScore) {
+        throw new Error('Your donation is in excess');
+      }
+
+      let voucher: any = {};
+      let fitAward: any = {};
+
+      if ((donateCampaign.conditions?.awards || []).length) {
+        const awards = (donateCampaign.conditions?.awards || []).sort(
+          (a, b) => a.minScore - b.minScore,
+        );
+
+        for (const award of awards) {
+          if (donateScore >= award.minScore) {
+            fitAward = award;
+          }
+        }
+
+        if (fitAward.voucherCampaignId) {
+          voucher = await models.Voucher.createVoucher(
+            {
+              campaignId: fitAward.voucherCampaignId,
+              ownerType,
+              ownerId,
+            },
+            user,
+          );
+        }
+      }
+
+      await models.Score.changeScore({
+        ownerType,
+        ownerId,
+        change: -1 * donateScore,
+        action: 'subtract',
+        description: 'give donate',
+        campaignId,
+        contentId: campaignId,
+        contentType: 'campaign',
+        createdBy: user._id,
+      });
+
+      return await models.Donate.create({
+        campaignId,
+        ownerType,
+        ownerId,
+        createdAt: new Date(),
+        donateScore,
+        awardId: fitAward._id,
+        voucherId: voucher._id,
+      });
     }
 
-    /**
-     * Create a donate
-     */
-    public static async createDonate(doc: IDonate): Promise<IDonateDocument> {
-      return models.Donate.create(doc);
-    }
-
-    /*
-     * Update donate
-     */
-    public static async updateDonate(_id: string, doc: IDonate) {
-      return await models.Donate.findOneAndUpdate(
-        { _id },
-        { $set: { ...doc } },
-      );
-    }
-
-    /**
-     * Remove donate
-     */
-    public static async removeDonate(DonateId: string[]) {
-      return models.Donate.deleteOne({ _id: { $in: DonateId } });
+    public static async removeDonates(_ids: string[]) {
+      return models.Donate.deleteMany({ _id: { $in: _ids } });
     }
   }
 

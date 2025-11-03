@@ -8,7 +8,7 @@ export interface IVoucher {
   ownerId: string;
   ownerType: OWNER_TYPES;
 
-  status: STATUSES;
+  status?: STATUSES;
 
   createdBy?: string;
   updatedBy?: string;

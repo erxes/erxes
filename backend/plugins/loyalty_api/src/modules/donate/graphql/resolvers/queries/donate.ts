@@ -1,11 +1,40 @@
+import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { IDonateListParams } from '~/modules/donate/@types/donate';
+
+const generateFilter = (params: IDonateListParams) => {
+  const filter: any = {};
+
+  if (params.campaignId) {
+    filter.campaignId = params.campaignId;
+  }
+
+  if (params.status) {
+    filter.status = params.status;
+  }
+
+  if (params.ownerType) {
+    filter.ownerType = params.ownerType;
+  }
+
+  if (params.ownerId) {
+    filter.ownerId = params.ownerId;
+  }
+  return filter;
+};
 
 export const donateQueries = {
-  getDonate: async (_parent: undefined, { _id }, { models }: IContext) => {
-    return models.Donate.getDonate(_id);
-  },
+  getDonates: async (
+    _parent: undefined,
+    params: IDonateListParams,
+    { models }: IContext,
+  ) => {
+    const filter = generateFilter(params);
 
-  getDonates: async (_parent: undefined, { models }: IContext) => {
-    return models.Donate.getDonates();
+    return await cursorPaginate({
+      model: models.Donate,
+      params,
+      query: filter,
+    });
   },
 };
