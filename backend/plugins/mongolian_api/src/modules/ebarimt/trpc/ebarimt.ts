@@ -5,9 +5,9 @@ import { IModels } from '~/connectionResolvers';
 import { afterMutationHandlers } from '../afterMutations';
 import { beforeResolverHandlers } from '../beforeResolvers';
 
-export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
+export type EbarimtTRPCContext = ITRPCContext<{ models: IModels }>;
 
-const t = initTRPC.context<SalesTRPCContext>().create();
+const t = initTRPC.context<EbarimtTRPCContext>().create();
 
 export const ebarimtTrpcRouter = t.router({
   ebarimt: {
