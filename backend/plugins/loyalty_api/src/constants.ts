@@ -20,7 +20,8 @@ export const LOYALTY_STATUSES = {
   EXPIRED: 'expired',
   REDEEMED: 'redeemed',
   WON: 'won',
-  ALL: ['new', 'active', 'inactive', 'expired', 'redeemed', 'won'],
+  LOSS: 'loss',
+  ALL: ['new', 'active', 'inactive', 'expired', 'redeemed', 'won', 'loss'],
 };
 
 export const LOYALTY_CHAR_SET = {
