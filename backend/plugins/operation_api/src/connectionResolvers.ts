@@ -51,7 +51,10 @@ export interface IContext extends IMainContext {
   subdomain: string;
 }
 
-export const loadClasses = (db: mongoose.Connection): IModels => {
+export const loadClasses = (
+  db: mongoose.Connection,
+  subdomain: string,
+): IModels => {
   const models = {} as IModels;
 
   models.Task = db.model<ITaskDocument, ITaskModel>(
@@ -76,7 +79,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.Project = db.model<IProjectDocument, IProjectModel>(
     'operation_projects',
-    loadProjectClass(models),
+    loadProjectClass(models, subdomain),
   );
 
   models.Note = db.model<INoteDocument, INoteModel>(

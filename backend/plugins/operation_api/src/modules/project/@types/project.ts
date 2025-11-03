@@ -14,6 +14,7 @@ export interface IProject {
   targetDate?: Date;
   leadId?: string;
   createdBy?: string;
+  convertedFromId?: string;
 }
 
 export interface IProjectFilter extends ICursorPaginateParams, IListParams {

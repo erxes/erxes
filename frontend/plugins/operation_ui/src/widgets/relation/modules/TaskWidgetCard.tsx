@@ -9,7 +9,7 @@ import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
 import { ITask } from '@/task/types';
 import { IconCalendarEventFilled } from '@tabler/icons-react';
 import { format } from 'date-fns';
-import { Button, Card, Separator, Sheet } from 'erxes-ui';
+import { Button, Card, Separator } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { lazy, Suspense } from 'react';
 

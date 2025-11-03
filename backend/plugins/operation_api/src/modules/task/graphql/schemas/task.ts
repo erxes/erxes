@@ -104,5 +104,4 @@ export const mutations = `
   createTask(${createTaskParams}): Task
   updateTask(${updateTaskParams}): Task
   removeTask(_id: String!): Task
-  convertToProject(_id: String!): Project
 `;

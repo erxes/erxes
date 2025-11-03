@@ -15,6 +15,7 @@ type Project {
     createdBy: String
     createdAt: Date
     updatedAt: Date
+    convertedFromId: String
 }
 
 
@@ -57,6 +58,7 @@ const createProjectParams = `
   teamIds: [String!]!
   startDate: Date
   targetDate: Date
+  convertedFromId: String
 `;
 
 const updateProjectParams = `
@@ -79,6 +81,7 @@ export const queries = `
     getProjectProgressByMember(_id: String!): JSON
     getProjectProgressByTeam(_id: String!): JSON
     getProjectProgressChart(_id: String!): JSON
+    getConvertedProject(convertedFromId: String): Project
 `;
 
 export const mutations = `

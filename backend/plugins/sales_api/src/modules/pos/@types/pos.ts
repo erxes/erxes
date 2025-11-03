@@ -40,6 +40,7 @@ export interface IPos {
   allowTypes: string[];
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
+  saveRemainder: boolean;
   banFractions: boolean;
 }
 export interface IPosDocument extends IPos, Document {
