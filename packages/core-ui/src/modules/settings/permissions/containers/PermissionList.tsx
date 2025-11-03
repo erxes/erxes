@@ -51,20 +51,20 @@ const List = (props: FinalProps) => {
   } = props;
 
   // remove action
-  const remove = (id: string) => {
-    confirm("This will permanently delete are you absolutely sure?", {
-      hasDeleteConfirm: true,
-    }).then(() => {
-      removeMutation({
-        variables: { ids: [id] },
-      })
-        .then(() => {
-          Alert.success("You successfully deleted a permission.");
-        })
-        .catch((error) => {
-          Alert.error(error.message);
-        });
-    });
+  const remove = async (id: string) => {
+  try {
+    const confirmed = await confirm(
+      "This will permanently delete. Are you absolutely sure?",
+      { hasDeleteConfirm: true }
+    );
+    // if confirm returns false, just stop
+    if (!confirmed) {
+      return;
+    }
+    await removeMutation({ variables: { ids: [id] } });
+    Alert.success("You successfully deleted a permission.");
+  } catch (error) {
+  }
   };
 
   const isLoading =

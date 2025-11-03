@@ -158,6 +158,7 @@ const Pos = (props: Props) => {
       allowTypes: saveTypes,
       isCheckRemainder: state.pos.isCheckRemainder,
       checkExcludeCategoryIds: state.pos.checkExcludeCategoryIds || [],
+      saveRemainder: state.pos.saveRemainder,
       banFractions: state.pos.banFractions
     };
 

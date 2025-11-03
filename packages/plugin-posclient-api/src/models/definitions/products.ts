@@ -36,6 +36,13 @@ export interface IPrice {
   [token: string]: number;
 }
 
+export interface IPerRemainder {
+  [key: string]: number
+}
+export interface IRemainder {
+  [token: string]: IPerRemainder;
+}
+
 interface ITaxRule {
   [token: string]: {
     taxType?: string;
@@ -67,6 +74,7 @@ export interface IProduct extends IProductCommonFields {
   pdfAttachment?: IPdfAttachment;
 
   taxRules?: ITaxRule;
+  remainderByToken?: IRemainder;
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -153,6 +161,11 @@ export const productSchema = schemaWrapper(
       type: Object,
       optional: true,
       label: 'tax rules by token'
+    }),
+    remainderByToken: field({
+      type: Object,
+      optional: true,
+      label: 'remainderByToken by token'
     }),
     customFieldsData: field({
       type: [customFieldSchema],

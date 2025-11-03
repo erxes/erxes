@@ -23,6 +23,7 @@ type Props = {
   attrConfig?: any;
   onlySet?: boolean;
   customAttributions?: FieldsCombinedByType[];
+  componentClass?: string;
 };
 
 type FinalProps = {

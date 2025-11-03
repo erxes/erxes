@@ -7,6 +7,7 @@ import BarcodeResult from "./barcodeResult.market"
 import Search from "./components/search/search.main"
 import InitialCategories from "./InitialCategories"
 import ProductCategories from "./productCategories.main"
+import ToggleRemainder from "./components/ToggleRemainder"
 
 const ProductsContainer = () => {
   const mode = useAtomValue(modeAtom)
@@ -17,6 +18,7 @@ const ProductsContainer = () => {
         <div className="flex flex-auto overflow-hidden">
           <ProductCategories />
           <InitialCategories />
+          <ToggleRemainder />
         </div>
       </div>
       <div className="flex flex-auto overflow-hidden relative">

@@ -1,16 +1,40 @@
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import fetch from 'node-fetch';
+import { IModels } from '../../connectionResolver';
 import { sendInventoriesMessage } from '../../messageBroker';
 import { IConfigDocument } from '../../models/definitions/configs';
 import { IProductDocument } from '../../models/definitions/products';
 
+export const getRemBranchId = (config: IConfigDocument, paramBranchId?: string) => {
+  if (!paramBranchId) {
+    return 'default';
+  }
+
+  if (config.branchId === paramBranchId) {
+    return 'default';
+  }
+
+  if (!(config.allowBranchIds || []).includes(paramBranchId)) {
+    return 'default';
+  }
+
+  return paramBranchId;
+}
+
 export const checkRemainders = async (
   subdomain: string,
+  models: IModels,
   config: IConfigDocument,
   checkProducts: IProductDocument[],
   paramBranchId?: string,
 ) => {
   const products: any = checkProducts;
+  const bulkOps: Array<{
+    updateOne: {
+      filter: { _id: string };
+      update: { $set: any };
+    };
+  }> = [];
 
   if (config.erkhetConfig && config.erkhetConfig.getRemainder) {
     const configs = config.erkhetConfig;
@@ -36,16 +60,16 @@ export const checkRemainders = async (
         if (account && location) {
           const response = await fetch(
             configs.getRemainderApiUrl +
-              '?' +
-              new URLSearchParams({
-                kind: 'remainder',
-                api_key: configs.apiKey,
-                api_secret: configs.apiSecret,
-                check_relate: products.length < 4 ? '1' : '',
-                accounts: account,
-                locations: location,
-                inventories: products.map((p) => p.code).join(','),
-              }),
+            '?' +
+            new URLSearchParams({
+              kind: 'remainder',
+              api_key: configs.apiKey,
+              api_secret: configs.apiSecret,
+              check_relate: products.length < 4 ? '1' : '',
+              accounts: account,
+              locations: location,
+              inventories: products.map((p) => p.code).join(','),
+            }),
           );
 
           const jsonRes = await response.json();
@@ -76,9 +100,34 @@ export const checkRemainders = async (
             }
           }
 
+          const remBranchId = getRemBranchId(config, paramBranchId);
           for (const product of products) {
             product.remainders = (responseByCode[product.code] || {}).rems;
             product.remainder = (responseByCode[product.code] || {}).rem;
+            if (config.saveRemainder) {
+              if (!product.remainderByToken) {
+                product.remainderByToken = {}
+              }
+              if (!product.remainderByToken[config.token]) {
+                product.remainderByToken[config.token] = {}
+              }
+
+              product.remainderByToken[config.token][remBranchId] = product.remainder ?? 0;
+              bulkOps.push({
+                updateOne: {
+                  filter: { _id: product._id },
+                  update: {
+                    $set: {
+                      [`remainderByToken.${config.token}.${remBranchId}`]: product.remainder ?? 0
+                    }
+                  }
+                }
+              });
+            }
+          }
+
+          if (bulkOps.length) {
+            await models.Products.bulkWrite(bulkOps);
           }
         }
       } catch (e) {
@@ -89,15 +138,15 @@ export const checkRemainders = async (
     return products;
   }
 
-  const branchIds = paramBranchId
-    ? [paramBranchId]
-    : config.isOnline
-      ? config.allowBranchIds || []
-      : (config.branchId && [config.branchId]) || [];
-  const departmentIds = config.departmentId ? [config.departmentId] : [];
-  const productIds = products.map((p) => p._id);
-
   if (config.checkRemainder) {
+    const branchIds = paramBranchId
+      ? [paramBranchId]
+      : config.isOnline
+        ? config.allowBranchIds || []
+        : (config.branchId && [config.branchId]) || [];
+    const departmentIds = config.departmentId ? [config.departmentId] : [];
+    const productIds = products.map((p) => p._id);
+
     const inventoryResponse = await sendInventoriesMessage({
       subdomain,
       action: 'remainders',
@@ -119,6 +168,8 @@ export const checkRemainders = async (
       remainderByProductId[rem.productId].push(rem);
     }
 
+    const remBranchId = getRemBranchId(config, paramBranchId);
+
     for (const product of products) {
       product.remainders = remainderByProductId[product._id];
       product.remainder = (remainderByProductId[product._id] || []).reduce(
@@ -133,8 +184,49 @@ export const checkRemainders = async (
         (sum, cur) => sum + (Number(cur.soonOut) || 0),
         0,
       );
+      if (config.saveRemainder) {
+        if (!product.remainderByToken) {
+          product.remainderByToken = {}
+        }
+        if (!product.remainderByToken[config.token]) {
+          product.remainderByToken[config.token] = {}
+        }
+
+        product.remainderByToken[config.token][remBranchId] = product.remainder ?? 0;
+        bulkOps.push({
+          updateOne: {
+            filter: { _id: product._id },
+            update: {
+              $set: {
+                [`remainderByToken.${config.token}.${remBranchId}`]: product.remainder ?? 0
+              }
+            }
+          }
+        });
+      }
+    }
+
+    if (bulkOps.length) {
+      await models.Products.bulkWrite(bulkOps);
     }
   }
 
   return products;
 };
+
+export const syncRemainders = async (
+  subdomain: string,
+  models: IModels,
+  config: IConfigDocument,
+  products: IProductDocument[]
+) => {
+  const batchSize = 100;
+
+  for (let i = 0; i < products.length; i += batchSize) {
+    const checkProducts = products.slice(i, i + batchSize);
+    for (const paramBranchId of config.allowBranchIds || []) {
+      await checkRemainders(subdomain, models, config, checkProducts, paramBranchId);
+    }
+    await checkRemainders(subdomain, models, config, checkProducts);
+  }
+}

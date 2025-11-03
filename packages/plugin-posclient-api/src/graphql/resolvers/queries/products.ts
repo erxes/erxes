@@ -5,7 +5,7 @@ import { IProductCategoryDocument } from '../../../models/definitions/products';
 import { PRODUCT_STATUSES } from '../../../models/definitions/constants';
 import { sendCoreMessage, sendPricingMessage } from '../../../messageBroker';
 import { Builder } from '../../../utils';
-import { checkRemainders } from '../../utils/products';
+import { checkRemainders, getRemBranchId } from '../../utils/products';
 import { IConfigDocument } from '../../../models/definitions/configs';
 import {
   getSimilaritiesProducts,
@@ -38,6 +38,11 @@ interface IProductParams extends ICommonParams {
   groupedSimilarity?: string;
   categoryMeta?: string;
   image?: string;
+
+  minRemainder?: number;
+  maxRemainder?: number;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 interface ICategoryParams extends ICommonParams {
@@ -58,6 +63,7 @@ const generateFilter = async (
   config: IConfigDocument,
   {
     type,
+    branchId,
     categoryId,
     searchValue,
     vendorId,
@@ -72,6 +78,10 @@ const generateFilter = async (
     categoryMeta,
     isKiosk,
     image,
+    minRemainder,
+    maxRemainder,
+    minPrice,
+    maxPrice,
     ...paginationArgs
   }: IProductParams
 ) => {
@@ -219,6 +229,21 @@ const generateFilter = async (
     $and.push({ categoryId: { $in: categories.map(c => c._id) } });
   }
 
+  if (minPrice || minPrice === 0) {
+    $and.push({ [`prices.${token}`]: { $gte: minPrice } })
+  }
+  if (maxPrice || maxPrice === 0) {
+    $and.push({ [`prices.${token}`]: { $lte: maxPrice } })
+  }
+
+  const remBranchId = getRemBranchId(config, branchId);
+  if (minRemainder || minRemainder === 0) {
+    $and.push({ [`remainderByToken.${token}.${remBranchId}`]: { $gte: minRemainder } });
+  }
+  if (maxRemainder || maxRemainder === 0) {
+    $and.push({ [`remainderByToken.${token}.${remBranchId}`]: { $lte: maxRemainder } });
+  }
+
   const lastFilter = { ...filter, $and };
 
   if (isKiosk) {
@@ -302,58 +327,31 @@ const generateFilterCat = async ({
 const productQueries = {
   async poscProducts(
     _root,
-    {
-      type,
-      categoryId,
-      branchId,
-      searchValue,
-      vendorId,
-      tag,
-      tags,
-      excludeTags,
-      tagWithRelated,
-      ids,
-      excludeIds,
-      pipelineId,
-      boardId,
-      segment,
-      segmentData,
-      isKiosk,
-      categoryMeta,
-      groupedSimilarity,
-      image,
-      sortField,
-      sortDirection,
-      ...paginationArgs
-    }: IProductParams,
+    params: IProductParams,
     { models, subdomain, config }: IContext
   ) {
-    let filter = await generateFilter(subdomain, models, config, {
-      type,
-      categoryId,
+    const {
       branchId,
-      searchValue,
-      vendorId,
-      tag,
-      tags,
-      excludeTags,
-      tagWithRelated,
-      ids,
-      excludeIds,
-      pipelineId,
-      boardId,
-      segment,
-      segmentData,
-      categoryMeta,
-      image,
-      isKiosk
-    });
+      groupedSimilarity,
+      sortField,
+      sortDirection,
+    } = params
+
+    const paginationArgs = {
+      perPage: params?.perPage ?? 20,
+      page: params?.page ?? 1,
+    };
+
+    let filter = await generateFilter(subdomain, models, config, params);
 
     let sortParams: any = { code: 1 };
 
     if (sortField) {
       if (sortField === 'unitPrice') {
         sortParams = { [`prices.${config.token}`]: sortDirection || 1 };
+      } else if (sortField === 'remainder') {
+        const remBranchId = getRemBranchId(config, branchId);
+        sortParams = { [`remainderByToken.${config.token}.${remBranchId}`]: sortDirection || 1 };
       } else {
         sortParams = { [sortField]: sortDirection || 1 };
       }
@@ -367,6 +365,7 @@ const productQueries = {
 
       return checkRemainders(
         subdomain,
+        models,
         config,
         groupedProducts,
         branchId || ''
@@ -380,6 +379,7 @@ const productQueries = {
 
     return checkRemainders(
       subdomain,
+      models,
       config,
       paginatedProducts,
       branchId || ''
@@ -391,49 +391,11 @@ const productQueries = {
    */
   async poscProductsTotalCount(
     _root,
-    {
-      type,
-      categoryId,
-      branchId,
-      searchValue,
-      vendorId,
-      tag,
-      tags,
-      excludeTags,
-      tagWithRelated,
-      ids,
-      excludeIds,
-      pipelineId,
-      boardId,
-      segment,
-      segmentData,
-      categoryMeta,
-      groupedSimilarity,
-      image,
-      isKiosk
-    }: IProductParams,
+    params: IProductParams,
     { models, config, subdomain }: IContext
   ) {
-    const filter = await generateFilter(subdomain, models, config, {
-      type,
-      categoryId,
-      branchId,
-      searchValue,
-      vendorId,
-      tag,
-      tags,
-      excludeTags,
-      tagWithRelated,
-      ids,
-      excludeIds,
-      pipelineId,
-      boardId,
-      segment,
-      segmentData,
-      categoryMeta,
-      image,
-      isKiosk
-    });
+    const { groupedSimilarity } = params;
+    const filter = await generateFilter(subdomain, models, config, params);
 
     if (groupedSimilarity) {
       return await getSimilaritiesProductsCount(models, filter, {
@@ -453,7 +415,7 @@ const productQueries = {
 
     if (groupedSimilarity === 'config') {
       const getRegex = str => {
-        return ['*', '.', '_'].includes(str) ? new RegExp(
+        return /[*._]/.test(str) ? new RegExp(
           `^${str
             .replace(/\./g, '\\.')
             .replace(/\*/g, '.')
@@ -503,6 +465,7 @@ const productQueries = {
         return {
           products: await checkRemainders(
             subdomain,
+            models,
             config,
             await models.Products.find({ _id }),
             branchId || ''
@@ -562,15 +525,17 @@ const productQueries = {
       let products = await models.Products.find(filters)
         .sort({ code: 1 });
       if (!products.length) {
-        products = await checkRemainders(
-          subdomain,
-          config,
-          [product],
-          branchId || ''
-        );
+        products = [product];
       }
+
       return {
-        products,
+        products: await checkRemainders(
+          subdomain,
+          models,
+          config,
+          products,
+          branchId || ''
+        ),
         groups
       };
     }
@@ -582,6 +547,7 @@ const productQueries = {
       return {
         products: await checkRemainders(
           subdomain,
+          models,
           config,
           await models.Products.find({ _id }),
           branchId || ''
@@ -607,6 +573,7 @@ const productQueries = {
     return {
       products: await checkRemainders(
         subdomain,
+        models,
         config,
         await models.Products.find(filters).sort({ code: 1 }),
         branchId || ''
@@ -713,6 +680,7 @@ const productQueries = {
 
     const result = await checkRemainders(
       subdomain,
+      models,
       config,
       [product],
       branchId

@@ -23,6 +23,7 @@ export interface IProduct extends IProductBase {
   attachment?: { url?: string } | null
   remainder?: number
   remainders?: { location: string; remainder: number }[]
+  isCheckRem?: boolean
   code?: string
   manufacturedDate?: string
   hasSimilarity?: boolean

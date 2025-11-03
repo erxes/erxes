@@ -3,7 +3,7 @@ import { addToCartAtom } from "@/store/cart.store"
 import { useAtomValue, useSetAtom } from "jotai"
 
 import { IProduct } from "@/types/product.types"
-import { formatNum } from "@/lib/utils"
+import { cn, formatNum } from "@/lib/utils"
 import {
   HoverCard,
   HoverCardContent,
@@ -26,6 +26,7 @@ const ProductItem = ({
   unitPrice,
   remainder,
   remainders,
+  isCheckRem,
   _id,
 }: IProduct) => {
   const addToCart = useSetAtom(addToCartAtom)
@@ -34,7 +35,10 @@ const ProductItem = ({
 
   return (
     <div
-      className="relative rounded-lg border p-3 text-center "
+      className={cn(
+        "relative rounded-lg border p-3 text-center",
+        isCheckRem && !remainder && "opacity-70"
+      )}
       onClick={() => {
         addToCart({ name, _id, unitPrice })
         mode === "mobile" &&
