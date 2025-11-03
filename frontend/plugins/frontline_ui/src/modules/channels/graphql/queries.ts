@@ -30,6 +30,7 @@ const GET_CHANNEL = gql`
       _id
       icon
       name
+      pipelineCount
       description
       createdAt
       updatedAt
