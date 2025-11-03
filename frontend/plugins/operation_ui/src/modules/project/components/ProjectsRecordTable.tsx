@@ -7,6 +7,7 @@ import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
 import { PROJECTS_CURSOR_SESSION_KEY } from '@/project/constants/ProjectSessionKey';
+import { ProjectsCommandBar } from './select/ProjectCommandBar';
 
 export const ProjectsRecordTable = () => {
   const { teamId } = useParams();
@@ -54,6 +55,7 @@ export const ProjectsRecordTable = () => {
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.CursorProvider>
+        <ProjectsCommandBar />
       </RecordTable.Provider>
     </div>
   );

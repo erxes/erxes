@@ -6,15 +6,30 @@ import {
   ScrollArea,
   TextOverflowTooltip,
   IconComponent,
+  Checkbox,
 } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { ActionsCommandBar, ChannelsCommandBar } from './ChannelsCommandBar';
 
 export function Channels() {
   const { channels, loading } = useGetChannels();
   const navigate = useNavigate();
+  const [selected, setSelected] = useState<string[]>([]);
   const onClick = (channelId: string) => {
     navigate(`/settings/frontline/channels/details/${channelId}`);
   };
+  const toggleSelect = (id: string) => {
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id],
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selected.length === channels?.length) setSelected([]);
+    else setSelected(channels?.map((c) => c._id) || []);
+  };
+
   return (
     <div className="overflow-hidden h-full px-8">
       <div className="bg-sidebar size-full border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
@@ -43,6 +58,15 @@ export function Channels() {
                       onClick={() => onClick(channel._id)}
                       className="hover:cursor-pointer shadow-xs"
                     >
+                      <Table.Cell className="w-10 pl-3 border-none">
+                        <Checkbox
+                          checked={selected.includes(channel._id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleSelect(channel._id);
+                          }}
+                        />
+                      </Table.Cell>
                       <Table.Cell className="font-medium border-none pl-2 w-auto ">
                         <span className="w-full flex gap-2 text-base font-medium">
                           <span className="[1lh] flex items-center">
@@ -71,6 +95,7 @@ export function Channels() {
                     </Table.Row>
                   ))}
             </Table.Body>
+            <ChannelsCommandBar selected={selected} />
           </Table>
         </ScrollArea>
       </div>
@@ -78,21 +103,23 @@ export function Channels() {
   );
 }
 
-const TableRowSkeleton = () => {
-  return (
-    <Table.Row className="shadow-xs">
-      <Table.Cell className="w-auto pl-8 border-none">
-        <Skeleton className="h-4 w-10" />
-      </Table.Cell>
-      <Table.Cell className="w-20 border-none">
-        <Skeleton className="h-4 w-5" />
-      </Table.Cell>
-      <Table.Cell className="w-32 pr-8 border-none">
-        <Skeleton className="h-4 w-16" />
-      </Table.Cell>
-      <Table.Cell className="w-32 border-none">
-        <Skeleton className="h-4 w-16" />
-      </Table.Cell>
-    </Table.Row>
-  );
-};
+const TableRowSkeleton = () => (
+  <Table.Row className="shadow-xs">
+    <Table.Cell className="w-10 border-none pl-3">
+      <Skeleton className="h-4 w-4" />
+    </Table.Cell>
+
+    <Table.Cell className="w-auto pl-8 border-none">
+      <Skeleton className="h-4 w-10" />
+    </Table.Cell>
+    <Table.Cell className="w-20 border-none">
+      <Skeleton className="h-4 w-5" />
+    </Table.Cell>
+    <Table.Cell className="w-32 pr-8 border-none">
+      <Skeleton className="h-4 w-16" />
+    </Table.Cell>
+    <Table.Cell className="w-32 border-none">
+      <Skeleton className="h-4 w-16" />
+    </Table.Cell>
+  </Table.Row>
+);
