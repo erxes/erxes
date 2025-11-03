@@ -3,6 +3,7 @@ import { couponSchema } from '@/coupon/db/definitions/coupon';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { Model } from 'mongoose';
 import { customAlphabet } from 'nanoid';
+import { STATUSES } from '~/@types';
 import { IModels } from '~/connectionResolvers';
 import { LOYALTY_CHAR_SET, LOYALTY_STATUSES } from '~/constants';
 import { CAMPAIGN_STATUS } from '~/modules/campaign/constants';
@@ -235,7 +236,7 @@ export const loadCouponClass = (models: IModels) => {
 
       const { conditions, status } = coupon || {};
 
-      const doc: { status: string; conditions: any } = {
+      const doc: { status: STATUSES; conditions: any } = {
         status,
         conditions: { ...conditions },
       };
