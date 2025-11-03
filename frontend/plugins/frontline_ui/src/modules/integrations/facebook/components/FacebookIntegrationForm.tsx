@@ -47,6 +47,7 @@ export const FacebookIntegrationFormSheet = ({
 
 export const FacebookIntegrationForm = () => {
   const activeStep = useAtomValue(activeFacebookFormStepAtom);
+  console.log('click');
 
   return (
     <>
