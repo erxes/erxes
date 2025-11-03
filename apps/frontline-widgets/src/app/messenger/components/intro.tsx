@@ -43,7 +43,7 @@ export const Intro = () => {
             <ConversationMessage
               key={index}
               conversationId={conversations[index]?._id}
-              messege={messege || undefined}
+              message={messege || undefined}
             />
           ))}
       </div>
