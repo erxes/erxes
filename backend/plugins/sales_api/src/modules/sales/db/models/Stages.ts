@@ -89,7 +89,7 @@ export const loadStageClass = (models: IModels, subdomain: string) => {
         });
       }
 
-      return models.Stages.deleteOne({ _id });
+      return await models.Stages.deleteOne({ _id });
     }
   }
 
