@@ -37,7 +37,9 @@ export const CreateChannel = ({ isIconOnly = false }: Props) => {
   };
 
   const onClose = () => {
-    !isIconOnly && setHotkeyScope(ChannelHotKeyScope.ChannelSettingsPage);
+    if (!isIconOnly) {
+      setHotkeyScope(ChannelHotKeyScope.ChannelSettingsPage);
+    }
     setOpen(false);
   };
 

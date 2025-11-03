@@ -5,7 +5,6 @@ import { toast } from 'erxes-ui';
 export const useChannelRemove = () => {
   const [removeChannel, { loading, error }] = useMutation(REMOVE_CHANNEL, {
     onCompleted: (data) => {
-      console.log('data', data);
       toast({ title: 'Channel removed successfully' });
     },
     refetchQueries: ['GetChannels'],

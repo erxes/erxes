@@ -121,6 +121,9 @@ const TableRowSkeleton = () => (
     <Table.Cell className="w-32 border-none">
       <Skeleton className="h-4 w-16" />
     </Table.Cell>
+    <Table.Cell className="w-10 border-none">
+      <Skeleton className="h-4 w-4" />
+    </Table.Cell>
   </Table.Row>
 );
 
@@ -156,7 +159,7 @@ export const DateDisplay = ({ date }: { date: string }) => {
     <Tooltip.Provider>
       <Tooltip>
         <Tooltip.Trigger>
-          <div className="te`xt-muted-foreground text-xs">
+          <div className="text-muted-foreground text-xs">
             {date ? format(new Date(date), 'MMM d, yyyy') : ''}
           </div>
         </Tooltip.Trigger>

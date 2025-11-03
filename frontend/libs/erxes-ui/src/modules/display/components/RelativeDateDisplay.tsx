@@ -45,9 +45,7 @@ const RelativeDateDisplayValue = ({
   const relativeDate = formatDateISOStringToRelativeDate(value);
   const relativeDateShort = formatDateISOStringToRelativeDateShort(value);
 
-  return isShort
-    ? formatDateISOStringToRelativeDateShort(value)
-    : formatDateISOStringToRelativeDate(value);
+  return isShort ? relativeDateShort : relativeDate;
 };
 
 export const RelativeDateDisplay = Object.assign(RelativeDateDisplayTooltip, {
