@@ -1,5 +1,5 @@
 import React from 'react';
-import { PopoverScoped, Combobox, Command } from 'erxes-ui';
+import { PopoverScoped, Combobox, Command, Filter, useQueryState, useFilterContext, cn } from 'erxes-ui';
 import { useGetActiveCycles } from '@/cycle/hooks/useGetActiveCycles';
 import { IconRestore } from '@tabler/icons-react';
 import { useState } from 'react';
@@ -13,10 +13,52 @@ import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import { SelectOperationContent } from '@/operation/components/SelectOperation';
 import { format } from 'date-fns';
 
+interface ITaskCycle {
+  value: CycleFilterType;
+  label: string;
+}
+
+export type CycleFilterType =
+  | 'noCycle'
+  | 'anyPastCycle'
+  | 'previousCycle'
+  | 'currentCycle'
+  | 'upcomingCycle'
+  | 'anyFutureCycle';
+
+const CYCLE_FILTER_OPTIONS: ITaskCycle[] = [
+  {
+    value: 'noCycle',
+    label: 'No Cycle',
+
+  },
+  {
+    value: 'anyPastCycle',
+    label: 'Any past cycle',
+  },
+  {
+    value: 'previousCycle',
+    label: 'Previous cycle',
+  },
+  {
+    value: 'currentCycle',
+    label: 'Current cycle',
+  },
+  {
+    value: 'upcomingCycle',
+    label: 'Upcoming cycle',
+  },
+  {
+    value: 'anyFutureCycle',
+    label: 'Any future cycle',
+  },
+];
+
 interface SelectCycleContextType {
   value?: string;
   onValueChange: (value: string) => void;
   activeCycles: ICycle[];
+  isFilter?: boolean;
 }
 
 const SelectCycleContext = React.createContext<SelectCycleContextType | null>(
@@ -144,17 +186,19 @@ const SelectCycleProvider = ({
   onValueChange,
   teamId,
   taskId,
+  isFilter = false,
 }: {
   children: React.ReactNode;
   value?: string;
   onValueChange: (value: string) => void;
   teamId?: string;
   taskId?: string;
+  isFilter?: boolean;
 }) => {
   const { team } = useGetTeam({ variables: { _id: teamId }, skip: !teamId });
   const { activeCycles } = useGetActiveCycles(teamId, taskId);
 
-  if (!team?.cycleEnabled) return null;
+  if (!team?.cycleEnabled && !isFilter) return null;
 
   const handleValueChange = (cycleId: string) => {
     onValueChange(cycleId);
@@ -166,6 +210,7 @@ const SelectCycleProvider = ({
         value,
         onValueChange: handleValueChange,
         activeCycles: activeCycles || [],
+        isFilter,
       }}
     >
       {children}
@@ -214,6 +259,102 @@ const SelectCycleRoot = ({
   );
 };
 
+const SelectCycleFilterContent = () => {
+  const { value, onValueChange } = useSelectCycleContext();
+
+  return (
+    <Command shouldFilter={false}>
+      <Command.List>
+        {CYCLE_FILTER_OPTIONS.map((option) => (
+          <Command.Item
+            key={option.value}
+            onSelect={() => onValueChange(option.value)}
+            className="flex flex-col items-start"
+          >
+            <div className="flex items-center gap-2 w-full">
+              <div
+                className={cn(
+                  'size-4 rounded-full border-2 flex items-center justify-center',
+                  value === option.value
+                    ? 'border-primary bg-primary'
+                    : 'border-border',
+                )}
+              >
+                {value === option.value && (
+                  <div className="size-2 rounded-full bg-primary-foreground" />
+                )}
+              </div>
+              <span className="font-medium">{option.label}</span>
+            </div>
+          </Command.Item>
+        ))}
+      </Command.List>
+    </Command>
+  );
+};
+
+const SelectCycleFilterValue = () => {
+  const { value } = useSelectCycleContext();
+
+  const selectedOption = CYCLE_FILTER_OPTIONS.find((opt) => opt.value === value);
+
+  return (
+    <div className="flex items-center gap-2">
+      <IconRestore className="size-4" />
+      <span className="truncate font-medium">
+        {selectedOption?.label || 'Filter by cycle'}
+      </span>
+    </div>
+  );
+};
+
+export const SelectCycleFilterView = () => {
+  const [cycleFilter, setCycleFilter] = useQueryState<CycleFilterType>('cycleFilter');
+  const { resetFilterState } = useFilterContext();
+
+  return (
+    <Filter.View filterKey="cycleFilter">
+      <SelectCycleProvider
+        value={cycleFilter || ''}
+        onValueChange={(value) => {
+          setCycleFilter(value as CycleFilterType);
+          resetFilterState();
+        }}
+        isFilter={true}
+      >
+        <SelectCycleFilterContent />
+      </SelectCycleProvider>
+    </Filter.View>
+  );
+};
+
+export const SelectCycleFilterBar = () => {
+  const [cycleFilter, setCycleFilter] = useQueryState<CycleFilterType>('cycleFilter');
+  const [open, setOpen] = useState(false);
+
+  return (
+    <SelectCycleProvider
+      value={cycleFilter || ''}
+      onValueChange={(value) => {
+        setCycleFilter(value as CycleFilterType);
+        setOpen(false);
+      }}
+      isFilter={true}
+    >
+      <PopoverScoped open={open} onOpenChange={setOpen}>
+        <SelectTriggerOperation variant="filter">
+          <SelectCycleFilterValue />
+        </SelectTriggerOperation>
+        <SelectOperationContent variant="filter">
+          <SelectCycleFilterContent />
+        </SelectOperationContent>
+      </PopoverScoped>
+    </SelectCycleProvider>
+  );
+};
+
 export const SelectCycle = Object.assign(SelectCycleRoot, {
   FormItem: SelectCycleFormItem,
+  FilterView: SelectCycleFilterView,
+  FilterBar: SelectCycleFilterBar,
 });

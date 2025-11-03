@@ -59,6 +59,77 @@ export const taskQueries = {
       filterQuery.cycleId = filter.cycleId;
     }
 
+    if (filter.cycleFilter && filter.teamId) {
+      const now = new Date();
+      
+      switch (filter.cycleFilter) {
+        case 'noCycle':
+          filterQuery.cycleId = null;
+          break;
+          
+        case 'anyPastCycle': {
+          const pastCycles = await models.Cycle.find({
+            teamId: filter.teamId,
+            endDate: { $lt: now },
+          }).distinct('_id');
+          filterQuery.cycleId = { $in: pastCycles };
+          break;
+        }
+        
+        case 'previousCycle': {
+          const previousCycle = await models.Cycle.findOne({
+            teamId: filter.teamId,
+            endDate: { $lt: now },
+          }).sort({ endDate: -1 });
+          if (previousCycle) {
+            filterQuery.cycleId = previousCycle._id;
+          } else {
+            // No previous cycle, return empty results
+            filterQuery.cycleId = 'no-previous-cycle';
+          }
+          break;
+        }
+        
+        case 'currentCycle': {
+          const currentCycle = await models.Cycle.findOne({
+            teamId: filter.teamId,
+            startDate: { $lte: now },
+            endDate: { $gte: now },
+          });
+          if (currentCycle) {
+            filterQuery.cycleId = currentCycle._id;
+          } else {
+            // No current cycle, return empty results
+            filterQuery.cycleId = 'no-current-cycle';
+          }
+          break;
+        }
+        
+        case 'upcomingCycle': {
+          const upcomingCycle = await models.Cycle.findOne({
+            teamId: filter.teamId,
+            startDate: { $gt: now },
+          }).sort({ startDate: 1 });
+          if (upcomingCycle) {
+            filterQuery.cycleId = upcomingCycle._id;
+          } else {
+            // No upcoming cycle, return empty results
+            filterQuery.cycleId = 'no-upcoming-cycle';
+          }
+          break;
+        }
+        
+        case 'anyFutureCycle': {
+          const futureCycles = await models.Cycle.find({
+            teamId: filter.teamId,
+            startDate: { $gt: now },
+          }).distinct('_id');
+          filterQuery.cycleId = { $in: futureCycles };
+          break;
+        }
+      }
+    }
+
     if (filter.projectId) {
       filterQuery.projectId = filter.projectId;
     }

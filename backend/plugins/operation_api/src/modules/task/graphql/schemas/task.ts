@@ -30,6 +30,15 @@ export const types = `
     totalCount: Int,
   }
 
+  enum CycleFilterType {
+    noCycle
+    anyPastCycle
+    previousCycle
+    currentCycle
+    upcomingCycle
+    anyFutureCycle
+  }
+
   input ITaskFilter {
     _id: String
     status: String
@@ -49,6 +58,7 @@ export const types = `
     statusType: Int
     estimate: String
     milestoneId: String
+    cycleFilter: CycleFilterType
 
     ${GQL_CURSOR_PARAM_DEFS}
   }
