@@ -25,7 +25,7 @@ export interface IExternalIntegrationParams {
   name: string;
   brandId: string;
   accountId: string;
-  channelIds?: string[];
+  channelId: string;
 }
 
 interface IIntegrationBasicInfo {
@@ -266,7 +266,10 @@ export const loadClass = (models: IModels, subdomain: string) => {
         throw new Error('Duplicated messenger');
       }
 
-      return this.createIntegration({ ...doc, kind: 'messenger', channelId: doc.channelIds?.[0] || '' }, userId);
+      return this.createIntegration(
+        { ...doc, kind: 'messenger', channelId: doc.channelId || '' },
+        userId,
+      );
     }
 
     /**
@@ -377,7 +380,10 @@ export const loadClass = (models: IModels, subdomain: string) => {
       doc: IExternalIntegrationParams,
       userId: string,
     ): Promise<IIntegrationDocument> {
-      return models.Integrations.createIntegration({ ...doc, channelId: doc.channelIds?.[0] || '' }, userId);
+      return models.Integrations.createIntegration(
+        { ...doc, channelId: doc.channelId || '' },
+        userId,
+      );
     }
 
     /**

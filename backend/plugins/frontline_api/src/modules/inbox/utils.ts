@@ -47,7 +47,6 @@ export const isServiceRunning = async (
   );
 };
 
-<<<<<<< HEAD
 export const handleAutomation = async (
   subdomain: string,
   {
@@ -85,7 +84,7 @@ export const handleAutomation = async (
     .then(() => {
       debugInfo(`Sent message successfully`);
     });
-=======
+};
 export interface RPSuccess {
   status: 'success';
   data?: any;
@@ -128,5 +127,4 @@ export const integrations = async ({ subdomain, data }) => {
   }
 
   return response;
->>>>>>> e3601b1a58aee5d3da97137fd61d20b8433e7c0f
 };
