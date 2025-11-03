@@ -1,6 +1,5 @@
 import { TaskDetails } from '@/task/components/detail/TaskDetails';
 import { NotificationContent } from './contents/NotificationContent';
-import { TriageContent } from '@/triage/components/TriageContent';
 
 const NotificationsWidgets = (props: any) => {
   const { contentTypeId, contentType } = props;
@@ -18,9 +17,6 @@ const NotificationsWidgets = (props: any) => {
     }
 
     return <NotificationComponent {...props} />;
-  }
-  if (moduleName === 'triage') {
-    return <TriageContent triageId={contentTypeId} />;
   }
 
   return <TaskDetails taskId={contentTypeId} />;
