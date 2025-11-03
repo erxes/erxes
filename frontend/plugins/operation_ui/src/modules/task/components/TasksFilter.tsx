@@ -4,6 +4,7 @@ import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
 import { TasksTotalCount } from '@/task/components/TasksTotalCount';
 import { SelectAssigneeTask } from '@/task/components/task-selects/SelectAssigneeTask';
 import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
+import { SelectCycle } from '@/task/components/task-selects/SelectCycle';
 import { TASKS_CURSOR_SESSION_KEY } from '@/task/constants';
 import { SelectTeam } from '@/team/components/SelectTeam';
 import {
@@ -13,6 +14,7 @@ import {
   IconSquareRotated,
   IconUser,
   IconUsers,
+  IconRestore,
 } from '@tabler/icons-react';
 import clsx from 'clsx';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
@@ -29,7 +31,8 @@ const TasksFilterPopover = () => {
     priority: string;
     status: string;
     milestone: string;
-  }>(['searchValue', 'assignee', 'team', 'priority', 'status', 'milestone']);
+    cycleFilter: string;
+  }>(['searchValue', 'assignee', 'team', 'priority', 'status', 'milestone', 'cycleFilter']);
 
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
@@ -71,6 +74,12 @@ const TasksFilterPopover = () => {
                   <IconProgressCheck />
                   Status
                 </Filter.Item>
+                {teamId && (
+                  <Filter.Item value="cycleFilter">
+                    <IconRestore />
+                    Cycle
+                  </Filter.Item>
+                )}
                 <TagsFilter />
                 {(projectId && !queries?.milestone) && (
                   <Filter.Item value="milestone">
@@ -89,6 +98,7 @@ const TasksFilterPopover = () => {
           ) : (
             <SelectStatus.FilterView />
           )}
+          {teamId && <SelectCycle.FilterView />}
           <TagsFilter.View tagType="operation:task" />
           {(projectId && !queries?.milestone) && (
             <SelectMilestone.FilterView projectId={projectId || ''} />
@@ -114,8 +124,9 @@ export const TasksFilter = () => {
     status: string;
     milestone: string;
     tags: string[];
-  }>(['searchValue', 'assignee', 'team', 'priority', 'status', 'milestone', 'tags']);
-  const { searchValue, milestone } = queries || {};
+    cycleFilter: string;
+  }>(['searchValue', 'assignee', 'team', 'priority', 'status', 'milestone', 'tags', 'cycleFilter']);
+  const { searchValue, milestone, cycleFilter } = queries || {};
 
   return (
     <Filter id="Tasks-filter" sessionKey={TASKS_CURSOR_SESSION_KEY}>
@@ -168,6 +179,15 @@ export const TasksFilter = () => {
           </Filter.BarName>
           <SelectAssigneeTask.FilterBar />
         </Filter.BarItem>
+        {teamId && cycleFilter && (
+          <Filter.BarItem queryKey="cycleFilter">
+            <Filter.BarName>
+              <IconRestore />
+              Cycle
+            </Filter.BarName>
+            <SelectCycle.FilterBar />
+          </Filter.BarItem>
+        )}
         <TagsFilter.Bar tagType="operation:task" />
         {(projectId && milestone) && (
           <Filter.BarItem queryKey="milestone">
