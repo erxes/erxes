@@ -131,15 +131,15 @@ export const Status = ({
           </span>
         </div>
       </span>
-      <StatusOptionMenu statusId={status._id} />
+      <StatusOptionMenu statusId={status._id} statusType={status.type}/>
     </div>
   );
 };
 
-const StatusOptionMenu = ({ statusId }: { statusId: string }) => {
+const StatusOptionMenu = ({ statusId, statusType }: { statusId: string; statusType: number }) => {
   const setEditingStatus = useSetAtom(editingStatusState);
   const { toast } = useToast();
-  const { deleteStatus } = useDeleteTicketStatus();
+  const { deleteStatus } = useDeleteTicketStatus(statusType);
 
   const handleDeleteStatus = () => {
     deleteStatus({
@@ -296,7 +296,7 @@ export const StatusForm = ({
                               : undefined,
                           }}
                         >
-                          <StatusInlineIcon statusType={statusType} />
+                          <StatusInlineIcon statusType={statusType} color={field.value} />
                         </Button>
                       </ColorPicker.Trigger>
                       <ColorPicker.Content />

@@ -7,6 +7,7 @@ import {
   IconCircle,
   IconCircleCheck,
   IconCircleDashed,
+  IconCircleDashedCheck,
   IconCircleDot,
   IconCircleX,
 } from '@tabler/icons-react';
@@ -24,10 +25,11 @@ export const StatusInlineIcon = ({
     (typeof statusType === 'string' ? parseInt(statusType, 10) : statusType) -
     1;
   const StatusIconComponent = [
-    IconCircleDot,
     IconCircle,
+    IconCircleDot,
     IconCircleDashed,
     IconCircleCheck,
+    IconCircleDashedCheck,
     IconCircleX,
   ][numericType];
 

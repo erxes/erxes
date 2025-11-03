@@ -8,10 +8,12 @@ export const useAddTicketStatus = () => {
   const [_addStatus, { loading, error }] = useMutation(ADD_TICKET_STATUS);
   const addStatus = (options: MutationFunctionOptions) => {
     return _addStatus({
-      onCompleted: () => {
+      ...options,
+      onCompleted: (data) => {
         toast({
           title: 'Success!',
         });
+        options.onCompleted?.(data);
       },
       onError: (error) => {
         toast({
@@ -19,11 +21,12 @@ export const useAddTicketStatus = () => {
           description: error.message,
           variant: 'destructive',
         });
+        options.onError?.(error);
       },
       refetchQueries: [
         {
           query: GET_TICKET_STATUS_BY_TYPE,
-          variables: { type: options?.variables?.type },
+          variables: { type: options?.variables?.type, pipelineId: options?.variables?.pipelineId },
         },
       ],
     });

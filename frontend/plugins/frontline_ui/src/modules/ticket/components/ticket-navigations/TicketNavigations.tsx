@@ -29,7 +29,6 @@ interface ChannelItemProps {
 
 function ChannelItem({ channel }: ChannelItemProps) {
   const [channelId, setChannelId] = useQueryState<string | null>('channelId');
-  const [, setPipelineId] = useQueryState<string | null>('pipelineId');
   const isActive = channelId === channel._id;
   return (
     <Sidebar.Group className="p-0">
