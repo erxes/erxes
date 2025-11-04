@@ -13,6 +13,7 @@ export const guideItemSchema = new Schema(
 );
 export const tourSchema = new Schema({
   _id: mongooseStringRandomId,
+
   createdAt: { type: Date, label: 'Created at' },
   modifiedAt: { type: Date, label: 'Modified at' },
   refNumber: { type: String, optional: true, label: 'refnumber' },
@@ -35,12 +36,14 @@ export const tourSchema = new Schema({
     default: '',
     optional: true,
     label: 'status',
+    esType: 'keyword',
   },
   date_status: {
     type: String,
     default: '',
     optional: true,
     label: 'date status',
+    esType: 'keyword',
     selectOptions: getEnum(TOUR_STATUS_TYPES),
   },
   cost: { type: Number, optional: true, label: 'cost' },

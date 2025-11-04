@@ -2,7 +2,7 @@ import { IModels } from '~/connectionResolvers';
 import { cursorPaginate, paginate } from 'erxes-api-shared/utils';
 
 const queries = {
-  bmsBranches: async (
+  bmsBranchList: async (
     _root,
     params,
     {
@@ -23,7 +23,7 @@ const queries = {
     return { list, totalCount, pageInfo };
   },
 
-  bmsBranchList: async (_root, params, { models }: { models: IModels }) => {
+  bmsBranches: async (_root, params, { models }: { models: IModels }) => {
     return paginate(models.Branches.find(params), params);
   },
 

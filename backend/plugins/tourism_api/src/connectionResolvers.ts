@@ -13,6 +13,7 @@ import {
   loadElementCategoryClass,
   loadElementClass,
 } from '@/bms/db/models/Element';
+
 import { IItineraryModel, loadItineraryClass } from '@/bms/db/models/Itinerary';
 import { IOrderModel, loadOrderClass } from '@/bms/db/models/Order';
 import { ITourModel, loadTourClass } from '@/bms/db/models/Tour';
@@ -46,7 +47,23 @@ import {
   loadTourCategoryClass,
 } from '@/ota/db/models/TourCategories';
 import { IOTATourModel, loadOTATourClass } from '@/ota/db/models/Tours';
+
+import { IPMSBranchModel, loadPmsBranchClass } from '@/pms/db/models/Branch';
+import { ICleaningModel, loadCleaningClass } from '@/pms/db/models/Cleaning';
+import {
+  ICleaningHistoryModel,
+  loadCleaningHistoryClass,
+} from '@/pms/db/models/CleaningHistory';
+import { IConfigModel, loadConfigClass } from '@/pms/db/models/Configs';
+import { IPmsBranchDocument } from '@/pms/@types/branch';
+import {
+  ICleaningDocument,
+  ICleaning,
+  ICleaningHistoryDocument,
+} from '@/pms/@types/cleanings';
+
 import mongoose from 'mongoose';
+import { IConfigDocument } from './modules/pms/@types/configs';
 
 export interface IModels {
   Elements: IElementModel;
@@ -65,6 +82,11 @@ export interface IModels {
   TourCategories: ITourCategoryModel;
   TourBookings: ITourBookingModel;
   Reviews: IReviewModel;
+
+  PmsBranch: IPMSBranchModel;
+  Cleaning: ICleaningModel;
+  History: ICleaningHistoryModel;
+  Configs: IConfigModel;
 }
 
 export interface IContext extends IMainContext {
@@ -150,6 +172,24 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadReviewClass(models),
   );
 
+  models.PmsBranch = db.model<IPmsBranchDocument, IPMSBranchModel>(
+    'pms_branches',
+    loadPmsBranchClass(models),
+  );
+
+  models.Cleaning = db.model<ICleaningDocument, ICleaningModel>(
+    'pms_cleanings',
+    loadCleaningClass(models),
+  );
+
+  models.History = db.model<ICleaningHistoryDocument, ICleaningHistoryModel>(
+    'pms_cleaning_histories',
+    loadCleaningHistoryClass(models),
+  );
+  models.Configs = db.model<IConfigDocument, IConfigModel>(
+    'pms_configs',
+    loadConfigClass(models),
+  );
   return models;
 };
 

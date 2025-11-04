@@ -91,12 +91,22 @@ export const types = `
     pageInfo: PageInfo
     totalCount: Int
   }
+  type GroupTourItem {
+    items:[Tour]
+    _id: String
+  }
+  type GroupTour {
+    list:[GroupTourItem]
+    total: Int
+  }
 `;
 
 export const queries = `
-  bmsTours(branchId:String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date): TourListResponse
+  bmsTours(branchId:String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,  date_status: DATE_STATUS): TourListResponse
   bmsTourDetail(_id:String!,branchId: String): Tour
   bmsOrders( tourId:String, customerId:String ,branchId: String, ${GQL_CURSOR_PARAM_DEFS}):BmsOrderListResponse
+  bmToursGroup(branchId:String, ${GQL_CURSOR_PARAM_DEFS}, status: String, innerDate: Date,branchId: String, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date,date_status: DATE_STATUS): GroupTour
+  bmToursGroupDetail(groupCode:String,status: String): GroupTourItem
 `;
 
 const params = `
