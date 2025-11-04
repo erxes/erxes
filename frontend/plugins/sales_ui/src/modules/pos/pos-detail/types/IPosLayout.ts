@@ -58,7 +58,7 @@ export interface PosLayoutProps {
   actions?: React.ReactNode;
   form?: UseFormReturn<BasicInfoFormValues, PermissionFormValues>;
   onFormSubmit?: (data: BasicInfoFormValues) => void;
-  onFinalSubmit?: () => void;
+  onFinalSubmit?: () => Promise<void>;
   isSubmitting?: boolean;
   loading: boolean;
   error: any;

@@ -7,6 +7,9 @@ import {
   PermissionFormValues,
   ProductFormValues,
   UiConfigFormValues,
+  PaymentFormValues,
+  DeliveryConfigFormValues,
+  ScreenConfigFormValues,
 } from '../../create-pos/components/formSchema';
 import { usePosEdit } from '../../hooks/usePosEdit';
 import {
@@ -127,7 +130,7 @@ export const useLocalPosDetailHandlers = ({
     );
   };
 
-  const handleScreenConfigSubmit = async (data: any) => {
+  const handleScreenConfigSubmit = async (data: ScreenConfigFormValues) => {
     await posEdit(
       {
         variables: {
@@ -172,7 +175,7 @@ export const useLocalPosDetailHandlers = ({
     );
   };
 
-  const handlePaymentSubmit = async (data: any) => {
+  const handlePaymentSubmit = async (data: PaymentFormValues) => {
     await posEdit(
       {
         variables: {
@@ -185,7 +188,7 @@ export const useLocalPosDetailHandlers = ({
     );
   };
 
-  const handleDeliverySubmit = async (data: any) => {
+  const handleDeliverySubmit = async (data: DeliveryConfigFormValues) => {
     await posEdit(
       {
         variables: {

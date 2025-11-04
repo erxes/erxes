@@ -1,18 +1,69 @@
-'use client';
-
 import React, { useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Button, Form, Input, Select } from 'erxes-ui';
 import { BasicInfoFormValues } from '../formSchema';
 import { SelectBranches, SelectBrand, SelectDepartments } from 'ui-modules';
 import { IPosDetail } from '~/modules/pos/pos-detail/types/IPos';
-import { ALLOW_TYPES } from '~/modules/pos/constants';
+import {
+  ALLOW_TYPES,
+  AllowedPosType,
+  DEFAULT_ALLOW_TYPE,
+  ALLOWED_TYPE_VALUES,
+} from '~/modules/pos/constants';
 
 interface RestaurantFormProps {
   form: UseFormReturn<BasicInfoFormValues>;
   posDetail?: IPosDetail;
   isReadOnly?: boolean;
 }
+
+interface FieldHandler {
+  value: AllowedPosType[];
+  onChange: (value: AllowedPosType[]) => void;
+}
+
+const handleTypeChange = (
+  field: FieldHandler,
+  index: number,
+  value: string,
+  isReadOnly: boolean,
+) => {
+  if (isReadOnly) return;
+  const newTypes = [...(field.value || [])];
+  newTypes[index] = value as AllowedPosType;
+  field.onChange(newTypes);
+};
+
+const handleTypeRemove = (
+  field: FieldHandler,
+  index: number,
+  isReadOnly: boolean,
+) => {
+  if (isReadOnly) return;
+  const newTypes = field.value.filter(
+    (_: AllowedPosType, i: number) => i !== index,
+  );
+  if (newTypes.length === 0) {
+    field.onChange([DEFAULT_ALLOW_TYPE]);
+  } else {
+    field.onChange(newTypes);
+  }
+};
+
+const handleTypeAdd = (field: FieldHandler) => {
+  const currentTypes = field.value || [];
+  const availableTypes = ALLOW_TYPES.filter(
+    (type) =>
+      ALLOWED_TYPE_VALUES.includes(type.value as AllowedPosType) &&
+      !currentTypes.includes(type.value as AllowedPosType),
+  );
+  if (availableTypes.length > 0) {
+    field.onChange([
+      ...currentTypes,
+      availableTypes[0].value as AllowedPosType,
+    ]);
+  }
+};
 
 export const RestaurantForm: React.FC<RestaurantFormProps> = ({
   form,
@@ -21,7 +72,7 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
   useEffect(() => {
     const currentAllowTypes = form.getValues('allowTypes');
     if (!currentAllowTypes || currentAllowTypes.length === 0) {
-      form.setValue('allowTypes', ['eat']);
+      form.setValue('allowTypes', [DEFAULT_ALLOW_TYPE]);
     }
   }, [form]);
 
@@ -105,7 +156,7 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
             <Form.Field
               control={form.control}
               name="scopeBrandIds"
-              render={({ field }) => (
+              render={({}) => (
                 <Form.Item>
                   <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
                     BRANDS
@@ -141,18 +192,9 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
                     {(field.value || []).map((selectedType, index) => (
                       <div key={index} className="flex gap-2">
                         <Select
-                          onValueChange={(value) => {
-                            if (isReadOnly) return;
-                            const newTypes = [...(field.value || [])];
-                            newTypes[index] = value as
-                              | 'eat'
-                              | 'take'
-                              | 'delivery'
-                              | 'loss'
-                              | 'spend'
-                              | 'reject';
-                            field.onChange(newTypes);
-                          }}
+                          onValueChange={(value) =>
+                            handleTypeChange(field, index, value, isReadOnly)
+                          }
                           value={selectedType || ''}
                           disabled={isReadOnly}
                         >
@@ -163,14 +205,9 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
                           </Select.Trigger>
                           <Select.Content>
                             {ALLOW_TYPES.filter((type) =>
-                              [
-                                'eat',
-                                'take',
-                                'delivery',
-                                'loss',
-                                'spend',
-                                'reject',
-                              ].includes(type.value),
+                              ALLOWED_TYPE_VALUES.includes(
+                                type.value as AllowedPosType,
+                              ),
                             ).map((type) => (
                               <Select.Item key={type.value} value={type.value}>
                                 {type.label}
@@ -183,17 +220,9 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
                           variant="outline"
                           size="sm"
                           className="h-8"
-                          onClick={() => {
-                            if (isReadOnly) return;
-                            const newTypes = field.value.filter(
-                              (_, i) => i !== index,
-                            );
-                            if (newTypes.length === 0) {
-                              field.onChange(['eat']);
-                            } else {
-                              field.onChange(newTypes);
-                            }
-                          }}
+                          onClick={() =>
+                            handleTypeRemove(field, index, isReadOnly)
+                          }
                           disabled={isReadOnly}
                         >
                           Remove
@@ -205,57 +234,7 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => {
-                          const currentTypes = field.value || [];
-                          const allowedValues: (
-                            | 'eat'
-                            | 'take'
-                            | 'delivery'
-                            | 'loss'
-                            | 'spend'
-                            | 'reject'
-                          )[] = [
-                            'eat',
-                            'take',
-                            'delivery',
-                            'loss',
-                            'spend',
-                            'reject',
-                          ];
-                          const availableTypes = ALLOW_TYPES.filter(
-                            (type) =>
-                              allowedValues.includes(
-                                type.value as
-                                  | 'eat'
-                                  | 'take'
-                                  | 'delivery'
-                                  | 'loss'
-                                  | 'spend'
-                                  | 'reject',
-                              ) &&
-                              !currentTypes.includes(
-                                type.value as
-                                  | 'eat'
-                                  | 'take'
-                                  | 'delivery'
-                                  | 'loss'
-                                  | 'spend'
-                                  | 'reject',
-                              ),
-                          );
-                          if (availableTypes.length > 0) {
-                            field.onChange([
-                              ...currentTypes,
-                              availableTypes[0].value as
-                                | 'eat'
-                                | 'take'
-                                | 'delivery'
-                                | 'loss'
-                                | 'spend'
-                                | 'reject',
-                            ]);
-                          }
-                        }}
+                        onClick={() => handleTypeAdd(field)}
                         disabled={isReadOnly}
                       >
                         Add Type

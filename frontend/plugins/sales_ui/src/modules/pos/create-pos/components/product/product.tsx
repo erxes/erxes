@@ -310,9 +310,7 @@ export default function ProductForm({
                           onValueChange={(productId) =>
                             toggleMultiSelect(
                               'kioskExcludeProductIds',
-                              Array.isArray(productId)
-                                ? productId[0]
-                                : productId,
+                              productId as string,
                             )
                           }
                           disabled={isReadOnly}

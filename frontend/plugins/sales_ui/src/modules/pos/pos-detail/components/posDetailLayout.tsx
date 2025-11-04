@@ -147,7 +147,8 @@ const NavigationFooter = React.memo(
           setSaveError('No save function available');
         }
       } catch (error) {
-        setSaveError(`Save failed: ${error.message || 'Please try again.'}`);
+        const message = error instanceof Error ? error.message : 'Please try again.';
+        setSaveError(`Save failed: ${message}`);
       }
     };
 
@@ -366,7 +367,8 @@ export const PosEditLayout: React.FC<PosEditLayoutProps> = ({
           setValidationError('No save function available');
         }
       } catch (error) {
-        setValidationError(`Failed to update: ${error.message || 'Please try again.'}`);
+        const message = error instanceof Error ? error.message : 'Please try again.';
+        setValidationError(`Failed to update: ${message}`);
       }
       return;
     }

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { DEFAULT_ALLOW_TYPE } from '../../constants';
 
 const uiOptionsSchema = z.object({
   colors: z.object({
@@ -38,14 +39,12 @@ const paymentTypeSchema = z.object({
 });
 
 export const screenConfigSchema = z.object({
-  kitchenScreenEnabled: z.boolean().default(false),
-  showTypes: z.string().default(''),
-  statusChange: z.string().default(''),
-  watchingScreenEnabled: z.boolean().default(false),
-  changeType: z.string().default(''),
-  changeCount: z.string().default(''),
-  contentUrl: z.string().default(''),
-  printEnabled: z.boolean().default(false),
+  isActive: z.boolean().default(false),
+  isPrint: z.boolean().optional(),
+  type: z.string().default(''),
+  value: z.number().default(0),
+  contentUrl: z.string().optional(),
+  showType: z.string().optional(),
 });
 
 export const ebarimtConfigSchema = z.object({
@@ -53,7 +52,7 @@ export const ebarimtConfigSchema = z.object({
   ebarimtUrl: z.string().default(''),
   checkCompanyUrl: z.string().default(''),
   hasVat: z.boolean().default(false),
-  hasCitytax: z.boolean().default(false),
+  hasCityTax: z.boolean().default(false),
   districtCode: z.string().default(''),
   companyName: z.string().default(''),
   defaultGSCode: z.string().default(''),
@@ -108,7 +107,7 @@ export const posDetailSchema = z.object({
   permissionConfig: z.record(z.any()).default({}),
   allowTypes: z
     .array(z.enum(['eat', 'take', 'delivery', 'loss', 'spend', 'reject']))
-    .default(['eat', 'take', 'delivery']),
+    .default([DEFAULT_ALLOW_TYPE, 'take', 'delivery']),
   checkExcludeCategoryIds: z.array(z.string()).default([]),
   departmentId: z.string().optional(),
 });

@@ -1,6 +1,19 @@
 import { StepConfig } from '../pos-detail/types/IPosLayout';
 import { CustomNode } from '../slot/types';
 
+export type AllowedPosType = 'eat' | 'take' | 'delivery' | 'loss' | 'spend' | 'reject';
+
+export const DEFAULT_ALLOW_TYPE: AllowedPosType = 'eat';
+
+export const ALLOWED_TYPE_VALUES: readonly AllowedPosType[] = [
+  'eat', 
+  'take', 
+  'delivery', 
+  'loss', 
+  'spend', 
+  'reject'
+] as const;
+
 export const ALLOW_TYPES = [
   { value: 'eat', label: 'Eat', kind: 'sale' },
   { value: 'take', label: 'Take', kind: 'sale' },
@@ -8,7 +21,7 @@ export const ALLOW_TYPES = [
   { value: 'loss', label: 'Loss', kind: 'out' },
   { value: 'spend', label: 'Spend', kind: 'out' },
   { value: 'reject', label: 'Reject', kind: 'out' },
-];
+] as const;
 
 export const ALLOW_STATUSES = [
   { value: 'new', label: 'New' },

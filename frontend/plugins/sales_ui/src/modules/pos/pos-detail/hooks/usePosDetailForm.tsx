@@ -2,21 +2,21 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { IPosDetail } from '../types/IPos';
-import { 
-  BasicInfoFormValues, 
-  basicInfoSchema, 
-  FinanceConfigFormValues, 
-  financeConfigSchema, 
-  PermissionFormValues, 
-  permissionSchema, 
-  UiConfigFormValues, 
-  uiConfigSchema, 
-  ProductFormValues, 
-  productSchema, 
-  PaymentFormValues, 
-  paymentSchema, 
-  DeliveryConfigFormValues, 
-  deliveryConfigSchema 
+import {
+  BasicInfoFormValues,
+  basicInfoSchema,
+  FinanceConfigFormValues,
+  financeConfigSchema,
+  PermissionFormValues,
+  permissionSchema,
+  UiConfigFormValues,
+  uiConfigSchema,
+  ProductFormValues,
+  productSchema,
+  PaymentFormValues,
+  paymentSchema,
+  DeliveryConfigFormValues,
+  deliveryConfigSchema,
 } from '../../create-pos/components/formSchema';
 
 const getDefaultValues = <T,>(schema: any): T => {
@@ -40,7 +40,8 @@ export const usePosDetailForms = (posDetail?: IPosDetail) => {
 
   const financeForm = useForm<FinanceConfigFormValues>({
     resolver: zodResolver(financeConfigSchema),
-    defaultValues: getDefaultValues<FinanceConfigFormValues>(financeConfigSchema),
+    defaultValues:
+      getDefaultValues<FinanceConfigFormValues>(financeConfigSchema),
   });
 
   const uiConfigForm = useForm<UiConfigFormValues>({
@@ -60,7 +61,8 @@ export const usePosDetailForms = (posDetail?: IPosDetail) => {
 
   const deliveryConfigForm = useForm<DeliveryConfigFormValues>({
     resolver: zodResolver(deliveryConfigSchema),
-    defaultValues: getDefaultValues<DeliveryConfigFormValues>(deliveryConfigSchema),
+    defaultValues:
+      getDefaultValues<DeliveryConfigFormValues>(deliveryConfigSchema),
   });
 
   useEffect(() => {
@@ -70,7 +72,9 @@ export const usePosDetailForms = (posDetail?: IPosDetail) => {
       name: posDetail.name || '',
       description: posDetail.description || '',
       allowTypes: (posDetail.allowTypes || []).filter(
-        (type): type is 'eat' | 'take' | 'delivery' | 'loss' | 'spend' | 'reject' =>
+        (
+          type,
+        ): type is 'eat' | 'take' | 'delivery' | 'loss' | 'spend' | 'reject' =>
           ['eat', 'take', 'delivery', 'loss', 'spend', 'reject'].includes(type),
       ),
       scopeBrandIds: posDetail.scopeBrandIds || [],
@@ -154,8 +158,7 @@ export const usePosDetailForms = (posDetail?: IPosDetail) => {
       watchedUserIds: posDetail.deliveryConfig?.watchedUserIds || [],
       assignedUserIds: posDetail.deliveryConfig?.assignedUserIds || [],
     });
-
-  }, [posDetail, basicInfoForm, permissionForm, financeForm, uiConfigForm, productForm, paymentForm, deliveryConfigForm]);
+  }, [posDetail]);
 
   return {
     basicInfoForm,
