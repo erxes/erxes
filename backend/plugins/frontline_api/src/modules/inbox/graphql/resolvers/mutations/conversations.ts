@@ -4,7 +4,10 @@ import { IConversationDocument } from '@/inbox/@types/conversations';
 import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { generateModels, IContext, IModels } from '~/connectionResolvers';
-import { IConversationMessageAdd } from '@/inbox/@types/conversationMessages';
+import {
+  IConversationMessageAdd,
+  IMessageDocument,
+} from '@/inbox/@types/conversationMessages';
 import { AUTO_BOT_MESSAGES } from '@/inbox/db/definitions/constants';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
@@ -102,9 +105,10 @@ export const publishConversationsChanged = async (
  */
 export const publishMessage = async (
   models: IModels,
-  message: any,
+  message: IMessageDocument,
   customerId?: string,
 ) => {
+  console.log(message, 'message');
   await graphqlPubsub.publish(
     `conversationMessageInserted:${message.conversationId}`,
     {
@@ -113,6 +117,7 @@ export const publishMessage = async (
   );
 
   if (customerId) {
+    console.log(customerId, 'customerId');
     const unreadCount =
       await models.ConversationMessages.widgetsGetUnreadMessagesCount(
         message.conversationId,
@@ -283,10 +288,12 @@ export const conversationMutations = {
         },
       );
 
+      console.log(response, 'response');
+
       // Case: external service handled it, do not save locally
       if (response?.data?.data) {
         const { conversationId, content } = response.data.data;
-
+        console.log(conversationId, content, 'conversationId, content');
         if (conversationId && content) {
           await models.Conversations.updateConversation(conversationId, {
             content: content || '',
@@ -298,11 +305,15 @@ export const conversationMutations = {
           doc,
           userId,
         );
+
+        console.log(message, 'message');
         const dbMessage = await models.ConversationMessages.getMessage(
           message._id,
         );
+        console.log(dbMessage, 'dbMessage');
 
         publishMessage(models, dbMessage, conversation.customerId);
+        console.log(dbMessage, 'return dbMessage');
         return dbMessage;
       }
 
