@@ -17,6 +17,8 @@ export const triageMutations = {
         type: 'triage',
         number: 0,
         priority: input.priority || 0,
+        customers: input.customers || [],
+        companies: input.companies || [],
       },
       subdomain: subdomain,
     });
@@ -35,6 +37,8 @@ export const triageMutations = {
       type: 'triage',
       number: 0,
       priority: input.priority || 0,
+      customers: input.customers || [],
+      companies: input.companies || [],
     });
   },
 
@@ -55,6 +59,8 @@ export const triageMutations = {
         teamId: triage.teamId,
         priority: triage.priority || 0,
         triageId: _id,
+        customers: triage.customers || [],
+        companies: triage.companies || [],
       },
       userId: user._id,
       subdomain: subdomain,

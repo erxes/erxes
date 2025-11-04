@@ -22,6 +22,9 @@ export const types = `
     estimatePoint: Int
     statusChangedDate: Date
     number: Int
+
+    customers: [String]
+    companies: [String]
   }
 
   type TaskListResponse {
@@ -50,6 +53,10 @@ export const types = `
     estimate: String
     milestoneId: String
 
+
+    customers: [String]
+    companies: [String]
+
     ${GQL_CURSOR_PARAM_DEFS}
   }
 
@@ -74,6 +81,9 @@ const createTaskParams = `
   projectId: String
   estimatePoint: Int
   milestoneId: String
+  
+  customers: [String]
+  companies: [String]
 `;
 
 const updateTaskParams = `
@@ -92,7 +102,8 @@ const updateTaskParams = `
   projectId: String
   estimatePoint: Int
   milestoneId: String
-
+  customers: [String]
+  companies: [String]
 `;
 
 export const queries = `

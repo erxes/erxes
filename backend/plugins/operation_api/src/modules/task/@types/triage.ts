@@ -12,6 +12,8 @@ export interface ITriage {
   type: string;
   number: number;
   priority: number;
+  customers?: string[];
+  companies?: string[];
 }
 
 export interface ITriageUpdate extends ITriage {
@@ -37,4 +39,6 @@ export interface ITriageInput {
   description: string;
   teamId: string;
   priority: number;
+  customers?: string[];
+  companies?: string[];
 }

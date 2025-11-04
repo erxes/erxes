@@ -24,6 +24,8 @@ export interface ITask {
   createdAt?: Date;
   statusChangedDate?: Date;
   statusType?: number;
+  customers?: string[];
+  companies?: string[];
 }
 
 export interface ITaskUpdate extends ITask {
@@ -40,4 +42,6 @@ export interface ITaskDocument extends ITask, Document {
 export interface ITaskFilter extends ICursorPaginateParams, IListParams, ITask {
   userId?: string;
   createdAt?: Date;
+  customers?: string[];
+  companies?: string[];
 }

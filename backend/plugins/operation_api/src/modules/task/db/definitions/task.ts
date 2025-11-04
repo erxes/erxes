@@ -24,6 +24,9 @@ export const taskSchema = new Schema(
     },
     number: { type: Number, label: 'Number', default: 0 },
     statusType: { type: Number, label: 'Status Type', default: 0 },
+
+    customers: { type: [String], label: 'Customers' },
+    companies: { type: [String], label: 'Companies' },
   },
   {
     timestamps: true,

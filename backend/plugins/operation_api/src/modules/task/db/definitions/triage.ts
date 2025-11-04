@@ -9,6 +9,9 @@ export const triageSchema = new Schema(
     type: { type: String, label: 'Type' },
     number: { type: Number, label: 'Number', default: 0 },
     priority: { type: Number, label: 'Priority', default: 0 },
+
+    customers: { type: [String], label: 'Customers' },
+    companies: { type: [String], label: 'Companies' },
   },
   {
     timestamps: true,

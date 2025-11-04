@@ -9,6 +9,9 @@ export const types = `
     createdBy: String
     priority: Int
 
+    customers: [String]
+    companies: [String]
+
     number: Int
     createdAt: Date
     updatedAt: Date
@@ -19,6 +22,8 @@ export const types = `
     description: String
     teamId: String!
     priority: Int
+    customers: [String]
+    companies: [String]
   }
 
   type TriageListResponse {
