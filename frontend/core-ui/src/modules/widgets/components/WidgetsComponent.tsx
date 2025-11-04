@@ -1,13 +1,12 @@
 import { IRelationWidgetProps } from 'ui-modules';
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
+import { CoreWidgets } from '../core-widgets/CoreWidgets';
 
 export const WidgetsComponent = (props: IRelationWidgetProps) => {
   const { module, pluginName } = props;
 
-  console.log(props);
-
   if (pluginName === 'core') {
-    return <div>123123</div>;
+    return <CoreWidgets {...props} />;
   }
 
   return (

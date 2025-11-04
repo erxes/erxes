@@ -17,7 +17,7 @@ export const TriageSideWidgets = ({ triage }: { triage: ITriage }) => {
               module={module.name}
               pluginName={module.pluginName}
               contentId={triage._id}
-              contentType="operation:triage"
+              contentType="operation:task"
             />
           </SideMenu.Content>
         );

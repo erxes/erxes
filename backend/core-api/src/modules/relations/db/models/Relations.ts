@@ -20,9 +20,11 @@ export interface IRelationModel extends Model<IRelationDocument> {
   getRelationsByEntity: ({
     contentType,
     contentId,
+    relatedContentType,
   }: {
     contentType: string;
     contentId: string;
+    relatedContentType: string;
   }) => Promise<IRelationDocument[]>;
   getRelationsByEntities: ({
     contentType,
@@ -69,13 +71,30 @@ export const loadRelationClass = (models: IModels) => {
     public static async getRelationsByEntity({
       contentType,
       contentId,
+      relatedContentType,
     }: {
       contentType: string;
       contentId: string;
+      relatedContentType: string;
     }) {
       const relation = await models.Relations.find({
-        'entities.contentType': contentType,
-        'entities.contentId': contentId,
+        $and: [
+          {
+            entities: {
+              $elemMatch: {
+                contentType: contentType,
+                contentId: contentId,
+              },
+            },
+          },
+          {
+            entities: {
+              $elemMatch: {
+                contentType: relatedContentType,
+              },
+            },
+          },
+        ],
       });
 
       return relation;

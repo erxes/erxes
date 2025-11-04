@@ -22,7 +22,7 @@ export const types = `
 `;
 
 export const queries = `
-    getRelationsByEntity(contentType: String!, contentId: String!): [Relation!]
+    getRelationsByEntity(contentType: String!, contentId: String!, relatedContentType: String!): [Relation!]
     getRelationsByEntities(contentTypes: [String!]!, contentIds: [String!]!): [Relation!]
 `;
 

@@ -18,8 +18,11 @@ export const Task = ({
   companyId?: string;
 }) => {
   const { ownEntities, loading: loadingRelations } = useRelations({
-    contentId,
-    contentType,
+    variables: {
+      contentId,
+      contentType,
+      relatedContentType: 'operation:task',
+    },
   });
 
   const { createMultipleRelations } = useCreateMultipleRelations();

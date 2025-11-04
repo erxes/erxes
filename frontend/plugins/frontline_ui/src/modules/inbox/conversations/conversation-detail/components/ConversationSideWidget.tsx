@@ -1,8 +1,8 @@
 import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
-import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
+
 import { IconUser } from '@tabler/icons-react';
 import { SideMenu } from 'erxes-ui';
-import { CustomerWidget, useRelationWidget } from 'ui-modules';
+import { useRelationWidget } from 'ui-modules';
 
 export const ConversationSideWidget = () => {
   const { customerId, _id } = useConversationContext();
@@ -10,13 +10,6 @@ export const ConversationSideWidget = () => {
 
   return (
     <SideMenu>
-      {customerId && (
-        <CustomerWidget
-          customerIds={[customerId]}
-          scope={InboxHotkeyScope.MainPage}
-        />
-      )}
-
       {relationWidgetsModules.map((module) => {
         return (
           <SideMenu.Content value={module.name} key={module.name}>
