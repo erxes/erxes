@@ -217,7 +217,7 @@ const carMutations = {
 
     const relTypeIds = await sendCoreMessage({
       subdomain,
-      action: 'conformities.savedConformies',
+      action: 'conformities.savedConformity',
       data: {
         mainType: 'car',
         mainTypeId: car._id,
@@ -249,7 +249,7 @@ const carMutations = {
     if (customerId) {
       await sendCoreMessage({
         subdomain,
-        action: 'conformities.deleteConformity',
+        action: 'conformities.deleteConformities',
         data: {
           mainType: 'customer',
           mainTypeId: customerId,
@@ -261,7 +261,7 @@ const carMutations = {
     if (companyId) {
       await sendCoreMessage({
         subdomain,
-        action: 'conformities.deleteConformity',
+        action: 'conformities.deleteConformities',
         data: {
           mainType: 'company',
           mainTypeId: companyId,
