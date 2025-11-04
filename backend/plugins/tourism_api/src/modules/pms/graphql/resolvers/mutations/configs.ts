@@ -1,11 +1,12 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { IConfig } from '~/modules/pms/@types/configs';
 
-type ConfigInput = {
+interface ConfigInput {
   value: string;
   code: string;
   pipelineId: string;
-};
+}
 const configMutations = {
   /**
    * Create or update config object
@@ -13,10 +14,10 @@ const configMutations = {
 
   async pmsConfigsUpdate(
     _root,
-    { list }: { list: [ConfigInput] },
+    { list }: { list: ConfigInput[] },
     { user, models, subdomain }: IContext,
   ) {
-    const response: any = [];
+    const response: IConfig[] = [];
     for (const item of list) {
       if (!item) {
         continue;
@@ -26,8 +27,11 @@ const configMutations = {
       const one = await models.Configs.findOne({
         code: item.code,
         pipelineId: item.pipelineId,
-      });
-      response.push(one);
+      }).lean();
+
+      if (one) {
+        response.push(one);
+      }
     }
     return response;
   },
@@ -47,6 +51,7 @@ const configMutations = {
       const result = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
+        method: 'mutation',
         module: 'users',
         action: 'checkLoginAuth',
         input: { email: manager.email, password },

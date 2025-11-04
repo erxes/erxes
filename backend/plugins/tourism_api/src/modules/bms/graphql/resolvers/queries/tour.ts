@@ -104,7 +104,7 @@ const tourQueries = {
   ) {
     const selector: any = {};
 
-    if (categories) {
+    if (categories?.length) {
       selector.categories = { $in: categories };
     }
     if (status) {
@@ -113,7 +113,7 @@ const tourQueries = {
     if (branchId) {
       selector.branchId = branchId;
     }
-    if (tags) {
+    if (tags?.length) {
       selector.tags = { $in: tags };
     }
     if (innerDate) {

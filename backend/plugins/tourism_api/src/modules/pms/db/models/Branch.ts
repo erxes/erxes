@@ -1,7 +1,7 @@
 import { IPmsBranch, IPmsBranchDocument } from '@/pms/@types/branch';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { branchSchema } from '@/bms/db/definitions/branch';
+import { branchSchema } from '@/pms/db/definitions/branch';
 import * as crypto from 'node:crypto';
 
 export interface IPMSBranchModel extends Model<IPmsBranchDocument> {
