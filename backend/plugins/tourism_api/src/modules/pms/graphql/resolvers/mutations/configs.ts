@@ -1,3 +1,4 @@
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 type ConfigInput = {
@@ -35,27 +36,28 @@ const configMutations = {
     { password, userId }: { userId: string; password: string },
     { user, models, subdomain }: IContext,
   ) {
-    return 'changecode';
-    //   const manager = await sendCoreMessage({
-    //     subdomain,
-    //     action: "users.findOne",
-    //     data: { _id: userId },
-    //     isRPC: true
-    //   });
+    const manager = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'users',
+      action: 'findOne',
+      input: { query: { _id: userId } },
+    });
+    if (manager) {
+      const result = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'users',
+        action: 'checkLoginAuth',
+        input: { email: manager.email, password },
+      });
 
-    //   if (manager) {
-    //     const result = await sendCoreMessage({
-    //       subdomain,
-    //       action: "users.checkLoginAuth",
-    //       data: { email: manager.email, password },
-    //       isRPC: true
-    //     });
-    //     if (result._id) {
-    //       return "correct";
-    //     } else {
-    //       return "wrong password";
-    //     }
-    //   } else return "user not found";
+      if (result?._id) {
+        return 'correct';
+      } else {
+        return 'wrong password';
+      }
+    } else return 'user not found';
   },
 };
 

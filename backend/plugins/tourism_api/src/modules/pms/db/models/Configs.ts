@@ -6,7 +6,11 @@ import { configSchema } from '@/pms/db/definitions/configs';
 
 export interface IConfigModel extends Model<IConfigDocument> {
   getConfig(code: string, defaultValue?: any): Promise<any>;
-  createOrUpdateConfig({ code, value, pipelineId }: IConfig): IConfigDocument;
+  createOrUpdateConfig({
+    code,
+    value,
+    pipelineId,
+  }: IConfig): Promise<IConfigDocument>;
 }
 
 export const loadConfigClass = (models: IModels) => {
@@ -17,11 +21,11 @@ export const loadConfigClass = (models: IModels) => {
     public static async getConfig(code: string, defaultValue: any) {
       const config = await models.Configs.findOne({ code });
 
-      if (!config || !config.code) {
+      if (!config?.code) {
         return defaultValue;
       }
 
-      return config.value;
+      return config?.value;
     }
 
     /**
@@ -44,10 +48,10 @@ export const loadConfigClass = (models: IModels) => {
           { $set: { value, pipelineId } },
         );
 
-        return models.Configs.findOne({ _id: obj._id });
+        return await models.Configs.findOne({ _id: obj._id });
       }
 
-      return models.Configs.create({ code, value, pipelineId });
+      return await models.Configs.create({ code, value, pipelineId });
     }
   }
 

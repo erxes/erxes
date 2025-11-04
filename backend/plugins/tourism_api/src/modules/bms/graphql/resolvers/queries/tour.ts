@@ -111,7 +111,7 @@ const tourQueries = {
       selector.status = status;
     }
     if (branchId) {
-      selector.status = branchId;
+      selector.branchId = branchId;
     }
     if (tags) {
       selector.tags = { $in: tags };

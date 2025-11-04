@@ -2,7 +2,7 @@ import { IPmsBranch, IPmsBranchDocument } from '@/pms/@types/branch';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { branchSchema } from '@/bms/db/definitions/branch';
-import * as crypto from 'crypto';
+import * as crypto from 'node:crypto';
 
 export interface IPMSBranchModel extends Model<IPmsBranchDocument> {
   getList(query: any): Promise<IPmsBranchDocument[]>;
@@ -22,7 +22,7 @@ export const loadPmsBranchClass = (models: IModels) => {
       const branch = await models.PmsBranch.findOne(query).lean();
 
       if (!branch) {
-        throw new Error('Bms Branch not found');
+        throw new Error('Pms Branch not found');
       }
       return branch;
     }
@@ -61,7 +61,7 @@ export const loadPmsBranchClass = (models: IModels) => {
     }
 
     public static async remove(_id: string) {
-      return await models.PmsBranch.findByIdAndDelete({ _id });
+      return await models.PmsBranch.findByIdAndDelete(_id);
     }
   }
 

@@ -38,7 +38,7 @@ const cleaningMutations = {
         await models.Cleaning.create({ roomId: roomId, status: status });
       }
       if (oldCleaning?.status !== status) {
-        const ret = await models.History.create({
+        await models.History.create({
           roomId: roomId,
           statusPrev: oldCleaning?.status || 'None',
           status: status,

@@ -64,5 +64,11 @@ export const userTrpcRouter = t.router({
 
         return models.Users.comparePassword(password, userPassword);
       }),
+    checkLoginAuth: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { email, password } = input;
+      const { models } = ctx;
+
+      return await models.Users.checkLoginAuth({ email, password });
+    }),
   }),
 });
