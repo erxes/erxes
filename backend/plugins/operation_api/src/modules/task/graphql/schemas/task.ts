@@ -50,6 +50,7 @@ export const types = `
     estimate: String
     milestoneId: String
 
+
     ${GQL_CURSOR_PARAM_DEFS}
   }
 
@@ -92,7 +93,6 @@ const updateTaskParams = `
   projectId: String
   estimatePoint: Int
   milestoneId: String
-
 `;
 
 export const queries = `

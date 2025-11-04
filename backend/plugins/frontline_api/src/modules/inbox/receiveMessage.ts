@@ -89,7 +89,7 @@ export const receiveInboxMessage = async (
         action: 'createCustomer',
         input: {
           doc: {
-            doc,
+            ...doc,
           },
         },
       });

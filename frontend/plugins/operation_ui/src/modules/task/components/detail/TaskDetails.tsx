@@ -2,6 +2,7 @@ import { TaskFields } from '@/task/components/detail/TaskFields';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { useGetTriage } from '@/triage/hooks/useGetTriage';
 import { TriageFields } from '@/triage/components/TriageFields';
+import { TaskSideWidgets } from '~/widgets/relation/TaskSideWidgets';
 
 export const TaskDetails = ({
   taskId,
@@ -29,6 +30,7 @@ export const TaskDetails = ({
         {task && <TaskFields task={task} />}
         {triage && <TriageFields triage={triage} />}
       </div>
+      {task && <TaskSideWidgets contentId={task._id} />}
     </div>
   );
 };
