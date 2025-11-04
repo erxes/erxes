@@ -7,6 +7,7 @@ export interface IRelationWidgetProps {
   contentId: string;
   contentType: string;
   customerId?: string;
+  companyId?: string;
 }
 
 export interface IRelationModules {
@@ -43,6 +44,36 @@ export const RelationWidgetProvider = ({
   );
 };
 
-export const useRelationWidget = () => {
-  return useContext(RelationWidgetContext);
+export const useRelationWidget = (options?: {
+  hiddenPlugins?: string[];
+  hiddenModules?: string[];
+  hideCoreRelations?: boolean;
+}) => {
+  const context = useContext(RelationWidgetContext);
+
+  const { hiddenPlugins, hiddenModules, hideCoreRelations } = options || {};
+  let filteredModules = context.relationWidgetsModules;
+
+  if (hiddenPlugins) {
+    filteredModules = filteredModules.filter(
+      (module) => !hiddenPlugins.includes(module.pluginName),
+    );
+  }
+
+  if (hideCoreRelations) {
+    filteredModules = filteredModules.filter(
+      (module) => module.pluginName !== 'core',
+    );
+  }
+
+  if (hiddenModules) {
+    filteredModules = filteredModules.filter(
+      (module) => !hiddenModules.includes(module.name),
+    );
+  }
+
+  return {
+    ...context,
+    relationWidgetsModules: filteredModules,
+  };
 };

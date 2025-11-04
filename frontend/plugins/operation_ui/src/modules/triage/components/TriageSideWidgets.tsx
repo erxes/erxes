@@ -1,12 +1,9 @@
-import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
-
 import { SideMenu } from 'erxes-ui';
 import { useRelationWidget } from 'ui-modules';
 
-export const ConversationSideWidget = () => {
-  const { customerId, _id } = useConversationContext();
+export const TriageSideWidgets = ({ contentId }: { contentId: string }) => {
   const { relationWidgetsModules, RelationWidget } = useRelationWidget({
-    hiddenPlugins: ['frontline'],
+    hiddenPlugins: ['operation'],
   });
 
   return (
@@ -18,9 +15,8 @@ export const ConversationSideWidget = () => {
               key={module.name}
               module={module.name}
               pluginName={module.pluginName}
-              contentId={_id}
-              contentType="frontline:conversation"
-              customerId={customerId}
+              contentId={contentId}
+              contentType="operation:task"
             />
           </SideMenu.Content>
         );

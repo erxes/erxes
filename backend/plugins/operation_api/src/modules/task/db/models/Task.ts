@@ -10,7 +10,6 @@ import { taskSchema } from '@/task/db/definitions/task';
 import { Document } from 'mongodb';
 import mongoose, { FilterQuery, FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { IProject, IProjectDocument } from '~/modules/project/@types/project';
 import { createNotifications } from '~/utils/notifications';
 
 export interface ITaskModel extends Model<ITaskDocument> {
