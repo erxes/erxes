@@ -58,7 +58,8 @@ const queries = {
     const categoriesWithTranslations = categories.map((category) => {
       const translation = translationsMap[category._id.toString()];
       category.name = translation?.title || category.name;
-      category.description = translation?.excerpt || translation?.content || category.description;
+      category.description =
+        translation?.excerpt || translation?.content || category.description;
       return category;
     });
 
@@ -92,9 +93,34 @@ const queries = {
     }).lean();
 
     category.name = translation?.title || category.name;
-    category.description = translation?.excerpt || translation?.content || category.description;
+    category.description =
+      translation?.excerpt || translation?.content || category.description;
 
     return category;
+  },
+
+  async cmsCategoriesCount(
+    _parent: any,
+    args: any,
+    context: IContext
+  ): Promise<number> {
+    const { models } = context;
+    const { searchValue, status } = args;
+    const clientPortalId = args.clientPortalId || context.clientPortalId;
+
+    const query: any = { clientPortalId };
+    if (status) query.status = status;
+
+    if (searchValue) {
+      query.$or = [
+        { name: { $regex: searchValue, $options: 'i' } },
+        { slug: { $regex: searchValue, $options: 'i' } },
+      ];
+    }
+
+    // ✅ Await the query result before returning
+    const count = await models.Categories.countDocuments(query);
+    return count;
   },
 };
 
