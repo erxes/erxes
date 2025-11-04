@@ -36,6 +36,23 @@ import {
 } from '@/integrations/imap/graphql/schema/imap';
 
 import {
+  mutations as PipelineMutations,
+  queries as PipelineQuery,
+  types as PipelineTypes,
+} from '@/ticket/graphql/schemas/pipeline';
+
+import {
+  mutations as StatusMutations,
+  queries as StatusQuery,
+  types as StatusTypes,
+} from '@/ticket/graphql/schemas/status';
+import {
+  mutations as TicketMutations,
+  queries as TicketQuery,
+  types as TicketTypes,
+} from '@/ticket/graphql/schemas/ticket';
+
+import {
   queries as WidgetQueries,
   types as WidgetTypes,
   mutations as WidgetMutations,
@@ -48,6 +65,9 @@ export const types = `
     ${FacebookTypes}
     ${CallTypes}
     ${ImapTypes}
+    ${PipelineTypes}
+    ${StatusTypes}
+    ${TicketTypes}
     ${WidgetTypes}
   `;
 export const queries = `
@@ -57,6 +77,9 @@ export const queries = `
     ${FacebookQueries}
     ${CallQueries}
     ${ImapQueries}
+    ${PipelineQuery}
+    ${StatusQuery}
+    ${TicketQuery}
     ${WidgetQueries}
   `;
 
@@ -67,6 +90,9 @@ export const mutations = `
    ${FacebookMutations}
    ${CallMutations}
    ${ImapMutations}
+   ${PipelineMutations}
+   ${StatusMutations}
+   ${TicketMutations}
    ${WidgetMutations}
 `;
 export default { types, queries, mutations };

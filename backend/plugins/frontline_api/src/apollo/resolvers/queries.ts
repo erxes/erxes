@@ -6,6 +6,9 @@ import callQueries from '@/integrations/call/graphql/resolvers/queries';
 import { imapQueries } from '@/integrations/imap/graphql/resolvers/queries';
 import { widgetQueries } from '@/inbox/graphql/resolvers/queries/widget';
 
+import { pipelineQueries } from '@/ticket/graphql/resolvers/queries/Pipeline';
+import { statusQueries } from '@/ticket/graphql/resolvers/queries/Status';
+import { ticketQueries } from '@/ticket/graphql/resolvers/queries/Ticket';
 export const queries = {
   ...channelQueries,
   ...conversationQueries,
@@ -13,5 +16,8 @@ export const queries = {
   ...facebookQueries,
   ...callQueries,
   ...imapQueries,
+  ...pipelineQueries,
+  ...statusQueries,
+  ...ticketQueries,
   ...widgetQueries,
 };

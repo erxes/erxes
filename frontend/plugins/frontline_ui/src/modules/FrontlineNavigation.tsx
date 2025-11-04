@@ -38,7 +38,7 @@ export const FrontlineNavigation = () => {
           >
             <DropdownMenu.Item
               className="cursor-pointer"
-              onSelect={() => navigate('/settings/inbox')}
+              onSelect={() => navigate('/settings/frontline/channels')}
             >
               <IconSettings className="size-4" />
               Go to inbox settings
@@ -47,9 +47,9 @@ export const FrontlineNavigation = () => {
         </DropdownMenu>
       </div>
       <NavigationMenuLinkItem
-        name="Ticket"
+        name="Tickets"
         icon={IconMessageReply}
-        path="frontline/ticket"
+        path="frontline/tickets"
       />
       <IntegrationNavigation />
     </>
