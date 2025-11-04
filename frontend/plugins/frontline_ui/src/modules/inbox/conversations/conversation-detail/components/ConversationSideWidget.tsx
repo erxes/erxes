@@ -5,7 +5,9 @@ import { useRelationWidget } from 'ui-modules';
 
 export const ConversationSideWidget = () => {
   const { customerId, _id } = useConversationContext();
-  const { relationWidgetsModules, RelationWidget } = useRelationWidget();
+  const { relationWidgetsModules, RelationWidget } = useRelationWidget({
+    hiddenPlugins: ['frontline'],
+  });
 
   return (
     <SideMenu>
@@ -17,7 +19,7 @@ export const ConversationSideWidget = () => {
               module={module.name}
               pluginName={module.pluginName}
               contentId={_id}
-              contentType="inbox:conversation"
+              contentType="frontline:conversation"
               customerId={customerId}
             />
           </SideMenu.Content>

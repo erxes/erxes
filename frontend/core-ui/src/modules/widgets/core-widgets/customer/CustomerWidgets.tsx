@@ -1,12 +1,13 @@
 import { IRelationWidgetProps, useRelations } from 'ui-modules';
 import { CustomerWidget } from 'ui-modules';
+import { Spinner } from 'erxes-ui';
 
 export const CustomerWidgets = ({
   contentId,
   contentType,
   customerId,
 }: IRelationWidgetProps) => {
-  const { ownEntities } = useRelations({
+  const { ownEntities, loading } = useRelations({
     variables: {
       contentId,
       contentType,
@@ -14,6 +15,10 @@ export const CustomerWidgets = ({
     },
     skip: customerId ? true : false,
   });
+
+  if (loading) {
+    return <Spinner className="size-4" />;
+  }
 
   const customerIds = customerId
     ? [customerId]
