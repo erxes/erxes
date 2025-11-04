@@ -2,7 +2,7 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IConfig } from '~/modules/pms/@types/configs';
 
-interface ConfigInput {
+export interface ConfigInput {
   value: string;
   code: string;
   pipelineId: string;
