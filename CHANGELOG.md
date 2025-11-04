@@ -1,5 +1,7 @@
 # Changelog
 
+## <small>2.17.23 (2025-11-04)</small>
+
 ## <small>2.17.22 (2025-10-31)</small>
 
 * fix: pos ui filter has a remainder ([0b283f6](https://github.com/erxes/erxes/commit/0b283f6))
