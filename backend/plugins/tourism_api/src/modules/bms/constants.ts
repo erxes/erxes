@@ -1,13 +1,16 @@
 export const PAYMENT_STATUS_TYPES = [
   { label: 'paid', value: 'paid' },
-  { label: 'notPaid', value: 'notPaid' },
-  { label: 'somePaid', value: 'somePaid' },
+  { label: 'pending', value: 'pending' },
+  { label: 'prepaid', value: 'prepaid' },
+  { label: 'refunded', value: 'refunded' },
+  { label: 'cancelled', value: 'cancelled' },
 ];
 
 export const TOUR_STATUS_TYPES = [
   { label: 'running', value: 'running' },
   { label: 'completed', value: 'completed' },
   { label: 'scheduled', value: 'scheduled' },
+  { label: 'unscheduled', value: 'unscheduled' },
   { label: 'cancelled', value: 'cancelled' },
 ];
 

@@ -6,12 +6,19 @@ export const types = `
     guide: User
     type: String
   }
-
+  enum DATE_STATUS {
+    running
+    completed
+    scheduled
+    cancelled
+    unscheduled
+  }
   type Tour {
     _id: String!
     branchId: String
     name: String
     refNumber: String
+    groupCode: String
     content: String
     duration: Int
     location: [BMSLocation]
@@ -22,16 +29,21 @@ export const types = `
     endDate: Date
     groupSize: Int
     status: String
+    date_status: DATE_STATUS
     cost: Float
     orders: [BmsOrder]
     createdAt: Date
     modifiedAt: Date
     viewCount: Int
-    tags: [String]
+    advanceCheck: Boolean
+    advancePercent: Float
+    joinPercent: Float
+    tagIds: [String]
     info1: String
     info2: String
     info3: String
     info4: String
+    info5: String
     extra: JSON
     images: [String]
     imageThumbnail: String
@@ -47,7 +59,9 @@ export const types = `
     note: String
     numberOfPeople: Int
     type: String
-    additionalCustomers: String
+    additionalCustomers: [String]
+    isChild: Boolean
+    parent: String   
   }
 
   input BmsOrderInput {
@@ -59,7 +73,9 @@ export const types = `
     note: String
     numberOfPeople: Int
     type: String
-    additionalCustomers: String
+    additionalCustomers: [String]
+    isChild: Boolean
+    parent: String
   }
   input GuideItemInput {
     guideId: String
@@ -86,23 +102,29 @@ export const queries = `
 const params = `
   branchId: String,
   name: String,
+  groupCode: String,
   content: String,
   itineraryId:String,
   startDate: Date,
   endDate: Date,
   groupSize: Int,
   duration: Int,
+  advancePercent: Float,
+  joinPercent: Float,
+  advanceCheck: Boolean,
   status: String,
+  date_status: DATE_STATUS!
   cost: Float,
   location: [BMSLocationInput],
   guides:[GuideItemInput],
   refNumber: String,
-  tags:[String],
+  tagIds:[String],
   viewCount: Int,
   info1: String,
   info2: String,
   info3: String,
   info4: String,
+  info5: String,
   extra: JSON,
   images: [String],
   imageThumbnail: String

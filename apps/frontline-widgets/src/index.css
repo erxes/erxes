@@ -12,6 +12,7 @@
   height: 100%;
   width: 100%;
   border-radius: 1rem;
+  overflow: hidden;
 }
 
 .erxes-launcher {
@@ -21,11 +22,13 @@
   border: none;
   z-index: 2147483649;
   overflow: hidden;
-  height: 56px;
-  width: 56px;
+  height: 48px;
+  width: 48px;
   opacity: 0;
   transition: box-shadow 0.3s ease-in-out, opacity 0.3s;
   border-radius: 50%;
+  filter: drop-shadow(rgba(9, 14, 21, 0.54) 0px 1px 6px)
+    drop-shadow(rgba(9, 14, 21, 0.9) 0px 2px 32px);
 }
 
 .erxes-messenger-hidden {
@@ -48,11 +51,10 @@
 
 .erxes-messenger-shown {
   position: fixed;
-  height: min(660px, 100% - 100px);
-  min-height: 80px;
-  /* 400px width of messenger + scrollbar width */
+  height: 100%;
+  min-height: 378px;
   width: 408px;
-  max-height: 660px;
+  max-height: 600px;
   border-radius: 1rem;
   right: 16px;
   bottom: 92px;

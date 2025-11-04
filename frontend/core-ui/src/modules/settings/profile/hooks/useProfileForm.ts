@@ -97,18 +97,6 @@ const useProfileForm = () => {
   const form = useForm<FormType>({
     mode: 'onBlur',
     defaultValues: {
-      details: {
-        avatar: '',
-        firstName: '',
-        lastName: '',
-        shortName: '',
-        middleName: '',
-        operatorPhone: '',
-        birthDate: undefined,
-        workStartedDate: undefined,
-        location: '',
-        employeeId: '',
-      },
       links: {
         facebook: '',
         twitter: '',

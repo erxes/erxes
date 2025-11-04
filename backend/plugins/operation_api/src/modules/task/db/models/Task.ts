@@ -8,7 +8,7 @@ import {
 } from '@/task/@types/task';
 import { taskSchema } from '@/task/db/definitions/task';
 import { Document } from 'mongodb';
-import { FilterQuery, FlattenMaps, Model } from 'mongoose';
+import mongoose, { FilterQuery, FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { IProject, IProjectDocument } from '~/modules/project/@types/project';
 import { createNotifications } from '~/utils/notifications';
@@ -23,7 +23,7 @@ export interface ITaskModel extends Model<ITaskDocument> {
     userId,
     subdomain,
   }: {
-    doc: ITask;
+    doc: ITask & { triageId?: string };
     userId: string;
     subdomain: string;
   }): Promise<ITaskDocument>;
@@ -38,7 +38,6 @@ export interface ITaskModel extends Model<ITaskDocument> {
   }): Promise<ITaskDocument>;
   removeTask(taskId: string): Promise<{ ok: number }>;
   moveCycle(cycleId: string, newCycleId: string): Promise<{ ok: number }>;
-  convertToProject({ taskId }: { taskId: string }): Promise<IProjectDocument>;
 }
 
 export const loadTaskClass = (models: IModels) => {
@@ -106,7 +105,7 @@ export const loadTaskClass = (models: IModels) => {
       userId,
       subdomain,
     }: {
-      doc: ITask;
+      doc: ITask & { triageId?: string; _id?: mongoose.Types.ObjectId };
       userId: string;
       subdomain: string;
     }): Promise<ITaskDocument> {
@@ -116,6 +115,15 @@ export const loadTaskClass = (models: IModels) => {
       ]);
 
       const nextNumber = (result?.maxNumber || 0) + 1;
+
+      if (!doc.status && doc.triageId) {
+        const statusDocument = await models.Status.findOne({
+          teamId: doc.teamId,
+          type: STATUS_TYPES.BACKLOG,
+        });
+
+        doc.status = statusDocument?._id;
+      }
 
       const status = await models.Status.getStatus(doc.status || '');
 
@@ -135,6 +143,12 @@ export const loadTaskClass = (models: IModels) => {
         if (cycle && cycle.isCompleted) {
           throw new Error('Cannot add task to completed cycle');
         }
+      }
+
+      if (doc.triageId) {
+        doc._id = new mongoose.Types.ObjectId(doc.triageId);
+
+        delete doc.triageId;
       }
 
       doc.createdBy = userId;
@@ -285,29 +299,6 @@ export const loadTaskClass = (models: IModels) => {
       );
 
       return taskIds;
-    }
-
-    public static async convertToProject(taskId: string) {
-      const task = await models.Task.getTask(taskId);
-
-      const project: IProject = {
-        name: task.name,
-        description: task?.description,
-        teamIds: [task.teamId],
-        priority: task.priority || 0,
-        startDate: task.startDate,
-        targetDate: task.targetDate,
-        leadId: task.assigneeId,
-        status: 0,
-      };
-
-      if (task.status) {
-        const { type } = await models.Status.getStatus(task.status);
-
-        project.status = type;
-      }
-
-      return await models.Project.createProject(project);
     }
   }
 
