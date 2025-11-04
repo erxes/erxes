@@ -1,4 +1,3 @@
-import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
 import {
   IconMail,
   IconMessageReply,
@@ -7,13 +6,13 @@ import {
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem, DropdownMenu, Button } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
-
+import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
 export const FrontlineNavigation = () => {
   const navigate = useNavigate();
 
   return (
     <>
-      <div className="relative group">
+      <div className="relative group/inbox">
         <NavigationMenuLinkItem
           name="Inbox"
           icon={IconMail}
@@ -25,7 +24,7 @@ export const FrontlineNavigation = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="invisible group-hover:visible absolute top-1/2 -translate-y-1/2 right-2 text-muted-foreground"
+              className="invisible group-hover/inbox:visible absolute top-1/2 -translate-y-1/2 right-2 text-muted-foreground hover:bg-transparent hover:text-foreground"
               onClick={(e) => e.stopPropagation()}
             >
               <IconDotsVertical className="size-4" />
@@ -47,13 +46,11 @@ export const FrontlineNavigation = () => {
           </DropdownMenu.Content>
         </DropdownMenu>
       </div>
-
       <NavigationMenuLinkItem
         name="Ticket"
         icon={IconMessageReply}
         path="frontline/ticket"
       />
-
       <IntegrationNavigation />
     </>
   );

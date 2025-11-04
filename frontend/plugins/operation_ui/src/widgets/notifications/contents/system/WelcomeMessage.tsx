@@ -1,13 +1,9 @@
 import {
-  IconForms,
   IconBrandTrello,
-  IconMessage,
-  IconChartCovariate,
-  IconTicket,
-  IconBriefcase,
-  IconMessageCircle,
-  IconMessage2,
-  IconMail,
+  IconUsers,
+  IconCalendarRepeat,
+  IconClipboard,
+  IconFlag,
 } from '@tabler/icons-react';
 import {
   WelcomeNotificationContentLayout,
@@ -17,87 +13,68 @@ import {
 
 export const OnboardingSteps: TOnboardingStepItem[] = [
   {
-    icon: <IconMail size={24} />,
-    title: 'Team inbox',
+    icon: <IconFlag size={24} />,
+    title: 'Milestone',
     forOwner: false,
-    description:
-      'Built with ShadCN and Radix UI for a more accessible interface.',
+    description: 'Define key goals and track overall project progress.',
     action: {
-      label: 'Try it out now',
-      to: '#',
+      label: 'coming soon...',
+      to: false,
     },
   },
   {
-    icon: <IconTicket size={24} />,
-    title: 'Ticket',
+    icon: <IconBrandTrello size={24} />,
+    title: 'Task',
     forOwner: false,
     description:
-      'Built with ShadCN and Radix UI for a more accessible interface.',
+      'Break down work into clear, actionable steps for each team member.',
     action: {
       label: 'Try it out now',
-      to: '#',
+      to: '/operation/tasks',
     },
   },
   {
-    icon: <IconBriefcase size={24} />,
-    title: 'Deal',
+    icon: <IconClipboard size={24} />,
+    title: 'Project',
     forOwner: false,
-    description:
-      'Built with ShadCN and Radix UI for a more accessible interface.',
+    description: 'Organize related tasks and workflows under one objective.',
     action: {
       label: 'Try it out now',
-      to: '#',
+      to: '/operation/projects',
     },
   },
   {
-    icon: <IconMessageCircle size={24} />,
-    title: 'Business messenger',
+    icon: <IconCalendarRepeat size={24} />,
+    title: 'Cycle',
     forOwner: false,
-    description:
-      'Built with ShadCN and Radix UI for a more accessible interface.',
+    description: 'Plan focused work periods to measure progress and outcomes.',
     action: {
       label: 'Try it out now',
-      to: '#',
-    },
-  },
-  {
-    icon: <IconMessage2 size={24} />,
-    title: 'Business messenger',
-    forOwner: false,
-    description:
-      'Built with ShadCN and Radix UI for a more accessible interface.',
-    action: {
-      label: 'Try it out now',
-      to: '#',
+      to: false,
     },
   },
 ];
 
 const TabItems: TVideoTabItem[] = [
   {
-    label: 'Pop-up forms',
-    icon: <IconForms className="size-4" />,
+    label: 'Team',
+    icon: <IconUsers className="size-4" />,
     time: 1.2,
   },
   {
-    label: 'Contacts',
-    icon: <IconMail className="size-4" />,
+    label: 'Project',
+    icon: <IconClipboard className="size-4" />,
     time: 2.1,
   },
   {
-    label: 'Ticket management',
+    label: 'Task management',
     icon: <IconBrandTrello className="size-4" />,
     time: 3.7,
   },
   {
-    label: 'Business messenger',
-    icon: <IconMessage className="size-4" />,
+    label: 'Cycle',
+    icon: <IconCalendarRepeat className="size-4" />,
     time: 10.5,
-  },
-  {
-    label: 'Insight',
-    icon: <IconChartCovariate className="size-4" />,
-    time: 34.4,
   },
 ];
 
@@ -107,7 +84,7 @@ export const WelcomeMessageContent = () => {
       title="erxes Operation"
       description="Team management, ticket management, deal management"
       tabItems={TabItems}
-      videoSrc="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+      videoSrc="https://pub-3bcba1ff529f4ce3bf25b4e16962c239.r2.dev/intro.mp4"
       onboardingSteps={OnboardingSteps}
     />
   );

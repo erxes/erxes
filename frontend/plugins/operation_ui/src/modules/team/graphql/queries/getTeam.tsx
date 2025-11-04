@@ -9,6 +9,7 @@ export const GET_TEAM = gql`
       description
       estimateType
       cycleEnabled
+      triageEnabled
       taskCount
       memberCount
       createdAt

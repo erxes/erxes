@@ -6,7 +6,7 @@ import {
   ICustomField,
   IUserDocument,
 } from 'erxes-api-shared/core-types';
-import { sendTRPCMessage, validSearchText } from 'erxes-api-shared/utils';
+import { validSearchText } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import {
@@ -167,7 +167,6 @@ export const loadCustomerClass = (models: IModels) => {
         ...doc,
         ...pssDoc,
       });
-
       return models.Customers.getCustomer(customer._id);
     }
 
@@ -207,16 +206,6 @@ export const loadCustomerClass = (models: IModels) => {
      * Remove customers
      */
     public static async removeCustomers(customerIds: string[]) {
-      await sendTRPCMessage({
-        pluginName: 'frontline',
-        method: 'mutation',
-        module: 'inbox',
-        action: 'removeCustomersConversations',
-        input: {
-          customerIds,
-        },
-      });
-
       return models.Customers.deleteMany({ _id: { $in: customerIds } });
     }
 
@@ -310,7 +299,8 @@ export const loadCustomerClass = (models: IModels) => {
         oldTypeIds: customerIds,
       });
 
-      //  await sendTRPCMessage({
+      //  await sendTRPCMessage({subdomain,
+
       //     pluginName: 'frontline',
       //     method: 'mutation',
       //     module: 'inbox',

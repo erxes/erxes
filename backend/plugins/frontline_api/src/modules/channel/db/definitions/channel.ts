@@ -9,6 +9,7 @@ export const channelSchema = schemaWrapper(
     createdBy: { type: String, label: 'Created by' },
     name: { type: String, label: 'Name' },
     icon: { type: String, label: 'Icon' },
+    memberIds: { type: [String], label: 'Members' },
     description: {
       type: String,
       optional: true,

@@ -100,6 +100,8 @@ const coverMutations = {
     //   defaultValue: {},
     // });
     const response = await sendTRPCMessage({
+      subdomain,
+
       method: 'query',
       pluginName: 'sales',
       module: 'pos',

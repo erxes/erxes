@@ -1,7 +1,7 @@
 import {
   IBranchDocument,
   IDepartmentDocument,
-} from '../../core-types/modules/structure/structure'
+} from '../../core-types/modules/structure/structure';
 import {
   IActionMap,
   IPermissionDocument,
@@ -47,6 +47,7 @@ export const userActionsMap = async (
 };
 
 export const getUserActionsMap = async (
+  subdomain: string,
   user: IUserDocument,
   permissionsFind?: (query: any) => any,
 ): Promise<IActionMap> => {
@@ -65,6 +66,8 @@ export const getUserActionsMap = async (
     const userPermissions = await (permissionsFind
       ? permissionsFind(userPermissionQuery)
       : sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'query',
           module: 'permissions',
@@ -79,6 +82,8 @@ export const getUserActionsMap = async (
 
     if (user?.branchIds?.length) {
       const branches: IBranchDocument[] = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'branches',
@@ -101,6 +106,8 @@ export const getUserActionsMap = async (
 
     if (user?.departmentIds?.length) {
       const departments: IDepartmentDocument[] = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'departments',
@@ -127,6 +134,8 @@ export const getUserActionsMap = async (
 
     if (groupQuery?.$or?.length > 0) {
       groupIds = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'userGroups',
@@ -145,6 +154,8 @@ export const getUserActionsMap = async (
     const groupPermissions = await (permissionsFind
       ? permissionsFind(groupPermissionQuery)
       : sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'query',
           module: 'permissions',

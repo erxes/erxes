@@ -41,6 +41,9 @@ export const dispatchConversationToService = async (
         // TODO: Implement Mobinet SMS logic
         break;
 
+      case 'messenger':
+        break;
+
       default:
         throw new Error(`Unsupported service: ${serviceName}`);
     }
@@ -226,6 +229,8 @@ export const conversationMutations = {
 
       const { kind } = integration;
       const customer = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'customers',
@@ -242,6 +247,8 @@ export const conversationMutations = {
       // Send auto-reply email for lead forms
       if (!internal && kind === 'lead' && email) {
         await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'mutation',
           module: 'core',

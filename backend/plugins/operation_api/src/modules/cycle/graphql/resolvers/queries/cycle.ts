@@ -35,7 +35,7 @@ export const cycleQueries = {
     if (params.taskId) {
       const task = await models.Task.findOne({
         _id: params.taskId,
-        statusType: STATUS_TYPES.COMPLETED,
+        statusType: { $in: [STATUS_TYPES.COMPLETED, STATUS_TYPES.CANCELLED] },
         cycleId: { $ne: null },
       });
 
@@ -56,12 +56,12 @@ export const cycleQueries = {
 
         query: {
           teamId: params.teamId,
-          isCompleted: { $ne: true },
+
           $or: [
             { isActive: true },
             { _id: params?.cycleId || null },
             {
-              startDate: { $lte: new Date() },
+              startDate: { $gte: new Date() },
             },
           ],
         },
@@ -81,9 +81,9 @@ export const cycleQueries = {
   getCycleProgressChart: async (
     _parent: undefined,
     { _id, assigneeId },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) => {
-    return getCycleProgressChart(_id, assigneeId, models);
+    return getCycleProgressChart(subdomain, _id, assigneeId, models);
   },
 
   getCycleProgressByMember: async (

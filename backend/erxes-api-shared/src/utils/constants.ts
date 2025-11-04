@@ -90,3 +90,10 @@ export const CONFORMITY_TYPE = {
   customers: 'customer',
   companies: 'company',
 };
+
+export const PERMISSION_ROLES = {
+  OWNER: 'owner',
+  ADMIN: 'admin',
+  MEMBER: 'member',
+  ALL: ['owner', 'admin', 'member'],
+};

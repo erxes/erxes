@@ -191,7 +191,7 @@ export const integrationMutations = {
   async integrationsCreateMessengerOnboarding(
     _root,
     doc: IOnboardingParamsEdit,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
     const integrationsCount = await models.Integrations.find(
       {},
@@ -201,6 +201,8 @@ export const integrationMutations = {
       return models.Integrations.findOne();
     }
     await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'mutation',
       module: 'brands',
@@ -258,9 +260,11 @@ export const integrationMutations = {
   async integrationsEditMessengerOnboarding(
     _root,
     { _id, brandId, ...fields }: any,
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
     await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'mutation',
       module: 'brands',
@@ -350,6 +354,25 @@ export const integrationMutations = {
     return models.Integrations.saveMessengerConfigs(_id, messengerData);
   },
 
+  async integrationsSaveMessengerColorTheme(
+    _root,
+    { _id, colorTheme }: { _id: string; colorTheme: any },
+    { models }: IContext,
+  ) {
+    return models.Integrations.saveMessengerColorTheme(_id, colorTheme);
+  },
+
+  async integrationsGetMessengerColorThemes(_root, _args) {
+    return [
+      {
+        _id: '',
+        primary: {
+          DEFAULT: '#3b82f6',
+          foreground: '#ffffff',
+        },
+      },
+    ];
+  },
   /**
    * Create a new messenger integration
    */

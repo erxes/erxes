@@ -34,15 +34,15 @@ const ClientPortalUser = {
     );
   },
 
-  async customFieldsDataByFieldCode(company: IUser) {
-    return customFieldsDataByFieldCode(company);
+  async customFieldsDataByFieldCode(company: IUser, _args, { subdomain }: IContext) {
+    return customFieldsDataByFieldCode(subdomain, company);
   },
 
-  async companyName(user) {
+  async companyName(user, _args, { subdomain }: IContext) {
     if (user.erxesCompanyId) {
-
-
       const company = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'core',

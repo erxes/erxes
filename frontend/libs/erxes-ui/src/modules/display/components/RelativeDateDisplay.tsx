@@ -1,9 +1,17 @@
 import { format } from 'date-fns';
 import { Tooltip } from 'erxes-ui/components';
 import { isUndefinedOrNull } from 'erxes-ui/utils';
-import { formatDateISOStringToRelativeDate } from 'erxes-ui/utils/localization/formatDateISOStringToRelativeDate';
+import {
+  formatDateISOStringToRelativeDate,
+  formatDateISOStringToRelativeDateShort,
+} from 'erxes-ui/utils/localization/formatDateISOStringToRelativeDate';
 import React from 'react';
 import { Except } from 'type-fest';
+
+type RelativeDateDisplayProps = {
+  value: string;
+  isShort?: boolean;
+};
 
 const RelativeDateDisplayTooltip = React.forwardRef<
   React.ElementRef<typeof Tooltip.Trigger>,
@@ -27,9 +35,17 @@ const RelativeDateDisplayTooltip = React.forwardRef<
 
 RelativeDateDisplayTooltip.displayName = 'RelativeDateDisplayTooltip';
 
-const RelativeDateDisplayValue = ({ value }: { value: string }) => {
+const RelativeDateDisplayValue = ({
+  value,
+  isShort,
+}: RelativeDateDisplayProps) => {
+  if (isUndefinedOrNull(value)) {
+    return null;
+  }
   const relativeDate = formatDateISOStringToRelativeDate(value);
-  return relativeDate;
+  const relativeDateShort = formatDateISOStringToRelativeDateShort(value);
+
+  return isShort ? relativeDateShort : relativeDate;
 };
 
 export const RelativeDateDisplay = Object.assign(RelativeDateDisplayTooltip, {

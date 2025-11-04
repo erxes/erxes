@@ -42,23 +42,11 @@ app.use(
 
 app.use(cookieParser());
 
-// const corsOptions = {
-//   credentials: true,
-//   origin: (origin, callback) => {
-//     if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ''))) {
-//       callback(null, true);
-//     } else {
-//       console.error('Origin not allowed:', origin, allowedOrigins);
-//       callback(new Error('Not allowed by CORS'));
-//     }
-//   },
-// };
-
 const corsOptions = {
   credentials: true,
   origin: [
     DOMAIN || 'http://localhost:3001',
-    ...(isDev ? ['http://localhost:3001'] : []),
+    ...(isDev ? ['http://localhost:3001','http://localhost:4200'] : []),
     ALLOWED_DOMAINS || 'http://localhost:3200',
     ...(CLIENT_PORTAL_DOMAINS || '').split(','),
     ...(process.env.ALLOWED_ORIGINS || '')

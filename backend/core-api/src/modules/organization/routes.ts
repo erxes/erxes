@@ -4,6 +4,7 @@ import { generateModels } from '~/connectionResolvers';
 import { getSaasOrganizationDetail } from 'erxes-api-shared/utils';
 import { handleCoreLogin, magiclinkCallback, ssocallback } from '~/utils/saas';
 import rateLimit from 'express-rate-limit';
+import { IOrganizationCharge } from './types';
 
 // Rate limiter for /ml-callback route: max 100 requests per 15 minutes per IP
 const callbackLimiter = rateLimit({
@@ -30,7 +31,6 @@ router.get('/initial-setup', async (req: Request, res: Response) => {
   if (VERSION && VERSION === 'saas') {
     organizationInfo = await getSaasOrganizationDetail({
       subdomain,
-      models,
     });
 
     organizationInfo.type = 'saas';
@@ -51,19 +51,50 @@ router.get('/initial-setup', async (req: Request, res: Response) => {
 
 router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
   const ENABLED_PLUGINS = getEnv({ name: 'ENABLED_PLUGINS' });
+  const VERSION = getEnv({ name: 'VERSION', defaultValue: 'os' });
 
-  const remotes: { name: string; entry: string }[] = [];
+  if (VERSION === 'saas') {
+    const remotes: { name: string; entry: string }[] = [];
+    const subdomain = getSubdomain(_req);
 
-  if (ENABLED_PLUGINS) {
-    ENABLED_PLUGINS.split(',').forEach((plugin) => {
-      remotes.push({
-        name: `${plugin}_ui`,
-        entry: `https://plugins.erxes.io/latest/${plugin}_ui/remoteEntry.js`,
-      });
+    const organizationInfo = await getSaasOrganizationDetail({
+      subdomain,
     });
-  }
 
-  return res.json(remotes);
+    const charges = organizationInfo.charge as IOrganizationCharge;
+
+    Object.keys(charges).forEach((key) => {
+      if (
+        (charges[key].purchased && charges[key].purchased > 0) ||
+        (charges[key].free && charges[key].free > 0)
+      ) {
+        const pluginName = key.split(':')[0];
+
+        const enabledPluginsArray = ENABLED_PLUGINS.split(',');
+        if (enabledPluginsArray.includes(pluginName)) {
+          remotes.push({
+            name: `${pluginName}_ui`,
+            entry: `https://plugins.erxes.io/latest/${pluginName}_ui/remoteEntry.js`,
+          });
+        }
+      }
+    });
+
+    return res.json(remotes);
+  } else {
+    const remotes: { name: string; entry: string }[] = [];
+
+    if (ENABLED_PLUGINS) {
+      ENABLED_PLUGINS.split(',').forEach((plugin) => {
+        remotes.push({
+          name: `${plugin}_ui`,
+          entry: `https://plugins.erxes.io/latest/${plugin}_ui/remoteEntry.js`,
+        });
+      });
+    }
+
+    return res.json(remotes);
+  }
 });
 
 router.get('/sso-callback', callbackLimiter, ssocallback);

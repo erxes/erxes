@@ -30,10 +30,10 @@ export const appRouter = t.mergeRouters(
           }),
         )
         .query(async ({ ctx, input }) => {
-          const { models } = ctx;
+          const { models, subdomain } = ctx;
           const { moduleType } = input;
           if (moduleType === 'facebook') {
-            return await generateFacebookFields(models, input);
+            return await generateFacebookFields(models, subdomain, input);
           }
 
           return [];

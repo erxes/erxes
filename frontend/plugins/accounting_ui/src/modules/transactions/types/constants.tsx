@@ -11,9 +11,11 @@ export enum TrJournalEnum {
   TAX = 'tax',
   INV_INCOME = 'invIncome',
   INV_OUT = 'invOut',
-  INV_MOVE = 'invMove',
-  INV_SALE = 'invSale',
 
+  INV_MOVE = 'invMove',
+  INV_MOVE_IN = 'invMoveIn',
+
+  INV_SALE = 'invSale',
   INV_SALE_OUT = 'invSaleOut',
   INV_SALE_COST = 'invSaleCost',
 }

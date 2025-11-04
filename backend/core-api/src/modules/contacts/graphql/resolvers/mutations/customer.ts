@@ -1,6 +1,6 @@
 import { checkPermission } from 'erxes-api-shared/core-modules';
 import { ICustomer, ICustomerDocument } from 'erxes-api-shared/core-types';
-import { getEnv, getPlugins, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { getEnv } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { COC_LIFECYCLE_STATE_TYPES } from '~/modules/contacts/constants';
 
@@ -41,7 +41,8 @@ export const customerMutations = {
 
     await models.Customers.removeCustomers(customerIds);
 
-    // await sendTRPCMessage({
+    // await sendTRPCMessage({subdomain,
+
     //   pluginName: 'frontline',
     //   method: 'mutation',
     //   module: 'integraions',
@@ -54,7 +55,7 @@ export const customerMutations = {
     let relatedIntegrationIds: string[] = [];
     let mergedIds: string[] = [];
 
-    customers.forEach((c) => {
+    for (const c of customers) {
       if (c.relatedIntegrationIds && c.relatedIntegrationIds.length > 0) {
         relatedIntegrationIds = relatedIntegrationIds.concat(
           c.relatedIntegrationIds,
@@ -63,12 +64,13 @@ export const customerMutations = {
       if (c.mergedIds && c.mergedIds.length > 0) {
         mergedIds = mergedIds.concat(c.mergedIds);
       }
-    });
+    }
 
     relatedIntegrationIds = [...new Set(relatedIntegrationIds)];
     mergedIds = [...new Set(mergedIds)];
 
-    // const integrations = await sendTRPCMessage({
+    // const integrations = await sendTRPCMessage({subdomain,
+
     //   pluginName: 'frontline',
     //   method: 'mutation',
     //   module: 'integrations',
@@ -81,7 +83,8 @@ export const customerMutations = {
     // for (const integration of integrations) {
     //   const kind: string = (integration.kind || '').split('-')[0];
 
-    //   await sendTRPCMessage({
+    //   await sendTRPCMessage({subdomain,
+
     //     pluginName: 'frontline',
     //     method: 'mutation',
     //     module: services.includes(kind) ? kind : 'integrations',

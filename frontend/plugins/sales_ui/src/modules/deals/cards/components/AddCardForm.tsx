@@ -47,7 +47,7 @@ export function AddCardForm({ onCloseSheet }: { onCloseSheet: () => void }) {
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
-        <Sheet.Content>
+        <Sheet.Content className="overflow-y-auto">
           <ScrollArea className="flex-auto">
             <div className="p-5">
               <div className="grid grid-cols-1 gap-2">

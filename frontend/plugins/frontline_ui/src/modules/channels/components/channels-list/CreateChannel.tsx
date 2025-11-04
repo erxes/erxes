@@ -15,24 +15,32 @@ import { Sheet, Button, Kbd } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { ChannelForm } from '@/channels/components/channels-list/ChannelForm';
 import { useNavigate } from 'react-router-dom';
+import { useAtom } from 'jotai';
+import { channelCreateSheetOpenState } from '../../states';
 
-export const CreateChannel = () => {
+type Props = {
+  isIconOnly?: boolean;
+};
+
+export const CreateChannel = ({ isIconOnly = false }: Props) => {
   const navigate = useNavigate();
   const form = useChannelsForm({});
   const { addChannel, loading } = useChannelAdd();
-  const [_open, _setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useAtom(channelCreateSheetOpenState);
   const { toast } = useToast();
   const setHotkeyScope = useSetHotkeyScope();
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
 
   const onOpen = () => {
-    _setOpen(true);
+    setOpen(true);
     setHotkeyScopeAndMemorizePreviousScope(ChannelHotKeyScope.ChannelAddSheet);
   };
 
   const onClose = () => {
-    setHotkeyScope(ChannelHotKeyScope.ChannelSettingsPage);
-    _setOpen(false);
+    if (!isIconOnly) {
+      setHotkeyScope(ChannelHotKeyScope.ChannelSettingsPage);
+    }
+    setOpen(false);
   };
 
   useScopedHotkeys(`c`, () => onOpen(), ChannelHotKeyScope.ChannelSettingsPage);
@@ -48,7 +56,7 @@ export const CreateChannel = () => {
             `/settings/frontline/channels/details/${data.channelAdd._id}`,
           );
           form.reset();
-          _setOpen(false);
+          setOpen(false);
         },
         onError: (error) =>
           toast({
@@ -58,16 +66,16 @@ export const CreateChannel = () => {
           }),
       });
     },
-    [addChannel, toast, _setOpen, form],
+    [addChannel, toast, setOpen, form],
   );
 
   return (
-    <Sheet open={_open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
+    <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Create channel
-          <Kbd>C</Kbd>
+          {isIconOnly ? null : 'Create channel'}
+          {!isIconOnly && <Kbd>C</Kbd>}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="p-0">

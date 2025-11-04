@@ -140,7 +140,7 @@ export const startRouter = async (proxy) => {
   routerProcess = spawn(
     routerPath,
     [
-      ...devOptions,
+      ...(NODE_ENV === 'development' ? devOptions : []),
       '--log',
       NODE_ENV === 'development' ? 'warn' : 'error',
       `--supergraph`,

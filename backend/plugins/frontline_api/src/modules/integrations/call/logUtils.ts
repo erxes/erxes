@@ -5,6 +5,8 @@ export default {
   collectItems: async ({ subdomain, data }) => {
     const { contentId } = data;
     const customer = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'customers',
@@ -33,6 +35,8 @@ export default {
       }).limit(3);
 
       const user = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'users',

@@ -21,6 +21,8 @@ export default {
 
     if (order.customerType === 'company') {
       const company = await sendTRPCMessage({
+        subdomain,
+
         method: 'query',
         pluginName: 'core',
         module: 'companies',
@@ -44,6 +46,8 @@ export default {
 
     if (order.customerType === 'user') {
       const user = await sendTRPCMessage({
+        subdomain,
+
         method: 'query',
         pluginName: 'core',
         module: 'users',
@@ -65,6 +69,8 @@ export default {
       };
     }
     const customer = await sendTRPCMessage({
+      subdomain,
+
       method: 'query',
       pluginName: 'core',
       module: 'customers',
@@ -151,6 +157,8 @@ export default {
     }
 
     return await sendTRPCMessage({
+      subdomain,
+
       method: 'query',
       pluginName: 'sales',
       module: 'deal',
@@ -166,6 +174,8 @@ export default {
     }
 
     return await sendTRPCMessage({
+      subdomain,
+
       method: 'query',
       pluginName: 'sales',
       module: 'deal',

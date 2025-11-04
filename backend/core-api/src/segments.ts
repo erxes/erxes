@@ -108,6 +108,7 @@ export default startSegments('core', {
       }
 
       ids = await sendTRPCMessage({
+        subdomain,
         pluginName: serviceName,
         method: 'query',
         module: 'segments',

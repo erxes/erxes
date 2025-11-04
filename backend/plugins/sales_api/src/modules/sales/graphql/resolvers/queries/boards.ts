@@ -118,7 +118,7 @@ export const boardQueries = {
   async salesItemsCountByAssignedUser(
     _root,
     { pipelineId, stackBy }: { pipelineId: string; stackBy: string },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const { Stages, PipelineLabels } = models;
 
@@ -201,6 +201,8 @@ export const boardQueries = {
     }
 
     const users = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'users',
@@ -279,7 +281,7 @@ export const boardQueries = {
 
   // async salesItemsCountBySegments() {}
 
-  async salesBoardLogs(_root, args, { models }: IContext) {
+  async salesBoardLogs(_root, args, { models, subdomain }: IContext) {
     const { Deals, Stages } = models;
     const { action, content, contentId } = args;
 
@@ -313,6 +315,8 @@ export const boardQueries = {
 
       if (content) {
         addedUsers = await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'query',
           module: 'users',
@@ -326,6 +330,8 @@ export const boardQueries = {
         });
 
         removedUsers = await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'query',
           module: 'users',
@@ -343,13 +349,15 @@ export const boardQueries = {
     }
   },
 
-  async salesCardsFields(_root, _args, { models }: IContext) {
+  async salesCardsFields(_root, _args, { models, subdomain }: IContext) {
     const result = {};
 
     for (const ct of ['deal']) {
       result[ct] = [];
 
       const groups = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'forms',
@@ -366,6 +374,8 @@ export const boardQueries = {
         const { config = {} } = group;
 
         const fields = await sendTRPCMessage({
+          subdomain,
+
           pluginName: 'core',
           method: 'query',
           module: 'forms',
@@ -403,7 +413,7 @@ export const boardQueries = {
   async salesCheckFreeTimes(
     _root,
     { pipelineId, intervals },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
     if (!intervals.length) {
       return [];
@@ -426,6 +436,8 @@ export const boardQueries = {
     }
 
     const tags = await sendTRPCMessage({
+      subdomain,
+
       pluginName: 'core',
       method: 'query',
       module: 'tags',
