@@ -2,7 +2,7 @@ import { IBranchDocument, IBranch } from '@/bms/@types/branch';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { branchSchema } from '@/bms/db/definitions/branch';
-import { random } from 'erxes-api-shared/utils/string';
+import { random } from 'erxes-api-shared/utils';
 
 export interface IBranchModel extends Model<IBranchDocument> {
   getList(query: any): Promise<IBranchDocument[]>;

@@ -40,29 +40,25 @@ const configQueries = {
     },
     { models, subdomain }: IContext,
   ) {
-    const stages123 = await sendTRPCMessage({
+    const stages = await sendTRPCMessage({
+      subdomain,
       method: 'query',
       pluginName: 'sales',
-      module: 'stages',
+      module: 'stage',
       action: 'find',
-      input: {},
+      input: { pipelineId: pipelineId },
     });
-    console.log('stages123', stages123);
-    const stages = await sendSalesMessage({
-      subdomain,
-      action: 'stages.find',
-      data: {
-        pipelineId: pipelineId,
-      },
-      isRPC: true,
-    });
-    const stageIds = stages.map((x) => x._id) || [];
+
+    const stageIds = stages.data?.map((x) => x._id) || [];
     const newArray = stageIds.filter((item) => !skipStageIds?.includes(item));
 
-    const deals = await sendSalesMessage({
+    const deals = await sendTRPCMessage({
       subdomain,
-      action: 'deals.find',
-      data: {
+      method: 'query',
+      pluginName: 'sales',
+      module: 'deal',
+      action: 'find',
+      input: {
         query: {
           stageId: { $in: newArray },
           productsData: {
@@ -81,10 +77,8 @@ const configQueries = {
         skip: (page - 1) * perPage,
         limit: perPage,
       },
-      isRPC: true,
     });
-
-    return deals;
+    return deals?.data || [];
   },
   async pmsCheckRooms(
     _root,
@@ -103,59 +97,55 @@ const configQueries = {
     },
     { models, subdomain }: IContext,
   ) {
-    // const stages = await sendSalesMessage({
-    //   subdomain,
-    //   action: 'stages.find',
-    //   data: {
-    //     pipelineId: pipelineId,
-    //   },
-    //   isRPC: true,
-    // });
-    const stages = [];
-    // const stages = await sendTRPCMessage({
-    //   method: 'query',
-    //   pluginName: 'sales',
-    //   module: 'deals',
-    //   action: 'salesPipelinesChanged',
-    // });
+    const stages = await sendTRPCMessage({
+      subdomain,
+      method: 'query',
+      pluginName: 'sales',
+      module: 'stage',
+      action: 'find',
+      input: { pipelineId: pipelineId },
+    });
 
-    const stageIds = stages.map((x) => x._id) || [];
+    const stageIds = stages?.data.map((x) => x._id) || [];
     const newArray = stageIds.filter((item) => !skipStageIds?.includes(item));
 
-    const deals = [];
-    // await sendSalesMessage({
-    //   subdomain,
-    //   action: 'deals.find',
-    //   data: {
-    //     stageId: { $in: newArray },
-    //     productsData: {
-    //       $elemMatch: {
-    //         $or: [
-    //           {
-    //             productId: { $in: ids },
-    //             startDate: {
-    //               $lte: new Date(startDate),
-    //             },
-    //             endDate: {
-    //               $gte: new Date(startDate),
-    //               $lte: new Date(endDate),
-    //             },
-    //           },
-    //           {
-    //             productId: { $in: ids },
-    //             startDate: {
-    //               $gte: new Date(startDate),
-    //               $lte: new Date(endDate),
-    //             },
-    //           },
-    //         ],
-    //       },
-    //     },
-    //   },
-    //   isRPC: true,
-    // });
+    const deals = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'sales',
+      method: 'query',
+      module: 'deal',
+      action: 'find',
+      input: {
+        query: {
+          stageId: { $in: newArray },
+          productsData: {
+            $elemMatch: {
+              $or: [
+                {
+                  productId: { $in: ids },
+                  startDate: {
+                    $lte: new Date(startDate),
+                  },
+                  endDate: {
+                    $gte: new Date(startDate),
+                    $lte: new Date(endDate),
+                  },
+                },
+                {
+                  productId: { $in: ids },
+                  startDate: {
+                    $gte: new Date(startDate),
+                    $lte: new Date(endDate),
+                  },
+                },
+              ],
+            },
+          },
+        },
+      },
+    });
     const array: any[] = [];
-    for (const x of deals) {
+    for (const x of deals?.data || []) {
       array.push(...(x?.productsData || []));
     }
     const productsFiltered = array.filter((productData) => {
@@ -181,7 +171,6 @@ const configQueries = {
     });
 
     const productIds = productsFiltered.map((x) => x.productId);
-    console.log(ids.filter((x) => !productIds.includes(x)));
     return (
       ids.filter((x) => !productIds.includes(x)).map((x) => ({ _id: x })) || []
     );
