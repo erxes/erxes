@@ -223,10 +223,12 @@ const carMutations = {
         mainTypeId: car._id,
         relTypes: ['customer', 'company'],
       },
+      isRPC: true,
+      defaultValue: []
     });
 
-    if (!relTypeIds.includes(customerId) && !relTypeIds.includes(companyId)) {
-      throw new Error ('Cant edit this car, not a customer or company car')
+    if (!relTypeIds?.includes(customerId) && !relTypeIds?.includes(companyId)) {
+      throw new Error('Cant edit this car, not a customer or company car')
     }
 
     const updated = await models.Cars.updateCar(_id, doc);
