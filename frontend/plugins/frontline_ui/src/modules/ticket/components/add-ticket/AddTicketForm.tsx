@@ -25,12 +25,7 @@ import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectA
 
 export const AddTicketForm = ({ onClose }: { onClose: () => void }) => {
   const [pipelineId] = useQueryState<string>('pipelineId');
-  //   const { pipelineId, id } = useParams<{
-  //     pipelineId?: string;
-  //     id?: string;
-  //   }>();
 
-  //   const { pipelines } = useGetCurrentUsersPipelines();
   const currentUser = useAtomValue(currentUserState);
   const { createTicket, loading: createTicketLoading } = useCreateTicket();
   const [descriptionContent, setDescriptionContent] = useState<Block[]>();
@@ -56,18 +51,6 @@ export const AddTicketForm = ({ onClose }: { onClose: () => void }) => {
   useEffect(() => {
     form.setFocus('name');
   }, [form]);
-
-  // useEffect(() => {
-  //   if (
-  //     pipelines &&
-  //     pipelines.length > 0 &&
-  //     !form.getValues('pipelineId') &&
-  //     !pipelineId
-  //   ) {
-  //     form.setValue('pipelineId', pipelines[0]._id);
-  //     _setPipelineId(pipelines[0]._id);
-  //   }
-  // }, [pipelines, form, pipelineId, currentUser]);
 
   useEffect(() => {
     if (defaultValuesState) {

@@ -2,8 +2,9 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { ITicketPipelineDocument } from '~/modules/ticket/@types/pipeline';
 
 export const Pipeline = {
-  async createdUser(pipeline: ITicketPipelineDocument) {
+  async createdUser(subdomain: string, pipeline: ITicketPipelineDocument) {
     return sendTRPCMessage({
+      subdomain,
       pluginName: 'core',
       module: 'users',
       action: 'findOne',
