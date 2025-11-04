@@ -111,9 +111,7 @@ export const publishMessage = async (
   console.log(message, 'message');
   await graphqlPubsub.publish(
     `conversationMessageInserted:${message.conversationId}`,
-    {
-      conversationMessageInserted: message,
-    },
+    { conversationMessageInserted: JSON.parse(JSON.stringify(message)) },
   );
 
   if (customerId) {
