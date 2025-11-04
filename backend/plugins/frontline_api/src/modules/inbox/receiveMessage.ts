@@ -42,7 +42,7 @@ export const receiveInboxMessage = async (
     let customer;
 
     const getCustomer = async (selector) => {
-      return await sendTRPCMessage({
+      await sendTRPCMessage({
         subdomain,
 
         pluginName: 'core',
@@ -89,7 +89,7 @@ export const receiveInboxMessage = async (
         action: 'createCustomer',
         input: {
           doc: {
-            ...doc,
+            doc,
           },
         },
       });
