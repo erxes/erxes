@@ -9,11 +9,12 @@ export const useRelations = (
 
   const relations = data?.getRelationsByEntity as IRelation[];
 
-  const ownEntities = relations?.flatMap((relation) =>
-    relation.entities.filter(
-      (entity) => entity.contentType !== options.variables?.contentType,
-    ),
-  );
+  const ownEntities =
+    relations?.flatMap((relation) =>
+      relation.entities.filter(
+        (entity) => entity.contentType !== options.variables?.contentType,
+      ),
+    ) || [];
 
   return { ownEntities, loading };
 };

@@ -5,8 +5,10 @@ export const CompanyWidgets = ({
   contentType,
 }: IRelationWidgetProps) => {
   const { ownEntities } = useRelations({
-    contentId,
-    contentType,
+    variables: {
+      contentId,
+      contentType,
+    },
   });
 
   return <div>{ownEntities?.map((entity) => entity.contentId)}</div>;

@@ -39,11 +39,22 @@ export const Task = ({
       ],
     });
 
+    const relationKeys = new Set<string>();
+
     const relations = [
-      createRelation(contentType, contentId),
-      ...(customerId ? [createRelation('core:customer', customerId)] : []),
-      ...(companyId ? [createRelation('core:company', companyId)] : []),
-    ];
+      [contentType, contentId],
+      ...(customerId ? [['core:customer', customerId]] : []),
+      ...(companyId ? [['core:company', companyId]] : []),
+    ]
+      .filter(([ct, cid]) => {
+        const key = `${ct}:${cid}`;
+        if (relationKeys.has(key)) {
+          return false;
+        }
+        relationKeys.add(key);
+        return true;
+      })
+      .map(([ct, cid]) => createRelation(ct, cid));
 
     createMultipleRelations(relations);
   };

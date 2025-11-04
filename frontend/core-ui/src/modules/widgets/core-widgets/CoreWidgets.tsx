@@ -5,8 +5,6 @@ import { CompanyWidgets } from './company/CompanyWidgets';
 export const CoreWidgets = (props: IRelationWidgetProps) => {
   const { module } = props;
 
-  console.log(props);
-
   if (module === 'customer') {
     return <CustomerWidgets {...props} />;
   }
