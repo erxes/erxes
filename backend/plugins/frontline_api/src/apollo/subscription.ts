@@ -14,9 +14,105 @@ export default {
       talkingCallReceived(extension: String): String
       agentCallReceived(extension: String): String
       queueRealtimeUpdate(extension: String): String
+      ticketPipelineChanged(filter: TicketsPipelineFilter): TicketSubscription
+      ticketPipelineListChanged: PipelineSubscription
+      ticketChanged(_id: String!): TicketSubscription
+      ticketListChanged(filter: ITicketFilter): TicketSubscription
+      ticketStatusChanged(_id: String!): StatusSubscription
+      ticketStatusListChanged: StatusSubscription
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
+      // --- Ticket Pipeline ---
+      ticketPipelineChanged: {
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(`ticketPipelineChanged:${_id}`),
+      },
+      ticketPipelineListChanged: {
+        subscribe: () =>
+          graphqlPubsub.asyncIterator('ticketPipelineListChanged'),
+      },
+
+      // --- Ticket Status ---
+      ticketStatusChanged: {
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(`ticketStatusChanged:${_id}`),
+      },
+      ticketStatusListChanged: {
+        subscribe: () => graphqlPubsub.asyncIterator('ticketStatusListChanged'),
+      },
+
+      // --- Ticket ---
+      ticketChanged: {
+        resolve: (payload) => payload.ticketChanged,
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(`ticketChanged:${_id}`),
+      },
+
+      ticketListChanged: {
+        resolve: (payload) => payload.ticketListChanged,
+        subscribe: withFilter(
+          () => graphqlPubsub.asyncIterator('ticketListChanged'),
+          async (payload, variables) => {
+            const ticket = payload.ticketListChanged.ticket;
+            const filter = variables.filter || {};
+
+            if (!filter) return true;
+
+            if (filter._id && ticket._id === filter._id) {
+              return true;
+            }
+
+            if (filter.name) {
+              const regex = new RegExp(filter.name, 'i');
+              if (!regex.test(ticket.name)) return false;
+            }
+
+            if (filter.status && ticket.status !== filter.status) return false;
+            if (filter.priority && ticket.priority !== filter.priority)
+              return false;
+
+            if (
+              filter.startDate &&
+              new Date(ticket.startDate) < new Date(filter.startDate)
+            )
+              return false;
+
+            if (
+              filter.targetDate &&
+              new Date(ticket.targetDate) < new Date(filter.targetDate)
+            )
+              return false;
+
+            if (
+              filter.createdAt &&
+              new Date(ticket.createdAt) < new Date(filter.createdAt)
+            )
+              return false;
+
+            if (filter.pipelineId && ticket.pipelineId !== filter.pipelineId)
+              return false;
+            if (filter.createdBy && ticket.createdBy !== filter.createdBy)
+              return false;
+            if (filter.assigneeId && ticket.assigneeId !== filter.assigneeId)
+              return false;
+            if (filter.channelId && ticket.channelId !== filter.channelId)
+              return false;
+
+            if (
+              filter.userId &&
+              !filter.pipelineId &&
+              !filter.assigneeId &&
+              ticket.assigneeId !== filter.userId
+            ) {
+              return false;
+            }
+
+            return true;
+          },
+        ),
+      },
+
       /*
        * Listen for conversation changes like status, assignee, read state
        */
@@ -129,7 +225,6 @@ export default {
           },
           async (payload) => {
             const { conversation, integration } = payload;
-            console.log(conversation, integration, 'conversation, integration');
             if (!conversation) {
               return false;
             }

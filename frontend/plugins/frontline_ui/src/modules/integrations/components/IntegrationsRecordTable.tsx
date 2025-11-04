@@ -9,7 +9,6 @@ import {
 import { IIntegrationDetail } from '../types/Integration';
 import { useIntegrations } from '../hooks/useIntegrations';
 import { useParams } from 'react-router-dom';
-import { BrandsInline } from 'ui-modules';
 import { useIntegrationEditField } from '@/integrations/hooks/useIntegrationEdit';
 import { useState } from 'react';
 import { ArchiveIntegration } from '@/integrations/components/ArchiveIntegration';
@@ -17,6 +16,7 @@ import { RemoveIntegration } from '@/integrations/components/RemoveIntegration';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import clsx from 'clsx';
 import { IntegrationType } from '@/types/Integration';
+import { FacebookIntegrationRepair } from '../facebook/components/FacebookIntegrationRepair';
 
 export const IntegrationsRecordTable = ({
   Actions,
@@ -166,8 +166,13 @@ export const integrationTypeColumns = ({
     header: () => <RecordTable.InlineHead label="Actions" />,
     cell: ({ cell }) => {
       const { isActive, _id, name } = cell.row.original;
+      const { integrationType } = useParams();
       return (
         <div className="flex items-center gap-1.5 px-2 justify-center">
+          {IntegrationType.FACEBOOK_MESSENGER === integrationType ||
+          IntegrationType.FACEBOOK_POST === integrationType ? (
+            <FacebookIntegrationRepair cell={cell} />
+          ) : null}
           <Actions cell={cell} />
           <ArchiveIntegration _id={_id} name={name} isActive={isActive} />
           <RemoveIntegration _id={_id} name={name} />

@@ -87,6 +87,7 @@ export const getOrCreateCustomer = async (
     };
 
     const apiCustomerResponse = await receiveInboxMessage(subdomain, data);
+
     if (apiCustomerResponse.status === 'success') {
       customer.erxesApiId = apiCustomerResponse.data._id;
       await customer.save();

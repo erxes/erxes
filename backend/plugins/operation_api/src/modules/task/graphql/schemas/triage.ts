@@ -8,7 +8,6 @@ export const types = `
     teamId: String
     createdBy: String
     priority: Int
-
     number: Int
     createdAt: Date
     updatedAt: Date

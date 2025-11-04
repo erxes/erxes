@@ -13,7 +13,7 @@ export function EMInstallScript({ integrationId }: Props) {
   const script = `<script>
   window.erxesSettings = {
     messenger: {
-      integrationId: "${JSON.stringify(integrationId)}",
+      integrationId: ${JSON.stringify(integrationId)},
     },
   };
 
