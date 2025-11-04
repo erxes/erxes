@@ -58,12 +58,10 @@ import { IConfigModel, loadConfigClass } from '@/pms/db/models/Configs';
 import { IPmsBranchDocument } from '@/pms/@types/branch';
 import {
   ICleaningDocument,
-  ICleaning,
   ICleaningHistoryDocument,
 } from '@/pms/@types/cleanings';
-
 import mongoose from 'mongoose';
-import { IConfigDocument } from './modules/pms/@types/configs';
+import { IConfigDocument } from '@/pms/@types/configs';
 
 export interface IModels {
   Elements: IElementModel;

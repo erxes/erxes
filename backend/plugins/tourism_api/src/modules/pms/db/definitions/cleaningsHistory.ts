@@ -7,5 +7,5 @@ export const cleaningHistorySchema = new Schema({
   statusPrev: { type: String, label: 'status previous' },
   status: { type: String, label: 'status' },
   date: { type: Date, label: 'date' },
-  who: { type: String, label: 'status' },
+  who: { type: String, label: 'who' },
 });
