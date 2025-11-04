@@ -87,6 +87,12 @@ export const GET_CORE_MODULES = (version?: boolean): IUIConfig['modules'] => {
         path: 'documents',
         hasSettings: false,
       },
+      {
+        name: 'client portal',
+        icon: IconUser,
+        path: 'client-portal',
+        hasSettings: false,
+      },
     );
   }
 

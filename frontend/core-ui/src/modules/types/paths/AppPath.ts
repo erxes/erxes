@@ -31,6 +31,8 @@ export enum AppPath {
   Documents = 'documents',
   DocumentsCatchAll = `/${Documents}/*`,
 
+  ClientPortal = 'client-portal',
+  ClientPortalCatchAll = `/${ClientPortal}/*`,
   //not found
 
   NotFoundWildcard = '/*',

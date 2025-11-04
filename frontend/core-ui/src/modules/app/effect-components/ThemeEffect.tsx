@@ -5,7 +5,14 @@ import { useEffect } from 'react';
 export const ThemeEffect = () => {
   const [theme, setTheme] = useAtom(themeState);
 
-  function getThemeValue(selected: ThemeOption): ThemeValue {
+  function isValidThemeOption(value: unknown): value is ThemeOption {
+    return value === 'light' || value === 'dark' || value === 'system';
+  }
+
+  function getThemeValue(selected: ThemeOption | string): ThemeValue {
+    if (!isValidThemeOption(selected)) {
+      return 'light';
+    }
     if (selected === 'system') {
       if (window !== undefined) {
         return window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -23,6 +30,11 @@ export const ThemeEffect = () => {
   useEffect(() => {
     const html = document.querySelector('html');
     if (!html) return;
+
+    // Sanitize persisted theme value that may be empty or invalid
+    if (!isValidThemeOption(theme)) {
+      setTheme('light');
+    }
 
     const themeValue = getThemeValue(theme);
 

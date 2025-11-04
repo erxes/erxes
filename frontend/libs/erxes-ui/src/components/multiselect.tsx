@@ -565,7 +565,7 @@ export const MultipleSelector = React.forwardRef<
         <div className="relative">
           <div
             className={cn(
-              'absolute top-2 z-10 w-full overflow-hidden rounded-lg border',
+              'absolute top-2 z-50 w-full overflow-hidden rounded-lg border',
               'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
               !open && 'hidden',
             )}
@@ -573,7 +573,7 @@ export const MultipleSelector = React.forwardRef<
           >
             {open && (
               <Command.List
-                className="bg-background shadow-lg shadow-black/5 outline-none"
+                className="bg-background shadow-lg shadow-black/5 outline-none max-h-72 overflow-auto"
                 onMouseLeave={() => {
                   setOnScrollbar(false);
                 }}

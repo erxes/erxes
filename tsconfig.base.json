@@ -24,7 +24,11 @@
     "baseUrl": ".",
     "paths": {
       "erxes-ui": ["frontend/libs/erxes-ui/src/index.ts"],
-      "ui-modules": ["frontend/libs/ui-modules/src/index.ts"]
+      "ui-modules": ["frontend/libs/ui-modules/src/index.ts"],
+      "@/*": ["frontend/core-ui/src/modules/*"],
+      "@": ["frontend/core-ui/src/modules"],
+      "~/*": ["frontend/core-ui/src/*"],
+      "~": ["frontend/core-ui/src"]
     }
   },
   "exclude": ["node_modules", "tmp"]

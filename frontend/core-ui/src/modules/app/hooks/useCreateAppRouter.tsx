@@ -25,6 +25,7 @@ import { lazy } from 'react';
 import { NotFoundPage } from '~/pages/not-found/NotFoundPage';
 import { Providers } from '~/providers';
 import { DocumentsRoutes } from '../components/DocumentsRoutes';
+import { ClientPortalRoutes } from '../components/ClientPortalRoutes';
 
 const LoginPage = lazy(() => import('~/pages/auth/LoginPage'));
 
@@ -80,7 +81,7 @@ export const useCreateAppRouter = () => {
                   element={<AutomationRoutes />}
                 />
               )}
-              
+
               {isOS && (
                 <Route path={AppPath.LogsCatchAll} element={<LogRoutes />} />
               )}
@@ -96,7 +97,10 @@ export const useCreateAppRouter = () => {
                 path={AppPath.MyInboxCatchAll}
                 element={<NotificationsRoutes />}
               />
-
+              <Route
+                path={AppPath.ClientPortalCatchAll}
+                element={<ClientPortalRoutes />}
+              />
               {...getPluginsRoutes()}
               {process.env.NODE_ENV === 'development' && (
                 <Route
