@@ -62,7 +62,6 @@ export const pConversationClientMessageInserted = async (
   }
 
   try {
-    console.log(`asd conversationMessageInserted:${conversation?._id}`);
     await graphqlPubsub.publish(
       `conversationMessageInserted:${conversation?._id}`,
       {
@@ -77,7 +76,6 @@ export const pConversationClientMessageInserted = async (
       'conversationMessageInserted Error publishing subscription:',
     );
   }
-  console.log(channelMemberIds, 'channelMemberIds');
   for (const userId of channelMemberIds) {
     await graphqlPubsub.publish(
       `conversationClientMessageInserted:${subdomain}:${userId}`,

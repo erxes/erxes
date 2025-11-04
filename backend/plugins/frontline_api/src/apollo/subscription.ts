@@ -14,7 +14,7 @@ export default {
       talkingCallReceived(extension: String): String
       agentCallReceived(extension: String): String
       queueRealtimeUpdate(extension: String): String
-      ticketPipelineChanged(filter: TicketsPipelineFilter): TicketSubscription 
+      ticketPipelineChanged(filter: TicketsPipelineFilter): TicketSubscription
       ticketPipelineListChanged: PipelineSubscription
       ticketChanged(_id: String!): TicketSubscription
       ticketListChanged(filter: ITicketFilter): TicketSubscription
@@ -225,7 +225,6 @@ export default {
           },
           async (payload) => {
             const { conversation, integration } = payload;
-            console.log(conversation, integration, 'conversation, integration');
             if (!conversation) {
               return false;
             }
