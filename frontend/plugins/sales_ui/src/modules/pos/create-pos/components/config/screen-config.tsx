@@ -333,18 +333,7 @@ export default function ScreenConfigForm({
             </div>
           </div>
 
-          {!isReadOnly && onSubmit && (
-            <div className="mt-8 flex justify-end">
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                variant="default"
-                size="default"
-              >
-                {isSubmitting ? 'Saving...' : posDetail ? 'Update' : 'Save'}
-              </Button>
-            </div>
-          )}
+
         </form>
       </Form>
     </div>

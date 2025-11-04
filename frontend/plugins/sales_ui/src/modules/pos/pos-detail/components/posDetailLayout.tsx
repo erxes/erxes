@@ -134,36 +134,59 @@ const NavigationFooter = React.memo(
     handleNextStep,
     isLastStep,
     validationError = null,
-  }: NavigationFooterProps) => (
-    <div className="flex flex-col p-4 border-t sticky bottom-0 bg-white">
-      {validationError && <ValidationAlert message={validationError} />}
-      <div className="flex justify-between">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handlePrevStep}
-          disabled={!prevStep}
-        >
-          Previous
-        </Button>
-        <div className="flex gap-2">
+    onFinalSubmit,
+  }: NavigationFooterProps) => {
+    const [saveError, setSaveError] = React.useState<string | null>(null);
+
+    const handleSaveOnly = async () => {
+      try {
+        setSaveError(null);
+        if (onFinalSubmit) {
+          await onFinalSubmit();
+        } else {
+          setSaveError('No save function available');
+        }
+      } catch (error) {
+        setSaveError(`Save failed: ${error.message || 'Please try again.'}`);
+      }
+    };
+
+    return (
+      <div className="flex flex-col p-4 border-t sticky bottom-0 bg-white">
+        {validationError && <ValidationAlert message={validationError} />}
+        {saveError && <ValidationAlert message={saveError} />}
+        <div className="flex justify-between">
           <Button
             type="button"
             variant="outline"
-            onClick={handleNextStep}
-            disabled={!nextStep && !isLastStep}
+            onClick={handlePrevStep}
+            disabled={!prevStep}
           >
-            {isLastStep ? 'Save & Close' : 'Next step'}
+            Previous
           </Button>
-          {isLastStep && (
-            <Button type="button" onClick={handleNextStep}>
-              Update POS
+          <div className="flex gap-2">
+            {!isLastStep && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleNextStep}
+                disabled={!nextStep}
+              >
+                Next step
+              </Button>
+            )}
+
+            <Button
+              type="button"
+              onClick={isLastStep ? handleNextStep : handleSaveOnly}
+            >
+              {isLastStep ? 'Update POS' : 'Save Changes'}
             </Button>
-          )}
+          </div>
         </div>
       </div>
-    </div>
-  ),
+    );
+  },
 );
 
 export const PosEditTabContent: React.FC<PosTabContentProps> = ({
@@ -249,7 +272,7 @@ interface PosEditLayoutProps {
   form?:
     | UseFormReturn<BasicInfoFormValues>
     | UseFormReturn<PermissionFormValues>;
-  onFinalSubmit?: () => void;
+  onFinalSubmit?: () => Promise<void>;
   posDetail?: IPosDetail;
 }
 
@@ -324,7 +347,6 @@ export const PosEditLayout: React.FC<PosEditLayoutProps> = ({
     if (selectedStep === 'properties' && form) {
       try {
         const isValid = await form.trigger();
-
         if (!isValid) {
           setValidationError('Please fix the form errors before proceeding.');
           return;
@@ -339,9 +361,12 @@ export const PosEditLayout: React.FC<PosEditLayoutProps> = ({
       try {
         if (onFinalSubmit) {
           await onFinalSubmit();
+          setValidationError(null);
+        } else {
+          setValidationError('No save function available');
         }
       } catch (error) {
-        setValidationError('Failed to update. Please try again.');
+        setValidationError(`Failed to update: ${error.message || 'Please try again.'}`);
       }
       return;
     }
@@ -372,6 +397,11 @@ export const PosEditLayout: React.FC<PosEditLayoutProps> = ({
                   handleNextStep={handleNextStep}
                   isLastStep={isLastStep}
                   validationError={validationError}
+                  onFinalSubmit={
+                    onFinalSubmit
+                      ? async () => await onFinalSubmit()
+                      : undefined
+                  }
                 />
               </div>
             </Resizable.Panel>

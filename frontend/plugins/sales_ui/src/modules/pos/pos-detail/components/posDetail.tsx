@@ -1,144 +1,103 @@
-import { useAtom } from 'jotai';
-import { useEffect, useRef } from 'react';
+import { usePosEdit } from '../../hooks/usePosEdit';
+import { getPermissionFormValues } from '../../create-pos/components/permission/permission';
 import { usePosDetail } from '../hooks/useDetail';
-import { posCategoryAtom } from '@/pos/create-pos/states/posCategory';
-import { usePosEdit } from '@/pos/hooks/usePosEdit';
-import {
-  type BasicInfoFormValues,
-  basicInfoSchema,
-  FinanceConfigFormValues,
-  type PermissionFormValues,
-  permissionSchema,
-  ProductFormValues,
-} from '@/pos/create-pos/components/formSchema';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { usePosDetailForms } from '../hooks/usePosDetailForm';
+import { useLocalPosDetailHandlers } from '../hooks/usePosDetailHandler';
 import { PosEditLayout, PosEditTabContent } from './posDetailLayout';
-import { EcommerceForm } from '@/pos/create-pos/components/general/ecommerce';
-import { RestaurantForm } from '@/pos/create-pos/components/general/restaurant';
-import POSSlotsManager from '@/pos/slot/components/slot';
-import EcommercePaymentsForm from '@/pos/create-pos/components/payments/ecommerce-payment';
-import RestaurantPaymentsForm from '@/pos/create-pos/components/payments/restaurant-payment';
-import PermissionForm, {
-  type PermissionFormRef,
-  getPermissionFormValues,
-} from '@/pos/create-pos/components/permission/permission';
-import AppearanceForm from '@/pos/create-pos/components/appearance/appearance';
-import ScreenConfigForm from '@/pos/create-pos/components/config/screen-config';
-import EbarimtConfigForm from '@/pos/create-pos/components/config/ebarimt-config';
-import FinanceConfigForm from '@/pos/create-pos/components/finance/finance';
-import DeliveryConfigForm from '@/pos/create-pos/components/delivery/delivery';
-import SyncCardForm from '@/pos/create-pos/components/sync/sync';
-import type { JSX } from 'react/jsx-runtime';
-import ProductForm from '@/pos/create-pos/components/product/product';
-import { usePosEditProductGroup } from '~/modules/pos/hooks/usePosEditProductGroup';
-import { useProductGroups } from '~/modules/pos/pos-detail/hooks/useProductGroup';
-import { useToast } from 'erxes-ui/hooks';
-import { TOAST_MESSAGES } from '~/modules/pos/constants';
+import { RestaurantForm } from '../../create-pos/components/general/restaurant';
+import AppearanceForm from '../../create-pos/components/appearance/appearance';
+import FinanceConfigForm from '../../create-pos/components/finance/finance';
+import RestaurantPaymentsForm from '../../create-pos/components/payments/restaurant-payment';
+import PermissionForm from '../../create-pos/components/permission/permission';
+import ProductForm from '../../create-pos/components/product/product';
+import ScreenConfigForm from '../../create-pos/components/config/screen-config';
+import EbarimtConfigForm from '../../create-pos/components/config/ebarimt-config';
+import DeliveryConfigForm from '../../create-pos/components/delivery/delivery';
+import SyncCardForm from '../../create-pos/components/sync/sync';
+import POSSlotsManager from '../../slot/components/slot';
+import { useAtom } from 'jotai';
+import { posCategoryAtom } from '../../create-pos/states/posCategory';
+
 
 export const PosEdit = () => {
-  const { posDetail } = usePosDetail();
-  const { toast } = useToast();
-  const [posCategory, setPosCategory] = useAtom(posCategoryAtom);
+  const { posDetail, loading, error } = usePosDetail();
   const { posEdit } = usePosEdit();
-  const { productGroupSave } = usePosEditProductGroup();
-  const { productGroups, refetch: refetchProductGroup } = useProductGroups(
-    posDetail?._id,
-  );
-  const permissionFormRef = useRef<PermissionFormRef>(null);
+  const {
+    basicInfoForm,
+    permissionForm,
+    financeForm,
+    uiConfigForm,
+    productForm,
+    paymentForm,
+    deliveryConfigForm,
+  } = usePosDetailForms(posDetail);
 
-  const basicInfoForm = useForm<BasicInfoFormValues>({
-    resolver: zodResolver(basicInfoSchema),
-    defaultValues: {
-      name: '',
-      description: '',
-      allowTypes: [],
-      scopeBrandIds: [],
-      branchId: '',
-      departmentId: '',
-    },
-  });
-  const productForm = useForm<ProductFormValues>({
-    defaultValues: {
-      productDetails: [],
-      catProdMappings: [],
-      initialCategoryIds: [],
-      kioskExcludeCategoryIds: [],
-      kioskExcludeProductIds: [],
-      checkExcludeCategoryIds: [],
-      productGroups: [],
-    },
-  });
+  const [posCategory] = useAtom(posCategoryAtom);
 
-  const permissionForm = useForm<PermissionFormValues>({
-    resolver: zodResolver(permissionSchema),
-    defaultValues: {
-      adminTeamMember: '',
-      adminPrintTempBill: false,
-      adminDirectSales: false,
-      adminDirectDiscountLimit: '',
-      cashierTeamMember: '',
-      cashierPrintTempBill: false,
-      cashierDirectSales: false,
-      cashierDirectDiscountLimit: '',
-      adminIds: [],
-      cashierIds: [],
-      permissionConfig: {},
-    },
+  const {
+    permissionFormRef,
+    handleBasicInfoSubmit,
+    handleProductSubmit,
+    handleAppearanceSubmit,
+    handleFinanceSubmit,
+    handlePaymentSubmit,
+    handleDeliverySubmit,
+    handlePermissionSubmit,
+    handleScreenConfigSubmitNew,
+  } = useLocalPosDetailHandlers({
+    posDetail,
+    basicInfoForm,
+    permissionForm,
+    financeForm,
+    uiConfigForm,
   });
 
-  const financeForm = useForm<FinanceConfigFormValues>({
-    defaultValues: {
-      isSyncErkhet: false,
-      checkErkhet: false,
-      checkInventories: false,
-      userEmail: '',
-      beginBillNumber: '',
-      defaultPay: '',
-      account: '',
-      location: '',
-      getRemainder: false,
-    },
-  });
+  if (loading) {
+    return (
+      <PosEditLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
+            <p>Loading POS details...</p>
+          </div>
+        </div>
+      </PosEditLayout>
+    );
+  }
 
-  useEffect(() => {
-    if (!posDetail) return;
+  if (error) {
+    return (
+      <PosEditLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center text-red-600">
+            <p>Error loading POS details: {error.message}</p>
+          </div>
+        </div>
+      </PosEditLayout>
+    );
+  }
 
-    if (posDetail.category) {
-      setPosCategory(posDetail.category);
-    }
+  if (!posDetail) {
+    return (
+      <PosEditLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <p>POS not found</p>
+          </div>
+        </div>
+      </PosEditLayout>
+    );
+  }
 
-    basicInfoForm.reset({
-      name: posDetail.name || '',
-      description: posDetail.description || '',
-      allowTypes: posDetail.allowTypes || [],
-      scopeBrandIds: posDetail.scopeBrandIds || [],
-      branchId: posDetail.branchId || '',
-      departmentId: posDetail.departmentId || '',
-    });
+  const handleFinalSubmit = async (): Promise<void> => {
+    const basicInfoData = basicInfoForm?.getValues();
+    const permissionData = getPermissionFormValues(permissionForm);
+    const productData = productForm?.getValues();
+    const paymentData = paymentForm?.getValues();
+    const uiConfigData = uiConfigForm?.getValues();
+    const financeData = financeForm?.getValues();
+    const deliveryData = deliveryConfigForm?.getValues();
 
-    const adminId = posDetail.adminTeamMember || posDetail.adminIds?.[0] || '';
-    const cashierId =
-      posDetail.cashierTeamMember || posDetail.cashierIds?.[0] || '';
-
-    permissionForm.reset({
-      adminTeamMember: adminId,
-      adminPrintTempBill: posDetail.adminPrintTempBill || false,
-      adminDirectSales: posDetail.adminDirectSales || false,
-      adminDirectDiscountLimit: posDetail.adminDirectDiscountLimit || '',
-      cashierTeamMember: cashierId,
-      cashierPrintTempBill: posDetail.cashierPrintTempBill || false,
-      cashierDirectSales: posDetail.cashierDirectSales || false,
-      cashierDirectDiscountLimit: posDetail.cashierDirectDiscountLimit || '',
-      adminIds: adminId ? [adminId] : posDetail.adminIds || [],
-      cashierIds: cashierId ? [cashierId] : posDetail.cashierIds || [],
-      permissionConfig: posDetail.permissionConfig || {},
-    });
-  }, [posDetail, basicInfoForm, permissionForm, setPosCategory]);
-
-  const handleFinalSubmit = async () => {
-    const currentBasicInfo = basicInfoForm.getValues();
-    const permissionValues = getPermissionFormValues(permissionForm);
     const refIds = permissionFormRef.current
       ? {
           adminIds: permissionFormRef.current.getAdminIds(),
@@ -146,141 +105,104 @@ export const PosEdit = () => {
         }
       : { adminIds: [], cashierIds: [] };
 
-    const finalAdminIds =
-      refIds.adminIds.length > 0 ? refIds.adminIds : permissionValues.adminIds;
-    const finalCashierIds =
-      refIds.cashierIds.length > 0
-        ? refIds.cashierIds
-        : permissionValues.cashierIds;
+    const finalAdminIds = refIds.adminIds.length > 0 ? refIds.adminIds : permissionData.adminIds;
+    const finalCashierIds = refIds.cashierIds.length > 0 ? refIds.cashierIds : permissionData.cashierIds;
 
-    const productValues = productForm.getValues();
-
-    const finalData = {
+    const combinedData = {
       _id: posDetail._id,
-      ...currentBasicInfo,
-      ...permissionValues,
+      ...basicInfoData,
+      ...permissionData,
       adminIds: finalAdminIds,
       cashierIds: finalCashierIds,
-      catProdMappings: [
-        ...productValues.catProdMappings.map((item) => ({
-          _id: `${Math.random()}`,
-          name: item.name,
-          code: item.code,
-          categoryId: item.categoryId,
-          productId: item.productId,
-        })),
-      ],
-      initialCategoryIds: [...productValues.initialCategoryIds],
-      kioskExcludeCategoryIds: [...productValues.kioskExcludeCategoryIds],
-      kioskExcludeProductIds: [...productValues.kioskExcludeProductIds],
-      checkExcludeCategoryIds: [...productValues.checkExcludeCategoryIds],
+      productDetails: productData?.productDetails || [],
+      catProdMappings: productData?.catProdMappings || [],
+      initialCategoryIds: productData?.initialCategoryIds || [],
+      kioskExcludeCategoryIds: productData?.kioskExcludeCategoryIds || [],
+      kioskExcludeProductIds: productData?.kioskExcludeProductIds || [],
+      checkExcludeCategoryIds: productData?.checkExcludeCategoryIds || [],
+      paymentIds: paymentData?.paymentIds || [],
+      paymentTypes: paymentData?.paymentTypes || [],
+      uiOptions: uiConfigData?.uiOptions,
+      beginNumber: uiConfigData?.beginNumber,
+      maxSkipNumber: uiConfigData?.maxSkipNumber,
+      checkRemainder: uiConfigData?.checkRemainder,
+      erkhetConfig: financeData ? {
+        isSyncErkhet: financeData.isSyncErkhet,
+        checkErkhet: financeData.checkErkhet,
+        checkInventories: financeData.checkInventories,
+        userEmail: financeData.userEmail,
+        beginBillNumber: financeData.beginBillNumber,
+        defaultPay: financeData.defaultPay,
+        account: financeData.account,
+        location: financeData.location,
+        getRemainder: financeData.getRemainder,
+      } : undefined,
+      deliveryConfig: deliveryData ? {
+        boardId: deliveryData.boardId || '',
+        pipeline: deliveryData.pipeline || '',
+        stage: deliveryData.stage || '',
+        watchedUsers: deliveryData.watchedUsers || '',
+        assignedUsers: deliveryData.assignedUsers || '',
+        deliveryProduct: deliveryData.deliveryProduct || '',
+        watchedUserIds: deliveryData.watchedUserIds || [],
+        assignedUserIds: deliveryData.assignedUserIds || [],
+      } : undefined,
     };
 
-    const posEditResponse = await posEdit(
-      {
-        variables: finalData,
-      },
-      [
-        'name',
-        'description',
-        'allowTypes',
-        'scopeBrandIds',
-        'branchId',
-        'adminTeamMember',
-        'adminPrintTempBill',
-        'adminDirectSales',
-        'adminDirectDiscountLimit',
-        'cashierTeamMember',
-        'cashierPrintTempBill',
-        'cashierDirectSales',
-        'cashierDirectDiscountLimit',
-        'adminIds',
-        'cashierIds',
-        'permissionConfig',
-      ],
-    );
-    const finalDataProductGroup = {
-      posId: posDetail._id,
-      groups: [
-        ...productValues.productGroups.map((item) => ({
-          _id: `temporaryId.${Math.random()}`,
-          name: `temporaryId.${Math.random()}`,
-          categoryIds: item.categoryIds,
-          excludedCategoryIds: item.excludedCategoryIds,
-          excludedProductIds: item.excludedProductIds,
-        })),
-      ],
-    };
-    toast({
-      title: TOAST_MESSAGES.POS_EDITED,
-      description: `Saved`,
-      variant: 'destructive',
-    });
-    if (posEditResponse.data?.posEdit?._id) {
-      await productGroupSave({ variables: finalDataProductGroup }, []);
-      refetchProductGroup();
-    }
-  };
+    const fieldsToUpdate = [
+      'name', 'description', 'allowTypes', 'scopeBrandIds', 'branchId',
+      'adminTeamMember', 'adminPrintTempBill', 'adminDirectSales', 'adminDirectDiscountLimit',
+      'cashierTeamMember', 'cashierPrintTempBill', 'cashierDirectSales', 'cashierDirectDiscountLimit',
+      'adminIds', 'cashierIds', 'permissionConfig',
+      'productDetails', 'catProdMappings', 'initialCategoryIds',
+      'kioskExcludeCategoryIds', 'kioskExcludeProductIds', 'checkExcludeCategoryIds',
+      'paymentIds', 'paymentTypes',
+      'uiOptions', 'beginNumber', 'maxSkipNumber', 'checkRemainder',
+      'erkhetConfig', 'deliveryConfig',
+    ];
 
-  const getCategoryComponent = (
-    ecommerceComponent: JSX.Element,
-    restaurantComponent: JSX.Element,
-  ) => {
-    if (posCategory === 'ecommerce') return ecommerceComponent;
-    if (posCategory === 'restaurant') return restaurantComponent;
-    return null;
+    await posEdit({ variables: combinedData }, fieldsToUpdate);
   };
-
-  if (!posDetail) return null;
 
   return (
     <PosEditLayout
+      posDetail={posDetail}
       form={basicInfoForm}
       onFinalSubmit={handleFinalSubmit}
-      posDetail={posDetail}
     >
       <PosEditTabContent value="properties">
-        {getCategoryComponent(
-          <EcommerceForm form={basicInfoForm} posDetail={posDetail} />,
-          <RestaurantForm form={basicInfoForm} posDetail={posDetail} />,
-        )}
+        <RestaurantForm
+          form={basicInfoForm}
+          posDetail={posDetail}
+          isReadOnly={false}
+        />
       </PosEditTabContent>
 
-      {posCategory === 'restaurant' && (
-        <PosEditTabContent value="slot">
-          <POSSlotsManager posId={posDetail._id} />
-        </PosEditTabContent>
-      )}
-
       <PosEditTabContent value="payments">
-        {getCategoryComponent(
-          <EcommercePaymentsForm posDetail={posDetail} />,
-          <RestaurantPaymentsForm posDetail={posDetail} />,
-        )}
+        <RestaurantPaymentsForm posDetail={posDetail} />
       </PosEditTabContent>
 
       <PosEditTabContent value="permission">
-        <PermissionForm
-          ref={permissionFormRef}
-          form={permissionForm}
-          posDetail={posDetail}
-        />
+        <PermissionForm form={permissionForm} />
       </PosEditTabContent>
 
       <PosEditTabContent value="product">
-        <ProductForm
-          posDetail={posDetail}
-          productGroups={productGroups}
-          form={productForm}
-        />
+        <ProductForm form={productForm} />
       </PosEditTabContent>
 
       <PosEditTabContent value="appearance">
-        <AppearanceForm posDetail={posDetail} />
+        <AppearanceForm
+          posDetail={posDetail}
+          isReadOnly={false}
+          onSubmit={handleAppearanceSubmit}
+        />
       </PosEditTabContent>
 
       <PosEditTabContent value="screen">
-        <ScreenConfigForm posDetail={posDetail} />
+        <ScreenConfigForm
+          posDetail={posDetail}
+          onSubmit={handleScreenConfigSubmitNew}
+        />
       </PosEditTabContent>
 
       <PosEditTabContent value="ebarimt">
@@ -288,16 +210,32 @@ export const PosEdit = () => {
       </PosEditTabContent>
 
       <PosEditTabContent value="finance">
-        <FinanceConfigForm form={financeForm} posDetail={posDetail} />
+        <FinanceConfigForm
+          form={financeForm}
+          posDetail={posDetail}
+          isReadOnly={false}
+          onSubmit={handleFinanceSubmit}
+        />
       </PosEditTabContent>
 
       <PosEditTabContent value="delivery">
-        <DeliveryConfigForm posDetail={posDetail} />
+        <DeliveryConfigForm form={deliveryConfigForm} posDetail={posDetail} />
       </PosEditTabContent>
 
       <PosEditTabContent value="sync">
         <SyncCardForm posDetail={posDetail} />
       </PosEditTabContent>
+
+      {posCategory === 'restaurant' && (
+        <PosEditTabContent value="slot">
+          <POSSlotsManager
+            posId={posDetail._id}
+            initialNodes={[]}
+            onNodesChange={() => {}}
+            isCreating={false}
+          />
+        </PosEditTabContent>
+      )}
     </PosEditLayout>
   );
 };

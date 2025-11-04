@@ -13,6 +13,8 @@ export const PosCreate = () => {
     handleFinalSubmit,
     handleNodesUpdate,
     handleSaveSlots,
+    handleDeliveryConfigSubmit,
+    handleFinanceConfigSubmit,
     loading,
     error,
     createdPosId,
@@ -24,6 +26,8 @@ export const PosCreate = () => {
     forms,
     handlers: {
       handleNodesUpdate,
+      handleDeliveryConfigSubmit,
+      handleFinanceConfigSubmit,
     },
     data: {
       createdPosId,

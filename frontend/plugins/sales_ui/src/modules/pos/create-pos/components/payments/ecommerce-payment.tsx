@@ -216,7 +216,6 @@ export default function EcommercePaymentsForm({
               </Button>
             </div>
 
-            {/* Display existing payment methods */}
             {paymentMethods.map((method: PaymentMethod, index: number) => (
               <div
                 key={method._id || index}
@@ -262,7 +261,6 @@ export default function EcommercePaymentsForm({
               </div>
             ))}
 
-            {/* Add new payment method form */}
             <div className="grid grid-cols-4 gap-4">
               <div>
                 <Label className="text-xs text-gray-500 mb-1 block">

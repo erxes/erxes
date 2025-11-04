@@ -1,10 +1,12 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { Form, Input, Select } from 'erxes-ui';
+import { Button, Form, Input, Select } from 'erxes-ui';
 import { BasicInfoFormValues } from '../formSchema';
-import { ALLOW_TYPES } from '@/pos/constants';
-import { IPosDetail } from '@/pos/pos-detail/types/IPos';
 import { SelectBranches, SelectBrand, SelectDepartments } from 'ui-modules';
+import { IPosDetail } from '~/modules/pos/pos-detail/types/IPos';
+import { ALLOW_TYPES } from '~/modules/pos/constants';
 
 interface RestaurantFormProps {
   form: UseFormReturn<BasicInfoFormValues>;
@@ -16,6 +18,13 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
   form,
   isReadOnly = false,
 }) => {
+  useEffect(() => {
+    const currentAllowTypes = form.getValues('allowTypes');
+    if (!currentAllowTypes || currentAllowTypes.length === 0) {
+      form.setValue('allowTypes', ['eat']);
+    }
+  }, [form]);
+
   const handleBrandChange = (brandId: string | string[]) => {
     if (isReadOnly) return;
     const singleBrandId = Array.isArray(brandId) ? brandId[0] : brandId;
@@ -128,54 +137,130 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
                 </Form.Label>
                 <p className="text-sm text-gray-500">How use types ?</p>
                 <Form.Control>
-                  <div className="grid grid-cols-3 gap-3">
-                    {Array.from({ length: 6 }, (_, index) => {
-                      const selectedTypes = field.value || [];
-                      const currentValue = selectedTypes[index] || '';
-
-                      return (
-                        <div key={index} className="flex flex-col">
-                          <Select
-                            onValueChange={(value) => {
-                              if (isReadOnly) return;
-                              const newTypes = [...(field.value || [])];
-                              if (value === 'NULL') {
-                                newTypes.splice(index, 1);
-                              } else {
-                                newTypes[index] = value as
+                  <div className="space-y-2">
+                    {(field.value || []).map((selectedType, index) => (
+                      <div key={index} className="flex gap-2">
+                        <Select
+                          onValueChange={(value) => {
+                            if (isReadOnly) return;
+                            const newTypes = [...(field.value || [])];
+                            newTypes[index] = value as
+                              | 'eat'
+                              | 'take'
+                              | 'delivery'
+                              | 'loss'
+                              | 'spend'
+                              | 'reject';
+                            field.onChange(newTypes);
+                          }}
+                          value={selectedType || ''}
+                          disabled={isReadOnly}
+                        >
+                          <Select.Trigger className="w-full h-8 px-3 text-left justify-between">
+                            <Select.Value
+                              placeholder={`Select Type ${index + 1}`}
+                            />
+                          </Select.Trigger>
+                          <Select.Content>
+                            {ALLOW_TYPES.filter((type) =>
+                              [
+                                'eat',
+                                'take',
+                                'delivery',
+                                'loss',
+                                'spend',
+                                'reject',
+                              ].includes(type.value),
+                            ).map((type) => (
+                              <Select.Item key={type.value} value={type.value}>
+                                {type.label}
+                              </Select.Item>
+                            ))}
+                          </Select.Content>
+                        </Select>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-8"
+                          onClick={() => {
+                            if (isReadOnly) return;
+                            const newTypes = field.value.filter(
+                              (_, i) => i !== index,
+                            );
+                            if (newTypes.length === 0) {
+                              field.onChange(['eat']);
+                            } else {
+                              field.onChange(newTypes);
+                            }
+                          }}
+                          disabled={isReadOnly}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+                    {!isReadOnly && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const currentTypes = field.value || [];
+                          const allowedValues: (
+                            | 'eat'
+                            | 'take'
+                            | 'delivery'
+                            | 'loss'
+                            | 'spend'
+                            | 'reject'
+                          )[] = [
+                            'eat',
+                            'take',
+                            'delivery',
+                            'loss',
+                            'spend',
+                            'reject',
+                          ];
+                          const availableTypes = ALLOW_TYPES.filter(
+                            (type) =>
+                              allowedValues.includes(
+                                type.value as
                                   | 'eat'
                                   | 'take'
-                                  | 'delivery';
-                              }
-                              const cleanTypes = newTypes.filter(
-                                (type, idx, arr) =>
-                                  type && arr.indexOf(type) === idx,
-                              );
-                              form.setValue('allowTypes', cleanTypes);
-                            }}
-                            value={currentValue || 'NULL'}
-                            disabled={isReadOnly}
-                          >
-                            <Select.Trigger className="w-full h-8 px-3 text-left justify-between">
-                              <Select.Value
-                                placeholder={`Select Type ${index + 1}`}
-                              />
-                            </Select.Trigger>
-                            <Select.Content>
-                              <Select.Item value="NULL">NULL</Select.Item>
-                              {ALLOW_TYPES.map((type) => (
-                                <Select.Item
-                                  key={type.value}
-                                  value={type.value}
-                                >
-                                  {type.label}
-                                </Select.Item>
-                              ))}
-                            </Select.Content>
-                          </Select>
-                        </div>
-                      );
-                    })}
+                                  | 'delivery'
+                                  | 'loss'
+                                  | 'spend'
+                                  | 'reject',
+                              ) &&
+                              !currentTypes.includes(
+                                type.value as
+                                  | 'eat'
+                                  | 'take'
+                                  | 'delivery'
+                                  | 'loss'
+                                  | 'spend'
+                                  | 'reject',
+                              ),
+                          );
+                          if (availableTypes.length > 0) {
+                            field.onChange([
+                              ...currentTypes,
+                              availableTypes[0].value as
+                                | 'eat'
+                                | 'take'
+                                | 'delivery'
+                                | 'loss'
+                                | 'spend'
+                                | 'reject',
+                            ]);
+                          }
+                        }}
+                        disabled={isReadOnly}
+                      >
+                        Add Type
+                      </Button>
+                    )}
                   </div>
                 </Form.Control>
                 <Form.Message />

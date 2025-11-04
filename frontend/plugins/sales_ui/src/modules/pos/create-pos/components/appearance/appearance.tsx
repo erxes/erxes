@@ -1,93 +1,81 @@
-import { Button, Form, Upload, ColorPicker } from 'erxes-ui';
+'use client';
+
+import { Button, Form, Upload, ColorPicker, readImage } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
-import { IconUpload } from '@tabler/icons-react';
+import { IconTrash, IconUpload } from '@tabler/icons-react';
+import { useForm, UseFormReturn } from 'react-hook-form';
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { UiConfigFormValues } from '../formSchema';
-import { IPosDetail } from '@/pos/pos-detail/types/IPos';
+import { IPosDetail } from '~/modules/pos/pos-detail/types/IPos';
 
 interface AppearanceFormProps {
   posDetail?: IPosDetail;
   isReadOnly?: boolean;
   onSubmit?: (data: UiConfigFormValues) => Promise<void>;
-}
-
-interface AppearanceFormData {
-  logoImage: string;
-  backgroundColor: string;
-  textColor: string;
-  accentColor: string;
-  fontFamily: string;
-  showLogo: boolean;
+  form?: UseFormReturn<UiConfigFormValues>;
 }
 
 export default function AppearanceForm({
   posDetail,
   isReadOnly = false,
   onSubmit,
+  form: externalForm,
 }: AppearanceFormProps) {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const form = useForm<AppearanceFormData>({
+  const internalForm = useForm<UiConfigFormValues>({
     defaultValues: {
-      logoImage: '',
-      backgroundColor: '#FFFFFF',
-      textColor: '#000000',
-      accentColor: '#6366F1',
-      fontFamily: 'Inter',
-      showLogo: true,
+      uiOptions: {
+        colors: {
+          bodyColor: '#FFFFFF',
+          headerColor: '#6569DF',
+          footerColor: '#3CCC38',
+        },
+        logo: '',
+        bgImage: '',
+        favIcon: '',
+        receiptIcon: '',
+        kioskHeaderImage: '',
+        mobileAppImage: '',
+        qrCodeImage: '',
+      },
+      beginNumber: '',
+      maxSkipNumber: 5,
+      checkRemainder: false,
     },
   });
 
+  const form = externalForm || internalForm;
+
+  // Initialize form with posDetail data
   useEffect(() => {
-    if (posDetail?.uiOptions) {
+    if (posDetail && !externalForm) {
       form.reset({
-        logoImage: posDetail.uiOptions.logoImage || '',
-        backgroundColor: posDetail.uiOptions.backgroundColor || '#FFFFFF',
-        textColor: posDetail.uiOptions.textColor || '#000000',
-        accentColor: posDetail.uiOptions.accentColor || '#6366F1',
-        fontFamily: posDetail.uiOptions.fontFamily || 'Inter',
-        showLogo: posDetail.uiOptions.showLogo ?? true,
-      });
-    } else {
-      form.reset({
-        logoImage: '',
-        backgroundColor: '#FFFFFF',
-        textColor: '#000000',
-        accentColor: '#6366F1',
-        fontFamily: 'Inter',
-        showLogo: true,
+        uiOptions: posDetail.uiOptions || {
+          colors: {
+            bodyColor: '#FFFFFF',
+            headerColor: '#6569DF',
+            footerColor: '#3CCC38',
+          },
+          logo: '',
+          bgImage: '',
+          favIcon: '',
+          receiptIcon: '',
+          kioskHeaderImage: '',
+          mobileAppImage: '',
+          qrCodeImage: '',
+        },
+        beginNumber: posDetail.beginNumber || '',
+        maxSkipNumber: posDetail.maxSkipNumber || 5,
+        checkRemainder: posDetail.checkRemainder || false,
       });
     }
-  }, [posDetail]);
+  }, [posDetail, form, externalForm]);
 
-  const handleSubmit = async (data: AppearanceFormData) => {
+  const handleSubmit = async (data: UiConfigFormValues) => {
     if (onSubmit) {
-      try {
-        await onSubmit({
-          uiOptions: {
-            colors: {
-              bodyColor: data.backgroundColor,
-              headerColor: data.accentColor,
-              footerColor: data.textColor,
-            },
-            logo: data.logoImage,
-            bgImage: '',
-            favIcon: '',
-            receiptIcon: '',
-            kioskHeaderImage: '',
-            mobileAppImage: '',
-            qrCodeImage: '',
-          },
-          beginNumber: '',
-          maxSkipNumber: 0,
-          checkRemainder: false,
-        });
-      } catch (error) {
-        console.error('Appearance form submission failed:', error);
-      }
+      await onSubmit(data);
     } else {
-      console.log('Appearance form submitted:', data);
       const newParams = new URLSearchParams(searchParams);
       newParams.set('tab', 'screen');
       setSearchParams(newParams);
@@ -108,7 +96,7 @@ export default function AppearanceForm({
 
             <Form.Field
               control={form.control}
-              name="logoImage"
+              name="uiOptions.logo"
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="block mb-2 font-medium text-[#71717A]">
@@ -124,26 +112,63 @@ export default function AppearanceForm({
                           field.onChange(fileInfo.url);
                         }
                       }}
-                      className="h-[128px]"
+                      className="h-[240px] relative group"
                     >
-                      <Upload.Preview className="hidden" />
                       <Upload.Button
                         size="sm"
                         variant="secondary"
                         type="button"
-                        className="w-full h-[128px] flex flex-col items-center justify-center border border-dashed border-muted-foreground text-muted-foreground"
+                        className="w-full h-[240px] flex flex-col items-center justify-center border border-dashed border-muted-foreground text-muted-foreground relative overflow-hidden group"
                         disabled={isReadOnly}
+                        style={
+                          field.value
+                            ? {
+                                backgroundImage: `url(${readImage(
+                                  field.value,
+                                )})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                backgroundRepeat: 'no-repeat',
+                                border: 'none',
+                              }
+                            : {}
+                        }
                       >
-                        <div className="flex flex-col gap-3 justify-center">
-                          <div className="flex justify-center">
-                            <IconUpload />
+                        {!field.value && (
+                          <div className="flex flex-col gap-3 justify-center relative z-10">
+                            <div className="flex justify-center">
+                              <IconUpload />
+                            </div>
+                            <Button disabled={isReadOnly}>Upload</Button>
+                            <span className="font-medium text-sm">
+                              Upload Image
+                            </span>
                           </div>
-                          <Button disabled={isReadOnly}>Upload</Button>
-                          <span className="font-medium text-sm">
-                            Upload Image
-                          </span>
-                        </div>
+                        )}
+
+                        {field.value && (
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center">
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                              <div className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 text-black font-medium text-sm">
+                                Click to change image
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </Upload.Button>
+                      {field.value && (
+                        <Upload.RemoveButton
+                          size="sm"
+                          variant="destructive"
+                          className="absolute top-3 right-3 z-30 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg"
+                          disabled={isReadOnly}
+                        >
+                          <IconTrash size={16} />
+                        </Upload.RemoveButton>
+                      )}
+                      <div className="hidden">
+                        <Upload.Preview />
+                      </div>
                     </Upload.Root>
                   </Form.Control>
                   <Form.Message />
@@ -159,7 +184,7 @@ export default function AppearanceForm({
             <div className="flex gap-4">
               <Form.Field
                 control={form.control}
-                name="backgroundColor"
+                name="uiOptions.colors.bodyColor"
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label className="text-[#A1A1AA] text-xs font-semibold">
@@ -180,7 +205,7 @@ export default function AppearanceForm({
 
               <Form.Field
                 control={form.control}
-                name="textColor"
+                name="uiOptions.colors.footerColor"
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label className="text-[#A1A1AA] text-xs font-semibold">
@@ -201,7 +226,7 @@ export default function AppearanceForm({
 
               <Form.Field
                 control={form.control}
-                name="accentColor"
+                name="uiOptions.colors.headerColor"
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label className="text-[#A1A1AA] text-xs font-semibold">
@@ -221,6 +246,18 @@ export default function AppearanceForm({
               />
             </div>
           </div>
+
+          {onSubmit && (
+            <div className="flex justify-end pt-4">
+              <Button
+                type="submit"
+                disabled={isReadOnly}
+                className="bg-[#4F46E5] hover:bg-[#4338CA] text-white"
+              >
+                Save Changes
+              </Button>
+            </div>
+          )}
         </form>
       </Form>
     </div>

@@ -41,6 +41,7 @@ export interface NavigationFooterProps {
   isLoading?: boolean;
   validationError?: string | null;
   isSubmitting?: boolean;
+  onFinalSubmit?: () => Promise<void>;
 }
 
 export interface PosTabContentProps {

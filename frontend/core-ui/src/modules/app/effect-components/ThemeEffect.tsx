@@ -7,7 +7,7 @@ export const ThemeEffect = () => {
 
   function getThemeValue(selected: ThemeOption): ThemeValue {
     if (selected === 'system') {
-      if (window !== undefined) {
+      if (typeof window !== 'undefined') {
         return window.matchMedia('(prefers-color-scheme: dark)').matches
           ? 'dark'
           : 'light';
@@ -17,7 +17,13 @@ export const ThemeEffect = () => {
       return 'light';
     }
 
-    return selected;
+    // Ensure we only return valid theme values
+    if (selected === 'light' || selected === 'dark') {
+      return selected;
+    }
+
+    // Fallback to light theme for any invalid values
+    return 'light';
   }
 
   useEffect(() => {
@@ -32,7 +38,9 @@ export const ThemeEffect = () => {
       if (theme === 'system') {
         const newThemeValue = e.matches ? 'dark' : 'light';
         html.classList.remove(newThemeValue === 'light' ? 'dark' : 'light');
-        html.classList.add(newThemeValue);
+        if (newThemeValue && (newThemeValue === 'light' || newThemeValue === 'dark')) {
+          html.classList.add(newThemeValue);
+        }
         html.style.colorScheme = newThemeValue;
       }
     };
@@ -58,7 +66,9 @@ export const ThemeEffect = () => {
     document.head.appendChild(css);
 
     html.classList.remove(themeValue === 'light' ? 'dark' : 'light');
-    html.classList.add(themeValue);
+    if (themeValue && (themeValue === 'light' || themeValue === 'dark')) {
+      html.classList.add(themeValue);
+    }
     // Ensures that native elements respect the theme, e.g. the scrollbar.
     html.style.colorScheme = themeValue;
 

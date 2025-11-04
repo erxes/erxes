@@ -152,7 +152,7 @@ const PermissionForm = forwardRef<PermissionFormRef, PermissionFormProps>(
       }
     };
 
-    const handleAdminMemberChange = (value: string | string[]) => {
+    const handleAdminMemberChange = (value: string | string[] | null) => {
       const userId = Array.isArray(value) ? value[0] : value;
       const finalUserId = userId || '';
 
@@ -163,7 +163,7 @@ const PermissionForm = forwardRef<PermissionFormRef, PermissionFormProps>(
       });
     };
 
-    const handleCashierMemberChange = (value: string | string[]) => {
+    const handleCashierMemberChange = (value: string | string[] | null) => {
       const userId = Array.isArray(value) ? value[0] : value;
       const finalUserId = userId || '';
 

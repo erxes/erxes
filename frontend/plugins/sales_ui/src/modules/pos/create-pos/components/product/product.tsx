@@ -44,7 +44,6 @@ export default function ProductForm({
 
   useEffect(() => {
     if (!posDetail) return;
-    console.log('productGroups', productGroups);
     form.reset({
       productDetails: posDetail.productDetails || [],
       catProdMappings: posDetail.catProdMappings || [],
@@ -52,12 +51,11 @@ export default function ProductForm({
       kioskExcludeCategoryIds: posDetail.kioskExcludeCategoryIds || [],
       kioskExcludeProductIds: posDetail.kioskExcludeProductIds || [],
       checkExcludeCategoryIds: posDetail.checkExcludeCategoryIds || [],
-      productGroups: productGroups || [],
     });
 
-    setShowProductGroups(!!productGroups?.length);
+    setShowProductGroups(!!posDetail.productDetails?.length);
     setShowMappings(!!posDetail.catProdMappings?.length);
-  }, [posDetail, form, productGroups]);
+  }, [posDetail, form]);
 
   const addItem = (fieldName: keyof ProductFormValues, newItem: any) => {
     if (isReadOnly) return;
@@ -111,20 +109,20 @@ export default function ProductForm({
 
             {showProductGroups && (
               <div className="space-y-4">
-                {form.watch('productGroups')?.map((_, index) => (
+                {form.watch('productDetails')?.map((_, index) => (
                   <div key={index} className="grid grid-cols-2 gap-4">
                     <Form.Field
                       control={form.control}
-                      name={`productGroups.${index}.categoryIds`}
+                      name={`productDetails.${index}.categoryId`}
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
-                            CATEGORY included
+                            CATEGORY
                           </Form.Label>
                           <Form.Control>
                             <SelectCategory
-                              selected={field.value?.[0]}
-                              onSelect={(value) => field.onChange([value])}
+                              selected={field.value}
+                              onSelect={(value) => field.onChange(value)}
                               disabled={isReadOnly}
                               className="h-8"
                             />
@@ -135,39 +133,16 @@ export default function ProductForm({
                     />
                     <Form.Field
                       control={form.control}
-                      name={`productGroups.${index}.excludedCategoryIds`}
+                      name={`productDetails.${index}.productId`}
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
-                            CATEGORY excluded
-                          </Form.Label>
-                          <Form.Control>
-                            <SelectCategory
-                              selected={field.value?.[0]}
-                              onSelect={(value) => field.onChange([value])}
-                              disabled={isReadOnly}
-                              className="h-8"
-                            />
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-                    <Form.Field
-                      control={form.control}
-                      name={`productGroups.${index}.excludedProductIds`}
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
-                            Exclude PRODUCT`s
+                            PRODUCT
                           </Form.Label>
                           <Form.Control>
                             <SelectProduct
-                              mode="multiple"
                               value={field.value}
-                              onValueChange={(value) => {
-                                field.onChange(value);
-                              }}
+                              onValueChange={(value) => field.onChange(value)}
                               disabled={isReadOnly}
                               className="h-8"
                             />
@@ -179,7 +154,7 @@ export default function ProductForm({
 
                     <Form.Field
                       control={form.control}
-                      name={`productGroups.${index}.isRequired`}
+                      name={`productDetails.${index}.isRequired`}
                       render={({ field }) => (
                         <Form.Item>
                           <div className="flex items-center space-x-2">
@@ -207,7 +182,7 @@ export default function ProductForm({
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() => removeItem('productGroups', index)}
+                          onClick={() => removeItem('productDetails', index)}
                           className="text-red-600 hover:text-red-700"
                         >
                           <IconTrash size={16} />
@@ -222,7 +197,9 @@ export default function ProductForm({
                     <Button
                       type="button"
                       onClick={() =>
-                        addItem('productGroups', {
+                        addItem('productDetails', {
+                          productId: '',
+                          categoryId: '',
                           isRequired: false,
                         })
                       }
@@ -333,7 +310,9 @@ export default function ProductForm({
                           onValueChange={(productId) =>
                             toggleMultiSelect(
                               'kioskExcludeProductIds',
-                              productId,
+                              Array.isArray(productId)
+                                ? productId[0]
+                                : productId,
                             )
                           }
                           disabled={isReadOnly}
@@ -516,6 +495,8 @@ export default function ProductForm({
                         addItem('catProdMappings', {
                           categoryId: '',
                           productId: '',
+                          name: '',
+                          code: '',
                         })
                       }
                       className="text-white"
@@ -569,17 +550,7 @@ export default function ProductForm({
           </section>
         </div>
 
-        {!isReadOnly && onSubmit && (
-          <div className="mt-8 flex justify-end">
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white"
-            >
-              {isSubmitting ? 'Saving...' : !!posDetail ? 'Update' : 'Save'}
-            </Button>
-          </div>
-        )}
+
       </form>
     </Form>
   );

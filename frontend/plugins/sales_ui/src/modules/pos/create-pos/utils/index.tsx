@@ -80,7 +80,7 @@ export const getPosCreateTabs = ({
       component: (
         <DeliveryConfigForm
           form={forms.deliveryConfig}
-          onFormSubmit={handlers.handleDeliveryConfigUpdate}
+          onFormSubmit={handlers.handleDeliveryConfigSubmit}
         />
       ),
     },
