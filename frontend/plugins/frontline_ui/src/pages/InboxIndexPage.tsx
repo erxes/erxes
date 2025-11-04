@@ -28,7 +28,7 @@ const InboxIndexPage = () => {
         </PageHeader.Start>
         <PageHeader.End>
           <Button variant="outline" asChild>
-            <Link to="/settings/inbox">
+            <Link to="/settings/frontline/channels">
               <IconSettings />
               Go to settings
             </Link>
