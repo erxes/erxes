@@ -16,11 +16,11 @@ import {
 } from 'erxes-ui';
 
 import { SelectMember, TagsFilter, SelectBrand } from 'ui-modules';
-import { useByDateLeadSessionKey } from '@/by-date/hooks/useByDateLeadSessionKey';
-import { ByDateTotalCount } from '@/by-date/components/ByDateTotalCount';
-import { ByDateHotKeyScope } from '@/types/ByDateHotKeyScope';
+import { useDuplicatedLeadSessionKey } from '@/duplicated/hooks/useDuplicatedLeadSessionKey';
+import { DuplicatedHotKeyScope } from '@/types/DuplicatedHotKeyScope';
+import { DuplicatedTotalCount } from '@/duplicated/components/DuplicatedTotalCount';
 
-const ByDateFilterPopover = () => {
+const DuplicatedFilterPopover = () => {
   const [queries] = useMultiQueryState<{
     tags: string[];
     searchValue: string;
@@ -36,7 +36,7 @@ const ByDateFilterPopover = () => {
 
   return (
     <>
-      <Filter.Popover scope={ByDateHotKeyScope.ByDatePage}>
+      <Filter.Popover scope={DuplicatedHotKeyScope.DuplicatedPage}>
         <Filter.Trigger isFiltered={hasFilters} />
         <Combobox.Content>
           <Filter.View>
@@ -115,12 +115,12 @@ const ByDateFilterPopover = () => {
   );
 };
 
-export const ByDateFilter = () => {
+export const DuplicatedFilter = () => {
   const [searchValue] = useFilterQueryState<string>('searchValue');
-  const { sessionKey } = useByDateLeadSessionKey();
+  const { sessionKey } = useDuplicatedLeadSessionKey();
 
   return (
-    <Filter id="by-date-filter" sessionKey={sessionKey}>
+    <Filter id="duplicated-filter" sessionKey={sessionKey}>
       <Filter.Bar>
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
@@ -162,8 +162,8 @@ export const ByDateFilter = () => {
         </Filter.BarItem>
         <SelectMember.FilterBar />
         <SelectBrand.FilterBar />
-        <ByDateFilterPopover />
-        <ByDateTotalCount />
+        <DuplicatedFilterPopover />
+        <DuplicatedTotalCount />
       </Filter.Bar>
     </Filter>
   );

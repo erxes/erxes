@@ -2,7 +2,7 @@ import { RecordTable } from 'erxes-ui';
 import { putResponseColumns } from '@/put-response/components/PutResponseColumn';
 import { PUT_RESPONSE_CURSOR_SESSION_KEY } from '@/put-response/constants/putResponseCursorSessionKey';
 import { PutResponseCommandBar } from '@/put-response/components/put-response-command-bar/PutResponseCommandBar';
-import { usePutResponse } from '~/modules/put-response/hooks/usePutResponse';
+import { usePutResponse } from '@/put-response/hooks/usePutResponse';
 export const PutResponseRecordTable = () => {
   const { putResponses, handleFetchMore, loading, pageInfo } = usePutResponse();
 

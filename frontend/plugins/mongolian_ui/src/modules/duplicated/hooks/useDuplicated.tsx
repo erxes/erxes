@@ -7,38 +7,38 @@ import {
 } from 'erxes-ui';
 import { useMemo } from 'react';
 
-import { byDateQueries } from '@/by-date/graphql/ByDateQueries';
-import { IByDate } from '@/by-date/types/ByDateType';
-import { BY_DATE_CURSOR_SESSION_KEY } from '@/by-date/constants/ByDateCursorSessionKey';
+import { duplicatedQueries } from '@/duplicated/graphql/DuplicatedQueries';
+import { IDuplicated } from '@/duplicated/types/DuplicatedType';
+import { DUPLICATED_CURSOR_SESSION_KEY } from '@/duplicated/constants/DuplicatedCursorSessionKey';
 
-export const BY_DATE_PER_PAGE = 30;
+export const DUPLICATED_PER_PAGE = 30;
 
-interface IByDateResponse {
-  putResponsesByDate: IByDate[];
+interface IDuplicatedResponse {
+  putResponsesDuplicated: IDuplicated[];
 }
 
-export const useByDate = (options?: QueryHookOptions) => {
+export const useDuplicated = (options?: QueryHookOptions) => {
   const { cursor } = useRecordTableCursor({
-    sessionKey: BY_DATE_CURSOR_SESSION_KEY,
+    sessionKey: DUPLICATED_CURSOR_SESSION_KEY,
   });
 
-  const { data, loading, fetchMore } = useQuery<IByDateResponse>(
-    byDateQueries.putResponsesByDate,
+  const { data, loading, fetchMore } = useQuery<IDuplicatedResponse>(
+    duplicatedQueries.putResponsesDuplicated,
     {
       ...options,
       variables: {
-        limit: BY_DATE_PER_PAGE,
+        limit: DUPLICATED_PER_PAGE,
         cursor,
         ...options?.variables,
       },
     },
   );
 
-  const { byDate, pageInfo } = useMemo(() => {
-    const responseData = data?.putResponsesByDate || [];
+  const { putResponsesDuplicated, pageInfo } = useMemo(() => {
+    const responseData = data?.putResponsesDuplicated || [];
 
     return {
-      byDate: Array.isArray(responseData) ? responseData : [],
+      putResponsesDuplicated: Array.isArray(responseData) ? responseData : [],
       pageInfo: {
         hasNextPage: false,
         hasPreviousPage: false,
@@ -65,22 +65,22 @@ export const useByDate = (options?: QueryHookOptions) => {
           direction === EnumCursorDirection.FORWARD
             ? pageInfo?.endCursor
             : pageInfo?.startCursor,
-        limit: BY_DATE_PER_PAGE,
+        limit: DUPLICATED_PER_PAGE,
         direction,
         ...options?.variables,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
 
-        const newItems = Array.isArray(fetchMoreResult.putResponsesByDate)
-          ? fetchMoreResult.putResponsesByDate
+        const newItems = Array.isArray(fetchMoreResult.putResponsesDuplicated)
+          ? fetchMoreResult.putResponsesDuplicated
           : [];
 
         return {
           ...prev,
-          putResponsesByDate: [
-            ...(Array.isArray(prev.putResponsesByDate)
-              ? prev.putResponsesByDate
+          putResponsesDuplicated: [
+            ...(Array.isArray(prev.putResponsesDuplicated)
+              ? prev.putResponsesDuplicated
               : []),
             ...newItems,
           ],
@@ -91,8 +91,8 @@ export const useByDate = (options?: QueryHookOptions) => {
 
   return {
     loading,
-    byDate,
-    totalCount: byDate.length,
+    putResponsesDuplicated,
+    totalCount: putResponsesDuplicated.length,
     handleFetchMore,
     pageInfo,
   };

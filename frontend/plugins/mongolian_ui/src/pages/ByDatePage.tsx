@@ -1,14 +1,14 @@
 import { PageContainer, PageSubHeader } from 'erxes-ui';
-import { PutResponseFilter } from '~/modules/put-response/components/PutResponseFilter';
-import { ByDateHeader } from '~/modules/by-date/components/ByDateHeader';
-import { ByDateRecordTable } from '~/modules/by-date/components/ByDateRecordTable';
+import { ByDateHeader } from '@/by-date/components/ByDateHeader';
+import { ByDateRecordTable } from '@/by-date/components/ByDateRecordTable';
+import { ByDateFilter } from '@/by-date/components/ByDateFilter';
 
 export const ByDatePage = () => {
   return (
     <PageContainer>
       <ByDateHeader />
       <PageSubHeader>
-        <PutResponseFilter />
+        <ByDateFilter />
       </PageSubHeader>
       <ByDateRecordTable />
     </PageContainer>

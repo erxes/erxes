@@ -1,16 +1,16 @@
 import { PageContainer, PageSubHeader } from 'erxes-ui';
-import { PutResponseFilter } from '~/modules/put-response/components/PutResponseFilter';
-import { PutResponseHeader } from '~/modules/put-response/components/PutResponseHeader';
-import { PutResponseRecordTable } from '~/modules/put-response/components/PutResponseRecordTable';
+import { DuplicatedHeader } from '@/duplicated/components/DuplicatedHeader';
+import { DuplicatedRecordTable } from '@/duplicated/components/DuplicatedRecordTable';
+import { DuplicatedFilter } from '@/duplicated/components/DuplicatedFilter';
 
 export const DuplicatedPage = () => {
   return (
     <PageContainer>
-      <PutResponseHeader />
+      <DuplicatedHeader />
       <PageSubHeader>
-        <PutResponseFilter />
+        <DuplicatedFilter />
       </PageSubHeader>
-      <PutResponseRecordTable />
+      <DuplicatedRecordTable />
     </PageContainer>
   );
 };

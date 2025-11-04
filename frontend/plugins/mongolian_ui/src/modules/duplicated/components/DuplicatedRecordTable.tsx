@@ -1,11 +1,11 @@
 import { RecordTable } from 'erxes-ui';
 import { format } from 'date-fns';
-import { ByDateColumns } from '@/by-date/components/ByDateColumn';
-import { ByDateCommandBar } from '@/by-date/components/by-date-command-bar/ByDateCommandBar';
-import { useByDate } from '@/by-date/hooks/useByDate';
-import { BY_DATE_CURSOR_SESSION_KEY } from '@/by-date/constants/ByDateCursorSessionKey';
+import { DuplicatedColumns } from '@/duplicated/components/DuplicatedColumn';
+import { useDuplicated } from '@/duplicated/hooks/useDuplicated';
+import { DUPLICATED_CURSOR_SESSION_KEY } from '@/duplicated/constants/DuplicatedCursorSessionKey';
+import { DuplicatedCommandBar } from '@/duplicated/components/duplicated-command-bar/DuplicatedCommandBar';
 
-export const ByDateRecordTable = () => {
+export const DuplicatedRecordTable = () => {
   const now = new Date();
   const firstDay = format(
     new Date(now.getFullYear(), now.getMonth(), 1),
@@ -16,27 +16,28 @@ export const ByDateRecordTable = () => {
     'yyyy-MM-dd',
   );
 
-  const { byDate, handleFetchMore, loading, pageInfo } = useByDate({
-    variables: {
-      createdStartDate: firstDay,
-      createdEndDate: lastDay,
-    },
-  });
+  const { putResponsesDuplicated, handleFetchMore, loading, pageInfo } =
+    useDuplicated({
+      variables: {
+        createdStartDate: firstDay,
+        createdEndDate: lastDay,
+      },
+    });
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   return (
     <RecordTable.Provider
-      columns={ByDateColumns}
-      data={byDate || []}
+      columns={DuplicatedColumns}
+      data={putResponsesDuplicated || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', '']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
         hasNextPage={hasNextPage}
-        dataLength={byDate?.length || 0}
-        sessionKey={BY_DATE_CURSOR_SESSION_KEY}
+        dataLength={putResponsesDuplicated?.length || 0}
+        sessionKey={DUPLICATED_CURSOR_SESSION_KEY}
       >
         <RecordTable>
           <RecordTable.Header />
@@ -52,7 +53,7 @@ export const ByDateRecordTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
-      <ByDateCommandBar />
+      <DuplicatedCommandBar />
     </RecordTable.Provider>
   );
 };

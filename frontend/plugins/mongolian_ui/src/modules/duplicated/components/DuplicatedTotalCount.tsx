@@ -1,9 +1,9 @@
 import { isUndefinedOrNull, Skeleton } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { byDateTotalCountAtom } from '@/by-date/states/ByDateCounts';
+import { duplicatedTotalCountAtom } from '@/duplicated/states/DuplicatedCounts';
 
-export const PutResponseTotalCount = () => {
-  const totalCount = useAtomValue(byDateTotalCountAtom);
+export const DuplicatedTotalCount = () => {
+  const totalCount = useAtomValue(duplicatedTotalCountAtom);
   return (
     <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
       {isUndefinedOrNull(totalCount) ? (
