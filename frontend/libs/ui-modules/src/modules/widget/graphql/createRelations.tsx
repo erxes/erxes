@@ -7,3 +7,9 @@ export const CREATE_RELATIONS = gql`
     }
   }
 `;
+
+export const CREATE_MULTIPLE_RELATIONS = gql`
+  mutation createMultipleRelations($relations: [RelationInput!]!) {
+    createMultipleRelations(relations: $relations)
+  }
+`;
