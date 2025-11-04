@@ -1,7 +1,7 @@
 import { SideMenu } from 'erxes-ui';
 import { useRelationWidget } from 'ui-modules';
 
-export const TriageSideWidgets = ({ contentId }: { contentId: string }) => {
+export const TaskSideWidgets = ({ contentId }: { contentId: string }) => {
   const { relationWidgetsModules, RelationWidget } = useRelationWidget({
     hiddenPlugins: ['operation'],
   });
