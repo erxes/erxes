@@ -12,6 +12,7 @@ export const CREATE_PROJECT_MUTATION = gql`
     $startDate: Date
     $targetDate: Date
     $tagIds: [String]
+    $convertedFromId: String
   ) {
     createProject(
       name: $name
@@ -24,6 +25,7 @@ export const CREATE_PROJECT_MUTATION = gql`
       startDate: $startDate
       targetDate: $targetDate
       tagIds: $tagIds
+      convertedFromId: $convertedFromId
     ) {
       _id
       name
@@ -38,6 +40,7 @@ export const CREATE_PROJECT_MUTATION = gql`
       tagIds
       createdAt
       updatedAt
+      convertedFromId
     }
   }
 `;

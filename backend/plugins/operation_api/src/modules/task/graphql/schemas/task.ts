@@ -60,6 +60,7 @@ export const types = `
     milestoneId: String
     cycleFilter: CycleFilterType
 
+
     ${GQL_CURSOR_PARAM_DEFS}
   }
 
@@ -102,7 +103,6 @@ const updateTaskParams = `
   projectId: String
   estimatePoint: Int
   milestoneId: String
-
 `;
 
 export const queries = `
@@ -114,5 +114,4 @@ export const mutations = `
   createTask(${createTaskParams}): Task
   updateTask(${updateTaskParams}): Task
   removeTask(_id: String!): Task
-  convertToProject(_id: String!): Project
 `;

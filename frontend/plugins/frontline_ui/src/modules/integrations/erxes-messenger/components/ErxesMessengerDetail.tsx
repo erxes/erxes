@@ -6,6 +6,7 @@ import { IconEdit } from '@tabler/icons-react';
 import { EditErxesMessengerSheet } from './EditErxesMessengerSheet';
 import { useSetAtom } from 'jotai';
 import { erxesMessengerSetupEditSheetOpenAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
+import { EMInstallScript } from '@/integrations/erxes-messenger/components/EMInstallScript';
 
 export const ErxesMessengerDetail = () => {
   return (
@@ -23,12 +24,15 @@ export const ErxesMessengerActions = ({
 }) => {
   const setEditId = useSetAtom(erxesMessengerSetupEditSheetOpenAtom);
   return (
-    <Button
-      variant="outline"
-      size={'icon'}
-      onClick={() => setEditId(cell.row.original._id)}
-    >
-      <IconEdit />
-    </Button>
+    <>
+      <EMInstallScript integrationId={cell.row.original._id} />
+      <Button
+        variant="outline"
+        size={'icon'}
+        onClick={() => setEditId(cell.row.original._id)}
+      >
+        <IconEdit />
+      </Button>
+    </>
   );
 };

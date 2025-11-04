@@ -3,15 +3,16 @@ import { ITask } from '@/task/types';
 import { IProject } from '@/project/types';
 import { ActivityTimelineItem } from '@/activity/components/ActivityTimelineItem';
 import { IconUser } from '@tabler/icons-react';
+import { ITriage } from '@/triage/types/triage';
 
 interface CreatorInfoProps {
-  contentDetail: ITask | IProject;
+  contentDetail: ITask | IProject | ITriage;
 }
 
 export const CreatorInfo = ({ contentDetail }: CreatorInfoProps) => {
   const memberIds = contentDetail.createdBy ? [contentDetail.createdBy] : [];
   const hasCreator = Boolean(contentDetail.createdBy);
-  
+
   return (
     <ActivityTimelineItem
       avatar={

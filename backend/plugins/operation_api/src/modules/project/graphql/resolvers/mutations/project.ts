@@ -18,21 +18,26 @@ export const projectMutations = {
       description,
       leadId,
       tagIds,
+      convertedFromId,
     },
     { models, user }: IContext,
   ) => {
-    const createdProject = await models.Project.createProject({
-      name,
-      teamIds,
-      startDate,
-      targetDate,
-      priority,
-      status,
-      description,
-      leadId,
-      tagIds,
-      createdBy: user._id,
-    });
+    const createdProject = await models.Project.createProject(
+      {
+        name,
+        teamIds,
+        startDate,
+        targetDate,
+        priority,
+        status,
+        description,
+        leadId,
+        createdBy: user._id,
+        tagIds,
+        convertedFromId,
+      },
+      user,
+    );
     graphqlPubsub.publish(`operationProjectChanged:${createdProject._id}`, {
       operationProjectChanged: {
         type: 'create',
@@ -52,7 +57,7 @@ export const projectMutations = {
   updateProject: async (
     _parent: undefined,
     params: IProjectUpdate,
-    { models, user, subdomain }: IContext,
+    { models, user }: IContext,
   ) => {
     const project = await models.Project.getProject(params._id);
     await checkUserRole({
@@ -65,7 +70,6 @@ export const projectMutations = {
     const updatedProject = await models.Project.updateProject({
       doc: params,
       userId: user._id,
-      subdomain,
     });
 
     graphqlPubsub.publish(`operationProjectChanged:${updatedProject._id}`, {

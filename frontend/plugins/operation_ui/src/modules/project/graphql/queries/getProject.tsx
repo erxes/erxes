@@ -17,6 +17,7 @@ export const GET_PROJECT = gql`
       createdBy
       createdAt
       updatedAt
+      convertedFromId
     }
   }
 `;

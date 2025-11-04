@@ -585,6 +585,7 @@ const isValidSubdomain = (subdomain) => {
 };
 
 export const getUrl = (subdomain) => {
+  const VERSION = getEnv({ name: 'VERSION' });
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
   if (!isValidSubdomain(subdomain)) {
@@ -602,6 +603,10 @@ export const getUrl = (subdomain) => {
 
   if (NODE_ENV !== 'production') {
     return `${domain}/upload-file`;
+  }
+
+  if (VERSION === 'saas') {
+    return `${domain}/gateway/upload-file`;
   }
 
   return `${domain}/gateway/pl:core/upload-file`;

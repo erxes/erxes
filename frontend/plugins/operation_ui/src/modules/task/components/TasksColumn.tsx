@@ -16,7 +16,7 @@ import {
   IconAlertSquareRounded,
   IconCalendarFilled,
   IconClipboard,
-  IconHash,
+  IconTriangle,
   IconLabelFilled,
   IconProgressCheck,
   IconRestore,
@@ -166,7 +166,7 @@ export const tasksColumns = (
       id: 'estimatePoint',
       accessorKey: 'estimatePoint',
       header: () => (
-        <RecordTable.InlineHead label="Estimate Point" icon={IconHash} />
+        <RecordTable.InlineHead label="Estimate Point" icon={IconTriangle} />
       ),
       cell: ({ cell }) => {
         const { _id, estimatePoint, teamId } = cell.row.original;
