@@ -16,7 +16,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { ChannelForm } from '@/channels/components/settings/channels-list/ChannelForm';
 import { useNavigate } from 'react-router-dom';
 import { useAtom } from 'jotai';
-import { channelCreateSheetOpenState } from '../../states';
+import { channelCreateSheetOpenState } from '@/channels/states';
 
 type Props = {
   isIconOnly?: boolean;
