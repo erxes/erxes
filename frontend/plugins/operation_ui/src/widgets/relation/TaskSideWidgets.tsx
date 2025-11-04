@@ -6,8 +6,6 @@ export const TaskSideWidgets = ({ contentId }: { contentId: string }) => {
     hiddenPlugins: ['operation'],
   });
 
-  console.log(relationWidgetsModules);
-
   return (
     <SideMenu>
       {relationWidgetsModules.map((module) => {
