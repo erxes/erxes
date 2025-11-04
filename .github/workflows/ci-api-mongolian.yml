@@ -66,4 +66,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: |
             erxes/erxes-next-mongolian_api:latest
-            erxes/erxes-next-mongolian_api:${{ github.sha }}
+            erxes/erxes-next-mongolian_api:${{ env.DATE }}-${{ env.SHORT_SHA }}

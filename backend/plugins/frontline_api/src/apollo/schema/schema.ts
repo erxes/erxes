@@ -52,6 +52,12 @@ import {
   types as TicketTypes,
 } from '@/ticket/graphql/schemas/ticket';
 
+import {
+  queries as WidgetQueries,
+  types as WidgetTypes,
+  mutations as WidgetMutations,
+} from '~/modules/inbox/graphql/schemas/widget';
+
 export const types = `
     ${ChannelsTypes}
     ${ConversationsTypes}
@@ -62,6 +68,7 @@ export const types = `
     ${PipelineTypes}
     ${StatusTypes}
     ${TicketTypes}
+    ${WidgetTypes}
   `;
 export const queries = `
     ${ChannelsQueries}
@@ -73,6 +80,7 @@ export const queries = `
     ${PipelineQuery}
     ${StatusQuery}
     ${TicketQuery}
+    ${WidgetQueries}
   `;
 
 export const mutations = `
@@ -85,5 +93,6 @@ export const mutations = `
    ${PipelineMutations}
    ${StatusMutations}
    ${TicketMutations}
+   ${WidgetMutations}
 `;
 export default { types, queries, mutations };

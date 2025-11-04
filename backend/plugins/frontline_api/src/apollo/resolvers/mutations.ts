@@ -7,6 +7,7 @@ import { imapMutations } from '@/integrations/imap/graphql/resolvers/mutations';
 import { PipelineMutations } from '@/ticket/graphql/resolvers/mutations/Pipeline';
 import { statusMutations } from '@/ticket/graphql/resolvers/mutations/Status';
 import { ticketMutations } from '@/ticket/graphql/resolvers/mutations/Ticket';
+import { widgetMutations } from '@/inbox/graphql/resolvers/mutations/widget';
 
 export const mutations = {
   ...channelMutations,
@@ -18,4 +19,5 @@ export const mutations = {
   ...PipelineMutations,
   ...statusMutations,
   ...ticketMutations,
+  ...widgetMutations,
 };

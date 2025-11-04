@@ -143,6 +143,16 @@ import { ITicketDocument } from './modules/ticket/@types/ticket';
 import { ITicketPipelineDocument } from './modules/ticket/@types/pipeline';
 import { IStatusDocument } from './modules/ticket/@types/status';
 
+import {
+  IMessengerAppModel,
+  loadClass as loadMessengerAppClass,
+} from './modules/inbox/db/models/MessengerApps';
+import {
+  IConfigModel,
+  loadConfigClass,
+  IConfigDocument,
+} from './modules/inbox/@types/configs';
+import { IMessengerAppDocument } from './modules/inbox/db/definitions/messengerApps';
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -183,6 +193,9 @@ export interface IModels {
   Pipeline: ITicketPipelineModel;
   Status: IStatusModel;
   Ticket: ITicketModel;
+
+  MessengerApps: IMessengerAppModel;
+  Configs: IConfigModel;
 }
 
 export interface IContext extends IMainContext {
@@ -334,7 +347,14 @@ export const loadClasses = (
     'imap_logs',
     loadImapLogClass(models),
   );
-
+  models.MessengerApps = db.model<IMessengerAppDocument, IMessengerAppModel>(
+    'messenger_apps',
+    loadMessengerAppClass(models),
+  );
+  models.Configs = db.model<IConfigDocument, IConfigModel>(
+    'configs',
+    loadConfigClass(models),
+  );
   return models;
 };
 
