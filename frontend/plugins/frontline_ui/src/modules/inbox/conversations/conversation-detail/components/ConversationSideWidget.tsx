@@ -1,6 +1,5 @@
 import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
 
-import { IconUser } from '@tabler/icons-react';
 import { SideMenu } from 'erxes-ui';
 import { useRelationWidget } from 'ui-modules';
 
@@ -26,7 +25,6 @@ export const ConversationSideWidget = () => {
       })}
 
       <SideMenu.Sidebar>
-        <SideMenu.Trigger value="customer" label="Customer" Icon={IconUser} />
         {relationWidgetsModules.map((module) => {
           return (
             <SideMenu.Trigger
