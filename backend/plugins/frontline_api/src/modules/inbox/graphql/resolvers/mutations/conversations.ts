@@ -135,19 +135,22 @@ export const publishMessage = async (
   }
 };
 
-export const sendNotifications = async ({
-  user,
-  conversations,
-  type,
-  mobile,
-  messageContent,
-}: {
-  user: IUserDocument;
-  conversations: IConversationDocument[];
-  type: string;
-  mobile?: boolean;
-  messageContent?: string;
-}) => {
+export const sendNotifications = async (
+  subdomain: string,
+  {
+    user,
+    conversations,
+    type,
+    mobile,
+    messageContent,
+  }: {
+    user: IUserDocument;
+    conversations: IConversationDocument[];
+    type: string;
+    mobile?: boolean;
+    messageContent?: string;
+  },
+) => {
   for (const conversation of conversations) {
     if (!conversation || !conversation._id) {
       throw new Error('Error: Conversation or Conversation ID is undefined');
@@ -190,6 +193,16 @@ export const sendNotifications = async ({
       default:
         break;
     }
+    const userIds = user._id;
+    await sendTRPCMessage({
+      subdomain,
+      method: 'mutation',
+      pluginName: 'core',
+      action: 'create',
+      module: 'notifications',
+      input: { data: doc, userIds },
+      defaultValue: undefined,
+    });
   }
 };
 
@@ -224,7 +237,7 @@ export const conversationMutations = {
       const { content = '', internal, attachments = [], extraInfo } = doc;
       const { _id: userId } = user;
 
-      await sendNotifications({
+      await sendNotifications(subdomain, {
         user,
         conversations: [conversation],
         type: 'conversationAddMessage',
@@ -372,7 +385,7 @@ export const conversationMutations = {
     // notify graphl subscription
     publishConversationsChanged(subdomain, conversationIds, 'assigneeChanged');
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations,
       type: 'conversationAssigneeChange',
@@ -395,7 +408,7 @@ export const conversationMutations = {
     const updatedConversations =
       await models.Conversations.unassignUserConversation(_ids);
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations: oldConversations,
       type: 'unassign',
@@ -428,7 +441,7 @@ export const conversationMutations = {
       _id: { $in: _ids },
     });
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations: updatedConversations,
       type: 'conversationStateChange',
