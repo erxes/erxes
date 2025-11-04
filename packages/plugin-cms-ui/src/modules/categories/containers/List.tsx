@@ -56,6 +56,14 @@ export default function ListContainer(props: Props) {
     fetchPolicy: 'network-only',
   });
 
+  const { data: countData, loading: countLoading } = useQuery(queries.GET_CATEGORIES_COUNT, {
+    variables: {
+      clientPortalId: cpId,
+      ...router.generatePaginationParams(props.queryParams || {}),
+    },
+    fetchPolicy: 'network-only',
+  });
+
   const [removeMutation] = useMutation(mutations.CATEGORY_REMOVE);
 
   if (loading) {
@@ -87,7 +95,7 @@ export default function ListContainer(props: Props) {
     clientPortalId: cpId,
     loading,
     categoryTree,
-    totalCount: data?.cmsCategories?.length || 0,
+    totalCount: countData?.cmsCategoriesCount || 0,
     refetch,
     remove,
   };

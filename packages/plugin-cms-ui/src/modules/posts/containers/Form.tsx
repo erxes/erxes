@@ -63,6 +63,11 @@ const FormContainer = (props: Props) => {
   const post = postId ? data.cmsPost : null;
 
   const onSubmit = (doc: any, translations?: IPostTranslation[]) => {
+    const fieldsToRemove = ['isScheduled'];
+    fieldsToRemove.forEach((field) => {
+      delete doc[field];
+    });
+    
     if (postId) {
       editMutation({
         variables: {

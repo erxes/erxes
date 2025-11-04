@@ -30,6 +30,14 @@ export default function ListContainer(props: Props) {
     fetchPolicy: 'network-only',
   });
 
+  const { data: countData, loading: countLoading } = useQuery(queries.GET_TAGS_COUNT, {
+    variables: {
+      clientPortalId: cpId,
+      searchValue: props.queryParams?.searchValue,
+    },
+    fetchPolicy: 'network-only',
+  });
+
   const [removeMutation] = useMutation(mutations.TAG_REMOVE);
 
   if (loading) {
@@ -60,7 +68,7 @@ export default function ListContainer(props: Props) {
     clientPortalId: cpId,
     loading,
     tags: data?.cmsTags || [],
-    totalCount: data?.cmsTags?.length || 0,
+    totalCount: countData?.cmsTagsCount || 0,
     refetch,
     remove,
   };
