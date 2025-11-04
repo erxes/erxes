@@ -1,417 +1,179 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  type FileError,
+  type FileRejection,
+  useDropzone,
+} from 'react-dropzone';
+interface FileWithPreview extends File {
+  preview?: string;
+  errors: readonly FileError[];
+}
 
-export const useFileUpload = (
-  options: FileUploadOptions = {},
-): [FileUploadState, FileUploadActions] => {
+type UseErxesUploadOptions = {
+  /**
+   * Allowed MIME types for each file upload (e.g `image/png`, `text/html`, etc). Wildcards are also supported (e.g `image/*`).
+   *
+   * Defaults to allowing uploading of all MIME types.
+   */
+  allowedMimeTypes?: string[];
+  /**
+   * Maximum upload size of each file allowed in bytes. (e.g 1000 bytes = 1 KB)
+   */
+  maxFileSize?: number;
+  /**
+   * Maximum number of files allowed per upload.
+   */
+  maxFiles?: number;
+};
+
+type UseErxesUploadReturn = ReturnType<typeof useErxesUpload>;
+
+const REACT_APP_API_URL = 'http://localhost:4000';
+
+const useErxesUpload = (options: UseErxesUploadOptions) => {
   const {
-    maxFiles = Infinity,
-    maxSize = Infinity,
-    accept = '*',
-    multiple = false,
-    initialFiles = [],
-    onFilesChange,
-    onFilesAdded,
+    allowedMimeTypes = [],
+    maxFileSize = Number.POSITIVE_INFINITY,
+    maxFiles = 1,
   } = options;
 
-  const [state, setState] = useState<FileUploadState>({
-    files: initialFiles.map((file) => ({
-      file,
-      id: file.id,
-      preview: file.url,
-    })),
-    isDragging: false,
-    errors: [],
+  const [files, setFiles] = useState<FileWithPreview[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errors, setErrors] = useState<
+    { name: string; message?: string; url?: string }[]
+  >([]);
+  const [successes, setSuccesses] = useState<string[]>([]);
+
+  const isSuccess = useMemo(() => {
+    if (errors.length === 0 && successes.length === 0) {
+      return false;
+    }
+    if (errors.length === 0 && successes.length === files.length) {
+      return true;
+    }
+    return false;
+  }, [errors.length, successes.length, files.length]);
+
+  const onDrop = useCallback(
+    (acceptedFiles: File[], fileRejections: FileRejection[]) => {
+      const validFiles = acceptedFiles
+        .filter((file) => !files.find((x) => x.name === file.name))
+        .map((file) => {
+          (file as FileWithPreview).preview = URL.createObjectURL(file);
+          (file as FileWithPreview).errors = [];
+          return file as FileWithPreview;
+        });
+
+      const invalidFiles = fileRejections.map(({ file, errors }) => {
+        (file as FileWithPreview).preview = URL.createObjectURL(file);
+        (file as FileWithPreview).errors = errors;
+        return file as FileWithPreview;
+      });
+
+      const newFiles = [...files, ...validFiles, ...invalidFiles];
+
+      setFiles(newFiles);
+    },
+    [files, setFiles],
+  );
+
+  const dropzoneProps = useDropzone({
+    onDrop,
+    noClick: true,
+    accept: allowedMimeTypes.reduce(
+      (acc, type) => ({ ...acc, [type]: [] }),
+      {},
+    ),
+    maxSize: maxFileSize,
+    maxFiles: maxFiles,
+    multiple: maxFiles !== 1,
   });
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const onUpload = useCallback(async () => {
+    setLoading(true);
+    // [Joshen] This is to support handling partial successes
+    // If any files didn't upload for any reason, hitting "Upload" again will only upload the files that had errors
+    const filesWithErrors = errors.map((x) => x.name);
+    const filesToUpload =
+      filesWithErrors.length > 0
+        ? [
+            ...files.filter((f) => filesWithErrors.includes(f.name)),
+            ...files.filter((f) => !successes.includes(f.name)),
+          ]
+        : files;
 
-  const validateFile = useCallback(
-    (file: File | FileMetadata): string | null => {
-      if (file instanceof File) {
-        if (file.size > maxSize) {
-          return `File "${file.name}" exceeds the maximum size of ${formatBytes(
-            maxSize,
-          )}.`;
+    const responses = await Promise.all(
+      filesToUpload.map(async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await fetch(
+          `${REACT_APP_API_URL}/upload-file?kind=main`,
+          {
+            method: 'post',
+            body: formData,
+            credentials: 'include',
+          },
+        );
+        const data = await response.json();
+        if (!response.ok) {
+          return { name: file.name, message: data.message };
         }
-      } else {
-        if (file.size > maxSize) {
-          return `File "${file.name}" exceeds the maximum size of ${formatBytes(
-            maxSize,
-          )}.`;
-        }
-      }
+        return { name: file.name, message: undefined, url: data.url };
+      }),
+    );
 
-      if (accept !== '*') {
-        const acceptedTypes = accept.split(',').map((type) => type.trim());
-        const fileType = file instanceof File ? file.type || '' : file.type;
-        const fileExtension = `.${
-          file instanceof File
-            ? file.name.split('.').pop()
-            : file.name.split('.').pop()
-        }`;
+    const responseErrors = responses.filter((x) => x.message !== undefined);
+    // if there were errors previously, this function tried to upload the files again so we should clear/overwrite the existing errors.
+    setErrors(responseErrors);
 
-        const isAccepted = acceptedTypes.some((type) => {
-          if (type.startsWith('.')) {
-            return fileExtension.toLowerCase() === type.toLowerCase();
-          }
-          if (type.endsWith('/*')) {
-            const baseType = type.split('/')[0];
-            return fileType.startsWith(`${baseType}/`);
-          }
-          return fileType === type;
-        });
+    const responseSuccesses = responses.filter((x) => x.message === undefined);
+    const newSuccesses = Array.from(
+      new Set([...successes, ...responseSuccesses.map((x) => x.name)]),
+    );
+    setSuccesses(newSuccesses);
 
-        if (!isAccepted) {
-          return `File "${
-            file instanceof File ? file.name : file.name
-          }" is not an accepted file type.`;
-        }
-      }
+    setLoading(false);
+  }, [files, errors, successes]);
 
-      return null;
-    },
-    [accept, maxSize],
-  );
-
-  const createPreview = useCallback(
-    (file: File | FileMetadata): string | undefined => {
-      if (file instanceof File) {
-        return URL.createObjectURL(file);
-      }
-      return file.url;
-    },
-    [],
-  );
-
-  const generateUniqueId = useCallback((file: File | FileMetadata): string => {
-    if (file instanceof File) {
-      return `${file.name}-${Date.now()}-${Math.random()
-        .toString(36)
-        .substring(2, 9)}`;
-    }
-    return file.id;
-  }, []);
-
-  const clearFiles = useCallback(() => {
-    setState((prev) => {
-      // Clean up object URLs
-      prev.files.forEach((file) => {
-        if (
-          file.preview &&
-          file.file instanceof File &&
-          file.file.type.startsWith('image/')
-        ) {
-          URL.revokeObjectURL(file.preview);
-        }
-      });
-
-      if (inputRef.current) {
-        inputRef.current.value = '';
-      }
-
-      const newState = {
-        ...prev,
-        files: [],
-        errors: [],
-      };
-
-      onFilesChange?.(newState.files);
-      return newState;
-    });
-  }, [onFilesChange]);
-
-  const addFiles = useCallback(
-    (newFiles: FileList | File[]) => {
-      if (!newFiles || newFiles.length === 0) return;
-
-      const newFilesArray = Array.from(newFiles);
-      const errors: string[] = [];
-
-      // Clear existing errors when new files are uploaded
-      setState((prev) => ({ ...prev, errors: [] }));
-
-      // In single file mode, clear existing files first
-      if (!multiple) {
-        clearFiles();
-      }
-
-      // Check if adding these files would exceed maxFiles (only in multiple mode)
-      if (
-        multiple &&
-        maxFiles !== Infinity &&
-        state.files.length + newFilesArray.length > maxFiles
-      ) {
-        errors.push(`You can only upload a maximum of ${maxFiles} files.`);
-        setState((prev) => ({ ...prev, errors }));
-        return;
-      }
-
-      const validFiles: FileWithPreview[] = [];
-
-      newFilesArray.forEach((file) => {
-        // Only check for duplicates if multiple files are allowed
-        if (multiple) {
-          const isDuplicate = state.files.some(
-            (existingFile) =>
-              existingFile.file.name === file.name &&
-              existingFile.file.size === file.size,
-          );
-
-          // Skip duplicate files silently
-          if (isDuplicate) {
-            return;
-          }
-        }
-
-        // Check file size
-        if (file.size > maxSize) {
-          errors.push(
-            multiple
-              ? `Some files exceed the maximum size of ${formatBytes(maxSize)}.`
-              : `File exceeds the maximum size of ${formatBytes(maxSize)}.`,
-          );
-          return;
-        }
-
-        const error = validateFile(file);
-        if (error) {
-          errors.push(error);
-        } else {
-          validFiles.push({
-            file,
-            id: generateUniqueId(file),
-            preview: createPreview(file),
-          });
-        }
-      });
-
-      // Only update state if we have valid files to add
-      if (validFiles.length > 0) {
-        // Call the onFilesAdded callback with the newly added valid files
-        onFilesAdded?.(validFiles);
-
-        setState((prev) => {
-          const newFiles = !multiple
-            ? validFiles
-            : [...prev.files, ...validFiles];
-          onFilesChange?.(newFiles);
-          return {
-            ...prev,
-            files: newFiles,
-            errors,
-          };
-        });
-      } else if (errors.length > 0) {
-        setState((prev) => ({
-          ...prev,
-          errors,
-        }));
-      }
-
-      // Reset input value after handling files
-      if (inputRef.current) {
-        inputRef.current.value = '';
-      }
-    },
-    [
-      state.files,
-      maxFiles,
-      multiple,
-      maxSize,
-      validateFile,
-      createPreview,
-      generateUniqueId,
-      clearFiles,
-      onFilesChange,
-      onFilesAdded,
-    ],
-  );
-
-  const removeFile = useCallback(
-    (id: string) => {
-      setState((prev) => {
-        const fileToRemove = prev.files.find((file) => file.id === id);
-        if (
-          fileToRemove &&
-          fileToRemove.preview &&
-          fileToRemove.file instanceof File &&
-          fileToRemove.file.type.startsWith('image/')
-        ) {
-          URL.revokeObjectURL(fileToRemove.preview);
-        }
-
-        const newFiles = prev.files.filter((file) => file.id !== id);
-        onFilesChange?.(newFiles);
-
-        return {
-          ...prev,
-          files: newFiles,
-          errors: [],
-        };
-      });
-    },
-    [onFilesChange],
-  );
-
-  const clearErrors = useCallback(() => {
-    setState((prev) => ({
-      ...prev,
-      errors: [],
-    }));
-  }, []);
-
-  const handleDragEnter = useCallback((e: React.DragEvent<HTMLElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setState((prev) => ({ ...prev, isDragging: true }));
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent<HTMLElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (e.currentTarget.contains(e.relatedTarget as Node)) {
-      return;
+  useEffect(() => {
+    if (files.length === 0) {
+      setErrors([]);
     }
 
-    setState((prev) => ({ ...prev, isDragging: false }));
-  }, []);
-
-  const handleDragOver = useCallback((e: React.DragEvent<HTMLElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent<HTMLElement>) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setState((prev) => ({ ...prev, isDragging: false }));
-
-      // Don't process files if the input is disabled
-      if (inputRef.current?.disabled) {
-        return;
-      }
-
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        // In single file mode, only use the first file
-        if (!multiple) {
-          const file = e.dataTransfer.files[0];
-          addFiles([file]);
-        } else {
-          addFiles(e.dataTransfer.files);
+    // If the number of files doesn't exceed the maxFiles parameter, remove the error 'Too many files' from each file
+    if (files.length <= maxFiles) {
+      let changed = false;
+      const newFiles = files.map((file) => {
+        if (file.errors.some((e) => e.code === 'too-many-files')) {
+          file.errors = file.errors.filter((e) => e.code !== 'too-many-files');
+          changed = true;
         }
+        return file;
+      });
+      if (changed) {
+        setFiles(newFiles);
       }
-    },
-    [addFiles, multiple],
-  );
-
-  const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files.length > 0) {
-        addFiles(e.target.files);
-      }
-    },
-    [addFiles],
-  );
-
-  const openFileDialog = useCallback(() => {
-    if (inputRef.current) {
-      inputRef.current.click();
     }
-  }, []);
+  }, [files.length, setFiles, maxFiles]);
 
-  const getInputProps = useCallback(
-    (props: React.InputHTMLAttributes<HTMLInputElement> = {}) => {
-      return {
-        ...props,
-        type: 'file' as const,
-        onChange: handleFileChange,
-        accept: props.accept || accept,
-        multiple: props.multiple !== undefined ? props.multiple : multiple,
-        // Cast to `any` to prevent mismatched React ref type errors across workspaces
-        ref: inputRef as any,
-      };
-    },
-    [accept, multiple, handleFileChange],
-  );
-
-  return [
-    state,
-    {
-      addFiles,
-      removeFile,
-      clearFiles,
-      clearErrors,
-      handleDragEnter,
-      handleDragLeave,
-      handleDragOver,
-      handleDrop,
-      handleFileChange,
-      openFileDialog,
-      getInputProps,
-    },
-  ];
-};
-
-// Helper function to format bytes to human-readable format
-export const formatBytes = (bytes: number, decimals = 2): string => {
-  if (bytes === 0) return '0 Bytes';
-
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-  return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
-};
-
-export type FileMetadata = {
-  name: string;
-  size: number;
-  type: string;
-  url: string;
-  id: string;
-};
-
-export type FileWithPreview = {
-  file: File | FileMetadata;
-  id: string;
-  preview?: string;
-};
-
-export type FileUploadOptions = {
-  maxFiles?: number; // Only used when multiple is true, defaults to Infinity
-  maxSize?: number; // in bytes
-  accept?: string;
-  multiple?: boolean; // Defaults to false
-  initialFiles?: FileMetadata[];
-  onFilesChange?: (files: FileWithPreview[]) => void; // Callback when files change
-  onFilesAdded?: (addedFiles: FileWithPreview[]) => void; // Callback when new files are added
-};
-
-export type FileUploadState = {
-  files: FileWithPreview[];
-  isDragging: boolean;
-  errors: string[];
-};
-
-export type FileUploadActions = {
-  addFiles: (files: FileList | File[]) => void;
-  removeFile: (id: string) => void;
-  clearFiles: () => void;
-  clearErrors: () => void;
-  handleDragEnter: (e: React.DragEvent<HTMLElement>) => void;
-  handleDragLeave: (e: React.DragEvent<HTMLElement>) => void;
-  handleDragOver: (e: React.DragEvent<HTMLElement>) => void;
-  handleDrop: (e: React.DragEvent<HTMLElement>) => void;
-  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  openFileDialog: () => void;
-  getInputProps: (
-    props?: React.InputHTMLAttributes<HTMLInputElement>,
-  ) => React.InputHTMLAttributes<HTMLInputElement> & {
-    // Use `any` here to avoid cross-React ref type conflicts across packages
-    ref: any;
+  return {
+    files,
+    setFiles,
+    successes,
+    isSuccess,
+    loading,
+    errors,
+    setErrors,
+    onUpload,
+    maxFileSize: maxFileSize,
+    maxFiles: maxFiles,
+    allowedMimeTypes,
+    ...dropzoneProps,
   };
+};
+
+export {
+  useErxesUpload,
+  type UseErxesUploadOptions,
+  type UseErxesUploadReturn,
 };

@@ -59,7 +59,10 @@ export const ProductDetail = () => {
             </div>
           </div>
           <div className="pt-4">
-            <ProductDetailAttachment />
+            <ProductDetailAttachment
+              attachment={productDetail.attachment}
+              attachmentMore={productDetail.attachmentMore}
+            />
           </div>
           <div className="pt-4">
             <ProductDetailVariants />

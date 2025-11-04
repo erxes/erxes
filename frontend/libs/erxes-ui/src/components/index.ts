@@ -45,6 +45,7 @@ export * from './toaster';
 export * from './toggle';
 export * from './toggle-group';
 export * from './tooltip';
+export * from './upload-new';
 export * from './upload';
 export * from './choicebox-group';
 export * from './stepper';
