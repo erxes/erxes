@@ -31,7 +31,10 @@ export const FacebookGetAccounts = () => {
   const setActiveStep = useSetAtom(activeFacebookFormStepAtom);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const { popupWindow } = useFbAuthPopup(() => refetch());
+  const { popupWindow } = useFbAuthPopup(() => {
+    refetch();
+    setIsLoggingIn(false);
+  });
 
   const handleFacebookLogin = () => {
     setIsLoggingIn(true);
