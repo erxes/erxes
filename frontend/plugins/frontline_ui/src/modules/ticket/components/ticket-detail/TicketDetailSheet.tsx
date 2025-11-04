@@ -12,6 +12,7 @@ export const TicketDetailSheet = () => {
   return (
     <Sheet open={!!activeTicket} onOpenChange={() => setActiveTicket(null)}>
       <Sheet.View className="sm:max-w-screen-md">
+        <Sheet.Title className="sr-only">Ticket Details</Sheet.Title>
         {activeTicket && (
           <>
             <Sheet.Header>
