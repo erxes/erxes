@@ -120,18 +120,6 @@ const tourQueries = {
       const dateToCheck = innerDate;
       selector.startDate = { $lte: dateToCheck };
       selector.endDate = { $gte: dateToCheck };
-
-      // selector.$expr = {
-      //   $lte: [
-      //     dateToCheck,
-      //     {
-      //       $add: [
-      //         '$startDate',
-      //         { $multiply: ['$duration', 24 * 60 * 60 * 1000] },
-      //       ],
-      //     },
-      //   ],
-      // };
     }
 
     if (startDate2) {
@@ -158,23 +146,10 @@ const tourQueries = {
       selector.date_status = date_status;
     }
 
-    // const list = await models.Tours.find({
-    //   ...selector,
-    //   groupCode: { $in: [null, ''] },
-    // })
-    //   .limit(perPage)
-    //   .skip(skip)
-    //   .sort({ [sortField]: sortDirection === -1 ? sortDirection : 1 });
     const total = await models.Tours.find({
       ...selector,
       groupCode: { $nin: [null, ''] },
     }).countDocuments();
-
-    const { list, totalCount, pageInfo } = await cursorPaginate({
-      model: models.Tours,
-      params,
-      query: { ...selector, groupCode: { $nin: [null, ''] } },
-    });
 
     const group = await models.Tours.aggregate([
       {

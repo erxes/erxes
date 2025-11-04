@@ -1,11 +1,3 @@
-import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
-import {
-  graphqlAttachmentInput,
-  graphqlAttachmentType,
-  graphqlPdfAttachmentInput,
-  graphqlPdfAttachmentType,
-} from 'erxes-api-shared/src/utils/apollo/commonTypeDefs';
-
 const commonFields = `
   name: String
   description: String

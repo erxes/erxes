@@ -1,5 +1,3 @@
-import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
-
 export const types = `
    enum ROOM_STATUS {
     clean
