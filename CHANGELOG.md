@@ -1,5 +1,13 @@
 # Changelog
 
+* Merge branch 'master' of github.com:erxes/erxes (2dbbdee8d1)
+* feat(ticket): initialize fields from localStorage and sync with props in componentDidUpdate (dd3f23b42f)
+* fix: car clientPortal mutations (625e3c44d4)
+* fix: car clientPortal mutations (e4dfe1432f)
+* chore(cms): fix categories/tags pagination (69e01fb674)
+* bugfix(cms): prevent 'isScheduled' from being sent in mutation input (e298a383ac)
+* Merge branch 'master' of github.com:erxes/erxes (721337422e)
+
 ## <small>2.17.23 (2025-11-04)</small>
 
 ## <small>2.17.22 (2025-10-31)</small>
