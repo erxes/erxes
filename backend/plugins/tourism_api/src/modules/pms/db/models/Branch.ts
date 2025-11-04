@@ -2,6 +2,7 @@ import { IPmsBranch, IPmsBranchDocument } from '@/pms/@types/branch';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { branchSchema } from '@/bms/db/definitions/branch';
+import * as crypto from 'crypto';
 
 export interface IPMSBranchModel extends Model<IPmsBranchDocument> {
   getList(query: any): Promise<IPmsBranchDocument[]>;
@@ -26,20 +27,10 @@ export const loadPmsBranchClass = (models: IModels) => {
       return branch;
     }
 
-    public static generateToken(length: number = 32) {
-      const a =
-        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'.split(
-          '',
-        );
-      const b = [] as any;
-
-      for (let i = 0; i < length; i++) {
-        const j = (Math.random() * (a.length - 1)).toFixed(0);
-
-        b[i] = a[j];
-      }
-
-      return b.join('');
+    public static async generateToken(length: number = 16): Promise<string> {
+      const buffer = await crypto.randomBytes(length);
+      const token = buffer.toString('hex');
+      return token;
     }
 
     public static async add(user, doc: IPmsBranchDocument) {
@@ -48,7 +39,7 @@ export const loadPmsBranchClass = (models: IModels) => {
           ...doc,
           userId: user._id,
           createdAt: new Date(),
-          token: this.generateToken(),
+          token: await this.generateToken(),
         });
       } catch (e) {
         throw new Error(
