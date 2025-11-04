@@ -30,4 +30,5 @@ export const mutations = `
     createRelation(relation: RelationInput!): Relation!
     updateRelation(id: String!, relation: RelationInput!): Relation!
     deleteRelation(id: String!): String!
+    createMultipleRelations(relations: [RelationInput!]!): JSON
 `;

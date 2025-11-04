@@ -96,6 +96,14 @@ export const loadTaskClass = (models: IModels) => {
         query.createdAt = { $gte: params.createdAt };
       }
 
+      if (params.customer) {
+        query.customer = params.customer;
+      }
+
+      if (params.company) {
+        query.company = params.company;
+      }
+
       return models.Task.find(query).lean();
     }
 

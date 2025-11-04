@@ -31,12 +31,25 @@ export interface IRelationModel extends Model<IRelationDocument> {
     contentType: string;
     contentId: string;
   }) => Promise<IRelationDocument[]>;
+  createMultipleRelations: ({
+    relations,
+  }: {
+    relations: IRelation[];
+  }) => Promise<IRelationDocument[]>;
 }
 
 export const loadRelationClass = (models: IModels) => {
   class Relation {
     public static async createRelation({ relation }: { relation: IRelation }) {
       return models.Relations.create(relation);
+    }
+
+    public static async createMultipleRelations({
+      relations,
+    }: {
+      relations: IRelation[];
+    }) {
+      return models.Relations.insertMany(relations);
     }
 
     public static async updateRelation({
