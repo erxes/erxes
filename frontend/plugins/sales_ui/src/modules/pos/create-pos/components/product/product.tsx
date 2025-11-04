@@ -26,7 +26,7 @@ export default function ProductForm({
 }: ProductFormProps) {
   const [showProductGroups, setShowProductGroups] = useState(false);
   const [showMappings, setShowMappings] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [, setIsSubmitting] = useState(false);
 
   const internalForm = useForm<ProductFormValues>({
     defaultValues: {

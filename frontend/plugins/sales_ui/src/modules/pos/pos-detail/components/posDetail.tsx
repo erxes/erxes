@@ -1,5 +1,5 @@
 import { usePosEdit } from '../../hooks/usePosEdit';
-import { getPermissionFormValues } from '../../create-pos/components/permission/permission';
+import PermissionForm, { getPermissionFormValues } from '../../create-pos/components/permission/permission';
 import { usePosDetail } from '../hooks/useDetail';
 import { usePosDetailForms } from '../hooks/usePosDetailForm';
 import { useLocalPosDetailHandlers } from '../hooks/usePosDetailHandler';
@@ -8,7 +8,6 @@ import { RestaurantForm } from '../../create-pos/components/general/restaurant';
 import AppearanceForm from '../../create-pos/components/appearance/appearance';
 import FinanceConfigForm from '../../create-pos/components/finance/finance';
 import RestaurantPaymentsForm from '../../create-pos/components/payments/restaurant-payment';
-import PermissionForm from '../../create-pos/components/permission/permission';
 import ProductForm from '../../create-pos/components/product/product';
 import ScreenConfigForm from '../../create-pos/components/config/screen-config';
 import EbarimtConfigForm from '../../create-pos/components/config/ebarimt-config';
@@ -17,7 +16,6 @@ import SyncCardForm from '../../create-pos/components/sync/sync';
 import POSSlotsManager from '../../slot/components/slot';
 import { useAtom } from 'jotai';
 import { posCategoryAtom } from '../../create-pos/states/posCategory';
-
 
 export const PosEdit = () => {
   const { posDetail, loading, error } = usePosDetail();
@@ -36,13 +34,8 @@ export const PosEdit = () => {
 
   const {
     permissionFormRef,
-    handleBasicInfoSubmit,
-    handleProductSubmit,
     handleAppearanceSubmit,
     handleFinanceSubmit,
-    handlePaymentSubmit,
-    handleDeliverySubmit,
-    handlePermissionSubmit,
     handleScreenConfigSubmitNew,
   } = useLocalPosDetailHandlers({
     posDetail,
@@ -105,8 +98,12 @@ export const PosEdit = () => {
         }
       : { adminIds: [], cashierIds: [] };
 
-    const finalAdminIds = refIds.adminIds.length > 0 ? refIds.adminIds : permissionData.adminIds;
-    const finalCashierIds = refIds.cashierIds.length > 0 ? refIds.cashierIds : permissionData.cashierIds;
+    const finalAdminIds =
+      refIds.adminIds.length > 0 ? refIds.adminIds : permissionData.adminIds;
+    const finalCashierIds =
+      refIds.cashierIds.length > 0
+        ? refIds.cashierIds
+        : permissionData.cashierIds;
 
     const combinedData = {
       _id: posDetail._id,
@@ -126,39 +123,64 @@ export const PosEdit = () => {
       beginNumber: uiConfigData?.beginNumber,
       maxSkipNumber: uiConfigData?.maxSkipNumber,
       checkRemainder: uiConfigData?.checkRemainder,
-      erkhetConfig: financeData ? {
-        isSyncErkhet: financeData.isSyncErkhet,
-        checkErkhet: financeData.checkErkhet,
-        checkInventories: financeData.checkInventories,
-        userEmail: financeData.userEmail,
-        beginBillNumber: financeData.beginBillNumber,
-        defaultPay: financeData.defaultPay,
-        account: financeData.account,
-        location: financeData.location,
-        getRemainder: financeData.getRemainder,
-      } : undefined,
-      deliveryConfig: deliveryData ? {
-        boardId: deliveryData.boardId || '',
-        pipeline: deliveryData.pipeline || '',
-        stage: deliveryData.stage || '',
-        watchedUsers: deliveryData.watchedUsers || '',
-        assignedUsers: deliveryData.assignedUsers || '',
-        deliveryProduct: deliveryData.deliveryProduct || '',
-        watchedUserIds: deliveryData.watchedUserIds || [],
-        assignedUserIds: deliveryData.assignedUserIds || [],
-      } : undefined,
+      erkhetConfig: financeData
+        ? {
+            isSyncErkhet: financeData.isSyncErkhet,
+            checkErkhet: financeData.checkErkhet,
+            checkInventories: financeData.checkInventories,
+            userEmail: financeData.userEmail,
+            beginBillNumber: financeData.beginBillNumber,
+            defaultPay: financeData.defaultPay,
+            account: financeData.account,
+            location: financeData.location,
+            getRemainder: financeData.getRemainder,
+          }
+        : undefined,
+      deliveryConfig: deliveryData
+        ? {
+            boardId: deliveryData.boardId || '',
+            pipeline: deliveryData.pipeline || '',
+            stage: deliveryData.stage || '',
+            watchedUsers: deliveryData.watchedUsers || '',
+            assignedUsers: deliveryData.assignedUsers || '',
+            deliveryProduct: deliveryData.deliveryProduct || '',
+            watchedUserIds: deliveryData.watchedUserIds || [],
+            assignedUserIds: deliveryData.assignedUserIds || [],
+          }
+        : undefined,
     };
 
     const fieldsToUpdate = [
-      'name', 'description', 'allowTypes', 'scopeBrandIds', 'branchId',
-      'adminTeamMember', 'adminPrintTempBill', 'adminDirectSales', 'adminDirectDiscountLimit',
-      'cashierTeamMember', 'cashierPrintTempBill', 'cashierDirectSales', 'cashierDirectDiscountLimit',
-      'adminIds', 'cashierIds', 'permissionConfig',
-      'productDetails', 'catProdMappings', 'initialCategoryIds',
-      'kioskExcludeCategoryIds', 'kioskExcludeProductIds', 'checkExcludeCategoryIds',
-      'paymentIds', 'paymentTypes',
-      'uiOptions', 'beginNumber', 'maxSkipNumber', 'checkRemainder',
-      'erkhetConfig', 'deliveryConfig',
+      'name',
+      'description',
+      'allowTypes',
+      'scopeBrandIds',
+      'branchId',
+      'adminTeamMember',
+      'adminPrintTempBill',
+      'adminDirectSales',
+      'adminDirectDiscountLimit',
+      'cashierTeamMember',
+      'cashierPrintTempBill',
+      'cashierDirectSales',
+      'cashierDirectDiscountLimit',
+      'adminIds',
+      'cashierIds',
+      'permissionConfig',
+      'productDetails',
+      'catProdMappings',
+      'initialCategoryIds',
+      'kioskExcludeCategoryIds',
+      'kioskExcludeProductIds',
+      'checkExcludeCategoryIds',
+      'paymentIds',
+      'paymentTypes',
+      'uiOptions',
+      'beginNumber',
+      'maxSkipNumber',
+      'checkRemainder',
+      'erkhetConfig',
+      'deliveryConfig',
     ];
 
     await posEdit({ variables: combinedData }, fieldsToUpdate);

@@ -156,7 +156,7 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
             <Form.Field
               control={form.control}
               name="scopeBrandIds"
-              render={({}) => (
+              render={() => (
                 <Form.Item>
                   <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
                     BRANDS
@@ -190,7 +190,7 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
                 <Form.Control>
                   <div className="space-y-2">
                     {(field.value || []).map((selectedType, index) => (
-                      <div key={index} className="flex gap-2">
+                      <div key={`type-${selectedType || 'empty'}-${index}`} className="flex gap-2">
                         <Select
                           onValueChange={(value) =>
                             handleTypeChange(field, index, value, isReadOnly)

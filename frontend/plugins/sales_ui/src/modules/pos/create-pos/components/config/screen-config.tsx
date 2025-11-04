@@ -1,4 +1,4 @@
-import { Button, Form, Input, Select, Switch } from 'erxes-ui';
+import { Form, Input, Select, Switch } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -32,7 +32,7 @@ export default function ScreenConfigForm({
   onSubmit,
 }: ScreenConfigFormProps) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [, setIsSubmitting] = useState(false);
 
   const form = useForm<ScreenConfigFormData>({
     defaultValues: {
