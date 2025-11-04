@@ -14,7 +14,7 @@ import { DateSeparator } from './date-separator';
 import { BotSeparator } from './bot-separator';
 import { TypingStatus } from './typing-status';
 
-const MESSAGE_GROUP_TIME_WINDOW = 5 * 60 * 1000; // 5 minutes in milliseconds
+const MESSAGE_GROUP_TIME_WINDOW = 5 * 60 * 1000;
 
 type Message = NonNullable<
   ReturnType<typeof useConversationDetail>['conversationDetail']
@@ -123,7 +123,6 @@ export const ConversationDetails = () => {
       }
     });
 
-    // Set avatar visibility: only show on the last message of each group
     groups.forEach((group) => {
       group.messages.forEach((message, index) => {
         message.showAvatar = index === group.messages.length - 1;

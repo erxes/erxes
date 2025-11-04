@@ -29,11 +29,11 @@ export const formatDateISOStringToRelativeDateShort = (isoDate: string) => {
   const now = new Date();
   const targetDate = new Date(isoDate);
 
-  return formatDistanceStrict(targetDate, now)
-    .replace('days', 'd')
-    .replace('hours', 'h')
-    .replace('minutes', 'm')
-    .replace('minute', 'm')
-    .replace('seconds', 's')
-    .replace(' ', '');
+  return formatDistanceStrict(targetDate, now, { addSuffix: false })
+    .replace(/\s*years?/g, 'y')
+    .replace(/\s*months?/g, 'mo')
+    .replace(/\s*days?/g, 'd')
+    .replace(/\s*hours?/g, 'h')
+    .replace(/\s*minutes?/g, 'm')
+    .replace(/\s*seconds?/g, 's');
 };

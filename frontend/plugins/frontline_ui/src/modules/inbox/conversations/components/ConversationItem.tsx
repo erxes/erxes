@@ -3,8 +3,8 @@ import {
   Button,
   Checkbox,
   cn,
+  IconComponent,
   RelativeDateDisplay,
-  RelativeDateDisplayShort,
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
@@ -45,20 +45,18 @@ export const ConversationItem = ({
                 <CustomersInline.Title className="truncate" />
                 <div className="ml-auto text-accent-foreground">
                   {createdAt && (
-                    <RelativeDateDisplayShort.Value
+                    <RelativeDateDisplay.Value
                       value={updatedAt || createdAt}
+                      isShort
                     />
                   )}
                 </div>
               </div>
-              <div className="w-auto text-left flex-none truncate">
-                {channel && <span title={channel.name}>{channel.name}</span>}
-                {integration && integration.kind !== 'calls' && (
-                  <>
-                    <span> via </span>
-                    <span title={integration.kind}>{integration.kind}</span>
-                  </>
+              <div className="w-auto text-left flex-none truncate flex items-center gap-1 text-xs">
+                {channel && (
+                  <IconComponent name={channel?.icon} className="size-3" />
                 )}
+                {channel && <span title={channel.name}>{channel.name}</span>}
               </div>
             </div>
           </div>
@@ -74,7 +72,7 @@ export const ConversationItem = ({
         <ConversationSelector />
         <CustomersInline.Title className="w-56 truncate flex-none text-foreground" />
         <ConversationItemContent />
-        <div className="truncate w-full h-4 [&_*]:text-sm [&_*]:leading-tight [&_*]:font-medium">
+        <div className="w-auto text-right flex-none">
           <span> to </span>
           {channel && <span title={channel.name}>{channel.name}</span>}
           <span> via </span>

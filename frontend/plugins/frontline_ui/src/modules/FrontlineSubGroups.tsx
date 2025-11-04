@@ -2,6 +2,7 @@ import { ChooseIntegrationTypeContent } from '@/integrations/components/ChooseIn
 import { NavigationMenuGroup } from 'erxes-ui';
 import { useLocation } from 'react-router-dom';
 import { ChooseChannel } from '@/inbox/channel/components/ChooseChannel';
+import { CreateChannel } from './channels/components/channels-list/CreateChannel';
 export const FrontlineSubGroups = () => {
   const location = useLocation();
 
@@ -11,7 +12,7 @@ export const FrontlineSubGroups = () => {
 
   return (
     <>
-      <NavigationMenuGroup name="Channels">
+      <NavigationMenuGroup name="Channels" actions={<CreateChannel />}>
         <ChooseChannel />
       </NavigationMenuGroup>
       <NavigationMenuGroup name="Integration types">
