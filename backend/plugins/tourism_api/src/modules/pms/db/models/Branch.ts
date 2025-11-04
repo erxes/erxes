@@ -2,7 +2,6 @@ import { IPmsBranch, IPmsBranchDocument } from '@/pms/@types/branch';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { branchSchema } from '@/bms/db/definitions/branch';
-import { random } from 'erxes-api-shared/utils/string';
 
 export interface IPMSBranchModel extends Model<IPmsBranchDocument> {
   getList(query: any): Promise<IPmsBranchDocument[]>;
