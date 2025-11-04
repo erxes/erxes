@@ -2,8 +2,10 @@ export enum FrontlinePaths {
   IntegrationConfig = '/config',
   ErxesMessengerPreview = '/erxes-messenger-preview',
   Channels = '/channels',
-  ChannelDetails = 'details/:id',
-  ChannelMembers = 'members/:id',
+  ChannelDetails = '/:id',
+  ChannelMembers = '/:id/members',
   ChannelIntegrations = 'details/:id/:integrationType',
   FbAuth = '/fb-auth',
+  ChannelPipelines = '/:id/pipelines',
+  PipelineDetail = '/:id/pipelines/:pipelineId',
 }
