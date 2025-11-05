@@ -22,8 +22,6 @@ export const sendOnboardNotification = async (
           contentType: `${pluginName}:system.welcome`,
         });
 
-        await user.updateOne({ $set: { lastSeenAt: new Date() } });
-
         continue;
       }
 
@@ -37,5 +35,7 @@ export const sendOnboardNotification = async (
         contentType: `${pluginName}:system.welcome`,
       });
     }
+
+    await user.updateOne({ $set: { lastSeenAt: new Date() } });
   }
 };
