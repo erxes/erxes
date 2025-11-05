@@ -180,8 +180,34 @@ export default {
               console.log('error:', error);
             });
         },
-        subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`conversationMessageInserted:${_id}`),
+        subscribe: withFilter(
+          (_, { _id }) => {
+            return graphqlPubsub.asyncIterator(
+              `conversationMessageInserted:${_id}`,
+            );
+          },
+          async (payload, variables) => {
+            console.log(
+              payload.conversationMessageInserted,
+              'payload.conversationMessageInserted',
+            );
+            const conversationId =
+              payload.conversationMessageInserted.conversationId;
+            const id = variables._id || {};
+            console.log(id, 'asds', conversationId);
+            if (!id) {
+              return false;
+            }
+
+            if (!conversationId) {
+              return false;
+            }
+            if (conversationId === id) {
+              return true;
+            }
+            return false;
+          },
+        ),
       },
 
       /*
