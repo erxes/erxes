@@ -16,24 +16,21 @@ import {
   IconUsers,
   IconRestore,
   IconUserPlus,
+  IconHash,
 } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
-import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
-import { TasksTotalCount } from '@/task/components/TasksTotalCount';
-import { TASKS_CURSOR_SESSION_KEY } from '@/task/constants';
-import { SelectPriority } from '@/operation/components/SelectPriority';
-import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
-import { useParams } from 'react-router-dom';
-import { SelectAssigneeTask } from '@/task/components/task-selects/SelectAssigneeTask';
 import { SelectCreatorTask } from '@/task/components/task-selects/SelectCreatorTask';
 import clsx from 'clsx';
-import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 import { SelectMilestone } from './task-selects/SelectMilestone';
 import { TagsFilter } from 'ui-modules';
+import { useGetTeam } from '@/team/hooks/useGetTeam';
+import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstimatedPointTask';
+import { TeamEstimateTypes } from '@/team/types';
 
 const TasksFilterPopover = () => {
   const { teamId, projectId } = useParams();
+  const { team } = useGetTeam({ variables: { _id: teamId }, skip: !teamId });
   const [queries] = useMultiQueryState<{
     searchValue: string;
     assignee: string;
@@ -43,7 +40,18 @@ const TasksFilterPopover = () => {
     status: string;
     milestone: string;
     cycleFilter: string;
-  }>(['searchValue', 'assignee', 'team', 'priority', 'status', 'milestone', 'cycleFilter', 'createdBy']);
+    estimatePoint: number;
+  }>([
+    'searchValue',
+    'assignee',
+    'team',
+    'priority',
+    'status',
+    'milestone',
+    'cycleFilter',
+    'createdBy',
+    'estimatePoint',
+  ]);
 
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
@@ -89,14 +97,24 @@ const TasksFilterPopover = () => {
                   <IconProgressCheck />
                   Status
                 </Filter.Item>
-                {teamId && (
+                {(!teamId || (teamId && team?.cycleEnabled)) && (
                   <Filter.Item value="cycleFilter">
                     <IconRestore />
                     Cycle
                   </Filter.Item>
                 )}
+                {(!teamId ||
+                  (teamId &&
+                    team?.estimateType &&
+                    String(team.estimateType) !==
+                      TeamEstimateTypes.NOT_IN_USE)) && (
+                  <Filter.Item value="estimatePoint">
+                    <IconHash />
+                    Estimate
+                  </Filter.Item>
+                )}
                 <TagsFilter />
-                {(projectId && !queries?.milestone) && (
+                {projectId && !queries?.milestone && (
                   <Filter.Item value="milestone">
                     <IconSquareRotated />
                     Milestone
@@ -114,9 +132,17 @@ const TasksFilterPopover = () => {
           ) : (
             <SelectStatus.FilterView />
           )}
-          {teamId && <SelectCycle.FilterView />}
+          {(!teamId || (teamId && team?.cycleEnabled)) && (
+            <SelectCycle.FilterView />
+          )}
+          {(!teamId ||
+            (teamId &&
+              team?.estimateType &&
+              String(team.estimateType) !== TeamEstimateTypes.NOT_IN_USE)) && (
+            <SelectEstimatedPoint.FilterView />
+          )}
           <TagsFilter.View tagType="operation:task" />
-          {(projectId && !queries?.milestone) && (
+          {projectId && !queries?.milestone && (
             <SelectMilestone.FilterView projectId={projectId || ''} />
           )}
         </Combobox.Content>
@@ -132,6 +158,7 @@ const TasksFilterPopover = () => {
 
 export const TasksFilter = () => {
   const { teamId, projectId } = useParams();
+  const { team } = useGetTeam({ variables: { _id: teamId }, skip: !teamId });
   const [queries] = useMultiQueryState<{
     searchValue: string;
     assignee: string;
@@ -142,8 +169,20 @@ export const TasksFilter = () => {
     milestone: string;
     tags: string[];
     cycleFilter: string;
-  }>(['searchValue', 'assignee', 'team', 'priority', 'status', 'milestone', 'tags', 'createdBy', 'cycleFilter']);
-  const { searchValue, milestone, cycleFilter } = queries || {};
+    estimatePoint: number;
+  }>([
+    'searchValue',
+    'assignee',
+    'team',
+    'priority',
+    'status',
+    'milestone',
+    'tags',
+    'createdBy',
+    'cycleFilter',
+    'estimatePoint',
+  ]);
+  const { searchValue, milestone, cycleFilter, estimatePoint } = queries || {};
 
   return (
     <Filter id="Tasks-filter" sessionKey={TASKS_CURSOR_SESSION_KEY}>
@@ -196,7 +235,7 @@ export const TasksFilter = () => {
           </Filter.BarName>
           <SelectAssigneeTask.FilterBar />
         </Filter.BarItem>
-        {teamId && cycleFilter && (
+        {(!teamId || (teamId && team?.cycleEnabled && cycleFilter)) && (
           <Filter.BarItem queryKey="cycleFilter">
             <Filter.BarName>
               <IconRestore />
@@ -205,8 +244,21 @@ export const TasksFilter = () => {
             <SelectCycle.FilterBar />
           </Filter.BarItem>
         )}
+        {(!teamId ||
+          (teamId &&
+            team?.estimateType &&
+            String(team.estimateType) !== TeamEstimateTypes.NOT_IN_USE)) &&
+          estimatePoint && (
+            <Filter.BarItem queryKey="estimatePoint">
+              <Filter.BarName>
+                <IconHash />
+                Estimate
+              </Filter.BarName>
+              <SelectEstimatedPoint.FilterBar />
+            </Filter.BarItem>
+          )}
         <TagsFilter.Bar tagType="operation:task" />
-        {(projectId && milestone) && (
+        {projectId && milestone && (
           <Filter.BarItem queryKey="milestone">
             <Filter.BarName>
               <IconSquareRotated />
