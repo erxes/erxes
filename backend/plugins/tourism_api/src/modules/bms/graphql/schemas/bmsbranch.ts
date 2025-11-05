@@ -40,8 +40,8 @@ export const types = `
 `;
 
 export const queries = `
-  bmsBranchList(page: Int, perPage: Int, sortField: String, sortDirection: Int): [BmsBranch]
-  bmsBranches(${GQL_CURSOR_PARAM_DEFS}): BmsBranchListResponse
+  bmsBranches(page: Int, perPage: Int, sortField: String, sortDirection: Int): [BmsBranch]
+  bmsBranchList(${GQL_CURSOR_PARAM_DEFS}): BmsBranchListResponse
   bmsBranchDetail(_id: String!): BmsBranch
 `;
 
