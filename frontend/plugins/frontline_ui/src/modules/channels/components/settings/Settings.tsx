@@ -40,6 +40,10 @@ const ChannelsSettings = () => {
       <ChannelSettingsPageEffect />
       <Routes>
         <Route
+          path={FrontlinePaths.ErxesMessengerPreview}
+          element={<ErxesMessengerPreview />}
+        />
+        <Route
           element={
             <PageContainer>
               <SettingsHeader breadcrumbs={<ChannelSettingsBreadcrumb />} />
@@ -59,10 +63,6 @@ const ChannelsSettings = () => {
           <Route
             path={FrontlinePaths.ChannelIntegrations}
             element={<IntegrationDetailPage />}
-          />
-          <Route
-            path={FrontlinePaths.ErxesMessengerPreview}
-            element={<ErxesMessengerPreview />}
           />
           <Route
             path={FrontlinePaths.ChannelPipelines}
