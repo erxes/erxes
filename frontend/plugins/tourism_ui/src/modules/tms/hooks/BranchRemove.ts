@@ -49,7 +49,9 @@ export const useBranchRemove = (options?: UseBranchRemoveOptions) => {
     } catch (error) {
       toast({
         title: 'Failed to delete branch',
-        description: `${error.message}`,
+        description: `${
+          error instanceof Error ? error.message : String(error)
+        }`,
       });
       throw error;
     }

@@ -8,11 +8,9 @@ export const PreviewPage = () => {
   const [logoUrl, setLogoUrl] = useState('');
 
   useLayoutEffect(() => {
-    if (formData.color && hexToHsl(formData.color)) {
-      document.documentElement.style.setProperty(
-        '--primary',
-        hexToHsl(formData.color) || '',
-      );
+    const hsl = formData.color ? hexToHsl(formData.color) : undefined;
+    if (hsl) {
+      document.documentElement.style.setProperty('--primary', hsl || '');
     }
   }, [formData.color]);
 
