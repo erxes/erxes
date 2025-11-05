@@ -80,6 +80,7 @@ import {
   IRoleDocument,
   ITagDocument,
   IUomDocument,
+  IUser,
   IUserDocument,
   IUserGroupDocument,
   IUserMovementDocument,
@@ -212,6 +213,8 @@ export interface IContext extends IMainContext {
   models: IModels;
   commonQuerySelector: any;
   subdomain: string;
+  user: IUserDocument;
+  docModifier: <T>(doc: T) => any;
 }
 
 export const loadClasses = (

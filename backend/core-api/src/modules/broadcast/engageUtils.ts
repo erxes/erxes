@@ -4,6 +4,7 @@ import { isUsingElk } from './utils';
 import { CAMPAIGN_KINDS, CAMPAIGN_METHODS, CONTENT_TYPES } from './constants';
 import { IModels } from '~/connectionResolvers';
 import { IEngageMessage } from './@types/types';
+import { awsRequests } from './trackers.ts/engageTracker';
 
 interface ICustomerSelector {
   engageId?: string;

@@ -1,4 +1,6 @@
+import { IContext } from '~/connectionResolvers';
 import { IEngageMessage } from '~/modules/broadcast/@types/types';
+import { checkCampaignDoc } from '~/modules/broadcast/engageUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
