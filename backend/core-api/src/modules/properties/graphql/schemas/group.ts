@@ -8,8 +8,6 @@ export const types = `
         description: String!
         contentType: String!
         order: Float
-        isVisible: Boolean
-        alwaysOpen: Boolean
         logics: JSON
         createdAt: Date!
         updatedAt: Date!
@@ -24,7 +22,6 @@ export const types = `
     input FieldGroupParams {
         contentType: String!
         contentTypeId: String
-        isDefinedByErxes: Boolean
         codes: [String]
 
         ${GQL_CURSOR_PARAM_DEFS}
@@ -37,8 +34,6 @@ export const types = `
         contentType: String
         contentTypeId: String
         order: Float
-        isVisible: Boolean
-        alwaysOpen: Boolean
         logics: JSON
     }
 `;

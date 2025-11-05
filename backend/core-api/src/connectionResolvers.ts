@@ -311,23 +311,14 @@ export const loadClasses = (
   );
   models.Apps = db.model<IAppDocument, IAppModel>('apps', loadAppClass(models));
 
-  // models.Fields = db.model<IFieldDocument, IFieldModel>(
-  //   'form_fields',
-  //   loadFieldClass(models, subdomain),
-  // );
-  // models.FieldsGroups = db.model<IFieldGroupDocument, IFieldGroupModel>(
-  //   'fields_groups',
-  //   loadGroupClass(models),
-  // );
-
   models.Fields = db.model<IFieldDocument, IFieldModel>(
     'properties_fields',
-    loadFieldClass(models, subdomain),
+    loadFieldClass(models),
   );
 
   models.FieldsGroups = db.model<IFieldGroupDocument, IFieldGroupModel>(
     'properties_groups',
-    loadFieldGroupClass(models, subdomain),
+    loadFieldGroupClass(models),
   );
 
   models.Forms = db.model<IForm, IFormModel>('forms', loadFormClass(models));

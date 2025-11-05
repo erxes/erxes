@@ -12,8 +12,6 @@ export interface IFieldGroup {
   contentTypeId: string;
 
   order: number;
-  isVisible: boolean;
-  alwaysOpen: boolean;
 
   logics: string;
 }
@@ -26,6 +24,5 @@ export interface IFieldGroupDocument extends IFieldGroup, Document {
 export interface IFieldGroupParams extends IListParams, ICursorPaginateParams {
   contentType: string;
   contentTypeId?: string;
-  isDefinedByErxes?: boolean;
   codes?: string[];
 }

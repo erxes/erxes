@@ -14,7 +14,8 @@ export interface IField {
 
   type: string;
   order: number;
-  isVisible: boolean;
+
+  options?: string[];
 
   logics: any;
   validations: any;
@@ -29,7 +30,4 @@ export interface IFieldParams extends IListParams, ICursorPaginateParams {
   contentType: string;
   contentTypeId?: string;
   groupIds?: string[];
-  isVisible?: boolean;
-  isVisibleToCreate?: boolean;
-  searchable?: boolean;
 }

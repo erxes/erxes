@@ -7,7 +7,6 @@ export const types = `
         code: String
         type: String
         order: Float
-        isVisible: Boolean
         validations: JSON
         logics: JSON
         createdAt: Date
@@ -23,10 +22,7 @@ export const types = `
     input FieldsParams {
         contentType: String!
         contentTypeId: String
-        isVisible: Boolean
-        searchable: Boolean
         groupIds: [String]
-        isVisibleToCreate: Boolean
 
         ${GQL_CURSOR_PARAM_DEFS}
     }
@@ -40,7 +36,6 @@ export const types = `
         
         type: String
         order: Float
-        isVisible: Boolean
 
         validations: JSON
         logics: JSON

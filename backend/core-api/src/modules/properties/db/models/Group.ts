@@ -19,7 +19,7 @@ export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
   removeGroup(_id: string): Promise<IFieldGroupDocument>;
 }
 
-export const loadFieldGroupClass = (models: IModels, subdomain: string) => {
+export const loadFieldGroupClass = (models: IModels) => {
   class FieldGroup {
     public static async getGroup({ _id }: { _id: string }) {
       const group = await models.FieldsGroups.findOne({ _id }).lean();
@@ -36,8 +36,6 @@ export const loadFieldGroupClass = (models: IModels, subdomain: string) => {
 
       const { contentType } = doc || {};
 
-      // Newly created group must be visible
-      doc.isVisible = true;
       doc.order = await this.generateOrder({ contentType });
 
       return models.FieldsGroups.create({ ...doc, createdBy: user._id });

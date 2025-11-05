@@ -4,7 +4,7 @@ import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
 const generateFilter = async (params: IFieldGroupParams) => {
-  const { contentType, contentTypeId, isDefinedByErxes, codes } = params;
+  const { contentType, contentTypeId, codes } = params;
 
   const filter: FilterQuery<IFieldGroup> = {
     contentType,
@@ -12,10 +12,6 @@ const generateFilter = async (params: IFieldGroupParams) => {
 
   if (contentTypeId) {
     filter.contentTypeId = contentTypeId;
-  }
-
-  if (isDefinedByErxes) {
-    filter.isDefinedByErxes = isDefinedByErxes;
   }
 
   if (codes && codes.length > 0) {

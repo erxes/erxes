@@ -18,10 +18,11 @@ export interface IFieldModel extends Model<IFieldDocument> {
 
   validateFieldValue(_id: string, value: any): Promise<any>;
   validateFieldValues(customFieldsData: any): Promise<any>;
-  validatePropertyValues(propertiesFieldsData: any): Promise<any>;
+
+  prepareCustomFieldsData(customFieldsData: any): Promise<any>;
 }
 
-export const loadFieldClass = (models: IModels, subdomain: string) => {
+export const loadFieldClass = (models: IModels) => {
   class Field {
     public static async getField({ _id }: { _id: string }) {
       const field = await models.Fields.findOne({ _id }).lean();
@@ -181,47 +182,9 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       return value;
     }
 
-    public static async validateFieldValues(customFieldsData: any) {
-      for (const customFieldData of customFieldsData || []) {
-        if (!customFieldData?.field) {
-          continue;
-        }
-
-        const field = await models.Fields.findOne({
-          $or: [{ _id: customFieldData.field }, { code: customFieldData.code }],
-        }).lean();
-
-        const group = await models.FieldsGroups.findOne({
-          _id: customFieldData.field,
-          isMultiple: true,
-        }).lean();
-
-        if (!field && !group) {
-          continue;
-        }
-
-        const fieldId = group?._id || field?._id;
-
-        if (!fieldId) {
-          continue;
-        }
-
-        try {
-          await this.validateFieldValue(
-            fieldId.toString(),
-            customFieldData.value,
-          );
-        } catch (e) {
-          throw new Error(e.message);
-        }
-      }
-    }
-
-    public static async validatePropertyValues(
-      propertiesFieldsData: IPropertyField,
-    ) {
-      for (const fieldName in propertiesFieldsData) {
-        const fieldValue = propertiesFieldsData[fieldName];
+    public static async validateFieldValues(customFieldsData: IPropertyField) {
+      for (const fieldName in customFieldsData) {
+        const fieldValue = customFieldsData[fieldName];
 
         if (!fieldValue) {
           continue;
@@ -252,6 +215,10 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           throw new Error(e.message);
         }
       }
+    }
+
+    public static async prepareCustomFieldsData(customFieldsData: any) {
+      return customFieldsData;
     }
   }
 
