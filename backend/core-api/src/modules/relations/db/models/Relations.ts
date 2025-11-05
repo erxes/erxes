@@ -20,9 +20,11 @@ export interface IRelationModel extends Model<IRelationDocument> {
   getRelationsByEntity: ({
     contentType,
     contentId,
+    relatedContentType,
   }: {
     contentType: string;
     contentId: string;
+    relatedContentType: string;
   }) => Promise<IRelationDocument[]>;
   getRelationsByEntities: ({
     contentType,
@@ -31,12 +33,25 @@ export interface IRelationModel extends Model<IRelationDocument> {
     contentType: string;
     contentId: string;
   }) => Promise<IRelationDocument[]>;
+  createMultipleRelations: ({
+    relations,
+  }: {
+    relations: IRelation[];
+  }) => Promise<IRelationDocument[]>;
 }
 
 export const loadRelationClass = (models: IModels) => {
   class Relation {
     public static async createRelation({ relation }: { relation: IRelation }) {
       return models.Relations.create(relation);
+    }
+
+    public static async createMultipleRelations({
+      relations,
+    }: {
+      relations: IRelation[];
+    }) {
+      return models.Relations.insertMany(relations);
     }
 
     public static async updateRelation({
@@ -56,13 +71,30 @@ export const loadRelationClass = (models: IModels) => {
     public static async getRelationsByEntity({
       contentType,
       contentId,
+      relatedContentType,
     }: {
       contentType: string;
       contentId: string;
+      relatedContentType: string;
     }) {
       const relation = await models.Relations.find({
-        'entities.contentType': contentType,
-        'entities.contentId': contentId,
+        $and: [
+          {
+            entities: {
+              $elemMatch: {
+                contentType: contentType,
+                contentId: contentId,
+              },
+            },
+          },
+          {
+            entities: {
+              $elemMatch: {
+                contentType: relatedContentType,
+              },
+            },
+          },
+        ],
       });
 
       return relation;
