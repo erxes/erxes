@@ -1,8 +1,8 @@
 import { atomWithStorage } from 'jotai/utils';
 
-export const dealsViewAtom = atomWithStorage<'list' | 'grid'>(
+export const dealsViewAtom = atomWithStorage<'list' | 'board'>(
   'dealsView',
-  'list',
+  'board',
   undefined,
   {
     getOnInit: true,

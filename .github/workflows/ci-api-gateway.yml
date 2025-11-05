@@ -34,6 +34,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Set environment variables
+        run: |
+          echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+          echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
       - name: Build shared module
         run: |
           export NX_DAEMON=false
@@ -46,6 +51,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           export NX_DAEMON=false
           pnpm nx docker-build gateway
@@ -53,4 +59,3 @@ jobs:
           docker tag erxes/erxes-next-gateway erxes/erxes-next-gateway:${{ github.sha }}
           docker push erxes/erxes-next-gateway:latest
           docker push erxes/erxes-next-gateway:${{ github.sha }}
-        if: github.event_name != 'pull_request'

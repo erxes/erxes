@@ -5,6 +5,7 @@ import { projectMutations } from '@/project/graphql/resolvers/mutations/project'
 import { statusMutations } from '@/status/graphql/resolvers/mutations/status';
 import { taskMutations } from '@/task/graphql/resolvers/mutations/task';
 import { teamMutations } from '@/team/graphql/resolvers/mutations/team';
+import { triageMutations } from '@/task/graphql/resolvers/mutations/triage';
 
 export const mutations = {
   ...taskMutations,
@@ -14,4 +15,5 @@ export const mutations = {
   ...noteMutations,
   ...cycleMutations,
   ...milestoneMutations,
+  ...triageMutations,
 };

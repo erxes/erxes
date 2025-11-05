@@ -9,6 +9,7 @@ import { TaskDetailPage } from '~/pages/TaskDetailPage';
 import { CyclesPage } from '~/pages/CyclesPage';
 import { CycleDetailPage } from '~/pages/CycleDetailPage';
 import { TasksLayout } from '@/task/components/TasksLayout';
+import { TriagePage } from '~/pages/TriagePage';
 
 const taskMain = () => {
   return (
@@ -28,6 +29,8 @@ const taskMain = () => {
         <Route path="team/:teamId">
           <Route index element={<Navigate to="tasks" replace />} />
           <Route path="projects" element={<ProjectsPage />} />
+          <Route path="triage" element={<TriagePage />} />
+          <Route path="triage/:triageId" element={<TriagePage />} />
           <Route path="tasks" element={<TasksPage />} />
           <Route path="cycles" element={<CyclesPage />} />
           <Route path="cycles/:cycleId" element={<CycleDetailPage />} />

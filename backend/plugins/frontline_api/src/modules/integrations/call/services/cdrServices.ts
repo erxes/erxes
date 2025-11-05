@@ -12,14 +12,9 @@ import { getOrCreateCustomer } from '@/integrations/call/store';
 import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 
-function applyTimezoneOffset(date, timezoneOffsetHours = 8) {
-  const offsetMs = timezoneOffsetHours * 60 * 60 * 1000;
-  return new Date(date.getTime() - offsetMs);
-}
-
 export const receiveCdr = async (models: IModels, subdomain, params) => {
   debugCall(`Request to get post data with: ${JSON.stringify(params)}`);
-
+  console.log(params.src, params.dst, 'received cdr phone number');
   const integration = await models.CallIntegrations.findOne({
     $or: [
       { srcTrunk: params.src_trunk_name },

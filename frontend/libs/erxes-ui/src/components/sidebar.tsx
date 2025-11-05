@@ -18,6 +18,7 @@ import {
 import { Key } from 'erxes-ui/types/Key';
 import { useScopedHotkeys } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
 import { AppHotkeyScope } from 'erxes-ui/modules/hotkey/types/AppHotkeyScope';
+import { ScrollArea } from './scroll-area';
 
 const SIDEBAR_COOKIE_NAME = 'sidebar:state';
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -400,15 +401,15 @@ const SidebarSeparator = React.forwardRef<
 SidebarSeparator.displayName = 'SidebarSeparator';
 
 const SidebarContent = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<'div'>
+  React.ElementRef<typeof ScrollArea>,
+  React.ComponentProps<typeof ScrollArea>
 >(({ className, ...props }, ref) => {
   return (
-    <div
+    <ScrollArea
       ref={ref}
       data-sidebar="content"
       className={cn(
-        'flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden',
+        'flex min-h-0 flex-1 flex-col gap-2 group-data-[collapsible=icon]:overflow-hidden',
         className,
       )}
       {...props}

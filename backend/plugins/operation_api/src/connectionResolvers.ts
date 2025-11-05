@@ -30,6 +30,8 @@ import {
   loadMilestoneClass,
 } from '@/milestone/db/models/Milestone';
 import { IMilestoneDocument } from '@/milestone/types';
+import { ITriageModel, loadTriageClass } from '@/task/db/models/Triage';
+import { ITriageDocument } from './modules/task/@types/triage';
 
 export interface IModels {
   Task: ITaskModel;
@@ -41,6 +43,7 @@ export interface IModels {
   Activity: IActivityModel;
   Cycle: ICycleModel;
   Milestone: IMilestoneModel;
+  Triage: ITriageModel;
 }
 
 export interface IContext extends IMainContext {
@@ -48,7 +51,10 @@ export interface IContext extends IMainContext {
   subdomain: string;
 }
 
-export const loadClasses = (db: mongoose.Connection): IModels => {
+export const loadClasses = (
+  db: mongoose.Connection,
+  subdomain: string,
+): IModels => {
   const models = {} as IModels;
 
   models.Task = db.model<ITaskDocument, ITaskModel>(
@@ -73,7 +79,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.Project = db.model<IProjectDocument, IProjectModel>(
     'operation_projects',
-    loadProjectClass(models),
+    loadProjectClass(models, subdomain),
   );
 
   models.Note = db.model<INoteDocument, INoteModel>(
@@ -94,6 +100,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Milestone = db.model<IMilestoneDocument, IMilestoneModel>(
     'operation_milestones',
     loadMilestoneClass(models),
+  );
+
+  models.Triage = db.model<ITriageDocument, ITriageModel>(
+    'operation_triage',
+    loadTriageClass(models),
   );
 
   return models;

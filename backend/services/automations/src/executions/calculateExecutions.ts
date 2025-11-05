@@ -48,7 +48,7 @@ export const calculateExecution = async ({
       if (!isValid) {
         return;
       }
-    } else if (!(await isInSegment(subdomain, contentId, target._id))) {
+    } else if (!(await isInSegment(contentId, target._id))) {
       return;
     }
   } catch (e) {
