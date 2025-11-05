@@ -172,12 +172,8 @@ export default {
               `,
           });
         },
-        subscribe: (_, { _id }) => {
-          console.log(_id, 'subs id');
-          return graphqlPubsub.asyncIterator(
-            `conversationMessageInserted:${_id}`,
-          );
-        },
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(`conversationMessageInserted:${_id}`),
       },
 
       /*
