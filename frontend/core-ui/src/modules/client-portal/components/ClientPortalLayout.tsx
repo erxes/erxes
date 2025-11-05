@@ -53,9 +53,10 @@ export function ClientPortalLayout() {
             </Button>
           ) : (
             <Button size="sm" asChild>
-              <Link to={`/${AppPath.ClientPortal}/${ClientPortalPath.CreateWebsite}`}>
-                <IconPlus />
-                New website
+              <Link
+                to={`/${AppPath.ClientPortal}/${ClientPortalPath.CreateWebsite}`}
+              >
+                <IconPlus />d New website
               </Link>
             </Button>
           )}
