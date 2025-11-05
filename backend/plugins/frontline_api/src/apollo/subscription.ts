@@ -167,7 +167,7 @@ export default {
               buildQueryUsingSelections: (selections) => `
               query Subscription_GetMessage($_id: String!) {
                 conversationMessage(_id: $_id) {
-                  ${selections}
+                  _id
                 }
               }
             `,
@@ -175,6 +175,9 @@ export default {
             .then((res) => {
               console.log('Merged result:', JSON.stringify(res, null, 2));
               return res;
+            })
+            .catch((error) => {
+              console.log('error:', error);
             });
         },
         subscribe: (_, { _id }) =>
