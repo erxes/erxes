@@ -27,8 +27,12 @@ export const BranchList = () => {
   );
 
   const onDuplicateConfirm = async () => {
+    const branchId = duplicateDialogOpen;
+
     setDuplicateDialogOpen(null);
-    const branch = list?.find((b) => b._id === duplicateDialogOpen);
+
+    const branch = list?.find((b) => b._id === branchId);
+
     if (branch) {
       await handleDuplicateBranch(branch, refetch);
     }
@@ -36,6 +40,7 @@ export const BranchList = () => {
 
   const onDeleteConfirm = async () => {
     const branchId = deleteDialogOpen;
+
     setDeleteDialogOpen(null);
 
     if (branchId) {
