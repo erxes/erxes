@@ -1,10 +1,11 @@
+import { REACT_APP_API_URL } from 'erxes-ui/utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   type FileError,
   type FileRejection,
   useDropzone,
 } from 'react-dropzone';
-interface FileWithPreview extends File {
+export interface FileWithPreview extends File {
   preview?: string;
   errors: readonly FileError[];
 }
@@ -24,17 +25,19 @@ type UseErxesUploadOptions = {
    * Maximum number of files allowed per upload.
    */
   maxFiles?: number;
+  onFilesAdded?: (
+    addedFiles: { name: string; url: string; type: string; size: number }[],
+  ) => void;
 };
 
 type UseErxesUploadReturn = ReturnType<typeof useErxesUpload>;
-
-const REACT_APP_API_URL = 'http://localhost:4000';
 
 const useErxesUpload = (options: UseErxesUploadOptions) => {
   const {
     allowedMimeTypes = [],
     maxFileSize = Number.POSITIVE_INFINITY,
     maxFiles = 1,
+    onFilesAdded,
   } = options;
 
   const [files, setFiles] = useState<FileWithPreview[]>([]);
@@ -114,11 +117,13 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
             credentials: 'include',
           },
         );
-        const data = await response.json();
+
+        const data = await response.text();
+
         if (!response.ok) {
-          return { name: file.name, message: data.message };
+          return { name: file.name, message: data };
         }
-        return { name: file.name, message: undefined, url: data.url };
+        return { name: file.name, message: undefined, url: data };
       }),
     );
 
@@ -131,9 +136,23 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
       new Set([...successes, ...responseSuccesses.map((x) => x.name)]),
     );
     setSuccesses(newSuccesses);
-
+    onFilesAdded?.([
+      ...responseSuccesses.map((x) => ({
+        name: x.name,
+        url: x.url,
+        type: filesToUpload.find((f) => f.name === x.name)?.type || '',
+        size: filesToUpload.find((f) => f.name === x.name)?.size || 0,
+      })),
+    ]);
     setLoading(false);
-  }, [files, errors, successes]);
+
+    setTimeout(() => {
+      setFiles(
+        files.filter((f) => !responseSuccesses.some((x) => x.name === f.name)),
+      );
+      setSuccesses([]);
+    }, 1000);
+  }, [files, errors, successes, onFilesAdded]);
 
   useEffect(() => {
     if (files.length === 0) {
@@ -154,6 +173,7 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
         setFiles(newFiles);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [files.length, setFiles, maxFiles]);
 
   return {
