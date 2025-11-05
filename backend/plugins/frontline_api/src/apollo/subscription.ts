@@ -159,18 +159,23 @@ export default {
             JSON.stringify(payload, null, 2),
           );
 
-          return gatewayDataSource.queryAndMergeMissingData({
-            payload,
-            info,
-            queryVariables: { _id: payload.conversationMessageInserted._id },
-            buildQueryUsingSelections: (selections) => `
-                  query Subscription_GetMessage($_id: String!) {
-                    conversationMessage(_id: $_id) {
-                      ${selections}
-                    }
-                  }
-              `,
-          });
+          return gatewayDataSource
+            .queryAndMergeMissingData({
+              payload,
+              info,
+              queryVariables: { _id: payload.conversationMessageInserted._id },
+              buildQueryUsingSelections: (selections) => `
+              query Subscription_GetMessage($_id: String!) {
+                conversationMessage(_id: $_id) {
+                  ${selections}
+                }
+              }
+            `,
+            })
+            .then((res) => {
+              console.log('Merged result:', JSON.stringify(res, null, 2));
+              return res;
+            });
         },
         subscribe: (_, { _id }) =>
           graphqlPubsub.asyncIterator(`conversationMessageInserted:${_id}`),
