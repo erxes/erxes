@@ -113,13 +113,15 @@ export const publishMessage = async (
     `conversationMessageInserted:${message.conversationId}`,
     { conversationMessageInserted: JSON.parse(JSON.stringify(message)) },
   );
-
+  console.log(models, 'models');
   if (customerId) {
     console.log(customerId, 'customerId');
     const unreadCount =
       await models.ConversationMessages.widgetsGetUnreadMessagesCount(
         message.conversationId,
       );
+
+    console.log(unreadCount, ' unread count');
 
     await graphqlPubsub.publish(
       `conversationAdminMessageInserted:${customerId}`,
@@ -233,7 +235,6 @@ export const conversationMutations = {
       const { kind } = integration;
       const customer = await sendTRPCMessage({
         subdomain,
-
         pluginName: 'core',
         method: 'query',
         module: 'customers',
@@ -323,9 +324,12 @@ export const conversationMutations = {
 
       if (internal) {
         // Internal message: only publish to admins
+        console.log('1 publishMessage');
         publishMessage(models, dbMessage);
       } else {
         // Normal message: publish to both admin and client
+        console.log('2 publishMessage');
+
         publishMessage(models, dbMessage, conversation.customerId);
       }
 
