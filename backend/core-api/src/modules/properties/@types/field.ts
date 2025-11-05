@@ -16,8 +16,8 @@ export interface IField {
 
   options?: string[];
 
-  logics: any;
-  validations: any;
+  logics?: any;
+  validations?: any;
 }
 
 export interface IFieldDocument extends IField, Document {

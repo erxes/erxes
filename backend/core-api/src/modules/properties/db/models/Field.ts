@@ -110,7 +110,7 @@ export const loadFieldClass = (models: IModels) => {
         }
       }
 
-      if (code) {
+      if (code && !_id) {
         const field = await models.Fields.findOne({ code }).lean();
 
         if (field) {
@@ -148,7 +148,7 @@ export const loadFieldClass = (models: IModels) => {
 
         // email
         if (
-          (type === 'email' || validation === 'email') &&
+          (type === 'email' || validation.email) &&
           !validator.isEmail(value)
         ) {
           throw new Error(`${field.name}: Invalid email`);
@@ -157,14 +157,14 @@ export const loadFieldClass = (models: IModels) => {
         // number
         if (
           !['check', 'radio', 'select'].includes(type || '') &&
-          validation === 'number' &&
+          validation.number &&
           !validator.isFloat(value.toString())
         ) {
           throw new Error(`${field.name}: Invalid number`);
         }
 
         // date
-        if (validation === 'date') {
+        if (validation.date) {
           value = new Date(value);
 
           if (

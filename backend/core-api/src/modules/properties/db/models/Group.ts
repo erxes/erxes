@@ -95,7 +95,7 @@ export const loadFieldGroupClass = (models: IModels) => {
         }
       }
 
-      if (code) {
+      if (code && !_id) {
         const group = await models.FieldsGroups.findOne({ code }).lean();
 
         if (group) {

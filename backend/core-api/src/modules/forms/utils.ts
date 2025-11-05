@@ -12,7 +12,7 @@ import { nanoid } from 'nanoid';
 export const getCustomFields = async (
   models: IModels,
   contentType: string,
-  validations?: string,
+  validations?: any,
 ) => {
   const qry: any = {
     contentType,
