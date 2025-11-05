@@ -21,18 +21,22 @@ export const CONFIG: IUIConfig = {
   },
   modules: [
     {
-      name: 'pms',
-      icon: IconSandbox,
-      path: 'pms',
+      name: 'tourism',
+      icon: IconBox,
+      path: 'tourism',
       hasSettings: true,
       hasRelationWidget: true,
+    },
+  ],
+
+  relationWidgets: [
+    {
+      name: 'pms',
+      icon: IconSandbox,
     },
     {
       name: 'tms',
       icon: IconBox,
-      path: 'tms',
-      hasSettings: true,
-      hasRelationWidget: true,
     },
   ],
 };
