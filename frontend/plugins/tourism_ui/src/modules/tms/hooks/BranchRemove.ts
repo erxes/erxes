@@ -16,14 +16,14 @@ export const useBranchRemove = (options?: UseBranchRemoveOptions) => {
         variables: { id: branchId },
       });
 
-      if (result.data) {
+      if (result.data?.bmsBranchRemove) {
         options?.onSuccess?.();
         return true;
       }
       return false;
     } catch (error) {
       options?.onError?.(error);
-      throw error;
+      return false;
     }
   };
 
