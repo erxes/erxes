@@ -21,6 +21,7 @@ export enum SettingsWorkspacePath {
   ProductsCatchAll = 'products/*',
   Brands = 'brands',
   AutomationsCatchAll = 'automations/*',
+  ContactsCatchAll = 'contacts/*',
 }
 
 export type TSettingPath = {

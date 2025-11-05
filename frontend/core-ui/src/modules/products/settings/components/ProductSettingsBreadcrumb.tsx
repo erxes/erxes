@@ -1,4 +1,4 @@
-import { IconChartPie2, IconShoppingCartFilled } from '@tabler/icons-react';
+import { IconShoppingCartFilled } from '@tabler/icons-react';
 import { Button, Separator } from 'erxes-ui';
 
 export function ProductSettingsBreadcrumb() {

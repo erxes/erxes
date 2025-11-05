@@ -18,7 +18,7 @@ export const GET_CORE_MODULES = (version?: boolean): IUIConfig['modules'] => {
       name: 'contacts',
       icon: IconAddressBook,
       path: 'contacts',
-      hasSettings: false,
+      hasSettings: true,
       submenus: [
         {
           name: 'customers',

@@ -47,13 +47,6 @@ const PermissionsSettings = lazy(() =>
     default: module.PermissionPage,
   })),
 );
-// const StructureSettings = lazy(() =>
-//   import('~/pages/settings/workspace/structure/StructureSettingsPage').then(
-//     (module) => ({
-//       default: module.StructureSettingsPage,
-//     }),
-//   ),
-// );
 
 const TagsSettings = lazy(() =>
   import('~/pages/settings/workspace/tags/TagsSettingPage').then((module) => ({
@@ -92,6 +85,14 @@ const PropertiesSettins = lazy(() =>
   import('~/pages/settings/workspace/PropertiesSettingsPage').then(
     (module) => ({
       default: module.PropertiesSettingsPage,
+    }),
+  ),
+);
+
+const ContactsSettingsRoutes = lazy(() =>
+  import('@/contacts/settings/components/ContactsSettingsRoutes').then(
+    (module) => ({
+      default: module.ContactsSettingsRoutes,
     }),
   ),
 );
@@ -147,6 +148,10 @@ export function SettingsRoutes() {
         <Route
           path={SettingsWorkspacePath.Brands}
           element={<BrandsSettingsRoutes />}
+        />
+        <Route
+          path={SettingsWorkspacePath.ContactsCatchAll}
+          element={<ContactsSettingsRoutes />}
         />
         {isOs && (
           <Route
