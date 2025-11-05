@@ -24,7 +24,7 @@ const queries = {
   },
 
   bmsBranches: async (_root, params, { models }: { models: IModels }) => {
-    return paginate(models.Branches.find(params), params);
+    return paginate(models.Branches.find(), params);
   },
 
   bmsBranchDetail: async (_root, { _id }, { models }: { models: IModels }) => {

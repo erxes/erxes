@@ -21,6 +21,7 @@ import { tagQueries } from '@/tags/graphql/queries';
 
 import { notificationQueries } from '@/notifications/graphql/resolver/queries';
 import { roleQueries } from '@/permissions/graphql/resolvers/queries/role';
+import { propertiesQueries } from '~/modules/properties/graphql/resolvers/queries';
 
 export const queries = {
   ...contactQueries,
@@ -45,4 +46,5 @@ export const queries = {
   ...notificationQueries,
   ...internalNoteQueries,
   ...roleQueries,
+  ...propertiesQueries,
 };

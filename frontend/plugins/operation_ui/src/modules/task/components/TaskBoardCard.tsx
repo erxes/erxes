@@ -90,7 +90,7 @@ export const TaskBoardCard = ({ id, column }: BoardCardProps) => {
           className="text-muted-foreground px-1 hover:bg-background"
         >
           <IconCalendarEventFilled />
-          {createdAt && format(new Date(createdAt), 'MMM dd, yyyy')}
+          Created on: {createdAt && format(new Date(createdAt), 'MMM dd, yyyy')}
         </Button>
         <SelectAssigneeTask
           variant="card"

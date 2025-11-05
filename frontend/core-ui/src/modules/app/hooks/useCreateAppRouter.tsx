@@ -28,12 +28,11 @@ import { DocumentsRoutes } from '../components/DocumentsRoutes';
 import { ClientPortalRoutes } from '../components/ClientPortalRoutes';
 
 const LoginPage = lazy(() => import('~/pages/auth/LoginPage'));
-
 const ResetPasswordPage = lazy(() => import('~/pages/auth/ResetPasswordPage'));
-
 const CreateOwnerPage = lazy(
   () => import('~/pages/organization/CreateOwnerPage'),
 );
+
 export const useCreateAppRouter = () => {
   const isOS = useVersion();
 
@@ -55,26 +54,31 @@ export const useCreateAppRouter = () => {
                 path={AppPath.Index}
                 element={<Navigate to={AppPath.MyInbox} />}
               />
+
               <Route
                 path={AppPath.SettingsCatchAll}
                 element={<SettingsRoutes />}
               />
+
               {isOS && (
                 <Route
                   path={AppPath.ProductsCatchAll}
                   element={<ProductsRoutes />}
                 />
               )}
+
               <Route
                 path={AppPath.ContactsCatchAll}
                 element={<ContactsRoutes />}
               />
+
               {isOS && (
                 <Route
                   path={AppPath.SegmentsCatchAll}
                   element={<SegmentRoutes />}
                 />
               )}
+
               {isOS && (
                 <Route
                   path={AppPath.AutomationsCatchAll}
@@ -102,6 +106,7 @@ export const useCreateAppRouter = () => {
                 element={<ClientPortalRoutes />}
               />
               {...getPluginsRoutes()}
+
               {process.env.NODE_ENV === 'development' && (
                 <Route
                   path={AppPath.ComponentsCatchAll}
@@ -111,6 +116,7 @@ export const useCreateAppRouter = () => {
             </Route>
           </Route>
         </Route>
+
         <Route path={AppPath.NotFoundWildcard} element={<NotFoundPage />} />
       </Route>,
     ),

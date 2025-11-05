@@ -1,4 +1,4 @@
-import { Members } from '@/channels/components/members/Members';
+import { Members } from '@/channels/components/settings/members/Members';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';

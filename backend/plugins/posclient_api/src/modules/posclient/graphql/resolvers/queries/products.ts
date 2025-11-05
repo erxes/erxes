@@ -13,7 +13,10 @@ import {
   getSimilaritiesProductsCount,
 } from '~/modules/posclient/maskUtils';
 import { Builder } from '~/modules/posclient/utils';
-import { checkRemainders } from '~/modules/posclient/utils/products';
+import {
+  checkRemainders,
+  getRemBranchId,
+} from '~/modules/posclient/utils/products';
 
 export interface ICommonParams {
   sortField?: string;
@@ -41,6 +44,11 @@ export interface IProductParams extends ICommonParams {
   groupedSimilarity?: string;
   categoryMeta?: string;
   image?: string;
+
+  minRemainder?: number;
+  maxRemainder?: number;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 export interface ICategoryParams extends ICommonParams {
@@ -61,6 +69,7 @@ const generateFilter = async (
   config: IConfigDocument,
   {
     type,
+    branchId,
     categoryId,
     searchValue,
     vendorId,
@@ -75,6 +84,10 @@ const generateFilter = async (
     categoryMeta,
     isKiosk,
     image,
+    minRemainder,
+    maxRemainder,
+    minPrice,
+    maxPrice,
     ...paginationArgs
   }: IProductParams,
 ) => {
@@ -245,6 +258,24 @@ const generateFilter = async (
 
     $and.push({ categoryId: { $in: categories.map((c) => c._id) } });
   }
+  if (minPrice || minPrice === 0) {
+    $and.push({ [`prices.${token}`]: { $gte: minPrice } });
+  }
+  if (maxPrice || maxPrice === 0) {
+    $and.push({ [`prices.${token}`]: { $lte: maxPrice } });
+  }
+
+  const remBranchId = getRemBranchId(config, branchId);
+  if (minRemainder || minRemainder === 0) {
+    $and.push({
+      [`remainderByToken.${token}.${remBranchId}`]: { $gte: minRemainder },
+    });
+  }
+  if (maxRemainder || maxRemainder === 0) {
+    $and.push({
+      [`remainderByToken.${token}.${remBranchId}`]: { $lte: maxRemainder },
+    });
+  }
 
   const lastFilter = { ...filter, $and };
 
@@ -329,58 +360,28 @@ const generateFilterCat = async ({
 const productQueries = {
   async poscProducts(
     _root,
-    {
-      type,
-      categoryId,
-      branchId,
-      searchValue,
-      vendorId,
-      tag,
-      tags,
-      excludeTags,
-      tagWithRelated,
-      ids,
-      excludeIds,
-      pipelineId,
-      boardId,
-      segment,
-      segmentData,
-      isKiosk,
-      categoryMeta,
-      groupedSimilarity,
-      image,
-      sortField,
-      sortDirection,
-      ...paginationArgs
-    }: IProductParams,
+    params: IProductParams,
     { models, subdomain, config }: IContext,
   ) {
-    let filter = await generateFilter(subdomain, models, config, {
-      type,
-      categoryId,
-      branchId,
-      searchValue,
-      vendorId,
-      tag,
-      tags,
-      excludeTags,
-      tagWithRelated,
-      ids,
-      excludeIds,
-      pipelineId,
-      boardId,
-      segment,
-      segmentData,
-      categoryMeta,
-      image,
-      isKiosk,
-    });
+    const { branchId, groupedSimilarity, sortField, sortDirection } = params;
+    const paginationArgs = {
+      perPage: params?.perPage ?? 20,
+      page: params?.page ?? 1,
+    };
+
+    let filter = await generateFilter(subdomain, models, config, params);
 
     let sortParams: any = { code: 1 };
 
     if (sortField) {
       if (sortField === 'unitPrice') {
         sortParams = { [`prices.${config.token}`]: sortDirection || 1 };
+      } else if (sortField === 'remainder') {
+        const remBranchId = getRemBranchId(config, branchId);
+        sortParams = {
+          [`remainderByToken.${config.token}.${remBranchId}`]:
+            sortDirection || 1,
+        };
       } else {
         sortParams = { [sortField]: sortDirection || 1 };
       }
@@ -400,6 +401,7 @@ const productQueries = {
 
     return checkRemainders(
       subdomain,
+      models,
       config,
       paginatedProducts,
       branchId || '',
@@ -411,49 +413,11 @@ const productQueries = {
    */
   async poscProductsTotalCount(
     _root,
-    {
-      type,
-      categoryId,
-      branchId,
-      searchValue,
-      vendorId,
-      tag,
-      tags,
-      excludeTags,
-      tagWithRelated,
-      ids,
-      excludeIds,
-      pipelineId,
-      boardId,
-      segment,
-      segmentData,
-      categoryMeta,
-      groupedSimilarity,
-      image,
-      isKiosk,
-    }: IProductParams,
+    params: IProductParams,
     { models, config, subdomain }: IContext,
   ) {
-    const filter = await generateFilter(subdomain, models, config, {
-      type,
-      categoryId,
-      branchId,
-      searchValue,
-      vendorId,
-      tag,
-      tags,
-      excludeTags,
-      tagWithRelated,
-      ids,
-      excludeIds,
-      pipelineId,
-      boardId,
-      segment,
-      segmentData,
-      categoryMeta,
-      image,
-      isKiosk,
-    });
+    const { groupedSimilarity } = params;
+    const filter = await generateFilter(subdomain, models, config, params);
 
     if (groupedSimilarity) {
       return await getSimilaritiesProductsCount(models, filter, {
@@ -530,6 +494,7 @@ const productQueries = {
         return {
           products: await checkRemainders(
             subdomain,
+            models,
             config,
             await models.Products.find({ _id }),
             branchId || '',
@@ -590,6 +555,7 @@ const productQueries = {
       if (!products.length) {
         products = await checkRemainders(
           subdomain,
+          models,
           config,
           [product],
           branchId || '',
@@ -608,6 +574,7 @@ const productQueries = {
       return {
         products: await checkRemainders(
           subdomain,
+          models,
           config,
           await models.Products.find({ _id }),
           branchId || '',
@@ -633,6 +600,7 @@ const productQueries = {
     return {
       products: await checkRemainders(
         subdomain,
+        models,
         config,
         await models.Products.find(filters).sort({ code: 1 }),
         branchId || '',
@@ -748,6 +716,7 @@ const productQueries = {
 
     const result = await checkRemainders(
       subdomain,
+      models,
       config,
       [product],
       branchId,

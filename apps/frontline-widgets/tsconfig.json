@@ -9,7 +9,9 @@
       "erxes-ui": ["frontend/libs/erxes-ui/src"],
       "erxes-ui/*": ["frontend/libs/erxes-ui/src/*"],
       "ui-modules": ["frontend/libs/ui-modules/src"],
-      "ui-modules/*": ["frontend/libs/ui-modules/src/*"]
+      "ui-modules/*": ["frontend/libs/ui-modules/src/*"],
+      "@libs/*": ["apps/frontline-widgets/src/lib/*"],
+      "@": ["apps/frontline-widgets/src"]
     }
   },
   "files": [],

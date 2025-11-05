@@ -89,30 +89,44 @@ export const NavigationMenuGroup = forwardRef<
     children: React.ReactNode;
     separate?: boolean;
     defaultOpen?: boolean;
+    actions?: React.ReactNode;
   }
->(({ name, children, separate = true, defaultOpen = true, ...props }, ref) => {
-  return (
-    <>
-      {separate && <Sidebar.Separator />}
-      <Collapsible defaultOpen={defaultOpen} className="group/collapsible-menu">
-        <Sidebar.Group {...props} ref={ref}>
-          <Sidebar.GroupLabel asChild>
-            <Collapsible.Trigger className="flex items-center gap-2">
-              <IconCaretRightFilled className="size-3.5 transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
-              <span className="font-sans text-xs font-semibold normal-case">
-                {name}
-              </span>
-            </Collapsible.Trigger>
-          </Sidebar.GroupLabel>
-          <Collapsible.Content>
-            <Sidebar.GroupContent className="pt-2">
-              <Sidebar.Menu>{children}</Sidebar.Menu>
-            </Sidebar.GroupContent>
-          </Collapsible.Content>
-        </Sidebar.Group>
-      </Collapsible>
-    </>
-  );
-});
+>(
+  (
+    { name, children, separate = true, defaultOpen = true, actions, ...props },
+    ref,
+  ) => {
+    return (
+      <>
+        {separate && <Sidebar.Separator />}
+        <Collapsible
+          defaultOpen={defaultOpen}
+          className="group/collapsible-menu"
+        >
+          <Sidebar.Group {...props} ref={ref}>
+            <Sidebar.GroupLabel asChild>
+              <Collapsible.Trigger className="flex items-center gap-2">
+                <IconCaretRightFilled className="size-3.5 transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
+                <span className="font-sans text-xs font-semibold normal-case">
+                  {name}
+                </span>
+                {actions && (
+                  <div className="ml-auto invisible group-hover/collapsible-trigger:visible [&_button]:hover:bg-transparent [&_button]:hover:text-foreground [&_button]:focus-visible:outline-none [&_button]:focus-visible:ring-0">
+                    {actions}
+                  </div>
+                )}
+              </Collapsible.Trigger>
+            </Sidebar.GroupLabel>
+            <Collapsible.Content>
+              <Sidebar.GroupContent className="pt-2">
+                <Sidebar.Menu>{children}</Sidebar.Menu>
+              </Sidebar.GroupContent>
+            </Collapsible.Content>
+          </Sidebar.Group>
+        </Collapsible>
+      </>
+    );
+  },
+);
 
 NavigationMenuGroup.displayName = 'NavigationMenuGroup';
