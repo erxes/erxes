@@ -1,5 +1,7 @@
-const TicketSettings = () => {
-  return <div>TicketSettings</div>;
-};
+import React from 'react'
 
-export default TicketSettings;
+export const Settings = () => {
+  return (
+    <div>Settings</div>
+  )
+}

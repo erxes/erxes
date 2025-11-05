@@ -22,6 +22,7 @@ import {
   IconDotsVertical,
   IconLink,
   IconSettings,
+  IconCaretLeftRight,
 } from '@tabler/icons-react';
 
 type Team = {
@@ -29,6 +30,7 @@ type Team = {
   name: string;
   icon?: string;
   cycleEnabled: boolean;
+  triageEnabled: boolean;
 };
 
 function LoadingSkeleton() {
@@ -76,6 +78,15 @@ function TeamItem({ team }: TeamItemProps) {
         <Collapsible.Content className="pt-1">
           <Sidebar.GroupContent>
             <Sidebar.Menu>
+              {team.triageEnabled && (
+                <NavigationMenuLinkItem
+                  name="Triage"
+                  pathPrefix="operation/team"
+                  path={`${team._id}/triage`}
+                  className="pl-6 font-medium"
+                  icon={IconCaretLeftRight}
+                />
+              )}
               <NavigationMenuLinkItem
                 name="Projects"
                 pathPrefix="operation/team"

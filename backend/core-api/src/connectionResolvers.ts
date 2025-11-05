@@ -106,19 +106,9 @@ import {
 } from '~/modules/permissions/db/models/UserGroups';
 import { IConformityDocument } from './modules/conformities/db/definitions/conformities';
 import {
-  IFieldDocument,
-  IFieldGroupDocument,
-} from './modules/forms/db/definitions/fields';
-import {
   IForm,
   IFormSubmissionDocument,
 } from './modules/forms/db/definitions/forms';
-import {
-  IFieldGroupModel,
-  IFieldModel,
-  loadFieldClass,
-  loadGroupClass,
-} from './modules/forms/db/models/Fields';
 import {
   IFormModel,
   IFormSubmissionModel,
@@ -158,6 +148,21 @@ import {
   IExecutionModel,
   loadClass as loadExecutionClass,
 } from './modules/automations/db/models/Executions';
+
+import {
+  IFieldModel,
+  loadFieldClass,
+} from './modules/properties/db/models/Field';
+
+import {
+  IFieldGroupModel,
+  loadFieldGroupClass,
+} from './modules/properties/db/models/Group';
+
+import {
+  IFieldDocument,
+  IFieldGroupDocument,
+} from './modules/properties/@types';
 
 export interface IModels {
   Brands: IBrandModel;
@@ -307,13 +312,15 @@ export const loadClasses = (
   models.Apps = db.model<IAppDocument, IAppModel>('apps', loadAppClass(models));
 
   models.Fields = db.model<IFieldDocument, IFieldModel>(
-    'form_fields',
-    loadFieldClass(models, subdomain),
+    'properties_fields',
+    loadFieldClass(models),
   );
+
   models.FieldsGroups = db.model<IFieldGroupDocument, IFieldGroupModel>(
-    'fields_groups',
-    loadGroupClass(models),
+    'properties_groups',
+    loadFieldGroupClass(models),
   );
+
   models.Forms = db.model<IForm, IFormModel>('forms', loadFormClass(models));
   models.FormSubmissions = db.model<
     IFormSubmissionDocument,

@@ -1,3 +1,5 @@
+import { IChannel } from '@/channels/types';
+
 export interface IIntegration {
   _id: string;
   name: string;
@@ -22,6 +24,7 @@ export interface IIntegrationDetail extends IIntegration {
   healthStatus: {
     status: 'healthy' | string;
   };
+  channel: IChannel;
 }
 
 export interface IIntegrationType {

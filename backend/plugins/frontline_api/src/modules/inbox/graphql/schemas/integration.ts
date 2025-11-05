@@ -8,6 +8,24 @@ export const types = `
     value: String,
   }
 
+   type ColorDefinition {
+    DEFAULT: String
+    foreground: String
+  }
+  type MessengerColorTheme {
+    _id: String
+    primary: ColorDefinition
+    createdAt: Date
+    updatedAt: Date
+  }
+  input ColorDefinitionInput {
+    DEFAULT: String
+    foreground: String
+  }
+  input MessengerColorThemeInput {
+    primary: ColorDefinitionInput
+  }
+
   type CloudflareCallDataDepartment {
     _id: String
     name: String
@@ -138,6 +156,7 @@ export const types = `
     wallpaper: String
     logo: String
     textColor: String
+    primary: ColorDefinitionInput
   }
 
   input OperatorInput {
@@ -220,6 +239,11 @@ export const mutations = `
     _id: String!,
     channelId: String!,
     uiOptions: MessengerUiOptions): Integration
+
+  integrationsSaveMessengerColorTheme(
+    _id: String!,
+    colorTheme: MessengerColorThemeInput): Integration
+  integrationsGetMessengerColorThemes: [MessengerColorTheme]
 
   integrationsSaveMessengerConfigs(
     _id: String!,

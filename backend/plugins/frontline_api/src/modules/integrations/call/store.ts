@@ -39,6 +39,7 @@ export const getOrCreateCustomer = async (
         customer = await models.CallCustomers.findOne({
           primaryPhone: { $eq: primaryPhone },
         });
+        return await getOrCreateCustomer(models, subdomain, callAccount);
       } else {
         throw new Error(e);
       }
