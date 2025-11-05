@@ -46,8 +46,9 @@ export const ConversationRelationDetails = ({
   const handleOpen = (open: boolean) => {
     if (!open) {
       setConversationId(null);
+    } else {
+      setConversationId(conversationId);
     }
-    setConversationId(conversationId);
     setOpen(open);
   };
 
@@ -182,7 +183,10 @@ export const ConversationRelationItem = ({
                         />
                       </Tooltip.Trigger>
                       <Tooltip.Content>
-                        {format(updatedAt || createdAt, 'MMM dd, yyyy HH:mm')}
+                        {format(
+                          new Date(updatedAt || createdAt),
+                          'MMM dd, yyyy HH:mm',
+                        )}
                       </Tooltip.Content>
                     </Tooltip>
                   )}

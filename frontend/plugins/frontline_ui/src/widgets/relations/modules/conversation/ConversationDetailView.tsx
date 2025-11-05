@@ -15,7 +15,6 @@ import { useEffect } from 'react';
 import { messageExtraInfoState } from '@/inbox/conversations/conversation-detail/states/messageExtraInfoState';
 import { useConversationDetail } from '@/inbox/conversations/conversation-detail/hooks/useConversationDetail';
 import { NoConversationSelected } from '@/inbox/conversations/conversation-detail/components/NoConversationSelected';
-import { ConversationMarkAsReadEffect } from '@/inbox/conversations/conversation-detail/components/ConversationMarkAsReadEffect';
 import { CustomersInline } from 'ui-modules';
 import { useNavigate } from 'react-router-dom';
 import { IconMail } from '@tabler/icons-react';
@@ -129,7 +128,6 @@ export const ConversationDetailView = ({
               <ConversationIntegrationDetail />
             </Resizable.Panel>
           </Resizable.PanelGroup>
-          <ConversationMarkAsReadEffect />
         </div>
       </div>
     </ConversationContext.Provider>
