@@ -12,8 +12,6 @@ const commonFields = `
   erxesAppToken: String
   permissionConfig: JSON
   uiOptions: JSON
-  user1Ids: [String]
-  user2Ids: [String]
 `;
 
 export const types = `
@@ -28,8 +26,8 @@ export const types = `
     userId: String
     user: User
     ${commonFields}
-    user1s: [User]
-    user2s: [User]
+    managers: [User]
+    generalManagers: [User]
   }
 
   type BmsBranchListResponse {
