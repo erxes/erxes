@@ -256,7 +256,7 @@ const SelectEstimatedPointFilterView = () => {
   return (
     <Filter.View filterKey="estimatePoint">
       <SelectEstimatedPointProvider
-        value={estimatePoint || undefined}
+        value={estimatePoint ?? undefined}
         onValueChange={(value) => {
           setEstimatePoint(value);
           resetFilterState();
