@@ -35,10 +35,11 @@ export const BranchList = () => {
   };
 
   const onDeleteConfirm = async () => {
+    const branchId = deleteDialogOpen;
     setDeleteDialogOpen(null);
 
-    if (deleteDialogOpen) {
-      await handleDeleteBranch(deleteDialogOpen, refetch);
+    if (branchId) {
+      await handleDeleteBranch(branchId, refetch);
     }
   };
 
