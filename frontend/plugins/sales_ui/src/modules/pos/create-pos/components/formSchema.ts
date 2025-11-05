@@ -141,6 +141,14 @@ export const permissionSchema = z.object({
   permissionConfig: z.record(z.any()).default({}),
 });
 
+const productGroupSchema = z.object({
+  name: z.string(),
+  description: z.string().optional(),
+  categoryIds: z.array(z.string()).optional(),
+  excludedCategoryIds: z.array(z.string()).optional(),
+  excludedProductIds: z.array(z.string()).optional(),
+});
+
 export const productSchema = z.object({
   productDetails: z.array(productDetailSchema).default([]),
   catProdMappings: z.array(catProdMappingSchema).default([]),
@@ -148,6 +156,7 @@ export const productSchema = z.object({
   kioskExcludeCategoryIds: z.array(z.string()).default([]),
   kioskExcludeProductIds: z.array(z.string()).default([]),
   checkExcludeCategoryIds: z.array(z.string()).default([]),
+  productGroups: z.array(productGroupSchema).default([]),
 });
 
 export const paymentSchema = z.object({
