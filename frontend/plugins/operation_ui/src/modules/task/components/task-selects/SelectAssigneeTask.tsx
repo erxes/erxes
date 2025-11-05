@@ -131,7 +131,7 @@ const SelectAssigneeFilterView = ({
     <Filter.View filterKey="assignee">
       <SelectAssigneeProvider
         mode="single"
-        value={assignee === 'no-assignee' ? '' : assignee ?? undefined}
+        value={assignee === 'no-assignee' ? 'no-assignee' : assignee ?? undefined}
         onValueChange={(value) => {
           setAssignee(value === null ? 'no-assignee' : (value as string));
           resetFilterState();

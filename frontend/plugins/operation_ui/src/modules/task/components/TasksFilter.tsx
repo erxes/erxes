@@ -16,7 +16,7 @@ import {
   IconUsers,
   IconRestore,
   IconUserPlus,
-  IconHash,
+  IconTriangle,
 } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { SelectCreatorTask } from '@/task/components/task-selects/SelectCreatorTask';
@@ -109,7 +109,7 @@ const TasksFilterPopover = () => {
                     String(team.estimateType) !==
                       TeamEstimateTypes.NOT_IN_USE)) && (
                   <Filter.Item value="estimatePoint">
-                    <IconHash />
+                    <IconTriangle />
                     Estimate
                   </Filter.Item>
                 )}
@@ -251,7 +251,7 @@ export const TasksFilter = () => {
           estimatePoint && (
             <Filter.BarItem queryKey="estimatePoint">
               <Filter.BarName>
-                <IconHash />
+                <IconTriangle />
                 Estimate
               </Filter.BarName>
               <SelectEstimatedPoint.FilterBar />
