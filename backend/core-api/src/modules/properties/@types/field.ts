@@ -7,7 +7,6 @@ import { Document } from 'mongoose';
 export interface IField {
   name: string;
   code: string;
-  fieldName: string;
   groupId: string;
   contentType: string;
   contentTypeId: string;

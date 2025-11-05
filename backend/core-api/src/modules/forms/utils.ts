@@ -12,18 +12,17 @@ import { nanoid } from 'nanoid';
 export const getCustomFields = async (
   models: IModels,
   contentType: string,
-  validation?: string,
+  validations?: string,
 ) => {
   const qry: any = {
     contentType,
-    isDefinedByErxes: false,
   };
 
-  if (validation) {
-    qry.validation = validation;
+  if (validations) {
+    qry.validations = validations;
   }
 
-  return models.Fields.find(qry);
+  return models.Fields.find(qry).lean();
 };
 const getFieldGroup = async (models: IModels, _id: string) => {
   return models.FieldsGroups.findOne({ _id });
@@ -103,11 +102,11 @@ export const fieldsCombinedByContentType = async (
     defaultValue: [],
   });
 
-  let validation;
+  let validations;
 
   if (onlyDates) {
     fields = fields.filter((f) => f.type === 'Date');
-    validation = 'date';
+    validations = { date: true };
   }
 
   const type = ['core:visitor', 'core:lead', 'core:customer'].includes(
@@ -116,7 +115,7 @@ export const fieldsCombinedByContentType = async (
     ? 'core:customer'
     : contentType;
 
-  const customFields = await getCustomFields(models, type, validation);
+  const customFields = await getCustomFields(models, type, validations);
 
   const groupCache = new Map();
 
@@ -135,11 +134,10 @@ export const fieldsCombinedByContentType = async (
     .filter(({ group }) => group?.isVisible)
     .map(({ customField, group }) => ({
       _id: nanoid().toString(),
-      name: `customFieldsData.${getRealIdFromElk(customField._id)}`,
-      label: customField.text,
+      name: `customFieldsData.${getRealIdFromElk(customField._id.toString())}`,
       options: customField.options,
       selectOptions: generateSelectOptions(customField.options),
-      validation: customField.validation,
+      validations: customField.validations,
       type: customField.type,
       group: group._id,
       code: customField.code,

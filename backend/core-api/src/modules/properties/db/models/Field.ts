@@ -18,8 +18,6 @@ export interface IFieldModel extends Model<IFieldDocument> {
 
   validateFieldValue(_id: string, value: any): Promise<any>;
   validateFieldValues(customFieldsData: any): Promise<any>;
-
-  prepareCustomFieldsData(customFieldsData: any): Promise<any>;
 }
 
 export const loadFieldClass = (models: IModels) => {
@@ -215,10 +213,6 @@ export const loadFieldClass = (models: IModels) => {
           throw new Error(e.message);
         }
       }
-    }
-
-    public static async prepareCustomFieldsData(customFieldsData: any) {
-      return customFieldsData;
     }
   }
 
