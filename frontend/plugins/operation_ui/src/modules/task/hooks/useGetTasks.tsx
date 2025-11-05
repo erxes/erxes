@@ -29,17 +29,40 @@ export const useTasksVariables = (
   variables?: QueryHookOptions<ICursorListResponse<ITask>>['variables'],
 ) => {
   const { teamId } = useParams();
-  const { searchValue, assignee, team, priority, status, milestone, tags, cycleFilter } =
-    useNonNullMultiQueryState<{
-      searchValue: string;
-      assignee: string;
-      team: string;
-      priority: string;
-      status: string;
-      milestone: string;
-      tags: string[];
-      cycleFilter: string;
-    }>(['searchValue', 'assignee', 'team', 'priority', 'status', 'milestone', 'tags', 'cycleFilter']);
+  const {
+    searchValue,
+    assignee,
+    team,
+    priority,
+    status,
+    milestone,
+    tags,
+    cycleFilter,
+    createdBy,
+    estimatePoint,
+  } = useNonNullMultiQueryState<{
+    searchValue: string;
+    assignee: string;
+    createdBy: string;
+    team: string;
+    priority: string;
+    status: string;
+    milestone: string;
+    tags: string[];
+    cycleFilter: string;
+    estimatePoint: number;
+  }>([
+    'searchValue',
+    'assignee',
+    'team',
+    'priority',
+    'status',
+    'milestone',
+    'tags',
+    'cycleFilter',
+    'createdBy',
+    'estimatePoint',
+  ]);
   const currentUser = useAtomValue(currentUserState);
 
   return {
@@ -51,6 +74,7 @@ export const useTasksVariables = (
     direction: 'forward',
     name: searchValue,
     assigneeId: assignee,
+    createdBy: createdBy,
     teamId: teamId || team,
     priority: priority,
     status: teamId ? status : undefined,
@@ -58,6 +82,7 @@ export const useTasksVariables = (
     milestoneId: milestone,
     tagIds: tags,
     cycleFilter: cycleFilter,
+    estimatePoint: estimatePoint,
     ...variables,
     ...(!variables?.teamId &&
       !variables?.userId &&

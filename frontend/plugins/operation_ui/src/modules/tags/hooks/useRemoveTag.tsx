@@ -1,5 +1,4 @@
-import { MutationHookOptions, useMutation } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { useMutation, gql, MutationFunctionOptions } from '@apollo/client';
 import { toast } from 'erxes-ui';
 
 const REMOVE_TAG = gql`
@@ -11,27 +10,30 @@ const REMOVE_TAG = gql`
 export const useRemoveTag = () => {
   const [remove, { loading, error }] = useMutation(REMOVE_TAG);
 
-  const removeTag = async (_id: string, options?: MutationHookOptions): Promise<boolean> => {
-    try {
-      await remove({
-        ...options,
-        variables: { _id },
-        refetchQueries: ['Tags'],
-        onCompleted: () => {
-          toast({ title: 'Tag has been removed' });
-        },
-        onError: (error) => {
-          toast({
-            title: error?.message || 'Failed to remove tag',
-            variant: 'destructive',
-          });
-        },
-      });
-      return true;
-    } catch (err) {
-      console.error('Error removing tag:', err);
-      return false;
-    }
+  const removeTag = (
+    _id: string,
+    options?: MutationFunctionOptions,
+  ): Promise<boolean> => {
+    const { onCompleted, onError, ...restOptions } = options ?? {};
+
+    return remove({
+      ...restOptions,
+      variables: { _id },
+      refetchQueries: ['Tags'],
+      onCompleted: (data, clientOptions) => {
+        onCompleted?.(data, clientOptions);
+        toast({ title: 'Tag has been removed' });
+      },
+      onError: (apolloError) => {
+        onError?.(apolloError);
+        toast({
+          title: apolloError?.message ?? 'Failed to remove tag',
+          variant: 'destructive',
+        });
+      },
+    })
+      .then(() => true)
+      .catch(() => false);
   };
 
   return {
