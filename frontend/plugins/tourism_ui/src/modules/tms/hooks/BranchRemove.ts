@@ -60,14 +60,24 @@ export const useBranchRemove = (options?: UseBranchRemoveOptions) => {
     branchId: string,
     refetch?: () => Promise<any>,
   ): Promise<void> => {
-    const success = await removeBranchById(branchId);
+    try {
+      const success = await removeBranchById(branchId);
 
-    if (success) {
-      showToast.success();
-      if (refetch) {
-        await refetch();
+      if (success) {
+        if (refetch) {
+          try {
+            await refetch();
+          } catch (error) {
+            showToast.error(error instanceof Error ? error.message : undefined);
+            return;
+          }
+        }
+        showToast.success();
+      } else {
+        showToast.error();
       }
-    } else {
+    } catch (error) {
+      console.error('Error during branch deletion or refetch:', error);
       showToast.error();
     }
   };

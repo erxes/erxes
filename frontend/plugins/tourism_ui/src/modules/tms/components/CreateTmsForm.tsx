@@ -55,10 +55,8 @@ const CreateTmsForm = ({
   });
 
   useEffect(() => {
-    if (isEditMode) {
-      setCurrentStep(1);
-    }
-  }, [isEditMode, setCurrentStep]);
+    setCurrentStep(1);
+  }, [setCurrentStep]);
 
   const { handleSubmit, isLoading } = useBranchSubmit({
     isEditMode,

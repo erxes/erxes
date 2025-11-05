@@ -32,17 +32,7 @@ const DEFAULT_STORAGE_FORM: TmsFormStorage = {
   otherPayments: [],
 };
 
-export const DEFAULT_TMS_FORM: TmsForm = {
-  name: '',
-  color: '#4F46E5',
-  logo: '',
-  favIcon: '',
-  generalManager: [],
-  managers: [],
-  payment: '',
-  token: '',
-  otherPayments: [],
-};
+export const DEFAULT_TMS_FORM: TmsForm = { ...DEFAULT_STORAGE_FORM };
 
 const tmsFormStorageAtom = atomWithStorage<TmsFormStorage>(
   'tms_form_data',

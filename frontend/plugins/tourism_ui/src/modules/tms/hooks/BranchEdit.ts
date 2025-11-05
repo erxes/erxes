@@ -50,10 +50,12 @@ export const useBranchEdit = (options?: UseBranchEditOptions) => {
   const editBranch = (mutationOptions: {
     variables: IUpdateBranchVariables;
     onCompleted?: (data: UpdateBranchResponse) => void;
+    onError?: (error: unknown) => void;
   }) => {
     return updateBranchMutation({
       ...mutationOptions,
       onError: (error: unknown) => {
+        mutationOptions.onError?.(error);
         options?.onError?.(error);
       },
     });

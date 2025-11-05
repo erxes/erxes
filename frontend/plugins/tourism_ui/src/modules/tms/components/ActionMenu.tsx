@@ -72,22 +72,24 @@ export const ActionMenu = ({
         align="end"
       >
         {dropdownItems.map((item: DropdownItem) => (
-          <div
-            key={item.label}
-            className={`flex gap-3 items-center px-4 py-2 w-full text-left rounded-md cursor-pointer hover:bg-muted ${
-              item.disabled ? 'opacity-60 pointer-events-none' : ''
+          <button
+            type="button"
+            role="menuitem"
+            className={`flex gap-3 items-center px-4 py-2 w-full text-left rounded-md hover:bg-muted focus:outline-none focus:bg-muted ${
+              item.disabled ? 'opacity-60 cursor-not-allowed' : ''
             }`}
-            aria-disabled={item.disabled ? true : undefined}
-            onClick={(e) => {
-              if (item.disabled) return;
-              item.onClick();
+            onClick={() => {
+              if (!item.disabled) {
+                item.onClick();
+              }
             }}
+            disabled={item.disabled}
           >
             {item.icon}
             <p className="text-sm font-medium leading-[100%] font-inter">
               {item.label}
             </p>
-          </div>
+          </button>
         ))}
       </Popover.Content>
     </Popover>

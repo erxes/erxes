@@ -91,7 +91,7 @@ export function useBranchSubmit({
   };
 
   const handleEditBranch = (variables: any) => {
-    editBranch({
+    return editBranch({
       variables: {
         id: branchId,
         ...variables,
@@ -109,7 +109,7 @@ export function useBranchSubmit({
   };
 
   const handleCreateBranch = (variables: any) => {
-    createBranch({
+    return createBranch({
       variables,
       onError: (error: unknown) => {
         const errorMessage =
@@ -135,13 +135,13 @@ export function useBranchSubmit({
     });
   };
 
-  const handleSubmit = (data: TmsFormType) => {
+  const handleSubmit = async (data: TmsFormType) => {
     const variables = transformFormData(data);
 
     if (isEditMode) {
-      handleEditBranch(variables);
+      await handleEditBranch(variables);
     } else {
-      handleCreateBranch(variables);
+      await handleCreateBranch(variables);
     }
   };
 

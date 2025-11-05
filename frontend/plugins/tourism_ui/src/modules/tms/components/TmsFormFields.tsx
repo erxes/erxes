@@ -33,13 +33,7 @@ export const TourName = ({ control }: { control: Control<TmsFormType> }) => {
             Name <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
-            <Input
-              className="h-8 rounded-md"
-              {...field}
-              onChange={(e) => {
-                field.onChange(e);
-              }}
-            />
+            <Input className="h-8 rounded-md" {...field} />
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>

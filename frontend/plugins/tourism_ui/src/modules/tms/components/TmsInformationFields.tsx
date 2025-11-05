@@ -155,13 +155,11 @@ export const TmsInformationFields = ({
   }
 
   async function handleSave() {
-    const isValid = await form.trigger(['name', 'color']);
-
-    if (!isValid || !onSubmit) {
+    if (!onSubmit) {
       return;
     }
 
-    onSubmit(form.getValues());
+    await form.handleSubmit((values) => onSubmit(values))();
   }
 
   return (

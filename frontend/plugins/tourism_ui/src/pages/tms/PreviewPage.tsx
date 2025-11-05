@@ -10,7 +10,12 @@ export const PreviewPage = () => {
   useLayoutEffect(() => {
     const hsl = formData.color ? hexToHsl(formData.color) : undefined;
     if (hsl) {
-      document.documentElement.style.setProperty('--primary', hsl || '');
+      const hslMatch = hsl.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+      if (hslMatch) {
+        const [, hue, saturation, lightness] = hslMatch;
+        const formattedHsl = `${hue} ${saturation}% ${lightness}%`;
+        document.documentElement.style.setProperty('--primary', formattedHsl);
+      }
     }
   }, [formData.color]);
 
