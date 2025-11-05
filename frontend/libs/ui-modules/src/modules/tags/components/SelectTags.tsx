@@ -224,7 +224,7 @@ export const TagList = ({
   renderAsPlainText,
   ...props
 }: Omit<React.ComponentProps<typeof TagBadge>, 'onClose'> & {
-  placeholder?: string | React.ReactNode;
+  placeholder?: string;
   renderAsPlainText?: boolean;
 }) => {
   const { value, selectedTags, setSelectedTags, onSelect } =
@@ -233,17 +233,7 @@ export const TagList = ({
   const selectedTagIds = Array.isArray(value) ? value : [value];
 
   if (!value || !value.length) {
-    return (
-      <Combobox.Value 
-        value={
-          (placeholder || (
-            <div className="flex items-center gap-1">
-              <IconTag size={16} /> Select tags
-            </div>
-          )) as string | JSX.Element
-        }
-      />
-    );
+    return <Combobox.Value placeholder={placeholder || ''} />;
   }
 
   return (
@@ -274,14 +264,14 @@ export const TagList = ({
   );
 };
 
-export const SelectTagsValue = ({ placeholder }: { placeholder?: string | React.ReactNode }) => {
+export const SelectTagsValue = ({ placeholder }: { placeholder?: string }) => {
   const { selectedTags, mode } = useSelectTagsContext();
 
   if (selectedTags?.length > 1) return <>{selectedTags.length} tags selected</>;
 
   return (
     <TagList
-      placeholder={placeholder}
+      placeholder={placeholder === undefined ? 'Select tags' : placeholder}
       renderAsPlainText={mode === 'single'}
     />
   );
