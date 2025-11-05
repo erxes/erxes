@@ -105,7 +105,7 @@ export const NavigationMenuGroup = forwardRef<
         >
           <Sidebar.Group {...props} ref={ref}>
             <Sidebar.GroupLabel asChild>
-              <Collapsible.Trigger className="flex items-center gap-2">
+              <Collapsible.Trigger className="group/collapsible-trigger flex items-center gap-2">
                 <IconCaretRightFilled className="size-3.5 transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
                 <span className="font-sans text-xs font-semibold normal-case">
                   {name}
