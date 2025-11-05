@@ -158,6 +158,12 @@ import {
   IExecutionModel,
   loadClass as loadExecutionClass,
 } from './modules/automations/db/models/Executions';
+import { IEngageMessageModel } from './modules/broadcast/db/models/Engages';
+import {
+  IDeliveryReportModel,
+  IStatsModel,
+} from './modules/broadcast/db/models/DeliveryReports';
+import { ISmsRequestModel } from './modules/broadcast/db/models/SmsRequests';
 
 export interface IModels {
   Brands: IBrandModel;
@@ -196,6 +202,10 @@ export interface IModels {
   Logs: ILogModel;
   Notifications: Model<INotificationDocument>;
   EmailDeliveries: Model<IEmailDeliveryDocument>;
+  EngageMessages: IEngageMessageModel;
+  Stats: IStatsModel;
+  SmsRequests: ISmsRequestModel;
+  DeliveryReports: IDeliveryReportModel;
 }
 
 export interface IContext extends IMainContext {
