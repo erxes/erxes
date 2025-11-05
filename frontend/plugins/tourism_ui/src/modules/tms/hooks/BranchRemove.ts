@@ -1,30 +1,63 @@
 import { useMutation } from '@apollo/client';
-import { REMOVE_BRANCH } from '../graphql/mutation';
-import { GET_BRANCH_LIST } from '../graphql/queries';
-import { IBranchRemoveResponse, IBranchRemoveVariables } from '../types/branch';
+import { REMOVE_BRANCH } from '@/tms/graphql/mutation';
+import { toast } from 'erxes-ui';
 
-export const useBranchRemove = () => {
-  const [removeBranch, { loading, error }] = useMutation<
-    IBranchRemoveResponse,
-    IBranchRemoveVariables
-  >(REMOVE_BRANCH, {
-    refetchQueries: [{ query: GET_BRANCH_LIST }],
-    onError: (error) => {
-      console.error('Error removing branch:', error);
-    },
-  });
+interface UseBranchRemoveOptions {
+  onSuccess?: () => void;
+  onError?: (error: any) => void;
+}
 
-  const removeBranchById = async (branchId: string) => {
+export const useBranchRemove = (options?: UseBranchRemoveOptions) => {
+  const [deleteBranch, { loading }] = useMutation(REMOVE_BRANCH);
+
+  const removeBranchById = async (branchId: string): Promise<boolean> => {
     try {
-      const response = await removeBranch({
+      const result = await deleteBranch({
         variables: { id: branchId },
       });
 
-      return response.data?.bmsBranchRemove || false;
-    } catch (error) {
+      if (result.data) {
+        options?.onSuccess?.();
+        return true;
+      }
       return false;
+    } catch (error) {
+      options?.onError?.(error);
+      throw error;
     }
   };
 
-  return { removeBranchById, loading, error };
+  const handleDeleteBranch = async (
+    branchId: string,
+    refetch?: () => Promise<any>,
+  ) => {
+    try {
+      const success = await removeBranchById(branchId);
+
+      if (success) {
+        toast({
+          title: 'Branch deleted successfully',
+        });
+        if (refetch) {
+          await refetch();
+        }
+      } else {
+        toast({
+          title: 'Failed to delete branch',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Failed to delete branch',
+        description: `${error.message}`,
+      });
+      throw error;
+    }
+  };
+
+  return {
+    removeBranchById,
+    handleDeleteBranch,
+    loading,
+  };
 };

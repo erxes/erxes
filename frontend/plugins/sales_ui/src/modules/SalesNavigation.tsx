@@ -214,23 +214,23 @@ function SalesItem({ name, Icon }: { name: string; Icon: Icon }) {
       onOpenChange={setIsOpen}
     >
       <Sidebar.Group className="p-0">
-        <div className="w-full relative group/trigger hover:cursor-pointer">
+        <div className="relative w-full group/trigger hover:cursor-pointer">
           <Collapsible.Trigger asChild>
-            <div className="w-full flex items-center justify-between">
+            <div className="flex justify-between items-center w-full">
               <Button
                 variant="ghost"
-                className="px-2 flex min-w-0 justify-start"
+                className="flex justify-start px-2 min-w-0"
               >
-                <Icon className="text-accent-foreground flex-shrink-0" />
+                <Icon className="flex-shrink-0 text-accent-foreground" />
                 <TextOverflowTooltip
-                  className="font-sans font-semibold normal-case flex-1 min-w-0"
+                  className="flex-1 min-w-0 font-sans font-semibold normal-case"
                   value={name}
                 />
-                <span className="ml-auto flex-shrink-0">
+                <span className="flex-shrink-0 ml-auto">
                   <IconCaretRightFilled className="size-3 transition-transform group-data-[state=open]/collapsible:rotate-90 text-accent-foreground" />
                 </span>
               </Button>
-              <div className="size-5 min-w-5 mr-2"></div>
+              <div className="mr-2 size-5 min-w-5"></div>
             </div>
           </Collapsible.Trigger>
           <ActionsMenu />
@@ -287,7 +287,7 @@ const ActionsMenu = () => {
         <Button
           variant="ghost"
           size="icon"
-          className="invisible group-hover/trigger:visible absolute top-1/2 -translate-y-1/2 right-1 text-muted-foreground"
+          className="absolute right-1 top-1/2 invisible -translate-y-1/2 group-hover/trigger:visible text-muted-foreground"
           onClick={(e) => {
             e.stopPropagation();
           }}
