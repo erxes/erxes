@@ -11,7 +11,7 @@ export const types = `
     }
 
     type carCategoryListResponse {
-    list: [carCategory],
+    list: [CarCategory],
     pageInfo: PageInfo
     totalCount: Int,}
 `;
