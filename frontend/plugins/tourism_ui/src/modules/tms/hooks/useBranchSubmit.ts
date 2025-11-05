@@ -77,7 +77,11 @@ export function useBranchSubmit({
       name: data.name,
       generalManagerIds: data.generalManager || [],
       managerIds: data.managers || [],
-      paymentIds: data.payment ? [data.payment] : [],
+      paymentIds: Array.isArray(data.payment)
+        ? data.payment
+        : data.payment
+        ? [data.payment]
+        : [],
       permissionConfig,
       erxesAppToken: data.token,
       uiOptions: {

@@ -22,7 +22,7 @@ export const TmsCreateSheet = () => {
           Create TMS
         </Button>
       </Sheet.Trigger>
-      <CreateTmsForm onOpenChange={handleOpenChange} />
+      <CreateTmsForm onOpenChange={handleOpenChange} isOpen={open} />
     </Sheet>
   );
 };

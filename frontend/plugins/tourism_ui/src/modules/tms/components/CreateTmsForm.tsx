@@ -24,11 +24,13 @@ const CreateTmsForm = ({
   onOpenChange,
   onSuccess,
   refetch,
+  isOpen,
 }: {
   branchId?: string;
   onOpenChange?: (open: boolean) => void;
   onSuccess?: () => void;
   refetch?: () => Promise<any>;
+  isOpen?: boolean;
 }) => {
   const { branchDetail, loading: detailLoading } = useBranchDetail({
     id: branchId || '',
@@ -126,6 +128,7 @@ const CreateTmsForm = ({
                 onOpenChange={onOpenChange}
                 onSubmit={handleSubmit}
                 isLoading={isLoading}
+                isOpen={isOpen}
               />
             </Resizable.Panel>
 

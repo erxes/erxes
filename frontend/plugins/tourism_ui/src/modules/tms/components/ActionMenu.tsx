@@ -73,6 +73,7 @@ export const ActionMenu = ({
       >
         {dropdownItems.map((item: DropdownItem) => (
           <button
+            key={item.label}
             type="button"
             role="menuitem"
             className={`flex gap-3 items-center px-4 py-2 w-full text-left rounded-md hover:bg-muted focus:outline-none focus:bg-muted ${

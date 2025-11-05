@@ -94,6 +94,7 @@ export const BranchList = () => {
               closeEditDialog();
             }}
             refetch={refetch}
+            isOpen={!!editingBranch}
           />
         )}
       </Sheet>
