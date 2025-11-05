@@ -822,7 +822,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      await sendOnboardNotification(subdomain, user);
+      await sendOnboardNotification(subdomain, models, user);
 
       return {
         token,

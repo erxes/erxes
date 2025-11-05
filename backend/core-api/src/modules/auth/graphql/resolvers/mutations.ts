@@ -1,13 +1,12 @@
+import { WorkOS } from '@workos-inc/node';
 import {
   authCookieOptions,
   getEnv,
-  getPlugins,
   logHandler,
   markResolvers,
   redis,
   updateSaasOrganization,
 } from 'erxes-api-shared/utils';
-import { WorkOS } from '@workos-inc/node';
 import * as jwt from 'jsonwebtoken';
 import { IContext } from '~/connectionResolvers';
 import {
@@ -15,9 +14,8 @@ import {
   isValidEmail,
   sendSaasMagicLinkEmail,
 } from '~/modules/auth/utils';
-import { assertSaasEnvironment } from '~/utils/saas';
-import { sendNotification } from 'erxes-api-shared/core-modules';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
+import { assertSaasEnvironment } from '~/utils/saas';
 
 type LoginParams = {
   email: string;
@@ -241,7 +239,7 @@ export const authMutations = {
       lastActiveDate: Date.now(),
     });
 
-    await sendOnboardNotification(subdomain, user);
+    await sendOnboardNotification(subdomain, models, user);
 
     return 'success';
   },

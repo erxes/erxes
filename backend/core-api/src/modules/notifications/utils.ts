@@ -1,9 +1,11 @@
 import { sendNotification } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { getPlugins } from 'erxes-api-shared/utils';
+import { IModels } from '~/connectionResolvers';
 
 export const sendOnboardNotification = async (
   subdomain: string,
+  models: IModels,
   user: IUserDocument,
 ) => {
   if (!user.lastSeenAt) {
@@ -36,6 +38,9 @@ export const sendOnboardNotification = async (
       });
     }
 
-    await user.updateOne({ $set: { lastSeenAt: new Date() } });
+    await models.Users.updateOne(
+      { _id: user._id },
+      { $set: { lastSeenAt: new Date() } },
+    );
   }
 };
