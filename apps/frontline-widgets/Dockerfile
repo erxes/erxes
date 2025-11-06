@@ -16,7 +16,8 @@ RUN npm install -g pnpm && pnpm install
 COPY . .
 RUN pnpm nx build frontline-widgets --configuration=production --verbose
 
-RUN pnpm nx compile:index frontline-widgets 
+# Compile index.js for public access
+RUN pnpm nx run frontline-widgets:compile:index
 
 # Final stage
 FROM nginx:alpine
@@ -29,6 +30,7 @@ RUN apk add --no-cache bash
 
 # Copy application files
 COPY --from=build /app/dist/apps/frontline-widgets /usr/share/nginx/html
+COPY --from=build /app/dist/apps/frontline-widgets/index.js /usr/share/nginx/html/index.js
 
 # Copy configuration files
 COPY apps/frontline-widgets/nginx/nginx.conf /etc/nginx/nginx.conf
