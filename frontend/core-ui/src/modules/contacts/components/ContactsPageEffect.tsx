@@ -24,25 +24,25 @@ export const ContactsPageEffect = () => {
         break;
       }
       case isMatchingLocation(ContactsPath.Leads): {
-        setHotkeyScope(ContactsHotKeyScope.CustomerAddSheet);
+        if (contactId) {
+          setHotkeyScope(ContactsHotKeyScope.CustomerEditSheet);
+          break;
+        }
+
+        setHotkeyScope(ContactsHotKeyScope.CustomersPage);
         break;
       }
       case isMatchingLocation(ContactsPath.Companies): {
-        setHotkeyScope(ContactsHotKeyScope.CustomerAddSheet);
-        break;
-      }
+        if (contactId) {
+          setHotkeyScope(ContactsHotKeyScope.CompanyEditSheet);
+          break;
+        }
 
-      case isMatchingLocation(ContactsPath.Vendors): {
-        setHotkeyScope(ContactsHotKeyScope.CustomerAddSheet);
-        break;
-      }
-
-      case isMatchingLocation(ContactsPath.Clients): {
-        setHotkeyScope(ContactsHotKeyScope.CustomerAddSheet);
+        setHotkeyScope(ContactsHotKeyScope.CompaniesPage);
         break;
       }
     }
-  }, [isMatchingLocation, setHotkeyScope]);
+  }, [isMatchingLocation, setHotkeyScope, contactId]);
 
   return <></>;
 };
