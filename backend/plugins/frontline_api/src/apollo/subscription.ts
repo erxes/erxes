@@ -14,16 +14,24 @@ export default {
       talkingCallReceived(extension: String): String
       agentCallReceived(extension: String): String
       queueRealtimeUpdate(extension: String): String
-      ticketPipelineChanged(filter: TicketsPipelineFilter): TicketSubscription 
+      ticketPipelineChanged(filter: TicketsPipelineFilter): TicketSubscription
       ticketPipelineListChanged: PipelineSubscription
       ticketChanged(_id: String!): TicketSubscription
       ticketListChanged(filter: ITicketFilter): TicketSubscription
       ticketStatusChanged(_id: String!): StatusSubscription
       ticketStatusListChanged: StatusSubscription
+      ticketActivityChanged(contentId: String!): TicketActivitySubscription
+
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
       // --- Ticket Pipeline ---
+      ticketActivityChanged: {
+        resolve: (payload) => payload.ticketActivityChanged,
+        subscribe: (_, { contentId }) =>
+          graphqlPubsub.asyncIterator(`ticketActivityChanged:${contentId}`),
+      },
+
       ticketPipelineChanged: {
         subscribe: (_, { _id }) =>
           graphqlPubsub.asyncIterator(`ticketPipelineChanged:${_id}`),

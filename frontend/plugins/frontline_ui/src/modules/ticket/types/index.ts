@@ -21,6 +21,20 @@ export interface ITicket {
   pipelineId: string;
 }
 
+export interface IActivity {
+  _id: string;
+  module: string;
+  action: string;
+  contentId: string;
+  metadata: {
+    newValue: string;
+    previousValue?: string;
+  };
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export type TAddTicket = z.infer<typeof addTicketSchema>;
 
 export * from './validations';
