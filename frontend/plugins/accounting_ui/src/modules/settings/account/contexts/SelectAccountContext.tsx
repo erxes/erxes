@@ -8,8 +8,8 @@ export type ISelectAccountContext = {
   setAccounts: (accounts: IAccount[]) => void;
   defaultFilter?: { [key: string]: string | boolean | string[] };
   onCallback?: (account: IAccount) => void;
-  loading: boolean;
-  error: string | null;
+  loading?: boolean;
+  error?: string;
 };
 
 export const SelectAccountContext = createContext<ISelectAccountContext | null>(

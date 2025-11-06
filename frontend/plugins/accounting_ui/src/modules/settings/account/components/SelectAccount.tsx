@@ -75,8 +75,6 @@ const SelectAccountProvider = ({
         accounts,
         setAccounts,
         defaultFilter,
-        loading: false,
-        error: null,
       }}
     >
       {children}
@@ -123,7 +121,7 @@ const SelectAccountContent = () => {
           accountsData
             ?.filter(
               (account) =>
-                !accountIds.find((accountId) => accountId === account._id),
+                !accountIds.some((accountId) => accountId === account._id),
             )
             .map((account) => (
               <SelectAccountCommandItem key={account._id} account={account} />
