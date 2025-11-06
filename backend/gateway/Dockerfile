@@ -1,7 +1,10 @@
 # Base image for building
-FROM --platform=linux/amd64 node:22-bookworm AS build
+FROM node:22-alpine AS build
 
 WORKDIR /app
+
+# Install pnpm globally
+RUN npm install -g pnpm
 
 # Copy root files
 COPY ./package.json ./pnpm-lock.yaml ./pnpm-workspace.yaml ./tsconfig.base.json ./nx.json /app/
@@ -10,9 +13,8 @@ COPY ./package.json ./pnpm-lock.yaml ./pnpm-workspace.yaml ./tsconfig.base.json 
 COPY ./backend/gateway/package.json /app/backend/gateway/
 COPY ./backend/erxes-api-shared/package.json /app/backend/erxes-api-shared/
 
-# Install pnpm and dependencies
-RUN npm install -g pnpm
-RUN pnpm install
+# Install dependencies
+RUN pnpm install --frozen-lockfile
 
 # Copy source files
 COPY ./backend/gateway /app/backend/gateway
@@ -27,18 +29,37 @@ ENV NX_DAEMON=false
 RUN npx nx build:packageJson gateway
 RUN npx nx build gateway
 
-# Final image
-FROM --platform=linux/amd64 node:22-bookworm AS gateway
+# Production dependencies stage
+FROM node:22-alpine AS deps
+WORKDIR /app
+RUN npm install -g pnpm
+
+# Copy root manifests
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json nx.json ./
+COPY backend/gateway/package.json backend/gateway/
+COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
+
+# Install only production dependencies
+RUN pnpm install --prod --frozen-lockfile
+
+# Final runtime image
+FROM node:22-alpine AS runtime
 
 WORKDIR /app
 
-# Install required packages
-RUN apt-get update && apt-get install -y curl ca-certificates
+# Install required packages for runtime
+RUN apk add --no-cache curl ca-certificates
 
 # Copy built app from build stage
-COPY --chown=1000:1000 --from=build /app /app
+COPY --from=build /app/backend/gateway/dist /app/backend/gateway/dist
+COPY --from=build /app/backend/erxes-api-shared /app/backend/erxes-api-shared
 
-# Install pnpm
+# Copy production node_modules from deps stage
+COPY --from=deps /app/node_modules /app/node_modules
+COPY --from=deps /app/backend/gateway/node_modules /app/backend/gateway/node_modules
+COPY --from=deps /app/backend/erxes-api-shared/node_modules /app/backend/erxes-api-shared/node_modules
+
+# Install pnpm for runtime
 RUN npm install -g pnpm
 
 # Set PNPM env
@@ -46,10 +67,7 @@ ENV PNPM_HOME="/root/.local/share/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
 # Install Rover CLI for composing supergraph
-RUN apt-get update -y \
-    && apt-get install -y curl ca-certificates \
-    && rm -rf /var/lib/apt/lists/* \
-    && pnpm add -g @apollo/rover@0.22.0 \
+RUN pnpm add -g @apollo/rover@0.22.0 \
     && pnpm cache clean \
     && rover supergraph compose --config /app/backend/gateway/src/apollo-router/dummy/supergraph.yaml --elv2-license=accept
 
@@ -63,7 +81,9 @@ RUN cd /app/backend/gateway/dist/src/apollo-router/temp \
 
 WORKDIR /app/backend/gateway/dist
 
+# Environment & security
 ENV NODE_ENV=production
+USER 1000
 
 # Start app
 CMD ["node", "src/main.js"]
