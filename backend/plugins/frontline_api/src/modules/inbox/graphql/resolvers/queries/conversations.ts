@@ -37,6 +37,21 @@ export const conversationQueries = {
       return { list, totalCount, pageInfo };
     }
 
+    if (params && params.customerId) {
+      const { list, totalCount, pageInfo } =
+        await cursorPaginate<IConversationDocument>({
+          model: models.Conversations,
+          params: {
+            ...params,
+            orderBy: { updatedAt: -1 },
+            limit: params.limit || 20,
+          },
+          query: { customerId: params.customerId },
+        });
+
+      return { list, totalCount, pageInfo };
+    }
+
     const qb = new QueryBuilder(models, subdomain, params, {
       _id: user._id,
       code: user.code,

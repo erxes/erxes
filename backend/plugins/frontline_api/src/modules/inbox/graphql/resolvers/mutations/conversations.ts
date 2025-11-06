@@ -442,29 +442,27 @@ export const conversationMutations = {
   /**
    * Resolve all conversations
    */
-  async conversationResolveAll(
+  async conversationsResolve(
     _root,
-    params: IListArgs,
-    { user, models, subdomain }: IContext,
+    params: { ids: string[] },
+    { user, models }: IContext,
   ) {
-    // initiate query builder
-    const qb = new QueryBuilder(models, subdomain, params, { _id: user._id });
+    if (!params.ids?.length) {
+      throw new Error('conversationIds parameter is required');
+    }
 
-    await qb.buildAllQueries();
-    const query = qb.mainQuery();
-
-    const param = {
+    const updateFields = {
       status: CONVERSATION_STATUSES.CLOSED,
       closedUserId: user._id,
       closedAt: new Date(),
     };
 
-    const updated = await models.Conversations.resolveAllConversation(
-      query,
-      param,
+    const result = await models.Conversations.updateMany(
+      { _id: { $in: params.ids } },
+      { $set: updateFields },
     );
 
-    return updated.nModified || 0;
+    return result.modifiedCount || 0;
   },
 
   /**

@@ -13,6 +13,7 @@ export const guideItemSchema = new Schema(
 );
 export const tourSchema = new Schema({
   _id: mongooseStringRandomId,
+
   createdAt: { type: Date, label: 'Created at' },
   modifiedAt: { type: Date, label: 'Modified at' },
   refNumber: { type: String, optional: true, label: 'refnumber' },
