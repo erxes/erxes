@@ -34,7 +34,7 @@ export const InvSaleForm = ({
   const onChangeOutAccount = (account: IAccount) => {
     form.setValue(
       `trDocs.${index}.followExtras.saleOutAccount`,
-      account as any,
+      account,
     );
 
     setFollowTrDocs((followTrDocs || []).map((ftr) => (
@@ -51,7 +51,7 @@ export const InvSaleForm = ({
   const onChangeCostAccount = (account: IAccount) => {
     form.setValue(
       `trDocs.${index}.followExtras.saleCostAccount`,
-      account as any,
+      account,
     );
 
     setFollowTrDocs((followTrDocs || []).map((ftr) => (
