@@ -43,6 +43,7 @@ export const PipelineMoreColumnCell = ({
   const confirmOptions = { confirmationValue: 'delete' };
   const { confirm } = useConfirm();
   const [, setOpen] = useQueryState('pipelineId');
+  const [, setTab] = useQueryState('tab'); // ✅ Added to control active tab
   const { removePipeline, loading: removeLoading } = usePipelineRemove();
   const { copyPipeline } = usePipelineCopy();
   const { archivePipeline } = usePipelineArchive();
@@ -55,12 +56,8 @@ export const PipelineMoreColumnCell = ({
       options: confirmOptions,
     }).then(async () => {
       try {
-        removePipeline({
-          variables: {
-            _id,
-          },
-        });
-      } catch (e) {
+        removePipeline({ variables: { _id } });
+      } catch (e: any) {
         console.error(e.message);
       }
     });
@@ -72,12 +69,8 @@ export const PipelineMoreColumnCell = ({
         'This will duplicate the current pipeline. Are you absolutely sure?',
     }).then(async () => {
       try {
-        copyPipeline({
-          variables: {
-            _id,
-          },
-        });
-      } catch (e) {
+        copyPipeline({ variables: { _id } });
+      } catch (e: any) {
         console.error(e.message);
       }
     });
@@ -90,12 +83,8 @@ export const PipelineMoreColumnCell = ({
       } the current pipeline. Are you absolutely sure?`,
     }).then(async () => {
       try {
-        archivePipeline({
-          variables: {
-            _id,
-          },
-        });
-      } catch (e) {
+        archivePipeline({ variables: { _id } });
+      } catch (e: any) {
         console.error(e.message);
       }
     });
@@ -113,13 +102,16 @@ export const PipelineMoreColumnCell = ({
               value="edit"
               onSelect={() => {
                 setOpen(_id);
+                setTab('general');
               }}
             >
               <IconEdit /> Edit
             </Command.Item>
+
             <Command.Item value="duplicate" onSelect={onDuplicate}>
               <IconCopy /> Duplicate
             </Command.Item>
+
             <Command.Item value="archive" onSelect={onArchive}>
               {status === 'active' ? (
                 <>
@@ -131,9 +123,17 @@ export const PipelineMoreColumnCell = ({
                 </>
               )}
             </Command.Item>
-            <Command.Item value="productConfig">
+
+            <Command.Item
+              value="productConfig"
+              onSelect={() => {
+                setOpen(_id);
+                setTab('productConfig');
+              }}
+            >
               <IconSettings /> Product config
             </Command.Item>
+
             <Command.Item
               disabled={removeLoading}
               value="remove"
@@ -161,28 +161,17 @@ export const pipelinesColumns: ColumnDef<
     header: 'Name',
     accessorKey: 'name',
     cell: ({ cell }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const { pipelineEdit, loading } = usePipelineEdit();
       const { _id, name, type } = cell.row.original;
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const [open, setOpen] = React.useState<boolean>(false);
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const [_name, setName] = React.useState<string>(name);
 
       const onSave = () => {
         if (name !== _name) {
           pipelineEdit({
-            variables: {
-              id: _id,
-              type: type,
-              name: _name,
-            },
+            variables: { id: _id, type, name: _name },
           });
         }
-      };
-
-      const onChange = (el: React.ChangeEvent<HTMLInputElement>) => {
-        setName(el.currentTarget.value);
       };
 
       return (
@@ -190,14 +179,11 @@ export const pipelinesColumns: ColumnDef<
           open={open}
           onOpenChange={(open) => {
             setOpen(open);
-            if (!open) {
-              onSave();
-            }
+            if (!open) onSave();
           }}
         >
           <RecordTableInlineCell.Trigger>
             <RecordTableTree.Trigger
-              // order={cell.row.original.order || ''}
               order=""
               name={cell.getValue() as string}
               hasChildren={cell.row.original.hasChildren}
@@ -205,8 +191,13 @@ export const pipelinesColumns: ColumnDef<
               {cell.getValue() as string}
             </RecordTableTree.Trigger>
           </RecordTableInlineCell.Trigger>
+
           <RecordTableInlineCell.Content>
-            <Input value={_name} onChange={onChange} disabled={loading} />
+            <Input
+              value={_name}
+              onChange={(e) => setName(e.currentTarget.value)}
+              disabled={loading}
+            />
           </RecordTableInlineCell.Content>
         </Popover>
       );
@@ -218,7 +209,6 @@ export const pipelinesColumns: ColumnDef<
     accessorKey: 'status',
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
-
       const variant =
         status === 'active'
           ? 'success'
@@ -228,7 +218,7 @@ export const pipelinesColumns: ColumnDef<
 
       return (
         <RecordTableInlineCell>
-          <Badge variant={variant}>{(cell.getValue() as string) || '-'}</Badge>
+          <Badge variant={variant}>{status || '-'}</Badge>
         </RecordTableInlineCell>
       );
     },
@@ -239,37 +229,30 @@ export const pipelinesColumns: ColumnDef<
     header: () => (
       <RecordTable.InlineHead icon={IconCalendarTime} label="Created At" />
     ),
-    cell: ({ cell }) => {
-      return (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell>
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
-      );
-    },
+    cell: ({ cell }) => (
+      <RelativeDateDisplay value={cell.getValue() as string} asChild>
+        <RecordTableInlineCell>
+          <RelativeDateDisplay.Value value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      </RelativeDateDisplay>
+    ),
   },
   {
     id: 'createdBy',
     accessorKey: 'createdUser.details.fullName',
     header: () => <RecordTable.InlineHead icon={IconUser} label="Created by" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
+    ),
   },
 ];
 
 const PipelineRecordTable = () => {
-  const [queries] = useMultiQueryState<{
-    contentType: string;
-    searchValue: string;
-    activeBoardId: string;
-  }>(['contentType', 'searchValue', 'activeBoardId']);
-
+  const [queries] = useMultiQueryState([
+    'contentType',
+    'searchValue',
+    'activeBoardId',
+  ]);
   const { contentType, searchValue } = queries;
 
   const { pipelines, loading, pageInfo, handleFetchMore, totalCount } =
