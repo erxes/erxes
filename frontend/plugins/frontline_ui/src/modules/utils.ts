@@ -23,8 +23,8 @@ const getWidgetUrl = (): string => {
   // if (memoizedApiUrl) return memoizedApiUrl;
 
   const envApiUrl =
-    window.env?.REACT_APP_WIDGET_URL ??
-    (process.env.REACT_APP_WIDGET_URL || getDefaultUrl());
+    window.env?.REACT_APP_WIDGETS_URL ??
+    (process.env.REACT_APP_WIDGETS_URL || getDefaultUrl());
 
   memoizedApiUrl = envApiUrl?.includes('<subdomain>')
     ? envApiUrl.replace('<subdomain>', getSubdomain())
@@ -33,6 +33,6 @@ const getWidgetUrl = (): string => {
   return memoizedApiUrl;
 };
 
-const REACT_APP_WIDGET_URL = getWidgetUrl();
+const REACT_APP_WIDGETS_URL = getWidgetUrl();
 
-export { REACT_APP_WIDGET_URL };
+export { REACT_APP_WIDGETS_URL };
