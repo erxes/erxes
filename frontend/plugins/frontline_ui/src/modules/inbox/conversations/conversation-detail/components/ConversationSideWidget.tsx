@@ -1,5 +1,3 @@
-import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
-
 import { SideMenu } from 'erxes-ui';
 import { useRelationWidget } from 'ui-modules';
 

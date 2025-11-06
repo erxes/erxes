@@ -50,21 +50,15 @@ export const pConversationClientMessageInserted = async (
   let channelMemberIds: string[] = [];
 
   if (integration) {
-    const channels = await models.Channels.find(
-      {
-        integrationIds: { $in: [integration._id] },
-      },
-      { _id: 1 },
-    );
+    const channelMembers = await models.ChannelMembers.find(
+      { channelId: integration.channelId },
+      { memberId: 1 },
+    ).lean();
 
-    for (const channel of channels) {
-      const members = await models.ChannelMembers.find(
-        { channelId: channel._id },
-        { memberId: 1 },
-      );
-      const memberIds = members.map((member) => member.memberId);
-      channelMemberIds = [...channelMemberIds, ...memberIds];
-    }
+    channelMemberIds = [
+      ...channelMemberIds,
+      ...channelMembers.map((member: { memberId: string }) => member?.memberId),
+    ];
   }
 
   try {
@@ -82,7 +76,6 @@ export const pConversationClientMessageInserted = async (
       'conversationMessageInserted Error publishing subscription:',
     );
   }
-
   for (const userId of channelMemberIds) {
     await graphqlPubsub.publish(
       `conversationClientMessageInserted:${subdomain}:${userId}`,
