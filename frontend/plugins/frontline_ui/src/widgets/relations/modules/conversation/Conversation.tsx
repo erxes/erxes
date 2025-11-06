@@ -1,3 +1,4 @@
+import { useConversations } from '@/inbox/conversations/hooks/useConversations';
 import { IRelationWidgetProps, useRelations } from 'ui-modules';
 import { ConversationRelationDetails } from './ConversationDetails';
 
@@ -15,15 +16,44 @@ export const ConversationRelationWidget = ({
     skip: contentType === 'core:customer',
   });
 
-  //content type  core customer baih ued use relation query duudah shaardlag bhq uchir n conversation customer id g ugaasa hadgalj bga
-  //conversation ii detail awdag function duudn
-
-  return ownEntities?.map((entity) => {
-    return (
-      <ConversationRelationDetails
-        key={entity.contentId}
-        conversationId={entity.contentId}
-      />
-    );
+  const { conversations } = useConversations({
+    variables: {
+      customerId: customerId || contentId,
+    },
+    skip:
+      contentType !== 'core:customer' &&
+      contentType !== 'frontline:conversation',
   });
+
+  if (
+    contentType === 'core:customer' ||
+    contentType === 'frontline:conversation'
+  ) {
+    return (
+      <div className="flex flex-col gap-2 w-full p-2">
+        {conversations
+          ?.filter((conversation) => conversation._id !== contentId)
+          .map((conversation) => {
+            return (
+              <ConversationRelationDetails
+                key={conversation._id}
+                conversationId={conversation._id}
+              />
+            );
+          })}
+      </div>
+    );
+  }
+  return (
+    <div className="flex flex-col gap-2 w-full p-2">
+      {ownEntities?.map((entity) => {
+        return (
+          <ConversationRelationDetails
+            key={entity.contentId}
+            conversationId={entity.contentId}
+          />
+        );
+      })}
+    </div>
+  );
 };

@@ -170,6 +170,7 @@ const mutationFilterParams = `
   startDate: String
   endDate: String
   segment: String
+  customerId: String
 `;
 
 const convertParams = `
