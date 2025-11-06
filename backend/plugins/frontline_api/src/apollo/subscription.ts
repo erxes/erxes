@@ -125,84 +125,18 @@ export default {
        * Listen for new message insertion
        */
       conversationMessageInserted: {
-        resolve(payload, args, { dataSources: { gatewayDataSource } }, info) {
-          console.log('1');
-          if (!payload) {
-            console.log('2...');
-
-            console.error(
-              `Subscription resolver error: conversationMessageInserted: payload is ${payload}`,
-            );
-            return;
-          }
-          console.log('3...');
-
-          if (!payload.conversationMessageInserted) {
-            console.log('4...');
-
-            console.error(
-              `Subscription resolver error: conversationMessageInserted: payload.conversationMessageInserted is ${payload.conversationMessageInserted}`,
-            );
-            return;
-          }
-          console.log('5...', payload?.conversationMessageInserted?._id);
-
-          if (!payload.conversationMessageInserted._id) {
-            console.log('6...');
-            console.error(
-              `Subscription resolver error: conversationMessageInserted: payload.conversationMessageInserted._id is ${payload.conversationMessageInserted._id}`,
-            );
-            return;
-          }
-          console.log(
-            'Payload before gatewayDataSource:',
-            JSON.stringify(payload, null, 2),
-          );
-
-          return gatewayDataSource
-            .queryAndMergeMissingData({
-              payload,
-              info,
-              queryVariables: { _id: payload.conversationMessageInserted._id },
-              buildQueryUsingSelections: (selections) => `
-              query Subscription_GetMessage($_id: String!) {
-                conversationMessage(_id: $_id) {
-                  _id
-                }
-              }
-            `,
-            })
-            .then((res) => {
-              console.log('Merged result:', JSON.stringify(res, null, 2));
-              return res;
-            })
-            .catch((error) => {
-              console.log('error:', error);
-            });
-        },
+        resolve: (payload) => payload.conversationMessageInserted,
         subscribe: withFilter(
-          (_, { _id }) => {
-            return graphqlPubsub.asyncIterator(
-              `conversationMessageInserted:${_id}`,
-            );
-          },
+          (_, { _id }) =>
+            graphqlPubsub.asyncIterator(`conversationMessageInserted:${_id}`),
           async (payload, variables) => {
-            console.log(
-              payload.conversationMessageInserted,
-              'payload.conversationMessageInserted',
-            );
             const conversationId =
               payload.conversationMessageInserted.conversationId;
             const id = variables._id || {};
-            console.log(id, 'asds', conversationId);
-            if (!id) {
-              return false;
-            }
 
-            if (!conversationId) {
-              return false;
-            }
-            if (conversationId === id) {
+            if (!id) return false;
+
+            if (conversationId && id === conversationId) {
               return true;
             }
             return false;
