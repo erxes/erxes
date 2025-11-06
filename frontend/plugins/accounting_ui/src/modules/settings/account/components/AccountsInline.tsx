@@ -26,18 +26,18 @@ export const AccountsInlineProvider = ({
   updateAccounts?: (accounts: IAccount[]) => void;
   allowUnassigned?: boolean;
 }) => {
-  const [_accounts, _setAccounts] = useState<IAccount[]>(accounts || []);
+  const [accountsList, setAccountsList] = useState<IAccount[]>(accounts || []);
 
   return (
     <AccountsInlineContext.Provider
       value={{
-        accounts: accounts || _accounts,
+        accounts: accounts || accountsList,
         loading: false,
         accountIds: accountIds || [],
         placeholder: isUndefinedOrNull(placeholder)
           ? 'Select Accounts'
           : placeholder,
-        updateAccounts: updateAccounts || _setAccounts,
+        updateAccounts: updateAccounts || setAccountsList,
         allowUnassigned,
       }}
     >

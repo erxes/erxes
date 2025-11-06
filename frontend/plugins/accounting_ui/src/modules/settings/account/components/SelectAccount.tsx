@@ -273,7 +273,7 @@ export const SelectAccountFilterView = ({
         mode={mode}
         value={account || (mode === 'single' ? '' : [])}
         onValueChange={(value) => {
-          setAccount(value as string[] | string);
+          setAccount(value);
           resetFilterState();
           onValueChange?.(value);
         }}
@@ -318,7 +318,7 @@ export const SelectAccountFilterBar = ({
         value={account || (mode === 'single' ? '' : [])}
         onValueChange={(value) => {
           if (value.length > 0) {
-            setAccount(value as string[] | string);
+            setAccount(value);
           } else {
             setAccount(null);
           }

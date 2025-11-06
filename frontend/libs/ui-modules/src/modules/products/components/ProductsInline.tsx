@@ -24,18 +24,18 @@ export const ProductsInlineProvider = ({
   placeholder?: string;
   updateProducts?: (products: IProduct[]) => void;
 }) => {
-  const [_products, _setProducts] = useState<IProduct[]>(products || []);
+  const [productsList, setProductsList] = useState<IProduct[]>(products || []);
 
   return (
     <ProductsInlineContext.Provider
       value={{
-        products: products || _products,
+        products: products || productsList,
         loading: false,
         productIds: productIds || [],
         placeholder: isUndefinedOrNull(placeholder)
           ? 'Select Products'
           : placeholder,
-        updateProducts: updateProducts || _setProducts,
+        updateProducts: updateProducts || setProductsList,
       }}
     >
       <Tooltip.Provider>{children}</Tooltip.Provider>
