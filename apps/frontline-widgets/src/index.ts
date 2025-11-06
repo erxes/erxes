@@ -47,7 +47,7 @@ export const generateIntegrationUrl = (integrationKind: string): string => {
     })();
 
   if (script && script instanceof HTMLScriptElement) {
-    return script.src.replace(`index.js`, ``);
+    return script.src.replace(`messengerBundle.js`, ``);
   }
 
   return '';

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
-export const productCategoryDetail = gql`
-  query productDetail($_id: String) {
+export const PRODUCT_DETAIL_QUERY = gql`
+  query PRODUCT_DETAIL_QUERY($_id: String) {
     productDetail(_id: $_id) {
       _id
       name
@@ -10,35 +10,6 @@ export const productCategoryDetail = gql`
       code
       categoryId
       vendorId
-      vendor {
-        _id
-        avatar
-        businessType
-        code
-        createdAt
-        customFieldsData
-        description
-        emails
-        industry
-        isSubscribed
-        links
-        location
-        mergedIds
-        updatedAt
-        names
-        ownerId
-        parentCompanyId
-        phones
-        plan
-        primaryEmail
-        primaryName
-        primaryPhone
-        score
-        size
-        tagIds
-        trackedData
-        website
-      }
       scopeBrandIds
       status
       description
@@ -47,11 +18,6 @@ export const productCategoryDetail = gql`
       variants
       barcodeDescription
       createdAt
-      category {
-        _id
-        code
-        name
-      }
       attachment {
         url
         name
