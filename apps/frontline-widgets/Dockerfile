@@ -15,6 +15,7 @@ COPY package.json pnpm-lock.yaml ./
 RUN npm install -g pnpm && pnpm install
 COPY . .
 RUN pnpm nx build frontline-widgets --configuration=production --verbose
+RUN pnpm nx compile:index frontline-widgets --verbose
 
 # Final stage
 FROM nginx:alpine
