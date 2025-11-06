@@ -19,7 +19,7 @@ const config: ModuleFederationConfig = {
     './frontline': './src/modules/Main.tsx',
     './configsSettings': './src/modules/integrations-config/Settings.tsx',
     './ticketSettings': './src/modules/ticket/Settings.tsx',
-    './channelsSettings': './src/modules/channels/Settings.tsx',
+    './channelsSettings': './src/modules/channels/components/settings/Settings.tsx',
     './automationsWidget':
       './src/widgets/automations/components/AutomationRemoteEntry.tsx',
     './notificationWidget':

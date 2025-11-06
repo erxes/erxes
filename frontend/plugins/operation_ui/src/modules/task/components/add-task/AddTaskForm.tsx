@@ -119,9 +119,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit, (errors) => {
-          console.log(errors);
-        })}
+        onSubmit={form.handleSubmit(onSubmit)}
         className="h-full flex flex-col"
       >
         <Sheet.Header className="flex items-center gap-2 ">

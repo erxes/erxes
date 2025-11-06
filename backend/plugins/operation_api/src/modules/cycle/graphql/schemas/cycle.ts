@@ -44,4 +44,5 @@ export const mutations = `
     createCycle(input: CycleInput): Cycle
     updateCycle(input: CycleInput): Cycle
     removeCycle(_id: String): JSON
+    endCycle(_id: String): JSON
 `;

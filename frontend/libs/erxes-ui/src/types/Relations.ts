@@ -5,3 +5,10 @@ export interface IRelation {
     contentId: string;
   }[];
 }
+
+export interface IRelationInput {
+  entities: {
+    contentType: string;
+    contentId: string;
+  }[];
+}

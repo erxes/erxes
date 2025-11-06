@@ -65,6 +65,9 @@ importers:
       '@faker-js/faker':
         specifier: ^9.9.0
         version: 9.9.0
+      '@fingerprintjs/fingerprintjs':
+        specifier: ^4.6.2
+        version: 4.6.2
       '@formkit/auto-animate':
         specifier: ^0.8.2
         version: 0.8.2
@@ -203,9 +206,6 @@ importers:
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
-      helmet:
-        specifier: ^8.1.0
-        version: 8.1.0
       http-proxy-middleware:
         specifier: ^3.0.3
         version: 3.0.5
@@ -368,6 +368,9 @@ importers:
       use-debounce:
         specifier: ^10.0.4
         version: 10.0.4(react@18.3.1)
+      uuid-by-string:
+        specifier: ^4.0.0
+        version: 4.0.0
       validator:
         specifier: ^13.15.0
         version: 13.15.0
@@ -699,9 +702,6 @@ importers:
       graphql-subscriptions:
         specifier: ^3.0.0
         version: 3.0.0(graphql@16.10.0)
-      helmet:
-        specifier: ^8.1.0
-        version: 8.1.0
       ioredis:
         specifier: ^5.6.1
         version: 5.6.1
@@ -820,6 +820,15 @@ importers:
       strip-html:
         specifier: ^1.0.2
         version: 1.0.2
+      uuid-by-string:
+        specifier: ^4.0.0
+        version: 4.0.0
+
+  backend/plugins/mongolian_api:
+    dependencies:
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../erxes-api-shared
 
   backend/plugins/operation_api:
     dependencies:
@@ -2542,6 +2551,9 @@ packages:
   '@faker-js/faker@9.9.0':
     resolution: {integrity: sha512-OEl393iCOoo/z8bMezRlJu+GlRGlsKbUAN7jKB6LhnKoqKve5DXRpalbItIIcwnCjs1k/FOPjFzcA6Qn+H+YbA==}
     engines: {node: '>=18.0.0', npm: '>=9.0.0'}
+
+  '@fingerprintjs/fingerprintjs@4.6.2':
+    resolution: {integrity: sha512-g8mXuqcFKbgH2CZKwPfVtsUJDHyvcgIABQI7Y0tzWEFXpGxJaXuAuzlifT2oTakjDBLTK4Gaa9/5PERDhqUjtw==}
 
   '@floating-ui/core@1.6.9':
     resolution: {integrity: sha512-uMXCuQ3BItDUbAMhIXw7UPXRfAlOAvZzdK9BWpE60MCn+Svt3aLn9jsPTi/WNGlRUu2uI0v5S7JiIUsbsvh3fw==}
@@ -9745,10 +9757,6 @@ packages:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
 
-  helmet@8.1.0:
-    resolution: {integrity: sha512-jOiHyAZsmnr8LqoPGmCjYAaiuWwjAPLgY8ZX2XrmHawt99/u1y6RgrZMTeoPfpUbV96HOalYgz1qzkRbw54Pmg==}
-    engines: {node: '>=18.0.0'}
-
   hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
 
@@ -10746,6 +10754,12 @@ packages:
   js-levenshtein@1.1.6:
     resolution: {integrity: sha512-X2BB11YZtrRqY4EnQcLX5Rh373zbK4alC1FW7D7MBhL2gtcC17cTnr6DmfHZeS0s2rTHjUTMMHfG7gO8SSdw+g==}
     engines: {node: '>=0.10.0'}
+
+  js-md5@0.7.3:
+    resolution: {integrity: sha512-ZC41vPSTLKGwIRjqDh8DfXoCrdQIyBgspJVPXHBGu4nZlAEvG3nf+jO9avM9RmLiGakg7vz974ms99nEV0tmTQ==}
+
+  js-sha1@0.6.0:
+    resolution: {integrity: sha512-01gwBFreYydzmU9BmZxpVk6svJJHrVxEN3IOiGl6VO93bVKYETJ0sIth6DASI6mIFdt7NmfX9UiByRzsYHGU9w==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -14534,6 +14548,9 @@ packages:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
 
+  uuid-by-string@4.0.0:
+    resolution: {integrity: sha512-88ZSfcSkN04juiLqSsuyteqlSrXNFdsEPzSv3urnElDXNsZUXQN0smeTnh99x2DE15SCUQNgqKBfro54CuzHNQ==}
+
   uuid@3.4.0:
     resolution: {integrity: sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==}
     deprecated: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
@@ -16771,6 +16788,10 @@ snapshots:
       levn: 0.4.1
 
   '@faker-js/faker@9.9.0': {}
+
+  '@fingerprintjs/fingerprintjs@4.6.2':
+    dependencies:
+      tslib: 2.8.1
 
   '@floating-ui/core@1.6.9':
     dependencies:
@@ -26539,8 +26560,6 @@ snapshots:
 
   he@1.2.0: {}
 
-  helmet@8.1.0: {}
-
   hoist-non-react-statics@3.3.2:
     dependencies:
       react-is: 16.13.1
@@ -28002,6 +28021,10 @@ snapshots:
   js-cookie@3.0.5: {}
 
   js-levenshtein@1.1.6: {}
+
+  js-md5@0.7.3: {}
+
+  js-sha1@0.6.0: {}
 
   js-tokens@4.0.0: {}
 
@@ -32542,6 +32565,11 @@ snapshots:
   utila@0.4.0: {}
 
   utils-merge@1.0.1: {}
+
+  uuid-by-string@4.0.0:
+    dependencies:
+      js-md5: 0.7.3
+      js-sha1: 0.6.0
 
   uuid@3.4.0: {}
 
