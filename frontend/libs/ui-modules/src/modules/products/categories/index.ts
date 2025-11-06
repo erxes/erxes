@@ -1,2 +1,2 @@
 export * from './graphql';
-export * from './components/SelectCategory';
+export * from './components/SelectCategoryfu';
