@@ -4,7 +4,10 @@ import { IConversationDocument } from '@/inbox/@types/conversations';
 import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { generateModels, IContext, IModels } from '~/connectionResolvers';
-import { IConversationMessageAdd } from '@/inbox/@types/conversationMessages';
+import {
+  IConversationMessageAdd,
+  IMessageDocument,
+} from '@/inbox/@types/conversationMessages';
 import { AUTO_BOT_MESSAGES } from '@/inbox/db/definitions/constants';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
@@ -102,16 +105,13 @@ export const publishConversationsChanged = async (
  */
 export const publishMessage = async (
   models: IModels,
-  message: any,
+  message: IMessageDocument,
   customerId?: string,
 ) => {
   await graphqlPubsub.publish(
     `conversationMessageInserted:${message.conversationId}`,
-    {
-      conversationMessageInserted: message,
-    },
+    { conversationMessageInserted: JSON.parse(JSON.stringify(message)) },
   );
-
   if (customerId) {
     const unreadCount =
       await models.ConversationMessages.widgetsGetUnreadMessagesCount(
@@ -230,7 +230,6 @@ export const conversationMutations = {
       const { kind } = integration;
       const customer = await sendTRPCMessage({
         subdomain,
-
         pluginName: 'core',
         method: 'query',
         module: 'customers',
@@ -286,7 +285,6 @@ export const conversationMutations = {
       // Case: external service handled it, do not save locally
       if (response?.data?.data) {
         const { conversationId, content } = response.data.data;
-
         if (conversationId && content) {
           await models.Conversations.updateConversation(conversationId, {
             content: content || '',
@@ -298,6 +296,7 @@ export const conversationMutations = {
           doc,
           userId,
         );
+
         const dbMessage = await models.ConversationMessages.getMessage(
           message._id,
         );
@@ -317,6 +316,7 @@ export const conversationMutations = {
         publishMessage(models, dbMessage);
       } else {
         // Normal message: publish to both admin and client
+
         publishMessage(models, dbMessage, conversation.customerId);
       }
 

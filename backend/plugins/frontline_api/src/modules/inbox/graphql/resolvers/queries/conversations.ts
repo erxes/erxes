@@ -75,6 +75,13 @@ export const conversationQueries = {
     return { list, totalCount, pageInfo };
   },
 
+  async conversationMessage(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.ConversationMessages.findOne({ _id });
+  },
   /**
    * Get conversation messages
    */
