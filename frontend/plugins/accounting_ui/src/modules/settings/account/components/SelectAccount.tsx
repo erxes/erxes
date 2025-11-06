@@ -120,8 +120,7 @@ const SelectAccountContent = () => {
         {!loading &&
           accountsData
             ?.filter(
-              (account) =>
-                !accountIds.some((accountId) => accountId === account._id),
+              (account) => !accountIds.includes(account._id)
             )
             .map((account) => (
               <SelectAccountCommandItem key={account._id} account={account} />
