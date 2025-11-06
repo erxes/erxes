@@ -27,6 +27,7 @@ interface SelectStatusContextType {
   loading?: boolean;
   error?: any;
   statuses?: ITicketStatusChoice[];
+  pipelineId?: string;
 }
 
 const SelectStatusContext = React.createContext<SelectStatusContextType | null>(
@@ -70,6 +71,7 @@ export const SelectStatusProvider = ({
         statuses,
         loading,
         error,
+        pipelineId,
       }}
     >
       {children}
@@ -133,11 +135,15 @@ const SelectStatusCommandItem = ({
 };
 
 const SelectStatusContent = () => {
-  const { statuses } = useSelectStatusContext();
+  const { statuses, pipelineId } = useSelectStatusContext();
   return (
     <Command>
       <Command.Input placeholder="Search status" />
-      <Command.Empty>No status found</Command.Empty>
+      <Command.Empty>
+        <span className="text-muted-foreground">
+          {pipelineId ? 'No status found' : 'Pipeline not selected'}
+        </span>
+      </Command.Empty>
       <Command.List>
         {statuses?.map((status) => (
           <SelectStatusCommandItem key={status.value} status={status} />
@@ -284,7 +290,7 @@ export const SelectStatusTicketFormItem = ({
         onValueChange(value);
         setOpen(false);
       }}
-      pipelineId={pipelineId}
+      pipelineId={pipelineId || undefined}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
         <SelectTriggerTicket variant="form">
