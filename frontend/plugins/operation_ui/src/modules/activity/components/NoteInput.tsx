@@ -15,8 +15,8 @@ import { IconCommand, IconCornerDownLeft } from '@tabler/icons-react';
 import type { Block } from '@blocknote/core';
 
 export const NoteInput = ({ contentId }: { contentId: string }) => {
-  const editor = useBlockEditor({placeholder: "Leave a note..."});
-  const { createNote } = useCreateNote();
+  const editor = useBlockEditor({ placeholder: 'Leave a note...' });
+  const { createNote, loading } = useCreateNote();
   const {
     setHotkeyScopeAndMemorizePreviousScope,
     goBackToPreviousHotkeyScope,
@@ -76,6 +76,7 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
         <Button
           size="lg"
           className="ml-auto"
+          disabled={loading}
           // disabled={editor?.document?.length === 0}
           onClick={onSend}
         >

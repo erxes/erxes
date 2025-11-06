@@ -34,6 +34,7 @@ export interface ITask {
   updatedAt: string;
   cycleId?: string;
   milestoneId?: string;
+  convertedFromId?: string;
 }
 
 export interface ITaskStatus {

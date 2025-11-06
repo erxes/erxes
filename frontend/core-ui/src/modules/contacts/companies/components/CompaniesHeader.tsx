@@ -3,13 +3,11 @@ import { ContactsBreadcrumb } from '@/contacts/components/ContactsBreadcrumb';
 
 export const CompaniesHeader = () => {
   return (
-    <>
-      <PageHeader>
-        <PageHeader.Start>
-          <ContactsBreadcrumb />
-          <PageHeader.FavoriteToggleButton />
-        </PageHeader.Start>
-      </PageHeader>
-    </>
+    <PageHeader>
+      <PageHeader.Start>
+        <ContactsBreadcrumb />
+        <PageHeader.FavoriteToggleButton />
+      </PageHeader.Start>
+    </PageHeader>
   );
 };

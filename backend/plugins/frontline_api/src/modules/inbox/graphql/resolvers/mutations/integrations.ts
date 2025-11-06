@@ -354,6 +354,25 @@ export const integrationMutations = {
     return models.Integrations.saveMessengerConfigs(_id, messengerData);
   },
 
+  async integrationsSaveMessengerColorTheme(
+    _root,
+    { _id, colorTheme }: { _id: string; colorTheme: any },
+    { models }: IContext,
+  ) {
+    return models.Integrations.saveMessengerColorTheme(_id, colorTheme);
+  },
+
+  async integrationsGetMessengerColorThemes(_root, _args) {
+    return [
+      {
+        _id: '',
+        primary: {
+          DEFAULT: '#3b82f6',
+          foreground: '#ffffff',
+        },
+      },
+    ];
+  },
   /**
    * Create a new messenger integration
    */

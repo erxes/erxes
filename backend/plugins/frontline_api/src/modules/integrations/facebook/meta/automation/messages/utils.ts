@@ -1,5 +1,4 @@
 import { getEnv } from 'erxes-api-shared/utils';
-import moment from 'moment';
 import { IModels } from '~/connectionResolvers';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';

@@ -1,26 +1,20 @@
-import {
-  Input,
-  Separator,
-  useBlockEditor,
-  BlockEditor,
-  Button,
-} from 'erxes-ui';
-import { useUpdateTask } from '@/task/hooks/useUpdateTask';
-import { useDebounce } from 'use-debounce';
-import { useEffect, useState } from 'react';
-import { Block } from '@blocknote/core';
-import { ITask } from '@/task/types';
 import { ActivityList } from '@/activity/components/ActivityList';
-import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
-import { SelectAssigneeTask } from '@/task/components/task-selects/SelectAssigneeTask';
-import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
+import { ConvertToProject } from '@/task/components/task-selects/ConvertToProject';
 import { DateSelectTask } from '@/task/components/task-selects/DateSelectTask';
-import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
-import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
-import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstimatedPointTask';
+import { SelectAssigneeTask } from '@/task/components/task-selects/SelectAssigneeTask';
 import { SelectCycle } from '@/task/components/task-selects/SelectCycle';
-import { ConverToProject } from '@/task/components/task-selects/ConvertToProject';
+import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstimatedPointTask';
 import { SelectMilestone } from '@/task/components/task-selects/SelectMilestone';
+import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
+import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
+import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
+import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
+import { useUpdateTask } from '@/task/hooks/useUpdateTask';
+import { ITask } from '@/task/types';
+import { Block } from '@blocknote/core';
+import { BlockEditor, Input, Separator, useBlockEditor } from 'erxes-ui';
+import { useEffect, useState } from 'react';
+import { useDebounce } from 'use-debounce';
 
 export const TaskFields = ({ task }: { task: ITask }) => {
   const {
@@ -141,7 +135,6 @@ export const TaskFields = ({ task }: { task: ITask }) => {
           variant="detail"
           teamId={teamId}
         />
-        <ConverToProject taskId={taskId} />
         <SelectEstimatedPoint
           value={estimatePoint}
           taskId={taskId}
@@ -154,6 +147,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
           projectId={projectId}
           variant="detail"
         />
+        <ConvertToProject task={task} />
       </div>
       <Separator className="my-4" />
       <div className="min-h-56 overflow-y-auto">

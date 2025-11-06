@@ -41,6 +41,9 @@ export const dispatchConversationToService = async (
         // TODO: Implement Mobinet SMS logic
         break;
 
+      case 'messenger':
+        break;
+
       default:
         throw new Error(`Unsupported service: ${serviceName}`);
     }

@@ -1,4 +1,8 @@
-import { IconCaretRightFilled } from '@tabler/icons-react';
+import {
+  IconCaretDownFilled,
+  IconCaretRightFilled,
+  IconUser,
+} from '@tabler/icons-react';
 import {
   Avatar,
   Button,
@@ -10,6 +14,7 @@ import {
   Spinner,
   Popover,
   FullNameValue,
+  SideMenu,
 } from 'erxes-ui';
 import { CustomerName } from './CustomerName';
 import { useCustomerDetail } from '../hooks';
@@ -17,8 +22,119 @@ import { CustomerOwner } from './CustomerOwner';
 import { CustomerEmails } from './CustomerEmails';
 import { CustomerPhones } from './CustomerPhones';
 import clsx from 'clsx';
+import { CustomersInline } from './CustomersInline';
 
 export const CustomerWidget = ({
+  customerIds,
+  scope,
+}: {
+  customerIds: string[];
+  scope: string;
+}) => {
+  return (
+    <SideMenu.Content value="customer" className="bg-sidebar">
+      <CustomerWidgetHeader />
+      <CustomerWidgetContent customerIds={customerIds} scope={scope} />
+    </SideMenu.Content>
+  );
+};
+
+export const CustomerWidgetTrigger = () => (
+  <SideMenu.Trigger value="customer" label="Customers" Icon={IconUser} />
+);
+
+const CustomerWidgetHeader = () => {
+  return <SideMenu.Header label="Customers" Icon={IconUser} />;
+};
+
+const CustomerWidgetContent = ({
+  customerIds,
+  scope,
+  updateCustomerIds,
+}: {
+  customerIds: string[];
+  updateCustomerIds?: (customerIds: string[]) => void;
+  scope: string;
+}) => {
+  if (!customerIds || customerIds.length === 0) {
+    return <div className="p-4">No customers found</div>;
+  }
+  if (customerIds.length === 1) {
+    return <CustomerWidgetDetail customerId={customerIds[0]} scope={scope} />;
+  }
+  return (
+    <div className="p-4 space-y-2">
+      {customerIds.map((customerId: string) => {
+        return (
+          <CustomerWidgetItem
+            key={customerId}
+            customerId={customerId}
+            scope={scope}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
+const CustomerWidgetItem = ({
+  customerId,
+  scope,
+}: {
+  customerId: string;
+  scope: string;
+}) => {
+  const { customerDetail, loading } = useCustomerDetail(
+    {
+      variables: {
+        _id: customerId,
+      },
+    },
+    true,
+  );
+  const { primaryEmail, primaryPhone } = customerDetail || {};
+
+  if (loading) {
+    return (
+      <Spinner containerClassName="py-6 bg-background rounded-lg shadow-xs" />
+    );
+  }
+  return (
+    <CustomersInline.Provider
+      customers={customerDetail ? [customerDetail] : []}
+    >
+      <div className="bg-background rounded-lg shadow-xs">
+        <div className="p-3 space-y-2">
+          <div className="flex items-center gap-2">
+            <CustomersInline.Avatar size="xl" />
+            <CustomersInline.Title />
+          </div>
+          <div className="text-sm text-accent-foreground flex items-center gap-2 justify-between">
+            Customer phone
+            <span className="text-foreground">{primaryPhone || '-'}</span>
+          </div>
+          <div className="text-sm text-accent-foreground flex items-center gap-2 justify-between">
+            Customer email
+            <span className="text-foreground">{primaryEmail || '-'}</span>
+          </div>
+        </div>
+        <Separator />
+        <div className="py-1 px-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full text-accent-foreground"
+          >
+            View details
+            <IconCaretDownFilled />
+          </Button>
+        </div>
+      </div>
+    </CustomersInline.Provider>
+  );
+};
+
+const CustomerWidgetDetail = ({
   customerId,
   scope,
 }: {
@@ -46,7 +162,7 @@ export const CustomerWidget = ({
   } = customerDetail || {};
 
   return (
-    <Collapsible className="group/collapsible-menu" defaultOpen>
+    <Collapsible className="group/collapsible-menu bg-background" defaultOpen>
       <div className="p-4">
         <Collapsible.Trigger asChild>
           <Button
@@ -58,7 +174,7 @@ export const CustomerWidget = ({
             Overview
           </Button>
         </Collapsible.Trigger>
-        <Collapsible.Content className="pt-2">
+        <Collapsible.Content className="pt-4">
           {loading ? (
             <Spinner containerClassName="py-20" />
           ) : (

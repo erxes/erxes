@@ -11,6 +11,9 @@ export const ProjectInline = forwardRef<
   } & React.HTMLAttributes<HTMLDivElement>
 >(({ project, projectId, className, ...props }, ref) => {
   const { projects } = useProjects({
+    variables: {
+      _ids: [projectId],
+    },
     skip: Boolean(project),
   });
 

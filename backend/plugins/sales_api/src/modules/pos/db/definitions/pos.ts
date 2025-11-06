@@ -82,9 +82,10 @@ export const posSchema = schemaWrapper(
       type: [String],
       label: 'Check Exclude Categories',
     },
+    saveRemainder: { type: Boolean, label: 'Save Remainder' },
     banFractions: { type: Boolean, label: 'has Float count' },
     status: { type: String, label: 'Status', optional: true },
-  })
+  }),
 );
 
 export const productGroupSchema = schemaWrapper(
@@ -110,7 +111,7 @@ export const productGroupSchema = schemaWrapper(
       optional: true,
       label: 'Exclude Product ids',
     },
-  })
+  }),
 );
 
 export const posSlotSchema = schemaWrapper(
@@ -120,5 +121,5 @@ export const posSlotSchema = schemaWrapper(
     code: { type: String, label: 'Code' },
     posId: { type: String, label: 'Pos' },
     option: { type: Object, label: 'Option' },
-  })
+  }),
 );

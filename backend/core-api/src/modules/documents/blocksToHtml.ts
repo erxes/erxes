@@ -248,8 +248,6 @@ const renderCheckbox = (block: Block, config?: Config) => {
 const renderImage = (block: Block, config?: Config) => {
   const { props } = block || {};
 
-  console.log('block', block);
-
   const { url, name, caption, previewWidth } = props || {};
 
   return `<div style="${getStyle(

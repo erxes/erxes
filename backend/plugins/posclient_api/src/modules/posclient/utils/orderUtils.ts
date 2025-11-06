@@ -170,6 +170,7 @@ export const validateOrder = async (
     if (checkProducts.length) {
       const result = await checkRemainders(
         subdomain,
+        models,
         config,
         checkProducts,
         doc.branchId || config.branchId,

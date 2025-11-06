@@ -19,6 +19,9 @@ export const receiveMessage = async (
   activity: Activity,
 ) => {
   try {
+    console.log(activity, 'activity');
+    console.log(integration, 'integration');
+
     debugFacebook(
       `Received message: ${activity.text} from ${activity.from.id}`,
     );
@@ -56,6 +59,7 @@ export const receiveMessage = async (
       userId,
       kind,
     );
+    console.log(customer, 'customer');
     if (!customer) {
       throw new Error('Customer not found');
     }
@@ -123,6 +127,8 @@ export const receiveMessage = async (
         data,
       );
 
+      console.log(apiConversationResponse, 'apiConversationResponse');
+
       if (apiConversationResponse.status === 'success') {
         conversation.erxesApiId = apiConversationResponse.data._id;
 
@@ -162,7 +168,6 @@ export const receiveMessage = async (
         };
 
         await pConversationClientMessageInserted(subdomain, doc);
-
         try {
           await graphqlPubsub.publish(
             `conversationMessageInserted:${conversation.erxesApiId}`,
