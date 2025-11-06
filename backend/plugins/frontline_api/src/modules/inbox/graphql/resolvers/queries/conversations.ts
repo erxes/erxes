@@ -80,7 +80,6 @@ export const conversationQueries = {
     { _id }: { _id: string },
     { models }: IContext,
   ) {
-    console.log('conversationMessage working');
     return models.ConversationMessages.findOne({ _id });
   },
   /**

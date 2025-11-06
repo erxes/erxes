@@ -108,20 +108,15 @@ export const publishMessage = async (
   message: IMessageDocument,
   customerId?: string,
 ) => {
-  console.log(message, 'message');
   await graphqlPubsub.publish(
     `conversationMessageInserted:${message.conversationId}`,
     { conversationMessageInserted: JSON.parse(JSON.stringify(message)) },
   );
-  console.log(models, 'models');
   if (customerId) {
-    console.log(customerId, 'customerId');
     const unreadCount =
       await models.ConversationMessages.widgetsGetUnreadMessagesCount(
         message.conversationId,
       );
-
-    console.log(unreadCount, ' unread count');
 
     await graphqlPubsub.publish(
       `conversationAdminMessageInserted:${customerId}`,
@@ -287,12 +282,9 @@ export const conversationMutations = {
         },
       );
 
-      console.log(response, 'response');
-
       // Case: external service handled it, do not save locally
       if (response?.data?.data) {
         const { conversationId, content } = response.data.data;
-        console.log(conversationId, content, 'conversationId, content');
         if (conversationId && content) {
           await models.Conversations.updateConversation(conversationId, {
             content: content || '',
@@ -305,14 +297,11 @@ export const conversationMutations = {
           userId,
         );
 
-        console.log(message, 'message');
         const dbMessage = await models.ConversationMessages.getMessage(
           message._id,
         );
-        console.log(dbMessage, 'dbMessage');
 
         publishMessage(models, dbMessage, conversation.customerId);
-        console.log(dbMessage, 'return dbMessage');
         return dbMessage;
       }
 
@@ -324,11 +313,9 @@ export const conversationMutations = {
 
       if (internal) {
         // Internal message: only publish to admins
-        console.log('1 publishMessage');
         publishMessage(models, dbMessage);
       } else {
         // Normal message: publish to both admin and client
-        console.log('2 publishMessage');
 
         publishMessage(models, dbMessage, conversation.customerId);
       }
