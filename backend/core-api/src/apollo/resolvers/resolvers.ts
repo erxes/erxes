@@ -11,6 +11,7 @@ import permissionResolvers from '@/permissions/graphql/resolvers/customResolver'
 import productResolvers from '@/products/graphql/resolvers/customResolvers';
 import segmentResolvers from '@/segments/graphql/resolvers/customResolvers';
 import tagResolvers from '@/tags/graphql/customResolvers';
+import propertiesResolvers from '~/modules/properties/graphql/resolvers/customResolvers';
 
 export const customResolvers = {
   ...contactResolvers,
@@ -26,4 +27,5 @@ export const customResolvers = {
   ...documentResolvers,
   ...internalNoteResolvers,
   ...permissionResolvers,
+  ...propertiesResolvers,
 };
