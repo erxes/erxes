@@ -194,15 +194,21 @@ const callsQueries = {
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
-
+    console.log('00');
     const formattedDate = `${year}-${month}-${day}`;
     const integration = await models.Integrations.getIntegration(
       user._id,
       integrationId,
     );
+    console.log('01');
+
     if (!integration) {
+      console.log('02');
+
       throw new Error('Integration not found');
     }
+    console.log('03');
+
     const queueData = (await sendToGrandStream(
       models,
       {
@@ -223,13 +229,23 @@ const callsQueries = {
       user,
     )) as any;
 
+    console.log('04');
+
     if (!queueData.ok) {
+      console.log('05');
+
       throw new Error(`HTTP error! Status: ${queueData.status}`);
     }
+    console.log('06');
 
     const xmlData = await queueData.text();
+    console.log('07');
+
     try {
+      console.log('08');
+
       const parsedData = JSON.parse(xmlData);
+      console.log('09');
 
       if (parsedData.status === -6) {
         console.log('Status -6 detected. Clearing redis callCookie.');
@@ -238,12 +254,15 @@ const callsQueries = {
           integrationId,
         });
         if (statistics) {
+          console.log('010', statistics);
+
           return statistics;
         }
         console.log('1..');
         return [];
       }
     } catch (error) {
+      console.log('011');
       console.error(error.message);
     }
 
