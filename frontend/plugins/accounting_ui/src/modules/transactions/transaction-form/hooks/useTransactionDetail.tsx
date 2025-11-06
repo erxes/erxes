@@ -13,13 +13,11 @@ export const useTransactionDetail = (options?: OperationVariables) => {
   });
 
   const transactions = data?.accTransactionDetail;
-  const ftrDocs = transactions?.filter(tr => tr.originId) || [];
-  const setFollowTrDocs = useSetAtom(followTrDocsState);
-  setFollowTrDocs(ftrDocs)
 
   return {
     transactions,
     activeTrs: transactions?.filter(tr => !tr.originId),
+    followTrs: transactions?.filter(tr => tr.originId) || [],
     loading,
     error,
   };
