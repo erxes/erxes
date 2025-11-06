@@ -1,8 +1,6 @@
 import { FileUploadSection } from './FileUploadSection';
 import { ProductBasicFields } from './ProductBasicField';
-import { ProductEditorField } from './ProductEditor';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
-import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
 import type React from 'react';
 import { Spinner } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
@@ -53,23 +51,23 @@ export const ProductDetailForm: React.FC<ProductDetailFormProps> = ({
   return (
     <div className="space-y-8 p-6 overflow-y-auto max-h-[calc(100vh-100px)] bg-white rounded-lg pb-24">
       <ProductBasicFields control={form.control} uoms={uoms} />
-      <ProductEditorField
+      {/* <ProductEditorField
         control={form.control}
         setValue={form.setValue}
         name="description"
         label="DESCRIPTION"
         initialContent={productDetail?.description}
         scope={ProductHotKeyScope.ProductAddSheetDescriptionField}
-      />
+      /> */}
 
-      <ProductEditorField
+      {/* <ProductEditorField
         control={form.control}
         setValue={form.setValue}
         name="barcodeDescription"
         label="BARCODE DESCRIPTION"
         initialContent={productDetail?.barcodeDescription}
         scope={ProductHotKeyScope.ProductAddSheetBarcodeDescriptionField}
-      />
+      /> */}
 
       <FileUploadSection label="FEATURED IMAGE" buttonText="Upload Image" />
 
