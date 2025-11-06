@@ -109,7 +109,7 @@ const BranchCell = ({ row }: any) => {
 
   return (
     <RecordTableInlineCell>
-      {`${branch?.code ? `${branch.code} - ` : ''}${branch?.title ?? ''}`}
+      {[branch?.code, branch?.title].filter(Boolean).join(' - ')}
     </RecordTableInlineCell>
   );
 };
@@ -119,8 +119,7 @@ const DepartmentCell = ({ row }: any) => {
 
   return (
     <RecordTableInlineCell>
-      {`${department?.code ? `${department.code} - ` : ''}${department?.title ?? ''
-        }`}
+      {[department?.code, department?.title].filter(Boolean).join(' - ')}
     </RecordTableInlineCell>
   );
 };

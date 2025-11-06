@@ -37,7 +37,7 @@ export const InvSaleForm = ({
       account as any,
     );
 
-    setFollowTrDocs([...(followTrDocs || []).map((ftr) => (
+    setFollowTrDocs((followTrDocs || []).map((ftr) => (
       ftr.originId === trDoc._id &&
       ftr.followType === 'invSaleOut'
     ) && {
@@ -45,7 +45,7 @@ export const InvSaleForm = ({
       details: ftr.details.map(ftrd => ({
         ...ftrd, account, accountId: account._id
       }))
-    } || ftr)]);
+    } || ftr));
   };
 
   const onChangeCostAccount = (account: IAccount) => {

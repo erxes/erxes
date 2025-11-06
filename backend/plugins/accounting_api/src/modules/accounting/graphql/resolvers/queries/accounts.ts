@@ -182,9 +182,7 @@ const accountQueries = {
   async accountsMain(_root, params: IQueryParams & ICursorPaginateParams, { models, user, commonQuerySelector }: IContext) {
     const filter = await generateFilter(models, params, user);
 
-    if (!params.orderBy) {
-      params.orderBy = { code: 1 }
-    }
+    params.orderBy ??= { code: 1 }
 
     return await cursorPaginate({
       model: models.Accounts,

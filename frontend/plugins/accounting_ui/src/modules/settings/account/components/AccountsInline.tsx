@@ -1,5 +1,4 @@
 import {
-  AvatarProps,
   Combobox,
   Tooltip,
   isUndefinedOrNull,
@@ -61,7 +60,7 @@ const AccountsInlineEffectComponent = ({
 }: {
   missingAccountIds: string[];
 }) => {
-  const { updateAccounts, accounts, accountIds } = useAccountsInlineContext();
+  const { updateAccounts, accounts } = useAccountsInlineContext();
   const { accounts: missingAccounts } = useAccountsInline({
     variables: {
       ids: missingAccountIds,
@@ -109,7 +108,7 @@ export const AccountsInlineTitle = ({ className }: { className?: string }) => {
       return `${account.code} - ${account.name}`;
     }
 
-    return ` ${account.code}...${accounts.length - 1} accounts`;
+    return `${account.code}...${accounts.length - 1} accounts`;
   };
 
   return (

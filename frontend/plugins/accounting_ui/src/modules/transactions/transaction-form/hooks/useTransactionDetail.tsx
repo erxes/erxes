@@ -1,8 +1,6 @@
 import { useQuery, OperationVariables } from '@apollo/client';
 import { TRANSACTION_DETAIL_QUERY } from '../graphql/queries/accTransactionDetail';
 import { ITransaction } from '../../types/Transaction';
-import { useSetAtom } from 'jotai';
-import { followTrDocsState } from '../states/trStates';
 
 export const useTransactionDetail = (options?: OperationVariables) => {
   const { data, loading, error } = useQuery<

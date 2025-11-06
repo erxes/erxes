@@ -1,5 +1,4 @@
 import {
-  AvatarProps,
   Combobox,
   Tooltip,
   isUndefinedOrNull,
@@ -58,7 +57,7 @@ const ProductsInlineEffectComponent = ({
 }: {
   missingProductIds: string[];
 }) => {
-  const { updateProducts, products, productIds } = useProductsInlineContext();
+  const { updateProducts, products } = useProductsInlineContext();
   const { products: missingProducts } = useProductsInline({
     variables: {
       ids: missingProductIds,

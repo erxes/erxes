@@ -17,7 +17,7 @@ export const useAccountsInlineContext = () => {
   const context = useContext(AccountsInlineContext);
   if (!context) {
     throw new Error(
-      'useAccountsInlineContext must be used within a AccountsInlineProvider',
+      'useAccountsInlineContext must be used within an AccountsInlineProvider',
     );
   }
   return context;
