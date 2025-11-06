@@ -8,6 +8,7 @@ import { currentUserState } from 'ui-modules';
 import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { taskTotalCountAtom } from '@/task/states/tasksTotalCountState';
+import { TasksCommandBar } from './tasks-command-bar';
 
 export const TasksRecordTable = () => {
   const { projectId, cycleId, teamId } = useParams();
@@ -67,6 +68,7 @@ export const TasksRecordTable = () => {
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.CursorProvider>
+        <TasksCommandBar />
       </RecordTable.Provider>
     </div>
   );
