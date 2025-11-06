@@ -240,6 +240,7 @@ const callsQueries = {
         if (statistics) {
           return statistics;
         }
+        console.log('1..');
         return [];
       }
     } catch (error) {
@@ -276,7 +277,12 @@ const callsQueries = {
           const filteredQueues = normalizedQueues.filter((q) =>
             integration.queues.includes(q.queue.toString()),
           );
-
+          console.log(
+            typeof integration.queues,
+            integration.queues,
+            'integration.queues',
+          );
+          console.log(filteredQueues, 'filteredQueues');
           for (const queue of filteredQueues) {
             await models.CallQueueStatistics.findOneAndUpdate(
               { integrationId, queue: queue.queue },
@@ -284,6 +290,7 @@ const callsQueries = {
               { upsert: true, new: true },
             );
           }
+          console.log('2..', normalizedQueues);
 
           return filteredQueues;
         }
@@ -291,6 +298,8 @@ const callsQueries = {
         if (stats) {
           return stats;
         }
+        console.log('3..');
+
         return [];
       }
     } catch (error) {
@@ -298,6 +307,8 @@ const callsQueries = {
       if (stats) {
         return stats;
       }
+      console.log('4..');
+
       return [];
     }
   },
