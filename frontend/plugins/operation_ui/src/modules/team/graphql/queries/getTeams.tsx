@@ -6,12 +6,14 @@ export const GET_TEAMS = gql`
     $userId: String
     $teamIds: [String]
     $projectId: String
+    $isTriageEnabled: Boolean
   ) {
     getTeams(
       name: $name
       userId: $userId
       teamIds: $teamIds
       projectId: $projectId
+      isTriageEnabled: $isTriageEnabled
     ) {
       _id
       icon
@@ -21,6 +23,7 @@ export const GET_TEAMS = gql`
       createdAt
       updatedAt
       cycleEnabled
+      triageEnabled
       taskCount
       memberCount
     }

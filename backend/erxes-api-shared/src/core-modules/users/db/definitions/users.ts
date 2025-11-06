@@ -73,6 +73,11 @@ export const userSchema = schemaWrapper(
     registrationTokenExpires: mongooseField({ type: Date }),
     resetPasswordExpires: mongooseField({ type: Date }),
     isOwner: mongooseField({ type: Boolean, label: 'Is owner' }),
+    onboardingDone: mongooseField({
+      type: Boolean,
+      label: 'Onboarding done',
+      default: false,
+    }),
     departmentIds: mongooseField({ type: [String], label: 'Department Ids' }),
     branchIds: mongooseField({ type: [String], label: 'Branch Ids' }),
     positionIds: mongooseField({ type: [String], label: 'Position Ids' }),
@@ -152,6 +157,7 @@ export const userSchema = schemaWrapper(
       default: USER_ROLES.USER,
       enum: USER_ROLES.ALL,
     }),
+
     appId: mongooseField({
       type: String,
       label: 'Linked app id',

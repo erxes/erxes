@@ -1,7 +1,7 @@
 import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import { isDev, setupTRPCRoute } from 'erxes-api-shared/utils';
+import { isDev } from 'erxes-api-shared/utils';
 import express from 'express';
 import * as http from 'http';
 import { appRouter } from '~/init-trpc';
@@ -46,12 +46,9 @@ const corsOptions = {
   credentials: true,
   origin: [
     DOMAIN || 'http://localhost:3001',
-    ...(isDev ? ['http://localhost:3001'] : []),
-    ALLOWED_DOMAINS || 'http://localhost:3200',
+    ...(isDev ? ['http://localhost:3001', 'http://localhost:4200'] : []),
+    ...(ALLOWED_DOMAINS || '').split(',').map((c) => c && RegExp(c)),
     ...(CLIENT_PORTAL_DOMAINS || '').split(','),
-    ...(process.env.ALLOWED_ORIGINS || '')
-      .split(',')
-      .map((c) => c && RegExp(c)),
   ],
 };
 
@@ -80,16 +77,19 @@ app.get('/subscriptionPlugin.js', fileLimiter, async (_req, res) => {
   res.sendFile(apolloSubscriptionPath);
 });
 
-setupTRPCRoute(app, {
-  router: appRouter,
-  createContext: async (subdomain, context) => {
-    const models = await generateModels(subdomain);
+app.use(
+  '/trpc',
+  trpcExpress.createExpressMiddleware({
+    router: appRouter,
+    createContext: createTRPCContext(async (subdomain, context) => {
+      const models = await generateModels(subdomain);
 
-    context.models = models;
+      context.models = models;
 
-    return context;
-  },
-});
+      return context;
+    }),
+  }),
+);
 
 app.get('/health', async (_req, res) => {
   res.end('ok');

@@ -3,7 +3,6 @@ import { generateModels } from '~/connectionResolvers';
 import { RPError, RPResult, RPSuccess } from 'erxes-api-shared/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { pConversationClientMessageInserted } from './graphql/resolvers/mutations/widget';
 
 const sendError = (message): RPError => ({
   status: 'error',
@@ -43,7 +42,7 @@ export const receiveInboxMessage = async (
     let customer;
 
     const getCustomer = async (selector) => {
-      return await sendTRPCMessage({
+      await sendTRPCMessage({
         subdomain,
 
         pluginName: 'core',
@@ -91,7 +90,6 @@ export const receiveInboxMessage = async (
         input: {
           doc: {
             ...doc,
-            // scopeBrandIds: integration.brandId,
           },
         },
       });

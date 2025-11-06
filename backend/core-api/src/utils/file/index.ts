@@ -54,7 +54,6 @@ export const checkFile = async (
   if (!file) {
     throw new Error('Invalid file');
   }
-
   if (!isValidPath(file.filepath)) {
     throw new Error('Invalid or unsafe file path');
   }
@@ -116,7 +115,6 @@ export const checkFile = async (
   if (mime === 'application/x-msi' && oldMsOfficeDocs.includes(file.mimetype)) {
     return 'ok';
   }
-
   const defaultMimeTypes = [
     'image/png',
     'image/jpeg',
@@ -128,6 +126,7 @@ export const checkFile = async (
     'audio/mp4',
     'audio/vnd.wave',
     'audio/wave',
+    'audio/wav',
   ];
 
   if (Array.isArray(source)) {

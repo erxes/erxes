@@ -14,12 +14,5 @@ export const fieldsGroupsTrpcRouter = t.router({
         const { models } = ctx;
         return await models.FieldsGroups.find(query).lean();
       }),
-    updateGroup: t.procedure
-      .input(z.object({ groupId: z.string(), fieldGroup: z.any() }))
-      .mutation(async ({ ctx, input }) => {
-        const { groupId, fieldGroup } = input;
-        const { models } = ctx;
-        return await models.FieldsGroups.updateGroup(groupId, fieldGroup);
-      }),
   }),
 });

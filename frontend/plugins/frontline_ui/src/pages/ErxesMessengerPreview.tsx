@@ -21,7 +21,7 @@ export const ErxesMessengerPreview = () => {
   }, [appearance]);
 
   return (
-    <div className="bg-sidebar h-dvh flex items-end justify-end p-5">
+    <div className="bg-accent h-dvh flex items-end justify-end p-5">
       <div>
         <Popover defaultOpen>
           <Popover.Trigger asChild>

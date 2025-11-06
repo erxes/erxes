@@ -85,7 +85,6 @@ router.post('/upload-file', async (req: Request, res: Response) => {
   const subdomain = getSubdomain(req);
   const domain = DOMAIN.replace('<subdomain>', subdomain);
   const models = await generateModels(subdomain);
-
   const maxHeight = Number(req.query.maxHeight);
   const maxWidth = Number(req.query.maxWidth);
 

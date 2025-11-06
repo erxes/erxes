@@ -1,4 +1,4 @@
-import { authCookieOptions } from 'erxes-api-shared/utils';
+import { authCookieOptions, escapeRegExp } from 'erxes-api-shared/utils';
 
 // import { connectToMessageBroker } from '@erxes/api-utils/src/messageBroker';
 // import { setupMessageConsumers, sendPosMessage } from '../../../messageBroker';
@@ -16,6 +16,8 @@ import {
   preImportProducts,
   validateConfig,
 } from '~/modules/posclient/utils/syncUtils';
+import { PRODUCT_STATUSES } from '~/modules/posclient/db/definitions/constants';
+import { syncRemainders } from '~/modules/posclient/utils/products';
 
 const configMutations = {
   posConfigsFetch: async (
@@ -226,6 +228,64 @@ const configMutations = {
     );
 
     return 'chosen';
+  },
+  refetchRemainder: async (
+    _root,
+    { categoryId, searchValue }: { categoryId?: string; searchValue?: string },
+    { models, subdomain, config }: IContext,
+  ) => {
+    const { token } = config;
+    const $and: any[] = [{}];
+
+    const filter: any = {
+      status: { $ne: PRODUCT_STATUSES.DELETED },
+      tokens: { $in: [token] },
+    };
+    if (searchValue) {
+      const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
+
+      let codeFilter = { code: { $in: [regex] } };
+      if (
+        searchValue.includes('.') ||
+        searchValue.includes('_') ||
+        searchValue.includes('*')
+      ) {
+        const codeRegex = new RegExp(
+          `^${searchValue.replace(/\*/g, '.').replace(/_/g, '.')}$`,
+          'igu',
+        );
+        codeFilter = { code: { $in: [codeRegex] } };
+      }
+
+      filter.$or = [
+        codeFilter,
+        { name: { $in: [regex] } },
+        { barcodes: { $in: [searchValue] } },
+      ];
+    }
+
+    if (categoryId) {
+      const category = await models.ProductCategories.getProductCategory({
+        _id: categoryId,
+      });
+
+      const relatedCategoryIds = (
+        await models.ProductCategories.find(
+          { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
+          { _id: 1 },
+        ).lean()
+      ).map((c) => c._id);
+
+      $and.push({ categoryId: { $in: relatedCategoryIds } });
+    }
+
+    await syncRemainders(
+      subdomain,
+      models,
+      config,
+      await models.Products.find({ ...filter }).lean(),
+    );
+    return 'success';
   },
 };
 

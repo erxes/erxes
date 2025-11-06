@@ -19,12 +19,11 @@ import {
   FacebookIntegrationFormLayout,
   FacebookIntegrationFormSteps,
 } from './FacebookIntegrationForm';
-import { useParams } from 'react-router-dom';
 import { useFacebookPages } from '../hooks/useFacebookPages';
+import { useFbAuthPopup } from '../hooks/useFbAuthPopup';
 
 export const FacebookGetAccounts = () => {
-  const { id: channelId } = useParams();
-  const { facebookGetAccounts, loading } = useFacebookAccounts();
+  const { facebookGetAccounts, loading, refetch } = useFacebookAccounts();
   const { facebookGetPages } = useFacebookPages();
   const [selectedAccount, setSelectedAccount] = useAtom(
     selectedFacebookAccountAtom,
@@ -32,26 +31,19 @@ export const FacebookGetAccounts = () => {
   const setActiveStep = useSetAtom(activeFacebookFormStepAtom);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-
-  useEffect(() => {
-    if (window.location.hash === '#_=_') {
-      window.history.replaceState(
-        {},
-        document.title,
-        window.location.pathname + window.location.search,
-      );
-    }
-  }, []);
+  const { popupWindow } = useFbAuthPopup(() => {
+    refetch();
+    setIsLoggingIn(false);
+  });
 
   const handleFacebookLogin = () => {
     setIsLoggingIn(true);
-
-    const encodedUrl = new URLSearchParams({
-      kind: 'facebook',
-      channelId: channelId || '',
-    }).toString();
-
-    window.location.href = `${REACT_APP_API_URL}/pl:frontline/facebook/fblogin?${encodedUrl}}`;
+    popupWindow(
+      `${REACT_APP_API_URL}/pl:frontline/facebook/fblogin`,
+      'Facebook Login',
+      660,
+      750,
+    );
   };
 
   const onNext = () => setActiveStep(2);

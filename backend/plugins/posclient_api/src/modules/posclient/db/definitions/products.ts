@@ -70,6 +70,11 @@ export const productSchema = schemaWrapper(
       optional: true,
       label: 'tax rules by token',
     }),
+    remainderByToken: field({
+      type: Object,
+      optional: true,
+      label: 'remainderByToken by token',
+    }),
     customFieldsData: field({
       type: [customFieldSchema],
       optional: true,
