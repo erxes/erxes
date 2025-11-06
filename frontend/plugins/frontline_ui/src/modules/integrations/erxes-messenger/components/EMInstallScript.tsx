@@ -19,7 +19,7 @@ export function EMInstallScript({ integrationId }: Props) {
 
   (function () {
     var script = document.createElement("script");
-    script.src = "${API}/index.js";
+    script.src = "${API}/messengerWidget.js";
     script.async = true;
     var entry = document.getElementsByTagName("script")[0];
     entry.parentNode.insertBefore(script, entry);

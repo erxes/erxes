@@ -5,7 +5,7 @@ import { Header } from './messenger/components';
 import { useMessenger } from './messenger/hooks/useMessenger';
 import { Intro } from './messenger/components/intro';
 import { useConnect } from './messenger/hooks/useConnect';
-import { Skeleton } from 'erxes-ui';
+import { Skeleton, REACT_APP_API_URL } from 'erxes-ui';
 import { ConversationDetails } from './messenger/components/conversation-details';
 import { connectionAtom } from './messenger/states';
 
@@ -26,7 +26,7 @@ export function App() {
           fromErxes: true,
           message: 'connected',
           connectionInfo: connection,
-          apiUrl: process.env.REACT_APP_API_URL,
+          apiUrl: REACT_APP_API_URL,
         },
         '*',
       );

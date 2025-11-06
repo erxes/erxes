@@ -44,7 +44,6 @@ const fetchUsers = async (
       query,
     },
   });
-  console.log(users, 'users', query);
   for (const user of users) {
     if (user.details && user.details.location) {
       user.isOnline = await isMessengerOnline(
