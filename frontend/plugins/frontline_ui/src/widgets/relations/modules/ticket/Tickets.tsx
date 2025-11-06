@@ -68,7 +68,7 @@ export const TicketRelationWidget = ({
         <div className="border border-dashed p-6 bg-background rounded-xl">
           <IconTicketOff />
         </div>
-        <span className="text-sm">No triages to display at the moment.</span>
+        <span className="text-sm">No tickets to display at the moment.</span>
         <AddTicketSheet
           onComplete={onComplete}
           variant="secondary"
