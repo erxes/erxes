@@ -68,7 +68,7 @@ export const initCustomField = async (
         ),
       );
 
-      return models.Fields.prepareCustomFieldsData(allCustomFieldsData);
+      return models.Fields.validateFieldValues(allCustomFieldsData);
     }
 
     return productCustomFieldsData;
@@ -109,7 +109,7 @@ export const initCustomField = async (
     ),
   );
 
-  return models.Fields.prepareCustomFieldsData(customFieldsData);
+  return models.Fields.validateFieldValues(customFieldsData);
 };
 
 export const checkSameMaskConfig = async (models: IModels, doc: IProduct) => {

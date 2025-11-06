@@ -144,12 +144,16 @@ export interface ILeadDataDocument extends ILeadData, Document {
   viewCount?: number;
   contactsGathered?: number;
 }
-
+export interface IColorDefinition {
+  DEFAULT?: string;
+  foreground?: string;
+}
 export interface IUiOptions {
   color?: string;
   wallpaper?: string;
   logo?: string;
   textColor?: string;
+  primary?: IColorDefinition;
 }
 
 // subdocument schema for messenger UiOptions

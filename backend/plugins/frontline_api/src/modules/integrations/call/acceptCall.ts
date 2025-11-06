@@ -37,7 +37,7 @@ const acceptCall = async (
   let customer = await models.CallCustomers.findOne({
     primaryPhone: customerPhone,
   });
-  console.log('1:', customer, 'customerPhone:', customerPhone);
+
   let history;
   try {
     const historyData: any = {
@@ -86,7 +86,6 @@ const acceptCall = async (
       inboxIntegrationId: integration.inboxId,
       primaryPhone: params.customerPhone,
     });
-    console.log('customer1:', customer);
   }
 
   try {

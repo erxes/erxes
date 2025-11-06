@@ -24,6 +24,7 @@ const GET_CHANNEL_DETAIL_BY_ID = gql`
       integrationIds
       memberIds
       name
+      pipelineCount
       openConversationCount
     }
   }

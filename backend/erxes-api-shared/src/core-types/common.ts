@@ -53,6 +53,10 @@ export interface ICustomField {
   extraValue?: string;
 }
 
+export interface IPropertyField {
+  [key: string]: string | number | boolean | Date | Array<string | number | boolean | Date> | null;
+}
+
 export interface IBrowserInfo {
   language?: string;
   url?: string;

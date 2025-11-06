@@ -45,7 +45,6 @@ export default {
     _args,
     { models }: IContext,
   ) {
-    console.log(integration, 'channel integration');
     if (integration?.channelId) {
       return models.Channels.findOne({
         _id: integration.channelId,

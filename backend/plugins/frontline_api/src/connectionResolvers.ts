@@ -1,7 +1,6 @@
+import mongoose from 'mongoose';
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import { IMainContext } from 'erxes-api-shared/core-types';
-import mongoose from 'mongoose';
-
 import { IIntegrationDocument } from '@/inbox/@types/integrations';
 import { IConversationDocument } from '@/inbox/@types/conversations';
 import { IMessageDocument } from '@/inbox/@types/conversationMessages';
@@ -132,6 +131,27 @@ import {
   IChannelMemberDocument,
 } from '@/channel/@types/channel';
 import { ICallQueueStatisticsDocuments } from '@/integrations/call/@types/queueStatistics';
+
+import {
+  ITicketPipelineModel,
+  loadPipelineClass,
+} from '@/ticket/db/models/Pipeline';
+import { IStatusModel, loadStatusClass } from '@/ticket/db/models/Status';
+import { ITicketModel, loadTicketClass } from '@/ticket/db/models/Ticket';
+import { ITicketDocument } from './modules/ticket/@types/ticket';
+import { ITicketPipelineDocument } from './modules/ticket/@types/pipeline';
+import { IStatusDocument } from './modules/ticket/@types/status';
+
+import {
+  IMessengerAppModel,
+  loadClass as loadMessengerAppClass,
+} from './modules/inbox/db/models/MessengerApps';
+import {
+  IConfigModel,
+  loadConfigClass,
+  IConfigDocument,
+} from './modules/inbox/@types/configs';
+import { IMessengerAppDocument } from './modules/inbox/db/definitions/messengerApps';
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -167,6 +187,14 @@ export interface IModels {
   ImapIntegrations: IIntegrationImapModel;
   ImapMessages: IMessageImapModel;
   ImapLogs: ILogImapModel;
+
+  // ticket
+  Pipeline: ITicketPipelineModel;
+  Status: IStatusModel;
+  Ticket: ITicketModel;
+
+  MessengerApps: IMessengerAppModel;
+  Configs: IConfigModel;
 }
 
 export interface IContext extends IMainContext {
@@ -180,6 +208,21 @@ export const loadClasses = (
   subdomain: string,
 ): IModels => {
   const models = {} as IModels;
+
+  //ticket
+  models.Pipeline = db.model<ITicketPipelineDocument, ITicketPipelineModel>(
+    'frontline_tickets_pipeline',
+    loadPipelineClass(models),
+  );
+  models.Status = db.model<IStatusDocument, IStatusModel>(
+    'frontline_tickets_pipeline_status',
+    loadStatusClass(models),
+  );
+
+  models.Ticket = db.model<ITicketDocument, ITicketModel>(
+    'frontline_tickets',
+    loadTicketClass(models),
+  );
   //inbox models
   models.Channels = db.model<IChannelDocument, IChannelModel>(
     'channels',
@@ -302,6 +345,14 @@ export const loadClasses = (
   models.ImapLogs = db.model<ILogImapDocument, ILogImapModel>(
     'imap_logs',
     loadImapLogClass(models),
+  );
+  models.MessengerApps = db.model<IMessengerAppDocument, IMessengerAppModel>(
+    'messenger_apps',
+    loadMessengerAppClass(models),
+  );
+  models.Configs = db.model<IConfigDocument, IConfigModel>(
+    'configs',
+    loadConfigClass(models),
   );
   return models;
 };

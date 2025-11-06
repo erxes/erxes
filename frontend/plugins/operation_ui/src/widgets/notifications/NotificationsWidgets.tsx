@@ -1,6 +1,6 @@
 import { TaskDetails } from '@/task/components/detail/TaskDetails';
 import { NotificationContent } from './contents/NotificationContent';
-import { TriageContent } from '@/triage/components/TriageContent';
+import { TaskDetailSheet } from '@/task/components/TaskDetailSheet';
 
 const NotificationsWidgets = (props: any) => {
   const { contentTypeId, contentType } = props;
@@ -14,16 +14,18 @@ const NotificationsWidgets = (props: any) => {
       NotificationContent[collectionType as keyof typeof NotificationContent];
 
     if (!NotificationComponent) {
-      return <></>;
+      return <div>No notification component found</div>;
     }
 
     return <NotificationComponent {...props} />;
   }
-  if (moduleName === 'triage') {
-    return <TriageContent triageId={contentTypeId} />;
-  }
 
-  return <TaskDetails taskId={contentTypeId} />;
+  return (
+    <div>
+      <TaskDetailSheet />
+      <TaskDetails taskId={contentTypeId} checkTriage={true} />
+    </div>
+  );
 };
 
 export default NotificationsWidgets;
