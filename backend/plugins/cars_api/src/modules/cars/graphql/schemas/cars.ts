@@ -7,7 +7,7 @@ export const types = `
     plateNumber: String
     vinNumber: String
     colorCode: String
-    category: carCategory
+    category: CarCategory
     bodyType: String
     fuelType: String
     gearBox: String

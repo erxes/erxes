@@ -10,7 +10,7 @@ export const types = `
     productCategoryId: String
     }
 
-    type carCategoryListResponse {
+    type CarCategoryListResponse {
     list: [CarCategory],
     pageInfo: PageInfo
     totalCount: Int,}
@@ -18,7 +18,7 @@ export const types = `
 
 export const queries = `
     carCategoryDetail(_id: String!): CarCategory
-    carCategories: carCategoryListResponse
+    carCategories: CarCategoryListResponse
 `;
 
 const mutationParams = `
