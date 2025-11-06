@@ -1,4 +1,6 @@
+import { IconX } from '@tabler/icons-react';
 import {
+  Button,
   Dropzone,
   DropzoneContent,
   DropzoneEmptyState,
@@ -6,6 +8,7 @@ import {
   InfoCard,
   readImage,
   useErxesUpload,
+  useRemoveFile,
 } from 'erxes-ui';
 import { useState } from 'react';
 
@@ -19,6 +22,7 @@ export const ProductDetailAttachment = ({
   const [files, setFiles] = useState<any[]>(
     [attachment, ...attachmentMore].filter(Boolean),
   );
+  const { removeFile, isLoading } = useRemoveFile();
 
   const props = useErxesUpload({
     allowedMimeTypes: ['image/*'],
@@ -45,13 +49,30 @@ export const ProductDetailAttachment = ({
           {files.map((attachment) => (
             <div
               key={attachment.url}
-              className="aspect-square w-32 rounded-md overflow-hidden shadow-xs"
+              className="aspect-square w-32 rounded-md overflow-hidden shadow-xs relative"
             >
               <img
                 src={readImage(attachment.url)}
                 alt={attachment.name}
                 className="w-full h-full object-contain"
               />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-0 right-0"
+                disabled={isLoading}
+                onClick={() =>
+                  removeFile(attachment.name, (status) => {
+                    if (status === 'ok') {
+                      setFiles(
+                        files.filter((file) => file.name !== attachment.name),
+                      );
+                    }
+                  })
+                }
+              >
+                <IconX size={12} />
+              </Button>
             </div>
           ))}
         </div>

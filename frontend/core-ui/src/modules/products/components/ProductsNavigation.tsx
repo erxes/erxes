@@ -12,7 +12,7 @@ export const ProductsNavigation = () => {
         <Breadcrumb.List className="gap-1">
           <Breadcrumb.Item>
             <Button variant="ghost" asChild>
-              <Link to="/products">
+              <Link to={ProductsPath.Products}>
                 <IconCube />
                 Products & Services
               </Link>
@@ -25,7 +25,7 @@ export const ProductsNavigation = () => {
               asChild
               pressed={pathname.includes(ProductsPath.Categories)}
             >
-              <Link to="/products/categories">
+              <Link to={ProductsPath.Products + ProductsPath.Categories}>
                 <IconCategory />
                 Categories
               </Link>

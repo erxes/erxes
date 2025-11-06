@@ -197,3 +197,39 @@ export {
   type UseErxesUploadOptions,
   type UseErxesUploadReturn,
 };
+
+export const useRemoveFile = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const removeFile = useCallback(
+    async (fileName: string, afterRemove: (status: string) => void) => {
+      setIsLoading(true);
+      const response = await fetch(
+        `${REACT_APP_API_URL}/delete-file?fileName=${fileName}`,
+        {
+          method: 'post',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+          },
+          body: `fileName=${fileName}`,
+        },
+      );
+      const data = await response.text();
+      if (!response.ok) {
+        setError(data);
+        setIsLoading(false);
+        return afterRemove(data);
+      }
+      setIsLoading(false);
+      return afterRemove('ok');
+    },
+    [],
+  );
+
+  return {
+    isLoading,
+    error,
+    removeFile,
+  };
+};
