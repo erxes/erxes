@@ -1,6 +1,7 @@
 import { IconCopy, IconCheck, IconCode } from '@tabler/icons-react';
 import { useState } from 'react';
 import { Badge, Button, Dialog } from 'erxes-ui';
+import { REACT_APP_WIDGET_URL } from '@/utils';
 
 type Props = {
   integrationId: string;
@@ -9,7 +10,7 @@ type Props = {
 export function EMInstallScript({ integrationId }: Props) {
   const [copied, setCopied] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const API = process.env.REACT_APP_EM_WIDGET_URL || 'http://localhost:4200';
+  const API = REACT_APP_WIDGET_URL;
   const script = `<script>
   window.erxesSettings = {
     messenger: {
@@ -19,7 +20,7 @@ export function EMInstallScript({ integrationId }: Props) {
 
   (function () {
     var script = document.createElement("script");
-    script.src = "${API}/index.js";
+    script.src = "${API}/messengerBundle.js";
     script.async = true;
     var entry = document.getElementsByTagName("script")[0];
     entry.parentNode.insertBefore(script, entry);
