@@ -18,6 +18,7 @@ export const ChannelsInline = ({
   placeholder?: string;
   updateChannels?: (channels: IChannel[]) => void;
 }) => {
+  console.log('channelIds', channelIds);
   return (
     <ChannelsInlineProvider
       channels={channels}
