@@ -7,7 +7,7 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
-import { GET_ACCOUNTS, GET_ACCOUTS_MAIN, GET_ASSIGNED_ACCOUNTS } from '../graphql/queries/getAccounts';
+import { GET_ACCOUNTS, GET_ACCOUNTS_MAIN, GET_ASSIGNED_ACCOUNTS } from '../graphql/queries/getAccounts';
 import { IAccount } from '../types/Account';
 import { ACCOUNTS_CURSOR_SESSION_KEY } from '../constants/accountsSessionKeys';
 export const ACCOUNTS_PER_PAGE = 30;
@@ -22,7 +22,7 @@ export const useAccountsMain = (options?: QueryHookOptions) => {
       totalCount: number;
       pageInfo: IRecordTableCursorPageInfo;
     };
-  }>(GET_ACCOUTS_MAIN, {
+  }>(GET_ACCOUNTS_MAIN, {
     ...options,
     variables: {
       limit: ACCOUNTS_PER_PAGE,

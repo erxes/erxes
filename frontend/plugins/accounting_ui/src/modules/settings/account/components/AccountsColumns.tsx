@@ -113,15 +113,12 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
     header: () => <RecordTable.InlineHead label="Code" />,
     cell: ({ cell }) => {
       return (
-        <>
-          <span></span>
-          <AccountTextField
-            value={cell.getValue() as string}
-            field="code"
-            _id={cell.row.original._id}
-            account={cell.row.original}
-          />
-        </>
+        <AccountTextField
+          value={cell.getValue() as string}
+          field="code"
+          _id={cell.row.original._id}
+          account={cell.row.original}
+        />
       );
     },
   },

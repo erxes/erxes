@@ -67,7 +67,7 @@ const ACCOUNT_PARAMS = `
   ${GQL_CURSOR_PARAMS}
 `
 
-export const GET_ACCOUTS_MAIN = gql`
+export const GET_ACCOUNTS_MAIN = gql`
   query AccountsMain(
     ${ACCOUNT_PARAM_DEFS}
   ) {
