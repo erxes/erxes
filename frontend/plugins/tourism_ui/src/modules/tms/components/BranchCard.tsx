@@ -1,7 +1,7 @@
-import { IconCalendarPlus, IconPhoto, IconLoader2 } from '@tabler/icons-react';
+import { IconCalendarPlus, IconPhoto } from '@tabler/icons-react';
 import { IBranch } from '@/tms/types/branch';
 import { format } from 'date-fns';
-import { readImage } from 'erxes-ui';
+import { readImage, Spinner } from 'erxes-ui';
 import { MembersInline } from 'ui-modules';
 import { ActionMenu } from '@/tms/components/ActionMenu';
 import { useState } from 'react';
@@ -29,8 +29,8 @@ const BranchImage = ({ logo, name }: { logo?: string; name?: string }) => {
   return (
     <div className="relative w-full h-full">
       {imageLoading && (
-        <div className="flex absolute inset-0 justify-center items-center">
-          <IconLoader2 className="mb-2 animate-spin" size={24} />
+        <div className="absolute inset-0">
+          <Spinner size="md" />
         </div>
       )}
       <img
