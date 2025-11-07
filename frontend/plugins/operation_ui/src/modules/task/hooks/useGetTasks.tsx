@@ -40,6 +40,11 @@ export const useTasksVariables = (
     cycleFilter,
     createdBy,
     estimatePoint,
+    targetDate,
+    createdDate,
+    updatedDate,
+    startDate,
+    completedDate,
     project,
     projectStatus,
     projectPriority,
@@ -56,6 +61,11 @@ export const useTasksVariables = (
     tags: string[];
     cycleFilter: string;
     estimatePoint: number;
+    targetDate: string;
+    createdDate: string;
+    updatedDate: string;
+    startDate: string;
+    completedDate: string;
     project: string;
     projectStatus: string;
     projectPriority: string;
@@ -72,6 +82,11 @@ export const useTasksVariables = (
     'cycleFilter',
     'createdBy',
     'estimatePoint',
+    'targetDate',
+    'createdDate',
+    'updatedDate',
+    'startDate',
+    'completedDate',
     'project',
     'projectStatus',
     'projectPriority',
@@ -98,6 +113,11 @@ export const useTasksVariables = (
     tagIds: tags,
     cycleFilter: cycleFilter,
     estimatePoint: estimatePoint,
+    targetDate: targetDate,
+    createdDate: createdDate,
+    updatedDate: updatedDate,
+    startDate: startDate,
+    completedDate: completedDate,
     projectId: project,
     projectStatus: projectStatus ? Number(projectStatus) : undefined,
     projectPriority: projectPriority ? Number(projectPriority) : undefined,

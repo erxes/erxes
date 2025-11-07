@@ -3,6 +3,21 @@ import { requireLogin } from 'erxes-api-shared/core-modules';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
+import { STATUS_TYPES } from '@/status/constants/types';
+
+const handleDateFilter = (
+  filterQuery: FilterQuery<ITaskDocument>,
+  fieldName: string,
+  value: string,
+) => {
+  if (value === 'no-date') {
+    filterQuery[fieldName] = { $exists: false };
+  } else if (value === 'in-past') {
+    filterQuery[fieldName] = { $lt: new Date() };
+  } else {
+    filterQuery[fieldName] = { $gte: new Date(value) };
+  }
+};
 
 export const taskQueries = {
   getTask: async (_parent: undefined, { _id }, { models }: IContext) => {
@@ -32,15 +47,24 @@ export const taskQueries = {
     }
 
     if (filter.startDate) {
-      filterQuery.startDate = { $gte: filter.startDate };
+      handleDateFilter(filterQuery, 'startDate', filter.startDate);
     }
 
     if (filter.targetDate) {
-      filterQuery.targetDate = { $gte: filter.targetDate };
+      handleDateFilter(filterQuery, 'targetDate', filter.targetDate);
     }
 
-    if (filter.createdAt) {
-      filterQuery.createdAt = { $gte: filter.createdAt };
+    if (filter.createdDate) {
+      handleDateFilter(filterQuery, 'createdAt', filter.createdDate);
+    }
+
+    if (filter.updatedDate) {
+      handleDateFilter(filterQuery, 'updatedAt', filter.updatedDate);
+    }
+
+    if (filter.completedDate) {
+      filterQuery.statusType = STATUS_TYPES.COMPLETED;
+      handleDateFilter(filterQuery, 'statusChangedDate', filter.completedDate);
     }
 
     if (filter.teamId) {
