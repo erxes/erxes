@@ -39,7 +39,7 @@ const SelectAccountProvider = ({
   onCallback,
 }: SelectAccountProviderProps) => {
   const [accounts, setAccounts] = useState<IAccount[]>([]);
-  const accountIds = Array.isArray(value) ? value : value ? [value] : [];
+  const accountIds = Array.isArray(value) ? value : value && [value] || [];
 
   const onSelect = useCallback(
     (account?: IAccount) => {
