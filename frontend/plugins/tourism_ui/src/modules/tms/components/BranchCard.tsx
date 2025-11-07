@@ -1,8 +1,10 @@
-import { IconCalendarPlus, IconPhoto } from '@tabler/icons-react';
+import { IconCalendarPlus, IconPhoto, IconLoader2 } from '@tabler/icons-react';
 import { IBranch } from '@/tms/types/branch';
 import { format } from 'date-fns';
-import { Avatar, readImage } from 'erxes-ui';
-import { ActionMenu } from './ActionMenu';
+import { readImage } from 'erxes-ui';
+import { MembersInline } from 'ui-modules';
+import { ActionMenu } from '@/tms/components/ActionMenu';
+import { useState } from 'react';
 
 interface BranchCardProps {
   branch: IBranch;
@@ -11,6 +13,44 @@ interface BranchCardProps {
   onDelete: (branchId: string) => void;
   duplicateLoading: boolean;
 }
+
+const BranchImage = ({ logo, name }: { logo?: string; name?: string }) => {
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
+
+  if (!logo || imageError) {
+    return (
+      <div className="flex flex-col gap-2 justify-center items-center text-muted-foreground">
+        <IconPhoto size={48} className="opacity-40" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative w-full h-full">
+      {imageLoading && (
+        <div className="flex absolute inset-0 justify-center items-center">
+          <IconLoader2 className="mb-2 animate-spin" size={24} />
+        </div>
+      )}
+      <img
+        src={readImage(logo)}
+        alt={name || 'Branch logo'}
+        className={`object-contain w-full h-full transition-opacity duration-200 ${
+          imageLoading ? 'opacity-0' : 'opacity-100'
+        }`}
+        loading="lazy"
+        width={290}
+        height={150}
+        onLoad={() => setImageLoading(false)}
+        onError={() => {
+          setImageError(true);
+          setImageLoading(false);
+        }}
+      />
+    </div>
+  );
+};
 
 export const BranchCard = ({
   branch,
@@ -39,18 +79,8 @@ export const BranchCard = ({
           </div>
 
           <div className="flex h-[120px] sm:h-[150px] w-full flex-col items-start gap-2 sm:gap-3 self-stretch">
-            <div className="flex justify-center items-center w-full h-full bg-accent/30">
-              {branch.uiOptions?.logo ? (
-                <img
-                  src={readImage(branch.uiOptions.logo)}
-                  alt={branch.name || 'Branch logo'}
-                  className="object-contain w-full h-full"
-                />
-              ) : (
-                <div className="flex flex-col gap-2 justify-center items-center text-muted-foreground">
-                  <IconPhoto size={48} className="opacity-40" />
-                </div>
-              )}
+            <div className="flex overflow-hidden justify-center items-center w-full h-full rounded-sm bg-accent/30">
+              <BranchImage logo={branch.uiOptions?.logo} name={branch.name} />
             </div>
           </div>
 
@@ -68,20 +98,9 @@ export const BranchCard = ({
               </span>
             </div>
 
-            <Avatar className="flex-shrink-0 w-5 h-5 rounded-full border shadow-sm sm:w-6 sm:h-6">
-              {branch.user?.details?.avatar ? (
-                <Avatar.Image
-                  src={branch.user.details.avatar}
-                  alt={branch.user.details.fullName || 'User avatar'}
-                />
-              ) : null}
-              <Avatar.Fallback>
-                {branch.user?.details?.fullName
-                  ?.split(' ')[0]
-                  ?.charAt(0)
-                  ?.toUpperCase() || 'A'}
-              </Avatar.Fallback>
-            </Avatar>
+            <MembersInline.Provider memberIds={[branch.userId]}>
+              <MembersInline.Avatar size="lg" />
+            </MembersInline.Provider>
           </div>
         </div>
       </div>
