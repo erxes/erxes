@@ -18,7 +18,7 @@ export const AddTicketSheet = ({
   isRelation = false,
   ...props
 }: {
-  onComplete: (ticketId: string) => void;
+  onComplete?: (ticketId: string) => void;
   isRelation?: boolean;
 } & ButtonProps) => {
   const setHotkeyScope = useSetHotkeyScope();

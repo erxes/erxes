@@ -11,6 +11,7 @@ import {
   Skeleton,
   SkeletonArray,
   useQueryState,
+  Spinner,
 } from 'erxes-ui';
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
@@ -18,7 +19,7 @@ import { TicketCard } from '@/ticket/components/TicketCard';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import clsx from 'clsx';
 import { ticketCountByBoardAtom } from '@/ticket/states/ticketsTotalCountState';
-import { IconPlus } from '@tabler/icons-react';
+import { IconBrandTrello, IconPlus, IconSettings } from '@tabler/icons-react';
 import {
   ticketCreateDefaultValuesState,
   ticketCreateSheetState,
@@ -26,14 +27,16 @@ import {
 import { useInView } from 'react-intersection-observer';
 import { StatusInlineIcon } from '@/status/components/StatusInline';
 import { allTicketsMapState } from '@/ticket/states/allTicketsMapState';
+import { Link } from 'react-router-dom';
 const fetchedTicketsState = atom<BoardItemProps[]>([]);
 
 export const TicketsBoard = () => {
   const [pipelineId] = useQueryState<string | null>('pipelineId');
+  const [channelId] = useQueryState<string | null>('channelId');
   const allTicketsMap = useAtomValue(allTicketsMapState);
   const { updateTicket } = useUpdateTicket();
 
-  const { statuses } = useGetTicketStatusesByPipeline({
+  const { statuses, loading } = useGetTicketStatusesByPipeline({
     variables: {
       pipelineId: pipelineId || '',
     },
@@ -88,13 +91,34 @@ export const TicketsBoard = () => {
       [overColumn]: (prev[overColumn] || 0) + 1,
     }));
   };
-
+  if (loading) return <Spinner />;
   return (
     <Board.Provider
       columns={columns}
       data={tickets}
       onDragEnd={handleDragEnd}
       boardId={clsx('tickets-board', pipelineId)}
+      fallbackComponent={
+        <div className="flex h-full w-full flex-col items-center justify-center text-center p-6 gap-2">
+          <IconBrandTrello
+            size={64}
+            stroke={1.5}
+            className="text-muted-foreground"
+          />
+          <h2 className="text-lg font-semibold text-muted-foreground">
+            No pipeline yet
+          </h2>
+          <p className="text-md text-muted-foreground mb-4">
+            Create a pipeline to start organizing your board.
+          </p>
+          <Button variant="outline" asChild>
+            <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
+              <IconSettings />
+              Go to settings
+            </Link>
+          </Button>
+        </div>
+      }
     >
       {(column) => (
         <Board id={column.id} key={column.id} sortBy="updated">

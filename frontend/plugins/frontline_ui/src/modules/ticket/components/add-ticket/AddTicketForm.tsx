@@ -31,7 +31,7 @@ export const AddTicketForm = ({
   onComplete,
 }: {
   onClose: () => void;
-  onComplete: (ticketId: string) => void;
+  onComplete?: (ticketId: string) => void;
 }) => {
   const [pipelineId] = useQueryState<string>('pipelineId');
   const [channelId] = useQueryState<string>('channelId');
@@ -94,7 +94,7 @@ export const AddTicketForm = ({
           variant: 'default',
         });
         onClose();
-        onComplete(data.createTicket._id);
+        onComplete?.(data.createTicket._id);
       },
     });
   };

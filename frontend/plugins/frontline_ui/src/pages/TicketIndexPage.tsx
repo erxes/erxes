@@ -14,7 +14,7 @@ const TicketsIndexPage = () => {
             <Breadcrumb.List className="gap-1 ">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/tickets">
+                  <Link to="/frontline/tickets">
                     <IconTicket />
                     Tickets
                   </Link>

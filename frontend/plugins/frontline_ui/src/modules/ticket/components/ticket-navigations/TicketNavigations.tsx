@@ -94,8 +94,10 @@ const Pipelines = () => {
     variables: { filter: { channelId: channelId || '' } },
   });
   useEffect(() => {
-    !pipelineId && pipelines?.[0]?._id && setPipelineId(pipelines[0]._id);
-  }, [pipelines, setPipelineId, pipelineId]);
+    channelId &&
+      pipelineId !== pipelines?.[0]?._id &&
+      setPipelineId(pipelines?.[0]?._id || null);
+  }, [pipelines, setPipelineId, pipelineId, channelId]);
   return (
     <Collapsible.Content className="pt-1">
       <Sidebar.GroupContent>
@@ -118,8 +120,8 @@ const Pipelines = () => {
           )}
           {!loading && !pipelines?.length && (
             <Sidebar.MenuItem>
-              <Sidebar.MenuButton>
-                <span className="capitalize">No pipelines</span>
+              <Sidebar.MenuButton disabled={true}>
+                <span className="capitalize text-foreground">No pipelines</span>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
           )}
