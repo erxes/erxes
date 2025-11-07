@@ -19,6 +19,9 @@ export const useDealsCopy = (options?: UseDealsCopyOptions) => {
     onCompleted: (data) => {
       options?.onCompleted?.(data);
     },
+    onError: (error) => {
+      options?.onError?.(error);
+    },
     refetchQueries: options?.refetchQueries || ['deals', 'dealDetail'],
     awaitRefetchQueries: false,
     errorPolicy: 'all',
@@ -56,7 +59,7 @@ export const useDealsCopy = (options?: UseDealsCopyOptions) => {
           },
         });
       } catch (e) {
-        console.warn('dealsCopy cache update skipped:', e);
+        console.error('Cache update error:', e);
       }
     },
   });
@@ -78,7 +81,6 @@ export const useDealsCopy = (options?: UseDealsCopyOptions) => {
       }
       return result;
     } catch (err) {
-      console.error('Copy deal error:', err);
       options?.onError?.(err);
       throw err;
     }
@@ -136,7 +138,7 @@ export const useDealsWatch = (options?: UseDealsWatchOptions) => {
       });
       return result;
     } catch (err) {
-      console.error('Watch deal error:', err);
+      options?.onError?.(err);
       throw err;
     }
   };
@@ -177,7 +179,7 @@ export const useDealsArchive = (options?: UseDealsArchiveOptions) => {
       });
       return result;
     } catch (err) {
-      console.error('Archive deal error:', err);
+      options?.onError?.(err);
       throw err;
     }
   };
@@ -229,7 +231,7 @@ export const useDealsChange = (options?: UseDealsChangeOptions) => {
       });
       return result;
     } catch (err) {
-      console.error('Change deal error:', err);
+      options?.onError?.(err);
       throw err;
     }
   };
@@ -280,7 +282,7 @@ export const useDealsRemove = (options?: UseDealsRemoveOptions) => {
       });
       return result;
     } catch (err) {
-      console.error('Remove deal error:', err);
+      options?.onError?.(err);
       throw err;
     }
   };

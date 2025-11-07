@@ -96,7 +96,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
   }, [deal?._id, deal?.name]);
 
   const handleName = () => {
-    if (!deal || !name.trim()) return;
+    if (!deal?._id || !name.trim()) return;
     if (name === deal.name) return;
 
     editDeals({
@@ -108,33 +108,18 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
   };
 
   const handleCopy = async () => {
-    if (!deal) return;
-
-    try {
-      await copyDeal(deal._id, deal.pipeline?._id);
-    } catch (error) {
-      console.error('Copy failed:', error);
-    }
+    if (!deal?._id) return;
+    copyDeal(deal._id, deal.pipeline?._id).catch(() => undefined);
   };
 
   const handleWatch = async () => {
-    if (!deal) return;
-
-    try {
-      await watchDeal(deal._id, !deal.isWatched);
-    } catch (error) {
-      console.error('Watch toggle failed:', error);
-    }
+    if (!deal?._id) return;
+    watchDeal(deal._id, !deal.isWatched).catch(() => undefined);
   };
 
   const handleArchive = async () => {
-    if (!deal) return;
-
-    try {
-      await archiveDeal(deal.stageId, deal.pipeline?._id);
-    } catch (error) {
-      console.error('Archive failed:', error);
-    }
+    if (!deal?.stageId) return;
+    archiveDeal(deal.stageId, deal.pipeline?._id).catch(() => undefined);
   };
 
   const handlePrint = () => {
