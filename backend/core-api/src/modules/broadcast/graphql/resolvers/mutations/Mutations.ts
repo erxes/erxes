@@ -44,16 +44,16 @@ const engageMutations = {
       docModifier({ ...doc, createdBy: user._id }),
     );
 
-    await sendToWebhook({
-      subdomain,
-      data: {
-        action: 'create',
-        type: 'engages:engageMessages',
-        params: engageMessage,
-      },
-    });
+    // await sendToWebhook({
+    //   subdomain,
+    //   data: {
+    //     action: 'create',
+    //     type: 'engages:engageMessages',
+    //     params: engageMessage,
+    //   },
+    // });
 
-    await send(models, subdomain, engageMessage, doc.forceCreateConversation);
+    // await send(models, subdomain, engageMessage, doc.forceCreateConversation);
 
     const logDoc = {
       type: MODULE_ENGAGE,
