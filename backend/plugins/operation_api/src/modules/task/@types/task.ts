@@ -49,4 +49,8 @@ export interface ITaskFilter extends ICursorPaginateParams, IListParams, ITask {
   userId?: string;
   createdAt?: Date;
   cycleFilter?: CycleFilterType;
+  projectStatus?: number;
+  projectPriority?: number;
+  projectLeadId?: string;
+  projectMilestoneName?: string;
 }

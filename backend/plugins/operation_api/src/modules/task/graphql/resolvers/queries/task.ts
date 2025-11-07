@@ -65,12 +65,12 @@ export const taskQueries = {
 
     if (filter.cycleFilter && filter.teamId) {
       const now = new Date();
-      
+
       switch (filter.cycleFilter) {
         case 'noCycle':
           filterQuery.cycleId = null;
           break;
-          
+
         case 'anyPastCycle': {
           const pastCycles = await models.Cycle.find({
             teamId: filter.teamId,
@@ -79,7 +79,7 @@ export const taskQueries = {
           filterQuery.cycleId = { $in: pastCycles };
           break;
         }
-        
+
         case 'previousCycle': {
           const previousCycle = await models.Cycle.findOne({
             teamId: filter.teamId,
@@ -87,13 +87,10 @@ export const taskQueries = {
           }).sort({ endDate: -1 });
           if (previousCycle) {
             filterQuery.cycleId = previousCycle._id;
-          } else {
-            // No previous cycle, return empty results
-            filterQuery.cycleId = 'no-previous-cycle';
           }
           break;
         }
-        
+
         case 'currentCycle': {
           const currentCycle = await models.Cycle.findOne({
             teamId: filter.teamId,
@@ -102,13 +99,10 @@ export const taskQueries = {
           });
           if (currentCycle) {
             filterQuery.cycleId = currentCycle._id;
-          } else {
-            // No current cycle, return empty results
-            filterQuery.cycleId = 'no-current-cycle';
           }
           break;
         }
-        
+
         case 'upcomingCycle': {
           const upcomingCycle = await models.Cycle.findOne({
             teamId: filter.teamId,
@@ -116,13 +110,10 @@ export const taskQueries = {
           }).sort({ startDate: 1 });
           if (upcomingCycle) {
             filterQuery.cycleId = upcomingCycle._id;
-          } else {
-            // No upcoming cycle, return empty results
-            filterQuery.cycleId = 'no-upcoming-cycle';
           }
           break;
         }
-        
+
         case 'anyFutureCycle': {
           const futureCycles = await models.Cycle.find({
             teamId: filter.teamId,
@@ -136,6 +127,71 @@ export const taskQueries = {
 
     if (filter.projectId) {
       filterQuery.projectId = filter.projectId;
+    }
+
+    if (
+      filter.projectStatus ||
+      filter.projectPriority ||
+      filter.projectLeadId ||
+      filter.projectMilestoneName
+    ) {
+      let projectIds: string[] = [];
+
+      if (filter.projectMilestoneName) {
+        const matchingMilestones = await models.Milestone.find({
+          name: { $regex: filter.projectMilestoneName, $options: 'i' },
+        }).distinct('projectId');
+
+        if (matchingMilestones.length === 0) {
+          return { list: [], totalCount: 0, pageInfo: null };
+        }
+
+        projectIds = matchingMilestones;
+      }
+
+      if (
+        filter.projectStatus ||
+        filter.projectPriority ||
+        filter.projectLeadId
+      ) {
+        const projectFilter: FilterQuery<any> = {};
+
+        if (filter.projectStatus) {
+          projectFilter.status = filter.projectStatus;
+        }
+
+        if (filter.projectPriority) {
+          projectFilter.priority = filter.projectPriority;
+        }
+
+        if (filter.projectLeadId) {
+          projectFilter.leadId = filter.projectLeadId;
+        }
+
+        if (projectIds.length > 0) {
+          projectFilter._id = { $in: projectIds };
+        }
+
+        const matchingProjects = await models.Project.find(
+          projectFilter,
+        ).distinct('_id');
+
+        if (matchingProjects.length === 0) {
+          return { list: [], totalCount: 0, pageInfo: null };
+        }
+
+        projectIds = matchingProjects;
+      }
+
+      if (projectIds.length > 0) {
+        if (filterQuery.projectId) {
+          if (!projectIds.includes(filterQuery.projectId as string)) {
+            return { list: [], totalCount: 0, pageInfo: null };
+          }
+        } else {
+          filterQuery.projectId = { $in: projectIds };
+        }
+      }
     }
 
     if (filter.milestoneId) {

@@ -5,8 +5,11 @@ import { TasksTotalCount } from '@/task/components/TasksTotalCount';
 import { SelectAssigneeTask } from '@/task/components/task-selects/SelectAssigneeTask';
 import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
 import { SelectCycle } from '@/task/components/task-selects/SelectCycle';
+import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
 import { TASKS_CURSOR_SESSION_KEY } from '@/task/constants';
 import { SelectTeam } from '@/team/components/SelectTeam';
+import { SelectLead } from '@/project/components/select/SelectLead';
+import { ProjectMilestoneNameFilter } from '@/task/components/task-filters/ProjectMilestoneNameFilter';
 import {
   IconAlertSquareRounded,
   IconProgressCheck,
@@ -17,6 +20,8 @@ import {
   IconRestore,
   IconUserPlus,
   IconTriangle,
+  IconClipboard,
+  IconFlag,
 } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { SelectCreatorTask } from '@/task/components/task-selects/SelectCreatorTask';
@@ -41,6 +46,11 @@ const TasksFilterPopover = () => {
     milestone: string;
     cycleFilter: string;
     estimatePoint: number;
+    project: string;
+    projectStatus: string;
+    projectPriority: string;
+    projectLeadId: string;
+    projectMilestoneName: string;
   }>([
     'searchValue',
     'assignee',
@@ -51,6 +61,11 @@ const TasksFilterPopover = () => {
     'cycleFilter',
     'createdBy',
     'estimatePoint',
+    'project',
+    'projectStatus',
+    'projectPriority',
+    'projectLeadId',
+    'projectMilestoneName',
   ]);
 
   const hasFilters = Object.values(queries || {}).some(
@@ -120,9 +135,34 @@ const TasksFilterPopover = () => {
                     Milestone
                   </Filter.Item>
                 )}
+                <Command.Separator className="my-1" />
+                <Filter.Item value="project">
+                  <IconClipboard />
+                  Project
+                </Filter.Item>
+                <Filter.Item value="projectStatus">
+                  <IconProgressCheck />
+                  Project Status
+                </Filter.Item>
+                <Filter.Item value="projectPriority">
+                  <IconFlag />
+                  Project Priority
+                </Filter.Item>
+                <Filter.Item value="projectLeadId">
+                  <IconUser />
+                  Project Lead
+                </Filter.Item>
+                <Filter.Item value="projectMilestoneName" inDialog>
+                  <IconSquareRotated />
+                  Project Milestone Name
+                </Filter.Item>
               </Command.List>
             </Command>
           </Filter.View>
+          <SelectProject.FilterView queryKey="project" />
+          <SelectStatus.FilterView queryKey="projectStatus" />
+          <SelectPriority.FilterView queryKey="projectPriority" />
+          <SelectLead.FilterView queryKey="projectLeadId" />
           <SelectAssigneeTask.FilterView teamIds={[teamId || '']} />
           <SelectCreatorTask.FilterView />
           {!teamId && <SelectTeam.FilterView />}
@@ -151,6 +191,7 @@ const TasksFilterPopover = () => {
         <Filter.View filterKey="searchValue" inDialog>
           <Filter.DialogStringView filterKey="searchValue" />
         </Filter.View>
+        <ProjectMilestoneNameFilter.View queryKey="projectMilestoneName" />
       </Filter.Dialog>
     </>
   );
@@ -170,6 +211,11 @@ export const TasksFilter = () => {
     tags: string[];
     cycleFilter: string;
     estimatePoint: number;
+    project: string;
+    projectStatus: string;
+    projectPriority: string;
+    projectLeadId: string;
+    projectMilestoneName: string;
   }>([
     'searchValue',
     'assignee',
@@ -181,6 +227,11 @@ export const TasksFilter = () => {
     'createdBy',
     'cycleFilter',
     'estimatePoint',
+    'project',
+    'projectStatus',
+    'projectPriority',
+    'projectLeadId',
+    'projectMilestoneName',
   ]);
   const { searchValue, milestone, cycleFilter, estimatePoint } = queries || {};
 
@@ -198,6 +249,41 @@ export const TasksFilter = () => {
             </Filter.BarButton>
           </Filter.BarItem>
         )}
+        <Filter.BarItem queryKey="project">
+          <Filter.BarName>
+            <IconClipboard />
+            Project
+          </Filter.BarName>
+          <SelectProject.FilterBar queryKey="project" />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="projectStatus">
+          <Filter.BarName>
+            <IconProgressCheck />
+            Project Status
+          </Filter.BarName>
+          <SelectStatus.FilterBar queryKey="projectStatus" />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="projectPriority">
+          <Filter.BarName>
+            <IconFlag />
+            Project Priority
+          </Filter.BarName>
+          <SelectPriority.FilterBar queryKey="projectPriority" />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="projectLeadId">
+          <Filter.BarName>
+            <IconUser />
+            Project Lead
+          </Filter.BarName>
+          <SelectLead.FilterBar queryKey="projectLeadId" />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="projectMilestoneName">
+          <Filter.BarName>
+            <IconSquareRotated />
+            Project Milestone Name
+          </Filter.BarName>
+          <ProjectMilestoneNameFilter.Bar queryKey="projectMilestoneName" />
+        </Filter.BarItem>
         {!teamId && (
           <Filter.BarItem queryKey="team">
             <Filter.BarName>

@@ -59,6 +59,10 @@ export const types = `
     estimate: String
     milestoneId: String
     cycleFilter: CycleFilterType
+    projectStatus: Int
+    projectPriority: Int
+    projectLeadId: String
+    projectMilestoneName: String
 
 
     ${GQL_CURSOR_PARAM_DEFS}

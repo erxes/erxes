@@ -159,10 +159,10 @@ const SelectPriorityRoot = ({
   );
 };
 
-const SelectPriorityFilterView = () => {
-  const [priority, setPriority] = useQueryState<string>('priority');
+const SelectPriorityFilterView = ({ queryKey }: { queryKey?: string }) => {
+  const [priority, setPriority] = useQueryState<string>(queryKey || 'priority');
   return (
-    <Filter.View filterKey="priority">
+    <Filter.View filterKey={queryKey || 'priority'}>
       <SelectPriorityProvider
         value={Number(priority)}
         onValueChange={(value) => setPriority(String(value))}
@@ -173,8 +173,16 @@ const SelectPriorityFilterView = () => {
   );
 };
 
-const SelectPriorityFilterBar = ({ scope }: { scope?: string }) => {
-  const [priority, setPriority] = useQueryState<string>('priority');
+const SelectPriorityFilterBar = ({
+  scope,
+  iconOnly,
+  queryKey,
+}: {
+  scope?: string;
+  iconOnly?: boolean;
+  queryKey?: string;
+}) => {
+  const [priority, setPriority] = useQueryState<string>(queryKey || 'priority');
   const [open, setOpen] = useState(false);
   return (
     <SelectPriorityProvider

@@ -40,6 +40,11 @@ export const useTasksVariables = (
     cycleFilter,
     createdBy,
     estimatePoint,
+    project,
+    projectStatus,
+    projectPriority,
+    projectLeadId,
+    projectMilestoneName,
   } = useNonNullMultiQueryState<{
     searchValue: string;
     assignee: string;
@@ -51,6 +56,11 @@ export const useTasksVariables = (
     tags: string[];
     cycleFilter: string;
     estimatePoint: number;
+    project: string;
+    projectStatus: string;
+    projectPriority: string;
+    projectLeadId: string;
+    projectMilestoneName: string;
   }>([
     'searchValue',
     'assignee',
@@ -62,6 +72,11 @@ export const useTasksVariables = (
     'cycleFilter',
     'createdBy',
     'estimatePoint',
+    'project',
+    'projectStatus',
+    'projectPriority',
+    'projectLeadId',
+    'projectMilestoneName',
   ]);
   const currentUser = useAtomValue(currentUserState);
 
@@ -83,6 +98,11 @@ export const useTasksVariables = (
     tagIds: tags,
     cycleFilter: cycleFilter,
     estimatePoint: estimatePoint,
+    projectId: project,
+    projectStatus: projectStatus ? Number(projectStatus) : undefined,
+    projectPriority: projectPriority ? Number(projectPriority) : undefined,
+    projectLeadId: projectLeadId,
+    projectMilestoneName: projectMilestoneName,
     ...variables,
     ...(!variables?.teamId &&
       !variables?.userId &&
