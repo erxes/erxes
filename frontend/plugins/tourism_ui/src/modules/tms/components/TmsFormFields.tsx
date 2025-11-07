@@ -270,6 +270,7 @@ export const GeneralManager = ({
           <Form.Control>
             <div className="w-full">
               <SelectMember.FormItem
+                mode="multiple"
                 value={field.value}
                 onValueChange={field.onChange}
               />
@@ -296,6 +297,7 @@ export const Manager = ({ control }: { control: Control<TmsFormType> }) => {
           <Form.Control>
             <div className="w-full">
               <SelectMember.FormItem
+                mode="multiple"
                 value={field.value}
                 onValueChange={field.onChange}
               />

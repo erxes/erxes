@@ -44,15 +44,15 @@ const CreateTmsForm = ({
   const form = useForm<TmsFormType>({
     resolver: zodResolver(TmsFormSchema),
     defaultValues: {
-      name: formData.name,
-      color: formData.color,
-      logo: formData.logo,
-      favIcon: formData.favIcon,
-      generalManager: formData.generalManager,
-      managers: formData.managers,
-      payment: formData.payment,
-      token: formData.token,
-      otherPayments: formData.otherPayments,
+      name: formData.name || '',
+      color: formData.color || '#4F46E5',
+      logo: formData.logo || '',
+      favIcon: formData.favIcon || '',
+      generalManager: Array.isArray(formData.generalManager) ? formData.generalManager : [],
+      managers: Array.isArray(formData.managers) ? formData.managers : [],
+      payment: formData.payment || '',
+      token: formData.token || '',
+      otherPayments: Array.isArray(formData.otherPayments) ? formData.otherPayments : [],
     },
   });
 
