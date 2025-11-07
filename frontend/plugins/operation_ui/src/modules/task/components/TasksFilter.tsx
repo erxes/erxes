@@ -22,9 +22,21 @@ import {
   IconTriangle,
   IconClipboard,
   IconFlag,
+  IconCalendarTime,
+  IconCalendarEvent,
+  IconCalendarPlus,
+  IconCalendar,
+  IconCalendarX,
 } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { SelectCreatorTask } from '@/task/components/task-selects/SelectCreatorTask';
+import {
+  SelectDueDateFilter,
+  SelectCreatedDateFilter,
+  SelectUpdatedDateFilter,
+  SelectStartedDateFilter,
+  SelectCompletedDateFilter,
+} from '@/task/components/task-selects/SelectDateFilter';
 import clsx from 'clsx';
 import { useParams } from 'react-router-dom';
 import { SelectMilestone } from './task-selects/SelectMilestone';
@@ -46,6 +58,11 @@ const TasksFilterPopover = () => {
     milestone: string;
     cycleFilter: string;
     estimatePoint: number;
+    targetDate: string;
+    createdDate: string;
+    updatedDate: string;
+    startDate: string;
+    completedDate: string;
     project: string;
     projectStatus: string;
     projectPriority: string;
@@ -61,6 +78,11 @@ const TasksFilterPopover = () => {
     'cycleFilter',
     'createdBy',
     'estimatePoint',
+    'targetDate',
+    'createdDate',
+    'updatedDate',
+    'startDate',
+    'completedDate',
     'project',
     'projectStatus',
     'projectPriority',
@@ -136,6 +158,29 @@ const TasksFilterPopover = () => {
                   </Filter.Item>
                 )}
                 <Command.Separator className="my-1" />
+                <Command.Group heading="DATES">
+                  <Filter.Item value="targetDate">
+                    <IconCalendarEvent />
+                    Due date
+                  </Filter.Item>
+                  <Filter.Item value="createdDate">
+                    <IconCalendarPlus />
+                    Created date
+                  </Filter.Item>
+                  <Filter.Item value="updatedDate">
+                    <IconCalendar />
+                    Updated date
+                  </Filter.Item>
+                  <Filter.Item value="startDate">
+                    <IconCalendarTime />
+                    Started date
+                  </Filter.Item>
+                  <Filter.Item value="completedDate">
+                    <IconCalendarX />
+                    Completed date
+                  </Filter.Item>
+                </Command.Group>
+                <Command.Separator className="my-1" />
                 <Filter.Item value="project">
                   <IconClipboard />
                   Project
@@ -159,6 +204,11 @@ const TasksFilterPopover = () => {
               </Command.List>
             </Command>
           </Filter.View>
+          <SelectDueDateFilter.FilterView />
+          <SelectCreatedDateFilter.FilterView />
+          <SelectUpdatedDateFilter.FilterView />
+          <SelectStartedDateFilter.FilterView />
+          <SelectCompletedDateFilter.FilterView />
           <SelectProject.FilterView queryKey="project" />
           <SelectStatus.FilterView queryKey="projectStatus" />
           <SelectPriority.FilterView queryKey="projectPriority" />
@@ -211,6 +261,11 @@ export const TasksFilter = () => {
     tags: string[];
     cycleFilter: string;
     estimatePoint: number;
+    targetDate: string;
+    createdDate: string;
+    updatedDate: string;
+    startDate: string;
+    completedDate: string;
     project: string;
     projectStatus: string;
     projectPriority: string;
@@ -227,6 +282,11 @@ export const TasksFilter = () => {
     'createdBy',
     'cycleFilter',
     'estimatePoint',
+    'targetDate',
+    'createdDate',
+    'updatedDate',
+    'startDate',
+    'completedDate',
     'project',
     'projectStatus',
     'projectPriority',
@@ -359,6 +419,41 @@ export const TasksFilter = () => {
             Creator
           </Filter.BarName>
           <SelectCreatorTask.FilterBar />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="targetDate">
+          <Filter.BarName>
+            <IconCalendarEvent />
+            Due date
+          </Filter.BarName>
+          <SelectDueDateFilter.FilterBar />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="createdDate">
+          <Filter.BarName>
+            <IconCalendarPlus />
+            Created
+          </Filter.BarName>
+          <SelectCreatedDateFilter.FilterBar />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="updatedDate">
+          <Filter.BarName>
+            <IconCalendar />
+            Updated
+          </Filter.BarName>
+          <SelectUpdatedDateFilter.FilterBar />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="startDate">
+          <Filter.BarName>
+            <IconCalendarTime />
+            Started
+          </Filter.BarName>
+          <SelectStartedDateFilter.FilterBar />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="completedDate">
+          <Filter.BarName>
+            <IconCalendarX />
+            Completed
+          </Filter.BarName>
+          <SelectCompletedDateFilter.FilterBar />
         </Filter.BarItem>
         <TasksFilterPopover />
         <TasksTotalCount />

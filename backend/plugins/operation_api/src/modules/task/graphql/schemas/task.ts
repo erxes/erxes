@@ -48,8 +48,6 @@ export const types = `
     cycleId: String
     labelIds: [String]
     tagIds: [String]
-    startDate: Date
-    targetDate: Date
     projectId: String 
     teamId: String
     estimatePoint: Int
@@ -63,7 +61,11 @@ export const types = `
     projectPriority: Int
     projectLeadId: String
     projectMilestoneName: String
-
+    startDate: Date
+    targetDate: Date
+    createdDate: Date
+    updatedDate: Date
+    completedDate: Date
 
     ${GQL_CURSOR_PARAM_DEFS}
   }

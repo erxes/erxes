@@ -47,10 +47,12 @@ export interface ITaskDocument extends ITask, Document {
 
 export interface ITaskFilter extends ICursorPaginateParams, IListParams, ITask {
   userId?: string;
-  createdAt?: Date;
   cycleFilter?: CycleFilterType;
   projectStatus?: number;
   projectPriority?: number;
   projectLeadId?: string;
   projectMilestoneName?: string;
+  createdDate?: string;
+  updatedDate?: string;
+  completedDate?: string;
 }
