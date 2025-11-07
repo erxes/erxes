@@ -100,12 +100,21 @@ class AddForm extends React.Component<Props, State> {
         props.mailSubject ||
         "",
       customFieldsData: [],
-      fields:
-        JSON.parse(
-          localStorage.getItem(`${props.options.type}_fields`) || "[]",
-        ) ||
-        props.fields ||
-        [],
+      fields: (() => {
+        try {
+          const stored = localStorage.getItem(`${props.options.type}_fields`);
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              return parsed;
+            }
+          }
+        } catch (e) {
+          console.warn("Failed to parse stored fields:", e);
+        }
+
+        return props.fields || [];
+      })(),
       tagIds: props.tagIds || "",
       startDate: props.startDate || null,
       closeDate: props.closeDate || null,
@@ -114,6 +123,15 @@ class AddForm extends React.Component<Props, State> {
           "false",
       ),
     };
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.fields !== this.props.fields) {
+      const nextFields = this.props.fields || [];
+      if (nextFields !== this.state.fields) {
+        this.setState({ fields: nextFields });
+      }
+    }
   }
 
   onChangeField = (name: string, value: any) => {
