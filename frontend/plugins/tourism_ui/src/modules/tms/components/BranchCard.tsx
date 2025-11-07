@@ -3,7 +3,7 @@ import { IBranch } from '@/tms/types/branch';
 import { format } from 'date-fns';
 import { readImage } from 'erxes-ui';
 import { MembersInline } from 'ui-modules';
-import { ActionMenu } from './ActionMenu';
+import { ActionMenu } from '@/tms/components/ActionMenu';
 import { useState } from 'react';
 
 interface BranchCardProps {
@@ -39,6 +39,9 @@ const BranchImage = ({ logo, name }: { logo?: string; name?: string }) => {
         className={`object-contain w-full h-full transition-opacity duration-200 ${
           imageLoading ? 'opacity-0' : 'opacity-100'
         }`}
+        loading="lazy"
+        width={290}
+        height={150}
         onLoad={() => setImageLoading(false)}
         onError={() => {
           setImageError(true);
