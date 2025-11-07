@@ -5,18 +5,22 @@ import { AccountingLayout } from '@/layout/components/Layout';
 import { Button, Kbd } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { TransactionsFilterBar } from '@/transactions/components/TrListFilterBar';
+import { TransactionsFilter } from '@/transactions/components/TrFilters';
 
 export const TransactionListPage = () => {
   return (
     <AccountingLayout>
       <AccountingHeader>
-        <AddTransaction>
-          <Button>
-            <IconPlus />
-            Add Transaction
-            <Kbd>C</Kbd>
-          </Button>
-        </AddTransaction>
+        <div className="px-3">
+          <TransactionsFilter />
+          <AddTransaction>
+            <Button>
+              <IconPlus />
+              Add Transaction
+              <Kbd>C</Kbd>
+            </Button>
+          </AddTransaction>
+        </div>
       </AccountingHeader>
       <TransactionsFilterBar />
       <TransactionTable />

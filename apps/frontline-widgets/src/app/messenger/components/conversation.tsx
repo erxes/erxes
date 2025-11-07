@@ -14,10 +14,10 @@ import {
   conversationIdAtom,
   setActiveTabAtom,
 } from '../states';
-import { ISupporter } from '../types';
+import { ISupporter, IAttachment, IMessage } from '../types';
 import { Avatar } from 'erxes-ui';
-import { IMessage } from '../types';
 import { AvatarGroup } from './avatar-group';
+import { IconFile } from '@tabler/icons-react';
 
 export function EmptyChat() {
   const connection = useAtomValue(connectionAtom);
@@ -160,6 +160,7 @@ export function OperatorMessage({
   isLastMessage,
   isMiddleMessage,
   isSingleMessage,
+  attachments,
 }: {
   content: string;
   src?: string;
@@ -169,7 +170,12 @@ export function OperatorMessage({
   isLastMessage?: boolean;
   isMiddleMessage?: boolean;
   isSingleMessage?: boolean;
+  attachments?: IAttachment[];
 }) {
+  const isImageAttachment = (url: string) => {
+    return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url);
+  };
+
   return (
     <Tooltip>
       <Tooltip.Trigger asChild>
@@ -189,19 +195,80 @@ export function OperatorMessage({
           ) : (
             <div className="size-8" />
           )}
-          <div
-            className={cn(
-              'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-foreground text-left gap-1 px-3 py-2 bg-background max-w-[70%] whitespace-break-spaces break-words break-all',
-              isFirstMessage && 'rounded-md rounded-bl-sm rounded-t-lg',
-              isLastMessage && 'rounded-md rounded-tl-sm rounded-b-lg',
-              isMiddleMessage && 'rounded-r-md rounded-l-sm',
-              isSingleMessage && 'rounded-md',
+          <div className="flex flex-col gap-2 max-w-[70%]">
+            {content && content !== '<p></p>' && (
+              <div
+                className={cn(
+                  'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-foreground text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces break-words break-all',
+                  isFirstMessage && 'rounded-md rounded-bl-sm rounded-t-lg',
+                  isLastMessage &&
+                    !attachments?.length &&
+                    'rounded-md rounded-tl-sm rounded-b-lg',
+                  isMiddleMessage && 'rounded-r-md rounded-l-sm',
+                  isSingleMessage && !attachments?.length && 'rounded-md',
+                  attachments?.length && 'rounded-t-md rounded-bl-sm',
+                )}
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(content as string),
+                }}
+              />
             )}
-            dangerouslySetInnerHTML={{
-              __html:
-                content || '<p>Hello! Have you fixed your problem yet?</p>',
-            }}
-          />
+            {attachments && attachments.length > 0 && (
+              <div className="flex flex-col gap-2">
+                {attachments.map((attachment, index) => (
+                  <div
+                    key={index}
+                    className={cn(
+                      'overflow-hidden bg-background',
+                      content && index === 0 && 'rounded-b-md rounded-tl-sm',
+                      !content &&
+                        isFirstMessage &&
+                        index === 0 &&
+                        'rounded-t-md rounded-bl-sm',
+                      !content &&
+                        isLastMessage &&
+                        index === attachments.length - 1 &&
+                        'rounded-b-md rounded-tl-sm',
+                      !content &&
+                        isSingleMessage &&
+                        attachments.length === 1 &&
+                        'rounded-md',
+                      content &&
+                        index === attachments.length - 1 &&
+                        'rounded-b-md rounded-tl-sm',
+                    )}
+                  >
+                    {isImageAttachment(attachment.url) ? (
+                      <a
+                        href={readImage(attachment.url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block"
+                      >
+                        <img
+                          src={readImage(attachment.url)}
+                          alt={attachment.name}
+                          className="max-w-full h-auto rounded"
+                        />
+                      </a>
+                    ) : (
+                      <a
+                        href={readImage(attachment.url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 hover:bg-accent/50 transition-colors truncate"
+                      >
+                        <IconFile />
+                        <span className="text-[13px] text-foreground truncate">
+                          {attachment.name}
+                        </span>
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </Button>
       </Tooltip.Trigger>
       <Tooltip.Content>
@@ -214,10 +281,16 @@ export function OperatorMessage({
 export const CustomerMessage = ({
   content,
   createdAt,
+  attachments,
 }: {
   content?: string;
   createdAt: Date;
+  attachments?: IAttachment[];
 }) => {
+  const isImageAttachment = (url: string) => {
+    return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url);
+  };
+
   return (
     <Tooltip>
       <Tooltip.Trigger asChild>
@@ -228,15 +301,67 @@ export const CustomerMessage = ({
           <span className="text-muted-foreground hidden group-hover/customer-message:block text-xs self-center">
             {formatDateISOStringToRelativeDate(createdAt.toISOString())}
           </span>
-          <div
-            className={cn(
-              'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-zinc-900 text-left gap-1 px-3 py-2 bg-accent rounded-md',
+          <div className="flex flex-col gap-2 max-w-[70%]">
+            {content && content !== '<p></p>' && (
+              <div
+                className={cn(
+                  'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-zinc-900 text-left gap-1 px-3 py-2 bg-accent',
+                  attachments?.length ? 'rounded-t-md' : 'rounded-md',
+                )}
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(content as string),
+                }}
+              />
             )}
-            dangerouslySetInnerHTML={{
-              __html:
-                content || '<p>Hello! Have you fixed your problem yet?</p>',
-            }}
-          />
+            {attachments && attachments.length > 0 && (
+              <div className="flex flex-col gap-2">
+                {attachments.map((attachment, index) => (
+                  <div
+                    key={index}
+                    className={cn(
+                      'overflow-hidden bg-accent',
+                      content && index === 0 && 'rounded-b-md',
+                      !content && index === 0 && 'rounded-t-md',
+                      !content &&
+                        index === attachments.length - 1 &&
+                        'rounded-b-md',
+                      !content && attachments.length === 1 && 'rounded-md',
+                      content &&
+                        index === attachments.length - 1 &&
+                        'rounded-b-md',
+                    )}
+                  >
+                    {isImageAttachment(attachment.url) ? (
+                      <a
+                        href={readImage(attachment.url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block"
+                      >
+                        <img
+                          src={readImage(attachment.url)}
+                          alt={attachment.name}
+                          className="max-w-full h-auto rounded"
+                        />
+                      </a>
+                    ) : (
+                      <a
+                        href={readImage(attachment.url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 hover:bg-accent/70 transition-colors truncate"
+                      >
+                        <IconFile />
+                        <span className="text-[13px] text-zinc-900 truncate">
+                          {attachment.name}
+                        </span>
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </Button>
       </Tooltip.Trigger>
       <Tooltip.Content>

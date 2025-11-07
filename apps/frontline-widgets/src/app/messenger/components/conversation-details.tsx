@@ -105,16 +105,25 @@ export const ConversationDetails = () => {
 
     messagesForDate.forEach((message) => {
       const messageTime = new Date(message.createdAt).getTime();
+      const lastGroup = groups[groups.length - 1];
 
-      const existingGroup = groups.find((group) => {
-        const groupTime = new Date(group.firstMessage.createdAt).getTime();
+      if (lastGroup) {
+        const groupTime = new Date(lastGroup.firstMessage.createdAt).getTime();
         const timeDifference = Math.abs(messageTime - groupTime);
+        const shouldGroup = shouldGroupMessages(
+          message,
+          lastGroup.firstMessage,
+          timeDifference,
+        );
 
-        return shouldGroupMessages(message, group.firstMessage, timeDifference);
-      });
-
-      if (existingGroup) {
-        existingGroup.messages.push({ ...message, showAvatar: false });
+        if (shouldGroup) {
+          lastGroup.messages.push({ ...message, showAvatar: false });
+        } else {
+          groups.push({
+            messages: [{ ...message, showAvatar: true }],
+            firstMessage: message,
+          });
+        }
       } else {
         groups.push({
           messages: [{ ...message, showAvatar: true }],
@@ -148,7 +157,7 @@ export const ConversationDetails = () => {
         ref={scrollContainerRef}
         className="flex-1 overflow-y-auto scroll-smooth scroll-p-0 scroll-m-0 scroll-pt-16 flex flex-col-reverse p-4 space-y-2"
       >
-        {botShowInitialMessage && <BotMessage content={botGreetMessage} />}
+        {isBotTyping && <TypingStatus />}
 
         {sortedDateKeys.map((dateKey, index) => {
           const messagesForDate = messagesByDate[dateKey];
@@ -200,6 +209,7 @@ export const ConversationDetails = () => {
                             }
                             createdAt={new Date(message.createdAt)}
                             showAvatar={message.showAvatar}
+                            attachments={message.attachments}
                             {...messagePositionProps}
                           />
                         </div>
@@ -211,15 +221,17 @@ export const ConversationDetails = () => {
                         key={message._id}
                         content={message.content}
                         createdAt={new Date(message.createdAt)}
+                        attachments={message.attachments}
                       />
                     );
                   })}
                 </div>
               ))}
-              {isBotTyping && <TypingStatus />}
             </div>
           );
         })}
+
+        {botShowInitialMessage && <BotMessage content={botGreetMessage} />}
       </div>
       <div className="flex-shrink-0">
         <ChatInput />
