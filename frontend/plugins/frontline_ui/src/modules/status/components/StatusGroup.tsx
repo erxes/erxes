@@ -280,7 +280,6 @@ export const StatusForm = ({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit, (errors) => {
-            console.log(errors)
             toast({
               title: 'Error',
               description: Object.entries(errors)[0][1].message,

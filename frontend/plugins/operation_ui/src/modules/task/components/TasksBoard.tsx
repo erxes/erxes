@@ -99,7 +99,7 @@ export const TasksBoard = () => {
       data={tasks}
       onDragEnd={handleDragEnd}
       boardId={clsx('tasks-board', teamId)}
-       fallbackComponent={
+      fallbackComponent={
         <div className="flex h-full w-full flex-col items-center justify-center text-center p-6 gap-2">
           <IconBrandTrello
             size={64}
@@ -107,15 +107,13 @@ export const TasksBoard = () => {
             className="text-muted-foreground"
           />
           <h2 className="text-lg font-semibold text-muted-foreground">
-            No tasks yet
+            No team yet
           </h2>
           <p className="text-md text-muted-foreground mb-4">
             Create a team to start organizing your board.
           </p>
           <Button variant="outline" asChild>
-            <Link
-              to={`/settings/operation/team`}
-            >
+            <Link to={`/settings/operation/team`}>
               <IconSettings />
               Go to settings
             </Link>
