@@ -5,7 +5,7 @@ import {
 import { IAccount } from '../types/Account';
 import { useAccounts } from '../hooks/useAccounts';
 import { useDebounce } from 'use-debounce';
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   cn,
   Combobox,
@@ -39,44 +39,53 @@ const SelectAccountProvider = ({
   onCallback,
 }: SelectAccountProviderProps) => {
   const [accounts, setAccounts] = useState<IAccount[]>([]);
-  const accountIds = Array.isArray(value) ? value : value && [value] || [];
+  const accountIds = Array.isArray(value) ? value : value ? [value] : [];
 
-  const onSelect = (account?: IAccount) => {
-    if (!account) return;
-    if (onCallback) {
-      onCallback(account);
-    }
-    if (mode === 'single') {
-      setAccounts([account]);
-      onValueChange?.(account._id);
-      return;
-    }
+  const onSelect = useCallback(
+    (account?: IAccount) => {
+      if (!account) return;
 
-    const arrayValue = Array.isArray(value) ? value : [];
-    const isAccountSelected = arrayValue.includes(account._id);
-    const newSelectedAccountIds = isAccountSelected
-      ? arrayValue.filter((id) => id !== account._id)
-      : [...arrayValue, account._id];
+      if (onCallback) onCallback(account);
 
-    setAccounts((prevAccounts) => {
-      const accountMap = new Map(prevAccounts.map((p) => [p._id, p]));
-      accountMap.set(account._id, account);
-      return newSelectedAccountIds
-        .map((id) => accountMap.get(id))
-        .filter((p): p is IAccount => p !== undefined);
-    });
-    onValueChange?.(newSelectedAccountIds);
-  };
+      if (mode === 'single') {
+        setAccounts([account]);
+        onValueChange?.(account._id);
+        return;
+      }
+
+      const arrayValue = Array.isArray(value) ? value : [];
+      const isAccountSelected = arrayValue.includes(account._id);
+      const newSelectedAccountIds = isAccountSelected
+        ? arrayValue.filter((id) => id !== account._id)
+        : [...arrayValue, account._id];
+
+      setAccounts((prevAccounts) => {
+        const accountMap = new Map(prevAccounts.map((p) => [p._id, p]));
+        accountMap.set(account._id, account);
+        return newSelectedAccountIds
+          .map((id) => accountMap.get(id))
+          .filter((p): p is IAccount => p !== undefined);
+      });
+
+      onValueChange?.(newSelectedAccountIds);
+    },
+    [value, onCallback, onValueChange, mode],
+  );
+
+  // ✅ useMemo prevents creating a new object every render
+  const contextValue = useMemo(
+    () => ({
+      accountIds,
+      onSelect,
+      accounts,
+      setAccounts,
+      defaultFilter,
+    }),
+    [accountIds, onSelect, accounts, defaultFilter],
+  );
+
   return (
-    <SelectAccountContext.Provider
-      value={{
-        accountIds,
-        onSelect,
-        accounts,
-        setAccounts,
-        defaultFilter,
-      }}
-    >
+    <SelectAccountContext.Provider value={contextValue}>
       {children}
     </SelectAccountContext.Provider>
   );

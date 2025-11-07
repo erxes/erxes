@@ -3,11 +3,11 @@ import {
   Tooltip,
   isUndefinedOrNull,
 } from 'erxes-ui';
+import { useEffect, useMemo, useState } from 'react';
 import {
   AccountsInlineContext,
   useAccountsInlineContext,
 } from '../contexts/AccountsInlineContext';
-import { useEffect, useState } from 'react';
 import { IAccount } from '../types/Account';
 import { useAccountsInline } from '../hooks/useAccounts';
 
@@ -28,29 +28,37 @@ export const AccountsInlineProvider = ({
 }) => {
   const [accountsList, setAccountsList] = useState<IAccount[]>(accounts || []);
 
+  const contextValue = useMemo(
+    () => ({
+      accounts: accounts || accountsList,
+      loading: false,
+      accountIds: accountIds || [],
+      placeholder: isUndefinedOrNull(placeholder)
+        ? 'Select Accounts'
+        : placeholder,
+      updateAccounts: updateAccounts || setAccountsList,
+      allowUnassigned,
+    }),
+    [
+      accounts,
+      accountsList,
+      accountIds,
+      placeholder,
+      updateAccounts,
+      allowUnassigned,
+    ],
+  );
+
+  const missingAccountIds =
+    accountIds?.filter((id) => !accounts?.some((a) => a._id === id)) || [];
+
   return (
-    <AccountsInlineContext.Provider
-      value={{
-        accounts: accounts || accountsList,
-        loading: false,
-        accountIds: accountIds || [],
-        placeholder: isUndefinedOrNull(placeholder)
-          ? 'Select Accounts'
-          : placeholder,
-        updateAccounts: updateAccounts || setAccountsList,
-        allowUnassigned,
-      }}
-    >
+    <AccountsInlineContext.Provider value={contextValue}>
       <Tooltip.Provider>{children}</Tooltip.Provider>
-      {accountIds?.some(
-        (id) => !accounts?.some((account) => account._id === id),
-      ) && (
-          <AccountsInlineEffectComponent
-            missingAccountIds={accountIds.filter(
-              (id) => !accounts?.some((account) => account._id === id),
-            )}
-          />
-        )}
+
+      {missingAccountIds.length > 0 && (
+        <AccountsInlineEffectComponent missingAccountIds={missingAccountIds} />
+      )}
     </AccountsInlineContext.Provider>
   );
 };
@@ -68,20 +76,19 @@ const AccountsInlineEffectComponent = ({
   });
 
   useEffect(() => {
-    if (missingAccounts && missingAccounts.length > 0) {
-      const existingAccountsMap = new Map(
-        accounts.map((account) => [account._id, account]),
-      );
-      const newAccounts = missingAccounts.filter(
-        (account) => !existingAccountsMap.has(account._id),
-      );
+    if (!missingAccounts?.length) return;
 
-      if (newAccounts.length > 0) {
-        updateAccounts?.([...accounts, ...newAccounts]);
-      }
+    const existingAccountsMap = new Map(
+      accounts.map((acc) => [acc._id, acc])
+    );
+    const newAccounts = missingAccounts.filter(
+      (acc) => !existingAccountsMap.has(acc._id),
+    );
+
+    if (newAccounts.length > 0) {
+      updateAccounts?.([...accounts, ...newAccounts]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [missingAccounts, missingAccountIds]);
+  }, [missingAccounts, missingAccountIds, accounts, updateAccounts]);
 
   return null;
 };
