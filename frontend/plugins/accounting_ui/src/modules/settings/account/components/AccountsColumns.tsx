@@ -16,17 +16,18 @@ import { accountDetailAtom } from '../states/accountStates';
 import { JOURNAL_LABELS } from '../constants/journalLabel';
 
 const AccountCategoryCell = ({ cell }: { cell: Cell<IAccount, unknown> }) => {
+  const { original } = cell.row
   const { editAccount } = useAccountEdit();
   return (
     <SelectAccountCategory
-      recordId={cell.row.original._id}
-      selected={cell.row.original.categoryId}
+      recordId={original._id}
+      selected={original.categoryId}
       className="w-full font-normal"
       onSelect={(categoryId) => {
         editAccount(
           {
             variables: {
-              ...cell.row.original,
+              ...original,
               categoryId,
             },
           },
@@ -112,15 +113,12 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
     header: () => <RecordTable.InlineHead label="Code" />,
     cell: ({ cell }) => {
       return (
-        <>
-          <span></span>
-          <AccountTextField
-            value={cell.getValue() as string}
-            field="code"
-            _id={cell.row.original._id}
-            account={cell.row.original}
-          />
-        </>
+        <AccountTextField
+          value={cell.getValue() as string}
+          field="code"
+          _id={cell.row.original._id}
+          account={cell.row.original}
+        />
       );
     },
   },
@@ -141,10 +139,10 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
     size: 300,
   },
   {
-    id: 'category',
+    id: 'categoryId',
     accessorKey: 'categoryId',
     header: () => <RecordTable.InlineHead label="Category" />,
-    cell: AccountCategoryCell,
+    cell: ({ cell }) => <AccountCategoryCell cell={cell} />,
     size: 240,
   },
   {

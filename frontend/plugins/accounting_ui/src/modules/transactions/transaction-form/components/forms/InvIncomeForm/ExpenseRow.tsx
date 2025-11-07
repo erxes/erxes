@@ -253,7 +253,6 @@ export const ExpenseRow = ({
                     currency: 'MNT',
                   }}
                   variant="ghost"
-                  inForm
                   scope={AccountingHotkeyScope.TransactionFormSubPage}
                   onCallback={(account) => setAccount(account)}
                 />
