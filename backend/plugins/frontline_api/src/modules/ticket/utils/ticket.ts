@@ -147,7 +147,6 @@ export const createActivity = async (args: {
   const { subdomain, userId, contentId } = args;
   const oldDocSafe: Partial<ITicketDocument> = args.oldDoc ?? {};
   const newDocSafe: Partial<ITicket> = args.newDoc ?? {};
-  console.log('args', args);
 
   const models = await generateModels(subdomain);
 
