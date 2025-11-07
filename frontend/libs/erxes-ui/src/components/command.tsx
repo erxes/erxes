@@ -51,7 +51,7 @@ const CommandDialog = ({
 };
 
 const commanInputVariants = cva(
-  'flex h-9 w-full rounded-md p-3 text-sm font-medium outline-none placeholder:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-50',
+  'flex h-8 w-full rounded-md px-3 text-sm font-medium outline-none placeholder:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
       variant: {
@@ -138,7 +138,7 @@ const CommandList = React.forwardRef<
   <CommandPrimitive.List
     ref={ref}
     className={cn(
-      'max-h-[300px] overflow-y-auto overflow-x-hidden p-1 [&>div]:focus-within:outline-none focus-within:outline-none',
+      'max-h-72 overflow-y-auto hide-scroll m-1 [&>div]:focus-within:outline-none focus-within:outline-none',
       className,
     )}
     {...props}

@@ -66,7 +66,7 @@ export const conversationQueries = {
         model: models.Conversations,
         params: {
           ...params,
-          orderBy: { createdAt: -1 },
+          orderBy: { updatedAt: -1 },
           limit: params.limit || 20,
         },
         query: qb.mainQuery(),

@@ -23,48 +23,14 @@ export const GET_BRANCH_LIST = gql`
         _id
         createdAt
         userId
-        user {
-          _id
-          username
-          email
-          details {
-            avatar
-            fullName
-            shortName
-          }
-        }
         name
-        description
         generalManagerIds
         managerIds
         paymentIds
-        paymentTypes
-        departmentId
         token
         erxesAppToken
         permissionConfig
         uiOptions
-        managers {
-          _id
-          email
-          username
-          details {
-            avatar
-            fullName
-            shortName
-          }
-        }
-        generalManagers {
-          _id
-          email
-          username
-          details {
-            avatar
-            fullName
-            shortName
-          }
-        }
-        __typename
       }
       totalCount
       pageInfo {
@@ -83,23 +49,10 @@ export const BRANCH_LIST_DETAIL = gql`
       _id
       createdAt
       userId
-      user {
-        _id
-        username
-        email
-        details {
-          avatar
-          fullName
-          shortName
-        }
-      }
       name
-      description
       generalManagerIds
       managerIds
       paymentIds
-      paymentTypes
-      departmentId
       token
       erxesAppToken
       permissionConfig
