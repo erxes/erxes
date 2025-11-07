@@ -2,14 +2,17 @@
 
 import { useState } from 'react';
 import { Control, useFieldArray } from 'react-hook-form';
-import { Button, Form, Input, Select, Upload, ColorPicker } from 'erxes-ui';
-import { TmsFormType } from '@/tms/constants/formSchema';
 import {
-  IconUpload,
-  IconPlus,
-  IconTrash,
-  IconLoader2,
-} from '@tabler/icons-react';
+  Button,
+  Form,
+  Input,
+  Select,
+  Upload,
+  ColorPicker,
+  Spinner,
+} from 'erxes-ui';
+import { TmsFormType } from '@/tms/constants/formSchema';
+import { IconUpload, IconPlus, IconTrash } from '@tabler/icons-react';
 import PaymentIcon, { paymentIconOptions } from '@/tms/components/PaymentIcon';
 import { SelectMember } from 'ui-modules';
 
@@ -99,7 +102,9 @@ export const LogoField = ({ control }: { control: Control<TmsFormType> }) => {
                     onAllUploadsComplete={() => setIsLoading(false)}
                   />
                   <div className="flex flex-col justify-center items-center w-full h-28 rounded-md border border-dashed bg-accent">
-                    <IconLoader2 className="mb-2 animate-spin" size={24} />
+                    <div className="mb-2">
+                      <Spinner size="md" />
+                    </div>
                     <p className="text-sm text-muted-foreground">
                       Uploading...
                     </p>
@@ -193,7 +198,9 @@ export const FavIconField = ({
                     onAllUploadsComplete={() => setIsLoading(false)}
                   />
                   <div className="flex flex-col justify-center items-center w-full h-28 rounded-md border border-dashed bg-accent">
-                    <IconLoader2 className="mb-2 animate-spin" size={24} />
+                    <div className="mb-2">
+                      <Spinner size="md" />
+                    </div>
                     <p className="text-sm text-muted-foreground">
                       Uploading...
                     </p>
