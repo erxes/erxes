@@ -19,7 +19,7 @@ import {
   useFilterQueryState,
   useQueryState,
 } from 'erxes-ui';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { addTicketSchema } from '@/ticket/types';
 import { z } from 'zod';
@@ -286,6 +286,19 @@ const SelectPipelineFormItem = ({
 }) => {
   const channelId = useWatch({ name: 'channelId', control: form?.control });
   const [open, setOpen] = useState(false);
+  const { pipelines } = useGetPipelines({
+    variables: {
+      filter: {
+        channelId,
+      },
+    },
+    skip: !channelId,
+  });
+  useEffect(() => {
+    if (pipelines?.length && !value) {
+      onValueChange(pipelines[0]._id);
+    }
+  }, [pipelines, value, onValueChange]);
   return (
     <SelectPipelineProvider
       value={value}
