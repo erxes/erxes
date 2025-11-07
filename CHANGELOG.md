@@ -1,5 +1,19 @@
 # Changelog
 
+## <small>2.17.24 (2025-11-07)</small>
+
+* fix: car clientPortal mutations ([625e3c4](https://github.com/erxes/erxes/commit/625e3c4))
+* fix: car clientPortal mutations ([e4dfe14](https://github.com/erxes/erxes/commit/e4dfe14))
+* fix: fix call monitor ([1b08a2d](https://github.com/erxes/erxes/commit/1b08a2d))
+* fix: incoming call ringtone ([4e06b47](https://github.com/erxes/erxes/commit/4e06b47))
+* chore: debug call queue list ([a9ed5bf](https://github.com/erxes/erxes/commit/a9ed5bf))
+* chore: debug call queue list ([4fd0149](https://github.com/erxes/erxes/commit/4fd0149))
+* chore(cms): fix categories/tags pagination ([69e01fb](https://github.com/erxes/erxes/commit/69e01fb))
+* feat: add call cookie resseter ([0a4376a](https://github.com/erxes/erxes/commit/0a4376a))
+* feat(ticket): initialize fields from localStorage and sync with props in componentDidUpdate  ([dd3f23b](https://github.com/erxes/erxes/commit/dd3f23b))
+* Release 2.17.23 ([67c704e](https://github.com/erxes/erxes/commit/67c704e))
+* bugfix(cms): prevent 'isScheduled' from being sent in mutation input ([e298a38](https://github.com/erxes/erxes/commit/e298a38))
+
 * Merge branch 'master' of github.com:erxes/erxes (2dbbdee8d1)
 * feat(ticket): initialize fields from localStorage and sync with props in componentDidUpdate (dd3f23b42f)
 * fix: car clientPortal mutations (625e3c44d4)
