@@ -42,21 +42,25 @@ export function formatSeconds(seconds: number): string {
 
   return [hrs, mins, secs].map((v) => String(v).padStart(2, '0')).join(':');
 }
+
 export function safeFormatDate(value: unknown, fmt = 'MM-dd HH:mm'): string {
+  const timeZone =
+    Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Ulaanbaatar';
+
   if (value === '0000-00-00 00:00:00') {
     return '0000-00-00 00:00:00';
   }
 
   if (!value) {
-    return format(new Date(), fmt);
+    return format(new Date(), fmt, { timeZone });
   }
 
   const date = new Date(value as string | number | Date);
   if (isNaN(date.getTime())) {
-    return format(new Date(), fmt);
+    return format(new Date(), fmt, { timeZone });
   }
 
-  return format(date, fmt);
+  return format(date, fmt, { timeZone });
 }
 
 export const renderFullName = (data: any, noPhone?: boolean) => {
