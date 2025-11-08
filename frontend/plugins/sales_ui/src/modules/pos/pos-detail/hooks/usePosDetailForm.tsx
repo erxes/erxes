@@ -2,29 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { IPosDetail } from '../types/IPos';
-
-const cleanData = (data: any): any => {
-  if (data === null || data === undefined) {
-    return data;
-  }
-  
-  if (Array.isArray(data)) {
-    return data.map(cleanData);
-  }
-  
-  if (typeof data === 'object') {
-    const cleaned: any = {};
-    for (const [key, value] of Object.entries(data)) {
-      if (key === '__typename') continue;
-      if (key === '_id' && value === null) continue;
-      
-      cleaned[key] = cleanData(value);
-    }
-    return cleaned;
-  }
-  
-  return data;
-};
+import { cleanData } from '../../utils/cleanData';
 import {
   BasicInfoFormValues,
   basicInfoSchema,
@@ -156,7 +134,7 @@ export const usePosDetailForms = (posDetail?: IPosDetail) => {
       maxSkipNumber: posDetail.maxSkipNumber || 5,
       checkRemainder: posDetail.checkRemainder || false,
     });
-    
+
     const productDetailsAsStrings: string[] = [];
     (posDetail.productDetails || []).forEach((detail) => {
       if (typeof detail === 'string') {
