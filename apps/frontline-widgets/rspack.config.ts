@@ -3,23 +3,15 @@ const rspack = require('@rspack/core');
 const path = require('path');
 
 module.exports = composePlugins(withNx(), withReact(), (config) => {
-
   // Define environment variables
   config.plugins = config.plugins || [];
   config.plugins.push(
     new rspack.DefinePlugin({
-      'process.env.REACT_APP_API_URL': JSON.stringify(process.env.REACT_APP_API_URL || 'http://localhost:4000'),
-    })
+      'process.env.REACT_APP_API_URL': JSON.stringify(
+        process.env.REACT_APP_API_URL || 'http://localhost:4000',
+      ),
+    }),
   );
-
-  config.resolve = config.resolve || {};
-  config.resolve.alias = {
-    ...config.resolve.alias,
-    'erxes-ui': path.resolve(__dirname, '../../frontend/libs/erxes-ui/src'),
-    '@libs': path.resolve(__dirname, 'src/lib'),
-    '@': path.resolve(__dirname, 'src'),
-  };
-
   // Configure dev server to serve static files from dist folder
   config.devServer = config.devServer || {};
   config.devServer.static = config.devServer.static || [];

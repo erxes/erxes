@@ -19,7 +19,7 @@ const ChecklistItemAdd = ({
     return (
       <div className="flex flex-col gap-2 p-2">
         <textarea
-          className="border border-gray-300 rounded px-2 py-1 text-sm w-full resize-none focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="border border-gray-300 rounded px-2 py-1 text-sm w-full resize-none focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
           placeholder="Enter items, each on a new line"
           value={newItem}
           onChange={(e) => setNewItem(e.target.value)}

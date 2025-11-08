@@ -31,6 +31,15 @@ export default composePlugins(
         ),
       }),
     );
+
+    config.module = config.module || {};
+    config.module.rules = config.module.rules || [];
+    config.module.rules.push({
+      test: /\.css$/,
+      use: ['postcss-loader'],
+      type: 'css',
+    });
+
     return config;
   },
 );

@@ -32,7 +32,7 @@ export const CommentActionForm = ({
   }));
 
   return (
-    <div className="!w-2xl p-4">
+    <div className="w-2xl! p-4">
       <Form {...form}>
         <Form.Field
           control={control}

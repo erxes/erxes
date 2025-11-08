@@ -150,7 +150,7 @@ export const AddProjectForm = ({
               name="status"
               control={form.control}
               render={({ field }) => (
-                <Form.Item className="flex-shrink-0">
+                <Form.Item className="shrink-0">
                   <Form.Label className="sr-only">Status</Form.Label>
                   <SelectStatus.FormItem
                     value={field.value}
@@ -163,7 +163,7 @@ export const AddProjectForm = ({
               name="priority"
               control={form.control}
               render={({ field }) => (
-                <Form.Item className="flex-shrink-0">
+                <Form.Item className="shrink-0">
                   <Form.Label className="sr-only">Priority</Form.Label>
                   <SelectPriority.FormItem
                     value={field.value}
@@ -176,7 +176,7 @@ export const AddProjectForm = ({
               name="leadId"
               control={form.control}
               render={({ field }) => (
-                <Form.Item className="flex-shrink-0">
+                <Form.Item className="shrink-0">
                   <Form.Label className="sr-only">Lead</Form.Label>
                   <SelectLead.FormItem
                     {...field}
@@ -193,7 +193,7 @@ export const AddProjectForm = ({
               name="startDate"
               control={form.control}
               render={({ field }) => (
-                <Form.Item className="flex-shrink-0">
+                <Form.Item className="shrink-0">
                   <Form.Label className="sr-only">Start Date</Form.Label>
                   <DateSelect.FormItem
                     {...field}
@@ -207,7 +207,7 @@ export const AddProjectForm = ({
               name="targetDate"
               control={form.control}
               render={({ field }) => (
-                <Form.Item className="flex-shrink-0">
+                <Form.Item className="shrink-0">
                   <Form.Label className="sr-only">Target Date</Form.Label>
                   <DateSelect.FormItem
                     {...field}
@@ -227,7 +227,7 @@ export const AddProjectForm = ({
             />
           </div>
         </Sheet.Content>
-        <Sheet.Footer className="flex justify-end flex-shrink-0 gap-1 px-5">
+        <Sheet.Footer className="flex justify-end shrink-0 gap-1 px-5">
           <Button
             type="button"
             variant="ghost"

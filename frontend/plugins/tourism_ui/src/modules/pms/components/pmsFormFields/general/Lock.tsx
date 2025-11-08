@@ -14,7 +14,7 @@ const Lock = ({ control }: { control: Control<PmsBranchFormType> }) => {
         <Switch
           checked={timeSwitch}
           onCheckedChange={setTimeSwitch}
-          className="w-10 h-6 [&_span]:size-4 data-[state=checked]:[&_span]:translate-x-[19px] data-[state=checked]:[&_span]:rtl:-translate-x-[19px]"
+          className="w-10 h-6 [&_span]:size-4 [&_span]:data-[state=checked]:translate-x-[19px] rtl:[&_span]:data-[state=checked]:-translate-x-[19px]"
         />
       </div>
 

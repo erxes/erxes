@@ -22,7 +22,7 @@ export const SalesBreadCrumb = ({
   });
 
   if (boardLoading || pipelineLoading) {
-    return <Skeleton className="w-12 h-[1lh]" />;
+    return <Skeleton className="w-12 h-lh" />;
   }
 
   return (

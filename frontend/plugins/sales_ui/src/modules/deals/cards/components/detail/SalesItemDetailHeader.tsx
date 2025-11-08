@@ -53,7 +53,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
               Edit
             </Button>
           </DropdownMenu.Trigger>
-          <DropdownMenu.Content className="w-48 !min-w-fit">
+          <DropdownMenu.Content className="w-48 min-w-fit!">
             <DropdownMenu.Item>
               <IconCopy />
               Copy

@@ -26,7 +26,7 @@ const SelectContainer = ({
   const [isMultipleMode, setIsMultipleMode] = useState(false);
 
   return (
-    <div className="rounded-lg shadow-sm p-6 flex flex-col gap-4 md:max-w-[17rem]">
+    <div className="rounded-lg shadow-sm p-6 flex flex-col gap-4 md:max-w-68">
       <div className="flex flex-col gap-1">
         <div className="flex justify-between">
           <h3 className="text-lg font-medium text-foreground">{label}</h3>

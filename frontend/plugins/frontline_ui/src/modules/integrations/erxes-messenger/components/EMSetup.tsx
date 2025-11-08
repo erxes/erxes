@@ -20,7 +20,7 @@ export const EMSetup = ({
   const step = useAtomValue(erxesMessengerSetupStepAtom);
   return (
     <Sheet.View
-      className="gap-0 flex-col flex sm:max-w-none md:w-[calc(100vw-theme(spacing.4))]"
+      className="gap-0 flex-col flex sm:max-w-none md:w-[calc(100vw-(--spacing(4)))]"
       aria-describedby=""
     >
       <Sheet.Header>

@@ -24,7 +24,7 @@ export const Header = () => {
   };
 
   return (
-    <div className="flex flex-col flex-shrink-0 grow-0 gap-4 p-4 bg-background border-b border-accent">
+    <div className="flex flex-col shrink-0 grow-0 gap-4 p-4 bg-background border-b border-accent">
       {render()}
     </div>
   );

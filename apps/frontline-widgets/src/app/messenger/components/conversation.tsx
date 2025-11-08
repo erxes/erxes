@@ -191,7 +191,7 @@ export function OperatorMessage({
           )}
           <div
             className={cn(
-              'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-foreground text-left gap-1 px-3 py-2 bg-background max-w-[70%] whitespace-break-spaces break-words break-all',
+              'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-foreground text-left gap-1 px-3 py-2 bg-background max-w-[70%] whitespace-break-spaces wrap-break-word break-all',
               isFirstMessage && 'rounded-md rounded-bl-sm rounded-t-lg',
               isLastMessage && 'rounded-md rounded-tl-sm rounded-b-lg',
               isMiddleMessage && 'rounded-r-md rounded-l-sm',
