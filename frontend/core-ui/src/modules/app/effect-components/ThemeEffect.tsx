@@ -3,11 +3,11 @@ import { ThemeOption, themeState, ThemeValue } from 'erxes-ui';
 import { useEffect } from 'react';
 
 export const ThemeEffect = () => {
-  const [theme, setTheme] = useAtom(themeState);
+  const [theme] = useAtom(themeState);
 
   function getThemeValue(selected: ThemeOption): ThemeValue {
     if (selected === 'system') {
-      if (typeof window !== 'undefined') {
+      if (window !== undefined) {
         return window.matchMedia('(prefers-color-scheme: dark)').matches
           ? 'dark'
           : 'light';
@@ -17,13 +17,7 @@ export const ThemeEffect = () => {
       return 'light';
     }
 
-    // Ensure we only return valid theme values
-    if (selected === 'light' || selected === 'dark') {
-      return selected;
-    }
-
-    // Fallback to light theme for any invalid values
-    return 'light';
+    return selected;
   }
 
   useEffect(() => {
@@ -38,9 +32,7 @@ export const ThemeEffect = () => {
       if (theme === 'system') {
         const newThemeValue = e.matches ? 'dark' : 'light';
         html.classList.remove(newThemeValue === 'light' ? 'dark' : 'light');
-        if (newThemeValue && (newThemeValue === 'light' || newThemeValue === 'dark')) {
-          html.classList.add(newThemeValue);
-        }
+        html.classList.add(newThemeValue);
         html.style.colorScheme = newThemeValue;
       }
     };
@@ -66,9 +58,7 @@ export const ThemeEffect = () => {
     document.head.appendChild(css);
 
     html.classList.remove(themeValue === 'light' ? 'dark' : 'light');
-    if (themeValue && (themeValue === 'light' || themeValue === 'dark')) {
-      html.classList.add(themeValue);
-    }
+    html.classList.add(themeValue);
     // Ensures that native elements respect the theme, e.g. the scrollbar.
     html.style.colorScheme = themeValue;
 

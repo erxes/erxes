@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
-import { Form, Checkbox, Button, Label, Input } from 'erxes-ui';
+import { Form, Button, Input } from 'erxes-ui';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import type { ProductFormValues } from '../formSchema';
 import { IPosDetail } from '@/pos/pos-detail/types/IPos';
