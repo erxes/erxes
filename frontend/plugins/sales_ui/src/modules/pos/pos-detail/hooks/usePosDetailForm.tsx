@@ -2,6 +2,29 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { IPosDetail } from '../types/IPos';
+
+const cleanData = (data: any): any => {
+  if (data === null || data === undefined) {
+    return data;
+  }
+  
+  if (Array.isArray(data)) {
+    return data.map(cleanData);
+  }
+  
+  if (typeof data === 'object') {
+    const cleaned: any = {};
+    for (const [key, value] of Object.entries(data)) {
+      if (key === '__typename') continue;
+      if (key === '_id' && value === null) continue;
+      
+      cleaned[key] = cleanData(value);
+    }
+    return cleaned;
+  }
+  
+  return data;
+};
 import {
   BasicInfoFormValues,
   basicInfoSchema,
@@ -77,7 +100,7 @@ export const usePosDetailForms = (posDetail?: IPosDetail) => {
         ): type is 'eat' | 'take' | 'delivery' | 'loss' | 'spend' | 'reject' =>
           ['eat', 'take', 'delivery', 'loss', 'spend', 'reject'].includes(type),
       ),
-      scopeBrandIds: posDetail.scopeBrandIds || [],
+      scopeBrandIds: [...(posDetail.scopeBrandIds || [])],
       branchId: posDetail.branchId || '',
       departmentId: posDetail.departmentId || '',
     });
@@ -95,8 +118,8 @@ export const usePosDetailForms = (posDetail?: IPosDetail) => {
       cashierPrintTempBill: posDetail.cashierPrintTempBill || false,
       cashierDirectSales: posDetail.cashierDirectSales || false,
       cashierDirectDiscountLimit: posDetail.cashierDirectDiscountLimit || '',
-      adminIds: adminId ? [adminId] : posDetail.adminIds || [],
-      cashierIds: cashierId ? [cashierId] : posDetail.cashierIds || [],
+      adminIds: adminId ? [adminId] : [...(posDetail.adminIds || [])],
+      cashierIds: cashierId ? [cashierId] : [...(posDetail.cashierIds || [])],
       permissionConfig: posDetail.permissionConfig || {},
     });
 
@@ -133,19 +156,29 @@ export const usePosDetailForms = (posDetail?: IPosDetail) => {
       maxSkipNumber: posDetail.maxSkipNumber || 5,
       checkRemainder: posDetail.checkRemainder || false,
     });
+    
+    const productDetailsAsStrings: string[] = [];
+    (posDetail.productDetails || []).forEach((detail) => {
+      if (typeof detail === 'string') {
+        productDetailsAsStrings.push(detail);
+      } else if (detail.productId) {
+        productDetailsAsStrings.push(detail.productId);
+      }
+    });
 
     productForm.reset({
-      productDetails: posDetail.productDetails || [],
-      catProdMappings: posDetail.catProdMappings || [],
-      initialCategoryIds: posDetail.initialCategoryIds || [],
-      kioskExcludeCategoryIds: posDetail.kioskExcludeCategoryIds || [],
-      kioskExcludeProductIds: posDetail.kioskExcludeProductIds || [],
-      checkExcludeCategoryIds: posDetail.checkExcludeCategoryIds || [],
+      productDetails: productDetailsAsStrings,
+      catProdMappings: cleanData([...(posDetail.catProdMappings || [])]),
+      initialCategoryIds: [...(posDetail.initialCategoryIds || [])],
+      kioskExcludeCategoryIds: [...(posDetail.kioskExcludeCategoryIds || [])],
+      kioskExcludeProductIds: [...(posDetail.kioskExcludeProductIds || [])],
+      checkExcludeCategoryIds: [...(posDetail.checkExcludeCategoryIds || [])],
+      productGroups: [],
     });
 
     paymentForm.reset({
-      paymentIds: posDetail.paymentIds || [],
-      paymentTypes: posDetail.paymentTypes || [],
+      paymentIds: [...(posDetail.paymentIds || [])],
+      paymentTypes: [...(posDetail.paymentTypes || [])],
     });
 
     deliveryConfigForm.reset({
@@ -155,8 +188,8 @@ export const usePosDetailForms = (posDetail?: IPosDetail) => {
       watchedUsers: posDetail.deliveryConfig?.watchedUsers || '',
       assignedUsers: posDetail.deliveryConfig?.assignedUsers || '',
       deliveryProduct: posDetail.deliveryConfig?.deliveryProduct || '',
-      watchedUserIds: posDetail.deliveryConfig?.watchedUserIds || [],
-      assignedUserIds: posDetail.deliveryConfig?.assignedUserIds || [],
+      watchedUserIds: [...(posDetail.deliveryConfig?.watchedUserIds || [])],
+      assignedUserIds: [...(posDetail.deliveryConfig?.assignedUserIds || [])],
     });
   }, [posDetail]);
 

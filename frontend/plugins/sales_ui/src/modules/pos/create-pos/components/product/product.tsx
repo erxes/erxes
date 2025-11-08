@@ -36,6 +36,7 @@ export default function ProductForm({
       kioskExcludeCategoryIds: [],
       kioskExcludeProductIds: [],
       checkExcludeCategoryIds: [],
+      productGroups: [],
     },
   });
 
@@ -44,8 +45,13 @@ export default function ProductForm({
 
   useEffect(() => {
     if (!posDetail) return;
+
+    const productDetailsAsStrings = (posDetail.productDetails || []).map(
+      (detail) => (typeof detail === 'string' ? detail : detail.productId),
+    );
+
     form.reset({
-      productDetails: posDetail.productDetails || [],
+      productDetails: productDetailsAsStrings,
       catProdMappings: posDetail.catProdMappings || [],
       initialCategoryIds: posDetail.initialCategoryIds || [],
       kioskExcludeCategoryIds: posDetail.kioskExcludeCategoryIds || [],
@@ -109,31 +115,11 @@ export default function ProductForm({
 
             {showProductGroups && (
               <div className="space-y-4">
-                {form.watch('productDetails')?.map((_, index) => (
+                {form.watch('productDetails')?.map((productId, index) => (
                   <div key={index} className="grid grid-cols-2 gap-4">
                     <Form.Field
                       control={form.control}
-                      name={`productDetails.${index}.categoryId`}
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
-                            CATEGORY
-                          </Form.Label>
-                          <Form.Control>
-                            <SelectCategory
-                              selected={field.value}
-                              onSelect={(value) => field.onChange(value)}
-                              disabled={isReadOnly}
-                              className="h-8"
-                            />
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-                    <Form.Field
-                      control={form.control}
-                      name={`productDetails.${index}.productId`}
+                      name={`productDetails.${index}`}
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
@@ -147,30 +133,6 @@ export default function ProductForm({
                               className="h-8"
                             />
                           </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-
-                    <Form.Field
-                      control={form.control}
-                      name={`productDetails.${index}.isRequired`}
-                      render={({ field }) => (
-                        <Form.Item>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              id={`required-${index}`}
-                              disabled={isReadOnly}
-                            />
-                            <Label
-                              htmlFor={`required-${index}`}
-                              className="text-sm text-gray-500"
-                            >
-                              Required
-                            </Label>
-                          </div>
                           <Form.Message />
                         </Form.Item>
                       )}
@@ -196,17 +158,11 @@ export default function ProductForm({
                   <div className="flex justify-end">
                     <Button
                       type="button"
-                      onClick={() =>
-                        addItem('productDetails', {
-                          productId: '',
-                          categoryId: '',
-                          isRequired: false,
-                        })
-                      }
+                      onClick={() => addItem('productDetails', '')}
                       className="text-white"
                     >
                       <IconPlus size={16} className="mr-1" />
-                      Add Product Detail
+                      Add Product
                     </Button>
                   </div>
                 )}
@@ -547,8 +503,6 @@ export default function ProductForm({
             />
           </section>
         </div>
-
-
       </form>
     </Form>
   );

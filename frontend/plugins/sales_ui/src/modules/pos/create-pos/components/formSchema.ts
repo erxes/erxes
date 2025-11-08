@@ -78,7 +78,7 @@ export const posDetailSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   adminIds: z.array(z.string()).min(1, 'At least one admin is required'),
   cashierIds: z.array(z.string()).min(1, 'At least one cashier is required'),
-  productDetails: z.array(productDetailSchema).default([]),
+  productDetails: z.array(z.string()).default([]),
   paymentIds: z.array(z.string()).default([]),
   paymentTypes: z.array(paymentTypeSchema).default([]),
   uiOptions: uiOptionsSchema.default({
@@ -150,7 +150,7 @@ const productGroupSchema = z.object({
 });
 
 export const productSchema = z.object({
-  productDetails: z.array(productDetailSchema).default([]),
+  productDetails: z.array(z.string()).default([]),
   catProdMappings: z.array(catProdMappingSchema).default([]),
   initialCategoryIds: z.array(z.string()).default([]),
   kioskExcludeCategoryIds: z.array(z.string()).default([]),

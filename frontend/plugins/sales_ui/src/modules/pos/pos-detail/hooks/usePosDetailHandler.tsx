@@ -102,6 +102,7 @@ export const useLocalPosDetailHandlers = ({
           kioskExcludeCategoryIds: data.kioskExcludeCategoryIds,
           kioskExcludeProductIds: data.kioskExcludeProductIds,
           checkExcludeCategoryIds: data.checkExcludeCategoryIds,
+          productGroups: data.productGroups,
         },
       },
       [
@@ -111,6 +112,7 @@ export const useLocalPosDetailHandlers = ({
         'kioskExcludeCategoryIds',
         'kioskExcludeProductIds',
         'checkExcludeCategoryIds',
+        'productGroups',
       ],
     );
   };
