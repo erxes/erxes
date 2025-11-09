@@ -6,7 +6,6 @@ import {
   IUser,
   Resolver,
 } from 'erxes-api-shared/core-types';
-import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
 
 export interface IUsersEdit extends IUser {
   channelIds?: string[];
@@ -31,7 +30,7 @@ export const userMutations: Record<string, Resolver> = {
       lastName?: string;
       subscribeEmail?: boolean;
     },
-    { models, __ }: IContext,
+    { models }: IContext,
   ) {
     const userCount = await models.Users.countDocuments();
 
@@ -140,14 +139,14 @@ export const userMutations: Record<string, Resolver> = {
       details,
       links,
       employeeId,
-      positionIds
+      positionIds,
     }: {
       username: string;
       email: string;
       details: IDetail;
       links: ILink;
       employeeId: string;
-      positionIds: string[]
+      positionIds: string[];
     },
     { user, models }: IContext,
   ) {
@@ -160,7 +159,7 @@ export const userMutations: Record<string, Resolver> = {
       },
       links,
       employeeId,
-      positionIds
+      positionIds,
     };
 
     const updatedUser = await models.Users.editProfile(user._id, doc);
@@ -305,6 +304,19 @@ export const userMutations: Record<string, Resolver> = {
     }
 
     return await models.Users.updateUser(_id, { chatStatus: status });
+  },
+
+  async usersSetOnboardingDone(
+    _parent: undefined,
+    _params: undefined,
+    { user, models: { Users } }: IContext,
+  ) {
+    return await Users.updateOne(
+      { _id: user._id },
+      {
+        $set: { onboardingDone: true },
+      },
+    );
   },
   /*
    * Upgrade organization plan status

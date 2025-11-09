@@ -2,13 +2,13 @@ import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 
 import { CoreTRPCContext } from '~/init-trpc';
+import { fieldsCombinedByContentType } from '~/modules/forms/utils';
 import {
   generateContactsFields,
   generateFieldsUsers,
   generateFormFields,
   generateProductsFields,
 } from '../fields/utils';
-import { fieldsCombinedByContentType } from '~/modules/forms/utils';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
@@ -41,26 +41,6 @@ export const fieldsTrpcRouter = t.router({
         return await models.Customers.updateMany(selector, modifier);
       }),
 
-    generateTypedItem: t.procedure
-      .input(
-        z.object({
-          field: z.string(),
-          value: z.string(),
-          type: z.string(),
-          validation: z.string(),
-        }),
-      )
-      .query(async ({ ctx, input }) => {
-        const { models } = ctx;
-        const { field, validation, value, type } = input;
-
-        return await models.Fields.generateTypedItem(
-          field,
-          value,
-          type,
-          validation,
-        );
-      }),
     getFieldList: t.procedure
       .input(
         z.object({
@@ -92,29 +72,6 @@ export const fieldsTrpcRouter = t.router({
           default:
             return generateFieldsUsers({ subdomain, data: input });
         }
-      }),
-    prepareCustomFieldsData: t.procedure
-      .input(
-        z.array(
-          z.object({
-            field: z.string(),
-            value: z.any(),
-            extraValue: z.string().optional(),
-          }),
-        ),
-      )
-
-      .query(async ({ ctx, input }) => {
-        const { models } = ctx;
-        return await models.Fields.prepareCustomFieldsData(
-          input.map((item) => {
-            return {
-              field: item.field,
-              value: item.value ?? '',
-              extraValue: item.extraValue,
-            };
-          }),
-        );
       }),
     fieldsCombinedByContentType: t.procedure
       .input(

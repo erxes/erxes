@@ -19,6 +19,7 @@ import { segmentMutations } from '@/segments/graphql/resolvers/mutations';
 import { tagMutations } from '@/tags/graphql/mutations';
 import { notificationMutations } from '~/modules/notifications/graphql/resolver/mutations';
 import { roleMutations } from '~/modules/permissions/graphql/resolvers/mutations/role';
+import { propertiesMutations } from '~/modules/properties/graphql/resolvers/mutations';
 
 export const mutations = {
   ...contactMutations,
@@ -42,4 +43,5 @@ export const mutations = {
   ...notificationMutations,
   ...internalNoteMutations,
   ...roleMutations,
+  ...propertiesMutations,
 };

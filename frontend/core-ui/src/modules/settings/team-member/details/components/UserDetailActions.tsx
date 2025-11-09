@@ -37,7 +37,8 @@ export const UserDetailActions = () => {
               title={item.name}
             >
               <RelationWidget
-                module={item}
+                module={item.name}
+                pluginName={item.pluginName}
                 contentId={userId || ''}
                 contentType="core:user"
               />

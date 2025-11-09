@@ -83,7 +83,7 @@ export const loadCompanyClass = (models: IModels) => {
       this.fixListFields(doc, doc.trackedData);
 
       if (doc.customFieldsData) {
-        doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
+        doc.customFieldsData = await models.Fields.validateFieldValues(
           doc.customFieldsData,
         );
       }
@@ -111,7 +111,7 @@ export const loadCompanyClass = (models: IModels) => {
 
       // clean custom field values
       if (doc.customFieldsData) {
-        doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
+        doc.customFieldsData = await models.Fields.validateFieldValues(
           doc.customFieldsData,
         );
       }

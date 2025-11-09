@@ -22,6 +22,7 @@ import {
   IconUsersGroup,
 } from '@tabler/icons-react';
 import { MembersInline } from 'ui-modules';
+import { ActivityConvertToProject } from '@/activity/components/ActivityConvert';
 
 export const ActivityItem = ({ activity }: { activity: IActivity }) => {
   const { metadata, action } = activity;
@@ -51,6 +52,8 @@ export const ActivityItem = ({ activity }: { activity: IActivity }) => {
       return <ActivityCycle metadata={metadata} action={action} />;
     case ACTIVITY_MODULES.MILESTONE:
       return <ActivityMilestone metadata={metadata} action={action} />;
+    case ACTIVITY_MODULES.CONVERT:
+      return <ActivityConvertToProject metadata={metadata} action={action} />;
     default:
       return <div>Unknown module</div>;
   }

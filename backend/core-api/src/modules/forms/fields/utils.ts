@@ -14,7 +14,7 @@ export const getFormFields = async (models: IModels, formId: string) => {
     contentType: 'form',
     isDefinedByErxes: false,
     contentTypeId: formId,
-  });
+  }).lean();
 };
 
 const generateBrandsOptions = async (
@@ -209,7 +209,7 @@ export const generateFormFields = async ({ subdomain, data }) => {
     group?: string;
     label?: string;
     type?: string;
-    validation?: string;
+    validations?: string[];
     options?: string[];
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
@@ -221,11 +221,11 @@ export const generateFormFields = async ({ subdomain, data }) => {
     for (const formField of formFieldsValues) {
       fields.push({
         _id: Math.random(),
-        name: formField._id,
+        name: formField._id.toString(),
         group: form ? form.title : 'Fields',
-        label: formField.text,
+        label: formField.name,
         options: formField.options,
-        validation: formField.validation,
+        validations: formField.validations,
         type: formField.type,
       });
     }

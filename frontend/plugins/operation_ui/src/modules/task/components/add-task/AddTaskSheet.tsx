@@ -49,15 +49,3 @@ export const AddTaskSheet = () => {
     </Sheet>
   );
 };
-
-export const AddTaskSheetHeader = () => {
-  return (
-    <Sheet.Header className="p-5">
-      <Sheet.Title>Add task</Sheet.Title>
-      <Sheet.Description className="sr-only">
-        Add a new task to your organization.
-      </Sheet.Description>
-      <Sheet.Close />
-    </Sheet.Header>
-  );
-};

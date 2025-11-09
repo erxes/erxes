@@ -157,6 +157,12 @@ import {
   types as RoleTypes,
 } from '@/permissions/graphql/schemas/role';
 
+import {
+  mutations as PropertiesMutations,
+  queries as PropertiesQueries,
+  types as PropertiesTypes,
+} from '@/properties/graphql/schemas';
+
 export const types = `
     enum CacheControlScope {
       PUBLIC
@@ -198,6 +204,7 @@ export const types = `
     ${NotificationsTypes}
     ${InternalNoteTypes}
     ${RoleTypes}
+    ${PropertiesTypes}
   `;
 
 export const queries = `
@@ -225,9 +232,10 @@ export const queries = `
     ${DocumentQueries}
     ${AutomationsQueries}
     ${LogsQueries}
-     ${NotificationsQueries}
+    ${NotificationsQueries}
     ${InternalNoteQueries}
     ${RoleQueries}
+    ${PropertiesQueries}
   `;
 
 export const mutations = `
@@ -257,6 +265,7 @@ export const mutations = `
     ${NotificationsMutations}
     ${InternalNoteMutations}
     ${RoleMutations}
+    ${PropertiesMutations}
   `;
 
 export default { types, queries, mutations };

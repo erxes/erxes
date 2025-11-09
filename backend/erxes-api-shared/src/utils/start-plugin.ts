@@ -2,6 +2,7 @@ import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { buildSubgraphSchema } from '@apollo/subgraph';
+import * as trpcExpress from '@trpc/server/adapters/express';
 import * as dotenv from 'dotenv';
 
 import cookieParser from 'cookie-parser';
@@ -17,7 +18,6 @@ import { DocumentNode, GraphQLScalarType } from 'graphql';
 import * as http from 'http';
 import * as path from 'path';
 
-import { startPayments } from '../common-modules/payment/worker';
 import {
   SegmentConfigs,
   startAutomations,
@@ -34,8 +34,9 @@ import {
   joinErxesGateway,
   leaveErxesGateway,
 } from './service-discovery';
+import { createTRPCContext } from './trpc';
 import { getSubdomain } from './utils';
-import { TRPCContext, TRPCSecurityConfig, setupTRPCRoute } from './trpc';
+import { startPayments } from '../common-modules/payment/worker';
 
 dotenv.config();
 
@@ -86,8 +87,7 @@ type ConfigTypes = {
     createContext: <TContext>(
       subdomain: string,
       context: any,
-    ) => Promise<TContext & TRPCContext>;
-    securityConfig?: TRPCSecurityConfig;
+    ) => Promise<TContext>;
   };
   meta?: IMeta;
 };
@@ -168,13 +168,13 @@ export async function startPlugin(
   }
 
   if (configs.trpcAppRouter) {
-    const { router, createContext, securityConfig } = configs.trpcAppRouter;
-    // Setup tRPC route with security middleware
-    setupTRPCRoute(app, {
-      router,
-      createContext,
-      securityConfig,
-    });
+    app.use(
+      '/trpc',
+      trpcExpress.createExpressMiddleware({
+        router: configs.trpcAppRouter.router,
+        createContext: createTRPCContext(configs.trpcAppRouter.createContext),
+      }),
+    );
   }
 
   app.use((req: any, _res, next) => {

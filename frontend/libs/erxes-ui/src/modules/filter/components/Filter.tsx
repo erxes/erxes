@@ -122,7 +122,12 @@ const FilterPopover = ({
     } else {
       goBackToPreviousHotkeyScope();
     }
-  }, [open]);
+  }, [
+    goBackToPreviousHotkeyScope,
+    open,
+    scope,
+    setHotkeyScopeAndMemorizePreviousScope,
+  ]);
 
   return (
     <Popover
@@ -477,15 +482,13 @@ const FilterSearchValueBarItem = () => {
 
   return (
     <Filter.BarItem queryKey="searchValue">
-      <Filter.BarItem>
-        <Filter.BarName>
-          <IconSearch />
-          Search
-        </Filter.BarName>
-        <Filter.BarButton filterKey="searchValue" inDialog>
-          {searchValue}
-        </Filter.BarButton>
-      </Filter.BarItem>
+      <Filter.BarName>
+        <IconSearch />
+        Search
+      </Filter.BarName>
+      <Filter.BarButton filterKey="searchValue" inDialog>
+        {searchValue}
+      </Filter.BarButton>
     </Filter.BarItem>
   );
 };
