@@ -4,7 +4,10 @@ import {
   DEALS_CHANGE,
   EDIT_DEALS,
   REMOVE_DEALS,
+  DEALS_COPY,
+  DEALS_WATCH,
 } from '@/deals/graphql/mutations/DealsMutations';
+import { gql } from 'graphql-tag';
 import {
   EnumCursorDirection,
   ICursorListResponse,
@@ -17,6 +20,7 @@ import {
   GET_DEALS,
   GET_DEAL_DETAIL,
 } from '@/deals/graphql/queries/DealsQueries';
+
 import {
   MutationHookOptions,
   QueryHookOptions,
@@ -38,6 +42,163 @@ interface IDealChanged {
     deal: IDeal;
   };
 }
+
+interface UseDealsCopyOptions {
+  onCompleted?: (data: any) => void;
+  onError?: (error: any) => void;
+  refetchQueries?: string[];
+}
+
+interface UseDealsWatchOptions {
+  onCompleted?: (data: any) => void;
+  onError?: (error: any) => void;
+}
+
+export const useDealsWatch = (options?: UseDealsWatchOptions) => {
+  const [dealsWatch, { data, loading, error }] = useMutation(DEALS_WATCH, {
+    onCompleted: (data) => {
+      options?.onCompleted?.(data);
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Watch operation failed',
+        variant: 'destructive',
+      });
+      options?.onError?.(error);
+    },
+  });
+
+  const watchDeal = async (dealId: string, isAdd: boolean) => {
+    const result = await dealsWatch({
+      onCompleted: (data) => {
+        toast({
+          title: isAdd ? ' Watched' : 'Unwatched',
+          variant: 'default',
+        });
+        options?.onCompleted?.(data);
+      },
+      variables: {
+        _id: dealId,
+        isAdd,
+      },
+      optimisticResponse: {
+        dealsWatch: {
+          _id: dealId,
+          isWatched: isAdd,
+          __typename: 'Deal',
+        },
+      },
+      update: (cache, { data: mutationData }) => {
+        if (mutationData?.dealsWatch) {
+          cache.modify({
+            id: cache.identify({ __typename: 'Deal', _id: dealId }),
+            fields: {
+              isWatched() {
+                return mutationData.dealsWatch.isWatched;
+              },
+            },
+          });
+        }
+      },
+    });
+    return result;
+  };
+
+  return {
+    watchDeal,
+    data,
+    loading,
+    error,
+  };
+};
+
+export const useDealsCopy = (options?: UseDealsCopyOptions) => {
+  const [dealsCopy, { data, loading, error }] = useMutation(DEALS_COPY, {
+    onCompleted: (data) => {
+      toast({
+        title: 'Successfully copied deal',
+        variant: 'default',
+      });
+      options?.onCompleted?.(data);
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Copy failed',
+        variant: 'destructive',
+      });
+      options?.onError?.(error);
+    },
+    refetchQueries: options?.refetchQueries || ['deals', 'dealDetail'],
+    awaitRefetchQueries: false,
+    errorPolicy: 'all',
+    update: (cache, { data: mutationData }) => {
+      if (!mutationData?.dealsCopy) return;
+      try {
+        cache.modify({
+          fields: {
+            deals(existing) {
+              if (!existing || !existing.list) return existing;
+              const newDealRef = cache.writeFragment({
+                data: mutationData.dealsCopy,
+                fragment: gql`
+                  fragment NewDeal on Deal {
+                    _id
+                    name
+                    stageId
+                  }
+                `,
+              });
+              const existingList = existing.list as any[];
+              const exists = existingList.some((ref) => {
+                return (
+                  (cache as any).readField('_id', ref) ===
+                  mutationData.dealsCopy._id
+                );
+              });
+              if (exists) return existing;
+              return {
+                ...existing,
+                list: [newDealRef, ...existingList],
+                totalCount: (existing.totalCount ?? 0) + 1,
+              };
+            },
+          },
+        });
+      } catch (e) {
+        console.error('Cache update error:', e);
+      }
+    },
+  });
+
+  const copyDeal = async (dealId: string, processId?: string) => {
+    const result = await dealsCopy({
+      variables: {
+        _id: dealId,
+        processId,
+      },
+    });
+
+    if (result?.data?.dealsCopy) {
+      return result;
+    }
+
+    // Check for GraphQL errors
+    if (result?.errors?.[0]) {
+      throw result.errors[0];
+    }
+
+    return result;
+  };
+
+  return {
+    copyDeal,
+    data,
+    loading,
+    error,
+  };
+};
 
 export const useDeals = (
   options?: QueryHookOptions<ICursorListResponse<IDeal>>,

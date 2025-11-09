@@ -176,7 +176,14 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
   const [dealCountByBoard, setDealCountByBoard] = useAtom(dealCountByBoardAtom);
   const [searchParams] = useSearchParams();
 
-  const ignoredKeys = ['boardId', 'pipelineId', 'salesItemId', 'tab'];
+  const ignoredKeys = [
+    'boardId',
+    'pipelineId',
+    'salesItemId',
+    'tab',
+    'archivedOnly',
+    'noSkipArchive',
+  ];
 
   const queryVariables: Record<string, any> = {};
 
@@ -191,6 +198,8 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
     }
   }
 
+  const archivedOnly = searchParams.get('archivedOnly') === 'true';
+
   const boardCards = dealCards.filter((deal) => deal.column === column.id);
 
   const { deals, totalCount, loading, handleFetchMore } = useDeals({
@@ -198,28 +207,29 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
       stageId: column.id,
       pipelineId,
       ...queryVariables,
+      ...(archivedOnly ? { noSkipArchive: true } : {}),
     },
   });
 
   const setAllDealsMap = useSetAtom(allDealsMapState);
 
   useEffect(() => {
-    if (deals && deals.length !== 0) {
+    const sourceDeals = archivedOnly
+      ? (deals || []).filter((d) => d.status === 'archived')
+      : (deals || []).filter((d) => d.status !== 'archived');
+
+    if (sourceDeals && sourceDeals.length !== 0) {
       setDealCards((prev) => {
-        const previousDeals = prev.filter(
-          (deal) => !deals.some((t) => t._id === deal.id),
-        );
+        // Remove all existing items for this column to prevent mixing states
+        const withoutThisColumn = prev.filter((d) => d.column !== column.id);
 
         return [
-          ...previousDeals,
-          ...deals.map((deal) => ({
-            id: deal._id,
-            column: deal.stageId,
-          })),
+          ...withoutThisColumn,
+          ...sourceDeals.map((deal) => ({ id: deal._id, column: deal.stageId })),
         ];
       });
       setAllDealsMap((prev) => {
-        const newDeals = deals.reduce((acc, deal) => {
+        const newDeals = (sourceDeals || []).reduce((acc, deal) => {
           acc[deal._id] = deal;
           return acc;
         }, {} as Record<string, IDeal>);
@@ -228,7 +238,7 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
     } else {
       setDealCards((prev) => prev.filter((d) => d.column !== column.id));
     }
-  }, [deals, setDealCards, setAllDealsMap, column.id]);
+  }, [deals, archivedOnly, setDealCards, setAllDealsMap, column.id]);
 
   useEffect(() => {
     if (totalCount) {
