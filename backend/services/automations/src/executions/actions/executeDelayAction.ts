@@ -1,11 +1,13 @@
+import { setExecutionWaitAction } from '@/bullmq/actions/setWait';
+import { generateModels } from '@/connectionResolver';
 import { TDelayActionConfig } from '@/types';
 import {
   AUTOMATION_EXECUTION_STATUS,
+  EXECUTE_WAIT_TYPES,
   IAutomationAction,
   IAutomationExecAction,
   IAutomationExecutionDocument,
 } from 'erxes-api-shared/core-modules';
-import { sendWorkerQueue } from 'erxes-api-shared/utils';
 
 export const executeDelayAction = async (
   subdomain: string,
@@ -13,6 +15,7 @@ export const executeDelayAction = async (
   action: IAutomationAction<TDelayActionConfig>,
   execAction: IAutomationExecAction,
 ) => {
+  const models = await generateModels(subdomain);
   execution.waitingActionId = action.id;
   execution.startWaitingDate = new Date();
   execution.status = AUTOMATION_EXECUTION_STATUS.WAITING;
@@ -20,15 +23,21 @@ export const executeDelayAction = async (
 
   const { value, type } = action?.config || {};
 
-  sendWorkerQueue('automations', 'action').add('wait', {
-    subdomain,
-    data: {
-      automationId: execution.automationId,
-      executionId: execution._id,
-      actionId: action.id,
-      startWaitingDate: new Date(),
-      waitFor: value,
+  if (!type || !['minute', 'hour', 'day', 'month', 'year'].includes(type)) {
+    throw new Error('Invalid time unit for delay action');
+  }
+
+  await setExecutionWaitAction(models, {
+    automationId: execution.automationId,
+    executionId: execution._id,
+    currentActionId: action.id,
+    responseActionId: action?.nextActionId,
+    condition: {
+      type: EXECUTE_WAIT_TYPES.DELAY,
+      subdomain,
+      waitFor: Number(value),
       timeUnit: type,
+      startWaitingDate: new Date(),
     },
   });
 

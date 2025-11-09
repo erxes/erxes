@@ -11,37 +11,27 @@ export const usePlaceHolderInput = ({
   enableAll = false,
   ref,
   onChangeInputMode,
-  selectionMode,
-  selectionPolicy,
   selectionType,
-  forcedSuggestionType,
+  suggestionsOptions,
   value = '',
   onChange,
   extraSuggestionConfigs = [],
-  customRenderers,
 }: UsePlaceHolderInputProps) => {
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
   const [inputVariant, setInputVariant] = useState<'expression' | 'fixed'>(
     variant,
   );
 
-  const {
-    suggestionConfigs,
-    suggestionTriggerTypesMap,
-    suggestionTypeToTitlesMap,
-    suggestionTypeToFormatsMap,
-    suggestionTypeToRenderersMap,
-  } = useSuggestionMaps(extraSuggestionConfigs);
+  const { enabledTypes } = usePlaceholderEnabledTypes({
+    enabled,
+    suggestionGroups,
+    enableAll,
+    extraSuggestionConfigs,
+  });
 
-  const { enabledTypes, enabledSuggestionsConfigMap } =
-    usePlaceholderEnabledTypes({
-      enabled,
-      suggestionGroups,
-      enableAll,
-      customRenderers,
-    });
+  const { suggestions, suggestionTypeMap, suggestionTypeByTriggerMap } =
+    useSuggestionMaps(enabledTypes, extraSuggestionConfigs, suggestionsOptions);
   const {
-    isSelectionOnlyMode,
     isSelectionPopoverOpen,
     setIsSelectionPopoverOpen,
     handleInputFocus,
@@ -49,8 +39,6 @@ export const usePlaceHolderInput = ({
     handleSelectionOnlyKeyPress,
     suggestionPopoverRef,
   } = useSelectionOnlyHandlers({
-    selectionMode,
-    selectionPolicy,
     value,
     onChange,
   });
@@ -80,7 +68,6 @@ export const usePlaceHolderInput = ({
   };
 
   const handleInputValueChange = (next: string) => {
-    if (isSelectionOnlyMode) return;
     onChange && onChange(next);
   };
 
@@ -88,27 +75,20 @@ export const usePlaceHolderInput = ({
     inputRef,
     inputVariant,
     enabledTypes,
-    suggestionConfigs,
-    suggestionTriggerTypesMap,
-    suggestionTypeToTitlesMap,
-    suggestionTypeToFormatsMap,
-    suggestionTypeToRenderersMap,
-    enabledSuggestionsConfigMap,
-    customRenderers,
-    isSelectionOnlyMode,
+    suggestions,
+
     isSelectionPopoverOpen,
     setIsSelectionPopoverOpen,
     setInputVariant,
     setInputRef,
     handleInputModeChange,
-    // selection-only api
-    selectionMode,
-    selectionPolicy,
-    selectionType: forcedSuggestionType || selectionType,
+    selectionType,
     handleInputValueChange,
     handleInputFocus,
     handleInputBlur,
     handleSelectionOnlyKeyPress,
     suggestionPopoverRef,
+    suggestionTypeMap,
+    suggestionTypeByTriggerMap,
   };
 };

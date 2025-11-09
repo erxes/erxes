@@ -70,13 +70,11 @@ export default {
     bots: [...facebookConstants.bots],
   },
 
-  receiveActions: async (
-    { subdomain },
-    {
+  receiveActions: async ({ subdomain, data }) => {
+    const {
       moduleName,
       ...args
-    }: { moduleName: string } & IAutomationReceiveActionData,
-  ) => {
+    }: { moduleName: string } & IAutomationReceiveActionData = data;
     const models = await generateModels(subdomain);
     const context = { models, subdomain };
 
@@ -86,10 +84,9 @@ export default {
     );
   },
 
-  checkCustomTrigger: async (
-    { subdomain },
-    { moduleName, ...props }: { moduleName: string } & ICheckTriggerData,
-  ) => {
+  checkCustomTrigger: async ({ subdomain, data }) => {
+    const { moduleName, ...props }: { moduleName: string } & ICheckTriggerData =
+      data;
     const models = await generateModels(subdomain);
     const context = { models, subdomain };
 

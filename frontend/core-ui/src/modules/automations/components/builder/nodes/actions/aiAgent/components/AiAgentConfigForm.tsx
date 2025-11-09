@@ -7,7 +7,7 @@ import {
 } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { useAiAgents } from '@/automations/components/settings/components/agents/hooks/useAiAgents';
-import { useFormValidationErrorHandler } from '@/automations/hooks/useFormValidationErrorHandler';
+import { useFormValidationErrorHandler } from 'ui-modules';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Command, Form, Select, Textarea } from 'erxes-ui';

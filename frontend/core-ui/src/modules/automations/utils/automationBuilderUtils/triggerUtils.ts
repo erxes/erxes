@@ -1,5 +1,9 @@
 import { toast } from 'erxes-ui';
-import { TAutomationAction, TAutomationTrigger } from 'ui-modules';
+import {
+  IAutomationsActionFolkConfig,
+  TAutomationAction,
+  TAutomationTrigger,
+} from 'ui-modules';
 
 /**
  * Finds the trigger type associated with a given action by walking backward
@@ -15,27 +19,78 @@ export const getTriggerOfAction = (
   currentActionId: string,
   actions: TAutomationAction[],
   triggers: TAutomationTrigger[],
+  actionFolks: Record<string, IAutomationsActionFolkConfig[]>,
 ) => {
   if (!currentActionId) {
     return undefined;
   }
-  // Build a map of nextActionId → actionId
-  const reverseMap = new Map<string, string>();
 
-  for (const { id, nextActionId } of actions) {
-    if (nextActionId) {
-      reverseMap.set(nextActionId, id);
+  // Create a set of all valid action IDs for validation
+  const actionIdSet = new Set(actions.map((a) => a.id));
+
+  // Build a map of actionId → parent actionIds (multiple parents possible)
+  const reverseMap = new Map<string, string[]>();
+
+  for (const { id, nextActionId, type, config } of actions) {
+    // Handle folks connections
+    const folks = (actionFolks || {})[type] || [];
+    for (const folk of folks) {
+      const folkActionId = (config || {})[folk.key];
+      // Validate that folkActionId is actually a valid action ID
+      if (folkActionId && actionIdSet.has(folkActionId)) {
+        const parents = reverseMap.get(folkActionId) || [];
+        if (!parents.includes(id)) {
+          reverseMap.set(folkActionId, [...parents, id]);
+        }
+      }
+    }
+
+    // Handle optionalConnects
+    if (config?.optionalConnects?.length) {
+      for (const connect of config.optionalConnects) {
+        if (connect.actionId && actionIdSet.has(connect.actionId)) {
+          const parents = reverseMap.get(connect.actionId) || [];
+          if (!parents.includes(id)) {
+            reverseMap.set(connect.actionId, [...parents, id]);
+          }
+        }
+      }
+    }
+
+    // Handle nextActionId (main flow)
+    if (nextActionId && actionIdSet.has(nextActionId)) {
+      const parents = reverseMap.get(nextActionId) || [];
+      if (!parents.includes(id)) {
+        reverseMap.set(nextActionId, [...parents, id]);
+      }
     }
   }
 
-  let cursor = currentActionId;
+  // Use BFS to walk backward through all possible paths
+  const visited = new Set<string>();
+  const queue: string[] = [currentActionId];
 
-  // Walk backward
-  while (cursor) {
-    const trigger = triggers.find((t) => t.actionId === cursor);
-    if (trigger) return trigger;
+  while (queue.length > 0) {
+    const currentId = queue.shift()!;
 
-    cursor = reverseMap.get(cursor) ?? '';
+    if (visited.has(currentId)) {
+      continue;
+    }
+    visited.add(currentId);
+
+    // Check if current node is a trigger
+    const trigger = triggers.find((t) => t.actionId === currentId);
+    if (trigger) {
+      return trigger;
+    }
+
+    // Add all parent actions to the queue
+    const parents = reverseMap.get(currentId) || [];
+    for (const parentId of parents) {
+      if (!visited.has(parentId)) {
+        queue.push(parentId);
+      }
+    }
   }
 
   return undefined;

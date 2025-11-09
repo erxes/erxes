@@ -1,20 +1,27 @@
-import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/types/automationSendEmail';
-import { MetaFieldLine } from '@/automations/components/builder/nodes/components/MetaFieldLine';
+import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
+import { AutomationNodeMetaInfoRow } from 'ui-modules';
 import { NodeContentComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
-import { generateSendEmailRecipientMails } from '@/automations/utils/automationBuilderUtils/emailUtils';
 import { IconEye } from '@tabler/icons-react';
-import { Badge, Button, Label, Popover } from 'erxes-ui';
-import { useMemo } from 'react';
+import { Button, Label, Popover } from 'erxes-ui';
 
 export const SendEmailNodeContent = ({
   config,
 }: NodeContentComponentProps<TAutomationSendEmailConfig>) => {
-  const { fromUserId, subject } = config || {};
+  const {
+    fromEmailPlaceHolder,
+    toEmailsPlaceHolders,
+    ccEmailsPlaceHolders,
+    subject,
+    type,
+  } = config || {};
 
   return (
     <>
-      <MetaFieldLine fieldName="From" content={fromUserId} />
-      <MetaFieldLine
+      <AutomationNodeMetaInfoRow
+        fieldName="From"
+        content={type === 'default' ? 'COMPANY EMAIL' : fromEmailPlaceHolder}
+      />
+      <AutomationNodeMetaInfoRow
         fieldName="Reciepents"
         content={
           <Popover>
@@ -26,31 +33,21 @@ export const SendEmailNodeContent = ({
             </Popover.Trigger>
             <Popover.Content>
               <Label>Recipient emails</Label>
-              <ReciepentEmails config={config} />
+              <AutomationNodeMetaInfoRow
+                fieldName="To"
+                content={toEmailsPlaceHolders}
+              />
+              {ccEmailsPlaceHolders && (
+                <AutomationNodeMetaInfoRow
+                  fieldName="CC"
+                  content={ccEmailsPlaceHolders}
+                />
+              )}
             </Popover.Content>
           </Popover>
         }
       />
-      <MetaFieldLine fieldName="Subject" content={subject} />
-      <MetaFieldLine fieldName="Template" content={`Under develop`} />
+      <AutomationNodeMetaInfoRow fieldName="Subject" content={subject} />
     </>
-  );
-};
-const ReciepentEmails = ({
-  config,
-}: {
-  config: TAutomationSendEmailConfig;
-}) => {
-  const mails = useMemo(
-    () => generateSendEmailRecipientMails(config),
-    [config],
-  );
-
-  return (
-    <div>
-      {mails.map((mail, index) => (
-        <Badge key={index}>{mail}</Badge>
-      ))}
-    </div>
   );
 };

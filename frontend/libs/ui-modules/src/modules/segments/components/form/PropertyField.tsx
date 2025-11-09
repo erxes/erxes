@@ -8,18 +8,16 @@ import { FieldWithError } from '../FieldWithError';
 export const PropertyField = ({
   fields,
   parentFieldName,
-  defaultValue,
   propertyTypes,
 }: IPropertyField) => {
   const { form, contentType } = useSegment();
   const { control } = form;
-  const groups = groupFieldsByType(fields);
+  const fieldsGroupsMap = groupFieldsByType(fields);
   return (
     <div className="flex flex-row w-full">
       <Form.Field
         control={control}
         name={`${parentFieldName}.propertyType`}
-        defaultValue={contentType || undefined}
         render={({ field, fieldState }) => (
           <FieldWithError error={fieldState.error}>
             <Select
@@ -45,7 +43,6 @@ export const PropertyField = ({
       <Form.Field
         control={control}
         name={`${parentFieldName}.propertyName`}
-        defaultValue={defaultValue}
         render={({ field, fieldState }) => (
           <FieldWithError error={fieldState.error}>
             <Select
@@ -56,9 +53,9 @@ export const PropertyField = ({
                 <Select.Value placeholder="Select an field" />
               </Select.Trigger>
               <Select.Content>
-                {Object.keys(groups).map((key, index) => {
+                {Object.keys(fieldsGroupsMap).map((key, index) => {
                   let groupName = key;
-                  const groupDetail = (groups[key] || []).find(
+                  const groupDetail = (fieldsGroupsMap[key] || []).find(
                     ({ group }: any) => group === key,
                   )?.groupDetail;
 
@@ -69,7 +66,7 @@ export const PropertyField = ({
                     <div key={index}>
                       <Select.Group>
                         <Select.Label>{groupName}</Select.Label>
-                        {groups[key].map(
+                        {fieldsGroupsMap[key].map(
                           ({ name, label }: any, index: number) => (
                             <Select.Item key={index} value={name}>
                               {label}

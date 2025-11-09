@@ -22,10 +22,10 @@ const getItems = async (
   subdomain: string,
   module: string,
   execution: any,
-  triggerType: string,
+  targetType: string,
 ) => {
   const { target } = execution;
-  if (module === triggerType) {
+  if (module === targetType) {
     return [target];
   }
   return [];
@@ -43,7 +43,7 @@ export const facebookAutomationWorkers = {
       execution,
       actionType,
       collectionType,
-      triggerType,
+      targetType,
     }: IAutomationReceiveActionData,
   ) => {
     if (actionType === 'create') {
@@ -74,7 +74,7 @@ export const facebookAutomationWorkers = {
         subdomain,
         module,
         execution,
-        triggerType,
+        targetType,
       );
       return {
         result: await setProperty({
@@ -85,7 +85,7 @@ export const facebookAutomationWorkers = {
           rules,
           execution,
           relatedItems,
-          triggerType,
+          targetType,
         }),
       };
     }

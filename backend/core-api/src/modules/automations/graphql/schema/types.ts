@@ -19,6 +19,7 @@ const commonTriggerTypes = `
 const commonActionTypes = `
   ${commonNodeTypes}
   nextActionId: String
+  targetActionId: String
 `;
 
 const workflowTypes = `

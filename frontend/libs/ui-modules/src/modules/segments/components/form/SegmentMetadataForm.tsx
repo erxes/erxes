@@ -3,17 +3,8 @@ import { Form, Input, Textarea } from 'erxes-ui';
 import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
 import { SelectSegment } from '../SelectSegment';
 
-interface SegmentMetadataFormProps {
-  isTemporary?: boolean;
-}
-export const SegmentMetadataForm = ({
-  isTemporary,
-}: SegmentMetadataFormProps) => {
+export const SegmentMetadataForm = () => {
   const { segment, form } = useSegment();
-
-  if (isTemporary) {
-    return null;
-  }
 
   return (
     <div className="space-y-4 pb-4">

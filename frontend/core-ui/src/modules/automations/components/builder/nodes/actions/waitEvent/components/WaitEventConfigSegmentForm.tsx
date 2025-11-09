@@ -4,7 +4,8 @@ import { TAutomationActionConfigFieldPrefix } from '@/automations/components/bui
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { Form } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
-import { SegmentForm, TAutomationAction } from 'ui-modules';
+import { TAutomationAction } from 'ui-modules';
+import { AutomationSegmentForm } from '@/automations/components/common/AutomationSegmentForm';
 
 export function WaitEventConfigSegmentForm({
   targetType,
@@ -24,10 +25,9 @@ export function WaitEventConfigSegmentForm({
     action,
     selectedNodeId,
   );
-
   if (!contentType) {
     return (
-      <Form.Item className="flex-1">
+      <Form.Item className="flex-1 px-4">
         <Form.Label>Conditions</Form.Label>
         <div className="text-muted-foreground text-sm">
           Select a target to configure conditions
@@ -43,17 +43,16 @@ export function WaitEventConfigSegmentForm({
         control={control}
         render={({ field }) => (
           <Form.Item className="flex-1 min-h-0 flex flex-col px-4">
-            <Form.Label>Conditions</Form.Label>
+            <Form.Label>Conditions {`(${field.value})`}</Form.Label>
             <Form.Description>
               Define conditions that must be met before continuing.
             </Form.Description>
             <Form.Message />
-            <div className="flex-1 min-h-0">
-              <SegmentForm
+            <div className="flex-1 min-h-0 w-[650px]">
+              <AutomationSegmentForm
                 contentType={contentType}
                 segmentId={field.value}
                 callback={field.onChange}
-                isTemporary
               />
             </div>
           </Form.Item>

@@ -42,7 +42,6 @@ export const customerRouter = t.router({
       if (query?._id) {
         defaultFilter['_id'] = query._id;
       }
-      console.log(defaultFilter, 'defaultFilter');
       return models.Customers.findOne(defaultFilter).lean();
     }),
 

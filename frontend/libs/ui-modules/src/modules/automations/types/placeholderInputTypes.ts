@@ -21,32 +21,14 @@ export interface SuggestionConfig {
   trigger: string;
   title: string;
   // Returns the final string to insert when an item with `value` is selected
-  formatSelection: (value: string) => string;
   // Controls how the popover renders for this type
-  renderer?: 'command' | 'custom';
+  mode?: 'command' | 'custom';
+  render?: (props: CustomRendererProps) => React.ReactNode;
+  options?: SuggestionsOption;
 }
 
 // Dynamic enabling config
-export interface EnabledSuggestions
-  extends Partial<
-    Record<
-      string,
-      | boolean
-      | {
-          enabled: boolean;
-          selectFieldName?: string;
-          formatSelection?: (value: string) => string;
-          options?: { label: string; value: string }[];
-        }
-    >
-  > {}
-
-export type EnabledSuggestionValue = EnabledSuggestions[string];
-
-export type EnabledSuggestionObject = Extract<
-  EnabledSuggestionValue,
-  { enabled: boolean }
->;
+export interface EnabledSuggestions extends Partial<Record<string, boolean>> {}
 
 type CustomRendererProps = {
   searchValue: string;
@@ -54,32 +36,45 @@ type CustomRendererProps = {
   selectField: string;
 };
 
+export type SuggestionsOption = {
+  selectFieldName?: string;
+  formatSelection?: (value: string) => string;
+  options?: { label: string; value: string }[];
+  attributeTypes?: string[];
+  additionalAttributes?: any[];
+  attributesConfig?: any;
+};
+
 export type PlaceholderInputProps = {
   propertyType?: string;
   value?: string;
   onChange: (value: string) => void;
   isDisabled?: boolean;
-  selectedField?: any;
-  additionalAttributes?: any[];
   // Dynamic enablement API (preferred)
   variant?: 'fixed' | 'expression';
   enabled?: EnabledSuggestions;
   suggestionGroups?: string[];
+  suggestionsOptions?: Partial<Record<string, SuggestionsOption>>;
   enableAll?: boolean;
   onChangeInputMode?: (mode: 'expression' | 'fixed') => void;
-  // New controls
-  hideModeToggle?: boolean;
-  hideInfoPopover?: boolean;
   // Selection-only mode: restrict input to suggestions
-  selectionMode?: 'single' | 'multi';
   selectionType?: SuggestionType; // which suggestion list to show when selection-only
   // Dynamic: add/override triggers and renderers
   extraSuggestionConfigs?: SuggestionConfig[];
-  // Provide custom renderer components per type when renderer === 'custom'
-  customRenderers?: Partial<
-    Record<string, React.ComponentType<CustomRendererProps>>
-  >;
+  // Popover positioning
+  popoverPosition?: 'left' | 'right' | 'top' | 'bottom';
   children?: React.ReactNode;
+  // Unified behavior configuration for composing tokens and typing rules
+  placeholderConfig?: {
+    // How many tokens are allowed to be selected/inserted
+    selectMode?: 'one' | 'many';
+    // Delimiter for many tokens
+    delimiter?: string;
+    // Wrap a single selected token before insertion
+    wrap?: (text: string) => string;
+    // If true, when suggestions are not open, only trigger characters are allowed to be typed
+    allowOnlyTriggers?: boolean;
+  };
 };
 
 export type UsePlaceHolderInputProps = {
@@ -92,15 +87,23 @@ export type UsePlaceHolderInputProps = {
   ref: React.ForwardedRef<HTMLInputElement | HTMLTextAreaElement>;
   onChangeInputMode?: (mode: 'expression' | 'fixed') => void;
   // selection-only controls
-  selectionMode?: 'single' | 'multi';
-  selectionPolicy?: 'single' | 'multi'; // alias for clarity
   selectionType?: SuggestionType;
-  forcedSuggestionType?: SuggestionType; // alias for clarity
+  suggestionsOptions?: Partial<Record<string, SuggestionsOption>>;
+
   value?: string;
   onChange?: (value: string) => void;
-  // Dynamic suggestion configs: add or override trigger/type/format/renderer
+  // Dynamic suggestion configs: add or override trigger/type/format/mode
   extraSuggestionConfigs?: SuggestionConfig[];
-  // Custom renderers per type when renderer === 'custom'
-  customRenderers?: Partial<Record<SuggestionType, React.ComponentType<any>>>;
+  // Custom renderers per type when mode === 'custom'
   variant?: 'fixed' | 'expression';
+  // Unified behavior configuration for composing tokens and typing rules
+  placeholderConfig?: {
+    selectMode?: 'one' | 'many';
+    delimiter?: string;
+    // Wrap whole composed value: either via prefix/suffix or a function
+    wrapPrefix?: string;
+    wrapSuffix?: string;
+    wrap?: (text: string) => string;
+    allowOnlyTriggers?: boolean;
+  };
 };

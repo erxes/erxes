@@ -1,5 +1,9 @@
 import { LazyAutomationComponent, NodeData } from '@/automations/types';
-import { TAutomationAction } from 'ui-modules';
+import {
+  IAutomationHistory,
+  IAutomationHistoryAction,
+  TAutomationAction,
+} from 'ui-modules';
 
 export type TAutomationActionConfigFieldPrefix = `actions.${number}.config`;
 
@@ -20,7 +24,11 @@ export type NodeContentComponentProps<TConfig = any> = {
   nodeData: NodeData<TConfig>;
   config: TConfig;
 };
-export type ActionResultComponentProps = {};
+export type ActionResultComponentProps<TResult = any> = {
+  result: TResult;
+  action: IAutomationHistoryAction;
+  status: IAutomationHistory['status'];
+};
 export type WaitEventFormComponentProps<TConfig = any> = {
   actionData: TAutomationAction;
   config: TConfig;

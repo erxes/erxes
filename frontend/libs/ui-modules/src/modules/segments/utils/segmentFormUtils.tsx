@@ -5,13 +5,12 @@ import {
   IConditionsForPreview,
   IField,
   IOperator,
+  TConditionsConjunction,
   TSegmentForm,
 } from '../types';
 
-import { Path } from 'react-hook-form';
-import { OPERATORS } from '../constants';
-import { DEFAULT_OPERATORS } from '../constants';
 import { nanoid } from 'nanoid';
+import { DEFAULT_OPERATORS, OPERATORS } from '../constants';
 
 export function startCase(str: string) {
   return str
@@ -51,10 +50,10 @@ type FieldPath = string | number;
 export function createFieldNameSafe<T>(
   basePath?: string,
   ...pathParts: FieldPath[]
-): Path<T> {
+): T {
   return [basePath || '', ...pathParts]
     .filter((path) => ![undefined, null, ''].includes(String(path)))
-    .join('.') as Path<T>;
+    .join('.') as T;
 }
 
 export const generateParamsSegmentPreviewCount = (
@@ -101,13 +100,11 @@ export const getSegmentFormDefaultValues = (
 ) => {
   const {
     subSegmentConditions = [],
-    conditions = [],
     name,
     description,
     config,
     conditionsConjunction,
     subOf,
-    getSubSegments,
   } = segment;
 
   const values: TSegmentForm = {
@@ -118,15 +115,17 @@ export const getSegmentFormDefaultValues = (
     subOf: subOf || '',
   };
 
-  if (subSegmentConditions.length) {
-    values.conditionSegments = subSegmentConditions;
-  } else if (conditions.length) {
-    values.conditions = conditions;
-  } else {
-    values.conditions = [
-      { propertyType, propertyName: '', propertyOperator: '' },
-    ];
-  }
+  values.conditionSegments = subSegmentConditions.length
+    ? subSegmentConditions
+    : [
+        {
+          contentType: propertyType,
+          conditionsConjunction: TConditionsConjunction.AND,
+          conditions: [
+            { propertyType, propertyName: '', propertyOperator: '' },
+          ],
+        },
+      ];
 
   return values;
 };

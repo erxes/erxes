@@ -1,3 +1,5 @@
+import { EmailTemplateInEditor } from '@/automations/components/builder/nodes/actions/sendEmail/components/EmailTemplateInEditor';
+import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
 import { IconEdit } from '@tabler/icons-react';
 import {
   BlockEditor,
@@ -8,19 +10,18 @@ import {
   useBlockEditor,
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
-import { AttributeInEditor } from 'ui-modules';
-import { useAttributes } from 'ui-modules';
-import { EmailTemplateInEditor } from '@/automations/components/builder/nodes/actions/sendEmail/components/EmailTemplateInEditor';
 import { useFormContext } from 'react-hook-form';
-import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
+import { AttributeInEditor, useAttributes } from 'ui-modules';
 
 interface SendEmailEmailContentBuilderProps {
   content: string;
+  contentType: string;
   onChange: (content: string) => void;
 }
 
 export const SendEmailEmailContentBuilder = ({
   content,
+  contentType,
   onChange,
 }: SendEmailEmailContentBuilderProps) => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -77,6 +78,7 @@ export const SendEmailEmailContentBuilder = ({
       </div>
 
       <SendEmailEmailContentBuilderEditor
+        contentType={contentType}
         isSheetOpen={isSheetOpen}
         setIsSheetOpen={setIsSheetOpen}
         editor={editor}
@@ -87,11 +89,13 @@ export const SendEmailEmailContentBuilder = ({
 };
 
 const SendEmailEmailContentBuilderEditor = ({
+  contentType,
   isSheetOpen,
   setIsSheetOpen,
   editor,
   onChange,
 }: {
+  contentType: string;
   editor: IBlockEditor;
   isSheetOpen: boolean;
   setIsSheetOpen: (isOpen: boolean) => void;
@@ -140,7 +144,10 @@ const SendEmailEmailContentBuilderEditor = ({
         </Sheet.Header>
         <Sheet.Content>
           <BlockEditor editor={editor}>
-            <SendEmailEmailContentBuilderAttributes editor={editor} />
+            <SendEmailEmailContentBuilderAttributes
+              contentType={contentType}
+              editor={editor}
+            />
             <EmailTemplateInEditor editor={editor} />
           </BlockEditor>
         </Sheet.Content>
@@ -156,14 +163,17 @@ const SendEmailEmailContentBuilderEditor = ({
 };
 
 const SendEmailEmailContentBuilderAttributes = ({
+  contentType,
   editor,
 }: {
+  contentType: string;
   editor: IBlockEditor;
 }) => {
   const { attributes, loading } = useAttributes({
-    contentType: 'core:users',
-    attrConfig: {},
-    customAttributions: [],
+    contentType,
+    attributesConfig: {},
+    additionalAttributes: [],
+    attributeTypes: [],
   });
 
   return (

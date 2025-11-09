@@ -1,5 +1,5 @@
 import { TOutgoingWebhookForm } from '@/automations/components/builder/nodes/actions/webhooks/states/outgoingWebhookFormSchema';
-import { MetaFieldLine } from '@/automations/components/builder/nodes/components/MetaFieldLine';
+import { AutomationNodeMetaInfoRow } from 'ui-modules';
 import { NodeContentComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 
 export const OutgoingWebhookNodeContent = ({
@@ -8,7 +8,10 @@ export const OutgoingWebhookNodeContent = ({
   const { url, method } = config || {};
   return (
     <>
-      <MetaFieldLine fieldName="URL" content={`${method}: ${url}`} />
+      <AutomationNodeMetaInfoRow
+        fieldName="URL"
+        content={`${method}: ${url}`}
+      />
     </>
   );
 };

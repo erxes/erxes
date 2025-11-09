@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import { DatePicker, Form, Input, Select } from 'erxes-ui';
-import { ControllerRenderProps } from 'react-hook-form';
+import { ControllerRenderProps, useWatch } from 'react-hook-form';
 
 import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
 import { IPropertyInput } from '../../types';
@@ -8,16 +8,17 @@ import { FieldWithError } from '../FieldWithError';
 import { QuerySelectInput } from '../QuerySelectInput';
 
 export const PropertyInput = ({
-  index,
   defaultValue,
   parentFieldName,
   operators,
   selectedField,
 }: IPropertyInput) => {
   const { form } = useSegment();
-  const { control, watch, getValues } = form;
-  const propertyOperator = watch(`${parentFieldName}.propertyOperator`);
-  const propertyName = getValues(`${parentFieldName}.propertyName`);
+  const { control } = form;
+  const propertyOperator = useWatch({
+    control,
+    name: `${parentFieldName}.propertyOperator`,
+  });
 
   const selectedOperator = operators.find(
     (operator) => operator.value === propertyOperator,
@@ -58,15 +59,15 @@ export const PropertyInput = ({
   if (selectOptions.length > 0) {
     Component = (field: ControllerRenderProps<any, any>) => (
       <Select
-        defaultValue={field?.value}
+        value={field.value}
         onValueChange={(selectedValue) => field.onChange(selectedValue)}
       >
         <Select.Trigger>
           <Select.Value className="w-full" />
         </Select.Trigger>
         <Select.Content>
-          {selectOptions.map((option) => (
-            <Select.Item value={`${option?.value}`}>
+          {selectOptions.map((option, idx) => (
+            <Select.Item key={idx} value={`${option?.value}`}>
               {option?.label || '-'}
             </Select.Item>
           ))}
@@ -117,15 +118,15 @@ export const PropertyInput = ({
 
     Component = (field: ControllerRenderProps<any, any>) => (
       <Select
-        defaultValue={field?.value}
+        value={field.value}
         onValueChange={(selectedValue) => field.onChange(selectedValue)}
       >
         <Select.Trigger>
           <Select.Value className="w-full" />
         </Select.Trigger>
         <Select.Content>
-          {options.map((option) => (
-            <Select.Item value={`${option?.value}`}>
+          {options.map((option, idx) => (
+            <Select.Item key={idx} value={`${option?.value}`}>
               {option?.label || '-'}
             </Select.Item>
           ))}
@@ -138,7 +139,6 @@ export const PropertyInput = ({
     <Form.Field
       control={control}
       name={`${parentFieldName}.propertyValue`}
-      defaultValue={defaultValue}
       render={({ field, fieldState }) => (
         <FieldWithError error={fieldState.error}>
           {Component(field)}

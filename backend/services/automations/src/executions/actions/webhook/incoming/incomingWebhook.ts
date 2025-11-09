@@ -35,23 +35,24 @@ const rawBodyMiddleware = express.raw({
     (req as any).rawBody = buf;
   },
 });
-incomingWebhookRouter.all(
-  '/:id/*',
-  webhookRateLimit,
-  rawBodyMiddleware,
-  incomingWebhookHandler,
-);
 
-// Health check endpoint for webhook route
+// Health check endpoint for webhook route (must be before /:id/* route)
 incomingWebhookRouter.get(
   '/:id/health',
   rawBodyMiddleware,
   incomingWebhookHealthHandler,
 );
 
-incomingWebhookRouter.get(
-  '/executions/:executionId/continue/*',
+incomingWebhookRouter.all(
+  '/:executionId/:actionId/continue/*',
   rawBodyMiddleware,
   continueRateLimit,
   waitingWebhookExecutionHandler,
+);
+
+incomingWebhookRouter.all(
+  '/:id/*',
+  webhookRateLimit,
+  rawBodyMiddleware,
+  incomingWebhookHandler,
 );

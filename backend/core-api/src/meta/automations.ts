@@ -65,11 +65,11 @@ const getItems = async (
   subdomain: string,
   module: string,
   execution: any,
-  triggerType: string,
+  targetType: string,
 ) => {
   const { target } = execution;
 
-  if (module === triggerType) {
+  if (module === targetType) {
     return [target];
   }
 
@@ -82,7 +82,7 @@ const getItems = async (
   }
 
   const [moduleService] = module.split(':');
-  const [triggerService, triggerContentType] = triggerType.split(':');
+  const [triggerService, triggerContentType] = targetType.split(':');
 
   if (
     triggerContentType !== 'form_submission' &&
@@ -96,7 +96,7 @@ const getItems = async (
       module: 'conformities',
       action: 'savedConformity',
       input: {
-        mainType: triggerType.split(':')[1],
+        mainType: targetType.split(':')[1],
         mainTypeId: target._id,
         relTypes: [module.split(':')[1]],
       },
@@ -106,36 +106,28 @@ const getItems = async (
     return model.find({ _id: { $in: relTypeIds } });
   }
 
-  let filter;
+  let filter = await sendTRPCMessage({
+    subdomain,
 
-  if (triggerContentType === 'form_submission') {
-    filter = { _id: target._id };
-  } else {
-    filter = await sendTRPCMessage({
-      subdomain,
-
-      pluginName: triggerService,
-      method: 'query',
-      module: 'conformities',
-      action: 'getModuleRelation',
-      input: {
-        mainType: triggerType.split(':')[1],
-        mainTypeId: target._id,
-        relTypes: [module.split(':')[1]],
-      },
-      defaultValue: [],
-    });
-  }
+    pluginName: triggerService,
+    method: 'query',
+    module: 'conformities',
+    action: 'getModuleRelation',
+    input: {
+      mainType: targetType.split(':')[1],
+      mainTypeId: target._id,
+      relTypes: [module.split(':')[1]],
+    },
+    defaultValue: [],
+  });
 
   return filter ? model.find(filter) : [];
 };
 
 export const initAutomation = (app: Express) =>
   startAutomations(app, 'core', {
-    receiveActions: async (
-      { subdomain },
-      { action, execution, triggerType, actionType },
-    ) => {
+    receiveActions: async ({ subdomain, data }) => {
+      const { action, execution, actionType, targetType } = data;
       const models = await generateModels(subdomain);
 
       if (actionType === 'set-property') {
@@ -145,7 +137,7 @@ export const initAutomation = (app: Express) =>
           subdomain,
           module,
           execution,
-          triggerType,
+          targetType,
         );
 
         const result = await setProperty({
@@ -156,13 +148,13 @@ export const initAutomation = (app: Express) =>
           rules,
           execution,
           relatedItems,
-          triggerType,
+          targetType,
         });
         return { result };
       }
-      return { result: 'Hello World Core' };
+      return { result: 'invalid core action type' };
     },
-    replacePlaceHolders: async ({ subdomain }, { data }) => {
+    replacePlaceHolders: async ({ subdomain, data }) => {
       const { target, config, relatedValueProps } = data || {};
       const models = await generateModels(subdomain);
 
@@ -177,7 +169,7 @@ export const initAutomation = (app: Express) =>
         },
       });
     },
-    getRecipientsEmails: async ({ subdomain }, { data }) => {
+    getRecipientsEmails: async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
       const { type, config } = data;
 

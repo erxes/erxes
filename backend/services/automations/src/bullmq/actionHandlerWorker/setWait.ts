@@ -82,7 +82,6 @@ export const setExecutionWaitAction = async (
 
   if (condition.type === EXECUTE_WAIT_TYPES.IS_IN_SEGMENT) {
     const { targetId, segmentId } = condition;
-
     await models.WaitingActions.create({
       automationId,
       executionId,
@@ -156,5 +155,6 @@ export const setExecutionWaitAction = async (
       conditionType: EXECUTE_WAIT_TYPES.WEBHOOK,
       conditionConfig: { endpoint, secret, schema },
     });
+    return;
   }
 };

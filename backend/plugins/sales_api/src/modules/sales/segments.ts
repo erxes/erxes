@@ -52,7 +52,7 @@ export const generateConditionStageIds = async (
 };
 
 export const salesSegments = {
-  dependentServices: [
+  dependentModules: [
     {
       name: 'core',
       // types: ['company', 'customer', 'lead'],
@@ -155,6 +155,7 @@ export const salesSegments = {
       });
 
       ids = await sendTRPCMessage({
+        subdomain,
         pluginName: 'core',
         module: 'conformities',
         action: 'filterConformity',
@@ -173,6 +174,7 @@ export const salesSegments = {
 
       ids = [];
       await sendTRPCMessage({
+        subdomain,
         pluginName,
         module: 'segments',
         action: 'associationFilter',
@@ -222,6 +224,7 @@ const generateProductsCategoryProductIds = async (subdomain, condition) => {
     productCategoryIds.push(propertyValue);
 
     const products = await sendTRPCMessage({
+      subdomain,
       pluginName: 'core',
       module: 'products',
       action: 'find',

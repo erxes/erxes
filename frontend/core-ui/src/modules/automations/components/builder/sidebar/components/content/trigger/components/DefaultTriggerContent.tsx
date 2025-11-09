@@ -1,9 +1,8 @@
-import React, { Suspense, useCallback } from 'react';
-import { useDefaultTriggerContent } from '@/automations/components/builder/sidebar/hooks/useDefaultTriggerContent';
-import { AutomationNodeType } from '@/automations/types';
-import { SegmentForm } from 'ui-modules';
-import { AutomationTriggerContentProps } from '@/automations/components/builder/sidebar/types/sidebarContentTypes';
 import { TriggerContentLoadingFallback } from '@/automations/components/builder/sidebar/components/content/trigger/wrapper/TriggerContentLoadingFallback';
+import { useDefaultTriggerContent } from '@/automations/components/builder/sidebar/hooks/useDefaultTriggerContent';
+import { AutomationTriggerContentProps } from '@/automations/components/builder/sidebar/types/sidebarContentTypes';
+import { AutomationSegmentForm } from '@/automations/components/common/AutomationSegmentForm';
+import React, { Suspense, useCallback } from 'react';
 
 /**
  * Default trigger content component for standard automation triggers
@@ -27,14 +26,10 @@ export const DefaultTriggerContent = React.memo<AutomationTriggerContentProps>(
 
     return (
       <Suspense fallback={<TriggerContentLoadingFallback />}>
-        <SegmentForm
+        <AutomationSegmentForm
           contentType={activeNode?.type || ''}
           segmentId={contentId}
           callback={handleFormCallback}
-          isTemporary
-          aria-label={`Configure ${
-            activeNode?.type || AutomationNodeType.Trigger
-          } settings`}
         />
       </Suspense>
     );

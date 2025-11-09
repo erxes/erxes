@@ -6,3 +6,5 @@ export * from './components/placeholderInput/commandList/GenericCommandList';
 export * from './hooks/useAutomationOptionalConnect';
 export * from './hooks/useAttributes';
 export * from './components/AutomationRemoteEntryWrapper';
+export * from './components/AutomationNodeMetaInfoRow';
+export * from './hooks/useFormValidationErrorHandler';

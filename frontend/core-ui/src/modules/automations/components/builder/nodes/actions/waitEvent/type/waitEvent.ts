@@ -11,7 +11,7 @@ export type TAutomationWaitEventConfig = {
     | WaitEventTargetTypes.Trigger
     | WaitEventTargetTypes.Action
     | WaitEventTargetTypes.Custom;
-  targetTriggerId?: string;
+  targetTypeId?: string;
   segmentId?: string;
   webhookConfig?: TIncomingWebhookForm;
 };

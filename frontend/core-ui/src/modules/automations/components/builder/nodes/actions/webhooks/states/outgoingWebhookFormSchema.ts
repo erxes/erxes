@@ -179,7 +179,7 @@ export const outgoingWebhookFormSchema = z.object({
     .default('POST'),
   url: z.string().url(),
   queryParams: z.array(outgoingWebhookQueryParamsSchema).default([]),
-  body: z.record(z.any()).default({}),
+  body: z.string().default(''),
   auth: authSchema.optional(),
   headers: z.array(headerSchema).default([]),
 

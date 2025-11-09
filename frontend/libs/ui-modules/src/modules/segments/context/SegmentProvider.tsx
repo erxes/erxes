@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useEffect } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { segmentFormSchema } from 'ui-modules/modules/segments/states/segmentFormSchema';
 import { ISegment, TSegmentForm } from 'ui-modules/modules/segments/types';
@@ -22,12 +22,22 @@ export const SegmentProvider = ({
   contentType: string;
   segment?: ISegment;
 }) => {
+  const defaultValues = contentType
+    ? getSegmentFormDefaultValues(contentType, segment || {})
+    : undefined;
+
   const form = useForm<TSegmentForm>({
     resolver: zodResolver(segmentFormSchema),
-    values: contentType
-      ? getSegmentFormDefaultValues(contentType, segment || {})
-      : undefined,
+    defaultValues,
   });
+
+  useEffect(() => {
+    if (contentType) {
+      const newValues = getSegmentFormDefaultValues(contentType, segment || {});
+      form.reset(newValues);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contentType, segment?._id]);
 
   return (
     <SegmentFormContext.Provider

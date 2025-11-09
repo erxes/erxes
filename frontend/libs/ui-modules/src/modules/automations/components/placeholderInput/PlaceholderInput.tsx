@@ -1,13 +1,14 @@
-import { Children, cloneElement, forwardRef, isValidElement } from 'react';
+import { forwardRef } from 'react';
 import { PlaceholderInputProvider } from '../../contexts/PlaceholderInputContext';
 import { usePlaceHolderInput } from '../../hooks/usePlaceHolderInput';
+import { usePlaceHolderInputChildren } from '../../hooks/usePlaceHolderInputChildren';
 import { usePlaceHolderInputTriggerDetection } from '../../hooks/usePlaceholderInputDetection';
 import { PlaceholderInputProps } from '../../types/placeholderInputTypes';
 import { PlaceholderInputField } from './PlaceholderInputField';
 import { PlaceholderInputHeader } from './PlaceholderInputHeader';
 import { PlaceholderInputSuggestionPopover } from './PlaceholderInputSuggestionPopover';
 
-const PlaceholderInputComponent = forwardRef<
+const PlaceholderInputRoot = forwardRef<
   HTMLInputElement | HTMLTextAreaElement,
   PlaceholderInputProps
 >(
@@ -17,12 +18,9 @@ const PlaceholderInputComponent = forwardRef<
       value = '',
       onChange,
       isDisabled,
-      selectedField,
-      additionalAttributes,
-      hideModeToggle,
-      hideInfoPopover,
       selectionType,
-      selectionMode,
+      popoverPosition = 'bottom',
+      variant,
       children,
       ...props
     },
@@ -34,7 +32,6 @@ const PlaceholderInputComponent = forwardRef<
       inputVariant,
       enabledTypes,
       handleInputModeChange,
-      isSelectionOnlyMode,
       isSelectionPopoverOpen,
       setIsSelectionPopoverOpen,
       handleInputValueChange,
@@ -42,18 +39,13 @@ const PlaceholderInputComponent = forwardRef<
       handleInputBlur,
       handleSelectionOnlyKeyPress,
       suggestionPopoverRef,
-      suggestionTriggerTypesMap,
-      suggestionTypeToTitlesMap,
-      suggestionTypeToFormatsMap,
-      suggestionTypeToRenderersMap,
-      enabledSuggestionsConfigMap,
-      customRenderers,
-      suggestionConfigs,
+      suggestions,
+      suggestionTypeMap,
+      suggestionTypeByTriggerMap,
     } = usePlaceHolderInput({
       ...props,
       ref,
       selectionType,
-      selectionMode,
       value,
       onChange,
     });
@@ -71,21 +63,23 @@ const PlaceholderInputComponent = forwardRef<
       onChange,
       inputRef,
       enabledTypes,
-      overrideTriggerToType: suggestionTriggerTypesMap,
+      suggestionTypeByTriggerMap,
+      allowOnlyTriggers: props.placeholderConfig?.allowOnlyTriggers,
+      placeholderConfig: props.placeholderConfig,
+    });
+
+    const { headerElement, otherChildren } = usePlaceHolderInputChildren({
+      children,
+      variant,
     });
 
     const contextValue = {
       enabledTypes,
-      suggestionConfigs,
+      suggestions,
       inputVariant,
-      suggestionTypeToTitlesMap,
-      suggestionTypeToFormatsMap,
-      suggestionTypeToRenderersMap,
-      enabledSuggestionsConfigMap,
-      customRenderers,
+      suggestionTypeMap,
+      suggestionTypeByTriggerMap,
       onInputModeChange: handleInputModeChange,
-      isSelectionOnlyMode,
-      selectionMode,
       selectionType,
       suggestionType,
       value,
@@ -96,28 +90,6 @@ const PlaceholderInputComponent = forwardRef<
       setIsSelectionPopoverOpen,
       inputRef,
     };
-
-    // Check if Header is present in children
-    let headerElement: React.ReactElement | null = null;
-    const otherChildren: React.ReactNode[] = [];
-
-    Children.forEach(children, (child) => {
-      if (
-        isValidElement(child) &&
-        (child.type === PlaceholderInputHeader ||
-          (child.type as any)?.displayName === 'PlaceholderInput.Header')
-      ) {
-        if (props?.variant) {
-          return;
-        }
-        headerElement = cloneElement(child, {
-          hideModeToggle: hideModeToggle ?? child.props?.hideModeToggle,
-          hideInfoPopover: hideInfoPopover ?? child.props?.hideInfoPopover,
-        });
-      } else {
-        otherChildren.push(child);
-      }
-    });
 
     return (
       <PlaceholderInputProvider value={contextValue}>
@@ -136,29 +108,27 @@ const PlaceholderInputComponent = forwardRef<
               onBlur={handleInputBlur}
               onFocus={handleInputFocus}
               isDisabled={isDisabled}
-              readOnly={isSelectionOnlyMode}
             />
 
             <PlaceholderInputSuggestionPopover
               contentType={propertyType}
-              attrConfig={selectedField?.config}
-              customAttributions={additionalAttributes}
               searchQuery={searchQuery}
               onClose={closeSuggestions}
               cursorPosition={cursorPosition}
-              popoverRef={suggestionPopoverRef}
+              popoverPosition={popoverPosition}
+              ref={suggestionPopoverRef}
             />
           </div>
-          {otherChildren.length > 0 && otherChildren}
+          {otherChildren?.length > 0 && otherChildren}
         </div>
       </PlaceholderInputProvider>
     );
   },
 );
 
-PlaceholderInputComponent.displayName = 'PlaceholderInput';
+PlaceholderInputRoot.displayName = 'PlaceholderInput';
 
 // Create compound component pattern
-export const PlaceholderInput = Object.assign(PlaceholderInputComponent, {
+export const PlaceholderInput = Object.assign(PlaceholderInputRoot, {
   Header: PlaceholderInputHeader,
 });

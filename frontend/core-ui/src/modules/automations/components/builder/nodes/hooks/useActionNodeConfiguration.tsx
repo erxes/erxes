@@ -32,16 +32,10 @@ export const useActionNodeConfiguration = (
       TAutomationActionComponent.NodeContent,
     );
 
-    Component = (
-      <div className="px-4 py-2">
-        {CoreActionComponent ? (
-          <CoreActionComponent nodeData={data} config={config} />
-        ) : (
-          <></>
-        )}
-      </div>
-    );
-  } else {
+    if (CoreActionComponent) {
+      Component = <CoreActionComponent nodeData={data} config={config} />;
+    }
+  } else if (pluginName && moduleName) {
     const actionNodeProps: AutomationActionNodeConfigProps = {
       componentType: 'actionNodeConfiguration',
       type,
@@ -59,7 +53,9 @@ export const useActionNodeConfiguration = (
     );
   }
 
-  return { Component };
+  return {
+    Component: Component ? <div className="px-4 py-2">{Component}</div> : null,
+  };
 };
 
 export const createOptionConnectHandle = ({

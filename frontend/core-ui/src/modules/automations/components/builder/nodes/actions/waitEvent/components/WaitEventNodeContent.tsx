@@ -1,5 +1,5 @@
 import { TAutomationWaitEventConfig } from '@/automations/components/builder/nodes/actions/waitEvent/type/waitEvent';
-import { MetaFieldLine } from '@/automations/components/builder/nodes/components/MetaFieldLine';
+import { AutomationNodeMetaInfoRow } from 'ui-modules';
 import { NodeContentComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 
 const nodeContentMaps = {
@@ -12,5 +12,5 @@ export const WaitEventNodeContent = ({
   config,
 }: NodeContentComponentProps<TAutomationWaitEventConfig>) => {
   const text = nodeContentMaps[config?.targetType];
-  return <MetaFieldLine fieldName="When" content={text} />;
+  return <AutomationNodeMetaInfoRow fieldName="When" content={text} />;
 };

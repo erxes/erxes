@@ -1,10 +1,4 @@
-// import { replacePlaceHolders } from '@erxes/api-utils/src/automations';
-// import { sendCoreMessage } from '../messageBroker';
-// import { getRelatedValue } from './getRelatedValue';
-// import { itemsAdd } from '../graphql/resolvers/mutations/utils';
-// import { getCollection } from '../models/utils';
-
-import { replacePlaceHolders } from 'erxes-api-shared/core-modules';
+import { replacePlaceHolders, splitType } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { getRelatedValue } from '~/modules/sales/meta/automations/action/getRelatedValue';
@@ -16,12 +10,14 @@ export const actionCreate = async ({
   action,
   execution,
   collectionType,
+  targetType,
 }: {
   models: IModels;
   subdomain: string;
   action: any;
   execution: any;
   collectionType: string;
+  targetType: string;
 }) => {
   const { config = {} } = action;
   let { target, triggerType } = execution || {};
@@ -130,13 +126,17 @@ export const actionCreate = async ({
       subdomain,
       newData as any,
       collectionType,
-      models,
+      models.Deals.createDeal,
     );
 
-    if (execution.triggerType === 'inbox:conversation') {
+    const [serviceName, mainType] = splitType(execution.triggerType);
+
+    if (mainType === 'inbox:conversation') {
       await sendTRPCMessage({
+        subdomain,
+        method: 'mutation',
         pluginName: 'core',
-        module: 'conformities',
+        module: 'conformity',
         action: 'addConformity',
         input: {
           mainType: 'customer',
@@ -145,12 +145,12 @@ export const actionCreate = async ({
           relTypeId: item._id,
         },
       });
-    } else {
-      const mainType = execution.triggerType.split(':')[1];
-
+    } else if (serviceName !== 'sales') {
       await sendTRPCMessage({
+        subdomain,
+        method: 'mutation',
         pluginName: 'core',
-        module: 'conformities',
+        module: 'conformity',
         action: 'addConformity',
         input: {
           mainType: mainType.replace('lead', 'customer'),
@@ -163,13 +163,14 @@ export const actionCreate = async ({
 
     return {
       name: item.name,
-      itemId: item._id,
+      targetId: item._id,
       stageId: item.stageId,
       pipelineId: newData.pipelineId,
       boardId: newData.boardId,
     };
   } catch (e) {
-    return { error: e.message };
+    console.log(e);
+    throw e;
   }
 };
 

@@ -1,19 +1,14 @@
-import React, { useMemo } from 'react';
 import { TriggerContentWrapperProps } from '@/automations/components/builder/sidebar/types/sidebarContentTypes';
+import React from 'react';
 
 /**
  * Reusable wrapper component for trigger content with consistent layout
  */
 export const TriggerContentWrapper = React.memo<TriggerContentWrapperProps>(
   ({ children, footer, className = '', 'aria-label': ariaLabel, ...props }) => {
-    const wrapperClasses = useMemo(
-      () => `flex flex-col h-full ${className}`.trim(),
-      [className],
-    );
-
     return (
       <div
-        className={wrapperClasses}
+        className={`flex flex-col h-full ${className}`}
         aria-label={ariaLabel}
         role="region"
         {...props}

@@ -3,19 +3,22 @@ import { useAttributes } from 'ui-modules/modules/automations/hooks/useAttribute
 
 export const AttributesCommandList = ({
   contentType,
-  attrConfig,
-  customAttributions,
+  attributesConfig,
+  additionalAttributes,
+  attributeTypes,
   onSelect,
 }: {
   contentType?: string;
-  attrConfig: any;
-  customAttributions?: any[];
+  attributesConfig?: any;
+  additionalAttributes?: any[];
+  attributeTypes?: string[];
   onSelect: (value: string) => void;
 }) => {
   const { groupAttributes, loading } = useAttributes({
     contentType,
-    attrConfig,
-    customAttributions,
+    attributesConfig,
+    additionalAttributes,
+    attributeTypes,
   });
 
   return Object.entries(groupAttributes || {}).map(([key, attributions]) => {

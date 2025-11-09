@@ -11,6 +11,11 @@ import { AnyProcedure, initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
 
+const BaseInput = z.object({
+  subdomain: z.string(),
+  data: z.any().optional(),
+});
+
 export const startAutomations = async (
   app: Express,
   pluginName: string,
@@ -33,36 +38,58 @@ export const startAutomations = async (
 
   if (receiveActions) {
     automationProcedures[TAutomationProducers.RECEIVE_ACTIONS] = t.procedure
-      .input(z.any())
-      .mutation(async ({ ctx, input }) => receiveActions(ctx, input));
+      .input(BaseInput)
+      .mutation(async ({ ctx, input }) =>
+        receiveActions({ subdomain: input.subdomain, data: input.data }, ctx),
+      );
   }
 
   if (getRecipientsEmails) {
     automationProcedures[TAutomationProducers.GET_RECIPIENTS_EMAILS] =
       t.procedure
-        .input(z.any())
-        .mutation(async ({ ctx, input }) => getRecipientsEmails(ctx, input));
+        .input(BaseInput)
+        .mutation(async ({ ctx, input }) =>
+          getRecipientsEmails(
+            { subdomain: input.subdomain, data: input.data },
+            ctx,
+          ),
+        );
   }
 
   if (getAdditionalAttributes) {
     automationProcedures[TAutomationProducers.GET_ADDITIONAL_ATTRIBUTES] =
       t.procedure
-        .input(z.any())
-        .mutation(async ({ ctx, input }) => getAdditionalAttributes(ctx, input));
+        .input(BaseInput)
+        .mutation(async ({ ctx, input }) =>
+          getAdditionalAttributes(
+            { subdomain: input.subdomain, data: input.data },
+            ctx,
+          ),
+        );
   }
 
   if (replacePlaceHolders) {
     automationProcedures[TAutomationProducers.REPLACE_PLACEHOLDERS] =
       t.procedure
-        .input(z.any())
-        .mutation(async ({ ctx, input }) => replacePlaceHolders(ctx, input));
+        .input(BaseInput)
+        .mutation(async ({ ctx, input }) =>
+          replacePlaceHolders(
+            { subdomain: input.subdomain, data: input.data },
+            ctx,
+          ),
+        );
   }
 
   if (checkCustomTrigger) {
     automationProcedures[TAutomationProducers.CHECK_CUSTOM_TRIGGER] =
       t.procedure
-        .input(z.any())
-        .mutation(async ({ ctx, input }) => checkCustomTrigger(ctx, input));
+        .input(BaseInput)
+        .mutation(async ({ ctx, input }) =>
+          checkCustomTrigger(
+            { subdomain: input.subdomain, data: input.data },
+            ctx,
+          ),
+        );
   }
 
   const automationsRouter = t.router(automationProcedures);

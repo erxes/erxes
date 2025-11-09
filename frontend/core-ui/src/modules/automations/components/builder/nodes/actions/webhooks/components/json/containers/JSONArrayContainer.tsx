@@ -42,11 +42,6 @@ export const JSONArrayContainer = memo(function JSONArrayContainer({
 
   return (
     <div className="space-y-2">
-      <div className="flex justify-end">
-        <Button variant="outline" size="sm" onClick={addItem}>
-          <IconPlus className="mr-1 h-3 w-3" /> Add item
-        </Button>
-      </div>
       <div className="space-y-2">
         {(value ?? []).map((item, idx) => (
           <JSONTreeNode
@@ -60,6 +55,9 @@ export const JSONArrayContainer = memo(function JSONArrayContainer({
           <div className="text-xs text-muted-foreground">Empty array</div>
         )}
       </div>
+      <Button variant="outline" size="sm" className="w-full" onClick={addItem}>
+        <IconPlus className="mr-1 h-3 w-3" /> Add item
+      </Button>
     </div>
   );
 });

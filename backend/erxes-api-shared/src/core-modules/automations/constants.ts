@@ -41,7 +41,6 @@ export const AUTOMATION_CORE_TRIGGER_TYPES = {
   CUSTOMER: 'core:customer',
   LEAD: 'core:lead',
   COMPANY: 'core:company',
-  FORM_SUBMISSION: 'core:form_submission',
 };
 
 export const AUTOMATION_EMAIL_RECIPIENTS_TYPES = [
@@ -88,6 +87,7 @@ export const AUTOMATION_ACTIONS = [
     icon: 'IconWebhook',
     label: 'Outgoing webhook',
     description: 'Outgoing webhook',
+    allowTargetFromActions: true,
   },
   {
     type: AUTOMATION_CORE_ACTIONS.IF,
@@ -108,6 +108,7 @@ export const AUTOMATION_ACTIONS = [
       { key: 'isExists', label: 'Has', type: TAutomationActionFolks.SUCCESS },
       { key: 'notExists', label: 'None', type: TAutomationActionFolks.ERROR },
     ],
+    isTargetSource: true,
   },
   {
     type: AUTOMATION_CORE_ACTIONS.SET_PROPERTY,
@@ -130,6 +131,7 @@ export const AUTOMATION_ACTIONS = [
     label: 'Send Email',
     description: 'Send Email',
     emailRecipientsConst: AUTOMATION_EMAIL_RECIPIENTS_TYPES,
+    allowTargetFromActions: true,
   },
   {
     type: AUTOMATION_CORE_ACTIONS.WAIT_EVENT,
@@ -193,37 +195,37 @@ export const AUTOMATION_CORE_PROPERTY_TYPES = [
     value: 'core:customer',
     label: 'Customer',
     fields: [
-      { label: 'ID', value: '_id' },
-      { label: 'Name', value: 'name' },
-      { label: 'Email', value: 'email' },
-      { label: 'Phone', value: 'phone' },
+      { label: 'ID', value: '_id', type: 'Id' },
+      { label: 'Name', value: 'name', type: 'String' },
+      { label: 'Email', value: 'email', type: 'String' },
+      { label: 'Phone', value: 'phone', type: 'String' },
     ],
   },
   {
     value: 'core:company',
     label: 'Company',
     fields: [
-      { label: 'ID', value: '_id' },
-      { label: 'Name', value: 'name' },
-      { label: 'Email', value: 'email' },
-      { label: 'Phone', value: 'phone' },
+      { label: 'ID', value: '_id', type: 'Id' },
+      { label: 'Name', value: 'name', type: 'String' },
+      { label: 'Email', value: 'email', type: 'String' },
+      { label: 'Phone', value: 'phone', type: 'String' },
     ],
   },
   {
     value: 'core:product',
     label: 'Product',
     fields: [
-      { label: 'ID', value: '_id' },
-      { label: 'Name', value: 'name' },
-      { label: 'Code', value: 'code' },
+      { label: 'ID', value: '_id', type: 'Id' },
+      { label: 'Name', value: 'name', type: 'String' },
+      { label: 'Code', value: 'code', type: 'String' },
     ],
   },
   {
     value: 'core:tag',
     label: 'Tag',
     fields: [
-      { label: 'ID', value: '_id' },
-      { label: 'Name', value: 'name' },
+      { label: 'ID', value: '_id', type: 'Id' },
+      { label: 'Name', value: 'name', type: 'String' },
     ],
   },
 ];

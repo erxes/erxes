@@ -53,7 +53,6 @@ export const useDelay = (config: TDelayConfigForm) => {
       setValue('type', intervalType);
     }
 
-    console.log({ value: typeof value });
     onChange(value);
   };
 

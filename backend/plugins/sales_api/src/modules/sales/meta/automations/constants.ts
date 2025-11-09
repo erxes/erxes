@@ -18,7 +18,7 @@ export const salesAutomationContants = {
   ],
   actions: [
     {
-      type: 'sales:deal.create',
+      type: 'sales:sales.deal.create',
       icon: 'IconPigMoney',
       label: 'Create deal',
       description: 'Create deal',
@@ -27,7 +27,7 @@ export const salesAutomationContants = {
       allowTargetFromActions: true,
     },
     {
-      type: 'sales:checklist.create',
+      type: 'sales:sales.checklist.create',
       icon: 'IconPigMoney',
       label: 'Create sales checklist',
       description: 'Create sales checklist',

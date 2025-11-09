@@ -1,6 +1,6 @@
-import { Button, Spinner } from 'erxes-ui';
+import { Spinner } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
-import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
+import { ErrorBoundary } from 'react-error-boundary';
 
 const SalesRemoteEntry = lazy(() =>
   import('../modules/sales/components/SalesRemoteEntry').then((module) => ({
@@ -12,7 +12,7 @@ const Remotes: Record<
   string,
   React.LazyExoticComponent<React.ComponentType<any>>
 > = {
-  deal: SalesRemoteEntry,
+  sales: SalesRemoteEntry,
 };
 
 const AutomationRemoteEntries = ({ moduleName, ...props }: any) => {

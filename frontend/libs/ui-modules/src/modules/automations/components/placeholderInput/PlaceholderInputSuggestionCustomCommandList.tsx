@@ -1,5 +1,4 @@
-import { useCustomSuggestionPopover } from '../../hooks/useCustomSuggestionPopover';
-import { SuggestionType } from '../../types/placeholderInputTypes';
+import { useSuggestionPopoverComponent } from '../../hooks/useSuggestionPopoverComponent';
 
 export const PlaceholderInputSuggestionCustomCommandList = ({
   searchValue,
@@ -7,12 +6,12 @@ export const PlaceholderInputSuggestionCustomCommandList = ({
   selectField,
   suggestionType,
 }: {
-  suggestionType: SuggestionType;
+  suggestionType: string;
   searchValue: string;
   onSelect: (value: string) => void;
   selectField: string;
 }) => {
-  const { CustomSuggestionComponent } = useCustomSuggestionPopover({
+  const { CustomSuggestionComponent } = useSuggestionPopoverComponent({
     suggestionType,
     type: 'command',
   });

@@ -1,8 +1,7 @@
 import { PROBABILITY } from './constants';
-import {
-  BOARD_ITEM_EXPORT_EXTENDED_FIELDS,
-  BOARD_ITEM_EXTENDED_FIELDS,
-} from '~/modules/sales/constants';
+import // BOARD_ITEM_EXPORT_EXTENDED_FIELDS,
+// BOARD_ITEM_EXTENDED_FIELDS,
+'~/modules/sales/constants';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateFieldsFromSchema } from 'erxes-api-shared/core-modules';
@@ -157,9 +156,10 @@ const generateTagOptions = async (
   type: string,
 ) => {
   const options = await sendTRPCMessage({
+    subdomain,
     pluginName: 'core',
     module: 'tags',
-    action: 'tagFind',
+    action: 'find',
     input: {
       type: 'sales:deal',
     },
@@ -183,7 +183,7 @@ export const generateSalesFields = async (
   models: IModels,
   data,
 ) => {
-  const { type, config = {}, segmentId, usageType } = data;
+  const { moduleType, config = {}, segmentId, usageType } = data;
 
   const { pipelineId } = config;
 
@@ -199,19 +199,19 @@ export const generateSalesFields = async (
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 
-  switch (type) {
+  switch (moduleType) {
     case 'deal':
       schema = models.Deals.schema;
       break;
   }
 
-  if (usageType && usageType === 'import') {
-    fields = BOARD_ITEM_EXTENDED_FIELDS;
-  }
+  // if (usageType && usageType === 'import') {
+  //   fields = BOARD_ITEM_EXTENDED_FIELDS;
+  // }
 
-  if (usageType && usageType === 'export') {
-    fields = BOARD_ITEM_EXPORT_EXTENDED_FIELDS;
-  }
+  // if (usageType && usageType === 'export') {
+  //   fields = BOARD_ITEM_EXPORT_EXTENDED_FIELDS;
+  // }
 
   if (schema) {
     // generate list using customer or company schema
@@ -392,7 +392,7 @@ export const generateSalesFields = async (
     ];
   }
 
-  if (type === 'deal' && usageType !== 'export') {
+  if (moduleType === 'deal' && usageType !== 'export') {
     const productOptions = await generateProductsOptions(
       'productsData.productId',
       'Product',
@@ -411,7 +411,7 @@ export const generateSalesFields = async (
     ];
   }
 
-  if (type === 'deal' && usageType === 'export') {
+  if (moduleType === 'deal' && usageType === 'export') {
     const extendFieldsExport = [
       { _id: Math.random(), name: 'productsData.name', label: 'Product Name' },
       { _id: Math.random(), name: 'productsData.code', label: 'Product Code' },
@@ -439,6 +439,7 @@ export const generateSalesFields = async (
   if (segmentId || pipelineId) {
     const segment = segmentId
       ? await sendTRPCMessage({
+          subdomain,
           pluginName: 'core',
           module: 'segments',
           action: 'findOne',

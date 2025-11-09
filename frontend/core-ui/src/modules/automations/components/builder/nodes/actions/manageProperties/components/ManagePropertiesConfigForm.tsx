@@ -5,11 +5,11 @@ import {
   TManagePropertiesForm,
 } from '@/automations/components/builder/nodes/actions/manageProperties/states/managePropertiesForm';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
-import { useFormValidationErrorHandler } from '@/automations/hooks/useFormValidationErrorHandler';
+import { useFormValidationErrorHandler } from 'ui-modules';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { Alert, Button, Form, Label, Select } from 'erxes-ui';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { TAutomationAction, TAutomationActionProps } from 'ui-modules';
 
 const generateDefaultValues = (currentAction: TAutomationAction) => {
@@ -32,12 +32,15 @@ export const ManagePropertiesConfigForm = ({
     resolver: zodResolver(managePropertiesFormSchema),
     defaultValues: generateDefaultValues(currentAction),
   });
-  const { propertyTypes, propertyType } = useManagePropertySidebarContent(
-    currentAction,
-    form,
-  );
+  const { propertyTypes, propertyType, isPropertyTypeValid } =
+    useManagePropertySidebarContent(currentAction, form);
+  const rules: TManagePropertiesForm['rules'] =
+    useWatch({
+      control: form.control,
+      name: 'rules',
+    }) || [];
 
-  if (!propertyType) {
+  if (!propertyType || !isPropertyTypeValid) {
     return (
       <div className="p-4">
         <Alert variant="default" className="mb-4">
@@ -58,19 +61,22 @@ export const ManagePropertiesConfigForm = ({
         onSave={form.handleSubmit(handleSave, handleValidationErrors)}
       >
         <div className="w-[500px]">
-          {/* <SelectManagePropertyTriggerTarget
-            nonCustomTriggers={nonCustomTriggers}
-          /> */}
-          {/* <SelectManagePropertyActionTarget
-            actionsCanBeTarget={actionsCanBeTarget}
-          /> */}
           <Form.Field
             control={form.control}
             name="module"
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>Property Type</Form.Label>
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select
+                  value={field.value}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    form.setValue('rules', [{ field: '', operator: '' }], {
+                      shouldDirty: true,
+                      shouldTouch: true,
+                    });
+                  }}
+                >
                   <Select.Trigger>
                     <Select.Value placeholder="Select a property type" />
                   </Select.Trigger>
@@ -89,32 +95,33 @@ export const ManagePropertiesConfigForm = ({
           <Form.Field
             control={form.control}
             name="rules"
-            render={({ field: { value: rules = [], onChange } }) => (
-              <Form.Item>
-                <Form.Label>Rules</Form.Label>
+            render={({ field: { onChange } }) => {
+              return (
+                <Form.Item>
+                  <Form.Label>Rules</Form.Label>
 
-                {rules.map((rule, index) => (
-                  <ManagePropertyRule
-                    key={index}
-                    rule={rule}
-                    index={index}
-                    propertyType={propertyType}
-                  />
-                ))}
-                <Button
-                  className="w-full"
-                  variant="secondary"
-                  onClick={() =>
-                    onChange([...rules, { field: '', operator: '' }], {
-                      shouldDirty: true,
-                      shouldTouch: true,
-                    })
-                  }
-                >
-                  <Label>Add Rule</Label>
-                </Button>
-              </Form.Item>
-            )}
+                  {rules.map((_, index) => (
+                    <ManagePropertyRule
+                      key={`${propertyType}-${index}`}
+                      index={index}
+                      propertyType={propertyType}
+                    />
+                  ))}
+                  <Button
+                    className="w-full"
+                    variant="secondary"
+                    onClick={() =>
+                      onChange([...rules, { field: '', operator: '' }], {
+                        shouldDirty: true,
+                        shouldTouch: true,
+                      })
+                    }
+                  >
+                    <Label>Add Rule</Label>
+                  </Button>
+                </Form.Item>
+              );
+            }}
           />
         </div>
       </AutomationConfigFormWrapper>

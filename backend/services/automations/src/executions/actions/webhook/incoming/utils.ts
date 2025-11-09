@@ -156,11 +156,45 @@ export function verifyHmac(
 }
 
 export async function streamToBuffer(req: express.Request): Promise<Buffer> {
+  // If body was already consumed by middleware, use it directly
+  if (req.body) {
+    if (Buffer.isBuffer(req.body)) {
+      return req.body;
+    }
+    return Buffer.from(JSON.stringify(req.body));
+  }
+
+  // If stream already ended, return empty buffer
+  if (req.readableEnded) {
+    return Buffer.alloc(0);
+  }
+
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
-    req.on('data', (c: Buffer) => chunks.push(c));
-    req.on('end', () => resolve(Buffer.concat(chunks as any))); // Type assertion
-    req.on('error', (e) => reject(e));
+    let hasEnded = false;
+
+    const timeout = setTimeout(() => {
+      if (!hasEnded) {
+        reject(
+          new Error('Stream timeout - request body may already be consumed'),
+        );
+      }
+    }, 5000);
+
+    req.on('data', (c: Buffer) => {
+      chunks.push(c);
+    });
+
+    req.on('end', () => {
+      hasEnded = true;
+      clearTimeout(timeout);
+      resolve(Buffer.concat(chunks as any));
+    });
+
+    req.on('error', (e) => {
+      clearTimeout(timeout);
+      reject(e);
+    });
   });
 }
 

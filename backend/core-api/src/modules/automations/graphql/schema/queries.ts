@@ -61,7 +61,7 @@ const queries = `
   automationsAiAgents(kind:String):JSON
   automationsAiAgentDetail:JSON
   getTrainingStatus(agentId: String!): TrainingProgress!
-  getAutomationWebhookEndpoint(_id:String!):String
+  getAutomationWebhookEndpoint(_id:String!,waitEventActionId:String):String
   automationEmailTemplates(${emailTemplateParams}): AutomationEmailTemplatesListResponse
   automationEmailTemplateDetail(_id: String!): AutomationEmailTemplate
 `;

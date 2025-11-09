@@ -36,7 +36,11 @@ export const sendCoreModuleProducer = async ({
     links: [httpBatchLink({ url: `${pluginInfo.address}/${moduleName}` })],
   });
 
-  const result = await client[method](`${producerName}`, input, options);
+  const result = await client[method](
+    `${producerName}`,
+    { subdomain, data: input ?? {} },
+    options,
+  );
 
   return result || defaultValue;
 };

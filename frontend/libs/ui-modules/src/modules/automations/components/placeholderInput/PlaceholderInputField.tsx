@@ -22,43 +22,20 @@ type PlaceholderInputFieldProps = {
 export const PlaceholderInputField = forwardRef<
   HTMLInputElement | HTMLTextAreaElement,
   PlaceholderInputFieldProps
->(
-  (
-    { value, onChange, onKeyDown, onBlur, onFocus, isDisabled, readOnly },
-    ref,
-  ) => {
-    const { enabledTypes, inputVariant, suggestionConfigs } =
-      usePlaceholderInputContext();
-    const placeholderText = useMemo(() => {
-      const enabledConfigs = suggestionConfigs.filter(
-        (config) => enabledTypes[config.type as SuggestionType],
-      );
-      const core = enabledConfigs
-        .map((c) => `${c.trigger} for ${c.title.toLowerCase()}`)
-        .join(', ');
-      return `Type ${core}`;
-    }, [enabledTypes, suggestionConfigs]);
+>(({ value, onChange, onKeyDown, onBlur, onFocus, isDisabled }, ref) => {
+  const { enabledTypes, inputVariant, suggestions } =
+    usePlaceholderInputContext();
+  const placeholderText = useMemo(() => {
+    const core = suggestions
+      .map((c) => `${c.trigger} for ${c.title.toLowerCase()}`)
+      .join(', ');
+    return `Type ${core}`;
+  }, [enabledTypes, suggestions]);
 
-    if (inputVariant === 'expression') {
-      return (
-        <Textarea
-          ref={ref as React.ForwardedRef<HTMLTextAreaElement>}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={onKeyDown}
-          onBlur={onBlur}
-          onFocus={onFocus}
-          placeholder={placeholderText}
-          className="pr-10"
-          disabled={isDisabled}
-          readOnly={readOnly}
-        />
-      );
-    }
-
+  if (inputVariant === 'expression') {
     return (
-      <Input
-        ref={ref as React.ForwardedRef<HTMLInputElement>}
+      <Textarea
+        ref={ref as React.ForwardedRef<HTMLTextAreaElement>}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}
@@ -67,8 +44,21 @@ export const PlaceholderInputField = forwardRef<
         placeholder={placeholderText}
         className="pr-10"
         disabled={isDisabled}
-        readOnly={readOnly}
       />
     );
-  },
-);
+  }
+
+  return (
+    <Input
+      ref={ref as React.ForwardedRef<HTMLInputElement>}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onKeyDown={onKeyDown}
+      onBlur={onBlur}
+      onFocus={onFocus}
+      placeholder={placeholderText}
+      className="pr-10"
+      disabled={isDisabled}
+    />
+  );
+});

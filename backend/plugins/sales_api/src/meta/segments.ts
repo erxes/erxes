@@ -8,7 +8,7 @@ const modules = {
 type ModuleKeys = keyof typeof modules;
 
 export default {
-  dependentServices: [...salesSegments.dependentServices],
+  dependentModules: [...salesSegments.dependentModules],
   contentTypes: [...salesSegments.contentTypes],
   propertyConditionExtender: (context, data) => {
     const [_, moduleName] = splitType(data?.condition?.propertyType || '');

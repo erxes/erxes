@@ -11,6 +11,7 @@ import {
 } from '@/automations/utils/automationFormDefinitions';
 import { Edge, EdgeProps, Node, ReactFlowInstance } from '@xyflow/react';
 import {
+  IAutomationHistory,
   IAutomationHistoryAction,
   IAutomationsActionConfigConstants,
   IAutomationsTriggerConfigConstants,
@@ -172,6 +173,7 @@ interface ActionComponentConfig<TConfig = any>
     componentType: 'historyActionResult';
     result: any;
     action: IAutomationHistoryAction;
+    status: IAutomationHistory['status'];
   }>;
   waitEvent?: LazyAutomationComponent<WaitEventFormComponentProps>;
 }

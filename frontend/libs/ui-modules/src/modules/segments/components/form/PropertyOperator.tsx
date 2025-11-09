@@ -17,11 +17,10 @@ export const PropertyOperator = ({
     <Form.Field
       control={control}
       name={`${parentFieldName}.propertyOperator`}
-      defaultValue={defaultValue}
       render={({ field, fieldState }) => (
         <FieldWithError error={fieldState.error}>
           <Select
-            defaultValue={field?.value}
+            value={field.value}
             disabled={!currentField}
             onValueChange={(selectedValue) => field.onChange(selectedValue)}
           >
@@ -30,7 +29,7 @@ export const PropertyOperator = ({
             </Select.Trigger>
             <Select.Content>
               {operators.map((operator, i) => (
-                <Select.Item value={operator.value}>
+                <Select.Item key={i} value={operator.value}>
                   {operator.name}
                 </Select.Item>
               ))}

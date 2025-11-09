@@ -1,24 +1,15 @@
 import { createContext, useContext, type ReactNode } from 'react';
-import type {
-  EnabledSuggestionObject,
-  SuggestionConfig,
-  SuggestionType,
-} from '../types/placeholderInputTypes';
+import type { SuggestionConfig } from '../types/placeholderInputTypes';
 
 interface PlaceholderInputContextValue {
-  enabledTypes: Record<SuggestionType, boolean>;
-  suggestionConfigs: SuggestionConfig[];
+  enabledTypes: Record<string, boolean>;
+  suggestions: SuggestionConfig[];
   inputVariant: 'expression' | 'fixed';
-  suggestionTypeToTitlesMap: Record<SuggestionType, string>;
-  suggestionTypeToFormatsMap: Record<SuggestionType, (value: string) => string>;
-  suggestionTypeToRenderersMap: Record<SuggestionType, 'command' | 'custom'>;
-  enabledSuggestionsConfigMap: Record<string, EnabledSuggestionObject>;
-  customRenderers?: Partial<Record<SuggestionType, React.ComponentType<any>>>;
+  suggestionTypeMap: Map<string, SuggestionConfig>;
+  suggestionTypeByTriggerMap: Map<string, SuggestionConfig>;
   onInputModeChange?: (mode: 'expression' | 'fixed') => void;
-  isSelectionOnlyMode: boolean;
-  selectionMode?: 'single' | 'multi';
-  selectionType?: SuggestionType;
-  suggestionType?: SuggestionType | null;
+  selectionType?: string;
+  suggestionType?: string | null;
   value: string;
   onChange: (value: string) => void;
   showSuggestions: boolean;

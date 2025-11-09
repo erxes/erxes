@@ -4,16 +4,14 @@ import {
   TSalesActionConfigForm,
 } from '../states/salesActionConfigFormDefinitions';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { Form, toast } from 'erxes-ui';
 import { SelectPipeline } from '~/modules/deals/pipelines/components/SelectPipelines';
 import { SelectStage } from '~/modules/deals/stage/components/SelectStages';
-import { useAutomationRemoteActionFormSubmit } from 'ui-modules/modules/automations/hooks/useAutomationRemoteActionFormSubmit';
-import {
-  AutomationActionFormProps,
-  PlaceholderInput,
-} from 'ui-modules/modules';
+import { useAutomationRemoteActionFormSubmit } from 'ui-modules';
+import { AutomationActionFormProps, PlaceholderInput } from 'ui-modules';
 import { PipelineLabelsCommandList } from './PipelineLabelsCommandList';
+import { useFormValidationErrorHandler } from 'ui-modules';
 
 export const SalesActionConfigForm = ({
   formRef,
@@ -24,74 +22,77 @@ export const SalesActionConfigForm = ({
   const form = useForm<TSalesActionConfigForm>({
     resolver: zodResolver(salesActionConfigFormSchema),
     defaultValues: {
-      boardId: currentAction?.config?.boardId || '',
-      pipelineId: currentAction?.config?.pipelineId || '',
-      stageId: currentAction?.config?.stageId || '',
+      ...(currentAction?.config || {}),
     },
   });
-  const { control, getValues, handleSubmit } = form;
-  const { boardId, pipelineId } = getValues();
+  const { control, handleSubmit } = form;
+  const [boardId, pipelineId] = useWatch({
+    control,
+    name: ['boardId', 'pipelineId'],
+  });
+
+  const { handleValidationErrors } = useFormValidationErrorHandler({
+    formName: 'Sales Action Configuration',
+  });
 
   useAutomationRemoteActionFormSubmit({
     formRef,
-    callback: () =>
-      handleSubmit(onSaveActionConfig, () =>
-        toast({
-          title: 'There is some error in the form',
-          variant: 'destructive',
-        }),
-      )(),
+    callback: () => {
+      handleSubmit(onSaveActionConfig, handleValidationErrors)();
+    },
   });
 
   return (
     <Form {...form}>
       <div className="w-2xl">
-        <Form.Field
-          control={control}
-          name="boardId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Board</Form.Label>
-              <SelectBoard.FormItem
-                mode="single"
-                onValueChange={field.onChange}
-                value={field.value}
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={control}
-          name="pipelineId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Pipeline</Form.Label>
-              <SelectPipeline.FormItem
-                mode="single"
-                onValueChange={field.onChange}
-                value={field.value}
-                boardId={boardId}
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={control}
-          name="stageId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Stage</Form.Label>
-              <SelectStage.FormItem
-                mode="single"
-                onValueChange={field.onChange}
-                value={field.value}
-                pipelineId={pipelineId}
-              />
-            </Form.Item>
-          )}
-        />
+        <div className="grid grid-cols-3 gap-2">
+          <Form.Field
+            control={control}
+            name="boardId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Board</Form.Label>
+                <SelectBoard.FormItem
+                  mode="single"
+                  onValueChange={field.onChange}
+                  value={field.value}
+                />
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={control}
+            name="pipelineId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Pipeline</Form.Label>
+                <SelectPipeline.FormItem
+                  mode="single"
+                  onValueChange={field.onChange}
+                  value={field.value}
+                  boardId={boardId}
+                />
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={control}
+            name="stageId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Stage</Form.Label>
+                <SelectStage.FormItem
+                  mode="single"
+                  onValueChange={field.onChange}
+                  value={field.value}
+                  pipelineId={pipelineId}
+                />
+              </Form.Item>
+            )}
+          />
+        </div>
         <Form.Field
           control={control}
           name="name"
@@ -103,6 +104,7 @@ export const SalesActionConfigForm = ({
                 value={field.value}
                 onChange={field.onChange}
               />
+              <Form.Message />
             </Form.Item>
           )}
         />
@@ -120,6 +122,7 @@ export const SalesActionConfigForm = ({
               >
                 <PlaceholderInput.Header />
               </PlaceholderInput>
+              <Form.Message />
             </Form.Item>
           )}
         />
@@ -133,11 +136,16 @@ export const SalesActionConfigForm = ({
                 propertyType={targetType}
                 value={field.value}
                 onChange={field.onChange}
+                placeholderConfig={{
+                  selectMode: 'one',
+                  allowOnlyTriggers: true,
+                }}
                 enabled={{
                   attribute: true,
                   call_user: true,
                 }}
               />
+              <Form.Message />
             </Form.Item>
           )}
         />
@@ -151,10 +159,15 @@ export const SalesActionConfigForm = ({
                 propertyType={targetType}
                 value={field.value}
                 onChange={field.onChange}
+                placeholderConfig={{
+                  selectMode: 'one',
+                  allowOnlyTriggers: true,
+                }}
                 enabled={{
                   date: true,
                 }}
               />
+              <Form.Message />
             </Form.Item>
           )}
         />
@@ -168,28 +181,31 @@ export const SalesActionConfigForm = ({
                 propertyType={targetType}
                 value={field.value}
                 onChange={field.onChange}
+                placeholderConfig={{
+                  selectMode: 'many',
+                  delimiter: ',',
+                  wrap: (text) => `[${text}]`,
+                  allowOnlyTriggers: true,
+                }}
                 extraSuggestionConfigs={[
                   {
                     type: 'pipeline_labels',
                     trigger: ';',
                     title: 'Pipeline Labels',
-                    renderer: 'command',
-                    formatSelection: (value) => value,
+                    mode: 'command',
+                    render: (props) => (
+                      <PipelineLabelsCommandList
+                        {...props}
+                        pipelineId={pipelineId}
+                      />
+                    ),
                   },
                 ]}
                 enabled={{
-                  pipeline_labels: true,
                   attribute: true,
                 }}
-                customRenderers={{
-                  pipeline_labels: (props) => (
-                    <PipelineLabelsCommandList
-                      {...props}
-                      pipelineId={pipelineId}
-                    />
-                  ),
-                }}
               />
+              <Form.Message />
             </Form.Item>
           )}
         />
@@ -203,10 +219,17 @@ export const SalesActionConfigForm = ({
                 propertyType={targetType}
                 value={field.value}
                 onChange={field.onChange}
-                selectionMode="single"
+                selectionType="option"
+                popoverPosition="left"
+                placeholderConfig={{
+                  selectMode: 'one',
+                  allowOnlyTriggers: true,
+                }}
                 enabled={{
+                  option: true,
+                }}
+                suggestionsOptions={{
                   option: {
-                    enabled: true,
                     options: ['Critical', 'High', 'Medium', 'Low'].map((p) => ({
                       label: p,
                       value: p,
@@ -214,6 +237,7 @@ export const SalesActionConfigForm = ({
                   },
                 }}
               />
+              <Form.Message />
             </Form.Item>
           )}
         />

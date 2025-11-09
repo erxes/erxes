@@ -57,6 +57,7 @@ export const segmentQueries = {
         description: ct.description,
       }),
     );
+
     // gather dependent services contentTypes
     const dependentModules = meta.segments.dependentModules || [];
     for (const dModule of dependentModules) {

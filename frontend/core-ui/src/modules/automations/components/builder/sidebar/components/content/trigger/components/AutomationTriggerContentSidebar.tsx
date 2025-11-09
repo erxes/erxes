@@ -1,18 +1,13 @@
-import React, { useMemo } from 'react';
-import { AutomationTriggerContentProps } from '@/automations/components/builder/sidebar/types/sidebarContentTypes';
-import { DefaultTriggerContent } from '@/automations/components/builder/sidebar/components/content/trigger/components/DefaultTriggerContent';
 import { CustomTriggerContent } from '@/automations/components/builder/sidebar/components/content/trigger/components/CustomTriggerContent';
+import { DefaultTriggerContent } from '@/automations/components/builder/sidebar/components/content/trigger/components/DefaultTriggerContent';
+import { AutomationTriggerContentProps } from '@/automations/components/builder/sidebar/types/sidebarContentTypes';
+import { Separator } from 'erxes-ui';
+import React from 'react';
+import { AutomationDefaultTriggerHeader } from './AutomationDefaultTriggerHeader';
 
-/**
- * Main automation trigger content sidebar component
- *
- * Renders the appropriate trigger configuration interface based on the active node type.
- * Supports both default triggers and custom plugin-based triggers with proper error handling
- * and accessibility features.
- */
 export const AutomationTriggerContentSidebar =
   React.memo<AutomationTriggerContentProps>(({ activeNode }) => {
-    const containerClasses = useMemo(() => 'w-[650px] h-full', []);
+    const containerClasses = 'w-[650px] h-full';
 
     if (activeNode?.isCustom) {
       return (
@@ -23,8 +18,12 @@ export const AutomationTriggerContentSidebar =
     }
 
     return (
-      <div className={containerClasses}>
-        <DefaultTriggerContent activeNode={activeNode} />
+      <div className={`${containerClasses} flex flex-col`}>
+        <AutomationDefaultTriggerHeader activeNode={activeNode} />
+        <Separator />
+        <div className="flex-1 w-auto overflow-auto px-4">
+          <DefaultTriggerContent activeNode={activeNode} />
+        </div>
       </div>
     );
   });

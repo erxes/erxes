@@ -23,7 +23,6 @@ export const useFormValidationErrorHandler = (
   } = options;
 
   const handleValidationErrors = (errors: FieldErrors) => {
-    console.log({ errors });
     const errorCount = Object.keys(errors).length;
 
     const title =

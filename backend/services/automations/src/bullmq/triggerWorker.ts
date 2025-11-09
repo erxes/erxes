@@ -12,6 +12,7 @@ interface ITriggerData {
   actionType: string;
   targets: unknown[]; // Replace with actual type if known
   executionId: string;
+  recordType?: string;
 }
 
 // Final job interfaces
@@ -24,21 +25,21 @@ export const triggerHandlerWorker = async (job: Job<ITriggerJobData>) => {
 
   debugInfo(`Recieved data from:${JSON.stringify({ subdomain, data })}`);
 
-  const { type, targets, executionId } = data;
+  const { type, targets, executionId, recordType } = data;
   try {
     const waitingAction = await checkIsWaitingAction(
+      subdomain,
       models,
       type,
       targets,
       executionId,
     );
-
     if (waitingAction) {
       executeWaitingAction(subdomain, models, waitingAction);
       return;
     }
 
-    await receiveTrigger({ models, subdomain, type, targets });
+    await receiveTrigger({ models, subdomain, type, targets, recordType });
   } catch (error: any) {
     debugError(`Error processing job ${job.id}: ${error.message}`);
     throw error;

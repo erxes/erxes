@@ -20,6 +20,13 @@ const WebhooksComponents: AutomationComponentMap<AutomationNodeType.Action> = {
         default: module.OutgoingWebhookNodeContent,
       })),
     ),
+    actionResult: lazy(() =>
+      import(
+        '@/automations/components/builder/nodes/actions/webhooks/components/OutgoinWebhookActionResponse'
+      ).then((module) => ({
+        default: module.OutgoinWebhookActionResponse,
+      })),
+    ),
   },
 };
 

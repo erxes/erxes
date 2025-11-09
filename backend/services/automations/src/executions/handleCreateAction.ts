@@ -1,13 +1,14 @@
+import { setExecutionWaitAction } from '@/bullmq/actions/setWait';
+import { generateModels } from '@/connectionResolver';
 import {
   EXECUTE_WAIT_TYPES,
   IAutomationAction,
   IAutomationActionsMap,
   IAutomationExecutionDocument,
   splitType,
+  TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
-import { sendWorkerMessage } from 'erxes-api-shared/utils';
-import { setExecutionWaitAction } from '@/bullmq/actions/setWait';
-import { generateModels } from '@/connectionResolver';
+import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
 
 export const handleCreateAction = async (
   subdomain: string,
@@ -19,18 +20,19 @@ export const handleCreateAction = async (
     action.type,
   );
 
-  const actionResponse = await sendWorkerMessage({
+  const actionResponse = await sendCoreModuleProducer({
     subdomain,
+    moduleName: 'automations',
     pluginName,
-    queueName: 'automations',
-    jobName: 'receiveActions',
-    data: {
+    producerName: TAutomationProducers.RECEIVE_ACTIONS,
+    input: {
       moduleName,
       actionType,
       action,
       execution,
       collectionType,
     },
+    defaultValue: null,
   });
   const nextAction = action?.nextActionId
     ? actionsMap[action?.nextActionId]

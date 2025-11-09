@@ -1,63 +1,44 @@
 import { Button, Popover, ToggleGroup } from 'erxes-ui';
 import { usePlaceholderInputContext } from '../../contexts/PlaceholderInputContext';
-import { SuggestionType } from '../../types/placeholderInputTypes';
+import { IconHelpOctagon } from '@tabler/icons-react';
 
-interface PlaceholderInputHeaderProps {
-  hideModeToggle?: boolean;
-  hideInfoPopover?: boolean;
-}
-
-function PlaceholderInputHeaderComponent({
-  hideModeToggle = false,
-  hideInfoPopover = false,
-}: PlaceholderInputHeaderProps) {
-  const { inputVariant, onInputModeChange, enabledTypes, suggestionConfigs } =
+function PlaceholderInputHeaderComponent() {
+  const { inputVariant, onInputModeChange, suggestions } =
     usePlaceholderInputContext();
-  // Filter suggestion configs based on enabled types
-  const enabledConfigs = suggestionConfigs.filter(
-    (config) => enabledTypes[config.type as SuggestionType],
-  );
 
   return (
     <div className="flex flex-row justify-between">
-      {!hideModeToggle && (
-        <ToggleGroup
-          type="single"
-          size="sm"
-          className="max-w-32"
-          value={inputVariant}
-          onValueChange={(value) =>
-            onInputModeChange?.(value as 'expression' | 'fixed')
-          }
-          variant="outline"
-        >
-          <ToggleGroup.Item value="fixed">Fixed</ToggleGroup.Item>
-          <ToggleGroup.Item value="expression">Expression</ToggleGroup.Item>
-        </ToggleGroup>
-      )}
-      {!hideInfoPopover && (
-        <Popover>
-          <Popover.Trigger asChild>
-            <Button variant="ghost" aria-label="Show shortcuts">
-              ?
-            </Button>
-          </Popover.Trigger>
-          <Popover.Content>
-            <div className="font-medium mb-2">Shortcuts</div>
-            <ul className="space-y-1">
-              {enabledConfigs.map((cfg) => (
-                <li
-                  key={cfg.type}
-                  className="flex items-center justify-between"
-                >
-                  <span className="text-muted-foreground">{cfg.title}</span>
-                  <span className="font-mono text-xs">{cfg.trigger}</span>
-                </li>
-              ))}
-            </ul>
-          </Popover.Content>
-        </Popover>
-      )}
+      <ToggleGroup
+        type="single"
+        size="sm"
+        className="max-w-32"
+        value={inputVariant}
+        onValueChange={(value) =>
+          onInputModeChange?.(value as 'expression' | 'fixed')
+        }
+        variant="outline"
+      >
+        <ToggleGroup.Item value="fixed">Fixed</ToggleGroup.Item>
+        <ToggleGroup.Item value="expression">Expression</ToggleGroup.Item>
+      </ToggleGroup>
+      <Popover>
+        <Popover.Trigger asChild>
+          <Button variant="ghost" aria-label="Show shortcuts">
+            <IconHelpOctagon />
+          </Button>
+        </Popover.Trigger>
+        <Popover.Content>
+          <div className="font-medium mb-2">Shortcuts</div>
+          <ul className="space-y-1">
+            {suggestions.map(({ type, title, trigger }) => (
+              <li key={type} className="flex items-center justify-between">
+                <span className="text-muted-foreground">{title}</span>
+                <span className="font-mono text-xs">{trigger}</span>
+              </li>
+            ))}
+          </ul>
+        </Popover.Content>
+      </Popover>
     </div>
   );
 }

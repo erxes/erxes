@@ -34,7 +34,8 @@ const getTargetType = (
 };
 
 export const useAutomationActionContentSidebar = () => {
-  const { queryParams, setQueryParams, actionConstMap } = useAutomation();
+  const { queryParams, setQueryParams, actionConstMap, actionFolks } =
+    useAutomation();
   const { setAutomationBuilderFormValue } = useAutomationFormController();
   const toggleSideBarOpen = useSetAtom(toggleAutomationBuilderOpenSidebar);
   const { getNode, updateNodeData } = useReactFlow<Node<NodeData>>();
@@ -54,6 +55,7 @@ export const useAutomationActionContentSidebar = () => {
     queryParams?.activeNodeId ?? '',
     actions,
     triggers,
+    actionFolks,
   );
 
   const targetType = getTargetType(

@@ -48,40 +48,40 @@ export function setupTRPCRoute(app: Application, options: TRPCSetupOptions) {
 
   app.use(createTRPCSecurityLoggingMiddleware());
 
-  // Raw body parsing middleware for signature verification
-  app.use('/trpc', (req, res, next) => {
-    if (req.method === 'POST') {
-      let data = '';
-      req.setEncoding('utf8');
-      req.on('data', (chunk) => {
-        data += chunk;
-      });
-      req.on('end', () => {
-        (req as any).rawBody = data;
-        next();
-      });
-    } else {
-      next();
-    }
-  });
+  // // // Raw body parsing middleware for signature verification
+  // app.use('/trpc', (req, res, next) => {
+  //   if (req.method === 'POST') {
+  //     let data = '';
+  //     req.setEncoding('utf8');
+  //     req.on('data', (chunk) => {
+  //       data += chunk;
+  //     });
+  //     req.on('end', () => {
+  //       (req as any).rawBody = data;
+  //       next();
+  //     });
+  //   } else {
+  //     next();
+  //   }
+  // });
 
-  const trpcRateLimit = rateLimit({
-    windowMs: rateLimitConfig.windowMs,
-    max: rateLimitConfig.max,
-    message: {
-      error: 'Too Many Requests',
-      message: 'Rate limit exceeded. Please try again later.',
-    },
-    standardHeaders: true,
-    legacyHeaders: false,
-  });
+  // const trpcRateLimit = rateLimit({
+  //   windowMs: rateLimitConfig.windowMs,
+  //   max: rateLimitConfig.max,
+  //   message: {
+  //     error: 'Too Many Requests',
+  //     message: 'Rate limit exceeded. Please try again later.',
+  //   },
+  //   standardHeaders: true,
+  //   legacyHeaders: false,
+  // });
 
   const trpcHelmet = helmet(helmetConfig);
 
   app.use(
     '/trpc',
     trpcHelmet,
-    trpcRateLimit,
+    // trpcRateLimit,
     createTRPCSecurityMiddleware(securityConfig),
     trpcExpress.createExpressMiddleware({
       router,

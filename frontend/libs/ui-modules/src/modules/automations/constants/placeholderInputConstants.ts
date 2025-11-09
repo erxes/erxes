@@ -1,5 +1,4 @@
 import {
-  EnabledSuggestions,
   SuggestionConfig,
   SuggestionItem,
   SuggestionType,
@@ -30,7 +29,7 @@ export const SUGGESTION_GROUPS: Record<string, SuggestionType[]> = {
   none: [],
 };
 
-export const DEFAULT_ENABLED_SUGGESTIONS: EnabledSuggestions = {
+export const DEFAULT_ENABLED_SUGGESTIONS = {
   attribute: true,
   emoji: true,
   date: true,
@@ -43,9 +42,10 @@ export const DEFAULT_ENABLED_SUGGESTIONS: EnabledSuggestions = {
 };
 
 export const DATE_OPTIONS: SuggestionItem[] = [
-  { id: '1', label: 'Today', value: '{{ today }}' },
-  { id: '2', label: 'Tomorrow', value: '{{ tomorrow }}' },
-  { id: '3', label: 'Current time', value: '{{ current_time }}' },
+  { id: '4', label: 'Now', value: '{{ now }}' },
+  { id: '5', label: 'Tomorrow', value: '{{ tomorrow }}' },
+  { id: '6', label: 'Next week', value: '{{ nextWeek }}' },
+  { id: '7', label: 'Next month', value: '{{ nextMonth }}' },
 ];
 
 // Single source of truth for suggestion config
@@ -54,63 +54,75 @@ export const DEFAULT_SUGGESTION_CONFIGS: SuggestionConfig[] = [
     type: 'attribute',
     trigger: '{',
     title: 'Attributes',
-    formatSelection: (value) => `{{ ${value} }}`,
-    renderer: 'command',
+    options: {
+      formatSelection: (value) => `{{ ${value} }}`,
+    },
+    mode: 'command',
   },
   {
     type: 'option',
     trigger: '[',
     title: 'Options',
-    formatSelection: (value) => `[[ ${value} ]]`,
-    renderer: 'command',
+    options: {
+      formatSelection: (value) => `[[ ${value} ]]`,
+    },
+    mode: 'command',
   },
   {
     type: 'date',
     trigger: '/',
     title: 'Date',
-    formatSelection: (value) => value,
-    renderer: 'command',
+    mode: 'command',
   },
   {
     type: 'emoji',
     trigger: ':',
     title: 'Emoji',
-    formatSelection: (value) => value,
-    renderer: 'custom',
+    mode: 'custom',
   },
   {
     type: 'call_user',
     trigger: '@',
     title: 'User Mention',
-    formatSelection: (value) => `[[ user.${value} ]]`,
-    renderer: 'command',
+    options: {
+      formatSelection: (value) => `[[ user.${value} ]]`,
+    },
+    mode: 'command',
   },
   {
     type: 'call_tag',
     trigger: '#',
     title: 'Tag Mention',
-    formatSelection: (value) => `[[ tag.${value} ]]`,
-    renderer: 'command',
+    options: {
+      formatSelection: (value) => `[[ tag.${value} ]]`,
+    },
+    mode: 'command',
   },
   {
     type: 'call_product',
     trigger: '$',
     title: 'Product Mention',
-    formatSelection: (value) => `[[ product.${value} ]]`,
-    renderer: 'command',
+    options: {
+      formatSelection: (value) => `[[ product.${value} ]]`,
+    },
+    mode: 'command',
   },
   {
     type: 'call_company',
     trigger: '%',
     title: 'Company Mention',
-    formatSelection: (value) => `[[ company.${value} ]]`,
-    renderer: 'command',
+    options: {
+      formatSelection: (value) => `[[ company.${value} ]]`,
+    },
+    mode: 'command',
   },
   {
     type: 'call_customer',
     trigger: '&',
     title: 'Customer Mention',
-    formatSelection: (value) => `[[ customer.${value} ]]`,
-    renderer: 'command',
+    options: {
+      formatSelection: (value) => `[[ customer.${value} ]]`,
+    },
+    mode: 'command',
   },
 ];

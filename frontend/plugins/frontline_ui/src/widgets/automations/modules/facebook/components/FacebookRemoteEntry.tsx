@@ -16,8 +16,6 @@ import { CommentActionForm } from '~/widgets/automations/modules/facebook/compon
 import { ActionCommentConfigContent } from '~/widgets/automations/modules/facebook/components/action/components/replyComment/ActionCommentConfigContent';
 
 export const FacebookRemoteEntry = (props: AutomationRemoteEntryProps) => {
-  const { componentType = '' } = props;
-
   return (
     <AutomationRemoteEntryWrapper
       props={props}
@@ -32,47 +30,6 @@ export const FacebookRemoteEntry = (props: AutomationRemoteEntryProps) => {
       }}
     />
   );
-
-  switch (componentType) {
-    case 'actionForm':
-      return renderActionForm(
-        props as AutomationRemoteEntryTypes['actionForm'],
-      );
-
-    case 'triggerForm':
-      return renderTriggerForm(
-        props as AutomationRemoteEntryTypes['triggerForm'],
-      );
-
-    case 'triggerConfigContent':
-      return (
-        <TriggerConfigContent
-          {...(props as AutomationRemoteEntryTypes['triggerConfigContent'])}
-        />
-      );
-
-    case 'actionNodeConfiguration':
-      return renderActionNodeContent(
-        props as AutomationRemoteEntryTypes['actionNodeConfiguration'],
-      );
-    case 'automationBotsContent':
-      return <AutomationBotsRecordTable />;
-    case 'historyName':
-      return (
-        <AutomationHistoryName
-          {...(props as AutomationRemoteEntryTypes['historyName'])}
-        />
-      );
-    case 'historyActionResult':
-      return (
-        <AutomationHistoryResult
-          {...(props as AutomationRemoteEntryTypes['historyActionResult'])}
-        />
-      );
-
-    default:
-      return null;
-  }
 };
 
 function renderActionNodeContent(

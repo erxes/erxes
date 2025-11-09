@@ -1,5 +1,5 @@
 import { TAutomationManagePropertyConfig } from '@/automations/components/builder/nodes/actions/manageProperties/types/ManagePropertyTypes';
-import { MetaFieldLine } from '@/automations/components/builder/nodes/components/MetaFieldLine';
+import { AutomationNodeMetaInfoRow } from 'ui-modules';
 import { NodeContentComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 
 export const ManagePropertiesNodeContent = ({
@@ -16,7 +16,11 @@ export const ManagePropertiesNodeContent = ({
       {rules
         .filter(({ field, value }) => field && value)
         .map(({ field, value }, index: number) => (
-          <MetaFieldLine key={index} fieldName={field} content={value} />
+          <AutomationNodeMetaInfoRow
+            key={index}
+            fieldName={field}
+            content={value}
+          />
         ))}
     </>
   );

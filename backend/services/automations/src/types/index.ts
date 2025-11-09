@@ -101,7 +101,6 @@ type IncomingWebhookHeaders = {
 type WebhookMethods = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 type IncomingWebhookConfig = {
-  endpoint: string;
   method: WebhookMethods;
   headers: IncomingWebhookHeaders[];
   schema: any;
@@ -110,13 +109,11 @@ type IncomingWebhookConfig = {
     beararToken: string;
     secret: string;
   };
-  timeoutMs?: string;
-  maxRetries?: string;
 };
 
 export type TAutomationWaitEventConfig = {
   targetType: 'trigger' | 'action' | 'custom';
-  targetTriggerId?: string;
+  targetTypeId?: string;
   targetActionId?: string;
   segmentId?: string;
   webhookConfig?: IncomingWebhookConfig;

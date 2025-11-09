@@ -10,6 +10,7 @@ export const executeSetPropertyAction = async (
   subdomain: string,
   action: IAutomationAction,
   triggerType: string,
+  targetType: string,
   execution: IAutomationExecutionDocument,
 ) => {
   const { module } = action.config;
@@ -23,6 +24,7 @@ export const executeSetPropertyAction = async (
     input: {
       moduleName,
       triggerType,
+      targetType,
       actionType: 'set-property',
       action,
       execution,

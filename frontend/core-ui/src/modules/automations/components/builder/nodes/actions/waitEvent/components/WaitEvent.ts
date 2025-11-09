@@ -20,6 +20,13 @@ const WaitEventComponents: AutomationComponentMap<AutomationNodeType.Action> = {
         default: module.WaitEventNodeContent,
       })),
     ),
+    actionResult: lazy(() =>
+      import(
+        '@/automations/components/builder/nodes/actions/waitEvent/components/WaitEventActionResult'
+      ).then((module) => ({
+        default: module.WaitEventActionResult,
+      })),
+    ),
   },
 };
 

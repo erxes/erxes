@@ -79,15 +79,19 @@ type TAutomationAdditionalAttribute = {
 };
 export interface AutomationProducers {
   receiveActions?: (
-    context: IAutomationContext,
     args: {
-      moduleName: string;
-      collectionType: string;
-      actionType: string;
-      triggerType: string;
-      action: IAutomationAction;
-      execution: { _id: string } & IAutomationExecution;
+      subdomain: string;
+      data: {
+        moduleName: string;
+        collectionType: string;
+        actionType: string;
+        triggerType: string;
+        targetType: string;
+        action: IAutomationAction;
+        execution: { _id: string } & IAutomationExecution;
+      };
     },
+    context: IAutomationContext,
   ) => Promise<{
     result: any;
     waitCondition?: {
@@ -100,29 +104,32 @@ export interface AutomationProducers {
   }>;
 
   getRecipientsEmails?: (
+    args: { subdomain: string; data: any },
     context: IAutomationContext,
-    args: any,
   ) => Promise<any>;
 
   getAdditionalAttributes?: (
+    args: { subdomain: string; data: any },
     context: IAutomationContext,
-    args: any,
   ) => Promise<Array<TAutomationAdditionalAttribute>>;
 
   replacePlaceHolders?: (
+    args: { subdomain: string; data: any },
     context: IAutomationContext,
-    args: any,
   ) => Promise<any>;
   checkCustomTrigger?: <TTarget = any, TConfig = any>(
-    context: IAutomationContext,
     args: {
-      moduleName: string;
-      collectionType: string;
-      automationId: string;
-      trigger: IAutomationTrigger;
-      target: TTarget;
-      config: TConfig;
+      subdomain: string;
+      data: {
+        moduleName: string;
+        collectionType: string;
+        automationId: string;
+        trigger: IAutomationTrigger;
+        target: TTarget;
+        config: TConfig;
+      };
     },
+    context: IAutomationContext,
   ) => Promise<boolean>;
 }
 
@@ -157,6 +164,7 @@ export interface IPerValueProps<TModels> {
   target: any;
   getRelatedValue: any;
   triggerType?: string;
+  targetType?: string;
   serviceName?: string;
   execution: any;
 }
@@ -177,6 +185,7 @@ export interface IPropertyProps<TModels> {
   getRelatedValue: any;
   relatedItems: any[];
   triggerType?: string;
+  targetType?: string;
 }
 export enum EXECUTE_WAIT_TYPES {
   DELAY = 'delay',
@@ -209,7 +218,7 @@ export type TAutomationExecutionIsInSegment = {
 
 export type TAutomationExecutionWebhook = {
   endpoint: string;
-  secret: string;
+  secret?: string;
   schema: any;
 };
 

@@ -18,8 +18,7 @@ export const useAutomationHeader = () => {
   const { handleSubmit, clearErrors } =
     useFormContext<TAutomationBuilderForm>();
   const navigate = useNavigate();
-  const { setAutomationBuilderFormValue, syncPositionUpdates } =
-    useAutomationFormController();
+  const { syncPositionUpdates } = useAutomationFormController();
 
   const { setQueryParams, reactFlowInstance } = useAutomation();
   const { actions, triggers } = useAutomationNodes();

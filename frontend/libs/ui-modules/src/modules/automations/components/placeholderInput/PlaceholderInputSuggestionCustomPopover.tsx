@@ -1,20 +1,21 @@
-import { SuggestionType } from '../../types/placeholderInputTypes';
-import { useCustomSuggestionPopover } from '../../hooks/useCustomSuggestionPopover';
+import { useSuggestionPopoverComponent } from '../../hooks/useSuggestionPopoverComponent';
 
 export const PlaceholderInputSuggestionCustomPopover = ({
   suggestionType,
-  searchQuery,
+  searchValue,
   onSelect,
-  onClose,
+  selectFieldName,
   internalRef,
+  positionStyle,
 }: {
-  suggestionType: SuggestionType;
-  searchQuery: string;
+  suggestionType: string;
+  searchValue: string;
   onSelect: (suggestion: string) => void;
-  onClose: () => void;
+  selectFieldName: string;
   internalRef: React.RefObject<HTMLDivElement>;
+  positionStyle?: React.CSSProperties;
 }) => {
-  const { CustomSuggestionComponent } = useCustomSuggestionPopover({
+  const { CustomSuggestionComponent } = useSuggestionPopoverComponent({
     suggestionType,
     type: 'custom',
   });
@@ -22,12 +23,13 @@ export const PlaceholderInputSuggestionCustomPopover = ({
   return (
     <div
       ref={internalRef}
-      className="rounded-lg bg-background border max-h-80 shadow-lg mt-2 fixed z-50 w-80"
+      className="rounded-lg bg-background border max-h-80 shadow-lg z-50 w-80"
+      style={positionStyle}
     >
       <CustomSuggestionComponent
-        searchQuery={searchQuery}
+        searchValue={searchValue}
         onSelect={onSelect}
-        onClose={onClose}
+        selectField={selectFieldName}
       />
     </div>
   );

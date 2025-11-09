@@ -18,6 +18,7 @@ export type IAutomationReceiveActionData = {
   actionType: string;
   collectionType: string;
   triggerType: string;
+  targetType: string;
 };
 
 export type ISendMessageData = {

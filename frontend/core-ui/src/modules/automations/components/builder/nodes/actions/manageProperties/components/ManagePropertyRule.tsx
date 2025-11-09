@@ -1,29 +1,22 @@
 import { useManagePropertyRule } from '@/automations/components/builder/nodes/actions/manageProperties/hooks/useManagePropertyRule';
-import { TManagePropertiesForm } from '@/automations/components/builder/nodes/actions/manageProperties/states/managePropertiesForm';
 import { IconTrash } from '@tabler/icons-react';
 import { Button, Form, Select } from 'erxes-ui';
 import { PlaceholderInput } from 'ui-modules';
 
 interface LocalRuleProps {
-  rule: TManagePropertiesForm['rules'][number];
   index: number;
   propertyType: string;
 }
 
-export const ManagePropertyRule = ({
-  rule,
-  propertyType,
-  index,
-}: LocalRuleProps) => {
+export const ManagePropertyRule = ({ propertyType, index }: LocalRuleProps) => {
   const {
     control,
     groups,
     operators,
-    selectedField,
     handleRemove,
-    setManagePropertyRuleValue,
-  } = useManagePropertyRule({ propertyType, index, rule });
-
+    handleUpdate,
+    placeholderInputProps,
+  } = useManagePropertyRule({ propertyType, index });
   return (
     <div className="border rounded p-4  mb-2 relative group">
       <div className="flex flex-row gap-4 mb-4  items-end">
@@ -32,7 +25,7 @@ export const ManagePropertyRule = ({
           name={`rules.${index}.field`}
           render={({ field }) => (
             <Form.Item className="w-3/5">
-              <Form.Label>Field</Form.Label>
+              <Form.Label>Field </Form.Label>
 
               <Select value={field.value} onValueChange={field.onChange}>
                 <Select.Trigger>
@@ -103,21 +96,19 @@ export const ManagePropertyRule = ({
           name={`rules.${index}.value`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Value</Form.Label>
+              <Form.Label>Value </Form.Label>
 
               <PlaceholderInput
                 propertyType={propertyType}
-                isDisabled={!operators.some((op) => op.value === rule.operator)}
-                // fieldType={selectedField?.type}
                 value={field.value ?? ''}
                 onChange={field.onChange}
                 onChangeInputMode={(mode) =>
-                  setManagePropertyRuleValue(
-                    `rules.${index}.isExpression`,
-                    mode === 'expression',
-                  )
+                  handleUpdate({ isExpression: mode === 'expression' })
                 }
-              />
+                {...placeholderInputProps}
+              >
+                <PlaceholderInput.Header />
+              </PlaceholderInput>
 
               <Form.Message />
             </Form.Item>

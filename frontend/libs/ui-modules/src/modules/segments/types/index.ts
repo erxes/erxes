@@ -48,7 +48,9 @@ export interface ISegment {
   count?: number;
 
   conditions: ICondition[];
-  conditionsConjunction?: 'and' | 'or';
+  conditionsConjunction?:
+    | TConditionsConjunction.AND
+    | TConditionsConjunction.OR;
   conditionSegments: ISegment[];
 
   scopeBrandIds?: string[];
@@ -88,10 +90,7 @@ export type IFormFieldName =
 
 export type IProperty = {
   index: number;
-  condition: ICondition;
   remove: () => void;
-  isFirst: boolean;
-  isLast: boolean;
   total: number;
   parentFieldName?: `conditionSegments.${number}`;
 };
@@ -133,4 +132,9 @@ export interface ISegmentMap {
 export interface IConditionsForPreview {
   type: string;
   subSegmentForPreview: ISegmentMap;
+}
+
+export enum TConditionsConjunction {
+  AND = 'and',
+  OR = 'or',
 }

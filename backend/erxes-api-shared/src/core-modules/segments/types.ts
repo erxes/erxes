@@ -3,7 +3,7 @@ type IContext = {
   processId?: string;
 };
 
-type ISegmentDependentServices = {
+type ISegmentDependentModule = {
   name: string;
   types?: string[];
   twoWay?: boolean;
@@ -20,7 +20,7 @@ type SegmentContentType = {
 
 export interface SegmentConfigs {
   contentTypes: SegmentContentType[];
-  dependentServices?: ISegmentDependentServices[];
+  dependentModules?: ISegmentDependentModule[];
 
   propertyConditionExtender?: (context: IContext, data: any) => Promise<any>;
   associationFilter?: (context: IContext, data: any) => Promise<any>;

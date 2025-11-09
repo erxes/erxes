@@ -1,11 +1,10 @@
-import { splitType, TAutomationProducers } from 'erxes-api-shared/core-modules';
 import {
-  getEnv,
-  sendCoreModuleProducer,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
-import { EmailResolver } from './generateReciepentEmailsByType';
-import { getRecipientEmails } from './generateRecipientEmails';
+  IAutomationExecutionDocument,
+  splitType,
+  TAutomationProducers,
+} from 'erxes-api-shared/core-modules';
+import { getEnv, sendCoreModuleProducer } from 'erxes-api-shared/utils';
+import { collectEmails, getRecipientEmails } from './generateRecipientEmails';
 import { replaceDocuments } from './replaceDocuments';
 import { filterOutSenderEmail, formatFromEmail } from './utils';
 
@@ -13,48 +12,40 @@ export const generateEmailPayload = async ({
   subdomain,
   target,
   execution,
-  triggerType,
+  targetType,
   config,
+}: {
+  subdomain: string;
+  target: any;
+  execution: IAutomationExecutionDocument;
+  triggerType: string;
+  targetType: string;
+  config: any;
 }) => {
-  const { fromUserId, fromEmailPlaceHolder, sender } = config;
-  const [pluginName, type] = splitType(triggerType);
+  const { fromEmailPlaceHolder, sender, type: senderType } = config;
+  const [pluginName, type] = splitType(targetType);
   const version = getEnv({ name: 'VERSION' });
   const DEFAULT_AWS_EMAIL = getEnv({ name: 'DEFAULT_AWS_EMAIL' });
 
-  const MAIL_SERVICE = getEnv({ name: 'MAIL_SERVICE' });
-
   const template = { content: config?.html || '' };
+  // const isSaasVersion = version === 'saas';
+  const isSaasVersion = true;
+  let fromUserEmail = '';
 
-  let fromUserEmail = version === 'saas' ? DEFAULT_AWS_EMAIL : '';
+  if (isSaasVersion || senderType === 'default') {
+    fromUserEmail = DEFAULT_AWS_EMAIL;
+  }
 
-  if (MAIL_SERVICE === 'custom') {
-    const { resolvePlaceholderEmails } = new EmailResolver({
+  if (senderType === 'custom' || !isSaasVersion) {
+    const emails = await collectEmails(fromEmailPlaceHolder, {
       subdomain,
-      execution,
       target,
+      targetType,
     });
-
-    const emails = await resolvePlaceholderEmails(
-      { pluginName, contentType: type },
-      fromEmailPlaceHolder,
-      'attributionMail',
-    );
     if (!emails?.length) {
       throw new Error('Cannot find from user');
     }
     fromUserEmail = emails[0];
-  } else if (fromUserId) {
-    const fromUser = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'users',
-      action: 'findOne',
-      method: 'query',
-      input: { _id: fromUserId },
-      defaultValue: null,
-    });
-
-    fromUserEmail = fromUser?.email;
   }
 
   let replacedContent = (template?.content || '').replace(
@@ -70,14 +61,10 @@ export const generateEmailPayload = async ({
     pluginName,
     producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
     input: {
-      execution,
       target,
       config: {
-        target,
-        config: {
-          subject: config.subject,
-          content: replacedContent,
-        },
+        subject: config.subject,
+        content: replacedContent,
       },
     },
     defaultValue: {},
@@ -86,9 +73,8 @@ export const generateEmailPayload = async ({
   const [toEmails, ccEmails] = await getRecipientEmails({
     subdomain,
     config,
-    triggerType,
+    targetType,
     target,
-    execution,
   });
 
   if (!toEmails?.length && ccEmails?.length) {

@@ -15,20 +15,35 @@ export const OutgoingWebhookHeaders = () => {
           render={({ field }) => {
             const { value: headers = [], onChange } = field;
 
+            const handleAddHeader = () => {
+              onChange([...headers, { key: '', value: '', type: 'fixed' }]);
+            };
+
+            if (!headers?.length) {
+              return (
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-row justify-between">
+                    <Form.Label>Headers</Form.Label>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleAddHeader}
+                    >
+                      <IconPlus /> Add Header
+                    </Button>
+                  </div>
+                  <div className="text-sm text-muted-foreground text-center py-8">
+                    No headers added yet. Click "Add Header" to get started.
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <>
                 <div className="flex items-center justify-between mb-6">
-                  <Label className="text-sm font-medium">Send Headers</Label>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      onChange([
-                        ...headers,
-                        { key: '', value: '', type: 'fixed' },
-                      ])
-                    }
-                  >
+                  <Label className="text-sm font-medium">Headers</Label>
+                  <Button variant="outline" size="sm" onClick={handleAddHeader}>
                     <IconPlus className="h-4 w-4 mr-2" />
                     Add Header
                   </Button>

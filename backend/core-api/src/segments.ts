@@ -26,12 +26,6 @@ export const initSegmentCoreProducers = (app: Express) =>
         description: 'Team member',
         esIndex: 'users',
       },
-      {
-        type: 'form_submission',
-        description: 'Form submission',
-        esIndex: 'form_submissions',
-        hideInSidebar: true,
-      },
       { type: 'company', description: 'Company', esIndex: 'companies' },
       { type: 'customer', description: 'Customer', esIndex: 'customers' },
       {

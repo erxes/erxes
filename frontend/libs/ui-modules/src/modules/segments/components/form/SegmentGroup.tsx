@@ -1,9 +1,8 @@
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Card, Label } from 'erxes-ui';
-import { useFieldArray, UseFormReturn } from 'react-hook-form';
-import { TSegmentForm } from '../../types';
+import { useFieldArray } from 'react-hook-form';
 import { SegmentProperty } from './SegmentProperty';
-import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
+import { useSegment } from '../../context/SegmentProvider';
 type Props = {
   parentFieldName?: `conditionSegments.${number}`;
   onRemove?: () => void;
@@ -21,7 +20,6 @@ export const SegmentGroup = ({ parentFieldName, onRemove }: Props) => {
     control: control,
     name: parentFieldName ? `${parentFieldName}.conditions` : 'conditions',
   });
-
   return (
     <Card className="bg-accent rounded-md">
       <Card.Header className="flex flex-row gap-2 items-center px-6 py-2 group">
@@ -39,7 +37,7 @@ export const SegmentGroup = ({ parentFieldName, onRemove }: Props) => {
             variant="destructive"
             size="icon"
             onClick={() => onRemove()}
-            className={`opacity-0 ${'group-hover:opacity-100'} transition-opacity`}
+            className={`opacity-0 group-hover:opacity-100 transition-opacity`}
           >
             <IconTrash />
           </Button>
@@ -47,15 +45,12 @@ export const SegmentGroup = ({ parentFieldName, onRemove }: Props) => {
       </Card.Header>
       <Card className="mx-1 p-2 bg-white rounded-md">
         <div className="flex flex-col ">
-          {(conditionFields || []).map((condition, index) => (
-            <div key={(condition as any).id}>
+          {(conditionFields || []).map((field, index) => (
+            <div key={field.id}>
               <SegmentProperty
                 index={index}
                 parentFieldName={parentFieldName}
-                condition={condition}
                 remove={() => remove(index)}
-                isFirst={index === 0}
-                isLast={index === conditionFields.length - 1}
                 total={conditionFields.length}
               />
             </div>

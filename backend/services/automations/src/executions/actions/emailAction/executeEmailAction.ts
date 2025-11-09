@@ -7,12 +7,14 @@ export const executeEmailAction = async ({
   target,
   execution,
   triggerType,
+  targetType,
   config,
 }) => {
   try {
     const payload = await generateEmailPayload({
       subdomain,
       triggerType,
+      targetType,
       target,
       config,
       execution,

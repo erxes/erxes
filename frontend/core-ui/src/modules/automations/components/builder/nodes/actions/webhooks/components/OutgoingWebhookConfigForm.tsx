@@ -1,5 +1,4 @@
 import { OutgoingWebhookAuth } from '@/automations/components/builder/nodes/actions/webhooks/components/OutgoingWebhookAuth';
-import { OutgoingWebhookBody } from '@/automations/components/builder/nodes/actions/webhooks/components/OutgoingWebhookBody';
 import { OutgoingWebhookHeaders } from '@/automations/components/builder/nodes/actions/webhooks/components/OutgoingWebhookHeaders';
 import { OutgoingWebhookOptions } from '@/automations/components/builder/nodes/actions/webhooks/components/OutgoingWebhookOptions';
 import { OutgoingWebhookRequest } from '@/automations/components/builder/nodes/actions/webhooks/components/OutgoingWebhookRequest';
@@ -9,12 +8,18 @@ import {
   outgoingWebhookFormSchema,
   TOutgoingWebhookForm,
 } from '@/automations/components/builder/nodes/actions/webhooks/states/outgoingWebhookFormSchema';
-import { useFormValidationErrorHandler } from '@/automations/hooks/useFormValidationErrorHandler';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Tabs } from 'erxes-ui';
+import { Button, Form, Tabs } from 'erxes-ui';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment, @typescript-eslint/no-var-requires
+// @ts-ignore
 import { merge } from 'lodash';
+import { OutgoingWebhookBodyBuilder } from '@/automations/components/builder/nodes/actions/webhooks/components/OutgoingWebhookBodyBuilder';
 import { FormProvider, useForm } from 'react-hook-form';
-import { TAutomationActionProps } from 'ui-modules';
+import {
+  TAutomationActionProps,
+  useFormValidationErrorHandler,
+} from 'ui-modules';
+import { useActionTarget } from '../../../hooks/useActionTarget';
 
 export const OutgoingWebhookConfigForm = ({
   currentAction,
@@ -23,7 +28,10 @@ export const OutgoingWebhookConfigForm = ({
   const { handleValidationErrors } = useFormValidationErrorHandler({
     formName: 'Webhook Configuration',
   });
-
+  const { selectedActionType } = useActionTarget({
+    actionId: currentAction.id,
+    targetActionId: currentAction.targetActionId,
+  });
   const form = useForm<TOutgoingWebhookForm>({
     resolver: zodResolver(outgoingWebhookFormSchema),
     defaultValues: merge(
@@ -34,7 +42,10 @@ export const OutgoingWebhookConfigForm = ({
 
   return (
     <div className="w-[650px] flex flex-col h-full">
-      <Tabs defaultValue="request" className="flex-1 overflow-auto">
+      <Tabs
+        defaultValue="request"
+        className="flex-1 overflow-auto flex flex-col"
+      >
         <Tabs.List className="w-full" defaultValue="request">
           <Tabs.Trigger className="w-1/5" value="request">
             Request
@@ -80,12 +91,22 @@ export const OutgoingWebhookConfigForm = ({
           </Tabs.Trigger>
         </Tabs.List>
         <FormProvider {...form}>
-          <div className="p-6">
+          <div className="flex-1 p-6">
             <Tabs.Content value="request">
               <OutgoingWebhookRequest />
             </Tabs.Content>
-            <Tabs.Content value="body">
-              <OutgoingWebhookBody />
+            <Tabs.Content value="body" className="h-full flex-1">
+              <Form.Field
+                control={form.control}
+                name="body"
+                render={({ field }) => (
+                  <OutgoingWebhookBodyBuilder
+                    value={field.value}
+                    onChange={field.onChange}
+                    contentType={selectedActionType}
+                  />
+                )}
+              />
             </Tabs.Content>
 
             <Tabs.Content value="auth">

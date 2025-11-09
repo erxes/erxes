@@ -1,5 +1,5 @@
 import { IModels } from '@/connectionResolver';
-import { isDiffValue } from '@/utils';
+import { isDiffValue } from '@/utils/utils';
 import { isInSegment } from '@/utils/isInSegment';
 import {
   AUTOMATION_EXECUTION_STATUS,
@@ -45,21 +45,20 @@ const checkValidTrigger = async (
 ) => {
   const { type = '', config, isCustom } = trigger;
   const { contentId } = config || {};
-  if (!!isCustom) {
-    const isValidCustomTigger = await checkIsValidCustomTigger(
-      type,
-      subdomain,
-      automationId,
-      trigger,
-      target,
-      config,
-    );
-    if (!isValidCustomTigger) {
-      return false;
-    }
-  } else if (!(await isInSegment(subdomain, contentId, target._id))) {
-    return false;
-  }
+  // if (!!isCustom) {
+  //   const isValidCustomTigger = await checkIsValidCustomTigger(
+  //     type,
+  //     subdomain,
+  //     automationId,
+  //     trigger,
+  //     target,
+  //     config,
+  //   );
+
+  //   return !isValidCustomTigger;
+  // } else if (!(await isInSegment(subdomain, contentId, target._id))) {
+  //   return false;
+  // }
 
   return true;
 };

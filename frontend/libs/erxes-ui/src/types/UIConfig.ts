@@ -16,6 +16,7 @@ export type IUIConfig = {
     hasFloatingWidget?: boolean;
     settingsOnly?: boolean;
     hasAutomation?: boolean;
+    hasSegmentConfigWidget?: boolean;
     submenus?: {
       name: string;
       path: string;

@@ -27,21 +27,28 @@ export const IncomingWebhookHeadersBuilder = ({
     onChange(updatedHeaders);
   };
 
+  if (!headers?.length) {
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-row justify-between">
+          <Form.Label>Headers</Form.Label>
+          <IncomingWebhookHeaderAddButton
+            onChange={onChange}
+            headers={headers}
+          />
+        </div>
+        <div className="text-sm text-muted-foreground text-center py-8">
+          No headers added yet. Click "Add Header" to get started.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="flex flex-row justify-between">
         <Form.Label>Headers</Form.Label>
-        <Button
-          variant="outline"
-          onClick={() =>
-            onChange([
-              ...(headers || []),
-              { key: '', value: '', description: '' },
-            ])
-          }
-        >
-          <IconPlus /> Add Header
-        </Button>
+        <IncomingWebhookHeaderAddButton onChange={onChange} headers={headers} />
       </div>
       <div>
         <Form.Label className="w-1/4">Key</Form.Label>
@@ -61,6 +68,26 @@ export const IncomingWebhookHeadersBuilder = ({
   );
 };
 
+const IncomingWebhookHeaderAddButton = ({
+  onChange,
+  headers,
+}: {
+  onChange: (headers: TIncomingWebhookForm['headers']) => void;
+  headers: TIncomingWebhookForm['headers'];
+}) => {
+  return (
+    <Button
+      size="sm"
+      variant="outline"
+      onClick={() =>
+        onChange([...(headers || []), { key: '', value: '', description: '' }])
+      }
+    >
+      <IconPlus /> Add Header
+    </Button>
+  );
+};
+
 const IncomingWebhookHeadersItem = ({
   index,
   header: { key, value, description },
@@ -68,7 +95,7 @@ const IncomingWebhookHeadersItem = ({
   handleRemove,
 }: {
   index: number;
-  header: TIncomingWebhookForm['headers'][number];
+  header: NonNullable<TIncomingWebhookForm['headers']>[number];
   handleChange: (
     index: number,
     field: 'key' | 'value' | 'description',

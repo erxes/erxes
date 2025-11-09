@@ -148,6 +148,7 @@ export type AutomationExecutionActionResultProps = {
   componentType: 'historyActionResult';
   action: IAutomationHistoryAction;
   result: IAutomationHistoryAction['result'];
+  status: IAutomationHistory['status'];
 };
 
 export type AutomationCustomWaitEventFormProps<TConfig = any> = {

@@ -1,4 +1,4 @@
-import { GenericCommandList } from 'ui-modules/modules/automations/components/placeholderInput/commandList/GenericCommandList';
+import { GenericCommandList } from 'ui-modules';
 import { LabelBadge } from '~/modules/deals/components/common/filters/LabelBadge';
 import { usePipelineLabels } from '~/modules/deals/pipelines/hooks/usePipelineDetails';
 

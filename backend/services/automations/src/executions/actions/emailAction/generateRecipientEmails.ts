@@ -1,120 +1,83 @@
+import { generateAttributesFromPlaceholders } from '@/utils/utils';
 import { splitType, TAutomationProducers } from 'erxes-api-shared/core-modules';
 import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
-import { EmailResolver } from './generateReciepentEmailsByType';
-import { getEmailRecipientTypes } from './utils';
-
-type EmailsGeneratorType = EmailResolver;
-
-enum RECIEPENT_TYPES {
-  TEAM_MEMBER = 'teamMember',
-  ATTRIBUTION_MAILS = 'attributionMail',
-  CUSTOM_MAILS = 'customMail',
-}
+import { extractValidEmails } from './utils';
 
 export const getRecipientEmails = async ({
   subdomain,
   config,
-  triggerType,
+  targetType,
   target,
-  execution,
 }) => {
-  const reciepentTypes = await getEmailRecipientTypes();
-  const emailResolver = new EmailResolver({
-    subdomain,
-    execution,
-    target,
-  });
-
-  const reciepentTypeKeys = reciepentTypes.map((rT) => rT.name);
-
   const commonProps = {
     subdomain,
-    triggerType,
-    reciepentTypeKeys,
-    reciepentTypes,
-    emailResolver,
+    targetType,
+    target,
   };
 
-  const toEmails = [...(await collectEmails(config, commonProps))];
-  const ccEmails = [...(await collectEmails(config?.cc || {}, commonProps))];
+  const toEmails = [
+    ...(await collectEmails(config.toEmailsPlaceHolders, commonProps)),
+  ];
+  const ccEmails = config?.ccEmailsPlaceHolders
+    ? [
+        ...(await collectEmails(
+          config?.ccEmailsPlaceHolders || '',
+          commonProps,
+        )),
+      ]
+    : [];
 
   return [toEmails, ccEmails];
 };
 
-const collectEmails = async (
-  config: any,
+export const collectEmails = async (
+  mailPlaceHolder: string,
   {
     subdomain,
-    triggerType,
-    reciepentTypeKeys,
-    reciepentTypes,
-    emailResolver,
+    target,
+    targetType,
   }: {
     subdomain: string;
-    triggerType: string;
-    reciepentTypes: {
-      type: string;
-      name: string;
-      label: string;
-      pluginName?: string;
-    }[];
-    reciepentTypeKeys: string[];
-    emailResolver: EmailsGeneratorType;
+    target: any;
+    targetType: string;
   },
 ) => {
   let recipientEmails: string[] = [];
+  const [pluginName, contentType] = splitType(targetType);
+  const attributes = generateAttributesFromPlaceholders(mailPlaceHolder);
+  if (!attributes.length) return [];
 
-  for (const key of Object.keys(config)) {
-    if (reciepentTypeKeys.includes(key) && !!config[key]) {
-      const [pluginName, contentType] = splitType(triggerType);
+  const relatedValueProps: Record<string, any> = {};
 
-      const { type, pluginName: reciepentTypePluginName } =
-        reciepentTypes.find((rT) => rT.name === key) || {};
+  for (const attribute of attributes) {
+    relatedValueProps[attribute] = {
+      key: 'email',
+      filter: {
+        key: 'registrationToken',
+        value: null,
+      },
+    };
 
-      if (type === RECIEPENT_TYPES.TEAM_MEMBER) {
-        const emails = await emailResolver.resolveTeamMemberEmails({
-          _id: { $in: config[key] || [] },
-        });
-
-        recipientEmails = [...recipientEmails, ...emails];
-        continue;
-      }
-
-      if (type === RECIEPENT_TYPES.ATTRIBUTION_MAILS) {
-        const emails = await emailResolver.resolvePlaceholderEmails(
-          { pluginName, contentType },
-          config[key],
-          type,
-        );
-
-        recipientEmails = [...recipientEmails, ...emails];
-        continue;
-      }
-
-      if (type === RECIEPENT_TYPES.CUSTOM_MAILS) {
-        const emails = config[key] || [];
-
-        recipientEmails = [...recipientEmails, ...emails];
-        continue;
-      }
-
-      if (!!reciepentTypePluginName) {
-        const emails = await sendCoreModuleProducer({
-          moduleName: 'automations',
-          subdomain,
-          pluginName,
-          producerName: TAutomationProducers.GET_RECIPIENTS_EMAILS,
-          input: {
-            type,
-            config,
-          },
-          defaultValue: {},
-        });
-        recipientEmails = [...recipientEmails, ...emails];
-        continue;
-      }
+    if (['customers', 'companies'].includes(attribute)) {
+      relatedValueProps[attribute] = { key: 'primaryEmail' };
     }
   }
 
-  return recipientEmails;
+  const replacedContent = await sendCoreModuleProducer({
+    subdomain,
+    moduleName: 'automations',
+    pluginName,
+    producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
+    input: {
+      target: { ...(target || {}), type: contentType },
+      config: { mailPlaceHolder: mailPlaceHolder },
+      relatedValueProps,
+    },
+  });
+
+  const generatedEmails = extractValidEmails(
+    replacedContent['mailPlaceHolder'] || '',
+  );
+
+  return [...new Set(recipientEmails), ...new Set(generatedEmails)];
 };

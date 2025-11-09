@@ -1,7 +1,6 @@
 import { RenderPluginsComponentWrapper } from '@/automations/components/common/RenderPluginsComponentWrapper';
-import { IconInfoTriangle } from '@tabler/icons-react';
 import { CellContext } from '@tanstack/table-core';
-import { splitAutomationNodeType, IAutomationHistory } from 'ui-modules';
+import { IAutomationHistory, splitAutomationNodeType } from 'ui-modules';
 
 export const AutomationHistoryResultName = ({
   cell,
@@ -26,9 +25,7 @@ export const AutomationHistoryResultName = ({
   if (pluginName && moduleName) {
     return (
       <p className="flex flex-row gap-2 items-center ml-4">
-        {pluginName}
-        {moduleName}
-        <IconInfoTriangle className="size-3 text-destructive" />
+        {moduleName.toUpperCase()}
       </p>
     );
   }

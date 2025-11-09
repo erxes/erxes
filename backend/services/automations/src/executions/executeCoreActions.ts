@@ -1,6 +1,10 @@
+import { executeEmailAction } from '@/executions/actions/emailAction/executeEmailAction';
+import { executeDelayAction } from '@/executions/actions/executeDelayAction';
 import { executeIfCondition } from '@/executions/actions/executeIfCondition';
 import { executeSetPropertyAction } from '@/executions/actions/executeSetPropertyAction';
-import { executeDelayAction } from '@/executions/actions/executeDelayAction';
+import { executeWaitEvent } from '@/executions/actions/executeWaitEvent';
+import { executeOutgoingWebhook } from '@/executions/actions/webhook/outgoing/outgoingWebhook';
+import { executeFindObjectAction } from '@/executions/executeFindObjectAction';
 import {
   AUTOMATION_CORE_ACTIONS,
   IAutomationAction,
@@ -8,10 +12,6 @@ import {
   IAutomationExecAction,
   IAutomationExecutionDocument,
 } from 'erxes-api-shared/core-modules';
-import { executeEmailAction } from '@/executions/actions/emailAction/executeEmailAction';
-import { executeOutgoingWebhook } from '@/executions/actions/webhook/outgoing/outgoingWebhook';
-import { executeWaitEvent } from '@/executions/actions/executeWaitEvent';
-import { executeFindObjectAction } from '@/executions/executeFindObjectAction';
 
 type TCoreActionResponse = Promise<{
   shouldBreak: boolean;
@@ -20,6 +20,7 @@ type TCoreActionResponse = Promise<{
 
 export const executeCoreActions = async (
   triggerType: string,
+  targetType: string,
   actionType: string,
   subdomain: string,
   execution: IAutomationExecutionDocument,
@@ -30,7 +31,6 @@ export const executeCoreActions = async (
   let shouldBreak = false;
 
   let actionResponse: any = null;
-
   if (actionType === AUTOMATION_CORE_ACTIONS.DELAY) {
     await executeDelayAction(subdomain, execution, action, execAction);
     return { actionResponse, shouldBreak: true };
@@ -49,28 +49,30 @@ export const executeCoreActions = async (
   }
 
   if (actionType === AUTOMATION_CORE_ACTIONS.WAIT_EVENT) {
-    executeWaitEvent(subdomain, execution, action);
+    await executeWaitEvent(subdomain, execution, action, execAction);
+
     return { actionResponse, shouldBreak: true };
   }
 
   if (actionType === AUTOMATION_CORE_ACTIONS.FIND_OBJECT) {
-    await executeFindObjectAction(
+    actionResponse = await executeFindObjectAction(
       subdomain,
       execution,
       action,
       execAction,
       actionsMap,
     );
-    return { actionResponse, shouldBreak: true };
   }
 
   if (actionType === AUTOMATION_CORE_ACTIONS.SET_PROPERTY) {
-    actionResponse = await executeSetPropertyAction(
+    const { result } = await executeSetPropertyAction(
       subdomain,
       action,
       triggerType,
+      targetType,
       execution,
     );
+    actionResponse = result;
   }
 
   if (actionType === AUTOMATION_CORE_ACTIONS.SEND_EMAIL) {
@@ -78,6 +80,7 @@ export const executeCoreActions = async (
       subdomain,
       target: execution.target,
       triggerType,
+      targetType,
       config: action.config,
       execution,
     });
@@ -86,7 +89,7 @@ export const executeCoreActions = async (
   if (actionType === AUTOMATION_CORE_ACTIONS.OUTGOING_WEBHOOK) {
     actionResponse = await executeOutgoingWebhook({
       subdomain,
-      triggerType,
+      targetType,
       target: execution.target,
       action,
     });

@@ -20,6 +20,7 @@ export const getRelatedValue = async (
     ].includes(targetKey)
   ) {
     const user = await sendTRPCMessage({
+      subdomain,
       pluginName: 'core',
       method: 'query',
       module: 'users',
@@ -43,6 +44,7 @@ export const getRelatedValue = async (
     )
   ) {
     const users = await sendTRPCMessage({
+      subdomain,
       pluginName: 'core',
       method: 'query',
       module: 'users',
@@ -71,10 +73,11 @@ export const getRelatedValue = async (
 
   if (targetKey === 'tagIds') {
     const tags = await sendTRPCMessage({
+      subdomain,
       pluginName: 'core',
       method: 'query',
       module: 'tags',
-      action: 'tagFind',
+      action: 'find',
       input: { _id: { $in: target[targetKey] } },
     });
 
@@ -99,6 +102,7 @@ export const getRelatedValue = async (
 
   if (['sourceConversationIds'].includes(targetKey)) {
     const conversations = await sendTRPCMessage({
+      subdomain,
       pluginName: 'inbox',
       module: 'conversations',
       action: 'find',
@@ -115,6 +119,7 @@ export const getRelatedValue = async (
     };
 
     const contactIds = await sendTRPCMessage({
+      subdomain,
       pluginName: 'core',
       module: 'conformities',
       action: 'savedConformity',
@@ -129,6 +134,7 @@ export const getRelatedValue = async (
       targetKey.charAt(0).toUpperCase() + targetKey.slice(1);
 
     const activeContacts = await sendTRPCMessage({
+      subdomain,
       pluginName: 'core',
       module: targetKey,
       action: `findActive${upperCasedTargetKey}`,
@@ -226,6 +232,7 @@ const generateCustomFieldsDataValue = async ({
   }
 
   const field = await sendTRPCMessage({
+    subdomain,
     pluginName: 'core',
     module: 'fields',
     action: 'findOne',
@@ -246,6 +253,7 @@ const generateCustomFieldsDataValue = async ({
 
   if (field?.type === 'users') {
     const users: IUser[] = await sendTRPCMessage({
+      subdomain,
       pluginName: 'core',
       module: 'users',
       action: 'find',
@@ -289,6 +297,7 @@ const generateCustomersFielValue = async ({
   const [_, fieldName] = targetKey.split('.');
 
   const customerIds = await sendTRPCMessage({
+    subdomain,
     pluginName: 'core',
     module: 'conformities',
     action: 'savedConformity',
@@ -302,6 +311,7 @@ const generateCustomersFielValue = async ({
 
   const customers: any[] =
     (await sendTRPCMessage({
+      subdomain,
       pluginName: 'core',
       module: 'customers',
       action: 'find',
@@ -348,6 +358,7 @@ const generateCreatedByFieldValue = async ({
 }) => {
   const [_, userField] = targetKey.split('.');
   const user = await sendTRPCMessage({
+    subdomain,
     pluginName: 'core',
     module: 'users',
     action: 'findOne',
@@ -355,6 +366,7 @@ const generateCreatedByFieldValue = async ({
   });
   if (userField === 'branch') {
     const branches = await sendTRPCMessage({
+      subdomain,
       pluginName: 'core',
       module: 'branches',
       action: 'find',
@@ -368,6 +380,7 @@ const generateCreatedByFieldValue = async ({
   }
   if (userField === 'department') {
     const departments = await sendTRPCMessage({
+      subdomain,
       pluginName: 'core',
       module: 'departments',
       action: 'find',

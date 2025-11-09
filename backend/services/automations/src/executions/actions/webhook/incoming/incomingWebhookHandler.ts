@@ -2,10 +2,11 @@ import { generateModels } from '@/connectionResolver';
 import { validateAgainstSchema } from '@/executions/actions/webhook/incoming/bodyValidator';
 import { validateSecurity } from '@/executions/actions/webhook/incoming/utils';
 import { executeActions } from '@/executions/executeActions';
-import { getActionsMap } from '@/utils';
+import { getActionsMap } from '@/utils/utils';
 import {
   AUTOMATION_CORE_TRIGGER_TYPES,
   AUTOMATION_EXECUTION_STATUS,
+  EXECUTE_WAIT_TYPES,
 } from 'erxes-api-shared/core-modules';
 import { ILogDoc } from 'erxes-api-shared/core-types';
 import { getSubdomain, sendWorkerQueue } from 'erxes-api-shared/utils';
@@ -13,7 +14,7 @@ import { Request, Response } from 'express';
 
 export const incomingWebhookHandler = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const restPath = req.params[0] || '';
+  const endpoint = req.params[0] || '';
 
   // Security headers for webhook responses
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -23,8 +24,6 @@ export const incomingWebhookHandler = async (req: Request, res: Response) => {
   try {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
-
-    const endpoint = restPath.startsWith('/') ? restPath : `/${restPath}`;
 
     // Find automation with proper indexing consideration
     const automation = await models.Automations.findOne({
@@ -117,6 +116,12 @@ export const incomingWebhookHandler = async (req: Request, res: Response) => {
         });
       }
     }
+
+    const waitingAction = await models.WaitingActions.findOne({
+      conditionType: EXECUTE_WAIT_TYPES.WEBHOOK,
+      automationId: automation._id,
+      'conditionConfig.endpoint': endpoint,
+    });
 
     // Create execution with security context
     const execution = await models.Executions.create({

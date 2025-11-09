@@ -1,21 +1,26 @@
-import { isCoreAutomationActionType } from '@/automations/components/builder/nodes/actions/coreAutomationActions';
+import { useAutomationHistoryResult } from '@/automations/components/builder/history/hooks/useAutomationHistoryResult';
+import {
+  getCoreAutomationActionComponent,
+  isCoreAutomationActionType,
+} from '@/automations/components/builder/nodes/actions/coreAutomationActions';
 import { AutomationSendEmailActionResult } from '@/automations/components/builder/nodes/actions/sendEmail/components/SendEmailActionResult';
-import { useAutomation } from '@/automations/context/AutomationProvider';
+import { TAutomationActionComponent } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { RenderPluginsComponentWrapper } from '@/automations/components/common/RenderPluginsComponentWrapper';
-import { format, isValid } from 'date-fns';
+import { useAutomationsRemoteModules } from '@/automations/utils/useAutomationsModules';
+import { IconArrowDown } from '@tabler/icons-react';
 import { RelativeDateDisplay, Table } from 'erxes-ui';
 import {
-  splitAutomationNodeType,
   IAutomationHistory,
   IAutomationHistoryAction,
+  splitAutomationNodeType,
 } from 'ui-modules';
-import { useAutomationsRemoteModules } from '@/automations/utils/useAutomationsModules';
-import { TAutomationActionComponent } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 
 export const ExecutionActionResult = ({
   action,
+  status,
 }: {
   action: IAutomationHistoryAction;
+  status: IAutomationHistory['status'];
 }) => {
   if (action.actionType === 'delay') {
     const { value, type } = action?.actionConfig || {};
@@ -54,6 +59,23 @@ export const ExecutionActionResult = ({
     TAutomationActionComponent.ActionResult,
   );
 
+  if (isCoreAction) {
+    const CoreActionComponent = getCoreAutomationActionComponent(
+      action?.actionType,
+      TAutomationActionComponent.ActionResult,
+    );
+
+    if (CoreActionComponent) {
+      return (
+        <CoreActionComponent
+          result={action.result}
+          action={action}
+          status={status}
+        />
+      );
+    }
+  }
+
   const [pluginName, moduleName] = splitAutomationNodeType(action?.actionType);
   const { isEnabled } = useAutomationsRemoteModules(pluginName);
 
@@ -66,6 +88,7 @@ export const ExecutionActionResult = ({
           componentType: 'historyActionResult',
           result: action.result,
           action,
+          status,
         }}
       />
     );
@@ -73,15 +96,12 @@ export const ExecutionActionResult = ({
 
   return JSON.stringify(result);
 };
-
 export const AutomationHistoryByTable = ({
   history,
 }: {
   history: IAutomationHistory;
 }) => {
-  const { actionsConst } = useAutomation();
-  const { actions = [] } = history;
-
+  const { list, status } = useAutomationHistoryResult(history);
   return (
     <div className="px-4">
       <Table>
@@ -93,35 +113,30 @@ export const AutomationHistoryByTable = ({
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {[...actions]
-            .sort(
-              (a, b) =>
-                new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime(),
-            )
-            .map((action, index) => {
-              const date = action.createdAt ? new Date(action.createdAt) : '';
-              const createdAt = isValid(date)
-                ? format(date, 'yyyy-MM-dd HH:mm:ss')
-                : 'N/A';
-
-              return (
+          {list.map(({ actionTypeLabel, createdAtValue, ...action }, index) => {
+            return (
+              <>
                 <Table.Row key={index}>
                   <Table.Cell>
-                    <RelativeDateDisplay.Value value={createdAt} />
+                    <RelativeDateDisplay.Value value={createdAtValue} />
                   </Table.Cell>
-                  <Table.Cell>
-                    {actionsConst.find(({ type }) => type === action.actionType)
-                      ?.label ||
-                      action.actionType ||
-                      'Empty'}
-                  </Table.Cell>
+                  <Table.Cell>{actionTypeLabel}</Table.Cell>
                   <Table.Cell className="overflow-x-auto">
-                    <ExecutionActionResult action={action} />
+                    <ExecutionActionResult action={action} status={status} />
                   </Table.Cell>
                 </Table.Row>
-              );
-            })}
+                {list.length - 1 > index && (
+                  <tr>
+                    <td colSpan={3} className="text-center py-2">
+                      <div className="flex items-center justify-center">
+                        <IconArrowDown />
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </>
+            );
+          })}
         </Table.Body>
       </Table>
     </div>

@@ -18,23 +18,20 @@ export default {
     triggers: [...salesAutomationContants.triggers],
     actions: [...salesAutomationContants.actions],
   },
-  receiveActions: async (
-    { subdomain },
-    {
+  receiveActions: async ({ subdomain, data }) => {
+    const {
       moduleName,
       ...args
-    }: { moduleName: string } & IAutomationReceiveActionData,
-  ) => {
+    }: { moduleName: string } & IAutomationReceiveActionData = data;
     const models = await generateModels(subdomain);
     const context = { models, subdomain };
 
     return modules[moduleName as ModuleKeys].receiveActions(context, args);
   },
 
-  checkCustomTrigger: async (
-    { subdomain },
-    { moduleName, ...props }: { moduleName: string } & ICheckTriggerData,
-  ) => {
+  checkCustomTrigger: async ({ subdomain, data }) => {
+    const { moduleName, ...props }: { moduleName: string } & ICheckTriggerData =
+      data;
     const models = await generateModels(subdomain);
     const context = { models, subdomain };
 

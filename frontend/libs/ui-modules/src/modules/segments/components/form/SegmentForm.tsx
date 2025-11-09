@@ -1,98 +1,136 @@
-import { Button, cn, Label, Separator, Spinner } from 'erxes-ui';
-import { FormProvider } from 'react-hook-form';
+import { Button, cn, Separator } from 'erxes-ui';
+import React from 'react';
+import { FormProvider, useWatch } from 'react-hook-form';
 import { useSegmentActions } from 'ui-modules/modules/segments/hooks/useSegmentActions';
 import { useSegmentDetail } from 'ui-modules/modules/segments/hooks/useSegmentDetail';
 
+import { IconPlus } from '@tabler/icons-react';
 import { SegmentFormFooter } from 'ui-modules/modules/segments/components/form/SegmentFormFooter';
+import { SegmentFormLoading } from 'ui-modules/modules/segments/components/form/SegmentFormLoading';
 import { SegmentMetadataForm } from 'ui-modules/modules/segments/components/form/SegmentMetadataForm';
 import {
   SegmentProvider,
   useSegment,
 } from 'ui-modules/modules/segments/context/SegmentProvider';
-import { SegmentGroup } from './SegmentGroup';
 import { SegmentGroups } from './SegmentGroups';
-import { IconPlus } from '@tabler/icons-react';
+import { SegmentConfigWidget } from './SegmentConfigWidget';
 
-type Props = {
+type SegmentFormRootProps = {
   contentType: string;
   segmentId?: string;
-  callback: (contentId: string) => void;
-  isTemporary?: boolean;
+  children: React.ReactNode;
 };
 
-const SegmentGroupsContent = () => {
-  const { form } = useSegment();
-  const conditionSegments = form.watch('conditionSegments');
+const SegmentFormRoot = ({
+  contentType,
+  segmentId,
+  children,
+}: SegmentFormRootProps) => {
+  const { segment, segmentLoading } = useSegmentDetail(segmentId);
 
-  if (conditionSegments?.length) {
-    return <SegmentGroups />;
+  if (segmentLoading) {
+    return <SegmentFormLoading />;
   }
 
-  return <SegmentGroup />;
+  return (
+    <SegmentProvider contentType={contentType} segment={segment}>
+      {children}
+    </SegmentProvider>
+  );
 };
 
-const SegmentFormContent = ({
-  callback,
-  isTemporary,
-}: {
-  isTemporary?: boolean;
-  callback?: (contentId: string) => void;
-}) => {
+const SegmentFormWrapper = ({ children }: { children: React.ReactNode }) => {
   const { form } = useSegment();
-
-  const { watch } = form;
-
-  const { onAddSegmentGroup } = useSegmentActions({ callback });
 
   return (
     <FormProvider {...form}>
       <form id="segment-form" className="h-full min-h-0 flex flex-col">
-        <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full p-2">
-          <SegmentMetadataForm isTemporary={isTemporary} />
-          <div className="pb-4">
-            <SegmentGroupsContent />
-          </div>
-          <Separator className="my-2" />
-          <Button
-            variant="outline"
-            className={cn(
-              'w-full font-mono uppercase font-semibold text-xs text-accent-foreground',
-              {
-                'pl-12': (watch('conditionSegments')?.length || 0) > 1,
-              },
-            )}
-            onClick={onAddSegmentGroup}
-          >
-            <IconPlus />
-            Add Group
-          </Button>
-        </div>
-        <SegmentFormFooter callback={callback} />
+        {children}
       </form>
     </FormProvider>
   );
 };
 
-export function SegmentForm({
+const SegmentFormHeader = ({ isTemporary }: { isTemporary?: boolean }) => {
+  if (isTemporary) {
+    return null;
+  }
+  return (
+    <div className="w-full p-2 pb-4">
+      <SegmentMetadataForm />
+    </div>
+  );
+};
+
+const SegmentFormContent = ({
+  callback,
+}: {
+  callback?: (contentId: string) => void;
+}) => {
+  const { form, contentType } = useSegment();
+
+  const conditionSegments = useWatch({
+    control: form.control,
+    name: 'conditionSegments',
+  });
+
+  const { onAddSegmentGroup } = useSegmentActions({ callback });
+
+  return (
+    <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full p-2">
+      <SegmentConfigWidget contentType={contentType} />
+      <div className="pb-4">
+        <SegmentGroups />
+      </div>
+      <Separator className="my-2" />
+      <Button
+        variant="secondary"
+        className={cn(
+          'w-full font-mono uppercase font-semibold text-xs text-accent-foreground',
+          {
+            'pl-12': (conditionSegments?.length || 0) > 1,
+          },
+        )}
+        onClick={onAddSegmentGroup}
+      >
+        <IconPlus />
+        Add Group
+      </Button>
+    </div>
+  );
+};
+
+// Legacy props interface for backward compatibility
+type LegacyProps = {
+  contentType: string;
+  segmentId?: string;
+  callback: (contentId: string) => void;
+  isTemporary?: boolean;
+  saveButtonText?: string;
+};
+
+// Legacy component wrapper
+const SegmentFormLegacy = ({
   contentType,
   isTemporary,
   callback,
   segmentId,
-}: Props) {
-  const { segment, segmentLoading } = useSegmentDetail(segmentId);
-
-  if (segmentLoading) {
-    return <Spinner />;
-  }
-
-  const updatedProps = {
-    isTemporary,
-    callback,
-  };
-
+}: LegacyProps) => {
   return (
-    <SegmentProvider contentType={contentType} segment={segment}>
-      <SegmentFormContent {...updatedProps} />
-    </SegmentProvider>
+    <SegmentFormRoot contentType={contentType} segmentId={segmentId}>
+      <SegmentFormWrapper>
+        <SegmentFormHeader isTemporary={isTemporary} />
+        <SegmentFormContent callback={callback} />
+        <SegmentFormFooter callback={callback} />
+      </SegmentFormWrapper>
+    </SegmentFormRoot>
   );
-}
+};
+
+export const SegmentForm = Object.assign(SegmentFormLegacy, {
+  Root: SegmentFormRoot,
+  Wrapper: SegmentFormWrapper,
+  Header: SegmentFormHeader,
+  Content: SegmentFormContent,
+  Footer: SegmentFormFooter,
+});

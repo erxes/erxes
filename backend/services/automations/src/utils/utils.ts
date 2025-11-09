@@ -2,7 +2,7 @@ import {
   IAutomationAction,
   IAutomationActionsMap,
 } from 'erxes-api-shared/core-modules';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { getEnv, sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const getActionsMap = async (actions: IAutomationAction[]) => {
   const actionsMap: IAutomationActionsMap = {};
@@ -14,7 +14,7 @@ export const getActionsMap = async (actions: IAutomationAction[]) => {
   return actionsMap;
 };
 
-const isDiffValue = (latest, target, field) => {
+export const isDiffValue = (latest, target, field) => {
   if (field.includes('customFieldsData') || field.includes('trackedData')) {
     const [ct, fieldId] = field.split('.');
     const latestFoundItem = latest[ct].find((i) => i.field === fieldId);
@@ -62,12 +62,25 @@ export const getConfig = async (
   code: string,
   defaultValue?: any,
 ) => {
-  return await sendTRPCMessage({
+  const ENV_CONFIG = getEnv({ name: code });
+  const config = await sendTRPCMessage({
     subdomain,
     method: 'query',
     pluginName: 'core',
-    module: 'config',
+    module: 'configs',
     action: 'getConfig',
     input: { code, defaultValue },
   });
+  if (!config && !ENV_CONFIG) {
+    return defaultValue;
+  }
+
+  return config || ENV_CONFIG;
+};
+
+export const generateAttributesFromPlaceholders = (placeholder: string) => {
+  const matches = (placeholder || '').match(/\{\{\s*([^}]+)\s*\}\}/g);
+  const attributes =
+    matches?.map((match) => match.replace(/\{\{\s*|\s*\}\}/g, '')) || [];
+  return attributes;
 };

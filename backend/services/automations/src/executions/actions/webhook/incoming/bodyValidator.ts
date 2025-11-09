@@ -21,35 +21,42 @@ export function validateAgainstSchema(
 
     // Required check
     if (field.required && (value === undefined || value === null)) {
-      errors.push(`${fieldPath} is required`);
+      const errorMsg = `${fieldPath} is required`;
+      errors.push(errorMsg);
       continue;
     }
 
     // Skip validation if value not provided
-    if (value === undefined || value === null) continue;
+    if (value === undefined || value === null) {
+      continue;
+    }
 
     switch (field.type) {
       case 'string':
         if (typeof value !== 'string') {
-          errors.push(`${fieldPath} must be a string`);
+          const errorMsg = `${fieldPath} must be a string`;
+          errors.push(errorMsg);
         }
         break;
 
       case 'number':
         if (typeof value !== 'number') {
-          errors.push(`${fieldPath} must be a number`);
+          const errorMsg = `${fieldPath} must be a number`;
+          errors.push(errorMsg);
         }
         break;
 
       case 'boolean':
         if (typeof value !== 'boolean') {
-          errors.push(`${fieldPath} must be a boolean`);
+          const errorMsg = `${fieldPath} must be a boolean`;
+          errors.push(errorMsg);
         }
         break;
 
       case 'object':
         if (typeof value !== 'object' || Array.isArray(value)) {
-          errors.push(`${fieldPath} must be an object`);
+          const errorMsg = `${fieldPath} must be an object`;
+          errors.push(errorMsg);
         } else if (field.children) {
           errors.push(
             ...validateAgainstSchema(field.children, value, fieldPath),
@@ -59,7 +66,8 @@ export function validateAgainstSchema(
 
       case 'array':
         if (!Array.isArray(value)) {
-          errors.push(`${fieldPath} must be an array`);
+          const errorMsg = `${fieldPath} must be an array`;
+          errors.push(errorMsg);
         } else {
           value.forEach((item, idx) => {
             const itemPath = `${fieldPath}[${idx}]`;
@@ -67,7 +75,8 @@ export function validateAgainstSchema(
             if (field.arrayItemType) {
               if (field.arrayItemType === 'object') {
                 if (typeof item !== 'object' || Array.isArray(item)) {
-                  errors.push(`${itemPath} must be an object`);
+                  const errorMsg = `${itemPath} must be an object`;
+                  errors.push(errorMsg);
                 } else if (field.arrayItemSchema) {
                   errors.push(
                     ...validateAgainstSchema(
@@ -78,7 +87,8 @@ export function validateAgainstSchema(
                   );
                 }
               } else if (typeof item !== field.arrayItemType) {
-                errors.push(`${itemPath} must be a ${field.arrayItemType}`);
+                const errorMsg = `${itemPath} must be a ${field.arrayItemType}`;
+                errors.push(errorMsg);
               }
             }
           });
@@ -86,7 +96,8 @@ export function validateAgainstSchema(
         break;
 
       default:
-        errors.push(`${fieldPath} has unknown type ${field.type}`);
+        const errorMsg = `${fieldPath} has unknown type ${field.type}`;
+        errors.push(errorMsg);
     }
   }
 

@@ -36,6 +36,10 @@ export const executeCreateAction = async (
     defaultValue: null,
   });
 
+  if (actionResponse.error) {
+    throw new Error(actionResponse.error);
+  }
+
   const waitCondition = actionResponse?.waitCondition;
   let shouldBreak = false;
 
@@ -46,9 +50,6 @@ export const executeCreateAction = async (
       action,
       waitCondition,
     );
-  }
-  if (actionResponse.error) {
-    throw new Error(actionResponse.error);
   }
 
   return { shouldBreak, actionResponse };

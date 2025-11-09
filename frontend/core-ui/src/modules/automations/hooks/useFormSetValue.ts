@@ -25,9 +25,9 @@ export const useAutomationFormController = () => {
     ]);
 
     for (const { nodeType, nodes } of [
-      { nodeType: AutomationNodesType.Triggers, nodes: triggers },
-      { nodeType: AutomationNodesType.Actions, nodes: actions },
-      { nodeType: AutomationNodesType.Workflows, nodes: workflows },
+      { nodeType: AutomationNodesType.Triggers, nodes: triggers || [] },
+      { nodeType: AutomationNodesType.Actions, nodes: actions || [] },
+      { nodeType: AutomationNodesType.Workflows, nodes: workflows || [] },
     ]) {
       setValue(
         `${nodeType}`,

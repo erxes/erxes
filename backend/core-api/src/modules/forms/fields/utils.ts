@@ -59,25 +59,6 @@ const generateUsersOptions = async (
   };
 };
 
-const generateTestOptions = async (
-  name: string,
-  label: string,
-  type: string,
-  selectionConfig?: any,
-) => {
-  return {
-    _id: Math.random(),
-    name,
-    label,
-    type,
-    selectionConfig: {
-      ...selectionConfig,
-      queryName: 'customers',
-      labelField: 'primaryEmail',
-    },
-  };
-};
-
 const getTags = async (subdomain: string, type: string) => {
   const models = await generateModels(subdomain);
   const tags = await models.Tags.find({ type });
@@ -254,7 +235,7 @@ export const generateFormFields = async ({ subdomain, data }) => {
 };
 
 export const generateContactsFields = async ({ subdomain, data }) => {
-  const { type, usageType } = data;
+  const { moduleType, usageType } = data;
 
   const models = await generateModels(subdomain);
 
@@ -272,7 +253,7 @@ export const generateContactsFields = async ({ subdomain, data }) => {
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 
-  switch (type) {
+  switch (moduleType) {
     case 'lead':
       schema = Customers.schema;
 
@@ -284,7 +265,6 @@ export const generateContactsFields = async ({ subdomain, data }) => {
       schema = Companies.schema;
       break;
   }
-
   if (schema) {
     // generate list using customer or company schema
     fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
@@ -302,13 +282,11 @@ export const generateContactsFields = async ({ subdomain, data }) => {
     }
   }
 
-  console.time('trackData');
-
   if ((!usageType || usageType === 'export') && (await isElasticsearchUp())) {
     const aggre = await fetchEs({
       subdomain,
       action: 'search',
-      index: type === 'company' ? 'companies' : 'customers',
+      index: moduleType === 'company' ? 'companies' : 'customers',
       body: {
         size: 0,
         _source: false,
@@ -344,18 +322,19 @@ export const generateContactsFields = async ({ subdomain, data }) => {
       });
     }
   }
-  console.timeEnd('trackData');
 
   const ownerOptions = await generateUsersOptions('ownerId', 'Owner', 'user');
 
   const tags = await getTags(
     subdomain,
-    `contacts:${['lead', 'visitor'].includes(type) ? 'customer' : type}`,
+    `contacts:${
+      ['lead', 'visitor'].includes(moduleType) ? 'customer' : moduleType
+    }`,
   );
 
   fields = [...fields, tags];
 
-  if (type === 'customer' || type === 'lead') {
+  if (moduleType === 'customer' || moduleType === 'lead') {
     const { config } = data;
 
     const integrations = await getIntegrations(subdomain);
@@ -396,9 +375,7 @@ export const generateContactsFields = async ({ subdomain, data }) => {
     fields.push(brandsOptions);
   }
 
-  const testOptions = await generateTestOptions('testId', 'Test', 'user');
-
-  fields = [...fields, ownerOptions, testOptions];
+  fields = [...fields, ownerOptions];
 
   if (usageType === 'import') {
     for (const extendField of EXTEND_FIELDS.ALL) {

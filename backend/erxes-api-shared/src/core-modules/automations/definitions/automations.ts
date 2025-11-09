@@ -17,6 +17,7 @@ export interface IAutomationAction<TConfig = any> {
   label?: string;
   description?: string;
   workflowId?: string;
+  targetActionId?: string;
 }
 
 export interface IAutomationTrigger<TConfig = any> {
@@ -87,6 +88,7 @@ const actionSchema = new Schema(
     label: { type: String, optional: true },
     description: { type: String, optional: true },
     workflowId: { type: String, optional: true },
+    targetActionId: { type: String, optional: true },
   },
   { _id: false },
 );

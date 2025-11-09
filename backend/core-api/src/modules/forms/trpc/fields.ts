@@ -38,6 +38,7 @@ export const fieldsTrpcRouter = t.router({
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
         const { selector, modifier } = input;
+        return await models.Customers.updateMany(selector, modifier);
       }),
 
     generateTypedItem: t.procedure

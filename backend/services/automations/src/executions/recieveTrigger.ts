@@ -1,24 +1,30 @@
 import { IModels } from '@/connectionResolver';
 import { calculateExecution } from '@/executions/calculateExecutions';
 import { executeActions } from '@/executions/executeActions';
-import { getActionsMap } from '@/utils';
+import { getActionsMap } from '@/utils/utils';
 
 export const receiveTrigger = async ({
   models,
   subdomain,
   type,
   targets,
+  recordType,
 }: {
   models: IModels;
   subdomain: string;
   type: string;
   targets: any[];
+  recordType?: string;
 }) => {
   const automations = await models.Automations.find({
     status: 'active',
     'triggers.type': {
       $in: [type, new RegExp(`^${type}\\..*`)],
     },
+    $or: [
+      { 'triggers.config.recordType': { $exists: false } },
+      { 'triggers.config.recordType': { $in: [recordType, 'every'] } },
+    ],
   }).lean();
 
   if (!automations.length) {
@@ -26,12 +32,15 @@ export const receiveTrigger = async ({
   }
 
   for (const target of targets) {
+    if (!target) {
+      continue;
+    }
+
     for (const automation of automations) {
       for (const trigger of automation.triggers) {
         if (!trigger.type.includes(type)) {
           continue;
         }
-
         const execution = await calculateExecution({
           models,
           subdomain,

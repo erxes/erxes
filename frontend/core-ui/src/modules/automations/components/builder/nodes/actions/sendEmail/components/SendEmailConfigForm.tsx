@@ -1,7 +1,7 @@
 import { useSendEmailSidebarForm } from '@/automations/components/builder/nodes/actions/sendEmail/hooks/useSendEmailSidebarForm';
 import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
-import { useFormValidationErrorHandler } from '@/automations/hooks/useFormValidationErrorHandler';
+import { useFormValidationErrorHandler } from 'ui-modules';
 import { Collapsible, Form, Label, RadioGroup, Separator } from 'erxes-ui';
 import { FormProvider } from 'react-hook-form';
 import { PlaceholderInput, TAutomationActionProps } from 'ui-modules';
@@ -9,13 +9,16 @@ import { SendEmailEmailContentBuilder } from './SendEmailEmailContentBuilder';
 
 export const SendEmailConfigForm = ({
   currentActionIndex,
+  currentAction,
   handleSave,
 }: TAutomationActionProps<TAutomationSendEmailConfig>) => {
   const { handleValidationErrors } = useFormValidationErrorHandler({
     formName: 'Send email Configuration',
   });
-  const { form, contentType } = useSendEmailSidebarForm(currentActionIndex);
-
+  const { form, contentType } = useSendEmailSidebarForm(
+    currentActionIndex,
+    currentAction,
+  );
   return (
     <FormProvider {...form}>
       <AutomationConfigFormWrapper
@@ -61,9 +64,12 @@ export const SendEmailConfigForm = ({
                         {...field}
                         enabled={{
                           attribute: true,
+                          call_user: true,
+                        }}
+                        suggestionsOptions={{
                           call_user: {
-                            enabled: true,
                             selectFieldName: 'email',
+                            formatSelection: (value) => value,
                           },
                         }}
                       />
@@ -79,56 +85,64 @@ export const SendEmailConfigForm = ({
 
         <Separator className="space-y-2" />
 
-        <Form.Field
-          name="toEmailsPlaceHolders"
-          control={form.control}
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>
-                To<span className="text-destructive">*</span>
-              </Form.Label>
-              <PlaceholderInput
-                propertyType={contentType || ''}
-                {...field}
-                enabled={{
-                  attribute: true,
-                  call_user: {
-                    enabled: true,
-                    selectFieldName: 'email',
-                  },
-                }}
-              />
-              <Collapsible>
-                <Collapsible.Trigger className="group">
-                  <Form.Label className="group-data-[state=open]:text-destructive cursor-pointer pb-2">
-                    CC
-                  </Form.Label>
-                </Collapsible.Trigger>
-                <Collapsible.Content>
-                  <Form.Field
-                    name="ccEmailsPlaceHolders"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Form.Item>
-                        <PlaceholderInput
-                          propertyType={contentType || ''}
-                          {...field}
-                          enabled={{
-                            attribute: true,
-                            call_user: {
-                              enabled: true,
-                              selectFieldName: 'email',
-                            },
-                          }}
-                        />
-                      </Form.Item>
-                    )}
+        <Collapsible>
+          <Form.Field
+            name="toEmailsPlaceHolders"
+            control={form.control}
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label className="flex justify-between">
+                  <div>
+                    To<span className="text-destructive">*</span>
+                  </div>
+                  <Collapsible.Trigger className="group">
+                    <Form.Label className="group-data-[state=open]:text-destructive cursor-pointer pb-2">
+                      CC
+                    </Form.Label>
+                  </Collapsible.Trigger>
+                </Form.Label>
+                <PlaceholderInput
+                  propertyType={contentType || ''}
+                  {...field}
+                  enabled={{
+                    attribute: true,
+                    call_user: true,
+                  }}
+                  suggestionsOptions={{
+                    call_user: {
+                      selectFieldName: 'email',
+                      formatSelection: (value) => value,
+                    },
+                  }}
+                />
+              </Form.Item>
+            )}
+          />
+          <Collapsible.Content className="pt-2">
+            <Form.Field
+              name="ccEmailsPlaceHolders"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <PlaceholderInput
+                    propertyType={contentType || ''}
+                    {...field}
+                    enabled={{
+                      attribute: true,
+                      call_user: true,
+                    }}
+                    suggestionsOptions={{
+                      call_user: {
+                        selectFieldName: 'email',
+                        formatSelection: (value) => value,
+                      },
+                    }}
                   />
-                </Collapsible.Content>
-              </Collapsible>
-            </Form.Item>
-          )}
-        />
+                </Form.Item>
+              )}
+            />
+          </Collapsible.Content>
+        </Collapsible>
         <Separator className="space-y-2" />
         <Form.Field
           name="subject"
@@ -152,6 +166,7 @@ export const SendEmailConfigForm = ({
                 Email Content<span className="text-destructive">*</span>
               </Form.Label>
               <SendEmailEmailContentBuilder
+                contentType={contentType}
                 content={field.value || ''}
                 onChange={field.onChange}
               />

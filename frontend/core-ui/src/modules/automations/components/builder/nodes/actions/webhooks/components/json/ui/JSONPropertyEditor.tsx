@@ -18,7 +18,6 @@ export function JSONPropertyEditor({
         propertyType="core:automation"
         value={value ?? ''}
         onChange={onApply}
-        onlyFixed
         enabled={{
           attribute: true,
         }}

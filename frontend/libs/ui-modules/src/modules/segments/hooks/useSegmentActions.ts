@@ -5,7 +5,10 @@ import {
   SEGMENT_ADD,
   SEGMENT_EDIT,
 } from 'ui-modules/modules/segments/graphql/mutations';
-import { TSegmentForm } from 'ui-modules/modules/segments/types';
+import {
+  TConditionsConjunction,
+  TSegmentForm,
+} from 'ui-modules/modules/segments/types';
 
 export const useSegmentActions = ({
   callback,
@@ -25,20 +28,20 @@ export const useSegmentActions = ({
       });
     }
 
-    const conditions = form.getValues('conditions');
-    const subSegments = form.getValues('conditionSegments');
-    const hasSubSegments = (subSegments || [])?.length > 0;
+    const conditions = form.getValues('conditions') || [];
+    const subSegments = form.getValues('conditionSegments') || [];
+    const hasSubSegments = subSegments.length > 0;
 
     if (!hasSubSegments) {
       form.setValue('conditionSegments', [
         {
           contentType: contentType,
-          conditionsConjunction: 'and',
-          conditions,
+          conditionsConjunction: TConditionsConjunction.AND,
+          conditions: Array.isArray(conditions) ? conditions : [],
         },
         {
           contentType: contentType,
-          conditionsConjunction: 'and',
+          conditionsConjunction: TConditionsConjunction.AND,
           conditions: [
             {
               propertyType: contentType,
@@ -48,14 +51,16 @@ export const useSegmentActions = ({
           ],
         },
       ]);
-      form.setValue('conditions', []);
+      if (conditions.length > 0) {
+        form.setValue('conditions', []);
+      }
       return;
     }
     form.setValue('conditionSegments', [
       ...(subSegments || []),
       {
         contentType: contentType,
-        conditionsConjunction: 'and',
+        conditionsConjunction: TConditionsConjunction.AND,
         conditions: [
           {
             propertyType: contentType,
@@ -79,13 +84,9 @@ export const useSegmentActions = ({
       description: data.description,
       config: data.config || {},
       conditionsConjunction: data.conditionsConjunction,
+      conditionSegments: data?.conditionSegments,
     };
 
-    if (data?.conditionSegments?.length) {
-      variables.conditionSegments = data?.conditionSegments;
-    } else {
-      variables.conditions = data?.conditions;
-    }
     mutation({
       variables,
       onError: (e: ApolloError) => {
@@ -98,13 +99,11 @@ export const useSegmentActions = ({
       onCompleted: (data) => {
         const { segmentsAdd, segmentsEdit } = data || {};
         const { _id } = segmentsAdd || segmentsEdit || {};
-        form.reset();
 
         toast({
           title: `${segment ? 'Edited' : 'Created'} successfully`,
         });
         if (callback) {
-          console.log({ _id });
           callback(_id);
         }
       },

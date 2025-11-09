@@ -27,7 +27,7 @@ export const AutomationActionContentSidebar = () => {
   if (!isCoreActionComponent) {
     return (
       <AutomationConfigFormWrapper
-        onSave={() => () => {
+        onSave={() => {
           if (
             !formRef.current ||
             typeof formRef.current.submit !== 'function'
@@ -52,7 +52,7 @@ export const AutomationActionContentSidebar = () => {
               pluginName={pluginName}
               moduleName={moduleName}
               props={{
-                formRef: formRef,
+                formRef,
                 componentType: 'actionForm',
                 type: currentAction?.type,
                 currentAction,

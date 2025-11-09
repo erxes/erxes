@@ -36,7 +36,7 @@ export const salesAutomationHandlers = {
       execution,
       actionType,
       collectionType,
-      triggerType,
+      targetType,
     }: IAutomationReceiveActionData,
   ) => {
     if (actionType === 'create') {
@@ -44,15 +44,14 @@ export const salesAutomationHandlers = {
         return createChecklist(models, execution, action);
       }
 
-      const result = await actionCreate({
+      return await actionCreate({
         models,
         subdomain,
         action,
         execution,
         collectionType,
+        targetType,
       });
-
-      return { result };
     }
 
     const { module, rules } = action.config;
@@ -61,7 +60,7 @@ export const salesAutomationHandlers = {
       subdomain,
       module,
       execution,
-      triggerType.split('.')[0],
+      targetType.split('.')[0],
     );
 
     const result = await setProperty({
@@ -72,7 +71,7 @@ export const salesAutomationHandlers = {
       rules,
       execution,
       relatedItems,
-      triggerType,
+      targetType,
     });
 
     return { result };

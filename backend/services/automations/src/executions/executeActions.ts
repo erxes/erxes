@@ -5,12 +5,26 @@ import { handleExecutionError } from '@/executions/handleExecutionError';
 import {
   AUTOMATION_CORE_ACTIONS,
   AUTOMATION_EXECUTION_STATUS,
+  IAutomationAction,
   IAutomationActionsMap,
   IAutomationExecAction,
   IAutomationExecutionDocument,
   splitType,
 } from 'erxes-api-shared/core-modules';
 import { getPlugins } from 'erxes-api-shared/utils';
+
+const getTargetType = (
+  action: IAutomationAction,
+  actionsMap: IAutomationActionsMap,
+  triggerType: string,
+) => {
+  if (action.targetActionId) {
+    const targetAction = actionsMap[action.targetActionId];
+    const [type] = targetAction.type.split('.');
+    return type;
+  }
+  return triggerType;
+};
 
 export const executeActions = async (
   subdomain: string,
@@ -25,7 +39,6 @@ export const executeActions = async (
 
     return 'finished';
   }
-
   const action = actionsMap[currentActionId];
   if (!action) {
     execution.status = AUTOMATION_EXECUTION_STATUS.MISSID;
@@ -46,6 +59,8 @@ export const executeActions = async (
   let actionResponse: any = null;
   const actionType = action.type;
 
+  const targetType = getTargetType(action, actionsMap, triggerType);
+
   try {
     if (
       Object.values(AUTOMATION_CORE_ACTIONS).find(
@@ -54,6 +69,7 @@ export const executeActions = async (
     ) {
       const coreActionResponse = await executeCoreActions(
         triggerType,
+        targetType,
         actionType,
         subdomain,
         execution,
@@ -62,7 +78,7 @@ export const executeActions = async (
         actionsMap,
       );
 
-      if (coreActionResponse.shouldBreak) {
+      if (coreActionResponse?.shouldBreak) {
         return;
       }
       actionResponse = coreActionResponse.actionResponse;
@@ -70,7 +86,7 @@ export const executeActions = async (
       const [serviceName, _module, _collection, method] = splitType(actionType);
       const isRemoteAction = (await getPlugins()).includes(serviceName);
 
-      if (isRemoteAction) {
+      if (!isRemoteAction) {
         throw new Error('Plugin not enabled');
       }
 

@@ -10,29 +10,29 @@ export const AutomationActionTargetSelector = ({
   activeNode: NodeData;
 }) => {
   const { control } = useFormContext<TAutomationBuilderForm>();
-  const { allowTargetFromActions, configFieldNamePrefix, list } =
-    useAutomationActionTargetSelector({
-      activeNode,
-    });
+  const {
+    allowTargetFromActions,
+    configFieldNamePrefix,
+    list,
+    handleChangeTarget,
+  } = useAutomationActionTargetSelector({
+    activeNode,
+  });
 
   if (!allowTargetFromActions || list.length === 0) {
     return null;
   }
+
   return (
     <Form.Field
       name={`${configFieldNamePrefix}.targetActionId`}
       control={control}
-      defaultValue={list[0]?.id}
       render={({ field }) => (
         <Form.Item className="px-4 mb-2">
           <Form.Label>Select target</Form.Label>
           <Select
             value={field.value ?? list[0]?.id}
-            onValueChange={(value) =>
-              list.find((item) => item.id === value)?.type === 'trigger'
-                ? field.onChange(undefined)
-                : field.onChange(value)
-            }
+            onValueChange={(value) => handleChangeTarget(value, field.onChange)}
           >
             <Select.Trigger className="mt-1">
               <Select.Value placeholder="Select target type" />

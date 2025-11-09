@@ -81,7 +81,6 @@ const generateFilter = (params: IListArgs) => {
 
   if (searchValue) {
     filter.name = new RegExp(`.*${searchValue}.*`, 'i');
-    console.log(filter.name);
   }
 
   if (tagIds) {
@@ -368,10 +367,14 @@ export const automationQueries = {
 
   async getAutomationWebhookEndpoint(
     _root,
-    { _id },
+    { _id, waitEventActionId },
     { models, subdomain }: IContext,
   ) {
     const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+
+    if (!DOMAIN) {
+      throw new Error('DOMAIN is not set');
+    }
 
     const automation = await models.Automations.findById(_id).lean();
 
@@ -379,7 +382,9 @@ export const automationQueries = {
       throw new Error('Not found');
     }
 
-    return `${DOMAIN}/${automation._id}/`;
+    return waitEventActionId
+      ? `${DOMAIN}/automation/${automation._id}/${waitEventActionId}/continue/`
+      : `${DOMAIN}/automation/${automation._id}/`;
   },
 
   async automationBotsConstants() {

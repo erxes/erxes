@@ -1,5 +1,4 @@
 import { useQuery } from '@apollo/client';
-import { useQueryState } from 'erxes-ui';
 import { SEGMENT_DETAIL } from 'ui-modules/modules/segments/graphql/queries';
 import { ISegment } from 'ui-modules/modules/segments/types';
 
@@ -15,10 +14,11 @@ export const useSegmentDetail = (segmentId?: string) => {
     skip: !segmentId,
   });
 
-  const segment = data?.segmentDetail;
+  const segment = segmentId ? data?.segmentDetail : undefined;
 
   return {
     segment,
     segmentLoading,
+    refetch,
   };
 };

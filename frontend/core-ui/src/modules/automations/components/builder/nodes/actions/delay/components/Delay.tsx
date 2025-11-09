@@ -20,6 +20,7 @@ const DelayComponents: AutomationComponentMap<AutomationNodeType.Action> = {
         default: module.DelayNodeContent,
       })),
     ),
+    // actionResult:({action})=>`Delaying for: ${action.actionConfig.value} ${action.actionConfig.type}s`
   },
 };
 

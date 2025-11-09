@@ -97,7 +97,7 @@ const PipelinesInlineEffectComponent = ({
     if (pipelineDetail) {
       updatePipelines?.([...newPipelines, pipelineDetail]);
     }
-  }, [pipelineDetail, pipelines, updatePipelines, pipelineId]);
+  }, [pipelineDetail]);
 
   return null;
 };

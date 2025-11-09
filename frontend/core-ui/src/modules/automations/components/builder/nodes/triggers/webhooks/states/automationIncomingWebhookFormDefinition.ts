@@ -12,14 +12,14 @@ export const incomingWebhookFormSchema = z.object({
   method: z
     .enum(AUTOMATION_INCOMING_WEBHOOK_API_METHODS as [string, ...string[]])
     .default('GET'),
-  headers: z.array(incomingWebhookHeadersSchema),
+  headers: z.array(incomingWebhookHeadersSchema).optional(),
   // Accept any JSON schema structure for builder compatibility
-  schema: z.any(),
+  schema: z.any().optional(),
   isEnabledSecurity: z.string().optional(),
   security: z
     .object({
-      beararToken: z.string(),
-      secret: z.string(),
+      beararToken: z.string().optional(),
+      secret: z.string().optional(),
     })
     .optional(),
   timeoutMs: z.string().optional(),
