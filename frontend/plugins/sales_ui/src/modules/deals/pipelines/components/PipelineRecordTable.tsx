@@ -46,6 +46,7 @@ export const PipelineMoreColumnCell = ({
   const { removePipeline, loading: removeLoading } = usePipelineRemove();
   const { copyPipeline } = usePipelineCopy();
   const { archivePipeline } = usePipelineArchive();
+  const [, setTab] = useQueryState('tab');
 
   const { _id, status } = cell.row.original;
 
@@ -131,7 +132,13 @@ export const PipelineMoreColumnCell = ({
                 </>
               )}
             </Command.Item>
-            <Command.Item value="productConfig">
+            <Command.Item
+              value="productConfig"
+              onSelect={() => {
+                setOpen(_id);
+                setTab('productConfig');
+              }}
+            >
               <IconSettings /> Product config
             </Command.Item>
             <Command.Item
