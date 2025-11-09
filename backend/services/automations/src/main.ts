@@ -10,7 +10,7 @@ import {
 import express from 'express';
 import * as http from 'http';
 import { initMQWorkers } from './bullmq/initMQWorkers';
-import { debugError, debugInfo } from '@/debuuger';
+import { debugError, debugInfo } from '@/debugger';
 import { webhookRoutes } from '@/executions/actions/webhook/incoming/webhookRoutes';
 
 const {

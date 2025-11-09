@@ -2,7 +2,7 @@ import type { Job } from 'bullmq';
 import { createMQWorkerWithListeners } from 'erxes-api-shared/utils';
 import { actionHandlerWorker } from '@/bullmq/actionHandlerWorker';
 import { triggerHandlerWorker } from '@/bullmq/triggerWorker';
-import { debugInfo } from '@/debuuger';
+import { debugInfo } from '@/debugger';
 import { aiWorker } from '@/bullmq/aiWorker';
 
 type ICommonJobData = {

@@ -1,10 +1,10 @@
 import type { Job } from 'bullmq';
 import { IJobData } from '@/bullmq/initMQWorkers';
 import { generateModels } from '@/connectionResolver';
-import { debugError, debugInfo } from '@/debuuger';
+import { debugError, debugInfo } from '@/debugger';
 import { checkIsWaitingAction } from '@/executions/checkIsWaitingActionTarget';
 import { executeWaitingAction } from '@/executions/executeWaitingAction';
-import { receiveTrigger } from '@/executions/recieveTrigger';
+import { receiveTrigger } from '@/executions/receiveTrigger';
 
 // Type for trigger job data
 interface ITriggerData {
@@ -23,7 +23,7 @@ export const triggerHandlerWorker = async (job: Job<ITriggerJobData>) => {
   const models = await generateModels(subdomain);
   debugInfo('Initialized databases');
 
-  debugInfo(`Recieved data from:${JSON.stringify({ subdomain, data })}`);
+  debugInfo(`Received data from:${JSON.stringify({ subdomain, data })}`);
 
   const { type, targets, executionId, recordType } = data;
   try {

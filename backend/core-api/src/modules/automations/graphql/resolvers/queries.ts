@@ -290,6 +290,14 @@ export const automationQueries = {
     const seenActionTypes = new Set<string>(
       constants.actionsConst.map((a) => a.type),
     );
+    // Track seen plugin:module combinations to avoid duplicates
+    const seenPluginModuleCombos = new Set<string>(
+      constants.propertyTypesConst.map((p) => {
+        // Extract plugin:module from value (everything before first dot)
+        const baseValue = p.value.split('.')[0];
+        return baseValue;
+      }),
+    );
 
     for (const pluginName of plugins) {
       const plugin = await getPlugin(pluginName);
@@ -310,12 +318,15 @@ export const automationQueries = {
             seenTriggerTypeStrings.add(trigger.type);
           }
 
-          if (!seenPropertyValues.has(trigger.type)) {
+          const basePluginModule = trigger.type.split('.')[0];
+
+          if (!seenPluginModuleCombos.has(basePluginModule)) {
             constants.propertyTypesConst.push({
               value: trigger.type,
               label: trigger.label,
             });
             seenPropertyValues.add(trigger.type);
+            seenPluginModuleCombos.add(basePluginModule);
           }
         }
 
@@ -324,40 +335,6 @@ export const automationQueries = {
             constants.actionsConst.push({ ...action, pluginName });
             seenActionTypes.add(action.type);
           }
-        }
-
-        if (pluginConstants?.emailRecipientTypes?.length) {
-          const updatedEmailRecipIentTypes =
-            pluginConstants.emailRecipientTypes.map((eRT) => ({
-              ...eRT,
-              pluginName,
-            }));
-          constants.actionsConst = constants.actionsConst.map((actionConst) => {
-            if (actionConst.type !== 'sendEmail') {
-              return actionConst;
-            }
-
-            const baseRecipients = actionConst.emailRecipientsConst || [];
-            const merged = [...baseRecipients, ...updatedEmailRecipIentTypes];
-
-            const seenRecipientValues = new Set<string>();
-            const dedupedRecipients = merged.filter((recipient: any) => {
-              const key = recipient.value ?? recipient.type ?? recipient.label;
-              if (!key) {
-                return true;
-              }
-              if (seenRecipientValues.has(key)) {
-                return false;
-              }
-              seenRecipientValues.add(key);
-              return true;
-            });
-
-            return {
-              ...actionConst,
-              emailRecipientsConst: dedupedRecipients,
-            } as IAutomationsActionConfig as any;
-          });
         }
       }
     }

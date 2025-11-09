@@ -8,6 +8,16 @@ import { isInSegment } from '@/utils/isInSegment';
 import { executeActions } from '@/executions/executeActions';
 import { TIfActionConfig } from '@/types';
 
+/**
+ * Executes an if condition action by checking if target is in segment
+ * @param subdomain - The subdomain context
+ * @param triggerType - The type of trigger that initiated the automation
+ * @param execution - The automation execution document
+ * @param action - The if condition action to execute
+ * @param execAction - The execution action record
+ * @param actionsMap - Map of all actions in the automation
+ * @returns Promise resolving to the next action execution result
+ */
 export const executeIfCondition = async (
   subdomain: string,
   triggerType: string,

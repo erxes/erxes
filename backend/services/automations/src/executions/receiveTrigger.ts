@@ -3,6 +3,14 @@ import { calculateExecution } from '@/executions/calculateExecutions';
 import { executeActions } from '@/executions/executeActions';
 import { getActionsMap } from '@/utils/utils';
 
+/**
+ * Receives and processes automation triggers for matching automations
+ * @param models - Database models
+ * @param subdomain - The subdomain context
+ * @param type - The trigger type
+ * @param targets - Array of target objects to process
+ * @param recordType - Optional record type filter
+ */
 export const receiveTrigger = async ({
   models,
   subdomain,

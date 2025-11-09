@@ -7,7 +7,7 @@ import {
 import { isInSegment } from '@/utils/segments/utils';
 import { executeActions } from '@/executions/executeActions';
 
-export const handleifAction = async (
+export const handleIfAction = async (
   subdomain: string,
   triggerType: string,
   execution: IAutomationExecutionDocument,

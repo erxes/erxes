@@ -1,4 +1,4 @@
-import { FileEmbeddingService } from '@/ai/fielEmbedding';
+import { FileEmbeddingService } from '@/ai/fileEmbedding';
 import { generateAiAgentMessage } from '@/ai/generateAiAgentMessage';
 import { generateModels } from '@/connectionResolver';
 import { TAiAgentConfigForm } from '@/types/aiAgentAction';

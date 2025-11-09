@@ -1,4 +1,10 @@
-export const getPropmtMessageTemplate = (
+/**
+ * Get prompt message template for AI agent document-based responses
+ * @param documentContexts - Formatted string containing document contexts
+ * @param userQuery - The user's question or query
+ * @returns Formatted prompt string for AI agent
+ */
+export const getPromptMessageTemplate = (
   documentContexts: string,
   userQuery: string,
 ) => {
@@ -22,6 +28,12 @@ Instructions:
 Please provide a comprehensive response based on the available documentation:`;
 };
 
+/**
+ * Get topic classification prompt for workflow routing
+ * @param userQuery - The user's query to classify
+ * @param topics - Array of available topics with IDs, names, and prompts
+ * @returns Formatted prompt string for topic classification
+ */
 export const getTopicClassificationPrompt = (
   userQuery: string,
   topics: Array<{ id: string; topicName: string; prompt: string }>,
@@ -57,6 +69,12 @@ TOPIC_ID: [selected topic ID]
 Please analyze and respond with only the topic ID:`;
 };
 
+/**
+ * Get object generation prompt for structured data extraction
+ * @param userQuery - The user's query containing data to extract
+ * @param objectFields - Array of field definitions with names, types, descriptions, and validation rules
+ * @returns Formatted prompt string for object generation
+ */
 export const getObjectGenerationPrompt = (
   userQuery: string,
   objectFields: Array<{

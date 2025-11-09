@@ -1,4 +1,4 @@
-import { setExecutionWaitAction } from '@/bullmq/actions/setWait';
+import { setExecutionWaitAction } from '@/bullmq/actionHandlerWorker/setWait';
 import { generateModels } from '@/connectionResolver';
 import { TDelayActionConfig } from '@/types';
 import {

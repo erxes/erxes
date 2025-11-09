@@ -3,9 +3,10 @@ import { executePrevActionWorker } from '@/bullmq/actionHandlerWorker/executePre
 import { playWaitingActionWorker } from '@/bullmq/actionHandlerWorker/playWait';
 import { setActionWaitHandler } from '@/bullmq/actionHandlerWorker/setWait';
 import { generateModels, IModels } from '@/connectionResolver';
+
 type ActionName = 'play' | 'wait' | 'executePrevAction';
 
-const actionHandlers: Record<
+export const actionHandlerWorkers: Record<
   ActionName,
   (models: IModels, job: Job) => Promise<any>
 > = {
@@ -20,7 +21,7 @@ export const actionHandlerWorker = async (job: Job) => {
 
   const models = await generateModels(subdomain);
 
-  const handler = actionHandlers[name];
+  const handler = actionHandlerWorkers[name];
 
   if (!handler) {
     throw new Error(`No handler found for job name: ${name}`);

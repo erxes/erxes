@@ -2,7 +2,7 @@ import type { Job } from 'bullmq';
 import { AUTOMATION_EXECUTION_STATUS } from 'erxes-api-shared/core-modules';
 import { IJobData } from '@/bullmq/initMQWorkers';
 import { IModels } from '@/connectionResolver';
-import { debugInfo } from '@/debuuger';
+import { debugInfo } from '@/debugger';
 import { getActionsMap } from '@/utils/utils';
 import { executeActions } from '@/executions/executeActions';
 

@@ -12,7 +12,15 @@ import {
   splitType,
 } from 'erxes-api-shared/core-modules';
 import { getPlugins } from 'erxes-api-shared/utils';
+import { ACTION_METHODS, ERROR_MESSAGES, EXECUTION_STATUS } from '@/constants';
 
+/**
+ * Determines the target type for an action based on its configuration
+ * @param action - The automation action
+ * @param actionsMap - Map of all actions in the automation
+ * @param triggerType - The trigger type as fallback
+ * @returns The target type string
+ */
 const getTargetType = (
   action: IAutomationAction,
   actionsMap: IAutomationActionsMap,
@@ -26,6 +34,15 @@ const getTargetType = (
   return triggerType;
 };
 
+/**
+ * Executes automation actions recursively based on the action chain
+ * @param subdomain - The subdomain context
+ * @param triggerType - The type of trigger that initiated the automation
+ * @param execution - The automation execution document
+ * @param actionsMap - Map of all actions in the automation
+ * @param currentActionId - The ID of the current action to execute (optional)
+ * @returns Promise resolving to execution status string or null/undefined
+ */
 export const executeActions = async (
   subdomain: string,
   triggerType: string,
@@ -37,14 +54,14 @@ export const executeActions = async (
     execution.status = AUTOMATION_EXECUTION_STATUS.COMPLETE;
     await execution.save();
 
-    return 'finished';
+    return EXECUTION_STATUS.FINISHED;
   }
   const action = actionsMap[currentActionId];
   if (!action) {
     execution.status = AUTOMATION_EXECUTION_STATUS.MISSID;
     await execution.save();
 
-    return 'missed action';
+    return EXECUTION_STATUS.MISSED_ACTION;
   }
 
   execution.status = AUTOMATION_EXECUTION_STATUS.ACTIVE;
@@ -87,21 +104,19 @@ export const executeActions = async (
       const isRemoteAction = (await getPlugins()).includes(serviceName);
 
       if (!isRemoteAction) {
-        throw new Error('Plugin not enabled');
+        throw new Error(ERROR_MESSAGES.PLUGIN_NOT_ENABLED);
       }
 
-      if (isRemoteAction) {
-        if (method === 'create') {
-          const createActionResponse = await executeCreateAction(
-            subdomain,
-            execution,
-            action,
-          );
-          if (createActionResponse.shouldBreak) {
-            return 'paused';
-          }
-          actionResponse = createActionResponse.actionResponse;
+      if (method === ACTION_METHODS.CREATE) {
+        const createActionResponse = await executeCreateAction(
+          subdomain,
+          execution,
+          action,
+        );
+        if (createActionResponse.shouldBreak) {
+          return EXECUTION_STATUS.PAUSED;
         }
+        actionResponse = createActionResponse.actionResponse;
       }
     }
   } catch (e) {
