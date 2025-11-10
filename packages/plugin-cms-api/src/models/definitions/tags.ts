@@ -6,7 +6,6 @@ export interface IPostTag {
   name: string;
   colorCode?: string;
   slug: string;
-
   createdUserId: string;
 }
 
@@ -26,6 +25,5 @@ export const postTagSchema = new Schema<IPostTagDocument>(
   { timestamps: true }
 );
 
-
-
 postTagSchema.index({ slug: 1, clientPortalId: 1 }, { sparse: true });
+
