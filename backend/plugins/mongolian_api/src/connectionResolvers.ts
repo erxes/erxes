@@ -24,15 +24,30 @@ import {
   loadProductRuleClass,
 } from '@/ebarimt/db/models/ProductRule';
 
-import { ISyncLogDocument } from '@/erkhet/@types';
-import { ISyncLogModel, loadSyncLogClass } from '@/erkhet/db/model/SyncLog';
+import { ISyncLogDocument as IEerkhetSyncLogDocument } from '@/erkhet/@types';
+import { ISyncLogModel as IEerkhetSyncLogModel, loadSyncLogClass as loadErkhetSyncLogClass } from '@/erkhet/db/model/SyncLog';
+
+import { 
+  ICustomerRelationModel,
+  ISyncLogModel as IMsDynamicSyncLogModel,
+  loadCustomerRelationClass,
+  loadSyncLogClass as loadMsDynamicSyncLogClass
+} from '@/msdynamic/db/models/Dynamic';
+
+import { 
+  ICustomerRelationDocument,
+  ISyncLogDocument as IMsDynamicSyncLogDocument
+} from '@/msdynamic/db/definitions/dynamic';
+
 
 export interface IModels {
   PutResponses: IPutResponseModel;
   ProductRules: IProductRuleModel;
   ProductGroups: IProductGroupModel;
-  SyncLogs: ISyncLogModel;
+  SyncLogs: IEerkhetSyncLogModel; 
+  CustomerRelations: ICustomerRelationModel;
 }
+
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
@@ -56,9 +71,19 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadProductGroupClass(models),
   );
 
-  models.SyncLogs = db.model<ISyncLogDocument, ISyncLogModel>(
-    'syncerkhet_synclogs',
-    loadSyncLogClass(models),
+  models.SyncLogs = db.model<IEerkhetSyncLogDocument, IEerkhetSyncLogModel>(
+  'syncerkhet_synclogs',
+  loadErkhetSyncLogClass(models),
+);
+
+  models.CustomerRelations = db.model<ICustomerRelationDocument, ICustomerRelationModel>(
+    'msdynamics_customer_relation',
+    loadCustomerRelationClass(models),
+  );
+  
+  models.CustomerRelations = db.model<ICustomerRelationDocument, ICustomerRelationModel>(
+    'msdynamics_customer_relation',
+    loadCustomerRelationClass(models),
   );
 
   return models;
