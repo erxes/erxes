@@ -14,7 +14,10 @@ export const FrontlineSubGroups = () => {
   if (!isInbox) return null;
   return (
     <>
-      <NavigationMenuGroup name="Channels" actions={<CreateChannel />}>
+      <NavigationMenuGroup
+        name="Channels"
+        actions={<CreateChannel isIconOnly />}
+      >
         <ChooseChannel />
       </NavigationMenuGroup>
       <NavigationMenuGroup name="Integration types">

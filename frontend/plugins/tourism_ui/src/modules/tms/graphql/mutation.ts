@@ -1,64 +1,38 @@
 import { gql } from '@apollo/client';
 
-export const CREATE_BRANCH_BRANCH = gql`
-  mutation bmsBranchAdd(
+export const CREATE_BRANCH = gql`
+  mutation BmsBranchAdd(
     $name: String
-    $description: String
-    $erxesAppToken: String
-    $user1Ids: [String]
-    $user2Ids: [String]
+    $generalManagerIds: [String]
+    $managerIds: [String]
     $paymentIds: [String]
-    $paymentTypes: [JSON]
-    $uiOptions: JSON
+    $token: String
+    $erxesAppToken: String
     $permissionConfig: JSON
+    $uiOptions: JSON
   ) {
     bmsBranchAdd(
       name: $name
-      description: $description
-      erxesAppToken: $erxesAppToken
-      user1Ids: $user1Ids
-      user2Ids: $user2Ids
+      generalManagerIds: $generalManagerIds
+      managerIds: $managerIds
       paymentIds: $paymentIds
-      paymentTypes: $paymentTypes
-      uiOptions: $uiOptions
+      token: $token
+      erxesAppToken: $erxesAppToken
       permissionConfig: $permissionConfig
+      uiOptions: $uiOptions
     ) {
       _id
-      name
-      description
-      createdAt
-      token
-      erxesAppToken
-      user1Ids
-      user2Ids
-      paymentIds
-      paymentTypes
-      user {
-        _id
-        details {
-          avatar
-          fullName
-          __typename
-        }
-        __typename
-      }
-      uiOptions
-      permissionConfig
-      __typename
     }
   }
 `;
 
-export const EDIT_BRANCH_LIST = gql`
+export const EDIT_BRANCH = gql`
   mutation BmsBranchEdit(
     $id: String
     $name: String
-    $description: String
-    $user1Ids: [String]
-    $user2Ids: [String]
+    $generalManagerIds: [String]
+    $managerIds: [String]
     $paymentIds: [String]
-    $paymentTypes: [JSON]
-    $departmentId: String
     $token: String
     $erxesAppToken: String
     $permissionConfig: JSON
@@ -67,40 +41,15 @@ export const EDIT_BRANCH_LIST = gql`
     bmsBranchEdit(
       _id: $id
       name: $name
-      description: $description
-      user1Ids: $user1Ids
-      user2Ids: $user2Ids
+      generalManagerIds: $generalManagerIds
+      managerIds: $managerIds
       paymentIds: $paymentIds
-      paymentTypes: $paymentTypes
-      departmentId: $departmentId
       token: $token
       erxesAppToken: $erxesAppToken
       permissionConfig: $permissionConfig
       uiOptions: $uiOptions
     ) {
       _id
-      createdAt
-      userId
-      user {
-        _id
-        details {
-          avatar
-          fullName
-          __typename
-        }
-        __typename
-      }
-      name
-      description
-      user1Ids
-      user2Ids
-      paymentIds
-      paymentTypes
-      departmentId
-      token
-      erxesAppToken
-      permissionConfig
-      uiOptions
     }
   }
 `;

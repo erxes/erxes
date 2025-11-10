@@ -15,7 +15,7 @@
         "main": "frontend/plugins/tourism_ui/src/main.ts",
         "tsConfig": "frontend/plugins/tourism_ui/tsconfig.app.json",
         "rspackConfig": "frontend/plugins/tourism_ui/rspack.config.ts",
-        "assets": []
+        "assets": ["frontend/plugins/tourism_ui/src/assets"]
       },
       "configurations": {
         "development": {

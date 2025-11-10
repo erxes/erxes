@@ -7,14 +7,21 @@ const Tms = lazy(() =>
   })),
 );
 
-const TmsMain = () => {
+const Pms = lazy(() =>
+  import('~/pages/pms/IndexPage').then((module) => ({
+    default: module.IndexPage,
+  })),
+);
+
+const TourismMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
-        <Route path="/" element={<Tms />} />
+        <Route path="/tms" element={<Tms />} />
+        <Route path="/pms" element={<Pms />} />
       </Routes>
     </Suspense>
   );
 };
 
-export default TmsMain;
+export default TourismMain;

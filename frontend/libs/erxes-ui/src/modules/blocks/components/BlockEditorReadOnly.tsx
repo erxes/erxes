@@ -8,6 +8,7 @@ import { parseBlocks } from '../utils';
 import DOMPurify from 'dompurify';
 import { cn } from 'erxes-ui/lib';
 import React, { useMemo } from 'react';
+
 export const BlockEditorReadOnly = React.forwardRef<
   HTMLDivElement,
   {

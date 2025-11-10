@@ -152,7 +152,7 @@ export const loadCustomerClass = (models: IModels) => {
       }
 
       if (doc.customFieldsData) {
-        doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
+        doc.customFieldsData = await models.Fields.validateFieldValues(
           doc.customFieldsData,
         );
       }
@@ -185,7 +185,7 @@ export const loadCustomerClass = (models: IModels) => {
       if (doc.customFieldsData) {
         // clean custom field values
 
-        doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
+        doc.customFieldsData = await models.Fields.validateFieldValues(
           doc.customFieldsData,
         );
       }
@@ -415,16 +415,9 @@ export const loadCustomerClass = (models: IModels) => {
     }: ICreateMessengerCustomerParams) {
       this.fixListFields(doc, customData);
 
-      const { customFieldsData, trackedData } =
-        await models.Fields.generateCustomFieldsData(
-          customData,
-          'core:customer',
-        );
-
       return this.createCustomer({
         ...doc,
-        trackedData,
-        customFieldsData,
+        customFieldsData: customData,
         lastSeenAt: new Date(),
         isOnline: true,
         sessionCount: 1,
@@ -443,24 +436,14 @@ export const loadCustomerClass = (models: IModels) => {
 
       this.fixListFields(doc, customData, customer);
 
-      const { customFieldsData, trackedData } =
-        await models.Fields.generateCustomFieldsData(
-          customData,
-          'core:customer',
-        );
-
       const modifier: any = {
         ...doc,
         state: doc.isUser ? 'customer' : customer.state,
         updatedAt: new Date(),
       };
 
-      if (trackedData && trackedData.length > 0) {
-        modifier.trackedData = trackedData;
-      }
-
-      if (customFieldsData && customFieldsData.length > 0) {
-        modifier.customFieldsData = customFieldsData;
+      if (customData && customData.length > 0) {
+        modifier.customFieldsData = customData;
       }
 
       await models.Customers.updateOne({ _id }, { $set: modifier });

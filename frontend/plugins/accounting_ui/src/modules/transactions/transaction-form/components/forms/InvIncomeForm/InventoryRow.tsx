@@ -192,7 +192,6 @@ export const InventoryRow = ({
                 }}
                 defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
                 variant="ghost"
-                inForm
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />
             )}

@@ -1,7 +1,6 @@
+import mongoose from 'mongoose';
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import { IMainContext } from 'erxes-api-shared/core-types';
-import mongoose from 'mongoose';
-
 import { IIntegrationDocument } from '@/inbox/@types/integrations';
 import { IConversationDocument } from '@/inbox/@types/conversations';
 import { IMessageDocument } from '@/inbox/@types/conversationMessages';
