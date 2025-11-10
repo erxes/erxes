@@ -1,6 +1,5 @@
 import { IUserDocument } from "erxes-api-shared/core-types";
 import { fixNum, getPureDate, getTomorrow, graphqlPubsub } from "erxes-api-shared/utils";
-import { now } from "mongoose";
 import { IModels } from "~/connectionResolvers";
 import { ADJ_INV_STATUSES, IAdjustInvDetailParams, IAdjustInventory, IAdjustInventoryDocument, ICommonAdjInvDetailInfo } from "../@types/adjustInventory";
 import { JOURNALS, TR_FOLLOW_TYPES, TR_STATUSES } from "../@types/constants";

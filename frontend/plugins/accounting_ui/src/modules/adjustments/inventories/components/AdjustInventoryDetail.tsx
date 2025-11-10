@@ -1,21 +1,37 @@
-import { IconHelpSquareRounded, IconCircleCheck, IconLoader2, IconCrane, IconGavel, IconStopwatch, IconTrashX, IconRotateClockwise2, IconClockEdit, IconBinoculars } from '@tabler/icons-react';
-import { eachDayOfInterval, format, isBefore, isAfter, isSameDay } from 'date-fns';
+import {
+  IconBinoculars,
+  IconCircleCheck,
+  IconClockEdit,
+  IconCrane,
+  IconGavel,
+  IconHelpSquareRounded,
+  IconRotateClockwise2,
+  IconStopwatch,
+  IconTrashX
+} from '@tabler/icons-react';
+import {
+  eachDayOfInterval,
+  format,
+  isAfter,
+  isBefore,
+  isSameDay
+} from 'date-fns';
 import {
   Button,
   DatePicker,
   RecordTable,
   Spinner,
-  useQueryState,
-  Tooltip
+  Tooltip,
+  useQueryState
 } from 'erxes-ui';
+import { useAdjustInventoryRemove } from '~/modules/adjustments/inventories/hooks/useAdjustInventoryRemove';
 import { useAdjustInventoryCancel } from '../hooks/useAdjustInventoryCancel';
 import { useAdjustInventoryDetail } from '../hooks/useAdjustInventoryDetail';
 import { useAdjustInventoryDetails } from '../hooks/useAdjustInventoryDetails';
 import { useAdjustInventoryPublish } from '../hooks/useAdjustInventoryPublish';
 import { useAdjustInventoryRun } from '../hooks/useAdjustInventoryRun';
-import { ADJ_INV_STATUSES, IAdjustInvDetail, IAdjustInventory } from '../types/AdjustInventory';
+import { ADJ_INV_STATUSES, IAdjustInventory } from '../types/AdjustInventory';
 import { adjustDetailTableColumns } from './AdjustInventoryDetailColumns';
-import { useAdjustInventoryRemove } from '~/modules/adjustments/inventories/hooks/useAdjustInventoryRemove';
 
 export const AdjustInventoryDetail = () => {
   // const parentId = useParams().parentId;
