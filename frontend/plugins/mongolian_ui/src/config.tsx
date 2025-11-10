@@ -22,7 +22,7 @@ export const CONFIG: IUIConfig = {
     {
       name: 'ebarimt',
       icon: IconSandbox,
-      path: 'mongolian/ebarimt',
+      path: 'ebarimt',
       hasSettings: true,
       hasRelationWidget: true,
       hasFloatingWidget: false,

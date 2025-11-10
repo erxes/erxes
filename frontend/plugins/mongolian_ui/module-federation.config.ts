@@ -17,7 +17,8 @@ const config: ModuleFederationConfig = {
   exposes: {
     './config': './src/config.tsx',
     './ebarimt': './src/modules/ebarimt/Main.tsx',
-    './ebarimtSettings': './src/modules/ebarimt/Settings.tsx',
+    './ebarimtSettings':
+      './src/modules/ebarimt/settings/components/EBarimtSettings.tsx',
     './put-response': './src/modules/put-response/Main.tsx',
     './by-date': './src/modules/by-date/Main.tsx',
     './duplicated': './src/modules/duplicated/Main.tsx',
