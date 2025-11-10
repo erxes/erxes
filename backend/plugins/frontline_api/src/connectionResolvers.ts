@@ -154,6 +154,9 @@ import {
 import { IMessengerAppDocument } from '@/inbox/db/definitions/messengerApps';
 import { IActivityModel, loadActivityClass } from '@/ticket/db/models/Activity';
 import { IActivityDocument } from '@/ticket/@types/activity';
+
+import { INoteModel, loadNoteClass } from '@/ticket/db/models/Note';
+import { INoteDocument } from '@/ticket/@types/note';
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -195,6 +198,7 @@ export interface IModels {
   Status: IStatusModel;
   Ticket: ITicketModel;
   Activity: IActivityModel;
+  Note: INoteModel;
 
   MessengerApps: IMessengerAppModel;
   Configs: IConfigModel;
@@ -229,6 +233,10 @@ export const loadClasses = (
   models.Activity = db.model<IActivityDocument, IActivityModel>(
     'frontline_ticket_activities',
     loadActivityClass(models),
+  );
+  models.Note = db.model<INoteDocument, INoteModel>(
+    'frontline_tickets_notes',
+    loadNoteClass(models),
   );
   //inbox models
   models.Channels = db.model<IChannelDocument, IChannelModel>(

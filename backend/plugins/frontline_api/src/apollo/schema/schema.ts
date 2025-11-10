@@ -63,6 +63,12 @@ import {
   types as ActivityTypes,
 } from '@/ticket/graphql/schemas/activity';
 
+import {
+  mutations as NoteMutations,
+  queries as NoteQueries,
+  types as NoteTypes,
+} from '@/ticket/graphql/schemas/note';
+
 export const types = `
     ${ChannelsTypes}
     ${ConversationsTypes}
@@ -75,6 +81,7 @@ export const types = `
     ${TicketTypes}
     ${WidgetTypes}
     ${ActivityTypes}
+    ${NoteTypes}
   `;
 export const queries = `
     ${ChannelsQueries}
@@ -88,6 +95,7 @@ export const queries = `
     ${TicketQuery}
     ${WidgetQueries}
     ${ActivityQueries}
+    ${NoteQueries}
   `;
 
 export const mutations = `
@@ -101,5 +109,6 @@ export const mutations = `
    ${StatusMutations}
    ${TicketMutations}
    ${WidgetMutations}
+   ${NoteMutations}
 `;
 export default { types, queries, mutations };

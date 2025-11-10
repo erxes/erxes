@@ -5,11 +5,11 @@ import { facebookQueries } from '@/integrations/facebook/graphql/resolvers/queri
 import callQueries from '@/integrations/call/graphql/resolvers/queries';
 import { imapQueries } from '@/integrations/imap/graphql/resolvers/queries';
 import { widgetQueries } from '@/inbox/graphql/resolvers/queries/widget';
-
 import { pipelineQueries } from '@/ticket/graphql/resolvers/queries/Pipeline';
 import { statusQueries } from '@/ticket/graphql/resolvers/queries/Status';
 import { ticketQueries } from '@/ticket/graphql/resolvers/queries/Ticket';
 import { activityQueries } from '@/ticket/graphql/resolvers/queries/Activity';
+import { noteQueries } from '@/ticket/graphql/resolvers/queries/Note';
 
 export const queries = {
   ...channelQueries,
@@ -23,4 +23,5 @@ export const queries = {
   ...ticketQueries,
   ...widgetQueries,
   ...activityQueries,
+  ...noteQueries,
 };

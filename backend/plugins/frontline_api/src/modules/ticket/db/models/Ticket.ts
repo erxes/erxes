@@ -77,14 +77,25 @@ export const loadTicketClass = (models: IModels) => {
       if (!doc.statusId) {
         throw new Error('Status ID not found');
       }
+
+      const [result] = await models.Ticket.aggregate([
+        { $match: { statusId: doc.statusId } },
+        { $group: { _id: null, maxNumber: { $max: '$number' } } },
+      ]);
+
+      const nextNumber = (result?.maxNumber || 0) + 1;
       const status = await models.Status.getStatus(doc.statusId);
 
       if (status && status.pipelineId) {
         doc.pipelineId = status.pipelineId;
       }
 
-      const ticket = await models.Ticket.create(doc);
+      doc.createdBy = userId;
 
+      const ticket = await models.Ticket.insertOne({
+        ...doc,
+        number: nextNumber,
+      });
       if (doc.assigneeId && doc.assigneeId !== userId) {
         await createNotifications({
           contentType: 'ticket',

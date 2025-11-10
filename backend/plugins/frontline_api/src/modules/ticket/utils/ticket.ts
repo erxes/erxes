@@ -202,7 +202,6 @@ export const createActivity = async (args: {
   for (const [field, newValue] of Object.entries(newDocSafe)) {
     const oldValue = (oldDocSafe as any)[field];
     const module = getModule(field);
-    console.log('hahaha');
     if (!module) continue;
 
     let action: Action | null = null;
