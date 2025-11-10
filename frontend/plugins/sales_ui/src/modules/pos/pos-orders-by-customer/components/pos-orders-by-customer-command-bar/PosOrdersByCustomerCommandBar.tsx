@@ -1,7 +1,7 @@
 import { IconPlus } from '@tabler/icons-react';
 
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
-import { PosOrdersByCustomerDelete } from '../pos-orders-by-customes-delete/PosOrdersByCustomerDelete';
+import { PosOrdersByCustomerDelete } from '@/pos/pos-orders-by-customer/components/pos-orders-by-customes-delete/PosOrdersByCustomerDelete';
 
 export const PosOrdersByCustomerCommandBar = () => {
   const { table } = RecordTable.useRecordTable();

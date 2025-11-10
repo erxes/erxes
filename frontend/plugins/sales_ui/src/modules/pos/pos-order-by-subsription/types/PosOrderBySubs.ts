@@ -1,12 +1,4 @@
-export interface IUser {
-  _id: string;
-  details: {
-    avatar: string;
-    fullName: string;
-    __typename: string;
-  };
-  __typename: string;
-}
+import { IUser } from '@/pos/types/pos';
 
 export interface IPosOrdersBySubs {
   _id: string;

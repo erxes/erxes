@@ -1,7 +1,7 @@
 import { IconPlus } from '@tabler/icons-react';
 
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
-import { PosOrdersBySubsDelete } from '../pos-order-by-subs-delete/PosOrderBySubsDelete';
+import { PosOrdersBySubsDelete } from '@/pos/pos-order-by-subsription/components/pos-order-by-subs-delete/PosOrderBySubsDelete';
 
 export const PosOrdersBySubsCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -16,11 +16,12 @@ export const PosOrdersBySubsCommandBar = () => {
         <PosOrdersBySubsDelete
           posOrdersBySubsIds={table
             .getFilteredSelectedRowModel()
-            .rows.map((row) => row.original._id)
+            .rows.map((row) => row.original?._id)
+            .filter((id): id is string => Boolean(id))
             .join(',')}
         />
         <Separator.Inline />
-        <Button variant="secondary">
+        <Button variant="secondary" onClick={() => {}}>
           <IconPlus />
           Create
         </Button>

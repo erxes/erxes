@@ -2,8 +2,8 @@ import { Cell } from '@tanstack/react-table';
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 import { RecordTable } from 'erxes-ui';
-import { renderingPosItemDetailAtom } from '../states/PosItemDetail';
-import { IPosItem } from '../types/posItem';
+import { renderingPosItemDetailAtom } from '@/pos/pos-items/states/PosItemDetail';
+import { IPosItem } from '@/pos/pos-items/types/posItem';
 
 export const PosItemMoreColumnCell = ({
   cell,

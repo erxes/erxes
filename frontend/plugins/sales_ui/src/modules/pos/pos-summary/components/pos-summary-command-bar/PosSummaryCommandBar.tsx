@@ -1,8 +1,7 @@
 import { IconPlus } from '@tabler/icons-react';
 
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
-import { PosSummaryDelete } from '../pos-summary-delete/PosSummaryDelete';
-
+import { PosSummaryDelete } from '@/pos/pos-summary/components/pos-summary-delete/PosSummaryDelete';
 
 export const PosSummaryCommandBar = () => {
   const { table } = RecordTable.useRecordTable();

@@ -1,7 +1,6 @@
 import { IconPlus } from '@tabler/icons-react';
-
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
-import { PosByItemsDelete } from '../delete/PosByItemsDelete';
+import { PosByItemsDelete } from '@/pos/pos-by-items/components/delete/PosByItemsDelete';
 
 export const PosByItemsCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -16,11 +15,12 @@ export const PosByItemsCommandBar = () => {
         <PosByItemsDelete
           posByItemsIds={table
             .getFilteredSelectedRowModel()
-            .rows.map((row) => row.original._id)
+            .rows.map((row) => row.original?._id)
+            .filter((id): id is string => Boolean(id))
             .join(',')}
         />
         <Separator.Inline />
-        <Button variant="secondary">
+        <Button variant="secondary" onClick={() => {}}>
           <IconPlus />
           Create
         </Button>

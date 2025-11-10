@@ -2,7 +2,6 @@ import {
   IconBuilding,
   IconChartBar,
   IconLabel,
-  IconMobiledata,
   IconPhone,
   IconClock,
   IconUser,
@@ -12,11 +11,10 @@ import {
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
-  Badge,
 } from 'erxes-ui';
 
-import { IPosItem } from '../types/posItem';
-import { PosItemMoreColumn } from './PosItemMoreColumns';
+import { IPosItem } from '@/pos/pos-items/types/posItem';
+import { PosItemMoreColumn } from '@/pos/pos-items/components/PosItemMoreColumns';
 
 export const PosItemColumns: ColumnDef<IPosItem>[] = [
   PosItemMoreColumn,
@@ -35,20 +33,6 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
       );
     },
   },
-  // {
-  //   id: 'createdTime',
-  //   accessorKey: 'createdTime',
-  //   header: () => (
-  //     <RecordTable.InlineHead icon={IconMobiledata} label="Created Time" />
-  //   ),
-  //   cell: ({ cell }) => {
-  //     return (
-  //       <RecordTableInlineCell>
-  //         <TextOverflowTooltip value={cell.getValue() as string} />
-  //       </RecordTableInlineCell>
-  //     );
-  //   },
-  // },
   {
     id: 'number',
     accessorKey: 'number',

@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { useQueryState } from 'erxes-ui';
 import { renderingPosDetailAtom } from '@/pos/states/posDetail';
-import { PosHotKeyScope } from '../../types/posHotKeyScope';
+import { PosHotKeyScope } from '@/pos/types/posHotKeyScope';
 
 export const PosDetailSheet = ({ children }: { children: React.ReactNode }) => {
   const [activeTab] = useAtom(renderingPosDetailAtom);

@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client';
-import { POS_BY_ITEMS_QUERY } from '~/modules/pos/pos-by-items/graphql/queries';
-import { IProduct } from '../types/PosByItemType';
+import { POS_BY_ITEMS_QUERY } from '@/pos/pos-by-items/graphql/queries';
+import { IProduct } from '@/pos/pos-by-items/types/PosByItemType';
 
 const POS_PER_PAGE = 30;
 
@@ -31,6 +31,7 @@ export const usePosByItemsList = (options: { posId?: string } = {}) => {
     }
     fetchMore({
       variables: {
+        ...variables,
         page: Math.ceil(transformedPosList.length / POS_PER_PAGE) + 1,
         perPage: POS_PER_PAGE,
       },

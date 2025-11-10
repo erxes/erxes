@@ -1,9 +1,8 @@
 import { isUndefinedOrNull, Skeleton } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { posTotalCountAtom } from '../states/PosCount';
+import { posTotalCountAtom } from '@/pos/states/PosCount';
 
-
-export const PosTotalCount = () => {
+export const TotalCountDisplay = () => {
   const totalCount = useAtomValue(posTotalCountAtom);
   return (
     <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">

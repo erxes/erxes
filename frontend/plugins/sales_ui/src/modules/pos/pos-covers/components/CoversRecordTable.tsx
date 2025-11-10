@@ -1,7 +1,7 @@
 import { RecordTable } from 'erxes-ui';
-import { useCoversList } from '../hooks/UseCoversList';
-import { coverColumns } from './CoverColumns';
-import { CoverCommandBar } from './cover-command-bar/CoverCommandBar';
+import { useCoversList } from '@/pos/pos-covers/hooks/UseCoversList';
+import { coverColumns } from '@/pos/pos-covers/components/CoverColumns';
+import { CoverCommandBar } from '@/pos/pos-covers/components/cover-command-bar/CoverCommandBar';
 
 export const CoversRecordTable = () => {
   const { coversList, handleFetchMore, loading, pageInfo } = useCoversList();

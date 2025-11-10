@@ -2,8 +2,8 @@ import { Cell } from '@tanstack/react-table';
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 import { RecordTable } from 'erxes-ui';
-import { ICovers } from '../types/posCover';
-import { renderingCoverDetailAtom } from '../../states/coverDetail';
+import { ICovers } from '@/pos/pos-covers/types/posCover';
+import { renderingCoverDetailAtom } from '@/pos/states/coverDetail';
 
 export const coverMoreColumnCell = ({
   cell,

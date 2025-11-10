@@ -1,5 +1,4 @@
-import { useLocation } from 'react-router';
-
+import { useLocation } from 'react-router-dom';
 import { PosPath } from '@/pos/types/path/PosPath';
 import {
   LEADS_CURSOR_SESSION_KEY,

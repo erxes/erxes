@@ -1,21 +1,6 @@
 import { useQuery } from '@apollo/client';
-import queries from '../graphql/queries';
-
-interface ICovers {
-  _id: string;
-  posToken: string;
-  status: string;
-  beginDate: string;
-  endDate: string;
-  description: string;
-  userId: string;
-  note: string;
-  posName: string;
-  createdAt: string;
-  createdUser?: {
-    email: string;
-  };
-}
+import queries from '@/pos/pos-covers/graphql/queries';
+import { ICovers } from '@/pos/pos-covers/types/posCover';
 
 const COVERS_PER_PAGE = 30;
 

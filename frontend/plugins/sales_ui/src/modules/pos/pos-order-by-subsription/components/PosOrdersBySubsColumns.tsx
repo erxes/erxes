@@ -12,10 +12,8 @@ import {
   RecordTableInlineCell,
   Badge,
 } from 'erxes-ui';
-
-
-import { IPosOrdersBySubs } from '../types/PosOrderBySubs';
-import { PosOrderBySubsMoreColumn } from './PosOrderBySubsMoreColumn';
+import { IPosOrdersBySubs } from '@/pos/pos-order-by-subsription/types/PosOrderBySubs';
+import { PosOrderBySubsMoreColumn } from '@/pos/pos-order-by-subsription/components/PosOrderBySubsMoreColumn';
 
 export const PosOrdersBySubsColumns: ColumnDef<IPosOrdersBySubs>[] = [
   PosOrderBySubsMoreColumn,

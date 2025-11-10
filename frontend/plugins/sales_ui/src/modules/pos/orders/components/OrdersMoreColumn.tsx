@@ -2,9 +2,8 @@ import { Cell } from '@tanstack/react-table';
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 import { RecordTable } from 'erxes-ui';
-
-import { IOrder } from '~/modules/pos/types/order';
-import { renderingOrderDetailAtom } from '../../states/orderDetail';
+import { IOrder } from '@/pos/types/order';
+import { renderingOrderDetailAtom } from '@/pos/states/orderDetail';
 
 export const ordersMoreColumnCell = ({
   cell,

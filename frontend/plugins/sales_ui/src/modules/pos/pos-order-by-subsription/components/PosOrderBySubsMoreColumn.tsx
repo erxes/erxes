@@ -2,8 +2,8 @@ import { Cell } from '@tanstack/react-table';
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 import { RecordTable } from 'erxes-ui';
-import { IPosOrdersBySubs } from '../types/PosOrderBySubs';
-import { renderingPosOrdersBySubsDetailAtom } from '../states/PosOrderBySubsDetail';
+import { IPosOrdersBySubs } from '@/pos/pos-order-by-subsription/types/PosOrderBySubs';
+import { renderingPosOrdersBySubsDetailAtom } from '@/pos/pos-order-by-subsription/states/PosOrderBySubsDetail';
 
 export const PosOrderBySubsMoreColumnCell = ({
   cell,

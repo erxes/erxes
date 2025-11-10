@@ -1,9 +1,7 @@
 import { RecordTable } from 'erxes-ui';
-
-import { usePosByItemsList } from '../hooks/UsePosByItemsList';
-
-import { PosByItemsColumns } from './PosByItemsColumn';
-import { PosByItemsCommandBar } from './pos-by-items-command-bar/PosByItemsCommandBar';
+import { usePosByItemsList } from '@/pos/pos-by-items/hooks/UsePosByItemsList';
+import { PosByItemsColumns } from '@/pos/pos-by-items/components/PosByItemsColumn';
+import { PosByItemsCommandBar } from '@/pos/pos-by-items/components/pos-by-items-command-bar/PosByItemsCommandBar';
 
 export const PosByItemsRecordTable = ({ posId }: { posId?: string }) => {
   const { posByItemsList, handleFetchMore, loading, pageInfo } =

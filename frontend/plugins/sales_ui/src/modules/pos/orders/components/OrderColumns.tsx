@@ -14,8 +14,8 @@ import {
   RecordTableInlineCell,
 } from 'erxes-ui';
 
-import { IOrder } from '../../types/order';
-import { ordersMoreColumn } from './OrdersMoreColumn';
+import { IOrder } from '@/pos/types/order';
+import { ordersMoreColumn } from '@/pos/orders/components/OrdersMoreColumn';
 
 export const orderColumns: ColumnDef<IOrder>[] = [
   ordersMoreColumn,

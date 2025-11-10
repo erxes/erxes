@@ -1,7 +1,7 @@
 import { Breadcrumb, Button, Skeleton } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
 import { IconBuilding } from '@tabler/icons-react';
-import { useGetCurrentUsersPos } from '../../hooks/useGetCurrentUsersPos';
+import { useGetCurrentUsersPos } from '@/pos/hooks/useGetCurrentUsersPos';
 
 export const PosBreadcrumb = () => {
   const { posId } = useParams();

@@ -1,6 +1,6 @@
 import { isUndefinedOrNull, Skeleton } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { posTotalCountAtom } from '../../states/PosCount';
+import { posTotalCountAtom } from '@/pos/states/PosCount';
 
 export const PosCoverItemTotalCount = () => {
   const totalCount = useAtomValue(posTotalCountAtom);

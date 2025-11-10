@@ -14,7 +14,7 @@ export const OrderRecordTable = ({ posId }: { posId?: string }) => {
       columns={orderColumns}
       data={ordersList}
       className="m-3"
-      stickyColumns={['more', 'checkbox', 'name']}
+      stickyColumns={['more', 'checkbox', 'number']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={pageInfo?.hasPreviousPage}

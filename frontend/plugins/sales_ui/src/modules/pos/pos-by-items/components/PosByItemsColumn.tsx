@@ -15,8 +15,8 @@ import {
   Badge,
 } from 'erxes-ui';
 
-import { PosByItemsMoreColumn } from './PosByItemsMoreColumn';
-import { IPosByItems } from '../types/PosByItemType';
+import { PosByItemsMoreColumn } from '@/pos/pos-by-items/components/PosByItemsMoreColumn';
+import { IPosByItems } from '@/pos/pos-by-items/types/PosByItemType';
 
 export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   PosByItemsMoreColumn,
@@ -40,9 +40,7 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <Badge variant="default">
-            {cell.getValue() as string}
-          </Badge>
+          <Badge variant="default">{cell.getValue() as string}</Badge>
         </RecordTableInlineCell>
       );
     },
@@ -62,7 +60,9 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   {
     id: 'category',
     accessorKey: 'category.name',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label="Category" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCategory} label="Category" />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

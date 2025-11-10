@@ -2,8 +2,8 @@ import { Cell } from '@tanstack/react-table';
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 import { RecordTable } from 'erxes-ui';
-import { renderingPosOrdersByCustomerDetailAtom } from '../states/PosOrdersByCustomerDetail';
-import { IPosOrdersByCustomer } from '../types/posOrdersByCustomerType';
+import { renderingPosOrdersByCustomerDetailAtom } from '@/pos/pos-orders-by-customer/states/PosOrdersByCustomerDetail';
+import { IPosOrdersByCustomer } from '@/pos/pos-orders-by-customer/types/posOrdersByCustomerType';
 
 export const PosOrdersByCustomerMoreColumnCell = ({
   cell,

@@ -1,5 +1,5 @@
 import { useQuery, QueryHookOptions } from '@apollo/client';
-import { POS_LIST } from '~/modules/pos/graphql/queries/getPos';
+import { POS_LIST } from '@/pos/graphql/queries/getPos';
 import { IPos } from '@/pos/types/pos';
 import { currentUserState } from 'ui-modules';
 import { useAtomValue } from 'jotai';
@@ -21,7 +21,7 @@ export const useGetCurrentUsersPos = (
     },
   });
 
-  const pos = data?.posList;  
+  const pos = data?.posList;
 
   return { pos, loading };
 };

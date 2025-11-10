@@ -1,8 +1,8 @@
 import { PageHeader } from 'ui-modules';
 import { Breadcrumb, Separator } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
-import { PosBreadcrumb } from '~/modules/pos/pos/breadcumb/PosBreadcrumb';
-import { PosOrdersByCustomerRecordTable } from '~/modules/pos/pos-orders-by-customer/components/PosOrdersByCustomerRecordTable';
+import { PosBreadcrumb } from '@/pos/pos/breadcumb/PosBreadcrumb';
+import { PosOrdersByCustomerRecordTable } from '@/pos/pos-orders-by-customer/components/PosOrdersByCustomerRecordTable';
 
 export const PosOrdersByCustomerPage = () => {
   const { posId } = useParams();

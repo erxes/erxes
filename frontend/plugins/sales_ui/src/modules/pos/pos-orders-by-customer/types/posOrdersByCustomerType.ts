@@ -1,7 +1,4 @@
-export interface IOrder {
-  _id: string;
-  __typename: string;
-}
+import { IOrder } from '@/pos/types/order';
 
 export interface IPosOrdersByCustomer {
   _id: string;

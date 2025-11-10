@@ -1,6 +1,5 @@
 import { useQuery } from '@apollo/client';
-import queries from '~/modules/pos/pos-orders-by-customer/graphql/queries';
-import { IPosOrdersByCustomer } from '../types/posOrdersByCustomerType';
+import queries from '@/pos/pos-orders-by-customer/graphql/queries';
 
 const POS_PER_PAGE = 30;
 
@@ -36,6 +35,7 @@ export const usePosOrderByCustomerList = (options: { posId?: string } = {}) => {
 
     fetchMore({
       variables: {
+        ...variables,
         page: Math.ceil(transformedPosList.length / POS_PER_PAGE) + 1,
         perPage: POS_PER_PAGE,
       },

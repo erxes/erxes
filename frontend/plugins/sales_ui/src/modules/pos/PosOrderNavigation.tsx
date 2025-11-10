@@ -22,7 +22,7 @@ import {
   IconLink,
   IconSettings,
 } from '@tabler/icons-react';
-import { useGetPos } from './hooks/useGetPos';
+import { useGetPos } from '@/pos/hooks/useGetPos';
 
 type Pos = {
   _id: string;

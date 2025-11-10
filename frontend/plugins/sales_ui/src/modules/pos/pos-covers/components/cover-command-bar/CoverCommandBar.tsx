@@ -1,7 +1,7 @@
 import { IconPlus } from '@tabler/icons-react';
 
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
-import { CoverDelete } from '../covers-delete/CoversDelete';
+import { CoverDelete } from '@/pos/pos-covers/components/covers-delete/CoversDelete';
 
 export const CoverCommandBar = () => {
   const { table } = RecordTable.useRecordTable();

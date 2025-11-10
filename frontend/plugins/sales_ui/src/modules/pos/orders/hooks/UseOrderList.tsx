@@ -1,7 +1,7 @@
 import queries from '@/pos/orders/graphql/queries';
 import { useQuery } from '@apollo/client';
 import { useMemo, useCallback } from 'react';
-import { IOrder } from '../../types/order';
+import { IOrder } from '@/pos/types/order';
 
 const POS_PER_PAGE = 30;
 

@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client';
-import queries from '~/modules/pos/pos-summary/graphql/queries';
-import { IPosSummary } from '../types/posSummary';
+import queries from '@/pos/pos-summary/graphql/queries';
+import { IPosSummary } from '@/pos/pos-summary/types/posSummary';
 
 const POS_PER_PAGE = 20;
 
@@ -24,12 +24,12 @@ export const usePosSummaryList = (options: { posId?: string } = {}) => {
     data?.posOrdersGroupSummary?.amounts?.map((item: any) => ({
       _id: item._id,
       paidDate: item.paidDate || 'N/A',
-      number: item.paidDate,
+      number: item._id,
       billId: '',
       cashAmount: item.cashAmount || 0,
       mobileAmount: item.mobileAmount || 0,
       totalAmount: item.totalAmount || 0,
-      finalAmount: item.invoice || 0,
+      finalAmount: item.finalAmount || 0,
       amounts: {
         count: item.count || 0,
         cashAmount: item.cashAmount || 0,

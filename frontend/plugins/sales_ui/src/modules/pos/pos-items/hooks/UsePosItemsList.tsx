@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client';
-import queries from '~/modules/pos/pos-items/graphql/queries';
-import { IPosItem } from '../types/posItem';
+import queries from '@/pos/pos-items/graphql/queries';
+import { IPosItem } from '@/pos/pos-items/types/posItem';
 
 const POS_PER_PAGE = 30;
 

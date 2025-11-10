@@ -1,8 +1,8 @@
 import { PageHeader } from 'ui-modules';
 import { Breadcrumb, Separator } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
-import { PosBreadcrumb } from '~/modules/pos/pos/breadcumb/PosBreadcrumb';
-import { CoversRecordTable } from '~/modules/pos/pos-covers/components/CoversRecordTable';
+import { PosBreadcrumb } from '@/pos/pos/breadcumb/PosBreadcrumb';
+import { CoversRecordTable } from '@/pos/pos-covers/components/CoversRecordTable';
 
 export const CoversPage = () => {
   const { posId } = useParams();

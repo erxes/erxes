@@ -12,8 +12,8 @@ import {
   RecordTableInlineCell,
 } from 'erxes-ui';
 
-import { IPosSummary } from '../types/posSummary';
-import { PosSummaryMoreColumn } from './PosSummaryMoreColumn';
+import { IPosSummary } from '@/pos/pos-summary/types/posSummary';
+import { PosSummaryMoreColumn } from '@/pos/pos-summary/components/PosSummaryMoreColumn';
 
 export const PosSummaryColumns: ColumnDef<IPosSummary>[] = [
   PosSummaryMoreColumn,
@@ -37,10 +37,12 @@ export const PosSummaryColumns: ColumnDef<IPosSummary>[] = [
       <RecordTable.InlineHead icon={IconMobiledata} label="Count" />
     ),
     cell: ({ cell }) => {
-      const value = cell.getValue() as number;
+      const value = cell.getValue() as number | undefined;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={value.toString()} />
+          <TextOverflowTooltip
+            value={typeof value === 'number' ? value.toLocaleString() : '0'}
+          />
         </RecordTableInlineCell>
       );
     },
@@ -52,10 +54,12 @@ export const PosSummaryColumns: ColumnDef<IPosSummary>[] = [
       <RecordTable.InlineHead icon={IconPhone} label="Cash Amount" />
     ),
     cell: ({ cell }) => {
-      const value = cell.getValue() as number;
+      const value = cell.getValue() as number | undefined;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={value.toString()} />
+          <TextOverflowTooltip
+            value={typeof value === 'number' ? value.toLocaleString() : '0'}
+          />
         </RecordTableInlineCell>
       );
     },
@@ -67,10 +71,12 @@ export const PosSummaryColumns: ColumnDef<IPosSummary>[] = [
       <RecordTable.InlineHead icon={IconBuilding} label="Mobile Amount" />
     ),
     cell: ({ cell }) => {
-      const value = cell.getValue() as number;
+      const value = cell.getValue() as number | undefined;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={value.toString()} />
+          <TextOverflowTooltip
+            value={typeof value === 'number' ? value.toLocaleString() : '0'}
+          />
         </RecordTableInlineCell>
       );
     },
@@ -82,10 +88,12 @@ export const PosSummaryColumns: ColumnDef<IPosSummary>[] = [
       <RecordTable.InlineHead icon={IconChartBar} label="Invoice" />
     ),
     cell: ({ cell }) => {
-      const value = cell.getValue() as number;
+      const value = cell.getValue() as number | undefined;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={value.toString()} />
+          <TextOverflowTooltip
+            value={typeof value === 'number' ? value.toLocaleString() : '0'}
+          />
         </RecordTableInlineCell>
       );
     },
@@ -97,10 +105,12 @@ export const PosSummaryColumns: ColumnDef<IPosSummary>[] = [
       <RecordTable.InlineHead icon={IconChartBar} label="Loyalty" />
     ),
     cell: ({ cell }) => {
-      const value = cell.getValue() as number;
+      const value = cell.getValue() as number | undefined;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={value.toString()} />
+          <TextOverflowTooltip
+            value={typeof value === 'number' ? value.toLocaleString() : '0'}
+          />
         </RecordTableInlineCell>
       );
     },
@@ -110,10 +120,12 @@ export const PosSummaryColumns: ColumnDef<IPosSummary>[] = [
     accessorKey: 'totalAmount',
     header: () => <RecordTable.InlineHead icon={IconChartBar} label="Amount" />,
     cell: ({ cell }) => {
-      const value = cell.getValue() as number;
+      const value = cell.getValue() as number | undefined;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={value.toString()} />
+          <TextOverflowTooltip
+            value={typeof value === 'number' ? value.toLocaleString() : '0'}
+          />
         </RecordTableInlineCell>
       );
     },

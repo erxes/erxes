@@ -3,8 +3,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { useConfirm } from 'erxes-ui/hooks';
 import { useToast } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
-import { useDeleteProduct } from '../../hooks/useDeleteProduct';
-import { POS_BY_ITEMS_QUERY } from '../../graphql/queries';
+import { useDeleteProduct } from '@/pos/pos-by-items/hooks/useDeleteProduct';
 
 interface PosByItemsDeleteProps {
   posByItemsIds: string;

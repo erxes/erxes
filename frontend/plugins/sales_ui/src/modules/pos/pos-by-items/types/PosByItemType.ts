@@ -25,16 +25,4 @@ export interface IPosProductsResponse {
   __typename: string;
 }
 
-export interface IPosByItems {
-  _id: string;
-  name: string;
-  type: string;
-  code: string;
-  categoryId: string;
-  unitPrice: number;
-  category: ICategory;
-  counts: number;
-  count: number;
-  amount: number;
-  __typename: string;
-}
+export type IPosByItems = IProduct;

@@ -4,20 +4,16 @@ import {
   IconLabel,
   IconMobiledata,
   IconPhone,
-  IconClock,
-  IconUser,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
-  Badge,
-  Button,
 } from 'erxes-ui';
 
-import { ICovers } from '../types/posCover';
-import { coverMoreColumn } from './CoversMoreColumns';
+import { ICovers } from '@/pos/pos-covers/types/posCover';
+import { coverMoreColumn } from '@/pos/pos-covers/components/CoversMoreColumns';
 
 export const coverColumns: ColumnDef<ICovers>[] = [
   coverMoreColumn,

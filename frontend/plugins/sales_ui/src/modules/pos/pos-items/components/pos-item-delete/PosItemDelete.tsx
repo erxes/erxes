@@ -28,7 +28,11 @@ export const PosItemDelete = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${posItemCount} selected pos item?`,
+          message: `Are you sure you want to delete ${
+            posItemCount === 1
+              ? 'the selected POS item'
+              : `the ${posItemCount} selected POS items`
+          }?`,
         }).then(() => {
           removePos(posItemIds, {
             onError: (e: ApolloError) => {
@@ -42,9 +46,9 @@ export const PosItemDelete = ({
               toast({
                 title: 'Success',
                 description: `${
-                  posItemCount > 1
-                    ? 'pos items deleted successfully.'
-                    : 'pos item deleted successfully.'
+                  posItemCount === 1
+                    ? 'pos item deleted successfully.'
+                    : 'pos items deleted successfully.'
                 }`,
               });
 

@@ -2,8 +2,8 @@ import { Cell } from '@tanstack/react-table';
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 import { RecordTable } from 'erxes-ui';
-import { renderingPosSummaryDetailAtom } from '../states/PosSummaryDetail';
-import { IPosSummary } from '../types/posSummary';
+import { renderingPosSummaryDetailAtom } from '@/pos/pos-summary/states/PosSummaryDetail';
+import { IPosSummary } from '@/pos/pos-summary/types/posSummary';
 
 export const PosSummaryMoreColumnCell = ({
   cell,
@@ -27,7 +27,7 @@ export const PosSummaryMoreColumnCell = ({
       className="w-full h-full"
       onClick={() => {
         setOpen(_id);
-        setRenderingPosSummaryDetail(false);
+        setRenderingPosSummaryDetail(true);
       }}
     />
   );
