@@ -10,7 +10,7 @@ export const TeamBreadCrumb = () => {
   const team = teams?.find((team) => team._id === teamId);
 
   if (loading) {
-    return <Skeleton className="w-12 h-[1lh]" />;
+    return <Skeleton className="w-12 h-lh" />;
   }
 
   return (

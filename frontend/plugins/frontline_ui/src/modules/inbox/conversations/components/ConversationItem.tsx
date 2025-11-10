@@ -110,7 +110,7 @@ export const ConversationItemContent = () => {
   if (inboxLayout === 'split') {
     return (
       <div className="flex items-center gap-2 w-full justify-between flex-nowrap">
-        <div className="[&_*]:truncate flex-1 w-3/4 h-4 [&_*]:text-sm [&_*]:leading-tight [&_*]:font-medium">
+        <div className="**:truncate flex-1 w-3/4 h-4 **:text-sm **:leading-tight **:font-medium">
           <BlockEditorReadOnly content={content} />
         </div>
         {assignedUserId && assignedUser && (
@@ -127,7 +127,7 @@ export const ConversationItemContent = () => {
   }
 
   return (
-    <div className="min-w-0 flex-1 overflow-hidden [&_*]:truncate [&_p]:w-full h-4 [&_*]:text-sm [&_*]:leading-tight [&_*]:font-medium">
+    <div className="min-w-0 flex-1 overflow-hidden **:truncate [&_p]:w-full h-4 **:text-sm **:leading-tight **:font-medium">
       <BlockEditorReadOnly content={content} />
     </div>
   );

@@ -58,7 +58,7 @@ export const ActionMenu = ({
     <Popover>
       <Popover.Trigger asChild>
         <button
-          className="flex items-center leading-[100%] text-foreground font-inter gap-1 text-sm font-medium rounded-md p-1 hover:bg-muted focus:outline-none"
+          className="flex items-center leading-[100%] text-foreground font-inter gap-1 text-sm font-medium rounded-md p-1 hover:bg-muted focus:outline-hidden"
           aria-label="Open action menu"
           aria-haspopup="true"
         >
@@ -76,7 +76,7 @@ export const ActionMenu = ({
             key={item.label}
             type="button"
             role="menuitem"
-            className={`flex gap-3 items-center px-4 py-2 w-full text-left rounded-md hover:bg-muted focus:outline-none focus:bg-muted ${
+            className={`flex gap-3 items-center px-4 py-2 w-full text-left rounded-md hover:bg-muted focus:outline-hidden focus:bg-muted ${
               item.disabled ? 'opacity-60 cursor-not-allowed' : ''
             }`}
             onClick={() => {
