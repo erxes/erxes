@@ -57,6 +57,7 @@ const currentConfig = gql`
         hasCopy
         hasSumQty
       }
+      saveRemainder
     }
   }
 `

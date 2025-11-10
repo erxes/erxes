@@ -17,6 +17,7 @@ import {
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { IModels } from '../../../connectionResolver';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
 
 export interface IArchiveArgs {
   pipelineId: string;
@@ -402,7 +403,10 @@ export const generateCommonFilters = async (
   }
 
   if (search) {
-    Object.assign(filter, regexSearchText(search));
+    filter.$or = [
+      regexSearchText(search),            
+      { number: { $in: [new RegExp(`.*${escapeRegExp(search)}.*`, 'i')] } } 
+    ];
   }
 
   if (stageId) {

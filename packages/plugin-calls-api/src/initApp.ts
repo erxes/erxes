@@ -4,6 +4,7 @@ import systemStatus from './systemStatus';
 import app from '@erxes/api-utils/src/app';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { getEnv } from '@erxes/api-utils/src';
+import redis from './redlock';
 
 const rawBodySaver = (req, _res, buf, encoding) => {
   if (buf && buf.length) {
@@ -33,6 +34,10 @@ const initApp = async () => {
 
   app.get('/system-status', async (_req, res) => {
     return res.json(await systemStatus());
+  });
+  app.get('/resetCallCookie', async (req, res) => {
+    await redis.del('callCookie');
+    return res.send('Reseted call cookie');
   });
 
   // init bots

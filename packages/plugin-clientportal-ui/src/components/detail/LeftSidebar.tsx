@@ -111,7 +111,7 @@ const LeftSidebar: React.FC<Props> = (props: Props) => {
     const extraButtons = (
       <>
         <ModalTrigger
-          title="Verification"
+          title="ID/Passport Verification"
           trigger={
             <button>
               <Icon icon="edit-3" />
@@ -124,7 +124,7 @@ const LeftSidebar: React.FC<Props> = (props: Props) => {
 
     return (
       <Box
-        title="Verification"
+        title="ID/Passport Verification"
         isOpen={true}
         name="verification"
         extraButtons={extraButtons}

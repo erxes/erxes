@@ -37,6 +37,7 @@ export const types = `
     barcodes: [String]
     barcodeDescription: String
     unitPrice: Float
+    savedRemainder: Float
     categoryId: String
     customFieldsData: JSON
     customFieldsDataByFieldCode: JSON
@@ -70,6 +71,7 @@ const productsQueryParams = `
   type: String,
   categoryId: String,
   searchValue: String,
+  branchId: String,
   vendorId: String,
   tag: String,
   tags: [String]
@@ -83,6 +85,10 @@ const productsQueryParams = `
   groupedSimilarity: String,
   categoryMeta: String,
   image: String,
+  minRemainder: Float
+  maxRemainder: Float
+  minPrice: Float
+  maxPrice: Float
 `;
 
 const productCategoriesParams = `

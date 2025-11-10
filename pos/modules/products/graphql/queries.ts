@@ -39,6 +39,7 @@ const products = gql`
     $isKiosk: Boolean, 
     $groupedSimilarity: String
     $ids: [String]
+    $minRemainder: Float
     ) {
     poscProducts(
       searchValue: $searchValue, 
@@ -49,6 +50,7 @@ const products = gql`
       isKiosk: $isKiosk, 
       groupedSimilarity: $groupedSimilarity
       ids: $ids
+      minRemainder: $minRemainder
     ) {
       ${commonFields}
       categoryId
@@ -57,6 +59,7 @@ const products = gql`
       description
       remainder
       remainders
+      isCheckRem
       hasSimilarity
       attachment {
         url
@@ -75,6 +78,7 @@ const productSimilarities = gql`
         name
         remainder
         remainders
+        isCheckRem
         attachment {
           url
         }

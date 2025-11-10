@@ -191,18 +191,21 @@ const callsQueries = {
   },
   async callQueueList(_root, { integrationId }, { models, user }: IContext) {
     const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
+    const formattedDate = today.toISOString().slice(0, 10); // YYYY-MM-DD формат
+    console.log('00');
 
-    const formattedDate = `${year}-${month}-${day}`;
     const integration = await models.Integrations.getIntegration(
       user._id,
       integrationId,
     );
+    console.log('01');
+
     if (!integration) {
+      console.log('02');
       throw new Error('Integration not found');
     }
+    console.log('03');
+
     const queueData = (await sendToGrandStream(
       models,
       {
@@ -215,7 +218,7 @@ const callsQueries = {
             endTime: formattedDate,
           },
         },
-        integrationId: integrationId,
+        integrationId,
         retryCount: 3,
         isConvertToJson: false,
         isAddExtention: false,
@@ -223,82 +226,88 @@ const callsQueries = {
       user,
     )) as any;
 
+    console.log('04');
+
     if (!queueData.ok) {
+      console.log('05');
       throw new Error(`HTTP error! Status: ${queueData.status}`);
     }
-
+    console.log('06');
     const xmlData = await queueData.text();
-    try {
-      const parsedData = JSON.parse(xmlData);
-
-      if (parsedData.status === -6) {
-        console.log('Status -6 detected. Clearing redis callCookie.');
-        await redis.del('callCookie');
-        const statistics = await models.CallQueueStatistics.find({
-          integrationId,
-        });
-        if (statistics) {
-          return statistics;
-        }
-        return [];
-      }
-    } catch (error) {
-      console.error(error.message);
-    }
+    console.log('07');
 
     try {
       const parser = new XMLParser();
       const jsonObject = parser.parse(xmlData);
+      console.log('08 Parsed XML:', JSON.stringify(jsonObject).slice(0, 200));
+
+      const status =
+        jsonObject?.response?.status || jsonObject?.root_statistics?.status;
+      if (status === '-6' || status === -6) {
+        let cookieKey = 'callCookie';
+        if (integration.wsServer) {
+          cookieKey = `$regularCallCookie:${integration.wsServer}`;
+        }
+        console.log('Status -6 detected. Clearing redis callCookie.');
+        await redis.del(cookieKey);
+
+        const statistics = await models.CallQueueStatistics.find({
+          integrationId,
+        });
+        return statistics ?? [];
+      }
 
       const rootStatistics = jsonObject.root_statistics || {};
-      const queues = (rootStatistics.queue as any) || [];
+      let queues = rootStatistics.queue || [];
 
-      if (queues && queues.length > 0) {
-        const normalizedQueues = queues?.map((q) => ({
-          queuechairman: q.queuechairman,
-          queue: q.queue,
-          totalCalls: q.total_calls,
-          answeredCalls: q.answered_calls,
-          answeredRate: q.answered_rate,
-          abandonedCalls: q.abandoned_calls,
-          avgWait: q.avg_wait,
-          avgTalk: q.avg_talk,
-          vqTotalCalls: q.vq_total_calls,
-          slaRate: q.sla_rate,
-          vqSlaRate: q.vq_sla_rate,
-          transferOutCalls: q.transfer_out_calls,
-          transferOutRate: q.transfer_out_rate,
-          abandonedRate: q.abandoned_rate,
-          integrationId,
-        }));
+      if (!Array.isArray(queues)) {
+        queues = [queues];
+      }
 
-        if (integration.queues && normalizedQueues.length > 0) {
-          const filteredQueues = normalizedQueues.filter((q) =>
-            integration.queues.includes(q.queue.toString()),
+      const normalizedQueues = queues.map((q) => ({
+        queuechairman: q.queuechairman,
+        queue: q.queue,
+        totalCalls: q.total_calls,
+        answeredCalls: q.answered_calls,
+        answeredRate: q.answered_rate,
+        abandonedCalls: q.abandoned_calls,
+        avgWait: q.avg_wait,
+        avgTalk: q.avg_talk,
+        vqTotalCalls: q.vq_total_calls,
+        slaRate: q.sla_rate,
+        vqSlaRate: q.vq_sla_rate,
+        transferOutCalls: q.transfer_out_calls,
+        transferOutRate: q.transfer_out_rate,
+        abandonedRate: q.abandoned_rate,
+        integrationId,
+      }));
+
+      if (integration.queues && normalizedQueues.length > 0) {
+        const filteredQueues = normalizedQueues.filter((q) =>
+          integration.queues.includes(q.queue.toString()),
+        );
+
+        console.log('integration.queues', integration.queues);
+        console.log('filteredQueues', filteredQueues);
+
+        for (const queue of filteredQueues) {
+          await models.CallQueueStatistics.findOneAndUpdate(
+            { integrationId, queue: queue.queue },
+            { $set: queue },
+            { upsert: true, new: true },
           );
-
-          for (const queue of filteredQueues) {
-            await models.CallQueueStatistics.findOneAndUpdate(
-              { integrationId, queue: queue.queue },
-              { $set: queue },
-              { upsert: true, new: true },
-            );
-          }
-
-          return filteredQueues;
         }
-        const stats = await models.CallQueueStatistics.find({ integrationId });
-        if (stats) {
-          return stats;
-        }
-        return [];
+
+        console.log('2..', filteredQueues);
+        return filteredQueues;
       }
-    } catch (error) {
+
       const stats = await models.CallQueueStatistics.find({ integrationId });
-      if (stats) {
-        return stats;
-      }
-      return [];
+      return stats ?? [];
+    } catch (error) {
+      console.error('XML parse error:', error.message);
+      const stats = await models.CallQueueStatistics.find({ integrationId });
+      return stats ?? [];
     }
   },
 

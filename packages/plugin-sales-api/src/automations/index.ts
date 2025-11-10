@@ -74,6 +74,7 @@ export default {
       getRelatedValue,
       actionData: config,
       target: {
+        totalAmount:0,
         ...target,
         ['createdBy.department']: '-',
         ['createdBy.branch']: '-',
@@ -83,7 +84,8 @@ export default {
         ['customers.phone']: '-',
         ['customers.fullName']: '-',
         link: '-',
-        pipelineLabels: '-'
+        pipelineLabels: '-',
+        
       },
       relatedValueProps,
       complexFields: ['productsData']

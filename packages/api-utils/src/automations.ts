@@ -244,9 +244,9 @@ const getPerValue = async (args: {
     ).config || '';
 
   if (isExpression) {
-    updatedValue = eval(updatedValue.replace(/{{.*}}/, '0'));
+    updatedValue = eval(updatedValue.replaceAll(/{{.*?}}/g, '0'));
   } else if (updatedValue.match(/^[0-9+\-*/\s().]+$/)) {
-    updatedValue = eval(updatedValue.replace(/{{.*}}/, '0'));
+    updatedValue = eval(updatedValue.replaceAll(/{{.*?}}/g, '0'));
   }
 
   if (field.includes('Ids')) {

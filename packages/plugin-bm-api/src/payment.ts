@@ -17,8 +17,8 @@ export default {
     }
     const order = await models.Orders.findById(contentTypeId);
     if (!order) return;
-    const oldInvoice = order?.invoices?.find((x) => x._id === _id);
-    const restInvoices = order?.invoices?.filter((x) => x._id !== _id) || [];
+    const oldInvoice = order?.invoices?.find(x => x._id === _id);
+    const restInvoices = order?.invoices?.filter(x => x._id !== _id) || [];
     const restTotal = restInvoices?.reduce((a, b) => a + b.amount, 0) || 0;
     const total = (oldInvoice?.amount || 0) + restTotal;
     const branch = await models.BmsBranch.findById(order.branchId);
@@ -60,7 +60,7 @@ export default {
           { _id: contentTypeId },
           {
             $set: {
-              status: "halfPaid",
+              status: "prepaid",
               invoices: [...restInvoices, { _id, amount }]
             }
           }

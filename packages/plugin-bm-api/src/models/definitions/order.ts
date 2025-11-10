@@ -24,12 +24,14 @@ export interface IOrderDocument extends IOrder, Document {
 
 const STATUS_TYPES = [
   { label: "paid", value: "paid" },
-  { label: "notPaid", value: "notPaid" },
-  { label: "somePaid", value: "somePaid" }
+  { label: "pending", value: "pending" },
+  { label: "prepaid", value: "prepaid" },
+  { label: "refunded", value: "refunded" },
+  { label: "cancelled", value: "cancelled" }
 ];
 
 const getEnum = (): string[] => {
-  return STATUS_TYPES.map((option) => option.value);
+  return STATUS_TYPES.map(option => option.value);
 };
 
 export const orderSchema = schemaHooksWrapper(

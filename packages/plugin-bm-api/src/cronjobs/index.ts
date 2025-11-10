@@ -12,7 +12,13 @@ const handleBmCronjob = async ({ subdomain }) => {
       endDate: { $lte: new Date() },
       date_status: 'running'
     },
-    { $set: { date_status: 'compeleted' } }
+    { $set: { date_status: 'completed' } }
+  );
+    const update2 = await models.Tours.updateMany( // fixes legacy records with the typo
+    {
+      date_status: 'compeleted'
+    },
+    { $set: { date_status: 'completed' } }
   );
   await models.Tours.updateMany(
     {

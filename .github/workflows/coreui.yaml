@@ -25,14 +25,14 @@ on:
       - "packages/ui-team/**"
       - "packages/ui-tags/**"
       - "packages/ui-automations/**"
-      - "packages/core-ui/**"      
+      - "packages/core-ui/**"
       - ".github/workflows/coreui.yaml"
       - "!ui/nginx/**"
       - "!ui/docker-entrypoint.sh"
       - "!ui/Dockerfile"
       - "!ui/.dockerignore"
 
-jobs: 
+jobs:
   ui:
     runs-on: ubuntu-22.04
 
@@ -67,8 +67,8 @@ jobs:
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' ||  github.ref == 'refs/heads/v1' || github.ref == 'refs/heads/staging')
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_V2 }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_V2  }}
           aws-region: us-west-2
 
       - name: Deploy locales

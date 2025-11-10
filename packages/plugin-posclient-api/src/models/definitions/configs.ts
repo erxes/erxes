@@ -84,6 +84,7 @@ export interface IConfig {
   allowTypes: string[];
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
+  saveRemainder?: boolean;
   banFractions: boolean;
 }
 
@@ -198,6 +199,7 @@ export const configSchema = new Schema({
   allowTypes: field({ type: [String], label: 'Allow Types' }),
   isCheckRemainder: field({ type: Boolean, optional: true }),
   checkExcludeCategoryIds: field({ type: [String] }),
+  saveRemainder: field({ type: Boolean, optional: true }),
   banFractions: field({ type: Boolean, optional: true }),
   status: field({ type: String, optional: true }),
 });

@@ -1,5 +1,64 @@
 # Changelog
 
+## <small>2.17.24 (2025-11-07)</small>
+
+* fix: car clientPortal mutations ([625e3c4](https://github.com/erxes/erxes/commit/625e3c4))
+* fix: car clientPortal mutations ([e4dfe14](https://github.com/erxes/erxes/commit/e4dfe14))
+* fix: fix call monitor ([1b08a2d](https://github.com/erxes/erxes/commit/1b08a2d))
+* fix: incoming call ringtone ([4e06b47](https://github.com/erxes/erxes/commit/4e06b47))
+* chore: debug call queue list ([a9ed5bf](https://github.com/erxes/erxes/commit/a9ed5bf))
+* chore: debug call queue list ([4fd0149](https://github.com/erxes/erxes/commit/4fd0149))
+* chore(cms): fix categories/tags pagination ([69e01fb](https://github.com/erxes/erxes/commit/69e01fb))
+* feat: add call cookie resseter ([0a4376a](https://github.com/erxes/erxes/commit/0a4376a))
+* feat(ticket): initialize fields from localStorage and sync with props in componentDidUpdate  ([dd3f23b](https://github.com/erxes/erxes/commit/dd3f23b))
+* Release 2.17.23 ([67c704e](https://github.com/erxes/erxes/commit/67c704e))
+* bugfix(cms): prevent 'isScheduled' from being sent in mutation input ([e298a38](https://github.com/erxes/erxes/commit/e298a38))
+
+* Merge branch 'master' of github.com:erxes/erxes (2dbbdee8d1)
+* feat(ticket): initialize fields from localStorage and sync with props in componentDidUpdate (dd3f23b42f)
+* fix: car clientPortal mutations (625e3c44d4)
+* fix: car clientPortal mutations (e4dfe1432f)
+* chore(cms): fix categories/tags pagination (69e01fb674)
+* bugfix(cms): prevent 'isScheduled' from being sent in mutation input (e298a383ac)
+* Merge branch 'master' of github.com:erxes/erxes (721337422e)
+
+## <small>2.17.23 (2025-11-04)</small>
+
+## <small>2.17.22 (2025-10-31)</small>
+
+* fix: pos ui filter has a remainder ([0b283f6](https://github.com/erxes/erxes/commit/0b283f6))
+* fix: pos, temp save remainders, sort and filter remainder and price (#6547) ([3bf532a](https://github.com/erxes/erxes/commit/3bf532a)), closes [#6547](https://github.com/erxes/erxes/issues/6547)
+* fix: tourism update (#6543) ([d3a6611](https://github.com/erxes/erxes/commit/d3a6611)), closes [#6543](https://github.com/erxes/erxes/issues/6543)
+* fix(ticket): fix required field validation preventing ticket creation ([2e49065](https://github.com/erxes/erxes/commit/2e49065))
+* chore: pos fetch remainder refactor ([ee9a3a2](https://github.com/erxes/erxes/commit/ee9a3a2))
+* debug: add additional console logs for score calculations and updated custom fields in ScoreCampaign ([2d75db9](https://github.com/erxes/erxes/commit/2d75db9))
+* debug: add console logs for placeholder and parent object in ScoreCampaigns and utils ([6770877](https://github.com/erxes/erxes/commit/6770877))
+* debug: update console log to stringify parent object in resolvePlaceholderValue function ([d3448eb](https://github.com/erxes/erxes/commit/d3448eb))
+
+## [2.17.21](https://github.com/erxes/erxes/compare/2.17.20...2.17.21) (2025-10-23)
+
+## [2.17.20](https://github.com/erxes/erxes/compare/2.17.19...2.17.20) (2025-10-23)
+
+## [2.17.19](https://github.com/erxes/erxes/compare/2.17.18...2.17.19) (2025-10-22)
+
+### Bug Fixes
+
+* update regex for value replacement in automations and improve code formatting in RFEditor and SetProperty components ([d2b5b5e](https://github.com/erxes/erxes/commit/d2b5b5ea2a85494fe3a9a3bcfffea085df0c848a))
+
+## [2.17.18](https://github.com/erxes/erxes/compare/2.17.17...2.17.18) (2025-10-21)
+
+### Features
+
+* **core:** add fieldsGroupFix mutation for fixing property groups ([8d1e0df](https://github.com/erxes/erxes/commit/8d1e0df1d1929d2d1edacdf384b63897c849a9e6))
+* **syncer:** add logging for template creation and update Elasticsearch URL handling in initial sync ([3fc6b98](https://github.com/erxes/erxes/commit/3fc6b980acbb1f289991742d51d5ccdfd10db762))
+* **syncer:** implement batch processing for MongoDB to Elasticsearch synchronization with improved concurrency and performance settings ([79208e4](https://github.com/erxes/erxes/commit/79208e4f11aad7eb3857b0d5a86dd29197096395))
+
+### Bug Fixes
+
+* similiraties products per with remainder ([1e5a11d](https://github.com/erxes/erxes/commit/1e5a11d3f3359aa44e9981f199ca2a7b7c27d753))
+* **syncer:** remove unnecessary performance flags from monstache command in initial sync ([a7d3f10](https://github.com/erxes/erxes/commit/a7d3f10d66a7efcca5d1a36226efc4c1614fbc07))
+* tourism update ([1e8b627](https://github.com/erxes/erxes/commit/1e8b627f80b47c2137d81f7efec1c1fdae85037b))
+
 ## [2.17.17](https://github.com/erxes/erxes/compare/2.17.16...2.17.17) (2025-10-09)
 
 ### Features

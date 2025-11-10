@@ -1,6 +1,5 @@
-import { IAction } from '@erxes/ui-automations/src/types';
-import { Alert } from '@erxes/ui/src';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { IAction } from "@erxes/ui-automations/src/types";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   addEdge,
   Background,
@@ -10,20 +9,20 @@ import ReactFlow, {
   MiniMap,
   updateEdge,
   useEdgesState,
-  useNodesState
-} from 'reactflow';
-import 'reactflow/dist/style.css';
+  useNodesState,
+} from "reactflow";
+import "reactflow/dist/style.css";
 import {
   AutomationConstants,
   IAutomation,
   IAutomationNote,
-  ITrigger
-} from '../../types';
-import edgeTypes from './edges';
-import ConnectionLine from './edges/ConnectionLine';
-import Info from './Info';
-import nodeTypes from './nodes';
-import { generateEdges, generateNodes, generatePostion } from './utils';
+  ITrigger,
+} from "../../types";
+import edgeTypes from "./edges";
+import ConnectionLine from "./edges/ConnectionLine";
+import Info from "./Info";
+import nodeTypes from "./nodes";
+import { generateEdges, generateNodes } from "./utils";
 
 type Props = {
   automation: IAutomation;
@@ -34,7 +33,7 @@ type Props = {
   onConnection: ({
     sourceId,
     targetId,
-    type
+    type,
   }: {
     sourceId: string;
     targetId: string;
@@ -43,7 +42,7 @@ type Props = {
   showDrawer: boolean;
   toggleDrawer: ({
     type,
-    awaitingNodeId
+    awaitingNodeId,
   }: {
     type: string;
     awaitingNodeId?: string;
@@ -67,15 +66,15 @@ function arraysAreNotIdentical(arr1, arr2) {
 }
 
 const onDisConnection = ({ nodes, edge, setEdges, onConnect }) => {
-  setEdges(eds => eds.filter(e => e.id !== edge.id));
+  setEdges((eds) => eds.filter((e) => e.id !== edge.id));
   let info: any = { source: edge.source, target: undefined };
 
-  const sourceNode = nodes.find(n => n.id === edge.source);
+  const sourceNode = nodes.find((n) => n.id === edge.source);
 
   if (edge.sourceHandle.includes(sourceNode?.id)) {
-    const [_action, _sourceId, optionalConnectId] = (edge.id || '').split('-');
+    const [_action, _sourceId, optionalConnectId] = (edge.id || "").split("-");
     info.optionalConnectId = optionalConnectId;
-    info.connectType = 'optional';
+    info.connectType = "optional";
   }
 
   onConnect(info);
@@ -98,8 +97,8 @@ function AutomationEditor({
       triggers,
       actions,
       workFlowActions,
-      onDisconnect: edge =>
-        onDisConnection({ nodes, edge, setEdges, onConnect })
+      onDisconnect: (edge) =>
+        onDisConnection({ nodes, edge, setEdges, onConnect }),
     })
   );
 
@@ -112,8 +111,8 @@ function AutomationEditor({
       props
     );
 
-    const mergedArray = updatedNodes.map(node1 => {
-      let node2 = nodes.find(o => o.id === node1.id);
+    const mergedArray = updatedNodes.map((node1) => {
+      let node2 = nodes.find((o) => o.id === node1.id);
 
       if (node2) {
         return { ...node1, position: { ...node1.position, ...node2.position } };
@@ -126,8 +125,8 @@ function AutomationEditor({
         triggers,
         actions,
         workFlowActions,
-        onDisconnect: edge =>
-          onDisConnection({ nodes, edge, setEdges, onConnect })
+        onDisconnect: (edge) =>
+          onDisConnection({ nodes, edge, setEdges, onConnect }),
       })
     );
   };
@@ -137,7 +136,7 @@ function AutomationEditor({
   }, [
     JSON.stringify(triggers),
     JSON.stringify(actions),
-    JSON.stringify(workFlowActions)
+    JSON.stringify(workFlowActions),
   ]);
 
   const generateConnect = (params, source) => {
@@ -147,26 +146,26 @@ function AutomationEditor({
       ...params,
       sourceId: params.source,
       targetId: params.target,
-      type: source?.data?.nodeType
+      type: source?.data?.nodeType,
     };
 
     if (sourceHandle) {
       if (params?.sourceHandle.includes(params?.source)) {
-        const [_sourceId, optionalConnectId] = params.sourceHandle.split('-');
+        const [_sourceId, optionalConnectId] = params.sourceHandle.split("-");
         info.optionalConnectId = optionalConnectId;
-        info.connectType = 'optional';
+        info.connectType = "optional";
       }
     }
 
     const targetWorkflow = workFlowActions?.find(({ actions }) =>
-      actions.some(action => action.id === info.targetId)
+      actions.some((action) => action.id === info.targetId)
     );
     if (targetWorkflow) {
       info.workflowId = targetWorkflow.workflowId;
     }
 
     const sourceWorkflow = workFlowActions?.find(({ actions }) =>
-      actions.some(action => action.id === info.sourceId)
+      actions.some((action) => action.id === info.sourceId)
     );
 
     if (sourceWorkflow && info.targetId) {
@@ -177,9 +176,9 @@ function AutomationEditor({
   };
 
   const onConnect = useCallback(
-    params => {
-      const source = nodes.find(node => node.id === params.source);
-      setEdges(eds => {
+    (params) => {
+      const source = nodes.find((node) => node.id === params.source);
+      setEdges((eds) => {
         const updatedEdges = addEdge({ ...params }, eds);
 
         onConnection(generateConnect(params, source));
@@ -192,7 +191,7 @@ function AutomationEditor({
 
   const onEdgeUpdate = useCallback((oldEdge, newConnection) => {
     edgeUpdateSuccessful.current = true;
-    setEdges(els => updateEdge(oldEdge, newConnection, els));
+    setEdges((els) => updateEdge(oldEdge, newConnection, els));
   }, []);
 
   const onEdgeUpdateEnd = useCallback((_, edge) => {
@@ -208,10 +207,10 @@ function AutomationEditor({
   }, []);
 
   const isValidConnection = useCallback(
-    connection => {
-      const target = nodes.find(node => node.id === connection.target);
+    (connection) => {
+      const target = nodes.find((node) => node.id === connection.target);
       const hasCycle = (node, visited = new Set()) => {
-        if (node?.dta?.nodeType === 'trigger') return true;
+        if (node?.dta?.nodeType === "trigger") return true;
         if (visited.has(node.id)) return false;
 
         visited.add(node.id);
@@ -224,13 +223,13 @@ function AutomationEditor({
 
       if (target?.parentId && connection?.source && target.id) {
         const workflow = (workFlowActions || []).find(
-          node => node.workflowId === target.parentId
+          (node) => node.workflowId === target.parentId
         );
 
         if (
           workflow &&
-          [connection?.source, target.id].every(id =>
-            (workflow.actions || []).find(action => action.id === id)
+          [connection?.source, target.id].every((id) =>
+            (workflow.actions || []).find((action) => action.id === id)
           )
         ) {
           return false;
@@ -244,7 +243,7 @@ function AutomationEditor({
 
   const onPaneClick = () => {
     if (props.showDrawer) {
-      props.toggleDrawer({ type: '' });
+      props.toggleDrawer({ type: "" });
     }
   };
 
@@ -252,10 +251,10 @@ function AutomationEditor({
     if (
       arraysAreNotIdentical(
         selectedNodes,
-        nodes.map(node => node.id)
+        nodes.map((node) => node.id)
       )
     ) {
-      setSelectedNodes(nodes.map(node => node.id));
+      setSelectedNodes(nodes.map((node) => node.id));
     }
   };
 
@@ -267,52 +266,52 @@ function AutomationEditor({
     onDisConnection({ nodes, edge, onConnect, setEdges });
   };
 
-  const copyNodes = () => {
-    setCopiedNodes(selectedNodes);
-  };
+  // const copyNodes = () => {
+  //   setCopiedNodes(selectedNodes);
+  // };
 
-  const pasteNodes = () => {
-    if (props.showDrawer) {
-      Alert.warning('Please hide drawer before paste');
-      return;
-    }
-    const copyPastedActions = actions.filter(action =>
-      copiedNodes.includes(action.id)
-    );
+  // const pasteNodes = () => {
+  //   if (props.showDrawer) {
+  //     Alert.warning('Please hide drawer before paste');
+  //     return;
+  //   }
+  //   const copyPastedActions = actions.filter(action =>
+  //     copiedNodes.includes(action.id)
+  //   );
 
-    for (const action of copyPastedActions) {
-      delete action.nextActionId;
-      delete action.config?.optionalConnects;
+  //   for (const action of copyPastedActions) {
+  //     delete action.nextActionId;
+  //     delete action.config?.optionalConnects;
 
-      action.position = generatePostion(action.position);
+  //     action.position = generatePostion(action.position);
 
-      props.addAction(action);
-    }
-  };
+  //     props.addAction(action);
+  //   }
+  // };
 
-  useEffect(() => {
-    const handleKeyDown = event => {
-      if (event.ctrlKey || event.metaKey) {
-        switch (event.key) {
-          case 'c':
-            copyNodes();
-            break;
-          case 'v':
-            pasteNodes();
-            break;
-          case 'S':
-            props.handelSave();
-            break;
-          default:
-            break;
-        }
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [selectedNodes, copiedNodes]);
+  // useEffect(() => {
+  //   const handleKeyDown = event => {
+  //     if (event.ctrlKey || event.metaKey) {
+  //       switch (event.key) {
+  //         case 'c':
+  //           copyNodes();
+  //           break;
+  //         case 'v':
+  //           pasteNodes();
+  //           break;
+  //         case 'S':
+  //           props.handelSave();
+  //           break;
+  //         default:
+  //           break;
+  //       }
+  //     }
+  //   };
+  //   document.addEventListener('keydown', handleKeyDown);
+  //   return () => {
+  //     document.removeEventListener('keydown', handleKeyDown);
+  //   };
+  // }, [selectedNodes, copiedNodes]);
 
   return (
     <>
@@ -338,7 +337,7 @@ function AutomationEditor({
         minZoom={0.1}
         edgeTypes={edgeTypes}
       >
-        <MiniMap pannable position="top-right" />
+        <MiniMap pannable position='top-right' />
         <Controls>
           <Info />
         </Controls>

@@ -236,7 +236,7 @@ function GenerateAddFormFields({
             ? state.isCheckUserTicket ?? false
             : customFieldsData.find((c) => c.field === field._id)?.value || "";
 
-        if (field.logics?.length) {
+        if (field.logics && field.logics.length > 0) {
           const data: Record<string, any> = {};
           customFieldsData.forEach((f) => (data[f.field] = f.value));
 

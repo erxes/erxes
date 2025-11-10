@@ -217,16 +217,18 @@ const carMutations = {
 
     const relTypeIds = await sendCoreMessage({
       subdomain,
-      action: 'conformities.savedConformies',
+      action: 'conformities.savedConformity',
       data: {
         mainType: 'car',
         mainTypeId: car._id,
         relTypes: ['customer', 'company'],
       },
+      isRPC: true,
+      defaultValue: []
     });
 
-    if (!relTypeIds.includes(customerId) && !relTypeIds.includes(companyId)) {
-      throw new Error ('Cant edit this car, not a customer or company car')
+    if (!relTypeIds?.includes(customerId) && !relTypeIds?.includes(companyId)) {
+      throw new Error('Cant edit this car, not a customer or company car')
     }
 
     const updated = await models.Cars.updateCar(_id, doc);
@@ -249,7 +251,7 @@ const carMutations = {
     if (customerId) {
       await sendCoreMessage({
         subdomain,
-        action: 'conformities.deleteConformity',
+        action: 'conformities.deleteConformities',
         data: {
           mainType: 'customer',
           mainTypeId: customerId,
@@ -261,7 +263,7 @@ const carMutations = {
     if (companyId) {
       await sendCoreMessage({
         subdomain,
-        action: 'conformities.deleteConformity',
+        action: 'conformities.deleteConformities',
         data: {
           mainType: 'company',
           mainTypeId: companyId,
