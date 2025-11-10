@@ -25,7 +25,7 @@ export default class CurrencyTr {
       throw new Error('has not detail');
     }
 
-    const mainCurrency = await getConfig('mainCurrency', '');
+    const mainCurrency = await getConfig(this.subdomain, 'mainCurrency', '');
 
     const account = await this.models.Accounts.getAccount({
       _id: detail.accountId,
