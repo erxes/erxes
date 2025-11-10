@@ -136,8 +136,8 @@ export const AdjustInventoryDetail = () => {
               {adjustInventory?.status}
             </span>
           </div>
+          {adjustInventory?.error && <span className='text-sm'>{`${format(adjustInventory?.checkedAt ?? '', 'yyyy-MM-dd hh:mm:ss')}: ${adjustInventory.error}`}</span>}
           {renderEvents()}
-
         </div>
       </div>
       <RecordTable.Provider
