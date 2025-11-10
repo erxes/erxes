@@ -24,4 +24,4 @@ export interface ITicket {
 export type TAddTicket = z.infer<typeof addTicketSchema>;
 
 export * from './validations';
-export * from './ticketHotkeyScope';
+export * from './TicketHotkeyScope';

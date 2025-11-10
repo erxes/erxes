@@ -1,4 +1,10 @@
-import { Input, Separator, useBlockEditor, BlockEditor } from 'erxes-ui';
+import {
+  Input,
+  Separator,
+  useBlockEditor,
+  BlockEditor,
+  useQueryState,
+} from 'erxes-ui';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import { useDebounce } from 'use-debounce';
 import { useEffect, useState } from 'react';
@@ -9,6 +15,8 @@ import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectP
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
+import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 
 export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   const {
@@ -19,6 +27,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     targetDate,
     pipelineId,
     statusId,
+    channelId,
   } = ticket || {};
 
   const startDate = (ticket as any)?.startDate;
@@ -86,6 +95,13 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         onChange={(e) => setName(e.target.value)}
       />
       <div className="gap-2 flex flex-wrap w-full">
+        <SelectChannel id={ticketId} value={channelId} variant="detail" />
+        <SelectPipeline
+          id={ticketId}
+          value={pipelineId}
+          variant="detail"
+          channelId={channelId}
+        />
         <SelectStatusTicket
           variant="detail"
           value={statusId}

@@ -18,11 +18,11 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import React, { useState } from 'react';
+import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 
 interface SelectChannelContextType {
-  value: string | string[];
+  value: string;
   onValueChange: (value: string) => void;
-  mode: 'single' | 'multiple';
   loading: boolean;
   channels?: IChannel[];
 }
@@ -44,33 +44,19 @@ const SelectChannelProvider = ({
   children,
   value,
   onValueChange,
-  mode = 'single',
   setOpen,
 }: {
   children: React.ReactNode;
-  value: string | string[];
-  onValueChange: (value: string | string[]) => void;
-  mode?: 'single' | 'multiple';
+  value: string;
+  onValueChange: (value: string) => void;
   setOpen?: (open: boolean) => void;
 }) => {
   const { channels, loading } = useGetChannels();
 
   const handleValueChange = (channelId: string) => {
     if (!channelId) return;
-    if (mode === 'single') {
-      onValueChange(channelId);
-      setOpen?.(false);
-      return;
-    }
-
-    const arrayValue = Array.isArray(value) ? value : ([] as string[]);
-    const isChannelSelected = arrayValue.includes(channelId);
-
-    const newSelectedChannelIds = isChannelSelected
-      ? arrayValue.filter((id) => id !== channelId)
-      : [...arrayValue, channelId];
-
-    onValueChange(newSelectedChannelIds);
+    onValueChange(channelId);
+    setOpen?.(false);
   };
 
   return (
@@ -78,7 +64,6 @@ const SelectChannelProvider = ({
       value={{
         value,
         onValueChange: handleValueChange,
-        mode,
         loading,
         channels,
       }}
@@ -169,22 +154,34 @@ const SelectChannelContent = () => {
 const SelectChannelRoot = ({
   variant = 'detail',
   scope,
+  id,
   value,
   onValueChange,
-  mode = 'single',
 }: {
   variant?: `${SelectTriggerVariant}`;
   scope?: string;
-  value: string | string[];
-  onValueChange: (value: string | string[]) => void;
-  mode: 'single' | 'multiple';
+  id: string;
+  value: string;
+  onValueChange?: (value: string) => void;
 }) => {
+  const { updateTicket } = useUpdateTicket();
   const [open, setOpen] = useState(false);
+  const handleValueChange = (channelId: string) => {
+    if (id) {
+      updateTicket({
+        variables: {
+          _id: id,
+          channelId,
+        },
+      });
+    }
+    onValueChange?.(channelId);
+    setOpen(false);
+  };
   return (
     <SelectChannelProvider
       value={value}
-      onValueChange={onValueChange}
-      mode={mode}
+      onValueChange={handleValueChange}
       setOpen={setOpen}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
@@ -242,18 +239,15 @@ const SelectChannelFilterView = () => {
 const SelectChannelFormItem = ({
   value,
   onValueChange,
-  mode = 'single',
 }: {
-  value: string | string[];
-  onValueChange: (value: string | string[]) => void;
-  mode?: 'single' | 'multiple';
+  value: string;
+  onValueChange: (value: string) => void;
 }) => {
   const [open, setOpen] = useState(false);
   return (
     <SelectChannelProvider
       value={value}
-      onValueChange={onValueChange}
-      mode={mode}
+      onValueChange={(value) => onValueChange(value as string)}
       setOpen={setOpen}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>

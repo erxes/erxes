@@ -95,6 +95,7 @@ const Pipelines = () => {
   });
   useEffect(() => {
     channelId &&
+      !pipelineId &&
       pipelineId !== pipelines?.[0]?._id &&
       setPipelineId(pipelines?.[0]?._id || null);
   }, [pipelines, setPipelineId, pipelineId, channelId]);
