@@ -7,7 +7,6 @@ export const OutgoinWebhookActionResponse = ({
   result,
   action,
 }: ActionResultComponentProps) => {
-  console.log({ action });
   return (
     <Dialog>
       <Dialog.Trigger asChild>

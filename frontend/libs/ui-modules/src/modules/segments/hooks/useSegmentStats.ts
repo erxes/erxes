@@ -19,7 +19,6 @@ export const useSegmentStats = () => {
   );
 
   const handleCalculateStats = async () => {
-    console.log({ dasd: form.getValues() });
     const {
       conditionsConjunction,
       conditions,

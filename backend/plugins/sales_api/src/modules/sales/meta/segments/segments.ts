@@ -141,8 +141,6 @@ export const salesSegments = {
       });
     }
 
-    console.log({ ids });
-
     return ids;
   },
 

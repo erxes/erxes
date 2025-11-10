@@ -56,13 +56,11 @@ const checkValidTrigger = async (
       target,
       config,
     );
-    console.log({ isValidCustomTigger });
 
     return isValidCustomTigger;
+  } else if (!(await isInSegment(subdomain, contentId, target._id))) {
+    return false;
   }
-  //  else if (!(await isInSegment(subdomain, contentId, target._id))) {
-  //   return false;
-  // }
 
   return true;
 };

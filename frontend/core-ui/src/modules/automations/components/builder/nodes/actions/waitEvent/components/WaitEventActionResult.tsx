@@ -10,7 +10,6 @@ export const WaitEventActionResult = ({
 }: ActionResultComponentProps<{ waiting: string; description: string }>) => {
   const { waiting, description } = result || {};
   const { targetType } = action?.actionConfig || {};
-  console.log({ action });
 
   const isWaitingWebhookEvent = action?.actionConfig?.targetType === 'custom';
   return (
