@@ -1,7 +1,7 @@
 import { RecordTable } from 'erxes-ui';
 import { PosSummaryColumns } from './PosSummaryColumns';
 import { PosSummaryCommandBar } from '@/pos/pos-summary/components/pos-summary-command-bar/PosSummaryCommandBar';
-import { usePosSummaryList } from '@/pos/pos-summary/hooks/UsePosSommaryList';
+import { usePosSummaryList } from '~/modules/pos/pos-summary/hooks/UsePosSummaryList';
 
 export const PosSummaryRecordTable = ({ posId }: { posId?: string }) => {
   const { posSummaryList, handleFetchMore, loading, pageInfo } =

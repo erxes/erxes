@@ -33,10 +33,8 @@ export const usePosSummaryList = (options: { posId?: string } = {}) => {
       amounts: {
         count: item.count || 0,
         cashAmount: item.cashAmount || 0,
-        mobileAmount: item.mobileAmount,
+        mobileAmount: item.mobileAmount || 0,
         invoice: item.invoice || 0,
-        loyalty: item.loyalty || 0,
-        amount: item.amount || 0,
       },
     })) || [];
 

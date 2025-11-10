@@ -47,7 +47,9 @@ export const CoverDelete = ({
             onCompleted: () => {
               toast({
                 title: 'Success',
-                description: `${coverCount} covers deleted successfully.`,
+                description: `${coverCount} cover${
+                  coverCount > 1 ? 's' : ''
+                } deleted successfully.`,
               });
 
               if (onDeleteSuccess) {

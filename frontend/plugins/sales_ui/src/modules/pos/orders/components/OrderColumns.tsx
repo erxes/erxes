@@ -71,7 +71,7 @@ export const orderColumns: ColumnDef<IOrder>[] = [
       const value = cell.getValue() as number;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={value?.toLocaleString()} />
+          <TextOverflowTooltip value={value?.toLocaleString() || '0'} />
         </RecordTableInlineCell>
       );
     },

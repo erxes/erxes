@@ -25,7 +25,16 @@ const PosFilterPopover = () => {
     updated: string;
     lastSeen: string;
     brand: string;
-  }>(['tags', 'searchValue', 'created', 'updated', 'lastSeen', 'brand']);
+    birthday: string;
+  }>([
+    'tags',
+    'searchValue',
+    'created',
+    'updated',
+    'lastSeen',
+    'brand',
+    'birthday',
+  ]);
 
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,

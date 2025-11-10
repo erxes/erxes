@@ -25,7 +25,7 @@ export const ordersMoreColumnCell = ({
       className="w-full h-full"
       onClick={() => {
         setOpen(_id);
-        setRenderingOrderDetail(false);
+        setRenderingOrderDetail(true);
       }}
     />
   );

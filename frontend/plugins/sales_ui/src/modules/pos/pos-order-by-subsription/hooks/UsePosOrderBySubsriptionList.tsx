@@ -37,8 +37,8 @@ export const usePosOrderBySubscriptionList = (
 
     fetchMore({
       variables: {
+        ...variables,
         page: Math.ceil(transformedPosList.length / POS_PER_PAGE) + 1,
-        perPage: POS_PER_PAGE,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) {
@@ -56,7 +56,7 @@ export const usePosOrderBySubscriptionList = (
 
   return {
     loading,
-    posOrderBySubsriptionList: transformedPosList,
+    posOrderBySubscriptionList: transformedPosList,
     totalCount: data?.PosOrderBySubscriptionsTotalCount || 0,
     handleFetchMore,
     pageInfo: {

@@ -23,7 +23,6 @@ export const CoversPage = () => {
           </Breadcrumb>
         </PageHeader.Start>
       </PageHeader>
-
       <CoversRecordTable />
     </>
   );

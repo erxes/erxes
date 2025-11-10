@@ -36,12 +36,13 @@ const PosFilterPopover = () => {
               />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
-                  POS
+                  <IconSearch />
+                  Search
                 </Filter.Item>
                 <TagsFilter />
                 <Filter.Item value="brand">
                   <IconLabel />
-                  users
+                  Brand
                 </Filter.Item>
                 <SelectMember.FilterItem />
               </Command.List>
