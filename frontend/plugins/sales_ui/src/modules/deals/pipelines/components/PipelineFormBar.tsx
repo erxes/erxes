@@ -184,7 +184,7 @@ export function PipelineFormBar() {
           </Button>
         </Sheet.Trigger>
         <Sheet.View
-          className="p-0 md:max-w-screen-2xl"
+          className="p-0 md:max-w-(--breakpoint-2xl)"
           onEscapeKeyDown={(e) => {
             e.preventDefault();
           }}

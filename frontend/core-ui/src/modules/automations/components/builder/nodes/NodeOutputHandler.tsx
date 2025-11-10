@@ -115,7 +115,7 @@ export const NodeOutputHandler = memo(
           id="right"
           type="source"
           position={Position.Right}
-          className={cn('!size-4 -z-10', className)}
+          className={cn('size-4! -z-10', className)}
           {...rest}
         >
           {showAddButton && (

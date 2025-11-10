@@ -41,7 +41,7 @@ export const SelectProductsBulk = ({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>{children}</Sheet.Trigger>
-      <Sheet.View className="sm:max-w-screen-lg">
+      <Sheet.View className="sm:max-w-(--breakpoint-lg)">
         <Sheet.Header>
           <div>
             <Sheet.Title>Select Products</Sheet.Title>

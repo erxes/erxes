@@ -170,7 +170,7 @@ const PhoneOptions = forwardRef<
         <Button
           ref={ref}
           variant="secondary"
-          className={cn('w-full font-medium size-8 flex-shrink-0', className)}
+          className={cn('w-full font-medium size-8 shrink-0', className)}
           size="icon"
           {...props}
         >
