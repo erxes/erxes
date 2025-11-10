@@ -252,7 +252,7 @@ const handleMessageEvent = async (event: MessageEvent) => {
       background-color: ${color};
       color: ${color || '#673fbd'};
       background-image: ${backgroundImage};
-      background-size: ${hasCustomLogo ? 'cover' : '18px'};
+      background-size: ${hasCustomLogo ? '18px' : '18px'};
       background-position: center;
     `;
   }
@@ -294,7 +294,7 @@ window.addEventListener('message', async (event) => {
         messengerIframeContainer.classList.add('erxes-messenger-hidden');
         (launcher as HTMLElement).style.backgroundImage = backgroundImage;
         (launcher as HTMLElement).style.backgroundSize = hasCustomLogo
-          ? 'cover'
+          ? '18px'
           : '18px';
         launcher.innerHTML = '';
       }

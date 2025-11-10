@@ -49,14 +49,6 @@ export const CONFIG: IUIConfig = {
       settingsOnly: true,
     },
     {
-      name: 'ticket',
-      icon: IconTicket,
-      path: 'frontline/ticket',
-      hasSettings: true,
-      hasRelationWidget: true,
-      settingsOnly: true,
-    },
-    {
       name: 'frontline',
       icon: IconMail,
       path: 'frontline',

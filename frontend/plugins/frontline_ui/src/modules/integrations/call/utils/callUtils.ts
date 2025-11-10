@@ -1,5 +1,5 @@
 import { CallDirectionEnum } from '@/integrations/call/types/sipTypes';
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 
 export const extractPhoneNumberFromCounterpart = (counterpart: string) => {
   if (!counterpart) return '';
@@ -42,21 +42,25 @@ export function formatSeconds(seconds: number): string {
 
   return [hrs, mins, secs].map((v) => String(v).padStart(2, '0')).join(':');
 }
+
 export function safeFormatDate(value: unknown, fmt = 'MM-dd HH:mm'): string {
+  const timeZone =
+    Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Ulaanbaatar';
+
   if (value === '0000-00-00 00:00:00') {
     return '0000-00-00 00:00:00';
   }
 
   if (!value) {
-    return format(new Date(), fmt);
+    return formatInTimeZone(new Date(), timeZone, fmt);
   }
 
   const date = new Date(value as string | number | Date);
   if (isNaN(date.getTime())) {
-    return format(new Date(), fmt);
+    return formatInTimeZone(new Date(), timeZone, fmt);
   }
 
-  return format(date, fmt);
+  return formatInTimeZone(date, timeZone, fmt);
 }
 
 export const renderFullName = (data: any, noPhone?: boolean) => {
