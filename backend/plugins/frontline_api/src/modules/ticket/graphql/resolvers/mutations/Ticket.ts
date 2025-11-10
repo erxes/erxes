@@ -7,12 +7,9 @@ export const ticketMutations = {
   createTicket: async (
     _parent: undefined,
     params: ITicketUpdate,
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) => {
-    const ticket = await models.Ticket.addTicket({
-      ...params,
-      userId: user._id,
-    });
+    const ticket = await models.Ticket.addTicket(params, user._id, subdomain);
 
     graphqlPubsub.publish(`ticketChanged:${ticket._id}`, {
       ticketChanged: { type: 'create', ticket },

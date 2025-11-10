@@ -20,10 +20,18 @@ export default {
       ticketListChanged(filter: ITicketFilter): TicketSubscription
       ticketStatusChanged(_id: String!): StatusSubscription
       ticketStatusListChanged: StatusSubscription
+      ticketActivityChanged(contentId: String!): TicketActivitySubscription
+
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
       // --- Ticket Pipeline ---
+      ticketActivityChanged: {
+        resolve: (payload) => payload.ticketActivityChanged,
+        subscribe: (_, { contentId }) =>
+          graphqlPubsub.asyncIterator(`ticketActivityChanged:${contentId}`),
+      },
+
       ticketPipelineChanged: {
         subscribe: (_, { _id }) =>
           graphqlPubsub.asyncIterator(`ticketPipelineChanged:${_id}`),

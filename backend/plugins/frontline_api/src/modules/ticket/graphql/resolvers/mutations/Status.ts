@@ -1,7 +1,7 @@
 import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { IStatusEditInput } from '@/ticket/@types/status';
-import { checkPipeline } from '@/ticket/utils';
+import { checkPipeline } from '~/modules/ticket/utils/ticket';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 
 export const statusMutations = {

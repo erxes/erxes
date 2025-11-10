@@ -38,8 +38,8 @@ const conversationExternalIntegrationMessageInserted = `
 `;
 
 const customerConnectionChanged = `
-  subscription customerConnectionChanged ($_id: String!) {
-    customerConnectionChanged (_id: $_id) {
+  subscription customerConnectionChanged($_id: String!) {
+    customerConnectionChanged(_id: $_id) {
       _id
       status
     }
@@ -47,24 +47,34 @@ const customerConnectionChanged = `
 `;
 
 const callReceived = `
-subscription phoneCallReceived($userId: String) {
-  phoneCallReceived(userId: $userId)
-  }`;
+  subscription phoneCallReceived($userId: String) {
+    phoneCallReceived(userId: $userId)
+  }
+`;
 
 const callWaitingReceived = `
-subscription waitingCallReceived($extension: String) {
-  waitingCallReceived(extension: $extension)
-  }`;
+  subscription waitingCallReceived($extension: String) {
+    waitingCallReceived(extension: $extension)
+  }
+`;
 
 const callTalkingReceived = `
-subscription talkingCallReceived($extension: String) {
-  talkingCallReceived(extension: $extension)
-  }`;
+  subscription talkingCallReceived($extension: String) {
+    talkingCallReceived(extension: $extension)
+  }
+`;
 
 const callAgentReceived = `
-subscription agentCallReceived($extension: String) {
-  agentCallReceived(extension: $extension)
-  }`;
+  subscription agentCallReceived($extension: String) {
+    agentCallReceived(extension: $extension)
+  }
+`;
+
+const queueRealtimeUpdate = `
+  subscription queueRealtimeUpdate($extension: String) {
+    queueRealtimeUpdate(extension: $extension)
+  }
+`;
 
 const ticketPipelineChanged = `
   subscription ticketPipelineChanged($_id: String!) {
@@ -162,6 +172,20 @@ const ticketStatusListChanged = `
   }
 `;
 
+const ticketActivityChanged = `
+  subscription ticketActivityChanged($contentId: String!) {
+    ticketActivityChanged(contentId: $contentId) {
+      type
+      activity {
+        _id
+        content
+        createdAt
+        createdBy
+      }
+    }
+  }
+`;
+
 export default {
   conversationChanged,
   conversationMessageInserted,
@@ -173,10 +197,12 @@ export default {
   callTalkingReceived,
   callWaitingReceived,
   callAgentReceived,
+  queueRealtimeUpdate,
   ticketPipelineChanged,
   ticketPipelineListChanged,
   ticketChanged,
   ticketListChanged,
   ticketStatusChanged,
   ticketStatusListChanged,
+  ticketActivityChanged,
 };
