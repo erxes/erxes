@@ -193,7 +193,6 @@ const StatusBar = ({ adjustInventory }: { adjustInventory: IAdjustInventory }) =
   return (
     <div className="flex flex-wrap items-center justify-start gap-2 max-w-full">
       <div className="flex items-center gap-2 text-sm">
-        <span className="text-accent-foreground">Begin Date:</span>
         <span className="text-primary font-bold">
           <DatePicker
             value={adjustInventory?.beginDate}
@@ -202,6 +201,7 @@ const StatusBar = ({ adjustInventory }: { adjustInventory: IAdjustInventory }) =
             disabled={true}
           />
         </span>
+        <span className="text-accent-foreground">{'->'}</span>
       </div>
       {days.map((day) => {
         return (
@@ -216,7 +216,7 @@ const StatusBar = ({ adjustInventory }: { adjustInventory: IAdjustInventory }) =
         )
       })}
       <div className="flex items-center gap-2 text-sm">
-        <span className="text-accent-foreground">Date:</span>
+        <span className="text-accent-foreground">{'->'}</span>
         <span className="text-primary font-bold">
           <DatePicker
             value={adjustInventory?.date}
