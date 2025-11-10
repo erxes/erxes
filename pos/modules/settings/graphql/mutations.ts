@@ -5,6 +5,11 @@ const syncOrders = gql`
     syncOrders
   }
 `
+const refetchRemainder = gql`
+  mutation refetchRemainder($categoryId: String, $searchValue: String) {
+    refetchRemainder (categoryId: $categoryId, searchValue: $searchValue)
+  }
+`
 
 const deleteOrders = gql`
   mutation deleteOrders {
@@ -18,6 +23,6 @@ const syncConfig = gql`
   }
 `
 
-const mutations = { syncConfig, syncOrders, deleteOrders }
+const mutations = { syncConfig, syncOrders, deleteOrders, refetchRemainder }
 
 export default mutations

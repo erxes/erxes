@@ -96,6 +96,9 @@ export const sendToGrandStream = async (models, args, user) => {
       const response = await res.json();
 
       if (response.status === -6) {
+        const userType = args.isCronRunning ? 'cron' : 'regular';
+        const cookieKey = `${userType}CallCookie:${wsServer}`;
+        await redis.del(cookieKey);
         await redis.del('callCookie');
         return (await sendToGrandStream(
           models,

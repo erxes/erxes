@@ -39,6 +39,13 @@ const GET_CATEGORIES = gql`
   }
 `;
 
+const GET_CATEGORIES_COUNT = gql`
+query cmsCategoriesCount($clientPortalId: String, $searchValue: String, $status: CategoryStatus) {
+  cmsCategoriesCount(clientPortalId: $clientPortalId, searchValue: $searchValue, status: $status)
+}
+`;
+
 export default {
   GET_CATEGORIES,
+  GET_CATEGORIES_COUNT,
 };

@@ -11,7 +11,6 @@ export const types = `
 `;
 
 export const inputs = `
-
     input PostTagInput {
         name: String
         slug: String
@@ -23,6 +22,7 @@ export const inputs = `
 
 export const queries = `
     cmsTags(clientPortalId: String, searchValue: String, page: Int, perPage: Int, sortField: String, sortDirection: String, language: String): [PostTag]
+    cmsTagsCount(clientPortalId: String, searchValue: String): Int
     cmsTag(_id: String, slug: String, language: String): PostTag
 `;
 

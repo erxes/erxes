@@ -1,4 +1,4 @@
-import { authCookieOptions } from '@erxes/api-utils/src/core';
+import { authCookieOptions, escapeRegExp } from '@erxes/api-utils/src/core';
 import {
   extractConfig,
   getServerAddress,
@@ -14,6 +14,8 @@ import { setupMessageConsumers, sendPosMessage } from '../../../messageBroker';
 import { IOrderItemDocument } from '../../../models/definitions/orderItems';
 import fetch from 'node-fetch';
 import { IEbarimtDocument } from '../../../models/definitions/putResponses';
+import { syncRemainders } from '../../utils/products';
+import { PRODUCT_STATUSES } from '../../../models/definitions/constants';
 
 const configMutations = {
   posConfigsFetch: async (
@@ -222,6 +224,56 @@ const configMutations = {
 
     return 'chosen';
   },
+
+  refetchRemainder: async (_root, { categoryId, searchValue }: { categoryId?: string, searchValue?: string }, { models, subdomain, config }: IContext) => {
+    const { token, saveRemainder } = config;
+    if (!saveRemainder) {
+      return 'needless'
+    }
+
+    const $and: any[] = [{}];
+
+    const filter: any = {
+      status: { $ne: PRODUCT_STATUSES.DELETED },
+      tokens: { $in: [token] }
+    };
+    if (searchValue) {
+      const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
+
+      let codeFilter = { code: { $in: [regex] } };
+      if (searchValue.includes('.') || searchValue.includes('_') || searchValue.includes('*')) {
+        const codeRegex = new RegExp(
+          `^${searchValue.replace(/\*/g, '.').replace(/_/g, '.')}$`,
+          'igu',
+        );
+        codeFilter = { code: { $in: [codeRegex] }, };
+      }
+
+      filter.$or = [
+        codeFilter,
+        { name: { $in: [regex] } },
+        { barcodes: { $in: [searchValue] } },
+      ];
+    }
+
+    if (categoryId) {
+      const category = await models.ProductCategories.getProductCategory({
+        _id: categoryId
+      });
+
+      const relatedCategoryIds = (
+        await models.ProductCategories.find(
+          { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
+          { _id: 1 }
+        ).lean()
+      ).map(c => c._id);
+
+      $and.push({ categoryId: { $in: relatedCategoryIds } });
+    }
+
+    await syncRemainders(subdomain, models, config, await models.Products.find({ ...filter }).lean());
+    return 'success'
+  }
 };
 
 export default configMutations;
