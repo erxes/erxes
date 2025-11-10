@@ -7,7 +7,6 @@ import '@blocknote/shadcn/style.css';
 
 import { Button, Tooltip } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
-// import 'erxes-ui/modules/blocks/styles/styles.css';
 import { themeState } from 'erxes-ui/state';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
@@ -50,7 +49,7 @@ export const BlockEditor = ({
       onChange={onChange}
       data-state={focus ? 'focus' : 'blur-sm'}
       className={cn(
-        variant === 'outline-solid' &&
+        variant === 'outline' &&
           'shadow-xs transition-[color,box-shadow] data-[state=focus]:shadow-focus',
         className,
       )}
