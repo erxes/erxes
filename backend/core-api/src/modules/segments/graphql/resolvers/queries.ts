@@ -5,7 +5,7 @@ import {
 import {
   getPlugin,
   getPlugins,
-  getTotalDocCount,
+  getEsIndexTotalCount,
   isEnabled,
 } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
@@ -31,7 +31,7 @@ export const segmentQueries = {
               return [];
             }
             return {
-              contentType: `${serviceName}:${ct.type}`,
+              contentType: `${serviceName}:${ct.moduleName}.${ct.type}`,
               description: ct.description,
             };
           },
@@ -53,7 +53,7 @@ export const segmentQueries = {
     const serviceCts = meta.segments.contentTypes || [];
     const associatedTypes: IAssociatedType[] = serviceCts.map(
       (ct: ISegmentContentType) => ({
-        type: `${pluginName}:${ct.type}`,
+        type: `${pluginName}:${ct.moduleName}.${ct.type}`,
         description: ct.description,
       }),
     );
@@ -75,7 +75,7 @@ export const segmentQueries = {
         }
         contentTypes.forEach((ct: ISegmentContentType) => {
           associatedTypes.push({
-            type: `${dModule.name}:${ct.type}`,
+            type: `${dModule.name}:${ct.moduleName}.${ct.type}`,
             description: ct.description,
           });
         });
@@ -86,7 +86,7 @@ export const segmentQueries = {
       pluginName,
       (ct: ISegmentContentType, sName: string) => {
         associatedTypes.push({
-          type: `${sName}:${ct.type}`,
+          type: `${sName}:${ct.moduleName}.${ct.type}`,
           description: ct.description,
         });
       },
@@ -185,7 +185,7 @@ export const segmentQueries = {
     }: IPreviewParams,
     { models, subdomain }: IContext,
   ) {
-    const total = await getTotalDocCount();
+    const total = await getEsIndexTotalCount(contentType);
     const count = await fetchSegment(
       models,
       subdomain,

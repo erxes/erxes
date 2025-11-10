@@ -1,10 +1,13 @@
+import { useAutomationExecutionDetail } from '@/automations/components/builder/history/hooks/useAutomationExecutionDetail';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { format, isValid } from 'date-fns';
 import { IAutomationHistory } from 'ui-modules';
 
-export const useAutomationHistoryResult = (history: IAutomationHistory) => {
+export const useAutomationHistoryResult = () => {
+  const { executionDetail, loading, refetch } = useAutomationExecutionDetail();
+
   const { actionsConst } = useAutomation();
-  const { actions = [] } = history;
+  const { actions = [], status } = executionDetail || {};
 
   const getCreatedAtLabel = (createdAt: Date) => {
     const date = createdAt ? new Date(createdAt) : '';
@@ -22,6 +25,8 @@ export const useAutomationHistoryResult = (history: IAutomationHistory) => {
 
   return {
     list,
-    status: history.status,
+    status: status as IAutomationHistory['status'],
+    refetch,
+    loading,
   };
 };

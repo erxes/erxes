@@ -1,22 +1,23 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 
-const relatedServices = (
+const relatedPlugins = (
   subdomain: string,
   triggerCollectionType: string,
   moduleCollectionType: string,
   target: any,
 ) => [
   {
-    name: 'contacts',
+    name: 'core',
     filter: async () => {
       if (target.isFormSubmission) {
         return { sourceConversationIds: { $in: [target.conversationId] } };
       }
 
       const relTypeIds = await sendTRPCMessage({
+        subdomain,
         pluginName: 'core',
-        module: 'conformities',
+        module: 'conformity',
         action: 'savedConformity',
         input: {
           mainType: triggerCollectionType,
@@ -34,7 +35,7 @@ const relatedServices = (
     },
   },
   {
-    name: 'inbox',
+    name: 'frontline',
     filter: async () => ({
       sourceConversationIds: { $in: [target._id] },
     }),
@@ -54,14 +55,15 @@ export const getItems = async (
   }
 
   const [moduleService, moduleCollectionType] = module.split(':');
-  const [triggerService, triggerCollectionType] = triggerType.split(':');
+  const [pluginName, triggerCollectionType] = triggerType.split(':');
 
   const models = await generateModels(subdomain);
 
-  if (moduleService === triggerService) {
+  if (moduleService === pluginName) {
     const relTypeIds = await sendTRPCMessage({
+      subdomain,
       pluginName: 'core',
-      module: 'conformities',
+      module: 'conformity',
       action: 'savedConformity',
       input: {
         mainType: triggerCollectionType,
@@ -73,21 +75,22 @@ export const getItems = async (
     return models.Deals.find({ _id: { $in: relTypeIds } });
   }
 
-  // search trigger service relation from relatedServices
-  const relatedService = relatedServices(
+  // search trigger plugin relation from relatedServices
+  const relatedService = relatedPlugins(
     subdomain,
     triggerCollectionType,
     moduleCollectionType,
     target,
-  ).find((service) => service.name === triggerService);
+  ).find((plugin) => plugin.name === pluginName);
 
   let filter: any = await relatedService?.filter();
 
   if (!relatedService) {
-    // send message to trigger service to get related value
+    // send message to trigger plugin to get related value
     filter = await sendTRPCMessage({
-      pluginName: triggerService,
-      module: 'conformities',
+      subdomain,
+      pluginName: pluginName,
+      module: 'conformity',
       action: 'getModuleRelation',
       input: {
         module,

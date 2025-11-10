@@ -1,10 +1,8 @@
-import { UseFormReturn } from 'react-hook-form';
-import { z } from 'zod';
-import { segmentFormSchema } from '../states/segmentFormSchema';
 import {
   IConditionsForPreview,
   IField,
   IOperator,
+  ISegment,
   TConditionsConjunction,
   TSegmentForm,
 } from '../types';
@@ -57,26 +55,11 @@ export function createFieldNameSafe<T>(
 }
 
 export const generateParamsSegmentPreviewCount = (
-  form: UseFormReturn<z.infer<typeof segmentFormSchema>>,
-  selectedContentType: string,
+  conditionSegments: ISegment[],
+  // conditionsConjunction: TConditionsConjunction,
+  // selectedContentType: string,
 ) => {
-  const conditions = form.watch('conditions');
-  const conditionSegments = form.watch('conditionSegments');
-  const conditionsConjunction = form.watch('conditionsConjunction');
-
   const conditionsForPreview: IConditionsForPreview[] = [];
-
-  if (conditions?.length) {
-    conditionsForPreview.push({
-      type: 'subSegment',
-      subSegmentForPreview: {
-        key: nanoid(),
-        contentType: selectedContentType || '',
-        conditionsConjunction,
-        conditions: conditions,
-      },
-    });
-  }
 
   if (conditionSegments?.length) {
     conditionSegments.forEach((segment) => {
@@ -86,6 +69,7 @@ export const generateParamsSegmentPreviewCount = (
           key: nanoid(),
           ...segment,
           conditions: segment.conditions || [],
+          conditionsConjunction: segment.conditionsConjunction || 'or',
         },
       });
     });

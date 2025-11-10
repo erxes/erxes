@@ -43,7 +43,7 @@ export const collectEmails = async (
   },
 ) => {
   let recipientEmails: string[] = [];
-  const [pluginName, contentType] = splitType(targetType);
+  const [pluginName, moduleName, contentType] = splitType(targetType);
   const attributes = generateAttributesFromPlaceholders(mailPlaceHolder);
   if (!attributes.length) return [];
 
@@ -69,6 +69,7 @@ export const collectEmails = async (
     pluginName,
     producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
     input: {
+      moduleName,
       target: { ...(target || {}), type: contentType },
       config: { mailPlaceHolder: mailPlaceHolder },
       relatedValueProps,

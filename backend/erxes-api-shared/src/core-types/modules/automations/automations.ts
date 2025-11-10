@@ -20,11 +20,6 @@ export type IReplacePlaceholdersData<TTarget = any> = {
   relatedValueProps: any;
 };
 
-export type IAutomationWorkerContext<TModels = any> = {
-  models: TModels;
-  subdomain: string;
-};
-
 export type IAutomationReceiveActionData = {
   action: IAutomationAction;
   execution: { _id: string } & IAutomationExecution;

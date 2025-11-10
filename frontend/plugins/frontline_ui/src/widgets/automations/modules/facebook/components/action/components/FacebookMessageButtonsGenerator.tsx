@@ -12,8 +12,13 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { IconGripVertical, IconPlus, IconX } from '@tabler/icons-react';
-import { Button, Card, cn, Input } from 'erxes-ui';
+import {
+  IconGripVertical,
+  IconLink,
+  IconPlus,
+  IconX,
+} from '@tabler/icons-react';
+import { Button, Card, cn, Input, Popover } from 'erxes-ui';
 import React from 'react';
 import { generateAutomationElementId } from 'ui-modules';
 import { TBotMessageButton } from '../states/replyMessageActionForm';
@@ -154,23 +159,7 @@ const FacebookMessageButton = ({
   const onChangeButtonText = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value;
 
-    const updatedButton = { ...button };
-    // Check if the value starts with "http://" or "https://" or "www."
-    const isLink = /^https?:\/\/|^www\./i.test(value);
-
-    if (isLink) {
-      if (button.text) {
-        updatedButton.type = 'link';
-        updatedButton.text = '';
-      }
-
-      updatedButton.link = value;
-    } else {
-      updatedButton.text = value;
-      updatedButton.link = '';
-    }
-
-    handleChangeButton(updatedButton);
+    handleChangeButton({ ...button, text: value });
   };
 
   return (
@@ -224,7 +213,7 @@ const FacebookMessageButton = ({
             target="__blank"
             className="text-blue-500 hover:text-blue-500/70 transition ease-in-out"
           >
-            {button.link}
+            {button.text || button.link}
           </a>
         ) : (
           <span className="font-mono font-medium text-foreground text-sm">
@@ -232,6 +221,23 @@ const FacebookMessageButton = ({
           </span>
         )}
       </div>
+      <Popover>
+        <Popover.Trigger asChild>
+          <Button size="icon" variant="link">
+            <IconLink />
+          </Button>
+        </Popover.Trigger>
+        <Popover.Content>
+          <Input
+            type="url"
+            placeholder="Enter URL"
+            value={button.link}
+            onChange={(e) =>
+              handleChangeButton({ ...button, link: e.target.value })
+            }
+          />
+        </Popover.Content>
+      </Popover>
       <Button
         size="icon"
         variant="destructive"

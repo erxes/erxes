@@ -114,13 +114,6 @@ export const checkIsValidConnect = ({
   const allNodes = [...triggersConst, ...actionsConst];
   const sourceDef = allNodes.find((n) => n.type === source.data?.type);
 
-  if (
-    sourceDef?.connectableActionTypes &&
-    !sourceDef.connectableActionTypes.includes(target.data?.type)
-  ) {
-    return false;
-  }
-
   return !hasCycle(target);
 };
 

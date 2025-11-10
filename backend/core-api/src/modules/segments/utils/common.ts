@@ -51,7 +51,7 @@ export const generateQueryBySegment = async (
   let { selector } = args;
 
   const { contentType } = segment;
-  const [pluginName, collectionType] = splitType(contentType);
+  const [pluginName, _moduleName, collectionType] = splitType(contentType);
   const { defaultMustSelector } = options;
 
   // generated default selector of service
@@ -76,12 +76,10 @@ export const generateQueryBySegment = async (
       ...defaultSelector,
     ];
   }
-
   // generate positive and negative selector list based on conjunction of segment
 
   const { selectorPositiveList, selectorNegativeList } =
     generatePositiveNegativeSelector({ cj, selector });
-
   const parentSegment = await models.Segments.findOne({ _id: segment.subOf });
 
   //extend query of parent segment query
@@ -114,9 +112,11 @@ export const generateQueryBySegment = async (
         }
         if (esTypesMapAvailable) {
           const response = await sendCoreModuleProducer({
-            module: 'segments',
+            subdomain,
+            moduleName: 'segments',
             pluginName,
             producerName: TSegmentProducers.ES_TYPES_MAP,
+            method: 'query',
             input: {
               collectionType,
             },
@@ -127,9 +127,11 @@ export const generateQueryBySegment = async (
 
         if (initialSelectorAvailable) {
           const { negative, positive } = await sendCoreModuleProducer({
-            module: 'segments',
+            subdomain,
+            moduleName: 'segments',
             pluginName,
             producerName: TSegmentProducers.INITIAL_SELECTOR,
+            method: 'query',
             input: {
               segment,
               options,
@@ -154,30 +156,6 @@ export const generateQueryBySegment = async (
   const conditions = segment.conditions || [];
 
   for (const condition of conditions) {
-    if (condition.type === 'property') {
-      if (condition.propertyType === 'core:form_submission') {
-        const formFieldCondition = {
-          ...condition,
-          propertyName: 'formFieldId',
-          propertyValue: condition.propertyName,
-        };
-
-        if (
-          condition.propertyOperator &&
-          ['is', 'ins'].indexOf(condition.propertyOperator) <= 0
-        ) {
-          formFieldCondition.propertyOperator = 'e';
-          condition.propertyName = 'value';
-          propertyConditions.push(condition);
-        }
-
-        propertyConditions.push(formFieldCondition);
-        continue;
-      }
-
-      propertyConditions.push(condition);
-    }
-
     if (condition.type === 'event') {
       eventConditions.push(condition);
     }
@@ -200,9 +178,31 @@ export const generateQueryBySegment = async (
         selector: selectorPositiveList[selectorPositiveList.length - 1].bool,
         isInitialCall: false,
       });
+    } else {
+      // TODO: implement form field condition
+      // if (condition.propertyType === 'form.form_submission') {
+      //   const formFieldCondition = {
+      //     ...condition,
+      //     propertyName: 'formFieldId',
+      //     propertyValue: condition.propertyName,
+      //   };
+
+      //   if (
+      //     condition.propertyOperator &&
+      //     ['is', 'ins'].indexOf(condition.propertyOperator) <= 0
+      //   ) {
+      //     formFieldCondition.propertyOperator = 'e';
+      //     condition.propertyName = 'value';
+      //     propertyConditions.push(condition);
+      //   }
+
+      //   propertyConditions.push(formFieldCondition);
+      //   continue;
+      // }
+
+      propertyConditions.push(condition);
     }
   }
-
   for (const condition of propertyConditions) {
     const field = condition.propertyName;
 
@@ -218,10 +218,8 @@ export const generateQueryBySegment = async (
         const { contentTypes, propertyConditionExtenderAvailable } =
           serviceConfig;
 
-        const [propertyPluginName, propertyContentType] = splitType(
-          condition.propertyType,
-        );
-
+        const [propertyPluginName, _propertyModuleName, propertyContentType] =
+          splitType(condition.propertyType);
         //pass positive query to service for get extend positive query if service has property condition extender
         if (contentTypes && propertyConditionExtenderAvailable) {
           for (const ct of contentTypes) {
@@ -230,9 +228,11 @@ export const generateQueryBySegment = async (
             }
             const { positive, ignoreThisPostiveQuery } =
               await sendCoreModuleProducer({
-                module: 'segments',
+                subdomain,
+                moduleName: 'segments',
                 pluginName: propertyPluginName,
                 producerName: TSegmentProducers.PROPERTY_CONDITION_EXTENDER,
+                method: 'query',
                 input: { condition, positiveQuery },
                 defaultValue: { positive: null, ignoreThisPostiveQuery: false },
               });
@@ -343,7 +343,7 @@ export const generateQueryBySegment = async (
       const idsByEvents = await fetchByQuery({
         subdomain,
         index: 'events',
-        _source: contentType === 'company' ? 'companyId' : 'customerId',
+        _source: collectionType === 'company' ? 'companyId' : 'customerId',
         positiveQuery: eventPositive,
         negativeQuery: eventNegative,
       });
@@ -587,11 +587,13 @@ const associationPropertyFilter = async (
   const plugin = await getPlugin(pluginName);
   const segmentMeta = (plugin.config.meta || {}).segments;
 
-  if (segmentMeta && segmentMeta.associationFilterAvailable) {
+  if (segmentMeta) {
     return await sendCoreModuleProducer({
-      module: 'segments',
+      subdomain,
+      moduleName: 'segments',
       pluginName,
       producerName: TSegmentProducers.ASSOCIATION_FILTER,
+      method: 'query',
       input: {
         mainType,
         propertyType,

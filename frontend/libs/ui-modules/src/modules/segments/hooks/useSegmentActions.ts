@@ -1,5 +1,5 @@
 import { ApolloError, useMutation } from '@apollo/client';
-import { toast } from 'erxes-ui';
+import { toast, useQueryState } from 'erxes-ui';
 import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
 import {
   SEGMENT_ADD,
@@ -16,6 +16,7 @@ export const useSegmentActions = ({
   callback?: (id: string) => void;
 }) => {
   const { form, contentType, segment } = useSegment();
+  const [segmentId, setSegmentId] = useQueryState<string>('segmentId');
 
   const [segmentAdd] = useMutation(SEGMENT_ADD);
   const [segmentsEdit] = useMutation(SEGMENT_EDIT);
@@ -105,6 +106,10 @@ export const useSegmentActions = ({
         });
         if (callback) {
           callback(_id);
+        }
+
+        if (!segmentId) {
+          setSegmentId(_id);
         }
       },
     });

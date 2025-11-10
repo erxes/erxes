@@ -38,7 +38,7 @@ export async function executeOutgoingWebhook({
     method = 'POST',
     url,
     queryParams = [],
-    body = {},
+    body = '{}',
     auth,
     headers = [],
     options = {},
@@ -47,7 +47,7 @@ export async function executeOutgoingWebhook({
   if (!url) {
     throw new Error('Outgoing webhook url is required');
   }
-  const [pluginName] = splitType(targetType);
+  const [pluginName, moduleName] = splitType(targetType);
 
   const timeoutMs = options.timeout ?? 10000;
   const ignoreSSL = options.ignoreSSL ?? false;
@@ -65,6 +65,7 @@ export async function executeOutgoingWebhook({
     pluginName,
     producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
     input: {
+      moduleName,
       target: { ...target, type: targetType },
       config: toHeadersObject(headers),
     },
@@ -77,8 +78,9 @@ export async function executeOutgoingWebhook({
     pluginName,
     producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
     input: {
+      moduleName,
       target: { ...target, type: targetType },
-      config: body || {},
+      config: body ? JSON.parse(body) : {},
     },
     defaultValue: {},
   });
@@ -89,6 +91,7 @@ export async function executeOutgoingWebhook({
     pluginName,
     producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
     input: {
+      moduleName,
       target: { ...target, type: targetType },
       config: queryParams.reduce((acc, cur) => {
         acc[cur.name] = cur.value;
@@ -136,7 +139,6 @@ export async function executeOutgoingWebhook({
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   let lastErr: any;
   const attempts = Math.max(0, retryOpts.attempts || 0) + 1;
-  console.log('attempts', attempts);
   for (let i = 1; i <= attempts; i++) {
     try {
       const res = await outgoingWebhookDoFetch({
@@ -150,7 +152,6 @@ export async function executeOutgoingWebhook({
         controller,
       });
       const bodyText = await res.text();
-      console.log('bodyText', bodyText);
       const resultHeaders: Record<string, string> = {};
       res.headers.forEach((v, k) => (resultHeaders[k] = v));
       clearTimeout(timer);

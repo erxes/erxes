@@ -1,5 +1,5 @@
 import { Button, cn, Separator } from 'erxes-ui';
-import React from 'react';
+import React, { Children, isValidElement } from 'react';
 import { FormProvider, useWatch } from 'react-hook-form';
 import { useSegmentActions } from 'ui-modules/modules/segments/hooks/useSegmentActions';
 import { useSegmentDetail } from 'ui-modules/modules/segments/hooks/useSegmentDetail';
@@ -15,6 +15,30 @@ import {
 import { SegmentGroups } from './SegmentGroups';
 import { SegmentConfigWidget } from './SegmentConfigWidget';
 
+function hasSegmentMetadataForm(children: React.ReactNode): boolean {
+  let found = false;
+
+  Children.forEach(children, (child) => {
+    if (found) return;
+
+    if (isValidElement(child)) {
+      if (
+        child.type === SegmentFormHeader ||
+        (child.type as any)?.displayName === 'SegmentFormHeader'
+      ) {
+        found = true;
+        return;
+      }
+
+      if (child.props?.children) {
+        found = hasSegmentMetadataForm(child.props.children);
+      }
+    }
+  });
+
+  return found;
+}
+
 type SegmentFormRootProps = {
   contentType: string;
   segmentId?: string;
@@ -27,13 +51,18 @@ const SegmentFormRoot = ({
   children,
 }: SegmentFormRootProps) => {
   const { segment, segmentLoading } = useSegmentDetail(segmentId);
+  const hasMetadataForm = hasSegmentMetadataForm(children);
 
   if (segmentLoading) {
     return <SegmentFormLoading />;
   }
 
   return (
-    <SegmentProvider contentType={contentType} segment={segment}>
+    <SegmentProvider
+      contentType={contentType}
+      segment={segment}
+      hasMetadataForm={hasMetadataForm}
+    >
       {children}
     </SegmentProvider>
   );
@@ -51,16 +80,16 @@ const SegmentFormWrapper = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const SegmentFormHeader = ({ isTemporary }: { isTemporary?: boolean }) => {
-  if (isTemporary) {
-    return null;
-  }
+const SegmentFormHeader = () => {
   return (
     <div className="w-full p-2 pb-4">
       <SegmentMetadataForm />
     </div>
   );
 };
+
+SegmentFormHeader.displayName = 'SegmentFormHeader';
+
 
 const SegmentFormContent = ({
   callback,
@@ -105,21 +134,19 @@ type LegacyProps = {
   contentType: string;
   segmentId?: string;
   callback: (contentId: string) => void;
-  isTemporary?: boolean;
   saveButtonText?: string;
 };
 
 // Legacy component wrapper
 const SegmentFormLegacy = ({
   contentType,
-  isTemporary,
   callback,
   segmentId,
 }: LegacyProps) => {
   return (
     <SegmentFormRoot contentType={contentType} segmentId={segmentId}>
       <SegmentFormWrapper>
-        <SegmentFormHeader isTemporary={isTemporary} />
+        <SegmentFormHeader />
         <SegmentFormContent callback={callback} />
         <SegmentFormFooter callback={callback} />
       </SegmentFormWrapper>

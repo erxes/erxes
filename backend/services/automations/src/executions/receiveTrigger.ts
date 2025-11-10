@@ -24,14 +24,17 @@ export const receiveTrigger = async ({
   targets: any[];
   recordType?: string;
 }) => {
+  // Simple query: only check status and trigger type
+  // recordType check will be done in the loop for non-custom triggers only
   const automations = await models.Automations.find({
     status: 'active',
-    'triggers.type': {
-      $in: [type, new RegExp(`^${type}\\..*`)],
-    },
     $or: [
-      { 'triggers.config.recordType': { $exists: false } },
-      { 'triggers.config.recordType': { $in: [recordType, 'every'] } },
+      {
+        'triggers.type': { $in: [type] },
+      },
+      {
+        'triggers.type': { $regex: `^${type}\\..*` },
+      },
     ],
   }).lean();
 
@@ -49,6 +52,19 @@ export const receiveTrigger = async ({
         if (!trigger.type.includes(type)) {
           continue;
         }
+
+        // recordType check only for non-custom triggers
+        if (!trigger?.isCustom && recordType) {
+          const triggerRecordType = trigger?.config?.recordType;
+          if (
+            triggerRecordType &&
+            triggerRecordType !== 'every' &&
+            triggerRecordType !== recordType
+          ) {
+            continue;
+          }
+        }
+
         const execution = await calculateExecution({
           models,
           subdomain,

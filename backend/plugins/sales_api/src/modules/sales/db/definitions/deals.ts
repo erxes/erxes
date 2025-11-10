@@ -158,5 +158,5 @@ export const dealSchema = schemaWrapper(
       timestamps: true,
     },
   ),
-  { contentType: 'sales:deal' },
+  { contentType: 'sales:sales.deal' },
 );

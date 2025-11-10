@@ -15,19 +15,17 @@ import {
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useState } from 'react';
-import { UseFormReturn } from 'react-hook-form';
+import { FormProvider } from 'react-hook-form';
 import { FacebookMessageButtonsGenerator } from '~/widgets/automations/modules/facebook/components/action/components/FacebookMessageButtonsGenerator';
 import { FacebookBotPageSelectorSteps } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotPageSelectorSteps';
 import { FacebookPageInfo } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookPageInfo';
 import { useFacebookBotSave } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotForm';
-import { TFacebookBotForm } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotForm';
 import { isOpenFacebookBotSecondarySheet } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotStates';
+import { useFbBotFormContext } from '../context/FbBotFormContext';
+import { AutomationBotFormEffect } from './AutomationBotFormEffect';
 
-export const AutomationFbBotFormContent = ({
-  form,
-}: {
-  form: UseFormReturn<TFacebookBotForm>;
-}) => {
+export const AutomationFbBotFormContent = () => {
+  const { form } = useFbBotFormContext();
   const [isOptionalOpen, setOptionalOpen] = useState(false);
   const { onSave, onSaveloading } = useFacebookBotSave();
   const [accountId, pageId] = form.watch(['accountId', 'pageId']);
@@ -35,8 +33,9 @@ export const AutomationFbBotFormContent = ({
   return (
     <>
       <Sheet.Content className="p-4">
-        <FbBotFormSecondarySheet accountId={accountId} pageId={pageId} />
         <Form {...form}>
+          <FbBotFormSecondarySheet accountId={accountId} pageId={pageId} />
+          <AutomationBotFormEffect />
           <div
             className={cn('flex flex-col gap-4', {
               blur: !accountId || !pageId,
@@ -48,9 +47,8 @@ export const AutomationFbBotFormContent = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Name</Form.Label>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
+
+                  <Input {...field} />
                   <Form.Message />
                 </Form.Item>
               )}
@@ -64,19 +62,17 @@ export const AutomationFbBotFormContent = ({
                   <Form.Description>
                     Configure menu items that appear in your bot
                   </Form.Description>
-                  <Form.Control>
-                    <FacebookMessageButtonsGenerator
-                      addButtonContent={
-                        <>
-                          <IconPlus />
-                          Add persistent menu
-                        </>
-                      }
-                      buttons={field.value}
-                      setButtons={field.onChange}
-                      limit={5}
-                    />
-                  </Form.Control>
+                  <FacebookMessageButtonsGenerator
+                    addButtonContent={
+                      <>
+                        <IconPlus />
+                        Add persistent menu
+                      </>
+                    }
+                    buttons={field.value}
+                    setButtons={field.onChange}
+                    limit={5}
+                  />
                   <Form.Message />
                 </Form.Item>
               )}
@@ -97,27 +93,25 @@ export const AutomationFbBotFormContent = ({
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>Tag</Form.Label>
-                      <Form.Control>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <Select.Trigger id="messenger-tag" className="mt-1">
-                            <Select.Value placeholder="Select tag" />
-                          </Select.Trigger>
-                          <Select.Content>
-                            <Select.Item value="CONFIRMED_EVENT_UPDATE">
-                              Confirmed Event Update
-                            </Select.Item>
-                            <Select.Item value="POST_PURCHASE_UPDATE">
-                              Post-Purchase Update
-                            </Select.Item>
-                            <Select.Item value="ACCOUNT_UPDATE">
-                              Account Update
-                            </Select.Item>
-                          </Select.Content>
-                        </Select>
-                      </Form.Control>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <Select.Trigger id="messenger-tag" className="mt-1">
+                          <Select.Value placeholder="Select tag" />
+                        </Select.Trigger>
+                        <Select.Content>
+                          <Select.Item value="CONFIRMED_EVENT_UPDATE">
+                            Confirmed Event Update
+                          </Select.Item>
+                          <Select.Item value="POST_PURCHASE_UPDATE">
+                            Post-Purchase Update
+                          </Select.Item>
+                          <Select.Item value="ACCOUNT_UPDATE">
+                            Account Update
+                          </Select.Item>
+                        </Select.Content>
+                      </Select>
                       <span className="text-accent-foreground">
                         Message tags may not be used to send promotional
                         content, including but not limited to deals,purchases
@@ -143,9 +137,7 @@ export const AutomationFbBotFormContent = ({
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>Greet Message</Form.Label>
-                      <Form.Control>
-                        <Input {...field} />
-                      </Form.Control>
+                      <Input {...field} />
                       <Form.Message />
                     </Form.Item>
                   )}
@@ -158,13 +150,11 @@ export const AutomationFbBotFormContent = ({
                       <Form.Label className="mt-3">
                         Enable Back Button on Persistence menu
                       </Form.Label>
-                      <Form.Control>
-                        <Switch
-                          className="flex-none"
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </Form.Control>
+                      <Switch
+                        className="flex-none"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
                       <Form.Message />
                     </Form.Item>
                   )}
@@ -175,12 +165,10 @@ export const AutomationFbBotFormContent = ({
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>Back Button Text</Form.Label>
-                      <Form.Control>
-                        <Input
-                          {...field}
-                          disabled={!form.watch('isEnabledBackBtn')}
-                        />
-                      </Form.Control>
+                      <Input
+                        {...field}
+                        disabled={!form.watch('isEnabledBackBtn')}
+                      />
                       <Form.Message />
                     </Form.Item>
                   )}

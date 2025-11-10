@@ -183,7 +183,13 @@ export const generateSalesFields = async (
   models: IModels,
   data,
 ) => {
-  const { moduleType, config = {}, segmentId, usageType } = data;
+  const {
+    moduleType,
+    collectionType,
+    config = {},
+    segmentId,
+    usageType,
+  } = data;
 
   const { pipelineId } = config;
 
@@ -199,7 +205,7 @@ export const generateSalesFields = async (
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 
-  switch (moduleType) {
+  switch (collectionType) {
     case 'deal':
       schema = models.Deals.schema;
       break;
@@ -405,10 +411,7 @@ export const generateSalesFields = async (
       'select',
     );
 
-    fields = [
-      ...fields,
-      ...[productOptions, productsCategoriesOptions, assignedUserOptions],
-    ];
+    fields = [...fields, ...[productOptions, productsCategoriesOptions]];
   }
 
   if (moduleType === 'deal' && usageType === 'export') {

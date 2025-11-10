@@ -26,7 +26,6 @@ export const outgoingWebhookDoFetch = async ({
     agent,
     signal: controller.signal,
   }).catch((e) => {
-    console.log('error', e);
     throw e;
   });
 

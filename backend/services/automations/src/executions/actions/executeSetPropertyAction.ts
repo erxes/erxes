@@ -20,7 +20,7 @@ export const executeSetPropertyAction = async (
     subdomain,
     moduleName: 'automations',
     pluginName,
-    producerName: TAutomationProducers.RECEIVE_ACTIONS,
+    producerName: TAutomationProducers.SET_PROPERTIES,
     input: {
       moduleName,
       triggerType,

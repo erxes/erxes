@@ -1,14 +1,17 @@
 export const salesAutomationContants = {
   triggers: [
     {
-      type: 'sales:deal',
+      moduleName: 'sales',
+      collectionName: 'deal',
       icon: 'IconPigMoney',
       label: 'Sales pipeline',
       description:
         'Start with a blank workflow that enrolls and is triggered off sales pipeline item',
     },
     {
-      type: 'sales:deal.probability',
+      moduleName: 'sales',
+      collectionName: 'deal',
+      relationType: 'probability',
       icon: 'IconPigMoney',
       label: 'Sales pipelines stage probability based',
       description:
@@ -18,16 +21,20 @@ export const salesAutomationContants = {
   ],
   actions: [
     {
-      type: 'sales:sales.deal.create',
+      moduleName: 'sales',
+      collectionName: 'deal',
+      method: 'create',
       icon: 'IconPigMoney',
       label: 'Create deal',
       description: 'Create deal',
       isTargetSource: true,
-      targetSourceType: 'sales:deal',
+      targetSourceType: 'sales:sales.deal',
       allowTargetFromActions: true,
     },
     {
-      type: 'sales:sales.checklist.create',
+      moduleName: 'sales',
+      collectionName: 'checklist',
+      method: 'create',
       icon: 'IconPigMoney',
       label: 'Create sales checklist',
       description: 'Create sales checklist',

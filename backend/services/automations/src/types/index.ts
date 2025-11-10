@@ -80,7 +80,7 @@ export type TOutgoinWebhookActionConfig = {
   method?: HttpMethod;
   url: string;
   queryParams?: OutgoingQueryParamItem[];
-  body?: Record<string, any>;
+  body?: string;
   auth?: OutgoingAuthConfig;
   headers?: OutgoingHeaderItem[];
   options?: OutgoingOptions;

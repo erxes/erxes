@@ -235,7 +235,7 @@ export const generateFormFields = async ({ subdomain, data }) => {
 };
 
 export const generateContactsFields = async ({ subdomain, data }) => {
-  const { moduleType, usageType } = data;
+  const { collectionType, usageType } = data;
 
   const models = await generateModels(subdomain);
 
@@ -253,7 +253,7 @@ export const generateContactsFields = async ({ subdomain, data }) => {
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 
-  switch (moduleType) {
+  switch (collectionType) {
     case 'lead':
       schema = Customers.schema;
 
@@ -286,7 +286,7 @@ export const generateContactsFields = async ({ subdomain, data }) => {
     const aggre = await fetchEs({
       subdomain,
       action: 'search',
-      index: moduleType === 'company' ? 'companies' : 'customers',
+      index: collectionType === 'company' ? 'companies' : 'customers',
       body: {
         size: 0,
         _source: false,
@@ -328,41 +328,42 @@ export const generateContactsFields = async ({ subdomain, data }) => {
   const tags = await getTags(
     subdomain,
     `contacts:${
-      ['lead', 'visitor'].includes(moduleType) ? 'customer' : moduleType
+      ['lead', 'visitor'].includes(collectionType) ? 'customer' : collectionType
     }`,
   );
 
   fields = [...fields, tags];
 
-  if (moduleType === 'customer' || moduleType === 'lead') {
-    const { config } = data;
+  // TODO: implement form submission fields
+  // if (collectionType === 'customer' || collectionType === 'lead') {
+  //   const { config } = data;
 
-    const integrations = await getIntegrations(subdomain);
+  //   const integrations = await getIntegrations(subdomain);
 
-    if (config) {
-      const formSubmissionFields = await getFormSubmissionFields(
-        subdomain,
-        config,
-      );
-      fields = [...fields, ...formSubmissionFields];
-    }
+  //   if (config) {
+  //     const formSubmissionFields = await getFormSubmissionFields(
+  //       subdomain,
+  //       config,
+  //     );
+  //     fields = [...fields, ...formSubmissionFields];
+  //   }
 
-    fields = [...fields, integrations];
+  //   fields = [...fields, integrations];
 
-    if (usageType === 'import') {
-      fields.push({
-        _id: Math.random(),
-        name: 'companiesPrimaryNames',
-        label: 'Company Primary Names',
-      });
+  //   if (usageType === 'import') {
+  //     fields.push({
+  //       _id: Math.random(),
+  //       name: 'companiesPrimaryNames',
+  //       label: 'Company Primary Names',
+  //     });
 
-      fields.push({
-        _id: Math.random(),
-        name: 'companiesPrimaryEmails',
-        label: 'Company Primary Emails',
-      });
-    }
-  }
+  //     fields.push({
+  //       _id: Math.random(),
+  //       name: 'companiesPrimaryEmails',
+  //       label: 'Company Primary Emails',
+  //     });
+  //   }
+  // }
 
   if (process.env.USE_BRAND_RESTRICTIONS) {
     const brandsOptions = await generateBrandsOptions(

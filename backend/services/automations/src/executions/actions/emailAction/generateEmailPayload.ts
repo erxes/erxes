@@ -23,7 +23,7 @@ export const generateEmailPayload = async ({
   config: any;
 }) => {
   const { fromEmailPlaceHolder, sender, type: senderType } = config;
-  const [pluginName, type] = splitType(targetType);
+  const [pluginName, moduleName, type] = splitType(targetType);
   const version = getEnv({ name: 'VERSION' });
   const DEFAULT_AWS_EMAIL = getEnv({ name: 'DEFAULT_AWS_EMAIL' });
 
@@ -61,6 +61,7 @@ export const generateEmailPayload = async ({
     pluginName,
     producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
     input: {
+      moduleName,
       target,
       config: {
         subject: config.subject,

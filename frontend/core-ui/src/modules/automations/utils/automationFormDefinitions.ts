@@ -22,12 +22,17 @@ const automationTriggerBaseSchema = z.object({
 
 const automationTriggerSchema = automationTriggerBaseSchema
   .refine(
-    ({ type, config }) => {
-      return type.includes('core:') && !!Object.keys(config)?.length;
+    ({ config, isCustom }) => {
+      // If not custom, validation passes
+      if (!isCustom) {
+        return true;
+      }
+      // If custom, config must have at least one key
+      return Object.keys(config || {}).length > 0;
     },
     {
       path: ['config'],
-      message: 'Each trigger must include a config ',
+      message: 'Custom triggers must include a config',
     },
   )
   .refine(

@@ -17,7 +17,9 @@ import { IAutomationHistory } from 'ui-modules';
 export const automationHistoriesColumns: ColumnDef<IAutomationHistory>[] = [
   {
     id: 'more',
-    cell: ({ cell }) => <AutomationHistoryDetail history={cell.row.original} />,
+    cell: ({ cell }) => (
+      <AutomationHistoryDetail executionId={cell.row.original._id} />
+    ),
     size: 33,
   },
   {

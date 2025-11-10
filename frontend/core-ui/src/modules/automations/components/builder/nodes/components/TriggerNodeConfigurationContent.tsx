@@ -15,12 +15,12 @@ export const TriggerNodeConfigurationContent = ({
 }) => {
   const [pluginName, moduleName] = splitAutomationNodeType(type || '');
 
-  if (
-    isCoreAutomationTriggerType(
-      moduleName,
-      TAutomationTriggerComponent.NodeContent,
-    )
-  ) {
+  const isCoreTrigger = isCoreAutomationTriggerType(
+    moduleName,
+    TAutomationTriggerComponent.NodeContent,
+  );
+
+  if (isCoreTrigger) {
     const CoreTriggerComponent = getCoreAutomationTriggerComponent(
       moduleName,
       TAutomationTriggerComponent.NodeContent,
@@ -37,14 +37,16 @@ export const TriggerNodeConfigurationContent = ({
   }
 
   return (
-    <RenderPluginsComponentWrapper
-      pluginName={pluginName}
-      moduleName={moduleName}
-      props={{
-        componentType: 'triggerConfigContent',
-        type,
-        config,
-      }}
-    />
+    <div className="px-4 py-2">
+      <RenderPluginsComponentWrapper
+        pluginName={pluginName}
+        moduleName={moduleName}
+        props={{
+          componentType: 'triggerConfigContent',
+          type,
+          config,
+        }}
+      />
+    </div>
   );
 };

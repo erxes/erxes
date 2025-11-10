@@ -4,19 +4,42 @@ import {
   httpBatchLink,
   TRPCRequestOptions,
 } from '@trpc/client';
+import { TAutomationProducers } from '../../core-modules/automations/types';
+import { TAutomationProducersInput } from '../../core-modules/automations/zodTypes';
+import { TSegmentProducers } from '../../core-modules/segments/types';
+import { TAfterProcessProducers } from '../../core-modules/logs/types';
+import { TSegmentProducersInput } from '../../core-modules/segments/zodSchemas';
 
-type TCoreModuleProducer = {
+type TModuleProducerInputMap = {
+  automations: {
+    [K in TAutomationProducers]: TAutomationProducersInput[K];
+  };
+  segments: {
+    [K in TSegmentProducers]: TSegmentProducersInput[K];
+  };
+  afterProcess: {
+    [K in TAfterProcessProducers]: any;
+  };
+};
+
+type TCoreModuleProducer<
+  TModuleName extends keyof TModuleProducerInputMap = keyof TModuleProducerInputMap,
+  TProducerName extends keyof TModuleProducerInputMap[TModuleName] = keyof TModuleProducerInputMap[TModuleName],
+> = {
   subdomain: string;
-  moduleName: 'automations' | 'segments' | 'afterProcess';
-  producerName: string;
+  moduleName: TModuleName;
+  producerName: TProducerName;
   method?: 'query' | 'mutation';
   pluginName: string;
-  input: any;
+  input: TModuleProducerInputMap[TModuleName][TProducerName];
   defaultValue?: any;
   options?: TRPCRequestOptions;
 };
 
-export const sendCoreModuleProducer = async ({
+export const sendCoreModuleProducer = async <
+  TModuleName extends keyof TModuleProducerInputMap = keyof TModuleProducerInputMap,
+  TProducerName extends keyof TModuleProducerInputMap[TModuleName] = keyof TModuleProducerInputMap[TModuleName],
+>({
   subdomain,
   moduleName,
   pluginName,
@@ -25,19 +48,27 @@ export const sendCoreModuleProducer = async ({
   input,
   defaultValue,
   options,
-}: TCoreModuleProducer): Promise<any> => {
+}: TCoreModuleProducer<TModuleName, TProducerName>): Promise<any> => {
   if (pluginName && !(await isEnabled(pluginName))) {
     return defaultValue;
   }
 
   const pluginInfo = await getPlugin(pluginName);
 
+  // Validate plugin address before constructing URL
+  if (!pluginInfo.address || pluginInfo.address.trim() === '') {
+    console.warn(
+      `Plugin "${pluginName}" address is not available. Returning defaultValue.`,
+    );
+    return defaultValue;
+  }
+
   const client = createTRPCUntypedClient({
     links: [httpBatchLink({ url: `${pluginInfo.address}/${moduleName}` })],
   });
 
   const result = await client[method](
-    `${producerName}`,
+    String(producerName),
     { subdomain, data: input ?? {} },
     options,
   );

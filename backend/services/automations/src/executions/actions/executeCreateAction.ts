@@ -21,7 +21,7 @@ export const executeCreateAction = async (
     action.type,
   );
 
-  const actionResponse = await sendCoreModuleProducer({
+  let actionResponse = await sendCoreModuleProducer({
     subdomain,
     moduleName: 'automations',
     pluginName,
@@ -36,6 +36,8 @@ export const executeCreateAction = async (
     defaultValue: null,
   });
 
+  console.log(actionResponse);
+
   if (actionResponse.error) {
     throw new Error(actionResponse.error);
   }
@@ -44,12 +46,9 @@ export const executeCreateAction = async (
   let shouldBreak = false;
 
   if (waitCondition) {
-    return await setWaitActionResponse(
-      subdomain,
-      execution,
-      action,
-      waitCondition,
-    );
+    await setWaitActionResponse(subdomain, execution, action, waitCondition);
+    actionResponse = actionResponse.result;
+    shouldBreak = true;
   }
 
   return { shouldBreak, actionResponse };

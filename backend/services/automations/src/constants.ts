@@ -13,6 +13,7 @@ export const EXECUTION_STATUS = {
   FINISHED: 'finished',
   PAUSED: 'paused',
   MISSED_ACTION: 'missed action',
+  ERROR: 'error',
 } as const;
 
 export const ERROR_MESSAGES = {

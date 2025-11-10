@@ -2,13 +2,14 @@ import { useHistoryBeforeTitleContent } from '@/automations/components/builder/h
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 
+import PrimaryEdge from '@/automations/components/builder/edges/PrimaryEdge';
+import { useAutomationExecutionDetail } from '@/automations/components/builder/history/hooks/useAutomationExecutionDetail';
+import ActionNode from '@/automations/components/builder/nodes/components/ActionNode';
+import TriggerNode from '@/automations/components/builder/nodes/components/TriggerNode';
+import { generateEdges } from '@/automations/utils/automationBuilderUtils/generateEdges';
+import { generateNodes } from '@/automations/utils/automationBuilderUtils/generateNodes';
 import { Background, ConnectionMode, Controls, ReactFlow } from '@xyflow/react';
 import { IAutomationHistory } from 'ui-modules';
-import { generateNodes } from '@/automations/utils/automationBuilderUtils/generateNodes';
-import { generateEdges } from '@/automations/utils/automationBuilderUtils/generateEdges';
-import TriggerNode from '@/automations/components/builder/nodes/components/TriggerNode';
-import ActionNode from '@/automations/components/builder/nodes/components/ActionNode';
-import PrimaryEdge from '@/automations/components/builder/edges/PrimaryEdge';
 
 const nodeTypes = {
   trigger: TriggerNode,
@@ -18,19 +19,23 @@ const edgeTypes = {
   primary: PrimaryEdge,
 };
 
-export const AutomationHistoryByFlow = ({
-  history,
-}: {
-  history: IAutomationHistory;
-}) => {
+const useAutomationHistoryByFlow = () => {
+  const { executionDetail, loading } = useAutomationExecutionDetail();
   const { triggersConst, actionsConst } = useAutomation();
   const { triggers, actions, workflows } = useAutomationNodes();
 
-  const { beforeTitleContent } = useHistoryBeforeTitleContent(history);
+  const { beforeTitleContent } = useHistoryBeforeTitleContent(
+    executionDetail as IAutomationHistory,
+  );
   const nodes = generateNodes(triggers, actions, workflows, {
     constants: { triggersConst, actionsConst },
     beforeTitleContent,
   });
+  return { executionDetail, loading, nodes, triggers, actions };
+};
+
+export const AutomationHistoryByFlow = () => {
+  const { nodes, triggers, actions } = useAutomationHistoryByFlow();
 
   return (
     <div className="h-full">

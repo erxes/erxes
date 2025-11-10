@@ -1,4 +1,5 @@
 import { useLazyQuery } from '@apollo/client';
+import { toast } from 'erxes-ui/hooks';
 import { useState } from 'react';
 import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
 import { SEGMENTS_PREVIEW_COUNT } from 'ui-modules/modules/segments/graphql/queries';
@@ -18,14 +19,31 @@ export const useSegmentStats = () => {
   );
 
   const handleCalculateStats = async () => {
+    console.log({ dasd: form.getValues() });
+    const {
+      conditionsConjunction,
+      conditions,
+      conditionSegments,
+      config,
+      subOf,
+    } = form.getValues();
     const { data } = await countSegment({
       query: SEGMENTS_PREVIEW_COUNT,
       variables: {
         contentType,
-        conditions: generateParamsSegmentPreviewCount(form, contentType || ''),
+        conditions: generateParamsSegmentPreviewCount(
+          conditionSegments || ([] as any[]),
+        ),
         subOf: form.getValues('subOf'),
         config: form.getValues('config'),
         conditionsConjunction: form.getValues('conditionsConjunction'),
+      },
+      onError: (error) => {
+        toast({
+          title: 'Error',
+          variant: 'destructive',
+          description: error.message,
+        });
       },
     });
 

@@ -79,10 +79,11 @@ export const executeWaitEvent = async (
 
   if (targetType === 'action' && targetTypeId && segmentId) {
     const { actions = [] } = execution || {};
-
     const actionExecution = getLastActionExecution(actions, targetTypeId);
     if (!actionExecution || !actionExecution?.result) {
-      throw new Error('Action execution not found');
+      throw new Error(
+        `Action execution not found for action ID: ${targetTypeId}. The action must be executed before it can be used in a wait event.`,
+      );
     }
 
     const { targetId } = actionExecution.result || {};

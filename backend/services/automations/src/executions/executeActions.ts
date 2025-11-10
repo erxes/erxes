@@ -96,7 +96,13 @@ export const executeActions = async (
       );
 
       if (coreActionResponse?.shouldBreak) {
-        return;
+        execution.status = AUTOMATION_EXECUTION_STATUS.WAITING;
+        await handleExecutionActionResponse(
+          coreActionResponse.actionResponse,
+          execution,
+          execAction,
+        );
+        return EXECUTION_STATUS.PAUSED;
       }
       actionResponse = coreActionResponse.actionResponse;
     } else {
@@ -114,6 +120,12 @@ export const executeActions = async (
           action,
         );
         if (createActionResponse.shouldBreak) {
+          execution.status = AUTOMATION_EXECUTION_STATUS.WAITING;
+          await handleExecutionActionResponse(
+            createActionResponse.actionResponse,
+            execution,
+            execAction,
+          );
           return EXECUTION_STATUS.PAUSED;
         }
         actionResponse = createActionResponse.actionResponse;
@@ -121,7 +133,7 @@ export const executeActions = async (
     }
   } catch (e) {
     await handleExecutionError(e, actionType, execution, execAction);
-    return;
+    return EXECUTION_STATUS.ERROR;
   }
 
   await handleExecutionActionResponse(actionResponse, execution, execAction);

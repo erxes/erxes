@@ -79,7 +79,12 @@ const getHistoryContent = (
     return {
       status,
       createdAt: action?.createdAt,
-      content: action ? <ExecutionActionResult action={action} /> : null,
+      content: action ? (
+        <ExecutionActionResult
+          action={action}
+          status={status as IAutomationHistory['status']}
+        />
+      ) : null,
     };
   }
 

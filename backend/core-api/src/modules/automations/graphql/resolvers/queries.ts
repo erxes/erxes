@@ -11,6 +11,7 @@ import {
   AUTOMATION_CORE_PROPERTY_TYPES,
   AUTOMATION_STATUSES,
   AUTOMATION_TRIGGERS,
+  AutomationConstants,
   checkPermission,
   IAutomationDocument,
   IAutomationExecutionDocument,
@@ -268,9 +269,9 @@ export const automationQueries = {
     const plugins = await getPlugins();
 
     const constants: {
-      triggersConst: IAutomationsTriggerConfig[];
+      triggersConst: any[];
       triggerTypesConst: string[];
-      actionsConst: IAutomationsActionConfig[];
+      actionsConst: any[];
       propertyTypesConst: Array<{ value: string; label: string }>;
     } = {
       triggersConst: [...AUTOMATION_TRIGGERS],
@@ -279,62 +280,45 @@ export const automationQueries = {
       propertyTypesConst: [...AUTOMATION_CORE_PROPERTY_TYPES],
     };
 
-    // Track seen items to avoid duplicates
-    const seenTriggerTypes = new Set<string>(
-      constants.triggersConst.map((t) => t.type),
-    );
-    const seenTriggerTypeStrings = new Set<string>();
-    const seenPropertyValues = new Set<string>(
-      constants.propertyTypesConst.map((p) => p.value),
-    );
-    const seenActionTypes = new Set<string>(
-      constants.actionsConst.map((a) => a.type),
-    );
-    // Track seen plugin:module combinations to avoid duplicates
-    const seenPluginModuleCombos = new Set<string>(
-      constants.propertyTypesConst.map((p) => {
-        // Extract plugin:module from value (everything before first dot)
-        const baseValue = p.value.split('.')[0];
-        return baseValue;
-      }),
-    );
-
     for (const pluginName of plugins) {
       const plugin = await getPlugin(pluginName);
       const meta = plugin.config?.meta || {};
 
       if (meta && meta.automations && meta.automations.constants) {
         const pluginConstants = meta.automations.constants || {};
-        const { triggers = [], actions = [] } = pluginConstants;
+        const { triggers = [], actions = [] } =
+          pluginConstants as AutomationConstants;
 
-        for (const trigger of triggers) {
-          if (!seenTriggerTypes.has(trigger.type)) {
-            constants.triggersConst.push({ ...trigger, pluginName });
-            seenTriggerTypes.add(trigger.type);
-          }
+        for (const {
+          moduleName,
+          collectionName,
+          relationType,
+          ...trigger
+        } of triggers) {
+          const propertyType = `${pluginName}:${moduleName}.${collectionName}`;
+          const type = `${propertyType}${
+            relationType ? `.${relationType}` : ''
+          }`;
+          constants.triggersConst.push({ ...trigger, type, pluginName });
+          constants.triggerTypesConst = [
+            ...new Set([...constants.triggerTypesConst, propertyType]),
+          ];
 
-          if (!seenTriggerTypeStrings.has(trigger.type)) {
-            constants.triggerTypesConst.push(trigger.type);
-            seenTriggerTypeStrings.add(trigger.type);
-          }
-
-          const basePluginModule = trigger.type.split('.')[0];
-
-          if (!seenPluginModuleCombos.has(basePluginModule)) {
-            constants.propertyTypesConst.push({
-              value: trigger.type,
-              label: trigger.label,
-            });
-            seenPropertyValues.add(trigger.type);
-            seenPluginModuleCombos.add(basePluginModule);
-          }
+          constants.propertyTypesConst.push({
+            value: propertyType,
+            label: trigger.label,
+          });
         }
 
-        for (const action of actions) {
-          if (!seenActionTypes.has(action.type)) {
-            constants.actionsConst.push({ ...action, pluginName });
-            seenActionTypes.add(action.type);
-          }
+        for (const {
+          moduleName,
+          collectionName,
+          method = 'create',
+          ...action
+        } of actions) {
+          const propertyType = `${pluginName}:${moduleName}.${collectionName}`;
+          const type = `${propertyType}.${method}`;
+          constants.actionsConst.push({ ...action, type, pluginName });
         }
       }
     }
@@ -344,7 +328,7 @@ export const automationQueries = {
 
   async getAutomationWebhookEndpoint(
     _root,
-    { _id, waitEventActionId },
+    { _id },
     { models, subdomain }: IContext,
   ) {
     const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
@@ -359,9 +343,22 @@ export const automationQueries = {
       throw new Error('Not found');
     }
 
-    return waitEventActionId
-      ? `${DOMAIN}/automation/${automation._id}/${waitEventActionId}/continue/`
-      : `${DOMAIN}/automation/${automation._id}/`;
+    return `${DOMAIN}/automation/${automation._id}/`;
+  },
+
+  async getAutomationExecutionDetail(
+    _root,
+    { executionId },
+    { models }: IContext,
+  ) {
+    const execution = await models.AutomationExecutions.findById(
+      executionId,
+    ).lean();
+    if (!execution) {
+      throw new Error('Execution not found');
+    }
+
+    return execution;
   },
 
   async automationBotsConstants() {

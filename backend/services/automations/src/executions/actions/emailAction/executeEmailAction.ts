@@ -1,3 +1,4 @@
+import { debugError } from '@/debugger';
 import { generateEmailPayload } from '@/executions/actions/emailAction/generateEmailPayload';
 import { sendEmails } from '@/executions/actions/emailAction/sendEmails';
 import { setActivityLog } from '@/executions/actions/emailAction/utils';
@@ -47,6 +48,7 @@ export const executeEmailAction = async ({
 
     return { ...payload, response };
   } catch (err) {
-    return { error: err.message };
+    debugError(`Error executing email action: ${err.message}`);
+    throw new Error(err.message);
   }
 };

@@ -10,7 +10,7 @@ export interface IAttributeFilter {
 export interface ICondition {
   type: 'property' | 'event' | 'subSegment';
 
-  propertyType?: string;
+  propertyType: string;
   propertyName?: string;
   propertyOperator?: string;
   propertyValue?: string;

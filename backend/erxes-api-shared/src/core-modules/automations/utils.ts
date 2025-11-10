@@ -326,7 +326,7 @@ const getPerValue = async <TModels>({
     value.match(/\{\{\s*([^}]+)\s*\}\}/g) &&
     !(targetType || '').includes(serviceName)
   ) {
-    const [relatedPluginName] = splitType(targetType);
+    const [relatedPluginName, moduleName] = splitType(targetType);
 
     if (!relatedPluginName) {
       return value;
@@ -340,9 +340,9 @@ const getPerValue = async <TModels>({
           pluginName: relatedPluginName,
           producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
           input: {
-            execution,
             target,
             config: { value },
+            moduleName,
           },
           defaultValue: value,
         })
@@ -556,5 +556,6 @@ export const setProperty = async <TModels>({
   return { module, fields: rules.map((r) => r.field).join(', '), result };
 };
 
-export const getContentType = (type: string) => type.split(':')[1];
-export const getPluginName = (type: string) => type.split(':')[0];
+export const getContentType = (type: string) => splitType(type)[2];
+export const getModuleName = (type: string) => splitType(type)[1];
+export const getPluginName = (type: string) => splitType(type)[0];

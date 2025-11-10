@@ -4,7 +4,8 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   AutomationActionFormProps,
-  useAutomationRemoteActionFormSubmit,
+  useAutomationRemoteFormSubmit,
+  useFormValidationErrorHandler,
 } from 'ui-modules';
 import { FacebookMessages } from '~/widgets/automations/modules/facebook/components/action/components/replyMessage/FacebookMessages';
 import { MessageSequenceHeader } from '~/widgets/automations/modules/facebook/components/action/components/replyMessage/MessageSequenceHeader';
@@ -25,16 +26,17 @@ export const MessageActionForm = ({
     defaultValues: { ...(currentAction?.config || {}) },
   });
   const { handleSubmit } = form;
+  const { handleValidationErrors } = useFormValidationErrorHandler({
+    formName: 'Message Action Form',
+  });
 
-  useAutomationRemoteActionFormSubmit({
+  useAutomationRemoteFormSubmit({
     formRef,
     callback: () =>
-      handleSubmit(onSaveActionConfig, () =>
-        toast({
-          title: 'There is some error in the form',
-          variant: 'destructive',
-        }),
-      )(),
+      handleSubmit(onSaveActionConfig, (errors) => {
+        console.log(errors);
+        handleValidationErrors(errors);
+      })(),
   });
 
   useEffect(() => {
@@ -45,7 +47,7 @@ export const MessageActionForm = ({
 
   return (
     <ReplyMessageProvider form={form}>
-      <div className="w-[670px]">
+      <div className="w-[600px]">
         <MessageSequenceHeader />
         <FacebookMessages />
       </div>

@@ -6,6 +6,7 @@ import { FacebookMessageProps } from '../../types/messageActionForm';
 import { FacebookMessageButtonsGenerator } from '../FacebookMessageButtonsGenerator';
 import { InputTextCounter } from '../InputTextCounter';
 import { useReplyMessageAction } from '~/widgets/automations/modules/facebook/components/action/context/ReplyMessageProvider';
+import { FileUploadSection } from '../FileUploadSection';
 
 export const FacebookCardsMessage = ({
   message,
@@ -48,14 +49,14 @@ export const FacebookCardsMessage = ({
       control={control}
       name={`messages.${index}.cards`}
       render={({ field }) => (
-        <Form.Item className="flex flex-col gap-2">
+        <Form.Item>
           <div className="flex justify-between items-center">
             <Label>Templates</Label>
             <div className="flex items-center gap-2">
               <InputTextCounter count={cards.length} limit={10} />
               <Button
                 variant="outline"
-                className="float-end"
+                size="sm"
                 disabled={cards.length >= 10}
                 onClick={() => addPage(field.onChange)}
               >
@@ -63,90 +64,96 @@ export const FacebookCardsMessage = ({
               </Button>
             </div>
           </div>
-          <Tabs value={'0'}>
-            <div className="overflow-x-auto p-2">
+          <Tabs defaultValue="0">
+            <div className="overflow-x-auto px-2 pb-2">
               <Tabs.List>
                 {cards.map((_, index) => (
-                  <Tabs.Trigger key={index} value={String(index)}>{`${
-                    index + 1
-                  } Page`}</Tabs.Trigger>
+                  <Tabs.Trigger key={index} value={String(index)} asChild>
+                    <div className="flex items-center gap-2">
+                      {`${index + 1} Page`}
+                      <Button
+                        className="hover:text-destructive"
+                        variant="link"
+                        size="sm"
+                        onClick={() => onRemoveCard(index, field.onChange)}
+                      >
+                        <IconX className="size-3" />
+                      </Button>
+                    </div>
+                  </Tabs.Trigger>
                 ))}
               </Tabs.List>
             </div>
             {cards.map((card, index) => (
               <Tabs.Content key={card._id} value={String(index)}>
-                <Card>
-                  <Button
-                    className="float-end m-2"
-                    variant="destructive"
-                    onClick={() => onRemoveCard(index, field.onChange)}
-                  >
-                    <IconTrash />
-                  </Button>
-                  <div className="px-4">
-                    <div className="w-full h-36 rounded-lg flex flex-col gap-2 items-center justify-center border-2 border-dashed ">
-                      <IconPhotoScan className="w-24 h-24 text-accent-foreground" />
-                      <Label>
-                        Drag and Drop, choose from your Media library or upload
-                      </Label>
-                    </div>
-                  </div>
-                  <Card.Header className="grid gap-1 p-4">
-                    <Card.Title>
-                      <InputTextCounter
-                        count={card.title?.length ?? 0}
-                        limit={80}
-                      />
+                <div className="px-4">
+                  <FileUploadSection
+                    url={card.image}
+                    onUpload={(fileUrl) => {
+                      console.log(fileUrl);
+                      onChangeCardInfo(
+                        card._id,
+                        { image: fileUrl },
+                        field.onChange,
+                      );
+                    }}
+                  />
+                </div>
+                <Card.Header className="grid gap-1 p-4">
+                  <Card.Title>
+                    <InputTextCounter
+                      count={card.title?.length ?? 0}
+                      limit={80}
+                    />
 
-                      <Input
-                        value={card.title ?? ''}
-                        onChange={(e) =>
-                          onChangeCardInfo(
-                            card._id,
-                            {
-                              title: e.currentTarget.value,
-                            },
-                            field.onChange,
-                          )
-                        }
-                        placeholder="Enter a title"
-                      />
-                    </Card.Title>
-                    <Card.Description>
-                      <InputTextCounter
-                        count={card.subtitle?.length ?? 0}
-                        limit={80}
-                      />
-
-                      <Textarea
-                        value={card.subtitle ?? ''}
-                        onChange={(e) =>
-                          onChangeCardInfo(
-                            card._id,
-                            {
-                              subtitle: e.currentTarget.value,
-                            },
-                            field.onChange,
-                          )
-                        }
-                        placeholder="Enter a subtitle"
-                      />
-                    </Card.Description>
-                    <FacebookMessageButtonsGenerator
-                      limit={3}
-                      buttons={card.buttons || []}
-                      setButtons={(buttons) =>
+                    <Input
+                      value={card.title ?? ''}
+                      onChange={(e) =>
                         onChangeCardInfo(
                           card._id,
                           {
-                            buttons,
+                            title: e.currentTarget.value,
                           },
                           field.onChange,
                         )
                       }
+                      placeholder="Enter a title"
                     />
-                  </Card.Header>
-                </Card>
+                  </Card.Title>
+                  <Card.Description>
+                    <InputTextCounter
+                      count={card.subtitle?.length ?? 0}
+                      limit={80}
+                    />
+
+                    <Textarea
+                      value={card.subtitle ?? ''}
+                      onChange={(e) =>
+                        onChangeCardInfo(
+                          card._id,
+                          {
+                            subtitle: e.currentTarget.value,
+                          },
+                          field.onChange,
+                        )
+                      }
+                      placeholder="Enter a subtitle"
+                    />
+                  </Card.Description>
+                  <FacebookMessageButtonsGenerator
+                    limit={3}
+                    buttons={card.buttons || []}
+                    setButtons={(buttons) =>
+                      onChangeCardInfo(
+                        card._id,
+                        {
+                          buttons,
+                        },
+                        field.onChange,
+                      )
+                    }
+                  />
+                </Card.Header>
               </Tabs.Content>
             ))}
           </Tabs>

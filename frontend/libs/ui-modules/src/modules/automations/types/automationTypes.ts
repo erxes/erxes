@@ -189,7 +189,6 @@ export type IAutomationsTriggerConfigConstants = {
   label: string;
   description: string;
   isCustom?: boolean;
-  connectableActionTypes?: string[];
   conditions?: {
     type: string;
     icon: string;
@@ -211,7 +210,6 @@ export type IAutomationsActionConfigConstants = {
   description: string;
   isAvailableOptionalConnect?: boolean;
   emailRecipientsConst?: any;
-  connectableActionTypes?: string[];
   isTargetSource?: boolean;
   targetSourceType?: string;
   allowTargetFromActions?: boolean;

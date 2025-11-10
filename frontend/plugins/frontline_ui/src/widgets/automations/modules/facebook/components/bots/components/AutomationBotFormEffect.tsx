@@ -4,15 +4,17 @@ import {
 } from '@/integrations/facebook/states/facebookStates';
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
-import { UseFormReturn } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 import { TFacebookBotForm } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotForm';
+import { useFbBotFormContext } from '../context/FbBotFormContext';
 
 type Props = {
-  form: UseFormReturn<TFacebookBotForm>;
   formDefaultValues?: any;
 };
 
-export const AutomationBotFormEffect = ({ form, formDefaultValues }: Props) => {
+export const AutomationBotFormEffect = () => {
+  const { facebookMessengerBot, form } = useFbBotFormContext();
+  const { setValue } = form;
   const [atomAccountId, setAtomAccountId] = useAtom(
     selectedFacebookAccountAtom,
   );
@@ -20,16 +22,16 @@ export const AutomationBotFormEffect = ({ form, formDefaultValues }: Props) => {
 
   useEffect(() => {
     if (atomAccountId) {
-      form.setValue('accountId', atomAccountId);
+      setValue('accountId', atomAccountId);
     }
     if (atomPageId) {
-      form.setValue('pageId', atomPageId);
+      setValue('pageId', atomPageId);
     }
-    if (formDefaultValues?.accountId && !atomAccountId) {
-      setAtomAccountId(formDefaultValues.accountId);
+    if (facebookMessengerBot?.accountId && !atomAccountId) {
+      setAtomAccountId(facebookMessengerBot.accountId);
     }
-    if (formDefaultValues?.pageId && !atomPageId) {
-      setAtomPageId(formDefaultValues.pageId);
+    if (facebookMessengerBot?.pageId && !atomPageId) {
+      setAtomPageId(facebookMessengerBot.pageId);
     }
   }, [atomAccountId, atomPageId]);
 

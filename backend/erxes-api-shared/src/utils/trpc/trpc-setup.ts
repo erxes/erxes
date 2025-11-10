@@ -1,14 +1,14 @@
 import { Application } from 'express';
 import * as trpcExpress from '@trpc/server/adapters/express';
-import rateLimit from 'express-rate-limit';
+// import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { createTRPCContext, TRPCContext } from './utils';
-import {
-  createTRPCSecurityMiddleware,
-  createTRPCSecurityLoggingMiddleware,
-  defaultTRPCSecurityConfig,
-  TRPCSecurityConfig,
-} from './trpc-middleware';
+// import {
+//   createTRPCSecurityMiddleware,
+//   createTRPCSecurityLoggingMiddleware,
+//   defaultTRPCSecurityConfig,
+//   TRPCSecurityConfig,
+// } from './trpc-middleware';
 
 export interface TRPCSetupOptions {
   router: any;
@@ -16,7 +16,7 @@ export interface TRPCSetupOptions {
     subdomain: string,
     context: any,
   ) => Promise<TContext & TRPCContext>;
-  securityConfig?: TRPCSecurityConfig;
+  // securityConfig?: TRPCSecurityConfig;
   rateLimitConfig?: {
     windowMs?: number;
     max?: number;
@@ -28,7 +28,7 @@ export function setupTRPCRoute(app: Application, options: TRPCSetupOptions) {
   const {
     router,
     createContext,
-    securityConfig = defaultTRPCSecurityConfig,
+    // securityConfig = defaultTRPCSecurityConfig,
     rateLimitConfig = {
       windowMs: 15 * 60 * 1000, // 15 minutes
       max: 100, // 100 requests per window
@@ -46,7 +46,7 @@ export function setupTRPCRoute(app: Application, options: TRPCSetupOptions) {
     },
   } = options;
 
-  app.use(createTRPCSecurityLoggingMiddleware());
+  // app.use(createTRPCSecurityLoggingMiddleware());
 
   // // // Raw body parsing middleware for signature verification
   // app.use('/trpc', (req, res, next) => {
@@ -82,7 +82,7 @@ export function setupTRPCRoute(app: Application, options: TRPCSetupOptions) {
     '/trpc',
     trpcHelmet,
     // trpcRateLimit,
-    createTRPCSecurityMiddleware(securityConfig),
+    // createTRPCSecurityMiddleware(securityConfig),
     trpcExpress.createExpressMiddleware({
       router,
       createContext: createTRPCContext(createContext),

@@ -676,7 +676,7 @@ export const getItemList = async (
     input: {
       query: {
         showInCard: true,
-        contentType: `sales:deal`,
+        contentType: `sales:sales.deal`,
       },
     },
     defaultValue: [],

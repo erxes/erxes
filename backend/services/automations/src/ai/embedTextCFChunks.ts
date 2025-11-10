@@ -106,7 +106,6 @@ export async function embedTextCFChunks(
       info.message || '',
     ].filter(Boolean);
     // eslint-disable-next-line no-console
-    console.log(parts.join(' | '));
   };
 
   let nextIndex = 0;

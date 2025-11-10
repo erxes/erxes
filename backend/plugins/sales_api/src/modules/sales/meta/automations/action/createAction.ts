@@ -10,14 +10,12 @@ export const actionCreate = async ({
   action,
   execution,
   collectionType,
-  targetType,
 }: {
   models: IModels;
   subdomain: string;
   action: any;
   execution: any;
   collectionType: string;
-  targetType: string;
 }) => {
   const { config = {} } = action;
   let { target, triggerType } = execution || {};

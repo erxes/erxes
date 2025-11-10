@@ -1,14 +1,12 @@
 import {
   replacePlaceHolders,
   setProperty,
+  TAutomationProducers,
+  TAutomationProducersInput,
+  TCoreModuleProducerContext,
 } from 'erxes-api-shared/core-modules';
-import {
-  IAutomationReceiveActionData,
-  IAutomationWorkerContext,
-  ICheckTriggerData,
-  IReplacePlaceholdersData,
-} from 'erxes-api-shared/core-types';
-import { generateModels, IModels } from '~/connectionResolvers';
+import { IModels } from '~/connectionResolvers';
+import { IDeal } from '~/modules/sales/@types';
 import { actionCreate } from '~/modules/sales/meta/automations/action/createAction';
 import { createChecklist } from '~/modules/sales/meta/automations/action/createChecklist';
 import { getItems } from '~/modules/sales/meta/automations/action/getItems';
@@ -17,68 +15,48 @@ import { checkTriggerDealStageProbality } from '~/modules/sales/meta/automations
 
 export const salesAutomationHandlers = {
   checkCustomTrigger: async (
-    { subdomain }: IAutomationWorkerContext,
-    data: ICheckTriggerData,
+    {
+      collectionType,
+      relationType,
+      target,
+      config,
+    }: TAutomationProducersInput[TAutomationProducers.CHECK_CUSTOM_TRIGGER],
+    { models }: TCoreModuleProducerContext<IModels>,
   ) => {
-    const { collectionType, target, config } = data;
-    const models = await generateModels(subdomain);
-
-    if (collectionType === 'deal.probability') {
-      return checkTriggerDealStageProbality({ models, target, config });
+    if (collectionType === 'deal' && relationType === 'probability') {
+      return await checkTriggerDealStageProbality({
+        models,
+        target: target as IDeal,
+        config,
+      });
     }
 
     return false;
   },
   receiveActions: async (
-    { models, subdomain }: IAutomationWorkerContext<IModels>,
     {
       action,
       execution,
       actionType,
       collectionType,
-      targetType,
-    }: IAutomationReceiveActionData,
+    }: TAutomationProducersInput[TAutomationProducers.RECEIVE_ACTIONS],
+    { models, subdomain }: TCoreModuleProducerContext<IModels>,
   ) => {
-    if (actionType === 'create') {
-      if (collectionType === 'checklist') {
-        return createChecklist(models, execution, action);
-      }
-
-      return await actionCreate({
-        models,
-        subdomain,
-        action,
-        execution,
-        collectionType,
-        targetType,
-      });
+    if (collectionType === 'checklist') {
+      return createChecklist(models, execution, action);
     }
 
-    const { module, rules } = action.config;
-
-    const relatedItems = await getItems(
-      subdomain,
-      module,
-      execution,
-      targetType.split('.')[0],
-    );
-
-    const result = await setProperty({
+    return await actionCreate({
       models,
       subdomain,
-      getRelatedValue,
-      module,
-      rules,
+      action,
       execution,
-      relatedItems,
-      targetType,
+      collectionType,
     });
-
-    return { result };
   },
   replacePlaceHolders: async (
-    { models, subdomain }: IAutomationWorkerContext<IModels>,
-    data: IReplacePlaceholdersData,
+    data: TAutomationProducersInput[TAutomationProducers.REPLACE_PLACEHOLDERS],
+    { models, subdomain }: TCoreModuleProducerContext<IModels>,
   ) => {
     const { relatedValueProps, config, target } = data;
 
@@ -100,6 +78,31 @@ export const salesAutomationHandlers = {
         pipelineLabels: '-',
       },
       complexFields: ['productsData'],
+    });
+  },
+  setProperties: async (
+    data: TAutomationProducersInput[TAutomationProducers.SET_PROPERTIES],
+    { models, subdomain }: TCoreModuleProducerContext<IModels>,
+  ) => {
+    const { action, execution, targetType } = data;
+    const { module, rules } = action.config;
+
+    const relatedItems = await getItems(
+      subdomain,
+      module,
+      execution,
+      targetType.split('.')[0],
+    );
+
+    return await setProperty({
+      models,
+      subdomain,
+      getRelatedValue,
+      module,
+      rules,
+      execution,
+      relatedItems,
+      targetType,
     });
   },
 };

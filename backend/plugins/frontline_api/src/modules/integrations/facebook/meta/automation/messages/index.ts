@@ -1,18 +1,18 @@
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
+import { IFacebookConversationDocument } from '@/integrations/facebook/@types/conversations';
+import { IFacebookCustomerDocument } from '@/integrations/facebook/@types/customers';
 import { debugError } from '@/integrations/facebook/debuggers';
+import { TAutomationActionConfig } from '@/integrations/facebook/meta/automation/types/automationTypes';
 import { checkContentConditions } from '@/integrations/facebook/meta/automation/utils/messageUtils';
 import {
+  AutomationExecutionSetWaitCondition,
   EXECUTE_WAIT_TYPES,
   IAutomationAction,
   IAutomationExecution,
   splitType,
 } from 'erxes-api-shared/core-modules';
-import { AutomationExecutionSetWaitCondition } from 'erxes-api-shared/core-modules';
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { IFacebookConversationDocument } from '@/integrations/facebook/@types/conversations';
-import { IFacebookCustomerDocument } from '@/integrations/facebook/@types/customers';
-import { TBotConfigMessage } from '@/integrations/facebook/meta/automation/types/automationTypes';
 import { generateMessages, getData, sendMessage } from './utils';
 
 export const checkMessageTrigger = async (
@@ -27,7 +27,6 @@ export const checkMessageTrigger = async (
 
   const payload = target?.payload || {};
   const { persistentMenuId, isBackBtn } = payload;
-
   if (persistentMenuId && isBackBtn) {
     sendWorkerQueue('automations', 'playWait').add('playWait', {
       subdomain,
@@ -84,7 +83,7 @@ export const actionCreateMessage = async ({
 }: {
   models: IModels;
   subdomain: string;
-  action: IAutomationAction;
+  action: IAutomationAction<TAutomationActionConfig>;
   execution: { _id: string } & IAutomationExecution;
 }) => {
   const {
@@ -93,17 +92,7 @@ export const actionCreateMessage = async ({
     triggerConfig,
     _id: executionId,
   } = execution || {};
-  const { config } = (action || {}) as {
-    config: {
-      botId: string;
-      messages: TBotConfigMessage[];
-      optionalConnects: {
-        sourceId: string;
-        actionId: string;
-        optionalConnectId: string;
-      }[];
-    };
-  };
+  const { config, id: actionId } = action || {};
   const [_pluginName, moduleName, collectionType] = splitType(triggerType);
 
   if (
@@ -125,13 +114,14 @@ export const actionCreateMessage = async ({
   let result: any[] = [];
 
   try {
-    const messages = await generateMessages(
+    const messages = await generateMessages({
       subdomain,
-      config,
       conversation,
       customer,
       executionId,
-    );
+      actionId,
+      config,
+    });
 
     if (!messages?.length) {
       throw new Error('There are no generated messages to send.');
@@ -168,7 +158,7 @@ export const actionCreateMessage = async ({
       result.push(conversationMessage);
     }
 
-    const { optionalConnects = [] } = config;
+    const { optionalConnects = [] } = config || {};
 
     if (!optionalConnects?.length) {
       return result;

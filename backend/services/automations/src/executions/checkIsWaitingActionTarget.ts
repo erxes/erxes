@@ -59,7 +59,6 @@ export const checkIsWaitingAction = async (
   models: IModels,
   type: string,
   targets: any[],
-  executionId: string,
 ): Promise<IAutomationWaitingActionDocument | null> => {
   for (const target of targets) {
     const waitingAction = await models.WaitingActions.findOne({
@@ -71,7 +70,6 @@ export const checkIsWaitingAction = async (
         {
           conditionType: EXECUTE_WAIT_TYPES.CHECK_OBJECT,
           'conditionConfig.contentType': { $regex: `^${type}\\..*` },
-          ...(executionId ? { executionId } : {}),
         },
       ],
     });
@@ -83,20 +81,32 @@ export const checkIsWaitingAction = async (
     const { conditionType } = waitingAction;
 
     if (conditionType === EXECUTE_WAIT_TYPES.CHECK_OBJECT) {
-      waitingAction.conditionConfig;
       return await handleCheckObjectCondition(models, waitingAction, target);
     }
 
     if (conditionType === EXECUTE_WAIT_TYPES.IS_IN_SEGMENT) {
       const { targetId, segmentId } = waitingAction.conditionConfig || {};
-      if (targetId === target._id) {
-        return waitingAction;
+      const execution = await models.Executions.findOne({
+        _id: waitingAction.executionId,
+      });
+      const lastExecutedAction =
+        execution?.actions?.[execution?.actions?.length - 1];
+      const lastActionTime = lastExecutedAction?.createdAt
+        ? new Date(lastExecutedAction.createdAt).getTime()
+        : 0;
+      const now = Date.now();
+      if (
+        lastExecutedAction?.result?.targetId === target?._id &&
+        now - lastActionTime < 2000
+      ) {
+        continue;
       }
-      // if(await isInSegment(subdomain, segmentId, targetId)){
-      //   return waitingAction;
-      // }
+      if (targetId === target._id) {
+        if (await isInSegment(subdomain, segmentId, targetId)) {
+          return waitingAction;
+        }
+      }
     }
   }
-
   return null;
 };

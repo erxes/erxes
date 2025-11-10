@@ -26,7 +26,7 @@ export interface IFacebookBotDocument extends IFacebookBot, Document {
 }
 
 const persistentMenuSchema = new Schema({
-  _id: { type: Number },
+  _id: { type: String },
   text: { type: String },
   type: { type: String },
   link: { type: String, optional: true },

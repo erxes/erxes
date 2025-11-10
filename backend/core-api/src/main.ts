@@ -20,8 +20,8 @@ import rateLimit from 'express-rate-limit';
 import * as path from 'path';
 import { generateModels } from './connectionResolvers';
 import meta from './meta';
-import { initAutomation } from './meta/automations';
-import { initSegmentCoreProducers } from './segments';
+import { initAutomation } from './meta/automations/automations';
+import { initSegmentCoreProducers } from './meta/segments';
 
 dotenv.config();
 

@@ -18,7 +18,8 @@ const checkIsValidCustomTigger = async (
   target: any,
   config: any,
 ) => {
-  const [pluginName, moduleName, collectionType] = splitType(type);
+  const [pluginName, moduleName, collectionType, relationType] =
+    splitType(type);
 
   return await sendCoreModuleProducer({
     moduleName: 'automations',
@@ -28,6 +29,7 @@ const checkIsValidCustomTigger = async (
     input: {
       moduleName,
       collectionType,
+      relationType,
       automationId,
       trigger,
       target,
@@ -45,18 +47,20 @@ const checkValidTrigger = async (
 ) => {
   const { type = '', config, isCustom } = trigger;
   const { contentId } = config || {};
-  // if (!!isCustom) {
-  //   const isValidCustomTigger = await checkIsValidCustomTigger(
-  //     type,
-  //     subdomain,
-  //     automationId,
-  //     trigger,
-  //     target,
-  //     config,
-  //   );
+  if (!!isCustom) {
+    const isValidCustomTigger = await checkIsValidCustomTigger(
+      type,
+      subdomain,
+      automationId,
+      trigger,
+      target,
+      config,
+    );
+    console.log({ isValidCustomTigger });
 
-  //   return !isValidCustomTigger;
-  // } else if (!(await isInSegment(subdomain, contentId, target._id))) {
+    return isValidCustomTigger;
+  }
+  //  else if (!(await isInSegment(subdomain, contentId, target._id))) {
   //   return false;
   // }
 

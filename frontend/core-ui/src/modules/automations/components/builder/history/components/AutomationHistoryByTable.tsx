@@ -7,13 +7,14 @@ import { AutomationSendEmailActionResult } from '@/automations/components/builde
 import { TAutomationActionComponent } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { RenderPluginsComponentWrapper } from '@/automations/components/common/RenderPluginsComponentWrapper';
 import { useAutomationsRemoteModules } from '@/automations/utils/useAutomationsModules';
-import { IconArrowDown } from '@tabler/icons-react';
-import { RelativeDateDisplay, Table } from 'erxes-ui';
+import { IconArrowDown, IconRefresh } from '@tabler/icons-react';
+import { Button, RelativeDateDisplay, Table } from 'erxes-ui';
 import {
   IAutomationHistory,
   IAutomationHistoryAction,
   splitAutomationNodeType,
 } from 'ui-modules';
+import { useAutomationExecutionDetail } from '../hooks/useAutomationExecutionDetail';
 
 export const ExecutionActionResult = ({
   action,
@@ -96,14 +97,14 @@ export const ExecutionActionResult = ({
 
   return JSON.stringify(result);
 };
-export const AutomationHistoryByTable = ({
-  history,
-}: {
-  history: IAutomationHistory;
-}) => {
-  const { list, status } = useAutomationHistoryResult(history);
+
+export const AutomationHistoryByTable = () => {
+  const { list, status, refetch, loading } = useAutomationHistoryResult();
   return (
     <div className="px-4">
+      <Button variant="ghost" disabled={loading} onClick={() => refetch()}>
+        Reload <IconRefresh />
+      </Button>
       <Table>
         <Table.Header className="[&_th]:w-40">
           <Table.Row>

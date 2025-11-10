@@ -13,7 +13,6 @@ export const BranchesConfigForm = ({
         contentType={trigger?.type || ''}
         segmentId={currentAction?.config?.contentId}
         callback={(contentId) => handleSave({ contentId })}
-        isTemporary
       />
     </div>
   );

@@ -1,31 +1,20 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Sheet, Spinner } from 'erxes-ui';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { AutomationBotFormEffect } from '~/widgets/automations/modules/facebook/components/bots/components/AutomationBotFormEffect';
 import { AutomationFbBotFormContent } from '~/widgets/automations/modules/facebook/components/bots/components/AutomationFbBotFormContent';
 import { useFacebookBotForm } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotForm';
-import {
-  facebookBotFormSchema,
-  TFacebookBotForm,
-} from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotForm';
+import { FbBotFormProvider } from '../context/FbBotFormContext';
 
 export const AutomationBotForm = ({
   facebookBotId,
 }: {
   facebookBotId: string | null;
 }) => {
-  const { loadingDetail, formDefaultValues } =
+  const { loadingDetail, facebookMessengerBot } =
     useFacebookBotForm(facebookBotId);
-
-  const form = useForm<TFacebookBotForm>({
-    resolver: zodResolver(facebookBotFormSchema),
-    defaultValues: formDefaultValues,
-  });
 
   if (loadingDetail) {
     return <Spinner />;
   }
+
   return (
     <>
       <Sheet.Header>
@@ -34,11 +23,10 @@ export const AutomationBotForm = ({
         </Sheet.Title>
         <Sheet.Close />
       </Sheet.Header>
-      <AutomationBotFormEffect
-        form={form}
-        formDefaultValues={formDefaultValues}
-      />
-      <AutomationFbBotFormContent form={form} />
+
+      <FbBotFormProvider facebookMessengerBot={facebookMessengerBot}>
+        <AutomationFbBotFormContent />
+      </FbBotFormProvider>
     </>
   );
 };

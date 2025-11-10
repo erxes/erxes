@@ -15,7 +15,6 @@ export const AutomationSegmentForm = ({
   return (
     <SegmentForm.Root contentType={contentType} segmentId={segmentId}>
       <SegmentForm.Wrapper>
-        <SegmentForm.Header isTemporary />
         <SegmentForm.Content callback={callback} />
         <WaitEventConfigSegmentFormFooter callback={callback} />
       </SegmentForm.Wrapper>

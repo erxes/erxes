@@ -1,8 +1,11 @@
+import { z } from 'zod';
 import {
-  IAutomationAction,
-  IAutomationTrigger,
-  IAutomationExecution,
-} from './definitions';
+  BaseInput,
+  CheckCustomTriggerInput,
+  ReceiveActionsInput,
+  ReplacePlaceholdersInput,
+  SetPropertiesInput,
+} from './zodTypes';
 
 export type IAutomationContext = {
   subdomain: string;
@@ -10,7 +13,9 @@ export type IAutomationContext = {
 };
 
 export type IAutomationsTriggerConfig = {
-  type: string;
+  moduleName: string;
+  collectionName: string;
+  relationType?: string;
   icon: string;
   label: string;
   description: string;
@@ -21,7 +26,6 @@ export type IAutomationsTriggerConfig = {
     label: string;
     description: string;
   }[];
-  connectableActionTypes?: string[];
 };
 
 export type IAutomationsActionConfigFolkConfig = {
@@ -31,13 +35,14 @@ export type IAutomationsActionConfigFolkConfig = {
 };
 
 export type IAutomationsActionConfig = {
-  type: string;
+  moduleName: string;
+  collectionName: string;
+  method?: 'create';
   icon: string;
   label: string;
   description: string;
   isAvailableOptionalConnect?: boolean;
   emailRecipientsConst?: any;
-  connectableActionTypes?: string[];
   isTargetSource?: boolean;
   targetSourceType?: string;
   allowTargetFromActions?: boolean;
@@ -79,18 +84,7 @@ type TAutomationAdditionalAttribute = {
 };
 export interface AutomationProducers {
   receiveActions?: (
-    args: {
-      subdomain: string;
-      data: {
-        moduleName: string;
-        collectionType: string;
-        actionType: string;
-        triggerType: string;
-        targetType: string;
-        action: IAutomationAction;
-        execution: { _id: string } & IAutomationExecution;
-      };
-    },
+    args: z.infer<typeof ReceiveActionsInput>,
     context: IAutomationContext,
   ) => Promise<{
     result: any;
@@ -103,34 +97,24 @@ export interface AutomationProducers {
     };
   }>;
 
-  getRecipientsEmails?: (
-    args: { subdomain: string; data: any },
-    context: IAutomationContext,
-  ) => Promise<any>;
-
   getAdditionalAttributes?: (
-    args: { subdomain: string; data: any },
+    args: z.infer<typeof BaseInput>,
     context: IAutomationContext,
   ) => Promise<Array<TAutomationAdditionalAttribute>>;
 
   replacePlaceHolders?: (
-    args: { subdomain: string; data: any },
+    args: z.infer<typeof ReplacePlaceholdersInput>,
     context: IAutomationContext,
   ) => Promise<any>;
   checkCustomTrigger?: <TTarget = any, TConfig = any>(
-    args: {
-      subdomain: string;
-      data: {
-        moduleName: string;
-        collectionType: string;
-        automationId: string;
-        trigger: IAutomationTrigger;
-        target: TTarget;
-        config: TConfig;
-      };
-    },
+    args: z.infer<typeof CheckCustomTriggerInput>,
     context: IAutomationContext,
   ) => Promise<boolean>;
+
+  setProperties?: (
+    args: z.infer<typeof SetPropertiesInput>,
+    context: IAutomationContext,
+  ) => Promise<{ module: string; fields: string; result: any[] }>;
 }
 
 export interface AutomationConfigs extends AutomationProducers {
@@ -238,10 +222,10 @@ export type AutomationExecutionSetWaitCondition =
 
 export enum TAutomationProducers {
   RECEIVE_ACTIONS = 'receiveActions',
-  GET_RECIPIENTS_EMAILS = 'getRecipientsEmails',
   REPLACE_PLACEHOLDERS = 'replacePlaceHolders',
   CHECK_CUSTOM_TRIGGER = 'checkCustomTrigger',
   GET_ADDITIONAL_ATTRIBUTES = 'getAdditionalAttributes',
+  SET_PROPERTIES = 'setProperties',
 }
 
 export enum TAutomationActionFolks {

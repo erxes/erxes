@@ -7,20 +7,31 @@ import {
 import { IDeal } from '@/deals/types/deals';
 
 const SalesActionConfigForm = lazy(() =>
-  import('./SalesActionConfigForm').then((module) => ({
+  import('./action/SalesActionConfigForm').then((module) => ({
     default: module.SalesActionConfigForm,
   })),
 );
 
 const SalesActionNodeContent = lazy(() =>
-  import('./SalesActionNodeContent').then((module) => ({
+  import('./action/SalesActionNodeContent').then((module) => ({
     default: module.SalesActionNodeContent,
   })),
 );
 
 const SalesActionHistoryResult = lazy(() =>
-  import('./SalesActionHistoryResultColumn').then((module) => ({
+  import('./action/SalesActionHistoryResultColumn').then((module) => ({
     default: module.SalesActionHistoryResult,
+  })),
+);
+const StageProbalityTriggerConfigForm = lazy(() =>
+  import('./trigger/StageProbalityTriggerConfigForm').then((module) => ({
+    default: module.StageProbalityTriggerConfigForm,
+  })),
+);
+
+const StageProbalityTriggerNodeContent = lazy(() =>
+  import('./trigger/StageProbalityTriggerNodeContent').then((module) => ({
+    default: module.StageProbalityTriggerNodeContent,
   })),
 );
 
@@ -30,6 +41,8 @@ export const SalesRemoteEntry = (props: AutomationRemoteEntryProps) => {
       props={props}
       remoteEntries={{
         actionForm: SalesActionConfigForm,
+        triggerForm: StageProbalityTriggerConfigForm,
+        triggerConfigContent: StageProbalityTriggerNodeContent,
         actionNodeConfiguration: SalesActionNodeContent,
         historyActionResult: SalesActionHistoryResult,
         historyName: ({ target }: AutomationExecutionHistoryNameProps<IDeal>) =>

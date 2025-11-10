@@ -10,7 +10,7 @@ export const PropertyField = ({
   parentFieldName,
   propertyTypes,
 }: IPropertyField) => {
-  const { form, contentType } = useSegment();
+  const { form } = useSegment();
   const { control } = form;
   const fieldsGroupsMap = groupFieldsByType(fields);
   return (

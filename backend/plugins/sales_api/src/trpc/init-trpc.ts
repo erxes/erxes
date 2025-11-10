@@ -30,7 +30,7 @@ export const appRouter = t.mergeRouters(
         .query(async ({ ctx, input }) => {
           const { models, subdomain } = ctx;
           const { moduleType } = input;
-          if (moduleType === 'deal') {
+          if (moduleType === 'sales') {
             return await generateSalesFields(subdomain, models, input);
           }
 

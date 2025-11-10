@@ -1,5 +1,6 @@
 import { AutomationHistoryByFlow } from '@/automations/components/builder/history/components/AutomationHistoryByFlow';
 import { AutomationHistoryByTable } from '@/automations/components/builder/history/components/AutomationHistoryByTable';
+import { AutomationHistoryDetailProvider } from '@/automations/components/builder/history/context/AutomationHistoryDetailContext';
 import {
   IconAutomaticGearbox,
   IconEye,
@@ -7,38 +8,33 @@ import {
 } from '@tabler/icons-react';
 import { RecordTable, RecordTableInlineCell, Sheet, Tabs } from 'erxes-ui';
 import { useState } from 'react';
-import { IAutomationHistory } from 'ui-modules';
 
 export const AutomationHistoryDetail = ({
-  history,
+  executionId,
 }: {
-  history: IAutomationHistory;
+  executionId: string;
 }) => {
   const [isOpen, setOpen] = useState(false);
 
   return (
-    <RecordTableInlineCell>
-      <Sheet open={isOpen} onOpenChange={setOpen}>
-        <Sheet.Trigger asChild>
-          <RecordTable.MoreButton className="w-full h-full">
-            <IconEye />
-          </RecordTable.MoreButton>
-        </Sheet.Trigger>
-        <Sheet.View className="p-0 md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
-          <AutomationHistorySheetContent isOpen={isOpen} history={history} />
-        </Sheet.View>
-      </Sheet>
-    </RecordTableInlineCell>
+    <AutomationHistoryDetailProvider executionId={executionId}>
+      <RecordTableInlineCell>
+        <Sheet open={isOpen} onOpenChange={setOpen}>
+          <Sheet.Trigger asChild>
+            <RecordTable.MoreButton className="w-full h-full">
+              <IconEye />
+            </RecordTable.MoreButton>
+          </Sheet.Trigger>
+          <Sheet.View className="p-0 md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
+            <AutomationHistorySheetContent isOpen={isOpen} />
+          </Sheet.View>
+        </Sheet>
+      </RecordTableInlineCell>
+    </AutomationHistoryDetailProvider>
   );
 };
 
-const AutomationHistorySheetContent = ({
-  isOpen,
-  history,
-}: {
-  isOpen: boolean;
-  history: IAutomationHistory;
-}) => {
+const AutomationHistorySheetContent = ({ isOpen }: { isOpen: boolean }) => {
   if (!isOpen) {
     return null;
   }
@@ -66,11 +62,11 @@ const AutomationHistorySheetContent = ({
             </Tabs.Trigger>
           </Tabs.List>
           <Tabs.Content value="flow" className="h-[calc(100%-36px)]">
-            <AutomationHistoryByFlow history={history} />
+            <AutomationHistoryByFlow />
           </Tabs.Content>
 
           <Tabs.Content value="table" className="h-[calc(100%-36px)]">
-            <AutomationHistoryByTable history={history} />
+            <AutomationHistoryByTable />
           </Tabs.Content>
         </Tabs>
       </Sheet.Content>

@@ -5,13 +5,6 @@ import {
   IAutomationExecution,
   IAutomationTrigger,
 } from 'erxes-api-shared/core-modules';
-import { IModels } from '~/connectionResolvers';
-
-export type IAutomationWorkerContext = {
-  models: IModels;
-  subdomain: string;
-};
-
 export type IAutomationReceiveActionData = {
   action: IAutomationAction;
   execution: { _id: string } & IAutomationExecution;
@@ -143,6 +136,16 @@ export type TBotConfigMessage = {
     value: string;
     type: 'minute' | 'hour' | 'day' | 'month' | 'year';
   };
+};
+
+export type TAutomationActionConfig = {
+  botId: string;
+  messages: TBotConfigMessage[];
+  optionalConnects: {
+    sourceId: string;
+    actionId: string;
+    optionalConnectId: string;
+  }[];
 };
 
 type TBotDataCarousel = {

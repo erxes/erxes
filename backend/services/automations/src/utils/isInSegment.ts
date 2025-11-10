@@ -9,7 +9,6 @@ export const isInSegment = async (
   delayMs: number = 15000,
 ) => {
   await delay(delayMs);
-
   return await sendTRPCMessage({
     subdomain,
     pluginName: 'core',

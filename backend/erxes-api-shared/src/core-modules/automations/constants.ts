@@ -37,10 +37,10 @@ export const AUTOMATION_CORE_ACTIONS = {
 
 export const AUTOMATION_CORE_TRIGGER_TYPES = {
   INCOMING_WEBHOOK: 'core:incoming_webhook',
-  USER: 'core:user',
-  CUSTOMER: 'core:customer',
-  LEAD: 'core:lead',
-  COMPANY: 'core:company',
+  USER: 'core:team.user',
+  CUSTOMER: 'core:contact.customer',
+  LEAD: 'core:contact.lead',
+  COMPANY: 'core:contact.company',
 };
 
 export const AUTOMATION_EMAIL_RECIPIENTS_TYPES = [

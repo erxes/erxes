@@ -1,11 +1,11 @@
+import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { AutomationCoreActionSidebarContent } from '@/automations/components/builder/sidebar/components/content/action/AutomationCoreActionSidebarContent';
+import { useAutomationActionContentSidebar } from '@/automations/components/builder/sidebar/hooks/useAutomationActionContentSidebar';
 import { ErrorState } from '@/automations/components/common/ErrorState';
 import { RenderPluginsComponentWrapper } from '@/automations/components/common/RenderPluginsComponentWrapper';
-import { Button, Card, Spinner, toast } from 'erxes-ui';
+import { Card, Spinner, toast } from 'erxes-ui';
 import { Suspense, useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useAutomationActionContentSidebar } from '@/automations/components/builder/sidebar/hooks/useAutomationActionContentSidebar';
-import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 
 export const AutomationActionContentSidebar = () => {
   const formRef = useRef<{ submit: () => void }>(null);
