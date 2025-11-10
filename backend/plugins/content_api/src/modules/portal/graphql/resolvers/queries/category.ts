@@ -1,23 +1,30 @@
 import { IContext } from '~/connectionResolvers';
-import { BaseQueryResolver, FIELD_MAPPINGS } from '@/portal/utils/base-resolvers';
+import {
+  BaseQueryResolver,
+  FIELD_MAPPINGS,
+} from '@/portal/utils/base-resolvers';
 import { getQueryBuilder } from '@/portal/utils/query-builders';
 
 class CategoryQueryResolver extends BaseQueryResolver {
   /**
    * Cms categories list
    */
-  async cmsCategories(_parent: any, args: any, context: IContext): Promise<any> {
+  async cmsCategories(
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> {
     const { language } = args;
     const clientPortalId = args.clientPortalId || context.clientPortalId;
-    
-    const queryBuilder = getQueryBuilder('category', this.models);
+    const { models } = context;
+    const queryBuilder = getQueryBuilder('category', models);
     const query = queryBuilder.buildQuery({ ...args, clientPortalId });
 
     return this.getListWithTranslations(
-      this.models.Categories,
+      models.Categories,
       query,
       { ...args, clientPortalId, language },
-      FIELD_MAPPINGS.CATEGORY
+      FIELD_MAPPINGS.CATEGORY,
     );
   }
 
@@ -25,7 +32,7 @@ class CategoryQueryResolver extends BaseQueryResolver {
    * Cms category
    */
   async cmsCategory(_parent: any, args: any, context: IContext): Promise<any> {
-    const { clientPortalId } = context;
+    const { clientPortalId, models } = context;
     const { _id, slug, language } = args;
 
     if (!_id && !slug) {
@@ -40,10 +47,10 @@ class CategoryQueryResolver extends BaseQueryResolver {
     }
 
     return this.getItemWithTranslation(
-      this.models.Categories,
+      models.Categories,
       query,
       language,
-      FIELD_MAPPINGS.CATEGORY
+      FIELD_MAPPINGS.CATEGORY,
     );
   }
 }
