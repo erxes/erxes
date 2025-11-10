@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import 'tailwindcss' source('../src');
 
 @plugin 'tailwindcss-animate';
 
@@ -17,12 +17,10 @@
 
 @theme {
   --font-*: initial;
-  --font-sans:
-    var(--font-sans), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
-    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  --font-mono:
-    var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    'Liberation Mono', 'Courier New', monospace;
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, 'Liberation Mono', 'Courier New', monospace;
 
   --text-*: initial;
   --text-xs: 0.75rem;
@@ -80,22 +78,18 @@
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
 
-  --shadow-focus:
-    0px 0px 0px 4px rgba(79, 70, 229, 0.25), 0px 0px 0px 1px hsl(var(--primary));
+  --shadow-focus: 0px 0px 0px 4px rgba(79, 70, 229, 0.25),
+    0px 0px 0px 1px hsl(var(--primary));
   --shadow-subtle: 0px 0px 0px 1px hsla(var(--primary));
   --shadow-destructive: 0px 0px 0px 1px hsla(var(--destructive));
-  --shadow-xs:
-    0 0 0 1px hsla(var(--shadow)), 0 1px 1px hsla(var(--shadow)),
+  --shadow-xs: 0 0 0 1px hsla(var(--shadow)), 0 1px 1px hsla(var(--shadow)),
     0 2px 2px hsla(var(--shadow));
-  --shadow-sm:
-    0 0 0 1px hsla(var(--shadow)), 0 1px 1px hsla(var(--shadow)),
+  --shadow-sm: 0 0 0 1px hsla(var(--shadow)), 0 1px 1px hsla(var(--shadow)),
     0 2px 2px hsla(var(--shadow)), 0 4px 4px hsla(var(--shadow));
-  --shadow-lg:
-    0 0 0 1px hsla(var(--shadow)), 0 1px 1px hsla(var(--shadow)),
+  --shadow-lg: 0 0 0 1px hsla(var(--shadow)), 0 1px 1px hsla(var(--shadow)),
     0 2px 2px hsla(var(--shadow)), 0 4px 4px hsla(var(--shadow)),
     0 8px 8px hsla(var(--shadow));
-  --shadow-xl:
-    0 0 0 1px hsla(var(--shadow)), 0 1px 1px hsla(var(--shadow)),
+  --shadow-xl: 0 0 0 1px hsla(var(--shadow)), 0 1px 1px hsla(var(--shadow)),
     0 2px 2px hsla(var(--shadow)), 0 4px 4px hsla(var(--shadow)),
     0 8px 8px hsla(var(--shadow)), 0 16px 16px hsla(var(--shadow));
 
@@ -237,10 +231,10 @@
   * {
     @apply border-border;
   }
-  #root{
+  #root {
     @apply h-full flex-1 flex flex-col overflow-hidden;
   }
-  html{
+  html {
     @apply h-full;
   }
   body {
