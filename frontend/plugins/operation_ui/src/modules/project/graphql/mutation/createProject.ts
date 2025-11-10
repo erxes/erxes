@@ -11,6 +11,7 @@ export const CREATE_PROJECT_MUTATION = gql`
     $priority: Int
     $startDate: Date
     $targetDate: Date
+    $tagIds: [String]
     $convertedFromId: String
   ) {
     createProject(
@@ -23,6 +24,7 @@ export const CREATE_PROJECT_MUTATION = gql`
       priority: $priority
       startDate: $startDate
       targetDate: $targetDate
+      tagIds: $tagIds
       convertedFromId: $convertedFromId
     ) {
       _id
@@ -35,6 +37,7 @@ export const CREATE_PROJECT_MUTATION = gql`
       leadId
       startDate
       targetDate
+      tagIds
       createdAt
       updatedAt
       convertedFromId

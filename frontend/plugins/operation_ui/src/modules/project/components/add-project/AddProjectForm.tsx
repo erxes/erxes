@@ -22,6 +22,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
+import { SelectTags } from 'ui-modules';
 
 export const AddProjectForm = ({
   onClose,
@@ -45,6 +46,7 @@ export const AddProjectForm = ({
       priority: task?.priority || 0,
       leadId: task?.assigneeId || undefined,
       targetDate: task?.targetDate ? new Date(task?.targetDate) : undefined,
+      tagIds: [],
       convertedFromId: task?._id,
     },
   });
@@ -213,6 +215,21 @@ export const AddProjectForm = ({
                     {...field}
                     type="target"
                     placeholder="Target Date"
+                  />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              name="tagIds"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item className="flex-shrink-0">
+                  <Form.Label className="sr-only">Tags</Form.Label>
+                  <SelectTags.FormItem
+                    tagType="operation:project"
+                    mode="multiple"
+                    value={field.value || []}
+                    onValueChange={(value) => field.onChange(value)}
                   />
                 </Form.Item>
               )}

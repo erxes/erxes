@@ -29,15 +29,70 @@ export const useTasksVariables = (
   variables?: QueryHookOptions<ICursorListResponse<ITask>>['variables'],
 ) => {
   const { teamId } = useParams();
-  const { searchValue, assignee, team, priority, status, milestone } =
-    useNonNullMultiQueryState<{
-      searchValue: string;
-      assignee: string;
-      team: string;
-      priority: string;
-      status: string;
-      milestone: string;
-    }>(['searchValue', 'assignee', 'team', 'priority', 'status', 'milestone']);
+  const {
+    searchValue,
+    assignee,
+    team,
+    priority,
+    status,
+    milestone,
+    tags,
+    cycleFilter,
+    createdBy,
+    estimatePoint,
+    targetDate,
+    createdDate,
+    updatedDate,
+    startDate,
+    completedDate,
+    project,
+    projectStatus,
+    projectPriority,
+    projectLeadId,
+    projectMilestoneName,
+  } = useNonNullMultiQueryState<{
+    searchValue: string;
+    assignee: string;
+    createdBy: string;
+    team: string;
+    priority: string;
+    status: string;
+    milestone: string;
+    tags: string[];
+    cycleFilter: string;
+    estimatePoint: number;
+    targetDate: string;
+    createdDate: string;
+    updatedDate: string;
+    startDate: string;
+    completedDate: string;
+    project: string;
+    projectStatus: string;
+    projectPriority: string;
+    projectLeadId: string;
+    projectMilestoneName: string;
+  }>([
+    'searchValue',
+    'assignee',
+    'team',
+    'priority',
+    'status',
+    'milestone',
+    'tags',
+    'cycleFilter',
+    'createdBy',
+    'estimatePoint',
+    'targetDate',
+    'createdDate',
+    'updatedDate',
+    'startDate',
+    'completedDate',
+    'project',
+    'projectStatus',
+    'projectPriority',
+    'projectLeadId',
+    'projectMilestoneName',
+  ]);
   const currentUser = useAtomValue(currentUserState);
 
   return {
@@ -49,11 +104,25 @@ export const useTasksVariables = (
     direction: 'forward',
     name: searchValue,
     assigneeId: assignee,
+    createdBy: createdBy,
     teamId: teamId || team,
     priority: priority,
     status: teamId ? status : undefined,
     statusType: teamId ? undefined : status,
     milestoneId: milestone,
+    tagIds: tags,
+    cycleFilter: cycleFilter,
+    estimatePoint: estimatePoint,
+    targetDate: targetDate,
+    createdDate: createdDate,
+    updatedDate: updatedDate,
+    startDate: startDate,
+    completedDate: completedDate,
+    projectId: project,
+    projectStatus: projectStatus ? Number(projectStatus) : undefined,
+    projectPriority: projectPriority ? Number(projectPriority) : undefined,
+    projectLeadId: projectLeadId,
+    projectMilestoneName: projectMilestoneName,
     ...variables,
     ...(!variables?.teamId &&
       !variables?.userId &&

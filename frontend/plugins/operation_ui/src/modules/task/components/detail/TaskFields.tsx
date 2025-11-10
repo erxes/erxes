@@ -12,8 +12,9 @@ import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import { ITask } from '@/task/types';
 import { Block } from '@blocknote/core';
-import { BlockEditor, Input, Separator, useBlockEditor } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { BlockEditor, Separator, Textarea, useBlockEditor } from 'erxes-ui';
+import { useEffect, useRef, useState } from 'react';
+import { SelectTags } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
 
 export const TaskFields = ({ task }: { task: ITask }) => {
@@ -29,6 +30,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
     estimatePoint,
     cycleId,
     milestoneId,
+    tagIds,
   } = task || {};
 
   const startDate = (task as any)?.startDate;
@@ -49,7 +51,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
   });
   const { updateTask } = useUpdateTask();
   const [name, setName] = useState(_name);
-
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const handleDescriptionChange = async () => {
     const content = await editor?.document;
     if (content) {
@@ -87,10 +89,21 @@ export const TaskFields = ({ task }: { task: ITask }) => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedDescriptionContent]);
+
+  useEffect(() => {
+    if (!textareaRef.current) {
+      return;
+    }
+    textareaRef.current.style.height = 'auto';
+    textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+  }, [name]);
+  
   return (
     <div className="flex flex-col gap-3">
-      <Input
-        className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
+      <Textarea
+        ref={textareaRef}
+        className="shadow-none focus-visible:shadow-none p-0"
+        style={{ fontSize: '1.25rem', lineHeight: '1.75rem' }}
         placeholder="Task Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
@@ -146,6 +159,18 @@ export const TaskFields = ({ task }: { task: ITask }) => {
           taskId={taskId}
           projectId={projectId}
           variant="detail"
+        />
+        <SelectTags.Detail
+          value={tagIds || []}
+          tagType="operation:task"
+          onValueChange={(newTagIds: string[]) => {
+            updateTask({
+              variables: {
+                _id: taskId,
+                tagIds: newTagIds,
+              },
+            });
+          }}
         />
         <ConvertToProject task={task} />
       </div>

@@ -7,6 +7,7 @@ export const projectSchema = new Schema(
     status: { type: Number, label: 'Status', default: 0 },
     priority: { type: Number, label: 'Priority', default: 0 },
     icon: { type: String, label: 'Icon', default: 'IconBox' },
+    tagIds: { type: [String], label: 'Tag IDs' },
     teamIds: {
       type: [Schema.Types.ObjectId],
       label: 'Team ID',
