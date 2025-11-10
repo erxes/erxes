@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect } from 'react';
 import { useBlockEditor } from '../hooks/useBlockEditor';
 import { BlockEditor } from './BlockEditor';
 import { Block } from '@blocknote/core';

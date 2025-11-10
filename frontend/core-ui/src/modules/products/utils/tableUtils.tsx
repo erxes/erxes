@@ -30,5 +30,5 @@ export const getCommonPinningStyles = (
 export const getCommonPinningClassName = (column: Column<Product>) => {
   const isPinned = column.getIsPinned();
 
-  return cn(isPinned ? 'sticky z-[1]' : 'relative');
+  return cn(isPinned ? 'sticky z-1' : 'relative');
 };

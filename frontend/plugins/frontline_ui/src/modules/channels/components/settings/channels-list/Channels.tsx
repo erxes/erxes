@@ -145,7 +145,7 @@ export const DeleteChannel = ({ channelId }: { channelId: string }) => {
     <Button
       variant="ghost"
       size="icon"
-      className="aspect-square text-muted-foreground hover:text-destructive hover:bg-transparent group-hover/row:visible invisible transition-all duration-[50ms] ease-linear"
+      className="aspect-square text-muted-foreground hover:text-destructive hover:bg-transparent group-hover/row:visible invisible transition-all duration-50 ease-linear"
       onClick={onDelete}
       disabled={loading}
     >

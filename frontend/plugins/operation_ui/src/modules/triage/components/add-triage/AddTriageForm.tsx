@@ -157,7 +157,7 @@ export const AddTriageForm = ({
             />
           </div>
         </Sheet.Content>
-        <Sheet.Footer className="flex justify-end flex-shrink-0 gap-1 px-5">
+        <Sheet.Footer className="flex justify-end shrink-0 gap-1 px-5">
           <Sheet.Close asChild>
             <Button
               type="button"

@@ -151,7 +151,7 @@ const LabelForm = ({
           </div>
         )}
 
-        <div className="flex justify-end flex-shrink-0 gap-3">
+        <div className="flex justify-end shrink-0 gap-3">
           {isEdit && (
             <Button
               type="button"

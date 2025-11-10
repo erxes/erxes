@@ -546,7 +546,7 @@ export const PermissionForm = () => {
             <Form.Item className="flex items-center gap-2">
               <Form.Label>Allow</Form.Label>
               <Form.Control>
-                <div className="flex items-center !m-0">
+                <div className="flex items-center m-0!">
                   <Switch
                     checked={field.value}
                     onCheckedChange={field.onChange}

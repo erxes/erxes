@@ -2,12 +2,17 @@ import { IconCashBanknote } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 
-const AccountingNavigation = lazy(() =>
-  import('./modules/AccountingNavigation').then((module) => ({
-    default: module.AccountingNavigation,
+const MainNavigation = lazy(() =>
+  import('./modules/MainNavigation').then((module) => ({
+    default: module.MainNavigation,
   })),
 );
 
+const AdjustmentNavigation = lazy(() =>
+  import('./modules/AdjustmentNavigation').then((mod) => ({
+    default: mod.AdjustmentNavigation,
+  })),
+);
 
 export const CONFIG: IUIConfig = {
   name: 'accounting',
@@ -16,7 +21,12 @@ export const CONFIG: IUIConfig = {
     icon: IconCashBanknote,
     content: () => (
       <Suspense fallback={<div />}>
-        <AccountingNavigation />
+        <MainNavigation />
+      </Suspense>
+    ),
+    subGroups: () => (
+      <Suspense fallback={<div />}>
+        <AdjustmentNavigation />
       </Suspense>
     ),
   },

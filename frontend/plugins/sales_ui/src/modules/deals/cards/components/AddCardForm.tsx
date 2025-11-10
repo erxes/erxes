@@ -153,7 +153,7 @@ export function AddCardForm({ onCloseSheet }: { onCloseSheet: () => void }) {
             </div>
           </ScrollArea>
         </Sheet.Content>
-        <Sheet.Footer className="flex justify-end flex-shrink-0 px-5 gap-1">
+        <Sheet.Footer className="flex justify-end shrink-0 px-5 gap-1">
           <Button
             type="button"
             variant="ghost"

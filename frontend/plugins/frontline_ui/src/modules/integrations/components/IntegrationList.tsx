@@ -20,7 +20,7 @@ export const IntegrationList = () => {
       <Command.List className="p-0">
         <Command.Group
           heading="Integrations"
-          className="[&_[cmdk-group-heading]]:font-mono [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:mb-1.5 pb-8"
+          className="**:[[cmdk-group-heading]]:font-mono **:[[cmdk-group-heading]]:uppercase **:[[cmdk-group-heading]]:mb-1.5 pb-8"
         >
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
             {Object.entries(INTEGRATIONS).map(

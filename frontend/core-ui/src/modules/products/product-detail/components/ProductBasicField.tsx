@@ -78,7 +78,7 @@ export const ProductBasicFields: React.FC<ProductBasicFieldsProps> = ({
                   handleBarcodeChange(e.target.value, field.onChange)
                 }
                 placeholder="Enter barcodes separated by commas"
-                className="w-full rounded-md border-gray-200 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition-all"
+                className="w-full rounded-md border-gray-200 focus:border-indigo-300 focus:ring-3 focus:ring-indigo-200 focus:ring-opacity-50 transition-all"
               />
             </Form.Control>
             <Form.Message />
