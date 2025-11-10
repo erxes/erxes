@@ -33,7 +33,7 @@ export const FacebookIntegrationFormSheet = ({
             <Button>
               <IconPlus />
               Add Facebook{' '}
-              {isPost ? 'Post integration' : 'Messenger integration'}
+              {isPost ? 'Post Integration' : 'Messenger integration'}
             </Button>
           </Sheet.Trigger>
           <Sheet.View>

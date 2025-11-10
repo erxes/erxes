@@ -70,7 +70,6 @@ export default {
       conversationId: conv._id,
     });
 
-    console.log('&&&&&&&&');
     return messages.filter((message) => message);
   },
 

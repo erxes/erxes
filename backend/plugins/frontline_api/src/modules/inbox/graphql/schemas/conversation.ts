@@ -170,6 +170,7 @@ const mutationFilterParams = `
   startDate: String
   endDate: String
   segment: String
+  customerId: String
 `;
 
 const convertParams = `
@@ -246,7 +247,7 @@ export const mutations = `
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
   conversationMarkAsRead(_id: String): Conversation
   changeConversationOperator(_id: String!, operatorStatus: String!): JSON
-  conversationResolveAll(${mutationFilterParams}): Int
+  conversationsResolve(ids: [String!]!): Int
   conversationConvertToCard(${convertParams}): String
   conversationEditCustomFields(_id: String!, customFieldsData: JSON): Conversation
 `;

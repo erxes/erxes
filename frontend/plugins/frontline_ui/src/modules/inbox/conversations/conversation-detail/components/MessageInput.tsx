@@ -9,7 +9,6 @@ import {
   getMentionedUserIds,
   useBlockEditor,
   usePreviousHotkeyScope,
-  useQueryState,
   useScopedHotkeys,
   useUpload,
   toast,
@@ -35,8 +34,7 @@ import {
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import { messageExtraInfoState } from '../states/messageExtraInfoState';
 
-export const MessageInput = () => {
-  const [conversationId] = useQueryState('conversationId');
+export const MessageInput = ({ conversationId }: { conversationId: string }) => {
   const [isInternalNote, setIsInternalNote] = useAtom(isInternalState);
   const onlyInternal = useAtomValue(onlyInternalState);
   const messageExtraInfo = useAtomValue(messageExtraInfoState);

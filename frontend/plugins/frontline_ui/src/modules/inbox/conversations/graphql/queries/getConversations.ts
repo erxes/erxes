@@ -18,6 +18,7 @@ export const GET_CONVERSATIONS = gql`
     $segment: String
     $awaitingResponse: String
     $participating: String
+    $customerId: String
     ${GQL_CURSOR_PARAM_DEFS}
   ) {
     conversations(
@@ -32,6 +33,7 @@ export const GET_CONVERSATIONS = gql`
       segment: $segment
       awaitingResponse: $awaitingResponse
       participating: $participating
+      customerId: $customerId
       ${GQL_CURSOR_PARAMS}
     ) {
       list {

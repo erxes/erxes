@@ -6,6 +6,8 @@ import { ticketCreateDefaultValuesState } from '@/ticket/states/ticketCreateShee
 import { addTicketSchema } from '@/ticket/types';
 import { Block } from '@blocknote/core';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
+import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import {
   BlockEditor,
   Button,
@@ -15,6 +17,7 @@ import {
   Sheet,
   useBlockEditor,
   useQueryState,
+  useToast,
 } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
@@ -23,9 +26,16 @@ import { TAddTicket } from '@/ticket/types';
 import { currentUserState } from 'ui-modules';
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 
-export const AddTicketForm = ({ onClose }: { onClose: () => void }) => {
+export const AddTicketForm = ({
+  onClose,
+  onComplete,
+}: {
+  onClose: () => void;
+  onComplete: (ticketId: string) => void;
+}) => {
   const [pipelineId] = useQueryState<string>('pipelineId');
-
+  const [channelId] = useQueryState<string>('channelId');
+  const { toast } = useToast();
   const currentUser = useAtomValue(currentUserState);
   const { createTicket, loading: createTicketLoading } = useCreateTicket();
   const [descriptionContent, setDescriptionContent] = useState<Block[]>();
@@ -35,6 +45,7 @@ export const AddTicketForm = ({ onClose }: { onClose: () => void }) => {
   );
 
   const defaultValues = {
+    channelId: channelId || undefined,
     pipelineId: pipelineId || undefined,
     name: '',
     priority: 0,
@@ -76,8 +87,14 @@ export const AddTicketForm = ({ onClose }: { onClose: () => void }) => {
         priority: data.priority || 0,
         statusId: data.statusId,
       },
-      onCompleted: () => {
+      onCompleted: (data) => {
+        toast({
+          title: 'Success',
+          description: 'Ticket created successfully',
+          variant: 'default',
+        });
         onClose();
+        onComplete(data.createTicket._id);
       },
     });
   };
@@ -86,7 +103,11 @@ export const AddTicketForm = ({ onClose }: { onClose: () => void }) => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit, (errors) => {
-          console.log(errors);
+          toast({
+            title: 'Error',
+            description: Object.entries(errors)[0][1].message,
+            variant: 'destructive',
+          });
         })}
         className="h-full flex flex-col"
       >
@@ -111,6 +132,33 @@ export const AddTicketForm = ({ onClose }: { onClose: () => void }) => {
             )}
           />
           <div className="flex gap-2 w-full flex-wrap">
+            <Form.Field
+              name="channelId"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label className="sr-only">Channel</Form.Label>
+                  <SelectChannel.FormItem
+                    value={field.value || ''}
+                    onValueChange={(value) => field.onChange(value)}
+                  />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              name="pipelineId"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label className="sr-only">Pipeline</Form.Label>
+                  <SelectPipeline.FormItem
+                    value={field.value || ''}
+                    onValueChange={(value) => field.onChange(value)}
+                    form={form}
+                  />
+                </Form.Item>
+              )}
+            />
             <Form.Field
               name="statusId"
               control={form.control}
