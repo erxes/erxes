@@ -103,7 +103,7 @@ const queries = {
     return tag;
   },
 
-  cmsTagsCount(_parent: any, args: any, context: IContext): Promise<number> {
+  async cmsTagsCount(_parent: any, args: any, context: IContext): Promise<number> {
     const { models } = context;
     const { searchValue, status } = args;
     const clientPortalId = args.clientPortalId || context.clientPortalId;
@@ -119,7 +119,7 @@ const queries = {
     }
 
     // ✅ Await the query result before returning
-    const count = models.PostTags.countDocuments(query);
+    const count = await models.PostTags.countDocuments(query);
     return count;
   },
 };
