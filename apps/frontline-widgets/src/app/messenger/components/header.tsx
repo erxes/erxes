@@ -55,7 +55,7 @@ export const HeaderIntro = () => {
           )}
         </div>
       </div>
-      <HeaderItemsList />
+      {/* <HeaderItemsList /> */}
     </div>
   );
 };

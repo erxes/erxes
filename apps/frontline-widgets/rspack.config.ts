@@ -39,17 +39,17 @@ module.exports = composePlugins(withNx(), withReact(), (config) => {
         {
           from: path.resolve(
             __dirname,
-            '../../dist/apps/frontline-widgets/index.js',
+            '../../dist/apps/frontline-widgets/messenger-widget.js',
           ),
-          to: 'index.js',
+          to: 'messenger-widget.js',
           noErrorOnMissing: true,
         },
         {
           from: path.resolve(
             __dirname,
-            '../../dist/apps/frontline-widgets/index.js.map',
+            '../../dist/apps/frontline-widgets/messenger-widget.js.map',
           ),
-          to: 'index.js.map',
+          to: 'messenger-widget.js.map',
           noErrorOnMissing: true,
         },
       ],

@@ -260,20 +260,20 @@ export const tbalanceInvColumns: ExtendedColumnDef<ITBalanceTransaction>[] = [
     ),
     accessorKey: 'product',
     cell: ({ row }) => <ProductCell row={row} />,
-    colOrder: 6,
+    colOrder: 15,
   },
   {
     id: 'unitPrice',
     header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Unit Price" />,
     accessorKey: 'unitPrice',
     cell: ({ row }) => <AmountProdCell row={row} value={row.original?.detail?.unitPrice ?? 0} />,
-    colOrder: 7,
+    colOrder: 16,
   },
   {
     id: 'count',
     header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Quantity" />,
     accessorKey: 'count',
     cell: ({ row }) => <AmountProdCell row={row} value={row.original?.detail?.count ?? 0} />,
-    colOrder: 8,
+    colOrder: 17,
   },
 ];
