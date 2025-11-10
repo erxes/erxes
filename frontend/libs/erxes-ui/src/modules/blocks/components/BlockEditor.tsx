@@ -3,7 +3,6 @@ import {
   SuggestionMenuController,
 } from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/shadcn';
-import '@blocknote/shadcn/style.css';
 
 import { Button, Tooltip } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
@@ -47,10 +46,10 @@ export const BlockEditor = ({
       }}
       editable={!readonly && !disabled}
       onChange={onChange}
-      data-state={focus ? 'focus' : 'blur-sm'}
       className={cn(
-        variant === 'outline' &&
-          'shadow-xs transition-[color,box-shadow] data-[state=focus]:shadow-focus',
+        'shadow-xs',
+        // variant === 'outline' && 'transition-[color,box-shadow] shadow-focus',
+        // variant === 'outline' && (focus ? 'shadow-focus' : 'shadow-xs'),
         className,
       )}
       formattingToolbar={false}

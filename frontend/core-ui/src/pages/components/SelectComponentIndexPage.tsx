@@ -6,7 +6,7 @@ import {
   SelectTags,
   SelectBrand,
 } from 'ui-modules';
-import { PageContainer, Switch, Tooltip } from 'erxes-ui';
+import { cn, PageContainer, Switch, Tooltip } from 'erxes-ui';
 import { useState } from 'react';
 import { IconInfoCircle } from '@tabler/icons-react';
 import React from 'react';
@@ -243,6 +243,74 @@ export const SelectComponentIndexPage = () => {
               <SelectProduct value={productId} onValueChange={setProductId} />
             </SelectContainer>
           </SelectContainerGroup>
+        </div>
+        <div className="py-12">
+          <div className="rounded-lg shadow-sm p-6">
+            <h2 className="text-xl font-medium tracking-tight pb-4">Colors</h2>
+            <div className="grid grid-cols-12 gap-2 w-full">
+              {[
+                'bg-primary',
+                'bg-secondary',
+                'bg-destructive',
+                'bg-success',
+                'bg-warning',
+                'bg-info',
+              ].map((className, index) => (
+                <div
+                  className={cn(
+                    'col-span-1 aspect-square rounded font-mono text-xs  p-2 uppercase',
+                    className,
+                  )}
+                >
+                  // {className.split('bg-')[1]}
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-12 gap-2 w-full mt-4">
+              {[
+                'bg-background',
+                'bg-sidebar',
+                'bg-accent',
+                'bg-muted',
+                'bg-border',
+                'bg-scroll',
+                'bg-muted-foreground',
+                'bg-accent-foreground',
+              ].map((className) => (
+                <div
+                  className={cn(
+                    'col-span-1 aspect-square rounded font-mono text-xs  p-2 uppercase shadow-xs',
+                    className,
+                  )}
+                  key={className}
+                >
+                  {className.split('bg-')[1]}
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-12 gap-2 w-full mt-4 dark">
+              {[
+                'bg-background',
+                'bg-sidebar',
+                'bg-accent',
+                'bg-muted',
+                'bg-border',
+                'bg-scroll',
+                'bg-muted-foreground',
+                'bg-accent-foreground',
+              ].map((className) => (
+                <div
+                  className={cn(
+                    'col-span-1 aspect-square rounded font-mono text-xs  p-2 uppercase shadow-xs',
+                    className,
+                  )}
+                  key={className}
+                >
+                  {className.split('bg-')[1]}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </PageContainer>

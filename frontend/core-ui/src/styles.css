@@ -1,15 +1,14 @@
-@import 'tailwindcss';
+@import 'tailwindcss' source(none);
+@source '.';
+@source '../../libs/';
+@source '../../plugins/';
 
 @plugin 'tailwindcss-animate';
-
 @custom-variant dark (&:is(.dark *));
 
 @utility container {
   margin-inline: auto;
   padding-inline: 2rem;
-  @media (width >= --theme(--breakpoint-sm)) {
-    max-width: none;
-  }
   @media (width >= 1400px) {
     max-width: 1400px;
   }
@@ -191,17 +190,17 @@
     --accent: oklch(0.9688 0.0008 286.38);
     --accent-foreground: oklch(0.7258 0.0074 286.21);
 
-    --destructive: oklch(0.65 0.23 27);
-    --destructive-foreground: oklch(0.98 0.01 257);
+    --destructive: oklch(0.6368 0.2078 25.33);
+    --destructive-foreground: oklch(0.9848 0 0);
 
-    --success: oklch(0.75 0.26 145);
-    --warning: oklch(0.81 0.19 75);
-    --info: oklch(0.67 0.2 254);
+    --success: oklch(0.7205 0.192 149.49);
+    --warning: oklch(0.7453 0.1322 54.63);
+    --info: oklch(0.6261 0.1859 259.6);
 
-    --scroll: oklch(0.83 0.01 257);
-    --border: oklch(0.9 0.01 257);
-    --input: oklch(0.9 0.01 257);
-    --ring: oklch(0.59 0.22 272);
+    --scroll: oklch(0.8634 0.0059 286.27);
+    --border: oklch(0.9197 0.0041 286.32);
+    --input: oklch(0.9197 0.0041 286.32);
+    --ring: oklch(0.5146 0.2296 277.59);
     --radius: 0.5rem;
     --sidebar-background: oklch(0.9848 0 0);
     --shadow: oklch(0 0 0 / 5%);
@@ -217,187 +216,39 @@
   }
 
   .dark {
-    --background: oklch(0.09 0.01 257);
-    --foreground: oklch(0.97 0.01 257);
+    --background: oklch(0.2044 0 0);
+    --foreground: oklch(0.9761 0.0012 286.38);
 
-    --primary: oklch(0.61 0.23 273);
-    --primary-foreground: oklch(0.98 0.01 257);
+    --primary: oklch(0.514 0.2276 276.98);
+    --primary-foreground: oklch(0.9848 0 0);
 
-    --secondary: oklch(0.23 0.07 270);
-    --muted: oklch(0.14 0.02 257);
-    --muted-foreground: oklch(0.64 0.02 257);
+    --secondary: oklch(0.2219 0.0798 280.68);
+    --muted: oklch(0.2591 0 0);
+    --muted-foreground: oklch(0.7132 0.0043 17.26);
 
-    --accent: oklch(0.13 0.02 257);
-    --accent-foreground: oklch(0.43 0.02 257);
+    --accent: oklch(0.245 0.0037 286.12);
+    --accent-foreground: oklch(0.5278 0.0102 286.05);
 
-    --destructive: oklch(0.65 0.23 27);
+    --destructive: oklch(0.6368 0.2078 25.33);
     --destructive-foreground: oklch(0.98 0.01 257);
 
-    --success: oklch(0.75 0.26 145);
-    --warning: oklch(0.81 0.19 75);
-    --info: oklch(0.67 0.2 254);
+    --success: oklch(0.7205 0.192 149.49);
+    --warning: oklch(0.7453 0.1322 54.63);
+    --info: oklch(0.6261 0.1859 259.6);
 
-    --scroll: oklch(0.26 0.01 257);
-    --border: oklch(0.19 0.01 257);
-    --input: oklch(0.19 0.01 257);
-    --ring: oklch(0.55 0.22 272);
-    --radius: 0.5rem;
-    --sidebar-background: oklch(0.11 0.01 257);
-    --border-shadow: 0, 0%, 0%, 0.08;
-    --shadow: 0, 0%, 0%, 0.05;
+    --scroll: oklch(0.3701 0.0113 285.84);
+    --border: oklch(0.28 0.0104 285.76);
+    --input: oklch(0.28 0.0104 285.76);
+    --ring: oklch(0.514 0.2276 276.98);
+    --sidebar-background: oklch(0.2267 0 0);
+    --border-shadow: oklch(0.9761 0.0012 286.38 / 8%);
+    --shadow: oklch(0 0 0 / 5%);
 
     --chart-1: oklch(0.47 0.21 274);
     --chart-2: oklch(0.66 0.18 180);
     --chart-3: oklch(0.74 0.15 105);
     --chart-4: oklch(0.59 0.22 315);
     --chart-5: oklch(0.56 0.22 25);
-  }
-  .bn-shadcn {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 243 75% 59%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 243 75% 59%;
-  }
-
-  .bn-shadcn.dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 234.5 89.5% 73.9%;
-  }
-
-  .bn-inline-content:has(> .ProseMirror-trailingBreak:only-child):before {
-    font-style: normal;
-  }
-
-  .bn-editor {
-    padding-inline: 36px;
-    min-height: 100%;
-    height: 100%;
-  }
-
-  .bn-shadcn .bn-editor {
-    background-color: transparent;
-  }
-
-  .bn-default-styles {
-    font-size: inherit;
-  }
-
-  .bn-editor [class^='_inlineContent']:before {
-    color: var(--muted-foreground);
-    font-style: normal !important;
-  }
-
-  .bn-editor .bn-inline-content:has(> .ProseMirror-trailingBreak):before {
-    font-style: normal;
-  }
-
-  .bn-editor .bn-container .bn-drag-handle {
-    width: 20px;
-    height: 20px;
-  }
-
-  .bn-editor .bn-block-content[data-content-type='checkListItem'] > div > div {
-    display: flex;
-    align-items: center;
-  }
-
-  .bn-editor .bn-drag-handle-menu {
-    background: var(--background);
-    backdrop-filter: var(--blur-medium);
-    box-shadow: var(--shadow-medium);
-    min-width: 160px;
-    min-height: 96px;
-    padding: 4px;
-    border: 1px solid var(--border);
-    left: 26px;
-  }
-
-  .bn-editor .bn-container .bn-suggestion-menu-item:hover {
-    background-color: var(--primary);
-  }
-
-  .bn-editor .bn-container .bn-suggestion-menu {
-    padding: 4px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--background);
-    backdrop-filter: var(--blur-medium);
-  }
-
-  .bn-editor .bn-color-picker-dropdown {
-    margin-left: 8px;
-  }
-
-  .bn-editor .bn-inline-content code {
-    font-family: monospace;
-    color: var(--font-color-danger);
-    padding: 2px 4px;
-    border-radius: 4px;
-    border: 1px solid var(--font-color-extra-light);
-    font-size: 0.9rem;
-    background-color: var(--background-transparent-light);
-  }
-
-  .bn-toolbar.bn-formatting-toolbar {
-    padding: 2px;
-    gap: 2px;
-  }
-
-  .bn-toolbar.bn-formatting-toolbar button {
-    height: 28px;
-    padding: 4px 7px;
-    font-size: 13px;
-    outline: none;
-  }
-
-  .read-only.bn-shadcn .bn-editor {
-    background-color: transparent;
-    padding-inline: 0;
-  }
-
-  .bn-side-menu {
-    height: 26px;
-  }
-
-  [data-content-type='heading'] {
-    --level: 24px;
-  }
-  [data-content-type='heading'][data-level='2'] {
-    --level: 20px;
-  }
-
-  [data-content-type='heading'][data-level='3'] {
-    --level: 16px;
   }
 }
 
@@ -418,4 +269,152 @@
   h3 {
     @apply text-base font-bold;
   }
+}
+
+.bn-shadcn {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 3.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 3.9%;
+  --primary: 243 75% 59%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 0 0% 96.1%;
+  --secondary-foreground: 0 0% 9%;
+  --muted: 0 0% 96.1%;
+  --muted-foreground: 0 0% 45.1%;
+  --accent: 0 0% 96.1%;
+  --accent-foreground: 0 0% 9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 5.9% 90%;
+  --input: 240 5.9% 90%;
+  --ring: 243 75% 59%;
+}
+
+.bn-shadcn.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 234.5 89.5% 73.9%;
+}
+
+.bn-inline-content:has(> .ProseMirror-trailingBreak:only-child):before {
+  font-style: normal;
+}
+
+.bn-editor {
+  padding-inline: 36px;
+  min-height: 100%;
+  height: 100%;
+}
+
+.bn-shadcn .bn-editor {
+  background-color: transparent;
+}
+
+.bn-default-styles {
+  font-size: inherit;
+}
+
+.bn-editor [class^='_inlineContent']:before {
+  color: var(--muted-foreground);
+  font-style: normal !important;
+}
+
+.bn-editor .bn-inline-content:has(> .ProseMirror-trailingBreak):before {
+  font-style: normal;
+}
+
+.bn-editor .bn-container .bn-drag-handle {
+  width: 20px;
+  height: 20px;
+}
+
+.bn-editor .bn-block-content[data-content-type='checkListItem'] > div > div {
+  display: flex;
+  align-items: center;
+}
+
+.bn-editor .bn-drag-handle-menu {
+  background: var(--background);
+  backdrop-filter: var(--blur-medium);
+  box-shadow: var(--shadow-medium);
+  min-width: 160px;
+  min-height: 96px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  left: 26px;
+}
+
+.bn-editor .bn-container .bn-suggestion-menu-item:hover {
+  background-color: var(--primary);
+}
+
+.bn-editor .bn-container .bn-suggestion-menu {
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--background);
+  backdrop-filter: var(--blur-medium);
+}
+
+.bn-editor .bn-color-picker-dropdown {
+  margin-left: 8px;
+}
+
+.bn-editor .bn-inline-content code {
+  font-family: monospace;
+  color: var(--font-color-danger);
+  padding: 2px 4px;
+  border-radius: 4px;
+  border: 1px solid var(--font-color-extra-light);
+  font-size: 0.9rem;
+  background-color: var(--background-transparent-light);
+}
+
+.bn-toolbar.bn-formatting-toolbar {
+  padding: 2px;
+  gap: 2px;
+}
+
+.bn-toolbar.bn-formatting-toolbar button {
+  height: 28px;
+  padding: 4px 7px;
+  font-size: 13px;
+  outline: none;
+}
+
+.read-only.bn-shadcn .bn-editor {
+  background-color: transparent;
+  padding-inline: 0;
+}
+
+.bn-side-menu {
+  height: 26px;
+}
+
+[data-content-type='heading'] {
+  --level: 24px;
+}
+[data-content-type='heading'][data-level='2'] {
+  --level: 20px;
+}
+
+[data-content-type='heading'][data-level='3'] {
+  --level: 16px;
 }
