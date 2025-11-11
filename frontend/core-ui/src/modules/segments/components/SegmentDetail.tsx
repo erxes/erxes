@@ -38,7 +38,7 @@ export function SegmentDetail({ onRefresh }: Props) {
       </Sheet.Trigger>
 
       <Sheet.View
-        className="p-0 md:max-w-screen-lg"
+        className="p-0 md:max-w-(--breakpoint-lg)"
         onEscapeKeyDown={(e: any) => {
           e.preventDefault();
         }}

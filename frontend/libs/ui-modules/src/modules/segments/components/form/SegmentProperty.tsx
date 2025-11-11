@@ -71,7 +71,7 @@ export const SegmentProperty = ({
           <Button
             variant="destructive"
             size="icon"
-            className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
             onClick={() => remove()}
           >
             <IconTrash size={16} />

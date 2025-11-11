@@ -126,7 +126,7 @@ const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
           <Badge key={pipeline._id} variant="secondary">
             {/* <IconComponent
               name={pipeline.icon}
-              className="size-4 flex-shrink-0"
+              className="size-4 shrink-0"
             /> */}
             <TextOverflowTooltip value={pipeline.name} className="max-w-32" />
           </Badge>
@@ -139,7 +139,7 @@ const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
     <div className="flex gap-2 items-center">
       {/* <IconComponent
         name={selectedPipelines[0]?.icon}
-        className="size-4 flex-shrink-0"
+        className="size-4 shrink-0"
       /> */}
       <TextOverflowTooltip
         value={selectedPipelines[0]?.name}

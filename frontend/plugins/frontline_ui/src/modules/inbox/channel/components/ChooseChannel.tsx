@@ -53,7 +53,7 @@ const ChannelItem = ({ _id, name, icon }: IChannel) => {
       ) : (
         <IconComponent
           name={icon}
-          className="size-3 text-accent-foreground flex-shrink-0"
+          className="size-3 text-accent-foreground shrink-0"
         />
       )}
       <TextOverflowTooltip value={name} />

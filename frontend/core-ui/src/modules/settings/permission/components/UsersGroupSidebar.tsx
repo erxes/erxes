@@ -66,7 +66,7 @@ export const UsersGroupSidebar = () => {
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             <ScrollArea>
-              <div className="max-w-[--sidebar-width] max-h-[calc(100dvh-4.75rem)] flex flex-col gap-3 pr-8">
+              <div className="max-w-(--sidebar-width) max-h-[calc(100dvh-4.75rem)] flex flex-col gap-3 pr-8">
                 {usersGroups.map((group) => (
                   <UsersGroupSidebarItem
                     key={group._id}
@@ -158,7 +158,7 @@ export const UsersGroupSidebarItem = ({
           whileHover={{ x: 0, opacity: 1 }}
           exit={{ x: 5, opacity: 0 }}
           transition={{ type: 'spring', ease: 'linear', duration: 0.5 }}
-          className="size-full group-hover:bg-gradient-to-r from-transparent to-accent absolute inset-0 hidden items-center justify-end gap-1 pr-3 group-hover:flex z-10"
+          className="size-full group-hover:bg-linear-to-r from-transparent to-accent absolute inset-0 hidden items-center justify-end gap-1 pr-3 group-hover:flex z-10"
         >
           <CopyButton group={group} />
           <UsersGroupModal.Edit groupId={group._id}>

@@ -305,7 +305,7 @@ const FilterBarButton = React.forwardRef<
       ref={ref}
       variant="ghost"
       className={cn(
-        'rounded-none focus-visible:z-10 max-w-72 transition-[color,box-shadow] focus-visible:shadow-focus outline-none focus-visible:outline-none focus-visible:outline-offset-0 focus-visible:outline-transparent',
+        'rounded-none focus-visible:z-10 max-w-72 transition-[color,box-shadow] focus-visible:shadow-focus outline-hidden focus-visible:outline-hidden focus-visible:outline-offset-0 focus-visible:outline-transparent',
         !props.variant && 'bg-background',
         className,
       )}
