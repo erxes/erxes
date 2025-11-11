@@ -4,20 +4,20 @@ import { PosOrdersBySubsColumns } from '@/pos/pos-order-by-subsription/component
 import { usePosOrderBySubscriptionList } from '@/pos/pos-order-by-subsription/hooks/UsePosOrderBySubsriptionList';
 
 export const PosOrdersBySubsRecordTable = ({ posId }: { posId?: string }) => {
-  const { posOrderBySubsriptionList, handleFetchMore, loading, pageInfo } =
+  const { posOrderBySubscriptionList, handleFetchMore, loading, pageInfo } =
     usePosOrderBySubscriptionList({ posId });
 
   return (
     <RecordTable.Provider
       columns={PosOrdersBySubsColumns}
-      data={posOrderBySubsriptionList}
+      data={posOrderBySubscriptionList}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'group']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={pageInfo?.hasPreviousPage}
         hasNextPage={pageInfo?.hasNextPage}
-        dataLength={posOrderBySubsriptionList?.length}
+        dataLength={posOrderBySubscriptionList?.length}
         sessionKey="posOrdersBySubs_cursor"
       >
         <RecordTable>

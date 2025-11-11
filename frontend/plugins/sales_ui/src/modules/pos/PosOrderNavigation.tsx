@@ -39,7 +39,6 @@ function LoadingSkeleton() {
     </div>
   );
 }
-const POS_PATH_PREFIX = 'sales';
 interface posItemProps {
   pos: Pos;
 }
@@ -77,49 +76,42 @@ function PosItem({ pos }: posItemProps) {
             <Sidebar.Menu>
               <NavigationMenuLinkItem
                 name="Orders"
-                pathPrefix={POS_PATH_PREFIX}
                 className="pl-6 font-medium"
                 icon={IconClipboard}
                 path={`pos/${pos._id}/orders`}
               />
               <NavigationMenuLinkItem
                 name="Pos Covers"
-                pathPrefix={POS_PATH_PREFIX}
                 path={`pos/${pos._id}/covers`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
                 name="Pos By Items"
-                pathPrefix={POS_PATH_PREFIX}
                 path={`pos/${pos._id}/by-items`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
                 name="Pos Items"
-                pathPrefix={POS_PATH_PREFIX}
                 className="pl-6 font-medium"
                 icon={IconClipboard}
                 path={`pos/${pos._id}/items`}
               />
               <NavigationMenuLinkItem
                 name="Pos Summary"
-                pathPrefix={POS_PATH_PREFIX}
                 path={`pos/${pos._id}/summary`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
                 name="Pos Orders By Customer"
-                pathPrefix={POS_PATH_PREFIX}
                 path={`pos/${pos._id}/orders-by-customer`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
                 name="Pos Orders By Subscription"
-                pathPrefix={POS_PATH_PREFIX}
                 path={`pos/${pos._id}/orders-by-subscription`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
