@@ -39,7 +39,7 @@ export const SalesItemDetail = () => {
       <DealsProvider>
         <Sheet.View
           className={cn(
-            'p-0 md:max-w-(--breakpoint-lg) flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
+            'p-0 md:max-w-5xl flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
           )}
           onEscapeKeyDown={(e) => {
             e.preventDefault();

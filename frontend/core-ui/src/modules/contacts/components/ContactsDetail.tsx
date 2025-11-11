@@ -53,7 +53,7 @@ export const ContactsDetailLayout = ({
   actions?: React.ReactNode;
 }) => {
   if (loading) {
-    return <Spinner size="md" />;
+    return <Spinner />;
   }
   if (notFound) {
     return <NotFound title={title} />;

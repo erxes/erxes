@@ -129,7 +129,6 @@ import { IInternalNoteDocument } from '@/internalNote/types';
 import { ILogModel, loadLogsClass } from '@/logs/db/models/Logs';
 
 import {
-  emailDeliverySchema,
   IAutomationDocument,
   IAutomationExecutionDocument,
   IEmailDeliveryDocument,
@@ -159,6 +158,10 @@ import {
   loadFieldGroupClass,
 } from './modules/properties/db/models/Group';
 
+import {
+  IEmailDeliveryModel,
+  loadEmailDeliveryClass,
+} from './modules/organization/team-member/db/models/EmailDeliveries';
 import {
   IFieldDocument,
   IFieldGroupDocument,
@@ -380,8 +383,8 @@ export const loadClasses = (
 
   models.EmailDeliveries = db.model<
     IEmailDeliveryDocument,
-    Model<IEmailDeliveryDocument>
-  >('email_deliveries', emailDeliverySchema);
+    IEmailDeliveryModel
+  >('email_deliveries', loadEmailDeliveryClass(models));
 
   const db_name = db.name;
 
