@@ -218,7 +218,11 @@ export const userMutations: Record<string, Resolver> = {
 
       const token = await models.Users.invite(doc);
 
-      sendInvitationEmail(models, subdomain, { email: entry.email, token, userId: user._id });
+      sendInvitationEmail(models, subdomain, {
+        email: entry.email,
+        token,
+        userId: user._id,
+      });
     }
   },
 
@@ -352,4 +356,6 @@ export const userMutations: Record<string, Resolver> = {
   },
 };
 
-userMutations.usersCreateOwner.skipPermission = true;
+userMutations.usersCreateOwner.wrapperConfig = {
+  skipPermission: true,
+};

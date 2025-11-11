@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 
-import { mongooseStringRandomId } from '../../utils';
+import { mongooseStringRandomId } from '../../../utils';
 
 export const cpNotificationConfigSchema = new Schema(
   {

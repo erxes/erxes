@@ -114,7 +114,11 @@ export interface IPageInfo {
 }
 
 export interface IResolverSymbol {
-  skipPermission?: boolean;
+  wrapperConfig?: {
+    skipPermission?: boolean;
+    forClientPortal?: boolean;
+    cpUserRequired?: boolean;
+  };
 }
 
 export type Resolver<

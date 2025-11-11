@@ -1,2 +1,2 @@
-export * from './clientPortal';
-export * from './cpUser';
+export * from './definitions/clientPortal';
+export * from './definitions/cpUser';

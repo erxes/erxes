@@ -44,4 +44,6 @@ export const clientPortalQueries: Record<string, Resolver> = {
   },
 };
 
-clientPortalQueries.getClientPortalExample.skipPermission = true;
+clientPortalQueries.getClientPortalExample.wrapperConfig = {
+  forClientPortal: true,
+};
