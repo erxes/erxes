@@ -19,7 +19,7 @@ export const TicketPipelineFallback = ({className}: {className?: string}) => {
       <p className="text-md text-muted-foreground mb-4">
         Create a pipeline to start organizing your board.
       </p>
-      <Button variant="outline" asChild>
+      <Button variant="outline" asChild className='z-20'>
         <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
           <IconSettings />
           Manage pipelines
