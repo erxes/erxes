@@ -8,7 +8,7 @@ import { widgetQueries } from '@/inbox/graphql/resolvers/queries/widget';
 import { pipelineQueries } from '@/ticket/graphql/resolvers/queries/pipeline';
 import { statusQueries } from '@/ticket/graphql/resolvers/queries/status';
 import { ticketQueries } from '@/ticket/graphql/resolvers/queries/ticket';
-import { activityQueries } from '@/ticket/graphql/resolvers/queries/activity';
+import { activityQueries } from '~/modules/ticket/graphql/resolvers/queries/activity';
 import { noteQueries } from '@/ticket/graphql/resolvers/queries/note';
 
 export const queries = {
