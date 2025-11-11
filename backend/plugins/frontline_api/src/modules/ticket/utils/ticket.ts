@@ -58,7 +58,7 @@ const getMessage = (contentType: string, notificationType: string) => {
     case 'ticketAssignee':
       return 'You have been assigned to ticket';
     case 'ticketStatus':
-      return 'You have been assigned to ticket';
+      return 'Ticket status updated';
     case 'note':
       return `You have been mentioned in ${contentType}'s note`;
     default:

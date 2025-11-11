@@ -26,13 +26,13 @@ export interface INoteModel extends Model<INoteDocument> {
 export const loadNoteClass = (models: IModels) => {
   class Note {
     public static async getNote(_id: string) {
-      const Note = await models.Note.findOne({ _id }).lean();
+      const node = await models.Note.findOne({ _id });
 
-      if (!Note) {
+      if (!node) {
         throw new Error('Note not found');
       }
 
-      return Note;
+      return node;
     }
 
     public static async getNotes(

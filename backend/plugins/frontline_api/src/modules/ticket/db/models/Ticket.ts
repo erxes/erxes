@@ -31,7 +31,11 @@ export interface ITicketModel extends Model<ITicketDocument> {
     userId: string;
     subdomain: string;
   }): Promise<ITicketDocument>;
-  removeTicket(_id: string): Promise<{ ok: number }>;
+  removeTicket(
+    _id: string,
+    userId: string,
+    subdomain: string,
+  ): Promise<{ ok: number }>;
 }
 
 export const loadTicketClass = (models: IModels) => {
@@ -92,7 +96,7 @@ export const loadTicketClass = (models: IModels) => {
 
       doc.createdBy = userId;
 
-      const ticket = await models.Ticket.insertOne({
+      const ticket = await models.Ticket.create({
         ...doc,
         number: nextNumber,
       });
@@ -135,6 +139,9 @@ export const loadTicketClass = (models: IModels) => {
       }
 
       if (doc.pipelineId && doc.pipelineId !== ticket.pipelineId) {
+        if (!ticket.statusId) {
+          throw new Error('Ticket statusId is required for pipeline migration');
+        }
         const [result] = await models.Ticket.aggregate([
           { $match: { pipelineId: doc.pipelineId } },
           { $group: { _id: null, maxNumber: { $max: '$number' } } },
@@ -146,6 +153,11 @@ export const loadTicketClass = (models: IModels) => {
           type: status.type,
         });
 
+        if (!newStatus) {
+          throw new Error(
+            `No matching status found in new pipeline for type ${status.type}`,
+          );
+        }
         await models.Activity.deleteMany({
           contentId: ticket._id,
           module: 'STATUS',
