@@ -19,7 +19,7 @@ export const PosRecordTable = () => {
         dataLength={posList?.length}
         sessionKey="pos_cursor"
       >
-        <RecordTable>
+        <RecordTable className="w-full">
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton

@@ -25,7 +25,7 @@ export const StepperItem = React.memo(
         aria-current={step.id === currentStep ? 'step' : undefined}
       >
         <Stepper.Indicator className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-medium shadow-sm border border-gray-200 data-[state=completed]:border-blue-500 data-[state=completed]:shadow-blue-100">
-          {currentStep > step.id ? <IconCheck className="h-4 w-4" /> : step.id}
+          {currentStep > step.id ? <IconCheck className="w-4 h-4" /> : step.id}
         </Stepper.Indicator>
         <span
           className={`text-base font-medium ${
@@ -66,7 +66,7 @@ export const VerticalStepper = React.memo(
 
     return (
       <div
-        className={`${LAYOUT.STEPPER_WIDTH} border-r bg-gray-50 p-5 overflow-y-auto`}
+        className={`${LAYOUT.STEPPER_WIDTH} border-r bg-background p-5 overflow-y-auto`}
       >
         <Stepper
           value={currentStepId}
@@ -95,8 +95,8 @@ export const VerticalStepper = React.memo(
 export const ValidationAlert: React.FC<ValidationAlertProps> = ({
   message,
 }) => (
-  <div className="flex items-center gap-2 p-3 text-red-600 bg-red-50 border border-red-200 rounded-md mb-4">
-    <IconAlertCircle className="h-5 w-5 flex-shrink-0" />
+  <div className="flex gap-2 items-center p-3 mb-4 text-red-600 bg-red-50 rounded-md border border-red-200">
+    <IconAlertCircle className="flex-shrink-0 w-5 h-5" />
     <span>{message}</span>
   </div>
 );
