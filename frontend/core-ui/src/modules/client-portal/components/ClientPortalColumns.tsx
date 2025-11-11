@@ -1,17 +1,28 @@
 import { ColumnDef } from '@tanstack/table-core';
 import { IClientPortal } from '@/client-portal/types/clientPortal';
 import {
+  Badge,
+  Button,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
   TextOverflowTooltip,
+  toast,
 } from 'erxes-ui';
 import {
   IconAlignLeft,
   IconBrowser,
   IconCalendar,
+  IconCheck,
+  IconCopy,
   IconKey,
 } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
+import {
+  SettingsPath,
+  SettingsWorkspacePath,
+} from '@/types/paths/SettingsPath';
+import { useState } from 'react';
 
 export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
   {
@@ -21,7 +32,19 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.row.original.name} />
+          <Link
+            to={
+              '/' +
+              SettingsPath.Index +
+              SettingsWorkspacePath.ClientPortals +
+              '/' +
+              cell.row.original._id
+            }
+          >
+            <Badge variant="secondary">
+              <TextOverflowTooltip value={cell.row.original.name} />
+            </Badge>
+          </Link>
         </RecordTableInlineCell>
       );
     },
@@ -43,9 +66,37 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
     accessorKey: 'token',
     header: () => <RecordTable.InlineHead icon={IconKey} label="Token" />,
     cell: ({ cell }) => {
+      const [isCopied, setIsCopied] = useState(false);
+
+      const handleCopy = () => {
+        setIsCopied(true);
+        navigator.clipboard.writeText(cell.row.original.token ?? '');
+        toast({
+          title: 'Copied to clipboard',
+          variant: 'default',
+        });
+        setTimeout(() => {
+          setIsCopied(false);
+        }, 2000);
+      };
+
       return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.row.original.token} />
+        <RecordTableInlineCell className="relative group" onClick={handleCopy}>
+          <Badge variant="secondary">
+            {cell.row.original.token
+              ? `${cell.row.original.token.slice(
+                  0,
+                  4,
+                )}•••${cell.row.original.token.slice(-3)}`
+              : ''}
+          </Badge>
+          <Button
+            variant="outline"
+            size="icon"
+            className="absolute right-1 top-1 size-6 hidden group-hover:flex"
+          >
+            {isCopied ? <IconCheck /> : <IconCopy />}
+          </Button>
         </RecordTableInlineCell>
       );
     },

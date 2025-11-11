@@ -17,7 +17,7 @@ import { SubmitHandler } from 'react-hook-form';
 import { TClientPortalAddForm } from '@/client-portal/hooks/useClientPortalForm';
 import { ClientPortalHotKeyScope } from '@/client-portal/types/clientPortal';
 import { useCreateClientPortal } from '@/client-portal/hooks/useCreateClientPortal';
-import { ClientPortalCreateForm } from '@/client-portal/components/form/ClientPortalCreateForm';
+import { ClientPortalCreateForm } from '@/client-portal/components/ClientPortalCreateForm';
 
 import { useNavigate } from 'react-router-dom';
 

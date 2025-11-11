@@ -2,7 +2,7 @@ import { Breadcrumb, Button } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { IconTerminal2 } from '@tabler/icons-react';
-import { CreateClientPortalSheet } from '@/client-portal/components/form/ClientPortalAddSheet';
+import { CreateClientPortalSheet } from '@/client-portal/components/ClientPortalAddSheet';
 
 export const ClientPortalHeader = () => {
   return (
