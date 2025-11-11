@@ -19,6 +19,8 @@ import { ClientPortalHotKeyScope } from '@/client-portal/types/clientPortal';
 import { useCreateClientPortal } from '@/client-portal/hooks/useCreateClientPortal';
 import { ClientPortalCreateForm } from '@/client-portal/components/form/ClientPortalCreateForm';
 
+import { useNavigate } from 'react-router-dom';
+
 export const CreateClientPortalSheet = () => {
   const { toast } = useToast();
   const { clientPortalAdd, loading } = useCreateClientPortal();
@@ -27,6 +29,7 @@ export const CreateClientPortalSheet = () => {
     methods: { reset, handleSubmit },
   } = useClientPortalForm();
 
+  const navigate = useNavigate();
   const [_open, _setOpen] = useState<boolean>(false);
   const setHotkeyScope = useSetHotkeyScope();
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -58,16 +61,14 @@ export const CreateClientPortalSheet = () => {
     async (data) => {
       clientPortalAdd({
         variables: data,
-        onCompleted: () => {
+        onCompleted: (data) => {
+          console.log(data);
           toast({ title: 'Success!' });
-          reset();
-          onClose();
+          navigate(`${data.clientPortalAdd._id}`);
         },
       });
-      reset();
-      onClose();
     },
-    [clientPortalAdd, reset, onClose],
+    [clientPortalAdd, reset, onClose, navigate],
   );
 
   return (

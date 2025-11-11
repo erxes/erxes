@@ -22,6 +22,15 @@ export const clientPortalQueries = {
 
     return { list, totalCount, pageInfo };
   },
+
+  async getClientPortal(
+    _root: unknown,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.ClientPortal.findOne({ _id });
+  },
 };
 
 requireLogin(clientPortalQueries, 'getClientPortals');
+requireLogin(clientPortalQueries, 'getClientPortal');
