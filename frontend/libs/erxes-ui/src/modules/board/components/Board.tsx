@@ -268,7 +268,7 @@ export const BoardRoot = ({
       data-type="column"
       className={cn(
         'flex min-h-[400px] min-w-80 flex-col overflow-hidden transition-all bg-gradient-to-b from-[#e0e7ff] to-[#e0e7ff50] rounded-t-md dark:from-primary/40 dark:to-primary/20 relative',
-        isActive && 'shadow-lg shadow-subtle',
+        isActive && 'shadow-subtle',
         className,
       )}
     >

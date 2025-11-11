@@ -27,7 +27,7 @@ import { useInView } from 'react-intersection-observer';
 import { StatusInlineIcon } from '@/status/components/StatusInline';
 import { allTicketsMapState } from '@/ticket/states/allTicketsMapState';
 import { fetchedTicketsState } from '@/ticket/states/fetchedTicketState';
-import { TicketPipelineFallback } from '@/ticket/components/TicketPIpelineFallback';
+import { TicketPipelineFallback } from '@/ticket/components/TicketPipelineFallback';
 
 export const TicketsBoard = () => {
   const [pipelineId] = useQueryState<string | null>('pipelineId');
@@ -47,7 +47,7 @@ export const TicketsBoard = () => {
     name: status.label,
     type: status.type.toString(),
     color: status.color,
-  }));  
+  }));
 
   const [tickets, setTickets] = useAtom(fetchedTicketsState);
   const setTicketCountByBoard = useSetAtom(ticketCountByBoardAtom);
@@ -101,7 +101,7 @@ export const TicketsBoard = () => {
       fallbackComponent={<TicketPipelineFallback />}
     >
       {(column) => (
-        <Board id={column.id} key={column.id} sortBy="updated">
+        <Board id={column.id} key={column.id} sortBy="updated" className="w-80">
           <TicketsBoardCards column={column} />
         </Board>
       )}

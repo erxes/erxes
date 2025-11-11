@@ -19,6 +19,7 @@ export const TicketsRecordTable = () => {
   const { tickets, handleFetchMore, pageInfo, loading, totalCount } =
     useTickets({
       variables,
+      skip: !pipelineId,
     });
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
@@ -30,7 +31,9 @@ export const TicketsRecordTable = () => {
 
   return (
     <div className="flex flex-col overflow-hidden h-full relative">
-      {!pipelineId && <TicketPipelineFallback className="absolute inset-0" />}
+      {!loading && !pipelineId && (
+        <TicketPipelineFallback className="absolute inset-0" />
+      )}
       <RecordTable.Provider
         columns={ticketsColumns()}
         data={tickets || (loading ? [{}] : [])}
