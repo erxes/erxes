@@ -1,10 +1,11 @@
 import { IContext } from '~/connectionResolvers';
-import { requireLogin } from 'erxes-api-shared/core-modules';
+
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
+import { Resolver } from 'erxes-api-shared/core-types';
 
-export const clientPortalQueries = {
+export const clientPortalQueries: Record<string, Resolver> = {
   async getClientPortals(
     _root: unknown,
     params: ICursorPaginateParams,
@@ -30,7 +31,19 @@ export const clientPortalQueries = {
   ) {
     return models.ClientPortal.findOne({ _id });
   },
+
+  async getClientPortalExample(
+    _root: unknown,
+    _args: unknown,
+    { clientPortal, cpUser }: IContext,
+  ) {
+    return {
+      clientPortal,
+      cpUser,
+    };
+  },
 };
 
-requireLogin(clientPortalQueries, 'getClientPortals');
-requireLogin(clientPortalQueries, 'getClientPortal');
+clientPortalQueries.getClientPortalExample.wrapperConfig = {
+  forClientPortal: true,
+};

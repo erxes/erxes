@@ -401,7 +401,7 @@ export const loadClasses = (
   );
 
   models.CPUser = db.model<ICPUserDocument, ICPUserModel>(
-    'cp_users',
+    'client_portal_users',
     loadCPUserClass(models),
   );
 
