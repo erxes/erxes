@@ -221,7 +221,7 @@ const StatusBar = ({ adjustInventory }: { adjustInventory: IAdjustInventory }) =
       </div>
       {days.map((day) => {
         return (
-          <Tooltip delayDuration={0}>
+          <Tooltip key={day.toString()} delayDuration={0}>
             <Tooltip.Trigger asChild>
               {renderIcon(day)}
             </Tooltip.Trigger>

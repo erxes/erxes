@@ -247,30 +247,28 @@ const fixOutTrs = async (models: IModels, {
       const { count, amount } = details;
       const newCost = fixNum((count ?? 0) * unitCost);
 
-      if (newCost !== amount) {
-        remainder -= fixNum(count ?? 0);
-        cost -= newCost;
+      remainder -= fixNum(count ?? 0);
+      cost -= newCost;
 
-        // out - fix
-        await models.Transactions.updateOne(
-          { _id: rec._id },
-          {
-            $set: {
-              'details.$[d].unitPrice': unitCost,
-              'details.$[d].amount': newCost,
-              sumDt: 0,
-              sumCt: fixNum(rec.sumCt - amount + newCost),
-            }
-          },
-          { arrayFilters: [{ 'd._id': { $eq: details._id } }] }
-        );
-
-        await fixRelatedMainJournal(models, { ptrId: rec.ptrId, excludeTrId: rec._id, oldAmount: amount, newAmount: newCost });
-
-      } else {
-        remainder -= fixNum(count ?? 0);
-        cost -= amount;
+      if (newCost === amount) {
+        continue;
       }
+
+      // out - fix
+      await models.Transactions.updateOne(
+        { _id: rec._id },
+        {
+          $set: {
+            'details.$[d].unitPrice': unitCost,
+            'details.$[d].amount': newCost,
+            sumDt: 0,
+            sumCt: fixNum(rec.sumCt - amount + newCost),
+          }
+        },
+        { arrayFilters: [{ 'd._id': { $eq: details._id } }] }
+      );
+
+      await fixRelatedMainJournal(models, { ptrId: rec.ptrId, excludeTrId: rec._id, oldAmount: amount, newAmount: newCost });
     }
 
     // cache out adjustDetail
@@ -333,51 +331,10 @@ const fixMoveTrs = async (models: IModels, {
         throw new Error(`MoveIn not found for ${rec.parentId}`);
       }
 
-      if (newCost !== amount) {
-        const moveInCost = fixNum(newCost + (followInfos?.perCost ?? 0));
+      remainder -= fixNum(count);
+      cost -= newCost;
 
-        remainder -= fixNum(count);
-        cost -= newCost;
-
-        // out - fix
-        await models.Transactions.updateOne(
-          { _id: rec._id },
-          {
-            $set: {
-              'details.$[d].unitPrice': unitCost,
-              'details.$[d].amount': newCost
-            }
-          },
-          { arrayFilters: [{ 'd._id': { $eq: details._id } }] }
-        );
-
-        // in - Fix
-        await models.Transactions.updateOne(
-          { _id: moveInTrId },
-          {
-            $set: {
-              'details.$[d].unitPrice': unitCost,
-              'details.$[d].amount': moveInCost
-            }
-          },
-          { arrayFilters: [{ 'd._id': { $eq: moveInId } }] }
-        );
-
-        // cache move in adjustDetail
-        await models.AdjustInvDetails.increaseAdjustInvDetail({
-          adjustId,
-          productId,
-          accountId: moveInRec.details.accountId,
-          branchId: moveInRec.branchId,
-          departmentId: moveInRec.departmentId,
-          count: moveInRec.detail.count,
-          amount: moveInCost,
-          multiplier: 1
-        });
-      } else {
-        remainder -= fixNum(count);
-        cost -= amount;
-
+      if (newCost === amount) {
         // cache move in adjustDetail
         await models.AdjustInvDetails.increaseAdjustInvDetail({
           adjustId,
@@ -389,7 +346,47 @@ const fixMoveTrs = async (models: IModels, {
           amount: moveInRec.details.amount,
           multiplier: 1
         });
+        continue;
       }
+
+      const moveInCost = fixNum(newCost + (followInfos?.perCost ?? 0));
+
+      // out - fix
+      await models.Transactions.updateOne(
+        { _id: rec._id },
+        {
+          $set: {
+            'details.$[d].unitPrice': unitCost,
+            'details.$[d].amount': newCost
+          }
+        },
+        { arrayFilters: [{ 'd._id': { $eq: details._id } }] }
+      );
+
+      // in - Fix
+      await models.Transactions.updateOne(
+        { _id: moveInTrId },
+        {
+          $set: {
+            'details.$[d].unitPrice': unitCost,
+            'details.$[d].amount': moveInCost
+          }
+        },
+        { arrayFilters: [{ 'd._id': { $eq: moveInId } }] }
+      );
+
+      // cache move in adjustDetail
+      await models.AdjustInvDetails.increaseAdjustInvDetail({
+        adjustId,
+        productId,
+        accountId: moveInRec.details.accountId,
+        branchId: moveInRec.branchId,
+        departmentId: moveInRec.departmentId,
+        count: moveInRec.detail.count,
+        amount: moveInCost,
+        multiplier: 1
+      });
+
     }
 
     // cache move out adjustDetail
@@ -409,7 +406,6 @@ const fixSaleOutTrs = async (models: IModels, {
   beforeAdjInvId?: string
 }) => {
   for (const saleOutTrs of saleOutAggrs) {
-    console.log(saleOutTrs)
     const { _id, records } = saleOutTrs;
     const { accountId, branchId, departmentId, productId } = _id;
 
@@ -462,37 +458,36 @@ const fixSaleOutTrs = async (models: IModels, {
         throw new Error(`Sale cost not found for ${rec._id}`);
       }
 
-      if (newCost !== amount) {
-        remainder -= fixNum(count ?? 0);
-        cost -= newCost;
+      remainder -= fixNum(count ?? 0);
+      cost -= newCost;
 
-        // out - fix
-        await models.Transactions.updateOne(
-          { _id: rec._id },
-          {
-            $set: {
-              'details.$[d].unitPrice': unitCost,
-              'details.$[d].amount': newCost
-            }
-          },
-          { arrayFilters: [{ 'd._id': { $eq: details._id } }] }
-        );
-
-        // cost - Fix
-        await models.Transactions.updateOne(
-          { _id: saleFollowCostRec },
-          {
-            $set: {
-              'details.$[d].unitPrice': unitCost,
-              'details.$[d].amount': newCost
-            }
-          },
-          { arrayFilters: [{ 'd._id': { $eq: saleFollowCostRec.details._id } }] }
-        );
-      } else {
-        remainder -= fixNum(count ?? 0);
-        cost -= amount;
+      if (newCost === amount) {
+        continue;
       }
+
+      // out - fix
+      await models.Transactions.updateOne(
+        { _id: rec._id },
+        {
+          $set: {
+            'details.$[d].unitPrice': unitCost,
+            'details.$[d].amount': newCost
+          }
+        },
+        { arrayFilters: [{ 'd._id': { $eq: details._id } }] }
+      );
+
+      // cost - Fix
+      await models.Transactions.updateOne(
+        { _id: saleFollowCostRec },
+        {
+          $set: {
+            'details.$[d].unitPrice': unitCost,
+            'details.$[d].amount': newCost
+          }
+        },
+        { arrayFilters: [{ 'd._id': { $eq: saleFollowCostRec.details._id } }] }
+      );
     }
 
     // cache move out adjustDetail
