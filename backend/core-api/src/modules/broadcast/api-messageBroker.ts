@@ -1,5 +1,7 @@
 import { InterMessage } from 'erxes-api-shared/utils';
 
+let channel: amqplib.Channel | undefined;
+
 export const sendMessage = async (
   queueName: string,
   message: InterMessage,
@@ -18,12 +20,14 @@ export const sendMessage = async (
     const messageJson = JSON.stringify(message || {});
 
     if (showInfoDebug()) {
-      debugInfo(`Sending message ${messageJson} to ${queueName}`);
+      console.log(`Sending message ${messageJson} to ${queueName}`);
     }
 
     await channel.assertQueue(queueName);
     await channel.sendToQueue(queueName, Buffer.from(messageJson));
-  } catch (e) {
-    debugError(`Error occurred during send queue ${queueName} ${e.message}`);
+  } catch (e: any) {
+    console.error(
+      `Error occurred during send queue ${queueName}: ${e.message}`,
+    );
   }
 };
