@@ -77,7 +77,6 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
           size="lg"
           className="ml-auto"
           disabled={loading}
-          // disabled={editor?.document?.length === 0}
           onClick={onSend}
         >
           Send
