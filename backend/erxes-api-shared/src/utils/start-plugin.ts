@@ -18,14 +18,14 @@ import { DocumentNode, GraphQLScalarType } from 'graphql';
 import * as http from 'http';
 import * as path from 'path';
 
+import { startPayments } from '../common-modules/payment/worker';
 import {
   SegmentConfigs,
   startAutomations,
   startSegments,
 } from '../core-modules';
 import { AutomationConfigs } from '../core-modules/automations/types';
-import { generateApolloContext } from './apollo';
-import { wrapApolloMutations } from './apollo/wrapperMutations';
+import { generateApolloContext, wrapApolloResolvers } from './apollo';
 import { extractUserFromHeader } from './headers';
 import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
 import { closeMongooose } from './mongo';
@@ -36,7 +36,6 @@ import {
 } from './service-discovery';
 import { createTRPCContext } from './trpc';
 import { getSubdomain } from './utils';
-import { startPayments } from '../common-modules/payment/worker';
 
 dotenv.config();
 
@@ -246,12 +245,7 @@ export async function startPlugin(
       schema: buildSubgraphSchema([
         {
           typeDefs,
-          resolvers: {
-            ...resolvers,
-            Mutation: wrapApolloMutations(
-              (resolvers?.Mutation || {}) as ResolverObject,
-            ),
-          },
+          resolvers: wrapApolloResolvers(resolvers as any),
         },
       ]),
 
