@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_ACTIVITIES } from '@/activity/graphql/queries/getActivityLogs';
-import { IActivity } from '@/ticket/types';
+import { IActivity } from '@/activity/types';
 import { ICursorListResponse } from 'erxes-ui';
 
-import { ACTIVITY_CHANGED } from '@/activity/graphql/subsciptions/activityChanged';
+import { ACTIVITY_CHANGED } from '@/activity/graphql/subscriptions/activityChanged';
 
 interface ISubscriptionData {
   ticketActivityChanged: {
@@ -33,8 +33,7 @@ export const useActivities = (contentId: string) => {
       updateQuery: (prev, { subscriptionData }) => {
         if (!prev || !subscriptionData.data) return prev;
 
-        const { type, activity } =
-          subscriptionData.data.ticketActivityChanged;
+        const { type, activity } = subscriptionData.data.ticketActivityChanged;
         const currentList = prev.getTicketActivities.list;
 
         let updatedList = currentList;

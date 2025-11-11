@@ -18,7 +18,7 @@ import { TicketCard } from '@/ticket/components/TicketCard';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import clsx from 'clsx';
 import { ticketCountByBoardAtom } from '@/ticket/states/ticketsTotalCountState';
-import { IconBrandTrello, IconPlus, IconSettings } from '@tabler/icons-react';
+import { IconPlus } from '@tabler/icons-react';
 import {
   ticketCreateDefaultValuesState,
   ticketCreateSheetState,
@@ -26,8 +26,8 @@ import {
 import { useInView } from 'react-intersection-observer';
 import { StatusInlineIcon } from '@/status/components/StatusInline';
 import { allTicketsMapState } from '@/ticket/states/allTicketsMapState';
-import { Link } from 'react-router-dom';
 import { fetchedTicketsState } from '@/ticket/states/fetchedTicketState';
+import { TicketPipelineFallback } from '@/ticket/components/TicketPIpelineFallback';
 
 export const TicketsBoard = () => {
   const [pipelineId] = useQueryState<string | null>('pipelineId');
@@ -47,7 +47,7 @@ export const TicketsBoard = () => {
     name: status.label,
     type: status.type.toString(),
     color: status.color,
-  }));
+  }));  
 
   const [tickets, setTickets] = useAtom(fetchedTicketsState);
   const setTicketCountByBoard = useSetAtom(ticketCountByBoardAtom);
@@ -98,27 +98,7 @@ export const TicketsBoard = () => {
       data={tickets}
       onDragEnd={handleDragEnd}
       boardId={clsx('tickets-board', pipelineId)}
-      fallbackComponent={
-        <div className="flex h-full w-full flex-col items-center justify-center text-center p-6 gap-2">
-          <IconBrandTrello
-            size={64}
-            stroke={1.5}
-            className="text-muted-foreground"
-          />
-          <h2 className="text-lg font-semibold text-muted-foreground">
-            No pipeline yet
-          </h2>
-          <p className="text-md text-muted-foreground mb-4">
-            Create a pipeline to start organizing your board.
-          </p>
-          <Button variant="outline" asChild>
-            <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
-              <IconSettings />
-              Go to settings
-            </Link>
-          </Button>
-        </div>
-      }
+      fallbackComponent={<TicketPipelineFallback />}
     >
       {(column) => (
         <Board id={column.id} key={column.id} sortBy="updated">
@@ -147,8 +127,7 @@ export const TicketsBoardCards = ({ column }: { column: BoardColumnProps }) => {
       statusId: column.id,
     },
   });
-  const [allticketsMap, setAllticketsMap] = useAtom(allTicketsMapState);
-  console.log({ ticketCards, boardCards, tickets, allticketsMap });
+  const setAllticketsMap = useSetAtom(allTicketsMapState);
   useEffect(() => {
     if (tickets) {
       setTicketCards((prev) => {
