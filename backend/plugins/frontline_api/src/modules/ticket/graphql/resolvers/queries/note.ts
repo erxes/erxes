@@ -2,7 +2,7 @@ import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 
 export const noteQueries = {
-  getNote: async (
+  ticketGetNote: async (
     _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,
@@ -11,4 +11,4 @@ export const noteQueries = {
   },
 };
 
-requireLogin(noteQueries, 'getNote');
+requireLogin(noteQueries, 'ticketGetNote');

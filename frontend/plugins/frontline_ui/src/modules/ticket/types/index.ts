@@ -19,6 +19,7 @@ export interface ITicket {
   statusChangedDate: string;
   number: number;
   pipelineId: string;
+  createdBy: string;
 }
 
 export interface IActivity {

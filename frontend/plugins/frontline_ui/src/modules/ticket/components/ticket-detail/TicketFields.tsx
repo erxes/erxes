@@ -3,14 +3,14 @@ import {
   Separator,
   useBlockEditor,
   BlockEditor,
-  useQueryState,
+  Tooltip,
 } from 'erxes-ui';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import { useDebounce } from 'use-debounce';
 import { useEffect, useState } from 'react';
 import { Block } from '@blocknote/core';
 import { ITicket } from '@/ticket/types';
-// import { ActivityList } from '@/activity/components/ActivityList';
+import { ActivityList } from '@/activity/components/ActivityList';
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
@@ -87,7 +87,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedDescriptionContent]);
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 h-full">
       <Input
         className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
         placeholder="Ticket Name"
@@ -95,13 +95,25 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         onChange={(e) => setName(e.target.value)}
       />
       <div className="gap-2 flex flex-wrap w-full">
-        <SelectChannel id={ticketId} value={channelId} variant="detail" />
-        <SelectPipeline
-          id={ticketId}
-          value={pipelineId}
-          variant="detail"
-          channelId={channelId}
-        />
+        <Tooltip>
+          <div className="relative">
+            <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
+            <SelectChannel value={channelId} variant="detail" disabled />
+          </div>
+          <Tooltip.Content>Channel cannot be changed</Tooltip.Content>
+        </Tooltip>
+        <Tooltip>
+          <div className="relative">
+            <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
+            <SelectPipeline
+              value={pipelineId}
+              variant="detail"
+              channelId={channelId}
+              disabled
+            />
+          </div>
+          <Tooltip.Content>Pipeline cannot be changed</Tooltip.Content>
+        </Tooltip>
         <SelectStatusTicket
           variant="detail"
           value={statusId}
@@ -128,14 +140,14 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         />
       </div>
       <Separator className="my-4" />
-      <div className="min-h-56 overflow-y-auto">
+      <div className="min-h-56">
         <BlockEditor
           editor={editor}
           onChange={handleDescriptionChange}
           className="min-h-full read-only"
         />
       </div>
-      {/* <ActivityList contentId={ticketId} contentDetail={ticket} /> */}
+      <ActivityList contentId={ticketId} contentDetail={ticket} />
     </div>
   );
 };

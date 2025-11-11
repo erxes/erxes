@@ -107,6 +107,7 @@ const SelectTeamMemberContent = () => {
 const SelectAssigneeFilterView = () => {
   const [assignee, setAssignee] = useQueryState<string>('assignee');
   const { resetFilterState } = useFilterContext();
+
   return (
     <Filter.View filterKey="assignee">
       <SelectAssigneeProvider

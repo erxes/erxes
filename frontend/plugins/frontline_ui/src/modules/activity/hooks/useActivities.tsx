@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 import { useQuery } from '@apollo/client';
-import { GET_ACTIVITIES } from '@/ticket/graphql/queries/getActivityLogs';
+import { GET_ACTIVITIES } from '@/activity/graphql/queries/getActivityLogs';
 import { IActivity } from '@/ticket/types';
 import { ICursorListResponse } from 'erxes-ui';
 
-import { ACTIVITY_CHANGED } from '@/ticket/graphql/subscriptions/activityChanged';
+import { ACTIVITY_CHANGED } from '@/activity/graphql/subsciptions/activityChanged';
 
 interface ISubscriptionData {
-  operationActivityChanged: {
+  ticketActivityChanged: {
     type: 'created' | 'updated' | 'removed';
     activity: IActivity;
   };
@@ -24,7 +24,7 @@ export const useActivities = (contentId: string) => {
     list: activities,
     pageInfo,
     totalCount,
-  } = data?.getOperationActivities || {};
+  } = data?.getTicketActivities || {};
 
   useEffect(() => {
     const unsubscribe = subscribeToMore<ISubscriptionData>({
@@ -34,8 +34,8 @@ export const useActivities = (contentId: string) => {
         if (!prev || !subscriptionData.data) return prev;
 
         const { type, activity } =
-          subscriptionData.data.operationActivityChanged;
-        const currentList = prev.getOperationActivities.list;
+          subscriptionData.data.ticketActivityChanged;
+        const currentList = prev.getTicketActivities.list;
 
         let updatedList = currentList;
 
@@ -62,16 +62,16 @@ export const useActivities = (contentId: string) => {
 
         return {
           ...prev,
-          getOperationActivities: {
-            ...prev.getOperationActivities,
+          getTicketActivities: {
+            ...prev.getTicketActivities,
             list: updatedList,
-            pageInfo: prev.getOperationActivities.pageInfo,
+            pageInfo: prev.getTicketActivities.pageInfo,
             totalCount:
               type === 'created'
-                ? prev.getOperationActivities.totalCount + 1
+                ? prev.getTicketActivities.totalCount + 1
                 : type === 'removed'
-                ? prev.getOperationActivities.totalCount - 1
-                : prev.getOperationActivities.totalCount,
+                ? prev.getTicketActivities.totalCount - 1
+                : prev.getTicketActivities.totalCount,
           },
         };
       },

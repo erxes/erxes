@@ -25,7 +25,7 @@ const updateNoteParams = `
 `;
 
 export const queries = `
-    getNote(_id: String!): Note
+    ticketGetNote(_id: String!): Note
 `;
 
 export const mutations = `

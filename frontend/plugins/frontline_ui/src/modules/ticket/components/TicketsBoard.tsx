@@ -5,7 +5,6 @@ import type { DragEndEvent } from '@dnd-kit/core';
 import {
   Board,
   BoardColumnProps,
-  BoardItemProps,
   Button,
   EnumCursorDirection,
   Skeleton,
@@ -13,7 +12,7 @@ import {
   useQueryState,
   Spinner,
 } from 'erxes-ui';
-import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { TicketCard } from '@/ticket/components/TicketCard';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
@@ -28,7 +27,7 @@ import { useInView } from 'react-intersection-observer';
 import { StatusInlineIcon } from '@/status/components/StatusInline';
 import { allTicketsMapState } from '@/ticket/states/allTicketsMapState';
 import { Link } from 'react-router-dom';
-const fetchedTicketsState = atom<BoardItemProps[]>([]);
+import { fetchedTicketsState } from '@/ticket/states/fetchedTicketState';
 
 export const TicketsBoard = () => {
   const [pipelineId] = useQueryState<string | null>('pipelineId');
@@ -39,6 +38,7 @@ export const TicketsBoard = () => {
   const { statuses, loading } = useGetTicketStatusesByPipeline({
     variables: {
       pipelineId: pipelineId || '',
+      channelId: channelId || '',
     },
   });
 
@@ -134,7 +134,6 @@ export const TicketsBoardCards = ({ column }: { column: BoardColumnProps }) => {
   const [ticketCountByBoard, setTicketCountByBoard] = useAtom(
     ticketCountByBoardAtom,
   );
-
   const boardCards = ticketCards
     .filter((ticket) => ticket.column === column.id)
     .sort((a, b) => {
@@ -148,8 +147,8 @@ export const TicketsBoardCards = ({ column }: { column: BoardColumnProps }) => {
       statusId: column.id,
     },
   });
-  const setAllticketsMap = useSetAtom(allTicketsMapState);
-
+  const [allticketsMap, setAllticketsMap] = useAtom(allTicketsMapState);
+  console.log({ ticketCards, boardCards, tickets, allticketsMap });
   useEffect(() => {
     if (tickets) {
       setTicketCards((prev) => {

@@ -94,11 +94,11 @@ const Pipelines = () => {
     variables: { filter: { channelId: channelId || '' } },
   });
   useEffect(() => {
-    channelId &&
-      !pipelineId &&
-      pipelineId !== pipelines?.[0]?._id &&
-      setPipelineId(pipelines?.[0]?._id || null);
-  }, [pipelines, setPipelineId, pipelineId, channelId]);
+    if (channelId && pipelines) {
+      setPipelineId(pipelines?.[0] ? pipelines?.[0]?._id : null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [channelId, pipelines]);
   return (
     <Collapsible.Content className="pt-1">
       <Sidebar.GroupContent>

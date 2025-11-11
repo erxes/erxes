@@ -21,9 +21,12 @@ import {
   PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
+  Tooltip,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useState } from 'react';
+import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
+import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 
 export const ticketsColumns = (): ColumnDef<ITicket>[] => {
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ITicket>;
@@ -113,7 +116,63 @@ export const ticketsColumns = (): ColumnDef<ITicket>[] => {
       },
       size: 170,
     },
-
+    {
+      id: 'channel',
+      accessorKey: 'channel',
+      header: () => (
+        <RecordTable.InlineHead label="Channel" icon={IconProgressCheck} />
+      ),
+      cell: ({ cell }) => {
+        return (
+          <Tooltip>
+            <div className="relative">
+              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
+              <Tooltip.Content>Channel cannot be changed</Tooltip.Content>
+              <SelectChannel
+                variant="table"
+                value={cell.row.original.channelId}
+                disabled
+                scope={clsx(
+                  TicketHotKeyScope.TicketTableCell,
+                  cell.row.original._id,
+                  'Channel',
+                )}
+              />
+            </div>
+          </Tooltip>
+        );
+      },
+      size: 170,
+    },
+    {
+      id: 'pipeline',
+      accessorKey: 'pipeline',
+      header: () => (
+        <RecordTable.InlineHead label="Pipeline" icon={IconProgressCheck} />
+      ),
+      cell: ({ cell }) => {
+        return (
+          <Tooltip>
+            <div className="relative">
+              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
+              <Tooltip.Content>Pipeline cannot be changed</Tooltip.Content>
+              <SelectPipeline
+                variant="table"
+                value={cell.row.original.pipelineId}
+                channelId={cell.row.original.channelId}
+                disabled
+                scope={clsx(
+                  TicketHotKeyScope.TicketTableCell,
+                  cell.row.original._id,
+                  'Pipeline',
+                )}
+              />
+            </div>
+          </Tooltip>
+        );
+      },
+      size: 170,
+    },
     {
       id: 'assigneeId',
       header: () => <RecordTable.InlineHead label="Assignee" icon={IconUser} />,

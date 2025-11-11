@@ -7,6 +7,8 @@ import {
   TicketsViewControl,
   TicketsView,
 } from '@/ticket/components/TicketsView';
+import { TicketsFilter } from '@/ticket/components/TicketsFilter';
+import { TicketPageEffect } from '@/ticket/components/TicketPageEffect';
 const TicketsIndexPage = () => {
   return (
     <PageContainer>
@@ -30,9 +32,11 @@ const TicketsIndexPage = () => {
         </PageHeader.End>
       </PageHeader>
       <PageSubHeader>
+        <TicketsFilter />
         <TicketsViewControl />
       </PageSubHeader>
       <TicketsView />
+      <TicketPageEffect />
     </PageContainer>
   );
 };

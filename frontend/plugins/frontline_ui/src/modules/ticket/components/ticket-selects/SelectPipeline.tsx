@@ -24,7 +24,6 @@ import { UseFormReturn, useWatch } from 'react-hook-form';
 import { addTicketSchema } from '@/ticket/types';
 import { z } from 'zod';
 import { Link } from 'react-router';
-import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 
 interface SelectPipelineContextType {
   value: string;
@@ -56,7 +55,7 @@ const SelectPipelineProvider = ({
 }: {
   children: React.ReactNode;
   value: string;
-  onValueChange: (value: string) => void;
+  onValueChange?: (value: string) => void;
   setOpen?: (open: boolean) => void;
   channelId?: string;
 }) => {
@@ -71,7 +70,7 @@ const SelectPipelineProvider = ({
 
   const handleValueChange = (pipelineId: string) => {
     if (!pipelineId) return;
-    onValueChange(pipelineId);
+    onValueChange?.(pipelineId);
     setOpen?.(false);
   };
 
@@ -92,7 +91,6 @@ const SelectPipelineProvider = ({
 
 const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
   const { value, pipelines } = useSelectPipelineContext();
-  console.log({ pipelines, value });
   if (!pipelines || pipelines.length === 0 || !value) {
     return (
       <span className="text-accent-foreground/80">
@@ -186,46 +184,34 @@ const SelectPipelineContent = () => {
 };
 
 const SelectPipelineRoot = ({
-  variant = 'detail',
   scope,
   value,
   onValueChange,
   channelId,
-  id,
+  disabled,
+  variant,
 }: {
   variant?: `${SelectTriggerVariant}`;
   scope?: string;
   value: string;
   channelId?: string;
   onValueChange?: (value: string) => void;
-  id: string;
+  disabled?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
-  const { updateTicket } = useUpdateTicket();
-  const handleValueChange = (pipelineId: string) => {
-    if (!pipelineId) return;
-    updateTicket({
-      variables: {
-        _id: id,
-        pipelineId,
-      },
-    });
-    onValueChange?.(pipelineId);
-    setOpen(false);
-  };
 
   return (
     <SelectPipelineProvider
       value={value}
-      onValueChange={handleValueChange}
+      onValueChange={onValueChange}
       setOpen={setOpen}
       channelId={channelId}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant={variant}>
+        <SelectTriggerTicket variant={variant || 'detail'} disabled={disabled}>
           <SelectPipelineValue />
         </SelectTriggerTicket>
-        <SelectTicketContent variant={variant}>
+        <SelectTicketContent variant={variant || 'detail'}>
           <SelectPipelineContent />
         </SelectTicketContent>
       </PopoverScoped>
@@ -293,7 +279,7 @@ const SelectPipelineFormItem = ({
     skip: !channelId,
   });
   useEffect(() => {
-    if (pipelines?.length && !value) {
+    if (pipelines?.length) {
       onValueChange(pipelines[0]._id);
     }
   }, [pipelines, value, onValueChange]);

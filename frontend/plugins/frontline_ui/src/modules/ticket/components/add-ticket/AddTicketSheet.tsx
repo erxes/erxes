@@ -7,7 +7,6 @@ import {
   Sheet,
   usePreviousHotkeyScope,
   useScopedHotkeys,
-  useSetHotkeyScope,
 } from 'erxes-ui';
 import { AddTicketForm } from '@/ticket/components/add-ticket/AddTicketForm';
 import { useAtom } from 'jotai';
@@ -21,20 +20,28 @@ export const AddTicketSheet = ({
   onComplete?: (ticketId: string) => void;
   isRelation?: boolean;
 } & ButtonProps) => {
-  const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useAtom(ticketCreateSheetState);
-  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
+  const {
+    setHotkeyScopeAndMemorizePreviousScope,
+    goBackToPreviousHotkeyScope,
+  } = usePreviousHotkeyScope();
   const onOpen = () => {
     setOpen(true);
     setHotkeyScopeAndMemorizePreviousScope(TicketHotKeyScope.TicketAddSheet);
   };
 
   const onClose = () => {
-    setHotkeyScope(TicketHotKeyScope.TicketAddSheet);
+    goBackToPreviousHotkeyScope();
     setOpen(false);
   };
 
-  useScopedHotkeys(`c`, () => onOpen(), TicketHotKeyScope.TicketPage);
+  useScopedHotkeys(
+    `c`,
+    () => {
+      onOpen();
+    },
+    TicketHotKeyScope.TicketPage,
+  );
   useScopedHotkeys(`esc`, () => onClose(), TicketHotKeyScope.TicketAddSheet);
 
   return (

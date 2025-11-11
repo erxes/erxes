@@ -18,7 +18,6 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import React, { useState } from 'react';
-import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 
 interface SelectChannelContextType {
   value: string;
@@ -48,14 +47,14 @@ const SelectChannelProvider = ({
 }: {
   children: React.ReactNode;
   value: string;
-  onValueChange: (value: string) => void;
+  onValueChange?: (value: string) => void;
   setOpen?: (open: boolean) => void;
 }) => {
   const { channels, loading } = useGetChannels();
 
   const handleValueChange = (channelId: string) => {
     if (!channelId) return;
-    onValueChange(channelId);
+    onValueChange?.(channelId);
     setOpen?.(false);
   };
 
@@ -153,39 +152,27 @@ const SelectChannelContent = () => {
 
 const SelectChannelRoot = ({
   variant = 'detail',
+  disabled,
   scope,
-  id,
   value,
   onValueChange,
 }: {
   variant?: `${SelectTriggerVariant}`;
+  disabled?: boolean;
   scope?: string;
-  id: string;
   value: string;
   onValueChange?: (value: string) => void;
 }) => {
-  const { updateTicket } = useUpdateTicket();
   const [open, setOpen] = useState(false);
-  const handleValueChange = (channelId: string) => {
-    if (id) {
-      updateTicket({
-        variables: {
-          _id: id,
-          channelId,
-        },
-      });
-    }
-    onValueChange?.(channelId);
-    setOpen(false);
-  };
+
   return (
     <SelectChannelProvider
       value={value}
-      onValueChange={handleValueChange}
+      onValueChange={onValueChange}
       setOpen={setOpen}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant={variant}>
+        <SelectTriggerTicket variant={variant} disabled={disabled}>
           <SelectChannelValue />
         </SelectTriggerTicket>
         <SelectTicketContent variant={variant}>

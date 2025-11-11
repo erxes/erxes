@@ -9,9 +9,11 @@ import { ticketTotalCountAtom } from '@/ticket/states/ticketsTotalCountState';
 export const TicketsRecordTable = () => {
   const setTicketTotalCount = useSetAtom(ticketTotalCountAtom);
   const [pipelineId] = useQueryState<string | null>('pipelineId');
+  const [channelId] = useQueryState<string | null>('channelId');
 
   const variables = {
     pipelineId,
+    channelId,
   };
 
   const { tickets, handleFetchMore, pageInfo, loading, totalCount } =
