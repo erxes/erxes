@@ -9,7 +9,7 @@ import {
 import { useCreateTicketNote } from '@/activity/hooks/useCreateTicketNote';
 
 import { usePreviousHotkeyScope } from 'erxes-ui';
-import { TicketHotKeyScope } from '@/ticket/types/TicketHotkeyScope';
+import { TicketHotKeyScope } from '@/ticket/types/ticketHotkeyScope';
 import { AssignMemberInEditor } from 'ui-modules';
 import { IconCommand, IconCornerDownLeft } from '@tabler/icons-react';
 import type { Block } from '@blocknote/core';
