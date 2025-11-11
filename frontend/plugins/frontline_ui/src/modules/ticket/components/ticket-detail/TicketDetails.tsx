@@ -10,12 +10,19 @@ export const TicketDetails = ({ ticketId }: { ticketId: string }) => {
   if (loading) {
     return <Spinner />;
   }
+  if (!ticket) {
+    return (
+      <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+        Ticket not found.
+      </div>
+    );
+  }
   return (
     <div className="h-full w-full flex overflow-auto">
       <div className="w-full xl:max-w-3xl mx-auto py-12 px-6">
-        {ticket && <TicketFields ticket={ticket} />}
+        <TicketFields ticket={ticket} />
       </div>
-      {ticket && <TicketSideWidgets contentId={ticket._id} />}
+      <TicketSideWidgets contentId={ticket._id} />
     </div>
   );
 };

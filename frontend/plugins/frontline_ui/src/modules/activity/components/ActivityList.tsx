@@ -6,6 +6,7 @@ import { NoteInput } from '@/activity/components/NoteInput';
 import { CreatorInfo } from '@/activity/components/CreatorInfo';
 import { ActivityItemWrapper } from '@/activity/components/ActivityItemWrapper';
 import { useActivities } from '@/activity/hooks/useActivities';
+import { Spinner } from 'erxes-ui';
 
 export const ActivityList = ({
   contentId,
@@ -16,7 +17,7 @@ export const ActivityList = ({
 }) => {
   const { activities, loading } = useActivities(contentId);
   if (loading) {
-    return;
+    return <Spinner />;
   }
 
   return (

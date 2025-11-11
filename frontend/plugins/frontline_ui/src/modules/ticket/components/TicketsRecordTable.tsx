@@ -5,7 +5,7 @@ import { TICKETS_CURSOR_SESSION_KEY } from '@/ticket/constants';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { ticketTotalCountAtom } from '@/ticket/states/ticketsTotalCountState';
-
+import { TicketPipelineFallback } from '@/ticket/components/TicketPIpelineFallback';
 export const TicketsRecordTable = () => {
   const setTicketTotalCount = useSetAtom(ticketTotalCountAtom);
   const [pipelineId] = useQueryState<string | null>('pipelineId');
@@ -29,7 +29,8 @@ export const TicketsRecordTable = () => {
   }, [totalCount, setTicketTotalCount]);
 
   return (
-    <div className="flex flex-col overflow-hidden h-full">
+    <div className="flex flex-col overflow-hidden h-full relative">
+      {!pipelineId && <TicketPipelineFallback className="absolute inset-0" />}
       <RecordTable.Provider
         columns={ticketsColumns()}
         data={tickets || (loading ? [{}] : [])}

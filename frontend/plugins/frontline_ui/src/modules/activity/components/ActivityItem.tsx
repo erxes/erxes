@@ -52,10 +52,7 @@ export const ActivityIcon = ({ activity }: { activity: IActivity }) => {
 
     case ACTIVITY_MODULES.PRIORITY:
       return (
-        <IconAlertSquareRounded
-          className="size-4 
-      text-accent-foreground"
-        />
+        <IconAlertSquareRounded className="size-4 text-accent-foreground" />
       );
 
     case ACTIVITY_MODULES.START_DATE:

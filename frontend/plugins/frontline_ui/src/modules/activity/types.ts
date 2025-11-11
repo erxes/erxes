@@ -8,8 +8,8 @@ export interface IActivity {
     previousValue?: string;
   };
   createdBy: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 export interface INote {
   _id: string;
