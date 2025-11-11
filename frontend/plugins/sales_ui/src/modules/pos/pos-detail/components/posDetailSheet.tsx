@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { useQueryState } from 'erxes-ui';
 import { renderingPosDetailAtom } from '@/pos/states/posDetail';
-import { PosHotKeyScope } from '@/pos/types/posHotkeyScope';
+import { PosHotKeyScope } from '@/pos/types/posHotKeyScope';
 
 export const PosDetailSheet = ({ children }: { children: React.ReactNode }) => {
   const [activeTab] = useAtom(renderingPosDetailAtom);
@@ -37,7 +37,7 @@ export const PosDetailSheet = ({ children }: { children: React.ReactNode }) => {
     >
       <Sheet.View
         className={cn(
-          'p-0 md:max-w-(--breakpoint-2xl) flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
+          'p-0 md:max-w-6xl flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
           !!activeTab && 'md:w-[calc(100vw-(--spacing(4)))]',
         )}
       >
