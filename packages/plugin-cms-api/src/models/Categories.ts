@@ -7,6 +7,7 @@ import {
 } from './definitions/categories';
 import { IModels } from '../connectionResolver';
 import slugify from 'slugify';
+import { generateUniqueSlug, generateUniqueSlugWithExclusion } from './utils';
 
 export interface ICategoryModel extends Model<IPostCategoryDocument> {
   getCategories: (query: any) => Promise<IPostCategoryDocument[]>;
@@ -22,15 +23,16 @@ export interface ICategoryModel extends Model<IPostCategoryDocument> {
 export const loadCategoryClass = (models: IModels) => {
   class Categories {
     public static createCategory = async (data: IPostCategory) => {
-      const slug = data.slug || slugify(data.name, { lower: true });
-      data.slug = slug;
+      const baseSlug = slugify(data.name, { lower: true });
+      data.slug = await generateUniqueSlug(models.Categories, 'slug', baseSlug);
       const category = await models.Categories.create(data);
       return category;
     };
 
     public static updateCategory = async (id: string, data: IPostCategory) => {
       if (!data.slug && data.name) {
-        data.slug = slugify(data.name, { lower: true });
+        const baseSlug = slugify(data.name, { lower: true });
+        data.slug = await generateUniqueSlugWithExclusion(models.Categories, 'slug', baseSlug, id);
       }
 
       const category = await models.Categories.findOneAndUpdate(

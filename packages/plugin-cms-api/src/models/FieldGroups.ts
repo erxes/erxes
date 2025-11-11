@@ -6,6 +6,7 @@ import {
   fieldGroupSchema,
 } from './definitions/customFieldGroups';
 import { IModels } from '../connectionResolver';
+import { generateUniqueSlug, generateUniqueSlugWithExclusion } from './utils';
 
 export interface ICustomFieldGroupModel
   extends Model<ICustomFieldGroupDocument> {
@@ -24,6 +25,14 @@ export interface ICustomFieldGroupModel
 export const loadCustomFieldGroupClass = (models: IModels) => {
   class CustomFieldGroups {
     public static createFieldGroup = async (data: ICustomFieldGroup) => {
+      if (data.code) {
+        const uniqueCode = await generateUniqueSlug(
+          models.CustomFieldGroups,
+          'code',
+          data.code
+        );
+        data.code = uniqueCode;
+      }
       const count = await models.CustomFieldGroups.countDocuments({
         clientPortalId: data.clientPortalId,
         label: data.label,
@@ -38,6 +47,15 @@ export const loadCustomFieldGroupClass = (models: IModels) => {
       id: string,
       data: ICustomFieldGroup
     ) => {
+      if (data.code) {
+        const uniqueCode = await generateUniqueSlugWithExclusion(
+          models.CustomFieldGroups,
+          'code',
+          data.code,
+          id
+        );
+        data.code = uniqueCode;
+      }
       return models.CustomFieldGroups.findOneAndUpdate(
         { _id: id },
         { $set: data },
