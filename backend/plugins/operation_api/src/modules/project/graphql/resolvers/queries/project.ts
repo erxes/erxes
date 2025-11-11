@@ -6,13 +6,13 @@ import {
 } from '@/project/utils/charUtils';
 import { STATUS_TYPES } from '@/status/constants/types';
 import { differenceInCalendarDays } from 'date-fns';
-import { requireLogin } from 'erxes-api-shared/core-modules';
+import { Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import moment from 'moment';
 import { FilterQuery, Types } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
-export const projectQueries = {
+export const projectQueries: Record<string, Resolver> = {
   getProject: async (_parent: undefined, { _id }, { models }: IContext) => {
     return models.Project.getProject(_id);
   },
@@ -684,10 +684,17 @@ export const projectQueries = {
 
     return chartData;
   },
+
+  cpGetProjects: async (
+    _parent: undefined,
+    _filter: unknown,
+    { models }: IContext,
+  ) => {
+    return models.Project.find({});
+  },
 };
 
-requireLogin(projectQueries, 'getProject');
-requireLogin(projectQueries, 'getProjects');
-requireLogin(projectQueries, 'getProjectProgress');
-requireLogin(projectQueries, 'getProjectProgressByMember');
-requireLogin(projectQueries, 'getProjectProgressChart');
+projectQueries.cpGetProjects.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};
