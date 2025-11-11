@@ -11,7 +11,6 @@ interface ActivityItemWrapperProps {
 
 export const ActivityItemWrapper = ({ activity }: ActivityItemWrapperProps) => {
   const memberIds = activity.createdBy ? [activity.createdBy] : [];
-  console.log(activity);
   return (
     <ActivityTimelineItem
       avatar={<ActivityIcon activity={activity} />}
@@ -22,7 +21,7 @@ export const ActivityItemWrapper = ({ activity }: ActivityItemWrapperProps) => {
         <div className="text-accent-foreground">System</div>
       ) : (
         <MembersInline.Provider memberIds={memberIds}>
-          <MembersInline.Title />
+          <MembersInline.Title className="font-semibold" />
         </MembersInline.Provider>
       )}
       <ActivityItemContent activity={activity} />

@@ -30,7 +30,7 @@ export const CreatorInfo = ({ contentDetail }: CreatorInfoProps) => {
       Created by{' '}
       {hasCreator ? (
         <MembersInline.Provider memberIds={memberIds}>
-          <MembersInline.Title />
+          <MembersInline.Title className="font-semibold" />
         </MembersInline.Provider>
       ) : (
         <span className="text-muted-foreground">Unknown</span>

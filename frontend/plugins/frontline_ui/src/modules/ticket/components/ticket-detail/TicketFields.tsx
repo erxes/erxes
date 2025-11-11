@@ -140,7 +140,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         />
       </div>
       <Separator className="my-4" />
-      <div className="min-h-56">
+      <div className="min-h-56 overflow-y-auto">
         <BlockEditor
           editor={editor}
           onChange={handleDescriptionChange}

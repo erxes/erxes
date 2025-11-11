@@ -6,6 +6,7 @@ export const ACTIVITY_MODULES = {
   END_DATE: 'END_DATE',
   ASSIGNEE: 'ASSIGNEE',
   NOTE: 'NOTE',
+  DESCRIPTION: 'DESCRIPTION',
 };
 
 export const ACTIVITY_ACTIONS = {

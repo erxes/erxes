@@ -15,7 +15,6 @@ export const ActivityList = ({
   contentDetail: ITicket;
 }) => {
   const { activities, loading } = useActivities(contentId);
-  console.log(activities);
   if (loading) {
     return;
   }

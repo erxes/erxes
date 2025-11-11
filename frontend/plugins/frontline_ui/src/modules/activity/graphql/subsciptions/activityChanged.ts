@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const ACTIVITY_CHANGED = gql`
-  subscription TicketActivityChanged($contentId: String!) {
-    TicketActivityChanged(contentId: $contentId) {
+  subscription ticketActivityChanged($contentId: String!) {
+    ticketActivityChanged(contentId: $contentId) {
       type
       activity {
         _id
