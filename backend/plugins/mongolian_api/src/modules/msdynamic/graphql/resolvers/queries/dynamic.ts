@@ -203,8 +203,8 @@ const msdynamicQueries = {
 
         const remByCode = {};
         for (const rem of remainders) {
-          const procuctCode = productCodeById[rem.productId];
-          remByCode[procuctCode] = rem.remainder;
+          const productCode = productCodeById[rem.productId];
+          remByCode[productCode] = rem.remainder;
         }
 
         for (const row of result) {

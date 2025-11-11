@@ -260,7 +260,7 @@ export const dealToDynamic = async (
   deal: any,
   config: any,
 ) => {
-  const brandId = config.branId;
+  const brandId = config.brandId;
 
   let msdCustomer: any = {};
 
@@ -414,7 +414,7 @@ export const dealToDynamic = async (
     );
 
     if (!deal.productsData.length) {
-      throw new Error('Has not items order');
+      throw new Error('Order has no items');
     }
 
     const responseSale = await fetch(`${salesApi}${urlParam}`, {
@@ -1034,14 +1034,13 @@ export const getExchangeRates = async (config: ExchangeRateConfig) => {
       }
     });
 
-    const result = Object.fromEntries(
-      Object.entries(latestByCurrency).map(([key, value]) => [
-        key,
-        value.Special_Curr_Exch_Rate,
-      ]),
-    );
+     return Object.fromEntries(
+          Object.entries(latestByCurrency).map(([key, value]) => [
+            key,
+            value.Special_Curr_Exch_Rate,
+          ]),
+        );
 
-    return result;
   } catch (e) {
     console.error('Failed to fetch exchange rates:', e);
   }

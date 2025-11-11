@@ -2,12 +2,12 @@ import fetch from 'node-fetch';
 import { getExchangeRates, getPrice } from '../utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
-
 export const syncExchangeRate = async (subdomain: string, config: any) => {
   console.log(`${config.title} starting to create exchange rates`);
 
   let exchangeRates: any = {};
 
+  // Validate config
   if (
     !config.priceApi ||
     !config.username ||
@@ -18,6 +18,10 @@ export const syncExchangeRate = async (subdomain: string, config: any) => {
   }
 
   const { priceApi, username, password, pricePriority, brandId } = config;
+
+  if (!pricePriority) {
+    throw new Error('MS Dynamic price priority not configured.');
+  }
 
   const productQry: any = { status: { $ne: 'deleted' } };
 
@@ -36,15 +40,12 @@ export const syncExchangeRate = async (subdomain: string, config: any) => {
       pluginName: 'core',
       module: 'products',
       action: 'find',
-      input: {
-        query: productQry,
-      },
+      input: { query: productQry },
       defaultValue: [],
     });
 
-
+    // Build filter section
     const salesCodeFilter = pricePriority.replace(/, /g, ',').split(',');
-
     let filterSection = '';
 
     for (const price of salesCodeFilter) {
@@ -68,31 +69,32 @@ export const syncExchangeRate = async (subdomain: string, config: any) => {
       }
     ).then((res) => res.json());
 
-    const groupedItems = {};
+    // ✅ Hardened handling of price API response
+    const groupedItems: Record<string, any[]> = {};
 
-    if (response && response.value.length > 0) {
+    if (Array.isArray(response?.value) && response.value.length > 0) {
       for (const item of response.value) {
         const { Item_No } = item;
-
         if (!groupedItems[Item_No]) {
           groupedItems[Item_No] = [];
         }
-
         groupedItems[Item_No].push({ ...item });
       }
     }
 
-    const productsByCode = {};
-    // delete price
+    const productsByCode: Record<string, any> = {};
+
+    // Map existing products by code
     for (const product of products) {
       if (groupedItems[product.code]) {
         productsByCode[product.code] = product;
       }
     }
 
-    // update price
+    // Update prices
     for (const Item_No in groupedItems) {
       const resProds = groupedItems[Item_No];
+
       try {
         const { resPrice } = await getPrice(
           resProds,
@@ -101,39 +103,25 @@ export const syncExchangeRate = async (subdomain: string, config: any) => {
         );
 
         const foundProduct = productsByCode[Item_No];
-        if (foundProduct) {
-          if (foundProduct.unitPrice !== resPrice) {
-            const updated = await sendTRPCMessage({
-              subdomain,
-              pluginName: 'core',
-              module: 'products',
-              action: 'updateProduct',
-              input: {
-                _id: foundProduct._id,
-                doc: { unitPrice: resPrice || 0, currency: 'MNT' },
-              },
-              defaultValue: null,
-            });
-
-
-            // await putUpdateLog(subdomain, {
-            //   type: 'product',
-            //   object: foundProduct,
-            //   newData: {
-            //     unitPrice: resPrice || 0,
-            //     currency: 'MNT',
-            //     status: 'active',
-            //   },
-            //   updatedDocument: updated,
-            // });
-          }
+        if (foundProduct && foundProduct.unitPrice !== resPrice) {
+          await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            module: 'products',
+            action: 'updateProduct',
+            input: {
+              _id: foundProduct._id,
+              doc: { unitPrice: resPrice || 0, currency: 'MNT' },
+            },
+            defaultValue: null,
+          });
         }
       } catch (e) {
-        console.log(e, 'error');
+        console.log(e, 'error while updating price');
       }
     }
   } catch (e) {
-    console.log(e, 'error');
+    console.log(e, 'error during sync');
   }
 
   console.log(`${config.title} ending to create exchange rates`);

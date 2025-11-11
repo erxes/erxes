@@ -370,7 +370,7 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
         input: {
             query: {
                text: 'VAT',
-               contentType: 'core: company',
+               contentType: 'core:company',
             },
         },
         defaultValue: {},
@@ -412,7 +412,7 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
         pluginName:'core',
         module: 'companies',
         action: 'updateCompany',
-        input:'{ _id: company._id, doc: { ..document }',
+        input:{ _id: company._id, doc: { ...document } },
         defaultValue: {},
       });
     } else {
@@ -523,7 +523,7 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
     }
 
     if (doc.Post_Code || doc.VAT_Registration_No || doc.City) {
-      const updateCustomFieldData = await sendTRPCMessage({
+      updateCustomFieldData = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         module: 'fields',
@@ -550,6 +550,7 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         pluginName: 'core',
         module: 'customer',
         action: 'updateCustomer',
+        method: 'mutation',
         input: { _id: customer._id, doc: { ...document } },
         defaultValue: {},
       });
@@ -558,7 +559,8 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         subdomain,
         pluginName: 'core',
         module: 'customers',
-        action: ' createCustomer',
+        action: 'createCustomer',
+        method: 'mutation',
         input: { ...document },
         defaultValue: {},
       });
@@ -571,23 +573,23 @@ export const consumeCustomers = async (subdomain, config, doc, action) => {
   const updateCode = action === 'delete' ? doc.code : doc.No.replace(/\s/g, '');
 
   if (doc?.Partner_Type === 'Company') {
-    companyRequest(subdomain, config, action, updateCode, doc);
+    await companyRequest(subdomain, config, action, updateCode, doc);
   }
 
   if (doc?.Partner_Type === 'Person') {
-    if (doc.VAT_Registration_No.length === 7) {
-      companyRequest(subdomain, config, action, updateCode, doc);
+    if ((doc.VAT_Registration_No|| '').length === 7) {
+      await companyRequest(subdomain, config, action, updateCode, doc);
     } else {
-      customerRequest(subdomain, config, action, updateCode, doc);
+      await customerRequest(subdomain, config, action, updateCode, doc);
     }
   }
 
   if (doc?.Partner_Type === ' ' && doc.VAT_Registration_No) {
-    companyRequest(subdomain, config, action, updateCode, doc);
+    await companyRequest(subdomain, config, action, updateCode, doc);
   }
 
   if (doc?.Partner_Type === ' ' && !doc.VAT_Registration_No) {
-    customerRequest(subdomain, config, action, updateCode, doc);
+    await customerRequest(subdomain, config, action, updateCode, doc);
   }
 
   if (action === 'delete') {

@@ -7,7 +7,7 @@ import {
   syncLogSchema
 } from '~/modules/msdynamic/db/definitions/dynamic';
 import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
+import { IModels } from '~/connectionResolvers';
 
 export interface ISyncLogModel extends Model<ISyncLogDocument> {
   syncLogsAdd(doc: ISyncLog): Promise<ISyncLogDocument>;
@@ -22,7 +22,11 @@ export const loadSyncLogClass = (models: IModels) => {
     }
 
     public static async syncLogsEdit(_id: string, doc: ISyncLog) {
-      return await models.SyncLogs.updateOne({ _id }, { $set: { ...doc } });
+      return await models.SyncLogs.updateOne(
+        { _id }, 
+        { $set: { ...doc }},
+        { new: true }
+      );
     }
 
     public static async syncLogsRemove(_ids: string[]) {

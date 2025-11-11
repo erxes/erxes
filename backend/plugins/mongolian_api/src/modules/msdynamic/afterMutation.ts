@@ -105,7 +105,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
       const updatedDoc = params.updatedDocument || params.object;
       const brandId = updatedDoc?.scopeBrandIds?.[0];
       const config = configs[brandId || 'noBrand'];
-
       if (!config.useBoard) {
         await orderToDynamic(subdomain, models, syncLog, updatedDoc, config);
       }
@@ -113,7 +112,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
     }
   } catch (e) {
     await models.SyncLogs.updateOne(
-      { _id: syncLog._id },
+      { _id: syncLog?._id },
       { $set: { error: e.message } }
     );
   }
