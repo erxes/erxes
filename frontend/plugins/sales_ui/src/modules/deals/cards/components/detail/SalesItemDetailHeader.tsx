@@ -160,7 +160,7 @@ export const SalesItemDetailHeader = ({ deal }: SalesItemDetailHeaderProps) => {
             </Button>
           </DropdownMenu.Trigger>
 
-          <DropdownMenu.Content className="w-48 !min-w-fit">
+          <DropdownMenu.Content className="w-48 min-w-48">
             <DropdownMenu.Item onClick={handleCopy} disabled={copyLoading}>
               <IconCopy />
               {copyLoading ? 'Copying...' : 'Copy'}

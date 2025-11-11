@@ -109,7 +109,7 @@ const SelectChannelValue = ({ placeholder }: { placeholder?: string }) => {
           <Badge key={channel._id} variant="secondary">
             <IconComponent
               name={channel.icon}
-              className="size-4 flex-shrink-0"
+              className="size-4 shrink-0"
             />
             <TextOverflowTooltip value={channel.name} className="max-w-32" />
           </Badge>
@@ -122,7 +122,7 @@ const SelectChannelValue = ({ placeholder }: { placeholder?: string }) => {
     <div className="flex gap-2 items-center">
       <IconComponent
         name={selectedChannels[0]?.icon}
-        className="size-4 flex-shrink-0"
+        className="size-4 shrink-0"
       />
       <TextOverflowTooltip
         value={selectedChannels[0]?.name}

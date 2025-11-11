@@ -54,7 +54,7 @@ const ActionNodeSourceHandler = ({
           key="yes-right"
           id="yes-right"
           handlerId={`${id}__yes`}
-          className="!bg-success"
+          className="bg-success!"
           addButtonClassName="hover:text-success hover:border-success"
           style={{ top: '50%' }}
           showAddButton={!config?.yes}
@@ -68,7 +68,7 @@ const ActionNodeSourceHandler = ({
           key="no-right"
           id="no-right"
           handlerId={`${id}__no`}
-          className="!bg-destructive"
+          className="bg-destructive!"
           addButtonClassName="hover:text-destructive hover:border-destructive"
           style={{ top: '80%' }}
           showAddButton={!config?.no}
@@ -84,7 +84,7 @@ const ActionNodeSourceHandler = ({
 
   return (
     <NodeOutputHandler
-      className="!bg-success"
+      className="bg-success!"
       handlerId={id}
       addButtonClassName="hover:text-success  hover:border-success"
       showAddButton={!nextActionId}
@@ -138,7 +138,7 @@ const ActionNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
           id="left"
           type="target"
           position={Position.Left}
-          className={`!size-4 -z-10 !bg-success `}
+          className={`size-4! -z-10 bg-success! `}
         />
 
         <ActionNodeSourceHandler

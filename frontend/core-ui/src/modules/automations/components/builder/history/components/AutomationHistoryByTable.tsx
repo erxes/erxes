@@ -87,8 +87,8 @@ export const AutomationHistoryByTable = ({
       <Table>
         <Table.Header className="[&_th]:w-40">
           <Table.Row>
-            <Table.Head className="!w-36">Time</Table.Head>
-            <Table.Head className="!w-64">Action Type</Table.Head>
+            <Table.Head className="w-36!">Time</Table.Head>
+            <Table.Head className="w-64!">Action Type</Table.Head>
             <Table.Head>Results</Table.Head>
           </Table.Row>
         </Table.Header>

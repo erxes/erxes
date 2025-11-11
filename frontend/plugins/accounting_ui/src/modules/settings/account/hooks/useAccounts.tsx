@@ -124,7 +124,6 @@ export const useAccounts = (
   };
 };
 
-
 export const useAccountsInline = (
   options?: QueryHookOptions<{ accounts: IAccount[] }>,
 ) => {

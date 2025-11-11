@@ -24,7 +24,7 @@ export const MemberDetailLayout = ({
 }) => {
   return (
     <MemberDetailSheet
-      className={!otherState ? undefined : 'sm:max-w-screen-lg'}
+      className={!otherState ? undefined : 'sm:max-w-(--breakpoint-lg)'}
     >
       <Sheet.Content>
         {otherState === 'loading' && (

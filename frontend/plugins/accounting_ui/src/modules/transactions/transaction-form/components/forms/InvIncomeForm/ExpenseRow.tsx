@@ -121,7 +121,7 @@ export const ExpenseRow = ({
     <Table.Row
       key={_id}
       className={cn(
-        'overflow-hidden h-cell hover:!bg-background',
+        'overflow-hidden h-cell hover:bg-background!',
         expenseIndex === 0 && '[&>td]:border-t',
       )}
     >

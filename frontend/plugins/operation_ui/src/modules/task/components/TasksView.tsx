@@ -56,7 +56,7 @@ export const TasksViewControl = () => {
               size="lg"
               className="h-11 flex-col gap-0"
             >
-              <IconTable className="!size-5" />
+              <IconTable className="size-5!" />
               <span className="text-xs font-normal">List</span>
             </Button>
           </ToggleGroup.Item>
@@ -66,7 +66,7 @@ export const TasksViewControl = () => {
               size="lg"
               className="h-11 flex-col gap-0"
             >
-              <IconLayoutKanban className="!size-5" />
+              <IconLayoutKanban className="size-5!" />
               <span className="text-xs font-normal">Board</span>
             </Button>
           </ToggleGroup.Item>
