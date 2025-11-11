@@ -193,7 +193,7 @@ const RemoveButton = ({ group }: { group: IUserGroup }) => {
       }}
       className="size-7 flex items-center justify-center"
     >
-      {loading ? <Spinner size={'small'} /> : <IconTrash />}
+      {loading ? <Spinner /> : <IconTrash />}
     </Button>
   );
 };
@@ -211,7 +211,7 @@ const CopyButton = ({ group }: { group: IUserGroup }) => {
       }}
       className="size-7 flex items-center justify-center"
     >
-      {loading ? <Spinner size={'small'} /> : <IconCopy />}
+      {loading ? <Spinner /> : <IconCopy />}
     </Button>
   );
 };

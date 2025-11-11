@@ -37,7 +37,7 @@ export const PosDetailSheet = ({ children }: { children: React.ReactNode }) => {
     >
       <Sheet.View
         className={cn(
-          'p-0 md:max-w-(--breakpoint-2xl) flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
+          'p-0 md:max-w-6xl flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
           !!activeTab && 'md:w-[calc(100vw-(--spacing(4)))]',
         )}
       >
