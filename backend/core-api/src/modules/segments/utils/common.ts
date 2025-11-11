@@ -233,7 +233,7 @@ export const generateQueryBySegment = async (
                 pluginName: propertyPluginName,
                 producerName: TSegmentProducers.PROPERTY_CONDITION_EXTENDER,
                 method: 'query',
-                input: { condition, positiveQuery },
+                input: { condition: condition as any, positiveQuery },
                 defaultValue: { positive: null, ignoreThisPostiveQuery: false },
               });
 
