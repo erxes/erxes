@@ -16,7 +16,7 @@ export const TicketDetailSheet = () => {
     <Sheet open={!!activeTicket} onOpenChange={() => setActiveTicket(null)}>
       <Sheet.View
         className={
-          isExpanded ? 'min-w-[calc(100vw-1rem)]' : 'sm:max-w-screen-md'
+          isExpanded ? 'min-w-[calc(100vw-1rem)]' : 'sm:max-w-(--breakpoint-md)'
         }
       >
         <Sheet.Title className="sr-only">Ticket Details</Sheet.Title>

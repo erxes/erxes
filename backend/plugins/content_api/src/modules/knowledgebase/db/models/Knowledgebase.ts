@@ -169,7 +169,7 @@ export interface ICategoryModel extends Model<ICategoryDocument> {
   removeDoc(categoryId: string): void;
 }
 
-export const loadCategoryClass = (models: IModels) => {
+export const loadKBCategoryClass = (models: IModels) => {
   class Category {
     public static async getCategory(_id: string) {
       const category = await models.KnowledgeBaseCategories.findOne({ _id });

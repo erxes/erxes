@@ -40,7 +40,7 @@ export const UserDateField = ({
           onSave(date as Date);
         }
       }}
-      variant={field === 'birthDate' ? 'outline' : 'ghost'}
+      variant={field === 'birthDate' ? 'outline-solid' : 'ghost'}
       mode="single"
     />
   );

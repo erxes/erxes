@@ -23,7 +23,7 @@ export const ContactsDetailSheet = ({
     <Sheet open={!!open} onOpenChange={() => setOpen(null)}>
       <Sheet.View
         className={cn(
-          'p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-md',
+          'p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-(--breakpoint-md)',
         )}
       >
         <Sheet.Header className="border-b py-2 pl-8 flex-row items-center space-y-0 gap-3">
