@@ -189,7 +189,6 @@ export const loadTicketClass = (models: IModels) => {
       userId: string,
       subdomain: string,
     ): Promise<{ ok: number }> {
-      const oldTicket = await models.Ticket.findOne({ _id }).lean();
       const result = await models.Ticket.deleteOne({ _id });
 
       return { ok: result.deletedCount || 0 };

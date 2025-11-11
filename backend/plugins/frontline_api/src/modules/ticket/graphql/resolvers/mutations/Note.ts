@@ -3,7 +3,7 @@ import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 
 export const noteMutations = {
-  createNote: async (
+  ticketCreateNote: async (
     _parent: undefined,
     { content, contentId, mentions },
     { models, user, subdomain }: IContext,
@@ -19,7 +19,7 @@ export const noteMutations = {
     });
   },
 
-  updateNote: async (
+  ticketUpdateNote: async (
     _parent: undefined,
     params: INoteDocument,
     { models }: IContext,
@@ -27,7 +27,7 @@ export const noteMutations = {
     return models.Note.updateNote(params);
   },
 
-  deleteNote: async (
+  ticketDeleteNote: async (
     _parent: undefined,
     { _id }: { _id: string },
     { models, user }: IContext,

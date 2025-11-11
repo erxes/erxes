@@ -29,7 +29,7 @@ export const queries = `
 `;
 
 export const mutations = `
-    createNote(${createNoteParams}): Note
-    updateNote(${updateNoteParams}): Note
-    deleteNote(_id: String!): JSON
+    ticketCreateNote(${createNoteParams}): Note
+    ticketUpdateNote(${updateNoteParams}): Note
+    ticketDeleteNote(_id: String!): JSON
 `;
