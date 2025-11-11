@@ -1,5 +1,5 @@
 import { IconPlus } from '@tabler/icons-react';
-import { TicketHotKeyScope } from '@/ticket/types/TicketHotkeyScope';
+import { TicketHotKeyScope } from '@/ticket/types/ticketHotkeyScope';
 import {
   Button,
   ButtonProps,
