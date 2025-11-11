@@ -444,18 +444,14 @@ const fixSaleOutTrs = async (models: IModels, {
         { $match: { 'details._id': details.originId } },
       ]))[0];
 
-      if (!saleSaleRec) {
-        throw new Error(`Sale main not found for ${rec._id}`);
-      }
-
       const saleFollowCostRec = (await models.Transactions.aggregate([
         { $match: { originId: rec.originId, followType: TR_FOLLOW_TYPES.INV_SALE_COST } },
         { $unwind: '$details' },
         { $match: { 'details.originId': details.originId } },
       ]))[0];
 
-      if (!saleFollowCostRec) {
-        throw new Error(`Sale cost not found for ${rec._id}`);
+      if (!saleSaleRec || !saleFollowCostRec) {
+        throw new Error(`Sale main or cost not found for ${rec._id}`);
       }
 
       remainder -= fixNum(count ?? 0);
