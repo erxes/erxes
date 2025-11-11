@@ -9,6 +9,7 @@ import {
 } from '@/types/paths/SettingsPath';
 import { Skeleton } from 'erxes-ui';
 import { useVersion } from 'ui-modules';
+import { ClientPortalPage } from '~/pages/settings/client-portal/ClientPortalPage';
 
 const SettingsProfile = lazy(() =>
   import('~/pages/settings/account/ProfilePage').then((module) => ({
@@ -138,6 +139,10 @@ export function SettingsRoutes() {
         <Route
           path={SettingsWorkspacePath.Permissions}
           element={<PermissionsSettings />}
+        />
+        <Route
+          path={SettingsWorkspacePath.ClientPortals}
+          element={<ClientPortalPage />}
         />
         {/* <Route
           path={SettingsWorkspacePath.StructureCatchAll}

@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 export const types = `
   enum TokenPassMethod {
     cookie
@@ -73,7 +75,7 @@ type ClientPortal {
 
     mailConfig: MailConfig
     manualVerificationConfig: ManualVerificationConfig
-    passwordVerificationConfig: PasswordVerificationConfigInput
+    passwordVerificationConfig: PasswordVerificationConfig
 
     tokenExpiration: Int
     refreshTokenExpiration: Int
@@ -86,7 +88,7 @@ type ClientPortal {
     testUserOTP: String
 
     socialpayConfig: SocialpayConfig
-    tokiConfig: TokiConfigInput
+    tokiConfig: TokiConfig
 
     createdAt: Date
     updatedAt: Date
@@ -97,10 +99,8 @@ type ClientPortal {
     pageInfo: PageInfo
     totalCount: Int
   }
-`;
 
-export const inputs = `
-  input OTPConfigInput {
+    input OTPConfigInput {
     content: String
     codeLength: Int
     smsTransporterType: String
@@ -151,7 +151,7 @@ export const inputs = `
   }
 
   input ClientPortalConfigInput {
-    name: String!
+    name: String
     description: String
     domain: String
 
@@ -165,7 +165,7 @@ export const inputs = `
     otpConfig: OTPConfigInput
     twoFactorConfig: TwoFactorConfigInput
 
-    mailConfig: MailConfig
+    mailConfig: MailConfigInput
     manualVerificationConfig: ManualVerificationConfigInput
     passwordVerificationConfig: PasswordVerificationConfigInput
 
@@ -178,20 +178,21 @@ export const inputs = `
     testUserPhone: String
     testUserPassword: String
     testUserOTP: String
-
-    createdAt: Date
-    updatedAt: Date
   }
+
+  input IClientPortalFilter {
+    _id: String
+    ${GQL_CURSOR_PARAM_DEFS}
+  } 
+
 `;
 
 export const queries = `
-  clientPortalGetConfig(_id: String!): ClientPortal
+  getClientPortals(filter: IClientPortalFilter): ClientPortalListResponse
 `;
 
 export const mutations = `
-  clientPortalConfigUpdate (
-    config: ClientPortalConfigInput!
+  clientPortalCreate (
+    name: String!
   ): ClientPortal
-
-  clientPortalRemove (_id: String!): JSON
 `;
