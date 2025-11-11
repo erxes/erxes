@@ -66,7 +66,7 @@ export const loadNoteClass = (models: IModels) => {
           (userId) => userId !== doc.createdBy,
         );
 
-        let contentType = 'ticket';
+        const contentType = 'ticket';
 
         await createNotifications({
           contentType,
