@@ -10,7 +10,7 @@ import {
   TAutomationProducers,
 } from './types';
 import {
-  BaseInput,
+  AutomationBaseInput,
   CheckCustomTriggerInput,
   ReceiveActionsInput,
   ReplacePlaceholdersInput,
@@ -52,7 +52,7 @@ export const startAutomations = async (
   if (getAdditionalAttributes) {
     automationProcedures[TAutomationProducers.GET_ADDITIONAL_ATTRIBUTES] =
       t.procedure
-        .input(BaseInput)
+        .input(AutomationBaseInput)
         .mutation(async ({ ctx, input }) =>
           getAdditionalAttributes(
             { subdomain: input.subdomain, data: input.data },

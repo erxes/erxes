@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import {
-  BaseInput,
+  AutomationBaseInput,
   CheckCustomTriggerInput,
   ReceiveActionsInput,
   ReplacePlaceholdersInput,
@@ -98,7 +98,7 @@ export interface AutomationProducers {
   }>;
 
   getAdditionalAttributes?: (
-    args: z.infer<typeof BaseInput>,
+    args: z.infer<typeof AutomationBaseInput>,
     context: IAutomationContext,
   ) => Promise<Array<TAutomationAdditionalAttribute>>;
 

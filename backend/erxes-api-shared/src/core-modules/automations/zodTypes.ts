@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { TAutomationProducers } from './types';
 
-export const BaseInput = z.object({
+export const AutomationBaseInput = z.object({
   subdomain: z.string(),
   data: z.any().optional(),
 });
@@ -55,7 +55,7 @@ export const ReceiveActionsInputData = z.object({
   execution: AutomationExecutionInput,
   collectionType: z.string(),
 });
-export const ReceiveActionsInput = BaseInput.extend({
+export const ReceiveActionsInput = AutomationBaseInput.extend({
   data: ReceiveActionsInputData,
 });
 
@@ -105,15 +105,15 @@ export const SetPropertiesInputData = z.object({
   collectionType: z.string(),
 });
 
-export const CheckCustomTriggerInput = BaseInput.extend({
+export const CheckCustomTriggerInput = AutomationBaseInput.extend({
   data: CheckCustomTriggerInputData,
 });
 
-export const ReplacePlaceholdersInput = BaseInput.extend({
+export const ReplacePlaceholdersInput = AutomationBaseInput.extend({
   data: ReplacePlaceholdersInputData,
 });
 
-export const SetPropertiesInput = BaseInput.extend({
+export const SetPropertiesInput = AutomationBaseInput.extend({
   data: SetPropertiesInputData,
 });
 
@@ -128,5 +128,7 @@ export type TAutomationProducersInput = {
     typeof ReplacePlaceholdersInputData
   >;
   [TAutomationProducers.SET_PROPERTIES]: z.infer<typeof SetPropertiesInputData>;
-  [TAutomationProducers.GET_ADDITIONAL_ATTRIBUTES]: z.infer<typeof BaseInput>;
+  [TAutomationProducers.GET_ADDITIONAL_ATTRIBUTES]: z.infer<
+    typeof AutomationBaseInput
+  >;
 };

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { TSegmentProducers } from './types';
 
-export const BaseInput = z.object({
+export const SegmentBaseInput = z.object({
   subdomain: z.string(),
   data: z.any().optional(),
 });
@@ -47,19 +47,19 @@ const EsTypesMapInputData = z.object({
   collectionType: z.string(),
 });
 
-export const EsTypesMapInput = BaseInput.extend({
+export const EsTypesMapInput = SegmentBaseInput.extend({
   data: EsTypesMapInputData,
 });
 
-export const InitialSelectorInput = BaseInput.extend({
+export const InitialSelectorInput = SegmentBaseInput.extend({
   data: InitialSelectorInputData,
 });
 
-export const AssociationFilterInput = BaseInput.extend({
+export const AssociationFilterInput = SegmentBaseInput.extend({
   data: AssociationFilterInputData,
 });
 
-export const PropertyConditionExtenderInput = BaseInput.extend({
+export const PropertyConditionExtenderInput = SegmentBaseInput.extend({
   data: PropertyConditionExtenderInputData,
 });
 
