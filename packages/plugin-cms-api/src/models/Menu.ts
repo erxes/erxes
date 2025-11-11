@@ -53,7 +53,7 @@ export const loadMenuItemClass = (models: IModels) => {
         doc.url = await generateUniqueSlug(models.MenuItems, doc.clientPortalId, 'url', baseSlug);
       }
 
-      const menu = await models.MenuItems.(
+      const menu = await models.MenuItems.findOneAndUpdate(
         { _id: _id },
         { $set: doc },
         { new: true }
