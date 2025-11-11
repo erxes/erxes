@@ -5,7 +5,7 @@ import { nanoid } from 'nanoid';
 export interface ICustomPostType {
   _id: string;
   clientPortalId: string;
-
+  name: string;
   label: string;
   pluralLabel: string;
   code: string;
@@ -23,6 +23,7 @@ export const customPostTypeSchema = new Schema<ICustomPostTypeDocument>(
     _id: { type: String, default: () => nanoid() },
     clientPortalId: { type: String, required: true },
     label: { type: String, required: true },
+    name: { type: String, required: true },
     pluralLabel: { type: String, required: true },
     code: { type: String, required: true },
     isActive: { type: Boolean, default: true },

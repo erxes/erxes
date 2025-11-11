@@ -192,19 +192,15 @@ const callsQueries = {
   async callQueueList(_root, { integrationId }, { models, user }: IContext) {
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10); // YYYY-MM-DD формат
-    console.log('00');
 
     const integration = await models.Integrations.getIntegration(
       user._id,
       integrationId,
     );
-    console.log('01');
 
     if (!integration) {
-      console.log('02');
       throw new Error('Integration not found');
     }
-    console.log('03');
 
     const queueData = (await sendToGrandStream(
       models,
@@ -226,20 +222,14 @@ const callsQueries = {
       user,
     )) as any;
 
-    console.log('04');
-
     if (!queueData.ok) {
-      console.log('05');
       throw new Error(`HTTP error! Status: ${queueData.status}`);
     }
-    console.log('06');
     const xmlData = await queueData.text();
-    console.log('07');
 
     try {
       const parser = new XMLParser();
       const jsonObject = parser.parse(xmlData);
-      console.log('08 Parsed XML:', JSON.stringify(jsonObject).slice(0, 200));
 
       const status =
         jsonObject?.response?.status || jsonObject?.root_statistics?.status;
@@ -298,7 +288,6 @@ const callsQueries = {
           );
         }
 
-        console.log('2..', filteredQueues);
         return filteredQueues;
       }
 

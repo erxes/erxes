@@ -32,7 +32,7 @@ const ListContainer: React.FC<Props> = (props) => {
   });
 
   const [removeMutation] = useMutation(REMOVE_MENU, {
-    refetchQueries: [{ query: menuList }],
+    refetchQueries: [{ query: menuList, variables: { clientPortalId: cpId } }],
   });
 
   const remove = (menuId: string) => {

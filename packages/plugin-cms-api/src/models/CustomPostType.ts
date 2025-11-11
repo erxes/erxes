@@ -7,6 +7,7 @@ import {
 } from './definitions/customPostTypes';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { sendCommonMessage } from '../messageBroker';
+import { generateUniqueSlug } from './utils';
 
 export interface ICustomPostTypeModel extends Model<ICustomPostTypeDocument> {
   getCustomPostType(_id: string): Promise<ICustomPostTypeDocument>;
@@ -48,6 +49,24 @@ export const loadCustomPostTypeClass = (models: IModels) => {
     }
 
     public static async createCustomPostType(doc: ICustomPostType) {
+      if (doc.code) {
+        const uniqueCode = await generateUniqueSlug(
+          models.CustomPostTypes,
+          doc.clientPortalId,
+          'code',
+          doc.code
+        );
+
+        doc.code = uniqueCode;
+      }
+
+      doc.name = await generateUniqueSlug(
+        models.CustomPostTypes,
+        doc.clientPortalId,
+        'name',
+        doc.label
+      );
+
       await this.isCodeValid(doc.code, doc.clientPortalId);
 
       return models.CustomPostTypes.create(doc);
@@ -57,7 +76,19 @@ export const loadCustomPostTypeClass = (models: IModels) => {
       _id: string,
       doc: ICustomPostType
     ) {
-      await this.isCodeValid(doc.code, doc.clientPortalId);
+   
+      if (doc.code) {
+        const uniqueCode = await generateUniqueSlug(
+          models.CustomPostTypes,
+          doc.clientPortalId,
+          'code',
+          doc.code
+        );
+        doc.code = uniqueCode;
+      }
+
+         await this.isCodeValid(doc.code, doc.clientPortalId);
+
 
       const customPostType = await models.CustomPostTypes.findOneAndUpdate(
         { _id },

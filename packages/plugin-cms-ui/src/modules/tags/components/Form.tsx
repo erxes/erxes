@@ -21,7 +21,7 @@ type Props = {
 };
 
 const TagForm = (props: Props) => {
-  const { website } = props;
+  const { website, clientPortalId } = props;
   const [tag, setTag] = React.useState<any>(
     props.tag || {
       slug: '',
@@ -43,7 +43,7 @@ const TagForm = (props: Props) => {
   const onSave = () => {
     
 
-    props.onSubmit({name: tag.name, slug: tag.slug}, translations);
+    props.onSubmit({name: tag.name, slug: tag.slug, clientPortalId }, translations);
   };
 
   const getName = () => {
