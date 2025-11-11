@@ -31,11 +31,7 @@ export interface ITicketModel extends Model<ITicketDocument> {
     userId: string;
     subdomain: string;
   }): Promise<ITicketDocument>;
-  removeTicket(
-    _id: string,
-    userId: string,
-    subdomain: string,
-  ): Promise<{ ok: number }>;
+  removeTicket(_id: string): Promise<{ ok: number }>;
 }
 
 export const loadTicketClass = (models: IModels) => {
