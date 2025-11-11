@@ -9,7 +9,7 @@ export function ClientPortalRecordTable() {
     <RecordTable.Provider
       data={clientPortals || []}
       columns={clientPortalColumns}
-      stickyColumns={['name', 'description', 'domain', 'createdAt', 'token']}
+      stickyColumns={['name']}
       className="m-3"
     >
       <RecordTable.Scroll>

@@ -5,7 +5,7 @@ import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
 
 export const clientPortalQueries = {
-  async clientPortals(
+  async getClientPortals(
     _root: unknown,
     params: ICursorPaginateParams,
     { models }: IContext,
@@ -24,4 +24,4 @@ export const clientPortalQueries = {
   },
 };
 
-requireLogin(clientPortalQueries, 'clientPortals');
+requireLogin(clientPortalQueries, 'getClientPortals');

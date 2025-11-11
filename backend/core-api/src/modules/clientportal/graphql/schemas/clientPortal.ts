@@ -77,7 +77,7 @@ type ClientPortal {
     manualVerificationConfig: ManualVerificationConfig
     passwordVerificationConfig: PasswordVerificationConfig
 
-    tokenExpiration: Int
+    token: String
     refreshTokenExpiration: Int
     tokenPassMethod: TokenPassMethod
     vendorParentProductCategoryId: String
@@ -160,7 +160,7 @@ type ClientPortal {
     googleClientSecret: String
     googleRedirectUri: String
     facebookAppId: String
-    erxesAppToken: String
+    token: String
   
     otpConfig: OTPConfigInput
     twoFactorConfig: TwoFactorConfigInput
@@ -192,7 +192,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  clientPortalCreate (
+  clientPortalAdd (
     name: String!
   ): ClientPortal
 `;

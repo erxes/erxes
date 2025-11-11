@@ -2,6 +2,7 @@ import { Breadcrumb, Button } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { IconTerminal2 } from '@tabler/icons-react';
+import { CreateClientPortalSheet } from '@/client-portal/components/form/ClientPortalAddSheet';
 
 export const ClientPortalHeader = () => {
   return (
@@ -20,6 +21,9 @@ export const ClientPortalHeader = () => {
           </Breadcrumb.List>
         </Breadcrumb>
       </PageHeader.Start>
+      <PageHeader.End>
+        <CreateClientPortalSheet />
+      </PageHeader.End>
     </PageHeader>
   );
 };

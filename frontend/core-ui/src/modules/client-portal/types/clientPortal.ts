@@ -7,3 +7,8 @@ export interface IClientPortal {
   updatedAt?: string;
   token?: string;
 }
+
+export enum ClientPortalHotKeyScope {
+  ClientPortalSettingsPage = 'client-portal-settings-page',
+  ClientPortalAddSheet = 'client-portal-add-sheet',
+}

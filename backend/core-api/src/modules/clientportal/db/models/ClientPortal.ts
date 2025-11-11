@@ -1,5 +1,5 @@
 import { Model } from 'mongoose';
-
+import * as jwt from 'jsonwebtoken';
 import { IModels } from '~/connectionResolvers';
 import {
   IClientPortal,
@@ -10,15 +10,47 @@ import {
   removeExtraSpaces,
   removeLastTrailingSlash,
 } from 'erxes-api-shared/utils';
+import * as dotenv from 'dotenv';
+dotenv.config();
+
+const { JWT_TOKEN_SECRET = 'SECRET' } = process.env;
 
 export interface IClientPortalModel extends Model<IClientPortalDocument> {
   getConfig(_id: string): Promise<IClientPortalDocument>;
-
+  createClientPortal(name: string): Promise<IClientPortalDocument>;
+  createClientPortalToken(clientPortalId: string): Promise<string>;
   createOrUpdateConfig(args: IClientPortal): Promise<IClientPortalDocument>;
 }
 
 export const loadPortalClass = (models: IModels) => {
   class ClientPortal {
+    public static async createClientPortal(name: string) {
+      const clientPortal = await models.ClientPortal.create({ name });
+
+      const token = await models.ClientPortal.createClientPortalToken(
+        clientPortal._id,
+      );
+
+      return models.ClientPortal.findOneAndUpdate(
+        { _id: clientPortal._id },
+        { $set: { token } },
+        { new: true },
+      );
+    }
+
+    public static async createClientPortalToken(clientPortalId: string) {
+      const clientPortal = await models.ClientPortal.findOne({
+        _id: clientPortalId,
+      });
+      if (!clientPortal) {
+        throw new Error('Client portal not found');
+      }
+
+      const token = jwt.sign({ clientPortal }, JWT_TOKEN_SECRET);
+
+      return token;
+    }
+
     public static async getConfig(_id: string) {
       const config = await models.ClientPortal.findOne({ _id }).lean();
 
