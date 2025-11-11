@@ -307,7 +307,7 @@ const PersistentMenu = ({
       </div>
       <Button
         onClick={() => append({ title: '', type: 'button' })}
-        className="flex w-full !mt-5"
+        className="flex w-full mt-5!"
         variant="secondary"
       >
         <IconPlus />
@@ -377,7 +377,7 @@ const CallRouting = ({
       </div>
       <Button
         onClick={() => append({ name: '', operatorIds: [] })}
-        className="flex w-full !mt-5"
+        className="flex w-full mt-5!"
         variant="secondary"
       >
         <IconPlus />

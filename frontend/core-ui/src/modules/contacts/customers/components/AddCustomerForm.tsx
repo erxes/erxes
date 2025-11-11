@@ -64,7 +64,7 @@ export function AddCustomerForm({
             <CustomerAddGeneralInformationFields form={form} />
           </AddCustomerFormTabs>
         </Sheet.Content>
-        <Sheet.Footer className="flex justify-end flex-shrink-0 gap-1 px-5">
+        <Sheet.Footer className="flex justify-end shrink-0 gap-1 px-5">
           <Button
             type="button"
             variant="ghost"
