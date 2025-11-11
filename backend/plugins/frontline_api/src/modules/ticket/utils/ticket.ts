@@ -138,15 +138,13 @@ const getModule = (field: string): Module | null =>
 
 export const createActivity = async (args: {
   contentType: 'ticket';
-  oldDoc?: Partial<ITicketDocument> | null;
-  newDoc?: Partial<ITicket> | null;
+  oldDoc: ITicketDocument;
+  newDoc: Partial<ITicket>;
   subdomain: string;
   userId: string;
   contentId: string;
 }) => {
-  const { subdomain, userId, contentId } = args;
-  const oldDocSafe: Partial<ITicketDocument> = args.oldDoc ?? {};
-  const newDocSafe: Partial<ITicket> = args.newDoc ?? {};
+  const { oldDoc, newDoc, subdomain, userId, contentId } = args;
 
   const models = await generateModels(subdomain);
 
@@ -156,9 +154,9 @@ export const createActivity = async (args: {
     previousValue: any,
     module: Module,
   ) => {
-    const lastActivity = await models.Activity.findOne({ contentId })
-      .sort({ createdAt: -1 })
-      .lean();
+    const lastActivity = await models.Activity.findOne({ contentId }).sort({
+      createdAt: -1,
+    });
 
     if (lastActivity?.module === module && lastActivity?.action === action) {
       const thirtyMinutesAgo = subMinutes(new Date(), 30);
@@ -169,7 +167,7 @@ export const createActivity = async (args: {
 
       if (
         isRecent &&
-        toStr(newValue) === toStr(lastActivity.metadata?.previousValue)
+        toStr(newValue) === toStr(lastActivity.metadata.previousValue)
       ) {
         return models.Activity.removeActivity(lastActivity._id);
       }
@@ -181,13 +179,13 @@ export const createActivity = async (args: {
         module,
         metadata: {
           newValue: toStr(newValue),
-          previousValue: toStr(lastActivity.metadata?.previousValue),
+          previousValue: toStr(lastActivity.metadata.previousValue),
         },
         createdBy: userId,
       });
     }
 
-    return await models.Activity.createActivity({
+    return models.Activity.createActivity({
       contentId,
       action,
       module,
@@ -199,9 +197,10 @@ export const createActivity = async (args: {
     });
   };
 
-  for (const [field, newValue] of Object.entries(newDocSafe)) {
-    const oldValue = (oldDocSafe as any)[field];
+  for (const [field, newValue] of Object.entries(newDoc)) {
+    const oldValue = oldDoc[field as keyof typeof oldDoc];
     const module = getModule(field);
+
     if (!module) continue;
 
     let action: Action | null = null;

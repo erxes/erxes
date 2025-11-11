@@ -184,11 +184,7 @@ export const loadTicketClass = (models: IModels) => {
       );
     }
 
-    public static async removeTicket(
-      _id: string,
-      userId: string,
-      subdomain: string,
-    ): Promise<{ ok: number }> {
+    public static async removeTicket(_id: string): Promise<{ ok: number }> {
       const result = await models.Ticket.deleteOne({ _id });
 
       return { ok: result.deletedCount || 0 };
