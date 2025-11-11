@@ -57,7 +57,7 @@ const BoardCards = ({
       <SortableContext items={items}>
         <div
           className={cn(
-            'flex flex-grow flex-col gap-2 p-2 pt-px relative',
+            'flex grow flex-col gap-2 p-2 pt-px relative',
             className,
           )}
           {...props}
@@ -106,7 +106,7 @@ const BoardCard = <T extends BoardItemProps = BoardItemProps>({
       >
         <div
           className={cn(
-            'gap-4 rounded-lg shadow-sm outline-none bg-background',
+            'gap-4 rounded-lg shadow-sm outline-hidden bg-background',
             isDragging && 'pointer-events-none cursor-grabbing opacity-30',
             className,
           )}
@@ -281,7 +281,7 @@ export const BoardRoot = ({
       ref={setNodeRef}
       data-type="column"
       className={cn(
-        'flex min-h-[400px] min-w-80 flex-col overflow-hidden transition-all bg-gradient-to-b from-[#e0e7ff] to-[#e0e7ff50] rounded-t-md dark:from-primary/40 dark:to-primary/20 relative',
+        'flex min-h-[400px] min-w-80 flex-col overflow-hidden transition-all bg-linear-to-b from-[#e0e7ff] to-[#e0e7ff50] rounded-t-md dark:from-primary/40 dark:to-primary/20 relative',
         isActive && 'shadow-lg shadow-purple-400/40 dark:shadow-primary/30',
         className,
       )}
@@ -295,7 +295,7 @@ export const BoardRoot = ({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.1 }}
-              className="absolute inset-0 top-8 rounded-t-md bg-background/30 backdrop-blur-sm flex items-center justify-center"
+              className="absolute inset-0 top-8 rounded-t-md bg-background/30 backdrop-blur-xs flex items-center justify-center"
             >
               Board ordered by
               <span className="font-medium capitalize ml-1">{sortBy}</span>

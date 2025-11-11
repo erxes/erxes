@@ -40,7 +40,7 @@ const DealViewControl = () => {
               size="lg"
               className="h-11 flex-col gap-0 border"
             >
-              <IconList className="!size-5" />
+              <IconList className="size-5!" />
               <span className="text-xs font-normal">List</span>
             </Button>
           </ToggleGroup.Item>
@@ -50,7 +50,7 @@ const DealViewControl = () => {
               size="lg"
               className="h-11 flex-col gap-0 border"
             >
-              <IconLayoutKanban className="!size-5" />
+              <IconLayoutKanban className="size-5!" />
               <span className="text-xs font-normal">Board</span>
             </Button>
           </ToggleGroup.Item>

@@ -187,7 +187,7 @@ export const InventoryRow = ({
     <Table.Row
       key={_id}
       className={cn(
-        'overflow-hidden h-cell hover:!bg-background',
+        'overflow-hidden h-cell hover:bg-background!',
         detailIndex === 0 && '[&>td]:border-t',
       )}
     >
@@ -233,7 +233,6 @@ export const InventoryRow = ({
                 }}
                 defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
                 variant="ghost"
-                inForm
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />
             )}

@@ -17,7 +17,7 @@ export const ChannelDetailBreadcrumb = () => {
 
   const { channel, loading } = useGetChannel({ variables: { id } });
   if (loading) {
-    return <Skeleton className="w-12 h-[1lh]" />;
+    return <Skeleton className="w-12 h-lh" />;
   }
   return (
     <Link to={`/settings/frontline/channels/${id}`}>

@@ -68,7 +68,7 @@ export const EditAccountForm = () => {
         loading={editLoading}
       />
       {loading && (
-        <div className="absolute inset-0 bg-background/10 backdrop-blur-sm flex items-center justify-center rounded-md">
+        <div className="absolute inset-0 bg-background/10 backdrop-blur-xs flex items-center justify-center rounded-md">
           <Spinner />
         </div>
       )}

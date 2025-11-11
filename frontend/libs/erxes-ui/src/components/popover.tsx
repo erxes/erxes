@@ -7,7 +7,7 @@ export type PopoverProps = React.ComponentPropsWithoutRef<
 >;
 
 export const popoverClassName =
-  'z-50 w-72 rounded-md bg-background p-4 shadow-lg outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0';
+  'z-50 w-72 rounded-md bg-background p-4 shadow-lg outline-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0';
 
 const PopoverPortal = ({
   ...props

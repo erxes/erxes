@@ -43,7 +43,7 @@ const NotificationList = () => {
       {loading ? (
         <Spinner />
       ) : (
-        <ScrollArea.Viewport className="[&>div]:!block">
+        <ScrollArea.Viewport className="[&>div]:block!">
           <div className="py-3 px-4 flex flex-col gap-2 w-full overflow-hidden">
             {notifications.map((notification) => (
               <NotificationItem key={notification._id} {...notification} />

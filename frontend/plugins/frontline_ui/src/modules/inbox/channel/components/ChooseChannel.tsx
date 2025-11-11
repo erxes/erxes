@@ -45,7 +45,7 @@ const ChannelItem = ({ _id, name, icon }: IChannel) => {
   return (
     <Button
       variant={isActive ? 'secondary' : 'ghost'}
-      className="justify-start relative overflow-hidden text-left flex-auto"
+      className="justify-start relative overflow-hidden text-left flex-auto p-2"
       onClick={handleClick}
     >
       {isActive ? (
@@ -53,7 +53,7 @@ const ChannelItem = ({ _id, name, icon }: IChannel) => {
       ) : (
         <IconComponent
           name={icon}
-          className="size-3 text-accent-foreground flex-shrink-0"
+          className="size-3 text-accent-foreground shrink-0"
         />
       )}
       <TextOverflowTooltip value={name} />

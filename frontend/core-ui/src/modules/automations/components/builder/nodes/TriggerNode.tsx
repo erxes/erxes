@@ -83,7 +83,7 @@ const TriggerNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
         <NodeOutputHandler
           nodeType="trigger"
           handlerId={id}
-          className="!bg-primary"
+          className="bg-primary!"
           addButtonClassName="hover:border-primary hover:text-primary "
           showAddButton={!actionId}
         />

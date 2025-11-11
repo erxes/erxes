@@ -59,7 +59,7 @@ export const SelectCategory = React.forwardRef<
         loading={loading}
       />
       <Combobox.Content>
-        <Command className="outline-none">
+        <Command className="outline-hidden">
           <Command.Input />
           <Command.List>
             <Combobox.Empty error={error} loading={loading} />

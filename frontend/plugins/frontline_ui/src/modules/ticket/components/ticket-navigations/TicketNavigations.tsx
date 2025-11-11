@@ -44,7 +44,7 @@ function ChannelItem({ channel }: ChannelItemProps) {
               <IconComponent
                 name={channel.icon}
                 className={cn(
-                  'text-accent-foreground flex-shrink-0 size-4',
+                  'text-accent-foreground shrink-0 size-4',
                   isActive && 'text-primary',
                 )}
               />
