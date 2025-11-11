@@ -24,7 +24,7 @@ export default function ArchivedDeals() {
       onClick={toggleArchived}
     >
       <IconArchive />
-      {archivedOnly ? 'Unarchived' : 'Archived'}
+      {archivedOnly ? 'Active items' : 'Archived items'}
     </Button>
   );
 }

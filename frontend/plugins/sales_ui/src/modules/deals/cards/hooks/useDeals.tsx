@@ -54,11 +54,12 @@ interface UseDealsWatchOptions {
   onError?: (error: any) => void;
 }
 
+type WatchDealArgs =
+  | { _id: string; isAdd: boolean }
+  | { dealId: string; isWatched?: boolean };
+
 export const useDealsWatch = (options?: UseDealsWatchOptions) => {
   const [dealsWatch, { data, loading, error }] = useMutation(DEALS_WATCH, {
-    onCompleted: (data) => {
-      options?.onCompleted?.(data);
-    },
     onError: (error) => {
       toast({
         title: 'Error',
@@ -69,50 +70,37 @@ export const useDealsWatch = (options?: UseDealsWatchOptions) => {
     },
   });
 
-  const watchDeal = async (dealId: string, isAdd: boolean) => {
+  const watchDeal = async (variables: WatchDealArgs) => {
+    // Normalize args to mutation shape: {_id, isAdd}
+    const id = (variables as any)._id ?? (variables as any).dealId;
+    let isAdd: boolean;
+    if (typeof (variables as any).isAdd === 'boolean') {
+      isAdd = (variables as any).isAdd;
+    } else if (typeof (variables as any).isWatched === 'boolean') {
+      isAdd = (variables as any).isWatched;
+    } else {
+      // Default to adding a watch when not specified
+      isAdd = true;
+    }
+
     const result = await dealsWatch({
+      variables: { _id: id, isAdd },
       onCompleted: (data) => {
         toast({
-          title: isAdd ? ' Watched' : 'Unwatched',
-          variant: 'default',
+          title: 'Success',
+          description: isAdd
+            ? 'Deal is now being watched'
+            : 'Deal is no longer watched',
+          duration: 3000,
         });
         options?.onCompleted?.(data);
-      },
-      variables: {
-        _id: dealId,
-        isAdd,
-      },
-      optimisticResponse: {
-        dealsWatch: {
-          _id: dealId,
-          isWatched: isAdd,
-          __typename: 'Deal',
-        },
-      },
-      update: (cache, { data: mutationData }) => {
-        if (mutationData?.dealsWatch) {
-          cache.modify({
-            id: cache.identify({ __typename: 'Deal', _id: dealId }),
-            fields: {
-              isWatched() {
-                return mutationData.dealsWatch.isWatched;
-              },
-            },
-          });
-        }
       },
     });
     return result;
   };
 
-  return {
-    watchDeal,
-    data,
-    loading,
-    error,
-  };
+  return { watchDeal, data, loading, error };
 };
-
 export const useDealsCopy = (options?: UseDealsCopyOptions) => {
   const [dealsCopy, { data, loading, error }] = useMutation(DEALS_COPY, {
     onCompleted: (data) => {
@@ -239,29 +227,37 @@ export const useDeals = (
         if (!prev || !subscriptionData.data) return prev;
 
         const { action, deal } = subscriptionData.data.salesDealListChanged;
-        const currentList = prev.deals.list;
+        const currentList = (prev.deals.list || []).filter(Boolean) as IDeal[];
 
         let updatedList = currentList;
 
         if (action === 'add') {
-          const exists = currentList.some(
-            (item: IDeal) => item._id === deal._id,
-          );
-          if (!exists) {
-            updatedList = [deal, ...currentList];
+          if (deal && deal._id) {
+            const exists = currentList.some(
+              (item: IDeal | null | undefined) => item && item._id === deal._id,
+            );
+            if (!exists) {
+              updatedList = [deal, ...currentList];
+            }
           }
         }
 
         if (action === 'edit') {
-          updatedList = currentList.map((item: IDeal) =>
-            item._id === deal._id ? { ...item, ...deal } : item,
-          );
+          if (deal && deal._id) {
+            updatedList = currentList
+              .map((item: IDeal | null | undefined) =>
+                item && item._id === deal._id ? { ...item, ...deal } : item,
+              )
+              .filter(Boolean) as IDeal[];
+          }
         }
 
         if (action === 'remove') {
-          updatedList = currentList.filter(
-            (item: IDeal) => item._id !== deal._id,
-          );
+          if (deal && deal._id) {
+            updatedList = currentList.filter(
+              (item: IDeal | null | undefined) => item && item._id !== deal._id,
+            ) as IDeal[];
+          }
         }
 
         return {

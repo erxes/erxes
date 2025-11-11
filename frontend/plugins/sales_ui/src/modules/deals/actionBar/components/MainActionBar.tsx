@@ -1,7 +1,7 @@
 import DealViewControl from '@/deals/actionBar/components/DealViewControl';
 import { SalesFilter } from '@/deals/actionBar/components/SalesFilter';
 
-import ArchivedDeals from './ArchivedDeals';
+import ArchivedDeals from '@/deals/actionBar/components/ArchivedDeals';
 
 const MainActionBar = () => {
   return (

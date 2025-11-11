@@ -1,106 +1,140 @@
 import {
   Board,
   BoardColumnProps,
-  BoardItemProps,
   EnumCursorDirection,
   Skeleton,
   SkeletonArray,
   useQueryState,
 } from 'erxes-ui';
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useDeals, useDealsChange } from '@/deals/cards/hooks/useDeals';
-
-import { DealsBoardCard } from '@/deals/boards/components/DealsBoardCard';
-import { DealsBoardColumnHeader } from '@/deals/boards/components/DealsBoardColumnHeader';
-import type { DragEndEvent } from '@dnd-kit/core';
-import { IDeal } from '@/deals/types/deals';
-import { StagesLoading } from '@/deals/components/loading/StagesLoading';
-import clsx from 'clsx';
-import { dealCountByBoardAtom } from '@/deals/states/dealsTotalCountState';
 import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useSearchParams } from 'react-router';
-import { useStages } from '@/deals/stage/hooks/useStages';
+import type { DragEndEvent } from '@dnd-kit/core';
+import clsx from 'clsx';
 
-const fetchedDealsState = atom<BoardItemProps[]>([]);
+import { useDeals, useDealsChange } from '@/deals/cards/hooks/useDeals';
+import { DealsBoardCard } from '@/deals/boards/components/DealsBoardCard';
+import { DealsBoardColumnHeader } from '@/deals/boards/components/DealsBoardColumnHeader';
+import { StagesLoading } from '@/deals/components/loading/StagesLoading';
+import { useStages } from '@/deals/stage/hooks/useStages';
+import { dealCountByBoardAtom } from '@/deals/states/dealsTotalCountState';
+import type { IDeal } from '@/deals/types/deals';
+
+// State management
+interface BoardItem extends Record<string, unknown> {
+  id: string;
+  column: string;
+  stageId: string;
+  name: string;
+}
+
+const fetchedDealsState = atom<BoardItem[]>([]);
 export const allDealsMapState = atom<Record<string, IDeal>>({});
 
+// Utility functions
+const buildQueryVariables = (searchParams: URLSearchParams) => {
+  const ignoredKeys = [
+    'boardId',
+    'pipelineId',
+    'salesItemId',
+    'tab',
+    'archivedOnly',
+    'noSkipArchive',
+  ];
+  const variables: Record<string, any> = {};
+
+  for (const [key, value] of searchParams.entries()) {
+    if (ignoredKeys.includes(key)) continue;
+
+    try {
+      variables[key] = JSON.parse(value);
+    } catch {
+      variables[key] = value;
+    }
+  }
+
+  return variables;
+};
+
+// Main component
 export const DealsBoard = () => {
+  const [pipelineId] = useQueryState<string>('pipelineId');
+  const [searchParams] = useSearchParams();
+  const [deals, setDeals] = useAtom(fetchedDealsState);
   const allDealsMap = useAtomValue(allDealsMapState);
   const setAllDealsMap = useSetAtom(allDealsMapState);
-
+  const setDealCountByBoard = useSetAtom(dealCountByBoardAtom);
   const { changeDeals } = useDealsChange();
-  const [pipelineId] = useQueryState<string>('pipelineId');
 
   const { stages, loading: stagesLoading } = useStages({
-    variables: {
-      pipelineId,
-    },
+    variables: { pipelineId },
     skip: !pipelineId,
   });
 
-  const columns = stages?.map((stage) => ({
-    id: stage._id,
-    name: stage.name,
-    type: stage.type,
-    probability: stage.probability,
-    itemsTotalCount: stage.itemsTotalCount,
-  }));
+  const columns =
+    stages?.map((stage) => ({
+      id: stage._id,
+      name: stage.name,
+      type: stage.type,
+      probability: stage.probability,
+      itemsTotalCount: stage.itemsTotalCount,
+    })) || [];
 
-  const [deals, setDeals] = useAtom(fetchedDealsState);
-  const setDealCountByBoard = useSetAtom(dealCountByBoardAtom);
-  const [searchParams] = useSearchParams();
-
+  // Reset deal counts when pipeline or search params change
+  const searchParamsString = searchParams.toString();
   useEffect(() => {
     setDealCountByBoard({});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pipelineId, searchParams.toString()]);
+  }, [pipelineId, searchParamsString, setDealCountByBoard]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) return;
 
     const activeItem = allDealsMap[active.id as string];
-    const overItem = allDealsMap[over.id as string];
-
     if (!activeItem) return;
 
+    const overItem = allDealsMap[over.id as string];
     const overColumnId =
       overItem?.stageId ||
       columns.find((col) => col.id === over.id)?.id ||
       columns[0]?.id;
 
+    if (!overColumnId) return;
+
+    const previousStageId = activeItem.stageId;
+    const isSameColumn = previousStageId === overColumnId;
+
     setDeals((prev) => {
       let updated = [...prev];
       const activeIndex = updated.findIndex((d) => d.id === activeItem._id);
-      if (activeItem.stageId !== overColumnId) {
+
+      if (!isSameColumn) {
+        // Move to different column
         updated[activeIndex] = {
           ...updated[activeIndex],
           column: overColumnId,
           stageId: overColumnId,
         };
       } else {
+        // Reorder within same column
         const columnItems = updated.filter((d) => d.column === overColumnId);
-
-        const overIndex = columnItems.findIndex((d) => d.id === overItem?._id);
-
         const activeIndexInColumn = columnItems.findIndex(
           (d) => d.id === activeItem._id,
         );
+        const overIndex = columnItems.findIndex((d) => d.id === overItem?._id);
 
-        if (activeIndexInColumn > -1)
+        if (activeIndexInColumn > -1) {
           columnItems.splice(activeIndexInColumn, 1);
+        }
 
-        columnItems.splice(
-          overIndex === -1 ? columnItems.length : overIndex,
-          0,
-          {
-            ...activeItem,
-            column: overColumnId,
-            stageId: overColumnId,
-            id: activeItem._id,
-          },
-        );
+        const insertIndex = overIndex === -1 ? columnItems.length : overIndex;
+        columnItems.splice(insertIndex, 0, {
+          ...activeItem,
+          column: overColumnId,
+          stageId: overColumnId,
+          id: activeItem._id,
+        });
 
         updated = [
           ...updated.filter((d) => d.column !== overColumnId),
@@ -108,17 +142,17 @@ export const DealsBoard = () => {
         ];
       }
 
+      // Update deal map
       setAllDealsMap((prev) => ({
         ...prev,
         [activeItem._id]: {
           ...activeItem,
           stageId: overColumnId,
-          column: overColumnId,
         },
       }));
 
+      // Calculate position for API call
       const columnItemsAfter = updated.filter((d) => d.column === overColumnId);
-
       const activeNewIndex = columnItemsAfter.findIndex(
         (d) => d.id === activeItem._id,
       );
@@ -127,11 +161,12 @@ export const DealsBoard = () => {
           ? columnItemsAfter[activeNewIndex - 1].id
           : undefined;
 
+      // Update backend
       changeDeals({
         variables: {
           itemId: activeItem._id,
           destinationStageId: overColumnId,
-          sourceStageId: activeItem.stageId,
+          sourceStageId: previousStageId,
           aboveItemId,
         },
       });
@@ -139,10 +174,11 @@ export const DealsBoard = () => {
       return updated;
     });
 
-    if (activeItem.stageId !== overColumnId) {
+    // Update counts if moved to different column
+    if (!isSameColumn) {
       setDealCountByBoard((prev) => ({
         ...prev,
-        [activeItem?.stageId]: prev[activeItem?.stageId] - 1 || 0,
+        [previousStageId]: Math.max((prev[previousStageId] || 1) - 1, 0),
         [overColumnId]: (prev[overColumnId] || 0) + 1,
       }));
     }
@@ -158,7 +194,7 @@ export const DealsBoard = () => {
       data={deals}
       onDragEnd={handleDragEnd}
       boardId={clsx('deals-board', pipelineId)}
-      emptyUrl={'/settings/deals'}
+      emptyUrl="/settings/deals"
     >
       {(column) => (
         <Board id={column.id} key={column.id} sortBy="updated" isSorted>
@@ -169,85 +205,67 @@ export const DealsBoard = () => {
   );
 };
 
+// Column cards component
 export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
   const [pipelineId] = useQueryState('pipelineId');
-
+  const [searchParams] = useSearchParams();
   const [dealCards, setDealCards] = useAtom(fetchedDealsState);
   const [dealCountByBoard, setDealCountByBoard] = useAtom(dealCountByBoardAtom);
-  const [searchParams] = useSearchParams();
-
-  const ignoredKeys = [
-    'boardId',
-    'pipelineId',
-    'salesItemId',
-    'tab',
-    'archivedOnly',
-    'noSkipArchive',
-  ];
-
-  const queryVariables: Record<string, any> = {};
-
-  for (const [key, value] of searchParams.entries()) {
-    if (ignoredKeys.includes(key)) continue;
-
-    try {
-      const parsed = JSON.parse(value);
-      queryVariables[key] = parsed;
-    } catch {
-      queryVariables[key] = value;
-    }
-  }
+  const setAllDealsMap = useSetAtom(allDealsMapState);
 
   const archivedOnly = searchParams.get('archivedOnly') === 'true';
-
-  const boardCards = dealCards.filter((deal) => deal.column === column.id);
+  const queryVariables = buildQueryVariables(searchParams);
 
   const { deals, totalCount, loading, handleFetchMore } = useDeals({
     variables: {
       stageId: column.id,
       pipelineId,
       ...queryVariables,
-      ...(archivedOnly ? { noSkipArchive: true } : {}),
+      ...(archivedOnly && { noSkipArchive: true }),
     },
   });
 
-  const setAllDealsMap = useSetAtom(allDealsMapState);
+  const boardCards = dealCards.filter((deal) => deal.column === column.id);
 
+  // Update deals when data changes
   useEffect(() => {
-    const sourceDeals = archivedOnly
-      ? (deals || []).filter((d) => d.status === 'archived')
-      : (deals || []).filter((d) => d.status !== 'archived');
+    const filteredDeals = archivedOnly
+      ? deals?.filter((d) => d.status === 'archived') || []
+      : deals?.filter((d) => d.status !== 'archived') || [];
 
-    if (sourceDeals && sourceDeals.length !== 0) {
+    if (filteredDeals.length > 0) {
       setDealCards((prev) => {
-        // Remove all existing items for this column to prevent mixing states
         const withoutThisColumn = prev.filter((d) => d.column !== column.id);
-
-        return [
-          ...withoutThisColumn,
-          ...sourceDeals.map((deal) => ({ id: deal._id, column: deal.stageId })),
-        ];
+        const newCards = filteredDeals.map((deal) => ({
+          id: deal._id,
+          column: deal.stageId,
+          stageId: deal.stageId,
+          name: deal.name,
+        }));
+        return [...withoutThisColumn, ...newCards];
       });
+
       setAllDealsMap((prev) => {
-        const newDeals = (sourceDeals || []).reduce((acc, deal) => {
+        const newDealsMap = filteredDeals.reduce((acc, deal) => {
           acc[deal._id] = deal;
           return acc;
         }, {} as Record<string, IDeal>);
-        return { ...prev, ...newDeals };
+        return { ...prev, ...newDealsMap };
       });
     } else {
       setDealCards((prev) => prev.filter((d) => d.column !== column.id));
     }
-  }, [deals, archivedOnly, setDealCards, setAllDealsMap, column.id]);
+  }, [deals, archivedOnly, column.id, setDealCards, setAllDealsMap]);
 
+  // Update total count
   useEffect(() => {
-    if (totalCount) {
+    if (totalCount !== undefined) {
       setDealCountByBoard((prev) => ({
         ...prev,
         [column.id]: totalCount,
       }));
     }
-  }, [totalCount, setDealCountByBoard, column.id]);
+  }, [totalCount, column.id, setDealCountByBoard]);
 
   return (
     <>
@@ -278,7 +296,7 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
         <DealCardsFetchMore
           totalCount={dealCountByBoard[column.id] || 0}
           currentLength={boardCards.length}
-          handleFetchMore={() =>
+          onFetchMore={() =>
             handleFetchMore({ direction: EnumCursorDirection.FORWARD })
           }
         />
@@ -287,20 +305,24 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
   );
 };
 
+// Infinite scroll component
 export const DealCardsFetchMore = ({
   totalCount,
-  handleFetchMore,
   currentLength,
+  onFetchMore,
 }: {
   totalCount: number;
-  handleFetchMore: () => void;
   currentLength: number;
+  onFetchMore: () => void;
 }) => {
   const { ref: bottomRef } = useInView({
-    onChange: (inView) => inView && handleFetchMore(),
+    onChange: (inView) => inView && onFetchMore(),
   });
 
-  if (!totalCount || currentLength >= totalCount || currentLength === 0) {
+  const shouldShowMore =
+    totalCount > 0 && currentLength < totalCount && currentLength > 0;
+
+  if (!shouldShowMore) {
     return null;
   }
 
