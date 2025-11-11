@@ -2,7 +2,7 @@ import { Model } from 'mongoose';
 import { IPostTag, IPostTagDocument, postTagSchema } from './definitions/tags';
 import { IModels } from '../connectionResolver';
 import slugify from 'slugify';
-import { generateUniqueSlug, generateUniqueSlugWithExclusion } from './utils';
+import { generateUniqueSlug } from './utils';
 
 export interface IPostTagModel extends Model<IPostTagDocument> {
   getPostTags: (query: any) => Promise<IPostTagDocument[]>;
@@ -20,6 +20,7 @@ export const loadPostTagClass = (models: IModels) => {
       // Generate unique slug
       const uniqueSlug = await generateUniqueSlug(
         models.PostTags,
+        data.clientPortalId,
         'slug',
         baseSlug
       );
@@ -33,6 +34,7 @@ export const loadPostTagClass = (models: IModels) => {
         if (error.code === 11000 && error.keyPattern?.slug) {
           const fallbackSlug = await generateUniqueSlug(
             models.PostTags,
+            data.clientPortalId,
             'slug',
             baseSlug,
             2
@@ -45,22 +47,14 @@ export const loadPostTagClass = (models: IModels) => {
     };
 
     public static updateTag = async (id: string, data: IPostTag) => {
-      if (!data.slug && data.name) {
+      if (data.name) {
         const baseSlug = slugify(data.name, { lower: true });
         // Generate unique slug excluding current document
-        data.slug = await generateUniqueSlugWithExclusion(
+        data.slug = await generateUniqueSlug(
           models.PostTags,
+          data.clientPortalId,
           'slug',
           baseSlug,
-          id
-        );
-      } else if (data.slug) {
-        // If slug is provided, ensure it's unique excluding current document
-        data.slug = await generateUniqueSlugWithExclusion(
-          models.PostTags,
-          'slug',
-          data.slug,
-          id
         );
       }
 

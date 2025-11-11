@@ -282,7 +282,7 @@ const IncomingCall = (props: Props, context) => {
           )}
         </PhoneNumber>
 
-        {primaryCustomerTags?.length > 0 && inCall && (
+        {primaryCustomerTags?.length > 0 && (
           <TagsContainer>
             {primaryCustomerTags.map((tag) => (
               <TagItem key={tag._id}>{tag.name}</TagItem>

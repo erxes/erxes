@@ -6,7 +6,7 @@ import {
   fieldGroupSchema,
 } from './definitions/customFieldGroups';
 import { IModels } from '../connectionResolver';
-import { generateUniqueSlug, generateUniqueSlugWithExclusion } from './utils';
+import { generateUniqueSlug } from './utils';
 
 export interface ICustomFieldGroupModel
   extends Model<ICustomFieldGroupDocument> {
@@ -28,6 +28,7 @@ export const loadCustomFieldGroupClass = (models: IModels) => {
       if (data.code) {
         const uniqueCode = await generateUniqueSlug(
           models.CustomFieldGroups,
+          data.clientPortalId,
           'code',
           data.code
         );
@@ -48,11 +49,11 @@ export const loadCustomFieldGroupClass = (models: IModels) => {
       data: ICustomFieldGroup
     ) => {
       if (data.code) {
-        const uniqueCode = await generateUniqueSlugWithExclusion(
+        const uniqueCode = await generateUniqueSlug(
           models.CustomFieldGroups,
+          data.clientPortalId,
           'code',
           data.code,
-          id
         );
         data.code = uniqueCode;
       }

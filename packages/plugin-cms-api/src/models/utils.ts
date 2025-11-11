@@ -1,20 +1,21 @@
 export const generateUniqueSlug = async (
   model: any,
+  cpId: string,
   field: string,
   baseSlug: string,
   count: number = 1
 ): Promise<string> => {
-  const potentialSlug = count === 1 ? baseSlug : `${baseSlug}-${count}`;
+  const potentialSlug = count === 1 ? baseSlug : `${baseSlug}_${count}`;
 
   // Check if slug already exists
-  const existing = await model.findOne({ [field]: potentialSlug });
+  const existing = await model.findOne({ [field]: potentialSlug, clientPortalId: cpId });
 
   if (!existing) {
     return potentialSlug;
   }
 
   // If slug exists, try with next increment number
-  return generateUniqueSlug(model, field, baseSlug, count + 1);
+  return generateUniqueSlug(model, cpId, field, baseSlug, count + 1);
 };
 
 /**
