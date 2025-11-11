@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
-import { USER_LOGIN_TYPES } from '@/clientportal/constants';
-import { mongooseStringRandomId } from 'erxes-api-shared/utils';
+
+import { mongooseStringRandomId } from '../../utils';
 
 export const cpNotificationConfigSchema = new Schema(
   {
@@ -59,8 +59,8 @@ export const cpUserSchema = new Schema({
   _id: mongooseStringRandomId,
   type: {
     type: String,
-    enum: USER_LOGIN_TYPES.ALL,
-    default: USER_LOGIN_TYPES.CUSTOMER,
+    enum: ['customer', 'admin'],
+    default: 'customer',
   },
   email: {
     type: String,

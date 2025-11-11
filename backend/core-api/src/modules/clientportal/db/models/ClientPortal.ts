@@ -5,7 +5,7 @@ import {
   IClientPortal,
   IClientPortalDocument,
 } from '@/clientportal/types/clientPortal';
-import { clientPortalSchema } from '@/clientportal/db/definitions/clientPortal';
+import { clientPortalSchema } from 'erxes-api-shared/core-modules';
 import {
   removeExtraSpaces,
   removeLastTrailingSlash,
@@ -46,7 +46,10 @@ export const loadPortalClass = (models: IModels) => {
         throw new Error('Client portal not found');
       }
 
-      const token = jwt.sign({ clientPortal }, JWT_TOKEN_SECRET);
+      const token = jwt.sign(
+        { clientPortalId: clientPortal._id },
+        JWT_TOKEN_SECRET,
+      );
 
       return token;
     }

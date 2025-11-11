@@ -6,7 +6,7 @@ import { Model } from 'mongoose';
 import { escapeRegExp, random } from 'erxes-api-shared/utils';
 import sha256 from 'sha256';
 import { IModels } from '~/connectionResolvers';
-import { cpUserSchema } from '@/clientportal/db/definitions/cpUser';
+import { cpUserSchema } from 'erxes-api-shared/core-modules';
 
 import {
   IClientPortal,

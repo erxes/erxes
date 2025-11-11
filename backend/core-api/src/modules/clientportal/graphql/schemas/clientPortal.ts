@@ -190,6 +190,7 @@ type ClientPortal {
 export const queries = `
   getClientPortals(filter: IClientPortalFilter): ClientPortalListResponse
   getClientPortal(_id: String): ClientPortal
+  getClientPortalExample: JSON
 `;
 
 export const mutations = `

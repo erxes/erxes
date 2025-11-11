@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { mongooseStringRandomId } from 'erxes-api-shared/utils';
+import { mongooseStringRandomId } from '../../utils';
 
 const otpConfigSchema = new Schema(
   {
