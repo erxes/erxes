@@ -5,7 +5,7 @@ import { TICKETS_CURSOR_SESSION_KEY } from '@/ticket/constants';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { ticketTotalCountAtom } from '@/ticket/states/ticketsTotalCountState';
-import { TicketPipelineFallback } from '@/ticket/components/TicketPIpelineFallback';
+import { TicketPipelineFallback } from '@/ticket/components/TicketPipelineFallback';
 export const TicketsRecordTable = () => {
   const setTicketTotalCount = useSetAtom(ticketTotalCountAtom);
   const [pipelineId] = useQueryState<string | null>('pipelineId');
