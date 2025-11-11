@@ -4,7 +4,7 @@ import { IPost, IPostDocument, postSchema } from './definitions/posts';
 import { IModels } from '../connectionResolver';
 import slugify from 'slugify';
 import { htmlToText } from 'html-to-text';
-import { generateUniqueSlug, generateUniqueSlugWithExclusion } from './utils';
+import { generateUniqueSlug } from './utils';
 
 
 export interface IPostModel extends Model<IPostDocument> {
@@ -43,7 +43,7 @@ export const loadPostClass = (models: IModels) => {
     public static createPost = async (doc: IPost) => {
       if (!doc.slug && doc.title) {
         const baseSlug = slugify(doc.title, { lower: true });
-        doc.slug = await generateUniqueSlug(models.Posts, 'slug', baseSlug);
+        doc.slug = await generateUniqueSlug(models.Posts, doc.clientPortalId, 'slug', baseSlug);
       }
 
       if (doc.content && !doc.excerpt) {
@@ -60,7 +60,7 @@ export const loadPostClass = (models: IModels) => {
     public static updatePost = async (_id: string, doc: IPost) => {
       if (!doc.slug && doc.title) {
         const baseSlug = slugify(doc.title, { lower: true });
-        doc.slug = await generateUniqueSlugWithExclusion(models.Posts, 'slug', baseSlug, _id);
+        doc.slug = await generateUniqueSlug(models.Posts, doc.clientPortalId, 'slug', baseSlug);
       }
 
       const post = await models.Posts.findOne({ _id });

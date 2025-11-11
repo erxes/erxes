@@ -7,7 +7,7 @@ import {
 } from './definitions/menu';
 import { IModels } from '../connectionResolver';
 import slugify from 'slugify';
-import { generateUniqueSlug, generateUniqueSlugWithExclusion } from './utils';
+import { generateUniqueSlug } from './utils';
 
 export interface IMenuItemModel extends Model<IMenuItemDocument> {
   getMenuItems: (query: any) => Promise<IMenuItemDocument[]>;
@@ -27,7 +27,7 @@ export const loadMenuItemClass = (models: IModels) => {
     public static createMenuItem = async (doc: IMenuItem) => {
       if (!doc.url && doc.label) {
         const baseSlug = slugify(doc.label, { lower: true });
-        doc.url = await generateUniqueSlug(models.MenuItems, 'url', baseSlug);
+        doc.url = await generateUniqueSlug(models.MenuItems, doc.clientPortalId, 'url', baseSlug);
       }
 
       if (!doc.order) {
@@ -50,10 +50,10 @@ export const loadMenuItemClass = (models: IModels) => {
       const existingMenuItem = await models.MenuItems.findOne({ _id });
       if (!doc.url && doc.label && existingMenuItem?.url) {
         const baseSlug = slugify(doc.label, { lower: true });
-        doc.url = await generateUniqueSlugWithExclusion(models.MenuItems, 'url', baseSlug, _id);
+        doc.url = await generateUniqueSlug(models.MenuItems, doc.clientPortalId, 'url', baseSlug);
       }
 
-      const menu = await models.MenuItems.(
+      const menu = await models.MenuItems.findOneAndUpdate(
         { _id: _id },
         { $set: doc },
         { new: true }
