@@ -5,7 +5,7 @@ import {
   IconArrowsDiagonal,
   IconArrowsDiagonalMinimize2,
 } from '@tabler/icons-react';
-import { Button, Separator, Sheet, TextOverflowTooltip } from 'erxes-ui';
+import { Button, Separator, Sheet, TextOverflowTooltip, cn } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { useState } from 'react';
 
@@ -14,7 +14,12 @@ export const TicketDetailSheet = () => {
   const [isExpanded, setIsExpanded] = useState(true);
   return (
     <Sheet open={!!activeTicket} onOpenChange={() => setActiveTicket(null)}>
-      <Sheet.View className="sm:max-w-5xl">
+      <Sheet.View
+        className={cn(
+          'transition-[min-width]',
+          isExpanded ? 'min-w-[calc(100vw-1rem)] right-2' : 'sm:min-w-5xl',
+        )}
+      >
         <Sheet.Title className="sr-only">Ticket Details</Sheet.Title>
         {activeTicket && (
           <>
