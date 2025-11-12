@@ -54,7 +54,13 @@ export interface ICustomField {
 }
 
 export interface IPropertyField {
-  [key: string]: string | number | boolean | Date | Array<string | number | boolean | Date> | null;
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | Date
+    | Array<string | number | boolean | Date>
+    | null;
 }
 
 export interface IBrowserInfo {

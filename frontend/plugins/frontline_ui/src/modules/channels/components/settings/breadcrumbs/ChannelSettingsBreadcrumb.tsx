@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Button } from 'erxes-ui';
 import { IconMail } from '@tabler/icons-react';
 import { Separator } from 'erxes-ui';
@@ -10,6 +10,7 @@ export const ChannelSettingsBreadcrumb = () => {
   const isMatchingLocation = useIsMatchingLocation(
     '/settings/frontline/channels',
   );
+  const { id: channelId } = useParams<{ id: string }>();
 
   return (
     <>
@@ -31,9 +32,11 @@ export const ChannelSettingsBreadcrumb = () => {
         isMatchingLocation(FrontlinePaths.PipelineDetail)) && (
         <>
           <Separator.Inline />
-          <Button variant="ghost" className="font-semibold">
-            Pipelines
-          </Button>
+          <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
+            <Button variant="ghost" className="font-semibold">
+              Pipelines
+            </Button>
+          </Link>
         </>
       )}
       {isMatchingLocation(FrontlinePaths.PipelineDetail) && (

@@ -16,7 +16,7 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ScrollArea, Button } from 'erxes-ui/components';
+import { ScrollArea } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 import {
   BoardCardProps,
@@ -36,8 +36,6 @@ import {
 } from '../states/boardStates';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { AnimatePresence, motion } from 'motion/react';
-import { IconBrandTrello, IconSettings } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
 export type { DragEndEvent } from '@dnd-kit/core';
 
 const BoardCards = ({
@@ -149,6 +147,7 @@ const BoardProvider = <
   onDataChange,
   boardId,
   emptyUrl,
+  fallbackComponent,
   ...props
 }: BoardProviderProps<T, C>) => {
   const setActiveCardId = useSetAtom(activeCardIdState(boardId));
@@ -204,21 +203,8 @@ const BoardProvider = <
   };
 
   if (!columns || columns.length === 0) {
-    return (
-      <div className="flex h-full w-full flex-col items-center justify-center text-center p-6 gap-2">
-        <IconBrandTrello size={64} stroke={1.5} className="text-gray-300" />
-        <h2 className="text-lg font-semibold text-gray-600">No stages yet</h2>
-        <p className="text-md text-gray-500 mb-4">
-          Create a stage to start organizing your board.
-        </p>
-        <Button variant="outline" asChild>
-          <Link to={emptyUrl || '/settings'}>
-            <IconSettings />
-            Go to settings
-          </Link>
-        </Button>
-      </div>
-    );
+    if (!fallbackComponent) return null;
+    return fallbackComponent;
   }
 
   return (
@@ -281,8 +267,8 @@ export const BoardRoot = ({
       ref={setNodeRef}
       data-type="column"
       className={cn(
-        'flex min-h-[400px] min-w-80 flex-col overflow-hidden transition-all bg-linear-to-b from-[#e0e7ff] to-[#e0e7ff50] rounded-t-md dark:from-primary/40 dark:to-primary/20 relative',
-        isActive && 'shadow-lg shadow-purple-400/40 dark:shadow-primary/30',
+        'flex min-h-[400px] min-w-80 flex-col overflow-hidden transition-all bg-gradient-to-b from-[#e0e7ff] to-[#e0e7ff50] rounded-t-md dark:from-primary/40 dark:to-primary/20 relative',
+        isActive && 'shadow-subtle',
         className,
       )}
     >
