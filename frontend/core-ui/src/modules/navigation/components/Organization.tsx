@@ -82,7 +82,7 @@ export function Organization() {
               <DropdownMenu.RadioItem value="1">
                 <Avatar
                   size="lg"
-                  className="rounded outline-1 outline outline-black/10 -outline-offset-1"
+                  className="rounded outline-1 outline-solid outline-black/10 -outline-offset-1"
                 >
                   <Avatar.Image src="https://github.com/shadcn.png" />
                   <Avatar.Fallback className="rounded-none">CN</Avatar.Fallback>
@@ -92,7 +92,7 @@ export function Organization() {
               <DropdownMenu.RadioItem value="2">
                 <Avatar
                   size="lg"
-                  className="rounded outline-1 outline outline-black/10 -outline-offset-1"
+                  className="rounded outline-1 outline-solid outline-black/10 -outline-offset-1"
                 >
                   <Avatar.Image src="https://github.com/khbaterdene.png" />
                   <Avatar.Fallback className="rounded-none">CN</Avatar.Fallback>
@@ -102,7 +102,7 @@ export function Organization() {
               <DropdownMenu.RadioItem value="3">
                 <Avatar
                   size="lg"
-                  className="rounded outline-1 outline outline-black/10 -outline-offset-1"
+                  className="rounded outline-1 outline-solid outline-black/10 -outline-offset-1"
                 >
                   <Avatar.Image src="https://github.com/Enkhtuvshin0513.png" />
                   <Avatar.Fallback className="rounded-none">CN</Avatar.Fallback>

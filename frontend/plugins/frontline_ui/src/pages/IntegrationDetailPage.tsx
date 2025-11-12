@@ -76,7 +76,7 @@ export const IntegrationDetailPage = () => {
               navigate('/settings/frontline/channels');
               return;
             }
-            navigate(`/settings/frontline/channels/details/${id}`);
+            navigate(`/settings/frontline/channels/${id}`);
           }}
         >
           <IconChevronLeft />

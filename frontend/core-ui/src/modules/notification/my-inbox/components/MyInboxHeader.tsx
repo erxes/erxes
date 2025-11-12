@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 export const MyInboxHeader = () => {
   return (
     <>
-      <div className="flex flex-col h-[3.25rem] flex-shrink-0 bg-sidebar w-full">
+      <div className="flex flex-col h-13 shrink-0 bg-sidebar w-full">
         <div className="flex gap-2 px-3 flex-auto items-center">
           <Sidebar.Trigger /> <Separator.Inline />
           <Button variant="ghost" asChild>

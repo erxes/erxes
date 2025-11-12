@@ -6,16 +6,16 @@ class PageQueryResolver extends BaseQueryResolver {
   async cmsPages(_parent: any, args: any, context: IContext) {
     const { language } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
-
+    const { models } = context;
     if (!clientPortalId) {
       throw new Error('clientPortalId is required');
     }
 
-    const queryBuilder = getQueryBuilder('page', this.models);
+    const queryBuilder = getQueryBuilder('page', models);
     const query = queryBuilder.buildQuery({ ...args, clientPortalId });
 
     const { list } = await this.getListWithTranslations(
-      this.models.Pages,
+      models.Pages,
       query,
       { ...args, clientPortalId, language },
       FIELD_MAPPINGS.PAGE
@@ -27,16 +27,16 @@ class PageQueryResolver extends BaseQueryResolver {
   async cmsPageList(_parent: any, args: any, context: IContext) {
     const { language } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
-
+    const { models } = context; 
     if (!clientPortalId) {
       throw new Error('clientPortalId is required');
     }
 
-    const queryBuilder = getQueryBuilder('page', this.models);
+    const queryBuilder = getQueryBuilder('page', models);
     const query = queryBuilder.buildQuery({ ...args, clientPortalId });
 
     return this.getListWithTranslations(
-      this.models.Pages,
+      models.Pages,
       query,
       { ...args, clientPortalId, language },
       FIELD_MAPPINGS.PAGE
@@ -44,7 +44,7 @@ class PageQueryResolver extends BaseQueryResolver {
   }
 
   async cmsPage(_parent: any, args: any, context: IContext) {
-    const { clientPortalId } = context;
+    const { clientPortalId, models } = context;
     const { _id, slug, language } = args;
 
     if (!_id && !slug) {
@@ -59,7 +59,7 @@ class PageQueryResolver extends BaseQueryResolver {
     }
 
     return this.getItemWithTranslation(
-      this.models.Pages,
+      models.Pages,
       query,
       language,
       FIELD_MAPPINGS.PAGE

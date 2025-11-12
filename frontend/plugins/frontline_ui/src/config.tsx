@@ -1,9 +1,4 @@
-import {
-  IconInbox,
-  IconMail,
-  IconStackFront,
-  IconTicket,
-} from '@tabler/icons-react';
+import { IconMail, IconStackFront, IconTicket } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 
@@ -46,14 +41,6 @@ export const CONFIG: IUIConfig = {
     {
       name: 'configs',
       path: 'frontline/config',
-      settingsOnly: true,
-    },
-    {
-      name: 'ticket',
-      icon: IconTicket,
-      path: 'frontline/ticket',
-      hasSettings: true,
-      hasRelationWidget: true,
       settingsOnly: true,
     },
     {

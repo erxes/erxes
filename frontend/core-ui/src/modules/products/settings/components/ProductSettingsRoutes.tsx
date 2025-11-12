@@ -8,28 +8,11 @@ const ProductsGeneralSettings = lazy(() =>
   ),
 );
 
-const ProductsUomsSettings = lazy(() =>
-  import('~/pages/settings/modules/ProductsSettingsUomsPage').then(
-    (module) => ({ default: module.ProductsSettingsUomsPage }),
-  ),
-);
-
-const ProductsSimilarityConfigSettings = lazy(() =>
-  import('~/pages/settings/modules/ProductsSettingsSimilarityConfig').then(
-    (module) => ({ default: module.ProductsSettingsSimilarityConfig }),
-  ),
-);
-
 export const ProductsSettingRoutes = () => {
   return (
     <ProductsSettingsLayout>
       <Routes>
-        <Route path="/" element={<ProductsGeneralSettings />} />
-        <Route path="/uom" element={<ProductsUomsSettings />} />
-        <Route
-          path="/similarity-configs"
-          element={<ProductsSimilarityConfigSettings />}
-        />
+        <Route index element={<ProductsGeneralSettings />} />
       </Routes>
     </ProductsSettingsLayout>
   );

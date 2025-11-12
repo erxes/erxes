@@ -96,7 +96,7 @@ export const Item = React.memo(
           className={`
             flex box-border origin-top-left touch-manipulation
             ${fadeIn ? 'animate-fadeIn' : ''}
-            ${dragOverlay ? 'z-[999]' : ''}
+            ${dragOverlay ? 'z-999' : ''}
           `}
           style={
             {
@@ -123,7 +123,7 @@ export const Item = React.memo(
         >
           <div
             className={`
-              relative flex flex-grow items-center
+              relative flex grow items-center
               px-5 py-[18px] bg-white rounded shadow-md
               list-none select-none
               text-gray-800 font-normal text-base
