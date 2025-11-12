@@ -57,6 +57,7 @@ export const useTasksVariables = (
     ...variables,
     ...(!variables?.teamId &&
       !variables?.userId &&
+      !variables?.createdBy &&
       !assignee &&
       currentUser?._id && {
         userId: currentUser._id,

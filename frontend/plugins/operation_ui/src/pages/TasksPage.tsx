@@ -1,5 +1,5 @@
 import { Breadcrumb, PageSubHeader } from 'erxes-ui';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 
 import { PageHeader } from 'ui-modules';
 import { AddTaskSheet } from '@/task/components/add-task/AddTaskSheet';
@@ -11,11 +11,14 @@ import { TasksView, TasksViewControl } from '@/task/components/TasksView';
 
 export const TasksPage = () => {
   const { teamId } = useParams();
+  const { pathname } = useLocation();
 
   // Determine base path
   const basePath = teamId
     ? `/operation/team/${teamId}/tasks`
     : `/operation/tasks`;
+
+  const isCreatedView = pathname === '/operation/tasks/created';
 
   return (
     <>
@@ -39,7 +42,7 @@ export const TasksPage = () => {
         <TasksFilter />
         <TasksViewControl />
       </PageSubHeader>
-      <TasksView />
+      <TasksView isCreatedView={isCreatedView} />
     </>
   );
 };
