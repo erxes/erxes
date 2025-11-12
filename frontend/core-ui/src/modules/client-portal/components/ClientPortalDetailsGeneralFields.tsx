@@ -29,14 +29,24 @@ export const ClientPortalGeneralFields = ({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="grid grid-cols-3 gap-4"
+            className="grid grid-cols-2 gap-4"
           >
             <Form.Field
               control={form.control}
               name="name"
               render={({ field }) => (
-                <Form.Item className="space-y-2">
-                  <Label>Name</Label>
+                <Form.Item>
+                  <Form.Label>Name</Form.Label>
+                  <Input {...field} />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="domain"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Domain</Form.Label>
                   <Input {...field} />
                 </Form.Item>
               )}
@@ -45,23 +55,13 @@ export const ClientPortalGeneralFields = ({
               control={form.control}
               name="description"
               render={({ field }) => (
-                <Form.Item className="space-y-2">
-                  <Label>Description</Label>
+                <Form.Item className="col-span-2">
+                  <Form.Label>Description</Form.Label>
                   <Textarea {...field} />
                 </Form.Item>
               )}
             />
-            <Form.Field
-              control={form.control}
-              name="domain"
-              render={({ field }) => (
-                <Form.Item className="space-y-2">
-                  <Label>Domain</Label>
-                  <Input {...field} />
-                </Form.Item>
-              )}
-            />
-            <div className="col-start-3 flex justify-end">
+            <div className="col-start-2 flex justify-end">
               <Button
                 type="submit"
                 disabled={
