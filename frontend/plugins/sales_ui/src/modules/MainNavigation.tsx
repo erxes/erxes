@@ -1,5 +1,4 @@
 import { IconCashRegister, IconSandbox } from '@tabler/icons-react';
-
 import { NavigationMenuLinkItem } from 'erxes-ui';
 
 export const MainNavigation = () => {

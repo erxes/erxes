@@ -1,4 +1,3 @@
-import { IContext } from '~/connectionResolvers';
 import {
   IDetail,
   IEmailSignature,
@@ -6,6 +5,8 @@ import {
   IUser,
   Resolver,
 } from 'erxes-api-shared/core-types';
+import { IContext } from '~/connectionResolvers';
+import { sendInvitationEmail } from '../utils';
 
 export interface IUsersEdit extends IUser {
   channelIds?: string[];
@@ -194,15 +195,9 @@ export const userMutations: Record<string, Resolver> = {
     }: {
       entries: Array<{
         email: string;
-        password: string;
-        groupId: string;
-        channelIds?: string[];
-        unitId?: string;
-        branchId?: string;
-        departmentId?: string;
       }>;
     },
-    { models }: IContext,
+    { models, subdomain, user }: IContext,
   ) {
     for (const entry of entries) {
       await models.Users.checkDuplication({ email: entry.email });
@@ -214,25 +209,14 @@ export const userMutations: Record<string, Resolver> = {
       if (docModified?.scopeBrandIds?.length) {
         doc.brandIds = docModified.scopeBrandIds;
       }
-      const createdUser = await models.Users.findOne({ email: entry.email });
 
-      if (entry.branchId) {
-        await models.Users.updateOne(
-          { _id: createdUser?._id },
-          {
-            $addToSet: { branchIds: entry.branchId },
-          },
-        );
-      }
+      const token = await models.Users.invite(doc);
 
-      if (entry.departmentId) {
-        await models.Users.updateOne(
-          { _id: createdUser?._id },
-          {
-            $addToSet: { departmentIds: entry.departmentId },
-          },
-        );
-      }
+      sendInvitationEmail(models, subdomain, {
+        email: entry.email,
+        token,
+        userId: user._id,
+      });
     }
   },
 

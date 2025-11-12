@@ -19,7 +19,7 @@ export const ProductDetailSheet = ({
     >
       <Sheet.View
         className={cn(
-          'p-0 md:max-w-(--breakpoint-lg) md:w-[calc(100vw-(--spacing(4)))] xl:w-3/4 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
+          'p-0 md:max-w-5xl md:w-[calc(100vw-(--spacing(4)))] xl:w-3/4 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
           !!activeTab && 'md:w-[calc(100vw-(--spacing(4)))]',
         )}
       >

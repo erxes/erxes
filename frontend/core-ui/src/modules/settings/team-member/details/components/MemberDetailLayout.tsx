@@ -23,9 +23,7 @@ export const MemberDetailLayout = ({
   otherState?: 'loading' | 'not-found';
 }) => {
   return (
-    <MemberDetailSheet
-      className={!otherState ? undefined : 'sm:max-w-(--breakpoint-lg)'}
-    >
+    <MemberDetailSheet className={!otherState ? undefined : 'sm:max-w-5xl'}>
       <Sheet.Content>
         {otherState === 'loading' && (
           <div className="flex items-center justify-center h-full">
