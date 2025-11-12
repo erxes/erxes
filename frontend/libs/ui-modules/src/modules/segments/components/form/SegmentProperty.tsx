@@ -131,7 +131,7 @@ const PropertyOperator = ({
             </Select.Trigger>
             <Select.Content>
               {operators.map((operator, i) => (
-                <Select.Item value={operator.value}>
+                <Select.Item key={i} value={operator.value}>
                   {operator.name}
                 </Select.Item>
               ))}

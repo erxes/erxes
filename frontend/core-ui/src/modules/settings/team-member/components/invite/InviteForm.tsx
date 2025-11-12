@@ -31,7 +31,7 @@ export function InviteForm({
   const submitHandler: SubmitHandler<TUserForm> = useCallback(
     async (data) => {
       try {
-        handleInvitations({
+        await handleInvitations({
           variables: {
             entries: data?.entries,
           },
@@ -82,9 +82,9 @@ export function InviteForm({
         </ScrollArea>
         <div className="mt-3 w-full flex gap-3 justify-end">
           <Button type="submit" disabled={loading} className="text-sm">
-            {(loading && (
-              <Spinner size={'sm'} className="stroke-white" />
-            )) || <IconSend size={16} />}
+            {(loading && <Spinner size={'sm'} className="stroke-white" />) || (
+              <IconSend size={16} />
+            )}
             Send invites
           </Button>
         </div>

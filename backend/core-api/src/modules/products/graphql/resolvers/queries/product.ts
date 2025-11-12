@@ -250,12 +250,7 @@ export const productQueries = {
           ) {
             return false;
           }
-        } else {
-          if (!product[filterFieldDef]?.match(regexer)) {
-            return false;
-          }
-        }
-
+        } 
         return (
           (similarityGroups[cm].rules || [])
             .map((sg) => sg.fieldId)

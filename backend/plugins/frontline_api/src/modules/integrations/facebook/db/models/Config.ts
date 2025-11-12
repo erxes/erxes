@@ -68,7 +68,7 @@ export const loadFacebookConfigClass = (models: IModels) => {
         const value = configsMap[code];
         const doc = { code, value };
 
-        await models.FacebookConfigs.createOrUpdateConfig(doc);
+        models.FacebookConfigs.createOrUpdateConfig(doc);
       }
     }
   }
