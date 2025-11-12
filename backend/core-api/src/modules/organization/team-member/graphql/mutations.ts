@@ -195,12 +195,6 @@ export const userMutations: Record<string, Resolver> = {
     }: {
       entries: Array<{
         email: string;
-        password: string;
-        groupId: string;
-        channelIds?: string[];
-        unitId?: string;
-        branchId?: string;
-        departmentId?: string;
       }>;
     },
     { models, subdomain, user }: IContext,
@@ -218,7 +212,11 @@ export const userMutations: Record<string, Resolver> = {
 
       const token = await models.Users.invite(doc);
 
-      sendInvitationEmail(models, subdomain, { email: entry.email, token, userId: user._id });
+      sendInvitationEmail(models, subdomain, {
+        email: entry.email,
+        token,
+        userId: user._id,
+      });
     }
   },
 
