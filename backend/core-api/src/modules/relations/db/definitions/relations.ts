@@ -6,10 +6,12 @@ const entitySchema = new Schema(
     contentType: {
       type: String,
       required: true,
+      index: true,
     },
     contentId: {
       type: String,
       required: true,
+      index: true,
     },
   },
   { _id: false },
