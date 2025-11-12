@@ -25,14 +25,13 @@ interface ITicketChanged {
 export const useTicketsVariables = (
   variables?: QueryHookOptions<ICursorListResponse<ITicket>>['variables'],
 ) => {
-  const { searchValue, assignee, priority } = useNonNullMultiQueryState<{
-    searchValue: string;
-    assignee: string;
-    team: string;
-    priority: string;
-    status: string;
-    milestone: string;
-  }>(['searchValue', 'assignee', 'team', 'priority', 'status', 'milestone']);
+  const { searchValue, assignee, priority, statusId } =
+    useNonNullMultiQueryState<{
+      searchValue: string;
+      assignee: string;
+      priority: string;
+      statusId: string;
+    }>(['searchValue', 'assignee', 'priority', 'statusId']);
 
   return {
     cursor: '',
@@ -44,6 +43,7 @@ export const useTicketsVariables = (
     name: searchValue,
     assigneeId: assignee,
     priority: priority,
+    statusId: statusId,
     ...variables,
   };
 };
@@ -78,8 +78,7 @@ export const useTickets = (
       updateQuery: (prev, { subscriptionData }) => {
         if (!prev || !subscriptionData.data) return prev;
 
-        const { type, ticket } =
-          subscriptionData.data.ticketListChanged;
+        const { type, ticket } = subscriptionData.data.ticketListChanged;
         const currentList = prev.getTickets.list;
 
         let updatedList = currentList;

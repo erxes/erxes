@@ -3,7 +3,7 @@ import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { ITicketPipelineUpdate } from '@/ticket/@types/pipeline';
 
-export const PipelineMutations = {
+export const pipelineMutations = {
   createPipeline: async (
     _parent: undefined,
     params: ITicketPipelineUpdate,
@@ -64,6 +64,6 @@ export const PipelineMutations = {
 };
 
 // Require login
-requireLogin(PipelineMutations, 'createPipeline');
-requireLogin(PipelineMutations, 'updatePipeline');
-requireLogin(PipelineMutations, 'removePipeline');
+requireLogin(pipelineMutations, 'createPipeline');
+requireLogin(pipelineMutations, 'updatePipeline');
+requireLogin(pipelineMutations, 'removePipeline');
