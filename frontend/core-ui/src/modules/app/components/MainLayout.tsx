@@ -12,7 +12,7 @@ export const DefaultLayout = () => {
   const isSettings = location.pathname.includes('/settings');
   const [mainSidebarOpen, setMainSidebarOpen] = useAtom(mainSidebarOpenState);
   const [inPreview] = useQueryState<boolean>('inPreview');
-  console.log(isSettings, 'isSettings');
+
   if (inPreview) {
     return <Outlet />;
   }
