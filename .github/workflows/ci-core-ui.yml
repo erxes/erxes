@@ -54,7 +54,7 @@ jobs:
           context: .
           file: frontend/core-ui/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.DATE }}-${{ env.SHORT_SHA }}
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: |
             type=gha,scope=pnpm
