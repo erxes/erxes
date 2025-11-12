@@ -195,12 +195,6 @@ export const userMutations: Record<string, Resolver> = {
     }: {
       entries: Array<{
         email: string;
-        password: string;
-        groupId: string;
-        channelIds?: string[];
-        unitId?: string;
-        branchId?: string;
-        departmentId?: string;
       }>;
     },
     { models, subdomain, user }: IContext,

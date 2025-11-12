@@ -7,6 +7,8 @@ import { ticketCreateDefaultValuesState } from '@/ticket/states/ticketCreateShee
 import { useSetAtom } from 'jotai';
 import { useQueryState } from 'erxes-ui';
 import { TicketWidget } from './TicketWidget';
+import { useConversationDetail } from '@/inbox/conversations/conversation-detail/hooks/useConversationDetail';
+import { useEffect } from 'react';
 
 export const TicketRelationWidget = ({
   contentId,
@@ -55,12 +57,22 @@ export const TicketRelationWidget = ({
   const setTicketCreateDefaultValues = useSetAtom(
     ticketCreateDefaultValuesState,
   );
-  const [channelId] = useQueryState<string>('channelId');
-  const onClick = () => {
+  const [conversationId] = useQueryState<string | null>('conversationId');
+
+  const { conversationDetail } = useConversationDetail({
+    variables: {
+      _id: conversationId || '',
+    },
+    skip: !conversationId,
+  });
+
+  useEffect(() => {
+    if (!conversationDetail?.integration?.channelId) return;
     setTicketCreateDefaultValues({
-      channelId: channelId || undefined,
+      channelId: conversationDetail?.integration.channelId || undefined,
     });
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationDetail]);
 
   if (ownEntities?.length === 0) {
     return (
@@ -84,7 +96,6 @@ export const TicketRelationWidget = ({
         <span className="font-medium text-primary">Tickets</span>
         <AddTicketSheet
           onComplete={onComplete}
-          onClick={onClick}
           variant="secondary"
           isRelation={true}
         />

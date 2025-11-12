@@ -20,24 +20,37 @@ export const ticketQueries = {
       filterQuery.name = { $regex: filter.name, $options: 'i' };
     }
 
-    if (filter.statusId) filterQuery.statusId = filter.statusId;
-    if (filter.statusType !== undefined)
+    if (filter.status) {
+      filterQuery.status = filter.status;
+    }
+
+    if (filter.statusId) {
+      filterQuery.statusId = filter.statusId;
+    }
+    if (filter.statusType) {
       filterQuery.statusType = filter.statusType;
-    if (filter.priority !== undefined) filterQuery.priority = filter.priority;
+    }
+
+    if (filter.priority) {
+      filterQuery.priority = filter.priority;
+    }
 
     if (filterQuery.startDate) {
-      buildDateQuery(filter.startDate);
+      filterQuery.startDate = { $gte: filter.startDate };
     }
 
     if (filterQuery.targetDate) {
-      filterQuery.targetDate = buildDateQuery(filter.targetDate);
+      filterQuery.targetDate = { $gte: filter.targetDate };
     }
 
     if (filterQuery.createdAt) {
-      filterQuery.createdAt = buildDateQuery(filter.createdAt);
+      filterQuery.createdAt = { $gte: filter.createdAt };
     }
 
-    if (filter.assigneeId) filterQuery.assigneeId = filter.assigneeId;
+    if (filter.assigneeId) {
+      filterQuery.assigneeId = filter.assigneeId;
+    }
+
     if (filter.channelId) filterQuery.channelId = filter.channelId;
     if (filter.pipelineId) filterQuery.pipelineId = filter.pipelineId;
     if (filter.userId && !filter.channelId && !filter.assigneeId) {
@@ -49,23 +62,13 @@ export const ticketQueries = {
       params: {
         ...filter,
         orderBy: {
-          statusType: 'asc',
+          statusId: 'asc',
           createdAt: 'asc',
         },
       },
       query: filterQuery,
     });
   },
-};
-
-export const buildDateQuery = (value?: Date | { from?: Date; to?: Date }) => {
-  if (!value) return undefined;
-  if (value instanceof Date) return { $gte: value };
-
-  const query: any = {};
-  if (value.from) query.$gte = value.from;
-  if (value.to) query.$lte = value.to;
-  return query;
 };
 
 requireLogin(ticketQueries, 'getTicket');
