@@ -18,7 +18,7 @@ export const PageHeaderRoot = React.forwardRef<
     <div ref={ref} {...props}>
       <header
         className={cn(
-          'flex items-center justify-between h-[3.25rem] px-3 box-border flex-shrink-0 bg-sidebar overflow-auto styled-scroll',
+          'flex items-center justify-between h-13 px-3 box-border shrink-0 bg-sidebar overflow-auto styled-scroll',
           className,
         )}
       >

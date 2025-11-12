@@ -31,7 +31,7 @@ export const AddTicketForm = ({
   onComplete,
 }: {
   onClose: () => void;
-  onComplete: (ticketId: string) => void;
+  onComplete?: (ticketId: string) => void;
 }) => {
   const [pipelineId] = useQueryState<string>('pipelineId');
   const [channelId] = useQueryState<string>('channelId');
@@ -94,7 +94,7 @@ export const AddTicketForm = ({
           variant: 'default',
         });
         onClose();
-        onComplete(data.createTicket._id);
+        onComplete?.(data.createTicket._id);
       },
     });
   };
@@ -240,7 +240,7 @@ export const AddTicketForm = ({
             />
           </div>
         </Sheet.Content>
-        <Sheet.Footer className="flex justify-end flex-shrink-0 gap-1 px-5">
+        <Sheet.Footer className="flex justify-end shrink-0 gap-1 px-5">
           <Button
             type="button"
             variant="ghost"

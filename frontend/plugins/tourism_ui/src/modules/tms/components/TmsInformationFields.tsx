@@ -164,7 +164,7 @@ export const TmsInformationFields = ({
 
   return (
     <div className="flex flex-col mx-auto w-full max-w-3xl h-full border-r">
-      <div className="flex flex-col flex-shrink-0 gap-3 justify-center items-start self-stretch p-5 border-b">
+      <div className="flex flex-col shrink-0 gap-3 justify-center items-start self-stretch p-5 border-b">
         <div className="flex gap-2 items-center">
           <div className="flex h-5 px-2 justify-center items-center gap-1 rounded-[21px] bg-[rgba(79,70,229,0.10)] transition-all duration-300">
             <p className="text-primary leading-none text-[12px] font-semibold uppercase font-mono">
@@ -207,7 +207,7 @@ export const TmsInformationFields = ({
         </div>
       </div>
 
-      <div className="flex flex-shrink-0 gap-2 justify-between items-center p-4 border-t">
+      <div className="flex shrink-0 gap-2 justify-between items-center p-4 border-t">
         {currentStep === 1 ? (
           <Button
             variant="outline"

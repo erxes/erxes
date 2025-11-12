@@ -8,11 +8,9 @@ interface CreateBranchResponse {
 
 export interface ICreateBranchVariables {
   name: string;
-  description?: string;
   generalManagerIds?: string[];
   managerIds?: string[];
   paymentIds?: string[];
-  departmentId?: string;
   token?: string;
   erxesAppToken?: string;
   permissionConfig?: {

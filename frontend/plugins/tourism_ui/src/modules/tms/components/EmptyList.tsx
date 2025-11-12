@@ -5,7 +5,7 @@ export const EmptyList = () => {
   return (
     <div className="flex justify-center items-center min-h-[60vh] sm:h-screen px-3 sm:px-4">
       <div className="flex flex-col gap-3 justify-center items-center p-3 w-full max-w-sm rounded-lg shadow-lg sm:p-4 sm:max-w-md bg-background">
-        <div className="overflow-hidden w-full aspect-[16/9] sm:h-52 sm:aspect-auto">
+        <div className="overflow-hidden w-full aspect-video sm:h-52 sm:aspect-auto">
           <img
             src={getPluginAssetsUrl('tourism', 'tourism-empty-state.jpg')}
             alt="tourism"

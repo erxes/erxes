@@ -13,7 +13,7 @@ type DatePickerProps = {
   withPresent?: boolean;
   mode?: 'single' | 'multiple';
   format?: string;
-  variant?: 'outline' | 'default' | 'ghost';
+  variant?: 'outline-solid' | 'default' | 'ghost';
 } & CalendarProps;
 
 export const DatePicker = ({

@@ -17,6 +17,12 @@ const SalesNavigation = lazy(() =>
   })),
 );
 
+const PosOrderNavigation = lazy(() =>
+  import('./modules/pos/PosOrderNavigation').then((module) => ({
+    default: module.PosOrderNavigation,
+  })),
+);
+
 export const CONFIG = {
   name: 'sales',
   icon: IconBriefcase,
@@ -33,6 +39,7 @@ export const CONFIG = {
     subGroups: () => (
       <Suspense fallback={<div />}>
         <SalesNavigation />
+        <PosOrderNavigation />
       </Suspense>
     ),
   },

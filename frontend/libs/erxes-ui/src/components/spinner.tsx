@@ -16,13 +16,13 @@ const spinnerVariants = cva(
   },
 );
 
-const loaderVariants = cva('animate-spin duration-[2000]', {
+const loaderVariants = cva('relative', {
   variants: {
     size: {
       sm: 'size-3',
       default: 'size-4',
-      md: 'size-6',
-      lg: 'size-8',
+      md: 'size-5',
+      lg: 'size-6',
     },
   },
   defaultVariants: {
@@ -44,89 +44,21 @@ export function Spinner({
   containerClassName,
 }: SpinnerContentProps) {
   return (
-    <span className={cn(spinnerVariants({ show }), containerClassName)}>
-      <svg
-        viewBox="0 0 25 25"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className={cn(loaderVariants({ size }), className)}
-      >
-        <g clipPath="url(#clip0_19_21)">
-          <path
-            d="M12.5 6.5V3.5"
-            stroke="currentColor"
-            strokeOpacity="0.2"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M16.75 8.2501L18.9 6.1001"
-            stroke="currentColor"
-            strokeOpacity="0.05"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M18.5 12.5H21.5"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M16.75 16.75L18.9 18.9"
-            stroke="currentColor"
-            strokeOpacity="0.85"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M12.5 18.5V21.5"
-            stroke="currentColor"
-            strokeOpacity="0.7"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M8.2501 16.75L6.1001 18.9"
-            stroke="currentColor"
-            strokeOpacity="0.65"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M6.5 12.5H3.5"
-            stroke="currentColor"
-            strokeOpacity="0.5"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M8.2501 8.2501L6.1001 6.1001"
-            stroke="currentColor"
-            strokeOpacity="0.35"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </g>
-        <defs>
-          <clipPath id="clip0_19_21">
-            <rect
-              width="24"
-              height="24"
-              fill="white"
-              transform="translate(0.5 0.5)"
+    <div className={cn(spinnerVariants({ show }), containerClassName)}>
+      <div className={cn(loaderVariants({ size }), className)}>
+        <div className="relative size-full left-1/2 top-1/2">
+          {[...Array(12)].map((_, i) => (
+            <div
+              key={i}
+              style={{
+                transform: `translate(146%) rotate(${i * 30 + 0.001}deg)`,
+                animationDelay: `-${(12 - i) * 0.08}s`,
+              }}
+              className="absolute h-[8%] w-[24%] left-[-10%] top-[-3.9%] origin-[-100%] rounded-md bg-current animate-spinner "
             />
-          </clipPath>
-        </defs>
-      </svg>
-    </span>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
