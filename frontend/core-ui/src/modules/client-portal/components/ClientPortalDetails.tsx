@@ -5,7 +5,6 @@ import { ClientPortalGeneralFields } from './ClientPortalDetailsGeneralFields';
 import { ScrollArea, Spinner } from 'erxes-ui';
 import { ClientPortalDetailAuth } from './ClientPortalDetailAuth';
 import { ClientPortalDetailTest } from './ClientPortalDetailTest';
-import { ClientPortalDetailOtp } from './ClientPortalDetailOtp';
 import { ClientPortalDetailAuthLogics } from './ClientPortalDetailAuthLogics';
 import { ClientPortalDetailThirdPartyAuth } from './ClientPortalDetailThirdPartyAuth';
 

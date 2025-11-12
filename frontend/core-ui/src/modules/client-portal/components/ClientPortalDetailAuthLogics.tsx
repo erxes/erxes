@@ -1,6 +1,10 @@
 import { InfoCard, Tabs, ToggleGroup } from 'erxes-ui';
 import { useState } from 'react';
-import { ClientPortalDetailOtp } from './ClientPortalDetailOtp';
+import { ClientPortalDetailOTP } from './ClientPortalDetailOTPfuck';
+import { ClientPortalDetail2FA } from './ClientPortalDetail2FA';
+import { ClientPortalDetailConfirmationEmail } from './ClientPortalDetailConfirmationEmail';
+import { ClientPortalDetailResetPassword } from './ClientPortalDetailResetPassword';
+import { ClientPortalDetailManual } from './ClientPortalDetailManual';
 
 export const ClientPortalDetailAuthLogics = () => {
   const [authLogic, setAuthLogic] = useState<string>('otp');
@@ -31,13 +35,19 @@ export const ClientPortalDetailAuthLogics = () => {
         </ToggleGroup>
         <Tabs value={authLogic} className="p-2">
           <Tabs.Content value="otp">
-            <ClientPortalDetailOtp />
+            <ClientPortalDetailOTP />
           </Tabs.Content>
           <Tabs.Content value="two-factor">
-            {/* <ClientPortalDetailTwoFactor /> */}
+            <ClientPortalDetail2FA />
           </Tabs.Content>
           <Tabs.Content value="confirm">
-            {/* <ClientPortalDetailConfirm /> */}
+            <ClientPortalDetailConfirmationEmail />
+          </Tabs.Content>
+          <Tabs.Content value="reset">
+            <ClientPortalDetailResetPassword />
+          </Tabs.Content>
+          <Tabs.Content value="manual">
+            <ClientPortalDetailManual />
           </Tabs.Content>
         </Tabs>
       </InfoCard.Content>
