@@ -38,22 +38,28 @@ export const CallWidgetContent = () => {
     currentCallConversationIdAtom,
   );
   const { addCustomer, customer, channels, loading } = useAddCallCustomer();
-
+  console.log(sipState, 'CallWidgetContent');
   useEffect(() => {
     if (sipState.callStatus === CallStatusEnum.ENDED) {
       setHistoryId(null);
       setCurrentCallConversationId(null);
     }
   }, [sipState.callStatus, setHistoryId, setCurrentCallConversationId]);
+  console.log('CallWidgetContent 1');
 
   if (sipState.callStatus === CallStatusEnum.IDLE) {
+    console.log('CallWidgetContent 2');
+
     return <CallTabs keypad={<Dialpad addCustomer={addCustomer} />} />;
   }
+  console.log('CallWidgetContent 3');
 
   if (
     sipState.callDirection === CallDirectionEnum.INCOMING &&
     sipState.callStatus === CallStatusEnum.STARTING
   ) {
+    console.log('CallWidgetContent 5');
+
     return (
       <IncomingCall
         addCustomer={addCustomer}
@@ -63,6 +69,7 @@ export const CallWidgetContent = () => {
       />
     );
   }
+  console.log('CallWidgetContent 4');
 
   return (
     <CallTabs
@@ -104,7 +111,7 @@ export const CallWidget = () => {
   const open = useAtomValue(callWidgetOpenAtom);
   const sipState = useAtomValue(sipStateAtom);
   const setOpen = useSetAtom(callWidgetOpenAtom);
-
+  console.log('called call widget component');
   useLayoutEffect(() => {
     if (popoverContentRef.current) {
       setContentHeight(popoverContentRef.current.offsetHeight);
