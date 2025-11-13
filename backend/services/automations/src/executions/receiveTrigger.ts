@@ -64,7 +64,7 @@ export const receiveTrigger = async ({
             continue;
           }
         }
-
+        console.log(JSON.stringify(trigger));
         const execution = await calculateExecution({
           models,
           subdomain,

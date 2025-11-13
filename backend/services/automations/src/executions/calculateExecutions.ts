@@ -88,6 +88,7 @@ export const calculateExecution = async ({
       subdomain,
       automationId,
     );
+    console.log({ isValidTrigger });
     if (!isValidTrigger) {
       return;
     }
