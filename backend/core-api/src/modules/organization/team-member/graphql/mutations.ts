@@ -147,7 +147,6 @@ export const userMutations: Record<string, Resolver> = {
       links,
       employeeId,
       positionIds,
-      password,
     }: {
       username: string;
       email: string;
@@ -155,7 +154,6 @@ export const userMutations: Record<string, Resolver> = {
       links: ILink;
       employeeId: string;
       positionIds: string[];
-      password: string;
     },
     { user, models }: IContext,
   ) {
@@ -170,10 +168,6 @@ export const userMutations: Record<string, Resolver> = {
       employeeId,
       positionIds,
     };
-
-    if (password) {
-      doc['password'] = await models.Users.generatePassword(password);
-    }
 
     const updatedUser = await models.Users.editProfile(user._id, doc);
 

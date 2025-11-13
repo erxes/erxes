@@ -146,6 +146,7 @@ const commonParams = `
   departmentIds: [String]
   customFieldsData: JSON
   employeeId: String
+  password: String
 `;
 
 const commonSelector = `
@@ -181,7 +182,6 @@ export const mutations = `
     links: JSON
     employeeId: String
     positionIds: [String]
-    password: String
   ): User
   usersEdit(_id: String!, ${commonParams}): User
   usersChangePassword(currentPassword: String!, newPassword: String!): User
