@@ -129,11 +129,14 @@ import { IInternalNoteDocument } from '@/internalNote/types';
 import { ILogModel, loadLogsClass } from '@/logs/db/models/Logs';
 
 import {
+<<<<<<< HEAD
   AiAgentDocument,
   aiAgentSchema,
   aiEmbeddingSchema,
   emailDeliverySchema,
   IAiEmbeddingDocument,
+=======
+>>>>>>> d2da662d3084b21bc0e47639d858b04ca23ad6a1
   IAutomationDocument,
   IAutomationExecutionDocument,
   IEmailDeliveryDocument,
@@ -168,6 +171,10 @@ import {
   loadFieldGroupClass,
 } from './modules/properties/db/models/Group';
 
+import {
+  IEmailDeliveryModel,
+  loadEmailDeliveryClass,
+} from './modules/organization/team-member/db/models/EmailDeliveries';
 import {
   IFieldDocument,
   IFieldGroupDocument,
@@ -210,9 +217,13 @@ export interface IModels {
   AutomationEmailTemplates: IAutomationEmailTemplateModel;
   Logs: ILogModel;
   Notifications: Model<INotificationDocument>;
+<<<<<<< HEAD
   EmailDeliveries: Model<IEmailDeliveryDocument>;
   AiAgents: Model<AiAgentDocument>;
   AiEmbeddings: Model<IAiEmbeddingDocument>;
+=======
+  EmailDeliveries: IEmailDeliveryModel;
+>>>>>>> d2da662d3084b21bc0e47639d858b04ca23ad6a1
 }
 
 export interface IContext extends IMainContext {

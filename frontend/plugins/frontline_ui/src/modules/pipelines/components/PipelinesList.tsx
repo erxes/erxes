@@ -13,7 +13,6 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
     },
   });
   const navigate = useNavigate();
-
   const onClick = (pipelineId: string) => {
     navigate(
       `/settings/frontline/channels/${channelId}/pipelines/${pipelineId}`,
@@ -39,7 +38,7 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
               ? Array.from({ length: 3 }).map((_, index) => (
                   <TableRowSkeleton key={index} />
                 ))
-              : pipelines?.map((pipeline) => (
+              : pipelines?.filter(Boolean).map((pipeline) => (
                   <Table.Row
                     key={pipeline._id}
                     onClick={() => onClick(pipeline._id)}
@@ -47,19 +46,29 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
                   >
                     <Table.Cell className="font-medium border-none pl-2 w-auto ">
                       <span className="w-full flex gap-2 text-base font-medium">
-                        <TextOverflowTooltip value={pipeline.name} />
+                        <TextOverflowTooltip
+                          value={pipeline.name || 'Unnamed'}
+                        />
                       </span>
                     </Table.Cell>
                     <Table.Cell className="border-none px-2 ">
                       <div className="flex items-center gap-2 text-base font-medium">
-                        <MembersInline members={[pipeline.createdUser]} />
+                        <MembersInline
+                          members={
+                            pipeline.createdUser ? [pipeline.createdUser] : []
+                          }
+                        />
                       </div>
                     </Table.Cell>
                     <Table.Cell className="border-none px-2 ">
-                      {format(pipeline.updatedAt, 'MMM d, yyyy')}
+                      {pipeline.updatedAt
+                        ? format(new Date(pipeline.updatedAt), 'MMM d, yyyy')
+                        : '-'}
                     </Table.Cell>
                     <Table.Cell className="border-none px-2 text-muted-foreground">
-                      {format(pipeline.createdAt, 'MMM d, yyyy')}
+                      {pipeline.createdAt
+                        ? format(new Date(pipeline.createdAt), 'MMM d, yyyy')
+                        : '-'}
                     </Table.Cell>
                   </Table.Row>
                 ))}

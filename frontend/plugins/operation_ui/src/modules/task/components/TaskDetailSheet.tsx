@@ -11,7 +11,7 @@ export const TaskDetailSheet = () => {
 
   return (
     <Sheet open={!!activeTask} onOpenChange={() => setActiveTask(null)}>
-      <Sheet.View className="sm:max-w-(--breakpoint-md)">
+      <Sheet.View className="sm:max-w-5xl">
         {activeTask && (
           <>
             <Sheet.Header>
