@@ -8,6 +8,7 @@ export const UPDATE_PROFILE = gql`
     $links: JSON
     $employeeId: String
     $positionIds: [String]
+    $password: String
   ) {
     usersEditProfile(
       username: $username
@@ -16,6 +17,7 @@ export const UPDATE_PROFILE = gql`
       links: $links
       employeeId: $employeeId
       positionIds: $positionIds
+      password: $password
     ) {
       _id
     }
