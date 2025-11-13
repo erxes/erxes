@@ -72,7 +72,7 @@ function Boards({
         <NavigationMenuLinkItem
           key={board._id}
           name={board.name}
-          pathPrefix="deals"
+          pathPrefix="sales/deals"
           className="pl-6 font-medium"
           path={
             board.pipelines && board.pipelines.length > 0
@@ -113,7 +113,7 @@ function Pipelines({
         <NavigationMenuLinkItem
           key={pipeline._id}
           name={pipeline.name}
-          pathPrefix="deals"
+          pathPrefix="sales/deals"
           className="pl-6 font-medium"
           path={`?boardId=${boardId}&pipelineId=${pipeline._id}`}
           isActive={pipeline._id === pipelineId}
@@ -150,7 +150,7 @@ function SalesItem({ name, Icon }: { name: string; Icon: Icon }) {
   const { lastBoard, loading: lastBoardLoading } = useLastBoard();
 
   useEffect(() => {
-    if (location.pathname.startsWith('/deals')) {
+    if (location.pathname.startsWith('/sales/deals')) {
       setIsOpen(true);
     } else {
       setIsOpen(false);
@@ -158,7 +158,7 @@ function SalesItem({ name, Icon }: { name: string; Icon: Icon }) {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (!location.pathname.startsWith('/deals')) return;
+    if (!location.pathname.startsWith('/sales/deals')) return;
 
     if (!selectedBoardId && storedBoardId) {
       setSelectedBoardId(storedBoardId);
@@ -180,7 +180,7 @@ function SalesItem({ name, Icon }: { name: string; Icon: Icon }) {
     }
 
     if (!selectedBoardId && !storedBoardId && lastBoard) {
-      const baseUrl = `/deals?boardId=${lastBoard._id}`;
+      const baseUrl = `/sales/deals?boardId=${lastBoard._id}`;
 
       const url =
         lastBoard.pipelines && lastBoard.pipelines.length > 0
@@ -192,7 +192,7 @@ function SalesItem({ name, Icon }: { name: string; Icon: Icon }) {
 
     if (!selectedBoardId && storedBoardId && storedPipelineId) {
       navigate(
-        `/deals?boardId=${storedBoardId}&pipelineId=${storedPipelineId}`,
+        `/sales/deals?boardId=${storedBoardId}&pipelineId=${storedPipelineId}`,
       );
     }
   }, [
@@ -264,7 +264,7 @@ const ActionsMenu = () => {
   const { toast } = useToast();
 
   const handleCopyLink = async () => {
-    const link = `${window.location.origin}/settings/deals`;
+    const link = `${window.location.origin}/settings/sales/deals`;
 
     try {
       await navigator.clipboard.writeText(link);
@@ -299,7 +299,7 @@ const ActionsMenu = () => {
         <DropdownMenu.Item
           className="cursor-pointer"
           onSelect={(e) => {
-            navigate(`/settings/deals`);
+            navigate(`/settings/sales/deals`);
           }}
         >
           <IconSettings className="size-4" />

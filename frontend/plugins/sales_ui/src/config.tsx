@@ -3,6 +3,7 @@ import {
   IconCashRegister,
   IconSandbox,
 } from '@tabler/icons-react';
+import { IUIConfig } from 'erxes-ui/types';
 import { Suspense, lazy } from 'react';
 
 const MainNavigation = lazy(() =>
@@ -17,11 +18,9 @@ const SalesNavigation = lazy(() =>
   })),
 );
 
-export const CONFIG = {
+export const CONFIG: IUIConfig = {
   name: 'sales',
   icon: IconBriefcase,
-  hasRelationWidget: true,
-  widgetsIcon: IconBriefcase,
   navigationGroup: {
     name: 'sales',
     icon: IconBriefcase,
@@ -40,14 +39,21 @@ export const CONFIG = {
     {
       name: 'deals',
       icon: IconSandbox,
-      path: 'deals',
+      path: 'sales/deals',
       hasSettings: true,
     },
     {
       name: 'pos',
       icon: IconCashRegister,
-      path: 'pos',
+      path: 'sales/pos',
       hasSettings: true,
+      hasRelationWidget: true,
+    },
+    {
+      name: 'sales',
+      icon: IconBriefcase,
+      path: 'sales',
+      hasSettings: false,
       hasRelationWidget: true,
     },
   ],

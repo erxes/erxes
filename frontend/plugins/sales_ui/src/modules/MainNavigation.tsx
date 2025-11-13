@@ -7,10 +7,16 @@ export const MainNavigation = () => {
     <>
       <NavigationMenuLinkItem
         name="Sales Pipeline"
+        pathPrefix="/sales"
         path="deals"
         icon={IconSandbox}
       />
-      <NavigationMenuLinkItem name="POS" icon={IconCashRegister} path="pos" />
+      <NavigationMenuLinkItem
+        name="POS"
+        icon={IconCashRegister}
+        pathPrefix="/sales"
+        path="pos"
+      />
     </>
   );
 };
