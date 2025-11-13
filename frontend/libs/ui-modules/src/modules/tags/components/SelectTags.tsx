@@ -7,6 +7,8 @@ import {
   Popover,
   TextOverflowTooltip,
   SelectTree,
+  SelectTriggerOperation,
+  SelectOperationContent,
 } from 'erxes-ui';
 import { useTags } from '../hooks/useTags';
 import { useDebounce } from 'use-debounce';
@@ -373,6 +375,43 @@ export const SelectTagsDetail = React.forwardRef<
 
 SelectTagsDetail.displayName = 'SelectTagsDetail';
 
+export const SelectTagsFormItem = ({
+  onValueChange,
+  scope,
+  tagType,
+  value,
+  mode = 'multiple',
+}: {
+  tagType?: string;
+  scope?: string;
+  onValueChange: (value: string | string[]) => void;
+  value?: string | string[];
+  mode?: 'single' | 'multiple';
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <SelectTagsProvider
+      value={value}
+      onValueChange={(value) => {
+        onValueChange(value);
+        setOpen(false);
+      }}
+      tagType={tagType || ''}
+      mode={mode}
+    >
+      <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+        <SelectTriggerOperation variant="form">
+          <SelectTagsValue />
+        </SelectTriggerOperation>
+        <SelectOperationContent variant="form">
+          <SelectTagsContent />
+        </SelectOperationContent>
+      </PopoverScoped>
+    </SelectTagsProvider>
+  );
+};
+
 export const SelectTagsCommandbarItem = ({
   onValueChange,
   ...props
@@ -458,4 +497,5 @@ export const SelectTags = Object.assign(SelectTagsRoot, {
   List: TagList,
   InlineCell: SelectTagsInlineCell,
   Detail: SelectTagsDetail,
+  FormItem: SelectTagsFormItem,
 });
