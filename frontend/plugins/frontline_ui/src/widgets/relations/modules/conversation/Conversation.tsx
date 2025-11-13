@@ -30,7 +30,7 @@ export const ConversationRelationWidget = ({
     contentType === 'frontline:conversation'
   ) {
     return (
-      <div className="flex flex-col flex-1 overflow-hidden h-full gap-2 w-full p-2">
+      <div className="flex flex-col flex-1 overflow-y-auto h-full gap-2 w-full p-2">
         {conversations
           ?.filter((conversation) => conversation._id !== contentId)
           .map((conversation) => {
@@ -45,7 +45,7 @@ export const ConversationRelationWidget = ({
     );
   }
   return (
-    <div className="flex flex-col flex-1 overflow-y-auto gap-2 w-full p-2">
+    <div className="flex flex-col flex-1 overflow-y-auto h-full gap-2 w-full p-2">
       {ownEntities?.map((entity) => {
         return (
           <ConversationRelationDetails
