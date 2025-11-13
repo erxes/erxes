@@ -15,7 +15,7 @@ export const ACCOUNT_JOURNALS = {
   INV_FOLLOW: 'invFollow',
   FIXED_ASSET: 'fixedAsset',
   ALL: [
-    'main', , 'tax',
+    'main', 'tax',
     'cash', 'bank', 'debt', 'exchangeDiff',
     'inventory', 'invFollow',
     'fixedAsset',

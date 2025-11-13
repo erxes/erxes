@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { getFullDate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { fixNum, getFullDate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { getConfig } from '~/init-trpc';
@@ -112,11 +112,7 @@ export default class CurrencyTr {
     }
 
     const detail = this.doc.details[0];
-    const amount =
-      (detail.currencyAmount ?? 0) *
-      (this.spotRate?.rate ?? 0) ||
-      detail.amount ||
-      0;
+    const amount = fixNum((detail.currencyAmount ?? 0) * (this.spotRate?.rate ?? 0)) || detail.amount || 0;
 
     if (amount !== detail.amount) {
       detail.amount = amount;
