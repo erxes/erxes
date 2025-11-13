@@ -1,10 +1,11 @@
 import { facebookConstants } from '@/integrations/facebook/meta/automation/constants';
 import { facebookAutomationWorkers } from '@/integrations/facebook/meta/automation/workers';
+
 import {
   AutomationConfigs,
+  createCoreModuleProducerHandler,
   TAutomationProducers,
-} from 'erxes-api-shared/src/core-modules/automations/types';
-import { createCoreModuleProducerHandler } from 'erxes-api-shared/core-modules';
+} from 'erxes-api-shared/core-modules';
 import { generateModels } from '~/connectionResolvers';
 
 const modules = {
