@@ -1,29 +1,45 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, Input, Label, Switch } from 'erxes-ui';
+import { Button, Form, Label, Spinner, Switch } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { useState } from 'react';
 import { CLIENTPORTAL_MANUAL_VERIFICATION_SCHEMA } from '../constants/clientPortalEditSchema';
 import { SelectMember } from 'ui-modules';
+import { IClientPortal } from '../types/clientPortal';
+import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
 
-export function ClientPortalDetailManual() {
-  const [isActive, setIsActive] = useState<boolean>(false);
+export function ClientPortalDetailManual({
+  clientPortal,
+}: {
+  clientPortal: IClientPortal;
+}) {
+  const isActive = clientPortal.enableManualVerification ?? false;
   const form = useForm<z.infer<typeof CLIENTPORTAL_MANUAL_VERIFICATION_SCHEMA>>(
     {
       resolver: zodResolver(CLIENTPORTAL_MANUAL_VERIFICATION_SCHEMA),
-      defaultValues: {
-        userIds: [],
-        verifyCustomer: false,
-        verifyCompany: false,
-      },
+      defaultValues: clientPortal.manualVerificationConfig,
     },
   );
+  const { updateClientPortal, loading } = useUpdateClientPortal();
 
   function handleSubmit(
     data: z.infer<typeof CLIENTPORTAL_MANUAL_VERIFICATION_SCHEMA>,
   ) {
-    // handle save here
+    updateClientPortal({
+      variables: {
+        id: clientPortal?._id,
+        clientPortal: { manualVerificationConfig: data },
+      },
+    });
   }
+
+  const handleEnableManualVerification = (value: boolean) => {
+    updateClientPortal({
+      variables: {
+        id: clientPortal?._id,
+        clientPortal: { enableManualVerification: value },
+      },
+    });
+  };
 
   return (
     <>
@@ -31,7 +47,8 @@ export function ClientPortalDetailManual() {
         <Switch
           id="enableManualVerification"
           checked={isActive}
-          onCheckedChange={setIsActive}
+          onCheckedChange={handleEnableManualVerification}
+          disabled={loading}
         />
         <Label variant="peer" htmlFor="enableManualVerification">
           Enable manual verification
@@ -68,14 +85,13 @@ export function ClientPortalDetailManual() {
               render={({ field }) => (
                 <Form.Item>
                   <div className="flex items-center gap-2">
-                    <Switch
-                      id="verifyCustomer"
-                      checked={!!field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                    <Form.Label htmlFor="verifyCustomer">
-                      Verify Customer
-                    </Form.Label>
+                    <Form.Control>
+                      <Switch
+                        checked={!!field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </Form.Control>
+                    <Form.Label variant="peer">Verify customer</Form.Label>
                   </div>
                   <Form.Message />
                 </Form.Item>
@@ -87,20 +103,25 @@ export function ClientPortalDetailManual() {
               render={({ field }) => (
                 <Form.Item>
                   <div className="flex items-center gap-2">
-                    <Switch
-                      id="verifyCompany"
-                      checked={!!field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                    <Form.Label htmlFor="verifyCompany">
-                      Verify Company
-                    </Form.Label>
+                    <Form.Control>
+                      <Switch
+                        checked={!!field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </Form.Control>
+                    <Form.Label variant="peer">Verify company</Form.Label>
                   </div>
                   <Form.Message />
                 </Form.Item>
               )}
             />
-            <Button type="submit" className="mt-2 col-span-2">
+            <Button
+              type="submit"
+              className="mt-2 col-span-2"
+              disabled={loading}
+              variant="secondary"
+            >
+              {loading && <Spinner containerClassName="w-auto flex-none" />}
               Save
             </Button>
           </form>

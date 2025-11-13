@@ -1,15 +1,16 @@
 import { IClientPortal } from '@/client-portal/types/clientPortal';
-import { Label, Input, InfoCard, Textarea, Button, Form } from 'erxes-ui';
+import { Input, InfoCard, Textarea, Button, Form, Spinner } from 'erxes-ui';
 
 import { CLIENTPORTAL_EDIT_SCHEMA } from '@/client-portal/constants/clientPortalEditSchema';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
 
-export const ClientPortalGeneralFields = ({
-  clientPortal,
+export const ClientPortalGeneral = ({
+  clientPortal = {},
 }: {
-  clientPortal: IClientPortal;
+  clientPortal?: IClientPortal;
 }) => {
   const form = useForm<z.infer<typeof CLIENTPORTAL_EDIT_SCHEMA>>({
     resolver: zodResolver(CLIENTPORTAL_EDIT_SCHEMA),
@@ -19,9 +20,19 @@ export const ClientPortalGeneralFields = ({
       domain: clientPortal?.domain,
     },
   });
+  const { updateClientPortal, loading } = useUpdateClientPortal();
 
   const onSubmit = (data: z.infer<typeof CLIENTPORTAL_EDIT_SCHEMA>) => {
-    console.log(data);
+    updateClientPortal({
+      variables: {
+        id: clientPortal?._id,
+        clientPortal: {
+          name: data.name,
+          description: data.description,
+          domain: data.domain,
+        },
+      },
+    });
   };
   return (
     <InfoCard title="General">
@@ -38,6 +49,7 @@ export const ClientPortalGeneralFields = ({
                 <Form.Item>
                   <Form.Label>Name</Form.Label>
                   <Input {...field} />
+                  <Form.Message />
                 </Form.Item>
               )}
             />
@@ -48,6 +60,7 @@ export const ClientPortalGeneralFields = ({
                 <Form.Item>
                   <Form.Label>Domain</Form.Label>
                   <Input {...field} />
+                  <Form.Message />
                 </Form.Item>
               )}
             />
@@ -58,16 +71,21 @@ export const ClientPortalGeneralFields = ({
                 <Form.Item className="col-span-2">
                   <Form.Label>Description</Form.Label>
                   <Textarea {...field} />
+                  <Form.Message />
                 </Form.Item>
               )}
             />
             <div className="col-start-2 flex justify-end">
               <Button
                 type="submit"
+                variant="secondary"
                 disabled={
-                  form.formState.isSubmitting || !form.formState.isDirty
+                  loading ||
+                  form.formState.isSubmitting ||
+                  !form.formState.isDirty
                 }
               >
+                {loading && <Spinner containerClassName="w-auto flex-none" />}
                 Update
               </Button>
             </div>

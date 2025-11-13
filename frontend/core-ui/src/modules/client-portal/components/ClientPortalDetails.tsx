@@ -1,12 +1,13 @@
 import { useClientPortal } from '@/client-portal/hooks/useClientPortal';
 
 import { useParams } from 'react-router-dom';
-import { ClientPortalGeneralFields } from './ClientPortalDetailsGeneralFields';
+import { ClientPortalGeneral } from './ClientPortalDetailsGeneral';
 import { ScrollArea, Spinner } from 'erxes-ui';
 import { ClientPortalDetailAuth } from './ClientPortalDetailAuth';
 import { ClientPortalDetailTest } from './ClientPortalDetailTest';
 import { ClientPortalDetailAuthLogics } from './ClientPortalDetailAuthLogics';
-import { ClientPortalDetailThirdPartyAuth } from './ClientPortalDetailThirdPartyAuth';
+import { ClientPortalDetail3rdPartyAuths } from './ClientPortalDetail3rdPartyAuths';
+import { ClientPortalDetailToken } from './ClientPortalDetailToken';
 
 export const ClientPortalDetails = () => {
   const { clientPortalId } = useParams<{ clientPortalId: string }>();
@@ -35,17 +36,20 @@ export const ClientPortalDetails = () => {
     <ScrollArea className="flex-auto overflow-hidden" viewportClassName="p-4">
       <div className="grid grid-cols-3 gap-4">
         <div className="col-span-2 mb-4">
-          <ClientPortalGeneralFields clientPortal={clientPortal ?? {}} />
+          <ClientPortalGeneral clientPortal={clientPortal} />
+        </div>
+        <div>
+          <ClientPortalDetailToken clientPortal={clientPortal} />
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         <div className="flex flex-col gap-4 col-span-2">
-          <ClientPortalDetailAuth clientPortal={clientPortal ?? {}} />
-          <ClientPortalDetailAuthLogics />
-          <ClientPortalDetailThirdPartyAuth />
+          <ClientPortalDetailAuth clientPortal={clientPortal} />
+          <ClientPortalDetailAuthLogics clientPortal={clientPortal} />
+          <ClientPortalDetail3rdPartyAuths clientPortal={clientPortal} />
         </div>
         <div className="flex flex-col gap-4">
-          <ClientPortalDetailTest />
+          <ClientPortalDetailTest clientPortal={clientPortal} />
         </div>
       </div>
     </ScrollArea>

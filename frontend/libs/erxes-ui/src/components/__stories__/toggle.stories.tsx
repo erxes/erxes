@@ -17,7 +17,7 @@ const meta: Meta = {
       control: 'select',
     },
     variant: {
-      options: ['default', 'outline-solid'],
+      options: ['default', 'outline'],
       description: 'Variant of the toggle',
       defaultValue: 'default',
       control: 'select',

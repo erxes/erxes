@@ -1,34 +1,56 @@
-import { Button, Form, Input, Label, Switch } from 'erxes-ui';
+import { Button, Form, Input, Label, Spinner, Switch } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { CLIENTPORTAL_OTP_SCHEMA } from '../constants/clientPortalEditSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useState } from 'react';
+import { IClientPortal } from '../types/clientPortal';
+import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
 
-export const ClientPortalDetailOTP = () => {
-  const [isOpen, setIsOpen] = useState(false);
+export const ClientPortalDetailOTP = ({
+  clientPortal,
+}: {
+  clientPortal: IClientPortal;
+}) => {
   const form = useForm<z.infer<typeof CLIENTPORTAL_OTP_SCHEMA>>({
     resolver: zodResolver(CLIENTPORTAL_OTP_SCHEMA),
-    defaultValues: {
-      smsConfig: '',
-      emailSubject: '',
-      content: '',
-    },
+    defaultValues: clientPortal?.otpConfig,
   });
+  const isOpen = clientPortal.enableOTP ?? false;
+  const { updateClientPortal, loading } = useUpdateClientPortal();
 
   const onSubmit = (data: z.infer<typeof CLIENTPORTAL_OTP_SCHEMA>) => {
-    console.log(data);
+    updateClientPortal({
+      variables: {
+        id: clientPortal?._id,
+        clientPortal: {
+          otpConfig: data,
+        },
+      },
+    });
+  };
+
+  const handleEnableOTP = (value: boolean) => {
+    updateClientPortal({
+      variables: {
+        id: clientPortal?._id,
+        clientPortal: { enableOTP: value },
+      },
+    });
   };
 
   return (
     <>
       <div className="flex items-center gap-2 mb-4">
-        <Switch id="enableOTP" checked={isOpen} onCheckedChange={setIsOpen} />
+        <Switch
+          id="enableOTP"
+          checked={isOpen}
+          onCheckedChange={handleEnableOTP}
+          disabled={loading}
+        />
         <Label variant="peer" htmlFor="enableOTP">
           Enable OTP
         </Label>
       </div>
-
       {isOpen && (
         <Form {...form}>
           <form
@@ -37,12 +59,13 @@ export const ClientPortalDetailOTP = () => {
           >
             <Form.Field
               control={form.control}
-              name="smsConfig"
+              name="smsTransporterType"
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>SMS Config</Form.Label>
-                  <Input {...field} />
-                  <Form.Description />
+                  <Form.Control>
+                    <Input {...field} />
+                  </Form.Control>
                   <Form.Message />
                 </Form.Item>
               )}
@@ -53,7 +76,9 @@ export const ClientPortalDetailOTP = () => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Email Subject</Form.Label>
-                  <Input {...field} />
+                  <Form.Control>
+                    <Input {...field} />
+                  </Form.Control>
                   <Form.Description>2FA email subject</Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -63,9 +88,11 @@ export const ClientPortalDetailOTP = () => {
               control={form.control}
               name="content"
               render={({ field }) => (
-                <Form.Item>
+                <Form.Item className="col-span-2">
                   <Form.Label>Content</Form.Label>
-                  <Input {...field} />
+                  <Form.Control>
+                    <Input {...field} />
+                  </Form.Control>
                   <Form.Description>2FA body</Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -77,7 +104,14 @@ export const ClientPortalDetailOTP = () => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Code Length</Form.Label>
-                  <Input type="number" {...field} />
+                  <Form.Control>
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </Form.Control>
                   <Form.Description />
                   <Form.Message />
                 </Form.Item>
@@ -89,7 +123,14 @@ export const ClientPortalDetailOTP = () => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Expire After</Form.Label>
-                  <Input type="number" {...field} />
+                  <Form.Control>
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </Form.Control>
                   <Form.Description>
                     OTP expiration duration (min)
                   </Form.Description>
@@ -101,23 +142,28 @@ export const ClientPortalDetailOTP = () => {
               control={form.control}
               name="loginWithOTP"
               render={({ field }) => (
-                <Form.Item className="mt-2 col-start-1">
-                  <Form.Label
-                    variant="peer"
-                    className="flex items-center gap-2"
-                  >
+                <Form.Item className="mt-2 col-start-1 flex items-center gap-2 space-y-0">
+                  <Form.Control>
                     <Switch
-                      checked={field.value as boolean}
+                      checked={field.value ?? false}
                       onCheckedChange={field.onChange}
                     />
-                    Login with OTP
-                  </Form.Label>
-
+                  </Form.Control>
+                  <Form.Label variant="peer">Login with OTP</Form.Label>
                   <Form.Message />
                 </Form.Item>
               )}
             />
-            <Button type="submit" className="mt-2 col-span-2">
+
+            <Button
+              type="submit"
+              className="mt-2 col-span-2"
+              disabled={loading}
+              variant="secondary"
+            >
+              {loading && (
+                <Spinner containerClassName="w-auto flex-none mr-2" />
+              )}
               Save
             </Button>
           </form>

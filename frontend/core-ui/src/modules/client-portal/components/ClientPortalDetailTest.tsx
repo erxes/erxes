@@ -1,22 +1,47 @@
-import { InfoCard, Input, Form, Button, formatPhoneNumber } from 'erxes-ui';
+import {
+  InfoCard,
+  Input,
+  Form,
+  Button,
+  formatPhoneNumber,
+  Spinner,
+} from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CLIENTPORTAL_TEST_SCHEMA } from '../constants/clientPortalEditSchema';
+import { IClientPortal } from '../types/clientPortal';
+import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
 
-export const ClientPortalDetailTest = () => {
+export const ClientPortalDetailTest = ({
+  clientPortal = {},
+}: {
+  clientPortal?: IClientPortal;
+}) => {
   const form = useForm<z.infer<typeof CLIENTPORTAL_TEST_SCHEMA>>({
     resolver: zodResolver(CLIENTPORTAL_TEST_SCHEMA),
     defaultValues: {
-      testUserEmail: '',
-      testUserPhone: '',
-      testUserPassword: '',
-      testUserOTP: '',
+      testUserEmail: clientPortal?.testUserEmail ?? '',
+      testUserPhone: clientPortal?.testUserPhone ?? '',
+      testUserPassword: clientPortal?.testUserPassword ?? '',
+      testUserOTP: clientPortal?.testUserOTP ?? undefined,
     },
   });
 
+  const { updateClientPortal, loading } = useUpdateClientPortal();
+
   const onSubmit = (data: z.infer<typeof CLIENTPORTAL_TEST_SCHEMA>) => {
-    console.log(data);
+    updateClientPortal({
+      variables: {
+        id: clientPortal?._id,
+        clientPortal: {
+          testUserEmail: data.testUserEmail,
+          testUserPhone: data.testUserPhone,
+          testUserPassword: data.testUserPassword,
+          testUserOTP: data.testUserOTP,
+        },
+      },
+    });
   };
 
   return (
@@ -30,7 +55,10 @@ export const ClientPortalDetailTest = () => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Email</Form.Label>
-                  <Input {...field} />
+                  <Form.Control>
+                    <Input {...field} />
+                  </Form.Control>
+                  <Form.Message />
                 </Form.Item>
               )}
             />
@@ -40,17 +68,20 @@ export const ClientPortalDetailTest = () => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Phone</Form.Label>
-                  <Input
-                    value={
-                      field.value
-                        ? formatPhoneNumber({
-                            value: field.value,
-                            defaultCountry: 'MN',
-                          })
-                        : ''
-                    }
-                    onChange={(e) => field.onChange(e.target.value)}
-                  />
+                  <Form.Control>
+                    <Input
+                      value={
+                        field.value
+                          ? formatPhoneNumber({
+                              value: field.value,
+                              defaultCountry: 'MN',
+                            })
+                          : ''
+                      }
+                      onChange={(e) => field.onChange(e.target.value)}
+                    />
+                  </Form.Control>
+                  <Form.Message />
                 </Form.Item>
               )}
             />
@@ -60,7 +91,10 @@ export const ClientPortalDetailTest = () => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Password</Form.Label>
-                  <Input {...field} />
+                  <Form.Control>
+                    <Input {...field} />
+                  </Form.Control>
+                  <Form.Message />
                 </Form.Item>
               )}
             />
@@ -70,7 +104,10 @@ export const ClientPortalDetailTest = () => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>OTP</Form.Label>
-                  <Input {...field} />
+                  <Form.Control>
+                    <Input {...field} type="number" />
+                  </Form.Control>
+                  <Form.Message />
                 </Form.Item>
               )}
             />
@@ -79,7 +116,8 @@ export const ClientPortalDetailTest = () => {
               className="mt-2"
               disabled={form.formState.isSubmitting || !form.formState.isDirty}
             >
-              {form.formState.isSubmitting ? 'Saving...' : 'Save'}
+              {loading && <Spinner containerClassName="w-auto flex-none" />}
+              Save
             </Button>
           </form>
         </Form>

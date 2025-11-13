@@ -1,31 +1,40 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  BlockEditor,
-  Button,
-  Editor,
-  Form,
-  Input,
-  Label,
-  Switch,
-} from 'erxes-ui';
+import { Button, Editor, Form, Input, Label, Spinner, Switch } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { CLIENTPORTAL_MAIL_SCHEMA } from '../constants/clientPortalEditSchema';
 import { z } from 'zod';
-import { useState } from 'react';
+import { IClientPortal } from '../types/clientPortal';
+import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
 
-export const ClientPortalDetailConfirmationEmail = () => {
-  const [isActive, setIsActive] = useState<boolean>(false);
+export const ClientPortalDetailConfirmationEmail = ({
+  clientPortal,
+}: {
+  clientPortal: IClientPortal;
+}) => {
+  const isActive = clientPortal.enableMail ?? false;
   const form = useForm<z.infer<typeof CLIENTPORTAL_MAIL_SCHEMA>>({
     resolver: zodResolver(CLIENTPORTAL_MAIL_SCHEMA),
-    defaultValues: {
-      subject: '',
-      invitationContent: '',
-      registrationContent: '',
-    },
+    defaultValues: clientPortal?.mailConfig,
   });
+  const { updateClientPortal, loading } = useUpdateClientPortal();
+
+  const handleEnableConfirmationEmail = (value: boolean) => {
+    updateClientPortal({
+      variables: {
+        id: clientPortal?._id,
+        clientPortal: { enableMail: value },
+      },
+    });
+  };
 
   function handleSubmit(data: z.infer<typeof CLIENTPORTAL_MAIL_SCHEMA>) {
     // handle save here
+    updateClientPortal({
+      variables: {
+        id: clientPortal?._id,
+        clientPortal: { mailConfig: data },
+      },
+    });
   }
 
   return (
@@ -34,7 +43,8 @@ export const ClientPortalDetailConfirmationEmail = () => {
         <Switch
           id="enableConfirmationEmail"
           checked={isActive}
-          onCheckedChange={setIsActive}
+          onCheckedChange={handleEnableConfirmationEmail}
+          disabled={loading}
         />
         <Label variant="peer" htmlFor="enableConfirmationEmail">
           Enable confirmation email
@@ -69,6 +79,7 @@ export const ClientPortalDetailConfirmationEmail = () => {
                   <Editor
                     initialContent={field.value}
                     onChange={field.onChange}
+                    isHTML
                   />
                   <Form.Description>
                     Content for invitation email
@@ -86,6 +97,7 @@ export const ClientPortalDetailConfirmationEmail = () => {
                   <Editor
                     initialContent={field.value}
                     onChange={field.onChange}
+                    isHTML
                   />
                   <Form.Description>
                     Content for registration confirmation
@@ -94,7 +106,15 @@ export const ClientPortalDetailConfirmationEmail = () => {
                 </Form.Item>
               )}
             />
-            <Button type="submit" className="mt-2 col-span-2">
+            <Button
+              type="submit"
+              className="mt-2 col-span-2"
+              disabled={loading}
+              variant="secondary"
+            >
+              {loading && (
+                <Spinner containerClassName="w-auto flex-none mr-2" />
+              )}
               Save
             </Button>
           </form>

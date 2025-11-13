@@ -1,12 +1,17 @@
-import { InfoCard, Tabs, ToggleGroup } from 'erxes-ui';
+import { InfoCard, ScrollArea, Tabs, ToggleGroup } from 'erxes-ui';
 import { useState } from 'react';
-import { ClientPortalDetailOTP } from './ClientPortalDetailOTPfuck';
+import { ClientPortalDetailOTP } from './ClientPortalDetailOTPf';
 import { ClientPortalDetail2FA } from './ClientPortalDetail2FA';
 import { ClientPortalDetailConfirmationEmail } from './ClientPortalDetailConfirmationEmail';
-import { ClientPortalDetailResetPassword } from './ClientPortalDetailResetPassword';
+import { ClientPortalDetailResetPassword } from './ClientPortalDetailPasswordVerification';
 import { ClientPortalDetailManual } from './ClientPortalDetailManual';
+import { IClientPortal } from '../types/clientPortal';
 
-export const ClientPortalDetailAuthLogics = () => {
+export const ClientPortalDetailAuthLogics = ({
+  clientPortal = {},
+}: {
+  clientPortal?: IClientPortal;
+}) => {
   const [authLogic, setAuthLogic] = useState<string>('otp');
   return (
     <InfoCard title="Account Security & Verification">
@@ -33,21 +38,23 @@ export const ClientPortalDetailAuthLogics = () => {
             Manual verification
           </ToggleGroup.Item>
         </ToggleGroup>
+        <ScrollArea.Bar orientation="horizontal" />
+
         <Tabs value={authLogic} className="p-2">
           <Tabs.Content value="otp">
-            <ClientPortalDetailOTP />
+            <ClientPortalDetailOTP clientPortal={clientPortal} />
           </Tabs.Content>
           <Tabs.Content value="two-factor">
-            <ClientPortalDetail2FA />
+            <ClientPortalDetail2FA clientPortal={clientPortal} />
           </Tabs.Content>
           <Tabs.Content value="confirm">
-            <ClientPortalDetailConfirmationEmail />
+            <ClientPortalDetailConfirmationEmail clientPortal={clientPortal} />
           </Tabs.Content>
           <Tabs.Content value="reset">
-            <ClientPortalDetailResetPassword />
+            <ClientPortalDetailResetPassword clientPortal={clientPortal} />
           </Tabs.Content>
           <Tabs.Content value="manual">
-            <ClientPortalDetailManual />
+            <ClientPortalDetailManual clientPortal={clientPortal} />
           </Tabs.Content>
         </Tabs>
       </InfoCard.Content>
