@@ -29,6 +29,11 @@ export const sendOnboardNotification = async (
         contentType: `${pluginName}:system.welcome`,
       });
 
+      await models.Users.updateOne(
+        { _id: user._id },
+        { $addToSet: { onboardedPlugins: pluginName } },
+      );
+
       continue;
     }
 
@@ -44,7 +49,7 @@ export const sendOnboardNotification = async (
 
     await models.Users.updateOne(
       { _id: user._id },
-      { $push: { onboardedPlugins: pluginName } },
+      { $addToSet: { onboardedPlugins: pluginName } },
     );
   }
 };
