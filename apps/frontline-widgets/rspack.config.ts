@@ -56,5 +56,12 @@ module.exports = composePlugins(withNx(), withReact(), (config) => {
     }),
   );
 
+  config.resolve = config.resolve || {};
+  config.resolve.alias = {
+    ...(config.resolve.alias || {}),
+    '@': path.resolve(__dirname, './src'),
+    '@libs': path.resolve(__dirname, './src/lib'),
+  };
+
   return config;
 });

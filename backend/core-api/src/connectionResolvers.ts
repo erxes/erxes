@@ -129,16 +129,25 @@ import { IInternalNoteDocument } from '@/internalNote/types';
 import { ILogModel, loadLogsClass } from '@/logs/db/models/Logs';
 
 import {
+  AiAgentDocument,
+  aiAgentSchema,
+  aiEmbeddingSchema,
+  IAiEmbeddingDocument,
   IAutomationDocument,
   IAutomationExecutionDocument,
   IEmailDeliveryDocument,
   INotificationDocument,
   notificationSchema,
 } from 'erxes-api-shared/core-modules';
+import { IAutomationEmailTemplateDocument } from 'erxes-api-shared/core-types';
 import {
   IRoleModel,
   loadRoleClass,
 } from '~/modules/permissions/db/models/Roles';
+import {
+  IAutomationEmailTemplateModel,
+  loadAutomationEmailTemplateClass,
+} from './modules/automations/db/models/AutomationEmailTemplates';
 import {
   IAutomationModel,
   loadClass as loadAutomationClass,
@@ -210,11 +219,15 @@ export interface IModels {
   Documents: IDocumentModel;
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
+  AutomationEmailTemplates: IAutomationEmailTemplateModel;
   Logs: ILogModel;
   Notifications: Model<INotificationDocument>;
   EmailDeliveries: Model<IEmailDeliveryDocument>;
   ClientPortal: IClientPortalModel;
   CPUser: ICPUserModel;
+  AiAgents: Model<AiAgentDocument>;
+  AiEmbeddings: Model<IAiEmbeddingDocument>;
+  EmailDeliveries: IEmailDeliveryModel;
 }
 
 export interface IContext extends IMainContext {
@@ -376,6 +389,11 @@ export const loadClasses = (
     IExecutionModel
   >('automations_executions', loadExecutionClass(models));
 
+  models.AutomationEmailTemplates = db.model<
+    IAutomationEmailTemplateDocument,
+    IAutomationEmailTemplateModel
+  >('automation_email_templates', loadAutomationEmailTemplateClass(models));
+
   models.Notifications = db.model<
     INotificationDocument,
     Model<INotificationDocument>
@@ -385,6 +403,15 @@ export const loadClasses = (
     IEmailDeliveryDocument,
     IEmailDeliveryModel
   >('email_deliveries', loadEmailDeliveryClass(models));
+  models.AiAgents = db.model<AiAgentDocument, Model<AiAgentDocument>>(
+    'automations_ai_agents',
+    aiAgentSchema,
+  );
+
+  models.AiEmbeddings = db.model<
+    IAiEmbeddingDocument,
+    Model<IAiEmbeddingDocument>
+  >('ai_embeddings', aiEmbeddingSchema);
 
   const db_name = db.name;
 

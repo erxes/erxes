@@ -7,6 +7,8 @@ import {
   Popover,
   TextOverflowTooltip,
   SelectTree,
+  SelectTriggerOperation,
+  SelectOperationContent,
 } from 'erxes-ui';
 import { useTags } from '../hooks/useTags';
 import { useDebounce } from 'use-debounce';
@@ -86,7 +88,7 @@ export const SelectTagsProvider = ({
 };
 
 export const SelectTagsCommand = ({
-  disableCreateOption,
+  disableCreateOption = true,
 }: {
   disableCreateOption?: boolean;
 }) => {
@@ -99,6 +101,7 @@ export const SelectTagsCommand = ({
     variables: {
       type: tagType,
       searchValue: debouncedSearch,
+      includeWorkspaceTags: true,
     },
     skip: !!noTagsSearchValue && debouncedSearch.includes(noTagsSearchValue),
     onCompleted(data) {
@@ -349,29 +352,68 @@ export const SelectTagsDetail = React.forwardRef<
         }}
         {...{ targetIds, tagType, value, mode, options }}
       >
-        <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-          <Popover.Trigger asChild>
-            <Button
-              ref={ref}
-              {...props}
-              className="w-min text-sm font-medium shadow-xs"
-              variant="outline"
-            >
-              Add Tags
-              <IconPlus className="text-lg" />
-            </Button>
-          </Popover.Trigger>
-          <Combobox.Content>
-            <SelectTagsContent />
-          </Combobox.Content>
-        </PopoverScoped>
-        <TagList />
+        <div className="flex items-center gap-2">
+          <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+            <Popover.Trigger asChild>
+              <Button
+                ref={ref}
+                {...props}
+                className="w-min text-sm font-medium shadow-xs"
+                variant="outline"
+              >
+                Add Tags
+                <IconPlus className="text-lg" />
+              </Button>
+            </Popover.Trigger>
+            <Combobox.Content>
+              <SelectTagsContent />
+            </Combobox.Content>
+          </PopoverScoped>
+          <TagList />
+        </div>
       </SelectTagsProvider>
     );
   },
 );
 
 SelectTagsDetail.displayName = 'SelectTagsDetail';
+
+export const SelectTagsFormItem = ({
+  onValueChange,
+  scope,
+  tagType,
+  value,
+  mode = 'multiple',
+}: {
+  tagType?: string;
+  scope?: string;
+  onValueChange: (value: string | string[]) => void;
+  value?: string | string[];
+  mode?: 'single' | 'multiple';
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <SelectTagsProvider
+      value={value}
+      onValueChange={(value) => {
+        onValueChange(value);
+        setOpen(false);
+      }}
+      tagType={tagType || ''}
+      mode={mode}
+    >
+      <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+        <SelectTriggerOperation variant="form">
+          <SelectTagsValue />
+        </SelectTriggerOperation>
+        <SelectOperationContent variant="form">
+          <SelectTagsContent />
+        </SelectOperationContent>
+      </PopoverScoped>
+    </SelectTagsProvider>
+  );
+};
 
 export const SelectTagsCommandbarItem = ({
   onValueChange,
@@ -458,4 +500,5 @@ export const SelectTags = Object.assign(SelectTagsRoot, {
   List: TagList,
   InlineCell: SelectTagsInlineCell,
   Detail: SelectTagsDetail,
+  FormItem: SelectTagsFormItem,
 });

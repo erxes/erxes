@@ -9,6 +9,7 @@ type Project {
     status: Int
     priority: Int
     teamIds: [String]!
+    tagIds: [String]
     leadId: String
     startDate: Date
     targetDate: Date
@@ -33,6 +34,7 @@ input IProjectFilter {
     status: Int
     priority: Int
     teamIds: [String]
+    tagIds: [String]
     leadId: String
     startDate: Date
     targetDate: Date
@@ -56,6 +58,7 @@ const createProjectParams = `
   status: Int
   priority: Int
   teamIds: [String!]!
+  tagIds: [String]
   startDate: Date
   targetDate: Date
   convertedFromId: String
@@ -70,6 +73,7 @@ const updateProjectParams = `
   status: Int
   priority: Int
   teamIds: [String]
+  tagIds: [String]
   startDate: Date
   targetDate: Date
 `;

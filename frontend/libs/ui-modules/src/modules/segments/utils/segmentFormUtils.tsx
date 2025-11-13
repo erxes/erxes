@@ -1,17 +1,14 @@
-import { UseFormReturn } from 'react-hook-form';
-import { z } from 'zod';
-import { segmentFormSchema } from '../states/segmentFormSchema';
 import {
   IConditionsForPreview,
   IField,
   IOperator,
-  SegmentFormProps,
+  ISegment,
+  TConditionsConjunction,
+  TSegmentForm,
 } from '../types';
 
-import { Path } from 'react-hook-form';
-import { OPERATORS } from '../constants';
-import { DEFAULT_OPERATORS } from '../constants';
 import { nanoid } from 'nanoid';
+import { DEFAULT_OPERATORS, OPERATORS } from '../constants';
 
 export function startCase(str: string) {
   return str
@@ -21,8 +18,8 @@ export function startCase(str: string) {
     .replace(/\b\w/g, (char) => char.toUpperCase()); // capitalize first letter of each word
 }
 
-export const groupFieldsByType = (fields: any[]) => {
-  return fields.reduce((acc: any, field) => {
+export const groupFieldsByType = (fields: IField[]) => {
+  return fields.reduce((acc: Record<string, Array<IField>>, field) => {
     const { value } = field || {};
     let key;
 
@@ -51,33 +48,18 @@ type FieldPath = string | number;
 export function createFieldNameSafe<T>(
   basePath?: string,
   ...pathParts: FieldPath[]
-): Path<T> {
+): T {
   return [basePath || '', ...pathParts]
     .filter((path) => ![undefined, null, ''].includes(String(path)))
-    .join('.') as Path<T>;
+    .join('.') as T;
 }
 
 export const generateParamsSegmentPreviewCount = (
-  form: UseFormReturn<z.infer<typeof segmentFormSchema>>,
-  selectedContentType: string,
+  conditionSegments: ISegment[],
+  // conditionsConjunction: TConditionsConjunction,
+  // selectedContentType: string,
 ) => {
-  const conditions = form.watch('conditions');
-  const conditionSegments = form.watch('conditionSegments');
-  const conditionsConjunction = form.watch('conditionsConjunction');
-
   const conditionsForPreview: IConditionsForPreview[] = [];
-
-  if (conditions?.length) {
-    conditionsForPreview.push({
-      type: 'subSegment',
-      subSegmentForPreview: {
-        key: nanoid(),
-        contentType: selectedContentType || '',
-        conditionsConjunction,
-        conditions: conditions,
-      },
-    });
-  }
 
   if (conditionSegments?.length) {
     conditionSegments.forEach((segment) => {
@@ -87,6 +69,7 @@ export const generateParamsSegmentPreviewCount = (
           key: nanoid(),
           ...segment,
           conditions: segment.conditions || [],
+          conditionsConjunction: segment.conditionsConjunction || 'or',
         },
       });
     });
@@ -101,16 +84,14 @@ export const getSegmentFormDefaultValues = (
 ) => {
   const {
     subSegmentConditions = [],
-    conditions = [],
     name,
     description,
     config,
     conditionsConjunction,
     subOf,
-    getSubSegments,
   } = segment;
 
-  const values: SegmentFormProps = {
+  const values: TSegmentForm = {
     name: name || '',
     description: description || '',
     config: config || {},
@@ -118,15 +99,17 @@ export const getSegmentFormDefaultValues = (
     subOf: subOf || '',
   };
 
-  if (subSegmentConditions.length) {
-    values.conditionSegments = subSegmentConditions;
-  } else if (conditions.length) {
-    values.conditions = conditions;
-  } else {
-    values.conditions = [
-      { propertyType, propertyName: '', propertyOperator: '' },
-    ];
-  }
+  values.conditionSegments = subSegmentConditions.length
+    ? subSegmentConditions
+    : [
+        {
+          contentType: propertyType,
+          conditionsConjunction: TConditionsConjunction.AND,
+          conditions: [
+            { propertyType, propertyName: '', propertyOperator: '' },
+          ],
+        },
+      ];
 
   return values;
 };

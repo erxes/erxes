@@ -10,6 +10,7 @@ import {
 import { randomAlphanumeric } from 'erxes-api-shared/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as AWS from 'aws-sdk';
+import { SUBSCRIBED_FIELDS } from './constants';
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
     // set access token
@@ -309,16 +310,8 @@ export const subscribePage = async (
   pageId,
   pageToken,
 ): Promise<{ success: true } | any> => {
-  const subscribed_fields = [
-    'conversations',
-    'feed',
-    'messages',
-    'standby',
-    'messaging_handovers',
-  ];
-
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
-    subscribed_fields,
+    subscribed_fields: SUBSCRIBED_FIELDS,
   });
 };
 

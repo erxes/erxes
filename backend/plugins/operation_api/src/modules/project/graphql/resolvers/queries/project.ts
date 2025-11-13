@@ -52,6 +52,10 @@ export const projectQueries: Record<string, Resolver> = {
       filterQuery.leadId = filter.leadId;
     }
 
+    if (filter.tagIds && filter.tagIds.length > 0) {
+      filterQuery.tagIds = { $in: filter.tagIds };
+    }
+
     if (filter.teamIds && filter.teamIds.length > 0) {
       filterQuery.teamIds = {
         $in: filter.teamIds,

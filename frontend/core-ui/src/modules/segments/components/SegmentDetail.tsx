@@ -1,16 +1,13 @@
-import { ApolloQueryResult, OperationVariables } from '@apollo/client';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet, useQueryState } from 'erxes-ui';
 import { useState } from 'react';
-import { ISegment, ListQueryResponse, SegmentForm } from 'ui-modules';
+import { SegmentForm } from 'ui-modules';
 
 type Props = {
-  refetch: (
-    variables?: Partial<OperationVariables> | undefined,
-  ) => Promise<ApolloQueryResult<ListQueryResponse>>;
+  onRefresh: () => void;
 };
 
-export function SegmentDetail({ refetch }: Props) {
+export function SegmentDetail({ onRefresh }: Props) {
   const [selectedContentType] = useQueryState<string>('contentType');
 
   if (!selectedContentType) {
@@ -19,7 +16,6 @@ export function SegmentDetail({ refetch }: Props) {
 
   const [segmentId, setOpen] = useQueryState<string>('segmentId');
   const [isCreatingNew, setIsCreatingNew] = useState(false);
-  let segment: ISegment | undefined;
 
   return (
     <Sheet
@@ -51,14 +47,14 @@ export function SegmentDetail({ refetch }: Props) {
           <div className="h-full flex flex-col">
             <Sheet.Header className="border-b p-3 flex-row items-center space-y-0 gap-3">
               <Sheet.Title>{`${
-                segment ? 'Edit' : 'Create'
+                segmentId ? 'Edit' : 'Create'
               } a segment`}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <SegmentForm
               contentType={selectedContentType}
               segmentId={segmentId || ''}
-              callback={() => refetch()}
+              callback={onRefresh}
             />
           </div>
         </Sheet.Content>
