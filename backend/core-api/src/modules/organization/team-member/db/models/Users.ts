@@ -54,6 +54,7 @@ interface IConfirmParams {
 
 interface IInviteParams {
   email: string;
+  password?: string;
 }
 
 interface ILoginParams {
@@ -317,13 +318,18 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
     /**
      * Create new user with invitation token
      */
-    public static async invite({ email }: IInviteParams) {
+    public static async invite({ email, password }: IInviteParams) {
       email = (email || '').toLowerCase().trim();
+      password = (password || '').trim();
 
       // Checking duplicated email
       await models.Users.checkDuplication({ email });
 
       const { token, expires } = await User.generateToken();
+
+      if (password) {
+        this.checkPassword(password);
+      }
 
       const user = await models.Users.create({
         email,
@@ -331,6 +337,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         registrationToken: token,
         registrationTokenExpires: expires,
         code: await this.generateUserCode(),
+        ...(password && { password: await this.generatePassword(password) }),
       });
 
       models.Roles.create({
