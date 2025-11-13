@@ -172,7 +172,7 @@ import {
 } from './modules/clientportal/db/models/CPUser';
 import {
   IClientPortalModel,
-  loadPortalClass,
+  loadClientPortalClass,
 } from './modules/clientportal/db/models/ClientPortal';
 import { ICPUserDocument } from './modules/clientportal/types/cpUser';
 import { IClientPortalDocument } from './modules/clientportal/types/clientPortal';
@@ -397,7 +397,7 @@ export const loadClasses = (
 
   models.ClientPortal = db.model<IClientPortalDocument, IClientPortalModel>(
     'client_portals',
-    loadPortalClass(models),
+    loadClientPortalClass(models),
   );
 
   models.CPUser = db.model<ICPUserDocument, ICPUserModel>(
