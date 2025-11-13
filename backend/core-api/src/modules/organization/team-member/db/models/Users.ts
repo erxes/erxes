@@ -734,7 +734,6 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         _id = user._id;
         // if refresh token is expired then force to login
       } catch (e: any) {
-        console.log(e);
         return {};
       }
 
@@ -1207,12 +1206,6 @@ export const loadUserMovemmentClass = (models: IModels, subdomain: string) => {
               contentType === 'department'
                 ? 'departmentAssigneeChanged'
                 : 'branchAssigneeChanged';
-            console.log({
-              fromUserId: createdBy,
-              userIds: targetUserIds,
-              notificationType,
-              message,
-            });
             sendNotification(subdomain, {
               title,
               message,

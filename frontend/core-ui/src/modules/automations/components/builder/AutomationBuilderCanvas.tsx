@@ -1,20 +1,10 @@
-import { AutomationBuilderEffect } from '@/automations/components/builder/AutomationBuilderEffect';
-import { PlaceHolderNode } from '@/automations/components/builder/nodes/PlaceHolderNode';
+import ConnectionLine from '@/automations/components/builder/edges/connectionLine';
+import { edgeTypes } from '@/automations/components/builder/edges/edgeTypesRegistry';
+import { nodeTypes } from '@/automations/components/builder/nodes/nodeTypesRegistry';
+import { AutomationBuilderSidebar } from '@/automations/components/builder/sidebar/components/AutomationBuilderSidebar';
+import { CANVAS_FIT_VIEW_OPTIONS } from '@/automations/constants';
 import { useReactFlowEditor } from '@/automations/hooks/useReactFlowEditor';
 import { Background, Controls, MiniMap, ReactFlow } from '@xyflow/react';
-import ConnectionLine from './edges/connectionLine';
-import PrimaryEdge from './edges/PrimaryEdge';
-import ActionNode from './nodes/ActionNode';
-import TriggerNode from './nodes/TriggerNode';
-
-const nodeTypes = {
-  trigger: TriggerNode,
-  action: ActionNode,
-  scratch: PlaceHolderNode,
-};
-const edgeTypes = {
-  primary: PrimaryEdge,
-};
 
 export const AutomationBuilderCanvas = () => {
   const {
@@ -29,14 +19,12 @@ export const AutomationBuilderCanvas = () => {
     onDrop,
     isValidConnection,
     onNodeDoubleClick,
-    onNodeDragStop,
     onDragOver,
     setReactFlowInstance,
   } = useReactFlowEditor();
 
   return (
-    <div className="h-full" ref={reactFlowWrapper}>
-      <AutomationBuilderEffect />
+    <div className="h-full flex-1" ref={reactFlowWrapper}>
       <ReactFlow
         ref={editorWrapper}
         nodes={nodes}
@@ -52,8 +40,8 @@ export const AutomationBuilderCanvas = () => {
         onInit={setReactFlowInstance}
         onDragOver={onDragOver}
         fitView
+        fitViewOptions={CANVAS_FIT_VIEW_OPTIONS}
         connectionLineComponent={ConnectionLine}
-        onNodeDragStop={onNodeDragStop}
         colorMode={theme}
         minZoom={0.5}
       >
@@ -61,6 +49,7 @@ export const AutomationBuilderCanvas = () => {
         <Background />
         <MiniMap pannable position="top-left" zoomable />
       </ReactFlow>
+      <AutomationBuilderSidebar />
     </div>
   );
 };

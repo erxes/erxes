@@ -9,6 +9,24 @@ export const AutomationSettingsSidebar = () => {
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
+            {/* <Sidebar.MenuItem>
+              <Sidebar.MenuButton
+                isActive={activePath.includes('/settings/automations/agents')}
+              >
+                <Link to={`/settings/automations/agents`}>Agents</Link>
+              </Sidebar.MenuButton>
+            </Sidebar.MenuItem> */}
+            <Sidebar.MenuItem>
+              <Sidebar.MenuButton
+                isActive={activePath.includes(
+                  '/settings/automations/email-templates',
+                )}
+              >
+                <Link to={`/settings/automations/email-templates`}>
+                  Email Templates
+                </Link>
+              </Sidebar.MenuButton>
+            </Sidebar.MenuItem>
             <Sidebar.MenuItem>
               <Sidebar.MenuButton
                 isActive={activePath.includes('/settings/automations/bots')}

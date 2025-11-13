@@ -1,8 +1,4 @@
 // import { checkPermission } from "@erxes/api-utils/src/permissions";
-// import { IContext } from "../../../connectionResolver";
-// import { putUpdateLog, putCreateLog, putDeleteLog } from "../../../logUtils";
-// import { ISegment } from "../../../db/models/definitions/segments";
-// import { registerOnboardHistory } from "../../modules/robot";
 
 import { IContext } from '~/connectionResolvers';
 import { ISegment } from '../../db/definitions/segments';
@@ -13,11 +9,7 @@ export const segmentMutations = {
   /**
    * Create new segment
    */
-  async segmentsAdd(
-    _root,
-    doc: ISegment,
-    { models, user, __, subdomain }: IContext,
-  ) {
+  async segmentsAdd(_root, doc: ISegment, { models, __ }: IContext) {
     const extendedDoc: any = __(doc);
 
     const { conditionSegments = [] } = extendedDoc || {};
@@ -31,7 +23,7 @@ export const segmentMutations = {
   async segmentsEdit(
     _root,
     { _id, ...doc }: ISegmentsEdit,
-    { models, subdomain, user }: IContext,
+    { models }: IContext,
   ) {
     const segment = await models.Segments.getSegment(_id);
 

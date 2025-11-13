@@ -13,7 +13,10 @@ import {
 import { toast, useQueryState } from 'erxes-ui';
 
 import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
-import { GET_STAGES } from '@/deals/graphql/queries/StagesQueries';
+import {
+  GET_STAGE_DETAIL,
+  GET_STAGES,
+} from '@/deals/graphql/queries/StagesQueries';
 import { IStage } from '@/deals/types/stages';
 
 export const useStages = (
@@ -166,3 +169,24 @@ export function useStagesSortItems(options?: MutationHookOptions<any, any>) {
 
   return { sortItems, loading, error };
 }
+
+export const useStageDetail = (
+  options?: QueryHookOptions<{ salesStageDetail: IStage }>,
+) => {
+  const [stageIdFromQuery] = useQueryState<string>('stageId');
+  const stageId = options?.variables?._id || stageIdFromQuery;
+
+  const { data, loading, error } = useQuery<{ salesStageDetail: IStage }>(
+    GET_STAGE_DETAIL,
+    {
+      ...options,
+      variables: {
+        ...options?.variables,
+        _id: stageId,
+      },
+      skip: !stageId,
+    },
+  );
+
+  return { stageDetail: data?.salesStageDetail, loading, error };
+};
