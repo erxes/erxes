@@ -11,6 +11,7 @@ import {
   removeLastTrailingSlash,
 } from 'erxes-api-shared/utils';
 import * as dotenv from 'dotenv';
+
 dotenv.config();
 
 const { JWT_TOKEN_SECRET = 'SECRET' } = process.env;
@@ -19,10 +20,11 @@ export interface IClientPortalModel extends Model<IClientPortalDocument> {
   getConfig(_id: string): Promise<IClientPortalDocument>;
   createClientPortal(name: string): Promise<IClientPortalDocument>;
   createClientPortalToken(clientPortalId: string): Promise<string>;
-  createOrUpdateConfig(args: IClientPortal): Promise<IClientPortalDocument>;
+  updateClientPortal(_id: string, doc: IClientPortal): Promise<void>;
+  clientPortalChangeToken(_id: string): Promise<string>;
 }
 
-export const loadPortalClass = (models: IModels) => {
+export const loadClientPortalClass = (models: IModels) => {
   class ClientPortal {
     public static async createClientPortal(name: string) {
       const clientPortal = await models.ClientPortal.create({ name });
@@ -54,6 +56,13 @@ export const loadPortalClass = (models: IModels) => {
       return token;
     }
 
+    public static async clientPortalChangeToken(_id: string) {
+      const token = await models.ClientPortal.createClientPortalToken(_id);
+
+      await models.ClientPortal.findOneAndUpdate({ _id }, { $set: { token } });
+      return token;
+    }
+
     public static async getConfig(_id: string) {
       const config = await models.ClientPortal.findOne({ _id }).lean();
 
@@ -64,26 +73,16 @@ export const loadPortalClass = (models: IModels) => {
       return config;
     }
 
-    public static async createOrUpdateConfig({ _id, ...doc }: IClientPortal) {
-      let config = await models.ClientPortal.findOne({ _id });
-
+    public static async updateClientPortal(_id: string, doc: IClientPortal) {
       if (doc.url) {
         doc.url = removeExtraSpaces(removeLastTrailingSlash(doc.url));
       }
 
-      if (!config) {
-        config = await models.ClientPortal.create(doc);
-
-        return config.toJSON();
-      }
-
       await models.ClientPortal.findOneAndUpdate(
-        { _id: config._id },
+        { _id },
         { $set: doc },
         { new: true },
       );
-
-      return models.ClientPortal.findOne({ _id: config._id });
     }
   }
 

@@ -58,11 +58,11 @@ export type EnvironmentVariable = {
 };
 
 export interface IClientPortal {
-  _id?: string;
   name?: string;
   description?: string;
   url?: string;
   domain?: string;
+  token?: string;
   // auth
   tokenExpiration?: number;
   refreshTokenExpiration?: number;
@@ -90,4 +90,6 @@ export interface IClientPortal {
 
 export interface IClientPortalDocument extends IClientPortal, Document {
   _id: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

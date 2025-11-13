@@ -197,4 +197,10 @@ export const mutations = `
   clientPortalAdd (
     name: String!
   ): ClientPortal
+  clientPortalUpdate (
+    _id: String!
+    clientPortal: ClientPortalConfigInput
+  ): ClientPortal
+  clientPortalChangeToken (_id: String!): String
+  clientPortalDelete (_id: String!): JSON
 `;

@@ -79,12 +79,6 @@ export const clientPortalSchema = new Schema(
     testUserPassword: { type: String, optional: true },
     testUserOTP: { type: Number, optional: true },
 
-    createdAt: {
-      type: Date,
-      default: new Date(),
-      label: 'Created at',
-    },
-
     passwordVerificationConfig: {
       type: {
         verifyByOTP: {
