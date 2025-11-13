@@ -13,7 +13,7 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
     },
   });
   const navigate = useNavigate();
-
+  console.log('pipelines:', pipelines);
   const onClick = (pipelineId: string) => {
     navigate(
       `/settings/frontline/channels/${channelId}/pipelines/${pipelineId}`,
@@ -39,30 +39,33 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
               ? Array.from({ length: 3 }).map((_, index) => (
                   <TableRowSkeleton key={index} />
                 ))
-              : pipelines?.map((pipeline) => (
-                  <Table.Row
-                    key={pipeline._id}
-                    onClick={() => onClick(pipeline._id)}
-                    className="hover:cursor-pointer shadow-xs "
-                  >
-                    <Table.Cell className="font-medium border-none pl-2 w-auto ">
-                      <span className="w-full flex gap-2 text-base font-medium">
-                        <TextOverflowTooltip value={pipeline.name} />
-                      </span>
-                    </Table.Cell>
-                    <Table.Cell className="border-none px-2 ">
-                      <div className="flex items-center gap-2 text-base font-medium">
-                        <MembersInline members={[pipeline.createdUser]} />
-                      </div>
-                    </Table.Cell>
-                    <Table.Cell className="border-none px-2 ">
-                      {format(pipeline.updatedAt, 'MMM d, yyyy')}
-                    </Table.Cell>
-                    <Table.Cell className="border-none px-2 text-muted-foreground">
-                      {format(pipeline.createdAt, 'MMM d, yyyy')}
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
+              : pipelines?.map(
+                  (pipeline) =>
+                    pipeline && (
+                      <Table.Row
+                        key={pipeline._id}
+                        onClick={() => onClick(pipeline._id)}
+                        className="hover:cursor-pointer shadow-xs "
+                      >
+                        <Table.Cell className="font-medium border-none pl-2 w-auto ">
+                          <span className="w-full flex gap-2 text-base font-medium">
+                            <TextOverflowTooltip value={pipeline.name} />
+                          </span>
+                        </Table.Cell>
+                        <Table.Cell className="border-none px-2 ">
+                          <div className="flex items-center gap-2 text-base font-medium">
+                            <MembersInline members={[pipeline.createdUser]} />
+                          </div>
+                        </Table.Cell>
+                        <Table.Cell className="border-none px-2 ">
+                          {format(pipeline.updatedAt, 'MMM d, yyyy')}
+                        </Table.Cell>
+                        <Table.Cell className="border-none px-2 text-muted-foreground">
+                          {format(pipeline.createdAt, 'MMM d, yyyy')}
+                        </Table.Cell>
+                      </Table.Row>
+                    ),
+                )}
           </Table.Body>
         </Table>
         {!loading && (!pipelines || pipelines.length === 0) && (
