@@ -222,7 +222,6 @@ export interface IModels {
   AutomationEmailTemplates: IAutomationEmailTemplateModel;
   Logs: ILogModel;
   Notifications: Model<INotificationDocument>;
-  EmailDeliveries: Model<IEmailDeliveryDocument>;
   ClientPortal: IClientPortalModel;
   CPUser: ICPUserModel;
   AiAgents: Model<AiAgentDocument>;
