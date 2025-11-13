@@ -15,7 +15,7 @@
         "outputPath": "dist/apps/frontline-widgets",
         "main": "apps/frontline-widgets/src/main.tsx",
         "tsConfig": "apps/frontline-widgets/tsconfig.app.json",
-        "rspackConfig": "apps/frontline-widgets/rspack.config.js",
+        "rspackConfig": "apps/frontline-widgets/rspack.config.ts",
         "assets": [
           "apps/frontline-widgets/src/favicon.ico",
           "apps/frontline-widgets/src/assets",

@@ -2,14 +2,9 @@ import { lazy, Suspense } from 'react';
 import { Button, PageContainer } from 'erxes-ui';
 
 import { Outlet, Route, Routes } from 'react-router-dom';
-import {
-  currentOrganizationState,
-  PageHeader,
-  PageHeaderStart,
-} from 'ui-modules';
+import { PageHeader, PageHeaderStart } from 'ui-modules';
 import { IconMailCog } from '@tabler/icons-react';
 import { InboxPageChangeEffect } from '@/inbox/components/InboxPageChangeEffect';
-import { useAtomValue } from 'jotai';
 
 export const IntegrationConfigPage = lazy(() =>
   import('~/pages/IntegrationConfigPage').then((module) => ({
@@ -18,9 +13,6 @@ export const IntegrationConfigPage = lazy(() =>
 );
 
 const IntegrationsConfigSettings = () => {
-  const org = useAtomValue(currentOrganizationState);
-  const isSaas = org?.type === 'saas';
-  if (isSaas) return null;
   return (
     <Suspense fallback={<div />}>
       <Routes>

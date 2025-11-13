@@ -99,7 +99,7 @@ export const MemberFormContent = ({
   const { users, loading, handleFetchMore, totalCount, error } = useUsers({
     variables: {
       searchValue: debouncedSearch,
-      excludeIds: excludeIds,
+      excludeIds: true,
       ids: [currentUser?._id, ...(excludeIds || [])],
     },
   });
