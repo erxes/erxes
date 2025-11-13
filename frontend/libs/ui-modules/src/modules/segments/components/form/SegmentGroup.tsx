@@ -1,21 +1,15 @@
-import { IconTrash } from '@tabler/icons-react';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Card, Label } from 'erxes-ui';
-import { useFieldArray, UseFormReturn } from 'react-hook-form';
-import { SegmentFormProps } from '../../types';
+import { useFieldArray } from 'react-hook-form';
 import { SegmentProperty } from './SegmentProperty';
+import { useSegment } from '../../context/SegmentProvider';
 type Props = {
-  form: UseFormReturn<SegmentFormProps>;
   parentFieldName?: `conditionSegments.${number}`;
   onRemove?: () => void;
-  contentType: string;
 };
 
-export const SegmentGroup = ({
-  form,
-  parentFieldName,
-  onRemove,
-  contentType,
-}: Props) => {
+export const SegmentGroup = ({ parentFieldName, onRemove }: Props) => {
+  const { form, contentType } = useSegment();
   const { control } = form;
 
   const {
@@ -26,7 +20,6 @@ export const SegmentGroup = ({
     control: control,
     name: parentFieldName ? `${parentFieldName}.conditions` : 'conditions',
   });
-
   return (
     <Card className="bg-accent rounded-md">
       <Card.Header className="flex flex-row gap-2 items-center px-6 py-2 group">
@@ -44,7 +37,7 @@ export const SegmentGroup = ({
             variant="destructive"
             size="icon"
             onClick={() => onRemove()}
-            className={`opacity-0 ${'group-hover:opacity-100'} transition-opacity`}
+            className={`opacity-0 group-hover:opacity-100 transition-opacity`}
           >
             <IconTrash />
           </Button>
@@ -52,24 +45,19 @@ export const SegmentGroup = ({
       </Card.Header>
       <Card className="mx-1 p-2 bg-white rounded-md">
         <div className="flex flex-col ">
-          {(conditionFields || []).map((condition, index) => (
-            <div key={(condition as any).id}>
+          {(conditionFields || []).map((field, index) => (
+            <div key={field.id}>
               <SegmentProperty
                 index={index}
-                form={form}
                 parentFieldName={parentFieldName}
-                condition={condition}
-                contentType={contentType}
                 remove={() => remove(index)}
-                isFirst={index === 0}
-                isLast={index === conditionFields.length - 1}
                 total={conditionFields.length}
               />
             </div>
           ))}
         </div>
         <Button
-          className="w-full mt-4"
+          className="w-full mt-4 font-mono uppercase font-semibold text-xs text-accent-foreground"
           variant="secondary"
           onClick={() =>
             append({
@@ -79,7 +67,8 @@ export const SegmentGroup = ({
             })
           }
         >
-          <Label>+ Add Condition</Label>
+          <IconPlus />
+          Add Condition
         </Button>
       </Card>
     </Card>

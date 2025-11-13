@@ -19,5 +19,7 @@ export const authQueries = {
 };
 
 markResolvers(authQueries, {
-  skipPermission: true,
+  wrapperConfig: {
+    skipPermission: true,
+  },
 });

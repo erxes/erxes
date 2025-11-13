@@ -72,6 +72,17 @@ export function SettingsSidebar() {
           ))}
         </SettingsNavigationGroup>
 
+        <SettingsNavigationGroup name="Developer">
+          {SETTINGS_PATH_DATA.developer.map((item) => (
+            <NavigationMenuLinkItem
+              pathPrefix={AppPath.Settings}
+              path={item.path}
+              name={item.name}
+              key={item.name}
+            />
+          ))}
+        </SettingsNavigationGroup>
+
         <SettingsNavigationGroup name="Core modules">
           {CORE_MODULES.filter((item) => item.hasSettings).map((item) => (
             <NavigationMenuLinkItem

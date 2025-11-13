@@ -103,7 +103,7 @@ const FilterPopover = ({
   scope,
   ...props
 }: React.ComponentPropsWithoutRef<typeof Popover> & {
-  scope: string;
+  scope?: string;
 }) => {
   const { id } = useFilterContext();
   const [open, setOpen] = useAtom(openPopoverState(id));

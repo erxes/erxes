@@ -28,6 +28,7 @@ export const UPDATE_PROJECT_MUTATION = gql`
       tagIds: $tagIds
     ) {
       _id
+      tagIds
     }
   }
 `;

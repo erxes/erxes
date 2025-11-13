@@ -246,5 +246,7 @@ export const authMutations = {
 };
 
 markResolvers(authMutations, {
-  skipPermission: true,
+  wrapperConfig: {
+    skipPermission: true,
+  },
 });

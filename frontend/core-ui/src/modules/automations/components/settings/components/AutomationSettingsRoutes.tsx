@@ -1,12 +1,44 @@
 import { AutomationSettingsLayout } from '@/automations/components/settings/components/AutomationsSettingsLayout';
 import { lazy } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
-import { AutomationBotDetailSettingsPage } from '~/pages/settings/workspace/automations/AutomationsBotDetailSettingsPage';
 
 const AutomationsBotsSettingsPage = lazy(() =>
   import(
     '~/pages/settings/workspace/automations/AutomationsBotsSettingsPage'
   ).then((module) => ({ default: module.AutomationsBotsSettingsPage })),
+);
+
+const AutomationBotDetailSettingsPage = lazy(() =>
+  import(
+    '~/pages/settings/workspace/automations/AutomationsBotDetailSettingsPage'
+  ).then((module) => ({ default: module.AutomationBotDetailSettingsPage })),
+);
+
+const AutomationAiAgentDetailSettingsPage = lazy(() =>
+  import(
+    '~/pages/settings/workspace/automations/AutomationAiAgentDetailSettingsPage'
+  ).then((module) => ({ default: module.AutomationAiAgentDetailSettingsPage })),
+);
+const AutomationAiAgentsSettingsPage = lazy(() =>
+  import(
+    '~/pages/settings/workspace/automations/AutomationAiAgentsSettingsPage'
+  ).then((module) => ({ default: module.AutomationAiAgentsSettingsPage })),
+);
+
+const AutomationEmailTemplatesSettingsPage = lazy(() =>
+  import(
+    '~/pages/settings/workspace/automations/AutomationEmailTemplatesSettingsPage'
+  ).then((module) => ({
+    default: module.AutomationEmailTemplatesSettingsPage,
+  })),
+);
+
+const AutomationEmailTemplateDetailSettingsPage = lazy(() =>
+  import(
+    '~/pages/settings/workspace/automations/AutomationEmailTemplateDetailSettingsPage'
+  ).then((module) => ({
+    default: module.AutomationEmailTemplateDetailSettingsPage,
+  })),
 );
 
 export const AutomationSettingsRoutes = () => {
@@ -18,6 +50,29 @@ export const AutomationSettingsRoutes = () => {
         <Route
           path="/bots/:type"
           element={<AutomationBotDetailSettingsPage />}
+        />
+
+        <Route path="/agents" element={<AutomationAiAgentsSettingsPage />} />
+        <Route
+          path="/agents/:id"
+          element={<AutomationAiAgentDetailSettingsPage />}
+        />
+        <Route
+          path="/agents/create"
+          element={<AutomationAiAgentDetailSettingsPage />}
+        />
+
+        <Route
+          path="/email-templates"
+          element={<AutomationEmailTemplatesSettingsPage />}
+        />
+        <Route
+          path="/email-templates/:id"
+          element={<AutomationEmailTemplateDetailSettingsPage />}
+        />
+        <Route
+          path="/email-templates/create"
+          element={<AutomationEmailTemplateDetailSettingsPage />}
         />
       </Routes>
     </AutomationSettingsLayout>

@@ -1,54 +1,47 @@
+import { isCoreAutomationActionType } from '@/automations/components/builder/nodes/actions/coreAutomationActions';
+import { TAutomationActionComponent } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { useAutomation } from '@/automations/context/AutomationProvider';
+import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
+import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
 import { toggleAutomationBuilderOpenSidebar } from '@/automations/states/automationState';
-import { TAutomationBuilderForm } from '@/automations/utils/AutomationFormDefinitions';
+import { AutomationNodesType, NodeData } from '@/automations/types';
+import { getTriggerOfAction } from '@/automations/utils/automationBuilderUtils/triggerUtils';
+import { Node, useReactFlow } from '@xyflow/react';
+import { toast } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { lazy } from 'react';
-import { useFormContext, useWatch } from 'react-hook-form';
+import {
+  splitAutomationNodeType,
+  TAutomationTrigger,
+  TAutomationAction,
+  IAutomationsActionConfigConstants,
+} from 'ui-modules';
 
-const Delay = lazy(() =>
-  import('../../nodes/actions/delay/components/Delay').then((module) => ({
-    default: module.Delay.SideBarContent,
-  })),
-);
+const getTargetType = (
+  actionConstMap: Map<string, IAutomationsActionConfigConstants>,
+  currentAction: TAutomationAction | null,
+  actions: TAutomationAction[],
+  trigger?: TAutomationTrigger,
+) => {
+  if (currentAction?.targetActionId) {
+    const actionType = actions.find(
+      (a) => a.id === currentAction?.targetActionId,
+    )?.type;
 
-const Branches = lazy(() =>
-  import('../../nodes/actions/branches/components/Branches').then((module) => ({
-    default: module.Branches,
-  })),
-);
-
-const ManageProperties = lazy(() =>
-  import(
-    '../../nodes/actions/manageProperties/component/ManageProperties'
-  ).then((module) => ({
-    default: module.ManageProperties.SideBarContent,
-  })),
-);
-const AutomationSendEmail = lazy(() =>
-  import('../../nodes/actions/sendEmail/components/SendEmail').then(
-    (module) => ({
-      default: module.SendEmail.SideBarContent,
-    }),
-  ),
-);
-
-const Actions: Record<
-  string,
-  React.LazyExoticComponent<React.ComponentType<any>>
-> = {
-  delay: Delay,
-  if: Branches,
-  setProperty: ManageProperties,
-  sendEmail: AutomationSendEmail,
+    const { targetSourceType } = actionConstMap.get(actionType ?? '') || {};
+    return targetSourceType;
+  }
+  return trigger?.type;
 };
 
 export const useAutomationActionContentSidebar = () => {
-  const { queryParams, setQueryParams } = useAutomation();
-  const { control, setValue } = useFormContext<TAutomationBuilderForm>();
+  const { queryParams, setQueryParams, actionConstMap, actionFolks } =
+    useAutomation();
+  const { setAutomationBuilderFormValue } = useAutomationFormController();
   const toggleSideBarOpen = useSetAtom(toggleAutomationBuilderOpenSidebar);
+  const { getNode, updateNodeData } = useReactFlow<Node<NodeData>>();
+  const { actions, triggers } = useAutomationNodes();
 
   // Watch all actions once
-  const actions = useWatch({ control, name: 'actions' }) || [];
 
   // Find the index of the active node by id
   const currentIndex = actions.findIndex(
@@ -58,16 +51,60 @@ export const useAutomationActionContentSidebar = () => {
   // Safely get currentAction, guard against -1
   const currentAction = currentIndex >= 0 ? actions[currentIndex] : null;
 
+  const trigger = getTriggerOfAction(
+    queryParams?.activeNodeId ?? '',
+    actions,
+    triggers,
+    actionFolks,
+  );
+
+  const targetType = getTargetType(
+    actionConstMap,
+    currentAction,
+    actions,
+    trigger,
+  );
   // Pick component from Actions map or fallback to null
-  const Component = currentAction ? Actions[currentAction.type] ?? null : null;
+
+  const isCoreActionComponent = isCoreAutomationActionType(
+    currentAction?.type || '',
+    TAutomationActionComponent.Sidebar,
+  );
+
+  const [pluginName, moduleName] = splitAutomationNodeType(
+    currentAction?.type || '',
+  );
+
+  const onSaveActionConfigCallback = () => {
+    setQueryParams({ activeNodeId: null });
+    toggleSideBarOpen();
+    toast({
+      title: 'Action configuration added successfully.',
+    });
+  };
+
+  const onSaveActionConfig = (config: any) => {
+    setAutomationBuilderFormValue(
+      `${AutomationNodesType.Actions}.${currentIndex}.config`,
+      config,
+    );
+    if (currentAction) {
+      const node = getNode(currentAction.id);
+      updateNodeData(currentAction.id, { ...node?.data, config });
+    }
+    onSaveActionConfigCallback();
+  };
 
   return {
-    Component,
-    control,
+    isCoreActionComponent,
     currentIndex,
     currentAction,
     setQueryParams,
-    setValue,
     toggleSideBarOpen,
+    onSaveActionConfig,
+    pluginName,
+    moduleName,
+    trigger,
+    targetType,
   };
 };
