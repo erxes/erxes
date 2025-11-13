@@ -1,6 +1,7 @@
 import { useAtomValue } from 'jotai';
 import {
   Button,
+  Dialog,
   IAttachment,
   RelativeDateDisplay,
   cn,
@@ -13,6 +14,7 @@ import { ConversationFormDisplay } from '@/inbox/conversation-messages/component
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
+import { IconFile } from '@tabler/icons-react';
 
 export const MessageItem = () => {
   const { previousMessage, nextMessage, ...message } =
@@ -43,7 +45,7 @@ export const MessageItem = () => {
           <Button
             variant="secondary"
             className={cn(
-              'mt-2 h-auto py-2 text-left [&_*]:whitespace-pre-wrap block font-normal space-y-2 overflow-x-hidden text-pretty break-words [&_a]:text-primary [&_a]:underline [&_img]:aspect-square [&_img]:object-cover [&_img]:rounded',
+              'mt-2 h-auto py-2 text-left **:whitespace-pre-wrap block font-normal space-y-2 overflow-x-hidden text-pretty wrap-break-word [&_a]:text-primary [&_a]:underline [&_img]:aspect-square [&_img]:object-cover [&_img]:rounded',
               userId && 'bg-primary/10 hover:bg-primary/10',
               internal &&
                 'bg-yellow-50 hover:bg-yellow-50 dark:bg-yellow-950 dark:hover:bg-yellow-950',
@@ -121,18 +123,68 @@ const Attachments = ({ attachments }: { attachments?: IAttachment[] }) => {
         <Attachment
           key={`${attachment.url}-${index}`}
           attachment={attachment}
+          length={attachments.length}
         />
       ))}
     </div>
   );
 };
 
-const Attachment = ({ attachment }: { attachment: IAttachment }) => {
+const Attachment = ({
+  attachment,
+  length,
+}: {
+  attachment: IAttachment;
+  length?: number;
+}) => {
+  const { userId, customerId } = useConversationMessageContext();
+  const isImage = attachment.type.startsWith('image/');
+  if (!isImage) {
+    return (
+      <div
+        className={cn(
+          {
+            'col-span-2': length === 1,
+            'col-span-1': length !== 1,
+          },
+          'w-full px-2 py-1 rounded bg-accent flex items-center justify-center cursor-pointer',
+        )}
+        onClick={() => {
+          window.open(readImage(attachment.url), '_blank');
+        }}
+      >
+        <IconFile className="w-4 h-4 text-muted-foreground" />
+        <span className="text-sm text-muted-foreground">{attachment.name}</span>
+      </div>
+    );
+  }
   return (
-    <img
-      src={readImage(attachment.url)}
-      alt={attachment.name}
-      className="w-full aspect-square object-cover rounded bg-accent"
-    />
+    <Dialog>
+      <Dialog.Trigger asChild>
+        <button
+          type="button"
+          className={cn(
+            {
+              'col-start-2': length === 1 && userId,
+              'col-start-1': length !== 1 || (length === 1 && customerId),
+            },
+            'w-full aspect-square overflow-hidden rounded bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
+          )}
+        >
+          <img
+            src={readImage(attachment.url)}
+            alt={attachment.name}
+            className="size-full object-cover"
+          />
+        </button>
+      </Dialog.Trigger>
+      <Dialog.Content className="max-w-fit border-0 bg-transparent p-0 shadow-none">
+        <img
+          src={readImage(attachment.url)}
+          alt={attachment.name}
+          className="max-w-[90vw] max-h-[90vh] rounded-lg object-contain"
+        />
+      </Dialog.Content>
+    </Dialog>
   );
 };

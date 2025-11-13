@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from "erxes-api-shared/utils";
+
 export const types = () => `
   type AccountCategory @key(fields: "_id") @cacheControl(maxAge: 3){
     _id: String!
@@ -35,6 +37,12 @@ export const types = () => `
     scopeBrandIds: [String]
     
     category: AccountCategory
+  }
+
+  type AccountsListResponse {
+    list: [Account],
+    pageInfo: PageInfo
+    totalCount: Int,
   }
 `;
 
@@ -87,6 +95,10 @@ export const queries = `
   accountCategories(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String, brand: String): [AccountCategory]
   accountCategoriesTotalCount(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String): Int
   accountCategoryDetail(_id: String!): AccountCategory
+  accountsMain(
+    ${accountsQueryParams}
+    ${GQL_CURSOR_PARAM_DEFS}
+  ): AccountsListResponse
   accounts(
     ${accountsQueryParams},
     page: Int,

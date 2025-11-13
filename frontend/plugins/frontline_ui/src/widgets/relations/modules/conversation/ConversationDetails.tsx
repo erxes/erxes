@@ -119,7 +119,7 @@ export const ConversationItemContent = () => {
   }
 
   return (
-    <div className="[&_*]:truncate [&_*]:text-left text-accent-foreground w-full h-4 [&_*]:text-sm [&_*]:leading-tight [&_*]:font-medium">
+    <div className="**:truncate **:text-left text-accent-foreground w-full h-4 **:text-sm **:leading-tight **:font-medium">
       <BlockEditorReadOnly content={content} />
     </div>
   );

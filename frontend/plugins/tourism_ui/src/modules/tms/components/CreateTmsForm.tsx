@@ -41,18 +41,30 @@ const CreateTmsForm = ({
   const setFormAtom = useSetAtom(tmsFormAtom);
   const setCurrentStep = useSetAtom(currentStepAtom);
 
+  const {
+    name,
+    color,
+    logo,
+    favIcon,
+    generalManager,
+    managers,
+    payment,
+    token,
+    otherPayments,
+  } = formData;
+
   const form = useForm<TmsFormType>({
     resolver: zodResolver(TmsFormSchema),
     defaultValues: {
-      name: formData.name,
-      color: formData.color,
-      logo: formData.logo,
-      favIcon: formData.favIcon,
-      generalManager: formData.generalManager,
-      managers: formData.managers,
-      payment: formData.payment,
-      token: formData.token,
-      otherPayments: formData.otherPayments,
+      name: name || '',
+      color: color || '#4F46E5',
+      logo: logo || '',
+      favIcon: favIcon || '',
+      generalManager: Array.isArray(generalManager) ? generalManager : [],
+      managers: Array.isArray(managers) ? managers : [],
+      payment: payment || '',
+      token: token || '',
+      otherPayments: Array.isArray(otherPayments) ? otherPayments : [],
     },
   });
 
@@ -71,19 +83,27 @@ const CreateTmsForm = ({
 
   useEffect(() => {
     if (branchDetail) {
+      const {
+        name: branchName,
+        uiOptions,
+        generalManagerIds,
+        managerIds,
+        paymentIds,
+        erxesAppToken,
+        permissionConfig,
+      } = branchDetail;
+
       const updatedFormData = {
-        name: branchDetail.name || '',
-        color: branchDetail.uiOptions?.colors?.primary || '#4F46E5',
-        logo: branchDetail.uiOptions?.logo || '',
-        favIcon: branchDetail.uiOptions?.favIcon || '',
-        generalManager: branchDetail.generalManagerIds || [],
-        managers: branchDetail.managerIds || [],
-        payment: Array.isArray(branchDetail.paymentIds)
-          ? branchDetail.paymentIds[0] || ''
-          : '',
-        token: branchDetail.erxesAppToken || '',
-        otherPayments: Array.isArray(branchDetail.permissionConfig)
-          ? branchDetail.permissionConfig.map((config: PermissionConfig) => ({
+        name: branchName || '',
+        color: uiOptions?.colors?.primary || '#4F46E5',
+        logo: uiOptions?.logo || '',
+        favIcon: uiOptions?.favIcon || '',
+        generalManager: generalManagerIds || [],
+        managers: managerIds || [],
+        payment: Array.isArray(paymentIds) ? paymentIds[0] || '' : '',
+        token: erxesAppToken || '',
+        otherPayments: Array.isArray(permissionConfig)
+          ? permissionConfig.map((config: PermissionConfig) => ({
               type: config.type || '',
               title: config.title || '',
               icon: config.icon || '',

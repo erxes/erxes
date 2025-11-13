@@ -148,10 +148,10 @@ const OnboardingStepsSection = ({
         <div className="p-[10px] rounded-md text-primary bg-primary/10 w-min">
           {item.icon}
         </div>
-        <h3 className="font-semibold text-primary text-lg break-words">
+        <h3 className="font-semibold text-primary text-lg wrap-break-word">
           {item.title}
         </h3>
-        <p className="text-base text-muted-foreground break-words flex-1">
+        <p className="text-base text-muted-foreground wrap-break-word flex-1">
           {item.description}
         </p>
       </div>
@@ -163,14 +163,14 @@ const OnboardingStepsSection = ({
           className="self-start mt-auto"
         >
           <Link to={item.action.to} className="hover:bg-background">
-            <span className="text-primary font-semibold text-base flex items-center gap-1 break-words">
+            <span className="text-primary font-semibold text-base flex items-center gap-1 wrap-break-word">
               <span className="truncate">{item.action.label}</span>
-              <IconArrowRight className="size-4 flex-shrink-0" />
+              <IconArrowRight className="size-4 shrink-0" />
             </span>
           </Link>
         </Button>
       ) : (
-        <span className="text-muted-foreground/70 font-semibold text-base flex items-center gap-1 break-words truncate ">
+        <span className="text-muted-foreground/70 font-semibold text-base flex items-center gap-1 wrap-break-word truncate ">
           {item.action.label}
         </span>
       )}

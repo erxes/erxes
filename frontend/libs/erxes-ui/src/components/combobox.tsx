@@ -8,6 +8,7 @@ import { useInView } from 'react-intersection-observer';
 import { mergeRefs } from 'react-merge-refs';
 import { Skeleton } from './skeleton';
 import type { ApolloError } from '@apollo/client';
+import { Spinner } from './spinner';
 
 export const ComboboxTriggerBase = React.forwardRef<
   React.ElementRef<typeof Button>,
@@ -24,8 +25,8 @@ export const ComboboxTriggerBase = React.forwardRef<
         {...props}
         type="button"
         className={cn(
-          'flex truncate h-8 rounded pl-3 transition-[color,box-shadow] focus-visible:shadow-focus outline-none focus-visible:outline-none focus-visible:outline-offset-0 focus-visible:outline-transparent justify-between overflow-hidden font-normal text-left w-full gap-1',
-          (!props.variant || props.variant === 'outline') && 'shadow-xs',
+          'flex truncate h-8 rounded pl-3 transition-[color,box-shadow] focus-visible:shadow-focus outline-hidden focus-visible:outline-hidden focus-visible:outline-offset-0 focus-visible:outline-transparent justify-between overflow-hidden font-normal text-left w-full gap-1',
+          (!props.variant || props.variant === 'outline-solid') && 'shadow-xs',
           props.size === 'lg' && 'gap-2',
           className,
         )}
@@ -106,7 +107,7 @@ export const ComboboxContent = React.forwardRef<
       sideOffset={8}
       {...props}
       className={cn(
-        'p-0 min-w-72 w-[--radix-popper-anchor-width] max-w-96',
+        'p-0 min-w-72 w-(--radix-popper-anchor-width) max-w-96',
         className,
       )}
     />
@@ -160,8 +161,11 @@ export const ComboboxFetchMore = React.forwardRef<
       {...props}
       className={cn(className)}
     >
+      <Spinner
+        className="size-4 text-muted-foreground"
+        containerClassName="w-auto flex-none mr-2"
+      />
       Load more...
-      <IconLoader className="w-4 h-4 animate-spin text-muted-foreground ml-auto" />
     </Command.Item>
   );
 });

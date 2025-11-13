@@ -199,7 +199,7 @@ export function OperatorMessage({
             {content && content !== '<p></p>' && (
               <div
                 className={cn(
-                  'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-foreground text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces break-words break-all',
+                  'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-foreground text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word break-all',
                   isFirstMessage && 'rounded-md rounded-bl-sm rounded-t-lg',
                   isLastMessage &&
                     !attachments?.length &&

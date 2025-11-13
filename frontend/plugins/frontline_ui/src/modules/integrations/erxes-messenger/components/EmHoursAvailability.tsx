@@ -75,7 +75,7 @@ export const EMHoursAvailability = () => {
                     <RadioGroup
                       onValueChange={field.onChange}
                       value={field.value}
-                      className="flex flex-col !mt-0"
+                      className="flex flex-col mt-0!"
                     >
                       <Form.Item className="flex items-center gap-3 space-y-0">
                         <Form.Control>
