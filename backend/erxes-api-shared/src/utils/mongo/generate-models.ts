@@ -21,10 +21,7 @@ const initializeModels = async <IModels>(
   },
 ) => {
   const models = await loadClasses(connection, subdomain);
-  if (
-    !logIgnoreOptions?.ignoreChangeStream &&
-    (await checkServiceRunning('logs'))
-  ) {
+  if (!logIgnoreOptions?.ignoreChangeStream) {
     startChangeStreams(models as any, subdomain, logIgnoreOptions);
   }
 
