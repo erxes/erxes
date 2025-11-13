@@ -5,7 +5,13 @@ import {
   IUser,
   Resolver,
 } from 'erxes-api-shared/core-types';
+import {
+  authCookieOptions,
+  getEnv,
+  getSaasOrganizationDetail,
+} from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { saveValidatedToken } from '~/modules/auth/utils';
 import { sendInvitationEmail } from '../utils';
 
 export interface IUsersEdit extends IUser {
@@ -195,6 +201,7 @@ export const userMutations: Record<string, Resolver> = {
     }: {
       entries: Array<{
         email: string;
+        password: string;
       }>;
     },
     { models, subdomain, user }: IContext,
@@ -236,29 +243,72 @@ export const userMutations: Record<string, Resolver> = {
   async usersConfirmInvitation(
     _parent: undefined,
     {
-      token,
-      password,
-      passwordConfirmation,
-      fullName,
-      username,
+      token: registrationToken,
     }: {
       token: string;
-      password: string;
-      passwordConfirmation: string;
-      fullName?: string;
-      username?: string;
     },
-    { models }: IContext,
+    { res, models, requestInfo, subdomain }: IContext,
   ) {
-    const user = await models.Users.confirmInvitation({
-      token,
-      password,
-      passwordConfirmation,
-      fullName,
-      username,
+    const user = await models.Users.findOne({
+      registrationToken,
+      registrationTokenExpires: {
+        $gt: Date.now(),
+      },
     });
 
-    return user;
+    if (!user || !registrationToken) {
+      throw new Error('Token is invalid or has expired');
+    }
+
+    const [token] = await models.Users.createTokens(
+      user,
+      models.Users.getSecret(),
+    );
+
+    await saveValidatedToken(token, user);
+
+    await models.Users.updateOne(
+      { _id: user._id },
+      {
+        $push: { validatedTokens: token },
+        $set: { isActive: true },
+        $unset: {
+          registrationToken: '',
+          registrationTokenExpires: '',
+        },
+      },
+    );
+
+    const sameSite = getEnv({ name: 'SAME_SITE' });
+    const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+    const VERSION = getEnv({ name: 'VERSION' });
+
+    if (VERSION === 'saas') {
+      const organization = await getSaasOrganizationDetail({ subdomain });
+
+      const cookieOptions: any = authCookieOptions();
+
+      if (organization.domain && organization.dnsStatus === 'active') {
+        cookieOptions.secure = true;
+        cookieOptions.sameSite = 'none';
+      }
+
+      res.cookie('auth-token', token, cookieOptions);
+    } else {
+      const cookieOptions: any = { secure: requestInfo.secure };
+
+      if (
+        sameSite &&
+        sameSite === 'none' &&
+        res.req.headers.origin !== DOMAIN
+      ) {
+        cookieOptions.sameSite = sameSite;
+      }
+
+      res.cookie('auth-token', token, authCookieOptions(cookieOptions));
+    }
+
+    return 'accepted';
   },
   async usersConfigEmailSignatures(
     _parent: undefined,
@@ -351,3 +401,4 @@ export const userMutations: Record<string, Resolver> = {
 };
 
 userMutations.usersCreateOwner.skipPermission = true;
+userMutations.usersConfirmInvitation.skipPermission = true;
