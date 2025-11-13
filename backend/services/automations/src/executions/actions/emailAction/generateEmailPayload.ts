@@ -28,8 +28,7 @@ export const generateEmailPayload = async ({
   const DEFAULT_AWS_EMAIL = getEnv({ name: 'DEFAULT_AWS_EMAIL' });
 
   const template = { content: config?.html || '' };
-  // const isSaasVersion = version === 'saas';
-  const isSaasVersion = true;
+  const isSaasVersion = version === 'saas';
   let fromUserEmail = '';
 
   if (isSaasVersion || senderType === 'default') {

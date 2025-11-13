@@ -25,30 +25,13 @@ export default {
     generateModels,
   }),
 
-  // checkCustomTrigger: createCoreModuleProducerHandler({
-  //   moduleName: 'automations',
-  //   modules,
-  //   methodName: TAutomationProducers.CHECK_CUSTOM_TRIGGER,
-  //   extractModuleName: (input) => input.moduleName,
-  //   generateModels,
-  // }),
-  checkCustomTrigger: async ({
-    subdomain,
-    data: { collectionType, relationType, target, config },
-  }: any) => {
-    console.log({ collectionType, relationType });
-    const models = await generateModels(subdomain);
-    console.log({ models });
-    if (collectionType === 'deal' && relationType === 'probability') {
-      return await checkTriggerDealStageProbality({
-        models,
-        target: target as any,
-        config,
-      });
-    }
-
-    return false;
-  },
+  checkCustomTrigger: createCoreModuleProducerHandler({
+    moduleName: 'automations',
+    modules,
+    methodName: TAutomationProducers.CHECK_CUSTOM_TRIGGER,
+    extractModuleName: (input) => input.moduleName,
+    generateModels,
+  }),
   setProperties: createCoreModuleProducerHandler({
     moduleName: 'automations',
     modules,

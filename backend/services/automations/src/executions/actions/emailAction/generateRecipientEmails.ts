@@ -42,6 +42,7 @@ export const collectEmails = async (
     targetType: string;
   },
 ) => {
+  const directEmails = extractValidEmails(mailPlaceHolder);
   let recipientEmails: string[] = [];
   const [pluginName, moduleName, contentType] = splitType(targetType);
   const attributes = generateAttributesFromPlaceholders(mailPlaceHolder);
@@ -80,5 +81,7 @@ export const collectEmails = async (
     replacedContent['mailPlaceHolder'] || '',
   );
 
-  return [...new Set(recipientEmails), ...new Set(generatedEmails)];
+  return [
+    ...new Set([...directEmails, ...generatedEmails, ...recipientEmails]),
+  ];
 };
