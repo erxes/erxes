@@ -2,8 +2,6 @@ import { Route, Routes } from 'react-router';
 import { Suspense, lazy } from 'react';
 
 import { Spinner } from 'erxes-ui/components';
-import { PosIndexPage } from '~/pages/PosIndexPage';
-import { SalesIndexPage } from '~/pages/SalesIndexPage';
 
 const DealsMain = lazy(() =>
   import('~/pages/SalesIndexPage').then((module) => ({
@@ -11,13 +9,18 @@ const DealsMain = lazy(() =>
   })),
 );
 
+const PosMain = lazy(() =>
+  import('~/pages/PosIndexPage').then((module) => ({
+    default: module.PosIndexPage,
+  })),
+);
+
 const App = () => {
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
-        <Route path="/" element={<DealsMain />} />
-        <Route path="/pos" element={<PosIndexPage />} />
-        <Route path="/deals" element={<SalesIndexPage />} />
+        <Route path="/pos" element={<PosMain />} />
+        <Route path="/deals" element={<DealsMain />} />
       </Routes>
     </Suspense>
   );
