@@ -25,7 +25,11 @@ const initializeModels = async <IModels>(
     !logIgnoreOptions?.ignoreChangeStream &&
     (await checkServiceRunning('logs'))
   ) {
-    startChangeStreams(models as any, subdomain, logIgnoreOptions);
+    await startChangeStreams(
+      models as Record<string, mongoose.Model<any>>,
+      subdomain,
+      logIgnoreOptions,
+    );
   }
 
   return models;

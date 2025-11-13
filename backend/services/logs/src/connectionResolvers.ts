@@ -2,10 +2,15 @@ import { ILogDocument, IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import mongoose, { Model } from 'mongoose';
 
-import { logsSchema } from 'erxes-api-shared/core-modules';
+import {
+  activityLogSchema,
+  IActivityLogDocument,
+  logsSchema,
+} from 'erxes-api-shared/core-modules';
 
 export interface IModels {
   Logs: Model<ILogDocument>;
+  ActivityLogs: Model<IActivityLogDocument>;
 }
 
 export interface IContext extends IMainContext {
@@ -15,6 +20,10 @@ export interface IContext extends IMainContext {
 export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
 
+  models.ActivityLogs = db.model<
+    IActivityLogDocument,
+    Model<IActivityLogDocument>
+  >('activity_logs', activityLogSchema);
   const db_name = db.name;
 
   const logDb = db.useDb(`${db_name}_logs`);
