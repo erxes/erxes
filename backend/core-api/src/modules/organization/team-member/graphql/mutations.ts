@@ -269,7 +269,14 @@ export const userMutations: Record<string, Resolver> = {
 
     await models.Users.updateOne(
       { _id: user._id },
-      { $push: { validatedTokens: token } },
+      {
+        $push: { validatedTokens: token },
+        $set: { isActive: true },
+        $unset: {
+          registrationToken: '',
+          registrationTokenExpires: '',
+        },
+      },
     );
 
     const sameSite = getEnv({ name: 'SAME_SITE' });
