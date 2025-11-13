@@ -111,7 +111,7 @@ const CurrencyFormBody = ({
     const currencyDiffFtr = {
       ...curr,
       _id: curr?._id || getTempId(),
-      journal: TrJournalEnum.TAX,
+      journal: TrJournalEnum.EXCHANGE_DIFF,
       originId: trDoc._id,
       originType: 'exchangeDiff',
       details: [{
