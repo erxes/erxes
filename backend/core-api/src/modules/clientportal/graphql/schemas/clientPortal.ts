@@ -101,7 +101,7 @@ type ClientPortal {
     totalCount: Int
   }
 
-    input OTPConfigInput {
+  input OTPConfigInput {
     content: String
     codeLength: Int
     smsTransporterType: String
@@ -165,10 +165,20 @@ type ClientPortal {
   
     otpConfig: OTPConfigInput
     twoFactorConfig: TwoFactorConfigInput
-
+    tokiConfig: TokiConfigInput
+    socialpayConfig: SocialpayConfigInput
     mailConfig: MailConfigInput
     manualVerificationConfig: ManualVerificationConfigInput
     passwordVerificationConfig: PasswordVerificationConfigInput
+
+    enableOTP: Boolean
+    enableTwoFactor: Boolean
+    enableSocialpay: Boolean
+    enableToki: Boolean
+    enableManualVerification: Boolean
+    enablePasswordVerification: Boolean
+    enableMail: Boolean
+    enableTestUser: Boolean
 
     tokenExpiration: Int
     refreshTokenExpiration: Int

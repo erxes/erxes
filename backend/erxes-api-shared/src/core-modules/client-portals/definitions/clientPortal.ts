@@ -50,6 +50,15 @@ export const clientPortalSchema = new Schema(
     otpConfig: { type: otpConfigSchema, optional: true },
     twoFactorConfig: { type: twoFactorSchema, optional: true },
 
+    enableOTP: { type: Boolean, optional: true },
+    enableTwoFactor: { type: Boolean, optional: true },
+    enableSocialpay: { type: Boolean, optional: true },
+    enableToki: { type: Boolean, optional: true },
+    enableManualVerification: { type: Boolean, optional: true },
+    enablePasswordVerification: { type: Boolean, optional: true },
+    enableMail: { type: Boolean, optional: true },
+    enableTestUser: { type: Boolean, optional: true },
+
     mailConfig: { type: mailConfigSchema, optional: true },
     manualVerificationConfig: {
       type: {
@@ -142,5 +151,6 @@ export const clientPortalSchema = new Schema(
       optional: true,
     },
   },
+
   { timestamps: true },
 );
