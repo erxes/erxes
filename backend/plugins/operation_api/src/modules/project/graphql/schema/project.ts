@@ -9,6 +9,7 @@ type Project {
     status: Int
     priority: Int
     teamIds: [String]!
+    tagIds: [String]
     leadId: String
     startDate: Date
     targetDate: Date
@@ -33,6 +34,7 @@ input IProjectFilter {
     status: Int
     priority: Int
     teamIds: [String]
+    tagIds: [String]
     leadId: String
     startDate: Date
     targetDate: Date
