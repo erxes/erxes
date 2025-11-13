@@ -3,8 +3,9 @@ import { getFullDate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { getConfig } from '~/init-trpc';
-import { JOURNALS, TR_SIDES } from '../@types/constants';
+import { JOURNALS, TR_FOLLOW_TYPES, TR_SIDES } from '../@types/constants';
 import { ITransaction, ITransactionDocument } from '../@types/transaction';
+import { createOrUpdateTr } from './utils';
 
 export default class CurrencyTr {
   private models: IModels;
@@ -86,7 +87,7 @@ export default class CurrencyTr {
         number: this.doc.number,
         date: this.doc.date,
         description: this.doc.description,
-        journal: JOURNALS.MAIN,
+        journal: JOURNALS.EXCHANGE_DIFF,
         branchId: this.doc.branchId,
         departmentId: this.doc.departmentId,
         customerType: this.doc.customerType,
@@ -105,104 +106,61 @@ export default class CurrencyTr {
     }
   };
 
-  public doCurrencyTr = async (transaction: ITransactionDocument) => {
-    let currencyTr;
-    const oldFollowInfo = (transaction.follows || []).find(
-      (f) => f.type === 'currencyDiff',
-    );
+  public cleanDoc = async () => {
+    if (!this.currencyDiffTrDoc) {
+      return this.doc;
+    }
 
+    const detail = this.doc.details[0];
     const amount =
-      (transaction.details[0].currencyAmount ?? 0) *
-        (this.spotRate?.rate ?? 0) ||
-      transaction.details[0].amount ||
+      (detail.currencyAmount ?? 0) *
+      (this.spotRate?.rate ?? 0) ||
+      detail.amount ||
       0;
 
+    if (amount !== detail.amount) {
+      detail.amount = amount;
+    }
+
+    return this.doc;
+  }
+
+  public doCurrencyTr = async (transaction: ITransactionDocument) => {
+    let currencyTr;
+
+
+
+    const oldFollowTrs = await this.models.Transactions.find({ originId: transaction._id, originType: TR_FOLLOW_TYPES.EXCHANGE_DIFF }).lean();
+
     if (!this.currencyDiffTrDoc) {
-      if (oldFollowInfo) {
-        await this.models.Transactions.updateOne(
-          { _id: transaction._id },
-          {
-            $set: {
-              'details.0.amount': amount,
-              fullDate: getFullDate(transaction.date),
-            },
-            $pull: {
-              follows: { ...oldFollowInfo },
-            },
-          },
-        );
-        await this.models.Transactions.deleteOne({ _id: oldFollowInfo.id });
+      if (oldFollowTrs.length) {
+        await this.models.Transactions.deleteMany({ _id: { $in: oldFollowTrs.map(tr => tr._id) } });
       }
+
       return;
     }
 
-    if (oldFollowInfo) {
-      const oldCurrencyTr = await this.models.Transactions.findOne({
-        _id: oldFollowInfo.id,
-      });
-      if (oldCurrencyTr) {
-        await this.models.Transactions.updateTransaction(oldCurrencyTr._id, {
-          ...this.currencyDiffTrDoc,
-          originId: transaction._id,
-          followType: 'currencyDiff',
-          parentId: transaction.parentId,
-        });
-        currencyTr = this.models.Transactions.findOne({
-          _id: oldCurrencyTr._id,
-        });
-      } else {
-        currencyTr = await this.models.Transactions.createTransaction({
-          ...this.currencyDiffTrDoc,
-          originId: transaction._id,
-          followType: 'currencyDiff',
-          parentId: transaction.parentId,
-        });
-
-        await this.models.Transactions.updateOne(
-          { _id: transaction._id },
-          {
-            $set: {
-              'details.0.amount': amount,
-              fullDate: getFullDate(transaction.date),
-            },
-            $pull: {
-              follows: { ...oldFollowInfo },
-            },
-            $addToSet: {
-              follows: {
-                type: 'currencyDiff',
-                id: currencyTr._id,
-              },
-            },
-          },
-        );
-      }
-    } else {
-      currencyTr = await this.models.Transactions.createTransaction({
-        ...this.currencyDiffTrDoc,
-        originId: transaction._id,
-        followType: 'currencyDiff',
-        parentId: transaction.parentId,
-      });
-
-      await this.models.Transactions.updateOne(
-        { _id: transaction._id },
-        {
-          $set: {
-            'details.0.amount': amount,
-            fullDate: getFullDate(transaction.date),
-          },
-          $addToSet: {
-            follows: [
-              {
-                type: 'currencyDiff',
-                id: currencyTr._id,
-              },
-            ],
-          },
-        },
-      );
+    const oldCurrencyTr = oldFollowTrs[0];
+    if (oldFollowTrs.length > 1) {
+      await this.models.Transactions.deleteMany({ _id: { $in: oldFollowTrs.slice(1).map(tr => tr._id) } });
     }
+
+    currencyTr = await createOrUpdateTr(this.models, {
+      ...this.currencyDiffTrDoc,
+      originId: transaction._id,
+      originType: TR_FOLLOW_TYPES.EXCHANGE_DIFF,
+      parentId: transaction.parentId,
+      ptrId: transaction.ptrId,
+    }, oldCurrencyTr);
+
+    // await this.models.Transactions.updateOne(
+    //   { _id: transaction._id },
+    //   {
+    //     $set: {
+    //       'details.0.amount': amount,
+    //     },
+    //   },
+    // );
 
     return currencyTr;
   };

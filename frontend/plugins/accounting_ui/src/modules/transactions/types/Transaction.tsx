@@ -7,11 +7,8 @@ export interface ITrDetail {
   _id?: string;
   accountId?: string;
   originId?: string;
+  originType?: string;
   followInfos?: any;
-  follows?: {
-    type: string;
-    id: string;
-  }[];
 
   side?: string;
   amount?: number;
@@ -43,12 +40,9 @@ interface ICommontTr {
   journal: string;
   ptrStatus?: string;
   originId?: string;
-  followType?: string;
+  originType?: string;
   originSubId?: string;
-  follows?: {
-    type: string;
-    id: string;
-  }[];
+
   followExtras?: any;
   preTrId?: string;
 

@@ -3,7 +3,7 @@ const trDetailFields = `
   accountId: String
   transactionId: String
   originId: String
-  followType: String
+  originType: String
   originSubId: String
   followInfos: JSON
 
@@ -29,7 +29,7 @@ const transactionFields = `
   date: Date
   description: String
   journal: String
-  followType: String
+  originType: String
   followInfos: JSON
 
   branchId: String
@@ -53,14 +53,8 @@ const transactionFields = `
 `;
 
 export const types = () => `
-  type FollowTrType {
-    type: String
-    id: String
-  }
-
   type AccTrDetail {
     ${trDetailFields}
-    follows: [FollowTrType]
     account: Account
   }
 
@@ -77,7 +71,6 @@ export const types = () => `
 
     originId: String
     originSubId: String
-    follows: [FollowTrType]
 
     details: [AccTrDetail]
     shortDetail: AccTrDetail
@@ -113,7 +106,6 @@ export const types = () => `
 
     originId: String
     originSubId: String
-    follows: [FollowTrType]
 
     details: AccTrDetail
     shortDetail: AccTrDetail

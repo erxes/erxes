@@ -205,6 +205,37 @@ const fixRelatedMainJournal = async (models, { ptrId, excludeTrId, oldAmount, ne
   return;
 }
 
+const afterCalc = async (models: IModels, trIds: string[]) => {
+  await models.Transactions.updateMany(
+    { _id: { $in: trIds } },
+    [
+      {
+        $set: {
+          sumDt: {
+            $sum: {
+              $map: {
+                input: { $filter: { input: "$details", as: "d", cond: { $eq: ["$$d.side", "dt"] } } },
+                as: "item",
+                in: { $ifNull: ["$$item.amount", 0] }
+              }
+            }
+          },
+          sumCt: {
+            $sum: {
+              $map: {
+                input: { $filter: { input: "$details", as: "d", cond: { $eq: ["$$d.side", "ct"] } } },
+                as: "item",
+                in: { $ifNull: ["$$item.amount", 0] }
+              }
+            }
+          }
+        }
+
+      }
+    ]
+  );
+}
+
 const fixOutTrs = async (models: IModels, {
   adjustId, outAggrs
 }: {
@@ -287,6 +318,7 @@ const fixMoveTrs = async (models: IModels, {
   beforeAdjInvId?: string
 }) => {
   for (const outcomeTrs of moveAggrs) {
+    const trIds: string[] = [];
     const { _id, records } = outcomeTrs;
     const { accountId, branchId, departmentId, productId } = _id;
 
@@ -316,18 +348,18 @@ const fixMoveTrs = async (models: IModels, {
     // bichleg bureer zalruulga hiine ingehdee haritstsan buyu orlogo talaa davhar shinechilsen, shinechilj baih burtee cache ee tsenegleh yostoi
     for (const rec of records) {
       const { details } = rec;
-      const { count, amount, follows, followInfos } = details;
+      const { count, amount, followInfos } = details;
       const newCost = fixNum((count ?? 0) * unitCost);
 
-      const moveInTrId = rec.follows?.find(f => f.type === 'moveIn');
-      const moveInId = follows?.find(f => f.type === 'moveIn')?.id;
-      const moveInRec = (await models.Transactions.aggregate([
-        { $match: { _id: moveInTrId } },
+      const moveInRecs = (await models.Transactions.aggregate([
+        { $match: { originId: rec._id, originType: TR_FOLLOW_TYPES.INV_MOVE_IN } },
         { $unwind: '$details' },
-        { $match: { 'details._id': moveInId } },
-      ]))[0];
+        { $match: { 'details.originId': details._id } },
+      ]));
 
-      if (!moveInTrId || !moveInId || !moveInRec) {
+      const moveInRec = moveInRecs[0];
+
+      if (!moveInRec) {
         throw new Error(`MoveIn not found for ${rec.parentId}`);
       }
 
@@ -365,14 +397,14 @@ const fixMoveTrs = async (models: IModels, {
 
       // in - Fix
       await models.Transactions.updateOne(
-        { _id: moveInTrId },
+        { _id: moveInRec._id },
         {
           $set: {
             'details.$[d].unitPrice': unitCost,
             'details.$[d].amount': moveInCost
           }
         },
-        { arrayFilters: [{ 'd._id': { $eq: moveInId } }] }
+        { arrayFilters: [{ 'd._id': { $eq: moveInRec.details._id } }] }
       );
 
       // cache move in adjustDetail
@@ -386,7 +418,8 @@ const fixMoveTrs = async (models: IModels, {
         amount: moveInCost,
         multiplier: 1
       });
-
+      trIds.push(rec._id)
+      trIds.push(rec._id)
     }
 
     // cache move out adjustDetail
@@ -406,6 +439,7 @@ const fixSaleOutTrs = async (models: IModels, {
   beforeAdjInvId?: string
 }) => {
   for (const saleOutTrs of saleOutAggrs) {
+    const trIds: string[] = [];
     const { _id, records } = saleOutTrs;
     const { accountId, branchId, departmentId, productId } = _id;
 
@@ -445,7 +479,7 @@ const fixSaleOutTrs = async (models: IModels, {
       ]))[0];
 
       const saleFollowCostRec = (await models.Transactions.aggregate([
-        { $match: { originId: rec.originId, followType: TR_FOLLOW_TYPES.INV_SALE_COST } },
+        { $match: { originId: rec.originId, originType: TR_FOLLOW_TYPES.INV_SALE_COST } },
         { $unwind: '$details' },
         { $match: { 'details.originId': details.originId } },
       ]))[0];
@@ -467,7 +501,7 @@ const fixSaleOutTrs = async (models: IModels, {
         {
           $set: {
             'details.$[d].unitPrice': unitCost,
-            'details.$[d].amount': newCost
+            'details.$[d].amount': newCost,
           }
         },
         { arrayFilters: [{ 'd._id': { $eq: details._id } }] }
@@ -475,7 +509,7 @@ const fixSaleOutTrs = async (models: IModels, {
 
       // cost - Fix
       await models.Transactions.updateOne(
-        { _id: saleFollowCostRec },
+        { _id: saleFollowCostRec._id },
         {
           $set: {
             'details.$[d].unitPrice': unitCost,
@@ -484,10 +518,13 @@ const fixSaleOutTrs = async (models: IModels, {
         },
         { arrayFilters: [{ 'd._id': { $eq: saleFollowCostRec.details._id } }] }
       );
+      trIds.push(rec._id);
+      trIds.push(saleFollowCostRec._id);
     }
 
     // cache move out adjustDetail
-    await models.AdjustInvDetails.updateAdjustInvDetail({ adjustId, productId, accountId, branchId, departmentId, remainder, cost, unitCost })
+    await models.AdjustInvDetails.updateAdjustInvDetail({ adjustId, productId, accountId, branchId, departmentId, remainder, cost, unitCost });
+    await afterCalc(models, trIds);
   }
   return {}
 }

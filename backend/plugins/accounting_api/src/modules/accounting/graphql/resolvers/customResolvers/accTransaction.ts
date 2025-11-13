@@ -8,11 +8,8 @@ export default {
   },
 
   async followTrs(transaction: ITransactionDocument, _, { models }: IContext) {
-    if (!transaction.follows?.length) return;
-
-    // return transaction.follows.map(f => dataLoaders.transaction.load(f.id))
     return await models.Transactions.find({
-      _id: { $in: transaction.follows.map((f) => f.id) },
+      originId: { $in: transaction._id },
     }).lean();
   },
 

@@ -98,7 +98,7 @@ const CurrencyFormBody = ({
       setFollowTrDocs(
         (followTrDocs || []).filter(
           (ftr) =>
-            !(ftr.originId === trDoc._id && ftr.followType === 'currencyDiff'),
+            !(ftr.originId === trDoc._id && ftr.originType === 'exchangeDiff'),
         ),
       );
       return;
@@ -106,14 +106,14 @@ const CurrencyFormBody = ({
 
     const { sumDt, sumCt } = side === TR_SIDES.DEBIT ? { sumDt: diffAmount, sumCt: 0 } : { sumDt: 0, sumCt: diffAmount };
 
-    const curr = followTrDocs.find(ftr => ftr.originId === trDoc._id && ftr.followType === 'currencyDiff');
+    const curr = followTrDocs.find(ftr => ftr.originId === trDoc._id && ftr.originType === 'exchangeDiff');
 
     const currencyDiffFtr = {
       ...curr,
       _id: curr?._id || getTempId(),
       journal: TrJournalEnum.TAX,
       originId: trDoc._id,
-      followType: 'currencyDiff',
+      originType: 'exchangeDiff',
       details: [{
         ...(curr?.details || [{}])[0],
         accountId: (detail?.followInfos as any)?.currencyDiffAccountId ?? '',
@@ -125,7 +125,7 @@ const CurrencyFormBody = ({
       sumCt,
     };
 
-    setFollowTrDocs([...(followTrDocs || []).filter(ftr => !(ftr.originId === trDoc._id && ftr.followType === 'currencyDiff')), currencyDiffFtr]);
+    setFollowTrDocs([...(followTrDocs || []).filter(ftr => !(ftr.originId === trDoc._id && ftr.originType === 'exchangeDiff')), currencyDiffFtr]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail, diffAmount, side]);
 
@@ -185,7 +185,7 @@ const CurrencyFormBody = ({
                 <SelectAccount
                   value={field.value || ''}
                   onValueChange={field.onChange}
-                  defaultFilter={{ journals: ['main'] }}
+                  defaultFilter={{ journals: ['exchangeDiff'] }}
                 />
               </Form.Control>
               <Form.Message />
