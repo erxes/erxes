@@ -29,6 +29,7 @@ export const getFileAsStringFromCF = async (bucket: string, key: string) => {
   // }
   // const rawContent = await res.Body.transformToString();
   // return rawContent;
+  return '';
 };
 
 export const getFileAsBufferFromCF = async (bucket: string, key: string) => {

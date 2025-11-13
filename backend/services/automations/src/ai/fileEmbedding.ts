@@ -55,7 +55,7 @@ export class FileEmbeddingService {
       return {
         fileId: key,
         fileName: fileName || key,
-        fileContent,
+        fileContent: '',
         embedding,
         createdAt: new Date(),
       };
