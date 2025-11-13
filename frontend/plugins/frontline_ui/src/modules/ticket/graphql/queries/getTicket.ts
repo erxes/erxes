@@ -16,6 +16,7 @@ export const GET_TICKET = gql`
       targetDate
       createdAt
       updatedAt
+      createdBy
       channelId
       statusChangedDate
       number

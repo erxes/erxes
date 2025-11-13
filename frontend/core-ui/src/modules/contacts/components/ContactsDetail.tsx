@@ -23,7 +23,7 @@ export const ContactsDetailSheet = ({
     <Sheet open={!!open} onOpenChange={() => setOpen(null)}>
       <Sheet.View
         className={cn(
-          'p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-(--breakpoint-md)',
+          'p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-5xl',
         )}
       >
         <Sheet.Header className="border-b py-2 pl-8 flex-row items-center space-y-0 gap-3">
@@ -53,7 +53,7 @@ export const ContactsDetailLayout = ({
   actions?: React.ReactNode;
 }) => {
   if (loading) {
-    return <Spinner size="md" />;
+    return <Spinner />;
   }
   if (notFound) {
     return <NotFound title={title} />;

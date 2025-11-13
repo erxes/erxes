@@ -21,8 +21,8 @@ const loaderVariants = cva('relative', {
     size: {
       sm: 'size-3',
       default: 'size-4',
-      md: 'size-6',
-      lg: 'size-8',
+      md: 'size-5',
+      lg: 'size-6',
     },
   },
   defaultVariants: {

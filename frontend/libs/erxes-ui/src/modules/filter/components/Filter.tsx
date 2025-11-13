@@ -30,7 +30,6 @@ import {
 import { getDisplayValue } from '../date-filter/utils/getDisplayValue';
 import { DateFilterCommand } from '../date-filter/components/DateFilterCommand';
 import { usePreviousHotkeyScope } from 'erxes-ui/modules/hotkey/hooks/usePreviousHotkeyScope';
-import { useScopedHotkeys } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
 import { useFilterQueryState } from '../hooks/useFilterQueryState';
 import { FilterDialogDateView } from '../date-filter/components/DialogDateView';
 
@@ -113,8 +112,6 @@ const FilterPopover = ({
     setHotkeyScopeAndMemorizePreviousScope,
     goBackToPreviousHotkeyScope,
   } = usePreviousHotkeyScope();
-
-  useScopedHotkeys('f', () => setOpen(true), scope);
 
   useEffect(() => {
     if (open) {

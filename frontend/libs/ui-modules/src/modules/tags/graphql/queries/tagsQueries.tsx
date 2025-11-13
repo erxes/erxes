@@ -8,26 +8,33 @@ export const TAGS_QUERY = gql`
     $cursor: String
     $limit: Int
     $direction: CURSOR_DIRECTION
-    $tagIds: [String]
+    $ids: [String]
+    $excludeIds: Boolean
+    $isGroup: Boolean
   ) {
     tags(
       type: $type
       searchValue: $searchValue
       parentId: $parentId
-      tagIds: $tagIds
+      ids: $ids
+      excludeIds: $excludeIds
       cursor: $cursor
       limit: $limit
       direction: $direction
+      isGroup: $isGroup
     ) {
       list {
         _id
         colorCode
         name
-        order
         parentId
         totalObjectCount
         objectCount
         type
+        description
+        isGroup
+        createdAt
+        order
       }
       totalCount
       pageInfo {

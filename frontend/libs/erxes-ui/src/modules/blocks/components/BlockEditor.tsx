@@ -47,9 +47,8 @@ export const BlockEditor = ({
       editable={!readonly && !disabled}
       onChange={onChange}
       className={cn(
-        'shadow-xs',
-        // variant === 'outline' && 'transition-[color,box-shadow] shadow-focus',
-        // variant === 'outline' && (focus ? 'shadow-focus' : 'shadow-xs'),
+        'transition-[color,box-shadow]',
+        variant === 'outline' && (focus ? 'shadow-focus' : 'shadow-xs'),
         className,
       )}
       formattingToolbar={false}
