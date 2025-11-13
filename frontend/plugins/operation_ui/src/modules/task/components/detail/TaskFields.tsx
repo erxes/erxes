@@ -150,7 +150,18 @@ export const TaskFields = ({ task }: { task: ITask }) => {
           variant="detail"
         />
         <ConvertToProject task={task} />
-        <SelectTags.Detail targetIds={[taskId]} value={tagIds || []} />
+        <SelectTags.Detail
+          value={tagIds || []}
+          tagType="operation:task"
+          onValueChange={(newTagIds: string[]) => {
+            updateTask({
+              variables: {
+                _id: taskId,
+                tagIds: newTagIds
+              },
+            });
+          }}
+        />
       </div>
       <Separator className="my-4" />
       <div className="min-h-56 overflow-y-auto">

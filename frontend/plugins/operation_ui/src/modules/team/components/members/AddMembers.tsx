@@ -74,7 +74,7 @@ export const AddMembers = () => {
           <Kbd>C</Kbd>
         </Button>
       </Dialog.Trigger>
-      <Dialog.Content>
+      <Dialog.Content className="max-w-xl">
         <Dialog.Header className="flex-row">
           <Dialog.Title className="flex items-center gap-2">
             {/* <IconTagPlus size={16} /> */}
@@ -99,9 +99,16 @@ export const AddMembers = () => {
             className="flex flex-col size-full gap-5"
           >
             <MemberForm form={form} />
-            <Button className="w-full" type="submit" disabled={loading}>
-              Add
-            </Button>
+            <div className="flex justify-end gap-2">
+              <Dialog.Close asChild>
+                <Button variant="secondary" type="button">
+                  Cancel
+                </Button>
+              </Dialog.Close>
+              <Button type="submit" disabled={loading}>
+                Add
+              </Button>
+            </div>
           </form>
         </Form>
       </Dialog.Content>
