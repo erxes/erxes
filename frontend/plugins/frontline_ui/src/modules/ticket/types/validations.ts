@@ -3,9 +3,9 @@ import { z } from 'zod';
 export const addTicketSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
-  channelId: z.string({ required_error: 'Channel is required' }),
-  pipelineId: z.string({ required_error: 'Pipeline is required' }),
-  statusId: z.string({ required_error: 'Status is required' }),
+  channelId: z.string().min(1, 'Channel is required'),
+  pipelineId: z.string().min(1, 'Pipeline is required'),
+  statusId: z.string().min(1, 'Status is required'),
   priority: z.number().optional(),
   startDate: z.date().optional(),
   targetDate: z.date().optional(),
