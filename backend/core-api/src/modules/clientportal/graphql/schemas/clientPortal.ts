@@ -78,6 +78,7 @@ type ClientPortal {
     passwordVerificationConfig: PasswordVerificationConfig
 
     token: String
+    tokenExpiration: Int
     refreshTokenExpiration: Int
     tokenPassMethod: TokenPassMethod
     vendorParentProductCategoryId: String
