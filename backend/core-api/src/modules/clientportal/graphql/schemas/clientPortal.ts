@@ -91,6 +91,15 @@ type ClientPortal {
     socialpayConfig: SocialpayConfig
     tokiConfig: TokiConfig
 
+    enableOTP: Boolean
+    enableTwoFactor: Boolean
+    enableSocialpay: Boolean
+    enableToki: Boolean
+    enableManualVerification: Boolean
+    enablePasswordVerification: Boolean
+    enableMail: Boolean
+    enableTestUser: Boolean
+
     createdAt: Date
     updatedAt: Date
   }
