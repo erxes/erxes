@@ -7,6 +7,7 @@ import {
   IConfig,
   IConfigDocument,
 } from '~/modules/organization/settings/db/definitions/configs';
+import { ISESConfig } from '~/modules/broadcast/@types/types';
 
 export interface IConfigModel extends Model<IConfigDocument> {
   getConfig(code: string): Promise<IConfigDocument>;
@@ -15,7 +16,57 @@ export interface IConfigModel extends Model<IConfigDocument> {
   createOrUpdateConfig({ code, value }: IConfig): Promise<IConfigDocument>;
   constants(): Promise<any>;
   getCloudflareConfigs(): Promise<any>;
+  getSESConfigs(): Promise<ISESConfig>;
+  updateConfigs(configsMap): Promise<void>;
 }
+
+/**
+ * Get a Config
+ */
+export const getSESConfigs = async (models: IModels) => {
+  const accessKeyId = await getValueAsString(
+    models,
+    'accessKeyId',
+    'AWS_SES_ACCESS_KEY_ID',
+  );
+  const secretAccessKey = await getValueAsString(
+    models,
+    'secretAccessKey',
+    'AWS_SES_SECRET_ACCESS_KEY',
+  );
+  const region = await getValueAsString(models, 'region', 'AWS_REGION');
+  const unverifiedEmailsLimit = await getValueAsString(
+    models,
+    'unverifiedEmailsLimit',
+    'EMAILS_LIMIT',
+    '100',
+  );
+
+  return {
+    accessKeyId,
+    secretAccessKey,
+    region,
+    unverifiedEmailsLimit,
+  };
+};
+
+/**
+ * Update configs
+ */
+export const updateConfigs = async (models: IModels, configsMap) => {
+  const codes = Object.keys(configsMap);
+
+  for (const code of codes) {
+    if (!code) {
+      continue;
+    }
+
+    const value = configsMap[code];
+    const doc = { code, value };
+
+    await models.Configs.createOrUpdateConfig(doc);
+  }
+};
 
 export const getValueAsString = async (
   models: IModels,
@@ -57,7 +108,7 @@ export const loadConfigClass = (models: IModels) => {
       const configsMap = {};
       const filter: any = {};
       if (codes?.length) {
-        filter.code = { $in: codes }
+        filter.code = { $in: codes };
       }
       const configs = await models.Configs.find(filter).lean();
 

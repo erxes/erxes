@@ -1,7 +1,18 @@
-import { getEnv } from 'erxes-api-shared/utils';
+import * as AWS from 'aws-sdk';
+import * as nodemailer from 'nodemailer';
+
+import {
+  getEnv,
+  getPlugin,
+  getPlugins,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { SES_DELIVERY_STATUSES } from './constants';
 import { IModels } from '~/connectionResolvers';
-import { ISESConfig } from './db/models/Config';
+import { ICustomer } from 'erxes-api-shared/core-types';
+import { ISESConfig } from './@types/types';
+import { getApi } from './trackers.ts/engageTracker';
+import { ICampaign } from './types';
 
 export const isUsingElk = () => {
   const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
@@ -19,7 +30,7 @@ export const createTransporter = async (models: IModels) => {
       SES: new AWS.SES({ apiVersion: '2010-12-01' }),
     });
   } catch (error) {
-    debugError(`Error during create transporter: ${error.message}`);
+    console.log(`Error during create transporter: ${error.message}`);
     throw new Error(error.message);
   }
 };
@@ -72,7 +83,7 @@ export const subscribeEngage = (models: IModels) => {
       .createTopic({ Name: configSet })
       .promise()
       .catch((e) => {
-        debugError(e.message);
+        console.log(e.message);
 
         return reject(e.message);
       });
@@ -88,11 +99,11 @@ export const subscribeEngage = (models: IModels) => {
         Endpoint: `${DOMAIN}/gateway/pl:engages/service/engage/tracker`,
       })
       .promise()
-      .then((response) => {
-        debugInfo(response);
+      .then((response: Response) => {
+        console.log(response);
       })
-      .catch((e) => {
-        debugError(e.message);
+      .catch((e: Error) => {
+        console.log(e.message);
         return reject(e.message);
       });
 
@@ -103,8 +114,8 @@ export const subscribeEngage = (models: IModels) => {
         },
       })
       .promise()
-      .catch((e) => {
-        debugError(e.message);
+      .catch((e: Error) => {
+        console.log(e.message);
 
         if (e.message.includes('already exists')) {
           return;
@@ -135,8 +146,8 @@ export const subscribeEngage = (models: IModels) => {
         },
       })
       .promise()
-      .catch((e) => {
-        debugError(e.message);
+      .catch((e: Error) => {
+        console.log(e.message);
 
         if (e.message.includes('already exists')) {
           return;
@@ -252,11 +263,13 @@ export const cleanIgnoredCustomers = async (
   }
 
   if (ignoredCustomerIds.length > 0) {
-    sendCoreMessage({
+    await sendTRPCMessage({
       subdomain,
-      isRPC: false,
-      action: 'customers.setUnsubscribed',
-      data: { customerIds: ignoredCustomerIds },
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'customers',
+      action: 'setUnsubscribed',
+      input: { customerIds: ignoredCustomerIds },
     });
 
     return {
@@ -319,7 +332,7 @@ export const routeErrorHandling = (fn, callback?: any) => {
     try {
       await fn(req, res, next);
     } catch (e) {
-      debugError(e.message);
+      console.log(e.message);
 
       if (callback) {
         return callback(res, e);
@@ -354,15 +367,31 @@ export const setCampaignCount = async (models: IModels, data: ICampaign) => {
   }
 };
 
+export default class EditorAttributeUtil {}
+
 export const getEditorAttributeUtil = async (subdomain: string) => {
-  const services = await getServices();
+  const services = await getPlugins();
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
-  const editor = await new EditorAttributeUtil(
-    `${DOMAIN}/gateway/pl:core`,
-    services,
-    subdomain,
-  );
+  const editor: any = await new EditorAttributeUtil();
 
   return editor;
+};
+
+export const getCustomerName = (customer) => {
+  if (customer.firstName || customer.lastName) {
+    return (customer.firstName || '') + ' ' + (customer.lastName || '');
+  }
+
+  if (customer.primaryEmail || customer.primaryPhone) {
+    return customer.primaryEmail || customer.primaryPhone;
+  }
+
+  const { visitorContactInfo } = customer;
+
+  if (visitorContactInfo) {
+    return visitorContactInfo.phone || visitorContactInfo.email;
+  }
+
+  return 'Unknown';
 };

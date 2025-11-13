@@ -9,10 +9,10 @@ import {
 } from '../../constants';
 import { engageMessageSchema } from '../definitions/engages';
 import { checkCustomerExists, findElk, findUser } from '../../engageUtils';
-import { sendCoreMessage, sendInboxMessage } from '../../messageBroker';
-import { checkRules } from '../../widgetUtils';
 import { getEditorAttributeUtil, isUsingElk } from '../../utils';
-import { IUser, IUserDocument } from 'erxes-api-shared/core-types';
+import { IUserDocument } from 'erxes-api-shared/core-types';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { checkRules } from '../../widgetUtils';
 
 export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   getEngageMessage(_id: string): IEngageMessageDocument;
@@ -263,11 +263,24 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         }
 
         // check for rules ===
-        const numberOfVisits = await sendCoreMessage({
-          isRPC: true,
+        // const numberOfVisits = await sendCoreMessage({
+        //   isRPC: true,
+        //   subdomain,
+        //   action: 'getNumberOfVisits',
+        //   data: {
+        //     url: browserInfo.url,
+        //     visitorId,
+        //     customerId: customer ? customer._id : undefined,
+        //   },
+        // });
+
+        const numberOfVisits = await sendTRPCMessage({
           subdomain,
-          action: 'getNumberOfVisits',
-          data: {
+          pluginName: 'core',
+          method: 'query',
+          module: 'numberOfVisits',
+          action: 'find',
+          input: {
             url: browserInfo.url,
             visitorId,
             customerId: customer ? customer._id : undefined,
@@ -283,6 +296,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         // if given visitor is matched with given condition then create
         // conversations
         if (hasPassedAllRules) {
+          // const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
           const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
 
           // replace keys in content
@@ -377,11 +391,13 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           ? { customerId, 'engageData.messageId': engageData.messageId }
           : { visitorId, 'engageData.messageId': engageData.messageId };
 
-        prevMessage = await sendInboxMessage({
+        prevMessage = await sendTRPCMessage({
           subdomain,
-          action: 'conversationMessages.findOne',
-          data: query,
-          isRPC: true,
+          pluginName: 'core',
+          method: 'query',
+          module: 'conversationMessage',
+          action: 'findOne',
+          input: { query },
         });
       }
 
@@ -405,10 +421,14 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
             },
           });
         } else {
-          messages = await sendInboxMessage({
+          messages = await sendTRPCMessage({
             ...commonParams,
-            data: { conversationId },
-            action: 'conversationMessages.find',
+            subdomain,
+            pluginName: 'core',
+            method: 'query',
+            module: 'conversationMessages',
+            action: 'find',
+            input: { conversationId },
           });
         }
 
@@ -418,10 +438,14 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         }
 
         // mark as unread again && reset engageData
-        await sendInboxMessage({
+        await sendTRPCMessage({
           ...commonParams,
-          action: 'updateConversationMessage',
-          data: {
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'conversationMessages',
+          action: 'update',
+          input: {
             filter: { _id: prevMessage._id },
             updateDoc: { engageData, isCustomerRead: false },
           },
@@ -431,10 +455,14 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
       }
 
       // create conversation and message replaced by messagebroker
-      return await sendInboxMessage({
+      return await sendTRPCMessage({
         ...commonParams,
+        subdomain,
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'conversationMessages',
         action: 'createConversationAndMessage',
-        data: {
+        input: {
           userId: user._id,
           status: 'engageVisitorAuto',
           customerId,

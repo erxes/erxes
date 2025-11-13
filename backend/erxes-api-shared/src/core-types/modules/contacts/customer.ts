@@ -14,6 +14,7 @@ export interface IVisitorContact {
 }
 
 export interface ICustomer {
+  _id: string;
   state?: 'visitor' | 'lead' | 'customer';
 
   scopeBrandIds?: string[];

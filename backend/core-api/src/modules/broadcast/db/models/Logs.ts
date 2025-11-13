@@ -1,5 +1,6 @@
 import { Document, Model, Schema } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
+import { logSchema } from '../definitions/log';
 
 export type MessageType = 'regular' | 'success' | 'failure';
 export const LOG_MESSAGE_TYPES = ['regular', 'success', 'failure'];
@@ -19,13 +20,6 @@ export interface ILogModel extends Model<ILogDocument> {
     message: string,
   ): Promise<ILogDocument>;
 }
-
-export const logSchema = new Schema({
-  createdAt: { type: Date, default: new Date(), label: 'Created at' },
-  engageMessageId: { type: String, label: 'Engage message id', index: true },
-  message: { type: String, label: 'Message' },
-  type: { type: String, label: 'Message type', enum: LOG_MESSAGE_TYPES },
-});
 
 export const loadLogClass = (models: IModels, subdomain: string) => {
   class Log {

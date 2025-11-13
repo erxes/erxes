@@ -1,5 +1,4 @@
-import { fetchEs } from 'erxes-api-shared/utils';
-import { sendCoreMessage, sendInboxMessage } from './messageBroker';
+import { fetchEs, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { isUsingElk } from './utils';
 import { CAMPAIGN_KINDS, CAMPAIGN_METHODS, CONTENT_TYPES } from './constants';
 import { IModels } from '~/connectionResolvers';
@@ -65,80 +64,84 @@ export const generateCustomerSelector = async (
   const commonParams = { subdomain, isRPC: true };
 
   if (brandIds.length > 0) {
-    const integrations = await sendInboxMessage({
+    const integrations = await sendTRPCMessage({
       ...commonParams,
-      action: 'integrations.find',
-      data: { query: { brandId: { $in: brandIds } } },
+      pluginName: 'inbox',
+      module: 'integrations',
+      action: 'find',
+      input: { query: { brandId: { $in: brandIds } } },
+      defaultValue: [],
     });
 
-    customerQuery = { integrationId: { $in: integrations.map((i) => i._id) } };
-  }
-
-  if (segmentIds.length > 0) {
-    const segments = await sendCoreMessage({
-      ...commonParams,
-      action: 'segmentFind',
-      data: { _id: { $in: segmentIds } },
-    });
-
-    let customerIdsBySegments: string[] = [];
-
-    for (const segment of segments) {
-      const options: any = { perPage: 5000, scroll: true };
-
-      if (!segment.contentType.includes('contacts')) {
-        options.returnAssociated = {
-          mainType: segment.contentType,
-          relType: 'core:customer',
-        };
-      }
-
-      const cIds = await sendCoreMessage({
+    if (segmentIds.length > 0) {
+      const segments = await sendTRPCMessage({
         ...commonParams,
-        action: 'fetchSegment',
-        data: {
-          segmentId: segment._id,
-          options,
-        },
+        pluginName: 'core',
+        module: 'segments',
+        action: 'find',
+        input: { query: { _id: { $in: segmentIds } } },
+        defaultValue: [],
       });
 
-      if (
-        engageId &&
-        [
-          'core:company',
-          'sales:deal',
-          'tasks:task',
-          'tickets:ticket',
-          'purchases:purchase',
-        ].includes(segment.contentType)
-      ) {
-        const returnFields = [
-          'name',
-          'description',
-          'closeDate',
-          'createdAt',
-          'modifiedAt',
-          'customFieldsData',
-        ];
+      let customerIdsBySegments: string[] = [];
+
+      for (const segment of segments) {
+        const options: any = { perPage: 5000, scroll: true };
+
+        if (!segment.contentType.includes('contacts')) {
+          options.returnAssociated = {
+            mainType: segment.contentType,
+            relType: 'core:customer',
+          };
+        }
+
+        const cIds = await sendTRPCMessage({
+          ...commonParams,
+          pluginName: 'core',
+          module: 'segments',
+          action: 'fetchSegment',
+          input: { segmentId: segment._id, options },
+          defaultValue: [],
+        });
 
         if (
-          segment.contentType === 'sales:deal' ||
-          segment.contentType === 'purchases:purchase'
+          engageId &&
+          [
+            'core:company',
+            'sales:deal',
+            'tasks:task',
+            'tickets:ticket',
+            'purchases:purchase',
+          ].includes(segment.contentType)
         ) {
-          returnFields.push('productsData');
+          const returnFields = [
+            'name',
+            'description',
+            'closeDate',
+            'createdAt',
+            'modifiedAt',
+            'customFieldsData',
+          ];
+
+          if (
+            segment.contentType === 'sales:deal' ||
+            segment.contentType === 'purchases:purchase'
+          ) {
+            returnFields.push('productsData');
+          }
         }
-      }
 
-      customerIdsBySegments = [...customerIdsBySegments, ...cIds];
-    } // end segments loop
+        customerIdsBySegments = [...customerIdsBySegments, ...cIds];
+      } // end segments loop
 
-    customerQuery = { _id: { $in: customerIdsBySegments } };
-  } // end segmentIds if
+      customerQuery = { _id: { $in: customerIdsBySegments } };
+    } // end segmentIds if
 
-  return {
-    ...customerQuery,
-    $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }],
-  };
+    return {
+      ...customerQuery,
+      $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }],
+    };
+  }
 };
 
 // check customer exists from elastic or mongo
@@ -159,11 +162,14 @@ export const checkCustomerExists = async (
       })),
     };
 
-    const customer = await sendCoreMessage({
+    const customer = await sendTRPCMessage({
       subdomain,
-      action: 'customers.findOne',
-      data: customersSelector,
-      isRPC: true,
+      pluginName: 'core',
+      method: 'query',
+      module: 'customers',
+      action: 'findOne',
+      input: customersSelector,
+      defaultValue: null,
     });
 
     return customer;
@@ -215,11 +221,14 @@ export const checkCustomerExists = async (
     let customerIdsBySegments: string[] = [];
 
     for (const segment of segments) {
-      const cIds = await sendCoreMessage({
-        isRPC: true,
+      const cIds = await sendTRPCMessage({
         subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'segments',
         action: 'fetchSegment',
-        data: { segmentId: segment._id },
+        input: { segmentId: segment._id },
+        defaultValue: [],
       });
 
       customerIdsBySegments = [...customerIdsBySegments, ...cIds];
@@ -263,15 +272,23 @@ export const checkCustomerExists = async (
 };
 
 // find user from elastic or mongo
-export const findUser = async (subdomain, userId?: string) => {
-  const user = await sendCoreMessage({
-    isRPC: true,
-    subdomain,
-    data: { _id: userId },
-    action: 'users.findOne',
-  });
+export const findUser = async (subdomain: string, userId?: string) => {
+  try {
+    const user = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'users',
+      action: 'findOne',
+      input: userId ? { _id: userId } : {},
+      defaultValue: null,
+    });
 
-  return user;
+    return user;
+  } catch (e) {
+    console.error('Failed to find user:', e);
+    return null;
+  }
 };
 
 export const checkCampaignDoc = async (

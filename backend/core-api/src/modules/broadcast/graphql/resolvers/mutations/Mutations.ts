@@ -1,6 +1,14 @@
+import { checkPermission } from 'erxes-api-shared/core-modules';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IEngageMessage } from '~/modules/broadcast/@types/types';
+import { CAMPAIGN_KINDS } from '~/modules/broadcast/constants';
 import { checkCampaignDoc } from '~/modules/broadcast/engageUtils';
+import { awsRequests } from '~/modules/broadcast/trackers.ts/engageTracker';
+import {
+  createTransporter,
+  getEditorAttributeUtil,
+} from '~/modules/broadcast/utils';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -44,30 +52,20 @@ const engageMutations = {
       docModifier({ ...doc, createdBy: user._id }),
     );
 
-    // await sendToWebhook({
-    //   subdomain,
-    //   data: {
-    //     action: 'create',
-    //     type: 'engages:engageMessages',
-    //     params: engageMessage,
-    //   },
-    // });
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'webhooks',
+      action: 'sendToWebhook',
+      input: {
+        action: 'create',
+        type: 'engages:engageMessages',
+        params: engageMessage,
+      },
+    });
 
     // await send(models, subdomain, engageMessage, doc.forceCreateConversation);
-
-    const logDoc = {
-      type: MODULE_ENGAGE,
-      newData: {
-        ...doc,
-        ...emptyCustomers,
-      },
-      object: {
-        ...engageMessage.toObject(),
-        ...emptyCustomers,
-      },
-    };
-
-    await putCreateLog(subdomain, logDoc, user);
 
     return engageMessage;
   },
@@ -91,17 +89,8 @@ const engageMutations = {
       doc.isLive &&
       doc.kind === CAMPAIGN_KINDS.MANUAL
     ) {
-      await send(models, subdomain, updated);
+      // await send(models, subdomain, updated);
     }
-
-    const logDoc = {
-      type: MODULE_ENGAGE,
-      object: { ...engageMessage.toObject(), ...emptyCustomers },
-      newData: { ...updated.toObject(), ...emptyCustomers },
-      updatedDocument: updated,
-    };
-
-    await putUpdateLog(subdomain, logDoc, user);
 
     return models.EngageMessages.findOne({ _id });
   },
@@ -110,29 +99,18 @@ const engageMutations = {
    * Remove message
    */
   async engageMessageRemove(
-    _root,
+    _root: undefined,
     { _id }: { _id: string },
-    { models, subdomain, user }: IContext,
+    { models }: IContext,
   ) {
-    const engageMessage = await models.EngageMessages.getEngageMessage(_id);
-
-    const removed = await models.EngageMessages.removeEngageMessage(_id);
-
-    const logDoc = {
-      type: MODULE_ENGAGE,
-      object: { ...engageMessage.toObject(), ...emptyCustomers },
-    };
-
-    await putDeleteLog(subdomain, logDoc, user);
-
-    return removed;
+    return await models.EngageMessages.removeEngageMessage(_id);
   },
 
   /**
    * Engage message set live
    */
   async engageMessageSetLive(
-    _root,
+    _root: undefined,
     { _id }: { _id: string },
     { models, subdomain, user }: IContext,
   ) {
@@ -144,13 +122,17 @@ const engageMutations = {
 
     await checkCampaignDoc(models, subdomain, campaign);
 
-    await sendCoreMessage({
+    await sendTRPCMessage({
       subdomain,
-      action: 'registerOnboardHistory',
-      data: {
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'onboardHistory',
+      action: 'register',
+      input: {
         type: 'setCampaignLive',
         user,
       },
+      defaultValue: null,
     });
 
     return models.EngageMessages.engageMessageSetLive(_id);
@@ -160,52 +142,30 @@ const engageMutations = {
    * Engage message set pause
    */
   async engageMessageSetPause(
-    _root,
+    _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,
   ) {
-    return models.EngageMessages.engageMessageSetPause(_id);
+    return await models.EngageMessages.engageMessageSetPause(_id);
   },
 
   /**
    * Engage message set live manual
    */
   async engageMessageSetLiveManual(
-    _root,
+    _root: undefined,
     { _id }: { _id: string },
-    { models, subdomain, user }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const draftCampaign = await models.EngageMessages.getEngageMessage(_id);
 
     await checkCampaignDoc(models, subdomain, draftCampaign);
 
-    const live = await models.EngageMessages.engageMessageSetLive(_id);
-
-    await send(models, subdomain, live);
-
-    await putUpdateLog(
-      subdomain,
-      {
-        type: MODULE_ENGAGE,
-        newData: {
-          isLive: true,
-          isDraft: false,
-        },
-        object: {
-          _id,
-          isLive: draftCampaign.isLive,
-          isDraft: draftCampaign.isDraft,
-        },
-        description: `Broadcast "${draftCampaign.title}" has been set live`,
-      },
-      user,
-    );
-
-    return live;
+    return await models.EngageMessages.engageMessageSetLive(_id);
   },
 
   async engagesUpdateConfigs(_root, { configsMap }, { models }: IContext) {
-    await updateConfigs(models, configsMap);
+    // await updateConfigs(models, configsMap);
 
     return { status: 'ok' };
   },
@@ -214,7 +174,7 @@ const engageMutations = {
    * Engage message verify email
    */
   async engageMessageVerifyEmail(
-    _root,
+    _root: undefined,
     { email }: { email: string },
     { models }: IContext,
   ) {
@@ -227,7 +187,7 @@ const engageMutations = {
    * Engage message remove verified email
    */
   async engageMessageRemoveVerifiedEmail(
-    _root,
+    _root: undefined,
     { email }: { email: string },
     { models }: IContext,
   ) {
@@ -237,7 +197,7 @@ const engageMutations = {
   },
 
   async engageMessageSendTestEmail(
-    _root,
+    _root: undefined,
     args: ITestEmailParams,
     { subdomain, models }: IContext,
   ) {
@@ -255,19 +215,23 @@ const engageMutations = {
       throw new Error('Test email can only be sent to one recipient');
     }
 
-    const targetUser = await sendCoreMessage({
-      data: { email: to },
-      action: 'users.findOne',
+    const targetUser = await sendTRPCMessage({
       subdomain,
-      isRPC: true,
+      pluginName: 'core',
+      method: 'query',
+      module: 'users',
+      action: 'findOne',
+      input: { email: to },
       defaultValue: null,
     });
 
-    const fromUser = await sendCoreMessage({
-      data: { email: from },
-      action: 'users.findOne',
+    const fromUser = await sendTRPCMessage({
       subdomain,
-      isRPC: true,
+      pluginName: 'core',
+      method: 'query',
+      module: 'fromUser',
+      action: 'findOne',
+      input: { email: from },
       defaultValue: null,
     });
 
@@ -293,7 +257,7 @@ const engageMutations = {
       });
       return JSON.stringify(response);
     } catch (e) {
-      debugError(e.message);
+      console.log(e);
 
       return e;
     }
@@ -301,9 +265,9 @@ const engageMutations = {
 
   // Helps users fill less form fields to create a campaign
   async engageMessageCopy(
-    _root,
+    _root: undefined,
     { _id }: { _id },
-    { docModifier, models, subdomain, user }: IContext,
+    { docModifier, models, user }: IContext,
   ) {
     const sourceCampaign = await models.EngageMessages.getEngageMessage(_id);
 
@@ -326,108 +290,106 @@ const engageMutations = {
       doc.scheduleDate.dateTime = null;
     }
 
-    const copy = await models.EngageMessages.createEngageMessage(doc);
-
-    await putCreateLog(
-      subdomain,
-      {
-        type: MODULE_ENGAGE,
-        newData: {
-          ...doc,
-          ...emptyCustomers,
-        },
-        object: {
-          ...copy.toObject(),
-          ...emptyCustomers,
-        },
-        description: `Campaign "${sourceCampaign.title}" has been copied`,
-      },
-      user,
-    );
-
-    return copy;
+    return await models.EngageMessages.createEngageMessage(doc);
   },
 
   /**
    * Send mail
    */
   async engageSendMail(
-    _root,
+    _root: undefined,
     args: any,
-    { user, models, subdomain }: IContext,
+    { user, subdomain }: IContext,
   ) {
     const { body, customerId, ...doc } = args;
     const customerQuery = customerId
       ? { _id: customerId }
       : { primaryEmail: doc.to };
 
-    const customer = await sendCoreMessage({
+    const customer = await sendTRPCMessage({
       subdomain,
-      action: 'customers.findOne',
-      data: customerQuery,
-      isRPC: true,
+      pluginName: 'core',
+      method: 'query',
+      module: 'customer',
+      action: 'findOne',
+      input: { query: { _id: { $in: customerId } } },
     });
 
     doc.body = body || '';
 
     try {
-      await sendEmail(subdomain, models, {
-        fromEmail: doc.from || '',
-        email: {
-          content: doc.body,
-          subject: doc.subject,
-          attachments: doc.attachments,
-          sender: doc.from || '',
-          cc: doc.cc || [],
-          bcc: doc.bcc || [],
+      await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'emails',
+        action: 'sendEmail',
+        input: {
+          fromEmail: doc.from || '',
+          email: {
+            content: doc.body,
+            subject: doc.subject,
+            attachments: doc.attachments,
+            sender: doc.from || '',
+            cc: doc.cc || [],
+            bcc: doc.bcc || [],
+          },
+          customers: [customer],
+          customer,
+          createdBy: user._id,
+          title: doc.subject,
         },
-        customers: [customer],
-        customer,
-        createdBy: user._id,
-        title: doc.subject,
       });
     } catch (e) {
-      debugError(e);
+      console.log(e);
       throw e;
     }
 
-    const customerIds = await sendCoreMessage({
+    const customerIds = await sendTRPCMessage({
       subdomain,
-      action: 'customers.getCustomerIds',
-      data: {
+      pluginName: 'core',
+      method: 'query',
+      module: 'customers',
+      action: 'getCustomerIds',
+      input: {
         primaryEmail: { $in: doc.to },
       },
-      isRPC: true,
+      defaultValue: [],
     });
 
     doc.userId = user._id;
 
     for (const cusId of customerIds) {
-      await sendCoreMessage({
+      await sendTRPCMessage({
         subdomain,
-        action: 'emailDeliveries.create',
-        data: {
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'emailDeliveries',
+        action: 'create',
+        input: {
           ...doc,
           customerId: cusId,
           kind: 'transaction',
           status: 'pending',
         },
-        isRPC: true,
       });
     }
 
     if (doc.integrationId) {
       try {
-        const imapSendMail = await sendImapMessage({
+        const imapSendMail = await sendTRPCMessage({
           subdomain,
-          action: 'imapMessage.create',
-          data: {
+          pluginName: 'imap',
+          method: 'mutation',
+          module: 'imapMessage',
+          action: 'create',
+          input: {
             ...doc,
           },
-          isRPC: true,
         });
         return imapSendMail;
       } catch (e) {
+        console.log(e);
         throw e;
       }
     }

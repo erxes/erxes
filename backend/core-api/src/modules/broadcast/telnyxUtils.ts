@@ -1,5 +1,5 @@
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { sendClientPortalMessage } from './messageBroker';
 
 export const prepareSmsStats = async (
   models: IModels,
@@ -23,13 +23,15 @@ export const prepareNotificationStats = async (
   subdomain: string,
   engageMessageId: string,
 ) => {
-  const clientPortalNotifications = await sendClientPortalMessage({
+  const clientPortalNotifications = await sendTRPCMessage({
     subdomain,
+    pluginName: 'clientPortal',
+    method: 'query',
+    module: 'clientPortalNotifications',
     action: 'clientPortalEngageNotifications',
-    data: {
+    input: {
       selector: { isRead: true, groupId: engageMessageId },
     },
-    isRPC: true,
     defaultValue: 0,
   });
 

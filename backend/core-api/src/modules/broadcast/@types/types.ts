@@ -104,3 +104,38 @@ export interface ISESConfig {
 export interface IConfigDocument extends IConfig, Document {
   _id: string;
 }
+
+interface IPaged {
+  page?: number;
+  perPage?: number;
+}
+
+export interface IListArgs extends IPaged {
+  kind?: string;
+  status?: string;
+  tag?: string;
+  ids?: string;
+}
+
+export interface IQuery {
+  kind?: string;
+}
+
+export interface IStatusQueryBuilder {
+  [index: string]: boolean | string;
+}
+
+export interface ICount {
+  [index: string]: number;
+}
+
+export interface IReportParams extends IPaged {
+  customerId?: string;
+  status?: string;
+  searchValue?: string;
+}
+
+export interface ISmsDeliveryParams extends IPaged {
+  type: string;
+  to?: string;
+}

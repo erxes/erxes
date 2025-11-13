@@ -45,3 +45,10 @@ export interface IMessageDocument extends IMessage, Document {
   engageData?: IEngageDataDocument;
   createdAt: Date;
 }
+
+export interface ICampaign {
+  _id: string;
+  totalCustomersCount?: number;
+  validCustomersCount?: number;
+  runCount?: number;
+}

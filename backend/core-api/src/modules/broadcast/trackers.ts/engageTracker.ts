@@ -1,4 +1,4 @@
-import * as AWS from 'aws-sdk';
+import AWS from 'aws-sdk';
 
 import { IModels } from '~/connectionResolvers';
 import { ISESConfig } from '../@types/types';
