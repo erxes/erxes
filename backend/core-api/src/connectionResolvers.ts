@@ -129,24 +129,25 @@ import { IInternalNoteDocument } from '@/internalNote/types';
 import { ILogModel, loadLogsClass } from '@/logs/db/models/Logs';
 
 import {
-<<<<<<< HEAD
   AiAgentDocument,
   aiAgentSchema,
   aiEmbeddingSchema,
-  emailDeliverySchema,
   IAiEmbeddingDocument,
-=======
->>>>>>> d2da662d3084b21bc0e47639d858b04ca23ad6a1
   IAutomationDocument,
   IAutomationExecutionDocument,
   IEmailDeliveryDocument,
   INotificationDocument,
   notificationSchema,
 } from 'erxes-api-shared/core-modules';
+import { IAutomationEmailTemplateDocument } from 'erxes-api-shared/core-types';
 import {
   IRoleModel,
   loadRoleClass,
 } from '~/modules/permissions/db/models/Roles';
+import {
+  IAutomationEmailTemplateModel,
+  loadAutomationEmailTemplateClass,
+} from './modules/automations/db/models/AutomationEmailTemplates';
 import {
   IAutomationModel,
   loadClass as loadAutomationClass,
@@ -155,11 +156,6 @@ import {
   IExecutionModel,
   loadClass as loadExecutionClass,
 } from './modules/automations/db/models/Executions';
-import {
-  IAutomationEmailTemplateModel,
-  loadAutomationEmailTemplateClass,
-} from './modules/automations/db/models/AutomationEmailTemplates';
-import { IAutomationEmailTemplateDocument } from 'erxes-api-shared/core-types';
 
 import {
   IFieldModel,
@@ -217,13 +213,9 @@ export interface IModels {
   AutomationEmailTemplates: IAutomationEmailTemplateModel;
   Logs: ILogModel;
   Notifications: Model<INotificationDocument>;
-<<<<<<< HEAD
-  EmailDeliveries: Model<IEmailDeliveryDocument>;
   AiAgents: Model<AiAgentDocument>;
   AiEmbeddings: Model<IAiEmbeddingDocument>;
-=======
   EmailDeliveries: IEmailDeliveryModel;
->>>>>>> d2da662d3084b21bc0e47639d858b04ca23ad6a1
 }
 
 export interface IContext extends IMainContext {
@@ -397,8 +389,8 @@ export const loadClasses = (
 
   models.EmailDeliveries = db.model<
     IEmailDeliveryDocument,
-    Model<IEmailDeliveryDocument>
-  >('email_deliveries', emailDeliverySchema);
+    IEmailDeliveryModel
+  >('email_deliveries', loadEmailDeliveryClass(models));
   models.AiAgents = db.model<AiAgentDocument, Model<AiAgentDocument>>(
     'automations_ai_agents',
     aiAgentSchema,
