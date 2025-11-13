@@ -374,7 +374,7 @@ const fixMoveTrs = async (models: IModels, {
           accountId: moveInRec.details.accountId,
           branchId: moveInRec.branchId,
           departmentId: moveInRec.departmentId,
-          count: moveInRec.detail.count,
+          count: moveInRec.details.count,
           amount: moveInRec.details.amount,
           multiplier: 1
         });
@@ -414,7 +414,7 @@ const fixMoveTrs = async (models: IModels, {
         accountId: moveInRec.details.accountId,
         branchId: moveInRec.branchId,
         departmentId: moveInRec.departmentId,
-        count: moveInRec.detail.count,
+        count: moveInRec.details.count,
         amount: moveInCost,
         multiplier: 1
       });
@@ -661,7 +661,7 @@ export const adjustRunning = async (models: IModels, user: IUserDocument, { adju
     })
   } catch (e) {
     const now = new Date();
-    modifierWrapper(models, adjustInventory, {
+    await modifierWrapper(models, adjustInventory, {
       checkedDate: now,
       error: e.message,
       status: ADJ_INV_STATUSES.PROCESS
