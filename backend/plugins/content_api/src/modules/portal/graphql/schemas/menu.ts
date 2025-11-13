@@ -39,7 +39,7 @@ export const inputs = `
 `;
 
 export const queries = `
-    cmsMenuList(clientPortalId: String, kind: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): MenuItemResponse
+    cmsMenuList(clientPortalId: String, kind: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): [MenuItem]
     cmsMenu(_id: String!, language: String): MenuItem
 `;
 
