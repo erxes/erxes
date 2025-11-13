@@ -1,6 +1,7 @@
 import { IModels } from '@/connectionResolver';
-import { isDiffValue } from '@/utils/utils';
+import { debugError } from '@/debugger';
 import { isInSegment } from '@/utils/isInSegment';
+import { isDiffValue } from '@/utils/utils';
 import {
   AUTOMATION_EXECUTION_STATUS,
   IAutomationExecutionDocument,
@@ -20,6 +21,7 @@ const checkIsValidCustomTigger = async (
 ) => {
   const [pluginName, moduleName, collectionType, relationType] =
     splitType(type);
+  console.log({ pluginName, moduleName, collectionType, relationType });
 
   return await sendCoreModuleProducer({
     moduleName: 'automations',
@@ -36,7 +38,9 @@ const checkIsValidCustomTigger = async (
       config,
     },
     defaultValue: false,
-  });
+  }).catch((e) =>
+    debugError(`An error occurred while check trigger: ${e.message}`),
+  );
 };
 
 const checkValidTrigger = async (
