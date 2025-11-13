@@ -13,7 +13,6 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
     },
   });
   const navigate = useNavigate();
-  console.log('pipelines1:', pipelines);
   const onClick = (pipelineId: string) => {
     navigate(
       `/settings/frontline/channels/${channelId}/pipelines/${pipelineId}`,
