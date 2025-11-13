@@ -5,6 +5,7 @@ import {
   Filter,
   PopoverScoped,
   useQueryState,
+  useFilterContext,
 } from 'erxes-ui';
 import { PROJECT_PRIORITIES_OPTIONS } from '@/ticket/constants/priorityOption';
 import {
@@ -175,11 +176,15 @@ const SelectPriorityRoot = ({
 
 const SelectPriorityFilterView = () => {
   const [priority, setPriority] = useQueryState<string>('priority');
+  const { resetFilterState } = useFilterContext();
   return (
     <Filter.View filterKey="priority">
       <SelectPriorityProvider
         value={Number(priority)}
-        onValueChange={(value) => setPriority(String(value))}
+        onValueChange={(value) => {
+          setPriority(String(value));
+          resetFilterState();
+        }}
       >
         <SelectPriorityContent />
       </SelectPriorityProvider>

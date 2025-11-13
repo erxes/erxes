@@ -12,9 +12,9 @@ import {
 import { usePipelineAdd } from '@/pipelines/hooks/useAddPipeline';
 import React, { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { PIPELINE_FORM_SCHEMA } from '@/settings/schema/pipeline';
+import { CREATE_PIPELINE_FORM_SCHEMA } from '@/settings/schema/pipeline';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IPipeline } from '@/pipelines/types';
+import { TCreatePipelineForm } from '@/pipelines/types';
 import { PipelineHotkeyScope } from '@/pipelines/types/PipelineHotkeyScope';
 import { useNavigate } from 'react-router';
 import { CreatePipelineForm } from './CreatePipelineForm';
@@ -23,8 +23,8 @@ import { useParams } from 'react-router-dom';
 export const CreatePipeline = () => {
   const { id: channelId } = useParams<{ id: string }>();
 
-  const form = useForm<IPipeline>({
-    resolver: zodResolver(PIPELINE_FORM_SCHEMA),
+  const form = useForm<TCreatePipelineForm>({
+    resolver: zodResolver(CREATE_PIPELINE_FORM_SCHEMA),
     defaultValues: {
       name: '',
       description: '',
@@ -63,7 +63,7 @@ export const CreatePipeline = () => {
     () => onClose(),
     PipelineHotkeyScope.PipelineAddSheet,
   );
-  const submitHandler: SubmitHandler<IPipeline> = React.useCallback(
+  const submitHandler: SubmitHandler<TCreatePipelineForm> = React.useCallback(
     async (data) => {
       addPipeline({
         variables: {

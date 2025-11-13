@@ -31,6 +31,7 @@ import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import { currentUserState } from 'ui-modules';
 import { SelectMilestone } from '../task-selects/SelectMilestone';
+import { SelectTags } from 'ui-modules';
 
 export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   const { teamId, projectId, cycleId } = useParams<{
@@ -68,6 +69,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
     estimatePoint: 0,
     cycleId: cycleId,
     milestoneId: undefined,
+    tagIds: [] as string[],
   };
 
   const form = useForm<TAddTask>({
@@ -301,7 +303,22 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
                 </Form.Item>
               )}
             />
+            <Form.Field
+              name="tagIds"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label className="sr-only">Tags</Form.Label>
+                  <SelectTags.FormItem
+                    mode="multiple"
+                    value={field.value || []}
+                    onValueChange={(value) => field.onChange(value)}
+                  />
+                </Form.Item>
+              )}
+            />
           </div>
+
           <Separator className="my-4" />
           <div className="flex-1 overflow-y-auto">
             <BlockEditor

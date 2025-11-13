@@ -98,7 +98,7 @@ export const BranchWorkingHoursSheet = () => {
           }
         }}
       >
-        <Sheet.View className="p-0 md:max-w-(--breakpoint-md)">
+        <Sheet.View className="p-0 md:max-w-5xl">
           <div className="flex flex-col gap-0 size-full">
             <Sheet.Header>
               <Sheet.Title>Setup branch working hours</Sheet.Title>

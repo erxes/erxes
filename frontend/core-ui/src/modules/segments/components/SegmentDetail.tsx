@@ -42,7 +42,7 @@ export function SegmentDetail({ refetch }: Props) {
       </Sheet.Trigger>
 
       <Sheet.View
-        className="p-0 md:max-w-(--breakpoint-lg)"
+        className="p-0 md:max-w-5xl"
         onEscapeKeyDown={(e: any) => {
           e.preventDefault();
         }}

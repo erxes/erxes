@@ -5,26 +5,15 @@ export const tagSchema = schemaWrapper(
   new Schema(
     {
       _id: mongooseStringRandomId,
-      name: { type: String, label: 'Name' },
-      type: {
-        type: String,
-        label: 'Type',
-        index: true,
-      },
+      name: { type: String, label: 'Name', unique: true },
       colorCode: { type: String, label: 'Color code' },
+      parentId: { type: String, label: 'Parent' },
+      relatedIds: { type: [String], label: 'Children tag ids' },
+      isGroup: { type: Boolean, label: 'Is group', default: false },
+      type: { type: String, label: 'Content type' },
+      description: { type: String, label: 'Description' },
       objectCount: { type: Number, label: 'Object count' },
-      order: { type: String, label: 'Order', index: true },
-      parentId: {
-        type: String,
-        optional: true,
-        index: true,
-        label: 'Parent',
-      },
-      relatedIds: {
-        type: [String],
-        optional: true,
-        label: 'Children tag ids',
-      },
+      order: { type: String, label: 'Order' },
     },
     {
       timestamps: true,
@@ -32,5 +21,4 @@ export const tagSchema = schemaWrapper(
   ),
 );
 
-// for tags query. increases search speed, avoids in-memory sorting
-tagSchema.index({ _id: 1, type: 1, order: 1, name: 1, createdAt: 1 });
+tagSchema.index({ _id: 1, name: 1, parentId: 1, type: 1 });

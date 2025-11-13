@@ -4,6 +4,7 @@ import { IPage, IPageDocument } from '@/portal/@types/page';
 import { IModels } from '~/connectionResolvers';
 import slugify from 'slugify';
 import { pageSchema } from '@/portal/db/definitions/page';
+import { generateUniqueSlug } from '@/portal/utils/common';
 
 export interface IPageModel extends Model<IPageDocument> {
   getPages: (query: any) => Promise<IPageDocument[]>;
@@ -21,14 +22,13 @@ export const loadPageClass = (models: IModels) => {
     };
 
     public static createPage = async (doc: IPage) => {
-      if (!doc.slug && doc.name) {
-        doc.slug = slugify(doc.name, { lower: true });
+      if (doc.name) {
+
+        const baseSlug = doc.slug || slugify(doc.name, { lower: true });
+        doc.slug = await generateUniqueSlug(models.Pages, doc.clientPortalId, 'slug', baseSlug);
       }
 
-      const existingPage = await models.Pages.findOne({
-        slug: doc.slug,
-        clientPortalId: doc.clientPortalId,
-      });
+      const existingPage = await models.Pages.findOne({ slug: doc.slug, clientPortalId: doc.clientPortalId });
 
       if (existingPage) {
         throw new Error('Page already exists');
@@ -38,8 +38,9 @@ export const loadPageClass = (models: IModels) => {
     };
 
     public static updatePage = async (_id: string, doc: IPage) => {
-      if (!doc.slug && doc.name) {
-        doc.slug = slugify(doc.name, { lower: true });
+      if (doc.name) {
+        const baseSlug = doc.slug || slugify(doc.name, { lower: true });
+        doc.slug = await generateUniqueSlug(models.Pages, doc.clientPortalId, 'slug', baseSlug);
       }
 
       const existingPage = await models.Pages.countDocuments({
@@ -55,7 +56,7 @@ export const loadPageClass = (models: IModels) => {
       const page = await models.Pages.findOneAndUpdate(
         { _id: _id },
         { $set: doc },
-        { new: true },
+        { new: true }
       );
       return page;
     };
