@@ -6,6 +6,7 @@ import {
 } from '@/portal/@types/customFieldGroup';
 import { IModels } from '~/connectionResolvers';
 import { fieldGroupSchema } from '@/portal/db/definitions/customFieldGroup';
+import { generateUniqueSlug } from '@/portal/utils/common';
 
 export interface ICustomFieldGroupModel
   extends Model<ICustomFieldGroupDocument> {
@@ -24,6 +25,15 @@ export interface ICustomFieldGroupModel
 export const loadCustomFieldGroupClass = (models: IModels) => {
   class CustomFieldGroups {
     public static createFieldGroup = async (data: ICustomFieldGroup) => {
+      if (data.code) {
+        const uniqueCode = await generateUniqueSlug(
+          models.CustomFieldGroups,
+          data.clientPortalId,
+          'code',
+          data.code
+        );
+        data.code = uniqueCode;
+      }
       const count = await models.CustomFieldGroups.countDocuments({
         clientPortalId: data.clientPortalId,
         label: data.label,
@@ -36,15 +46,23 @@ export const loadCustomFieldGroupClass = (models: IModels) => {
 
     public static updateFieldGroup = async (
       id: string,
-      data: ICustomFieldGroup,
+      data: ICustomFieldGroup
     ) => {
+      if (data.code) {
+        const uniqueCode = await generateUniqueSlug(
+          models.CustomFieldGroups,
+          data.clientPortalId,
+          'code',
+          data.code,
+        );
+        data.code = uniqueCode;
+      }
       return models.CustomFieldGroups.findOneAndUpdate(
         { _id: id },
         { $set: data },
-        { new: true },
+        { new: true }
       );
     };
-
     public static deleteFieldGroup = async (id: string) => {
       return await models.CustomFieldGroups.findOneAndDelete({ _id: id });
     };

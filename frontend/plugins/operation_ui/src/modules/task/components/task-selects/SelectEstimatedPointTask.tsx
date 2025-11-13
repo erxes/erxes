@@ -103,7 +103,7 @@ const SelectEstimatedPointValue = ({
   if (!value) {
     return (
       <div className="flex items-center gap-2 text-accent-foreground">
-        <IconTriangle className="size-4 flex-shrink-0" />
+        <IconTriangle className="size-4 shrink-0" />
         <span className="truncate font-medium">
           {placeholder || 'Select estimate'}
         </span>
@@ -117,7 +117,7 @@ const SelectEstimatedPointValue = ({
 
   return (
     <div className="flex items-center gap-2">
-      <IconTriangle className="size-4 flex-shrink-0" />
+      <IconTriangle className="size-4 shrink-0" />
       <p className={cn('font-medium', className)}>{estimate?.label}</p>
     </div>
   );

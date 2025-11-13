@@ -138,20 +138,25 @@ import {
 } from '@/ticket/db/models/Pipeline';
 import { IStatusModel, loadStatusClass } from '@/ticket/db/models/Status';
 import { ITicketModel, loadTicketClass } from '@/ticket/db/models/Ticket';
-import { ITicketDocument } from './modules/ticket/@types/ticket';
-import { ITicketPipelineDocument } from './modules/ticket/@types/pipeline';
-import { IStatusDocument } from './modules/ticket/@types/status';
+import { ITicketDocument } from '@/ticket/@types/ticket';
+import { ITicketPipelineDocument } from '@/ticket/@types/pipeline';
+import { IStatusDocument } from '@/ticket/@types/status';
 
 import {
   IMessengerAppModel,
   loadClass as loadMessengerAppClass,
-} from './modules/inbox/db/models/MessengerApps';
+} from '@/inbox/db/models/MessengerApps';
 import {
   IConfigModel,
   loadConfigClass,
   IConfigDocument,
-} from './modules/inbox/@types/configs';
-import { IMessengerAppDocument } from './modules/inbox/db/definitions/messengerApps';
+} from '@/inbox/@types/configs';
+import { IMessengerAppDocument } from '@/inbox/db/definitions/messengerApps';
+import { IActivityModel, loadActivityClass } from '@/ticket/db/models/Activity';
+import { IActivityDocument } from '@/ticket/@types/activity';
+
+import { INoteModel, loadNoteClass } from '@/ticket/db/models/Note';
+import { INoteDocument } from '@/ticket/@types/note';
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -192,6 +197,8 @@ export interface IModels {
   Pipeline: ITicketPipelineModel;
   Status: IStatusModel;
   Ticket: ITicketModel;
+  Activity: IActivityModel;
+  Note: INoteModel;
 
   MessengerApps: IMessengerAppModel;
   Configs: IConfigModel;
@@ -222,6 +229,14 @@ export const loadClasses = (
   models.Ticket = db.model<ITicketDocument, ITicketModel>(
     'frontline_tickets',
     loadTicketClass(models),
+  );
+  models.Activity = db.model<IActivityDocument, IActivityModel>(
+    'frontline_ticket_activities',
+    loadActivityClass(models),
+  );
+  models.Note = db.model<INoteDocument, INoteModel>(
+    'frontline_tickets_notes',
+    loadNoteClass(models),
   );
   //inbox models
   models.Channels = db.model<IChannelDocument, IChannelModel>(

@@ -29,12 +29,6 @@ export const types = `
 
   input InvitationEntry {
     email: String
-    password: String
-    groupId: String
-    channelIds: [String]
-    unitId: String
-    branchId: String
-    departmentId: String
   }
 
   enum UserChatStatus{

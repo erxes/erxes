@@ -13,7 +13,7 @@ import {
   ICategoryModel as IKnowledgeBaseCategoryModel,
   ITopicModel,
   loadArticleClass,
-  loadCategoryClass,
+  loadKBCategoryClass,
   loadTopicClass,
 } from '@/knowledgebase/db/models/Knowledgebase';
 import { ICommentDocument } from '@/portal/@types/comment';
@@ -63,7 +63,7 @@ import {
   IUserCardModel,
   loadUserCardClass,
 } from '@/portal/db/models/UsersCards';
-import { ICategoryModel } from '@/portal/db/models/Categories';
+import { ICategoryModel, loadCategoryClass } from '@/portal/db/models/Categories';
 
 export interface IModels {
   Portals: IPortalModel;
@@ -94,7 +94,7 @@ export interface IContext extends IMainContext {
   session: any;
   clientPortalId?: string;
   isPassed2FA?: boolean;
-  subdomain: string;
+  subdomain?: string;
 }
 
 export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels => {
@@ -138,7 +138,7 @@ export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels
   models.KnowledgeBaseCategories = db.model<
     ICategoryDocument,
     IKnowledgeBaseCategoryModel
-  >('knowledgebase_categories', loadCategoryClass(models));
+  >('knowledgebase_categories', loadKBCategoryClass(models));
 
   models.KnowledgeBaseTopics = db.model<ITopicDocument, ITopicModel>(
     'knowledgebase_topics',
@@ -155,10 +155,10 @@ export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels
     loadPostClass(models),
   );
 
-  models.Translations = db.model<ITranslationDocument, ITranslationModel>(
-    'cms_post_translations',
-    loadTranslationClass(models),
-  );
+  models.Translations = db.model<
+    ITranslationDocument,
+    ITranslationModel
+  >('cms_post_translations', loadTranslationClass(models));
 
   models.Pages = db.model<IPageDocument, IPageModel>(
     'cms_pages',

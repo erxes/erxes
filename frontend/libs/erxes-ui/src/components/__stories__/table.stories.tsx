@@ -60,14 +60,14 @@ export const Default: Story = {
       <Table>
         <Table.Header className="[&_th]:w-40">
           <Table.Row>
-            <Table.Head className="!w-9 text-center">
+            <Table.Head className="w-9! text-center">
               <Checkbox />
             </Table.Head>
             <Table.Head>Invoice</Table.Head>
             <Table.Head>Status</Table.Head>
             <Table.Head>Method</Table.Head>
             <Table.Head className="text-right">Amount</Table.Head>
-            <Table.Head className="!w-9"></Table.Head>
+            <Table.Head className="w-9!"></Table.Head>
           </Table.Row>
         </Table.Header>
         <Table.Body>

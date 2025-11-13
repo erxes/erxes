@@ -112,7 +112,7 @@ export const LogoField = ({ control }: { control: Control<TmsFormType> }) => {
                 </>
               ) : field.value ? (
                 <div className="relative w-full">
-                  <div className="flex justify-center items-center w-full min-h-[7rem] p-4 rounded-md border bg-accent">
+                  <div className="flex justify-center items-center w-full min-h-28 p-4 rounded-md border bg-accent">
                     <Upload.Preview
                       className="object-contain max-w-full max-h-32"
                       onUploadStart={() => setIsLoading(true)}
@@ -208,7 +208,7 @@ export const FavIconField = ({
                 </>
               ) : field.value ? (
                 <div className="relative w-full">
-                  <div className="flex justify-center items-center w-full min-h-[7rem] p-4 rounded-md border bg-accent">
+                  <div className="flex justify-center items-center w-full min-h-28 p-4 rounded-md border bg-accent">
                     <Upload.Preview
                       className="object-contain max-w-full max-h-32"
                       onUploadStart={() => setIsLoading(true)}

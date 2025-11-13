@@ -111,7 +111,7 @@ const Rule = ({
         <Button
           variant="destructive"
           size="icon"
-          className="flex-shrink-0 opacity-0 absolute -top-6 right-1 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-in-out"
+          className="shrink-0 opacity-0 absolute -top-6 right-1 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-in-out"
           onClick={remove}
         >
           <IconTrash size={16} />

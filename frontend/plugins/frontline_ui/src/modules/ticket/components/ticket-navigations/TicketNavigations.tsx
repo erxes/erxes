@@ -44,7 +44,7 @@ function ChannelItem({ channel }: ChannelItemProps) {
               <IconComponent
                 name={channel.icon}
                 className={cn(
-                  'text-accent-foreground flex-shrink-0 size-4',
+                  'text-accent-foreground shrink-0 size-4',
                   isActive && 'text-primary',
                 )}
               />
@@ -94,8 +94,11 @@ const Pipelines = () => {
     variables: { filter: { channelId: channelId || '' } },
   });
   useEffect(() => {
-    !pipelineId && pipelines?.[0]?._id && setPipelineId(pipelines[0]._id);
-  }, [pipelines, setPipelineId, pipelineId]);
+    if (channelId && pipelines) {
+      setPipelineId(pipelines?.[0] ? pipelines?.[0]?._id : null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [channelId, pipelines]);
   return (
     <Collapsible.Content className="pt-1">
       <Sidebar.GroupContent>
@@ -118,8 +121,8 @@ const Pipelines = () => {
           )}
           {!loading && !pipelines?.length && (
             <Sidebar.MenuItem>
-              <Sidebar.MenuButton>
-                <span className="capitalize">No pipelines</span>
+              <Sidebar.MenuButton disabled={true}>
+                <span className="capitalize text-foreground">No pipelines</span>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
           )}
