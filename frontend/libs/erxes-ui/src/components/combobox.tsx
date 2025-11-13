@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from './button';
 import { cn } from '../lib/utils';
-import { IconCheck, IconChevronDown, IconLoader } from '@tabler/icons-react';
+import { IconCheck, IconChevronDown } from '@tabler/icons-react';
 import { Popover } from './popover';
 import { Command } from './command';
 import { useInView } from 'react-intersection-observer';
@@ -25,8 +25,8 @@ export const ComboboxTriggerBase = React.forwardRef<
         {...props}
         type="button"
         className={cn(
-          'flex truncate h-8 rounded pl-3 transition-[color,box-shadow] focus-visible:shadow-focus outline-hidden focus-visible:outline-hidden focus-visible:outline-offset-0 focus-visible:outline-transparent justify-between overflow-hidden font-normal text-left w-full gap-1',
-          (!props.variant || props.variant === 'outline-solid') && 'shadow-xs',
+          'flex truncate h-8 rounded pl-3 transition-[color,box-shadow] focus-visible:shadow-focus outline-hidden focus-visible:outline-hidden focus-visible:outline-offset-0 focus-visible:outline-transparent justify-start overflow-hidden font-normal text-left w-full gap-1',
+          (!props.variant || props.variant === 'outline') && 'shadow-xs',
           props.size === 'lg' && 'gap-2',
           className,
         )}
@@ -47,7 +47,7 @@ export const ComboboxTrigger = React.forwardRef<
     <ComboboxTriggerBase {...props} ref={ref}>
       {children}
       {!hideChevron && (
-        <IconChevronDown className="size-4 opacity-50 text-muted-foreground" />
+        <IconChevronDown className="size-4 opacity-50 text-muted-foreground  ml-auto" />
       )}
     </ComboboxTriggerBase>
   );

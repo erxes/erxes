@@ -350,4 +350,6 @@ export const userMutations: Record<string, Resolver> = {
   },
 };
 
-userMutations.usersCreateOwner.skipPermission = true;
+userMutations.usersCreateOwner.wrapperConfig = {
+  skipPermission: true,
+};

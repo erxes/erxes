@@ -33,7 +33,7 @@ export default function ChooseCategoryPage() {
               <Button
                 onClick={() => handleCategorySelect('ecommerce')}
                 variant={
-                  selectedCategory === 'ecommerce' ? 'default' : 'outline-solid'
+                  selectedCategory === 'ecommerce' ? 'default' : 'outline'
                 }
                 size="sm"
                 className={
@@ -61,7 +61,7 @@ export default function ChooseCategoryPage() {
               <Button
                 onClick={() => handleCategorySelect('restaurant')}
                 variant={
-                  selectedCategory === 'restaurant' ? 'default' : 'outline-solid'
+                  selectedCategory === 'restaurant' ? 'default' : 'outline'
                 }
                 size="sm"
                 className={
@@ -88,7 +88,7 @@ export default function ChooseCategoryPage() {
               <h3 className="text-lg font-medium">Kiosk</h3>
               <Button
                 onClick={() => handleCategorySelect('kiosk')}
-                variant={selectedCategory === 'kiosk' ? 'default' : 'outline-solid'}
+                variant={selectedCategory === 'kiosk' ? 'default' : 'outline'}
                 size="sm"
                 className={
                   selectedCategory === 'kiosk'

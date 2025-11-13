@@ -86,6 +86,7 @@ export const queries = `
     getProjectProgressByTeam(_id: String!): JSON
     getProjectProgressChart(_id: String!): JSON
     getConvertedProject(convertedFromId: String): Project
+    cpGetProjects: [Project]
 `;
 
 export const mutations = `

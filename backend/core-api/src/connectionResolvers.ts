@@ -175,7 +175,16 @@ import {
   IFieldDocument,
   IFieldGroupDocument,
 } from './modules/properties/@types';
-
+import {
+  ICPUserModel,
+  loadCPUserClass,
+} from './modules/clientportal/db/models/CPUser';
+import {
+  IClientPortalModel,
+  loadClientPortalClass,
+} from './modules/clientportal/db/models/ClientPortal';
+import { ICPUserDocument } from './modules/clientportal/types/cpUser';
+import { IClientPortalDocument } from './modules/clientportal/types/clientPortal';
 export interface IModels {
   Brands: IBrandModel;
   Customers: ICustomerModel;
@@ -213,6 +222,9 @@ export interface IModels {
   AutomationEmailTemplates: IAutomationEmailTemplateModel;
   Logs: ILogModel;
   Notifications: Model<INotificationDocument>;
+  EmailDeliveries: Model<IEmailDeliveryDocument>;
+  ClientPortal: IClientPortalModel;
+  CPUser: ICPUserModel;
   AiAgents: Model<AiAgentDocument>;
   AiEmbeddings: Model<IAiEmbeddingDocument>;
   EmailDeliveries: IEmailDeliveryModel;
@@ -408,6 +420,16 @@ export const loadClasses = (
   models.Logs = logDb.model<ILogDocument, ILogModel>(
     'logs',
     loadLogsClass(models),
+  );
+
+  models.ClientPortal = db.model<IClientPortalDocument, IClientPortalModel>(
+    'client_portals',
+    loadClientPortalClass(models),
+  );
+
+  models.CPUser = db.model<ICPUserDocument, ICPUserModel>(
+    'client_portal_users',
+    loadCPUserClass(models),
   );
 
   return models;

@@ -5,6 +5,7 @@ import {
 } from '@/types/paths/SettingsPath';
 import {
   IconAdjustmentsAlt,
+  IconBuilding,
   IconChessKnight,
   IconFile,
   IconMail,
@@ -152,11 +153,19 @@ export const SETTINGS_PATH_DATA: { [key: string]: TSettingPath[] } = {
       path: SettingsWorkspacePath.Brands,
     },
   ],
+  developer: [
+    {
+      name: 'Client portal',
+      icon: IconBuilding,
+      path: SettingsWorkspacePath.ClientPortals,
+    },
+  ],
 };
 
 export const GET_SETTINGS_PATH_DATA = (version?: boolean) => {
   const account = [...SETTINGS_PATH_DATA.account];
   const nav = [...SETTINGS_PATH_DATA.nav];
+  const developer = [...SETTINGS_PATH_DATA.developer];
 
   if (version) {
     account.push({
@@ -181,5 +190,6 @@ export const GET_SETTINGS_PATH_DATA = (version?: boolean) => {
   return {
     account,
     nav,
+    developer,
   };
 };
