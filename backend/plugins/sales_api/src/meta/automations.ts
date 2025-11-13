@@ -6,8 +6,6 @@ import {
 import { generateModels } from '~/connectionResolvers';
 import { salesAutomationHandlers } from '~/modules/sales/meta/automations/automationHandlers';
 import { salesAutomationContants } from '~/modules/sales/meta/automations/constants';
-import { checkTriggerDealStageProbality } from '~/modules/sales/meta/automations/trigger/checkStageProbalityTrigger';
-
 const modules = {
   sales: salesAutomationHandlers,
 };

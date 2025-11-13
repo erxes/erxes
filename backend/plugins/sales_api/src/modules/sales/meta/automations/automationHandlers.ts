@@ -23,7 +23,6 @@ export const salesAutomationHandlers = {
     }: TAutomationProducersInput[TAutomationProducers.CHECK_CUSTOM_TRIGGER],
     { models }: TCoreModuleProducerContext<IModels>,
   ) => {
-    console.log({ collectionType, relationType });
     if (collectionType === 'deal' && relationType === 'probability') {
       return await checkTriggerDealStageProbality({
         models,
