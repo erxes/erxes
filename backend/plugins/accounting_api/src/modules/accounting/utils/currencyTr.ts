@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { fixNum, getFullDate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { getConfig } from '~/init-trpc';
@@ -148,15 +148,6 @@ export default class CurrencyTr {
       parentId: transaction.parentId,
       ptrId: transaction.ptrId,
     }, oldCurrencyTr);
-
-    // await this.models.Transactions.updateOne(
-    //   { _id: transaction._id },
-    //   {
-    //     $set: {
-    //       'details.0.amount': amount,
-    //     },
-    //   },
-    // );
 
     return currencyTr;
   };

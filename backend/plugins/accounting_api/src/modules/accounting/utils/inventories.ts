@@ -246,6 +246,7 @@ const fixOutTrs = async (models: IModels, {
   }[]
 }) => {
   for (const outTrs of outAggrs) {
+    const trIds: string[] = [];
     const { _id, records } = outTrs;
     const { accountId, branchId, departmentId, productId } = _id;
 
@@ -299,11 +300,14 @@ const fixOutTrs = async (models: IModels, {
         { arrayFilters: [{ 'd._id': { $eq: details._id } }] }
       );
 
+      trIds.push(rec._id)
+
       await fixRelatedMainJournal(models, { ptrId: rec.ptrId, excludeTrId: rec._id, oldAmount: amount, newAmount: newCost });
     }
 
     // cache out adjustDetail
-    await models.AdjustInvDetails.updateAdjustInvDetail({ adjustId, productId, accountId, branchId, departmentId, remainder, cost, unitCost })
+    await models.AdjustInvDetails.updateAdjustInvDetail({ adjustId, productId, accountId, branchId, departmentId, remainder, cost, unitCost });
+    await afterCalc(models, trIds);
   }
 }
 
@@ -418,12 +422,12 @@ const fixMoveTrs = async (models: IModels, {
         amount: moveInCost,
         multiplier: 1
       });
-      trIds.push(rec._id)
-      trIds.push(rec._id)
+      trIds.push(rec._id, moveInRec._id)
     }
 
     // cache move out adjustDetail
     await models.AdjustInvDetails.updateAdjustInvDetail({ adjustId, productId, accountId, branchId, departmentId, remainder, cost, unitCost })
+    await afterCalc(models, trIds);
   }
   return {}
 }
@@ -518,8 +522,7 @@ const fixSaleOutTrs = async (models: IModels, {
         },
         { arrayFilters: [{ 'd._id': { $eq: saleFollowCostRec.details._id } }] }
       );
-      trIds.push(rec._id);
-      trIds.push(saleFollowCostRec._id);
+      trIds.push(rec._id, saleFollowCostRec._id);
     }
 
     // cache move out adjustDetail

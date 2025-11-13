@@ -1,4 +1,3 @@
-import { getFullDate } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { JOURNALS, TR_FOLLOW_TYPES, TR_SIDES } from '../@types/constants';
