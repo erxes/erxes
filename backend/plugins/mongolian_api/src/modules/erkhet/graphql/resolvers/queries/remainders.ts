@@ -1,5 +1,5 @@
 import { getConfig, getRemConfig } from '@/erkhet/utils';
-import { getPureDate, sendTRPCMessage } from 'erxes-api-shared/src/utils';
+import { getPureDate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import fetch from 'node-fetch';
 import { IContext } from '~/connectionResolvers';
 

@@ -6,7 +6,6 @@ import { fieldsCombinedByContentType } from '~/modules/forms/utils';
 import {
   generateContactsFields,
   generateFieldsUsers,
-  generateFormFields,
   generateProductsFields,
 } from '../fields/utils';
 
@@ -38,12 +37,14 @@ export const fieldsTrpcRouter = t.router({
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
         const { selector, modifier } = input;
+        return await models.Customers.updateMany(selector, modifier);
       }),
 
     getFieldList: t.procedure
       .input(
         z.object({
           moduleType: z.string(),
+          collectionType: z.string().optional(),
           segmentId: z.string().optional(),
           usageType: z.string().optional(),
           config: z.record(z.any()).optional(),
@@ -52,21 +53,12 @@ export const fieldsTrpcRouter = t.router({
       .query(async ({ ctx, input }) => {
         const { subdomain } = ctx;
         const { moduleType } = input;
-
         switch (moduleType) {
-          case 'lead':
-            return generateContactsFields({ subdomain, data: input });
-          case 'customer':
-            return generateContactsFields({ subdomain, data: input });
-
-          case 'company':
+          case 'contact':
             return generateContactsFields({ subdomain, data: input });
 
           case 'product':
             return generateProductsFields({ subdomain, data: input });
-
-          case 'form_submission':
-            return generateFormFields({ subdomain, data: input });
 
           default:
             return generateFieldsUsers({ subdomain, data: input });

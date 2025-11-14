@@ -6,6 +6,7 @@ export enum TrJournalEnum {
   BANK = 'bank',
   RECEIVABLE = 'receivable',
   PAYABLE = 'payable',
+  EXCHANGE_DIFF = 'exchangeDiff',
   INVENTORY = 'inventory',
   FIXED_ASSET = 'fixedAsset',
   TAX = 'tax',

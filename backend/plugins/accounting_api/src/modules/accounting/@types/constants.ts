@@ -6,13 +6,20 @@ export const ACCOUNT_KINDS = {
 
 export const ACCOUNT_JOURNALS = {
   MAIN: 'main',
+  TAX: 'tax',
   CASH: 'cash',
   BANK: 'bank',
   DEBT: 'debt',
+  EXCHANGE_DIFF: 'exchangeDiff',
   INVENTORY: 'inventory',
+  INV_FOLLOW: 'invFollow',
   FIXED_ASSET: 'fixedAsset',
-  TAX: 'tax',
-  ALL: ['main', 'cash', 'bank', 'debt', 'inventory', 'fixedAsset', 'tax'],
+  ALL: [
+    'main', 'tax',
+    'cash', 'bank', 'debt', 'exchangeDiff',
+    'inventory', 'invFollow',
+    'fixedAsset',
+  ],
 };
 
 export const ACCOUNT_STATUSES = {
@@ -63,6 +70,7 @@ export const PTR_STATUSES = {
 
 export const JOURNALS = {
   MAIN: 'main',
+  EXCHANGE_DIFF: 'exchangeDiff',
   MAIN_FB: 'main_fb',
   CASH: 'cash',
   BANK: 'bank',
@@ -89,7 +97,7 @@ export const JOURNALS = {
     'invSale', 'invSaleOut', 'invSaleCost',
     'inv_cost', 'inv_adjust', 'inv_convert',
     'inv_in_return', 'inv_sale_return',
-    'expense', 'tax'
+    'expense', 'tax', 'exchangeDiff'
   ],
   ALL_REAL_INV: [ // yag urtug uldegdeld nuluuluh journal ni
     'inv_fb',
@@ -108,12 +116,12 @@ export const JOURNALS = {
 export const TR_FOLLOW_TYPES = {
   VAT: 'vat',
   CTAX: 'ctax',
-  CURRENCY_DIFF: 'currencyDiff',
+  EXCHANGE_DIFF: 'exchangeDiff',
   INV_INCOME_EXPENSE: 'invIncomeExpense',
   INV_SALE_OUT: 'invSaleOut',
   INV_SALE_COST: 'invSaleCost',
   INV_MOVE_IN: 'invMoveIn',
-  ALL: ['vat', 'ctax', 'currencyDiff', 'invIncomeExpense', 'invSaleOut', 'invSaleCost', 'invMoveIn']
+  ALL: ['vat', 'ctax', 'exchangeDiff', 'invIncomeExpense', 'invSaleOut', 'invSaleCost', 'invMoveIn']
 }
 
 export const TR_DETAIL_FOLLOW_TYPES = {

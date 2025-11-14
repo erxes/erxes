@@ -5,7 +5,7 @@ import {
   getPosPostData,
   sendCardInfo,
 } from '@/erkhet/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/src/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateModels, IContext } from '~/connectionResolvers';
 
 const checkSyncedMutations = {

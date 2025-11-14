@@ -11,6 +11,7 @@ export const TAGS_QUERY = gql`
     $ids: [String]
     $excludeIds: Boolean
     $isGroup: Boolean
+    $includeWorkspaceTags: Boolean
   ) {
     tags(
       type: $type
@@ -22,6 +23,7 @@ export const TAGS_QUERY = gql`
       limit: $limit
       direction: $direction
       isGroup: $isGroup
+      includeWorkspaceTags: $includeWorkspaceTags
     ) {
       list {
         _id
