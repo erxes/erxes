@@ -1,5 +1,5 @@
 import { IUserDocument } from "erxes-api-shared/core-types";
-import { fixNum, getPureDate, getTomorrow, graphqlPubsub } from "erxes-api-shared/utils";
+import { fixNum, getPureDate, getTomorrow, graphqlPubsub, sendTRPCMessage } from "erxes-api-shared/utils";
 import { IModels } from "~/connectionResolvers";
 import { ADJ_INV_STATUSES, IAdjustInvDetailParams, IAdjustInventory, IAdjustInventoryDocument, ICommonAdjInvDetailInfo } from "../@types/adjustInventory";
 import { JOURNALS, TR_FOLLOW_TYPES, TR_STATUSES } from "../@types/constants";
@@ -236,7 +236,65 @@ const afterCalc = async (models: IModels, trIds: string[]) => {
   );
 }
 
-const fixOutTrs = async (models: IModels, {
+const getErrorDesc = async (subdomain: string, models: IModels, errFormat: string, args: any) => {
+  let result = errFormat;
+  console.log(result)
+  // { productId, accountId, branchId, departmentId, }: { productId: string, accountId: string, branchId: string, departmentId: string, }
+  // `Not enough stock for ${productId} in ${accountId} ${branchId} ${departmentId}`
+  if (errFormat.includes('{productId}') && args.productId) {
+    const product = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'findOne',
+      defaultValue: {},
+      input: { query: { _id: args.productId } }
+    });
+    if (product?._id) {
+      result = result.replace(/{productId}/g, `${product.code} - ${product.name}`)
+    }
+  }
+
+  if (errFormat.includes('{accountId}') && args.accountId) {
+    const account = await models.Accounts.findOne({ _id: args.accountId });
+
+    if (account?._id) {
+      result = result.replace(/{accountId}/g, `${account.code} - ${account.name}`)
+    }
+  }
+
+  if (errFormat.includes('{branchId}') && args.branchId) {
+    const branch = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'branches',
+      action: 'findOne',
+      defaultValue: {},
+      input: { query: { _id: args.branchId } }
+    });
+    if (branch?._id) {
+      result = result.replace(/{branchId}/g, `${branch.code} - ${branch.title}`)
+    }
+  }
+
+  if (errFormat.includes('{departmentId}') && args.departmentId) {
+    const department = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'departments',
+      action: 'findOne',
+      defaultValue: {},
+      input: { query: { _id: args.departmentId } }
+    });
+    if (department?._id) {
+      result = result.replace(/{departmentId}/g, `${department.code} - ${department.title}`)
+    }
+  }
+  console.log(result)
+  return result;
+}
+
+const fixOutTrs = async (subdomain: string, models: IModels, {
   adjustId, outAggrs
 }: {
   adjustId: string,
@@ -268,7 +326,10 @@ const fixOutTrs = async (models: IModels, {
     const unitCost = fixNum(cost / (remainder ?? 1));
 
     if (remainder < sumCount) {
-      const error = `Not enough stock for ${productId} in ${accountId} ${branchId} ${departmentId}`;
+      const error = await getErrorDesc(subdomain, models,
+        `Not enough stock for {productId} in {accountId} {branchId} {departmentId} (out)`,
+        { productId, accountId, branchId, departmentId }
+      );
       await models.AdjustInvDetails.updateOne({ _id: adjustDetail._id }, { $set: { error } });
       throw new Error(error);
     }
@@ -311,7 +372,7 @@ const fixOutTrs = async (models: IModels, {
   }
 }
 
-const fixMoveTrs = async (models: IModels, {
+const fixMoveTrs = async (subdomain: string, models: IModels, {
   adjustId, moveAggrs
 }: {
   adjustId: string,
@@ -344,7 +405,10 @@ const fixMoveTrs = async (models: IModels, {
     const unitCost = fixNum(cost / (remainder ?? 1));
 
     if (remainder < sumCount) {
-      const error = `Not enough stock for ${productId} in ${accountId} ${branchId} ${departmentId}`;
+      const error = await getErrorDesc(subdomain, models,
+        'Not enough stock for {productId} in {accountId} {branchId} {departmentId}, (move)',
+        { productId, accountId, branchId, departmentId }
+      );
       await models.AdjustInvDetails.updateOne({ _id: adjustDetail._id }, { $set: { error } });
       throw new Error(error);
     }
@@ -432,7 +496,7 @@ const fixMoveTrs = async (models: IModels, {
   return {}
 }
 
-const fixSaleOutTrs = async (models: IModels, {
+const fixSaleOutTrs = async (subdomain: string, models: IModels, {
   adjustId, saleOutAggrs
 }: {
   adjustId: string,
@@ -465,7 +529,10 @@ const fixSaleOutTrs = async (models: IModels, {
     const unitCost = fixNum(cost / (remainder ?? 1));
 
     if (remainder < sumCount) {
-      const error = `Not enough stock for ${productId} in ${accountId} ${branchId} ${departmentId}`;
+      const error = await getErrorDesc(subdomain, models,
+        'Not enough stock for {productId} in {accountId} {branchId} {departmentId} (sale)',
+        { productId, accountId, branchId, departmentId }
+      );
       await models.AdjustInvDetails.updateOne({ _id: adjustDetail._id }, { $set: { error } });
       throw new Error(error);
     }
@@ -532,7 +599,7 @@ const fixSaleOutTrs = async (models: IModels, {
   return {}
 }
 
-const fixInvTrs = async (models: IModels, {
+const fixInvTrs = async (subdomain: string, models: IModels, {
   adjustId, beginDate, endDate, trFilter
 }: {
   adjustId: string,
@@ -567,22 +634,22 @@ const fixInvTrs = async (models: IModels, {
     { $match: { ...commonMatch, journal: JOURNALS.INV_MOVE } },
     ...commonAggregates
   ]);
-  await fixMoveTrs(models, { adjustId, moveAggrs: moveOutAggrs });
+  await fixMoveTrs(subdomain, models, { adjustId, moveAggrs: moveOutAggrs });
 
   const outAggrs = await models.Transactions.aggregate([
     { $match: { ...commonMatch, journal: JOURNALS.INV_OUT } },
     ...commonAggregates
   ]);
-  await fixOutTrs(models, { adjustId, outAggrs });
+  await fixOutTrs(subdomain, models, { adjustId, outAggrs });
 
   const saleOutAggrs = await models.Transactions.aggregate([
     { $match: { ...commonMatch, journal: JOURNALS.INV_SALE_OUT } },
     ...commonAggregates
   ]);
-  await fixSaleOutTrs(models, { adjustId, saleOutAggrs });
+  await fixSaleOutTrs(subdomain, models, { adjustId, saleOutAggrs });
 }
 
-export const adjustRunning = async (models: IModels, user: IUserDocument, { adjustInventory, beginDate, beforeAdjInv }: { adjustInventory: IAdjustInventoryDocument, beginDate: Date, beforeAdjInv?: IAdjustInventoryDocument | null }) => {
+export const adjustRunning = async (subdomain: string, models: IModels, user: IUserDocument, { adjustInventory, beginDate, beforeAdjInv }: { adjustInventory: IAdjustInventoryDocument, beginDate: Date, beforeAdjInv?: IAdjustInventoryDocument | null }) => {
   try {
     let currentDate = await recheckValidDate(models, adjustInventory, beginDate);
     const date = adjustInventory.date;
@@ -603,7 +670,7 @@ export const adjustRunning = async (models: IModels, user: IUserDocument, { adju
       const nextDate = getTomorrow(currentDate);
 
       try {
-        await fixInvTrs(models, { adjustId, beginDate: currentDate, endDate: nextDate, trFilter });
+        await fixInvTrs(subdomain, models, { adjustId, beginDate: currentDate, endDate: nextDate, trFilter });
 
         let bulkOps: Array<{
           updateOne: {
