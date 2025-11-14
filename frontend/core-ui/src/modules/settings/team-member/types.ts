@@ -51,7 +51,6 @@ export interface IUserDetail extends IUser {
 
 export interface IUserEntry {
   email: string;
-  password?: string;
 }
 
 export type TUserInviteVars = {

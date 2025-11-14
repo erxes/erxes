@@ -30,7 +30,7 @@ import { useAtomValue } from 'jotai';
 import { MainOnboardingPage } from '~/pages/onboarding/MainOnboardingPage';
 
 const UserConfirmInvitationPage = lazy(
-  ( () => import('~/pages/auth/UserConfirmInvitationPage')),
+  () => import('~/pages/auth/UserConfirmInvitationPage'),
 );
 const LoginPage = lazy(() => import('~/pages/auth/LoginPage'));
 const ResetPasswordPage = lazy(() => import('~/pages/auth/ResetPasswordPage'));
@@ -62,7 +62,10 @@ export const useCreateAppRouter = () => {
             element={<ForgotPasswordPage />}
           />
           <Route path={AppPath.ResetPassword} element={<ResetPasswordPage />} />
-          <Route path={AppPath.ConfirmInvitation} element={<UserConfirmInvitationPage />} />
+          <Route
+            path={AppPath.ConfirmInvitation}
+            element={<UserConfirmInvitationPage />}
+          />
           <Route element={<UserProvider />}>
             <Route
               element={

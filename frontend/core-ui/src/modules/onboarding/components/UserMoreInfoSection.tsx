@@ -4,6 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, Input, Upload } from 'erxes-ui';
 import { motion } from 'framer-motion';
 import { useVersion } from 'ui-modules';
+import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
+import { currentUserState } from 'ui-modules';
+import { useAtomValue } from 'jotai';
 
 const baseSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -24,8 +27,9 @@ export const UserMoreInfoForm = ({
 }: {
   onContinue: () => void;
 }) => {
+  const currentUser = useAtomValue(currentUserState);
   const isSaas = !useVersion();
-
+  const { usersEdit } = useUserEdit();
   const form = useForm<UserMoreInfoFormData>({
     resolver: zodResolver(isSaas ? saasSchema : baseSchema),
     defaultValues: {
@@ -37,10 +41,18 @@ export const UserMoreInfoForm = ({
   });
 
   const onSubmit = (data: UserMoreInfoFormData) => {
-    if (isSaas && 'username' in data) {
-      console.log('SAAS user:', data.username);
-    }
-    console.log(data);
+    usersEdit({
+      variables: {
+        _id: currentUser?._id,
+        details: {
+          ...(isSaas && 'username' in data && { username: data.username }),
+          firstName: data.firstName,
+          lastName: data.lastName,
+          fullName: `${data.firstName} ${data.lastName}`,
+          avatar: data.avatar,
+        },
+      },
+    });
     onContinue();
   };
 

@@ -1,75 +1,11 @@
-import {
-  IconKeyboardFilled,
-  IconPaintFilled,
-  IconSunFilled,
-} from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { motion } from 'framer-motion';
-
-const items = [
-  {
-    icon: <IconPaintFilled />,
-    title: 'Revamped UI',
-    description:
-      'Built with ShadCN and Radix UI for a more accessible interface.',
-  },
-  {
-    icon: <IconKeyboardFilled />,
-    title: 'Keyboard Shortcuts',
-    description: 'Navigate quickly using built-in shortcuts.',
-  },
-  {
-    icon: <IconSunFilled />,
-    title: 'Dark & Light Mode',
-    description:
-      'Switch between dark and light modes to suit your preferences.',
-  },
-];
-
-const InfoList = () => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.4 }}
-      className="p-2 rounded-3xl border bg-muted max-md:mx-8"
-    >
-      <div className="sm:grid flex flex-col sm:grid-cols-2 lg:grid-cols-3 gap-2 max-lg:[&>*:last-child]:col-span-2 ">
-        {items.map((item, index) => (
-          <InfoCard key={index} item={item} index={index} />
-        ))}
-      </div>
-    </motion.div>
-  );
-};
-
-interface IInfoCard {
-  item: {
-    icon: React.ReactNode;
-    title: string;
-    description: string;
-  };
-  index: number;
-}
-const InfoCard = ({ item }: IInfoCard) => {
-  return (
-    <div className="border rounded-2xl p-4 flex flex-col gap-3 bg-background min-h-32 w-full">
-      <div className="flex flex-col gap-3 flex-1">
-        <div className="p-[10px] rounded-md text-primary bg-primary/10 w-min">
-          {item.icon}
-        </div>
-        <h3 className="font-semibold text-primary text-lg wrap-break-word">
-          {item.title}
-        </h3>
-        <p className="text-base text-muted-foreground wrap-break-word flex-1">
-          {item.description}
-        </p>
-      </div>
-    </div>
-  );
-};
+import { IconCircleCheck } from '@tabler/icons-react';
+import { useScopedHotkeys } from 'erxes-ui';
 
 export const FinalSection = ({ onContinue }: { onContinue: () => void }) => {
+  useScopedHotkeys(`enter`, () => onContinue(), 'welcome');
+  useScopedHotkeys(`space`, () => onContinue(), 'welcome');
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
@@ -78,72 +14,58 @@ export const FinalSection = ({ onContinue }: { onContinue: () => void }) => {
         duration: 0.6,
         ease: [0.25, 0.46, 0.45, 0.94],
       }}
-      className="max-w-3xl w-full items-center mx-auto flex flex-col gap-6 justify-center"
+      className="flex flex-col gap-10 sm:-translate-y-10 md:-translate-y-10 px-4"
     >
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="flex flex-col gap-2 items-center"
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{
+          duration: 0.8,
+          delay: 0.2,
+          ease: [0.34, 1.56, 0.64, 1],
+          type: 'spring',
+          stiffness: 100,
+          damping: 15,
+        }}
+        className="flex items-center justify-center"
       >
-        <h1 className=" font-semibold text-foreground text-2xl">
-          A Fresh Start with a New User Experience
-        </h1>
-        <p className="text-md text-muted-foreground leading-relaxed text-center font-medium">
-          erxes 3.0 is completely redesigned for a faster, more modern, and
-          intuitive experience. This is just the start—expect more features and
-          plugins soon.
-        </p>
+        <div className="flex items-center justify-center w-20 h-20 rounded-2xl bg-muted">
+          <IconCircleCheck className="text-primary size-12" stroke={2} />
+        </div>
       </motion.div>
-      <InfoList />
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.9 }}
-        className="flex gap-5 items-center text-center"
+        transition={{ duration: 0.5, delay: 0.4 }}
+        className="flex flex-col gap-2 items-center"
       >
-        <div className="space-y-1">
-          <p className="font-semibold text-foreground text-lg">
-            What to expect
-          </p>
-          <p className="text-md text-muted-foreground leading-relaxed font-medium">
-            At launch, only a few plugins will have the new UI. More updates are
-            coming daily.
-          </p>
-        </div>
-        <div className="space-y-1">
-          <p className="font-semibold text-foreground text-lg">
-            Your feedback shapes erxes
-          </p>
-          <p className="text-md text-muted-foreground leading-relaxed font-medium">
-            Your input is essential! Share your feedback to help us improve.
-          </p>
-        </div>
+        <h2 className="text-xl md:text-2xl font-semibold text-foreground text-center">
+          You're all set!
+        </h2>
+        <p className="text-xs md:text-sm text-muted-foreground text-center px-4 max-w-md">
+          Your workspace is ready. Start exploring and make the most of your
+          experience operating system.
+        </p>
       </motion.div>
+
       <motion.div
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.6, delay: 1.2, ease: 'easeOut' }}
+        transition={{ duration: 0.6, delay: 0.6, ease: 'easeOut' }}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
-        className="space-y-3 w-full"
+        className="w-full px-6 sm:px-12 lg:px-20"
+        tabIndex={-1}
       >
         <Button
-          size="lg"
           className="w-full cursor-pointer"
+          size="lg"
+          variant={'secondary'}
           onClick={onContinue}
         >
           Start exploring
         </Button>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 1.4 }}
-          className="text-center text-base text-muted-foreground"
-        >
-          We've worked hard to bring you this update. Now it's your turn to
-          explore!
-        </motion.p>
       </motion.div>
     </motion.div>
   );

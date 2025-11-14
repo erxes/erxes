@@ -41,7 +41,7 @@ const USERS_CONFIRM_INVITATION = gql`
 `;
 
 const USERS_INLINE_EDIT = gql`
-  mutation usersEdit(
+   mutation usersEdit(
     $_id: String!
     $username: String
     $email: String
@@ -51,6 +51,7 @@ const USERS_INLINE_EDIT = gql`
     $links: JSON
     $branchIds: [String]
     $departmentIds: [String]
+    $password: String
   ) {
     usersEdit(
       _id: $_id
@@ -62,6 +63,7 @@ const USERS_INLINE_EDIT = gql`
       links: $links
       branchIds: $branchIds
       departmentIds: $departmentIds
+      password: $password
     ) {
       _id
       username

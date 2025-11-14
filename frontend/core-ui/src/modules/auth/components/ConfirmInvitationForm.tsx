@@ -1,6 +1,6 @@
 import { ErxesLogoIcon } from 'erxes-ui';
-import { currentOrganizationState } from 'ui-modules';
-import { useAtomValue } from 'jotai';
+import { currentOrganizationState, isCurrentUserLoadedState } from 'ui-modules';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { Button } from 'erxes-ui';
 import { useUserConfirmInvitation } from '@/auth/hooks/useUserConfirmInvitation';
 import { useQueryState } from 'erxes-ui';
@@ -8,10 +8,12 @@ import { useToast } from 'erxes-ui';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { AppPath } from '@/types/paths/AppPath';
 export const ConfirmInvitationForm = () => {
   const navigate = useNavigate();
   const [token] = useQueryState<string>('token');
   const currentOrganization = useAtomValue(currentOrganizationState);
+  const setCurrentUserLoaded = useSetAtom(isCurrentUserLoadedState);
   const { confirmInvitation, loading } = useUserConfirmInvitation();
   const { toast } = useToast();
 
@@ -30,7 +32,8 @@ export const ConfirmInvitationForm = () => {
         });
       },
       onCompleted: () => {
-        navigate('/');
+        setCurrentUserLoaded(false);
+        navigate(AppPath.Index);
       },
     });
   };

@@ -2,19 +2,34 @@ import { WelcomeSection } from './components/WelcomeSection';
 import { UserCredentialSection } from './components/UserCredentialSection';
 import { ThemeSection } from './components/ThemeSection';
 import { FinalSection } from './components/FinalSection';
-import { useState } from 'react';
-import { cn } from 'erxes-ui';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserMoreInfoForm } from './components/UserMoreInfoSection';
 import { useVersion } from 'ui-modules';
+import { InviteTeamMemberSection } from './components/InviteTeamMemberSection';
+import { useAtomValue } from 'jotai';
+import { currentUserState } from 'ui-modules';
+import { usePreviousHotkeyScope } from 'erxes-ui';
+import { OnboardingStepper } from './components/OnboardingStepper';
 
 export const MainOnboarding = () => {
   const isSaas = !useVersion();
-  const stepCount = isSaas ? 4 : 5;
+  let stepCount = isSaas ? 4 : 5;
 
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-
+  const currentUser = useAtomValue(currentUserState);
+  const isOwner = currentUser?.isOwner;
+  stepCount = stepCount + (isOwner ? 1 : 0);
+  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
+  useEffect(() => {
+    setHotkeyScopeAndMemorizePreviousScope('welcome');
+  }, [setHotkeyScopeAndMemorizePreviousScope]);
+  useEffect(() => {
+    if (currentUser?.username) {
+      navigate('/');
+    }
+  }, [currentUser?.username, navigate]);
   return (
     <>
       {currentStep === 1 && (
@@ -33,19 +48,23 @@ export const MainOnboarding = () => {
         <UserMoreInfoForm onContinue={() => setCurrentStep(currentStep + 1)} />
       )}
 
-      {currentStep === (isSaas ? 4 : 5) && (
+      {isOwner && currentStep === (isSaas ? 4 : 5) && (
+        <>
+          <InviteTeamMemberSection
+            onContinue={() => setCurrentStep(currentStep + 1)}
+          />
+        </>
+      )}
+      {currentStep === (isSaas ? 5 : 6) && (
         <FinalSection onContinue={() => navigate('/')} />
       )}
 
       <div className="flex items-center justify-center gap-2 absolute bottom-6">
-        {Array.from({ length: stepCount }).map((_, index) => (
-          <span
-            key={index}
-            className={cn('transition-all size-2 rounded-full bg-muted ', {
-              'bg-primary': index === currentStep - 1,
-            })}
-          />
-        ))}
+        <OnboardingStepper
+          stepCount={stepCount}
+          currentStep={currentStep}
+          setCurrentStep={setCurrentStep}
+        />
       </div>
     </>
   );

@@ -1,11 +1,11 @@
 import { Button, ErxesLogoIcon } from 'erxes-ui';
 import { motion } from 'framer-motion';
+import { useScopedHotkeys } from 'erxes-ui';
 
-export const WelcomeSection = ({
-  onContinue,
-}: {
-  onContinue: () => void;
-}) => {
+export const WelcomeSection = ({ onContinue }: { onContinue: () => void }) => {
+  useScopedHotkeys(`enter`, () => onContinue(), 'welcome');
+  useScopedHotkeys(`space`, () => onContinue(), 'welcome');
+
   return (
     <div className="flex flex-col items-center justify-center gap-10 max-w-sm mx-auto px-6 scale-110 -translate-y-10">
       <motion.div

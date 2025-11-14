@@ -4,15 +4,19 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { IconEye, IconEyeClosed } from '@tabler/icons-react';
 import { useState } from 'react';
-import { useUserConfirmInvitation } from '@/auth/hooks/useUserConfirmInvitation';
 import { motion } from 'framer-motion';
-import { currentUserState, IUser } from 'ui-modules';
+import { currentUserState } from 'ui-modules';
 import { useAtom } from 'jotai';
-import { currentOrganizationState } from 'ui-modules';
- 
+import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
+
 const userCredentialFormSchema = z
   .object({
-    password: z.string().min(8, 'Password must be at least 8 characters long'),
+    password: z
+      .string()
+      .min(8, 'At least 8 characters long')
+      .regex(/\d/, 'At least one number')
+      .regex(/[a-z]/, 'At least one lowercase letter')
+      .regex(/[A-Z]/, 'At least one uppercase letter'),
     passwordConfirmation: z.string(),
     username: z.string().min(1, 'Username is required'),
   })
@@ -28,8 +32,7 @@ export const UserCredentialSection = ({
 }: {
   onContinue: () => void;
 }) => {
-  const { confirmInvitation } = useUserConfirmInvitation();
-  const [currentUser, setCurrentUser] = useAtom(currentUserState);
+  const [currentUser] = useAtom(currentUserState);
   const form = useForm<UserCredentialFormType>({
     resolver: zodResolver(userCredentialFormSchema),
     defaultValues: {
@@ -41,6 +44,7 @@ export const UserCredentialSection = ({
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirmation, setShowPasswordConfirmation] =
     useState(false);
+  const { usersEdit } = useUserEdit();
   const submitHandler = (data: UserCredentialFormType) => {
     // confirmInvitation({
     //   variables: {
@@ -48,11 +52,16 @@ export const UserCredentialSection = ({
     //     username: data.username,
     //   },
     // });
-    setCurrentUser({
-      ...currentUser,
-      username: data.username,
-    } as IUser);
-    onContinue();
+    usersEdit({
+      variables: {
+        _id: currentUser?._id,
+        password: data.password,
+        username: data.username,
+      },
+      onCompleted: () => {
+        onContinue();
+      },
+    });
   };
   return (
     <motion.div
@@ -174,7 +183,7 @@ export const UserCredentialSection = ({
             />
 
             <Button type="submit" className="w-full cursor-pointer" size="lg">
-              Continue
+              Invite
             </Button>
           </form>
         </Form>
