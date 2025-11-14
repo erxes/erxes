@@ -24,6 +24,7 @@ export const currentUser = gql`
       getNotificationByEmail
       permissionActions
       configs
+      isOnboarded
       isShowNotification
     }
   }

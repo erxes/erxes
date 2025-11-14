@@ -109,7 +109,7 @@ export const types = `
     score: Float
     leaderBoardPosition: Int
     employeeId: String
-
+    isOnboarded: Boolean
     cursor: String
   }
 

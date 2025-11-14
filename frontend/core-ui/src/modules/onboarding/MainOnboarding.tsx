@@ -11,18 +11,14 @@ import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
 import { usePreviousHotkeyScope } from 'erxes-ui';
 import { OnboardingStepper } from '@/onboarding/components/OnboardingStepper';
-import { atom, useAtom } from 'jotai';
 import { AppPath } from '@/types/paths/AppPath';
 import { LoadingScreen } from '@/auth/components/LoadingScreen';
+import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
 
-const onboardingStartedAtom = atom(false);
 export const MainOnboarding = () => {
-  const [hasOnboardingStarted, setOnboardingStarted] = useAtom(
-    onboardingStartedAtom,
-  );
   const isSaas = !useVersion();
   let stepCount = isSaas ? 4 : 5;
-
+  const { usersEdit } = useUserEdit();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const currentUser = useAtomValue(currentUserState);
@@ -33,10 +29,10 @@ export const MainOnboarding = () => {
     setHotkeyScopeAndMemorizePreviousScope('welcome');
   }, [setHotkeyScopeAndMemorizePreviousScope]);
   useEffect(() => {
-    if (currentUser?.username && !hasOnboardingStarted) {
+    if (currentUser?.isOnboarded) {
       navigate(AppPath.Index, { replace: true });
     }
-  }, [currentUser?.username, hasOnboardingStarted, navigate]);
+  }, [currentUser, navigate]);
   if (!currentUser) {
     return <LoadingScreen />;
   }
@@ -46,7 +42,6 @@ export const MainOnboarding = () => {
         <WelcomeSection
           onContinue={() => {
             setCurrentStep(2);
-            setOnboardingStarted(true);
           }}
         />
       )}
@@ -75,7 +70,12 @@ export const MainOnboarding = () => {
       {currentStep === (isSaas ? 4 : 5) + (isOwner ? 1 : 0) && (
         <FinalSection
           onContinue={() => {
-            setOnboardingStarted(false);
+            usersEdit({
+              variables: {
+                _id: currentUser._id,
+                isOnboarded: true,
+              },
+            });
           }}
         />
       )}
