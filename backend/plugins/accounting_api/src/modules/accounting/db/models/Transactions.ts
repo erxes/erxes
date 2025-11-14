@@ -227,7 +227,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
         }
 
         for (const tr of deleteTrs) {
-          await models.Transactions.deleteMany({ $or: [{ _id: tr._id }, { _id: { $in: (tr.follows || []).map(tr => tr.id) } }] });
+          await models.Transactions.deleteMany({ $or: [{ _id: tr._id }, { originId: tr._id }] });
         }
 
         await setPtrStatus(models, transactions);
@@ -267,7 +267,6 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       await models.Transactions.deleteMany({
         $or: [
           { _id },
-          { _id: { $in: (transaction.follows || []).map(tr => tr.id) } },
           { originId: _id }
         ]
       });
