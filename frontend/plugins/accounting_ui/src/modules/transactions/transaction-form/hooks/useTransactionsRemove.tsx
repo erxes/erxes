@@ -16,7 +16,6 @@ export const useTransactionsRemove = (options?: OperationVariables) => {
     return _removeTransactions({
       ...options,
       onError: (error) => {
-        console.log(error, 'eeeeeeeeeeeeee', error.message)
         return toast({
           title: 'Error',
           description: error.message,
