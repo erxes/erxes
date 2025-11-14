@@ -70,7 +70,7 @@ type State = {
 };
 
 class AddForm extends React.Component<Props, State> {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     const initialStageId =
       props.stageId ||
@@ -82,10 +82,12 @@ class AddForm extends React.Component<Props, State> {
         localStorage.getItem(`${props.options.type}_isHideName`) || "false",
       ),
       disabled: false,
-      boardId:
+      boardId: JSON.parse(
         localStorage.getItem(`${props.options.type}_boardId`) ||
-        props.boardId ||
-        "",
+          props.boardId ||
+          "",
+      ),
+
       pipelineId:
         localStorage.getItem(`${props.options.type}_pipelineId`) ||
         props.pipelineId ||
@@ -93,28 +95,42 @@ class AddForm extends React.Component<Props, State> {
       stageId: initialStageId,
       cardId: props.cardId || "",
       description:
-        `${props.options.type}_description` || props.description || "",
+        localStorage.getItem(`${props.options.type}_description`) ||
+        props.description ||
+        "",
+
       cards: [],
       name:
         localStorage.getItem(`${props.options.type}_name`) ||
         props.mailSubject ||
         "",
-      customFieldsData: [],
-      fields: (() => {
-        try {
-          const stored = localStorage.getItem(`${props.options.type}_fields`);
-          if (stored) {
-            const parsed = JSON.parse(stored);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              return parsed;
-            }
+      customFieldsData: (() => {
+        const stored = localStorage.getItem(
+          `${props.options.type}_customFieldsData`,
+        );
+        if (stored) {
+          try {
+            return JSON.parse(stored);
+          } catch (e) {
+            console.warn("Failed to parse customFieldsData:", e);
           }
-        } catch (e) {
-          console.warn("Failed to parse stored fields:", e);
         }
+        return props.customFieldsData || [];
+      })(),
 
+      fields: (() => {
+        const stored = localStorage.getItem(`${props.options.type}_fields`);
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          } catch (e) {
+            console.warn("Failed to parse fields:", e);
+          }
+        }
         return props.fields || [];
       })(),
+
       tagIds: props.tagIds || "",
       startDate: props.startDate || null,
       closeDate: props.closeDate || null,
@@ -134,13 +150,16 @@ class AddForm extends React.Component<Props, State> {
     }
   }
 
-  onChangeField = (name: string, value: any) => {
+  onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
     if (name === "stageId") {
       const { fetchCards } = this.props;
       fetchCards(String(value), (cards: any) => {
         if (cards) {
           this.setState({
-            cards: (cards || []).map((c) => ({ value: c._id, label: c.name })),
+            cards: (cards || []).map((c: any) => ({
+              value: c._id,
+              label: c.name,
+            })),
           });
         }
       });
@@ -163,7 +182,7 @@ class AddForm extends React.Component<Props, State> {
     }
   };
 
-  save = (e) => {
+  save = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const {
@@ -214,10 +233,6 @@ class AddForm extends React.Component<Props, State> {
         return field;
       }
     });
-
-    customFieldsData = customFieldsData.filter((customField) =>
-      fields.find((field) => field._id === customField.field),
-    );
 
     for (const field of fields) {
       if (field.type === "isCheckUserTicket") {
@@ -308,7 +323,35 @@ class AddForm extends React.Component<Props, State> {
     saveItem(doc, (item: IItem) => {
       this.setState({ disabled: false });
 
-      localStorage.removeItem(`${this.props.options.type}_name`);
+      const type = this.props.options.type;
+      const keysToRemove = [
+        `${type}_name`,
+        `${type}_stageId`,
+        `${type}_boardId`,
+        `${type}_pipelineId`,
+        `${type}_isHideName`,
+        `${type}_fields`,
+        `${type}_priority`,
+        `${type}_labelIds`,
+        `${type}_startDate`,
+        `${type}_closeDate`,
+        `${type}_assignedUserIds`,
+        `${type}_attachments`,
+        `${type}_description`,
+        `${type}_tagIds`,
+        `${type}_relationData`,
+        `${type}_departmentIds`,
+        `${type}_branchIds`,
+        `${type}_isCheckUserTicket`,
+        `${type}_customFieldsData`,
+      ];
+
+      keysToRemove.forEach((key) => localStorage.removeItem(key));
+
+      // Clear additional state used by GenerateAddFormFields
+      localStorage.removeItem("AddFormState");
+      localStorage.removeItem("assignedUserIds");
+      localStorage.removeItem(`${type}_customFieldsData`);
 
       closeModal();
 
@@ -328,11 +371,14 @@ class AddForm extends React.Component<Props, State> {
 
     const { stageId, pipelineId, boardId } = this.state;
 
-    const stgIdOnChange = (stgId) => this.onChangeField("stageId", stgId);
+    console.log(stageId, pipelineId, boardId, "stageId, pipelineId, boardId");
 
-    const brIdOnChange = (brId) => this.onChangeField("boardId", brId);
+    const stgIdOnChange = (stgId: string) =>
+      this.onChangeField("stageId", stgId);
 
-    const plIdOnChange = (plId, _stages, isHideName) => {
+    const brIdOnChange = (brId: string) => this.onChangeField("boardId", brId);
+
+    const plIdOnChange = (plId: string, _stages: any, isHideName: any) => {
       this.onChangeField("pipelineId", plId);
       const hidden = !!isHideName;
       localStorage.setItem(
@@ -356,7 +402,7 @@ class AddForm extends React.Component<Props, State> {
     );
   }
 
-  onChangeCardSelect = (option) => {
+  onChangeCardSelect = (option: any) => {
     const { cardId, name } = option;
 
     if (cardId && cardId !== "copiedItem") {
@@ -368,17 +414,16 @@ class AddForm extends React.Component<Props, State> {
     this.onChangeField("cardId", "");
     this.onChangeField("name", name);
 
-    localStorage.setItem(`${this.props.options.type}Name`, name);
+    localStorage.setItem(`${this.props.options.type}_name`, name);
   };
 
-  onChangeName = (e) => {
+  onChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = (e.target as HTMLInputElement).value;
     this.onChangeField("name", name);
-
-    localStorage.setItem(`${this.props.options.type}Name`, name);
+    localStorage.setItem(`${this.props.options.type}_name`, name);
   };
 
-  onSelectStage = ({ value }) => {
+  onSelectStage = ({ value }: { value: string }) => {
     this.setState({ stageId: value });
   };
 
