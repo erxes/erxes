@@ -1,21 +1,25 @@
-import { LoadingScreen } from '@/auth/components/LoadingScreen';
-import { FinalSection } from '@/onboarding/components/FinalSection';
-import { InviteTeamMemberSection } from '@/onboarding/components/InviteTeamMemberSection';
-import { OnboardingStepper } from '@/onboarding/components/OnboardingStepper';
-import { ThemeSection } from '@/onboarding/components/ThemeSection';
-import { UserCredentialSection } from '@/onboarding/components/UserCredentialSection';
-import { UserMoreInfoForm } from '@/onboarding/components/UserMoreInfoSection';
 import { WelcomeSection } from '@/onboarding/components/WelcomeSection';
-import { AppPath } from '@/types/paths/AppPath';
-import { usePreviousHotkeyScope } from 'erxes-ui';
-import { atom, useAtom, useAtomValue } from 'jotai';
+import { UserCredentialSection } from '@/onboarding/components/UserCredentialSection';
+import { ThemeSection } from '@/onboarding/components/ThemeSection';
+import { FinalSection } from '@/onboarding/components/FinalSection';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { currentUserState, useVersion } from 'ui-modules';
+import { UserMoreInfoForm } from '@/onboarding/components/UserMoreInfoSection';
+import { useVersion } from 'ui-modules';
+import { InviteTeamMemberSection } from '@/onboarding/components/InviteTeamMemberSection';
+import { useAtomValue } from 'jotai';
+import { currentUserState } from 'ui-modules';
+import { usePreviousHotkeyScope } from 'erxes-ui';
+import { OnboardingStepper } from '@/onboarding/components/OnboardingStepper';
+import { atom, useAtom } from 'jotai';
+import { AppPath } from '@/types/paths/AppPath';
+import { LoadingScreen } from '@/auth/components/LoadingScreen';
 
-const onboardingEndedAtom = atom(false);
+const onboardingStartedAtom = atom(false);
 export const MainOnboarding = () => {
-  const [onboardingEnded, setOnboardingEnded] = useAtom(onboardingEndedAtom);
+  const [hasOnboardingStarted, setOnboardingStarted] = useAtom(
+    onboardingStartedAtom,
+  );
   const isSaas = !useVersion();
   let stepCount = isSaas ? 4 : 5;
 
@@ -29,17 +33,22 @@ export const MainOnboarding = () => {
     setHotkeyScopeAndMemorizePreviousScope('welcome');
   }, [setHotkeyScopeAndMemorizePreviousScope]);
   useEffect(() => {
-    if (currentUser?.username && !onboardingEnded) {
+    if (currentUser?.username && !hasOnboardingStarted) {
       navigate(AppPath.Index, { replace: true });
     }
-  }, [currentUser?.username, navigate]);
+  }, [currentUser?.username, hasOnboardingStarted, navigate]);
   if (!currentUser) {
     return <LoadingScreen />;
   }
   return (
     <>
       {currentStep === 1 && (
-        <WelcomeSection onContinue={() => setCurrentStep(2)} />
+        <WelcomeSection
+          onContinue={() => {
+            setCurrentStep(2);
+            setOnboardingStarted(true);
+          }}
+        />
       )}
 
       {!isSaas && currentStep === 2 && (
@@ -66,8 +75,7 @@ export const MainOnboarding = () => {
       {currentStep === (isSaas ? 4 : 5) + (isOwner ? 1 : 0) && (
         <FinalSection
           onContinue={() => {
-            navigate(AppPath.Index);
-            setOnboardingEnded(true);
+            setOnboardingStarted(false);
           }}
         />
       )}
