@@ -22,7 +22,6 @@ type ITriggerJobData = IJobData<ITriggerData>;
 export const triggerHandlerWorker = async (job: Job<ITriggerJobData>) => {
   const { subdomain, data } = job?.data ?? {};
   const models = await generateModels(subdomain);
-  debugInfo('Initialized databases');
 
   debugInfo(`Received data from:${JSON.stringify({ subdomain, data })}`);
 
