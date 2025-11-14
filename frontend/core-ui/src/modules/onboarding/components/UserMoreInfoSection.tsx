@@ -1,13 +1,12 @@
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, Input, Upload } from 'erxes-ui';
+import { Button, Form, Input, Upload, useToast } from 'erxes-ui';
 import { motion } from 'framer-motion';
 import { useVersion } from 'ui-modules';
 import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
 import { currentUserState } from 'ui-modules';
 import { useAtomValue } from 'jotai';
-
 const baseSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
@@ -30,6 +29,7 @@ export const UserMoreInfoForm = ({
   const currentUser = useAtomValue(currentUserState);
   const isSaas = !useVersion();
   const { usersEdit } = useUserEdit();
+  const { toast } = useToast();
   const form = useForm<UserMoreInfoFormData>({
     resolver: zodResolver(isSaas ? saasSchema : baseSchema),
     defaultValues: {
@@ -52,8 +52,17 @@ export const UserMoreInfoForm = ({
           avatar: data.avatar,
         },
       },
+      onCompleted: () => {
+        onContinue();
+      },
+      onError: (error) => {
+        toast({
+          title: 'Error updating user',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
     });
-    onContinue();
   };
 
   return (

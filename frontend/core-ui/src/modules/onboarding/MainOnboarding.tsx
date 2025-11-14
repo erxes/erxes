@@ -12,8 +12,8 @@ import { currentUserState } from 'ui-modules';
 import { usePreviousHotkeyScope } from 'erxes-ui';
 import { OnboardingStepper } from './components/OnboardingStepper';
 import { atom, useSetAtom } from 'jotai';
-import { Navigate } from 'react-router-dom';
 import { AppPath } from '@/types/paths/AppPath';
+import { LoadingScreen } from '@/auth/components/LoadingScreen';
 
 const onboardingEnded = atom(false);
 export const MainOnboarding = () => {
@@ -32,18 +32,14 @@ export const MainOnboarding = () => {
   }, [setHotkeyScopeAndMemorizePreviousScope]);
   useEffect(() => {
     if (currentUser?.username && onboardingEnded) {
-      <Navigate to={AppPath.Index} replace />;
+      navigate(AppPath.Index, { replace: true });
     }
   }, [currentUser?.username, navigate]);
-
+  if (!currentUser?.username) {
+    return <LoadingScreen />;
+  }
   return (
     <>
-      <div
-        className="absolute top-5"
-        onClick={() => setCurrentStep(currentStep + 1)}
-      >
-        {currentStep}
-      </div>
       {currentStep === 1 && (
         <WelcomeSection onContinue={() => setCurrentStep(2)} />
       )}

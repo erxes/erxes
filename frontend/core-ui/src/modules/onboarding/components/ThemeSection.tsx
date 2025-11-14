@@ -4,6 +4,14 @@ import { motion } from 'framer-motion';
 
 export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
   const [theme, setTheme] = useAtom(themeState);
+
+  const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      action();
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
@@ -35,10 +43,14 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
       >
         <div className="flex flex-col gap-2 items-center">
           <img
+            role="button"
+            tabIndex={0}
             src={'/assets/ui-light.webp'}
             alt="Light Theme"
             onClick={() => setTheme('light')}
+            onKeyDown={(e) => handleKeyDown(e, () => setTheme('light'))}
             draggable={false}
+            aria-pressed={theme === 'light'}
             className={cn(
               'rounded-lg cursor-pointer transition-all w-full max-sm:max-w-[100px] sm:max-w-none sm:w-auto select-none',
               theme === 'light'
@@ -51,6 +63,7 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
               'text-sm font-medium transition-colors',
               theme === 'light' ? 'text-primary' : 'text-muted-foreground',
             )}
+            aria-hidden="true"
           >
             Light
           </span>
@@ -58,10 +71,14 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
 
         <div className="flex flex-col gap-2 items-center">
           <img
+            role="button"
+            tabIndex={0}
             src={'/assets/ui-dark.webp'}
             alt="Dark Theme"
             onClick={() => setTheme('dark')}
+            onKeyDown={(e) => handleKeyDown(e, () => setTheme('dark'))}
             draggable={false}
+            aria-pressed={theme === 'dark'}
             className={cn(
               'rounded-lg cursor-pointer transition-all w-full max-sm:max-w-[100px] sm:max-w-none sm:w-auto select-none ',
               theme === 'dark'
@@ -74,6 +91,7 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
               'text-sm font-medium transition-colors',
               theme === 'dark' ? 'text-primary' : 'text-muted-foreground',
             )}
+            aria-hidden="true"
           >
             Dark
           </span>
@@ -81,10 +99,14 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
 
         <div className="flex flex-col gap-2 items-center">
           <img
+            role="button"
+            tabIndex={0}
             src={'/assets/ui-system.webp'}
             alt="System Theme"
             onClick={() => setTheme('system')}
+            onKeyDown={(e) => handleKeyDown(e, () => setTheme('system'))}
             draggable={false}
+            aria-pressed={theme === 'system'}
             className={cn(
               'rounded-lg cursor-pointer transition-all w-full max-sm:max-w-[100px] sm:max-w-none sm:w-auto select-none',
               theme === 'system'
@@ -97,6 +119,7 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
               'text-sm font-medium transition-colors',
               theme === 'system' ? 'text-primary' : 'text-muted-foreground',
             )}
+            aria-hidden="true"
           >
             System
           </span>

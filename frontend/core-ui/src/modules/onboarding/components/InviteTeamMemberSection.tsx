@@ -16,29 +16,34 @@ export const InviteTeamMemberSection = ({
   const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState('');
   const onClick = () => {
-    const validation = emailSchema.safeParse(inputValue);
-    if (!validation.success) {
-      setError('Please enter a valid email address');
-      return;
+    const trimmed = inputValue.trim();
+    const emails = [...tags];
+
+    if (trimmed) {
+      const validation = emailSchema.safeParse(trimmed);
+      if (!validation.success) {
+        setError('Please enter a valid email address');
+        return;
+      }
+      if (emails.includes(trimmed)) {
+        setError('This email has already been added');
+        return;
+      }
+      emails.push(trimmed);
     }
-    if (tags.includes(inputValue)) {
-      setError('This email has already been added');
-      return;
-    }
-    if (tags.length === 0 && !validation.success) {
+
+    if (emails.length === 0) {
       setError('Please add at least one email address');
       return;
     }
+
     handleInvitations({
       variables: {
-        entries: [
-          ...tags.map((tag) => ({
-            email: tag,
-          })),
-          validation.success && inputValue ? { email: inputValue } : undefined,
-        ],
+        entries: emails.map((email) => ({ email })),
       },
     });
+    setInputValue('');
+    setError('');
     onContinue();
   };
   const addTag = (value: string) => {

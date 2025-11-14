@@ -86,7 +86,7 @@ export function InviteForm({
           ...tags.map((tag) => ({
             email: tag,
           })),
-          validation.success && inputValue ? { email: inputValue } : undefined,
+          ...(validation.success ? [{ email: inputValue }] : []),
         ],
       },
       onCompleted() {
@@ -101,7 +101,7 @@ export function InviteForm({
         });
       },
     });
-  }, [handleInvitations, setIsOpen, toast, tags]);
+  }, [handleInvitations, setIsOpen, toast, tags, inputValue]);
 
   return (
     <div className="flex flex-col gap-4">
