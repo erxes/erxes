@@ -1,19 +1,17 @@
-import { WelcomeSection } from '@/onboarding/components/WelcomeSection';
-import { UserCredentialSection } from '@/onboarding/components/UserCredentialSection';
-import { ThemeSection } from '@/onboarding/components/ThemeSection';
+import { LoadingScreen } from '@/auth/components/LoadingScreen';
 import { FinalSection } from '@/onboarding/components/FinalSection';
+import { InviteTeamMemberSection } from '@/onboarding/components/InviteTeamMemberSection';
+import { OnboardingStepper } from '@/onboarding/components/OnboardingStepper';
+import { ThemeSection } from '@/onboarding/components/ThemeSection';
+import { UserCredentialSection } from '@/onboarding/components/UserCredentialSection';
+import { UserMoreInfoForm } from '@/onboarding/components/UserMoreInfoSection';
+import { WelcomeSection } from '@/onboarding/components/WelcomeSection';
+import { AppPath } from '@/types/paths/AppPath';
+import { usePreviousHotkeyScope } from 'erxes-ui';
+import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserMoreInfoForm } from '@/onboarding/components/UserMoreInfoSection';
-import { useVersion } from 'ui-modules';
-import { InviteTeamMemberSection } from '@/onboarding/components/InviteTeamMemberSection';
-import { useAtomValue } from 'jotai';
-import { currentUserState } from 'ui-modules';
-import { usePreviousHotkeyScope } from 'erxes-ui';
-import { OnboardingStepper } from '@/onboarding/components/OnboardingStepper';
-import { atom, useSetAtom } from 'jotai';
-import { AppPath } from '@/types/paths/AppPath';
-import { LoadingScreen } from '@/auth/components/LoadingScreen';
+import { currentUserState, useVersion } from 'ui-modules';
 
 const onboardingEnded = atom(false);
 export const MainOnboarding = () => {
@@ -35,7 +33,7 @@ export const MainOnboarding = () => {
       navigate(AppPath.Index, { replace: true });
     }
   }, [currentUser?.username, navigate]);
-  if (!currentUser?.username) {
+  if (!currentUser) {
     return <LoadingScreen />;
   }
   return (
