@@ -343,7 +343,6 @@ class AddForm extends React.Component<Props, State> {
         `${type}_departmentIds`,
         `${type}_branchIds`,
         `${type}_isCheckUserTicket`,
-        `${type}_customFieldsData`,
       ];
 
       keysToRemove.forEach((key) => localStorage.removeItem(key));
