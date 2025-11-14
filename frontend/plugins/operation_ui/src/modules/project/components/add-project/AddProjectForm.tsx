@@ -226,6 +226,7 @@ export const AddProjectForm = ({
                 <Form.Item className="shrink-0">
                   <Form.Label className="sr-only">Tags</Form.Label>
                   <SelectTags.FormItem
+                    tagType="operation:project"
                     mode="multiple"
                     value={field.value || []}
                     onValueChange={(value) => field.onChange(value)}

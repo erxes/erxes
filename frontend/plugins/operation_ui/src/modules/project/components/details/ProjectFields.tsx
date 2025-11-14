@@ -117,7 +117,18 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
           projectId={projectId}
           variant="detail"
         />
-        <SelectTags.Detail targetIds={[projectId]} value={tagIds || []} />
+        <SelectTags.Detail
+          value={tagIds || []}
+          tagType="operation:project"
+          onValueChange={(newTagIds: string[]) => {
+            updateProject({
+              variables: {
+                _id: projectId,
+                tagIds: newTagIds,
+              },
+            });
+          }}
+        />
       </div>
       <Separator className="my-4" />
       <div className="min-h-56 overflow-y-auto">

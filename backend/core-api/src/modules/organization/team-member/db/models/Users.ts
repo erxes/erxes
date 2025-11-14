@@ -25,6 +25,7 @@ import { IModels } from '~/connectionResolvers';
 
 import { USER_MOVEMENT_STATUSES } from 'erxes-api-shared/core-modules';
 import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
+import { sendOnboardNotification } from '~/modules/notifications/utils';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -685,7 +686,6 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         _id = user._id;
         // if refresh token is expired then force to login
       } catch (e: any) {
-        console.log(e);
         return {};
       }
 
@@ -757,38 +757,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      if (!user.lastSeenAt) {
-        const pluginNames = await getAvailablePlugins(subdomain);
-
-        for (const pluginName of pluginNames) {
-          if (pluginName === 'core') {
-            sendNotification(subdomain, {
-              title: 'Welcome to erxes 🎉',
-              message:
-                'We’re excited to have you on board! Explore the features, connect with your team, and start growing your business with erxes.',
-              type: 'info',
-              userIds: [user._id],
-              priority: 'low',
-              kind: 'system',
-              contentType: `${pluginName}:system.welcome`,
-            });
-
-            await user.updateOne({ $set: { lastSeenAt: new Date() } });
-
-            continue;
-          }
-
-          sendNotification(subdomain, {
-            title: `Get Started with ${pluginName}`,
-            message: `Excited to introduce ${pluginName}! Dive in to explore its features and see how it can help your business thrive.`,
-            type: 'info',
-            userIds: [user._id],
-            priority: 'low',
-            kind: 'system',
-            contentType: `${pluginName}:system.welcome`,
-          });
-        }
-      }
+      await sendOnboardNotification(subdomain, models, user);
 
       return {
         token,
@@ -1158,12 +1127,6 @@ export const loadUserMovemmentClass = (models: IModels, subdomain: string) => {
               contentType === 'department'
                 ? 'departmentAssigneeChanged'
                 : 'branchAssigneeChanged';
-            console.log({
-              fromUserId: createdBy,
-              userIds: targetUserIds,
-              notificationType,
-              message,
-            });
             sendNotification(subdomain, {
               title,
               message,

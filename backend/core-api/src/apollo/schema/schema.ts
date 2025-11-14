@@ -163,6 +163,12 @@ import {
   types as PropertiesTypes,
 } from '@/properties/graphql/schemas';
 
+import {
+  queries as ClientPortalQueries,
+  types as ClientPortalTypes,
+  mutations as ClientPortalMutations,
+} from '@/clientportal/graphql/schemas/clientPortal';
+
 export const types = `
     enum CacheControlScope {
       PUBLIC
@@ -205,6 +211,7 @@ export const types = `
     ${InternalNoteTypes}
     ${RoleTypes}
     ${PropertiesTypes}
+    ${ClientPortalTypes}
   `;
 
 export const queries = `
@@ -236,6 +243,7 @@ export const queries = `
     ${InternalNoteQueries}
     ${RoleQueries}
     ${PropertiesQueries}
+    ${ClientPortalQueries}
   `;
 
 export const mutations = `
@@ -266,6 +274,7 @@ export const mutations = `
     ${InternalNoteMutations}
     ${RoleMutations}
     ${PropertiesMutations}
+    ${ClientPortalMutations}
   `;
 
 export default { types, queries, mutations };
