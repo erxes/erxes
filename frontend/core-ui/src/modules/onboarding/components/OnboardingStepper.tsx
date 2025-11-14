@@ -1,5 +1,5 @@
-import { Button } from 'erxes-ui';
-import { cn } from 'erxes-ui';
+import { Button, cn } from 'erxes-ui';
+
 
 export const OnboardingStepper = ({
   stepCount,
