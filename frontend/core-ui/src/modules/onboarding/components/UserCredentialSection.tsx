@@ -46,12 +46,6 @@ export const UserCredentialSection = ({
     useState(false);
   const { usersEdit } = useUserEdit();
   const submitHandler = (data: UserCredentialFormType) => {
-    // confirmInvitation({
-    //   variables: {
-    //     password: data.password,
-    //     username: data.username,
-    //   },
-    // });
     usersEdit({
       variables: {
         _id: currentUser?._id,
@@ -183,7 +177,7 @@ export const UserCredentialSection = ({
             />
 
             <Button type="submit" className="w-full cursor-pointer" size="lg">
-              Invite
+              Continue
             </Button>
           </form>
         </Form>

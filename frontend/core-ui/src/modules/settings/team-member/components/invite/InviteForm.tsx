@@ -86,7 +86,7 @@ export function InviteForm({
           ...tags.map((tag) => ({
             email: tag,
           })),
-          validation.success ? { email: inputValue } : undefined,
+          validation.success && inputValue ? { email: inputValue } : undefined,
         ],
       },
       onCompleted() {

@@ -11,8 +11,13 @@ import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
 import { usePreviousHotkeyScope } from 'erxes-ui';
 import { OnboardingStepper } from './components/OnboardingStepper';
+import { atom, useSetAtom } from 'jotai';
+import { Navigate } from 'react-router-dom';
+import { AppPath } from '@/types/paths/AppPath';
 
+const onboardingEnded = atom(false);
 export const MainOnboarding = () => {
+  const setOnboardingEnded = useSetAtom(onboardingEnded);
   const isSaas = !useVersion();
   let stepCount = isSaas ? 4 : 5;
 
@@ -26,12 +31,19 @@ export const MainOnboarding = () => {
     setHotkeyScopeAndMemorizePreviousScope('welcome');
   }, [setHotkeyScopeAndMemorizePreviousScope]);
   useEffect(() => {
-    if (currentUser?.username) {
-      navigate('/');
+    if (currentUser?.username && onboardingEnded) {
+      <Navigate to={AppPath.Index} replace />;
     }
   }, [currentUser?.username, navigate]);
+
   return (
     <>
+      <div
+        className="absolute top-5"
+        onClick={() => setCurrentStep(currentStep + 1)}
+      >
+        {currentStep}
+      </div>
       {currentStep === 1 && (
         <WelcomeSection onContinue={() => setCurrentStep(2)} />
       )}
@@ -48,15 +60,22 @@ export const MainOnboarding = () => {
         <UserMoreInfoForm onContinue={() => setCurrentStep(currentStep + 1)} />
       )}
 
-      {isOwner && currentStep === (isSaas ? 4 : 5) && (
+      {currentStep === (isSaas ? 4 : 5) + (isOwner ? 0 : 1) && (
         <>
-          <InviteTeamMemberSection
-            onContinue={() => setCurrentStep(currentStep + 1)}
-          />
+          {isOwner && (
+            <InviteTeamMemberSection
+              onContinue={() => setCurrentStep(currentStep + 1)}
+            />
+          )}
         </>
       )}
-      {currentStep === (isSaas ? 5 : 6) && (
-        <FinalSection onContinue={() => navigate('/')} />
+      {currentStep === (isSaas ? 4 : 5) + (isOwner ? 1 : 0) && (
+        <FinalSection
+          onContinue={() => {
+            navigate(AppPath.Index);
+            setOnboardingEnded(true);
+          }}
+        />
       )}
 
       <div className="flex items-center justify-center gap-2 absolute bottom-6">

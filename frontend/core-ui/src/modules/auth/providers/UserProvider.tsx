@@ -8,16 +8,18 @@ import { useAtomValue } from 'jotai';
 
 export const UserProvider = () => {
   const isCurrentUserLoaded = useAtomValue(isCurrentUserLoadedState);
-  const hasAuthToken = window.cookieStore.get('auth-token');
   const currentUser = useAtomValue(currentUserState);
 
   if (!isCurrentUserLoaded) {
     return <div />;
   }
 
-  if (!isDefined(currentUser) && !hasAuthToken) {
+  if (!isDefined(currentUser)) {
     return <Navigate to={AppPath.Login} replace />;
   }
 
   return <Outlet />;
 };
+
+
+
