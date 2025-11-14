@@ -1,8 +1,8 @@
-import { ACC_TRANSACTIONS_REMOVE } from '../graphql/mutations/accTransactionsRemove';
 import { OperationVariables, useMutation } from '@apollo/client';
-import { toast } from 'erxes-ui';
-import { TR_RECORDS_QUERY, TRANSACTIONS_QUERY } from '../../graphql/transactionQueries';
+import { useToast} from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
+import { ACC_TRANSACTIONS_REMOVE } from '../../graphql/accTransactionsRemove';
+import { TR_RECORDS_QUERY, TRANSACTIONS_QUERY } from '../../graphql/transactionQueries';
 
 export const useTransactionsRemove = (options?: OperationVariables) => {
   const navigate = useNavigate();
@@ -10,12 +10,14 @@ export const useTransactionsRemove = (options?: OperationVariables) => {
     ACC_TRANSACTIONS_REMOVE,
     options
   );
+  const { toast } = useToast();
 
   const removeTransactions = (options: OperationVariables) => {
     return _removeTransactions({
       ...options,
-      onError: (error: Error) => {
-        toast({
+      onError: (error) => {
+        console.log(error, 'eeeeeeeeeeeeee', error.message)
+        return toast({
           title: 'Error',
           description: error.message,
           variant: 'destructive',
