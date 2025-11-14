@@ -9,16 +9,28 @@ import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { taskTotalCountAtom } from '@/task/states/tasksTotalCountState';
 
-export const TasksRecordTable = () => {
+interface TasksRecordTableProps {
+  isCreatedView?: boolean;
+}
+
+export const TasksRecordTable = ({
+  isCreatedView = false,
+}: TasksRecordTableProps) => {
   const { projectId, cycleId, teamId } = useParams();
   const currentUser = useAtomValue(currentUserState);
   const setTaskTotalCount = useSetAtom(taskTotalCountAtom);
 
-  const variables = {
-    projectId: projectId || undefined,
-    cycleId: cycleId || undefined,
-    userId: currentUser?._id,
-  };
+  const variables = isCreatedView
+    ? {
+        projectId: projectId || undefined,
+        cycleId: cycleId || undefined,
+        createdBy: currentUser?._id,
+      }
+    : {
+        projectId: projectId || undefined,
+        cycleId: cycleId || undefined,
+        userId: currentUser?._id,
+      };
 
   const { tasks, handleFetchMore, pageInfo, loading, totalCount } = useTasks({
     variables,
