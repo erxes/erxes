@@ -52,6 +52,7 @@ const USERS_INLINE_EDIT = gql`
     $branchIds: [String]
     $departmentIds: [String]
     $password: String
+    $isOnboarded: Boolean
   ) {
     usersEdit(
       _id: $_id
@@ -64,6 +65,7 @@ const USERS_INLINE_EDIT = gql`
       branchIds: $branchIds
       departmentIds: $departmentIds
       password: $password
+      isOnboarded: $isOnboarded
     ) {
       _id
       username
@@ -83,6 +85,7 @@ const USERS_INLINE_EDIT = gql`
       employeeId
       branchIds
       departmentIds
+      isOnboarded
     }
   }
 `;

@@ -147,6 +147,7 @@ const commonParams = `
   customFieldsData: JSON
   employeeId: String
   password: String
+  isOnboarded: Boolean
 `;
 
 const commonSelector = `
