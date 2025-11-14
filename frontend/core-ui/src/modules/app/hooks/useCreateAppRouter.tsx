@@ -20,14 +20,13 @@ import { SettingsRoutes } from '@/app/components/SettingsRoutes';
 import { getPluginsRoutes } from '@/app/hooks/usePluginsRouter';
 import { UserProvider } from '@/auth/providers/UserProvider';
 import { OrganizationProvider } from '@/organization/providers/OrganizationProvider';
-import { useVersion } from 'ui-modules';
+import { useAtomValue } from 'jotai';
 import { lazy } from 'react';
+import { currentUserState, useVersion } from 'ui-modules';
 import { NotFoundPage } from '~/pages/not-found/NotFoundPage';
+import { MainOnboardingPage } from '~/pages/onboarding/MainOnboardingPage';
 import { Providers } from '~/providers';
 import { DocumentsRoutes } from '../components/DocumentsRoutes';
-import { currentUserState } from 'ui-modules';
-import { useAtomValue } from 'jotai';
-import { MainOnboardingPage } from '~/pages/onboarding/MainOnboardingPage';
 
 const UserConfirmInvitationPage = lazy(
   () => import('~/pages/auth/UserConfirmInvitationPage'),
@@ -41,7 +40,7 @@ const CreateOwnerPage = lazy(
 const OnboardingGuard = ({ children }: { children: React.ReactNode }) => {
   const currentUser = useAtomValue(currentUserState);
 
-  if (currentUser && !currentUser?.username) {
+  if (currentUser && !currentUser?.isOnboarded) {
     return <Navigate to={AppPath.MainOnboarding} replace />;
   }
 
