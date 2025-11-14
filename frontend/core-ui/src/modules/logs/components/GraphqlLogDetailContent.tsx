@@ -1,8 +1,7 @@
-import dayjs from 'dayjs';
 import { Resizable, Sheet } from 'erxes-ui';
 import ReactJson from 'react-json-view';
-import { maskFields } from '../utils/logFormUtils';
 import { ILogDoc } from '../types';
+import { maskFields } from '../utils/logFormUtils';
 
 export const GraphqlLogDetailContent = ({ payload, createdAt }: ILogDoc) => {
   const { mutationName, args, result, error } = payload || {};

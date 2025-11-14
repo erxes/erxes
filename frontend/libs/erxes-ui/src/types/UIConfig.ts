@@ -15,11 +15,13 @@ export type IUIConfig = {
     hasRelationWidget?: boolean;
     hasFloatingWidget?: boolean;
     settingsOnly?: boolean;
+    hasAutomation?: boolean;
+    hasSegmentConfigWidget?: boolean;
     submenus?: {
       name: string;
       path: string;
-      icon: React.ElementType
-    }[]
+      icon: React.ElementType;
+    }[];
   }[];
 
   relationWidgets?: {

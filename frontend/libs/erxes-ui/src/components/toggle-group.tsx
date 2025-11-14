@@ -21,7 +21,7 @@ const ToggleGroupRoot = React.forwardRef<
     ref={ref}
     className={cn(
       'flex items-center justify-center gap-1 isolate',
-      variant === 'outline-solid' && 'gap-0 bg-muted rounded',
+      variant === 'outline' && 'gap-0 bg-muted rounded',
       className,
     )}
     {...props}
@@ -49,7 +49,7 @@ const ToggleGroupItem = React.forwardRef<
           variant: context.variant || variant,
           size: context.size || size,
           className:
-            context.variant === 'outline-solid' &&
+            context.variant === 'outline' &&
             'shadow-none bg-transparent data-[state=on]:bg-background data-[state=on]:shadow-xs relative data-[state=on]:z-10 hover:text-foreground',
         }),
         className,

@@ -20,15 +20,14 @@ export const milestoneQueries = {
     params: IMilestoneParams,
     { models }: IContext,
   ) => {
-
-    const {projectId, searchValue} = params; 
+    const { projectId, searchValue } = params;
 
     const filter: FilterQuery<IMilestoneParams> = {
       projectId: projectId,
-    }
+    };
 
-    if(searchValue) {
-      filter.name = new RegExp(`.*${searchValue}.*`, 'i')
+    if (searchValue) {
+      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
 
     const { list, totalCount, pageInfo } =

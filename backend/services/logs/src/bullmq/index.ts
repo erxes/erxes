@@ -1,15 +1,12 @@
 import { ILogDocument } from 'erxes-api-shared/core-types';
-import {
-  checkServiceRunning,
-  createMQWorkerWithListeners,
-  sendWorkerQueue,
-} from 'erxes-api-shared/utils';
+import { createMQWorkerWithListeners } from 'erxes-api-shared/utils';
+import { handleNotifications } from '~/bullmq/notifications';
 import { generateModels } from '~/connectionResolvers';
 import { AFTER_PROCESS_CONSTANTS, LOG_STATUSES } from '~/constants';
 import { IJobData } from '~/types';
 import { handleAfterProcess } from './afterProcess';
+import { sendAutomationTrigger } from './automation';
 import { handleMongoChangeEvent } from './mongo';
-import { handleNotifications } from '~/bullmq/notifications';
 
 export const initMQWorkers = async (redis: any) => {
   console.info('Starting worker log ...');
@@ -44,11 +41,8 @@ export const initMQWorkers = async (redis: any) => {
                 contentType,
               );
 
-              if (contentType && (await checkServiceRunning('automations'))) {
-                sendWorkerQueue('automations', 'trigger').add('trigger', {
-                  subdomain,
-                  data: { type: contentType, targets: [payload?.fullDocument] },
-                });
+              if (contentType) {
+                sendAutomationTrigger(subdomain, payload, contentType);
               }
             } else {
               const logDoc = {

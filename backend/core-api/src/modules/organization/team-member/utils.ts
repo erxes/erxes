@@ -198,7 +198,7 @@ export const sendEmail = async (
     let headers: { [key: string]: string } = {};
 
     if (models && subdomain) {
-      const emailDelivery = (await models.EmailDeliveries.createEmailDelivery({
+      const emailDelivery = await models.EmailDeliveries.createEmailDelivery({
         kind: 'transaction',
         to: [toEmail],
         from: mailOptions.from,
@@ -208,7 +208,7 @@ export const sendEmail = async (
         provider: sendgridMail ? 'sendgrid' : transporter ? 'ses' : 'smtp',
         userId,
         email: toEmail,
-      })) as any;
+      });
 
       headers = {
         'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET || 'erxes',
@@ -235,7 +235,9 @@ export const sendEmail = async (
         await transporter.sendMail(mailOptions);
       }
 
-      console.log(`Email sent successfully: ${toEmail} from ${mailOptions.from}`);
+      console.log(
+        `Email sent successfully: ${toEmail} from ${mailOptions.from}`,
+      );
     } catch (e) {
       // debugError(`Error sending email: ${e.message}`);
       console.log(`Error sending email: ${e.message}`);
