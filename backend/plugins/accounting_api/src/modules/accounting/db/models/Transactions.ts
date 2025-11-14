@@ -267,7 +267,6 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       await models.Transactions.deleteMany({
         $or: [
           { _id },
-          { originId: transaction._id },
           { originId: _id }
         ]
       });

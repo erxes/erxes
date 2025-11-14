@@ -9,7 +9,7 @@ export default {
 
   async followTrs(transaction: ITransactionDocument, _, { models }: IContext) {
     return await models.Transactions.find({
-      originId: { $in: transaction._id },
+      originId: transaction._id,
     }).lean();
   },
 
