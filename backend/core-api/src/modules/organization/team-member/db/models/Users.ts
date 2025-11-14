@@ -9,7 +9,7 @@ import {
   userMovemmentSchema,
   userSchema,
 } from 'erxes-api-shared/core-modules';
-import { getAvailablePlugins, redis } from 'erxes-api-shared/utils';
+import { redis } from 'erxes-api-shared/utils';
 
 import { saveValidatedToken } from '@/auth/utils';
 import {
@@ -24,8 +24,8 @@ import {
 import { IModels } from '~/connectionResolvers';
 
 import { USER_MOVEMENT_STATUSES } from 'erxes-api-shared/core-modules';
-import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
+import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -81,7 +81,7 @@ export interface IUserModel extends Model<IUserDocument> {
     username?: string;
   }): Promise<never>;
   getSecret(): string;
-  generateToken(expiresIn?: number): { token: string; expires: Date };
+  generateToken(duration?: number): { token: string; expires: Date };
   createUser(doc: IUser & { notUsePassword?: boolean }): Promise<IUserDocument>;
   updateUser(_id: string, doc: IUpdateUser): Promise<IUserDocument>;
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
@@ -196,7 +196,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
 
         // Checking if duplicated
         if (previousEntry) {
-          throw new Error('Duplicated User Name Id');
+          throw new Error('Username already exists');
         }
       }
     }
@@ -305,15 +305,15 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
       return models.Users.findOne({ _id });
     }
 
-    public static async generateToken(expiresIn?: number) {
+    public static async generateToken(duration?: number) {
       const buffer = await crypto.randomBytes(20);
       const token = buffer.toString('hex');
 
-      const expires = expiresIn || 86400000;
+      const expires = Date.now() + (duration || 86400000);
 
       return {
         token,
-        expires: Date.now() + expires,
+        expires,
       };
     }
 

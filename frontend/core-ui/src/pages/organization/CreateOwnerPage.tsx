@@ -13,11 +13,11 @@ const CreateOwnerPage = () => {
   const navigate = useNavigate();
   const [currentOrganization] = useAtom(currentOrganizationState);
 
-  // useEffect(() => {
-  //   if (isDefined(currentOrganization) && currentOrganization.hasOwner) {
-  //     navigate(AppPath.Index);
-  //   }
-  // }, [currentOrganization, navigate]);
+  useEffect(() => {
+    if (isDefined(currentOrganization) && currentOrganization.hasOwner) {
+      navigate(AppPath.Index);
+    }
+  }, [currentOrganization, navigate]);
 
   return (
     <div className="flex items-center justify-center my-40">

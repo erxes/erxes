@@ -1,12 +1,11 @@
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, Input, Upload, useToast } from 'erxes-ui';
 import { motion } from 'framer-motion';
-import { useVersion } from 'ui-modules';
-import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
-import { currentUserState } from 'ui-modules';
 import { useAtomValue } from 'jotai';
+import { useForm } from 'react-hook-form';
+import { currentUserState, useVersion } from 'ui-modules';
+import { z } from 'zod';
 const baseSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
@@ -44,8 +43,8 @@ export const UserMoreInfoForm = ({
     usersEdit({
       variables: {
         _id: currentUser?._id,
+        ...(isSaas && 'username' in data && { username: data.username }),
         details: {
-          ...(isSaas && 'username' in data && { username: data.username }),
           firstName: data.firstName,
           lastName: data.lastName,
           fullName: `${data.firstName} ${data.lastName}`,

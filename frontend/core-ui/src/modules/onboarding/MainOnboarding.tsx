@@ -8,14 +8,14 @@ import { UserMoreInfoForm } from '@/onboarding/components/UserMoreInfoSection';
 import { WelcomeSection } from '@/onboarding/components/WelcomeSection';
 import { AppPath } from '@/types/paths/AppPath';
 import { usePreviousHotkeyScope } from 'erxes-ui';
-import { atom, useAtomValue, useSetAtom } from 'jotai';
+import { atom, useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { currentUserState, useVersion } from 'ui-modules';
 
-const onboardingEnded = atom(false);
+const onboardingEndedAtom = atom(false);
 export const MainOnboarding = () => {
-  const setOnboardingEnded = useSetAtom(onboardingEnded);
+  const [onboardingEnded, setOnboardingEnded] = useAtom(onboardingEndedAtom);
   const isSaas = !useVersion();
   let stepCount = isSaas ? 4 : 5;
 
@@ -29,7 +29,7 @@ export const MainOnboarding = () => {
     setHotkeyScopeAndMemorizePreviousScope('welcome');
   }, [setHotkeyScopeAndMemorizePreviousScope]);
   useEffect(() => {
-    if (currentUser?.username && onboardingEnded) {
+    if (currentUser?.username && !onboardingEnded) {
       navigate(AppPath.Index, { replace: true });
     }
   }, [currentUser?.username, navigate]);
