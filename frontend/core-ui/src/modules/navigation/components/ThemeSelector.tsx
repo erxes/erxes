@@ -15,7 +15,7 @@ export const ThemeSelector = () => {
           type="single"
           size="sm"
           className="ml-auto h-6 bg-accent rounded gap-0.5 text-accent-foreground"
-          onValueChange={(value) => setTheme(value as ThemeOption)}
+          onValueChange={(value) => value && setTheme(value as ThemeOption)}
         >
           <Tooltip>
             <ToggleGroup.Item

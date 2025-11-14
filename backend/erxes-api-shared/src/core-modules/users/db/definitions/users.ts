@@ -78,6 +78,10 @@ export const userSchema = schemaWrapper(
       label: 'Onboarded plugins',
       default: [],
     }),
+    isOnboarded: {
+      type: Boolean,
+      default: false,
+    },
     departmentIds: mongooseField({ type: [String], label: 'Department Ids' }),
     branchIds: mongooseField({ type: [String], label: 'Branch Ids' }),
     positionIds: mongooseField({ type: [String], label: 'Position Ids' }),

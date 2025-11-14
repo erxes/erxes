@@ -9,7 +9,7 @@ export const USER_QUERY_FRAGMENT = gql`
     canImpersonate
     supportUserHash
     analyticsTinybirdJwt
-    onboardingStatus
+    isOnboarded
     workspaceMember {
       ...WorkspaceMemberQueryFragment
     }
