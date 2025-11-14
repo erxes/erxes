@@ -18,13 +18,13 @@ const TagsFilterCommandItem = () => {
   );
 };
 
-export const TagsFilterView = ({ tagType }: { tagType: string }) => {
+export const TagsFilterView = ({ tagType }: { tagType?: string }) => {
   const [tags, setTags] = useQueryState<string[]>('tags');
   const { resetFilterState } = useFilterContext();
   return (
     <Filter.View filterKey="tags">
       <SelectTags.Provider
-        tagType={tagType}
+        tagType={tagType || ''}
         mode="multiple"
         value={tags || []}
         onValueChange={(tags) => {
@@ -38,7 +38,7 @@ export const TagsFilterView = ({ tagType }: { tagType: string }) => {
   );
 };
 
-const TagsFilterBar = ({ tagType }: { tagType: string }) => {
+const TagsFilterBar = ({ tagType }: { tagType?: string }) => {
   const [tags, setTags] = useQueryState<string[]>('tags');
   const [open, setOpen] = useState(false);
 
@@ -53,7 +53,7 @@ const TagsFilterBar = ({ tagType }: { tagType: string }) => {
         Tags
       </Filter.BarName>
       <SelectTags.Provider
-        tagType={tagType}
+        tagType={tagType || ''}
         value={tags || []}
         mode="multiple"
         onValueChange={(tags) => {

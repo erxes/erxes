@@ -290,18 +290,6 @@ export const userMutations: Record<string, Resolver> = {
     return await models.Users.updateUser(_id, { chatStatus: status });
   },
 
-  async usersSetOnboardingDone(
-    _parent: undefined,
-    _params: undefined,
-    { user, models: { Users } }: IContext,
-  ) {
-    return await Users.updateOne(
-      { _id: user._id },
-      {
-        $set: { onboardingDone: true },
-      },
-    );
-  },
   /*
    * Upgrade organization plan status
    */
@@ -350,4 +338,6 @@ export const userMutations: Record<string, Resolver> = {
   },
 };
 
-userMutations.usersCreateOwner.skipPermission = true;
+userMutations.usersCreateOwner.wrapperConfig = {
+  skipPermission: true,
+};

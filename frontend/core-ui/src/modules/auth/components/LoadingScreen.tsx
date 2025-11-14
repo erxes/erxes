@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 export const LoadingScreen = () => {
   return (
     <div className="h-dvh w-dvw p-2 bg-sidebar">
-      <div className="flex flex-col items-center justify-center h-full w-full shadow-sm rounded-lg relative">
+      <div className="flex flex-col items-center justify-center h-full w-full shadow-sm rounded-lg relative overflow-hidden">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

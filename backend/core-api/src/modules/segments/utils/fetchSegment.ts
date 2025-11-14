@@ -1,20 +1,16 @@
 import {
   fetchEsWithScroll,
-  getElasticsearchInfo,
+  getEsIndexByContentType,
+  getPluginSegmentConfig,
 } from 'erxes-api-shared/utils';
 
 import { generateElkIds, getRealIdFromElk } from 'erxes-api-shared/utils';
 
-import { getEsIndexByContentType } from 'erxes-api-shared/core-modules';
-import {
-  fetchEs,
-  getDbNameFromConnectionString,
-  getPlugin,
-  getPlugins,
-} from 'erxes-api-shared/utils';
+import { fetchEs } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IOptions } from '../types';
 import { generateQueryBySegment } from './common';
+import { splitType } from 'erxes-api-shared/core-modules';
 
 export const fetchSegment = async (
   models: IModels,
@@ -24,26 +20,9 @@ export const fetchSegment = async (
 ): Promise<any> => {
   const { contentType } = segment;
 
-  const pluginNames = await getPlugins();
-  const pluginConfigs: any = [];
-  let mongoConnectionString = '';
-
-  for (const pluginName of pluginNames) {
-    const plugin = await getPlugin(pluginName);
-    const segmentMeta = (plugin.config.meta || {}).segments;
-    if (
-      contentType.includes(`${pluginName}:`) &&
-      getDbNameFromConnectionString(
-        plugin?.config?.dbConnectionString || '',
-      ) !== 'erxes'
-    ) {
-      mongoConnectionString = plugin?.config?.dbConnectionString || '';
-    }
-
-    if (segmentMeta) {
-      pluginConfigs.push(segmentMeta);
-    }
-  }
+  const { pluginConfigs, mongoConnectionString } = await getPluginSegmentConfig(
+    contentType,
+  );
 
   let index = await getEsIndexByContentType(contentType);
   let selector = { bool: {} };
@@ -75,18 +54,10 @@ export const fetchSegment = async (
     const items = itemsResponse.hits.hits;
     const itemIds = items.map((i) => getRealIdFromElk(i._id));
 
-    const getType = (type) =>
-      type
-        .replace('core:', '')
-        .replace('tickets:', '')
-        .replace('tasks:', '')
-        .replace('sales:', '')
-        .replace('purchases:', '');
-
     const associationIds = await models.Conformities.filterConformity({
-      mainType: getType(returnAssociated.mainType),
+      mainType: splitType(returnAssociated.mainType)[2],
       mainTypeIds: itemIds,
-      relType: getType(returnAssociated.relType),
+      relType: splitType(returnAssociated.relType)[2],
     });
 
     selector = {

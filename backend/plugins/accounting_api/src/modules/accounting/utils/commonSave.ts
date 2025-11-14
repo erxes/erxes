@@ -68,7 +68,11 @@ async function handleSingleTr(models: IModels, subdomain: string, doc: ITransact
   await currencyTrClass.checkValidationCurrency();
   await taxTrsClass.checkTaxValidation();
 
-  const transaction = await createOrUpdateTr(models, doc, oldTr);
+  const transaction = await createOrUpdateTr(
+    models,
+    await currencyTrClass.cleanDoc(), // ...doc
+    oldTr
+  );
   const otherTrs = [
     ...(await collect(await currencyTrClass.doCurrencyTr(transaction))),
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),

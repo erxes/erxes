@@ -57,11 +57,11 @@ class InvSaleOutCostTrs {
     const { details } = transaction;
 
     const oldFollowOutTrs = await this.models.Transactions.find({
-      originId: transaction._id, followType: TR_FOLLOW_TYPES.INV_SALE_OUT
+      originId: transaction._id, originType: TR_FOLLOW_TYPES.INV_SALE_OUT
     }).sort({ createdAt: -1 }).lean();
 
     const oldFollowCostTrs = await this.models.Transactions.find({
-      originId: transaction._id, followType: TR_FOLLOW_TYPES.INV_SALE_COST
+      originId: transaction._id, originType: TR_FOLLOW_TYPES.INV_SALE_COST
     }).sort({ createdAt: -1 }).lean();
 
     const oldFollowOutTr = await this.cleanFollowTrs(oldFollowOutTrs);
@@ -107,7 +107,7 @@ class InvSaleOutCostTrs {
       followOutDetails.push({
         ...oldOutDetail,
         ...commonDetail,
-        followType: TR_DETAIL_FOLLOW_TYPES.SALE_OUT,
+        originType: TR_DETAIL_FOLLOW_TYPES.SALE_OUT,
         accountId: this.outAccount._id,
         side: TR_SIDES.CREDIT
       })
@@ -115,7 +115,7 @@ class InvSaleOutCostTrs {
       followCostDetails.push({
         ...oldCostDetail,
         ...commonDetail,
-        followType: TR_DETAIL_FOLLOW_TYPES.SALE_COST,
+        originType: TR_DETAIL_FOLLOW_TYPES.SALE_COST,
         accountId: this.costAccount._id,
         side: TR_SIDES.DEBIT
       })
@@ -123,14 +123,14 @@ class InvSaleOutCostTrs {
 
     const outTrDoc: ITransaction = {
       ...commonFollowTrDoc,
-      followType: TR_FOLLOW_TYPES.INV_SALE_OUT,
+      originType: TR_FOLLOW_TYPES.INV_SALE_OUT,
       journal: JOURNALS.INV_SALE_OUT,
       details: followOutDetails
     }
 
     const costTrDoc: ITransaction = {
       ...commonFollowTrDoc,
-      followType: TR_FOLLOW_TYPES.INV_SALE_COST,
+      originType: TR_FOLLOW_TYPES.INV_SALE_COST,
       journal: JOURNALS.INV_SALE_COST,
       details: followCostDetails
     }

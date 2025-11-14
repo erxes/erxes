@@ -73,10 +73,10 @@ export const userSchema = schemaWrapper(
     registrationTokenExpires: mongooseField({ type: Date }),
     resetPasswordExpires: mongooseField({ type: Date }),
     isOwner: mongooseField({ type: Boolean, label: 'Is owner' }),
-    onboardingDone: mongooseField({
-      type: Boolean,
-      label: 'Onboarding done',
-      default: false,
+    onboardedPlugins: mongooseField({
+      type: [String],
+      label: 'Onboarded plugins',
+      default: [],
     }),
     departmentIds: mongooseField({ type: [String], label: 'Department Ids' }),
     branchIds: mongooseField({ type: [String], label: 'Branch Ids' }),
@@ -186,7 +186,7 @@ export const userSchema = schemaWrapper(
       label: 'Last seen at',
     }),
   }),
-  { contentType: 'core:user' },
+  { contentType: 'core:contact.user' },
 );
 
 export const userMovemmentSchema = schemaWrapper(

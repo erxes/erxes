@@ -1,20 +1,14 @@
-import { NodeData } from '@/automations/types';
-import { onDisconnect } from '@/automations/utils/automationConnectionUtils';
-import { TAutomationBuilderForm } from '@/automations/utils/AutomationFormDefinitions';
+import { useNodeConnect } from '@/automations/hooks/useNodeConnect';
 import { IconScissors } from '@tabler/icons-react';
 import {
   BaseEdge,
-  Edge,
   EdgeLabelRenderer,
   EdgeProps,
   getBezierPath,
-  Node,
-  useReactFlow,
 } from '@xyflow/react';
 import { Button } from 'erxes-ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FC } from 'react';
-import { useWatch } from 'react-hook-form';
 
 const PrimaryEdge: FC<EdgeProps> = (edge) => {
   const {
@@ -27,6 +21,7 @@ const PrimaryEdge: FC<EdgeProps> = (edge) => {
     targetPosition,
     selected,
   } = edge;
+  const { onDisconnect } = useNodeConnect();
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
@@ -34,14 +29,6 @@ const PrimaryEdge: FC<EdgeProps> = (edge) => {
     targetX,
     targetY,
     targetPosition,
-  });
-
-  const { getNodes, setEdges } = useReactFlow<
-    Node<NodeData>,
-    Edge<EdgeProps>
-  >();
-  const [triggers = [], actions = []] = useWatch<TAutomationBuilderForm>({
-    name: ['triggers', 'actions'],
   });
 
   return (
@@ -78,15 +65,7 @@ const PrimaryEdge: FC<EdgeProps> = (edge) => {
                   variant="outline"
                   className="rounded-full"
                   size="icon"
-                  onClick={() => {
-                    onDisconnect({
-                      edge,
-                      setEdges,
-                      nodes: getNodes(),
-                      triggers,
-                      actions,
-                    });
-                  }}
+                  onClick={() => onDisconnect(edge)}
                 >
                   <IconScissors className="w-4 h-4 text-red-500" />
                 </Button>

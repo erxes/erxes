@@ -1,11 +1,11 @@
+import { automationColumns } from '@/automations/components/list/AutomationColumns';
+import { AutomationRecordTableFilters } from '@/automations/components/list/filters/AutomationRecordTableFilters';
 import { useAutomationsRecordTable } from '@/automations/hooks/useAutomationsRecordTable';
 import { IconAffiliate, IconSettings } from '@tabler/icons-react';
 import { Breadcrumb, Button, RecordTable, Separator, Spinner } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
-
-import { automationColumns } from './AutomationColumns';
-import { AutomationRecordTableFilters } from './AutomationRecordTableFilters';
+import { AutomationRecordTableCommandBar } from '@/automations/components/list/AutomationRecordTableCommandBar';
 
 export const AutomationsRecordTable = () => {
   const {
@@ -53,7 +53,7 @@ export const AutomationsRecordTable = () => {
       <RecordTable.Provider
         columns={automationColumns}
         data={list}
-        stickyColumns={['more', 'checkbox', 'avatar', 'name']}
+        stickyColumns={['checkbox', 'name']}
         className="m-3"
       >
         <RecordTable.CursorProvider
@@ -76,6 +76,7 @@ export const AutomationsRecordTable = () => {
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.CursorProvider>
+        <AutomationRecordTableCommandBar />
       </RecordTable.Provider>
     </>
   );

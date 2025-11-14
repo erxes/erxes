@@ -3,7 +3,7 @@ import {
   consumeInventoryCategory,
   getConfig,
 } from '@/erkhet/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/src/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import fetch from 'node-fetch';
 import { IContext } from '~/connectionResolvers';
 

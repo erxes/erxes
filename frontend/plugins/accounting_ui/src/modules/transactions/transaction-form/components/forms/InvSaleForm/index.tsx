@@ -1,5 +1,5 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
-import { IAccount, JournalEnum } from '@/settings/account/types/Account';
+import { AccountKind, IAccount, JournalEnum } from '@/settings/account/types/Account';
 import { Form } from 'erxes-ui';
 import { ITransactionGroupForm, TInvSaleJournal } from '../../../types/JournalForms';
 import {
@@ -39,7 +39,7 @@ export const InvSaleForm = ({
 
     setFollowTrDocs((followTrDocs || []).map((ftr) => (
       ftr.originId === trDoc._id &&
-      ftr.followType === 'invSaleOut'
+      ftr.originType === 'invSaleOut'
     ) && {
       ...ftr,
       details: ftr.details.map(ftrd => ({
@@ -56,7 +56,7 @@ export const InvSaleForm = ({
 
     setFollowTrDocs((followTrDocs || []).map((ftr) => (
       ftr.originId === trDoc._id &&
-      ftr.followType === 'invSaleCost'
+      ftr.originType === 'invSaleCost'
     ) && {
       ...ftr,
       details: ftr.details.map(ftrd => ({
@@ -71,7 +71,7 @@ export const InvSaleForm = ({
         <AccountField
           form={form}
           index={index}
-          filter={{ journals: [JournalEnum.MAIN] }}
+          filter={{ journals: [JournalEnum.INV_FOLLOW], kind: AccountKind.PASSIVE }}
           allDetails={true}
           labelTxt='Sale Account'
         />
@@ -108,7 +108,7 @@ export const InvSaleForm = ({
                 <SelectAccount
                   value={field.value || ''}
                   onValueChange={field.onChange}
-                  defaultFilter={{ journals: [JournalEnum.MAIN] }}
+                  defaultFilter={{ journals: [JournalEnum.INV_FOLLOW], kind: AccountKind.ACTIVE }}
                   onCallback={(account) => onChangeCostAccount(account)}
                 />
               </Form.Control>
