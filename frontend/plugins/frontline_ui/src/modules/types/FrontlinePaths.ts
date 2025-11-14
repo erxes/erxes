@@ -8,4 +8,5 @@ export enum FrontlinePaths {
   FbAuth = '/fb-auth',
   ChannelPipelines = '/:id/pipelines',
   PipelineDetail = '/:id/pipelines/:pipelineId',
+  Tickets = '/tickets',
 }

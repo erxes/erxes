@@ -1,14 +1,14 @@
+import { splitType, TSegmentProducers } from 'erxes-api-shared/core-modules';
 import {
   fetchByQuery,
   generateElkIds,
   getPlugin,
-  sendWorkerMessage,
+  sendCoreModuleProducer,
 } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { SEGMENT_DATE_OPERATORS, SEGMENT_NUMBER_OPERATORS } from '../constants';
 import { ICondition, ISegment } from '../db/definitions/segments';
 import { IOptions } from '../types';
-import { splitType } from 'erxes-api-shared/core-modules';
 
 const generateDefaultSelector = ({ defaultMustSelector, isInitialCall }) => {
   if (isInitialCall && defaultMustSelector) {
@@ -51,7 +51,7 @@ export const generateQueryBySegment = async (
   let { selector } = args;
 
   const { contentType } = segment;
-  const [pluginName, collectionType] = splitType(contentType);
+  const [pluginName, _moduleName, collectionType] = splitType(contentType);
   const { defaultMustSelector } = options;
 
   // generated default selector of service
@@ -76,12 +76,10 @@ export const generateQueryBySegment = async (
       ...defaultSelector,
     ];
   }
-
   // generate positive and negative selector list based on conjunction of segment
 
   const { selectorPositiveList, selectorNegativeList } =
     generatePositiveNegativeSelector({ cj, selector });
-
   const parentSegment = await models.Segments.findOne({ _id: segment.subOf });
 
   //extend query of parent segment query
@@ -113,12 +111,13 @@ export const generateQueryBySegment = async (
           continue;
         }
         if (esTypesMapAvailable) {
-          const response = await sendWorkerMessage({
+          const response = await sendCoreModuleProducer({
             subdomain,
+            moduleName: 'segments',
             pluginName,
-            queueName: 'segments',
-            jobName: 'esTypesMap',
-            data: {
+            producerName: TSegmentProducers.ES_TYPES_MAP,
+            method: 'query',
+            input: {
               collectionType,
             },
           });
@@ -127,12 +126,13 @@ export const generateQueryBySegment = async (
         }
 
         if (initialSelectorAvailable) {
-          const { negative, positive } = await sendWorkerMessage({
+          const { negative, positive } = await sendCoreModuleProducer({
             subdomain,
+            moduleName: 'segments',
             pluginName,
-            queueName: 'segments',
-            jobName: 'initialSelector',
-            data: {
+            producerName: TSegmentProducers.INITIAL_SELECTOR,
+            method: 'query',
+            input: {
               segment,
               options,
             },
@@ -156,30 +156,6 @@ export const generateQueryBySegment = async (
   const conditions = segment.conditions || [];
 
   for (const condition of conditions) {
-    if (condition.type === 'property') {
-      if (condition.propertyType === 'core:form_submission') {
-        const formFieldCondition = {
-          ...condition,
-          propertyName: 'formFieldId',
-          propertyValue: condition.propertyName,
-        };
-
-        if (
-          condition.propertyOperator &&
-          ['is', 'ins'].indexOf(condition.propertyOperator) <= 0
-        ) {
-          formFieldCondition.propertyOperator = 'e';
-          condition.propertyName = 'value';
-          propertyConditions.push(condition);
-        }
-
-        propertyConditions.push(formFieldCondition);
-        continue;
-      }
-
-      propertyConditions.push(condition);
-    }
-
     if (condition.type === 'event') {
       eventConditions.push(condition);
     }
@@ -202,9 +178,31 @@ export const generateQueryBySegment = async (
         selector: selectorPositiveList[selectorPositiveList.length - 1].bool,
         isInitialCall: false,
       });
+    } else {
+      // TODO: implement form field condition
+      // if (condition.propertyType === 'form.form_submission') {
+      //   const formFieldCondition = {
+      //     ...condition,
+      //     propertyName: 'formFieldId',
+      //     propertyValue: condition.propertyName,
+      //   };
+
+      //   if (
+      //     condition.propertyOperator &&
+      //     ['is', 'ins'].indexOf(condition.propertyOperator) <= 0
+      //   ) {
+      //     formFieldCondition.propertyOperator = 'e';
+      //     condition.propertyName = 'value';
+      //     propertyConditions.push(condition);
+      //   }
+
+      //   propertyConditions.push(formFieldCondition);
+      //   continue;
+      // }
+
+      propertyConditions.push(condition);
     }
   }
-
   for (const condition of propertyConditions) {
     const field = condition.propertyName;
 
@@ -220,10 +218,8 @@ export const generateQueryBySegment = async (
         const { contentTypes, propertyConditionExtenderAvailable } =
           serviceConfig;
 
-        const [propertyPluginName, propertyContentType] = splitType(
-          condition.propertyType,
-        );
-
+        const [propertyPluginName, _propertyModuleName, propertyContentType] =
+          splitType(condition.propertyType);
         //pass positive query to service for get extend positive query if service has property condition extender
         if (contentTypes && propertyConditionExtenderAvailable) {
           for (const ct of contentTypes) {
@@ -231,12 +227,14 @@ export const generateQueryBySegment = async (
               continue;
             }
             const { positive, ignoreThisPostiveQuery } =
-              await sendWorkerMessage({
+              await sendCoreModuleProducer({
                 subdomain,
+                moduleName: 'segments',
                 pluginName: propertyPluginName,
-                queueName: 'segments',
-                jobName: 'propertyConditionExtender',
-                data: { condition, positiveQuery },
+                producerName: TSegmentProducers.PROPERTY_CONDITION_EXTENDER,
+                method: 'query',
+                input: { condition: condition as any, positiveQuery },
+                defaultValue: { positive: null, ignoreThisPostiveQuery: false },
               });
 
             if (positive) {
@@ -345,7 +343,7 @@ export const generateQueryBySegment = async (
       const idsByEvents = await fetchByQuery({
         subdomain,
         index: 'events',
-        _source: contentType === 'company' ? 'companyId' : 'customerId',
+        _source: collectionType === 'company' ? 'companyId' : 'customerId',
         positiveQuery: eventPositive,
         negativeQuery: eventNegative,
       });
@@ -589,13 +587,14 @@ const associationPropertyFilter = async (
   const plugin = await getPlugin(pluginName);
   const segmentMeta = (plugin.config.meta || {}).segments;
 
-  if (segmentMeta && segmentMeta.associationFilterAvailable) {
-    return await sendWorkerMessage({
+  if (segmentMeta) {
+    return await sendCoreModuleProducer({
       subdomain,
+      moduleName: 'segments',
       pluginName,
-      queueName: 'segments',
-      jobName: 'associationFilter',
-      data: {
+      producerName: TSegmentProducers.ASSOCIATION_FILTER,
+      method: 'query',
+      input: {
         mainType,
         propertyType,
         positiveQuery,

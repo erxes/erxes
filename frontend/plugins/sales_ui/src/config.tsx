@@ -3,6 +3,7 @@ import {
   IconCashRegister,
   IconSandbox,
 } from '@tabler/icons-react';
+import { IUIConfig } from 'erxes-ui/types';
 import { Suspense, lazy } from 'react';
 
 const MainNavigation = lazy(() =>
@@ -14,6 +15,12 @@ const MainNavigation = lazy(() =>
 const SalesNavigation = lazy(() =>
   import('./modules/SalesNavigation').then((module) => ({
     default: module.SalesNavigation,
+  })),
+);
+
+const PosOrderNavigation = lazy(() =>
+  import('./modules/pos/PosOrderNavigation').then((module) => ({
+    default: module.PosOrderNavigation,
   })),
 );
 
@@ -33,6 +40,7 @@ export const CONFIG = {
     subGroups: () => (
       <Suspense fallback={<div />}>
         <SalesNavigation />
+        <PosOrderNavigation />
       </Suspense>
     ),
   },
@@ -42,6 +50,8 @@ export const CONFIG = {
       icon: IconSandbox,
       path: 'deals',
       hasSettings: true,
+      hasAutomation: true,
+      hasSegmentConfigWidget: true,
     },
     {
       name: 'pos',

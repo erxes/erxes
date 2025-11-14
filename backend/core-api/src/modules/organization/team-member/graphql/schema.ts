@@ -29,12 +29,6 @@ export const types = `
 
   input InvitationEntry {
     email: String
-    password: String
-    groupId: String
-    channelIds: [String]
-    unitId: String
-    branchId: String
-    departmentId: String
   }
 
   enum UserChatStatus{
@@ -62,7 +56,7 @@ export const types = `
     purchased: Int
     isWhiteLabel: Boolean
     setupService: JSON
-    onboardingDone: Boolean
+    onboardedPlugins: [String]
     contactRemaining: Boolean
     experienceName: String
     experience: JSON
@@ -89,7 +83,7 @@ export const types = `
 
     currentOrganization: Organization
     organizations: [CookieOrganization]
-    onboardingDone: Boolean
+    onboardedPlugins: [String]
     groupIds: [String]
     isSubscribed: String
     isShowNotification: Boolean
@@ -199,5 +193,4 @@ export const mutations = `
   editOrganizationInfo(icon: String, logo: String, link: String, name: String, iconColor: String, backgroundColor: String, description: String, domain: String, favicon: String, textColor: String): Organization
   editOrganizationDomain(type: String, domain: String): Organization
   usersCreateOwner(email: String!, password: String!, firstName: String!, lastName: String, purpose: String, subscribeEmail: Boolean): String
-  usersSetOnboardingDone: Boolean
 `;

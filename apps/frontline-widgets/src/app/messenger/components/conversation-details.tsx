@@ -233,7 +233,7 @@ export const ConversationDetails = () => {
 
         {botShowInitialMessage && <BotMessage content={botGreetMessage} />}
       </div>
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <ChatInput />
       </div>
     </div>

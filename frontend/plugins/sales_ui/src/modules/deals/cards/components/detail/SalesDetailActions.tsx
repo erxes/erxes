@@ -75,7 +75,7 @@ export const SalesDetailActions = () => {
             title={actionTabs.notes.title}
           >
             <Resizable.PanelGroup direction="vertical" className="flex-auto">
-              <Resizable.Panel className="!overflow-y-auto">
+              <Resizable.Panel className="overflow-y-auto!">
                 <ActivityLogs
                   operation={{
                     variables: {

@@ -88,7 +88,7 @@ export const BranchCard = ({
             <div className="flex flex-1 gap-1 items-center min-w-0 sm:gap-2">
               <IconCalendarPlus
                 size={16}
-                className="flex-shrink-0 text-foreground"
+                className="shrink-0 text-foreground"
               />
               <span className="text-[10px] sm:text-[12px] font-semibold leading-[100%] font-inter truncate">
                 Created:{' '}

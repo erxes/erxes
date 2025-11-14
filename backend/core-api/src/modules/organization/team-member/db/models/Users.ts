@@ -25,6 +25,7 @@ import { IModels } from '~/connectionResolvers';
 
 import { USER_MOVEMENT_STATUSES } from 'erxes-api-shared/core-modules';
 import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
+import { sendOnboardNotification } from '~/modules/notifications/utils';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -54,9 +55,6 @@ interface IConfirmParams {
 
 interface IInviteParams {
   email: string;
-  password: string;
-  groupId: string;
-  brandIds: string[];
 }
 
 interface ILoginParams {
@@ -320,32 +318,20 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
     /**
      * Create new user with invitation token
      */
-    public static async invite({
-      email,
-      password,
-      groupId,
-      brandIds,
-    }: IInviteParams) {
+    public static async invite({ email }: IInviteParams) {
       email = (email || '').toLowerCase().trim();
-      password = (password || '').trim();
 
       // Checking duplicated email
       await models.Users.checkDuplication({ email });
 
       const { token, expires } = await User.generateToken();
 
-      this.checkPassword(password);
-
       const user = await models.Users.create({
         email,
-        groupIds: [groupId],
         isActive: true,
-        // hash password
-        password: await this.generatePassword(password),
         registrationToken: token,
         registrationTokenExpires: expires,
         code: await this.generateUserCode(),
-        brandIds,
       });
 
       models.Roles.create({
@@ -749,7 +735,6 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         _id = user._id;
         // if refresh token is expired then force to login
       } catch (e: any) {
-        console.log(e);
         return {};
       }
 
@@ -821,38 +806,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      if (!user.lastSeenAt) {
-        const pluginNames = await getAvailablePlugins(subdomain);
-
-        for (const pluginName of pluginNames) {
-          if (pluginName === 'core') {
-            sendNotification(subdomain, {
-              title: 'Welcome to erxes 🎉',
-              message:
-                'We’re excited to have you on board! Explore the features, connect with your team, and start growing your business with erxes.',
-              type: 'info',
-              userIds: [user._id],
-              priority: 'low',
-              kind: 'system',
-              contentType: `${pluginName}:system.welcome`,
-            });
-
-            await user.updateOne({ $set: { lastSeenAt: new Date() } });
-
-            continue;
-          }
-
-          sendNotification(subdomain, {
-            title: `Get Started with ${pluginName}`,
-            message: `Excited to introduce ${pluginName}! Dive in to explore its features and see how it can help your business thrive.`,
-            type: 'info',
-            userIds: [user._id],
-            priority: 'low',
-            kind: 'system',
-            contentType: `${pluginName}:system.welcome`,
-          });
-        }
-      }
+      await sendOnboardNotification(subdomain, models, user);
 
       return {
         token,
@@ -1222,12 +1176,6 @@ export const loadUserMovemmentClass = (models: IModels, subdomain: string) => {
               contentType === 'department'
                 ? 'departmentAssigneeChanged'
                 : 'branchAssigneeChanged';
-            console.log({
-              fromUserId: createdBy,
-              userIds: targetUserIds,
-              notificationType,
-              message,
-            });
             sendNotification(subdomain, {
               title,
               message,

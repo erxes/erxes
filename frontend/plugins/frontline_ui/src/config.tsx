@@ -1,9 +1,4 @@
-import {
-  IconInbox,
-  IconMail,
-  IconStackFront,
-  IconTicket,
-} from '@tabler/icons-react';
+import { IconMail, IconStackFront, IconTicket } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 
@@ -53,6 +48,7 @@ export const CONFIG: IUIConfig = {
       icon: IconMail,
       path: 'frontline',
       hasSettings: false,
+      hasAutomation: true,
     },
   ],
 

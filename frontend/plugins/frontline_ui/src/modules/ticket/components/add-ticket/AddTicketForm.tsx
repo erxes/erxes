@@ -31,7 +31,7 @@ export const AddTicketForm = ({
   onComplete,
 }: {
   onClose: () => void;
-  onComplete: (ticketId: string) => void;
+  onComplete?: (ticketId: string) => void;
 }) => {
   const [pipelineId] = useQueryState<string>('pipelineId');
   const [channelId] = useQueryState<string>('channelId');
@@ -53,7 +53,7 @@ export const AddTicketForm = ({
     startDate: undefined,
     targetDate: undefined,
   };
-
+  console.log(channelId, 'channelId');
   const form = useForm<TAddTicket>({
     resolver: zodResolver(addTicketSchema),
     defaultValues,
@@ -94,7 +94,7 @@ export const AddTicketForm = ({
           variant: 'default',
         });
         onClose();
-        onComplete(data.createTicket._id);
+        onComplete?.(data.createTicket._id);
       },
     });
   };
@@ -135,20 +135,25 @@ export const AddTicketForm = ({
             <Form.Field
               name="channelId"
               control={form.control}
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <Form.Item>
                   <Form.Label className="sr-only">Channel</Form.Label>
                   <SelectChannel.FormItem
                     value={field.value || ''}
                     onValueChange={(value) => field.onChange(value)}
                   />
+                  {fieldState.error && (
+                    <p className="text-destructive text-sm mt-1">
+                      {fieldState.error.message}
+                    </p>
+                  )}
                 </Form.Item>
               )}
             />
             <Form.Field
               name="pipelineId"
               control={form.control}
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <Form.Item>
                   <Form.Label className="sr-only">Pipeline</Form.Label>
                   <SelectPipeline.FormItem
@@ -156,13 +161,18 @@ export const AddTicketForm = ({
                     onValueChange={(value) => field.onChange(value)}
                     form={form}
                   />
+                  {fieldState.error && (
+                    <p className="text-destructive text-sm mt-1">
+                      {fieldState.error.message}
+                    </p>
+                  )}
                 </Form.Item>
               )}
             />
             <Form.Field
               name="statusId"
               control={form.control}
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <Form.Item>
                   <Form.Label className="sr-only">Status</Form.Label>
                   <SelectStatusTicket.FormItem
@@ -170,6 +180,11 @@ export const AddTicketForm = ({
                     onValueChange={(value) => field.onChange(value)}
                     form={form}
                   />
+                  {fieldState.error && (
+                    <p className="text-destructive text-sm mt-1">
+                      {fieldState.error.message}
+                    </p>
+                  )}
                 </Form.Item>
               )}
             />
@@ -240,7 +255,7 @@ export const AddTicketForm = ({
             />
           </div>
         </Sheet.Content>
-        <Sheet.Footer className="flex justify-end flex-shrink-0 gap-1 px-5">
+        <Sheet.Footer className="flex justify-end shrink-0 gap-1 px-5">
           <Button
             type="button"
             variant="ghost"
