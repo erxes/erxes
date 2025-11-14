@@ -18,7 +18,7 @@ const Container = (props: Props) => {
   const { data, loading } = useQuery(queries.GET_TAGS, {
     variables: {
       clientPortalId: props.clientPortalId,
-      searchValue: '',
+      searchValue,
     },
   });
 

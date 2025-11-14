@@ -6,6 +6,7 @@ import Detail from '../../components/switchboard/Detail';
 import { queries, subscriptions } from '../../graphql';
 import { Spinner } from '@erxes/ui/src/components';
 import { useParams } from 'react-router-dom';
+import { TickProvider } from '../../components/TickProvider';
 
 function DetailContainer() {
   const { queue } = useParams();
@@ -67,7 +68,11 @@ function DetailContainer() {
     initialWaitingCall: inititalWaitingCall.callWaitingList,
   };
 
-  return <Detail {...updatedProps} />;
+  return (
+    <TickProvider>
+      <Detail {...updatedProps} />
+    </TickProvider>
+  );
 }
 
 export default DetailContainer;
