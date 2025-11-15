@@ -88,7 +88,7 @@ export const IncomingWebhookPayloadSchemaGenerator = ({
               <p className="text-xs">Updates in real-time as you edit.</p>
             </div>
           </div>
-          <div className="p-3 rounded text-xs font-mono overflow-x-auto max-h-80 overflow-y-auto border bg-white">
+          <div className="p-3 rounded text-xs font-mono overflow-x-auto max-h-80 overflow-y-auto border bg-background">
             <pre>{previewJson}</pre>
           </div>
         </div>
