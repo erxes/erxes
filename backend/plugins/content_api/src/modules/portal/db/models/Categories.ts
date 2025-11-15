@@ -4,6 +4,7 @@ import slugify from 'slugify';
 import { IModels } from '~/connectionResolvers';
 import { IPostCategory, IPostCategoryDocument } from '@/portal/@types/post';
 import { postCategorySchema } from '@/portal/db/definitions/post';
+import { generateUniqueSlug } from '@/portal/utils/common';
 
 export interface ICategoryModel extends Model<IPostCategoryDocument> {
   getCategories: (query: any) => Promise<IPostCategoryDocument[]>;
@@ -19,21 +20,22 @@ export interface ICategoryModel extends Model<IPostCategoryDocument> {
 export const loadCategoryClass = (models: IModels) => {
   class Categories {
     public static createCategory = async (data: IPostCategory) => {
-      const slug = data.slug || slugify(data.name, { lower: true });
-      data.slug = slug;
+      const baseSlug = slugify(data.name, { lower: true });
+      data.slug = await generateUniqueSlug(models.Categories, data.clientPortalId, 'slug', baseSlug);
       const category = await models.Categories.create(data);
       return category;
     };
 
     public static updateCategory = async (id: string, data: IPostCategory) => {
-      if (!data.slug && data.name) {
-        data.slug = slugify(data.name, { lower: true });
+      if (data.name) {
+        const baseSlug = slugify(data.name, { lower: true });
+        data.slug = await generateUniqueSlug(models.Categories, data.clientPortalId, 'slug', baseSlug);
       }
 
       const category = await models.Categories.findOneAndUpdate(
         { _id: id },
         { $set: data },
-        { new: true },
+        { new: true }
       );
       return category;
     };

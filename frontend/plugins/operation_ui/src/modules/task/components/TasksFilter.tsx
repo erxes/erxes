@@ -18,6 +18,7 @@ import clsx from 'clsx';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 import { SelectMilestone } from './task-selects/SelectMilestone';
+import { TagsFilter } from 'ui-modules';
 
 const TasksFilterPopover = () => {
   const { teamId, projectId } = useParams();
@@ -70,6 +71,7 @@ const TasksFilterPopover = () => {
                   <IconProgressCheck />
                   Status
                 </Filter.Item>
+                <TagsFilter />
                 {(projectId && !queries?.milestone) && (
                   <Filter.Item value="milestone">
                     <IconSquareRotated />
@@ -87,6 +89,7 @@ const TasksFilterPopover = () => {
           ) : (
             <SelectStatus.FilterView />
           )}
+          <TagsFilter.View tagType="operation:task" />
           {(projectId && !queries?.milestone) && (
             <SelectMilestone.FilterView projectId={projectId || ''} />
           )}
@@ -110,7 +113,8 @@ export const TasksFilter = () => {
     priority: string;
     status: string;
     milestone: string;
-  }>(['searchValue', 'assignee', 'team', 'priority', 'status', 'milestone']);
+    tags: string[];
+  }>(['searchValue', 'assignee', 'team', 'priority', 'status', 'milestone', 'tags']);
   const { searchValue, milestone } = queries || {};
 
   return (
@@ -164,7 +168,7 @@ export const TasksFilter = () => {
           </Filter.BarName>
           <SelectAssigneeTask.FilterBar />
         </Filter.BarItem>
-
+        <TagsFilter.Bar tagType="operation:task" />
         {(projectId && milestone) && (
           <Filter.BarItem queryKey="milestone">
             <Filter.BarName>

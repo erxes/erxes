@@ -82,6 +82,8 @@
     0px 0px 0px 1px var(--primary);
   --shadow-subtle: 0px 0px 0px 1px var(--primary);
   --shadow-destructive: 0px 0px 0px 1px var(--destructive);
+  --shadow-focus-destructive: 0px 0px 0px 4px oklch(0.6334 0.2103 25.32 / 25%),
+    0px 0px 0px 1px var(--destructive);
   --shadow-xs: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
     0 2px 2px var(--shadow);
   --shadow-sm: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),

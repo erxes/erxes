@@ -1,5 +1,6 @@
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { SelectStatus } from '@/operation/components/SelectStatus';
+import { SelectTags } from 'ui-modules';
 import { DateSelect, SelectLead } from '@/project/components/select';
 import { useCreateProject } from '@/project/hooks/useCreateProject';
 import { TAddProject, addProjectSchema } from '@/project/types';
@@ -46,6 +47,7 @@ export const AddProjectForm = ({
       leadId: task?.assigneeId || undefined,
       targetDate: task?.targetDate ? new Date(task?.targetDate) : undefined,
       convertedFromId: task?._id,
+      tagIds: [] as string[],
     },
   });
   useEffect(() => {
@@ -213,6 +215,21 @@ export const AddProjectForm = ({
                     {...field}
                     type="target"
                     placeholder="Target Date"
+                  />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              name="tagIds"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item className="shrink-0">
+                  <Form.Label className="sr-only">Tags</Form.Label>
+                  <SelectTags.FormItem
+                    tagType="operation:project"
+                    mode="multiple"
+                    value={field.value || []}
+                    onValueChange={(value) => field.onChange(value)}
                   />
                 </Form.Item>
               )}

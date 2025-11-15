@@ -3,8 +3,7 @@ import {
   coreModelOrganizations,
   getSaasCoreConnection,
 } from '../saas/saas-mongo-connection';
-import { isEnabled } from '../service-discovery';
-import { checkServiceRunning, getEnv, getSubdomain } from '../utils';
+import { getEnv, getSubdomain } from '../utils';
 import { startChangeStreams } from './change-stream';
 import { connect } from './mongo-connection';
 
@@ -21,15 +20,8 @@ const initializeModels = async <IModels>(
   },
 ) => {
   const models = await loadClasses(connection, subdomain);
-  if (
-    !logIgnoreOptions?.ignoreChangeStream &&
-    (await checkServiceRunning('logs'))
-  ) {
-    await startChangeStreams(
-      models as Record<string, mongoose.Model<any>>,
-      subdomain,
-      logIgnoreOptions,
-    );
+  if (!logIgnoreOptions?.ignoreChangeStream) {
+    startChangeStreams(models as any, subdomain, logIgnoreOptions);
   }
 
   return models;

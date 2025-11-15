@@ -8,6 +8,7 @@ import {
   IconPhotoScan,
   IconVideo,
 } from '@tabler/icons-react';
+import { generateAutomationElementId } from 'ui-modules';
 
 export const REPLY_MESSAGE_ACTION_BUTTONS = [
   { type: 'text', title: 'Text', icon: IconLetterTSmall },
@@ -34,7 +35,12 @@ export const INITIAL_OBJ_MESSAGE_TYPES = {
     image: '',
   },
   card: {
-    cards: [],
+    cards: [
+      {
+        _id: generateAutomationElementId(),
+        label: `Page 1`,
+      },
+    ],
   },
   quickReplies: {
     quickReplies: [],

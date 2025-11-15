@@ -76,13 +76,21 @@ export const TasksViewControl = () => {
   );
 };
 
-export const TasksView = () => {
+interface TasksViewProps {
+  isCreatedView?: boolean;
+}
+
+export const TasksView = ({ isCreatedView = false }: TasksViewProps) => {
   const view = useAtomValue(tasksViewAtom);
   const { teamId } = useParams();
 
   return (
     <Suspense>
-      {view === 'list' || !teamId ? <TasksRecordTable /> : <TasksBoard />}
+      {view === 'list' || !teamId ? (
+        <TasksRecordTable isCreatedView={isCreatedView} />
+      ) : (
+        <TasksBoard />
+      )}
       <TaskDetailSheet />
     </Suspense>
   );
