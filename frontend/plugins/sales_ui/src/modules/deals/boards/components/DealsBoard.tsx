@@ -216,10 +216,9 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
 
   const archivedOnly = searchParams.get('archivedOnly') === 'true';
 
-  // archivedOnly = true → зөвхөн архивлагдсан харуулахын тулд серверт архивуудыг үл алгасах
-  // archivedOnly = false эсвэл байхгүй → идэвхтэйг харуулахын тулд серверт архивуудыг алгасах
-  queryVariables.activeOnly = archivedOnly;
-
+  // When archivedOnly = true, fetch archived deals (activeOnly = false)
+  // When archivedOnly = false, fetch active deals (activeOnly = true)
+  queryVariables.activeOnly = !archivedOnly;
   const boardCards = dealCards.filter((deal) => deal.column === column.id);
 
   const allDealsMap = useAtomValue(allDealsMapState);
