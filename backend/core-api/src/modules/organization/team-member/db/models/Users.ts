@@ -9,7 +9,7 @@ import {
   userMovemmentSchema,
   userSchema,
 } from 'erxes-api-shared/core-modules';
-import { getAvailablePlugins, redis } from 'erxes-api-shared/utils';
+import { redis } from 'erxes-api-shared/utils';
 
 import { saveValidatedToken } from '@/auth/utils';
 import {
@@ -24,8 +24,8 @@ import {
 import { IModels } from '~/connectionResolvers';
 
 import { USER_MOVEMENT_STATUSES } from 'erxes-api-shared/core-modules';
-import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
+import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -55,6 +55,7 @@ interface IConfirmParams {
 
 interface IInviteParams {
   email: string;
+  password?: string;
 }
 
 interface ILoginParams {
@@ -80,7 +81,7 @@ export interface IUserModel extends Model<IUserDocument> {
     username?: string;
   }): Promise<never>;
   getSecret(): string;
-  generateToken(): { token: string; expires: Date };
+  generateToken(duration?: number): { token: string; expires: Date };
   createUser(doc: IUser & { notUsePassword?: boolean }): Promise<IUserDocument>;
   updateUser(_id: string, doc: IUpdateUser): Promise<IUserDocument>;
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
@@ -98,7 +99,6 @@ export interface IUserModel extends Model<IUserDocument> {
   generatePassword(password: string): Promise<string>;
   invite(params: IInviteParams): string;
   resendInvitation({ email }: { email: string }): string;
-  confirmInvitation(params: IConfirmParams): Promise<IUserDocument>;
   comparePassword(password: string, userPassword: string): boolean;
   resetPassword(params: {
     token: string;
@@ -196,7 +196,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
 
         // Checking if duplicated
         if (previousEntry) {
-          throw new Error('Duplicated User Name Id');
+          throw new Error('Username already exists');
         }
       }
     }
@@ -305,26 +305,33 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
       return models.Users.findOne({ _id });
     }
 
-    public static async generateToken() {
+    public static async generateToken(duration?: number) {
       const buffer = await crypto.randomBytes(20);
       const token = buffer.toString('hex');
 
+      const expires = Date.now() + (duration || 86400000);
+
       return {
         token,
-        expires: Date.now() + 86400000,
+        expires,
       };
     }
 
     /**
      * Create new user with invitation token
      */
-    public static async invite({ email }: IInviteParams) {
+    public static async invite({ email, password }: IInviteParams) {
       email = (email || '').toLowerCase().trim();
+      password = (password || '').trim();
 
       // Checking duplicated email
       await models.Users.checkDuplication({ email });
 
-      const { token, expires } = await User.generateToken();
+      const { token, expires } = await models.Users.generateToken(1800000); // 30 minutes
+
+      if (password) {
+        this.checkPassword(password);
+      }
 
       const user = await models.Users.create({
         email,
@@ -332,6 +339,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         registrationToken: token,
         registrationTokenExpires: expires,
         code: await this.generateUserCode(),
+        ...(password && { password: await this.generatePassword(password) }),
       });
 
       models.Roles.create({
@@ -356,7 +364,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         throw new Error('Invalid request');
       }
 
-      const { token, expires } = await models.Users.generateToken();
+      const { token, expires } = await models.Users.generateToken(1800000); // 30 minutes
 
       await models.Users.updateOne(
         { email },
@@ -367,63 +375,6 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
       );
 
       return token;
-    }
-
-    /**
-     * Confirms user by invitation
-     */
-    public static async confirmInvitation({
-      token,
-      password,
-      passwordConfirmation,
-      fullName,
-      username,
-    }: {
-      token: string;
-      password: string;
-      passwordConfirmation: string;
-      fullName?: string;
-      username?: string;
-    }) {
-      const user = await models.Users.findOne({
-        registrationToken: token,
-        registrationTokenExpires: {
-          $gt: Date.now(),
-        },
-      });
-
-      if (!user || !token) {
-        throw new Error('Token is invalid or has expired');
-      }
-
-      if (password === '') {
-        throw new Error('Password can not be empty');
-      }
-
-      if (password !== passwordConfirmation) {
-        throw new Error('Password does not match');
-      }
-
-      this.checkPassword(password);
-
-      await models.Users.updateOne(
-        { _id: user._id },
-        {
-          $set: {
-            password: await this.generatePassword(password),
-            isActive: true,
-            registrationToken: undefined,
-            username,
-            details: {
-              fullName,
-              firstName: (fullName ?? '').split(' ')[0],
-              lastName: (fullName ?? '').split(' ')[1] || '',
-            },
-          },
-        },
-      );
-
-      return user;
     }
 
     /*
