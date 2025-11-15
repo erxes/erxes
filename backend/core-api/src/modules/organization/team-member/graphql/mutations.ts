@@ -13,6 +13,7 @@ import {
 import { IContext } from '~/connectionResolvers';
 import { saveValidatedToken } from '~/modules/auth/utils';
 import { sendInvitationEmail } from '../utils';
+import { sendOnboardNotification } from '~/modules/notifications/utils';
 
 export interface IUsersEdit extends IUser {
   channelIds?: string[];
@@ -307,6 +308,8 @@ export const userMutations: Record<string, Resolver> = {
 
       res.cookie('auth-token', token, authCookieOptions(cookieOptions));
     }
+
+    await sendOnboardNotification(subdomain, models, user._id);
 
     return 'accepted';
   },

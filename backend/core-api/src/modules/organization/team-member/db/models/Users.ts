@@ -757,7 +757,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      await sendOnboardNotification(subdomain, models, user);
+      await sendOnboardNotification(subdomain, models, user._id);
 
       return {
         token,
