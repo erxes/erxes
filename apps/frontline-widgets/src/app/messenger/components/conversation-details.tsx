@@ -177,7 +177,7 @@ export const ConversationDetails = () => {
               {messageGroups.map((group, groupIndex) => (
                 <div
                   key={`group-${groupIndex}`}
-                  className={cn(groupIndex !== 0 && 'pt-4', 'space-y-0.5')}
+                  className={cn(groupIndex !== 0 && 'pt-4 w-full', 'space-y-0.5')}
                 >
                   {group.messages.map((message, messageIndex) => {
                     const messagePositionProps = {

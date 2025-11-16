@@ -79,7 +79,7 @@ export const HeaderTabs = () => {
           className="flex items-center gap-2 hover:bg-transparent size-8 text-accent-foreground"
           onClick={goBack}
         >
-          <IconChevronLeft size={16} />
+          <IconChevronLeft className="w-4 h-4 shrink-0" />
         </Button>
         <div className="text-base font-semibold">{getCurrentTitle()}</div>
       </div>

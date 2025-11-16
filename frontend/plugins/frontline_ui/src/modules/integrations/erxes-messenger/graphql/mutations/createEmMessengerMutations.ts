@@ -53,3 +53,21 @@ export const SAVE_EM_APPEARANCE_MUTATION = gql`
     }
   }
 `;
+
+export const EDIT_EM_MESSENGER_MUTATION = gql`
+  mutation IntegrationsEditMessengerIntegration(
+    $id: String!
+    $channelId: String!
+    $name: String!
+    $languageCode: String
+  ) {
+    integrationsEditMessengerIntegration(
+      _id: $id
+      channelId: $channelId
+      name: $name
+      languageCode: $languageCode
+    ) {
+      _id
+    }
+  }
+`;

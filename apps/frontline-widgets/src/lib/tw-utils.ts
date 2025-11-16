@@ -151,8 +151,11 @@ export class TailwindThemeManager {
     if (!uiOptions) return;
 
     // Apply primary colors only
-    if (uiOptions.color) {
-      this.applyPrimaryColors(uiOptions.color);
+    if (uiOptions.primary?.DEFAULT) {
+      this.applyPrimaryColors(uiOptions.primary.DEFAULT, uiOptions.primary.foreground);
+    } else {
+      // If no primary color is provided, set default accent colors
+      this.setDefaultAccentColors();
     }
 
     // Apply logo
@@ -166,24 +169,31 @@ export class TailwindThemeManager {
   /**
    * Apply primary color scheme
    */
-  private applyPrimaryColors(primary: string): void {
+  private applyPrimaryColors(primary: string, foreground?: string): void {
     if (!primary) return;
 
+    let primaryHsl: HSLColor | null = null;
+
     try {
-      const primaryHsl = ColorUtils.hexToHsl(primary);
+      primaryHsl = ColorUtils.hexToHsl(primary);
       const primaryHslString = ColorUtils.hslToString(primaryHsl);
       
       this.setCustomProperty('--primary', primaryHslString);
 
-      // Set primary foreground based on contrast
-      const primaryForeground = ColorUtils.getContrastColor(primary);
+      // Set primary foreground from config or based on contrast
+      const primaryForeground = foreground || ColorUtils.getContrastColor(primary);
       const primaryForegroundHsl = ColorUtils.hexToHsl(primaryForeground);
       this.setCustomProperty('--primary-foreground', ColorUtils.hslToString(primaryForegroundHsl));
-
-      // Generate accent colors based on primary color
-      this.generateAccentColors(primaryHsl);
     } catch (error) {
       // Error applying primary colors - continue with defaults
+    }
+
+    // Always generate accent colors if we have a primary color
+    if (primaryHsl) {
+      this.generateAccentColors(primaryHsl);
+    } else {
+      // Fallback to default accent colors if primary color processing failed
+      this.setDefaultAccentColors();
     }
   }
 
@@ -201,13 +211,21 @@ export class TailwindThemeManager {
   }
 
   /**
+   * Set default accent colors when no primary color is provided
+   */
+  private setDefaultAccentColors(): void {
+    this.setCustomProperty('--accent', DEFAULT_COLORS.accent);
+    this.setCustomProperty('--accent-foreground', DEFAULT_COLORS['accent-foreground']);
+  }
+
+  /**
    * Set common color variables that are frequently used
    */
   private setCommonColorVariables(uiOptions: IWidgetUiOptions): void {
     // Set muted colors based on primary or use defaults
-    if (uiOptions.color) {
+    if (uiOptions.primary?.DEFAULT) {
       try {
-        const primaryHsl = ColorUtils.hexToHsl(uiOptions.color);
+        const primaryHsl = ColorUtils.hexToHsl(uiOptions.primary.DEFAULT);
         
         // Generate muted colors from primary
         const mutedHsl = ColorUtils.adjustHsl(primaryHsl, { lightness: 96, saturation: 5 });
@@ -291,12 +309,12 @@ export class TailwindThemeManager {
       'muted-foreground': 'text-muted-foreground',
     };
 
-    if (uiOptions.color) {
-      classes.primary = `bg-[${uiOptions.color}]`;
+    if (uiOptions.primary?.DEFAULT) {
+      classes.primary = `bg-[${uiOptions.primary.DEFAULT}]`;
     }
 
-    if (uiOptions.textColor) {
-      classes['primary-foreground'] = `text-[${uiOptions.textColor}]`;
+    if (uiOptions.primary?.foreground) {
+      classes['primary-foreground'] = `text-[${uiOptions.primary.foreground}]`;
     }
 
     return classes;

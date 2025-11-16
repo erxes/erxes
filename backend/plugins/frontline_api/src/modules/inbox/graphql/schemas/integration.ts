@@ -152,10 +152,7 @@ export const types = `
   }
 
   input MessengerUiOptions {
-    color: String
-    wallpaper: String
     logo: String
-    textColor: String
     primary: ColorDefinitionInput
   }
 

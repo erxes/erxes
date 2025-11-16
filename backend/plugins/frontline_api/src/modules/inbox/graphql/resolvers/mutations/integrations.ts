@@ -292,7 +292,7 @@ export const integrationMutations = {
       integrationDocs,
     );
 
-    const uiOptions = { logo: fields.logo, color: fields.color };
+    const uiOptions = { logo: fields.logo, primary: fields.primary };
 
     return await models.Integrations.saveMessengerAppearanceData(
       updated._id,

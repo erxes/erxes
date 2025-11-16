@@ -149,10 +149,7 @@ export interface IColorDefinition {
   foreground?: string;
 }
 export interface IUiOptions {
-  color?: string;
-  wallpaper?: string;
   logo?: string;
-  textColor?: string;
   primary?: IColorDefinition;
 }
 

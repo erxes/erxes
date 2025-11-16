@@ -296,12 +296,9 @@ export const CustomerMessage = ({
       <Tooltip.Trigger asChild>
         <Button
           variant="ghost"
-          className="flex group/customer-message items-end size-auto gap-2 flex-row ml-auto p-0 hover:bg-transparent"
+          className="flex group/customer-message items-end max-w-[70%] justify-end size-auto gap-2 flex-row ml-auto p-0 hover:bg-transparent"
         >
-          <span className="text-muted-foreground hidden group-hover/customer-message:block text-xs self-center">
-            {formatDateISOStringToRelativeDate(createdAt.toISOString())}
-          </span>
-          <div className="flex flex-col gap-2 max-w-[70%]">
+          <div className="flex flex-col gap-2 w-fit">
             {content && content !== '<p></p>' && (
               <div
                 className={cn(
@@ -364,7 +361,7 @@ export const CustomerMessage = ({
           </div>
         </Button>
       </Tooltip.Trigger>
-      <Tooltip.Content>
+      <Tooltip.Content className="z-50 overflow-hidden rounded-md bg-foreground px-3 py-1.5 text-xs text-background animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2">
         {format(createdAt, 'MMM dd, yyyy hh:mm aa')}
       </Tooltip.Content>
     </Tooltip>

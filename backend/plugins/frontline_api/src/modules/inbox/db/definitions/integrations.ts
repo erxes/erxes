@@ -248,9 +248,6 @@ const colorDefinitionSchema = new Schema(
 // subdocument schema for messenger UiOptions
 const uiOptionsSchema = new Schema(
   {
-    color: { type: String },
-    textColor: { type: String },
-    wallpaper: { type: String },
     logo: { type: String },
     primary: { type: colorDefinitionSchema },
   },

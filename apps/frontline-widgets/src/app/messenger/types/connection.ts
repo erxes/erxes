@@ -57,8 +57,10 @@ export interface IMessageDataMessages {
 }
 
 export interface IWidgetUiOptions {
-  color?: string;
-  textColor?: string;
+  primary?: {
+    DEFAULT?: string;
+    foreground?: string;
+  };
   logo?: string;
 }
 
