@@ -32,7 +32,7 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
           size="icon"
           type="submit"
           aria-label="Send"
-          className="aspect-square text-accent bg-primary size-8"
+          className="aspect-square text-accent bg-primary size-8 p-2"
           disabled={isDisabled || loading}
         >
           <IconArrowUp />
