@@ -44,77 +44,75 @@ export const StageProbalityTriggerConfigForm = ({
 
   return (
     <Form {...form}>
-      <div className="w-2xl">
+      <Form.Field
+        control={control}
+        name="probability"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Probability</Form.Label>
+            <Select value={field.value} onValueChange={field.onChange}>
+              <Select.Trigger>
+                <Select.Value placeholder="Select probability" />
+              </Select.Trigger>
+              <Select.Content>
+                {STAGE_PROBABILITIES.map((probability) => (
+                  <Select.Item key={probability} value={probability}>
+                    {probability}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+      <div className="grid grid-cols-3 gap-2 mt-2">
         <Form.Field
           control={control}
-          name="probability"
+          name="boardId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Probability</Form.Label>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <Select.Trigger>
-                  <Select.Value placeholder="Select probability" />
-                </Select.Trigger>
-                <Select.Content>
-                  {STAGE_PROBABILITIES.map((probability) => (
-                    <Select.Item key={probability} value={probability}>
-                      {probability}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select>
+              <Form.Label>Board (optional)</Form.Label>
+              <SelectBoard.FormItem
+                mode="single"
+                onValueChange={field.onChange}
+                value={field.value}
+              />
               <Form.Message />
             </Form.Item>
           )}
         />
-        <div className="grid grid-cols-3 gap-2 mt-2">
-          <Form.Field
-            control={control}
-            name="boardId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Board (optional)</Form.Label>
-                <SelectBoard.FormItem
-                  mode="single"
-                  onValueChange={field.onChange}
-                  value={field.value}
-                />
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            control={control}
-            name="pipelineId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Pipeline (optional)</Form.Label>
-                <SelectPipeline.FormItem
-                  mode="single"
-                  onValueChange={field.onChange}
-                  value={field.value}
-                  boardId={boardId}
-                />
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            control={control}
-            name="stageId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Stage (optional)</Form.Label>
-                <SelectStage.FormItem
-                  mode="single"
-                  onValueChange={field.onChange}
-                  value={field.value}
-                  pipelineId={pipelineId}
-                />
-              </Form.Item>
-            )}
-          />
-        </div>
+        <Form.Field
+          control={control}
+          name="pipelineId"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Pipeline (optional)</Form.Label>
+              <SelectPipeline.FormItem
+                mode="single"
+                onValueChange={field.onChange}
+                value={field.value}
+                boardId={boardId}
+              />
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={control}
+          name="stageId"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Stage (optional)</Form.Label>
+              <SelectStage.FormItem
+                mode="single"
+                onValueChange={field.onChange}
+                value={field.value}
+                pipelineId={pipelineId}
+              />
+            </Form.Item>
+          )}
+        />
       </div>
     </Form>
   );

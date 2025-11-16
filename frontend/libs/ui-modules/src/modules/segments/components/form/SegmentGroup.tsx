@@ -43,7 +43,7 @@ export const SegmentGroup = ({ parentFieldName, onRemove }: Props) => {
           </Button>
         )}
       </Card.Header>
-      <Card className="mx-1 p-2 bg-white rounded-md">
+      <Card className="mx-1 p-2 bg-background rounded-md">
         <div className="flex flex-col ">
           {(conditionFields || []).map((field, index) => (
             <div key={field.id}>

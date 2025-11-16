@@ -23,7 +23,7 @@ export const AutomationAiAgentTestChatSection = ({
       <div className="mb-4 max-h-64 overflow-y-auto space-y-3">
         {messages.map((msg, index) => (
           <div key={index} className="space-y-2">
-            <div className="bg-white p-3 rounded-lg border">
+            <div className="bg-background p-3 rounded-lg border">
               <div className="text-sm text-gray-600 mb-1">You:</div>
               <div>{msg.question}</div>
             </div>
