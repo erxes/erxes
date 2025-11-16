@@ -33,7 +33,7 @@ export interface IEmailDeliveries {
 }
 
 export interface IEmailDeliveriesDocument extends IEmailDeliveries, Document {
-  id: string;
+  _id: string;
 }
 
 export interface IEmailParams {

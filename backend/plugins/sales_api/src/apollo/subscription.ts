@@ -47,8 +47,8 @@ export default {
               },
             });
 
-            const matchesOld = sift(filterParams)(oldDeal);
-            const matchesNew = sift(filterParams)(deal);
+            const matchesOld = oldDeal ? sift(filterParams)(oldDeal) : false;
+            const matchesNew = deal ? sift(filterParams)(deal) : false;
 
             if (!matchesOld && !matchesNew) {
               return false;

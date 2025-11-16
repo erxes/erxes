@@ -26,7 +26,7 @@ export function InviteTeamMember() {
             <Button
               variant="secondary"
               size="icon"
-              className="absolute right-2 top-0"
+              className="absolute right-2 top-2"
             >
               <IconX />
             </Button>

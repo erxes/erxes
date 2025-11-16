@@ -362,7 +362,7 @@ export const SelectMemberFormItem = ({
     <SelectMemberProvider
       onValueChange={(value) => {
         onValueChange?.(value);
-        setOpen(false);
+        props.mode !== 'multiple' && setOpen(false);
       }}
       {...props}
     >

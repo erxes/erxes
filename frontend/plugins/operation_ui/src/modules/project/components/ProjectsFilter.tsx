@@ -14,6 +14,7 @@ import { useParams } from 'react-router-dom';
 import { PROJECTS_CURSOR_SESSION_KEY } from '@/project/constants/ProjectSessionKey';
 import { SelectTeam } from '@/team/components/SelectTeam';
 import { SelectPriority } from '@/operation/components/SelectPriority';
+import { TagsFilter } from 'ui-modules';
 
 const ProjectsFilterPopover = () => {
   const { teamId } = useParams();
@@ -63,6 +64,7 @@ const ProjectsFilterPopover = () => {
                   <IconProgressCheck />
                   Status
                 </Filter.Item>
+                <TagsFilter />
               </Command.List>
             </Command>
           </Filter.View>
@@ -70,6 +72,7 @@ const ProjectsFilterPopover = () => {
           {!teamId && <SelectTeam.FilterView />}
           <SelectPriority.FilterView />
           <SelectStatus.FilterView />
+          <TagsFilter.View tagType="operation:project" />
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
@@ -90,7 +93,8 @@ export const ProjectsFilter = () => {
     team: string[];
     priority: string;
     status: string;
-  }>(['name', 'lead', 'team', 'priority', 'status']);
+    tags: string[];
+  }>(['name', 'lead', 'team', 'priority', 'status', 'tags']);
   const { name } = queries || {};
 
   return (
@@ -131,6 +135,7 @@ export const ProjectsFilter = () => {
           </Filter.BarName>
           <SelectStatus.FilterBar />
         </Filter.BarItem>
+        <TagsFilter.Bar tagType="operation:project" />
         <ProjectsFilterPopover />
         <ProjectsTotalCount />
       </Filter.Bar>

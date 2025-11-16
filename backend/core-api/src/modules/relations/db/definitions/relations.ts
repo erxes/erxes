@@ -1,4 +1,3 @@
-import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 
 const entitySchema = new Schema(
@@ -6,10 +5,12 @@ const entitySchema = new Schema(
     contentType: {
       type: String,
       required: true,
+      index: true,
     },
     contentId: {
       type: String,
       required: true,
+      index: true,
     },
   },
   { _id: false },
@@ -17,7 +18,6 @@ const entitySchema = new Schema(
 
 export const relationSchema = new Schema(
   {
-    _id: mongooseStringRandomId,
     entities: {
       type: [entitySchema],
       validate: [

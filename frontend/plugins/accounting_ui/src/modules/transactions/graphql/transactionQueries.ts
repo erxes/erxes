@@ -1,21 +1,13 @@
 import { gql } from '@apollo/client';
 
-const followTrType = `
-  type
-  id
-`;
-
 export const commonTrDetailFields = `
   _id
   accountId
   transactionId
   originId
-  followType
+  originType
   originSubId
   followInfos
-  follows {
-    ${followTrType}
-  }
 
   side
   amount
@@ -42,11 +34,8 @@ export const commonTransactionFields = `
   status
   journal
   originId
-  followType
+  originType
   originSubId
-  follows {
-    ${followTrType}
-  }
   followInfos
 
   branchId

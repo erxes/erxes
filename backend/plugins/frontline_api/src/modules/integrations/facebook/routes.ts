@@ -9,17 +9,7 @@ import {
 export const router: Router = express.Router();
 
 // Facebook routes
-router.get('/fblogin', async (req, res) => {
-  try {
-    await loginMiddleware(req, res);
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: 'Login failed',
-      error: err.message || err.toString(),
-    });
-  }
-});
+router.get('/fblogin', loginMiddleware);
 
 router.get('/get-post', async (req, res) => {
   try {
