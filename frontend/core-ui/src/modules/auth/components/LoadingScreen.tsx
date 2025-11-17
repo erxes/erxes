@@ -49,17 +49,17 @@ export const TextAnimation = () => {
   const motionVariants: Variants = {
     initial: { y: 20, opacity: 0 },
     animate: { y: 0, opacity: 1 },
-    exit: { y: -20, opacity: 0 },
+    exit: { y: -10, opacity: 0 },
   };
 
   return (
     <div className="relative inline-block whitespace-nowrap text-center">
-      <AnimatePresence mode="popLayout">
+      <AnimatePresence mode="wait">
         <motion.div
           initial="initial"
           animate="animate"
           exit="exit"
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
           variants={motionVariants}
           key={currentIndex}
         >

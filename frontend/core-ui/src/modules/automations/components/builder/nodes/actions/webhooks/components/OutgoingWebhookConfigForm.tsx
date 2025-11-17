@@ -122,7 +122,7 @@ export const OutgoingWebhookConfigForm = ({
           </div>
         </FormProvider>
       </Tabs>
-      <div className="p-2 flex justify-end border-t bg-white">
+      <div className="p-2 flex justify-end border-t bg-background">
         <Button onClick={form.handleSubmit(handleSave, handleValidationErrors)}>
           Save Configuration
         </Button>

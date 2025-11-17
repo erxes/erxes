@@ -5,6 +5,7 @@ export interface ICustomPostType {
   clientPortalId: string;
 
   label: string;
+  name?: string;
   pluralLabel: string;
   code: string;
   description?: string;
