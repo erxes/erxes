@@ -593,7 +593,9 @@ const formatWaitTime = (starttime: string): string => {
   if (!starttime) return '00:00';
 
   try {
-    const start = new Date(starttime);
+    const localStartString = starttime.replace(' ', 'T');
+
+    const start = new Date(localStartString);
     const now = new Date();
 
     let diffMs = now.getTime() - start.getTime();
