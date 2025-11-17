@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client';
+import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS, GQL_PAGE_INFO } from 'erxes-ui';
 
 export const commonTrDetailFields = `
   _id
@@ -196,35 +197,27 @@ const trRecsFilterParams = `
   folded: $folded,
 `;
 
-const commonParamDefs = `
-  $page: Int,
-  $perPage: Int,
-  $sortField: String,
-  $sortDirection: Int
-`;
-
-const commonParams = `
-  page: $page,
-  perPage: $perPage
-  sortField: $sortField,
-  sortDirection: $sortDirection
-`;
-
 export const TRANSACTIONS_QUERY = gql`
-  query AccTransactions(${trsFilterParamDefs}, ${commonParamDefs}) {
-    accTransactions(${trsFilterParams}, ${commonParams}) {
-      ${commonTransactionFields}
-      ptrInfo
+  query AccTransactions(${trsFilterParamDefs}, ${GQL_CURSOR_PARAM_DEFS}) {
+    accTransactionsMain(${trsFilterParams}, ${GQL_CURSOR_PARAMS}) {
+      list {
+        ${commonTransactionFields}
+        ptrInfo
+      }
+      totalCount
+      ${GQL_PAGE_INFO}
     }
-    accTransactionsCount(${trsFilterParams})
   }
 `;
 
 export const TR_RECORDS_QUERY = gql`
-  query AccTrRecords(${trRecsFilterParamDefs}, ${commonParamDefs}) {
-    accTrRecords(${trRecsFilterParams}, ${commonParams}) {
-      ${commonTransactionFields}
+  query AccTrRecords(${trRecsFilterParamDefs}, ${GQL_CURSOR_PARAM_DEFS}) {
+    accTrRecordsMain(${trRecsFilterParams}, ${GQL_CURSOR_PARAMS}) {
+      list {
+        ${commonTransactionFields}
+      }
+      totalCount
+      ${GQL_PAGE_INFO}
     }
-    accTrRecordsCount(${trRecsFilterParams})
   }
 `;

@@ -238,9 +238,7 @@ const afterCalc = async (models: IModels, trIds: string[]) => {
 
 const getErrorDesc = async (subdomain: string, models: IModels, errFormat: string, args: any) => {
   let result = errFormat;
-  console.log(result)
-  // { productId, accountId, branchId, departmentId, }: { productId: string, accountId: string, branchId: string, departmentId: string, }
-  // `Not enough stock for ${productId} in ${accountId} ${branchId} ${departmentId}`
+
   if (errFormat.includes('{productId}') && args.productId) {
     const product = await sendTRPCMessage({
       subdomain,
@@ -290,7 +288,6 @@ const getErrorDesc = async (subdomain: string, models: IModels, errFormat: strin
       result = result.replace(/{departmentId}/g, `${department.code} - ${department.title}`)
     }
   }
-  console.log(result)
   return result;
 }
 

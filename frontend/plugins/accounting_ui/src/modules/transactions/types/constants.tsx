@@ -1,4 +1,4 @@
-export const ACC_TRS__PER_PAGE = 20;
+export const ACC_TRS__PER_PAGE = 30;
 
 export enum TrJournalEnum {
   MAIN = 'main',

@@ -15,6 +15,7 @@ import { useSetAtom } from 'jotai';
 import { renderingTransactionDetailState } from '../states/renderingTransactionDetailStates';
 import { IconMoneybag, IconFile, IconCalendar } from '@tabler/icons-react';
 import { useState } from 'react';
+import { TR_SIDES } from '../types/constants';
 
 // Create named components for cell renderers to fix React Hook usage
 const NumberCell = ({ getValue, row }: any) => {
@@ -56,71 +57,62 @@ const DescriptionCell = ({ getValue, row }: any) => {
   );
 };
 
-const SumDebitCell = ({ getValue, row }: any) => {
-  const [sumDt, setSumDt] = useState(getValue() as number);
-  const { _id } = row.original;
-
+const DebitCell = ({ row }: any) => {
+  const { details } = row.original;
+  if (details.side === TR_SIDES.CREDIT) {
+    return <RecordTableInlineCell />
+  }
   return (
-    <PopoverScoped scope={`transaction-${_id}-sumDt`}>
-      <RecordTableInlineCell.Trigger>
-        {
-          <CurrencyFormatedDisplay
-            currencyValue={{
-              currencyCode: CurrencyCode.MNT,
-              amountMicros: sumDt,
-            }}
-          />
-        }
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
-        <CurrencyField.ValueInput
-          value={sumDt}
-          onChange={(value) => setSumDt(value)}
+    <RecordTableInlineCell>
+      {
+        <CurrencyFormatedDisplay
+          currencyValue={{
+            currencyCode: CurrencyCode.MNT,
+            amountMicros: details.amount,
+          }}
         />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
+      }
+    </RecordTableInlineCell>
   );
 };
 
-const SumCreditCell = ({ getValue, row }: any) => {
-  const [sumCt, setSumCt] = useState(getValue() as number);
-  const { _id } = row.original;
+const CreditCell = ({ row }: any) => {
+  const { details } = row.original;
+  if (details.side === TR_SIDES.DEBIT) {
+    return <RecordTableInlineCell />
+  }
 
   return (
-    <PopoverScoped scope={`transaction-${_id}-sumCt`}>
-      <RecordTableInlineCell.Trigger>
-        {
-          <CurrencyFormatedDisplay
-            currencyValue={{
-              currencyCode: CurrencyCode.MNT,
-              amountMicros: sumCt,
-            }}
-          />
-        }
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
-        <CurrencyField.ValueInput
-          value={sumCt}
-          onChange={(value) => setSumCt(value)}
+    <RecordTableInlineCell>
+      {
+        <CurrencyFormatedDisplay
+          currencyValue={{
+            currencyCode: CurrencyCode.MNT,
+            amountMicros: details.amount,
+          }}
         />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
+      }
+    </RecordTableInlineCell>
   );
 };
 
-const BranchCell = ({ getValue, row }: any) => {
-  const [branch, setBranch] = useState(getValue() as string);
-  const { _id } = row.original;
+const BranchCell = ({ row }: any) => {
+  const { branch } = row.original;
 
   return (
-    <PopoverScoped scope={`transaction-${_id}-branchId`}>
-      <RecordTableInlineCell.Trigger>
-        {getValue() as any}
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
-        <Input value={branch} onChange={(e) => setBranch(e.target.value)} />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
+    <RecordTableInlineCell>
+      {[branch?.code, branch?.title].filter(Boolean).join(' - ')}
+    </RecordTableInlineCell>
+  );
+};
+
+const DepartmentCell = ({ row }: any) => {
+  const { department } = row.original;
+
+  return (
+    <RecordTableInlineCell>
+      {[department?.code, department?.title].filter(Boolean).join(' - ')}
+    </RecordTableInlineCell>
   );
 };
 
@@ -194,6 +186,22 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
     size: 100,
   },
   {
+    id: 'Debit',
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Debit" />
+    ),
+    accessorKey: 'Debit',
+    cell: ({ row }) => <DebitCell row={row} />,
+  },
+  {
+    id: 'Credit',
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Credit" />
+    ),
+    accessorKey: 'Credit',
+    cell: ({ row }) => (<CreditCell row={row} />),
+  },
+  {
     id: 'description',
     header: () => (
       <RecordTable.InlineHead icon={IconFile} label="Description" />
@@ -205,27 +213,15 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
     size: 300,
   },
   {
-    id: 'sumDt',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Sum Debit" />
-    ),
-    accessorKey: 'sumDt',
-    cell: ({ getValue, row }) => <SumDebitCell getValue={getValue} row={row} />,
-  },
-  {
-    id: 'sumCt',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Sum Credit" />
-    ),
-    accessorKey: 'sumCt',
-    cell: ({ getValue, row }) => (
-      <SumCreditCell getValue={getValue} row={row} />
-    ),
-  },
-  {
-    id: 'branchId',
+    id: 'branch',
     header: () => <RecordTable.InlineHead icon={IconFile} label="Branch" />,
-    accessorKey: 'branchId',
-    cell: ({ getValue, row }) => <BranchCell getValue={getValue} row={row} />,
+    accessorKey: 'branch',
+    cell: ({ row }) => <BranchCell row={row} />,
+  },
+  {
+    id: 'department',
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Department" />,
+    accessorKey: 'department',
+    cell: ({ row }) => <DepartmentCell row={row} />,
   },
 ];

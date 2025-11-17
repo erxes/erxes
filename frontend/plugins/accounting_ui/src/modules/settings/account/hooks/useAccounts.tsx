@@ -10,7 +10,7 @@ import {
 } from 'erxes-ui';
 import { GET_ACCOUNTS, GET_ACCOUNTS_MAIN, GET_ASSIGNED_ACCOUNTS } from '../graphql/queries/getAccounts';
 import { IAccount } from '../types/Account';
-import { ACCOUNTS_CURSOR_SESSION_KEY } from '../constants/accountsSessionKeys';
+import { ACCOUNTS_CURSOR_SESSION_KEY } from '../../../accountsSessionKeys';
 
 export const ACCOUNTS_PER_PAGE = 30;
 
@@ -51,9 +51,6 @@ export const useAccountsVariables = (
 };
 
 export const useAccountsMain = (options?: QueryHookOptions) => {
-  const { cursor } = useRecordTableCursor({
-    sessionKey: ACCOUNTS_CURSOR_SESSION_KEY,
-  });
   const variables = useAccountsVariables(options?.variables);
   const { data, loading, fetchMore } = useQuery<{
     accountsMain: {
