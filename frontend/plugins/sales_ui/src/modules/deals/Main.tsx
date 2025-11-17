@@ -13,7 +13,7 @@ const App = () => {
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
-        <Route path="/" element={<DealsMain />} />
+        <Route path="/deals" element={<DealsMain />} />
       </Routes>
     </Suspense>
   );

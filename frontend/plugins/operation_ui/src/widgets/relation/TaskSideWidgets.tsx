@@ -1,3 +1,5 @@
+'use client';
+
 import { SideMenu } from 'erxes-ui';
 import { useRelationWidget } from 'ui-modules';
 

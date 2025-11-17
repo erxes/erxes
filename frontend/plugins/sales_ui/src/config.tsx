@@ -47,15 +47,28 @@ export const CONFIG = {
     {
       name: 'deals',
       icon: IconSandbox,
-      path: 'deals',
+      path: 'sales/deals',
       hasSettings: true,
     },
     {
       name: 'pos',
       icon: IconCashRegister,
-      path: 'pos',
+      path: 'sales/pos',
       hasSettings: true,
       hasRelationWidget: true,
+    },
+    {
+      name: 'sales',
+      icon: IconBriefcase,
+      path: 'sales',
+      hasSettings: false,
+      hasRelationWidget: true,
+    },
+  ],
+  relationWidgets: [
+    {
+      name: 'deals',
+      icon: IconSandbox,
     },
   ],
 };

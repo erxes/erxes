@@ -3,7 +3,11 @@ import { Sheet } from 'erxes-ui';
 import { dealCreateSheetState } from '@/deals/states/dealCreateSheetState';
 import { useAtom } from 'jotai';
 
-export const AddDealSheet = () => {
+export const AddDealSheet = ({
+  onComplete: onCompleteProp,
+}: {
+  onComplete?: (dealId: string) => void;
+}) => {
   const [open, setOpen] = useAtom(dealCreateSheetState);
 
   const onOpen = () => {
@@ -12,6 +16,7 @@ export const AddDealSheet = () => {
 
   const onClose = () => {
     setOpen(false);
+    onCompleteProp?.('');
   };
 
   return (
