@@ -87,7 +87,8 @@ const InvitationResend = ({ cell }: { cell: Cell<IUser, unknown> }) => {
           },
           onError: (error) =>
             toast({ title: error.message, variant: 'destructive' }),
-          onCompleted: () => toast({ title: 'Invitation has been resent' }),
+          onCompleted: () =>
+            toast({ title: 'Invitation has been resent', variant: 'success' }),
         })
       }
     >

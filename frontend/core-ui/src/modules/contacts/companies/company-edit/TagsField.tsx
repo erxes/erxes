@@ -22,6 +22,7 @@ export const TagsField = ({ _id, tagType, selected }: TagsField) => {
               toast({
                 title: 'Error',
                 description: e.message,
+                variant: 'destructive',
               });
             },
           },

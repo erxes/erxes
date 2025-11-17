@@ -128,12 +128,13 @@ const NewItemCell: React.FC = () => {
       addTag({
         variables: newTag,
         onCompleted: () => {
-          toast({ title: 'Tag added successfully.' });
+          toast({ title: 'Tag added successfully.', variant: 'success' });
         },
         onError: (error) => {
           console.log('error', error);
           toast({
-            title: error.message,
+            title: 'Error',
+            description: error.message,
             variant: 'destructive',
           });
         },

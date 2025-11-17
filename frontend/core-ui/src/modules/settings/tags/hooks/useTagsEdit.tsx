@@ -25,7 +25,7 @@ export const useTagsEdit = () => {
       },
       onCompleted: (data) => {
         if (data?.tagsEdit) {
-          toast({ title: 'Tag updated successfully!' });
+          toast({ title: 'Tag updated successfully!', variant: 'success' });
         }
       },
       onError: (error) => {

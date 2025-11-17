@@ -44,6 +44,7 @@ export const useLogin = () => {
         toast({
           title: 'Email or password is incorrect',
           description: error.message,
+          variant: 'destructive',
         });
       },
     });
@@ -69,6 +70,7 @@ export const useLogin = () => {
             title: 'Success',
             description:
               'Password reset instructions have been sent to your email.',
+            variant: 'success',
           });
           navigate(AppPath.Login);
         })
@@ -76,6 +78,7 @@ export const useLogin = () => {
           toast({
             title: 'Uh oh! Something went wrong.',
             description: e.message,
+            variant: 'destructive',
           });
         });
     },
@@ -89,12 +92,14 @@ export const useLogin = () => {
           toast({
             title: 'Success',
             description: 'Password has been reset.',
+            variant: 'success',
           });
         })
         .catch((e) => {
           toast({
             title: 'Uh oh! Something went wrong.',
             description: e.message,
+            variant: 'destructive',
           });
         });
     },

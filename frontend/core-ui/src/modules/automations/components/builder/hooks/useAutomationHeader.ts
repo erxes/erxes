@@ -76,6 +76,7 @@ export const useAutomationHeader = () => {
         clearNodeErrors();
         toast({
           title: 'Save successful',
+          variant: 'success',
         });
         if (!id && automationsAdd) {
           navigate(`/automations/edit/${automationsAdd._id}`);

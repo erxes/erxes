@@ -41,6 +41,7 @@ export const ProductDetailFooter: React.FC<ProductDetailFooterProps> = ({
         toast({
           title: 'Success',
           description: 'Product updated successfully',
+          variant: 'success',
         });
       },
       onError: (error) => {

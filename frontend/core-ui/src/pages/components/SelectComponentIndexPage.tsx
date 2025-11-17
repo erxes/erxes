@@ -6,7 +6,7 @@ import {
   SelectTags,
   SelectBrand,
 } from 'ui-modules';
-import { cn, PageContainer, Switch, Tooltip } from 'erxes-ui';
+import { Button, cn, PageContainer, Switch, toast, Tooltip } from 'erxes-ui';
 import { useState } from 'react';
 import { IconInfoCircle } from '@tabler/icons-react';
 import React from 'react';
@@ -312,7 +312,63 @@ export const SelectComponentIndexPage = () => {
             </div>
           </div>
         </div>
+
+        <ToastExample />
       </div>
     </PageContainer>
+  );
+};
+
+const ToastExample = () => {
+  return (
+    <div className="flex gap-2 shadow-sm p-6 rounded-lg">
+      <Button
+        variant="secondary"
+        onClick={() =>
+          toast({
+            title: 'Default Toast',
+            description: 'This is a default toast.',
+          })
+        }
+      >
+        Show Default Toast
+      </Button>
+      <Button
+        variant="secondary"
+        onClick={() =>
+          toast({
+            variant: 'success',
+            title: 'Success Toast',
+            description: 'This is a success toast.',
+          })
+        }
+      >
+        Show Success Toast
+      </Button>
+      <Button
+        variant="secondary"
+        onClick={() =>
+          toast({
+            variant: 'warning',
+            title: 'Warning Toast',
+            description: 'This is a warning toast.',
+          })
+        }
+      >
+        Show Warning Toast
+      </Button>
+      <Button
+        variant="secondary"
+        onClick={() =>
+          toast({
+            variant: 'destructive',
+            title: 'Destructive Toast',
+            description: 'This is a destructive toast.',
+          })
+        }
+      >
+        Show Destructive Toast
+      </Button>
+    </div>
   );
 };
