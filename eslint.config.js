@@ -5,7 +5,12 @@ module.exports = [
   ...nx.configs['flat/typescript'],
   ...nx.configs['flat/javascript'],
   {
-    ignores: ['**/dist', '**/node_modules'],
+    ignores: [
+      '**/dist',
+      '**/node_modules',
+      'apps/**',
+      'apps/client-portal-template/eslint.config.mjs',
+    ],
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
