@@ -9,7 +9,7 @@ import { stageSchema } from '../definitions/stages';
 export interface IStageModel extends Model<IStageDocument> {
   getStage(_id: string): Promise<IStageDocument>;
   createStage(doc: IStage): Promise<IStageDocument>;
-  removeStage(_id: string): object;
+  removeStage(_id: string): Promise<object>;
   updateStage(_id: string, doc: IStage): Promise<IStageDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IStageDocument[]>;
   checkCodeDuplication(code: string): string;
