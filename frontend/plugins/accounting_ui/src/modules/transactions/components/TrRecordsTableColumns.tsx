@@ -6,7 +6,6 @@ import {
   RecordTable,
   Input,
   CurrencyCode,
-  CurrencyField,
   CurrencyFormatedDisplay,
   RecordTableInlineCell,
   PopoverScoped,

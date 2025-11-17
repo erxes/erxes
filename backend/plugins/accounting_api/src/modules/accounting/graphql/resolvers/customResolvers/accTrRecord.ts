@@ -110,8 +110,8 @@ export default {
       return {
         _id: user._id,
         code: user.code,
-        primaryPhone: (user.details && user.details.operatorPhone) || '',
-        primaryEmail: user.email,
+        primaryPhone: user.details?.operatorPhone ?? '',
+        primaryEmail: user.email ?? '',
         firstName: `${user.firstName || ''} ${user.lastName || ''}`,
         lastName: user.username,
       };
