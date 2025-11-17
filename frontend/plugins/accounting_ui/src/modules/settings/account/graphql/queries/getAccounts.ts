@@ -41,6 +41,7 @@ const ACCOUNT_PARAM_DEFS = `
   $isOutBalance: Boolean
   $branchId: String
   $departmentId: String
+  $journal: String
   $journals: [String]
   $kind: String
   $code: String
@@ -60,6 +61,7 @@ const ACCOUNT_PARAMS = `
   branchId: $branchId
   currency: $currency
   departmentId: $departmentId
+  journal: $journal
   journals: $journals
   kind: $kind
   code: $code

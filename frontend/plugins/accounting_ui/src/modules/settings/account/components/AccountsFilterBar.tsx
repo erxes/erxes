@@ -20,6 +20,7 @@ import { SelectAccountJournalCommand } from './AccountsJournal';
 
 export const AccountsFilterBar = () => {
   const [queries] = useMultiQueryState<{
+    searchValue: string;
     code: string;
     name: string;
     categoryId: string;
@@ -27,15 +28,24 @@ export const AccountsFilterBar = () => {
     kind: string;
     journal: string;
     due: string;
-  }>(['code', 'name', 'categoryId', 'currency', 'kind', 'journal', 'due']);
+  }>(['code', 'name', 'categoryId', 'currency', 'kind', 'journal', 'due', 'searchValue']);
 
   const isFiltered = Object.values(queries).some((query) => !!query);
 
   if (!isFiltered) return null;
-  const { code, name } = queries;
+  const { code, name, searchValue } = queries;
 
   return (
     <Filter.Bar>
+      <Filter.BarItem queryKey="searchValue">
+        <Filter.BarName>
+          <IconLabelFilled />
+          searchValue
+        </Filter.BarName>
+        <Filter.BarButton filterKey="searchValue" inDialog>
+          {searchValue}
+        </Filter.BarButton>
+      </Filter.BarItem>
       <Filter.BarItem queryKey="code">
         <Filter.BarName>
           <IconHash />

@@ -4,18 +4,57 @@ import {
   ICursorListResponse,
   IRecordTableCursorPageInfo,
   mergeCursorData,
+  useMultiQueryState,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
 import { GET_ACCOUNTS, GET_ACCOUNTS_MAIN, GET_ASSIGNED_ACCOUNTS } from '../graphql/queries/getAccounts';
 import { IAccount } from '../types/Account';
 import { ACCOUNTS_CURSOR_SESSION_KEY } from '../constants/accountsSessionKeys';
+
 export const ACCOUNTS_PER_PAGE = 30;
+
+export const useAccountsVariables = (
+  variables?: QueryHookOptions<ICursorListResponse<IAccount>>['variables'],
+) => {
+  const [queryParams] =
+    useMultiQueryState<{
+      searchValue?: string;
+      code?: string;
+      name?: string;
+      categoryId?: string;
+      currency?: string;
+      kind?: string;
+      journal?: string;
+
+    }>(['code', 'name', 'categoryId', 'currency', 'kind', 'journal', 'searchValue']);
+
+  const { cursor } = useRecordTableCursor({
+    sessionKey: ACCOUNTS_CURSOR_SESSION_KEY,
+  });
+
+  const curVariables = Object.entries(queryParams).reduce((acc, [key, value]) => {
+    if (value) {
+      acc[key] = value + '';
+    } return acc;
+  }, {} as Record<string, string>);
+
+  return {
+    limit: ACCOUNTS_PER_PAGE,
+    orderBy: {
+      code: 1
+    },
+    cursor,
+    ...variables,
+    ...curVariables
+  };
+};
 
 export const useAccountsMain = (options?: QueryHookOptions) => {
   const { cursor } = useRecordTableCursor({
     sessionKey: ACCOUNTS_CURSOR_SESSION_KEY,
   });
+  const variables = useAccountsVariables(options?.variables);
   const { data, loading, fetchMore } = useQuery<{
     accountsMain: {
       list: IAccount[];
@@ -25,9 +64,8 @@ export const useAccountsMain = (options?: QueryHookOptions) => {
   }>(GET_ACCOUNTS_MAIN, {
     ...options,
     variables: {
-      limit: ACCOUNTS_PER_PAGE,
-      cursor,
       ...options?.variables,
+      ...variables
     },
   });
 

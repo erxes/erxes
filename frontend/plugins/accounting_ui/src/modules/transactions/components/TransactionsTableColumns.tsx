@@ -132,10 +132,28 @@ const DateCell = ({ getValue }: any) => {
 const AccountCell = ({ row }: any) => {
   const { details } = row.original;
 
+  const name0 = details[0].account?.name;
+
+  const infoByCode = details.reduce((acc: { [code: string]: number }, d: any) => {
+    const code = d.account?.code || '';
+    acc[code] = (acc[code] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const codes = Object.keys(infoByCode);
+
   return (
     <RecordTableInlineCell>
-      {details.length &&
-        `${details[0].account?.code} - ${details[0].account?.name}`}
+      {codes.map((code, i) => {
+        const count = infoByCode[code];
+        const tot = count > 1 ? `(${count})` : '';
+
+        if (i === 0) {
+          return `${code} - ${name0}${tot}`;
+        }
+
+        return `, ${code}${tot}`;
+      })}
     </RecordTableInlineCell>
   );
 };

@@ -111,7 +111,7 @@ export const generateFilter = async (
 
   if (code) {
     filter.code = new RegExp(
-      `^${code.replace(/\*/g, '.').replace(/_/g, '.')}$`,
+      `${code.replace(/\*/g, '.').replace(/_/g, '.')}`,
       'igu',
     );
   }
