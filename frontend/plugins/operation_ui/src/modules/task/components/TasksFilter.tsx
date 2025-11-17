@@ -181,26 +181,28 @@ const TasksFilterPopover = () => {
                   </Filter.Item>
                 </Command.Group>
                 <Command.Separator className="my-1" />
-                <Filter.Item value="project">
-                  <IconClipboard />
-                  Project
-                </Filter.Item>
-                <Filter.Item value="projectStatus">
-                  <IconProgressCheck />
-                  Project Status
-                </Filter.Item>
-                <Filter.Item value="projectPriority">
-                  <IconFlag />
-                  Project Priority
-                </Filter.Item>
-                <Filter.Item value="projectLeadId">
-                  <IconUser />
-                  Project Lead
-                </Filter.Item>
-                <Filter.Item value="projectMilestoneName" inDialog>
-                  <IconSquareRotated />
-                  Project Milestone Name
-                </Filter.Item>
+                <Command.Group heading="PROJECTS">
+                  <Filter.Item value="project">
+                    <IconClipboard />
+                    Project
+                  </Filter.Item>
+                  <Filter.Item value="projectStatus">
+                    <IconProgressCheck />
+                    Project Status
+                  </Filter.Item>
+                  <Filter.Item value="projectPriority">
+                    <IconFlag />
+                    Project Priority
+                  </Filter.Item>
+                  <Filter.Item value="projectLeadId">
+                    <IconUser />
+                    Project Lead
+                  </Filter.Item>
+                  <Filter.Item value="projectMilestoneName" inDialog>
+                    <IconSquareRotated />
+                    Project Milestone Name
+                  </Filter.Item>
+                </Command.Group>
               </Command.List>
             </Command>
           </Filter.View>
