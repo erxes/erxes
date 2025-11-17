@@ -1,8 +1,8 @@
 import { OperationVariables, useMutation } from '@apollo/client';
-import { ACCOUNTS_ADD } from '../graphql/mutations/accounts';
 import { toast } from 'erxes-ui';
+import { ACCOUNTS_PER_PAGE } from '../constants/accountDefaultValues';
+import { ACCOUNTS_ADD } from '../graphql/mutations/accounts';
 import { GET_ACCOUNTS } from '../graphql/queries/getAccounts';
-import { ACCOUNTS_PER_PAGE } from './useAccounts';
 import { IAccount } from '../types/Account';
 
 export const useAccountAdd = () => {

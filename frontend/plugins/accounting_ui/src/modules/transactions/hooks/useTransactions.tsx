@@ -1,8 +1,16 @@
-import { TRANSACTIONS_QUERY } from '../graphql/transactionQueries';
 import { OperationVariables, QueryHookOptions, useQuery } from '@apollo/client';
-import { ACC_TRS__PER_PAGE } from '../types/constants';
+import {
+  EnumCursorDirection,
+  ICursorListResponse,
+  IRecordTableCursorPageInfo,
+  mergeCursorData,
+  useMultiQueryState,
+  useRecordTableCursor,
+  validateFetchMore
+} from 'erxes-ui';
 import { ACCTRANSACTIONS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
-import { EnumCursorDirection, ICursorListResponse, IRecordTableCursorPageInfo, mergeCursorData, useMultiQueryState, useRecordTableCursor, validateFetchMore } from 'erxes-ui';
+import { TRANSACTIONS_QUERY } from '../graphql/transactionQueries';
+import { ACC_TRS__PER_PAGE } from '../types/constants';
 import { ITransaction } from '../types/Transaction';
 
 export const useTransactionsVariables = (

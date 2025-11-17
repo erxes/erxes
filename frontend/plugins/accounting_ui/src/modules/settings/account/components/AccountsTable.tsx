@@ -1,4 +1,4 @@
-import { useAccountsMain } from '@/settings/account/hooks/useAccounts';
+import { useAccountsMain } from '@/settings/account/hooks/useAccountsMain';
 import { RecordTable } from 'erxes-ui';
 import { accountsColumns } from '@/settings/account/components/AccountsColumns';
 import { AccountsCommandbar } from './AccountsCommandBar';
