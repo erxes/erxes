@@ -1,5 +1,10 @@
 # Changelog
 
+## <small>2.17.26 (2025-11-17)</small>
+
+* chore(calls): remove tick provider ([126fa63](https://github.com/erxes/erxes/commit/126fa63))
+* fix(calls): monitor local time ([873f868](https://github.com/erxes/erxes/commit/873f868))
+
 ## <small>2.17.25 (2025-11-17)</small>
 
 * fix(cms): fix duplicate fields error ([e5d9156](https://github.com/erxes/erxes/commit/e5d9156))
