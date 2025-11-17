@@ -7,7 +7,6 @@ export const syncExchangeRate = async (subdomain: string, config: any) => {
 
   let exchangeRates: any = {};
 
-  // Validate config
   if (
     !config.priceApi ||
     !config.username ||

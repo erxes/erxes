@@ -22,7 +22,7 @@ export const loadSyncLogClass = (models: IModels) => {
     }
 
     public static async syncLogsEdit(_id: string, doc: ISyncLog) {
-      return await models.SyncLogs.updateOne(
+      return await models.SyncLogs.findOneAndUpdate(
         { _id }, 
         { $set: { ...doc }},
         { new: true }

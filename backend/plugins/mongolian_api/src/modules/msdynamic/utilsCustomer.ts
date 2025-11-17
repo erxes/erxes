@@ -548,7 +548,7 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
       await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
-        module: 'customer',
+        module: 'customers',
         action: 'updateCustomer',
         method: 'mutation',
         input: { _id: customer._id, doc: { ...document } },

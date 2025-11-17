@@ -39,7 +39,7 @@ export const syncLogSchema = new Schema({
   contentId: ({ type: String, label: 'content', index: true }),
   createdAt: ({
     type: Date,
-    default: Date.now, // ✅ Fix: use callable default
+    default: Date.now, 
     label: 'Created at',
     index: true,
   }),
