@@ -48,12 +48,12 @@ export const InventoryRow = ({
     const currOut = followTrDocs.find(
       (ftr) =>
         ftr.originId === trDoc._id &&
-        ftr.followType === 'invSaleOut'
+        ftr.originType === 'invSaleOut'
     );
     const currCost = followTrDocs.find(
       (ftr) =>
         ftr.originId === trDoc._id &&
-        ftr.followType === 'invSaleCost'
+        ftr.originType === 'invSaleCost'
     );
 
     const ptrId = currOut?.ptrId || currCost?.ptrId || getTempId();
@@ -69,7 +69,7 @@ export const InventoryRow = ({
       ...commonFollowTr,
       _id: currOut?._id || getTempId(),
       journal: TrJournalEnum.INV_SALE_OUT,
-      followType: 'invSaleOut',
+      originType: 'invSaleOut',
       details: (trDoc.details || []).map((saleDetail) => {
         const curOutDetail = currOut?.details.find(outDetail => outDetail.originId === saleDetail._id);
 
@@ -93,7 +93,7 @@ export const InventoryRow = ({
       ...commonFollowTr,
       _id: currCost?._id || getTempId(),
       journal: TrJournalEnum.INV_SALE_COST,
-      followType: 'invSaleCost',
+      originType: 'invSaleCost',
       details: (trDoc.details || []).map((saleDetail) => {
         const curCostDetail = currCost?.details.find(costDetail => costDetail.originId === saleDetail._id);
 
@@ -117,7 +117,7 @@ export const InventoryRow = ({
         (ftr) =>
           !(
             ftr.originId === trDoc._id &&
-            ['invSaleOut', 'invSaleCost'].includes(ftr.followType || '')
+            ['invSaleOut', 'invSaleCost'].includes(ftr.originType || '')
           )
       ),
       invOutTr,

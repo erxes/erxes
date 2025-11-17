@@ -29,6 +29,7 @@ export const types = `
 
   input InvitationEntry {
     email: String
+    password: String
   }
 
   enum UserChatStatus{
@@ -56,7 +57,7 @@ export const types = `
     purchased: Int
     isWhiteLabel: Boolean
     setupService: JSON
-    onboardingDone: Boolean
+    onboardedPlugins: [String]
     contactRemaining: Boolean
     experienceName: String
     experience: JSON
@@ -83,7 +84,7 @@ export const types = `
 
     currentOrganization: Organization
     organizations: [CookieOrganization]
-    onboardingDone: Boolean
+    onboardedPlugins: [String]
     groupIds: [String]
     isSubscribed: String
     isShowNotification: Boolean
@@ -108,7 +109,7 @@ export const types = `
     score: Float
     leaderBoardPosition: Int
     employeeId: String
-
+    isOnboarded: Boolean
     cursor: String
   }
 
@@ -145,6 +146,8 @@ const commonParams = `
   departmentIds: [String]
   customFieldsData: JSON
   employeeId: String
+  password: String
+  isOnboarded: Boolean
 `;
 
 const commonSelector = `
@@ -186,12 +189,11 @@ export const mutations = `
   usersSetActiveStatus(_id: String!): User
   usersInvite(entries: [InvitationEntry]): Boolean
   usersResendInvitation(email: String!): String
-  usersConfirmInvitation(token: String, password: String, passwordConfirmation: String, fullName: String, username: String): User
+  usersConfirmInvitation(token: String): String
   usersConfigEmailSignatures(signatures: [EmailSignature]): User
   usersConfigGetNotificationByEmail(isAllowed: Boolean): User
   usersSetChatStatus(_id: String!, status: UserChatStatus): User
   editOrganizationInfo(icon: String, logo: String, link: String, name: String, iconColor: String, backgroundColor: String, description: String, domain: String, favicon: String, textColor: String): Organization
   editOrganizationDomain(type: String, domain: String): Organization
   usersCreateOwner(email: String!, password: String!, firstName: String!, lastName: String, purpose: String, subscribeEmail: Boolean): String
-  usersSetOnboardingDone: Boolean
 `;

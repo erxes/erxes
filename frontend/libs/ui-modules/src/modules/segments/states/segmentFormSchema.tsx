@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TConditionsConjunction } from '../types';
 
 const checkPropertValue = (val: any) => {
   const isArrayEmpty = val && Array.isArray(val) && !val?.length;
@@ -45,16 +46,23 @@ export const segmentFormSchema = z.object({
   name: z.string(),
   subOf: z.string().optional(),
   description: z.string().optional(),
+  color: z.string().optional(),
   config: z.record(z.any()),
   conditionSegments: z
     .array(
       z.object({
         contentType: z.string(),
-        conditionsConjunction: z.enum(['and', 'or']),
+        conditionsConjunction: z.enum([
+          TConditionsConjunction.AND,
+          TConditionsConjunction.OR,
+        ]),
         conditions: conditionsSchema.optional(),
       }),
     )
     .optional(),
   conditions: conditionsSchema.optional(),
-  conditionsConjunction: z.enum(['and', 'or']),
+  conditionsConjunction: z.enum([
+    TConditionsConjunction.AND,
+    TConditionsConjunction.OR,
+  ]),
 });

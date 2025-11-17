@@ -1,12 +1,13 @@
 import moment from 'moment';
+import { pluralFormation, sendCoreModuleProducer } from '../../utils';
+import { sendTRPCMessage } from '../../utils/trpc';
 import { AUTOMATION_PROPERTY_OPERATORS, STATIC_PLACEHOLDER } from './constants';
-import { pluralFormation, sendWorkerMessage } from '../../utils';
 import {
   IPerValueProps,
   IPropertyProps,
   IReplacePlaceholdersProps,
+  TAutomationProducers,
 } from './types';
-import { sendTRPCMessage } from '../../utils/trpc';
 
 export const splitType = (type: string) => {
   return type.replace(/\./g, ':').split(':');
@@ -68,6 +69,112 @@ const processComplexField = async (
 const cleanValue = (value: string): string =>
   value.replace(/\[\[ /g, '').replace(/ \]\]/g, '');
 
+const processBracketPlaceholders = async (
+  value: string,
+  subdomain: string,
+  complexFieldKeys: string[] = ['customFieldsData', 'trackedData'],
+): Promise<string> => {
+  const bracketRegex = /\[\[\s*([^\]]+)\s*\]\]/g;
+  const bracketMatches = [...value.matchAll(bracketRegex)];
+
+  let processed = value;
+
+  for (const match of bracketMatches) {
+    const fullMatch = match[0];
+    const content = match[1].trim();
+
+    // Check if content matches collection pattern with complex field:
+    // <collectionName>.<objectId>.<complexFieldKey>.<fieldId>
+    const complexFieldPattern = new RegExp(
+      `^(user|tag|product|company|customer)\\.([\\w\\d]+)\\.(${complexFieldKeys.join(
+        '|',
+      )})\\.([\\w\\d]+)$`,
+    );
+    const complexFieldMatch = content.match(complexFieldPattern);
+
+    if (complexFieldMatch) {
+      const [, collectionName, objectId, complexFieldKey, fieldId] =
+        complexFieldMatch;
+
+      // Map collection names to module names
+      const moduleMap: Record<string, string> = {
+        user: 'users',
+        tag: 'tags',
+        product: 'products',
+        company: 'companies',
+        customer: 'customers',
+      };
+
+      const moduleName = moduleMap[collectionName];
+
+      try {
+        const result = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: moduleName,
+          action: 'findOne',
+          input: { query: { _id: objectId } },
+        });
+
+        // Find the complex field value
+        const complexFieldData = (result?.[complexFieldKey] || []).find(
+          (cfd: any) => cfd?.field === fieldId,
+        );
+
+        const replaceValue = complexFieldData?.value || '';
+        processed = processed.replace(fullMatch, String(replaceValue));
+      } catch (error) {
+        // If tRPC request fails, just remove the brackets
+        processed = processed.replace(fullMatch, '');
+      }
+      continue;
+    }
+
+    // Check if content matches simple collection pattern: <collectionName>.<objectId>.<fieldKey>
+    const collectionPattern =
+      /^(user|tag|product|company|customer)\.([\w\d]+)\.([\w\d]+)$/;
+    const collectionMatch = content.match(collectionPattern);
+
+    if (collectionMatch) {
+      const [, collectionName, objectId, fieldKey] = collectionMatch;
+
+      // Map collection names to module names
+      const moduleMap: Record<string, string> = {
+        user: 'users',
+        tag: 'tags',
+        product: 'products',
+        company: 'companies',
+        customer: 'customers',
+      };
+
+      const moduleName = moduleMap[collectionName];
+
+      try {
+        const result = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: moduleName,
+          action: 'findOne',
+          input: { query: { _id: objectId } },
+        });
+
+        const replaceValue = (result || {})[fieldKey ?? '_id'] || '';
+        processed = processed.replace(fullMatch, String(replaceValue));
+      } catch (error) {
+        // If tRPC request fails, just remove the brackets
+        processed = processed.replace(fullMatch, '');
+      }
+    } else {
+      // Not a collection pattern, just clean the brackets
+      processed = processed.replace(fullMatch, content);
+    }
+  }
+
+  return processed;
+};
+
 export const replacePlaceHolders = async <TModels>({
   models,
   subdomain,
@@ -86,50 +193,95 @@ export const replacePlaceHolders = async <TModels>({
     ...complexFields,
   ];
   const { isRelated = true, resolver, props } = customResolver || {};
+  const targetMap = new Map(Object.entries(target));
 
   for (const [actionDataKey, value] of Object.entries(actionData)) {
     if (value === null || value === undefined) continue;
 
     let processedValue = typeof value === 'string' ? value : String(value);
-
-    // Process target key placeholders
-    for (const targetKey of Object.keys(target)) {
-      if (processedValue.includes(`{{ ${targetKey} }}`)) {
-        let replaceValue = target[targetKey];
-        if (isRelated && resolver) {
-          replaceValue = await resolver(
-            models,
-            subdomain,
-            target,
-            targetKey,
-            props,
-          );
-        }
+    const regex = /{{\s*([\w\d]+(?:\.[\w\d\-]+)*)\s*}}/g;
+    const fieldKeys = [...processedValue.matchAll(regex)].map(
+      (match) => match[1],
+    );
+    // Process each placeholder found
+    for (const fieldKey of fieldKeys) {
+      // First, try to get related value
+      let replacedValue = null;
+      if (isRelated && resolver) {
+        replacedValue = await resolver(
+          models,
+          subdomain,
+          target,
+          fieldKey,
+          props,
+        );
+      }
+      if (replacedValue) {
         processedValue = processedValue.replace(
-          `{{ ${targetKey} }}`,
+          `{{ ${fieldKey} }}`,
+          replacedValue,
+        );
+        continue;
+      }
+
+      // Check if it's a targetKey
+      const targetKeyValue = targetMap.get(fieldKey);
+      if (targetKeyValue) {
+        const replaceValue =
+          (isRelated &&
+            resolver &&
+            (await resolver(models, subdomain, target, fieldKey, props))) ||
+          targetKeyValue;
+        processedValue = processedValue.replace(
+          `{{ ${fieldKey} }}`,
           replaceValue,
         );
+        continue;
+      }
+
+      // Check if it's a complex field
+      for (const complexFieldKey of complexFieldKeys) {
+        if (fieldKey.includes(`${complexFieldKey}.`)) {
+          const [, fieldId] = fieldKey.split('.');
+
+          let replaceValue = '';
+          if (isRelated && resolver) {
+            replaceValue =
+              (await resolver(
+                models,
+                subdomain,
+                target,
+                `${complexFieldKey}.${fieldId}`,
+                props,
+              )) || '';
+          } else {
+            const complexFieldData = (target[complexFieldKey] || []).find(
+              (cfd: any) => cfd?.field === fieldId,
+            );
+            replaceValue = complexFieldData?.value || '-';
+          }
+
+          processedValue = processedValue.replace(
+            `{{ ${complexFieldKey}.${fieldId} }}`,
+            replaceValue,
+          );
+          break;
+        }
       }
     }
 
-    // Process date placeholders
+    // Process remaining date placeholders (for non-targetKey placeholders)
     if (typeof processedValue === 'string') {
       processedValue = processDatePlaceholders(processedValue);
     }
 
-    // Process complex fields
-    for (const complexFieldKey of complexFieldKeys) {
-      if (processedValue.includes(complexFieldKey)) {
-        processedValue = await processComplexField(
-          processedValue,
-          complexFieldKey,
-          target,
-          customResolver,
-          models,
-          subdomain,
-          props,
-        );
-      }
+    // Process bracket placeholders [[ ]]
+    if (typeof processedValue === 'string') {
+      processedValue = await processBracketPlaceholders(
+        processedValue,
+        subdomain,
+        complexFieldKeys,
+      );
     }
 
     actionData[actionDataKey] = cleanValue(processedValue);
@@ -161,7 +313,7 @@ const getPerValue = async <TModels>({
   target,
   getRelatedValue,
   serviceName = '',
-  triggerType = '',
+  targetType = '',
   execution,
 }: IPerValueProps<TModels>) => {
   const { field = '', operator = '' } = rule;
@@ -172,27 +324,27 @@ const getPerValue = async <TModels>({
   // replace placeholder if value has attributes from related service
   if (
     value.match(/\{\{\s*([^}]+)\s*\}\}/g) &&
-    !(triggerType || '').includes(serviceName)
+    !(targetType || '').includes(serviceName)
   ) {
-    const [relatedPluginName] = splitType(triggerType);
+    const [relatedPluginName, moduleName] = splitType(targetType);
 
     if (!relatedPluginName) {
-      // Skip placeholder replacement when triggerType is empty
       return value;
     }
 
     value =
       (
-        await sendWorkerMessage({
-          pluginName: relatedPluginName,
-          queueName: 'automations',
-          jobName: 'replacePlaceHolders',
+        await sendCoreModuleProducer({
           subdomain,
-          data: {
-            execution,
+          moduleName: 'automations',
+          pluginName: relatedPluginName,
+          producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
+          input: {
             target,
             config: { value },
+            moduleName,
           },
+          defaultValue: value,
         })
       )?.value || value;
   }
@@ -284,7 +436,7 @@ export const setProperty = async <TModels>({
   execution,
   getRelatedValue,
   relatedItems,
-  triggerType,
+  targetType,
 }: IPropertyProps<TModels>) => {
   const { target } = execution;
   const [serviceName, contentType] = splitType(module);
@@ -308,11 +460,10 @@ export const setProperty = async <TModels>({
         rule,
         target,
         getRelatedValue,
-        triggerType,
+        targetType,
         serviceName,
         execution,
       });
-
       if (
         !complexFields.every((complexField) => field.includes(complexField))
       ) {
@@ -333,10 +484,8 @@ export const setProperty = async <TModels>({
             action: 'findOne',
             input: { _id: fieldId },
           });
-
           const complexFieldData = await sendTRPCMessage({
             subdomain,
-
             pluginName: 'core',
             method: 'query',
             module: 'fields',
@@ -378,13 +527,13 @@ export const setProperty = async <TModels>({
     }
 
     try {
+      const moduleName = pluralFormation(contentType);
       await sendTRPCMessage({
         subdomain,
-
         method: 'mutation',
         pluginName: serviceName,
-        module: pluralFormation(contentType),
-        action: `updateMany`,
+        module: moduleName,
+        action: 'updateMany',
         input: {
           selector: { _id: relatedItem._id, ...selectorDoc },
           modifier,
@@ -407,5 +556,6 @@ export const setProperty = async <TModels>({
   return { module, fields: rules.map((r) => r.field).join(', '), result };
 };
 
-export const getContentType = (type: string) => type.split(':')[1];
-export const getPluginName = (type: string) => type.split(':')[0];
+export const getContentType = (type: string) => splitType(type)[2];
+export const getModuleName = (type: string) => splitType(type)[1];
+export const getPluginName = (type: string) => splitType(type)[0];

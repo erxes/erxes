@@ -42,12 +42,18 @@ export function AddCustomerForm({
         toast({
           title: 'Error',
           description: e.message,
+          variant: 'destructive',
         });
       },
       onCompleted: (data) => {
         form.reset();
         onOpenChange?.(false);
         setCustomerId(data?.customersAdd._id);
+        toast({
+          title: 'Success',
+          variant: 'success',
+          description: 'Customer created successfully',
+        });
       },
     });
   };

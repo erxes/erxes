@@ -76,12 +76,13 @@ export const CategoryDetailSheet = () => {
           toast({
             title: 'Error',
             description: e.message,
+            variant: 'destructive',
           });
         },
         onCompleted: () => {
           toast({
-            title: 'Success',
-            description: 'Category updated successfully',
+            title: 'Category updated successfully',
+            variant: 'success',
           });
           form.reset();
           setOpen(null);

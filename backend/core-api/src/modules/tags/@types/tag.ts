@@ -12,4 +12,5 @@ export interface ITagFilterQueryParams
   isGroup?: boolean;
   ids: string[];
   excludeIds: boolean;
+  includeWorkspaceTags?: boolean;
 }

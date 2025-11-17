@@ -22,6 +22,8 @@ const config: ModuleFederationConfig = {
     './relationWidget': './src/widgets/relation/RelationWidgets.tsx',
     './pos': './src/modules/pos/Main.tsx',
     './posSettings': './src/modules/pos/pos/Settings.tsx',
+    './automationsWidget':
+      './src/widgets/automations/components/AutomationRemoteEntry.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {

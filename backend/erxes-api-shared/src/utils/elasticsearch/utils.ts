@@ -1,8 +1,9 @@
+import { Client } from '@elastic/elasticsearch';
 import { parse } from 'url';
 import { getSaasOrganizationIdBySubdomain } from '../saas';
+import { getPlugin, getPlugins } from '../service-discovery';
 import { getEnv } from '../utils';
 import { IFetchEsArgs } from './types';
-import { Client } from '@elastic/elasticsearch';
 
 const { ELASTICSEARCH_URL = 'http://localhost:9200' } = process.env;
 
@@ -95,7 +96,7 @@ export const getIndexPrefix = (connectionString?: string) => {
 const elasticMethodMap = {
   search: (params: any) => client.search(params),
   count: (params: any) => client.count(params),
-} as const;
+};
 
 export const fetchEsWithScroll = async (scrollId: string) => {
   try {
@@ -177,9 +178,7 @@ export const fetchEs = async ({
       throw new Error('Elasticsearch is not running');
     }
 
-    const response = await elasticMethodMap[action](params);
-
-    return response;
+    return await elasticMethodMap[action](params);
   } catch (e) {
     if (!ignoreError) {
       console.log(
@@ -223,13 +222,16 @@ export const fetchByQueryWithScroll = async ({
         },
       },
     },
-    defaultValue: { _scroll_id: '', hits: { total: { value: 0 }, hits: [] } },
+    defaultValue: {
+      _scroll_id: '',
+      body: { hits: { total: { value: 0 }, hits: [] } },
+    },
   });
 
-  const totalCount = response.hits.total.value;
+  const totalCount = response.body?.hits?.total?.value || 0;
   const scrollId = response._scroll_id;
 
-  let ids = response.hits.hits
+  let ids = response.body.hits.hits
     .map((hit: any) => (_source === '_id' ? hit._id : hit._source[_source]))
     .filter((r: any) => r);
 
@@ -238,13 +240,17 @@ export const fetchByQueryWithScroll = async ({
   }
 
   while (totalCount > 0) {
-    const scrollResponse = await fetchEsWithScroll(scrollId);
+    const scrollResponse = (await fetchEsWithScroll(scrollId)) as any;
 
     if (scrollResponse.body.hits.hits.length === 0) {
       break;
     }
 
-    ids = ids.concat(scrollResponse.body.hits.hits.map((hit: any) => hit._id));
+    ids = ids.concat(
+      scrollResponse.body.hits.hits.map((hit: any) =>
+        _source === '_id' ? hit._id : hit._source[_source],
+      ),
+    );
   }
 
   return ids;
@@ -284,10 +290,55 @@ export const fetchByQuery = async ({
     .filter((r: any) => r);
 };
 
-export async function getTotalDocCount() {
-  const response = await client.indices.stats({ metric: 'docs' });
-
-  const totalDocs = response.body._all.primaries.docs.count;
-
+export async function getEsIndexTotalCount(contentType: string) {
+  const { mongoConnectionString } = await getPluginSegmentConfig(contentType);
+  const esIndex = await getEsIndexByContentType(contentType);
+  const index = `${getIndexPrefix(mongoConnectionString)}${esIndex}`;
+  const response = await client.count({ index });
+  const totalDocs = response.body.count;
   return totalDocs;
 }
+
+export const getPluginSegmentConfig = async (contentType: string) => {
+  const pluginNames = await getPlugins();
+  const pluginConfigs: any = [];
+  let mongoConnectionString = '';
+  for (const pluginName of pluginNames) {
+    const plugin = await getPlugin(pluginName);
+    const segmentMeta = (plugin.config.meta || {}).segments;
+    if (
+      contentType.includes(`${pluginName}:`) &&
+      getDbNameFromConnectionString(
+        plugin?.config?.dbConnectionString || '',
+      ) !== 'erxes'
+    ) {
+      mongoConnectionString = plugin?.config?.dbConnectionString || '';
+    }
+
+    if (segmentMeta) {
+      pluginConfigs.push(segmentMeta);
+    }
+  }
+  return { pluginConfigs, mongoConnectionString };
+};
+
+export const getEsIndexByContentType = async (contentType: string) => {
+  const [pluginName, _moduleName, type] = contentType
+    .replace(/\./g, ':')
+    .split(':');
+
+  const plugin = await getPlugin(pluginName);
+
+  const segmentMeta = (plugin.config.meta || {}).segments;
+
+  if (segmentMeta) {
+    const { contentTypes } = segmentMeta;
+    for (const ct of contentTypes) {
+      if (ct.type === type && ct.esIndex) {
+        return ct.esIndex;
+      }
+    }
+  }
+
+  return '';
+};

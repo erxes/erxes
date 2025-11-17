@@ -50,6 +50,16 @@ export const CONFIG: IUIConfig = {
       path: 'operation/team',
       settingsOnly: true,
     },
+    {
+      name: 'tasks',
+      path: 'operation/tasks',
+      settingsOnly: true,
+    },
+    {
+      name: 'projects',
+      path: 'operation/projects',
+      settingsOnly: true,
+    },
   ],
   relationWidgets: [
     {

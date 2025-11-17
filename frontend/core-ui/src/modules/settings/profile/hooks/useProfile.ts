@@ -35,12 +35,13 @@ const useProfile = (options?: OperationVariables) => {
           refetch();
           setCurrentUser(response.data.usersEditProfile);
 
-          toast({ title: 'Successfully updated profile' });
+          toast({ title: 'Successfully updated profile', variant: 'success' });
         }
       } catch (e: any) {
         toast({
           title: 'Error updating profile',
           description: e.message || 'An unexpected error occurred.',
+          variant: 'destructive',
         });
       }
     });

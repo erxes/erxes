@@ -310,6 +310,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
                 <Form.Item>
                   <Form.Label className="sr-only">Tags</Form.Label>
                   <SelectTags.FormItem
+                    tagType="operation:task"
                     mode="multiple"
                     value={field.value || []}
                     onValueChange={(value) => field.onChange(value)}

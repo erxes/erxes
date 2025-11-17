@@ -9,8 +9,9 @@ import {
 } from 'erxes-api-shared/utils';
 import express from 'express';
 import * as http from 'http';
-import { initMQWorkers } from './bullmq';
-import { debugError, debugInfo } from '@/debuuger';
+import { initMQWorkers } from './bullmq/initMQWorkers';
+import { debugError, debugInfo } from '@/debugger';
+import { webhookRoutes } from '@/executions/actions/webhook/incoming/webhookRoutes';
 
 const {
   DOMAIN,
@@ -54,6 +55,8 @@ app.use(cors(corsOptions));
 
 app.get('/health', createHealthRoute(serviceName));
 
+app.use(webhookRoutes);
+
 const httpServer = http.createServer(app);
 
 httpServer.listen(port, async () => {
@@ -69,9 +72,9 @@ httpServer.listen(port, async () => {
     LOAD_BALANCER_ADDRESS ||
     `http://${isDev ? 'localhost' : serviceName}:${port}`;
 
-  await redis.set(`erxes-service-logs`, address);
+  await redis.set(`service-logs`, address);
 
-  console.log(`erxes-service-logs joined with ${address}`);
+  console.log(`service-logs joined with ${address}`);
   await initMQWorkers(redis);
 });
 
@@ -79,7 +82,7 @@ process.stdin.resume();
 
 async function leaveServiceDiscovery() {
   try {
-    console.log(`erxes-serviceautomations left ${port}`);
+    console.log(`$service-automations left ${port}`);
     debugInfo('Left from service discovery');
   } catch (e) {
     debugError(e);

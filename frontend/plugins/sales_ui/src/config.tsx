@@ -3,6 +3,7 @@ import {
   IconCashRegister,
   IconSandbox,
 } from '@tabler/icons-react';
+import { IUIConfig } from 'erxes-ui/types';
 import { Suspense, lazy } from 'react';
 
 const MainNavigation = lazy(() =>
@@ -49,6 +50,8 @@ export const CONFIG = {
       icon: IconSandbox,
       path: 'sales/deals',
       hasSettings: true,
+      hasAutomation: true,
+      hasSegmentConfigWidget: true,
     },
     {
       name: 'pos',

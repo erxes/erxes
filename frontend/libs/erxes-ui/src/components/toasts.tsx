@@ -1,8 +1,14 @@
 import * as React from 'react';
 
 import { Toast as ToastPrimitives } from 'radix-ui';
-import { IconX } from '@tabler/icons-react';
-import { cva, type VariantProps } from 'class-variance-authority';
+import {
+  IconAlertCircleFilled,
+  IconCircleCheckFilled,
+  IconCircleXFilled,
+  IconInfoCircleFilled,
+  IconX,
+} from '@tabler/icons-react';
+import { cva } from 'class-variance-authority';
 
 import { cn } from '../lib/utils';
 
@@ -24,32 +30,41 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
 
 const toastVariants = cva(
-  'group pointer-events-auto relative flex w-full items-center justify-between space-x-2 overflow-hidden rounded-md p-4 pr-6 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-(--radix-toast-swipe-end-x) data-[swipe=move]:translate-x-(--radix-toast-swipe-move-x) data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full sm:data-[state=open]:slide-in-from-bottom-full',
-  {
-    variants: {
-      variant: {
-        default: 'bg-background text-foreground',
-        destructive:
-          'destructive group border-destructive bg-destructive bg-linear-to-b from-hsla(0, 84%, 60%, 1) text-destructive-foreground  before:pointer-events-none before:absolute before:inset-0 before:border-t-2 before:border-background/30 before:bg-linear-to-b before:from-background/15 before:rounded',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-    },
-  },
+  'group pointer-events-auto relative flex w-full items-center space-x-2 overflow-hidden rounded-md p-4 pr-6 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-(--radix-toast-swipe-end-x) data-[swipe=move]:translate-x-(--radix-toast-swipe-move-x) data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full sm:data-[state=open]:slide-in-from-bottom-full bg-background text-foreground',
 );
 
 const ToastRoot = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
-  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
-    VariantProps<typeof toastVariants>
->(({ className, variant, ...props }, ref) => {
+  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> & {
+    variant?: 'success' | 'warning' | 'destructive' | 'default';
+  }
+>(({ className, variant, children, ...props }, ref) => {
+  let icon = null;
+
+  switch (variant) {
+    case 'success':
+      icon = <IconCircleCheckFilled className="text-success" />;
+      break;
+    case 'warning':
+      icon = <IconAlertCircleFilled className="text-warning" />;
+      break;
+    case 'destructive':
+      icon = <IconCircleXFilled className="text-destructive" />;
+      break;
+    default:
+      icon = <IconInfoCircleFilled className="text-info" />;
+      break;
+  }
+
   return (
     <ToastPrimitives.Root
       ref={ref}
-      className={cn(toastVariants({ variant }), className)}
+      className={cn(toastVariants(), className)}
       {...props}
-    />
+    >
+      <div className="[&>svg]:size-4.5 mt-0.5 flex-none mb-auto">{icon}</div>
+      {children}
+    </ToastPrimitives.Root>
   );
 });
 ToastRoot.displayName = ToastPrimitives.Root.displayName;
@@ -61,7 +76,7 @@ const ToastAction = React.forwardRef<
   <ToastPrimitives.Action
     ref={ref}
     className={cn(
-      'inline-flex h-8 shrink-0 items-center justify-center rounded-md bg-transparent px-3 text-sm font-medium transition-colors hover:bg-secondary focus:outline-hidden focus:ring-1 focus:ring-ring disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 hover:group-[.destructive]:border-destructive/30 hover:group-[.destructive]:bg-destructive hover:group-[.destructive]:text-destructive-foreground focus:group-[.destructive]:ring-destructive',
+      'inline-flex h-8 shrink-0 items-center justify-center rounded-md bg-transparent px-3 text-sm font-medium transition-colors hover:bg-secondary focus:outline-hidden focus:ring-1 focus:ring-ring disabled:pointer-events-none disabled:opacity-50',
       className,
     )}
     {...props}

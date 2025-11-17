@@ -18,6 +18,12 @@ export const ProductsDelete = ({ productIds }: { productIds: string[] }) => {
           } selected product${productIds.length === 1 ? '' : 's'}?`,
         }).then(() => {
           removeProducts(productIds, {
+            onCompleted: () => {
+              toast({
+                title: 'Products deleted successfully',
+                variant: 'success',
+              });
+            },
             onError: (e: ApolloError) => {
               toast({
                 title: 'Error',
