@@ -9,11 +9,18 @@ const DealsMain = lazy(() =>
   })),
 );
 
+const PosMain = lazy(() =>
+  import('~/pages/PosIndexPage').then((module) => ({
+    default: module.PosIndexPage,
+  })),
+);
+
 const App = () => {
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
-        <Route path="/" element={<DealsMain />} />
+        <Route path="/pos" element={<PosMain />} />
+        <Route path="/deals" element={<DealsMain />} />
       </Routes>
     </Suspense>
   );

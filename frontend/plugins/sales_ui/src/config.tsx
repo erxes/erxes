@@ -24,11 +24,9 @@ const PosOrderNavigation = lazy(() =>
   })),
 );
 
-export const CONFIG = {
+export const CONFIG: IUIConfig = {
   name: 'sales',
   icon: IconBriefcase,
-  hasRelationWidget: true,
-  widgetsIcon: IconBriefcase,
   navigationGroup: {
     name: 'sales',
     icon: IconBriefcase,
@@ -48,7 +46,7 @@ export const CONFIG = {
     {
       name: 'deals',
       icon: IconSandbox,
-      path: 'deals',
+      path: 'sales/deals',
       hasSettings: true,
       hasAutomation: true,
       hasSegmentConfigWidget: true,
@@ -56,8 +54,15 @@ export const CONFIG = {
     {
       name: 'pos',
       icon: IconCashRegister,
-      path: 'pos',
+      path: 'sales/pos',
       hasSettings: true,
+      hasRelationWidget: true,
+    },
+    {
+      name: 'sales',
+      icon: IconBriefcase,
+      path: 'sales',
+      hasSettings: false,
       hasRelationWidget: true,
     },
   ],

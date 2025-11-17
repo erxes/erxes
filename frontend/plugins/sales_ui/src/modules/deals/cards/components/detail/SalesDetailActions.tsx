@@ -16,6 +16,7 @@ export const SalesDetailActions = () => {
   const { RelationWidget } = useRelationWidget();
 
   const [activeTab, setActiveTab] = useAtom(salesDetailActiveActionTabAtom);
+  const panelRef = React.useRef<any>(null);
 
   // return (
   //   <Widget
@@ -25,20 +26,28 @@ export const SalesDetailActions = () => {
   //   />
   // );
 
+  React.useEffect(() => {
+    if (panelRef.current) {
+      if (activeTab) {
+        panelRef.current.expand();
+      } else {
+        panelRef.current.collapse();
+      }
+    }
+  }, [activeTab]);
+
   return (
     <>
       <Resizable.Handle />
       <Resizable.Panel
-        minSize={activeTab ? 30 : 0}
-        maxSize={activeTab ? 60 : 0}
+        ref={panelRef}
+        defaultSize={0}
+        minSize={20}
+        maxSize={60}
+        collapsible={true}
+        collapsedSize={0}
       >
-        <SideMenu
-          orientation="vertical"
-          value={activeTab ?? ''}
-          onValueChange={(value) => setActiveTab(value)}
-          className={cn('h-full')}
-        >
-          {/* <ActionTabsContent
+        {/* <ActionTabsContent
             value={actionTabs.activity.code}
             icon={actionTabs.activity.icon}
             title={actionTabs.activity.title}
@@ -55,19 +64,24 @@ export const SalesDetailActions = () => {
               />
             </div>
           </ActionTabsContent> */}
+        <div className="h-full flex flex-col">
           {widgetsModules.map((item) => (
-            <ActionTabsContent
+            <div
               key={item.name}
-              value={item.name}
-              icon={item.icon as any}
-              title={item.name}
+              className={cn(
+                'h-full flex-col',
+                activeTab === item.name ? 'flex' : 'hidden',
+              )}
             >
-              <RelationWidget
-                module={item}
-                contentId={deal?._id || ''}
-                contentType="sales:deal"
-              />
-            </ActionTabsContent>
+              <ActionHeader title={item.name} icon={item.icon as any} />
+              <div className="flex-1 overflow-y-auto">
+                <RelationWidget
+                  module={item}
+                  contentId={deal?._id || ''}
+                  contentType="sales:deal"
+                />
+              </div>
+            </div>
           ))}
           {/* <ActionTabsContent
             value={actionTabs.notes.code}
@@ -96,61 +110,27 @@ export const SalesDetailActions = () => {
               </Resizable.Panel>
             </Resizable.PanelGroup>
           </ActionTabsContent> */}
-        </SideMenu>
+        </div>
       </Resizable.Panel>
-      <SalesDetailActionsTrigger />
+
+      <div className="border-l flex flex-col gap-2 p-2 bg-background">
+        {widgetsModules.map((item) => (
+          <button
+            key={item.name}
+            onClick={() =>
+              setActiveTab(activeTab === item.name ? '' : item.name)
+            }
+            className={cn(
+              'flex flex-col items-center justify-center w-12 h-12 rounded hover:bg-accent transition-colors',
+              activeTab === item.name && 'bg-accent',
+            )}
+            title={item.name}
+          >
+            <item.icon className="size-5" />
+          </button>
+        ))}
+      </div>
     </>
-  );
-};
-
-export const SalesDetailActionsTrigger = () => {
-  const [activeTab, setActiveTab] = useAtom(salesDetailActiveActionTabAtom);
-  const widgetsModules = useWidgetsModules();
-
-  return (
-    <div className="flex flex-none overflow-hidden">
-      <SideMenu
-        orientation="vertical"
-        value={activeTab ?? ''}
-        onValueChange={(value) => setActiveTab(value)}
-        className="h-full"
-      >
-        <SideMenu.Sidebar className="border-l-0">
-          {widgetsModules.map((item) => (
-            <SideMenu.Trigger
-              key={item.name}
-              value={item.name}
-              label={item.name}
-              Icon={item.icon as any}
-            />
-          ))}
-        </SideMenu.Sidebar>
-      </SideMenu>
-    </div>
-  );
-};
-
-export const ActionTabsContent = ({
-  children,
-  value,
-  title,
-  icon,
-}: {
-  children: React.ReactNode;
-  value: string;
-  title?: string;
-  icon: Icon;
-}) => {
-  // const [activeTab] = useAtom(customerDetailActiveActionTabAtom);
-
-  return (
-    <SideMenu.Content
-      value={value}
-      className="border-l-0 data-[state=active]:border-l-0 bg-background"
-    >
-      <ActionHeader title={title} icon={icon} />
-      {children}
-    </SideMenu.Content>
   );
 };
 
