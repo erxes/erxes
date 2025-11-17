@@ -1,4 +1,4 @@
-import { isEnabled, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { isEnabled, markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as momentTz from 'moment-timezone';
 import { IModels, IContext } from '~/connectionResolvers';
 import { IIntegrationDocument } from '~/modules/inbox/@types/integrations';
@@ -67,7 +67,7 @@ const getWidgetMessages = (models: IModels, conversationId: string) => {
   });
 };
 
-export const widgetQueries = {
+export const widgetQueries: Record<string, Resolver> = {
   async widgetsGetMessengerIntegration(
     _root,
     args: { brandCode: string },
@@ -263,3 +263,10 @@ export const widgetQueries = {
     };
   },
 };
+
+
+markResolvers(widgetQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
