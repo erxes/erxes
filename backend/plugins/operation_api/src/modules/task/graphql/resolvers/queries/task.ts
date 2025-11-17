@@ -8,15 +8,21 @@ import { STATUS_TYPES } from '@/status/constants/types';
 const handleDateFilter = (
   filterQuery: FilterQuery<ITaskDocument>,
   fieldName: string,
-  value: string,
+  value: string | Date,
 ) => {
   if (value === 'no-date') {
     filterQuery[fieldName] = { $exists: false };
-  } else if (value === 'in-past') {
-    filterQuery[fieldName] = { $lt: new Date() };
-  } else {
-    filterQuery[fieldName] = { $gte: new Date(value) };
+    return;
   }
+
+  if (value === 'in-past') {
+    filterQuery[fieldName] = { $lt: new Date() };
+    return;
+  }
+
+  const stringValue = value instanceof Date ? value.toISOString() : value;
+
+  filterQuery[fieldName] = { $lte: new Date(stringValue) };
 };
 
 export const taskQueries = {
@@ -150,7 +156,11 @@ export const taskQueries = {
     }
 
     if (filter.projectId) {
-      filterQuery.projectId = filter.projectId;
+      if (filter.projectId === 'no-project') {
+        filterQuery.projectId = { $exists: false };
+      } else {
+        filterQuery.projectId = filter.projectId;
+      }
     }
 
     if (
@@ -230,7 +240,11 @@ export const taskQueries = {
       filterQuery.tagIds = { $in: filter.tagIds };
     }
 
-    if (filter.teamId && filter.projectId) {
+    if (
+      filter.teamId &&
+      filter.projectId &&
+      filter.projectId !== 'no-project'
+    ) {
       delete filterQuery.teamId;
     }
 

@@ -212,7 +212,8 @@ const SelectDateFilterBar = ({
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey={filterKey}>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <span className="text-muted-foreground ">before</span>
               {icon || <IconCalendarTime className="w-4 h-4" />}
               <span className="font-medium">{getDateLabel(dateValue)}</span>
             </div>

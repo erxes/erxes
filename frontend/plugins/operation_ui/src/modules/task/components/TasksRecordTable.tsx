@@ -22,13 +22,13 @@ export const TasksRecordTable = ({
 
   const variables = isCreatedView
     ? {
-        projectId: projectId || undefined,
-        cycleId: cycleId || undefined,
+        ...(projectId && { projectId }),
+        ...(cycleId && { cycleId }),
         createdBy: currentUser?._id,
       }
     : {
-        projectId: projectId || undefined,
-        cycleId: cycleId || undefined,
+        ...(projectId && { projectId }),
+        ...(cycleId && { cycleId }),
         userId: currentUser?._id,
       };
 

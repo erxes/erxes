@@ -27,10 +27,9 @@ export interface ITask {
   projectId?: string;
   estimatePoint?: number;
   userId?: string;
-  startDate?: Date;
-  targetDate?: Date;
-  createdAt?: Date;
-  statusChangedDate?: Date;
+  startDate?: Date | string;
+  targetDate?: Date | string;
+  createdAt?: Date | string;
   statusType?: number;
 }
 

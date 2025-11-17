@@ -163,7 +163,7 @@ const SelectProjectContent = () => {
       <Command.Empty>No project found</Command.Empty>
       <Command.List>
         <SelectProjectCommandItem
-          project={{ _id: '', name: 'No project' } as IProject}
+          project={{ _id: 'no-project', name: 'No project' } as IProject}
         />
         {projects.map((project) => (
           <SelectProjectCommandItem key={project._id} project={project} />
@@ -281,6 +281,7 @@ const SelectProjectRoot = ({
 export const SelectProjectFilterBar = ({ queryKey }: { queryKey?: string }) => {
   const [project, setProject] = useQueryState<string>(queryKey || 'project');
   const [open, setOpen] = useState(false);
+
   return (
     <SelectProjectProvider
       value={project || ''}
