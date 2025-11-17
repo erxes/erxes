@@ -78,18 +78,18 @@ export const TasksCommandBar = () => {
                   <Command.Group className="p-1">
                     <Command.Item
                       className="w-full"
-                      onSelect={() => {
-                        taskIds.forEach((taskId) => {
-                          updateTask({
-                            variables: {
-                              _id: taskId,
-                              assigneeId: currentUser._id,
-                            },
-                            onCompleted: () => {
-                              setOpen(false);
-                            },
-                          });
-                        });
+                      onSelect={async () => {
+                        await Promise.all(
+                          taskIds.map((taskId) =>
+                            updateTask({
+                              variables: {
+                                _id: taskId,
+                                assigneeId: currentUser._id,
+                              },
+                            })
+                          )
+                        );
+                        setOpen(false);
                       }}
                     >
                       <div className="flex gap-2 justify-start">
@@ -123,14 +123,16 @@ export const TasksCommandBar = () => {
                   <Command.Group className="p-1">
                     <Command.Item
                       className="flex justify-between text-destructive"
-                      onSelect={() => {
-                        taskIds.forEach((taskId) => {
-                          removeTask(taskId, {
-                            onCompleted: () => {
-                              setOpen(false);
-                            },
-                          });
-                        });
+                      onSelect={async () => {
+                        await Promise.all(
+                          taskIds.map((taskId) =>
+                            removeTask(taskId, {
+                              onCompleted: () => {
+                                setOpen(false);
+                              },
+                            })
+                          )
+                        );
                       }}
                     >
                       <div className="flex gap-2 items-center">

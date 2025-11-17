@@ -33,21 +33,21 @@ export const TasksEditPriorityContent = ({
 }) => {
   const { updateTask } = useUpdateTask();
 
-  if (!taskIds) return null;
+  if (!taskIds?.length) return null;
   return (
     <SelectPriority.Provider
-      onValueChange={(value) => {
-        taskIds.forEach((taskId) => {
-          updateTask({
-            variables: {
-              _id: taskId,
-              priority: value,
-            },
-            onCompleted: () => {
-              setOpen(false);
-            },
-          });
-        });
+      onValueChange={async (value) => {
+        await Promise.all(
+          taskIds.map((taskId) =>
+            updateTask({
+              variables: {
+                _id: taskId,
+                priority: value,
+              },
+            })
+          )
+        );
+        setOpen(false);
       }}
     >
       <SelectPriority.Content />

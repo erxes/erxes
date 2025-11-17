@@ -33,18 +33,17 @@ export const TasksAddProjectContent = ({
   const { updateTask } = useUpdateTask();
   return (
     <SelectProject.Provider
-      onValueChange={(value) => {
-        taskIds.forEach((taskId) => {
-          updateTask({
-            variables: {
-              _id: taskId,
-              projectId: value,
+      onValueChange={async (value) => {
+        await Promise.all(
+          taskIds.map((taskId) =>
+            updateTask({
+              variables: {
+                _id: taskId,
+                projectId: value,
             },
-            onCompleted: () => {
-              setOpen(false);
-            },
-          });
-        });
+          }))
+        );
+        setOpen(false);
       }}
     >
       <SelectProject.Content></SelectProject.Content>

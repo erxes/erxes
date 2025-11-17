@@ -38,18 +38,17 @@ export const TasksAssignToContent = ({
     <SelectAssigneeTask.Provider
       mode="single"
       value={''}
-      onValueChange={(value) => {
-        taskIds.forEach((taskId) => {
-          updateTask({
-            variables: {
-              _id: taskId,
-              assigneeId: value,
+      onValueChange={async (value) => {
+        await Promise.all(
+          taskIds.map((taskId) =>
+            updateTask({
+              variables: {
+                _id: taskId,
+                assigneeId: value,
             },
-            onCompleted: () => {
-              setOpen(false);
-            },
-          });
-        });
+          })
+        ));
+        setOpen(false);
       }}
     >
       <SelectAssigneeTask.Content

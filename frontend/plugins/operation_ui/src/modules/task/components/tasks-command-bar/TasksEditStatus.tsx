@@ -39,18 +39,18 @@ export const TasksEditStatusContent = ({
     <SelectStatusTask.Provider
       teamId={teamId}
       value=""
-      onValueChange={(value) => {
-        taskIds.forEach((taskId) => {
-          updateTask({
-            variables: {
-              _id: taskId,
-              status: value,
-            },
-            onCompleted: () => {
-              setOpen(false);
-            },
-          });
-        });
+      onValueChange={async (value) => {
+        await Promise.all(
+          taskIds.map((taskId) =>
+            updateTask({
+              variables: {
+                _id: taskId,
+                status: value,
+              },
+            })
+          )
+        );
+        setOpen(false);
       }}
     >
       <SelectStatusTask.Content />
