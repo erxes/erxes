@@ -1,5 +1,17 @@
 # Changelog
 
+## <small>2.17.25 (2025-11-17)</small>
+
+* fix(cms): fix duplicate fields error ([e5d9156](https://github.com/erxes/erxes/commit/e5d9156))
+* fix(cms): fix duplicate tag slug errors by recursively adding increment numbers ([e9beeff](https://github.com/erxes/erxes/commit/e9beeff))
+* fix(cms): use dynamic search value in tag query ([1ac45bd](https://github.com/erxes/erxes/commit/1ac45bd))
+* fix(ticket): add local storage changer ([2154c92](https://github.com/erxes/erxes/commit/2154c92))
+* chore: add tick provider and debug ([4a9d96e](https://github.com/erxes/erxes/commit/4a9d96e))
+* chore: remove console ([8fdec5a](https://github.com/erxes/erxes/commit/8fdec5a))
+* chore(clientportal): update typo ([fbdfc5e](https://github.com/erxes/erxes/commit/fbdfc5e))
+* feat: show vip customer in incoming call ([9114b0d](https://github.com/erxes/erxes/commit/9114b0d))
+* feat(cms): generate unique slug/code before save models ([6721453](https://github.com/erxes/erxes/commit/6721453))
+
 ## <small>2.17.24 (2025-11-07)</small>
 
 * fix: car clientPortal mutations ([625e3c4](https://github.com/erxes/erxes/commit/625e3c4))
