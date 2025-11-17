@@ -1,11 +1,13 @@
 import {
-  ICustomerRelation,
-  ICustomerRelationDocument,
-  ISyncLog,
-  ISyncLogDocument,
   customerRelationSchema,
   syncLogSchema
 } from '~/modules/msdynamic/db/definitions/dynamic';
+import {   
+  ICustomerRelation,
+  ICustomerRelationDocument,
+  ISyncLog,
+  ISyncLogDocument
+} from '~/modules/msdynamic/@types/dynamic';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
