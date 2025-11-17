@@ -107,7 +107,8 @@ export function usePositionEdit(
 export function useRemovePosition() {
   const { toast } = useToast();
   const [handleRemove, { loading, error }] = useMutation(REMOVE_POSITIONS, {
-    onCompleted: () => toast({ title: 'Removed successfully!' }),
+    onCompleted: () =>
+      toast({ title: 'Removed successfully!', variant: 'success' }),
     refetchQueries: ['Positions'],
   });
 

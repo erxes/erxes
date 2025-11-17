@@ -60,7 +60,7 @@ const ProjectMilestone = ({ projectId }: { projectId: string }) => {
               {
                 name: 'Progress',
                 value: getProgress(milestone),
-                fill: 'hsl(var(--primary))',
+                fill: 'var(--primary)',
               },
             ]}
             startAngle={90}
@@ -73,7 +73,7 @@ const ProjectMilestone = ({ projectId }: { projectId: string }) => {
               tick={false}
             />
             <RadialBar
-              background={{ fill: 'hsl(var(--border))' }}
+              background={{ fill: 'var(--border)' }}
               dataKey="value"
               cornerRadius={10}
             />
@@ -149,6 +149,6 @@ const chartConfig = {
   },
   safari: {
     label: 'Done',
-    color: 'hsl(var(--primary))',
+    color: 'var(--primary)',
   },
 } satisfies ChartConfig;

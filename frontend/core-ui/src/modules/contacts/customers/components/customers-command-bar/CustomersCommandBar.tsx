@@ -54,6 +54,7 @@ export const CustomersCommandBar = () => {
               toast({
                 title: 'Error',
                 description: e.message,
+                variant: 'destructive',
               });
             },
           })}

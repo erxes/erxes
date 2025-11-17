@@ -33,6 +33,7 @@ export const AutomationRecordTableStatusInlineCell = ({
         toast({
           title: 'Success',
           description: 'Automation status updated successfully',
+          variant: 'success',
         });
       },
       onError: (error) => {

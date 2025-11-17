@@ -49,7 +49,8 @@ export const CustomersMerge = ({
         setSheetOpen(false);
         toast({
           title: 'Success',
-          variant: 'default',
+          variant: 'success',
+          description: 'Customers merged successfully',
         });
       },
     });

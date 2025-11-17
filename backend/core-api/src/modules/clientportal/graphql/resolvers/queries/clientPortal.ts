@@ -32,18 +32,22 @@ export const clientPortalQueries: Record<string, Resolver> = {
     return models.ClientPortal.findOne({ _id });
   },
 
-  async getClientPortalExample(
+  async getCPExamplePosts(
     _root: unknown,
     _args: unknown,
     { clientPortal, cpUser }: IContext,
   ) {
-    return {
-      clientPortal,
-      cpUser,
-    };
+    const posts = [
+      {
+        id: '1',
+        title: 'Post 1',
+        content: 'Content 1',
+      },
+    ];
+    return posts;
   },
 };
 
-clientPortalQueries.getClientPortalExample.wrapperConfig = {
+clientPortalQueries.getCPExamplePosts.wrapperConfig = {
   forClientPortal: true,
 };
