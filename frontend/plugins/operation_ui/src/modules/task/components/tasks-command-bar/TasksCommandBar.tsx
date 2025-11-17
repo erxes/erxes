@@ -16,6 +16,7 @@ import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import { useRemoveTask } from '@/task/hooks/useRemoveTask';
+import { useParams } from 'react-router';
 import {
   TasksEditStatusTrigger,
   TasksEditStatusContent,
@@ -39,7 +40,7 @@ export const TasksCommandBar = () => {
   const taskIds = table
     .getFilteredSelectedRowModel()
     .rows.map((row: Row<ITask>) => row.original._id);
-
+  const { teamId } = useParams<{ teamId: string }>();
   const [currentContent, setCurrentContent] = useState<string>('main');
 
   return (
@@ -108,9 +109,9 @@ export const TasksCommandBar = () => {
                     <TasksAssignToTrigger
                       setCurrentContent={setCurrentContent}
                     />
-                    <TasksEditStatusTrigger
+              {teamId &&      <TasksEditStatusTrigger
                       setCurrentContent={setCurrentContent}
-                    />
+                    />}
                     <TasksEditPriorityTrigger
                       setCurrentContent={setCurrentContent}
                     />
@@ -141,7 +142,7 @@ export const TasksCommandBar = () => {
                 </Command.List>
               </Command>
             )}
-            {currentContent === 'status' && (
+            {currentContent === 'status' && teamId && (
               <TasksEditStatusContent taskIds={taskIds} setOpen={setOpen} />
             )}
             {currentContent === 'project' && (
