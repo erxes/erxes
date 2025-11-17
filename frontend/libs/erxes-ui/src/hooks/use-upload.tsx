@@ -64,7 +64,6 @@ export const useUpload = () => {
 
     setIsLoading(true);
 
-    // tslint:disable-next-line
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       let type = file.type;

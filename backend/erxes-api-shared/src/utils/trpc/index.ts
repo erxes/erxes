@@ -74,6 +74,14 @@ export const sendTRPCMessage = async ({
         ],
       });
     } else {
+      // Validate plugin address before constructing URL
+      if (!pluginInfo.address || pluginInfo.address.trim() === '') {
+        console.warn(
+          `Plugin "${pluginName}" address is not available. Returning defaultValue.`,
+        );
+        return defaultValue;
+      }
+
       client = createTRPCUntypedClient({
         links: [httpBatchLink({ url: `${pluginInfo.address}/trpc` })],
       });

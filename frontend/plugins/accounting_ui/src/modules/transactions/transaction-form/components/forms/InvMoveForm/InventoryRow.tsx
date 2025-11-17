@@ -81,7 +81,7 @@ export const InventoryRow = ({
     const currIn = followTrDocs.find(
       (ftr) =>
         ftr.originId === trDoc._id &&
-        ftr.followType === 'invMoveIn'
+        ftr.originType === 'invMoveIn'
     );
 
     const commonFollowTr = {
@@ -95,7 +95,7 @@ export const InventoryRow = ({
       ...commonFollowTr,
       _id: currIn?._id || getTempId(),
       journal: TrJournalEnum.INV_MOVE_IN,
-      followType: 'invMoveIn',
+      originType: 'invMoveIn',
       branchId: trDoc.followInfos.moveInBranchId,
       departmentId: trDoc.followInfos.moveInDepartmentId,
       details: (trDoc.details || []).map((moveDetail) => {
@@ -124,7 +124,7 @@ export const InventoryRow = ({
         (ftr) =>
           !(
             ftr.originId === trDoc._id &&
-            ['invMoveIn'].includes(ftr.followType || '')
+            ['invMoveIn'].includes(ftr.originType || '')
           )
       ),
       invMoveInTr,
@@ -187,7 +187,7 @@ export const InventoryRow = ({
     <Table.Row
       key={_id}
       className={cn(
-        'overflow-hidden h-cell hover:!bg-background',
+        'overflow-hidden h-cell hover:bg-background!',
         detailIndex === 0 && '[&>td]:border-t',
       )}
     >
@@ -233,7 +233,6 @@ export const InventoryRow = ({
                 }}
                 defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
                 variant="ghost"
-                inForm
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />
             )}

@@ -177,6 +177,7 @@ type ClientPortal {
     socialpayConfig: SocialpayConfig
     tokiConfig: TokiConfig
     language: String
+    languages: [String]
 
     template: String
     templateId: String
@@ -342,6 +343,7 @@ input OTPConfigInput {
     socialpayConfig: JSON
     tokiConfig: JSON
     language: String
+    languages: [String]
 
     template: String
     templateId: String

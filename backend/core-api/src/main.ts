@@ -20,8 +20,8 @@ import rateLimit from 'express-rate-limit';
 import * as path from 'path';
 import { generateModels } from './connectionResolvers';
 import meta from './meta';
-import './meta/automations';
-import './segments';
+import { initAutomation } from './meta/automations/automations';
+import { initSegmentCoreProducers } from './meta/segments';
 
 dotenv.config();
 
@@ -46,12 +46,9 @@ const corsOptions = {
   credentials: true,
   origin: [
     DOMAIN || 'http://localhost:3001',
-    ...(isDev ? ['http://localhost:3001'] : []),
-    ALLOWED_DOMAINS || 'http://localhost:3200',
+    ...(isDev ? ['http://localhost:3001', 'http://localhost:4200'] : []),
+    ...(ALLOWED_DOMAINS || '').split(',').map((c) => c && RegExp(c)),
     ...(CLIENT_PORTAL_DOMAINS || '').split(','),
-    ...(process.env.ALLOWED_ORIGINS || '')
-      .split(',')
-      .map((c) => c && RegExp(c)),
   ],
 };
 
@@ -110,6 +107,8 @@ httpServer.listen(port, async () => {
     hasSubscriptions: true,
     meta,
   });
+  await initAutomation(app);
+  await initSegmentCoreProducers(app);
 });
 
 // GRACEFULL SHUTDOWN

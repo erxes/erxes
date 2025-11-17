@@ -96,7 +96,7 @@ export const ValidationAlert: React.FC<ValidationAlertProps> = ({
   message,
 }) => (
   <div className="flex items-center gap-2 p-3 text-red-600 bg-red-50 border border-red-200 rounded-md mb-4">
-    <IconAlertCircle className="h-5 w-5 flex-shrink-0" />
+    <IconAlertCircle className="h-5 w-5 shrink-0" />
     <span>{message}</span>
   </div>
 );

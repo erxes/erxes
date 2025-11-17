@@ -15,6 +15,7 @@ export const UPDATE_TASK_MUTATION = gql`
     $estimatePoint: Int
     $cycleId: String
     $milestoneId: String
+    $tagIds: [String]
   ) {
     updateTask(
       _id: $_id
@@ -30,8 +31,10 @@ export const UPDATE_TASK_MUTATION = gql`
       estimatePoint: $estimatePoint
       cycleId: $cycleId
       milestoneId: $milestoneId
+      tagIds: $tagIds
     ) {
       _id
+      tagIds
     }
   }
 `;

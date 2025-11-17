@@ -1,28 +1,37 @@
-import {
-  Form,
-  Input,
-  Sheet,
-  IconPicker,
-  Button,
-  Separator,
-  useBlockEditor,
-  BlockEditor,
-} from 'erxes-ui';
-import { TAddProject, addProjectSchema } from '@/project/types';
-import { useCreateProject } from '@/project/hooks/useCreateProject';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useState, useEffect } from 'react';
-import { Block } from '@blocknote/core';
-import { SelectLead, DateSelect } from '@/project/components/select';
-import { IconChevronRight } from '@tabler/icons-react';
-import { useParams } from 'react-router-dom';
-import { SelectTeam } from '@/team/components/SelectTeam';
 import { SelectPriority } from '@/operation/components/SelectPriority';
-import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
 import { SelectStatus } from '@/operation/components/SelectStatus';
+import { SelectTags } from 'ui-modules';
+import { DateSelect, SelectLead } from '@/project/components/select';
+import { useCreateProject } from '@/project/hooks/useCreateProject';
+import { TAddProject, addProjectSchema } from '@/project/types';
+import { ITask } from '@/task/types';
+import { SelectTeam } from '@/team/components/SelectTeam';
+import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
+import { Block } from '@blocknote/core';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { IconChevronRight } from '@tabler/icons-react';
+import {
+  BlockEditor,
+  Button,
+  Form,
+  IconPicker,
+  Input,
+  Separator,
+  Sheet,
+  useBlockEditor,
+} from 'erxes-ui';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate, useParams } from 'react-router-dom';
 
-export const AddProjectForm = ({ onClose }: { onClose: () => void }) => {
+export const AddProjectForm = ({
+  onClose,
+  task,
+}: {
+  onClose: () => void;
+  task?: ITask;
+}) => {
+  const navigate = useNavigate();
   const { teamId } = useParams();
   const { createProject } = useCreateProject();
   const editor = useBlockEditor();
@@ -32,11 +41,13 @@ export const AddProjectForm = ({ onClose }: { onClose: () => void }) => {
     defaultValues: {
       teamIds: teamId ? [teamId] : [],
       icon: 'IconBox',
-      name: '',
-      status: 1,
-      priority: 0,
-      leadId: undefined,
-      targetDate: undefined,
+      name: task?.name || '',
+      status: 2,
+      priority: task?.priority || 0,
+      leadId: task?.assigneeId || undefined,
+      targetDate: task?.targetDate ? new Date(task?.targetDate) : undefined,
+      convertedFromId: task?._id,
+      tagIds: [] as string[],
     },
   });
   useEffect(() => {
@@ -62,14 +73,22 @@ export const AddProjectForm = ({ onClose }: { onClose: () => void }) => {
   };
 
   const onSubmit = async (data: TAddProject) => {
-    createProject({
+    const project = await createProject({
       variables: {
         ...data,
         description: JSON.stringify(descriptionContent),
       },
     });
+
+    if (project?.data?.createProject?.convertedFromId) {
+      navigate(
+        `/operation/projects/${project?.data?.createProject._id}/overview`,
+      );
+    }
+
     onClose();
   };
+
   return (
     <Form {...form}>
       <form
@@ -133,7 +152,7 @@ export const AddProjectForm = ({ onClose }: { onClose: () => void }) => {
               name="status"
               control={form.control}
               render={({ field }) => (
-                <Form.Item className="flex-shrink-0">
+                <Form.Item className="shrink-0">
                   <Form.Label className="sr-only">Status</Form.Label>
                   <SelectStatus.FormItem
                     value={field.value}
@@ -146,7 +165,7 @@ export const AddProjectForm = ({ onClose }: { onClose: () => void }) => {
               name="priority"
               control={form.control}
               render={({ field }) => (
-                <Form.Item className="flex-shrink-0">
+                <Form.Item className="shrink-0">
                   <Form.Label className="sr-only">Priority</Form.Label>
                   <SelectPriority.FormItem
                     value={field.value}
@@ -159,7 +178,7 @@ export const AddProjectForm = ({ onClose }: { onClose: () => void }) => {
               name="leadId"
               control={form.control}
               render={({ field }) => (
-                <Form.Item className="flex-shrink-0">
+                <Form.Item className="shrink-0">
                   <Form.Label className="sr-only">Lead</Form.Label>
                   <SelectLead.FormItem
                     {...field}
@@ -176,7 +195,7 @@ export const AddProjectForm = ({ onClose }: { onClose: () => void }) => {
               name="startDate"
               control={form.control}
               render={({ field }) => (
-                <Form.Item className="flex-shrink-0">
+                <Form.Item className="shrink-0">
                   <Form.Label className="sr-only">Start Date</Form.Label>
                   <DateSelect.FormItem
                     {...field}
@@ -190,12 +209,27 @@ export const AddProjectForm = ({ onClose }: { onClose: () => void }) => {
               name="targetDate"
               control={form.control}
               render={({ field }) => (
-                <Form.Item className="flex-shrink-0">
+                <Form.Item className="shrink-0">
                   <Form.Label className="sr-only">Target Date</Form.Label>
                   <DateSelect.FormItem
                     {...field}
                     type="target"
                     placeholder="Target Date"
+                  />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              name="tagIds"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item className="shrink-0">
+                  <Form.Label className="sr-only">Tags</Form.Label>
+                  <SelectTags.FormItem
+                    tagType="operation:project"
+                    mode="multiple"
+                    value={field.value || []}
+                    onValueChange={(value) => field.onChange(value)}
                   />
                 </Form.Item>
               )}
@@ -210,7 +244,7 @@ export const AddProjectForm = ({ onClose }: { onClose: () => void }) => {
             />
           </div>
         </Sheet.Content>
-        <Sheet.Footer className="flex justify-end flex-shrink-0 gap-1 px-5">
+        <Sheet.Footer className="flex justify-end shrink-0 gap-1 px-5">
           <Button
             type="button"
             variant="ghost"

@@ -2,26 +2,17 @@ import { Schema } from 'mongoose';
 import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 import { JOURNALS, PTR_STATUSES, TR_DETAIL_FOLLOW_TYPES, TR_FOLLOW_TYPES, TR_SIDES, TR_STATUSES } from '../../@types/constants';
 
-export const followDetailSchema = new Schema({
-  _id: mongooseStringRandomId,
-  id: { type: String, index: true, label: 'follow tr id' },
-  type: {
-    type: String, label: 'follow tr type', enum: TR_DETAIL_FOLLOW_TYPES.ALL
-  },
-});
-
 export const transactionDetailSchema = new Schema({
   _id: mongooseStringRandomId,
   accountId: { type: String, label: 'Account', index: true },
-  originId: { type: String, optional: true, label: 'Source Transaction' },
-  followType: { type: String, optional: true, label: 'This follow Type', enum: TR_DETAIL_FOLLOW_TYPES.ALL },
-  originSubId: { type: String, optional: true, label: 'Source Sub Transaction' }, // double list
+  
   followInfos: {
     type: Object, label: 'Follower tr detail input'
   },
-  follows: {
-    type: [followDetailSchema], label: 'Follower tr detail'
-  },
+
+  originId: { type: String, optional: true, label: 'Source Transaction' },
+  originType: { type: String, optional: true, label: 'This follow Type', enum: TR_DETAIL_FOLLOW_TYPES.ALL },
+  originSubId: { type: String, optional: true, label: 'Source Sub Transaction' }, // double list
 
   side: {
     type: String,
@@ -40,15 +31,6 @@ export const transactionDetailSchema = new Schema({
   productId: { type: String, optional: true, label: 'Product' },
   count: { type: Number, optional: true, label: 'Count' },
   unitPrice: { type: Number, optional: true, label: 'unitPrice' },
-});
-
-export const followSchema = new Schema({
-  _id: mongooseStringRandomId,
-  id: { type: String, index: true, label: 'follow tr id' },
-  subId: { type: String, optional: true, label: 'follow sub id' },
-  type: {
-    type: String, label: 'follow tr type', enum: TR_FOLLOW_TYPES.ALL
-  },
 });
 
 export const transactionSchema = schemaWrapper(
@@ -82,15 +64,15 @@ export const transactionSchema = schemaWrapper(
       optional: true,
       index: true,
     },
-    originId: { type: String, optional: true, label: 'Source Transaction' }, // Үндсэн бичилтийн айд, Дагалдах бичилт үед л ашиглагдана
-    followType: { type: String, optional: true, label: 'This follow Type', enum: TR_FOLLOW_TYPES.ALL }, // Уг бичилтийн үндсэн бичилтэд хавсарч буй үүрэг буюу төрөл - дагалдах бичилт үед л ашиглагдана
-    originSubId: { type: String, optional: true, label: 'Source Sub Transaction' }, // Үндсэн бичилтийн дэд листээс хамаарсан бол ашиглагдана. Жишээлбэл барааны орлогын зардал бүрээс хамаарсан олон бичилт үүсэх бол
+
     followInfos: { // Үндсэн бичилт үед ашиглагдана, Дагалдах бичилтүүдийн мэдээлэл байна
       type: Object, label: 'Follower transactions'
     },
-    follows: { // Үндсэн бичилт үед ашиглагдана, Дагалдах бичилтүүдийн айд төрөл байна
-      type: [followSchema], label: 'Follower transactions'
-    },
+
+    originId: { type: String, optional: true, label: 'Source Transaction' }, // Дагалдах бичилт үед л ашиглагдана, Үндсэн бичилтийн айд
+    originSubId: { type: String, optional: true, label: 'Source Sub Transaction' }, // Дагалдах бичилт үед л ашиглагдана, Үндсэн бичилтийн дэд листээс хамаарсан бол ашиглагдана. Жишээлбэл барааны орлогын зардал бүрээс хамаарсан олон бичилт үүсэх бол
+    originType: { type: String, optional: true, label: 'This follow Type', enum: TR_FOLLOW_TYPES.ALL }, // Дагалдах бичилт үед л ашиглагдана, Уг бичилтийн үндсэн бичилтэд хавсарч буй үүрэг буюу төрөл
+
     preTrId: { type: String, optional: true, label: 'previous transaction', index: true },
 
     branchId: { type: String, optional: true, label: 'Branch' },
@@ -127,4 +109,4 @@ export const transactionSchema = schemaWrapper(
   })
 );
 
-transactionSchema.index({ originId: 1, followType: 1, originSubId: 1 });
+transactionSchema.index({ originId: 1, originType: 1, originSubId: 1 });

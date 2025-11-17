@@ -60,13 +60,13 @@ function TeamItem({ team }: TeamItemProps) {
               >
                 <IconComponent
                   name={team.icon}
-                  className="text-accent-foreground flex-shrink-0"
+                  className="text-accent-foreground shrink-0"
                 />
                 <TextOverflowTooltip
                   className="font-sans font-semibold normal-case flex-1 min-w-0"
                   value={team.name}
                 />
-                <span className="ml-auto flex-shrink-0">
+                <span className="ml-auto shrink-0">
                   <IconCaretRightFilled className="size-3 transition-transform group-data-[state=open]/collapsible:rotate-90 text-accent-foreground" />
                 </span>
               </Button>

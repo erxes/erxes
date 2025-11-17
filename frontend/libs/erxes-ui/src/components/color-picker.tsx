@@ -102,7 +102,7 @@ const ColorPickerContent = ({
         {Object.entries(colors).map(([key, color]) => (
           <div
             key={key}
-            className="aspect-[3/2] rounded flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
+            className="aspect-3/2 rounded flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
             style={{ backgroundColor: color }}
             onClick={() => {
               onValueChange?.(color);

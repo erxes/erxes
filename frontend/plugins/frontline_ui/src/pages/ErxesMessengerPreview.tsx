@@ -21,7 +21,7 @@ export const ErxesMessengerPreview = () => {
   }, [appearance]);
 
   return (
-    <div className="bg-sidebar h-dvh flex items-end justify-end p-5">
+    <div className="bg-accent h-dvh flex items-end justify-end p-5">
       <div>
         <Popover defaultOpen>
           <Popover.Trigger asChild>
@@ -36,7 +36,7 @@ export const ErxesMessengerPreview = () => {
           <Popover.Content
             align="end"
             sideOffset={16}
-            className="sm:max-w-md w-[calc(100vw-theme(spacing.8))] p-0 max-h-[32rem] h-dvh flex flex-col overflow-hidden shadow-xl rounded-lg"
+            className="sm:max-w-md w-[calc(100vw-(--spacing(8)))] p-0 max-h-128 h-dvh flex flex-col overflow-hidden shadow-xl rounded-lg"
             onOpenAutoFocus={(e) => {
               e.preventDefault();
             }}

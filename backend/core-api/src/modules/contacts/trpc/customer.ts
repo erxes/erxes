@@ -42,7 +42,6 @@ export const customerRouter = t.router({
       if (query?._id) {
         defaultFilter['_id'] = query._id;
       }
-      console.log(defaultFilter, 'defaultFilter');
       return models.Customers.findOne(defaultFilter).lean();
     }),
 
@@ -222,5 +221,31 @@ export const customerRouter = t.router({
           data: doc,
         });
       }),
+
+    tag: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const { action, _ids, tagIds, targetIds } = input;
+      const { models } = ctx;
+
+      let response = {};
+
+      if (action === 'count') {
+        response = await models.Customers.countDocuments({
+          tagIds: { $in: _ids },
+        });
+      }
+
+      if (action === 'tagObject') {
+        await models.Customers.updateMany(
+          { _id: { $in: targetIds } },
+          { $set: { tagIds } },
+        );
+
+        response = await models.Customers.find({
+          _id: { $in: targetIds },
+        }).lean();
+      }
+
+      return response;
+    }),
   }),
 });

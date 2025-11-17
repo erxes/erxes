@@ -30,7 +30,6 @@ import {
 import { getDisplayValue } from '../date-filter/utils/getDisplayValue';
 import { DateFilterCommand } from '../date-filter/components/DateFilterCommand';
 import { usePreviousHotkeyScope } from 'erxes-ui/modules/hotkey/hooks/usePreviousHotkeyScope';
-import { useScopedHotkeys } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
 import { useFilterQueryState } from '../hooks/useFilterQueryState';
 import { FilterDialogDateView } from '../date-filter/components/DialogDateView';
 
@@ -104,7 +103,7 @@ const FilterPopover = ({
   scope,
   ...props
 }: React.ComponentPropsWithoutRef<typeof Popover> & {
-  scope: string;
+  scope?: string;
 }) => {
   const { id } = useFilterContext();
   const [open, setOpen] = useAtom(openPopoverState(id));
@@ -114,15 +113,18 @@ const FilterPopover = ({
     goBackToPreviousHotkeyScope,
   } = usePreviousHotkeyScope();
 
-  useScopedHotkeys('f', () => setOpen(true), scope);
-
   useEffect(() => {
     if (open) {
       setHotkeyScopeAndMemorizePreviousScope(scope + '.FilterPopover');
     } else {
       goBackToPreviousHotkeyScope();
     }
-  }, [open]);
+  }, [
+    goBackToPreviousHotkeyScope,
+    open,
+    scope,
+    setHotkeyScopeAndMemorizePreviousScope,
+  ]);
 
   return (
     <Popover
@@ -300,7 +302,7 @@ const FilterBarButton = React.forwardRef<
       ref={ref}
       variant="ghost"
       className={cn(
-        'rounded-none focus-visible:z-10 max-w-72 transition-[color,box-shadow] focus-visible:shadow-focus outline-none focus-visible:outline-none focus-visible:outline-offset-0 focus-visible:outline-transparent',
+        'rounded-none focus-visible:z-10 max-w-72 transition-[color,box-shadow] focus-visible:shadow-focus outline-hidden focus-visible:outline-hidden focus-visible:outline-offset-0 focus-visible:outline-transparent',
         !props.variant && 'bg-background',
         className,
       )}
@@ -477,15 +479,13 @@ const FilterSearchValueBarItem = () => {
 
   return (
     <Filter.BarItem queryKey="searchValue">
-      <Filter.BarItem>
-        <Filter.BarName>
-          <IconSearch />
-          Search
-        </Filter.BarName>
-        <Filter.BarButton filterKey="searchValue" inDialog>
-          {searchValue}
-        </Filter.BarButton>
-      </Filter.BarItem>
+      <Filter.BarName>
+        <IconSearch />
+        Search
+      </Filter.BarName>
+      <Filter.BarButton filterKey="searchValue" inDialog>
+        {searchValue}
+      </Filter.BarButton>
     </Filter.BarItem>
   );
 };

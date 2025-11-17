@@ -6,6 +6,8 @@ import {
 } from '../cards/hooks/useDeals';
 
 import { ISelectBoardsContext } from '../types/boards';
+import { ISelectPipelinesContext } from '../types/pipelines';
+import { ISelectStagesContext } from '../types/stages';
 import { useConformityEdit } from '../cards/hooks/useConformity';
 
 interface DealsContextType {
@@ -72,6 +74,33 @@ export const useSelectBoardsContext = () => {
   if (!context) {
     throw new Error(
       'useSelectBoardsContext must be used within <SelectBoardsProvider>',
+    );
+  }
+  return context;
+};
+
+export const SelectPipelinesContext =
+  createContext<ISelectPipelinesContext | null>(null);
+
+export const useSelectPipelinesContext = () => {
+  const context = useContext(SelectPipelinesContext);
+  if (!context) {
+    throw new Error(
+      'useSelectPipelinesContext must be used within <SelectPipelineProvider>',
+    );
+  }
+  return context;
+};
+
+export const SelectStagesContext = createContext<ISelectStagesContext | null>(
+  null,
+);
+
+export const useSelectStagesContext = () => {
+  const context = useContext(SelectStagesContext);
+  if (!context) {
+    throw new Error(
+      'useSelectStagesContext must be used within <SelectStageProvider>',
     );
   }
   return context;

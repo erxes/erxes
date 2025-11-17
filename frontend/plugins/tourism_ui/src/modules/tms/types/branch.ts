@@ -1,28 +1,32 @@
 export interface IBranchUser {
   _id: string;
+  email: string;
+  username: string;
   details: {
     avatar: string;
     fullName: string;
-    __typename: string;
+    shortName: string;
   };
-  __typename: string;
 }
 
 export interface IBranch {
   _id: string;
+  createdAt: string;
+  userId: string;
+  user: IBranchUser;
   name: string;
   description: string;
-  createdAt: string;
-  token: string;
-  erxesAppToken: string;
-  user1Ids: string[];
-  user2Ids: string[];
+  generalManagerIds: string[];
+  managerIds: string[];
   paymentIds: string[];
   paymentTypes: string[];
-  user: IBranchUser;
-  uiOptions: any;
+  departmentId: string;
+  token: string;
+  erxesAppToken: string;
   permissionConfig: any;
-  __typename: string;
+  uiOptions: any;
+  managers: IBranchUser[];
+  generalManagers: IBranchUser[];
 }
 
 export interface IBranchRemoveVariables {

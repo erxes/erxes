@@ -7,7 +7,7 @@ import { Button } from './button';
 import { IconX } from '@tabler/icons-react';
 
 export const badgeVariants = cva(
-  'inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1',
+  'inline-flex items-center rounded-sm px-2 transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1',
   {
     variants: {
       variant: {

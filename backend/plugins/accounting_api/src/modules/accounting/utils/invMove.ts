@@ -55,7 +55,7 @@ class InvMoveInTrs {
     const { details } = transaction;
 
     const oldFollowInTrs = await this.models.Transactions.find({
-      originId: transaction._id, followType: TR_FOLLOW_TYPES.INV_MOVE_IN
+      originId: transaction._id, originType: TR_FOLLOW_TYPES.INV_MOVE_IN
     }).sort({ createdAt: -1 }).lean();
 
     const oldFollowInTr = await this.cleanFollowTrs(oldFollowInTrs);
@@ -88,7 +88,7 @@ class InvMoveInTrs {
         amount: detail.amount,
         unitPrice: detail.unitPrice,
 
-        followType: TR_DETAIL_FOLLOW_TYPES.MOVE_IN,
+        originType: TR_DETAIL_FOLLOW_TYPES.MOVE_IN,
         accountId: this.moveInAccount._id,
         side: TR_SIDES.DEBIT
       })
@@ -96,7 +96,7 @@ class InvMoveInTrs {
 
     const inTrDoc: ITransaction = {
       ...commonFollowTrDoc,
-      followType: TR_FOLLOW_TYPES.INV_MOVE_IN,
+      originType: TR_FOLLOW_TYPES.INV_MOVE_IN,
       journal: JOURNALS.INV_MOVE_IN,
       details: followInDetails
     }

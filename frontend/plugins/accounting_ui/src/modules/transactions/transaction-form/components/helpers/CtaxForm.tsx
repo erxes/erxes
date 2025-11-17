@@ -76,25 +76,25 @@ export const CtaxForm = ({
 
   useEffect(() => {
     if (!trDoc.hasCtax) {
-      setFollowTrDocs((followTrDocs || []).filter(ftr => !(ftr.originId === trDoc._id && ftr.followType === 'ctax')));
+      setFollowTrDocs((followTrDocs || []).filter(ftr => !(ftr.originId === trDoc._id && ftr.originType === 'ctax')));
       return;
     }
 
     if (side === TR_SIDES.DEBIT) {
-      setFollowTrDocs((followTrDocs || []).filter(ftr => !(ftr.originId === trDoc._id && ftr.followType === 'ctax')));
+      setFollowTrDocs((followTrDocs || []).filter(ftr => !(ftr.originId === trDoc._id && ftr.originType === 'ctax')));
       return;
     }
 
     const { sumDt, sumCt } = side === TR_SIDES.DEBIT ? { sumDt: calcedAmount, sumCt: 0 } : { sumDt: 0, sumCt: calcedAmount };
 
-    const curr = followTrDocs.find(ftr => ftr.originId === trDoc._id && ftr.followType === 'ctax');
+    const curr = followTrDocs.find(ftr => ftr.originId === trDoc._id && ftr.originType === 'ctax');
 
     const ctaxFtr = {
       ...curr,
       _id: curr?._id || getTempId(),
       journal: TrJournalEnum.TAX,
       originId: trDoc._id,
-      followType: 'ctax',
+      originType: 'ctax',
       details: [{
         ...(curr?.details || [{}])[0],
         accountId: configs?.CtaxPayableAccount,
@@ -108,7 +108,7 @@ export const CtaxForm = ({
 
     setFollowTrDocs([
       ...(followTrDocs || []).filter(ftr => !(
-        ftr.originId === trDoc._id && ftr.followType === 'ctax'
+        ftr.originId === trDoc._id && ftr.originType === 'ctax'
       )),
       ctaxFtr
     ]);

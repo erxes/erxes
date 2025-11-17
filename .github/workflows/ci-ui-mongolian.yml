@@ -1,0 +1,59 @@
+name: CI plugin-mongolian_ui
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/plugins/mongolian_ui/**'
+      - 'frontend/libs/**'
+      - '.github/workflows/ci-ui-mongolian.yml'
+  pull_request:
+    paths:
+      - 'frontend/plugins/mongolian_ui/**'
+      - 'frontend/libs/**'
+      - '.github/workflows/ci-ui-mongolian.yml'
+
+permissions:
+  actions: read
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  mongolian_ui-ci:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Set environment variables
+        run: |
+          echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+          echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
+      - name: Build Mongolian UI
+        run: |
+          export NX_DAEMON=false
+          pnpm nx build mongolian_ui
+
+      - name: Sync to Cloudflare R2
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' )
+        run: |
+          aws s3 sync dist/frontend/plugins/mongolian_ui s3://erxes-next/latest/mongolian_ui/ \
+            --endpoint-url https://7c8392aff8ac4518aa06dfa4b6337ef2.r2.cloudflarestorage.com

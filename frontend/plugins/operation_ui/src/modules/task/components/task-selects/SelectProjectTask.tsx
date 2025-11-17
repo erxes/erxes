@@ -110,7 +110,7 @@ const SelectProjectValue = () => {
       {variant === 'detail' && value && (
         <Button
           variant="ghost"
-          className="h-6 w-6 flex-shrink-0"
+          className="h-6 w-6 shrink-0"
           onClick={handleNavigateToProject}
           title={`Go to ${projectName} project`}
         >

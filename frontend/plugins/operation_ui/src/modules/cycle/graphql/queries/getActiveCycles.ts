@@ -21,6 +21,8 @@ export const GET_ACTIVE_CYCLES = gql`
         description
         startDate
         endDate
+        isActive
+        isCompleted
       }
       totalCount
     }
