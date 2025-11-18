@@ -254,7 +254,7 @@ export function TopicItem(props: {
                         <div className="flex items-center justify-between w-full">
                           <Link
                             to={`?topicId=${topic._id}&categoryId=${cat._id}`}
-                            className="flex items-center gap-2 grow"
+                            className="flex items-center gap-2 flex-grow"
                           >
                             <span className="w-5 flex justify-center">
                               {IconComponent && (
@@ -285,7 +285,7 @@ export function TopicItem(props: {
                               >
                                 <div
                                   className={cn(
-                                    'flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 outline-hidden font-semibold hover:bg-accent focus-visible:ring-2 active:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 text-sm group-data-[collapsible=icon]:hidden',
+                                    'flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 outline-none font-semibold hover:bg-accent focus-visible:ring-2 active:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 text-sm group-data-[collapsible=icon]:hidden',
                                     isSubActive &&
                                       'bg-primary/10 text-primary font-semibold',
                                   )}
@@ -293,7 +293,7 @@ export function TopicItem(props: {
                                   <div className="flex items-center justify-between w-full">
                                     <Link
                                       to={`?topicId=${topic._id}&categoryId=${sub._id}`}
-                                      className="flex items-center gap-2 grow"
+                                      className="flex items-center gap-2 flex-grow"
                                     >
                                       <span className="w-5 flex justify-center">
                                         {IconComponent && (
