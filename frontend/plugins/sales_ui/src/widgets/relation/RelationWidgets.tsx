@@ -17,12 +17,14 @@ export const RelationWidgets = ({
 }: IRelationWidgetProps) => {
   return (
     <Suspense>
-      <Deal
-        contentId={contentId}
-        contentType={contentType}
-        customerId={customerId}
-        companyId={companyId}
-      />
+      {module === 'deals' ? (
+        <Deal
+          contentId={contentId}
+          contentType={contentType}
+          customerId={customerId}
+          companyId={companyId}
+        />
+      ) : null}
     </Suspense>
   );
 };

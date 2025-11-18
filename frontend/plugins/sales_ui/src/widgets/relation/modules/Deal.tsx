@@ -1,10 +1,18 @@
 import { Button, ScrollArea, Separator, Spinner } from 'erxes-ui';
-import { IconCaretLeftRight, IconPlus } from '@tabler/icons-react';
+import {
+  IconCaretLeftRight,
+  IconPlus,
+  IconPointerUp,
+} from '@tabler/icons-react';
+import {
+  dealChooserSheetState,
+  dealCreateSheetState,
+} from '@/deals/states/dealCreateSheetState';
 import { useCreateMultipleRelations, useRelations } from 'ui-modules';
 
 import { AddDealSheet } from '@/deals/components/AddDealSheet';
+import ChooseDealSheet from '@/deals/components/ChooseDealSheet';
 import { DealWidget } from './DealWidget';
-import { dealCreateSheetState } from '@/deals/states/dealCreateSheetState';
 import { useSetAtom } from 'jotai';
 
 export const Deal = ({
@@ -28,6 +36,7 @@ export const Deal = ({
   console.log('ommm', ownEntities, contentId, contentType);
   const { createMultipleRelations } = useCreateMultipleRelations();
   const setOpenCreateDeal = useSetAtom(dealCreateSheetState);
+  const setOpenDealChooser = useSetAtom(dealChooserSheetState);
 
   if (loadingRelations) {
     return <Spinner containerClassName="py-20" />;
@@ -74,9 +83,14 @@ export const Deal = ({
         <span className="text-sm">No deals to display at the moment.</span>
         <Button variant="secondary" onClick={handleDealOpen}>
           <IconPlus />
-          Add deal
+          Add a deal
         </Button>
-        <AddDealSheet onComplete={onComplete} />
+        <Button variant="secondary" onClick={() => setOpenDealChooser(true)}>
+          <IconPointerUp />
+          Choose an existing deal
+        </Button>
+        <AddDealSheet onComplete={onComplete} showWorkflowFields={true} />
+        <ChooseDealSheet onComplete={onComplete} />
       </div>
     );
   }
@@ -84,8 +98,14 @@ export const Deal = ({
   return (
     <>
       <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">Deals and Triages</span>
-        <AddDealSheet onComplete={onComplete} />
+        <span className="font-medium text-primary">Deals</span>
+        <div className="flex gap-2 items-center">
+          <Button variant="secondary" onClick={handleDealOpen}>
+            <IconPlus />
+          </Button>
+          <AddDealSheet onComplete={onComplete} showWorkflowFields={true} />
+          <ChooseDealSheet onComplete={onComplete} />
+        </div>
       </div>
       <Separator />
       <ScrollArea className="flex-auto">

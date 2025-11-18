@@ -1,17 +1,15 @@
 import { SideMenu, cn } from 'erxes-ui';
 
-import React from 'react';
 import { salesDetailActiveActionTabAtom } from '@/deals/states/salesDetailStates';
 import { useAtom } from 'jotai';
 import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 import { useRelationWidget } from 'ui-modules';
 
-// import { useWidgetsModules } from '@/widgets/hooks/useWidgetsModules';
-
 export const SalesDetailActions = () => {
   const { deal } = useDealDetail();
-  // const widgetsModules = useWidgetsModules();
-  const { relationWidgetsModules, RelationWidget } = useRelationWidget();
+  const { relationWidgetsModules, RelationWidget } = useRelationWidget({
+    hiddenPlugins: ['sales'],
+  });
 
   const [activeTab, setActiveTab] = useAtom(salesDetailActiveActionTabAtom);
 
