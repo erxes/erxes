@@ -357,7 +357,7 @@ export const tagsColumns: ColumnDef<ITag>[] = [
             <RecordTableTree.Trigger
               order={order || ''}
               name={cell.getValue() as string}
-              hasChildren={isGroup}
+              hasChildren={isGroup ?? false}
             >
               <div className="flex items-center gap-2 min-w-0">
                 <span

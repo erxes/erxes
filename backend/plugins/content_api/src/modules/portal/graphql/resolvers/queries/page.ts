@@ -35,12 +35,14 @@ class PageQueryResolver extends BaseQueryResolver {
     const queryBuilder = getQueryBuilder('page', models);
     const query = queryBuilder.buildQuery({ ...args, clientPortalId });
 
-    return this.getListWithTranslations(
+    const { list, totalCount, pageInfo } = await this.getListWithTranslations(
       models.Pages,
       query,
       { ...args, clientPortalId, language },
       FIELD_MAPPINGS.PAGE
     );
+
+    return { pages: list, totalCount, pageInfo };
   }
 
   async cmsPage(_parent: any, args: any, context: IContext) {
@@ -67,11 +69,13 @@ class PageQueryResolver extends BaseQueryResolver {
   }
 }
 
-const resolver = new PageQueryResolver({} as IContext);
 const queries = {
-  cmsPages: resolver.cmsPages.bind(resolver),
-  cmsPageList: resolver.cmsPageList.bind(resolver),
-  cmsPage: resolver.cmsPage.bind(resolver),
+  cmsPages: (_parent: any, args: any, context: IContext) =>
+    new PageQueryResolver(context).cmsPages(_parent, args, context),
+  cmsPageList: (_parent: any, args: any, context: IContext) =>
+    new PageQueryResolver(context).cmsPageList(_parent, args, context),
+  cmsPage: (_parent: any, args: any, context: IContext) =>
+    new PageQueryResolver(context).cmsPage(_parent, args, context),
 };
 
 export default queries;
