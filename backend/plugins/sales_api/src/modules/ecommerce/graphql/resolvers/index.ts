@@ -3,13 +3,13 @@ import { apolloCustomScalars } from 'erxes-api-shared/utils';
 import {
   address as addressMutations,
   lastViewedItem as lastViewedItemMutations,
-  productreview as productreviewMutations,
+  productReview as productreviewMutations,
   wishlist as wishlistMutations,
 } from './mutations';
 import {
   address as addressQueries,
   lastViewedItem as lastViewedItemQueries,
-  productreview as productreviewQueries,
+  productReview as productReviewQueries,
   wishlist as wishlistQueries,
 } from './queries';
 
@@ -22,7 +22,7 @@ const resolvers: any = async (serviceDiscovery) => ({
     ...addressMutations,
   },
   Query: {
-    ...productreviewQueries,
+    ...productReviewQueries,
     ...wishlistQueries,
     ...lastViewedItemQueries,
     ...addressQueries,

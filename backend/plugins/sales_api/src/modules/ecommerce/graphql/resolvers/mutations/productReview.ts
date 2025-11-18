@@ -1,7 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 
-const productreviewMutations = {
-  productreviewAdd: async (
+const productReviewMutations = {
+  productReviewAdd: async (
     _root,
     params,
     { models: { ProductReview } }: IContext,
@@ -16,7 +16,7 @@ const productreviewMutations = {
     });
     return added;
   },
-  productreviewUpdate: async (
+  productReviewUpdate: async (
     _root,
     params,
     { models: { ProductReview } }: IContext,
@@ -31,7 +31,7 @@ const productreviewMutations = {
     });
     return updated;
   },
-  productreviewRemove: async (
+  productReviewRemove: async (
     _root,
     params,
     { models: { ProductReview } }: IContext,
@@ -42,4 +42,4 @@ const productreviewMutations = {
   },
 };
 
-export default productreviewMutations;
+export default productReviewMutations;

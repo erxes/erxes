@@ -1,6 +1,6 @@
 import address from './address';
 import lastViewedItem from './lastViewedItem';
-import productreview from './productReview';
+import productReview from './productReview';
 import wishlist from './wishlist';
 
-export { address, lastViewedItem, productreview, wishlist };
+export { address, lastViewedItem, productReview, wishlist };

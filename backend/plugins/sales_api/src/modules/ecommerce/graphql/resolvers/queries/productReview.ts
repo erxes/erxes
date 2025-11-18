@@ -1,7 +1,8 @@
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-const productreviewQueries = {
-  productreview: async (
+
+export const productReviewQueries = {
+  productReview: async (
     _root,
     params,
     { models: { ProductReview } }: IContext,
@@ -23,7 +24,7 @@ const productreviewQueries = {
       reviews,
     };
   },
-  productreviews: async (
+  productReviews: async (
     _root,
     params,
     { models: { ProductReview } }: IContext,
@@ -48,4 +49,5 @@ const productreviewQueries = {
   }
 
 };
-export default productreviewQueries;
+
+export default productReviewQueries;
