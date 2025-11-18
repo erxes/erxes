@@ -17,10 +17,10 @@ import {
 } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { REACTIONS } from '../constants';
-import { ADD_ARTICLE, EDIT_ARTICLE } from '../graphql/mutations';
-import { ARTICLES } from '../graphql/queries';
-import { useArticles } from '../hooks/useArticles';
+import { REACTIONS } from '../../constants';
+import { ADD_ARTICLE, EDIT_ARTICLE } from '../../graphql/mutations';
+import { ARTICLES } from '../../graphql/queries';
+import { useArticles } from '../../hooks/useArticles';
 
 interface Article {
   _id: string;
