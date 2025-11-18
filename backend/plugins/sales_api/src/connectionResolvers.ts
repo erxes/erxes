@@ -51,7 +51,7 @@ import {
   loadPosSlotClass,
   loadProductGroupClass,
 } from './modules/pos/db/models/Pos';
-import { IAddressModel, loadAddressClass } from './modules/ecommerce/db/models/address';
+import { IAddressModel, loadAddressClass } from '~/modules/ecommerce/db/models/Address';
 import { ILastViewedItemModel, loadLastViewedItemClass } from './modules/ecommerce/db/models/LastViewedItems';
 import { IProductReviewModel, loadProductReviewClass } from './modules/ecommerce/db/models/ProductReview';
 import { IWishlistModel, loadWishlistClass } from './modules/ecommerce/db/models/Wishlist';

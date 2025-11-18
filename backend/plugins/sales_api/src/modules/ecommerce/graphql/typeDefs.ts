@@ -3,7 +3,7 @@ import {
   mutations as productreviewMutations,
   queries as productreviewQueries,
   types as productreviewTypes,
-} from './schema/productreview';
+} from './schema/productReview';
 import {
   mutations as wishlistMutations,
   queries as wishlistQueries,
