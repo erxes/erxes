@@ -73,7 +73,7 @@ const SalesDescription = ({
   };
 
   return (
-    <div className="flex flex-col h-full py-4 gap-1 rounded-lg relative">
+    <div className="flex flex-col h-full py-4 gap-1 rounded-lg relative ">
       <BlockEditor
         editor={editor}
         onChange={handleChange}

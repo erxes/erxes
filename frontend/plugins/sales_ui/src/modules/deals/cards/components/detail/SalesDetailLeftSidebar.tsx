@@ -1,62 +1,65 @@
 import { Sidebar, Tabs, useQueryState } from 'erxes-ui';
+import React from 'react';
 
-export const SalesDetailLeftSidebar = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+interface Props {
+  children?: React.ReactNode;
+}
+
+export const SalesDetailLeftSidebar = ({ children }: Props) => {
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
+
+  const groups = [
+    {
+      label: 'General',
+      tabs: [{ label: 'Overview', value: 'overview' }],
+    },
+    {
+      label: 'Title',
+      tabs: [{ label: 'Products', value: 'products' }],
+    },
+  ];
 
   return (
     <Tabs
       value={selectedTab ?? 'overview'}
       onValueChange={setSelectedTab}
-      className="flex-auto flex h-full"
+      className="flex h-full w-full"
       orientation="vertical"
     >
       <Tabs.List className="w-64" asChild>
         <Sidebar
           collapsible="none"
-          className="flex-none w-64 border-r justify-start"
+          className="flex-none w-80 border-r justify-start"
         >
-          <Sidebar.Group>
-            <Sidebar.GroupLabel>General</Sidebar.GroupLabel>
-            <Sidebar.GroupContent>
-              <Sidebar.Menu>
-                <Sidebar.MenuItem>
-                  <Tabs.Trigger value="overview" asChild>
-                    <Sidebar.MenuButton className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary justify-start">
-                      Overview
-                    </Sidebar.MenuButton>
-                  </Tabs.Trigger>
-                </Sidebar.MenuItem>
-                <Sidebar.MenuItem>
-                  <Tabs.Trigger value="plugins" asChild>
-                    <Sidebar.MenuButton className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary justify-start">
-                      Plugins
-                    </Sidebar.MenuButton>
-                  </Tabs.Trigger>
-                </Sidebar.MenuItem>
-                <Sidebar.MenuItem>
-                  <Tabs.Trigger value="properties" asChild>
-                    <Sidebar.MenuButton className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary justify-start">
-                      Properties
-                    </Sidebar.MenuButton>
-                  </Tabs.Trigger>
-                </Sidebar.MenuItem>
-              </Sidebar.Menu>
-            </Sidebar.GroupContent>
-          </Sidebar.Group>
-          <Sidebar.Separator />
-          <Sidebar.Group></Sidebar.Group>
+          {groups.map((group) => (
+            <Sidebar.Group
+              key={group.label}
+              className={
+                group.label === 'General'
+                  ? 'border-b border-gray-200 pb-3 mb-3'
+                  : ''
+              }
+            >
+              <Sidebar.GroupLabel>{group.label}</Sidebar.GroupLabel>
+              <Sidebar.GroupContent>
+                <Sidebar.Menu>
+                  {group.tabs.map((tab) => (
+                    <Sidebar.MenuItem key={tab.value}>
+                      <Tabs.Trigger value={tab.value} asChild>
+                        <Sidebar.MenuButton className="justify-start">
+                          {tab.label}
+                        </Sidebar.MenuButton>
+                      </Tabs.Trigger>
+                    </Sidebar.MenuItem>
+                  ))}
+                </Sidebar.Menu>
+              </Sidebar.GroupContent>
+            </Sidebar.Group>
+          ))}
         </Sidebar>
-        {/* <Tabs.VerticalTrigger value="overview">Overview</Tabs.VerticalTrigger>
-          <Tabs.VerticalTrigger value="plugins">Plugins</Tabs.VerticalTrigger>
-          <Tabs.VerticalTrigger value="properties">
-            Properties
-          </Tabs.VerticalTrigger> */}
       </Tabs.List>
-      {children}
+
+      <div className="flex-1 flex flex-col overflow-auto">{children}</div>
     </Tabs>
   );
 };
@@ -69,7 +72,7 @@ export const SalesDetailTabContent = ({
   value: string;
 }) => {
   return (
-    <Tabs.Content value={value} className="flex-auto overflow-auto">
+    <Tabs.Content value={value} className="flex-1 overflow-auto">
       {children}
     </Tabs.Content>
   );

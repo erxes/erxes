@@ -1,3 +1,4 @@
+import React from 'react';
 import ActivityLogs from './activity/ActivityLogs';
 import { AttachmentProvider } from './attachments/AttachmentContext';
 import AttachmentUploader from './attachments/AttachmentUploader';
@@ -9,31 +10,56 @@ import { IDeal } from '@/deals/types/deals';
 import MainOverview from './MainOverview';
 import SalesDescription from './SalesDescription';
 import SalesNoteAndComment from './NoteAndComment';
+import {
+  SalesDetailLeftSidebar,
+  SalesDetailTabContent,
+} from '../SalesDetailLeftSidebar';
+import Products from '../products/Products';
 
-const Overview = ({ deal }: { deal: IDeal }) => {
+interface Props {
+  deal: IDeal;
+}
+
+const Overview: React.FC<Props> = ({ deal }) => {
   return (
     <AttachmentProvider
       initialAttachments={deal.attachments || ([] as IAttachment[])}
     >
-      <div className="border-b">
-        <SalesDescription
-          dealDescription={deal.description || []}
-          dealId={deal._id}
-        />
-        <div className="flex gap-4 py-2 px-4">
-          <ChecklistOverview />
-          <AttachmentUploader />
-        </div>
+      <div className="flex h-full ">
+        <SalesDetailLeftSidebar>
+          <SalesDetailTabContent value="overview">
+            <div className="border-b">
+              <SalesDescription
+                dealDescription={deal.description || []}
+                dealId={deal._id}
+              />
+              <div className="flex gap-4 py-2 px-4">
+                <ChecklistOverview />
+                <AttachmentUploader />
+              </div>
+            </div>
+
+            <div className="border-b">
+              <Attachments />
+            </div>
+
+            <div className="overview flex-1">
+              <MainOverview deal={deal} />
+              <Checklists />
+            </div>
+
+            <SalesNoteAndComment />
+            <ActivityLogs />
+          </SalesDetailTabContent>
+          <div className="">
+            <SalesDetailTabContent value="products">
+              <SalesDetailTabContent value="products">
+                <Products deal={deal} />
+              </SalesDetailTabContent>
+            </SalesDetailTabContent>
+          </div>
+        </SalesDetailLeftSidebar>
       </div>
-      <div className="border-b">
-        <Attachments />
-      </div>
-      <div className="overview">
-        <MainOverview deal={deal} />
-        <Checklists />
-      </div>
-      <SalesNoteAndComment />
-      <ActivityLogs />
     </AttachmentProvider>
   );
 };

@@ -58,7 +58,6 @@ export const AttachmentProvider = ({
         prev.filter((att) => att.url !== attachment.url),
       );
     } catch (error) {
-      // handle error if needed
       console.error('Failed to remove attachment:', error);
     } finally {
       setRemovingUrl(null);
