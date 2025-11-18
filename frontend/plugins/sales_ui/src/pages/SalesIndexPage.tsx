@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Breadcrumb,
   Button,
@@ -25,7 +27,7 @@ export const SalesIndexPage = () => {
   const [searchParams] = useSearchParams();
   const boardId = searchParams.get('boardId');
   const pipelineId = searchParams.get('pipelineId');
-  console.log('kkk here');
+  console.log('kkk here', searchParams);
   return (
     <div className="flex h-full overflow-hidden w-full">
       <div className="flex flex-col h-full w-full overflow-hidden">
