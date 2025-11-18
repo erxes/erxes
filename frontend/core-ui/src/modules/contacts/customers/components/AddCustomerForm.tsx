@@ -26,6 +26,9 @@ export function AddCustomerForm({
   const { customersAdd } = useAddCustomer();
   const form = useForm<CustomerFormType>({
     resolver: zodResolver(customerFormSchema),
+    defaultValues: {
+      emailValidationStatus: '',
+    },
   });
   const { toast } = useToast();
   const [, setCustomerId] = useQueryState('contactId');
