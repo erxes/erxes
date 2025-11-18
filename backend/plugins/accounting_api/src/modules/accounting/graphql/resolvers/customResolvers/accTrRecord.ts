@@ -30,7 +30,6 @@ export default {
   },
 
   async branch(transaction: ITrRecord) {
-    console.log(typeof transaction, JSON.stringify(transaction))
     if (!transaction.branchId) {
       return;
     }
