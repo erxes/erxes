@@ -126,12 +126,12 @@ const SelectStatusContent = () => {
   );
 };
 
-const SelectStatusFilterView = () => {
-  const [status, setStatus] = useQueryState<number>('status');
+const SelectStatusFilterView = ({ queryKey }: { queryKey?: string }) => {
+  const [status, setStatus] = useQueryState<number>(queryKey || 'status');
   const { resetFilterState } = useFilterContext();
 
   return (
-    <Filter.View filterKey="status">
+    <Filter.View filterKey={queryKey || 'status'}>
       <SelectStatusProvider
         value={status as number}
         onValueChange={(value) => {
@@ -145,8 +145,8 @@ const SelectStatusFilterView = () => {
   );
 };
 
-const SelectStatusFilterBar = () => {
-  const [status, setStatus] = useQueryState<number>('status');
+const SelectStatusFilterBar = ({ queryKey }: { queryKey?: string }) => {
+  const [status, setStatus] = useQueryState<number>(queryKey || 'status');
   const [open, setOpen] = useState(false);
 
   return (
@@ -159,7 +159,7 @@ const SelectStatusFilterBar = () => {
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
-          <Filter.BarButton filterKey="status">
+          <Filter.BarButton filterKey={queryKey || 'status'}>
             <SelectStatusValue />
           </Filter.BarButton>
         </Popover.Trigger>

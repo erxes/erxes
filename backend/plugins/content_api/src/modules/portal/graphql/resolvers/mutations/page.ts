@@ -31,11 +31,13 @@ class PageMutationResolver extends BaseMutationResolver {
   }
 }
 
-const resolver = new PageMutationResolver({} as IContext);
 const mutations = {
-  cmsPagesAdd: resolver.cmsPagesAdd.bind(resolver),
-  cmsPagesEdit: resolver.cmsPagesEdit.bind(resolver),
-  cmsPagesRemove: resolver.cmsPagesRemove.bind(resolver),
+  cmsPagesAdd: (_parent: any, args: any, context: IContext) =>
+    new PageMutationResolver(context).cmsPagesAdd(_parent, args, context),
+  cmsPagesEdit: (_parent: any, args: any, context: IContext) =>
+    new PageMutationResolver(context).cmsPagesEdit(_parent, args, context),
+  cmsPagesRemove: (_parent: any, args: any, context: IContext) =>
+    new PageMutationResolver(context).cmsPagesRemove(_parent, args, context),
 };
 
 PermissionManager.applyCmsPermissions(mutations);

@@ -90,7 +90,7 @@ export function InviteForm({
         ],
       },
       onCompleted() {
-        toast({ title: 'Invitation has been sent' });
+        toast({ title: 'Invitation has been sent', variant: 'success' });
         setIsOpen(false);
       },
       onError(e: ApolloError) {

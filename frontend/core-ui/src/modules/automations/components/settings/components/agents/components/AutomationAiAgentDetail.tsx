@@ -124,6 +124,7 @@ export const AutomationAiAgentDetail = ({
                 toast({
                   title: 'Invalid form',
                   description: JSON.stringify(error),
+                  variant: 'destructive',
                 });
               })}
             >

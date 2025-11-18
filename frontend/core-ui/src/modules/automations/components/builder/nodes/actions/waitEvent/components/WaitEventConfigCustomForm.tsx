@@ -119,7 +119,7 @@ const WaitWebhookContent = ({
 
   useImperativeHandle(formRef, () => ({
     submit: () =>
-      form.handleSubmit(handleSave, (error) => {
+      form.handleSubmit(handleSave, () => {
         toast({
           title: 'There is some error in the form',
           variant: 'destructive',

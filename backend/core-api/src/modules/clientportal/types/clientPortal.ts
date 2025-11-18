@@ -71,6 +71,15 @@ export interface IClientPortal {
   otpConfig?: IOTPConfig;
   twoFactorConfig?: TwoFactorConfig;
 
+  enableOTP?: boolean;
+  enableTwoFactor?: boolean;
+  enableSocialpay?: boolean;
+  enableToki?: boolean;
+  enableManualVerification?: boolean;
+  enablePasswordVerification?: boolean;
+  enableMail?: boolean;
+  enableTestUser?: boolean;
+
   mailConfig?: IMailConfig;
   manualVerificationConfig?: IManualVerificationConfig;
   passwordVerificationConfig?: IPasswordVerificationConfig;

@@ -61,12 +61,14 @@ class PostQueryResolver extends BaseQueryResolver {
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
 
-    return this.getListWithTranslations(
+    const { list, totalCount, pageInfo } = await this.getListWithTranslations(
       models.Posts,
       query,
       { ...args, clientPortalId, language },
       FIELD_MAPPINGS.POST
     );
+
+    return { posts: list, totalCount, pageInfo };
   }
 
   async cmsTranslations(_parent: any, args: any, context: IContext): Promise<any> {
@@ -76,12 +78,15 @@ class PostQueryResolver extends BaseQueryResolver {
   }
 }
 
-const resolver = new PostQueryResolver({} as IContext);
 const queries = {
-  cmsPosts: resolver.cmsPosts.bind(resolver),
-  cmsPost: resolver.cmsPost.bind(resolver),
-  cmsPostList: resolver.cmsPostList.bind(resolver),
-  cmsTranslations: resolver.cmsTranslations.bind(resolver),
+  cmsPosts: (_parent: any, args: any, context: IContext) =>
+    new PostQueryResolver(context).cmsPosts(_parent, args, context),
+  cmsPost: (_parent: any, args: any, context: IContext) =>
+    new PostQueryResolver(context).cmsPost(_parent, args, context),
+  cmsPostList: (_parent: any, args: any, context: IContext) =>
+    new PostQueryResolver(context).cmsPostList(_parent, args, context),
+  cmsTranslations: (_parent: any, args: any, context: IContext) =>
+    new PostQueryResolver(context).cmsTranslations(_parent, args, context),
 };
 
 export default queries;

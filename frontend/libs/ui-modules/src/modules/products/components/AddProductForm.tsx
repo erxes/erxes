@@ -71,6 +71,7 @@ export function AddProductForm({
         toast({
           title: 'Error',
           description: e.message,
+          variant: 'destructive',
         });
       },
       onCompleted: (data) => {

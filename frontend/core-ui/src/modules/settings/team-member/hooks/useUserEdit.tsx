@@ -53,7 +53,7 @@ export const useUsersDetailEdit = () => {
 export const useUserEdit = () => {
   const { toast } = useToast();
   const [_usersEdit, { loading }] = useMutation(mutations.USERS_INLINE_EDIT, {
-    onCompleted: () => toast({ title: 'Updated' }),
+    onCompleted: () => toast({ title: 'Updated', variant: 'success' }),
     onError(error) {
       toast({
         title: 'Error',
@@ -97,7 +97,7 @@ export const useUsersStatusEdit = () => {
     editStatus({
       ...options,
       variables,
-      onCompleted: () => toast({ title: 'Updated' }),
+      onCompleted: () => toast({ title: 'Updated', variant: 'success' }),
       onError(error) {
         toast({
           title: 'Error',

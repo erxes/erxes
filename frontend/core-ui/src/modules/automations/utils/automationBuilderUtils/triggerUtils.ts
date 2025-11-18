@@ -114,7 +114,7 @@ export const copyText = async (token: string) => {
   await navigator.clipboard
     .writeText(token)
     .then(() => {
-      toast({ title: 'Copied successfully' });
+      toast({ title: 'Copied successfully', variant: 'success' });
     })
     .catch((error) => {
       toast({

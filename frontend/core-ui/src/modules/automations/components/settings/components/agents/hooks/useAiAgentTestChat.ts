@@ -28,6 +28,7 @@ export const useAiAgentTestChat = (agentId?: string) => {
       toast({
         title: 'Failed to generate message',
         description: message,
+        variant: 'destructive',
       });
       setIsGenerating(false);
     },

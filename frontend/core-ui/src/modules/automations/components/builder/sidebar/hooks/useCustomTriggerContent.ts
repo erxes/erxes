@@ -27,6 +27,7 @@ export const useCustomTriggerContent = (activeNode: NodeData) => {
     toggleSideBarOpen();
     toast({
       title: 'Trigger configuration added successfully.',
+      variant: 'success',
     });
   };
 
