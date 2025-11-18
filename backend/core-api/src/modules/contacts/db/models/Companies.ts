@@ -32,7 +32,7 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
 export const loadCompanyClass = (models: IModels) => {
   class Company {
     /**
-     * Retreive company
+     * Retrieve company
      */
     public static async getCompany(_id: string) {
       const company = await models.Companies.findOne({ _id });
@@ -57,7 +57,7 @@ export const loadCompanyClass = (models: IModels) => {
     }
 
     /**
-     * Retreive active companies
+     * Retrieve active companies
      */
     public static async findActiveCompanies(query, fields?, skip?, limit?) {
       return models.Companies.find(
