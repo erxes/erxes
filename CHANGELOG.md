@@ -1,5 +1,10 @@
 # Changelog
 
+## <small>2.17.27 (2025-11-18)</small>
+
+* chore(calls): debug grandsteam requests ([f42d6a4](https://github.com/erxes/erxes/commit/f42d6a4))
+* fix(tickets): convert to ticket in inbox ([f4bb913](https://github.com/erxes/erxes/commit/f4bb913))
+
 ## <small>2.17.26 (2025-11-17)</small>
 
 * chore(calls): remove tick provider ([126fa63](https://github.com/erxes/erxes/commit/126fa63))
