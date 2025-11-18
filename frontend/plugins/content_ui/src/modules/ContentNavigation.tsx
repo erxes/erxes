@@ -10,7 +10,7 @@ export const ContentNavigation = () => {
         icon={IconLibraryPhoto}
       />
       <NavigationMenuLinkItem
-        name="Cms"
+        name="CMS"
         path="/content/cms"
         icon={IconFileText}
       />
