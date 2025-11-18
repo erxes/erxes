@@ -36,6 +36,8 @@ import {
 } from './service-discovery';
 import { createTRPCContext } from './trpc';
 import { getSubdomain } from './utils';
+import { TActivityLogConfigs } from './logs/activityLogTypes';
+import { startActivityLog } from './logs/startactivityLog';
 
 dotenv.config();
 
@@ -45,6 +47,7 @@ type IMeta = {
   afterProcess?: AfterProcessConfigs;
   payments?: any;
   notificationModules?: any[];
+  activityLog?: TActivityLogConfigs;
 };
 
 type ApiHandler = {
@@ -279,6 +282,7 @@ export async function startPlugin(
       afterProcess,
       notificationModules,
       payments,
+      activityLog,
     } = configs.meta || {};
 
     if (automations) {
@@ -291,6 +295,9 @@ export async function startPlugin(
 
     if (afterProcess) {
       await startAfterProcess(app, configs.name, afterProcess);
+    }
+    if (activityLog) {
+      await startActivityLog(app, configs.name, activityLog);
     }
 
     if (notificationModules) {

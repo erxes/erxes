@@ -21,11 +21,13 @@ export const sendLogMessage = async ({
     payload,
   });
 
-  sendWorkerQueue('logs', 'activity_log').add('process', {
-    subdomain,
-    source,
-    status,
-    contentType,
-    payload,
-  });
+  if (source === 'mongo') {
+    sendWorkerQueue('logs', 'activity_log').add('process', {
+      subdomain,
+      source,
+      status,
+      contentType,
+      payload,
+    });
+  }
 };

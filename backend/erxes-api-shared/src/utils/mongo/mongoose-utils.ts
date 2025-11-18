@@ -175,6 +175,7 @@ export const schemaWrapper = (
 ) => {
   schema.add({ _id: mongooseStringRandomId });
   schema.add({ processId: { type: String, optional: true } });
+  schema.add({ lastUpdatedUserId: { type: String, optional: true } });
 
   if (options?.contentType) {
     (schema.statics as any)._contentType = options.contentType;

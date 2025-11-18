@@ -34,7 +34,11 @@ export const generateApolloContext =
 
     const processId = nanoid(12);
 
-    const __ = (doc: any) => ({ processId, ...doc });
+    const __ = (doc: any) => ({
+      processId,
+      lastUpdatedUserId: user?._id,
+      ...doc,
+    });
 
     const context = {
       user,

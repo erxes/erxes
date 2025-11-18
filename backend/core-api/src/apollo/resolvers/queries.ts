@@ -6,7 +6,8 @@ import { documentQueries } from '@/documents/graphql/queries';
 import { exchangeRateQueries } from '@/exchangeRates/graphql/resolvers';
 import { queries as formQueries } from '@/forms/graphql/resolvers';
 import { internalNoteQueries } from '@/internalNote/graphql/queries';
-import { logQueries } from '@/logs/graphql/resolvers/queries';
+import { logQueries } from '~/modules/logs/graphql/resolvers/logQueries';
+import { activityLogQueries } from '@/logs/graphql/resolvers/activityLogQueries';
 import { brandQueries } from '@/organization/brand/graphql/queries';
 import { organizationConfigQueries } from '@/organization/settings/graphql/configs/queries';
 import { favoriteQueries } from '@/organization/settings/graphql/favorites/queries';
@@ -43,6 +44,7 @@ export const queries = {
   ...documentQueries,
   ...automationQueries,
   ...logQueries,
+  ...activityLogQueries,
   ...notificationQueries,
   ...internalNoteQueries,
   ...roleQueries,

@@ -102,6 +102,8 @@ export const editDeal = async ({
 }) => {
   const oldDeal = await models.Deals.getDeal(_id);
 
+  console.log({ doc });
+
   if (doc.assignedUserIds) {
     const { removedUserIds } = checkUserIds(
       oldDeal.assignedUserIds,

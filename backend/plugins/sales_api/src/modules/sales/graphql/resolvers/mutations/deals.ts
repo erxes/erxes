@@ -37,9 +37,16 @@ export const dealMutations = {
   async dealsEdit(
     _root,
     { _id, processId, ...doc }: IDealDocument & { processId: string },
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain, __ }: IContext,
   ) {
-    return await editDeal({ models, subdomain, _id, processId, doc, user });
+    return await editDeal({
+      models,
+      subdomain,
+      _id,
+      processId,
+      doc: __(doc),
+      user,
+    });
   },
 
   /**

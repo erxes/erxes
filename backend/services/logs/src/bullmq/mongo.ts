@@ -73,21 +73,28 @@ const actionMap = {
 export const handleMongoChangeEvent = async (
   Logs: Model<ILogDocument>,
   changeEvent: any,
-  contentType?: string,
+  context: { contentType?: string; processId?: string; user?: any },
 ) => {
   // MongoDB client setup
   const operationType = changeEvent.operationType;
   const collectionName = changeEvent.ns.coll;
   const docId = changeEvent.documentKey._id;
-  const { processId } = changeEvent?.fullDocument || {};
+
+  // Extract processId with priority: context > document > undefined
+  // Context processId comes from AsyncLocalStorage via change stream
+  const processId = context?.processId || changeEvent?.fullDocument?.processId;
 
   const action = actionMap[operationType];
   return await action(
     Logs,
     collectionName,
     docId,
-    { source: 'mongo', status: LOG_STATUSES.SUCCESS, processId, contentType },
+    {
+      source: 'mongo',
+      status: LOG_STATUSES.SUCCESS,
+      processId: processId || context?.processId,
+      ...(context || {}),
+    },
     changeEvent,
-    processId,
   );
 };

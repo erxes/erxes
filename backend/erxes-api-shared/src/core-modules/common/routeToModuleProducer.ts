@@ -1,8 +1,9 @@
 import { TAutomationProducers } from '../automations/types';
 import { TAutomationProducersInput } from '../automations/zodTypes';
 import { TSegmentProducers } from '../segments/types';
-import { TAfterProcessProducers } from '../logs/types';
+import { TActivityLogProducers, TAfterProcessProducers } from '../logs/types';
 import { TSegmentProducersInput } from '../segments/zodSchemas';
+import { TActivityLogProducersInput } from '../logs/zodSchemas';
 
 type TModuleProducerInputMap = {
   automations: {
@@ -13,6 +14,9 @@ type TModuleProducerInputMap = {
   };
   afterProcess: {
     [K in TAfterProcessProducers]: any;
+  };
+  activityLog: {
+    [K in TActivityLogProducers]: TActivityLogProducersInput[K];
   };
 };
 

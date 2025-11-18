@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { sendWorkerQueue } from '../mq-worker';
 import { redis } from '../redis';
+import { sendLogMessage } from '../logs/sendLogMessage';
 
 // Track streams by subdomain:modelName to support multi-tenant
 const activeStreams = new Map<string, any>();
@@ -140,7 +141,7 @@ export const startChangeStreams = async (
       }
 
       // Send to your worker queue
-      sendWorkerQueue('logs', 'put_log').add('put_log', {
+      sendLogMessage({
         subdomain,
         source: 'mongo',
         status: 'success',

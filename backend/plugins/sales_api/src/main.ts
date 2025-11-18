@@ -6,7 +6,8 @@ import { generateModels } from './connectionResolvers';
 import { router } from './routes';
 import automations from './meta/automations';
 import segments from './meta/segments';
-
+import { NOTIFICATIONS_CONSTANTS } from './meta/notification/notificationsConst';
+import activityLog from './meta/activityLog';
 startPlugin({
   name: 'sales',
   port: 3305,
@@ -47,22 +48,7 @@ startPlugin({
   meta: {
     automations,
     segments,
-    notificationModules: [
-      {
-        name: 'deals',
-        description: 'Deals',
-        icon: 'IconChecklist',
-        types: [
-          { name: 'dealAssignee', text: 'Deal assignee' },
-          { name: 'dealStatus', text: 'Deal status changed' },
-        ],
-      },
-      {
-        name: 'note',
-        description: 'Note',
-        icon: 'IconNote',
-        types: [{ name: 'note', text: 'Mentioned in note' }],
-      },
-    ],
+    notificationModules: NOTIFICATIONS_CONSTANTS,
+    activityLog,
   },
 });

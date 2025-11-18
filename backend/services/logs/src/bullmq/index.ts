@@ -1,6 +1,7 @@
 import type { Job } from 'bullmq';
 import { createMQWorkerWithListeners } from 'erxes-api-shared/utils';
 import { systemLogWorker } from './systemLogWorker';
+import { activityLogWorker } from './activityLogWorker';
 
 const generateMQWorker = (
   redis: any,
@@ -18,5 +19,8 @@ export const initMQWorkers = async (redis: any) => {
   console.info('Starting worker log ...');
 
   console.info('Initialized databases');
-  await Promise.all([generateMQWorker(redis, 'put_log', systemLogWorker)]);
+  await Promise.all([
+    generateMQWorker(redis, 'put_log', systemLogWorker),
+    generateMQWorker(redis, 'activity_log', activityLogWorker),
+  ]);
 };

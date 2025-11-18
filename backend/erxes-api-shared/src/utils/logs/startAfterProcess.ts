@@ -1,55 +1,74 @@
-import { createMQWorkerWithListeners } from "../mq-worker";
-import { initializePluginConfig } from "../service-discovery";
-import { AfterProcessConfigs } from "./logTypes";
-import { redis } from "../redis";
+export * from './logHandler';
+export * from './logTypes';
+export * from './startAfterProcess';
+import { initTRPC } from '@trpc/server';
+import * as trpcExpress from '@trpc/server/adapters/express';
+import { Express } from 'express';
+import { nanoid } from 'nanoid';
+import { z } from 'zod';
+import { initializePluginConfig } from '../service-discovery';
+import { createTRPCContext } from '../trpc';
+import { AfterProcessConfigs, IAfterProcessContext } from './logTypes';
 
 export const startAfterProcess = async (
-    pluginName: string,
-    config: AfterProcessConfigs,
-  ) => {
-    await initializePluginConfig(pluginName, 'afterProcess', config);
-  
-    return new Promise<void>((resolve, reject) => {
-      try {
-        createMQWorkerWithListeners(
-          pluginName,
-          'afterProcess',
-          async ({ name, id, data: jobData }) => {
-            try {
-              const {
-                subdomain,
-                data: { processId, ...data },
-              } = jobData;
-  
-              if (!subdomain) {
-                throw new Error('You should provide subdomain on message');
-              }
-  
-              const resolverName = name as keyof AfterProcessConfigs;
-  
-              if (
-                !(name in config) ||
-                typeof config[resolverName] !== 'function'
-              ) {
-                throw new Error(`Automations method ${name} not registered`);
-              }
-  
-              const resolver = config[resolverName];
-  
-              resolver({ subdomain, processId }, data);
-            } catch (error: any) {
-              console.error(`Error processing job ${id}: ${error.message}`);
-              throw error;
-            }
-          },
-          redis,
-          () => {
-            resolve();
-          },
-        );
-      } catch (error) {
-        reject(error);
-      }
-    });
-  };
-  
+  app: Express,
+  pluginName: string,
+  config: AfterProcessConfigs,
+) => {
+  await initializePluginConfig(pluginName, 'afterProcess', config);
+
+  const t = initTRPC.context<IAfterProcessContext>().create();
+
+  const {
+    onAfterMutation,
+    onAfterAuth,
+    onAfterApiRequest,
+    onDocumentUpdated,
+    onDocumentCreated,
+  } = config || {};
+
+  const routes: Record<string, any> = {};
+
+  if (onAfterMutation) {
+    routes.onAfterMutation = t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => onAfterMutation(ctx, input));
+  }
+
+  if (onAfterAuth) {
+    routes.onAfterAuth = t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => onAfterAuth(ctx, input));
+  }
+
+  if (onAfterApiRequest) {
+    routes.onAfterApiRequest = t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => onAfterApiRequest(ctx, input));
+  }
+
+  if (onDocumentUpdated) {
+    routes.onDocumentUpdated = t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => onDocumentUpdated(ctx, input));
+  }
+
+  if (onDocumentCreated) {
+    routes.onDocumentCreated = t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => onDocumentCreated(ctx, input));
+  }
+
+  const afterProcessRouter = t.router(routes);
+
+  const trpcMiddleware = trpcExpress.createExpressMiddleware({
+    router: afterProcessRouter,
+    createContext: createTRPCContext(async (_subdomain, context) => {
+      const processId = nanoid(12);
+      context.processId = processId;
+      return context;
+    }),
+  });
+
+  app.use('/after-process', trpcMiddleware);
+};

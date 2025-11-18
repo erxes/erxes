@@ -1,3 +1,4 @@
+export * from './activity-logs';
 export * from './automations';
 export * from './brands';
 export * from './contacts';

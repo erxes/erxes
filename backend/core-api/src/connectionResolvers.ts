@@ -129,9 +129,11 @@ import { IInternalNoteDocument } from '@/internalNote/types';
 import { ILogModel, loadLogsClass } from '@/logs/db/models/Logs';
 
 import {
+  activityLogSchema,
   AiAgentDocument,
   aiAgentSchema,
   aiEmbeddingSchema,
+  IActivityLogDocument,
   IAiEmbeddingDocument,
   IAutomationDocument,
   IAutomationExecutionDocument,
@@ -221,6 +223,7 @@ export interface IModels {
   AutomationExecutions: IExecutionModel;
   AutomationEmailTemplates: IAutomationEmailTemplateModel;
   Logs: ILogModel;
+  ActivityLogs: Model<IActivityLogDocument>;
   Notifications: Model<INotificationDocument>;
   ClientPortal: IClientPortalModel;
   CPUser: ICPUserModel;
@@ -430,6 +433,11 @@ export const loadClasses = (
     'client_portal_users',
     loadCPUserClass(models),
   );
+
+  models.ActivityLogs = db.model<
+    IActivityLogDocument,
+    Model<IActivityLogDocument>
+  >('activity_logs', activityLogSchema);
 
   return models;
 };

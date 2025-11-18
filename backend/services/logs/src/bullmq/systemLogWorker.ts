@@ -18,6 +18,7 @@ export const systemLogWorker = async ({ id, data }: Job<any>) => {
     action,
     status,
     processId,
+    user,
   } = (data ?? {}) as IJobData;
 
   try {
@@ -26,7 +27,11 @@ export const systemLogWorker = async ({ id, data }: Job<any>) => {
     let result: ILogDocument;
 
     if (source === 'mongo') {
-      result = await handleMongoChangeEvent(models.Logs, payload, contentType);
+      result = await handleMongoChangeEvent(models.Logs, payload, {
+        processId,
+        user,
+        contentType,
+      });
 
       if (contentType && (await checkServiceRunning('automations'))) {
         sendWorkerQueue('automations', 'trigger').add('trigger', {
