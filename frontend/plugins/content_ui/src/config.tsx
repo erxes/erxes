@@ -30,7 +30,7 @@ export const CONFIG: IUIConfig = {
       hasRelationWidget: false,
     },
     {
-      name: 'CMS',
+      name: 'cms',
       icon: IconBooks,
       path: 'content/cms',
       hasSettings: false,
