@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { DEFAULT_ALLOW_TYPE } from '../../constants';
 
 const uiOptionsSchema = z.object({
   colors: z.object({
@@ -16,16 +17,15 @@ const uiOptionsSchema = z.object({
 });
 
 const productDetailSchema = z.object({
-  excludedProductIds: z.array(z.string()).default([]),
-  excludedCategoryIds: z.array(z.string()).default([]),
-  categoryIds: z.array(z.string()).optional(),
+  productId: z.string(),
+  categoryId: z.string().optional(),
   isRequired: z.boolean().default(false),
 });
 
 const catProdMappingSchema = z.object({
-  _id: z.string().optional(),
   categoryId: z.string(),
-  productId: z.string(),
+  productIds: z.array(z.string()).default([]),
+  productId: z.string().optional(),
   name: z.string().optional(),
   code: z.string().optional(),
 });
@@ -39,14 +39,26 @@ const paymentTypeSchema = z.object({
 });
 
 export const screenConfigSchema = z.object({
-  kitchenScreenEnabled: z.boolean().default(false),
-  showTypes: z.string().default(''),
-  statusChange: z.string().default(''),
-  watchingScreenEnabled: z.boolean().default(false),
-  changeType: z.string().default(''),
-  changeCount: z.string().default(''),
-  contentUrl: z.string().default(''),
-  printEnabled: z.boolean().default(false),
+  isActive: z.boolean().default(false),
+  isPrint: z.boolean().optional(),
+  type: z.string().default(''),
+  value: z.number().default(0),
+  contentUrl: z.string().optional(),
+  showType: z.string().optional(),
+});
+
+export const ebarimtConfigSchema = z.object({
+  companyRD: z.string().default(''),
+  ebarimtUrl: z.string().default(''),
+  checkCompanyUrl: z.string().default(''),
+  hasVat: z.boolean().default(false),
+  hasCityTax: z.boolean().default(false),
+  districtCode: z.string().default(''),
+  companyName: z.string().default(''),
+  defaultGSCode: z.string().default(''),
+  vatPercent: z.number().default(0),
+  cityTaxPercent: z.number().default(0),
+  footerText: z.string().default(''),
 });
 
 export const financeConfigSchema = z.object({
@@ -66,7 +78,7 @@ export const posDetailSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   adminIds: z.array(z.string()).min(1, 'At least one admin is required'),
   cashierIds: z.array(z.string()).min(1, 'At least one cashier is required'),
-  productDetails: z.array(productDetailSchema).default([]),
+  productDetails: z.array(z.string()).default([]),
   paymentIds: z.array(z.string()).default([]),
   paymentTypes: z.array(paymentTypeSchema).default([]),
   uiOptions: uiOptionsSchema.default({
@@ -94,8 +106,8 @@ export const posDetailSchema = z.object({
   checkRemainder: z.boolean().default(false),
   permissionConfig: z.record(z.any()).default({}),
   allowTypes: z
-    .array(z.enum(['eat', 'take', 'delivery']))
-    .default(['eat', 'take', 'delivery']),
+    .array(z.enum(['eat', 'take', 'delivery', 'loss', 'spend', 'reject']))
+    .default([DEFAULT_ALLOW_TYPE, 'take', 'delivery']),
   checkExcludeCategoryIds: z.array(z.string()).default([]),
   departmentId: z.string().optional(),
 });
@@ -106,7 +118,7 @@ export const basicInfoSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().min(1, 'Description is required'),
   allowTypes: z
-    .array(z.enum(['eat', 'take', 'delivery']))
+    .array(z.enum(['eat', 'take', 'delivery', 'loss', 'spend', 'reject']))
     .min(1, 'At least one type is required'),
   scopeBrandIds: z.array(z.string()).default([]),
   branchId: z.string().optional(),
@@ -129,6 +141,14 @@ export const permissionSchema = z.object({
   permissionConfig: z.record(z.any()).default({}),
 });
 
+const productGroupSchema = z.object({
+  name: z.string(),
+  description: z.string().optional(),
+  categoryIds: z.array(z.string()).optional(),
+  excludedCategoryIds: z.array(z.string()).optional(),
+  excludedProductIds: z.array(z.string()).optional(),
+});
+
 export const productSchema = z.object({
   productDetails: z.array(z.string()).default([]),
   catProdMappings: z.array(catProdMappingSchema).default([]),
@@ -136,7 +156,7 @@ export const productSchema = z.object({
   kioskExcludeCategoryIds: z.array(z.string()).default([]),
   kioskExcludeProductIds: z.array(z.string()).default([]),
   checkExcludeCategoryIds: z.array(z.string()).default([]),
-  productGroups: z.array(productDetailSchema).default([]),
+  productGroups: z.array(productGroupSchema).default([]),
 });
 
 export const paymentSchema = z.object({
@@ -170,6 +190,7 @@ export type UiConfigFormValues = z.infer<typeof uiConfigSchema>;
 export type DeliveryConfigFormValues = z.infer<typeof deliveryConfigSchema>;
 export type FinanceConfigFormValues = z.infer<typeof financeConfigSchema>;
 export type ScreenConfigFormValues = z.infer<typeof screenConfigSchema>;
+export type EbarimtConfigFormValues = z.infer<typeof ebarimtConfigSchema>;
 
 export interface FormStepData {
   basicInfo?: BasicInfoFormValues;
@@ -180,6 +201,7 @@ export interface FormStepData {
   deliveryConfig?: DeliveryConfigFormValues;
   financeConfig?: FinanceConfigFormValues;
   screenConfig?: ScreenConfigFormValues;
+  ebarimtConfig?: EbarimtConfigFormValues;
 }
 
 export const combineFormData = (
@@ -194,5 +216,6 @@ export const combineFormData = (
     ...stepData.deliveryConfig,
     ...stepData.financeConfig,
     ...stepData.screenConfig,
+    ...stepData.ebarimtConfig,
   };
 };

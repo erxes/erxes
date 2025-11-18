@@ -1,4 +1,4 @@
-import { Button, Form, Input, Select, Switch } from 'erxes-ui';
+import { Form, Input, Select, Switch } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -32,7 +32,7 @@ export default function ScreenConfigForm({
   onSubmit,
 }: ScreenConfigFormProps) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [, setIsSubmitting] = useState(false);
 
   const form = useForm<ScreenConfigFormData>({
     defaultValues: {
@@ -333,18 +333,7 @@ export default function ScreenConfigForm({
             </div>
           </div>
 
-          {!isReadOnly && onSubmit && (
-            <div className="mt-8 flex justify-end">
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                variant="default"
-                size="default"
-              >
-                {isSubmitting ? 'Saving...' : posDetail ? 'Update' : 'Save'}
-              </Button>
-            </div>
-          )}
+
         </form>
       </Form>
     </div>

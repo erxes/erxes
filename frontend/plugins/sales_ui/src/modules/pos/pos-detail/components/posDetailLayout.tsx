@@ -134,36 +134,61 @@ const NavigationFooter = React.memo(
     handleNextStep,
     isLastStep,
     validationError = null,
-  }: NavigationFooterProps) => (
-    <div className="flex flex-col p-4 border-t sticky bottom-0 bg-white">
-      {validationError && <ValidationAlert message={validationError} />}
-      <div className="flex justify-between">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handlePrevStep}
-          disabled={!prevStep}
-        >
-          Previous
-        </Button>
-        <div className="flex gap-2">
+    onFinalSubmit,
+  }: NavigationFooterProps) => {
+    const [saveError, setSaveError] = React.useState<string | null>(null);
+
+    const handleSaveOnly = async () => {
+      try {
+        setSaveError(null);
+        if (onFinalSubmit) {
+          await onFinalSubmit();
+        } else {
+          setSaveError('No save function available');
+        }
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : 'Please try again.';
+        setSaveError(`Save failed: ${message}`);
+      }
+    };
+
+    return (
+      <div className="flex flex-col p-4 border-t sticky bottom-0 bg-white">
+        {validationError && <ValidationAlert message={validationError} />}
+        {saveError && <ValidationAlert message={saveError} />}
+        <div className="flex justify-between">
           <Button
             type="button"
             variant="outline"
-            onClick={handleNextStep}
-            disabled={!nextStep && !isLastStep}
+            onClick={handlePrevStep}
+            disabled={!prevStep}
           >
-            {isLastStep ? 'Save & Close' : 'Next step'}
+            Previous
           </Button>
-          {isLastStep && (
-            <Button type="button" onClick={handleNextStep}>
-              Update POS
+          <div className="flex gap-2">
+            {!isLastStep && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleNextStep}
+                disabled={!nextStep}
+              >
+                Next step
+              </Button>
+            )}
+
+            <Button
+              type="button"
+              onClick={isLastStep ? handleNextStep : handleSaveOnly}
+            >
+              {isLastStep ? 'Update POS' : 'Save Changes'}
             </Button>
-          )}
+          </div>
         </div>
       </div>
-    </div>
-  ),
+    );
+  },
 );
 
 export const PosEditTabContent: React.FC<PosTabContentProps> = ({
@@ -249,7 +274,7 @@ interface PosEditLayoutProps {
   form?:
     | UseFormReturn<BasicInfoFormValues>
     | UseFormReturn<PermissionFormValues>;
-  onFinalSubmit?: () => void;
+  onFinalSubmit?: () => Promise<void>;
   posDetail?: IPosDetail;
 }
 
@@ -287,31 +312,76 @@ export const PosEditLayout: React.FC<PosEditLayoutProps> = ({
     }
   };
 
+  const validateBasicInfoFields = (
+    values: BasicInfoFormValues,
+  ): string | null => {
+    if (!values.name?.trim()) {
+      return 'Please enter a name before proceeding.';
+    }
+
+    if (!values.description?.trim()) {
+      return 'Please enter a description before proceeding.';
+    }
+
+    if (!values.allowTypes || values.allowTypes.length === 0) {
+      return 'Please select at least one type before proceeding.';
+    }
+
+    return null;
+  };
+
   const validateCurrentStep = (): boolean => {
-    if (selectedStep === 'properties' && form) {
-      if ('name' in form.getValues()) {
-        const values = form.getValues() as BasicInfoFormValues;
+    if (
+      selectedStep !== 'properties' ||
+      !form ||
+      !('name' in form.getValues())
+    ) {
+      return true;
+    }
 
-        if (!values.name?.trim()) {
-          setValidationError('Please enter a name before proceeding.');
-          return false;
-        }
+    const values = form.getValues() as BasicInfoFormValues;
+    const errorMessage = validateBasicInfoFields(values);
 
-        if (!values.description?.trim()) {
-          setValidationError('Please enter a description before proceeding.');
-          return false;
-        }
-
-        if (!values.allowTypes || values.allowTypes.length === 0) {
-          setValidationError(
-            'Please select at least one type before proceeding.',
-          );
-          return false;
-        }
-      }
+    if (errorMessage) {
+      setValidationError(errorMessage);
+      return false;
     }
 
     return true;
+  };
+
+  const validateFormStep = async (): Promise<boolean> => {
+    if (selectedStep !== 'properties' || !form) {
+      return true;
+    }
+
+    try {
+      const isValid = await form.trigger();
+      if (!isValid) {
+        setValidationError('Please fix the form errors before proceeding.');
+        return false;
+      }
+      return true;
+    } catch (error) {
+      setValidationError('Failed to validate form. Please try again.');
+      return false;
+    }
+  };
+
+  const handleFinalSubmit = async (): Promise<void> => {
+    if (!onFinalSubmit) {
+      setValidationError('No save function available');
+      return;
+    }
+
+    try {
+      await onFinalSubmit();
+      setValidationError(null);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Please try again.';
+      setValidationError(`Failed to update: ${message}`);
+    }
   };
 
   const handleNextStep = async (): Promise<void> => {
@@ -321,28 +391,12 @@ export const PosEditLayout: React.FC<PosEditLayoutProps> = ({
       return;
     }
 
-    if (selectedStep === 'properties' && form) {
-      try {
-        const isValid = await form.trigger();
-
-        if (!isValid) {
-          setValidationError('Please fix the form errors before proceeding.');
-          return;
-        }
-      } catch (error) {
-        setValidationError('Failed to validate form. Please try again.');
-        return;
-      }
+    if (!(await validateFormStep())) {
+      return;
     }
 
     if (isLastStep) {
-      try {
-        if (onFinalSubmit) {
-          await onFinalSubmit();
-        }
-      } catch (error) {
-        setValidationError('Failed to update. Please try again.');
-      }
+      await handleFinalSubmit();
       return;
     }
 
@@ -372,6 +426,11 @@ export const PosEditLayout: React.FC<PosEditLayoutProps> = ({
                   handleNextStep={handleNextStep}
                   isLastStep={isLastStep}
                   validationError={validationError}
+                  onFinalSubmit={
+                    onFinalSubmit
+                      ? async () => await onFinalSubmit()
+                      : undefined
+                  }
                 />
               </div>
             </Resizable.Panel>

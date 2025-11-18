@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
-import { Form, Checkbox, Button, Label, Input } from 'erxes-ui';
+import { Form, Button, Input } from 'erxes-ui';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import type { ProductFormValues } from '../formSchema';
 import { IPosDetail } from '@/pos/pos-detail/types/IPos';
@@ -26,7 +26,7 @@ export default function ProductForm({
 }: ProductFormProps) {
   const [showProductGroups, setShowProductGroups] = useState(false);
   const [showMappings, setShowMappings] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [, setIsSubmitting] = useState(false);
 
   const internalForm = useForm<ProductFormValues>({
     defaultValues: {
@@ -36,6 +36,7 @@ export default function ProductForm({
       kioskExcludeCategoryIds: [],
       kioskExcludeProductIds: [],
       checkExcludeCategoryIds: [],
+      productGroups: [],
     },
   });
 
@@ -44,20 +45,23 @@ export default function ProductForm({
 
   useEffect(() => {
     if (!posDetail) return;
-    console.log('productGroups', productGroups);
+
+    const productDetailsAsStrings = (posDetail.productDetails || []).map(
+      (detail) => (typeof detail === 'string' ? detail : detail.productId),
+    );
+
     form.reset({
-      productDetails: posDetail.productDetails || [],
+      productDetails: productDetailsAsStrings,
       catProdMappings: posDetail.catProdMappings || [],
       initialCategoryIds: posDetail.initialCategoryIds || [],
       kioskExcludeCategoryIds: posDetail.kioskExcludeCategoryIds || [],
       kioskExcludeProductIds: posDetail.kioskExcludeProductIds || [],
       checkExcludeCategoryIds: posDetail.checkExcludeCategoryIds || [],
-      productGroups: productGroups || [],
     });
 
-    setShowProductGroups(!!productGroups?.length);
+    setShowProductGroups(!!posDetail.productDetails?.length);
     setShowMappings(!!posDetail.catProdMappings?.length);
-  }, [posDetail, form, productGroups]);
+  }, [posDetail, form]);
 
   const addItem = (fieldName: keyof ProductFormValues, newItem: any) => {
     if (isReadOnly) return;
@@ -111,91 +115,24 @@ export default function ProductForm({
 
             {showProductGroups && (
               <div className="space-y-4">
-                {form.watch('productGroups')?.map((_, index) => (
+                {form.watch('productDetails')?.map((productId, index) => (
                   <div key={index} className="grid grid-cols-2 gap-4">
                     <Form.Field
                       control={form.control}
-                      name={`productGroups.${index}.categoryIds`}
+                      name={`productDetails.${index}`}
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
-                            CATEGORY included
-                          </Form.Label>
-                          <Form.Control>
-                            <SelectCategory
-                              selected={field.value?.[0]}
-                              onSelect={(value) => field.onChange([value])}
-                              disabled={isReadOnly}
-                              className="h-8"
-                            />
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-                    <Form.Field
-                      control={form.control}
-                      name={`productGroups.${index}.excludedCategoryIds`}
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
-                            CATEGORY excluded
-                          </Form.Label>
-                          <Form.Control>
-                            <SelectCategory
-                              selected={field.value?.[0]}
-                              onSelect={(value) => field.onChange([value])}
-                              disabled={isReadOnly}
-                              className="h-8"
-                            />
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-                    <Form.Field
-                      control={form.control}
-                      name={`productGroups.${index}.excludedProductIds`}
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
-                            Exclude PRODUCT`s
+                            PRODUCT
                           </Form.Label>
                           <Form.Control>
                             <SelectProduct
-                              mode="multiple"
                               value={field.value}
-                              onValueChange={(value) => {
-                                field.onChange(value);
-                              }}
+                              onValueChange={(value) => field.onChange(value)}
                               disabled={isReadOnly}
                               className="h-8"
                             />
                           </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-
-                    <Form.Field
-                      control={form.control}
-                      name={`productGroups.${index}.isRequired`}
-                      render={({ field }) => (
-                        <Form.Item>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              id={`required-${index}`}
-                              disabled={isReadOnly}
-                            />
-                            <Label
-                              htmlFor={`required-${index}`}
-                              className="text-sm text-gray-500"
-                            >
-                              Required
-                            </Label>
-                          </div>
                           <Form.Message />
                         </Form.Item>
                       )}
@@ -207,7 +144,7 @@ export default function ProductForm({
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() => removeItem('productGroups', index)}
+                          onClick={() => removeItem('productDetails', index)}
                           className="text-red-600 hover:text-red-700"
                         >
                           <IconTrash size={16} />
@@ -221,15 +158,11 @@ export default function ProductForm({
                   <div className="flex justify-end">
                     <Button
                       type="button"
-                      onClick={() =>
-                        addItem('productGroups', {
-                          isRequired: false,
-                        })
-                      }
+                      onClick={() => addItem('productDetails', '')}
                       className="text-white"
                     >
                       <IconPlus size={16} className="mr-1" />
-                      Add Product Detail
+                      Add Product
                     </Button>
                   </div>
                 )}
@@ -333,7 +266,7 @@ export default function ProductForm({
                           onValueChange={(productId) =>
                             toggleMultiSelect(
                               'kioskExcludeProductIds',
-                              productId,
+                              productId as string,
                             )
                           }
                           disabled={isReadOnly}
@@ -516,6 +449,8 @@ export default function ProductForm({
                         addItem('catProdMappings', {
                           categoryId: '',
                           productId: '',
+                          name: '',
+                          code: '',
                         })
                       }
                       className="text-white"
@@ -568,18 +503,6 @@ export default function ProductForm({
             />
           </section>
         </div>
-
-        {!isReadOnly && onSubmit && (
-          <div className="mt-8 flex justify-end">
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white"
-            >
-              {isSubmitting ? 'Saving...' : !!posDetail ? 'Update' : 'Save'}
-            </Button>
-          </div>
-        )}
       </form>
     </Form>
   );

@@ -26,7 +26,7 @@ export interface GetPosCreateTabsProps {
   };
   handlers: {
     handleNodesUpdate: (nodes: CustomNode[]) => void;
-    handleDeliveryConfigUpdate?: (data: DeliveryConfigFormValues) => void;
+    handleDeliveryConfigSubmit?: (data: DeliveryConfigFormValues) => void;
     handleFinanceConfigSubmit?: (data: FinanceConfigFormValues) => void;
   };
   data: {
