@@ -1,5 +1,3 @@
-'use client';
-
 import { ChooseChannel } from '@/inbox/channel/components/ChooseChannel';
 import { ChooseIntegrationTypeContent } from '@/integrations/components/ChooseIntegrationType';
 import { CreateChannel } from '@/channels/components/settings/channels-list/CreateChannel';
@@ -10,7 +8,6 @@ export const FrontlineSubGroups = () => {
   const location = useLocation();
   const isInbox = location.pathname.startsWith('/frontline/inbox');
   const isTickets = location.pathname.startsWith('/frontline/tickets');
-  console.log('ohhh', location);
   if (isTickets) {
     return <TicketNavigations />;
   }

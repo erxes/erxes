@@ -1,8 +1,6 @@
 import { Route, Routes } from 'react-router';
 import { Suspense, lazy } from 'react';
 
-import { Spinner } from 'erxes-ui';
-
 const Pos = lazy(() =>
   import('~/pages/PosIndexPage').then((module) => ({
     default: module.PosIndexPage,
@@ -11,7 +9,7 @@ const Pos = lazy(() =>
 
 const PluginPos = () => {
   return (
-    <Suspense fallback={<Spinner />}>
+    <Suspense fallback={<></>}>
       <Routes>
         <Route path="/" element={<Pos />} />
       </Routes>
