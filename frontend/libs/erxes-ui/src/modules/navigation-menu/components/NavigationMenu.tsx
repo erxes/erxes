@@ -1,5 +1,3 @@
-'use client';
-
 import { Collapsible, Sidebar } from 'erxes-ui/components';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -33,17 +31,7 @@ export const NavigationMenuLinkItem = forwardRef<
     const { pathname } = useLocation();
     const fullPath = pathPrefix ? `${pathPrefix}/${path}` : path;
     const isActive = pathname.startsWith(`/${fullPath}`);
-    console.log(
-      'kkkk',
-      fullPath,
-      'pathPrefix:',
-      pathPrefix,
-      'path:',
-      path,
-      pathname,
-      isActive,
-      `/${fullPath}`,
-    );
+
     return (
       <Sidebar.MenuItem>
         <Sidebar.MenuButton

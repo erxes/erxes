@@ -1,5 +1,3 @@
-'use client';
-
 import { TaskFields } from '@/task/components/detail/TaskFields';
 import { TaskSideWidgets } from '~/widgets/relation/TaskSideWidgets';
 import { TriageFields } from '@/triage/components/TriageFields';
@@ -25,7 +23,7 @@ export const TaskDetails = ({
   if (!task && !triage) {
     return null;
   }
-  console.log('ommmm', task);
+
   return (
     <div className="h-full w-full flex overflow-auto">
       <div className="w-full xl:max-w-3xl mx-auto py-12 px-6">

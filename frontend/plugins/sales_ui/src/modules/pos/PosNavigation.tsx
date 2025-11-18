@@ -5,8 +5,7 @@ export const PosNavigation = () => {
   return (
     <NavigationMenuLinkItem
       name="POS"
-      path="pos"
-      pathPrefix="sales/pos"
+      path="sales/pos"
       icon={IconCashRegister}
     />
   );

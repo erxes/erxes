@@ -6,16 +6,14 @@ export const MainNavigation = () => {
   return (
     <>
       <NavigationMenuLinkItem
-        name="Sales Pipeline11"
-        pathPrefix="/sales"
-        path="deals"
+        name="Sales Pipeline"
+        path="sales/deals"
         icon={IconSandbox}
       />
       <NavigationMenuLinkItem
         name="POS"
         icon={IconCashRegister}
-        pathPrefix="/sales"
-        path="pos"
+        path="sales/pos"
       />
     </>
   );
