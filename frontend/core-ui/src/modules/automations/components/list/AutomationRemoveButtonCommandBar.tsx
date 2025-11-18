@@ -33,7 +33,8 @@ export const AutomationRemoveButtonCommandBar = ({
           });
           toast({
             title: 'Success',
-            variant: 'default',
+            variant: 'success',
+            description: 'Automations deleted successfully',
           });
         },
       });

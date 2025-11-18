@@ -171,10 +171,10 @@ export const handleCoreLogin = async (req: any, res) => {
         models.Users.getSecret(),
       );
 
+      await sendOnboardNotification(subdomain, models, systemUser._id);
+
       await setCookie(res, systemUser, subdomain, createToken.toString());
     }
-
-    await sendOnboardNotification(subdomain, models, user._id);
 
     return res.redirect(`https://${subdomain}.next.erxes.io`);
   } catch (e) {

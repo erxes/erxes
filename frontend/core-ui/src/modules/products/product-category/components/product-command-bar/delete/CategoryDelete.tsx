@@ -42,6 +42,7 @@ export const CategoriesDelete = ({
                 description: `${categoryCount} ${
                   categoryCount === 1 ? 'category' : 'categories'
                 } deleted successfully.`,
+                variant: 'success',
               });
 
               if (onDeleteSuccess) {

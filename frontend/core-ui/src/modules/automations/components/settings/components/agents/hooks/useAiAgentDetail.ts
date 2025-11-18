@@ -45,10 +45,17 @@ export function useAiAgentDetail() {
     const res = await mutation({
       variables: id ? { ...input, id } : input,
       onError: ({ message }) => {
-        toast({ title: 'Something went wrong', description: message });
+        toast({
+          title: 'Something went wrong',
+          description: message,
+          variant: 'destructive',
+        });
       },
       onCompleted: () => {
-        toast({ title: `Succefully ${id ? 'edited' : 'added'}` });
+        toast({
+          title: `Succefully ${id ? 'edited' : 'added'}`,
+          variant: 'success',
+        });
       },
     });
     return (res?.data || {})[responseFieldName];

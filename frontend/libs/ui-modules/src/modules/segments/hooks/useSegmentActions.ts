@@ -25,7 +25,7 @@ export const useSegmentActions = ({
     if (!contentType) {
       return toast({
         title: 'Content type is not selected',
-        color: 'bg-red-500/50 text-red-500',
+        variant: 'destructive',
       });
     }
 
@@ -76,7 +76,7 @@ export const useSegmentActions = ({
   const handleSave = (data: TSegmentForm) => {
     const mutation = segment ? segmentsEdit : segmentAdd;
 
-    let variables: any = {
+    const variables = {
       contentType: contentType,
       shouldWriteActivityLog: false,
       _id: segment ? segment?._id : undefined,
