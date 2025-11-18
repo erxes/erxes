@@ -37,7 +37,7 @@ import {
 import { 
   ICustomerRelationDocument,
   ISyncLogDocument as IMsDynamicSyncLogDocument
-} from '@/msdynamic/db/definitions/dynamic';
+} from '@/msdynamic/@types/dynamic';
 
 
 export interface IModels {

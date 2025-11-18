@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 import { IModels } from '~/connectionResolvers';
-import { ISyncLogDocument } from './db/definitions/dynamic';
+import { ISyncLogDocument } from '~/modules/msdynamic/@types/dynamic';
 import { getMsdCustomerInfo } from './utilsCustomer';
 // import { putCreateLog, putDeleteLog, putUpdateLog } from './logUtils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';

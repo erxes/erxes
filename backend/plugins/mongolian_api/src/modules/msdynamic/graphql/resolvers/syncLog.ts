@@ -1,5 +1,5 @@
 import { sendTRPCMessage } from "erxes-api-shared/utils";
-import { ISyncLogDocument } from '../../db/definitions/dynamic';
+import { ISyncLogDocument } from '~/modules/msdynamic/@types/dynamic';
 import { IContext } from '~/connectionResolvers';
 
 export default {
