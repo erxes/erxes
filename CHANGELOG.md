@@ -1,5 +1,7 @@
 # Changelog
 
+## [2.17.28](https://github.com/erxes/erxes/compare/2.17.27...2.17.28) (2025-11-19)
+
 ## <small>2.17.27 (2025-11-18)</small>
 
 * chore(calls): debug grandsteam requests ([f42d6a4](https://github.com/erxes/erxes/commit/f42d6a4))
