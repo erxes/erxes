@@ -14,12 +14,8 @@ const mutations = {
     args: any,
     context: IContext,
   ): Promise<any> => {
-    const { models, clientPortalId } = context;
+    const { models } = context;
     const { input } = args;
-
-    if (clientPortalId) {
-      input.clientPortalId = clientPortalId;
-    }
 
     return models.PostTags.createTag(input);
   },

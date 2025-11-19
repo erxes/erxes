@@ -48,6 +48,18 @@ export const GET_CORE_MODULES = (version?: boolean): IUIConfig['modules'] => {
       ],
     },
     {
+      name: 'segments',
+      icon: IconChartPie,
+      path: 'segments',
+      hasSettings: false,
+    },
+    {
+      name: 'automations',
+      icon: IconAffiliate,
+      path: 'automations',
+      hasSettings: true,
+    },
+    {
       name: 'logs',
       path: 'logs',
       settingsOnly: true,
@@ -69,18 +81,7 @@ export const GET_CORE_MODULES = (version?: boolean): IUIConfig['modules'] => {
           },
         ],
       },
-      {
-        name: 'segments',
-        icon: IconChartPie,
-        path: 'segments',
-        hasSettings: false,
-      },
-      {
-        name: 'automations',
-        icon: IconAffiliate,
-        path: 'automations',
-        hasSettings: true,
-      },
+
       {
         name: 'documents',
         icon: IconFile,

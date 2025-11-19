@@ -164,12 +164,10 @@ export function SettingsRoutes() {
             element={<ProductsSettingsRoutes />}
           />
         )}
-        {isOs && (
-          <Route
-            path={SettingsWorkspacePath.AutomationsCatchAll}
-            element={<AutomationSettingsRoutes />}
-          />
-        )}
+        <Route
+          path={SettingsWorkspacePath.AutomationsCatchAll}
+          element={<AutomationSettingsRoutes />}
+        />
 
         <Route path={SettingsWorkspacePath.Apps} element={<AppsSettings />} />
         <Route

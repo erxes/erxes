@@ -1,11 +1,11 @@
 import { IContext } from '~/connectionResolvers';
 import { BaseQueryResolver, FIELD_MAPPINGS } from '@/portal/utils/base-resolvers';
 import { getQueryBuilder } from '@/portal/utils/query-builders';
+import { Resolver } from 'erxes-api-shared/core-types';
 
 class PageQueryResolver extends BaseQueryResolver {
   async cmsPages(_parent: any, args: any, context: IContext) {
-    const { language } = args;
-    const clientPortalId = context.clientPortalId || args.clientPortalId;
+    const { language, clientPortalId } = args;
     const { models } = context;
     if (!clientPortalId) {
       throw new Error('clientPortalId is required');
@@ -25,8 +25,7 @@ class PageQueryResolver extends BaseQueryResolver {
   }
 
   async cmsPageList(_parent: any, args: any, context: IContext) {
-    const { language } = args;
-    const clientPortalId = context.clientPortalId || args.clientPortalId;
+    const { language, clientPortalId } = args;
     const { models } = context; 
     if (!clientPortalId) {
       throw new Error('clientPortalId is required');
@@ -46,8 +45,8 @@ class PageQueryResolver extends BaseQueryResolver {
   }
 
   async cmsPage(_parent: any, args: any, context: IContext) {
-    const { clientPortalId, models } = context;
-    const { _id, slug, language } = args;
+    const {  models } = context;
+    const { _id, slug, language, clientPortalId } = args;
 
     if (!_id && !slug) {
       return null;
@@ -67,15 +66,38 @@ class PageQueryResolver extends BaseQueryResolver {
       FIELD_MAPPINGS.PAGE
     );
   }
+
+  async cpPages(_parent: any, args: any, context: IContext) {
+    const { models, clientPortal } = context;
+    const { language } = args;
+
+    const query: any = {
+      clientPortalId: clientPortal._id,
+      isActive: true,
+    };
+
+    const { list } = await this.getListWithTranslations(
+      models.Pages,
+      query,
+      { ...args, clientPortalId: clientPortal._id, language },
+      FIELD_MAPPINGS.PAGE
+    );
+
+    return list;
+  }
 }
 
-const queries = {
+const queries: Record<string, Resolver> = {
   cmsPages: (_parent: any, args: any, context: IContext) =>
     new PageQueryResolver(context).cmsPages(_parent, args, context),
   cmsPageList: (_parent: any, args: any, context: IContext) =>
     new PageQueryResolver(context).cmsPageList(_parent, args, context),
   cmsPage: (_parent: any, args: any, context: IContext) =>
     new PageQueryResolver(context).cmsPage(_parent, args, context),
+};
+
+queries.cpPages.wrapperConfig = {
+  forClientPortal: true,
 };
 
 export default queries;

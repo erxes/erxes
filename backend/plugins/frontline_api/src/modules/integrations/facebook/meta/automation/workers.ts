@@ -75,7 +75,7 @@ export const facebookAutomationWorkers = {
   },
   checkCustomTrigger: async (data: ICheckTriggerData, { subdomain }) => {
     const { collectionType } = data;
-
+    console.log({ collectionType, subdomain });
     switch (collectionType) {
       case 'messages':
         return await checkMessageTrigger(subdomain, data);

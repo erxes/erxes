@@ -1,65 +1,66 @@
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IPostTagDocument } from '../../../@types/post';
+import { Resolver } from 'erxes-api-shared/core-types';
 
-const queries = {
+const getTagList = async (args: any, context: IContext) => {
+  const { models } = context;
+  const { searchValue, status, language } = args;
+  const clientPortalId = context.clientPortal._id || args.clientPortalId;
+  const query = {
+    clientPortalId,
+    ...(status && { status }),
+  };
+
+  if (searchValue) {
+    query.$or = [
+      { name: { $regex: searchValue, $options: 'i' } },
+      { slug: { $regex: searchValue, $options: 'i' } },
+    ];
+  }
+
+  const { list, totalCount, pageInfo } = await cursorPaginate({
+    model: models.PostTags,
+    params: args,
+    query,
+  });
+
+  if (!language) {
+    return { tags: list, totalCount, pageInfo };
+  }
+
+  const tagIds = list.map((tag) => tag._id);
+
+  const translations = await models.Translations.find({
+    postId: { $in: tagIds },
+    language,
+  }).lean();
+
+  // ✅ Build a translation map for O(1) lookup
+  const translationMap = translations.reduce((acc, t) => {
+    acc[t.postId.toString()] = t;
+    return acc;
+  }, {} as Record<string, any>);
+
+  const tagsWithTranslations = list.map((tag) => {
+    const translation = translationMap[tag._id.toString()];
+    return {
+      ...tag,
+      ...(translation && {
+        name: translation.title || tag.name,
+      }),
+    };
+  });
+
+  return { tags: tagsWithTranslations, totalCount, pageInfo };
+};
+
+const queries: Record<string, Resolver> = {
   /**
    * Cms tags list
    */
   async cmsTags(_parent: any, args: any, context: IContext): Promise<any> {
-    const { models } = context;
-    const {
-      searchValue,
-      status,
-      language,
-    } = args;
-    const clientPortalId = context.clientPortalId || args.clientPortalId;
-    const query = {
-      clientPortalId,
-      ...(status && { status }),
-    };
-
-    if (searchValue) {
-      query.$or = [
-        { name: { $regex: searchValue, $options: 'i' } },
-        { slug: { $regex: searchValue, $options: 'i' } },
-      ];
-    }
-
-    const { list, totalCount, pageInfo } = await cursorPaginate({
-      model: models.PostTags,
-      params: args,
-      query,
-    });
-
-    if (!language) {
-      return { tags: list, totalCount, pageInfo };
-    }
-
-    const tagIds = list.map((tag) => tag._id);
-
-    const translations = await models.Translations.find({
-      postId: { $in: tagIds },
-      language,
-    }).lean();
-
-    // ✅ Build a translation map for O(1) lookup
-    const translationMap = translations.reduce((acc, t) => {
-      acc[t.postId.toString()] = t;
-      return acc;
-    }, {} as Record<string, any>);
-
-    const tagsWithTranslations = list.map((tag) => {
-      const translation = translationMap[tag._id.toString()];
-      return {
-        ...tag,
-        ...(translation && {
-          name: translation.title || tag.name,
-        }),
-      };
-    });
-
-    return { tags: tagsWithTranslations, totalCount, pageInfo };
+    return getTagList(args, context);
   },
 
   /**
@@ -67,8 +68,7 @@ const queries = {
    */
   async cmsTag(_parent: any, args: any, context: IContext): Promise<any> {
     const { models } = context;
-    const { _id, slug, language } = args;
-    const clientPortalId = context.clientPortalId || args.clientPortalId;
+    const { _id, slug, language, clientPortalId } = args;
     if (!_id && !slug) {
       return null;
     }
@@ -101,6 +101,17 @@ const queries = {
       }),
     };
   },
+
+  /**
+   * Cms tag list for client portal
+   */
+  async cpCmsTags(_parent: any, args: any, context: IContext): Promise<any> {
+    return getTagList(args, context);
+  },
+};
+
+queries.cpCmsTags.wrapperConfig = {
+  forClientPortal: true,
 };
 
 export default queries;
