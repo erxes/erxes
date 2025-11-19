@@ -37,6 +37,7 @@ const checkIsValidCustomTigger = async (
       target,
       config,
     },
+    defaultValue: 'askdjaskdvaksvk',
   }).catch((e) =>
     debugError(`An error occurred while check trigger: ${e.message}`),
   );
