@@ -43,12 +43,17 @@ export const getPosCreateTabs = ({
       component: getCategoryComponent(
         posCategory,
         <EcommercePaymentsForm form={forms.payment} />,
-        <RestaurantPaymentsForm />,
+        <RestaurantPaymentsForm form={forms.payment} />,
       ) || <div>Please select a category first</div>,
     },
     {
       value: 'permission',
-      component: <PermissionForm form={forms.permission} />,
+      component: (
+        <PermissionForm
+          form={forms.permission}
+          onFormSubmit={handlers.handlePermissionSubmit}
+        />
+      ),
     },
     {
       value: 'product',
@@ -56,15 +61,26 @@ export const getPosCreateTabs = ({
     },
     {
       value: 'appearance',
-      component: <AppearanceForm />,
+      component: <AppearanceForm form={forms.uiConfig} />,
     },
     {
       value: 'screen',
-      component: <ScreenConfigForm />,
+      component: (
+        <ScreenConfigForm
+          onSubmit={handlers.handleScreenConfigSubmit}
+          onDataChange={handlers.handleScreenConfigSubmit}
+          form={{
+            kitchenScreen: forms.kitchenScreen,
+            waitingScreen: forms.waitingScreen,
+          }}
+        />
+      ),
     },
     {
       value: 'ebarimt',
-      component: <EbarimtConfigForm />,
+      component: (
+        <EbarimtConfigForm onDataChange={handlers.handleEbarimtConfigChange} />
+      ),
     },
     {
       value: 'finance',

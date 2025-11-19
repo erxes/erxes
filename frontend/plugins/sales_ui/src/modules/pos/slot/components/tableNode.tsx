@@ -19,7 +19,7 @@ export function TableNode({ id, data, selected }: NodeProps) {
         color: '#5E5CFF',
         width: 80,
         height: 80,
-        rounded: false,
+        rounded: 0,
         rotateAngle: 0,
         zIndex: 0,
         disabled: false,
@@ -196,13 +196,12 @@ export function TableNode({ id, data, selected }: NodeProps) {
       <div
         ref={nodeRef}
         className={`flex items-center justify-center font-medium text-center ${
-          selected ? 'ring-2 ring-white ring-opacity-80' : ''
-        }`}
+          selected ? 'ring-2 ring-white ring-opacity-80' : ''}`}
         style={{
           backgroundColor: nodeData.color || '#5E5CFF',
           width: nodeData.width || 100,
           height: nodeData.height || 80,
-          borderRadius: nodeData.rounded ? '9999px' : '6px',
+          borderRadius: `${Number(nodeData.rounded ?? 0)}px`,
           transform: `rotate(${nodeData.rotateAngle || 0}deg)`,
           zIndex: nodeData.zIndex || 0,
           color: '#ffffff',

@@ -41,9 +41,6 @@ export const PosDetailSheet = ({ children }: { children: React.ReactNode }) => {
   const setOpen = (isOpen: boolean) => {
     setCreate(isOpen);
     setRenderingPosCreate(false);
-    if (!isOpen) {
-      setTab(null);
-    }
   };
 
   return (
@@ -59,7 +56,7 @@ export const PosDetailSheet = ({ children }: { children: React.ReactNode }) => {
           'md:w-[calc(100vw-theme(spacing.4))]',
         )}
       >
-        <Sheet.Header className="border-b p-3 flex-row items-center space-y-0 gap-3">
+        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
           <Button variant="ghost" size="icon">
             <IconLayoutSidebarLeftCollapse />
           </Button>
@@ -78,7 +75,7 @@ export const PosDetailSheet = ({ children }: { children: React.ReactNode }) => {
                         )
                       }
                     >
-                      <IconList className="h-4 w-4" />
+                      <IconList className="w-4 h-4" />
                     </Button>
                   </Tooltip.Trigger>
                   <Tooltip.Content>
@@ -95,9 +92,9 @@ export const PosDetailSheet = ({ children }: { children: React.ReactNode }) => {
                       onClick={toggleFullscreen}
                     >
                       {isFullscreen ? (
-                        <IconMinimize className="h-4 w-4" />
+                        <IconMinimize className="w-4 h-4" />
                       ) : (
-                        <IconMaximize className="h-4 w-4" />
+                        <IconMaximize className="w-4 h-4" />
                       )}
                     </Button>
                   </Tooltip.Trigger>

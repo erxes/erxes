@@ -2,8 +2,9 @@ import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import {
   ReactFlow,
   Background,
-  Controls,
+  // Controls,
   ReactFlowProvider,
+  useViewport,
   type NodeMouseHandler,
   type ReactFlowInstance,
 } from '@xyflow/react';
@@ -14,12 +15,13 @@ import { isFullscreenAtom } from '../states/slot';
 import NodeControls from './nodeControl';
 import { cn } from 'erxes-ui/lib';
 import { Tabs } from 'erxes-ui/components';
+import { Spinner } from 'erxes-ui';
 import SidebarList from './sideBar';
 import SidebarDetail from './sideBarDetail';
 import MiniMapToggle from './miniMap';
 import { CustomNode, POSSlotsManagerProps } from '../types';
 import { useSlotManager } from '../hooks/customHooks';
-import { SNAP_GRID } from '@/pos/constants';
+import { SNAP_GRID, CANVAS } from '@/pos/constants';
 import { useNodeEvents } from '../hooks/useNodeEvents';
 
 const POSSlotsManager = ({
@@ -54,6 +56,7 @@ const POSSlotsManager = ({
     handleDuplicateSlot,
     arrangeNodesInGrid,
     handleAddNew,
+    handleSaveAllChanges,
   } = useSlotManager(posId, initialNodes);
 
   const [isFullscreen, setIsFullscreen] = useAtom(isFullscreenAtom);
@@ -101,7 +104,7 @@ const POSSlotsManager = ({
         updateNodePosition(selectedNode.id, { x: formX, y: formY }, true);
       }
     }
-  }, [slotDetail.left, slotDetail.top, selectedNode?.id, updateNodePosition]);
+  }, [slotDetail.left, slotDetail.top, selectedNode, updateNodePosition]);
 
   useEffect(() => {
     if (onNodesChange) {
@@ -151,18 +154,36 @@ const POSSlotsManager = ({
 
   if (slotsLoading && !hasSlots) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="text-lg text-gray-600 dark:text-gray-300">
-          Loading slots...
-        </div>
+      <div className="flex justify-center items-center min-h-[calc(100vh-150px)]">
+        <Spinner size="md" />
       </div>
     );
   }
 
+  const CanvasBounds = () => {
+    const { x, y, zoom } = useViewport();
+    return (
+      <div
+        className="pointer-events-none absolute top-0 left-0 z-[1]"
+        style={{
+          transform: `translate(${x}px, ${y}px) scale(${zoom})`,
+          transformOrigin: '0 0',
+          width: CANVAS.WIDTH,
+          height: CANVAS.HEIGHT,
+          border: '2px solid hsl(var(--border))',
+          borderRadius: 2,
+        }}
+      />
+    );
+  };
+
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="flex-1 flex relative">
-        <div className="flex-1 h-full" ref={reactFlowWrapper}>
+    <div className="flex flex-col h-screen border bg-background">
+      <div className="flex relative flex-1">
+        <div
+          className="overflow-hidden flex-1 w-full h-full"
+          ref={reactFlowWrapper}
+        >
           <ReactFlowProvider>
             <ReactFlow
               nodes={nodes}
@@ -177,12 +198,24 @@ const POSSlotsManager = ({
               fitView
               snapToGrid
               snapGrid={snapGrid}
+              nodeExtent={[
+                [0, 0],
+                [CANVAS.WIDTH, CANVAS.HEIGHT],
+              ]}
+              translateExtent={[
+                [0, 0],
+                [CANVAS.WIDTH, CANVAS.HEIGHT],
+              ]}
               onDragStart={() => setIsDragging(true)}
               onDragEnd={() => setIsDragging(false)}
               proOptions={{ hideAttribution: true }}
             >
               <Background variant={undefined} gap={12} size={1} />
-              <Controls position="bottom-right" showInteractive={false} />
+
+              <CanvasBounds />
+
+              {/* <Controls position="bottom-right" showInteractive={false} /> */}
+
               <MiniMapToggle
                 nodeStrokeWidth={3}
                 zoomable
@@ -201,6 +234,8 @@ const POSSlotsManager = ({
                   selectedNode && handleDeleteSlot(selectedNode.id)
                 }
                 onAdd={handleAddNew}
+                onSaveChanges={handleSaveAllChanges}
+                isCreating={isCreating}
               />
             </ReactFlow>
           </ReactFlowProvider>
@@ -209,7 +244,7 @@ const POSSlotsManager = ({
         {sidebarView !== 'hidden' && (
           <div
             className={cn(
-              'w-80 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-all duration-200 ease-in-out',
+              'w-80 border-l bg-background',
               isDragging ? 'opacity-50' : 'opacity-100',
             )}
           >

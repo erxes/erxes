@@ -3,12 +3,20 @@ import { SelectMember } from 'ui-modules';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PermissionFormValues, permissionSchema } from '../formSchema';
-import { useEffect, useState, useImperativeHandle, forwardRef } from 'react';
+import {
+  useEffect,
+  useState,
+  useImperativeHandle,
+  forwardRef,
+  useCallback,
+} from 'react';
 import { IPosDetail } from '@/pos/pos-detail/types/IPos';
 
 interface PermissionFormProps {
   form?: UseFormReturn<PermissionFormValues>;
   onFormSubmit?: (data: PermissionFormValues) => void;
+  // New alias prop to match PosEdit usage
+  onSubmit?: (data: PermissionFormValues) => void;
   posDetail?: IPosDetail;
 }
 
@@ -18,9 +26,9 @@ export interface PermissionFormRef {
 }
 
 const PermissionForm = forwardRef<PermissionFormRef, PermissionFormProps>(
-  ({ form: externalForm, onFormSubmit, posDetail }, ref) => {
-    const [selectedAdminId, setSelectedAdminId] = useState<string>('');
-    const [selectedCashierId, setSelectedCashierId] = useState<string>('');
+  ({ form: externalForm, onFormSubmit, onSubmit, posDetail }, ref) => {
+    const [selectedAdminIds, setSelectedAdminIds] = useState<string[]>([]);
+    const [selectedCashierIds, setSelectedCashierIds] = useState<string[]>([]);
 
     const internalForm = useForm<PermissionFormValues>({
       resolver: zodResolver(permissionSchema),
@@ -45,59 +53,64 @@ const PermissionForm = forwardRef<PermissionFormRef, PermissionFormProps>(
     const watchCashierDirectSales = form.watch('cashierDirectSales');
 
     useEffect(() => {
-      if (posDetail) {
-        const adminId =
-          posDetail.adminTeamMember || posDetail.adminIds?.[0] || '';
-        const cashierId =
-          posDetail.cashierTeamMember || posDetail.cashierIds?.[0] || '';
+      if (!posDetail) return;
 
-        setSelectedAdminId(adminId);
-        setSelectedCashierId(cashierId);
-        form.reset({
-          adminTeamMember: adminId,
-          adminPrintTempBill: posDetail.adminPrintTempBill || false,
-          adminDirectSales: posDetail.adminDirectSales || false,
-          adminDirectDiscountLimit: posDetail.adminDirectDiscountLimit || '',
-          cashierTeamMember: cashierId,
-          cashierPrintTempBill: posDetail.cashierPrintTempBill || false,
-          cashierDirectSales: posDetail.cashierDirectSales || false,
-          cashierDirectDiscountLimit:
-            posDetail.cashierDirectDiscountLimit || '',
-          adminIds: adminId ? [adminId] : [],
-          cashierIds: cashierId ? [cashierId] : [],
-          permissionConfig: posDetail.permissionConfig || {},
-        });
-      }
+      const adminIds =
+        posDetail.adminIds ||
+        (posDetail.adminTeamMember ? [posDetail.adminTeamMember] : []);
+      const cashierIds =
+        posDetail.cashierIds ||
+        (posDetail.cashierTeamMember ? [posDetail.cashierTeamMember] : []);
+
+      const pc = posDetail.permissionConfig || {};
+      const adminsCfg = pc.admins || pc.admin || {};
+      const cashiersCfg = pc.cashiers || pc.cashier || {};
+
+      const adminPrintTempBill =
+        adminsCfg.isTempBill ?? posDetail.adminPrintTempBill ?? false;
+      const adminDirectDiscountLimit =
+        adminsCfg.directDiscountLimit ??
+        posDetail.adminDirectDiscountLimit ??
+        '';
+      const adminDirectSales =
+        adminsCfg.directDiscount ?? posDetail.adminDirectSales ?? false;
+
+      const cashierPrintTempBill =
+        cashiersCfg.isTempBill ?? posDetail.cashierPrintTempBill ?? false;
+      const cashierDirectDiscountLimit =
+        cashiersCfg.directDiscountLimit ??
+        posDetail.cashierDirectDiscountLimit ??
+        '';
+      const cashierDirectSales =
+        cashiersCfg.directDiscount ?? posDetail.cashierDirectSales ?? false;
+
+      setSelectedAdminIds(adminIds);
+      setSelectedCashierIds(cashierIds);
+      form.reset({
+        adminTeamMember: adminIds[0] || '',
+        adminPrintTempBill: Boolean(adminPrintTempBill),
+        adminDirectSales: Boolean(adminDirectSales),
+        adminDirectDiscountLimit: String(adminDirectDiscountLimit || ''),
+        cashierTeamMember: cashierIds[0] || '',
+        cashierPrintTempBill: Boolean(cashierPrintTempBill),
+        cashierDirectSales: Boolean(cashierDirectSales),
+        cashierDirectDiscountLimit: String(cashierDirectDiscountLimit || ''),
+        adminIds: adminIds,
+        cashierIds: cashierIds,
+        permissionConfig: posDetail.permissionConfig || {},
+      });
     }, [posDetail, form]);
 
     const getAdminIds = (): string[] => {
       const formAdminIds = form.getValues('adminIds') || [];
-      const currentAdminId =
-        selectedAdminId || form.getValues('adminTeamMember');
-
-      if (currentAdminId && !formAdminIds.includes(currentAdminId)) {
-        return [currentAdminId];
-      }
-      return formAdminIds.length > 0
-        ? formAdminIds
-        : currentAdminId
-        ? [currentAdminId]
-        : [];
+      return selectedAdminIds.length > 0 ? selectedAdminIds : formAdminIds;
     };
 
     const getCashierIds = (): string[] => {
       const formCashierIds = form.getValues('cashierIds') || [];
-      const currentCashierId =
-        selectedCashierId || form.getValues('cashierTeamMember');
-
-      if (currentCashierId && !formCashierIds.includes(currentCashierId)) {
-        return [currentCashierId];
-      }
-      return formCashierIds.length > 0
-        ? formCashierIds
-        : currentCashierId
-        ? [currentCashierId]
-        : [];
+      return selectedCashierIds.length > 0
+        ? selectedCashierIds
+        : formCashierIds;
     };
 
     useImperativeHandle(ref, () => ({
@@ -105,71 +118,80 @@ const PermissionForm = forwardRef<PermissionFormRef, PermissionFormProps>(
       getCashierIds,
     }));
 
-    const transformFormData = (
-      values: PermissionFormValues,
-    ): PermissionFormValues => {
-      const adminIds = getAdminIds();
-      const cashierIds = getCashierIds();
+    const transformFormData = useCallback(
+      (values: PermissionFormValues): PermissionFormValues => {
+        const adminIds = getAdminIds();
+        const cashierIds = getCashierIds();
 
-      return {
-        ...values,
-        adminIds,
-        cashierIds,
-        permissionConfig: {
-          admin: {
-            printTempBill: values.adminPrintTempBill || false,
-            directSales: values.adminDirectSales || false,
-            directDiscountLimit: values.adminDirectDiscountLimit || '',
+        return {
+          ...values,
+          adminIds,
+          cashierIds,
+          permissionConfig: {
+            admins: {
+              isTempBill: values.adminPrintTempBill || false,
+              directDiscount:
+                Boolean(values.adminDirectSales) ||
+                Number(values.adminDirectDiscountLimit || 0) > 0,
+              directDiscountLimit: Number(values.adminDirectDiscountLimit || 0),
+            },
+            cashiers: {
+              isTempBill: values.cashierPrintTempBill || false,
+              directDiscount:
+                Boolean(values.cashierDirectSales) ||
+                Number(values.cashierDirectDiscountLimit || 0) > 0,
+              directDiscountLimit: Number(
+                values.cashierDirectDiscountLimit || 0,
+              ),
+            },
           },
-          cashier: {
-            printTempBill: values.cashierPrintTempBill || false,
-            directSales: values.cashierDirectSales || false,
-            directDiscountLimit: values.cashierDirectDiscountLimit || '',
-          },
-        },
-      };
-    };
+        };
+      },
+      [selectedAdminIds, selectedCashierIds],
+    );
 
     useEffect(() => {
-      if (onFormSubmit) {
-        const subscription = form.watch((values) => {
-          if (values) {
-            const transformedData = transformFormData(
-              values as PermissionFormValues,
-            );
-            onFormSubmit(transformedData);
-          }
-        });
+      if (!onFormSubmit) return;
+      const subscription = form.watch((values) => {
+        if (values) {
+          const transformedData = transformFormData(
+            values as PermissionFormValues,
+          );
+          onFormSubmit(transformedData);
+        }
+      });
 
-        return () => subscription.unsubscribe();
-      }
-    }, [form, onFormSubmit, selectedAdminId, selectedCashierId]);
+      return () => subscription.unsubscribe();
+    }, [form, onFormSubmit, transformFormData]);
 
     const handleSubmit = async (data: PermissionFormValues) => {
       const transformedData = transformFormData(data);
-      if (onFormSubmit) {
-        onFormSubmit(transformedData);
+      const handler = onFormSubmit || onSubmit;
+      if (handler) {
+        handler(transformedData);
       }
     };
 
     const handleAdminMemberChange = (value: string | string[] | null) => {
-      const userId = Array.isArray(value) ? value[0] : value;
-      const finalUserId = userId || '';
+      const userIds = Array.isArray(value) ? value : value ? [value] : [];
 
-      setSelectedAdminId(finalUserId);
-      form.setValue('adminTeamMember', finalUserId, { shouldValidate: true });
-      form.setValue('adminIds', finalUserId ? [finalUserId] : [], {
+      setSelectedAdminIds(userIds);
+      form.setValue('adminTeamMember', userIds[0] || '', {
+        shouldValidate: true,
+      });
+      form.setValue('adminIds', userIds, {
         shouldValidate: true,
       });
     };
 
     const handleCashierMemberChange = (value: string | string[] | null) => {
-      const userId = Array.isArray(value) ? value[0] : value;
-      const finalUserId = userId || '';
+      const userIds = Array.isArray(value) ? value : value ? [value] : [];
 
-      setSelectedCashierId(finalUserId);
-      form.setValue('cashierTeamMember', finalUserId, { shouldValidate: true });
-      form.setValue('cashierIds', finalUserId ? [finalUserId] : [], {
+      setSelectedCashierIds(userIds);
+      form.setValue('cashierTeamMember', userIds[0] || '', {
+        shouldValidate: true,
+      });
+      form.setValue('cashierIds', userIds, {
         shouldValidate: true,
       });
     };
@@ -183,25 +205,27 @@ const PermissionForm = forwardRef<PermissionFormRef, PermissionFormProps>(
           >
             <div className="space-y-4">
               <div className="flex flex-col gap-3">
-                <h2 className="text-[#4F46E5] text-lg font-semibold">ADMINS</h2>
-                <p className="text-[#A1A1AA] text-xs font-semibold">
+                <h2 className="text-lg font-semibold text-primary">ADMINS</h2>
+
+                {/* <p className="text-xs font-semibold text-muted-foreground">
                   POS ADMIN
-                </p>
+                </p> */}
               </div>
 
               <Form.Field
                 control={form.control}
-                name="adminTeamMember"
+                name="adminIds"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="text-gray-600">
-                      Select admin team member
+                    <Form.Label className="text-sm">
+                      Select admin team members
                     </Form.Label>
                     <Form.Control>
                       <SelectMember
-                        value={selectedAdminId || undefined}
+                        mode="multiple"
+                        value={selectedAdminIds}
                         onValueChange={handleAdminMemberChange}
-                        className="w-full justify-start bg-white hover:bg-gray-50"
+                        className="justify-start w-full"
                       />
                     </Form.Control>
                     <Form.Message />
@@ -215,8 +239,8 @@ const PermissionForm = forwardRef<PermissionFormRef, PermissionFormProps>(
                   name="adminPrintTempBill"
                   render={({ field }) => (
                     <Form.Item>
-                      <div className="flex gap-4 flex-col">
-                        <Form.Label className="text-[#71717A] text-sm font-medium uppercase">
+                      <div className="flex flex-col gap-4">
+                        <Form.Label className="text-sm font-medium uppercase">
                           IS PRINT TEMP BILL
                         </Form.Label>
                         <Form.Control>
@@ -236,8 +260,8 @@ const PermissionForm = forwardRef<PermissionFormRef, PermissionFormProps>(
                   name="adminDirectSales"
                   render={({ field }) => (
                     <Form.Item>
-                      <div className="flex gap-4 flex-col">
-                        <Form.Label className="text-[#71717A] text-sm font-medium uppercase">
+                      <div className="flex flex-col gap-4">
+                        <Form.Label className="text-sm font-medium uppercase">
                           DIRECT SALES
                         </Form.Label>
                         <Form.Control>
@@ -259,14 +283,14 @@ const PermissionForm = forwardRef<PermissionFormRef, PermissionFormProps>(
                   name="adminDirectDiscountLimit"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label className="text-gray-500 text-sm">
+                      <Form.Label className="text-sm">
                         DIRECT DISCOUNT LIMIT
                       </Form.Label>
                       <Form.Control>
                         <Input
                           {...field}
                           placeholder="Write here"
-                          className="h-10"
+                          className="h-8"
                         />
                       </Form.Control>
                       <Form.Message />
@@ -276,29 +300,29 @@ const PermissionForm = forwardRef<PermissionFormRef, PermissionFormProps>(
               )}
             </div>
 
-            <div className="space-y-4 pt-6 border-t">
+            <div className="pt-6 space-y-4 border-t">
               <div className="flex flex-col gap-3">
-                <h2 className="text-[#4F46E5] text-lg font-semibold">
-                  Cashiers
-                </h2>
-                <p className="text-[#A1A1AA] text-xs font-semibold">
+                <h2 className="text-lg font-semibold text-primary">Cashiers</h2>
+
+                {/* <p className="text-xs font-semibold text-muted-foreground">
                   Pos Cashier
-                </p>
+                </p> */}
               </div>
 
               <Form.Field
                 control={form.control}
-                name="cashierTeamMember"
+                name="cashierIds"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="text-gray-600">
-                      Choose cashier team member
+                    <Form.Label className="text-sm">
+                      Choose cashier team members
                     </Form.Label>
                     <Form.Control>
                       <SelectMember
-                        value={selectedCashierId || undefined}
+                        mode="multiple"
+                        value={selectedCashierIds}
                         onValueChange={handleCashierMemberChange}
-                        className="w-full justify-start bg-white hover:bg-gray-50"
+                        className="justify-start w-full"
                       />
                     </Form.Control>
                     <Form.Message />
@@ -312,8 +336,8 @@ const PermissionForm = forwardRef<PermissionFormRef, PermissionFormProps>(
                   name="cashierPrintTempBill"
                   render={({ field }) => (
                     <Form.Item>
-                      <div className="flex gap-4 flex-col">
-                        <Form.Label className="text-[#71717A] text-sm font-medium uppercase">
+                      <div className="flex flex-col gap-4">
+                        <Form.Label className="text-sm font-medium uppercase">
                           IS PRINT TEMP BILL
                         </Form.Label>
                         <Form.Control>
@@ -333,8 +357,8 @@ const PermissionForm = forwardRef<PermissionFormRef, PermissionFormProps>(
                   name="cashierDirectSales"
                   render={({ field }) => (
                     <Form.Item>
-                      <div className="flex gap-4 flex-col">
-                        <Form.Label className="text-[#71717A] text-sm font-medium uppercase">
+                      <div className="flex flex-col gap-4">
+                        <Form.Label className="text-sm font-medium uppercase">
                           DIRECT SALES
                         </Form.Label>
                         <Form.Control>
@@ -356,14 +380,14 @@ const PermissionForm = forwardRef<PermissionFormRef, PermissionFormProps>(
                   name="cashierDirectDiscountLimit"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label className="text-gray-500 text-sm">
+                      <Form.Label className="text-sm">
                         DIRECT DISCOUNT LIMIT
                       </Form.Label>
                       <Form.Control>
                         <Input
                           {...field}
                           placeholder="Write here"
-                          className="h-10"
+                          className="h-8"
                         />
                       </Form.Control>
                       <Form.Message />
@@ -398,13 +422,31 @@ export const getPermissionFormValues = (
   form: UseFormReturn<PermissionFormValues>,
 ) => {
   const values = form.getValues();
+  const adminIds =
+    values.adminIds || (values.adminTeamMember ? [values.adminTeamMember] : []);
+  const cashierIds =
+    values.cashierIds ||
+    (values.cashierTeamMember ? [values.cashierTeamMember] : []);
+
   return {
     ...values,
-    adminIds:
-      values.adminIds ||
-      (values.adminTeamMember ? [values.adminTeamMember] : []),
-    cashierIds:
-      values.cashierIds ||
-      (values.cashierTeamMember ? [values.cashierTeamMember] : []),
+    adminIds,
+    cashierIds,
+    permissionConfig: {
+      admins: {
+        isTempBill: values.adminPrintTempBill || false,
+        directDiscount:
+          Boolean(values.adminDirectSales) ||
+          Number(values.adminDirectDiscountLimit || 0) > 0,
+        directDiscountLimit: Number(values.adminDirectDiscountLimit || 0),
+      },
+      cashiers: {
+        isTempBill: values.cashierPrintTempBill || false,
+        directDiscount:
+          Boolean(values.cashierDirectSales) ||
+          Number(values.cashierDirectDiscountLimit || 0) > 0,
+        directDiscountLimit: Number(values.cashierDirectDiscountLimit || 0),
+      },
+    },
   };
 };

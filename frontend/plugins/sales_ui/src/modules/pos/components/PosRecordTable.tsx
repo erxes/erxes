@@ -33,6 +33,7 @@ export const PosRecordTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
+
       <PosCommandBar />
     </RecordTable.Provider>
   );

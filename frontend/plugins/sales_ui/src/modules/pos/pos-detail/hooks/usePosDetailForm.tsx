@@ -87,15 +87,35 @@ export const usePosDetailForms = (posDetail?: IPosDetail) => {
     const cashierId =
       posDetail.cashierTeamMember || posDetail.cashierIds?.[0] || '';
 
+    const pc = posDetail.permissionConfig || {};
+    const adminsCfg = pc.admins || pc.admin || {};
+    const cashiersCfg = pc.cashiers || pc.cashier || {};
+
+    const adminPrintTempBill =
+      adminsCfg.isTempBill ?? posDetail.adminPrintTempBill ?? false;
+    const adminDirectDiscountLimit =
+      adminsCfg.directDiscountLimit ?? posDetail.adminDirectDiscountLimit ?? '';
+    const adminDirectSales =
+      adminsCfg.directDiscount ?? posDetail.adminDirectSales ?? false;
+
+    const cashierPrintTempBill =
+      cashiersCfg.isTempBill ?? posDetail.cashierPrintTempBill ?? false;
+    const cashierDirectDiscountLimit =
+      cashiersCfg.directDiscountLimit ??
+      posDetail.cashierDirectDiscountLimit ??
+      '';
+    const cashierDirectSales =
+      cashiersCfg.directDiscount ?? posDetail.cashierDirectSales ?? false;
+
     permissionForm.reset({
       adminTeamMember: adminId,
-      adminPrintTempBill: posDetail.adminPrintTempBill || false,
-      adminDirectSales: posDetail.adminDirectSales || false,
-      adminDirectDiscountLimit: posDetail.adminDirectDiscountLimit || '',
+      adminPrintTempBill: Boolean(adminPrintTempBill),
+      adminDirectSales: Boolean(adminDirectSales),
+      adminDirectDiscountLimit: String(adminDirectDiscountLimit || ''),
       cashierTeamMember: cashierId,
-      cashierPrintTempBill: posDetail.cashierPrintTempBill || false,
-      cashierDirectSales: posDetail.cashierDirectSales || false,
-      cashierDirectDiscountLimit: posDetail.cashierDirectDiscountLimit || '',
+      cashierPrintTempBill: Boolean(cashierPrintTempBill),
+      cashierDirectSales: Boolean(cashierDirectSales),
+      cashierDirectDiscountLimit: String(cashierDirectDiscountLimit || ''),
       adminIds: adminId ? [adminId] : [...(posDetail.adminIds || [])],
       cashierIds: cashierId ? [cashierId] : [...(posDetail.cashierIds || [])],
       permissionConfig: posDetail.permissionConfig || {},
@@ -157,6 +177,7 @@ export const usePosDetailForms = (posDetail?: IPosDetail) => {
     paymentForm.reset({
       paymentIds: [...(posDetail.paymentIds || [])],
       paymentTypes: [...(posDetail.paymentTypes || [])],
+      erxesAppToken: (posDetail as any).erxesAppToken || '',
     });
 
     deliveryConfigForm.reset({

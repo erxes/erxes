@@ -1,28 +1,35 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import { ApolloError, OperationVariables, useMutation } from '@apollo/client';
 import { IPos } from '../types/pos';
 import { mutations, queries } from '../graphql';
+
+type RemovePosOptions = {
+  variables?: OperationVariables;
+  queryVariables?: OperationVariables;
+  onCompleted?: () => void;
+  onError?: (error: ApolloError) => void;
+};
 
 export const useRemovePos = () => {
   const [_removePos, { loading, error }] = useMutation(mutations.posRemove);
 
   const removePos = async (
     posIds: string | string[],
-    options?: OperationVariables,
+    options?: RemovePosOptions,
   ) => {
     const idsArray = Array.isArray(posIds) ? posIds : [posIds];
-    
+
     try {
       await _removePos({
         ...options,
         variables: {
           _id: posIds,
-          ...options?.variables
+          ...options?.variables,
         },
         update: (cache) => {
           try {
-            const queryVariables = options?.queryVariables || { 
-              perPage: 30, 
-              dateFilters: null 
+            const queryVariables = options?.queryVariables || {
+              perPage: 30,
+              dateFilters: null,
             };
 
             cache.updateQuery(
@@ -30,35 +37,27 @@ export const useRemovePos = () => {
                 query: queries.posList,
                 variables: queryVariables,
               },
-              (data) => {
-                if (!data?.posMain) return data;
+              (data: any) => {
+                if (!data?.posList) return data;
 
-                const { posMain } = data;
-                const filteredList = posMain.list.filter(
-                  (pos: IPos) => !idsArray.includes(pos._id)
+                const filteredList = (data.posList as IPos[]).filter(
+                  (pos: IPos) => !idsArray.includes(pos._id),
                 );
 
-                const removedCount = posMain.list.length - filteredList.length;
-
                 return {
-                  posMain: {
-                    ...posMain,
-                    list: filteredList,
-                    totalCount: Math.max(0, posMain.totalCount - removedCount),
-                  },
+                  ...data,
+                  posList: filteredList,
                 };
               },
             );
           } catch (cacheError) {
-            console.warn('Failed to update cache after pos removal:', cacheError);
+            console.warn(
+              'Failed to update cache after pos removal:',
+              cacheError,
+            );
           }
         },
-        optimisticResponse: {
-          posRemove: {
-            __typename: 'Mutation',
-            success: true,
-          },
-        },
+        optimisticResponse: { posRemove: true },
       });
     } catch (mutationError) {
       console.error('Failed to remove pos:', mutationError);
@@ -66,9 +65,9 @@ export const useRemovePos = () => {
     }
   };
 
-  return { 
-    removePos, 
-    loading, 
-    error 
+  return {
+    removePos,
+    loading,
+    error,
   };
 };

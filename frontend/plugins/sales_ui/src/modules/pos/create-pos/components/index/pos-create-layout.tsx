@@ -26,9 +26,9 @@ export const PosCreateTabContent: React.FC<PosTabContentProps> = ({
 
   if (value !== 'overview' && !hasCategorySelected) {
     return (
-      <div className="flex-auto overflow-hidden flex items-center justify-center h-full">
-        <div className="text-center p-8 rounded-lg bg-yellow-50 border border-yellow-200">
-          <h3 className="text-lg font-medium text-yellow-800 mb-2">
+      <div className="flex overflow-hidden flex-auto justify-center items-center h-full">
+        <div className="p-8 text-center bg-yellow-50 rounded-lg border border-yellow-200">
+          <h3 className="mb-2 text-lg font-medium text-yellow-800">
             Category Selection Required
           </h3>
           <p className="text-yellow-700">
@@ -39,7 +39,7 @@ export const PosCreateTabContent: React.FC<PosTabContentProps> = ({
     );
   }
 
-  return <div className="flex-auto overflow-auto">{children}</div>;
+  return <div className="overflow-auto flex-auto">{children}</div>;
 };
 
 export const PosCreateStepper: React.FC<PosCreateStepperProps> = ({
@@ -205,15 +205,15 @@ export const PosCreateLayout: React.FC<PosLayoutProps> = ({
 
   return (
     <PosDetailSheet>
-      <div className="flex h-auto flex-auto overflow-auto bg-white">
-        <div className="flex flex-col flex-auto min-h-full overflow-hidden">
+      <div className="flex overflow-auto flex-auto h-auto bg-background">
+        <div className="flex overflow-hidden flex-col flex-auto min-h-full">
           <Resizable.PanelGroup
             direction="horizontal"
-            className="flex-auto min-h-full overflow-hidden"
+            className="overflow-hidden flex-auto min-h-full"
           >
             <Resizable.Panel defaultSize={75} minSize={30}>
               <div className="flex flex-col h-full">
-                <div className="flex-1 overflow-auto min-h-0">
+                <div className="overflow-auto flex-1 min-h-0">
                   <PosCreateStepper>{children}</PosCreateStepper>
                 </div>
 

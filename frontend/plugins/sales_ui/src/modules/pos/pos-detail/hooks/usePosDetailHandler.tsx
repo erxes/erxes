@@ -9,7 +9,6 @@ import {
   UiConfigFormValues,
   PaymentFormValues,
   DeliveryConfigFormValues,
-  ScreenConfigFormValues,
 } from '../../create-pos/components/formSchema';
 import { usePosEdit } from '../../hooks/usePosEdit';
 import {
@@ -102,7 +101,6 @@ export const useLocalPosDetailHandlers = ({
           kioskExcludeCategoryIds: data.kioskExcludeCategoryIds,
           kioskExcludeProductIds: data.kioskExcludeProductIds,
           checkExcludeCategoryIds: data.checkExcludeCategoryIds,
-          productGroups: data.productGroups,
         },
       },
       [
@@ -112,7 +110,6 @@ export const useLocalPosDetailHandlers = ({
         'kioskExcludeCategoryIds',
         'kioskExcludeProductIds',
         'checkExcludeCategoryIds',
-        'productGroups',
       ],
     );
   };
@@ -132,23 +129,16 @@ export const useLocalPosDetailHandlers = ({
     );
   };
 
-  const handleScreenConfigSubmit = async (data: ScreenConfigFormValues) => {
+  const handleScreenConfigSubmit = async (data: {
+    kitchenScreen: IScreenConfig;
+    waitingScreen: IScreenConfig;
+  }) => {
     await posEdit(
       {
         variables: {
           _id: posDetail._id,
-          kitchenScreen: {
-            isActive: data.isActive,
-            type: data.type,
-            showType: data.showType,
-            isPrint: data.isPrint,
-          },
-          waitingScreen: {
-            isActive: data.isActive,
-            type: data.type,
-            value: data.value,
-            contentUrl: data.contentUrl,
-          },
+          kitchenScreen: data.kitchenScreen,
+          waitingScreen: data.waitingScreen,
         },
       },
       ['kitchenScreen', 'waitingScreen'],
@@ -184,9 +174,10 @@ export const useLocalPosDetailHandlers = ({
           _id: posDetail._id,
           paymentIds: data.paymentIds || [],
           paymentTypes: data.paymentTypes || [],
+          erxesAppToken: (data as any)?.erxesAppToken,
         },
       },
-      ['paymentIds', 'paymentTypes'],
+      ['paymentIds', 'paymentTypes', 'erxesAppToken'],
     );
   };
 
@@ -204,6 +195,7 @@ export const useLocalPosDetailHandlers = ({
             deliveryProduct: data.deliveryProduct || '',
             watchedUserIds: data.watchedUserIds || [],
             assignedUserIds: data.assignedUserIds || [],
+            mapField: data.mapField || '',
           },
         },
       },
@@ -211,23 +203,16 @@ export const useLocalPosDetailHandlers = ({
     );
   };
 
-  const handleScreenConfigSubmitNew = async (data: IScreenConfig) => {
+  const handleScreenConfigSubmitNew = async (data: {
+    kitchenScreen: IScreenConfig;
+    waitingScreen: IScreenConfig;
+  }) => {
     await posEdit(
       {
         variables: {
           _id: posDetail._id,
-          kitchenScreen: {
-            isActive: data.isActive,
-            type: data.type,
-            showType: data.showType,
-            isPrint: data.isPrint,
-          },
-          waitingScreen: {
-            isActive: data.isActive,
-            type: data.type,
-            value: data.value,
-            contentUrl: data.contentUrl,
-          },
+          kitchenScreen: data.kitchenScreen,
+          waitingScreen: data.waitingScreen,
         },
       },
       ['kitchenScreen', 'waitingScreen'],

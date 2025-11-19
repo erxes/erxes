@@ -1,5 +1,8 @@
+import React from 'react';
 import { usePosEdit } from '../../hooks/usePosEdit';
-import PermissionForm, { getPermissionFormValues } from '../../create-pos/components/permission/permission';
+import PermissionForm, {
+  getPermissionFormValues,
+} from '../../create-pos/components/permission/permission';
 import { usePosDetail } from '../hooks/useDetail';
 import { usePosDetailForms } from '../hooks/usePosDetailForm';
 import { useLocalPosDetailHandlers } from '../hooks/usePosDetailHandler';
@@ -14,12 +17,21 @@ import EbarimtConfigForm from '../../create-pos/components/config/ebarimt-config
 import DeliveryConfigForm from '../../create-pos/components/delivery/delivery';
 import SyncCardForm from '../../create-pos/components/sync/sync';
 import POSSlotsManager from '../../slot/components/slot';
+import { useUpdatePosSlots } from '@/pos/hooks/useSlotAdd';
+import { CustomNode } from '@/pos/slot/types';
 import { useAtom } from 'jotai';
+import { useQueryState } from 'erxes-ui';
 import { posCategoryAtom } from '../../create-pos/states/posCategory';
+import { Spinner } from 'erxes-ui';
+import { IScreenConfig } from '@/pos/pos-detail/types/IPos';
+import { EbarimtConfigFormValues } from '../../create-pos/components/formSchema';
+import { CardsConfig } from '../../create-pos/types/syncCard';
 
 export const PosEdit = () => {
   const { posDetail, loading, error } = usePosDetail();
-  const { posEdit } = usePosEdit();
+  const { posEdit, loading: posEditLoading } = usePosEdit();
+  const [, setPosId] = useQueryState<string>('pos_id');
+
   const {
     basicInfoForm,
     permissionForm,
@@ -31,12 +43,24 @@ export const PosEdit = () => {
   } = usePosDetailForms(posDetail);
 
   const [posCategory] = useAtom(posCategoryAtom);
+  const { updatePosSlots } = useUpdatePosSlots();
+  const [slotNodes, setSlotNodes] = React.useState<CustomNode[] | null>(null);
+  const [screenConfigData, setScreenConfigData] = React.useState<{
+    kitchenScreen: IScreenConfig;
+    waitingScreen: IScreenConfig;
+  } | null>(null);
+  const [ebarimtConfigData, setEbarimtConfigData] =
+    React.useState<EbarimtConfigFormValues | null>(null);
+  const [syncCardConfigData, setSyncCardConfigData] =
+    React.useState<CardsConfig | null>(null);
 
   const {
     permissionFormRef,
     handleAppearanceSubmit,
     handleFinanceSubmit,
     handleScreenConfigSubmitNew,
+    handlePaymentSubmit,
+    handlePermissionSubmit,
   } = useLocalPosDetailHandlers({
     posDetail,
     basicInfoForm,
@@ -48,11 +72,8 @@ export const PosEdit = () => {
   if (loading) {
     return (
       <PosEditLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
-            <p>Loading POS details...</p>
-          </div>
+        <div className="flex justify-center items-center min-h-[calc(100vh-150px)]">
+          <Spinner size="md" />
         </div>
       </PosEditLayout>
     );
@@ -61,11 +82,7 @@ export const PosEdit = () => {
   if (error) {
     return (
       <PosEditLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center text-red-600">
-            <p>Error loading POS details: {error.message}</p>
-          </div>
-        </div>
+        <code>Error loading POS details: {error.message}</code>
       </PosEditLayout>
     );
   }
@@ -73,11 +90,7 @@ export const PosEdit = () => {
   if (!posDetail) {
     return (
       <PosEditLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <p>POS not found</p>
-          </div>
-        </div>
+        <code>POS not found</code>
       </PosEditLayout>
     );
   }
@@ -117,12 +130,19 @@ export const PosEdit = () => {
       kioskExcludeCategoryIds: productData?.kioskExcludeCategoryIds || [],
       kioskExcludeProductIds: productData?.kioskExcludeProductIds || [],
       checkExcludeCategoryIds: productData?.checkExcludeCategoryIds || [],
+      productGroups: productData?.productGroups || [],
+      isCheckRemainder: productData?.isCheckRemainder || false,
+      banFractions: productData?.banFractions || false,
       paymentIds: paymentData?.paymentIds || [],
       paymentTypes: paymentData?.paymentTypes || [],
+      erxesAppToken: (paymentData as any)?.erxesAppToken,
       uiOptions: uiConfigData?.uiOptions,
       beginNumber: uiConfigData?.beginNumber,
       maxSkipNumber: uiConfigData?.maxSkipNumber,
       checkRemainder: uiConfigData?.checkRemainder,
+      kitchenScreen: screenConfigData?.kitchenScreen,
+      waitingScreen: screenConfigData?.waitingScreen,
+      ebarimtConfig: ebarimtConfigData || undefined,
       erkhetConfig: financeData
         ? {
             isSyncErkhet: financeData.isSyncErkhet,
@@ -146,8 +166,10 @@ export const PosEdit = () => {
             deliveryProduct: deliveryData.deliveryProduct || '',
             watchedUserIds: deliveryData.watchedUserIds || [],
             assignedUserIds: deliveryData.assignedUserIds || [],
+            mapField: deliveryData.mapField || '',
           }
         : undefined,
+      cardsConfig: syncCardConfigData || undefined,
     };
 
     const fieldsToUpdate = [
@@ -173,17 +195,57 @@ export const PosEdit = () => {
       'kioskExcludeCategoryIds',
       'kioskExcludeProductIds',
       'checkExcludeCategoryIds',
+      'isCheckRemainder',
+      'banFractions',
       'paymentIds',
       'paymentTypes',
+      'erxesAppToken',
       'uiOptions',
       'beginNumber',
       'maxSkipNumber',
       'checkRemainder',
+      'kitchenScreen',
+      'waitingScreen',
+      'ebarimtConfig',
       'erkhetConfig',
       'deliveryConfig',
+      'cardsConfig',
     ];
 
-    await posEdit({ variables: combinedData }, fieldsToUpdate);
+    const runSlotSave = async () => {
+      if (!posDetail?._id) return;
+      if (!slotNodes || slotNodes.length === 0) return;
+
+      const slots = slotNodes.map((node) => {
+        const x = node.position?.x ?? node.data.positionX ?? 0;
+        const y = node.position?.y ?? node.data.positionY ?? 0;
+        return {
+          _id: node.id,
+          posId: posDetail._id,
+          name: node.data.label || `TABLE ${node.id}`,
+          code: node.data.code || node.id,
+          option: {
+            width: node.data.width || 80,
+            height: node.data.height || 80,
+            top: y,
+            left: x,
+            rotateAngle: node.data.rotateAngle || 0,
+            borderRadius: Number(node.data.rounded) || 0,
+            color: node.data.color || '#4F46E5',
+            zIndex: node.data.zIndex || 0,
+            isShape: false,
+          },
+        };
+      });
+
+      await updatePosSlots({ variables: { posId: posDetail._id, slots } });
+    };
+
+    await Promise.all([
+      posEdit({ variables: combinedData }, fieldsToUpdate),
+      runSlotSave(),
+    ]);
+    setPosId(null);
   };
 
   return (
@@ -191,6 +253,7 @@ export const PosEdit = () => {
       posDetail={posDetail}
       form={basicInfoForm}
       onFinalSubmit={handleFinalSubmit}
+      isSubmitting={posEditLoading}
     >
       <PosEditTabContent value="properties">
         <RestaurantForm
@@ -201,15 +264,24 @@ export const PosEdit = () => {
       </PosEditTabContent>
 
       <PosEditTabContent value="payments">
-        <RestaurantPaymentsForm posDetail={posDetail} />
+        <RestaurantPaymentsForm
+          posDetail={posDetail}
+          form={paymentForm}
+          onFormSubmit={handlePaymentSubmit}
+        />
       </PosEditTabContent>
 
       <PosEditTabContent value="permission">
-        <PermissionForm form={permissionForm} />
+        <PermissionForm
+          ref={permissionFormRef}
+          form={permissionForm}
+          posDetail={posDetail}
+          onSubmit={handlePermissionSubmit}
+        />
       </PosEditTabContent>
 
       <PosEditTabContent value="product">
-        <ProductForm form={productForm} />
+        <ProductForm form={productForm} posDetail={posDetail} />
       </PosEditTabContent>
 
       <PosEditTabContent value="appearance">
@@ -217,6 +289,7 @@ export const PosEdit = () => {
           posDetail={posDetail}
           isReadOnly={false}
           onSubmit={handleAppearanceSubmit}
+          form={uiConfigForm}
         />
       </PosEditTabContent>
 
@@ -224,11 +297,15 @@ export const PosEdit = () => {
         <ScreenConfigForm
           posDetail={posDetail}
           onSubmit={handleScreenConfigSubmitNew}
+          onDataChange={setScreenConfigData}
         />
       </PosEditTabContent>
 
       <PosEditTabContent value="ebarimt">
-        <EbarimtConfigForm posDetail={posDetail} />
+        <EbarimtConfigForm
+          posDetail={posDetail}
+          onDataChange={setEbarimtConfigData}
+        />
       </PosEditTabContent>
 
       <PosEditTabContent value="finance">
@@ -245,7 +322,10 @@ export const PosEdit = () => {
       </PosEditTabContent>
 
       <PosEditTabContent value="sync">
-        <SyncCardForm posDetail={posDetail} />
+        <SyncCardForm
+          posDetail={posDetail}
+          onDataChange={setSyncCardConfigData}
+        />
       </PosEditTabContent>
 
       {posCategory === 'restaurant' && (
@@ -253,8 +333,8 @@ export const PosEdit = () => {
           <POSSlotsManager
             posId={posDetail._id}
             initialNodes={[]}
-            onNodesChange={() => {}}
             isCreating={false}
+            onNodesChange={(nodes) => setSlotNodes(nodes as CustomNode[])}
           />
         </PosEditTabContent>
       )}

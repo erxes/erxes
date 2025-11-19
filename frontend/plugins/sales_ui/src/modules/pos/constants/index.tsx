@@ -1,17 +1,23 @@
 import { StepConfig } from '../pos-detail/types/IPosLayout';
 import { CustomNode } from '../slot/types';
 
-export type AllowedPosType = 'eat' | 'take' | 'delivery' | 'loss' | 'spend' | 'reject';
+export type AllowedPosType =
+  | 'eat'
+  | 'take'
+  | 'delivery'
+  | 'loss'
+  | 'spend'
+  | 'reject';
 
 export const DEFAULT_ALLOW_TYPE: AllowedPosType = 'eat';
 
 export const ALLOWED_TYPE_VALUES: readonly AllowedPosType[] = [
-  'eat', 
-  'take', 
-  'delivery', 
-  'loss', 
-  'spend', 
-  'reject'
+  'eat',
+  'take',
+  'delivery',
+  'loss',
+  'spend',
+  'reject',
 ] as const;
 
 export const ALLOW_TYPES = [
@@ -87,14 +93,14 @@ export const DefaultNode: CustomNode = {
   type: 'tableNode',
   position: { x: 250, y: 100 },
   data: {
-    label: 'TABLE 1',
+    label: 'TABLE',
     code: '01',
     color: '#4F46E5',
     width: 80,
     height: 80,
     positionX: 250,
     positionY: 100,
-    rounded: false,
+    rounded: 0,
     rotateAngle: 0,
     zIndex: 0,
     disabled: false,
@@ -115,6 +121,11 @@ export const DEFAULT_SLOT_DIMENSIONS = {
 };
 
 export const SNAP_GRID = [20, 20] as const;
+
+export const CANVAS = {
+  WIDTH: 1000,
+  HEIGHT: 600,
+} as const;
 
 export const LAYOUT = {
   STEPPER_WIDTH: 'w-44',

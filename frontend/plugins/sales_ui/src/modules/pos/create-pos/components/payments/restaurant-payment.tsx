@@ -11,6 +11,7 @@ import { useToast } from 'erxes-ui';
 import { PaymentMethod } from '../../types';
 import { IPosDetail } from '@/pos/pos-detail/types/IPos';
 import PaymentIcon from './paymentIcon';
+import { usePayments } from '../../hooks/usePayments';
 
 interface RestaurantPaymentsFormProps {
   posDetail?: IPosDetail;
@@ -25,8 +26,11 @@ export default function RestaurantPaymentsForm({
 }: RestaurantPaymentsFormProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [paymentMethods, setPaymentMethods] = useAtom(paymentMethodsAtom);
-  const [appToken, setAppToken] = useState('');
+
   const { toast } = useToast();
+  const { payments, loading: paymentsLoading } = usePayments({
+    status: 'active',
+  });
 
   const internalForm = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentSchema),
@@ -74,9 +78,9 @@ export default function RestaurantPaymentsForm({
       form.reset({
         paymentIds: posDetail.paymentIds || [],
         paymentTypes: processedPaymentTypes,
+        erxesAppToken: (posDetail as any).erxesAppToken || '',
       });
       setPaymentMethods(processedPaymentTypes);
-      setAppToken(posDetail.erxesAppToken || '');
     }
   }, [posDetail, form]);
 
@@ -112,13 +116,6 @@ export default function RestaurantPaymentsForm({
 
     setValue('paymentTypes', updatedPaymentMethods);
 
-    if (onFormSubmit) {
-      onFormSubmit({
-        paymentIds: getValues('paymentIds'),
-        paymentTypes: updatedPaymentMethods,
-      });
-    }
-
     setNewPaymentMethod({
       type: '',
       title: '',
@@ -133,13 +130,17 @@ export default function RestaurantPaymentsForm({
     setPaymentMethods(updatedMethods);
 
     setValue('paymentTypes', updatedMethods);
+  };
 
-    if (onFormSubmit) {
-      onFormSubmit({
-        paymentIds: getValues('paymentIds'),
-        paymentTypes: updatedMethods,
-      });
-    }
+  const handleUpdatePaymentMethod = (
+    index: number,
+    field: keyof PaymentMethod,
+    value: string,
+  ) => {
+    const updated = [...paymentMethods];
+    updated[index] = { ...updated[index], [field]: value } as PaymentMethod;
+    setPaymentMethods(updated);
+    setValue('paymentTypes', updated);
   };
 
   const handleFormSubmit = (formData: PaymentFormValues) => {
@@ -157,10 +158,10 @@ export default function RestaurantPaymentsForm({
         <div className="space-y-6">
           {/* Standard Payments Section */}
           <div className="space-y-4">
-            <h2 className="text-indigo-600 text-xl font-medium uppercase">
+            <h2 className="text-xl font-medium uppercase text-primary">
               PAYMENTS
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               Select payments that you want to use
             </p>
 
@@ -173,14 +174,23 @@ export default function RestaurantPaymentsForm({
                     <Select
                       value={field.value?.[0] || ''}
                       onValueChange={(value) => field.onChange([value])}
+                      disabled={paymentsLoading}
                     >
-                      <Select.Trigger className="w-full h-10 px-3 text-left justify-between">
-                        <Select.Value placeholder="Choose payments" />
+                      <Select.Trigger className="justify-between px-3 w-full h-8 text-left">
+                        <Select.Value
+                          placeholder={
+                            paymentsLoading
+                              ? 'Loading payments...'
+                              : 'Choose payments'
+                          }
+                        />
                       </Select.Trigger>
                       <Select.Content>
-                        <Select.Item value="cash">Cash</Select.Item>
-                        <Select.Item value="card">Card</Select.Item>
-                        <Select.Item value="mobile">Mobile Payment</Select.Item>
+                        {payments.map((payment) => (
+                          <Select.Item key={payment._id} value={payment._id}>
+                            {payment.name}
+                          </Select.Item>
+                        ))}
                       </Select.Content>
                     </Select>
                   </Form.Control>
@@ -190,24 +200,23 @@ export default function RestaurantPaymentsForm({
             />
 
             <div className="space-y-2">
-              <Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
+              <Label className="text-sm font-semibold uppercase">
                 ERXES APP TOKEN
               </Label>
               <Input
-                value={appToken}
-                onChange={(e) => setAppToken(e.target.value)}
-                className="h-10"
+                value={form.watch('erxesAppToken') || ''}
+                onChange={(e) => form.setValue('erxesAppToken', e.target.value)}
+                className="h-8"
                 placeholder="Enter your Erxes app token"
               />
             </div>
           </div>
 
-          {/* Other Payments Section */}
           <div className="space-y-4">
-            <h2 className="text-indigo-600 text-xl font-medium uppercase">
+            <h2 className="text-xl font-medium uppercase text-primary">
               OTHER PAYMENTS
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               Type is must latin, some default types: golomtCard, khaanCard,
               TDBCard
               <br />
@@ -221,46 +230,106 @@ export default function RestaurantPaymentsForm({
             <div className="flex justify-end mb-4">
               <Button
                 type="button"
+                variant="default"
                 onClick={handleAddPaymentMethod}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2"
+                className="flex gap-2 items-center"
               >
                 <IconPlus size={16} />
                 Add payments method
               </Button>
             </div>
 
-            {/* Display existing payment methods */}
+            {/* Display and edit existing payment methods */}
             {paymentMethods.map((method: PaymentMethod, index: number) => (
-              <div
-                key={method._id || index}
-                className="grid grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg mb-2"
-              >
+              <div key={method._id || index} className="grid grid-cols-4 gap-4">
                 <div>
-                  <Label className="text-xs text-gray-500">Type</Label>
-                  <div className="font-medium">{method.type}</div>
+                  <Label className="block mb-2 text-xs">Type *</Label>
+                  <Input
+                    value={method.type}
+                    className="h-8"
+                    onChange={(e) =>
+                      handleUpdatePaymentMethod(index, 'type', e.target.value)
+                    }
+                    placeholder="e.g. golomtCard, khaanCard"
+                  />
                 </div>
                 <div>
-                  <Label className="text-xs text-gray-500">Title</Label>
-                  <div className="font-medium flex items-center gap-2">
-                    {method.icon && (
-                      <PaymentIcon iconType={method.icon} size={16} />
-                    )}
-                    {method.title}
-                  </div>
+                  <Label className="block mb-2 text-xs">Title *</Label>
+                  <Input
+                    value={method.title}
+                    className="h-8"
+                    onChange={(e) =>
+                      handleUpdatePaymentMethod(index, 'title', e.target.value)
+                    }
+                    placeholder="e.g. Visa, Mastercard"
+                  />
                 </div>
                 <div>
-                  <Label className="text-xs text-gray-500">Icon</Label>
-                  <div className="font-medium flex items-center gap-2">
-                    {method.icon && (
-                      <PaymentIcon iconType={method.icon} size={16} />
-                    )}
-                    {method.icon}
-                  </div>
+                  <Label className="block mb-2 text-xs">Icon</Label>
+                  <Select
+                    value={method.icon}
+                    onValueChange={(value: string) =>
+                      handleUpdatePaymentMethod(index, 'icon', value)
+                    }
+                  >
+                    <Select.Trigger className="justify-between px-3 w-full h-8 text-left">
+                      <Select.Value placeholder="Select icon" />
+                    </Select.Trigger>
+                    <Select.Content>
+                      <Select.Item value="credit-card">
+                        <div className="flex gap-2 items-center">
+                          <PaymentIcon iconType="credit-card" size={16} />
+                          Credit Card
+                        </div>
+                      </Select.Item>
+                      <Select.Item value="cash">
+                        <div className="flex gap-2 items-center">
+                          <PaymentIcon iconType="cash" size={16} />
+                          Cash
+                        </div>
+                      </Select.Item>
+                      <Select.Item value="bank">
+                        <div className="flex gap-2 items-center">
+                          <PaymentIcon iconType="bank" size={16} />
+                          Bank
+                        </div>
+                      </Select.Item>
+                      <Select.Item value="mobile">
+                        <div className="flex gap-2 items-center">
+                          <PaymentIcon iconType="mobile" size={16} />
+                          Mobile
+                        </div>
+                      </Select.Item>
+                      <Select.Item value="visa">
+                        <div className="flex gap-2 items-center">
+                          <PaymentIcon iconType="visa" size={16} />
+                          Visa
+                        </div>
+                      </Select.Item>
+                      <Select.Item value="mastercard">
+                        <div className="flex gap-2 items-center">
+                          <PaymentIcon iconType="mastercard" size={16} />
+                          Mastercard
+                        </div>
+                      </Select.Item>
+                    </Select.Content>
+                  </Select>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-xs text-gray-500">Config</Label>
-                    <div className="font-medium text-sm">{method.config}</div>
+                <div className="flex gap-2 justify-between items-end">
+                  <div className="flex-1">
+                    <Label className="block mb-2 text-xs">Config</Label>
+                    <Input
+                      value={method.config}
+                      className="h-8"
+                      onChange={(e) =>
+                        handleUpdatePaymentMethod(
+                          index,
+                          'config',
+                          e.target.value,
+                        )
+                      }
+                      placeholder='e.g. { "skipEbarimt": true }'
+                    />
                   </div>
                   <Button
                     type="button"
@@ -278,71 +347,67 @@ export default function RestaurantPaymentsForm({
             {/* Add new payment method form */}
             <div className="grid grid-cols-4 gap-4">
               <div>
-                <Label className="text-xs text-gray-500 mb-1 block">
-                  Type *
-                </Label>
+                <Label className="block mb-2 text-xs">Type *</Label>
                 <Input
                   value={newPaymentMethod.type}
                   onChange={(e) => handleInputChange('type', e.target.value)}
-                  className="h-10"
+                  className="h-8"
                   placeholder="e.g. golomtCard, khaanCard, TDBCard"
                 />
               </div>
               <div>
-                <Label className="text-xs text-gray-500 mb-1 block">
-                  Title *
-                </Label>
+                <Label className="block mb-2 text-xs">Title *</Label>
                 <Input
                   value={newPaymentMethod.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  className="h-10"
+                  className="h-8"
                   placeholder="e.g. Visa, Mastercard"
                 />
               </div>
               <div>
-                <Label className="text-xs text-gray-500 mb-1 block">Icon</Label>
+                <Label className="block mb-2 text-xs">Icon</Label>
                 <Select
                   value={newPaymentMethod.icon}
                   onValueChange={(value: string) =>
                     handleInputChange('icon', value)
                   }
                 >
-                  <Select.Trigger className="w-full h-10 px-3 text-left justify-between">
+                  <Select.Trigger className="justify-between px-3 w-full h-8 text-left">
                     <Select.Value placeholder="Select icon" />
                   </Select.Trigger>
                   <Select.Content>
                     <Select.Item value="credit-card">
-                      <div className="flex items-center gap-2">
+                      <div className="flex gap-2 items-center">
                         <PaymentIcon iconType="credit-card" size={16} />
                         Credit Card
                       </div>
                     </Select.Item>
                     <Select.Item value="cash">
-                      <div className="flex items-center gap-2">
+                      <div className="flex gap-2 items-center">
                         <PaymentIcon iconType="cash" size={16} />
                         Cash
                       </div>
                     </Select.Item>
                     <Select.Item value="bank">
-                      <div className="flex items-center gap-2">
+                      <div className="flex gap-2 items-center">
                         <PaymentIcon iconType="bank" size={16} />
                         Bank
                       </div>
                     </Select.Item>
                     <Select.Item value="mobile">
-                      <div className="flex items-center gap-2">
+                      <div className="flex gap-2 items-center">
                         <PaymentIcon iconType="mobile" size={16} />
                         Mobile
                       </div>
                     </Select.Item>
                     <Select.Item value="visa">
-                      <div className="flex items-center gap-2">
+                      <div className="flex gap-2 items-center">
                         <PaymentIcon iconType="visa" size={16} />
                         Visa
                       </div>
                     </Select.Item>
                     <Select.Item value="mastercard">
-                      <div className="flex items-center gap-2">
+                      <div className="flex gap-2 items-center">
                         <PaymentIcon iconType="mastercard" size={16} />
                         Mastercard
                       </div>
@@ -351,13 +416,11 @@ export default function RestaurantPaymentsForm({
                 </Select>
               </div>
               <div>
-                <Label className="text-xs text-gray-500 mb-1 block">
-                  Config
-                </Label>
+                <Label className="block mb-2 text-xs">Config</Label>
                 <Input
                   value={newPaymentMethod.config}
                   onChange={(e) => handleInputChange('config', e.target.value)}
-                  className="h-10"
+                  className="h-8"
                   placeholder="e.g. skipEbarimt: true, mustCustomer: true"
                 />
               </div>

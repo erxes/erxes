@@ -111,8 +111,8 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
             name="name"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
-                  NAME <span className="text-red-500">*</span>
+                <Form.Label className="text-sm font-semibold uppercase">
+                  NAME <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <Input
@@ -134,12 +134,12 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
               name="description"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
-                    DESCRIPTION <span className="text-red-500">*</span>
+                  <Form.Label className="text-sm font-semibold uppercase">
+                    DESCRIPTION <span className="text-destructive">*</span>
                   </Form.Label>
-                  <p className="text-sm font-medium text-[#71717A]">
+                  <Form.Description className="text-sm font-medium">
                     What is description ?
-                  </p>
+                  </Form.Description>
                   <Form.Control>
                     <Input
                       {...field}
@@ -158,12 +158,12 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
               name="scopeBrandIds"
               render={() => (
                 <Form.Item>
-                  <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
+                  <Form.Label className="text-sm font-semibold uppercase">
                     BRANDS
                   </Form.Label>
-                  <p className="text-sm text-gray-500">
+                  <Form.Description className="text-sm font-medium">
                     Which specific Brand does this integration belongs to?
-                  </p>
+                  </Form.Description>
                   <Form.Control>
                     <SelectBrand
                       value={selectedBrandId}
@@ -183,14 +183,19 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
             name="allowTypes"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
-                  TYPE <span className="text-red-500">*</span>
+                <Form.Label className="text-sm font-semibold uppercase">
+                  TYPE <span className="text-destructive">*</span>
                 </Form.Label>
-                <p className="text-sm text-gray-500">How use types ?</p>
+                <Form.Description className="text-sm font-medium">
+                  How use types ?
+                </Form.Description>
                 <Form.Control>
                   <div className="space-y-2">
                     {(field.value || []).map((selectedType, index) => (
-                      <div key={`type-${selectedType || 'empty'}-${index}`} className="flex gap-2">
+                      <div
+                        key={`type-${selectedType || 'empty'}-${index}`}
+                        className="flex gap-2"
+                      >
                         <Select
                           onValueChange={(value) =>
                             handleTypeChange(field, index, value, isReadOnly)
@@ -198,7 +203,7 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
                           value={selectedType || ''}
                           disabled={isReadOnly}
                         >
-                          <Select.Trigger className="w-full h-8 px-3 text-left justify-between">
+                          <Select.Trigger className="justify-between px-3 w-full h-8 text-left">
                             <Select.Value
                               placeholder={`Select Type ${index + 1}`}
                             />
@@ -229,17 +234,20 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
                         </Button>
                       </div>
                     ))}
-                    {!isReadOnly && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleTypeAdd(field)}
-                        disabled={isReadOnly}
-                      >
-                        Add Type
-                      </Button>
-                    )}
+
+                    <div className="flex justify-end">
+                      {!isReadOnly && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleTypeAdd(field)}
+                          disabled={isReadOnly}
+                        >
+                          Add Type
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </Form.Control>
                 <Form.Message />
@@ -253,7 +261,7 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
               name="branchId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
+                  <Form.Label className="text-sm font-semibold uppercase">
                     CHOOSE BRANCH
                   </Form.Label>
                   <Form.Control>
@@ -274,7 +282,7 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
               name="departmentId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
+                  <Form.Label className="text-sm font-semibold uppercase">
                     CHOOSE DEPARTMENT
                   </Form.Label>
                   <Form.Control>

@@ -61,7 +61,7 @@ const StepperItem = React.memo(
         aria-current={step.id === currentStep ? 'step' : undefined}
       >
         <Stepper.Indicator className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-medium shadow-sm border border-gray-200 data-[state=completed]:border-blue-500 data-[state=completed]:shadow-blue-100">
-          {currentStep > step.id ? <IconCheck className="h-4 w-4" /> : step.id}
+          {currentStep > step.id ? <IconCheck className="w-4 h-4" /> : step.id}
         </Stepper.Indicator>
         <span
           className={`text-base font-medium ${
@@ -97,10 +97,10 @@ const VerticalStepper = React.memo(
 
     return (
       <div
-        className={`${LAYOUT.STEPPER_WIDTH} border-r bg-gray-50 p-5 overflow-y-auto`}
+        className={`${LAYOUT.STEPPER_WIDTH} border-r bg-background p-5 overflow-y-auto`}
       >
-        <div className="mb-4 flex items-center gap-2 text-sm text-blue-600 font-medium">
-          <IconEdit className="h-4 w-4" />
+        <div className="flex gap-2 items-center mb-4 text-sm font-medium text-blue-600">
+          <IconEdit className="w-4 h-4" />
           Edit Mode
         </div>
         <Stepper
@@ -134,6 +134,7 @@ const NavigationFooter = React.memo(
     handleNextStep,
     isLastStep,
     validationError = null,
+    isSubmitting = false,
     onFinalSubmit,
   }: NavigationFooterProps) => {
     const [saveError, setSaveError] = React.useState<string | null>(null);
@@ -154,7 +155,7 @@ const NavigationFooter = React.memo(
     };
 
     return (
-      <div className="flex flex-col p-4 border-t sticky bottom-0 bg-white">
+      <div className="flex sticky bottom-0 flex-col p-4 border-t bg-background">
         {validationError && <ValidationAlert message={validationError} />}
         {saveError && <ValidationAlert message={saveError} />}
         <div className="flex justify-between">
@@ -162,7 +163,7 @@ const NavigationFooter = React.memo(
             type="button"
             variant="outline"
             onClick={handlePrevStep}
-            disabled={!prevStep}
+            disabled={!prevStep || isSubmitting}
           >
             Previous
           </Button>
@@ -172,7 +173,7 @@ const NavigationFooter = React.memo(
                 type="button"
                 variant="outline"
                 onClick={handleNextStep}
-                disabled={!nextStep}
+                disabled={!nextStep || isSubmitting}
               >
                 Next step
               </Button>
@@ -181,8 +182,13 @@ const NavigationFooter = React.memo(
             <Button
               type="button"
               onClick={isLastStep ? handleNextStep : handleSaveOnly}
+              disabled={isSubmitting}
             >
-              {isLastStep ? 'Update POS' : 'Save Changes'}
+              {isSubmitting
+                ? 'Saving...'
+                : isLastStep
+                ? 'Update POS'
+                : 'Save Changes'}
             </Button>
           </div>
         </div>
@@ -206,9 +212,9 @@ export const PosEditTabContent: React.FC<PosTabContentProps> = ({
 
   if (!hasCategorySelected) {
     return (
-      <div className="flex-auto overflow-hidden flex items-center justify-center h-full">
-        <div className="text-center p-8 rounded-lg bg-yellow-50 border border-yellow-200">
-          <h3 className="text-lg font-medium text-yellow-800 mb-2">
+      <div className="flex overflow-hidden flex-auto justify-center items-center h-full">
+        <div className="p-8 text-center bg-yellow-50 rounded-lg border border-yellow-200">
+          <h3 className="mb-2 text-lg font-medium text-yellow-800">
             Category Selection Required
           </h3>
           <p className="text-yellow-700">
@@ -219,7 +225,7 @@ export const PosEditTabContent: React.FC<PosTabContentProps> = ({
     );
   }
 
-  return <div className="flex-auto overflow-auto">{children}</div>;
+  return <div className="overflow-auto flex-auto">{children}</div>;
 };
 
 interface PosEditStepperProps {
@@ -276,6 +282,7 @@ interface PosEditLayoutProps {
     | UseFormReturn<PermissionFormValues>;
   onFinalSubmit?: () => Promise<void>;
   posDetail?: IPosDetail;
+  isSubmitting?: boolean;
 }
 
 export const PosEditLayout: React.FC<PosEditLayoutProps> = ({
@@ -283,6 +290,7 @@ export const PosEditLayout: React.FC<PosEditLayoutProps> = ({
   actions,
   form,
   onFinalSubmit,
+  isSubmitting = false,
 }) => {
   const [posCategory] = useAtom(posCategoryAtom);
   const [{ tab: selectedStep }, setQueries] = useMultiQueryState<{
@@ -407,15 +415,15 @@ export const PosEditLayout: React.FC<PosEditLayoutProps> = ({
 
   return (
     <PosDetailSheet>
-      <div className="flex h-auto flex-auto overflow-auto bg-white">
-        <div className="flex flex-col flex-auto min-h-full overflow-hidden">
+      <div className="flex overflow-auto flex-auto h-auto bg-background">
+        <div className="flex overflow-hidden flex-col flex-auto min-h-full">
           <Resizable.PanelGroup
             direction="horizontal"
-            className="flex-auto min-h-full overflow-hidden"
+            className="overflow-hidden flex-auto min-h-full"
           >
             <Resizable.Panel defaultSize={75} minSize={30}>
               <div className="flex flex-col h-full">
-                <div className="flex-1 overflow-auto min-h-0">
+                <div className="overflow-auto flex-1 min-h-0">
                   <PosEditStepper>{children}</PosEditStepper>
                 </div>
 
@@ -426,6 +434,7 @@ export const PosEditLayout: React.FC<PosEditLayoutProps> = ({
                   handleNextStep={handleNextStep}
                   isLastStep={isLastStep}
                   validationError={validationError}
+                  isSubmitting={isSubmitting}
                   onFinalSubmit={
                     onFinalSubmit
                       ? async () => await onFinalSubmit()

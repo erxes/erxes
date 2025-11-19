@@ -10,7 +10,9 @@ import {
   SyncCardSettings,
 } from '../types';
 
-export const posCategoryAtom = atom<'restaurant' | 'ecommerce' | 'kiosk'>('restaurant');
+export const posCategoryAtom = atom<'restaurant' | 'ecommerce' | 'kiosk'>(
+  'restaurant',
+);
 export const permissionSettingsAtom = atom<PermissionSettings>({
   adminPrintTempBill: false,
   adminDirectSales: false,
@@ -57,20 +59,29 @@ export const ebarimtConfigSettingsAtom = atom<EbarimtConfigSettings>({
   companyName: '',
   ebarimtUrl: '',
   checkTaxpayerUrl: '',
+  checkCompanyUrl: '',
   companyRd: '',
+  companyRD: '',
   merchantin: '',
   posno: '',
   districtCode: '',
   branchNo: '',
   defaultGsCode: '',
+  defaultGSCode: '',
   hasVat: false,
+  hasCitytax: false,
   vatPercent: '0',
   hasUbCityTax: false,
   ubCityTaxPercent: '0',
-  anotherRuleOfProductsOnCityTax: '',
+  cityTaxPercent: 0,
+  anotherRuleOfProductsOnCityTax: [],
+  anotherRuleOfProductsOnVat: [],
+  defaultPay: 'debtAmount',
   headerText: '',
   footerText: '',
   hasCopy: false,
+  hasSummaryQty: false,
+  hasSumQty: false,
 });
 
 export const deliveryConfigSettingsAtom = atom<DeliveryConfigSettings>({

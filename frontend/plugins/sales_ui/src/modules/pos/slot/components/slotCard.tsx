@@ -14,7 +14,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
   return (
     <Card
       className={cn(
-        'overflow-hidden transition-all hover:shadow-md',
+        'overflow-hidden transition-all',
         selected ? 'ring-2 ring-indigo-500' : '',
         node.data.disabled ? 'opacity-60' : '',
       )}
@@ -22,7 +22,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
       <div className="p-0">
         <div className="flex items-center p-3">
           <div className="flex-1">
-            <h3 className="font-medium">
+            <h3 className="font-medium text-foreground">
               {node.data.label as React.ReactNode}
             </h3>
           </div>
@@ -30,26 +30,23 @@ const SlotCard: React.FC<SlotCardProps> = ({
             <Button
               variant="outline"
               size="icon"
-              className="bg-gray-100 hover:bg-gray-200"
               onClick={(e) => onEdit(node, e)}
             >
-              <IconEdit className="h-4 w-4 text-gray-500" />
+              <IconEdit className="w-4 h-4 text-foreground" />
             </Button>
             <Button
               variant="outline"
               size="icon"
-              className="bg-gray-100 hover:bg-gray-200"
               onClick={() => onDuplicate(node.id)}
             >
-              <IconCopy className="h-4 w-4 text-gray-500" />
+              <IconCopy className="w-4 h-4 text-foreground" />
             </Button>
             <Button
               variant="outline"
               size="icon"
-              className="bg-gray-100 hover:bg-gray-200"
               onClick={() => onDelete(node.id)}
             >
-              <IconTrash className="h-4 w-4 text-red-500" />
+              <IconTrash className="w-4 h-4 text-destructive" />
             </Button>
           </div>
         </div>
