@@ -29,9 +29,20 @@ export const inputs = `
 
 `;
 
+const commonTagQuerySelector = `
+    ${GQL_CURSOR_PARAM_DEFS}
+    language: String
+    searchValue: String
+    sortField: String
+    sortDirection: String
+`;
+
 export const queries = `
-    cmsTags(clientPortalId: String, language: String, searchValue: String, sortField: String, sortDirection: String, ${GQL_CURSOR_PARAM_DEFS}): PostTagList
+    cmsTags(clientPortalId: String, ${commonTagQuerySelector}): PostTagList
     cmsTag(_id: String, slug: String, language: String): PostTag
+
+    cpCmsTags(language: String, ${commonTagQuerySelector}): PostTagList
+    
 `;
 
 export const mutations = `

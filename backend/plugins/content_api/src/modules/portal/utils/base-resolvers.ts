@@ -169,12 +169,12 @@ export class BaseQueryResolver {
       return { list, totalCount, pageInfo };
     }
 
-    if (!args.clientPortalId && !this.context.clientPortalId) {
+    if (!args.clientPortalId && !this.context.clientPortal._id) {
       throw new Error('Client portal ID is required');
     }
 
     const shouldSkip = await this.shouldSkipTranslation(
-      args.clientPortalId || this.context.clientPortalId || '',
+      args.clientPortalId || this.context.clientPortal._id || '',
       args.language || '',
     );
 

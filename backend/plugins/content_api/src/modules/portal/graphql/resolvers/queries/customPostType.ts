@@ -1,9 +1,14 @@
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
-const queries = {
-  async cmsCustomFieldGroupList(_parent: any, args: any, context: IContext) {
-    const { models } = context;
+import { Resolver } from 'erxes-api-shared/core-types';
+
+ const queries: Record<string, Resolver> = {
+  cmsCustomFieldGroupList: async (
+    _parent: any,
+    args: any,
+    { models }: IContext,
+  ) => {
     const { clientPortalId, searchValue } = args;
 
     const query: any = {
@@ -26,7 +31,7 @@ const queries = {
     return { list, totalCount, pageInfo };
   },
 
-  async cmsCustomFieldGroups(_parent: any, args: any, context: IContext) {
+  cmsCustomFieldGroups: async (_parent: any, args: any, context: IContext) => {
     const { models } = context;
     const { clientPortalId, searchValue, pageId, categoryId } = args;
 
@@ -71,11 +76,10 @@ const queries = {
   cmsCustomPostTypeList: async (
     _parent: any,
     args: any,
-    context: IContext
+    context: IContext,
   ): Promise<any> => {
     const { models } = context;
-    const {  searchValue } = args;
-    const clientPortalId = context.clientPortalId || args.clientPortalId;
+    const { searchValue, clientPortalId } = args;
 
     const query: any = {
       clientPortalId,
@@ -100,11 +104,10 @@ const queries = {
   cmsCustomPostTypes: async (
     _parent: any,
     args: any,
-    context: IContext
+    context: IContext,
   ): Promise<any> => {
     const { models } = context;
-    const { searchValue } = args;
-    const clientPortalId = context.clientPortalId || args.clientPortalId;
+    const { searchValue, clientPortalId } = args;
 
     const query: any = {
       clientPortalId,
@@ -141,7 +144,6 @@ const queries = {
       },
     ];
 
-
     const { list, totalCount, pageInfo } = await cursorPaginate({
       model: models.CustomPostTypes,
       params: args,
@@ -158,13 +160,88 @@ const queries = {
   cmsPostType: async (
     _parent: any,
     args: any,
-    context: IContext
+    context: IContext,
   ): Promise<any> => {
     const { models } = context;
     const { _id } = args;
 
     return models.CustomPostTypes.findOne({ _id });
   },
+
+  // cpCustomPostTypes(searchValue: String): [CustomPostType]
+  // cpCustomFieldGroups(searchValue: String, pageId: String, categoryId: String, postType: String): [CustomFieldGroup]
+
+  cpCustomPostTypes: async (
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> => {
+    const { models } = context;
+    const { searchValue, clientPortalId } = args;
+
+    const query: any = {
+      clientPortalId,
+      isActive: true,
+    };
+
+    if (searchValue) {
+      query.$or = [
+        { name: { $regex: searchValue, $options: 'i' } },
+        { label: { $regex: searchValue, $options: 'i' } },
+      ];
+    }
+
+    const { list } = await cursorPaginate({
+      model: models.CustomPostTypes,
+      params: args,
+      query,
+    });
+
+    return list;
+  },
+
+  cpCustomFieldGroups: async (
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> => {
+    const { models, clientPortal } = context;
+    const { searchValue, postType, pageId, categoryId } = args;
+
+    const query: any = {
+      clientPortalId: clientPortal._id,
+      isActive: true,
+    };
+
+    if (searchValue) {
+      query.$or = [
+        { name: { $regex: searchValue, $options: 'i' } },
+        { label: { $regex: searchValue, $options: 'i' } },
+      ];
+    }
+
+    if (args.postType) {
+      query.customPostTypeIds = postType;
+    }
+
+    if (pageId) {
+      query.enabledPageIds = pageId;
+    }
+
+    if (categoryId) {
+      query.enabledCategoryIds = categoryId;
+    }
+
+    return models.CustomFieldGroups.find(query);
+  },
+};
+
+queries.cpCustomFieldGroups.wrapperConfig = {
+  forClientPortal: true,
+};
+
+queries.cpCustomPostTypes.wrapperConfig = {
+  forClientPortal: true,
 };
 
 export default queries;

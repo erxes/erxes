@@ -1,15 +1,15 @@
 import { BaseQueryResolver, FIELD_MAPPINGS } from '@/portal/utils/base-resolvers';
 import { getQueryBuilder } from '@/portal/utils/query-builders';
 import { IContext } from '~/connectionResolvers';
+import { Resolver } from 'erxes-api-shared/core-types';
 
 class PostQueryResolver extends BaseQueryResolver {
   /**
    * Cms posts
    */
   async cmsPosts(_parent: any, args: any, context: IContext): Promise<any> {
-    const { language } = args;
+    const { language, clientPortalId } = args;
     const { models } = context;
-    const clientPortalId = context.clientPortalId || args.clientPortalId;
     
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
@@ -28,8 +28,8 @@ class PostQueryResolver extends BaseQueryResolver {
    * Cms post
    */
   async cmsPost(_parent: any, args: any, context: IContext): Promise<any> {
-    const { clientPortalId, models } = context;
-    const { _id, slug, language } = args;
+    const {  models } = context;
+    const { _id, slug, language, clientPortalId } = args;
 
     if (!_id && !slug) {
       return null;
@@ -54,10 +54,9 @@ class PostQueryResolver extends BaseQueryResolver {
    * Cms post list
    */
   async cmsPostList(_parent: any, args: any, context: IContext): Promise<any> {
-    const { language } = args;
+    const { language, clientPortalId } = args;
     const { models } = context;
-    const clientPortalId = context.clientPortalId || args.clientPortalId;
-    
+
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
 
@@ -76,9 +75,68 @@ class PostQueryResolver extends BaseQueryResolver {
     const { models } = context;
     return models.Translations.find({ postId });
   }
+
+  async cpPosts(_parent: any, args: any, context: IContext): Promise<any> {
+    const { language } = args;
+    const { models, clientPortal } = context;
+    const clientPortalId = clientPortal._id;
+    
+    const queryBuilder = getQueryBuilder('post', models);
+    const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
+
+    const { list } = await this.getListWithTranslations(
+      models.Posts,
+      query,
+      { ...args, clientPortalId, language },
+      FIELD_MAPPINGS.POST
+    );
+
+    return list;
+  }
+
+  async cpPostList(_parent: any, args: any, context: IContext): Promise<any> {
+    const { language } = args;
+    const { models, clientPortal } = context;
+    const clientPortalId = clientPortal._id;
+    
+    const queryBuilder = getQueryBuilder('post', models);
+    const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
+
+    const { list, totalCount, pageInfo } = await this.getListWithTranslations(
+      models.Posts,
+      query,
+      { ...args, clientPortalId, language },
+      FIELD_MAPPINGS.POST
+    );
+
+    return { posts: list, totalCount, pageInfo };
+  }
+
+  async cpPost(_parent: any, args: any, context: IContext): Promise<any> {
+    const { clientPortal, models } = context;
+    const { _id, slug, language } = args;
+
+    if (!_id && !slug) {
+      return null;
+    }
+
+    let query: any = {};
+    if (slug) {
+      query = { slug, clientPortalId: clientPortal._id };
+    } else if (_id) {
+      query = { _id };
+    }
+
+    return this.getItemWithTranslation(
+      models.Posts,
+      query,
+      language,
+      FIELD_MAPPINGS.POST
+    );
+  }
 }
 
-const queries = {
+const queries: Record<string, Resolver> = {
   cmsPosts: (_parent: any, args: any, context: IContext) =>
     new PostQueryResolver(context).cmsPosts(_parent, args, context),
   cmsPost: (_parent: any, args: any, context: IContext) =>
@@ -87,6 +145,18 @@ const queries = {
     new PostQueryResolver(context).cmsPostList(_parent, args, context),
   cmsTranslations: (_parent: any, args: any, context: IContext) =>
     new PostQueryResolver(context).cmsTranslations(_parent, args, context),
+};
+
+queries.cpPosts.wrapperConfig = {
+  forClientPortal: true,
+};
+
+queries.cpPostList.wrapperConfig = {
+  forClientPortal: true,
+};
+
+queries.cpPost.wrapperConfig = {
+  forClientPortal: true,
 };
 
 export default queries;
