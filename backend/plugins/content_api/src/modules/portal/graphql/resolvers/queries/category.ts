@@ -4,6 +4,7 @@ import {
   FIELD_MAPPINGS,
 } from '@/portal/utils/base-resolvers';
 import { getQueryBuilder } from '@/portal/utils/query-builders';
+import { Resolver } from 'erxes-api-shared/core-types';
 
 class CategoryQueryResolver extends BaseQueryResolver {
   /**
@@ -14,8 +15,7 @@ class CategoryQueryResolver extends BaseQueryResolver {
     args: any,
     context: IContext,
   ): Promise<any> {
-    const { language } = args;
-    const clientPortalId = args.clientPortalId || context.clientPortalId;
+    const { language, clientPortalId } = args;
     const { models } = context;
     const queryBuilder = getQueryBuilder('category', models);
     const query = queryBuilder.buildQuery({ ...args, clientPortalId });
@@ -32,8 +32,8 @@ class CategoryQueryResolver extends BaseQueryResolver {
    * Cms category
    */
   async cmsCategory(_parent: any, args: any, context: IContext): Promise<any> {
-    const { clientPortalId, models } = context;
-    const { _id, slug, language } = args;
+    const {  models } = context;
+    const { _id, slug, language, clientPortalId } = args;
 
     if (!_id && !slug) {
       return null;
@@ -53,12 +53,36 @@ class CategoryQueryResolver extends BaseQueryResolver {
       FIELD_MAPPINGS.CATEGORY,
     );
   }
+
+  async cpCategories(_parent: any, args: any, context: IContext): Promise<any> {
+    const { models, clientPortal } = context;
+    const { language } = args;
+
+    const query: any = {
+      clientPortalId: clientPortal._id,
+      status: 'active',
+    };
+
+    const { list } = await this.getListWithTranslations(
+      models.Categories,
+      query,
+      { ...args, clientPortalId: clientPortal._id, language },
+      FIELD_MAPPINGS.CATEGORY,
+    );
+
+    return list;
+  }
 }
 
 const resolver = new CategoryQueryResolver({} as IContext);
-const queries = {
+const queries: Record<string, Resolver> = {
   cmsCategories: resolver.cmsCategories.bind(resolver),
   cmsCategory: resolver.cmsCategory.bind(resolver),
+  cpCategories: resolver.cpCategories.bind(resolver),
+};
+
+queries.cpCategories.wrapperConfig = {
+  forClientPortal: true,
 };
 
 export default queries;
