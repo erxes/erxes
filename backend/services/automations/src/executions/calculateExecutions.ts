@@ -9,11 +9,7 @@ import {
   splitType,
   TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
-import {
-  getPlugin,
-  isEnabled,
-  sendCoreModuleProducer,
-} from 'erxes-api-shared/utils';
+import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
 
 const checkIsValidCustomTigger = async (
   type: string,
@@ -25,10 +21,6 @@ const checkIsValidCustomTigger = async (
 ) => {
   const [pluginName, moduleName, collectionType, relationType] =
     splitType(type);
-  console.log({ pluginName, moduleName, collectionType, relationType });
-  const isEnabledPlugin = await isEnabled(pluginName);
-  const pluginInfo = await getPlugin(pluginName);
-  console.log({ isEnabledPlugin, pluginInfo });
   const response = await sendCoreModuleProducer({
     moduleName: 'automations',
     subdomain,
