@@ -16,6 +16,13 @@ export const ticketConfigQueries = {
   ) => {
     return models.TicketConfig.findOne({ _id });
   },
+  ticketConfig: async (
+    _parent: undefined,
+    { pipelineId }: { pipelineId: string },
+    { models }: IContext,
+  ) => {
+    return models.TicketConfig.findOne({ pipelineId });
+  },
 };
 
 requireLogin(ticketConfigQueries, 'ticketConfigs');

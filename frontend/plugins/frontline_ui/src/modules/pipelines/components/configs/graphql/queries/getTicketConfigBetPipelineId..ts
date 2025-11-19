@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
-const GET_TICKET_CONFIGS = gql`
-  query TicketConfigs($channelId: String!) {
-    ticketConfigs(channelId: $channelId) {
+const GET_TICKET_CONFIG_BY_PIPELINE_ID = gql`
+  query TicketConfig($pipelineId: String!) {
+    ticketConfig(pipelineId: $pipelineId) {
       name
       channelId
       company {
@@ -34,4 +34,4 @@ const GET_TICKET_CONFIGS = gql`
   }
 `;
 
-export { GET_TICKET_CONFIGS };
+export { GET_TICKET_CONFIG_BY_PIPELINE_ID };

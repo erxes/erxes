@@ -17,13 +17,13 @@ export const useGetTicketConfigs = (
   options?: QueryHookOptions<IConfigResponse>,
 ) => {
   const { id } = useParams<{ id: string }>();
+  const effectiveChannelId = options?.variables?.channelId || id;
   const { data, loading } = useQuery<IConfigResponse>(GET_TICKET_CONFIGS, {
     ...options,
     variables: {
-      channelId: id,
-      ...options?.variables,
+      channelId: effectiveChannelId,
     },
-    skip: !id || !options?.variables?.pipelineId,
+    skip: !effectiveChannelId,
   });
 
   return {

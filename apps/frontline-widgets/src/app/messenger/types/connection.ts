@@ -88,3 +88,39 @@ export interface RequestBrowserInfoParams {
   postData?: any;
   callback: (browserInfo: IBrowserInfo) => void;
 }
+
+export interface ITicketBasicFields {
+  isShowName: boolean;
+  isShowDescription: boolean;
+  isShowAttachments: boolean;
+  isShowTags: boolean;
+}
+
+export interface ICustomerFields {
+  isShowFirstName: boolean;
+  isShowLastName: boolean;
+  isShowPhoneNumber: boolean;
+  isShowEmail: boolean;
+}
+
+export interface ICompanyFields {
+  isShowName: boolean;
+  isShowRegistrationNumber: boolean;
+  isShowAddress: boolean;
+  isShowPhoneNumber: boolean;
+  isShowEmail: boolean;
+}
+
+export interface ITicketConfig {
+  _id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  pipelineId: string;
+  channelId: string;
+  selectedStatusId: string;
+  contactType: string;
+  ticketBasicFields: ITicketBasicFields;
+  company: ICompanyFields;
+  customer: ICustomerFields;
+}

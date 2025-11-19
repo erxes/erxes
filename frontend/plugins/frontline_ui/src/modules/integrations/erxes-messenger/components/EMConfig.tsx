@@ -27,6 +27,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
 import { erxesMessengerSetupEditSheetOpenAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { useParams } from 'react-router';
+import { SelectTicketConfig } from '@/pipelines/components/configs/components/SelectTicketConfig';
 
 type EMConfigFormValues = z.infer<typeof EM_CONFIG_SCHEMA>;
 
@@ -48,6 +49,8 @@ export const EMConfig = () => {
 
   const loading = createLoading || editLoading;
   const isEditMode = !!idToEdit;
+
+  console.log(form.watch(), '\nwatch');
 
   return (
     <Form {...form}>
@@ -223,6 +226,28 @@ export const EMConfig = () => {
                         If turned on, possible to receive web calls
                       </Form.Description>
                       <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </Collapsible.Content>
+            </Collapsible>
+            <Collapsible>
+              <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
+                <Collapsible.TriggerIcon />
+                Ticket config
+              </Collapsible.TriggerButton>
+              <Collapsible.Content className="p-2 space-y-4">
+                <Form.Field
+                  name="ticketConfigId"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label className="sr-only">Ticket config</Form.Label>
+                      <Form.Control>
+                        <SelectTicketConfig.FormItem
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        />
+                      </Form.Control>
                     </Form.Item>
                   )}
                 />

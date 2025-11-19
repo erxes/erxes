@@ -29,7 +29,6 @@ export const EMAppearance = () => {
   const onSubmit = () => {
     setStep((prev) => prev + 1);
   };
-  console.log(form.watch('logo'), 'logo');
 
   return (
     <Form {...form}>

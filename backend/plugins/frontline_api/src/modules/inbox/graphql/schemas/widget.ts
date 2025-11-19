@@ -5,7 +5,7 @@ export const types = `
       uiOptions: JSON
       languageCode: String
       messengerData: JSON
-      ticketData: JSON
+      ticketConfig: JSON
       customerId: String
       visitorId: String
       channel: Channel
@@ -55,6 +55,7 @@ export const queries = `
     widgetsMessengerSupporters(integrationId: String!): MessengerSupportersResponse
     widgetsGetEngageMessage(integrationId: String, customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
   
+    widgetsTicketCustomerDetail(customerId: String, type: String): Customer
   `;
 
 export const mutations = `
@@ -115,4 +116,15 @@ export const mutations = `
     widgetGetBotInitialMessage(integrationId: String): JSON
     widgetsLeadIncreaseViewCount(formId: String!): JSON
     widgetsSendTypingInfo(conversationId: String!, text: String): String
+    
+    widgetsTicketCustomersEdit(customerId: String, firstName: String, lastName: String, emails: [String], phones: [String]): Customer
+ 
+    widgetTicketCreated(
+      name: String!
+      description: String
+      attachments: [AttachmentInput]
+      statusId: String!
+      type: String!
+      customerIds: [String!]!
+    ): Ticket
   `;

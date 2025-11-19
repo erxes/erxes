@@ -78,7 +78,7 @@ export function App() {
   return (
     <div className="flex flex-col h-full min-h-full styled-scroll hide-scroll">
       <Header />
-      <div className="flex-1 flex flex-col justify-end overflow-y-hidden bg-muted min-h-0">
+      <div className="flex-1 flex flex-col justify-end overflow-y-hidden bg-muted min-h-0 h-full">
         {renderContent()}
       </div>
     </div>

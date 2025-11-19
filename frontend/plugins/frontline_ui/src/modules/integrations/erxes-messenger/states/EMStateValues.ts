@@ -25,13 +25,13 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
   const intro = get(erxesMessengerSetupIntroAtom);
   const hours = get(erxesMessengerSetupHoursAtom);
   const settings = get(erxesMessengerSetupSettingsAtom);
-
   const { links, externalLinks } = processLinks(greeting?.links);
 
   return (config: z.infer<typeof EM_CONFIG_SCHEMA>) => ({
     createVariables: {
       name: config?.name,
       channelId: config?.channelId,
+      ticketConfigId: config?.ticketConfigId,
       languageCode: settings?.languageCode || DEFAULT_LANGUAGE,
     },
     saveConfigVariables: {

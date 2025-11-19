@@ -8,6 +8,7 @@ export const STORAGE_KEYS = {
   HOURS: 'erxesMessengerSetupHours',
   SETTINGS: 'erxesMessengerSetupSettings',
   CONFIG: 'erxesMessengerSetupConfig',
+  TICKET_CONFIG: 'erxesMessengerSetupTicketConfig',
 } as const;
 
 export const SOCIAL_PLATFORMS: Record<string, SocialPlatform> = {

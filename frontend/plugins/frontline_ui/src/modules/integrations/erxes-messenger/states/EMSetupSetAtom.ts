@@ -51,6 +51,7 @@ export const erxesMessengerSetSetupAtom = atom(
         brandId: payload?.brandId || '',
         languageCode: payload?.languageCode || DEFAULT_LANGUAGE,
         channelId,
+        ticketConfigId: payload?.ticketConfigId,
         botSetup: {
           greetingMessage: payload?.messengerData?.botGreetMessage,
           persistentMenus: payload?.messengerData?.persistentMenus,

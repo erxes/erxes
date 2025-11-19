@@ -16,6 +16,7 @@ export interface ProcessedLinks {
 // Messenger setup payload type
 export interface MessengerSetupPayload {
   _id: string;
+  ticketConfigId?: string;
   name?: string;
   brandId?: string;
   languageCode?: string;

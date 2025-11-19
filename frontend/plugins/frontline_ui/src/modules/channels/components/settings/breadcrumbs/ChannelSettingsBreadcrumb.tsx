@@ -6,6 +6,8 @@ import { useIsMatchingLocation } from 'erxes-ui';
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { ChannelDetailBreadcrumb } from '@/channels/components/settings/breadcrumbs/ChannelDetailBreadcrumb';
 import { PipelineDetailBreadcrumb } from '@/pipelines/components/PipelineDetailBreadcrumb';
+import { PipelineConfigBreadcrumb } from '@/pipelines/components/configs/components/PipelineConfigBreadcrumb';
+import { MembersBreadcrumb } from '../members/MembersBreadcrumb';
 export const ChannelSettingsBreadcrumb = () => {
   const isMatchingLocation = useIsMatchingLocation(
     '/settings/frontline/channels',
@@ -21,15 +23,24 @@ export const ChannelSettingsBreadcrumb = () => {
         </Button>
       </Link>
       {(isMatchingLocation(FrontlinePaths.ChannelDetails) ||
+        isMatchingLocation(FrontlinePaths.ChannelMembers) ||
         isMatchingLocation(FrontlinePaths.ChannelPipelines) ||
-        isMatchingLocation(FrontlinePaths.PipelineDetail)) && (
+        isMatchingLocation(FrontlinePaths.PipelineDetail) ||
+        isMatchingLocation(FrontlinePaths.TicketsConfigs)) && (
         <>
           <Separator.Inline />
           <ChannelDetailBreadcrumb />
         </>
       )}
+      {isMatchingLocation(FrontlinePaths.ChannelMembers) && (
+        <>
+          <Separator.Inline />
+          <MembersBreadcrumb />
+        </>
+      )}
       {(isMatchingLocation(FrontlinePaths.ChannelPipelines) ||
-        isMatchingLocation(FrontlinePaths.PipelineDetail)) && (
+        isMatchingLocation(FrontlinePaths.PipelineDetail) ||
+        isMatchingLocation(FrontlinePaths.TicketsConfigs)) && (
         <>
           <Separator.Inline />
           <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
@@ -39,10 +50,17 @@ export const ChannelSettingsBreadcrumb = () => {
           </Link>
         </>
       )}
-      {isMatchingLocation(FrontlinePaths.PipelineDetail) && (
+      {(isMatchingLocation(FrontlinePaths.PipelineDetail) ||
+        isMatchingLocation(FrontlinePaths.TicketsConfigs)) && (
         <>
           <Separator.Inline />
           <PipelineDetailBreadcrumb />
+        </>
+      )}
+      {isMatchingLocation(FrontlinePaths.TicketsConfigs) && (
+        <>
+          <Separator.Inline />
+          <PipelineConfigBreadcrumb />
         </>
       )}
     </>

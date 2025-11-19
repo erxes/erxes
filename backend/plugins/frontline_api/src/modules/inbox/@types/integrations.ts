@@ -167,6 +167,7 @@ export interface IIntegration {
   departmentIds?: string[];
   visibility?: string;
   configId?: string;
+  ticketConfigId?: string;
 }
 
 export interface IExternalLink {

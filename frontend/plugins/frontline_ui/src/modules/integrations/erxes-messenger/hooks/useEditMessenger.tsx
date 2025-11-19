@@ -3,6 +3,7 @@ import {
   EDIT_EM_MESSENGER_MUTATION,
   SAVE_EM_CONFIGS_MUTATION,
   SAVE_EM_APPEARANCE_MUTATION,
+  SAVE_EM_TICKET_CONFIG_MUTATION,
 } from '../graphql/mutations/createEmMessengerMutations';
 import { toast } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
@@ -21,7 +22,10 @@ export const useEditMessenger = () => {
     useMutation(SAVE_EM_APPEARANCE_MUTATION, {
       refetchQueries: ['Integrations'],
     });
-
+  const [saveTicketConfigMutation, { loading: saveTicketConfigLoading }] =
+    useMutation(SAVE_EM_TICKET_CONFIG_MUTATION, {
+      refetchQueries: ['Integrations'],
+    });
   const readVariables = useAtomValue(erxesMessengerSetupValuesAtom);
 
   const editMessenger = (
@@ -69,6 +73,19 @@ export const useEditMessenger = () => {
             });
           },
         });
+        saveTicketConfigMutation({
+          variables: {
+            _id: integrationId,
+            configId: configFormValues.ticketConfigId,
+          },
+          onError(e) {
+            toast({
+              title: 'Failed to save ticket config',
+              description: e.message,
+              variant: 'destructive',
+            });
+          },
+        });
       },
       onError(e) {
         toast({
@@ -85,4 +102,3 @@ export const useEditMessenger = () => {
     loading: editLoading || saveConfigsLoading || saveAppearanceLoading,
   };
 };
-

@@ -60,7 +60,6 @@ export const loadTicketClass = (models: IModels) => {
       if (params.startDate) query.startDate = { $gte: params.startDate };
       if (params.targetDate) query.targetDate = { $lte: params.targetDate };
       if (params.createdAt) query.createdAt = { $gte: params.createdAt };
-
       return models.Ticket.find(query)
         .populate('pipelineId')
         .populate('statusId')
