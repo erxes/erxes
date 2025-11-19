@@ -117,11 +117,28 @@ export const inputs = `
     }
 `;
 
+const commonPostQuerySelector = `
+    ${GQL_CURSOR_PARAM_DEFS}
+    featured: Boolean
+    type: String
+    categoryId: String
+    searchValue: String
+    status: PostStatus
+    tagIds: [String]
+    sortField: String
+    sortDirection: String
+    language: String
+`;
+
 export const queries = `
     cmsPost(_id: String, slug: String, language: String): Post
-    cmsPosts(clientPortalId: String, featured: Boolean,type: String, categoryId: String, searchValue: String, status: PostStatus, tagIds: [String], sortField: String, sortDirection: String, language: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): [Post]
-    cmsPostList(clientPortalId: String, featured: Boolean, type: String, categoryId: String, searchValue: String, status: PostStatus, tagIds: [String], sortField: String, sortDirection: String, language: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): PostList
+    cmsPosts(clientPortalId: String, ${commonPostQuerySelector}): [Post]
+    cmsPostList(clientPortalId: String, ${commonPostQuerySelector}): PostList
     cmsTranslations(postId: String): [Translation]
+
+    cpPosts(language: String, ${commonPostQuerySelector}): [Post]
+    cpPostList(language: String, ${commonPostQuerySelector}): PostList
+    cpPost(_id: String, slug: String, language: String, clientPortalId: String): Post
 `;
 
 export const mutations = `
@@ -131,7 +148,7 @@ export const mutations = `
     cmsPostsChangeStatus(_id: String!, status: PostStatus!): Post
     cmsPostsToggleFeatured(_id: String!): Post
 
-    cmsPostsIncrementViewCount(_id: String!): Post
+    cpPostsIncrementViewCount(_id: String!): Post
 
     cmsAddTranslation(input: TranslationInput!): Translation
     cmsEditTranslation(input: TranslationInput!): Translation

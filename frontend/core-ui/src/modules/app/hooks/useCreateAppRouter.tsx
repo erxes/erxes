@@ -95,19 +95,15 @@ export const useCreateAppRouter = () => {
                 element={<ContactsRoutes />}
               />
 
-              {isOS && (
-                <Route
-                  path={AppPath.SegmentsCatchAll}
-                  element={<SegmentRoutes />}
-                />
-              )}
+              <Route
+                path={AppPath.SegmentsCatchAll}
+                element={<SegmentRoutes />}
+              />
 
-              {isOS && (
-                <Route
-                  path={AppPath.AutomationsCatchAll}
-                  element={<AutomationRoutes />}
-                />
-              )}
+              <Route
+                path={AppPath.AutomationsCatchAll}
+                element={<AutomationRoutes />}
+              />
 
               {isOS && (
                 <Route path={AppPath.LogsCatchAll} element={<LogRoutes />} />
