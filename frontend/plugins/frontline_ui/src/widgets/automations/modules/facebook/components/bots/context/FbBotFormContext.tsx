@@ -26,17 +26,26 @@ export const FbBotFormProvider = ({
     resolver: zodResolver(facebookBotFormSchema),
     defaultValues: {
       name: facebookMessengerBot?.name || '',
-      persistentMenus: facebookMessengerBot?.persistentMenus || [
-        {
-          _id: generateAutomationElementId(),
-          text: 'Get Started',
-          type: 'button',
-        },
-      ],
+      persistentMenus: facebookMessengerBot?.persistentMenus?.length
+        ? facebookMessengerBot?.persistentMenus.map(
+            ({ _id, text, type, link }) => ({
+              _id: _id || generateAutomationElementId(),
+              text: text || '',
+              type: type || '',
+              link: link || '',
+            }),
+          )
+        : [
+            {
+              _id: generateAutomationElementId(),
+              text: 'Get Started',
+              type: 'button',
+            },
+          ],
       tag: facebookMessengerBot?.tag || 'CONFIRMED_EVENT_UPDATE',
-      greetText: facebookMessengerBot?.greetText,
-      isEnabledBackBtn: facebookMessengerBot?.isEnabledBackBtn,
-      backButtonText: facebookMessengerBot?.backButtonText,
+      greetText: facebookMessengerBot?.greetText || '',
+      isEnabledBackBtn: facebookMessengerBot?.isEnabledBackBtn || false,
+      backButtonText: facebookMessengerBot?.backButtonText || '',
       accountId: facebookMessengerBot?.accountId || '',
       pageId: facebookMessengerBot?.pageId || '',
     },
