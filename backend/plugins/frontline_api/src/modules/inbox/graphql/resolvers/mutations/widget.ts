@@ -245,7 +245,6 @@ export const widgetMutations: Record<string, Resolver> = {
       isUser,
       companyData,
       data,
-
       cachedCustomerId,
       deviceToken,
       visitorId,
@@ -424,12 +423,18 @@ export const widgetMutations: Record<string, Resolver> = {
         { $set: { isConnected: true } },
       );
     }
+    let ticketConfig;
+    if (integration.configId) {
+      ticketConfig = await models.TicketConfig.findOne({
+        _id: integration.configId,
+      });
+    }
 
     return {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
-      ticketData: integration.ticketData,
+      ticketConfig: ticketConfig || {},
       messengerData: await getMessengerData(models, subdomain, integration),
       customerId: customer && customer._id,
       visitorId: customer ? null : visitorId,

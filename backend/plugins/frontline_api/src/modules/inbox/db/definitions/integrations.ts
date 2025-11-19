@@ -299,5 +299,6 @@ export const integrationSchema = schemaWrapper(
     formData: { type: leadDataSchema },
     messengerData: { type: messengerDataSchema },
     uiOptions: { type: uiOptionsSchema },
+    ticketConfigId: { type: String },
   }),
 );

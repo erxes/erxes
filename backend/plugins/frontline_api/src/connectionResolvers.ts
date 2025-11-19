@@ -157,6 +157,11 @@ import { IActivityDocument } from '@/ticket/@types/activity';
 
 import { INoteModel, loadNoteClass } from '@/ticket/db/models/Note';
 import { INoteDocument } from '@/ticket/@types/note';
+import { ITicketConfigDocument } from './modules/ticket/@types/ticketConfig';
+import {
+  ITicketConfigModel,
+  loadTicketConfigClass,
+} from './modules/ticket/db/models/TicketConfig';
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -199,6 +204,7 @@ export interface IModels {
   Ticket: ITicketModel;
   Activity: IActivityModel;
   Note: INoteModel;
+  TicketConfig: ITicketConfigModel;
 
   MessengerApps: IMessengerAppModel;
   Configs: IConfigModel;
@@ -237,6 +243,10 @@ export const loadClasses = (
   models.Note = db.model<INoteDocument, INoteModel>(
     'frontline_tickets_notes',
     loadNoteClass(models),
+  );
+  models.TicketConfig = db.model<ITicketConfigDocument, ITicketConfigModel>(
+    'frontline_ticket_configs',
+    loadTicketConfigClass(models),
   );
   //inbox models
   models.Channels = db.model<IChannelDocument, IChannelModel>(

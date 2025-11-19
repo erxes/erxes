@@ -13,11 +13,7 @@ export interface ILink {
 }
 
 export interface ITicketData {
-  ticketLabel?: string;
-  ticketToggle?: boolean;
-  ticketStageId?: string;
-  ticketPipelineId?: string;
-  ticketBoardId?: string;
+  configId: string;
 }
 interface IOnboardingParams {
   brandName: string;
@@ -168,12 +164,12 @@ export interface IIntegration {
   formId?: string;
   leadData?: ILeadData;
   messengerData?: IMessengerData;
-  ticketData?: ITicketData;
   uiOptions?: IUiOptions;
   isActive?: boolean;
   isConnected?: boolean;
   departmentIds?: string[];
   visibility?: string;
+  configId?: string;
 }
 
 export interface IExternalLink {
