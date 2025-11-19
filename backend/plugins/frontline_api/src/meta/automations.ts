@@ -27,13 +27,17 @@ export default {
     generateModels,
   }),
 
-  checkCustomTrigger: createCoreModuleProducerHandler({
-    moduleName: 'automations',
-    modules,
-    methodName: TAutomationProducers.CHECK_CUSTOM_TRIGGER,
-    extractModuleName: (input) => input.moduleName,
-    generateModels,
-  }),
+  // checkCustomTrigger: createCoreModuleProducerHandler({
+  //   moduleName: 'automations',
+  //   modules,
+  //   methodName: TAutomationProducers.CHECK_CUSTOM_TRIGGER,
+  //   extractModuleName: (input) => input.moduleName,
+  //   generateModels,
+  // }),
+  checkCustomTrigger: async () => {
+    console.log('checkCustomTrigger');
+    return false;
+  },
   getAdditionalAttributes: createCoreModuleProducerHandler({
     moduleName: 'automations',
     modules,
