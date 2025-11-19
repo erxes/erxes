@@ -41,7 +41,7 @@ export const AutomationNodeLibrarySidebar = () => {
       >
         <Tabs.List className="w-full border-b">
           {AUTOMATION_LIBRARY_TABS.map(({ value, label }) => (
-            <Tabs.Trigger key={value} value={value} className="w-1/3">
+            <Tabs.Trigger key={value} value={value} className="w-1/2">
               {label}
             </Tabs.Trigger>
           ))}
@@ -68,14 +68,15 @@ export const AutomationNodeLibrarySidebar = () => {
             </Command.Group>
           </Tabs.Content>
         ))}
-        <Tabs.Content
+        {/* // TODO  */}
+        {/* <Tabs.Content
           className="space-y-2 "
           value={AutomationNodeType.Workflow}
         >
           <Command.Group>
             <WorkflowsNodeLibrary {...commonTabContentProps} />
           </Command.Group>
-        </Tabs.Content>
+        </Tabs.Content> */}
       </Tabs>
     </Command>
   );

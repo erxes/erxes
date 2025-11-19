@@ -56,7 +56,7 @@ export const TagsRecordTable = () => {
           colorCode: '',
           description: '',
           parentId: tag._id,
-          order: `${tag.order}new-item-temp/`,
+          order: `${tag.order ?? ''}new-item-temp/`,
         });
       }
     });

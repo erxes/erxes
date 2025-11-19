@@ -42,7 +42,7 @@ export const TagsEditDialog = () => {
     tagsEdit({
       variables: { id: tagId, ...data },
       onCompleted: () => {
-        toast({ title: 'Tag updated successfully.' });
+        toast({ title: 'Tag updated successfully.', variant: 'success' });
         reset();
         setOpen(null);
       },

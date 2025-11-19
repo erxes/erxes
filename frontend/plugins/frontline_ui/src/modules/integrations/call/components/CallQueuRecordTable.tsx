@@ -237,7 +237,7 @@ export const ProgressChart = ({
           {
             name: 'Progress',
             value: value,
-            fill: `hsl(var(--${variant}))`,
+            fill: `var(--${variant})`,
           },
         ]}
         startAngle={90}
@@ -250,7 +250,7 @@ export const ProgressChart = ({
           tick={false}
         />
         <RadialBar
-          background={{ fill: 'hsl(var(--border))' }}
+          background={{ fill: 'var(--border)' }}
           dataKey="value"
           cornerRadius={10}
         />

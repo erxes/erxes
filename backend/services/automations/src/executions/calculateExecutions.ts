@@ -21,9 +21,7 @@ const checkIsValidCustomTigger = async (
 ) => {
   const [pluginName, moduleName, collectionType, relationType] =
     splitType(type);
-  console.log({ pluginName, moduleName, collectionType, relationType });
-
-  return await sendCoreModuleProducer({
+  const response = await sendCoreModuleProducer({
     moduleName: 'automations',
     subdomain,
     pluginName,
@@ -37,10 +35,13 @@ const checkIsValidCustomTigger = async (
       target,
       config,
     },
-    defaultValue: false,
+    defaultValue: 'askdjaskdvaksvk',
   }).catch((e) =>
     debugError(`An error occurred while check trigger: ${e.message}`),
   );
+
+  console.log({ response });
+  return response || false;
 };
 
 const checkValidTrigger = async (

@@ -32,7 +32,6 @@ export const UserMoreInfoForm = ({
   const form = useForm<UserMoreInfoFormData>({
     resolver: zodResolver(isSaas ? saasSchema : baseSchema),
     defaultValues: {
-      avatar: '',
       firstName: '',
       lastName: '',
       ...(isSaas && { username: '' }),

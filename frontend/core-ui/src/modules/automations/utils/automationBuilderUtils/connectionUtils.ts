@@ -176,9 +176,12 @@ export const generateStandarConnection = (
   };
 };
 
-export const checkValidOptionalConnect = (source: Node<NodeData>) => {
+export const checkValidOptionalConnect = (
+  source: Node<NodeData>,
+  target: Node<NodeData>,
+) => {
   return !(source?.data.config?.optionalConnects || []).find(
     ({ sourceId, actionId }: TAutomationOptionalConnect) =>
-      sourceId === source.id && actionId,
+      sourceId === source.id && actionId === target.id,
   );
 };

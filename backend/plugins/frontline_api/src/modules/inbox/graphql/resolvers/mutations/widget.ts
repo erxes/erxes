@@ -4,7 +4,9 @@ import {
   isEnabled,
   redis,
   sendTRPCMessage,
+  markResolvers,
 } from 'erxes-api-shared/utils';
+import { Resolver } from 'erxes-api-shared/core-types';
 import { IModels, generateModels } from '~/connectionResolvers';
 import {
   IIntegrationDocument,
@@ -210,7 +212,7 @@ const createVisitor = async (subdomain: string, visitorId: string) => {
   return customer;
 };
 
-export const widgetMutations = {
+export const widgetMutations: Record<string, Resolver> = {
   async widgetsLeadIncreaseViewCount(
     _root,
     { formId }: { formId: string },
@@ -934,8 +936,6 @@ export const widgetMutations = {
       conversationId,
       customerId,
       message,
-      type,
-      payload,
     }: {
       conversationId?: string;
       customerId?: string;
@@ -945,7 +945,7 @@ export const widgetMutations = {
       payload: string;
       type: string;
     },
-    { models, subdomain }: IContext,
+    { models }: IContext,
   ) {
     const integration =
       (await models.Integrations.findOne({ _id: integrationId })) ||
@@ -1018,3 +1018,9 @@ export const widgetMutations = {
     return { botData: botRequest.responses };
   },
 };
+
+markResolvers(widgetMutations, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});

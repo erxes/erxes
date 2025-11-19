@@ -1,6 +1,3 @@
-// getStatusIcon.tsx
-import type { TablerIconsProps } from '@tabler/icons-react';
-
 import {
   IconCircleDashed,
   IconCircle,

@@ -41,6 +41,7 @@ export const CompaniesCommandBar = () => {
               toast({
                 title: 'Error',
                 description: e.message,
+                variant: 'destructive',
               });
             },
           })}
