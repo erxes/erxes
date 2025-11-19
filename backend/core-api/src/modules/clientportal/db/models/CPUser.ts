@@ -24,6 +24,8 @@ import {
   handleCPContacts,
   handleCPUserDeviceToken,
 } from '@/clientportal/utils';
+import { sendSaasMagicLinkEmail } from '~/modules/auth/utils';
+import { sendEmail } from '~/utils/email';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -49,9 +51,12 @@ export interface ICPUserModel extends Model<ICPUserDocument> {
     code?: string;
   }): never;
   invite(doc: ICPInvitiation): Promise<ICPUserDocument>;
-  createTestUser(doc: ICPInvitiation): Promise<ICPUserDocument>;
+  createTestUser(
+    subdomain: string,
+    doc: ICPInvitiation,
+  ): Promise<ICPUserDocument>;
   getUser(doc: any): Promise<ICPUserDocument>;
-  createUser(doc: ICPUser): Promise<ICPUserDocument>;
+  createUser(subdomain: string, doc: ICPUser): Promise<ICPUserDocument>;
   updateUser(_id: string, doc: ICPUser): Promise<ICPUserDocument>;
   removeUser(_ids: string[]): Promise<{ n: number; ok: number }>;
   checkPassword(password: string): void;
@@ -217,14 +222,20 @@ export const loadCPUserClass = (models: IModels) => {
       }
     }
 
-    public static async createUser({
-      password,
-      clientPortalId,
-      ...doc
-    }: ICPUser) {
-      const portal = await models.ClientPortal.getConfig(clientPortalId);
+    public static checkPassword(password: string) {
+      if (!password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/)) {
+        throw new Error(
+          'Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters',
+        );
+      }
+    }
 
-      if (!portal.otpConfig && !portal.mailConfig && !password) {
+    public static async createUser(
+      subdomain: string,
+      portal: IClientPortalDocument,
+      { password, ...doc }: ICPUser,
+    ) {
+      if (!portal.enableOTP && !portal.enableMail && !password) {
         throw new Error('Password is required');
       }
 
@@ -238,963 +249,966 @@ export const loadCPUserClass = (models: IModels) => {
         isPhoneVerified: false,
       };
 
-      if (doc.email && !portal.mailConfig) {
+      if (doc.email && !portal.enableMail) {
         document.isEmailVerified = true;
       }
 
-      if (doc.phone && !portal.otpConfig) {
+      if (doc.phone && !portal.enableOTP) {
         document.isPhoneVerified = true;
       }
 
       const user = await handleCPContacts({
         models,
-        clientPortalId,
+        clientPortalId: portal._id,
         document,
         password,
       });
 
-      if (user.email && portal.mailConfig) {
+      if (user.email && portal.enableMail) {
         const { token, expires } = await models.CPUser.generateToken();
 
         user.registrationToken = token;
         user.registrationTokenExpires = expires;
 
         await user.save();
-      }
 
-      return user;
-    }
-
-    public static async updateUser(_id, doc: ICPUser) {
-      if (doc.password) {
-        this.checkPassword(doc.password);
-        doc.password = await this.generatePassword(doc.password);
-      }
-
-      await models.CPUser.updateOne(
-        { _id },
-        { $set: { ...doc, modifiedAt: new Date() } },
-      );
-
-      return models.CPUser.findOne({ _id });
-    }
-
-    /**
-     * Remove remove Business Portal Users
-     */
-    public static async removeUser(clientPortalUserIds: string[]) {
-      return models.CPUser.deleteMany({
-        _id: { $in: clientPortalUserIds },
-      });
-    }
-
-    public static async getUser(doc: any) {
-      const user = await models.CPUser.findOne(doc);
-
-      if (!user) {
-        throw new Error('user not found');
-      }
-
-      return user;
-    }
-
-    public static getSecret() {
-      return process.env.JWT_TOKEN_SECRET || '';
-    }
-
-    public static generatePassword(password: string) {
-      const hashPassword = sha256(password);
-
-      return bcrypt.hash(hashPassword, SALT_WORK_FACTOR);
-    }
-
-    public static comparePassword(password: string, userPassword: string) {
-      const hashPassword = sha256(password);
-
-      return bcrypt.compare(hashPassword, userPassword);
-    }
-
-    public static async generateToken() {
-      const buffer = await crypto.randomBytes(20);
-      const token = buffer.toString('hex');
-
-      return {
-        token,
-        expires: Date.now() + 86400000,
-      };
-    }
-
-    public static checkPassword(password: string) {
-      if (!password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/)) {
-        throw new Error(
-          'Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters',
-        );
-      }
-    }
-
-    public static async clientPortalResetPassword({
-      token,
-      newPassword,
-    }: {
-      token: string;
-      newPassword: string;
-    }) {
-      const user = await models.CPUser.findOne({
-        resetPasswordToken: token,
-        resetPasswordExpires: {
-          $gt: Date.now(),
-        },
-      });
-
-      if (!user) {
-        throw new Error('Password reset token is invalid or has expired.');
-      }
-
-      if (!newPassword) {
-        throw new Error('Password is required.');
-      }
-
-      this.checkPassword(newPassword);
-
-      // set new password
-      await models.CPUser.findByIdAndUpdate(user._id, {
-        password: await this.generatePassword(newPassword),
-        resetPasswordToken: undefined,
-        resetPasswordExpires: undefined,
-      });
-
-      return models.CPUser.findOne({ _id: user._id });
-    }
-
-    public static async changePassword({
-      _id,
-      currentPassword,
-      newPassword,
-    }: {
-      _id: string;
-      currentPassword: string;
-      newPassword: string;
-    }) {
-      // Password cannot be empty string
-      if (newPassword === '') {
-        throw new Error('Password cannot be empty');
-      }
-
-      this.checkPassword(newPassword);
-
-      const user = await models.CPUser.findOne({
-        _id,
-      }).lean();
-
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      // check current password ============
-      const valid = user.password
-        ? await this.comparePassword(currentPassword, user.password)
-        : false;
-
-      if (!valid) {
-        throw new Error('Incorrect current password');
-      }
-
-      // set new password
-      await models.CPUser.findByIdAndUpdate(user._id, {
-        password: await this.generatePassword(newPassword),
-      });
-
-      return models.CPUser.findOne({ _id: user._id });
-    }
-
-    public static async forgotPassword(
-      portal: IClientPortalDocument,
-      phone: string,
-      email: string,
-    ) {
-      const query: any = { clientPortalId: portal._id };
-
-      const isEmail = portal.passwordVerificationConfig
-        ? !portal.passwordVerificationConfig.verifyByOTP
-        : true;
-
-      if (email) {
-        query.email = email;
-      }
-
-      if (phone) {
-        query.phone = phone;
-      }
-
-      const user = await models.CPUser.getUser(query);
-
-      if (isEmail) {
-        // create the random token
-        const buffer = await crypto.randomBytes(20);
-        const token = buffer.toString('hex');
-
-        // save token & expiration date
-        await models.CPUser.findByIdAndUpdate(user._id, {
-          resetPasswordToken: token,
-          resetPasswordExpires: Date.now() + 86400000,
-        });
-
-        return { token };
-      }
-
-      const phoneCode = await this.imposeVerificationCode({
-        codeLength: portal.otpConfig ? portal.otpConfig.codeLength : 4,
-        clientPortalId: portal._id,
-        phone,
-        email,
-        isRessetting: true,
-      });
-
-      return { phoneCode };
-    }
-
-    public static async changePasswordWithCode({
-      phone,
-      code,
-      password,
-      isSecondary = false,
-    }: {
-      phone: string;
-      code: string;
-      password: string;
-      isSecondary: boolean;
-    }) {
-      const user = await models.CPUser.findOne({
-        $or: [
-          { email: { $regex: new RegExp(`^${phone}$`, 'i') } },
-          { phone: { $regex: new RegExp(`^${phone}$`, 'i') } },
-        ],
-        resetPasswordToken: code,
-      }).lean();
-
-      if (!user) {
-        throw new Error('Wrong code');
-      }
-
-      // Password cannot be empty string
-      if (password === '') {
-        throw new Error('Password cannot be empty');
-      }
-
-      this.checkPassword(password);
-
-      if (phone.includes('@')) {
-        const field = isSecondary ? 'secondaryPassword' : 'password';
-        await models.CPUser.findByIdAndUpdate(user._id, {
-          isEmailVerified: true,
-          [field]: await this.generatePassword(password),
-        });
-
-        return 'success';
-      }
-
-      // set new password
-      const field = isSecondary ? 'secondaryPassword' : 'password';
-
-      await models.CPUser.findByIdAndUpdate(user._id, {
-        isPhoneVerified: true,
-        [field]: await this.generatePassword(password),
-      });
-
-      return 'success';
-    }
-
-    public static async createTokens(_user: ICPUserDocument, secret: string) {
-      const user = {
-        _id: _user._id,
-        email: _user.email,
-        firstName: _user.firstName,
-        lastName: _user.lastName,
-      };
-
-      const createToken = await jwt.sign({ user }, secret, {
-        expiresIn: '1d',
-      });
-
-      const createRefreshToken = await jwt.sign({ user }, secret, {
-        expiresIn: '7d',
-      });
-
-      return [createToken, createRefreshToken];
-    }
-
-    public static async refreshTokens(refreshToken: string) {
-      let _id = '';
-
-      try {
-        // validate refresh token
-        const { user }: any = jwt.verify(refreshToken, this.getSecret());
-
-        _id = user._id;
-        // if refresh token is expired then force to login
-      } catch (e) {
-        return {};
-      }
-
-      const dbUsers = await models.CPUser.findOne({ _id });
-
-      if (!dbUsers) {
-        throw new Error('User not found');
-      }
-
-      // recreate tokens
-      const [newToken, newRefreshToken] = await this.createTokens(
-        dbUsers,
-        this.getSecret(),
-      );
-
-      return {
-        token: newToken,
-        refreshToken: newRefreshToken,
-        user: dbUsers,
-      };
-    }
-
-    public static async imposeVerificationCode({
-      codeLength,
-      clientPortalId,
-      phone,
-      email,
-      expireAfter,
-      isRessetting,
-      testUserOTP,
-    }: {
-      codeLength: number;
-      clientPortalId: string;
-      phone?: string;
-      email?: string;
-      expireAfter?: number;
-      isRessetting?: boolean;
-      testUserOTP?: string;
-    }) {
-      const code = testUserOTP ? testUserOTP : random('0', codeLength);
-      const codeExpires = Date.now() + 60000 * (expireAfter || 5);
-
-      let query: any = {};
-      let userFindQuery: any = {};
-
-      if (phone) {
-        query = {
-          phoneVerificationCode: code,
-          phoneVerificationCodeExpires: codeExpires,
-        };
-        userFindQuery = { phone, clientPortalId };
-      }
-
-      if (email) {
-        query = {
-          emailVerificationCode: code,
-          emailVerificationCodeExpires: codeExpires,
-        };
-        userFindQuery = { email, clientPortalId };
-      }
-
-      const user = await models.CPUser.findOne(userFindQuery);
-
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      if (isRessetting) {
-        await models.CPUser.updateOne(
-          { _id: user._id },
+        await sendEmail(
+          subdomain,
           {
-            $set: {
-              resetPasswordToken: code,
-              resetPasswordExpires: codeExpires,
-            },
+            toEmails: [user.email],
+            title: portal.mailConfig?.subject || 'Registration confirmation',
+            customHtml: portal.mailConfig?.registrationContent || '',
+            customHtmlData: { content: token },
+            userId: user._id,
           },
+          models,
         );
-
-        return code;
       }
-
-      await models.CPUser.updateOne(
-        { _id: user._id },
-        {
-          $set: query,
-        },
-      );
-
-      return code;
-    }
-
-    public static async verifyUser(args: ICPVerificationParams) {
-      const { phoneOtp, emailOtp, userId, password } = args;
-      const user = await models.CPUser.findById(userId);
-
-      if (!user) {
-        throw new Error('user not found');
-      }
-
-      const now = new Date().getTime();
-
-      if (phoneOtp) {
-        if (
-          new Date(user.phoneVerificationCodeExpires).getTime() < now ||
-          user.phoneVerificationCode !== phoneOtp
-        ) {
-          throw new Error('Wrong code or code has expired');
-        }
-        user.isPhoneVerified = true;
-        user.phoneVerificationCode = '';
-      }
-
-      if (emailOtp) {
-        if (
-          new Date(user.emailVerificationCodeExpires).getTime() < now ||
-          user.emailVerificationCode !== emailOtp
-        ) {
-          throw new Error('Wrong code or code has expired');
-        }
-        user.isEmailVerified = true;
-        user.emailVerificationCode = '';
-      }
-
-      if (password) {
-        this.checkPassword(password);
-        user.password = await this.generatePassword(password);
-      }
-
-      await user.save();
 
       return user;
     }
 
-    public static async login({
-      login,
-      password,
-      deviceToken,
-      clientPortalId,
-      twoFactor,
-    }: ICPLoginParams) {
-      if (!login || !password || !clientPortalId) {
-        throw new Error('Invalid login');
-      }
+    //   public static async updateUser(_id, doc: ICPUser) {
+    //     if (doc.password) {
+    //       this.checkPassword(doc.password);
+    //       doc.password = await this.generatePassword(doc.password);
+    //     }
 
-      const user = await models.CPUser.findOne({
-        $or: [
-          { email: { $regex: new RegExp(`^${escapeRegExp(login)}$`, 'i') } },
-          { username: { $regex: new RegExp(`^${escapeRegExp(login)}$`, 'i') } },
-          { phone: { $regex: new RegExp(`^${escapeRegExp(login)}$`, 'i') } },
-        ],
-        clientPortalId,
-      });
+    //     await models.CPUser.updateOne(
+    //       { _id },
+    //       { $set: { ...doc, modifiedAt: new Date() } },
+    //     );
 
-      if (!user || !user.password) {
-        throw new Error('Invalid login');
-      }
-
-      if (!user.isPhoneVerified && !user.isEmailVerified) {
-        throw new Error('User is not verified');
-      }
-
-      const cp = await models.ClientPortal.getConfig(clientPortalId);
-
-      if (
-        cp.manualVerificationConfig &&
-        user.type === 'customer' &&
-        user.verificationRequest &&
-        user.verificationRequest.status !== 'verified' &&
-        cp.manualVerificationConfig.verifyCustomer
-      ) {
-        throw new Error('User is not verified');
-      }
-
-      if (
-        cp.manualVerificationConfig &&
-        user.type === 'company' &&
-        user.verificationRequest &&
-        user.verificationRequest.status !== 'verified' &&
-        cp.manualVerificationConfig.verifyCompany
-      ) {
-        throw new Error('User is not verified');
-      }
-
-      const valid = await this.comparePassword(password, user.password);
-      const secondaryPassCheck = await this.comparePassword(
-        password,
-        user.secondaryPassword || '',
-      );
-
-      if (!valid && !secondaryPassCheck) {
-        // bad password
-        throw new Error('Invalid login');
-      }
-
-      if (!user.email && !user.phone) {
-        // not verified email or phone
-        throw new Error('Account not verified');
-      }
-
-      let isFound;
-      if (cp.twoFactorConfig?.enableTwoFactor) {
-        if (twoFactor && twoFactor.key && twoFactor.device) {
-          isFound = user.twoFactorDevices?.find((x) => x.key === twoFactor.key);
-        } else {
-          throw new Error('TwoFactor argument is required');
-        }
-      }
-
-      // await handleDeviceToken(user, deviceToken);
-
-      this.updateSession(user._id);
-
-      return {
-        user,
-        portal: cp,
-        isPassed2FA: !!isFound,
-      };
-    }
-
-    // public static async createTestUser({
-    //   password,
-    //   clientPortalId,
-    //   ...doc
-    // }: ICPInvitiation) {
-    //   if (!password) {
-    //     password = random('Aa0!', 8);
+    //     return models.CPUser.findOne({ _id });
     //   }
 
-    //   if (password) {
-    //     this.checkPassword(password);
+    //   /**
+    //    * Remove remove Business Portal Users
+    //    */
+    //   public static async removeUser(clientPortalUserIds: string[]) {
+    //     return models.CPUser.deleteMany({
+    //       _id: { $in: clientPortalUserIds },
+    //     });
     //   }
 
-    //   return await handleContacts({
-    //     models,
-    //     subdomain,
-    //     clientPortalId,
-    //     document: doc,
+    //   public static async getUser(doc: any) {
+    //     const user = await models.CPUser.findOne(doc);
+
+    //     if (!user) {
+    //       throw new Error('user not found');
+    //     }
+
+    //     return user;
+    //   }
+
+    //   public static getSecret() {
+    //     return process.env.JWT_TOKEN_SECRET || '';
+    //   }
+
+    //   public static generatePassword(password: string) {
+    //     const hashPassword = sha256(password);
+
+    //     return bcrypt.hash(hashPassword, SALT_WORK_FACTOR);
+    //   }
+
+    //   public static comparePassword(password: string, userPassword: string) {
+    //     const hashPassword = sha256(password);
+
+    //     return bcrypt.compare(hashPassword, userPassword);
+    //   }
+
+    //   public static async generateToken() {
+    //     const buffer = await crypto.randomBytes(20);
+    //     const token = buffer.toString('hex');
+
+    //     return {
+    //       token,
+    //       expires: Date.now() + 86400000,
+    //     };
+    //   }
+
+    //   public static async clientPortalResetPassword({
+    //     token,
+    //     newPassword,
+    //   }: {
+    //     token: string;
+    //     newPassword: string;
+    //   }) {
+    //     const user = await models.CPUser.findOne({
+    //       resetPasswordToken: token,
+    //       resetPasswordExpires: {
+    //         $gt: Date.now(),
+    //       },
+    //     });
+
+    //     if (!user) {
+    //       throw new Error('Password reset token is invalid or has expired.');
+    //     }
+
+    //     if (!newPassword) {
+    //       throw new Error('Password is required.');
+    //     }
+
+    //     this.checkPassword(newPassword);
+
+    //     // set new password
+    //     await models.CPUser.findByIdAndUpdate(user._id, {
+    //       password: await this.generatePassword(newPassword),
+    //       resetPasswordToken: undefined,
+    //       resetPasswordExpires: undefined,
+    //     });
+
+    //     return models.CPUser.findOne({ _id: user._id });
+    //   }
+
+    //   public static async changePassword({
+    //     _id,
+    //     currentPassword,
+    //     newPassword,
+    //   }: {
+    //     _id: string;
+    //     currentPassword: string;
+    //     newPassword: string;
+    //   }) {
+    //     // Password cannot be empty string
+    //     if (newPassword === '') {
+    //       throw new Error('Password cannot be empty');
+    //     }
+
+    //     this.checkPassword(newPassword);
+
+    //     const user = await models.CPUser.findOne({
+    //       _id,
+    //     }).lean();
+
+    //     if (!user) {
+    //       throw new Error('User not found');
+    //     }
+
+    //     // check current password ============
+    //     const valid = user.password
+    //       ? await this.comparePassword(currentPassword, user.password)
+    //       : false;
+
+    //     if (!valid) {
+    //       throw new Error('Incorrect current password');
+    //     }
+
+    //     // set new password
+    //     await models.CPUser.findByIdAndUpdate(user._id, {
+    //       password: await this.generatePassword(newPassword),
+    //     });
+
+    //     return models.CPUser.findOne({ _id: user._id });
+    //   }
+
+    //   public static async forgotPassword(
+    //     portal: IClientPortalDocument,
+    //     phone: string,
+    //     email: string,
+    //   ) {
+    //     const query: any = { clientPortalId: portal._id };
+
+    //     const isEmail = portal.passwordVerificationConfig
+    //       ? !portal.passwordVerificationConfig.verifyByOTP
+    //       : true;
+
+    //     if (email) {
+    //       query.email = email;
+    //     }
+
+    //     if (phone) {
+    //       query.phone = phone;
+    //     }
+
+    //     const user = await models.CPUser.getUser(query);
+
+    //     if (isEmail) {
+    //       // create the random token
+    //       const buffer = await crypto.randomBytes(20);
+    //       const token = buffer.toString('hex');
+
+    //       // save token & expiration date
+    //       await models.CPUser.findByIdAndUpdate(user._id, {
+    //         resetPasswordToken: token,
+    //         resetPasswordExpires: Date.now() + 86400000,
+    //       });
+
+    //       return { token };
+    //     }
+
+    //     const phoneCode = await this.imposeVerificationCode({
+    //       codeLength: portal.otpConfig ? portal.otpConfig.codeLength : 4,
+    //       clientPortalId: portal._id,
+    //       phone,
+    //       email,
+    //       isRessetting: true,
+    //     });
+
+    //     return { phoneCode };
+    //   }
+
+    //   public static async changePasswordWithCode({
+    //     phone,
+    //     code,
     //     password,
-    //   });
+    //     isSecondary = false,
+    //   }: {
+    //     phone: string;
+    //     code: string;
+    //     password: string;
+    //     isSecondary: boolean;
+    //   }) {
+    //     const user = await models.CPUser.findOne({
+    //       $or: [
+    //         { email: { $regex: new RegExp(`^${phone}$`, 'i') } },
+    //         { phone: { $regex: new RegExp(`^${phone}$`, 'i') } },
+    //       ],
+    //       resetPasswordToken: code,
+    //     }).lean();
 
-    //   // TODO: improve test user creation
-    //   // const portal = await models.ClientPortal.getConfig(clientPortalId);
+    //     if (!user) {
+    //       throw new Error('Wrong code');
+    //     }
 
-    //   // await sendAfterMutation(
-    //   //
-    //   //   'clientportal:user',
-    //   //   'create',
-    //   //   user,
-    //   //   user,
-    //   //   `User's profile has been created on ${portal.name}`,
-    //   // );
+    //     // Password cannot be empty string
+    //     if (password === '') {
+    //       throw new Error('Password cannot be empty');
+    //     }
 
-    //   // return user;
-    // }
-
-    // public static async invite({
-    //   password,
-    //   clientPortalId,
-    //   ...doc
-    // }: ICPInvitiation) {
-    //   if (!password) {
-    //     password = random('Aa0!', 8);
-    //   }
-
-    //   if (password) {
     //     this.checkPassword(password);
+
+    //     if (phone.includes('@')) {
+    //       const field = isSecondary ? 'secondaryPassword' : 'password';
+    //       await models.CPUser.findByIdAndUpdate(user._id, {
+    //         isEmailVerified: true,
+    //         [field]: await this.generatePassword(password),
+    //       });
+
+    //       return 'success';
+    //     }
+
+    //     // set new password
+    //     const field = isSecondary ? 'secondaryPassword' : 'password';
+
+    //     await models.CPUser.findByIdAndUpdate(user._id, {
+    //       isPhoneVerified: true,
+    //       [field]: await this.generatePassword(password),
+    //     });
+
+    //     return 'success';
     //   }
 
-    //   const plainPassword = password || '';
+    //   public static async createTokens(_user: ICPUserDocument, secret: string) {
+    //     const user = {
+    //       _id: _user._id,
+    //       email: _user.email,
+    //       firstName: _user.firstName,
+    //       lastName: _user.lastName,
+    //     };
 
-    //   const user = await handleContacts({
-    //     models,
-    //     subdomain,
+    //     const createToken = await jwt.sign({ user }, secret, {
+    //       expiresIn: '1d',
+    //     });
+
+    //     const createRefreshToken = await jwt.sign({ user }, secret, {
+    //       expiresIn: '7d',
+    //     });
+
+    //     return [createToken, createRefreshToken];
+    //   }
+
+    //   public static async refreshTokens(refreshToken: string) {
+    //     let _id = '';
+
+    //     try {
+    //       // validate refresh token
+    //       const { user }: any = jwt.verify(refreshToken, this.getSecret());
+
+    //       _id = user._id;
+    //       // if refresh token is expired then force to login
+    //     } catch (e) {
+    //       return {};
+    //     }
+
+    //     const dbUsers = await models.CPUser.findOne({ _id });
+
+    //     if (!dbUsers) {
+    //       throw new Error('User not found');
+    //     }
+
+    //     // recreate tokens
+    //     const [newToken, newRefreshToken] = await this.createTokens(
+    //       dbUsers,
+    //       this.getSecret(),
+    //     );
+
+    //     return {
+    //       token: newToken,
+    //       refreshToken: newRefreshToken,
+    //       user: dbUsers,
+    //     };
+    //   }
+
+    //   public static async imposeVerificationCode({
+    //     codeLength,
     //     clientPortalId,
-    //     document: doc,
-    //     password,
-    //   });
+    //     phone,
+    //     email,
+    //     expireAfter,
+    //     isRessetting,
+    //     testUserOTP,
+    //   }: {
+    //     codeLength: number;
+    //     clientPortalId: string;
+    //     phone?: string;
+    //     email?: string;
+    //     expireAfter?: number;
+    //     isRessetting?: boolean;
+    //     testUserOTP?: string;
+    //   }) {
+    //     const code = testUserOTP ? testUserOTP : random('0', codeLength);
+    //     const codeExpires = Date.now() + 60000 * (expireAfter || 5);
 
-    //   const portal = await models.ClientPortal.getConfig(clientPortalId);
+    //     let query: any = {};
+    //     let userFindQuery: any = {};
 
-    //   if (!doc.disableVerificationMail) {
-    //     const { token, expires } = await models.CPUser.generateToken();
+    //     if (phone) {
+    //       query = {
+    //         phoneVerificationCode: code,
+    //         phoneVerificationCodeExpires: codeExpires,
+    //       };
+    //       userFindQuery = { phone, clientPortalId };
+    //     }
 
-    //     user.registrationToken = token;
-    //     user.registrationTokenExpires = expires;
+    //     if (email) {
+    //       query = {
+    //         emailVerificationCode: code,
+    //         emailVerificationCodeExpires: codeExpires,
+    //       };
+    //       userFindQuery = { email, clientPortalId };
+    //     }
+
+    //     const user = await models.CPUser.findOne(userFindQuery);
+
+    //     if (!user) {
+    //       throw new Error('User not found');
+    //     }
+
+    //     if (isRessetting) {
+    //       await models.CPUser.updateOne(
+    //         { _id: user._id },
+    //         {
+    //           $set: {
+    //             resetPasswordToken: code,
+    //             resetPasswordExpires: codeExpires,
+    //           },
+    //         },
+    //       );
+
+    //       return code;
+    //     }
+
+    //     await models.CPUser.updateOne(
+    //       { _id: user._id },
+    //       {
+    //         $set: query,
+    //       },
+    //     );
+
+    //     return code;
+    //   }
+
+    //   public static async verifyUser(args: ICPVerificationParams) {
+    //     const { phoneOtp, emailOtp, userId, password } = args;
+    //     const user = await models.CPUser.findById(userId);
+
+    //     if (!user) {
+    //       throw new Error('user not found');
+    //     }
+
+    //     const now = new Date().getTime();
+
+    //     if (phoneOtp) {
+    //       if (
+    //         new Date(user.phoneVerificationCodeExpires).getTime() < now ||
+    //         user.phoneVerificationCode !== phoneOtp
+    //       ) {
+    //         throw new Error('Wrong code or code has expired');
+    //       }
+    //       user.isPhoneVerified = true;
+    //       user.phoneVerificationCode = '';
+    //     }
+
+    //     if (emailOtp) {
+    //       if (
+    //         new Date(user.emailVerificationCodeExpires).getTime() < now ||
+    //         user.emailVerificationCode !== emailOtp
+    //       ) {
+    //         throw new Error('Wrong code or code has expired');
+    //       }
+    //       user.isEmailVerified = true;
+    //       user.emailVerificationCode = '';
+    //     }
+
+    //     if (password) {
+    //       this.checkPassword(password);
+    //       user.password = await this.generatePassword(password);
+    //     }
 
     //     await user.save();
 
-    //     // TODO: implement send email
-    //     // const config = portal.mailConfig || {
-    //     // invitationContent: DEFAULT_MAIL_CONFIG.INVITE,
-    //     // };
-
-    //     // const link = `${portal.url}/verify?token=${token}`;
-
-    //     // let content = config.invitationContent.replace(/{{ link }}/, link);
-    //     // content = content.replace(/{{ password }}/, plainPassword);
-
-    //     // await sendCoreMessage({
-    //     //
-    //     //   action: 'sendEmail',
-    //     //   data: {
-    //     //     toEmails: [doc.email],
-    //     //     title: `${portal.name} invitation`,
-    //     //     template: {
-    //     //       name: 'base',
-    //     //       data: {
-    //     //         content,
-    //     //       },
-    //     //     },
-    //     //   },
-    //     // });
+    //     return user;
     //   }
 
-    //   // TODO: implement back
-    //   // await sendAfterMutation(
-    //   //
-    //   //   'clientportal:user',
-    //   //   'create',
-    //   //   user,
-    //   //   user,
-    //   //   `User's profile has been created on ${portal.name}`,
-    //   // );
+    //   public static async login({
+    //     login,
+    //     password,
+    //     clientPortalId,
+    //     twoFactor,
+    //   }: ICPLoginParams) {
+    //     if (!login || !password || !clientPortalId) {
+    //       throw new Error('Invalid login');
+    //     }
 
-    //   return user;
-    // }
+    //     const user = await models.CPUser.findOne({
+    //       $or: [
+    //         { email: { $regex: new RegExp(`^${escapeRegExp(login)}$`, 'i') } },
+    //         { username: { $regex: new RegExp(`^${escapeRegExp(login)}$`, 'i') } },
+    //         { phone: { $regex: new RegExp(`^${escapeRegExp(login)}$`, 'i') } },
+    //       ],
+    //       clientPortalId,
+    //     });
 
-    public static async confirmInvitation({
-      token,
-      password,
-      passwordConfirmation,
-      username,
-    }: {
-      token: string;
-      password: string;
-      passwordConfirmation: string;
-      username?: string;
-    }) {
-      const user = await models.CPUser.findOne({
-        registrationToken: token,
-        registrationTokenExpires: {
-          $gt: Date.now(),
-        },
-      });
+    //     if (!user || !user.password) {
+    //       throw new Error('Invalid login');
+    //     }
 
-      if (!user || !token) {
-        throw new Error('Token is invalid or has expired');
-      }
+    //     if (!user.isPhoneVerified && !user.isEmailVerified) {
+    //       throw new Error('User is not verified');
+    //     }
 
-      const doc: any = { isEmailVerified: true, registrationToken: undefined };
+    //     const cp = await models.ClientPortal.getConfig(clientPortalId);
 
-      if (password) {
-        if (password !== passwordConfirmation) {
-          throw new Error('Password does not match');
-        }
+    //     if (
+    //       cp.manualVerificationConfig &&
+    //       user.type === 'customer' &&
+    //       user.verificationRequest &&
+    //       user.verificationRequest.status !== 'verified' &&
+    //       cp.manualVerificationConfig.verifyCustomer
+    //     ) {
+    //       throw new Error('User is not verified');
+    //     }
 
-        this.checkPassword(password);
-        doc.password = await this.generatePassword(password);
-      }
+    //     if (
+    //       cp.manualVerificationConfig &&
+    //       user.type === 'company' &&
+    //       user.verificationRequest &&
+    //       user.verificationRequest.status !== 'verified' &&
+    //       cp.manualVerificationConfig.verifyCompany
+    //     ) {
+    //       throw new Error('User is not verified');
+    //     }
 
-      if (username) {
-        doc.username = username;
-      }
+    //     const valid = await this.comparePassword(password, user.password);
+    //     const secondaryPassCheck = await this.comparePassword(
+    //       password,
+    //       user.secondaryPassword || '',
+    //     );
 
-      await models.CPUser.updateOne(
-        { _id: user._id },
-        {
-          $set: doc,
-        },
-      );
+    //     if (!valid && !secondaryPassCheck) {
+    //       // bad password
+    //       throw new Error('Invalid login');
+    //     }
 
-      return user;
-    }
+    //     if (!user.email && !user.phone) {
+    //       // not verified email or phone
+    //       throw new Error('Account not verified');
+    //     }
 
-    // public static async verifyUsers(userIds: string[], type: string) {
-    //   const qryOption =
-    //     type === 'phone' ? { phone: { $ne: null } } : { email: { $ne: null } };
+    //     let isFound;
+    //     if (cp.twoFactorConfig?.enableTwoFactor) {
+    //       if (twoFactor && twoFactor.key && twoFactor.device) {
+    //         isFound = user.twoFactorDevices?.find((x) => x.key === twoFactor.key);
+    //       } else {
+    //         throw new Error('TwoFactor argument is required');
+    //       }
+    //     }
 
-    //   const set =
-    //     type === 'phone'
-    //       ? { isPhoneVerified: true }
-    //       : { isEmailVerified: true };
+    //     // await handleDeviceToken(user, deviceToken);
 
-    //   const users = await models.CPUser.find({
-    //     _id: { $in: userIds },
-    //     ...qryOption,
-    //   });
+    //     this.updateSession(user._id);
 
-    //   if (!users || !users.length) {
-    //     throw new Error('Users not found');
+    //     return {
+    //       user,
+    //       portal: cp,
+    //       isPassed2FA: !!isFound,
+    //     };
     //   }
 
-    //   await models.CPUser.updateMany(
-    //     { _id: { $in: userIds } },
-    //     {
-    //       $set: set,
-    //     },
-    //   );
+    //   // public static async createTestUser({
+    //   //   password,
+    //   //   clientPortalId,
+    //   //   ...doc
+    //   // }: ICPInvitiation) {
+    //   //   if (!password) {
+    //   //     password = random('Aa0!', 8);
+    //   //   }
 
-    //   for (const user of users) {
-    //     // await putActivityLog( user);
-    //     // await sendAfterMutation(
-    //     //
-    //     //   'clientportal:user',
-    //     //   'create',
-    //     //   user,
-    //     //   user,
-    //     //   `User's profile has been created`
-    //     // );
+    //   //   if (password) {
+    //   //     this.checkPassword(password);
+    //   //   }
+
+    //   //   return await handleContacts({
+    //   //     models,
+    //   //     subdomain,
+    //   //     clientPortalId,
+    //   //     document: doc,
+    //   //     password,
+    //   //   });
+
+    //   //   // TODO: improve test user creation
+    //   //   // const portal = await models.ClientPortal.getConfig(clientPortalId);
+
+    //   //   // await sendAfterMutation(
+    //   //   //
+    //   //   //   'clientportal:user',
+    //   //   //   'create',
+    //   //   //   user,
+    //   //   //   user,
+    //   //   //   `User's profile has been created on ${portal.name}`,
+    //   //   // );
+
+    //   //   // return user;
+    //   // }
+
+    //   // public static async invite({
+    //   //   password,
+    //   //   clientPortalId,
+    //   //   ...doc
+    //   // }: ICPInvitiation) {
+    //   //   if (!password) {
+    //   //     password = random('Aa0!', 8);
+    //   //   }
+
+    //   //   if (password) {
+    //   //     this.checkPassword(password);
+    //   //   }
+
+    //   //   const plainPassword = password || '';
+
+    //   //   const user = await handleContacts({
+    //   //     models,
+    //   //     subdomain,
+    //   //     clientPortalId,
+    //   //     document: doc,
+    //   //     password,
+    //   //   });
+
+    //   //   const portal = await models.ClientPortal.getConfig(clientPortalId);
+
+    //   //   if (!doc.disableVerificationMail) {
+    //   //     const { token, expires } = await models.CPUser.generateToken();
+
+    //   //     user.registrationToken = token;
+    //   //     user.registrationTokenExpires = expires;
+
+    //   //     await user.save();
+
+    //   //     // TODO: implement send email
+    //   //     // const config = portal.mailConfig || {
+    //   //     // invitationContent: DEFAULT_MAIL_CONFIG.INVITE,
+    //   //     // };
+
+    //   //     // const link = `${portal.url}/verify?token=${token}`;
+
+    //   //     // let content = config.invitationContent.replace(/{{ link }}/, link);
+    //   //     // content = content.replace(/{{ password }}/, plainPassword);
+
+    //   //     // await sendCoreMessage({
+    //   //     //
+    //   //     //   action: 'sendEmail',
+    //   //     //   data: {
+    //   //     //     toEmails: [doc.email],
+    //   //     //     title: `${portal.name} invitation`,
+    //   //     //     template: {
+    //   //     //       name: 'base',
+    //   //     //       data: {
+    //   //     //         content,
+    //   //     //       },
+    //   //     //     },
+    //   //     //   },
+    //   //     // });
+    //   //   }
+
+    //   //   // TODO: implement back
+    //   //   // await sendAfterMutation(
+    //   //   //
+    //   //   //   'clientportal:user',
+    //   //   //   'create',
+    //   //   //   user,
+    //   //   //   user,
+    //   //   //   `User's profile has been created on ${portal.name}`,
+    //   //   // );
+
+    //   //   return user;
+    //   // }
+
+    //   public static async confirmInvitation({
+    //     token,
+    //     password,
+    //     passwordConfirmation,
+    //     username,
+    //   }: {
+    //     token: string;
+    //     password: string;
+    //     passwordConfirmation: string;
+    //     username?: string;
+    //   }) {
+    //     const user = await models.CPUser.findOne({
+    //       registrationToken: token,
+    //       registrationTokenExpires: {
+    //         $gt: Date.now(),
+    //       },
+    //     });
+
+    //     if (!user || !token) {
+    //       throw new Error('Token is invalid or has expired');
+    //     }
+
+    //     const doc: any = { isEmailVerified: true, registrationToken: undefined };
+
+    //     if (password) {
+    //       if (password !== passwordConfirmation) {
+    //         throw new Error('Password does not match');
+    //       }
+
+    //       this.checkPassword(password);
+    //       doc.password = await this.generatePassword(password);
+    //     }
+
+    //     if (username) {
+    //       doc.username = username;
+    //     }
+
+    //     await models.CPUser.updateOne(
+    //       { _id: user._id },
+    //       {
+    //         $set: doc,
+    //       },
+    //     );
+
+    //     return user;
     //   }
 
-    //   return users;
-    // }
+    //   // public static async verifyUsers(userIds: string[], type: string) {
+    //   //   const qryOption =
+    //   //     type === 'phone' ? { phone: { $ne: null } } : { email: { $ne: null } };
 
-    /*
-     * Update session data
-     */
-    public static async updateSession(_id: string) {
-      const now = new Date();
+    //   //   const set =
+    //   //     type === 'phone'
+    //   //       ? { isPhoneVerified: true }
+    //   //       : { isEmailVerified: true };
 
-      const query: any = {
-        $set: {
-          lastSeenAt: now,
-          isOnline: true,
-        },
-        $inc: { sessionCount: 1 },
-      };
+    //   //   const users = await models.CPUser.find({
+    //   //     _id: { $in: userIds },
+    //   //     ...qryOption,
+    //   //   });
 
-      // update
-      await models.CPUser.findByIdAndUpdate(_id, query);
+    //   //   if (!users || !users.length) {
+    //   //     throw new Error('Users not found');
+    //   //   }
 
-      // updated customer
-      return models.CPUser.findOne({ _id });
-    }
+    //   //   await models.CPUser.updateMany(
+    //   //     { _id: { $in: userIds } },
+    //   //     {
+    //   //       $set: set,
+    //   //     },
+    //   //   );
 
-    /*
-     *Update notification settings
-     */
-    public static async updateNotificationSettings(
-      _id: string,
-      doc: ICPNotifcationSettings,
-    ): Promise<ICPUser> {
-      const user = await models.CPUser.findOne({ _id });
+    //   //   for (const user of users) {
+    //   //     // await putActivityLog( user);
+    //   //     // await sendAfterMutation(
+    //   //     //
+    //   //     //   'clientportal:user',
+    //   //     //   'create',
+    //   //     //   user,
+    //   //     //   user,
+    //   //     //   `User's profile has been created`
+    //   //     // );
+    //   //   }
 
-      if (!user) {
-        throw new Error('User not found');
-      }
+    //   //   return users;
+    //   // }
 
-      await models.CPUser.updateOne(
-        { _id },
-        {
-          $set: {
-            notificationSettings: { ...doc },
-          },
-        },
-      );
+    //   /*
+    //    * Update session data
+    //    */
+    //   public static async updateSession(_id: string) {
+    //     const now = new Date();
 
-      return models.CPUser.getUser({ _id });
-    }
+    //     const query: any = {
+    //       $set: {
+    //         lastSeenAt: now,
+    //         isOnline: true,
+    //       },
+    //       $inc: { sessionCount: 1 },
+    //     };
 
-    /*
-     * login with phone
-     */
-    public static async loginWithPhone(
-      portal: IClientPortalDocument,
-      phone: string,
-      deviceToken?: string,
-    ) {
-      let user = await models.CPUser.findOne({
-        phone,
-        clientPortalId: portal._id,
-      });
+    //     // update
+    //     await models.CPUser.findByIdAndUpdate(_id, query);
 
-      if (!user) {
-        user = await handleCPContacts({
-          models,
-          clientPortalId: portal._id,
-          document: { phone },
-        });
-      }
+    //     // updated customer
+    //     return models.CPUser.findOne({ _id });
+    //   }
 
-      if (!user) {
-        throw new Error('cannot create user');
-      }
+    //   /*
+    //    *Update notification settings
+    //    */
+    //   public static async updateNotificationSettings(
+    //     _id: string,
+    //     doc: ICPNotifcationSettings,
+    //   ): Promise<ICPUser> {
+    //     const user = await models.CPUser.findOne({ _id });
 
-      await handleCPUserDeviceToken(user, deviceToken || '');
+    //     if (!user) {
+    //       throw new Error('User not found');
+    //     }
 
-      this.updateSession(user._id);
+    //     await models.CPUser.updateOne(
+    //       { _id },
+    //       {
+    //         $set: {
+    //           notificationSettings: { ...doc },
+    //         },
+    //       },
+    //     );
 
-      const config = portal.otpConfig || {
-        codeLength: 4,
-        expireAfter: 1,
-      };
+    //     return models.CPUser.getUser({ _id });
+    //   }
 
-      const phoneCode = await this.imposeVerificationCode({
-        clientPortalId: portal._id,
-        codeLength: config.codeLength,
-        phone: user.phone,
-        expireAfter: config.expireAfter,
-      });
+    //   /*
+    //    * login with phone
+    //    */
+    //   public static async loginWithPhone(
+    //     portal: IClientPortalDocument,
+    //     phone: string,
+    //     deviceToken?: string,
+    //   ) {
+    //     let user = await models.CPUser.findOne({
+    //       phone,
+    //       clientPortalId: portal._id,
+    //     });
 
-      return { userId: user._id, phoneCode };
-    }
+    //     if (!user) {
+    //       user = await handleCPContacts({
+    //         models,
+    //         clientPortalId: portal._id,
+    //         document: { phone },
+    //       });
+    //     }
 
-    public static async loginWithoutPassword(
-      portal: IClientPortalDocument,
-      doc: ICPUser,
-      deviceToken?: string,
-    ) {
-      const query: any = [];
+    //     if (!user) {
+    //       throw new Error('cannot create user');
+    //     }
 
-      if (doc.email) {
-        query.push({
-          email: {
-            $regex: new RegExp(`^${escapeRegExp(doc.email || '')}$`, 'i'),
-          },
-        });
-      }
-      if (doc.phone) {
-        query.push({
-          phone: {
-            $regex: new RegExp(`^${escapeRegExp(doc.phone || '')}$`, 'i'),
-          },
-        });
-      }
+    //     await handleCPUserDeviceToken(user, deviceToken || '');
 
-      let user = await models.CPUser.findOne({
-        $or: query,
-        clientPortalId: portal._id,
-      });
+    //     this.updateSession(user._id);
 
-      if (!user) {
-        user = await handleCPContacts({
-          models,
-          clientPortalId: portal._id,
-          document: doc,
-        });
-      }
+    //     const config = portal.otpConfig || {
+    //       codeLength: 4,
+    //       expireAfter: 1,
+    //     };
 
-      if (!user) {
-        throw new Error('cannot create user');
-      }
+    //     const phoneCode = await this.imposeVerificationCode({
+    //       clientPortalId: portal._id,
+    //       codeLength: config.codeLength,
+    //       phone: user.phone,
+    //       expireAfter: config.expireAfter,
+    //     });
 
-      await handleCPUserDeviceToken(user, deviceToken || '');
+    //     return { userId: user._id, phoneCode };
+    //   }
 
-      this.updateSession(user._id);
+    //   public static async loginWithoutPassword(
+    //     portal: IClientPortalDocument,
+    //     doc: ICPUser,
+    //     deviceToken?: string,
+    //   ) {
+    //     const query: any = [];
 
-      return user;
-    }
+    //     if (doc.email) {
+    //       query.push({
+    //         email: {
+    //           $regex: new RegExp(`^${escapeRegExp(doc.email || '')}$`, 'i'),
+    //         },
+    //       });
+    //     }
+    //     if (doc.phone) {
+    //       query.push({
+    //         phone: {
+    //           $regex: new RegExp(`^${escapeRegExp(doc.phone || '')}$`, 'i'),
+    //         },
+    //       });
+    //     }
 
-    public static async setSecondaryPassword(
-      userId: string,
-      secondaryPassword: string,
-      oldPassword: string,
-    ): Promise<string> {
-      // check if already secondaryPassword exists or not null
-      const user = await models.CPUser.findOne({
-        _id: userId,
-      });
+    //     let user = await models.CPUser.findOne({
+    //       $or: query,
+    //       clientPortalId: portal._id,
+    //     });
 
-      if (!user) {
-        throw new Error('User not found');
-      }
+    //     if (!user) {
+    //       user = await handleCPContacts({
+    //         models,
+    //         clientPortalId: portal._id,
+    //         document: doc,
+    //       });
+    //     }
 
-      const newPassword = await this.generatePassword(secondaryPassword);
+    //     if (!user) {
+    //       throw new Error('cannot create user');
+    //     }
 
-      if (
-        user.secondaryPassword === null ||
-        user.secondaryPassword === undefined ||
-        !user.secondaryPassword ||
-        user.secondaryPassword === ''
-      ) {
-        // create secondary password
-        await models.CPUser.updateOne(
-          { _id: userId },
-          { $set: { secondaryPassword: newPassword } },
-        );
+    //     await handleCPUserDeviceToken(user, deviceToken || '');
 
-        return 'Secondary password created';
-      }
+    //     this.updateSession(user._id);
 
-      // check if old password is correct or not
-      if (!oldPassword) {
-        throw new Error('Old password is required');
-      }
+    //     return user;
+    //   }
 
-      const valid = await models.CPUser.comparePassword(
-        oldPassword,
-        user.secondaryPassword || '',
-      );
+    //   public static async setSecondaryPassword(
+    //     userId: string,
+    //     secondaryPassword: string,
+    //     oldPassword: string,
+    //   ): Promise<string> {
+    //     // check if already secondaryPassword exists or not null
+    //     const user = await models.CPUser.findOne({
+    //       _id: userId,
+    //     });
 
-      if (!valid) {
-        // bad password
-        throw new Error('Invalid old password');
-      }
+    //     if (!user) {
+    //       throw new Error('User not found');
+    //     }
 
-      // update secondary password
-      await models.CPUser.updateOne(
-        { _id: userId },
-        { $set: { secondaryPassword: newPassword } },
-      );
+    //     const newPassword = await this.generatePassword(secondaryPassword);
 
-      return 'Secondary password changed';
-    }
+    //     if (
+    //       user.secondaryPassword === null ||
+    //       user.secondaryPassword === undefined ||
+    //       !user.secondaryPassword ||
+    //       user.secondaryPassword === ''
+    //     ) {
+    //       // create secondary password
+    //       await models.CPUser.updateOne(
+    //         { _id: userId },
+    //         { $set: { secondaryPassword: newPassword } },
+    //       );
 
-    public static async validatePassword(
-      userId: string,
-      password: string,
-      secondary?: boolean,
-    ) {
-      const user = await models.CPUser.findOne({
-        _id: userId,
-      });
+    //       return 'Secondary password created';
+    //     }
 
-      if (!user) {
-        throw new Error('User not found');
-      }
+    //     // check if old password is correct or not
+    //     if (!oldPassword) {
+    //       throw new Error('Old password is required');
+    //     }
 
-      if (secondary) {
-        return this.comparePassword(password, user.secondaryPassword || '');
-      }
+    //     const valid = await models.CPUser.comparePassword(
+    //       oldPassword,
+    //       user.secondaryPassword || '',
+    //     );
 
-      return this.comparePassword(password, user.password || '');
-    }
+    //     if (!valid) {
+    //       // bad password
+    //       throw new Error('Invalid old password');
+    //     }
 
-    public static async moveUser(oldportalId, newportalId) {
-      const oldUsers = await models.CPUser.find({
-        clientPortalId: oldportalId,
-      });
+    //     // update secondary password
+    //     await models.CPUser.updateOne(
+    //       { _id: userId },
+    //       { $set: { secondaryPassword: newPassword } },
+    //     );
 
-      const newUsers = await models.CPUser.find({
-        clientPortalId: newportalId,
-      });
+    //     return 'Secondary password changed';
+    //   }
 
-      if (!oldUsers || !oldUsers.length) {
-        throw new Error('Users not found');
-      }
+    //   public static async validatePassword(
+    //     userId: string,
+    //     password: string,
+    //     secondary?: boolean,
+    //   ) {
+    //     const user = await models.CPUser.findOne({
+    //       _id: userId,
+    //     });
 
-      const emailsInNewPortal = newUsers.map((user) => user.email);
-      const phonesInNewPortal = newUsers.map((user) => user.phone);
+    //     if (!user) {
+    //       throw new Error('User not found');
+    //     }
 
-      // Filter users1 to exclude those with matching email or phone in users2
-      const usersToUpdate = oldUsers.filter((user) => {
-        const emailMatch = user.email && emailsInNewPortal.includes(user.email);
-        const phoneMatch = user.phone && phonesInNewPortal.includes(user.phone);
-        return !(emailMatch || phoneMatch); // Include users who don't match
-      });
+    //     if (secondary) {
+    //       return this.comparePassword(password, user.secondaryPassword || '');
+    //     }
 
-      if (!usersToUpdate.length) {
-        throw new Error('No users updated because of duplicate email/phone');
-      }
+    //     return this.comparePassword(password, user.password || '');
+    //   }
 
-      // Get the IDs of the users to update
-      const userIdsToUpdate = usersToUpdate.map((user) => user._id);
+    //   public static async moveUser(oldportalId, newportalId) {
+    //     const oldUsers = await models.CPUser.find({
+    //       clientPortalId: oldportalId,
+    //     });
 
-      const updatedUsers = await models.CPUser.updateMany(
-        { _id: { $in: userIdsToUpdate } },
-        { $set: { clientPortalId: newportalId, modifiedAt: new Date() } },
-      );
+    //     const newUsers = await models.CPUser.find({
+    //       clientPortalId: newportalId,
+    //     });
 
-      return updatedUsers;
-    }
+    //     if (!oldUsers || !oldUsers.length) {
+    //       throw new Error('Users not found');
+    //     }
+
+    //     const emailsInNewPortal = newUsers.map((user) => user.email);
+    //     const phonesInNewPortal = newUsers.map((user) => user.phone);
+
+    //     // Filter users1 to exclude those with matching email or phone in users2
+    //     const usersToUpdate = oldUsers.filter((user) => {
+    //       const emailMatch = user.email && emailsInNewPortal.includes(user.email);
+    //       const phoneMatch = user.phone && phonesInNewPortal.includes(user.phone);
+    //       return !(emailMatch || phoneMatch); // Include users who don't match
+    //     });
+
+    //     if (!usersToUpdate.length) {
+    //       throw new Error('No users updated because of duplicate email/phone');
+    //     }
+
+    //     // Get the IDs of the users to update
+    //     const userIdsToUpdate = usersToUpdate.map((user) => user._id);
+
+    //     const updatedUsers = await models.CPUser.updateMany(
+    //       { _id: { $in: userIdsToUpdate } },
+    //       { $set: { clientPortalId: newportalId, modifiedAt: new Date() } },
+    //     );
+
+    //     return updatedUsers;
+    //   }
   }
 
   cpUserSchema.loadClass(CPUser);

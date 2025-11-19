@@ -3,10 +3,11 @@ import { IconComponent } from 'erxes-ui';
 import { useGetTeams } from '@/team/hooks/useGetTeams';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { IconUserX } from '@tabler/icons-react';
+import { CreateTeam } from '@/team/components/team-list/CreateTeam';
 export function Teams() {
   const { teams, loading } = useGetTeams();
   const navigate = useNavigate();
-
   const onClick = (teamId: string) => {
     navigate(`/settings/operation/team/details/${teamId}`);
   };
@@ -56,6 +57,25 @@ export function Teams() {
                 ))}
           </Table.Body>
         </Table>
+        {!loading && teams?.length === 0 && (
+          <div>
+            <div className=" h-full w-full px-8 flex justify-center">
+              <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
+                <div className="mb-6">
+                  <IconUserX
+                    size={64}
+                    className="text-muted-foreground mx-auto mb-4"
+                  />
+                  <h3 className="text-xl font-semibold mb-2">No team yet</h3>
+                  <p className="text-muted-foreground max-w-md">
+                    Get started by creating your first team.
+                  </p>
+                </div>
+                <CreateTeam />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

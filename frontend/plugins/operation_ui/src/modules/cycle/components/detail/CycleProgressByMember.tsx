@@ -59,40 +59,40 @@ export const CycleProgressByMember = ({
                 />
               </Button>
 
-                <ChartContainer config={{}} className="aspect-square size-6">
-                  <RadialBarChart
-                    width={24}
-                    height={24}
-                    cx={12}
-                    cy={12}
-                    innerRadius={6}
-                    outerRadius={10}
-                    data={[
-                      {
-                        name: 'Progress',
-                        value: getProgress(item),
-                        fill: 'hsl(var(--primary))',
-                      },
-                    ]}
-                    startAngle={90}
-                    endAngle={-270}
-                  >
-                    <PolarAngleAxis
-                      type="number"
-                      domain={[0, 100]}
-                      angleAxisId={0}
-                      tick={false}
-                    />
-                    <RadialBar
-                      background={{ fill: 'hsl(var(--border))' }}
-                      dataKey="value"
-                      cornerRadius={10}
-                    />
-                  </RadialBarChart>
-                </ChartContainer>
-                <span className="text-sm text-accent-foreground">
-                  {getProgress(item)}% of {item.totalScope}
-                </span>
+              <ChartContainer config={{}} className="aspect-square size-6">
+                <RadialBarChart
+                  width={24}
+                  height={24}
+                  cx={12}
+                  cy={12}
+                  innerRadius={6}
+                  outerRadius={10}
+                  data={[
+                    {
+                      name: 'Progress',
+                      value: getProgress(item),
+                      fill: 'var(--primary)',
+                    },
+                  ]}
+                  startAngle={90}
+                  endAngle={-270}
+                >
+                  <PolarAngleAxis
+                    type="number"
+                    domain={[0, 100]}
+                    angleAxisId={0}
+                    tick={false}
+                  />
+                  <RadialBar
+                    background={{ fill: 'var(--border)' }}
+                    dataKey="value"
+                    cornerRadius={10}
+                  />
+                </RadialBarChart>
+              </ChartContainer>
+              <span className="text-sm text-accent-foreground">
+                {getProgress(item)}% of {item.totalScope}
+              </span>
             </div>
           </HoverCard.Trigger>
           <HoverCard.Content side="left" className="w-32 p-3">

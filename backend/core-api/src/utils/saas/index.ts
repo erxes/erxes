@@ -70,7 +70,7 @@ export const ssocallback = async (req: any, res) => {
 
     await setCookie(res, user, subdomain, token.toString());
 
-    await sendOnboardNotification(subdomain, models, user);
+    await sendOnboardNotification(subdomain, models, user._id);
 
     return res.redirect(DOMAIN);
   } catch (e) {
@@ -123,7 +123,7 @@ export const magiclinkCallback = async (
     const NODE_ENV = getEnv({ name: 'NODE_ENV', subdomain });
     const isProduction = NODE_ENV === 'production';
 
-    await sendOnboardNotification(subdomain, models, user);
+    await sendOnboardNotification(subdomain, models, user._id);
 
     return res.redirect(isProduction ? DOMAIN : 'http://localhost:3001');
   } catch (e: any) {
@@ -171,10 +171,10 @@ export const handleCoreLogin = async (req: any, res) => {
         models.Users.getSecret(),
       );
 
+      await sendOnboardNotification(subdomain, models, systemUser._id);
+
       await setCookie(res, systemUser, subdomain, createToken.toString());
     }
-
-    await sendOnboardNotification(subdomain, models, user);
 
     return res.redirect(`https://${subdomain}.next.erxes.io`);
   } catch (e) {

@@ -2,10 +2,11 @@ import {
   checkPermission,
   requireLogin,
 } from 'erxes-api-shared/core-modules';
+import { Resolver } from 'erxes-api-shared/core-types';
 
 import { IContext } from '~/connectionResolvers';
 
-const mutations = {
+const mutations: Record<string, Resolver> = {
   /**
    * Cms post add
    */
@@ -14,13 +15,9 @@ const mutations = {
     args: any,
     context: IContext,
   ): Promise<any> => {
-    const { models, user, clientPortalId } = context;
+    const { models, user } = context;
     const { input } = args;
     input.authorId = user._id;
-
-    if (clientPortalId) {
-      input.clientPortalId = clientPortalId;
-    }
 
     return models.Posts.createPost(input);
   },
@@ -71,7 +68,7 @@ const mutations = {
   /**
    * Cms post increment view count
    */
-  cmsPostsIncrementViewCount: async (
+  cpPostsIncrementViewCount: async (
     _parent: any,
     args: any,
     context: IContext,
@@ -153,5 +150,9 @@ checkPermission(mutations, 'cmsPostsEdit', 'manageCms', []);
 checkPermission(mutations, 'cmsPostsRemove', 'manageCms', []);
 checkPermission(mutations, 'cmsPostsChangeStatus', 'manageCms', []);
 checkPermission(mutations, 'cmsPostsToggleFeatured', 'manageCms', []);
+
+mutations.cpPostsIncrementViewCount.wrapperConfig = {
+  forClientPortal: true,
+};
 
 export default mutations;

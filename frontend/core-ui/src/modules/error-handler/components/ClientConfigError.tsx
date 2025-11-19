@@ -13,7 +13,7 @@ export const ClientConfigError = ({ error }: ClientConfigErrorProps) => {
     <GenericErrorFallback
       error={error}
       resetErrorBoundary={handleReset}
-      title="Unable to Reach Back-end"
+      title="Unable to reach backend"
     />
   );
 };

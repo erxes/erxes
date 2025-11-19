@@ -75,6 +75,9 @@ export const queries = `
   cmsCustomFieldGroupList(clientPortalId: String!, searchValue: String, ${GQL_CURSOR_PARAM_DEFS}): CustomFieldGroupResponse
   cmsCustomFieldGroups(clientPortalId: String!, pageId: String, categoryId: String, postType: String, searchValue: String, ${GQL_CURSOR_PARAM_DEFS}): [CustomFieldGroup]
   cmsCustomFieldGroup(_id: String): CustomFieldGroup
+
+  cpCustomPostTypes(searchValue: String): [CustomPostType]
+  cpCustomFieldGroups(searchValue: String, pageId: String, categoryId: String, postType: String): [CustomFieldGroup]
 `;
 
 export const mutations = `

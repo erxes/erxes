@@ -8,6 +8,7 @@ import { currentUserState } from 'ui-modules';
 import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { taskTotalCountAtom } from '@/task/states/tasksTotalCountState';
+import { TasksCommandBar } from './tasks-command-bar';
 
 interface TasksRecordTableProps {
   isCreatedView?: boolean;
@@ -22,13 +23,13 @@ export const TasksRecordTable = ({
 
   const variables = isCreatedView
     ? {
-        projectId: projectId || undefined,
-        cycleId: cycleId || undefined,
+        ...(projectId && { projectId }),
+        ...(cycleId && { cycleId }),
         createdBy: currentUser?._id,
       }
     : {
-        projectId: projectId || undefined,
-        cycleId: cycleId || undefined,
+        ...(projectId && { projectId }),
+        ...(cycleId && { cycleId }),
         userId: currentUser?._id,
       };
 
@@ -79,6 +80,7 @@ export const TasksRecordTable = ({
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.CursorProvider>
+        <TasksCommandBar />
       </RecordTable.Provider>
     </div>
   );
