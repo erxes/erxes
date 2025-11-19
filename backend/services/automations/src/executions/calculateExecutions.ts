@@ -1,12 +1,73 @@
+import { IModels } from '@/connectionResolver';
+import { debugError } from '@/debugger';
+import { isInSegment } from '@/utils/isInSegment';
+import { isDiffValue } from '@/utils/utils';
 import {
   AUTOMATION_EXECUTION_STATUS,
   IAutomationExecutionDocument,
-  ITrigger,
+  IAutomationTrigger,
   splitType,
+  TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
-import { sendWorkerMessage } from 'erxes-api-shared/utils';
-import { IModels } from '@/connectionResolver';
-import { isInSegment } from '@/utils/segments/utils';
+import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
+
+const checkIsValidCustomTigger = async (
+  type: string,
+  subdomain: string,
+  automationId: string,
+  trigger: IAutomationTrigger,
+  target: any,
+  config: any,
+) => {
+  const [pluginName, moduleName, collectionType, relationType] =
+    splitType(type);
+  console.log({ pluginName, moduleName, collectionType, relationType });
+
+  return await sendCoreModuleProducer({
+    moduleName: 'automations',
+    subdomain,
+    pluginName,
+    producerName: TAutomationProducers.CHECK_CUSTOM_TRIGGER,
+    input: {
+      moduleName,
+      collectionType,
+      relationType,
+      automationId,
+      trigger,
+      target,
+      config,
+    },
+    defaultValue: false,
+  }).catch((e) =>
+    debugError(`An error occurred while check trigger: ${e.message}`),
+  );
+};
+
+const checkValidTrigger = async (
+  trigger: IAutomationTrigger,
+  target: any,
+  subdomain: string,
+  automationId: string,
+) => {
+  const { type = '', config, isCustom } = trigger;
+  const { contentId } = config || {};
+  if (!!isCustom) {
+    const isValidCustomTigger = await checkIsValidCustomTigger(
+      type,
+      subdomain,
+      automationId,
+      trigger,
+      target,
+      config,
+    );
+
+    return isValidCustomTigger;
+  } else if (!(await isInSegment(subdomain, contentId, target._id))) {
+    return false;
+  }
+
+  return true;
+};
 
 export const calculateExecution = async ({
   models,
@@ -18,37 +79,21 @@ export const calculateExecution = async ({
   models: IModels;
   subdomain: string;
   automationId: string;
-  trigger: ITrigger;
+  trigger: IAutomationTrigger;
   target: any;
 }): Promise<IAutomationExecutionDocument | null | undefined> => {
-  const { id, type, config, isCustom } = trigger;
-  const { reEnrollment, reEnrollmentRules, contentId } = config || {};
+  const { id, type = '', config } = trigger;
+  const { reEnrollment, reEnrollmentRules } = config || {};
 
   try {
-    if (!!isCustom) {
-      const [pluginName, moduleName, collectionType] = splitType(
-        trigger?.type || '',
-      );
-
-      const isValid = await sendWorkerMessage({
-        subdomain,
-        pluginName,
-        queueName: 'automations',
-        jobName: 'checkCustomTrigger',
-        data: {
-          moduleName,
-          collectionType,
-          automationId,
-          trigger,
-          target,
-          config,
-        },
-        defaultValue: false,
-      });
-      if (!isValid) {
-        return;
-      }
-    } else if (!(await isInSegment(subdomain, contentId, target._id))) {
+    const isValidTrigger = await checkValidTrigger(
+      trigger,
+      target,
+      subdomain,
+      automationId,
+    );
+    console.log({ isValidTrigger });
+    if (!isValidTrigger) {
       return;
     }
   } catch (e) {
@@ -66,7 +111,7 @@ export const calculateExecution = async ({
     return;
   }
 
-  const executions = await models.Executions.find({
+  const latestExecution = await models.Executions.findOne({
     automationId,
     triggerId: id,
     targetId: target._id,
@@ -76,28 +121,24 @@ export const calculateExecution = async ({
     .limit(1)
     .lean();
 
-  const latestExecution: IAutomationExecutionDocument | null = executions.length
-    ? executions[0]
-    : null;
+  if (latestExecution) {
+    if (!reEnrollment || !reEnrollmentRules.length) {
+      return;
+    }
 
-  // if (latestExecution) {
-  //   if (!reEnrollment || !reEnrollmentRules.length) {
-  //     return;
-  //   }
+    let isChanged = false;
 
-  //   let isChanged = false;
+    for (const reEnrollmentRule of reEnrollmentRules) {
+      if (isDiffValue(latestExecution.target, target, reEnrollmentRule)) {
+        isChanged = true;
+        break;
+      }
+    }
 
-  //   for (const reEnrollmentRule of reEnrollmentRules) {
-  //     if (isDiffValue(latestExecution.target, target, reEnrollmentRule)) {
-  //       isChanged = true;
-  //       break;
-  //     }
-  //   }
-
-  //   if (!isChanged) {
-  //     return;
-  //   }
-  // }
+    if (!isChanged) {
+      return;
+    }
+  }
 
   return models.Executions.create({
     automationId,

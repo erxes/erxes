@@ -17,7 +17,7 @@ interface ITaskChanged {
 }
 
 export const useGetTask = (options: QueryHookOptions) => {
-  const { data, loading, refetch, subscribeToMore } =
+  const { data, loading, refetch, subscribeToMore, error } =
     useQuery<IGetTaskQueryResponse>(GET_TASK, options);
 
   const task = data?.getTask;
@@ -42,5 +42,5 @@ export const useGetTask = (options: QueryHookOptions) => {
     };
   }, [task?._id, subscribeToMore]);
 
-  return { task, loading, refetch };
+  return { task, loading, refetch, error };
 };

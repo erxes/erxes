@@ -91,7 +91,7 @@ export const UsersGroupCreateForm = ({
         ...data,
       },
       onCompleted: () => {
-        toast({ title: 'Created a group' });
+        toast({ title: 'Created a group', variant: 'success' });
         form.reset();
         setOpen(false);
       },
@@ -145,7 +145,7 @@ export const UsersGroupEditForm = ({
         ...data,
       },
       onCompleted: () => {
-        toast({ title: 'Updated a group' });
+        toast({ title: 'Updated a group', variant: 'success' });
         form.reset();
         setOpen(false);
       },

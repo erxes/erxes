@@ -33,7 +33,7 @@ const queries = {
     });
 
     if (!language) {
-      return { list, totalCount, pageInfo };
+      return { tags: list, totalCount, pageInfo };
     }
 
     const tagIds = list.map((tag) => tag._id);
@@ -59,7 +59,7 @@ const queries = {
       };
     });
 
-    return { list: tagsWithTranslations, totalCount, pageInfo };
+    return { tags: tagsWithTranslations, totalCount, pageInfo };
   },
 
   /**

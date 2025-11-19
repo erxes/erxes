@@ -10,16 +10,17 @@ import {
   EnumCursorDirection,
   Skeleton,
   SkeletonArray,
+  Spinner,
 } from 'erxes-ui';
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
-import { useParams } from 'react-router';
+import { Link, useParams } from 'react-router';
 import { currentUserState } from 'ui-modules';
 import { TaskBoardCard } from '@/task/components/TaskBoardCard';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import clsx from 'clsx';
 import { taskCountByBoardAtom } from '@/task/states/tasksTotalCountState';
-import { IconPlus } from '@tabler/icons-react';
+import { IconBrandTrello, IconPlus, IconSettings } from '@tabler/icons-react';
 import {
   taskCreateDefaultValuesState,
   taskCreateSheetState,
@@ -31,11 +32,11 @@ const fetchedTasksState = atom<BoardItemProps[]>([]);
 export const allTasksMapState = atom<Record<string, ITask>>({});
 
 export const TasksBoard = () => {
-  const { teamId, cycleId } = useParams();
+  const { teamId } = useParams();
   const allTasksMap = useAtomValue(allTasksMapState);
   const { updateTask } = useUpdateTask();
 
-  const { statuses } = useGetStatusByTeam({
+  const { statuses, loading } = useGetStatusByTeam({
     variables: {
       teamId: teamId || undefined,
     },
@@ -45,7 +46,7 @@ export const TasksBoard = () => {
   const columns = statuses?.map((status) => ({
     id: status.value,
     name: status.label,
-    type: status.type,
+    type: status.type.toString(),
     color: status.color,
   }));
 
@@ -61,8 +62,8 @@ export const TasksBoard = () => {
     const overItem = allTasksMap[over.id as string];
     const overColumn =
       overItem?.status ||
-      columns.find((col) => col.id === over.id)?.id ||
-      columns[0]?.id;
+      columns?.find((col) => col.id === over.id)?.id ||
+      columns?.[0]?.id;
 
     if (activeItem?.status === overColumn) {
       return;
@@ -91,13 +92,34 @@ export const TasksBoard = () => {
       [overColumn]: (prev[overColumn] || 0) + 1,
     }));
   };
-
+  if (loading) return <Spinner />;
   return (
     <Board.Provider
       columns={columns}
       data={tasks}
       onDragEnd={handleDragEnd}
       boardId={clsx('tasks-board', teamId)}
+      fallbackComponent={
+        <div className="flex h-full w-full flex-col items-center justify-center text-center p-6 gap-2">
+          <IconBrandTrello
+            size={64}
+            stroke={1.5}
+            className="text-muted-foreground"
+          />
+          <h2 className="text-lg font-semibold text-muted-foreground">
+            No team yet
+          </h2>
+          <p className="text-md text-muted-foreground mb-4">
+            Create a team to start organizing your board.
+          </p>
+          <Button variant="outline" asChild>
+            <Link to={`/settings/operation/team`}>
+              <IconSettings />
+              Go to settings
+            </Link>
+          </Button>
+        </div>
+      }
     >
       {(column) => (
         <Board id={column.id} key={column.id} sortBy="updated">
@@ -124,9 +146,9 @@ export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
     });
   const { tasks, totalCount, loading, handleFetchMore } = useTasks({
     variables: {
-      projectId,
+      ...(projectId && { projectId }),
+      ...(cycleId && { cycleId }),
       userId: currentUser?._id,
-      cycleId,
       status: column.id,
     },
   });
@@ -170,7 +192,7 @@ export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
     <>
       <Board.Header>
         <h4 className="capitalize flex items-center gap-1 pl-1">
-          <StatusInlineIcon statusType={column.type as number} />
+          <StatusInlineIcon statusType={column.type} />
           {column.name}
           <span className="text-accent-foreground font-medium pl-1">
             {loading ? (

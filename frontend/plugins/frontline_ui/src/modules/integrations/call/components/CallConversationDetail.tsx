@@ -5,20 +5,16 @@ import {
   isInternalState,
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
-import { Alert, Button, readImage, toast, useQueryState } from 'erxes-ui';
+import { Button, readImage, toast, useQueryState } from 'erxes-ui';
 import { useCallConversationDetail } from '@/integrations/call/hooks/useCallConversationDetail';
 import { CustomersInline } from 'ui-modules';
 import { useConversationDetail } from '@/inbox/conversations/conversation-detail/hooks/useConversationDetail';
-import { format } from 'date-fns';
 import {
   IconPhoneOutgoing,
   IconPhoneIncoming,
   IconRefresh,
 } from '@tabler/icons-react';
-import {
-  formatSeconds,
-  safeFormatDate,
-} from '@/integrations/call/utils/callUtils';
+import { formatSeconds } from '@/integrations/call/utils/callUtils';
 import { useCallSyncAudioRecord } from '@/integrations/call/hooks/useCallSyncAudioRecord';
 
 export function CallConversationDetail() {
@@ -82,7 +78,7 @@ export function CallConversationDetail() {
           >
             <CustomersInline.Avatar size="xl" />
           </CustomersInline.Provider>
-          <div className="shadow-xs p-1 rounded-xl max-w-[428px] flex-auto bg-accent">
+          <div className="shadow-xs p-1 rounded-xl max-w-[500px] flex-auto bg-accent">
             <div className="h-8 pb-1 flex items-center gap-2 px-4">
               {callType === 'outgoing' && (
                 <IconPhoneOutgoing className="size-4 text-primary" />
@@ -106,13 +102,13 @@ export function CallConversationDetail() {
                     Start Time
                   </div>
                   <div className="font-medium">
-                    {safeFormatDate(callStartTime)}
+                    {new Date(callStartTime).toISOString().split('.')[0]}
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
                   <div className="text-sm text-accent-foreground">End Time</div>
                   <div className="font-medium">
-                    {safeFormatDate(callEndTime)}
+                    {new Date(callEndTime).toISOString().split('.')[0]}
                   </div>
                 </div>
               </div>

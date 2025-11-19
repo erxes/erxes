@@ -18,6 +18,8 @@ export const types = `
     _id: String!
     name: String
     quick: Boolean
+    orderCheck: Boolean
+    visibleName: Boolean
     icon: String
     content: String
     note: String
@@ -32,6 +34,7 @@ export const types = `
     branchId: String
     createdAt: Date
     modifiedAt: Date
+    additionalInfo: JSON
   }
 
   type ElementCategory {
@@ -48,11 +51,11 @@ export const types = `
 `;
 
 export const queries = `
-  bmElements(branchId:String, categories: [String],name: String,quick: Boolean, ${GQL_CURSOR_PARAM_DEFS}): ElementListResponse
-  bmElementDetail(_id:String!): Element
-  bmElementCategories(parentId:String): [ElementCategory]
-  bmElementsInit: JSON
-  bmCategoryInit: JSON
+  bmsElements(branchId:String, categories: [String],name: String,quick: Boolean, ${GQL_CURSOR_PARAM_DEFS}): ElementListResponse
+  bmsElementDetail(_id:String!): Element
+  bmsElementCategories(parentId:String): [ElementCategory]
+  bmsElementsInit: JSON
+  bmsCategoryInit: JSON
 `;
 
 const params = `
@@ -67,7 +70,11 @@ const params = `
   itineraryId: String,
   location: BMSLocationInput,
   quick: Boolean,
-  branchId: String
+  orderCheck: Boolean,
+  branchId: String,
+  icon: String,
+  visibleName: Boolean,
+  additionalInfo: JSON
 `;
 
 export const mutations = `

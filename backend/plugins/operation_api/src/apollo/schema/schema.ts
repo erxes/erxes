@@ -43,6 +43,12 @@ import {
   types as MilestoneTypes,
 } from '@/milestone/graphql/schemas/milestone';
 
+import {
+  mutations as TriageMutations,
+  queries as TriageQueries,
+  types as TriageTypes,
+} from '@/task/graphql/schemas/triage';
+
 export const types = `
   ${TaskTypes}
   ${ProjectTypes}
@@ -52,6 +58,7 @@ export const types = `
   ${ActivityTypes}
   ${CycleTypes}
   ${MilestoneTypes}
+  ${TriageTypes}
 `;
 
 export const queries = `
@@ -63,6 +70,7 @@ export const queries = `
   ${ActivityQueries}
   ${CycleQueries}
   ${MilestoneQueries}
+  ${TriageQueries}
 `;
 
 export const mutations = `
@@ -73,6 +81,7 @@ export const mutations = `
   ${NoteMutations}
   ${CycleMutations}
   ${MilestoneMutations}
+  ${TriageMutations}
 `;
 
 export default { types, queries, mutations };

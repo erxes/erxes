@@ -4,6 +4,14 @@ import {
   IListParams,
 } from 'erxes-api-shared/core-types';
 
+export type CycleFilterType = 
+  | 'noCycle'
+  | 'anyPastCycle'
+  | 'previousCycle'
+  | 'currentCycle'
+  | 'upcomingCycle'
+  | 'anyFutureCycle';
+
 export interface ITask {
   name: string;
   teamId: string;
@@ -19,10 +27,9 @@ export interface ITask {
   projectId?: string;
   estimatePoint?: number;
   userId?: string;
-  startDate?: Date;
-  targetDate?: Date;
-  createdAt?: Date;
-  statusChangedDate?: Date;
+  startDate?: Date | string;
+  targetDate?: Date | string;
+  createdAt?: Date | string;
   statusType?: number;
 }
 
@@ -39,5 +46,12 @@ export interface ITaskDocument extends ITask, Document {
 
 export interface ITaskFilter extends ICursorPaginateParams, IListParams, ITask {
   userId?: string;
-  createdAt?: Date;
+  cycleFilter?: CycleFilterType;
+  projectStatus?: number;
+  projectPriority?: number;
+  projectLeadId?: string;
+  projectMilestoneName?: string;
+  createdDate?: string;
+  updatedDate?: string;
+  completedDate?: string;
 }

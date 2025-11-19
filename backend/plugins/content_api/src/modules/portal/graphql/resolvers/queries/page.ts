@@ -6,16 +6,16 @@ class PageQueryResolver extends BaseQueryResolver {
   async cmsPages(_parent: any, args: any, context: IContext) {
     const { language } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
-
+    const { models } = context;
     if (!clientPortalId) {
       throw new Error('clientPortalId is required');
     }
 
-    const queryBuilder = getQueryBuilder('page', this.models);
+    const queryBuilder = getQueryBuilder('page', models);
     const query = queryBuilder.buildQuery({ ...args, clientPortalId });
 
     const { list } = await this.getListWithTranslations(
-      this.models.Pages,
+      models.Pages,
       query,
       { ...args, clientPortalId, language },
       FIELD_MAPPINGS.PAGE
@@ -27,24 +27,26 @@ class PageQueryResolver extends BaseQueryResolver {
   async cmsPageList(_parent: any, args: any, context: IContext) {
     const { language } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
-
+    const { models } = context; 
     if (!clientPortalId) {
       throw new Error('clientPortalId is required');
     }
 
-    const queryBuilder = getQueryBuilder('page', this.models);
+    const queryBuilder = getQueryBuilder('page', models);
     const query = queryBuilder.buildQuery({ ...args, clientPortalId });
 
-    return this.getListWithTranslations(
-      this.models.Pages,
+    const { list, totalCount, pageInfo } = await this.getListWithTranslations(
+      models.Pages,
       query,
       { ...args, clientPortalId, language },
       FIELD_MAPPINGS.PAGE
     );
+
+    return { pages: list, totalCount, pageInfo };
   }
 
   async cmsPage(_parent: any, args: any, context: IContext) {
-    const { clientPortalId } = context;
+    const { clientPortalId, models } = context;
     const { _id, slug, language } = args;
 
     if (!_id && !slug) {
@@ -59,7 +61,7 @@ class PageQueryResolver extends BaseQueryResolver {
     }
 
     return this.getItemWithTranslation(
-      this.models.Pages,
+      models.Pages,
       query,
       language,
       FIELD_MAPPINGS.PAGE
@@ -67,11 +69,13 @@ class PageQueryResolver extends BaseQueryResolver {
   }
 }
 
-const resolver = new PageQueryResolver({} as IContext);
 const queries = {
-  cmsPages: resolver.cmsPages.bind(resolver),
-  cmsPageList: resolver.cmsPageList.bind(resolver),
-  cmsPage: resolver.cmsPage.bind(resolver),
+  cmsPages: (_parent: any, args: any, context: IContext) =>
+    new PageQueryResolver(context).cmsPages(_parent, args, context),
+  cmsPageList: (_parent: any, args: any, context: IContext) =>
+    new PageQueryResolver(context).cmsPageList(_parent, args, context),
+  cmsPage: (_parent: any, args: any, context: IContext) =>
+    new PageQueryResolver(context).cmsPage(_parent, args, context),
 };
 
 export default queries;

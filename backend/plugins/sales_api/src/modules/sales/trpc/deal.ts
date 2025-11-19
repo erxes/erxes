@@ -242,6 +242,24 @@ export const dealTrpcRouter = t.router({
         return await generateFilter(models, subdomain, userId, filter);
       }),
   },
+  stage: {
+    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { subdomain, ...rest } = input;
+      return {
+        status: 'success',
+        data: await models.Stages.findOne(rest).lean(),
+      };
+    }),
+    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { subdomain, ...rest } = input;
+      return {
+        status: 'success',
+        data: await models.Stages.find(rest).sort({ order: 1 }).lean(),
+      };
+    }),
+  },
 });
 
 export const fetchSegment = async (

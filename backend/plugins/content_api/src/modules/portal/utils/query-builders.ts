@@ -1,5 +1,5 @@
 import { IModels } from '~/connectionResolvers';
-import { escapeRegExp } from 'erxes-api-shared/src/utils';
+import { escapeRegExp } from 'erxes-api-shared/utils';
 
 export interface QueryBuilderArgs {
   searchValue?: string;
@@ -29,12 +29,16 @@ export class BaseQueryBuilder {
   /**
    * Add search functionality to query
    */
-  protected addSearchQuery(query: any, searchValue: string, searchFields: string[]): void {
+  protected addSearchQuery(
+    query: any,
+    searchValue: string,
+    searchFields: string[],
+  ): void {
     if (!searchValue?.trim()) return;
 
     const pattern = escapeRegExp(searchValue.trim());
     const regex = new RegExp(pattern, 'i');
-    query.$or = searchFields.map(field => ({ [field]: regex }));
+    query.$or = searchFields.map((field) => ({ [field]: regex }));
   }
 
   /**
@@ -68,7 +72,7 @@ export class PostQueryBuilder extends BaseQueryBuilder {
         'title',
         'slug',
         'content',
-        'excerpt'
+        'excerpt',
       ]);
     }
 
@@ -138,7 +142,7 @@ export class KnowledgeBaseQueryBuilder extends BaseQueryBuilder {
 
     // Handle array filters
     const arrayFields = ['codes', 'categoryIds', 'articleIds', 'topicIds'];
-    arrayFields.forEach(field => {
+    arrayFields.forEach((field) => {
       if (args[field] && args[field].length > 0) {
         const queryField = field.replace('s', '');
         query[queryField] = { $in: args[field] };
@@ -150,7 +154,7 @@ export class KnowledgeBaseQueryBuilder extends BaseQueryBuilder {
       this.addSearchQuery(query, args.searchValue, [
         'title',
         'content',
-        'summary'
+        'summary',
       ]);
     }
 
@@ -189,7 +193,10 @@ export class KnowledgeBaseQueryBuilder extends BaseQueryBuilder {
 /**
  * Factory function to get appropriate query builder
  */
-export function getQueryBuilder(type: 'post' | 'category' | 'page' | 'knowledgebase', models: IModels) {
+export function getQueryBuilder(
+  type: 'post' | 'category' | 'page' | 'knowledgebase',
+  models: IModels,
+) {
   switch (type) {
     case 'post':
       return new PostQueryBuilder(models);

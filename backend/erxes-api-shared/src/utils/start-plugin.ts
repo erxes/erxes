@@ -2,6 +2,7 @@ import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { buildSubgraphSchema } from '@apollo/subgraph';
+import * as trpcExpress from '@trpc/server/adapters/express';
 import * as dotenv from 'dotenv';
 
 import cookieParser from 'cookie-parser';
@@ -21,11 +22,10 @@ import { startPayments } from '../common-modules/payment/worker';
 import {
   SegmentConfigs,
   startAutomations,
-  startSegments,
+  initSegmentProducers,
 } from '../core-modules';
 import { AutomationConfigs } from '../core-modules/automations/types';
-import { generateApolloContext } from './apollo';
-import { wrapApolloMutations } from './apollo/wrapperMutations';
+import { generateApolloContext, wrapApolloResolvers } from './apollo';
 import { extractUserFromHeader } from './headers';
 import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
 import { closeMongooose } from './mongo';
@@ -34,8 +34,8 @@ import {
   joinErxesGateway,
   leaveErxesGateway,
 } from './service-discovery';
+import { createTRPCContext } from './trpc';
 import { getSubdomain } from './utils';
-import { TRPCContext, TRPCSecurityConfig, setupTRPCRoute } from './trpc';
 
 dotenv.config();
 
@@ -86,8 +86,7 @@ type ConfigTypes = {
     createContext: <TContext>(
       subdomain: string,
       context: any,
-    ) => Promise<TContext & TRPCContext>;
-    securityConfig?: TRPCSecurityConfig;
+    ) => Promise<TContext>;
   };
   meta?: IMeta;
 };
@@ -168,13 +167,13 @@ export async function startPlugin(
   }
 
   if (configs.trpcAppRouter) {
-    const { router, createContext, securityConfig } = configs.trpcAppRouter;
-    // Setup tRPC route with security middleware
-    setupTRPCRoute(app, {
-      router,
-      createContext,
-      securityConfig,
-    });
+    app.use(
+      '/trpc',
+      trpcExpress.createExpressMiddleware({
+        router: configs.trpcAppRouter.router,
+        createContext: createTRPCContext(configs.trpcAppRouter.createContext),
+      }),
+    );
   }
 
   app.use((req: any, _res, next) => {
@@ -246,12 +245,7 @@ export async function startPlugin(
       schema: buildSubgraphSchema([
         {
           typeDefs,
-          resolvers: {
-            ...resolvers,
-            Mutation: wrapApolloMutations(
-              (resolvers?.Mutation || {}) as ResolverObject,
-            ),
-          },
+          resolvers: wrapApolloResolvers(resolvers as any),
         },
       ]),
 
@@ -288,15 +282,15 @@ export async function startPlugin(
     } = configs.meta || {};
 
     if (automations) {
-      await startAutomations(configs.name, automations);
+      await startAutomations(app, configs.name, automations);
     }
 
     if (segments) {
-      await startSegments(configs.name, segments);
+      await initSegmentProducers(app, configs.name, segments);
     }
 
     if (afterProcess) {
-      await startAfterProcess(configs.name, afterProcess);
+      await startAfterProcess(app, configs.name, afterProcess);
     }
 
     if (notificationModules) {

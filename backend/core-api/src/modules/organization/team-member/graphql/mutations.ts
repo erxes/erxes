@@ -1,4 +1,3 @@
-import { IContext } from '~/connectionResolvers';
 import {
   IDetail,
   IEmailSignature,
@@ -6,7 +5,15 @@ import {
   IUser,
   Resolver,
 } from 'erxes-api-shared/core-types';
-import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
+import {
+  authCookieOptions,
+  getEnv,
+  getSaasOrganizationDetail,
+} from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
+import { saveValidatedToken } from '~/modules/auth/utils';
+import { sendInvitationEmail } from '../utils';
+import { sendOnboardNotification } from '~/modules/notifications/utils';
 
 export interface IUsersEdit extends IUser {
   channelIds?: string[];
@@ -31,7 +38,7 @@ export const userMutations: Record<string, Resolver> = {
       lastName?: string;
       subscribeEmail?: boolean;
     },
-    { models, __ }: IContext,
+    { models }: IContext,
   ) {
     const userCount = await models.Users.countDocuments();
 
@@ -140,14 +147,14 @@ export const userMutations: Record<string, Resolver> = {
       details,
       links,
       employeeId,
-      positionIds
+      positionIds,
     }: {
       username: string;
       email: string;
       details: IDetail;
       links: ILink;
       employeeId: string;
-      positionIds: string[]
+      positionIds: string[];
     },
     { user, models }: IContext,
   ) {
@@ -160,7 +167,7 @@ export const userMutations: Record<string, Resolver> = {
       },
       links,
       employeeId,
-      positionIds
+      positionIds,
     };
 
     const updatedUser = await models.Users.editProfile(user._id, doc);
@@ -196,14 +203,9 @@ export const userMutations: Record<string, Resolver> = {
       entries: Array<{
         email: string;
         password: string;
-        groupId: string;
-        channelIds?: string[];
-        unitId?: string;
-        branchId?: string;
-        departmentId?: string;
       }>;
     },
-    { models }: IContext,
+    { models, subdomain, user }: IContext,
   ) {
     for (const entry of entries) {
       await models.Users.checkDuplication({ email: entry.email });
@@ -215,25 +217,14 @@ export const userMutations: Record<string, Resolver> = {
       if (docModified?.scopeBrandIds?.length) {
         doc.brandIds = docModified.scopeBrandIds;
       }
-      const createdUser = await models.Users.findOne({ email: entry.email });
 
-      if (entry.branchId) {
-        await models.Users.updateOne(
-          { _id: createdUser?._id },
-          {
-            $addToSet: { branchIds: entry.branchId },
-          },
-        );
-      }
+      const token = await models.Users.invite(doc);
 
-      if (entry.departmentId) {
-        await models.Users.updateOne(
-          { _id: createdUser?._id },
-          {
-            $addToSet: { departmentIds: entry.departmentId },
-          },
-        );
-      }
+      sendInvitationEmail(models, subdomain, {
+        email: entry.email,
+        token,
+        userId: user._id,
+      });
     }
   },
 
@@ -253,29 +244,74 @@ export const userMutations: Record<string, Resolver> = {
   async usersConfirmInvitation(
     _parent: undefined,
     {
-      token,
-      password,
-      passwordConfirmation,
-      fullName,
-      username,
+      token: registrationToken,
     }: {
       token: string;
-      password: string;
-      passwordConfirmation: string;
-      fullName?: string;
-      username?: string;
     },
-    { models }: IContext,
+    { res, models, requestInfo, subdomain }: IContext,
   ) {
-    const user = await models.Users.confirmInvitation({
-      token,
-      password,
-      passwordConfirmation,
-      fullName,
-      username,
+    const user = await models.Users.findOne({
+      registrationToken,
+      registrationTokenExpires: {
+        $gt: Date.now(),
+      },
     });
 
-    return user;
+    if (!user || !registrationToken) {
+      throw new Error('Token is invalid or has expired');
+    }
+
+    const [token] = await models.Users.createTokens(
+      user,
+      models.Users.getSecret(),
+    );
+
+    await saveValidatedToken(token, user);
+
+    await models.Users.updateOne(
+      { _id: user._id },
+      {
+        $push: { validatedTokens: token },
+        $set: { isActive: true },
+        $unset: {
+          registrationToken: '',
+          registrationTokenExpires: '',
+        },
+      },
+    );
+
+    const sameSite = getEnv({ name: 'SAME_SITE' });
+    const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+    const VERSION = getEnv({ name: 'VERSION' });
+
+    if (VERSION === 'saas') {
+      const organization = await getSaasOrganizationDetail({ subdomain });
+
+      const cookieOptions: any = authCookieOptions();
+
+      if (organization.domain && organization.dnsStatus === 'active') {
+        cookieOptions.secure = true;
+        cookieOptions.sameSite = 'none';
+      }
+
+      res.cookie('auth-token', token, cookieOptions);
+    } else {
+      const cookieOptions: any = { secure: requestInfo.secure };
+
+      if (
+        sameSite &&
+        sameSite === 'none' &&
+        res.req.headers.origin !== DOMAIN
+      ) {
+        cookieOptions.sameSite = sameSite;
+      }
+
+      res.cookie('auth-token', token, authCookieOptions(cookieOptions));
+    }
+
+    await sendOnboardNotification(subdomain, models, user._id);
+
+    return 'accepted';
   },
   async usersConfigEmailSignatures(
     _parent: undefined,
@@ -306,6 +342,7 @@ export const userMutations: Record<string, Resolver> = {
 
     return await models.Users.updateUser(_id, { chatStatus: status });
   },
+
   /*
    * Upgrade organization plan status
    */
@@ -354,4 +391,9 @@ export const userMutations: Record<string, Resolver> = {
   },
 };
 
-userMutations.usersCreateOwner.skipPermission = true;
+userMutations.usersCreateOwner.wrapperConfig = {
+  skipPermission: true,
+};
+userMutations.usersConfirmInvitation.wrapperConfig = {
+  skipPermission: true,
+};

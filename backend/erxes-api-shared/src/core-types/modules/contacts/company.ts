@@ -3,6 +3,7 @@ import {
   ICursorPaginateParams,
   ICustomField,
   IListParams,
+  IPropertyField,
   IStringMap,
 } from '../../common';
 import { IAddress } from './contacts-common';
@@ -36,6 +37,7 @@ export interface ICompany {
   links?: IStringMap;
   tagIds?: string[];
   customFieldsData?: ICustomField[];
+  propertiesFieldsData?: IPropertyField;
   trackedData?: ICustomField[];
   website?: string;
   code?: string;

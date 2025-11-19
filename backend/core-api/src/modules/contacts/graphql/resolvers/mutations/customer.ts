@@ -55,7 +55,7 @@ export const customerMutations = {
     let relatedIntegrationIds: string[] = [];
     let mergedIds: string[] = [];
 
-    customers.forEach((c) => {
+    for (const c of customers) {
       if (c.relatedIntegrationIds && c.relatedIntegrationIds.length > 0) {
         relatedIntegrationIds = relatedIntegrationIds.concat(
           c.relatedIntegrationIds,
@@ -64,7 +64,7 @@ export const customerMutations = {
       if (c.mergedIds && c.mergedIds.length > 0) {
         mergedIds = mergedIds.concat(c.mergedIds);
       }
-    });
+    }
 
     relatedIntegrationIds = [...new Set(relatedIntegrationIds)];
     mergedIds = [...new Set(mergedIds)];

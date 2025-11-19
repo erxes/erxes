@@ -70,6 +70,7 @@ export interface IConversationListParams
   segment?: string;
   searchValue?: string;
   skip?: number;
+  customerId?: string;
 }
 
 interface ICountBy {

@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 export const LoadingScreen = () => {
   return (
     <div className="h-dvh w-dvw p-2 bg-sidebar">
-      <div className="flex flex-col items-center justify-center h-full w-full shadow-sm rounded-lg relative">
+      <div className="flex flex-col items-center justify-center h-full w-full shadow-sm rounded-lg relative overflow-hidden">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -49,17 +49,17 @@ export const TextAnimation = () => {
   const motionVariants: Variants = {
     initial: { y: 20, opacity: 0 },
     animate: { y: 0, opacity: 1 },
-    exit: { y: -20, opacity: 0 },
+    exit: { y: -10, opacity: 0 },
   };
 
   return (
     <div className="relative inline-block whitespace-nowrap text-center">
-      <AnimatePresence mode="popLayout">
+      <AnimatePresence mode="wait">
         <motion.div
           initial="initial"
           animate="animate"
           exit="exit"
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
           variants={motionVariants}
           key={currentIndex}
         >

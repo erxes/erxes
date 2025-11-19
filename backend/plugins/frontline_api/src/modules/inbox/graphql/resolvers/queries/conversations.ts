@@ -37,6 +37,21 @@ export const conversationQueries = {
       return { list, totalCount, pageInfo };
     }
 
+    if (params && params.customerId) {
+      const { list, totalCount, pageInfo } =
+        await cursorPaginate<IConversationDocument>({
+          model: models.Conversations,
+          params: {
+            ...params,
+            orderBy: { updatedAt: -1 },
+            limit: params.limit || 20,
+          },
+          query: { customerId: params.customerId },
+        });
+
+      return { list, totalCount, pageInfo };
+    }
+
     const qb = new QueryBuilder(models, subdomain, params, {
       _id: user._id,
       code: user.code,
@@ -51,7 +66,7 @@ export const conversationQueries = {
         model: models.Conversations,
         params: {
           ...params,
-          orderBy: { createdAt: -1 },
+          orderBy: { updatedAt: -1 },
           limit: params.limit || 20,
         },
         query: qb.mainQuery(),
@@ -60,6 +75,13 @@ export const conversationQueries = {
     return { list, totalCount, pageInfo };
   },
 
+  async conversationMessage(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.ConversationMessages.findOne({ _id });
+  },
   /**
    * Get conversation messages
    */

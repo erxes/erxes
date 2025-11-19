@@ -11,7 +11,7 @@ export const TaskDetailBreadCrump = () => {
   const { task, loading } = useGetTask({ variables: { _id: taskId } });
 
   if (loading) {
-    return <Skeleton className="w-12 h-[1lh]" />;
+    return <Skeleton className="w-12 h-lh" />;
   }
 
   // Determine base path

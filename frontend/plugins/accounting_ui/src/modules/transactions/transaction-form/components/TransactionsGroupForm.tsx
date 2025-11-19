@@ -1,4 +1,4 @@
-import { activeJournalState } from '../states/trStates';
+import { activeJournalState, followTrDocsState } from '../states/trStates';
 import {
   DatePicker,
   Form,
@@ -66,7 +66,7 @@ FormFields.displayName = 'FormFields';
 export const TransactionsGroupForm = () => {
   // const parentId = useParams().parentId;
   const [parentId] = useQueryState<string>('parentId');
-  const { activeTrs, loading } = useTransactionDetail({
+  const { activeTrs, followTrs, loading } = useTransactionDetail({
     variables: { _id: parentId },
     skip: !parentId,
   });
@@ -83,6 +83,7 @@ export const TransactionsGroupForm = () => {
   const [trId] = useQueryState<string>('trId');
 
   const setActiveJournal = useSetAtom(activeJournalState);
+  const setFollowTrDocs = useSetAtom(followTrDocsState);
 
   const { createTransaction } = useTransactionsCreate();
   const { updateTransaction } = useTransactionsUpdate();
@@ -130,6 +131,8 @@ export const TransactionsGroupForm = () => {
         trDocs: [JOURNALS_BY_JOURNAL(defaultJournal)],
       });
     }
+
+    setFollowTrDocs(followTrs);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultJournal, trId, form, loading]);
 

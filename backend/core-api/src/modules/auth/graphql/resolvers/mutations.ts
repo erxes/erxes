@@ -1,13 +1,12 @@
+import { WorkOS } from '@workos-inc/node';
 import {
   authCookieOptions,
   getEnv,
-  getPlugins,
   logHandler,
   markResolvers,
   redis,
   updateSaasOrganization,
 } from 'erxes-api-shared/utils';
-import { WorkOS } from '@workos-inc/node';
 import * as jwt from 'jsonwebtoken';
 import { IContext } from '~/connectionResolvers';
 import {
@@ -16,7 +15,6 @@ import {
   sendSaasMagicLinkEmail,
 } from '~/modules/auth/utils';
 import { assertSaasEnvironment } from '~/utils/saas';
-import { sendNotification } from 'erxes-api-shared/core-modules';
 
 type LoginParams = {
   email: string;
@@ -240,43 +238,12 @@ export const authMutations = {
       lastActiveDate: Date.now(),
     });
 
-    if (!user.lastSeenAt) {
-      const pluginNames = await getPlugins();
-
-      for (const pluginName of pluginNames) {
-        if (pluginName === 'core') {
-          sendNotification(subdomain, {
-            title: 'Welcome to erxes 🎉',
-            message:
-              'We’re excited to have you on board! Explore the features, connect with your team, and start growing your business with erxes.',
-            type: 'info',
-            userIds: [user._id],
-            priority: 'low',
-            kind: 'system',
-            contentType: `${pluginName}:system.welcome`,
-          });
-
-          await user.updateOne({ $set: { lastSeenAt: new Date() } });
-
-          continue;
-        }
-
-        sendNotification(subdomain, {
-          title: `Get Started with ${pluginName}`,
-          message: `Excited to introduce ${pluginName}! Dive in to explore its features and see how it can help your business thrive.`,
-          type: 'info',
-          userIds: [user._id],
-          priority: 'low',
-          kind: 'system',
-          contentType: `${pluginName}:system.welcome`,
-        });
-      }
-    }
-
     return 'success';
   },
 };
 
 markResolvers(authMutations, {
-  skipPermission: true,
+  wrapperConfig: {
+    skipPermission: true,
+  },
 });

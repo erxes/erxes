@@ -5,6 +5,21 @@ export const ACTIONS = {
   SEND_EMAIL: 'sendEmail',
 };
 
+export const ACTION_METHODS = {
+  CREATE: 'create',
+} as const;
+
+export const EXECUTION_STATUS = {
+  FINISHED: 'finished',
+  PAUSED: 'paused',
+  MISSED_ACTION: 'missed action',
+  ERROR: 'error',
+} as const;
+
+export const ERROR_MESSAGES = {
+  PLUGIN_NOT_ENABLED: 'Plugin not enabled',
+} as const;
+
 export const EMAIL_RECIPIENTS_TYPES = [
   {
     type: 'customMail',

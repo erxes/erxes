@@ -5,18 +5,13 @@ const productCategories = gql`
     productCategories {
       _id
       parentId
-      attachment {
-        url
-      }
       code
       name
       order
-      productCount
     }
   }
 `;
 
-
 export const categories = {
-    productCategories,
-  };
+  productCategories,
+};

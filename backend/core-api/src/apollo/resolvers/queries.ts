@@ -18,9 +18,10 @@ import { productQueries } from '@/products/graphql/resolvers/queries';
 import { relationsQueries } from '@/relations/graphql/queries';
 import { segmentQueries } from '@/segments/graphql/resolvers';
 import { tagQueries } from '@/tags/graphql/queries';
-
+import { clientPortalQueries } from '@/clientportal/graphql/resolvers/queries/clientPortal';
 import { notificationQueries } from '@/notifications/graphql/resolver/queries';
 import { roleQueries } from '@/permissions/graphql/resolvers/queries/role';
+import { propertiesQueries } from '~/modules/properties/graphql/resolvers/queries';
 
 export const queries = {
   ...contactQueries,
@@ -45,4 +46,6 @@ export const queries = {
   ...notificationQueries,
   ...internalNoteQueries,
   ...roleQueries,
+  ...propertiesQueries,
+  ...clientPortalQueries,
 };

@@ -21,10 +21,7 @@ const initializeModels = async <IModels>(
   },
 ) => {
   const models = await loadClasses(connection, subdomain);
-  if (
-    !logIgnoreOptions?.ignoreChangeStream &&
-    (await checkServiceRunning('logs'))
-  ) {
+  if (!logIgnoreOptions?.ignoreChangeStream) {
     startChangeStreams(models as any, subdomain, logIgnoreOptions);
   }
 
@@ -67,8 +64,6 @@ export const createGenerateModels = <IModels>(
     ): Promise<IModels> {
       let subdomain: string = hostnameOrSubdomain;
 
-      console.log(subdomain, 'subdomain1');
-
       if (!subdomain) {
         throw new Error(`Subdomain is \`${subdomain}\``);
       }
@@ -77,8 +72,6 @@ export const createGenerateModels = <IModels>(
       if (subdomain && subdomain.includes('.')) {
         subdomain = getSubdomain(hostnameOrSubdomain);
       }
-
-      console.log(subdomain, 'subdomain2');
 
       await getSaasCoreConnection();
 
