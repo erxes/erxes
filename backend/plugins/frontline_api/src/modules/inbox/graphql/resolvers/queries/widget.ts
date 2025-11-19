@@ -267,6 +267,26 @@ export const widgetQueries: Record<string, Resolver> = {
       timezone,
     };
   },
+
+  async widgetsTicketCustomerDetail(
+    _root,
+    args: { customerId?: string; type?: string },
+    { subdomain }: IContext,
+  ) {
+    const { customerId } = args;
+    if (!customerId) {
+      return null;
+    }
+
+    return sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'customers',
+      action: 'findOne',
+      input: { query: { _id: customerId } },
+    });
+  },
 };
 
 markResolvers(widgetQueries, {
