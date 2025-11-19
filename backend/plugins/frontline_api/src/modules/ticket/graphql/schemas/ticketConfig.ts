@@ -69,6 +69,7 @@ type TicketBasicFields {
 
 export const queries = `
     ticketConfigs(channelId: String!): [TicketConfig]
+    ticketConfig(pipelineId: String!): TicketConfig
 `;
 
 export const mutations = `

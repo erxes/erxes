@@ -9,6 +9,13 @@ export const ticketConfigQueries = {
   ) => {
     return models.TicketConfig.find({ channelId });
   },
+  ticketConfig: async (
+    _parent: undefined,
+    { pipelineId }: { pipelineId: string },
+    { models }: IContext,
+  ) => {
+    return models.TicketConfig.findOne({ pipelineId });
+  },
 };
 
 requireLogin(ticketConfigQueries, 'ticketConfigs');
