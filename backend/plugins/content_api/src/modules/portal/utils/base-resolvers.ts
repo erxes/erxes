@@ -208,7 +208,7 @@ export class BaseQueryResolver {
     if (!language) return item;
 
     const shouldSkip = await this.shouldSkipTranslation(
-      this.context.clientPortalId || '',
+      this.context.clientPortal._id || '',
       language,
     );
 
@@ -241,8 +241,8 @@ export class BaseMutationResolver {
       input.createdUserId = userId;
     }
 
-    if (this.context.clientPortalId) {
-      input.clientPortalId = this.context.clientPortalId;
+    if (this.context.clientPortal._id) {
+      input.clientPortalId = this.context.clientPortal._id;
     }
 
     return model.createDoc
@@ -259,8 +259,8 @@ export class BaseMutationResolver {
     input: any,
     userId?: string,
   ): Promise<T> {
-    if (this.context.clientPortalId) {
-      input.clientPortalId = this.context.clientPortalId;
+    if (this.context.clientPortal._id) {
+      input.clientPortalId = this.context.clientPortal._id;
     }
 
     return model.updateDoc
