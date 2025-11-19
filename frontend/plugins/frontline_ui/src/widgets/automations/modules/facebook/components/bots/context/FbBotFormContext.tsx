@@ -24,14 +24,14 @@ export const FbBotFormProvider = ({
 }) => {
   const defaultValues = useMemo<DefaultValues<TFacebookBotForm>>(
     () => ({
-      name: facebookMessengerBot?.name ?? '',
+      name: facebookMessengerBot?.name || '',
       persistentMenus: facebookMessengerBot?.persistentMenus?.length
         ? facebookMessengerBot.persistentMenus.map(
             ({ _id, text, type, link }) => ({
-              _id: _id ?? generateAutomationElementId(),
-              text: text ?? '',
-              type: (type ?? 'button') as 'button' | 'link',
-              link: link ?? '',
+              _id: _id || generateAutomationElementId(),
+              text: text || '',
+              type: (type || 'button') as 'button' | 'link',
+              link: link || '',
             }),
           )
         : [
@@ -42,12 +42,12 @@ export const FbBotFormProvider = ({
               link: '',
             },
           ],
-      tag: facebookMessengerBot?.tag ?? 'CONFIRMED_EVENT_UPDATE',
-      greetText: facebookMessengerBot?.greetText ?? '',
-      isEnabledBackBtn: facebookMessengerBot?.isEnabledBackBtn ?? false,
-      backButtonText: facebookMessengerBot?.backButtonText ?? '',
-      accountId: facebookMessengerBot?.accountId ?? '',
-      pageId: facebookMessengerBot?.pageId ?? '',
+      tag: facebookMessengerBot?.tag || 'CONFIRMED_EVENT_UPDATE',
+      greetText: facebookMessengerBot?.greetText || '',
+      isEnabledBackBtn: facebookMessengerBot?.isEnabledBackBtn || false,
+      backButtonText: facebookMessengerBot?.backButtonText || '',
+      accountId: facebookMessengerBot?.accountId || '',
+      pageId: facebookMessengerBot?.pageId || '',
     }),
     [facebookMessengerBot],
   );
