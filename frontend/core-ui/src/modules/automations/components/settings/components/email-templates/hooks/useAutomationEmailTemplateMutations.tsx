@@ -21,7 +21,7 @@ export function useCreateAutomationEmailTemplate() {
         toast({
           title: 'Success',
           description: 'Email template created successfully',
-          variant: 'default',
+          variant: 'success',
         });
       },
       onError: (error) => {
@@ -56,7 +56,7 @@ export function useUpdateAutomationEmailTemplate() {
         toast({
           title: 'Success',
           description: 'Email template updated successfully',
-          variant: 'default',
+          variant: 'success',
         });
       },
       onError: (error) => {
@@ -91,7 +91,7 @@ export function useRemoveAutomationEmailTemplate() {
         toast({
           title: 'Success',
           description: 'Email template removed successfully',
-          variant: 'default',
+          variant: 'success',
         });
       },
       onError: (error) => {

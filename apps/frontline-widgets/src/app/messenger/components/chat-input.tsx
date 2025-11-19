@@ -2,10 +2,19 @@ import { FC, useId } from 'react';
 import { IconArrowUp } from '@tabler/icons-react';
 import { Button, Input, cn } from 'erxes-ui';
 import { useChatInput } from '../hooks/useChatInput';
+import { useAtom } from 'jotai';
+import { InitialMessage } from '../constants';
+import { connectionAtom } from '../states';
 
 interface ChatInputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
 export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
+  const [connection] = useAtom(connectionAtom);
+  const { messengerData } = connection.widgetsMessengerConnect || {};
+  const { messages, isOnline } = messengerData || {};
+  const placeholder = isOnline
+    ? messages?.welcome || InitialMessage.WELCOME
+    : messages?.away || InitialMessage.AWAY;
   const id = useId();
   const { message, handleInputChange, handleSubmit, isDisabled, loading } =
     useChatInput();
@@ -23,7 +32,7 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
             'border-none h-9 shadow-none placeholder:text-muted-foreground placeholder:font-medium placeholder:text-sm',
             className,
           )}
-          placeholder="How can we help you?"
+          placeholder={placeholder}
           value={message}
           onChange={handleInputChange}
           {...inputProps}

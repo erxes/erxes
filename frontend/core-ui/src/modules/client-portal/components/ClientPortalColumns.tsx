@@ -73,7 +73,6 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
         navigator.clipboard.writeText(cell.row.original.token ?? '');
         toast({
           title: 'Copied to clipboard',
-          variant: 'default',
         });
         setTimeout(() => {
           setIsCopied(false);

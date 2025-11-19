@@ -613,12 +613,12 @@ export const integrationMutations = {
 
   async integrationsSaveMessengerTicketData(
     _root,
-    { _id, ticketData }: { _id: string; ticketData: ITicketData },
+    { _id, configId }: { _id: string; configId: string },
     { models }: IContext,
   ) {
     return models.Integrations.integrationsSaveMessengerTicketData(
       _id,
-      ticketData,
+      configId,
     );
   },
 };

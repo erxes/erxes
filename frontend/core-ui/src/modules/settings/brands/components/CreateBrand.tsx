@@ -47,7 +47,10 @@ export const CreateBrand = () => {
       brandsAdd({
         variables: data,
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({
+            variant: 'success',
+            title: 'Brand created successfully',
+          });
           reset();
           _setOpen(false);
         },

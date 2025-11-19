@@ -9,4 +9,5 @@ export enum FrontlinePaths {
   ChannelPipelines = '/:id/pipelines',
   PipelineDetail = '/:id/pipelines/:pipelineId',
   Tickets = '/tickets',
+  TicketsConfigs = '/:id/pipelines/:pipelineId/configs',
 }

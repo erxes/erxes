@@ -277,4 +277,8 @@ export const mutations = `
     channelId: String
   ): Integration
   integrationsCopyLeadIntegration(_id: String!): Integration
+
+  integrationsSaveMessengerTicketData(
+    _id: String!,
+    configId: String!): Integration
 `;

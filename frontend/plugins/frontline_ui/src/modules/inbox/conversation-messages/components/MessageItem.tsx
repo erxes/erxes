@@ -82,7 +82,8 @@ export const MessageWrapper = ({ children }: { children: React.ReactNode }) => {
       className={cn(
         'flex items-end w-full gap-3',
         userId ? 'justify-end' : 'justify-start',
-        !separateNext && 'px-11',
+        !separateNext && !customerId && 'px-11',
+        !customerId && !userId && 'px-0 pl-0 pr-0',
         !customerId && 'pl-11',
         !userId && 'pr-11',
         formWidgetData && 'pb-4',
@@ -147,10 +148,14 @@ const Attachment = ({
             'col-span-2': length === 1,
             'col-span-1': length !== 1,
           },
-          'w-full px-2 py-1 rounded bg-accent flex items-center justify-center cursor-pointer',
+          'w-full px-2 py-1 rounded bg-accent flex items-center justify-center gap-2 cursor-pointer',
         )}
         onClick={() => {
-          window.open(readImage(attachment.url), '_blank');
+          window.open(
+            readImage(attachment.url),
+            '_blank',
+            'noopener,noreferrer',
+          );
         }}
       >
         <IconFile className="w-4 h-4 text-muted-foreground" />
@@ -174,6 +179,9 @@ const Attachment = ({
           <img
             src={readImage(attachment.url)}
             alt={attachment.name}
+            loading="lazy"
+            width={200}
+            height={200}
             className="size-full object-cover"
           />
         </button>

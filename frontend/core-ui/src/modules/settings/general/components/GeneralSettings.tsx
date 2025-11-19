@@ -26,13 +26,10 @@ const GeneralSettings = () => {
   const updateCurrency = (data: TGeneralSettingsProps) => {
     const updatedConfigs = {
       // start with all existing configs
-      ...configs.reduce(
-        (acc: Record<string, any>, config: TConfig) => {
-          acc[config.code] = config.value;
-          return acc;
-        },
-        {} as Record<string, any>,
-      ),
+      ...configs.reduce((acc: Record<string, any>, config: TConfig) => {
+        acc[config.code] = config.value;
+        return acc;
+      }, {} as Record<string, any>),
       // override/add with new data
       ...data,
     };
@@ -46,6 +43,7 @@ const GeneralSettings = () => {
     handleLanguage(data.languageCode).then(() => {
       toast({
         title: 'Updated successfully',
+        variant: 'success',
         description: `Language switched to (${data.languageCode})`,
       });
     });
@@ -65,7 +63,9 @@ const GeneralSettings = () => {
       methods.setValue('dealCurrency', currencies?.value);
       methods.setValue('mainCurrency', mainCurrency?.value);
 
-      timezone && methods.setValue('TIMEZONE', timezone?.value);
+      if (timezone) {
+        methods.setValue('TIMEZONE', timezone?.value);
+      }
     }
   }, [configs, methods]);
 

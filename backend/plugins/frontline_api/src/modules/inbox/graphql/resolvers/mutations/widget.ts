@@ -4,7 +4,9 @@ import {
   isEnabled,
   redis,
   sendTRPCMessage,
+  markResolvers,
 } from 'erxes-api-shared/utils';
+import { Resolver } from 'erxes-api-shared/core-types';
 import { IModels, generateModels } from '~/connectionResolvers';
 import {
   IIntegrationDocument,
@@ -210,7 +212,7 @@ const createVisitor = async (subdomain: string, visitorId: string) => {
   return customer;
 };
 
-export const widgetMutations = {
+export const widgetMutations: Record<string, Resolver> = {
   async widgetsLeadIncreaseViewCount(
     _root,
     { formId }: { formId: string },
@@ -243,7 +245,6 @@ export const widgetMutations = {
       isUser,
       companyData,
       data,
-
       cachedCustomerId,
       deviceToken,
       visitorId,
@@ -422,12 +423,18 @@ export const widgetMutations = {
         { $set: { isConnected: true } },
       );
     }
+    let ticketConfig;
+    if (integration.configId) {
+      ticketConfig = await models.TicketConfig.findOne({
+        _id: integration.configId,
+      });
+    }
 
     return {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
-      ticketData: integration.ticketData,
+      ticketConfig: ticketConfig || {},
       messengerData: await getMessengerData(models, subdomain, integration),
       customerId: customer && customer._id,
       visitorId: customer ? null : visitorId,
@@ -934,8 +941,6 @@ export const widgetMutations = {
       conversationId,
       customerId,
       message,
-      type,
-      payload,
     }: {
       conversationId?: string;
       customerId?: string;
@@ -945,7 +950,7 @@ export const widgetMutations = {
       payload: string;
       type: string;
     },
-    { models, subdomain }: IContext,
+    { models }: IContext,
   ) {
     const integration =
       (await models.Integrations.findOne({ _id: integrationId })) ||
@@ -1018,3 +1023,9 @@ export const widgetMutations = {
     return { botData: botRequest.responses };
   },
 };
+
+markResolvers(widgetMutations, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});

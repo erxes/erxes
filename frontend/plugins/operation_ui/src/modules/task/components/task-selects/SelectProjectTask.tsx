@@ -298,6 +298,8 @@ export const SelectProjectFilterBar = () => {
 };
 
 export const SelectProject = Object.assign(SelectProjectRoot, {
+  Provider: SelectProjectProvider,
+  Content: SelectProjectContent,
   FilterView: SelectProjectFilterView,
   FilterBar: SelectProjectFilterBar,
   FormItem: SelectProjectFormItem,

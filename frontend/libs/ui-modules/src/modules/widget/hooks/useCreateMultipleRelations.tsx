@@ -14,9 +14,8 @@ export const useCreateMultipleRelations = () => {
       refetchQueries: [GET_RELATIONS_BY_ENTITY],
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Relations created successfully',
-          variant: 'default',
+          title: 'Relations created successfully',
+          variant: 'success',
         });
       },
     });

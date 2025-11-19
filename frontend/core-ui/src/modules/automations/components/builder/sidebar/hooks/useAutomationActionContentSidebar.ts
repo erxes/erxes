@@ -80,6 +80,7 @@ export const useAutomationActionContentSidebar = () => {
     toggleSideBarOpen();
     toast({
       title: 'Action configuration added successfully.',
+      variant: 'success',
     });
   };
 

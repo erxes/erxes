@@ -30,7 +30,11 @@ export function useJSONBodyBuilder(name: string, value: any) {
       setValue(name, parsed, { shouldDirty: true, shouldTouch: true });
       setRawOpen(false);
     } catch (e) {
-      toast({ title: 'Invalid JSON', description: e.message });
+      toast({
+        title: 'Invalid JSON',
+        description: e.message,
+        variant: 'destructive',
+      });
     }
   }, [rawValue, setValue, name]);
 
