@@ -1,18 +1,11 @@
 import { Button, ScrollArea, Separator, Spinner } from 'erxes-ui';
-import {
-  IconCaretLeftRight,
-  IconPlus,
-  IconPointerUp,
-} from '@tabler/icons-react';
-import {
-  dealChooserSheetState,
-  dealCreateSheetState,
-} from '@/deals/states/dealCreateSheetState';
+import { IconCaretLeftRight, IconPlus } from '@tabler/icons-react';
 import { useCreateMultipleRelations, useRelations } from 'ui-modules';
 
 import { AddDealSheet } from '@/deals/components/AddDealSheet';
 import ChooseDealSheet from '@/deals/components/ChooseDealSheet';
 import { DealWidget } from './DealWidget';
+import { dealCreateSheetState } from '@/deals/states/dealCreateSheetState';
 import { useSetAtom } from 'jotai';
 
 export const Deal = ({
@@ -33,10 +26,9 @@ export const Deal = ({
       relatedContentType: 'sales:deal',
     },
   });
-  console.log('ommm', ownEntities, contentId, contentType);
+
   const { createMultipleRelations } = useCreateMultipleRelations();
   const setOpenCreateDeal = useSetAtom(dealCreateSheetState);
-  const setOpenDealChooser = useSetAtom(dealChooserSheetState);
 
   if (loadingRelations) {
     return <Spinner containerClassName="py-20" />;
@@ -85,12 +77,8 @@ export const Deal = ({
           <IconPlus />
           Add a deal
         </Button>
-        <Button variant="secondary" onClick={() => setOpenDealChooser(true)}>
-          <IconPointerUp />
-          Choose an existing deal
-        </Button>
         <AddDealSheet onComplete={onComplete} showWorkflowFields={true} />
-        <ChooseDealSheet onComplete={onComplete} />
+        <ChooseDealSheet onComplete={onComplete} showText={true} />
       </div>
     );
   }

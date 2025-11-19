@@ -6,8 +6,10 @@ import { useSetAtom } from 'jotai';
 
 const ChooseDealSheet = ({
   onComplete,
+  showText,
 }: {
   onComplete: (dealId: string) => void;
+  showText?: boolean;
 }) => {
   const setOpenDealChooser = useSetAtom(dealChooserSheetState);
 
@@ -25,6 +27,7 @@ const ChooseDealSheet = ({
     >
       <Button variant="secondary" onClick={() => setOpenDealChooser(true)}>
         <IconPointerUp />
+        {showText && 'Choose an existing deal'}
       </Button>
     </SelectDealsBulk>
   );
