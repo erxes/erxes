@@ -21,15 +21,18 @@ let memoizedApiUrl: string | null = null;
 
 const getWidgetUrl = (): string => {
   // if (memoizedApiUrl) return memoizedApiUrl;
-
+  console.log(
+    process.env.REACT_APP_WIDGETS_URL,
+    'process.env.REACT_APP_WIDGETS_URL',
+  );
   const envApiUrl =
     window.env?.REACT_APP_WIDGETS_URL ??
     (process.env.REACT_APP_WIDGETS_URL || getDefaultUrl());
-
+  console.log(envApiUrl, 'envApiUrl');
   memoizedApiUrl = envApiUrl?.includes('<subdomain>')
     ? envApiUrl.replace('<subdomain>', getSubdomain())
     : envApiUrl;
-
+  console.log(memoizedApiUrl, 'memoizedApiUrl');
   return memoizedApiUrl;
 };
 

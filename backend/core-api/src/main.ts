@@ -25,7 +25,8 @@ import { initSegmentCoreProducers } from './meta/segments';
 
 dotenv.config();
 
-const { DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_DOMAINS } = process.env;
+const { DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_DOMAINS, ERXES_DOMAINS } =
+  process.env;
 
 const port = process.env.PORT ? Number(process.env.PORT) : 3300;
 
@@ -46,6 +47,7 @@ const corsOptions = {
   credentials: true,
   origin: [
     DOMAIN || 'http://localhost:3001',
+    ...(ERXES_DOMAINS ? ERXES_DOMAINS.split(',') : []),
     ...(isDev ? ['http://localhost:3001', 'http://localhost:4200'] : []),
     ...(ALLOWED_DOMAINS || '').split(',').map((c) => c && RegExp(c)),
     ...(CLIENT_PORTAL_DOMAINS || '').split(','),
