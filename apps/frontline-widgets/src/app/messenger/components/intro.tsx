@@ -3,6 +3,7 @@ import { useGetMessengerSupporters } from '../hooks/useGetMessengerSupporters';
 import { ConversationMessage, EmptyChat } from './conversation';
 import { ChatInput } from './chat-input';
 import { useConversations } from '../hooks/useConversations';
+import { useMemo } from 'react';
 
 export const Intro = () => {
   const { loading: loadingSupporters } = useGetMessengerSupporters();
@@ -10,6 +11,7 @@ export const Intro = () => {
     conversations,
     loading: loadingConversations,
     lastMesseges,
+    unreadMessages,
   } = useConversations();
 
   if (loadingSupporters || loadingConversations) {
@@ -44,6 +46,7 @@ export const Intro = () => {
               key={index}
               conversationId={conversations[index]?._id}
               message={messege || undefined}
+              unreadMessagesCount={unreadMessages?.length || 0}
             />
           ))}
       </div>

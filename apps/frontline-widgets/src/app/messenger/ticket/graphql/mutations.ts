@@ -44,4 +44,20 @@ const CREATE_TICKET = gql`
   }
 `;
 
-export { SAVE_TICKET_CUSTOMERS, CREATE_TICKET };
+const SAVE_CUSTOMER_NOTIFIED = gql`
+  mutation WidgetsSaveCustomerGetNotified(
+    $type: String!
+    $value: String!
+    $customerId: String
+    $visitorId: String
+  ) {
+    widgetsSaveCustomerGetNotified(
+      type: $type
+      value: $value
+      customerId: $customerId
+      visitorId: $visitorId
+    )
+  }
+`;
+
+export { SAVE_TICKET_CUSTOMERS, CREATE_TICKET, SAVE_CUSTOMER_NOTIFIED };

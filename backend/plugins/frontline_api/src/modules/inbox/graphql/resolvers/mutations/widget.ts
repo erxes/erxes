@@ -221,6 +221,7 @@ export interface ITicketWidget {
   channelId: string;
   type: string;
   customerIds: string[];
+  tagIds: string[];
 }
 
 export const widgetMutations: Record<string, Resolver> = {
@@ -762,16 +763,18 @@ export const widgetMutations: Record<string, Resolver> = {
       );
     }
 
-    await sendTRPCMessage({
+    const customer = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       method: 'mutation',
       module: 'customers',
       action: 'saveVisitorContactInfo',
       input: {
-        args,
+        params: args,
       },
     });
+
+    return customer;
   },
 
   /*

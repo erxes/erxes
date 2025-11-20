@@ -16,7 +16,8 @@ import { EXCLUDED_TICKET_FORM_FIELDS } from '../../constants';
 import { ticketConfigAtom } from '../../states';
 import { useCreateWidgetTicket } from '../hooks/useCreateWidgetTicket';
 import { getLocalStorageItem } from '@libs/utils';
-import { useCreateRelation, SelectTags } from 'ui-modules';
+import { useCreateRelation } from 'ui-modules';
+import { SelectTicketTag } from './tags/select-ticket-tag';
 
 const TICKET_DETAILS_FIELDS = ['name', 'description', 'attachments', 'tags'];
 const CUSTOMER_FIELDS = ['firstName', 'lastName', 'phoneNumber', 'email'];
@@ -220,8 +221,7 @@ export const TicketForm = ({
                 {TicketFormFields[key as keyof typeof TicketFormFields]}
               </Form.Label>
               <Form.Control>
-                <SelectTags.FormItem
-                  tagType="frontline:ticket"
+                <SelectTicketTag
                   value={field.value}
                   mode="multiple"
                   onValueChange={field.onChange}
