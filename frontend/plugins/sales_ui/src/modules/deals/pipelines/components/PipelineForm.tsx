@@ -1,4 +1,4 @@
-import { Button, Tabs } from 'erxes-ui';
+import { Button, Tabs, useQueryState } from 'erxes-ui';
 
 import GeneralForm from '@/deals/boards/components/detail/GeneralForm';
 import PipelineConfig from './PipelineConfig';
@@ -10,8 +10,14 @@ type Props = {
 };
 
 export const PipelineForm = ({ form, stagesLoading }: Props) => {
+  const [tab = 'general', setTab] = useQueryState('tab');
   return (
-    <Tabs defaultValue="general" className="flex flex-col h-full shadow-none">
+    <Tabs
+      defaultValue="general"
+      className="flex flex-col h-full shadow-none"
+      value={tab}
+      onValueChange={setTab}
+    >
       <Tabs.List className="flex justify-center">
         <Tabs.Trigger asChild value="general">
           <Button
