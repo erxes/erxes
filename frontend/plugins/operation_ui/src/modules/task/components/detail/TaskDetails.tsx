@@ -1,8 +1,8 @@
 import { TaskFields } from '@/task/components/detail/TaskFields';
+import { TaskSideWidgets } from '~/widgets/relation/TaskSideWidgets';
+import { TriageFields } from '@/triage/components/TriageFields';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { useGetTriage } from '@/triage/hooks/useGetTriage';
-import { TriageFields } from '@/triage/components/TriageFields';
-import { TaskSideWidgets } from '~/widgets/relation/TaskSideWidgets';
 
 export const TaskDetails = ({
   taskId,

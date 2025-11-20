@@ -1,9 +1,4 @@
-import {
-  IconBriefcase,
-  IconCashRegister,
-  IconSandbox,
-} from '@tabler/icons-react';
-import { IUIConfig } from 'erxes-ui/types';
+import { IconBriefcase, IconSandbox } from '@tabler/icons-react';
 import { Suspense, lazy } from 'react';
 
 const MainNavigation = lazy(() =>
@@ -12,9 +7,9 @@ const MainNavigation = lazy(() =>
   })),
 );
 
-const SalesNavigation = lazy(() =>
-  import('./modules/SalesNavigation').then((module) => ({
-    default: module.SalesNavigation,
+const SalesSubNavigation = lazy(() =>
+  import('./modules/SalesSubNavigation').then((module) => ({
+    default: module.SalesSubNavigation,
   })),
 );
 
@@ -27,8 +22,6 @@ const PosOrderNavigation = lazy(() =>
 export const CONFIG = {
   name: 'sales',
   icon: IconBriefcase,
-  hasRelationWidget: true,
-  widgetsIcon: IconBriefcase,
   navigationGroup: {
     name: 'sales',
     icon: IconBriefcase,
@@ -39,26 +32,24 @@ export const CONFIG = {
     ),
     subGroups: () => (
       <Suspense fallback={<div />}>
-        <SalesNavigation />
+        <SalesSubNavigation />
         <PosOrderNavigation />
       </Suspense>
     ),
   },
   modules: [
     {
-      name: 'deals',
-      icon: IconSandbox,
-      path: 'deals',
+      name: 'sales',
+      icon: IconBriefcase,
+      path: 'sales',
       hasSettings: true,
       hasAutomation: true,
-      hasSegmentConfigWidget: true,
     },
+  ],
+  relationWidgets: [
     {
-      name: 'pos',
-      icon: IconCashRegister,
-      path: 'pos',
-      hasSettings: true,
-      hasRelationWidget: true,
+      name: 'deals',
+      icon: IconSandbox,
     },
   ],
 };
