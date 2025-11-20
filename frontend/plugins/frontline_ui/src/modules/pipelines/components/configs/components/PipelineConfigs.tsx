@@ -10,7 +10,7 @@ export const PipelineConfigs = () => {
   }>();
   const navigate = useNavigate();
   return (
-    <section className="w-full mb-24">
+    <section className="w-full">
       <div
         className="w-full shrink-0 border border-muted-foreground/15 rounded-md hover:bg-sidebar/50 cursor-pointer p-4"
         onClick={() =>

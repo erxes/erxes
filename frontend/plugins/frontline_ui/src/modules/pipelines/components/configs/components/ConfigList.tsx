@@ -52,9 +52,9 @@ export const ConfigList = () => {
         description="Configure the messenger configuration"
       >
         <InfoCard.Content>
-          <Table className="border-none [&_th]:border-none [&_td]:border-none rounded-xl overflow-hidden">
-            <Table.Header>
-              <Table.Row className="[&>td]:font-mono [&>td]:uppercase [&>td]:font-semibold [&>td]:text-xs [&>td]:text-accent-foreground">
+          <Table className="border-none rounded-xl overflow-hidden *:border-none">
+            <Table.Header className="border-none">
+              <Table.Row className="[&>td]:font-mono [&>td]:uppercase [&>td]:font-semibold [&>td]:text-xs [&>td]:text-accent-foreground *:border-none">
                 <Table.Cell colSpan={3} className="ps-2">
                   Name
                 </Table.Cell>
@@ -70,10 +70,10 @@ export const ConfigList = () => {
               </Table.Row>
             </Table.Header>
             {(ticketConfig && (
-              <Table.Body>
+              <Table.Body className="*:border-none">
                 <Table.Row
                   key={ticketConfig?.id}
-                  className="hover:bg-transparent"
+                  className="hover:bg-transparent *:border-none"
                 >
                   <Table.Cell
                     colSpan={3}
@@ -121,8 +121,8 @@ export const ConfigList = () => {
                 </Table.Row>
               </Table.Body>
             )) || (
-              <Table.Footer className="mt-4">
-                <Table.Row className="hover:bg-background">
+              <Table.Footer className="mt-4 *:border-none">
+                <Table.Row className="hover:bg-background *:border-none">
                   <Table.Cell
                     colSpan={12}
                     className="group-hover/table-row:bg-transparent"
