@@ -17,6 +17,7 @@ import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectSta
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
+import { SelectTags } from 'ui-modules';
 
 export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   const {
@@ -28,6 +29,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     pipelineId,
     statusId,
     channelId,
+    tagIds,
   } = ticket || {};
 
   const startDate = (ticket as any)?.startDate;
@@ -137,6 +139,18 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
           id={ticketId}
           type="targetDate"
           variant="detail"
+        />
+         <SelectTags.Detail
+          value={tagIds || []}
+          tagType="frontline:ticket"
+          onValueChange={(newTagIds: string[]) => {
+            updateTicket({
+              variables: {
+                _id: ticketId,
+                tagIds: newTagIds
+              },
+            });
+          }}
         />
       </div>
       <Separator className="my-4" />
