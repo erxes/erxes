@@ -4,6 +4,7 @@ import {
   IconSend,
   IconPhone,
   IconBug,
+  IconMessage,
 } from '@tabler/icons-react';
 
 export enum WelcomeMessage {
@@ -19,10 +20,16 @@ export enum InitialMessage {
 }
 export const HEADER_ITEMS: IHeaderItem[] = [
   {
+    title: 'Chat',
+    Icon: IconMessage,
+    value: 'chat',
+    disabled: false,
+  },
+  {
     title: 'Issue a ticket',
     Icon: IconSend,
     value: 'ticket',
-    disabled: true,
+    disabled: false,
   },
   {
     title: 'FAQ',
@@ -42,4 +49,12 @@ export const HEADER_ITEMS: IHeaderItem[] = [
     value: 'bug',
     disabled: true,
   },
+];
+
+export const EXCLUDED_TICKET_FORM_FIELDS = [
+  'pipelineId',
+  'channelId',
+  'selectedStatusId',
+  'contactType',
+  '_id',
 ];

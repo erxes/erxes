@@ -1,0 +1,215 @@
+import { useMutation, useQuery } from '@apollo/client';
+import { Button, Form, Input, Select, Sheet, Textarea, toast } from 'erxes-ui';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { CMS_CATEGORIES, CMS_CATEGORIES_ADD, CMS_CATEGORIES_EDIT } from '../../graphql/queries';
+
+interface Category {
+  _id: string;
+  name: string;
+  slug: string;
+  clientPortalId: string;
+  createdAt: string;
+  description?: string;
+  parentId?: string;
+  status?: 'active' | 'inactive';
+}
+
+interface CmsCategoryDrawerProps {
+  category?: Partial<Category>;
+  isOpen: boolean;
+  onClose: () => void;
+  clientPortalId: string;
+  onRefetch?: () => void;
+}
+
+interface CategoryFormData {
+  name: string;
+  slug: string;
+  description?: string;
+  parentId?: string;
+  status: 'active' | 'inactive';
+}
+
+export function CmsCategoryDrawer({ category, isOpen, onClose, clientPortalId, onRefetch }: CmsCategoryDrawerProps) {
+  const isEditing = !!category?._id;
+
+  const form = useForm<CategoryFormData>({
+    defaultValues: {
+      name: '',
+      slug: '',
+      description: '',
+      parentId: undefined,
+      status: 'active',
+    },
+  });
+
+  useEffect(() => {
+    if (category && isOpen) {
+      form.reset({
+        name: category.name || '',
+        slug: category.slug || '',
+        description: category.description || '',
+        parentId: category.parentId || undefined,
+        status: (category.status as any) || 'active',
+      });
+    } else if (isOpen) {
+      form.reset({ name: '', slug: '', description: '', parentId: undefined, status: 'active' });
+    }
+  }, [category, isOpen, form]);
+
+  // Fetch categories for Parent Category select
+  const { data: catsData } = useQuery(CMS_CATEGORIES, {
+    variables: {
+      clientPortalId,
+      limit: 100,
+    },
+    fetchPolicy: 'cache-first',
+    skip: !isOpen,
+  });
+  const parentOptions: Category[] = (catsData?.cmsCategories?.list || []).filter((c: Category) => c._id !== category?._id);
+
+  const [addCategory, { loading: adding }] = useMutation(CMS_CATEGORIES_ADD, {
+    onCompleted: () => {
+      onRefetch?.();
+      toast({ title: 'Success', description: 'Category created' });
+      onClose();
+      form.reset();
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const [editCategory, { loading: editing }] = useMutation(CMS_CATEGORIES_EDIT, {
+    onCompleted: () => {
+      onRefetch?.();
+      toast({ title: 'Success', description: 'Category updated' });
+      onClose();
+      form.reset();
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const onSubmit = (data: CategoryFormData) => {
+    const input = { ...data, clientPortalId } as any;
+    if (isEditing && category?._id) {
+      editCategory({ variables: { _id: category._id, input } });
+    } else {
+      addCategory({ variables: { input } });
+    }
+  };
+
+  return (
+    <Sheet open={isOpen} onOpenChange={onClose}>
+      <Sheet.View className="sm:max-w-lg p-0">
+        <Sheet.Header className="border-b gap-3">
+          <Sheet.Title>{isEditing ? 'Edit Category' : 'New Category'}</Sheet.Title>
+          <Sheet.Close />
+        </Sheet.Header>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="p-4 space-y-4">
+            <Form.Field
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Name</Form.Label>
+                  <Form.Control>
+                    <Input {...field} placeholder="Enter category name" required />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+
+            <Form.Field
+              control={form.control}
+              name="slug"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Slug</Form.Label>
+                  <Form.Control>
+                    <Input {...field} placeholder="category-slug" required />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+
+            <Form.Field
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Description</Form.Label>
+                  <Form.Control>
+                    <Textarea {...field} placeholder="Enter description" rows={3} />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+
+            <Form.Field
+              control={form.control}
+              name="parentId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Parent Category</Form.Label>
+                  <Form.Control>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Select.Trigger>
+                        <Select.Value placeholder="Select..." />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {parentOptions.map((opt) => (
+                          <Select.Item key={opt._id} value={opt._id}>
+                            {opt.name}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+
+            <Form.Field
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Status</Form.Label>
+                  <Form.Control>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Select.Trigger>
+                        <Select.Value placeholder="Select status" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        <Select.Item value="active">active</Select.Item>
+                        <Select.Item value="inactive">inactive</Select.Item>
+                      </Select.Content>
+                    </Select>
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+
+            <div className="flex justify-end space-x-2">
+              <Button onClick={onClose} variant="outline">Cancel</Button>
+              <Button type="submit" disabled={adding || editing}>
+                {adding || editing ? (isEditing ? 'Saving...' : 'Creating...') : (isEditing ? 'Save Changes' : 'Create Category')}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </Sheet.View>
+    </Sheet>
+  );
+}

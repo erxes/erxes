@@ -8,6 +8,7 @@ import { useConnect } from './messenger/hooks/useConnect';
 import { Skeleton, REACT_APP_API_URL } from 'erxes-ui';
 import { ConversationDetails } from './messenger/components/conversation-details';
 import { connectionAtom } from './messenger/states';
+import { Ticket } from './messenger/ticket/components/ticket';
 
 export function App() {
   const [isMessengerVisible, setIsMessengerVisible] = useState(false);
@@ -66,6 +67,8 @@ export function App() {
     switch (activeTab) {
       case 'chat':
         return <ConversationDetails />;
+      case 'ticket':
+        return <Ticket />;
       default:
         return <Intro />;
     }

@@ -50,7 +50,7 @@ export const HeaderIntro = () => {
           {messages?.thank || ''}
         </div>
       </div>
-      {/* <HeaderItemsList /> */}
+      <HeaderItemsList />
     </div>
   );
 };

@@ -9,7 +9,7 @@ import {
   useConfirm,
   useQueryState,
 } from 'erxes-ui';
-import { SubmitHandler, useWatch } from 'react-hook-form';
+import { SubmitHandler } from 'react-hook-form';
 import { useSaveTicketsConfig } from '../hooks/useSaveTicketsConfig';
 import { useCallback } from 'react';
 import { ConfigsForm } from './ConfigsForm';
@@ -28,8 +28,13 @@ export const ConfigDetails = () => {
 
   const confirmationValue = 'save';
   const { confirm } = useConfirm();
+  const { handleSubmit, reset } = methods;
 
-  const { handleSubmit, reset, control } = methods;
+  const handleClose = useCallback(() => {
+    reset();
+    setConfigId(null);
+  }, [reset, setConfigId]);
+
   const onSubmit: SubmitHandler<TPipelineConfig> = useCallback(
     (data) => {
       try {
@@ -49,7 +54,7 @@ export const ConfigDetails = () => {
                 description: 'Tickets config saved successfully',
                 variant: 'success',
               });
-              reset();
+              handleClose();
             },
             onError: (error) => {
               toast({
@@ -61,19 +66,26 @@ export const ConfigDetails = () => {
           });
         });
       } catch (error) {
-        console.error(error);
         toast({
           title: 'Error',
-          description: error.message,
+          description:
+            error instanceof Error ? error.message : 'An error occurred',
           variant: 'destructive',
         });
       }
     },
-    [saveTicketsConfig, reset, confirm],
+    [saveTicketsConfig, confirm, handleClose],
   );
 
   return (
-    <Sheet open={!!configId} onOpenChange={setConfigId}>
+    <Sheet
+      open={!!configId}
+      onOpenChange={(open) => {
+        if (!open) {
+          handleClose();
+        }
+      }}
+    >
       <Sheet.View className="p-0">
         <Form {...methods}>
           <form
@@ -88,7 +100,7 @@ export const ConfigDetails = () => {
               <ConfigsForm form={methods} defaultValues={ticketConfigDetail} />
             </Sheet.Content>
             <Sheet.Footer>
-              <Button variant="ghost" onClick={() => setConfigId(undefined)}>
+              <Button variant="ghost" onClick={handleClose}>
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>

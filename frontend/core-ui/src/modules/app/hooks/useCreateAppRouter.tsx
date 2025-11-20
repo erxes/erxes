@@ -83,31 +83,25 @@ export const useCreateAppRouter = () => {
                 element={<SettingsRoutes />}
               />
 
-              {isOS && (
-                <Route
-                  path={AppPath.ProductsCatchAll}
-                  element={<ProductsRoutes />}
-                />
-              )}
+              <Route
+                path={AppPath.ProductsCatchAll}
+                element={<ProductsRoutes />}
+              />
 
               <Route
                 path={AppPath.ContactsCatchAll}
                 element={<ContactsRoutes />}
               />
 
-              {isOS && (
-                <Route
-                  path={AppPath.SegmentsCatchAll}
-                  element={<SegmentRoutes />}
-                />
-              )}
+              <Route
+                path={AppPath.SegmentsCatchAll}
+                element={<SegmentRoutes />}
+              />
 
-              {isOS && (
-                <Route
-                  path={AppPath.AutomationsCatchAll}
-                  element={<AutomationRoutes />}
-                />
-              )}
+              <Route
+                path={AppPath.AutomationsCatchAll}
+                element={<AutomationRoutes />}
+              />
 
               {isOS && (
                 <Route path={AppPath.LogsCatchAll} element={<LogRoutes />} />

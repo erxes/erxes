@@ -65,8 +65,6 @@ export const CreateConfig = () => {
     methods.setFocus('name');
   }, [methods]);
 
-  console.log('watch', methods.watch(), '\nerrors', methods.formState.errors);
-
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.View className="p-0">
