@@ -32,12 +32,13 @@ import * as path from 'path';
 dotenv.config();
 
 const port = process.env.PORT ? Number(process.env.PORT) : 4000;
-const { DOMAIN } = process.env;
+const { DOMAIN, ERXES_DOMAINS } = process.env;
 
 const corsOptions = {
   credentials: true,
   origin: [
     ...(DOMAIN ? [DOMAIN] : []),
+    ...(ERXES_DOMAINS ? ERXES_DOMAINS.split(',') : []),
     ...(isDev
       ? [
           'http://localhost:3001',
