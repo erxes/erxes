@@ -126,5 +126,6 @@ export const mutations = `
       statusId: String!
       type: String!
       customerIds: [String!]!
+      tagIds: [String!]
     ): Ticket
   `;

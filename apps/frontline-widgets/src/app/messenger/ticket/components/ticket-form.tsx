@@ -16,9 +16,9 @@ import { EXCLUDED_TICKET_FORM_FIELDS } from '../../constants';
 import { ticketConfigAtom } from '../../states';
 import { useCreateWidgetTicket } from '../hooks/useCreateWidgetTicket';
 import { getLocalStorageItem } from '@libs/utils';
-import { useCreateRelation } from 'ui-modules';
+import { useCreateRelation, SelectTags } from 'ui-modules';
 
-const TICKET_DETAILS_FIELDS = ['name', 'description', 'attachments', 'tag'];
+const TICKET_DETAILS_FIELDS = ['name', 'description', 'attachments', 'tags'];
 const CUSTOMER_FIELDS = ['firstName', 'lastName', 'phoneNumber', 'email'];
 const COMPANY_FIELDS = [
   'companyName',
@@ -63,7 +63,8 @@ export const TicketForm = ({
         attachments: (formData?.attachments as any[]) ?? [],
         statusId: ticketConfig?.selectedStatusId as string,
         type: ticketConfig?.contactType as string,
-        customerIds: [],
+        tagIds: (formData?.tags as string[]) ?? [],
+        customerIds: [cachedCustomerId],
       },
       onCompleted: (dataOnCompleted: {
         widgetTicketCreated: { _id: string };
@@ -208,8 +209,31 @@ export const TicketForm = ({
         />
       );
     }
-
-    if (key === 'tag' || key === 'attachments') {
+    if (key === 'tags') {
+      return (
+        <Form.Field
+          key={key}
+          name={key as Path<z.infer<typeof ticketSchema>>}
+          control={control}
+          render={({ field }) => (
+            <Form.Item className="[&_button]:font-sans">
+              <Form.Label>
+                {TicketFormFields[key as keyof typeof TicketFormFields]}
+              </Form.Label>
+              <Form.Control>
+                <SelectTags.FormItem
+                  tagType="frontline:ticket"
+                  value={field.value}
+                  mode="multiple"
+                  onValueChange={field.onChange}
+                />
+              </Form.Control>
+            </Form.Item>
+          )}
+        />
+      );
+    }
+    if (key === 'attachments') {
       return (
         <Form.Field
           key={key}

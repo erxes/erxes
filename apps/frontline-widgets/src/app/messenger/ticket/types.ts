@@ -2,7 +2,7 @@ export enum TicketFormFields {
   name = 'Ticket title',
   description = 'Ticket description',
   attachments = 'Attachments',
-  tag = 'Select tag',
+  tags = 'Select tags',
   //**customer fields */
   firstName = 'First name',
   lastName = 'Last name',
@@ -20,7 +20,7 @@ export enum TicketFormPlaceholders {
   name = 'Enter ticket title',
   description = 'Enter ticket description',
   attachments = 'Select attachments',
-  tag = 'Select tag',
+  tags = 'Select tags',
 
   firstName = 'Enter first name',
   lastName = 'Enter last name',

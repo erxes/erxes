@@ -28,6 +28,7 @@ const CREATE_TICKET = gql`
     $customerIds: [String!]!
     $description: String
     $attachments: [AttachmentInput]
+    $tagIds: [String!]
   ) {
     widgetTicketCreated(
       name: $name
@@ -36,6 +37,7 @@ const CREATE_TICKET = gql`
       customerIds: $customerIds
       description: $description
       attachments: $attachments
+      tagIds: $tagIds
     ) {
       _id
     }

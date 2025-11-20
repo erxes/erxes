@@ -28,7 +28,7 @@ export function generateTicketSchema(ticketConfig: ITicketConfig | null) {
 
   // Ticket basic fields
   if (ticketConfig.ticketBasicFields.isShowTags) {
-    schema.tag = z.string().optional();
+    schema.tags = z.array(z.string()).default([]);
   }
 
   if (ticketConfig.ticketBasicFields.isShowName) {

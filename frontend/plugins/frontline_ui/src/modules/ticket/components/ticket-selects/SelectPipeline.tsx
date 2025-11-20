@@ -279,7 +279,7 @@ const SelectPipelineFormItem = ({
     skip: !channelId,
   });
   useEffect(() => {
-    if (pipelines?.length) {
+    if (pipelines?.length && !value) {
       onValueChange(pipelines[0]._id);
     }
   }, [pipelines, value, onValueChange]);
