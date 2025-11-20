@@ -56,7 +56,6 @@ export const ticketQueries = {
     if (filter.userId && !filter.channelId && !filter.assigneeId) {
       filterQuery.assigneeId = filter.userId;
     }
-    console.log(filterQuery, 'filterQuery', filter);
     return await cursorPaginate<ITicketDocument>({
       model: models.Ticket,
       params: {
