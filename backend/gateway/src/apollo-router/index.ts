@@ -19,6 +19,7 @@ const {
   DOMAIN,
   ALLOWED_ORIGINS,
   ALLOWED_DOMAINS,
+  ERXES_DOMAINS,
   NODE_ENV,
   APOLLO_ROUTER_PORT,
   INTROSPECTION,
@@ -100,6 +101,7 @@ const createRouterConfig = async () => {
       allow_credentials: true,
       origins: [
         DOMAIN ? DOMAIN : 'http://localhost:3001',
+        ...(ERXES_DOMAINS ? ERXES_DOMAINS.split(',') : []),
         ...(isDev ? ['http://localhost:3001'] : []),
         ...(ALLOWED_DOMAINS || '').split(','),
         'https://studio.apollographql.com',
