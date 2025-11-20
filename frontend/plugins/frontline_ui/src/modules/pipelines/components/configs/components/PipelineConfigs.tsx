@@ -20,7 +20,7 @@ export const PipelineConfigs = () => {
         }
       >
         <div className="flex items-center justify-between">
-          <p>Manage pipeline configurations</p>
+          <p>Manage messenger configurations</p>
 
           <div className="flex items-center gap-2">
             <IconChevronRight className="w-4 h-4" />

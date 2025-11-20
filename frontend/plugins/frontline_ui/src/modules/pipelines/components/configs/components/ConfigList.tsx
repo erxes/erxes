@@ -48,8 +48,8 @@ export const ConfigList = () => {
   return (
     <div className="box-border flex-1 px-4 sm:px-8 lg:px-16">
       <InfoCard
-        title="Pipeline Configuration"
-        description="Configure the pipeline configuration"
+        title="Messenger Configuration"
+        description="Configure the messenger configuration"
       >
         <InfoCard.Content>
           <Table className="border-none [&_th]:border-none [&_td]:border-none rounded-xl overflow-hidden">
