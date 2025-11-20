@@ -25,7 +25,8 @@ import { initSegmentCoreProducers } from './meta/segments';
 
 dotenv.config();
 
-const { DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_DOMAINS } = process.env;
+const { DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_DOMAINS, ERXES_DOMAINS } =
+  process.env;
 
 const port = process.env.PORT ? Number(process.env.PORT) : 3300;
 
