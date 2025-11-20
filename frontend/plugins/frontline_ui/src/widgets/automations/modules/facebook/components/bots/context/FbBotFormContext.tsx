@@ -52,7 +52,6 @@ export const FbBotFormProvider = ({
     [facebookMessengerBot],
   );
 
-  console.log({ defaultValues });
   const form = useForm<TFacebookBotForm>({
     resolver: zodResolver(facebookBotFormSchema),
     defaultValues,
