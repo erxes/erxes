@@ -46,6 +46,7 @@ const corsOptions = {
   credentials: true,
   origin: [
     DOMAIN || 'http://localhost:3001',
+    ...(ERXES_DOMAINS ? ERXES_DOMAINS.split(',') : []),
     ...(isDev ? ['http://localhost:3001', 'http://localhost:4200'] : []),
     ...(ALLOWED_DOMAINS || '').split(',').map((c) => c && RegExp(c)),
     ...(CLIENT_PORTAL_DOMAINS || '').split(','),
