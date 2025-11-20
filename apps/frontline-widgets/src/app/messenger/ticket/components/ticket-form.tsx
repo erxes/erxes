@@ -200,10 +200,9 @@ export const TicketForm = ({
                       key as keyof typeof TicketFormPlaceholders
                     ]
                   }
-                  className="min-h-[100px] resize-none font-sans"
                 />
               </Form.Control>
-              <Form.Message className="text-destructive" />
+              <Form.Message />
             </Form.Item>
           )}
         />
@@ -216,7 +215,7 @@ export const TicketForm = ({
           name={key as Path<z.infer<typeof ticketSchema>>}
           control={control}
           render={({ field }) => (
-            <Form.Item className="[&_button]:font-sans">
+            <Form.Item>
               <Form.Label>
                 {TicketFormFields[key as keyof typeof TicketFormFields]}
               </Form.Label>
@@ -264,10 +263,9 @@ export const TicketForm = ({
                         key as keyof typeof TicketFormPlaceholders
                       ]
                     }
-                    className="flex h-8 w-full rounded-sm bg-background px-3 py-2 text-sm text-foreground shadow-xs transition-[color,box-shadow] placeholder:text-accent-foreground/70 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 focus-visible:shadow-focus font-sans"
                   />
                 </Form.Control>
-                <Form.Message className="text-destructive" />
+                <Form.Message />
               </Form.Item>
             );
           }}
@@ -293,10 +291,9 @@ export const TicketForm = ({
                     key as keyof typeof TicketFormPlaceholders
                   ]
                 }
-                className="flex h-8 w-full rounded-sm bg-background px-3 py-2 text-sm text-foreground shadow-xs transition-[color,box-shadow] placeholder:text-accent-foreground/70 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 focus-visible:shadow-focus font-sans"
               />
             </Form.Control>
-            <Form.Message className="text-destructive" />
+            <Form.Message />
           </Form.Item>
         )}
       />
@@ -316,9 +313,8 @@ export const TicketForm = ({
               <InfoCard
                 title="Ticket details"
                 description="Please fill in the details of the ticket"
-                className="shadow-2xs bg-foreground/5 font-mono uppercase text-accent-foreground [&_h3]:px-3 pt-0 p-1 space-y-1 rounded-xl"
               >
-                <InfoCard.Content className="flex flex-col gap-3 bg-background rounded-lg p-3 shadow-sm flex-auto">
+                <InfoCard.Content>
                   {ticketDetailsFields.map(renderField)}
                 </InfoCard.Content>
               </InfoCard>
@@ -329,9 +325,8 @@ export const TicketForm = ({
               <InfoCard
                 title="Customer details"
                 description="Please fill in the details of the customer"
-                className="shadow-2xs bg-foreground/5 font-mono uppercase text-accent-foreground [&_h3]:px-3 pt-0 p-1 space-y-1 rounded-xl"
               >
-                <InfoCard.Content className="flex flex-col gap-3 bg-background rounded-lg p-3 shadow-sm flex-auto">
+                <InfoCard.Content>
                   {customerFields.map(renderField)}
                 </InfoCard.Content>
               </InfoCard>
@@ -342,9 +337,8 @@ export const TicketForm = ({
               <InfoCard
                 title="Company details"
                 description="Please fill in the details of the company"
-                className="shadow-2xs bg-foreground/5 font-mono uppercase text-accent-foreground [&_h3]:px-3 pt-0 p-1 space-y-1 rounded-xl"
               >
-                <InfoCard.Content className="flex flex-col gap-3 bg-background rounded-lg p-3 shadow-sm flex-auto">
+                <InfoCard.Content>
                   {companyFields.map(renderField)}
                 </InfoCard.Content>
               </InfoCard>

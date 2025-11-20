@@ -39,7 +39,7 @@ export function generateTicketSchema(ticketConfig: ITicketConfig | null) {
     schema.description = z.string().optional();
   }
 
-  if (ticketConfig.ticketBasicFields.isShowAttachments) {
+  if (ticketConfig.ticketBasicFields.isShowAttachment) {
     schema.attachments = z.array(z.any()).optional();
   }
 

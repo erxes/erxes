@@ -99,6 +99,10 @@ export const useEditMessenger = () => {
 
   return {
     editMessenger,
-    loading: editLoading || saveConfigsLoading || saveAppearanceLoading,
+    loading:
+      editLoading ||
+      saveConfigsLoading ||
+      saveAppearanceLoading ||
+      saveTicketConfigLoading,
   };
 };

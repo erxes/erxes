@@ -6,7 +6,7 @@ import {
   Tooltip,
 } from 'erxes-ui';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
-import { useDebounce } from 'use-debounce';
+import { useDebounce } from 'use-debounce'; 
 import { useEffect, useState } from 'react';
 import { Block } from '@blocknote/core';
 import { ITicket } from '@/ticket/types';
@@ -53,9 +53,11 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
       ) {
         return parsed as Block[];
       }
-    } catch {
-      // If parsing fails, it's a plain string - convert to BlockNote format
-      // Split by newlines to create multiple paragraphs if needed
+    } catch (error) {
+      console.debug(
+        'Failed to parse description as JSON, treating as plain text:',
+        error,
+      );
       const lines = desc.split('\n');
       if (lines.length === 0) return undefined;
 
@@ -186,14 +188,14 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
           type="targetDate"
           variant="detail"
         />
-         <SelectTags.Detail
+        <SelectTags.Detail
           value={tagIds || []}
           tagType="frontline:ticket"
-          onValueChange={(newTagIds: string[]) => {
+          onValueChange={(newTagIds: string[] | string) => {
             updateTicket({
               variables: {
                 _id: ticketId,
-                tagIds: newTagIds
+                tagIds: newTagIds,
               },
             });
           }}

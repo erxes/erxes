@@ -220,7 +220,7 @@ export interface ITicketWidget {
   pipelineId: string;
   channelId: string;
   type: string;
-  customerIds: [string];
+  customerIds: string[];
 }
 
 export const widgetMutations: Record<string, Resolver> = {

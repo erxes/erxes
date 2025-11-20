@@ -57,20 +57,23 @@ class ColorUtils {
     const b = parseInt(cleanHex.substr(4, 2), 16) / 255;
 
     // Convert RGB to Linear RGB (sRGB to linear)
-    const linearR = r <= 0.04045 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
-    const linearG = g <= 0.04045 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
-    const linearB = b <= 0.04045 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
+    const linearR =
+      r <= 0.04045 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
+    const linearG =
+      g <= 0.04045 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
+    const linearB =
+      b <= 0.04045 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
 
     // Convert Linear RGB to XYZ (sRGB to XYZ D65 matrix)
     const x = 0.4124564 * linearR + 0.3575761 * linearG + 0.1804375 * linearB;
-    const y = 0.2126729 * linearR + 0.7151522 * linearG + 0.0721750 * linearB;
-    const z = 0.0193339 * linearR + 0.1191920 * linearG + 0.9503041 * linearB;
+    const y = 0.2126729 * linearR + 0.7151522 * linearG + 0.072175 * linearB;
+    const z = 0.0193339 * linearR + 0.119192 * linearG + 0.9503041 * linearB;
 
     // Convert XYZ to OKLab
     // First convert XYZ to linear LMS (using OKLab's forward matrix)
     const l = 0.8189330101 * x + 0.3618667424 * y - 0.1288597137 * z;
     const m = 0.0329845436 * x + 0.9293118715 * y + 0.0361456387 * z;
-    const s = 0.0482003018 * x + 0.2643662691 * y + 0.6338517070 * z;
+    const s = 0.0482003018 * x + 0.2643662691 * y + 0.633851707 * z;
 
     // Apply cube root (non-linear transformation)
     const l_ = Math.cbrt(l);
@@ -78,9 +81,9 @@ class ColorUtils {
     const s_ = Math.cbrt(s);
 
     // Convert to OKLab
-    const L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_;
-    const a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_;
-    const b_ = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_;
+    const L = 0.2104542553 * l_ + 0.793617785 * m_ - 0.0040720468 * s_;
+    const a = 1.9779984951 * l_ - 2.428592205 * m_ + 0.4505937099 * s_;
+    const b_ = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.808675766 * s_;
 
     // Convert OKLab to OKLCH
     const C = Math.sqrt(a * a + b_ * b_);
@@ -98,7 +101,9 @@ class ColorUtils {
    * Convert OKLCHColor to CSS OKLCH string
    */
   static oklchToString(oklch: OKLCHColor): string {
-    return `oklch(${oklch.lightness.toFixed(4)} ${oklch.chroma.toFixed(4)} ${oklch.hue.toFixed(2)})`;
+    return `oklch(${oklch.lightness.toFixed(4)} ${oklch.chroma.toFixed(
+      4,
+    )} ${oklch.hue.toFixed(2)})`;
   }
 
   /**
@@ -121,7 +126,10 @@ class ColorUtils {
   /**
    * Adjust OKLCH values for creating color variations
    */
-  static adjustOklch(oklch: OKLCHColor, adjustments: ColorAdjustments): OKLCHColor {
+  static adjustOklch(
+    oklch: OKLCHColor,
+    adjustments: ColorAdjustments,
+  ): OKLCHColor {
     return {
       lightness: adjustments.lightness ?? oklch.lightness,
       chroma: adjustments.chroma ?? oklch.chroma,
@@ -156,10 +164,15 @@ export class TailwindThemeManager {
 
     // Apply primary colors only
     if (uiOptions.primary?.DEFAULT) {
-      this.applyPrimaryColors(uiOptions.primary.DEFAULT, uiOptions.primary.foreground);
+      this.applyPrimaryColors(
+        uiOptions.primary.DEFAULT,
+        uiOptions.primary.foreground,
+      );
+      this.setCommonColorVariables(uiOptions);
     } else {
-      // If no primary color is provided, set default accent colors
+      // If no primary color is provided, revert to full defaults
       this.setDefaultAccentColors();
+      this.setDefaultCommonColors();
     }
 
     // Apply logo
@@ -192,24 +205,37 @@ export class TailwindThemeManager {
     // Set primary foreground - handle errors separately from primary
     try {
       // Use provided foreground or calculate contrast color
-      const primaryForeground = foreground || ColorUtils.getContrastColor(primary);
+      const primaryForeground =
+        foreground || ColorUtils.getContrastColor(primary);
       const primaryForegroundOklch = ColorUtils.hexToOklch(primaryForeground);
-      this.setCustomProperty('--primary-foreground', ColorUtils.oklchToString(primaryForegroundOklch));
+      this.setCustomProperty(
+        '--primary-foreground',
+        ColorUtils.oklchToString(primaryForegroundOklch),
+      );
     } catch (error) {
       // Foreground conversion failed - fallback to contrast color if not provided
       if (!foreground) {
         // This shouldn't happen as getContrastColor always returns valid hex
         // But if it does, use default
-        this.setCustomProperty('--primary-foreground', DEFAULT_COLORS['primary-foreground']);
+        this.setCustomProperty(
+          '--primary-foreground',
+          DEFAULT_COLORS['primary-foreground'],
+        );
       } else {
         // Provided foreground is invalid - calculate contrast instead
         try {
           const contrastColor = ColorUtils.getContrastColor(primary);
           const contrastOklch = ColorUtils.hexToOklch(contrastColor);
-          this.setCustomProperty('--primary-foreground', ColorUtils.oklchToString(contrastOklch));
+          this.setCustomProperty(
+            '--primary-foreground',
+            ColorUtils.oklchToString(contrastOklch),
+          );
         } catch {
           // Last resort: use default
-          this.setCustomProperty('--primary-foreground', DEFAULT_COLORS['primary-foreground']);
+          this.setCustomProperty(
+            '--primary-foreground',
+            DEFAULT_COLORS['primary-foreground'],
+          );
         }
       }
     }
@@ -238,11 +264,14 @@ export class TailwindThemeManager {
 
     // Accent foreground - darker but still soft, maintains primary hue
     const accentForegroundOklch = ColorUtils.adjustOklch(primaryOklch, {
-      lightness: 0.30, // Dark enough for contrast
+      lightness: 0.3, // Dark enough for contrast
       chroma: Math.max(0.05, primaryOklch.chroma * 0.3), // Softened but visible
       hue: primaryOklch.hue, // Maintain the same hue
     });
-    this.setCustomProperty('--accent-foreground', ColorUtils.oklchToString(accentForegroundOklch));
+    this.setCustomProperty(
+      '--accent-foreground',
+      ColorUtils.oklchToString(accentForegroundOklch),
+    );
   }
 
   /**
@@ -250,7 +279,10 @@ export class TailwindThemeManager {
    */
   private setDefaultAccentColors(): void {
     this.setCustomProperty('--accent', DEFAULT_COLORS.accent);
-    this.setCustomProperty('--accent-foreground', DEFAULT_COLORS['accent-foreground']);
+    this.setCustomProperty(
+      '--accent-foreground',
+      DEFAULT_COLORS['accent-foreground'],
+    );
   }
 
   /**
@@ -261,29 +293,55 @@ export class TailwindThemeManager {
     if (uiOptions.primary?.DEFAULT) {
       try {
         const primaryOklch = ColorUtils.hexToOklch(uiOptions.primary.DEFAULT);
-        
+
         // Generate muted colors from primary
-        const mutedOklch = ColorUtils.adjustOklch(primaryOklch, { lightness: 0.96, chroma: 0.001 });
+        const mutedOklch = ColorUtils.adjustOklch(primaryOklch, {
+          lightness: 0.96,
+          chroma: 0.001,
+        });
         this.setCustomProperty('--muted', ColorUtils.oklchToString(mutedOklch));
-        
-        const mutedForegroundOklch = ColorUtils.adjustOklch(primaryOklch, { lightness: 0.55, chroma: 0.001 });
-        this.setCustomProperty('--muted-foreground', ColorUtils.oklchToString(mutedForegroundOklch));
-        
+
+        const mutedForegroundOklch = ColorUtils.adjustOklch(primaryOklch, {
+          lightness: 0.55,
+          chroma: 0.001,
+        });
+        this.setCustomProperty(
+          '--muted-foreground',
+          ColorUtils.oklchToString(mutedForegroundOklch),
+        );
+
         // Set foreground based on primary or use default
-        const foregroundOklch = ColorUtils.adjustOklch(primaryOklch, { lightness: 0.21, chroma: 0.006 });
-        this.setCustomProperty('--foreground', ColorUtils.oklchToString(foregroundOklch));
-        
+        const foregroundOklch = ColorUtils.adjustOklch(primaryOklch, {
+          lightness: 0.21,
+          chroma: 0.006,
+        });
+        this.setCustomProperty(
+          '--foreground',
+          ColorUtils.oklchToString(foregroundOklch),
+        );
+
         // Set input background - very light version of primary
-        const inputOklch = ColorUtils.adjustOklch(primaryOklch, { lightness: 0.92, chroma: 0.004 });
+        const inputOklch = ColorUtils.adjustOklch(primaryOklch, {
+          lightness: 0.92,
+          chroma: 0.004,
+        });
         this.setCustomProperty('--input', ColorUtils.oklchToString(inputOklch));
-        
+
         // Set border color - light version of primary
-        const borderOklch = ColorUtils.adjustOklch(primaryOklch, { lightness: 0.92, chroma: 0.004 });
-        this.setCustomProperty('--border', ColorUtils.oklchToString(borderOklch));
-        
+        const borderOklch = ColorUtils.adjustOklch(primaryOklch, {
+          lightness: 0.92,
+          chroma: 0.004,
+        });
+        this.setCustomProperty(
+          '--border',
+          ColorUtils.oklchToString(borderOklch),
+        );
+
         // Set ring color - same as primary
-        this.setCustomProperty('--ring', ColorUtils.oklchToString(primaryOklch));
-        
+        this.setCustomProperty(
+          '--ring',
+          ColorUtils.oklchToString(primaryOklch),
+        );
       } catch (error) {
         // Error generating colors - use defaults
         this.setDefaultCommonColors();
@@ -298,7 +356,10 @@ export class TailwindThemeManager {
    */
   private setDefaultCommonColors(): void {
     this.setCustomProperty('--muted', DEFAULT_COLORS.muted);
-    this.setCustomProperty('--muted-foreground', DEFAULT_COLORS['muted-foreground']);
+    this.setCustomProperty(
+      '--muted-foreground',
+      DEFAULT_COLORS['muted-foreground'],
+    );
     this.setCustomProperty('--foreground', DEFAULT_COLORS.foreground);
     this.setCustomProperty('--input', DEFAULT_COLORS.input);
     this.setCustomProperty('--border', DEFAULT_COLORS.border);
@@ -368,7 +429,9 @@ export const resetTailwindToDefaults = (): void => {
   themeManager.resetToDefaults();
 };
 
-export const generateTailwindClasses = (uiOptions: IWidgetUiOptions): TailwindClasses => {
+export const generateTailwindClasses = (
+  uiOptions: IWidgetUiOptions,
+): TailwindClasses => {
   return themeManager.generateClasses(uiOptions);
 };
 

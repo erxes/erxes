@@ -117,7 +117,7 @@ export const mutations = `
     widgetsLeadIncreaseViewCount(formId: String!): JSON
     widgetsSendTypingInfo(conversationId: String!, text: String): String
     
-    widgetsTicketCustomersEdit(customerId: String, firstName: String, lastName: String, emails: [String], phones: [String]): Customer
+    widgetsTicketCustomersEdit(customerId: String!, firstName: String, lastName: String, emails: [String], phones: [String]): Customer
  
     widgetTicketCreated(
       name: String!

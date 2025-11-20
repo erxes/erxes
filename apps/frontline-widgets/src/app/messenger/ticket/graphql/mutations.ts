@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 
 const SAVE_TICKET_CUSTOMERS = gql`
   mutation WidgetsTicketCustomersEdit(
-    $customerId: String
+    $customerId: String!
     $firstName: String
     $lastName: String
     $emails: [String]

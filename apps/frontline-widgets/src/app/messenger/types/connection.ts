@@ -92,7 +92,7 @@ export interface RequestBrowserInfoParams {
 export interface ITicketBasicFields {
   isShowName: boolean;
   isShowDescription: boolean;
-  isShowAttachments: boolean;
+  isShowAttachment: boolean;
   isShowTags: boolean;
 }
 
