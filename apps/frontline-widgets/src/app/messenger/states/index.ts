@@ -2,6 +2,7 @@ import { atom } from 'jotai';
 import {
   IBrowserInfo,
   IConnectionInfo,
+  ITicketConfig,
   IWidgetUiOptions,
 } from '../types/connection';
 import { IMessage } from '../types';
@@ -20,10 +21,14 @@ export const connectionAtom = atom<IConnectionInfo>({
 });
 
 export const uiOptionsAtom = atom<IWidgetUiOptions>({
-  color: '#fff',
-  textColor: '#000',
+  primary: {
+    DEFAULT: '#000',
+    foreground: '#fff',
+  },
   logo: '',
 });
+
+export const ticketConfigAtom = atom<ITicketConfig | null>(null);
 
 export const conversationIdAtom = atom<string | null>(null);
 export const integrationIdAtom = atom<string | null>(null);

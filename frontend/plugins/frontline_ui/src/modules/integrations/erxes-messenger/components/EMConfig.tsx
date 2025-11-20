@@ -12,21 +12,22 @@ import {
   Switch,
   Textarea,
   Tooltip,
-  useQueryState,
 } from 'erxes-ui';
 import {
   EMLayout,
   EMLayoutPreviousStepButton,
 } from '@/integrations/erxes-messenger/components/EMLayout';
-import { SelectBrand, SelectMember } from 'ui-modules';
-import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import { SelectMember } from 'ui-modules';
 import { IconPlus, IconQuestionMark, IconTrash } from '@tabler/icons-react';
 import { erxesMessengerSetupConfigAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/components/EMFormValueEffect';
 import { useCreateMessenger } from '@/integrations/erxes-messenger/hooks/useCreateMessenger';
-import { useSetAtom } from 'jotai';
+import { useEditMessenger } from '@/integrations/erxes-messenger/hooks/useEditMessenger';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
+import { erxesMessengerSetupEditSheetOpenAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { useParams } from 'react-router';
+import { SelectTicketConfig } from '@/pipelines/components/configs/components/SelectTicketConfig';
 
 type EMConfigFormValues = z.infer<typeof EM_CONFIG_SCHEMA>;
 
@@ -41,8 +42,15 @@ export const EMConfig = () => {
   });
 
   const resetErxesMessengerSetup = useSetAtom(resetErxesMessengerSetupAtom);
+  const idToEdit = useAtomValue(erxesMessengerSetupEditSheetOpenAtom);
 
-  const { createMessenger, loading } = useCreateMessenger();
+  const { createMessenger, loading: createLoading } = useCreateMessenger();
+  const { editMessenger, loading: editLoading } = useEditMessenger();
+
+  const loading = createLoading || editLoading;
+  const isEditMode = !!idToEdit;
+
+  console.log(form.watch(), '\nwatch');
 
   return (
     <Form {...form}>
@@ -52,10 +60,17 @@ export const EMConfig = () => {
       />
       <form
         onSubmit={form.handleSubmit((values) => {
-          createMessenger(values, () => {
-            form.reset();
-            resetErxesMessengerSetup();
-          });
+          if (isEditMode && idToEdit) {
+            editMessenger(idToEdit, values, () => {
+              form.reset();
+              resetErxesMessengerSetup();
+            });
+          } else {
+            createMessenger(values, () => {
+              form.reset();
+              resetErxesMessengerSetup();
+            });
+          }
         })}
         className="flex-auto flex flex-col overflow-hidden"
       >
@@ -211,6 +226,28 @@ export const EMConfig = () => {
                         If turned on, possible to receive web calls
                       </Form.Description>
                       <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </Collapsible.Content>
+            </Collapsible>
+            <Collapsible>
+              <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
+                <Collapsible.TriggerIcon />
+                Ticket config
+              </Collapsible.TriggerButton>
+              <Collapsible.Content className="p-2 space-y-4">
+                <Form.Field
+                  name="ticketConfigId"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label className="sr-only">Ticket config</Form.Label>
+                      <Form.Control>
+                        <SelectTicketConfig.FormItem
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        />
+                      </Form.Control>
                     </Form.Item>
                   )}
                 />

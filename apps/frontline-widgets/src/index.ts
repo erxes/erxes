@@ -221,8 +221,11 @@ const handleMessageEvent = async (event: MessageEvent) => {
       return console.error('Messenger: launcher element is not defined');
     }
 
-    const { color, logo: uiOptionsLogo } = uiOptions;
+    const { primary, logo: uiOptionsLogo } = uiOptions;
+
     const logo = uiOptionsLogo;
+    const color = primary?.DEFAULT;
+    const foreground = primary?.foreground;
     hasCustomLogo = !!logo;
     backgroundImage = hasCustomLogo
       ? `url(${baseUrl}/read-file?key=${encodeURIComponent(logo)})`
@@ -250,9 +253,9 @@ const handleMessageEvent = async (event: MessageEvent) => {
       align-items: center;
       cursor: pointer;
       background-color: ${color};
-      color: ${color || '#673fbd'};
+      color: ${foreground || '#673fbd'};
       background-image: ${backgroundImage};
-      background-size: ${hasCustomLogo ? '18px' : '18px'};
+      background-size: ${hasCustomLogo ? '32px' : '18px'};
       background-position: center;
     `;
   }
@@ -294,7 +297,7 @@ window.addEventListener('message', async (event) => {
         messengerIframeContainer.classList.add('erxes-messenger-hidden');
         (launcher as HTMLElement).style.backgroundImage = backgroundImage;
         (launcher as HTMLElement).style.backgroundSize = hasCustomLogo
-          ? '18px'
+          ? '32px'
           : '18px';
         launcher.innerHTML = '';
       }

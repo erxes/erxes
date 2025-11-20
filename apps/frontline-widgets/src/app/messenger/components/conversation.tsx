@@ -203,9 +203,11 @@ export function OperatorMessage({
                   isFirstMessage && 'rounded-md rounded-bl-sm rounded-t-lg',
                   isLastMessage &&
                     !attachments?.length &&
-                    'rounded-md rounded-tl-sm rounded-b-lg',
+                    'rounded-md rounded-tl-sm rounded-b-lg shadow-2xs',
                   isMiddleMessage && 'rounded-r-md rounded-l-sm',
-                  isSingleMessage && !attachments?.length && 'rounded-md',
+                  isSingleMessage &&
+                    !attachments?.length &&
+                    'rounded-md shadow-2xs',
                   attachments?.length && 'rounded-t-md rounded-bl-sm',
                 )}
                 dangerouslySetInnerHTML={{
@@ -296,16 +298,13 @@ export const CustomerMessage = ({
       <Tooltip.Trigger asChild>
         <Button
           variant="ghost"
-          className="flex group/customer-message items-end size-auto gap-2 flex-row ml-auto p-0 hover:bg-transparent"
+          className="flex group/customer-message items-end max-w-[70%] justify-end size-auto gap-2 flex-row ml-auto p-0 hover:bg-transparent"
         >
-          <span className="text-muted-foreground hidden group-hover/customer-message:block text-xs self-center">
-            {formatDateISOStringToRelativeDate(createdAt.toISOString())}
-          </span>
-          <div className="flex flex-col gap-2 max-w-[70%]">
+          <div className="flex flex-col gap-2 w-fit">
             {content && content !== '<p></p>' && (
               <div
                 className={cn(
-                  'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-zinc-900 text-left gap-1 px-3 py-2 bg-accent',
+                  'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-zinc-900 text-left gap-1 px-3 py-2 bg-accent shadow-2xs',
                   attachments?.length ? 'rounded-t-md' : 'rounded-md',
                 )}
                 dangerouslySetInnerHTML={{

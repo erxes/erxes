@@ -6,7 +6,7 @@ import {
   Tooltip,
 } from 'erxes-ui';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
-import { useDebounce } from 'use-debounce';
+import { useDebounce } from 'use-debounce'; 
 import { useEffect, useState } from 'react';
 import { Block } from '@blocknote/core';
 import { ITicket } from '@/ticket/types';
@@ -34,11 +34,58 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
 
   const startDate = (ticket as any)?.startDate;
   const description = (ticket as any)?.description;
-  const parsedDescription = description ? JSON.parse(description) : undefined;
-  const initialDescriptionContent =
-    Array.isArray(parsedDescription) && parsedDescription.length > 0
-      ? parsedDescription
-      : undefined;
+
+  const parseDescription = (desc: string | undefined): Block[] | undefined => {
+    if (!desc) return undefined;
+    try {
+      const parsed = JSON.parse(desc);
+      if (
+        Array.isArray(parsed) &&
+        parsed.length > 0 &&
+        parsed.every(
+          (block) =>
+            typeof block === 'object' &&
+            block !== null &&
+            'id' in block &&
+            'type' in block &&
+            'content' in block,
+        )
+      ) {
+        return parsed as Block[];
+      }
+    } catch (error) {
+      console.debug(
+        'Failed to parse description as JSON, treating as plain text:',
+        error,
+      );
+      const lines = desc.split('\n');
+      if (lines.length === 0) return undefined;
+
+      return lines.map((line) => ({
+        id: crypto.randomUUID(),
+        type: 'paragraph',
+        props: {
+          textColor: 'default',
+          backgroundColor: 'default',
+          textAlignment: 'left',
+        },
+        content: line
+          ? [
+              {
+                type: 'text',
+                text: line,
+                styles: {},
+              },
+            ]
+          : [],
+        children: [],
+      })) as Block[];
+    }
+    return undefined;
+  };
+
+  const parsedDescription = parseDescription(description);
+  const initialDescriptionContent = parsedDescription;
 
   const [descriptionContent, setDescriptionContent] = useState<
     Block[] | undefined
@@ -74,9 +121,10 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   }, [debouncedName]);
   useEffect(() => {
     if (!debouncedDescriptionContent) return;
+    const currentParsed = parseDescription(description);
     if (
       JSON.stringify(debouncedDescriptionContent) ===
-      JSON.stringify(description ? JSON.parse(description) : undefined)
+      JSON.stringify(currentParsed)
     ) {
       return;
     }
@@ -140,14 +188,14 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
           type="targetDate"
           variant="detail"
         />
-         <SelectTags.Detail
+        <SelectTags.Detail
           value={tagIds || []}
           tagType="frontline:ticket"
-          onValueChange={(newTagIds: string[]) => {
+          onValueChange={(newTagIds: string[] | string) => {
             updateTicket({
               variables: {
                 _id: ticketId,
-                tagIds: newTagIds
+                tagIds: newTagIds,
               },
             });
           }}
