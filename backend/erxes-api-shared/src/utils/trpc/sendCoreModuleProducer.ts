@@ -7,8 +7,12 @@ import {
 import { TAutomationProducers } from '../../core-modules/automations/types';
 import { TAutomationProducersInput } from '../../core-modules/automations/zodTypes';
 import { TSegmentProducers } from '../../core-modules/segments/types';
-import { TAfterProcessProducers } from '../../core-modules/logs/types';
+import {
+  TActivityLogProducers,
+  TAfterProcessProducers,
+} from '../../core-modules/logs/types';
 import { TSegmentProducersInput } from '../../core-modules/segments/zodSchemas';
+import { TActivityLogProducersInput } from '../../core-modules/logs/zodSchemas';
 
 type TModuleProducerInputMap = {
   automations: {
@@ -19,6 +23,9 @@ type TModuleProducerInputMap = {
   };
   afterProcess: {
     [K in TAfterProcessProducers]: any;
+  };
+  activityLog: {
+    [K in TActivityLogProducers]: TActivityLogProducersInput[K];
   };
 };
 

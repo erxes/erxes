@@ -5,3 +5,7 @@ export enum TAfterProcessProducers {
   AFTER_DOCUMENT_UPDATED = 'afterDocumentUpdated',
   AFTER_DOCUMENT_CREATED = 'afterDocumentCreated',
 }
+
+export enum TActivityLogProducers {
+  ACTIVITY_GETTER = 'activityGetter',
+}

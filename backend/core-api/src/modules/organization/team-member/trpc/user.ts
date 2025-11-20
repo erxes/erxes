@@ -7,10 +7,10 @@ const t = initTRPC.context<CoreTRPCContext>().create();
 export const userTrpcRouter = t.router({
   users: t.router({
     find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { query } = input;
+      const { query, fields } = input;
       const { models } = ctx;
 
-      return models.Users.find(query);
+      return models.Users.find(query, fields);
     }),
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { query } = input;

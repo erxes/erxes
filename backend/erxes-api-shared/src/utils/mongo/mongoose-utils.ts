@@ -9,7 +9,6 @@ import {
   buildCursorQuery,
   PageInfo,
 } from './cursor-util';
-
 export interface IOrderInput {
   _id: string;
   order: number;
@@ -176,7 +175,7 @@ export const schemaWrapper = (
 ) => {
   schema.add({ _id: mongooseStringRandomId });
   schema.add({ processId: { type: String, optional: true } });
-  // schema.add({ createdAt: { type: Date, default: new Date() } });
+  schema.add({ lastUpdatedUserId: { type: String, optional: true } });
 
   if (options?.contentType) {
     (schema.statics as any)._contentType = options.contentType;
