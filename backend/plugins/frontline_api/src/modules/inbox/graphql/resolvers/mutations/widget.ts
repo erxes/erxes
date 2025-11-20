@@ -221,6 +221,7 @@ export interface ITicketWidget {
   channelId: string;
   type: string;
   customerIds: string[];
+  tagIds: string[];
 }
 
 export const widgetMutations: Record<string, Resolver> = {
