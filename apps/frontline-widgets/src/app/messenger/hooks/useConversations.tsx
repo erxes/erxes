@@ -4,6 +4,7 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import { IConversationMessage } from '../types';
+import { getLocalStorageItem } from '@libs/utils';
 
 interface IQueryResponse {
   widgetsConversations: IConversationMessage[];
@@ -14,6 +15,7 @@ export const useConversations = (
 ) => {
   const integrationId = useAtomValue(integrationIdAtom);
   const connection = useAtomValue(connectionAtom);
+  const cachedCustomerId = getLocalStorageItem('customerId');
   const { customerId, visitorId } = connection.widgetsMessengerConnect || {};
   const { data, loading, error } = useQuery<IQueryResponse>(
     GET_WIDGETS_CONVERSATIONS,
@@ -21,7 +23,7 @@ export const useConversations = (
       ...options,
       variables: {
         integrationId,
-        customerId: customerId || undefined,
+        customerId: customerId || cachedCustomerId || undefined,
         visitorId: visitorId || undefined,
       },
       fetchPolicy: 'network-only',

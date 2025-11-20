@@ -8,6 +8,7 @@ import { useConnect } from './messenger/hooks/useConnect';
 import { Skeleton, REACT_APP_API_URL } from 'erxes-ui';
 import { ConversationDetails } from './messenger/components/conversation-details';
 import { connectionAtom } from './messenger/states';
+import { Ticket } from './messenger/ticket/components/ticket';
 
 export function App() {
   const [isMessengerVisible, setIsMessengerVisible] = useState(false);
@@ -66,6 +67,8 @@ export function App() {
     switch (activeTab) {
       case 'chat':
         return <ConversationDetails />;
+      case 'ticket':
+        return <Ticket />;
       default:
         return <Intro />;
     }
@@ -78,7 +81,7 @@ export function App() {
   return (
     <div className="flex flex-col h-full min-h-full styled-scroll hide-scroll">
       <Header />
-      <div className="flex-1 flex flex-col justify-end overflow-y-hidden bg-muted min-h-0">
+      <div className="flex-1 flex flex-col justify-end overflow-y-hidden bg-muted min-h-0 h-full">
         {renderContent()}
       </div>
     </div>

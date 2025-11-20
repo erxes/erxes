@@ -292,7 +292,7 @@ export const integrationMutations = {
       integrationDocs,
     );
 
-    const uiOptions = { logo: fields.logo, color: fields.color };
+    const uiOptions = { logo: fields.logo, primary: fields.primary };
 
     return await models.Integrations.saveMessengerAppearanceData(
       updated._id,
@@ -613,12 +613,12 @@ export const integrationMutations = {
 
   async integrationsSaveMessengerTicketData(
     _root,
-    { _id, ticketData }: { _id: string; ticketData: ITicketData },
+    { _id, configId }: { _id: string; configId: string },
     { models }: IContext,
   ) {
     return models.Integrations.integrationsSaveMessengerTicketData(
       _id,
-      ticketData,
+      configId,
     );
   },
 };

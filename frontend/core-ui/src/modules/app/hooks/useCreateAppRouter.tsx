@@ -83,12 +83,10 @@ export const useCreateAppRouter = () => {
                 element={<SettingsRoutes />}
               />
 
-              {isOS && (
-                <Route
-                  path={AppPath.ProductsCatchAll}
-                  element={<ProductsRoutes />}
-                />
-              )}
+              <Route
+                path={AppPath.ProductsCatchAll}
+                element={<ProductsRoutes />}
+              />
 
               <Route
                 path={AppPath.ContactsCatchAll}

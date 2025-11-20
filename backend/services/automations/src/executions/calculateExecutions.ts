@@ -21,8 +21,6 @@ const checkIsValidCustomTigger = async (
 ) => {
   const [pluginName, moduleName, collectionType, relationType] =
     splitType(type);
-  console.log({ pluginName, moduleName, collectionType, relationType });
-
   const response = await sendCoreModuleProducer({
     moduleName: 'automations',
     subdomain,
@@ -37,12 +35,12 @@ const checkIsValidCustomTigger = async (
       target,
       config,
     },
+    defaultValue: false,
   }).catch((e) =>
     debugError(`An error occurred while check trigger: ${e.message}`),
   );
 
-  console.log({ response });
-  return response || false;
+  return response;
 };
 
 const checkValidTrigger = async (
@@ -94,7 +92,6 @@ export const calculateExecution = async ({
       subdomain,
       automationId,
     );
-    console.log({ isValidTrigger });
     if (!isValidTrigger) {
       return;
     }
