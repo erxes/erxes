@@ -50,5 +50,5 @@ export const ticketConfigMutations = {
   },
 };
 
-// requireLogin(ticketConfigMutations, 'ticketSaveConfig');
-// requireLogin(ticketConfigMutations, 'ticketRemoveConfig');
+requireLogin(ticketConfigMutations, 'ticketSaveConfig');
+requireLogin(ticketConfigMutations, 'ticketRemoveConfig');
