@@ -42,10 +42,10 @@ export const repeatActionExecution = async (
   const nextExecutedAction = actions[actionIndex + 1];
 
   let nextExecutedActionId = nextExecutedAction?.id;
-  console.log({ nextExecutedActionId });
 
   if (optionalConnectId) {
-    const { optionalConnects = [] } = nextExecutedAction?.config || {};
+    const action = actionsMap[actionId];
+    const { optionalConnects = [] } = action?.config || {};
     console.log({ optionalConnects });
     const optionalConnect = optionalConnects.find(
       (connect) => connect.optionalConnectId === optionalConnectId,
