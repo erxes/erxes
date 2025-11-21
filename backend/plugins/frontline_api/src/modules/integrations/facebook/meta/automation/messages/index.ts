@@ -27,7 +27,6 @@ export const checkMessageTrigger = async (
 
   const payload = target?.payload || {};
   const { persistentMenuId, isBackBtn } = payload;
-  console.log(target.content, persistentMenuId);
   if (persistentMenuId && isBackBtn) {
     sendWorkerQueue('automations', 'playWait').add('playWait', {
       subdomain,

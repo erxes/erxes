@@ -11,7 +11,11 @@ export const sendAutomationTrigger = async (
   }: {
     type: string;
     targets: any;
-    repeatOptions?: { executionId: string; actionId: string };
+    repeatOptions?: {
+      executionId: string;
+      actionId: string;
+      optionalConnectId?: string;
+    };
     recordType?: 'new' | 'existing';
   },
   jobOptions?: DefaultJobOptions,

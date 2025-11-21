@@ -25,10 +25,9 @@ export const triggerFacebookAutomation = async (
   let repeatOptions;
   if (payload) {
     target.payload = JSON.parse(payload || '{}');
-    console.log(`payload: ${payload}`);
-    const { executionId, actionId } = target?.payload || {};
+    const { executionId, actionId, btnId } = target?.payload || {};
     if (executionId && actionId) {
-      repeatOptions = { executionId, actionId };
+      repeatOptions = { executionId, actionId, optionalConnectId: btnId };
     }
   }
 

@@ -13,7 +13,11 @@ interface ITriggerData {
   actionType: string;
   targets: unknown[]; // Replace with actual type if known
   recordType?: string;
-  repeatOptions?: { executionId: string; actionId: string };
+  repeatOptions?: {
+    executionId: string;
+    actionId: string;
+    optionalConnectId?: string;
+  };
 }
 
 // Final job interfaces
