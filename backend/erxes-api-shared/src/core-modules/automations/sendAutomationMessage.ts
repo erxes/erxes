@@ -1,4 +1,5 @@
 import { sendWorkerQueue } from '../../utils/mq-worker';
+import type { DefaultJobOptions } from 'bullmq';
 
 export const sendAutomationTrigger = async (
   subdomain: string,
@@ -13,9 +14,14 @@ export const sendAutomationTrigger = async (
     repeatOptions?: { executionId: string; actionId: string };
     recordType?: 'new' | 'existing';
   },
+  jobOptions?: DefaultJobOptions,
 ) => {
-  sendWorkerQueue('automations', 'trigger').add('trigger', {
-    subdomain,
-    data: { type, targets, repeatOptions, recordType },
-  });
+  sendWorkerQueue('automations', 'trigger').add(
+    'trigger',
+    {
+      subdomain,
+      data: { type, targets, repeatOptions, recordType },
+    },
+    jobOptions,
+  );
 };

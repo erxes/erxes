@@ -12,6 +12,7 @@ export const repeatActionExecution = async (
   repeatOptions: { executionId: string; actionId: string },
 ) => {
   const { executionId, actionId } = repeatOptions;
+  console.log({ repeatOptions });
   const execution = await models.Executions.findOne({ _id: executionId });
   if (!execution) {
     throw new Error('Execution not found');

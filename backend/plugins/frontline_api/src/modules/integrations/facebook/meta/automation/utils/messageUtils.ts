@@ -25,6 +25,7 @@ export const triggerFacebookAutomation = async (
   let repeatOptions;
   if (payload) {
     target.payload = JSON.parse(payload || '{}');
+    console.log(`payload: ${payload.target}`);
     const { executionId, actionId } = target?.payload || {};
     if (executionId && actionId) {
       repeatOptions = { executionId, actionId };
@@ -36,7 +37,19 @@ export const triggerFacebookAutomation = async (
     type = 'facebook:ads';
   }
 
-  sendAutomationTrigger(subdomain, { type, targets: [target], repeatOptions });
+  sendAutomationTrigger(
+    subdomain,
+    {
+      type,
+      targets: [target],
+      repeatOptions,
+    },
+    {
+      priority: 1,
+      removeOnComplete: true,
+      removeOnFail: true,
+    },
+  );
 };
 
 export const checkIsBot = async (models: IModels, message, recipientId) => {
