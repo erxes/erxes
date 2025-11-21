@@ -1,7 +1,7 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 import { IConfig } from './useGetTicketConfigs';
-import { GET_TICKET_CONFIG_BY_PIPELINE_ID } from '../graphql/queries/getTicketConfigBetPipelineId.';
+import { GET_TICKET_CONFIG_BY_PIPELINE_ID } from '../graphql/queries/getTicketConfigBetPipelineId';
 
 interface ITicketConfigResponse {
   ticketConfig: IConfig;

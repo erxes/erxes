@@ -30,6 +30,11 @@ const CLOSE_ICON_STRING = `
 const erxesWidgetContainer = document.createElement('div');
 erxesWidgetContainer.id = ERXES_WIDGET_CONTAINER_ID;
 
+// Add margin-bottom to root element on mobile
+if (isMobile) {
+  document.documentElement.style.marginBottom = '72px';
+}
+
 // messenger iframe container
 const messengerIframeContainer = document.createElement('div');
 messengerIframeContainer.className = 'erxes-messenger-frame';

@@ -7,7 +7,7 @@ import { Intro } from './messenger/components/intro';
 import { useConnect } from './messenger/hooks/useConnect';
 import { Skeleton, REACT_APP_API_URL } from 'erxes-ui';
 import { ConversationDetails } from './messenger/components/conversation-details';
-import { connectionAtom } from './messenger/states';
+import { connectionAtom, integrationIdAtom } from './messenger/states';
 import { Ticket } from './messenger/ticket/components/ticket';
 
 export function App() {
@@ -15,9 +15,9 @@ export function App() {
   const [isSmallContainer] = useState(false);
   const { activeTab } = useMessenger();
   const [connection] = useAtom(connectionAtom);
-  const [integrationId, setIntegrationId] = useState('');
+  const [integrationId, setIntegrationId] = useAtom(integrationIdAtom);
   const { loading: connecting } = useConnect({
-    integrationId,
+    integrationId: integrationId ?? '',
   });
 
   useEffect(() => {

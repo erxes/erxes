@@ -7,6 +7,8 @@ import {
 } from '../types/connection';
 import { IMessage } from '../types';
 
+export const customerIdAtom = atom<string | null>(null);
+
 export const messengerTabAtom = atom<string>('default');
 export const setActiveTabAtom = atom(null, (get, set, tab: string) => {
   set(messengerTabAtom, tab);

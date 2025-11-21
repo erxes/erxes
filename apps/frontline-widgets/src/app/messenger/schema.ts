@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
-export const ticketSchema = z.object({
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
+export const createCustomerSchema = z.object({
+  type: z.enum(['email', 'phone']),
+  value: z.string().min(1),
+  customerId: z.string().optional(),
+  visitorId: z.string().optional(),
 });
