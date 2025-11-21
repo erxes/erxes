@@ -33,21 +33,21 @@ export const triggerHandlerWorker = async (job: Job<ITriggerJobData>) => {
   try {
     if (repeatOptions) {
       repeatActionExecution(subdomain, models, repeatOptions);
-    }
-
-    const waitingAction = await checkIsWaitingAction(
-      subdomain,
-      models,
-      type,
-      targets,
-    );
-    if (waitingAction) {
-      executeWaitingAction(subdomain, models, waitingAction);
+    } else {
+      const waitingAction = await checkIsWaitingAction(
+        subdomain,
+        models,
+        type,
+        targets,
+      );
+      if (waitingAction) {
+        executeWaitingAction(subdomain, models, waitingAction);
+      }
     }
 
     await receiveTrigger({ models, subdomain, type, targets, recordType });
   } catch (error: any) {
     debugError(`Error processing job ${job.id}: ${error.message}`);
-    throw error;
+    // Error is logged but not thrown to prevent job retries
   }
 };
