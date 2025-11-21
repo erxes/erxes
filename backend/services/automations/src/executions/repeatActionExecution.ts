@@ -16,6 +16,7 @@ export const repeatActionExecution = async (
   },
 ) => {
   const { executionId, actionId, optionalConnectId } = repeatOptions;
+  console.log({ executionId, actionId, optionalConnectId });
   const execution = await models.Executions.findOne({ _id: executionId });
   if (!execution) {
     throw new Error('Execution not found');
@@ -41,18 +42,23 @@ export const repeatActionExecution = async (
   const nextExecutedAction = actions[actionIndex + 1];
 
   let nextExecutedActionId = nextExecutedAction?.id;
+  console.log({ nextExecutedActionId });
 
   if (optionalConnectId) {
     const { optionalConnects = [] } = nextExecutedAction?.config || {};
+    console.log({ optionalConnects });
     const optionalConnect = optionalConnects.find(
       (connect) => connect.optionalConnectId === optionalConnectId,
     );
+    console.log({ optionalConnect });
     if (optionalConnect) {
       nextExecutedActionId = optionalConnect.actionId;
+      console.log({ nextExecutedActionId });
     }
   }
 
   if (nextExecutedAction) {
+    console.log({ nextExecutedActionId });
     execution.status = AUTOMATION_EXECUTION_STATUS.WAITING;
     await execution.save();
     await executeActions(
