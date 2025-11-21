@@ -53,3 +53,32 @@ export const SAVE_EM_APPEARANCE_MUTATION = gql`
     }
   }
 `;
+export const SAVE_EM_TICKET_CONFIG_MUTATION = gql`
+  mutation IntegrationsSaveMessengerTicketData(
+    $_id: String!
+    $configId: String!
+  ) {
+    integrationsSaveMessengerTicketData(_id: $_id, configId: $configId) {
+      _id
+      ticketConfigId
+    }
+  }
+`;
+
+export const EDIT_EM_MESSENGER_MUTATION = gql`
+  mutation IntegrationsEditMessengerIntegration(
+    $id: String!
+    $channelId: String!
+    $name: String!
+    $languageCode: String
+  ) {
+    integrationsEditMessengerIntegration(
+      _id: $id
+      channelId: $channelId
+      name: $name
+      languageCode: $languageCode
+    ) {
+      _id
+    }
+  }
+`;
