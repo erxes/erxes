@@ -287,6 +287,27 @@ export const widgetQueries: Record<string, Resolver> = {
       input: { query: { _id: customerId } },
     });
   },
+  async widgetsGetTicketTags(
+    _root,
+    args: { configId: string },
+    { models, subdomain }: IContext,
+  ) {
+    const config = await models.TicketConfig.getTicketConfig(args.configId);
+
+    if (config && config.ticketBasicFields?.isShowTags) {
+      return await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'tags',
+        action: 'find',
+        input: {
+          query: { type: 'frontline:ticket' },
+        },
+      });
+    }
+    return [];
+  },
 };
 
 markResolvers(widgetQueries, {

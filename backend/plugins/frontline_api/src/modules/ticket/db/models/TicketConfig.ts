@@ -10,9 +10,11 @@ export interface ITicketConfigModel extends Model<ITicketConfigDocument> {
 
 export const loadTicketConfigClass = (models: IModels) => {
   class TicketConfig {
-    public static async getTicket(_id: string): Promise<ITicketConfigDocument> {
+    public static async getTicketConfig(
+      _id: string,
+    ): Promise<ITicketConfigDocument> {
       const ticketConfig = await models.TicketConfig.findOne({ _id });
-      if (!ticketConfig) throw new Error('Ticket not found');
+      if (!ticketConfig) throw new Error('Ticket config not found');
       return ticketConfig;
     }
   }

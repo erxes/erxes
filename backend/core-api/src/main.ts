@@ -25,7 +25,8 @@ import { initSegmentCoreProducers } from './meta/segments';
 
 dotenv.config();
 
-const { DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_DOMAINS } = process.env;
+const { DOMAIN, ALLOWED_ORIGINS, WIDGETS_DOMAIN, ALLOWED_DOMAINS } =
+  process.env;
 
 const port = process.env.PORT ? Number(process.env.PORT) : 3300;
 
@@ -45,10 +46,11 @@ app.use(cookieParser());
 const corsOptions = {
   credentials: true,
   origin: [
-    DOMAIN || 'http://localhost:3001',
+    DOMAIN || 'http://localhost:3000',
+    WIDGETS_DOMAIN || 'http://localhost:3200',
     ...(isDev ? ['http://localhost:3001', 'http://localhost:4200'] : []),
-    ...(ALLOWED_DOMAINS || '').split(',').map((c) => c && RegExp(c)),
-    ...(CLIENT_PORTAL_DOMAINS || '').split(','),
+    ...(ALLOWED_DOMAINS || '').split(','),
+    ...(ALLOWED_ORIGINS || '').split(',').map((c) => c && RegExp(c)),
   ],
 };
 

@@ -63,15 +63,37 @@ export const sendCoreModuleProducer = async <
     return defaultValue;
   }
 
-  const client = createTRPCUntypedClient({
-    links: [httpBatchLink({ url: `${pluginInfo.address}/${moduleName}` })],
-  });
+  const baseUrl = `${pluginInfo.address}/${moduleName}`;
 
-  const result = await client[method](
-    String(producerName),
-    { subdomain, data: input ?? {} },
-    options,
-  );
+  try {
+    const client = createTRPCUntypedClient({
+      links: [httpBatchLink({ url: baseUrl })],
+    });
 
-  return result || defaultValue;
+    const result = await client[method](
+      String(producerName),
+      { subdomain, data: input ?? {} },
+      options,
+    );
+
+    return result || defaultValue;
+  } catch (error: any) {
+    const errorMessage = error?.message || 'Unknown error';
+    const errorCode = error?.cause?.code || error?.code;
+
+    if (errorCode === 'ECONNREFUSED') {
+      console.warn(
+        `[TRPC] Connection refused to plugin "${pluginName}" at ${baseUrl}. ` +
+          `The plugin service may not be running or is not accessible. ` +
+          `Returning defaultValue.`,
+      );
+    } else {
+      console.warn(
+        `[TRPC] Error calling plugin "${pluginName}" at ${baseUrl}: ${errorMessage}. ` +
+          `Returning defaultValue.`,
+      );
+    }
+
+    return defaultValue;
+  }
 };
