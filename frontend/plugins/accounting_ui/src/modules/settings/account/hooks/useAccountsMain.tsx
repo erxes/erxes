@@ -1,4 +1,4 @@
-import { OperationVariables, QueryHookOptions, useQuery } from '@apollo/client';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   ICursorListResponse,
@@ -6,15 +6,15 @@ import {
   mergeCursorData,
   useMultiQueryState,
   useRecordTableCursor,
-  validateFetchMore
+  validateFetchMore,
 } from 'erxes-ui';
-import { ACC_TR_RECORDS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
-import { TR_RECORDS_QUERY } from '../graphql/transactionQueries';
-import { ACC_TRS__PER_PAGE } from '../types/constants';
-import { ITrRecord } from '../types/Transaction';
+import { ACCOUNTS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
+import { ACCOUNTS_PER_PAGE } from '../constants/accountDefaultValues';
+import { GET_ACCOUNTS_MAIN } from '../graphql/queries/getAccounts';
+import { IAccount } from '../types/Account';
 
-export const useTrRecordsVariables = (
-  variables?: QueryHookOptions<ICursorListResponse<ITrRecord>>['variables'],
+export const useAccountsVariables = (
+  variables?: QueryHookOptions<ICursorListResponse<IAccount>>['variables'],
 ) => {
   const [queryParams] =
     useMultiQueryState<{
@@ -29,7 +29,7 @@ export const useTrRecordsVariables = (
     }>(['code', 'name', 'categoryId', 'currency', 'kind', 'journal', 'searchValue']);
 
   const { cursor } = useRecordTableCursor({
-    sessionKey: ACC_TR_RECORDS_CURSOR_SESSION_KEY,
+    sessionKey: ACCOUNTS_CURSOR_SESSION_KEY,
   });
 
   const curVariables = Object.entries(queryParams).reduce((acc, [key, value]) => {
@@ -39,9 +39,9 @@ export const useTrRecordsVariables = (
   }, {} as Record<string, string>);
 
   return {
-    limit: ACC_TRS__PER_PAGE,
+    limit: ACCOUNTS_PER_PAGE,
     orderBy: {
-      date: 1
+      code: 1
     },
     cursor,
     ...variables,
@@ -49,15 +49,15 @@ export const useTrRecordsVariables = (
   };
 };
 
-export const useTrRecords = (options?: OperationVariables) => {
-  const variables = useTrRecordsVariables(options?.variables);
-  const { data, loading, error, fetchMore } = useQuery<{
-    accTrRecordsMain: {
-      list: ITrRecord[];
+export const useAccountsMain = (options?: QueryHookOptions) => {
+  const variables = useAccountsVariables(options?.variables);
+  const { data, loading, fetchMore } = useQuery<{
+    accountsMain: {
+      list: IAccount[];
       totalCount: number;
       pageInfo: IRecordTableCursorPageInfo;
     };
-  }>(TR_RECORDS_QUERY, {
+  }>(GET_ACCOUNTS_MAIN, {
     ...options,
     variables: {
       ...options?.variables,
@@ -65,7 +65,7 @@ export const useTrRecords = (options?: OperationVariables) => {
     },
   });
 
-  const { list: trRecords, totalCount, pageInfo } = data?.accTrRecordsMain || {};
+  const { list: accountsMain, totalCount, pageInfo } = data?.accountsMain || {};
 
   const handleFetchMore = ({
     direction,
@@ -87,26 +87,26 @@ export const useTrRecords = (options?: OperationVariables) => {
           direction === EnumCursorDirection.FORWARD
             ? pageInfo?.endCursor
             : pageInfo?.startCursor,
-        limit: ACC_TRS__PER_PAGE,
+        limit: ACCOUNTS_PER_PAGE,
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
         return Object.assign({}, prev, {
-          accTrRecordsMain: mergeCursorData({
+          accountsMain: mergeCursorData({
             direction,
-            fetchMoreResult: fetchMoreResult.accTrRecordsMain,
-            prevResult: prev.accTrRecordsMain,
+            fetchMoreResult: fetchMoreResult.accountsMain,
+            prevResult: prev.accountsMain,
           }),
         });
       },
     });
   };
+
   return {
     loading,
-    trRecords,
+    accountsMain,
     totalCount,
-    error,
     handleFetchMore,
     pageInfo,
   };

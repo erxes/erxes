@@ -1,8 +1,8 @@
-import { useAccounts } from '@/settings/account/hooks/useAccounts';
 import { Skeleton } from 'erxes-ui';
+import { useAccountsMain } from '../hooks/useAccountsMain';
 
 export const AccountsTotalCount = () => {
-  const { totalCount, loading } = useAccounts();
+  const { totalCount, loading } = useAccountsMain();
 
   return (
     <span className="text-sm text-muted-foreground">

@@ -1,5 +1,5 @@
-import { IUserDocument } from 'erxes-api-shared/core-types';
-import { defaultPaginate, escapeRegExp } from 'erxes-api-shared/utils';
+import { ICursorPaginateParams, IUserDocument } from 'erxes-api-shared/core-types';
+import { cursorPaginate, cursorPaginateAggregation, defaultPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { IModels, IContext } from '~/connectionResolvers';
 import { TR_STATUSES } from '@/accounting/@types/constants';
 import { ITransactionDocument } from '@/accounting/@types/transaction';
@@ -176,6 +176,31 @@ const transactionCommon = {
     return await checkPermissionTrs(models, relatedTrs, user);
   },
 
+  async accTransactionsMain(
+    _root,
+    params: IQueryParams & ICursorPaginateParams,
+    { models, user }: IContext,
+  ) {
+    const filter = await generateFilter(
+      models,
+      params,
+      user
+    );
+
+    // Set default orderBy
+    params.orderBy ??= { date: 1 };
+    params.orderBy = {
+      ...params.orderBy,
+      ptrId: params.orderBy?.ptrId ?? 1,
+    };
+
+    return await cursorPaginate({
+      model: models.Transactions,
+      params,
+      query: filter,
+    });
+  },
+
   async accTransactions(
     _root,
     params: IQueryParams & { page: number, perPage: number },
@@ -207,8 +232,7 @@ const transactionCommon = {
     return await defaultPaginate(
       models.Transactions.find(filter).sort({ ...sort, parentId: 1, ptrId: 1 }).lean(),
       pagintationArgs
-    )
-
+    );
   },
 
   async accTransactionsCount(
@@ -224,6 +248,42 @@ const transactionCommon = {
     );
 
     return models.Transactions.find(filter).countDocuments();
+  },
+
+  async accTrRecordsMain(
+    _root,
+    params: IRecordsParams & ICursorPaginateParams,
+    { models, user }: IContext,
+  ) {
+    const filter = await generateFilter(
+      models,
+      params,
+      user,
+    );
+    const { ids, excludeIds } = params;
+
+    if (ids?.length && !excludeIds && ids.length > (params.limit ?? 20)) {
+      params.cursor = '';
+      params.limit = ids.length;
+    }
+
+    params.orderBy ??= { date: 1 };
+    params.orderBy = {
+      ...params.orderBy,
+      ptrId: params.orderBy?.ptrId ?? 1,
+      _id: params.orderBy?._id ?? 1
+    };
+
+    return await cursorPaginateAggregation({
+      model: models.Transactions,
+      pipeline: [
+        { $match: { ...filter } },
+        { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
+        { '$replaceRoot': { 'newRoot': { $mergeObjects: ['$$ROOT', { _id: { $concat: ['$_id', '-', '$details._id'] } }, { trId: '$_id' }] } } },
+      ],
+      params,
+      formatter: { date: 'date', createAt: 'date' }
+    })
   },
 
   async accTrRecords(
@@ -261,11 +321,10 @@ const transactionCommon = {
       { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
       { $skip },
       { $limit },
-      { "$replaceRoot": { "newRoot": { $mergeObjects: ['$$ROOT', { _id: { $concat: ['$_id', '@', '$details._id'] } }, { trId: '$_id' }] } } }
+      { '$replaceRoot': { 'newRoot': { $mergeObjects: ['$$ROOT', { _id: { $concat: ['$_id', '-', '$details._id'] } }, { trId: '$_id' }] } } }
       // accountaar groupleh ingesneer shortDetailiig bii bolgoh
       // { $group: { _id: '$details.accountId', } }
-    ])
-
+    ]);
   },
 
   async accTrRecordsCount(

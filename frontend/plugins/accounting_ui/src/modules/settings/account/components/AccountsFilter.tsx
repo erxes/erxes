@@ -36,6 +36,10 @@ export const AccountsFilter = () => {
               />
 
               <Command.List className="p-1">
+                <Filter.Item value="searchValue" inDialog>
+                  <IconLabelFilled />
+                  Search Text
+                </Filter.Item>
                 <Filter.Item value="name" inDialog>
                   <IconLabelFilled />
                   Name
@@ -90,6 +94,9 @@ export const AccountsFilter = () => {
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
+        <Filter.View filterKey="searchValue" inDialog>
+          <Filter.DialogStringView filterKey="searchValue" />
+        </Filter.View>
         <Filter.View filterKey="name" inDialog>
           <Filter.DialogStringView filterKey="name" />
         </Filter.View>

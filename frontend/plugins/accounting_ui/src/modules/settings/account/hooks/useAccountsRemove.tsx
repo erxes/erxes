@@ -1,7 +1,7 @@
 import { OperationVariables, useMutation } from '@apollo/client';
+import { ACCOUNTS_PER_PAGE } from '../constants/accountDefaultValues';
 import { ACCOUNTS_REMOVE } from '../graphql/mutations/accounts';
 import { GET_ACCOUNTS } from '../graphql/queries/getAccounts';
-import { ACCOUNTS_PER_PAGE } from './useAccounts';
 import { IAccount } from '../types/Account';
 
 export const useAccountsRemove = () => {

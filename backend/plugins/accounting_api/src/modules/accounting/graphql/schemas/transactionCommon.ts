@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from "erxes-api-shared/utils";
+
 const trDetailFields = `
   _id: String
   accountId: String
@@ -124,6 +126,18 @@ export const types = () => `
     customer: AccCustomer
   }
 
+  type AccTransactionsListResponse {
+    list: [AccCommonTransaction],
+    pageInfo: PageInfo
+    totalCount: Int,
+  }
+
+  type AccTrRecordsListResponse {
+    list: [AccCommonTrRecord],
+    pageInfo: PageInfo
+    totalCount: Int,
+  }
+
   input CommonTrDetailInput {
     ${trDetailFields}
   }
@@ -176,6 +190,10 @@ const trRecsQueryParams = `
 `;
 
 export const queries = `
+  accTransactionsMain(
+    ${trsQueryParams},
+    ${GQL_CURSOR_PARAM_DEFS}
+  ): AccTransactionsListResponse
   accTransactions(
     ${trsQueryParams},
     page: Int,
@@ -185,6 +203,10 @@ export const queries = `
   ): [AccCommonTransaction]
   accTransactionDetail(_id: String!): [AccCommonTransaction]
   accTransactionsCount(${trsQueryParams}): Int
+  accTrRecordsMain(
+    ${trRecsQueryParams},
+    ${GQL_CURSOR_PARAM_DEFS}
+  ): AccTrRecordsListResponse
   accTrRecords(
     ${trRecsQueryParams},
     page: Int,
