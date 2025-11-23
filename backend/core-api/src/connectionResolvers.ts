@@ -127,6 +127,11 @@ import {
 } from '@/internalNote/db/models/InternalNote';
 import { IInternalNoteDocument } from '@/internalNote/types';
 import { ILogModel, loadLogsClass } from '@/logs/db/models/Logs';
+import {
+  IImportModel,
+  loadImportClass,
+} from '~/modules/import-export/db/models/Imports';
+import { IImportDocument } from '~/modules/import-export/db/models/Imports';
 
 import {
   AiAgentDocument,
@@ -221,6 +226,7 @@ export interface IModels {
   AutomationExecutions: IExecutionModel;
   AutomationEmailTemplates: IAutomationEmailTemplateModel;
   Logs: ILogModel;
+  Imports: IImportModel;
   Notifications: Model<INotificationDocument>;
   ClientPortal: IClientPortalModel;
   CPUser: ICPUserModel;
@@ -421,6 +427,11 @@ export const loadClasses = (
     loadLogsClass(models),
   );
 
+  models.Imports = db.model<IImportDocument, IImportModel>(
+    'imports',
+    loadImportClass(models),
+  );
+
   models.ClientPortal = db.model<IClientPortalDocument, IClientPortalModel>(
     'client_portals',
     loadClientPortalClass(models),
@@ -435,5 +446,5 @@ export const loadClasses = (
 };
 
 export const generateModels = createGenerateModels<IModels>(loadClasses, {
-  ignoreModels: ['logs', 'automations_executions'],
+  ignoreModels: ['logs', 'automations_executions', 'imports'],
 });

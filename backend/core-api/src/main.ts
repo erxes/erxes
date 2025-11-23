@@ -22,6 +22,8 @@ import { generateModels } from './connectionResolvers';
 import meta from './meta';
 import { initAutomation } from './meta/automations/automations';
 import { initSegmentCoreProducers } from './meta/segments';
+import { initImportExportCoreProducers } from './meta/import-export/import-export';
+import { initImportWorkers } from './modules/import-export/workers/importProcessor.worker';
 
 dotenv.config();
 
@@ -111,6 +113,8 @@ httpServer.listen(port, async () => {
   });
   await initAutomation(app);
   await initSegmentCoreProducers(app);
+  await initImportExportCoreProducers(app);
+  await initImportWorkers();
 });
 
 // GRACEFULL SHUTDOWN
