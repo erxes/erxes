@@ -6,8 +6,9 @@ import { AccountsIsTempCommand, SelectAccountIsTempCommand } from "./AccountsIsT
 import { AccountsJournalCommand, SelectAccountJournalCommand } from "./AccountsJournal";
 import { AccountsKindCommand, SelectAccountKindCommand } from "./AccountsKind";
 
+// category helper
 export const AccountsFilterCategory = () => {
-  const [categoryId, setCategoryId] = useQueryState<string>('categoryId');
+  const [categoryId, setCategoryId] = useQueryState<string | null>('categoryId');
   const { resetFilterState } = useFilterContext();
 
   return (
@@ -27,7 +28,7 @@ export const AccountsFilterCategory = () => {
 };
 
 export const FilterBarCategory = () => {
-  const [categoryId, setCategoryId] = useQueryState<string>('categoryId');
+  const [categoryId, setCategoryId] = useQueryState<string | null>('categoryId');
 
   return (
     <Filter.BarItem queryKey="categoryId">
@@ -48,6 +49,7 @@ export const FilterBarCategory = () => {
   );
 };
 
+// currency filter helper
 export const AccountsFilterCurrency = () => {
   const [currency, setCurrency] = useQueryState<CurrencyCode>('currency');
   const { resetFilterState } = useFilterContext();
@@ -86,6 +88,7 @@ export const FilterBarCurrency = () => {
   );
 };
 
+// account kind filter helper
 export const AccountsFilterKind = () => {
   const [kind, setKind] = useQueryState<string | null>('kind');
   const { resetFilterState } = useFilterContext();
@@ -101,7 +104,7 @@ export const AccountsFilterKind = () => {
 };
 
 export const FilterBarKind = () => {
-  const [kind, setKind] = useQueryState<string>('kind');
+  const [kind, setKind] = useQueryState<string | null>('kind');
 
   return (
     <Filter.BarItem queryKey="kind">
@@ -121,6 +124,7 @@ export const FilterBarKind = () => {
   );
 };
 
+// account journal filter helper
 export const AccountsFilterJournal = () => {
   const [journal, setJournal] = useQueryState<string | null>('journal');
   const { resetFilterState } = useFilterContext();
@@ -140,7 +144,7 @@ export const AccountsFilterJournal = () => {
 };
 
 export const FilterBarJournal = () => {
-  const [journal, setJournal] = useQueryState<string>('journal');
+  const [journal, setJournal] = useQueryState<string | null>('journal');
 
   return (
     <Filter.BarItem queryKey="journal">
@@ -160,6 +164,7 @@ export const FilterBarJournal = () => {
   );
 };
 
+// account isTemp filter helper
 export const AccountsFilterIsTemp = () => {
   const [isTemp, setIsTemp] = useQueryState<string | null>('isTemp');
   const { resetFilterState } = useFilterContext();
@@ -175,7 +180,7 @@ export const AccountsFilterIsTemp = () => {
 };
 
 export const FilterBarIsTemp = () => {
-  const [isTemp, setIsTemp] = useQueryState<string>('isTemp');
+  const [isTemp, setIsTemp] = useQueryState<string | null>('isTemp');
 
   return (
     <Filter.BarItem queryKey="isTemp">
@@ -195,6 +200,7 @@ export const FilterBarIsTemp = () => {
   );
 };
 
+// account isOutBalance filter helper
 export const AccountsFilterIsOutBalance = () => {
   const [isOutBalance, setIsOutBalance] = useQueryState<string | null>('isOutBalance');
   const { resetFilterState } = useFilterContext();
@@ -210,13 +216,13 @@ export const AccountsFilterIsOutBalance = () => {
 };
 
 export const FilterBarIsOutBalance = () => {
-  const [isOutBalance, setIsOutBalance] = useQueryState<string>('isOutBalance');
+  const [isOutBalance, setIsOutBalance] = useQueryState<string | null>('isOutBalance');
 
   return (
     <Filter.BarItem queryKey="isOutBalance">
       <Filter.BarName>
         <IconToggleRightFilled />
-        isOutBalance
+        Is Out Balance
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountIsOutBalanceCommand
