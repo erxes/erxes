@@ -4,7 +4,6 @@ import {
   CommandBar,
   RecordTable,
   Separator,
-  toast,
   useConfirm,
 } from 'erxes-ui';
 import { useAccountsRemove } from '../hooks/useAccountsRemove';
