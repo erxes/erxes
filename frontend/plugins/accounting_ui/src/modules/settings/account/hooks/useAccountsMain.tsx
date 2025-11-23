@@ -39,7 +39,7 @@ export const useAccountsVariables = (
   const curVariables = Object.entries(queryParams).reduce((acc, [key, value]) => {
     if (value) {
       if (['isTemp', 'isOutBalance'].includes(key)) {
-        acc[key] = ['false', 'False', 'FALSE'].includes(value) ? false : true;
+        acc[key] = 'False' === value ? false : true;
       } else {
         acc[key] = value + '';
       }
