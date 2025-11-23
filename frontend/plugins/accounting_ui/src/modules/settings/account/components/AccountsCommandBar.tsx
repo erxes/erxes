@@ -43,19 +43,8 @@ export const AccountsDelete = () => {
             .getFilteredSelectedRowModel()
             .rows.map((row) => row.original._id),
         },
-        onError: (error: Error) => {
-          toast({
-            title: 'Error',
-            description: error.message,
-            variant: 'destructive',
-          });
-        },
         onCompleted: () => {
           table.setRowSelection({});
-          toast({
-            title: 'Success',
-            description: 'Accounts deleted successfully',
-          });
         },
       });
     });

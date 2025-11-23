@@ -1,11 +1,12 @@
 import { OperationVariables, useMutation } from '@apollo/client';
-import { toast } from 'erxes-ui';
-import { ACCOUNTS_PER_PAGE } from '../constants/accountDefaultValues';
+import { recordTableCursorAtomFamily, toast } from 'erxes-ui';
+import { useSetAtom } from 'jotai';
+import { ACCOUNTS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
 import { ACCOUNTS_ADD } from '../graphql/mutations/accounts';
-import { GET_ACCOUNTS } from '../graphql/queries/getAccounts';
-import { IAccount } from '../types/Account';
 
 export const useAccountAdd = () => {
+  const setCursor = useSetAtom(recordTableCursorAtomFamily(ACCOUNTS_CURSOR_SESSION_KEY));
+
   const [_addAccount, { loading }] = useMutation(ACCOUNTS_ADD);
 
   const addAccount = (options: OperationVariables) => {
@@ -19,23 +20,11 @@ export const useAccountAdd = () => {
         });
         options.onError?.(error);
       },
-      update: (cache, { data }) => {
-        const queryVariables = { perPage: ACCOUNTS_PER_PAGE, page: 1 };
-        const existingData = cache.readQuery<{ accounts: IAccount[] }>({
-          query: GET_ACCOUNTS,
-          variables: queryVariables,
-        });
-        if (!existingData || !existingData.accounts) return;
-
-        cache.writeQuery({
-          query: GET_ACCOUNTS,
-          variables: queryVariables,
-          data: {
-            ...existingData,
-            accounts: [data.accountsAdd, ...existingData.accounts],
-          },
-        });
+      onCompleted: (data) => {
+        setCursor('');
+        options?.onCompleted?.(data);
       },
+      refetchQueries: ['AccountsMain'],
     });
   };
 
