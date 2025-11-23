@@ -1,9 +1,10 @@
 import { Combobox, Command, Popover } from 'erxes-ui';
-import { AccountKind } from '../types/Account';
+import { JournalEnum } from '../../types/Account';
 import React from 'react';
 import { Except } from 'type-fest';
+import { JOURNAL_LABELS } from '../../constants/journalLabel';
 
-export const SelectAccountKindCommand = React.forwardRef<
+export const SelectAccountJournalCommand = React.forwardRef<
   React.ComponentRef<typeof Combobox.Trigger>,
   Except<
     React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
@@ -21,7 +22,7 @@ export const SelectAccountKindCommand = React.forwardRef<
         {selected ?? 'All'}
       </Combobox.Trigger>
       <Combobox.Content>
-        <AccountsKindCommand
+        <AccountsJournalCommand
           focusOnMount
           selected={selected}
           onSelect={(value) => {
@@ -34,7 +35,7 @@ export const SelectAccountKindCommand = React.forwardRef<
   );
 });
 
-export const AccountsKindCommand = ({
+export const AccountsJournalCommand = ({
   focusOnMount,
   selected,
   onSelect,
@@ -47,14 +48,14 @@ export const AccountsKindCommand = ({
     <Command>
       <Command.Input placeholder="Filter kind" focusOnMount={focusOnMount} />
       <Command.List>
-        {[...Object.values(AccountKind)].map((kind) => (
+        {[...Object.values(JournalEnum)].map((journal) => (
           <Command.Item
-            key={kind}
-            value={kind}
-            onSelect={() => onSelect?.(kind)}
+            key={journal}
+            value={journal}
+            onSelect={() => onSelect?.(journal)}
           >
-            {kind}
-            <Combobox.Check checked={selected === kind} />
+            {JOURNAL_LABELS[journal]}
+            <Combobox.Check checked={selected === journal} />
           </Command.Item>
         ))}
       </Command.List>

@@ -9,7 +9,7 @@ export const AccountsTotalCount = () => {
       {loading ? (
         <Skeleton className="size-4" />
       ) : (
-        `(${totalCount || 'No results found'})`
+        `${totalCount} accounts found`
       )}
     </span>
   );

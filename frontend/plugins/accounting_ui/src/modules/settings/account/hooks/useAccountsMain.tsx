@@ -16,17 +16,21 @@ import { IAccount } from '../types/Account';
 export const useAccountsVariables = (
   variables?: QueryHookOptions<ICursorListResponse<IAccount>>['variables'],
 ) => {
-  const [queryParams] =
-    useMultiQueryState<{
-      searchValue?: string;
-      code?: string;
-      name?: string;
-      categoryId?: string;
-      currency?: string;
-      kind?: string;
-      journal?: string;
-
-    }>(['code', 'name', 'categoryId', 'currency', 'kind', 'journal', 'searchValue']);
+  const [queryParams] = useMultiQueryState<{
+    searchValue?: string;
+    code?: string;
+    name?: string;
+    categoryId?: string;
+    currency?: string
+    kind?: string;
+    journal?: string;
+    status?: string;
+    isTemp?: string;
+    isOutBalance?: string;
+  }>([
+    'searchValue', 'code', 'name', 'categoryId', 'currency',
+    'kind', 'journal', 'status', 'isTemp', 'isOutBalance'
+  ]);
 
   const { cursor } = useRecordTableCursor({
     sessionKey: ACCOUNTS_CURSOR_SESSION_KEY,
@@ -34,9 +38,14 @@ export const useAccountsVariables = (
 
   const curVariables = Object.entries(queryParams).reduce((acc, [key, value]) => {
     if (value) {
-      acc[key] = value + '';
-    } return acc;
-  }, {} as Record<string, string>);
+      if (['isTemp', 'isOutBalance'].includes(key)) {
+        acc[key] = ['false', 'False', 'FALSE'].includes(value) ? false : true;
+      } else {
+        acc[key] = value + '';
+      }
+    }
+    return acc;
+  }, {} as Record<string, string | boolean>);
 
   return {
     limit: ACCOUNTS_PER_PAGE,
