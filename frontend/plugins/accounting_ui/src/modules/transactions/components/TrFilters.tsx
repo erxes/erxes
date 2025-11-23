@@ -17,9 +17,9 @@ import {
   useFilterContext,
   CurrencyCode,
 } from 'erxes-ui';
-import { SelectAccountCommand } from '@/settings/account/account-categories/components/SelectAccountCategory';
-import { AccountsJournalCommand } from '@/settings/account/components/AccountsJournal';
-import { AccountsKindCommand } from '@/settings/account/components/AccountsKind';
+import { SelectAccountCatCommand } from '@/settings/account/account-categories/components/SelectAccountCategory';
+import { AccountsJournalCommand } from '@/settings/account/components/filters/AccountsJournal';
+import { AccountsKindCommand } from '@/settings/account/components/filters/AccountsKind';
 
 export const TransactionsFilter = () => {
   return (
@@ -111,7 +111,7 @@ export const AccountsFilterCategory = () => {
   return (
     <SelectTree.Provider id="account-category-filter" ordered>
       <Filter.View filterKey="category">
-        <SelectAccountCommand
+        <SelectAccountCatCommand
           focusOnMount
           selected={categoryId ?? undefined}
           onSelect={(categoryId) => {

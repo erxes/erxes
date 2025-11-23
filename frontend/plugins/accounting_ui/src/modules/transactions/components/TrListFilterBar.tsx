@@ -15,8 +15,8 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { SelectAccountCategory } from '@/settings/account/account-categories/components/SelectAccountCategory';
-import { SelectAccountJournalCommand } from '@/settings/account/components/AccountsJournal';
-import { SelectAccountKindCommand } from '@/settings/account/components/AccountsKind';
+import { SelectAccountJournalCommand } from '@/settings/account/components/filters/AccountsJournal';
+import { SelectAccountKindCommand } from '@/settings/account/components/filters/AccountsKind';
 
 export const TransactionsFilterBar = () => {
   const [queries] = useMultiQueryState<{
