@@ -1,5 +1,5 @@
-import { StageInEBarimtConfigForm } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/StageInEBarimtConfigForm';
+import { StageInEbarimtConfigForm } from '@/ebarimt/settings/stage-in-ebarimt-config/components/StageInEBarimtConfigForm';
 
 export const StageInEBarimtConfig = () => {
-  return <StageInEBarimtConfigForm />;
+  return <StageInEbarimtConfigForm />;
 };

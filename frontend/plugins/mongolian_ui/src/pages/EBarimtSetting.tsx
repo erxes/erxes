@@ -1,5 +1,5 @@
-import { MainSettingsForm } from '~/modules/ebarimt/settings/components/EBarimtMainSetting';
+import { EBarimtMainSettingsForm } from '@/ebarimt/settings/ebarimt-config/components/EBarimtConfigFormFields';
 
 export const EBarimtSetting = () => {
-  return <MainSettingsForm />;
+  return <EBarimtMainSettingsForm />;
 };

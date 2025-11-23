@@ -1,7 +1,7 @@
 import { IconCashBanknote } from '@tabler/icons-react';
 import { Button, Separator } from 'erxes-ui';
 import { useLocation } from 'react-router';
-import { SETTINGS_ROUTES } from '../constants/settingRoutes';
+import { SETTINGS_ROUTES } from '@/ebarimt/settings/constants/settingRoutes';
 
 export const EBarimtBreadcrumb = () => {
   const { pathname } = useLocation();

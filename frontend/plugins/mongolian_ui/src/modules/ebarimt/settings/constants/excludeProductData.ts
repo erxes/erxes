@@ -1,4 +1,4 @@
-import { ExcludeProductData } from '../types/EBarimt';
+import { ExcludeProductData } from '@/ebarimt/settings/types/EBarimt';
 
 export const EXCLUDE_PRODUCT_DATA = {
   [ExcludeProductData.MAIN]: 'Main',

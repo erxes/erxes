@@ -1,5 +1,6 @@
-import { ReturnEBarimtConfigForm } from '~/modules/ebarimt/settings/stage-in-return-ebarimt-config/components/ReturnEBarimtConfig';
+import { ReturnEbarimtConfigForm } from '@/ebarimt/settings/stage-in-return-ebarimt-config/components/ReturnEBarimtConfigForm';
+
 
 export const ReturnEBarimtConfig = () => {
-  return <ReturnEBarimtConfigForm />;
+  return <ReturnEbarimtConfigForm />;
 };

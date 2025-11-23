@@ -1,4 +1,4 @@
 import { z } from 'zod';
-import { ebarimtSchema } from '../product-rules-on-tax/constants/ebarimtSchema';
+import { addEBarimtReturnConfigSchema } from '@/ebarimt/settings/stage-in-return-ebarimt-config/types/addEBarimtReturnConfigSchema';
 
-export type TEBarimtForm = z.infer<typeof ebarimtSchema>;
+export type TEBarimtForm = z.infer<typeof addEBarimtReturnConfigSchema>;

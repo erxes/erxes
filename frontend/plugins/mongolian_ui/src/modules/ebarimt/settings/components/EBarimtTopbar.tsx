@@ -1,6 +1,6 @@
 import { useLocation } from 'react-router';
-import { AddProductRulesOnTax } from '../product-rules-on-tax/components/ProductRulesOnTax';
-import { AddProductGroups } from '../product-groups/components/ProductGroups';
+import { AddProductRulesOnTax } from '@/ebarimt/settings/product-rules-on-tax/components/ProductRulesOnTax';
+import { AddProductGroup } from '@/ebarimt/settings/product-group/components/ProductGroup';
 
 export const EBarimtTopbar = () => {
   const { pathname } = useLocation();
@@ -15,7 +15,7 @@ export const EBarimtTopbar = () => {
   if (pathname === '/settings/ebarimt/product-groups') {
     return (
       <div className="flex items-center gap-3">
-        <AddProductGroups />
+        <AddProductGroup />
       </div>
     );
   }

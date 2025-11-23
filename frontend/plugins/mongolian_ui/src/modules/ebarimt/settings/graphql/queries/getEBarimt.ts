@@ -12,39 +12,143 @@ export const vatRowFields = `
 `;
 
 export const GET_EBARIMTS = gql`
-  query vatRows(
+  query products(
+    $type: String
+    $bundleId: String
+    $categoryId: String
+    $tag: String
     $status: String
-    $name: String
-    $number: String
     $searchValue: String
+    $vendorId: String
+    $brand: String
+    $perPage: Int
+    $page: Int
     $ids: [String]
     $excludeIds: Boolean
-    $page: Int
-    $perPage: Int
-    $sortField: String
-    $sortDirection: Int
+    $pipelineId: String
+    $boardId: String
+    $segment: String
+    $segmentData: String
+    $image: String
   ) {
-    vatRows(
+    products(
+      type: $type
+      bundleId: $bundleId
+      categoryId: $categoryId
+      tag: $tag
       status: $status
-      name: $name
-      number: $number
       searchValue: $searchValue
-      ids: $ids
-      excludeIds: $excludeIds
-      page: $page
+      vendorId: $vendorId
+      brand: $brand
       perPage: $perPage
-      sortField: $sortField
-      sortDirection: $sortDirection
-    ) {
-      ${vatRowFields}
-    }
-    vatRowsCount(
-      status: $status
-      name: $name
-      number: $number
-      searchValue: $searchValue
+      page: $page
       ids: $ids
       excludeIds: $excludeIds
-    )
+      pipelineId: $pipelineId
+      boardId: $boardId
+      segment: $segment
+      segmentData: $segmentData
+      image: $image
+    ) {
+      _id
+      name
+      shortName
+      type
+      code
+      categoryId
+      vendorId
+      vendor {
+        _id
+        avatar
+        businessType
+        code
+        createdAt
+        customFieldsData
+        description
+        emails
+        industry
+        isSubscribed
+        links
+        location
+        mergedIds
+        modifiedAt
+        names
+        ownerId
+        parentCompanyId
+        phones
+        plan
+        primaryEmail
+        primaryName
+        primaryPhone
+        score
+        size
+        tagIds
+        trackedData
+        website
+        __typename
+      }
+      scopeBrandIds
+      status
+      description
+      unitPrice
+      barcodes
+      variants
+      barcodeDescription
+      getTags {
+        _id
+        name
+        colorCode
+        __typename
+      }
+      bundleId
+      bundle {
+        _id
+        name
+        __typename
+      }
+      tagIds
+      createdAt
+      category {
+        _id
+        code
+        name
+        __typename
+      }
+      attachment {
+        url
+        name
+        size
+        type
+        __typename
+      }
+      attachmentMore {
+        url
+        name
+        size
+        type
+        __typename
+      }
+      pdfAttachment {
+        pdf {
+          name
+          url
+          type
+          size
+          __typename
+        }
+        pages {
+          name
+          url
+          type
+          size
+          __typename
+        }
+        __typename
+      }
+      uom
+      subUoms
+      currency
+      __typename
+    }
   }
 `;
