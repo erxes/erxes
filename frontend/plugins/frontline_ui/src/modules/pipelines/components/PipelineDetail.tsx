@@ -40,7 +40,7 @@ export const PipelineDetail = () => {
           {loading ? <Skeleton className="w-32 h-5" /> : pipeline?.name}
         </h1>
       </span>
-      <main className="space-y-6">
+      <main className="space-y-6 pb-10">
         <section className="mt-4 w-full border border-muted-foreground/15 rounded-md">
           <div className="w-full p-4">
             <form

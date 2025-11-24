@@ -58,6 +58,7 @@ export interface IMessage {
   botData: any;
   messengerAppData: IMessengerAppData;
   attachments: IAttachment[];
+  isCustomerRead?: boolean;
 }
 
 export interface IConversation {

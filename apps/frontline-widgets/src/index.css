@@ -82,6 +82,7 @@
 .erxes-notifier-shown > iframe {
   height: 100% !important;
   max-width: none;
+  bottom: 0;
 }
 
 .erxes-notifier-shown {
@@ -101,12 +102,12 @@
   }
 
   .erxes-messenger-shown {
-    height: 100%;
+    height: calc(100% - 72px);
     width: 100%;
     max-height: none;
     display: block;
     right: 0;
-    bottom: 0;
+    bottom: 72px;
   }
 
   #erxes-messenger-iframe {

@@ -14,10 +14,16 @@ import {
   conversationIdAtom,
   setActiveTabAtom,
 } from '../states';
-import { ISupporter, IAttachment, IMessage } from '../types';
+import {
+  ISupporter,
+  IAttachment,
+  IMessage,
+  IConversationMessage,
+} from '../types';
 import { Avatar } from 'erxes-ui';
 import { AvatarGroup } from './avatar-group';
 import { IconFile } from '@tabler/icons-react';
+import { useMemo } from 'react';
 
 export function EmptyChat() {
   const connection = useAtomValue(connectionAtom);
@@ -61,16 +67,18 @@ export function EmptyChat() {
 
 export function ConversationMessage({
   conversationId,
-  message,
+  conversation,
 }: {
   conversationId: string;
-  message?: IMessage;
+  conversation?: IConversationMessage;
 }) {
   const setConversationId = useSetAtom(conversationIdAtom);
   const setActiveTab = useSetAtom(setActiveTabAtom);
 
   const { readConversation } = useReadConversation();
-  const { userId, customerId, user } = message || {};
+  const { messages, content } = conversation || {};
+  const lastMessage = messages?.[messages.length - 1];
+  const { userId, customerId, user, isCustomerRead } = lastMessage || {};
 
   const handleClick = () => {
     readConversation({
@@ -82,11 +90,19 @@ export function ConversationMessage({
     });
   };
 
+  const unreadCount = useMemo(
+    () =>
+      messages?.filter(
+        (message) => !message.isCustomerRead && message.userId !== null,
+      ).length,
+    [messages],
+  );
+
   if (customerId) {
     return (
       <div
         role="tabpanel"
-        id={message?._id}
+        id={lastMessage?._id}
         tabIndex={0}
         className="flex items-center gap-3 cursor-pointer p-3 hover:bg-primary/5 rounded-md transition-all duration-300"
         onClick={handleClick}
@@ -97,15 +113,15 @@ export function ConversationMessage({
         </Avatar>
         <div className="flex flex-col gap-1 text-sm font-medium text-muted-foreground overflow-x-hidden">
           <span
-            className="truncate line-clamp-1 w-auto"
+            className={cn('truncate line-clamp-1 w-auto')}
             dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(message?.content || ''),
+              __html: DOMPurify.sanitize(content || ''),
             }}
           />
           <span className="text-sm text-muted-foreground">
             {'you'} ·{' '}
             {formatDateISOStringToRelativeDate(
-              message?.createdAt as unknown as string,
+              lastMessage?.createdAt as unknown as string,
             )}
           </span>
         </div>
@@ -115,9 +131,12 @@ export function ConversationMessage({
     return (
       <div
         role="tabpanel"
-        id={message?._id}
+        id={lastMessage?._id}
         tabIndex={0}
-        className="flex items-center gap-3 cursor-pointer p-3 hover:bg-accent rounded-md transition-all duration-300"
+        className={cn(
+          { 'bg-accent': !isCustomerRead },
+          'flex items-center gap-3 cursor-pointer p-3 hover:bg-accent rounded-md transition-all duration-300',
+        )}
         onClick={handleClick}
       >
         <Avatar className="size-10 bg-background">
@@ -131,17 +150,40 @@ export function ConversationMessage({
           </Avatar.Fallback>
         </Avatar>
         <div className="flex flex-col gap-1 text-sm font-medium text-muted-foreground overflow-x-hidden">
+          {(unreadCount && unreadCount > 0 && (
+            <span className="text-sm text-accent-foreground font-bold">
+              {unreadCount > 1 ? (
+                `${unreadCount} new messages`
+              ) : (
+                <span
+                  className="text-sm text-accent-foreground font-bold"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(content || ''),
+                  }}
+                />
+              )}
+            </span>
+          )) || (
+            <span
+              className={cn(
+                'truncate line-clamp-1 w-auto',
+                !isCustomerRead && 'text-accent-foreground font-bold',
+              )}
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(content || ''),
+              }}
+            />
+          )}
           <span
-            className="truncate line-clamp-1 w-auto"
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(message?.content || ''),
-            }}
-          />
-          <span className="text-sm text-muted-foreground">
+            className={cn(
+              { 'font-bold': !isCustomerRead },
+              'text-sm text-muted-foreground',
+            )}
+          >
             {user?.details?.fullName || user?.details?.firstName || 'operator'}{' '}
             ·{' '}
             {formatDateISOStringToRelativeDate(
-              message?.createdAt as unknown as string,
+              lastMessage?.createdAt as unknown as string,
             )}
           </span>
         </div>
@@ -195,7 +237,7 @@ export function OperatorMessage({
           ) : (
             <div className="size-8" />
           )}
-          <div className="flex flex-col gap-2 max-w-[70%]">
+          <div className="flex flex-col gap-2 max-w-[80%] flex-1">
             {content && content !== '<p></p>' && (
               <div
                 className={cn(
