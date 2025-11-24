@@ -17,7 +17,11 @@ import { IconPhone, IconMail, IconUserShare } from '@tabler/icons-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { SubmitHandler } from 'react-hook-form';
 import { useCallback, useState } from 'react';
-import { getVisitorId, setLocalStorageItem, getErxesSettings } from '@libs/utils';
+import {
+  getVisitorId,
+  setLocalStorageItem,
+  getErxesSettings,
+} from '@libs/utils';
 import { useAtom, useSetAtom } from 'jotai';
 import {
   customerIdAtom,
@@ -28,7 +32,11 @@ import {
 } from '../../states';
 import { useMutation } from '@apollo/client';
 import { connect } from '../../graphql/mutations';
-import { IConnectionInfo, ITicketConfig, IWidgetUiOptions } from '../../types/connection';
+import {
+  IConnectionInfo,
+  ITicketConfig,
+  IWidgetUiOptions,
+} from '../../types/connection';
 import { applyUiOptionsToTailwind } from '@libs/tw-utils';
 
 export const NotifyCustomerForm = ({
@@ -118,9 +126,19 @@ export const NotifyCustomerForm = ({
           setLocalStorageItem('erxes', JSON.stringify(customer));
           setLocalStorageItem('customerId', customer._id);
           setCustomerId(customer._id ?? null);
-          
-          await handleConnect(customer._id);
-          
+
+          try {
+            await handleConnect(customer._id);
+          } catch (error) {
+            toast({
+              title: 'Connection error',
+              description:
+                error instanceof Error ? error.message : 'Failed to connect',
+              variant: 'destructive',
+            });
+            return;
+          }
+
           reset();
           toast({
             title: 'Customer notified successfully',
@@ -138,7 +156,7 @@ export const NotifyCustomerForm = ({
         },
       });
     },
-    [saveCustomerNotified, reset, handleConnect, setCustomerId],
+    [saveCustomerNotified, reset, handleConnect, setCustomerId, onSuccess],
   );
 
   return (
@@ -202,7 +220,7 @@ export const NotifyCustomerForm = ({
                       <Form.Item>
                         <Form.Label>Phone</Form.Label>
                         <Form.Control>
-                          <PhoneInput className='bg-background' {...field} />
+                          <PhoneInput className="bg-background" {...field} />
                         </Form.Control>
                       </Form.Item>
                     )}

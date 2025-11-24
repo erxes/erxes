@@ -93,24 +93,8 @@ export const useConversations = (
     };
   }, [data?.widgetsConversations, subscribeToMore]);
 
-  const lastMessagesByContent = useMemo(() => {
-    return data?.widgetsConversations.map((conversation) => {
-      return conversation.messages.find(
-        (message) => message.content === conversation.content,
-      );
-    });
-  }, [data]);
-
-  const unreadMessages = useMemo(() => {
-    return data?.widgetsConversations?.[0]?.messages?.filter(
-      (message) => !message.isCustomerRead && message.userId !== null,
-    );
-  }, [data]);
-
   return {
     conversations: data?.widgetsConversations || [],
-    lastMesseges: lastMessagesByContent,
-    unreadMessages,
     loading,
     error,
   };

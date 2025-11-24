@@ -9,7 +9,13 @@ import { getLocalStorageItem } from '@libs/utils';
 export const useTicketForm = () => {
   const ticketConfig = useAtomValue(ticketConfigAtom);
   const ticketSchema = generateTicketSchema(ticketConfig);
-  const erxes = JSON.parse(getLocalStorageItem('erxes') ?? '{}');
+  
+  let erxes: any = {};
+  try {
+    erxes = JSON.parse(getLocalStorageItem('erxes') ?? '{}');
+  } catch {
+    erxes = {};
+  }
 
   const defaultValues =
     erxes?.emails?.length > 0
