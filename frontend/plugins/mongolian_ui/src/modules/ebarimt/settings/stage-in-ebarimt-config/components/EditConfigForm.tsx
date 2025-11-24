@@ -26,8 +26,8 @@ export const EditConfigForm = ({
       stageId: config?.stageId,
       companyRD: config?.companyRD,
       merchantTin: config?.merchantTin,
-      branchOfProvice: config?.branchOfProvice,
-      subProvice: config?.subProvice,
+      branchOfProvince: config?.branchOfProvince,
+      subProvince: config?.subProvince,
       districtCode: config?.districtCode,
       companyName: config?.companyName,
       defaultUnitedCode: config?.defaultUnitedCode,
@@ -195,10 +195,10 @@ export const EditConfigForm = ({
             <div className="grid grid-cols-3 gap-4">
               <Form.Field
                 control={form.control}
-                name="branchOfProvice"
+                name="branchOfProvince"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Branch of Provice</Form.Label>
+                    <Form.Label>Branch of Province</Form.Label>
                     <Form.Control>
                       <Select
                         onValueChange={field.onChange}
@@ -222,10 +222,10 @@ export const EditConfigForm = ({
               />
               <Form.Field
                 control={form.control}
-                name="subProvice"
+                name="subProvince"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>SUB Provice / District</Form.Label>
+                    <Form.Label>SUB Province / District</Form.Label>
                     <Form.Control>
                       <Select
                         onValueChange={field.onChange}
@@ -258,7 +258,7 @@ export const EditConfigForm = ({
                     <Form.Control>
                       <Input
                         type="text"
-                        placeholder="Enter company name"
+                        placeholder="Enter district code"
                         className="h-8"
                         {...field}
                       />
@@ -298,7 +298,7 @@ export const EditConfigForm = ({
                   <Form.Control>
                     <Input
                       type="text"
-                      placeholder="Enter company name"
+                      placeholder="Enter default united code"
                       className="h-8"
                       {...field}
                     />
@@ -317,7 +317,7 @@ export const EditConfigForm = ({
                   <Form.Message />
                   <Form.Control>
                     <Textarea
-                      placeholder="Enter company name"
+                      placeholder="Enter header text"
                       className="min-h-[80px]"
                       {...field}
                     />
@@ -336,7 +336,7 @@ export const EditConfigForm = ({
                   <Form.Control>
                     <Input
                       type="text"
-                      placeholder="Enter company name"
+                      placeholder="Enter branch number"
                       className="h-8"
                       {...field}
                     />
@@ -355,7 +355,7 @@ export const EditConfigForm = ({
                   <Form.Message />
                   <Form.Control>
                     <Textarea
-                      placeholder="Enter company name"
+                      placeholder="Enter footer text"
                       className="min-h-[80px]"
                       {...field}
                     />

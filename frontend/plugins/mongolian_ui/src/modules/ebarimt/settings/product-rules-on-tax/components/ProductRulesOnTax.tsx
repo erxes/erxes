@@ -75,7 +75,7 @@ export const AddProductRulesOnTaxForm = ({
       onCompleted: () => {
         toast({
           title: 'Success',
-          description: 'Product group created successfully',
+          description: 'Product rule added successfully',
         });
         setOpen(false);
         form.reset();
@@ -83,7 +83,7 @@ export const AddProductRulesOnTaxForm = ({
       onError: (error: any) => {
         toast({
           title: 'Error',
-          description: error.message || 'Failed to create product group',
+          description: error.message || 'Failed to add product rule',
           variant: 'destructive',
         });
       },

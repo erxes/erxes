@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 const putResponseRemove = gql`
-  mutation productsRemove($productIds: [String!]) {
-    productsRemove(productIds: $productIds)
+  mutation putResponseRemove($productIds: [String!]) {
+    putResponseRemove(productIds: $productIds)
   }
 `;
 

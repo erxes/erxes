@@ -32,7 +32,7 @@ export const SelectExcludeCategories = ({
       <Form.Control>
         <Select.Trigger>
           <span>
-            {selectedExcludeCategory?.name || 'Select a exclude category'}
+            {selectedExcludeCategory?.name || 'Select an exclude category'}
           </span>
         </Select.Trigger>
       </Form.Control>

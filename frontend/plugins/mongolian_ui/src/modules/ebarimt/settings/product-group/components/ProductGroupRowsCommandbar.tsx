@@ -7,7 +7,7 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
-import { useProductGroupRemove } from '@/ebarimt/settings/product-group/hooks/useProductGroupRowsRemove';
+import { useProductGroupRowsRemove } from '@/ebarimt/settings/product-group/hooks/useProductGroupRowsRemove';
 
 export const ProductGroupRowsCommandbar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -27,7 +27,7 @@ export const ProductGroupRowsCommandbar = () => {
 export const ProductGroupRowsDelete = () => {
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
-  const { removeProductGroup, loading } = useProductGroupRemove();
+  const { removeProductGroup, loading } = useProductGroupRowsRemove();
 
   const handleDelete = () => {
     confirm({
