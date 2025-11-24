@@ -308,6 +308,53 @@ export const widgetQueries: Record<string, Resolver> = {
     }
     return [];
   },
+  async widgetsTicketCheckProgress(
+    _root,
+    args: {
+      number?: string;
+    },
+    { models }: IContext,
+  ) {
+    const { number } = args;
+    if (!number) {
+      throw new Error('Ticket number is required');
+    }
+
+    const ticket = await models.Ticket.findOne({ number });
+
+    if (!ticket) {
+      throw new Error('Ticket not found');
+    }
+    return ticket;
+  },
+  async widgetsTicketComments(
+    _root,
+    args: {
+      contentId: string;
+    },
+    { models }: IContext,
+  ) {
+    const { contentId } = args;
+    if (!contentId) {
+      throw new Error('ContentId is required');
+    }
+
+    const notes = await models.Note.getNotes({ contentId });
+
+    if (!notes) {
+      throw new Error('notes not found');
+    }
+    return notes;
+  },
+
+  async widgetsTicketActivityLogs(
+    _root,
+    args: { contentId: string },
+    { models }: IContext,
+  ) {
+    const { contentId } = args;
+    return (await models.Activity.find({ contentId })) || [];
+  },
 };
 
 markResolvers(widgetQueries, {
