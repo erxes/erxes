@@ -16,11 +16,21 @@ export const ProductGroupForm = ({
   loading: boolean;
 }) => {
   const handleNumberChange = useCallback(
-    (value: string, onChange: (value: number) => void, fieldName: string) => {
-      const cleanedValue = value.replace(/[^\d.]/g, '');
+    (value: string, onChange: (value: number) => void) => {
+      let cleanedValue = '';
+      for (let i = 0; i < value.length; i++) {
+        const char = value[i];
+        if ((char >= '0' && char <= '9') || char === '.') {
+          cleanedValue += char;
+        }
+      }
 
-      if (cleanedValue === '' || cleanedValue === '.') {
+      if (cleanedValue === '') {
         onChange(0);
+        return;
+      }
+
+      if (cleanedValue === '.') {
         return;
       }
 
@@ -83,13 +93,9 @@ export const ProductGroupForm = ({
                 <Input
                   type="text"
                   inputMode="numeric"
-                  value={field.value === 0 ? '' : field.value}
+                  value={field.value || ''}
                   onChange={(e) =>
-                    handleNumberChange(
-                      e.target.value,
-                      field.onChange,
-                      'sortNum',
-                    )
+                    handleNumberChange(e.target.value, field.onChange)
                   }
                   placeholder="Enter sort number"
                   disabled={loading}
@@ -109,9 +115,9 @@ export const ProductGroupForm = ({
                 <Input
                   type="text"
                   inputMode="decimal"
-                  value={field.value === 0 ? '' : field.value}
+                  value={field.value || ''}
                   onChange={(e) =>
-                    handleNumberChange(e.target.value, field.onChange, 'ratio')
+                    handleNumberChange(e.target.value, field.onChange)
                   }
                   placeholder="Enter ratio"
                   disabled={loading}

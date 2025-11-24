@@ -23,11 +23,21 @@ export const ProductRulesOnTaxForm = ({
   loading: boolean;
 }) => {
   const handleNumberChange = useCallback(
-    (value: string, onChange: (value: number) => void, fieldName: string) => {
-      const cleanedValue = value.replace(/[^\d.]/g, '');
+    (value: string, onChange: (value: number) => void) => {
+      let cleanedValue = '';
+      for (let i = 0; i < value.length; i++) {
+        const char = value[i];
+        if ((char >= '0' && char <= '9') || char === '.') {
+          cleanedValue += char;
+        }
+      }
 
-      if (cleanedValue === '' || cleanedValue === '.') {
+      if (cleanedValue === '') {
         onChange(0);
+        return;
+      }
+
+      if (cleanedValue === '.') {
         return;
       }
 
@@ -39,6 +49,7 @@ export const ProductRulesOnTaxForm = ({
     },
     [],
   );
+
   return (
     <Form {...form}>
       <form
@@ -210,14 +221,11 @@ export const ProductRulesOnTaxForm = ({
               <Form.Label>Percent</Form.Label>
               <Form.Control>
                 <Input
-                  type="number"
-                  value={field.value === 0 ? '' : field.value}
+                  type="text"
+                  inputMode="decimal"
+                  value={field.value || ''}
                   onChange={(e) => {
-                    handleNumberChange(
-                      e.target.value,
-                      field.onChange,
-                      'percent',
-                    );
+                    handleNumberChange(e.target.value, field.onChange);
                   }}
                   placeholder="Enter percent"
                   disabled={loading}
