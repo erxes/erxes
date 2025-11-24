@@ -31,6 +31,13 @@ const ticketBasicFieldsSchema = z
   .nullable()
   .optional();
 
+const ticketFormFieldsSchema = z.object({
+  key: z.string().min(1, 'Key is required').optional(),
+  label: z.string().min(1, 'Label is required').optional(),
+  order: z.number().min(1, 'Order is required').optional(),
+  placeholder: z.string().optional().optional(),
+});
+
 export const PIPELINE_CONFIG_SCHEMA = z
   .object({
     name: z.string().min(1, 'Name is required'),
@@ -41,6 +48,7 @@ export const PIPELINE_CONFIG_SCHEMA = z
     selectedStatusId: z.string().min(1, 'Status is required'),
     ticketBasicFields: ticketBasicFieldsSchema,
     customer: customerFieldsSchema,
+    fieldsConfig: z.array(ticketFormFieldsSchema).optional(),
   })
   .superRefine((data, ctx) => {
     const { contactType, company, customer } = data;

@@ -6,6 +6,13 @@ type TicketBasicFields {
     isShowTags: Boolean
   }
 
+  type TicketFormFields {
+    key: String!
+    label: String!
+    order: Int!
+    placeholder: String!
+  }
+
   type CompanyFields {
     isShowName: Boolean
     isShowRegistrationNumber: Boolean
@@ -33,6 +40,7 @@ type TicketBasicFields {
     customer: CustomerFields
     createdAt: String
     updatedAt: String
+    fieldsConfig: [TicketFormFields]
   }
 
   input TicketBasicFieldsInput {
@@ -57,6 +65,13 @@ type TicketBasicFields {
     isShowEmail: Boolean
   }
 
+  input TicketFormFieldsInput {
+    key: String!
+    label: String!
+    order: Int!
+    placeholder: String!
+  }
+
   input TicketConfigInput {
     name: String!
     selectedStatusId: String!
@@ -66,6 +81,7 @@ type TicketBasicFields {
     contactType: String
     company: CompanyFieldsInput
     customer: CustomerFieldsInput
+    fieldsConfig: [TicketFormFieldsInput]
   } 
 `;
 
