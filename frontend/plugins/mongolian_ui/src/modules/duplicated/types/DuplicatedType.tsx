@@ -56,7 +56,11 @@ export interface IDuplicated {
   createdAt: string;
   modifiedAt: string;
   userId: string | null;
-  user: any | null;
+  user: {
+    _id: string;
+    username: string;
+    email: string;
+  } | null;
   id: string;
   posId: number;
   status: string;

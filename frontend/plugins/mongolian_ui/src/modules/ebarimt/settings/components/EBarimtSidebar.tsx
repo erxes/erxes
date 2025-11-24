@@ -9,7 +9,9 @@ export const EBarimtSidebar = () => {
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {Object.entries(SETTINGS_ROUTES).map(([path, label]) => (
-              <EBarimtSidebarItem key={path} to={path} children={label} />
+              <EBarimtSidebarItem key={path} to={path}>
+                {label}
+              </EBarimtSidebarItem>
             ))}
           </Sidebar.Menu>
         </Sidebar.GroupContent>

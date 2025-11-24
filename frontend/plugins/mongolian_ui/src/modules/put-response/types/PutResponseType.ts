@@ -56,7 +56,16 @@ export interface IPutResponse {
   createdAt: string;
   modifiedAt: string;
   userId: string | null;
-  user: any | null;
+  user: {
+    id: string;
+    posId: number;
+    status: string;
+    message: string;
+    qrData: string | null;
+    lottery: string | null;
+    date: string;
+    __typename?: string;
+  } | null;
   id: string;
   posId: number;
   status: string;

@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useCallback,
+} from 'react';
 import {
   cn,
   Combobox,
@@ -7,7 +13,10 @@ import {
   SelectTriggerVariant,
 } from 'erxes-ui';
 import { useGetSalesPipelines } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useGetSalesPipelines';
-import { SelectContent, SelectTrigger } from '@/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectShared';
+import {
+  SelectContent,
+  SelectTrigger,
+} from '@/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectShared';
 
 interface IPipeline {
   _id: string;
@@ -54,22 +63,28 @@ export const SelectPipelineProvider = ({
     skip: !boardId,
   });
 
-  const handleValueChange = (pipelineId: string) => {
-    if (!pipelineId) return;
-    onValueChange?.(pipelineId);
-  };
+  const handleValueChange = useCallback(
+    (pipelineId: string) => {
+      if (!pipelineId) return;
+      onValueChange?.(pipelineId);
+    },
+    [onValueChange],
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      value: value || '',
+      onValueChange: handleValueChange,
+      pipelines,
+      loading,
+      error,
+      boardId,
+    }),
+    [value, handleValueChange, pipelines, loading, error, boardId],
+  );
 
   return (
-    <SelectPipelineContext.Provider
-      value={{
-        value: value || '',
-        onValueChange: handleValueChange,
-        pipelines,
-        loading,
-        error,
-        boardId,
-      }}
-    >
+    <SelectPipelineContext.Provider value={contextValue}>
       {children}
     </SelectPipelineContext.Provider>
   );
@@ -130,33 +145,45 @@ const SelectPipelineCommandItem = ({ pipeline }: { pipeline: IPipeline }) => {
 const SelectPipelineContent = () => {
   const { pipelines, boardId, loading, error } = useSelectPipelineContext();
 
+  const renderContent = () => {
+    if (!boardId) {
+      return (
+        <div className="flex items-center justify-center h-24">
+          <span className="text-muted-foreground">Choose board first</span>
+        </div>
+      );
+    }
+
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center h-24">
+          <span className="text-muted-foreground">Loading...</span>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="flex items-center justify-center h-24 text-destructive">
+          Error: {error.message}
+        </div>
+      );
+    }
+
+    return pipelines?.map((pipeline) => (
+      <SelectPipelineCommandItem key={pipeline._id} pipeline={pipeline} />
+    ));
+  };
+
   return (
     <Command>
       <Command.Input placeholder="Search pipeline" />
       <Command.Empty>
         <span className="text-muted-foreground">
-          {!boardId ? 'Choose board first' : 'No pipelines found'}
+          {boardId ? 'No pipelines found' : 'Choose board first'}
         </span>
       </Command.Empty>
-      <Command.List>
-        {!boardId ? (
-          <div className="flex items-center justify-center h-24">
-            <span className="text-muted-foreground">Choose board first</span>
-          </div>
-        ) : loading ? (
-          <div className="flex items-center justify-center h-24">
-            <span className="text-muted-foreground">Loading...</span>
-          </div>
-        ) : error ? (
-          <div className="flex items-center justify-center h-24 text-destructive">
-            Error: {error.message}
-          </div>
-        ) : (
-          pipelines?.map((pipeline) => (
-            <SelectPipelineCommandItem key={pipeline._id} pipeline={pipeline} />
-          ))
-        )}
-      </Command.List>
+      <Command.List>{renderContent()}</Command.List>
     </Command>
   );
 };
@@ -178,10 +205,13 @@ const SelectPipelineRoot = ({
 }) => {
   const [open, setOpen] = useState(false);
 
-  const handleValueChange = (value: string) => {
-    onValueChange?.(value);
-    setOpen(false);
-  };
+  const handleValueChange = useCallback(
+    (value: string) => {
+      onValueChange?.(value);
+      setOpen(false);
+    },
+    [onValueChange],
+  );
 
   return (
     <SelectPipelineProvider

@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useCallback,
+} from 'react';
 import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
 import {
   SelectTrigger,
@@ -49,22 +55,28 @@ export const SelectStageProvider = ({
     skip: !pipelineId,
   });
 
-  const handleValueChange = (stageId: string) => {
-    if (!stageId) return;
-    onValueChange?.(stageId);
-  };
+  const handleValueChange = useCallback(
+    (stageId: string) => {
+      if (!stageId) return;
+      onValueChange?.(stageId);
+    },
+    [onValueChange],
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      value: value || '',
+      onValueChange: handleValueChange,
+      stages,
+      loading,
+      error,
+      pipelineId,
+    }),
+    [value, handleValueChange, stages, loading, error, pipelineId],
+  );
 
   return (
-    <SelectStageContext.Provider
-      value={{
-        value: value || '',
-        onValueChange: handleValueChange,
-        stages,
-        loading,
-        error,
-        pipelineId,
-      }}
-    >
+    <SelectStageContext.Provider value={contextValue}>
       {children}
     </SelectStageContext.Provider>
   );
@@ -117,6 +129,28 @@ const SelectStageCommandItem = ({ stage }: { stage: IStage }) => {
 const SelectStageContent = () => {
   const { stages, pipelineId, loading, error } = useSelectStageContext();
 
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center h-24">
+          <span className="text-muted-foreground">Loading...</span>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="flex items-center justify-center h-24 text-destructive">
+          Error: {error.message}
+        </div>
+      );
+    }
+
+    return stages?.map((stage) => (
+      <SelectStageCommandItem key={stage._id} stage={stage} />
+    ));
+  };
+
   return (
     <Command>
       <Command.Input placeholder="Search stage" />
@@ -125,21 +159,7 @@ const SelectStageContent = () => {
           {pipelineId ? 'No stage found' : 'Pipeline not selected'}
         </span>
       </Command.Empty>
-      <Command.List>
-        {loading ? (
-          <div className="flex items-center justify-center h-24">
-            <span className="text-muted-foreground">Loading...</span>
-          </div>
-        ) : error ? (
-          <div className="flex items-center justify-center h-24 text-destructive">
-            Error: {error.message}
-          </div>
-        ) : (
-          stages?.map((stage) => (
-            <SelectStageCommandItem key={stage._id} stage={stage} />
-          ))
-        )}
-      </Command.List>
+      <Command.List>{renderContent()}</Command.List>
     </Command>
   );
 };
@@ -163,10 +183,13 @@ const SelectStageRoot = ({
 }) => {
   const [open, setOpen] = useState(false);
 
-  const handleValueChange = (value: string) => {
-    onValueChange?.(value);
-    setOpen(false);
-  };
+  const handleValueChange = useCallback(
+    (value: string) => {
+      onValueChange?.(value);
+      setOpen(false);
+    },
+    [onValueChange],
+  );
 
   return (
     <SelectStageProvider

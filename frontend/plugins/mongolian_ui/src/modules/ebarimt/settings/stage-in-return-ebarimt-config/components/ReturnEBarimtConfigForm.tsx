@@ -261,11 +261,13 @@ export const ReturnEbarimtConfigForm = () => {
   });
 
   const configValue = data?.configsGetValue?.value;
-  const parsedConfig = configValue
-    ? typeof configValue === 'string'
-      ? JSON.parse(configValue)
-      : configValue
-    : null;
+
+  const parseConfigValue = (value: any) => {
+    if (!value) return null;
+    return typeof value === 'string' ? JSON.parse(value) : value;
+  };
+
+  const parsedConfig = parseConfigValue(configValue);
 
   const handleSubmit = async (formData: ReturnEbarimtConfig) => {
     try {

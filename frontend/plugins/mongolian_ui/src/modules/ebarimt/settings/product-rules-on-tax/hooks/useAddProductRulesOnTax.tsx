@@ -27,7 +27,7 @@ export const useAddProductRulesOnTax = () => {
           query: GET_PRODUCT_RULES_ON_TAX,
           variables: PRODUCT_RULES_ROW_DEFAULT_VARIABLES,
         });
-        if (!existingData || !existingData.ebarimtProductRules) return;
+        if (!existingData?.ebarimtProductRules) return;
 
         cache.writeQuery({
           query: GET_PRODUCT_RULES_ON_TAX,

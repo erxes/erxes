@@ -57,13 +57,17 @@ export const usePutResponse = (options?: QueryHookOptions) => {
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
-        return Object.assign({}, prev, {
-          putResponses: mergeCursorData({
-            direction,
-            fetchMoreResult: fetchMoreResult.putResponses,
-            prevResult: prev.putResponses,
-          }),
-        });
+        return {
+          ...prev,
+          putResponses: {
+            ...mergeCursorData({
+              direction,
+              fetchMoreResult: fetchMoreResult.putResponses,
+              prevResult: prev.putResponses,
+            }),
+            totalCount: prev.putResponses.totalCount,
+          },
+        };
       },
     });
   };

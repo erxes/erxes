@@ -1,6 +1,5 @@
 import { useMutation } from '@apollo/client';
-import { useToast } from 'erxes-ui';
-import { useRecordTableCursor } from 'erxes-ui';
+import { useToast, useRecordTableCursor } from 'erxes-ui';
 import { STAGE_IN_EBARIMT_CONFIG_CURSOR_SESSION_KEY } from '@/ebarimt/settings/stage-in-ebarimt-config/constants';
 import { CREATE_STAGE_IN_EBARIMT_CONFIG } from '@/ebarimt/settings/stage-in-ebarimt-config/graphql/mutations/stageInEbarimtConfigMutations';
 

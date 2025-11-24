@@ -1,8 +1,22 @@
-import React, { createContext, useContext, useState } from 'react';
-import { cn, Combobox, Command, PopoverScoped, SelectTriggerVariant } from 'erxes-ui';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useCallback,
+} from 'react';
+import {
+  cn,
+  Combobox,
+  Command,
+  PopoverScoped,
+  SelectTriggerVariant,
+} from 'erxes-ui';
 import { useGetSalesBoards } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useGetSalesBoards';
-import { SelectContent, SelectTrigger } from '@/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectShared';
-
+import {
+  SelectContent,
+  SelectTrigger,
+} from '@/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectShared';
 
 interface IBoard {
   _id: string;
@@ -42,21 +56,27 @@ export const SelectSalesBoardProvider = ({
 }) => {
   const { boards, loading, error } = useGetSalesBoards();
 
-  const handleValueChange = (boardId: string) => {
-    if (!boardId) return;
-    onValueChange?.(boardId);
-  };
+  const handleValueChange = useCallback(
+    (boardId: string) => {
+      if (!boardId) return;
+      onValueChange?.(boardId);
+    },
+    [onValueChange],
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      value: value || '',
+      onValueChange: handleValueChange,
+      boards,
+      loading,
+      error,
+    }),
+    [value, handleValueChange, boards, loading, error],
+  );
 
   return (
-    <SelectSalesBoardContext.Provider
-      value={{
-        value: value || '',
-        onValueChange: handleValueChange,
-        boards,
-        loading,
-        error,
-      }}
-    >
+    <SelectSalesBoardContext.Provider value={contextValue}>
       {children}
     </SelectSalesBoardContext.Provider>
   );
@@ -109,27 +129,35 @@ const SelectSalesBoardCommandItem = ({ board }: { board: IBoard }) => {
 const SelectSalesBoardContent = () => {
   const { boards, loading, error } = useSelectSalesBoardContext();
 
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center h-24">
+          <span className="text-muted-foreground">Loading...</span>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="flex items-center justify-center h-24 text-destructive">
+          Error: {error.message}
+        </div>
+      );
+    }
+
+    return boards?.map((board) => (
+      <SelectSalesBoardCommandItem key={board._id} board={board} />
+    ));
+  };
+
   return (
     <Command>
       <Command.Input placeholder="Search board" />
       <Command.Empty>
         <span className="text-muted-foreground">No boards found</span>
       </Command.Empty>
-      <Command.List>
-        {loading ? (
-          <div className="flex items-center justify-center h-24">
-            <span className="text-muted-foreground">Loading...</span>
-          </div>
-        ) : error ? (
-          <div className="flex items-center justify-center h-24 text-destructive">
-            Error: {error.message}
-          </div>
-        ) : (
-          boards?.map((board) => (
-            <SelectSalesBoardCommandItem key={board._id} board={board} />
-          ))
-        )}
-      </Command.List>
+      <Command.List>{renderContent()}</Command.List>
     </Command>
   );
 };
@@ -149,10 +177,13 @@ const SelectSalesBoardRoot = ({
 }) => {
   const [open, setOpen] = useState(false);
 
-  const handleValueChange = (value: string) => {
-    onValueChange?.(value);
-    setOpen(false);
-  };
+  const handleValueChange = useCallback(
+    (value: string) => {
+      onValueChange?.(value);
+      setOpen(false);
+    },
+    [onValueChange],
+  );
 
   return (
     <SelectSalesBoardProvider value={value} onValueChange={handleValueChange}>

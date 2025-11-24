@@ -1,5 +1,20 @@
 import { IAttachment } from 'erxes-ui';
 
+export interface IUser {
+  _id: string;
+  email?: string;
+  username?: string;
+  details?: {
+    avatar?: IAttachment;
+    fullName?: string;
+    position?: string;
+  };
+  isActive?: boolean;
+  role?: string;
+  createdAt?: string;
+  modifiedAt?: string;
+}
+
 export interface IByDateItem {
   _id: string;
   name: string;
@@ -56,7 +71,7 @@ export interface IByDate {
   createdAt: string;
   modifiedAt: string;
   userId: string | null;
-  user: any | null;
+  user: IUser | null;
   id: string;
   posId: number;
   status: string;

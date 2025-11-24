@@ -1,10 +1,38 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
-
 import { duplicatedRemoveMutation } from '@/duplicated/detail/graphql/mutations/DuplicatedRemoveMutations';
 import { duplicatedQueries } from '@/duplicated/graphql/DuplicatedQueries';
 import { IDuplicated } from '@/duplicated/types/DuplicatedType';
 
 const DUPLICATED_PAGE_SIZE = 30;
+
+const updateCacheAfterRemove = (cache: any, duplicatedIds: string[]) => {
+  try {
+    cache.updateQuery(
+      {
+        query: duplicatedQueries.putResponsesDuplicated,
+        variables: { perPage: DUPLICATED_PAGE_SIZE },
+      },
+      ({ putResponsesDuplicated }: { putResponsesDuplicated: any }) => {
+        const newList = putResponsesDuplicated.list.filter(
+          (duplicated: IDuplicated) => !duplicatedIds.includes(duplicated._id),
+        );
+
+        return {
+          putResponsesDuplicated: {
+            ...putResponsesDuplicated,
+            list: newList,
+            totalCount: Math.max(
+              0,
+              putResponsesDuplicated.totalCount - duplicatedIds.length,
+            ),
+          },
+        };
+      },
+    );
+  } catch (e) {
+    console.error('Cache update failed:', e);
+  }
+};
 
 export const useRemoveDuplicated = () => {
   const [_removeDuplicated, { loading }] = useMutation(
@@ -18,31 +46,7 @@ export const useRemoveDuplicated = () => {
     _removeDuplicated({
       ...options,
       variables: { duplicatedIds, ...options?.variables },
-      update: (cache) => {
-        try {
-          cache.updateQuery(
-            {
-              query: duplicatedQueries.putResponsesDuplicated,
-              variables: { perPage: DUPLICATED_PAGE_SIZE },
-            },
-            ({ putResponsesDuplicated }) => ({
-              putResponsesDuplicated: {
-                ...putResponsesDuplicated,
-                list: putResponsesDuplicated.list.filter(
-                  (duplicated: IDuplicated) =>
-                    !duplicatedIds.includes(duplicated._id),
-                ),
-                totalCount: Math.max(
-                  0,
-                  putResponsesDuplicated.totalCount - duplicatedIds.length,
-                ),
-              },
-            }),
-          );
-        } catch (e) {
-          console.error('Cache update failed:', e);
-        }
-      },
+      update: (cache) => updateCacheAfterRemove(cache, duplicatedIds),
     });
   };
 

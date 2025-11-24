@@ -241,7 +241,7 @@ export const NewConfigForm = ({
                   <Form.Control>
                     <Input
                       type="text"
-                      placeholder="Enter company name"
+                      placeholder="Enter district code"
                       className="h-8"
                       {...field}
                     />
@@ -281,7 +281,7 @@ export const NewConfigForm = ({
                 <Form.Control>
                   <Input
                     type="text"
-                    placeholder="Enter company name"
+                    placeholder="Enter default united code"
                     className="h-8"
                     {...field}
                   />
@@ -300,7 +300,7 @@ export const NewConfigForm = ({
                 <Form.Message />
                 <Form.Control>
                   <Textarea
-                    placeholder="Enter company name"
+                    placeholder="Enter header text"
                     className="min-h-[80px]"
                     {...field}
                   />
@@ -319,7 +319,7 @@ export const NewConfigForm = ({
                 <Form.Control>
                   <Input
                     type="text"
-                    placeholder="Enter company name"
+                    placeholder="Enter branch number"
                     className="h-8"
                     {...field}
                   />
@@ -338,7 +338,7 @@ export const NewConfigForm = ({
                 <Form.Message />
                 <Form.Control>
                   <Textarea
-                    placeholder="Enter company name"
+                    placeholder="Enter footer text"
                     className="min-h-[80px]"
                     {...field}
                   />

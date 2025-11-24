@@ -31,9 +31,9 @@ export const ProductRulesOnTaxForm = ({
         return;
       }
 
-      const numericValue = parseFloat(cleanedValue);
+      const numericValue = Number.parseFloat(cleanedValue);
 
-      if (!isNaN(numericValue)) {
+      if (!Number.isNaN(numericValue)) {
         onChange(numericValue);
       }
     },

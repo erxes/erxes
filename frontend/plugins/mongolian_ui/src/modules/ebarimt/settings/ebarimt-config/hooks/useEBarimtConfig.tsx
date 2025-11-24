@@ -1,11 +1,10 @@
 import { useQuery, useMutation } from '@apollo/client';
 import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
-
-import { EBarimtFormData } from '@/ebarimt/settings/ebarimt-config/types/ebarimtConfigTypes';
 import {
   FIELD_GROUP_OPTIONS,
   getFieldDependentOptions,
+  EBarimtFormData,
 } from '@/ebarimt/settings/ebarimt-config/types/ebarimtConfigTypes';
 import { useToast } from 'erxes-ui';
 import { UPDATE_EBARIMT_CONFIG } from '@/ebarimt/settings/ebarimt-config/graphql/mutations/ebarimtConfigMutations';
@@ -21,7 +20,7 @@ export const DEFAULT_VALUES: EBarimtFormData = {
   CompanyNameResponse: 'empty',
 };
 
-const toFormValue = (val?: string) => (val ? val : 'empty');
+const toFormValue = (val?: string) => val || 'empty';
 const toBackendValue = (val: string) => (val === 'empty' ? '' : val);
 
 export const useEBarimtConfig = () => {
@@ -60,19 +59,11 @@ export const useEBarimtConfig = () => {
   const handleFieldGroupChange = (value: string) => {
     setSelectedFieldGroup(value);
 
-    if (value === 'empty') {
-      form.setValue('BillTypeChooser', 'empty');
-      form.setValue('RegNoInput', 'empty');
-      form.setValue('CompanyNameResponse', 'empty');
-    } else if (value === 'basic') {
-      form.setValue('BillTypeChooser', 'description');
-      form.setValue('RegNoInput', 'empty');
-      form.setValue('CompanyNameResponse', 'empty');
-    } else if (value === 'relations') {
-      form.setValue('BillTypeChooser', 'empty');
-      form.setValue('RegNoInput', 'empty');
-      form.setValue('CompanyNameResponse', 'empty');
-    }
+    const billType = value === 'basic' ? 'description' : 'empty';
+
+    form.setValue('BillTypeChooser', billType);
+    form.setValue('RegNoInput', 'empty');
+    form.setValue('CompanyNameResponse', 'empty');
   };
 
   const handleUpdate = async (formData: EBarimtFormData) => {

@@ -22,6 +22,13 @@ export const EBarimtMainSettingsForm = () => {
 
   const billTypeValue = form.watch('BillTypeChooser');
 
+  const billTypePlaceholder = (() => {
+    if (isFieldGroupEmpty) return 'Choose Field Group first';
+    if (isFieldGroupBasic && billTypeValue === 'description')
+      return 'Description';
+    return 'Select bill type';
+  })();
+
   useEffect(() => {
     console.log('Current FieldGroup:', selectedFieldGroup);
     console.log('Current BillTypeChooser:', billTypeValue);
@@ -145,16 +152,7 @@ export const EBarimtMainSettingsForm = () => {
                     }}
                   >
                     <Select.Trigger>
-                      <Select.Value
-                        placeholder={
-                          isFieldGroupEmpty
-                            ? 'Choose Field Group first'
-                            : isFieldGroupBasic &&
-                              billTypeValue === 'description'
-                            ? 'Description'
-                            : 'Select bill type'
-                        }
-                      />
+                      <Select.Value placeholder={billTypePlaceholder} />
                     </Select.Trigger>
                     <Select.Content>
                       {getDependentOptions('BillTypeChooser').map((option) => (
