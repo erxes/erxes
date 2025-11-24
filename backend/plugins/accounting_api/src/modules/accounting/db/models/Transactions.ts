@@ -5,8 +5,7 @@ import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { PTR_STATUSES, TR_SIDES } from '../../@types/constants';
 import { ITransaction, ITransactionDocument } from '../../@types/transaction';
-import { commonCreate } from '../../utils/commonCreate';
-import { commonUpdate } from '../../utils/commonUpdate';
+import { commonSave } from '../../utils/commonSave';
 import { transactionSchema } from '../definitions/transaction';
 import { setPtrStatus } from './utils';
 
@@ -133,7 +132,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
           }
 
           if (!parentId) {
-            const firstTrs = await commonCreate(subdomain, models, { ...doc, ptrId });
+            const firstTrs = await commonSave(subdomain, models, { ...doc, ptrId });
             parentId = firstTrs.mainTr.parentId;
             transactions.push(firstTrs.mainTr);
             if (firstTrs.otherTrs?.length) {
@@ -142,7 +141,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
               }
             }
           } else {
-            const trs = await commonCreate(subdomain, models, { ...doc, ptrId, parentId });
+            const trs = await commonSave(subdomain, models, { ...doc, ptrId, parentId });
             transactions.push(trs.mainTr);
             if (trs.otherTrs?.length) {
               for (const otherTr of trs.otherTrs) {
@@ -208,7 +207,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       session.startTransaction();
       try {
         for (const doc of editTrDocs) {
-          const trs = await commonUpdate(subdomain, models, { ...doc, ptrId, parentId }, oldTrs.find(ot => ot._id === doc._id));
+          const trs = await commonSave(subdomain, models, { ...doc, ptrId, parentId }, oldTrs.find(ot => ot._id === doc._id));
           transactions.push(trs.mainTr);
           if (trs.otherTrs?.length) {
             for (const otherTr of trs.otherTrs) {
@@ -218,7 +217,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
         }
 
         for (const doc of addTrDocs) {
-          const trs = await commonCreate(subdomain, models, { ...doc, ptrId, parentId })
+          const trs = await commonSave(subdomain, models, { ...doc, ptrId, parentId })
           transactions.push(trs.mainTr);
           if (trs.otherTrs?.length) {
             for (const otherTr of trs.otherTrs) {
@@ -228,7 +227,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
         }
 
         for (const tr of deleteTrs) {
-          await models.Transactions.deleteMany({ $or: [{ _id: tr._id }, { _id: { $in: (tr.follows || []).map(tr => tr.id) } }] });
+          await models.Transactions.deleteMany({ $or: [{ _id: tr._id }, { originId: tr._id }] });
         }
 
         await setPtrStatus(models, transactions);
@@ -268,7 +267,6 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       await models.Transactions.deleteMany({
         $or: [
           { _id },
-          { _id: { $in: (transaction.follows || []).map(tr => tr.id) } },
           { originId: _id }
         ]
       });

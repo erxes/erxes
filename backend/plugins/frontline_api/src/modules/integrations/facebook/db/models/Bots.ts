@@ -3,9 +3,12 @@ import { IFacebookBotDocument, facebookBotSchema } from '../definitions/bots';
 import {
   getPageAccessToken,
   graphRequest,
-} from '~/modules/integrations/facebook/utils';
+} from '@/integrations/facebook/utils';
 import { IModels } from '~/connectionResolvers';
-import { BOT_SUBSCRIBE_FIELDS } from '~/modules/integrations/facebook/constants';
+import {
+  BOT_SUBSCRIBE_FIELDS,
+  SUBSCRIBED_FIELDS,
+} from '@/integrations/facebook/constants';
 
 const validateDoc = async (models: IModels, doc: any, isUpdate?: boolean) => {
   if (!doc.name) {
@@ -250,7 +253,7 @@ export const loadFacebookBotClass = (models: IModels) => {
       }
 
       await graphRequest.post('/me/subscribed_apps', pageAccessToken, {
-        subscribed_fields: BOT_SUBSCRIBE_FIELDS,
+        subscribed_fields: ['messages', ...BOT_SUBSCRIBE_FIELDS],
       });
 
       let doc: any = {

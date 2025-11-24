@@ -1,5 +1,5 @@
 import { IAttachment } from 'erxes-ui';
-import { ICustomerInline } from 'ui-modules';
+import { ICustomerInline, IUser } from 'ui-modules';
 import { IFormWidgetItem } from './FormWidget';
 
 export interface IConversation {
@@ -10,9 +10,9 @@ export interface IConversation {
   customer: ICustomerInline;
   customerId?: string;
   integrationId?: string;
-  brandId?: string;
   readUserIds?: string[];
   assignedUserId?: string;
+  assignedUser?: IUser;
   tagIds?: string[];
   status?: ConversationStatus;
 }

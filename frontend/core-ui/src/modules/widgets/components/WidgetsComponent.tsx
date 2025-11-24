@@ -1,8 +1,13 @@
-import { RelationWidgetProps } from 'ui-modules';
+import { IRelationWidgetProps } from 'ui-modules';
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
+import { CoreWidgets } from '../core-widgets/CoreWidgets';
 
-export const WidgetsComponent = (props: RelationWidgetProps) => {
-  const { pluginName } = props;
+export const WidgetsComponent = (props: IRelationWidgetProps) => {
+  const { module, pluginName } = props;
+
+  if (pluginName === 'core') {
+    return <CoreWidgets {...props} />;
+  }
 
   return (
     <RenderPluginsComponent

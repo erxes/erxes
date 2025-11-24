@@ -15,9 +15,9 @@ import { integrationSchema } from '@/inbox/db/definitions/integrations';
 export interface IMessengerIntegration {
   kind: string;
   name: string;
-  brandId: string;
+  integrationId: string;
   languageCode: string;
-  channelIds?: string[];
+  channelId: string;
 }
 
 export interface IExternalIntegrationParams {
@@ -25,7 +25,7 @@ export interface IExternalIntegrationParams {
   name: string;
   brandId: string;
   accountId: string;
-  channelIds?: string[];
+  channelId: string;
 }
 
 interface IIntegrationBasicInfo {
@@ -101,11 +101,15 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   ): Promise<IIntegrationDocument>;
   integrationsSaveMessengerTicketData(
     _id: string,
-    doc: ITicketData,
+    configId: string,
   ): Promise<IIntegrationDocument>;
   saveMessengerAppearanceData(
     _id: string,
     doc: IUiOptions,
+  ): Promise<IIntegrationDocument>;
+  saveMessengerColorTheme(
+    _id: string,
+    colorTheme: any,
   ): Promise<IIntegrationDocument>;
   saveMessengerConfigs(
     _id: string,
@@ -255,14 +259,17 @@ export const loadClass = (models: IModels, subdomain: string) => {
     ) {
       const integration = await models.Integrations.findOne({
         kind: 'messenger',
-        brandId: doc.brandId,
+        _id: doc.integrationId,
       });
 
       if (integration) {
-        throw new Error('Duplicated messenger for single brand');
+        throw new Error('Duplicated messenger');
       }
 
-      return this.createIntegration({ ...doc, kind: 'messenger' }, userId);
+      return this.createIntegration(
+        { ...doc, kind: 'messenger', channelId: doc.channelId || '' },
+        userId,
+      );
     }
 
     /**
@@ -272,16 +279,6 @@ export const loadClass = (models: IModels, subdomain: string) => {
       _id: string,
       doc: IMessengerIntegration,
     ) {
-      const integration = await models.Integrations.findOne({
-        _id: { $ne: _id },
-        kind: 'messenger',
-        brandId: doc.brandId,
-      });
-
-      if (integration) {
-        throw new Error('Duplicated messenger for single brand');
-      }
-
       await models.Integrations.updateOne(
         { _id },
         { $set: doc },
@@ -293,25 +290,23 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
     public static async integrationsSaveMessengerTicketData(
       _id: string,
-      {
-        ticketLabel,
-        ticketToggle,
-        ticketStageId,
-        ticketPipelineId,
-        ticketBoardId,
-      }: ITicketData,
+      configId: string,
     ) {
+      const integration = await models.Integrations.findOne({
+        _id: _id,
+      });
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
+      const config = await models.TicketConfig.findOne({ _id: configId });
+      if (!config) {
+        throw new Error('Config not found');
+      }
       const result = await models.Integrations.updateOne(
         { _id },
         {
           $set: {
-            ticketData: {
-              ticketLabel,
-              ticketToggle,
-              ticketStageId,
-              ticketPipelineId,
-              ticketBoardId,
-            },
+            ticketConfigId: configId,
           },
         },
         { runValidators: true },
@@ -329,11 +324,24 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async saveMessengerAppearanceData(
       _id: string,
-      { color, wallpaper, logo, textColor }: IUiOptions,
+      { logo, primary }: IUiOptions,
     ) {
       await models.Integrations.updateOne(
         { _id },
-        { $set: { uiOptions: { color, wallpaper, logo, textColor } } },
+        { $set: { uiOptions: { logo, primary } } },
+        { runValidators: true },
+      );
+
+      return models.Integrations.findOne({ _id });
+    }
+
+    /**
+     * Save messenger color theme data
+     */
+    public static async saveMessengerColorTheme(_id: string, colorTheme: any) {
+      await models.Integrations.updateOne(
+        { _id },
+        { $set: { uiOptions: colorTheme } },
         { runValidators: true },
       );
 
@@ -370,7 +378,10 @@ export const loadClass = (models: IModels, subdomain: string) => {
       doc: IExternalIntegrationParams,
       userId: string,
     ): Promise<IIntegrationDocument> {
-      return models.Integrations.createIntegration(doc, userId);
+      return models.Integrations.createIntegration(
+        { ...doc, channelId: doc.channelId || '' },
+        userId,
+      );
     }
 
     /**

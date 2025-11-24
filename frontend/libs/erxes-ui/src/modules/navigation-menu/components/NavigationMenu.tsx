@@ -1,8 +1,9 @@
-import { IconCaretRightFilled } from '@tabler/icons-react';
 import { Collapsible, Sidebar } from 'erxes-ui/components';
+import { Link, useLocation } from 'react-router-dom';
+
+import { IconCaretRightFilled } from '@tabler/icons-react';
 import { cn } from 'erxes-ui/lib';
 import { forwardRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
 
 export const NavigationMenuLinkItem = forwardRef<
   React.ElementRef<typeof Sidebar.MenuButton>,
@@ -11,6 +12,7 @@ export const NavigationMenuLinkItem = forwardRef<
     icon?: React.ElementType;
     path: string;
     pathPrefix?: string;
+    isActive?: boolean;
   }
 >(
   (
@@ -21,6 +23,7 @@ export const NavigationMenuLinkItem = forwardRef<
       pathPrefix,
       children,
       className,
+      isActive: isActiveProp,
       ...props
     },
     ref,
@@ -33,7 +36,7 @@ export const NavigationMenuLinkItem = forwardRef<
       <Sidebar.MenuItem>
         <Sidebar.MenuButton
           asChild
-          isActive={isActive}
+          isActive={isActiveProp ? isActiveProp : isActive}
           ref={ref}
           className={className}
           {...props}
@@ -102,30 +105,44 @@ export const NavigationMenuGroup = forwardRef<
     children: React.ReactNode;
     separate?: boolean;
     defaultOpen?: boolean;
+    actions?: React.ReactNode;
   }
->(({ name, children, separate = true, defaultOpen = true, ...props }, ref) => {
-  return (
-    <>
-      {separate && <Sidebar.Separator />}
-      <Collapsible defaultOpen={defaultOpen} className="group/collapsible-menu">
-        <Sidebar.Group {...props} ref={ref}>
-          <Sidebar.GroupLabel asChild>
-            <Collapsible.Trigger className="flex items-center gap-2">
-              <IconCaretRightFilled className="size-3.5 transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
-              <span className="font-sans text-xs font-semibold normal-case">
-                {name}
-              </span>
-            </Collapsible.Trigger>
-          </Sidebar.GroupLabel>
-          <Collapsible.Content>
-            <Sidebar.GroupContent className="pt-2">
-              <Sidebar.Menu>{children}</Sidebar.Menu>
-            </Sidebar.GroupContent>
-          </Collapsible.Content>
-        </Sidebar.Group>
-      </Collapsible>
-    </>
-  );
-});
+>(
+  (
+    { name, children, separate = true, defaultOpen = true, actions, ...props },
+    ref,
+  ) => {
+    return (
+      <>
+        {separate && <Sidebar.Separator />}
+        <Collapsible
+          defaultOpen={defaultOpen}
+          className="group/collapsible-menu"
+        >
+          <Sidebar.Group {...props} ref={ref}>
+            <Sidebar.GroupLabel asChild>
+              <Collapsible.Trigger className="group/collapsible-trigger flex items-center gap-2">
+                <IconCaretRightFilled className="size-3.5 transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
+                <span className="font-sans text-xs font-semibold normal-case">
+                  {name}
+                </span>
+                {actions && (
+                  <div className="ml-auto invisible group-hover/collapsible-trigger:visible hover:[&_button]:bg-transparent hover:[&_button]:text-foreground focus-visible:[&_button]:outline-hidden focus-visible:[&_button]:ring-0">
+                    {actions}
+                  </div>
+                )}
+              </Collapsible.Trigger>
+            </Sidebar.GroupLabel>
+            <Collapsible.Content>
+              <Sidebar.GroupContent className="pt-2">
+                <Sidebar.Menu>{children}</Sidebar.Menu>
+              </Sidebar.GroupContent>
+            </Collapsible.Content>
+          </Sidebar.Group>
+        </Collapsible>
+      </>
+    );
+  },
+);
 
 NavigationMenuGroup.displayName = 'NavigationMenuGroup';

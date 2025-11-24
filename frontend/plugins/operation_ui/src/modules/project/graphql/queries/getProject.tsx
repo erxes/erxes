@@ -10,12 +10,14 @@ export const GET_PROJECT = gql`
       status
       priority
       teamIds
+      tagIds
       leadId
       startDate
       targetDate
       createdBy
       createdAt
       updatedAt
+      convertedFromId
     }
   }
 `;

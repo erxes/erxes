@@ -2,10 +2,11 @@ import {
   checkPermission,
   requireLogin,
 } from 'erxes-api-shared/core-modules';
+import { Resolver } from 'erxes-api-shared/core-types';
 
 import { IContext } from '~/connectionResolvers';
 
-const mutations = {
+const mutations: Record<string, Resolver> = {
   /**
    * Cms post add
    */
@@ -14,13 +15,9 @@ const mutations = {
     args: any,
     context: IContext,
   ): Promise<any> => {
-    const { models, user, clientPortalId } = context;
+    const { models, user } = context;
     const { input } = args;
     input.authorId = user._id;
-
-    if (clientPortalId) {
-      input.clientPortalId = clientPortalId;
-    }
 
     return models.Posts.createPost(input);
   },
@@ -50,7 +47,7 @@ const mutations = {
     const { models } = context;
     const { _id } = args;
 
-    await models.PostTranslations.deleteMany({ postId: _id });
+    await models.Translations.deleteMany({ postId: _id });
     return models.Posts.deleteOne({ _id });
   },
 
@@ -71,7 +68,7 @@ const mutations = {
   /**
    * Cms post increment view count
    */
-  cmsPostsIncrementViewCount: async (
+  cpPostsIncrementViewCount: async (
     _parent: any,
     args: any,
     context: IContext,
@@ -106,7 +103,7 @@ const mutations = {
     return models.Posts.toggleFeatured(_id);
   },
 
-  cmsPostsAddTranslation: async (
+  cmsAddTranslation: async (
     _parent: any,
     args: any,
     context: IContext,
@@ -117,25 +114,25 @@ const mutations = {
     if (!post) {
       throw new Error('Post not found');
     }
-    return models.PostTranslations.createPostTranslation(input);
+    return models.Translations.createTranslation(input);
   },
 
-  cmsPostsEditTranslation: async (
+  cmsEditTranslation: async (
     _parent: any,
     args: any,
     context: IContext,
   ): Promise<any> => {
     const { models } = context;
     const { input } = args;
-    const translation = await models.PostTranslations.findOne({
+    const translation = await models.Translations.findOne({
       language: input.language,
       postId: input.postId,
     });
     if (!translation) {
-      return models.PostTranslations.createPostTranslation(input);
+      return models.Translations.createTranslation(input);
     }
 
-    return models.PostTranslations.updatePostTranslation(
+    return models.Translations.updateTranslation(
       translation._id,
       input,
     );
@@ -153,5 +150,9 @@ checkPermission(mutations, 'cmsPostsEdit', 'manageCms', []);
 checkPermission(mutations, 'cmsPostsRemove', 'manageCms', []);
 checkPermission(mutations, 'cmsPostsChangeStatus', 'manageCms', []);
 checkPermission(mutations, 'cmsPostsToggleFeatured', 'manageCms', []);
+
+mutations.cpPostsIncrementViewCount.wrapperConfig = {
+  forClientPortal: true,
+};
 
 export default mutations;

@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv';
+
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -27,14 +29,28 @@ import {
 import * as fs from 'fs';
 import * as path from 'path';
 
+dotenv.config();
+
 const port = process.env.PORT ? Number(process.env.PORT) : 4000;
-const { DOMAIN } = process.env;
+const { DOMAIN, WIDGETS_DOMAIN, ALLOWED_ORIGINS, ALLOWED_DOMAINS } =
+  process.env;
 
 const corsOptions = {
   credentials: true,
   origin: [
-    ...(DOMAIN ? [DOMAIN] : []),
-    ...(isDev ? ['http://localhost:3001','http://localhost:5173'] : []),
+    DOMAIN ? DOMAIN : 'http://localhost:3000',
+    WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
+    ...(ALLOWED_DOMAINS || '').split(','),
+    'https://studio.apollographql.com',
+    ...(ALLOWED_ORIGINS || '').split(',').map((c) => c && RegExp(c)),
+
+    ...(isDev
+      ? [
+          'http://localhost:3001',
+          'http://localhost:5173',
+          'http://localhost:4200',
+        ]
+      : []),
   ],
 };
 
@@ -80,14 +96,14 @@ app.get('/locales/:lng', async (req, res) => {
 app.use('/pl:serviceName', async (req, res) => {
   try {
     const serviceName: string = req.params.serviceName.replace(':', '');
-    const path = req.path;
+    // const path = req.path;
 
-    // Forbid access to trpc endpoints
-    if (path.startsWith('/trpc')) {
-      return res.status(403).json({
-        error: 'Access to trpc endpoints through plugin proxy is forbidden',
-      });
-    }
+    // // Forbid access to trpc endpoints
+    // if (path.startsWith('/trpc')) {
+    //   return res.status(403).json({
+    //     error: 'Access to trpc endpoints through plugin proxy is forbidden',
+    //   });
+    // }
 
     const service = await getPlugin(serviceName);
 

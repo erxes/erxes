@@ -1,6 +1,6 @@
 import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { IContext, IModels } from '~/connectionResolvers';
-import { IAdjustInventory, ADJ_INV_STATUSES, IAdjustInventoryDocument } from '@/accounting/@types/adjustInventory';
+import { IContext } from '~/connectionResolvers';
+import { IAdjustInventory, ADJ_INV_STATUSES } from '@/accounting/@types/adjustInventory';
 import { detailsClear, adjustRunning, checkValidDate, modifierWrapper } from '../../../utils/inventories';
 
 const adjustInventoryMutations = {

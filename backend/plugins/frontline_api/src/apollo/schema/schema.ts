@@ -3,7 +3,7 @@ import {
   mutations as ChannelsMutations,
   queries as ChannelsQueries,
   types as ChannelsTypes,
-} from '@/inbox/graphql/schemas/channel';
+} from '@/channel/graphql/schemas/channel';
 
 import {
   mutations as ConversationsMutations,
@@ -35,6 +35,45 @@ import {
   types as ImapTypes,
 } from '@/integrations/imap/graphql/schema/imap';
 
+import {
+  mutations as PipelineMutations,
+  queries as PipelineQuery,
+  types as PipelineTypes,
+} from '@/ticket/graphql/schemas/pipeline';
+
+import {
+  mutations as StatusMutations,
+  queries as StatusQuery,
+  types as StatusTypes,
+} from '@/ticket/graphql/schemas/status';
+import {
+  mutations as TicketMutations,
+  queries as TicketQuery,
+  types as TicketTypes,
+} from '@/ticket/graphql/schemas/ticket';
+
+import {
+  queries as WidgetQueries,
+  types as WidgetTypes,
+  mutations as WidgetMutations,
+} from '~/modules/inbox/graphql/schemas/widget';
+
+import {
+  queries as ActivityQueries,
+  types as ActivityTypes,
+} from '@/ticket/graphql/schemas/activity';
+
+import {
+  mutations as NoteMutations,
+  queries as NoteQueries,
+  types as NoteTypes,
+} from '@/ticket/graphql/schemas/note';
+import {
+  mutations as TicketConfigMutations,
+  queries as TicketConfigQueries,
+  types as TicketConfigTypes,
+} from '@/ticket/graphql/schemas/ticketConfig';
+
 export const types = `
     ${ChannelsTypes}
     ${ConversationsTypes}
@@ -42,6 +81,13 @@ export const types = `
     ${FacebookTypes}
     ${CallTypes}
     ${ImapTypes}
+    ${PipelineTypes}
+    ${StatusTypes}
+    ${TicketTypes}
+    ${WidgetTypes}
+    ${ActivityTypes}
+    ${NoteTypes}
+    ${TicketConfigTypes}
   `;
 export const queries = `
     ${ChannelsQueries}
@@ -50,6 +96,13 @@ export const queries = `
     ${FacebookQueries}
     ${CallQueries}
     ${ImapQueries}
+    ${PipelineQuery}
+    ${StatusQuery}
+    ${TicketQuery}
+    ${WidgetQueries}
+    ${ActivityQueries}
+    ${NoteQueries}
+    ${TicketConfigQueries}
   `;
 
 export const mutations = `
@@ -59,5 +112,11 @@ export const mutations = `
    ${FacebookMutations}
    ${CallMutations}
    ${ImapMutations}
+   ${PipelineMutations}
+   ${StatusMutations}
+   ${TicketMutations}
+   ${WidgetMutations}
+   ${NoteMutations}
+   ${TicketConfigMutations}
 `;
 export default { types, queries, mutations };

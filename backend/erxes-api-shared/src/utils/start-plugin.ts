@@ -18,16 +18,14 @@ import { DocumentNode, GraphQLScalarType } from 'graphql';
 import * as http from 'http';
 import * as path from 'path';
 
-import { AnyRouter } from '@trpc/server/unstable-core-do-not-import';
-import rateLimit from 'express-rate-limit';
+import { startPayments } from '../common-modules/payment/worker';
 import {
   SegmentConfigs,
   startAutomations,
-  startSegments,
+  initSegmentProducers,
 } from '../core-modules';
 import { AutomationConfigs } from '../core-modules/automations/types';
-import { generateApolloContext } from './apollo';
-import { wrapApolloMutations } from './apollo/wrapperMutations';
+import { generateApolloContext, wrapApolloResolvers } from './apollo';
 import { extractUserFromHeader } from './headers';
 import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
 import { closeMongooose } from './mongo';
@@ -38,7 +36,6 @@ import {
 } from './service-discovery';
 import { createTRPCContext } from './trpc';
 import { getSubdomain } from './utils';
-import { startPayments } from '../common-modules/payment/worker';
 
 dotenv.config();
 
@@ -248,12 +245,7 @@ export async function startPlugin(
       schema: buildSubgraphSchema([
         {
           typeDefs,
-          resolvers: {
-            ...resolvers,
-            Mutation: wrapApolloMutations(
-              (resolvers?.Mutation || {}) as ResolverObject,
-            ),
-          },
+          resolvers: wrapApolloResolvers(resolvers as any),
         },
       ]),
 
@@ -290,15 +282,15 @@ export async function startPlugin(
     } = configs.meta || {};
 
     if (automations) {
-      await startAutomations(configs.name, automations);
+      await startAutomations(app, configs.name, automations);
     }
 
     if (segments) {
-      await startSegments(configs.name, segments);
+      await initSegmentProducers(app, configs.name, segments);
     }
 
     if (afterProcess) {
-      await startAfterProcess(configs.name, afterProcess);
+      await startAfterProcess(app, configs.name, afterProcess);
     }
 
     if (notificationModules) {

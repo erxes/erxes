@@ -1,20 +1,20 @@
-import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_TASKS } from '@/task/graphql/queries/getTasks';
+import { TASK_LIST_CHANGED } from '@/task/graphql/subscriptions/taskListChanged';
 import { ITask } from '@/task/types';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
-  mergeCursorData,
-  validateFetchMore,
   EnumCursorDirection,
   ICursorListResponse,
-  useToast,
   isUndefinedOrNull,
+  mergeCursorData,
   useNonNullMultiQueryState,
+  useToast,
+  validateFetchMore,
 } from 'erxes-ui';
-import { useParams } from 'react-router-dom';
-import { currentUserState } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
-import { TASK_LIST_CHANGED } from '@/task/graphql/subscriptions/taskListChanged';
+import { useParams } from 'react-router-dom';
+import { currentUserState } from 'ui-modules';
 
 const TASKS_PER_PAGE = 30;
 
@@ -29,14 +29,70 @@ export const useTasksVariables = (
   variables?: QueryHookOptions<ICursorListResponse<ITask>>['variables'],
 ) => {
   const { teamId } = useParams();
-  const { searchValue, assignee, team, priority, status } =
-    useNonNullMultiQueryState<{
-      searchValue: string;
-      assignee: string;
-      team: string;
-      priority: string;
-      status: string;
-    }>(['searchValue', 'assignee', 'team', 'priority', 'status']);
+  const {
+    searchValue,
+    assignee,
+    team,
+    priority,
+    status,
+    milestone,
+    tags,
+    cycleFilter,
+    createdBy,
+    estimatePoint,
+    targetDate,
+    createdDate,
+    updatedDate,
+    startDate,
+    completedDate,
+    project,
+    projectStatus,
+    projectPriority,
+    projectLeadId,
+    projectMilestoneName,
+  } = useNonNullMultiQueryState<{
+    searchValue: string;
+    assignee: string;
+    createdBy: string;
+    team: string;
+    priority: string;
+    status: string;
+    milestone: string;
+    tags: string[];
+    cycleFilter: string;
+    estimatePoint: number;
+    targetDate: string;
+    createdDate: string;
+    updatedDate: string;
+    startDate: string;
+    completedDate: string;
+    project: string;
+    projectStatus: string;
+    projectPriority: string;
+    projectLeadId: string;
+    projectMilestoneName: string;
+  }>([
+    'searchValue',
+    'assignee',
+    'team',
+    'priority',
+    'status',
+    'milestone',
+    'tags',
+    'cycleFilter',
+    'createdBy',
+    'estimatePoint',
+    'targetDate',
+    'createdDate',
+    'updatedDate',
+    'startDate',
+    'completedDate',
+    'project',
+    'projectStatus',
+    'projectPriority',
+    'projectLeadId',
+    'projectMilestoneName',
+  ]);
   const currentUser = useAtomValue(currentUserState);
 
   return {
@@ -48,13 +104,29 @@ export const useTasksVariables = (
     direction: 'forward',
     name: searchValue,
     assigneeId: assignee,
+    createdBy: createdBy,
     teamId: teamId || team,
     priority: priority,
     status: teamId ? status : undefined,
     statusType: teamId ? undefined : status,
+    milestoneId: milestone,
+    tagIds: tags,
+    cycleFilter: cycleFilter,
+    estimatePoint: estimatePoint,
+    targetDate: targetDate,
+    createdDate: createdDate,
+    updatedDate: updatedDate,
+    startDate: startDate,
+    completedDate: completedDate,
+    projectId: project,
+    projectStatus: projectStatus ? Number(projectStatus) : undefined,
+    projectPriority: projectPriority ? Number(projectPriority) : undefined,
+    projectLeadId: projectLeadId,
+    projectMilestoneName: projectMilestoneName,
     ...variables,
     ...(!variables?.teamId &&
       !variables?.userId &&
+      !variables?.createdBy &&
       !assignee &&
       currentUser?._id && {
         userId: currentUser._id,

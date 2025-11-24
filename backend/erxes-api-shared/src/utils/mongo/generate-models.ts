@@ -21,10 +21,7 @@ const initializeModels = async <IModels>(
   },
 ) => {
   const models = await loadClasses(connection, subdomain);
-  if (
-    !logIgnoreOptions?.ignoreChangeStream &&
-    (await checkServiceRunning('logs'))
-  ) {
+  if (!logIgnoreOptions?.ignoreChangeStream) {
     startChangeStreams(models as any, subdomain, logIgnoreOptions);
   }
 
@@ -46,7 +43,7 @@ export const createGenerateModels = <IModels>(
   connect();
 
   if (VERSION && VERSION !== 'saas') {
-    let models: IModels | null = null;
+    const models: IModels | null = null;
     return async function genereteModels(
       hostnameOrSubdomain: string,
     ): Promise<IModels> {

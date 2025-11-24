@@ -4,6 +4,7 @@ import { IMenuItem, IMenuItemDocument } from '@/portal/@types/menu';
 import { IModels } from '~/connectionResolvers';
 import { menuItemSchema } from '@/portal/db/definitions/menu';
 import slugify from 'slugify';
+import { generateUniqueSlug } from '@/portal/utils/common';
 
 export interface IMenuItemModel extends Model<IMenuItemDocument> {
   getMenuItems: (query: any) => Promise<IMenuItemDocument[]>;
@@ -22,24 +23,41 @@ export const loadMenuItemClass = (models: IModels) => {
 
     public static createMenuItem = async (doc: IMenuItem) => {
       if (!doc.url && doc.label) {
-        doc.url = slugify(doc.label, { lower: true });
+        const baseSlug = slugify(doc.label, { lower: true });
+        doc.url = await generateUniqueSlug(models.MenuItems, doc.clientPortalId, 'url', baseSlug);
+      }
+
+      if (!doc.order) {
+        // find max order
+        const lastMenuItem = await models.MenuItems.findOne({
+          clientPortalId: doc.clientPortalId,
+        }).sort({ order: -1 }).lean();
+  
+        if (lastMenuItem) {
+          doc.order = lastMenuItem.order || 0 + 1;
+        } else {
+          doc.order = 1;
+        }
       }
 
       return models.MenuItems.create(doc);
     };
 
     public static updateMenuItem = async (_id: string, doc: IMenuItem) => {
-      if (!doc.url && doc.label) {
-        doc.url = slugify(doc.label, { lower: true });
+      const existingMenuItem = await models.MenuItems.findOne({ _id });
+      if (!doc.url && doc.label && existingMenuItem?.url) {
+        const baseSlug = slugify(doc.label, { lower: true });
+        doc.url = await generateUniqueSlug(models.MenuItems, doc.clientPortalId, 'url', baseSlug);
       }
 
       const menu = await models.MenuItems.findOneAndUpdate(
         { _id: _id },
         { $set: doc },
-        { new: true },
+        { new: true }
       );
       return menu;
     };
+
 
     public static deleteMenuItem = async (_id: string) => {
       const page = await models.MenuItems.findOneAndDelete({ _id: _id });

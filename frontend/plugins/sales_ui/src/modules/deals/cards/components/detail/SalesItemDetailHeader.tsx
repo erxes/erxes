@@ -17,7 +17,9 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
   const [name, setName] = useState(deal?.name || 'Untitled deal');
 
   const handleName = () => {
-    if (!name) return;
+    if (!deal || !name.trim()) return;
+
+    if (name === deal.name) return;
 
     editDeals({
       variables: {
@@ -51,7 +53,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
               Edit
             </Button>
           </DropdownMenu.Trigger>
-          <DropdownMenu.Content className="w-48 !min-w-fit">
+          <DropdownMenu.Content className="w-48 min-w-fit!">
             <DropdownMenu.Item>
               <IconCopy />
               Copy

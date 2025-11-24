@@ -46,6 +46,8 @@ export const sendNotification = async (
   });
 
   sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'mutation',
     module: 'notifications',

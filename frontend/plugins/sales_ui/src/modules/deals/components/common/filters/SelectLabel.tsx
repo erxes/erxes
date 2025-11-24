@@ -7,7 +7,10 @@ import {
   Popover,
   PopoverScoped,
   RecordTableInlineCell,
+  SelectOperationContent,
   SelectTree,
+  SelectTriggerOperation,
+  SelectTriggerVariant,
   TextOverflowTooltip,
   cn,
   useFilterContext,
@@ -250,15 +253,6 @@ export const SelectLabelsValue = () => {
 };
 
 export const SelectLabelsContent = () => {
-  // const { newLabelName } = useSelectLabelsContext();
-
-  // if (newLabelName) {
-  //   return (
-  //     <SelectLabelCreateContainer>
-  //       <CreateLabelForm />
-  //     </SelectLabelCreateContainer>
-  //   );
-  // }
   return <SelectLabelsCommand />;
 };
 
@@ -477,48 +471,44 @@ export const SelectLabelsFilterBar = ({
   mode = 'multiple',
   filterKey,
   label,
+  variant,
+  scope,
 }: {
   mode: 'single' | 'multiple';
   filterKey: string;
   label: string;
+  variant?: `${SelectTriggerVariant}`;
+  scope?: string;
 }) => {
   const [query, setQuery] = useQueryState<string[]>(filterKey);
   const [open, setOpen] = useState<boolean>(false);
 
-  if (!query) {
+  if (!query && variant !== 'card') {
     return null;
   }
 
   return (
-    <Filter.BarItem queryKey={filterKey}>
-      <Filter.BarName>
-        <IconLabel />
-        {label}
-      </Filter.BarName>
-      <SelectLabelsProvider
-        mode={mode}
-        value={query || []}
-        onValueChange={(value) => {
-          if (value && value.length > 0) {
-            setQuery(value as string[]);
-          } else {
-            setQuery(null);
-          }
-          setOpen(false);
-        }}
-      >
-        <Popover open={open} onOpenChange={setOpen}>
-          <Popover.Trigger asChild>
-            <Filter.BarButton filterKey={filterKey}>
-              <SelectLabelsValue />
-            </Filter.BarButton>
-          </Popover.Trigger>
-          <Combobox.Content>
-            <SelectLabelsContent />
-          </Combobox.Content>
-        </Popover>
-      </SelectLabelsProvider>
-    </Filter.BarItem>
+    <SelectLabelsProvider
+      mode={mode}
+      value={query || []}
+      onValueChange={(value) => {
+        if (value && value.length > 0) {
+          setQuery(value as string[]);
+        } else {
+          setQuery(null);
+        }
+        setOpen(false);
+      }}
+    >
+      <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
+        <SelectTriggerOperation variant={variant || 'filter'}>
+          <SelectLabelsValue />
+        </SelectTriggerOperation>
+        <SelectOperationContent variant={variant || 'filter'}>
+          <SelectLabelsContent />
+        </SelectOperationContent>
+      </PopoverScoped>
+    </SelectLabelsProvider>
   );
 };
 

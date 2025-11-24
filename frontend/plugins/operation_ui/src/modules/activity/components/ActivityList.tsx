@@ -7,13 +7,14 @@ import { NoteInputReadOnly } from '@/activity/components/NoteInputReadOnly';
 import { NoteInput } from '@/activity/components/NoteInput';
 import { CreatorInfo } from '@/activity/components/CreatorInfo';
 import { ActivityItemWrapper } from '@/activity/components/ActivityItemWrapper';
+import { ITriage } from '@/triage/types/triage';
 
 export const ActivityList = ({
   contentId,
   contentDetail,
 }: {
   contentId: string;
-  contentDetail: ITask | IProject;
+  contentDetail: ITask | IProject | ITriage;
 }) => {
   const { activities, loading } = useActivities(contentId);
 

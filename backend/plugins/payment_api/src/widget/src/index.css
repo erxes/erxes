@@ -1,6 +1,164 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss' source('../src');
+
+@plugin 'tailwindcss-animate';
+
+@custom-variant dark (&:is(.dark *));
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+  @media (width >= --theme(--breakpoint-sm)) {
+    max-width: none;
+  }
+  @media (width >= 1400px) {
+    max-width: 1400px;
+  }
+}
+
+@theme {
+  --font-sans: Inter, sans-serif;
+  --font-voga: Voga, serif;
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-sidebar: hsl(var(--sidebar-background));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility mobile-card {
+  @apply rounded-xl border bg-card p-4 shadow-sm;
+}
+@utility mobile-bottom-nav {
+  @apply fixed bottom-0 left-0 right-0 bg-card border-t border-border flex justify-around items-center h-16 z-50;
+}
+@utility mobile-button {
+  @apply rounded-full p-3 flex items-center justify-center;
+}
+@utility mobile-header {
+  @apply text-lg font-semibold mb-2;
+}
+@utility mobile-scroll-area {
+  /* Mobile scrollable area */
+  @apply overflow-y-auto scrollbar-none;
+  -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+  overscroll-behavior-y: contain; /* Prevents page overscroll */
+}
+@utility table-container {
+  @media (max-width: 768px) {
+    @apply overflow-x-auto -mx-4 px-0;
+  }
+}
+@utility table-mobile-row {
+  @media (max-width: 768px) {
+    @apply flex flex-wrap border-b py-2;
+  }
+}
+@utility table-mobile-cell {
+  @media (max-width: 768px) {
+    @apply flex flex-col px-2 pb-2;
+  }
+}
+@utility table-mobile-header {
+  @media (max-width: 768px) {
+    @apply text-xs text-muted-foreground;
+  }
+}
+@utility table-mobile-content {
+  @media (max-width: 768px) {
+    @apply font-medium;
+  }
+}
+@utility scrollbar-none {
+  @media (max-width: 768px) {
+    /* Hide scrollbar but keep functionality */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+@utility animate-grow-line {
+  /* Mobile table optimizations */
+  animation: growLine 0.8s ease-out 1.2s forwards;
+}
+@utility animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
 
 @layer base {
   :root {
@@ -120,61 +278,6 @@
 
 /* Mobile-friendly card styles */
 @layer components {
-  .mobile-card {
-    @apply rounded-xl border bg-card p-4 shadow;
-  }
-
-  .mobile-bottom-nav {
-    @apply fixed bottom-0 left-0 right-0 bg-card border-t border-border flex justify-around items-center h-16 z-50;
-  }
-
-  .mobile-button {
-    @apply rounded-full p-3 flex items-center justify-center;
-  }
-
-  .mobile-header {
-    @apply text-lg font-semibold mb-2;
-  }
-
-  /* Mobile scrollable area */
-  .mobile-scroll-area {
-    @apply overflow-y-auto scrollbar-none;
-    -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
-    overscroll-behavior-y: contain; /* Prevents page overscroll */
-  }
-
-  /* Mobile table optimizations */
-  @media (max-width: 768px) {
-    .table-container {
-      @apply overflow-x-auto -mx-4 px-0;
-    }
-
-    .table-mobile-row {
-      @apply flex flex-wrap border-b py-2;
-    }
-
-    .table-mobile-cell {
-      @apply flex flex-col px-2 pb-2;
-    }
-
-    .table-mobile-header {
-      @apply text-xs text-muted-foreground;
-    }
-
-    .table-mobile-content {
-      @apply font-medium;
-    }
-
-    /* Hide scrollbar but keep functionality */
-    .scrollbar-none {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
-    .scrollbar-none::-webkit-scrollbar {
-      display: none;
-    }
-  }
   @keyframes growLine {
     0% {
       width: 0;
@@ -193,13 +296,5 @@
       opacity: 1;
       transform: translateY(0);
     }
-  }
-
-  .animate-grow-line {
-    animation: growLine 0.8s ease-out 1.2s forwards;
-  }
-
-  .animate-fade-in-up {
-    animation: fadeInUp 0.6s ease-out forwards;
   }
 }

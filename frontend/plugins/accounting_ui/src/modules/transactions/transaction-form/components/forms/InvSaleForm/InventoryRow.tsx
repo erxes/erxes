@@ -1,6 +1,7 @@
-import { useGetAccCurrentCost } from '../../../hooks/useGetInvCostInfo';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
+import { TR_SIDES, TrJournalEnum } from '@/transactions/types/constants';
+import { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import {
   Checkbox,
@@ -8,20 +9,19 @@ import {
   CurrencyField,
   Form,
   InputNumber,
-  RecordTableInlineCell,
-  RecordTableHotKeyControl,
   PopoverScoped,
+  RecordTableHotKeyControl,
+  RecordTableInlineCell,
   Table,
 } from 'erxes-ui';
+import { useAtom } from 'jotai';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { SelectProduct } from 'ui-modules';
-import { ITransactionGroupForm, TInvSaleJournal } from '../../../types/JournalForms';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useAtom } from 'jotai';
+import { useGetAccCurrentCost } from '../../../hooks/useGetInvCostInfo';
 import { followTrDocsState, taxPercentsState } from '../../../states/trStates';
-import { getTempId } from '../../utils';
-import { TR_SIDES, TrJournalEnum } from '@/transactions/types/constants';
-import { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
+import { ITransactionGroupForm, TInvSaleJournal } from '../../../types/JournalForms';
+import { fixSumDtCt, getTempId } from '../../utils';
 
 export const InventoryRow = ({
   detailIndex,
@@ -48,27 +48,32 @@ export const InventoryRow = ({
     const currOut = followTrDocs.find(
       (ftr) =>
         ftr.originId === trDoc._id &&
-        ftr.followType === 'invSaleOut'
+        ftr.originType === 'invSaleOut'
     );
     const currCost = followTrDocs.find(
       (ftr) =>
         ftr.originId === trDoc._id &&
-        ftr.followType === 'invSaleCost'
+        ftr.originType === 'invSaleCost'
     );
 
+    const ptrId = currOut?.ptrId || currCost?.ptrId || getTempId();
 
-    const invOutTr = {
+    const commonFollowTr = {
+      originId: trDoc._id,
+      ptrId,
+      parentId: trDoc.parentId,
+    }
+
+    const invOutTr: ITransaction = fixSumDtCt({
       ...currOut,
+      ...commonFollowTr,
       _id: currOut?._id || getTempId(),
       journal: TrJournalEnum.INV_SALE_OUT,
-      originId: trDoc._id,
-      ptrId: trDoc.ptrId,
-      parentId: trDoc.parentId,
-      followType: 'invSaleOut',
+      originType: 'invSaleOut',
       details: (trDoc.details || []).map((saleDetail) => {
         const curOutDetail = currOut?.details.find(outDetail => outDetail.originId === saleDetail._id);
 
-        if (saleDetail._id === detail._id || !curOutDetail) {
+        if (!curOutDetail || saleDetail._id === detail._id) {
           return {
             ...saleDetail,
             ...curOutDetail,
@@ -81,22 +86,18 @@ export const InventoryRow = ({
         }
         return curOutDetail;
       }),
+    });
 
-      sumDt: 0,
-      sumCt: 0,
-    };
-    const invCostTr: ITransaction = {
+    const invCostTr: ITransaction = fixSumDtCt({
       ...currCost,
+      ...commonFollowTr,
       _id: currCost?._id || getTempId(),
       journal: TrJournalEnum.INV_SALE_COST,
-      originId: trDoc._id,
-      ptrId: trDoc.ptrId,
-      parentId: trDoc.parentId,
-      followType: 'invSaleCost',
+      originType: 'invSaleCost',
       details: (trDoc.details || []).map((saleDetail) => {
         const curCostDetail = currCost?.details.find(costDetail => costDetail.originId === saleDetail._id);
 
-        if (saleDetail._id === detail._id || !curCostDetail) {
+        if (!curCostDetail || saleDetail._id === detail._id) {
           return {
             ...saleDetail,
             ...curCostDetail,
@@ -109,17 +110,14 @@ export const InventoryRow = ({
         }
         return curCostDetail;
       }),
-
-      sumDt: 0,
-      sumCt: 0,
-    }
+    })
 
     setFollowTrDocs([
       ...(followTrDocs || []).filter(
         (ftr) =>
           !(
             ftr.originId === trDoc._id &&
-            ['invSaleOut', 'invSaleCost'].includes(ftr.followType || '')
+            ['invSaleOut', 'invSaleCost'].includes(ftr.originType || '')
           )
       ),
       invOutTr,
@@ -274,7 +272,7 @@ export const InventoryRow = ({
     <Table.Row
       key={_id}
       className={cn(
-        'overflow-hidden h-cell hover:!bg-background',
+        'overflow-hidden h-cell hover:bg-background!',
         detailIndex === 0 && '[&>td]:border-t',
       )}
     >
@@ -320,7 +318,6 @@ export const InventoryRow = ({
                 }}
                 defaultFilter={{ journals: [JournalEnum.MAIN] }}
                 variant="ghost"
-                inForm
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />
             )}
@@ -333,14 +330,24 @@ export const InventoryRow = ({
             control={form.control}
             name={`trDocs.${journalIndex}.details.${detailIndex}.productId`}
             render={({ field }) => (
-              <SelectProduct
-                value={field.value || ''}
-                onValueChange={(productId) => {
-                  handleProduct(productId as string, field.onChange);
-                }}
-                variant="ghost"
-                scope={AccountingHotkeyScope.TransactionFormPage}
-              />
+              <Form.Item>
+                <PopoverScoped
+                  scope={`trDocs.${journalIndex}.details.${detailIndex}.productId`}
+                  closeOnEnter
+                >
+                  <Form.Control>
+                    <SelectProduct
+                      value={field.value || ''}
+                      onValueChange={(productId) => {
+                        handleProduct(productId as string, field.onChange);
+                      }}
+                      variant="ghost"
+                      scope={AccountingHotkeyScope.TransactionFormPage}
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </PopoverScoped>
+              </Form.Item>
             )}
           />
         </Table.Cell>
@@ -360,6 +367,7 @@ export const InventoryRow = ({
                     {field.value?.toLocaleString() || 0}
                   </RecordTableInlineCell.Trigger>
                 </Form.Control>
+                <Form.Message />
                 <RecordTableInlineCell.Content>
                   <InputNumber
                     value={field.value ?? 0}
@@ -388,6 +396,7 @@ export const InventoryRow = ({
                     {field.value?.toLocaleString() || 0}
                   </RecordTableInlineCell.Trigger>
                 </Form.Control>
+                <Form.Message />
                 <RecordTableInlineCell.Content>
                   <CurrencyField.ValueInput
                     value={field.value || 0}
@@ -416,6 +425,7 @@ export const InventoryRow = ({
                     {field.value?.toLocaleString() || 0}
                   </RecordTableInlineCell.Trigger>
                 </Form.Control>
+                <Form.Message />
                 <RecordTableInlineCell.Content>
                   <CurrencyField.ValueInput
                     value={field.value || 0}

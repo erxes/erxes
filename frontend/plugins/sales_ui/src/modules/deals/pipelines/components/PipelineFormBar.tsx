@@ -33,16 +33,13 @@ export function PipelineFormBar() {
 
   const {
     methods,
-    methods: {
-      reset,
-      handleSubmit,
-      formState: { errors },
-    },
+    methods: { reset, handleSubmit },
   } = usePipelineForm();
-  console.log('ee', errors);
+
   const { stages: initialStages, loading: stagesLoading } = useStages({
     variables: {
       pipelineId,
+      isAll: true,
     },
   });
 
@@ -187,7 +184,7 @@ export function PipelineFormBar() {
           </Button>
         </Sheet.Trigger>
         <Sheet.View
-          className="p-0 md:max-w-screen-2xl"
+          className="p-0 md:max-w-6xl"
           onEscapeKeyDown={(e) => {
             e.preventDefault();
           }}

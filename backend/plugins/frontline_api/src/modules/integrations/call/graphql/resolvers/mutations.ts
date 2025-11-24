@@ -12,7 +12,7 @@ import { redlock } from '../../redlock';
 import {
   ICallHistory,
   ICallHistoryEdit,
-} from '~/modules/integrations/call/@types/histories';
+} from '@/integrations/call/@types/histories';
 import { getEnv, graphqlPubsub } from 'erxes-api-shared/utils';
 
 export interface ISession {
@@ -29,21 +29,25 @@ const callsMutations = {
     );
     return integration;
   },
-
   async callAddCustomer(_root, args, { models, subdomain }: IContext) {
-    const integration = await findIntegration(subdomain, args);
+    const callIntegration = await findIntegration(subdomain, args);
     const customer = await getOrCreateCustomer(models, subdomain, args);
-
-    const channels = await models.Channels.find({
-      integrationIds: { $in: [integration.inboxId] },
+    const integration = await models.Integrations.findOne({
+      _id: callIntegration?.inboxId,
     });
 
+    const channel = integration
+      ? await models.Channels.findOne({ _id: integration.channelId })
+      : null;
+
     return {
-      customer: customer?.erxesApiId && {
-        __typename: 'Customer',
-        _id: customer.erxesApiId,
-      },
-      channels,
+      customer: customer?.erxesApiId
+        ? {
+            __typename: 'Customer',
+            _id: customer.erxesApiId,
+          }
+        : null,
+      channels: channel ? [channel] : [],
     };
   },
 

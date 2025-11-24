@@ -8,16 +8,19 @@
     "build": {
       "executor": "@nx/rspack:rspack",
       "outputs": ["{options.outputPath}"],
+      "dependsOn": ["compile:index"],
       "defaultConfiguration": "production",
       "options": {
         "target": "web",
         "outputPath": "dist/apps/frontline-widgets",
         "main": "apps/frontline-widgets/src/main.tsx",
         "tsConfig": "apps/frontline-widgets/tsconfig.app.json",
-        "rspackConfig": "apps/frontline-widgets/rspack.config.js",
+        "rspackConfig": "apps/frontline-widgets/rspack.config.ts",
         "assets": [
           "apps/frontline-widgets/src/favicon.ico",
-          "apps/frontline-widgets/src/assets"
+          "apps/frontline-widgets/src/assets",
+          "apps/frontline-widgets/src/demo.html",
+          "apps/frontline-widgets/src/messengerBundle.js"
         ]
       },
       "configurations": {
@@ -31,6 +34,7 @@
         }
       }
     },
+
     "serve": {
       "executor": "@nx/rspack:dev-server",
       "options": {
@@ -49,6 +53,31 @@
       "options": {
         "buildTarget": "frontline-widgets:build",
         "spa": true
+      }
+    },
+
+    "compile:index": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "esbuild apps/frontline-widgets/src/index.ts --bundle --outfile=apps/frontline-widgets/src/messengerBundle.js --format=iife --target=es2015 --minify --loader:.css=text"
+      }
+    },
+
+    "compile:index:watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "esbuild apps/frontline-widgets/src/index.ts --bundle --outfile=apps/frontline-widgets/src/messengerBundle.js --format=iife --target=es2015 --sourcemap --loader:.css=text --watch"
+      }
+    },
+
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "nx serve frontline-widgets",
+          "nx compile:index:watch frontline-widgets"
+        ],
+        "parallel": true
       }
     }
   }

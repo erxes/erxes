@@ -33,6 +33,8 @@ export interface ITask {
   estimatePoint: number;
   updatedAt: string;
   cycleId?: string;
+  milestoneId?: string;
+  convertedFromId?: string;
 }
 
 export interface ITaskStatus {

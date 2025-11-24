@@ -1,5 +1,4 @@
 import { getEnv } from 'erxes-api-shared/utils';
-import moment from 'moment';
 import { IModels } from '~/connectionResolvers';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
@@ -16,6 +15,7 @@ import { debugError } from '@/integrations/facebook/debuggers';
 import {
   ISendMessageData,
   TAttachmentMessage,
+  TAutomationActionConfig,
   TBotConfigMessage,
   TBotConfigMessageButton,
   TFacebookMessageButton,
@@ -31,15 +31,25 @@ import {
   getUrl,
 } from '@/integrations/facebook/meta/automation/utils/messageUtils';
 import { sendReply } from '@/integrations/facebook/utils';
-import { IFacebookIntegrationDocument } from '~/modules/integrations/facebook/@types/integrations';
+import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
 
-export const generateMessages = async (
-  subdomain: string,
-  config: { messages: TBotConfigMessage[] },
-  conversation: IFacebookConversation,
-  customer: IFacebookCustomer,
-  executionId: string,
-) => {
+type TGenerateMessagesParams = {
+  subdomain: string;
+  conversation: IFacebookConversation;
+  customer: IFacebookCustomer;
+  executionId: string;
+  actionId: string;
+  config?: TAutomationActionConfig;
+};
+
+export const generateMessages = async ({
+  subdomain,
+  conversation,
+  customer,
+  executionId,
+  actionId,
+  config,
+}: TGenerateMessagesParams) => {
   let { messages = [] } = config || {};
 
   const generateButtons = (buttons: TBotConfigMessageButton[] = []) => {
@@ -54,6 +64,7 @@ export const generateMessages = async (
           button,
           customer?.erxesApiId || '',
           executionId,
+          actionId,
         ),
       };
 
@@ -161,6 +172,7 @@ export const generateMessages = async (
               quickReply,
               customer?.erxesApiId || '',
               executionId,
+              actionId,
             ),
             ...(quickReply.image_url && {
               image_url: getUrl(subdomain, quickReply.image_url),

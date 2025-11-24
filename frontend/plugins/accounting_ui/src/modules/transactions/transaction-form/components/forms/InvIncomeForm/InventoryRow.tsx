@@ -18,7 +18,7 @@ import { useMemo, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { SelectProduct } from 'ui-modules';
 import { taxPercentsState } from '../../../states/trStates';
-import { ITransactionGroupForm } from '../../../types/JournalForms';
+import { ITransactionGroupForm, TInvIncomeJournal } from '../../../types/JournalForms';
 
 export const InventoryRow = ({
   detailIndex,
@@ -32,7 +32,7 @@ export const InventoryRow = ({
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
-  });
+  }) as TInvIncomeJournal;
 
   const detail = useWatch({
     control: form.control,
@@ -147,7 +147,7 @@ export const InventoryRow = ({
     <Table.Row
       key={_id}
       className={cn(
-        'overflow-hidden h-cell hover:!bg-background',
+        'overflow-hidden h-cell hover:bg-background!',
         detailIndex === 0 && '[&>td]:border-t',
       )}
     >
@@ -192,7 +192,6 @@ export const InventoryRow = ({
                 }}
                 defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
                 variant="ghost"
-                inForm
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />
             )}

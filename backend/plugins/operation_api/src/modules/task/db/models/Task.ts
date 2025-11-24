@@ -1,17 +1,16 @@
-import { Model, FlattenMaps, FilterQuery } from 'mongoose';
-import { Document } from 'mongodb';
-import { IModels } from '~/connectionResolvers';
-import { taskSchema } from '@/task/db/definitions/task';
+import { createActivity } from '@/activity/utils/createActivity';
+import { STATUS_TYPES } from '@/status/constants/types';
 import {
   ITask,
   ITaskDocument,
   ITaskFilter,
   ITaskUpdate,
 } from '@/task/@types/task';
-import { createActivity } from '@/activity/utils/createActivity';
-import { STATUS_TYPES } from '@/status/constants/types';
+import { taskSchema } from '@/task/db/definitions/task';
+import { Document } from 'mongodb';
+import mongoose, { FilterQuery, FlattenMaps, Model } from 'mongoose';
+import { IModels } from '~/connectionResolvers';
 import { createNotifications } from '~/utils/notifications';
-import { IProject, IProjectDocument } from '~/modules/project/@types/project';
 
 export interface ITaskModel extends Model<ITaskDocument> {
   getTask(_id: string): Promise<ITaskDocument>;
@@ -23,7 +22,7 @@ export interface ITaskModel extends Model<ITaskDocument> {
     userId,
     subdomain,
   }: {
-    doc: ITask;
+    doc: ITask & { triageId?: string };
     userId: string;
     subdomain: string;
   }): Promise<ITaskDocument>;
@@ -38,7 +37,6 @@ export interface ITaskModel extends Model<ITaskDocument> {
   }): Promise<ITaskDocument>;
   removeTask(taskId: string): Promise<{ ok: number }>;
   moveCycle(cycleId: string, newCycleId: string): Promise<{ ok: number }>;
-  convertToProject({ taskId }: { taskId: string }): Promise<IProjectDocument>;
 }
 
 export const loadTaskClass = (models: IModels) => {
@@ -90,6 +88,10 @@ export const loadTaskClass = (models: IModels) => {
         query.projectId = params.projectId;
       }
 
+      if (params.milestoneId) {
+        query.milestoneId = params.milestoneId;
+      }
+
       if (params.createdAt) {
         query.createdAt = { $gte: params.createdAt };
       }
@@ -102,7 +104,7 @@ export const loadTaskClass = (models: IModels) => {
       userId,
       subdomain,
     }: {
-      doc: ITask;
+      doc: ITask & { triageId?: string; _id?: mongoose.Types.ObjectId };
       userId: string;
       subdomain: string;
     }): Promise<ITaskDocument> {
@@ -112,6 +114,15 @@ export const loadTaskClass = (models: IModels) => {
       ]);
 
       const nextNumber = (result?.maxNumber || 0) + 1;
+
+      if (!doc.status && doc.triageId) {
+        const statusDocument = await models.Status.findOne({
+          teamId: doc.teamId,
+          type: STATUS_TYPES.BACKLOG,
+        });
+
+        doc.status = statusDocument?._id;
+      }
 
       const status = await models.Status.getStatus(doc.status || '');
 
@@ -131,6 +142,12 @@ export const loadTaskClass = (models: IModels) => {
         if (cycle && cycle.isCompleted) {
           throw new Error('Cannot add task to completed cycle');
         }
+      }
+
+      if (doc.triageId) {
+        doc._id = new mongoose.Types.ObjectId(doc.triageId);
+
+        delete doc.triageId;
       }
 
       doc.createdBy = userId;
@@ -221,7 +238,7 @@ export const loadTaskClass = (models: IModels) => {
 
         rest.number = nextNumber;
         rest.status = newStatus?._id;
-        rest.cycleId = '';
+        rest.cycleId = null;
       }
 
       await createActivity({
@@ -281,29 +298,6 @@ export const loadTaskClass = (models: IModels) => {
       );
 
       return taskIds;
-    }
-
-    public static async convertToProject(taskId: string) {
-      const task = await models.Task.getTask(taskId);
-
-      const project: IProject = {
-        name: task.name,
-        description: task?.description,
-        teamIds: [task.teamId],
-        priority: task.priority || 0,
-        startDate: task.startDate,
-        targetDate: task.targetDate,
-        leadId: task.assigneeId,
-        status: 0,
-      };
-
-      if (task.status) {
-        const { type } = await models.Status.getStatus(task.status);
-
-        project.status = type;
-      }
-
-      return await models.Project.createProject(project);
     }
   }
 

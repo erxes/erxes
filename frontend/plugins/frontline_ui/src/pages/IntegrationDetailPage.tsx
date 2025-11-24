@@ -5,7 +5,7 @@ import { IntegrationType } from '@/types/Integration';
 import { IconChevronLeft } from '@tabler/icons-react';
 import { Button, getPluginAssetsUrl } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
-import { Link, useParams } from 'react-router';
+import { Link, useNavigate, useParams } from 'react-router';
 
 const ErxesMessengerDetail = lazy(() =>
   import('@/integrations/erxes-messenger/components/ErxesMessengerDetail').then(
@@ -56,7 +56,11 @@ const CallIntegrationActions = lazy(() =>
 );
 
 export const IntegrationDetailPage = () => {
-  const { integrationType } = useParams();
+  const { integrationType, id } = useParams<{
+    integrationType: string;
+    id: string;
+  }>();
+  const navigate = useNavigate();
 
   const integration =
     INTEGRATIONS[integrationType as keyof typeof INTEGRATIONS];
@@ -64,11 +68,19 @@ export const IntegrationDetailPage = () => {
   return (
     <div className="mx-auto p-5 w-full max-w-5xl flex flex-col gap-8 overflow-hidden">
       <div>
-        <Button variant="ghost" className="text-muted-foreground" asChild>
-          <Link to="/settings/inbox/integrations">
-            <IconChevronLeft />
-            Integrations
-          </Link>
+        <Button
+          variant="ghost"
+          className="text-muted-foreground"
+          onClick={() => {
+            if (!id) {
+              navigate('/settings/frontline/channels');
+              return;
+            }
+            navigate(`/settings/frontline/channels/${id}`);
+          }}
+        >
+          <IconChevronLeft />
+          Integrations
         </Button>
       </div>
       <div className="flex gap-2">

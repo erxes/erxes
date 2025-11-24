@@ -1,7 +1,7 @@
 const extendTypes = `
 
   extend type ProductCategory @key(fields: "_id") {
-    _id: String @external
+    _id: String! @external
   }
 `;
 

@@ -4,6 +4,7 @@ import type {
   DragOverEvent,
   DragStartEvent,
 } from '@dnd-kit/core';
+
 import { HTMLAttributes } from 'react';
 
 export type BoardItemProps = {
@@ -15,6 +16,9 @@ export type BoardItemProps = {
 export type BoardColumnProps = {
   id: string;
   name: string;
+  type?: string;
+  probability?: string;
+  itemsTotalCount?: number;
 } & Record<string, unknown>;
 
 export type BoardHeaderProps = HTMLAttributes<HTMLDivElement>;
@@ -42,11 +46,13 @@ export type BoardProviderProps<
   className?: string;
   columns: C[];
   data: T[];
+  boardId: string;
   onDataChange?: (data: T[]) => void;
   onDragStart?: (event: DragStartEvent) => void;
   onDragEnd?: (event: DragEndEvent) => void;
   onDragOver?: (event: DragOverEvent) => void;
-  boardId: string;
+  emptyUrl?: string;
+  fallbackComponent?: React.ReactNode;
 };
 
 export type BoardCardProps<T extends BoardItemProps = BoardItemProps> = T & {

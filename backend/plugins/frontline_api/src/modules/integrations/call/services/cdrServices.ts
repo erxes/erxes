@@ -7,14 +7,14 @@ import {
   extractOperatorId,
   findOrCreateCdr,
   getConversationContent,
-} from '~/modules/integrations/call/services/cdrUtils';
-import { getOrCreateCustomer } from '~/modules/integrations/call/store';
-import { createOrUpdateErxesConversation } from '~/modules/integrations/call/utils';
-import { pConversationClientMessageInserted } from '~/modules/inbox/graphql/resolvers/mutations/widget';
+} from '@/integrations/call/services/cdrUtils';
+import { getOrCreateCustomer } from '@/integrations/call/store';
+import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
+import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 
 export const receiveCdr = async (models: IModels, subdomain, params) => {
   debugCall(`Request to get post data with: ${JSON.stringify(params)}`);
-
+  console.log(params.src, params.dst, 'received cdr phone number');
   const integration = await models.CallIntegrations.findOne({
     $or: [
       { srcTrunk: params.src_trunk_name },
@@ -44,6 +44,8 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
     );
     if (matchedOperator) {
       const operator = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'users',
@@ -75,22 +77,38 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
       integrationId: inboxId,
     });
   } else {
-    const startDate = new Date(params.start);
+    console.log('now date:', new Date(), params.start, typeof params.start);
 
-    const startTime = new Date(startDate.getTime() - 30 * 1000);
-    const endTime = new Date(startDate.getTime() + 30 * 1000);
+    const [datePart, timePart] = params.start.split(' ');
+    const localTimeString = `${datePart}T${timePart}+08:00`;
+    const localStart = new Date(localTimeString);
+    const startDate = new Date(localStart.getTime());
+    const rangeSeconds = 30;
+    const startTime = new Date(startDate.getTime() - rangeSeconds * 1000);
+    const endTime = new Date(startDate.getTime() + rangeSeconds * 1000);
 
-    const historySelector = {
+    const historySelector: Record<string, any> = {
       customerPhone: primaryPhone,
       createdAt: { $gte: startTime, $lte: endTime },
-    } as any;
+    };
+
     if (extension) {
       historySelector.extensionNumber = extension;
     }
 
-    const callHistory = await models.CallHistory.findOne({
-      ...historySelector,
-    }).sort({ createdAt: -1 });
+    const callHistory = await models.CallHistory.findOne(historySelector)
+      .sort({ createdAt: -1 })
+      .lean();
+
+    console.log({
+      now: new Date(),
+      paramsStart: params.start,
+      localStart,
+      startDate,
+      startTime,
+      endTime,
+      found: !!callHistory,
+    });
 
     const erxesPayload = {
       customerId: customer?.erxesApiId,

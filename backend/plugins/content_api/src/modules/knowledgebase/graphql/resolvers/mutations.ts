@@ -1,79 +1,43 @@
-import { checkPermission } from 'erxes-api-shared/core-modules';
-import { ITopic } from '@/knowledgebase/@types/knowledgebase';
 import { IContext } from '~/connectionResolvers';
+import { BaseMutationResolver } from '@/portal/utils/base-resolvers';
+import { PermissionManager } from '@/portal/utils/permission-utils';
+import { ITopic } from '@/knowledgebase/@types/knowledgebase';
 import {
   IArticleCreate,
   ICategoryCreate,
 } from '~/modules/knowledgebase/db/models/Knowledgebase';
 
-const knowledgeBaseMutations = {
+class KnowledgeBaseMutationResolver extends BaseMutationResolver {
   /**
    * Creates a topic document
    */
   async knowledgeBaseTopicsAdd(
-    _root,
+    _root: any,
     { input }: { input: ITopic },
     { user, models }: IContext,
   ) {
     return models.KnowledgeBaseTopics.createDoc(input, user._id);
-
-    // TODO: implement logs
-    // await putCreateLog(
-    //   models,
-    //
-    //   {
-    //     type: MODULE_NAMES.KB_TOPIC,
-    //     newData: {
-    //       ...doc,
-    //       createdBy: user._id,
-    //       createdDate: topic.createdDate
-    //     },
-    //     object: topic
-    //   },
-    //   user
-    // );
-  },
+  }
 
   /**
    * Updates a topic document
    */
   async knowledgeBaseTopicsEdit(
-    _root,
+    _root: any,
     { _id, input }: { _id: string; input: ITopic },
     { user, models }: IContext,
   ) {
-    // const topic = await models.KnowledgeBaseTopics.getTopic(_id);
     return models.KnowledgeBaseTopics.updateDoc(_id, input, user._id);
-
-    // TODO: implement logs
-    // await putUpdateLog(
-    //   models,
-    //
-    //   {
-    //     type: MODULE_NAMES.KB_TOPIC,
-    //     object: topic,
-    //     newData: {
-    //       ...doc,
-    //       modifiedBy: user._id,
-    //       modifiedDate: updated.modifiedDate,
-    //     },
-    //     updatedDocument: updated,
-    //   },
-    //   user,
-    // );
-
-    // return updated;
-  },
+  }
 
   /**
    * Remove topic document
    */
   async knowledgeBaseTopicsRemove(
-    _root,
+    _root: any,
     { _id }: { _id: string },
     { user, models }: IContext,
   ) {
-    // const topic = await models.KnowledgeBaseTopics.getTopic(_id);
     const removed = await models.KnowledgeBaseTopics.removeDoc(_id);
     const categories = await models.KnowledgeBaseCategories.find({
       topicId: _id,
@@ -87,81 +51,36 @@ const knowledgeBaseMutations = {
       await models.KnowledgeBaseCategories.removeDoc(category._id);
     }
 
-    // TODO: implement logs
-    // await putDeleteLog(
-    //   models,
-    //
-    //   { type: MODULE_NAMES.KB_TOPIC, object: topic },
-    //   user,
-    // );
-
     return removed;
-  },
+  }
 
   /**
    * Create category document
    */
   async knowledgeBaseCategoriesAdd(
-    _root,
+    _root: any,
     { input }: { input: ICategoryCreate },
     { user, models }: IContext,
   ) {
     return models.KnowledgeBaseCategories.createDoc(input, user._id);
-
-    // await putCreateLog(
-    //   models,
-    //
-    //   {
-    //     type: MODULE_NAMES.KB_CATEGORY,
-    //     newData: {
-    //       ...doc,
-    //       createdBy: user._id,
-    //       createdDate: kbCategory.createdDate,
-    //     },
-    //     object: kbCategory,
-    //   },
-    //   user,
-    // );
-
-    // return kbCategory;
-  },
+  }
 
   /**
    * Update category document
    */
   async knowledgeBaseCategoriesEdit(
-    _root,
+    _root: any,
     { _id, input }: { _id: string; input: ICategoryCreate },
     { user, models }: IContext,
   ) {
-    // const kbCategory = await models.KnowledgeBaseCategories.getCategory(_id);
     return models.KnowledgeBaseCategories.updateDoc(_id, input, user._id);
-
-    // TODO: implement logs
-    // await putUpdateLog(
-    //   models,
-
-    //   {
-    //     type: MODULE_NAMES.KB_CATEGORY,
-    //     object: kbCategory,
-    //     newData: {
-    //       ...doc,
-    //       modifiedBy: user._id,
-    //       modifiedDate: updated.modifiedDate,
-    //     },
-    //     updatedDocument: updated,
-    //   },
-    //   user,
-    // );
-
-    // return updated;
-  },
+  }
 
   /**
    * Remove category document
    */
   async knowledgeBaseCategoriesRemove(
-    _root,
+    _root: any,
     { _id }: { _id: string },
     { user, models }: IContext,
   ) {
@@ -173,23 +92,13 @@ const knowledgeBaseMutations = {
     );
 
     return models.KnowledgeBaseCategories.removeDoc(_id);
-
-    // TODO: implement logs
-    // await putDeleteLog(
-    //   models,
-
-    //   { type: MODULE_NAMES.KB_CATEGORY, object: kbCategory },
-    //   user,
-    // );
-
-    // return removed;
-  },
+  }
 
   /**
    * Create article document
    */
   async knowledgeBaseArticlesAdd(
-    _root,
+    _root: any,
     { input }: { input: IArticleCreate },
     { user, models }: IContext,
   ) {
@@ -206,73 +115,16 @@ const knowledgeBaseMutations = {
     }
 
     return models.KnowledgeBaseArticles.createDoc(input, user._id);
-
-    // TODO: implement logs
-    // await putCreateLog(
-    //   models,
-
-    //   {
-    //     type: MODULE_NAMES.KB_ARTICLE,
-    //     newData: {
-    //       ...doc,
-    //       createdBy: user._id,
-    //       createdDate: kbArticle.createdDate,
-    //     },
-    //     object: kbArticle,
-    //   },
-    //   user,
-    // );
-
-    // TODO: implement history
-    // await sendCoreMessage({
-    //   action: 'registerOnboardHistory',
-    //   data: {
-    //     type: 'knowledgeBaseArticleCreate',
-    //     user,
-    //   },
-    // });
-
-    // const topic = await models.KnowledgeBaseTopics.findOne({
-    //   _id: kbArticle.topicId,
-    // });
-
-    // TODO: implement notifications
-    // if (topic && topic.notificationSegmentId) {
-    //   const userIds = await sendCoreMessage({
-    //     action: 'fetchSegment',
-    //     data: {
-    //       segmentId: topic.notificationSegmentId,
-    //     },
-    //     isRPC: true,
-    //   });
-
-    //   sendCoreMessage({
-    //     action: 'sendMobileNotification',
-    //     data: {
-    //       title: doc.title,
-    //       body: stripHtml(doc.content),
-    //       receivers: userIds.filter((userId) => userId !== user._id),
-    //       data: {
-    //         type: 'knowledge',
-    //         id: kbArticle._id,
-    //       },
-    //     },
-    //   });
-    // }
-
-    // return kbArticle;
-  },
+  }
 
   /**
    * Update article document
    */
   async knowledgeBaseArticlesEdit(
-    _root,
+    _root: any,
     { _id, input }: { _id: string; input: IArticleCreate },
     { user, models }: IContext,
   ) {
-    const kbArticle = await models.KnowledgeBaseArticles.getArticle(_id);
-
     if (input.status === 'scheduled' && !input.scheduledDate) {
       throw new Error('Scheduled Date must be supplied');
     }
@@ -286,104 +138,42 @@ const knowledgeBaseMutations = {
     }
 
     return models.KnowledgeBaseArticles.updateDoc(_id, input, user._id);
-
-    // TODO: implement logs
-    // await putUpdateLog(
-    //   models,
-
-    //   {
-    //     type: MODULE_NAMES.KB_ARTICLE,
-    //     object: kbArticle,
-    //     newData: {
-    //       ...doc,
-    //       modifiedBy: user._id,
-    //       modifiedDate: updated.modifiedDate,
-    //     },
-    //     updatedDocument: updated,
-    //   },
-    //   user,
-    // );
-
-    // return updated;
-  },
+  }
 
   /**
    * Remove article document
    */
   async knowledgeBaseArticlesRemove(
-    _root,
+    _root: any,
     { _id }: { _id: string },
     { user, models }: IContext,
   ) {
-    // const kbArticle = await models.KnowledgeBaseArticles.getArticle(_id);
     return models.KnowledgeBaseArticles.removeDoc(_id);
-
-    // TODO: implement logs
-    // await putDeleteLog(
-    //   models,
-
-    //   { type: MODULE_NAMES.KB_ARTICLE, object: kbArticle },
-    //   user,
-    // );
-
-    // return removed;
-  },
+  }
 
   async knowledgeBaseArticlesIncrementViewCount(
-    _root,
+    _root: any,
     { _id }: { _id: string },
     { models }: IContext,
   ) {
     return models.KnowledgeBaseArticles.incrementViewCount(_id);
-  },
+  }
+}
+
+const resolver = new KnowledgeBaseMutationResolver({} as IContext);
+const knowledgeBaseMutations = {
+  knowledgeBaseTopicsAdd: resolver.knowledgeBaseTopicsAdd.bind(resolver),
+  knowledgeBaseTopicsEdit: resolver.knowledgeBaseTopicsEdit.bind(resolver),
+  knowledgeBaseTopicsRemove: resolver.knowledgeBaseTopicsRemove.bind(resolver),
+  knowledgeBaseCategoriesAdd: resolver.knowledgeBaseCategoriesAdd.bind(resolver),
+  knowledgeBaseCategoriesEdit: resolver.knowledgeBaseCategoriesEdit.bind(resolver),
+  knowledgeBaseCategoriesRemove: resolver.knowledgeBaseCategoriesRemove.bind(resolver),
+  knowledgeBaseArticlesAdd: resolver.knowledgeBaseArticlesAdd.bind(resolver),
+  knowledgeBaseArticlesEdit: resolver.knowledgeBaseArticlesEdit.bind(resolver),
+  knowledgeBaseArticlesRemove: resolver.knowledgeBaseArticlesRemove.bind(resolver),
+  knowledgeBaseArticlesIncrementViewCount: resolver.knowledgeBaseArticlesIncrementViewCount.bind(resolver),
 };
 
-checkPermission(
-  knowledgeBaseMutations,
-  'knowledgeBaseTopicsAdd',
-  'manageKnowledgeBase',
-);
-checkPermission(
-  knowledgeBaseMutations,
-  'knowledgeBaseTopicsEdit',
-  'manageKnowledgeBase',
-);
-checkPermission(
-  knowledgeBaseMutations,
-  'knowledgeBaseTopicsRemove',
-  'manageKnowledgeBase',
-);
-
-checkPermission(
-  knowledgeBaseMutations,
-  'knowledgeBaseCategoriesAdd',
-  'manageKnowledgeBase',
-);
-checkPermission(
-  knowledgeBaseMutations,
-  'knowledgeBaseCategoriesEdit',
-  'manageKnowledgeBase',
-);
-checkPermission(
-  knowledgeBaseMutations,
-  'knowledgeBaseCategoriesRemove',
-  'manageKnowledgeBase',
-);
-
-checkPermission(
-  knowledgeBaseMutations,
-  'knowledgeBaseArticlesAdd',
-  'manageKnowledgeBase',
-);
-checkPermission(
-  knowledgeBaseMutations,
-  'knowledgeBaseArticlesEdit',
-  'manageKnowledgeBase',
-);
-checkPermission(
-  knowledgeBaseMutations,
-  'knowledgeBaseArticlesRemove',
-  'manageKnowledgeBase',
-);
+PermissionManager.applyKnowledgeBasePermissions(knowledgeBaseMutations);
 
 export default knowledgeBaseMutations;

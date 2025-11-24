@@ -1,19 +1,55 @@
+import {
+  IconMail,
+  IconDotsVertical,
+  IconSettings,
+  IconTicket,
+} from '@tabler/icons-react';
+import { NavigationMenuLinkItem, DropdownMenu, Button } from 'erxes-ui';
+import { useNavigate } from 'react-router-dom';
 import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
-import { IconMail, IconMessageReply } from '@tabler/icons-react';
-import { NavigationMenuLinkItem } from 'erxes-ui';
-
 export const FrontlineNavigation = () => {
+  const navigate = useNavigate();
+
   return (
     <>
+      <div className="relative group/inbox">
+        <NavigationMenuLinkItem
+          name="Inbox"
+          icon={IconMail}
+          path="frontline/inbox"
+        />
+
+        <DropdownMenu>
+          <DropdownMenu.Trigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="invisible group-hover/inbox:visible absolute top-1/2 -translate-y-1/2 right-2 text-muted-foreground hover:bg-transparent hover:text-foreground"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <IconDotsVertical className="size-4" />
+            </Button>
+          </DropdownMenu.Trigger>
+
+          <DropdownMenu.Content
+            side="right"
+            align="start"
+            className="w-60 min-w-0"
+          >
+            <DropdownMenu.Item
+              className="cursor-pointer"
+              onSelect={() => navigate('/settings/frontline/channels')}
+            >
+              <IconSettings className="size-4" />
+              Go to inbox settings
+            </DropdownMenu.Item>
+          </DropdownMenu.Content>
+        </DropdownMenu>
+      </div>
       <NavigationMenuLinkItem
-        name="Inbox"
-        icon={IconMail}
-        path="frontline/inbox"
-      />
-      <NavigationMenuLinkItem
-        name="Ticket"
-        icon={IconMessageReply}
-        path="frontline/ticket"
+        name="Tickets"
+        icon={IconTicket}
+        path="frontline/tickets"
       />
       <IntegrationNavigation />
     </>

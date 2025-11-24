@@ -4,6 +4,7 @@ import { IPostTag, IPostTagDocument } from '@/portal/@types/post';
 import { postTagSchema } from '@/portal/db/definitions/post';
 import slugify from 'slugify';
 import { IModels } from '~/connectionResolvers';
+import { generateUniqueSlug } from '@/portal/utils/common';
 
 export interface IPostTagModel extends Model<IPostTagDocument> {
   getPostTags: (query: any) => Promise<IPostTagDocument[]>;
@@ -16,21 +17,55 @@ export interface IPostTagModel extends Model<IPostTagDocument> {
 export const loadPostTagClass = (models: IModels) => {
   class PostTags {
     public static createTag = async (data: IPostTag) => {
-      const slug = data.slug || slugify(data.name, { lower: true });
-      data.slug = slug;
-      return models.PostTags.create(data);
+      const baseSlug = data.slug || slugify(data.name, { lower: true });
+
+      // Generate unique slug
+      const uniqueSlug = await generateUniqueSlug(
+        models.PostTags,
+        data.clientPortalId,
+        'slug',
+        baseSlug
+      );
+      data.slug = uniqueSlug;
+
+      try {
+        const tag = await models.PostTags.create(data);
+        return tag;
+      } catch (error: any) {
+        // Fallback: if create still fails (race condition), retry with new slug
+        if (error.code === 11000 && error.keyPattern?.slug) {
+          const fallbackSlug = await generateUniqueSlug(
+            models.PostTags,
+            data.clientPortalId,
+            'slug',
+            baseSlug,
+            2
+          );
+          data.slug = fallbackSlug;
+          return await models.PostTags.create(data);
+        }
+        throw error;
+      }
     };
 
     public static updateTag = async (id: string, data: IPostTag) => {
-      if (!data.slug && data.name) {
-        data.slug = slugify(data.name, { lower: true });
+      if (data.name) {
+        const baseSlug = slugify(data.name, { lower: true });
+        // Generate unique slug excluding current document
+        data.slug = await generateUniqueSlug(
+          models.PostTags,
+          data.clientPortalId,
+          'slug',
+          baseSlug,
+        );
       }
 
-      return models.PostTags.findOneAndUpdate(
+      const tag = await models.PostTags.findOneAndUpdate(
         { _id: id },
         { $set: data },
-        { new: true },
+        { new: true }
       );
+      return tag;
     };
 
     public static deleteTag = async (id: string) => {

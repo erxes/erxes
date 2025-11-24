@@ -2,7 +2,10 @@ import { initTRPC } from '@trpc/server';
 import { ITRPCContext, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
-import { addDeal, editDeal } from '~/modules/sales/graphql/resolvers/mutations/utils';
+import {
+  addDeal,
+  editDeal,
+} from '~/modules/sales/graphql/resolvers/mutations/utils';
 import { generateFilter } from '~/modules/sales/graphql/resolvers/queries/deals';
 import { convertNestedDate } from '~/modules/sales/utils';
 
@@ -17,8 +20,8 @@ export const dealTrpcRouter = t.router({
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
       return {
-        status: "success",
-        data: await models.Deals.findOne(input).lean()
+        status: 'success',
+        data: await models.Deals.findOne(input).lean(),
       };
     }),
 
@@ -29,19 +32,18 @@ export const dealTrpcRouter = t.router({
 
       if (!query) {
         return {
-          status: "success",
-          data: await models.Deals.find(input).lean()
+          status: 'success',
+          data: await models.Deals.find(input).lean(),
         };
       }
 
-
       return {
-        status: "success",
+        status: 'success',
         data: await models.Deals.find(query)
           .skip(skip || 0)
           .limit(limit || 0)
           .sort(sort)
-          .lean()
+          .lean(),
       };
     }),
 
@@ -49,8 +51,8 @@ export const dealTrpcRouter = t.router({
       const { models } = ctx;
 
       return {
-        status: "success",
-        data: await models.Deals.aggregate(convertNestedDate(input))
+        status: 'success',
+        data: await models.Deals.aggregate(convertNestedDate(input)),
       };
     }),
 
@@ -58,8 +60,8 @@ export const dealTrpcRouter = t.router({
       const { models } = ctx;
 
       return {
-        status: "success",
-        data: await models.Deals.find(input).countDocuments()
+        status: 'success',
+        data: await models.Deals.find(input).countDocuments(),
       };
     }),
 
@@ -70,8 +72,8 @@ export const dealTrpcRouter = t.router({
 
       if (!item) {
         return {
-          status: "error",
-          errorMessage: "Deal not found"
+          status: 'error',
+          errorMessage: 'Deal not found',
         };
       }
 
@@ -80,24 +82,26 @@ export const dealTrpcRouter = t.router({
       const board = await models.Boards.getBoard(pipeline.boardId);
 
       return {
-        status: "success",
-        data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`
+        status: 'success',
+        data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`,
       };
     }),
 
-    findDealProductIds: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
-      const { _ids } = input;
+    findDealProductIds: t.procedure
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { _ids } = input;
 
-      const dealProductIds = await await models.Deals.find({
-        "productsData.productId": { $in: _ids }
-      }).distinct("productsData.productId");
+        const dealProductIds = await await models.Deals.find({
+          'productsData.productId': { $in: _ids },
+        }).distinct('productsData.productId');
 
-      return { data: dealProductIds, status: "success" };
-    }),
+        return { data: dealProductIds, status: 'success' };
+      }),
 
     createItem: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { models } = ctx;
+      const { models, subdomain } = ctx;
       const { user, processId, ...doc } = input;
       if (!user || !processId) {
         return {
@@ -108,8 +112,8 @@ export const dealTrpcRouter = t.router({
       try {
         return {
           status: 'success',
-          data: await addDeal({ models, user, doc })
-        }
+          data: await addDeal({ models, subdomain, user, doc }),
+        };
       } catch (e) {
         return {
           status: 'error',
@@ -119,7 +123,7 @@ export const dealTrpcRouter = t.router({
     }),
 
     editItem: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { models } = ctx;
+      const { models, subdomain } = ctx;
 
       const { itemId, processId, user, ...doc } = input;
 
@@ -133,7 +137,14 @@ export const dealTrpcRouter = t.router({
       try {
         return {
           status: 'success',
-          data: await editDeal({ models, _id: itemId, doc, processId, user }),
+          data: await editDeal({
+            models,
+            subdomain,
+            _id: itemId,
+            doc,
+            processId,
+            user,
+          }),
         };
       } catch (e) {
         return {
@@ -148,8 +159,8 @@ export const dealTrpcRouter = t.router({
       const { _ids } = input;
 
       return {
-        status: "success",
-        data: await models.Deals.removeDeals(_ids)
+        status: 'success',
+        data: await models.Deals.removeDeals(_ids),
       };
     }),
 
@@ -227,18 +238,39 @@ export const dealTrpcRouter = t.router({
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { filter, userId } = input;
-        const { models } = ctx;
-        return await generateFilter(models, userId, filter);
+        const { models, subdomain } = ctx;
+        return await generateFilter(models, subdomain, userId, filter);
       }),
+  },
+  stage: {
+    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { subdomain, ...rest } = input;
+      return {
+        status: 'success',
+        data: await models.Stages.findOne(rest).lean(),
+      };
+    }),
+    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { subdomain, ...rest } = input;
+      return {
+        status: 'success',
+        data: await models.Stages.find(rest).sort({ order: 1 }).lean(),
+      };
+    }),
   },
 });
 
 export const fetchSegment = async (
+  subdomain: string,
   segmentId: string,
   options?,
   segmentData?: any,
 ) => {
   return await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'segments',

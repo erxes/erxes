@@ -1,0 +1,65 @@
+{
+  "name": "mongolian_ui",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "frontend/plugins/mongolian_ui/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/rspack:rspack",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "web",
+        "outputPath": "dist/frontend/plugins/mongolian_ui",
+        "main": "frontend/plugins/mongolian_ui/src/main.ts",
+        "tsConfig": "frontend/plugins/mongolian_ui/tsconfig.app.json",
+        "rspackConfig": "frontend/plugins/mongolian_ui/rspack.config.ts",
+        "assets": [
+          "frontend/plugins/mongolian_ui/src/assets"
+        ]
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production",
+          "optimization": true,
+          "sourceMap": false,
+          "rspackConfig": "frontend/plugins/mongolian_ui/rspack.config.prod.ts"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/rspack:module-federation-dev-server",
+      "options": {
+        "buildTarget": "mongolian_ui:build:development",
+        "port": 3005
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "buildTarget": "mongolian_ui:build:production"
+        }
+      }
+    },
+    "serve-static": {
+      "executor": "@nx/rspack:module-federation-static-server",
+      "defaultConfiguration": "production",
+      "options": {
+        "serveTarget": "mongolian_ui:serve"
+      },
+      "configurations": {
+        "development": {
+          "serveTarget": "mongolian_ui:serve:development"
+        },
+        "production": {
+          "serveTarget": "mongolian_ui:serve:production"
+        }
+      }
+    }
+  }
+}

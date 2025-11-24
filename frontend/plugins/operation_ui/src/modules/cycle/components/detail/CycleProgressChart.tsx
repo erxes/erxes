@@ -91,7 +91,8 @@ export const CycleProgressChart = ({
             dataKey="totalScope"
             type="monotone"
             stroke={STATUS_COLORS.totalScope}
-            fill={`hsla(var(--primary) / 0.2)`}
+            fill={STATUS_COLORS.totalScope}
+            fillOpacity={0.2}
             strokeWidth={2}
             connectNulls={true}
             strokeLinecap="round"
@@ -107,6 +108,7 @@ export const CycleProgressChart = ({
             dot={false}
             connectNulls={true}
             strokeLinecap="round"
+            activeDot={{ fill: STATUS_COLORS.started, r: 4 }}
           />
           <Area
             dataKey="completed"
@@ -117,6 +119,7 @@ export const CycleProgressChart = ({
             dot={false}
             connectNulls={true}
             strokeLinecap="round"
+            activeDot={{ fill: STATUS_COLORS.completed, r: 4 }}
           />
         </AreaChart>
       </ChartContainer>

@@ -1,30 +1,31 @@
 import * as bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
-import * as crypto from 'crypto';
 
-import { getPlugins, redis } from 'erxes-api-shared/utils';
 import {
-  USER_ROLES,
-  userSchema,
-  userMovemmentSchema,
   sendNotification,
+  USER_ROLES,
+  userMovemmentSchema,
+  userSchema,
 } from 'erxes-api-shared/core-modules';
+import { redis } from 'erxes-api-shared/utils';
 
 import { saveValidatedToken } from '@/auth/utils';
-import { IModels } from '~/connectionResolvers';
 import {
-  IUser,
-  IDetail,
-  ILink,
-  IUserMovementDocument,
-  IUserDocument,
-  IEmailSignature,
   IAppDocument,
+  IDetail,
+  IEmailSignature,
+  ILink,
+  IUser,
+  IUserDocument,
+  IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
+import { IModels } from '~/connectionResolvers';
 
 import { USER_MOVEMENT_STATUSES } from 'erxes-api-shared/core-modules';
-import { title } from 'process';
+import { sendOnboardNotification } from '~/modules/notifications/utils';
+import { PERMISSION_ROLES } from '~/modules/permissions/db/constants';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -54,9 +55,7 @@ interface IConfirmParams {
 
 interface IInviteParams {
   email: string;
-  password: string;
-  groupId: string;
-  brandIds: string[];
+  password?: string;
 }
 
 interface ILoginParams {
@@ -82,7 +81,7 @@ export interface IUserModel extends Model<IUserDocument> {
     username?: string;
   }): Promise<never>;
   getSecret(): string;
-  generateToken(): { token: string; expires: Date };
+  generateToken(duration?: number): { token: string; expires: Date };
   createUser(doc: IUser & { notUsePassword?: boolean }): Promise<IUserDocument>;
   updateUser(_id: string, doc: IUpdateUser): Promise<IUserDocument>;
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
@@ -100,7 +99,6 @@ export interface IUserModel extends Model<IUserDocument> {
   generatePassword(password: string): Promise<string>;
   invite(params: IInviteParams): string;
   resendInvitation({ email }: { email: string }): string;
-  confirmInvitation(params: IConfirmParams): Promise<IUserDocument>;
   comparePassword(password: string, userPassword: string): boolean;
   resetPassword(params: {
     token: string;
@@ -125,7 +123,7 @@ export interface IUserModel extends Model<IUserDocument> {
     email: string;
     password?: string;
   }): Promise<IUserDocument>;
-  getTokenFields(user: IUserDocument);
+  getTokenFields(_user: IUserDocument): Promise<IUserDocument>;
   logout(_user: IUserDocument, token: string): Promise<string>;
   findUsers(query: any, options?: any): Promise<IUserDocument[]>;
   createSystemUser(doc: IAppDocument): IUserDocument;
@@ -198,7 +196,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
 
         // Checking if duplicated
         if (previousEntry) {
-          throw new Error('Duplicated User Name Id');
+          throw new Error('Username already exists');
         }
       }
     }
@@ -234,7 +232,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         this.checkPassword(password);
       }
 
-      return models.Users.create({
+      const user = await models.Users.create({
         isOwner,
         username,
         email,
@@ -246,6 +244,13 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         password: notUsePassword ? '' : await this.generatePassword(password),
         code: await this.generateUserCode(),
       });
+
+      models.Roles.create({
+        userId: user._id,
+        role: PERMISSION_ROLES.MEMBER,
+      });
+
+      return user;
     }
 
     /**
@@ -300,45 +305,46 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
       return models.Users.findOne({ _id });
     }
 
-    public static async generateToken() {
+    public static async generateToken(duration?: number) {
       const buffer = await crypto.randomBytes(20);
       const token = buffer.toString('hex');
 
+      const expires = Date.now() + (duration || 86400000);
+
       return {
         token,
-        expires: Date.now() + 86400000,
+        expires,
       };
     }
 
     /**
      * Create new user with invitation token
      */
-    public static async invite({
-      email,
-      password,
-      groupId,
-      brandIds,
-    }: IInviteParams) {
+    public static async invite({ email, password }: IInviteParams) {
       email = (email || '').toLowerCase().trim();
       password = (password || '').trim();
 
       // Checking duplicated email
       await models.Users.checkDuplication({ email });
 
-      const { token, expires } = await User.generateToken();
+      const { token, expires } = await models.Users.generateToken(1800000); // 30 minutes
 
-      this.checkPassword(password);
+      if (password) {
+        this.checkPassword(password);
+      }
 
-      await models.Users.create({
+      const user = await models.Users.create({
         email,
-        groupIds: [groupId],
         isActive: true,
-        // hash password
-        password: await this.generatePassword(password),
         registrationToken: token,
         registrationTokenExpires: expires,
         code: await this.generateUserCode(),
-        brandIds,
+        ...(password && { password: await this.generatePassword(password) }),
+      });
+
+      models.Roles.create({
+        userId: user._id,
+        role: PERMISSION_ROLES.MEMBER,
       });
 
       return token;
@@ -358,7 +364,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         throw new Error('Invalid request');
       }
 
-      const { token, expires } = await models.Users.generateToken();
+      const { token, expires } = await models.Users.generateToken(1800000); // 30 minutes
 
       await models.Users.updateOne(
         { email },
@@ -369,63 +375,6 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
       );
 
       return token;
-    }
-
-    /**
-     * Confirms user by invitation
-     */
-    public static async confirmInvitation({
-      token,
-      password,
-      passwordConfirmation,
-      fullName,
-      username,
-    }: {
-      token: string;
-      password: string;
-      passwordConfirmation: string;
-      fullName?: string;
-      username?: string;
-    }) {
-      const user = await models.Users.findOne({
-        registrationToken: token,
-        registrationTokenExpires: {
-          $gt: Date.now(),
-        },
-      });
-
-      if (!user || !token) {
-        throw new Error('Token is invalid or has expired');
-      }
-
-      if (password === '') {
-        throw new Error('Password can not be empty');
-      }
-
-      if (password !== passwordConfirmation) {
-        throw new Error('Password does not match');
-      }
-
-      this.checkPassword(password);
-
-      await models.Users.updateOne(
-        { _id: user._id },
-        {
-          $set: {
-            password: await this.generatePassword(password),
-            isActive: true,
-            registrationToken: undefined,
-            username,
-            details: {
-              fullName,
-              firstName: (fullName ?? '').split(' ')[0],
-              lastName: (fullName ?? '').split(' ')[1] || '',
-            },
-          },
-        },
-      );
-
-      return user;
     }
 
     /*
@@ -678,18 +627,26 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
       return token;
     }
 
-    public static getTokenFields(user: IUserDocument) {
-      return {
-        _id: user._id,
-        email: user.email,
-        details: user.details,
-        isOwner: user.isOwner,
-        groupIds: user.groupIds,
-        brandIds: user.brandIds,
-        username: user.username,
-        code: user.code,
-        departmentIds: user.departmentIds,
+    public static async getTokenFields(_user: IUserDocument) {
+      const user = {
+        _id: _user._id,
+        email: _user.email,
+        details: _user.details,
+        isOwner: _user.isOwner,
+        groupIds: _user.groupIds,
+        brandIds: _user.brandIds,
+        username: _user.username,
+        code: _user.code,
+        departmentIds: _user.departmentIds,
       };
+
+      const { role } = (await models.Roles.getRole(user._id)) || {};
+
+      if (role) {
+        user['role'] = role;
+      }
+
+      return user;
     }
 
     /*
@@ -700,6 +657,12 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         _id: _user._id,
         isOwner: _user.isOwner,
       };
+
+      const { role } = (await models.Roles.getRole(user._id)) || {};
+
+      if (role) {
+        user['role'] = role;
+      }
 
       const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
 
@@ -723,7 +686,6 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         _id = user._id;
         // if refresh token is expired then force to login
       } catch (e: any) {
-        console.log(e);
         return {};
       }
 
@@ -795,38 +757,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      if (user.isOwner && !user.lastSeenAt) {
-        const pluginNames = await getPlugins();
-
-        for (const pluginName of pluginNames) {
-          if (pluginName === 'core') {
-            sendNotification(subdomain, {
-              title: 'Welcome to erxes 🎉',
-              message:
-                'We’re excited to have you on board! Explore the features, connect with your team, and start growing your business with erxes.',
-              type: 'info',
-              userIds: [user._id],
-              priority: 'low',
-              kind: 'system',
-              contentType: `${pluginName}:system.welcome`,
-            });
-
-            await user.updateOne({ $set: { lastSeenAt: new Date() } });
-
-            continue;
-          }
-
-          sendNotification(subdomain, {
-            title: `Get Started with ${pluginName}`,
-            message: `Excited to introduce ${pluginName}! Dive in to explore its features and see how it can help your business thrive.`,
-            type: 'info',
-            userIds: [user._id],
-            priority: 'low',
-            kind: 'system',
-            contentType: `${pluginName}:system.welcome`,
-          });
-        }
-      }
+      await sendOnboardNotification(subdomain, models, user._id);
 
       return {
         token,
@@ -1196,12 +1127,6 @@ export const loadUserMovemmentClass = (models: IModels, subdomain: string) => {
               contentType === 'department'
                 ? 'departmentAssigneeChanged'
                 : 'branchAssigneeChanged';
-            console.log({
-              fromUserId: createdBy,
-              userIds: targetUserIds,
-              notificationType,
-              message,
-            });
             sendNotification(subdomain, {
               title,
               message,

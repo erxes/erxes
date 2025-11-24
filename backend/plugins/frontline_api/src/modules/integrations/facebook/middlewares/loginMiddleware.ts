@@ -33,14 +33,12 @@ export const loginMiddleware = async (req, res) => {
   const conf = {
     client_id: FACEBOOK_APP_ID,
     client_secret: FACEBOOK_APP_SECRET,
-    scope: FACEBOOK_PERMISSIONS,
+    scope: FACEBOOK_PERMISSIONS + ',pages_read_engagement,pages_show_list',
     redirect_uri: FACEBOOK_LOGIN_REDIRECT_URL,
   };
 
   debugRequest(debugFacebook, req);
 
-  // we don't have a code yet
-  // so we'll redirect to the oauth dialog
   if (!req.query.code) {
     const authUrl = graph.getOauthUrl({
       client_id: conf.client_id,
@@ -49,7 +47,6 @@ export const loginMiddleware = async (req, res) => {
       state: `${API_DOMAIN}/pl:frontline/facebook`,
     });
 
-    // checks whether a user denied the app facebook login/permissions
     if (!req.query.error) {
       debugResponse(debugFacebook, req, authUrl);
       return res.redirect(authUrl);
@@ -66,10 +63,6 @@ export const loginMiddleware = async (req, res) => {
     code: req.query.code,
   };
   debugResponse(debugFacebook, req, JSON.stringify(config));
-  // If this branch executes user is already being redirected back with
-  // code (whatever that is)
-  // code is set
-  // we'll send that and get the access token
 
   return graph.authorize(config, async (_err, facebookRes) => {
     const { access_token } = facebookRes;
@@ -86,7 +79,7 @@ export const loginMiddleware = async (req, res) => {
     const account = await models.FacebookAccounts.findOne({
       uid: userAccount.id,
     });
-
+    let accountId: string;
     if (account) {
       await models.FacebookAccounts.updateOne(
         { _id: account._id },
@@ -95,23 +88,25 @@ export const loginMiddleware = async (req, res) => {
       const integrations = await models.FacebookIntegrations.find({
         accountId: account._id,
       });
+      accountId = account._id;
 
       for (const integration of integrations) {
         await repairIntegrations(subdomain, integration.erxesApiId);
       }
     } else {
-      await models.FacebookAccounts.create({
+      const newAccount = await models.FacebookAccounts.create({
         token: access_token,
         name,
         kind: 'facebook',
         uid: userAccount.id,
       });
+      accountId = newAccount._id;
     }
 
     const reactAppUrl = !DOMAIN.includes('zrok')
       ? DOMAIN
       : 'http://localhost:3001';
-    const url = `${reactAppUrl}/settings/inbox/integrations/facebook-messenger?fbAuthorized=true`;
+    const url = `${reactAppUrl}/settings/frontline/channels/fb-auth`;
 
     debugResponse(debugFacebook, req, url);
 

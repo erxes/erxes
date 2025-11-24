@@ -1,25 +1,28 @@
+import { ActivityAssignee } from '@/activity/components/ActivityAssignee';
+import { ActivityCycle } from '@/activity/components/ActivityCycle';
+import { ActivityDate } from '@/activity/components/ActivityDate';
+import { ActivityEstimate } from '@/activity/components/ActivityEstimate';
+import { ActivityLead } from '@/activity/components/ActivityLead';
+import { ActivityMilestone } from '@/activity/components/ActivityMilestone';
+import { ActivityNote } from '@/activity/components/ActivityNote';
+import { ActivityPriority } from '@/activity/components/ActivityPriority';
+import { ActivityStatus } from '@/activity/components/ActivityStatus';
+import { ActivityTeam } from '@/activity/components/ActivityTeam';
+import { Name } from '@/activity/components/Name';
 import { ACTIVITY_MODULES } from '@/activity/constants';
 import { IActivity } from '@/activity/types';
-import { ActivityPriority } from '@/activity/components/ActivityPriority';
-import { Name } from '@/activity/components/Name';
 import {
   IconAlertSquareRounded,
   IconCalendar,
   IconLabel,
-  IconProgressCheck,
-  IconUsersGroup,
-  IconQuestionMark,
   IconNote,
+  IconProgressCheck,
+  IconQuestionMark,
+  IconSquareRotated,
+  IconUsersGroup,
 } from '@tabler/icons-react';
 import { MembersInline } from 'ui-modules';
-import { ActivityStatus } from '@/activity/components/ActivityStatus';
-import { ActivityAssignee } from '@/activity/components/ActivityAssignee';
-import { ActivityDate } from '@/activity/components/ActivityDate';
-import { ActivityTeam } from '@/activity/components/ActivityTeam';
-import { ActivityLead } from '@/activity/components/ActivityLead';
-import { ActivityNote } from '@/activity/components/ActivityNote';
-import { ActivityEstimate } from '@/activity/components/ActivityEstimate';
-import { ActivityCycle } from '@/activity/components/ActivityCycle';
+import { ActivityConvertToProject } from '@/activity/components/ActivityConvert';
 
 export const ActivityItem = ({ activity }: { activity: IActivity }) => {
   const { metadata, action } = activity;
@@ -47,6 +50,10 @@ export const ActivityItem = ({ activity }: { activity: IActivity }) => {
       return <ActivityEstimate metadata={metadata} action={action} />;
     case ACTIVITY_MODULES.CYCLE:
       return <ActivityCycle metadata={metadata} action={action} />;
+    case ACTIVITY_MODULES.MILESTONE:
+      return <ActivityMilestone metadata={metadata} action={action} />;
+    case ACTIVITY_MODULES.CONVERT:
+      return <ActivityConvertToProject metadata={metadata} action={action} />;
     default:
       return <div>Unknown module</div>;
   }
@@ -89,6 +96,8 @@ export const ActivityIcon = ({ activity }: { activity: IActivity }) => {
       return (
         <IconAlertSquareRounded className="size-4 text-accent-foreground" />
       );
+    case ACTIVITY_MODULES.MILESTONE:
+      return <IconSquareRotated className="size-4 text-accent-foreground" />;
     default:
       return <IconQuestionMark className="size-4 text-accent-foreground" />;
   }

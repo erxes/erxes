@@ -21,34 +21,49 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build shared module
+      - name: Set environment variables
         run: |
-          export NX_DAEMON=false
-          pnpm nx build erxes-api-shared
+          echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+          echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+      - name: Build shared module
+        run: pnpm nx build erxes-api-shared
+
+      - name: Build automations-service
+        run: pnpm nx build automations-service
+
+      # Buildx setup
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        run: |
-          export NX_DAEMON=false
-          pnpm nx docker-build automations-service
-          docker tag erxes/erxes-next-automations erxes/erxes-next-automations:latest
-          docker tag erxes/erxes-next-automations erxes/erxes-next-automations:${{ github.sha }}
-          docker push erxes/erxes-next-automations:latest
-          docker push erxes/erxes-next-automations:${{ github.sha }}
-        if: github.event_name != 'pull_request'
+      - name: Build and push Docker image (multi-platform)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: backend/services/automations/Dockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            erxes/erxes-next-automations:latest
+            erxes/erxes-next-automations:${{ env.DATE }}-${{ env.SHORT_SHA }}

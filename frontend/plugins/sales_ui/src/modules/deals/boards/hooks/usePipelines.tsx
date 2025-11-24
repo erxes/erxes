@@ -36,7 +36,6 @@ export const usePipelines = (
   >(GET_PIPELINES, {
     ...options,
     variables: {
-      isAll: true,
       ...options?.variables,
     },
   });
@@ -251,7 +250,10 @@ export const usePipelineUpdateOrder = (
 export const usePipelineDetail = (
   options?: QueryHookOptions<{ salesPipelineDetail: IPipeline }>,
 ) => {
-  const [pipelineId] = useQueryState('pipelineId');
+  const [pipelineIdFromQuery] = useQueryState('pipelineId');
+
+  // Prioritize _id from passed variables, fallback to query state
+  const pipelineId = options?.variables?._id || pipelineIdFromQuery;
 
   const { data, loading, error } = useQuery<{ salesPipelineDetail: IPipeline }>(
     GET_PIPELINE_DETAIL,

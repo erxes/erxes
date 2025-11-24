@@ -4,17 +4,15 @@ export const ADD_INTEGRATION = gql`
   mutation IntegrationsCreateExternalIntegration(
     $kind: String!
     $name: String!
-    $brandId: String!
     $accountId: String
-    $channelIds: [String]
+    $channelId: String!
     $data: JSON
   ) {
     integrationsCreateExternalIntegration(
       kind: $kind
       name: $name
-      brandId: $brandId
       accountId: $accountId
-      channelIds: $channelIds
+      channelId: $channelId
       data: $data
     ) {
       _id

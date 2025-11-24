@@ -1,4 +1,4 @@
-import { activeJournalState } from '../states/trStates';
+import { activeJournalState, followTrDocsState } from '../states/trStates';
 import {
   DatePicker,
   Form,
@@ -20,6 +20,7 @@ import { useTransactionDetail } from '../hooks/useTransactionDetail';
 import { useTransactionsCreate } from '../hooks/useTransactionsCreate';
 import { useTransactionsUpdate } from '../hooks/useTransactionsUpdate';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cleanTrDocs } from './utils';
 
 // Memoize form fields to prevent unnecessary re-renders
 const FormFields = memo(
@@ -65,7 +66,7 @@ FormFields.displayName = 'FormFields';
 export const TransactionsGroupForm = () => {
   // const parentId = useParams().parentId;
   const [parentId] = useQueryState<string>('parentId');
-  const { activeTrs, loading } = useTransactionDetail({
+  const { activeTrs, followTrs, loading } = useTransactionDetail({
     variables: { _id: parentId },
     skip: !parentId,
   });
@@ -82,24 +83,14 @@ export const TransactionsGroupForm = () => {
   const [trId] = useQueryState<string>('trId');
 
   const setActiveJournal = useSetAtom(activeJournalState);
+  const setFollowTrDocs = useSetAtom(followTrDocsState);
 
   const { createTransaction } = useTransactionsCreate();
   const { updateTransaction } = useTransactionsUpdate();
 
-
   const onSubmit = (data: TAddTransactionGroup) => {
     // transactionGroup get
-    const trDocs = data.trDocs.map(trD => ({
-      ...trD,
-      followExtras: undefined,
-      details: trD.details.map(det => ({
-        ...det,
-        account: undefined,
-        checked: undefined,
-      })),
-      date: data.date,
-      number: data.number,
-    }));
+    const trDocs = cleanTrDocs(data);
 
     if (parentId) {
       updateTransaction({
@@ -113,10 +104,9 @@ export const TransactionsGroupForm = () => {
   };
 
   const onError = (error: any) => {
-    if (error?.details?.length > 0) {
-      setActiveJournal(error.details.findIndex((tab: any) => !!tab).toString());
+    if (error?.trDocs?.length > 0) {
+      setActiveJournal(error.trDocs.findIndex((tab: any) => !!tab).toString());
     }
-    console.log(error);
   };
 
   useEffect(() => {
@@ -141,6 +131,8 @@ export const TransactionsGroupForm = () => {
         trDocs: [JOURNALS_BY_JOURNAL(defaultJournal)],
       });
     }
+
+    setFollowTrDocs(followTrs);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultJournal, trId, form, loading]);
 

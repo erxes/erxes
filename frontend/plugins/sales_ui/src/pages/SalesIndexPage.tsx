@@ -5,19 +5,29 @@ import {
   PageSubHeader,
   Separator,
 } from 'erxes-ui';
-import { IconSandbox, IconSettings } from '@tabler/icons-react';
+import { Link, useSearchParams } from 'react-router-dom';
 
-import { Link } from 'react-router-dom';
+import { AddDealSheet } from '@/deals/components/AddDealSheet';
+import { IconSandbox } from '@tabler/icons-react';
 import MainActionBar from '@/deals/actionBar/components/MainActionBar';
 import { PageHeader } from 'ui-modules';
+import { SalesBreadCrumb } from '@/deals/components/breadcrumb/SalesBreadCrumb';
 import { SalesItemDetail } from '@/deals/cards/components/detail/SalesItemDetail';
-import { SalesLeftSidebar } from '@/deals/components/SalesLeftSidebar';
-import { StagesList } from '@/deals/stage/components/StagesList';
+import { lazy } from 'react';
+
+const DealBoard = lazy(() =>
+  import('@/deals/boards/components/DealsBoard').then((mod) => ({
+    default: mod.DealsBoard,
+  })),
+);
 
 export const SalesIndexPage = () => {
+  const [searchParams] = useSearchParams();
+  const boardId = searchParams.get('boardId');
+  const pipelineId = searchParams.get('pipelineId');
+
   return (
     <div className="flex h-full overflow-hidden w-full">
-      <SalesLeftSidebar />
       <div className="flex flex-col h-full w-full overflow-hidden">
         <PageHeader>
           <PageHeader.Start>
@@ -27,30 +37,26 @@ export const SalesIndexPage = () => {
                   <Button variant="ghost" asChild>
                     <Link to="/sales">
                       <IconSandbox />
-                      Sales
+                      Sales Pipeline
                     </Link>
                   </Button>
                 </Breadcrumb.Item>
+                <Separator.Inline />
+                {boardId && (
+                  <SalesBreadCrumb boardId={boardId} pipelineId={pipelineId} />
+                )}
               </Breadcrumb.List>
             </Breadcrumb>
-            <Separator.Inline />
-            <PageHeader.FavoriteToggleButton />
           </PageHeader.Start>
-          <PageHeader.End>
-            <Button variant="outline" asChild>
-              <Link to="/settings/deals">
-                <IconSettings />
-                Go to settings
-              </Link>
-            </Button>
-          </PageHeader.End>
+          <AddDealSheet />
         </PageHeader>
+
         <PageContainer className="overflow-hidden">
           <PageSubHeader>
             <MainActionBar />
           </PageSubHeader>
 
-          <StagesList />
+          <DealBoard />
           <SalesItemDetail />
         </PageContainer>
       </div>

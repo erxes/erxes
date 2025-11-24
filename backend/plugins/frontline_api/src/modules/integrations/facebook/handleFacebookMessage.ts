@@ -115,6 +115,8 @@ export const handleFacebookMessage = async (
 
       // Fetch the user who sent the reply
       const user = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'users',

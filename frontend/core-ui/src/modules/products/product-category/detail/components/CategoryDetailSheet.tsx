@@ -21,7 +21,6 @@ import {
   ProductFormValues,
 } from '../../add-category/components/formSchema';
 import { CategoryUpdateMoreFields } from './CategoryUpdateMoreFields';
-import { ProductAddCollapsible } from '@/products/add-products/components/ProductAddCollapsible';
 
 export const CategoryDetailSheet = () => {
   const [activeTab] = useAtom(renderingCategoryDetailAtom);
@@ -77,12 +76,13 @@ export const CategoryDetailSheet = () => {
           toast({
             title: 'Error',
             description: e.message,
+            variant: 'destructive',
           });
         },
         onCompleted: () => {
           toast({
-            title: 'Success',
-            description: 'Category updated successfully',
+            title: 'Category updated successfully',
+            variant: 'success',
           });
           form.reset();
           setOpen(null);
@@ -105,7 +105,7 @@ export const CategoryDetailSheet = () => {
       <Sheet.View
         className={cn(
           'p-0 md:max-w-screen-[520px] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
-          !!activeTab && 'md:w-[calc(100vw-theme(spacing.4))]',
+          !!activeTab && 'md:w-[calc(100vw-(--spacing(4)))]',
         )}
       >
         <Form {...form}>
@@ -125,14 +125,12 @@ export const CategoryDetailSheet = () => {
               <ScrollArea className="h-full">
                 <div className="p-5">
                   <CategoriesUpdateCoreFields form={form} />
-                  <ProductAddCollapsible>
-                    <CategoryUpdateMoreFields form={form} />
-                  </ProductAddCollapsible>
+                  <CategoryUpdateMoreFields form={form} />
                 </div>
               </ScrollArea>
             </Sheet.Content>
 
-            <Sheet.Footer className="flex justify-end flex-shrink-0 p-2.5 gap-1 bg-muted">
+            <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
               <Button
                 type="button"
                 variant="ghost"

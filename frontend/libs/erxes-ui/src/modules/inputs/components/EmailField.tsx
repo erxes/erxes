@@ -151,9 +151,8 @@ export const EmailListField = ({
       noValidation={noValidation}
       onValidationStatusChange={onValidationStatusChange}
     >
-      <div className="p-1 space-y-1">
-        <EmailList />
-      </div>
+      <EmailList />
+
       <EmailForm />
     </EmailFieldsProvider>
   );
@@ -168,8 +167,16 @@ const EmailList = () => {
   useEffect(() => {
     mounted.current = true;
   }, []);
+
+  if (emails.length === 0) {
+    return <div className="pt-1" />;
+  }
+
   return (
-    <div ref={mounted.current ? animationParent : null} className="space-y-1">
+    <div
+      ref={mounted.current ? animationParent : null}
+      className="space-y-1 p-1"
+    >
       {emails.map(
         (email) =>
           email.email && (
@@ -244,7 +251,7 @@ const EmailOptions = ({
       <DropdownMenu.Trigger asChild>
         <Button
           variant="secondary"
-          className="w-full font-medium size-8 flex-shrink-0"
+          className="w-full font-medium size-8 shrink-0"
           size="icon"
         >
           <IconDots />
@@ -378,7 +385,7 @@ const EmailForm = () => {
             name="email"
             control={form.control}
             render={({ field }) => (
-              <div className="px-1 pb-1">
+              <div className="p-1 pt-0">
                 <Input
                   placeholder={editingEmail ? 'Edit email' : 'Add email'}
                   variant="secondary"

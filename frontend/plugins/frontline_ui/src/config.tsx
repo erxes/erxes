@@ -45,19 +45,38 @@ export const CONFIG: IUIConfig = {
   },
   modules: [
     {
-      name: 'inbox',
-      icon: IconMail,
-      path: 'inbox',
+      name: 'channels',
+      path: 'frontline/channels',
+      settingsOnly: true,
+      hasFloatingWidget: true,
     },
     {
-      name: 'ticket',
-      icon: IconTicket,
-      path: 'ticket',
+      name: 'configs',
+      path: 'frontline/config',
+      settingsOnly: true,
     },
     {
       name: 'frontline',
       icon: IconMail,
       path: 'frontline',
+      hasSettings: false,
+      hasAutomation: true,
+    },
+    {
+      name: 'ticket',
+      path: 'frontline/ticket',
+      settingsOnly: true,
+    },
+  ],
+
+  relationWidgets: [
+    {
+      name: 'conversation',
+      icon: IconMail,
+    },
+    {
+      name: 'ticket',
+      icon: IconTicket,
     },
   ],
 };

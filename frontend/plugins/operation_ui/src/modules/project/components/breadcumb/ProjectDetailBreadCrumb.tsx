@@ -22,7 +22,7 @@ export const ProjectDetailBreadCrumb = () => {
   });
 
   if (loading) {
-    return <Skeleton className="w-12 h-[1lh]" />;
+    return <Skeleton className="w-12 h-lh" />;
   }
 
   // Determine base path

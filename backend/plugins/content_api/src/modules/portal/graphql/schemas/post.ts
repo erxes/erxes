@@ -67,7 +67,7 @@ export const types = `
         pageInfo: PageInfo
     }
 
-    type PostTranslation {
+    type Translation {
         _id: String!
         postId: String
         language: String
@@ -106,31 +106,50 @@ export const inputs = `
         type: String
     }
 
-    input PostTranslationInput {
+    input TranslationInput {
         postId: String
         language: String
         title: String
         content: String
         excerpt: String
         customFieldsData: JSON
+        type: String
     }
+`;
+
+const commonPostQuerySelector = `
+    ${GQL_CURSOR_PARAM_DEFS}
+    featured: Boolean
+    type: String
+    categoryId: String
+    searchValue: String
+    status: PostStatus
+    tagIds: [String]
+    sortField: String
+    sortDirection: String
+    language: String
 `;
 
 export const queries = `
     cmsPost(_id: String, slug: String, language: String): Post
-    cmsPosts(clientPortalId: String, featured: Boolean,type: String, categoryId: String, searchValue: String, status: PostStatus, tagIds: [String], sortField: String, sortDirection: String, language: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): [Post]
-    cmsPostList(clientPortalId: String, featured: Boolean, type: String, categoryId: String, searchValue: String, status: PostStatus, tagIds: [String], sortField: String, sortDirection: String, language: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): PostList
-    cmsPostTranslations(postId: String): [PostTranslation]
+    cmsPosts(clientPortalId: String, ${commonPostQuerySelector}): [Post]
+    cmsPostList(clientPortalId: String, ${commonPostQuerySelector}): PostList
+    cmsTranslations(postId: String): [Translation]
+
+    cpPosts(language: String, ${commonPostQuerySelector}): [Post]
+    cpPostList(language: String, ${commonPostQuerySelector}): PostList
+    cpPost(_id: String, slug: String, language: String, clientPortalId: String): Post
 `;
 
 export const mutations = `
     cmsPostsAdd(input: PostInput!): Post
-    cmsPostsAddTranslation(input: PostTranslationInput!): PostTranslation
     cmsPostsEdit(_id: String!, input: PostInput!): Post
-    cmsPostsEditTranslation(input: PostTranslationInput!): PostTranslation
     cmsPostsRemove(_id: String!): JSON
     cmsPostsChangeStatus(_id: String!, status: PostStatus!): Post
     cmsPostsToggleFeatured(_id: String!): Post
 
-    cmsPostsIncrementViewCount(_id: String!): Post
+    cpPostsIncrementViewCount(_id: String!): Post
+
+    cmsAddTranslation(input: TranslationInput!): Translation
+    cmsEditTranslation(input: TranslationInput!): Translation
 `;

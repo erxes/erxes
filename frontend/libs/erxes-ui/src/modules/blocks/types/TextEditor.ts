@@ -24,7 +24,8 @@ export interface BlockEditorProps {
 export interface IEditorProps {
   onChange: (value: string) => void;
   initialContent?: string;
-  scope: string;
+  scope?: string;
+  isHTML?: boolean;
 }
 
 export type IBlockEditor = typeof BLOCK_SCHEMA.BlockNoteEditor;

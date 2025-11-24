@@ -1,22 +1,12 @@
 import { CoreNotificationContent } from '@/notification/my-inbox/components/contents/CoreNotificationContent';
-import { SystemNotificationContents } from '@/notification/my-inbox/components/contents/system/SystemNotificationContents';
-import { UnknownSystemNotificationContent } from '@/notification/my-inbox/components/contents/system/UnknownSystemNotificationContent';
 import { NoNotificationSelected } from '@/notification/my-inbox/components/NoNotificationSelected';
 import { useNotification } from '@/notification/my-inbox/hooks/useNotification';
-import {
-  INotification,
-  INotificationKind,
-} from '@/notification/my-inbox/types/notifications';
 import { ScrollArea, Spinner } from 'erxes-ui';
-import { Suspense } from 'react';
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
-// import { WelcomeMessageNotificationContent } from '@/notification/my-inbox/components/contents/system/WelcomeMessage';
-import { currentUserState } from 'ui-modules';
-import { useAtomValue } from 'jotai';
+import { INotification } from '@/notification/my-inbox/types/notifications';
 
 export const NotificationContent = () => {
   const { notification, loading } = useNotification();
-  const currentUser = useAtomValue(currentUserState);
 
   if (loading) {
     return <Spinner />;
@@ -28,7 +18,10 @@ export const NotificationContent = () => {
 
   return (
     <ScrollArea className="overflow-hidden h-full">
-      <NotificationContentWrapper notification={notification} />
+      <NotificationContentWrapper
+        key={notification._id}
+        notification={notification}
+      />
     </ScrollArea>
   );
 };

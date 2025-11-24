@@ -9,6 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { CallIntegrationForm } from '@/integrations/call/components/CallIntegrationForm';
 import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
 import { IntegrationType } from '@/types/Integration';
+import { useParams } from 'react-router';
 
 export const CallIntegrationAddSheet = () => {
   const [callAddSheet, setCallAddSheet] = useAtom(callAddSheetAtom);
@@ -29,6 +30,8 @@ export const CallIntegrationAddSheet = () => {
 };
 
 export const CallIntegrationAdd = () => {
+  const { id } = useParams();
+
   const form = useForm<z.infer<typeof CALL_INTEGRATION_FORM_SCHEMA>>({
     resolver: zodResolver(CALL_INTEGRATION_FORM_SCHEMA),
     defaultValues: {
@@ -47,8 +50,7 @@ export const CallIntegrationAdd = () => {
       variables: {
         name: data.name,
         kind: IntegrationType.CALL,
-        brandId: data.brandId,
-        channelIds: data.channelIds,
+        channelId: id || '',
         data: {
           phone: data.phone,
           wsServer: data.websocketServer,

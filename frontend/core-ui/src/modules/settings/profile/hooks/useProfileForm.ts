@@ -11,18 +11,21 @@ const discordUrlRegex = new RegExp(
 
 export const profileValidationSchema = z
   .object({
-    details: z.object({
-      avatar: z.string().optional().nullable(),
-      firstName: z.string(),
-      lastName: z.string(),
-      middleName: z.string().optional().nullable(),
-      shortName: z.string().optional(),
-      operatorPhone: z.string().optional(),
-      birthDate: z.date().or(z.string()).optional(),
-      workStartedDate: z.date().or(z.string()).optional(),
-      location: z.string().optional(),
-      employeeId: z.string().optional().nullable(),
-    }),
+    details: z
+      .object({
+        avatar: z.string().optional().nullable(),
+        firstName: z.string().optional().nullable(),
+        lastName: z.string().optional().nullable(),
+        middleName: z.string().optional().nullable(),
+        shortName: z.string().optional().nullable(),
+        operatorPhone: z.string().optional().nullable(),
+        birthDate: z.date().or(z.string()).optional().nullable(),
+        workStartedDate: z.date().or(z.string()).optional().nullable(),
+        location: z.string().optional().nullable(),
+        employeeId: z.string().optional().nullable(),
+      })
+      .optional()
+      .nullable(),
     links: z
       .object({
         facebook: z
@@ -83,7 +86,7 @@ export const profileValidationSchema = z
           .or(z.literal('')),
       })
       .optional(),
-    username: z.string(),
+    username: z.string().min(3, 'Username must be at least 3 characters'),
     email: z.string().trim().email('Email must be a valid email'),
     positionIds: z.array(z.string()).optional(),
   })
@@ -94,18 +97,6 @@ const useProfileForm = () => {
   const form = useForm<FormType>({
     mode: 'onBlur',
     defaultValues: {
-      details: {
-        avatar: '',
-        firstName: '',
-        lastName: '',
-        shortName: '',
-        middleName: '',
-        operatorPhone: '',
-        birthDate: undefined,
-        workStartedDate: undefined,
-        location: '',
-        employeeId: '',
-      },
       links: {
         facebook: '',
         twitter: '',

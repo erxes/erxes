@@ -15,8 +15,13 @@ import {
 } from 'erxes-ui';
 import { useWatch } from 'react-hook-form';
 import { SelectProduct } from 'ui-modules';
-import { ITransactionGroupForm } from '../../../types/JournalForms';
+import { ITransactionGroupForm, TInvMoveJournal } from '../../../types/JournalForms';
 import { useEffect, useRef } from 'react';
+import { fixSumDtCt, getTempId } from '../../utils';
+import { ITransaction, ITrDetail } from '~/modules/transactions/types/Transaction';
+import { TR_SIDES, TrJournalEnum } from '~/modules/transactions/types/constants';
+import { useAtom } from 'jotai';
+import { followTrDocsState } from '../../../states/trStates';
 
 export const InventoryRow = ({
   detailIndex,
@@ -30,7 +35,7 @@ export const InventoryRow = ({
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
-  });
+  }) as TInvMoveJournal;
 
   const detail = useWatch({
     control: form.control,
@@ -69,6 +74,64 @@ export const InventoryRow = ({
         initAccountId.current &&
         detail.accountId === initAccountId.current),
   });
+
+  const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
+
+  useEffect(() => {
+    const currIn = followTrDocs.find(
+      (ftr) =>
+        ftr.originId === trDoc._id &&
+        ftr.originType === 'invMoveIn'
+    );
+
+    const commonFollowTr = {
+      originId: trDoc._id,
+      ptrId: trDoc.ptrId,
+      parentId: trDoc.parentId,
+    }
+
+    const invMoveInTr: ITransaction = fixSumDtCt({
+      ...currIn,
+      ...commonFollowTr,
+      _id: currIn?._id || getTempId(),
+      journal: TrJournalEnum.INV_MOVE_IN,
+      originType: 'invMoveIn',
+      branchId: trDoc.followInfos.moveInBranchId,
+      departmentId: trDoc.followInfos.moveInDepartmentId,
+      details: (trDoc.details || []).map((moveDetail) => {
+        const curInDetail = currIn?.details.find(inDetail => inDetail.originId === moveDetail._id);
+
+        if (!curInDetail || moveDetail._id === detail._id) {
+          return {
+            ...moveDetail,
+            ...curInDetail,
+            productId: moveDetail.productId,
+            account: trDoc.followExtras?.moveInAccount,
+            accountId: trDoc.followInfos?.moveInAccountId,
+
+            side: TR_SIDES.DEBIT,
+            count: moveDetail.count,
+            unitPrice: moveDetail.unitPrice,
+            amount: moveDetail.amount,
+          } as ITrDetail
+        }
+        return curInDetail;
+      }),
+    });
+
+    setFollowTrDocs([
+      ...(followTrDocs || []).filter(
+        (ftr) =>
+          !(
+            ftr.originId === trDoc._id &&
+            ['invMoveIn'].includes(ftr.originType || '')
+          )
+      ),
+      invMoveInTr,
+    ]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail]);
 
   // 🚨 Unit price-г зөвхөн дараа нь өөрчлөгдсөн тохиолдолд шинэчилнэ
   useEffect(() => {
@@ -124,7 +187,7 @@ export const InventoryRow = ({
     <Table.Row
       key={_id}
       className={cn(
-        'overflow-hidden h-cell hover:!bg-background',
+        'overflow-hidden h-cell hover:bg-background!',
         detailIndex === 0 && '[&>td]:border-t',
       )}
     >
@@ -170,7 +233,6 @@ export const InventoryRow = ({
                 }}
                 defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
                 variant="ghost"
-                inForm
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />
             )}
@@ -183,14 +245,24 @@ export const InventoryRow = ({
             control={form.control}
             name={`trDocs.${journalIndex}.details.${detailIndex}.productId`}
             render={({ field }) => (
-              <SelectProduct
-                value={field.value || ''}
-                onValueChange={(productId) => {
-                  handleProduct(productId as string, field.onChange);
-                }}
-                variant="ghost"
-                scope={AccountingHotkeyScope.TransactionFormPage}
-              />
+              <Form.Item>
+                <PopoverScoped
+                  scope={`trDocs.${journalIndex}.details.${detailIndex}.productId`}
+                  closeOnEnter
+                >
+                  <Form.Control>
+                    <SelectProduct
+                      value={field.value || ''}
+                      onValueChange={(productId) => {
+                        handleProduct(productId as string, field.onChange);
+                      }}
+                      variant="ghost"
+                      scope={AccountingHotkeyScope.TransactionFormPage}
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </PopoverScoped>
+              </Form.Item>
             )}
           />
         </Table.Cell>
@@ -210,6 +282,7 @@ export const InventoryRow = ({
                     {field.value?.toLocaleString() || 0}
                   </RecordTableInlineCell.Trigger>
                 </Form.Control>
+                <Form.Message />
                 <RecordTableInlineCell.Content>
                   <InputNumber
                     value={field.value ?? 0}

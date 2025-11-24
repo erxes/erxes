@@ -1,48 +1,89 @@
-import NxWelcome from './nx-welcome';
-
-import { Route, Routes, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useAtom } from 'jotai';
+import { postMessage } from '../lib/utils';
+import { Header } from './messenger/components';
+import { useMessenger } from './messenger/hooks/useMessenger';
+import { Intro } from './messenger/components/intro';
+import { useConnect } from './messenger/hooks/useConnect';
+import { Skeleton, REACT_APP_API_URL } from 'erxes-ui';
+import { ConversationDetails } from './messenger/components/conversation-details';
+import { connectionAtom, integrationIdAtom } from './messenger/states';
+import { Ticket } from './messenger/ticket/components/ticket';
 
 export function App() {
-  return (
-    <div>
-      <NxWelcome title="frontline-widgets" />
+  const [isMessengerVisible, setIsMessengerVisible] = useState(false);
+  const [isSmallContainer] = useState(false);
+  const { activeTab } = useMessenger();
+  const [connection] = useAtom(connectionAtom);
+  const [integrationId, setIntegrationId] = useAtom(integrationIdAtom);
+  const { loading: connecting } = useConnect({
+    integrationId: integrationId ?? '',
+  });
 
-      {/* START: routes */}
-      {/* These routes and navigation have been generated for you */}
-      {/* Feel free to move and update them to fit your needs */}
-      <br />
-      <hr />
-      <br />
-      <div role="navigation">
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/page-2">Page 2</Link>
-          </li>
-        </ul>
+  useEffect(() => {
+    if (!connecting && connection.widgetsMessengerConnect?.uiOptions) {
+      window.parent.postMessage(
+        {
+          fromErxes: true,
+          message: 'connected',
+          connectionInfo: connection,
+          apiUrl: REACT_APP_API_URL,
+        },
+        '*',
+      );
+    }
+  }, [connecting, connection]);
+
+  useEffect(() => {
+    const toggle = () => {
+      // notify parent window launcher state
+      postMessage('fromMessenger', 'messenger', {
+        isVisible: !isMessengerVisible,
+        isSmallContainer,
+      });
+      setIsMessengerVisible(!isMessengerVisible);
+    };
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data.fromPublisher) {
+        if (event.data?.settings?.integrationId) {
+          setIntegrationId(event.data.settings.integrationId);
+        }
+
+        if (event.data.action === 'toggleMessenger') {
+          toggle();
+        }
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [isMessengerVisible, isSmallContainer]);
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'chat':
+        return <ConversationDetails />;
+      case 'ticket':
+        return <Ticket />;
+      default:
+        return <Intro />;
+    }
+  };
+
+  if (connecting) {
+    return <Skeleton className="h-full w-full" />;
+  }
+
+  return (
+    <div className="flex flex-col h-full min-h-full styled-scroll hide-scroll">
+      <Header />
+      <div className="flex-1 flex flex-col justify-end overflow-y-hidden bg-muted min-h-0 h-full">
+        {renderContent()}
       </div>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <div>
-              This is the generated root route.{' '}
-              <Link to="/page-2">Click here for page 2.</Link>
-            </div>
-          }
-        />
-        <Route
-          path="/page-2"
-          element={
-            <div>
-              <Link to="/">Click here to go back to root page.</Link>
-            </div>
-          }
-        />
-      </Routes>
-      {/* END: routes */}
     </div>
   );
 }

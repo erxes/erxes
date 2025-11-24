@@ -1,10 +1,6 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
-  extend type User @key(fields: "_id") {
-    _id: String @external
-  }
-
   extend type Customer @key(fields: "_id") {
     _id: String @external
     conversations: [Conversation]
@@ -166,7 +162,6 @@ const mutationFilterParams = `
   channelId: String
   status: String
   unassigned: String
-  brandId: String
   tag: String
   integrationType: String
   participating: String
@@ -175,6 +170,7 @@ const mutationFilterParams = `
   startDate: String
   endDate: String
   segment: String
+  customerId: String
 `;
 
 const convertParams = `
@@ -251,7 +247,7 @@ export const mutations = `
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
   conversationMarkAsRead(_id: String): Conversation
   changeConversationOperator(_id: String!, operatorStatus: String!): JSON
-  conversationResolveAll(${mutationFilterParams}): Int
+  conversationsResolve(ids: [String!]!): Int
   conversationConvertToCard(${convertParams}): String
   conversationEditCustomFields(_id: String!, customFieldsData: JSON): Conversation
 `;

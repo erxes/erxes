@@ -56,6 +56,8 @@ export interface IUser {
   employeeId?: string;
   chatStatus?: IUserChatStatus;
   lastSeenAt?: Date;
+  onboardedPlugins?: string[];
+  isOnboarded?: boolean;
 }
 
 enum IUserChatStatus {

@@ -1,23 +1,27 @@
 import {
-  IAction,
-  IActionsMap,
+  IAutomationAction,
+  IAutomationActionsMap,
   IAutomationExecAction,
   IAutomationExecutionDocument,
 } from 'erxes-api-shared/core-modules';
-import { isInSegment } from '@/utils/segments/utils';
+import { isInSegment } from '@/utils/isInSegment';
 import { executeActions } from '@/executions/executeActions';
 
-export const handleifAction = async (
+export const handleIfAction = async (
   subdomain: string,
   triggerType: string,
   execution: IAutomationExecutionDocument,
-  action: IAction,
+  action: IAutomationAction,
   execAction: IAutomationExecAction,
-  actionsMap: IActionsMap,
+  actionsMap: IAutomationActionsMap,
 ) => {
   let ifActionId: string;
 
-  const isIn = await isInSegment(action.config.contentId, execution.targetId);
+  const isIn = await isInSegment(
+    subdomain,
+    action.config.contentId,
+    execution.targetId,
+  );
   if (isIn) {
     ifActionId = action.config.yes;
   } else {

@@ -55,7 +55,6 @@ export interface IConversationListParams
   status?: string;
   unassigned?: string;
   awaitingResponse?: string;
-  brandId?: string;
   tag?: string;
   integrationType?: string;
   participating?: string;
@@ -71,6 +70,7 @@ export interface IConversationListParams
   segment?: string;
   searchValue?: string;
   skip?: number;
+  customerId?: string;
 }
 
 interface ICountBy {

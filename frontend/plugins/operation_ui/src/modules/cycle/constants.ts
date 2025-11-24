@@ -1,9 +1,9 @@
 export const CYCLES_CURSOR_SESSION_KEY = 'cycles_cursor_session_key';
 
 export const STATUS_COLORS = {
-  started: 'hsl(var(--warning))', // in progress
-  completed: 'hsl(var(--success))', // done
-  totalScope: 'hsl(var(--primary))', // backlog буюу жишээ өнгө
+  started: 'var(--warning)', // in progress
+  completed: 'var(--success)', // done
+  totalScope: 'var(--primary)', // backlog буюу жишээ өнгө
 };
 
 export const CHART_CONFIG = {

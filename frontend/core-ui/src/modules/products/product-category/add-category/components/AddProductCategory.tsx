@@ -7,7 +7,6 @@ import { CategoryAddSheetHeader } from '../../components/AddProductCategoryForm'
 import { ProductCategoriesAddCoreFields } from './CategoryAddCoreFields';
 import { ProductCategoryAddMoreFields } from './CategoryAddMoreFields';
 import { useAddCategory } from '../hooks/useAddCategory';
-import { ProductAddCollapsible } from '@/products/add-products/components/ProductAddCollapsible';
 
 export function AddCategoryForm({
   onOpenChange,
@@ -49,6 +48,7 @@ export function AddCategoryForm({
         toast({
           title: 'Error',
           description: e.message,
+          variant: 'destructive',
         });
       },
       onCompleted: () => {
@@ -74,14 +74,12 @@ export function AddCategoryForm({
           <ScrollArea className="h-full">
             <div className="p-5">
               <ProductCategoriesAddCoreFields form={form} />
-              <ProductAddCollapsible>
-                <ProductCategoryAddMoreFields form={form} />
-              </ProductAddCollapsible>
+              <ProductCategoryAddMoreFields form={form} />
             </div>
           </ScrollArea>
         </Sheet.Content>
 
-        <Sheet.Footer className="flex justify-end flex-shrink-0 p-2.5 gap-1 bg-muted">
+        <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
           <Button
             type="button"
             variant="ghost"

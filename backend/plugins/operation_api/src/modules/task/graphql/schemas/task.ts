@@ -18,6 +18,7 @@ export const types = `
     cycleId: String
     projectId: String
     teamId: String
+    milestoneId: String
     estimatePoint: Int
     statusChangedDate: Date
     number: Int
@@ -29,6 +30,15 @@ export const types = `
     totalCount: Int,
   }
 
+  enum CycleFilterType {
+    noCycle
+    anyPastCycle
+    previousCycle
+    currentCycle
+    upcomingCycle
+    anyFutureCycle
+  }
+
   input ITaskFilter {
     _id: String
     status: String
@@ -38,8 +48,6 @@ export const types = `
     cycleId: String
     labelIds: [String]
     tagIds: [String]
-    startDate: Date
-    targetDate: Date
     projectId: String 
     teamId: String
     estimatePoint: Int
@@ -47,6 +55,17 @@ export const types = `
     name:String
     statusType: Int
     estimate: String
+    milestoneId: String
+    cycleFilter: CycleFilterType
+    projectStatus: Int
+    projectPriority: Int
+    projectLeadId: String
+    projectMilestoneName: String
+    startDate: Date
+    targetDate: Date
+    createdDate: Date
+    updatedDate: Date
+    completedDate: Date
 
     ${GQL_CURSOR_PARAM_DEFS}
   }
@@ -71,6 +90,7 @@ const createTaskParams = `
   cycleId: String
   projectId: String
   estimatePoint: Int
+  milestoneId: String
 `;
 
 const updateTaskParams = `
@@ -88,7 +108,7 @@ const updateTaskParams = `
   cycleId: String
   projectId: String
   estimatePoint: Int
-
+  milestoneId: String
 `;
 
 export const queries = `
@@ -100,5 +120,4 @@ export const mutations = `
   createTask(${createTaskParams}): Task
   updateTask(${updateTaskParams}): Task
   removeTask(_id: String!): Task
-  convertToProject(_id: String!): Project
 `;

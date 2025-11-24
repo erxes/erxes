@@ -6,12 +6,13 @@ import {
 } from '@/project/utils/charUtils';
 import { STATUS_TYPES } from '@/status/constants/types';
 import { differenceInCalendarDays } from 'date-fns';
-import { requireLogin } from 'erxes-api-shared/core-modules';
+import { Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
-import { FilterQuery } from 'mongoose';
+import moment from 'moment';
+import { FilterQuery, Types } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
-export const projectQueries = {
+export const projectQueries: Record<string, Resolver> = {
   getProject: async (_parent: undefined, { _id }, { models }: IContext) => {
     return models.Project.getProject(_id);
   },
@@ -49,6 +50,10 @@ export const projectQueries = {
 
     if (filter.leadId) {
       filterQuery.leadId = filter.leadId;
+    }
+
+    if (filter.tagIds && filter.tagIds.length > 0) {
+      filterQuery.tagIds = { $in: filter.tagIds };
     }
 
     if (filter.teamIds && filter.teamIds.length > 0) {
@@ -99,15 +104,23 @@ export const projectQueries = {
     return { list, totalCount, pageInfo };
   },
 
+  getConvertedProject: async (
+    _parent: undefined,
+    { convertedFromId },
+    { models }: IContext,
+  ) => {
+    return await models.Project.findOne({ convertedFromId }).lean();
+  },
+
   getProjectProgress: async (
     _parent: undefined,
-    { _id },
+    { _id }: { _id: string },
     { models }: IContext,
   ) => {
     const result = await models.Task.aggregate([
       {
         $match: {
-          projectId: _id,
+          projectId: new Types.ObjectId(_id),
         },
       },
       {
@@ -200,13 +213,13 @@ export const projectQueries = {
 
   getProjectProgressByMember: async (
     _parent: undefined,
-    { _id },
+    { _id }: { _id: string },
     { models }: IContext,
   ) => {
     return models.Task.aggregate([
       {
         $match: {
-          projectId: _id,
+          projectId: new Types.ObjectId(_id),
         },
       },
       {
@@ -339,13 +352,13 @@ export const projectQueries = {
 
   getProjectProgressByTeam: async (
     _parent: undefined,
-    { _id },
+    { _id }: { _id: string },
     { models }: IContext,
   ) => {
     return models.Task.aggregate([
       {
         $match: {
-          projectId: _id,
+          projectId: new Types.ObjectId(_id),
         },
       },
       {
@@ -478,10 +491,10 @@ export const projectQueries = {
 
   getProjectProgressChart: async (
     _parent: undefined,
-    { _id },
+    { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    const project = await models.Project.findOne({ _id });
+    const project = await models.Project.findOne({ _id }).lean();
 
     if (!project) {
       return [];
@@ -489,7 +502,7 @@ export const projectQueries = {
 
     const [totalScopeResult] = await models.Task.aggregate([
       {
-        $match: { projectId: _id },
+        $match: { projectId: project._id },
       },
       {
         $match: { statusType: { $ne: STATUS_TYPES.CANCELLED } },
@@ -526,7 +539,7 @@ export const projectQueries = {
     const chartDataAggregation = await models.Task.aggregate([
       {
         $match: {
-          projectId: _id,
+          projectId: project._id,
           statusType: { $in: [STATUS_TYPES.STARTED, STATUS_TYPES.COMPLETED] },
           statusChangedDate: { $ne: null },
         },
@@ -597,7 +610,7 @@ export const projectQueries = {
           baseDate,
         );
       }
-      chartData.chartData = fillMissingDays([], baseDate, totalDays);
+      chartData.chartData = fillMissingDays([], moment(baseDate), totalDays);
     }
     if (
       chartDataAggregation.length > 0 &&
@@ -613,7 +626,7 @@ export const projectQueries = {
         if (chartDataAggregation.length < 7) {
           chartData.chartData = fillMissingDays(
             chartDataAggregation,
-            baseDate,
+            moment(baseDate),
             7,
           );
 
@@ -641,7 +654,7 @@ export const projectQueries = {
 
         chartData.chartData = fillMissingDays(
           chartDataAggregation,
-          startDate,
+          moment(startDate),
           totalDays,
         );
         return chartData;
@@ -660,7 +673,7 @@ export const projectQueries = {
 
         chartData.chartData = fillMissingDays(
           chartDataAggregation,
-          startDate,
+          moment(startDate),
           totalDays,
         );
         return chartData;
@@ -675,10 +688,17 @@ export const projectQueries = {
 
     return chartData;
   },
+
+  cpGetProjects: async (
+    _parent: undefined,
+    _filter: unknown,
+    { models }: IContext,
+  ) => {
+    return models.Project.find({});
+  },
 };
 
-requireLogin(projectQueries, 'getProject');
-requireLogin(projectQueries, 'getProjects');
-requireLogin(projectQueries, 'getProjectProgress');
-requireLogin(projectQueries, 'getProjectProgressByMember');
-requireLogin(projectQueries, 'getProjectProgressChart');
+projectQueries.cpGetProjects.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};

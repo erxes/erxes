@@ -6,7 +6,7 @@ import {
   ICustomField,
   IUserDocument,
 } from 'erxes-api-shared/core-types';
-import { sendTRPCMessage, validSearchText } from 'erxes-api-shared/utils';
+import { validSearchText } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import {
@@ -152,7 +152,7 @@ export const loadCustomerClass = (models: IModels) => {
       }
 
       if (doc.customFieldsData) {
-        doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
+        doc.customFieldsData = await models.Fields.validateFieldValues(
           doc.customFieldsData,
         );
       }
@@ -167,7 +167,6 @@ export const loadCustomerClass = (models: IModels) => {
         ...doc,
         ...pssDoc,
       });
-
       return models.Customers.getCustomer(customer._id);
     }
 
@@ -186,7 +185,7 @@ export const loadCustomerClass = (models: IModels) => {
       if (doc.customFieldsData) {
         // clean custom field values
 
-        doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
+        doc.customFieldsData = await models.Fields.validateFieldValues(
           doc.customFieldsData,
         );
       }
@@ -207,16 +206,6 @@ export const loadCustomerClass = (models: IModels) => {
      * Remove customers
      */
     public static async removeCustomers(customerIds: string[]) {
-      await sendTRPCMessage({
-        pluginName: 'frontline',
-        method: 'mutation',
-        module: 'inbox',
-        action: 'removeCustomersConversations',
-        input: {
-          customerIds,
-        },
-      });
-
       return models.Customers.deleteMany({ _id: { $in: customerIds } });
     }
 
@@ -310,7 +299,8 @@ export const loadCustomerClass = (models: IModels) => {
         oldTypeIds: customerIds,
       });
 
-      //  await sendTRPCMessage({
+      //  await sendTRPCMessage({subdomain,
+
       //     pluginName: 'frontline',
       //     method: 'mutation',
       //     module: 'inbox',
@@ -425,16 +415,9 @@ export const loadCustomerClass = (models: IModels) => {
     }: ICreateMessengerCustomerParams) {
       this.fixListFields(doc, customData);
 
-      const { customFieldsData, trackedData } =
-        await models.Fields.generateCustomFieldsData(
-          customData,
-          'core:customer',
-        );
-
       return this.createCustomer({
         ...doc,
-        trackedData,
-        customFieldsData,
+        customFieldsData: customData,
         lastSeenAt: new Date(),
         isOnline: true,
         sessionCount: 1,
@@ -453,24 +436,14 @@ export const loadCustomerClass = (models: IModels) => {
 
       this.fixListFields(doc, customData, customer);
 
-      const { customFieldsData, trackedData } =
-        await models.Fields.generateCustomFieldsData(
-          customData,
-          'core:customer',
-        );
-
       const modifier: any = {
         ...doc,
         state: doc.isUser ? 'customer' : customer.state,
         updatedAt: new Date(),
       };
 
-      if (trackedData && trackedData.length > 0) {
-        modifier.trackedData = trackedData;
-      }
-
-      if (customFieldsData && customFieldsData.length > 0) {
-        modifier.customFieldsData = customFieldsData;
+      if (customData && customData.length > 0) {
+        modifier.customFieldsData = customData;
       }
 
       await models.Customers.updateOne({ _id }, { $set: modifier });

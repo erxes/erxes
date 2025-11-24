@@ -1,16 +1,17 @@
-import { useEffect } from 'react';
-import { useSwitchLanguage } from '~/i18n';
-import { SubmitHandler } from 'react-hook-form';
-import { Button, Form, Spinner, useToast } from 'erxes-ui';
 import { useConfig } from '@/settings/file-upload/hook/useConfigs';
-import { SelectCurrency } from '@/settings/general/components/SelectCurrency';
-import { TGeneralSettingsProps } from '@/settings/general/types';
 import { TConfig } from '@/settings/file-upload/types';
 import { GeneralSettingsSkeleton } from '@/settings/general/components/GeneralSettingsSkeleton';
-import { useGeneralSettingsForms } from '@/settings/general/hooks/useGeneralSettingsForms';
 import SelectControl from '@/settings/general/components/SelectControl';
-import { LANGUAGES } from '@/settings/general/constants/data';
+import { SelectCurrency } from '@/settings/general/components/SelectCurrency';
 import { SelectMainCurrency } from '@/settings/general/components/SelectMainCurrency';
+import { SelectTimezone } from '@/settings/general/components/SelectTimezone';
+import { LANGUAGES } from '@/settings/general/constants/data';
+import { useGeneralSettingsForms } from '@/settings/general/hooks/useGeneralSettingsForms';
+import { TGeneralSettingsProps } from '@/settings/general/types';
+import { Button, Form, Spinner, useToast } from 'erxes-ui';
+import { useEffect } from 'react';
+import { SubmitHandler } from 'react-hook-form';
+import { useSwitchLanguage } from '~/i18n';
 
 const GeneralSettings = () => {
   const { languages } = useSwitchLanguage();
@@ -23,22 +24,26 @@ const GeneralSettings = () => {
   const { configs, updateConfig, loading, isLoading } = useConfig();
 
   const updateCurrency = (data: TGeneralSettingsProps) => {
-    const updatedConfigs = configs.reduce(
-      (acc: Record<string, any>, config: TConfig) => {
-        const key = config.code as keyof TGeneralSettingsProps;
-        acc[config.code] = key in data ? data[key] : config.value;
+    const updatedConfigs = {
+      // start with all existing configs
+      ...configs.reduce((acc: Record<string, any>, config: TConfig) => {
+        acc[config.code] = config.value;
         return acc;
-      },
-      {} as Record<string, any>,
-    );
+      }, {} as Record<string, any>),
+      // override/add with new data
+      ...data,
+    };
+
     updateConfig(updatedConfigs);
   };
 
   const submitHandler: SubmitHandler<TGeneralSettingsProps> = (data) => {
     updateCurrency(data);
+
     handleLanguage(data.languageCode).then(() => {
       toast({
         title: 'Updated successfully',
+        variant: 'success',
         description: `Language switched to (${data.languageCode})`,
       });
     });
@@ -52,8 +57,15 @@ const GeneralSettings = () => {
       const mainCurrency = configs?.find(
         (data: any) => data.code === 'mainCurrency',
       );
+
+      const timezone = configs?.find((data: any) => data.code === 'TIMEZONE');
+
       methods.setValue('dealCurrency', currencies?.value);
       methods.setValue('mainCurrency', mainCurrency?.value);
+
+      if (timezone) {
+        methods.setValue('TIMEZONE', timezone?.value);
+      }
     }
   }, [configs, methods]);
 
@@ -78,6 +90,7 @@ const GeneralSettings = () => {
         />
         <SelectMainCurrency />
         <SelectCurrency />
+        <SelectTimezone />
         <Button disabled={isLoading} type="submit" className="w-1/4 ml-auto">
           {isLoading ? (
             <Spinner className="stroke-white/90 w-4 h-4" />

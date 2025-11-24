@@ -60,11 +60,11 @@ const PipelineStageItem = (props: Props) => {
   return (
     <div
       className={`
-        flex box-border origin-top-left touch-manipulation [transform:translate3d(var(--translate-x,0),var(--translate-y,0),0)_scaleX(var(--scale-x,1))_scaleY(var(--scale-y,1))]
+        flex box-border origin-top-left touch-manipulation transform-[translate3d(var(--translate-x,0),var(--translate-y,0),0)_scaleX(var(--scale-x,1))_scaleY(var(--scale-y,1))]
         ${fadeIn ? 'animate-fadeIn' : ''}
         ${
           dragOverlay
-            ? 'z-[999] [--scale:1.05] [--box-shadow:0_0_0_calc(1px/var(--scale-x,1))_rgba(63,63,68,0.05),0_1px_calc(3px/var(--scale-x,1))_0_rgba(34,33,81,0.15)] [--box-shadow-picked-up:0_0_0_calc(1px/var(--scale-x,1))_rgba(63,63,68,0.05),-1px_0_15px_0_rgba(34,33,81,0.01),0px_15px_15px_0_rgba(34,33,81,0.25)]'
+            ? 'z-999 [--scale:1.05] [--box-shadow:0_0_0_calc(1px/var(--scale-x,1))_rgba(63,63,68,0.05),0_1px_calc(3px/var(--scale-x,1))_0_rgba(34,33,81,0.15)] [--box-shadow-picked-up:0_0_0_calc(1px/var(--scale-x,1))_rgba(63,63,68,0.05),-1px_0_15px_0_rgba(34,33,81,0.01),0px_15px_15px_0_rgba(34,33,81,0.25)]'
             : ''
         }
       `}
@@ -89,7 +89,7 @@ const PipelineStageItem = (props: Props) => {
     >
       <div
         className={`
-          relative flex flex-grow items-center
+          relative flex grow items-center
           px-5 py-[18px] bg-white rounded
           shadow-md list-none select-none
           text-gray-800 font-normal text-base
@@ -296,29 +296,33 @@ const PipelineStageItem = (props: Props) => {
               </div>
             )}
           </div>
-
-          <div
-            className={`
+          <div className="flex items-center gap-3 mt-6">
+            <div
+              className={`
               flex items-center gap-1 text-xs text-purple-500 cursor-pointer
-              px-2 py-1 rounded bg-purple-50 hover:bg-purple-100 transition-colors duration-150
+              p-2 rounded bg-purple-50 hover:bg-purple-100 transition-colors duration-150
               select-none
             `}
-            onClick={() => setShowExtraFields(!showExtraFields)}
-          >
-            {showExtraFields
-              ? showTooltip(<IconChevronUp size={14} />, 'Hide extra fields')
-              : showTooltip(<IconChevronDown size={14} />, 'Show extra fields')}
-          </div>
+              onClick={() => setShowExtraFields(!showExtraFields)}
+            >
+              {showExtraFields
+                ? showTooltip(<IconChevronUp size={16} />, 'Hide extra fields')
+                : showTooltip(
+                    <IconChevronDown size={16} />,
+                    'Show extra fields',
+                  )}
+            </div>
 
-          <div
-            className={`
+            <div
+              className={`
               flex items-center gap-1 text-xs text-red-500 cursor-pointer
-              px-2 py-1 rounded bg-red-50 hover:bg-red-100 transition-colors duration-150
+              p-2 rounded bg-red-50 hover:bg-red-100 transition-colors duration-150
               select-none
             `}
-            onClick={onRemoveStage}
-          >
-            <IconTrashX size={14} />
+              onClick={onRemoveStage}
+            >
+              <IconTrashX size={16} />
+            </div>
           </div>
         </div>
       </div>

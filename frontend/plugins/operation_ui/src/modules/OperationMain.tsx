@@ -9,6 +9,7 @@ import { TaskDetailPage } from '~/pages/TaskDetailPage';
 import { CyclesPage } from '~/pages/CyclesPage';
 import { CycleDetailPage } from '~/pages/CycleDetailPage';
 import { TasksLayout } from '@/task/components/TasksLayout';
+import { TriagePage } from '~/pages/TriagePage';
 
 const OperationMain = () => {
   return (
@@ -16,6 +17,7 @@ const OperationMain = () => {
       <Routes>
         <Route path="/" element={<Navigate to="tasks" replace />} />
         <Route path="tasks" element={<TasksPage />} />
+        <Route path="tasks/created" element={<TasksPage />} />
         <Route path="tasks/:taskId" element={<TaskDetailPage />} />
 
         <Route path="projects" element={<ProjectsPage />} />
@@ -28,6 +30,8 @@ const OperationMain = () => {
         <Route path="team/:teamId">
           <Route index element={<Navigate to="tasks" replace />} />
           <Route path="projects" element={<ProjectsPage />} />
+          <Route path="triage" element={<TriagePage />} />
+          <Route path="triage/:triageId" element={<TriagePage />} />
           <Route path="tasks" element={<TasksPage />} />
           <Route path="cycles" element={<CyclesPage />} />
           <Route path="cycles/:cycleId" element={<CycleDetailPage />} />

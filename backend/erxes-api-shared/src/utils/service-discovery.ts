@@ -1,5 +1,8 @@
 import * as dotenv from 'dotenv';
 import { redis } from './redis';
+import { getSaasOrganizationDetail } from './saas';
+import { getEnv } from './utils';
+import { IOrganizationCharge } from '../core-types';
 
 dotenv.config();
 
@@ -15,13 +18,47 @@ interface PluginConfig {
 
 export const isDev = NODE_ENV === 'development';
 
-export const keyForConfig = (name: string) => `service:config:${name}`;
+export const keyForConfig = (name: string) => `erxesservice:config:${name}`;
 
 export const getPlugins = async (): Promise<string[]> => {
   const enabledServices: any[] =
     process.env.ENABLED_PLUGINS?.split(',').map((plugin) => `${plugin}`) || [];
 
   return ['core', ...enabledServices];
+};
+
+export const getAvailablePlugins = async (
+  subdomain: string,
+): Promise<string[]> => {
+  const ENABLED_PLUGINS = getEnv({ name: 'ENABLED_PLUGINS' });
+  const VERSION = getEnv({ name: 'VERSION', defaultValue: 'os' });
+
+  if (VERSION && VERSION === 'saas') {
+    const organizationInfo = await getSaasOrganizationDetail({
+      subdomain,
+    });
+
+    const charges = organizationInfo.charge as IOrganizationCharge;
+
+    const plugins: string[] = [];
+
+    Object.keys(charges).forEach((key) => {
+      if (
+        (charges[key].purchased && charges[key].purchased > 0) ||
+        (charges[key].free && charges[key].free > 0)
+      ) {
+        const pluginName = key.split(':')[0];
+
+        const enabledPluginsArray = ENABLED_PLUGINS.split(',');
+        if (enabledPluginsArray.includes(pluginName)) {
+          plugins.push(pluginName);
+        }
+      }
+    });
+    return ['core', ...plugins];
+  } else {
+    return getPlugins();
+  }
 };
 
 type ServiceInfo = { address: string; config: any };
@@ -35,7 +72,7 @@ export const getPlugin = async (
   }
 
   const result: ServiceInfo = {
-    address: (await redis.get(`service-${name}`)) || '',
+    address: (await redis.get(`erxes-service-${name}`)) || '',
     config: { meta: {} },
   };
 
@@ -70,13 +107,13 @@ export const joinErxesGateway = async ({
     LOAD_BALANCER_ADDRESS ||
     `http://${isDev ? 'localhost' : `plugin-${name}-api`}:${port}`;
 
-  await redis.set(`service-${name}`, address);
+  await redis.set(`erxes-service-${name}`, address);
 
-  console.log(`$service-${name} joined with ${address}`);
+  console.log(`erxes-service${name} joined with ${address}`);
 };
 
 export const leaveErxesGateway = async (name: string, port: number) => {
-  console.log(`$service-${name} left ${port}`);
+  console.log(`erxes-service${name} left ${port}`);
 };
 
 export const isEnabled = async (name: string) => {
@@ -91,7 +128,7 @@ const pluginAddressCache = {} as any;
 
 export const getPluginAddress = async (name: string) => {
   if (!pluginAddressCache[name]) {
-    pluginAddressCache[name] = await redis.get(`service-${name}`);
+    pluginAddressCache[name] = await redis.get(`erxes-service-${name}`);
   }
   return pluginAddressCache[name];
 };

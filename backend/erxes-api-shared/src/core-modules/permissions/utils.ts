@@ -1,5 +1,10 @@
-import { IPermissionContext, IUserDocument } from '../../core-types';
-import { getEnv, redis } from '../../utils';
+import {
+  IPermissionContext,
+  IResolverSymbol,
+  IUserDocument,
+  Resolver,
+} from '../../core-types';
+import { getEnv } from '../../utils';
 import { getUserActionsMap } from './user-actions-map';
 
 export const getKey = (user: IUserDocument) => `user_permissions_${user._id}`;
@@ -8,39 +13,6 @@ export const checkLogin = (user?: IUserDocument) => {
   if (!user || !user._id) {
     throw new Error('Login required');
   }
-};
-
-const resolverWrapper = async (
-  methodName: string,
-  args: any,
-  context: IPermissionContext,
-) => {
-  const value = await redis.get('beforeResolvers');
-  const beforeResolvers = JSON.parse(value || '{}');
-
-  let results = {};
-
-  if (beforeResolvers[methodName] && beforeResolvers[methodName].length) {
-    for (const service of beforeResolvers[methodName]) {
-      results = {
-        ...results,
-        // ...(await sendTRPCMessage({
-        //   pluginName: service,
-        //   method: 'query',
-        //   module: service,
-        //   action: 'beforeResolver',
-        //   input: {
-        //     resolver: methodName,
-        //     args,
-        //     user: context.user,
-        //   },
-        //   defaultValue: [],
-        // })),
-      };
-    }
-  }
-
-  return { ...args, ...results };
 };
 
 export const permissionWrapper = (
@@ -62,13 +34,12 @@ export const permissionWrapper = (
       checker(user);
     }
 
-    args = await resolverWrapper(methodName, args, context);
-
     return oldMethod(root, args, context, info);
   };
 };
 
 export const can = async (
+  subdomain: string,
   action: string,
   user?: IUserDocument,
 ): Promise<boolean> => {
@@ -80,7 +51,7 @@ export const can = async (
     return true;
   }
 
-  const actionMap = await getUserActionsMap(user);
+  const actionMap = await getUserActionsMap(subdomain, user);
 
   if (!actionMap) {
     return false;
@@ -92,8 +63,11 @@ export const can = async (
 /*
  * Get allowed actions
  */
-export const getUserAllowedActions = async (user: any): Promise<string[]> => {
-  const map = await getUserActionsMap(user);
+export const getUserAllowedActions = async (
+  subdomain: string,
+  user: any,
+): Promise<string[]> => {
+  const map = await getUserActionsMap(subdomain, user);
 
   const allowedActions: string[] = [];
 
@@ -120,11 +94,11 @@ export const checkPermission = async (
     context: { user?: IUserDocument; [x: string]: any },
     info: any,
   ) => {
-    const { user } = context;
+    const { user, subdomain } = context;
 
     checkLogin(user);
 
-    const allowed = await can(actionName, user);
+    const allowed = await can(subdomain, actionName, user);
 
     if (!allowed) {
       if (defaultValue) {
@@ -146,8 +120,6 @@ export const checkPermission = async (
       //     params: args,
       //   });
     }
-
-    args = await resolverWrapper(methodName, args, context);
 
     return oldMethod(root, args, context, info);
   };
@@ -177,4 +149,61 @@ export const moduleCheckPermission = async (
       await checkPermission(mdl, method, action, defaultValue);
     }
   }
+};
+
+export const checkRolePermission = async (
+  user: IUserDocument,
+  resolverKey: string,
+) => {
+  const { role } = user || {};
+
+  if (!role) {
+    return false;
+  }
+
+  if (
+    role === 'member' &&
+    ['remove', 'delete'].some((resolver) =>
+      resolverKey.toLowerCase().includes(resolver),
+    )
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
+export const wrapPermission = (resolver: Resolver, resolverKey: string) => {
+  return async (parent: any, args: any, context: any, info: any) => {
+    const { user } = context;
+
+    checkLogin(user);
+
+    const permission = await checkRolePermission(user, resolverKey);
+
+    if (!permission) {
+      throw new Error('Permission denied');
+    }
+
+    return resolver(parent, args, context, info);
+  };
+};
+
+export const wrapPublicResolver = (resolver: Resolver, wrapperConfig: any) => {
+  return async (parent: any, args: any, context: any, info: any) => {
+    const { cpUserRequired, forClientPortal } = wrapperConfig || {};
+
+    if (forClientPortal) {
+      if (cpUserRequired) {
+        if (!context.cpUser) {
+          throw new Error('Client portal user required');
+        }
+      }
+      if (!context.clientPortal) {
+        throw new Error('Client portal required');
+      }
+    }
+
+    return resolver(parent, args, context, info);
+  };
 };

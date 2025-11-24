@@ -1,11 +1,11 @@
 import {
-  IconListCheck,
   IconChecklist,
   IconClipboard,
+  IconListCheck,
 } from '@tabler/icons-react';
+import { Suspense, lazy } from 'react';
 
 import { IUIConfig } from 'erxes-ui';
-import { lazy, Suspense } from 'react';
 
 const MainNavigation = lazy(() =>
   import('./modules/navigation/MainNavigation').then((module) => ({
@@ -56,6 +56,16 @@ export const CONFIG: IUIConfig = {
     {
       name: 'team',
       path: 'operation/team',
+    },
+    {
+      name: 'tasks',
+      path: 'operation/tasks',
+      settingsOnly: true,
+    },
+    {
+      name: 'projects',
+      path: 'operation/projects',
+      settingsOnly: true,
     },
   ],
   relationWidgets: [

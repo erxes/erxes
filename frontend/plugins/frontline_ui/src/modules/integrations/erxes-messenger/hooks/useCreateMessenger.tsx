@@ -3,6 +3,7 @@ import {
   CREATE_EM_MESSENGER_MUTATION,
   SAVE_EM_CONFIGS_MUTATION,
   SAVE_EM_APPEARANCE_MUTATION,
+  SAVE_EM_TICKET_CONFIG_MUTATION,
 } from '../graphql/mutations/createEmMessengerMutations';
 import { toast } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
@@ -18,7 +19,13 @@ export const useCreateMessenger = () => {
     SAVE_EM_CONFIGS_MUTATION,
   );
   const [saveAppearanceMutation, { loading: saveAppearanceLoading }] =
-    useMutation(SAVE_EM_APPEARANCE_MUTATION);
+    useMutation(SAVE_EM_APPEARANCE_MUTATION, {
+      refetchQueries: ['Integrations'],
+    });
+  const [saveTicketConfigMutation, { loading: saveTicketConfigLoading }] =
+    useMutation(SAVE_EM_TICKET_CONFIG_MUTATION, {
+      refetchQueries: ['Integrations'],
+    });
 
   const readVariables = useAtomValue(erxesMessengerSetupValuesAtom);
 
@@ -38,6 +45,7 @@ export const useCreateMessenger = () => {
         saveConfigsMutation({
           variables: {
             _id,
+            channelId: createVariables.channelId,
             ...saveConfigVariables,
           },
           onError(e) {
@@ -51,11 +59,25 @@ export const useCreateMessenger = () => {
         saveAppearanceMutation({
           variables: {
             _id,
+            channelId: configFormValues.channelId,
             uiOptions,
           },
           onError(e) {
             toast({
               title: 'Failed to save appearance',
+              description: e.message,
+              variant: 'destructive',
+            });
+          },
+        });
+        saveTicketConfigMutation({
+          variables: {
+            _id,
+            configId: configFormValues.ticketConfigId,
+          },
+          onError(e) {
+            toast({
+              title: 'Failed to save ticket config',
               description: e.message,
               variant: 'destructive',
             });

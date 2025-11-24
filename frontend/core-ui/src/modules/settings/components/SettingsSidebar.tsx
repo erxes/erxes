@@ -6,9 +6,9 @@ import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 
 import { AppPath } from '@/types/paths/AppPath';
 import { useAtomValue } from 'jotai';
-import { pluginsConfigState } from 'ui-modules';
+import { currentOrganizationState, pluginsConfigState } from 'ui-modules';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
-import { SETTINGS_PATH_DATA } from '../constants/data';
+import { GET_SETTINGS_PATH_DATA } from '../constants/data';
 
 import React from 'react';
 import { usePageTrackerStore } from 'react-page-tracker';
@@ -16,6 +16,8 @@ import { useVersion } from 'ui-modules';
 
 export function SettingsSidebar() {
   const pluginsMetaData = useAtomValue(pluginsConfigState) || {};
+  const org = useAtomValue(currentOrganizationState);
+  const isSaas = org?.type === 'saas';
 
   const version = useVersion();
 
@@ -44,6 +46,17 @@ export function SettingsSidebar() {
         </SettingsNavigationGroup>
         <SettingsNavigationGroup name="Workspace">
           {SETTINGS_PATH_DATA.nav.map((item) => (
+            <NavigationMenuLinkItem
+              pathPrefix={AppPath.Settings}
+              path={item.path}
+              name={item.name}
+              key={item.name}
+            />
+          ))}
+        </SettingsNavigationGroup>
+
+        <SettingsNavigationGroup name="Developer">
+          {SETTINGS_PATH_DATA.developer.map((item) => (
             <NavigationMenuLinkItem
               pathPrefix={AppPath.Settings}
               path={item.path}

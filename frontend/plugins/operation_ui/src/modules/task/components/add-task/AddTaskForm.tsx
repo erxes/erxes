@@ -1,35 +1,38 @@
+import { SelectPriority } from '@/operation/components/SelectPriority';
+import { useGetProject } from '@/project/hooks/useGetProject';
+import { DateSelectTask } from '@/task/components/task-selects/DateSelectTask';
+import { SelectAssigneeTask } from '@/task/components/task-selects/SelectAssigneeTask';
+import { SelectCycle } from '@/task/components/task-selects/SelectCycle';
+import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstimatedPointTask';
+import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
+import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
+import { useCreateTask } from '@/task/hooks/useCreateTask';
+import { taskCreateDefaultValuesState } from '@/task/states/taskCreateSheetState';
+import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
+import { TAddTask, addTaskSchema } from '@/task/types';
+import { SelectTeam } from '@/team/components/SelectTeam';
+import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
+import { Block } from '@blocknote/core';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { IconChevronRight } from '@tabler/icons-react';
+import clsx from 'clsx';
 import {
+  BlockEditor,
+  Button,
   Form,
   Input,
-  Sheet,
-  Button,
   Separator,
+  Sheet,
+  useToast,
   useBlockEditor,
-  BlockEditor,
 } from 'erxes-ui';
-import { TAddTask, addTaskSchema } from '@/task/types';
-import { useCreateTask } from '@/task/hooks/useCreateTask';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
-import { Block } from '@blocknote/core';
-import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
-import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
-import { IconChevronRight } from '@tabler/icons-react';
-import { useParams } from 'react-router-dom';
 import { useAtom, useAtomValue } from 'jotai';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useParams } from 'react-router-dom';
 import { currentUserState } from 'ui-modules';
-import { useGetProject } from '@/project/hooks/useGetProject';
-import { SelectAssigneeTask } from '@/task/components/task-selects/SelectAssigneeTask';
-import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
-import clsx from 'clsx';
-import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
-import { SelectPriority } from '@/operation/components/SelectPriority';
-import { DateSelectTask } from '@/task/components/task-selects/DateSelectTask';
-import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstimatedPointTask';
-import { SelectTeam } from '@/team/components/SelectTeam';
-import { taskCreateDefaultValuesState } from '@/task/states/taskCreateSheetState';
-import { SelectCycle } from '@/task/components/task-selects/SelectCycle';
+import { SelectMilestone } from '../task-selects/SelectMilestone';
+import { SelectTags } from 'ui-modules';
 
 export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   const { teamId, projectId, cycleId } = useParams<{
@@ -46,7 +49,6 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   const [defaultValuesState, setDefaultValues] = useAtom(
     taskCreateDefaultValuesState,
   );
-
   const { project } = useGetProject({
     variables: { _id: projectId || '' },
     skip: !projectId,
@@ -55,7 +57,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   const [_teamId, _setTeamId] = useState<string | undefined>(
     teamId ? teamId : project?.teamIds?.[0] ? project?.teamIds?.[0] : undefined,
   );
-
+  const { toast } = useToast();
   const defaultValues = {
     teamId: _teamId || undefined,
     name: '',
@@ -66,6 +68,8 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
     targetDate: undefined,
     estimatePoint: 0,
     cycleId: cycleId,
+    milestoneId: undefined,
+    tagIds: [] as string[],
   };
 
   const form = useForm<TAddTask>({
@@ -118,7 +122,11 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit, (errors) => {
-          console.log(errors);
+          toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: Object.entries(errors)[0][1].message,
+          });
         })}
         className="h-full flex flex-col"
       >
@@ -223,6 +231,22 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               )}
             />
             <Form.Field
+              name="milestoneId"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label className="sr-only">Milestone</Form.Label>
+                  <SelectMilestone.FormItem
+                    value={field.value || ''}
+                    onValueChange={(value: any) => {
+                      field.onChange(value);
+                    }}
+                    projectId={form.getValues('projectId') || undefined}
+                  />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
               name="estimatePoint"
               control={form.control}
               render={({ field }) => (
@@ -285,7 +309,23 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
                 </Form.Item>
               )}
             />
+            <Form.Field
+              name="tagIds"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label className="sr-only">Tags</Form.Label>
+                  <SelectTags.FormItem
+                    tagType="operation:task"
+                    mode="multiple"
+                    value={field.value || []}
+                    onValueChange={(value) => field.onChange(value)}
+                  />
+                </Form.Item>
+              )}
+            />
           </div>
+
           <Separator className="my-4" />
           <div className="flex-1 overflow-y-auto">
             <BlockEditor
@@ -295,7 +335,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
             />
           </div>
         </Sheet.Content>
-        <Sheet.Footer className="flex justify-end flex-shrink-0 gap-1 px-5">
+        <Sheet.Footer className="flex justify-end shrink-0 gap-1 px-5">
           <Button
             type="button"
             variant="ghost"

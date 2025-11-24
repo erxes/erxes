@@ -1,7 +1,6 @@
+import mongoose from 'mongoose';
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import { IMainContext } from 'erxes-api-shared/core-types';
-import mongoose from 'mongoose';
-import { IChannelDocument } from '@/inbox/@types/channels';
 import { IIntegrationDocument } from '@/inbox/@types/integrations';
 import { IConversationDocument } from '@/inbox/@types/conversations';
 import { IMessageDocument } from '@/inbox/@types/conversationMessages';
@@ -15,11 +14,11 @@ import { IFacebookCommentConversationDocument } from '@/integrations/facebook/@t
 import { IFacebookCommentConversationReplyDocument } from '@/integrations/facebook/@types/comment_conversations_reply';
 import { IFacebookPostConversationDocument } from '@/integrations/facebook/@types/postConversations';
 import { IFacebookConfigDocument } from '@/integrations/facebook/@types/config';
-import { IChannelModel, loadChannelClass } from '@/inbox/db/models/Channels';
+import { IChannelModel, loadChannelClass } from '@/channel/db/models/Channel';
 import {
   IIntegrationModel,
   loadClass as loadIntegrationClass,
-} from '~/modules/inbox/db/models/Integrations';
+} from '@/inbox/db/models/Integrations';
 import {
   IConversationModel,
   loadClass as loadConversationClass,
@@ -71,43 +70,43 @@ import {
 import {
   ICallCdrModel,
   loadCallCdrClass,
-} from '~/modules/integrations/call/db/models/Cdrs';
+} from '@/integrations/call/db/models/Cdrs';
 import {
   ICallHistoryModel,
   loadCallHistoryClass,
-} from '~/modules/integrations/call/db/models/Histories';
+} from '@/integrations/call/db/models/Histories';
 import {
   ICallCustomerModel,
   loadCallCustomerClass,
-} from '~/modules/integrations/call/db/models/Customers';
+} from '@/integrations/call/db/models/Customers';
 import {
   ICallIntegrationModel,
   loadCallIntegrationClass,
-} from '~/modules/integrations/call/db/models/Integrations';
+} from '@/integrations/call/db/models/Integrations';
 import {
   ICallConfigModel,
   loadCallConfigClass,
-} from '~/modules/integrations/call/db/models/Configs';
+} from '@/integrations/call/db/models/Configs';
 import {
   ICallOperatorModel,
   loadCallOperatorClass,
-} from '~/modules/integrations/call/db/models/Operators';
+} from '@/integrations/call/db/models/Operators';
 
 import {
   ICallQueueStatisticsModel,
   loadCallQueueClass,
-} from '~/modules/integrations/call/db/models/QueueStatistics';
-import { ICallCdrDocument } from '~/modules/integrations/call/@types/cdrs';
-import { ICallOperatorDocuments } from '~/modules/integrations/call/@types/operators';
-import { ICallConfigDocument } from '~/modules/integrations/call/@types/config';
-import { ICallHistoryDocument } from '~/modules/integrations/call/@types/histories';
-import { ICallCustomer } from '~/modules/integrations/call/@types/customers';
-import { ICallIntegrationDocument } from '~/modules/integrations/call/@types/integrations';
-import { IFacebookBotDocument } from '~/modules/integrations/facebook/db/definitions/bots';
+} from '@/integrations/call/db/models/QueueStatistics';
+import { ICallCdrDocument } from '@/integrations/call/@types/cdrs';
+import { ICallOperatorDocuments } from '@/integrations/call/@types/operators';
+import { ICallConfigDocument } from '@/integrations/call/@types/config';
+import { ICallHistoryDocument } from '@/integrations/call/@types/histories';
+import { ICallCustomer } from '@/integrations/call/@types/customers';
+import { ICallIntegrationDocument } from '@/integrations/call/@types/integrations';
+import { IFacebookBotDocument } from '@/integrations/facebook/db/definitions/bots';
 import {
   IFacebookBotModel,
   loadFacebookBotClass,
-} from '~/modules/integrations/facebook/db/models/Bots';
+} from '@/integrations/facebook/db/models/Bots';
 
 import {
   ICustomerImapDocument,
@@ -122,11 +121,53 @@ import {
   ILogImapModel,
   ILogImapDocument,
   loadImapLogClass,
-} from '~/modules/integrations/imap/models';
-import { ICallQueueStatisticsDocuments } from '~/modules/integrations/call/@types/queueStatistics';
+} from '@/integrations/imap/models';
+import {
+  IChannelMemberModel,
+  loadChannelMemberClass,
+} from '@/channel/db/models/ChannelMembers';
+import {
+  IChannelDocument,
+  IChannelMemberDocument,
+} from '@/channel/@types/channel';
+import { ICallQueueStatisticsDocuments } from '@/integrations/call/@types/queueStatistics';
+
+import {
+  ITicketPipelineModel,
+  loadPipelineClass,
+} from '@/ticket/db/models/Pipeline';
+import { IStatusModel, loadStatusClass } from '@/ticket/db/models/Status';
+import { ITicketModel, loadTicketClass } from '@/ticket/db/models/Ticket';
+import { ITicketDocument } from '@/ticket/@types/ticket';
+import { ITicketPipelineDocument } from '@/ticket/@types/pipeline';
+import { IStatusDocument } from '@/ticket/@types/status';
+
+import {
+  IMessengerAppModel,
+  loadClass as loadMessengerAppClass,
+} from '@/inbox/db/models/MessengerApps';
+import {
+  IConfigModel,
+  loadConfigClass,
+  IConfigDocument,
+} from '@/inbox/@types/configs';
+import { IMessengerAppDocument } from '@/inbox/db/definitions/messengerApps';
+import { IActivityModel, loadActivityClass } from '@/ticket/db/models/Activity';
+import { IActivityDocument } from '@/ticket/@types/activity';
+
+import { INoteModel, loadNoteClass } from '@/ticket/db/models/Note';
+import { INoteDocument } from '@/ticket/@types/note';
+import { ITicketConfigDocument } from './modules/ticket/@types/ticketConfig';
+import {
+  ITicketConfigModel,
+  loadTicketConfigClass,
+} from './modules/ticket/db/models/TicketConfig';
 export interface IModels {
-  //inbox
+  //channel
   Channels: IChannelModel;
+  ChannelMembers: IChannelMemberModel;
+
+  //inbox
   Integrations: IIntegrationModel;
   Conversations: IConversationModel;
   ConversationMessages: IMessageModel;
@@ -156,6 +197,17 @@ export interface IModels {
   ImapIntegrations: IIntegrationImapModel;
   ImapMessages: IMessageImapModel;
   ImapLogs: ILogImapModel;
+
+  // ticket
+  Pipeline: ITicketPipelineModel;
+  Status: IStatusModel;
+  Ticket: ITicketModel;
+  Activity: IActivityModel;
+  Note: INoteModel;
+  TicketConfig: ITicketConfigModel;
+
+  MessengerApps: IMessengerAppModel;
+  Configs: IConfigModel;
 }
 
 export interface IContext extends IMainContext {
@@ -169,10 +221,41 @@ export const loadClasses = (
   subdomain: string,
 ): IModels => {
   const models = {} as IModels;
+
+  //ticket
+  models.Pipeline = db.model<ITicketPipelineDocument, ITicketPipelineModel>(
+    'frontline_tickets_pipeline',
+    loadPipelineClass(models),
+  );
+  models.Status = db.model<IStatusDocument, IStatusModel>(
+    'frontline_tickets_pipeline_status',
+    loadStatusClass(models),
+  );
+
+  models.Ticket = db.model<ITicketDocument, ITicketModel>(
+    'frontline_tickets',
+    loadTicketClass(models),
+  );
+  models.Activity = db.model<IActivityDocument, IActivityModel>(
+    'frontline_ticket_activities',
+    loadActivityClass(models),
+  );
+  models.Note = db.model<INoteDocument, INoteModel>(
+    'frontline_tickets_notes',
+    loadNoteClass(models),
+  );
+  models.TicketConfig = db.model<ITicketConfigDocument, ITicketConfigModel>(
+    'frontline_ticket_configs',
+    loadTicketConfigClass(models),
+  );
   //inbox models
   models.Channels = db.model<IChannelDocument, IChannelModel>(
     'channels',
     loadChannelClass(models),
+  );
+  models.ChannelMembers = db.model<IChannelMemberDocument, IChannelMemberModel>(
+    'channel_members',
+    loadChannelMemberClass(models),
   );
   models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>(
     'integrations',
@@ -287,6 +370,14 @@ export const loadClasses = (
   models.ImapLogs = db.model<ILogImapDocument, ILogImapModel>(
     'imap_logs',
     loadImapLogClass(models),
+  );
+  models.MessengerApps = db.model<IMessengerAppDocument, IMessengerAppModel>(
+    'messenger_apps',
+    loadMessengerAppClass(models),
+  );
+  models.Configs = db.model<IConfigDocument, IConfigModel>(
+    'configs',
+    loadConfigClass(models),
   );
   return models;
 };

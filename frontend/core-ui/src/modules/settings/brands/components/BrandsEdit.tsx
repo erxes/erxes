@@ -49,7 +49,7 @@ export const BrandsEdit = () => {
             ...data,
           },
           onCompleted: () => {
-            toast({ title: 'Success!' });
+            toast({ title: 'Brand updated successfully', variant: 'success' });
             methods.reset();
             setOpen(null);
           },

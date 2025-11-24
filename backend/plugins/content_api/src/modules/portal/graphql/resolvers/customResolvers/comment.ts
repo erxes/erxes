@@ -7,13 +7,11 @@ export default {
     return models.Comments.findOne({ _id });
   },
 
-  async createdUser(
-    comment: ICommentDocument,
-    _args,
-    {  models }: IContext
-  ) {
+  async createdUser(comment: ICommentDocument, _args, { models, subdomain }: IContext) {
     if (comment.userType === 'team') {
       const user = await sendTRPCMessage({
+        subdomain,
+
         pluginName: 'core',
         method: 'query',
         module: 'core',
@@ -33,12 +31,12 @@ export default {
         firstName: details.firstName,
         lastName: details.lastName,
         fullName: details.fullName,
-        email: user.email
+        email: user.email,
       };
     }
 
     const cpUser: any = await models.Users.getUser({
-      _id: comment.userId
+      _id: comment.userId,
     });
 
     return {
@@ -47,7 +45,7 @@ export default {
       fullName: `${cpUser.firstName} ${cpUser.lastName}`,
       firstName: cpUser.firstName,
       lastName: cpUser.lastName,
-      email: cpUser.email
+      email: cpUser.email,
     };
-  }
+  },
 };

@@ -13,14 +13,13 @@ const mutations = {
     args: any,
     context: IContext,
   ): Promise<any> => {
-    const { models, clientPortalId } = context;
+    const { models } = context;
     const { input } = args;
 
-    if (clientPortalId) {
-      input.clientPortalId = clientPortalId;
-    }
 
-    return models.Categories.createCategory(input);
+
+    const category = await models.Categories.createCategory(input);
+    return category;
   },
 
   /**
@@ -31,12 +30,8 @@ const mutations = {
     args: any,
     context: IContext,
   ): Promise<any> => {
-    const { models, clientPortalId } = context;
+    const { models } = context;
     const { _id, input } = args;
-
-    if (clientPortalId) {
-      input.clientPortalId = clientPortalId;
-    }
 
     return models.Categories.updateCategory(_id, input);
   },

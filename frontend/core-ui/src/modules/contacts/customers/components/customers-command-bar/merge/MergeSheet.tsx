@@ -35,7 +35,7 @@ export const MergeSheet = ({
           </Button>
         </Sheet.Trigger>
       </MergeTooltip>
-      <Sheet.View className="sm:max-w-screen-lg flex gap-0 flex-col m-0 p-0">
+      <Sheet.View className="sm:max-w-5xl flex gap-0 flex-col m-0 p-0">
         <MergeSheetHeader />
         <Sheet.Content>
           <div className={cn('w-full h-full overflow-y-auto ', className)}>

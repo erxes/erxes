@@ -4,8 +4,8 @@ import { IModels } from '~/connectionResolvers';
 import {
   IConversation,
   IConversationDocument,
-} from '~/modules/inbox/@types/conversations';
-import { conversationNotifReceivers } from '~/modules/inbox/graphql/resolvers/mutations/conversations';
+} from '@/inbox/@types/conversations';
+import { conversationNotifReceivers } from '@/inbox/graphql/resolvers/mutations/conversations';
 
 export const conversationAfterProcessWorkers = {
   rules: [
@@ -14,7 +14,7 @@ export const conversationAfterProcessWorkers = {
       contentTypes: ['frontline:inbox.conversation'],
     },
   ] as IAfterProcessRule[],
-  onDocumentUpdated: async (
+  afterDocumentUpdated: async (
     subdomain: string,
     models: IModels,
     data: {

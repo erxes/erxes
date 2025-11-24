@@ -7,7 +7,7 @@ export const ThemeSelector = () => {
   const [theme, setTheme] = useAtom(themeState);
 
   return (
-    <div className="flex items-center gap-2 px-2 font-medium h-7">
+    <div className="flex items-center gap-2 px-2 font-medium h-7 text-sm">
       Change Theme
       <Tooltip.Provider delayDuration={100}>
         <ToggleGroup
@@ -15,7 +15,7 @@ export const ThemeSelector = () => {
           type="single"
           size="sm"
           className="ml-auto h-6 bg-accent rounded gap-0.5 text-accent-foreground"
-          onValueChange={(value) => setTheme(value as ThemeOption)}
+          onValueChange={(value) => value && setTheme(value as ThemeOption)}
         >
           <Tooltip>
             <ToggleGroup.Item

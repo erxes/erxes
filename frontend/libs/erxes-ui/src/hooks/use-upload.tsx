@@ -64,7 +64,6 @@ export const useUpload = () => {
 
     setIsLoading(true);
 
-    // tslint:disable-next-line
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       let type = file.type;
@@ -180,7 +179,7 @@ export const useUpload = () => {
 
   const remove = ({
     fileName,
-    url = `${REACT_APP_API_URL}/pl:core/delete-file`,
+    url = `${REACT_APP_API_URL}/delete-file`,
     afterRemove,
   }: RemoveProps) => {
     setIsLoading(true);

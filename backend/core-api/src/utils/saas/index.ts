@@ -7,10 +7,12 @@ import {
   redis,
   USER_ROLES,
 } from 'erxes-api-shared/utils';
+import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import { generateModels } from '~/connectionResolvers';
 import { saveValidatedToken } from '~/modules/auth/utils';
-import jwt from 'jsonwebtoken';
-import { Request, Response } from 'express';
+import { sendOnboardNotification } from '~/modules/notifications/utils';
+
 const setCookie = async (
   res: Response,
   user: any,
@@ -19,8 +21,7 @@ const setCookie = async (
 ) => {
   await saveValidatedToken(token, user);
 
-  const models = await generateModels(subdomain);
-  const organization = await getSaasOrganizationDetail({ subdomain, models });
+  const organization = await getSaasOrganizationDetail({ subdomain });
 
   const cookieOptions: any = authCookieOptions();
 
@@ -68,6 +69,8 @@ export const ssocallback = async (req: any, res) => {
     );
 
     await setCookie(res, user, subdomain, token.toString());
+
+    await sendOnboardNotification(subdomain, models, user._id);
 
     return res.redirect(DOMAIN);
   } catch (e) {
@@ -120,6 +123,8 @@ export const magiclinkCallback = async (
     const NODE_ENV = getEnv({ name: 'NODE_ENV', subdomain });
     const isProduction = NODE_ENV === 'production';
 
+    await sendOnboardNotification(subdomain, models, user._id);
+
     return res.redirect(isProduction ? DOMAIN : 'http://localhost:3001');
   } catch (e: any) {
     console.error(e.message);
@@ -133,5 +138,47 @@ export const assertSaasEnvironment = () => {
 
   if (VERSION !== 'saas') {
     throw new Error('This operation is only allowed in saas version.');
+  }
+};
+
+export const handleCoreLogin = async (req: any, res) => {
+  const { token } = req.query;
+  const subdomain = getSubdomain(req);
+
+  // already signed in
+  if (req.user) {
+    return res.redirect('/');
+  }
+
+  if (!token) {
+    return res.redirect('/');
+  }
+
+  const models = await generateModels(subdomain);
+
+  try {
+    const { user }: any = jwt.verify(token, models.Users.getSecret());
+
+    const systemUser = await models.Users.findOne({
+      email: user.email,
+      isActive: true,
+      isOwner: true,
+    });
+
+    if (systemUser) {
+      const [createToken] = await models.Users.createTokens(
+        systemUser,
+        models.Users.getSecret(),
+      );
+
+      await sendOnboardNotification(subdomain, models, systemUser._id);
+
+      await setCookie(res, systemUser, subdomain, createToken.toString());
+    }
+
+    return res.redirect(`https://${subdomain}.next.erxes.io`);
+  } catch (e) {
+    console.error(e.message);
+    return res.redirect(`https://${subdomain}.next.erxes.io`);
   }
 };

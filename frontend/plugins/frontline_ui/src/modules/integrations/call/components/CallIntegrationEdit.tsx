@@ -10,6 +10,7 @@ import { useEffect } from 'react';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { useCallIntegrationDetail } from '@/integrations/call/hooks/useCallIntegrationDetail';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
+import { useParams } from 'react-router';
 
 export const CallIntegrationSheetEdit = () => {
   const [callEditSheet, setCallEditSheet] = useAtom(callEditSheetAtom);
@@ -24,6 +25,8 @@ export const CallIntegrationSheetEdit = () => {
 };
 
 export const CallIntegrationEdit = () => {
+  const { id } = useParams();
+
   const [integrationId, setEditSheet] = useAtom(callEditSheetAtom);
   const { integrationDetail, loading } = useIntegrationDetail({
     integrationId,
@@ -42,8 +45,7 @@ export const CallIntegrationEdit = () => {
       variables: {
         _id: integrationId,
         name: data.name,
-        brandId: data.brandId,
-        channelIds: data.channelIds,
+        channelId: id || '',
         details: {
           phone: data.phone,
           wsServer: data.websocketServer,
@@ -98,9 +100,6 @@ export const CallIntegrationEdit = () => {
           ? callsIntegrationDetail?.queues.join(',')
           : callsIntegrationDetail?.queues || '',
         operators: callsIntegrationDetail?.operators || '',
-        brandId: integrationDetail.brandId,
-        channelIds:
-          integrationDetail.channels?.map((channel) => channel._id) || [],
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

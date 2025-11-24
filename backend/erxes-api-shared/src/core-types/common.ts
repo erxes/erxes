@@ -1,3 +1,4 @@
+import { GraphQLResolveInfo } from 'graphql';
 import { SortOrder } from 'mongoose';
 import { IUserDocument } from './modules/team-member/user';
 
@@ -52,6 +53,16 @@ export interface ICustomField {
   extraValue?: string;
 }
 
+export interface IPropertyField {
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | Date
+    | Array<string | number | boolean | Date>
+    | null;
+}
+
 export interface IBrowserInfo {
   language?: string;
   url?: string;
@@ -76,6 +87,8 @@ export interface IMainContext {
   req: any;
   requestInfo: any;
   user: IUserDocument;
+  cpUser?: any;
+  clientPortal?: any;
   models?: any;
   __: <T extends object>(doc: T) => T & { processId: string };
   processId: string;
@@ -99,3 +112,24 @@ export interface IPageInfo {
   startCursor: string | null;
   endCursor: string | null;
 }
+
+export interface IResolverSymbol {
+  wrapperConfig?: {
+    skipPermission?: boolean;
+    forClientPortal?: boolean;
+    cpUserRequired?: boolean;
+  };
+}
+
+export type Resolver<
+  Parent = any,
+  Args = any,
+  Context = { subdomain: string } & IMainContext,
+  Result = any,
+> = ((
+  parent: Parent,
+  args: Args,
+  context: Context,
+  info: GraphQLResolveInfo,
+) => Promise<Result> | Result) &
+  IResolverSymbol;

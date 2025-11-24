@@ -12,7 +12,6 @@ import { EM_CONFIG_SCHEMA } from '@/integrations/erxes-messenger/constants/emCon
 import {
   DEFAULT_COLORS,
   DEFAULT_LANGUAGE,
-  DEFAULT_WALLPAPER,
 } from '@/integrations/erxes-messenger/constants/emStatesDefaultValues';
 import { EnumResponseRate } from '@/integrations/erxes-messenger/types/ResponseRate';
 import { Weekday } from '@/integrations/erxes-messenger/types/Weekday';
@@ -26,15 +25,14 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
   const intro = get(erxesMessengerSetupIntroAtom);
   const hours = get(erxesMessengerSetupHoursAtom);
   const settings = get(erxesMessengerSetupSettingsAtom);
-
   const { links, externalLinks } = processLinks(greeting?.links);
 
   return (config: z.infer<typeof EM_CONFIG_SCHEMA>) => ({
     createVariables: {
       name: config?.name,
-      brandId: config?.brandId,
+      channelId: config?.channelId,
+      ticketConfigId: config?.ticketConfigId,
       languageCode: settings?.languageCode || DEFAULT_LANGUAGE,
-      channelIds: config?.channelIds || [],
     },
     saveConfigVariables: {
       messengerData: {
@@ -80,9 +78,11 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
       callData: {},
     },
     uiOptions: {
-      color: appearance?.color || DEFAULT_COLORS.COLOR,
-      textColor: appearance?.textColor || DEFAULT_COLORS.TEXT,
-      wallpaper: DEFAULT_WALLPAPER,
+      primary: {
+        DEFAULT: appearance?.primary?.DEFAULT || DEFAULT_COLORS.PRIMARY,
+        foreground:
+          appearance?.primary?.foreground || DEFAULT_COLORS.FOREGROUND,
+      },
       logo: appearance?.logo || '',
     },
   });

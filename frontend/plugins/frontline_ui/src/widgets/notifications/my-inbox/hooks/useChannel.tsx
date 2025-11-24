@@ -3,7 +3,7 @@ import { gql, useQuery } from '@apollo/client';
 
 const query = gql`
   query ChannelDetail($id: String!) {
-    channelDetail(_id: $id) {
+    getChannel(_id: $id) {
       _id
       name
     }

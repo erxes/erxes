@@ -1,10 +1,11 @@
 import { Job } from 'bullmq';
-import { endOfDay } from 'date-fns'; // эсвэл өөр utility
 import {
   getEnv,
   getSaasOrganizations,
+  sendTRPCMessage,
   sendWorkerQueue,
 } from 'erxes-api-shared/utils';
+import { tz } from 'moment-timezone';
 import { generateModels } from '~/connectionResolvers';
 
 export const dailyCheckCycles = async () => {
@@ -14,54 +15,121 @@ export const dailyCheckCycles = async () => {
     const orgs = await getSaasOrganizations();
 
     for (const org of orgs) {
-      if (org.enabledcycles) {
-        sendWorkerQueue('operations', 'checkCycle').add('checkCycle', {
-          subdomain: org.subdomain,
-        });
-      }
+      sendWorkerQueue('operations', 'checkCycle').add('checkCycle', {
+        subdomain: org.subdomain,
+        timezone: org.timezone,
+      });
     }
 
     return 'success';
   } else {
+    const timezone = await sendTRPCMessage({
+      subdomain: 'os',
+
+      pluginName: 'core',
+      method: 'query',
+      module: 'configs',
+      action: 'getConfig',
+      input: {
+        code: 'TIMEZONE',
+      },
+      defaultValue: 'UTC',
+    });
+
     sendWorkerQueue('operations', 'checkCycle').add('checkCycle', {
       subdomain: 'os',
+      timezone,
     });
     return 'success';
   }
 };
 
 export const checkCycle = async (job: Job) => {
-  const { subdomain } = job?.data ?? {};
+  const { subdomain, timezone = 'UTC' } = job?.data ?? {};
+
+  console.log('timezone', timezone);
+
+  const tzToday = tz(new Date(), timezone);
+
+  console.log('tzToday', tzToday);
+  console.log('tzToday.hour', tzToday.hour());
+
+  if (tzToday.hour() !== 0) {
+    return;
+  }
 
   const models = await generateModels(subdomain);
 
-  const today = new Date();
+  const tzStart = tzToday.clone().startOf('day').subtract(1, 'day');
+  const tzEnd = tzToday.clone().endOf('day');
+
+  console.log('tzStart', tzStart);
+  console.log('tzEnd', tzEnd);
+
+  console.log('tzEnd.toDate() ', tzEnd.toDate());
 
   const endCycles = await models.Cycle.find({
     isActive: true,
     isCompleted: false,
-    endDate: {
-      $lte: endOfDay(today),
-    },
+    endDate: { $lte: tzEnd.toDate() },
   });
+
+  const endCycleIds: string[] = [];
 
   if (endCycles?.length) {
     for (const cycle of endCycles) {
-      await models.Cycle.endCycle(cycle?._id);
+      const { _id, endDate } = cycle;
+
+      console.log('endDate', endDate);
+      const endDateTz = tz(endDate, timezone);
+      const endDateTzEnd = endDateTz
+        .clone()
+        .endOf('day')
+        .add(1, 'day')
+        .startOf('day');
+
+      console.log('endDateTz', endDateTz);
+      console.log('endDateTzEnd', endDateTzEnd);
+
+      if (endDateTz.isBetween(tzStart, endDateTzEnd, null, '(]')) {
+        endCycleIds.push(_id);
+      }
+    }
+  }
+
+  console.log('endCycleIds', endCycleIds);
+
+  if (endCycleIds?.length) {
+    for (const cycleId of endCycleIds) {
+      await models.Cycle.endCycle(cycleId);
     }
   }
 
   const startCycles = await models.Cycle.find({
     isActive: false,
     isCompleted: false,
-    startDate: {
-      $lte: endOfDay(today),
-    },
+    startDate: { $lte: tzEnd.toDate() },
   });
+
+  const startCycleIds: string[] = [];
 
   if (startCycles?.length) {
     for (const cycle of startCycles) {
-      await models.Cycle.startCycle(cycle?._id);
+      const { _id, startDate } = cycle;
+
+      const startDateTz = tz(startDate, timezone);
+
+      if (startDateTz.isBetween(tzStart, tzEnd, null, '(]')) {
+        startCycleIds.push(_id);
+      }
+    }
+  }
+
+  console.log('startCycleIds', startCycleIds);
+
+  if (startCycleIds?.length) {
+    for (const cycleId of startCycleIds) {
+      await models.Cycle.startCycle(cycleId);
     }
   }
 };

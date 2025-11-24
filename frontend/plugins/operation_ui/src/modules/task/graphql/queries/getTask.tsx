@@ -9,6 +9,7 @@ export const GET_TASK = gql`
       status
       priority
       teamId
+      tagIds
       assigneeId
       startDate
       targetDate
@@ -18,6 +19,7 @@ export const GET_TASK = gql`
       cycleId
       projectId
       estimatePoint
+      milestoneId
     }
   }
 `;

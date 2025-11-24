@@ -13,11 +13,7 @@ export interface ILink {
 }
 
 export interface ITicketData {
-  ticketLabel?: string;
-  ticketToggle?: boolean;
-  ticketStageId?: string;
-  ticketPipelineId?: string;
-  ticketBoardId?: string;
+  configId: string;
 }
 interface IOnboardingParams {
   brandName: string;
@@ -32,7 +28,6 @@ export interface IArchiveParams {
 
 export interface IOnboardingParamsEdit extends IOnboardingParams {
   _id: string;
-  brandId: string;
 }
 
 export interface IMessengerOnlineHours {
@@ -145,12 +140,13 @@ export interface ILeadDataDocument extends ILeadData, Document {
   viewCount?: number;
   contactsGathered?: number;
 }
-
+export interface IColorDefinition {
+  DEFAULT?: string;
+  foreground?: string;
+}
 export interface IUiOptions {
-  color?: string;
-  wallpaper?: string;
   logo?: string;
-  textColor?: string;
+  primary?: IColorDefinition;
 }
 
 // subdocument schema for messenger UiOptions
@@ -158,20 +154,20 @@ export interface IUiOptionsDocument extends IUiOptions, Document {}
 
 export interface IIntegration {
   kind: string;
+  channelId: string;
   name?: string;
-  brandId?: string;
   languageCode?: string;
   tagIds?: string[];
   formId?: string;
   leadData?: ILeadData;
   messengerData?: IMessengerData;
-  ticketData?: ITicketData;
   uiOptions?: IUiOptions;
   isActive?: boolean;
   isConnected?: boolean;
-  channelIds?: string[];
   departmentIds?: string[];
   visibility?: string;
+  configId?: string;
+  ticketConfigId?: string;
 }
 
 export interface IExternalLink {

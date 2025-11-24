@@ -9,7 +9,6 @@ import {
 import { IIntegrationDetail } from '../types/Integration';
 import { useIntegrations } from '../hooks/useIntegrations';
 import { useParams } from 'react-router-dom';
-import { BrandsInline } from 'ui-modules';
 import { useIntegrationEditField } from '@/integrations/hooks/useIntegrationEdit';
 import { useState } from 'react';
 import { ArchiveIntegration } from '@/integrations/components/ArchiveIntegration';
@@ -17,6 +16,7 @@ import { RemoveIntegration } from '@/integrations/components/RemoveIntegration';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import clsx from 'clsx';
 import { IntegrationType } from '@/types/Integration';
+import { FacebookIntegrationRepair } from '../facebook/components/FacebookIntegrationRepair';
 
 export const IntegrationsRecordTable = ({
   Actions,
@@ -30,6 +30,7 @@ export const IntegrationsRecordTable = ({
   const { integrations, loading, handleFetchMore } = useIntegrations({
     variables: {
       kind: params?.integrationType,
+      channelId: params?.id,
     },
     skip: !params?.integrationType,
     errorPolicy: 'all',
@@ -42,7 +43,7 @@ export const IntegrationsRecordTable = ({
       stickyColumns={['name']}
     >
       <RecordTable.Scroll>
-        <RecordTable>
+        <RecordTable className="w-full">
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton
@@ -119,20 +120,7 @@ export const integrationTypeColumns = ({
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label="Name" />,
     cell: ({ cell }) => <NameField cell={cell} />,
-    size: 250,
-  },
-  {
-    id: 'brandId',
-    accessorKey: 'brandId',
-    header: () => <RecordTable.InlineHead label="Brand" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <BrandsInline brandIds={[cell.getValue() as string]} />
-        </RecordTableInlineCell>
-      );
-    },
-    size: 235,
+    size: 300,
   },
   {
     id: 'isActive',
@@ -143,7 +131,7 @@ export const integrationTypeColumns = ({
       return (
         <RecordTableInlineCell>
           <Badge
-            className="text-xs capitalize"
+            className="text-xs capitalize mx-auto"
             variant={status ? 'success' : 'destructive'}
           >
             {status ? 'Active' : 'Inactive'}
@@ -163,7 +151,7 @@ export const integrationTypeColumns = ({
       return (
         <RecordTableInlineCell>
           <Badge
-            className="text-xs capitalize"
+            className="text-xs capitalize mx-auto"
             variant={status === 'healthy' ? 'success' : 'destructive'}
           >
             {status}
@@ -178,14 +166,19 @@ export const integrationTypeColumns = ({
     header: () => <RecordTable.InlineHead label="Actions" />,
     cell: ({ cell }) => {
       const { isActive, _id, name } = cell.row.original;
+      const { integrationType } = useParams();
       return (
-        <div className="flex items-center gap-1.5 px-2">
+        <div className="flex items-center gap-1.5 px-2 justify-center">
+          {IntegrationType.FACEBOOK_MESSENGER === integrationType ||
+          IntegrationType.FACEBOOK_POST === integrationType ? (
+            <FacebookIntegrationRepair cell={cell} />
+          ) : null}
           <Actions cell={cell} />
           <ArchiveIntegration _id={_id} name={name} isActive={isActive} />
           <RemoveIntegration _id={_id} name={name} />
         </div>
       );
     },
-    size: 300,
+    size: 120,
   },
 ];

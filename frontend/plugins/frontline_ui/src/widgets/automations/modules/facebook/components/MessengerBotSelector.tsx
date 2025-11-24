@@ -3,7 +3,6 @@ import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
 import {
   IconCheck,
   IconChevronDown,
-  IconFlask,
   IconRobotFace,
   IconSettings,
 } from '@tabler/icons-react';

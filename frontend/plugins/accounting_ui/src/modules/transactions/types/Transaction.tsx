@@ -7,11 +7,8 @@ export interface ITrDetail {
   _id?: string;
   accountId?: string;
   originId?: string;
+  originType?: string;
   followInfos?: any;
-  follows?: {
-    type: string;
-    id: string;
-  }[];
 
   side?: string;
   amount?: number;
@@ -28,6 +25,7 @@ export interface ITrDetail {
   tempAmount?: number;
 
   account?: IAccount;
+  checked?: boolean;
   product?: IProduct;
 }
 
@@ -42,12 +40,9 @@ interface ICommontTr {
   journal: string;
   ptrStatus?: string;
   originId?: string;
-  followType?: string;
+  originType?: string;
   originSubId?: string;
-  follows?: {
-    type: string;
-    id: string;
-  }[];
+
   followExtras?: any;
   preTrId?: string;
 
@@ -80,8 +75,8 @@ interface ICommontTr {
 
   extraData?: any;
 
-  sumDt: number;
-  sumCt: number;
+  sumDt?: number;
+  sumCt?: number;
   permission?: string;
 
   branch?: IBranch;
@@ -98,23 +93,4 @@ export interface ITrRecord extends ICommontTr {
   shortDetail: ITrDetail;
   detailInd: number;
   trId: string;
-}
-
-export interface ITrInput {
-  ptrId: string;
-  parentId: string;
-  number: string;
-  date: Date;
-  description: string;
-  journal: string;
-
-  branchId: string;
-  departmentId: string;
-  customerType: string;
-  customerId: string;
-  assignedUserIds?: [string];
-
-  accountId: string;
-  side: string;
-  amount: number;
 }

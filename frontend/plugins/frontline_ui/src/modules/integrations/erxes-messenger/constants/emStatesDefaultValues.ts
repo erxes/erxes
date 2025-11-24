@@ -8,6 +8,7 @@ export const STORAGE_KEYS = {
   HOURS: 'erxesMessengerSetupHours',
   SETTINGS: 'erxesMessengerSetupSettings',
   CONFIG: 'erxesMessengerSetupConfig',
+  TICKET_CONFIG: 'erxesMessengerSetupTicketConfig',
 } as const;
 
 export const SOCIAL_PLATFORMS: Record<string, SocialPlatform> = {
@@ -19,9 +20,8 @@ export const SOCIAL_PLATFORMS: Record<string, SocialPlatform> = {
 } as const;
 
 export const DEFAULT_COLORS = {
-  COLOR: '#000',
-  TEXT: '#fff',
+  PRIMARY: '#000',
+  FOREGROUND: '#fff',
 } as const;
 
 export const DEFAULT_LANGUAGE = 'en_US';
-export const DEFAULT_WALLPAPER = '1';

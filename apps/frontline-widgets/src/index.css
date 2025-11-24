@@ -1,0 +1,123 @@
+#erxes-messenger-container {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  z-index: 2147483647;
+}
+
+#erxes-messenger-iframe {
+  position: absolute !important;
+  border: none;
+  z-index: 2147483647;
+  height: 100%;
+  width: 100%;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.erxes-launcher {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  border: none;
+  z-index: 2147483649;
+  overflow: hidden;
+  height: 48px;
+  width: 48px;
+  opacity: 0;
+  transition: box-shadow 0.3s ease-in-out, opacity 0.3s;
+  border-radius: 50%;
+  /* filter: drop-shadow(rgba(9, 14, 21, 0.1) 0px 3px 6px)
+    drop-shadow(rgba(9, 14, 21, 0.1) 0px 1px 12px); */
+  box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.06), 0 2px 32px 0 rgba(0, 0, 0, 0.16);
+}
+
+.erxes-messenger-hidden {
+  position: fixed;
+  height: min(720px, 100% - 104px);
+  min-height: 80px;
+  width: 408px;
+  max-height: 720px;
+  border-radius: 1rem;
+  right: 16px;
+  bottom: 92px;
+  transform-origin: right bottom;
+  transition: width 200ms ease 0s, height 200ms ease 0s,
+    max-height 200ms ease 0s, transform 300ms cubic-bezier(0, 1.2, 1, 1) 0s,
+    opacity 83ms ease-out 0s;
+  transform: scale(0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.erxes-messenger-shown {
+  position: fixed;
+  height: 100%;
+  min-height: 378px;
+  width: 408px;
+  max-height: 600px;
+  border-radius: 1rem;
+  right: 16px;
+  bottom: 92px;
+  transform-origin: right bottom;
+  box-shadow: 0 2px 8px 1px rgba(0, 0, 0, 0.2);
+  opacity: 1;
+  transition: width 200ms ease 0s, height 200ms ease 0s,
+    max-height 200ms ease 0s, transform 300ms cubic-bezier(0, 1.2, 1, 1) 0s,
+    opacity 83ms ease-out 0s;
+  pointer-events: all;
+}
+
+.erxes-messenger-shown:after {
+  opacity: 0.9 !important;
+  right: -20px !important;
+  bottom: -20px !important;
+}
+
+.erxes-messenger-shown.small {
+  max-height: 310px;
+}
+
+.erxes-messenger-shown > iframe,
+.erxes-notifier-shown > iframe {
+  height: 100% !important;
+  max-width: none;
+  bottom: 0;
+}
+
+.erxes-notifier-shown {
+  width: 370px;
+  height: 230px;
+}
+
+.erxes-notifier-shown.fullMessage {
+  height: 550px;
+  max-height: 100%;
+}
+
+@media only screen and (max-width: 420px) {
+  #erxes-messenger-container {
+    width: 100%;
+    max-height: none;
+  }
+
+  .erxes-messenger-shown {
+    height: calc(100% - 72px);
+    width: 100%;
+    max-height: none;
+    display: block;
+    right: 0;
+    bottom: 72px;
+  }
+
+  #erxes-messenger-iframe {
+    bottom: 0;
+    right: 0;
+  }
+
+  body.messenger-widget-shown.widget-mobile {
+    overflow: hidden;
+    position: absolute;
+    height: 100%;
+  }
+}

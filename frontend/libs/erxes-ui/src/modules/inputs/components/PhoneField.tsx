@@ -170,7 +170,7 @@ const PhoneOptions = forwardRef<
         <Button
           ref={ref}
           variant="secondary"
-          className={cn('w-full font-medium size-8 flex-shrink-0', className)}
+          className={cn('w-full font-medium size-8 shrink-0', className)}
           size="icon"
           {...props}
         >
@@ -389,7 +389,7 @@ const PhoneListFieldRoot = forwardRef<
               acc.phoneValidationStatus =
                 phone.status || ValidationStatus.Invalid;
             } else if (phone.phone) {
-              acc.phones.push(phone.phone);
+              acc.phones = [...(acc.phones || []), phone.phone];
             }
 
             return acc;

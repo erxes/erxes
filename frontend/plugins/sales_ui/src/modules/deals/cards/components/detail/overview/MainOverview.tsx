@@ -1,10 +1,4 @@
-import {
-  SelectBranches,
-  SelectCompany,
-  SelectCustomer,
-  SelectDepartments,
-  SelectMember,
-} from 'ui-modules';
+import { SelectCompany, SelectCustomer, SelectMember } from 'ui-modules';
 
 import { IDeal } from '@/deals/types/deals';
 import LabelChooser from './label/LabelChooser';
@@ -17,7 +11,7 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
 
   const handleDealFieldChange = (
     key: string,
-    value: string | string[] | undefined,
+    value: string | string[] | undefined | null,
   ) => {
     if (!value) return;
     editDeals({
@@ -30,7 +24,7 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
 
   const handleConformityChange = (
     key: string,
-    value: string | string[] | undefined,
+    value: string | string[] | undefined | null,
   ) => {
     editConformity({
       variables: {
@@ -67,26 +61,7 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
           <h4 className="uppercase text-sm text-gray-500 pb-2">Tags</h4>
           <SelectTags dealTags={deal.tags || []} tagIds={deal.tagIds || []} />
         </div>
-        <div>
-          <h4 className="uppercase text-sm text-gray-500 pb-2">Departments</h4>
-          <SelectDepartments
-            mode="multiple"
-            value={(deal.departments || []).map(
-              (department) => department?._id || '',
-            )}
-            onValueChange={(value) =>
-              handleDealFieldChange('departments', value)
-            }
-          />
-        </div>
-        <div>
-          <h4 className="uppercase text-sm text-gray-500 pb-2">Branches</h4>
-          <SelectBranches
-            mode="multiple"
-            value={(deal.branches || []).map((branch) => branch?._id || '')}
-            onValueChange={(value) => handleDealFieldChange('branchIds', value)}
-          />
-        </div>
+
         <div>
           <h4 className="uppercase text-sm text-gray-500 pb-2">Customers</h4>
           <SelectCustomer
@@ -94,17 +69,19 @@ const MainOverview = ({ deal }: { deal: IDeal }) => {
             value={(deal.customers || []).map(
               (customer) => customer?._id || '',
             )}
-            onValueChange={(value) => handleConformityChange('customer', value)}
+            onValueChange={(value) =>
+              handleConformityChange('customerIds', value)
+            }
           />
         </div>
         <div>
           <h4 className="uppercase text-sm text-gray-500 pb-2">Companies</h4>
           <SelectCompany
             mode="multiple"
-            value={(deal.customers || []).map(
-              (customer) => customer?._id || '',
-            )}
-            onValueChange={(value) => handleConformityChange('company', value)}
+            value={(deal.companies || []).map((company) => company?._id || '')}
+            onValueChange={(value) =>
+              handleConformityChange('companyIds', value)
+            }
           />
         </div>
       </div>

@@ -3,6 +3,9 @@ import { appRouter } from './trpc/init-trpc';
 import resolvers from './apollo/resolvers';
 import { typeDefs } from './apollo/typeDefs';
 import { generateModels } from './connectionResolvers';
+import { router } from './routes';
+import automations from './meta/automations';
+import segments from './meta/segments';
 
 startPlugin({
   name: 'sales',
@@ -11,6 +14,8 @@ startPlugin({
     typeDefs: await typeDefs(),
     resolvers,
   }),
+  expressRouter: router,
+
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
@@ -40,6 +45,8 @@ startPlugin({
     // await initMQWorkers(redis);
   },
   meta: {
+    automations,
+    segments,
     notificationModules: [
       {
         name: 'deals',

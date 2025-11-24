@@ -28,8 +28,13 @@ export const sendCoreMessage = async (args: MessageProps): Promise<any> => {
   });
 };
 
-export const getConfig = async (code: string, defaultValue?: any) => {
+export const getConfig = async (
+  subdomain: string,
+  code: string,
+  defaultValue?: any,
+) => {
   return await sendTRPCMessage({
+    subdomain,
     pluginName: 'core',
     module: 'configs',
     action: 'getConfig',

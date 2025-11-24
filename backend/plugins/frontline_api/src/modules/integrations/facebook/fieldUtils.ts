@@ -1,9 +1,13 @@
 import { generateFieldsFromSchema } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { generateFieldBotOptions } from '~/modules/integrations/facebook/utils';
+import { generateFieldBotOptions } from '@/integrations/facebook/utils';
 
-export const generateFacebookFields = async (models: IModels, data) => {
+export const generateFacebookFields = async (
+  models: IModels,
+  subdomain: string,
+  data,
+) => {
   const { collectionType } = data;
   const schemas = {
     messages: models.FacebookConversationMessages,
@@ -20,7 +24,7 @@ export const generateFacebookFields = async (models: IModels, data) => {
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 
-  let { schema } = schemas[collectionType];
+  const { schema } = schemas[collectionType];
 
   fields = [];
 
@@ -54,6 +58,8 @@ export const generateFacebookFields = async (models: IModels, data) => {
   fields = await generateFieldBotOptions(models, fields);
 
   const customerFields = await sendTRPCMessage({
+    subdomain,
+
     pluginName: 'core',
     method: 'query',
     module: 'fields',
