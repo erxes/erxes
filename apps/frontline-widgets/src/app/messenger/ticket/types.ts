@@ -1,3 +1,6 @@
+import { z } from 'zod';
+import { createCustomerSchema } from '../schema';
+
 export enum TicketFormFields {
   name = 'Ticket title',
   description = 'Ticket description',
@@ -33,3 +36,5 @@ export enum TicketFormPlaceholders {
   companyPhoneNumber = 'Enter company phone number',
   companyEmail = 'Enter company email',
 }
+
+export type TCreateCustomerForm = z.infer<typeof createCustomerSchema>;

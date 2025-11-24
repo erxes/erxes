@@ -93,7 +93,7 @@ export const ConfigDetails = () => {
             className="flex flex-col gap-0 size-full box-border"
           >
             <Sheet.Header>
-              <Sheet.Title>Pipeline Configuration</Sheet.Title>
+              <Sheet.Title>Messenger Configuration</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4 space-y-4">

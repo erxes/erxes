@@ -16,7 +16,8 @@ import { EXCLUDED_TICKET_FORM_FIELDS } from '../../constants';
 import { ticketConfigAtom } from '../../states';
 import { useCreateWidgetTicket } from '../hooks/useCreateWidgetTicket';
 import { getLocalStorageItem } from '@libs/utils';
-import { useCreateRelation, SelectTags } from 'ui-modules';
+import { useCreateRelation } from 'ui-modules';
+import { SelectTicketTag } from './tags/select-ticket-tag';
 
 const TICKET_DETAILS_FIELDS = ['name', 'description', 'attachments', 'tags'];
 const CUSTOMER_FIELDS = ['firstName', 'lastName', 'phoneNumber', 'email'];
@@ -220,8 +221,7 @@ export const TicketForm = ({
                 {TicketFormFields[key as keyof typeof TicketFormFields]}
               </Form.Label>
               <Form.Control>
-                <SelectTags.FormItem
-                  tagType="frontline:ticket"
+                <SelectTicketTag
                   value={field.value}
                   mode="multiple"
                   onValueChange={field.onChange}
@@ -311,8 +311,8 @@ export const TicketForm = ({
             {/* Ticket Details */}
             {ticketDetailsFields.length > 0 && (
               <InfoCard
-                title="Ticket details"
-                description="Please fill in the details of the ticket"
+                title="Main information"
+                description="Please fill in the main information of the ticket"
               >
                 <InfoCard.Content>
                   {ticketDetailsFields.map(renderField)}
@@ -323,8 +323,8 @@ export const TicketForm = ({
             {/* Customer Details */}
             {customerFields.length > 0 && (
               <InfoCard
-                title="Customer details"
-                description="Please fill in the details of the customer"
+                title="Contact information"
+                description="Please fill in the contact information"
               >
                 <InfoCard.Content>
                   {customerFields.map(renderField)}
@@ -335,8 +335,8 @@ export const TicketForm = ({
             {/* Company Details */}
             {companyFields.length > 0 && (
               <InfoCard
-                title="Company details"
-                description="Please fill in the details of the company"
+                title="Contact information"
+                description="Please fill in the contact information"
               >
                 <InfoCard.Content>
                   {companyFields.map(renderField)}
