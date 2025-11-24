@@ -311,8 +311,8 @@ export const TicketForm = ({
             {/* Ticket Details */}
             {ticketDetailsFields.length > 0 && (
               <InfoCard
-                title="Ticket details"
-                description="Please fill in the details of the ticket"
+                title="Main information"
+                description="Please fill in the main information of the ticket"
               >
                 <InfoCard.Content>
                   {ticketDetailsFields.map(renderField)}
@@ -323,8 +323,8 @@ export const TicketForm = ({
             {/* Customer Details */}
             {customerFields.length > 0 && (
               <InfoCard
-                title="Customer details"
-                description="Please fill in the details of the customer"
+                title="Contact information"
+                description="Please fill in the contact information"
               >
                 <InfoCard.Content>
                   {customerFields.map(renderField)}
@@ -335,8 +335,8 @@ export const TicketForm = ({
             {/* Company Details */}
             {companyFields.length > 0 && (
               <InfoCard
-                title="Company details"
-                description="Please fill in the details of the company"
+                title="Contact information"
+                description="Please fill in the contact information"
               >
                 <InfoCard.Content>
                   {companyFields.map(renderField)}
