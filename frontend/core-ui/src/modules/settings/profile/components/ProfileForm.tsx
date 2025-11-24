@@ -1,12 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { SubmitHandler } from 'react-hook-form';
 
-import { Button, Form, Spinner, Upload } from 'erxes-ui';
-import { useProfile } from '@/settings/profile/hooks/useProfile';
-import {
-  FormType,
-  useProfileForm,
-} from '@/settings/profile/hooks/useProfileForm';
 import {
   AdvancedFields,
   DefaultFields,
@@ -14,6 +8,12 @@ import {
   LinkFields,
 } from '@/settings/profile/components/fields';
 import { ProfileLoading } from '@/settings/profile/components/ProfileLoading';
+import { useProfile } from '@/settings/profile/hooks/useProfile';
+import {
+  FormType,
+  useProfileForm,
+} from '@/settings/profile/hooks/useProfileForm';
+import { Button, Form, Spinner, Upload } from 'erxes-ui';
 
 export const ProfileForm = () => {
   const { form } = useProfileForm();
@@ -21,8 +21,10 @@ export const ProfileForm = () => {
   const { loading, profileUpdate, profile, updating } = useProfile();
 
   const submitHandler: SubmitHandler<FormType> = useCallback(
-    async (data) => {
-      profileUpdate(data as any);
+    (data) => {
+      profileUpdate({
+        variables: data,
+      });
     },
     [profileUpdate],
   );

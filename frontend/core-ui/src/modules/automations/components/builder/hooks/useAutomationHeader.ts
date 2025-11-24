@@ -18,12 +18,11 @@ export const useAutomationHeader = () => {
   const { handleSubmit, clearErrors } =
     useFormContext<TAutomationBuilderForm>();
   const navigate = useNavigate();
-  const { syncPositionUpdates } = useAutomationFormController();
 
   const { setQueryParams, reactFlowInstance } = useAutomation();
   const { actions, triggers } = useAutomationNodes();
 
-  const { getNodes, setNodes } = useReactFlow();
+  const { getNode, getNodes, setNodes } = useReactFlow();
   const { id } = useParams();
 
   const { handleNodeErrors, clearNodeErrors } = useNodeErrorHandler({
@@ -43,17 +42,23 @@ export const useAutomationHeader = () => {
     status,
     workflows,
   }: TAutomationBuilderForm) => {
-    // Sync all pending position updates to form state
-    syncPositionUpdates();
-
     const generateValues = () => {
       return {
         id,
         name,
         status: status,
-        triggers,
-        actions,
-        workflows,
+        triggers: triggers.map((t) => ({
+          ...t,
+          position: getNode(t.id)?.position || t.position,
+        })),
+        actions: actions.map((a) => ({
+          ...a,
+          position: getNode(a.id)?.position || a.position,
+        })),
+        workflows: workflows?.map((w) => ({
+          ...w,
+          position: getNode(w.id)?.position || w.position,
+        })),
       };
     };
 
@@ -71,6 +76,7 @@ export const useAutomationHeader = () => {
         clearNodeErrors();
         toast({
           title: 'Save successful',
+          variant: 'success',
         });
         if (!id && automationsAdd) {
           navigate(`/automations/edit/${automationsAdd._id}`);

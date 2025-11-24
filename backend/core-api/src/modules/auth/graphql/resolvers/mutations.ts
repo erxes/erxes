@@ -14,7 +14,6 @@ import {
   isValidEmail,
   sendSaasMagicLinkEmail,
 } from '~/modules/auth/utils';
-import { sendOnboardNotification } from '~/modules/notifications/utils';
 import { assertSaasEnvironment } from '~/utils/saas';
 
 type LoginParams = {
@@ -238,8 +237,6 @@ export const authMutations = {
     await updateSaasOrganization(subdomain, {
       lastActiveDate: Date.now(),
     });
-
-    await sendOnboardNotification(subdomain, models, user);
 
     return 'success';
   },

@@ -1,7 +1,6 @@
 import { Navigate, Outlet } from 'react-router';
 
 import { currentUserState, isCurrentUserLoadedState } from 'ui-modules';
-
 import { isDefined } from 'erxes-ui';
 
 import { AppPath } from '@/types/paths/AppPath';
@@ -9,7 +8,6 @@ import { useAtomValue } from 'jotai';
 
 export const UserProvider = () => {
   const isCurrentUserLoaded = useAtomValue(isCurrentUserLoadedState);
-
   const currentUser = useAtomValue(currentUserState);
 
   if (!isCurrentUserLoaded) {
@@ -22,3 +20,6 @@ export const UserProvider = () => {
 
   return <Outlet />;
 };
+
+
+

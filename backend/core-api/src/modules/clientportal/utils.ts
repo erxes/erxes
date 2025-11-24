@@ -3,7 +3,6 @@ import {
   ICPContactsParams,
   ICPUserDocument,
 } from '@/clientportal/types/cpUser';
-import { getConfig } from '~/modules/organization/settings/utils/configs';
 
 export const handleCPContacts = async (args: ICPContactsParams) => {
   const {
@@ -26,20 +25,20 @@ export const handleCPContacts = async (args: ICPContactsParams) => {
 
   if (type === 'customer') {
     let customer = await models.Customers.findOne({
-      email: trimmedMail,
-      phone,
+      $or: [{ primaryEmail: trimmedMail }, { primaryPhone: phone }],
     });
 
     if (!customer) {
       customer = await models.Customers.create({
-        email: trimmedMail,
-        phone,
+        primaryEmail: trimmedMail,
+        primaryPhone: phone,
       });
     }
 
     qry = { erxesCustomerId: customer._id, clientPortalId };
 
-    user = await models.Users.findOne(qry);
+    user = await models.CPUser.findOne(qry);
+
     if (user) {
       throw new Error('user is already exists');
     }
@@ -51,20 +50,6 @@ export const handleCPContacts = async (args: ICPContactsParams) => {
     });
 
     await linkCustomerToUser(models, user._id, customer._id);
-
-    // TODO: fix
-    // for (const serviceName of await getServices()) {
-    //   const serviceConfig = await getService(serviceName);
-
-    //   if (serviceConfig.config?.meta?.hasOwnProperty('cpCustomerHandle')) {
-    //     if (await isEnabled(serviceName)) {
-    //       sendMessage(`${serviceName}:cpCustomerHandle`, {
-    //         subdomain,
-    //         data: { customer },
-    //       });
-    //     }
-    //   }
-    // }
   }
 
   if (type === 'company') {
@@ -96,20 +81,6 @@ export const handleCPContacts = async (args: ICPContactsParams) => {
     }
 
     await linkCompanyToUser(models, user._id, company._id);
-
-    // TODO: fix
-    // for (const serviceName of await getServices()) {
-    //   const serviceConfig = await getService(serviceName);
-
-    //   if (serviceConfig.config?.meta?.hasOwnProperty('cpCustomerHandle')) {
-    //     if (await isEnabled(serviceName)) {
-    //       sendMessage(`${serviceName}:cpCustomerHandle`, {
-    //         subdomain,
-    //         data: { company },
-    //       });
-    //     }
-    //   }
-    // }
   }
 
   return user;
@@ -120,7 +91,7 @@ const linkCustomerToUser = async (
   userId: string,
   customerId: string,
 ) => {
-  await models.Users.updateOne(
+  await models.CPUser.updateOne(
     { _id: userId },
     { $set: { erxesCustomerId: customerId } },
   );
@@ -131,7 +102,7 @@ const linkCompanyToUser = async (
   userId: string,
   companyId: string,
 ) => {
-  await models.Users.updateOne(
+  await models.CPUser.updateOne(
     { _id: userId },
     { $set: { erxesCompanyId: companyId } },
   );

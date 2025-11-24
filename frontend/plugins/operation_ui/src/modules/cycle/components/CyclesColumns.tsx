@@ -31,7 +31,7 @@ const chartConfig = {
   },
   safari: {
     label: 'Done',
-    color: 'hsl(var(--primary))',
+    color: 'var(--primary)',
   },
 } satisfies ChartConfig;
 
@@ -125,7 +125,7 @@ export const cyclesColumns: ColumnDef<ICycle>[] = [
                 {
                   name: 'Progress',
                   value: donePercent,
-                  fill: 'hsl(var(--primary))',
+                  fill: 'var(--primary)',
                 },
               ]}
               startAngle={90}
@@ -138,7 +138,7 @@ export const cyclesColumns: ColumnDef<ICycle>[] = [
                 tick={false}
               />
               <RadialBar
-                background={{ fill: 'hsl(var(--border))' }}
+                background={{ fill: 'var(--border)' }}
                 dataKey="value"
                 cornerRadius={10}
               />

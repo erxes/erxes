@@ -15,9 +15,7 @@ export const useCustomTriggerContent = (activeNode: NodeData) => {
   const toggleSideBarOpen = useSetAtom(toggleAutomationBuilderOpenSidebar);
   const { triggers } = useAutomationNodes();
   const { getNode, updateNodeData } = useReactFlow<Node<NodeData>>();
-  const activeTrigger =
-    triggers.find((trigger) => trigger.id === activeNode.id) ||
-    (activeNode as any);
+  const activeTrigger = triggers[activeNode.nodeIndex];
 
   const [pluginName, moduleName] = useMemo(
     () => splitAutomationNodeType(activeNode.type || ''),
@@ -29,10 +27,12 @@ export const useCustomTriggerContent = (activeNode: NodeData) => {
     toggleSideBarOpen();
     toast({
       title: 'Trigger configuration added successfully.',
+      variant: 'success',
     });
   };
 
   const onSaveTriggerConfig = (config: any) => {
+    console.log({ config, index: activeNode.nodeIndex });
     setAutomationBuilderFormValue(
       `${AutomationNodesType.Triggers}.${activeNode.nodeIndex}.config`,
       config,

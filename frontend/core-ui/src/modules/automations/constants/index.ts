@@ -73,7 +73,7 @@ export const AUTOMATION_RECORD_TABLE_FILTERS_SESSION_KEY =
 export const AUTOMATION_LIBRARY_TABS = [
   { value: AutomationNodeType.Trigger, label: 'Triggers' },
   { value: AutomationNodeType.Action, label: 'Actions' },
-  { value: AutomationNodeType.Workflow, label: 'Automations' },
+  // { value: AutomationNodeType.Workflow, label: 'Automations' },
 ];
 type ConnectionPropertyName = 'nextActionId' | 'actionId' | 'workflowId';
 

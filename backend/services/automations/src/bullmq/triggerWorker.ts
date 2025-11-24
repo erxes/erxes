@@ -13,7 +13,11 @@ interface ITriggerData {
   actionType: string;
   targets: unknown[]; // Replace with actual type if known
   recordType?: string;
-  repeatOptions?: { executionId: string; actionId: string };
+  repeatOptions?: {
+    executionId: string;
+    actionId: string;
+    optionalConnectId?: string;
+  };
 }
 
 // Final job interfaces
@@ -22,7 +26,6 @@ type ITriggerJobData = IJobData<ITriggerData>;
 export const triggerHandlerWorker = async (job: Job<ITriggerJobData>) => {
   const { subdomain, data } = job?.data ?? {};
   const models = await generateModels(subdomain);
-  debugInfo('Initialized databases');
 
   debugInfo(`Received data from:${JSON.stringify({ subdomain, data })}`);
 
@@ -30,21 +33,21 @@ export const triggerHandlerWorker = async (job: Job<ITriggerJobData>) => {
   try {
     if (repeatOptions) {
       repeatActionExecution(subdomain, models, repeatOptions);
-    }
-
-    const waitingAction = await checkIsWaitingAction(
-      subdomain,
-      models,
-      type,
-      targets,
-    );
-    if (waitingAction) {
-      executeWaitingAction(subdomain, models, waitingAction);
+    } else {
+      const waitingAction = await checkIsWaitingAction(
+        subdomain,
+        models,
+        type,
+        targets,
+      );
+      if (waitingAction) {
+        executeWaitingAction(subdomain, models, waitingAction);
+      }
     }
 
     await receiveTrigger({ models, subdomain, type, targets, recordType });
   } catch (error: any) {
     debugError(`Error processing job ${job.id}: ${error.message}`);
-    throw error;
+    // Error is logged but not thrown to prevent job retries
   }
 };

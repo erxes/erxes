@@ -63,7 +63,11 @@ export const CreateClientPortalSheet = () => {
         variables: data,
         onCompleted: (data) => {
           console.log(data);
-          toast({ title: 'Success!' });
+          toast({
+            title: 'Success!',
+            variant: 'success',
+            description: 'Client portal created successfully',
+          });
           navigate(`${data.clientPortalAdd._id}`);
         },
       });

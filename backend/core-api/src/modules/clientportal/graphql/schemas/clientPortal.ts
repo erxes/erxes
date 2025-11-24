@@ -205,12 +205,18 @@ type ClientPortal {
     ${GQL_CURSOR_PARAM_DEFS}
   } 
 
+  type CPExamplePost {
+    id: String
+    title: String
+    content: String
+  }
+
 `;
 
 export const queries = `
   getClientPortals(filter: IClientPortalFilter): ClientPortalListResponse
   getClientPortal(_id: String): ClientPortal
-  getClientPortalExample: JSON
+  getCPExamplePosts: [CPExamplePost]
 `;
 
 export const mutations = `

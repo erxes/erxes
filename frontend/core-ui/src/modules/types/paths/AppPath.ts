@@ -4,11 +4,13 @@ export enum AppPath {
   ResetPassword = '/reset-password',
   CreateOwner = '/create-owner',
   ForgotPassword = '/forgot-password',
+  ConfirmInvitation = '/confirmation',
 
   //main
   Index = '/',
   Settings = 'settings',
   SettingsCatchAll = `/${Settings}/*`,
+  MainOnboarding = '/welcome',
 
   Products = 'products',
   ProductsCatchAll = `/${Products}/*`,

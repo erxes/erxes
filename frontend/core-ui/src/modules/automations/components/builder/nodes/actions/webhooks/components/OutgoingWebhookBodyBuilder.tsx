@@ -9,10 +9,10 @@ import { Attributes } from 'ui-modules/modules/automations/components/Attributes
 function createTheme() {
   return CMEditorView.theme({
     '&': {
-      backgroundColor: 'hsl(var(--background))',
-      color: 'hsl(var(--foreground))',
+      backgroundColor: 'var(--background)',
+      color: 'var(--foreground)',
       borderRadius: 'var(--radius)',
-      border: '1px solid hsl(var(--border))',
+      border: '1px solid var(--border)',
     },
     '.cm-content': {
       padding: '0.75rem',
@@ -21,7 +21,7 @@ function createTheme() {
     },
     '.cm-focused': {
       outline: 'none',
-      borderColor: 'hsl(var(--ring))',
+      borderColor: 'var(--ring)',
     },
     '.cm-editor': {
       borderRadius: 'var(--radius)',
@@ -30,20 +30,20 @@ function createTheme() {
       borderRadius: 'var(--radius)',
     },
     '.cm-gutters': {
-      backgroundColor: 'hsl(var(--muted))',
+      backgroundColor: 'var(--muted)',
       border: 'none',
     },
     '.cm-lineNumbers .cm-gutterElement': {
-      color: 'hsl(var(--muted-foreground))',
+      color: 'var(--muted-foreground)',
     },
     '.cm-activeLine': {
-      backgroundColor: 'hsl(var(--accent))',
+      backgroundColor: 'var(--accent)',
     },
     '.cm-activeLineGutter': {
-      backgroundColor: 'hsl(var(--accent))',
+      backgroundColor: 'var(--accent)',
     },
     '.cm-selectionBackground': {
-      backgroundColor: 'hsl(var(--primary) / 0.2)',
+      backgroundColor: 'var(--secondary)',
     },
   });
 }

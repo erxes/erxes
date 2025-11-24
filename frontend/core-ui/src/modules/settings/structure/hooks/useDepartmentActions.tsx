@@ -113,7 +113,8 @@ export function useDepartmentEdit(
 export function useRemoveDepartment() {
   const { toast } = useToast();
   const [handleRemove, { loading, error }] = useMutation(REMOVE_DEPARTMENTS, {
-    onCompleted: () => toast({ title: 'Removed successfully!' }),
+    onCompleted: () =>
+      toast({ title: 'Removed successfully!', variant: 'success' }),
     refetchQueries: ['Departments'],
   });
 
@@ -152,6 +153,7 @@ export function useDepartmentInlineEdit() {
         if (data?.departmentsEdit) {
           toast({
             title: 'Department updated successfully!',
+            variant: 'success',
           });
         }
       },

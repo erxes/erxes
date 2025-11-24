@@ -25,7 +25,7 @@ export const IncomingWebhookBodyField = ({
         />
       </div>
       {field.value && (
-        <div className="mt-2 p-3 rounded text-xs font-mono overflow-x-auto max-h-full overflow-y-auto border bg-white">
+        <div className="mt-2 p-3 rounded text-xs font-mono overflow-x-auto max-h-full overflow-y-auto border bg-background">
           <pre>{previewJson}</pre>
         </div>
       )}

@@ -76,7 +76,7 @@ export const checkIsValidConnect = ({
   const connectionInfo = generateConnectInfo(connection, source, target);
 
   if (connectionInfo.connectType === 'optional') {
-    if (!checkValidOptionalConnect(source)) {
+    if (!checkValidOptionalConnect(source, target)) {
       return false;
     }
   }
@@ -110,9 +110,6 @@ export const checkIsValidConnect = ({
       return false;
     }
   }
-
-  const allNodes = [...triggersConst, ...actionsConst];
-  const sourceDef = allNodes.find((n) => n.type === source.data?.type);
 
   return !hasCycle(target);
 };

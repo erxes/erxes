@@ -7,7 +7,7 @@ import { AutomationDefaultTriggerHeader } from './AutomationDefaultTriggerHeader
 
 export const AutomationTriggerContentSidebar =
   React.memo<AutomationTriggerContentProps>(({ activeNode }) => {
-    const containerClasses = 'w-[650px] h-full';
+    const containerClasses = 'h-full flex flex-col';
 
     if (activeNode?.isCustom) {
       return (
@@ -18,7 +18,7 @@ export const AutomationTriggerContentSidebar =
     }
 
     return (
-      <div className={`${containerClasses} flex flex-col`}>
+      <div className={containerClasses}>
         <AutomationDefaultTriggerHeader activeNode={activeNode} />
         <Separator />
         <div className="flex-1 w-auto overflow-auto px-4">

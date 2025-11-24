@@ -9,6 +9,7 @@ import { useUpdatePipeline } from '@/pipelines/hooks/useUpdatePipeline';
 import { Statuses } from '@/status/components/Statuses';
 import { useEffect } from 'react';
 import { TUpdatePipelineForm } from '@/pipelines/types';
+import { PipelineConfigs } from './configs/components/PipelineConfigs';
 
 export const PipelineDetail = () => {
   const { pipelineId } = useParams<{
@@ -39,15 +40,13 @@ export const PipelineDetail = () => {
           {loading ? <Skeleton className="w-32 h-5" /> : pipeline?.name}
         </h1>
       </span>
-      <main className="space-y-6">
+      <main className="space-y-6 pb-10">
         <section className="mt-4 w-full border border-muted-foreground/15 rounded-md">
           <div className="w-full p-4">
             <form
-              onSubmit={
-                  form.handleSubmit((data) =>{
-                  updatePipeline({ variables: data })},
-                )
-              }
+              onSubmit={form.handleSubmit((data) => {
+                updatePipeline({ variables: data });
+              })}
             >
               <Form {...form}>
                 <div className="flex flex-col gap-2 ">
@@ -61,6 +60,7 @@ export const PipelineDetail = () => {
           </div>
         </section>
         <Statuses />
+        <PipelineConfigs />
       </main>
     </div>
   );

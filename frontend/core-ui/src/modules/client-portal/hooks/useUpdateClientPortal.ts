@@ -13,6 +13,7 @@ export const useUpdateClientPortal = () => {
         toast({
           title: 'Success',
           description: 'Client portal updated successfully',
+          variant: 'success',
         });
         options.onCompleted?.(data);
       },

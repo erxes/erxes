@@ -19,9 +19,10 @@ export const EMAppearance = () => {
   const form = useForm<z.infer<typeof EMAPPEARANCE_SCHEMA>>({
     resolver: zodResolver(EMAPPEARANCE_SCHEMA),
     defaultValues: {
-      color: '#000',
-      textColor: '#fff',
-      logo: '',
+      primary: {
+        DEFAULT: '#000',
+        foreground: '#fff',
+      },
     },
   });
 
@@ -50,7 +51,7 @@ export const EMAppearance = () => {
         >
           <div className="space-y-6 p-4 pt-0">
             <Form.Field
-              name="color"
+              name="primary.DEFAULT"
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Brand color</Form.Label>
@@ -68,7 +69,7 @@ export const EMAppearance = () => {
               )}
             />
             <Form.Field
-              name="textColor"
+              name="primary.foreground"
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Text color</Form.Label>
