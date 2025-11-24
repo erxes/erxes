@@ -13,13 +13,11 @@ import { posCategoryAtom } from '../../states/posCategory';
 import { renderingPosCreateAtom } from '../../states/renderingPosCreateAtom';
 
 export const PosDetailSheet = ({ children }: { children: React.ReactNode }) => {
-  const [renderingPosCreate, setRenderingPosCreate] = useAtom(
-    renderingPosCreateAtom,
-  );
+  const [, setRenderingPosCreate] = useAtom(renderingPosCreateAtom);
   const [posCategory] = useAtom(posCategoryAtom);
   const [sidebarView, setSidebarView] = useAtom(sidebarViewAtom);
   const [isFullscreen, setIsFullscreen] = useAtom(isFullscreenAtom);
-  const [tab, setTab] = useQueryState<string>('tab');
+  const [tab] = useQueryState<string>('tab');
   const [create, setCreate] = useQueryState<boolean>('create', {
     defaultValue: false,
   });

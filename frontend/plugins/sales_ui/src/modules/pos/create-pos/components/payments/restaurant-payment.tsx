@@ -41,13 +41,7 @@ export default function RestaurantPaymentsForm({
   });
 
   const form = externalForm || internalForm;
-  const {
-    control,
-    setValue,
-    getValues,
-    handleSubmit,
-    formState: { errors },
-  } = form;
+  const { control, setValue, handleSubmit } = form;
 
   const [newPaymentMethod, setNewPaymentMethod] = useState<PaymentMethod>({
     type: '',
@@ -82,7 +76,7 @@ export default function RestaurantPaymentsForm({
       });
       setPaymentMethods(processedPaymentTypes);
     }
-  }, [posDetail, form]);
+  }, [posDetail, form, setPaymentMethods]);
 
   const handleInputChange = (field: keyof PaymentMethod, value: string) => {
     setNewPaymentMethod({

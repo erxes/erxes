@@ -124,7 +124,7 @@ export const SNAP_GRID = [20, 20] as const;
 
 export const CANVAS = {
   WIDTH: 1000,
-  HEIGHT: 600,
+  HEIGHT: 1000,
 } as const;
 
 export const LAYOUT = {

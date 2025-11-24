@@ -190,7 +190,16 @@ export const usePosDetailForms = (posDetail?: IPosDetail) => {
       watchedUserIds: [...(posDetail.deliveryConfig?.watchedUserIds || [])],
       assignedUserIds: [...(posDetail.deliveryConfig?.assignedUserIds || [])],
     });
-  }, [posDetail]);
+  }, [
+    posDetail,
+    basicInfoForm,
+    permissionForm,
+    financeForm,
+    uiConfigForm,
+    productForm,
+    paymentForm,
+    deliveryConfigForm,
+  ]);
 
   return {
     basicInfoForm,

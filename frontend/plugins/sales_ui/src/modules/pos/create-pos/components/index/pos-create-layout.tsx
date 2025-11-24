@@ -166,7 +166,7 @@ export const PosCreateLayout: React.FC<PosLayoutProps> = ({
 
         const formData = form.getValues();
         onFormSubmit(formData);
-      } catch (error) {
+      } catch {
         setValidationError('Failed to save form data. Please try again.');
         return;
       } finally {
@@ -181,7 +181,7 @@ export const PosCreateLayout: React.FC<PosLayoutProps> = ({
         if (tab === 'slot' && onSaveSlots) {
           try {
             await onSaveSlots();
-          } catch (error) {
+          } catch {
             setValidationError('Failed to save slots. Please try again.');
             return;
           }
@@ -190,7 +190,7 @@ export const PosCreateLayout: React.FC<PosLayoutProps> = ({
         if (onFinalSubmit) {
           await onFinalSubmit();
         }
-      } catch (error) {
+      } catch {
         setValidationError('Failed to save. Please try again.');
       } finally {
         setIsLoading(false);

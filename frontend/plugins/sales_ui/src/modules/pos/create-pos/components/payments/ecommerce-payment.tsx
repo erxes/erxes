@@ -39,12 +39,7 @@ export default function EcommercePaymentsForm({
   });
 
   const form = externalForm || internalForm;
-  const {
-    control,
-    setValue,
-    getValues,
-    formState: { errors },
-  } = form;
+  const { control, setValue, getValues } = form;
 
   const [newPaymentMethod, setNewPaymentMethod] = useState<PaymentMethod>({
     type: '',
@@ -78,7 +73,7 @@ export default function EcommercePaymentsForm({
       });
       setPaymentMethods(processedPaymentTypes);
     }
-  }, [posDetail, form]);
+  }, [posDetail, form, setPaymentMethods]);
 
   const handleInputChange = (field: keyof PaymentMethod, value: string) => {
     setNewPaymentMethod({
@@ -138,6 +133,24 @@ export default function EcommercePaymentsForm({
       onFormSubmit({
         paymentIds: getValues('paymentIds'),
         paymentTypes: updatedMethods,
+      });
+    }
+  };
+
+  const handleUpdatePaymentMethod = (
+    index: number,
+    field: keyof PaymentMethod,
+    value: string,
+  ) => {
+    const updated = [...paymentMethods];
+    updated[index] = { ...updated[index], [field]: value } as PaymentMethod;
+    setPaymentMethods(updated);
+    setValue('paymentTypes', updated);
+
+    if (onFormSubmit) {
+      onFormSubmit({
+        paymentIds: getValues('paymentIds'),
+        paymentTypes: updated,
       });
     }
   };

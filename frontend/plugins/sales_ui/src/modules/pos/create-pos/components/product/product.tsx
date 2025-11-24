@@ -85,10 +85,9 @@ export default function ProductForm({
 
   const addItem = (fieldName: keyof ProductFormValues, newItem: any) => {
     if (isReadOnly) return;
-    const current = form.watch(fieldName);
-    if (Array.isArray(current)) {
-      form.setValue(fieldName, [...current, newItem]);
-    }
+    const current = form.getValues(fieldName as any);
+    const nextArray = Array.isArray(current) ? current : [];
+    form.setValue(fieldName, [...nextArray, newItem] as any);
   };
 
   const removeItem = (fieldName: keyof ProductFormValues, index: number) => {
@@ -135,7 +134,7 @@ export default function ProductForm({
             <div className="space-y-4">
               {productGroupsLoading ? (
                 <>
-                  {[1, 2].map((i) => (
+                  {[1].map((i) => (
                     <Skeleton key={i} className="w-full h-8 rounded-lg" />
                   ))}
                 </>

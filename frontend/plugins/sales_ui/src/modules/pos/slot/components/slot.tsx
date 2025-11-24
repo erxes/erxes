@@ -198,14 +198,6 @@ const POSSlotsManager = ({
               fitView
               snapToGrid
               snapGrid={snapGrid}
-              nodeExtent={[
-                [0, 0],
-                [CANVAS.WIDTH, CANVAS.HEIGHT],
-              ]}
-              translateExtent={[
-                [0, 0],
-                [CANVAS.WIDTH, CANVAS.HEIGHT],
-              ]}
               onDragStart={() => setIsDragging(true)}
               onDragEnd={() => setIsDragging(false)}
               proOptions={{ hideAttribution: true }}

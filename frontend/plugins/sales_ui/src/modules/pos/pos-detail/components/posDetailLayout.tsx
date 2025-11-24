@@ -370,7 +370,7 @@ export const PosEditLayout: React.FC<PosEditLayoutProps> = ({
         return false;
       }
       return true;
-    } catch (error) {
+    } catch {
       setValidationError('Failed to validate form. Please try again.');
       return false;
     }

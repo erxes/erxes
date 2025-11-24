@@ -37,11 +37,21 @@ export const useLocalPosDetailHandlers = ({
   if (!posDetail) {
     return {
       permissionFormRef,
-      handleBasicInfoSubmit: async () => {},
-      handleProductSubmit: async () => {},
-      handleAppearanceSubmit: async () => {},
-      handleScreenConfigSubmit: async () => {},
-      handleFinanceSubmit: async () => {},
+      handleBasicInfoSubmit: async () => {
+        console.warn('POS detail not loaded');
+      },
+      handleProductSubmit: async () => {
+        console.warn('POS detail not loaded');
+      },
+      handleAppearanceSubmit: async () => {
+        console.warn('POS detail not loaded');
+      },
+      handleScreenConfigSubmit: async () => {
+        console.warn('POS detail not loaded');
+      },
+      handleFinanceSubmit: async () => {
+        console.warn('POS detail not loaded');
+      },
     };
   }
 
@@ -101,6 +111,8 @@ export const useLocalPosDetailHandlers = ({
           kioskExcludeCategoryIds: data.kioskExcludeCategoryIds,
           kioskExcludeProductIds: data.kioskExcludeProductIds,
           checkExcludeCategoryIds: data.checkExcludeCategoryIds,
+          isCheckRemainder: data.isCheckRemainder,
+          banFractions: data.banFractions,
         },
       },
       [
@@ -110,6 +122,8 @@ export const useLocalPosDetailHandlers = ({
         'kioskExcludeCategoryIds',
         'kioskExcludeProductIds',
         'checkExcludeCategoryIds',
+        'isCheckRemainder',
+        'banFractions',
       ],
     );
   };

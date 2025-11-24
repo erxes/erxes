@@ -62,10 +62,10 @@ export default function EbarimtConfigForm({
         checkCompanyUrl: config.checkCompanyUrl || '',
         companyRd: config.companyRD || '',
         companyRD: config.companyRD || '',
-        merchantin: '',
-        posno: '',
+        merchantin: config.merchantTin || '',
+        posno: config.posNo || '',
         districtCode: config.districtCode || '',
-        branchNo: '',
+        branchNo: config.branchNo || '',
         defaultGsCode: config.defaultGSCode || '',
         defaultGSCode: config.defaultGSCode || '',
         hasVat: config.hasVat || false,
@@ -116,17 +116,6 @@ export default function EbarimtConfigForm({
     setEbarimtConfig(updatedConfig);
   };
 
-  const handleSelectChange = (
-    field: keyof typeof ebarimtConfig,
-    value: string,
-  ) => {
-    const updatedConfig = {
-      ...ebarimtConfig,
-      [field]: value,
-    };
-    setEbarimtConfig(updatedConfig);
-  };
-
   const handleMultiSelectChange = (
     field: keyof typeof ebarimtConfig,
     options: Array<{ value: string; label: string }>,
@@ -152,6 +141,9 @@ export default function EbarimtConfigForm({
         districtCode: ebarimtConfig.districtCode,
         companyRD: ebarimtConfig.companyRd,
         defaultGSCode: ebarimtConfig.defaultGsCode,
+        merchantTin: ebarimtConfig.merchantin,
+        posNo: ebarimtConfig.posno,
+        branchNo: ebarimtConfig.branchNo,
         vatPercent:
           typeof ebarimtConfig.vatPercent === 'string'
             ? parseFloat(ebarimtConfig.vatPercent) || 0

@@ -101,17 +101,17 @@ const PermissionForm = forwardRef<PermissionFormRef, PermissionFormProps>(
       });
     }, [posDetail, form]);
 
-    const getAdminIds = (): string[] => {
+    const getAdminIds = useCallback((): string[] => {
       const formAdminIds = form.getValues('adminIds') || [];
       return selectedAdminIds.length > 0 ? selectedAdminIds : formAdminIds;
-    };
+    }, [form, selectedAdminIds]);
 
-    const getCashierIds = (): string[] => {
+    const getCashierIds = useCallback((): string[] => {
       const formCashierIds = form.getValues('cashierIds') || [];
       return selectedCashierIds.length > 0
         ? selectedCashierIds
         : formCashierIds;
-    };
+    }, [form, selectedCashierIds]);
 
     useImperativeHandle(ref, () => ({
       getAdminIds,
@@ -147,7 +147,7 @@ const PermissionForm = forwardRef<PermissionFormRef, PermissionFormProps>(
           },
         };
       },
-      [selectedAdminIds, selectedCashierIds],
+      [getAdminIds, getCashierIds],
     );
 
     useEffect(() => {

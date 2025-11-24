@@ -16,12 +16,6 @@ const uiOptionsSchema = z.object({
   qrCodeImage: z.string().default(''),
 });
 
-const productDetailSchema = z.object({
-  productId: z.string(),
-  categoryId: z.string().optional(),
-  isRequired: z.boolean().default(false),
-});
-
 const catProdMappingSchema = z.object({
   _id: z.string().optional(),
   categoryId: z.string(),
@@ -63,6 +57,9 @@ export const ebarimtConfigSchema = z.object({
   districtCode: z.string().default(''),
   companyRD: z.string().default(''),
   defaultGSCode: z.string().default(''),
+  merchantTin: z.string().default(''),
+  posNo: z.string().default(''),
+  branchNo: z.string().default(''),
   vatPercent: z.number().default(0),
   cityTaxPercent: z.number().default(0),
   headerText: z.string().default(''),
@@ -122,6 +119,8 @@ export const posDetailSchema = z.object({
     .array(z.enum(['eat', 'take', 'delivery', 'loss', 'spend', 'reject']))
     .default([DEFAULT_ALLOW_TYPE, 'take', 'delivery']),
   checkExcludeCategoryIds: z.array(z.string()).default([]),
+  isCheckRemainder: z.boolean().default(false),
+  banFractions: z.boolean().default(false),
   departmentId: z.string().optional(),
   kitchenScreen: kitchenScreenConfigSchema.optional(),
   waitingScreen: waitingScreenConfigSchema.optional(),

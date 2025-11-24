@@ -9,7 +9,7 @@ export const PosRecordTable = () => {
   return (
     <RecordTable.Provider
       columns={posColumns}
-      data={posList}
+      data={posList || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'name']}
     >

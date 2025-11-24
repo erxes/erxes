@@ -162,9 +162,7 @@ export function useSubmitPosForm() {
           scopeBrandIds: validatedData.scopeBrandIds,
           branchId: validatedData.branchId,
           departmentId: validatedData.departmentId,
-          productDetails: validatedData.productDetails?.map(
-            (pd) => pd.productId,
-          ),
+          productDetails: validatedData.productDetails,
           paymentIds: validatedData.paymentIds,
           paymentTypes: validatedData.paymentTypes,
           erxesAppToken: validatedData.erxesAppToken,
@@ -187,6 +185,8 @@ export function useSubmitPosForm() {
           permissionConfig: validatedData.permissionConfig,
           allowTypes: validatedData.allowTypes,
           checkExcludeCategoryIds: validatedData.checkExcludeCategoryIds,
+          isCheckRemainder: validatedData.isCheckRemainder,
+          banFractions: validatedData.banFractions,
           erkhetConfig: financeConfig,
           ...(deliveryConfig && { deliveryConfig }),
           ...(formData.kitchenScreen && {
