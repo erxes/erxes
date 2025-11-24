@@ -1,24 +1,24 @@
 import { Cell } from '@tanstack/react-table';
-import { IPutResponse } from '@/put-response/types/PutResponseType';
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 import { RecordTable } from 'erxes-ui';
-import { renderingPutResponseDetailAtom } from '~/modules/put-response/states/PutResponseDetailStates';
+import { IDuplicated } from '@/put-responses-duplicated/types/DuplicatedType';
+import { renderingDuplicatedDetailAtom } from '@/put-responses-duplicated/states/DuplicatedDetailStates';
 
-export const PutResponseMoreColumnCell = ({
+export const DuplicatedMoreColumnCell = ({
   cell,
 }: {
-  cell: Cell<IPutResponse, unknown>;
+  cell: Cell<IDuplicated, unknown>;
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const setRenderingPutResponseDetail = useSetAtom(
-    renderingPutResponseDetailAtom,
+  const setRenderingDuplicatedDetail = useSetAtom(
+    renderingDuplicatedDetailAtom,
   );
   const { _id } = cell.row.original;
 
-  const setOpen = (putResponseId: string) => {
+  const setOpen = (duplicatedId: string) => {
     const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('put_response_id', putResponseId);
+    newSearchParams.set('duplicated_id', duplicatedId);
     setSearchParams(newSearchParams);
   };
 
@@ -27,14 +27,14 @@ export const PutResponseMoreColumnCell = ({
       className="w-full h-full"
       onClick={() => {
         setOpen(_id);
-        setRenderingPutResponseDetail(false);
+        setRenderingDuplicatedDetail(false);
       }}
     />
   );
 };
 
-export const putResponseMoreColumn = {
+export const duplicatedMoreColumn = {
   id: 'more',
-  cell: PutResponseMoreColumnCell,
+  cell: DuplicatedMoreColumnCell,
   size: 33,
 };

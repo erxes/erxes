@@ -16,11 +16,11 @@ import {
 } from 'erxes-ui';
 
 import { SelectMember, TagsFilter, SelectBrand } from 'ui-modules';
-import { usePutResponseLeadSessionKey } from '@/put-response/hooks/usePutResponseLeadSessionKey';
-import { PutResponseTotalCount } from '@/put-response/components/PutResponseTotalCount';
-import { PutResponseHotKeyScope } from '~/modules/put-response/types/path/PutResponseHotKeyScope';
+import { useByDateLeadSessionKey } from '@/put-responses-by-date/hooks/useByDateLeadSessionKey';
+import { ByDateTotalCount } from '@/put-responses-by-date/components/ByDateTotalCount';
+import { ByDateHotKeyScope } from '~/modules/put-responses-by-date/types/path/ByDateHotKeyScope';
 
-const PutResponseFilterPopover = () => {
+const ByDateFilterPopover = () => {
   const [queries] = useMultiQueryState<{
     tags: string[];
     searchValue: string;
@@ -36,7 +36,7 @@ const PutResponseFilterPopover = () => {
 
   return (
     <>
-      <Filter.Popover scope={PutResponseHotKeyScope.PutResponsePage}>
+      <Filter.Popover scope={ByDateHotKeyScope.ByDatePage}>
         <Filter.Trigger isFiltered={hasFilters} />
         <Combobox.Content>
           <Filter.View>
@@ -115,12 +115,12 @@ const PutResponseFilterPopover = () => {
   );
 };
 
-export const PutResponseFilter = () => {
+export const ByDateFilter = () => {
   const [searchValue] = useFilterQueryState<string>('searchValue');
-  const { sessionKey } = usePutResponseLeadSessionKey();
+  const { sessionKey } = useByDateLeadSessionKey();
 
   return (
-    <Filter id="put-response-filter" sessionKey={sessionKey}>
+    <Filter id="by-date-filter" sessionKey={sessionKey}>
       <Filter.Bar>
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
@@ -162,8 +162,8 @@ export const PutResponseFilter = () => {
         </Filter.BarItem>
         <SelectMember.FilterBar />
         <SelectBrand.FilterBar />
-        <PutResponseFilterPopover />
-        <PutResponseTotalCount />
+        <ByDateFilterPopover />
+        <ByDateTotalCount />
       </Filter.Bar>
     </Filter>
   );

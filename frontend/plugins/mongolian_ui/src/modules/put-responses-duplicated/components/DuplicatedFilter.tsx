@@ -16,11 +16,11 @@ import {
 } from 'erxes-ui';
 
 import { SelectMember, TagsFilter, SelectBrand } from 'ui-modules';
-import { usePutResponseLeadSessionKey } from '@/put-response/hooks/usePutResponseLeadSessionKey';
-import { PutResponseTotalCount } from '@/put-response/components/PutResponseTotalCount';
-import { PutResponseHotKeyScope } from '~/modules/put-response/types/path/PutResponseHotKeyScope';
+import { useDuplicatedLeadSessionKey } from '@/put-responses-duplicated/hooks/useDuplicatedLeadSessionKey';
+import { DuplicatedHotKeyScope } from '~/modules/put-responses-duplicated/types/path/DuplicatedHotKeyScope';
+import { DuplicatedTotalCount } from '@/put-responses-duplicated/components/DuplicatedTotalCount';
 
-const PutResponseFilterPopover = () => {
+const DuplicatedFilterPopover = () => {
   const [queries] = useMultiQueryState<{
     tags: string[];
     searchValue: string;
@@ -36,7 +36,7 @@ const PutResponseFilterPopover = () => {
 
   return (
     <>
-      <Filter.Popover scope={PutResponseHotKeyScope.PutResponsePage}>
+      <Filter.Popover scope={DuplicatedHotKeyScope.DuplicatedPage}>
         <Filter.Trigger isFiltered={hasFilters} />
         <Combobox.Content>
           <Filter.View>
@@ -115,12 +115,12 @@ const PutResponseFilterPopover = () => {
   );
 };
 
-export const PutResponseFilter = () => {
+export const DuplicatedFilter = () => {
   const [searchValue] = useFilterQueryState<string>('searchValue');
-  const { sessionKey } = usePutResponseLeadSessionKey();
+  const { sessionKey } = useDuplicatedLeadSessionKey();
 
   return (
-    <Filter id="put-response-filter" sessionKey={sessionKey}>
+    <Filter id="duplicated-filter" sessionKey={sessionKey}>
       <Filter.Bar>
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
@@ -162,8 +162,8 @@ export const PutResponseFilter = () => {
         </Filter.BarItem>
         <SelectMember.FilterBar />
         <SelectBrand.FilterBar />
-        <PutResponseFilterPopover />
-        <PutResponseTotalCount />
+        <DuplicatedFilterPopover />
+        <DuplicatedTotalCount />
       </Filter.Bar>
     </Filter>
   );

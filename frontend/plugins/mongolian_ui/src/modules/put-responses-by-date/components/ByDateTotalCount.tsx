@@ -1,8 +1,8 @@
 import { isUndefinedOrNull, Skeleton } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { byDateTotalCountAtom } from '@/put-responses-by-date/states/ByDateCounts';
+import { byDateTotalCountAtom } from '../states/ByDateCounts';
 
-export const PutResponseTotalCount = () => {
+export const ByDateTotalCount = () => {
   const totalCount = useAtomValue(byDateTotalCountAtom);
   return (
     <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">

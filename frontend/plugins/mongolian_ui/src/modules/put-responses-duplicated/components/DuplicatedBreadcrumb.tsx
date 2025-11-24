@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useSetAtom } from 'jotai';
 import { usePutResponseLeadSessionKey } from '@/put-response/hooks/usePutResponseLeadSessionKey';
 
-export const PutResponseBreadcrumb = () => {
+export const DuplicatedBreadcrumb = () => {
   const { pathname } = useLocation();
   const { sessionKey } = usePutResponseLeadSessionKey();
   const setCursor = useSetAtom(recordTableCursorAtomFamily(sessionKey));

@@ -1,7 +1,7 @@
 import { PageContainer, PageSubHeader } from 'erxes-ui';
-import { DuplicatedHeader } from '@/duplicated/components/DuplicatedHeader';
-import { DuplicatedRecordTable } from '@/duplicated/components/DuplicatedRecordTable';
-import { DuplicatedFilter } from '@/duplicated/components/DuplicatedFilter';
+import { DuplicatedHeader } from '@/put-responses-duplicated/components/DuplicatedHeader';
+import { DuplicatedRecordTable } from '@/put-responses-duplicated/components/DuplicatedRecordTable';
+import { DuplicatedFilter } from '@/put-responses-duplicated/components/DuplicatedFilter';
 
 export const DuplicatedPage = () => {
   return (

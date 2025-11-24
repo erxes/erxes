@@ -20,8 +20,9 @@ const config: ModuleFederationConfig = {
     './ebarimtSettings':
       './src/modules/ebarimt/settings/components/EBarimtSettings.tsx',
     './put-response': './src/modules/put-response/Main.tsx',
-    './by-date': './src/modules/by-date/Main.tsx',
-    './duplicated': './src/modules/duplicated/Main.tsx',
+    './put-responses-by-date': './src/modules/put-responses-by-date/Main.tsx',
+    './put-responses-duplicated':
+      './src/modules/put-responses-duplicated/Main.tsx',
     './widgets': './src/widgets/Widgets.tsx',
   },
 
