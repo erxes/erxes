@@ -25,8 +25,7 @@ export const ProductRulesOnTaxForm = ({
   const handleNumberChange = useCallback(
     (value: string, onChange: (value: number) => void) => {
       let cleanedValue = '';
-      for (let i = 0; i < value.length; i++) {
-        const char = value[i];
+      for (const char of value) {
         if ((char >= '0' && char <= '9') || char === '.') {
           cleanedValue += char;
         }
@@ -49,7 +48,6 @@ export const ProductRulesOnTaxForm = ({
     },
     [],
   );
-
   return (
     <Form {...form}>
       <form
