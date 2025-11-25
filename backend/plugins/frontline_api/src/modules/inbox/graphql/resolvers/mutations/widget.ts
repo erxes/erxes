@@ -1164,7 +1164,7 @@ export const widgetMutations: Record<string, Resolver> = {
     });
   },
 
-  async widgetsTicketCheckProgressForget(
+  async widgetTicketCheckProgressForget(
     _root,
     args: {
       email?: string;
@@ -1191,8 +1191,8 @@ export const widgetMutations: Record<string, Resolver> = {
       subdomain,
       pluginName: 'core',
       method: 'query',
-      module: 'getRelationByEntity',
-      action: 'findOne',
+      module: 'relation',
+      action: 'getRelationsByEntities',
       input: {
         entities: [
           {
@@ -1213,7 +1213,7 @@ export const widgetMutations: Record<string, Resolver> = {
     return ticket?.number || '';
   },
 
-  async widgetsTicketCommentAdd(
+  async widgetTicketCommentAdd(
     _root,
     args: {
       contentId: string;
@@ -1232,7 +1232,7 @@ export const widgetMutations: Record<string, Resolver> = {
       subdomain,
     });
   },
-  async widgetsTicketCommentRemove(
+  async widgetTicketCommentRemove(
     _root,
     args: {
       _id: string;

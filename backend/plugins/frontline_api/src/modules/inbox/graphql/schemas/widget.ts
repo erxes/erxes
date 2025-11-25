@@ -57,9 +57,10 @@ export const queries = `
   
     widgetsTicketCustomerDetail(customerId: String, type: String): Customer
     widgetsGetTicketTags(configId: String): [Tag]
-    widgetsTicketCheckProgress(number: String!): Ticket
-    widgetsTicketComments(contentId: String!): [Note]
-    widgetsTicketActivityLogs(contentId: String): [TicketActivity]
+    widgetTicketCheckProgress(number: String!): Ticket
+    widgetTicketComments(contentId: String!): [Note]
+    widgetTicketActivityLogs(contentId: String): [TicketActivity]
+    widgetTicketsByCustomer(customerId: String): [Ticket]
     `;
 
 export const mutations = `
@@ -133,11 +134,11 @@ export const mutations = `
       tagIds: [String!]
     ): Ticket
     
-    widgetsTicketCommentAdd(
+    widgetTicketCommentAdd(
        contentId: String!
        content: String!
        customerId: String
      ): Note
-    widgetsTicketCommentRemove(_id: String!): String
-    widgetsTicketCheckProgressForget(email: String, phoneNumber: String): JSON
+    widgetTicketCommentRemove(_id: String!): String
+    widgetTicketCheckProgressForget(email: String, phoneNumber: String): JSON
   `;

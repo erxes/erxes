@@ -308,7 +308,7 @@ export const widgetQueries: Record<string, Resolver> = {
     }
     return [];
   },
-  async widgetsTicketCheckProgress(
+  async widgetTicketCheckProgress(
     _root,
     args: {
       number?: string;
@@ -327,7 +327,7 @@ export const widgetQueries: Record<string, Resolver> = {
     }
     return ticket;
   },
-  async widgetsTicketComments(
+  async widgetTicketComments(
     _root,
     args: {
       contentId: string;
@@ -347,13 +347,41 @@ export const widgetQueries: Record<string, Resolver> = {
     return notes;
   },
 
-  async widgetsTicketActivityLogs(
+  async widgetTicketActivityLogs(
     _root,
     args: { contentId: string },
     { models }: IContext,
   ) {
     const { contentId } = args;
     return (await models.Activity.find({ contentId })) || [];
+  },
+  async widgetTicketsByCustomer(
+    _root,
+    args: { customerId },
+    { models, subdomain }: IContext,
+  ) {
+    const { customerId } = args;
+    const relations = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'relation',
+      action: 'getRelationsByEntities',
+      input: {
+        contentType: 'core:customer',
+        contentId: customerId,
+      },
+    });
+
+    const ticketContentIds = relations.flatMap((r) =>
+      r.entities
+        .filter((e) => e.contentType === 'frontline:ticket')
+        .map((e) => e.contentId),
+    );
+
+    return await models.Ticket.find({
+      _id: { $in: ticketContentIds },
+    });
   },
 };
 
