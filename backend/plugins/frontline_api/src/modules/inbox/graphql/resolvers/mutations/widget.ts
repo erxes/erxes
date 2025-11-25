@@ -1101,13 +1101,14 @@ export const widgetMutations: Record<string, Resolver> = {
         modifiedAt: new Date(),
         stageChangedDate: new Date(),
         searchText: fillSearchTextItem(doc),
+        number: new Date().getTime().toString(),
       });
       await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         method: 'mutation',
-        module: 'createRelation',
-        action: 'create',
+        module: 'relation',
+        action: 'createRelation',
         input: {
           relation: {
             entities: [
@@ -1116,7 +1117,7 @@ export const widgetMutations: Record<string, Resolver> = {
                 contentId: customerIds?.[0] || '',
               },
               {
-                contentType: 'core:ticket',
+                contentType: 'frontline:ticket',
                 contentId: ticket._id,
               },
             ],
@@ -1222,7 +1223,7 @@ export const widgetMutations: Record<string, Resolver> = {
     { models, subdomain }: IContext,
   ) {
     const { content, contentId, customerId } = args;
-    const comment = await models.Note.createNote({
+    return await models.Note.createNote({
       doc: {
         content,
         contentId,
@@ -1230,12 +1231,8 @@ export const widgetMutations: Record<string, Resolver> = {
       },
       subdomain,
     });
-    return {
-      status: 'success',
-      data: comment,
-    };
   },
-  async widgetsTicketCommentsRemove(
+  async widgetsTicketCommentRemove(
     _root,
     args: {
       _id: string;
@@ -1244,9 +1241,7 @@ export const widgetMutations: Record<string, Resolver> = {
   ) {
     const { _id } = args;
     await models.Note.deleteOne({ _id });
-    return {
-      status: 'success',
-    };
+    return 'success';
   },
 };
 
