@@ -1,5 +1,5 @@
 import { Button } from 'erxes-ui';
-import { useTagContext } from '~/modules/tags/providers/TagProvider';
+import { useTagContext } from 'ui-modules/modules/tags/components/TagProvider';
 
 export const TagsGroupsAddButtons = () => {
   const { startAddingTag, startAddingGroup } = useTagContext();
