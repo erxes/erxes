@@ -221,16 +221,7 @@ export const useLocalPosDetailHandlers = ({
     kitchenScreen: IScreenConfig;
     waitingScreen: IScreenConfig;
   }) => {
-    await posEdit(
-      {
-        variables: {
-          _id: posDetail._id,
-          kitchenScreen: data.kitchenScreen,
-          waitingScreen: data.waitingScreen,
-        },
-      },
-      ['kitchenScreen', 'waitingScreen'],
-    );
+    await handleScreenConfigSubmit(data);
   };
 
   const handlePermissionSubmit = async () => {

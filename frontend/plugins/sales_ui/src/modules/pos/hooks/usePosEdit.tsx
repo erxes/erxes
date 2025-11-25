@@ -58,13 +58,7 @@ export const usePosEdit = () => {
     const cleanedGroupsRaw = cleanData(productGroups || []);
     const sanitizedGroups = Array.isArray(cleanedGroupsRaw)
       ? cleanedGroupsRaw.map((g: any) => {
-          const {
-            posId: _omitPosId,
-            __typename: _omitTypename,
-            ...rest
-          } = g || {};
-          void _omitPosId;
-          void _omitTypename;
+          const { posId: _posId, __typename: _typename, ...rest } = g || {};
           return rest;
         })
       : cleanedGroupsRaw;

@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui';
 import type React from 'react';
 import { useState, useRef, useEffect } from 'react';
 

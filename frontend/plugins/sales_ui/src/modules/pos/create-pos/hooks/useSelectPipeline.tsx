@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Combobox,
   Command,
@@ -51,22 +51,28 @@ const SelectPipelineProvider = ({
     skip: !boardId,
   });
 
-  const handleValueChange = (pipelineId: string) => {
-    if (!pipelineId) return;
-    onValueChange(pipelineId);
-    setOpen?.(false);
-  };
+  const handleValueChange = useCallback(
+    (pipelineId: string) => {
+      if (!pipelineId) return;
+      onValueChange(pipelineId);
+      setOpen?.(false);
+    },
+    [onValueChange, setOpen],
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      value,
+      onValueChange: handleValueChange,
+      loading,
+      pipelines,
+      boardId,
+    }),
+    [value, handleValueChange, loading, pipelines, boardId],
+  );
 
   return (
-    <SelectPipelineContext.Provider
-      value={{
-        value,
-        onValueChange: handleValueChange,
-        loading,
-        pipelines,
-        boardId,
-      }}
-    >
+    <SelectPipelineContext.Provider value={contextValue}>
       {children}
     </SelectPipelineContext.Provider>
   );
@@ -131,17 +137,16 @@ const SelectPipelineCommandItem = ({ pipeline }: { pipeline: IPipeline }) => {
 // SelectPipeline Content
 const SelectPipelineContent = () => {
   const { pipelines, boardId, loading } = useSelectPipelineContext();
+  const emptyMessage = loading
+    ? 'Loading pipelines...'
+    : boardId
+    ? 'No pipelines found'
+    : 'Board not selected';
   return (
     <Command>
       <Command.List>
         <Command.Empty>
-          <div className="text-muted-foreground">
-            {loading
-              ? 'Loading pipelines...'
-              : boardId
-              ? 'No pipelines found'
-              : 'Board not selected'}
-          </div>
+          <div className="text-muted-foreground">{emptyMessage}</div>
         </Command.Empty>
         {pipelines?.map((pipeline) => (
           <SelectPipelineCommandItem key={pipeline._id} pipeline={pipeline} />

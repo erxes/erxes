@@ -1,4 +1,9 @@
-import { ApolloError, OperationVariables, useMutation } from '@apollo/client';
+import {
+  ApolloCache,
+  ApolloError,
+  OperationVariables,
+  useMutation,
+} from '@apollo/client';
 import { IPos } from '../types/pos';
 import { mutations, queries } from '../graphql';
 
@@ -7,6 +12,40 @@ type RemovePosOptions = {
   queryVariables?: OperationVariables;
   onCompleted?: () => void;
   onError?: (error: ApolloError) => void;
+};
+
+const updateCacheAfterRemoval = (
+  cache: ApolloCache<unknown>,
+  id: string,
+  queryVariables?: OperationVariables,
+) => {
+  try {
+    const variables = queryVariables || {
+      perPage: 30,
+      dateFilters: null,
+    };
+
+    cache.updateQuery(
+      {
+        query: queries.posList,
+        variables,
+      },
+      (data: any) => {
+        if (!data?.posList) return data;
+
+        const filteredList = (data.posList as IPos[]).filter(
+          (pos: IPos) => pos._id !== id,
+        );
+
+        return {
+          ...data,
+          posList: filteredList,
+        };
+      },
+    );
+  } catch (cacheError) {
+    console.warn('Failed to update cache after pos removal:', cacheError);
+  }
 };
 
 export const useRemovePos = () => {
@@ -26,48 +65,20 @@ export const useRemovePos = () => {
     }
 
     try {
-      for (const id of idsArray) {
-        await _removePos({
-          ...options,
-          variables: {
-            _id: id,
-            ...options?.variables,
-          },
-          update: (cache) => {
-            try {
-              const queryVariables = options?.queryVariables || {
-                perPage: 30,
-                dateFilters: null,
-              };
-
-              cache.updateQuery(
-                {
-                  query: queries.posList,
-                  variables: queryVariables,
-                },
-                (data: any) => {
-                  if (!data?.posList) return data;
-
-                  const filteredList = (data.posList as IPos[]).filter(
-                    (pos: IPos) => pos._id !== id,
-                  );
-
-                  return {
-                    ...data,
-                    posList: filteredList,
-                  };
-                },
-              );
-            } catch (cacheError) {
-              console.warn(
-                'Failed to update cache after pos removal:',
-                cacheError,
-              );
-            }
-          },
-          optimisticResponse: { posRemove: true },
-        });
-      }
+      await Promise.all(
+        idsArray.map((id) =>
+          _removePos({
+            ...options,
+            variables: {
+              ...options?.variables,
+              _id: id,
+            },
+            update: (cache) =>
+              updateCacheAfterRemoval(cache, id, options?.queryVariables),
+            optimisticResponse: { posRemove: 'success' },
+          }),
+        ),
+      );
     } catch (mutationError) {
       console.error('Failed to remove pos:', mutationError);
       throw mutationError;

@@ -1,3 +1,4 @@
+import type { FC } from 'react';
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import {
   ReactFlow,
@@ -13,9 +14,7 @@ import { useAtom } from 'jotai';
 import { TableNode } from './tableNode';
 import { isFullscreenAtom } from '../states/slot';
 import NodeControls from './nodeControl';
-import { cn } from 'erxes-ui/lib';
-import { Tabs } from 'erxes-ui/components';
-import { Spinner } from 'erxes-ui';
+import { cn, Tabs, Spinner } from 'erxes-ui';
 import SidebarList from './sideBar';
 import SidebarDetail from './sideBarDetail';
 import MiniMapToggle from './miniMap';
@@ -24,7 +23,29 @@ import { useSlotManager } from '../hooks/customHooks';
 import { SNAP_GRID, CANVAS } from '@/pos/constants';
 import { useNodeEvents } from '../hooks/useNodeEvents';
 
-const POSSlotsManager = ({
+type CanvasBoundsProps = {
+  width: number;
+  height: number;
+};
+
+const CanvasBounds = ({ width, height }: CanvasBoundsProps) => {
+  const { x, y, zoom } = useViewport();
+  return (
+    <div
+      className="pointer-events-none absolute top-0 left-0 z-[1]"
+      style={{
+        transform: `translate(${x}px, ${y}px) scale(${zoom})`,
+        transformOrigin: '0 0',
+        width,
+        height,
+        border: '2px solid hsl(var(--border))',
+        borderRadius: 2,
+      }}
+    />
+  );
+};
+
+const POSSlotsManager: FC<POSSlotsManagerProps> = ({
   posId,
   initialNodes = [],
   onNodesChange,
@@ -160,23 +181,6 @@ const POSSlotsManager = ({
     );
   }
 
-  const CanvasBounds = () => {
-    const { x, y, zoom } = useViewport();
-    return (
-      <div
-        className="pointer-events-none absolute top-0 left-0 z-[1]"
-        style={{
-          transform: `translate(${x}px, ${y}px) scale(${zoom})`,
-          transformOrigin: '0 0',
-          width: CANVAS.WIDTH,
-          height: CANVAS.HEIGHT,
-          border: '2px solid hsl(var(--border))',
-          borderRadius: 2,
-        }}
-      />
-    );
-  };
-
   return (
     <div className="flex flex-col h-screen border bg-background">
       <div className="flex relative flex-1">
@@ -204,7 +208,7 @@ const POSSlotsManager = ({
             >
               <Background variant={undefined} gap={12} size={1} />
 
-              <CanvasBounds />
+              <CanvasBounds width={CANVAS.WIDTH} height={CANVAS.HEIGHT} />
 
               {/* <Controls position="bottom-right" showInteractive={false} /> */}
 

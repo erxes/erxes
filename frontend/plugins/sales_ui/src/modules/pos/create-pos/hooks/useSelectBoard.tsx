@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Combobox,
   Command,
@@ -44,21 +44,27 @@ const SelectBoardProvider = ({
 }) => {
   const { boards, loading } = useBoards();
 
-  const handleValueChange = (boardId: string) => {
-    if (!boardId) return;
-    onValueChange(boardId);
-    setOpen?.(false);
-  };
+  const handleValueChange = useCallback(
+    (boardId: string) => {
+      if (!boardId) return;
+      onValueChange(boardId);
+      setOpen?.(false);
+    },
+    [onValueChange, setOpen],
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      value,
+      onValueChange: handleValueChange,
+      loading,
+      boards,
+    }),
+    [value, handleValueChange, loading, boards],
+  );
 
   return (
-    <SelectBoardContext.Provider
-      value={{
-        value,
-        onValueChange: handleValueChange,
-        loading,
-        boards,
-      }}
-    >
+    <SelectBoardContext.Provider value={contextValue}>
       {children}
     </SelectBoardContext.Provider>
   );

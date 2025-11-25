@@ -176,15 +176,17 @@ export default function SyncCardForm({
   };
 
   const handleUserChange = (userId: string | string[] | null) => {
+    let assignedUsers = '';
+
+    if (userId) {
+      assignedUsers = Array.isArray(userId) ? userId.join(',') : userId;
+    }
+
     setSyncCardSettings({
       ...syncCardSettings,
       currentConfig: {
         ...syncCardSettings.currentConfig,
-        assignedUsers: userId
-          ? Array.isArray(userId)
-            ? userId.join(',')
-            : userId
-          : '',
+        assignedUsers,
       },
     });
   };
@@ -264,13 +266,15 @@ export default function SyncCardForm({
 
   const handleEditUserChange = (userId: string | string[] | null) => {
     if (!editingConfig) return;
+    let assignedUsers = '';
+
+    if (userId) {
+      assignedUsers = Array.isArray(userId) ? userId.join(',') : userId;
+    }
+
     setEditingConfig({
       ...editingConfig,
-      assignedUsers: userId
-        ? Array.isArray(userId)
-          ? userId.join(',')
-          : userId
-        : '',
+      assignedUsers,
     });
   };
 
@@ -424,7 +428,10 @@ export default function SyncCardForm({
         {syncCardSettings.configs.length > 0 && (
           <div className="space-y-3">
             {syncCardSettings.configs.map((config, index) => (
-              <div key={index} className="rounded-lg border">
+              <div
+                key={`${config.title}-${config.branch}-${config.stageBoard}-${config.pipeline}-${config.stage}`}
+                className="rounded-lg border"
+              >
                 <button
                   type="button"
                   onClick={() => handleToggleExpand(index)}

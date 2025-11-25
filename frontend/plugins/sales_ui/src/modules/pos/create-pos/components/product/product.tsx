@@ -292,7 +292,7 @@ export default function ProductForm({
                   const currentMappings =
                     form.getValues('catProdMappings') || [];
                   const newMapping = {
-                    _id: `temp-${Math.random().toString(36).substr(2, 9)}`,
+                    _id: `temp-${Math.random().toString(36).slice(2, 11)}`,
                     categoryId: '',
                     productId: '',
                     name: '',
@@ -515,7 +515,7 @@ export default function ProductForm({
           <Dialog.Header className="pb-4 border-b">
             <div className="flex justify-between items-center">
               <Dialog.Title className="text-lg font-bold">
-                {editingIndex !== null ? 'Edit group' : 'Add group'}
+                {editingIndex === null ? 'Add group' : 'Edit group'}
               </Dialog.Title>
               <Button
                 variant="ghost"
@@ -630,40 +630,39 @@ export default function ProductForm({
             </Button>
             <Button
               onClick={() => {
-                if (newGroup.name) {
-                  if (editingIndex !== null) {
-                    const currentGroups = form.watch('productGroups') || [];
-                    const updatedGroups = [...currentGroups];
-                    updatedGroups[editingIndex] = newGroup;
-                    form.setValue('productGroups', updatedGroups);
-                  } else {
-                    function randomId(length = 12) {
-                      return [...Array(length)]
-                        .map(() => Math.random().toString(36)[2])
-                        .join('');
-                    }
-
-                    const groupWithId = {
-                      ...newGroup,
-                      _id: `temporaryId-${randomId()}`,
-                    };
-                    addItem('productGroups', groupWithId);
+                if (!newGroup.name) return;
+                if (editingIndex === null) {
+                  function randomId(length = 12) {
+                    return [...new Array(length)]
+                      .map(() => Math.random().toString(36)[2])
+                      .join('');
                   }
-                  setOpenAddProductDialog(false);
-                  setEditingIndex(null);
-                  setNewGroup({
-                    name: '',
-                    description: '',
-                    categoryIds: [],
-                    excludedCategoryIds: [],
-                    excludedProductIds: [],
-                  });
+
+                  const groupWithId = {
+                    ...newGroup,
+                    _id: `temporaryId-${randomId()}`,
+                  };
+                  addItem('productGroups', groupWithId);
+                } else {
+                  const currentGroups = form.watch('productGroups') || [];
+                  const updatedGroups = [...currentGroups];
+                  updatedGroups[editingIndex] = newGroup;
+                  form.setValue('productGroups', updatedGroups);
                 }
+                setOpenAddProductDialog(false);
+                setEditingIndex(null);
+                setNewGroup({
+                  name: '',
+                  description: '',
+                  categoryIds: [],
+                  excludedCategoryIds: [],
+                  excludedProductIds: [],
+                });
               }}
-              disabled={!newGroup.name}
+              disabled={newGroup.name === ''}
               variant="default"
             >
-              {editingIndex !== null ? 'Update' : 'Add to POS'}
+              {editingIndex === null ? 'Add to POS' : 'Update'}
             </Button>
           </Dialog.Footer>
         </Dialog.Content>

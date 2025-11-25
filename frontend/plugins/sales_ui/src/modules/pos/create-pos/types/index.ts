@@ -57,7 +57,6 @@ export interface ScreenConfigSettings {
 export interface EbarimtConfigSettings {
   companyName: string;
   ebarimtUrl: string;
-  checkTaxpayerUrl: string;
   checkCompanyUrl: string;
   companyRd: string;
   companyRD: string;
@@ -70,7 +69,6 @@ export interface EbarimtConfigSettings {
   hasVat: boolean;
   hasCitytax: boolean;
   vatPercent: string;
-  hasUbCityTax: boolean;
   ubCityTaxPercent: string;
   cityTaxPercent: number;
   anotherRuleOfProductsOnCityTax: string | string[];

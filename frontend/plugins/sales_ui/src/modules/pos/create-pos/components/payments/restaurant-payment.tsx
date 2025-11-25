@@ -13,6 +13,15 @@ import { IPosDetail } from '@/pos/pos-detail/types/IPos';
 import PaymentIcon from './paymentIcon';
 import { usePayments } from '../../hooks/usePayments';
 
+const ICON_OPTIONS = [
+  { value: 'credit-card', label: 'Credit Card', iconType: 'credit-card' },
+  { value: 'cash', label: 'Cash', iconType: 'cash' },
+  { value: 'bank', label: 'Bank', iconType: 'bank' },
+  { value: 'mobile', label: 'Mobile', iconType: 'mobile' },
+  { value: 'visa', label: 'Visa', iconType: 'visa' },
+  { value: 'mastercard', label: 'Mastercard', iconType: 'mastercard' },
+] as const;
+
 interface RestaurantPaymentsFormProps {
   posDetail?: IPosDetail;
   form?: UseFormReturn<PaymentFormValues>;
@@ -28,9 +37,24 @@ export default function RestaurantPaymentsForm({
   const [paymentMethods, setPaymentMethods] = useAtom(paymentMethodsAtom);
 
   const { toast } = useToast();
-  const { payments, loading: paymentsLoading } = usePayments({
+
+  const {
+    payments,
+    loading: paymentsLoading,
+    error: paymentsError,
+  } = usePayments({
     status: 'active',
   });
+
+  useEffect(() => {
+    if (paymentsError) {
+      toast({
+        title: 'Error loading payments',
+        description: paymentsError.message || 'Failed to fetch payment options',
+        variant: 'destructive',
+      });
+    }
+  }, [paymentsError, toast]);
 
   const internalForm = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentSchema),
@@ -72,7 +96,8 @@ export default function RestaurantPaymentsForm({
       form.reset({
         paymentIds: posDetail.paymentIds || [],
         paymentTypes: processedPaymentTypes,
-        erxesAppToken: (posDetail as any).erxesAppToken || '',
+        erxesAppToken:
+          'erxesAppToken' in posDetail ? (posDetail as any).erxesAppToken : '',
       });
       setPaymentMethods(processedPaymentTypes);
     }
@@ -197,11 +222,21 @@ export default function RestaurantPaymentsForm({
               <Label className="text-sm font-semibold uppercase">
                 ERXES APP TOKEN
               </Label>
-              <Input
-                value={form.watch('erxesAppToken') || ''}
-                onChange={(e) => form.setValue('erxesAppToken', e.target.value)}
-                className="h-8"
-                placeholder="Enter your Erxes app token"
+              <Form.Field
+                control={control}
+                name="erxesAppToken"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Control>
+                      <Input
+                        {...field}
+                        className="h-8"
+                        placeholder="Enter your Erxes app token"
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
               />
             </div>
           </div>
@@ -270,42 +305,14 @@ export default function RestaurantPaymentsForm({
                       <Select.Value placeholder="Select icon" />
                     </Select.Trigger>
                     <Select.Content>
-                      <Select.Item value="credit-card">
-                        <div className="flex gap-2 items-center">
-                          <PaymentIcon iconType="credit-card" size={16} />
-                          Credit Card
-                        </div>
-                      </Select.Item>
-                      <Select.Item value="cash">
-                        <div className="flex gap-2 items-center">
-                          <PaymentIcon iconType="cash" size={16} />
-                          Cash
-                        </div>
-                      </Select.Item>
-                      <Select.Item value="bank">
-                        <div className="flex gap-2 items-center">
-                          <PaymentIcon iconType="bank" size={16} />
-                          Bank
-                        </div>
-                      </Select.Item>
-                      <Select.Item value="mobile">
-                        <div className="flex gap-2 items-center">
-                          <PaymentIcon iconType="mobile" size={16} />
-                          Mobile
-                        </div>
-                      </Select.Item>
-                      <Select.Item value="visa">
-                        <div className="flex gap-2 items-center">
-                          <PaymentIcon iconType="visa" size={16} />
-                          Visa
-                        </div>
-                      </Select.Item>
-                      <Select.Item value="mastercard">
-                        <div className="flex gap-2 items-center">
-                          <PaymentIcon iconType="mastercard" size={16} />
-                          Mastercard
-                        </div>
-                      </Select.Item>
+                      {ICON_OPTIONS.map((option) => (
+                        <Select.Item key={option.value} value={option.value}>
+                          <div className="flex gap-2 items-center">
+                            <PaymentIcon iconType={option.iconType} size={16} />
+                            {option.label}
+                          </div>
+                        </Select.Item>
+                      ))}
                     </Select.Content>
                   </Select>
                 </div>
@@ -370,42 +377,14 @@ export default function RestaurantPaymentsForm({
                     <Select.Value placeholder="Select icon" />
                   </Select.Trigger>
                   <Select.Content>
-                    <Select.Item value="credit-card">
-                      <div className="flex gap-2 items-center">
-                        <PaymentIcon iconType="credit-card" size={16} />
-                        Credit Card
-                      </div>
-                    </Select.Item>
-                    <Select.Item value="cash">
-                      <div className="flex gap-2 items-center">
-                        <PaymentIcon iconType="cash" size={16} />
-                        Cash
-                      </div>
-                    </Select.Item>
-                    <Select.Item value="bank">
-                      <div className="flex gap-2 items-center">
-                        <PaymentIcon iconType="bank" size={16} />
-                        Bank
-                      </div>
-                    </Select.Item>
-                    <Select.Item value="mobile">
-                      <div className="flex gap-2 items-center">
-                        <PaymentIcon iconType="mobile" size={16} />
-                        Mobile
-                      </div>
-                    </Select.Item>
-                    <Select.Item value="visa">
-                      <div className="flex gap-2 items-center">
-                        <PaymentIcon iconType="visa" size={16} />
-                        Visa
-                      </div>
-                    </Select.Item>
-                    <Select.Item value="mastercard">
-                      <div className="flex gap-2 items-center">
-                        <PaymentIcon iconType="mastercard" size={16} />
-                        Mastercard
-                      </div>
-                    </Select.Item>
+                    {ICON_OPTIONS.map((option) => (
+                      <Select.Item key={option.value} value={option.value}>
+                        <div className="flex gap-2 items-center">
+                          <PaymentIcon iconType={option.iconType} size={16} />
+                          {option.label}
+                        </div>
+                      </Select.Item>
+                    ))}
                   </Select.Content>
                 </Select>
               </div>

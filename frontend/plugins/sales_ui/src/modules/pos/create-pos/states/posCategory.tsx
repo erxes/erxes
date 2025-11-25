@@ -58,7 +58,6 @@ export const screenConfigSettingsAtom = atom<ScreenConfigSettings>({
 export const ebarimtConfigSettingsAtom = atom<EbarimtConfigSettings>({
   companyName: '',
   ebarimtUrl: '',
-  checkTaxpayerUrl: '',
   checkCompanyUrl: '',
   companyRd: '',
   companyRD: '',
@@ -71,7 +70,6 @@ export const ebarimtConfigSettingsAtom = atom<EbarimtConfigSettings>({
   hasVat: false,
   hasCitytax: false,
   vatPercent: '0',
-  hasUbCityTax: false,
   ubCityTaxPercent: '0',
   cityTaxPercent: 0,
   anotherRuleOfProductsOnCityTax: [],

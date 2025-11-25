@@ -9,7 +9,7 @@ import {
   type NodeChange,
 } from '@xyflow/react';
 import { useAtom } from 'jotai';
-import { useToast } from 'erxes-ui/hooks';
+import { useToast } from 'erxes-ui';
 import {
   syncSelectedNodeAtom,
   slotDetailAtom,

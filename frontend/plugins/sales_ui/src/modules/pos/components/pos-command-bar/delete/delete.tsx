@@ -1,6 +1,5 @@
-import { Button } from 'erxes-ui/components';
 import { IconTrash } from '@tabler/icons-react';
-import { useToast, Dialog } from 'erxes-ui';
+import { useToast, Dialog, Button } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
 import { useRemovePos } from '@/pos/hooks/usePosRemove';
 import { useState } from 'react';

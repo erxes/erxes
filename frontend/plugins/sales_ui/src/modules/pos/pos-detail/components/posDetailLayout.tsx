@@ -154,6 +154,12 @@ const NavigationFooter = React.memo(
       }
     };
 
+    const submitLabel = isSubmitting
+      ? 'Saving...'
+      : isLastStep
+      ? 'Update POS'
+      : 'Save Changes';
+
     return (
       <div className="flex sticky bottom-0 flex-col p-4 border-t bg-background">
         {validationError && <ValidationAlert message={validationError} />}
@@ -184,11 +190,7 @@ const NavigationFooter = React.memo(
               onClick={isLastStep ? handleNextStep : handleSaveOnly}
               disabled={isSubmitting}
             >
-              {isSubmitting
-                ? 'Saving...'
-                : isLastStep
-                ? 'Update POS'
-                : 'Save Changes'}
+              {submitLabel}
             </Button>
           </div>
         </div>

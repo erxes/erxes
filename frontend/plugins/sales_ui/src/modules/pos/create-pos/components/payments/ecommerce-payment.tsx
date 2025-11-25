@@ -108,10 +108,7 @@ export default function EcommercePaymentsForm({
     setValue('paymentTypes', updatedPaymentMethods);
 
     if (onFormSubmit) {
-      onFormSubmit({
-        paymentIds: getValues('paymentIds'),
-        paymentTypes: updatedPaymentMethods,
-      });
+      onFormSubmit(getValues());
     }
 
     setNewPaymentMethod({
@@ -130,10 +127,7 @@ export default function EcommercePaymentsForm({
     setValue('paymentTypes', updatedMethods);
 
     if (onFormSubmit) {
-      onFormSubmit({
-        paymentIds: getValues('paymentIds'),
-        paymentTypes: updatedMethods,
-      });
+      onFormSubmit(getValues());
     }
   };
 
@@ -148,10 +142,7 @@ export default function EcommercePaymentsForm({
     setValue('paymentTypes', updated);
 
     if (onFormSubmit) {
-      onFormSubmit({
-        paymentIds: getValues('paymentIds'),
-        paymentTypes: updated,
-      });
+      onFormSubmit(getValues());
     }
   };
 

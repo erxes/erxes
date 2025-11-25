@@ -116,7 +116,10 @@ export const useNodeEvents = ({
 
     const handleNodeRotate = (event: Event) => {
       const { detail } = event as CustomEvent<NodeEventDetail>;
-      if (!detail?.id) return;
+      const nodeId = detail?.id;
+      if (nodeId == null) {
+        return;
+      }
 
       const rotateAngle =
         detail.rotateAngle !== undefined
@@ -125,7 +128,7 @@ export const useNodeEvents = ({
       if (rotateAngle === undefined || isNaN(rotateAngle)) return;
 
       const updateNodeRotation = (node: CustomNode) => {
-        if (node.id === detail.id) {
+        if (node.id === nodeId) {
           return {
             ...node,
             data: {
@@ -140,10 +143,8 @@ export const useNodeEvents = ({
       setNodes(updateNodes);
       setHookNodes(updateNodes);
 
-      if (selectedNodeRef.current?.id === detail.id) {
-        const updatedNode = nodesRef.current.find(
-          (node) => node.id === detail.id,
-        );
+      if (selectedNodeRef.current?.id === nodeId) {
+        const updatedNode = nodesRef.current.find((node) => node.id === nodeId);
         if (updatedNode) {
           const newSelectedNode = {
             ...updatedNode,

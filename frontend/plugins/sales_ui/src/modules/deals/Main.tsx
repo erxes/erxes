@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router';
 import { Suspense, lazy } from 'react';
 
-import { Spinner } from 'erxes-ui/components';
+import { Spinner } from 'erxes-ui';
 
 const DealsMain = lazy(() =>
   import('~/pages/SalesIndexPage').then((module) => ({

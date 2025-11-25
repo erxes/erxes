@@ -16,14 +16,7 @@ export const usePosEditProductGroup = () => {
 
     const groups = Array.isArray(cleanedVariables.groups)
       ? cleanedVariables.groups.map((g: any) => {
-          const {
-            posId: _omitPosId,
-            __typename: _omitTypename,
-            ...rest
-          } = g || {};
-
-          void _omitPosId;
-          void _omitTypename;
+          const { posId: _posId, __typename: _typename, ...rest } = g || {};
           return rest;
         })
       : cleanedVariables.groups;

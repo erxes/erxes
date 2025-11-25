@@ -1,7 +1,6 @@
 import React from 'react';
-import { Button, Card } from 'erxes-ui';
+import { Button, Card, cn } from 'erxes-ui';
 import { IconEdit, IconTrash, IconCopy } from '@tabler/icons-react';
-import { cn } from 'erxes-ui/lib';
 import { SlotCardProps } from '../types';
 
 const SlotCard: React.FC<SlotCardProps> = ({

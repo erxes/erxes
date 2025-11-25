@@ -20,9 +20,8 @@ import POSSlotsManager from '../../slot/components/slot';
 import { useUpdatePosSlots } from '@/pos/hooks/useSlotAdd';
 import { CustomNode } from '@/pos/slot/types';
 import { useAtom } from 'jotai';
-import { useQueryState } from 'erxes-ui';
+import { useQueryState, Spinner } from 'erxes-ui';
 import { posCategoryAtom } from '../../create-pos/states/posCategory';
-import { Spinner } from 'erxes-ui';
 import { IScreenConfig } from '@/pos/pos-detail/types/IPos';
 import { EbarimtConfigFormValues } from '../../create-pos/components/formSchema';
 import { CardsConfig } from '../../create-pos/types/syncCard';
@@ -334,7 +333,7 @@ export const PosEdit = () => {
             posId={posDetail._id}
             initialNodes={[]}
             isCreating={false}
-            onNodesChange={(nodes) => setSlotNodes(nodes as CustomNode[])}
+            onNodesChange={(nodes: CustomNode[]) => setSlotNodes(nodes)}
           />
         </PosEditTabContent>
       )}

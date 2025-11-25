@@ -172,7 +172,7 @@ export function useSubmitPosForm() {
           catProdMappings: validatedData.catProdMappings?.map(
             (mapping: any) => {
               const { _id, ...rest } = mapping;
-              if (_id && _id.startsWith('temp-')) {
+              if (_id?.startsWith('temp-')) {
                 return rest;
               }
               return mapping;

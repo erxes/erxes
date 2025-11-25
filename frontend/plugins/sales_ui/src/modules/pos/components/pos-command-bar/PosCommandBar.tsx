@@ -1,5 +1,3 @@
-// import { IconPlus } from '@tabler/icons-react';
-
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { PosDelete } from './delete/delete';
 
@@ -19,11 +17,6 @@ export const PosCommandBar = () => {
             .rows.map((row) => row.original._id)
             .join(',')}
         />
-        {/* <Separator.Inline />
-        <Button variant="secondary">
-          <IconPlus />
-          Create
-        </Button> */}
       </CommandBar.Bar>
     </CommandBar>
   );

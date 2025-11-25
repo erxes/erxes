@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Combobox,
   Command,
@@ -56,22 +56,28 @@ const SelectStageProvider = ({
     pipelineId,
   });
 
-  const handleValueChange = (stageId: string) => {
-    if (!stageId) return;
-    onValueChange(stageId);
-    setOpen?.(false);
-  };
+  const handleValueChange = useCallback(
+    (stageId: string) => {
+      if (!stageId) return;
+      onValueChange(stageId);
+      setOpen?.(false);
+    },
+    [onValueChange, setOpen],
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      value,
+      onValueChange: handleValueChange,
+      loading,
+      stages,
+      pipelineId,
+    }),
+    [value, handleValueChange, loading, stages, pipelineId],
+  );
 
   return (
-    <SelectStageContext.Provider
-      value={{
-        value,
-        onValueChange: handleValueChange,
-        loading,
-        stages,
-        pipelineId,
-      }}
-    >
+    <SelectStageContext.Provider value={contextValue}>
       {children}
     </SelectStageContext.Provider>
   );
@@ -132,17 +138,16 @@ const SelectStageCommandItem = ({ stage }: { stage: Stage }) => {
 // SelectStage Content
 const SelectStageContent = () => {
   const { stages, pipelineId, loading } = useSelectStageContext();
+  const emptyMessage = loading
+    ? 'Loading stages...'
+    : pipelineId
+    ? 'No stages found'
+    : 'Pipeline not selected';
   return (
     <Command>
       <Command.List>
         <Command.Empty>
-          <div className="text-muted-foreground">
-            {loading
-              ? 'Loading stages...'
-              : pipelineId
-              ? 'No stages found'
-              : 'Pipeline not selected'}
-          </div>
+          <div className="text-muted-foreground">{emptyMessage}</div>
         </Command.Empty>
         {stages?.map((stage) => (
           <SelectStageCommandItem key={stage._id} stage={stage} />

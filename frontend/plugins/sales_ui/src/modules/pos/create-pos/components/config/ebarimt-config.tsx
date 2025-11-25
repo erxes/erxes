@@ -55,10 +55,20 @@ export default function EbarimtConfigForm({
   useEffect(() => {
     if (posDetail?.ebarimtConfig) {
       const config = posDetail.ebarimtConfig;
+      const reverseCtaxRules = Array.isArray(config.reverseCtaxRules)
+        ? config.reverseCtaxRules
+        : config.reverseCtaxRules
+        ? [config.reverseCtaxRules]
+        : [];
+
+      const reverseVatRules = Array.isArray(config.reverseVatRules)
+        ? config.reverseVatRules
+        : config.reverseVatRules
+        ? [config.reverseVatRules]
+        : [];
       setEbarimtConfig({
         companyName: config.companyName || '',
         ebarimtUrl: config.ebarimtUrl || '',
-        checkTaxpayerUrl: config.checkCompanyUrl || '',
         checkCompanyUrl: config.checkCompanyUrl || '',
         companyRd: config.companyRD || '',
         companyRD: config.companyRD || '',
@@ -71,19 +81,10 @@ export default function EbarimtConfigForm({
         hasVat: config.hasVat || false,
         hasCitytax: config.hasCitytax || false,
         vatPercent: config.vatPercent?.toString() || '0',
-        hasUbCityTax: config.hasCitytax || false,
         ubCityTaxPercent: config.cityTaxPercent?.toString() || '0',
         cityTaxPercent: config.cityTaxPercent || 0,
-        anotherRuleOfProductsOnCityTax: Array.isArray(config.reverseCtaxRules)
-          ? config.reverseCtaxRules
-          : config.reverseCtaxRules
-          ? [config.reverseCtaxRules]
-          : [],
-        anotherRuleOfProductsOnVat: Array.isArray(config.reverseVatRules)
-          ? config.reverseVatRules
-          : config.reverseVatRules
-          ? [config.reverseVatRules]
-          : [],
+        anotherRuleOfProductsOnCityTax: reverseCtaxRules,
+        anotherRuleOfProductsOnVat: reverseVatRules,
         defaultPay: config.defaultPay || 'debtAmount',
         headerText: config.headerText || '',
         footerText: config.footerText || '',
@@ -130,14 +131,31 @@ export default function EbarimtConfigForm({
 
   useEffect(() => {
     if (onDataChange) {
+      const reverseVatRulesOut = Array.isArray(
+        ebarimtConfig.anotherRuleOfProductsOnVat,
+      )
+        ? ebarimtConfig.anotherRuleOfProductsOnVat
+        : ebarimtConfig.anotherRuleOfProductsOnVat
+        ? ebarimtConfig.anotherRuleOfProductsOnVat.split(',').filter(Boolean)
+        : undefined;
+
+      const reverseCtaxRulesOut = Array.isArray(
+        ebarimtConfig.anotherRuleOfProductsOnCityTax,
+      )
+        ? ebarimtConfig.anotherRuleOfProductsOnCityTax
+        : ebarimtConfig.anotherRuleOfProductsOnCityTax
+        ? ebarimtConfig.anotherRuleOfProductsOnCityTax
+            .split(',')
+            .filter(Boolean)
+        : undefined;
+
       const transformedConfig: EbarimtConfigFormValues = {
         companyName: ebarimtConfig.companyName,
         ebarimtUrl: ebarimtConfig.ebarimtUrl,
-        checkCompanyUrl:
-          ebarimtConfig.checkTaxpayerUrl || ebarimtConfig.checkCompanyUrl || '',
+        checkCompanyUrl: ebarimtConfig.checkCompanyUrl || '',
         hasVat: ebarimtConfig.hasVat,
-        hasCitytax: ebarimtConfig.hasUbCityTax,
-        defaultPay: 'debtAmount',
+        hasCitytax: ebarimtConfig.hasCitytax,
+        defaultPay: ebarimtConfig.defaultPay || 'debtAmount',
         districtCode: ebarimtConfig.districtCode,
         companyRD: ebarimtConfig.companyRd,
         defaultGSCode: ebarimtConfig.defaultGsCode,
@@ -146,30 +164,18 @@ export default function EbarimtConfigForm({
         branchNo: ebarimtConfig.branchNo,
         vatPercent:
           typeof ebarimtConfig.vatPercent === 'string'
-            ? parseFloat(ebarimtConfig.vatPercent) || 0
+            ? Number.parseFloat(ebarimtConfig.vatPercent) || 0
             : 0,
         cityTaxPercent:
           typeof ebarimtConfig.ubCityTaxPercent === 'string'
-            ? parseFloat(ebarimtConfig.ubCityTaxPercent) || 0
+            ? Number.parseFloat(ebarimtConfig.ubCityTaxPercent) || 0
             : 0,
         headerText: ebarimtConfig.headerText,
         footerText: ebarimtConfig.footerText,
         hasCopy: ebarimtConfig.hasCopy,
         hasSumQty: ebarimtConfig.hasSummaryQty,
-        reverseVatRules: Array.isArray(ebarimtConfig.anotherRuleOfProductsOnVat)
-          ? ebarimtConfig.anotherRuleOfProductsOnVat
-          : ebarimtConfig.anotherRuleOfProductsOnVat
-          ? ebarimtConfig.anotherRuleOfProductsOnVat.split(',').filter(Boolean)
-          : undefined,
-        reverseCtaxRules: Array.isArray(
-          ebarimtConfig.anotherRuleOfProductsOnCityTax,
-        )
-          ? ebarimtConfig.anotherRuleOfProductsOnCityTax
-          : ebarimtConfig.anotherRuleOfProductsOnCityTax
-          ? ebarimtConfig.anotherRuleOfProductsOnCityTax
-              .split(',')
-              .filter(Boolean)
-          : undefined,
+        reverseVatRules: reverseVatRulesOut,
+        reverseCtaxRules: reverseCtaxRulesOut,
       };
       onDataChange(transformedConfig);
     }
@@ -221,9 +227,9 @@ export default function EbarimtConfigForm({
                   CHECK TAXPAYER URL
                 </Label>
                 <Input
-                  value={ebarimtConfig.checkTaxpayerUrl}
+                  value={ebarimtConfig.checkCompanyUrl}
                   onChange={(e) =>
-                    handleInputChange('checkTaxpayerUrl', e.target.value)
+                    handleInputChange('checkCompanyUrl', e.target.value)
                   }
                   placeholder="Enter taxpayer URL"
                 />
@@ -377,9 +383,9 @@ export default function EbarimtConfigForm({
 
                 <div className="flex items-center h-8">
                   <Checkbox
-                    checked={ebarimtConfig.hasUbCityTax}
+                    checked={ebarimtConfig.hasCitytax}
                     onCheckedChange={(checked) =>
-                      handleCheckboxChange('hasUbCityTax', Boolean(checked))
+                      handleCheckboxChange('hasCitytax', Boolean(checked))
                     }
                   />
                 </div>
@@ -400,7 +406,7 @@ export default function EbarimtConfigForm({
               </div>
             </div>
 
-            {!ebarimtConfig.hasUbCityTax && (
+            {!ebarimtConfig.hasCitytax && (
               <div className="space-y-2">
                 <Label className="text-xs font-semibold">
                   ANOTHER RULE OF PRODUCTS ON CITY TAX

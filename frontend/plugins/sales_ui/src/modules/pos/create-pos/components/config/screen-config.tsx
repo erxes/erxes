@@ -51,13 +51,13 @@ const transformToScreenConfig = (data: Partial<ScreenConfigFormData>) => {
     type: data.kitchenStatusChange || '',
     showType: data.kitchenShowTypes || '',
     isPrint: data.kitchenPrintEnabled || false,
-    value: parseInt(data.kitchenValue || '0') || 0,
+    value: Number.parseInt(data.kitchenValue || '0', 10) || 0,
   };
 
   const waitingScreen: IScreenConfig = {
     isActive: data.waitingScreenEnabled || false,
     type: data.waitingChangeType || '',
-    value: parseInt(data.waitingChangeCount || '0') || 0,
+    value: Number.parseInt(data.waitingChangeCount || '0', 10) || 0,
     contentUrl: data.waitingContentUrl || '',
   };
 
