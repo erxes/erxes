@@ -82,8 +82,16 @@ export const checkCycle = async (job: Job) => {
 
       console.log('endDate', endDate);
       const endDateTz = tz(endDate, timezone);
+      const endDateTzEnd = endDateTz
+        .clone()
+        .endOf('day')
+        .add(1, 'day')
+        .startOf('day');
+
       console.log('endDateTz', endDateTz);
-      if (endDateTz.isBetween(tzStart, tzEnd, null, '(]')) {
+      console.log('endDateTzEnd', endDateTzEnd);
+
+      if (endDateTz.isBetween(tzStart, endDateTzEnd, null, '(]')) {
         endCycleIds.push(_id);
       }
     }

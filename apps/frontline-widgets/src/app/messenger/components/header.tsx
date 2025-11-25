@@ -7,6 +7,7 @@ import { IconChevronLeft } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useHeader } from '../hooks/useHeader';
 import { HeaderItemsList } from './header-item-list';
+import { formatOnlineHours } from '@libs/formatOnlineHours';
 
 export const Header = () => {
   const { renderHeaderContent } = useHeader();
@@ -43,19 +44,13 @@ export const HeaderIntro = () => {
         </div>
         <div className="text-muted-foreground font-medium text-sm">
           {messages?.greetings?.message || WelcomeMessage.MESSAGE}{' '}
+          {onlineHours
+            ? formatOnlineHours({ onlineHours, showTimezone, timezone })
+            : WelcomeMessage.AVAILABILITY_MESSAGE}{' '}
           {messages?.thank || ''}
-          {'. '}
-          {onlineHours?.map(
-            (hour: { day: string; from: string; to: string }) => (
-              <span key={hour.day}>
-                ({hour.from} болон {hour.to} хооронд
-                {showTimezone && ` (${formatTimeZoneLabel(timezone || '')})`})
-              </span>
-            ),
-          )}
         </div>
       </div>
-      {/* <HeaderItemsList /> */}
+      <HeaderItemsList />
     </div>
   );
 };
@@ -79,7 +74,7 @@ export const HeaderTabs = () => {
           className="flex items-center gap-2 hover:bg-transparent size-8 text-accent-foreground"
           onClick={goBack}
         >
-          <IconChevronLeft size={16} />
+          <IconChevronLeft className="w-4 h-4 shrink-0" />
         </Button>
         <div className="text-base font-semibold">{getCurrentTitle()}</div>
       </div>

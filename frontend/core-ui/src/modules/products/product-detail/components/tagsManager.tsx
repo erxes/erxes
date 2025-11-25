@@ -58,7 +58,7 @@ export function TagsManager({
       toast({
         title: 'Tag removed',
         description: `Successfully removed tag: ${tagToDelete.name}`,
-        variant: 'default',
+        variant: 'success',
       });
       await refreshData();
     } catch (error) {

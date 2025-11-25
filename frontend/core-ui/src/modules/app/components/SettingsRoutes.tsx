@@ -9,6 +9,8 @@ import {
 } from '@/types/paths/SettingsPath';
 import { Skeleton } from 'erxes-ui';
 import { useVersion } from 'ui-modules';
+import { ClientPortalDetailPage } from '~/pages/settings/client-portal/ClientPortalDetailPage';
+import { ClientPortalPage } from '~/pages/settings/client-portal/ClientPortalPage';
 
 const SettingsProfile = lazy(() =>
   import('~/pages/settings/account/ProfilePage').then((module) => ({
@@ -139,6 +141,14 @@ export function SettingsRoutes() {
           path={SettingsWorkspacePath.Permissions}
           element={<PermissionsSettings />}
         />
+        <Route
+          path={SettingsWorkspacePath.ClientPortals}
+          element={<ClientPortalPage />}
+        />
+        <Route
+          path={`${SettingsWorkspacePath.ClientPortals}/:clientPortalId`}
+          element={<ClientPortalDetailPage />}
+        />
         {/* <Route
           path={SettingsWorkspacePath.StructureCatchAll}
           element={<StructureSettings />}
@@ -148,18 +158,14 @@ export function SettingsRoutes() {
           path={SettingsWorkspacePath.Brands}
           element={<BrandsSettingsRoutes />}
         />
-        {isOs && (
-          <Route
-            path={SettingsWorkspacePath.ProductsCatchAll}
-            element={<ProductsSettingsRoutes />}
-          />
-        )}
-        {isOs && (
-          <Route
-            path={SettingsWorkspacePath.AutomationsCatchAll}
-            element={<AutomationSettingsRoutes />}
-          />
-        )}
+        <Route
+          path={SettingsWorkspacePath.ProductsCatchAll}
+          element={<ProductsSettingsRoutes />}
+        />
+        <Route
+          path={SettingsWorkspacePath.AutomationsCatchAll}
+          element={<AutomationSettingsRoutes />}
+        />
 
         <Route path={SettingsWorkspacePath.Apps} element={<AppsSettings />} />
         <Route

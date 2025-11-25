@@ -362,7 +362,10 @@ export const PermissionsCreate = ({ module }: { module?: string }) => {
       permissionsAdd({
         variables: data,
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({
+            title: 'Successfully created permission!',
+            variant: 'success',
+          });
           reset();
           setOpen(false);
         },
@@ -573,7 +576,11 @@ export const PermissionsFix = () => {
       onClick={(e) => {
         e.stopPropagation();
         permissionsFix({
-          onCompleted: () => toast({ title: 'Fixed permissions' }),
+          onCompleted: () =>
+            toast({
+              title: 'Permissions fixed successfully',
+              variant: 'success',
+            }),
         });
       }}
     >

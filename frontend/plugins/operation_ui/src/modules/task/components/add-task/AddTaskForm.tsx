@@ -23,6 +23,7 @@ import {
   Input,
   Separator,
   Sheet,
+  useToast,
   useBlockEditor,
 } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
@@ -31,6 +32,7 @@ import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import { currentUserState } from 'ui-modules';
 import { SelectMilestone } from '../task-selects/SelectMilestone';
+import { SelectTags } from 'ui-modules';
 
 export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   const { teamId, projectId, cycleId } = useParams<{
@@ -47,7 +49,6 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   const [defaultValuesState, setDefaultValues] = useAtom(
     taskCreateDefaultValuesState,
   );
-
   const { project } = useGetProject({
     variables: { _id: projectId || '' },
     skip: !projectId,
@@ -56,7 +57,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   const [_teamId, _setTeamId] = useState<string | undefined>(
     teamId ? teamId : project?.teamIds?.[0] ? project?.teamIds?.[0] : undefined,
   );
-
+  const { toast } = useToast();
   const defaultValues = {
     teamId: _teamId || undefined,
     name: '',
@@ -68,6 +69,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
     estimatePoint: 0,
     cycleId: cycleId,
     milestoneId: undefined,
+    tagIds: [] as string[],
   };
 
   const form = useForm<TAddTask>({
@@ -119,7 +121,13 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: Object.entries(errors)[0][1].message,
+          });
+        })}
         className="h-full flex flex-col"
       >
         <Sheet.Header className="flex items-center gap-2 ">
@@ -301,7 +309,23 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
                 </Form.Item>
               )}
             />
+            <Form.Field
+              name="tagIds"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label className="sr-only">Tags</Form.Label>
+                  <SelectTags.FormItem
+                    tagType="operation:task"
+                    mode="multiple"
+                    value={field.value || []}
+                    onValueChange={(value) => field.onChange(value)}
+                  />
+                </Form.Item>
+              )}
+            />
           </div>
+
           <Separator className="my-4" />
           <div className="flex-1 overflow-y-auto">
             <BlockEditor

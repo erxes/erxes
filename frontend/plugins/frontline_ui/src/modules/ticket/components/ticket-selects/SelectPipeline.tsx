@@ -19,16 +19,15 @@ import {
   useFilterQueryState,
   useQueryState,
 } from 'erxes-ui';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { addTicketSchema } from '@/ticket/types';
 import { z } from 'zod';
 import { Link } from 'react-router';
 
 interface SelectPipelineContextType {
-  value: string | string[];
+  value: string;
   onValueChange: (value: string) => void;
-  mode: 'single' | 'multiple';
   loading: boolean;
   pipelines?: IPipeline[];
   channelId?: string;
@@ -51,14 +50,12 @@ const SelectPipelineProvider = ({
   children,
   value,
   onValueChange,
-  mode = 'single',
   setOpen,
   channelId,
 }: {
   children: React.ReactNode;
-  value: string | string[];
-  onValueChange: (value: string | string[]) => void;
-  mode?: 'single' | 'multiple';
+  value: string;
+  onValueChange?: (value: string) => void;
   setOpen?: (open: boolean) => void;
   channelId?: string;
 }) => {
@@ -73,20 +70,8 @@ const SelectPipelineProvider = ({
 
   const handleValueChange = (pipelineId: string) => {
     if (!pipelineId) return;
-    if (mode === 'single') {
-      onValueChange(pipelineId);
-      setOpen?.(false);
-      return;
-    }
-
-    const arrayValue = Array.isArray(value) ? value : ([] as string[]);
-    const isPipelineSelected = arrayValue.includes(pipelineId);
-
-    const newSelectedPipelineIds = isPipelineSelected
-      ? arrayValue.filter((id) => id !== pipelineId)
-      : [...arrayValue, pipelineId];
-
-    onValueChange(newSelectedPipelineIds);
+    onValueChange?.(pipelineId);
+    setOpen?.(false);
   };
 
   return (
@@ -94,7 +79,6 @@ const SelectPipelineProvider = ({
       value={{
         value,
         onValueChange: handleValueChange,
-        mode,
         loading,
         pipelines,
         channelId,
@@ -107,8 +91,7 @@ const SelectPipelineProvider = ({
 
 const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
   const { value, pipelines } = useSelectPipelineContext();
-
-  if (!pipelines || pipelines.length === 0 || !value || !value.length) {
+  if (!pipelines || pipelines.length === 0 || !value) {
     return (
       <span className="text-accent-foreground/80">
         {placeholder || 'Select pipeline'}
@@ -201,31 +184,34 @@ const SelectPipelineContent = () => {
 };
 
 const SelectPipelineRoot = ({
-  variant = 'detail',
   scope,
   value,
   onValueChange,
-  mode = 'single',
+  channelId,
+  disabled,
+  variant,
 }: {
   variant?: `${SelectTriggerVariant}`;
   scope?: string;
-  value: string | string[];
-  onValueChange: (value: string | string[]) => void;
-  mode: 'single' | 'multiple';
+  value: string;
+  channelId?: string;
+  onValueChange?: (value: string) => void;
+  disabled?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
+
   return (
     <SelectPipelineProvider
       value={value}
       onValueChange={onValueChange}
-      mode={mode}
       setOpen={setOpen}
+      channelId={channelId}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant={variant}>
+        <SelectTriggerTicket variant={variant || 'detail'} disabled={disabled}>
           <SelectPipelineValue />
         </SelectTriggerTicket>
-        <SelectTicketContent variant={variant}>
+        <SelectTicketContent variant={variant || 'detail'}>
           <SelectPipelineContent />
         </SelectTicketContent>
       </PopoverScoped>
@@ -276,21 +262,31 @@ const SelectPipelineFilterView = () => {
 const SelectPipelineFormItem = ({
   value,
   onValueChange,
-  mode = 'single',
   form,
 }: {
-  value: string | string[];
-  onValueChange: (value: string | string[]) => void;
-  mode?: 'single' | 'multiple';
+  value: string;
+  onValueChange: (value: string) => void;
   form?: UseFormReturn<z.infer<typeof addTicketSchema>>;
 }) => {
   const channelId = useWatch({ name: 'channelId', control: form?.control });
   const [open, setOpen] = useState(false);
+  const { pipelines } = useGetPipelines({
+    variables: {
+      filter: {
+        channelId,
+      },
+    },
+    skip: !channelId,
+  });
+  useEffect(() => {
+    if (pipelines?.length && !value) {
+      onValueChange(pipelines[0]._id);
+    }
+  }, [pipelines, value, onValueChange]);
   return (
     <SelectPipelineProvider
       value={value}
       onValueChange={onValueChange}
-      mode={mode}
       setOpen={setOpen}
       channelId={channelId}
     >

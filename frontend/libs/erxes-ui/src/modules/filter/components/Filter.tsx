@@ -30,7 +30,6 @@ import {
 import { getDisplayValue } from '../date-filter/utils/getDisplayValue';
 import { DateFilterCommand } from '../date-filter/components/DateFilterCommand';
 import { usePreviousHotkeyScope } from 'erxes-ui/modules/hotkey/hooks/usePreviousHotkeyScope';
-import { useScopedHotkeys } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
 import { useFilterQueryState } from '../hooks/useFilterQueryState';
 import { FilterDialogDateView } from '../date-filter/components/DialogDateView';
 
@@ -104,7 +103,7 @@ const FilterPopover = ({
   scope,
   ...props
 }: React.ComponentPropsWithoutRef<typeof Popover> & {
-  scope: string;
+  scope?: string;
 }) => {
   const { id } = useFilterContext();
   const [open, setOpen] = useAtom(openPopoverState(id));
@@ -113,8 +112,6 @@ const FilterPopover = ({
     setHotkeyScopeAndMemorizePreviousScope,
     goBackToPreviousHotkeyScope,
   } = usePreviousHotkeyScope();
-
-  useScopedHotkeys('f', () => setOpen(true), scope);
 
   useEffect(() => {
     if (open) {
@@ -345,7 +342,13 @@ const FilterBarCloseButton = React.forwardRef<
   );
 });
 
-const FilterDialogStringView = ({ filterKey }: { filterKey: string }) => {
+const FilterDialogStringView = ({
+  filterKey,
+  label,
+}: {
+  filterKey: string;
+  label?: string;
+}) => {
   const { id, setDialogView, setOpenDialog, sessionKey } = useFilterContext();
   const dialogView = useAtomValue(filterDialogViewState(id));
   const [dialogSearch, setDialogSearch] = useState('');
@@ -367,17 +370,20 @@ const FilterDialogStringView = ({ filterKey }: { filterKey: string }) => {
     setOpenDialog(false);
   };
 
+  const displayPlaceholder =
+    label || filterKey.charAt(0).toUpperCase() + filterKey.slice(1);
+
   return (
     <Dialog.Content>
       <form onSubmit={onSubmit}>
         <Dialog.Header>
           <Dialog.Title className="font-medium text-lg">
-            Filter by {filterKey}...
+            Filter by {label || filterKey}...
           </Dialog.Title>
         </Dialog.Header>
 
         <Input
-          placeholder={filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}
+          placeholder={displayPlaceholder}
           className="my-4"
           value={dialogSearch}
           onChange={(e) => setDialogSearch(e.target.value)}

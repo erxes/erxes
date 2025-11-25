@@ -31,46 +31,48 @@ export const BlockEditor = ({
   const [focus, setFocus] = useState(false);
 
   return (
-    <BlockNoteView
-      theme={theme as 'light' | 'dark'}
-      editor={editor}
-      slashMenu={false}
-      sideMenu={sideMenu}
-      onFocus={() => {
-        setFocus(true);
-        onFocus?.();
-      }}
-      onBlur={() => {
-        setFocus(false);
-        onBlur?.();
-      }}
-      editable={!readonly && !disabled}
-      onChange={onChange}
+    <div
       className={cn(
-        'shadow-xs',
-        // variant === 'outline' && 'transition-[color,box-shadow] shadow-focus',
-        // variant === 'outline' && (focus ? 'shadow-focus' : 'shadow-xs'),
+        'transition-shadow',
+        variant === 'outline' && (focus ? 'shadow-focus' : 'shadow-xs'),
         className,
       )}
-      formattingToolbar={false}
-      shadCNComponents={{
-        Button: { Button },
-        Tooltip: {
-          Tooltip,
-          TooltipContent: Tooltip.Content,
-          TooltipProvider: Tooltip.Provider,
-          TooltipTrigger: Tooltip.Trigger,
-        },
-      }}
-      style={style}
     >
-      <SuggestionMenuController
-        triggerCharacter="/"
-        suggestionMenuComponent={SlashMenu}
-      />
-      <Toolbar />
-      {children}
-    </BlockNoteView>
+      <BlockNoteView
+        theme={theme as 'light' | 'dark'}
+        editor={editor}
+        slashMenu={false}
+        sideMenu={sideMenu}
+        onFocus={() => {
+          setFocus(true);
+          onFocus?.();
+        }}
+        onBlur={() => {
+          setFocus(false);
+          onBlur?.();
+        }}
+        editable={!readonly && !disabled}
+        onChange={onChange}
+        formattingToolbar={false}
+        shadCNComponents={{
+          Button: { Button },
+          Tooltip: {
+            Tooltip,
+            TooltipContent: Tooltip.Content,
+            TooltipProvider: Tooltip.Provider,
+            TooltipTrigger: Tooltip.Trigger,
+          },
+        }}
+        style={style}
+      >
+        <SuggestionMenuController
+          triggerCharacter="/"
+          suggestionMenuComponent={SlashMenu}
+        />
+        <Toolbar />
+        {children}
+      </BlockNoteView>
+    </div>
   );
 };
 

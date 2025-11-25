@@ -1,4 +1,9 @@
-import { isEnabled, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  isEnabled,
+  markResolvers,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
+import { Resolver } from 'erxes-api-shared/core-types';
 import * as momentTz from 'moment-timezone';
 import { IModels, IContext } from '~/connectionResolvers';
 import { IIntegrationDocument } from '~/modules/inbox/@types/integrations';
@@ -67,7 +72,7 @@ const getWidgetMessages = (models: IModels, conversationId: string) => {
   });
 };
 
-export const widgetQueries = {
+export const widgetQueries: Record<string, Resolver> = {
   async widgetsGetMessengerIntegration(
     _root,
     args: { brandCode: string },
@@ -262,4 +267,51 @@ export const widgetQueries = {
       timezone,
     };
   },
+
+  async widgetsTicketCustomerDetail(
+    _root,
+    args: { customerId?: string; type?: string },
+    { subdomain }: IContext,
+  ) {
+    const { customerId } = args;
+    if (!customerId) {
+      return null;
+    }
+
+    return sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'customers',
+      action: 'findOne',
+      input: { query: { _id: customerId } },
+    });
+  },
+  async widgetsGetTicketTags(
+    _root,
+    args: { configId: string },
+    { models, subdomain }: IContext,
+  ) {
+    const config = await models.TicketConfig.getTicketConfig(args.configId);
+
+    if (config && config.ticketBasicFields?.isShowTags) {
+      return await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'tags',
+        action: 'find',
+        input: {
+          query: { type: 'frontline:ticket' },
+        },
+      });
+    }
+    return [];
+  },
 };
+
+markResolvers(widgetQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});

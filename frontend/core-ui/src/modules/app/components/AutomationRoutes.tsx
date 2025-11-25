@@ -23,11 +23,11 @@ export const AutomationRoutes = () => {
       <Routes>
         <Route path={AutomationsPath.Index} element={<AutomationIndexPage />} />
         <Route
-          path={AutomationsPath.Detail}
+          path={AutomationsPath.Create}
           element={<AutomationDetailPage />}
         />
         <Route
-          path={AutomationsPath.Create}
+          path={AutomationsPath.Detail}
           element={<AutomationDetailPage />}
         />
       </Routes>

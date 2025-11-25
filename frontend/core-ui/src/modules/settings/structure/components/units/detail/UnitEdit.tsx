@@ -44,7 +44,11 @@ export const UnitEdit = () => {
           ...data,
         },
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({
+            title: 'Success!',
+            variant: 'success',
+            description: 'Unit updated successfully',
+          });
           methods.reset();
           setOpen(null);
         },

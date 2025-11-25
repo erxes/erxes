@@ -4,7 +4,9 @@ import {
   isEnabled,
   redis,
   sendTRPCMessage,
+  markResolvers,
 } from 'erxes-api-shared/utils';
+import { IAttachment, Resolver } from 'erxes-api-shared/core-types';
 import { IModels, generateModels } from '~/connectionResolvers';
 import {
   IIntegrationDocument,
@@ -17,7 +19,7 @@ import {
   CONVERSATION_STATUSES,
   MESSAGE_TYPES,
 } from '~/modules/inbox/db/definitions/constants';
-import { debugError } from '~/modules/inbox/utils';
+import { debugError, fillSearchTextItem } from '~/modules/inbox/utils';
 import strip from 'strip';
 import { IBrowserInfo } from 'erxes-api-shared/core-types';
 import { VERIFY_EMAIL_TRANSLATIONS } from '~/modules/inbox/constants';
@@ -210,7 +212,19 @@ const createVisitor = async (subdomain: string, visitorId: string) => {
   return customer;
 };
 
-export const widgetMutations = {
+export interface ITicketWidget {
+  name: string;
+  description: string;
+  attachments: IAttachment[];
+  statusId: string;
+  pipelineId: string;
+  channelId: string;
+  type: string;
+  customerIds: string[];
+  tagIds: string[];
+}
+
+export const widgetMutations: Record<string, Resolver> = {
   async widgetsLeadIncreaseViewCount(
     _root,
     { formId }: { formId: string },
@@ -243,7 +257,6 @@ export const widgetMutations = {
       isUser,
       companyData,
       data,
-
       cachedCustomerId,
       deviceToken,
       visitorId,
@@ -422,12 +435,18 @@ export const widgetMutations = {
         { $set: { isConnected: true } },
       );
     }
+    let ticketConfig;
+    if (integration.ticketConfigId) {
+      ticketConfig = await models.TicketConfig.findOne({
+        _id: integration.ticketConfigId,
+      });
+    }
 
     return {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
-      ticketData: integration.ticketData,
+      ticketConfig: ticketConfig || {},
       messengerData: await getMessengerData(models, subdomain, integration),
       customerId: customer && customer._id,
       visitorId: customer ? null : visitorId,
@@ -744,16 +763,18 @@ export const widgetMutations = {
       );
     }
 
-    await sendTRPCMessage({
+    const customer = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       method: 'mutation',
       module: 'customers',
       action: 'saveVisitorContactInfo',
       input: {
-        args,
+        params: args,
       },
     });
+
+    return customer;
   },
 
   /*
@@ -934,8 +955,6 @@ export const widgetMutations = {
       conversationId,
       customerId,
       message,
-      type,
-      payload,
     }: {
       conversationId?: string;
       customerId?: string;
@@ -945,7 +964,7 @@ export const widgetMutations = {
       payload: string;
       type: string;
     },
-    { models, subdomain }: IContext,
+    { models }: IContext,
   ) {
     const integration =
       (await models.Integrations.findOne({ _id: integrationId })) ||
@@ -1017,4 +1036,88 @@ export const widgetMutations = {
 
     return { botData: botRequest.responses };
   },
+  async widgetTicketCreated(
+    _root,
+    doc: ITicketWidget,
+    { models, subdomain }: IContext,
+  ) {
+    const { statusId, type, ...restFields } = doc;
+    const status = await models.Status.findOne({ _id: statusId });
+    if (!status) {
+      throw new Error('Status not found');
+    }
+    const pipeline = await models.Pipeline.findOne({ _id: status.pipelineId });
+    if (!pipeline) {
+      throw new Error('Pipeline not found');
+    }
+
+    const customerIds = doc.customerIds || [];
+
+    const customers = await sendTRPCMessage({
+      subdomain,
+      method: 'query',
+      pluginName: 'core',
+      module: 'customers',
+      action: 'find',
+      input: { _id: { $in: customerIds } },
+      defaultValue: [],
+    });
+    const validCustomerIds = customers.map((c: any) => c._id);
+
+    try {
+      return await models.Ticket.create({
+        ...restFields,
+        statusId: statusId,
+        pipelineId: status.pipelineId,
+        channelId: pipeline.channelId,
+        customerIds: validCustomerIds,
+        createdAt: new Date(),
+        modifiedAt: new Date(),
+        stageChangedDate: new Date(),
+        searchText: fillSearchTextItem(doc),
+      });
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  },
+  async widgetsTicketCustomersEdit(
+    _root,
+    args: {
+      customerId?: string;
+      firstName?: string;
+      lastName?: string;
+      emails?: string[];
+      phones?: string[];
+    },
+    { subdomain }: IContext,
+  ) {
+    const { customerId, firstName, lastName, emails, phones } = args;
+    if (!customerId) {
+      throw new Error('Customer ID not found');
+    }
+
+    return await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'customers',
+      action: 'updateCustomer',
+      input: {
+        _id: customerId,
+        doc: {
+          _id: customerId,
+          firstName,
+          lastName,
+          emails,
+          phones,
+        },
+      },
+    });
+  },
 };
+
+markResolvers(widgetMutations, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});

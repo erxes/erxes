@@ -10,11 +10,10 @@ const convertToHidden = (transaction: ITransactionDocument) => {
     ptrId: transaction.ptrId,
     ptrStatus: transaction.ptrStatus,
     originId: transaction.originId,
-    follows: transaction.follows,
+    originType: transaction.originType,
     details: transaction.details.map(detail => ({
       _id: detail._id,
       originId: detail.originId,
-      follows: detail.follows,
       side: detail.side,
     })),
     sumDt: transaction.sumDt,

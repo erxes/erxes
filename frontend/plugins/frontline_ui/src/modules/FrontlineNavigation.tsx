@@ -1,8 +1,8 @@
 import {
   IconMail,
-  IconMessageReply,
   IconDotsVertical,
   IconSettings,
+  IconTicket,
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem, DropdownMenu, Button } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
@@ -48,7 +48,7 @@ export const FrontlineNavigation = () => {
       </div>
       <NavigationMenuLinkItem
         name="Tickets"
-        icon={IconMessageReply}
+        icon={IconTicket}
         path="frontline/tickets"
       />
       <IntegrationNavigation />

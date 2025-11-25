@@ -1,4 +1,5 @@
 import { IconCashRegister, IconSandbox } from '@tabler/icons-react';
+
 import { NavigationMenuLinkItem } from 'erxes-ui';
 
 export const MainNavigation = () => {
@@ -6,10 +7,14 @@ export const MainNavigation = () => {
     <>
       <NavigationMenuLinkItem
         name="Sales Pipeline"
-        path="deals"
+        path="sales/deals"
         icon={IconSandbox}
       />
-      <NavigationMenuLinkItem name="POS" icon={IconCashRegister} path="pos" />
+      <NavigationMenuLinkItem
+        name="POS"
+        icon={IconCashRegister}
+        path="sales/pos"
+      />
     </>
   );
 };

@@ -77,7 +77,7 @@ const BoardsInlineEffectComponent = ({ boardId }: { boardId: string }) => {
     if (boardDetail) {
       updateBoards?.([...newBoards, boardDetail]);
     }
-  }, [boardDetail, boards, updateBoards, boardId]);
+  }, [boardDetail]);
 
   return null;
 };
