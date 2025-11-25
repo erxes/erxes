@@ -1,6 +1,7 @@
-import { useRemoveTag } from '../hooks/useRemoveTag';
-import { useTagsEdit, useTagsAdd } from '../hooks/useTagsEdit';
-import { useTagContext } from '../providers/TagProvider';
+import { useRemoveTag } from 'ui-modules/modules/tags/hooks/useRemoveTag';
+import { useTagsEdit } from 'ui-modules/modules/tags/hooks/useTagsEdit';
+import { useTagsAdd } from 'ui-modules/modules/tags/hooks/useTagsAdd';
+import { useTagContext } from 'ui-modules/modules/tags/components/TagProvider';
 import {
   IconEdit,
   IconTrash,
@@ -25,7 +26,8 @@ import {
   Popover,
 } from 'erxes-ui';
 import React, { useState } from 'react';
-import { ITag, ITagQueryResponse, useTags } from 'ui-modules';
+import { useTags } from 'ui-modules/modules/tags/hooks/useTags';
+import { ITag, ITagQueryResponse } from 'ui-modules/modules/tags/types/Tag';
 
 const MoveTagPopover: React.FC<{
   tagId: string;
@@ -166,8 +168,8 @@ const NewItemCell: React.FC<NewItemCellProps> = ({ tagType }) => {
         mode === 'adding-group'
           ? 'Enter group name...'
           : mode === 'adding-tag-to-group'
-          ? 'Enter tag name for this group...'
-          : 'Enter tag name...'
+            ? 'Enter tag name for this group...'
+            : 'Enter tag name...'
       }
       value={value}
       onChange={(e) => setValue(e.target.value)}
@@ -359,14 +361,14 @@ const NameCell: React.FC<{ cell: Cell<ITag, unknown>; tagType: string }> = ({
           order={order || ''}
           name={cell.getValue() as string}
           hasChildren={isGroup ?? false}
+          className="[&_svg]:text-muted-foreground"
         >
           <div className="flex items-center gap-2 min-w-0">
             <span
-              className={`truncate ${
-                isGroup
-                  ? 'font-semibold text-foreground'
-                  : 'text-muted-foreground'
-              }`}
+              className={`truncate ${isGroup
+                ? 'text-muted-foreground'
+                : 'font-semibold text-foreground'
+                }`}
             >
               {cell.getValue() as string}
             </span>
