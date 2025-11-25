@@ -18,8 +18,8 @@ interface RestaurantFormProps {
 }
 
 interface FieldHandler {
-  value: AllowedPosType[];
-  onChange: (value: AllowedPosType[]) => void;
+  value: AllowedPosType[] | string[];
+  onChange: (value: AllowedPosType[] | string[]) => void;
 }
 
 const handleTypeChange = (
@@ -40,7 +40,7 @@ const handleTypeRemove = (
   isReadOnly: boolean,
 ) => {
   if (isReadOnly) return;
-  const newTypes = field.value.filter(
+  const newTypes = (field.value as AllowedPosType[]).filter(
     (_: AllowedPosType, i: number) => i !== index,
   );
   if (newTypes.length === 0) {
@@ -76,10 +76,13 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
     }
   }, [form]);
 
-  const handleBrandChange = (brandId: string | string[]) => {
+  const handleBrandChange = (
+    field: FieldHandler,
+    brandId: string | string[],
+  ) => {
     if (isReadOnly) return;
     const singleBrandId = Array.isArray(brandId) ? brandId[0] : brandId;
-    form.setValue('scopeBrandIds', singleBrandId ? [singleBrandId] : []);
+    field.onChange(singleBrandId ? [singleBrandId] : []);
   };
 
   const handleBranchChange = (branchId: string | string[] | undefined) => {
@@ -99,8 +102,6 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
     form.setValue('departmentId', singleDepartmentId || '');
     form.trigger('departmentId');
   };
-
-  const selectedBrandId = form.watch('scopeBrandIds')?.[0] || '';
 
   return (
     <Form {...form}>
@@ -156,7 +157,7 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
             <Form.Field
               control={form.control}
               name="scopeBrandIds"
-              render={() => (
+              render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="text-sm font-semibold uppercase">
                     BRANDS
@@ -166,8 +167,10 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({
                   </Form.Description>
                   <Form.Control>
                     <SelectBrand
-                      value={selectedBrandId}
-                      onValueChange={handleBrandChange}
+                      value={field.value?.[0] || ''}
+                      onValueChange={(brandId) =>
+                        handleBrandChange(field, brandId)
+                      }
                       className="w-full h-8"
                       disabled={isReadOnly}
                     />

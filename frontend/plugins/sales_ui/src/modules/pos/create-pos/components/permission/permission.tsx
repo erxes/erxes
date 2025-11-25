@@ -289,6 +289,7 @@ const PermissionForm = forwardRef<PermissionFormRef, PermissionFormProps>(
                       <Form.Control>
                         <Input
                           {...field}
+                          type="number"
                           placeholder="Write here"
                           className="h-8"
                         />
@@ -386,6 +387,7 @@ const PermissionForm = forwardRef<PermissionFormRef, PermissionFormProps>(
                       <Form.Control>
                         <Input
                           {...field}
+                          type="number"
                           placeholder="Write here"
                           className="h-8"
                         />

@@ -18,7 +18,9 @@ const getCategoryComponent = (
   ecommerceComponent: JSX.Element,
   restaurantComponent: JSX.Element,
 ) => {
-  if (posCategory === 'ecommerce') return ecommerceComponent;
+  if (posCategory === 'ecommerce' || posCategory === 'kiosk')
+    return ecommerceComponent;
+
   if (posCategory === 'restaurant') return restaurantComponent;
   return null;
 };
