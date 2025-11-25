@@ -15,7 +15,7 @@ export const PropertiesCommandMenuTrigger = () => {
           <Kbd>C</Kbd>
         </Button>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content className="min-w-[--radix-dropdown-menu-trigger-width]">
+      <DropdownMenu.Content className="min-w-(--radix-dropdown-menu-trigger-width)">
         <AddProperty />
         <AddPropertyGroup />
       </DropdownMenu.Content>

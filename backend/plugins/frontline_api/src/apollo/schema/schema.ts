@@ -58,6 +58,22 @@ import {
   mutations as WidgetMutations,
 } from '~/modules/inbox/graphql/schemas/widget';
 
+import {
+  queries as ActivityQueries,
+  types as ActivityTypes,
+} from '@/ticket/graphql/schemas/activity';
+
+import {
+  mutations as NoteMutations,
+  queries as NoteQueries,
+  types as NoteTypes,
+} from '@/ticket/graphql/schemas/note';
+import {
+  mutations as TicketConfigMutations,
+  queries as TicketConfigQueries,
+  types as TicketConfigTypes,
+} from '@/ticket/graphql/schemas/ticketConfig';
+
 export const types = `
     ${ChannelsTypes}
     ${ConversationsTypes}
@@ -69,6 +85,9 @@ export const types = `
     ${StatusTypes}
     ${TicketTypes}
     ${WidgetTypes}
+    ${ActivityTypes}
+    ${NoteTypes}
+    ${TicketConfigTypes}
   `;
 export const queries = `
     ${ChannelsQueries}
@@ -81,6 +100,9 @@ export const queries = `
     ${StatusQuery}
     ${TicketQuery}
     ${WidgetQueries}
+    ${ActivityQueries}
+    ${NoteQueries}
+    ${TicketConfigQueries}
   `;
 
 export const mutations = `
@@ -94,5 +116,7 @@ export const mutations = `
    ${StatusMutations}
    ${TicketMutations}
    ${WidgetMutations}
+   ${NoteMutations}
+   ${TicketConfigMutations}
 `;
 export default { types, queries, mutations };

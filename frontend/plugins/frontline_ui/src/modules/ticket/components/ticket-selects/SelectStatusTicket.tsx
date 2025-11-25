@@ -6,6 +6,7 @@ import {
   Filter,
   PopoverScoped,
   useQueryState,
+  useFilterContext,
 } from 'erxes-ui';
 import { addTicketSchema } from '@/ticket/types';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
@@ -206,16 +207,18 @@ export const SelectStatusTicketFilterView = ({
 }: {
   pipelineId?: string;
 }) => {
-  const [status, setStatus] = useQueryState<string>(
-    pipelineId ? 'status' : 'statusType',
-  );
+  const [status, setStatus] = useQueryState<string>('statusId');
+  const { resetFilterState } = useFilterContext();
 
   return (
-    <Filter.View filterKey={pipelineId ? 'status' : 'statusType'}>
+    <Filter.View filterKey="statusId">
       <SelectStatusProvider
         value={status || ''}
         pipelineId={pipelineId}
-        onValueChange={(value) => setStatus(value as string)}
+        onValueChange={(value) => {
+          setStatus(value as string);
+          resetFilterState();
+        }}
       >
         <SelectStatusContent />
       </SelectStatusProvider>
@@ -230,9 +233,7 @@ export const SelectStatusTicketFilterBar = ({
   pipelineId?: string;
   scope?: string;
 }) => {
-  const [status, setStatus] = useQueryState<string>(
-    pipelineId ? 'status' : 'statusType',
-  );
+  const [status, setStatus] = useQueryState<string>('statusId');
   const [open, setOpen] = useState(false);
 
   return (
@@ -245,7 +246,7 @@ export const SelectStatusTicketFilterBar = ({
       }}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <Filter.BarButton filterKey={pipelineId ? 'status' : 'statusType'}>
+        <Filter.BarButton filterKey="statusId">
           <SelectStatusValue placeholder="Status" />
         </Filter.BarButton>
         <Combobox.Content>

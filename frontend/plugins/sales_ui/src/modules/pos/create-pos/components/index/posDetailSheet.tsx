@@ -50,8 +50,8 @@ export const PosDetailSheet = ({ children }: { children: React.ReactNode }) => {
     >
       <Sheet.View
         className={cn(
-          'p-0 md:max-w-screen-xl flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
-          'md:w-[calc(100vw-theme(spacing.4))]',
+          'p-0 md:max-w-6xl flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
+          'md:w-[calc(100vw-(--spacing(4)))]',
         )}
       >
         <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">

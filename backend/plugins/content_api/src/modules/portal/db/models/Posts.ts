@@ -5,6 +5,7 @@ import { IModels } from '~/connectionResolvers';
 import slugify from 'slugify';
 import { htmlToText } from 'html-to-text';
 import { postSchema } from '@/portal/db/definitions/post';
+import { generateUniqueSlug } from '@/portal/utils/common';
 
 export interface IPostModel extends Model<IPostDocument> {
   getPosts: (query: any) => Promise<IPostDocument[]>;
@@ -59,8 +60,8 @@ export const loadPostClass = (models: IModels) => {
 
     public static createPost = async (doc: IPost) => {
       if (!doc.slug && doc.title) {
-        // doc.slug = slugify(doc.title, { lower: true });
-        doc.slug = await this.generateUniqueSlug(doc.title);
+        const baseSlug = slugify(doc.title, { lower: true });
+        doc.slug = await generateUniqueSlug(models.Posts, doc.clientPortalId, 'slug', baseSlug);
       }
 
       if (doc.content && !doc.excerpt) {
@@ -76,8 +77,8 @@ export const loadPostClass = (models: IModels) => {
 
     public static updatePost = async (_id: string, doc: IPost) => {
       if (!doc.slug && doc.title) {
-        // doc.slug = slugify(doc.title, { lower: true });
-        doc.slug = await this.generateUniqueSlug(doc.title);
+        const baseSlug = slugify(doc.title, { lower: true });
+        doc.slug = await generateUniqueSlug(models.Posts, doc.clientPortalId, 'slug', baseSlug);
       }
 
       const post = await models.Posts.findOne({ _id });

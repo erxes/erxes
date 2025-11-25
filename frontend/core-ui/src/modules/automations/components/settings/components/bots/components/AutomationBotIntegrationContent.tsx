@@ -1,5 +1,5 @@
 import { IAutomationBot } from '@/automations/components/settings/components/bots/types/automationBots';
-import { RenderPluginsComponentWrapper } from '@/automations/utils/RenderPluginsComponentWrapper';
+import { RenderPluginsComponentWrapper } from '@/automations/components/common/RenderPluginsComponentWrapper';
 
 export const AutomationBotIntegrationContent = ({
   botIntegrationConstant,

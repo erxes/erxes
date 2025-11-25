@@ -24,11 +24,18 @@ export const ChangePasswordForm = () => {
         newPassword,
       },
       onCompleted: () => {
-        toast({ title: 'Password has changed successfully' });
+        toast({
+          title: 'Password has changed successfully',
+          variant: 'success',
+        });
         reset();
       },
       onError: (error) =>
-        toast({ title: error.message, variant: 'destructive' }),
+        toast({
+          title: 'Error changing password',
+          description: error.message,
+          variant: 'destructive',
+        }),
     });
   };
 

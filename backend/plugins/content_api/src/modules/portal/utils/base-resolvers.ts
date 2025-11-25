@@ -3,7 +3,7 @@ import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext, IModels } from '~/connectionResolvers';
 import { SortOrder } from 'mongoose';
 
-export interface BaseQueryArgs  {
+export interface BaseQueryArgs {
   searchValue?: string;
   language?: string;
   clientPortalId?: string;
@@ -53,7 +53,7 @@ export class BaseQueryResolver {
   protected applyTranslationsToList<T extends { _id: string }>(
     items: T[],
     translations: any[],
-    fieldMappings: Record<string, string>
+    fieldMappings: Record<string, string>,
   ): T[] {
     if (!translations.length) return items;
 
@@ -64,11 +64,20 @@ export class BaseQueryResolver {
       if (!translation) return item;
 
       const translatedItem = { ...item };
-     Object.entries(fieldMappings).forEach(([originalField, translationField]) => {
-      if (Object.prototype.hasOwnProperty.call(translation, translationField) && translation[translationField] !== undefined) {
-        (translatedItem as any)[originalField] = translation[translationField];
-      }
-    });
+      Object.entries(fieldMappings).forEach(
+        ([originalField, translationField]) => {
+          if (
+            Object.prototype.hasOwnProperty.call(
+              translation,
+              translationField,
+            ) &&
+            translation[translationField] !== undefined
+          ) {
+            (translatedItem as any)[originalField] =
+              translation[translationField];
+          }
+        },
+      );
 
       return translatedItem;
     });
@@ -80,16 +89,22 @@ export class BaseQueryResolver {
   protected applyTranslationsToItem<T extends { _id: string }>(
     item: T,
     translation: any,
-    fieldMappings: Record<string, string>
+    fieldMappings: Record<string, string>,
   ): T {
     if (!translation) return item;
 
     const translatedItem = { ...item };
- Object.entries(fieldMappings).forEach(([originalField, translationField]) => {
-      if (Object.prototype.hasOwnProperty.call(translation, translationField) && translation[translationField] !== undefined) {
-        (translatedItem as any)[originalField] = translation[translationField];
-      }
-    });
+    Object.entries(fieldMappings).forEach(
+      ([originalField, translationField]) => {
+        if (
+          Object.prototype.hasOwnProperty.call(translation, translationField) &&
+          translation[translationField] !== undefined
+        ) {
+          (translatedItem as any)[originalField] =
+            translation[translationField];
+        }
+      },
+    );
 
     return translatedItem;
   }
@@ -99,7 +114,7 @@ export class BaseQueryResolver {
    */
   protected async getTranslations(
     itemIds: string[],
-    language: string
+    language: string,
   ): Promise<any[]> {
     return this.models.Translations.find({
       postId: { $in: itemIds },
@@ -112,7 +127,7 @@ export class BaseQueryResolver {
    */
   protected async getTranslation(
     itemId: string,
-    language: string
+    language: string,
   ): Promise<any> {
     return this.models.Translations.findOne({
       postId: itemId,
@@ -125,11 +140,13 @@ export class BaseQueryResolver {
    */
   protected async shouldSkipTranslation(
     clientPortalId: string,
-    language: string
+    language: string,
   ): Promise<boolean> {
     if (!clientPortalId || !language) return true;
 
-    const config = await this.models.Portals.findOne({ _id: clientPortalId }).lean();
+    const config = await this.models.Portals.findOne({
+      _id: clientPortalId,
+    }).lean();
     return !config || config.language === language;
   }
 
@@ -140,7 +157,7 @@ export class BaseQueryResolver {
     model: any,
     query: any,
     args: BaseQueryArgs,
-    fieldMappings: Record<string, string>
+    fieldMappings: Record<string, string>,
   ): Promise<{ list: T[]; totalCount: number; pageInfo: any }> {
     const { list, totalCount, pageInfo } = await cursorPaginate<any>({
       model,
@@ -152,13 +169,13 @@ export class BaseQueryResolver {
       return { list, totalCount, pageInfo };
     }
 
-    if (!args.clientPortalId && !this.context.clientPortalId) {
+    if (!args.clientPortalId && !this.context.clientPortal._id) {
       throw new Error('Client portal ID is required');
     }
 
     const shouldSkip = await this.shouldSkipTranslation(
-      args.clientPortalId || this.context.clientPortalId || '',
-      args.language || ''
+      args.clientPortalId || this.context.clientPortal._id || '',
+      args.language || '',
     );
 
     if (shouldSkip) {
@@ -167,7 +184,11 @@ export class BaseQueryResolver {
 
     const itemIds = list.map((item: any) => item._id);
     const translations = await this.getTranslations(itemIds, args.language);
-    const translatedList = this.applyTranslationsToList(list, translations, fieldMappings);
+    const translatedList = this.applyTranslationsToList(
+      list,
+      translations,
+      fieldMappings,
+    );
 
     return { list: translatedList, totalCount, pageInfo };
   }
@@ -179,7 +200,7 @@ export class BaseQueryResolver {
     model: any,
     query: any,
     language: string,
-    fieldMappings: Record<string, string>
+    fieldMappings: Record<string, string>,
   ): Promise<T | null> {
     const item = await model.findOne(query).lean();
     if (!item) return null;
@@ -187,8 +208,8 @@ export class BaseQueryResolver {
     if (!language) return item;
 
     const shouldSkip = await this.shouldSkipTranslation(
-      this.context.clientPortalId || '',
-      language
+      this.context.clientPortal._id || '',
+      language,
     );
 
     if (shouldSkip) return item;
@@ -203,6 +224,7 @@ export class BaseMutationResolver {
   protected context: IContext;
 
   constructor(context: IContext) {
+
     this.models = context.models;
     this.context = context;
   }
@@ -213,17 +235,19 @@ export class BaseMutationResolver {
   protected async create<T>(
     model: any,
     input: any,
-    userId?: string
+    userId?: string,
   ): Promise<T> {
     if (userId) {
       input.createdUserId = userId;
     }
 
-    if (this.context.clientPortalId) {
-      input.clientPortalId = this.context.clientPortalId;
+    if (this.context.clientPortal._id) {
+      input.clientPortalId = this.context.clientPortal._id;
     }
 
-    return model.createDoc ? model.createDoc(input, userId) : model.create(input);
+    return model.createDoc
+      ? model.createDoc(input, userId)
+      : model.create(input);
   }
 
   /**
@@ -233,13 +257,15 @@ export class BaseMutationResolver {
     model: any,
     id: string,
     input: any,
-    userId?: string
+    userId?: string,
   ): Promise<T> {
-    if (this.context.clientPortalId) {
-      input.clientPortalId = this.context.clientPortalId;
+    if (this.context.clientPortal._id) {
+      input.clientPortalId = this.context.clientPortal._id;
     }
 
-    return model.updateDoc ? model.updateDoc(id, input, userId) : model.updateOne({ _id: id }, input);
+    return model.updateDoc
+      ? model.updateDoc(id, input, userId)
+      : model.updateOne({ _id: id }, input);
   }
 
   /**
@@ -255,13 +281,13 @@ export class BaseMutationResolver {
   protected applyPermissions(
     mutations: any,
     permission: string,
-    requireLoginFields: string[] = []
+    requireLoginFields: string[] = [],
   ): void {
-    requireLoginFields.forEach(field => {
+    requireLoginFields.forEach((field) => {
       requireLogin(mutations, field);
     });
 
-    Object.keys(mutations).forEach(field => {
+    Object.keys(mutations).forEach((field) => {
       checkPermission(mutations, field, permission, []);
     });
   }

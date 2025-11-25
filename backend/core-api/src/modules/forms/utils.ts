@@ -87,7 +87,6 @@ export const fieldsCombinedByContentType = async (
   const [pluginName, moduleType, collectionType] = splitType(contentType);
   let fields = await sendTRPCMessage({
     subdomain,
-
     pluginName,
     method: 'query',
     module: 'fields',

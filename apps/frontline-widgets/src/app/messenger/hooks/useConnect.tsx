@@ -1,8 +1,17 @@
 import { useEffect } from 'react';
 import { useMutation } from '@apollo/client';
 import { useSetAtom } from 'jotai';
-import { connectionAtom, integrationIdAtom, uiOptionsAtom } from '../states';
-import { IConnectionInfo, IWidgetUiOptions } from '../types/connection';
+import {
+  connectionAtom,
+  integrationIdAtom,
+  ticketConfigAtom,
+  uiOptionsAtom,
+} from '../states';
+import {
+  IConnectionInfo,
+  ITicketConfig,
+  IWidgetUiOptions,
+} from '../types/connection';
 import { getLocalStorageItem, getErxesSettings } from '@libs/utils';
 import { applyUiOptionsToTailwind } from '@libs/tw-utils';
 import { useSaveBrowserInfo } from './useSaveBrowserInfo';
@@ -10,25 +19,24 @@ import { connect } from '../graphql';
 
 interface connectionProps {
   isCloudFlareEnabled?: boolean;
-  isTicketEnabled?: boolean;
   integrationId: string;
 }
 
 export const useConnect = ({
   isCloudFlareEnabled = false,
-  isTicketEnabled = false,
   integrationId,
 }: connectionProps) => {
   const setConnection = useSetAtom(connectionAtom);
   const setIntegrationId = useSetAtom(integrationIdAtom);
   const setUiOptions = useSetAtom(uiOptionsAtom);
+  const setTicketConfig = useSetAtom(ticketConfigAtom);
   const cachedCustomerId = getLocalStorageItem('customerId');
 
   // Call useSaveBrowserInfo hook
   useSaveBrowserInfo();
 
   const [connectMutation, { data, loading, error }] = useMutation(
-    connect(isCloudFlareEnabled, isTicketEnabled),
+    connect(isCloudFlareEnabled),
     {
       onCompleted: (response) => {
         const connectionData = response?.widgetsMessengerConnect;
@@ -45,6 +53,7 @@ export const useConnect = ({
           }));
           setIntegrationId(connectionData.integrationId);
           setUiOptions(connectionData.uiOptions as IWidgetUiOptions);
+          setTicketConfig(connectionData.ticketConfig as ITicketConfig);
           // Apply uiOptions to Tailwind CSS
           if (connectionData.uiOptions) {
             applyUiOptionsToTailwind(connectionData.uiOptions);
@@ -96,13 +105,7 @@ export const useConnect = ({
     };
 
     executeConnection();
-  }, [
-    isCloudFlareEnabled,
-    isTicketEnabled,
-    integrationId,
-    cachedCustomerId,
-    connectMutation,
-  ]);
+  }, [isCloudFlareEnabled, integrationId, cachedCustomerId, connectMutation]);
 
   return {
     result: data,

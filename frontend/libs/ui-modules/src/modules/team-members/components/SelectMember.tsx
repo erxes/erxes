@@ -134,6 +134,7 @@ const SelectMemberCommandItem = ({ user }: { user: IUser }) => {
 
 const SelectMemberNoAssigneeItem = () => {
   const { onSelect, memberIds } = useSelectMemberContext();
+  const isNoAssigneeSelected = memberIds?.length === 1 && memberIds[0] === 'no-assignee';
   return (
     <Command.Item value="no-assignee" onSelect={() => onSelect(null)}>
       <MembersInline
@@ -141,7 +142,7 @@ const SelectMemberNoAssigneeItem = () => {
         placeholder="Unnamed user"
         allowUnassigned
       />
-      <Combobox.Check checked={!memberIds || memberIds.length === 0} />
+      <Combobox.Check checked={isNoAssigneeSelected} />
     </Command.Item>
   );
 };
@@ -362,7 +363,7 @@ export const SelectMemberFormItem = ({
     <SelectMemberProvider
       onValueChange={(value) => {
         onValueChange?.(value);
-        setOpen(false);
+        props.mode !== 'multiple' && setOpen(false);
       }}
       {...props}
     >

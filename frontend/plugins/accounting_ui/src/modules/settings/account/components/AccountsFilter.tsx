@@ -24,7 +24,7 @@ import { AccountsJournalCommand } from './AccountsJournal';
 export const AccountsFilter = () => {
   return (
     <>
-      <Filter.Popover>
+      <Filter.Popover scope="accounts-filter">
         <Filter.Trigger />
         <Combobox.Content>
           <Filter.View>

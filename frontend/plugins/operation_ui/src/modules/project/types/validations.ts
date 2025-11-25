@@ -11,4 +11,5 @@ export const addProjectSchema = z.object({
   targetDate: z.date().optional(),
   leadId: z.string().optional(),
   convertedFromId: z.string().optional(),
+  tagIds: z.array(z.string()).optional(),
 });

@@ -13,9 +13,8 @@ export const useCreateRelation = () => {
       refetchQueries: [GET_RELATIONS_BY_ENTITY],
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Relation created successfully',
-          variant: 'default',
+          title: 'Relation created successfully',
+          variant: 'success',
         });
       },
     });

@@ -20,7 +20,7 @@ const columns: ColumnDef<{ order: string; hasChildren: boolean } & ISegment>[] =
       id: 'name',
       accessorKey: 'name',
       header: () => <RecordTable.InlineHead label="Name" />,
-      cell: ({ cell, row }) => {
+      cell: ({ cell }) => {
         return (
           <RecordTableTree.Trigger
             order={cell.row.original.order}
@@ -51,7 +51,6 @@ const columns: ColumnDef<{ order: string; hasChildren: boolean } & ISegment>[] =
       accessorKey: 'count',
       header: () => <RecordTable.InlineHead label="Count" />,
       cell: ({ cell }) => {
-        const { count } = cell.row.original;
         return (
           <RecordTableInlineCell>
             {cell.getValue() as string}

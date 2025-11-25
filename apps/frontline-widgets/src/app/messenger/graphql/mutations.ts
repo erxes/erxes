@@ -39,10 +39,7 @@ mutation widgetsSaveBrowserInfo($customerId: String $visitorId: String $browserI
 }
 `;
 
-const connect = (
-  isCloudFlareEnabled?: boolean,
-  isTicketEnabled?: boolean,
-) => gql`
+const connect = (isCloudFlareEnabled?: boolean) => gql`
   mutation connect(
     $integrationId: String!,
     $visitorId: String
@@ -85,18 +82,11 @@ const connect = (
     `
           : ''
       }
-      
-      ${
-        isTicketEnabled
-          ? `
-        ticketData
-      `
-          : ``
-      }
       languageCode,
       uiOptions,
       customerId,
       visitorId,
+      ticketConfig
     }
   }
 `;

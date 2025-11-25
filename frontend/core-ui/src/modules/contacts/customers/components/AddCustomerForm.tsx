@@ -26,6 +26,9 @@ export function AddCustomerForm({
   const { customersAdd } = useAddCustomer();
   const form = useForm<CustomerFormType>({
     resolver: zodResolver(customerFormSchema),
+    defaultValues: {
+      emailValidationStatus: '',
+    },
   });
   const { toast } = useToast();
   const [, setCustomerId] = useQueryState('contactId');
@@ -42,12 +45,18 @@ export function AddCustomerForm({
         toast({
           title: 'Error',
           description: e.message,
+          variant: 'destructive',
         });
       },
       onCompleted: (data) => {
         form.reset();
         onOpenChange?.(false);
         setCustomerId(data?.customersAdd._id);
+        toast({
+          title: 'Success',
+          variant: 'success',
+          description: 'Customer created successfully',
+        });
       },
     });
   };
@@ -64,7 +73,7 @@ export function AddCustomerForm({
             <CustomerAddGeneralInformationFields form={form} />
           </AddCustomerFormTabs>
         </Sheet.Content>
-        <Sheet.Footer className="flex justify-end flex-shrink-0 gap-1 px-5">
+        <Sheet.Footer className="flex justify-end shrink-0 gap-1 px-5">
           <Button
             type="button"
             variant="ghost"

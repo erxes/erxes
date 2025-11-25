@@ -111,7 +111,7 @@ export const NavigationMenuGroup = forwardRef<
                   {name}
                 </span>
                 {actions && (
-                  <div className="ml-auto invisible group-hover/collapsible-trigger:visible [&_button]:hover:bg-transparent [&_button]:hover:text-foreground [&_button]:focus-visible:outline-none [&_button]:focus-visible:ring-0">
+                  <div className="ml-auto invisible group-hover/collapsible-trigger:visible hover:[&_button]:bg-transparent hover:[&_button]:text-foreground focus-visible:[&_button]:outline-hidden focus-visible:[&_button]:ring-0">
                     {actions}
                   </div>
                 )}

@@ -1,6 +1,10 @@
 import mongoose from 'mongoose';
 import { createGenerateModels } from 'erxes-api-shared/utils';
-import { userSchema } from 'erxes-api-shared/core-modules';
+import {
+  cpUserSchema,
+  clientPortalSchema,
+  userSchema,
+} from 'erxes-api-shared/core-modules';
 import { permissionSchema } from 'erxes-api-shared/core-modules';
 import { appSchema } from 'erxes-api-shared/core-modules';
 import { roleSchema } from 'erxes-api-shared/core-modules';
@@ -9,6 +13,8 @@ export interface IMainContext {
   res: any;
   requestInfo: any;
   user: IUserDocument;
+  cpUser?: any;
+  clientPortal?: any;
 }
 
 export interface IModels {
@@ -17,6 +23,8 @@ export interface IModels {
   Apps: any;
   Clients: any;
   Roles: any;
+  ClientPortals: any;
+  CPUsers: any;
 }
 
 export interface IContext extends IMainContext {
@@ -30,7 +38,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Users = db.model('users', userSchema);
   models.Permissions = db.model('permissions', permissionSchema);
   models.Apps = db.model('apps', appSchema);
-  models.Clients = db.model('clients', appSchema);
+  models.ClientPortals =
+    db.models.client_portals || db.model('client_portals', clientPortalSchema);
+
+  models.CPUsers = db.model('client_portal_users', cpUserSchema);
   models.Roles = db.model('roles', roleSchema);
 
   return models;
