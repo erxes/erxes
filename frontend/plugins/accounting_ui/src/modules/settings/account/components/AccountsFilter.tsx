@@ -13,21 +13,23 @@ import {
   Filter,
   useMultiQueryState,
 } from 'erxes-ui';
+import { AccountsTotalCount } from './AccountsTotalCount';
 import {
   AccountsFilterCategory,
   AccountsFilterCurrency,
-  AccountsFilterIsTemp,
   AccountsFilterIsOutBalance,
+  AccountsFilterIsTemp,
   AccountsFilterJournal,
   AccountsFilterKind,
+  AccountsFilterStatus,
   FilterBarCategory,
   FilterBarCurrency,
-  FilterBarIsTemp,
   FilterBarIsOutBalance,
+  FilterBarIsTemp,
   FilterBarJournal,
-  FilterBarKind
+  FilterBarKind,
+  FilterBarStatus
 } from './filters/FilterHelpers';
-import { AccountsTotalCount } from './AccountsTotalCount';
 
 const AccountsFilterPopover = () => {
   const [queries] = useMultiQueryState<{
@@ -99,6 +101,10 @@ const AccountsFilterPopover = () => {
                   <IconToggleRightFilled />
                   Is Out Balance
                 </Filter.Item>
+                <Filter.Item value="status">
+                  <IconToggleRightFilled />
+                  Status
+                </Filter.Item>
                 <Command.Separator className="my-1" />
               </Command.List>
             </Command>
@@ -118,6 +124,9 @@ const AccountsFilterPopover = () => {
           </Filter.View>
           <Filter.View filterKey="isOutBalance">
             <AccountsFilterIsOutBalance />
+          </Filter.View>
+          <Filter.View filterKey="status">
+            <AccountsFilterStatus />
           </Filter.View>
         </Combobox.Content>
       </Filter.Popover>
@@ -181,6 +190,7 @@ export const AccountsFilter = () => {
         <FilterBarJournal />
         <FilterBarIsTemp />
         <FilterBarIsOutBalance />
+        <FilterBarStatus />
         <AccountsFilterPopover />
         <AccountsTotalCount />
       </Filter.Bar>

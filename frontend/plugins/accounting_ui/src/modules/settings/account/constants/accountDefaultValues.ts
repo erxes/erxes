@@ -17,4 +17,5 @@ export const ACCOUNT_DEFAULT_VALUES: TAccountForm = {
   departmentId: '',
   isTemp: false,
   isOutBalance: false,
+  status: undefined
 };

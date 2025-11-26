@@ -5,6 +5,7 @@ import { AccountsIsOutBalanceCommand, SelectAccountIsOutBalanceCommand } from ".
 import { AccountsIsTempCommand, SelectAccountIsTempCommand } from "./AccountsIsTemp";
 import { AccountsJournalCommand, SelectAccountJournalCommand } from "./AccountsJournal";
 import { AccountsKindCommand, SelectAccountKindCommand } from "./AccountsKind";
+import { AccountsStatusCommand, SelectAccountStatusCommand } from "./AccountsStatus";
 
 // category helper
 export const AccountsFilterCategory = () => {
@@ -228,6 +229,42 @@ export const FilterBarIsOutBalance = () => {
         <SelectAccountIsOutBalanceCommand
           selected={isOutBalance}
           onSelect={(value) => setIsOutBalance(value)}
+          variant="ghost"
+          className="rounded-none h-7 bg-background"
+        />
+      </Filter.BarButton>
+    </Filter.BarItem>
+  );
+};
+
+// account status filter helper
+export const AccountsFilterStatus = () => {
+  const [status, setStatus] = useQueryState<string | null>('status');
+  const { resetFilterState } = useFilterContext();
+
+  const handleSelect = (value: string | null) => {
+    setStatus(value);
+    resetFilterState();
+  };
+
+  return (
+    <AccountsStatusCommand focusOnMount selected={status} onSelect={handleSelect} />
+  );
+};
+
+export const FilterBarStatus = () => {
+  const [status, setStatus] = useQueryState<string | null>('status');
+
+  return (
+    <Filter.BarItem queryKey="status">
+      <Filter.BarName>
+        <IconToggleRightFilled />
+        Is Out Balance
+      </Filter.BarName>
+      <Filter.BarButton>
+        <SelectAccountStatusCommand
+          selected={status}
+          onSelect={(value) => setStatus(value)}
           variant="ghost"
           className="rounded-none h-7 bg-background"
         />

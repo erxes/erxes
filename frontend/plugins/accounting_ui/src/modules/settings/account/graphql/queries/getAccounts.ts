@@ -30,7 +30,7 @@ export const ACCOUNT_FIELDS = `
 `;
 
 const ACCOUNT_PARAM_DEFS = `
-  $accountsStatus: String
+  $status: String
   $categoryId: String
   $currency: String
   $searchValue: String
@@ -50,7 +50,7 @@ const ACCOUNT_PARAM_DEFS = `
 `;
 
 const ACCOUNT_PARAMS = `
-  status: $accountsStatus
+  status: $status
   categoryId: $categoryId
   searchValue: $searchValue
   brand: $brand
