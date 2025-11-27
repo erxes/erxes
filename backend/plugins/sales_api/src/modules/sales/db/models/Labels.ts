@@ -21,7 +21,7 @@ export interface IPipelineLabelModel extends Model<IPipelineLabelDocument> {
   removePipelineLabel(_id: string): void;
   labelsLabel(targetId: string, labelIds: string[]): void;
   validateUniqueness(filter: IFilter, _id?: string): Promise<boolean>;
-  labelObject(params: ILabelObjectParams): void;
+  labelObject(params: ILabelObjectParams): Promise<void>;
 }
 
 export const loadPipelineLabelClass = (models: IModels) => {
