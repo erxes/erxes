@@ -4,7 +4,7 @@ import {
   IListParams,
 } from 'erxes-api-shared/core-types';
 
-export type CycleFilterType = 
+export type CycleFilterType =
   | 'noCycle'
   | 'anyPastCycle'
   | 'previousCycle'
@@ -30,6 +30,7 @@ export interface ITask {
   startDate?: Date | string;
   targetDate?: Date | string;
   createdAt?: Date | string;
+  statusChangedDate?: Date | string;
   statusType?: number;
 }
 

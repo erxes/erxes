@@ -3,6 +3,7 @@ import { IModels, generateModels } from '~/connectionResolvers';
 import { sendNotification } from 'erxes-api-shared/core-modules';
 import { ITicket, ITicketDocument } from '@/ticket/@types/ticket';
 import { subMinutes, isAfter } from 'date-fns';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const generateDefaultStatuses = (pipelineId: string) => {
   return TICKET_DEFAULT_STATUSES.map((status, index) => ({

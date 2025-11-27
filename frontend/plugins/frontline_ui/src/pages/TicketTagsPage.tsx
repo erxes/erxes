@@ -1,12 +1,8 @@
 import { PageSubHeader } from 'erxes-ui';
-import { TagsSettingFilter } from '@/ticket/components/tags/components/TagsSettingFilter';
-import { TagsRecordTable } from '@/ticket/components/tags/components/TagsRecordTable';
 import { PageContainer } from 'erxes-ui';
-import { SettingsHeader } from 'ui-modules';
+import { SettingsHeader, TagProvider, TagsGroupsAddButtons, TagsRecordTable, TagsSettingFilter } from 'ui-modules';
 import { Button } from 'erxes-ui';
 import { IconChecklist } from '@tabler/icons-react';
-import { TagProvider } from '@/ticket/components/tags/providers/TagProvider';
-import { TagsGroupsAddButtons } from '@/ticket/components/tags/components/TagsGroupsAddButtons';
 
 export const TicketTagsPage = () => {
   return (
