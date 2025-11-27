@@ -43,12 +43,9 @@ export const types = `
     visibility: CacheControlScope
   }
 
-  extend type CPUser @key(fields: "_id") {
-    _id: String! @external
-  }
 
   extend type User @key(fields: "_id") {
-    _id: String! @external
+    _id: String @external
   }
 
     ${cmsTypes}

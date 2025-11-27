@@ -140,27 +140,92 @@ class PostQueryResolver extends BaseQueryResolver {
   }
 }
 
-const queries: Record<string, Resolver> = {
-  cmsPosts: (_parent: any, args: any, context: IContext) =>
-    new PostQueryResolver(context).cmsPosts(_parent, args, context),
-  cmsPost: (_parent: any, args: any, context: IContext) =>
-    new PostQueryResolver(context).cmsPost(_parent, args, context),
-  cmsPostList: (_parent: any, args: any, context: IContext) =>
-    new PostQueryResolver(context).cmsPostList(_parent, args, context),
-  cmsTranslations: (_parent: any, args: any, context: IContext) =>
-    new PostQueryResolver(context).cmsTranslations(_parent, args, context),
+export const postQueries: Record<string, Resolver> = {
+  cmsPosts: (_parent: any, args: any, context: IContext) => {
+    return new PostQueryResolver(context).cmsPosts(_parent, args, context);
+  },
+  async cmsPost(_parent: any, args: any, context: IContext): Promise<any> {
+    return new PostQueryResolver(context).cmsPost(_parent, args, context);
+  },
+  async cmsPostList(_parent: any, args: any, context: IContext): Promise<any> {
+    return new PostQueryResolver(context).cmsPostList(_parent, args, context);
+  },
+  cmsTranslations: (_parent: any, args: any, context: IContext) => {
+    return new PostQueryResolver(context).cmsTranslations(
+      _parent,
+      args,
+      context,
+    );
+  },
+
+  async cpPosts(_parent: any, args: any, context: IContext): Promise<any> {
+    const { language } = args;
+    const { models, clientPortal } = context;
+    const clientPortalId = clientPortal._id;
+
+    const queryBuilder = getQueryBuilder('post', models);
+    const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
+
+    const { list } = await this.getListWithTranslations(
+      models.Posts,
+      query,
+      { ...args, clientPortalId, language },
+      FIELD_MAPPINGS.POST,
+    );
+
+    return list;
+  },
+
+  async cpPostList(_parent: any, args: any, context: IContext): Promise<any> {
+    const { language } = args;
+    const { models, clientPortal } = context;
+    const clientPortalId = clientPortal._id;
+
+    const queryBuilder = getQueryBuilder('post', models);
+    const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
+
+    const { list, totalCount, pageInfo } = await this.getListWithTranslations(
+      models.Posts,
+      query,
+      { ...args, clientPortalId, language },
+      FIELD_MAPPINGS.POST,
+    );
+
+    return { posts: list, totalCount, pageInfo };
+  },
+
+  async cpPost(_parent: any, args: any, context: IContext): Promise<any> {
+    const { clientPortal, models } = context;
+    const { _id, slug, language } = args;
+
+    if (!_id && !slug) {
+      return null;
+    }
+
+    let query: any = {};
+    if (slug) {
+      query = { slug, clientPortalId: clientPortal._id };
+    } else if (_id) {
+      query = { _id };
+    }
+
+    return this.getItemWithTranslation(
+      models.Posts,
+      query,
+      language,
+      FIELD_MAPPINGS.POST,
+    );
+  },
 };
 
-queries.cpPosts.wrapperConfig = {
+postQueries.cpPosts.wrapperConfig = {
   forClientPortal: true,
 };
 
-queries.cpPostList.wrapperConfig = {
+postQueries.cpPostList.wrapperConfig = {
   forClientPortal: true,
 };
 
-queries.cpPost.wrapperConfig = {
+postQueries.cpPost.wrapperConfig = {
   forClientPortal: true,
 };
-
-export default queries;

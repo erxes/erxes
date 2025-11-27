@@ -2,7 +2,7 @@ import { Resolver } from 'erxes-api-shared/core-types';
 
 import { IContext } from '~/connectionResolvers';
 
-export const postsMutations: Record<string, Resolver> = {
+export const postMutations: Record<string, Resolver> = {
   /**
    * Cms post add
    */
