@@ -1,17 +1,38 @@
+import { useApolloClient } from '@apollo/client';
 import { useProjects } from '@/project/hooks/useGetProjects';
 import { useUpdateProject } from '@/project/hooks/useUpdateProject';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import { useGetTeams } from '@/team/hooks/useGetTeams';
 import { IconAlertTriangle, IconUsersGroup } from '@tabler/icons-react';
-import { Button, Command, Dialog, IconComponent } from 'erxes-ui';
-import { createContext, useContext, useState } from 'react';
+import {
+  Button,
+  Command,
+  Dialog,
+  IconComponent,
+  RecordTable,
+  useToast,
+} from 'erxes-ui';
+import { createContext, useContext, useMemo, useState } from 'react';
+
+const useSafeRecordTable = () => {
+  try {
+    return RecordTable.useRecordTable();
+  } catch {
+    return { table: null };
+  }
+};
 
 interface MoveToTeamContextType {
   tasks: {
     taskId: string;
     projectId: string | null;
   }[];
-  onMoveToTeam: (teamId: string) => void;
+  moveTasksToTeam: (
+    taskIds: string[],
+    teamId: string,
+    options?: { clearProject?: boolean },
+  ) => Promise<void>;
+  loading: boolean;
 }
 
 export const MoveToTeamContext = createContext<MoveToTeamContextType | null>(
@@ -39,21 +60,49 @@ export const MoveToTeamProvider = ({
   }[];
 }) => {
   const { updateTask } = useUpdateTask();
-  const handleMoveToTeam = async (teamId: string) => {
-    await Promise.all(
-      tasks.map(({ taskId } : {taskId: string }) =>
-        updateTask({
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const client = useApolloClient();
+
+  const handleMoveToTeam = async (
+    taskIds: string[],
+    teamId: string,
+    options?: { clearProject?: boolean },
+  ) => {
+    if (taskIds.length === 0) return;
+
+    setLoading(true);
+    try {
+      await Promise.all(
+        taskIds.map((taskId) =>
+          updateTask({
             variables: {
-                _id: taskId,
-            teamId: teamId,
-          },
-        }),
-      ),
-    );
+              _id: taskId,
+              teamId,
+              ...(options?.clearProject ? { projectId: null } : {}),
+            },
+          }),
+        ),
+      );
+
+      toast({
+        title: 'Success',
+        description: `Successfully moved ${taskIds.length} ${
+          taskIds.length === 1 ? 'task' : 'tasks'
+        } to team.`,
+        variant: 'default',
+      });
+      client.refetchQueries({ include: ['GetTasks'] });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
+
   return (
     <MoveToTeamContext.Provider
-      value={{ tasks, onMoveToTeam: handleMoveToTeam }}
+      value={{ tasks, moveTasksToTeam: handleMoveToTeam, loading }}
     >
       {children}
     </MoveToTeamContext.Provider>
@@ -67,13 +116,33 @@ export const TaskMoveToTeamContent = ({
   setOpen: (open: boolean) => void;
   currentTeamId?: string;
 }) => {
-  const { tasks, onMoveToTeam } = useMoveToTeamContext();
+  const { tasks, moveTasksToTeam, loading } = useMoveToTeamContext();
   const { teams, loading: teamsLoading } = useGetTeams();
+  const { table } = useSafeRecordTable();
 
   const { projects } = useProjects({
     variables: { _ids: tasks?.map((t) => t.projectId) },
     skip: !tasks || tasks.every((t) => !t.projectId),
   });
+
+  const projectsById = useMemo(() => {
+    if (!projects)
+      return new Map<
+        string,
+        { _id: string; name: string; teamIds?: string[] }
+      >();
+
+    return new Map(
+      projects.map((project) => [
+        project._id,
+        {
+          _id: project._id,
+          name: project.name,
+          teamIds: project.teamIds || [],
+        },
+      ]),
+    );
+  }, [projects]);
 
   const [conflictDialog, setConflictDialog] = useState<{
     open: boolean;
@@ -87,71 +156,73 @@ export const TaskMoveToTeamContent = ({
   } | null>(null);
 
   const handleSelectTeam = async (teamId: string, teamName: string) => {
-    // Check if any tasks have projects that don't include the target team
-    if (tasks && tasks.some((t) => t.projectId)) {
-      const conflictingProjects: Array<{
+    if (!tasks || tasks.length === 0) {
+      setOpen(false);
+      return;
+    }
+
+    const movableTaskIds: string[] = [];
+    const conflictingProjectsMap = new Map<
+      string,
+      {
         projectId: string;
         projectName: string;
         taskIds: string[];
         teamIds?: string[];
-      }> = [];
+      }
+    >();
 
-      // Group tasks by project and check for conflicts
-      const projectsMap = new Map<
-        string,
-        {
-          project: { _id: string; name: string; teamIds?: string[] };
-          taskIds: string[];
-        }
-      >();
-
-      tasks.forEach((task) => {
-        if (task.projectId) {
-          for (const project of projects || []) {
-            if (project._id === task.projectId) {
-              if (!projectsMap.has(task.projectId)) {
-                projectsMap.set(task.projectId, {
-                  project: project,
-                  taskIds: [],
-                });
-              }
-            }
-          }
-
-          const projectEntry = projectsMap.get(task.projectId);
-          if (projectEntry) {
-            projectEntry.taskIds.push(task.taskId);
-          }
-        }
-      });
-
-      // Check each project for conflicts
-      projectsMap.forEach(({ project, taskIds }) => {
-        const projectTeamIds = project.teamIds || [];
-        if (!projectTeamIds.includes(teamId)) {
-          conflictingProjects.push({
-            projectId: project._id,
-            projectName: project.name,
-            taskIds,
-            teamIds: projectTeamIds,
-          });
-        }
-      });
-
-      // If there are conflicts, show dialog
-      if (conflictingProjects.length > 0) {
-        setConflictDialog({
-          open: true,
-          targetTeamId: teamId,
-          targetTeamName: teamName,
-          conflictingProjects,
-        });
+    tasks.forEach((task) => {
+      if (!task.projectId) {
+        movableTaskIds.push(task.taskId);
         return;
       }
+
+      const project = projectsById.get(task.projectId) || {
+        _id: task.projectId,
+        name: 'Unknown project',
+        teamIds: [],
+      };
+      const projectTeamIds = project.teamIds || [];
+
+      if (projectTeamIds.includes(teamId)) {
+        movableTaskIds.push(task.taskId);
+        return;
+      }
+
+      if (!conflictingProjectsMap.has(project._id)) {
+        conflictingProjectsMap.set(project._id, {
+          projectId: project._id,
+          projectName: project.name,
+          taskIds: [],
+          teamIds: projectTeamIds,
+        });
+      }
+
+      const conflictEntry = conflictingProjectsMap.get(project._id);
+      if (conflictEntry) {
+        conflictEntry.taskIds.push(task.taskId);
+      }
+    });
+
+    if (movableTaskIds.length > 0) {
+      await moveTasksToTeam(movableTaskIds, teamId);
     }
 
-    // No conflict, proceed with move
-    onMoveToTeam(teamId);
+    const conflictingProjects = Array.from(conflictingProjectsMap.values());
+
+    if (conflictingProjects.length > 0) {
+      setConflictDialog({
+        open: true,
+        targetTeamId: teamId,
+        targetTeamName: teamName,
+        conflictingProjects,
+      });
+      return;
+    }
+
+    table?.toggleAllRowsSelected(false);
+    setOpen(false);
   };
   return (
     <Command>
@@ -167,9 +238,9 @@ export const TaskMoveToTeamContent = ({
             {teams.map((team) => (
               <Command.Item
                 key={team._id}
-                onSelect={() => { handleSelectTeam(team._id, team.name); setOpen(false); }}
+                onSelect={() => handleSelectTeam(team._id, team.name)}
                 className="cursor-pointer"
-                disabled={team._id === currentTeamId}
+                disabled={team._id === currentTeamId || loading}
               >
                 <IconComponent name={team.icon} className="size-4 mr-2" />
                 <div className="flex flex-col flex-1">
@@ -199,8 +270,7 @@ export const TaskMoveToTeamContent = ({
           conflictingProjects={conflictDialog.conflictingProjects}
           targetTeamId={conflictDialog.targetTeamId}
           targetTeamName={conflictDialog.targetTeamName}
-          currentTeamId={currentTeamId}
-          onSuccess={onMoveToTeam.bind(null, conflictDialog.targetTeamId)}
+          onSuccess={() => setOpen(false)}
         />
       )}
     </Command>
@@ -218,7 +288,7 @@ export const TasksMoveToTeamCommandBarItem = ({
 }) => {
   return (
     <MoveToTeamProvider tasks={tasks}>
-      <TaskMoveToTeamContent currentTeamId={currentTeamId} setOpen={setOpen}/>
+      <TaskMoveToTeamContent currentTeamId={currentTeamId} setOpen={setOpen} />
     </MoveToTeamProvider>
   );
 };
@@ -239,10 +309,14 @@ export const TasksMoveToTeamTrigger = ({
 interface ProjectTeamConflictDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  conflictingProjects: Array<{ projectId: string; projectName: string; taskIds: string[], teamIds?: string[] }>;
+  conflictingProjects: Array<{
+    projectId: string;
+    projectName: string;
+    taskIds: string[];
+    teamIds?: string[];
+  }>;
   targetTeamId: string;
   targetTeamName: string;
-  currentTeamId?: string;
   onSuccess?: () => void;
 }
 
@@ -252,45 +326,31 @@ export const ProjectTeamConflictDialog = ({
   conflictingProjects,
   targetTeamId,
   targetTeamName,
-  currentTeamId,
   onSuccess,
 }: ProjectTeamConflictDialogProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const { updateProject } = useUpdateProject();
   const { updateTask } = useUpdateTask();
-  
-  // Fetch each conflicting project to get its current teamIds
-  // We do this separately for each project
-  const { projects } = useProjects({
-    variables: { _ids: conflictingProjects?.map((t) => t.projectId) },
-    skip: !conflictingProjects || conflictingProjects.every((t) => !t.projectId),
-  });
+  const { toast } = useToast();
+  const client = useApolloClient();
+  const { table } = useSafeRecordTable();
 
   const handleAddTeamToProjects = async () => {
-    if (projects?.length === 0) return;
-
     setIsProcessing(true);
     try {
-      // STEP 1: Add team to all conflicting projects' teamIds first
-      // Update them sequentially to ensure each completes before next
-      for (const cp of conflictingProjects) {
-        // const project = projects.find(p => p._id === cp.projectId);
-        // if (!project) continue;
-        
-        const newTeamIds = [...(cp.teamIds || []), targetTeamId];
-        await updateProject({
-          variables: {
-            _id: cp.projectId,
-            teamIds: newTeamIds,
-          },
-        });
-      }
+      await Promise.all(
+        conflictingProjects.map((cp) =>
+          updateProject({
+            variables: {
+              _id: cp.projectId,
+              teamIds: [...(cp.teamIds || []), targetTeamId],
+            },
+          }),
+        ),
+      );
 
-      // STEP 2: Only after ALL projects are updated, move tasks to new team
-      // Process tasks sequentially by project to avoid race conditions
-      for (const cp of conflictingProjects) {
-        // Move all tasks from this project
-        await Promise.all(
+      await Promise.all(
+        conflictingProjects.flatMap((cp) =>
           cp.taskIds.map((id) =>
             updateTask({
               variables: {
@@ -298,14 +358,21 @@ export const ProjectTeamConflictDialog = ({
                 teamId: targetTeamId,
               },
             }),
-          )
-        );
-      }
+          ),
+        ),
+      );
 
+      toast({
+        title: 'Success',
+        description: 'Added team to projects and moved tasks successfully',
+        variant: 'default',
+      });
+      client.refetchQueries({ include: ['GetTasks'] });
+      table?.toggleAllRowsSelected(false);
       onSuccess?.();
       onOpenChange(false);
     } catch (error) {
-      console.error('Error adding team to projects:', error);
+      console.error(error);
     } finally {
       setIsProcessing(false);
     }
@@ -314,33 +381,51 @@ export const ProjectTeamConflictDialog = ({
   const handleRemoveFromProjects = async () => {
     setIsProcessing(true);
     try {
-      // Remove tasks from their projects and move to new team
       await Promise.all(
         conflictingProjects.flatMap((cp) =>
-          cp.taskIds.map((id) =>
-            updateTask({
+          cp.taskIds.map(async (id) => {
+            await updateTask({
+              variables: {
+                _id: id,
+                projectId: null,
+              },
+            });
+
+            await updateTask({
               variables: {
                 _id: id,
                 teamId: targetTeamId,
-                projectId: null,
               },
-            }),
-          )
-        )
+            });
+          }),
+        ),
       );
 
+      toast({
+        title: 'Success',
+        description:
+          'Removed tasks from projects and moved to team successfully',
+        variant: 'default',
+      });
+      client.refetchQueries({ include: ['GetTasks'] });
+      table?.toggleAllRowsSelected(false);
       onSuccess?.();
       onOpenChange(false);
     } catch (error) {
-      console.error('Error removing tasks from projects:', error);
+      console.error(error);
     } finally {
       setIsProcessing(false);
     }
   };
 
   const projectCount = conflictingProjects.length;
-  const projectNames = conflictingProjects.map(cp => cp.projectName).join(', ');
-  const totalTaskCount = conflictingProjects.reduce((sum, cp) => sum + cp.taskIds.length, 0);
+  const projectNames = conflictingProjects
+    .map((cp) => cp.projectName)
+    .join(', ');
+  const totalTaskCount = conflictingProjects.reduce(
+    (sum, cp) => sum + cp.taskIds.length,
+    0,
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -355,18 +440,24 @@ export const ProjectTeamConflictDialog = ({
           <Dialog.Description className="pt-4">
             {projectCount === 1 ? (
               <>
-                The project <span className="font-semibold">{projectNames}</span> is not a part of the team{' '}
+                The project{' '}
+                <span className="font-semibold">{projectNames}</span> is not a
+                part of the team{' '}
                 <span className="font-semibold">{targetTeamName}</span>.
               </>
             ) : (
               <>
-                Some projects are not a part of the <span className="font-semibold">{targetTeamName}</span> team:{' '}
+                Some projects are not a part of the{' '}
+                <span className="font-semibold">{targetTeamName}</span> team:{' '}
                 <span className="font-semibold">{projectNames}</span>
               </>
             )}
             <br />
             <br />
-            You can either add the team to the {projectCount === 1 ? 'project' : 'projects'} or remove {totalTaskCount > 1 ? 'the tasks' : 'the task'} from the {projectCount === 1 ? 'project' : 'projects'}.
+            You can either add the team to the{' '}
+            {projectCount === 1 ? 'project' : 'projects'} or remove{' '}
+            {totalTaskCount > 1 ? 'the tasks' : 'the task'} from the{' '}
+            {projectCount === 1 ? 'project' : 'projects'}.
           </Dialog.Description>
         </Dialog.Header>
         <Dialog.Footer className="flex-col sm:flex-col gap-2 mt-4">
@@ -375,7 +466,8 @@ export const ProjectTeamConflictDialog = ({
             disabled={isProcessing}
             className="w-full"
           >
-            Add "{targetTeamName}" to {projectCount === 1 ? 'project' : 'projects'}
+            Add "{targetTeamName}" to{' '}
+            {projectCount === 1 ? 'project' : 'projects'}
           </Button>
           <Button
             onClick={handleRemoveFromProjects}
@@ -383,7 +475,8 @@ export const ProjectTeamConflictDialog = ({
             variant="outline"
             className="w-full"
           >
-            Remove {totalTaskCount > 1 ? 'tasks' : 'task'} from {projectCount === 1 ? 'project' : 'projects'} and move to team
+            Remove {totalTaskCount > 1 ? 'tasks' : 'task'} from{' '}
+            {projectCount === 1 ? 'project' : 'projects'} and move to team
           </Button>
           <Button
             onClick={() => onOpenChange(false)}

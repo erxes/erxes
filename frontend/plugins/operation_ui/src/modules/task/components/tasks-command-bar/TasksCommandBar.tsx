@@ -38,6 +38,9 @@ import {
   TasksMoveToTeamCommandBarItem,
   TasksMoveToTeamTrigger,
 } from '../task-actions/MoveToTeam';
+import {
+  MakeACopyTrigger,
+} from '../task-actions/MakeACopy';
 
 export const TasksCommandBar = () => {
   const [open, setOpen] = useState(false);
@@ -53,6 +56,8 @@ export const TasksCommandBar = () => {
   }));
   const { teamId } = useParams<{ teamId: string }>();
   const [currentContent, setCurrentContent] = useState<string>('main');
+  const isSingleTaskSelected = selectedRows.length === 1;
+  const singleTask = isSingleTaskSelected ? selectedRows[0].original : null;
 
   return (
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
@@ -137,6 +142,12 @@ export const TasksCommandBar = () => {
                     <TasksMoveToTeamTrigger
                       setCurrentContent={setCurrentContent}
                     />
+                    {isSingleTaskSelected && singleTask && (
+                      <MakeACopyTrigger
+                        task={singleTask}
+                        setOpen={setOpen}
+                      />
+                    )}
                   </Command.Group>
                   <Command.Separator />
                   <Command.Group className="p-1">
