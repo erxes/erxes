@@ -15,7 +15,7 @@ import { useState } from 'react';
 import { WebsiteDrawer } from '../websites/WebsiteDrawer';
 import { CmsLayout } from './CmsLayout';
 import { EmptyState } from './EmptyState';
-import { GET_WEBSITES } from '../../graphql/queries';
+import { CONTENT_CMS_LIST } from '../../graphql/queries';
 
 const getThumbnailGradient = (color: string) => {
   const gradients = {
@@ -46,16 +46,9 @@ export function Cms() {
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('thumbnail');
   const [isWebsiteDrawerOpen, setIsWebsiteDrawerOpen] = useState(false);
   const [editingWebsite, setEditingWebsite] = useState<any>(null);
-  const { data, loading } = useQuery(GET_WEBSITES, {
-    variables: { search: '' },
-    fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: 'cache-first',
-    notifyOnNetworkStatusChange: true,
-  });
-  const displayWebsites: Website[] =
-    (data?.clientPortalGetConfigs?.list as Website[]) || [];
-  const totalCount =
-    data?.clientPortalGetConfigs?.totalCount ?? displayWebsites.length;
+  const { data, loading, error } = useQuery(CONTENT_CMS_LIST);
+  const cmsList = data?.contentCMSList || [];
+  const displayWebsites: Website[] = cmsList;
 
   const handleCloseWebsiteDrawer = () => {
     setIsWebsiteDrawerOpen(false);
@@ -68,7 +61,7 @@ export function Cms() {
   };
 
   const handleWebsiteClick = (website: any) => {
-    navigate(`/content/cms/${website._id}/posts`);
+    navigate(`/content/cms/${website.clientPortalId}/posts`);
   };
 
   const breadcrumbItems = [
@@ -89,7 +82,7 @@ export function Cms() {
       </Button>
       <Button onClick={() => setIsWebsiteDrawerOpen(true)}>
         <IconPlus className="mr-2 h-4 w-4" />
-        Add Website
+        Add CMS
       </Button>
     </>
   );
@@ -102,7 +95,7 @@ export function Cms() {
     >
       <div className="flex justify-between items-center mb-6">
         <div className="text-sm text-gray-600">
-          {loading ? 'Loading…' : `Found ${totalCount} results`}
+          {loading ? 'Loading…' : `Found ${cmsList.length} results`}
         </div>
         <ToggleGroup
           type="single"
@@ -118,13 +111,13 @@ export function Cms() {
         </ToggleGroup>
       </div>
 
-      {!loading && displayWebsites.length === 0 ? (
+      {!loading && cmsList.length === 0 ? (
         <div className="bg-white rounded-lg overflow-hidden">
           <EmptyState
             icon={IconFileText}
-            title="No websites yet"
+            title="No CMS yet"
             description="Get started by creating your first website."
-            actionLabel="Add website"
+            actionLabel="Add CMS"
             onAction={() => setIsWebsiteDrawerOpen(true)}
           />
         </div>

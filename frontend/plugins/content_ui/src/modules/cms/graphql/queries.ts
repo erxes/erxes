@@ -1,16 +1,30 @@
 import { gql } from '@apollo/client';
 
+export const CONTENT_CMS_LIST = gql`
+  query ContentCMSList {
+    contentCMSList {
+      _id
+      clientPortalId
+      content
+      createdAt
+      updatedAt
+      name
+      languages
+      language
+      description
+    }
+  }
+`;
+
 export const GET_WEBSITES = gql`
-  query clientPortalGetConfigs($search: String) {
-    clientPortalGetConfigs(search: $search) {
+  query getClientPortals {
+    getClientPortals(filter: {}) {
       list {
         _id
         name
         description
         domain
         createdAt
-        kind
-        url
         __typename
       }
       totalCount
@@ -63,135 +77,6 @@ export const CMS_MENU_REMOVE = gql`
 export const CLIENT_PORTAL_REMOVE = gql`
   mutation ClientPortalRemove($_id: String!) {
     clientPortalRemove(_id: $_id)
-  }
-`;
-
-export const CLIENT_PORTAL_CONFIG_UPDATE = gql`
-  mutation ClientPortalConfigUpdate($config: ClientPortalConfigInput!) {
-    clientPortalConfigUpdate(config: $config) {
-      _id
-      name
-      url
-      kind
-      description
-      logo
-      icon
-      headerHtml
-      footerHtml
-      domain
-      dnsStatus
-      messengerBrandCode
-      knowledgeBaseLabel
-      knowledgeBaseTopicId
-      ticketLabel
-      dealLabel
-      purchaseLabel
-      taskPublicPipelineId
-      taskPublicBoardId
-      taskPublicLabel
-      taskLabel
-      taskStageId
-      taskPipelineId
-      taskBoardId
-      ticketStageId
-      ticketPipelineId
-      ticketBoardId
-      dealStageId
-      dealPipelineId
-      dealBoardId
-      purchaseStageId
-      purchasePipelineId
-      purchaseBoardId
-      styles {
-        bodyColor
-        headerColor
-        footerColor
-        helpColor
-        backgroundColor
-        activeTabColor
-        baseColor
-        headingColor
-        linkColor
-        linkHoverColor
-        baseFont
-        headingFont
-        dividerColor
-        primaryBtnColor
-        secondaryBtnColor
-        __typename
-      }
-      mobileResponsive
-      googleCredentials
-      googleClientId
-      googleClientSecret
-      googleRedirectUri
-      facebookAppId
-      erxesAppToken
-      kbToggle
-      publicTaskToggle
-      ticketToggle
-      taskToggle
-      dealToggle
-      purchaseToggle
-      otpConfig {
-        smsTransporterType
-        content
-        codeLength
-        loginWithOTP
-        expireAfter
-        emailSubject
-        __typename
-      }
-      twoFactorConfig {
-        smsTransporterType
-        content
-        codeLength
-        enableTwoFactor
-        expireAfter
-        emailSubject
-        __typename
-      }
-      verificationMailConfig {
-        subject
-        invitationContent
-        registrationContent
-        __typename
-      }
-      manualVerificationConfig {
-        userIds
-        verifyCustomer
-        verifyCompany
-        __typename
-      }
-      passwordVerificationConfig {
-        verifyByOTP
-        emailSubject
-        emailContent
-        smsContent
-        __typename
-      }
-      socialpayConfig {
-        certId
-        publicKey
-        __typename
-      }
-
-      testUserEmail
-      testUserPhone
-      testUserPassword
-      testUserOTP
-      tokenExpiration
-      refreshTokenExpiration
-      tokenPassMethod
-      vendorParentProductCategoryId
-      language
-      environmentVariables {
-        key
-        value
-        __typename
-      }
-      __typename
-    }
   }
 `;
 
@@ -308,18 +193,7 @@ export const POST_LIST = gql`
             }
             __typename
           }
-          ... on ClientPortalUser {
-            fullName
-            firstName
-            lastName
-            email
-            username
-            customer {
-              avatar
-              __typename
-            }
-            __typename
-          }
+          # Remove or replace the ClientPortalUser fragment if not needed
           __typename
         }
         categoryIds
@@ -331,11 +205,7 @@ export const POST_LIST = gql`
         featured
         status
         tagIds
-        tags {
-          _id
-          name
-          __typename
-        }
+        # Remove or replace the tags field if not available
         authorId
         createdAt
         autoArchiveDate
@@ -760,6 +630,28 @@ export const CMS_MENU_LIST = gql`
       url
       order
       target
+      __typename
+    }
+  }
+`;
+
+export const GET_CLIENT_PORTALS = gql`
+  query getClientPortals($filter: IClientPortalFilter) {
+    getClientPortals(filter: $filter) {
+      list {
+        _id
+        name
+        domain
+        token
+        createdAt
+        updatedAt
+        __typename
+      }
+      totalCount
+      pageInfo {
+        hasNextPage
+        __typename
+      }
       __typename
     }
   }
