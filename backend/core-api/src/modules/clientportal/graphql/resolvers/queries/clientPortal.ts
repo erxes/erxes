@@ -32,7 +32,13 @@ export const clientPortalQueries: Record<string, Resolver> = {
     return models.ClientPortal.findOne({ _id });
   },
 
-  async getCPExamplePosts() {
+  async getCPExamplePosts(
+    _root: unknown,
+    _args: unknown,
+    { clientPortal, cpUser }: IContext,
+  ) {
+    console.log(cpUser);
+
     const posts = [
       {
         id: '1',

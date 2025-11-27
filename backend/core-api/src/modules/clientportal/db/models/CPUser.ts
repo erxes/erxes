@@ -100,11 +100,12 @@ export interface ICPUserModel extends Model<ICPUserDocument> {
     refreshToken: string;
     user: ICPUserDocument;
   };
-  login(args: ICPLoginParams): {
-    user: ICPUserDocument;
-    portal: IClientPortal;
-    isPassed2FA: boolean;
-  };
+  login(
+    email: string,
+    password: string,
+    phone: string,
+    clientPortal: IClientPortalDocument,
+  ): Promise<ICPUserDocument>;
   imposeVerificationCode({
     codeLength,
     clientPortalId,
@@ -133,7 +134,7 @@ export interface ICPUserModel extends Model<ICPUserDocument> {
     password: string;
     isSecondary: boolean;
   }): string;
-  verifyUser(args: ICPVerificationParams): Promise<ICPUserDocument>;
+  verifyUser(userId: string, code: number): Promise<ICPUserDocument>;
   verifyUsers(userids: string[], type: string): Promise<ICPUserDocument>;
   confirmInvitation(params: IConfirmParams): Promise<ICPUserDocument>;
   updateSession(_id: string): Promise<ICPUserDocument>;
@@ -314,6 +315,69 @@ export const loadCPUserClass = (models: IModels) => {
       return user;
     }
 
+    public static async verifyUser(userId: string, code: number) {
+      const user = await models.CPUser.findOne({ _id: userId });
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      if (!user.isVerified && user.verificationCode !== code) {
+        throw new Error('Invalid verification code');
+      }
+
+      if (user.isVerified) {
+        throw new Error('User already verified');
+      }
+
+      await models.CPUser.updateOne(
+        { _id: user._id },
+        { $set: { isVerified: true } },
+      );
+
+      return user;
+    }
+
+    public static comparePassword(password: string, userPassword: string) {
+      const hashPassword = sha256(password);
+
+      return bcrypt.compare(hashPassword, userPassword);
+    }
+
+    public static async login(
+      email: string,
+      phone: string,
+      password: string,
+      clientPortal: IClientPortalDocument,
+    ) {
+      const user = await models.CPUser.findOne({
+        $or: [
+          { email: { $regex: new RegExp(`^${email}$`, 'i') } },
+          { phone: { $regex: new RegExp(`^${phone}$`, 'i') } },
+        ],
+        clientPortalId: clientPortal._id,
+      });
+
+      if (!user || !user.password) {
+        throw new Error('Invalid login');
+      }
+
+      if (!user) {
+        throw new Error('Invalid login');
+      }
+
+      if (!user.isVerified) {
+        throw new Error('User is not verified');
+      }
+
+      const valid = await this.comparePassword(password, user.password || '');
+
+      if (!valid) {
+        throw new Error('Invalid login');
+      }
+
+      return user;
+    }
+
     //   public static async updateUser(_id, doc: ICPUser) {
     //     if (doc.password) {
     //       this.checkPassword(doc.password);
@@ -356,12 +420,6 @@ export const loadCPUserClass = (models: IModels) => {
 
       return bcrypt.hash(hashPassword, SALT_WORK_FACTOR);
     }
-
-    //   public static comparePassword(password: string, userPassword: string) {
-    //     const hashPassword = sha256(password);
-
-    //     return bcrypt.compare(hashPassword, userPassword);
-    //   }
 
     public static async generateToken() {
       const buffer = crypto.randomBytes(20);
