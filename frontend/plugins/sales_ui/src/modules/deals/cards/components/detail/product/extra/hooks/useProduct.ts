@@ -3,8 +3,8 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   GET_ASSIGNED_PRODUCTS,
   GET_PRODUCTS,
-} from '../graphql/queries/productsQueries';
-import { IProduct } from '../types/Product';
+} from '../../graphql/queries/ProductQueries';
+import { IProduct } from '../../types/Products';
 import { EnumCursorDirection, ICursorListResponse } from 'erxes-ui';
 
 const PRODUCTS_LIMIT = 30;

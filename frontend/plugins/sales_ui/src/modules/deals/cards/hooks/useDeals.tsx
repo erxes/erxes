@@ -212,7 +212,7 @@ export function useDealsEdit(options?: MutationHookOptions<any, any>) {
     onCompleted: (...args) => {
       toast({
         title: 'Successfully updated a deal',
-        variant: 'default',
+        variant: 'success',
       });
       options?.onCompleted?.(...args);
     },
