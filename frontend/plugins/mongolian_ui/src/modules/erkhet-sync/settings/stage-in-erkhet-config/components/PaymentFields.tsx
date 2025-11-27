@@ -1,5 +1,4 @@
-import { Form } from 'erxes-ui';
-import { Select } from 'erxes-ui';
+import { Form, Select } from 'erxes-ui';
 import { DEFAULT_PAY_DATA } from '../constants/defaultPayData';
 import { INVOICE_DATA } from '../constants/invoiceData';
 import { KHAN_BANK_ACCOUNT_DATA } from '../constants/khanBankAccountData';
