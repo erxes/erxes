@@ -7,18 +7,19 @@ export enum TrJournalEnum {
   RECEIVABLE = 'receivable',
   PAYABLE = 'payable',
   EXCHANGE_DIFF = 'exchangeDiff',
-  INVENTORY = 'inventory',
-  FIXED_ASSET = 'fixedAsset',
   TAX = 'tax',
+
   INV_INCOME = 'invIncome',
   INV_OUT = 'invOut',
-
+  
   INV_MOVE = 'invMove',
   INV_MOVE_IN = 'invMoveIn',
-
+  
   INV_SALE = 'invSale',
   INV_SALE_OUT = 'invSaleOut',
   INV_SALE_COST = 'invSaleCost',
+
+  FIXED_ASSET = 'fixedAsset',
 }
 
 export const TR_JOURNAL_LABELS = {
@@ -30,7 +31,6 @@ export const TR_JOURNAL_LABELS = {
   [TrJournalEnum.PAYABLE]: 'Payable',
   [TrJournalEnum.EXCHANGE_DIFF]: 'Exchange Diff',
 
-  [TrJournalEnum.INVENTORY]: 'Inventory',
   [TrJournalEnum.INV_INCOME]: 'Inventory Income',
   [TrJournalEnum.INV_OUT]: 'Inventory Out',
   

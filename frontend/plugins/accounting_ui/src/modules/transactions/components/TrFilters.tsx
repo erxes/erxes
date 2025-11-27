@@ -80,7 +80,7 @@ const TransactionsFilterPopover = () => {
                 </Filter.Item>
                 <Filter.Item value="accountStatus" disabled={true}>
                   <IconToggleRightFilled />
-                  account Status
+                  Account Status
                 </Filter.Item>
                 <Filter.Item value="accountCategoryId" disabled={true}>
                   <IconLayoutGridAdd />

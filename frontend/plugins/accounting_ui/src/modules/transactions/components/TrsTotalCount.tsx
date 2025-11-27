@@ -9,7 +9,7 @@ export const TrsTotalCount = () => {
       {loading ? (
         <Skeleton className="size-4" />
       ) : (
-        `${totalCount} transactions found`
+        `${totalCount ?? 0} transactions found`
       )}
     </span>
   );

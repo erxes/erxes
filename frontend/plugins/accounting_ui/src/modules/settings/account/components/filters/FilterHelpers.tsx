@@ -277,36 +277,36 @@ export const FilterBarStatus = () => {
 
 // account journal filter helper
 export const AccountsFilterTrJournal = () => {
-  const [trJournal, setTrJournal] = useQueryState<string | null>('journal');
+  const [journal, setJournal] = useQueryState<string | null>('journal');
   const { resetFilterState } = useFilterContext();
 
   const handleSelect = (value: string | null) => {
-    setTrJournal(value);
+    setJournal(value);
     resetFilterState();
   };
 
   return (
     <AccountsTrJournalCommand
       focusOnMount
-      selected={trJournal}
+      selected={journal}
       onSelect={handleSelect}
     />
   );
 };
 
 export const FilterBarTrJournal = () => {
-  const [trJournal, setTrJournal] = useQueryState<string | null>('journal');
+  const [journal, setJournal] = useQueryState<string | null>('journal');
 
   return (
-    <Filter.BarItem queryKey="trJournal">
+    <Filter.BarItem queryKey="journal">
       <Filter.BarName>
         <IconNotebook />
         TrJournal
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountTrJournalCommand
-          selected={trJournal}
-          onSelect={(value) => setTrJournal(value)}
+          selected={journal}
+          onSelect={(value) => setJournal(value)}
           variant="ghost"
           className="rounded-none h-7 bg-background"
         />

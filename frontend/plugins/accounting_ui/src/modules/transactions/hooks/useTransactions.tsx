@@ -18,7 +18,7 @@ const getConvertedValue = (key: string, value: string) => {
   const typeName = trsQueryParamTypes[key];
 
   if (typeName === 'boolean') {
-    return { [key]: value !== 'False' };
+    return { [key]: value === 'true' || value === 'True' };
   }
 
   if (typeName === 'Date') {
