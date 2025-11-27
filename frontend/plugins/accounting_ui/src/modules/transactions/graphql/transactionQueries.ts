@@ -134,7 +134,7 @@ const trsFilterParamDefs = `
   $number: String,
 
   $accountIds: [String],
-  $accountType: String,
+  $accountKind: String,
   $accountExcludeIds: Boolean,
   $accountStatus: String,
   $accountCategoryId: String,
@@ -153,6 +153,15 @@ const trsFilterParamDefs = `
   $currency: String,
   $journal: String,
   $statuses: [String],
+
+  $createdUserId: String,
+  $modifiedUserId: String,
+  $startDate: Date,
+  $endDate: Date,
+  $startUpdatedDate: Date,
+  $endUpdatedDate: Date,
+  $startCreatedDate: Date,
+  $endCreatedDate: Date,
 `;
 
 const trRecsFilterParamDefs = `
@@ -169,7 +178,7 @@ const trsFilterParams = `
   number: $number,
 
   accountIds: $accountIds,
-  accountType: $accountType,
+  accountKind: $accountKind,
   accountExcludeIds: $accountExcludeIds,
   accountStatus: $accountStatus,
   accountCategoryId: $accountCategoryId,
@@ -188,6 +197,15 @@ const trsFilterParams = `
   currency: $currency,
   journal: $journal,
   statuses: $statuses,
+
+  createdUserId: $createdUserId,
+  modifiedUserId: $modifiedUserId,
+  startDate: $startDate,
+  endDate: $endDate,
+  startUpdatedDate: $startUpdatedDate,
+  endUpdatedDate: $endUpdatedDate,
+  startCreatedDate: $startCreatedDate,
+  endCreatedDate: $endCreatedDate,
 `;
 
 const trRecsFilterParams = `

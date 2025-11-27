@@ -159,7 +159,7 @@ const trsQueryParams = `
   ptrStatus: String,
 
   accountIds: [String],
-  accountType: String,
+  accountKind: String,
   accountExcludeIds: Boolean,
   accountStatus: String,
   accountCategoryId: String,
@@ -180,6 +180,15 @@ const trsQueryParams = `
   currency: String,
   journal: String,
   statuses: [String],
+
+  createdUserId: String
+  modifiedUserId: String
+  startDate: Date
+  endDate: Date
+  startUpdatedDate: Date
+  endUpdatedDate: Date
+  startCreatedDate: Date
+  endCreatedDate: Date
 `;
 
 const trRecsQueryParams = `

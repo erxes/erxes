@@ -6,6 +6,7 @@ import { AccountsIsTempCommand, SelectAccountIsTempCommand } from "./AccountsIsT
 import { AccountsJournalCommand, SelectAccountJournalCommand } from "./AccountsJournal";
 import { AccountsKindCommand, SelectAccountKindCommand } from "./AccountsKind";
 import { AccountsStatusCommand, SelectAccountStatusCommand } from "./AccountsStatus";
+import { AccountsTrJournalCommand, SelectAccountTrJournalCommand } from "./AccountsTrJournal";
 
 // category helper
 export const AccountsFilterCategory = () => {
@@ -265,6 +266,47 @@ export const FilterBarStatus = () => {
         <SelectAccountStatusCommand
           selected={status}
           onSelect={(value) => setStatus(value)}
+          variant="ghost"
+          className="rounded-none h-7 bg-background"
+        />
+      </Filter.BarButton>
+    </Filter.BarItem>
+  );
+};
+
+
+// account journal filter helper
+export const AccountsFilterTrJournal = () => {
+  const [trJournal, setTrJournal] = useQueryState<string | null>('journal');
+  const { resetFilterState } = useFilterContext();
+
+  const handleSelect = (value: string | null) => {
+    setTrJournal(value);
+    resetFilterState();
+  };
+
+  return (
+    <AccountsTrJournalCommand
+      focusOnMount
+      selected={trJournal}
+      onSelect={handleSelect}
+    />
+  );
+};
+
+export const FilterBarTrJournal = () => {
+  const [trJournal, setTrJournal] = useQueryState<string | null>('journal');
+
+  return (
+    <Filter.BarItem queryKey="trJournal">
+      <Filter.BarName>
+        <IconNotebook />
+        TrJournal
+      </Filter.BarName>
+      <Filter.BarButton>
+        <SelectAccountTrJournalCommand
+          selected={trJournal}
+          onSelect={(value) => setTrJournal(value)}
           variant="ghost"
           className="rounded-none h-7 bg-background"
         />

@@ -1,5 +1,5 @@
 import { ICursorPaginateParams, IUserDocument } from 'erxes-api-shared/core-types';
-import { cursorPaginate, cursorPaginateAggregation, defaultPaginate, escapeRegExp } from 'erxes-api-shared/utils';
+import { cursorPaginate, cursorPaginateAggregation, defaultPaginate, escapeRegExp, getPureDate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels, IContext } from '~/connectionResolvers';
 import { TR_STATUSES } from '@/accounting/@types/constants';
 import { ITransactionDocument } from '@/accounting/@types/transaction';
@@ -15,7 +15,7 @@ interface IQueryParams {
   ptrStatus: string;
 
   accountIds?: string[];
-  accountType: string;
+  accountKind?: string;
   accountExcludeIds?: boolean;
   accountStatus?: string;
   accountCategoryId?: string;
@@ -36,6 +36,15 @@ interface IQueryParams {
   journal: string;
   statuses: string[];
 
+  createdUserId?: string;
+  modifiedUserId?: string;
+  startDate?: Date;
+  endDate?: Date;
+  startUpdatedDate?: Date;
+  endUpdatedDate?: Date;
+  startCreatedDate?: Date;
+  endCreatedDate?: Date;
+
   page?: number;
   perPage?: number;
   sortField?: string;
@@ -50,7 +59,7 @@ interface IRecordsParams extends IQueryParams {
 const getAccountIds = async (models: IModels, params: IQueryParams, user: IUserDocument): Promise<string[]> => {
   const {
     accountIds,
-    accountType,
+    accountKind,
     accountExcludeIds,
     accountStatus,
     accountCategoryId,
@@ -66,7 +75,7 @@ const getAccountIds = async (models: IModels, params: IQueryParams, user: IUserD
 
   const accountFilter: any = await accountGenerateFilter(models, {
     ids: accountIds,
-    type: accountType,
+    kind: accountKind,
     excludeIds: accountExcludeIds,
     status: accountStatus,
     categoryId: accountCategoryId,
@@ -85,6 +94,7 @@ const getAccountIds = async (models: IModels, params: IQueryParams, user: IUserD
 }
 
 const generateFilter = async (
+  subdomain: string,
   models: IModels,
   params: IQueryParams,
   user: IUserDocument,
@@ -101,9 +111,58 @@ const generateFilter = async (
     currency,
     statuses,
     ptrStatus,
-    status
+    status,
+    createdUserId,
+    modifiedUserId,
+    startDate,
+    endDate,
+    startUpdatedDate,
+    endUpdatedDate,
+    startCreatedDate,
+    endCreatedDate,
   } = params;
   const filter: any = {};
+
+  if (createdUserId) {
+    filter.createdBy = createdUserId
+  }
+
+  if (modifiedUserId) {
+    filter.modifiedBy = modifiedUserId
+  }
+
+  const dateQry: any = {};
+  if (startDate) {
+    dateQry.$gte = getPureDate(startDate);
+  }
+  if (endDate) {
+    dateQry.$lte = getPureDate(endDate);
+  }
+  if (Object.keys(dateQry).length) {
+    filter.date = dateQry;
+  }
+
+  const createdDateQry: any = {};
+  if (startCreatedDate) {
+    createdDateQry.$gte = getPureDate(startCreatedDate);
+  }
+  if (endCreatedDate) {
+    createdDateQry.$lte = getPureDate(endCreatedDate);
+  }
+  if (Object.keys(createdDateQry).length) {
+    filter.createdAt = createdDateQry;
+  }
+
+  const updatedDateQry: any = {};
+  if (startUpdatedDate) {
+    updatedDateQry.$gte = getPureDate(startUpdatedDate);
+  }
+  if (endUpdatedDate) {
+    updatedDateQry.$lte = getPureDate(endUpdatedDate);
+  }
+  if (Object.keys(updatedDateQry).length) {
+    filter.updatedAt = updatedDateQry;
+  }
 
   filter['details.accountId'] = { $in: await getAccountIds(models, params, user) }
 
@@ -144,15 +203,41 @@ const generateFilter = async (
   }
 
   if (branchId) {
-    filter.branchId = { $in: [branchId] }
+    const branches = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'branches',
+      action: 'findWithChild',
+      input: {
+        query: { _id: branchId },
+        fields: { _id: 1 },
+      },
+      defaultValue: [],
+    });
+
+    filter.branchId = { $in: branches.map((item) => item._id) }
   }
 
   if (departmentId) {
-    filter.departmentId = { $in: [departmentId] }
+    const departments = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'departments',
+      action: 'findWithChild',
+      input: {
+        query: { _id: departmentId },
+        fields: { _id: 1 },
+      },
+      defaultValue: [],
+    });
+
+    filter.departmentId = { $in: departments.map((item) => item._id) }
   }
 
   if (currency) {
-    filter['trDetail.currency'] = currency;
+    filter['detail.currency'] = currency;
   }
 
   return filter;
@@ -179,9 +264,10 @@ const transactionCommon = {
   async accTransactionsMain(
     _root,
     params: IQueryParams & ICursorPaginateParams,
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
     const filter = await generateFilter(
+      subdomain,
       models,
       params,
       user
@@ -204,9 +290,10 @@ const transactionCommon = {
   async accTransactions(
     _root,
     params: IQueryParams & { page: number, perPage: number },
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
     const filter = await generateFilter(
+      subdomain,
       models,
       params,
       user
@@ -238,10 +325,11 @@ const transactionCommon = {
   async accTransactionsCount(
     _root,
     params: IQueryParams,
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
 
     const filter = await generateFilter(
+      subdomain,
       models,
       params,
       user,
@@ -253,9 +341,10 @@ const transactionCommon = {
   async accTrRecordsMain(
     _root,
     params: IRecordsParams & ICursorPaginateParams,
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
     const filter = await generateFilter(
+      subdomain,
       models,
       params,
       user,
@@ -289,9 +378,10 @@ const transactionCommon = {
   async accTrRecords(
     _root,
     params: IRecordsParams & { page: number, perPage: number },
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
     const filter = await generateFilter(
+      subdomain,
       models,
       params,
       user,
@@ -330,9 +420,10 @@ const transactionCommon = {
   async accTrRecordsCount(
     _root,
     params: IRecordsParams,
-    { models, user }: IContext,
+    { models, subdomain, user }: IContext,
   ) {
     const filter = await generateFilter(
+      subdomain,
       models,
       params,
       user,

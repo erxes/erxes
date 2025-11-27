@@ -1,11 +1,10 @@
-import { TrRecordTable } from '@/transactions/components/TrRecordTable';
-import { AddTransaction } from '@/transactions/components/AddTransaction';
 import { AccountingHeader } from '@/layout/components/Header';
 import { AccountingLayout } from '@/layout/components/Layout';
-import { Button, Kbd } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
-import { TransactionsFilterBar } from '@/transactions/components/TrListFilterBar';
+import { AddTransaction } from '@/transactions/components/AddTransaction';
 import { TransactionsFilter } from '@/transactions/components/TrFilters';
+import { TrRecordTable } from '@/transactions/components/TrRecordTable';
+import { IconPlus } from '@tabler/icons-react';
+import { Button, Kbd, PageSubHeader } from 'erxes-ui';
 
 export const TrRecordListPage = () => {
   return (
@@ -22,7 +21,9 @@ export const TrRecordListPage = () => {
           </AddTransaction>
         </div>
       </AccountingHeader>
-      <TransactionsFilterBar />
+      <PageSubHeader>
+        <TransactionsFilter />
+      </PageSubHeader>
       <TrRecordTable />
     </AccountingLayout>
   );

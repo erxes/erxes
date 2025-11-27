@@ -278,9 +278,13 @@ export const SelectMemberFilterBar = ({
         mode={mode}
         value={assignedTo || (mode === 'single' ? '' : [])}
         onValueChange={(value) => {
-          setAssignedTo(null);
-          setOpen(false);
+          if (value && value.length > 0) {
+            setAssignedTo(value as string[]);
+          } else {
+            setAssignedTo(null);
+          }
           onValueChange?.(value);
+          setOpen(false);
         }}
       >
         <Popover open={open} onOpenChange={setOpen}>
