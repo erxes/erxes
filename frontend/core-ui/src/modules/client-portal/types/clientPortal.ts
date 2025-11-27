@@ -9,7 +9,7 @@ export interface IClientPortal {
   tokenPassMethod?: 'cookie' | 'header';
   refreshTokenExpiration?: number;
   tokenExpiration?: number;
-  enableMail?: boolean;
+  enableEmailVerification?: boolean;
   enableManualVerification?: boolean;
   enableOTP?: boolean;
   enablePasswordVerification?: boolean;
@@ -19,7 +19,7 @@ export interface IClientPortal {
   enableTwoFactor?: boolean;
   otpConfig?: IOTPConfig;
   twoFactorConfig?: ITwoFactorConfig;
-  mailConfig?: IMailConfig;
+  verificationMailConfig?: IMailConfig;
   passwordVerificationConfig?: IPasswordVerificationConfig;
   manualVerificationConfig?: IManualVerificationConfig;
   googleClientId?: string;
@@ -33,6 +33,8 @@ export interface IClientPortal {
   testUserOTP?: string;
   testUserPassword?: string;
   testUserPhone?: string;
+  verificationType?: 'email' | 'phone' | 'both' | 'none';
+  verificationCodeExpiresIn?: number;
 }
 
 export interface IOTPConfig {

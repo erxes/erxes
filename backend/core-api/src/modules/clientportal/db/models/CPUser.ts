@@ -19,6 +19,7 @@ import {
   ICPUser,
   ICPUserDocument,
   ICPVerificationParams,
+  ICPUserRegisterParams,
 } from '@/clientportal/types/cpUser';
 import {
   handleCPContacts,
@@ -56,13 +57,21 @@ export interface ICPUserModel extends Model<ICPUserDocument> {
     doc: ICPInvitiation,
   ): Promise<ICPUserDocument>;
   getUser(doc: any): Promise<ICPUserDocument>;
-  createUser(subdomain: string, doc: ICPUser): Promise<ICPUserDocument>;
+  registerUser(
+    subdomain: string,
+    clientPortal: IClientPortalDocument,
+    user: ICPUserRegisterParams,
+  ): Promise<ICPUserDocument>;
   updateUser(_id: string, doc: ICPUser): Promise<ICPUserDocument>;
   removeUser(_ids: string[]): Promise<{ n: number; ok: number }>;
   checkPassword(password: string): void;
   getSecret(): string;
   generateToken(): Promise<{ token: string; expires: Date }>;
   generatePassword(password: string): Promise<string>;
+  generateConfirmationCode(
+    length: number,
+    expires: number,
+  ): Promise<{ code: string; codeExpires: Date }>;
   comparePassword(password: string, userPassword: string): boolean;
   clientPortalResetPassword({
     token,
@@ -91,11 +100,12 @@ export interface ICPUserModel extends Model<ICPUserDocument> {
     refreshToken: string;
     user: ICPUserDocument;
   };
-  login(args: ICPLoginParams): {
-    user: ICPUserDocument;
-    portal: IClientPortal;
-    isPassed2FA: boolean;
-  };
+  login(
+    email: string,
+    password: string,
+    phone: string,
+    clientPortal: IClientPortalDocument,
+  ): Promise<ICPUserDocument>;
   imposeVerificationCode({
     codeLength,
     clientPortalId,
@@ -124,7 +134,7 @@ export interface ICPUserModel extends Model<ICPUserDocument> {
     password: string;
     isSecondary: boolean;
   }): string;
-  verifyUser(args: ICPVerificationParams): Promise<ICPUserDocument>;
+  verifyUser(userId: string, code: number): Promise<ICPUserDocument>;
   verifyUsers(userids: string[], type: string): Promise<ICPUserDocument>;
   confirmInvitation(params: IConfirmParams): Promise<ICPUserDocument>;
   updateSession(_id: string): Promise<ICPUserDocument>;
@@ -230,15 +240,11 @@ export const loadCPUserClass = (models: IModels) => {
       }
     }
 
-    public static async createUser(
+    public static async registerUser(
       subdomain: string,
-      portal: IClientPortalDocument,
-      { password, ...doc }: ICPUser,
+      clientPortal: IClientPortalDocument,
+      { password, ...doc }: ICPUserRegisterParams,
     ) {
-      if (!portal.enableOTP && !portal.enableMail && !password) {
-        throw new Error('Password is required');
-      }
-
       if (password) {
         this.checkPassword(password);
       }
@@ -249,40 +255,124 @@ export const loadCPUserClass = (models: IModels) => {
         isPhoneVerified: false,
       };
 
-      if (doc.email && !portal.enableMail) {
-        document.isEmailVerified = true;
-      }
-
-      if (doc.phone && !portal.enableOTP) {
-        document.isPhoneVerified = true;
-      }
-
       const user = await handleCPContacts({
         models,
-        clientPortalId: portal._id,
+        clientPortalId: clientPortal._id,
         document,
         password,
       });
 
-      if (user.email && portal.enableMail) {
-        const { token, expires } = await models.CPUser.generateToken();
+      if (user.email && clientPortal.verificationType !== 'none') {
+        const { code, codeExpires } =
+          await models.CPUser.generateConfirmationCode(6, 60000 * 5);
 
-        user.registrationToken = token;
-        user.registrationTokenExpires = expires;
+        await models.CPUser.updateOne(
+          { _id: user._id },
+          {
+            $set: {
+              verificationCode: code,
+              verificationCodeExpires: codeExpires,
+            },
+          },
+        );
+
+        if (
+          clientPortal.verificationType === 'email' ||
+          clientPortal.verificationType === 'both'
+        ) {
+          await sendEmail(
+            subdomain,
+            {
+              toEmails: [user.email],
+              title:
+                clientPortal.verificationMailConfig?.subject ||
+                'Registration confirmation',
+              customHtml:
+                clientPortal.verificationMailConfig?.registrationContent || '',
+              customHtmlData: { code },
+              userId: user._id,
+            },
+            models,
+          );
+        }
+
+        // if (
+        //   clientPortal.verificationType === 'phone' ||
+        //   clientPortal.verificationType === 'both'
+        // ) {
+        //   await sendSMS(
+        //     subdomain,
+        //     {
+        //       toPhone: [user.phone],
+        //     },
+        //     models,
+        //   );
+        // }
 
         await user.save();
+      }
 
-        await sendEmail(
-          subdomain,
-          {
-            toEmails: [user.email],
-            title: portal.mailConfig?.subject || 'Registration confirmation',
-            customHtml: portal.mailConfig?.registrationContent || '',
-            customHtmlData: { content: token },
-            userId: user._id,
-          },
-          models,
-        );
+      return user;
+    }
+
+    public static async verifyUser(userId: string, code: number) {
+      const user = await models.CPUser.findOne({ _id: userId });
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      if (!user.isVerified && user.verificationCode !== code) {
+        throw new Error('Invalid verification code');
+      }
+
+      if (user.isVerified) {
+        throw new Error('User already verified');
+      }
+
+      await models.CPUser.updateOne(
+        { _id: user._id },
+        { $set: { isVerified: true } },
+      );
+
+      return user;
+    }
+
+    public static comparePassword(password: string, userPassword: string) {
+      const hashPassword = sha256(password);
+
+      return bcrypt.compare(hashPassword, userPassword);
+    }
+
+    public static async login(
+      email: string,
+      phone: string,
+      password: string,
+      clientPortal: IClientPortalDocument,
+    ) {
+      const user = await models.CPUser.findOne({
+        $or: [
+          { email: { $regex: new RegExp(`^${email}$`, 'i') } },
+          { phone: { $regex: new RegExp(`^${phone}$`, 'i') } },
+        ],
+        clientPortalId: clientPortal._id,
+      });
+
+      if (!user || !user.password) {
+        throw new Error('Invalid login');
+      }
+
+      if (!user) {
+        throw new Error('Invalid login');
+      }
+
+      if (!user.isVerified) {
+        throw new Error('User is not verified');
+      }
+
+      const valid = this.comparePassword(password, user.password || '');
+
+      if (!valid) {
+        throw new Error('Invalid login');
       }
 
       return user;
@@ -325,27 +415,34 @@ export const loadCPUserClass = (models: IModels) => {
     //     return process.env.JWT_TOKEN_SECRET || '';
     //   }
 
-    //   public static generatePassword(password: string) {
-    //     const hashPassword = sha256(password);
+    public static generatePassword(password: string) {
+      const hashPassword = sha256(password);
 
-    //     return bcrypt.hash(hashPassword, SALT_WORK_FACTOR);
-    //   }
+      return bcrypt.hash(hashPassword, SALT_WORK_FACTOR);
+    }
 
-    //   public static comparePassword(password: string, userPassword: string) {
-    //     const hashPassword = sha256(password);
+    public static async generateToken() {
+      const buffer = crypto.randomBytes(20);
+      const token = buffer.toString('hex');
 
-    //     return bcrypt.compare(hashPassword, userPassword);
-    //   }
+      return {
+        token,
+        expires: Date.now() + 86400000,
+      };
+    }
 
-    //   public static async generateToken() {
-    //     const buffer = await crypto.randomBytes(20);
-    //     const token = buffer.toString('hex');
+    public static async generateConfirmationCode(
+      length: number,
+      expires: number,
+    ) {
+      const code = random('0', length);
+      const codeExpires = Date.now() + expires;
 
-    //     return {
-    //       token,
-    //       expires: Date.now() + 86400000,
-    //     };
-    //   }
+      return {
+        code,
+        codeExpires,
+      };
+    }
 
     //   public static async clientPortalResetPassword({
     //     token,
@@ -836,7 +933,7 @@ export const loadCPUserClass = (models: IModels) => {
     //   //     await user.save();
 
     //   //     // TODO: implement send email
-    //   //     // const config = portal.mailConfig || {
+    //   //     // const config = portal.verificationMailConfig || {
     //   //     // invitationContent: DEFAULT_MAIL_CONFIG.INVITE,
     //   //     // };
 

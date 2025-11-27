@@ -215,7 +215,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
     }: IUser) {
       const portal = await models.Portals.getConfig(clientPortalId);
 
-      if (!portal.otpConfig && !portal.mailConfig && !password) {
+      if (!portal.otpConfig && !portal.verificationMailConfig && !password) {
         throw new Error('Password is required');
       }
 
@@ -229,7 +229,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         isPhoneVerified: false,
       };
 
-      if (doc.email && !portal.mailConfig) {
+      if (doc.email && !portal.verificationMailConfig) {
         document.isEmailVerified = true;
       }
 
@@ -258,7 +258,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         password,
       });
 
-      if (user.email && portal.mailConfig) {
+      if (user.email && portal.verificationMailConfig) {
         const { token, expires } = await models.Users.generateToken();
 
         user.registrationToken = token;
@@ -269,7 +269,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         // const link = `${portal.url}/verify?token=${token}`;
 
         // const content = (
-        //   portal.mailConfig.registrationContent ||
+        //   portal.verificationMailConfig.registrationContent ||
         //   DEFAULT_MAIL_CONFIG.REGISTER
         // ).replace(/{{.*}}/, link);
 
@@ -279,7 +279,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         //   data: {
         //     toEmails: [user.email],
         //     title:
-        //       portal.mailConfig.subject || 'Registration confirmation',
+        //       portal.verificationMailConfig.subject || 'Registration confirmation',
         //     template: {
         //       name: 'base',
         //       data: {
@@ -301,7 +301,12 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
           portal.otpConfig.content.replace(/{{.*}}/, phoneCode) ||
           `Your verification code is ${phoneCode}`;
 
-        await sendSms(subdomain, portal.otpConfig.smsTransporterType, user.phone, smsBody);
+        await sendSms(
+          subdomain,
+          portal.otpConfig.smsTransporterType,
+          user.phone,
+          smsBody,
+        );
       }
 
       // TODO: consider following function necessary
@@ -903,7 +908,7 @@ export const loadUserClass = (models: IModels, subdomain: string) => {
         await user.save();
 
         // TODO: implement send email
-        // const config = portal.mailConfig || {
+        // const config = portal.verificationMailConfig || {
         // invitationContent: DEFAULT_MAIL_CONFIG.INVITE,
         // };
 

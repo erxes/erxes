@@ -56,10 +56,17 @@ export const clientPortalSchema = new Schema(
     enableToki: { type: Boolean, optional: true },
     enableManualVerification: { type: Boolean, optional: true },
     enablePasswordVerification: { type: Boolean, optional: true },
-    enableMail: { type: Boolean, optional: true },
     enableTestUser: { type: Boolean, optional: true },
 
-    mailConfig: { type: mailConfigSchema, optional: true },
+    verificationMailConfig: { type: mailConfigSchema, optional: true },
+
+    verificationType: {
+      type: String,
+      optional: true,
+      enum: ['email', 'phone', 'both', 'none'],
+      default: 'email',
+    },
+
     manualVerificationConfig: {
       type: {
         userIds: { type: [String], required: true },
