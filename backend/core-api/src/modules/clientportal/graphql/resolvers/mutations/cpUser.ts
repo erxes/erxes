@@ -40,7 +40,9 @@ const createAuthCookie = (
   }
 
   const { token } = createJwtToken(payload, clientPortal);
-  const cookieOptions: any = {};
+  const cookieOptions: any = {
+    sameSite: 'none',
+  };
 
   return res.cookie(
     'client-auth-token',
