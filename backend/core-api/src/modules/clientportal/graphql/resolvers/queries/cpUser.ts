@@ -11,7 +11,7 @@ export const cpUserQueries: Record<string, Resolver> = {
       throw new Error('User is not logged in');
     }
 
-    return cpUser ? models.CPUser.findOne({ _id: cpUser._id }) : null;
+    return cpUser ? await models.CPUser.findOne({ _id: cpUser._id }) : null;
   },
 };
 

@@ -67,10 +67,21 @@ export const cpUserMutations: Record<string, Resolver> = {
 
   async clientPortalUserVerify(
     _root: unknown,
-    { userId, code }: { userId: string; code: number },
+    {
+      userId,
+      code,
+      email,
+      phone,
+    }: { userId: string; code: number; email: string; phone: string },
     { models, clientPortal, res }: IContext,
   ) {
-    const user = await models.CPUser.verifyUser(userId, code);
+    const user = await models.CPUser.verifyUser(
+      userId,
+      email,
+      phone,
+      code,
+      clientPortal,
+    );
 
     const payload = {
       userId: user._id,

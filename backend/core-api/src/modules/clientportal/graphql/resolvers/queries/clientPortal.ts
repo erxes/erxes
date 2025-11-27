@@ -37,8 +37,6 @@ export const clientPortalQueries: Record<string, Resolver> = {
     _args: unknown,
     { clientPortal, cpUser }: IContext,
   ) {
-    console.log(cpUser);
-
     const posts = [
       {
         id: '1',

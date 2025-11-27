@@ -134,7 +134,13 @@ export interface ICPUserModel extends Model<ICPUserDocument> {
     password: string;
     isSecondary: boolean;
   }): string;
-  verifyUser(userId: string, code: number): Promise<ICPUserDocument>;
+  verifyUser(
+    userId: string,
+    email: string,
+    phone: string,
+    code: number,
+    clientPortal: IClientPortalDocument,
+  ): Promise<ICPUserDocument>;
   verifyUsers(userids: string[], type: string): Promise<ICPUserDocument>;
   confirmInvitation(params: IConfirmParams): Promise<ICPUserDocument>;
   updateSession(_id: string): Promise<ICPUserDocument>;
@@ -315,8 +321,21 @@ export const loadCPUserClass = (models: IModels) => {
       return user;
     }
 
-    public static async verifyUser(userId: string, code: number) {
-      const user = await models.CPUser.findOne({ _id: userId });
+    public static async verifyUser(
+      userId: string,
+      email: string,
+      phone: string,
+      code: number,
+      clientPortal: IClientPortalDocument,
+    ) {
+      const user = await models.CPUser.findOne({
+        $or: [
+          { _id: userId },
+          { email: { $regex: new RegExp(`^${email}$`, 'i') } },
+          { phone: { $regex: new RegExp(`^${phone}$`, 'i') } },
+        ],
+        clientPortalId: clientPortal._id,
+      });
       if (!user) {
         throw new Error('User not found');
       }

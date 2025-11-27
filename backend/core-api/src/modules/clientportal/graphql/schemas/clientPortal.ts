@@ -228,7 +228,6 @@ export const queries = `
   getClientPortals(filter: IClientPortalFilter): ClientPortalListResponse
   getClientPortal(_id: String): ClientPortal
   getCPExamplePosts: [CPExamplePost]
-  clientPortalCurrentUser: CPUser
 `;
 
 export const mutations = `

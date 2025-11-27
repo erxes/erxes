@@ -172,6 +172,7 @@ import {
 import {
   mutations as CPUserMutations,
   types as CPUserTypes,
+  queries as CPUserQueries,
 } from '@/clientportal/graphql/schemas/cpUser';
 
 export const types = `
@@ -250,6 +251,7 @@ export const queries = `
     ${RoleQueries}
     ${PropertiesQueries}
     ${ClientPortalQueries}
+    ${CPUserQueries}
   `;
 
 export const mutations = `

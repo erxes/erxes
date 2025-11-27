@@ -39,6 +39,10 @@ const userRegisterParams = `
 
 export const mutations = `
   clientPortalUserRegister(${userRegisterParams}): CPUser
-  clientPortalUserVerify(userId: String!, code: Int!): CPUser
+  clientPortalUserVerify(userId: String, code: Int!, email: String, phone: String): CPUser
   clientPortalUserLoginWithCredentials(email: String, phone: String, password: String): String
+`;
+
+export const queries = `
+  clientPortalCurrentUser: CPUser
 `;
