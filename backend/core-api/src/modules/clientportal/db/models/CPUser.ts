@@ -369,7 +369,7 @@ export const loadCPUserClass = (models: IModels) => {
         throw new Error('User is not verified');
       }
 
-      const valid = await this.comparePassword(password, user.password || '');
+      const valid = this.comparePassword(password, user.password || '');
 
       if (!valid) {
         throw new Error('Invalid login');
