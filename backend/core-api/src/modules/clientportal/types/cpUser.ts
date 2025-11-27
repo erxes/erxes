@@ -14,6 +14,16 @@ export interface ICPNotifcationSettings {
   configs: ICPNotificationConfig[];
 }
 
+export interface ICPUserRegisterParams {
+  email?: string;
+  phone?: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+  password?: string;
+  type?: string | 'customer' | 'admin';
+}
+
 export interface ICPUser {
   email?: string;
   phone?: string;
@@ -61,6 +71,9 @@ export interface ICPInvitiation extends ICPUser {
 
 export interface ICPUserDocument extends ICPUser, Document {
   _id: string;
+  isVerified: boolean;
+  verificationCode: number;
+  verificationCodeExpires: Date;
   phoneVerificationCode: string;
   phoneVerificationCodeExpires: Date;
   emailVerificationCode: string;
