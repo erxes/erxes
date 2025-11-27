@@ -19,6 +19,9 @@ const config: ModuleFederationConfig = {
     './ebarimt': './src/modules/ebarimt/Main.tsx',
     './ebarimtSettings':
       './src/modules/ebarimt/settings/components/EBarimtSettings.tsx',
+    './erkhet-sync': './src/modules/erkhet-sync/Main.tsx',
+    './sync-erkhetSettings':
+      './src/modules/erkhet-sync/Settings.tsx',
     './put-response': './src/modules/put-response/Main.tsx',
     './put-responses-by-date': './src/modules/put-responses-by-date/Main.tsx',
     './put-responses-duplicated':

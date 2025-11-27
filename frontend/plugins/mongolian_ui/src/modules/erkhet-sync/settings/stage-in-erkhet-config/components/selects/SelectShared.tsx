@@ -1,4 +1,3 @@
-import { IconChevronDown } from '@tabler/icons-react';
 import {
   RecordTableInlineCell,
   Combobox,
@@ -8,6 +7,7 @@ import {
   Form,
   Button,
 } from 'erxes-ui';
+import { IconChevronDown } from '@tabler/icons-react';
 
 export enum SelectTriggerVariant {
   TABLE = 'table',
@@ -59,7 +59,7 @@ export const SelectTrigger = ({
   if (variant === SelectTriggerVariant.FORM) {
     return (
       <Form.Control className="w-full">
-        <Combobox.TriggerBase className="w-full h-7 font-medium">
+        <Combobox.TriggerBase className="w-full h-7 font-medium flex items-center">
           {children}
           <IconChevronDown className="h-4 w-4 opacity-50 ml-auto" />
         </Combobox.TriggerBase>

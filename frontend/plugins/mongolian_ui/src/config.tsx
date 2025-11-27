@@ -28,6 +28,21 @@ export const CONFIG: IUIConfig = {
       hasFloatingWidget: false,
     },
     {
+      name: 'sync-erkhet',
+      icon: IconSandbox,
+      path: 'sync-erkhet',
+      hasSettings: true,
+      hasRelationWidget: true,
+      hasFloatingWidget: false,
+    },
+    {
+      name: 'erkhet-sync',
+      icon: IconSandbox,
+      path: 'mongolian/erkhet-sync',
+      hasRelationWidget: true,
+      hasFloatingWidget: false,
+    },
+    {
       name: 'put-response',
       icon: IconSandbox,
       path: 'mongolian/put-response',
