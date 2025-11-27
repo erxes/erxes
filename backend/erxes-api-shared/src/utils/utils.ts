@@ -46,9 +46,9 @@ export const authCookieOptions = (options: any = {}) => {
 
   const secure = false;
 
-  if (!secure && options.sameSite) {
-    delete options.sameSite;
-  }
+  // if (!secure && options.sameSite) {
+  //   delete options.sameSite;
+  // }
 
   const cookieOptions = {
     httpOnly: true,
