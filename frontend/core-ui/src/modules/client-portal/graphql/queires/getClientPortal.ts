@@ -13,7 +13,6 @@ export const GET_CLIENT_PORTAL = gql`
       tokenPassMethod
       refreshTokenExpiration
       tokenExpiration
-      enableMail
       enableManualVerification
       enableOTP
       enablePasswordVerification
@@ -41,7 +40,7 @@ export const GET_CLIENT_PORTAL = gql`
         expireAfter
         smsTransporterType
       }
-      mailConfig {
+      verificationMailConfig {
         subject
         invitationContent
         registrationContent
@@ -71,6 +70,8 @@ export const GET_CLIENT_PORTAL = gql`
       testUserOTP
       testUserPassword
       testUserPhone
+      verificationType
+      verificationCodeExpiresIn
     }
   }
 `;

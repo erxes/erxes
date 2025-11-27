@@ -73,9 +73,12 @@ type ClientPortal {
     otpConfig: OTPConfig
     twoFactorConfig: TwoFactorConfig
 
-    mailConfig: MailConfig
+    verificationMailConfig: MailConfig
     manualVerificationConfig: ManualVerificationConfig
     passwordVerificationConfig: PasswordVerificationConfig
+
+    verificationType: VerificationType
+    verificationCodeExpiresIn: Int
 
     token: String
     tokenExpiration: Int
@@ -97,7 +100,7 @@ type ClientPortal {
     enableToki: Boolean
     enableManualVerification: Boolean
     enablePasswordVerification: Boolean
-    enableMail: Boolean
+    enableEmailVerification: Boolean
     enableTestUser: Boolean
 
     createdAt: Date
@@ -160,6 +163,13 @@ type ClientPortal {
     password: String
   }
 
+  enum VerificationType {
+    email
+    phone
+    both
+    none
+  }
+
   input ClientPortalConfigInput {
     name: String
     description: String
@@ -176,9 +186,11 @@ type ClientPortal {
     twoFactorConfig: TwoFactorConfigInput
     tokiConfig: TokiConfigInput
     socialpayConfig: SocialpayConfigInput
-    mailConfig: MailConfigInput
+    verificationMailConfig: MailConfigInput
     manualVerificationConfig: ManualVerificationConfigInput
     passwordVerificationConfig: PasswordVerificationConfigInput
+
+    verificationType: VerificationType
 
     enableOTP: Boolean
     enableTwoFactor: Boolean
@@ -186,7 +198,6 @@ type ClientPortal {
     enableToki: Boolean
     enableManualVerification: Boolean
     enablePasswordVerification: Boolean
-    enableMail: Boolean
     enableTestUser: Boolean
 
     tokenExpiration: Int
