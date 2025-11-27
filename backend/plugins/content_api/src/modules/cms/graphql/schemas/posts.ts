@@ -13,7 +13,7 @@ export const types = `
         clientPortalUser
     }
 
-    union Author = User | CPUser
+    union Author = User 
 
     type Post @key(fields: "_id") @cacheControl(maxAge: 3){
         _id: String!
