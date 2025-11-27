@@ -30,6 +30,32 @@ const createJwtToken = (payload: any, clientPortal?: IClientPortalDocument) => {
   return { token, refreshToken };
 };
 
+const createAuthCookie = (
+  payload: any,
+  clientPortal?: IClientPortalDocument,
+  res?: any,
+) => {
+  if (!res) {
+    return;
+  }
+
+  const { token } = createJwtToken(payload, clientPortal);
+  const cookieOptions: any = {};
+
+  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+  if (!['test', 'development'].includes(NODE_ENV)) {
+    cookieOptions.sameSite = 'none';
+    cookieOptions.secure = true;
+  }
+
+  return res.cookie(
+    'client-auth-token',
+    token,
+    authCookieOptions(cookieOptions),
+  );
+};
+
 export const cpUserMutations: Record<string, Resolver> = {
   async clientPortalUserRegister(
     _root: unknown,
@@ -42,9 +68,17 @@ export const cpUserMutations: Record<string, Resolver> = {
   async clientPortalUserVerify(
     _root: unknown,
     { userId, code }: { userId: string; code: number },
-    { models }: IContext,
+    { models, clientPortal, res }: IContext,
   ) {
-    return models.CPUser.verifyUser(userId, code);
+    const user = await models.CPUser.verifyUser(userId, code);
+
+    const payload = {
+      userId: user._id,
+    };
+
+    createAuthCookie(payload, clientPortal, res);
+
+    return user;
   },
 
   async clientPortalUserLoginWithCredentials(
@@ -67,22 +101,11 @@ export const cpUserMutations: Record<string, Resolver> = {
       throw new Error('Invalid login');
     }
 
-    const { token } = createJwtToken(
-      {
-        userId: user._id,
-      },
-      clientPortal,
-    );
-    const cookieOptions: any = {};
+    const payload = {
+      userId: user._id,
+    };
 
-    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-
-    if (!['test', 'development'].includes(NODE_ENV)) {
-      cookieOptions.sameSite = 'none';
-      cookieOptions.secure = true;
-    }
-
-    res.cookie('client-auth-token', token, authCookieOptions(cookieOptions));
+    createAuthCookie(payload, clientPortal, res);
 
     return 'Success';
   },
