@@ -21,6 +21,7 @@ export const types = `
     channelId: String
     statusChangedDate: Date
     number: String
+    status: TicketStatus
   }
 
   type TicketListResponse {
