@@ -1,7 +1,5 @@
-import knowledgeBaseQueries from '@/knowledgebase/graphql/resolvers/queries';
-import portalQueries from '@/portal/graphql/resolvers/queries';
+import { contentCmsQueries } from '@/cms/graphql/queries/cms';
 
 export const queries = {
-    ...knowledgeBaseQueries, 
-    ...portalQueries,
+  ...contentCmsQueries,
 };

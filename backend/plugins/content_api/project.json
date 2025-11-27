@@ -1,5 +1,5 @@
 {
-  "name": "contentarchive_api",
+  "name": "content_api",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "backend/plugins/content_api/src",
   "projectType": "application",
@@ -31,7 +31,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["typecheck", "build"],
       "options": {
-        "cwd": "backend/plugins/contentarchive_api",
+        "cwd": "backend/plugins/content_api",
         "command": "NODE_ENV=development node dist/src/main.js"
       }
     },
@@ -40,14 +40,14 @@
       "executor": "nx:run-commands",
 
       "options": {
-        "cwd": "backend/plugins/contentarchive_api",
+        "cwd": "backend/plugins/content_api",
         "command": "NODE_ENV=development pnpm dev"
       }
     },
 
     "docker-build": {
       "dependsOn": ["build"],
-      "command": "docker build -f backend/plugins/contentarchive_api/Dockerfile . -t erxes/erxes-next-contentarchive_api"
+      "command": "docker build -f backend/plugins/content_api/Dockerfile . -t erxes/erxes-next-content_api"
     }
   }
 }

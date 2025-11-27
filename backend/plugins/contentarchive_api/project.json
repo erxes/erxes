@@ -1,7 +1,7 @@
 {
   "name": "contentarchive_api",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "backend/plugins/content_api/src",
+  "sourceRoot": "backend/plugins/contentarchive_api/src",
   "projectType": "application",
   "tags": [],
   "targets": {
@@ -9,7 +9,7 @@
       "executor": "nx:run-commands",
       "cache": true,
       "options": {
-        "cwd": "backend/plugins/content_api",
+        "cwd": "backend/plugins/contentarchive_api",
         "commands": ["pnpm build"]
       },
       "dependsOn": ["^build", "build:packageJson"]
@@ -18,9 +18,9 @@
     "build:packageJson": {
       "executor": "@nx/js:tsc",
       "options": {
-        "main": "backend/plugins/content_api/dist/src/main.js",
-        "tsConfig": "backend/plugins/content_api/tsconfig.build.json",
-        "outputPath": "backend/plugins/content_api/dist",
+        "main": "backend/plugins/contentarchive_api/dist/src/main.js",
+        "tsConfig": "backend/plugins/contentarchive_api/tsconfig.build.json",
+        "outputPath": "backend/plugins/contentarchive_api/dist",
         "updateBuildableProjectDepsInPackageJson": true,
 
         "buildableProjectDepsInPackageJsonType": "dependencies"

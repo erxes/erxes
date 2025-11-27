@@ -1,7 +1,5 @@
-import knowledgeBaseMutations from '@/knowledgebase/graphql/resolvers/mutations';
-import portalMutations from '@/portal/graphql/resolvers/mutations';
+import { contentCmsMutations } from '@/cms/graphql/mutations/cms';
 
 export const mutations = {
-  ...knowledgeBaseMutations,
-  ...portalMutations,
+  ...contentCmsMutations,
 };
