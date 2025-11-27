@@ -41,10 +41,10 @@ export const connectionOptions: mongoose.ConnectOptions = {
 };
 
 export const authCookieOptions = (options: any = {}) => {
-  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+  // const NODE_ENV = getEnv({ name: 'NODE_ENV' });
   const maxAge = options.expires || 14 * 24 * 60 * 60 * 1000;
 
-  const secure = !['test', 'development'].includes(NODE_ENV);
+  const secure = false;
 
   if (!secure && options.sameSite) {
     delete options.sameSite;
