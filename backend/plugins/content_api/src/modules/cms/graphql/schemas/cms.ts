@@ -5,8 +5,11 @@ export const types = `
     description: String
     clientPortalId: String
     content: String
+    language: String
+    languages: [String]
     createdAt: Date
     updatedAt: Date
+
   }
 `;
 
@@ -16,6 +19,8 @@ export const inputs = `
     description: String
     clientPortalId: String
     content: String
+    language: String
+    languages: [String]
   }
 `;
 

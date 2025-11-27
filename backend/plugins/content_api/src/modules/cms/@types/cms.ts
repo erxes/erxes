@@ -3,6 +3,8 @@ export interface IContentCMS {
   description: string;
   clientPortalId: string;
   content: string;
+  language?: string;
+  languages?: string[];
 }
 
 export interface IContentCMSDocument extends IContentCMS, Document {
@@ -16,4 +18,6 @@ export interface IContentCMSInput {
   description: string;
   clientPortalId: string;
   content: string;
+  language?: string;
+  languages?: string[];
 }
