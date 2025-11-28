@@ -58,6 +58,7 @@ export const types = () => `
   type AccTrDetail {
     ${trDetailFields}
     account: Account
+    product: Product
   }
 
   type AccCommonTransaction {

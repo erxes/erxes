@@ -1,99 +1,86 @@
-import dayjs from 'dayjs';
+import { IconCalendar, IconFile, IconMoneybag } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
-import { ITrRecord } from '../types/Transaction';
+import dayjs from 'dayjs';
 import {
-  useQueryState,
-  RecordTable,
-  Input,
   CurrencyCode,
   CurrencyFormatedDisplay,
+  RecordTable,
   RecordTableInlineCell,
-  PopoverScoped,
+  fixNum,
+  useQueryState,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
+import { ProductsInline } from 'ui-modules';
 import { renderingTransactionDetailState } from '../states/renderingTransactionDetailStates';
-import { IconMoneybag, IconFile, IconCalendar } from '@tabler/icons-react';
-import { useState } from 'react';
 import { TR_SIDES } from '../types/constants';
+import { ExtendedColumnDef } from '../types/tables';
+import { ITrRecord } from '../types/Transaction';
 
 // Create named components for cell renderers to fix React Hook usage
-const NumberCell = ({ getValue, row }: any) => {
-  const [number, setNumber] = useState(getValue() as string);
-  const { _id } = row.original;
+const NumberCell = ({ row }: any) => {
+  const { number } = row.original;
 
   return (
-    <PopoverScoped scope={`transaction-${_id}-number`}>
-      <RecordTableInlineCell.Trigger>
-        {getValue() as string}
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
-        <Input
-          value={number}
-          onChange={(e) => setNumber(e.target.value)}
-          className="w-full"
-        />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
+    <RecordTableInlineCell>
+      {number}
+    </RecordTableInlineCell>
   );
 };
 
-const DescriptionCell = ({ getValue, row }: any) => {
-  const [description, setDescription] = useState(getValue() as string);
-  const { _id } = row.original;
+const DescriptionCell = ({ row }: any) => {
+  const { description } = row.original;
 
   return (
-    <PopoverScoped scope={`transaction-${_id}-description`}>
-      <RecordTableInlineCell.Trigger>
-        {getValue() as string}
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
-        <Input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
+    <RecordTableInlineCell>
+      {description}
+    </RecordTableInlineCell>
   );
 };
+
+const AmountCell = ({ value }: { value: number }) => {
+  return (
+    <RecordTableInlineCell>
+      <CurrencyFormatedDisplay
+        currencyValue={{
+          currencyCode: CurrencyCode.MNT,
+          amountMicros: value,
+        }}
+      />
+    </RecordTableInlineCell>
+  );
+}
 
 const DebitCell = ({ row }: any) => {
   const { details } = row.original;
-  if (details.side === TR_SIDES.CREDIT) {
-    return <RecordTableInlineCell />
-  }
-  return (
-    <RecordTableInlineCell>
-      {
-        <CurrencyFormatedDisplay
-          currencyValue={{
-            currencyCode: CurrencyCode.MNT,
-            amountMicros: details.amount,
-          }}
-        />
-      }
-    </RecordTableInlineCell>
-  );
+  const { amount, side } = details;
+
+  return (<AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />)
 };
 
 const CreditCell = ({ row }: any) => {
   const { details } = row.original;
-  if (details.side === TR_SIDES.DEBIT) {
-    return <RecordTableInlineCell />
+  const { amount, side } = details;
+
+  return (<AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />)
+};
+
+const AmountProdCell = ({ row, value }: { row: any, value: number }) => {
+  const { details } = row.original;
+  if (!details.productId) {
+    return undefined;
   }
 
   return (
     <RecordTableInlineCell>
-      {
-        <CurrencyFormatedDisplay
-          currencyValue={{
-            currencyCode: CurrencyCode.MNT,
-            amountMicros: details.amount,
-          }}
-        />
-      }
+      <CurrencyFormatedDisplay
+        currencyValue={{
+          currencyCode: CurrencyCode.MNT,
+          amountMicros: value,
+        }}
+      />
     </RecordTableInlineCell>
   );
-};
+}
 
 const BranchCell = ({ row }: any) => {
   const { branch } = row.original;
@@ -133,6 +120,19 @@ const AccountCell = ({ row }: any) => {
   );
 };
 
+const ProductCell = ({ row }: any) => {
+  const { details } = row.original;
+  if (!details?.productId) {
+    return undefined;
+  }
+
+  return (
+    <RecordTableInlineCell>
+      <ProductsInline productIds={[details.productId]} products={details.product && [details.product]} />
+    </RecordTableInlineCell>
+  );
+};
+
 const TransactionMoreColumnCell = ({
   cell,
 }: {
@@ -157,9 +157,10 @@ const transactionMoreColumn = {
   id: 'more',
   cell: TransactionMoreColumnCell,
   size: 33,
+  colOrder: 1,
 };
 
-export const trRecordColumns: ColumnDef<ITrRecord>[] = [
+export const trRecordColumns: ExtendedColumnDef<ITrRecord>[] = [
   transactionMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ITrRecord>,
   {
@@ -170,12 +171,14 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
     accessorKey: 'details',
     cell: ({ row }) => <AccountCell row={row} />,
     size: 500,
+    colOrder: 3,
   },
   {
     id: 'number',
     header: () => <RecordTable.InlineHead icon={IconFile} label="Number" />,
     accessorKey: 'number',
     cell: ({ getValue, row }) => <NumberCell getValue={getValue} row={row} />,
+    colOrder: 5,
   },
   {
     id: 'date',
@@ -183,6 +186,7 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
     accessorKey: 'date',
     cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
     size: 100,
+    colOrder: 7,
   },
   {
     id: 'Debit',
@@ -190,7 +194,8 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
       <RecordTable.InlineHead icon={IconMoneybag} label="Debit" />
     ),
     accessorKey: 'Debit',
-    cell: ({ row }) => <DebitCell row={row} />,
+    cell: ({ getValue, row }) => <DebitCell getValue={getValue} row={row} />,
+    colOrder: 31,
   },
   {
     id: 'Credit',
@@ -198,7 +203,8 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
       <RecordTable.InlineHead icon={IconMoneybag} label="Credit" />
     ),
     accessorKey: 'Credit',
-    cell: ({ row }) => (<CreditCell row={row} />),
+    cell: ({ getValue, row }) => <CreditCell getValue={getValue} row={row} />,
+    colOrder: 32,
   },
   {
     id: 'description',
@@ -210,17 +216,46 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
       <DescriptionCell getValue={getValue} row={row} />
     ),
     size: 300,
+    colOrder: 33,
   },
   {
     id: 'branch',
     header: () => <RecordTable.InlineHead icon={IconFile} label="Branch" />,
     accessorKey: 'branch',
     cell: ({ row }) => <BranchCell row={row} />,
+    colOrder: 41,
   },
   {
     id: 'department',
     header: () => <RecordTable.InlineHead icon={IconFile} label="Department" />,
     accessorKey: 'department',
     cell: ({ row }) => <DepartmentCell row={row} />,
+    colOrder: 42,
+  },
+];
+
+export const trRecordInvColumns: ExtendedColumnDef<ITrRecord>[] = [
+  {
+    id: 'product',
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Product" />
+    ),
+    accessorKey: 'product',
+    cell: ({ row }) => <ProductCell row={row} />,
+    colOrder: 21,
+  },
+  {
+    id: 'unitPrice',
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Unit Price" />,
+    accessorKey: 'unitPrice',
+    cell: ({ row }) => <AmountProdCell row={row} value={row.original?.details?.unitPrice ?? 0} />,
+    colOrder: 24,
+  },
+  {
+    id: 'count',
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Quantity" />,
+    accessorKey: 'count',
+    cell: ({ row }) => <AmountProdCell row={row} value={row.original?.details?.count ?? 0} />,
+    colOrder: 27,
   },
 ];

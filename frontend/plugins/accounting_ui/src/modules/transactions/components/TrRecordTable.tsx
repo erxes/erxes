@@ -1,17 +1,25 @@
-import { RecordTable } from 'erxes-ui';
+import { RecordTable, useQueryState } from 'erxes-ui';
 import { ACC_TR_RECORDS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
 import { useTrRecords } from '../hooks/useTrRecords';
-import { trRecordColumns } from './TrRecordsTableColumns';
+import { trRecordColumns, trRecordInvColumns } from './TrRecordsTableColumns';
 
 export const TrRecordTable = () => {
   const { trRecords, loading, handleFetchMore, pageInfo } = useTrRecords();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
+  const [journal] = useQueryState<string>('journal');
+
+  let columns = trRecordColumns
+  if (journal && journal.includes('inv')) {
+    columns = columns.concat(trRecordInvColumns);
+    columns.sort((a, b) => (a.colOrder ?? 0) - (b.colOrder ?? 0))
+  }
+
   return (
     <RecordTable.Provider
-      columns={trRecordColumns}
+      columns={columns}
       data={trRecords || []}
-      stickyColumns={[]}
+      stickyColumns={['more', 'account']}
       className="m-3"
     >
       <RecordTable.CursorProvider

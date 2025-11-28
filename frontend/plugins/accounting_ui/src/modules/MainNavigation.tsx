@@ -41,14 +41,6 @@ function RenderJournals() {
             </Sidebar.MenuButton>
           </Sidebar.MenuItem>
         ))}
-
-        <NavigationMenuLinkItem
-          name="Triage"
-          pathPrefix="accounting/records"
-          path={`accounting/records`}
-          className="pl-6 font-medium"
-          icon={IconCaretLeftRight}
-        />
       </Sidebar.Menu>
     </Sidebar.GroupContent>
   );

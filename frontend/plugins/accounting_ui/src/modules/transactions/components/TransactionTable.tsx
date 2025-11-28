@@ -14,7 +14,7 @@ export const TransactionTable = () => {
     <RecordTable.Provider
       columns={transactionColumns}
       data={transactions || []}
-      stickyColumns={[]}
+      stickyColumns={['more', 'check', 'account']}
       className='m-3'
     >
       <RecordTable.CursorProvider
