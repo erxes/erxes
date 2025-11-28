@@ -1,15 +1,15 @@
 import { Skeleton } from 'erxes-ui';
-import { useAccountsMain } from '../hooks/useAccountsMain';
+import { useTrRecords } from '../hooks/useTrRecords';
 
-export const AccountsTotalCount = () => {
-  const { totalCount, loading } = useAccountsMain();
+export const TrRecsTotalCount = () => {
+  const { totalCount, loading } = useTrRecords();
 
   return (
     <span className="text-sm text-muted-foreground">
       {loading ? (
         <Skeleton className="size-4" />
       ) : (
-        `${totalCount} accounts found`
+        `${totalCount ?? 0} entries found`
       )}
     </span>
   );

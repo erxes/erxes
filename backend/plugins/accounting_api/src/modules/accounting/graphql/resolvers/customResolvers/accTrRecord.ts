@@ -1,4 +1,4 @@
-import { ITransactionDocument } from '@/accounting/@types/transaction';
+import { ITrRecord } from '@/accounting/@types/transaction';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
@@ -7,13 +7,13 @@ export default {
     return await models.Transactions.findOne({ _id });
   },
 
-  async followTrs(transaction: ITransactionDocument, _, { models }: IContext) {
+  async followTrs(transaction: ITrRecord, _, { models }: IContext) {
     return await models.Transactions.find({
       originId: transaction._id,
     }).lean();
   },
 
-  async vatRow(transaction: ITransactionDocument, _, { models }: IContext) {
+  async vatRow(transaction: ITrRecord, _, { models }: IContext) {
     if (!transaction.vatRowId) {
       return;
     }
@@ -21,7 +21,7 @@ export default {
     return await models.VatRows.findOne({ _id: transaction.vatRowId });
   },
 
-  async ctaxRow(transaction: ITransactionDocument, _, { models }: IContext) {
+  async ctaxRow(transaction: ITrRecord, _, { models }: IContext) {
     if (!transaction.ctaxRowId) {
       return;
     }
@@ -29,7 +29,7 @@ export default {
     return await models.CtaxRows.findOne({ _id: transaction.ctaxRowId });
   },
 
-  async branch(transaction: ITransactionDocument) {
+  async branch(transaction: ITrRecord) {
     if (!transaction.branchId) {
       return;
     }
@@ -40,7 +40,7 @@ export default {
     };
   },
 
-  async department(transaction: ITransactionDocument) {
+  async department(transaction: ITrRecord) {
     if (!transaction.departmentId) {
       return;
     }
@@ -52,7 +52,7 @@ export default {
   },
 
   async customer(
-    transaction: ITransactionDocument,
+    transaction: ITrRecord,
     _params,
     { subdomain }: IContext,
   ) {
@@ -141,7 +141,7 @@ export default {
     };
   },
 
-  assignedUsers(transaction: ITransactionDocument) {
+  assignedUsers(transaction: ITrRecord) {
     if (!transaction.assignedUserIds?.length) {
       return;
     }
@@ -152,17 +152,7 @@ export default {
     }));
   },
 
-  async ptrInfo(transaction: ITransactionDocument, _, { models }: IContext) {
-    if (!transaction.ptrId) {
-      return {
-        len: 0,
-        activeLen: 0,
-        status: 'None',
-        diff: 0,
-        value: 0,
-      };
-    }
-
+  async ptrInfo(transaction: ITrRecord, _, { models }: IContext) {
     const perPtrTrs = await models.Transactions.find(
       { ptrId: transaction.ptrId },
       {
@@ -172,8 +162,8 @@ export default {
       },
     ).lean();
 
-    const debit = perPtrTrs?.reduce((sum, tr) => (tr.sumDt ?? 0) + sum, 0);
-    const credit = perPtrTrs?.reduce((sum, tr) => (tr.sumCt ?? 0) + sum, 0);
+    const debit = perPtrTrs.reduce((sum, tr) => (tr.sumDt ?? 0) + sum, 0);
+    const credit = perPtrTrs.reduce((sum, tr) => (tr.sumCt ?? 0) + sum, 0);
     return {
       len: perPtrTrs.length,
       activeLen: perPtrTrs.filter((tr) => !tr.originId).length,
