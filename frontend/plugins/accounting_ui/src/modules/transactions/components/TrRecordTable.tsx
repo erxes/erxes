@@ -10,7 +10,7 @@ export const TrRecordTable = () => {
   const [journal] = useQueryState<string>('journal');
 
   let columns = trRecordColumns
-  if (journal && journal.includes('inv')) {
+  if (journal?.includes('inv')) {
     columns = columns.concat(trRecordInvColumns);
     columns.sort((a, b) => (a.colOrder ?? 0) - (b.colOrder ?? 0))
   }
