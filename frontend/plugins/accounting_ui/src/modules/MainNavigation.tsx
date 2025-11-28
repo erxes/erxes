@@ -1,5 +1,4 @@
 import {
-  IconCaretLeftRight,
   IconCrane,
   IconListCheck,
   IconListDetails,
@@ -13,18 +12,17 @@ import { TR_JOURNAL_LABELS, TrJournalEnum } from './transactions/types/constants
 function RenderJournals() {
   const path = 'accounting/records';
   const { pathname } = useLocation();
+  const [journal, setJournal] = useQueryState<string>('journal');
 
   if (!pathname.startsWith(`/${path}`)) {
     return null;
   }
 
-  const [journal, setJournal] = useQueryState<string>('journal');
-
   return (
     <Sidebar.GroupContent>
       <Sidebar.Menu>
         {Object.values(TrJournalEnum).map((trJournal) => (
-          <Sidebar.MenuItem>
+          <Sidebar.MenuItem key={trJournal}>
             <Sidebar.MenuButton
               asChild
               isActive={journal === trJournal}

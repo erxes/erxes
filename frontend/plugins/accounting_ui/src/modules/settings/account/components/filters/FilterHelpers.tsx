@@ -188,7 +188,7 @@ export const FilterBarIsTemp = () => {
     <Filter.BarItem queryKey="isTemp">
       <Filter.BarName>
         <IconToggleRightFilled />
-        IsTemp
+        Is Temp
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountIsTempCommand

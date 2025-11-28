@@ -243,7 +243,7 @@ const generateFilter = async (
   }
 
   if (currency) {
-    filter['detail.currency'] = currency;
+    filter['details.currency'] = currency;
   }
 
   return filter;

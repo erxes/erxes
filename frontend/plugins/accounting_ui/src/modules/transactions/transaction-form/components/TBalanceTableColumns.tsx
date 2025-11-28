@@ -1,4 +1,5 @@
 import { TR_SIDES } from '@/transactions/types/constants';
+import { ExtendedColumnDef } from '@/transactions/types/tables';
 import { IconCalendar, IconFile, IconMoneybag } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
 import dayjs from 'dayjs';
@@ -15,7 +16,6 @@ import { useSetAtom } from 'jotai';
 import { useState } from 'react';
 import { ProductsInline } from 'ui-modules';
 import { AccountsInline } from '~/modules/settings/account/components/AccountsInline';
-import { ExtendedColumnDef } from '../../types/tables';
 import { activeJournalState } from '../states/trStates';
 import { ITBalanceTransaction } from '../types/TBalance';
 

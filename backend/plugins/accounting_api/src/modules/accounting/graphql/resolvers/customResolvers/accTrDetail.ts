@@ -10,7 +10,7 @@ export default {
     return await models.Accounts.getAccount({ _id: trDetail.accountId });
   },
 
-  async product(trDetail: ITrDetail, _, { models, subdomain }: IContext) {
+  async product(trDetail: ITrDetail) {
     if (!trDetail.productId) {
       return;
     }

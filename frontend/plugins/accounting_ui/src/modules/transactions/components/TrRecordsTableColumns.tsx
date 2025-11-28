@@ -1,3 +1,4 @@
+import { ExtendedColumnDef } from '@/transactions/types/tables';
 import { IconCalendar, IconFile, IconMoneybag } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import dayjs from 'dayjs';
@@ -13,7 +14,6 @@ import { useSetAtom } from 'jotai';
 import { ProductsInline } from 'ui-modules';
 import { renderingTransactionDetailState } from '../states/renderingTransactionDetailStates';
 import { TR_JOURNAL_LABELS, TR_SIDES, TrJournalEnum } from '../types/constants';
-import { ExtendedColumnDef } from '../types/tables';
 import { ITrRecord } from '../types/Transaction';
 
 // Create named components for cell renderers to fix React Hook usage
@@ -66,7 +66,7 @@ const CreditCell = ({ row }: any) => {
 
 const AmountProdCell = ({ row, value }: { row: any, value: number }) => {
   const { details } = row.original;
-  if (!details.productId) {
+  if (!details?.productId) {
     return undefined;
   }
 

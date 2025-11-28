@@ -279,7 +279,7 @@ export const SelectMemberFilterBar = ({
         value={assignedTo || (mode === 'single' ? '' : [])}
         onValueChange={(value) => {
           if (value && value.length > 0) {
-            setAssignedTo(value as string[]);
+            setAssignedTo(value as string[] | string);
           } else {
             setAssignedTo(null);
           }

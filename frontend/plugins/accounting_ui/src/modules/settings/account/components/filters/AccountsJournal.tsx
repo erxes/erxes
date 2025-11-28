@@ -42,11 +42,11 @@ export const AccountsJournalCommand = ({
 }: {
   focusOnMount?: boolean;
   selected: string | null;
-  onSelect?: (kind: string | null) => void;
+  onSelect?: (journal: string | null) => void;
 }) => {
   return (
     <Command>
-      <Command.Input placeholder="Filter kind" focusOnMount={focusOnMount} />
+      <Command.Input placeholder="Filter journal" focusOnMount={focusOnMount} />
       <Command.List>
         {Object.values(JournalEnum).map((journal) => (
           <Command.Item
