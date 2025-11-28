@@ -1,6 +1,5 @@
 import ExcelJS from 'exceljs';
 import { Readable } from 'stream';
-
 export function parseCSV(csvContent: string): string[][] {
   const rows: string[][] = [];
   let currentRow: string[] = [];
@@ -24,7 +23,7 @@ export function parseCSV(csvContent: string): string[][] {
     } else if ((char === '\n' || char === '\r') && !insideQuotes) {
       if (char === '\n' || (char === '\r' && nextChar !== '\n')) {
         currentRow.push(currentField.trim());
-        if (currentRow.length > 0 && currentRow.some((field) => field !== '')) {
+        if (currentRow.some((field) => field !== '')) {
           rows.push(currentRow);
         }
         currentRow = [];
@@ -37,7 +36,7 @@ export function parseCSV(csvContent: string): string[][] {
 
   if (currentField !== '' || currentRow.length > 0) {
     currentRow.push(currentField.trim());
-    if (currentRow.length > 0 && currentRow.some((field) => field !== '')) {
+    if (currentRow.some((field) => field !== '')) {
       rows.push(currentRow);
     }
   }
@@ -72,4 +71,3 @@ export async function* processXLSXFile(
     }
   }
 }
-

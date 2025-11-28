@@ -3,9 +3,8 @@ import { TAutomationProducersInput } from '../automations/zodTypes';
 import { TSegmentProducers } from '../segments/types';
 import { TAfterProcessProducers } from '../logs/types';
 import { TSegmentProducersInput } from '../segments/zodSchemas';
-import { TImportExportProducers } from '../import-export/types';
 import { TImportExportProducersInput } from '../import-export/zodSchemas';
-
+import { TImportExportProducers } from '../import-export';
 type TModuleProducerInputMap = {
   automations: {
     [K in TAutomationProducers]: TAutomationProducersInput[K];

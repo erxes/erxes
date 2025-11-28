@@ -30,11 +30,12 @@ interface ImportProgress {
   estimatedSecondsRemaining: number;
 }
 
-export const useImport = () => {
+export const useImport = (entityType?: string) => {
   const { data, refetch, startPolling, stopPolling } = useQuery(
     GET_ACTIVE_IMPORTS,
     {
       fetchPolicy: 'network-only',
+      variables: { entityType },
     },
   );
 

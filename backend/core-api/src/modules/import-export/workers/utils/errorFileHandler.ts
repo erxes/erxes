@@ -1,34 +1,71 @@
+import { nanoid } from 'nanoid';
 import * as fs from 'fs';
-import * as path from 'path';
 import * as os from 'os';
+import * as path from 'path';
+import { IModels } from '~/connectionResolvers';
 import { uploadFile } from '~/utils/file/upload';
-import { getEnv } from 'erxes-api-shared/utils';
-import { createErrorCSV } from './csvUtils';
 
-export async function saveErrorFile(
+const escapeCsvField = (
+  field: string | number | boolean | null | undefined,
+) => {
+  const value =
+    field === null || field === undefined
+      ? ''
+      : typeof field === 'string'
+      ? field
+      : String(field);
+
+  if (value.includes('"') || value.includes(',') || value.includes('\n')) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+
+  return value;
+};
+
+export const saveErrorFile = async (
   subdomain: string,
   headerRow: string[],
   errorRows: any[],
   keyToHeaderMap: Record<string, string>,
-  models: any,
-): Promise<string | null> {
-  if (errorRows.length === 0) {
-    return null;
+  models: IModels,
+  importId?: string,
+): Promise<string> => {
+  const csvHeaders =
+    headerRow && headerRow.length > 0
+      ? headerRow
+      : Object.values(keyToHeaderMap);
+
+  const finalHeaders = [...csvHeaders, 'Error'];
+
+  const csvLines = [finalHeaders.map(escapeCsvField).join(',')];
+
+  const headerToKeyMap: Record<string, string> = {};
+  Object.entries(keyToHeaderMap).forEach(([key, header]) => {
+    headerToKeyMap[header] = key;
+  });
+
+  for (const row of errorRows) {
+    const dataValues = csvHeaders.map((header) => {
+      const lookupKey = headerToKeyMap[header] || header;
+      return escapeCsvField(row?.[lookupKey]);
+    });
+
+    const errorMessage =
+      row?.error || row?.errorMessage || row?.message || 'Unknown error';
+
+    dataValues.push(escapeCsvField(errorMessage));
+
+    csvLines.push(dataValues.join(','));
   }
 
+  const tempFileName = `import-errors-${importId || nanoid()}.csv`;
+  const tempFilePath = path.join(os.tmpdir(), tempFileName);
+
+  await fs.promises.writeFile(tempFilePath, csvLines.join('\n'), 'utf8');
+
   try {
-    const csvContent = createErrorCSV(headerRow, errorRows, keyToHeaderMap);
-    const tempDir = os.tmpdir();
-    const tempFileName = `import-errors-${Date.now()}.csv`;
-    const tempFilePath = path.join(tempDir, tempFileName);
-
-    await fs.promises.writeFile(tempFilePath, csvContent, 'utf-8');
-
-    const domain = getEnv({ name: 'DOMAIN' }) || '';
-    const apiUrl = domain.replace('<subdomain>', subdomain);
-
     const fileKey = await uploadFile(
-      `${apiUrl}/gateway`,
+      '',
       {
         originalFilename: tempFileName,
         filepath: tempFilePath,
@@ -38,14 +75,10 @@ export async function saveErrorFile(
       models,
     );
 
-    // Clean up temp file
-    await fs.promises.unlink(tempFilePath).catch(() => {
-      // Ignore cleanup errors
-    });
-
     return fileKey;
-  } catch (error) {
-    return null;
+  } finally {
+    await fs.promises
+      .unlink(tempFilePath)
+      .catch(() => Promise.resolve(undefined));
   }
-}
-
+};

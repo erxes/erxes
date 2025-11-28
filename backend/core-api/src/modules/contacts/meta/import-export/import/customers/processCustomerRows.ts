@@ -40,7 +40,8 @@ export async function processCustomerRows(
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
       try {
-        const doc = prepareCustomerDoc(row);
+        const doc = prepareCustomerDoc(models, row);
+
         const existingDoc =
           (doc.primaryEmail && existingByEmail.get(doc.primaryEmail)) ||
           (doc.primaryPhone && existingByPhone.get(doc.primaryPhone));
@@ -68,7 +69,7 @@ export async function processCustomerRows(
       }
     }
 
-    console.log('operations', operations);
+    console.log('operations', JSON.stringify(operations));
     if (operations.length > 0) {
       const result = await models.Customers.bulkWrite(operations);
 

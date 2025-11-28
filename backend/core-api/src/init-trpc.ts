@@ -40,7 +40,7 @@ export const appRouter = t.mergeRouters(
   segmentsTRPCRouter,
   automationsRouter,
   notificationTrpcRouter,
-  importExportTrpcRouter
+  importExportTrpcRouter,
 );
 
 export type AppRouter = typeof appRouter;

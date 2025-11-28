@@ -15,6 +15,7 @@ export * from './start-plugin';
 export * from './trpc';
 export * from './trpc/sendCoreModuleProducer';
 export * from './utils';
+export * from './file/read';
 export * from './mongo/cursor-util';
 export * from './string';
 export * from './bulkUtils';

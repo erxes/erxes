@@ -1,11 +1,9 @@
-import { TImportExportProducers } from 'erxes-api-shared/core-modules';
 import {
   getEnv,
   getSubdomain,
   isImage,
   sanitizeFilename,
   sanitizeKey,
-  sendCoreModuleProducer,
 } from 'erxes-api-shared/utils';
 import { NextFunction, Request, Response, Router } from 'express';
 import * as formidable from 'formidable';
@@ -31,15 +29,6 @@ interface ReadFileQuery {
   name?: string;
   width?: number;
 }
-
-const TEMPLATE_ROWS = [
-  'First Name',
-  'Last Name',
-  'Email',
-  'Phone',
-  'Tags',
-  'Sex',
-];
 
 router.get(
   '/read-file',
@@ -172,52 +161,6 @@ router.post('/delete-file', async (req: Request, res: Response) => {
   }
 
   return res.status(500).send(status);
-});
-
-function escapeCsvField(field: string): string {
-  if (field.includes(',') || field.includes('"') || field.includes('\n')) {
-    return `"${field.replace(/"/g, '""')}"`;
-  }
-  return field;
-}
-
-router.get('/download-template', async (req: Request, res: Response) => {
-  try {
-    const subdomain = getSubdomain(req);
-    const getImportHeaders = await sendCoreModuleProducer({
-      subdomain,
-      pluginName: 'core',
-      moduleName: 'importExport',
-      method: 'query',
-      producerName: TImportExportProducers.GET_IMPORT_HEADERS,
-      input: {
-        moduleName: 'contacts',
-        collectionName: 'customer',
-      },
-      defaultValue: [],
-    });
-
-    const headers = getImportHeaders.map((field) =>
-      escapeCsvField(field.label),
-    );
-    const sampleRow = TEMPLATE_ROWS.map(() => '');
-
-    const csvRows: string[] = [];
-    csvRows.push(headers.join(','));
-    csvRows.push(sampleRow.join(','));
-
-    const csvContent = csvRows.join('\n');
-
-    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-    res.setHeader(
-      'Content-Disposition',
-      'attachment; filename="import-template.csv"',
-    );
-
-    return res.send(csvContent);
-  } catch (e) {
-    return res.status(500).send('Failed to generate template');
-  }
 });
 
 export { router };

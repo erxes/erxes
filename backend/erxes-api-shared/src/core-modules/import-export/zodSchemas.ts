@@ -24,7 +24,7 @@ const GetImportHeadersInput = z.object({
   collectionName: z.string(),
 });
 
-type TGetImportHeadersInput = z.infer<typeof GetImportHeadersInput>;
+export type TGetImportHeadersInput = z.infer<typeof GetImportHeadersInput>;
 
 export const GetImportHeadersOutput = z.array(
   z.object({

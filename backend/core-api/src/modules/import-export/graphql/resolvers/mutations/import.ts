@@ -6,8 +6,9 @@ import { splitType } from 'erxes-api-shared/core-modules';
 async function getJobIdFromQueue(
   subdomain: string,
   importId: string,
+  pluginName: string,
 ): Promise<string | null> {
-  const queue = sendWorkerQueue('core', 'import-processor');
+  const queue = sendWorkerQueue(pluginName, 'import-processor');
   const jobs = await queue.getJobs(['active', 'waiting', 'delayed']);
   const job = jobs.find(
     (j) => j.data.subdomain === subdomain && j.data.data.importId === importId,
@@ -40,7 +41,7 @@ export const importMutations = {
       subdomain,
     });
 
-    const queue = sendWorkerQueue('core', 'import-processor');
+    const queue = sendWorkerQueue(pluginName, 'import-processor');
     const job = await queue.add(
       'processImport',
       {
@@ -91,7 +92,7 @@ export const importMutations = {
       throw new Error(`Cannot cancel import with status: ${importDoc.status}`);
     }
 
-    const queue = sendWorkerQueue('core', 'import-processor');
+    const queue = sendWorkerQueue(importDoc.pluginName, 'import-processor');
 
     if (importDoc.jobId) {
       try {
@@ -111,7 +112,11 @@ export const importMutations = {
       }
     } else {
       // Try to find job by importId
-      const jobId = await getJobIdFromQueue(subdomain, importId);
+      const jobId = await getJobIdFromQueue(
+        subdomain,
+        importId,
+        importDoc.pluginName,
+      );
       if (jobId) {
         try {
           const job = await queue.getJob(jobId);
@@ -159,11 +164,7 @@ export const importMutations = {
       );
     }
 
-    const [pluginName, moduleName, collectionName] = splitType(
-      importDoc.entityType,
-    );
-
-    const queue = sendWorkerQueue('core', 'import-processor');
+    const queue = sendWorkerQueue(importDoc.pluginName, 'import-processor');
     const job = await queue.add(
       'processImport',
       {
@@ -224,11 +225,7 @@ export const importMutations = {
       );
     }
 
-    const [pluginName, moduleName, collectionName] = splitType(
-      importDoc.entityType,
-    );
-
-    const queue = sendWorkerQueue('core', 'import-processor');
+    const queue = sendWorkerQueue(importDoc.pluginName, 'import-processor');
     const job = await queue.add(
       'processImport',
       {
