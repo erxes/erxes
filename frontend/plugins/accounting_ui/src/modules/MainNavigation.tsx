@@ -49,10 +49,10 @@ function RenderJournals() {
 export const MainNavigation = () => {
   return (
     <>
-      <NavigationMenuLinkItem name='Transactions' icon={IconListDetails} path="accounting/main" />
-      <NavigationMenuLinkItem name='Entry lines' icon={IconListCheck} path="accounting/records" />
+      <NavigationMenuLinkItem name='Баримтууд' icon={IconListDetails} path="accounting/main" />
+      <NavigationMenuLinkItem name='Журнал бичилт' icon={IconListCheck} path="accounting/records" />
       {RenderJournals()}
-      <NavigationMenuLinkItem name='Odd entries' icon={IconCrane} path="accounting/odd-transactions" />
+      <NavigationMenuLinkItem name='Бүрэн бус баримтууд' icon={IconCrane} path="accounting/odd-transactions" />
     </>
   );
 };
