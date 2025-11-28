@@ -70,18 +70,16 @@ export default function EbarimtConfigForm({
         companyName: config.companyName || '',
         ebarimtUrl: config.ebarimtUrl || '',
         checkCompanyUrl: config.checkCompanyUrl || '',
-        companyRd: config.companyRD || '',
         companyRD: config.companyRD || '',
         merchantin: config.merchantTin || '',
         posno: config.posNo || '',
         districtCode: config.districtCode || '',
         branchNo: config.branchNo || '',
-        defaultGsCode: config.defaultGSCode || '',
         defaultGSCode: config.defaultGSCode || '',
         hasVat: config.hasVat || false,
         hasCitytax: config.hasCitytax || false,
-        vatPercent: config.vatPercent?.toString() || '0',
-        ubCityTaxPercent: config.cityTaxPercent?.toString() || '0',
+        vatPercent: config.vatPercent || 0,
+        ubCityTaxPercent: config.cityTaxPercent || 0,
         cityTaxPercent: config.cityTaxPercent || 0,
         anotherRuleOfProductsOnCityTax: reverseCtaxRules,
         anotherRuleOfProductsOnVat: reverseVatRules,
@@ -157,19 +155,13 @@ export default function EbarimtConfigForm({
         hasCitytax: ebarimtConfig.hasCitytax,
         defaultPay: ebarimtConfig.defaultPay || 'debtAmount',
         districtCode: ebarimtConfig.districtCode,
-        companyRD: ebarimtConfig.companyRd,
-        defaultGSCode: ebarimtConfig.defaultGsCode,
+        companyRD: ebarimtConfig.companyRD,
+        defaultGSCode: ebarimtConfig.defaultGSCode,
         merchantTin: ebarimtConfig.merchantin,
         posNo: ebarimtConfig.posno,
         branchNo: ebarimtConfig.branchNo,
-        vatPercent:
-          typeof ebarimtConfig.vatPercent === 'string'
-            ? Number.parseFloat(ebarimtConfig.vatPercent) || 0
-            : 0,
-        cityTaxPercent:
-          typeof ebarimtConfig.ubCityTaxPercent === 'string'
-            ? Number.parseFloat(ebarimtConfig.ubCityTaxPercent) || 0
-            : 0,
+        vatPercent: Number(ebarimtConfig.vatPercent) || 0,
+        cityTaxPercent: Number(ebarimtConfig.ubCityTaxPercent) || 0,
         headerText: ebarimtConfig.headerText,
         footerText: ebarimtConfig.footerText,
         hasCopy: ebarimtConfig.hasCopy,
@@ -248,9 +240,9 @@ export default function EbarimtConfigForm({
               <div className="space-y-2">
                 <Label className="text-xs font-semibold">COMPANYRD</Label>
                 <Input
-                  value={ebarimtConfig.companyRd}
+                  value={ebarimtConfig.companyRD}
                   onChange={(e) =>
-                    handleInputChange('companyRd', e.target.value)
+                    handleInputChange('companyRD', e.target.value)
                   }
                   placeholder="Enter company RD"
                 />
@@ -303,9 +295,9 @@ export default function EbarimtConfigForm({
               <div className="space-y-2">
                 <Label className="text-xs font-semibold">DEFAULTGSCODE</Label>
                 <Input
-                  value={ebarimtConfig.defaultGsCode}
+                  value={ebarimtConfig.defaultGSCode}
                   onChange={(e) =>
-                    handleInputChange('defaultGsCode', e.target.value)
+                    handleInputChange('defaultGSCode', e.target.value)
                   }
                   placeholder="Enter default GS code"
                 />
@@ -337,7 +329,7 @@ export default function EbarimtConfigForm({
               <div className="space-y-2">
                 <Label className="text-xs font-semibold">VAT PERCENT</Label>
                 <Input
-                  value={ebarimtConfig.vatPercent}
+                  value={ebarimtConfig.vatPercent.toString()}
                   onChange={(e) =>
                     handleInputChange('vatPercent', e.target.value)
                   }
@@ -397,7 +389,7 @@ export default function EbarimtConfigForm({
                 </Label>
 
                 <Input
-                  value={ebarimtConfig.ubCityTaxPercent}
+                  value={ebarimtConfig.ubCityTaxPercent.toString()}
                   onChange={(e) =>
                     handleInputChange('ubCityTaxPercent', e.target.value)
                   }

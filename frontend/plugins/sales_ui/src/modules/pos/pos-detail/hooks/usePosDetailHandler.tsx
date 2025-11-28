@@ -35,23 +35,21 @@ export const useLocalPosDetailHandlers = ({
   const permissionFormRef = useRef<PermissionFormRef>(null);
 
   if (!posDetail) {
+    const warnNoPos = async () => {
+      console.warn('POS detail not loaded');
+    };
+
     return {
       permissionFormRef,
-      handleBasicInfoSubmit: async () => {
-        console.warn('POS detail not loaded');
-      },
-      handleProductSubmit: async () => {
-        console.warn('POS detail not loaded');
-      },
-      handleAppearanceSubmit: async () => {
-        console.warn('POS detail not loaded');
-      },
-      handleScreenConfigSubmit: async () => {
-        console.warn('POS detail not loaded');
-      },
-      handleFinanceSubmit: async () => {
-        console.warn('POS detail not loaded');
-      },
+      handleBasicInfoSubmit: warnNoPos,
+      handleProductSubmit: warnNoPos,
+      handleAppearanceSubmit: warnNoPos,
+      handleScreenConfigSubmit: warnNoPos,
+      handleFinanceSubmit: warnNoPos,
+      handlePaymentSubmit: warnNoPos,
+      handleDeliverySubmit: warnNoPos,
+      handlePermissionSubmit: warnNoPos,
+      handleScreenConfigSubmitNew: warnNoPos,
     };
   }
 

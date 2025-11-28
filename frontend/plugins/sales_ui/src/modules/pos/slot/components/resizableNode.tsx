@@ -68,13 +68,18 @@ export function ResizableNode({
   const [isResizing, setIsResizing] = useState<ResizeHandlePosition | null>(
     null,
   );
-  const [dragStart, setDragStart] = useState<Position>({ x: 0, y: 0 });
-  const [resizeStart, setResizeStart] = useState<Position & Size>({
-    x: 0,
-    y: 0,
-    width: 0,
-    height: 0,
-  });
+  const dragStart = useRef({ x: 0, y: 0 });
+  const resizeStart = useRef({ x: 0, y: 0, width: 0, height: 0 });
+  const onPositionChangeRef = useRef(onPositionChange);
+  const onSizeChangeRef = useRef(onSizeChange);
+
+  useEffect(() => {
+    onPositionChangeRef.current = onPositionChange;
+  }, [onPositionChange]);
+
+  useEffect(() => {
+    onSizeChangeRef.current = onSizeChange;
+  }, [onSizeChange]);
 
   useEffect(() => {
     setPosition(initialPosition);
@@ -84,16 +89,17 @@ export function ResizableNode({
     setSize(initialSize);
   }, [initialSize]);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (disabled) return;
     if (
       e.target === nodeRef.current ||
       (e.target as HTMLElement).classList.contains('drag-handle')
     ) {
       setIsDragging(true);
-      setDragStart({
+      dragStart.current = {
         x: e.clientX - position.x,
         y: e.clientY - position.y,
-      });
+      };
     }
   };
 
@@ -101,79 +107,104 @@ export function ResizableNode({
     e: React.MouseEvent,
     position: ResizeHandlePosition,
   ) => {
+    if (disabled) return;
     e.stopPropagation();
     setIsResizing(position);
-    setResizeStart({
+    resizeStart.current = {
       x: e.clientX,
       y: e.clientY,
       width: size.width,
       height: size.height,
-    });
+    };
   };
 
   useEffect(() => {
+    if (disabled) {
+      setIsDragging(false);
+      setIsResizing(null);
+      return;
+    }
+
     const handleMouseMove = (e: MouseEvent) => {
       if (isDragging) {
         const newPosition = {
-          x: e.clientX - dragStart.x,
-          y: e.clientY - dragStart.y,
+          x: e.clientX - dragStart.current.x,
+          y: e.clientY - dragStart.current.y,
         };
         setPosition(newPosition);
-        onPositionChange?.(newPosition);
+        onPositionChangeRef.current?.(newPosition);
       } else if (isResizing) {
-        const deltaX = e.clientX - resizeStart.x;
-        const deltaY = e.clientY - resizeStart.y;
+        const deltaX = e.clientX - resizeStart.current.x;
+        const deltaY = e.clientY - resizeStart.current.y;
 
-        let newWidth = resizeStart.width;
-        let newHeight = resizeStart.height;
+        let newWidth = resizeStart.current.width;
+        let newHeight = resizeStart.current.height;
         let newX = position.x;
         let newY = position.y;
 
         switch (isResizing) {
           case 'right':
-            newWidth = Math.max(resizeStart.width + deltaX, minWidth);
+            newWidth = Math.max(resizeStart.current.width + deltaX, minWidth);
             break;
           case 'bottom':
-            newHeight = Math.max(resizeStart.height + deltaY, minHeight);
+            newHeight = Math.max(
+              resizeStart.current.height + deltaY,
+              minHeight,
+            );
             break;
           case 'left':
-            newWidth = Math.max(resizeStart.width - deltaX, minWidth);
-            if (newWidth !== resizeStart.width) {
-              newX = position.x + (resizeStart.width - newWidth);
+            newWidth = Math.max(resizeStart.current.width - deltaX, minWidth);
+            if (newWidth !== resizeStart.current.width) {
+              newX = position.x + (resizeStart.current.width - newWidth);
             }
             break;
           case 'top':
-            newHeight = Math.max(resizeStart.height - deltaY, minHeight);
-            if (newHeight !== resizeStart.height) {
-              newY = position.y + (resizeStart.height - newHeight);
+            newHeight = Math.max(
+              resizeStart.current.height - deltaY,
+              minHeight,
+            );
+            if (newHeight !== resizeStart.current.height) {
+              newY = position.y + (resizeStart.current.height - newHeight);
             }
             break;
           case 'bottom-right':
-            newWidth = Math.max(resizeStart.width + deltaX, minWidth);
-            newHeight = Math.max(resizeStart.height + deltaY, minHeight);
+            newWidth = Math.max(resizeStart.current.width + deltaX, minWidth);
+            newHeight = Math.max(
+              resizeStart.current.height + deltaY,
+              minHeight,
+            );
             break;
           case 'bottom-left':
-            newWidth = Math.max(resizeStart.width - deltaX, minWidth);
-            newHeight = Math.max(resizeStart.height + deltaY, minHeight);
-            if (newWidth !== resizeStart.width) {
-              newX = position.x + (resizeStart.width - newWidth);
+            newWidth = Math.max(resizeStart.current.width - deltaX, minWidth);
+            newHeight = Math.max(
+              resizeStart.current.height + deltaY,
+              minHeight,
+            );
+            if (newWidth !== resizeStart.current.width) {
+              newX = position.x + (resizeStart.current.width - newWidth);
             }
             break;
           case 'top-right':
-            newWidth = Math.max(resizeStart.width + deltaX, minWidth);
-            newHeight = Math.max(resizeStart.height - deltaY, minHeight);
-            if (newHeight !== resizeStart.height) {
-              newY = position.y + (resizeStart.height - newHeight);
+            newWidth = Math.max(resizeStart.current.width + deltaX, minWidth);
+            newHeight = Math.max(
+              resizeStart.current.height - deltaY,
+              minHeight,
+            );
+            if (newHeight !== resizeStart.current.height) {
+              newY = position.y + (resizeStart.current.height - newHeight);
             }
             break;
           case 'top-left':
-            newWidth = Math.max(resizeStart.width - deltaX, minWidth);
-            newHeight = Math.max(resizeStart.height - deltaY, minHeight);
-            if (newWidth !== resizeStart.width) {
-              newX = position.x + (resizeStart.width - newWidth);
+            newWidth = Math.max(resizeStart.current.width - deltaX, minWidth);
+            newHeight = Math.max(
+              resizeStart.current.height - deltaY,
+              minHeight,
+            );
+            if (newWidth !== resizeStart.current.width) {
+              newX = position.x + (resizeStart.current.width - newWidth);
             }
-            if (newHeight !== resizeStart.height) {
-              newY = position.y + (resizeStart.height - newHeight);
+            if (newHeight !== resizeStart.current.height) {
+              newY = position.y + (resizeStart.current.height - newHeight);
             }
             break;
         }
@@ -181,8 +212,8 @@ export function ResizableNode({
         const newSize = { width: newWidth, height: newHeight };
         setSize(newSize);
         setPosition({ x: newX, y: newY });
-        onSizeChange?.(newSize);
-        onPositionChange?.({ x: newX, y: newY });
+        onSizeChangeRef.current?.(newSize);
+        onPositionChangeRef.current?.({ x: newX, y: newY });
       }
     };
 
@@ -208,8 +239,7 @@ export function ResizableNode({
     resizeStart,
     minWidth,
     minHeight,
-    onPositionChange,
-    onSizeChange,
+    disabled,
   ]);
 
   const borderRadius = rounded ? 'rounded-full' : 'rounded-md';
@@ -236,6 +266,7 @@ export function ResizableNode({
         backgroundColor: color,
       }}
       onMouseDown={handleMouseDown}
+      aria-disabled={disabled}
       data-id={id}
     >
       <div className="flex justify-between items-center px-3 h-8 bg-gray-100 border-b border-gray-200 drag-handle">
@@ -244,7 +275,7 @@ export function ResizableNode({
 
       <div className="p-3 h-[calc(100%-2rem)] overflow-auto">{children}</div>
 
-      {selected && (
+      {selected && !disabled && (
         <>
           <div
             className="absolute top-0 right-0 bottom-0 w-1 cursor-ew-resize"

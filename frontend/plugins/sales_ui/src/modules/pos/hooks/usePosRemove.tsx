@@ -1,6 +1,7 @@
 import {
   ApolloCache,
   ApolloError,
+  FetchResult,
   OperationVariables,
   useMutation,
 } from '@apollo/client';
@@ -10,7 +11,7 @@ import { mutations, queries } from '../graphql';
 type RemovePosOptions = {
   variables?: OperationVariables;
   queryVariables?: OperationVariables;
-  onCompleted?: () => void;
+  onCompleted?: (results?: FetchResult[]) => void;
   onError?: (error: ApolloError) => void;
 };
 
@@ -55,6 +56,7 @@ export const useRemovePos = () => {
     posIds: string | string[],
     options?: RemovePosOptions,
   ) => {
+    const { onCompleted, onError, variables, queryVariables } = options || {};
     let idsArray: string[] = [];
     if (typeof posIds === 'string') {
       idsArray = posIds.includes(',')
@@ -65,23 +67,37 @@ export const useRemovePos = () => {
     }
 
     try {
-      await Promise.all(
+      const mutationResults = await Promise.all(
         idsArray.map((id) =>
           _removePos({
-            ...options,
             variables: {
-              ...options?.variables,
+              ...variables,
               _id: id,
             },
             update: (cache) =>
-              updateCacheAfterRemoval(cache, id, options?.queryVariables),
+              updateCacheAfterRemoval(cache, id, queryVariables),
             optimisticResponse: { posRemove: 'success' },
           }),
         ),
       );
+
+      onCompleted?.(mutationResults);
     } catch (mutationError) {
       console.error('Failed to remove pos:', mutationError);
-      throw mutationError;
+
+      const errorToReport =
+        mutationError instanceof ApolloError
+          ? mutationError
+          : new ApolloError({
+              errorMessage:
+                mutationError instanceof Error
+                  ? mutationError.message
+                  : String(mutationError),
+            });
+
+      onError?.(errorToReport);
+
+      throw errorToReport;
     }
   };
 

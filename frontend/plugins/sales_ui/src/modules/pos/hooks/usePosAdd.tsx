@@ -1,5 +1,6 @@
 import { useMutation, ApolloCache, MutationHookOptions } from '@apollo/client';
 import { useCallback } from 'react';
+import { useToast } from 'erxes-ui';
 import posMutations from '../graphql/mutations';
 import posQueries from '../graphql/queries';
 import {
@@ -223,6 +224,7 @@ export function useSubmitPosForm() {
 }
 
 export function useRemovePosDetail() {
+  const { toast } = useToast();
   const [posRemove, { loading, error }] = useMutation<
     { posRemove: string },
     { _id: string }
@@ -233,7 +235,13 @@ export function useRemovePosDetail() {
       }
     },
     onError: (error) => {
-      console.error('POS remove mutation error:', error);
+      toast({
+        title: 'POS removal failed',
+        description:
+          error.message ??
+          'An unexpected error occurred while removing the POS.',
+        variant: 'destructive',
+      });
     },
   });
 
@@ -252,11 +260,18 @@ export function useRemovePosDetail() {
 
         return result;
       } catch (error) {
-        console.error('POS removal error:', error);
+        toast({
+          title: 'POS removal failed',
+          description:
+            error instanceof Error
+              ? error.message
+              : 'An unexpected error occurred while removing the POS.',
+          variant: 'destructive',
+        });
         throw error;
       }
     },
-    [posRemove],
+    [posRemove, toast],
   );
 
   return {

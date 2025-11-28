@@ -5,7 +5,7 @@ import { IconPlus, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { syncCardSettingsAtom } from '../../states/posCategory';
 import { IPosDetail } from '@/pos/pos-detail/types/IPos';
 import { SelectBranches, SelectMember, useBranchesMain } from 'ui-modules';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { SelectPipelineFormItem } from '../../hooks/useSelectPipeline';
 import { SelectBoardFormItem } from '../../hooks/useSelectBoard';
@@ -32,6 +32,11 @@ export default function SyncCardForm({
     null,
   );
   const [isInitialized, setIsInitialized] = useState(false);
+  const dataChangeRef = useRef<SyncCardFormProps['onDataChange']>();
+
+  useEffect(() => {
+    dataChangeRef.current = onDataChange;
+  }, [onDataChange]);
 
   const branchForm = useForm<{ branch: string }>({
     defaultValues: { branch: '' },
@@ -105,7 +110,7 @@ export default function SyncCardForm({
   }, [posDetail?.cardsConfig, isInitialized, setSyncCardSettings, branches]);
 
   useEffect(() => {
-    if (onDataChange) {
+    if (dataChangeRef.current) {
       const cardsConfig: CardsConfig = {};
       syncCardSettings.configs.forEach((config) => {
         const branchKey = config.branchName || config.branch || 'all';
@@ -122,9 +127,9 @@ export default function SyncCardForm({
           title: config.title || '',
         };
       });
-      onDataChange(cardsConfig);
+      dataChangeRef.current(cardsConfig);
     }
-  }, [syncCardSettings.configs, onDataChange]);
+  }, [syncCardSettings.configs]);
 
   const handleToggleNewConfig = () => {
     setSyncCardSettings({

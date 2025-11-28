@@ -10,6 +10,11 @@ const SlotCard: React.FC<SlotCardProps> = ({
   onDuplicate,
   onDelete,
 }) => {
+  const slotLabel =
+    typeof node.data.label === 'string' && node.data.label.length > 0
+      ? node.data.label
+      : node.id;
+
   return (
     <Card
       className={cn(
@@ -30,6 +35,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
               variant="outline"
               size="icon"
               onClick={(e) => onEdit(node, e)}
+              aria-label={`Edit slot ${slotLabel}`}
             >
               <IconEdit className="w-4 h-4 text-foreground" />
             </Button>
@@ -37,6 +43,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
               variant="outline"
               size="icon"
               onClick={() => onDuplicate(node.id)}
+              aria-label={`Duplicate slot ${slotLabel}`}
             >
               <IconCopy className="w-4 h-4 text-foreground" />
             </Button>
@@ -44,6 +51,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
               variant="outline"
               size="icon"
               onClick={() => onDelete(node.id)}
+              aria-label={`Delete slot ${slotLabel}`}
             >
               <IconTrash className="w-4 h-4 text-destructive" />
             </Button>

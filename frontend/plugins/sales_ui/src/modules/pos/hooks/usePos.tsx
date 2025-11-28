@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from '@apollo/client';
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { queries, mutations } from '../graphql';
 import {
   AlertInterface,
@@ -39,15 +39,13 @@ export function usePosListManager({
     },
   });
 
+  const { refetch } = posListQuery;
+
   const [posRemove] = useMutation<RemoveMutationResponse>(mutations.posRemove, {
     onError: (error) => {
       console.error('PosRemove mutation error:', error.message);
     },
   });
-
-  const refetch = useCallback(() => {
-    posListQuery.refetch();
-  }, [posListQuery]);
 
   useEffect(() => {
     refetch();

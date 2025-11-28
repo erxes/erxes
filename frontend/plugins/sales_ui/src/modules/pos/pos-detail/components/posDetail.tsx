@@ -190,6 +190,7 @@ export const PosEdit = () => {
       'permissionConfig',
       'productDetails',
       'catProdMappings',
+      'productGroups',
       'initialCategoryIds',
       'kioskExcludeCategoryIds',
       'kioskExcludeProductIds',
@@ -240,11 +241,14 @@ export const PosEdit = () => {
       await updatePosSlots({ variables: { posId: posDetail._id, slots } });
     };
 
-    await Promise.all([
-      posEdit({ variables: combinedData }, fieldsToUpdate),
-      runSlotSave(),
-    ]);
-    setPosId(null);
+    try {
+      await posEdit({ variables: combinedData }, fieldsToUpdate);
+      await runSlotSave();
+      setPosId(null);
+    } catch (error) {
+      console.error('Failed to update POS details or slots', error);
+      throw error;
+    }
   };
 
   return (
