@@ -1,14 +1,15 @@
-import mongoose, { Schema, Document, FilterQuery } from 'mongoose';
+import mongoose, { Document, FilterQuery, PipelineStage, Schema } from 'mongoose';
 import { nanoid } from 'nanoid';
 
-import { mongooseStringRandomId } from './mongoose-types';
 import {
+  buildCursorQuery,
+  CursorPaginateAggregationParams,
   CursorPaginateParams,
   CursorResult,
   encodeCursor,
-  buildCursorQuery,
   PageInfo,
 } from './cursor-util';
+import { mongooseStringRandomId } from './mongoose-types';
 
 export interface IOrderInput {
   _id: string;
@@ -112,8 +113,8 @@ export const cursorPaginate = async <T extends Document>({
       direction === 'forward'
         ? normalizedOrder
         : normalizedOrder === 1
-        ? -1
-        : 1;
+          ? -1
+          : 1;
   }
 
   sortOrder._id = (direction === 'forward' ? 1 : -1) as 1 | -1;
@@ -152,6 +153,88 @@ export const cursorPaginate = async <T extends Document>({
     pageInfo,
   };
 };
+
+export async function cursorPaginateAggregation<T>({
+  model,
+  pipeline = [],
+  params,
+  formatter,
+  uniqConcatFields,
+}: CursorPaginateAggregationParams<T>): Promise<CursorResult<T>> {
+  const { limit = 20, cursor, direction = 'forward', orderBy = {} } = params;
+
+  if (limit < 1 || limit > 100) {
+    throw new Error('Limit must be between 1 and 100');
+  }
+
+  // --- merge default order ---
+  const sortFields = Object.keys(orderBy);
+
+  // --- cursor match ---
+  const cursorMatch = cursor
+    ? buildCursorQuery(cursor, orderBy, direction, formatter)
+    : null;
+
+  // --- build aggregation pipeline ---
+  const aggPipeline: PipelineStage[] = [...pipeline];
+
+  if (cursorMatch) {
+    aggPipeline.push({ $match: cursorMatch });
+  }
+
+  // --- sorting ---
+  aggPipeline.push({ $sort: orderBy as any });
+
+  // --- unwind if needed ---
+  if (uniqConcatFields) {
+    // add composite field for cursor
+    aggPipeline.push({
+      $addFields: {
+        compositeField: {
+          $concat: uniqConcatFields.map(field => ({ $toString: field })),
+        },
+      },
+    });
+  }
+
+  // --- limit + 1 for hasNextPage ---
+  aggPipeline.push({ $limit: limit + 1 });
+
+  // --- execute aggregation ---
+  const listRaw = await model.aggregate(aggPipeline);
+
+  // --- filtered totalCount ---
+  const countPipeline: PipelineStage[] = [...pipeline, { $count: 'totalCount' }];
+  const countResult = await model.aggregate(countPipeline);
+  const totalCount = countResult[0]?.totalCount ?? 0;
+
+  // --- slice list for hasNextPage ---
+  const hasMore = listRaw.length > limit;
+  let list = hasMore ? listRaw.slice(0, limit) : listRaw;
+
+  if (direction === 'backward') {
+    list = list.reverse();
+  }
+
+  // --- cursors ---
+  const startCursor =
+    list.length > 0 ? encodeCursor(list[0], sortFields) : null;
+  const endCursor =
+    list.length > 0 ? encodeCursor(list[list.length - 1], sortFields) : null;
+
+  const pageInfo: PageInfo = {
+    hasNextPage: direction === 'forward' ? hasMore : Boolean(cursor),
+    hasPreviousPage: direction === 'backward' ? hasMore : Boolean(cursor),
+    startCursor,
+    endCursor,
+  };
+
+  return {
+    list,
+    totalCount,
+    pageInfo,
+  };
+}
 
 export const checkCollectionCodeDuplication = async (
   collection: any,

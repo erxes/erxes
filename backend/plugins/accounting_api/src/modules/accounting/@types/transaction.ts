@@ -86,6 +86,11 @@ export interface ITransactionDocument extends ITransaction, Document {
   permission?: string;
 }
 
+export interface ITrRecord extends Omit<ITransaction, 'details'> {
+  details: ITrDetail;
+  trId: string;
+}
+
 export interface IHiddenTransaction extends Document {
   _id: string,
   parentId: string,
