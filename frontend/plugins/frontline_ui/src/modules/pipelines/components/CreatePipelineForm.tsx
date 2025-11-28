@@ -1,17 +1,17 @@
 import { Form, Input, Textarea } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
-import { IPipeline } from '@/pipelines/types';
+import { TCreatePipelineForm, TUpdatePipelineForm } from '@/pipelines/types';
 
 export const CreatePipelineForm = ({
   form,
 }: {
-  form: UseFormReturn<IPipeline>;
+  form: UseFormReturn<TCreatePipelineForm> | UseFormReturn<TUpdatePipelineForm>;
 }) => {
   return (
     <div className="flex flex-col gap-3">
       <div className="w-full flex gap-2">
         <Form.Field
-          control={form.control}
+          control={form.control as any}
           name="name"
           render={({ field }) => (
             <Form.Item className="flex-auto">
@@ -28,7 +28,7 @@ export const CreatePipelineForm = ({
         />
       </div>
       <Form.Field
-        control={form.control}
+        control={form.control as any}
         name="description"
         render={({ field }) => (
           <Form.Item>

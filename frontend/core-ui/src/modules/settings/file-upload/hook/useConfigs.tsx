@@ -28,6 +28,7 @@ const useConfig = () => {
         toast({
           title: 'Success',
           description: 'configs updated successfully',
+          variant: 'success',
         });
       },
       refetchQueries: ['Configs'],

@@ -57,7 +57,7 @@ export const types = `
 
     leadData: JSON
     messengerData: JSON
-    ticketData: JSON
+    ticketConfigId: JSON
     uiOptions: JSON
     isActive: Boolean
     isConnected: Boolean
@@ -152,10 +152,7 @@ export const types = `
   }
 
   input MessengerUiOptions {
-    color: String
-    wallpaper: String
     logo: String
-    textColor: String
     primary: ColorDefinitionInput
   }
 
@@ -280,4 +277,8 @@ export const mutations = `
     channelId: String
   ): Integration
   integrationsCopyLeadIntegration(_id: String!): Integration
+
+  integrationsSaveMessengerTicketData(
+    _id: String!,
+    configId: String!): Integration
 `;

@@ -29,10 +29,12 @@ export enum AccountKind {
 
 export enum JournalEnum {
   MAIN = 'main',
+  TAX = 'tax',
   CASH = 'cash',
   BANK = 'bank',
   DEBT = 'debt',
+  EXCHANGE_DIFF = 'exchangeDiff',
   INVENTORY = 'inventory',
+  INV_FOLLOW = 'invFollow',
   FIXED_ASSET = 'fixedAsset',
-  TAX = 'tax',
 }

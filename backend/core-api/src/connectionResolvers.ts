@@ -129,17 +129,25 @@ import { IInternalNoteDocument } from '@/internalNote/types';
 import { ILogModel, loadLogsClass } from '@/logs/db/models/Logs';
 
 import {
-  emailDeliverySchema,
+  AiAgentDocument,
+  aiAgentSchema,
+  aiEmbeddingSchema,
+  IAiEmbeddingDocument,
   IAutomationDocument,
   IAutomationExecutionDocument,
   IEmailDeliveryDocument,
   INotificationDocument,
   notificationSchema,
 } from 'erxes-api-shared/core-modules';
+import { IAutomationEmailTemplateDocument } from 'erxes-api-shared/core-types';
 import {
   IRoleModel,
   loadRoleClass,
 } from '~/modules/permissions/db/models/Roles';
+import {
+  IAutomationEmailTemplateModel,
+  loadAutomationEmailTemplateClass,
+} from './modules/automations/db/models/AutomationEmailTemplates';
 import {
   IAutomationModel,
   loadClass as loadAutomationClass,
@@ -160,10 +168,23 @@ import {
 } from './modules/properties/db/models/Group';
 
 import {
+  IEmailDeliveryModel,
+  loadEmailDeliveryClass,
+} from './modules/organization/team-member/db/models/EmailDeliveries';
+import {
   IFieldDocument,
   IFieldGroupDocument,
 } from './modules/properties/@types';
-
+import {
+  ICPUserModel,
+  loadCPUserClass,
+} from './modules/clientportal/db/models/CPUser';
+import {
+  IClientPortalModel,
+  loadClientPortalClass,
+} from './modules/clientportal/db/models/ClientPortal';
+import { ICPUserDocument } from './modules/clientportal/types/cpUser';
+import { IClientPortalDocument } from './modules/clientportal/types/clientPortal';
 export interface IModels {
   Brands: IBrandModel;
   Customers: ICustomerModel;
@@ -198,9 +219,14 @@ export interface IModels {
   Documents: IDocumentModel;
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
+  AutomationEmailTemplates: IAutomationEmailTemplateModel;
   Logs: ILogModel;
   Notifications: Model<INotificationDocument>;
-  EmailDeliveries: Model<IEmailDeliveryDocument>;
+  ClientPortal: IClientPortalModel;
+  CPUser: ICPUserModel;
+  AiAgents: Model<AiAgentDocument>;
+  AiEmbeddings: Model<IAiEmbeddingDocument>;
+  EmailDeliveries: IEmailDeliveryModel;
 }
 
 export interface IContext extends IMainContext {
@@ -362,6 +388,11 @@ export const loadClasses = (
     IExecutionModel
   >('automations_executions', loadExecutionClass(models));
 
+  models.AutomationEmailTemplates = db.model<
+    IAutomationEmailTemplateDocument,
+    IAutomationEmailTemplateModel
+  >('automation_email_templates', loadAutomationEmailTemplateClass(models));
+
   models.Notifications = db.model<
     INotificationDocument,
     Model<INotificationDocument>
@@ -369,8 +400,17 @@ export const loadClasses = (
 
   models.EmailDeliveries = db.model<
     IEmailDeliveryDocument,
-    Model<IEmailDeliveryDocument>
-  >('email_deliveries', emailDeliverySchema);
+    IEmailDeliveryModel
+  >('email_deliveries', loadEmailDeliveryClass(models));
+  models.AiAgents = db.model<AiAgentDocument, Model<AiAgentDocument>>(
+    'automations_ai_agents',
+    aiAgentSchema,
+  );
+
+  models.AiEmbeddings = db.model<
+    IAiEmbeddingDocument,
+    Model<IAiEmbeddingDocument>
+  >('ai_embeddings', aiEmbeddingSchema);
 
   const db_name = db.name;
 
@@ -379,6 +419,16 @@ export const loadClasses = (
   models.Logs = logDb.model<ILogDocument, ILogModel>(
     'logs',
     loadLogsClass(models),
+  );
+
+  models.ClientPortal = db.model<IClientPortalDocument, IClientPortalModel>(
+    'client_portals',
+    loadClientPortalClass(models),
+  );
+
+  models.CPUser = db.model<ICPUserDocument, ICPUserModel>(
+    'client_portal_users',
+    loadCPUserClass(models),
   );
 
   return models;

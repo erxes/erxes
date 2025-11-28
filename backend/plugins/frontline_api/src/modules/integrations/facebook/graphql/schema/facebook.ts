@@ -13,6 +13,17 @@ const commonPostAndCommentFields = `
   permalink_url: String
 `;
 
+const commonBotMutationParams = `
+  name:String,
+  accountId:String,
+  pageId:String,
+  persistentMenus:[BotPersistentMenuInput],
+  greetText:String
+  tag:String,
+  isEnabledBackBtn:Boolean,
+  backButtonText:String
+`;
+
 const commentQueryParamDefs = `conversationId: String!, isResolved: Boolean`;
 
 const pageParams = `skip: Int, limit: Int`;
@@ -142,4 +153,8 @@ export const mutations = `
   facebookUpdateConfigs(configsMap: JSON!): JSON
   facebookRepair(_id: String!): JSON
   facebookReplyToComment(conversationId: String, commentId: String, content: String): FacebookComment
+  facebookMessengerAddBot(${commonBotMutationParams}):JSON
+  facebookMessengerUpdateBot(_id:String,${commonBotMutationParams}):JSON
+  facebookMessengerRemoveBot(_id:String):JSON
+  facebookMessengerRepairBot(_id:String):JSON
 `;

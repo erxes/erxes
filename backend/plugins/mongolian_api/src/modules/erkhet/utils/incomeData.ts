@@ -1,14 +1,12 @@
-import { sendTRPCMessage } from "erxes-api-shared/src/utils";
-
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const getIncomeData = async (
   subdomain,
   config,
   purchase,
-  dateType = ""
+  dateType = '',
 ) => {
-  let customerCode = "";
-
+  let customerCode = '';
 
   const companyIds = await sendTRPCMessage({
     subdomain,
@@ -45,7 +43,6 @@ export const getIncomeData = async (
       }
     }
   }
-
 
   if (!customerCode) {
     const customerIds = await sendTRPCMessage({
@@ -84,7 +81,6 @@ export const getIncomeData = async (
     customerCode = config.defaultCustomer;
   }
 
- 
   const productIds = purchase.productsData.map((item) => item.productId);
 
   const products = await sendTRPCMessage({
@@ -108,7 +104,8 @@ export const getIncomeData = async (
   const details: any = [];
 
   const branchIds = purchase.productsData.map((pd) => pd.branchId) || [];
-  const departmentIds = purchase.productsData.map((pd) => pd.departmentId) || [];
+  const departmentIds =
+    purchase.productsData.map((pd) => pd.departmentId) || [];
 
   const branchesById = {};
   const departmentsById = {};
@@ -156,11 +153,11 @@ export const getIncomeData = async (
       continue;
     }
 
-    let otherCode: string = "";
+    let otherCode: string = '';
     if (productData.branchId || productData.departmentId) {
-      const branch = branchesById[productData.branchId || ""] || {};
-      const department = departmentsById[productData.departmentId || ""] || {};
-      otherCode = `${branch.code || ""}_${department.code || ""}`;
+      const branch = branchesById[productData.branchId || ''] || {};
+      const department = departmentsById[productData.departmentId || ''] || {};
+      otherCode = `${branch.code || ''}_${department.code || ''}`;
     }
 
     details.push({
@@ -169,11 +166,11 @@ export const getIncomeData = async (
       discount: productData.discount,
       inventoryCode: productCodeById[productData.productId],
       otherCode,
-      expense: productData.expenseAmount
+      expense: productData.expenseAmount,
     });
   }
 
-// credit payments coll
+  // credit payments coll
   const payments = {};
 
   let sumSaleAmount =
@@ -216,7 +213,6 @@ export const getIncomeData = async (
     }
   }
 
-
   let date = new Date().toISOString().slice(0, 10);
   let checkDate = false;
   switch (dateType) {
@@ -228,13 +224,13 @@ export const getIncomeData = async (
       break;
     case 'closeOrCreated':
       date = new Date(purchase.closeDate || purchase.createdAt)
-      .toISOString()
-      .slice(0, 10);
+        .toISOString()
+        .slice(0, 10);
       break;
     case 'closeOrMove':
       date = new Date(purchase.closeDate || purchase.stageChangedDate)
-      .toISOString()
-      .slice(0, 10);
+        .toISOString()
+        .slice(0, 10);
       break;
     case 'firstOrMove':
       date = new Date(purchase.stageChangedDate).toISOString().slice(0, 10);
@@ -265,7 +261,7 @@ export const getIncomeData = async (
 
   const sendConfig = {
     defaultCustomer: config.defaultCustomer,
-    catAccLocMap: (config.catAccLocMap || []).map(item => ({
+    catAccLocMap: (config.catAccLocMap || []).map((item) => ({
       ...item,
       otherCode: `${item.branch || ''}_${item.department || ''}`,
     })),

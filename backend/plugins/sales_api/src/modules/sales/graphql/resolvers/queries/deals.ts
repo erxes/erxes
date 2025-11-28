@@ -39,7 +39,7 @@ export const generateFilter = async (
   models: IModels,
   subdomain: string,
   userId: string,
-  params: any,
+  params: any = {},
 ) => {
   const filter: FilterQuery<IDealDocument> = {};
 
@@ -196,7 +196,7 @@ export const generateFilter = async (
     filter._id = { $in: filterIds };
   }
 
-  if (_ids && _ids.length) {
+  if (_ids?.length) {
     filter._id = { $in: _ids };
   }
 
@@ -547,7 +547,7 @@ export const generateFilter = async (
   }
 
   if (segment) {
-    const itemIds = await fetchSegment(subdomain,segment);
+    const itemIds = await fetchSegment(subdomain, segment);
 
     filter._id = { $in: itemIds };
   }
@@ -666,7 +666,11 @@ export const dealQueries = {
   /**
    * Deals list
    */
-  async deals(_root, args: IDealQueryParams, { user, models, subdomain }: IContext) {
+  async deals(
+    _root,
+    args: IDealQueryParams,
+    { user, models, subdomain }: IContext,
+  ) {
     const filter = await generateFilter(models, subdomain, user._id, args);
 
     const getExtraFields = async (item: any) => ({
@@ -678,7 +682,14 @@ export const dealQueries = {
       list: deals,
       pageInfo,
       totalCount,
-    } = await getItemList(models, subdomain, filter, args, user, getExtraFields);
+    } = await getItemList(
+      models,
+      subdomain,
+      filter,
+      args,
+      user,
+      getExtraFields,
+    );
 
     const dealProductIds = deals.flatMap((deal) => {
       if (deal.productsData && deal.productsData.length > 0) {

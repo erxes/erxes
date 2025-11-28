@@ -118,7 +118,7 @@ export const dealMutations = {
       throw new Error('Deal not found');
     }
 
-    await sendNotifications(models, subdomain,{
+    await sendNotifications(models, subdomain, {
       item,
       user,
       action: `deleted deal:`,
@@ -213,7 +213,7 @@ export const dealMutations = {
     });
 
     // order notification
-    // const stage = await models.Stages.getStage(clone.stageId);
+    const stage = await models.Stages.getStage(clone.stageId);
 
     // graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
     //   salesPipelinesChanged: {
@@ -233,6 +233,11 @@ export const dealMutations = {
 
     // await publishHelperItemsConformities(clone, stage);
 
+    await subscriptionWrapper(models, {
+      action: 'create',
+      deal: clone,
+      pipelineId: stage.pipelineId,
+    });
     return clone;
   },
 

@@ -26,14 +26,6 @@ const InboxIndexPage = () => {
           <Separator.Inline />
           <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
-        <PageHeader.End>
-          <Button variant="outline" asChild>
-            <Link to="/settings/frontline/channels">
-              <IconSettings />
-              Go to settings
-            </Link>
-          </Button>
-        </PageHeader.End>
       </PageHeader>
       <InboxLayout
         conversations={<Conversations />}

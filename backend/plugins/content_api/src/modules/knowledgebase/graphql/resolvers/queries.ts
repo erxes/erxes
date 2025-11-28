@@ -1,12 +1,7 @@
-import { IContext } from '~/connectionResolvers';
 import { BaseQueryResolver, FIELD_MAPPINGS } from '@/portal/utils/base-resolvers';
-import { getQueryBuilder } from '@/portal/utils/query-builders';
 import { PermissionManager } from '@/portal/utils/permission-utils';
-import {
-  IArticleDocument,
-  ICategoryDocument,
-  ITopicDocument,
-} from '@/knowledgebase/@types/knowledgebase';
+import { getQueryBuilder, KnowledgeBaseQueryBuilder } from '@/portal/utils/query-builders';
+import { IContext } from '~/connectionResolvers';
 
 class KnowledgeBaseQueryResolver extends BaseQueryResolver {
 
@@ -14,7 +9,7 @@ class KnowledgeBaseQueryResolver extends BaseQueryResolver {
    * Article list
    */
   async knowledgeBaseArticles(_root: any, args: any, { models }: IContext) {
-    const queryBuilder = getQueryBuilder('knowledgebase', models);
+    const queryBuilder  = getQueryBuilder('knowledgebase', models) as KnowledgeBaseQueryBuilder;
     const selector = await queryBuilder.buildArticleQuery(args);
     let sort: any = { createdDate: -1 };
   
@@ -78,7 +73,7 @@ class KnowledgeBaseQueryResolver extends BaseQueryResolver {
    * Total article count
    */
   async knowledgeBaseArticlesTotalCount(_root: any, args: any, { models }: IContext) {
-    const queryBuilder = getQueryBuilder('knowledgebase', models);
+    const queryBuilder = getQueryBuilder('knowledgebase', models) as KnowledgeBaseQueryBuilder;
     const qry = await queryBuilder.buildArticleQuery(args);
 
     return models.KnowledgeBaseArticles.find(qry).countDocuments();

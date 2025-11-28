@@ -51,7 +51,11 @@ export const ReplyMessageProvider = ({
 
     setValue('messages', [
       ...messages,
-      { _id: generateAutomationElementId(), type, ...initialValues },
+      {
+        _id: generateAutomationElementId(),
+        type,
+        ...initialValues,
+      } as TBotMessage,
     ]);
   };
 

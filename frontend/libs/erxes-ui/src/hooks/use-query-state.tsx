@@ -19,6 +19,10 @@ export function useQueryState<T>(
       return null;
     }
 
+    if (queryKey === 'searchValue') {
+      return value as T;
+    }
+
     try {
       const parsed = JSON.parse(value);
       return parsed as T;
@@ -64,6 +68,10 @@ export function useMultiQueryState<T extends QueryTypes>(
     key: K,
   ): T[K] | null => {
     if (!value) return null;
+
+    if (key === 'searchValue') {
+      return value as T[K];
+    }
 
     try {
       const parsed = JSON.parse(value);

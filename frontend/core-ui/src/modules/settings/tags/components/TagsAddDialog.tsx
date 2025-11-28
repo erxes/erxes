@@ -32,7 +32,7 @@ export const TagsAddDialog = () => {
     addTag({
       variables: data,
       onCompleted: () => {
-        toast({ title: 'Tag added successfully.' });
+        toast({ title: 'Tag added successfully.', variant: 'success' });
         reset();
         setOpen(false);
       },

@@ -1,4 +1,4 @@
-import { TAutomationBuilderForm } from '@/automations/utils/AutomationFormDefinitions';
+import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { Form, Input } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 

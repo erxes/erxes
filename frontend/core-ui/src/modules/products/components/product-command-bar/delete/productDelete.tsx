@@ -1,7 +1,7 @@
 import { Button, useConfirm, useToast } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
-import { useRemoveProducts } from '@/products/detail/hooks/useRemoveProduct';
+import { useRemoveProducts } from '@/products/product-detail/hooks/useRemoveProduct';
 
 export const ProductsDelete = ({ productIds }: { productIds: string[] }) => {
   const { confirm } = useConfirm();
@@ -18,6 +18,12 @@ export const ProductsDelete = ({ productIds }: { productIds: string[] }) => {
           } selected product${productIds.length === 1 ? '' : 's'}?`,
         }).then(() => {
           removeProducts(productIds, {
+            onCompleted: () => {
+              toast({
+                title: 'Products deleted successfully',
+                variant: 'success',
+              });
+            },
             onError: (e: ApolloError) => {
               toast({
                 title: 'Error',
