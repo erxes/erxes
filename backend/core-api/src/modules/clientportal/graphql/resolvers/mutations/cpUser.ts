@@ -29,7 +29,6 @@ const createJwtToken = (payload: any, clientPortal?: IClientPortalDocument) => {
 
   return { token, refreshToken };
 };
-
 const createAuthCookie = (
   payload: any,
   clientPortal?: IClientPortalDocument,
@@ -119,6 +118,13 @@ export const cpUserMutations: Record<string, Resolver> = {
     createAuthCookie(payload, clientPortal, res);
 
     return 'Success';
+  },
+  async clientPortalLogout(_root: unknown, _args: unknown, { res }: IContext) {
+    res.clearCookie(
+      'client-auth-token',
+      authCookieOptions({ sameSite: 'none' }),
+    );
+    return 'loggedout';
   },
 };
 
