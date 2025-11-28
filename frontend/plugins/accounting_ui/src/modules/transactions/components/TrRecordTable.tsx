@@ -19,7 +19,7 @@ export const TrRecordTable = () => {
     <RecordTable.Provider
       columns={columns}
       data={trRecords || []}
-      stickyColumns={['more', 'account']}
+      stickyColumns={['more', 'checkbox', 'account']}
       className="m-3"
     >
       <RecordTable.CursorProvider

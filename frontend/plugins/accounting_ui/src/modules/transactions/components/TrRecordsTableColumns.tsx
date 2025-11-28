@@ -12,7 +12,7 @@ import {
 import { useSetAtom } from 'jotai';
 import { ProductsInline } from 'ui-modules';
 import { renderingTransactionDetailState } from '../states/renderingTransactionDetailStates';
-import { TR_SIDES } from '../types/constants';
+import { TR_JOURNAL_LABELS, TR_SIDES, TrJournalEnum } from '../types/constants';
 import { ExtendedColumnDef } from '../types/tables';
 import { ITrRecord } from '../types/Transaction';
 
@@ -102,6 +102,17 @@ const DepartmentCell = ({ row }: any) => {
   );
 };
 
+const JournalCell = ({ row }: any) => {
+  const { journal } = row.original;
+
+  return (
+    <RecordTableInlineCell>
+      {TR_JOURNAL_LABELS[journal as TrJournalEnum] || 'Main'}
+    </RecordTableInlineCell>
+  );
+};
+
+
 const DateCell = ({ getValue }: any) => {
   return (
     <RecordTableInlineCell>
@@ -170,7 +181,7 @@ export const trRecordColumns: ExtendedColumnDef<ITrRecord>[] = [
     ),
     accessorKey: 'details',
     cell: ({ row }) => <AccountCell row={row} />,
-    size: 500,
+    size: 300,
     colOrder: 3,
   },
   {
@@ -215,7 +226,7 @@ export const trRecordColumns: ExtendedColumnDef<ITrRecord>[] = [
     cell: ({ getValue, row }) => (
       <DescriptionCell getValue={getValue} row={row} />
     ),
-    size: 300,
+    size: 200,
     colOrder: 33,
   },
   {
@@ -231,6 +242,13 @@ export const trRecordColumns: ExtendedColumnDef<ITrRecord>[] = [
     accessorKey: 'department',
     cell: ({ row }) => <DepartmentCell row={row} />,
     colOrder: 42,
+  },
+  {
+    id: 'journal',
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Journal" />,
+    accessorKey: 'journal',
+    cell: ({ row }) => <JournalCell row={row} />,
+    colOrder: 43,
   },
 ];
 
