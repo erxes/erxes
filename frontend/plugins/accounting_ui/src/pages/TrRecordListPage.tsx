@@ -5,13 +5,13 @@ import { TransactionsFilter } from '@/transactions/components/TrFilters';
 import { TrRecordTable } from '@/transactions/components/TrRecordTable';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Kbd, PageSubHeader } from 'erxes-ui';
+import { TrRecsTotalCount } from '~/modules/transactions/components/TrRecsTotalCount';
 
 export const TrRecordListPage = () => {
   return (
     <AccountingLayout>
       <AccountingHeader>
         <div className="px-3">
-          <TransactionsFilter />
           <AddTransaction>
             <Button>
               <IconPlus />
@@ -22,7 +22,7 @@ export const TrRecordListPage = () => {
         </div>
       </AccountingHeader>
       <PageSubHeader>
-        <TransactionsFilter />
+        <TransactionsFilter afterBar={<TrRecsTotalCount />} />
       </PageSubHeader>
       <TrRecordTable />
     </AccountingLayout>

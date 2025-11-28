@@ -23,8 +23,7 @@ import {
 } from 'erxes-ui';
 import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
 import { SelectAccount } from '~/modules/settings/account/components/SelectAccount';
-import { useTransactionsQueryParams } from '../hooks/useTransactions';
-import { TrsTotalCount } from './TrsTotalCount';
+import { useTransactionsQueryParams } from '../hooks/useTransactionVars';
 
 const TransactionsFilterPopover = () => {
   const queryParams = useTransactionsQueryParams();
@@ -156,7 +155,9 @@ const TransactionsFilterPopover = () => {
   );
 };
 
-export const TransactionsFilter = () => {
+export const TransactionsFilter = (
+  { afterBar }: { afterBar?: React.ReactNode }
+) => {
   const [queries] = useMultiQueryState<{
     number: string;
     searchValue: string;
@@ -227,7 +228,7 @@ export const TransactionsFilter = () => {
         </Filter.BarItem>
 
         <TransactionsFilterPopover />
-        <TrsTotalCount />
+        {afterBar && <>{afterBar}</>}
       </Filter.Bar>
     </Filter>
   );

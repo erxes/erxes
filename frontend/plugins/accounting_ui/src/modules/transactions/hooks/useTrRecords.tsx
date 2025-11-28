@@ -1,56 +1,17 @@
-import { OperationVariables, QueryHookOptions, useQuery } from '@apollo/client';
+import { OperationVariables, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  ICursorListResponse,
   IRecordTableCursorPageInfo,
   mergeCursorData,
-  useMultiQueryState,
-  useRecordTableCursor,
   validateFetchMore
 } from 'erxes-ui';
-import { ACC_TR_RECORDS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
 import { TR_RECORDS_QUERY } from '../graphql/transactionQueries';
 import { ACC_TRS__PER_PAGE } from '../types/constants';
 import { ITrRecord } from '../types/Transaction';
-
-export const useTrRecordsVariables = (
-  variables?: QueryHookOptions<ICursorListResponse<ITrRecord>>['variables'],
-) => {
-  const [queryParams] =
-    useMultiQueryState<{
-      searchValue?: string;
-      code?: string;
-      name?: string;
-      categoryId?: string;
-      currency?: string;
-      kind?: string;
-      journal?: string;
-
-    }>(['code', 'name', 'categoryId', 'currency', 'kind', 'journal', 'searchValue']);
-
-  const { cursor } = useRecordTableCursor({
-    sessionKey: ACC_TR_RECORDS_CURSOR_SESSION_KEY,
-  });
-
-  const curVariables = Object.entries(queryParams).reduce((acc, [key, value]) => {
-    if (value) {
-      acc[key] = value + '';
-    } return acc;
-  }, {} as Record<string, string>);
-
-  return {
-    limit: ACC_TRS__PER_PAGE,
-    orderBy: {
-      date: 1
-    },
-    cursor,
-    ...variables,
-    ...curVariables
-  };
-};
+import { useTransactionsVariables } from './useTransactionVars';
 
 export const useTrRecords = (options?: OperationVariables) => {
-  const variables = useTrRecordsVariables(options?.variables);
+  const variables = useTransactionsVariables(options?.variables);
   const { data, loading, error, fetchMore } = useQuery<{
     accTrRecordsMain: {
       list: ITrRecord[];

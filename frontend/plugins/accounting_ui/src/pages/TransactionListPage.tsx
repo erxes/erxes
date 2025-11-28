@@ -5,6 +5,7 @@ import { TransactionTable } from '@/transactions/components/TransactionTable';
 import { TransactionsFilter } from '@/transactions/components/TrFilters';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Kbd, PageSubHeader } from 'erxes-ui';
+import { TrsTotalCount } from '~/modules/transactions/components/TrsTotalCount';
 
 export const TransactionListPage = () => {
   return (
@@ -21,7 +22,7 @@ export const TransactionListPage = () => {
         </div>
       </AccountingHeader>
       <PageSubHeader>
-        <TransactionsFilter />
+        <TransactionsFilter afterBar={<TrsTotalCount />} />
       </PageSubHeader>
       <TransactionTable />
     </AccountingLayout>
