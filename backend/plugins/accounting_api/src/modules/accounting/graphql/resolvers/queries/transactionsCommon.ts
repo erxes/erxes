@@ -34,6 +34,7 @@ interface IQueryParams {
   departmentId: string;
   currency: string;
   journal: string;
+  journals: string[];
   statuses: string[];
 
   createdUserId?: string;
@@ -105,6 +106,7 @@ const generateFilter = async (
     searchValue,
     number,
     journal,
+    journals,
     brandId,
     branchId,
     departmentId,
@@ -165,6 +167,10 @@ const generateFilter = async (
   }
 
   filter['details.accountId'] = { $in: await getAccountIds(models, params, user) }
+
+  if (journals?.length) {
+    filter.journal = { $in: journals }
+  }
 
   if (journal) {
     filter.journal = journal

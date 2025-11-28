@@ -179,6 +179,7 @@ const trsQueryParams = `
   departmentId: String,
   currency: String,
   journal: String,
+  journals: [String],
   statuses: [String],
 
   createdUserId: String

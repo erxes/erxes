@@ -152,6 +152,7 @@ const trsFilterParamDefs = `
   $departmentId: String,
   $currency: String,
   $journal: String,
+  $journals: [String],
   $statuses: [String],
 
   $createdUserId: String,
@@ -196,6 +197,7 @@ const trsFilterParams = `
   departmentId: $departmentId,
   currency: $currency,
   journal: $journal,
+  journals: $journals
   statuses: $statuses,
 
   createdUserId: $createdUserId,
