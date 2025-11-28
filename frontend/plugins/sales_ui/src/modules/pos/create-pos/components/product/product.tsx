@@ -1,12 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
-import { Form, Checkbox, Button, Label, Input } from 'erxes-ui';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
+import {
+  Form,
+  Button,
+  Input,
+  Dialog,
+  Label,
+  Skeleton,
+  Checkbox,
+} from 'erxes-ui';
+import { IconPlus, IconTrash, IconX, IconEdit } from '@tabler/icons-react';
 import type { ProductFormValues } from '../formSchema';
 import { IPosDetail } from '@/pos/pos-detail/types/IPos';
 import { SelectCategory, SelectProduct } from 'ui-modules';
 import { useMultiSelectToggle } from '../../hooks/useMultiSelector';
+import { useProductGroups } from '@/pos/hooks/useProductGroups';
 import { ProductGroup } from '~/modules/pos/create-pos/types';
 
 interface ProductFormProps {
@@ -24,9 +33,16 @@ export default function ProductForm({
   onSubmit,
   productGroups,
 }: ProductFormProps) {
-  const [showProductGroups, setShowProductGroups] = useState(false);
-  const [showMappings, setShowMappings] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [, setIsSubmitting] = useState(false);
+  const [openAddProductDialog, setOpenAddProductDialog] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [newGroup, setNewGroup] = useState<ProductGroup>({
+    name: '',
+    description: '',
+    categoryIds: [],
+    excludedCategoryIds: [],
+    excludedProductIds: [],
+  });
 
   const internalForm = useForm<ProductFormValues>({
     defaultValues: {
@@ -36,33 +52,42 @@ export default function ProductForm({
       kioskExcludeCategoryIds: [],
       kioskExcludeProductIds: [],
       checkExcludeCategoryIds: [],
+      productGroups: [],
+      isCheckRemainder: false,
+      banFractions: false,
     },
   });
 
   const form = externalForm || internalForm;
   const toggleMultiSelect = useMultiSelectToggle(form);
+  const { productGroups: fetchedProductGroups, loading: productGroupsLoading } =
+    useProductGroups(posDetail?._id);
 
   useEffect(() => {
     if (!posDetail) return;
-    console.log('productGroups', productGroups);
+
+    const productDetailsAsStrings = (posDetail.productDetails || []).map(
+      (detail) => (typeof detail === 'string' ? detail : detail.productId),
+    );
+
     form.reset({
-      productDetails: posDetail.productDetails || [],
+      productDetails: productDetailsAsStrings,
       catProdMappings: posDetail.catProdMappings || [],
       initialCategoryIds: posDetail.initialCategoryIds || [],
       kioskExcludeCategoryIds: posDetail.kioskExcludeCategoryIds || [],
       kioskExcludeProductIds: posDetail.kioskExcludeProductIds || [],
       checkExcludeCategoryIds: posDetail.checkExcludeCategoryIds || [],
-      productGroups: productGroups || [],
+      productGroups: fetchedProductGroups || [],
+      isCheckRemainder: posDetail.isCheckRemainder || false,
+      banFractions: posDetail.banFractions || false,
     });
-
-    setShowProductGroups(!!productGroups?.length);
-    setShowMappings(!!posDetail.catProdMappings?.length);
-  }, [posDetail, form, productGroups]);
+  }, [posDetail, form, fetchedProductGroups]);
 
   const addItem = (fieldName: keyof ProductFormValues, newItem: any) => {
     if (isReadOnly) return;
-    const current = form.watch(fieldName) || [];
-    form.setValue(fieldName, [...current, newItem]);
+    const current = form.getValues(fieldName as any);
+    const nextArray = Array.isArray(current) ? current : [];
+    form.setValue(fieldName, [...nextArray, newItem] as any);
   };
 
   const removeItem = (fieldName: keyof ProductFormValues, index: number) => {
@@ -90,167 +115,78 @@ export default function ProductForm({
       <form onSubmit={form.handleSubmit(handleSubmit)} className="p-3">
         <div className="space-y-8">
           <section className="space-y-4">
-            <h2 className="text-[#4F46E5] text-lg font-semibold uppercase">
-              Available Products
+            <h2 className="text-lg font-semibold uppercase text-primary">
+              Product Groups
             </h2>
-            <p className="text-sm text-gray-500">
-              These selected categories's products will be synched in this pos.
-            </p>
 
-            <Button
-              type="button"
-              onClick={() =>
-                !isReadOnly && setShowProductGroups(!showProductGroups)
-              }
-              className="hover:bg-indigo-700 text-white flex items-center gap-2"
-              disabled={isReadOnly}
-            >
-              <IconPlus size={16} />
-              {showProductGroups ? 'Hide' : 'Show'} Product Details
-            </Button>
+            {!isReadOnly && (
+              <Button
+                type="button"
+                variant="default"
+                onClick={() => setOpenAddProductDialog(true)}
+                className="flex gap-2 items-center"
+              >
+                <IconPlus size={16} />
+                Add Group
+              </Button>
+            )}
 
-            {showProductGroups && (
-              <div className="space-y-4">
-                {form.watch('productGroups')?.map((_, index) => (
-                  <div key={index} className="grid grid-cols-2 gap-4">
-                    <Form.Field
-                      control={form.control}
-                      name={`productGroups.${index}.categoryIds`}
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
-                            CATEGORY included
-                          </Form.Label>
-                          <Form.Control>
-                            <SelectCategory
-                              selected={field.value?.[0]}
-                              onSelect={(value) => field.onChange([value])}
-                              disabled={isReadOnly}
-                              className="h-8"
-                            />
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-                    <Form.Field
-                      control={form.control}
-                      name={`productGroups.${index}.excludedCategoryIds`}
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
-                            CATEGORY excluded
-                          </Form.Label>
-                          <Form.Control>
-                            <SelectCategory
-                              selected={field.value?.[0]}
-                              onSelect={(value) => field.onChange([value])}
-                              disabled={isReadOnly}
-                              className="h-8"
-                            />
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-                    <Form.Field
-                      control={form.control}
-                      name={`productGroups.${index}.excludedProductIds`}
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
-                            Exclude PRODUCT`s
-                          </Form.Label>
-                          <Form.Control>
-                            <SelectProduct
-                              mode="multiple"
-                              value={field.value}
-                              onValueChange={(value) => {
-                                field.onChange(value);
-                              }}
-                              disabled={isReadOnly}
-                              className="h-8"
-                            />
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-
-                    <Form.Field
-                      control={form.control}
-                      name={`productGroups.${index}.isRequired`}
-                      render={({ field }) => (
-                        <Form.Item>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              id={`required-${index}`}
-                              disabled={isReadOnly}
-                            />
-                            <Label
-                              htmlFor={`required-${index}`}
-                              className="text-sm text-gray-500"
-                            >
-                              Required
-                            </Label>
-                          </div>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-
+            <div className="space-y-4">
+              {productGroupsLoading ? (
+                <>
+                  {[1].map((i) => (
+                    <Skeleton key={i} className="w-full h-8 rounded-lg" />
+                  ))}
+                </>
+              ) : (
+                form.watch('productGroups')?.map((group, index) => (
+                  <div
+                    key={index}
+                    className="flex justify-between items-center p-3 rounded-lg border bg-background"
+                  >
+                    <h3 className="text-base font-semibold">{group.name}</h3>
                     {!isReadOnly && (
-                      <div className="flex justify-end">
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setEditingIndex(index);
+                            setNewGroup(group);
+                            setOpenAddProductDialog(true);
+                          }}
+                        >
+                          <IconEdit size={16} />
+                        </Button>
                         <Button
                           type="button"
                           variant="outline"
                           size="sm"
                           onClick={() => removeItem('productGroups', index)}
-                          className="text-red-600 hover:text-red-700"
+                          className="text-destructive"
                         >
                           <IconTrash size={16} />
                         </Button>
                       </div>
                     )}
                   </div>
-                ))}
-
-                {!isReadOnly && (
-                  <div className="flex justify-end">
-                    <Button
-                      type="button"
-                      onClick={() =>
-                        addItem('productGroups', {
-                          isRequired: false,
-                        })
-                      }
-                      className="text-white"
-                    >
-                      <IconPlus size={16} className="mr-1" />
-                      Add Product Detail
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
+                ))
+              )}
+            </div>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-[#4F46E5] text-lg font-semibold uppercase">
+            <h2 className="text-lg font-semibold uppercase text-primary">
               HOME Screen PRODUCT CATEGORIES
             </h2>
-            <p className="text-sm text-gray-500">
-              These categories's products will appear in home screen of pos, if
-              they are also included in Available products
-            </p>
+
             <Form.Field
               control={form.control}
               name="initialCategoryIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
+                  <Form.Label className="text-sm uppercase">
                     INITIAL CATEGORY IDS
                   </Form.Label>
                   <Form.Control>
@@ -264,13 +200,8 @@ export default function ProductForm({
                           )
                         }
                         disabled={isReadOnly}
-                        className="w-full px-3 text-left justify-between"
+                        className="justify-between px-3 w-full text-left"
                       />
-                      {field.value?.length > 0 && (
-                        <div className="text-sm text-gray-600">
-                          Selected: {field.value.length} category(ies)
-                        </div>
-                      )}
                     </div>
                   </Form.Control>
                   <Form.Message />
@@ -280,7 +211,7 @@ export default function ProductForm({
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-[#4F46E5] text-lg font-semibold uppercase">
+            <h2 className="text-lg font-semibold uppercase text-primary">
               KIOSK EXCLUDE PRODUCTS
             </h2>
 
@@ -290,7 +221,7 @@ export default function ProductForm({
                 name="kioskExcludeCategoryIds"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
+                    <Form.Label className="text-sm uppercase">
                       EXCLUDE CATEGORIES
                     </Form.Label>
                     <Form.Control>
@@ -304,13 +235,8 @@ export default function ProductForm({
                             )
                           }
                           disabled={isReadOnly}
-                          className="w-full px-3 text-left justify-between"
+                          className="justify-between px-3 w-full text-left"
                         />
-                        {field.value?.length > 0 && (
-                          <div className="text-sm text-gray-600">
-                            Selected: {field.value.length} category(ies)
-                          </div>
-                        )}
                       </div>
                     </Form.Control>
                     <Form.Message />
@@ -323,7 +249,7 @@ export default function ProductForm({
                 name="kioskExcludeProductIds"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
+                    <Form.Label className="text-sm uppercase">
                       EXCLUDE PRODUCTS
                     </Form.Label>
                     <Form.Control>
@@ -333,17 +259,12 @@ export default function ProductForm({
                           onValueChange={(productId) =>
                             toggleMultiSelect(
                               'kioskExcludeProductIds',
-                              productId,
+                              productId as string,
                             )
                           }
                           disabled={isReadOnly}
-                          className="w-full px-3 text-left justify-between"
+                          className="justify-between px-3 w-full text-left"
                         />
-                        {field.value?.length > 0 && (
-                          <div className="text-sm text-gray-600">
-                            Selected: {field.value.length} product(s)
-                          </div>
-                        )}
                       </div>
                     </Form.Control>
                     <Form.Message />
@@ -354,27 +275,44 @@ export default function ProductForm({
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-[#4F46E5] text-lg font-semibold uppercase">
+            <h2 className="text-lg font-semibold uppercase text-primary">
               PRODUCT & CATEGORY MAPPING
             </h2>
-            <p className="text-sm text-gray-500">
+
+            <p className="text-sm text-muted-foreground">
               Map products to categories. When a product within that category is
               sold with take option, the mapped product will be added to the
               price.
             </p>
 
-            <Button
-              type="button"
-              onClick={() => !isReadOnly && setShowMappings(!showMappings)}
-              className="hover:bg-indigo-700 text-white flex items-center gap-2"
-              disabled={isReadOnly}
-            >
-              <IconPlus size={16} />
-              {showMappings ? 'Hide' : 'Show'} Mappings
-            </Button>
+            {!isReadOnly && (
+              <Button
+                type="button"
+                onClick={() => {
+                  const currentMappings =
+                    form.getValues('catProdMappings') || [];
+                  const newMapping = {
+                    _id: `temp-${Math.random().toString(36).slice(2, 11)}`,
+                    categoryId: '',
+                    productId: '',
+                    name: '',
+                    code: '',
+                  };
+                  form.setValue('catProdMappings', [
+                    ...currentMappings,
+                    newMapping,
+                  ]);
+                }}
+                className="flex gap-2 items-center"
+                variant="default"
+              >
+                <IconPlus size={16} />
+                Add Mapping
+              </Button>
+            )}
 
-            {showMappings && (
-              <div className="space-y-4 p-4">
+            {form.watch('catProdMappings')?.length > 0 && (
+              <div className="space-y-4">
                 {form.watch('catProdMappings')?.map((mapping, index) => (
                   <div key={index} className="grid grid-cols-2 gap-4">
                     <Form.Field
@@ -382,7 +320,7 @@ export default function ProductForm({
                       name={`catProdMappings.${index}.categoryId`}
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
+                          <Form.Label className="text-sm uppercase">
                             CATEGORY
                           </Form.Label>
                           <Form.Control>
@@ -403,7 +341,7 @@ export default function ProductForm({
                       name={`catProdMappings.${index}.productId`}
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
+                          <Form.Label className="text-sm uppercase">
                             PRODUCTS
                           </Form.Label>
                           <Form.Control>
@@ -416,34 +354,6 @@ export default function ProductForm({
                                 disabled={isReadOnly}
                                 className="w-full h-8"
                               />
-                              {/* {field.value?.length > 0 && (
-                                <div className="flex flex-wrap gap-2">
-                                  {field.value.map((productId: string) => (
-                                    <div
-                                      key={productId}
-                                      className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-sm flex items-center gap-1"
-                                    >
-                                      Product: {productId}
-                                      {!isReadOnly && (
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            field.onChange(
-                                              field.value.filter(
-                                                (id: string) =>
-                                                  id !== productId,
-                                              ),
-                                            )
-                                          }
-                                          className="text-red-600 hover:text-red-800 bg-secondary"
-                                        >
-                                          ×
-                                        </button>
-                                      )}
-                                    </div>
-                                  ))}
-                                </div>
-                              )} */}
                             </div>
                           </Form.Control>
                           <Form.Message />
@@ -455,14 +365,14 @@ export default function ProductForm({
                       name={`catProdMappings.${index}.name`}
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
+                          <Form.Label className="text-sm uppercase">
                             Product Name Contains
                           </Form.Label>
                           <Form.Control>
                             <Input
                               {...field}
                               placeholder="Write here"
-                              className="border border-gray-300 h-10"
+                              className="h-8"
                               disabled={isReadOnly}
                               readOnly={isReadOnly}
                             />
@@ -476,14 +386,14 @@ export default function ProductForm({
                       name={`catProdMappings.${index}.code`}
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
+                          <Form.Label className="text-sm uppercase">
                             Product Code Contains
                           </Form.Label>
                           <Form.Control>
                             <Input
                               {...field}
                               placeholder="Write here"
-                              className="border border-gray-300 h-10"
+                              className="h-8"
                               disabled={isReadOnly}
                               readOnly={isReadOnly}
                             />
@@ -493,13 +403,13 @@ export default function ProductForm({
                       )}
                     />
                     {!isReadOnly && (
-                      <div className="flex justify-end col-span-2">
+                      <div className="flex col-span-2 justify-end">
                         <Button
                           type="button"
                           variant="outline"
                           size="sm"
                           onClick={() => removeItem('catProdMappings', index)}
-                          className="text-red-600 hover:text-red-700"
+                          className="text-destructive"
                         >
                           <IconTrash size={16} />
                         </Button>
@@ -507,30 +417,12 @@ export default function ProductForm({
                     )}
                   </div>
                 ))}
-
-                {!isReadOnly && (
-                  <div className="flex justify-end">
-                    <Button
-                      type="button"
-                      onClick={() =>
-                        addItem('catProdMappings', {
-                          categoryId: '',
-                          productId: '',
-                        })
-                      }
-                      className="text-white"
-                    >
-                      <IconPlus size={16} className="mr-1" />
-                      Add Mapping
-                    </Button>
-                  </div>
-                )}
               </div>
             )}
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-[#4F46E5] text-lg font-semibold uppercase">
+            <h2 className="text-lg font-semibold uppercase text-primary">
               CHECK EXCLUDE CATEGORIES
             </h2>
 
@@ -539,7 +431,7 @@ export default function ProductForm({
               name="checkExcludeCategoryIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="text-sm text-[#A1A1AA] uppercase font-semibold">
+                  <Form.Label className="text-sm uppercase">
                     EXCLUDE CATEGORIES
                   </Form.Label>
                   <Form.Control>
@@ -553,34 +445,228 @@ export default function ProductForm({
                           )
                         }
                         disabled={isReadOnly}
-                        className="w-full px-3 text-left justify-between"
+                        className="justify-between px-3 w-full text-left"
                       />
-                      {field.value?.length > 0 && (
-                        <div className="text-sm text-gray-600">
-                          Selected: {field.value.length} category(ies)
-                        </div>
-                      )}
                     </div>
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
               )}
             />
+
+            <div className="grid grid-cols-2 gap-4 items-center">
+              <Form.Field
+                control={form.control}
+                name="isCheckRemainder"
+                render={({ field }) => (
+                  <Form.Item className="flex gap-2 items-center">
+                    <Form.Control>
+                      <Checkbox
+                        id="isCheckRemainder"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        disabled={isReadOnly}
+                        className="mt-2"
+                      />
+                    </Form.Control>
+                    <Label
+                      htmlFor="isCheckRemainder"
+                      className="text-sm font-medium leading-none cursor-pointer"
+                    >
+                      Check Remainder
+                    </Label>
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                control={form.control}
+                name="banFractions"
+                render={({ field }) => (
+                  <Form.Item className="flex gap-2 items-center">
+                    <Form.Control>
+                      <Checkbox
+                        id="banFractions"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        disabled={isReadOnly}
+                        className="mt-2"
+                      />
+                    </Form.Control>
+                    <Label
+                      htmlFor="banFractions"
+                      className="text-sm font-medium leading-none cursor-pointer"
+                    >
+                      Ban Fractions
+                    </Label>
+                  </Form.Item>
+                )}
+              />
+            </div>
           </section>
         </div>
-
-        {!isReadOnly && onSubmit && (
-          <div className="mt-8 flex justify-end">
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white"
-            >
-              {isSubmitting ? 'Saving...' : !!posDetail ? 'Update' : 'Save'}
-            </Button>
-          </div>
-        )}
       </form>
+
+      <Dialog
+        open={openAddProductDialog}
+        onOpenChange={setOpenAddProductDialog}
+      >
+        <Dialog.Content className="sm:max-w-lg">
+          <Dialog.Header className="pb-4 border-b">
+            <div className="flex justify-between items-center">
+              <Dialog.Title className="text-lg font-bold">
+                {editingIndex === null ? 'Add group' : 'Edit group'}
+              </Dialog.Title>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setOpenAddProductDialog(false)}
+                className="p-0 w-8 h-8"
+              >
+                <IconX size={20} />
+              </Button>
+            </div>
+          </Dialog.Header>
+
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold uppercase">
+                GROUP NAME <span className="text-destructive">*</span>
+              </Label>
+
+              <Input
+                value={newGroup.name}
+                onChange={(e) =>
+                  setNewGroup({ ...newGroup, name: e.target.value })
+                }
+                placeholder="Enter group name"
+                className="w-full"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold uppercase">
+                GROUP DESCRIPTION
+              </Label>
+              <Input
+                value={newGroup.description}
+                onChange={(e) =>
+                  setNewGroup({ ...newGroup, description: e.target.value })
+                }
+                placeholder="Enter group description"
+                className="w-full"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold uppercase">
+                PRODUCT CATEGORY
+              </Label>
+              <SelectCategory
+                selected={newGroup.categoryIds?.[0]}
+                onSelect={(categoryId) => {
+                  const currentIds = newGroup.categoryIds || [];
+                  const newIds = currentIds.includes(categoryId as string)
+                    ? currentIds.filter((id) => id !== categoryId)
+                    : [...currentIds, categoryId as string];
+                  setNewGroup({ ...newGroup, categoryIds: newIds });
+                }}
+                className="justify-between px-3 w-full text-left"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold uppercase">
+                EXCLUDE PRODUCT CATEGORY
+              </Label>
+              <SelectCategory
+                selected={newGroup.excludedCategoryIds?.[0]}
+                onSelect={(categoryId) => {
+                  const currentIds = newGroup.excludedCategoryIds || [];
+                  const newIds = currentIds.includes(categoryId as string)
+                    ? currentIds.filter((id) => id !== categoryId)
+                    : [...currentIds, categoryId as string];
+                  setNewGroup({ ...newGroup, excludedCategoryIds: newIds });
+                }}
+                className="justify-between px-3 w-full text-left"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold uppercase">
+                EXCLUDE PRODUCTS
+              </Label>
+              <SelectProduct
+                value={newGroup.excludedProductIds?.[0]}
+                onValueChange={(value) => {
+                  const productId = Array.isArray(value) ? value[0] : value;
+                  const currentIds = newGroup.excludedProductIds || [];
+                  const newIds = currentIds.includes(productId)
+                    ? currentIds.filter((id) => id !== productId)
+                    : [...currentIds, productId];
+                  setNewGroup({ ...newGroup, excludedProductIds: newIds });
+                }}
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          <Dialog.Footer>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setOpenAddProductDialog(false);
+                setEditingIndex(null);
+                setNewGroup({
+                  name: '',
+                  description: '',
+                  categoryIds: [],
+                  excludedCategoryIds: [],
+                  excludedProductIds: [],
+                });
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (!newGroup.name) return;
+                if (editingIndex === null) {
+                  function randomId(length = 12) {
+                    return [...new Array(length)]
+                      .map(() => Math.random().toString(36)[2])
+                      .join('');
+                  }
+
+                  const groupWithId = {
+                    ...newGroup,
+                    _id: `temporaryId-${randomId()}`,
+                  };
+                  addItem('productGroups', groupWithId);
+                } else {
+                  const currentGroups = form.watch('productGroups') || [];
+                  const updatedGroups = [...currentGroups];
+                  updatedGroups[editingIndex] = newGroup;
+                  form.setValue('productGroups', updatedGroups);
+                }
+                setOpenAddProductDialog(false);
+                setEditingIndex(null);
+                setNewGroup({
+                  name: '',
+                  description: '',
+                  categoryIds: [],
+                  excludedCategoryIds: [],
+                  excludedProductIds: [],
+                });
+              }}
+              disabled={newGroup.name === ''}
+              variant="default"
+            >
+              {editingIndex === null ? 'Add to POS' : 'Update'}
+            </Button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
     </Form>
   );
 }

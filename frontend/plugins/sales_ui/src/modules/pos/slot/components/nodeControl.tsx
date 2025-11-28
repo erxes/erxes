@@ -1,28 +1,32 @@
 import React from 'react';
 import { Button, Tooltip } from 'erxes-ui';
 import { Panel } from '@xyflow/react';
-import { IconPlus, IconArrowsMoveVertical } from '@tabler/icons-react';
+import {
+  IconPlus,
+  IconArrowsMoveVertical,
+  IconDeviceFloppy,
+} from '@tabler/icons-react';
 import { NodeControlsProps } from '../types';
 
 const NodeControls: React.FC<NodeControlsProps> = ({
   onAddSlot,
   onArrangeNodes,
+  onSaveChanges,
+  isCreating,
 }) => {
   return (
-    <Panel
-      position="top-right"
-      className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-md border border-gray-200 dark:border-gray-700"
-    >
+    <Panel position="top-right" className="p-2 rounded-md border bg-background">
       <div className="flex flex-col gap-2">
         <Tooltip.Provider>
           <Tooltip>
             <Tooltip.Trigger asChild>
               <Button variant="outline" size="icon" onClick={onAddSlot}>
-                <IconPlus className="h-4 w-4" />
+                <IconPlus className="w-4 h-4 text-foreground" />
               </Button>
             </Tooltip.Trigger>
+
             <Tooltip.Content>
-              <p>Add New Slot (Ctrl+N)</p>
+              <p>Add New Slot</p>
             </Tooltip.Content>
           </Tooltip>
         </Tooltip.Provider>
@@ -31,7 +35,7 @@ const NodeControls: React.FC<NodeControlsProps> = ({
           <Tooltip>
             <Tooltip.Trigger asChild>
               <Button variant="outline" size="icon" onClick={onArrangeNodes}>
-                <IconArrowsMoveVertical className="h-4 w-4" />
+                <IconArrowsMoveVertical className="w-4 h-4 text-foreground" />
               </Button>
             </Tooltip.Trigger>
             <Tooltip.Content>
@@ -39,6 +43,21 @@ const NodeControls: React.FC<NodeControlsProps> = ({
             </Tooltip.Content>
           </Tooltip>
         </Tooltip.Provider>
+
+        {onSaveChanges && !isCreating && (
+          <Tooltip.Provider>
+            <Tooltip>
+              <Tooltip.Trigger asChild>
+                <Button variant="default" size="icon" onClick={onSaveChanges}>
+                  <IconDeviceFloppy className="w-4 h-4 text-foreground" />
+                </Button>
+              </Tooltip.Trigger>
+              <Tooltip.Content>
+                <p>Save Changes</p>
+              </Tooltip.Content>
+            </Tooltip>
+          </Tooltip.Provider>
+        )}
       </div>
     </Panel>
   );

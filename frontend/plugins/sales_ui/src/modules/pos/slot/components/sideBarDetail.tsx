@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
 import { slotDetailAtom } from '../states/slot';
-import { Button, Checkbox, Input, Label } from 'erxes-ui';
+import { Button, Checkbox, ColorPicker, Input, Label } from 'erxes-ui';
 import { SidebarDetailProps, SlotDetailForm } from '../types';
 
 const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
@@ -8,7 +8,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
 
   const handleChange = (
     field: keyof SlotDetailForm,
-    value: string | boolean,
+    value: string | number | boolean,
   ) => {
     setSlotDetail({
       ...slotDetail,
@@ -17,12 +17,14 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
   };
 
   return (
-    <div className="p-4 max-w-md mx-auto">
-      <h1 className="text-3xl font-bold text-[#5E5CFF] mb-6">SLOT DETAIL</h1>
+    <div className="mx-auto max-w-md">
+      <div className="p-4 border-b">
+        <h2 className="text-2xl text-foreground">SLOT DETAIL</h2>
+      </div>
 
-      <div className="space-y-4">
+      <div className="p-4 space-y-3">
         <div>
-          <Label htmlFor="name" className="text-gray-500 uppercase">
+          <Label htmlFor="name" className="uppercase">
             Name
           </Label>
           <Input
@@ -34,7 +36,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
         </div>
 
         <div>
-          <Label htmlFor="code" className="text-gray-500 uppercase">
+          <Label htmlFor="code" className="uppercase">
             Code
           </Label>
           <Input
@@ -47,27 +49,26 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
         </div>
 
         <div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="rounded"
-              checked={slotDetail.rounded}
-              onCheckedChange={(checked) =>
-                handleChange('rounded', checked === true)
-              }
-            />
-            <Label htmlFor="rounded" className="text-gray-500 uppercase">
-              Rounded
-            </Label>
-          </div>
+          <Label htmlFor="rounded" className="uppercase">
+            Rounded
+          </Label>
+
+          <Input
+            id="rounded"
+            type="number"
+            value={slotDetail.rounded}
+            onChange={(e) => handleChange('rounded', Number(e.target.value))}
+            className="mt-1 rounded-lg"
+          />
         </div>
 
         <div>
-          <Label htmlFor="width" className="text-gray-500 uppercase">
+          <Label htmlFor="width" className="uppercase">
             Width
           </Label>
           <Input
             id="width"
-            type="text"
+            type="number"
             value={slotDetail.width}
             onChange={(e) => handleChange('width', e.target.value)}
             className="mt-1 rounded-lg"
@@ -75,12 +76,12 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
         </div>
 
         <div>
-          <Label htmlFor="height" className="text-gray-500 uppercase">
+          <Label htmlFor="height" className="uppercase">
             Height
           </Label>
           <Input
             id="height"
-            type="text"
+            type="number"
             value={slotDetail.height}
             onChange={(e) => handleChange('height', e.target.value)}
             className="mt-1 rounded-lg"
@@ -88,12 +89,12 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
         </div>
 
         <div>
-          <Label htmlFor="top" className="text-gray-500 uppercase">
+          <Label htmlFor="top" className="uppercase">
             Top
           </Label>
           <Input
             id="top"
-            type="text"
+            type="number"
             value={slotDetail.top}
             onChange={(e) => handleChange('top', e.target.value)}
             className="mt-1 rounded-lg"
@@ -101,12 +102,12 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
         </div>
 
         <div>
-          <Label htmlFor="left" className="text-gray-500 uppercase">
+          <Label htmlFor="left" className="uppercase">
             Left
           </Label>
           <Input
             id="left"
-            type="text"
+            type="number"
             value={slotDetail.left}
             onChange={(e) => handleChange('left', e.target.value)}
             className="mt-1 rounded-lg"
@@ -114,12 +115,12 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
         </div>
 
         <div>
-          <Label htmlFor="rotateAngle" className="text-gray-500 uppercase">
+          <Label htmlFor="rotateAngle" className="uppercase">
             Rotate Angle
           </Label>
           <Input
             id="rotateAngle"
-            type="text"
+            type="number"
             value={slotDetail.rotateAngle}
             onChange={(e) => handleChange('rotateAngle', e.target.value)}
             className="mt-1 rounded-lg"
@@ -127,12 +128,12 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
         </div>
 
         <div>
-          <Label htmlFor="zIndex" className="text-gray-500 uppercase">
+          <Label htmlFor="zIndex" className="uppercase">
             Z Index
           </Label>
           <Input
             id="zIndex"
-            type="text"
+            type="number"
             value={slotDetail.zIndex}
             onChange={(e) => handleChange('zIndex', e.target.value)}
             className="mt-1 rounded-lg"
@@ -140,22 +141,14 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
         </div>
 
         <div>
-          <Label htmlFor="color" className="text-gray-500 uppercase">
+          <Label htmlFor="color" className="uppercase">
             Color
           </Label>
           <div className="flex mt-1 space-x-2">
-            <Input
-              id="color-picker"
-              type="color"
+            <ColorPicker
               value={slotDetail.color}
-              onChange={(e) => handleChange('color', e.target.value)}
-              className="w-12 h-10 p-1 cursor-pointer"
-            />
-            <Input
-              id="color"
-              value={slotDetail.color}
-              onChange={(e) => handleChange('color', e.target.value)}
-              className="flex-1"
+              onValueChange={(val) => handleChange('color', val)}
+              className="w-24 h-8"
             />
           </div>
         </div>
@@ -169,24 +162,22 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
                 handleChange('disabled', checked === true)
               }
             />
-            <Label htmlFor="disabled" className="text-gray-500 uppercase">
+
+            <Label htmlFor="disabled" className="uppercase">
               Disabled
             </Label>
           </div>
         </div>
 
-        <div className="flex justify-between pt-4">
+        <div className="flex justify-between">
           <Button
-            variant="outline"
+            variant="destructive"
             onClick={onCancel}
-            className="px-8 py-2 text-red-500 border-red-500 hover:bg-red-50"
+            className="px-8 py-2"
           >
             Cancel
           </Button>
-          <Button
-            onClick={onSave}
-            className="px-8 py-2 bg-[#5E5CFF] hover:bg-[#4a48cc]"
-          >
+          <Button variant="default" onClick={onSave} className="px-8 py-2">
             Save
           </Button>
         </div>

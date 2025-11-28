@@ -4,6 +4,10 @@ import { useState } from 'react';
 import {
   BasicInfoFormValues,
   basicInfoSchema,
+  DeliveryConfigFormValues,
+  deliveryConfigSchema,
+  FinanceConfigFormValues,
+  financeConfigSchema,
   FormStepData,
   PaymentFormValues,
   paymentSchema,
@@ -11,12 +15,12 @@ import {
   permissionSchema,
   ProductFormValues,
   productSchema,
-  DeliveryConfigFormValues,
-  deliveryConfigSchema,
   UiConfigFormValues,
   uiConfigSchema,
-  FinanceConfigFormValues,
-  financeConfigSchema,
+  KitchenScreenConfigFormValues,
+  kitchenScreenConfigSchema,
+  WaitingScreenConfigFormValues,
+  waitingScreenConfigSchema,
 } from '../components/formSchema';
 
 const getDefaultFormStepData = (): FormStepData => ({
@@ -93,6 +97,19 @@ const getDefaultFormStepData = (): FormStepData => ({
     watchedUserIds: [],
     assignedUserIds: [],
   },
+  waitingScreen: {
+    isActive: true,
+    type: '',
+    contentUrl: '',
+    value: 0,
+  },
+  kitchenScreen: {
+    isActive: true,
+    isPrint: true,
+    type: '',
+    showType: '',
+    value: 0,
+  },
 });
 
 export const usePosCreateForm = () => {
@@ -135,6 +152,16 @@ export const usePosCreateForm = () => {
     defaultValues: formStepData.deliveryConfig,
   });
 
+  const kitchenScreenForm = useForm<KitchenScreenConfigFormValues>({
+    resolver: zodResolver(kitchenScreenConfigSchema),
+    defaultValues: formStepData.kitchenScreen,
+  });
+
+  const waitingScreenForm = useForm<WaitingScreenConfigFormValues>({
+    resolver: zodResolver(waitingScreenConfigSchema),
+    defaultValues: formStepData.waitingScreen,
+  });
+
   const forms = {
     basicInfo: basicInfoForm,
     permission: permissionForm,
@@ -143,6 +170,8 @@ export const usePosCreateForm = () => {
     uiConfig: uiConfigForm,
     deliveryConfig: deliveryConfigForm,
     financeConfig: financeConfigForm,
+    kitchenScreen: kitchenScreenForm,
+    waitingScreen: waitingScreenForm,
   };
 
   const updateFormStepData = (step: keyof FormStepData, data: any) => {
@@ -161,6 +190,8 @@ export const usePosCreateForm = () => {
       uiConfig: uiConfigForm.getValues(),
       deliveryConfig: deliveryConfigForm.getValues(),
       financeConfig: financeConfigForm.getValues(),
+      kitchenScreen: kitchenScreenForm.getValues(),
+      waitingScreen: waitingScreenForm.getValues(),
     };
   };
 

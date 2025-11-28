@@ -6,7 +6,7 @@ export const selectedNodeAtom = atom<CustomNode | null>(null);
 export const slotDetailAtom = atom<SlotDetailForm>({
   name: '',
   code: '',
-  rounded: false,
+  rounded: 0,
   width: '80',
   height: '80',
   top: '0',
@@ -33,7 +33,7 @@ export const syncSelectedNodeAtom = atom(
       set(slotDetailAtom, {
         name: node.data.label || '',
         code: node.data.code || node.id,
-        rounded: node.data.rounded || false,
+        rounded: Number(node.data.rounded) || 0,
         width: node.data.width ? String(node.data.width) : '80',
         height: node.data.height ? String(node.data.height) : '80',
         top: String(y),
@@ -50,7 +50,7 @@ export const syncSelectedNodeAtom = atom(
       set(slotDetailAtom, {
         name: '',
         code: '',
-        rounded: false,
+        rounded: 0,
         width: '80',
         height: '80',
         top: '0',
@@ -93,7 +93,7 @@ export const syncSlotDetailAtom = atom(
           height,
           positionX: x,
           positionY: y,
-          rounded: detail.rounded,
+          rounded: Number(detail.rounded) || 0,
           rotateAngle,
           zIndex,
           disabled: detail.disabled,

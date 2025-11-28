@@ -1,6 +1,4 @@
-import { IconPlus } from '@tabler/icons-react';
-
-import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
+import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { PosDelete } from './delete/delete';
 
 export const PosCommandBar = () => {
@@ -16,13 +14,9 @@ export const PosCommandBar = () => {
         <PosDelete
           posIds={table
             .getFilteredSelectedRowModel()
-            .rows.map((row) => row.original._id).join(',')}
+            .rows.map((row) => row.original._id)
+            .join(',')}
         />
-        <Separator.Inline />
-        <Button variant="secondary">
-          <IconPlus />
-          Create
-        </Button>
       </CommandBar.Bar>
     </CommandBar>
   );

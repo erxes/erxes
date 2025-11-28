@@ -5,7 +5,7 @@ export interface TableNodeData {
   height: number;
   positionX?: number;
   positionY?: number;
-  rounded: boolean;
+  rounded: number;
   rotateAngle: number;
   zIndex: number;
   disabled: boolean;
@@ -27,7 +27,7 @@ export interface CustomNode {
     height: number;
     positionX: number;
     positionY: number;
-    rounded: boolean;
+    rounded: number;
     rotateAngle: number;
     zIndex: number;
     disabled: boolean;
@@ -39,7 +39,7 @@ export interface CustomNode {
 export interface SlotDetailForm {
   name: string;
   code: string;
-  rounded: boolean;
+  rounded: number;
   width: string;
   height: string;
   top: string;
@@ -70,12 +70,6 @@ export type TabValue = 'slots' | 'details';
 
 export type SidebarViewType = 'list' | 'detail' | 'hidden';
 
-export interface SidebarListProps {
-  nodes: CustomNode[];
-  onNodeSelect: (nodeId: string) => void;
-  onAddNew: (nodeData?: Partial<TableNodeData>) => void;
-}
-
 export interface UseKeyboardShortcutsProps {
   selectedNode: CustomNode | null;
   setSelectedNode: React.Dispatch<React.SetStateAction<CustomNode | null>>;
@@ -87,6 +81,7 @@ export interface UseKeyboardShortcutsProps {
   onAddNode: () => void;
   onToggleSidebar: () => void;
 }
+
 export interface NodeControlsProps {
   isFullscreen: boolean;
   toggleFullscreen: () => void;
@@ -96,6 +91,8 @@ export interface NodeControlsProps {
   onDelete: (() => void) | undefined;
   onAddSlot: () => void;
   onArrangeNodes: () => void;
+  onSaveChanges?: () => void;
+  isCreating?: boolean;
 }
 
 export interface MiniMapToggleProps {
@@ -104,6 +101,7 @@ export interface MiniMapToggleProps {
   pannable?: boolean;
   position?: string;
 }
+
 export interface SidebarListProps {
   nodes: CustomNode[];
   selectedNode: CustomNode | null;
@@ -111,6 +109,8 @@ export interface SidebarListProps {
   onAddSlot: () => void;
   onDuplicateSlot: (id: string) => void;
   onDeleteSlot: (id: string) => void;
+  onNodeSelect: (nodeId: string) => void;
+  onAddNew: (nodeData?: Partial<TableNodeData>) => void;
 }
 
 export interface SidebarDetailProps {
@@ -127,7 +127,7 @@ export interface SlotCardProps {
 export interface SlotDetail {
   name: string;
   code: string;
-  rounded: boolean;
+  rounded: number;
   width: string;
   height: string;
   top: string;

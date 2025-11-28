@@ -1,4 +1,4 @@
-import { Input, Label, Select, Switch, Form } from 'erxes-ui';
+import { Input, Select, Switch, Form } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -20,7 +20,7 @@ export default function FinanceConfigForm({
   onSubmit,
 }: FinanceConfigFormProps) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [, setIsSubmitting] = useState(false);
 
   const { control, watch, handleSubmit, reset } = form;
   const isSyncErkhet = watch('isSyncErkhet');
@@ -30,10 +30,15 @@ export default function FinanceConfigForm({
       const financeData: FinanceConfigFormValues = {
         isSyncErkhet: posDetail.erkhetConfig?.isSyncErkhet ?? false,
         checkErkhet: posDetail.erkhetConfig?.checkErkhet ?? false,
-        checkInventories: posDetail.isCheckRemainder ?? false,
+        checkInventories:
+          posDetail.erkhetConfig?.checkInventories ??
+          posDetail.isCheckRemainder ??
+          false,
         userEmail: posDetail.erkhetConfig?.userEmail || '',
         beginBillNumber:
-          posDetail.beginNumber || posDetail.erkhetConfig?.beginNumber || '',
+          posDetail.erkhetConfig?.beginBillNumber ||
+          posDetail.beginNumber ||
+          '',
         defaultPay: posDetail.erkhetConfig?.defaultPay || '',
         account: posDetail.erkhetConfig?.account || '',
         location: posDetail.erkhetConfig?.location || '',
@@ -68,7 +73,7 @@ export default function FinanceConfigForm({
         <form onSubmit={handleSubmit(onFormSubmit)}>
           <div className="space-y-8">
             <div className="space-y-4">
-              <h2 className="text-indigo-600 text-xl font-medium">MAIN</h2>
+              <h2 className="text-xl font-medium text-primary">MAIN</h2>
 
               <Form.Field
                 control={control}
@@ -76,57 +81,10 @@ export default function FinanceConfigForm({
                 render={({ field }) => (
                   <Form.Item>
                     <div className="flex flex-col gap-3">
-                      <Form.Label className="text-gray-600">
+                      <Form.Label className="text-xs font-semibold">
                         IS SYNC ERKHET
                       </Form.Label>
-                      <Form.Control>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          disabled={isReadOnly}
-                        />
-                      </Form.Control>
-                    </div>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            </div>
 
-            <div className="space-y-4">
-              <h2 className="text-indigo-600 text-xl font-medium">REMAINDER</h2>
-
-              <Form.Field
-                control={control}
-                name="checkErkhet"
-                render={({ field }) => (
-                  <Form.Item>
-                    <div className="flex flex-col gap-3">
-                      <Form.Label className="text-gray-600">
-                        CHECK ERKHET
-                      </Form.Label>
-                      <Form.Control>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          disabled={isReadOnly}
-                        />
-                      </Form.Control>
-                    </div>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={control}
-                name="checkInventories"
-                render={({ field }) => (
-                  <Form.Item>
-                    <div className="flex flex-col gap-3">
-                      <Form.Label className="text-gray-600">
-                        CHECK INVENTORIES
-                      </Form.Label>
                       <Form.Control>
                         <Switch
                           checked={field.value}
@@ -143,18 +101,19 @@ export default function FinanceConfigForm({
 
             {isSyncErkhet && (
               <div className="space-y-6">
-                <h2 className="text-indigo-600 text-xl font-medium">OTHER</h2>
+                <h2 className="text-xl font-medium text-primary">OTHER</h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                   <Form.Field
                     control={control}
                     name="userEmail"
                     render={({ field }) => (
                       <Form.Item>
                         <div className="space-y-2">
-                          <Form.Label className="text-sm text-gray-500">
+                          <Form.Label className="text-xs font-semibold">
                             USER EMAIL
                           </Form.Label>
+
                           <Form.Control>
                             <Input
                               type="email"
@@ -176,9 +135,10 @@ export default function FinanceConfigForm({
                     render={({ field }) => (
                       <Form.Item>
                         <div className="space-y-2">
-                          <Form.Label className="text-sm text-gray-500">
+                          <Form.Label className="text-xs font-semibold">
                             BEGIN BILL NUMBER
                           </Form.Label>
+
                           <Form.Control>
                             <Input
                               {...field}
@@ -199,9 +159,10 @@ export default function FinanceConfigForm({
                     render={({ field }) => (
                       <Form.Item>
                         <div className="space-y-2">
-                          <Form.Label className="text-sm text-gray-500">
+                          <Form.Label className="text-xs font-semibold">
                             DEFAULTPAY
                           </Form.Label>
+
                           <Form.Control>
                             <Select
                               value={field.value}
@@ -230,16 +191,17 @@ export default function FinanceConfigForm({
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <Form.Field
                     control={control}
                     name="account"
                     render={({ field }) => (
                       <Form.Item>
                         <div className="space-y-2">
-                          <Form.Label className="text-sm text-gray-500">
+                          <Form.Label className="text-xs font-semibold">
                             ACCOUNT
                           </Form.Label>
+
                           <Form.Control>
                             <Input
                               {...field}
@@ -260,9 +222,10 @@ export default function FinanceConfigForm({
                     render={({ field }) => (
                       <Form.Item>
                         <div className="space-y-2">
-                          <Form.Label className="text-sm text-gray-500">
+                          <Form.Label className="text-xs font-semibold">
                             LOCATION
                           </Form.Label>
+
                           <Form.Control>
                             <Input
                               {...field}
@@ -279,6 +242,56 @@ export default function FinanceConfigForm({
                 </div>
               </div>
             )}
+
+            <div className="space-y-4">
+              <h2 className="text-xl font-medium text-primary">REMAINDER</h2>
+
+              <Form.Field
+                control={control}
+                name="checkErkhet"
+                render={({ field }) => (
+                  <Form.Item>
+                    <div className="flex flex-col gap-3">
+                      <Form.Label className="text-xs font-semibold">
+                        CHECK ERKHET
+                      </Form.Label>
+
+                      <Form.Control>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          disabled={isReadOnly}
+                        />
+                      </Form.Control>
+                    </div>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                control={control}
+                name="checkInventories"
+                render={({ field }) => (
+                  <Form.Item>
+                    <div className="flex flex-col gap-3">
+                      <Form.Label className="text-xs font-semibold">
+                        CHECK INVENTORIES
+                      </Form.Label>
+
+                      <Form.Control>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          disabled={isReadOnly}
+                        />
+                      </Form.Control>
+                    </div>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            </div>
           </div>
         </form>
       </Form>

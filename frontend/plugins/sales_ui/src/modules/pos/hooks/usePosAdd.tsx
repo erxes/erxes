@@ -1,5 +1,6 @@
 import { useMutation, ApolloCache, MutationHookOptions } from '@apollo/client';
 import { useCallback } from 'react';
+import { useToast } from 'erxes-ui';
 import posMutations from '../graphql/mutations';
 import posQueries from '../graphql/queries';
 import {
@@ -20,11 +21,11 @@ const DEFAULT_PER_PAGE = 30;
 
 const updateCacheAfterAdd = (
   cache: ApolloCache<any>,
-  newPosData: PosData
+  newPosData: PosData,
 ): void => {
   try {
     const queryVariables = { perPage: DEFAULT_PER_PAGE };
-    
+
     const existingData = cache.readQuery<{ posList: PosData[] }>({
       query: posQueries.posList,
       variables: queryVariables,
@@ -46,11 +47,11 @@ const updateCacheAfterAdd = (
 
 const updateCacheAfterRemove = (
   cache: ApolloCache<any>,
-  removedId: string
+  removedId: string,
 ): void => {
   try {
     const queryVariables = { perPage: DEFAULT_PER_PAGE };
-    
+
     const existingData = cache.readQuery<{ posList: PosData[] }>({
       query: posQueries.posList,
       variables: queryVariables,
@@ -59,7 +60,7 @@ const updateCacheAfterRemove = (
     if (!existingData?.posList) return;
 
     const filteredList = existingData.posList.filter(
-      (item) => item._id !== removedId
+      (item) => item._id !== removedId,
     );
 
     cache.writeQuery<{ posList: PosData[] }>({
@@ -76,7 +77,7 @@ const updateCacheAfterRemove = (
 
 const extractDeliveryConfig = (
   formData: FormStepData,
-  validatedData: PosDetailFormValues
+  validatedData: PosDetailFormValues,
 ): DeliveryConfigFormValues | null => {
   if (formData.deliveryConfig) {
     return {
@@ -84,10 +85,11 @@ const extractDeliveryConfig = (
       pipeline: formData.deliveryConfig?.pipeline,
       stage: formData.deliveryConfig?.stage,
       watchedUsers: formData.deliveryConfig?.watchedUsers,
-      assignedUsers: formData.deliveryConfig.assignedUsers ,
+      assignedUsers: formData.deliveryConfig.assignedUsers,
       deliveryProduct: formData.deliveryConfig.deliveryProduct,
       watchedUserIds: formData.deliveryConfig.watchedUserIds || [],
       assignedUserIds: formData.deliveryConfig.assignedUserIds || [],
+      mapField: formData.deliveryConfig.mapField || '',
     };
   }
 
@@ -96,7 +98,7 @@ const extractDeliveryConfig = (
 
 const extractFinanceConfig = (
   formData: FormStepData,
-  validatedData: PosDetailFormValues
+  validatedData: PosDetailFormValues,
 ): FinanceConfigFormValues | null => {
   if (formData.financeConfig) {
     return {
@@ -115,7 +117,7 @@ const extractFinanceConfig = (
 };
 
 export function useAddPosDetail(
-  options?: MutationHookOptions<AddPosDetailResult, AddPosDetailVariables>
+  options?: MutationHookOptions<AddPosDetailResult, AddPosDetailVariables>,
 ) {
   const [posAdd, { loading, error, data }] = useMutation<
     AddPosDetailResult,
@@ -133,63 +135,86 @@ export function useAddPosDetail(
     },
   });
 
-  return { 
-    posAdd, 
-    loading, 
-    error, 
-    data 
+  return {
+    posAdd,
+    loading,
+    error,
+    data,
   };
 }
 
 export function useSubmitPosForm() {
   const { posAdd, loading: addLoading, error: addError } = useAddPosDetail();
 
-  const submitForm = useCallback(async (formData: FormStepData) => {
-    try {
-      const combinedData = combineFormData(formData);
-      const validatedData = posDetailSchema.parse(combinedData);
+  const submitForm = useCallback(
+    async (formData: FormStepData) => {
+      try {
+        const combinedData = combineFormData(formData);
+        const validatedData = posDetailSchema.parse(combinedData);
 
-      const deliveryConfig = extractDeliveryConfig(formData, validatedData);
-      const financeConfig = extractFinanceConfig(formData, validatedData);
+        const deliveryConfig = extractDeliveryConfig(formData, validatedData);
+        const financeConfig = extractFinanceConfig(formData, validatedData);
 
-      const variables: AddPosDetailVariables = {
-        name: validatedData.name,
-        description: validatedData.description,
-        adminIds: validatedData.adminIds,
-        cashierIds: validatedData.cashierIds,
-        scopeBrandIds: validatedData.scopeBrandIds,
-        branchId: validatedData.branchId,
-        departmentId: validatedData.departmentId,
-        productDetails: validatedData.productDetails?.map((pd) => pd.productId),
-        paymentIds: validatedData.paymentIds,
-        paymentTypes: validatedData.paymentTypes,
-        beginNumber: validatedData.beginNumber,
-        maxSkipNumber: validatedData.maxSkipNumber,
-        uiOptions: validatedData.uiOptions,
-        catProdMappings: validatedData.catProdMappings,
-        initialCategoryIds: validatedData.initialCategoryIds,
-        kioskExcludeCategoryIds: validatedData.kioskExcludeCategoryIds,
-        kioskExcludeProductIds: validatedData.kioskExcludeProductIds,
-        checkRemainder: validatedData.checkRemainder,
-        permissionConfig: validatedData.permissionConfig,
-        allowTypes: validatedData.allowTypes,
-        checkExcludeCategoryIds: validatedData.checkExcludeCategoryIds,
-        erkhetConfig: financeConfig,
-        ...(deliveryConfig && { deliveryConfig }),
-      };
+        const variables: AddPosDetailVariables = {
+          name: validatedData.name,
+          description: validatedData.description,
+          adminIds: validatedData.adminIds,
+          cashierIds: validatedData.cashierIds,
+          scopeBrandIds: validatedData.scopeBrandIds,
+          branchId: validatedData.branchId,
+          departmentId: validatedData.departmentId,
+          productDetails: validatedData.productDetails,
+          paymentIds: validatedData.paymentIds,
+          paymentTypes: validatedData.paymentTypes,
+          erxesAppToken: validatedData.erxesAppToken,
+          beginNumber: validatedData.beginNumber,
+          maxSkipNumber: validatedData.maxSkipNumber,
+          uiOptions: validatedData.uiOptions,
+          catProdMappings: validatedData.catProdMappings?.map(
+            (mapping: any) => {
+              const { _id, ...rest } = mapping;
+              if (_id?.startsWith('temp-')) {
+                return rest;
+              }
+              return mapping;
+            },
+          ),
+          initialCategoryIds: validatedData.initialCategoryIds,
+          kioskExcludeCategoryIds: validatedData.kioskExcludeCategoryIds,
+          kioskExcludeProductIds: validatedData.kioskExcludeProductIds,
+          checkRemainder: validatedData.checkRemainder,
+          permissionConfig: validatedData.permissionConfig,
+          allowTypes: validatedData.allowTypes,
+          checkExcludeCategoryIds: validatedData.checkExcludeCategoryIds,
+          isCheckRemainder: validatedData.isCheckRemainder,
+          banFractions: validatedData.banFractions,
+          erkhetConfig: financeConfig,
+          ...(deliveryConfig && { deliveryConfig }),
+          ...(formData.kitchenScreen && {
+            kitchenScreen: formData.kitchenScreen,
+          }),
+          ...(formData.waitingScreen && {
+            waitingScreen: formData.waitingScreen,
+          }),
+          ...(formData.ebarimtConfig && {
+            ebarimtConfig: formData.ebarimtConfig,
+          }),
+        };
 
-      const result = await posAdd({ variables });
-      
-      if (!result.data?.posAdd) {
-        throw new Error('POS creation failed: No data returned');
+        const result = await posAdd({ variables });
+
+        if (!result.data?.posAdd) {
+          throw new Error('POS creation failed: No data returned');
+        }
+
+        return result;
+      } catch (error) {
+        console.error('Form submission error:', error);
+        throw error;
       }
-
-      return result;
-    } catch (error) {
-      console.error('Form submission error:', error);
-      throw error;
-    }
-  }, [posAdd]);
+    },
+    [posAdd],
+  );
 
   return {
     submitForm,
@@ -199,6 +224,7 @@ export function useSubmitPosForm() {
 }
 
 export function useRemovePosDetail() {
+  const { toast } = useToast();
   const [posRemove, { loading, error }] = useMutation<
     { posRemove: string },
     { _id: string }
@@ -209,32 +235,48 @@ export function useRemovePosDetail() {
       }
     },
     onError: (error) => {
-      console.error('POS remove mutation error:', error);
+      toast({
+        title: 'POS removal failed',
+        description:
+          error.message ??
+          'An unexpected error occurred while removing the POS.',
+        variant: 'destructive',
+      });
     },
   });
 
-  const removePosDetail = useCallback(async (id: string) => {
-    if (!id) {
-      throw new Error('POS ID is required for removal');
-    }
-
-    try {
-      const result = await posRemove({ variables: { _id: id } });
-      
-      if (!result.data?.posRemove) {
-        throw new Error('POS removal failed: No confirmation returned');
+  const removePosDetail = useCallback(
+    async (id: string) => {
+      if (!id) {
+        throw new Error('POS ID is required for removal');
       }
 
-      return result;
-    } catch (error) {
-      console.error('POS removal error:', error);
-      throw error;
-    }
-  }, [posRemove]);
+      try {
+        const result = await posRemove({ variables: { _id: id } });
 
-  return { 
-    removePosDetail, 
-    loading, 
-    error 
+        if (!result.data?.posRemove) {
+          throw new Error('POS removal failed: No confirmation returned');
+        }
+
+        return result;
+      } catch (error) {
+        toast({
+          title: 'POS removal failed',
+          description:
+            error instanceof Error
+              ? error.message
+              : 'An unexpected error occurred while removing the POS.',
+          variant: 'destructive',
+        });
+        throw error;
+      }
+    },
+    [posRemove, toast],
+  );
+
+  return {
+    removePosDetail,
+    loading,
+    error,
   };
 }

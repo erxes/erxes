@@ -1,93 +1,87 @@
-import { Button, Form, Upload, ColorPicker } from 'erxes-ui';
+'use client';
+
+import {
+  Button,
+  Form,
+  Upload,
+  ColorPicker,
+  Spinner,
+  readImage,
+} from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
-import { IconUpload } from '@tabler/icons-react';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { IconTrash, IconUpload } from '@tabler/icons-react';
+import { useForm, UseFormReturn, Control, Path } from 'react-hook-form';
+import { useEffect, useState } from 'react';
 import { UiConfigFormValues } from '../formSchema';
-import { IPosDetail } from '@/pos/pos-detail/types/IPos';
+import { IPosDetail } from '~/modules/pos/pos-detail/types/IPos';
 
 interface AppearanceFormProps {
   posDetail?: IPosDetail;
   isReadOnly?: boolean;
   onSubmit?: (data: UiConfigFormValues) => Promise<void>;
-}
-
-interface AppearanceFormData {
-  logoImage: string;
-  backgroundColor: string;
-  textColor: string;
-  accentColor: string;
-  fontFamily: string;
-  showLogo: boolean;
+  form?: UseFormReturn<UiConfigFormValues>;
 }
 
 export default function AppearanceForm({
   posDetail,
   isReadOnly = false,
   onSubmit,
+  form: externalForm,
 }: AppearanceFormProps) {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const form = useForm<AppearanceFormData>({
+  const internalForm = useForm<UiConfigFormValues>({
     defaultValues: {
-      logoImage: '',
-      backgroundColor: '#FFFFFF',
-      textColor: '#000000',
-      accentColor: '#6366F1',
-      fontFamily: 'Inter',
-      showLogo: true,
+      uiOptions: {
+        colors: {
+          bodyColor: '#FFFFFF',
+          headerColor: '#6569DF',
+          footerColor: '#3CCC38',
+        },
+        logo: '',
+        bgImage: '',
+        favIcon: '',
+        receiptIcon: '',
+        kioskHeaderImage: '',
+        mobileAppImage: '',
+        qrCodeImage: '',
+      },
+      beginNumber: '',
+      maxSkipNumber: 5,
+      checkRemainder: false,
     },
   });
 
+  const form = externalForm || internalForm;
+
   useEffect(() => {
-    if (posDetail?.uiOptions) {
+    if (posDetail && !externalForm) {
       form.reset({
-        logoImage: posDetail.uiOptions.logoImage || '',
-        backgroundColor: posDetail.uiOptions.backgroundColor || '#FFFFFF',
-        textColor: posDetail.uiOptions.textColor || '#000000',
-        accentColor: posDetail.uiOptions.accentColor || '#6366F1',
-        fontFamily: posDetail.uiOptions.fontFamily || 'Inter',
-        showLogo: posDetail.uiOptions.showLogo ?? true,
-      });
-    } else {
-      form.reset({
-        logoImage: '',
-        backgroundColor: '#FFFFFF',
-        textColor: '#000000',
-        accentColor: '#6366F1',
-        fontFamily: 'Inter',
-        showLogo: true,
+        uiOptions: posDetail.uiOptions || {
+          colors: {
+            bodyColor: '#FFFFFF',
+            headerColor: '#6569DF',
+            footerColor: '#3CCC38',
+          },
+          logo: '',
+          bgImage: '',
+          favIcon: '',
+          receiptIcon: '',
+          kioskHeaderImage: '',
+          mobileAppImage: '',
+          qrCodeImage: '',
+        },
+        beginNumber: posDetail.beginNumber || '',
+        maxSkipNumber: posDetail.maxSkipNumber || 5,
+        checkRemainder: posDetail.checkRemainder || false,
       });
     }
-  }, [posDetail]);
+  }, [posDetail, form, externalForm]);
 
-  const handleSubmit = async (data: AppearanceFormData) => {
+  const handleSubmit = async (data: UiConfigFormValues) => {
     if (onSubmit) {
-      try {
-        await onSubmit({
-          uiOptions: {
-            colors: {
-              bodyColor: data.backgroundColor,
-              headerColor: data.accentColor,
-              footerColor: data.textColor,
-            },
-            logo: data.logoImage,
-            bgImage: '',
-            favIcon: '',
-            receiptIcon: '',
-            kioskHeaderImage: '',
-            mobileAppImage: '',
-            qrCodeImage: '',
-          },
-          beginNumber: '',
-          maxSkipNumber: 0,
-          checkRemainder: false,
-        });
-      } catch (error) {
-        console.error('Appearance form submission failed:', error);
-      }
+      await onSubmit(data);
     } else {
-      console.log('Appearance form submitted:', data);
       const newParams = new URLSearchParams(searchParams);
       newParams.set('tab', 'screen');
       setSearchParams(newParams);
@@ -99,70 +93,73 @@ export default function AppearanceForm({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
           <div className="space-y-4">
-            <h2 className="text-[#4F46E5] text-lg font-semibold uppercase">
+            <h2 className="text-xl font-medium uppercase text-primary">
               Logo and favicon
             </h2>
-            <p className="text-[#A1A1AA] text-xs font-semibold uppercase">
-              Main logo
-            </p>
 
-            <Form.Field
-              control={form.control}
-              name="logoImage"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="block mb-2 font-medium text-[#71717A]">
-                    Image can be shown on the top of the post also
-                  </Form.Label>
-                  <Form.Control>
-                    <Upload.Root
-                      value={field.value}
-                      onChange={(fileInfo) => {
-                        if (typeof fileInfo === 'string') {
-                          field.onChange(fileInfo);
-                        } else if ('url' in fileInfo) {
-                          field.onChange(fileInfo.url);
-                        }
-                      }}
-                      className="h-[128px]"
-                    >
-                      <Upload.Preview className="hidden" />
-                      <Upload.Button
-                        size="sm"
-                        variant="secondary"
-                        type="button"
-                        className="w-full h-[128px] flex flex-col items-center justify-center border border-dashed border-muted-foreground text-muted-foreground"
-                        disabled={isReadOnly}
-                      >
-                        <div className="flex flex-col gap-3 justify-center">
-                          <div className="flex justify-center">
-                            <IconUpload />
-                          </div>
-                          <Button disabled={isReadOnly}>Upload</Button>
-                          <span className="font-medium text-sm">
-                            Upload Image
-                          </span>
-                        </div>
-                      </Upload.Button>
-                    </Upload.Root>
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <LogoField
+                control={form.control}
+                isReadOnly={isReadOnly}
+                name="uiOptions.logo"
+                label="MAIN LOGO"
+                hint="Pos main logo PNG"
+              />
+
+              <LogoField
+                control={form.control}
+                isReadOnly={isReadOnly}
+                name="uiOptions.bgImage"
+                label="BACKGROUND IMAGE"
+                hint="Pos background Image PNG"
+              />
+
+              <LogoField
+                control={form.control}
+                isReadOnly={isReadOnly}
+                name="uiOptions.favIcon"
+                label="FAVICON"
+                hint="16x16px transparent PNG"
+              />
+
+              <LogoField
+                control={form.control}
+                isReadOnly={isReadOnly}
+                name="uiOptions.kioskHeaderImage"
+                label="KIOSK HEADER IMAGE"
+                hint="Kiosk header image PNG"
+              />
+
+              <LogoField
+                control={form.control}
+                isReadOnly={isReadOnly}
+                name="uiOptions.mobileAppImage"
+                label="MOBILE APP IMAGE"
+                hint="Mobile app image PNG"
+              />
+
+              <LogoField
+                control={form.control}
+                isReadOnly={isReadOnly}
+                name="uiOptions.qrCodeImage"
+                label="QR CODE IMAGE"
+                hint="QR code image PNG"
+              />
+            </div>
           </div>
 
           <div className="space-y-4">
-            <h2 className="text-[#4F46E5] text-lg font-semibold uppercase">
+            <h2 className="text-xl font-medium uppercase text-primary">
               Main colors
             </h2>
+
             <div className="flex gap-4">
               <Form.Field
                 control={form.control}
-                name="backgroundColor"
+                name="uiOptions.colors.bodyColor"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="text-[#A1A1AA] text-xs font-semibold">
+                    <Form.Label className="text-xs font-semibold">
                       Primary
                     </Form.Label>
                     <Form.Control>
@@ -170,7 +167,7 @@ export default function AppearanceForm({
                         value={field.value}
                         onValueChange={field.onChange}
                         disabled={isReadOnly}
-                        className="w-20 h-9"
+                        className="w-20 h-8"
                       />
                     </Form.Control>
                     <Form.Message />
@@ -180,10 +177,10 @@ export default function AppearanceForm({
 
               <Form.Field
                 control={form.control}
-                name="textColor"
+                name="uiOptions.colors.footerColor"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="text-[#A1A1AA] text-xs font-semibold">
+                    <Form.Label className="text-xs font-semibold">
                       Secondary
                     </Form.Label>
                     <Form.Control>
@@ -191,7 +188,7 @@ export default function AppearanceForm({
                         value={field.value}
                         onValueChange={field.onChange}
                         disabled={isReadOnly}
-                        className="w-20 h-9"
+                        className="w-20 h-8"
                       />
                     </Form.Control>
                     <Form.Message />
@@ -201,10 +198,10 @@ export default function AppearanceForm({
 
               <Form.Field
                 control={form.control}
-                name="accentColor"
+                name="uiOptions.colors.headerColor"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="text-[#A1A1AA] text-xs font-semibold">
+                    <Form.Label className="text-xs font-semibold">
                       Third
                     </Form.Label>
                     <Form.Control>
@@ -212,7 +209,7 @@ export default function AppearanceForm({
                         value={field.value}
                         onValueChange={field.onChange}
                         disabled={isReadOnly}
-                        className="w-20 h-9"
+                        className="w-20 h-8"
                       />
                     </Form.Control>
                     <Form.Message />
@@ -226,3 +223,115 @@ export default function AppearanceForm({
     </div>
   );
 }
+
+export const LogoField = <TPath extends Path<UiConfigFormValues>>({
+  control,
+  name = 'uiOptions.logo' as TPath,
+  label = 'LOGO',
+  hint = 'Image can be shown on the top of the post also',
+  isReadOnly = false,
+}: {
+  control: Control<UiConfigFormValues>;
+  name?: TPath;
+  label?: string;
+  hint?: string;
+  isReadOnly?: boolean;
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  return (
+    <Form.Field
+      name={name as Path<UiConfigFormValues>}
+      control={control}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{label}</Form.Label>
+          <Form.Description>{hint}</Form.Description>
+          <Form.Control>
+            <Upload.Root
+              value={typeof field.value === 'string' ? field.value : ''}
+              onChange={(fileInfo) => {
+                if (typeof fileInfo === 'string') {
+                  field.onChange(fileInfo);
+                } else if ('url' in fileInfo) {
+                  field.onChange(fileInfo.url);
+                }
+              }}
+              className="relative group"
+            >
+              {isLoading ? (
+                <div className="flex flex-col justify-center items-center w-full h-28 rounded-md border border-dashed bg-accent">
+                  <Spinner className="text-muted-foreground" size="md" />
+                </div>
+              ) : (
+                <>
+                  <Upload.Button
+                    size="sm"
+                    variant="secondary"
+                    type="button"
+                    className="flex overflow-hidden relative flex-col justify-center items-center w-full h-28 border border-dashed border-muted-foreground text-muted-foreground group"
+                    disabled={isReadOnly}
+                    style={
+                      typeof field.value === 'string' && field.value
+                        ? {
+                            backgroundImage: `url(${readImage(field.value)})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                            border: 'none',
+                          }
+                        : {}
+                    }
+                  >
+                    {!field.value && (
+                      <div className="flex relative z-10 flex-col gap-2 justify-center items-center">
+                        <IconUpload />
+                        <Button
+                          variant="outline"
+                          disabled={isReadOnly}
+                          className="text-sm font-medium"
+                        >
+                          Upload
+                        </Button>
+
+                        <span className="text-xs text-muted-foreground">
+                          Max size: 15MB, File type: PNG
+                        </span>
+                      </div>
+                    )}
+
+                    {field.value && (
+                      <div className="flex absolute inset-0 justify-center items-center transition-all duration-200 bg-black/0 group-hover:bg-black/20">
+                        <div className="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                          <div className="px-3 py-1.5 text-xs font-medium text-black rounded-lg backdrop-blur-sm bg-white/90">
+                            Click to change image
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </Upload.Button>
+                  {field.value && (
+                    <Upload.RemoveButton
+                      size="sm"
+                      variant="destructive"
+                      className="absolute top-2 right-2 z-30 shadow-lg opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                      disabled={isReadOnly}
+                    >
+                      <IconTrash size={16} />
+                    </Upload.RemoveButton>
+                  )}
+                  <div className="hidden">
+                    <Upload.Preview
+                      onUploadStart={() => setIsLoading(true)}
+                      onAllUploadsComplete={() => setIsLoading(false)}
+                    />
+                  </div>
+                </>
+              )}
+            </Upload.Root>
+          </Form.Control>
+        </Form.Item>
+      )}
+    />
+  );
+};

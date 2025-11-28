@@ -20,12 +20,10 @@ export const useKeyboardShortcuts = ({
 }: UseKeyboardShortcutsProps) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Delete selected node with Delete key
       if (event.key === 'Delete' && selectedNode) {
         onDeleteNode(selectedNode.id);
       }
 
-      // Save with Ctrl+S
       if (event.ctrlKey && event.key === 's' && selectedNode) {
         event.preventDefault();
         onSaveNode();

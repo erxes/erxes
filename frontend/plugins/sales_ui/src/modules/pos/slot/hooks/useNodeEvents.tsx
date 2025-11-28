@@ -1,13 +1,24 @@
 import { useEffect, useRef } from 'react';
 import { useAtom } from 'jotai';
-import { syncSelectedNodeAtom, slotDetailAtom, sidebarViewAtom } from '../states/slot';
+import {
+  syncSelectedNodeAtom,
+  slotDetailAtom,
+  sidebarViewAtom,
+} from '../states/slot';
 import { CustomNode, NodeEventDetail } from '../types';
 
 interface UseNodeEventsProps {
   nodes: CustomNode[];
-  setNodes: (nodes: CustomNode[] | ((nodes: CustomNode[]) => CustomNode[])) => void;
-  setHookNodes: (nodes: CustomNode[] | ((nodes: CustomNode[]) => CustomNode[])) => void;
-  updateNodePosition: (nodeId: string, position: { x: number; y: number }) => void;
+  setNodes: (
+    nodes: CustomNode[] | ((nodes: CustomNode[]) => CustomNode[]),
+  ) => void;
+  setHookNodes: (
+    nodes: CustomNode[] | ((nodes: CustomNode[]) => CustomNode[]),
+  ) => void;
+  updateNodePosition: (
+    nodeId: string,
+    position: { x: number; y: number },
+  ) => void;
   setActiveTab: (tab: string) => void;
 }
 
@@ -21,7 +32,7 @@ export const useNodeEvents = ({
   const [selectedNode, setSelectedNode] = useAtom(syncSelectedNodeAtom);
   const [, setSlotDetail] = useAtom(slotDetailAtom);
   const [, setSidebarView] = useAtom(sidebarViewAtom);
-  
+
   const nodesRef = useRef(nodes);
   const selectedNodeRef = useRef(selectedNode);
 
@@ -37,7 +48,7 @@ export const useNodeEvents = ({
     const handleNodeResize = (event: Event) => {
       const { detail } = event as CustomEvent<NodeEventDetail>;
       if (!detail?.id) return;
-      
+
       const updateNodeData = (node: CustomNode) => {
         if (node.id === detail.id) {
           const updatedNode = {
@@ -67,7 +78,9 @@ export const useNodeEvents = ({
       setHookNodes(updateNodes);
 
       if (selectedNodeRef.current?.id === detail.id) {
-        const updatedNode = nodesRef.current.find((node) => node.id === detail.id);
+        const updatedNode = nodesRef.current.find(
+          (node) => node.id === detail.id,
+        );
         if (updatedNode) {
           const newSelectedNode = {
             ...updatedNode,
@@ -103,13 +116,19 @@ export const useNodeEvents = ({
 
     const handleNodeRotate = (event: Event) => {
       const { detail } = event as CustomEvent<NodeEventDetail>;
-      if (!detail?.id) return;
-      
-      const rotateAngle = detail.rotateAngle !== undefined ? Number(detail.rotateAngle) : undefined;
+      const nodeId = detail?.id;
+      if (nodeId == null) {
+        return;
+      }
+
+      const rotateAngle =
+        detail.rotateAngle !== undefined
+          ? Number(detail.rotateAngle)
+          : undefined;
       if (rotateAngle === undefined || isNaN(rotateAngle)) return;
 
       const updateNodeRotation = (node: CustomNode) => {
-        if (node.id === detail.id) {
+        if (node.id === nodeId) {
           return {
             ...node,
             data: {
@@ -124,8 +143,8 @@ export const useNodeEvents = ({
       setNodes(updateNodes);
       setHookNodes(updateNodes);
 
-      if (selectedNodeRef.current?.id === detail.id) {
-        const updatedNode = nodesRef.current.find((node) => node.id === detail.id);
+      if (selectedNodeRef.current?.id === nodeId) {
+        const updatedNode = nodesRef.current.find((node) => node.id === nodeId);
         if (updatedNode) {
           const newSelectedNode = {
             ...updatedNode,

@@ -10,9 +10,14 @@ export const PosCreate = () => {
   const { forms, formStepData } = usePosCreateForm();
   const {
     handleBasicInfoSubmit,
+    handlePermissionSubmit,
     handleFinalSubmit,
     handleNodesUpdate,
     handleSaveSlots,
+    handleDeliveryConfigSubmit,
+    handleFinanceConfigSubmit,
+    handleScreenConfigSubmit,
+    handleEbarimtConfigChange,
     loading,
     error,
     createdPosId,
@@ -24,6 +29,11 @@ export const PosCreate = () => {
     forms,
     handlers: {
       handleNodesUpdate,
+      handlePermissionSubmit,
+      handleDeliveryConfigSubmit,
+      handleFinanceConfigSubmit,
+      handleScreenConfigSubmit,
+      handleEbarimtConfigChange,
     },
     data: {
       createdPosId,

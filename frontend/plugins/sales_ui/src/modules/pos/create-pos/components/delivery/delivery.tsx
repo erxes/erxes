@@ -3,6 +3,10 @@ import { SelectMember, SelectProduct } from 'ui-modules';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState, useImperativeHandle, forwardRef } from 'react';
+import { useFieldsCombined } from '../../hooks/useFieldsCombined';
+import { SelectPipelineFormItem } from '../../hooks/useSelectPipeline';
+import { SelectBoardFormItem } from '../../hooks/useSelectBoard';
+import { SelectStageFormItem } from '../../hooks/useSelectStage';
 import {
   deliveryConfigSchema,
   type DeliveryConfigFormValues,
@@ -24,10 +28,43 @@ const DeliveryConfigForm = forwardRef<
   DeliveryConfigFormRef,
   DeliveryConfigFormProps
 >(({ form: externalForm, onFormSubmit, posDetail }, ref) => {
-  const [selectedWatchedUserId, setSelectedWatchedUserId] =
-    useState<string>('');
-  const [selectedAssignedUserId, setSelectedAssignedUserId] =
-    useState<string>('');
+  const [selectedWatchedUserIds, setSelectedWatchedUserIds] = useState<
+    string[]
+  >([]);
+  const [selectedAssignedUserIds, setSelectedAssignedUserIds] = useState<
+    string[]
+  >([]);
+  const [selectedPipelineId, setSelectedPipelineId] = useState<string>('');
+  const [selectedBoardId, setSelectedBoardId] = useState<string>('');
+
+  const { fields: fetchedFields, loading: fieldsLoading } = useFieldsCombined({
+    contentType: 'sales:deal',
+  });
+
+  // Static fallback data
+  const staticFields = [
+    {
+      _id: '0.727854523642331',
+      name: 'parentId',
+      label: 'Parent Id',
+      type: 'String',
+    },
+    {
+      _id: '0.41186703735829466',
+      name: 'createdAt',
+      label: 'Created at',
+      type: 'Date',
+    },
+    {
+      _id: '0.18766163437667394',
+      name: 'name',
+      label: 'Name',
+      type: 'String',
+    },
+  ];
+
+  const fields =
+    fetchedFields && fetchedFields.length > 0 ? fetchedFields : staticFields;
 
   const internalForm = useForm<DeliveryConfigFormValues>({
     resolver: zodResolver(deliveryConfigSchema),
@@ -35,6 +72,7 @@ const DeliveryConfigForm = forwardRef<
       boardId: '',
       pipeline: '',
       stage: '',
+      mapField: '',
       watchedUsers: '',
       assignedUsers: '',
       deliveryProduct: '',
@@ -48,75 +86,47 @@ const DeliveryConfigForm = forwardRef<
   useEffect(() => {
     if (posDetail?.deliveryConfig) {
       const deliveryConfig = posDetail.deliveryConfig;
-      const watchedUserId =
-        deliveryConfig.watchedUsers ||
-        deliveryConfig.users?.watched?.[0] ||
-        deliveryConfig.watchedUserIds?.[0] ||
-        '';
+      const watchedUserIds =
+        deliveryConfig.watchedUserIds ||
+        deliveryConfig.users?.watched ||
+        (deliveryConfig.watchedUsers ? [deliveryConfig.watchedUsers] : []) ||
+        [];
 
-      const assignedUserId =
-        deliveryConfig.assignedUsers ||
-        deliveryConfig.users?.assigned?.[0] ||
-        deliveryConfig.assignedUserIds?.[0] ||
-        '';
+      const assignedUserIds =
+        deliveryConfig.assignedUserIds ||
+        deliveryConfig.users?.assigned ||
+        (deliveryConfig.assignedUsers ? [deliveryConfig.assignedUsers] : []) ||
+        [];
 
-      setSelectedWatchedUserId(watchedUserId);
-      setSelectedAssignedUserId(assignedUserId);
+      const boardId =
+        deliveryConfig.boardId ||
+        deliveryConfig.stage?.board ||
+        deliveryConfig.board ||
+        '';
+      const pipelineId =
+        deliveryConfig.pipeline || deliveryConfig.stage?.pipeline || '';
+
+      setSelectedWatchedUserIds(watchedUserIds);
+      setSelectedAssignedUserIds(assignedUserIds);
+      setSelectedPipelineId(pipelineId);
+      setSelectedBoardId(boardId);
 
       form.reset({
-        boardId: deliveryConfig.stage?.board || deliveryConfig.board || '',
-        pipeline:
-          deliveryConfig.stage?.pipeline || deliveryConfig.pipeline || '',
-        stage: deliveryConfig.stage?.stage || deliveryConfig.stage || '',
-        watchedUsers: watchedUserId,
-        assignedUsers: assignedUserId,
+        boardId,
+        pipeline: pipelineId,
+        stage: deliveryConfig.stage || deliveryConfig.stage?.stage || '',
+        mapField: deliveryConfig.mapField || '',
+        watchedUsers: watchedUserIds[0] || '',
+        assignedUsers: assignedUserIds[0] || '',
         deliveryProduct:
           deliveryConfig.product?.deliveryProduct ||
           deliveryConfig.deliveryProduct ||
           '',
-        watchedUserIds: watchedUserId ? [watchedUserId] : [],
-        assignedUserIds: assignedUserId ? [assignedUserId] : [],
+        watchedUserIds: watchedUserIds,
+        assignedUserIds: assignedUserIds,
       });
     }
   }, [posDetail, form]);
-
-  useEffect(() => {
-    if (onFormSubmit) {
-      const subscription = form.watch((values) => {
-        if (values) {
-          const formData = form.getValues();
-          const transformedData = {
-            ...formData,
-            watchedUserIds: selectedWatchedUserId
-              ? [selectedWatchedUserId]
-              : [],
-            assignedUserIds: selectedAssignedUserId
-              ? [selectedAssignedUserId]
-              : [],
-            deliveryConfig: {
-              stage: {
-                board: formData.boardId || '',
-                pipeline: formData.pipeline || '',
-                stage: formData.stage || '',
-              },
-              users: {
-                watched: selectedWatchedUserId ? [selectedWatchedUserId] : [],
-                assigned: selectedAssignedUserId
-                  ? [selectedAssignedUserId]
-                  : [],
-              },
-              product: {
-                deliveryProduct: formData.deliveryProduct || '',
-              },
-            },
-          };
-          onFormSubmit(transformedData);
-        }
-      });
-
-      return () => subscription.unsubscribe();
-    }
-  }, [form, onFormSubmit, selectedWatchedUserId, selectedAssignedUserId]);
 
   const handleSubmit = async () => {
     const isValid = await form.trigger();
@@ -128,8 +138,8 @@ const DeliveryConfigForm = forwardRef<
     const formData = form.getValues();
     const transformedData = {
       ...formData,
-      watchedUserIds: selectedWatchedUserId ? [selectedWatchedUserId] : [],
-      assignedUserIds: selectedAssignedUserId ? [selectedAssignedUserId] : [],
+      watchedUserIds: selectedWatchedUserIds,
+      assignedUserIds: selectedAssignedUserIds,
       deliveryConfig: {
         stage: {
           board: formData.boardId || '',
@@ -137,12 +147,13 @@ const DeliveryConfigForm = forwardRef<
           stage: formData.stage || '',
         },
         users: {
-          watched: selectedWatchedUserId ? [selectedWatchedUserId] : [],
-          assigned: selectedAssignedUserId ? [selectedAssignedUserId] : [],
+          watched: selectedWatchedUserIds,
+          assigned: selectedAssignedUserIds,
         },
         product: {
           deliveryProduct: formData.deliveryProduct || '',
         },
+        ...(formData.mapField && { mapField: formData.mapField }),
       },
     };
 
@@ -155,8 +166,8 @@ const DeliveryConfigForm = forwardRef<
     const formData = form.getValues();
     return {
       ...formData,
-      watchedUserIds: selectedWatchedUserId ? [selectedWatchedUserId] : [],
-      assignedUserIds: selectedAssignedUserId ? [selectedAssignedUserId] : [],
+      watchedUserIds: selectedWatchedUserIds,
+      assignedUserIds: selectedAssignedUserIds,
     };
   };
 
@@ -165,20 +176,20 @@ const DeliveryConfigForm = forwardRef<
     getFormData,
   }));
 
-  const handleWatchedUserChange = (value: string | string[]) => {
-    const userId = Array.isArray(value) ? value[0] : value;
-    const finalUserId = userId || '';
+  const handleWatchedUserChange = (value: string | string[] | null) => {
+    const userIds = Array.isArray(value) ? value : value ? [value] : [];
 
-    setSelectedWatchedUserId(finalUserId);
-    form.setValue('watchedUsers', finalUserId, { shouldValidate: true });
+    setSelectedWatchedUserIds(userIds);
+    form.setValue('watchedUserIds', userIds, { shouldValidate: true });
+    form.setValue('watchedUsers', userIds[0] || '', { shouldValidate: true });
   };
 
-  const handleAssignedUserChange = (value: string | string[]) => {
-    const userId = Array.isArray(value) ? value[0] : value;
-    const finalUserId = userId || '';
+  const handleAssignedUserChange = (value: string | string[] | null) => {
+    const userIds = Array.isArray(value) ? value : value ? [value] : [];
 
-    setSelectedAssignedUserId(finalUserId);
-    form.setValue('assignedUsers', finalUserId, { shouldValidate: true });
+    setSelectedAssignedUserIds(userIds);
+    form.setValue('assignedUserIds', userIds, { shouldValidate: true });
+    form.setValue('assignedUsers', userIds[0] || '', { shouldValidate: true });
   };
 
   const handleDeliveryProductChange = (value: string | string[]) => {
@@ -186,12 +197,28 @@ const DeliveryConfigForm = forwardRef<
     form.setValue('deliveryProduct', productId, { shouldValidate: true });
   };
 
+  const handleBoardChange = (value: string | string[]) => {
+    const boardId = Array.isArray(value) ? value[0] : value;
+    setSelectedBoardId(boardId);
+    form.setValue('boardId', boardId, { shouldValidate: true });
+    form.setValue('pipeline', '', { shouldValidate: true });
+    form.setValue('stage', '', { shouldValidate: true });
+    setSelectedPipelineId('');
+  };
+
+  const handlePipelineChange = (value: string | string[]) => {
+    const pipelineId = Array.isArray(value) ? value[0] : value;
+    setSelectedPipelineId(pipelineId);
+    form.setValue('pipeline', pipelineId, { shouldValidate: true });
+    form.setValue('stage', '', { shouldValidate: true });
+  };
+
   return (
     <div className="p-3">
       <Form {...form}>
         <div className="space-y-8">
           <div className="space-y-4">
-            <h2 className="text-indigo-600 text-xl font-medium">STAGE</h2>
+            <h2 className="text-lg font-semibold text-primary">STAGE</h2>
 
             <div className="grid grid-cols-3 gap-4">
               <Form.Field
@@ -199,24 +226,12 @@ const DeliveryConfigForm = forwardRef<
                 name="boardId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="text-sm text-gray-500">
-                      BOARD
-                    </Form.Label>
-                    <Form.Control>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <Select.Trigger>
-                          <Select.Value placeholder="Choose board" />
-                        </Select.Trigger>
-                        <Select.Content>
-                          <Select.Item value="board1">Board 1</Select.Item>
-                          <Select.Item value="board2">Board 2</Select.Item>
-                          <Select.Item value="board3">Board 3</Select.Item>
-                        </Select.Content>
-                      </Select>
-                    </Form.Control>
+                    <Form.Label className="text-sm">BOARD</Form.Label>
+                    <SelectBoardFormItem
+                      value={field.value}
+                      onValueChange={handleBoardChange}
+                      placeholder="Choose board"
+                    />
                     <Form.Message />
                   </Form.Item>
                 )}
@@ -227,30 +242,14 @@ const DeliveryConfigForm = forwardRef<
                 name="pipeline"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="text-sm text-gray-500">
-                      PIPELINE
-                    </Form.Label>
-                    <Form.Control>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <Select.Trigger>
-                          <Select.Value placeholder="Choose pipeline" />
-                        </Select.Trigger>
-                        <Select.Content>
-                          <Select.Item value="pipeline1">
-                            Pipeline 1
-                          </Select.Item>
-                          <Select.Item value="pipeline2">
-                            Pipeline 2
-                          </Select.Item>
-                          <Select.Item value="pipeline3">
-                            Pipeline 3
-                          </Select.Item>
-                        </Select.Content>
-                      </Select>
-                    </Form.Control>
+                    <Form.Label className="text-sm">PIPELINE</Form.Label>
+                    <SelectPipelineFormItem
+                      key={selectedBoardId}
+                      value={field.value}
+                      onValueChange={handlePipelineChange}
+                      boardId={selectedBoardId}
+                      placeholder="Choose pipeline"
+                    />
                     <Form.Message />
                   </Form.Item>
                 )}
@@ -261,21 +260,53 @@ const DeliveryConfigForm = forwardRef<
                 name="stage"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="text-sm text-gray-500">
-                      STAGE
+                    <Form.Label className="text-sm">STAGE</Form.Label>
+                    <SelectStageFormItem
+                      key={selectedPipelineId}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      pipelineId={selectedPipelineId}
+                      placeholder="Choose stage"
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Form.Field
+                control={form.control}
+                name="mapField"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label className="text-sm">
+                      CHOOSE MAP FIELD
                     </Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
+                        disabled={fieldsLoading}
                       >
                         <Select.Trigger>
-                          <Select.Value placeholder="Choose stage" />
+                          <Select.Value
+                            placeholder={
+                              fieldsLoading
+                                ? 'Loading fields...'
+                                : 'Select map field'
+                            }
+                          />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="stage1">Stage 1</Select.Item>
-                          <Select.Item value="stage2">Stage 2</Select.Item>
-                          <Select.Item value="stage3">Stage 3</Select.Item>
+                          {fields.map((fieldItem) => (
+                            <Select.Item
+                              key={fieldItem.name}
+                              value={fieldItem.name}
+                            >
+                              {fieldItem.label}
+                            </Select.Item>
+                          ))}
                         </Select.Content>
                       </Select>
                     </Form.Control>
@@ -288,27 +319,23 @@ const DeliveryConfigForm = forwardRef<
 
           <div className="space-y-4">
             <div className="flex flex-col gap-3">
-              <h2 className="text-indigo-600 text-xl font-medium">DEAL USER</h2>
-              <p className="text-[#A1A1AA] text-xs font-semibold">
-                USER ASSIGNMENTS
-              </p>
+              <h2 className="text-lg font-semibold text-primary">DEAL USER</h2>
             </div>
 
             <div className="space-y-4">
               <Form.Field
                 control={form.control}
-                name="watchedUsers"
+                name="watchedUserIds"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="text-sm text-gray-500">
-                      WATCHED USERS
-                    </Form.Label>
-                    <p className="text-gray-600">Select watched team member</p>
+                    <Form.Label className="text-sm">WATCHED USERS</Form.Label>
                     <Form.Control>
                       <SelectMember
-                        value={selectedWatchedUserId || undefined}
+                        mode="multiple"
+                        value={selectedWatchedUserIds}
                         onValueChange={handleWatchedUserChange}
-                        className="w-full h-8 justify-start bg-white hover:bg-gray-50"
+                        className="justify-start w-full h-8"
+                        placeholder="Select watched team members"
                       />
                     </Form.Control>
                     <Form.Message />
@@ -318,18 +345,18 @@ const DeliveryConfigForm = forwardRef<
 
               <Form.Field
                 control={form.control}
-                name="assignedUsers"
+                name="assignedUserIds"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="text-sm text-gray-500">
-                      ASSIGNED USERS
-                    </Form.Label>
-                    <p className="text-gray-600">Select assigned team member</p>
+                    <Form.Label className="text-sm">ASSIGNED USERS</Form.Label>
+
                     <Form.Control>
                       <SelectMember
-                        value={selectedAssignedUserId || undefined}
+                        mode="multiple"
+                        value={selectedAssignedUserIds}
                         onValueChange={handleAssignedUserChange}
-                        className="w-full h-8 justify-start bg-white hover:bg-gray-50"
+                        className="justify-start w-full h-8"
+                        placeholder="Select assigned team members"
                       />
                     </Form.Control>
                     <Form.Message />
@@ -340,7 +367,7 @@ const DeliveryConfigForm = forwardRef<
           </div>
 
           <div className="space-y-4">
-            <h2 className="text-indigo-600 text-xl font-medium">
+            <h2 className="text-lg font-semibold text-primary">
               DELIVERY PRODUCT
             </h2>
 
@@ -353,7 +380,7 @@ const DeliveryConfigForm = forwardRef<
                     <SelectProduct
                       value={field.value}
                       onValueChange={handleDeliveryProductChange}
-                      className="w-full h-8 justify-start bg-white hover:bg-gray-50"
+                      className="justify-start w-full h-8"
                     />
                   </Form.Control>
                   <Form.Message />
