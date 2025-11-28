@@ -10,10 +10,9 @@ import {
   IconSpiral,
   IconUser,
 } from '@tabler/icons-react';
-import { IUIConfig } from 'erxes-ui';
 
-export const GET_CORE_MODULES = (version?: boolean): IUIConfig['modules'] => {
-  const MODULES: IUIConfig['modules'] = [
+export const GET_CORE_MODULES = (version?: boolean) => {
+  const MODULES = [
     {
       name: 'contacts',
       icon: IconAddressBook,

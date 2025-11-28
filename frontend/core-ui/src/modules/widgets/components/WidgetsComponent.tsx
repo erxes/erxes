@@ -13,7 +13,6 @@ export const WidgetsComponent = (props: IRelationWidgetProps) => {
     <RenderPluginsComponent
       pluginName={`${pluginName}_ui`}
       remoteModuleName="relationWidget"
-      moduleName={module}
       props={props}
     />
   );

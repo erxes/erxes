@@ -1,13 +1,15 @@
 export type IUIConfig = {
   name: string;
-  icon?: React.ElementType;
+  path: string;
+  hasFloatingWidget?: boolean;
+  settingsNavigation?: () => React.ReactNode;
   navigationGroup?: {
     name: string;
     icon: React.ElementType;
     content: () => React.ReactNode;
-    subGroups?: () => React.ReactNode;
+    subGroup?: () => React.ReactNode;
   };
-  modules: {
+  relationWidgets?: {
     name: string;
     icon?: React.ElementType;
     path: string;
@@ -23,9 +25,9 @@ export type IUIConfig = {
       icon: React.ElementType;
     }[];
   }[];
-
-  relationWidgets?: {
+  modules?: {
     name: string;
     icon?: React.ElementType;
+    path: string;
   }[];
 };
