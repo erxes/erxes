@@ -8,10 +8,22 @@ import {
 } from '@tabler/icons-react';
 
 import { dealsViewAtom } from '@/deals/states/dealsViewState';
-import { useAtom } from 'jotai';
-import { useState } from 'react';
+import { useAtom, useAtomValue } from 'jotai';
 
-const DealViewControl = () => {
+import { lazy, Suspense, useState } from 'react';
+const DealsBoard = lazy(() =>
+  import('../../boards/components/DealsBoard').then((mod) => ({
+    default: mod.DealsBoard,
+  })),
+);
+
+const DealsRecordTable = lazy(() =>
+  import('../../boards/components/DealsRecordTable').then((mod) => ({
+    default: mod.DealsRecordTable,
+  })),
+);
+
+export const DealsViewControl = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useAtom(dealsViewAtom);
 
@@ -60,4 +72,12 @@ const DealViewControl = () => {
   );
 };
 
-export default DealViewControl;
+export const DealsView = () => {
+  const view = useAtomValue(dealsViewAtom);
+
+  return (
+    <Suspense>
+      {view === 'list' ? <DealsRecordTable /> : <DealsBoard />}
+    </Suspense>
+  );
+};

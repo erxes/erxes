@@ -170,6 +170,11 @@ export const GET_DEALS = gql`
             title
           }
           relations
+          pipeline {
+            _id
+            name
+          }
+      
         }
         pageInfo {
           endCursor
