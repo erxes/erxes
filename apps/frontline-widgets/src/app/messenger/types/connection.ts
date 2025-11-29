@@ -5,7 +5,7 @@ export interface IConnectionInfo {
 
 export interface IWidgetData {
   messengerData?: IMessengerData;
-  ticketData?: ITicketData;
+  ticketConfig?: ITicketConfig;
   languageCode?: string;
   uiOptions?: IWidgetUiOptions;
   customerId?: string;

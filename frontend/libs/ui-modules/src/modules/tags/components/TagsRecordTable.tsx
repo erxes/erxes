@@ -3,10 +3,11 @@ import {
   RecordTableTree,
   useMultiQueryState,
 } from 'erxes-ui';
-import { ITag, useTags } from 'ui-modules';
 import React from 'react';
-import { useTagContext } from '../providers/TagProvider';
+import { useTagContext } from 'ui-modules/modules/tags/components/TagProvider';
 import { createTagsColumns } from './TagsColumns';
+import { ITag } from 'ui-modules/modules/tags/types/Tag';
+import { useTags } from 'ui-modules/modules/tags/hooks/useTags';
 
 interface TagsRecordTableProps {
   tagType: string;

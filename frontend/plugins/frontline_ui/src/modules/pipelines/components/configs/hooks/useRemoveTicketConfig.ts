@@ -4,7 +4,7 @@ import { toast } from 'erxes-ui';
 
 export const useRemoveTicketConfig = () => {
   const [removeTicketConfig, { loading }] = useMutation(REMOVE_TICKET_CONFIG, {
-    refetchQueries: ['TicketConfigs'],
+    refetchQueries: ['TicketConfig'],
     onCompleted: () => {
       toast({
         title: 'Success!',

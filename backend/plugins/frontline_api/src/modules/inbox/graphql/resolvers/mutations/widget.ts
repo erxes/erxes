@@ -763,16 +763,18 @@ export const widgetMutations: Record<string, Resolver> = {
       );
     }
 
-    await sendTRPCMessage({
+    const customer = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       method: 'mutation',
       module: 'customers',
       action: 'saveVisitorContactInfo',
       input: {
-        args,
+        params: args,
       },
     });
+
+    return customer;
   },
 
   /*
