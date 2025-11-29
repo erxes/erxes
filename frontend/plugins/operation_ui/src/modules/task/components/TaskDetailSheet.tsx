@@ -5,6 +5,7 @@ import { IconArrowsDiagonal } from '@tabler/icons-react';
 import { Button, Separator, Sheet, TextOverflowTooltip } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { Link, useParams } from 'react-router-dom';
+import { TaskDetailActions } from './task-actions/TaskDetailActions';
 
 export const TaskDetailSheet = () => {
   const [activeTask, setActiveTask] = useAtom(taskDetailSheetState);
@@ -54,6 +55,11 @@ export const TaskDetailSheetHeader = () => {
       <Sheet.Title className="lg:max-w-xl max-w-[18rem] sm:max-w-sm truncate">
         <TextOverflowTooltip value={task?.name} />
       </Sheet.Title>
+      {task?._id && (
+        <TaskDetailActions
+          taskId={task._id}
+        />
+      )}
     </div>
   );
 };

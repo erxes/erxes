@@ -262,6 +262,36 @@ export const loadTaskClass = (models: IModels) => {
         });
       }
 
+      if (doc.targetDate !== undefined) {
+        const teamId = doc.teamId || task.teamId;
+        const targetDate = new Date(doc.targetDate);
+
+        const matchingCycle = await models.Cycle.findOne({
+          teamId,
+          isCompleted: false,
+          startDate: { $lte: targetDate },
+          endDate: { $gte: targetDate },
+        });
+
+        if (
+          matchingCycle &&
+          matchingCycle._id.toString() !== task.cycleId?.toString()
+        ) {
+          rest.cycleId = matchingCycle._id;
+
+          await models.Activity.createActivity({
+            action: 'CREATED',
+            contentId: task._id,
+            module: 'CYCLE',
+            metadata: {
+              newValue: matchingCycle._id.toString(),
+              previousValue: task.cycleId?.toString(),
+            },
+            createdBy: userId,
+          });
+        }
+      }
+
       return models.Task.findOneAndUpdate(
         { _id },
         { $set: { ...rest } },

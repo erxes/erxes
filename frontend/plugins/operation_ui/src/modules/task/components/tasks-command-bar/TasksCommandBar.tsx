@@ -30,6 +30,17 @@ import {
   TasksEditPriorityContent,
 } from './TasksEditPriority';
 import { TasksAssignToTrigger, TasksAssignToContent } from './TasksAssignTo';
+import {
+  TasksSetDueDateCommandBarItem,
+  TasksSetDueDateTrigger,
+} from '../task-actions/SetDueDate';
+import {
+  TasksMoveToTeamCommandBarItem,
+  TasksMoveToTeamTrigger,
+} from '../task-actions/MoveToTeam';
+import {
+  MakeACopyTrigger,
+} from '../task-actions/MakeACopy';
 
 export const TasksCommandBar = () => {
   const [open, setOpen] = useState(false);
@@ -37,11 +48,16 @@ export const TasksCommandBar = () => {
   const currentUser = useAtomValue(currentUserState);
   const { removeTask } = useRemoveTask();
   const { updateTask } = useUpdateTask();
-  const taskIds = table
-    .getFilteredSelectedRowModel()
-    .rows.map((row: Row<ITask>) => row.original._id);
+  const selectedRows = table.getFilteredSelectedRowModel().rows;
+  const taskIds = selectedRows.map((row: Row<ITask>) => row.original._id);
+  const tasksData = selectedRows.map((row: Row<ITask>) => ({
+    taskId: row.original._id,
+    projectId: row.original.projectId || null,
+  }));
   const { teamId } = useParams<{ teamId: string }>();
   const [currentContent, setCurrentContent] = useState<string>('main');
+  const isSingleTaskSelected = selectedRows.length === 1;
+  const singleTask = isSingleTaskSelected ? selectedRows[0].original : null;
 
   return (
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
@@ -86,8 +102,8 @@ export const TasksCommandBar = () => {
                                 _id: taskId,
                                 assigneeId: currentUser._id,
                               },
-                            })
-                          )
+                            }),
+                          ),
                         );
                         setOpen(false);
                       }}
@@ -109,15 +125,29 @@ export const TasksCommandBar = () => {
                     <TasksAssignToTrigger
                       setCurrentContent={setCurrentContent}
                     />
-              {teamId &&      <TasksEditStatusTrigger
-                      setCurrentContent={setCurrentContent}
-                    />}
+                    {teamId && (
+                      <TasksEditStatusTrigger
+                        setCurrentContent={setCurrentContent}
+                      />
+                    )}
                     <TasksEditPriorityTrigger
                       setCurrentContent={setCurrentContent}
                     />
                     <TasksAddProjectTrigger
                       setCurrentContent={setCurrentContent}
                     />
+                    <TasksSetDueDateTrigger
+                      setCurrentContent={setCurrentContent}
+                    />
+                    <TasksMoveToTeamTrigger
+                      setCurrentContent={setCurrentContent}
+                    />
+                    {isSingleTaskSelected && singleTask && (
+                      <MakeACopyTrigger
+                        task={singleTask}
+                        setOpen={setOpen}
+                      />
+                    )}
                   </Command.Group>
                   <Command.Separator />
                   <Command.Group className="p-1">
@@ -130,8 +160,8 @@ export const TasksCommandBar = () => {
                               onCompleted: () => {
                                 setOpen(false);
                               },
-                            })
-                          )
+                            }),
+                          ),
                         );
                       }}
                     >
@@ -143,6 +173,19 @@ export const TasksCommandBar = () => {
                   </Command.Group>
                 </Command.List>
               </Command>
+            )}
+            {currentContent === 'setTargetDate' && (
+              <TasksSetDueDateCommandBarItem
+                taskIds={taskIds}
+                setOpen={setOpen}
+              />
+            )}
+            {currentContent === 'moveToTeam' && (
+              <TasksMoveToTeamCommandBarItem
+                tasks={tasksData}
+                setOpen={setOpen}
+                currentTeamId={teamId}
+              />
             )}
             {currentContent === 'status' && teamId && (
               <TasksEditStatusContent taskIds={taskIds} setOpen={setOpen} />
