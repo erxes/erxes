@@ -28,14 +28,39 @@ export function Posts() {
   const navigate = useNavigate();
   const { confirm } = useConfirm();
 
-  const { posts, loading, error, totalCount, refetch } = usePosts({
+    const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
+
+  const {
+    posts,
+    loading,
+    error,
+    totalCount,
+    refetch: refetchPosts,
+  } = usePosts({
     clientPortalId: websiteId || '',
     type: 'post',
     perPage: 20,
     page: 1,
   });
 
-  const [removePost] = useMutation(CMS_POSTS_REMOVE);
+  const [removePost] = useMutation(CMS_POSTS_REMOVE, {
+    onCompleted: () => {
+      toast({
+        title: 'Success',
+        description: 'Post deleted successfully',
+        variant: 'success',
+      });
+      refetchPosts();
+      setSelectedRowKeys([]);
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: `Error deleting post: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
 
   if (loading) {
     return (
@@ -91,7 +116,7 @@ export function Posts() {
                         await removePost({
                           variables: { id: row.original._id },
                         });
-                        await refetch();
+                        await refetchPosts();
                         toast({ title: 'Success', variant: 'default' });
                       })
                       .catch(() => {})
@@ -236,7 +261,7 @@ export function Posts() {
                 const results = await Promise.allSettled(
                   ids.map((id) => removePost({ variables: { id } })),
                 );
-                await refetch();
+                await refetchPosts();
                 const failed = results.filter((r) => r.status === 'rejected');
                 if (failed.length) {
                   throw new Error(
@@ -283,7 +308,9 @@ const InlineTagsEditor = ({
 
   const [editPost, { loading: saving }] = useMutation(CMS_POSTS_EDIT);
 
-  const handleChange = async (opts: Array<{ label: string; value: string }>) => {
+  const handleChange = async (
+    opts: Array<{ label: string; value: string }>,
+  ) => {
     const newIds = opts.map((o) => o.value);
     setSelectedIds(newIds);
     setLocalTags(opts.map((o) => ({ _id: o.value, name: o.label })) as any);
@@ -312,11 +339,15 @@ const InlineTagsEditor = ({
                 {t.name}
               </span>
             ))}
-            <span className="inline-flex items-center h-6 px-2 rounded-md border text-xs text-muted-foreground">+</span>
+            <span className="inline-flex items-center h-6 px-2 rounded-md border text-xs text-muted-foreground">
+              +
+            </span>
           </div>
         ) : (
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center h-6 px-2 rounded-md border text-xs text-muted-foreground">+</span>
+            <span className="inline-flex items-center h-6 px-2 rounded-md border text-xs text-muted-foreground">
+              +
+            </span>
             <span className="text-muted-foreground text-xs">No tags</span>
           </div>
         )}
