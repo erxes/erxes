@@ -80,8 +80,9 @@ export const useConnect = ({
 
       const erxesSettings = getErxesSettings();
       const messengerSettings = erxesSettings?.messenger;
+      console.log(erxesSettings, 'erxesSettings');
       const { email, phone, code, data, companyData } = messengerSettings || {};
-
+      console.log('messengerSettings', messengerSettings);
       const variables = email
         ? {
             integrationId,
