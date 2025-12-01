@@ -1,12 +1,23 @@
+import { useMemo } from 'react';
 import { Skeleton } from 'erxes-ui';
 import { useGetMessengerSupporters } from '../hooks/useGetMessengerSupporters';
 import { ConversationMessage, EmptyChat } from './conversation';
 import { ChatInput } from './chat-input';
 import { useConversations } from '../hooks/useConversations';
+import { NotifyCustomerForm } from './notify-customer-form';
+import { useAtom } from 'jotai';
+import { connectionAtom } from '../states';
+import { getLocalStorageItem } from '@libs/utils';
 
 export const Intro = () => {
   const { loading: loadingSupporters } = useGetMessengerSupporters();
   const { conversations, loading: loadingConversations } = useConversations();
+  const [connection] = useAtom(connectionAtom);
+
+  const { widgetsMessengerConnect } = connection || {};
+  const { messengerData } = widgetsMessengerConnect || {};
+  const { requireAuth } = messengerData || {};
+  const erxes = useMemo(() => getLocalStorageItem('erxes'), [connection]);
 
   if (loadingSupporters || loadingConversations) {
     return (
@@ -25,7 +36,11 @@ export const Intro = () => {
     return (
       <div className="flex flex-col h-full overflow-hidden">
         <div className="flex flex-col justify-center p-4 font-medium text-sm flex-1 min-h-0">
-          <EmptyChat />
+          {requireAuth === true && !erxes ? (
+            <NotifyCustomerForm />
+          ) : (
+            <EmptyChat />
+          )}
         </div>
         <ChatInput />
       </div>

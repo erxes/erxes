@@ -91,9 +91,38 @@ const connect = (isCloudFlareEnabled?: boolean) => gql`
   }
 `;
 
+const EDIT_CUSTOMER = gql`
+  mutation CustomersEdit(
+    $customerId: String!
+    $firstName: String
+    $lastName: String
+    $emails: [String]
+    $phones: [String]
+  ) {
+    widgetsTicketCustomersEdit(
+      customerId: $customerId
+      firstName: $firstName
+      lastName: $lastName
+      emails: $emails
+      phones: $phones
+    ) {
+      _id
+      email
+      emails
+      firstName
+      lastName
+      phone
+      phones
+      primaryEmail
+      primaryPhone
+    }
+  }
+`;
+
 export {
   WIDGETS_INSERT_MESSAGE_MUTATION,
   READ_CONVERSATION_MESSAGES_MUTATION,
   SAVE_BROWSER_INFO,
   connect,
+  EDIT_CUSTOMER,
 };

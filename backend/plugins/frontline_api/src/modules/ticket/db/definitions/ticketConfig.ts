@@ -60,7 +60,7 @@ export const TicketConfigSchema = new Schema(
     customer: CustomerFieldsSchema,
 
     fieldsConfig: {
-      type: Map,
+      type: {},
       of: [TicketFormFieldsSchema],
       default: {},
     },

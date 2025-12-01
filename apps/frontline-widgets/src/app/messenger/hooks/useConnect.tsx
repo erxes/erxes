@@ -3,6 +3,7 @@ import { useMutation } from '@apollo/client';
 import { useSetAtom } from 'jotai';
 import {
   connectionAtom,
+  hasTicketConfigAtom,
   integrationIdAtom,
   ticketConfigAtom,
   uiOptionsAtom,
@@ -12,59 +13,59 @@ import {
   ITicketConfig,
   IWidgetUiOptions,
 } from '../types/connection';
-import { getLocalStorageItem, getErxesSettings } from '@libs/utils';
+import { getLocalStorageItem, setLocalStorageItem } from '@libs/utils';
 import { applyUiOptionsToTailwind } from '@libs/tw-utils';
 import { useSaveBrowserInfo } from './useSaveBrowserInfo';
 import { connect } from '../graphql';
+import { customerIdAtom } from '../states';
 
 interface connectionProps {
-  isCloudFlareEnabled?: boolean;
   integrationId: string;
 }
 
-export const useConnect = ({
-  isCloudFlareEnabled = false,
-  integrationId,
-}: connectionProps) => {
+export const useConnect = ({ integrationId }: connectionProps) => {
   const setConnection = useSetAtom(connectionAtom);
   const setIntegrationId = useSetAtom(integrationIdAtom);
   const setUiOptions = useSetAtom(uiOptionsAtom);
   const setTicketConfig = useSetAtom(ticketConfigAtom);
+  const setHasTicketConfig = useSetAtom(hasTicketConfigAtom);
   const cachedCustomerId = getLocalStorageItem('customerId');
-
+  const setCustomerId = useSetAtom(customerIdAtom);
   // Call useSaveBrowserInfo hook
   useSaveBrowserInfo();
 
-  const [connectMutation, { data, loading, error }] = useMutation(
-    connect(isCloudFlareEnabled),
-    {
-      onCompleted: (response) => {
-        const connectionData = response?.widgetsMessengerConnect;
-        if (connectionData) {
-          setConnection((prev: IConnectionInfo) => ({
-            ...prev,
-            widgetsMessengerConnect: {
-              ...prev.widgetsMessengerConnect,
-              visitorId: connectionData.visitorId,
-              customerId: connectionData.customerId,
-              messengerData: connectionData.messengerData,
-              uiOptions: connectionData.uiOptions,
-            },
-          }));
-          setIntegrationId(connectionData.integrationId);
-          setUiOptions(connectionData.uiOptions as IWidgetUiOptions);
-          setTicketConfig(connectionData.ticketConfig as ITicketConfig);
-          // Apply uiOptions to Tailwind CSS
-          if (connectionData.uiOptions) {
-            applyUiOptionsToTailwind(connectionData.uiOptions);
-          }
+  const [connectMutation, { data, loading, error }] = useMutation(connect(), {
+    onCompleted: (response) => {
+      const connectionData = response?.widgetsMessengerConnect;
+      if (connectionData) {
+        setConnection((prev: IConnectionInfo) => ({
+          ...prev,
+          widgetsMessengerConnect: {
+            ...prev.widgetsMessengerConnect,
+            visitorId: connectionData.visitorId,
+            customerId: connectionData.customerId,
+            messengerData: connectionData.messengerData,
+            uiOptions: connectionData.uiOptions,
+          },
+        }));
+        if (connectionData.customerId) {
+          setLocalStorageItem('customerId', connectionData.customerId);
+          setCustomerId(connectionData.customerId);
         }
-      },
-      onError: () => {
-        // Error is handled through the error return value
-      },
+        setIntegrationId(connectionData.integrationId);
+        setUiOptions(connectionData.uiOptions as IWidgetUiOptions);
+        setTicketConfig(connectionData.ticketConfig as ITicketConfig);
+        setHasTicketConfig(!!connectionData.ticketConfig);
+        // Apply uiOptions to Tailwind CSS
+        if (connectionData.uiOptions) {
+          applyUiOptionsToTailwind(connectionData.uiOptions);
+        }
+      }
     },
-  );
+    onError: () => {
+      // Error is handled through the error return value
+    },
+  });
 
   useEffect(() => {
     const executeConnection = async () => {
@@ -72,44 +73,27 @@ export const useConnect = ({
 
       let visitorId;
 
-      // if (!cachedCustomerId) {
       const { getVisitorId } = await import('@libs/utils');
-
       visitorId = await getVisitorId();
-      // }
 
-      const erxesSettings = getErxesSettings();
-      const messengerSettings = erxesSettings?.messenger;
-      const { email, phone, code, data, companyData } = messengerSettings || {};
-
-      const variables = email
+      const variables = cachedCustomerId
         ? {
             integrationId,
-            visitorId: null,
             cachedCustomerId: cachedCustomerId || undefined,
-            email,
             isUser: true,
-            phone,
-            code,
-            data,
-            companyData,
           }
-        : {
-            integrationId,
-            visitorId,
-            cachedCustomerId: cachedCustomerId || undefined,
-            isUser: false,
-          };
+        : { integrationId, visitorId, isUser: false };
 
       await connectMutation({ variables });
     };
 
     executeConnection();
-  }, [isCloudFlareEnabled, integrationId, cachedCustomerId, connectMutation]);
+  }, [integrationId, cachedCustomerId, connectMutation]);
 
   return {
     result: data,
     loading,
     error,
+    connectMutation,
   };
 };

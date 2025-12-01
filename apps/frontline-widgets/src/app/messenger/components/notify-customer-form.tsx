@@ -10,133 +10,53 @@ import {
   Spinner,
   toast,
 } from 'erxes-ui';
-import { useCreateCustomerForm } from '../hooks/useCreateCustomerForm';
-import { useNotifyCustomer } from '../hooks/useNotifyCustomer';
-import { TCreateCustomerForm } from '../types';
+import { useCreateCustomerForm } from '../ticket/hooks/useCreateCustomerForm';
+import { TCreateCustomerForm } from '../ticket/types';
 import { IconPhone, IconMail, IconUserShare } from '@tabler/icons-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { SubmitHandler } from 'react-hook-form';
 import { useCallback, useState } from 'react';
-import {
-  getVisitorId,
-  setLocalStorageItem,
-  getErxesSettings,
-} from '@libs/utils';
-import { useAtom, useSetAtom } from 'jotai';
-import {
-  customerIdAtom,
-  integrationIdAtom,
-  connectionAtom,
-  ticketConfigAtom,
-  uiOptionsAtom,
-} from '../../states';
-import { useMutation } from '@apollo/client';
-import { connect } from '../../graphql/mutations';
-import {
-  IConnectionInfo,
-  ITicketConfig,
-  IWidgetUiOptions,
-} from '../../types/connection';
-import { applyUiOptionsToTailwind } from '@libs/tw-utils';
+import { getLocalStorageItem, setLocalStorageItem } from '@libs/utils';
+import { useEditCustomer } from '../hooks/useEditCustomer';
+import { integrationIdAtom } from '../states';
+import { useAtom } from 'jotai';
+import { useConnect } from '../hooks/useConnect';
 
-export const NotifyCustomerForm = ({
-  onSuccess,
-}: {
-  onSuccess: () => void;
-}) => {
+export const NotifyCustomerForm = () => {
   const { form } = useCreateCustomerForm();
-  const [customerId, setCustomerId] = useAtom(customerIdAtom);
-  const [integrationId] = useAtom(integrationIdAtom);
-  const setConnection = useSetAtom(connectionAtom);
-  const setTicketConfig = useSetAtom(ticketConfigAtom);
-  const setUiOptions = useSetAtom(uiOptionsAtom);
   const { control, handleSubmit, reset } = form;
-  const { saveCustomerNotified, loading } = useNotifyCustomer();
+  const { editCustomer, loading } = useEditCustomer();
+  const [integrationId] = useAtom(integrationIdAtom);
 
-  const [connectMutation] = useMutation(connect(false), {
-    onCompleted: (response) => {
-      const connectionData = response?.widgetsMessengerConnect;
-      if (connectionData) {
-        setConnection((prev: IConnectionInfo) => ({
-          ...prev,
-          widgetsMessengerConnect: {
-            ...prev.widgetsMessengerConnect,
-            visitorId: connectionData.visitorId,
-            customerId: connectionData.customerId,
-            messengerData: connectionData.messengerData,
-            uiOptions: connectionData.uiOptions,
-          },
-        }));
-        setUiOptions(connectionData.uiOptions as IWidgetUiOptions);
-        setTicketConfig(connectionData.ticketConfig as ITicketConfig);
-        if (connectionData.uiOptions) {
-          applyUiOptionsToTailwind(connectionData.uiOptions);
-        }
-      }
-    },
+  const customerId = getLocalStorageItem('customerId');
+
+  const { connectMutation } = useConnect({
+    integrationId: integrationId ?? '',
   });
-
-  const handleConnect = useCallback(
-    async (newCustomerId: string) => {
-      if (!integrationId) return;
-
-      const visitorId = await getVisitorId();
-      const erxesSettings = getErxesSettings();
-      const messengerSettings = erxesSettings?.messenger;
-      const { email, phone, code, data, companyData } = messengerSettings || {};
-
-      const variables = email
-        ? {
-            integrationId,
-            visitorId: null,
-            cachedCustomerId: newCustomerId,
-            email,
-            isUser: true,
-            phone,
-            code,
-            data,
-            companyData,
-          }
-        : {
-            integrationId,
-            visitorId,
-            cachedCustomerId: newCustomerId,
-            isUser: false,
-          };
-
-      await connectMutation({ variables });
-    },
-    [integrationId, connectMutation],
-  );
 
   const onSubmit: SubmitHandler<TCreateCustomerForm> = useCallback(
     async (data) => {
-      const visitorId = await getVisitorId();
-      if (!visitorId) {
-        return;
-      }
-      saveCustomerNotified({
+      editCustomer({
         variables: {
-          ...data,
-          visitorId,
-          customerId: null,
+          customerId,
+          emails: [data.email],
+          phones: [data.phone],
+          firstName: data.firstName,
+          lastName: data.lastName,
         },
         onCompleted: async (response) => {
-          const customer = response.widgetsSaveCustomerGetNotified;
+          const customer = response.widgetsTicketCustomersEdit;
           setLocalStorageItem('erxes', JSON.stringify(customer));
           setLocalStorageItem('customerId', customer._id);
-          setCustomerId(customer._id ?? null);
 
-          try {
-            await handleConnect(customer._id);
-          } catch (error) {
-            toast({
-              title: 'Connection error',
-              description:
-                error instanceof Error ? error.message : 'Failed to connect',
-              variant: 'destructive',
+          if (integrationId && connectMutation) {
+            await connectMutation({
+              variables: {
+                integrationId,
+                cachedCustomerId: customer._id,
+                isUser: true,
+              },
             });
-            return;
           }
 
           reset();
@@ -145,7 +65,6 @@ export const NotifyCustomerForm = ({
             description: 'Customer notified successfully',
             variant: 'success',
           });
-          onSuccess();
         },
         onError: (error) => {
           toast({
@@ -156,7 +75,7 @@ export const NotifyCustomerForm = ({
         },
       });
     },
-    [saveCustomerNotified, reset, handleConnect, setCustomerId, onSuccess],
+    [editCustomer, reset, integrationId, connectMutation],
   );
 
   return (
@@ -166,8 +85,8 @@ export const NotifyCustomerForm = ({
         className="flex flex-col gap-3 flex-1 overflow-y-auto styled-scroll p-3"
       >
         <InfoCard
-          title="Get started"
-          description="Please select the type of contact you want to notify"
+          title="Enter your email or phone number"
+          description="Please enter your email or phone number to continue"
         >
           <InfoCard.Content>
             <Form.Field
@@ -182,6 +101,24 @@ export const NotifyCustomerForm = ({
                 </Form.Item>
               )}
             />
+            <Form.Field
+              control={control}
+              name="firstName"
+              render={({ field }) => (
+                <Form.Item>
+                  <Input placeholder="First name" {...field} />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={control}
+              name="lastName"
+              render={({ field }) => (
+                <Form.Item>
+                  <Input placeholder="Last name" {...field} />
+                </Form.Item>
+              )}
+            />
             <AnimatePresence mode="popLayout">
               {form.watch('type') === 'email' && (
                 <motion.div
@@ -192,13 +129,14 @@ export const NotifyCustomerForm = ({
                 >
                   <Form.Field
                     control={control}
-                    name="value"
+                    name="email"
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>Email</Form.Label>
                         <Form.Control>
                           <Input type="email" placeholder="Email" {...field} />
                         </Form.Control>
+                        <Form.Message />
                       </Form.Item>
                     )}
                   />
@@ -215,28 +153,33 @@ export const NotifyCustomerForm = ({
                 >
                   <Form.Field
                     control={control}
-                    name="value"
+                    name="phone"
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>Phone</Form.Label>
                         <Form.Control>
-                          <PhoneInput className="bg-background" {...field} />
+                          <PhoneInput
+                            defaultCountry="MN"
+                            className="bg-background"
+                            {...field}
+                          />
                         </Form.Control>
+                        <Form.Message />
                       </Form.Item>
                     )}
                   />
                 </motion.div>
               )}
             </AnimatePresence>
+            <Button
+              type="submit"
+              className="w-full self-end mt-auto"
+              disabled={loading}
+            >
+              {loading ? <Spinner size="sm" /> : 'Save'}
+            </Button>
           </InfoCard.Content>
         </InfoCard>
-        <Button
-          type="submit"
-          className="w-full self-end mt-auto"
-          disabled={loading}
-        >
-          {loading ? <Spinner size="sm" /> : 'Save'}
-        </Button>
       </form>
     </Form>
   );

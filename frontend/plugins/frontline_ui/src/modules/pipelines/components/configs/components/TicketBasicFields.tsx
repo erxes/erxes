@@ -53,7 +53,8 @@ export const TicketBasicFields = ({ form }: Props) => {
                   );
                 }}
               />
-              {fields.find((f) => f.key === basicField.key) && (
+              {/* Under construction */}
+              {/* {fields.find((f) => f.key === basicField.key) && (
                 <Form.Field
                   control={control}
                   name={
@@ -76,7 +77,7 @@ export const TicketBasicFields = ({ form }: Props) => {
                     );
                   }}
                 />
-              )}
+              )} */}
             </div>
           ),
         )}

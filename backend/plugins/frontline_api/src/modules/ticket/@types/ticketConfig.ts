@@ -41,7 +41,7 @@ export interface ITicketConfig {
   company?: ITicketCompanyFields;
   customer?: ITicketCustomerFields;
 
-  fieldsConfig?: Record<string, ITicketFormFieldConfig[]>;
+  fieldsConfig?: ITicketFormFieldConfig[];
 }
 export interface ITicketSaveConfigArgs {
   input: ITicketConfig;
