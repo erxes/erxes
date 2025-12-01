@@ -101,7 +101,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   ): Promise<IIntegrationDocument>;
   integrationsSaveMessengerTicketData(
     _id: string,
-    doc: ITicketData,
+    configId: string,
   ): Promise<IIntegrationDocument>;
   saveMessengerAppearanceData(
     _id: string,
@@ -290,25 +290,23 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
     public static async integrationsSaveMessengerTicketData(
       _id: string,
-      {
-        ticketLabel,
-        ticketToggle,
-        ticketStageId,
-        ticketPipelineId,
-        ticketBoardId,
-      }: ITicketData,
+      configId: string,
     ) {
+      const integration = await models.Integrations.findOne({
+        _id: _id,
+      });
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
+      const config = await models.TicketConfig.findOne({ _id: configId });
+      if (!config) {
+        throw new Error('Config not found');
+      }
       const result = await models.Integrations.updateOne(
         { _id },
         {
           $set: {
-            ticketData: {
-              ticketLabel,
-              ticketToggle,
-              ticketStageId,
-              ticketPipelineId,
-              ticketBoardId,
-            },
+            ticketConfigId: configId,
           },
         },
         { runValidators: true },

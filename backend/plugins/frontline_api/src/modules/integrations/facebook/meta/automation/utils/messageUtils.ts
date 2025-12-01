@@ -25,9 +25,9 @@ export const triggerFacebookAutomation = async (
   let repeatOptions;
   if (payload) {
     target.payload = JSON.parse(payload || '{}');
-    const { executionId, actionId } = target?.payload || {};
+    const { executionId, actionId, btnId } = target?.payload || {};
     if (executionId && actionId) {
-      repeatOptions = { executionId, actionId };
+      repeatOptions = { executionId, actionId, optionalConnectId: btnId };
     }
   }
 
@@ -36,7 +36,19 @@ export const triggerFacebookAutomation = async (
     type = 'facebook:ads';
   }
 
-  sendAutomationTrigger(subdomain, { type, targets: [target], repeatOptions });
+  sendAutomationTrigger(
+    subdomain,
+    {
+      type,
+      targets: [target],
+      repeatOptions,
+    },
+    {
+      priority: 1,
+      removeOnComplete: true,
+      removeOnFail: true,
+    },
+  );
 };
 
 export const checkIsBot = async (models: IModels, message, recipientId) => {

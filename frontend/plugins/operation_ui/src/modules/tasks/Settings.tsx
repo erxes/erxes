@@ -5,8 +5,7 @@ import { Button, PageContainer } from 'erxes-ui';
 import { IconChecklist } from '@tabler/icons-react';
 import { Outlet } from 'react-router-dom';
 import { TasksTagsPage } from '~/pages/TasksTagsPage';
-import { TagProvider } from '~/modules/tags/providers/TagProvider';
-import { TagsGroupsAddButtons } from '~/modules/tags/components/TagsGroupsAddButtons';
+import { TagProvider, TagsGroupsAddButtons } from 'ui-modules';
 
 const TasksSettings = () => {
   return (

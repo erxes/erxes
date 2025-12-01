@@ -267,6 +267,122 @@ export const widgetQueries: Record<string, Resolver> = {
       timezone,
     };
   },
+
+  async widgetsTicketCustomerDetail(
+    _root,
+    args: { customerId?: string; type?: string },
+    { subdomain }: IContext,
+  ) {
+    const { customerId } = args;
+    if (!customerId) {
+      return null;
+    }
+
+    return sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'customers',
+      action: 'findOne',
+      input: { query: { _id: customerId } },
+    });
+  },
+  async widgetsGetTicketTags(
+    _root,
+    args: { configId: string },
+    { models, subdomain }: IContext,
+  ) {
+    const config = await models.TicketConfig.getTicketConfig(args.configId);
+
+    if (config && config.ticketBasicFields?.isShowTags) {
+      return await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'tags',
+        action: 'find',
+        input: {
+          query: { type: 'frontline:ticket' },
+        },
+      });
+    }
+    return [];
+  },
+  async widgetTicketCheckProgress(
+    _root,
+    args: {
+      number?: string;
+    },
+    { models }: IContext,
+  ) {
+    const { number } = args;
+    if (!number) {
+      throw new Error('Ticket number is required');
+    }
+
+    const ticket = await models.Ticket.findOne({ number });
+
+    if (!ticket) {
+      throw new Error('Ticket not found');
+    }
+    return ticket;
+  },
+  async widgetTicketComments(
+    _root,
+    args: {
+      contentId: string;
+    },
+    { models }: IContext,
+  ) {
+    const { contentId } = args;
+    if (!contentId) {
+      throw new Error('ContentId is required');
+    }
+
+    const notes = await models.Note.getNotes({ contentId });
+
+    if (!notes) {
+      throw new Error('notes not found');
+    }
+    return notes;
+  },
+
+  async widgetTicketActivityLogs(
+    _root,
+    args: { contentId: string },
+    { models }: IContext,
+  ) {
+    const { contentId } = args;
+    return (await models.Activity.find({ contentId })) || [];
+  },
+  async widgetTicketsByCustomer(
+    _root,
+    args: { customerId },
+    { models, subdomain }: IContext,
+  ) {
+    const { customerId } = args;
+    const relations = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'relation',
+      action: 'getRelationsByEntities',
+      input: {
+        contentType: 'core:customer',
+        contentId: customerId,
+      },
+    });
+
+    const ticketContentIds = relations.flatMap((r) =>
+      r.entities
+        .filter((e) => e.contentType === 'frontline:ticket')
+        .map((e) => e.contentId),
+    );
+
+    return await models.Ticket.find({
+      _id: { $in: ticketContentIds },
+    });
+  },
 };
 
 markResolvers(widgetQueries, {

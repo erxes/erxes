@@ -74,6 +74,7 @@ export const sendSaasMagicLinkEmail = async ({
       html,
     })
     .catch((error) => {
+      console.error(JSON.stringify(error));
       const errorMessage =
         error.response?.body || error.message || 'Failed to send email';
       throw new Error(`Failed to send magic link email: ${errorMessage}`);

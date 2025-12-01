@@ -28,7 +28,7 @@ export const afterProcess = {
     ...facebookAfterProcessWorkers.rules,
     ...inboxAfterProcessWorkers.rules,
   ],
-  onDocumentCreated: async ({ subdomain }, { contentType, ...data }) => {
+  afterDocumentCreated: async ({ subdomain }, { contentType, ...data }) => {
     const models = await generateModels(subdomain);
     const [_, moduleName, collectionType] = splitType(contentType);
 
@@ -38,7 +38,7 @@ export const afterProcess = {
       await handler(models, data);
     }
   },
-  onDocumentUpdated: async ({ subdomain }, { contentType, ...data }) => {
+  afterDocumentUpdated: async ({ subdomain }, { contentType, ...data }) => {
     const models = await generateModels(subdomain);
 
     const [_, moduleName, collectionType] = splitType(contentType);

@@ -71,11 +71,22 @@ export interface IClientPortal {
   otpConfig?: IOTPConfig;
   twoFactorConfig?: TwoFactorConfig;
 
-  mailConfig?: IMailConfig;
+  enableOTP?: boolean;
+  enableTwoFactor?: boolean;
+  enableSocialpay?: boolean;
+  enableToki?: boolean;
+  enableManualVerification?: boolean;
+  enablePasswordVerification?: boolean;
+  enableTestUser?: boolean;
+
+  verificationMailConfig?: IMailConfig;
   manualVerificationConfig?: IManualVerificationConfig;
   passwordVerificationConfig?: IPasswordVerificationConfig;
   socialpayConfig?: ISocialpayConfig;
   tokiConfig?: ITokiConfig;
+
+  verificationType?: 'email' | 'phone' | 'both' | 'none';
+  verificationCodeExpiresIn?: number;
 
   googleCredentials?: string;
   googleClientId?: string;

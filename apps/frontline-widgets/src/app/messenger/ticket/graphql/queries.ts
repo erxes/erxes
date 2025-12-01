@@ -1,0 +1,59 @@
+import { gql } from '@apollo/client';
+
+const GET_TICKET_CUSTOMER_DETAILS = gql`
+  query WidgetsTicketCustomerDetail($customerId: String, $type: String) {
+    widgetsTicketCustomerDetail(customerId: $customerId, type: $type) {
+      _id
+      avatar
+      email
+      phone
+      firstName
+      lastName
+    }
+  }
+`;
+
+const GET_WIDGET_TAGS = gql`
+  query WidgetsGetTicketTags($configId: String) {
+    widgetsGetTicketTags(configId: $configId) {
+      _id
+      name
+      type
+      description
+    }
+  }
+`;
+
+const GET_TICKET_PROGRESS = gql`
+  query WidgetTicketCheckProgress($number: String!) {
+    widgetTicketCheckProgress(number: $number) {
+      _id
+      name
+      description
+      pipelineId
+      statusId
+      priority
+      labelIds
+      tagIds
+      assigneeId
+      createdBy
+      userId
+      startDate
+      targetDate
+      createdAt
+      updatedAt
+      channelId
+      statusChangedDate
+      number
+      status {
+        _id
+        color
+        name
+        description
+        type
+      }
+    }
+  }
+`;
+
+export { GET_TICKET_CUSTOMER_DETAILS, GET_WIDGET_TAGS, GET_TICKET_PROGRESS };

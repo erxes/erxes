@@ -1,6 +1,7 @@
 import { TR_SIDES } from '@/transactions/types/constants';
+import { ExtendedColumnDef } from '@/transactions/types/tables';
 import { IconCalendar, IconFile, IconMoneybag } from '@tabler/icons-react';
-import { Cell, ColumnDef, RowData } from '@tanstack/react-table';
+import { Cell } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import {
   CurrencyCode,
@@ -177,11 +178,6 @@ const transactionMoreColumn = {
   cell: TransactionMoreColumnCell,
   size: 33,
 };
-
-export type ExtendedColumnDef<TData extends RowData, TValue = unknown> =
-  ColumnDef<TData, TValue> & {
-    colOrder?: number;
-  };
 
 export const tbalanceColumns: ExtendedColumnDef<ITBalanceTransaction>[] = [
   transactionMoreColumn,

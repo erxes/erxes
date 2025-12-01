@@ -13,6 +13,7 @@ import { formatMessageDate, getDateKey } from '@libs/formatDate';
 import { DateSeparator } from './date-separator';
 import { BotSeparator } from './bot-separator';
 import { TypingStatus } from './typing-status';
+import { NotifyCustomerForm } from './notify-customer-form';
 
 const MESSAGE_GROUP_TIME_WINDOW = 5 * 60 * 1000;
 
@@ -152,7 +153,7 @@ export const ConversationDetails = () => {
   }
 
   return (
-    <div className="flex flex-col max-h-full overflow-y-hidden">
+    <div className="flex flex-col max-h-full overflow-y-hidden relative">
       <div
         ref={scrollContainerRef}
         className="flex-1 overflow-y-auto scroll-smooth scroll-p-0 scroll-m-0 scroll-pt-16 flex flex-col-reverse p-4 space-y-2"
@@ -177,7 +178,10 @@ export const ConversationDetails = () => {
               {messageGroups.map((group, groupIndex) => (
                 <div
                   key={`group-${groupIndex}`}
-                  className={cn(groupIndex !== 0 && 'pt-4', 'space-y-0.5')}
+                  className={cn(
+                    groupIndex !== 0 && 'pt-4 w-full',
+                    'space-y-0.5',
+                  )}
                 >
                   {group.messages.map((message, messageIndex) => {
                     const messagePositionProps = {

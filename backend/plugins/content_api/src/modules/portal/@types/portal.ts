@@ -78,7 +78,7 @@ export interface IPortal {
   otpConfig?: IOTPConfig;
   twoFactorConfig?: TwoFactorConfig;
 
-  mailConfig?: IMailConfig;
+  verificationMailConfig?: IMailConfig;
   manualVerificationConfig?: IManualVerificationConfig;
   passwordVerificationConfig?: IPasswordVerificationConfig;
   socialpayConfig?: ISocialpayConfig;

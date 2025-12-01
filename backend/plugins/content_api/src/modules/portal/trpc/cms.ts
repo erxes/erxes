@@ -1,8 +1,8 @@
 import { initTRPC } from '@trpc/server';
 import { cursorPaginate, ok } from 'erxes-api-shared/utils';
 import { z } from 'zod';
-import { queryBuilder } from '~/modules/portal/graphql/resolvers/queries/post';
 import { ContentTRPCContext } from '~/trpc/init-trpc';
+import { getQueryBuilder, PostQueryBuilder } from '@/portal/utils/query-builders';
 
 const t = initTRPC.context<ContentTRPCContext>().create();
 
@@ -96,8 +96,8 @@ export const cmsRouter = t.router({
 
   postsPaginated: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
     const { models } = ctx;
-
-    const query = await queryBuilder(input, models);
+    const queryBuilder = getQueryBuilder('post', models) as PostQueryBuilder;
+    const query = await queryBuilder.buildQuery(input);
 
     const { list, totalCount, pageInfo } = await cursorPaginate({
       model: models.Posts,
