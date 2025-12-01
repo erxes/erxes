@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/client';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
@@ -15,11 +15,7 @@ import {
   ITicketConfig,
   IWidgetUiOptions,
 } from '../types/connection';
-import {
-  getErxesSettings,
-  getLocalStorageItem,
-  setLocalStorageItem,
-} from '@libs/utils';
+import { getLocalStorageItem, setLocalStorageItem } from '@libs/utils';
 import { applyUiOptionsToTailwind } from '@libs/tw-utils';
 import { useSaveBrowserInfo } from './useSaveBrowserInfo';
 import { connect } from '../graphql';
@@ -36,14 +32,17 @@ export const useConnect = ({ integrationId }: connectionProps) => {
   const setUiOptions = useSetAtom(uiOptionsAtom);
   const setTicketConfig = useSetAtom(ticketConfigAtom);
   const setHasTicketConfig = useSetAtom(hasTicketConfigAtom);
-  const cachedCustomerId = getLocalStorageItem('customerId');
   const setCustomerId = useSetAtom(customerIdAtom);
   const setCustomerData = useSetAtom(customerDataAtom);
+  const connectionKeyRef = useRef<string>('');
+  const isConnectingRef = useRef(false);
+
   // Call useSaveBrowserInfo hook
   useSaveBrowserInfo();
 
   const [connectMutation, { data, loading, error }] = useMutation(connect(), {
     onCompleted: (response) => {
+      isConnectingRef.current = false;
       const connectionData = response?.widgetsMessengerConnect;
       if (connectionData) {
         setConnection((prev: IConnectionInfo) => ({
@@ -74,37 +73,54 @@ export const useConnect = ({ integrationId }: connectionProps) => {
       }
     },
     onError: () => {
+      isConnectingRef.current = false;
       // Error is handled through the error return value
     },
   });
 
   useEffect(() => {
     const executeConnection = async () => {
-      if (!integrationId) return;
+      if (!integrationId || isConnectingRef.current) return;
+
+      // Only integrationId is essential for connection - other fields are optional
+      // Only connect if integrationId has changed
+      if (connectionKeyRef.current === integrationId) {
+        return;
+      }
+
+      // Update ref before making the call
+      connectionKeyRef.current = integrationId;
+      isConnectingRef.current = true;
+
+      // Get fresh values from messengerData and localStorage
+      const currentCachedCustomerId = getLocalStorageItem('customerId');
+      const email = messengerData?.email;
+      const phone = messengerData?.phone;
+      const code = messengerData?.code;
+      const customData = messengerData?.data;
+      const companyData = messengerData?.companyData;
 
       let visitorId;
 
       const { getVisitorId } = await import('@libs/utils');
       visitorId = await getVisitorId();
 
-      const { email, phone, code, data, companyData } = messengerData || {};
-
       const variables = email
         ? {
             integrationId,
             visitorId: visitorId || null,
-            cachedCustomerId: cachedCustomerId || undefined,
-            email,
+            cachedCustomerId: currentCachedCustomerId || undefined,
             isUser: true,
+            email,
             phone,
             code,
-            data,
+            data: customData,
             companyData,
           }
         : {
             integrationId,
             visitorId,
-            cachedCustomerId: cachedCustomerId || undefined,
+            cachedCustomerId: currentCachedCustomerId || undefined,
             isUser: false,
           };
 
@@ -112,7 +128,8 @@ export const useConnect = ({ integrationId }: connectionProps) => {
     };
 
     executeConnection();
-  }, [integrationId, cachedCustomerId, connectMutation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [integrationId]);
 
   return {
     result: data,
