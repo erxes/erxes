@@ -23,8 +23,7 @@ export const DealsListActionBar = ({ deal }: { deal: IDeal }) => {
   const { watchDeals, loading: watchLoading } = useDealsWatch();
   const isArchived = deal?.status === 'archived';
   const isLoading = editLoading || removeLoading || copyLoading || watchLoading;
-
-  if (!deal?._id) return null;
+  const isWatched = deal?.isWatched === true;
 
   const handleArchive = async () => {
     try {
@@ -50,7 +49,6 @@ export const DealsListActionBar = ({ deal }: { deal: IDeal }) => {
       },
     );
   };
-
   const handleCopy = async () => {
     try {
       await copyDeals({ variables: { _id: deal._id } });
@@ -89,7 +87,7 @@ export const DealsListActionBar = ({ deal }: { deal: IDeal }) => {
         </DropdownMenu.Item>
         <DropdownMenu.Item onClick={handleWatch} disabled={isLoading}>
           <IconEye />
-          Watch
+          {isWatched ? 'Unwatch' : 'Watch'}
         </DropdownMenu.Item>
         <DropdownMenu.Item onClick={handlePrint}>
           <IconPrinter />

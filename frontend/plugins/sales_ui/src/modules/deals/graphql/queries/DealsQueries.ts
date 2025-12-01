@@ -174,7 +174,7 @@ export const GET_DEALS = gql`
             _id
             name
           }
-      
+       boardId
         }
         pageInfo {
           endCursor
@@ -182,6 +182,7 @@ export const GET_DEALS = gql`
           hasNextPage
           hasPreviousPage
         }
+       
         totalCount
       }
   }

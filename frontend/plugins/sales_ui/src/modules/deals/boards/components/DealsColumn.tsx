@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { ColumnDef } from '@tanstack/table-core';
-import { RecordTable, RecordTableInlineCell, RecordTableTree } from 'erxes-ui';
+import { RecordTable, RecordTableInlineCell, useQueryState } from 'erxes-ui';
 import {
   IconLabelFilled,
   IconProgressCheck,
@@ -29,50 +29,23 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
         <RecordTable.InlineHead label="Name" icon={IconLabelFilled} />
       ),
       cell: ({ cell }) => {
-        const name = cell.getValue() as string;
-        const setActiveDeal = useSetAtom(dealDetailSheetState);
+        const setActiveDealId = useSetAtom(dealDetailSheetState);
+        const [, setSalesItemId] = useQueryState<string>('salesItemId');
+
+        const handleClick = () => {
+          setSalesItemId(cell.row.original._id);
+          setActiveDealId(cell.row.original._id);
+        };
+
         return (
-          <RecordTableTree.Trigger
-            order={String(cell.row.original.order)}
-            name={name}
-            hasChildren={false}
-            className="pl-2"
-          >
-            <RecordTableInlineCell.Anchor
-              onClick={() => setActiveDeal(cell.row.original._id)}
-            >
-              {name}
-            </RecordTableInlineCell.Anchor>
-          </RecordTableTree.Trigger>
+          <RecordTableInlineCell onClick={handleClick}>
+            {cell.getValue() as string}
+          </RecordTableInlineCell>
         );
       },
       size: 240,
     },
-    {
-      id: 'board',
-      accessorKey: 'boardId',
-      header: () => (
-        <RecordTable.InlineHead label="Board" icon={IconProgressCheck} />
-      ),
-      cell: ({ cell }) => {
-        const { editDeals } = useDealsEdit();
-        return (
-          <SelectBoard.InlineCell
-            mode="single"
-            value={cell.row.original.boardId}
-            onValueChange={(boardId) => {
-              editDeals({
-                variables: {
-                  _id: cell.row.original._id,
-                  boardId: boardId as string,
-                },
-              });
-            }}
-          />
-        );
-      },
-      size: 170,
-    },
+
     {
       id: 'pipeline',
       accessorFn: (row) => row.pipeline?.name,
@@ -85,11 +58,39 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
           <SelectPipeline.InlineCell
             mode="single"
             value={cell.row.original.pipeline?._id}
+            boardId={cell.row.original.boardId}
             onValueChange={(pipelineId) => {
               editDeals({
                 variables: {
                   _id: cell.row.original._id,
                   pipelineId: pipelineId as string,
+                },
+              });
+            }}
+          />
+        );
+      },
+      size: 170,
+    },
+    {
+      id: 'stage',
+      accessorFn: (row) => row.stage?.name,
+      header: () => (
+        <RecordTable.InlineHead label="Stage" icon={IconProgressCheck} />
+      ),
+      cell: ({ cell }) => {
+        const { editDeals } = useDealsEdit();
+
+        return (
+          <SelectStage.InlineCell
+            mode="single"
+            value={cell.row.original.stage?._id}
+            pipelineId={cell.row.original.pipeline?._id}
+            onValueChange={(stageId) => {
+              editDeals({
+                variables: {
+                  _id: cell.row.original._id,
+                  stageId: stageId as string,
                 },
               });
             }}

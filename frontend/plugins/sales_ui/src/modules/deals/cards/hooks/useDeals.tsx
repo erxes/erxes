@@ -101,7 +101,7 @@ export const useDeals = (
 
         if (action === 'remove') {
           updatedList = currentList.filter(
-            (item: IDeal) => item._id !== deal._id,
+            (item: IDeal) => item._id !== deal?._id,
           );
         }
 

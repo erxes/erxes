@@ -8,8 +8,11 @@ export const DealsRecordTable = () => {
 
   const { deals, loading, handleFetchMore } = useDeals({
     skip: !pipelineId,
+    variables: {
+      pipelineId,
+    },
   });
-  console.log(deals, 'check board');
+
   return (
     <div className="flex flex-col overflow-hidden h-full relative">
       <RecordTable.Provider
