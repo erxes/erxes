@@ -10,13 +10,13 @@ import {
   getEditorAttributeUtil,
 } from '~/modules/broadcast/utils';
 
-interface IEngageMessageEdit extends IEngageMessage {
+export interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
 }
 
 const MODULE_ENGAGE = 'engage';
 
-interface ITestEmailParams {
+export interface ITestEmailParams {
   from: string;
   to: string;
   content: string;

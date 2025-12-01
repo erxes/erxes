@@ -173,7 +173,7 @@ const listQuery = async (
   return query;
 };
 
-interface ICountParams {
+export interface ICountParams {
   name: string;
   kind: string;
   status: string;

@@ -17,8 +17,9 @@ import { productMutations } from '@/products/graphql/resolvers/mutations';
 import { relationsMutations } from '@/relations/graphql/mutations';
 import { segmentMutations } from '@/segments/graphql/resolvers/mutations';
 import { tagMutations } from '@/tags/graphql/mutations';
-import { notificationMutations } from '~/modules/notifications/graphql/resolver/mutations';
-import { roleMutations } from '~/modules/permissions/graphql/resolvers/mutations/role';
+import engageMutations from '~/modules/broadcast/graphql/resolvers/mutations/Mutations';
+import { notificationMutations } from '@/notifications/graphql/resolver/mutations';
+import { roleMutations } from '@/permissions/graphql/resolvers/mutations/role';
 
 export const mutations = {
   ...contactMutations,
@@ -42,4 +43,5 @@ export const mutations = {
   ...notificationMutations,
   ...internalNoteMutations,
   ...roleMutations,
+  ...engageMutations,
 };

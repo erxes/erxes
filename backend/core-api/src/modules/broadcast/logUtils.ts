@@ -36,6 +36,7 @@ const gatherEngageFieldNames = async (
       input: { _id: { $in: doc.segmentIds } },
     });
 
+    // commented
     // options = await gatherNames({
     //   foreignKey: 'segmentIds',
     //   prevList: options,
@@ -54,6 +55,7 @@ const gatherEngageFieldNames = async (
       input: { query: { _id: { $in: doc.brandIds } } },
     });
 
+        // commented
     // options = await gatherNames({
     //   foreignKey: 'brandIds',
     //   prevList: options,
@@ -72,6 +74,7 @@ const gatherEngageFieldNames = async (
       input: { _id: { $in: doc.customerTagIds } },
     });
 
+        // commented
     // options = await gatherNames({
     //   foreignKey: 'customerTagIds',
     //   prevList: options,
@@ -90,6 +93,7 @@ const gatherEngageFieldNames = async (
       input: { _id: doc.fromUserId },
     });
 
+        // commented
     // if (user && user._id) {
     //   options = await gatherNames({
     //     foreignKey: 'fromUserId',
@@ -110,6 +114,7 @@ const gatherEngageFieldNames = async (
       input: { _id: doc.messenger.brandId },
     });
 
+        // commented
     // if (brand) {
     //   options = await gatherNames({
     //     foreignKey: 'brandId',
@@ -130,6 +135,7 @@ const gatherEngageFieldNames = async (
       input: { _id: doc.createdBy },
     });
 
+        // commented
     // if (user) {
     //   options = await gatherNames({
     //     foreignKey: 'createdBy',
@@ -150,6 +156,7 @@ const gatherEngageFieldNames = async (
       input: { _id: doc.email.templateId },
     });
 
+        // commented
     // if (template) {
     //   options = await gatherNames({
     //     foreignKey: 'email.templateId',

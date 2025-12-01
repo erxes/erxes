@@ -46,6 +46,7 @@ interface ICustomerAnalyzeParams {
   engageMessageId: string;
 }
 
+    // commented
 // export const getEnv = ({
 //   name,
 //   defaultValue
@@ -60,7 +61,7 @@ interface ICustomerAnalyzeParams {
 //   }
 
 //   if (!value) {
-//     debugInfo(`Missing environment variable configuration for ${name}`);
+//     console.log(`Missing environment variable configuration for ${name}`);
 //   }
 
 //   return value || "";

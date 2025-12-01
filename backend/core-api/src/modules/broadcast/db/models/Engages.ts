@@ -262,6 +262,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           continue;
         }
 
+        // commented
         // check for rules ===
         // const numberOfVisits = await sendCoreMessage({
         //   isRPC: true,
