@@ -10,6 +10,8 @@ import { ChannelsSettingsIndexPage } from '~/pages/ChannelsSettingsIndexPage';
 import { PipelineDetailPage } from '~/pages/PipelineDetailPage';
 import { ChannelSettingsPageEffect } from '@/channels/components/settings/ChannelSettingsPageEffect';
 import { ChannelSettingsBreadcrumb } from '@/channels/components/settings/breadcrumbs/ChannelSettingsBreadcrumb';
+import { PipielineConfigListPage } from '~/pages/PipielineConfigListPage';
+
 export const IntegrationDetailPage = lazy(() =>
   import('~/pages/IntegrationDetailPage').then((module) => ({
     default: module.IntegrationDetailPage,
@@ -71,6 +73,10 @@ const ChannelsSettings = () => {
           <Route
             path={FrontlinePaths.PipelineDetail}
             element={<PipelineDetailPage />}
+          />
+          <Route
+            path={FrontlinePaths.TicketsConfigs}
+            element={<PipielineConfigListPage />}
           />
         </Route>
       </Routes>

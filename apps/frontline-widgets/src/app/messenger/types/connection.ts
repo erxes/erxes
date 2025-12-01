@@ -5,7 +5,7 @@ export interface IConnectionInfo {
 
 export interface IWidgetData {
   messengerData?: IMessengerData;
-  ticketData?: ITicketData;
+  ticketConfig?: ITicketConfig;
   languageCode?: string;
   uiOptions?: IWidgetUiOptions;
   customerId?: string;
@@ -57,8 +57,10 @@ export interface IMessageDataMessages {
 }
 
 export interface IWidgetUiOptions {
-  color?: string;
-  textColor?: string;
+  primary?: {
+    DEFAULT?: string;
+    foreground?: string;
+  };
   logo?: string;
 }
 
@@ -85,4 +87,40 @@ export interface RequestBrowserInfoParams {
   source: string;
   postData?: any;
   callback: (browserInfo: IBrowserInfo) => void;
+}
+
+export interface ITicketBasicFields {
+  isShowName: boolean;
+  isShowDescription: boolean;
+  isShowAttachment: boolean;
+  isShowTags: boolean;
+}
+
+export interface ICustomerFields {
+  isShowFirstName: boolean;
+  isShowLastName: boolean;
+  isShowPhoneNumber: boolean;
+  isShowEmail: boolean;
+}
+
+export interface ICompanyFields {
+  isShowName: boolean;
+  isShowRegistrationNumber: boolean;
+  isShowAddress: boolean;
+  isShowPhoneNumber: boolean;
+  isShowEmail: boolean;
+}
+
+export interface ITicketConfig {
+  _id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  pipelineId: string;
+  channelId: string;
+  selectedStatusId: string;
+  contactType: string;
+  ticketBasicFields: ITicketBasicFields;
+  company: ICompanyFields;
+  customer: ICustomerFields;
 }

@@ -85,6 +85,7 @@ export const posSchema = schemaWrapper(
     saveRemainder: { type: Boolean, label: 'Save Remainder' },
     banFractions: { type: Boolean, label: 'has Float count' },
     status: { type: String, label: 'Status', optional: true },
+    scopeBrandIds: { type: [String], label: 'Scope Brand Ids', optional: true },
   }),
 );
 

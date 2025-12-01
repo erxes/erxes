@@ -267,6 +267,47 @@ export const widgetQueries: Record<string, Resolver> = {
       timezone,
     };
   },
+
+  async widgetsTicketCustomerDetail(
+    _root,
+    args: { customerId?: string; type?: string },
+    { subdomain }: IContext,
+  ) {
+    const { customerId } = args;
+    if (!customerId) {
+      return null;
+    }
+
+    return sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'customers',
+      action: 'findOne',
+      input: { query: { _id: customerId } },
+    });
+  },
+  async widgetsGetTicketTags(
+    _root,
+    args: { configId: string },
+    { models, subdomain }: IContext,
+  ) {
+    const config = await models.TicketConfig.getTicketConfig(args.configId);
+
+    if (config && config.ticketBasicFields?.isShowTags) {
+      return await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'tags',
+        action: 'find',
+        input: {
+          query: { type: 'frontline:ticket' },
+        },
+      });
+    }
+    return [];
+  },
 };
 
 markResolvers(widgetQueries, {

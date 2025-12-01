@@ -1,6 +1,5 @@
 import { PageSubHeader } from 'erxes-ui';
-import { TagsSettingFilter } from '~/modules/tags/components/TagsSettingFilter';
-import { TagsRecordTable } from '~/modules/tags/components/TagsRecordTable';
+import { TagsSettingFilter, TagsRecordTable } from 'ui-modules';
 
 export const ProjectsTagsPage = () => {
   return (

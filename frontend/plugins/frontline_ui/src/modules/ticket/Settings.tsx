@@ -1,7 +1,15 @@
-import React from 'react'
-
-export const Settings = () => {
+import React from 'react';
+import { Suspense } from 'react';
+import { Route, Routes } from 'react-router';
+import { TicketTagsPage } from '~/pages/TicketTagsPage';
+const Settings = () => {
   return (
-    <div>Settings</div>
-  )
-}
+    <Suspense fallback={<div />}>
+      <Routes>
+        <Route path="/" element={<TicketTagsPage />} />
+      </Routes>
+    </Suspense>
+  );
+};
+
+export default Settings;

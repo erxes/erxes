@@ -63,5 +63,30 @@ module.exports = composePlugins(withNx(), withReact(), (config) => {
     '@libs': path.resolve(__dirname, './src/lib'),
   };
 
+  // Configure CSS processing with PostCSS for Tailwind CSS
+  config.module = config.module || {};
+  config.module.rules = config.module.rules || [];
+
+  // Find and replace existing CSS rule or add new one
+  const cssRuleIndex = config.module.rules.findIndex(
+    (rule) =>
+      rule &&
+      typeof rule === 'object' &&
+      rule.test &&
+      rule.test.toString().includes('css'),
+  );
+
+  const cssRule = {
+    test: /\.css$/,
+    use: ['postcss-loader'],
+    type: 'css',
+  };
+
+  if (cssRuleIndex >= 0) {
+    config.module.rules[cssRuleIndex] = cssRule;
+  } else {
+    config.module.rules.push(cssRule);
+  }
+
   return config;
 });
