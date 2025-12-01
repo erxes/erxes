@@ -10,7 +10,7 @@ const SelectComponentsIndexPage = lazy(() =>
 );
 
 const ReportPage = lazy(() =>
-  import('~/pages/components/Reportpage').then((module) => ({
+  import('~/pages/components/ReportPage').then((module) => ({
     default: module.ReportPage,
   })),
 );
