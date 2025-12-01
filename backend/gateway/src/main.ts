@@ -32,13 +32,25 @@ import * as path from 'path';
 dotenv.config();
 
 const port = process.env.PORT ? Number(process.env.PORT) : 4000;
-const { DOMAIN } = process.env;
+const { DOMAIN, WIDGETS_DOMAIN, ALLOWED_ORIGINS, ALLOWED_DOMAINS } =
+  process.env;
 
 const corsOptions = {
   credentials: true,
   origin: [
-    ...(DOMAIN ? [DOMAIN] : []),
-    ...(isDev ? ['http://localhost:3001', 'http://localhost:5173', 'http://localhost:4200'] : []),
+    DOMAIN ? DOMAIN : 'http://localhost:3000',
+    WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
+    ...(ALLOWED_DOMAINS || '').split(','),
+    'https://studio.apollographql.com',
+    ...(ALLOWED_ORIGINS || '').split(',').map((c) => c && RegExp(c)),
+
+    ...(isDev
+      ? [
+          'http://localhost:3001',
+          'http://localhost:5173',
+          'http://localhost:4200',
+        ]
+      : []),
   ],
 };
 

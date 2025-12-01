@@ -1,9 +1,8 @@
 import { IUserDocument } from "erxes-api-shared/core-types";
-import { fixNum, getPureDate, getTomorrow, graphqlPubsub } from "erxes-api-shared/utils";
-import { now } from "mongoose";
+import { fixNum, getPureDate, getTomorrow, graphqlPubsub, sendTRPCMessage } from "erxes-api-shared/utils";
 import { IModels } from "~/connectionResolvers";
 import { ADJ_INV_STATUSES, IAdjustInvDetailParams, IAdjustInventory, IAdjustInventoryDocument, ICommonAdjInvDetailInfo } from "../@types/adjustInventory";
-import { JOURNALS, TR_STATUSES } from "../@types/constants";
+import { JOURNALS, TR_FOLLOW_TYPES, TR_STATUSES } from "../@types/constants";
 import { ITransactionDocument, ITrDetail } from "../@types/transaction";
 
 export const activeCost = async (models: IModels, accountId: string, branchId: string, departmentId: string, productIds: string[]) => {
@@ -206,7 +205,93 @@ const fixRelatedMainJournal = async (models, { ptrId, excludeTrId, oldAmount, ne
   return;
 }
 
-const fixOutTrs = async (models: IModels, {
+const afterCalc = async (models: IModels, trIds: string[]) => {
+  await models.Transactions.updateMany(
+    { _id: { $in: trIds } },
+    [
+      {
+        $set: {
+          sumDt: {
+            $sum: {
+              $map: {
+                input: { $filter: { input: "$details", as: "d", cond: { $eq: ["$$d.side", "dt"] } } },
+                as: "item",
+                in: { $ifNull: ["$$item.amount", 0] }
+              }
+            }
+          },
+          sumCt: {
+            $sum: {
+              $map: {
+                input: { $filter: { input: "$details", as: "d", cond: { $eq: ["$$d.side", "ct"] } } },
+                as: "item",
+                in: { $ifNull: ["$$item.amount", 0] }
+              }
+            }
+          }
+        }
+
+      }
+    ]
+  );
+}
+
+const getErrorDesc = async (subdomain: string, models: IModels, errFormat: string, args: any) => {
+  let result = errFormat;
+
+  if (errFormat.includes('{productId}') && args.productId) {
+    const product = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'findOne',
+      defaultValue: {},
+      input: { query: { _id: args.productId } }
+    });
+    if (product?._id) {
+      result = result.replace(/{productId}/g, `${product.code} - ${product.name}`)
+    }
+  }
+
+  if (errFormat.includes('{accountId}') && args.accountId) {
+    const account = await models.Accounts.findOne({ _id: args.accountId });
+
+    if (account?._id) {
+      result = result.replace(/{accountId}/g, `${account.code} - ${account.name}`)
+    }
+  }
+
+  if (errFormat.includes('{branchId}') && args.branchId) {
+    const branch = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'branches',
+      action: 'findOne',
+      defaultValue: {},
+      input: { query: { _id: args.branchId } }
+    });
+    if (branch?._id) {
+      result = result.replace(/{branchId}/g, `${branch.code} - ${branch.title}`)
+    }
+  }
+
+  if (errFormat.includes('{departmentId}') && args.departmentId) {
+    const department = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'departments',
+      action: 'findOne',
+      defaultValue: {},
+      input: { query: { _id: args.departmentId } }
+    });
+    if (department?._id) {
+      result = result.replace(/{departmentId}/g, `${department.code} - ${department.title}`)
+    }
+  }
+  return result;
+}
+
+const fixOutTrs = async (subdomain: string, models: IModels, {
   adjustId, outAggrs
 }: {
   adjustId: string,
@@ -216,6 +301,7 @@ const fixOutTrs = async (models: IModels, {
   }[]
 }) => {
   for (const outTrs of outAggrs) {
+    const trIds: string[] = [];
     const { _id, records } = outTrs;
     const { accountId, branchId, departmentId, productId } = _id;
 
@@ -237,7 +323,10 @@ const fixOutTrs = async (models: IModels, {
     const unitCost = fixNum(cost / (remainder ?? 1));
 
     if (remainder < sumCount) {
-      const error = `Not enough stock for ${productId} in ${accountId} ${branchId} ${departmentId}`;
+      const error = await getErrorDesc(subdomain, models,
+        `Not enough stock for {productId} in {accountId} {branchId} {departmentId} (out)`,
+        { productId, accountId, branchId, departmentId }
+      );
       await models.AdjustInvDetails.updateOne({ _id: adjustDetail._id }, { $set: { error } });
       throw new Error(error);
     }
@@ -248,38 +337,39 @@ const fixOutTrs = async (models: IModels, {
       const { count, amount } = details;
       const newCost = fixNum((count ?? 0) * unitCost);
 
-      if (newCost !== amount) {
-        remainder -= fixNum(count ?? 0);
-        cost -= newCost;
+      remainder -= fixNum(count ?? 0);
+      cost -= newCost;
 
-        // out - fix
-        await models.Transactions.updateOne(
-          { _id: rec._id },
-          {
-            $set: {
-              'details.$[d].unitPrice': unitCost,
-              'details.$[d].amount': newCost,
-              sumDt: 0,
-              sumCt: fixNum(rec.sumCt - amount + newCost),
-            }
-          },
-          { arrayFilters: [{ 'd._id': { $eq: details._id } }] }
-        );
-
-        await fixRelatedMainJournal(models, { ptrId: rec.ptrId, excludeTrId: rec._id, oldAmount: amount, newAmount: newCost });
-
-      } else {
-        remainder -= fixNum(count ?? 0);
-        cost -= amount;
+      if (newCost === amount) {
+        continue;
       }
+
+      // out - fix
+      await models.Transactions.updateOne(
+        { _id: rec._id },
+        {
+          $set: {
+            'details.$[d].unitPrice': unitCost,
+            'details.$[d].amount': newCost,
+            sumDt: 0,
+            sumCt: fixNum(rec.sumCt - amount + newCost),
+          }
+        },
+        { arrayFilters: [{ 'd._id': { $eq: details._id } }] }
+      );
+
+      trIds.push(rec._id)
+
+      await fixRelatedMainJournal(models, { ptrId: rec.ptrId, excludeTrId: rec._id, oldAmount: amount, newAmount: newCost });
     }
 
     // cache out adjustDetail
-    await models.AdjustInvDetails.updateAdjustInvDetail({ adjustId, productId, accountId, branchId, departmentId, remainder, cost, unitCost })
+    await models.AdjustInvDetails.updateAdjustInvDetail({ adjustId, productId, accountId, branchId, departmentId, remainder, cost, unitCost });
+    await afterCalc(models, trIds);
   }
 }
 
-const fixMoveTrs = async (models: IModels, {
+const fixMoveTrs = async (subdomain: string, models: IModels, {
   adjustId, moveAggrs
 }: {
   adjustId: string,
@@ -290,6 +380,7 @@ const fixMoveTrs = async (models: IModels, {
   beforeAdjInvId?: string
 }) => {
   for (const outcomeTrs of moveAggrs) {
+    const trIds: string[] = [];
     const { _id, records } = outcomeTrs;
     const { accountId, branchId, departmentId, productId } = _id;
 
@@ -311,7 +402,10 @@ const fixMoveTrs = async (models: IModels, {
     const unitCost = fixNum(cost / (remainder ?? 1));
 
     if (remainder < sumCount) {
-      const error = `Not enough stock for ${productId} in ${accountId} ${branchId} ${departmentId}`;
+      const error = await getErrorDesc(subdomain, models,
+        'Not enough stock for {productId} in {accountId} {branchId} {departmentId}, (move)',
+        { productId, accountId, branchId, departmentId }
+      );
       await models.AdjustInvDetails.updateOne({ _id: adjustDetail._id }, { $set: { error } });
       throw new Error(error);
     }
@@ -319,51 +413,25 @@ const fixMoveTrs = async (models: IModels, {
     // bichleg bureer zalruulga hiine ingehdee haritstsan buyu orlogo talaa davhar shinechilsen, shinechilj baih burtee cache ee tsenegleh yostoi
     for (const rec of records) {
       const { details } = rec;
-      const { count, amount, follows, followInfos } = details;
+      const { count, amount, followInfos } = details;
       const newCost = fixNum((count ?? 0) * unitCost);
 
-      const moveInTrId = rec.follows?.find(f => f.type === 'moveIn');
-      const moveInId = follows?.find(f => f.type === 'moveIn')?.id;
-      const moveInRec = await models.Transactions.aggregate([
-        { $match: { _id: moveInTrId } },
+      const moveInRecs = (await models.Transactions.aggregate([
+        { $match: { originId: rec._id, originType: TR_FOLLOW_TYPES.INV_MOVE_IN } },
         { $unwind: '$details' },
-        { $match: { 'details._id': moveInId } },
-      ])[0];
+        { $match: { 'details.originId': details._id } },
+      ]));
 
-      if (!moveInTrId || !moveInId || !moveInRec) {
+      const moveInRec = moveInRecs[0];
+
+      if (!moveInRec) {
         throw new Error(`MoveIn not found for ${rec.parentId}`);
       }
 
-      if (newCost !== amount) {
-        const moveInCost = fixNum(newCost + (followInfos?.perCost ?? 0));
+      remainder -= fixNum(count);
+      cost -= newCost;
 
-        remainder -= fixNum(count);
-        cost -= newCost;
-
-        // out - fix
-        await models.Transactions.updateOne(
-          { _id: rec._id },
-          {
-            $set: {
-              'details.$[d].unitPrice': unitCost,
-              'details.$[d].amount': newCost
-            }
-          },
-          { arrayFilters: [{ 'd._id': { $eq: details._id } }] }
-        );
-
-        // in - Fix
-        await models.Transactions.updateOne(
-          { _id: moveInTrId },
-          {
-            $set: {
-              'details.$[d].unitPrice': unitCost,
-              'details.$[d].amount': moveInCost
-            }
-          },
-          { arrayFilters: [{ 'd._id': { $eq: moveInId } }] }
-        );
-
+      if (newCost === amount) {
         // cache move in adjustDetail
         await models.AdjustInvDetails.increaseAdjustInvDetail({
           adjustId,
@@ -371,35 +439,164 @@ const fixMoveTrs = async (models: IModels, {
           accountId: moveInRec.details.accountId,
           branchId: moveInRec.branchId,
           departmentId: moveInRec.departmentId,
-          count: moveInRec.detail.count,
-          amount: moveInCost,
-          multiplier: 1
-        });
-      } else {
-        remainder -= fixNum(count);
-        cost -= amount;
-
-        // cache move in adjustDetail
-        await models.AdjustInvDetails.increaseAdjustInvDetail({
-          adjustId,
-          productId,
-          accountId: moveInRec.details.accountId,
-          branchId: moveInRec.branchId,
-          departmentId: moveInRec.departmentId,
-          count: moveInRec.detail.count,
+          count: moveInRec.details.count,
           amount: moveInRec.details.amount,
           multiplier: 1
         });
+        continue;
       }
+
+      const moveInCost = fixNum(newCost + (followInfos?.perCost ?? 0));
+
+      // out - fix
+      await models.Transactions.updateOne(
+        { _id: rec._id },
+        {
+          $set: {
+            'details.$[d].unitPrice': unitCost,
+            'details.$[d].amount': newCost
+          }
+        },
+        { arrayFilters: [{ 'd._id': { $eq: details._id } }] }
+      );
+
+      // in - Fix
+      await models.Transactions.updateOne(
+        { _id: moveInRec._id },
+        {
+          $set: {
+            'details.$[d].unitPrice': unitCost,
+            'details.$[d].amount': moveInCost
+          }
+        },
+        { arrayFilters: [{ 'd._id': { $eq: moveInRec.details._id } }] }
+      );
+
+      // cache move in adjustDetail
+      await models.AdjustInvDetails.increaseAdjustInvDetail({
+        adjustId,
+        productId,
+        accountId: moveInRec.details.accountId,
+        branchId: moveInRec.branchId,
+        departmentId: moveInRec.departmentId,
+        count: moveInRec.details.count,
+        amount: moveInCost,
+        multiplier: 1
+      });
+      trIds.push(rec._id, moveInRec._id)
     }
 
     // cache move out adjustDetail
     await models.AdjustInvDetails.updateAdjustInvDetail({ adjustId, productId, accountId, branchId, departmentId, remainder, cost, unitCost })
+    await afterCalc(models, trIds);
   }
   return {}
 }
 
-const fixInvTrs = async (models: IModels, {
+const fixSaleOutTrs = async (subdomain: string, models: IModels, {
+  adjustId, saleOutAggrs
+}: {
+  adjustId: string,
+  saleOutAggrs: {
+    _id: IAdjustInvDetailParams,
+    records: (ITransactionDocument & { details: ITrDetail })[]
+  }[],
+  beforeAdjInvId?: string
+}) => {
+  for (const saleOutTrs of saleOutAggrs) {
+    const trIds: string[] = [];
+    const { _id, records } = saleOutTrs;
+    const { accountId, branchId, departmentId, productId } = _id;
+
+    if (!branchId || !departmentId || !productId || !accountId) {
+      continue
+    }
+
+    const detailFilter = {
+      productId, accountId,
+      branchId, departmentId,
+    }
+
+    const sumCount = fixNum(records.reduce((sum, rec) => sum + (rec.details.count ?? 0), 0));
+
+    const adjustDetail = await models.AdjustInvDetails.getAdjustInvDetail({ ...detailFilter, adjustId });
+
+    let remainder = fixNum((adjustDetail?.remainder ?? 0));
+    let cost = fixNum((adjustDetail?.cost ?? 0));
+    const unitCost = fixNum(cost / (remainder ?? 1));
+
+    if (remainder < sumCount) {
+      const error = await getErrorDesc(subdomain, models,
+        'Not enough stock for {productId} in {accountId} {branchId} {departmentId} (sale)',
+        { productId, accountId, branchId, departmentId }
+      );
+      await models.AdjustInvDetails.updateOne({ _id: adjustDetail._id }, { $set: { error } });
+      throw new Error(error);
+    }
+
+    // bichleg bureer zalruulga hiine ingehdee haritstsan buyu orlogo talaa davhar shinechilsen, shinechilj baih burtee cache ee tsenegleh yostoi
+    for (const rec of records) {
+      const { details } = rec;
+      const { count, amount } = details;
+      const newCost = fixNum((count ?? 0) * unitCost);
+
+      const saleSaleRec = (await models.Transactions.aggregate([
+        { $match: { _id: rec.originId } },
+        { $unwind: '$details' },
+        { $match: { 'details._id': details.originId } },
+      ]))[0];
+
+      const saleFollowCostRec = (await models.Transactions.aggregate([
+        { $match: { originId: rec.originId, originType: TR_FOLLOW_TYPES.INV_SALE_COST } },
+        { $unwind: '$details' },
+        { $match: { 'details.originId': details.originId } },
+      ]))[0];
+
+      if (!saleSaleRec || !saleFollowCostRec) {
+        throw new Error(`Sale main or cost not found for ${rec._id}`);
+      }
+
+      remainder -= fixNum(count ?? 0);
+      cost -= newCost;
+
+      if (newCost === amount) {
+        continue;
+      }
+
+      // out - fix
+      await models.Transactions.updateOne(
+        { _id: rec._id },
+        {
+          $set: {
+            'details.$[d].unitPrice': unitCost,
+            'details.$[d].amount': newCost,
+          }
+        },
+        { arrayFilters: [{ 'd._id': { $eq: details._id } }] }
+      );
+
+      // cost - Fix
+      await models.Transactions.updateOne(
+        { _id: saleFollowCostRec._id },
+        {
+          $set: {
+            'details.$[d].unitPrice': unitCost,
+            'details.$[d].amount': newCost
+          }
+        },
+        { arrayFilters: [{ 'd._id': { $eq: saleFollowCostRec.details._id } }] }
+      );
+      trIds.push(rec._id, saleFollowCostRec._id);
+    }
+
+    // cache move out adjustDetail
+    await models.AdjustInvDetails.updateAdjustInvDetail({ adjustId, productId, accountId, branchId, departmentId, remainder, cost, unitCost });
+    await afterCalc(models, trIds);
+  }
+  return {}
+}
+
+const fixInvTrs = async (subdomain: string, models: IModels, {
   adjustId, beginDate, endDate, trFilter
 }: {
   adjustId: string,
@@ -434,16 +631,22 @@ const fixInvTrs = async (models: IModels, {
     { $match: { ...commonMatch, journal: JOURNALS.INV_MOVE } },
     ...commonAggregates
   ]);
-  await fixMoveTrs(models, { adjustId, moveAggrs: moveOutAggrs });
+  await fixMoveTrs(subdomain, models, { adjustId, moveAggrs: moveOutAggrs });
 
   const outAggrs = await models.Transactions.aggregate([
     { $match: { ...commonMatch, journal: JOURNALS.INV_OUT } },
     ...commonAggregates
   ]);
-  await fixOutTrs(models, { adjustId, outAggrs });
+  await fixOutTrs(subdomain, models, { adjustId, outAggrs });
+
+  const saleOutAggrs = await models.Transactions.aggregate([
+    { $match: { ...commonMatch, journal: JOURNALS.INV_SALE_OUT } },
+    ...commonAggregates
+  ]);
+  await fixSaleOutTrs(subdomain, models, { adjustId, saleOutAggrs });
 }
 
-export const adjustRunning = async (models: IModels, user: IUserDocument, { adjustInventory, beginDate, beforeAdjInv }: { adjustInventory: IAdjustInventoryDocument, beginDate: Date, beforeAdjInv?: IAdjustInventoryDocument | null }) => {
+export const adjustRunning = async (subdomain: string, models: IModels, user: IUserDocument, { adjustInventory, beginDate, beforeAdjInv }: { adjustInventory: IAdjustInventoryDocument, beginDate: Date, beforeAdjInv?: IAdjustInventoryDocument | null }) => {
   try {
     let currentDate = await recheckValidDate(models, adjustInventory, beginDate);
     const date = adjustInventory.date;
@@ -459,17 +662,12 @@ export const adjustRunning = async (models: IModels, user: IUserDocument, { adju
       status: { $in: TR_STATUSES.ACTIVE },
     }
 
-    // cachees bolson uchir ene barag hereggui baih yostoi
-    // if (currentDate < beginDate) {
-    // await calcInvTrs(models, { adjustId, beginDate: beginDate, endDate: currentDate, trFilter }) // энэ хооронд бичилтийн өөрлөлт орохгүй тул бөөнд нь details ээ цэнэглэх зорилготой
-    // }
-
     // өдөр бүрээр гүйлгээнүүдийг журналаар багцалж тооцож өртгийг зүгшрүүлж шаардлагатай бол гүйлгээг засч эндээсээ цэнэглэнэ
     while (currentDate < date) {
       const nextDate = getTomorrow(currentDate);
 
       try {
-        await fixInvTrs(models, { adjustId, beginDate: currentDate, endDate: nextDate, trFilter });
+        await fixInvTrs(subdomain, models, { adjustId, beginDate: currentDate, endDate: nextDate, trFilter });
 
         let bulkOps: Array<{
           updateOne: {
@@ -519,12 +717,7 @@ export const adjustRunning = async (models: IModels, user: IUserDocument, { adju
           checkedAt: new Date(), successDate: nextDate
         })
       } catch (e) {
-        const now = new Date();
-        await modifierWrapper(models, adjustInventory, {
-          error: e.message,
-          checkedAt: now
-        })
-        break;
+        throw new Error(e.message);
       }
 
       currentDate = nextDate;
@@ -534,6 +727,11 @@ export const adjustRunning = async (models: IModels, user: IUserDocument, { adju
       checkedAt: new Date(), status: ADJ_INV_STATUSES.COMPLETE, error: ''
     })
   } catch (e) {
-    modifierWrapper(models, adjustInventory, { checkedDate: now, error: e.message, status: ADJ_INV_STATUSES.PROCESS })
+    const now = new Date();
+    await modifierWrapper(models, adjustInventory, {
+      checkedDate: now,
+      error: e.message,
+      status: ADJ_INV_STATUSES.PROCESS
+    })
   }
 }

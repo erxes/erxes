@@ -7,10 +7,11 @@ import {
   redis,
   USER_ROLES,
 } from 'erxes-api-shared/utils';
+import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import { generateModels } from '~/connectionResolvers';
 import { saveValidatedToken } from '~/modules/auth/utils';
-import jwt from 'jsonwebtoken';
-import { Request, Response } from 'express';
+import { sendOnboardNotification } from '~/modules/notifications/utils';
 
 const setCookie = async (
   res: Response,
@@ -69,6 +70,8 @@ export const ssocallback = async (req: any, res) => {
 
     await setCookie(res, user, subdomain, token.toString());
 
+    await sendOnboardNotification(subdomain, models, user._id);
+
     return res.redirect(DOMAIN);
   } catch (e) {
     console.error(`Error occurred when logging in via google: "${e.message}"`);
@@ -120,6 +123,8 @@ export const magiclinkCallback = async (
     const NODE_ENV = getEnv({ name: 'NODE_ENV', subdomain });
     const isProduction = NODE_ENV === 'production';
 
+    await sendOnboardNotification(subdomain, models, user._id);
+
     return res.redirect(isProduction ? DOMAIN : 'http://localhost:3001');
   } catch (e: any) {
     console.error(e.message);
@@ -165,6 +170,8 @@ export const handleCoreLogin = async (req: any, res) => {
         systemUser,
         models.Users.getSecret(),
       );
+
+      await sendOnboardNotification(subdomain, models, systemUser._id);
 
       await setCookie(res, systemUser, subdomain, createToken.toString());
     }

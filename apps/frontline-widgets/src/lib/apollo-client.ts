@@ -9,13 +9,14 @@ import { onError } from '@apollo/client/link/error';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { createClient } from 'graphql-ws';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { REACT_APP_API_URL } from 'erxes-ui';
 
 interface Definition {
   kind: string;
   operation?: string;
 }
 
-const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+const apiUrl = REACT_APP_API_URL || 'http://localhost:4000';
 const wsUri = apiUrl?.replace(/^http/, 'ws');
 
 export const httpLink = createHttpLink({

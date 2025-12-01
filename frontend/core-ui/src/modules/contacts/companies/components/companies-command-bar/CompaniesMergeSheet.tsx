@@ -33,7 +33,7 @@ export const CompaniesMergeSheet = ({
           Merge
         </Button>
       </Sheet.Trigger>
-      <Sheet.View className="sm:max-w-screen-lg flex gap-0 flex-col m-0 p-0">
+      <Sheet.View className="sm:max-w-5xl flex gap-0 flex-col m-0 p-0">
         <Sheet.Description className="sr-only" />
         <CompaniesMergeSheetHeader />
         <Sheet.Content>

@@ -30,6 +30,11 @@ const CLOSE_ICON_STRING = `
 const erxesWidgetContainer = document.createElement('div');
 erxesWidgetContainer.id = ERXES_WIDGET_CONTAINER_ID;
 
+// Add margin-bottom to root element on mobile
+if (isMobile) {
+  document.documentElement.style.marginBottom = '72px';
+}
+
 // messenger iframe container
 const messengerIframeContainer = document.createElement('div');
 messengerIframeContainer.className = 'erxes-messenger-frame';
@@ -47,7 +52,7 @@ export const generateIntegrationUrl = (integrationKind: string): string => {
     })();
 
   if (script && script instanceof HTMLScriptElement) {
-    return script.src.replace(`index.js`, ``);
+    return script.src.replace(`messengerBundle.js`, ``);
   }
 
   return '';
@@ -221,8 +226,11 @@ const handleMessageEvent = async (event: MessageEvent) => {
       return console.error('Messenger: launcher element is not defined');
     }
 
-    const { color, logo: uiOptionsLogo } = uiOptions;
+    const { primary, logo: uiOptionsLogo } = uiOptions;
+
     const logo = uiOptionsLogo;
+    const color = primary?.DEFAULT;
+    const foreground = primary?.foreground;
     hasCustomLogo = !!logo;
     backgroundImage = hasCustomLogo
       ? `url(${baseUrl}/read-file?key=${encodeURIComponent(logo)})`
@@ -250,9 +258,9 @@ const handleMessageEvent = async (event: MessageEvent) => {
       align-items: center;
       cursor: pointer;
       background-color: ${color};
-      color: ${color || '#673fbd'};
+      color: ${foreground || '#673fbd'};
       background-image: ${backgroundImage};
-      background-size: ${hasCustomLogo ? 'cover' : '18px'};
+      background-size: ${hasCustomLogo ? '32px' : '18px'};
       background-position: center;
     `;
   }
@@ -294,7 +302,7 @@ window.addEventListener('message', async (event) => {
         messengerIframeContainer.classList.add('erxes-messenger-hidden');
         (launcher as HTMLElement).style.backgroundImage = backgroundImage;
         (launcher as HTMLElement).style.backgroundSize = hasCustomLogo
-          ? 'cover'
+          ? '32px'
           : '18px';
         launcher.innerHTML = '';
       }

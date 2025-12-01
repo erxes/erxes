@@ -15,6 +15,7 @@ import { debugError } from '@/integrations/facebook/debuggers';
 import {
   ISendMessageData,
   TAttachmentMessage,
+  TAutomationActionConfig,
   TBotConfigMessage,
   TBotConfigMessageButton,
   TFacebookMessageButton,
@@ -32,13 +33,23 @@ import {
 import { sendReply } from '@/integrations/facebook/utils';
 import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
 
-export const generateMessages = async (
-  subdomain: string,
-  config: { messages: TBotConfigMessage[] },
-  conversation: IFacebookConversation,
-  customer: IFacebookCustomer,
-  executionId: string,
-) => {
+type TGenerateMessagesParams = {
+  subdomain: string;
+  conversation: IFacebookConversation;
+  customer: IFacebookCustomer;
+  executionId: string;
+  actionId: string;
+  config?: TAutomationActionConfig;
+};
+
+export const generateMessages = async ({
+  subdomain,
+  conversation,
+  customer,
+  executionId,
+  actionId,
+  config,
+}: TGenerateMessagesParams) => {
   let { messages = [] } = config || {};
 
   const generateButtons = (buttons: TBotConfigMessageButton[] = []) => {
@@ -53,6 +64,7 @@ export const generateMessages = async (
           button,
           customer?.erxesApiId || '',
           executionId,
+          actionId,
         ),
       };
 
@@ -160,6 +172,7 @@ export const generateMessages = async (
               quickReply,
               customer?.erxesApiId || '',
               executionId,
+              actionId,
             ),
             ...(quickReply.image_url && {
               image_url: getUrl(subdomain, quickReply.image_url),

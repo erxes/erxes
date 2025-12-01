@@ -1,11 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconChevronLeft } from '@tabler/icons-react';
-import { Button, cn, Form, Label } from 'erxes-ui';
+import { Button, cn, Form, Label, toast } from 'erxes-ui';
 import { useState } from 'react';
-import { useForm, UseFormReturn, UseFormSetValue } from 'react-hook-form';
+import {
+  FormProvider,
+  useForm,
+  UseFormReturn,
+  UseFormSetValue,
+} from 'react-hook-form';
 import {
   AutomationTriggerFormProps,
   generateAutomationElementId,
+  useAutomationRemoteFormSubmit,
 } from 'ui-modules';
 import { FacebookBotSelector } from '../../MessengerBotSelector';
 import {
@@ -86,13 +92,11 @@ const renderConditionsContent = ({
   setActiveItemType,
   formState,
   setFormValue,
-  form,
 }: {
   activeItemType: string;
   setActiveItemType: React.Dispatch<React.SetStateAction<string>>;
   formState: TMessageTriggerForm;
   setFormValue: UseFormSetValue<TMessageTriggerForm>;
-  form: UseFormReturn<TMessageTriggerForm>;
 }) => {
   const onConditionChange = (
     conditionType: string,
@@ -142,7 +146,6 @@ const renderConditionsContent = ({
 
   return (
     <MessageTriggerConditionsList
-      form={form}
       setActiveItemType={setActiveItemType}
       onItemCheck={onItemCheck}
       selectedConditionTypes={(formState?.conditions || [])
@@ -155,6 +158,7 @@ const renderConditionsContent = ({
 export const MessageTriggerForm = ({
   activeTrigger,
   onSaveTriggerConfig,
+  formRef,
 }: AutomationTriggerFormProps<TMessageTriggerForm>) => {
   const form = useForm<TMessageTriggerForm>({
     resolver: zodResolver(triggerFormSchema),
@@ -163,9 +167,20 @@ export const MessageTriggerForm = ({
   const { watch, setValue, handleSubmit } = form;
   const formState = watch();
   const [activeItemType, setActiveItemType] = useState('');
+  useAutomationRemoteFormSubmit({
+    formRef: formRef,
+    callback: () => {
+      handleSubmit(onSaveTriggerConfig, () =>
+        toast({
+          title: 'There is some error in the form',
+          variant: 'destructive',
+        }),
+      )();
+    },
+  });
 
   return (
-    <Form {...form}>
+    <FormProvider {...form}>
       <div className="flex flex-col h-full">
         <Form.Field
           control={form.control}
@@ -184,21 +199,14 @@ export const MessageTriggerForm = ({
             blur: !formState.botId,
           })}
         >
-          <div className="flex-1 overflow-auto">
-            {renderConditionsContent({
-              activeItemType,
-              setActiveItemType,
-              formState,
-              setFormValue: setValue,
-              form,
-            })}
-          </div>
-
-          <div className="p-2 flex justify-end border-t bg-white">
-            <Button onClick={handleSubmit(onSaveTriggerConfig)}>Save</Button>
-          </div>
+          {renderConditionsContent({
+            activeItemType,
+            setActiveItemType,
+            formState,
+            setFormValue: setValue,
+          })}
         </div>
       </div>
-    </Form>
+    </FormProvider>
   );
 };

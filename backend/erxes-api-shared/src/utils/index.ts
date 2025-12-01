@@ -13,6 +13,7 @@ export * from './sanitize';
 export * from './service-discovery';
 export * from './start-plugin';
 export * from './trpc';
+export * from './trpc/sendCoreModuleProducer';
 export * from './utils';
 export * from './mongo/cursor-util';
 export * from './string';

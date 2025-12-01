@@ -76,20 +76,20 @@ export const VatForm = ({
 
   useEffect(() => {
     if (!trDoc.hasVat) {
-      setFollowTrDocs((followTrDocs || []).filter(ftr => !(ftr.originId === trDoc._id && ftr.followType === 'vat')));
+      setFollowTrDocs((followTrDocs || []).filter(ftr => !(ftr.originId === trDoc._id && ftr.originType === 'vat')));
       return;
     }
 
     const { sumDt, sumCt } = side === TR_SIDES.DEBIT ? { sumDt: calcedAmount, sumCt: 0 } : { sumDt: 0, sumCt: calcedAmount };
 
-    const curr = followTrDocs.find(ftr => ftr.originId === trDoc._id && ftr.followType === 'vat');
+    const curr = followTrDocs.find(ftr => ftr.originId === trDoc._id && ftr.originType === 'vat');
 
     const vatFtr = {
       ...curr,
       _id: curr?._id || getTempId(),
       journal: TrJournalEnum.TAX,
       originId: trDoc._id,
-      followType: 'vat',
+      originType: 'vat',
       details: [{
         ...(curr?.details || [{}])[0],
         accountId: trDoc.afterVat ?
@@ -104,7 +104,7 @@ export const VatForm = ({
     };
     setFollowTrDocs([
       ...(followTrDocs || []).filter(
-        ftr => !(ftr.originId === trDoc._id && ftr.followType === 'vat')
+        ftr => !(ftr.originId === trDoc._id && ftr.originType === 'vat')
       ),
       vatFtr
     ]);

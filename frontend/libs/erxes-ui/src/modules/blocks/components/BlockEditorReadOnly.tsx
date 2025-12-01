@@ -1,13 +1,13 @@
 import { useCreateBlockNote } from '@blocknote/react';
 import { BLOCK_SCHEMA } from 'erxes-ui/modules/blocks/constant/blockEditorSchema';
 import { BlockNoteView } from '@blocknote/shadcn';
-import 'erxes-ui/modules/blocks/styles/styles.css';
 import { useAtomValue } from 'jotai';
 import { themeState } from 'erxes-ui/state';
 import { parseBlocks } from '../utils';
 import DOMPurify from 'dompurify';
 import { cn } from 'erxes-ui/lib';
 import React, { useMemo } from 'react';
+
 export const BlockEditorReadOnly = React.forwardRef<
   HTMLDivElement,
   {

@@ -1,4 +1,4 @@
-import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/src/utils';
+import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 const configQueries = {

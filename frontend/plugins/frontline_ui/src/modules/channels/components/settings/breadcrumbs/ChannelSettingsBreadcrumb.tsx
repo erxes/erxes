@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Button } from 'erxes-ui';
 import { IconMail } from '@tabler/icons-react';
 import { Separator } from 'erxes-ui';
@@ -6,10 +6,13 @@ import { useIsMatchingLocation } from 'erxes-ui';
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { ChannelDetailBreadcrumb } from '@/channels/components/settings/breadcrumbs/ChannelDetailBreadcrumb';
 import { PipelineDetailBreadcrumb } from '@/pipelines/components/PipelineDetailBreadcrumb';
+import { PipelineConfigBreadcrumb } from '@/pipelines/components/configs/components/PipelineConfigBreadcrumb';
+import { MembersBreadcrumb } from '../members/MembersBreadcrumb';
 export const ChannelSettingsBreadcrumb = () => {
   const isMatchingLocation = useIsMatchingLocation(
     '/settings/frontline/channels',
   );
+  const { id: channelId } = useParams<{ id: string }>();
 
   return (
     <>
@@ -20,26 +23,44 @@ export const ChannelSettingsBreadcrumb = () => {
         </Button>
       </Link>
       {(isMatchingLocation(FrontlinePaths.ChannelDetails) ||
+        isMatchingLocation(FrontlinePaths.ChannelMembers) ||
         isMatchingLocation(FrontlinePaths.ChannelPipelines) ||
-        isMatchingLocation(FrontlinePaths.PipelineDetail)) && (
+        isMatchingLocation(FrontlinePaths.PipelineDetail) ||
+        isMatchingLocation(FrontlinePaths.TicketsConfigs)) && (
         <>
           <Separator.Inline />
           <ChannelDetailBreadcrumb />
         </>
       )}
-      {(isMatchingLocation(FrontlinePaths.ChannelPipelines) ||
-        isMatchingLocation(FrontlinePaths.PipelineDetail)) && (
+      {isMatchingLocation(FrontlinePaths.ChannelMembers) && (
         <>
           <Separator.Inline />
-          <Button variant="ghost" className="font-semibold">
-            Pipelines
-          </Button>
+          <MembersBreadcrumb />
         </>
       )}
-      {isMatchingLocation(FrontlinePaths.PipelineDetail) && (
+      {(isMatchingLocation(FrontlinePaths.ChannelPipelines) ||
+        isMatchingLocation(FrontlinePaths.PipelineDetail) ||
+        isMatchingLocation(FrontlinePaths.TicketsConfigs)) && (
+        <>
+          <Separator.Inline />
+          <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
+            <Button variant="ghost" className="font-semibold">
+              Pipelines
+            </Button>
+          </Link>
+        </>
+      )}
+      {(isMatchingLocation(FrontlinePaths.PipelineDetail) ||
+        isMatchingLocation(FrontlinePaths.TicketsConfigs)) && (
         <>
           <Separator.Inline />
           <PipelineDetailBreadcrumb />
+        </>
+      )}
+      {isMatchingLocation(FrontlinePaths.TicketsConfigs) && (
+        <>
+          <Separator.Inline />
+          <PipelineConfigBreadcrumb />
         </>
       )}
     </>

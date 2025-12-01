@@ -28,6 +28,7 @@ export function useBrandsEdit() {
         if (data.brandsEdit) {
           toast({
             title: 'Brand updated successfully',
+            variant: 'success',
           });
         }
       },

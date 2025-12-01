@@ -105,13 +105,13 @@ export const NavigationMenuGroup = forwardRef<
         >
           <Sidebar.Group {...props} ref={ref}>
             <Sidebar.GroupLabel asChild>
-              <Collapsible.Trigger className="flex items-center gap-2">
+              <Collapsible.Trigger className="group/collapsible-trigger flex items-center gap-2">
                 <IconCaretRightFilled className="size-3.5 transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
                 <span className="font-sans text-xs font-semibold normal-case">
                   {name}
                 </span>
                 {actions && (
-                  <div className="ml-auto invisible group-hover/collapsible-trigger:visible [&_button]:hover:bg-transparent [&_button]:hover:text-foreground [&_button]:focus-visible:outline-none [&_button]:focus-visible:ring-0">
+                  <div className="ml-auto invisible group-hover/collapsible-trigger:visible hover:[&_button]:bg-transparent hover:[&_button]:text-foreground focus-visible:[&_button]:outline-hidden focus-visible:[&_button]:ring-0">
                     {actions}
                   </div>
                 )}

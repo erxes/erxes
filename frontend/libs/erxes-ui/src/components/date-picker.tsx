@@ -63,7 +63,7 @@ export const DatePicker = ({
           variant={variant}
           disabled={Boolean(disabled)}
           className={cn(
-            !value && 'text-muted-foreground',
+            !value && 'text-accent-foreground',
             Boolean(disabled) && 'cursor-not-allowed opacity-50',
             className,
           )}

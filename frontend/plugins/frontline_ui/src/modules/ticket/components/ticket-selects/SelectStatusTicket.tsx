@@ -6,6 +6,7 @@ import {
   Filter,
   PopoverScoped,
   useQueryState,
+  useFilterContext,
 } from 'erxes-ui';
 import { addTicketSchema } from '@/ticket/types';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
@@ -27,6 +28,7 @@ interface SelectStatusContextType {
   loading?: boolean;
   error?: any;
   statuses?: ITicketStatusChoice[];
+  pipelineId?: string;
 }
 
 const SelectStatusContext = React.createContext<SelectStatusContextType | null>(
@@ -70,6 +72,7 @@ export const SelectStatusProvider = ({
         statuses,
         loading,
         error,
+        pipelineId,
       }}
     >
       {children}
@@ -133,11 +136,15 @@ const SelectStatusCommandItem = ({
 };
 
 const SelectStatusContent = () => {
-  const { statuses } = useSelectStatusContext();
+  const { statuses, pipelineId } = useSelectStatusContext();
   return (
     <Command>
       <Command.Input placeholder="Search status" />
-      <Command.Empty>No status found</Command.Empty>
+      <Command.Empty>
+        <span className="text-muted-foreground">
+          {pipelineId ? 'No status found' : 'Pipeline not selected'}
+        </span>
+      </Command.Empty>
       <Command.List>
         {statuses?.map((status) => (
           <SelectStatusCommandItem key={status.value} status={status} />
@@ -200,16 +207,18 @@ export const SelectStatusTicketFilterView = ({
 }: {
   pipelineId?: string;
 }) => {
-  const [status, setStatus] = useQueryState<string>(
-    pipelineId ? 'status' : 'statusType',
-  );
+  const [status, setStatus] = useQueryState<string>('statusId');
+  const { resetFilterState } = useFilterContext();
 
   return (
-    <Filter.View filterKey={pipelineId ? 'status' : 'statusType'}>
+    <Filter.View filterKey="statusId">
       <SelectStatusProvider
         value={status || ''}
         pipelineId={pipelineId}
-        onValueChange={(value) => setStatus(value as string)}
+        onValueChange={(value) => {
+          setStatus(value as string);
+          resetFilterState();
+        }}
       >
         <SelectStatusContent />
       </SelectStatusProvider>
@@ -224,9 +233,7 @@ export const SelectStatusTicketFilterBar = ({
   pipelineId?: string;
   scope?: string;
 }) => {
-  const [status, setStatus] = useQueryState<string>(
-    pipelineId ? 'status' : 'statusType',
-  );
+  const [status, setStatus] = useQueryState<string>('statusId');
   const [open, setOpen] = useState(false);
 
   return (
@@ -239,7 +246,7 @@ export const SelectStatusTicketFilterBar = ({
       }}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <Filter.BarButton filterKey={pipelineId ? 'status' : 'statusType'}>
+        <Filter.BarButton filterKey="statusId">
           <SelectStatusValue placeholder="Status" />
         </Filter.BarButton>
         <Combobox.Content>
@@ -284,7 +291,7 @@ export const SelectStatusTicketFormItem = ({
         onValueChange(value);
         setOpen(false);
       }}
-      pipelineId={pipelineId}
+      pipelineId={pipelineId || undefined}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
         <SelectTriggerTicket variant="form">

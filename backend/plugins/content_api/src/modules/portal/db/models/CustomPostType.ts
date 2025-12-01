@@ -5,6 +5,7 @@ import {
   ICustomPostTypeDocument,
 } from '@/portal/@types/customPostType';
 import { customPostTypeSchema } from '@/portal/db/definitions/customPostType';
+import { generateUniqueSlug } from '@/portal/utils/common';
 
 export interface ICustomPostTypeModel extends Model<ICustomPostTypeDocument> {
   getCustomPostType(_id: string): Promise<ICustomPostTypeDocument>;
@@ -46,6 +47,24 @@ export const loadCustomPostTypeClass = (models: IModels) => {
     }
 
     public static async createCustomPostType(doc: ICustomPostType) {
+      if (doc.code) {
+        const uniqueCode = await generateUniqueSlug(
+          models.CustomPostTypes,
+          doc.clientPortalId,
+          'code',
+          doc.code
+        );
+
+        doc.code = uniqueCode;
+      }
+
+      doc.name = await generateUniqueSlug(
+        models.CustomPostTypes,
+        doc.clientPortalId,
+        'name',
+        doc.label
+      );
+
       await this.isCodeValid(doc.code, doc.clientPortalId);
 
       return models.CustomPostTypes.create(doc);
@@ -53,14 +72,26 @@ export const loadCustomPostTypeClass = (models: IModels) => {
 
     public static async updateCustomPostType(
       _id: string,
-      doc: ICustomPostType,
+      doc: ICustomPostType
     ) {
-      await this.isCodeValid(doc.code, doc.clientPortalId);
+   
+      if (doc.code) {
+        const uniqueCode = await generateUniqueSlug(
+          models.CustomPostTypes,
+          doc.clientPortalId,
+          'code',
+          doc.code
+        );
+        doc.code = uniqueCode;
+      }
+
+         await this.isCodeValid(doc.code, doc.clientPortalId);
+
 
       const customPostType = await models.CustomPostTypes.findOneAndUpdate(
         { _id },
         { $set: doc },
-        { new: true },
+        { new: true }
       );
 
       if (!customPostType) {
@@ -69,7 +100,6 @@ export const loadCustomPostTypeClass = (models: IModels) => {
 
       return customPostType;
     }
-
     public static async removeCustomPostType(_id: string) {
       const customPostType = await models.CustomPostTypes.findOne({ _id });
 

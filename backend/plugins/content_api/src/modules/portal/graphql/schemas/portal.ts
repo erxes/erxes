@@ -153,7 +153,7 @@ type ClientPortal {
     otpConfig: OTPConfig
     twoFactorConfig: TwoFactorConfig
 
-    mailConfig: MailConfig
+    verificationMailConfig: MailConfig
     manualVerificationConfig: ManualVerificationConfig
     passwordVerificationConfig: PasswordVerificationConfig
 
@@ -177,6 +177,7 @@ type ClientPortal {
     socialpayConfig: SocialpayConfig
     tokiConfig: TokiConfig
     language: String
+    languages: [String]
 
     template: String
     templateId: String
@@ -332,7 +333,7 @@ input OTPConfigInput {
 
     otpConfig: OTPConfigInput
     twoFactorConfig:TwoFactorConfigInput
-    mailConfig: MailConfigInput
+    verificationMailConfig: MailConfigInput
     manualVerificationConfig: JSON
     passwordVerificationConfig: JSON
     tokenPassMethod: TokenPassMethod
@@ -342,6 +343,7 @@ input OTPConfigInput {
     socialpayConfig: JSON
     tokiConfig: JSON
     language: String
+    languages: [String]
 
     template: String
     templateId: String

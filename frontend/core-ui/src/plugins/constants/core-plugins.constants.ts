@@ -48,6 +48,31 @@ export const GET_CORE_MODULES = (version?: boolean): IUIConfig['modules'] => {
       ],
     },
     {
+      name: 'products',
+      icon: IconShoppingCart,
+      path: 'products',
+      hasSettings: true,
+      submenus: [
+        {
+          name: 'categories',
+          path: 'products/categories',
+          icon: IconCategory,
+        },
+      ],
+    },
+    {
+      name: 'segments',
+      icon: IconChartPie,
+      path: 'segments',
+      hasSettings: false,
+    },
+    {
+      name: 'automations',
+      icon: IconAffiliate,
+      path: 'automations',
+      hasSettings: true,
+    },
+    {
       name: 'logs',
       path: 'logs',
       settingsOnly: true,
@@ -55,39 +80,12 @@ export const GET_CORE_MODULES = (version?: boolean): IUIConfig['modules'] => {
   ];
 
   if (version) {
-    MODULES.push(
-      {
-        name: 'products',
-        icon: IconShoppingCart,
-        path: 'products',
-        hasSettings: true,
-        submenus: [
-          {
-            name: 'categories',
-            path: 'products/categories',
-            icon: IconCategory,
-          },
-        ],
-      },
-      {
-        name: 'segments',
-        icon: IconChartPie,
-        path: 'segments',
-        hasSettings: false,
-      },
-      {
-        name: 'automations',
-        icon: IconAffiliate,
-        path: 'automations',
-        hasSettings: true,
-      },
-      {
-        name: 'documents',
-        icon: IconFile,
-        path: 'documents',
-        hasSettings: false,
-      },
-    );
+    MODULES.push({
+      name: 'documents',
+      icon: IconFile,
+      path: 'documents',
+      hasSettings: false,
+    });
   }
 
   return MODULES;

@@ -70,10 +70,17 @@ export const CreateChannel = ({ isIconOnly = false }: Props) => {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
-        <Button>
+        <Button
+          variant={isIconOnly ? 'ghost' : 'default'}
+          size={isIconOnly ? 'icon' : 'default'}
+        >
           <IconPlus />
-          {isIconOnly ? null : 'Create channel'}
-          {!isIconOnly && <Kbd>C</Kbd>}
+          {!isIconOnly && (
+            <>
+              <span>Create channel</span>
+              <Kbd>C</Kbd>
+            </>
+          )}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="p-0">

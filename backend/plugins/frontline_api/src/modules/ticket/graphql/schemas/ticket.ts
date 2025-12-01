@@ -12,6 +12,7 @@ export const types = `
     labelIds: [String]
     tagIds: [String]
     assigneeId: String
+    createdBy: String
     userId: String
     startDate: Date
     targetDate: Date
@@ -34,6 +35,7 @@ export const types = `
     priority: Int
     pipelineId: String
     assigneeId: String
+    createdBy: String
     labelIds: [String]
     tagIds: [String]
     startDate: Date

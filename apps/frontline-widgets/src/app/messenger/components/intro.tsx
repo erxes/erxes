@@ -6,11 +6,7 @@ import { useConversations } from '../hooks/useConversations';
 
 export const Intro = () => {
   const { loading: loadingSupporters } = useGetMessengerSupporters();
-  const {
-    conversations,
-    loading: loadingConversations,
-    lastMesseges,
-  } = useConversations();
+  const { conversations, loading: loadingConversations } = useConversations();
 
   if (loadingSupporters || loadingConversations) {
     return (
@@ -38,12 +34,12 @@ export const Intro = () => {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <div className="flex flex-col p-4 font-medium text-sm flex-1 overflow-y-auto styled-scroll min-h-0">
-        {lastMesseges &&
-          lastMesseges?.map((messege, index) => (
+        {conversations &&
+          conversations.map((conversation) => (
             <ConversationMessage
-              key={index}
-              conversationId={conversations[index]?._id}
-              message={messege || undefined}
+              key={conversation._id}
+              conversationId={conversation._id}
+              conversation={conversation}
             />
           ))}
       </div>
