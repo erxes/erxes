@@ -269,7 +269,6 @@ export const widgetMutations: Record<string, Resolver> = {
       _id: integrationId,
       kind: 'messenger',
     });
-
     if (!integration) {
       throw new Error('Integration not found');
     }
@@ -297,7 +296,6 @@ export const widgetMutations: Record<string, Resolver> = {
           phone,
           code,
         },
-        defaultValue: [],
       });
 
       const doc = {
