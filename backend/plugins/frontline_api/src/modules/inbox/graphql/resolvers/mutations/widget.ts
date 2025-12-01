@@ -466,20 +466,6 @@ export const widgetMutations: Record<string, Resolver> = {
       });
     }
 
-    let customerData = null;
-    if (customer && customer._id) {
-      customerData = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'customers',
-        action: 'findOne',
-        input: {
-          query: { _id: customer._id },
-        },
-      });
-    }
-
     return {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,
@@ -491,7 +477,6 @@ export const widgetMutations: Record<string, Resolver> = {
       channel: {
         _id: channel._id,
       },
-      customer: customerData,
     };
   },
   /*
