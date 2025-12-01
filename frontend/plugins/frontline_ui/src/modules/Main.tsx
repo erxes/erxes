@@ -1,22 +1,34 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 
-const CallIndexPage = lazy(() =>
+const CallDashboardIndexPage = lazy(() =>
   import('~/pages/CallIndexPage').then((module) => ({
     default: module.CallIndexPage,
   })),
 );
-const CallDetailPage = lazy(() =>
+const CallDashboardDetailPage = lazy(() =>
   import('~/pages/CallDetailPage').then((module) => ({
     default: module.CallDetailPage,
   })),
 );
+
+const CallStatisticsIndexPage = lazy(() =>
+  import('~/pages/CallStatisticsIndexPage').then((module) => ({
+    default: module.CallIndexPage,
+  })),
+);
+const CallStatisticsDetailPage = lazy(() =>
+  import('~/pages/CallStatisticsDetailPage').then((module) => ({
+    default: module.CallDetailPage,
+  })),
+);
+
 const Inbox = lazy(() =>
   import('~/pages/InboxIndexPage').then((module) => ({
     default: module.default,
   })),
 );
-  
+
 const Ticket = lazy(() =>
   import('~/pages/TicketIndexPage').then((module) => ({
     default: module.default,
@@ -29,8 +41,16 @@ const IntegrationsMain = () => {
       <Routes>
         <Route path="/inbox" element={<Inbox />} />
         <Route path="/tickets" element={<Ticket />} />
-        <Route path="/calls" element={<CallIndexPage />} />
-        <Route path="/calls/:id" element={<CallDetailPage />} />
+        <Route path="/calls/dashboard" element={<CallDashboardIndexPage />} />
+        <Route
+          path="/calls/dashboard/:id"
+          element={<CallDashboardDetailPage />}
+        />
+        <Route path="/calls/statistics" element={<CallStatisticsIndexPage />} />
+        <Route
+          path="/calls/statistics/:id"
+          element={<CallStatisticsDetailPage />}
+        />
       </Routes>
     </Suspense>
   );

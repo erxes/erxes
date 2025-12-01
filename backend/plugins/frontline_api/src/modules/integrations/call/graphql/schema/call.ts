@@ -161,6 +161,100 @@ export const types = `
     customer: Customer
     user: User
   }
+
+    type OperatorStats {
+    operatorId: String
+    totalCalls: Int
+    answeredCount: Int
+    missedCount: Int
+    answerRate: Float
+  }
+
+  type CallLog {
+    _id: ID
+    src: String
+    dst: String
+    start: Date
+    duration: Int
+    disposition: String
+  }
+
+  type PaginatedCallLogs {
+    calls: [CallLog]
+    totalCount: Int  
+    totalPages: Int
+  }
+
+  input CallLogFilter {
+    startDate: Date!
+    endDate: Date!
+    operatorId: String 
+    status: String
+  }
+    type AgentStat {
+    agent: String
+    totalIncoming: Int
+    incomingAnswered: Int
+    incomingMissed: Int
+    totalOutgoing: Int
+    outgoingAnswered: Int
+    totalTalkTime: Int
+  }
+    type AgentKPI {
+  agentId: ID! # Агентын ID
+  totalCallsHandled: Int!
+  totalTalkTime: Int!
+  averageHandleTime: Float! 
+}
+  type CallCdr {
+  conversationId: String
+  AcctId: String
+  src: String
+  dst: String
+  dcontext: String
+  clid: String
+  channel: String
+  dstchannel: String
+  lastapp: String
+  lastdata: String
+  start: String
+  answer: String
+  end: String
+  duration: String
+  billsec: String
+  disposition: String
+  amaflags: String
+  uniqueid: String
+  userfield: String
+  channel_ext: String
+  dstchannel_ext: String
+  service: String
+  caller_name: String
+  recordfiles: String
+  dstanswer: String
+  session: String
+  action_owner: String
+  action_type: String
+  src_trunk_name: String
+  dst_trunk_name: String
+  nat_call: String
+  nat_call_peer: String
+  video_call: String
+  gdms_unique_code: String
+  gds_call: String
+  gsc_call: String
+  wave_src_seqid: String
+  wave_dst_seqid: String
+  device_info: String
+  device_info_peer: String
+  recordfiles_desc: String
+  anonymous_call: String
+  reason: String
+  wave_src_hide: String
+  wave_dst_hide: String
+  new_src: String
+  sn: String
+}
 `;
 
 export const subscriptions = `
@@ -218,7 +312,12 @@ export const queries = `
 
   callConversationNotes(conversationId: String! getFirst: Boolean, ${pageParams}): [CallConversationNotes]
   callHistoryDetail(_id: String, conversationId: String): CallHistory
-  `;
+  callGetOperatorStats(startDate: Date!, endDate: Date!): [OperatorStats]
+agentKpiStatistics: [AgentKPI]  
+  callGetAnwseredCalls(uniqueId: String): [CallCdr]
+    callCalculateServiceLevel(queue: String): String
+
+`;
 
 export const mutations = `
   callsIntegrationUpdate(configs: CallIntegrationConfigs): JSON

@@ -2,7 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import redis from '../../redlock';
 import { XMLParser } from 'fast-xml-parser';
 import { ICallHistoryFilterOptions } from '@/integrations/call/@types/histories';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import {
   mapCdrToCallHistory,
   sendToGrandStream,
@@ -346,8 +346,8 @@ const callQueries = {
 
   async callCalculateServiceLevel(_root, { queue }, { models }: IContext) {
     const now = new Date();
-    const dateFrom = new Date(now.getFullYear(), 5, 12);
-    const dateTo = new Date(now.getFullYear(), 5, 13);
+    const dateFrom = new Date(now.getFullYear(), 10, 18);
+    const dateTo = new Date(now.getFullYear(), 10, 19);
 
     const todyCdrs = await models.CallCdrs.find({
       actionType: { $regex: queue },
@@ -358,8 +358,8 @@ const callQueries = {
     });
 
     const serviceLevel = await calculateServiceLevel(todyCdrs);
-
-    return serviceLevel;
+    console.log(serviceLevel, 'serviceLevel');
+    return 'serviceLevel';
   },
   async callCalculateFirstCallResolution(
     _root,
@@ -522,5 +522,241 @@ const callQueries = {
       throw new Error('Failed to retrieve call history details');
     }
   },
+  async callGetOperatorStats(_, { startDate, endDate }, { models }: IContext) {
+    console.log('-------', typeof startDate, startDate);
+    // const stats = await models.CallCdrs.aggregate([
+    //   // STAGE 1: $match (Огноо, нөхцөлөөр шүүх)
+    //   {
+    //     $match: {
+    //       // Огноог query-ээс авна
+    //       start: { $gte: new Date(startDate) },
+    //       end: { $lte: new Date(endDate) },
+
+    //       // lastApp: "Queue" эсвэл "ReadExten" гэж өргөтгөж болно. Одоогоор "Queue"
+    //       lastApp: { $in: ['Queue'] },
+
+    //       // Операторын ID (dst) байгаа эсэх болон 18-аар эхэлсэн эсэхийг баталгаажуулах
+    //       dst: {
+    //         $exists: true,
+    //         $ne: '',
+    //       },
+    //     },
+    //   },
+
+    //   // STAGE 2: $group by uniqueId (Дуудлагын давхцлыг арилгах)
+    //   // Нэг uniqueId-тай дуудлагаас хамгийн сайн мэдээллийг авна.
+    //   {
+    //     $group: {
+    //       _id: '$uniqueId',
+
+    //       // Энэ дуудлагыг хүлээж авсан операторын ID-г хадгалах
+    //       operatorId: { $first: '$dst' },
+
+    //       // Disposition (Хариулт/Татгалзсан)
+    //       disposition: { $first: '$disposition' },
+    //     },
+    //   },
+
+    //   // STAGE 3: $group by operatorId (Эцсийн тооцоо)
+    //   // Одоо оператор бүрээр давхардаагүй дуудлагуудыг тоолно.
+    //   {
+    //     $group: {
+    //       _id: '$operatorId', // Операторын ID
+
+    //       totalCalls: { $sum: 1 }, // Unique дуудлагын нийт тоо
+
+    //       // ANSWERED бол 1-ээр нэмэгдэнэ
+    //       answeredCount: {
+    //         $sum: { $cond: [{ $eq: ['$disposition', 'ANSWERED'] }, 1, 0] },
+    //       },
+
+    //       // ANSWERED биш бол 1-ээр нэмэгдэнэ (Missed/No Answer)
+    //       missedCount: {
+    //         $sum: { $cond: [{ $ne: ['$disposition', 'ANSWERED'] }, 1, 0] },
+    //       },
+    //     },
+    //   },
+
+    //   // STAGE 4: $addFields (Нэмэлт талбар: Хариултын хувь - Answer Rate)
+    //   {
+    //     $addFields: {
+    //       answerRate: {
+    //         $round: [
+    //           {
+    //             $multiply: [
+    //               { $divide: ['$answeredCount', '$totalCalls'] },
+    //               100,
+    //             ],
+    //           },
+    //           2, // 2 оронгоор тоймлох
+    //         ],
+    //       },
+    //     },
+    //   },
+
+    //   // STAGE 5: $sort (Хамгийн их дуудлагатай оператороос эхлэн эрэмбэлэх)
+    //   { $sort: { totalCalls: -1 } },
+    // ]);
+    return await models.CallCdrs.aggregate([
+      {
+        $match: {
+          start: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            // Агентыг тодорхойлох логик:
+            // Outbound бол src нь агент. Inbound бол dst нь агент.
+            agent: {
+              $cond: [{ $eq: ['$userfield', 'Outbound'] }, '$src', '$dst'],
+            },
+          },
+          totalIncoming: {
+            $sum: { $cond: [{ $eq: ['$userfield', 'Inbound'] }, 1, 0] },
+          },
+          incomingAnswered: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$userfield', 'Inbound'] },
+                    { $eq: ['$disposition', 'ANSWERED'] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          incomingMissed: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$userfield', 'Inbound'] },
+                    { $ne: ['$disposition', 'ANSWERED'] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          totalOutgoing: {
+            $sum: { $cond: [{ $eq: ['$userfield', 'Outbound'] }, 1, 0] },
+          },
+          outgoingAnswered: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$userfield', 'Outbound'] },
+                    { $eq: ['$disposition', 'ANSWERED'] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          totalTalkTime: { $sum: '$billsec' },
+        },
+      },
+      // Зөвхөн 4 оронтой тоо (Агент)-уудыг шүүж авах (Жишээ нь 1801, 1002 гэх мэт)
+      {
+        $addFields: {
+          // Agent ID-г string болгож, цэвэрлэх
+          cleanAgentId: {
+            $trim: { input: { $toString: '$_id.agent' } },
+          },
+        },
+      },
+      {
+        $match: {
+          // Цэвэрлэсэн ID нь 3 эсвэл 4 оронтой тоо байх
+          cleanAgentId: { $regex: '^[0-9]{3,4}$' },
+        },
+      },
+      {
+        $project: {
+          agent: '$cleanAgentId',
+          totalIncoming: 1,
+          incomingAnswered: 1,
+          incomingMissed: 1,
+          totalOutgoing: 1,
+          outgoingAnswered: 1,
+          totalTalkTime: 1,
+          _id: 0,
+        },
+      },
+    ]);
+  },
+  async agentKpiStatistics(_, { startDate, endDate }, { models }: IContext) {
+    const queryFilter = {
+      disposition: 'ANSWERED',
+      start: { $gte: new Date('2025-10-18'), $lte: '2025-10-19' },
+      dstchannelExt: { $exists: true },
+    };
+
+    const answeredCalls = await models.CallCdrs.find(queryFilter).lean();
+
+    const kpiMap = answeredCalls.reduce((acc, call) => {
+      const agentId = call.dstchannelExt;
+
+      // const startTime = new Date(call.start['$date']).getTime();
+      // const answerTime = new Date(call.answer['$date']).getTime();
+      // const timeToAnswer = (answerTime - startTime) / 1000; // Секундээр
+
+      if (!acc[agentId]) {
+        acc[agentId] = {
+          agentId: agentId.toString(),
+          totalCallsHandled: 0,
+          totalTalkTime: 0,
+          totalTimeToAnswer: 0,
+        };
+      }
+
+      acc[agentId].totalCallsHandled += 1;
+      acc[agentId].totalTalkTime += call.billsec;
+      // acc[agentId].totalTimeToAnswer += timeToAnswer;
+
+      return acc;
+    }, {});
+
+    const agentKPIs = Object.values(kpiMap).map((kpi: any) => {
+      const { totalCallsHandled, totalTalkTime } = kpi;
+
+      const averageHandleTime =
+        totalCallsHandled > 0 ? totalTalkTime / totalCallsHandled : 0;
+
+      // const averageSpeedOfAnswer =
+      //   totalCallsHandled > 0 ? totalTimeToAnswer / totalCallsHandled : 0;
+
+      return {
+        ...kpi,
+        averageHandleTime: parseFloat(averageHandleTime.toFixed(2)),
+        // averageSpeedOfAnswer: parseFloat(averageSpeedOfAnswer.toFixed(2)),
+        totalTalkTime: kpi.totalTalkTime, // Нийт ярьсан хугацаа (секунд)
+      };
+    });
+
+    return agentKPIs;
+  },
+  async callGetAnwseredCalls(_args, { uniqueId }, { models }: IContext) {
+    console.log('1...', typeof uniqueId);
+
+    const cdrs = await models.CallCdrs.find({
+      uniqueid: uniqueId,
+    });
+    console.log('cdrs', cdrs);
+
+    return cdrs;
+  },
 };
+markResolvers(callQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
 export default callQueries;

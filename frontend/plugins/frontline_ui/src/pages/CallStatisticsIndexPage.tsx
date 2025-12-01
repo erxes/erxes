@@ -13,9 +13,9 @@ export const CallIndexPage = () => {
             <Breadcrumb.List>
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/frontline/calls/dashboard">
+                  <Link to="/frontline/calls/statistics">
                     <IconPhone />
-                    Queue Switchboard
+                    Queue Statistics
                   </Link>
                 </Button>
               </Breadcrumb.Item>

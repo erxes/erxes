@@ -113,11 +113,17 @@ export const CallDetailPage = () => {
               <Breadcrumb.Item>
                 <Breadcrumb.Link asChild>
                   <Button variant="ghost" asChild>
-                    <Link to="/frontline/calls/dashboard">
+                    <Link to="/frontline/calls">
                       <IconPhone />
                       Calls dashboard
                     </Link>
                   </Button>
+                  {/* <Button variant="ghost" asChild>
+                      <Link to="/frontline/calls/statistics">
+                        <IconPhone />
+                        Calls statistics
+                      </Link>
+                    </Button> */}
                 </Breadcrumb.Link>
               </Breadcrumb.Item>
               <Breadcrumb.Separator />

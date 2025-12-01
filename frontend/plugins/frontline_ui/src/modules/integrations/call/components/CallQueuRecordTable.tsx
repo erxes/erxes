@@ -70,7 +70,10 @@ const columns: ColumnDef<any>[] = [
       return (
         <HoverCard openDelay={100}>
           <HoverCard.Trigger asChild>
-            <Link to={`/frontline/calls/${cell.getValue()}`} className="block">
+            <Link
+              to={`/frontline/calls/dashboard/${cell.getValue()}`}
+              className="block"
+            >
               <RecordTableInlineCell>
                 <Badge variant="secondary">
                   {cell.getValue() as string} -{' '}
