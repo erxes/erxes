@@ -17,7 +17,7 @@ const config: ModuleFederationConfig = {
   exposes: {
     './config': './src/config.tsx',
     './sales': './src/modules/Main.tsx',
-    './dealsSettings': './src/pages/SettingsPage.tsx',
+    './salesSettings': './src/pages/SettingsPage.tsx',
     './Widgets': './src/widgets/Widgets.tsx',
     './relationWidget': './src/widgets/relation/RelationWidgets.tsx',
     './posSettings': './src/modules/pos/pos/Settings.tsx',

@@ -1,8 +1,9 @@
-import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { IconPencil, IconTrash, IconTemplate } from '@tabler/icons-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Sidebar, Skeleton, useConfirm, useQueryState } from 'erxes-ui';
 import { useBoardRemove, useBoards } from '@/deals/boards/hooks/useBoards';
 import { useEffect, useMemo } from 'react';
+import { SaveAsTemplateForm } from 'ui-modules/modules/template';
 
 import { BoardForm } from './BoardForm';
 import { IBoard } from '@/deals/types/boards';
@@ -91,6 +92,15 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
           isActive ? 'bg-primary/20' : 'bg-gray-100'
         } translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 pr-2`}
       >
+        <SaveAsTemplateForm
+          trigger={
+            <button title="Save as Template">
+              <IconTemplate className="w-4 h-4" />
+            </button>
+          }
+          contentType="sales:board"
+          contentId={board._id}
+        />
         <button
           onClick={() => setBoardId(board._id)}
           className="text-gray-400 hover:text-blue-500 p-1 rounded transition-colors"
