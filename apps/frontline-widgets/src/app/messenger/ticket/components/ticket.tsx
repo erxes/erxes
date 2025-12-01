@@ -1,13 +1,17 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { TicketForm } from './ticket-form';
 import { TicketSubmissions } from './ticket-submissions';
 import { NotifyCustomerForm } from './notify-customer-form';
 import { getLocalStorageItem } from '@libs/utils';
+import { connectionAtom } from '../../states';
+import { useAtom } from 'jotai';
 
 export const Ticket = () => {
-  const erxes = JSON.parse(getLocalStorageItem('erxes') ?? '{}');
-  const [page, setPage] = useState<'submissions' | 'submit'>('submit');
-
+  const [connection] = useAtom(connectionAtom);
+  const [page, setPage] = useState<'submissions' | 'submit' | 'progress'>(
+    'submissions',
+  );
+  const erxes = useMemo(() => getLocalStorageItem('erxes'), [connection]);
   if (!erxes || Object.keys(erxes).length === 0)
     return <NotifyCustomerForm onSuccess={() => setPage('submit')} />;
 

@@ -16,7 +16,6 @@ import { EXCLUDED_TICKET_FORM_FIELDS } from '../../constants';
 import { ticketConfigAtom } from '../../states';
 import { useCreateWidgetTicket } from '../hooks/useCreateWidgetTicket';
 import { getLocalStorageItem } from '@libs/utils';
-import { useCreateRelation } from 'ui-modules';
 import { SelectTicketTag } from './tags/select-ticket-tag';
 
 const TICKET_DETAILS_FIELDS = ['name', 'description', 'attachments', 'tags'];
@@ -36,13 +35,8 @@ export const TicketForm = ({
 }) => {
   const cachedCustomerId = getLocalStorageItem('customerId');
   const { form, ticketSchema } = useTicketForm();
-  const {
-    createTicket,
-    saveTicketCustomers,
-    loading,
-    saveTicketCustomersLoading,
-  } = useCreateWidgetTicket();
-  const { createRelation } = useCreateRelation();
+  const { createTicket, loading, saveTicketCustomersLoading } =
+    useCreateWidgetTicket();
   const { control, handleSubmit, reset } = form;
   const ticketConfig = useAtomValue(ticketConfigAtom);
 
@@ -70,90 +64,13 @@ export const TicketForm = ({
       onCompleted: (dataOnCompleted: {
         widgetTicketCreated: { _id: string };
       }) => {
-        if (contactType === 'customer') {
-          saveTicketCustomers({
-            variables: {
-              customerId: cachedCustomerId,
-              firstName: (formData?.firstName as string) ?? '',
-              lastName: (formData?.lastName as string) ?? '',
-              emails: [(formData?.email as string) ?? ''],
-              phones: [(formData?.phoneNumber as string) ?? ''],
-            },
-            onCompleted: () => {
-              createRelation({
-                entities: [
-                  {
-                    contentType: 'core:customer',
-                    contentId: cachedCustomerId,
-                  },
-                  {
-                    contentType: 'frontline:ticket',
-                    contentId: dataOnCompleted.widgetTicketCreated._id,
-                  },
-                ],
-              });
-              toast({
-                title: 'Success',
-                variant: 'success',
-                description: 'Ticket created successfully',
-              });
-              reset();
-              setPage('submissions');
-            },
-            onError: (error) => {
-              toast({
-                title: 'Error',
-                variant: 'destructive',
-                description: error.message,
-              });
-            },
-          });
-        } else if (contactType === 'company') {
-          saveTicketCustomers({
-            variables: {
-              customerId: cachedCustomerId,
-              firstName: (formData?.companyName as string) ?? '',
-              emails: [(formData?.companyEmail as string) ?? ''],
-              phones: [(formData?.companyPhoneNumber as string) ?? ''],
-            },
-            onCompleted: () => {
-              createRelation({
-                entities: [
-                  {
-                    contentType: 'core:company',
-                    contentId: cachedCustomerId,
-                  },
-                  {
-                    contentType: 'frontline:ticket',
-                    contentId: dataOnCompleted.widgetTicketCreated._id,
-                  },
-                ],
-              });
-              toast({
-                title: 'Success',
-                variant: 'success',
-                description: 'Ticket created successfully',
-              });
-              reset();
-              setPage('submissions');
-            },
-            onError: (error) => {
-              toast({
-                title: 'Error',
-                variant: 'destructive',
-                description: error.message,
-              });
-            },
-          });
-        } else {
-          toast({
-            title: 'Success',
-            variant: 'success',
-            description: 'Ticket created successfully',
-          });
-          reset();
-          setPage('submissions');
-        }
+        toast({
+          title: 'Success',
+          variant: 'success',
+          description: 'Ticket created successfully',
+        });
+        reset();
+        setPage('submissions');
       },
       onError: (error) => {
         toast({

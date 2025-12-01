@@ -1,6 +1,7 @@
 import { TPipelineConfig } from '@/pipelines/types';
 import { Form, InfoCard, Label, Switch } from 'erxes-ui';
-import { UseFormReturn } from 'react-hook-form';
+import { UseFormReturn, Path } from 'react-hook-form';
+import { TICKET_FORM_FIELDS } from '../constant';
 
 type Props = {
   form: UseFormReturn<TPipelineConfig>;
@@ -15,78 +16,31 @@ export const CustomerFields = ({ form }: Props) => {
       description="Select the fields from the customer to show in the pipeline form"
     >
       <InfoCard.Content>
-        <Form.Field
-          control={control}
-          name="customer.isShowFirstName"
-          render={({ field }) => (
-            <Form.Item className="flex items-center gap-2">
-              <Form.Control>
-                <Switch
-                  id="isShowFirstName"
-                  checked={field.value as boolean}
-                  onCheckedChange={field.onChange}
-                />
-              </Form.Control>
-              <Label variant="peer" htmlFor="isShowFirstName">
-                First Name
-              </Label>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={control}
-          name="customer.isShowLastName"
-          render={({ field }) => (
-            <Form.Item className="flex items-center gap-2">
-              <Form.Control>
-                <Switch
-                  id="isShowLastName"
-                  checked={field.value as boolean}
-                  onCheckedChange={field.onChange}
-                />
-              </Form.Control>
-              <Label variant="peer" htmlFor="isShowLastName">
-                Last Name
-              </Label>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={control}
-          name="customer.isShowEmail"
-          render={({ field }) => (
-            <Form.Item className="flex items-center gap-2">
-              <Form.Control>
-                <Switch
-                  id="isShowEmail"
-                  checked={field.value as boolean}
-                  onCheckedChange={field.onChange}
-                />
-              </Form.Control>
-              <Label variant="peer" htmlFor="isShowEmail">
-                Email
-              </Label>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={control}
-          name="customer.isShowPhoneNumber"
-          render={({ field }) => (
-            <Form.Item className="flex items-center gap-2">
-              <Form.Control>
-                <Switch
-                  id="isShowPhoneNumber"
-                  checked={field.value as boolean}
-                  onCheckedChange={field.onChange}
-                />
-              </Form.Control>
-              <Label variant="peer" htmlFor="isShowPhoneNumber">
-                Phone Number
-              </Label>
-            </Form.Item>
-          )}
-        />
+        {TICKET_FORM_FIELDS.filter((f) => f.path === 'customer').map(
+          (customerField) => {
+            return (
+              <Form.Field
+                key={`customer.${customerField.key}`}
+                control={control}
+                name={`customer.${customerField.key}` as Path<TPipelineConfig>}
+                render={({ field }) => (
+                  <Form.Item className="flex items-center gap-2">
+                    <Form.Control>
+                      <Switch
+                        id={`customer.${customerField.key}`}
+                        checked={field.value as boolean}
+                        onCheckedChange={field.onChange}
+                      />
+                    </Form.Control>
+                    <Label variant="peer" htmlFor={`customer.${customerField.key}`}>
+                      {customerField.label}
+                    </Label>
+                  </Form.Item>
+                )}
+              />
+            );
+          },
+        )}
       </InfoCard.Content>
     </InfoCard>
   );

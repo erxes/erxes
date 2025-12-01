@@ -1,21 +1,24 @@
 import { FC, useId } from 'react';
 import { IconArrowUp } from '@tabler/icons-react';
-import { Button, Input, cn } from 'erxes-ui';
+import { Button, Input, cn, toast } from 'erxes-ui';
 import { useChatInput } from '../hooks/useChatInput';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { InitialMessage } from '../constants';
-import { connectionAtom } from '../states';
+import { connectionAtom, toastUserAtom } from '../states';
+import { getLocalStorageItem } from '@libs/utils';
 
 interface ChatInputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
 export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
   const [connection] = useAtom(connectionAtom);
+  const setToastUser = useSetAtom(toastUserAtom);
   const { messengerData } = connection.widgetsMessengerConnect || {};
   const { messages, isOnline } = messengerData || {};
   const placeholder = isOnline
     ? messages?.welcome || InitialMessage.WELCOME
     : messages?.away || InitialMessage.AWAY;
   const id = useId();
+  const erxes = getLocalStorageItem('erxes');
   const { message, handleInputChange, handleSubmit, isDisabled, loading } =
     useChatInput();
 
@@ -34,7 +37,23 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
           )}
           placeholder={placeholder}
           value={message}
-          onChange={handleInputChange}
+          // disabled={!erxes}
+          onClick={() => {
+            if (!erxes) {
+              toast({
+                title: 'Please enter your email or phone number to continue',
+                variant: 'warning',
+              });
+            }
+          }}
+          onChange={(value) =>
+            erxes
+              ? handleInputChange(value)
+              : toast({
+                  title: 'Please enter your email or phone number to continue',
+                  variant: 'warning',
+                })
+          }
           {...inputProps}
         />
         <Button
@@ -42,7 +61,7 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
           type="submit"
           aria-label="Send"
           className="aspect-square text-accent bg-primary size-8 p-2"
-          disabled={isDisabled || loading}
+          disabled={isDisabled || loading || !erxes}
         >
           <IconArrowUp />
         </Button>
