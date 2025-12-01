@@ -1,8 +1,7 @@
 import {
   AUTOMATION_STATUSES,
-  checkPermission,
   IAutomation,
-  IAutomationDoc,
+  requireLogin,
 } from 'erxes-api-shared/core-modules';
 import { sendWorkerMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
@@ -185,21 +184,9 @@ export const automationMutations = {
   },
 };
 
-checkPermission(automationMutations, 'automationsAdd', 'automationsAdd');
-checkPermission(automationMutations, 'automationsEdit', 'automationsEdit');
-checkPermission(automationMutations, 'automationsRemove', 'automationsRemove');
-checkPermission(
-  automationMutations,
-  'automationEmailTemplatesAdd',
-  'automationsAdd',
-);
-checkPermission(
-  automationMutations,
-  'automationEmailTemplatesEdit',
-  'automationsEdit',
-);
-checkPermission(
-  automationMutations,
-  'automationEmailTemplatesRemove',
-  'automationsRemove',
-);
+requireLogin(automationMutations, 'automationsAdd');
+requireLogin(automationMutations, 'automationsEdit');
+requireLogin(automationMutations, 'automationsRemove');
+requireLogin(automationMutations, 'automationEmailTemplatesAdd');
+requireLogin(automationMutations, 'automationEmailTemplatesEdit');
+requireLogin(automationMutations, 'automationEmailTemplatesRemove');

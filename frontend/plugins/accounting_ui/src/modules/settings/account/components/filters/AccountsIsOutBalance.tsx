@@ -1,17 +1,17 @@
 import { Combobox, Command, Popover } from 'erxes-ui';
-import { JournalEnum } from '../types/Account';
 import React from 'react';
 import { Except } from 'type-fest';
-import { JOURNAL_LABELS } from '../constants/journalLabel';
 
-export const SelectAccountJournalCommand = React.forwardRef<
+const AccountIsOutBalance = ['True', 'False']
+
+export const SelectAccountIsOutBalanceCommand = React.forwardRef<
   React.ComponentRef<typeof Combobox.Trigger>,
   Except<
     React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
     'value' | 'onSelect'
   > & {
     selected: string | null;
-    onSelect?: (kind: string | null) => void;
+    onSelect?: (isOutBalance: string | null) => void;
   }
 >(({ selected, onSelect, ...props }, ref) => {
   const [open, setOpen] = React.useState(false);
@@ -22,7 +22,7 @@ export const SelectAccountJournalCommand = React.forwardRef<
         {selected ?? 'All'}
       </Combobox.Trigger>
       <Combobox.Content>
-        <AccountsJournalCommand
+        <AccountsIsOutBalanceCommand
           focusOnMount
           selected={selected}
           onSelect={(value) => {
@@ -35,27 +35,27 @@ export const SelectAccountJournalCommand = React.forwardRef<
   );
 });
 
-export const AccountsJournalCommand = ({
+export const AccountsIsOutBalanceCommand = ({
   focusOnMount,
   selected,
   onSelect,
 }: {
   focusOnMount?: boolean;
   selected: string | null;
-  onSelect?: (kind: string | null) => void;
+  onSelect?: (isOutBalance: string | null) => void;
 }) => {
   return (
     <Command>
-      <Command.Input placeholder="Filter kind" focusOnMount={focusOnMount} />
+      <Command.Input placeholder="Filter isOutBalance" focusOnMount={focusOnMount} />
       <Command.List>
-        {[...Object.values(JournalEnum)].map((journal) => (
+        {AccountIsOutBalance.map((isOutBalance) => (
           <Command.Item
-            key={journal}
-            value={journal}
-            onSelect={() => onSelect?.(journal)}
+            key={isOutBalance}
+            value={isOutBalance}
+            onSelect={() => onSelect?.(isOutBalance)}
           >
-            {JOURNAL_LABELS[journal]}
-            <Combobox.Check checked={selected === journal} />
+            {isOutBalance}
+            <Combobox.Check checked={selected === isOutBalance} />
           </Command.Item>
         ))}
       </Command.List>
