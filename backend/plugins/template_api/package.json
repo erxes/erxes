@@ -1,0 +1,18 @@
+{
+  "name": "template_api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/main.ts",
+    "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "start": "node -r tsconfig-paths/register dist/src/main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "erxes-api-shared": "workspace:^"
+  },
+  "devDependencies": {}
+}
