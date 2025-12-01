@@ -6,7 +6,7 @@ import { generateModels } from './connectionResolvers';
 
 startPlugin({
   name: 'template',
-  port: 33010,
+  port: 3310,
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers,
@@ -29,4 +29,3 @@ startPlugin({
     },
   },
 });
-

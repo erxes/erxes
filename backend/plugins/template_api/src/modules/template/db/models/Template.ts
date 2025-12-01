@@ -1,64 +1,88 @@
 import { Model } from 'mongoose';
+import { IUserDocument } from 'erxes-api-shared/core-types';
+import {
+  ITemplate,
+  ITemplateInput,
+  TemplateDocument,
+  templateSchema,
+} from '../definitions/template';
 import { IModels } from '~/connectionResolvers';
-import { templateSchema } from '@/template/db/definitions/template';
-import { ITemplate, ITemplateDocument } from '@/template/@types/template';
 
-export interface ITemplateModel extends Model<ITemplateDocument> {
-  getTemplate(_id: string): Promise<ITemplateDocument>;
-  getTemplates(): Promise<ITemplateDocument[]>;
-  createTemplate(doc: ITemplate): Promise<ITemplateDocument>;
-  updateTemplate(_id: string, doc: ITemplate): Promise<ITemplateDocument>;
-  removeTemplate(TemplateId: string): Promise<{  ok: number }>;
+export interface ITemplateModel extends Model<TemplateDocument> {
+  getTemplate(_id: string): Promise<TemplateDocument>;
+  createTemplate(
+    doc: ITemplateInput,
+    user?: IUserDocument,
+  ): Promise<TemplateDocument>;
+  updateTemplate(
+    _id: string,
+    doc: Partial<ITemplateInput>,
+    user?: IUserDocument,
+  ): Promise<TemplateDocument>;
+  removeTemplate(_id: string): Promise<TemplateDocument>;
 }
 
 export const loadTemplateClass = (models: IModels) => {
   class Template {
-    /**
-     * Retrieves template
-     */
-    public static async getTemplate(_id: string) {
-      const Template = await models.Template.findOne({ _id }).lean();
-
-      if (!Template) {
+    public static async getTemplate(_id: string): Promise<TemplateDocument> {
+      const template = await models.Template.findOne({ _id });
+      if (!template) {
         throw new Error('Template not found');
       }
-
-      return Template;
+      return template;
     }
 
-    /**
-     * Retrieves all templates
-     */
-    public static async getTemplates(): Promise<ITemplateDocument[]> {
-      return models.Template.find().lean();
+    public static async createTemplate(
+      this: ITemplateModel,
+      doc: ITemplateInput,
+      user?: IUserDocument,
+    ): Promise<TemplateDocument> {
+      const toCreate: Partial<ITemplate> = {
+        ...doc,
+        createdBy: user?._id,
+      };
+
+      return this.create(toCreate);
     }
 
-    /**
-     * Create a template
-     */
-    public static async createTemplate(doc: ITemplate): Promise<ITemplateDocument> {
-      return models.Template.create(doc);
-    }
+    public static async updateTemplate(
+      this: ITemplateModel,
+      _id: string,
+      doc: Partial<ITemplateInput>,
+      user?: IUserDocument,
+    ): Promise<TemplateDocument> {
+      await models.Template.getTemplate(_id);
 
-    /*
-     * Update template
-     */
-    public static async updateTemplate(_id: string, doc: ITemplate) {
-      return await models.Template.findOneAndUpdate(
+      const updated = await models.Template.findOneAndUpdate(
         { _id },
-        { $set: { ...doc } },
+        {
+          $set: {
+            ...doc,
+            updatedBy: user?._id,
+          },
+        },
+        { new: true },
       );
+
+      if (!updated) throw new Error('Failed to update template');
+      return updated;
     }
 
-    /**
-     * Remove template
-     */
-    public static async removeTemplate(TemplateId: string[]) {
-      return models.Template.deleteOne({ _id: { $in: TemplateId } });
+    public static async removeTemplate(
+      this: ITemplateModel,
+      _id: string,
+    ): Promise<TemplateDocument> {
+      console.log('_id', _id);
+
+      const template = await this.findOne({ _id });
+      if (!template) {
+        throw new Error(`Template not found with id ${_id}`);
+      }
+      await models.Template.findOneAndDelete({ _id });
+      return template;
     }
   }
 
   templateSchema.loadClass(Template);
-
   return templateSchema;
 };

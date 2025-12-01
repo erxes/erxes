@@ -33,9 +33,6 @@
       ],
       "@/*": [
         "./src/modules/*"
-      ],
-      "erxes-api-shared/*": [
-        "../../erxes-api-shared/src/*"
       ]
     }
   },

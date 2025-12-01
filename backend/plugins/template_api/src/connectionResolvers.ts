@@ -1,13 +1,22 @@
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import { IMainContext } from 'erxes-api-shared/core-types';
-import { ITemplateDocument } from '@/template/@types/template';
-
 import mongoose from 'mongoose';
-
-import { loadTemplateClass, ITemplateModel } from '@/template/db/models/template';
+import {
+  loadTemplateClass,
+  ITemplateModel,
+} from './modules/template/db/models/Template';
+import {
+  loadTemplateCategoryClass,
+  ITemplateCategoryModel,
+} from './modules/template/db/models/TemplateCategory';
+import {
+  TemplateDocument,
+  TemplateCategoryDocument,
+} from './modules/template/db/definitions/template';
 
 export interface IModels {
   Template: ITemplateModel;
+  TemplateCategory: ITemplateCategoryModel;
 }
 
 export interface IContext extends IMainContext {
@@ -17,10 +26,17 @@ export interface IContext extends IMainContext {
 export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
 
-  models.Template = db.model<ITemplateDocument, ITemplateModel>(
-    'template',
-    loadTemplateClass(models),
+  const schemaWithClass = loadTemplateClass(models);
+  models.Template = db.model<TemplateDocument, ITemplateModel>(
+    'templates',
+    schemaWithClass,
   );
+
+  const categorySchemaWithClass = loadTemplateCategoryClass(models);
+  models.TemplateCategory = db.model<
+    TemplateCategoryDocument,
+    ITemplateCategoryModel
+  >('template_categories', categorySchemaWithClass);
 
   return models;
 };

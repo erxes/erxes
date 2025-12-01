@@ -1,11 +1,11 @@
-import { Document } from 'mongoose';
+import { ITemplate, ITemplateCategory } from '../db/definitions/template';
 
-export interface ITemplate {
-  name?: string;
-}
+export type TemplateInput = Omit<
+  ITemplate,
+  '_id' | 'createdAt' | 'updatedAt' | 'status' | 'createdBy' | 'updatedBy'
+>;
 
-export interface ITemplateDocument extends ITemplate, Document {
-  _id: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export type TemplateCategoryInput = Omit<
+  ITemplateCategory,
+  '_id' | 'createdAt' | 'updatedAt' | 'status' | 'createdBy' | 'updatedBy'
+>;

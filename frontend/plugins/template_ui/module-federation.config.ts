@@ -15,9 +15,8 @@ const coreLibraries = new Set([
 const config: ModuleFederationConfig = {
   name: 'template_ui',
   exposes: {
-    './config': './src/config.ts',
-    './template': './src/modules/template/Main.tsx',
-    './templateSettings': './src/modules/template/Settings.tsx',
+    './config': './src/config.tsx',
+    './template': './src/modules/Main.tsx',
     './widgets': './src/widgets/Widgets.tsx',
   },
 

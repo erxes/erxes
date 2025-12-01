@@ -6,30 +6,14 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "paths": {
-      "erxes-ui": [
-        "frontend/libs/erxes-ui/src"
-      ],
-      "erxes-ui/*": [
-        "frontend/libs/erxes-ui/src/*"
-      ],
-      "~/*": [
-        "frontend/plugins/template_ui/src/*"
-      ],
-      "~": [
-        "frontend/plugins/template_ui/src"
-      ],
-      "@/*": [
-        "frontend/plugins/template_ui/src/modules/*"
-      ],
-      "@": [
-        "frontend/plugins/template_ui/src/modules"
-      ],
-      "ui-modules": [
-        "frontend/libs/ui-modules/src"
-      ],
-      "ui-modules/*": [
-        "frontend/libs/ui-modules/src/*"
-      ]
+      "erxes-ui": ["frontend/libs/erxes-ui/src"],
+      "erxes-ui/*": ["frontend/libs/erxes-ui/src/*"],
+      "~/*": ["frontend/plugins/template_ui/src/*"],
+      "~": ["frontend/plugins/template_ui/src"],
+      "@/*": ["frontend/plugins/template_ui/src/modules/*"],
+      "@": ["frontend/plugins/template_ui/src/modules"],
+      "ui-modules": ["frontend/libs/ui-modules/src"],
+      "ui-modules/*": ["frontend/libs/ui-modules/src/*"]
     }
   },
   "files": [],
