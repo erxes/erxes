@@ -118,6 +118,12 @@ export const CallDetailPage = () => {
                       Calls dashboard
                     </Link>
                   </Button>
+                  <Button variant="ghost" asChild>
+                    <Link to="/frontline/calls/statistics">
+                      <IconPhone />
+                      Calls statistics
+                    </Link>
+                  </Button>
                 </Breadcrumb.Link>
               </Breadcrumb.Item>
               <Breadcrumb.Separator />

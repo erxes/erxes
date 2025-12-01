@@ -18,6 +18,12 @@ export const CallIndexPage = () => {
                     Queue Switchboard
                   </Link>
                 </Button>
+                <Button variant="ghost" asChild>
+                  <Link to="/frontline/calls/statistics">
+                    <IconPhone />
+                    Queue Statistics
+                  </Link>
+                </Button>
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
