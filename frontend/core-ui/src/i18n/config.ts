@@ -18,11 +18,15 @@ export const defaultI18nOptions: InitOptions = {
     order: ['cookie', 'localStorage', 'header'],
   },
   backend: {
-    loadPath: `${REACT_APP_API_URL}/locales/{{lng}}.json`,
+    loadPath: `${REACT_APP_API_URL}/locales/{{lng}}/{{ns}}.json`,
   },
+  ns: ['common', 'contact'],
+  defaultNS: 'common',
+  fallbackNS: ['common'],
   react: {
     useSuspense: true,
   },
+  debug: true,
 };
 
 export const i18nInstance = i18n.createInstance();

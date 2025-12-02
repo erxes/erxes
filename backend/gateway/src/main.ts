@@ -83,10 +83,10 @@ app.get('/health', async (_req, res) => {
   res.end('ok');
 });
 
-app.get('/locales/:lng', async (req, res) => {
+app.get('/locales/:lng/:file', async (req, res) => {
   try {
     const lngJson = fs.readFileSync(
-      path.join(__dirname, `./locales/${req.params.lng}`),
+      path.join(__dirname, `./locales/${req.params.lng}/${req.params.file}`),
     );
     res.json(JSON.parse(lngJson.toString()));
   } catch {

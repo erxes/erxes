@@ -1,0 +1,20 @@
+{
+  "contacts": "Contacts",
+  "products": "Products",
+  "segments": "Segments",
+  "automations": "Automations",
+  "documents": "Documents",
+
+  "filter": {
+    "_": "Filter",
+    "search": "Search",
+    "brand": "Brand",
+    "assigned-to": "Assigned To",
+    "created-at": "Created At",
+    "updated-at": "Updated At",
+    "last-seen-at": "Last Seen At",
+    "birthday": "Birthday"
+  },
+
+  "records-found": "Records Found"
+}
