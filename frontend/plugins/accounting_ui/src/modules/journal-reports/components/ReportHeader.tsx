@@ -16,7 +16,7 @@ export const ReportHeader = () => {
   const [fromDate] = useQueryState('fromDate');
   const [toDate] = useQueryState('toDate');
 
-  const title = AllReportsMap.find(r => r.key === report)?.title
+  const title = AllReportsMap.find(r => r.key === report)?.title;
   const from = parseQueryDate(fromDate as string);
   const to = parseQueryDate(toDate as string);
 
