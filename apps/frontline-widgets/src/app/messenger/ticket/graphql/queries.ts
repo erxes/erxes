@@ -14,8 +14,8 @@ const GET_TICKET_CUSTOMER_DETAILS = gql`
 `;
 
 const GET_WIDGET_TAGS = gql`
-  query WidgetsGetTicketTags($configId: String) {
-    widgetsGetTicketTags(configId: $configId) {
+  query WidgetsGetTicketTags($configId: String, $parentId: String) {
+    widgetsGetTicketTags(configId: $configId, parentId: $parentId) {
       _id
       name
       type
