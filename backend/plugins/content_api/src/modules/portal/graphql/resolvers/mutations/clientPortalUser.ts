@@ -782,7 +782,7 @@ export const clientPortalUserMutations = {
             clientPortal?.testUserOTP &&
             config.codeLength === clientPortal?.testUserOTP?.toString().length
           ) {
-            const testPhoneCode = await models.Users.imposeVerificationCode({
+            const testPhoneCode = models.Users.imposeVerificationCode({
               clientPortalId: clientPortal._id,
               codeLength: config.codeLength,
               phone: clientPortal?.testUserPhone,
