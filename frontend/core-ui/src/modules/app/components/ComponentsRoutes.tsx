@@ -9,12 +9,6 @@ const SelectComponentsIndexPage = lazy(() =>
   })),
 );
 
-const ReportPage = lazy(() =>
-  import('~/pages/components/ReportPage').then((module) => ({
-    default: module.ReportPage,
-  })),
-);
-
 export const ComponentsRoutes = () => {
   return (
     <Suspense fallback={<></>}>
@@ -32,7 +26,6 @@ export const ComponentsRoutes = () => {
           path={ComponentsPaths.Select}
           element={<SelectComponentsIndexPage />}
         />
-        <Route path={ComponentsPaths.Report} element={<ReportPage />} />
       </Routes>
     </Suspense>
   );
