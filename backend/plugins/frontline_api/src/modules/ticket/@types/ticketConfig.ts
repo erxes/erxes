@@ -22,6 +22,13 @@ export interface ITicketCustomerFields {
   isShowEmail?: boolean;
 }
 
+export interface ITicketFormFieldConfig {
+  key: string;
+  label: string;
+  order: number;
+  placeholder: string;
+}
+
 export interface ITicketConfig {
   name: string;
 
@@ -33,6 +40,8 @@ export interface ITicketConfig {
   ticketBasicFields?: ITicketBasicFields;
   company?: ITicketCompanyFields;
   customer?: ITicketCustomerFields;
+
+  fieldsConfig?: ITicketFormFieldConfig[];
 }
 export interface ITicketSaveConfigArgs {
   input: ITicketConfig;

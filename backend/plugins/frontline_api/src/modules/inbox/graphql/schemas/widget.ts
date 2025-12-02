@@ -9,6 +9,7 @@ export const types = `
       customerId: String
       visitorId: String
       channel: Channel
+      customer: Customer
     }
     type TicketTypeMessenger {
       ticketLabel: String
@@ -57,6 +58,10 @@ export const queries = `
   
     widgetsTicketCustomerDetail(customerId: String, type: String): Customer
     widgetsGetTicketTags(configId: String): [Tag]
+    widgetTicketCheckProgress(number: String!): Ticket
+    widgetTicketComments(contentId: String!): [Note]
+    widgetTicketActivityLogs(contentId: String): [TicketActivity]
+    widgetTicketsByCustomer(customerId: String): [Ticket]
     `;
 
 export const mutations = `
@@ -129,4 +134,12 @@ export const mutations = `
       customerIds: [String!]!
       tagIds: [String!]
     ): Ticket
+    
+    widgetTicketCommentAdd(
+       contentId: String!
+       content: String!
+       customerId: String
+     ): Note
+    widgetTicketCommentRemove(_id: String!): String
+    widgetTicketCheckProgressForget(email: String, phoneNumber: String): JSON
   `;

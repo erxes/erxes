@@ -1,13 +1,14 @@
-import { InfoCard, Form, Switch, Label, Input, Separator } from 'erxes-ui';
+import { Form, Input, Separator } from 'erxes-ui';
 import { AnimatePresence, motion } from 'motion/react';
 
 import { ContactType, TPipelineConfig } from '@/pipelines/types';
-import { UseFormReturn, useWatch } from 'react-hook-form';
+import { useFieldArray, UseFormReturn, useWatch } from 'react-hook-form';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { SelectContactType } from './contact-type/SelectContactType';
 import { CustomerFields } from './CustomerFields';
 import { CompanyFields } from './CompanyFields';
 import { useEffect } from 'react';
+import { TicketBasicFields } from './TicketBasicFields';
 
 type Props = {
   form: UseFormReturn<TPipelineConfig>;
@@ -19,6 +20,10 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
   const contactType = useWatch({
     control: control,
     name: 'contactType',
+  });
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'fieldsConfig',
   });
 
   useEffect(() => {
@@ -78,85 +83,7 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
         />
       </div>
       <Separator />
-      <InfoCard
-        title="Select fields"
-        description="Select the fields from the ticket to show in the form"
-      >
-        <InfoCard.Content>
-          <Form.Field
-            control={control}
-            name="ticketBasicFields.isShowName"
-            render={({ field }) => (
-              <Form.Item className="flex items-center gap-2">
-                <Form.Control>
-                  <Switch
-                    id="isShowTicketName"
-                    checked={field.value as boolean}
-                    onCheckedChange={field.onChange}
-                  />
-                </Form.Control>
-                <Label variant="peer" htmlFor="isShowTicketName">
-                  Name
-                </Label>
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            control={control}
-            name="ticketBasicFields.isShowDescription"
-            render={({ field }) => (
-              <Form.Item className="flex items-center gap-2">
-                <Form.Control>
-                  <Switch
-                    id="isShowDescription"
-                    checked={field.value as boolean}
-                    onCheckedChange={field.onChange}
-                  />
-                </Form.Control>
-                <Label variant="peer" htmlFor="isShowDescription">
-                  Description
-                </Label>
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            control={control}
-            name="ticketBasicFields.isShowTags"
-            render={({ field }) => (
-              <Form.Item className="flex items-center gap-2">
-                <Form.Control>
-                  <Switch
-                    id="isShowTags"
-                    checked={field.value as boolean}
-                    onCheckedChange={field.onChange}
-                  />
-                </Form.Control>
-                <Label variant="peer" htmlFor="isShowTags">
-                  Tags
-                </Label>
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            control={control}
-            name="ticketBasicFields.isShowAttachment"
-            render={({ field }) => (
-              <Form.Item className="flex items-center gap-2">
-                <Form.Control>
-                  <Switch
-                    id="isShowAttachment"
-                    checked={field.value as boolean}
-                    onCheckedChange={field.onChange}
-                  />
-                </Form.Control>
-                <Label variant="peer" htmlFor="isShowAttachment">
-                  Attachment
-                </Label>
-              </Form.Item>
-            )}
-          />
-        </InfoCard.Content>
-      </InfoCard>
+      <TicketBasicFields form={form} />
       <AnimatePresence mode="popLayout">
         {contactType && (
           <motion.div

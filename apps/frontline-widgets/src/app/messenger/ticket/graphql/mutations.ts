@@ -60,4 +60,18 @@ const SAVE_CUSTOMER_NOTIFIED = gql`
   }
 `;
 
-export { SAVE_TICKET_CUSTOMERS, CREATE_TICKET, SAVE_CUSTOMER_NOTIFIED };
+const TICKET_NUMBER_FORGET = gql`
+  mutation WidgetTicketCheckProgressForget(
+    $email: String
+    $phoneNumber: String
+  ) {
+    widgetTicketCheckProgressForget(email: $email, phoneNumber: $phoneNumber)
+  }
+`;
+
+export {
+  SAVE_TICKET_CUSTOMERS,
+  CREATE_TICKET,
+  SAVE_CUSTOMER_NOTIFIED,
+  TICKET_NUMBER_FORGET,
+};

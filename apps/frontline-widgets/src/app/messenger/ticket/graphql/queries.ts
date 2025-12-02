@@ -24,4 +24,36 @@ const GET_WIDGET_TAGS = gql`
   }
 `;
 
-export { GET_TICKET_CUSTOMER_DETAILS, GET_WIDGET_TAGS };
+const GET_TICKET_PROGRESS = gql`
+  query WidgetTicketCheckProgress($number: String!) {
+    widgetTicketCheckProgress(number: $number) {
+      _id
+      name
+      description
+      pipelineId
+      statusId
+      priority
+      labelIds
+      tagIds
+      assigneeId
+      createdBy
+      userId
+      startDate
+      targetDate
+      createdAt
+      updatedAt
+      channelId
+      statusChangedDate
+      number
+      status {
+        _id
+        color
+        name
+        description
+        type
+      }
+    }
+  }
+`;
+
+export { GET_TICKET_CUSTOMER_DETAILS, GET_WIDGET_TAGS, GET_TICKET_PROGRESS };

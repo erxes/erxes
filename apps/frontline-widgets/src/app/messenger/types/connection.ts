@@ -11,6 +11,7 @@ export interface IWidgetData {
   customerId?: string;
   visitorId?: string;
   integrationId?: string;
+  customer?: ICustomerData;
 }
 
 export interface IMessengerData {
@@ -123,4 +124,21 @@ export interface ITicketConfig {
   ticketBasicFields: ITicketBasicFields;
   company: ICompanyFields;
   customer: ICustomerFields;
+}
+
+export interface IMessengerData {
+  integrationId: string;
+  email?: string;
+  phone?: string;
+  code?: string;
+  data?: any;
+  companyData?: any;
+}
+
+export interface ICustomerData {
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+  phones?: string[];
+  emails?: string[];
 }

@@ -269,7 +269,6 @@ export const widgetMutations: Record<string, Resolver> = {
       _id: integrationId,
       kind: 'messenger',
     });
-
     if (!integration) {
       throw new Error('Integration not found');
     }
@@ -297,7 +296,6 @@ export const widgetMutations: Record<string, Resolver> = {
           phone,
           code,
         },
-        defaultValue: [],
       });
 
       const doc = {
@@ -427,6 +425,32 @@ export const widgetMutations: Record<string, Resolver> = {
           },
         });
       }
+    }
+    if (visitorId && !cachedCustomerId && !customer) {
+      const lead = await createVisitor(subdomain, visitorId);
+      const docs = { ...args } as any;
+      docs.customerId = lead._id;
+
+      await models.ConversationMessages.updateVisitorEngageMessages(
+        visitorId,
+        lead._id,
+      );
+      await models.Conversations.updateMany(
+        {
+          visitorId,
+        },
+        { $set: { customerId: lead._id, visitorId: '' } },
+      );
+      customer = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'customers',
+        action: 'saveVisitorContactInfo',
+        input: {
+          params: docs,
+        },
+      });
     }
 
     if (!integration.isConnected) {
@@ -1065,7 +1089,7 @@ export const widgetMutations: Record<string, Resolver> = {
     const validCustomerIds = customers.map((c: any) => c._id);
 
     try {
-      return await models.Ticket.create({
+      const ticket = await models.Ticket.create({
         ...restFields,
         statusId: statusId,
         pipelineId: status.pipelineId,
@@ -1075,7 +1099,30 @@ export const widgetMutations: Record<string, Resolver> = {
         modifiedAt: new Date(),
         stageChangedDate: new Date(),
         searchText: fillSearchTextItem(doc),
+        number: new Date().getTime().toString(),
       });
+      await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'relation',
+        action: 'createRelation',
+        input: {
+          relation: {
+            entities: [
+              {
+                contentType: 'core:customer',
+                contentId: customerIds?.[0] || '',
+              },
+              {
+                contentType: 'frontline:ticket',
+                contentId: ticket._id,
+              },
+            ],
+          },
+        },
+      });
+      return ticket;
     } catch (e) {
       throw new Error(e.message);
     }
@@ -1113,6 +1160,86 @@ export const widgetMutations: Record<string, Resolver> = {
         },
       },
     });
+  },
+
+  async widgetTicketCheckProgressForget(
+    _root,
+    args: {
+      email?: string;
+      phoneNumber?: string;
+    },
+    { models, subdomain }: IContext,
+  ) {
+    const { email, phoneNumber } = args;
+    const field = email ? 'emails' : phoneNumber ? 'phones' : '';
+    const value = email || phoneNumber;
+
+    const customer = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'customers',
+      action: 'findOne',
+      input: { query: { [field]: value } },
+    });
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+    const relation = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'relation',
+      action: 'getRelationsByEntities',
+      input: {
+        entities: [
+          {
+            contentType: 'core:customer',
+            contentId: customer._id,
+          },
+        ],
+      },
+    });
+    const ticketEntity = relation?.entities?.find(
+      (e) => e.contentType === 'frontline:ticket',
+    );
+
+    if (!ticketEntity) throw new Error('No ticket relation found');
+
+    const ticketId = ticketEntity.contentId;
+    const ticket = await models.Ticket.findOne({ _id: ticketId });
+    return ticket?.number || '';
+  },
+
+  async widgetTicketCommentAdd(
+    _root,
+    args: {
+      contentId: string;
+      content: string;
+      customerId: string;
+    },
+    { models, subdomain }: IContext,
+  ) {
+    const { content, contentId, customerId } = args;
+    return await models.Note.createNote({
+      doc: {
+        content,
+        contentId,
+        createdBy: customerId,
+      },
+      subdomain,
+    });
+  },
+  async widgetTicketCommentRemove(
+    _root,
+    args: {
+      _id: string;
+    },
+    { models }: IContext,
+  ) {
+    const { _id } = args;
+    await models.Note.deleteOne({ _id });
+    return 'success';
   },
 };
 
