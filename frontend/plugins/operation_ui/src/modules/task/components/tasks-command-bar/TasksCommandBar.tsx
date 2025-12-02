@@ -41,6 +41,10 @@ import {
 import {
   MakeACopyTrigger,
 } from '../task-actions/MakeACopy';
+import {
+  CopyTaskTrigger,
+  CopyTaskCommandBarItem,
+} from '../task-actions/CopyTask';
 
 export const TasksCommandBar = () => {
   const [open, setOpen] = useState(false);
@@ -49,6 +53,7 @@ export const TasksCommandBar = () => {
   const { removeTask } = useRemoveTask();
   const { updateTask } = useUpdateTask();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
+  console.log('selectedRows', selectedRows.map((row: Row<ITask>) => row.original));
   const taskIds = selectedRows.map((row: Row<ITask>) => row.original._id);
   const tasksData = selectedRows.map((row: Row<ITask>) => ({
     taskId: row.original._id,
@@ -148,6 +153,7 @@ export const TasksCommandBar = () => {
                         setOpen={setOpen}
                       />
                     )}
+                    <CopyTaskTrigger setCurrentContent={setCurrentContent} />
                   </Command.Group>
                   <Command.Separator />
                   <Command.Group className="p-1">
@@ -198,6 +204,12 @@ export const TasksCommandBar = () => {
             )}
             {currentContent === 'assignee' && (
               <TasksAssignToContent taskIds={taskIds} setOpen={setOpen} />
+            )}
+            {currentContent === 'copy' && (
+              <CopyTaskCommandBarItem
+                tasks={selectedRows.map((row: Row<ITask>) => row.original)}
+                setOpen={setOpen}
+              />
             )}
           </Popover.Content>
         </Popover>

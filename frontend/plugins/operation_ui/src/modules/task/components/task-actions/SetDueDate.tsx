@@ -173,7 +173,6 @@ export const TasksSetDueDateCommandBarItem = ({
   taskIds,
   setOpen,
 }: SetDueDateCommandBarItemProps) => {
-  console.log('taskIds in TaskActionsCommandBarItem:', taskIds);
   return (
     <SetDueDateProvider taskIds={taskIds}>
       <TaskSetDueDateContent setOpen={setOpen} />

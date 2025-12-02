@@ -10,6 +10,7 @@ import {
   TasksMoveToTeamTrigger,
 } from './MoveToTeam';
 import { MakeACopyTrigger } from './MakeACopy';
+import { CopyTaskTrigger, CopyTaskCommandBarItem } from './CopyTask';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { useParams } from 'react-router-dom';
 
@@ -47,6 +48,7 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
                 <TasksSetDueDateTrigger setCurrentContent={setCurrentContent} />
                 <TasksMoveToTeamTrigger setCurrentContent={setCurrentContent} />
                 <MakeACopyTrigger taskId={taskId} setOpen={setOpen} />
+                <CopyTaskTrigger setCurrentContent={setCurrentContent} />
               </Command.Group>
             </Command.List>
           </Command>
@@ -64,6 +66,9 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
             setOpen={setOpen}
             currentTeamId={teamId || undefined}
           />
+        )}
+        {currentContent === 'copy' && task && (
+          <CopyTaskCommandBarItem tasks={[task]} setOpen={setOpen} />
         )}
       </Popover.Content>
     </Popover>
