@@ -1,13 +1,27 @@
-import { ReportPageContainer } from 'erxes-ui';
-import { ReportContent } from '~/modules/reports/components/ReportContent';
-import { ReportFooter } from '~/modules/reports/components/ReportFooter';
-import { ReportHeader } from '~/modules/reports/components/ReportHeader';
+import { ReportPageContainer, ReportTable } from 'erxes-ui';
+import { ReportFilterCond } from '~/modules/journal-reports/components/ReportFilterCond';
+import { ReportFooter } from '~/modules/journal-reports/components/ReportFooter';
+import { ReportHeader } from '~/modules/journal-reports/components/ReportHeader';
+import { ReportTableBody } from '~/modules/journal-reports/components/ReportTableBody';
+import { ReportTableFooter } from '~/modules/journal-reports/components/ReportTableFooter';
+import { ReportTableHeader } from '~/modules/journal-reports/components/ReportTableHeader';
 
 export const GenJournalReport = () => {
   return (
     <ReportPageContainer>
       <ReportHeader />
-      <ReportContent />
+      <ReportFilterCond />
+      <ReportTable>
+        <ReportTable.Header>
+          <ReportTableHeader />
+        </ReportTable.Header>
+        <ReportTable.Body>
+          <ReportTableBody />
+        </ReportTable.Body>
+        <ReportTable.Footer>
+          <ReportTableFooter />
+        </ReportTable.Footer>
+      </ReportTable>
       <ReportFooter />
     </ReportPageContainer>
   );

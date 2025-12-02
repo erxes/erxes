@@ -11,6 +11,6 @@ export const reportSchema = z.object({
   departmentId: z.string().optional(),
   isTemp: z.boolean().optional(),
   isOutBalance: z.boolean().optional(),
-  beginDate: z.date().optional(),
-  endDate: z.date().optional(),
+  fromDate: z.date().optional(),
+  toDate: z.date().optional(),
 });

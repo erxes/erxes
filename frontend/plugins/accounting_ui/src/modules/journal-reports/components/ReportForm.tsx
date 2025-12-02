@@ -1,18 +1,28 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { format, isValid, parse } from 'date-fns';
 import {
   Button,
   Checkbox,
   DatePicker,
   Dialog,
   Form,
-  Input,
 } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { activeReportState } from '../states/renderingReportsStates';
 import { useAtom } from 'jotai';
-import { reportSchema, TReportForm } from '../types/reportSchema';
-import { SelectAccountCategory } from '~/modules/settings/account/account-categories/components/SelectAccountCategory';
+import { useForm } from 'react-hook-form';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
+import { SelectAccountCategory } from '~/modules/settings/account/account-categories/components/SelectAccountCategory';
+import { activeReportState } from '../states/renderingReportsStates';
+import { reportSchema, TReportForm } from '../types/reportSchema';
+
+
+const getQueryParam = (key: string, value: string | string[] | Date | boolean): string => {
+  if (key === 'fromDate' || key === 'toDate') {
+    console.log(format(value as Date, 'yyyy-MM-dd hh:mm:ss'), 'llllllllllllll')
+    return format(value as Date, 'yyyy-MM-dd hh:mm:ss');
+  }
+
+  return value as string;
+}
 
 export const ReportForm = () => {
   const [activeReport] = useAtom(activeReportState);
@@ -28,9 +38,12 @@ export const ReportForm = () => {
 
     for (const key of Object.keys(data)) {
       if (params[key]) {
-        result = `${result}&${key}=${params[key]}`;
+        const converted = getQueryParam(key, params[key])
+        console.log(converted, 'vvvvvvvvvvvvvvvvvvvvvv', key)
+        result = `${result}&${key}=${converted}`;
       }
     }
+    console.log(result, 'ttttttttttttttttttttt')
     window.open(
       `accounting/gen-journal-report?report=${activeReport}${result}`,
       '_blank',
@@ -136,10 +149,10 @@ export const ReportForm = () => {
         />
         <Form.Field
           control={form.control}
-          name="beginDate"
+          name="fromDate"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Begin Date</Form.Label>
+              <Form.Label>From Date</Form.Label>
               <Form.Control>
                 <DatePicker
                   value={field.value}
@@ -153,10 +166,10 @@ export const ReportForm = () => {
         />
         <Form.Field
           control={form.control}
-          name="endDate"
+          name="toDate"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>End Date</Form.Label>
+              <Form.Label>To Date</Form.Label>
               <Form.Control>
                 <DatePicker
                   value={field.value}
