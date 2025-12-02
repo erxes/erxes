@@ -28,7 +28,7 @@ export function Posts() {
   const navigate = useNavigate();
   const { confirm } = useConfirm();
 
-    const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
   const {
     posts,
@@ -292,7 +292,7 @@ const InlineTagsEditor = ({
   const [localTags, setLocalTags] = useState(initialTags || []);
 
   const { tags, loading } = useTags({
-    clientPortalId: websiteId || '',
+    type: 'cms',
     limit: 100,
   });
 

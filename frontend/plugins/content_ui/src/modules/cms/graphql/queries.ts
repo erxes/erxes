@@ -224,40 +224,32 @@ export const POST_LIST = gql`
 `;
 
 export const CMS_TAGS = gql`
-  query CmsTags(
-    $clientPortalId: String!
+  query Tags(
+    $type: String
     $searchValue: String
     $limit: Int
     $cursor: String
     $direction: CURSOR_DIRECTION
-    $sortField: String
-    $sortDirection: String
   ) {
-    cmsTags(
-      clientPortalId: $clientPortalId
+    tags(
+      type: $type
       searchValue: $searchValue
       limit: $limit
       cursor: $cursor
       direction: $direction
-      sortField: $sortField
-      sortDirection: $sortDirection
     ) {
-      tags {
+      list {
         _id
-        clientPortalId
         name
-        slug
         colorCode
         createdAt
-        updatedAt
-        __typename
       }
       totalCount
       pageInfo {
         hasNextPage
         hasPreviousPage
-        endCursor
         startCursor
+        endCursor
       }
     }
   }
