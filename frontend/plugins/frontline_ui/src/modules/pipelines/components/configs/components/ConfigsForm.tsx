@@ -20,6 +20,7 @@ type Props = {
 };
 
 export const ConfigsForm = ({ form, defaultValues }: Props) => {
+  const [open, setOpen] = useState(false);
   const { control } = form;
 
   useEffect(() => {
@@ -67,37 +68,34 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
         <Form.Field
           control={control}
           name="parentId"
-          render={({ field }) => {
-            const [open, setOpen] = useState(false);
-            return (
-              <Form.Item>
-                <Form.Control>
-                  <SelectTags.Provider
-                    tagType="frontline:ticket"
-                    mode="single"
-                    value={field.value as string}
-                    onValueChange={(tag) => {
-                      field.onChange(tag);
-                      setOpen(false);
-                    }}
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Control>
+                <SelectTags.Provider
+                  tagType="frontline:ticket"
+                  mode="single"
+                  value={field.value as string}
+                  onValueChange={(tag) => {
+                    field.onChange(tag);
+                    setOpen(false);
+                  }}
+                >
+                  <PopoverScoped
+                    open={open}
+                    onOpenChange={setOpen}
+                    scope="configs"
                   >
-                    <PopoverScoped
-                      open={open}
-                      onOpenChange={setOpen}
-                      scope="configs"
-                    >
-                      <Combobox.Trigger className="w-full h-7 shadow-xs">
-                        <SelectTags.Value placeholder="Select tag group" />
-                      </Combobox.Trigger>
-                      <Combobox.Content onClick={(e) => e.stopPropagation()}>
-                        <SelectTags.GroupsCommand />
-                      </Combobox.Content>
-                    </PopoverScoped>
-                  </SelectTags.Provider>
-                </Form.Control>
-              </Form.Item>
-            );
-          }}
+                    <Combobox.Trigger className="w-full h-7 shadow-xs">
+                      <SelectTags.Value placeholder="Select tag group" />
+                    </Combobox.Trigger>
+                    <Combobox.Content onClick={(e) => e.stopPropagation()}>
+                      <SelectTags.GroupsCommand />
+                    </Combobox.Content>
+                  </PopoverScoped>
+                </SelectTags.Provider>
+              </Form.Control>
+            </Form.Item>
+          )}
         />
       </div>
       <Separator />

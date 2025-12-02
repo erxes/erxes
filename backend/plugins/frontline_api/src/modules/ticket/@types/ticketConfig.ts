@@ -1,30 +1,17 @@
 import { Document } from 'mongoose';
 
+export interface ITicketFormField {
+  isShow?: boolean;
+  label?: string;
+  placeholder?: string;
+  order?: number;
+}
+
 export interface ITicketFormFields {
-  name?: {
-    isShow?: boolean;
-    label?: string;
-    placeholder?: string;
-    order?: number;
-  };
-  description: {
-    isShow?: boolean;
-    label?: string;
-    placeholder?: string;
-    order?: number;
-  };
-  attachment: {
-    isShow?: boolean;
-    label?: string;
-    placeholder?: string;
-    order?: number;
-  };
-  tags: {
-    isShow?: boolean;
-    label?: string;
-    placeholder?: string;
-    order?: number;
-  };
+  name?: ITicketFormField;
+  description?: ITicketFormField;
+  attachment?: ITicketFormField;
+  tags?: ITicketFormField;
 }
 
 export interface ITicketConfig {

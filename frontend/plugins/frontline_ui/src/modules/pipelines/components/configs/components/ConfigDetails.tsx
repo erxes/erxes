@@ -1,14 +1,6 @@
 import { usePipelineConfigForm } from '@/pipelines/components/configs/hooks/usePipelineConfigForm';
 import { TPipelineConfig } from '@/pipelines/types';
-import {
-  Button,
-  Form,
-  Sheet,
-  Spinner,
-  toast,
-  useConfirm,
-  useQueryState,
-} from 'erxes-ui';
+import { Button, Form, Sheet, Spinner, toast, useQueryState } from 'erxes-ui';
 import { SubmitHandler } from 'react-hook-form';
 import { useSaveTicketsConfig } from '../hooks/useSaveTicketsConfig';
 import { useCallback } from 'react';
@@ -56,7 +48,7 @@ export const ConfigDetails = () => {
         },
       });
     },
-    [saveTicketsConfig, confirm, handleClose],
+    [saveTicketsConfig, handleClose],
   );
 
   return (
