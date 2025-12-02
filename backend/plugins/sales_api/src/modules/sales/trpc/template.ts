@@ -1,5 +1,5 @@
 import { initTRPC } from '@trpc/server';
-import { ITRPCContext, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { ITRPCContext } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
 
@@ -7,13 +7,20 @@ export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
 const t = initTRPC.context<SalesTRPCContext>().create();
 
+const saveAsTemplateInput = z.object({
+  sourceId: z.string(),
+  contentType: z.string(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+});
+
 export const templateTrpcRouter = t.router({
   templates: {
     saveAsTemplate: t.procedure
-      .input(z.any())
+      .input(saveAsTemplateInput)
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
-        const { sourceId, contentType, name, description } = input;
+        const { sourceId, contentType, description } = input;
 
         try {
           if (contentType === 'sales:board') {
@@ -156,25 +163,91 @@ export const templateTrpcRouter = t.router({
         }
       }),
 
-    useTemplate: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { models } = ctx;
-      const { template, contentType, currentUser } = input;
+    useTemplate: t.procedure
+      .input(
+        z.object({
+          template: z.object({
+            content: z.string(),
+            description: z.string().optional(),
+          }),
+          contentType: z.enum(['sales:board', 'sales:pipeline']),
+          currentUser: z.object({
+            _id: z.string(),
+          }),
+          boardId: z.string().optional(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { template, contentType, currentUser } = input;
 
-      try {
-        const content = JSON.parse(template.content);
+        try {
+          const content = JSON.parse(template.content);
 
-        if (contentType === 'sales:board') {
-          const { board: boardData, pipelines: pipelinesData } = content;
+          if (contentType === 'sales:board') {
+            const { board: boardData, pipelines: pipelinesData } = content;
 
-          // Create board
-          const newBoard = await models.Boards.createBoard({
-            name: boardData.name || 'Untitled Board (from template)',
-            userId: currentUser._id,
-            order: boardData.order,
-          });
+            // Create board
+            const newBoard = await models.Boards.createBoard({
+              name: boardData.name || 'Untitled Board (from template)',
+              userId: currentUser._id,
+              order: boardData.order,
+            });
 
-          // Create pipelines with stages
-          for (const pipelineData of pipelinesData || []) {
+            // Create pipelines with stages
+            for (const pipelineData of pipelinesData || []) {
+              const { stages, ...pipelineFields } = pipelineData;
+
+              // Clean stages data and add required fields
+              const cleanStages = (stages || []).map((stageData: any) => {
+                const {
+                  itemsTotalCount,
+                  unUsedAmount,
+                  amount,
+                  ...cleanStageData
+                } = stageData;
+                return {
+                  ...cleanStageData,
+                  probability: cleanStageData.probability || '10%',
+                  type: cleanStageData.type || 'deal',
+                };
+              });
+
+              await models.Pipelines.createPipeline(
+                {
+                  ...pipelineFields,
+                  boardId: newBoard._id,
+                  userId: currentUser._id,
+                  type: pipelineFields.type || 'deal',
+                },
+                cleanStages,
+              );
+            }
+
+            return {
+              status: 'success',
+              boardId: newBoard._id,
+              message: 'Board created successfully from template',
+            };
+          }
+
+          if (contentType === 'sales:pipeline') {
+            const { board: boardData, pipeline: pipelineData } = content;
+            const { boardId } = input;
+
+            let targetBoardId = boardId;
+
+            // Create board if not provided
+            if (!targetBoardId) {
+              const newBoard = await models.Boards.createBoard({
+                name: boardData.name || 'Untitled Board (from template)',
+                userId: currentUser._id,
+                order: boardData.order,
+              });
+              targetBoardId = newBoard._id;
+            }
+
+            // Create pipeline with stages
             const { stages, ...pipelineFields } = pipelineData;
 
             // Clean stages data and add required fields
@@ -192,82 +265,34 @@ export const templateTrpcRouter = t.router({
               };
             });
 
-            await models.Pipelines.createPipeline(
+            const newPipeline = await models.Pipelines.createPipeline(
               {
                 ...pipelineFields,
-                boardId: newBoard._id,
+                boardId: targetBoardId,
                 userId: currentUser._id,
                 type: pipelineFields.type || 'deal',
               },
               cleanStages,
             );
-          }
 
-          return {
-            status: 'success',
-            boardId: newBoard._id,
-            message: 'Board created successfully from template',
-          };
-        }
-
-        if (contentType === 'sales:pipeline') {
-          const { board: boardData, pipeline: pipelineData } = content;
-          const { boardId } = input;
-
-          let targetBoardId = boardId;
-
-          // Create board if not provided
-          if (!targetBoardId) {
-            const newBoard = await models.Boards.createBoard({
-              name: boardData.name || 'Untitled Board (from template)',
-              userId: currentUser._id,
-              order: boardData.order,
-            });
-            targetBoardId = newBoard._id;
-          }
-
-          // Create pipeline with stages
-          const { stages, ...pipelineFields } = pipelineData;
-
-          // Clean stages data and add required fields
-          const cleanStages = (stages || []).map((stageData: any) => {
-            const { itemsTotalCount, unUsedAmount, amount, ...cleanStageData } =
-              stageData;
             return {
-              ...cleanStageData,
-              probability: cleanStageData.probability || '10%',
-              type: cleanStageData.type || 'deal',
-            };
-          });
-
-          const newPipeline = await models.Pipelines.createPipeline(
-            {
-              ...pipelineFields,
+              status: 'success',
               boardId: targetBoardId,
-              userId: currentUser._id,
-              type: pipelineFields.type || 'deal',
-            },
-            cleanStages,
-          );
+              pipelineId: newPipeline._id,
+              message: 'Pipeline created successfully from template',
+            };
+          }
 
           return {
-            status: 'success',
-            boardId: targetBoardId,
-            pipelineId: newPipeline._id,
-            message: 'Pipeline created successfully from template',
+            status: 'error',
+            errorMessage: `Unsupported content type: ${contentType}`,
+          };
+        } catch (error) {
+          return {
+            status: 'error',
+            errorMessage: error.message || 'Failed to use template',
           };
         }
-
-        return {
-          status: 'error',
-          errorMessage: `Unsupported content type: ${contentType}`,
-        };
-      } catch (error) {
-        return {
-          status: 'error',
-          errorMessage: error.message || 'Failed to use template',
-        };
-      }
-    }),
+      }),
   },
 });

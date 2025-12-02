@@ -1,12 +1,12 @@
 export interface ITemplate {
   _id: string;
   name: string;
-  content?: string;
-  contentType: string;
+  content: string;
+  contentType?: string;
   description?: string;
   pluginType?: string;
   categoryIds?: string[];
-  status?: string;
+  status?: 'active' | 'inactive';
   createdBy?: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -32,11 +32,14 @@ export interface ITemplateCategory {
   _id: string;
   name: string;
   parentId?: string;
-  order?: number;
-  code?: string;
-  contentType?: string;
-  templateCount?: number;
-  isRoot?: boolean;
+  order?: string;
+  code: string;
+  contentType: string;
+  createdBy?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  updatedBy?: string;
+  status?: 'active' | 'inactive';
 }
 
 export interface ITemplateListResponse {

@@ -1,4 +1,4 @@
-import { IconPlus } from '@tabler/icons-react';
+import { IconPlus, IconTemplate } from '@tabler/icons-react';
 
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { PrintDocument } from 'ui-modules';
@@ -24,13 +24,18 @@ export const ProductCommandBar = () => {
           <IconPlus />
           Create
         </Button>
-
+        <Separator.Inline />
         <PrintDocument
           items={table
             .getFilteredSelectedRowModel()
             .rows.map((row) => row.original)}
           contentType="core:product"
         />
+        <Separator.Inline />
+        <Button variant="secondary">
+          <IconTemplate />
+          Save as Template
+        </Button>
       </CommandBar.Bar>
     </CommandBar>
   );

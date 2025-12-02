@@ -76,13 +76,11 @@ const TemplateForm: React.FC<IProps> = ({ template, onClose, onSuccess }) => {
           status: jsonData.status || 'active',
         };
       } catch {
-        templateData = {
-          name: file.name,
-          content: text,
-          contentType: '',
-          description: `Uploaded from ${file.name}`,
-          status: 'active',
-        };
+        alert(
+          'Failed to parse template JSON. Please upload a valid JSON file.',
+        );
+        setUploading(false);
+        return;
       }
 
       if (!templateData.name || !templateData.contentType) {
@@ -97,7 +95,6 @@ const TemplateForm: React.FC<IProps> = ({ template, onClose, onSuccess }) => {
         variables: { doc: templateData },
       });
     } catch (error) {
-      console.error('Upload error:', error);
       alert('Failed to upload template. Please check the file format.');
     } finally {
       setUploading(false);

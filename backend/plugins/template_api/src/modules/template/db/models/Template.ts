@@ -72,13 +72,10 @@ export const loadTemplateClass = (models: IModels) => {
       this: ITemplateModel,
       _id: string,
     ): Promise<TemplateDocument> {
-      console.log('_id', _id);
-
-      const template = await this.findOne({ _id });
+      const template = await this.findOneAndDelete({ _id });
       if (!template) {
         throw new Error(`Template not found with id ${_id}`);
       }
-      await models.Template.findOneAndDelete({ _id });
       return template;
     }
   }

@@ -1,4 +1,5 @@
 import { Schema, HydratedDocument } from 'mongoose';
+import { nanoid } from 'nanoid';
 
 export interface IRelatedTemplate {
   contentType: string;
@@ -88,8 +89,7 @@ export const templateSchema = new Schema<TemplateDocument>(
 
 templateSchema.pre('save', function (next) {
   if (!this._id) {
-    this._id =
-      Math.random().toString(36).substring(2) + Date.now().toString(36);
+    this._id = nanoid();
   }
   next();
 });
