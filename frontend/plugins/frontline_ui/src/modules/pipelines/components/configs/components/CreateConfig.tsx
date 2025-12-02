@@ -13,52 +13,33 @@ export const CreateConfig = () => {
   const { saveTicketsConfig, loading } = useSaveTicketsConfig();
   const { methods } = usePipelineConfigForm();
 
-  const confirmationValue = 'save';
-  const { confirm } = useConfirm();
-
   const { handleSubmit, reset, control } = methods;
 
   const onSubmit: SubmitHandler<TPipelineConfig> = useCallback(
     (data) => {
-      try {
-        confirm({
-          message: 'Are you sure you want to save the tickets config?',
-          options: {
-            confirmationValue,
-          },
-        }).then(() => {
-          saveTicketsConfig({
-            variables: {
-              input: data,
-            },
-            onCompleted: () => {
-              toast({
-                title: 'Success',
-                description: 'Tickets config saved successfully',
-                variant: 'success',
-              });
-              reset();
-              setOpen(false);
-            },
-            onError: (error) => {
-              toast({
-                title: 'Error',
-                description: error.message,
-                variant: 'destructive',
-              });
-            },
+      saveTicketsConfig({
+        variables: {
+          input: data,
+        },
+        onCompleted: () => {
+          toast({
+            title: 'Success',
+            description: 'Tickets config saved successfully',
+            variant: 'success',
           });
-        });
-      } catch (error) {
-        console.error(error);
-        toast({
-          title: 'Error',
-          description: error.message,
-          variant: 'destructive',
-        });
-      }
+          reset();
+          setOpen(false);
+        },
+        onError: (error) => {
+          toast({
+            title: 'Error',
+            description: error.message,
+            variant: 'destructive',
+          });
+        },
+      });
     },
-    [saveTicketsConfig, reset, confirm],
+    [saveTicketsConfig, reset],
   );
 
   useEffect(() => {

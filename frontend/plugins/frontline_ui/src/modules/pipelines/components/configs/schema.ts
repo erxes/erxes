@@ -48,7 +48,6 @@ export const PIPELINE_CONFIG_SCHEMA = z
     selectedStatusId: z.string().min(1, 'Status is required'),
     ticketBasicFields: ticketBasicFieldsSchema,
     customer: customerFieldsSchema,
-    fieldsConfig: z.array(ticketFormFieldsSchema).optional(),
   })
   .superRefine((data, ctx) => {
     const { contactType, company, customer } = data;
