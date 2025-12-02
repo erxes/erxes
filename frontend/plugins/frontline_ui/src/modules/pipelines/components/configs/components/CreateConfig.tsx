@@ -52,16 +52,16 @@ export const CreateConfig = () => {
         <Form {...methods}>
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-0 size-full box-border"
+            className="flex flex-col gap-0 size-full box-border overflow-hidden"
           >
             <Sheet.Header>
               <Sheet.Title>New Configuration</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
-            <Sheet.Content className="grow size-full flex flex-col px-5 py-4 space-y-4">
+            <Sheet.Content className="flex-1 w-full flex flex-col px-5 py-4 space-y-4 overflow-y-auto hide-scroll styled-scroll">
               <ConfigsForm form={methods} />
             </Sheet.Content>
-            <Sheet.Footer>
+            <Sheet.Footer className="shrink-0">
               <Button variant="ghost" onClick={() => setOpen(false)}>
                 Cancel
               </Button>

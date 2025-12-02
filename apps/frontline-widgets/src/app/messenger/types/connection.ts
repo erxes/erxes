@@ -90,26 +90,17 @@ export interface RequestBrowserInfoParams {
   callback: (browserInfo: IBrowserInfo) => void;
 }
 
-export interface ITicketBasicFields {
-  isShowName: boolean;
-  isShowDescription: boolean;
-  isShowAttachment: boolean;
-  isShowTags: boolean;
+export interface ITicketFormField {
+  isShow?: boolean;
+  label?: string;
+  placeholder?: string;
+  order?: number;
 }
-
-export interface ICustomerFields {
-  isShowFirstName: boolean;
-  isShowLastName: boolean;
-  isShowPhoneNumber: boolean;
-  isShowEmail: boolean;
-}
-
-export interface ICompanyFields {
-  isShowName: boolean;
-  isShowRegistrationNumber: boolean;
-  isShowAddress: boolean;
-  isShowPhoneNumber: boolean;
-  isShowEmail: boolean;
+export interface ITicketFormFields {
+  name?: ITicketFormField;
+  description?: ITicketFormField;
+  attachment?: ITicketFormField;
+  tags?: ITicketFormField;
 }
 
 export interface ITicketConfig {
@@ -120,10 +111,8 @@ export interface ITicketConfig {
   pipelineId: string;
   channelId: string;
   selectedStatusId: string;
-  contactType: string;
-  ticketBasicFields: ITicketBasicFields;
-  company: ICompanyFields;
-  customer: ICustomerFields;
+  formFields: ITicketFormFields;
+  parentId?: string;
 }
 
 export interface IMessengerData {
