@@ -1,5 +1,10 @@
 import { splitType } from '../../../core-modules/automations';
-import { ExportHandlers, ExportJobData, IImportExportContext } from '../types';
+import {
+  TExportHandlers,
+  ExportJobData,
+  IImportExportContext,
+  GetExportDataArgs,
+} from '../types';
 import { CoreImportClient } from './createCoreImportClient';
 import { Job } from 'bullmq';
 import { nanoid } from 'nanoid';
@@ -7,8 +12,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import ExcelJS from 'exceljs';
+import { uploadFileToStorage } from '../../../utils/file/upload';
 
-const ROWS_PER_FILE = 50000;
 const BATCH_SIZE = 5000;
 
 const escapeCsvField = (value: any): string => {
@@ -38,16 +43,16 @@ const createContext = async (
 
 const writeCSVFile = async (
   filePath: string,
-  headers: string[],
+  headerLabels: string[],
+  headerKeys: string[],
   rows: Record<string, any>[],
 ): Promise<void> => {
   const csvLines: string[] = [];
-  csvLines.push(headers.map(escapeCsvField).join(','));
+  csvLines.push(headerLabels.map(escapeCsvField).join(','));
 
   for (const row of rows) {
-    const values = headers.map((header) => {
-      const key = header.toLowerCase().replace(/\s+/g, '');
-      return escapeCsvField(row[key] || row[header] || '');
+    const values = headerKeys.map((key) => {
+      return escapeCsvField(row[key] ?? '');
     });
     csvLines.push(values.join(','));
   }
@@ -57,18 +62,18 @@ const writeCSVFile = async (
 
 const writeXLSXFile = async (
   filePath: string,
-  headers: string[],
+  headerLabels: string[],
+  headerKeys: string[],
   rows: Record<string, any>[],
 ): Promise<void> => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Export');
 
-  worksheet.addRow(headers);
+  worksheet.addRow(headerLabels);
 
   for (const row of rows) {
-    const values = headers.map((header) => {
-      const key = header.toLowerCase().replace(/\s+/g, '');
-      return row[key] || row[header] || '';
+    const values = headerKeys.map((key) => {
+      return row[key] ?? '';
     });
     worksheet.addRow(values);
   }
@@ -81,22 +86,24 @@ const uploadExportFile = async (
   filePath: string,
   fileName: string,
   fileFormat: 'csv' | 'xlsx',
-  uploadFn?: ExportHandlers['uploadFile'],
 ): Promise<string> => {
-  if (!uploadFn) {
-    throw new Error('uploadFile function is required in export config');
-  }
-
   const mimetype =
     fileFormat === 'csv'
       ? 'text/csv'
       : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
-  return await uploadFn(subdomain, filePath, fileName, mimetype);
+  // Force private to get file key instead of URL (same pattern as core-api)
+  return await uploadFileToStorage({
+    subdomain,
+    filePath,
+    fileName,
+    mimetype,
+    forcePrivate: true,
+  });
 };
 
 export const createExportBatchProcessor = (
-  config: ExportHandlers,
+  config: TExportHandlers,
   coreClient: CoreImportClient,
   pluginName: string,
 ) => {
@@ -119,6 +126,9 @@ export const createExportBatchProcessor = (
 
     const processId = nanoid(12);
     const context = await createContext(subdomain, { subdomain, processId });
+
+    // Declare cursor outside try block for error recovery
+    let cursor: string | undefined;
 
     try {
       await coreClient.updateExportProgress(subdomain, exportId, {
@@ -145,35 +155,49 @@ export const createExportBatchProcessor = (
         context,
       );
 
-      const headerLabels = exportHeaders.map(
-        (h: { label: string; key: string }) => h.label,
-      );
-      const headerKeys = exportHeaders.map(
-        (h: { label: string; key: string }) => h.key,
-      );
+      // Use selectedFields if provided, otherwise use all headers
+      const selectedFields =
+        exportDoc.selectedFields && exportDoc.selectedFields.length > 0
+          ? exportDoc.selectedFields
+          : exportHeaders.map((h: { label: string; key: string }) => h.key);
+
+      const headerLabels = exportHeaders
+        .filter((h: { label: string; key: string }) =>
+          selectedFields.includes(h.key),
+        )
+        .map((h: { label: string; key: string }) => h.label);
+      const headerKeys = selectedFields;
 
       let totalRows = 0;
       let processedRows = 0;
-      let fileIndex = 0;
-      let currentFileRows: Record<string, any>[] = [];
-      const fileKeys: string[] = [];
+      const allRows: Record<string, any>[] = [];
+      let fileKey: string | undefined;
 
-      let skip = 0;
+      // Resume from last cursor if export was interrupted
+      cursor = exportDoc.lastCursor;
       let hasMoreData = true;
+      const startTime = Date.now();
+      let lastProgressUpdate = Date.now();
 
       while (hasMoreData) {
-        const batch = await config.getExportData(
-          {
-            subdomain,
-            data: {
-              moduleName,
-              collectionName,
-              skip,
-              limit: BATCH_SIZE,
-            },
+        const exportDataArgs = {
+          subdomain,
+          data: {
+            moduleName,
+            collectionName,
+            limit: BATCH_SIZE,
+            ...(cursor ? { cursor } : {}),
+            ...(exportDoc.filters ? { filters: exportDoc.filters } : {}),
+            ...(exportDoc.ids && exportDoc.ids.length > 0
+              ? { ids: exportDoc.ids }
+              : {}),
+            ...(exportDoc.selectedFields && exportDoc.selectedFields.length > 0
+              ? { selectedFields: exportDoc.selectedFields }
+              : {}),
           },
-          context,
-        );
+        } as GetExportDataArgs;
+
+        const batch = await config.getExportData(exportDataArgs, context);
 
         if (batch.length === 0) {
           hasMoreData = false;
@@ -188,96 +212,74 @@ export const createExportBatchProcessor = (
           return mappedRow;
         });
 
-        currentFileRows.push(...mappedRows);
+        allRows.push(...mappedRows);
         totalRows += batch.length;
         processedRows += batch.length;
-        skip += batch.length;
 
-        if (currentFileRows.length >= ROWS_PER_FILE || !hasMoreData) {
-          const tempFileName = `export-${exportId}-${fileIndex}.${fileFormat}`;
-          const tempFilePath = path.join(os.tmpdir(), tempFileName);
-
-          try {
-            if (fileFormat === 'csv') {
-              await writeCSVFile(tempFilePath, headerLabels, currentFileRows);
-            } else {
-              await writeXLSXFile(tempFilePath, headerLabels, currentFileRows);
-            }
-
-            const fileKey = await uploadExportFile(
-              subdomain,
-              tempFilePath,
-              tempFileName,
-              fileFormat,
-              config.uploadFile,
-            );
-
-            fileKeys.push(fileKey);
-
-            const baseFileName = exportDoc.fileName || `export-${exportId}`;
-            const fileName =
-              fileIndex === 0
-                ? `${baseFileName}.${fileFormat}`
-                : `${baseFileName}-${fileIndex + 1}.${fileFormat}`;
-
-            await coreClient.saveExportFile(subdomain, {
-              exportId,
-              fileKey,
-              fileName,
-              fileIndex,
-            });
-
-            await coreClient.updateExportProgress(subdomain, exportId, {
-              processedRows,
-              totalRows,
-            });
-
-            fileIndex++;
-            currentFileRows = [];
-          } finally {
-            await fs.promises
-              .unlink(tempFilePath)
-              .catch(() => Promise.resolve(undefined));
-          }
+        // Get cursor from last item for next iteration
+        const lastItem = batch[batch.length - 1];
+        if (lastItem && lastItem._id) {
+          cursor = lastItem._id;
+        } else {
+          hasMoreData = false;
         }
 
-        if (batch.length < BATCH_SIZE) {
-          hasMoreData = false;
+        // Update progress with time estimation (every 2 seconds)
+        const now = Date.now();
+        const shouldUpdateProgress = now - lastProgressUpdate > 2000;
+
+        if (shouldUpdateProgress && processedRows > 0) {
+          const elapsedSeconds = (now - startTime) / 1000;
+          const rowsPerSecond = processedRows / elapsedSeconds;
+          const remainingRows =
+            totalRows > 0 ? totalRows - processedRows : undefined;
+          const estimatedSecondsRemaining = remainingRows
+            ? remainingRows / rowsPerSecond
+            : undefined;
+
+          await coreClient.updateExportProgress(subdomain, exportId, {
+            processedRows,
+            totalRows: totalRows || processedRows,
+            lastCursor: cursor,
+            estimatedSecondsRemaining,
+          });
+
+          lastProgressUpdate = now;
         }
       }
 
-      if (currentFileRows.length > 0) {
-        const tempFileName = `export-${exportId}-${fileIndex}.${fileFormat}`;
+      // Write all rows to a single file
+      if (allRows.length > 0) {
+        const tempFileName = `export-${exportId}.${fileFormat}`;
         const tempFilePath = path.join(os.tmpdir(), tempFileName);
 
         try {
           if (fileFormat === 'csv') {
-            await writeCSVFile(tempFilePath, headerLabels, currentFileRows);
+            await writeCSVFile(tempFilePath, headerLabels, headerKeys, allRows);
           } else {
-            await writeXLSXFile(tempFilePath, headerLabels, currentFileRows);
+            await writeXLSXFile(
+              tempFilePath,
+              headerLabels,
+              headerKeys,
+              allRows,
+            );
           }
 
-          const fileKey = await uploadExportFile(
+          fileKey = await uploadExportFile(
             subdomain,
             tempFilePath,
             tempFileName,
             fileFormat,
-            config.uploadFile,
           );
 
-          fileKeys.push(fileKey);
-
           const baseFileName = exportDoc.fileName || `export-${exportId}`;
-          const fileName =
-            fileIndex === 0
-              ? `${baseFileName}.${fileFormat}`
-              : `${baseFileName}-${fileIndex + 1}.${fileFormat}`;
+          const fileName = `${baseFileName}.${fileFormat}`;
 
           await coreClient.saveExportFile(subdomain, {
             exportId,
             fileKey,
             fileName,
-            fileIndex,
+            fileIndex: 0,
           });
         } finally {
           await fs.promises
@@ -289,14 +291,17 @@ export const createExportBatchProcessor = (
       await coreClient.updateExportProgress(subdomain, exportId, {
         status: 'completed',
         processedRows,
-        totalRows,
+        totalRows: totalRows || processedRows,
+        lastCursor: undefined,
       });
 
-      return { success: true, fileKeys };
+      return { success: true, fileKeys: fileKey ? [fileKey] : [] };
     } catch (error: any) {
+      // Save last cursor for resume capability
       await coreClient.updateExportProgress(subdomain, exportId, {
         status: 'failed',
         errorMessage: error?.message || 'Export worker failed',
+        lastCursor: cursor,
       });
       throw error;
     }

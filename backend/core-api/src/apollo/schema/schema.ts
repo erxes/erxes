@@ -175,6 +175,11 @@ import {
   types as ImportTypes,
 } from '~/modules/import-export/graphql/schema/import';
 import {
+  mutations as ExportMutations,
+  queries as ExportQueries,
+  types as ExportTypes,
+} from '~/modules/import-export/graphql/schema/export';
+import {
   mutations as CPUserMutations,
   types as CPUserTypes,
   queries as CPUserQueries,
@@ -224,6 +229,7 @@ export const types = `
     ${PropertiesTypes}
     ${ClientPortalTypes}
     ${ImportTypes}
+    ${ExportTypes}
     ${CPUserTypes}
   `;
 
@@ -258,6 +264,7 @@ export const queries = `
     ${PropertiesQueries}
     ${ClientPortalQueries}
     ${ImportQueries}
+    ${ExportQueries}
     ${CPUserQueries}
   `;
 
@@ -291,6 +298,7 @@ export const mutations = `
     ${PropertiesMutations}
     ${ClientPortalMutations}
     ${ImportMutations}
+    ${ExportMutations}
     ${CPUserMutations}
   `;
 

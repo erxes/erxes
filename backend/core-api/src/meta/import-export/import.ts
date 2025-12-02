@@ -5,12 +5,26 @@ import {
   TInsertImportRowsInput,
 } from 'erxes-api-shared/core-modules';
 import { generateModels } from '~/connectionResolvers';
-import { contactImportHandlers } from '~/modules/contacts/meta/import-export/importHandlers';
+import { contactImportHandlers } from '~/modules/contacts/meta/import-export/import/importHandlers';
 import { Express } from 'express';
-import { TGetImportHeadersInput } from 'erxes-api-shared/core-modules/import-export/zodSchemas';
+import {
+  TGetExportDataInput,
+  TGetExportHeadersInput,
+  TGetImportHeadersInput,
+} from 'erxes-api-shared/core-modules/import-export/zodSchemas';
+import { contactExportHandlers } from '~/modules/contacts/meta/import-export/export/exportHandlers';
+
+const importModules = {
+  contact: contactImportHandlers,
+};
+
+const exportModules = {
+  contact: contactExportHandlers,
+};
 
 const modules = {
-  contact: contactImportHandlers,
+  import: importModules,
+  export: exportModules,
 };
 export default async (app: Express) =>
   startImportExportWorker({
@@ -22,7 +36,7 @@ export default async (app: Express) =>
         },
         insertImportRows: createCoreModuleProducerHandler({
           moduleName: 'importExport',
-          modules,
+          modules: modules.import,
           methodName: TImportExportProducers.INSERT_IMPORT_ROWS,
           extractModuleName: (input: TInsertImportRowsInput) =>
             input.moduleName,
@@ -30,9 +44,26 @@ export default async (app: Express) =>
         }),
         getImportHeaders: createCoreModuleProducerHandler({
           moduleName: 'importExport',
-          modules,
+          modules: modules.import,
           methodName: TImportExportProducers.GET_IMPORT_HEADERS,
           extractModuleName: (input: TGetImportHeadersInput) =>
+            input.moduleName,
+          generateModels,
+        }),
+      },
+      export: {
+        getExportData: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: modules.export,
+          methodName: TImportExportProducers.GET_EXPORT_DATA,
+          extractModuleName: (input: TGetExportDataInput) => input.moduleName,
+          generateModels,
+        }),
+        getExportHeaders: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: modules.export,
+          methodName: TImportExportProducers.GET_EXPORT_HEADERS,
+          extractModuleName: (input: TGetExportHeadersInput) =>
             input.moduleName,
           generateModels,
         }),

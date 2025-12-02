@@ -3,17 +3,19 @@ import { Button, Popover, cn } from 'erxes-ui';
 import { useImportUploadHandler } from '../../hooks/import/useImportUploadHandler';
 import { ImportProgress } from './ImportProgress';
 
-interface ImportProps {
-  title?: string;
-  entityType?: string;
-  onFileUploaded?: (file: File) => void;
-}
-
 export const Import = ({
   title = 'Upload CSV',
-  entityType,
+  pluginName,
+  moduleName,
+  collectionName,
   onFileUploaded,
-}: ImportProps) => {
+}: {
+  title?: string;
+  pluginName: string;
+  moduleName: string;
+  collectionName: string;
+  onFileUploaded?: (file: File) => void;
+}) => {
   const {
     activeImports,
     isDragOver,
@@ -24,7 +26,10 @@ export const Import = ({
     handleClickUpload,
     handleDownloadTemplate,
     isLoading,
-  } = useImportUploadHandler(entityType, onFileUploaded);
+  } = useImportUploadHandler(
+    `${pluginName}:${moduleName}.${collectionName}`,
+    onFileUploaded,
+  );
 
   return (
     <Popover>

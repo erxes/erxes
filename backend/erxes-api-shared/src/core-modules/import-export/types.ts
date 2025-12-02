@@ -1,15 +1,17 @@
 import { z } from 'zod';
 
-export interface IImportExportContext {
+export interface IImportExportContext<TModels = any> {
   subdomain: string;
   processId: string;
-  models?: any;
+  models?: TModels;
   [key: string]: any;
 }
 
 export interface ImportHeaderDefinition {
   label: string;
   key: string;
+  isDefault?: boolean;
+  type?: 'system' | 'customProperty';
 }
 
 export interface InsertImportRowsInputData {
@@ -32,7 +34,7 @@ export interface InsertImportRowsResult {
   >;
 }
 
-export interface ImportExportHandlers {
+export interface TImportHandlers {
   insertImportRows: (
     args: InsertImportRowsArgs,
     ctx: IImportExportContext,
@@ -47,18 +49,21 @@ export interface ImportExportHandlers {
 
   whenReady?: () => void;
 }
-
+export type GetExportData = {
+  moduleName: string;
+  collectionName: string;
+  cursor?: string;
+  limit: number;
+  filters?: Record<string, any>;
+  ids?: string[];
+  selectedFields?: string[];
+};
 export interface GetExportDataArgs {
   subdomain: string;
-  data: {
-    moduleName: string;
-    collectionName: string;
-    skip: number;
-    limit: number;
-  };
+  data: GetExportData;
 }
 
-export interface ExportHandlers {
+export interface TExportHandlers {
   getExportHeaders: (
     args: {
       subdomain: string;
@@ -70,12 +75,6 @@ export interface ExportHandlers {
     args: GetExportDataArgs,
     ctx: IImportExportContext,
   ) => Promise<Record<string, any>[]>;
-  uploadFile?: (
-    subdomain: string,
-    filePath: string,
-    fileName: string,
-    mimetype: string,
-  ) => Promise<string>;
   whenReady?: () => void;
 }
 
@@ -84,8 +83,8 @@ export interface ImportExportConfigs {
     subdomain: string,
     context: IImportExportContext,
   ) => Promise<IImportExportContext>;
-  import: ImportExportHandlers;
-  export?: ExportHandlers;
+  import?: TImportHandlers;
+  export?: TExportHandlers;
 }
 
 export interface ImportJobData {

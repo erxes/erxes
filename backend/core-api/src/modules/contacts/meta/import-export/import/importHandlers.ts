@@ -4,10 +4,10 @@ import {
   TInsertImportRowsInput,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
-import { processCustomerRows } from './import/customers/processCustomerRows';
-import { processCompanyRows } from './import/companies/processCompanyRows';
+import { processCustomerRows } from './customers/processCustomerRows';
+import { processCompanyRows } from './companies/processCompanyRows';
 
-const contactImportExportMap = {
+const contactImportMap = {
   customer: {
     headers: [
       { label: 'First Name', key: 'firstName' },
@@ -17,7 +17,18 @@ const contactImportExportMap = {
       { label: 'Tags', key: 'tags' },
       { label: 'Sex', key: 'sex' },
     ],
-    processRows: processCustomerRows,
+    processRows: (models: IModels, rows: any[]) =>
+      processCustomerRows(models, rows, 'customer'),
+  },
+  lead: {
+    headers: [
+      { label: 'First Name', key: 'firstName' },
+      { label: 'Last Name', key: 'lastName' },
+      { label: 'Email', key: 'primaryEmail' },
+      { label: 'Phone', key: 'primaryPhone' },
+    ],
+    processRows: (models: IModels, rows: any[]) =>
+      processCustomerRows(models, rows, 'lead'),
   },
   company: {
     headers: [
@@ -34,10 +45,10 @@ export const contactImportHandlers = {
     { collectionName }: { collectionName: string },
     { subdomain }: TCoreModuleProducerContext<IModels>,
   ): Promise<TGetImportHeadersOutput> => {
-    return contactImportExportMap[collectionName].headers;
+    return contactImportMap[collectionName].headers;
   },
   insertImportRows: async (
     { collectionName, rows }: TInsertImportRowsInput,
     { models }: TCoreModuleProducerContext<IModels>,
-  ) => await contactImportExportMap[collectionName].processRows(models, rows),
+  ) => await contactImportMap[collectionName].processRows(models, rows),
 };

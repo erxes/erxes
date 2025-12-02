@@ -7,28 +7,7 @@ import {
   RETRY_IMPORT,
   RESUME_IMPORT,
 } from '../../graphql/import/importMutations';
-
-interface ImportProgress {
-  _id: string;
-  entityType: string;
-  fileName: string;
-  status:
-    | 'pending'
-    | 'validating'
-    | 'processing'
-    | 'completed'
-    | 'failed'
-    | 'cancelled';
-  totalRows: number;
-  processedRows: number;
-  successRows: number;
-  errorRows: number;
-  errorFileUrl?: string;
-  progress: number;
-  elapsedSeconds: number;
-  rowsPerSecond: number;
-  estimatedSecondsRemaining: number;
-}
+import { TImportProgress } from '../../types/import/importTypes';
 
 export const useImport = (entityType?: string) => {
   const { data, refetch, startPolling, stopPolling } = useQuery(
@@ -39,7 +18,7 @@ export const useImport = (entityType?: string) => {
     },
   );
 
-  const activeImports: ImportProgress[] = data?.activeImports || [];
+  const activeImports: TImportProgress[] = data?.activeImports || [];
 
   const hasActiveImports = useMemo(() => {
     if (!data) return false;
@@ -59,10 +38,26 @@ export const useImport = (entityType?: string) => {
     }
   }, [hasActiveImports, startPolling, stopPolling]);
 
+  // Always refetch when data changes to ensure latest imports are shown
+  useEffect(() => {
+    if (data) {
+      const hasActive = activeImports.some((importItem) =>
+        ['processing', 'validating', 'pending'].includes(importItem.status),
+      );
+      if (hasActive && !hasActiveImports) {
+        // If we have active imports but polling wasn't started, start it
+        startPolling(2000);
+      }
+    }
+  }, [data, activeImports, hasActiveImports, startPolling]);
+
   const [startImportMutation, { loading: startLoading }] = useMutation(
     START_IMPORT,
     {
-      refetchQueries: [{ query: GET_ACTIVE_IMPORTS }],
+      refetchQueries: [
+        { query: GET_ACTIVE_IMPORTS, variables: { entityType } },
+      ],
+      awaitRefetchQueries: true,
     },
   );
 
@@ -97,12 +92,15 @@ export const useImport = (entityType?: string) => {
             fileName,
           },
         });
+        // Ensure immediate refetch and start polling
+        await refetch();
+        startPolling(2000);
         return result.data?.importStart;
       } catch (error) {
         throw error;
       }
     },
-    [startImportMutation],
+    [startImportMutation, refetch, startPolling],
   );
 
   const cancelImport = useCallback(

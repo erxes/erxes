@@ -9,6 +9,8 @@ import { TAutomationProducersInput } from '../../core-modules/automations/zodTyp
 import { TSegmentProducers } from '../../core-modules/segments/types';
 import { TAfterProcessProducers } from '../../core-modules/logs/types';
 import { TSegmentProducersInput } from '../../core-modules/segments/zodSchemas';
+import { TImportExportProducersInput } from '../../core-modules/import-export/zodSchemas';
+import { TImportExportProducers } from '../../core-modules/import-export/types';
 type TModuleProducerInputMap = {
   automations: {
     [K in TAutomationProducers]: TAutomationProducersInput[K];
@@ -18,6 +20,9 @@ type TModuleProducerInputMap = {
   };
   afterProcess: {
     [K in TAfterProcessProducers]: any;
+  };
+  importExport: {
+    [K in TImportExportProducers]: TImportExportProducersInput[K];
   };
 };
 

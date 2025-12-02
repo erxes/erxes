@@ -1,20 +1,15 @@
-import { splitType } from '../../../core-modules/automations';
-import {
-  IImportExportContext,
-  ImportExportConfigs,
-  ImportExportHandlers,
-  ImportJobData,
-} from '../types';
-import { CoreImportClient } from './createCoreImportClient';
 import { Job } from 'bullmq';
 import { nanoid } from 'nanoid';
+import { splitType } from '../../../core-modules/automations';
 import { readFileFromStorage } from '../../../utils/file/read';
+import { IImportExportContext, TImportHandlers, ImportJobData } from '../types';
+import { CoreImportClient } from './createCoreImportClient';
 import { processCSVFile, processXLSXFile } from './importUtils';
 
 const createContext = async (
   subdomain: string,
   baseContext: IImportExportContext,
-  config: ImportExportHandlers,
+  config: TImportHandlers,
 ): Promise<IImportExportContext> => {
   // if (config.createContext) {
   //   return await config.createContext(subdomain, baseContext);
@@ -23,7 +18,7 @@ const createContext = async (
   return baseContext;
 };
 export const createImportBatchProcessor = (
-  config: ImportExportHandlers,
+  config: TImportHandlers,
   coreClient: CoreImportClient,
   pluginName: string,
 ) => {

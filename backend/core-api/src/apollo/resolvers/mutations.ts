@@ -21,7 +21,10 @@ import { notificationMutations } from '~/modules/notifications/graphql/resolver/
 import { roleMutations } from '~/modules/permissions/graphql/resolvers/mutations/role';
 import { propertiesMutations } from '~/modules/properties/graphql/resolvers/mutations';
 import { clientPortalMutations } from '@/clientportal/graphql/resolvers/mutations/clientPortal';
-import { importMutations } from '~/modules/import-export/graphql/resolvers';
+import {
+  importMutations,
+  exportMutations,
+} from '~/modules/import-export/graphql/resolvers';
 import { cpUserMutations } from '@/clientportal/graphql/resolvers/mutations/cpUser';
 
 export const mutations = {
@@ -49,5 +52,6 @@ export const mutations = {
   ...propertiesMutations,
   ...clientPortalMutations,
   ...importMutations,
+  ...exportMutations,
   ...cpUserMutations,
 };

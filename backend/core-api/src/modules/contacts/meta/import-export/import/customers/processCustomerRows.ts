@@ -3,6 +3,7 @@ import { prepareCustomerDoc } from './utils';
 export async function processCustomerRows(
   models: IModels,
   rows: any[],
+  state: 'lead' | 'customer',
 ): Promise<{ successRows: any[]; errorRows: any[] }> {
   console.log('processCustomerRows', rows);
   const successRows: any[] = [];
@@ -40,7 +41,7 @@ export async function processCustomerRows(
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
       try {
-        const doc = prepareCustomerDoc(models, row);
+        const doc = prepareCustomerDoc(models, row, state);
 
         const existingDoc =
           (doc.primaryEmail && existingByEmail.get(doc.primaryEmail)) ||

@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid';
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { splitType } from 'erxes-api-shared/core-modules';
+import { validateImportConfig } from '~/modules/import-export/utils/validateConfig';
 
 async function getJobIdFromQueue(
   subdomain: string,
@@ -27,6 +28,13 @@ export const importMutations = {
     { models, subdomain, user }: IContext,
   ) {
     const [pluginName, moduleName, collectionName] = splitType(entityType);
+
+    await validateImportConfig({
+      pluginName,
+      collectionName,
+      requireGetImportHeaders: true,
+      requireInsertImportRows: true,
+    });
 
     const importDoc = await models.Imports.create({
       _id: nanoid(),

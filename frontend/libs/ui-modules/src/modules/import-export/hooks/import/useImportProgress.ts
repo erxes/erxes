@@ -9,16 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { useImport } from './useImport';
 import { useToast } from 'erxes-ui';
-
-interface ImportProgress {
-  _id: string;
-  fileName: string;
-  status: string;
-  progress: number;
-  processedRows: number;
-  totalRows: number;
-  estimatedSecondsRemaining: number;
-}
+import { TImportProgress } from '../../types/import/importTypes';
 
 function formatTime(seconds: number): string {
   if (seconds < 60) {
@@ -43,7 +34,7 @@ const statusMap = {
   cancelled: { key: 'cancelled', label: 'Cancelled', icon: IconX },
 };
 
-export function useImportProgress(importProgress: ImportProgress) {
+export function useImportProgress(importProgress: TImportProgress) {
   const timeRemaining = useMemo(
     () => formatTime(importProgress.estimatedSecondsRemaining || 0),
     [importProgress.estimatedSecondsRemaining],

@@ -7,23 +7,13 @@ import {
   IconDownload,
 } from '@tabler/icons-react';
 import { useImportProgress } from '../../hooks/import/useImportProgress';
+import { TImportProgress } from '../../types/import/importTypes';
 
-interface ImportProgressProps {
-  importProgress: {
-    _id: string;
-    fileName: string;
-    status: string;
-    progress: number;
-    processedRows: number;
-    totalRows: number;
-    successRows?: number;
-    errorRows?: number;
-    errorFileUrl?: string;
-    estimatedSecondsRemaining: number;
-  };
-}
-
-export function ImportProgress({ importProgress }: ImportProgressProps) {
+export function ImportProgress({
+  importProgress,
+}: {
+  importProgress: TImportProgress;
+}) {
   const {
     timeRemaining,
     statusObject,
