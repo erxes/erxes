@@ -1,6 +1,3 @@
-import { TPipelineConfig } from '@/pipelines/types';
-import { UseFieldArrayAppend } from 'react-hook-form';
-
 export enum TICKET_FORM_FIELDS_KEY {
   NAME = 'name',
   DESCRIPTION = 'description',
