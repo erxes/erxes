@@ -17,7 +17,6 @@ import { reportSchema, TReportForm } from '../types/reportSchema';
 
 const getQueryParam = (key: string, value: string | string[] | Date | boolean): string => {
   if (key === 'fromDate' || key === 'toDate') {
-    console.log(format(value as Date, 'yyyy-MM-dd hh:mm:ss'), 'llllllllllllll')
     return format(value as Date, 'yyyy-MM-dd hh:mm:ss');
   }
 
@@ -39,11 +38,10 @@ export const ReportForm = () => {
     for (const key of Object.keys(data)) {
       if (params[key]) {
         const converted = getQueryParam(key, params[key])
-        console.log(converted, 'vvvvvvvvvvvvvvvvvvvvvv', key)
         result = `${result}&${key}=${converted}`;
       }
     }
-    console.log(result, 'ttttttttttttttttttttt')
+
     window.open(
       `accounting/gen-journal-report?report=${activeReport}${result}`,
       '_blank',
