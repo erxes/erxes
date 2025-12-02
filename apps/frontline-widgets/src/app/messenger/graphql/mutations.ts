@@ -87,6 +87,13 @@ const connect = (isCloudFlareEnabled?: boolean) => gql`
       customerId,
       visitorId,
       ticketConfig
+      customer {
+        _id
+        firstName
+        lastName
+        phones
+        emails
+      }
     }
   }
 `;

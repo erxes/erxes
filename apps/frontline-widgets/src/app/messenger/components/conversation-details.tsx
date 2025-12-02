@@ -6,7 +6,7 @@ import { useConversationDetail } from '../hooks/useConversationDetail';
 import {
   connectionAtom,
   conversationIdAtom,
-  integrationIdAtom,
+  messengerDataAtom,
 } from '../states';
 import { Skeleton, cn } from 'erxes-ui';
 import { formatMessageDate, getDateKey } from '@libs/formatDate';
@@ -59,7 +59,7 @@ function shouldGroupMessages(
 
 export const ConversationDetails = () => {
   const conversationId = useAtomValue(conversationIdAtom);
-  const integrationId = useAtomValue(integrationIdAtom);
+  const messengerConnectData = useAtomValue(messengerDataAtom);
   const connection = useAtomValue(connectionAtom);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { widgetsMessengerConnect } = connection || {};
@@ -68,9 +68,9 @@ export const ConversationDetails = () => {
   const { conversationDetail, loading, isBotTyping } = useConversationDetail({
     variables: {
       _id: conversationId,
-      integrationId,
+      integrationId: messengerConnectData?.integrationId ?? '',
     },
-    skip: !conversationId || !integrationId,
+    skip: !conversationId || !messengerConnectData?.integrationId,
   });
   const { messages } = conversationDetail || {};
 
