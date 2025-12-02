@@ -130,7 +130,6 @@ export const mutations = `
       description: String
       attachments: [AttachmentInput]
       statusId: String!
-      type: String!
       customerIds: [String!]!
       tagIds: [String!]
     ): Ticket
