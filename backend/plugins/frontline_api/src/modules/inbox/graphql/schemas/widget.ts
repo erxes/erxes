@@ -9,6 +9,7 @@ export const types = `
       customerId: String
       visitorId: String
       channel: Channel
+      customer: Customer
     }
     type TicketTypeMessenger {
       ticketLabel: String
