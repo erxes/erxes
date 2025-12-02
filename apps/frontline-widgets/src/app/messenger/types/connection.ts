@@ -131,3 +131,20 @@ export interface ICustomerData {
   phones?: string[];
   emails?: string[];
 }
+
+export interface IMessengerData {
+  integrationId: string;
+  email?: string;
+  phone?: string;
+  code?: string;
+  data?: any;
+  companyData?: any;
+}
+
+export interface ICustomerData {
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+  phones?: string[];
+  emails?: string[];
+}
