@@ -32,26 +32,6 @@ export const ReportPage = () => {
   );
 };
 
-export const ReportStyle = () => {
-  return (
-    <style>
-      {`
-      @page {
-        margin: 0;
-        background: white;
-        margin-top: 5mm; 
-      }
-
-      
-      table { page-break-after: auto; }
-      table tr { page-break-inside: avoid; page-break-after: auto; }
-      table td { page-break-inside: avoid; page-break-after: auto; }
-      
-    `}
-    </style>
-  );
-};
-
 const DemoContent = () => (
   <ReportTable>
     <ReportTable.Header>
