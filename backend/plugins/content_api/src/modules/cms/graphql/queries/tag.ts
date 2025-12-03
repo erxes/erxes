@@ -6,7 +6,7 @@ import { Resolver } from 'erxes-api-shared/core-types';
 const getTagList = async (args: any, context: IContext) => {
   const { models } = context;
   const { searchValue, status, language } = args;
-  const clientPortalId = context.clientPortal._id || args.clientPortalId;
+  const clientPortalId = context.clientPortal?._id || args.clientPortalId;
   const query = {
     clientPortalId,
     ...(status && { status }),
