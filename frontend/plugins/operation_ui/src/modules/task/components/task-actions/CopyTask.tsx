@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode } from 'react';
+import { createContext, useContext, ReactNode, useCallback } from 'react';
 import { ITask } from '@/task/types';
 import { Command, useToast } from 'erxes-ui';
 import {
@@ -31,7 +31,7 @@ const useCopyTaskContext = () => {
 };
 
 const getTaskUrl = (task: ITask): string => {
-  const baseUrl = window.location.origin;
+  const baseUrl = globalThis.location.origin;
   return `${baseUrl}/operation/team/${task.teamId}/tasks/${task._id}`;
 };
 
@@ -157,8 +157,11 @@ export const CopyTaskProvider = ({
     }
   };
 
-  const handleCopy = async (type: CopyType) => {
-    const content = generateContent(type);
+  const handleCopy = useCallback(async (type: CopyType) => {
+    // Move helper functions like generateContent inside here 
+    // OR make them pure functions outside the component and pass data in
+    const content = generateContent(type); 
+    
     const labels: Record<CopyType, string> = {
       url: 'URL',
       title: 'Title',
@@ -180,7 +183,7 @@ export const CopyTaskProvider = ({
         variant: 'destructive',
       });
     }
-  };
+  }, [setOpen, generateContent, toast]);
 
   return (
     <CopyTaskContext.Provider value={{ onCopy: handleCopy }}>

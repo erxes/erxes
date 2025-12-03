@@ -262,7 +262,7 @@ export const loadTaskClass = (models: IModels) => {
         });
       }
 
-      if (doc.targetDate !== undefined) {
+      if (doc.targetDate) {
         const teamId = doc.teamId || task.teamId;
         const targetDate = new Date(doc.targetDate);
 
@@ -280,7 +280,7 @@ export const loadTaskClass = (models: IModels) => {
           rest.cycleId = matchingCycle._id;
 
           await models.Activity.createActivity({
-            action: 'CREATED',
+            action: 'CHANGED',
             contentId: task._id,
             module: 'CYCLE',
             metadata: {

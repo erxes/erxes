@@ -14,7 +14,7 @@ import {
   Button,
 } from 'erxes-ui';
 import { useNavigate, useParams } from 'react-router-dom';
-import { IconChevronRight } from '@tabler/icons-react';
+import { IconChevronRight, IconUsers, IconClipboard } from '@tabler/icons-react';
 import {
   useUsers,
   SelectMember,
@@ -34,7 +34,6 @@ import {
   SelectTriggerOperation,
   SelectTriggerVariant,
 } from '@/operation/components/SelectOperation';
-import { IconUsers, IconClipboard } from '@tabler/icons-react';
 import { useProjects } from '@/project/hooks/useGetProjects';
 
 const SelectAssigneeProvider = SelectMember.Provider;
@@ -147,7 +146,7 @@ const AssigneeHoverCard = forwardRef(
 
     if (!assigneeId || userLoading || !assigneeDetails) {
       return (
-        <div ref={ref as any} {...props} style={{ display: 'inline-block' }}>
+        <div ref={ref as React.Ref<HTMLDivElement>} {...props} style={{ display: 'inline-block' }}>
           {children}
         </div>
       );
@@ -158,7 +157,7 @@ const AssigneeHoverCard = forwardRef(
     return (
       <HoverCard openDelay={300}>
         <HoverCard.Trigger asChild>
-          <div ref={ref as any} {...props} style={{ display: 'inline-block' }}>
+          <div ref={ref as React.Ref<HTMLDivElement>} {...props} style={{ display: 'inline-block' }}>
             {children}
           </div>
         </HoverCard.Trigger>

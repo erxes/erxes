@@ -53,7 +53,6 @@ export const TasksCommandBar = () => {
   const { removeTask } = useRemoveTask();
   const { updateTask } = useUpdateTask();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
-  console.log('selectedRows', selectedRows.map((row: Row<ITask>) => row.original));
   const taskIds = selectedRows.map((row: Row<ITask>) => row.original._id);
   const tasksData = selectedRows.map((row: Row<ITask>) => ({
     taskId: row.original._id,

@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode, useState } from 'react';
+import { createContext, useContext, ReactNode, useState, useCallback } from 'react';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import { format, nextFriday, addDays } from 'date-fns';
 import { Button, Calendar, Command } from 'erxes-ui';
@@ -36,8 +36,8 @@ export const SetDueDateProvider = ({
   children,
   taskIds,
 }: SetDueDateProviderProps) => {
-  const { updateTask } = useUpdateTask();
-  const handleSetDueDate = async (date: Date) => {
+  const { updateTask, loading } = useUpdateTask();
+  const handleSetDueDate = useCallback(async (date: Date) => {
     await Promise.all(
       taskIds.map((id) =>
         updateTask({
@@ -48,13 +48,13 @@ export const SetDueDateProvider = ({
         }),
       ),
     );
-  };
+  }, [taskIds, updateTask]);
   return (
     <SetDueDateContext.Provider
       value={{
         taskIds,
         onSetDueDate: handleSetDueDate,
-        loading: false,
+        loading,
       }}
     >
       {children}
@@ -67,23 +67,30 @@ const getEndOfWeek = (): Date => {
   return nextFriday(today);
 };
 
-const dueDateOptions = [
-  {
-    label: 'Tomorrow',
-    date: addDays(new Date(), 1),
-    description: `${format(addDays(new Date(), 1), 'EEE, MMM dd')}`,
-  },
-  {
-    label: 'End of this week',
-    date: getEndOfWeek(),
-    description: `${format(getEndOfWeek(), 'EEE, MMM dd')}`,
-  },
-  {
-    label: 'In one week',
-    date: addDays(new Date(), 7),
-    description: `${format(addDays(new Date(), 7), 'EEE, MMM dd')}`,
-  },
-];
+const buildDueDateOptions = () => {
+  const today = new Date();
+  const tomorrow = addDays(today, 1);
+  const endOfWeek = getEndOfWeek();
+  const inOneWeek = addDays(today, 7);
+
+  return [
+    {
+      label: 'Tomorrow',
+      date: tomorrow,
+      description: format(tomorrow, 'EEE, MMM dd'),
+    },
+    {
+      label: 'End of this week',
+      date: endOfWeek,
+      description: format(endOfWeek, 'EEE, MMM dd'),
+    },
+    {
+      label: 'In one week',
+      date: inOneWeek,
+      description: format(inOneWeek, 'EEE, MMM dd'),
+    },
+  ];
+};
 
 export const TaskSetDueDateContent = ({
   setOpen,
@@ -140,7 +147,7 @@ export const TaskSetDueDateContent = ({
 
         <Command.Separator />
 
-        {dueDateOptions.map((option) => (
+        {buildDueDateOptions().map((option) => (
           <Command.Item
             key={option.label}
             onSelect={() => {
