@@ -3,9 +3,10 @@ import {
   ProductsInlineContext,
   useProductsInlineContext,
 } from '../context/ProductsInlineContext';
-import { IProduct } from '../types/Products';
 import { useEffect, useState } from 'react';
-import { useProductsInline } from '../hooks/useProducts';
+
+import { IProduct } from '../types/Products';
+import { useProductsInline } from '../extra/hooks/useProduct';
 
 export const ProductsInlineProvider = ({
   children,

@@ -30,31 +30,25 @@ export const SalesDetailLeftSidebar = ({
                     </Sidebar.MenuButton>
                   </Tabs.Trigger>
                 </Sidebar.MenuItem>
+              </Sidebar.Menu>
+            </Sidebar.GroupContent>
+          </Sidebar.Group>
+          <Sidebar.Separator />
+          <Sidebar.Group>
+            <Sidebar.GroupLabel>Plugins</Sidebar.GroupLabel>
+            <Sidebar.GroupContent>
+              <Sidebar.Menu>
                 <Sidebar.MenuItem>
-                  <Tabs.Trigger value="plugins" asChild>
+                  <Tabs.Trigger value="products" asChild>
                     <Sidebar.MenuButton className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary justify-start">
-                      Plugins
-                    </Sidebar.MenuButton>
-                  </Tabs.Trigger>
-                </Sidebar.MenuItem>
-                <Sidebar.MenuItem>
-                  <Tabs.Trigger value="properties" asChild>
-                    <Sidebar.MenuButton className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary justify-start">
-                      Properties
+                      Products
                     </Sidebar.MenuButton>
                   </Tabs.Trigger>
                 </Sidebar.MenuItem>
               </Sidebar.Menu>
             </Sidebar.GroupContent>
           </Sidebar.Group>
-          <Sidebar.Separator />
-          <Sidebar.Group></Sidebar.Group>
         </Sidebar>
-        {/* <Tabs.VerticalTrigger value="overview">Overview</Tabs.VerticalTrigger>
-          <Tabs.VerticalTrigger value="plugins">Plugins</Tabs.VerticalTrigger>
-          <Tabs.VerticalTrigger value="properties">
-            Properties
-          </Tabs.VerticalTrigger> */}
       </Tabs.List>
       {children}
     </Tabs>

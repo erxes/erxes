@@ -1,9 +1,9 @@
 import { Cell } from '@tanstack/react-table';
 import { IProduct } from '../types/productTypes';
-import { useSetAtom } from 'jotai';
-import { useSearchParams } from 'react-router-dom';
 import { RecordTable } from 'erxes-ui';
 import { atom } from 'jotai';
+import { useSearchParams } from 'react-router-dom';
+import { useSetAtom } from 'jotai';
 
 export const renderingProductDetailAtom = atom(false);
 

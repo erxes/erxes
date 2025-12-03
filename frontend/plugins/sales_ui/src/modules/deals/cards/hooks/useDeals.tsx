@@ -25,8 +25,9 @@ import {
 } from '@apollo/client';
 import { useAtom, useAtomValue } from 'jotai';
 
-import { DEAL_LIST_CHANGED } from '~/modules/deals/graphql/subscriptions/dealListChange';
+import { DEAL_LIST_CHANGED } from '@/deals/graphql/subscriptions/dealListChange';
 import { IDeal } from '@/deals/types/deals';
+import { PRODUCTS_DATA_CHANGED } from '@/deals/graphql/subscriptions/productsSubscriptions';
 import { currentUserState } from 'ui-modules';
 import { dealCreateDefaultValuesState } from '@/deals/states/dealCreateSheetState';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
@@ -36,6 +37,15 @@ interface IDealChanged {
   salesDealListChanged: {
     action: string;
     deal: IDeal;
+  };
+}
+
+interface ISalesProductsDataChangedPayload {
+  salesProductsDataChanged: {
+    _id: string;
+    processId: string;
+    action: string;
+    data: any;
   };
 }
 
@@ -174,19 +184,44 @@ export const useDealDetail = (
   const passedId = options?.variables?._id;
   const finalId = passedId || salesItemId || activeDealId;
 
-  const { data, loading, error } = useQuery<{ dealDetail: IDeal }>(
-    GET_DEAL_DETAIL,
-    {
-      ...options,
-      variables: {
-        ...options?.variables,
-        _id: finalId,
-      },
-      skip: !finalId,
+  const { data, loading, error, subscribeToMore, refetch } = useQuery<{
+    dealDetail: IDeal;
+  }>(GET_DEAL_DETAIL, {
+    ...options,
+    variables: {
+      ...options?.variables,
+      _id: finalId,
     },
-  );
+    skip: !finalId,
+  });
 
-  return { deal: data?.dealDetail, loading, error };
+  useEffect(() => {
+    if (!salesItemId) return;
+
+    const unsubscribe = subscribeToMore<ISalesProductsDataChangedPayload>({
+      document: PRODUCTS_DATA_CHANGED,
+      variables: { _id: salesItemId },
+      updateQuery: (prev, { subscriptionData }) => {
+        const payload = subscriptionData?.data?.salesProductsDataChanged;
+        if (!payload) return prev;
+
+        const { processId } = payload;
+
+        if (processId === localStorage.getItem('processId')) {
+          return prev;
+        }
+
+        refetch();
+
+        return prev;
+      },
+    });
+
+    return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [salesItemId]);
+
+  return { deal: data?.dealDetail, loading, error, refetch };
 };
 
 export function useDealsEdit(options?: MutationHookOptions<any, any>) {
