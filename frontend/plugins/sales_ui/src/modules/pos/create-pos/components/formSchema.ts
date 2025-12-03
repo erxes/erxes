@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { DEFAULT_ALLOW_TYPE } from '../../constants';
 
 const uiOptionsSchema = z.object({
   colors: z.object({
@@ -15,17 +16,10 @@ const uiOptionsSchema = z.object({
   qrCodeImage: z.string().default(''),
 });
 
-const productDetailSchema = z.object({
-  excludedProductIds: z.array(z.string()).default([]),
-  excludedCategoryIds: z.array(z.string()).default([]),
-  categoryIds: z.array(z.string()).optional(),
-  isRequired: z.boolean().default(false),
-});
-
 const catProdMappingSchema = z.object({
   _id: z.string().optional(),
   categoryId: z.string(),
-  productId: z.string(),
+  productId: z.string().optional(),
   name: z.string().optional(),
   code: z.string().optional(),
 });
@@ -38,15 +32,42 @@ const paymentTypeSchema = z.object({
   config: z.string(),
 });
 
-export const screenConfigSchema = z.object({
-  kitchenScreenEnabled: z.boolean().default(false),
-  showTypes: z.string().default(''),
-  statusChange: z.string().default(''),
-  watchingScreenEnabled: z.boolean().default(false),
-  changeType: z.string().default(''),
-  changeCount: z.string().default(''),
-  contentUrl: z.string().default(''),
-  printEnabled: z.boolean().default(false),
+export const kitchenScreenConfigSchema = z.object({
+  isActive: z.boolean().default(false),
+  isPrint: z.boolean().optional(),
+  type: z.string().default(''),
+  value: z.number().default(0),
+  showType: z.string().optional(),
+});
+
+export const waitingScreenConfigSchema = z.object({
+  isActive: z.boolean().default(false),
+  type: z.string().default(''),
+  value: z.number().default(0),
+  contentUrl: z.string().optional(),
+});
+
+export const ebarimtConfigSchema = z.object({
+  companyName: z.string().default(''),
+  ebarimtUrl: z.string().default(''),
+  checkCompanyUrl: z.string().default(''),
+  hasVat: z.boolean().default(false),
+  hasCitytax: z.boolean().default(false),
+  defaultPay: z.string().default('debtAmount'),
+  districtCode: z.string().default(''),
+  companyRD: z.string().default(''),
+  defaultGSCode: z.string().default(''),
+  merchantTin: z.string().default(''),
+  posNo: z.string().default(''),
+  branchNo: z.string().default(''),
+  vatPercent: z.number().default(0),
+  cityTaxPercent: z.number().default(0),
+  headerText: z.string().default(''),
+  footerText: z.string().default(''),
+  hasCopy: z.boolean().default(false),
+  hasSumQty: z.boolean().default(false),
+  reverseVatRules: z.array(z.string()).optional(),
+  reverseCtaxRules: z.array(z.string()).optional(),
 });
 
 export const financeConfigSchema = z.object({
@@ -66,9 +87,10 @@ export const posDetailSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   adminIds: z.array(z.string()).min(1, 'At least one admin is required'),
   cashierIds: z.array(z.string()).min(1, 'At least one cashier is required'),
-  productDetails: z.array(productDetailSchema).default([]),
+  productDetails: z.array(z.string()).default([]),
   paymentIds: z.array(z.string()).default([]),
   paymentTypes: z.array(paymentTypeSchema).default([]),
+  erxesAppToken: z.string().optional(),
   uiOptions: uiOptionsSchema.default({
     colors: {
       bodyColor: '#FFFFFF',
@@ -94,10 +116,14 @@ export const posDetailSchema = z.object({
   checkRemainder: z.boolean().default(false),
   permissionConfig: z.record(z.any()).default({}),
   allowTypes: z
-    .array(z.enum(['eat', 'take', 'delivery']))
-    .default(['eat', 'take', 'delivery']),
+    .array(z.enum(['eat', 'take', 'delivery', 'loss', 'spend', 'reject']))
+    .default([DEFAULT_ALLOW_TYPE, 'take', 'delivery']),
   checkExcludeCategoryIds: z.array(z.string()).default([]),
+  isCheckRemainder: z.boolean().default(false),
+  banFractions: z.boolean().default(false),
   departmentId: z.string().optional(),
+  kitchenScreen: kitchenScreenConfigSchema.optional(),
+  waitingScreen: waitingScreenConfigSchema.optional(),
 });
 
 export type PosDetailFormValues = z.infer<typeof posDetailSchema>;
@@ -106,7 +132,7 @@ export const basicInfoSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().min(1, 'Description is required'),
   allowTypes: z
-    .array(z.enum(['eat', 'take', 'delivery']))
+    .array(z.enum(['eat', 'take', 'delivery', 'loss', 'spend', 'reject']))
     .min(1, 'At least one type is required'),
   scopeBrandIds: z.array(z.string()).default([]),
   branchId: z.string().optional(),
@@ -114,19 +140,27 @@ export const basicInfoSchema = z.object({
 });
 
 export const permissionSchema = z.object({
-  adminTeamMember: z.string().min(1, 'Admin team member is required'),
+  adminTeamMember: z.string().optional(),
   adminPrintTempBill: z.boolean().default(false),
   adminDirectSales: z.boolean().default(false),
   adminDirectDiscountLimit: z.string().default(''),
 
-  cashierTeamMember: z.string().min(1, 'Cashier team member is required'),
+  cashierTeamMember: z.string().optional(),
   cashierPrintTempBill: z.boolean().default(false),
   cashierDirectSales: z.boolean().default(false),
   cashierDirectDiscountLimit: z.string().default(''),
 
-  adminIds: z.array(z.string()).default([]),
-  cashierIds: z.array(z.string()).default([]),
+  adminIds: z.array(z.string()).min(1, 'At least one admin is required'),
+  cashierIds: z.array(z.string()).min(1, 'At least one cashier is required'),
   permissionConfig: z.record(z.any()).default({}),
+});
+
+const productGroupSchema = z.object({
+  name: z.string(),
+  description: z.string().optional(),
+  categoryIds: z.array(z.string()).optional(),
+  excludedCategoryIds: z.array(z.string()).optional(),
+  excludedProductIds: z.array(z.string()).optional(),
 });
 
 export const productSchema = z.object({
@@ -136,12 +170,15 @@ export const productSchema = z.object({
   kioskExcludeCategoryIds: z.array(z.string()).default([]),
   kioskExcludeProductIds: z.array(z.string()).default([]),
   checkExcludeCategoryIds: z.array(z.string()).default([]),
-  productGroups: z.array(productDetailSchema).default([]),
+  productGroups: z.array(productGroupSchema).default([]),
+  isCheckRemainder: z.boolean().default(false),
+  banFractions: z.boolean().default(false),
 });
 
 export const paymentSchema = z.object({
   paymentIds: z.array(z.string()).default([]),
   paymentTypes: z.array(paymentTypeSchema).default([]),
+  erxesAppToken: z.string().optional(),
 });
 
 export const uiConfigSchema = z.object({
@@ -155,6 +192,7 @@ export const deliveryConfigSchema = z.object({
   boardId: z.string().optional(),
   pipeline: z.string().optional(),
   stage: z.string().optional(),
+  mapField: z.string().optional(),
   watchedUsers: z.string().optional(),
   assignedUsers: z.string().optional(),
   deliveryProduct: z.string().optional(),
@@ -169,7 +207,13 @@ export type PaymentFormValues = z.infer<typeof paymentSchema>;
 export type UiConfigFormValues = z.infer<typeof uiConfigSchema>;
 export type DeliveryConfigFormValues = z.infer<typeof deliveryConfigSchema>;
 export type FinanceConfigFormValues = z.infer<typeof financeConfigSchema>;
-export type ScreenConfigFormValues = z.infer<typeof screenConfigSchema>;
+export type KitchenScreenConfigFormValues = z.infer<
+  typeof kitchenScreenConfigSchema
+>;
+export type WaitingScreenConfigFormValues = z.infer<
+  typeof waitingScreenConfigSchema
+>;
+export type EbarimtConfigFormValues = z.infer<typeof ebarimtConfigSchema>;
 
 export interface FormStepData {
   basicInfo?: BasicInfoFormValues;
@@ -179,7 +223,9 @@ export interface FormStepData {
   uiConfig?: UiConfigFormValues;
   deliveryConfig?: DeliveryConfigFormValues;
   financeConfig?: FinanceConfigFormValues;
-  screenConfig?: ScreenConfigFormValues;
+  kitchenScreen?: KitchenScreenConfigFormValues;
+  waitingScreen?: WaitingScreenConfigFormValues;
+  ebarimtConfig?: EbarimtConfigFormValues;
 }
 
 export const combineFormData = (
@@ -193,6 +239,8 @@ export const combineFormData = (
     ...stepData.uiConfig,
     ...stepData.deliveryConfig,
     ...stepData.financeConfig,
-    ...stepData.screenConfig,
+    ...stepData.kitchenScreen,
+    ...stepData.waitingScreen,
+    ...stepData.ebarimtConfig,
   };
 };
