@@ -1,0 +1,60 @@
+import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
+import { IContext } from '~/connectionResolvers';
+import { getRecords } from '~/modules/accounting/utils/journalReportRecs';
+import { groupRecords } from '~/modules/accounting/utils/journalReportGroup';
+
+export interface IReportFilterParams {
+  status?: string;
+  searchValue?: string;
+  number?: string;
+  ptrStatus?: string;
+
+  accountIds?: string[];
+  accountKind?: string;
+  accountExcludeIds?: boolean;
+  accountStatus?: string;
+  accountCategoryId?: string;
+  accountSearchValue?: string;
+  accountBrand?: string;
+  accountIsTemp?: boolean,
+  accountIsOutBalance?: boolean,
+  accountBranchId: string;
+  accountDepartmentId: string;
+  accountCurrency: string;
+  accountJournal: string;
+
+  brandId?: string;
+  isOutBalance?: boolean,
+  branchId?: string;
+  departmentId?: string;
+  currency?: string;
+  journal?: string;
+  journals?: string[];
+  statuses?: string[];
+
+  createdUserId?: string;
+  modifiedUserId?: string;
+  fromDate?: Date;
+  toDate?: Date;
+}
+
+interface IReportParams extends IReportFilterParams {
+  report: string;
+  groupRule: any;
+}
+
+const journalReportQueries = {
+  async journalReportData(
+    _root,
+    params: IReportParams & ICursorPaginateParams,
+    { models, user, subdomain }: IContext,
+  ) {
+    const { groupRule, report, ...filters } = params;
+    const records = await getRecords(subdomain, models, report, filters, user);
+
+    const grouped = await groupRecords(records, groupRule)
+    return { grouped };
+  },
+};
+
+export default journalReportQueries;

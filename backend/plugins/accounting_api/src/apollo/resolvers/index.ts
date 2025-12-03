@@ -23,6 +23,7 @@ import {
   Transactions as QueriesTransactions,
   Inventories as QueriesInventories,
   AdjustInventories as QueriesAdjustInventories,
+  JournalReport as QueriesJournalReport,
 } from '@/accounting/graphql/resolvers/queries';
 
 const resolvers: any = {
@@ -51,6 +52,7 @@ const resolvers: any = {
     ...QueriesTransactions,
     ...QueriesInventories,
     ...QueriesAdjustInventories,
+    ...QueriesJournalReport,
   },
 };
 

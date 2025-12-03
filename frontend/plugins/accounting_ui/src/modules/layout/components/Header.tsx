@@ -16,7 +16,7 @@ export const AccountingHeader = ({
   returnLink?: string;
   returnText?: string;
 }) => {
-  const to = returnLink || "/accounting"
+  const to = returnLink || "/accounting/main"
   return (
     <PageHeader>
       <PageHeader.Start>
