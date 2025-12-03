@@ -38,6 +38,7 @@ const CREATE_TICKET = gql`
       tagIds: $tagIds
     ) {
       _id
+      number
     }
   }
 `;
