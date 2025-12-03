@@ -72,14 +72,12 @@ class CategoryQueryResolver extends BaseQueryResolver {
 }
 
 const resolver = new CategoryQueryResolver({} as IContext);
-const queries: Record<string, Resolver> = {
+export const contentCmsCategoryQueries: Record<string, Resolver> = {
   cmsCategories: resolver.cmsCategories.bind(resolver),
   cmsCategory: resolver.cmsCategory.bind(resolver),
   cpCategories: resolver.cpCategories.bind(resolver),
 };
 
-queries.cpCategories.wrapperConfig = {
+contentCmsCategoryQueries.cpCategories.wrapperConfig = {
   forClientPortal: true,
 };
-
-export default queries;
