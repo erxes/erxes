@@ -8,6 +8,7 @@ import {
   IconCircleCheck,
   IconCircleDashedCheck,
   IconCircleX,
+  IconCopy,
 } from '@tabler/icons-react';
 import {
   Button,
@@ -21,8 +22,9 @@ import {
   Label,
   Textarea,
   cn,
+  Card,
 } from 'erxes-ui';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTicketProgressForms } from '../hooks/useTicketProgressForms';
 import { useForgotTicketNumber } from '../hooks/useForgotTicketNumber';
 import {
@@ -32,8 +34,8 @@ import {
 } from '../types';
 import { useGetTicketProgress } from '../hooks/useGetTicketProgress';
 import { SubmitHandler } from 'react-hook-form';
-import { useAtomValue } from 'jotai';
-import { ticketProgressAtom } from '../../states';
+import { useAtom, useAtomValue } from 'jotai';
+import { ticketProgressAtom, userTicketCreatedNumberAtom } from '../../states';
 import { format } from 'date-fns';
 
 export const TicketSubmissions = ({
@@ -42,6 +44,17 @@ export const TicketSubmissions = ({
   setPage: (page: 'submissions' | 'submit' | 'progress') => void;
 }) => {
   const ticketProgress = useAtomValue(ticketProgressAtom);
+  const [userTicketCreatedNumber, setUserTicketCreatedNumber] = useAtom(
+    userTicketCreatedNumberAtom,
+  );
+
+  useEffect(() => {
+    if (userTicketCreatedNumber) {
+      setTimeout(() => {
+        setUserTicketCreatedNumber(null);
+      }, 10000); // 10 seconds
+    }
+  }, [userTicketCreatedNumber]);
   return (
     <div className="w-full h-full flex flex-col gap-3 p-3">
       <div className="flex flex-col gap-2 flex-1 w-full h-full overflow-y-auto styled-scroll">
@@ -58,10 +71,14 @@ export const TicketSubmissions = ({
                   id="description"
                   readOnly
                   rows={3}
-                  value={
-                    JSON.parse(ticketProgress.description)?.[0]?.content?.[0]
-                      ?.text || ''
-                  }
+                  value={(() => {
+                    try {
+                      const parsed = JSON.parse(ticketProgress.description);
+                      return parsed?.[0]?.content?.[0]?.text || '';
+                    } catch {
+                      return ticketProgress.description || '';
+                    }
+                  })()}
                 />
               </div>
               <div>
@@ -97,6 +114,38 @@ export const TicketSubmissions = ({
           <IconPlus size={16} />
           Issue new ticket
         </Button>
+        {userTicketCreatedNumber && (
+          <div className="flex flex-col p-1">
+            <Card>
+              <Card.Header>
+                <Card.Title>Ticket Number</Card.Title>
+                <Card.Description>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="userTicketCreatedNumber"
+                      readOnly
+                      value={userTicketCreatedNumber}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => {
+                        navigator.clipboard.writeText(userTicketCreatedNumber);
+                        toast({
+                          title: 'Copied to clipboard',
+                          variant: 'success',
+                        });
+                      }}
+                    >
+                      <IconCopy size={16} />
+                    </Button>
+                  </div>
+                </Card.Description>
+              </Card.Header>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
