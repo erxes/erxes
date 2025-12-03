@@ -8,6 +8,7 @@ import { ChannelDetailBreadcrumb } from '@/channels/components/settings/breadcru
 import { PipelineDetailBreadcrumb } from '@/pipelines/components/PipelineDetailBreadcrumb';
 import { PipelineConfigBreadcrumb } from '@/pipelines/components/configs/components/PipelineConfigBreadcrumb';
 import { MembersBreadcrumb } from '../members/MembersBreadcrumb';
+import { ResponseDetailBreadcrumb } from '@/responseTemplate/components/ResponseDetailBreadcrumb';
 export const ChannelSettingsBreadcrumb = () => {
   const isMatchingLocation = useIsMatchingLocation(
     '/settings/frontline/channels',
@@ -26,6 +27,8 @@ export const ChannelSettingsBreadcrumb = () => {
         isMatchingLocation(FrontlinePaths.ChannelMembers) ||
         isMatchingLocation(FrontlinePaths.ChannelPipelines) ||
         isMatchingLocation(FrontlinePaths.PipelineDetail) ||
+        isMatchingLocation(FrontlinePaths.ChannelResponsePage) ||
+        isMatchingLocation(FrontlinePaths.ResponseDetail) ||
         isMatchingLocation(FrontlinePaths.TicketsConfigs)) && (
         <>
           <Separator.Inline />
@@ -61,6 +64,12 @@ export const ChannelSettingsBreadcrumb = () => {
         <>
           <Separator.Inline />
           <PipelineConfigBreadcrumb />
+        </>
+      )}
+      {isMatchingLocation(FrontlinePaths.ResponseDetail) && (
+        <>
+          <Separator.Inline />
+          <ResponseDetailBreadcrumb />
         </>
       )}
     </>

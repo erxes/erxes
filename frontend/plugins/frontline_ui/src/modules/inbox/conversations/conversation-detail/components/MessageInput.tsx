@@ -13,7 +13,6 @@ import {
   useUpload,
   toast,
   Input,
-  Label,
 } from 'erxes-ui';
 import {
   IconArrowUp,
@@ -21,6 +20,7 @@ import {
   IconX,
   IconCommand,
   IconCornerDownLeft,
+  IconMessage2,
 } from '@tabler/icons-react';
 import { useAtom, useAtomValue } from 'jotai';
 import { Block } from '@blocknote/core';
@@ -33,8 +33,13 @@ import {
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import { messageExtraInfoState } from '../states/messageExtraInfoState';
+import { ResponseTemplateSelector } from './ResponseTemplateSelector';
 
-export const MessageInput = ({ conversationId }: { conversationId: string }) => {
+export const MessageInput = ({
+  conversationId,
+}: {
+  conversationId: string;
+}) => {
   const [isInternalNote, setIsInternalNote] = useAtom(isInternalState);
   const onlyInternal = useAtomValue(onlyInternalState);
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
@@ -52,7 +57,6 @@ export const MessageInput = ({ conversationId }: { conversationId: string }) => 
     goBackToPreviousHotkeyScope,
   } = usePreviousHotkeyScope();
 
-  /** --- File Upload --- */
   const handleFileUpload = useCallback(
     (files: FileList) => {
       if (!files?.length) return;
@@ -89,6 +93,66 @@ export const MessageInput = ({ conversationId }: { conversationId: string }) => 
   const handleDeleteAttachment = (name: string) => {
     setAttachments((prev) => prev.filter((f) => f.name !== name));
     toast({ title: 'Attachment removed', variant: 'default' });
+  };
+
+  const stripHtml = (html: string): string => {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  };
+
+  const handleTemplateSelect = async (templateContent: string) => {
+    if (!editor) {
+      toast({
+        title: 'Editor not ready',
+        description: 'Please wait for the editor to initialize.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      let blocks;
+
+      try {
+        const parsed = JSON.parse(templateContent);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          blocks = parsed;
+        } else {
+          throw new Error('Invalid template format');
+        }
+      } catch (e) {
+        console.error('Error parsing template content:', e);
+
+        const cleanContent = stripHtml(templateContent)
+          .replace(/\s+/g, ' ')
+          .trim();
+        blocks = [
+          {
+            type: 'paragraph',
+            content: cleanContent,
+            props: {},
+          },
+        ];
+      }
+
+      const selection = editor.getSelection();
+      const currentBlock =
+        selection?.blocks?.[0] ||
+        editor.topLevelBlocks[editor.topLevelBlocks.length - 1];
+
+      await editor.insertBlocks(blocks, currentBlock, 'after');
+
+      await editor.focus();
+    } catch (error) {
+      console.error('Error inserting template:', error);
+      toast({
+        title: 'Failed to insert template',
+        description:
+          'There was an error inserting the template. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleChange = useCallback(async () => {
@@ -221,18 +285,33 @@ export const MessageInput = ({ conversationId }: { conversationId: string }) => 
             Internal Note
           </Toggle>
 
-          <Label htmlFor="file-upload">
-            <Button asChild size="icon" variant="outline" className="size-8">
-              <IconPaperclip />
+          <ResponseTemplateSelector onSelect={handleTemplateSelect}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+              type="button"
+            >
+              <IconMessage2 className="h-4 w-4" />
             </Button>
-          </Label>
-          <Input
-            id="file-upload"
-            type="file"
-            onChange={handleFileInput}
-            multiple
-            style={{ display: 'none' }}
-          />
+          </ResponseTemplateSelector>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+            onClick={() => document.getElementById('file-upload')?.click()}
+            type="button"
+          >
+            <IconPaperclip className="h-4 w-4" />
+            <Input
+              type="file"
+              id="file-upload"
+              className="hidden"
+              onChange={handleFileInput}
+              multiple
+            />
+          </Button>
 
           <Button
             size="lg"

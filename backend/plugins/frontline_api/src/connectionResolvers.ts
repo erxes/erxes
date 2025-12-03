@@ -162,6 +162,13 @@ import {
   ITicketConfigModel,
   loadTicketConfigClass,
 } from './modules/ticket/db/models/TicketConfig';
+
+import {
+  IResponseTemplateModel,
+  loadClass as loadResponseTemplateClass,
+} from '@/response/db/models/responseTemplates';
+import { IResponseTemplateDocument } from '@/response/@types/responseTemplates';
+
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -208,6 +215,9 @@ export interface IModels {
 
   MessengerApps: IMessengerAppModel;
   Configs: IConfigModel;
+
+  //response templates
+  ResponseTemplates: IResponseTemplateModel;
 }
 
 export interface IContext extends IMainContext {
@@ -221,6 +231,12 @@ export const loadClasses = (
   subdomain: string,
 ): IModels => {
   const models = {} as IModels;
+
+  //response templates
+  models.ResponseTemplates = db.model<
+    IResponseTemplateDocument,
+    IResponseTemplateModel
+  >('response_templates', loadResponseTemplateClass(models));
 
   //ticket
   models.Pipeline = db.model<ITicketPipelineDocument, ITicketPipelineModel>(
