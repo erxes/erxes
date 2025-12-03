@@ -4,6 +4,7 @@ import { XMLParser } from 'fast-xml-parser';
 import { ICallHistoryFilterOptions } from '@/integrations/call/@types/histories';
 import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import {
+  getQueueStatsByDateRange,
   mapCdrToCallHistory,
   sendToGrandStream,
 } from '@/integrations/call/utils';
@@ -522,227 +523,7 @@ const callQueries = {
       throw new Error('Failed to retrieve call history details');
     }
   },
-  async callGetOperatorStats(_, { startDate, endDate }, { models }: IContext) {
-    console.log('-------', typeof startDate, startDate);
-    // const stats = await models.CallCdrs.aggregate([
-    //   // STAGE 1: $match (Огноо, нөхцөлөөр шүүх)
-    //   {
-    //     $match: {
-    //       // Огноог query-ээс авна
-    //       start: { $gte: new Date(startDate) },
-    //       end: { $lte: new Date(endDate) },
 
-    //       // lastApp: "Queue" эсвэл "ReadExten" гэж өргөтгөж болно. Одоогоор "Queue"
-    //       lastApp: { $in: ['Queue'] },
-
-    //       // Операторын ID (dst) байгаа эсэх болон 18-аар эхэлсэн эсэхийг баталгаажуулах
-    //       dst: {
-    //         $exists: true,
-    //         $ne: '',
-    //       },
-    //     },
-    //   },
-
-    //   // STAGE 2: $group by uniqueId (Дуудлагын давхцлыг арилгах)
-    //   // Нэг uniqueId-тай дуудлагаас хамгийн сайн мэдээллийг авна.
-    //   {
-    //     $group: {
-    //       _id: '$uniqueId',
-
-    //       // Энэ дуудлагыг хүлээж авсан операторын ID-г хадгалах
-    //       operatorId: { $first: '$dst' },
-
-    //       // Disposition (Хариулт/Татгалзсан)
-    //       disposition: { $first: '$disposition' },
-    //     },
-    //   },
-
-    //   // STAGE 3: $group by operatorId (Эцсийн тооцоо)
-    //   // Одоо оператор бүрээр давхардаагүй дуудлагуудыг тоолно.
-    //   {
-    //     $group: {
-    //       _id: '$operatorId', // Операторын ID
-
-    //       totalCalls: { $sum: 1 }, // Unique дуудлагын нийт тоо
-
-    //       // ANSWERED бол 1-ээр нэмэгдэнэ
-    //       answeredCount: {
-    //         $sum: { $cond: [{ $eq: ['$disposition', 'ANSWERED'] }, 1, 0] },
-    //       },
-
-    //       // ANSWERED биш бол 1-ээр нэмэгдэнэ (Missed/No Answer)
-    //       missedCount: {
-    //         $sum: { $cond: [{ $ne: ['$disposition', 'ANSWERED'] }, 1, 0] },
-    //       },
-    //     },
-    //   },
-
-    //   // STAGE 4: $addFields (Нэмэлт талбар: Хариултын хувь - Answer Rate)
-    //   {
-    //     $addFields: {
-    //       answerRate: {
-    //         $round: [
-    //           {
-    //             $multiply: [
-    //               { $divide: ['$answeredCount', '$totalCalls'] },
-    //               100,
-    //             ],
-    //           },
-    //           2, // 2 оронгоор тоймлох
-    //         ],
-    //       },
-    //     },
-    //   },
-
-    //   // STAGE 5: $sort (Хамгийн их дуудлагатай оператороос эхлэн эрэмбэлэх)
-    //   { $sort: { totalCalls: -1 } },
-    // ]);
-    return await models.CallCdrs.aggregate([
-      {
-        $match: {
-          start: { $gte: new Date(startDate), $lte: new Date(endDate) },
-        },
-      },
-      {
-        $group: {
-          _id: {
-            // Агентыг тодорхойлох логик:
-            // Outbound бол src нь агент. Inbound бол dst нь агент.
-            agent: {
-              $cond: [{ $eq: ['$userfield', 'Outbound'] }, '$src', '$dst'],
-            },
-          },
-          totalIncoming: {
-            $sum: { $cond: [{ $eq: ['$userfield', 'Inbound'] }, 1, 0] },
-          },
-          incomingAnswered: {
-            $sum: {
-              $cond: [
-                {
-                  $and: [
-                    { $eq: ['$userfield', 'Inbound'] },
-                    { $eq: ['$disposition', 'ANSWERED'] },
-                  ],
-                },
-                1,
-                0,
-              ],
-            },
-          },
-          incomingMissed: {
-            $sum: {
-              $cond: [
-                {
-                  $and: [
-                    { $eq: ['$userfield', 'Inbound'] },
-                    { $ne: ['$disposition', 'ANSWERED'] },
-                  ],
-                },
-                1,
-                0,
-              ],
-            },
-          },
-          totalOutgoing: {
-            $sum: { $cond: [{ $eq: ['$userfield', 'Outbound'] }, 1, 0] },
-          },
-          outgoingAnswered: {
-            $sum: {
-              $cond: [
-                {
-                  $and: [
-                    { $eq: ['$userfield', 'Outbound'] },
-                    { $eq: ['$disposition', 'ANSWERED'] },
-                  ],
-                },
-                1,
-                0,
-              ],
-            },
-          },
-          totalTalkTime: { $sum: '$billsec' },
-        },
-      },
-      // Зөвхөн 4 оронтой тоо (Агент)-уудыг шүүж авах (Жишээ нь 1801, 1002 гэх мэт)
-      {
-        $addFields: {
-          // Agent ID-г string болгож, цэвэрлэх
-          cleanAgentId: {
-            $trim: { input: { $toString: '$_id.agent' } },
-          },
-        },
-      },
-      {
-        $match: {
-          // Цэвэрлэсэн ID нь 3 эсвэл 4 оронтой тоо байх
-          cleanAgentId: { $regex: '^[0-9]{3,4}$' },
-        },
-      },
-      {
-        $project: {
-          agent: '$cleanAgentId',
-          totalIncoming: 1,
-          incomingAnswered: 1,
-          incomingMissed: 1,
-          totalOutgoing: 1,
-          outgoingAnswered: 1,
-          totalTalkTime: 1,
-          _id: 0,
-        },
-      },
-    ]);
-  },
-  async agentKpiStatistics(_, { startDate, endDate }, { models }: IContext) {
-    const queryFilter = {
-      disposition: 'ANSWERED',
-      start: { $gte: new Date('2025-10-18'), $lte: '2025-10-19' },
-      dstchannelExt: { $exists: true },
-    };
-
-    const answeredCalls = await models.CallCdrs.find(queryFilter).lean();
-
-    const kpiMap = answeredCalls.reduce((acc, call) => {
-      const agentId = call.dstchannelExt;
-
-      // const startTime = new Date(call.start['$date']).getTime();
-      // const answerTime = new Date(call.answer['$date']).getTime();
-      // const timeToAnswer = (answerTime - startTime) / 1000; // Секундээр
-
-      if (!acc[agentId]) {
-        acc[agentId] = {
-          agentId: agentId.toString(),
-          totalCallsHandled: 0,
-          totalTalkTime: 0,
-          totalTimeToAnswer: 0,
-        };
-      }
-
-      acc[agentId].totalCallsHandled += 1;
-      acc[agentId].totalTalkTime += call.billsec;
-      // acc[agentId].totalTimeToAnswer += timeToAnswer;
-
-      return acc;
-    }, {});
-
-    const agentKPIs = Object.values(kpiMap).map((kpi: any) => {
-      const { totalCallsHandled, totalTalkTime } = kpi;
-
-      const averageHandleTime =
-        totalCallsHandled > 0 ? totalTalkTime / totalCallsHandled : 0;
-
-      // const averageSpeedOfAnswer =
-      //   totalCallsHandled > 0 ? totalTimeToAnswer / totalCallsHandled : 0;
-
-      return {
-        ...kpi,
-        averageHandleTime: parseFloat(averageHandleTime.toFixed(2)),
-        // averageSpeedOfAnswer: parseFloat(averageSpeedOfAnswer.toFixed(2)),
-        totalTalkTime: kpi.totalTalkTime, // Нийт ярьсан хугацаа (секунд)
-      };
-    });
-
-    return agentKPIs;
-  },
   async callGetAnwseredCalls(_args, { uniqueId }, { models }: IContext) {
     console.log('1...', typeof uniqueId);
 
@@ -752,6 +533,250 @@ const callQueries = {
     console.log('cdrs', cdrs);
 
     return cdrs;
+  },
+
+  async callGetQueueStats(
+    _args,
+    { startDate, endDate, queueId },
+    { models, user }: IContext,
+  ) {
+    const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
+      user._id,
+    );
+
+    const isContainsQueue = queueId && queues.includes(queueId);
+    if (!isContainsQueue && queueId) {
+      return [];
+    }
+    const matchStage = {
+      userfield: 'Inbound',
+      start: { $gte: new Date(startDate) },
+      end: { $lte: new Date(endDate) },
+    };
+
+    return await models.CallCdrs.aggregate([
+      {
+        $match: matchStage,
+      },
+
+      {
+        $addFields: {
+          queue: {
+            $cond: [
+              {
+                $regexMatch: {
+                  input: { $ifNull: ['$actionType', ''] },
+                  regex: /QUEUE\[/,
+                },
+              },
+              {
+                $arrayElemAt: [
+                  {
+                    $split: [
+                      {
+                        $arrayElemAt: [
+                          { $split: ['$actionType', 'QUEUE['] },
+                          1,
+                        ],
+                      },
+                      ']',
+                    ],
+                  },
+                  0,
+                ],
+              },
+              null,
+            ],
+          },
+        },
+      },
+
+      {
+        $match: {
+          queue: isContainsQueue ? queueId : { $in: queues },
+        },
+      },
+
+      {
+        $group: {
+          _id: { queue: '$queue', uniqueid: '$uniqueid' },
+          dispositions: { $addToSet: '$disposition' },
+          billsec: { $max: '$billsec' },
+          duration: { $max: '$duration' },
+          waitTime: { $max: '$waittime' },
+          lastapp: { $last: '$lastapp' },
+          dst: { $last: '$dst' },
+        },
+      },
+
+      {
+        $project: {
+          queue: '$_id.queue',
+          isAnswered: {
+            $and: [
+              { $in: ['ANSWERED', '$dispositions'] },
+              { $gt: ['$billsec', 0] },
+              {
+                $or: [
+                  { $eq: ['$lastapp', 'Queue'] },
+                  { $eq: ['$lastapp', 'Playback'] },
+                ],
+              },
+            ],
+          },
+          isAbandoned: {
+            $or: [
+              { $not: [{ $in: ['ANSWERED', '$dispositions'] }] },
+              {
+                $and: [
+                  { $in: ['ANSWERED', '$dispositions'] },
+                  { $eq: ['$billsec', 0] },
+                ],
+              },
+            ],
+          },
+
+          billsec: 1,
+          waitTime: { $ifNull: ['$waitTime', 0] },
+        },
+      },
+
+      {
+        $group: {
+          _id: '$queue',
+          totalCalls: { $sum: 1 },
+          answeredCalls: { $sum: { $cond: ['$isAnswered', 1, 0] } },
+          abandonedCalls: { $sum: { $cond: ['$isAbandoned', 1, 0] } },
+          totalWaitTime: {
+            $sum: {
+              $cond: ['$isAnswered', '$waitTime', 0],
+            },
+          },
+          totalTalkTime: {
+            $sum: {
+              $cond: ['$isAnswered', '$billsec', 0],
+            },
+          },
+        },
+      },
+
+      {
+        $project: {
+          queue: '$_id',
+          totalCalls: 1,
+          answeredCalls: 1,
+          answeredRate: {
+            $cond: [
+              { $gt: ['$totalCalls', 0] },
+              {
+                $round: [
+                  {
+                    $multiply: [
+                      { $divide: ['$answeredCalls', '$totalCalls'] },
+                      100,
+                    ],
+                  },
+                  2,
+                ],
+              },
+              0,
+            ],
+          },
+          abandonedCalls: 1,
+          abandonedRate: {
+            $cond: [
+              { $gt: ['$totalCalls', 0] },
+              {
+                $round: [
+                  {
+                    $multiply: [
+                      { $divide: ['$abandonedCalls', '$totalCalls'] },
+                      100,
+                    ],
+                  },
+                  2,
+                ],
+              },
+              0,
+            ],
+          },
+
+          averageWaitTime: {
+            $cond: [
+              { $gt: ['$answeredCalls', 0] },
+              {
+                $round: [{ $divide: ['$totalWaitTime', '$answeredCalls'] }, 2],
+              },
+              0,
+            ],
+          },
+          averageTalkTime: {
+            $cond: [
+              { $gt: ['$answeredCalls', 0] },
+              {
+                $round: [{ $divide: ['$totalTalkTime', '$answeredCalls'] }, 2],
+              },
+              0,
+            ],
+          },
+        },
+      },
+
+      { $sort: { queue: 1 } },
+    ]);
+
+    // const start = new Date(startDate);
+    // const end = new Date(endDate);
+
+    // const inboundCount = await getInboundStats(models, startDate, endDate);
+    // console.log(inboundCount, 'inbound count');
+
+    // const queueStat = await getQueueStatsByDateRange(
+    //   models,
+    //   startDate,
+    //   endDate,
+    // );
+    // console.log(queueStat, 'queue count');
+
+    // return queueStat;
+
+    // const as = await getDailyCallRecords(models, startDate, endDate);
+    // console.log(as, 'getDailyCallRecords');
+
+    //ENE BOLSON....
+    // const ans = await getAnsweredList(models, startDate, endDate);
+    // console.log(ans, 'ans count');
+    // return a;
+
+    //ENE BOLSON....
+    // const mis = await getMissedList(models, startDate, endDate);
+    // console.log(mis, 'mis count');
+
+    // const incomingUnique = await models.CallCdrs.distinct('uniqueid', {
+    //   start: { $gte: start },
+    //   end: { $lte: end },
+    //   userfield: 'Inbound',
+    // });
+    // const incomingCallTotalCount = incomingUnique.length;
+
+    // const outgoingCallTotalCount = await models.CallCdrs.find({
+    //   start: { $gte: new Date(startDate) },
+    //   end: { $lte: new Date(endDate) },
+    //   userfield: 'Outbound',
+    // }).countDocuments();
+
+    // const answeredCount = await models.CallCdrs.find({
+    //   start: { $gte: new Date(startDate) },
+    //   end: { $lte: new Date(endDate) },
+    //   disposition: 'ANSWERED',
+    //   userfield: 'Inbound',
+    // }).countDocuments();
+
+    // console.log({
+    //   incomingCallTotalCount,
+    //   outgoingCallTotalCount,
+    //   answeredCount,
+    // });
   },
 };
 markResolvers(callQueries, {

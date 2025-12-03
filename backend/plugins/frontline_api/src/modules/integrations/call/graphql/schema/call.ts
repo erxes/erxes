@@ -100,8 +100,6 @@ export const types = `
     avgtalktime: Int
     availablecount: Int
     agentcount: Int
-    transferoutcalls: Int
-    transferoutrate: String
   }
 
   type CallQueueStatistics {
@@ -116,8 +114,6 @@ export const types = `
     vqTotalCalls: Int
     slaRate: Float
     vqSlaRate: Float
-    transferOutCalls: Int
-    transferOutRate: Float
     abandonedRate: Float
     createdAt: String
     updatedAt: String
@@ -162,52 +158,19 @@ export const types = `
     user: User
   }
 
-    type OperatorStats {
-    operatorId: String
-    totalCalls: Int
-    answeredCount: Int
-    missedCount: Int
-    answerRate: Float
+  type QueueStats {
+    queue: String!
+    totalCalls: Int!
+    answeredCalls: Int!
+    answeredRate: Float!
+    abandonedCalls: Int!
+    abandonedRate: Float!
+    averageWaitTime: Float!
+    averageTalkTime: Float!
   }
 
-  type CallLog {
-    _id: ID
-    src: String
-    dst: String
-    start: Date
-    duration: Int
-    disposition: String
-  }
-
-  type PaginatedCallLogs {
-    calls: [CallLog]
-    totalCount: Int  
-    totalPages: Int
-  }
-
-  input CallLogFilter {
-    startDate: Date!
-    endDate: Date!
-    operatorId: String 
-    status: String
-  }
-    type AgentStat {
-    agent: String
-    totalIncoming: Int
-    incomingAnswered: Int
-    incomingMissed: Int
-    totalOutgoing: Int
-    outgoingAnswered: Int
-    totalTalkTime: Int
-  }
-    type AgentKPI {
-  agentId: ID! # Агентын ID
-  totalCallsHandled: Int!
-  totalTalkTime: Int!
-  averageHandleTime: Float! 
-}
   type CallCdr {
-  conversationId: String
+    conversationId: String
   AcctId: String
   src: String
   dst: String
@@ -312,11 +275,7 @@ export const queries = `
 
   callConversationNotes(conversationId: String! getFirst: Boolean, ${pageParams}): [CallConversationNotes]
   callHistoryDetail(_id: String, conversationId: String): CallHistory
-  callGetOperatorStats(startDate: Date!, endDate: Date!): [OperatorStats]
-agentKpiStatistics: [AgentKPI]  
-  callGetAnwseredCalls(uniqueId: String): [CallCdr]
-    callCalculateServiceLevel(queue: String): String
-
+  callGetQueueStats(startDate: String!, endDate: String!, queueId: String): [QueueStats!]!
 `;
 
 export const mutations = `

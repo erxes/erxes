@@ -13,6 +13,7 @@ export interface ICallIntegrationModel extends Model<ICallIntegrationDocument> {
     userId: string,
     integrationId?: string,
   ): Promise<ICallIntegrationDocument>;
+  getIntegrationQueuesByUser(userId: string);
 }
 
 export const loadCallIntegrationClass = (models: IModels) => {
@@ -49,6 +50,17 @@ export const loadCallIntegrationClass = (models: IModels) => {
       }
 
       return integration;
+    }
+    public static async getIntegrationQueuesByUser(userId: string) {
+      const integration = await models.CallIntegrations.findOne({
+        'operators.userId': userId,
+      });
+
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
+      console.log(integration, 'integration');
+      return integration.queues || [];
     }
   }
 

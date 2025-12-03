@@ -992,3 +992,495 @@ export const mapCdrToCallHistory = (
     acctId: cdr.acctId || '',
   };
 };
+
+export async function getInboundStats(models, startDate, endDate) {
+  const data = await models.CallCdrs.aggregate([
+    {
+      $match: {
+        start: { $gte: new Date(startDate) },
+        end: { $lte: new Date(endDate) },
+        userfield: 'Inbound',
+      },
+    },
+    {
+      $group: {
+        _id: '$uniqueid',
+        dispositions: { $addToSet: '$disposition' },
+      },
+    },
+    {
+      $project: {
+        isAnswered: { $in: ['ANSWERED', '$dispositions'] },
+        isFailed: {
+          $anyElementTrue: {
+            $map: {
+              input: '$dispositions',
+              as: 'd',
+              in: {
+                $in: ['$d', ['FAILED', 'BUSY', 'CONGESTION', 'CHANUNAVAIL']],
+              },
+            },
+          },
+        },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalInbound: { $sum: 1 },
+        answered: { $sum: { $cond: ['$isAnswered', 1, 0] } },
+        failed: { $sum: { $cond: ['$isFailed', 1, 0] } },
+        missed: {
+          $sum: {
+            $cond: [
+              { $and: [{ $not: ['$isAnswered'] }, { $not: ['$isFailed'] }] },
+              1,
+              0,
+            ],
+          },
+        },
+      },
+    },
+  ]);
+
+  return data[0];
+}
+
+export async function getQueueStatsByDateRange(
+  models,
+  startDate,
+  endDate,
+  queueId = null,
+) {
+  const matchStage = {
+    userfield: 'Inbound',
+    start: { $gte: new Date(startDate) },
+    end: { $lte: new Date(endDate) },
+  };
+
+  const data = await models.CallCdrs.aggregate([
+    {
+      $match: matchStage,
+    },
+
+    {
+      $addFields: {
+        queue: {
+          $cond: [
+            {
+              $regexMatch: {
+                input: { $ifNull: ['$actionType', ''] },
+                regex: /QUEUE\[/,
+              },
+            },
+            {
+              $arrayElemAt: [
+                {
+                  $split: [
+                    {
+                      $arrayElemAt: [{ $split: ['$actionType', 'QUEUE['] }, 1],
+                    },
+                    ']',
+                  ],
+                },
+                0,
+              ],
+            },
+            null,
+          ],
+        },
+      },
+    },
+
+    {
+      $match: {
+        queue: queueId ? queueId : { $ne: null },
+      },
+    },
+
+    {
+      $group: {
+        _id: { queue: '$queue', uniqueid: '$uniqueid' },
+        dispositions: { $addToSet: '$disposition' },
+        billsec: { $max: '$billsec' },
+        duration: { $max: '$duration' },
+        waitTime: { $max: '$waittime' },
+        lastapp: { $last: '$lastapp' },
+        dst: { $last: '$dst' },
+      },
+    },
+
+    {
+      $project: {
+        queue: '$_id.queue',
+        isAnswered: {
+          $and: [
+            { $in: ['ANSWERED', '$dispositions'] },
+            { $gt: ['$billsec', 0] },
+            {
+              $or: [
+                { $eq: ['$lastapp', 'Queue'] },
+                { $eq: ['$lastapp', 'Playback'] },
+              ],
+            },
+          ],
+        },
+        isAbandoned: {
+          $or: [
+            { $not: [{ $in: ['ANSWERED', '$dispositions'] }] },
+            {
+              $and: [
+                { $in: ['ANSWERED', '$dispositions'] },
+                { $eq: ['$billsec', 0] },
+              ],
+            },
+          ],
+        },
+
+        billsec: 1,
+        waitTime: { $ifNull: ['$waitTime', 0] },
+      },
+    },
+
+    {
+      $group: {
+        _id: '$queue',
+        totalCalls: { $sum: 1 },
+        answeredCalls: { $sum: { $cond: ['$isAnswered', 1, 0] } },
+        abandonedCalls: { $sum: { $cond: ['$isAbandoned', 1, 0] } },
+        totalWaitTime: {
+          $sum: {
+            $cond: ['$isAnswered', '$waitTime', 0],
+          },
+        },
+        totalTalkTime: {
+          $sum: {
+            $cond: ['$isAnswered', '$billsec', 0],
+          },
+        },
+      },
+    },
+
+    {
+      $project: {
+        queue: '$_id',
+        totalCalls: 1,
+        answeredCalls: 1,
+        answeredRate: {
+          $cond: [
+            { $gt: ['$totalCalls', 0] },
+            {
+              $round: [
+                {
+                  $multiply: [
+                    { $divide: ['$answeredCalls', '$totalCalls'] },
+                    100,
+                  ],
+                },
+                2,
+              ],
+            },
+            0,
+          ],
+        },
+        abandonedCalls: 1,
+        abandonedRate: {
+          $cond: [
+            { $gt: ['$totalCalls', 0] },
+            {
+              $round: [
+                {
+                  $multiply: [
+                    { $divide: ['$abandonedCalls', '$totalCalls'] },
+                    100,
+                  ],
+                },
+                2,
+              ],
+            },
+            0,
+          ],
+        },
+
+        averageWaitTime: {
+          $cond: [
+            { $gt: ['$answeredCalls', 0] },
+            { $round: [{ $divide: ['$totalWaitTime', '$answeredCalls'] }, 2] },
+            0,
+          ],
+        },
+        averageTalkTime: {
+          $cond: [
+            { $gt: ['$answeredCalls', 0] },
+            { $round: [{ $divide: ['$totalTalkTime', '$answeredCalls'] }, 2] },
+            0,
+          ],
+        },
+      },
+    },
+
+    { $sort: { queue: 1 } },
+  ]);
+
+  return data;
+}
+
+export async function getDailyCallRecords(models, startDate, endDate) {
+  return await models.CallCdrs.aggregate([
+    {
+      $match: {
+        start: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+      },
+    },
+
+    /** Queue ID салгаж авах (QUEUE[x]) */
+    {
+      $addFields: {
+        queue: {
+          $cond: [
+            { $regexMatch: { input: '$actionType', regex: /QUEUE\[/ } },
+            {
+              $arrayElemAt: [
+                {
+                  $split: [
+                    {
+                      $arrayElemAt: [{ $split: ['$actionType', 'QUEUE['] }, 1],
+                    },
+                    ']',
+                  ],
+                },
+                0,
+              ],
+            },
+            null,
+          ],
+        },
+      },
+    },
+    {
+      $match: {
+        queue: '6502',
+        disposition: { $ne: 'ANSWERED' },
+        billsec: { $eq: 0 },
+      },
+    },
+
+    /** Дуудлага тус бүрээр бүлэглэх */
+    {
+      $group: {
+        _id: '$uniqueid',
+
+        src: { $first: '$src' },
+        dst: { $first: '$dst' },
+        userfield: { $first: '$userfield' },
+        callerName: { $first: '$callerName' },
+
+        start: { $first: '$start' },
+        end: { $max: '$end' },
+
+        totalDuration: { $sum: '$duration' },
+        totalBillsec: { $sum: '$billsec' },
+
+        dispositions: { $addToSet: '$disposition' },
+
+        queues: { $addToSet: '$queue' },
+
+        cdrList: { $push: '$$ROOT' },
+      },
+    },
+
+    /** Дуудлагын финал disposition */
+    {
+      $addFields: {
+        finalDisposition: {
+          $cond: [
+            { $in: ['ANSWERED', '$dispositions'] },
+            'ANSWERED',
+            {
+              $cond: [
+                { $in: ['NO ANSWER', '$dispositions'] },
+                'NO ANSWER',
+                {
+                  $cond: [
+                    { $in: ['BUSY', '$dispositions'] },
+                    'BUSY',
+                    'UNKNOWN',
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      },
+    },
+
+    /** Queue жагсаалтыг цэвэрлэх */
+    {
+      $addFields: {
+        queues: {
+          $filter: {
+            input: '$queues',
+            as: 'q',
+            cond: { $ne: ['$$q', null] },
+          },
+        },
+        firstQueue: {
+          $arrayElemAt: [
+            {
+              $filter: {
+                input: '$queues',
+                as: 'x',
+                cond: { $ne: ['$$x', null] },
+              },
+            },
+            0,
+          ],
+        },
+      },
+    },
+
+    { $sort: { start: 1 } },
+  ]);
+}
+
+export async function getAnsweredList(
+  models,
+  startDate,
+  endDate,
+  queueId = '6500',
+) {
+  return await models.CallCdrs.aggregate([
+    {
+      $match: {
+        start: { $gte: new Date(startDate), $lte: new Date(endDate) },
+      },
+    },
+
+    // Queue салгаж авах
+    {
+      $addFields: {
+        queue: {
+          $cond: [
+            { $regexMatch: { input: '$actionType', regex: /QUEUE\[/ } },
+            {
+              $arrayElemAt: [
+                {
+                  $split: [
+                    {
+                      $arrayElemAt: [{ $split: ['$actionType', 'QUEUE['] }, 1],
+                    },
+                    ']',
+                  ],
+                },
+                0,
+              ],
+            },
+            null,
+          ],
+        },
+      },
+    },
+
+    // Зөвхөн queue 6502
+    {
+      $match: {
+        queue: queueId,
+        // disposition: { $eq: 'ANSWERED' },
+        // billsec: { $gte: 0 },
+        // lastapp: 'Queue',
+      },
+    },
+
+    // Unique call-р бүлэглэх
+    {
+      $group: {
+        _id: '$uniqueid',
+        src: { $first: '$src' },
+        dst: { $first: '$dst' },
+        start: { $first: '$start' },
+        end: { $max: '$end' },
+        billsec: { $sum: '$billsec' },
+        dispositions: { $addToSet: '$disposition' },
+        cdrList: { $push: '$$ROOT' },
+      },
+    },
+
+    // Хариулсан дуудлагууд
+    {
+      $match: { dispositions: 'ANSWERED' },
+    },
+
+    { $sort: { start: 1 } },
+  ]);
+}
+
+export async function getMissedList(
+  models,
+  startDate,
+  endDate,
+  queueId = '6501',
+) {
+  return await models.CallCdrs.aggregate([
+    {
+      $match: {
+        start: { $gte: new Date(startDate), $lte: new Date(endDate) },
+      },
+    },
+
+    {
+      $addFields: {
+        queue: {
+          $cond: [
+            { $regexMatch: { input: '$actionType', regex: /QUEUE\[/ } },
+            {
+              $arrayElemAt: [
+                {
+                  $split: [
+                    {
+                      $arrayElemAt: [{ $split: ['$actionType', 'QUEUE['] }, 1],
+                    },
+                    ']',
+                  ],
+                },
+                0,
+              ],
+            },
+            null,
+          ],
+        },
+      },
+    },
+
+    { $match: { queue: queueId } },
+
+    {
+      $group: {
+        _id: '$uniqueid',
+        src: { $first: '$src' },
+        dst: { $first: '$dst' },
+        start: { $first: '$start' },
+        end: { $max: '$end' },
+        dispositions: { $addToSet: '$disposition' },
+        billsec: { $max: '$billsec' },
+        cdrList: { $push: '$$ROOT' },
+      },
+    },
+
+    {
+      $match: {
+        $or: [
+          { dispositions: { $nin: ['ANSWERED'] } },
+          {
+            dispositions: { $in: ['ANSWERED'] },
+            billsec: { $eq: 0 },
+          },
+        ],
+      },
+    },
+
+    { $sort: { start: 1 } },
+  ]);
+}
