@@ -19,11 +19,11 @@ interface GroupRule {
   group_rule?: GroupRule | null; // sub group rule
 }
 
-function toGroup(
+const toGroup = async (
   resultDic: AnyDict,
   groupRuleItems: AnyDict[],
   groupRule: GroupRule
-) {
+) => {
   // iterate over rows to group
   for (const item of groupRuleItems) {
     const groupKey = item[groupRule.group];
@@ -60,7 +60,7 @@ function toGroup(
   // if sub-group rule exists, recursively call
   if (groupRule.group_rule?.key) {
     for (const key of Object.keys(resultDic)) {
-      toGroup(
+      await toGroup(
         resultDic[key][groupRule.group_rule.key],
         resultDic[key]["items"],
         groupRule.group_rule

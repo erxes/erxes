@@ -3,10 +3,7 @@ import {
   ICursorListResponse,
   parseDateRangeFromString,
   useMultiQueryState,
-  useRecordTableCursor,
 } from 'erxes-ui';
-import { ACCTRANSACTIONS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
-import { ACC_TRS__PER_PAGE } from '~/modules/transactions/types/constants';
 import { trsQueryParamTypes } from '~/modules/transactions/types/Transaction';
 import { IJournalReport } from '../types/journalReport';
 import { GroupRules } from '../types/reportsMap';

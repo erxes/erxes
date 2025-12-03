@@ -13,7 +13,7 @@ export const ReportsList = () => {
   return (
     <ul>
       {AllReportsMap.map((report) => (
-        <li>
+        <li key={report.key}>
           <IconReport />
           <Button variant="ghost" className={cn(activeReport === report.key && 'text-primary')} onClick={() => setActiveReport(report.key)}>
             {report.title}
