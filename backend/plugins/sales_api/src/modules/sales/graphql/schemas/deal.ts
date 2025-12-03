@@ -157,7 +157,7 @@ export const types = `
   }
   type DealProductsDataChangeResponse {
     _id: String
-    proccessId: String
+    processId: String
     action: String
     data: JSON
   }
