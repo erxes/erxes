@@ -8,8 +8,11 @@ import { ChannelDetailBreadcrumb } from '@/channels/components/settings/breadcru
 import { PipelineDetailBreadcrumb } from '@/pipelines/components/PipelineDetailBreadcrumb';
 import { PipelineConfigBreadcrumb } from '@/pipelines/components/configs/components/PipelineConfigBreadcrumb';
 import { MembersBreadcrumb } from '../members/MembersBreadcrumb';
+<<<<<<<<< Temporary merge branch 1
 import { TicketStatusesBreadcrumb } from '@/status/components/TicketStatusesBreadcrumb';
+=========
 import { ResponseDetailBreadcrumb } from '@/responseTemplate/components/ResponseDetailBreadcrumb';
+>>>>>>>>> Temporary merge branch 2
 export const ChannelSettingsBreadcrumb = () => {
   const isMatchingLocation = useIsMatchingLocation(
     '/settings/frontline/channels',
@@ -28,9 +31,14 @@ export const ChannelSettingsBreadcrumb = () => {
         isMatchingLocation(FrontlinePaths.ChannelMembers) ||
         isMatchingLocation(FrontlinePaths.ChannelPipelines) ||
         isMatchingLocation(FrontlinePaths.PipelineDetail) ||
+<<<<<<<<< Temporary merge branch 1
         isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
-        isMatchingLocation(FrontlinePaths.ResponseDetail) ||
         isMatchingLocation(FrontlinePaths.TicketsStatuses)) && (
+=========
+        isMatchingLocation(FrontlinePaths.ChannelResponsePage) ||
+        isMatchingLocation(FrontlinePaths.ResponseDetail) ||
+        isMatchingLocation(FrontlinePaths.TicketsConfigs)) && (
+>>>>>>>>> Temporary merge branch 2
         <>
           <Separator.Inline />
           <ChannelDetailBreadcrumb />
@@ -69,16 +77,17 @@ export const ChannelSettingsBreadcrumb = () => {
           <PipelineConfigBreadcrumb />
         </>
       )}
+<<<<<<<<< Temporary merge branch 1
       {isMatchingLocation(FrontlinePaths.TicketsStatuses) && (
         <>
           <Separator.Inline />
           <TicketStatusesBreadcrumb />
-        </>
-      )}
+=========
       {isMatchingLocation(FrontlinePaths.ResponseDetail) && (
         <>
           <Separator.Inline />
           <ResponseDetailBreadcrumb />
+>>>>>>>>> Temporary merge branch 2
         </>
       )}
     </>
