@@ -86,6 +86,15 @@ export const cpUserSchema = new Schema({
     optional: true,
     label: 'First name',
   },
+
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+
+  verificationCode: { type: Number, optional: true },
+  verificationCodeExpires: { type: Date, optional: true },
+
   secondaryPassword: { type: String, optional: true },
   lastName: { type: String, optional: true, label: 'Last name' },
   companyName: {

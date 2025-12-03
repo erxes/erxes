@@ -1,103 +1,126 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/client';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   connectionAtom,
+  hasTicketConfigAtom,
   integrationIdAtom,
+  messengerDataAtom,
   ticketConfigAtom,
   uiOptionsAtom,
 } from '../states';
 import {
   IConnectionInfo,
+  ICustomerData,
   ITicketConfig,
   IWidgetUiOptions,
 } from '../types/connection';
-import { getLocalStorageItem, getErxesSettings } from '@libs/utils';
+import { getLocalStorageItem, setLocalStorageItem } from '@libs/utils';
 import { applyUiOptionsToTailwind } from '@libs/tw-utils';
 import { useSaveBrowserInfo } from './useSaveBrowserInfo';
 import { connect } from '../graphql';
+import { customerDataAtom, customerIdAtom } from '../states';
 
 interface connectionProps {
-  isCloudFlareEnabled?: boolean;
   integrationId: string;
 }
 
-export const useConnect = ({
-  isCloudFlareEnabled = false,
-  integrationId,
-}: connectionProps) => {
+export const useConnect = ({ integrationId }: connectionProps) => {
   const setConnection = useSetAtom(connectionAtom);
   const setIntegrationId = useSetAtom(integrationIdAtom);
+  const messengerData = useAtomValue(messengerDataAtom);
   const setUiOptions = useSetAtom(uiOptionsAtom);
   const setTicketConfig = useSetAtom(ticketConfigAtom);
-  const cachedCustomerId = getLocalStorageItem('customerId');
+  const setHasTicketConfig = useSetAtom(hasTicketConfigAtom);
+  const setCustomerId = useSetAtom(customerIdAtom);
+  const setCustomerData = useSetAtom(customerDataAtom);
+  const connectionKeyRef = useRef<string>('');
+  const isConnectingRef = useRef(false);
 
   // Call useSaveBrowserInfo hook
   useSaveBrowserInfo();
 
-  const [connectMutation, { data, loading, error }] = useMutation(
-    connect(isCloudFlareEnabled),
-    {
-      onCompleted: (response) => {
-        const connectionData = response?.widgetsMessengerConnect;
-        if (connectionData) {
-          setConnection((prev: IConnectionInfo) => ({
-            ...prev,
-            widgetsMessengerConnect: {
-              ...prev.widgetsMessengerConnect,
-              visitorId: connectionData.visitorId,
-              customerId: connectionData.customerId,
-              messengerData: connectionData.messengerData,
-              uiOptions: connectionData.uiOptions,
-            },
-          }));
-          setIntegrationId(connectionData.integrationId);
-          setUiOptions(connectionData.uiOptions as IWidgetUiOptions);
-          setTicketConfig(connectionData.ticketConfig as ITicketConfig);
-          // Apply uiOptions to Tailwind CSS
-          if (connectionData.uiOptions) {
-            applyUiOptionsToTailwind(connectionData.uiOptions);
-          }
+  const [connectMutation, { data, loading, error }] = useMutation(connect(), {
+    onCompleted: (response) => {
+      isConnectingRef.current = false;
+      const connectionData = response?.widgetsMessengerConnect;
+      if (connectionData) {
+        setConnection((prev: IConnectionInfo) => ({
+          ...prev,
+          widgetsMessengerConnect: {
+            ...prev.widgetsMessengerConnect,
+            visitorId: connectionData.visitorId,
+            customerId: connectionData.customerId,
+            messengerData: connectionData.messengerData,
+            uiOptions: connectionData.uiOptions,
+          },
+        }));
+        if (connectionData.customerId) {
+          setLocalStorageItem('customerId', connectionData.customerId);
+          setCustomerId(connectionData.customerId);
         }
-      },
-      onError: () => {
-        // Error is handled through the error return value
-      },
+        setIntegrationId(connectionData.integrationId);
+        setUiOptions(connectionData.uiOptions as IWidgetUiOptions);
+        setTicketConfig(connectionData.ticketConfig as ITicketConfig);
+        setHasTicketConfig(!!connectionData.ticketConfig);
+        // Apply uiOptions to Tailwind CSS
+        if (connectionData.uiOptions) {
+          applyUiOptionsToTailwind(connectionData.uiOptions);
+        }
+        if (connectionData.customer) {
+          setCustomerData(connectionData.customer as ICustomerData);
+        }
+      }
     },
-  );
+    onError: () => {
+      isConnectingRef.current = false;
+      // Error is handled through the error return value
+    },
+  });
 
   useEffect(() => {
     const executeConnection = async () => {
-      if (!integrationId) return;
+      if (!integrationId || isConnectingRef.current) return;
+
+      // Only integrationId is essential for connection - other fields are optional
+      // Only connect if integrationId has changed
+      if (connectionKeyRef.current === integrationId) {
+        return;
+      }
+
+      // Update ref before making the call
+      connectionKeyRef.current = integrationId;
+      isConnectingRef.current = true;
+
+      // Get fresh values from messengerData and localStorage
+      const currentCachedCustomerId = getLocalStorageItem('customerId');
+      const email = messengerData?.email;
+      const phone = messengerData?.phone;
+      const code = messengerData?.code;
+      const customData = messengerData?.data;
+      const companyData = messengerData?.companyData;
 
       let visitorId;
 
-      // if (!cachedCustomerId) {
       const { getVisitorId } = await import('@libs/utils');
-
       visitorId = await getVisitorId();
-      // }
-
-      const erxesSettings = getErxesSettings();
-      const messengerSettings = erxesSettings?.messenger;
-      const { email, phone, code, data, companyData } = messengerSettings || {};
 
       const variables = email
         ? {
             integrationId,
-            visitorId: null,
-            cachedCustomerId: cachedCustomerId || undefined,
-            email,
+            visitorId: visitorId || null,
+            cachedCustomerId: currentCachedCustomerId || undefined,
             isUser: true,
+            email,
             phone,
             code,
-            data,
+            data: customData,
             companyData,
           }
         : {
             integrationId,
             visitorId,
-            cachedCustomerId: cachedCustomerId || undefined,
+            cachedCustomerId: currentCachedCustomerId || undefined,
             isUser: false,
           };
 
@@ -105,11 +128,13 @@ export const useConnect = ({
     };
 
     executeConnection();
-  }, [isCloudFlareEnabled, integrationId, cachedCustomerId, connectMutation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [integrationId]);
 
   return {
     result: data,
     loading,
     error,
+    connectMutation,
   };
 };

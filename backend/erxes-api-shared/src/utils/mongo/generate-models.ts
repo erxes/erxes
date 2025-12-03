@@ -3,8 +3,7 @@ import {
   coreModelOrganizations,
   getSaasCoreConnection,
 } from '../saas/saas-mongo-connection';
-import { isEnabled } from '../service-discovery';
-import { checkServiceRunning, getEnv, getSubdomain } from '../utils';
+import { getEnv, getSubdomain } from '../utils';
 import { startChangeStreams } from './change-stream';
 import { connect } from './mongo-connection';
 

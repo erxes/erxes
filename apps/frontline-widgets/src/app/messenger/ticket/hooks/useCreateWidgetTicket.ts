@@ -3,6 +3,7 @@ import { useMutation } from '@apollo/client';
 
 export const useCreateWidgetTicket = () => {
   const [createTicket, { loading, error }] = useMutation(CREATE_TICKET);
+
   const [
     saveTicketCustomers,
     { loading: saveTicketCustomersLoading, error: saveTicketCustomersError },

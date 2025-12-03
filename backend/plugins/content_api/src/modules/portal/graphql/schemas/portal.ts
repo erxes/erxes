@@ -153,7 +153,7 @@ type ClientPortal {
     otpConfig: OTPConfig
     twoFactorConfig: TwoFactorConfig
 
-    mailConfig: MailConfig
+    verificationMailConfig: MailConfig
     manualVerificationConfig: ManualVerificationConfig
     passwordVerificationConfig: PasswordVerificationConfig
 
@@ -333,7 +333,7 @@ input OTPConfigInput {
 
     otpConfig: OTPConfigInput
     twoFactorConfig:TwoFactorConfigInput
-    mailConfig: MailConfigInput
+    verificationMailConfig: MailConfigInput
     manualVerificationConfig: JSON
     passwordVerificationConfig: JSON
     tokenPassMethod: TokenPassMethod

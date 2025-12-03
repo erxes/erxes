@@ -1,14 +1,15 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { TicketForm } from './ticket-form';
 import { TicketSubmissions } from './ticket-submissions';
 import { NotifyCustomerForm } from './notify-customer-form';
-import { getLocalStorageItem } from '@libs/utils';
+import { useCustomerData } from '../../hooks/useCustomerData';
 
 export const Ticket = () => {
-  const erxes = JSON.parse(getLocalStorageItem('erxes') ?? '{}');
-  const [page, setPage] = useState<'submissions' | 'submit'>('submit');
-
-  if (!erxes || Object.keys(erxes).length === 0)
+  const { hasEmailOrPhone } = useCustomerData();
+  const [page, setPage] = useState<'submissions' | 'submit' | 'progress'>(
+    'submissions',
+  );
+  if (!hasEmailOrPhone)
     return <NotifyCustomerForm onSuccess={() => setPage('submit')} />;
 
   const renderPage = () => {
