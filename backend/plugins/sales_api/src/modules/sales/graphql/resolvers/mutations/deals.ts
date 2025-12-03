@@ -18,6 +18,7 @@ import {
   subscriptionWrapper,
 } from '../utils';
 import { addDeal, editDeal } from './utils';
+import { graphqlPubsub } from 'erxes-api-shared/utils';
 
 export const dealMutations = {
   /**
@@ -341,36 +342,37 @@ export const dealMutations = {
       addDocs,
     );
 
-    const updatedItem = await models.Deals.findOneAndUpdate(
-      { _id: dealId },
-      {
-        $set: {
-          productsData,
-          assignedUserIds,
-          ...(await getTotalAmounts(productsData)),
+    const updatedItem =
+      (await models.Deals.findOneAndUpdate(
+        { _id: dealId },
+        {
+          $set: {
+            productsData,
+            assignedUserIds,
+            ...(await getTotalAmounts(productsData)),
+          },
         },
-      },
-      {
-        new: true
-      }
-    ) || {} as any;
+        {
+          new: true,
+        },
+      )) || ({} as any);
 
     const dataIds = (updatedItem.productsData || [])
       .filter((pd) => !oldDataIds.includes(pd._id))
       .map((pd) => pd._id);
 
-    // graphqlPubsub.publish(`salesProductsDataChanged:${dealId}`, {
-    //   salesProductsDataChanged: {
-    //     _id: dealId,
-    //     processId,
-    //     action: 'create',
-    //     data: {
-    //       dataIds,
-    //       docs,
-    //       productsData,
-    //     },
-    //   },
-    // });
+    graphqlPubsub.publish(`salesProductsDataChanged:${dealId}`, {
+      salesProductsDataChanged: {
+        _id: dealId,
+        processId,
+        action: 'create',
+        data: {
+          dataIds,
+          docs,
+          productsData,
+        },
+      },
+    });
 
     return {
       dataIds,
@@ -461,18 +463,18 @@ export const dealMutations = {
     //   },
     // });
 
-    // graphqlPubsub.publish(`salesProductsDataChanged:${dealId}`, {
-    //   salesProductsDataChanged: {
-    //     _id: dealId,
-    //     processId,
-    //     action: 'edit',
-    //     data: {
-    //       dataId,
-    //       doc,
-    //       productsData,
-    //     },
-    //   },
-    // });
+    graphqlPubsub.publish(`salesProductsDataChanged:${dealId}`, {
+      salesProductsDataChanged: {
+        _id: dealId,
+        processId,
+        action: 'edit',
+        data: {
+          dataId,
+          doc,
+          productsData,
+        },
+      },
+    });
 
     return {
       dataId,

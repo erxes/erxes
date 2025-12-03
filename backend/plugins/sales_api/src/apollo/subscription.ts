@@ -8,6 +8,8 @@ export default {
   typeDefs: `
     salesDealChanged(_id: String!): DealSubscription
     salesDealListChanged(pipelineId: String!, userId: String, filter: IDealFilter): DealSubscription
+    salesProductsDataChanged(_id: String!): DealProductsDataChangeResponse
+
   `,
   // salesDealActivityChanged(contentId: String!): SalesActivitySubscription
 
@@ -71,6 +73,11 @@ export default {
 
           return { ...payload.salesDealListChanged, action: 'edit' };
         },
+      },
+      salesProductsDataChanged: {
+        resolve: (payload) => payload.salesProductsDataChanged,
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(`salesProductsDataChanged:${_id}`),
       },
     };
   },
