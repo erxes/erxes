@@ -1,15 +1,15 @@
-import { HEADER_ITEMS } from '../constants';
-import { IHeaderItem } from '../types';
+import { useHeader } from '../hooks/useHeader';
 import { HeaderItem } from './header-item';
 
 export function HeaderItemsList() {
+  const { headerItems, activeTab } = useHeader();
   return (
     <div className="flex flex-wrap gap-2" role="tablist">
-      {HEADER_ITEMS.filter(
-        (item: IHeaderItem) => !item.disabled && item.value !== 'chat',
-      ).map((item: IHeaderItem) => (
-        <HeaderItem key={item.value} {...item} />
-      ))}
+      {headerItems
+        .filter((item) => !item.disabled && item.value !== activeTab && item.value !== 'chat')
+        .map((item) => (
+          <HeaderItem key={item.value} {...item} disabled={item.disabled} />
+        ))}
     </div>
   );
 }

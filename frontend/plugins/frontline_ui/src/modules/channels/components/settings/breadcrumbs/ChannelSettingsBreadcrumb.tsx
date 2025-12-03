@@ -9,6 +9,7 @@ import { PipelineDetailBreadcrumb } from '@/pipelines/components/PipelineDetailB
 import { PipelineConfigBreadcrumb } from '@/pipelines/components/configs/components/PipelineConfigBreadcrumb';
 import { MembersBreadcrumb } from '../members/MembersBreadcrumb';
 import { ResponseDetailBreadcrumb } from '@/responseTemplate/components/ResponseDetailBreadcrumb';
+import { TicketStatusesBreadcrumb } from '@/status/components/TicketStatusesBreadcrumb';
 export const ChannelSettingsBreadcrumb = () => {
   const isMatchingLocation = useIsMatchingLocation(
     '/settings/frontline/channels',
@@ -30,6 +31,8 @@ export const ChannelSettingsBreadcrumb = () => {
         isMatchingLocation(FrontlinePaths.ChannelResponsePage) ||
         isMatchingLocation(FrontlinePaths.ResponseDetail) ||
         isMatchingLocation(FrontlinePaths.TicketsConfigs)) && (
+        isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
+        isMatchingLocation(FrontlinePaths.TicketsStatuses)) && (
         <>
           <Separator.Inline />
           <ChannelDetailBreadcrumb />
@@ -43,7 +46,8 @@ export const ChannelSettingsBreadcrumb = () => {
       )}
       {(isMatchingLocation(FrontlinePaths.ChannelPipelines) ||
         isMatchingLocation(FrontlinePaths.PipelineDetail) ||
-        isMatchingLocation(FrontlinePaths.TicketsConfigs)) && (
+        isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
+        isMatchingLocation(FrontlinePaths.TicketsStatuses)) && (
         <>
           <Separator.Inline />
           <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
@@ -54,7 +58,8 @@ export const ChannelSettingsBreadcrumb = () => {
         </>
       )}
       {(isMatchingLocation(FrontlinePaths.PipelineDetail) ||
-        isMatchingLocation(FrontlinePaths.TicketsConfigs)) && (
+        isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
+        isMatchingLocation(FrontlinePaths.TicketsStatuses)) && (
         <>
           <Separator.Inline />
           <PipelineDetailBreadcrumb />
@@ -66,10 +71,15 @@ export const ChannelSettingsBreadcrumb = () => {
           <PipelineConfigBreadcrumb />
         </>
       )}
+
       {isMatchingLocation(FrontlinePaths.ResponseDetail) && (
         <>
           <Separator.Inline />
           <ResponseDetailBreadcrumb />
+      {isMatchingLocation(FrontlinePaths.TicketsStatuses) && (
+        <>
+          <Separator.Inline />
+          <TicketStatusesBreadcrumb />
         </>
       )}
     </>

@@ -12,6 +12,7 @@ import { ResponseDetailPage } from '~/pages/ResponseDetailPage';
 import { ChannelSettingsPageEffect } from '@/channels/components/settings/ChannelSettingsPageEffect';
 import { ChannelSettingsBreadcrumb } from '@/channels/components/settings/breadcrumbs/ChannelSettingsBreadcrumb';
 import { PipielineConfigListPage } from '~/pages/PipielineConfigListPage';
+import { TicketStatusesPage } from '~/pages/TicketStatusesPage';
 
 export const IntegrationDetailPage = lazy(() =>
   import('~/pages/IntegrationDetailPage').then((module) => ({
@@ -92,6 +93,9 @@ const ChannelsSettings = () => {
           <Route
             path={FrontlinePaths.ResponseDetail}
             element={<ResponseDetailPage />}
+            path={FrontlinePaths.TicketsStatuses}
+            element={<TicketStatusesPage />}
+
           />
         </Route>
       </Routes>

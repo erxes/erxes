@@ -1,4 +1,4 @@
-import { useQuery, gql } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { queries } from '../graphql';
 
 interface PosEnvQueryResponse {
@@ -7,18 +7,20 @@ interface PosEnvQueryResponse {
 
 export function usePosEnv() {
   const { loading, error, data, refetch } = useQuery<PosEnvQueryResponse>(
-    (queries.posEnv),
+    queries.posEnv,
     {
-      fetchPolicy: "cache-and-network",
-      errorPolicy: "all",
+      fetchPolicy: 'cache-and-network',
+      errorPolicy: 'all',
       onError: (error) => {
-        console.error("PosEnv query error:", error.message);
-      }
-    }
+        console.error('PosEnv query error:', error.message);
+      },
+    },
   );
 
   const permissionError = error?.graphQLErrors?.some(
-    e => e.message === "Permission required" || e.extensions?.code === "INTERNAL_SERVER_ERROR"
+    (e) =>
+      e.message === 'Permission required' ||
+      e.extensions?.code === 'INTERNAL_SERVER_ERROR',
   );
 
   return {
@@ -26,6 +28,6 @@ export function usePosEnv() {
     error,
     permissionError,
     posEnv: data?.posEnv,
-    refetch
+    refetch,
   };
 }

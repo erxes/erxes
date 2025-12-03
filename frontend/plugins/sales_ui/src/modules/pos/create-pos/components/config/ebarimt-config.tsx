@@ -1,48 +1,177 @@
-import { Input, Select, Checkbox, Label, Collapsible } from 'erxes-ui';
+import { Input, MultipleSelector, Checkbox, Label, Textarea } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 import { useAtom } from 'jotai';
+import { useEffect } from 'react';
+import { useQuery } from '@apollo/client';
 import { ebarimtConfigSettingsAtom } from '../../states/posCategory';
 import { IPosDetail } from '@/pos/pos-detail/types/IPos';
+import { EbarimtConfigFormValues } from '../formSchema';
+import queries from '@/pos/graphql/queries';
 
 interface EbarimtConfigFormProps {
   posDetail?: IPosDetail;
+  onDataChange?: (data: EbarimtConfigFormValues) => void;
 }
 
 export default function EbarimtConfigForm({
   posDetail,
+  onDataChange,
 }: EbarimtConfigFormProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [ebarimtConfig, setEbarimtConfig] = useAtom(ebarimtConfigSettingsAtom);
+
+  //  VAT rules
+  const { data: vatRulesData } = useQuery(queries.ebarimtProductRules, {
+    variables: { kind: 'vat' },
+  });
+
+  //  city tax rules
+  const { data: ctaxRulesData } = useQuery(queries.ebarimtProductRules, {
+    variables: { kind: 'ctax' },
+  });
+
+  const vatRules = (vatRulesData?.ebarimtProductRules?.list || []).map(
+    (rule: { _id: string; title: string }) => ({
+      value: rule._id,
+      label: rule.title,
+    }),
+  );
+  const ctaxRules = (ctaxRulesData?.ebarimtProductRules?.list || []).map(
+    (rule: { _id: string; title: string }) => ({
+      value: rule._id,
+      label: rule.title,
+    }),
+  );
+
+  const getSelectedOptions = (
+    value: string | string[],
+    options: Array<{ value: string; label: string }>,
+  ) => {
+    if (!value) return [];
+    const ids = Array.isArray(value) ? value : value.split(',').filter(Boolean);
+    return options.filter((opt) => ids.includes(opt.value));
+  };
+
+  useEffect(() => {
+    if (posDetail?.ebarimtConfig) {
+      const config = posDetail.ebarimtConfig;
+      const reverseCtaxRules = Array.isArray(config.reverseCtaxRules)
+        ? config.reverseCtaxRules
+        : config.reverseCtaxRules
+        ? [config.reverseCtaxRules]
+        : [];
+
+      const reverseVatRules = Array.isArray(config.reverseVatRules)
+        ? config.reverseVatRules
+        : config.reverseVatRules
+        ? [config.reverseVatRules]
+        : [];
+      setEbarimtConfig({
+        companyName: config.companyName || '',
+        ebarimtUrl: config.ebarimtUrl || '',
+        checkCompanyUrl: config.checkCompanyUrl || '',
+        companyRD: config.companyRD || '',
+        merchantin: config.merchantTin || '',
+        posno: config.posNo || '',
+        districtCode: config.districtCode || '',
+        branchNo: config.branchNo || '',
+        defaultGSCode: config.defaultGSCode || '',
+        hasVat: config.hasVat || false,
+        hasCitytax: config.hasCitytax || false,
+        vatPercent: config.vatPercent || 0,
+        ubCityTaxPercent: config.cityTaxPercent || 0,
+        cityTaxPercent: config.cityTaxPercent || 0,
+        anotherRuleOfProductsOnCityTax: reverseCtaxRules,
+        anotherRuleOfProductsOnVat: reverseVatRules,
+        defaultPay: config.defaultPay || 'debtAmount',
+        headerText: config.headerText || '',
+        footerText: config.footerText || '',
+        hasCopy: config.hasCopy || false,
+        hasSummaryQty: config.hasSumQty || false,
+        hasSumQty: config.hasSumQty || false,
+      });
+    }
+  }, [posDetail, setEbarimtConfig]);
 
   const handleCheckboxChange = (
     field: keyof typeof ebarimtConfig,
     checked: boolean,
   ) => {
-    setEbarimtConfig({
+    const updatedConfig = {
       ...ebarimtConfig,
       [field]: checked,
-    });
+    };
+    setEbarimtConfig(updatedConfig);
   };
 
   const handleInputChange = (
     field: keyof typeof ebarimtConfig,
     value: string,
   ) => {
-    setEbarimtConfig({
+    const updatedConfig = {
       ...ebarimtConfig,
       [field]: value,
-    });
+    };
+    setEbarimtConfig(updatedConfig);
   };
 
-  const handleSelectChange = (
+  const handleMultiSelectChange = (
     field: keyof typeof ebarimtConfig,
-    value: string,
+    options: Array<{ value: string; label: string }>,
   ) => {
-    setEbarimtConfig({
+    const values = options.map((opt) => opt.value);
+    const updatedConfig = {
       ...ebarimtConfig,
-      [field]: value,
-    });
+      [field]: values,
+    };
+    setEbarimtConfig(updatedConfig);
   };
+
+  useEffect(() => {
+    if (onDataChange) {
+      const reverseVatRulesOut = Array.isArray(
+        ebarimtConfig.anotherRuleOfProductsOnVat,
+      )
+        ? ebarimtConfig.anotherRuleOfProductsOnVat
+        : ebarimtConfig.anotherRuleOfProductsOnVat
+        ? ebarimtConfig.anotherRuleOfProductsOnVat.split(',').filter(Boolean)
+        : undefined;
+
+      const reverseCtaxRulesOut = Array.isArray(
+        ebarimtConfig.anotherRuleOfProductsOnCityTax,
+      )
+        ? ebarimtConfig.anotherRuleOfProductsOnCityTax
+        : ebarimtConfig.anotherRuleOfProductsOnCityTax
+        ? ebarimtConfig.anotherRuleOfProductsOnCityTax
+            .split(',')
+            .filter(Boolean)
+        : undefined;
+
+      const transformedConfig: EbarimtConfigFormValues = {
+        companyName: ebarimtConfig.companyName,
+        ebarimtUrl: ebarimtConfig.ebarimtUrl,
+        checkCompanyUrl: ebarimtConfig.checkCompanyUrl || '',
+        hasVat: ebarimtConfig.hasVat,
+        hasCitytax: ebarimtConfig.hasCitytax,
+        defaultPay: ebarimtConfig.defaultPay || 'debtAmount',
+        districtCode: ebarimtConfig.districtCode,
+        companyRD: ebarimtConfig.companyRD,
+        defaultGSCode: ebarimtConfig.defaultGSCode,
+        merchantTin: ebarimtConfig.merchantin,
+        posNo: ebarimtConfig.posno,
+        branchNo: ebarimtConfig.branchNo,
+        vatPercent: Number(ebarimtConfig.vatPercent) || 0,
+        cityTaxPercent: Number(ebarimtConfig.ubCityTaxPercent) || 0,
+        headerText: ebarimtConfig.headerText,
+        footerText: ebarimtConfig.footerText,
+        hasCopy: ebarimtConfig.hasCopy,
+        hasSumQty: ebarimtConfig.hasSummaryQty,
+        reverseVatRules: reverseVatRulesOut,
+        reverseCtaxRules: reverseCtaxRulesOut,
+      };
+      onDataChange(transformedConfig);
+    }
+  }, [ebarimtConfig, onDataChange]);
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
@@ -56,16 +185,15 @@ export default function EbarimtConfigForm({
   return (
     <form onSubmit={handleSubmit} className="p-3">
       <div className="space-y-6">
-        <Collapsible defaultOpen>
-          <Collapsible.TriggerButton className="flex items-center gap-2">
-            <Collapsible.TriggerIcon size={16} />
-            <h2 className="text-indigo-600 text-xl font-medium">MAIN</h2>
-          </Collapsible.TriggerButton>
+        <div>
+          <div className="flex gap-2 items-center">
+            <h2 className="text-xl font-medium text-primary">Main</h2>
+          </div>
 
-          <Collapsible.Content className="mt-4">
+          <div className="mt-4">
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm text-gray-500">COMPANY NAME</Label>
+                <Label className="text-xs font-semibold">COMPANY NAME</Label>
                 <Input
                   value={ebarimtConfig.companyName}
                   onChange={(e) =>
@@ -76,7 +204,7 @@ export default function EbarimtConfigForm({
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm text-gray-500">EBARIMT URL</Label>
+                <Label className="text-xs font-semibold">EBARIMT URL</Label>
                 <Input
                   value={ebarimtConfig.ebarimtUrl}
                   onChange={(e) =>
@@ -87,41 +215,41 @@ export default function EbarimtConfigForm({
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm text-gray-500">
+                <Label className="text-xs font-semibold">
                   CHECK TAXPAYER URL
                 </Label>
                 <Input
-                  value={ebarimtConfig.checkTaxpayerUrl}
+                  value={ebarimtConfig.checkCompanyUrl}
                   onChange={(e) =>
-                    handleInputChange('checkTaxpayerUrl', e.target.value)
+                    handleInputChange('checkCompanyUrl', e.target.value)
                   }
                   placeholder="Enter taxpayer URL"
                 />
               </div>
             </div>
-          </Collapsible.Content>
-        </Collapsible>
-        <Collapsible defaultOpen>
-          <Collapsible.TriggerButton className="flex items-center gap-2">
-            <Collapsible.TriggerIcon size={16} />
-            <h2 className="text-indigo-600 text-xl font-medium">OTHER</h2>
-          </Collapsible.TriggerButton>
+          </div>
+        </div>
 
-          <Collapsible.Content className="mt-4 space-y-4">
+        <div>
+          <div className="flex gap-2 items-center">
+            <h2 className="text-xl font-medium text-primary">Other</h2>
+          </div>
+
+          <div className="mt-4 space-y-4">
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm text-gray-500">COMPANYRD</Label>
+                <Label className="text-xs font-semibold">COMPANYRD</Label>
                 <Input
-                  value={ebarimtConfig.companyRd}
+                  value={ebarimtConfig.companyRD}
                   onChange={(e) =>
-                    handleInputChange('companyRd', e.target.value)
+                    handleInputChange('companyRD', e.target.value)
                   }
                   placeholder="Enter company RD"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm text-gray-500">MERCHANTIN</Label>
+                <Label className="text-xs font-semibold">MERCHANTIN</Label>
                 <Input
                   value={ebarimtConfig.merchantin}
                   onChange={(e) =>
@@ -132,7 +260,7 @@ export default function EbarimtConfigForm({
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm text-gray-500">POSNO</Label>
+                <Label className="text-xs font-semibold">POSNO</Label>
                 <Input
                   value={ebarimtConfig.posno}
                   onChange={(e) => handleInputChange('posno', e.target.value)}
@@ -143,7 +271,7 @@ export default function EbarimtConfigForm({
 
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm text-gray-500">DISTRICTCODE</Label>
+                <Label className="text-xs font-semibold">DISTRICTCODE</Label>
                 <Input
                   value={ebarimtConfig.districtCode}
                   onChange={(e) =>
@@ -154,7 +282,7 @@ export default function EbarimtConfigForm({
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm text-gray-500">BRANCHNO</Label>
+                <Label className="text-xs font-semibold">BRANCHNO</Label>
                 <Input
                   value={ebarimtConfig.branchNo}
                   onChange={(e) =>
@@ -165,29 +293,30 @@ export default function EbarimtConfigForm({
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm text-gray-500">DEFAULTGSCODE</Label>
+                <Label className="text-xs font-semibold">DEFAULTGSCODE</Label>
                 <Input
-                  value={ebarimtConfig.defaultGsCode}
+                  value={ebarimtConfig.defaultGSCode}
                   onChange={(e) =>
-                    handleInputChange('defaultGsCode', e.target.value)
+                    handleInputChange('defaultGSCode', e.target.value)
                   }
                   placeholder="Enter default GS code"
                 />
               </div>
             </div>
-          </Collapsible.Content>
-        </Collapsible>
-        <Collapsible defaultOpen>
-          <Collapsible.TriggerButton className="flex items-center gap-2">
-            <Collapsible.TriggerIcon size={16} />
-            <h2 className="text-indigo-600 text-xl font-medium">VAT</h2>
-          </Collapsible.TriggerButton>
+          </div>
+        </div>
 
-          <Collapsible.Content className="mt-4">
+        <div>
+          <div className="flex gap-2 items-center">
+            <h2 className="text-xl font-medium uppercase text-primary">VAT</h2>
+          </div>
+
+          <div className="mt-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm text-gray-500">HAS VAT</Label>
-                <div className="h-10 flex items-center">
+                <Label className="text-xs font-semibold">HAS VAT</Label>
+
+                <div className="flex items-center h-8">
                   <Checkbox
                     checked={ebarimtConfig.hasVat}
                     onCheckedChange={(checked) =>
@@ -198,9 +327,9 @@ export default function EbarimtConfigForm({
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm text-gray-500">VAT PERCENT</Label>
+                <Label className="text-xs font-semibold">VAT PERCENT</Label>
                 <Input
-                  value={ebarimtConfig.vatPercent}
+                  value={ebarimtConfig.vatPercent.toString()}
                   onChange={(e) =>
                     handleInputChange('vatPercent', e.target.value)
                   }
@@ -208,34 +337,59 @@ export default function EbarimtConfigForm({
                 />
               </div>
             </div>
-          </Collapsible.Content>
-        </Collapsible>
-        <Collapsible defaultOpen>
-          <Collapsible.TriggerButton className="flex items-center gap-2">
-            <Collapsible.TriggerIcon size={16} />
-            <h2 className="text-indigo-600 text-xl font-medium">UB CITY TAX</h2>
-          </Collapsible.TriggerButton>
 
-          <Collapsible.Content className="mt-4 space-y-4">
+            {ebarimtConfig.hasVat && (
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold">
+                  ANOTHER RULE OF PRODUCTS ON VAT
+                </Label>
+                <MultipleSelector
+                  value={getSelectedOptions(
+                    ebarimtConfig.anotherRuleOfProductsOnVat,
+                    vatRules,
+                  )}
+                  onChange={(options) =>
+                    handleMultiSelectChange(
+                      'anotherRuleOfProductsOnVat',
+                      options,
+                    )
+                  }
+                  options={vatRules}
+                  placeholder="Select VAT rules"
+                  emptyIndicator="No VAT rules found"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <div className="flex gap-2 items-center">
+            <h2 className="text-xl font-medium text-primary">UB city tax</h2>
+          </div>
+
+          <div className="mt-4 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm text-gray-500">HAS UB CITY TAX</Label>
-                <div className="h-10 flex items-center">
+                <Label className="text-xs font-semibold">HAS UB CITY TAX</Label>
+
+                <div className="flex items-center h-8">
                   <Checkbox
-                    checked={ebarimtConfig.hasUbCityTax}
+                    checked={ebarimtConfig.hasCitytax}
                     onCheckedChange={(checked) =>
-                      handleCheckboxChange('hasUbCityTax', Boolean(checked))
+                      handleCheckboxChange('hasCitytax', Boolean(checked))
                     }
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm text-gray-500">
+                <Label className="text-xs font-semibold">
                   UB CITY TAX PERCENT
                 </Label>
+
                 <Input
-                  value={ebarimtConfig.ubCityTaxPercent}
+                  value={ebarimtConfig.ubCityTaxPercent.toString()}
                   onChange={(e) =>
                     handleInputChange('ubCityTaxPercent', e.target.value)
                   }
@@ -244,70 +398,68 @@ export default function EbarimtConfigForm({
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-sm text-gray-500">
-                ANOTHER RULE OF PRODUCTS ON CITY TAX
-              </Label>
-              <Select
-                value={ebarimtConfig.anotherRuleOfProductsOnCityTax}
-                onValueChange={(value) =>
-                  handleSelectChange('anotherRuleOfProductsOnCityTax', value)
-                }
-              >
-                <Select.Trigger>
-                  <Select.Value placeholder="reserveCtaxRules" />
-                </Select.Trigger>
-                <Select.Content>
-                  <Select.Item value="reserveCtaxRules">
-                    reserveCtaxRules
-                  </Select.Item>
-                  <Select.Item value="standardCtaxRules">
-                    standardCtaxRules
-                  </Select.Item>
-                  <Select.Item value="exemptCtaxRules">
-                    exemptCtaxRules
-                  </Select.Item>
-                  <Select.Item value="customCtaxRules">
-                    customCtaxRules
-                  </Select.Item>
-                </Select.Content>
-              </Select>
-            </div>
-          </Collapsible.Content>
-        </Collapsible>
-        <Collapsible>
-          <Collapsible.TriggerButton className="flex items-center gap-2">
-            <Collapsible.TriggerIcon size={16} />
-            <h2 className="text-indigo-600 text-xl font-medium">UI CONFIG</h2>
-          </Collapsible.TriggerButton>
-
-          <Collapsible.Content className="mt-4">
-            <div className="grid grid-cols-3 gap-4">
+            {!ebarimtConfig.hasCitytax && (
               <div className="space-y-2">
-                <Label className="text-sm text-gray-500">HEADER TEXT</Label>
-                <Input
+                <Label className="text-xs font-semibold">
+                  ANOTHER RULE OF PRODUCTS ON CITY TAX
+                </Label>
+                <MultipleSelector
+                  value={getSelectedOptions(
+                    ebarimtConfig.anotherRuleOfProductsOnCityTax,
+                    ctaxRules,
+                  )}
+                  onChange={(options) =>
+                    handleMultiSelectChange(
+                      'anotherRuleOfProductsOnCityTax',
+                      options,
+                    )
+                  }
+                  options={ctaxRules}
+                  placeholder="Select city tax rules"
+                  emptyIndicator="No city tax rules found"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <div className="flex gap-2 items-center">
+            <h2 className="text-xl font-medium text-primary">UI Config</h2>
+          </div>
+
+          <div className="mt-4 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold">HEADER TEXT</Label>
+                <Textarea
                   value={ebarimtConfig.headerText}
                   onChange={(e) =>
                     handleInputChange('headerText', e.target.value)
                   }
                   placeholder="Enter header text"
+                  rows={3}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm text-gray-500">FOOTER TEXT</Label>
-                <Input
+                <Label className="text-xs font-semibold">FOOTER TEXT</Label>
+                <Textarea
                   value={ebarimtConfig.footerText}
                   onChange={(e) =>
                     handleInputChange('footerText', e.target.value)
                   }
                   placeholder="Enter footer text"
+                  rows={3}
                 />
               </div>
+            </div>
 
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm text-gray-500">HAS COPY</Label>
-                <div className="h-10 flex items-center">
+                <Label className="text-xs font-semibold">HAS COPY</Label>
+
+                <div className="flex items-center h-8">
                   <Checkbox
                     checked={ebarimtConfig.hasCopy}
                     onCheckedChange={(checked) =>
@@ -316,9 +468,22 @@ export default function EbarimtConfigForm({
                   />
                 </div>
               </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold">HAS SUMMARY QTY</Label>
+
+                <div className="flex items-center h-8">
+                  <Checkbox
+                    checked={ebarimtConfig.hasSummaryQty}
+                    onCheckedChange={(checked) =>
+                      handleCheckboxChange('hasSummaryQty', Boolean(checked))
+                    }
+                  />
+                </div>
+              </div>
             </div>
-          </Collapsible.Content>
-        </Collapsible>
+          </div>
+        </div>
       </div>
     </form>
   );

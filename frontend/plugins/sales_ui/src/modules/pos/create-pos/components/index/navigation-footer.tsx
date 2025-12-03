@@ -15,7 +15,7 @@ export const NavigationFooter = React.memo(
     validationError = null,
     isSubmitting = false,
   }: NavigationFooterProps) => (
-    <div className="flex flex-col p-4 border-t sticky bottom-0 bg-white">
+    <div className="flex sticky bottom-0 flex-col p-4 border-t bg-background">
       {validationError && <ValidationAlert message={validationError} />}
       <div className="flex justify-between">
         <Button
@@ -32,8 +32,8 @@ export const NavigationFooter = React.memo(
           disabled={(!nextStep && !isLastStep) || isLoading || isSubmitting}
         >
           {isLoading || isSubmitting ? (
-            <span className="flex items-center gap-2">
-              <IconLoader2 className="h-4 w-4 animate-spin" />
+            <span className="flex gap-2 items-center">
+              <IconLoader2 className="w-4 h-4 animate-spin" />
               {isLastStep ? 'Saving...' : 'Loading...'}
             </span>
           ) : isLastStep ? (
