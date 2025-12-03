@@ -1,7 +1,7 @@
 import { DealsColumn } from '@/deals/boards/components/DealsColumn';
 import { RecordTable, useQueryState } from 'erxes-ui';
 import { useDeals } from '@/deals/cards/hooks/useDeals';
-import { DealsCommandBar } from '../../actionBar/components/DealsListCommandBar';
+import { DealsCommandBar } from '@/deals/actionBar/components/DealsListCommandBar';
 
 export const DealsRecordTable = () => {
   const [pipelineId] = useQueryState<string | null>('pipelineId');

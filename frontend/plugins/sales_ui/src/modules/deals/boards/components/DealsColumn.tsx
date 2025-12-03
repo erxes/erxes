@@ -14,12 +14,29 @@ import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPr
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { SelectPipeline } from '../../pipelines/components/SelectPipelines';
 import { SelectStage } from '../../stage/components/SelectStages';
-import { SelectBoard } from '@/deals/boards/components/SelectBoards';
+
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { IDeal } from '../../types/deals';
 export const DealsColumn = (): ColumnDef<IDeal>[] => {
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IDeal>;
+
+  const NameCell = ({ deal }: { deal: IDeal }) => {
+    const setActiveDealId = useSetAtom(dealDetailSheetState);
+    const [, setSalesItemId] = useQueryState<string>('salesItemId');
+
+    const handleClick = () => {
+      setSalesItemId(deal._id);
+      setActiveDealId(deal._id);
+    };
+
+    return (
+      <RecordTableInlineCell onClick={handleClick}>
+        {deal.name}
+      </RecordTableInlineCell>
+    );
+  };
+
   return [
     checkBoxColumn,
     {
@@ -28,21 +45,7 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       header: () => (
         <RecordTable.InlineHead label="Name" icon={IconLabelFilled} />
       ),
-      cell: ({ cell }) => {
-        const setActiveDealId = useSetAtom(dealDetailSheetState);
-        const [, setSalesItemId] = useQueryState<string>('salesItemId');
-
-        const handleClick = () => {
-          setSalesItemId(cell.row.original._id);
-          setActiveDealId(cell.row.original._id);
-        };
-
-        return (
-          <RecordTableInlineCell onClick={handleClick}>
-            {cell.getValue() as string}
-          </RecordTableInlineCell>
-        );
-      },
+      cell: ({ cell }) => <NameCell deal={cell.row.original} />,
       size: 240,
     },
 

@@ -15,67 +15,102 @@ import {
   useDealsWatch,
 } from '@/deals/cards/hooks/useDeals';
 
-export const DealsListActionBar = ({ deal }: { deal: IDeal }) => {
+interface DealsListActionBarProps {
+  deals: IDeal[];
+  selectedCount: number;
+}
+
+export const DealsListActionBar = ({
+  deals,
+  selectedCount,
+}: DealsListActionBarProps) => {
   const { confirm } = useConfirm();
   const { editDeals, loading: editLoading } = useDealsEdit();
   const { removeDeals, loading: removeLoading } = useDealsRemove();
   const { copyDeals, loading: copyLoading } = useDealsCopy();
   const { watchDeals, loading: watchLoading } = useDealsWatch();
-  const isArchived = deal?.status === 'archived';
+
   const isLoading = editLoading || removeLoading || copyLoading || watchLoading;
-  const isWatched = deal?.isWatched === true;
+
+  const dealIds = deals.map((d) => d._id);
+
+  const allArchived = deals.every((d) => d.status === 'archived');
+  const allActive = deals.every((d) => d.status === 'active');
+  const allWatched = deals.every((d) => d.isWatched === true);
+  const allUnwatched = deals.every((d) => d.isWatched === false);
 
   const handleArchive = async () => {
-    try {
-      await editDeals({
-        variables: {
-          _id: deal._id,
-          status: isArchived ? 'active' : 'archived',
-        },
-      });
-    } catch (error) {
-      console.error('Failed to archive/unarchive deal:', error);
-    }
+    const newStatus = allArchived ? 'active' : 'archived';
+    const action = allArchived ? 'unarchive' : 'archive';
+
+    await confirm({
+      message: `Are you sure you want to ${action} ${selectedCount} deal${
+        selectedCount > 1 ? 's' : ''
+      }?`,
+    });
+
+    await Promise.all(
+      dealIds.map((id) =>
+        editDeals({
+          variables: { _id: id, status: newStatus },
+        }),
+      ),
+    );
   };
 
   const handleRemove = async () => {
-    confirm({ message: 'Are you sure you want to remove this deal?' }).then(
-      async () => {
-        try {
-          await removeDeals({ variables: { _id: deal._id } });
-        } catch (error) {
-          console.error('Failed to remove deal:', error);
-        }
-      },
+    await confirm({
+      message: `Are you sure you want to remove ${selectedCount} deal${
+        selectedCount > 1 ? 's' : ''
+      }? `,
+    });
+
+    await Promise.all(
+      dealIds.map((id) => removeDeals({ variables: { _id: id } })),
     );
   };
+
   const handleCopy = async () => {
-    try {
-      await copyDeals({ variables: { _id: deal._id } });
-    } catch (error) {
-      console.error('Failed to copy deal:', error);
-    }
+    await Promise.all(
+      dealIds.map((id) => copyDeals({ variables: { _id: id } })),
+    );
   };
 
   const handleWatch = async () => {
-    try {
-      await watchDeals({
-        variables: {
-          _id: deal._id,
-          isAdd: !deal.isWatched,
-        },
-      });
-    } catch (error) {
-      console.error('Failed to watch/unwatch deal:', error);
-    }
+    const shouldWatch = !allWatched;
+
+    await Promise.all(
+      dealIds.map((id) =>
+        watchDeals({
+          variables: { _id: id, isAdd: shouldWatch },
+        }),
+      ),
+    );
   };
 
-  const handlePrint = () => window.print();
+  const handlePrint = () => {
+    window.print();
+  };
+  const getArchiveLabel = () => {
+    if (allArchived) return 'Unarchive';
+    if (allActive) return 'Archive';
+    return 'Archive (Mixed)';
+  };
+
+  const getWatchLabel = () => {
+    if (allWatched) return 'Unwatch';
+    if (allUnwatched) return 'Watch';
+    return 'Watch (Mixed)';
+  };
 
   return (
     <DropdownMenu>
-      <DropdownMenu.Trigger>
-        <Button variant="outline" className="flex items-center gap-2">
+      <DropdownMenu.Trigger asChild>
+        <Button
+          variant="outline"
+          className="flex items-center gap-2"
+          disabled={isLoading}
+        >
           <IconEdit />
           Edit
         </Button>
@@ -83,27 +118,31 @@ export const DealsListActionBar = ({ deal }: { deal: IDeal }) => {
       <DropdownMenu.Content className="w-48 min-w-fit!">
         <DropdownMenu.Item onClick={handleCopy} disabled={isLoading}>
           <IconCopy />
-          Copy
+          Copy {`(${selectedCount})`}
         </DropdownMenu.Item>
+
         <DropdownMenu.Item onClick={handleWatch} disabled={isLoading}>
           <IconEye />
-          {isWatched ? 'Unwatch' : 'Watch'}
+          {getWatchLabel()} {`(${selectedCount})`}
         </DropdownMenu.Item>
-        <DropdownMenu.Item onClick={handlePrint}>
+
+        <DropdownMenu.Item onClick={handlePrint} disabled={isLoading}>
           <IconPrinter />
           Print document
         </DropdownMenu.Item>
+
         <DropdownMenu.Item onClick={handleArchive} disabled={isLoading}>
           <IconArchive />
-          {isArchived ? 'Unarchive' : 'Archive'}
+          {getArchiveLabel()} {`(${selectedCount})`}
         </DropdownMenu.Item>
+
         <DropdownMenu.Item
           onClick={handleRemove}
           disabled={isLoading}
-          className="text-red-700"
+          className="text-red-700 focus:text-red-700"
         >
           <IconTrash className="text-red-700" />
-          Remove
+          Remove {`(${selectedCount})`}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

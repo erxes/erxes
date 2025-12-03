@@ -174,7 +174,7 @@ export const GET_DEALS = gql`
             _id
             name
           }
-       boardId
+          boardId
         }
         pageInfo {
           endCursor
