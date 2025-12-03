@@ -9,7 +9,7 @@ import { PluginConfigsProvidersEffect } from '@/plugins/providers/PluginConfigsP
 import { UserProviderEffect } from '@/auth/providers/UserProviderEffect';
 import { OrganizationProviderEffect } from '@/organization/providers/OrganizationProviderEffect';
 import { WidgetsComponent } from '@/widgets/components/WidgetsComponent';
-import { useRelationWidgetsModules } from '@/widgets/hooks/useRelationWidgetsModules';
+import { useRelationWidgetsModules } from '@/widgets/hooks/useRelationWidgets';
 import { RelationWidgetProvider } from 'ui-modules';
 import { IconsProvider } from 'erxes-ui';
 

@@ -18,7 +18,10 @@ export const NotificationContent = () => {
 
   return (
     <ScrollArea className="overflow-hidden h-full">
-      <NotificationContentWrapper key={notification._id} notification={notification} />
+      <NotificationContentWrapper
+        key={notification._id}
+        notification={notification}
+      />
     </ScrollArea>
   );
 };
@@ -28,9 +31,7 @@ const NotificationContentWrapper = ({
 }: {
   notification: INotification;
 }) => {
-  const [pluginName, moduleName, collectionType] = (
-    notification?.contentType || ''
-  )
+  const [pluginName, collectionType] = (notification?.contentType || '')
     .replace(':', '.')
     .split('.');
 
@@ -46,7 +47,6 @@ const NotificationContentWrapper = ({
     <RenderPluginsComponent
       pluginName={`${pluginName}_ui`}
       remoteModuleName="notificationWidget"
-      moduleName={moduleName}
       props={notification}
     />
   );
