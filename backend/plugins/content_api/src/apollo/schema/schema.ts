@@ -26,6 +26,13 @@ import {
   mutations as categoryMutations,
 } from '@/cms/graphql/schemas/category';
 
+import {
+  types as tagTypes,
+  inputs as tagInputs,
+  queries as tagQueries,
+  mutations as tagMutations,
+} from '@/cms/graphql/schemas/tag';
+
 export const types = `
 
   enum CacheControlScope {
@@ -56,7 +63,9 @@ export const types = `
     ${customPostTypeInputs}
     ${categoryTypes}
     ${categoryInputs}
-  `;
+    ${tagTypes}
+    ${tagInputs}
+      `;
 
 export const queries = `
    ${cmsQueries}
@@ -67,6 +76,8 @@ export const queries = `
 
     ${categoryQueries}
 
+    ${tagQueries}
+
   `;
 
 export const mutations = `
@@ -74,6 +85,7 @@ export const mutations = `
     ${postMutations}
     ${customPostTypeMutations}
     ${categoryMutations}
+    ${tagMutations}
   `;
 
 export default { types, queries, mutations };

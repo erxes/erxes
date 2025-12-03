@@ -4,7 +4,11 @@ import { ICMSModel, loadCmsClass } from '@/cms/db/models/Cms';
 
 import mongoose from 'mongoose';
 import { IContentCMSDocument } from '@/cms/@types/cms';
-import { IPostCategoryDocument, IPostDocument } from '@/cms/@types/posts';
+import {
+  IPostCategoryDocument,
+  IPostDocument,
+  IPostTagDocument,
+} from '@/cms/@types/posts';
 import { ITranslationDocument } from '@/cms/@types/translations';
 import { IPostModel, loadPostClass } from '@/cms/db/models/Posts';
 import {
@@ -17,13 +21,14 @@ import {
 } from '@/cms/db/models/CustomPostType';
 import { ICustomPostTypeDocument } from '@/cms/@types/customPostType';
 import { ICategoryModel, loadCategoryClass } from '@/cms/db/models/Categories';
+import { IPostTagModel, loadPostTagClass } from '@/cms/db/models/Tag';
 
 export interface IModels {
   CMS: ICMSModel;
   Posts: IPostModel;
   Translations: ITranslationModel;
   CustomPostTypes: ICustomPostTypeModel;
-
+  PostTags: IPostTagModel;
   Categories: ICategoryModel;
 }
 
@@ -58,6 +63,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Categories = db.model<IPostCategoryDocument, ICategoryModel>(
     'cms_categories',
     loadCategoryClass(models),
+  );
+
+  models.PostTags = db.model<IPostTagDocument, IPostTagModel>(
+    'cms_tags',
+    loadPostTagClass(models),
   );
 
   return models;
