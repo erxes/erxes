@@ -1,11 +1,9 @@
 import { Button, Input, Label, Switch } from 'erxes-ui';
+import { IProduct, SelectProductsBulk } from 'ui-modules';
 import { IconPlus, IconSearch } from '@tabler/icons-react';
 
 import FilterButton from './FilterButton';
-import { IProduct } from 'ui-modules';
-import { ProductAddSheet } from './ProductAddSheet';
 import { ProductsRecordTable } from './ProductRecordTable';
-import { SelectProductsBulk } from './SelectProductsBulk';
 import { currentUserState } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { useDealsCreateProductsData } from '../hooks/useDealsCreateProductsData';
@@ -14,9 +12,11 @@ import { useState } from 'react';
 const ProductsList = ({
   products,
   dealId,
+  refetch,
 }: {
   products: IProduct[];
   dealId: string;
+  refetch: () => void;
 }) => {
   const { createDealsProductData } = useDealsCreateProductsData();
   const [vatPercent, setVatPercent] = useState(0);
@@ -121,12 +121,15 @@ const ProductsList = ({
           <FilterButton />
         </div>
       </div>
-      <ProductsRecordTable products={products || ([] as IProduct[])} />
+      <ProductsRecordTable
+        products={products || ([] as IProduct[])}
+        refetch={refetch}
+        dealId={dealId}
+      />
       <div className="flex justify-end mt-2 mb-5 mr-5 gap-2">
-        <ProductAddSheet />
         <SelectProductsBulk
           productIds={[]}
-          onSave={(selectedProducts) =>
+          onSelect={(productIds, selectedProducts) =>
             onPoductBulkSave(selectedProducts || ([] as IProduct[]))
           }
         >

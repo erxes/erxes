@@ -1,10 +1,16 @@
-import { IconPlus } from '@tabler/icons-react';
-
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
-import { PrintDocument } from 'ui-modules';
-import { ProductsDelete } from './delete/productDelete';
 
-export const ProductCommandBar = () => {
+import { IconPlus } from '@tabler/icons-react';
+import { PrintDocument } from 'ui-modules';
+import { ProductsDelete } from './ProductDelete';
+
+export const ProductCommandBar = ({
+  refetch,
+  dealId,
+}: {
+  refetch: () => void;
+  dealId: string;
+}) => {
   const { table } = RecordTable.useRecordTable();
 
   return (
@@ -18,6 +24,8 @@ export const ProductCommandBar = () => {
           productIds={table
             .getFilteredSelectedRowModel()
             .rows.map((row) => row.original._id)}
+          refetch={refetch}
+          dealId={dealId}
         />
         <Separator.Inline />
         <Button variant="secondary">

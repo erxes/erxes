@@ -1,38 +1,53 @@
-import { MutationHookOptions, useMutation } from '@apollo/client';
+import { ApolloError, MutationHookOptions, useMutation } from '@apollo/client';
+
 import { IProduct } from 'ui-modules';
-import { productsRemoveMutation } from '../graphql/mutations/ProductRemoveMutationd';
-import { productsQueries } from '../graphql/mutations/ProductQueries';
+import { productRemove } from '../graphql/mutations/ProductRemoveMutationd';
+import { productsMain } from '../graphql/queries/ProductQueries';
+import { useToast } from 'erxes-ui';
 
 const PRODUCTS_PAGE_SIZE = 30;
 
 export const useRemoveProducts = () => {
-  const [_removeProducts, { loading }] = useMutation(
-    productsRemoveMutation.productRemove,
-  );
+  const [_removeProducts, { loading }] = useMutation(productRemove);
+  const { toast } = useToast();
 
-  const removeProducts = (
-    productIds: string[],
-    options?: MutationHookOptions,
-  ) => {
+  const removeProducts = (options?: MutationHookOptions) => {
     _removeProducts({
       ...options,
-      variables: { productIds, ...options?.variables },
+      variables: { ...options?.variables },
+      onCompleted: (data) => {
+        toast({
+          title: 'Products deleted successfully',
+          variant: 'success',
+        });
+        options?.onCompleted?.(data);
+      },
+      onError: (e: ApolloError) => {
+        toast({
+          title: 'Error',
+          description: e.message,
+          variant: 'destructive',
+        });
+        options?.onError?.(e);
+      },
       update: (cache) => {
+        const { dataIds } = options?.variables || {};
+
         try {
           cache.updateQuery(
             {
-              query: productsQueries.productsMain,
+              query: productsMain,
               variables: { perPage: PRODUCTS_PAGE_SIZE, dateFilters: null },
             },
             ({ productsMain }) => ({
               productsMain: {
                 ...productsMain,
                 list: productsMain.list.filter(
-                  (product: IProduct) => !productIds.includes(product._id),
+                  (product: IProduct) => !dataIds.includes(product._id),
                 ),
                 totalCount: Math.max(
                   0,
-                  productsMain.totalCount - productIds.length,
+                  productsMain.totalCount - dataIds.length,
                 ),
               },
             }),

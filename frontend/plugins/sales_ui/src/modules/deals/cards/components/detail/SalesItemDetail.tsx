@@ -20,7 +20,7 @@ import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 export const SalesItemDetail = () => {
   const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
   const [salesItemId, setSalesItemId] = useQueryState<string>('salesItemId');
-  const { deal, loading } = useDealDetail();
+  const { deal, loading, refetch } = useDealDetail();
 
   const [isOpen, setIsOpen] = useState(
     (!!activeDealId || !!salesItemId) && !loading,
@@ -61,7 +61,10 @@ export const SalesItemDetail = () => {
                         <Overview deal={deal || ({} as IDeal)} />
                       </SalesDetailTabContent>
                       <SalesDetailTabContent value="products">
-                        <Products deal={deal || ({} as IDeal)} />
+                        <Products
+                          deal={deal || ({} as IDeal)}
+                          refetch={refetch}
+                        />
                       </SalesDetailTabContent>
                     </SalesDetailLeftSidebar>
                   </Resizable.Panel>

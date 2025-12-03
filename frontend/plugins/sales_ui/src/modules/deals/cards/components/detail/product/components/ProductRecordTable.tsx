@@ -3,7 +3,15 @@ import { ProductCommandBar } from '../product-command-bar/ProductCommandBar';
 import { RecordTable } from 'erxes-ui';
 import { productColumns } from './ProductColumns';
 
-export const ProductsRecordTable = ({ products }: { products: IProduct[] }) => {
+export const ProductsRecordTable = ({
+  products,
+  refetch,
+  dealId,
+}: {
+  products: IProduct[];
+  refetch: () => void;
+  dealId: string;
+}) => {
   return (
     <RecordTable.Provider
       columns={productColumns}
@@ -16,13 +24,10 @@ export const ProductsRecordTable = ({ products }: { products: IProduct[] }) => {
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.RowList />
-            {/* {!detailsLoading && adjustInventoryDetailsCount > adjustInventoryDetails?.length && (
-                      <RecordTable.RowSkeleton rows={4} handleInView={handleFetchMore} />
-                    )} */}
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>
-      <ProductCommandBar />
+      <ProductCommandBar refetch={refetch} dealId={dealId} />
     </RecordTable.Provider>
   );
 };

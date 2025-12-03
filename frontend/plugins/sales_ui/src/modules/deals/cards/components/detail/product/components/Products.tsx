@@ -6,7 +6,7 @@ import ProductsList from './ProductsList';
 import { Tabs } from 'erxes-ui';
 import { useState } from 'react';
 
-const Products = ({ deal }: { deal: IDeal }) => {
+const Products = ({ deal, refetch }: { deal: IDeal; refetch: () => void }) => {
   const [activeTab, setActiveTab] = useState<string>('product');
 
   return (
@@ -33,6 +33,7 @@ const Products = ({ deal }: { deal: IDeal }) => {
         <ProductsList
           products={deal.products || ([] as IProduct[])}
           dealId={deal._id}
+          refetch={refetch}
         />
       )}
 
