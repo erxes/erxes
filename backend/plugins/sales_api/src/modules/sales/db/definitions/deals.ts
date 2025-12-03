@@ -8,6 +8,8 @@ import { SALES_STATUSES, TIME_TRACK_TYPES } from '../../constants';
 
 export const productDataSchema = new Schema(
   {
+    _id: mongooseStringRandomId,
+
     productId: { type: String, esType: 'keyword' }, // Product
     name: { type: String, esType: 'name' }, // Product name
     uom: { type: String, esType: 'keyword' }, // Units of measurement
@@ -33,7 +35,7 @@ export const productDataSchema = new Schema(
     endDate: { type: Date, optional: true, label: 'End date' }, //pms
     information: { type: Object, optional: true, label: 'information' }, //pms
   },
-  { _id: false },
+  // { _id: false },
 );
 
 const timeTrackSchema = new Schema(
