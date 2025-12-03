@@ -64,15 +64,7 @@ export function TagDrawer({
   }, [tag, form, isOpen, clientPortalId]);
 
   const [addTag, { loading: saving }] = useMutation(CMS_TAGS_ADD, {
-    refetchQueries: [
-      {
-        query: CMS_TAGS,
-        variables: {
-          clientPortalId,
-          limit: 20,
-        },
-      },
-    ],
+    refetchQueries: ['CmsTags'],
     onCompleted: () => {
       onClose();
       form.reset();
