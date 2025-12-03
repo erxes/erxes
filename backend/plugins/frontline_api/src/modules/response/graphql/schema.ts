@@ -36,9 +36,9 @@ responseTemplate(
 
 export const mutations = `
   responseTemplatesAdd(
-    name: String,
+    name: String!,
     content: String,
-    channelId: String,
+    channelId: String!,
     files: [String]
   ): ResponseTemplate
   responseTemplatesEdit(
@@ -48,5 +48,5 @@ export const mutations = `
     channelId: String,
     files: [String]
   ): ResponseTemplate
-  responseTemplatesRemove(_id: String): ResponseTemplate
+  responseTemplatesRemove(_id: String!): ResponseTemplate
 `;

@@ -71,10 +71,11 @@ export const CreateResponseForm = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Content</Form.Label>
-                  <ScrollArea className="border rounded-md p-2 max-h-[60vh] overflow-y-auto">
+                  <ScrollArea className="border rounded-md p-2 h-[400px] overflow-y-auto">
                     <Editor
                       initialContent={field.value}
                       onChange={field.onChange}
+                      className="min-h-[360px]"
                     />
                   </ScrollArea>
                   <input type="hidden" {...field} />

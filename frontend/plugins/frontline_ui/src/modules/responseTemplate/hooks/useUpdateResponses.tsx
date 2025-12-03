@@ -5,6 +5,7 @@ import {
 } from '@apollo/client';
 import { UPDATE_RESPONSE } from '@/responseTemplate/graphql/mutations/updateResponse';
 import { useToast } from 'erxes-ui';
+import { GET_RESPONSES } from '../graphql/queries/getResponses';
 export const useUpdateResponse = () => {
   const { toast } = useToast();
   const [_updateResponse, { loading }] = useMutation(UPDATE_RESPONSE);
@@ -26,7 +27,7 @@ export const useUpdateResponse = () => {
         });
         options.onError?.(error);
       },
-      refetchQueries: ['GetResponses'],
+      refetchQueries: [{ query: GET_RESPONSES }],
     });
   };
   return { updateResponse, loading };

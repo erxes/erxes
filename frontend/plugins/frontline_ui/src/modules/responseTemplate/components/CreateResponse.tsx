@@ -13,15 +13,15 @@ import { useNavigate } from 'react-router';
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { ResponseHotkeyScope } from '@/responseTemplate/types/ResponseHotkeyScope';
-import { CreateResponseForm } from './CreateResponseForm';
-import { TCreateResponseForm } from '../types';
+import { CreateResponseForm } from '@/responseTemplate/components/CreateResponseForm';
+import { TCreateResponseForm } from '@/responseTemplate/types';
 
 export const CreateResponse = () => {
   const { id: channelId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const { addResponse } = useResponseAdd();
+  const { addResponse, loading } = useResponseAdd();
 
   const [open, setOpen] = useState(false);
 
@@ -88,13 +88,14 @@ export const CreateResponse = () => {
 
         <Sheet.Content className="grow flex flex-col px-5 py-4">
           <CreateResponseForm
-            onSubmit={onSubmit}
+            type="create"
             defaultValues={{
               name: '',
               content: '',
               channelId,
             }}
-            type="create"
+            onSubmit={onSubmit}
+            loading={loading}
           />
         </Sheet.Content>
       </Sheet.View>

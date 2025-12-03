@@ -4,7 +4,7 @@ const ADD_RESPONSE = gql`
   mutation ResponseTemplatesAdd(
     $name: String!
     $content: String
-    $channelId: String
+    $channelId: String!
     $files: [String]
   ) {
     responseTemplatesAdd(
