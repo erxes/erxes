@@ -130,6 +130,12 @@ const AddForm: React.FC<Props> = ({
     JSON.parse(localStorage.getItem(`${type}_isHideName`) || "false"),
   );
 
+  useEffect(() => {
+    if (pipelineId) {
+      refetchFields({ pipelineId });
+    }
+  }, [pipelineId]);
+
   // Sync fields if prop changes
   useEffect(() => {
     if (propFields !== fields) setFields(propFields);
