@@ -543,17 +543,17 @@ export const dealMutations = {
     //   },
     // });
 
-    // graphqlPubsub.publish(`salesProductsDataChanged:${dealId}`, {
-    //   salesProductsDataChanged: {
-    //     _id: dealId,
-    //     processId,
-    //     action: 'delete',
-    //     data: {
-    //       dataId,
-    //       productsData,
-    //     },
-    //   },
-    // });
+    graphqlPubsub.publish(`salesProductsDataChanged:${dealId}`, {
+      salesProductsDataChanged: {
+        _id: dealId,
+        processId,
+        action: 'delete',
+        data: {
+          dataId,
+          productsData,
+        },
+      },
+    });
 
     return {
       dataId,
