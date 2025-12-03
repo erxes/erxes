@@ -11,3 +11,47 @@ export const AllReportsMap = [
   { key: 'mb', title: 'Ерөнхий дэвтэр', group: 'main' },
   { key: 'mj', title: 'Ерөнхий журнал', group: 'main' },
 ]
+
+export interface GroupRule {
+  key: string;
+  group: string;
+  code: string;
+  name?: string;
+  format?: string;
+  style?: string;
+  group_rule?: GroupRule | null;
+}
+
+export const GroupRules: any = {
+  tb: {
+    colCount: 6,
+    choices: [
+      { code: 'default', title: 'Дансаар' },
+      { code: 'cat', title: 'Дансны бүлгээр' },
+    ],
+    groups: {
+      default: {
+        'key': 'gr',
+        'group': 'account_id',
+        'code': 'account__code',
+        'group_rule': {},
+        'name': 'account__name',
+      },
+      cat: {
+        'key': 'gr1',
+        'group': 'account__category_id',
+        'code': 'account__category__code',
+        'name': 'account__category__name',
+        'format': 'tr-bold',
+        'group_rule': {
+          'key': 'gr2',
+          'group': 'account_id',
+          'code': 'account__code',
+          'name': 'account__name',
+          'group_rule': {}
+        }
+      }
+    }
+  }
+
+}

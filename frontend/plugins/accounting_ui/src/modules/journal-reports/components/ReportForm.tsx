@@ -1,11 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { format, isValid, parse } from 'date-fns';
+import { format } from 'date-fns';
 import {
   Button,
   Checkbox,
   DatePicker,
   Dialog,
   Form,
+  Select,
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
@@ -13,6 +14,8 @@ import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { SelectAccountCategory } from '~/modules/settings/account/account-categories/components/SelectAccountCategory';
 import { activeReportState } from '../states/renderingReportsStates';
 import { reportSchema, TReportForm } from '../types/reportSchema';
+import { GroupRules } from '../types/reportsMap';
+import { useEffect, useState } from 'react';
 
 
 const getQueryParam = (key: string, value: string | string[] | Date | boolean): string => {
@@ -30,6 +33,13 @@ export const ReportForm = () => {
     resolver: zodResolver(reportSchema),
     defaultValues: {},
   });
+
+  const [groupKeyChoices, setGroupKeyChoices] = useState(GroupRules[activeReport]?.choices || []);
+
+  useEffect(() => {
+    setGroupKeyChoices(GroupRules[activeReport]?.choices || []);
+    form.setValue(`groupKey`, 'default');
+  }, [activeReport])
 
   const onSubmit = (data: TReportForm) => {
     const params: any = { ...data };
@@ -145,6 +155,34 @@ export const ReportForm = () => {
             </Form.Item>
           )}
         />
+
+        <Form.Field
+          control={form.control}
+          name="groupKey"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label variant="peer">Group by</Form.Label>
+              <Form.Control>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <Select.Trigger>
+                    <Select.Value placeholder="Select a property type" />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {groupKeyChoices.map((choice: { code: string, title: string }) => (
+                      <Select.Item
+                        key={choice.code}
+                        value={choice.code}
+                      >
+                        {choice.title}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
+              </Form.Control>
+            </Form.Item>
+          )}
+        />
+
         <Form.Field
           control={form.control}
           name="fromDate"
