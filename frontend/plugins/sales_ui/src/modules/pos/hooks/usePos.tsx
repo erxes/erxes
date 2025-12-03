@@ -1,14 +1,21 @@
 import { useQuery, useMutation } from '@apollo/client';
 import { useEffect } from 'react';
 import { queries, mutations } from '../graphql';
-import { AlertInterface, ConfirmFunction, PosListQueryResponse, QueryParams, RemoveMutationResponse, RouterInterface } from '../types/mutations';
+import {
+  AlertInterface,
+  ConfirmFunction,
+  PosListQueryResponse,
+  QueryParams,
+  RemoveMutationResponse,
+  RouterInterface,
+} from '../types/mutations';
 
 export function usePosListManager({
   router,
   queryParams = {},
   shouldRefetchList = false,
   confirm,
-  Alert
+  Alert,
 }: {
   router: RouterInterface;
   queryParams: QueryParams;
@@ -26,34 +33,29 @@ export function usePosListManager({
         : undefined,
     },
     fetchPolicy: 'network-only',
-    errorPolicy: "all",
+    errorPolicy: 'all',
     onError: (error) => {
-      console.error("PosList query error:", error.message);
-    }
+      console.error('PosList query error:', error.message);
+    },
   });
 
-  const [posRemove] = useMutation<RemoveMutationResponse>(
-    mutations.posRemove,
-    {
-      onError: (error) => {
-        console.error("PosRemove mutation error:", error.message);
-      }
-    }
-  );
+  const { refetch } = posListQuery;
+
+  const [posRemove] = useMutation<RemoveMutationResponse>(mutations.posRemove, {
+    onError: (error) => {
+      console.error('PosRemove mutation error:', error.message);
+    },
+  });
 
   useEffect(() => {
     refetch();
-  }, [queryParams.page]);
+  }, [queryParams.page, refetch]);
 
   useEffect(() => {
     if (shouldRefetchList) {
       refetch();
     }
-  }, [shouldRefetchList]);
-
-  const refetch = () => {
-    posListQuery.refetch();
-  };
+  }, [shouldRefetchList, refetch]);
 
   const remove = (posId: string) => {
     const message = 'Are you sure?';
@@ -74,7 +76,9 @@ export function usePosListManager({
   };
 
   const permissionError = posListQuery.error?.graphQLErrors?.some(
-    e => e.message === "Permission required" || e.extensions?.code === "INTERNAL_SERVER_ERROR"
+    (e) =>
+      e.message === 'Permission required' ||
+      e.extensions?.code === 'INTERNAL_SERVER_ERROR',
   );
 
   return {
@@ -83,6 +87,6 @@ export function usePosListManager({
     permissionError,
     posList: posListQuery.data?.posList || [],
     refetch,
-    remove
+    remove,
   };
 }
