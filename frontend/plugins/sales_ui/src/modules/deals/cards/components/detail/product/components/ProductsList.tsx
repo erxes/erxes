@@ -26,6 +26,7 @@ const ProductsList = ({
   const [tax, setTax] = useState<{
     [currency: string]: { value?: number; percent?: number };
   }>({});
+  const [total, setTotal] = useState<{ [currency: string]: number }>({});
 
   const currentUser = useAtomValue(currentUserState);
   const configs = currentUser?.configs || {};
@@ -50,6 +51,20 @@ const ProductsList = ({
     // onChangeProductsData(updatedData);
     // this.updateTotal(updatedData);
   };
+
+  // const showTotal = (totalKind: { [currency: string]: number }, kindTxt: string) => {
+  //   return (Object.keys(totalKind) || []).map(currency => (
+  //     <ProductTotal
+  //       key={kindTxt.concat(currency)}
+  //       totalKind={totalKind[currency]}
+  //       kindTxt={kindTxt}
+  //       currency={currency}
+  //       productsData={productsData}
+  //       updateTotal={this.updateTotal}
+  //       onChangeProductsData={onChangeProductsData}
+  //     />
+  //   ));
+  // }
 
   const onPoductBulkSave = (selectedProducts: IProduct[]) => {
     if (!selectedProducts) return;
@@ -126,14 +141,24 @@ const ProductsList = ({
         refetch={refetch}
         dealId={dealId}
       />
-      <div className="flex justify-end mt-2 mb-5 mr-5 gap-2">
+      <div className="sticky bottom-0 right-0 left-0 p-2 flex justify-between items-center z-10 bg-white border-t">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
+            Total Products:
+            <span className="text-primary">{products?.length || 0}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            Total Amount:
+            <span className="text-primary">{0}</span>
+          </div>
+        </div>
         <SelectProductsBulk
           productIds={[]}
           onSelect={(productIds, selectedProducts) =>
             onPoductBulkSave(selectedProducts || ([] as IProduct[]))
           }
         >
-          <Button variant="secondary" className="bg-border">
+          <Button>
             <IconPlus />
             Add Many Products
           </Button>
