@@ -341,7 +341,7 @@ export const dealMutations = {
       addDocs,
     );
 
-    await models.Deals.updateOne(
+    const updatedItem = await models.Deals.findOneAndUpdate(
       { _id: dealId },
       {
         $set: {
@@ -350,10 +350,10 @@ export const dealMutations = {
           ...(await getTotalAmounts(productsData)),
         },
       },
-    );
-
-    const updatedItem =
-      (await models.Deals.findOne({ _id: dealId })) || ({} as any);
+      {
+        new: true
+      }
+    ) || {} as any;
 
     const dataIds = (updatedItem.productsData || [])
       .filter((pd) => !oldDataIds.includes(pd._id))
