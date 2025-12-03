@@ -487,26 +487,26 @@ export const dealMutations = {
     {
       processId,
       dealId,
-      dataId,
+      dataIds,
     }: {
       processId: string;
       dealId: string;
-      dataId: string;
+      dataIds: string[];
     },
     { models, user }: IContext,
   ) {
     const deal = await models.Deals.getDeal(dealId);
 
-    const oldPData = (deal.productsData || []).find(
-      (pdata) => pdata._id === dataId,
+    const oldPData = (deal.productsData || []).filter(
+      (pdata) => pdata._id && dataIds.includes(pdata._id),
     );
 
-    if (!oldPData) {
+    if (!oldPData.length) {
       throw new Error('Deals productData not found');
     }
 
     const productsData = (deal.productsData || []).filter(
-      (data) => data._id !== dataId,
+      (data) => !data._id || !dataIds.includes(data._id),
     );
 
     await models.Deals.updateOne(
@@ -549,14 +549,14 @@ export const dealMutations = {
         processId,
         action: 'delete',
         data: {
-          dataId,
+          dataIds,
           productsData,
         },
       },
     });
 
     return {
-      dataId,
+      dataIds,
       productsData,
     };
   },
