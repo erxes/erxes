@@ -1,7 +1,9 @@
-import { IResponseTemplate } from '@/response/@types/responseTemplates';
+import {
+  IResponseTemplate,
+  IResponseTemplatesEdit,
+} from '@/response/@types/responseTemplates';
 import { IContext } from '~/connectionResolvers';
 import { checkPermission } from 'erxes-api-shared/core-modules';
-import { IResponseTemplatesEdit } from '@/response/@types/responseTemplates';
 
 export const responseTemplateMutations = {
   async responseTemplatesAdd(
@@ -17,12 +19,7 @@ export const responseTemplateMutations = {
     { _id, ...fields }: IResponseTemplatesEdit,
     { models }: IContext,
   ) {
-    const updated = await models.ResponseTemplates.updateResponseTemplate(
-      _id,
-      fields,
-    );
-
-    return updated;
+    return await models.ResponseTemplates.updateResponseTemplate(_id, fields);
   },
 
   async responseTemplatesRemove(
@@ -30,9 +27,7 @@ export const responseTemplateMutations = {
     { _id }: { _id: string },
     { models }: IContext,
   ) {
-    const removed = await models.ResponseTemplates.removeResponseTemplate(_id);
-
-    return removed;
+    return models.ResponseTemplates.removeResponseTemplate(_id);
   },
 };
 

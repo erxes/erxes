@@ -1,7 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Button } from 'erxes-ui';
-import { useParams } from 'react-router-dom';
 import { useGetResponse } from '@/responseTemplate/hooks/useGetRespone';
 export const ResponseDetailBreadcrumb = () => {
   const { responseId, id } = useParams<{ responseId: string; id: string }>();

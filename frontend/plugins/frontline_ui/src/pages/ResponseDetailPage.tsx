@@ -1,9 +1,7 @@
-import { Breadcrumb } from 'erxes-ui';
+import { Breadcrumb, Button } from 'erxes-ui';
 import { IconArrowLeft } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { ResponseDetail } from '@/responseTemplate/components/ResponseDetail';
-import { useParams } from 'react-router-dom';
-import { Button } from 'erxes-ui';
 
 export const ResponseDetailPage = () => {
   const { id: channelId } = useParams<{ id: string; responseId: string }>();

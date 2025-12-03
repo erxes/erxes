@@ -12,8 +12,6 @@ import { useResponseAdd } from '@/responseTemplate/hooks/useAddResponse';
 import { useNavigate } from 'react-router';
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
-
-import { CREATE_RESPONSE_FORM_SCHEMA } from '@/settings/schema/response';
 import { ResponseHotkeyScope } from '@/responseTemplate/types/ResponseHotkeyScope';
 import { CreateResponseForm } from './CreateResponseForm';
 import { TCreateResponseForm } from '../types';

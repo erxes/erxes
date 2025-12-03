@@ -31,7 +31,6 @@ interface ResponseTemplateSelectorProps {
   children: ReactNode;
 }
 
-// Helper function to extract text from content
 const getPreviewText = (content: string): string => {
   try {
     const parsed = JSON.parse(content);
@@ -77,7 +76,6 @@ export const ResponseTemplateSelector: React.FC<
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedChannel, setSelectedChannel] = useState<string>('all');
 
-  // Fetch channels and responses
   const { channels, loading: channelsLoading } = useGetChannels();
   const { responses, loading: responsesLoading } = useGetResponses({
     variables: {
@@ -87,7 +85,6 @@ export const ResponseTemplateSelector: React.FC<
     },
   });
 
-  // Process channels for the dropdown
   const availableChannels = useMemo<ChannelOption[]>(() => {
     if (!channels) return [];
     return channels.map((channel: IChannel) => ({
@@ -96,7 +93,6 @@ export const ResponseTemplateSelector: React.FC<
     }));
   }, [channels]);
 
-  // Filter templates based on search and channel selection
   const filteredTemplates = useMemo<ResponseTemplate[]>(() => {
     if (!responses) return [];
 

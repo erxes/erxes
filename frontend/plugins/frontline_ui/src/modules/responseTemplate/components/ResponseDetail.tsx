@@ -1,9 +1,8 @@
 import { useParams } from 'react-router-dom';
 import { useGetResponse } from '@/responseTemplate/hooks/useGetRespone';
 import { CreateResponseForm } from '@/responseTemplate/components/CreateResponseForm';
-import { Form, Button, Skeleton, toast } from 'erxes-ui';
+import { Skeleton, toast } from 'erxes-ui';
 import { useUpdateResponse } from '@/responseTemplate/hooks/useUpdateResponses';
-import { useEffect } from 'react';
 import { TUpdateResponseForm } from '@/responseTemplate/types';
 
 export const ResponseDetail = () => {

@@ -4,7 +4,6 @@ import {
   CREATE_RESPONSE_FORM_SCHEMA,
   UPDATE_RESPONSE_FORM_SCHEMA,
 } from '@/settings/schema/response';
-import { useForm } from 'react-hook-form';
 export interface IResponseTemplate {
   _id: string;
   createdAt: string;
