@@ -151,7 +151,7 @@ export const CLIENT_PORTAL_CONFIG_UPDATE = gql`
         emailSubject
         __typename
       }
-      mailConfig {
+      verificationMailConfig {
         subject
         invitationContent
         registrationContent

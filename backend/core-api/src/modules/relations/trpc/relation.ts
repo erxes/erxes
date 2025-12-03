@@ -10,7 +10,6 @@ export const relationTrpcRouter = t.router({
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
-
         return models.Relations.getRelationsByEntities(input);
       }),
 

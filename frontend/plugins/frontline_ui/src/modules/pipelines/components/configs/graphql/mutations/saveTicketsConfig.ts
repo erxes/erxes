@@ -5,29 +5,36 @@ const SAVE_TICKETS_CONFIG = gql`
     ticketSaveConfig(input: $input) {
       name
       channelId
-      company {
-        isShowName
-        isShowRegistrationNumber
-        isShowAddress
-        isShowPhoneNumber
-        isShowEmail
-      }
-      contactType
       createdAt
-      customer {
-        isShowFirstName
-        isShowLastName
-        isShowPhoneNumber
-        isShowEmail
-      }
       id
       pipelineId
       selectedStatusId
-      ticketBasicFields {
-        isShowName
-        isShowDescription
-        isShowAttachment
-        isShowTags
+      parentId
+      formFields {
+        name {
+          isShow
+          label
+          order
+          placeholder
+        }
+        description {
+          isShow
+          label
+          order
+          placeholder
+        }
+        attachment {
+          isShow
+          label
+          order
+          placeholder
+        }
+        tags {
+          isShow
+          label
+          order
+          placeholder
+        }
       }
       updatedAt
     }

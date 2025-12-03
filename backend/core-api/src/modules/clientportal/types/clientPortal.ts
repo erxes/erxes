@@ -77,14 +77,16 @@ export interface IClientPortal {
   enableToki?: boolean;
   enableManualVerification?: boolean;
   enablePasswordVerification?: boolean;
-  enableMail?: boolean;
   enableTestUser?: boolean;
 
-  mailConfig?: IMailConfig;
+  verificationMailConfig?: IMailConfig;
   manualVerificationConfig?: IManualVerificationConfig;
   passwordVerificationConfig?: IPasswordVerificationConfig;
   socialpayConfig?: ISocialpayConfig;
   tokiConfig?: ITokiConfig;
+
+  verificationType?: 'email' | 'phone' | 'both' | 'none';
+  verificationCodeExpiresIn?: number;
 
   googleCredentials?: string;
   googleClientId?: string;
