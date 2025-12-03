@@ -155,6 +155,12 @@ export const types = `
     action: String
     deal: Deal
   }
+  type DealProductsDataChangeResponse {
+    _id: String
+    proccessId: String
+    action: String
+    data: JSON
+  }
 `;
 
 const archivedDealsParams = `
