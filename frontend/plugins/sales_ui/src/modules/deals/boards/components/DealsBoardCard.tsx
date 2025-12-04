@@ -25,7 +25,9 @@ export const DealsBoardCard = ({ id }: BoardCardProps) => {
     createdAt,
     closeDate,
     labels,
+    status, // Added missing status field
   } = useAtomValue(dealBoardItemAtom)(id);
+  const [searchParams] = useQueryState<string>('archivedOnly');
   const [, setSalesItemId] = useQueryState<string>('salesItemId');
   const setActiveDealAtom = useSetAtom(dealDetailSheetState);
 
@@ -34,8 +36,15 @@ export const DealsBoardCard = ({ id }: BoardCardProps) => {
     setActiveDealAtom(_id);
   };
 
+  const archivedOnly = searchParams === 'true';
+  const isArchived = status === 'archived';
+  const showArchivedBadge = archivedOnly || isArchived;
+
   return (
-    <div onClick={() => onCardClick()}>
+    <div
+      className={showArchivedBadge ? 'relative overflow-hidden' : ''}
+      onClick={() => onCardClick()}
+    >
       <div className="flex items-center justify-between h-9 px-1.5">
         <DateSelectDeal
           value={startDate}
@@ -84,6 +93,13 @@ export const DealsBoardCard = ({ id }: BoardCardProps) => {
         assignedUsers={assignedUsers || []}
         id={_id}
       />
+      {showArchivedBadge && (
+        <div className="pointer-events-none select-none absolute bottom-6 -right-10 -rotate-45 w-40">
+          <span className="block w-full text-center px-8 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 border-t border-b border-yellow-200 ">
+            Archived
+          </span>
+        </div>
+      )}
     </div>
   );
 };
