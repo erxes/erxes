@@ -195,6 +195,12 @@ const productRules = `
   }
 `;
 
+const lastCode = `
+  query lastCode($categoryId: String!) {
+    lastCode(categoryId: $categoryId)
+  }
+`;
+
 
 export default {
   products,
@@ -213,5 +219,6 @@ export default {
   bundleConditionDetail,
   bundleConditionTotalCount,
   bundleRules,
-  productRules
+  productRules,
+  lastCode
 };

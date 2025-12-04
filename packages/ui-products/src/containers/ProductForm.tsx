@@ -1,15 +1,15 @@
 import * as compose from "lodash.flowright";
 
 import {
-  BundleConditionQueryResponse,
   BundleRulesQueryResponse,
   ConfigsQueryResponse,
   IConfigsMap,
   IProduct,
   ProductCategoriesQueryResponse,
   ProductsConfigsQueryResponse,
-  UomsQueryResponse,
+  UomsQueryResponse
 } from "../types";
+
 import { mutations, queries } from "../graphql";
 
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
@@ -19,6 +19,12 @@ import React from "react";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { withProps } from "@erxes/ui/src/utils";
+
+const LAST_CODE_QUERY = gql`
+  query lastCode($categoryId: String!) {
+    lastCode(categoryId: $categoryId)
+  }
+`;
 
 type Props = {
   product?: IProduct;
@@ -31,6 +37,7 @@ type FinalProps = {
   productsConfigsQuery: ProductsConfigsQueryResponse;
   uomsQuery: UomsQueryResponse;
   bundlesQuery: BundleRulesQueryResponse;
+  lastCodeQuery: any;
 } & Props;
 
 const ProductFormContainer = (props: FinalProps) => {
@@ -40,6 +47,7 @@ const ProductFormContainer = (props: FinalProps) => {
     uomsQuery,
     configsQuery,
     bundlesQuery,
+    lastCodeQuery
   } = props;
 
   if (
@@ -47,7 +55,8 @@ const ProductFormContainer = (props: FinalProps) => {
     productsConfigsQuery.loading ||
     uomsQuery.loading ||
     configsQuery.loading ||
-    bundlesQuery.loading
+    bundlesQuery.loading ||
+    lastCodeQuery.loading
   ) {
     return null;
   }
@@ -57,9 +66,10 @@ const ProductFormContainer = (props: FinalProps) => {
     values,
     isSubmitted,
     callback,
-    object,
+    object
   }: IButtonMutateProps) => {
     const { unitPrice, productCount, minimiumCount } = values;
+
     const attachmentMoreArray: any[] = [];
     const attachment = values.attachment || undefined;
     const attachmentMore = values.attachmentMore || [];
@@ -94,9 +104,10 @@ const ProductFormContainer = (props: FinalProps) => {
 
   const productCategories = productCategoriesQuery.productCategories || [];
   const configs = productsConfigsQuery.productsConfigs || [];
-  const configsMap = {};
+  const configsMap: IConfigsMap = {};
   const currencies = configsQuery.configsGetValue?.value || [];
   const bundleRules = bundlesQuery.bundleRules || [];
+
   for (const config of configs) {
     configsMap[config.code] = config.value;
   }
@@ -108,9 +119,13 @@ const ProductFormContainer = (props: FinalProps) => {
     renderButton,
     productCategories,
     uoms,
-    configsMap: configsMap || ({} as IConfigsMap),
+    configsMap,
     currencies,
     bundleRules,
+    getLastCode: async (categoryId: string) => {
+      const res = await lastCodeQuery.refetch({ categoryId });
+      return res?.data?.lastCode || null;
+    }
   };
 
   return <Form {...updatedProps} />;
@@ -121,35 +136,39 @@ const getRefetchQueries = () => {
     "productDetail",
     "products",
     "productsTotalCount",
-    "productCategories",
+    "productCategories"
   ];
 };
 
 export default withProps<Props>(
   compose(
+    graphql(LAST_CODE_QUERY, {
+      name: "lastCodeQuery",
+      options: { variables: { categoryId: "" } }
+    }),
     graphql<Props, ProductCategoriesQueryResponse>(
       gql(queries.productCategories),
       {
-        name: "productCategoriesQuery",
+        name: "productCategoriesQuery"
       }
     ),
     graphql<Props, ConfigsQueryResponse>(gql(queries.configs), {
       name: "configsQuery",
       options: () => ({
         variables: {
-          code: "dealCurrency",
+          code: "dealCurrency"
         },
-        fetchPolicy: "network-only",
-      }),
+        fetchPolicy: "network-only"
+      })
     }),
     graphql<{}, BundleRulesQueryResponse>(gql(queries.bundleRules), {
-      name: "bundlesQuery",
+      name: "bundlesQuery"
     }),
     graphql<{}, UomsQueryResponse>(gql(queries.uoms), {
-      name: "uomsQuery",
+      name: "uomsQuery"
     }),
     graphql<{}, ProductsConfigsQueryResponse>(gql(queries.productsConfigs), {
-      name: "productsConfigsQuery",
+      name: "productsConfigsQuery"
     })
   )(ProductFormContainer)
 );
