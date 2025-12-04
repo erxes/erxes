@@ -536,7 +536,7 @@ export function AddPost() {
             >
               {activeTab === 'content' && (
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                     <Form.Field
                       control={form.control}
                       name="title"
@@ -560,7 +560,7 @@ export function AddPost() {
                         </Form.Item>
                       )}
                     />
-                    <Form.Field
+                    {/* <Form.Field
                       control={form.control}
                       name="type"
                       render={({ field }) => (
@@ -583,7 +583,7 @@ export function AddPost() {
                           <Form.Message />
                         </Form.Item>
                       )}
-                    />
+                    /> */}
                   </div>
 
                   <Form.Field
@@ -675,7 +675,10 @@ export function AddPost() {
                                 value={field.value || undefined}
                                 onChange={(d) => {
                                   const picked = d as Date | undefined;
-                                  if (!picked) return field.onChange(undefined);
+                                  if (!picked) {
+                                    field.onChange(undefined);
+                                    return;
+                                  }
                                   const current = field.value || new Date();
                                   const merged = new Date(picked);
                                   merged.setHours(current.getHours());
@@ -689,7 +692,6 @@ export function AddPost() {
                                     ? 'Pick publish date'
                                     : 'Pick schedule date'
                                 }
-                                withPresent
                               />
                               <input
                                 type="time"
@@ -701,15 +703,14 @@ export function AddPost() {
                                       ).padStart(2, '0')}:${String(
                                         new Date(field.value).getMinutes(),
                                       ).padStart(2, '0')}`
-                                    : `${String(new Date().getHours()).padStart(
-                                        2,
-                                        '0',
-                                      )}:${String(
-                                        new Date().getMinutes(),
-                                      ).padStart(2, '0')}`
+                                    : ''
                                 }
                                 onChange={(e) => {
-                                  const [hh, mm] = e.target.value
+                                  const timeValue = e.target.value;
+                                  if (!timeValue) {
+                                    return;
+                                  }
+                                  const [hh, mm] = timeValue
                                     .split(':')
                                     .map((v) => parseInt(v, 10));
                                   const base = field.value || new Date();
@@ -765,8 +766,10 @@ export function AddPost() {
                                     value={field.value || undefined}
                                     onChange={(d) => {
                                       const picked = d as Date | undefined;
-                                      if (!picked)
-                                        return field.onChange(undefined);
+                                      if (!picked) {
+                                        field.onChange(undefined);
+                                        return;
+                                      }
                                       const current = field.value || new Date();
                                       const merged = new Date(picked);
                                       merged.setHours(current.getHours());
@@ -776,7 +779,6 @@ export function AddPost() {
                                       field.onChange(merged);
                                     }}
                                     placeholder="Pick auto archive date"
-                                    withPresent
                                   />
                                   <input
                                     type="time"
@@ -788,14 +790,14 @@ export function AddPost() {
                                           ).padStart(2, '0')}:${String(
                                             new Date(field.value).getMinutes(),
                                           ).padStart(2, '0')}`
-                                        : `${String(
-                                            new Date().getHours(),
-                                          ).padStart(2, '0')}:${String(
-                                            new Date().getMinutes(),
-                                          ).padStart(2, '0')}`
+                                        : ''
                                     }
                                     onChange={(e) => {
-                                      const [hh, mm] = e.target.value
+                                      const timeValue = e.target.value;
+                                      if (!timeValue) {
+                                        return;
+                                      }
+                                      const [hh, mm] = timeValue
                                         .split(':')
                                         .map((v) => parseInt(v, 10));
                                       const base = field.value || new Date();
@@ -831,6 +833,8 @@ export function AddPost() {
                             )}
                             options={categories}
                             placeholder="Select"
+                            hidePlaceholderWhenSelected={true}
+                            emptyIndicator="Empty"
                             onChange={(opts: any[]) =>
                               field.onChange(opts.map((o) => o.value))
                             }
@@ -855,6 +859,8 @@ export function AddPost() {
                             )}
                             options={tags}
                             placeholder="Select"
+                            hidePlaceholderWhenSelected={true}
+                            emptyIndicator="Empty"
                             onChange={(opts: any[]) =>
                               field.onChange(opts.map((o) => o.value))
                             }

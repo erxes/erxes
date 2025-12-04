@@ -47,9 +47,15 @@ export function Cms() {
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('thumbnail');
   const [isWebsiteDrawerOpen, setIsWebsiteDrawerOpen] = useState(false);
   const [editingWebsite, setEditingWebsite] = useState<any>(null);
-  const { data, loading, error } = useQuery(CONTENT_CMS_LIST);
+  const { data, loading, error, refetch } = useQuery(CONTENT_CMS_LIST);
   const cmsList = data?.contentCMSList || [];
   const displayWebsites: Website[] = cmsList;
+
+  const handleWebsiteCreatedOrUpdated = () => {
+    refetch();
+    setIsWebsiteDrawerOpen(false);
+    setEditingWebsite(null);
+  };
 
   const handleCloseWebsiteDrawer = () => {
     setIsWebsiteDrawerOpen(false);
@@ -318,9 +324,10 @@ export function Cms() {
           )}
 
           <WebsiteDrawer
-            website={editingWebsite}
             isOpen={isWebsiteDrawerOpen}
             onClose={handleCloseWebsiteDrawer}
+            onSuccess={handleWebsiteCreatedOrUpdated}
+            website={editingWebsite}
           />
         </>
       )}

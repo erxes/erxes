@@ -35,6 +35,7 @@ interface WebsiteDrawerProps {
   website?: Website;
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 interface WebsiteFormData {
@@ -51,6 +52,7 @@ export function WebsiteDrawer({
   website,
   isOpen,
   onClose,
+  onSuccess,
 }: WebsiteDrawerProps) {
   const isEditing = !!website;
   const [hasPermissionError, setHasPermissionError] = useState(false);
@@ -75,29 +77,33 @@ export function WebsiteDrawer({
   });
 
   useEffect(() => {
-    if (website) {
-      form.reset({
-        name: website.name || '',
-        description: website.description || '',
-        domain: website.domain || '',
-        url: website.url || '',
-        kind: website.kind || 'client',
-        languages: website.languages || [],
-        language: website.language || '',
-      });
-    } else {
-      form.reset({
-        name: '',
-        description: '',
-        domain: '',
-        url: '',
-        kind: 'client',
-        languages: [],
-        language: '',
-      });
+    if (isOpen) {
+      refetchClientPortals();
+
+      if (website) {
+        form.reset({
+          name: website.name || '',
+          description: website.description || '',
+          domain: website.domain || '',
+          url: website.url || '',
+          kind: website.kind || 'client',
+          languages: website.languages || [],
+          language: website.language || '',
+        });
+      } else {
+        form.reset({
+          name: '',
+          description: '',
+          domain: '',
+          url: '',
+          kind: 'client',
+          languages: [],
+          language: '',
+        });
+      }
+      setHasPermissionError(false);
     }
-    setHasPermissionError(false);
-  }, [website, form, isOpen]);
+  }, [website, form, isOpen, refetchClientPortals]);
 
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
@@ -126,6 +132,9 @@ export function WebsiteDrawer({
     onCompleted: () => {
       onClose();
       form.reset();
+      if (onSuccess) {
+        onSuccess();
+      }
       toast({
         title: 'Success',
         description: 'CMS created successfully',

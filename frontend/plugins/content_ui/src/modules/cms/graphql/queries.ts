@@ -403,7 +403,12 @@ export const CMS_TAGS_EDIT = gql`
   mutation CmsTagsEdit($_id: String!, $input: PostTagInput!) {
     cmsTagsEdit(_id: $_id, input: $input) {
       _id
-      __typename
+      clientPortalId
+      name
+      slug
+      colorCode
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -413,7 +418,6 @@ export const CMS_TAGS_REMOVE = gql`
     cmsTagsRemove(_id: $id)
   }
 `;
-
 export const CMS_CATEGORIES = gql`
   query CmsCategories(
     $clientPortalId: String!
@@ -446,10 +450,42 @@ export const CMS_CATEGORIES = gql`
         customFieldsData
         parent {
           _id
+          clientPortalId
           name
           slug
+          description
+          parentId
           status
-          __typename
+          parent {
+            _id
+            clientPortalId
+            name
+            slug
+            description
+            parentId
+            status
+            parent {
+              _id
+              clientPortalId
+              name
+              slug
+              description
+              parentId
+              status
+              createdAt
+              updatedAt
+              customFieldsData
+              customFieldsMap
+            }
+            createdAt
+            updatedAt
+            customFieldsData
+            customFieldsMap
+          }
+          createdAt
+          updatedAt
+          customFieldsData
+          customFieldsMap
         }
         parentId
         __typename

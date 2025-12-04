@@ -76,16 +76,15 @@ export function Category() {
   });
 
   const [removeCategory] = useMutation(CMS_CATEGORIES_REMOVE, {
-    onCompleted: (_, variables) => {
-      // Update cache to automatically refresh all components using CMS_CATEGORIES query
+    onCompleted: (data, clientOptions) => {
       const existingCategories = client.readQuery({
         query: CMS_CATEGORIES,
         variables: { clientPortalId: websiteId || '', limit: 100 },
       });
 
-      if (existingCategories && variables?.id) {
+      if (existingCategories && clientOptions?.variables?.id) {
         const updatedList = existingCategories.cmsCategories.list.filter(
-          (cat: any) => cat._id !== variables.id,
+          (cat: any) => cat._id !== (clientOptions.variables as any).id,
         );
 
         client.writeQuery({
@@ -177,12 +176,21 @@ export function Category() {
     {
       id: 'parent',
       header: () => <RecordTable.InlineHead label="Parent" icon={IconEdit} />,
-      accessorKey: 'parent.name',
-      cell: ({ row }) => (
-        <span className="text-sm text-gray-500">
-          {row.original.parent?.name || '—'}
-        </span>
-      ),
+      accessorKey: 'parent',
+      cell: ({ row }) => {
+        const getParentName = (parent: any): string => {
+          if (!parent) return '—';
+          // If there's a parent with a name, return it
+          if (parent.name) return parent.name;
+          // If there's a nested parent, recursively get its name
+          if (parent.parent) return getParentName(parent.parent);
+          return '—';
+        };
+
+        const parentName = getParentName(row.original.parent);
+
+        return <span className="text-sm text-gray-500">{parentName}</span>;
+      },
       size: 220,
     },
     {

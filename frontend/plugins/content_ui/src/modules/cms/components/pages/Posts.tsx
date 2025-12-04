@@ -22,6 +22,7 @@ import { useMutation } from '@apollo/client';
 import { CMS_POSTS_EDIT, CMS_POSTS_REMOVE } from '../../graphql/queries';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useTags } from '../../hooks/useTags';
+import { useCategories } from '../../hooks/useCategories';
 
 export function Posts() {
   const { websiteId } = useParams();
@@ -153,18 +154,12 @@ export function Posts() {
       accessorKey: 'categories',
       cell: ({ row }) => {
         const cats = (row.original.categories || []) as any[];
-        if (!cats.length) return null;
         return (
-          <div className="mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent">
-            {cats.map((c: any) => (
-              <span
-                key={c._id}
-                className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
-              >
-                {c.name}
-              </span>
-            ))}
-          </div>
+          <InlineCategoriesEditor
+            postId={row.original._id}
+            websiteId={websiteId}
+            initialCategories={cats}
+          />
         );
       },
       size: 260,
@@ -292,6 +287,7 @@ const InlineTagsEditor = ({
   const [localTags, setLocalTags] = useState(initialTags || []);
 
   const { tags, loading } = useTags({
+    clientPortalId: websiteId || '',
     type: 'cms',
     limit: 100,
   });
@@ -364,6 +360,111 @@ const InlineTagsEditor = ({
               value={selectedOptions as any}
               options={options as any}
               placeholder="Select tags"
+              onChange={handleChange as any}
+              disabled={saving}
+            />
+          )}
+        </div>
+      </RecordTableInlineCell.Content>
+    </PopoverScoped>
+  );
+};
+
+const InlineCategoriesEditor = ({
+  postId,
+  websiteId,
+  initialCategories,
+}: {
+  postId: string;
+  websiteId?: string;
+  initialCategories: Array<{ _id: string; name: string }>;
+}) => {
+  const [selectedIds, setSelectedIds] = useState<string[]>(
+    (initialCategories || []).map((c) => c._id),
+  );
+  const [localCategories, setLocalCategories] = useState(
+    initialCategories || [],
+  );
+
+  const { categories, loading } = useCategories({
+    clientPortalId: websiteId || '',
+    limit: 100,
+  });
+
+  const options = useMemo(
+    () => (categories || []).map((c: any) => ({ label: c.name, value: c._id })),
+    [categories],
+  );
+
+  const selectedOptions = useMemo(
+    () => options.filter((o) => selectedIds.includes(o.value)),
+    [options, selectedIds],
+  );
+
+  const [editPost, { loading: saving }] = useMutation(CMS_POSTS_EDIT);
+
+  const handleChange = async (
+    opts: Array<{ label: string; value: string }>,
+  ) => {
+    const newIds = opts.map((o) => o.value);
+    setSelectedIds(newIds);
+    setLocalCategories(
+      opts.map((o) => ({ _id: o.value, name: o.label })) as any,
+    );
+    try {
+      await editPost({
+        variables: { id: postId, input: { categoryIds: newIds } },
+      });
+      toast({ title: 'Saved', description: 'Categories updated' });
+    } catch (e: any) {
+      toast({
+        title: 'Error',
+        description: e?.message || 'Failed to update categories',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  return (
+    <PopoverScoped scope={`cms.posts.${postId}.categories`}>
+      <RecordTableInlineCell.Trigger className="mx-2 my-1">
+        {localCategories?.length ? (
+          <div className="flex flex-wrap items-center gap-2">
+            {localCategories.map((c: any) => (
+              <span
+                key={c._id}
+                className="inline-flex items-center h-6 px-2 rounded-md border text-xs bg-white text-gray-800"
+              >
+                {c.name}
+              </span>
+            ))}
+            <span className="inline-flex items-center h-6 px-2 rounded-md border text-xs text-muted-foreground">
+              +
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center h-6 px-2 rounded-md border text-xs text-muted-foreground">
+              +
+            </span>
+            <span className="text-muted-foreground text-xs">No categories</span>
+          </div>
+        )}
+      </RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Content>
+        <div className="w-[280px] p-2 space-y-2">
+          <div className="text-xs font-medium text-gray-600">
+            Edit Categories
+          </div>
+          {loading ? (
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <Spinner size="sm" /> Loading categories...
+            </div>
+          ) : (
+            <MultipleSelector
+              value={selectedOptions as any}
+              options={options as any}
+              placeholder="Select categories"
               onChange={handleChange as any}
               disabled={saving}
             />

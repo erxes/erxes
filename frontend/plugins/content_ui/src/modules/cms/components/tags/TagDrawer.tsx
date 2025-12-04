@@ -3,14 +3,16 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { Button, Form, Input, Select, Sheet, toast } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { CMS_TAGS_ADD, CMS_TAGS } from '../../graphql/queries';
+import { CMS_TAGS_ADD, CMS_TAGS_EDIT, CMS_TAGS } from '../../graphql/queries';
 
 interface Tag {
   _id: string;
   name: string;
   slug: string;
   clientPortalId: string;
+  colorCode?: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 interface TagDrawerProps {
@@ -41,6 +43,7 @@ export function TagDrawer({
     defaultValues: {
       name: '',
       slug: '',
+      colorCode: '#3B82F6',
       clientPortalId,
     },
   });
@@ -50,6 +53,7 @@ export function TagDrawer({
       form.reset({
         name: tag.name || '',
         slug: tag.slug || '',
+        colorCode: tag.colorCode || '#3B82F6',
         clientPortalId: tag.clientPortalId || clientPortalId,
       });
     } else {
@@ -104,16 +108,66 @@ export function TagDrawer({
     },
   });
 
+  const [editTag, { loading: editing }] = useMutation(CMS_TAGS_EDIT, {
+    refetchQueries: ['CmsTags'],
+    onCompleted: () => {
+      onClose();
+      form.reset();
+      toast({
+        title: 'Success',
+        description: 'Tag updated successfully',
+        variant: 'default',
+      });
+    },
+    onError: (error) => {
+      console.error('Tag update error:', error);
+
+      const permissionError = error.graphQLErrors?.some(
+        (e) =>
+          e.message === 'Permission required' ||
+          e.extensions?.code === 'INTERNAL_SERVER_ERROR',
+      );
+
+      if (permissionError) {
+        setHasPermissionError(true);
+        toast({
+          title: 'Permission Required',
+          description:
+            'You do not have permission to edit tags. Please contact your administrator to grant the necessary permissions.',
+          variant: 'destructive',
+          duration: 8000,
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description:
+            error.message || 'Failed to update tag. Please try again.',
+          variant: 'destructive',
+          duration: 5000,
+        });
+      }
+    },
+  });
+
   const onSubmit = (data: TagFormData) => {
     const input = {
       ...data,
     };
 
-    addTag({
-      variables: {
-        input,
-      },
-    });
+    if (isEditing && tag?._id) {
+      editTag({
+        variables: {
+          _id: tag._id,
+          input,
+        },
+      });
+    } else {
+      addTag({
+        variables: {
+          input,
+        },
+      });
+    }
   };
 
   // Generate slug from name
@@ -202,8 +256,11 @@ export function TagDrawer({
               <Button onClick={onClose} variant="outline">
                 Cancel
               </Button>
-              <Button type="submit" disabled={saving || hasPermissionError}>
-                {saving
+              <Button
+                type="submit"
+                disabled={saving || editing || hasPermissionError}
+              >
+                {saving || editing
                   ? isEditing
                     ? 'Saving...'
                     : 'Creating...'
