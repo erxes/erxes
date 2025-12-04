@@ -1,16 +1,20 @@
 import { useState, useCallback } from 'react';
-import { useToast } from 'erxes-ui/hooks';
+import { useToast, useQueryState } from 'erxes-ui';
 import { CustomNode } from '@/pos/slot/types';
 import {
   BasicInfoFormValues,
   FormStepData,
   DeliveryConfigFormValues,
   FinanceConfigFormValues,
+  EbarimtConfigFormValues,
+  PermissionFormValues,
 } from '../components/formSchema';
 import { useSubmitPosForm } from '@/pos/hooks/usePosAdd';
 import { useUpdatePosSlots } from '@/pos/hooks/useSlotAdd';
+import { usePosEditProductGroup } from '@/pos/hooks/usePosEditProductGroup';
 import { TOAST_MESSAGES } from '@/pos/constants';
 import { SlotData, UsePosCreateHandlersProps } from '@/pos/create-pos/types';
+import { IScreenConfig } from '../../pos-detail/types/IPos';
 
 const transformSlotNodes = (nodes: CustomNode[], posId: string): SlotData[] => {
   return nodes.map((node) => ({
@@ -56,9 +60,24 @@ export const usePosCreateHandlers = ({
     loading: slotLoading,
     error: slotError,
   } = useUpdatePosSlots();
+  const { productGroupSave } = usePosEditProductGroup();
   const { toast } = useToast();
+  const [, setCreate] = useQueryState<boolean>('create', {
+    defaultValue: false,
+  });
+
   const [createdPosId, setCreatedPosId] = useState<string | null>(null);
   const [slotNodes, setSlotNodes] = useState<CustomNode[]>([]);
+  const [screenConfigData, setScreenConfigData] = useState<{
+    kitchenScreen?: IScreenConfig;
+    waitingScreen?: IScreenConfig;
+  }>({});
+  const [ebarimtConfigData, setEbarimtConfigData] = useState<
+    EbarimtConfigFormValues | undefined
+  >();
+  const [permissionData, setPermissionData] = useState<
+    PermissionFormValues | undefined
+  >();
 
   const handleBasicInfoSubmit = useCallback(
     (data: BasicInfoFormValues) => {
@@ -82,6 +101,27 @@ export const usePosCreateHandlers = ({
     },
     [forms.financeConfig],
   );
+
+  const handleScreenConfigSubmit = useCallback(
+    async (data: {
+      kitchenScreen: IScreenConfig;
+      waitingScreen: IScreenConfig;
+    }) => {
+      setScreenConfigData(data);
+    },
+    [],
+  );
+
+  const handleEbarimtConfigChange = useCallback(
+    (data: EbarimtConfigFormValues) => {
+      setEbarimtConfigData(data);
+    },
+    [],
+  );
+
+  const handlePermissionSubmit = useCallback((data: PermissionFormValues) => {
+    setPermissionData(data);
+  }, []);
 
   const handleSaveSlots = useCallback(
     async (posId: string): Promise<void> => {
@@ -113,6 +153,7 @@ export const usePosCreateHandlers = ({
   const handleFinalSubmit = useCallback(async (): Promise<void> => {
     try {
       const basicInfo = forms.basicInfo.getValues();
+
       if (!basicInfo.name || !basicInfo.description) {
         toast({
           title: 'Missing required fields',
@@ -125,24 +166,18 @@ export const usePosCreateHandlers = ({
       const finalFormStepData: FormStepData = {
         ...formStepData,
         basicInfo,
-        permission: {
-          ...forms.permission.getValues(),
-          adminIds: forms.permission.getValues().adminTeamMember
-            ? [forms.permission.getValues().adminTeamMember]
-            : [],
-          cashierIds: forms.permission.getValues().cashierTeamMember
-            ? [forms.permission.getValues().cashierTeamMember]
-            : [],
-        },
+        permission: permissionData || forms.permission.getValues(),
+        ...(forms.uiConfig && { uiConfig: forms.uiConfig.getValues() }),
         product: forms.product.getValues(),
         payment: forms.payment.getValues(),
-        ...(forms.uiConfig && { uiConfig: forms.uiConfig.getValues() }),
         ...(forms.financeConfig && {
           financeConfig: forms.financeConfig.getValues(),
         }),
         ...(forms.deliveryConfig && {
           deliveryConfig: forms.deliveryConfig.getValues(),
         }),
+        ...screenConfigData,
+        ...(ebarimtConfigData && { ebarimtConfig: ebarimtConfigData }),
       };
 
       const result = await submitForm(finalFormStepData);
@@ -153,6 +188,20 @@ export const usePosCreateHandlers = ({
       const posId = result.data.posAdd._id;
       setCreatedPosId(posId);
 
+      // Save product groups if any
+      const productData = forms.product.getValues();
+      if (productData?.productGroups && productData.productGroups.length > 0) {
+        await productGroupSave(
+          {
+            variables: {
+              posId,
+              groups: productData.productGroups,
+            },
+          },
+          ['posId', 'groups'],
+        );
+      }
+
       if (slotNodes.length > 0) {
         await handleSaveSlots(posId);
       }
@@ -161,6 +210,8 @@ export const usePosCreateHandlers = ({
         title: TOAST_MESSAGES.POS_CREATED,
         description: 'POS has been created successfully',
       });
+
+      setCreate(false);
     } catch (error) {
       toast({
         title: TOAST_MESSAGES.POS_CREATION_FAILED,
@@ -169,7 +220,19 @@ export const usePosCreateHandlers = ({
       });
       throw error;
     }
-  }, [forms, formStepData, submitForm, slotNodes, handleSaveSlots, toast]);
+  }, [
+    forms,
+    formStepData,
+    submitForm,
+    slotNodes,
+    handleSaveSlots,
+    toast,
+    setCreate,
+    screenConfigData,
+    ebarimtConfigData,
+    permissionData,
+    productGroupSave,
+  ]);
 
   const getCurrentDeliveryConfig = useCallback(() => {
     return forms.deliveryConfig ? forms.deliveryConfig.getValues() : null;
@@ -202,8 +265,11 @@ export const usePosCreateHandlers = ({
 
   return {
     handleBasicInfoSubmit,
+    handlePermissionSubmit,
     handleDeliveryConfigSubmit,
     handleFinanceConfigSubmit,
+    handleScreenConfigSubmit,
+    handleEbarimtConfigChange,
     handleFinalSubmit,
     handleNodesUpdate,
     handleSaveSlots,

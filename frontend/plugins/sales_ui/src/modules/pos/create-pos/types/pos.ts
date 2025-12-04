@@ -5,8 +5,12 @@ import {
   FinanceConfigFormValues,
   PaymentFormValues,
   PermissionFormValues,
-  PosDetailFormValues,
   ProductFormValues,
+  UiConfigFormValues,
+  KitchenScreenConfigFormValues,
+  WaitingScreenConfigFormValues,
+  PosDetailFormValues,
+  EbarimtConfigFormValues,
 } from '../components/formSchema';
 import { CustomNode } from '@/pos/slot/types';
 
@@ -23,11 +27,20 @@ export interface GetPosCreateTabsProps {
     permission: UseFormReturn<PermissionFormValues>;
     product: UseFormReturn<ProductFormValues>;
     payment: UseFormReturn<PaymentFormValues>;
+    uiConfig: UseFormReturn<UiConfigFormValues>;
+    kitchenScreen: UseFormReturn<KitchenScreenConfigFormValues>;
+    waitingScreen: UseFormReturn<WaitingScreenConfigFormValues>;
   };
   handlers: {
     handleNodesUpdate: (nodes: CustomNode[]) => void;
-    handleDeliveryConfigUpdate?: (data: DeliveryConfigFormValues) => void;
+    handlePermissionSubmit?: (data: PermissionFormValues) => void;
+    handleDeliveryConfigSubmit?: (data: DeliveryConfigFormValues) => void;
     handleFinanceConfigSubmit?: (data: FinanceConfigFormValues) => void;
+    handleScreenConfigSubmit?: (data: {
+      kitchenScreen: KitchenScreenConfigFormValues;
+      waitingScreen: WaitingScreenConfigFormValues;
+    }) => Promise<void>;
+    handleEbarimtConfigChange?: (data: EbarimtConfigFormValues) => void;
   };
   data: {
     createdPosId: string | null;

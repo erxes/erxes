@@ -1,20 +1,20 @@
 import {
   Button,
   Checkbox,
+  CurrencyField,
+  Dialog,
   Form,
   Input,
   Select,
-  Textarea,
-  CurrencyField,
   Spinner,
-  Dialog,
+  Textarea,
 } from 'erxes-ui';
-import { AccountKind, JournalEnum } from '../types/Account';
-import { SelectAccountCategory } from '../account-categories/components/SelectAccountCategory';
+import { UseFormReturn, useWatch } from 'react-hook-form';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
-import { UseFormReturn } from 'react-hook-form';
-import { TAccountForm } from '../types/accountForm';
+import { SelectAccountCategory } from '../account-categories/components/SelectAccountCategory';
 import { JOURNAL_LABELS } from '../constants/journalLabel';
+import { AccountKind, AccountStatus, JournalEnum } from '../types/Account';
+import { TAccountForm } from '../types/accountForm';
 
 export const AccountForm = ({
   form,
@@ -25,6 +25,11 @@ export const AccountForm = ({
   handleSubmit: (data: TAccountForm) => void;
   loading: boolean;
 }) => {
+  const status = useWatch({
+    control: form.control,
+    name: 'status'
+  });
+
   return (
     <Form {...form}>
       <form
@@ -119,21 +124,20 @@ export const AccountForm = ({
           render={({ field }) => (
             <Form.Item>
               <Form.Label>Kind</Form.Label>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <Form.Control>
+              <Form.Control>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <Select.Trigger>
                     <Select.Value placeholder="Select kind" />
                   </Select.Trigger>
-                </Form.Control>
-                <Select.Content>
-                  {Object.values(AccountKind).map((kind) => (
-                    <Select.Item key={kind} value={kind}>
-                      {kind.charAt(0).toUpperCase() + kind.slice(1)}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select>
-
+                  <Select.Content>
+                    {Object.values(AccountKind).map((kind) => (
+                      <Select.Item key={kind} value={kind}>
+                        {kind.charAt(0).toUpperCase() + kind.slice(1)}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
+              </Form.Control>
               <Form.Message />
             </Form.Item>
           )}
@@ -146,10 +150,7 @@ export const AccountForm = ({
             <Form.Item>
               <Form.Label>Journal</Form.Label>
               <Form.Control>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <Select.Trigger>
                     <Select.Value placeholder="Select journal" />
                   </Select.Trigger>
@@ -234,6 +235,33 @@ export const AccountForm = ({
             </Form.Item>
           )}
         />
+
+        {status && (
+          <Form.Field
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Status</Form.Label>
+                <Form.Control>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select.Trigger>
+                      <Select.Value placeholder="Select status" />
+                    </Select.Trigger>
+                    <Select.Content>
+                      {Object.values(AccountStatus).map((status) => (
+                        <Select.Item key={status} value={status}>
+                          {status.charAt(0).toUpperCase() + status.slice(1)}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select>
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        )}
 
         <Dialog.Footer className="col-span-2 mt-4">
           <Dialog.Close asChild>

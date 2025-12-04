@@ -22,11 +22,11 @@ export interface ITicket {
   createdAt?: Date;
   statusChangedDate?: Date;
   statusType?: number;
+  number?: string;
 }
 
 export interface ITicketUpdate extends ITicket {
   _id: string;
-  number?: number;
 }
 
 export interface ITicketDocument extends ITicket, Document {
