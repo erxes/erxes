@@ -1,12 +1,10 @@
 import { IBoard, IPipeline, IStage } from "../types";
 
 import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { FormContainer } from "../styles/common";
 import Select, { components } from "react-select";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import React from "react";
 import { selectOptions } from "../utils";
-import { nextMonth } from "@erxes/ui/src/utils/calendar";
 type Props = {
   boards: IBoard[];
   pipelines: IPipeline[];
@@ -83,7 +81,7 @@ class BoardSelect extends React.Component<Props> {
             __("Choose a board"),
             boardId,
             (board) => onChangeBoard(board.value),
-            selectOptions(boards)
+            selectOptions(boards),
           )}
         </FormGroup>
 
@@ -97,7 +95,7 @@ class BoardSelect extends React.Component<Props> {
               const name = selected?.isHideName || false;
               onChangePipeline(pipeline.value, name);
             },
-            selectOptions(pipelines)
+            selectOptions(pipelines),
           )}
         </FormGroup>
 
@@ -107,7 +105,7 @@ class BoardSelect extends React.Component<Props> {
             __("Choose a stage"),
             stageId,
             (stage) => onChangeStage(stage.value, callback),
-            selectOptions(stages)
+            selectOptions(stages),
           )}
         </FormGroup>
       </>

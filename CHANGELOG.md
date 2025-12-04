@@ -1,5 +1,29 @@
 # Changelog
 
+## [2.17.28](https://github.com/erxes/erxes/compare/2.17.27...2.17.28) (2025-11-19)
+
+## <small>2.17.27 (2025-11-18)</small>
+
+* chore(calls): debug grandsteam requests ([f42d6a4](https://github.com/erxes/erxes/commit/f42d6a4))
+* fix(tickets): convert to ticket in inbox ([f4bb913](https://github.com/erxes/erxes/commit/f4bb913))
+
+## <small>2.17.26 (2025-11-17)</small>
+
+* chore(calls): remove tick provider ([126fa63](https://github.com/erxes/erxes/commit/126fa63))
+* fix(calls): monitor local time ([873f868](https://github.com/erxes/erxes/commit/873f868))
+
+## <small>2.17.25 (2025-11-17)</small>
+
+* fix(cms): fix duplicate fields error ([e5d9156](https://github.com/erxes/erxes/commit/e5d9156))
+* fix(cms): fix duplicate tag slug errors by recursively adding increment numbers ([e9beeff](https://github.com/erxes/erxes/commit/e9beeff))
+* fix(cms): use dynamic search value in tag query ([1ac45bd](https://github.com/erxes/erxes/commit/1ac45bd))
+* fix(ticket): add local storage changer ([2154c92](https://github.com/erxes/erxes/commit/2154c92))
+* chore: add tick provider and debug ([4a9d96e](https://github.com/erxes/erxes/commit/4a9d96e))
+* chore: remove console ([8fdec5a](https://github.com/erxes/erxes/commit/8fdec5a))
+* chore(clientportal): update typo ([fbdfc5e](https://github.com/erxes/erxes/commit/fbdfc5e))
+* feat: show vip customer in incoming call ([9114b0d](https://github.com/erxes/erxes/commit/9114b0d))
+* feat(cms): generate unique slug/code before save models ([6721453](https://github.com/erxes/erxes/commit/6721453))
+
 ## <small>2.17.24 (2025-11-07)</small>
 
 * fix: car clientPortal mutations ([625e3c4](https://github.com/erxes/erxes/commit/625e3c4))
