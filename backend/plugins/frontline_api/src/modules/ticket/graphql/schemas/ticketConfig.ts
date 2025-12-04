@@ -1,24 +1,30 @@
 export const types = `
-type TicketBasicFields {
-    isShowName: Boolean
-    isShowDescription: Boolean
-    isShowAttachment: Boolean
-    isShowTags: Boolean
+  type TicketFormField {
+    isShow: Boolean
+    label: String
+    order: Int
+    placeholder: String
   }
 
-  type CompanyFields {
-    isShowName: Boolean
-    isShowRegistrationNumber: Boolean
-    isShowAddress: Boolean
-    isShowPhoneNumber: Boolean
-    isShowEmail: Boolean
+  type TicketFormFields {
+    name: TicketFormField
+    description: TicketFormField
+    attachment: TicketFormField
+    tags: TicketFormField
   }
 
-  type CustomerFields {
-    isShowFirstName: Boolean
-    isShowLastName: Boolean
-    isShowPhoneNumber: Boolean
-    isShowEmail: Boolean
+  input TicketFormFieldInput {
+    isShow: Boolean
+    label: String
+    order: Int
+    placeholder: String
+  }
+
+  input TicketFormFieldsInput {
+    name: TicketFormFieldInput
+    description: TicketFormFieldInput
+    attachment: TicketFormFieldInput
+    tags: TicketFormFieldInput
   }
 
   type TicketConfig {
@@ -27,34 +33,10 @@ type TicketBasicFields {
     selectedStatusId: String!
     pipelineId: String!
     channelId: String!
-    ticketBasicFields: TicketBasicFields
-    contactType: String
-    company: CompanyFields
-    customer: CustomerFields
     createdAt: String
     updatedAt: String
-  }
-
-  input TicketBasicFieldsInput {
-    isShowName: Boolean
-    isShowDescription: Boolean
-    isShowAttachment: Boolean
-    isShowTags: Boolean
-  }
-
-  input CompanyFieldsInput {
-    isShowName: Boolean
-    isShowRegistrationNumber: Boolean
-    isShowAddress: Boolean
-    isShowPhoneNumber: Boolean
-    isShowEmail: Boolean
-  }
-
-  input CustomerFieldsInput {
-    isShowFirstName: Boolean
-    isShowLastName: Boolean
-    isShowPhoneNumber: Boolean
-    isShowEmail: Boolean
+    parentId: String
+    formFields: TicketFormFields
   }
 
   input TicketConfigInput {
@@ -62,10 +44,8 @@ type TicketBasicFields {
     selectedStatusId: String!
     pipelineId: String!
     channelId: String!
-    ticketBasicFields: TicketBasicFieldsInput
-    contactType: String
-    company: CompanyFieldsInput
-    customer: CustomerFieldsInput
+    parentId: String
+    formFields: TicketFormFieldsInput
   } 
 `;
 

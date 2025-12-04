@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import { useUpdatePosSlots } from './useSlotAdd';
-import { useToast } from 'erxes-ui/hooks';
+import { useToast } from 'erxes-ui';
 import { CustomNode } from '../slot/types';
 import { queries } from '../graphql';
 
@@ -51,7 +51,7 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
           height: slot.option?.height || height,
           positionX: x,
           positionY: y,
-          rounded: (slot.option?.borderRadius || 0) > 0,
+          rounded: Number(slot.option?.borderRadius) || 0,
           rotateAngle: Number(slot.option?.rotateAngle) || 0,
           zIndex: Number(slot.option?.zIndex) || 0,
           disabled: false,
@@ -77,7 +77,7 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
             top: y,
             left: x,
             rotateAngle: node.data.rotateAngle || 0,
-            borderRadius: node.data.rounded ? 8 : 0,
+            borderRadius: Number(node.data.rounded) || 0,
             color: node.data.color || '#4F46E5',
             zIndex: node.data.zIndex || 0,
             isShape: false,
@@ -161,7 +161,7 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
           height,
           positionX: x,
           positionY: y,
-          rounded: nodeData?.rounded || false,
+          rounded: typeof nodeData?.rounded === 'number' ? nodeData.rounded : 0,
           rotateAngle: nodeData?.rotateAngle || 0,
           zIndex: nodeData?.zIndex || 0,
           disabled: nodeData?.disabled || false,

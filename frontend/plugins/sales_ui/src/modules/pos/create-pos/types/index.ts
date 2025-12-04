@@ -3,11 +3,13 @@ import {
   BasicInfoFormValues,
   DeliveryConfigFormValues,
   FinanceConfigFormValues,
-  FormStepData,
   PaymentFormValues,
   PermissionFormValues,
   ProductFormValues,
   UiConfigFormValues,
+  KitchenScreenConfigFormValues,
+  WaitingScreenConfigFormValues,
+  FormStepData,
 } from '~/modules/pos/create-pos/components/formSchema';
 
 export interface PermissionSettings {
@@ -24,6 +26,7 @@ export interface CashierSettings {
 }
 
 export interface ProductGroup {
+  _id?: string;
   name: string;
   description?: string;
   categoryIds?: string[];
@@ -54,21 +57,26 @@ export interface ScreenConfigSettings {
 export interface EbarimtConfigSettings {
   companyName: string;
   ebarimtUrl: string;
-  checkTaxpayerUrl: string;
-  companyRd: string;
+  checkCompanyUrl: string;
+  companyRD: string;
   merchantin: string;
   posno: string;
   districtCode: string;
   branchNo: string;
-  defaultGsCode: string;
+  defaultGSCode: string;
   hasVat: boolean;
-  vatPercent: string;
-  hasUbCityTax: boolean;
-  ubCityTaxPercent: string;
-  anotherRuleOfProductsOnCityTax: string;
+  hasCitytax: boolean;
+  vatPercent: number;
+  ubCityTaxPercent: number;
+  cityTaxPercent: number;
+  anotherRuleOfProductsOnCityTax: string | string[];
+  anotherRuleOfProductsOnVat: string | string[];
+  defaultPay: string;
   headerText: string;
   footerText: string;
   hasCopy: boolean;
+  hasSummaryQty: boolean;
+  hasSumQty: boolean;
 }
 
 export interface DeliveryConfigSettings {
@@ -83,6 +91,7 @@ export interface DeliveryConfigSettings {
 export interface SyncCardConfig {
   title: string;
   branch: string;
+  branchName?: string;
   stageBoard: string;
   pipeline: string;
   stage: string;
@@ -133,6 +142,8 @@ export interface UsePosCreateHandlersProps {
     uiConfig?: UseFormReturn<UiConfigFormValues>;
     deliveryConfig?: UseFormReturn<DeliveryConfigFormValues>;
     financeConfig?: UseFormReturn<FinanceConfigFormValues>;
+    kitchenScreen: UseFormReturn<KitchenScreenConfigFormValues>;
+    waitingScreen: UseFormReturn<WaitingScreenConfigFormValues>;
   };
   formStepData: FormStepData;
 }

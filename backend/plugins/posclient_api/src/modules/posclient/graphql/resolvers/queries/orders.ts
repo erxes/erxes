@@ -1,6 +1,7 @@
 import {
   escapeRegExp,
   getPureDate,
+  markResolvers,
   paginate,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
@@ -268,5 +269,9 @@ const orderQueries = {
     return info;
   },
 };
-
+markResolvers(orderQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
 export default orderQueries;
