@@ -7,6 +7,7 @@ export const types = `
         code: String
         type: String
         order: Float
+        options: [String]
         validations: JSON
         logics: JSON
         createdAt: Date
@@ -41,7 +42,7 @@ const mutationParams = `
     contentTypeId: String
     
     type: String
-
+    options: [String]
     validations: JSON
     logics: JSON
 `;
