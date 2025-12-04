@@ -9,6 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { IChannel } from '@/channels/types';
+import { getPreviewText } from '@/inbox/types/inbox';
 
 interface ResponseTemplate {
   _id: string;
@@ -30,31 +31,6 @@ interface ResponseTemplateSelectorProps {
   onSelect: (content: string) => void;
   children: ReactNode;
 }
-
-const getPreviewText = (content: string): string => {
-  try {
-    const parsed = JSON.parse(content);
-    if (Array.isArray(parsed)) {
-      return (
-        parsed
-          .map((block: any) => {
-            if (block.content && Array.isArray(block.content)) {
-              return block.content
-                .filter((item: any) => item.type === 'text' && item.text)
-                .map((item: any) => item.text)
-                .join(' ');
-            }
-            return '';
-          })
-          .filter(Boolean)
-          .join(' ') || 'Empty response'
-      );
-    }
-  } catch (e) {
-    console.error('Error parsing response template content:', e);
-  }
-  return content || 'Empty response';
-};
 
 const getViewModeIcon = (viewMode: ViewMode): JSX.Element => {
   return viewMode === 'grid' ? (
