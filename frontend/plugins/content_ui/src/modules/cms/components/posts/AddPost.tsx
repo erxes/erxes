@@ -107,6 +107,7 @@ import {
   DatePicker,
   Collapsible,
 } from 'erxes-ui';
+import { readImage } from 'erxes-ui/utils/core';
 import { IconUpload, IconChevronDown } from '@tabler/icons-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -936,6 +937,30 @@ export function AddPost() {
                       )}
                     />
 
+                    {form.watch('pdf') && (
+                      <div className="mt-2 text-sm">
+                        <a
+                          href={form.watch('pdf') || ''}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
+                          Open PDF
+                        </a>
+                      </div>
+                    )}
+
+                    {/* Preview uploaded featured image */}
+                    {form.watch('featuredImage') && (
+                      <div className="mt-2">
+                        <img
+                          src={readImage(form.watch('featuredImage') || '')}
+                          alt="Featured preview"
+                          className="w-full h-32 object-cover rounded border"
+                        />
+                      </div>
+                    )}
+
                     <Form.Field
                       control={form.control}
                       name="gallery"
@@ -982,7 +1007,7 @@ export function AddPost() {
                                       className="relative border rounded"
                                     >
                                       <img
-                                        src={url}
+                                        src={readImage(url)}
                                         alt=""
                                         className="w-full h-24 object-cover rounded"
                                       />
@@ -1045,6 +1070,16 @@ export function AddPost() {
                       )}
                     />
 
+                    {form.watch('video') && (
+                      <div className="mt-2">
+                        <video
+                          src={form.watch('video') || ''}
+                          controls
+                          className="w-full h-40 rounded border bg-black"
+                        />
+                      </div>
+                    )}
+
                     <Form.Field
                       control={form.control}
                       name="audio"
@@ -1079,6 +1114,16 @@ export function AddPost() {
                         </Form.Item>
                       )}
                     />
+
+                    {form.watch('audio') && (
+                      <div className="mt-2">
+                        <audio
+                          src={form.watch('audio') || ''}
+                          controls
+                          className="w-full"
+                        />
+                      </div>
+                    )}
 
                     <Form.Field
                       control={form.control}
@@ -1118,9 +1163,14 @@ export function AddPost() {
                                       key={idx}
                                       className="flex items-center justify-between border rounded px-2 py-1"
                                     >
-                                      <span className="truncate mr-2">
+                                      <a
+                                        href={url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="truncate mr-2 text-blue-600 hover:underline"
+                                      >
                                         {url}
-                                      </span>
+                                      </a>
                                       <Upload.Root
                                         value={url}
                                         onChange={() => {
