@@ -521,9 +521,9 @@ export function AddPost() {
                   <Tabs.Trigger value="media" className="w-full">
                     Media
                   </Tabs.Trigger>
-                  <Tabs.Trigger value="seo" className="w-full">
+                  {/* <Tabs.Trigger value="seo" className="w-full">
                     SEO
-                  </Tabs.Trigger>
+                  </Tabs.Trigger> */}
                 </div>
               </Tabs.List>
             </Tabs>
@@ -694,11 +694,24 @@ export function AddPost() {
                               <input
                                 type="time"
                                 className="border rounded px-2 py-1 h-8 text-sm"
-                                value={(field.value
-                                  ? `${String(new Date(field.value).getHours()).padStart(2, '0')}:${String(new Date(field.value).getMinutes()).padStart(2, '0')}`
-                                  : `${String(new Date().getHours()).padStart(2, '0')}:${String(new Date().getMinutes()).padStart(2, '0')}`)}
+                                value={
+                                  field.value
+                                    ? `${String(
+                                        new Date(field.value).getHours(),
+                                      ).padStart(2, '0')}:${String(
+                                        new Date(field.value).getMinutes(),
+                                      ).padStart(2, '0')}`
+                                    : `${String(new Date().getHours()).padStart(
+                                        2,
+                                        '0',
+                                      )}:${String(
+                                        new Date().getMinutes(),
+                                      ).padStart(2, '0')}`
+                                }
                                 onChange={(e) => {
-                                  const [hh, mm] = e.target.value.split(':').map((v) => parseInt(v, 10));
+                                  const [hh, mm] = e.target.value
+                                    .split(':')
+                                    .map((v) => parseInt(v, 10));
                                   const base = field.value || new Date();
                                   const merged = new Date(base);
                                   merged.setHours(hh || 0);
@@ -752,7 +765,8 @@ export function AddPost() {
                                     value={field.value || undefined}
                                     onChange={(d) => {
                                       const picked = d as Date | undefined;
-                                      if (!picked) return field.onChange(undefined);
+                                      if (!picked)
+                                        return field.onChange(undefined);
                                       const current = field.value || new Date();
                                       const merged = new Date(picked);
                                       merged.setHours(current.getHours());
@@ -767,11 +781,23 @@ export function AddPost() {
                                   <input
                                     type="time"
                                     className="border rounded px-2 py-1 h-8 text-sm"
-                                    value={(field.value
-                                      ? `${String(new Date(field.value).getHours()).padStart(2, '0')}:${String(new Date(field.value).getMinutes()).padStart(2, '0')}`
-                                      : `${String(new Date().getHours()).padStart(2, '0')}:${String(new Date().getMinutes()).padStart(2, '0')}`)}
+                                    value={
+                                      field.value
+                                        ? `${String(
+                                            new Date(field.value).getHours(),
+                                          ).padStart(2, '0')}:${String(
+                                            new Date(field.value).getMinutes(),
+                                          ).padStart(2, '0')}`
+                                        : `${String(
+                                            new Date().getHours(),
+                                          ).padStart(2, '0')}:${String(
+                                            new Date().getMinutes(),
+                                          ).padStart(2, '0')}`
+                                    }
                                     onChange={(e) => {
-                                      const [hh, mm] = e.target.value.split(':').map((v) => parseInt(v, 10));
+                                      const [hh, mm] = e.target.value
+                                        .split(':')
+                                        .map((v) => parseInt(v, 10));
                                       const base = field.value || new Date();
                                       const merged = new Date(base);
                                       merged.setHours(hh || 0);
@@ -1217,7 +1243,7 @@ export function AddPost() {
                   </div>
                 </>
               )}
-              {activeTab === 'seo' && (
+              {/* {activeTab === 'seo' && (
                 <>
                   <Form.Field
                     control={form.control}
@@ -1306,7 +1332,7 @@ export function AddPost() {
                     )}
                   />
                 </>
-              )}
+              )} */}
 
               <div className="flex justify-between pt-2">
                 <Button variant="outline">Delete</Button>

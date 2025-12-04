@@ -1,4 +1,4 @@
-import { Button, RecordTable, CommandBar, Separator, toast, Popover, Combobox, Command, Input, RecordTableInlineCell } from 'erxes-ui';
+import { Button, RecordTable, CommandBar, Separator, toast, Popover, Combobox, Command, Input, RecordTableInlineCell, Spinner } from 'erxes-ui';
 import {
   IconPlus,
   IconSettings,
@@ -213,8 +213,8 @@ export function Page() {
   if (loading) {
     return (
       <CmsLayout headerActions={headerActions}>
-        <div className="flex justify-center items-center h-64">
-          <div className="text-gray-500">Loading pages...</div>
+        <div className="flex w-full h-screen justify-center items-centerß">
+          <div className="text-gray-500"><Spinner/></div>
         </div>
       </CmsLayout>
     );

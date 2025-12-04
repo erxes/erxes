@@ -224,19 +224,45 @@ export const POST_LIST = gql`
 `;
 
 export const CMS_TAGS = gql`
-query CmsTags($clientPortalId: String, $limit: Int, $cursor: String, $cursorMode: CURSOR_MODE, $direction: CURSOR_DIRECTION, $orderBy: JSON, $sortMode: String, $sortField: String, $searchValue: String, $language: String, $aggregationPipeline: [JSON], $sortDirection: String) {
-  cmsTags(clientPortalId: $clientPortalId, limit: $limit, cursor: $cursor, cursorMode: $cursorMode, direction: $direction, orderBy: $orderBy, sortMode: $sortMode, sortField: $sortField, searchValue: $searchValue, language: $language, aggregationPipeline: $aggregationPipeline, sortDirection: $sortDirection) {
-    tags {
-      _id
-      colorCode
-      clientPortalId
-      createdAt
-      name
-      slug
-      updatedAt
+  query CmsTags(
+    $clientPortalId: String
+    $limit: Int
+    $cursor: String
+    $cursorMode: CURSOR_MODE
+    $direction: CURSOR_DIRECTION
+    $orderBy: JSON
+    $sortMode: String
+    $sortField: String
+    $searchValue: String
+    $language: String
+    $aggregationPipeline: [JSON]
+    $sortDirection: String
+  ) {
+    cmsTags(
+      clientPortalId: $clientPortalId
+      limit: $limit
+      cursor: $cursor
+      cursorMode: $cursorMode
+      direction: $direction
+      orderBy: $orderBy
+      sortMode: $sortMode
+      sortField: $sortField
+      searchValue: $searchValue
+      language: $language
+      aggregationPipeline: $aggregationPipeline
+      sortDirection: $sortDirection
+    ) {
+      tags {
+        _id
+        colorCode
+        clientPortalId
+        createdAt
+        name
+        slug
+        updatedAt
+      }
     }
   }
-}
 `;
 
 export const POSTS_ADD = gql`
@@ -344,30 +370,12 @@ export const CMS_POST = gql`
           }
           __typename
         }
-        ... on ClientPortalUser {
-          clientPortalUserId: _id
-          fullName
-          firstName
-          lastName
-          email
-          username
-          customer {
-            avatar
-            __typename
-          }
-          __typename
-        }
         __typename
       }
       categories {
         _id
         name
         slug
-        __typename
-      }
-      tags {
-        _id
-        name
         __typename
       }
       customFieldsData
