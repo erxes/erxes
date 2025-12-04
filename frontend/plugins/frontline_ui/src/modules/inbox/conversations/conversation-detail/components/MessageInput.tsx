@@ -292,9 +292,18 @@ export const MessageInput = ({
             {suggestions.map((s, index) => (
               <div
                 key={s._id}
+                role="option"
+                tabIndex={0}
+                aria-selected={index === selectedIndex}
                 onClick={() => {
                   handleTemplateSelect(s.content);
                   setShowSuggestions(false);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleTemplateSelect(s.content);
+                    setShowSuggestions(false);
+                  }
                 }}
                 className={`p-3 cursor-pointer
                   hover:bg-gray-100 dark:hover:bg-gray-800
