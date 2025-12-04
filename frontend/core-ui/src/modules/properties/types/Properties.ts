@@ -1,12 +1,12 @@
 import {
   propertyGroupSchema,
   propertySchema,
-} from '@/settings/properties/schema';
+} from '@/properties/propertySchema';
 import { z } from 'zod';
 
 export interface IPropertyType {
   contentType: string;
-  description: string;
+  label: string;
 }
 
 export enum PropertiesHotkeyScope {

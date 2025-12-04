@@ -1,14 +1,6 @@
-import { useAddPropertyForm } from '@/settings/properties/hooks/useAddPropertyForm';
-import { IPropertyForm } from '@/settings/properties/types';
-import {
-  Button,
-  DropdownMenu,
-  Form,
-  Input,
-  Sheet,
-  Spinner,
-  Switch,
-} from 'erxes-ui';
+import { useAddPropertyForm } from '@/properties/hooks/useAddPropertyForm';
+import { IPropertyForm } from '@/properties/types/Properties';
+import { Button, Form, Input, Sheet, Spinner, Switch } from 'erxes-ui';
 import React from 'react';
 import { SubmitHandler } from 'react-hook-form';
 
@@ -30,14 +22,7 @@ export const AddProperty = () => {
   return (
     <Sheet onOpenChange={setOpen} open={open}>
       <Sheet.Trigger asChild>
-        <DropdownMenu.Item
-          onClick={(e) => {
-            e.preventDefault();
-            setOpen(!open);
-          }}
-        >
-          Add Property
-        </DropdownMenu.Item>
+        <Button>Add Property</Button>
       </Sheet.Trigger>
       <Sheet.View
         className="p-0"
@@ -56,7 +41,7 @@ export const AddProperty = () => {
               </Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
-            <Sheet.Content className="grow size-full h-auto flex flex-col px-5 py-4 gap-3">
+            <Sheet.Content className="grow size-full h-auto flex flex-col px-5 py-4 gap-5">
               {/* Add your form fields here, for example: */}
 
               <Form.Field
@@ -134,11 +119,7 @@ export const AddProperty = () => {
                   <Form.Item>
                     <Form.Label>Type</Form.Label>
                     <Form.Control>
-                      <Input
-                        {...field}
-                        type="text"
-                        placeholder="Enter type"
-                      />
+                      <Input {...field} type="text" placeholder="Enter type" />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>

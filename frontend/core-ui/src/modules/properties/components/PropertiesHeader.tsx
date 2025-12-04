@@ -1,20 +1,21 @@
-import { PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
+import { PageHeader } from 'ui-modules';
 import { Breadcrumb, Button, useQueryState } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { IconTools } from '@tabler/icons-react';
-import { PropertiesCommandMenuTrigger } from '@/settings/properties/components/add/PropertiesCommandMenuTrigger';
+import { IconHierarchy2 } from '@tabler/icons-react';
+import { AddPropertyGroup } from './AddPropertyGroup';
+import { AddProperty } from './AddProperty';
 
 export function PropertiesHeader() {
   const [type] = useQueryState<string>('type');
   return (
     <PageHeader>
-      <PageHeaderStart>
+      <PageHeader.Start>
         <Breadcrumb>
           <Breadcrumb.List className="gap-1">
             <Breadcrumb.Item>
               <Button variant="ghost" asChild>
                 <Link to="/settings/properties">
-                  <IconTools />
+                  <IconHierarchy2 />
                   Properties
                 </Link>
               </Button>
@@ -24,17 +25,14 @@ export function PropertiesHeader() {
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild className="capitalize">
                   <Link to={`/settings/properties?type=${type}`}>
-                    {type} properties
+                    {type.replace(':', ' ')} properties
                   </Link>
                 </Button>
               </Breadcrumb.Item>
             )}
           </Breadcrumb.List>
         </Breadcrumb>
-      </PageHeaderStart>
-      <PageHeaderEnd>
-        <PropertiesCommandMenuTrigger />
-      </PageHeaderEnd>
+      </PageHeader.Start>
     </PageHeader>
   );
 }

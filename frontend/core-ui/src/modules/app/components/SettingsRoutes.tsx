@@ -83,12 +83,10 @@ const AutomationSettingsRoutes = lazy(() =>
   })),
 );
 
-const PropertiesSettins = lazy(() =>
-  import('~/pages/settings/workspace/PropertiesSettingsPage').then(
-    (module) => ({
-      default: module.PropertiesSettingsPage,
-    }),
-  ),
+const PropertiesSettingsRoutes = lazy(() =>
+  import('@/properties/components/PropertiesRoutes').then((module) => ({
+    default: module.PropertiesSettingsRoutes,
+  })),
 );
 
 const ContactsSettingsRoutes = lazy(() =>
@@ -170,8 +168,8 @@ export function SettingsRoutes() {
 
         <Route path={SettingsWorkspacePath.Apps} element={<AppsSettings />} />
         <Route
-          path={SettingsWorkspacePath.Properties}
-          element={<PropertiesSettins />}
+          path={SettingsWorkspacePath.PropertiesCatchAll}
+          element={<PropertiesSettingsRoutes />}
         />
         {getPluginsSettingsRoutes()}
       </Routes>
