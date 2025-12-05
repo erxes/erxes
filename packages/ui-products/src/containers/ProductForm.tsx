@@ -143,8 +143,7 @@ const getRefetchQueries = () => {
 export default withProps<Props>(
   compose(
     graphql(LAST_CODE_QUERY, {
-      name: "lastCodeQuery",
-      options: { variables: { categoryId: "" } }
+      name: "lastCodeQuery"
     }),
     graphql<Props, ProductCategoriesQueryResponse>(
       gql(queries.productCategories),
