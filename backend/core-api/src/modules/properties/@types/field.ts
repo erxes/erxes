@@ -28,5 +28,5 @@ export interface IFieldDocument extends IField, Document {
 export interface IFieldParams extends IListParams, ICursorPaginateParams {
   contentType: string;
   contentTypeId?: string;
-  groupIds?: string[];
+  groupId?: string[];
 }

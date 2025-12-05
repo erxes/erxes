@@ -4,16 +4,15 @@ import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
 const generateFilter = async (models: IModels, params: IFieldParams) => {
-  const { contentType, contentTypeId, groupIds } = params;
-
+  const { contentType, contentTypeId, groupId } = params;
   const filter: FilterQuery<IField> = { contentType };
 
   if (contentTypeId) {
     filter.contentTypeId = contentTypeId;
   }
 
-  if (groupIds?.length) {
-    filter.groupId = { $in: groupIds };
+  if (groupId) {
+    filter.groupId = groupId;
   }
 
   return filter;

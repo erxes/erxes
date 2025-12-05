@@ -21,9 +21,9 @@ export const types = `
     }
 
     input FieldsParams {
-        contentType: String!
+        contentType: String
         contentTypeId: String
-        groupIds: [String]
+        groupId: String
 
         ${GQL_CURSOR_PARAM_DEFS}
     }
