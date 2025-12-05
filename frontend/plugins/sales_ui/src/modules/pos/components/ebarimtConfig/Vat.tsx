@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Label, Input, Button, Checkbox, Select, toast } from 'erxes-ui';
 import { useMutation, useQuery } from '@apollo/client';
-import { usePosDetail } from '../../hooks/usePosDetail';
-import mutations from '../../graphql/mutations';
+import { usePosDetail } from '@/pos/hooks/usePosDetail';
+import mutations from '@/pos/graphql/mutations';
 import queries from '../../graphql/queries';
 
 interface VatProps {
@@ -15,7 +15,7 @@ export const Vat: React.FC<VatProps> = ({ posId }) => {
   const [reverseVatRules, setReverseVatRules] = useState<string[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
 
-  const { posDetail, loading: detailLoading } = usePosDetail(posId);
+  const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
 
   const { data: vatRulesData, loading: vatRulesLoading } = useQuery(
@@ -48,6 +48,16 @@ export const Vat: React.FC<VatProps> = ({ posId }) => {
       return;
     }
 
+    const vatPercentNumber = Number(vatPercent);
+    if (isNaN(vatPercentNumber) || vatPercentNumber < 0) {
+      toast({
+        title: 'Error',
+        description: 'VAT percent must be a valid non-negative number',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       const currentConfig = posDetail?.ebarimtConfig || {};
       await posEdit({
@@ -56,7 +66,7 @@ export const Vat: React.FC<VatProps> = ({ posId }) => {
           ebarimtConfig: {
             ...currentConfig,
             hasVat,
-            vatPercent: Number(vatPercent),
+            vatPercent: vatPercentNumber,
             reverseVatRules,
           },
         },
@@ -92,6 +102,16 @@ export const Vat: React.FC<VatProps> = ({ posId }) => {
           <div className="w-48 h-4 rounded animate-pulse bg-muted" />
           <div className="w-48 h-10 rounded animate-pulse bg-muted" />
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-destructive">
+          Failed to load POS details: {error.message}
+        </p>
       </div>
     );
   }

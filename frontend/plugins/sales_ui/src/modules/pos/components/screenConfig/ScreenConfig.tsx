@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { InfoCard, Button, toast } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
-import { usePosDetail } from '../../hooks/usePosDetail';
-import mutations from '../../graphql/mutations';
+import { usePosDetail } from '@/pos/hooks/usePosDetail';
+import mutations from '@/pos/graphql/mutations';
 import { KitchenScreen } from './KitchenScreen';
 import { WaitingScreen } from './WaitingScreen';
 import { PrintConfig } from './PrintConfig';
@@ -114,6 +114,16 @@ const ScreenConfig: React.FC<ScreenConfigProps> = ({ posId, posType }) => {
           <div className="h-48 rounded-lg animate-pulse bg-muted" />
         </div>
         <div className="h-24 rounded-lg animate-pulse bg-muted" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-destructive">
+          Failed to load POS details: {error.message}
+        </p>
       </div>
     );
   }

@@ -13,8 +13,8 @@ import { SelectBranches, SelectBrand, SelectDepartments } from 'ui-modules';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@apollo/client';
 import { ALLOW_TYPES, POS_TYPES, isFieldVisible } from '../../constants';
-import mutations from '../../graphql/mutations';
-import { usePosDetail } from '../../hooks/usePosDetail';
+import mutations from '@/pos/graphql/mutations';
+import { usePosDetail } from '@/pos/hooks/usePosDetail';
 
 interface PropertiesProps {
   posId?: string;
@@ -39,7 +39,7 @@ interface FormData {
 }
 
 const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
-  const { posDetail, loading: detailLoading } = usePosDetail(posId);
+  const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
 
   const form = useForm<FormData>({
@@ -144,6 +144,16 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
             </div>
           </InfoCard.Content>
         </InfoCard>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-destructive">
+          Failed to load POS details: {error.message}
+        </p>
       </div>
     );
   }

@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Button, toast } from 'erxes-ui';
 import { IconTrash, IconEdit } from '@tabler/icons-react';
 import { useMutation } from '@apollo/client';
-import { usePosDetail } from '../../hooks/usePosDetail';
-import mutations from '../../graphql/mutations';
+import { usePosDetail } from '@/pos/hooks/usePosDetail';
+import mutations from '@/pos/graphql/mutations';
 import { AddPaymentSheet } from './AddPaymentSheet';
 import { PaymentType } from '@/pos/types/types';
 
@@ -18,7 +18,7 @@ export const OtherPayment: React.FC<OtherPaymentProps> = ({ posId }) => {
     null,
   );
 
-  const { posDetail, loading: detailLoading } = usePosDetail(posId);
+  const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
 
   useEffect(() => {
@@ -102,6 +102,16 @@ export const OtherPayment: React.FC<OtherPaymentProps> = ({ posId }) => {
     return (
       <div className="space-y-4">
         <div className="h-32 rounded animate-pulse bg-muted" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-destructive">
+          Failed to load POS details: {error.message}
+        </p>
       </div>
     );
   }

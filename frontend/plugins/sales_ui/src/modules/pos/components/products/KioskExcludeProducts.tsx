@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Button, Label, toast } from 'erxes-ui';
 import { SelectCategory, SelectProduct } from 'ui-modules';
 import { useMutation } from '@apollo/client';
-import { usePosDetail } from '../../hooks/usePosDetail';
-import mutations from '../../graphql/mutations';
+import { usePosDetail } from '@/pos/hooks/usePosDetail';
+import mutations from '@/pos/graphql/mutations';
 
 interface KioskExcludeProductsProps {
   posId?: string;
@@ -12,30 +12,34 @@ interface KioskExcludeProductsProps {
 export const KioskExcludeProducts: React.FC<KioskExcludeProductsProps> = ({
   posId,
 }) => {
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
-  const [selectedProductId, setSelectedProductId] = useState<string>('');
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
-  const { posDetail, loading: detailLoading } = usePosDetail(posId);
+  const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
 
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
 
   useEffect(() => {
-    if (posDetail?.kioskExcludeCategoryIds?.length) {
-      setSelectedCategoryId(posDetail.kioskExcludeCategoryIds[0]);
-    }
-    if (posDetail?.kioskExcludeProductIds?.length) {
-      setSelectedProductId(posDetail.kioskExcludeProductIds[0]);
+    if (posDetail) {
+      setSelectedCategoryIds(posDetail.kioskExcludeCategoryIds || []);
+      setSelectedProductIds(posDetail.kioskExcludeProductIds || []);
+      setHasChanges(false);
     }
   }, [posDetail]);
 
   const handleCategorySelect = (categoryId: string) => {
-    setSelectedCategoryId(categoryId);
+    setSelectedCategoryIds((prev) => {
+      if (prev.includes(categoryId)) {
+        return prev.filter((id) => id !== categoryId);
+      }
+      return [...prev, categoryId];
+    });
     setHasChanges(true);
   };
 
   const handleProductSelect = (productId: string | string[]) => {
-    const id = Array.isArray(productId) ? productId[0] : productId;
-    setSelectedProductId(id || '');
+    const ids = Array.isArray(productId) ? productId : [productId];
+    setSelectedProductIds(ids);
     setHasChanges(true);
   };
 
@@ -53,10 +57,8 @@ export const KioskExcludeProducts: React.FC<KioskExcludeProductsProps> = ({
       await posEdit({
         variables: {
           _id: posId,
-          kioskExcludeCategoryIds: selectedCategoryId
-            ? [selectedCategoryId]
-            : [],
-          kioskExcludeProductIds: selectedProductId ? [selectedProductId] : [],
+          kioskExcludeCategoryIds: selectedCategoryIds,
+          kioskExcludeProductIds: selectedProductIds,
         },
       });
 
@@ -84,25 +86,32 @@ export const KioskExcludeProducts: React.FC<KioskExcludeProductsProps> = ({
     );
   }
 
+  if (error) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-destructive">
+          Failed to load POS details: {error.message}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
         <Label>Category</Label>
         <SelectCategory
-          selected={selectedCategoryId}
-          onSelect={
-            handleCategorySelect as unknown as React.ReactEventHandler<HTMLButtonElement> &
-              ((categoryId: string) => void)
-          }
+          selected={selectedCategoryIds[0] || ''}
+          onSelect={handleCategorySelect as any}
         />
       </div>
 
       <div className="space-y-2">
         <Label>Products</Label>
         <SelectProduct
-          value={selectedProductId}
+          value={selectedProductIds}
           onValueChange={handleProductSelect}
-          mode="single"
+          mode="multiple"
         />
       </div>
 

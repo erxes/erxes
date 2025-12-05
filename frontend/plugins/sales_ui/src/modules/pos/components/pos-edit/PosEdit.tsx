@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
-import { PosEditSidebar } from './Sidebar';
-import { MainContent } from './MainContent';
-import { usePosDetail } from '../../hooks/usePosDetail';
+import { PosEditSidebar } from '@/pos/components/pos-edit/Sidebar';
+import { MainContent } from '@/pos/components/pos-edit/MainContent';
+import { usePosDetail } from '@/pos/hooks/usePosDetail';
 
 interface PosEditProps {
   id?: string;
@@ -10,7 +10,7 @@ interface PosEditProps {
 
 export const PosEdit = ({ id }: PosEditProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { posDetail, loading } = usePosDetail(id);
+  const { posDetail, loading, error } = usePosDetail(id);
 
   const activeTab = searchParams.get('activeTab') || 'properties';
 
@@ -32,6 +32,7 @@ export const PosEdit = ({ id }: PosEditProps) => {
         posId={id}
         posDetail={posDetail}
         loading={loading}
+        error={error}
       />
     </div>
   );

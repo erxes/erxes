@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Label, Input, Button, Checkbox, Select, toast } from 'erxes-ui';
 import { useMutation, useQuery } from '@apollo/client';
-import { usePosDetail } from '../../hooks/usePosDetail';
-import mutations from '../../graphql/mutations';
+import { usePosDetail } from '@/pos/hooks/usePosDetail';
+import mutations from '@/pos/graphql/mutations';
 import queries from '../../graphql/queries';
 
 interface UbCityTaxProps {
@@ -15,7 +15,7 @@ export const UbCityTax: React.FC<UbCityTaxProps> = ({ posId }) => {
   const [reverseCtaxRules, setReverseCtaxRules] = useState<string[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
 
-  const { posDetail, loading: detailLoading } = usePosDetail(posId);
+  const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
 
   const { data: ctaxRulesData, loading: ctaxRulesLoading } = useQuery(
@@ -92,6 +92,16 @@ export const UbCityTax: React.FC<UbCityTaxProps> = ({ posId }) => {
           <div className="w-48 h-4 rounded animate-pulse bg-muted" />
           <div className="w-48 h-10 rounded animate-pulse bg-muted" />
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-destructive">
+          Failed to load POS details: {error.message}
+        </p>
       </div>
     );
   }

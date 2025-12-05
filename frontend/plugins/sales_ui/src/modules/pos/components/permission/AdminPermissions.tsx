@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Button, Label, Input, Switch, toast } from 'erxes-ui';
 import { SelectMember } from 'ui-modules';
 import { useMutation } from '@apollo/client';
-import { usePosDetail } from '../../hooks/usePosDetail';
-import mutations from '../../graphql/mutations';
+import { usePosDetail } from '@/pos/hooks/usePosDetail';
+import mutations from '@/pos/graphql/mutations';
 
 interface AdminPermissionsProps {
   posId?: string;
@@ -18,7 +18,7 @@ export const AdminPermissions: React.FC<AdminPermissionsProps> = ({
   const [directDiscountLimit, setDirectDiscountLimit] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
 
-  const { posDetail, loading: detailLoading } = usePosDetail(posId);
+  const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
 
   useEffect(() => {
@@ -81,6 +81,16 @@ export const AdminPermissions: React.FC<AdminPermissionsProps> = ({
       <div className="space-y-4">
         <div className="h-10 rounded animate-pulse bg-muted" />
         <div className="h-10 rounded animate-pulse bg-muted" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-destructive">
+          Failed to load POS details: {error.message}
+        </p>
       </div>
     );
   }

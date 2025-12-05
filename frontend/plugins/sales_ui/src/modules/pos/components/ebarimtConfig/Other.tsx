@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Label, Input, Button, toast } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
-import { usePosDetail } from '../../hooks/usePosDetail';
-import mutations from '../../graphql/mutations';
+import { usePosDetail } from '@/pos/hooks/usePosDetail';
+import mutations from '@/pos/graphql/mutations';
 
 interface OtherProps {
   posId?: string;
@@ -17,7 +17,7 @@ export const Other: React.FC<OtherProps> = ({ posId }) => {
   const [defaultGSCode, setDefaultGSCode] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
 
-  const { posDetail, loading: detailLoading } = usePosDetail(posId);
+  const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
 
   useEffect(() => {
@@ -92,6 +92,16 @@ export const Other: React.FC<OtherProps> = ({ posId }) => {
             </div>
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-destructive">
+          Failed to load POS details: {error.message}
+        </p>
       </div>
     );
   }

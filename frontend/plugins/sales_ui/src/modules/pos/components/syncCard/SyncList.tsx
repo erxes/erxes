@@ -18,7 +18,7 @@ export const SyncList: React.FC<SyncListProps> = ({ posId }) => {
   const [editingConfig, setEditingConfig] = useState<CardConfig | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
 
-  const { posDetail, loading: detailLoading } = usePosDetail(posId);
+  const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
 
   useEffect(() => {
@@ -46,12 +46,16 @@ export const SyncList: React.FC<SyncListProps> = ({ posId }) => {
   };
 
   const handleConfigUpdated = (config: CardConfig) => {
-    setConfigs((prev) => prev.map((c) => (c._id === config._id ? config : c)));
+    setConfigs((prev) =>
+      prev.map((c) =>
+        c === editingConfig || (c._id && c._id === config._id) ? config : c,
+      ),
+    );
     setHasChanges(true);
   };
 
-  const handleDelete = (configId: string) => {
-    setConfigs((prev) => prev.filter((c) => c._id !== configId));
+  const handleDelete = (configToDelete: CardConfig) => {
+    setConfigs((prev) => prev.filter((c) => c !== configToDelete));
     setHasChanges(true);
   };
 
@@ -117,6 +121,16 @@ export const SyncList: React.FC<SyncListProps> = ({ posId }) => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-destructive">
+          Failed to load POS details: {error.message}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
@@ -134,9 +148,9 @@ export const SyncList: React.FC<SyncListProps> = ({ posId }) => {
         </div>
       ) : (
         <div className="space-y-2">
-          {configs.map((config) => (
+          {configs.map((config, index) => (
             <div
-              key={config._id}
+              key={config._id || `${config.branchId}_${index}`}
               className="flex justify-between items-center p-4 rounded-lg border"
             >
               <div>
@@ -153,7 +167,7 @@ export const SyncList: React.FC<SyncListProps> = ({ posId }) => {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => config._id && handleDelete(config._id)}
+                  onClick={() => handleDelete(config)}
                   className="text-destructive"
                 >
                   <IconTrash size={16} />

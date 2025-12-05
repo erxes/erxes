@@ -3,9 +3,9 @@ import { Button, Card, toast } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { CatProd } from '../../pos-detail/types/IPos';
 import { AddMappingSheet } from './AddMappingSheet';
-import { usePosDetail } from '../../hooks/usePosDetail';
+import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { useMutation } from '@apollo/client';
-import mutations from '../../graphql/mutations';
+import mutations from '@/pos/graphql/mutations';
 
 interface ProductAndCategoryMappingProps {
   posId?: string;
@@ -17,7 +17,7 @@ export const ProductAndCategoryMapping: React.FC<
   const [editingMapping, setEditingMapping] = useState<CatProd | null>(null);
   const [localMappings, setLocalMappings] = useState<CatProd[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
-  const { posDetail, loading: detailLoading } = usePosDetail(posId);
+  const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
 
   useEffect(() => {
@@ -104,6 +104,16 @@ export const ProductAndCategoryMapping: React.FC<
     );
   }
 
+  if (error) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-destructive">
+          Failed to load POS details: {error.message}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -146,7 +156,7 @@ export const ProductAndCategoryMapping: React.FC<
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => mapping._id && handleDelete(mapping._id)}
+                  onClick={() => handleDelete(mapping._id)}
                   className="text-destructive"
                 >
                   <IconTrash size={16} />

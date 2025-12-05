@@ -19,6 +19,7 @@ interface MainContentProps {
   posId?: string;
   posDetail?: IPos;
   loading: boolean;
+  error?: Error;
 }
 
 export interface PosComponentProps {
@@ -31,6 +32,7 @@ export const MainContent: React.FC<MainContentProps> = ({
   posId,
   posDetail,
   loading,
+  error,
 }) => {
   const posType = posDetail?.type;
 
@@ -68,6 +70,16 @@ export const MainContent: React.FC<MainContentProps> = ({
     return (
       <div className="flex flex-1 justify-center items-center h-full">
         <Spinner />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-destructive">
+          Failed to load POS details: {error.message}
+        </p>
       </div>
     );
   }

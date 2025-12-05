@@ -146,7 +146,7 @@ export const ProductGroupsList: React.FC<ProductGroupsListProps> = ({
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => group._id && handleDelete(group._id)}
+                    onClick={() => handleDelete(group._id)}
                     className="text-destructive"
                   >
                     <IconTrash size={16} />

@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Button, Label, toast } from 'erxes-ui';
 import { SelectCategory } from 'ui-modules';
 import { useMutation } from '@apollo/client';
-import { usePosDetail } from '../../hooks/usePosDetail';
-import mutations from '../../graphql/mutations';
+import { usePosDetail } from '@/pos/hooks/usePosDetail';
+import mutations from '@/pos/graphql/mutations';
 
 interface InitialProductCategoriesProps {
   posId?: string;
@@ -14,7 +14,7 @@ export const InitialProductCategories: React.FC<
 > = ({ posId }) => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const [hasChanges, setHasChanges] = useState(false);
-  const { posDetail, loading: detailLoading } = usePosDetail(posId);
+  const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
 
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
 
@@ -75,16 +75,23 @@ export const InitialProductCategories: React.FC<
     return <div className="h-10 rounded animate-pulse bg-background" />;
   }
 
+  if (error) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-destructive">
+          Failed to load POS details: {error.message}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
         <Label>Product Category</Label>
         <SelectCategory
           selected={selectedCategoryId}
-          onSelect={
-            handleCategorySelect as unknown as React.ReactEventHandler<HTMLButtonElement> &
-              ((categoryId: string) => void)
-          }
+          onSelect={handleCategorySelect as any}
         />
       </div>
 

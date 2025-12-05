@@ -29,7 +29,7 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
   const [erxesAppToken, setErxesAppToken] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
 
-  const { posDetail, loading: detailLoading } = usePosDetail(posId);
+  const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const { payments, loading: paymentsLoading } = usePayments({
     status: 'active',
@@ -112,6 +112,16 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
             <div className="h-8 rounded animate-pulse bg-muted" />
           </div>
         ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-destructive">
+          Failed to load POS details: {error.message}
+        </p>
       </div>
     );
   }
