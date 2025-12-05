@@ -20,7 +20,11 @@ const generateFilter = async (models: IModels, params: IFieldParams) => {
 };
 
 export const fieldQueries = {
-  fields: async (_: undefined, params: IFieldParams, { models }: IContext) => {
+  fields: async (
+    _: undefined,
+    { params }: { params: IFieldParams },
+    { models }: IContext,
+  ) => {
     const filter = await generateFilter(models, params);
 
     if (!params.orderBy) {
