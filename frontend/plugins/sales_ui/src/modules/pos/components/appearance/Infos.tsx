@@ -53,8 +53,7 @@ export const Infos: React.FC<InfosProps> = ({ posId }) => {
       });
 
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving infos:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save infos',

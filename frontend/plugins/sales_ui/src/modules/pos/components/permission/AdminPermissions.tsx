@@ -67,8 +67,7 @@ export const AdminPermissions: React.FC<AdminPermissionsProps> = ({
         description: 'Admin permissions saved successfully',
       });
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving admin permissions:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save admin permissions',

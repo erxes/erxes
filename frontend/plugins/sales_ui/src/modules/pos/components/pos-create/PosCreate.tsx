@@ -125,8 +125,7 @@ export const PosCreate = ({
                 },
                 ['groups'],
               );
-            } catch (err) {
-              console.error('Error saving product groups:', err);
+            } catch {
               toast({
                 title: 'Warning',
                 description:
@@ -167,8 +166,7 @@ export const PosCreate = ({
                   slots: slotsData,
                 },
               });
-            } catch (err) {
-              console.error('Error saving slots:', err);
+            } catch {
               toast({
                 title: 'Warning',
                 description:
@@ -189,8 +187,12 @@ export const PosCreate = ({
           if (onCreateSuccess) onCreateSuccess();
         },
       });
-    } catch (error) {
-      console.error('Error creating POS:', error);
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to create POS. Please try again.',
+        variant: 'destructive',
+      });
     }
   };
 

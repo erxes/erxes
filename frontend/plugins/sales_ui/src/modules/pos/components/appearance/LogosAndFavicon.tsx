@@ -201,8 +201,7 @@ export const LogosAndFavicon: React.FC<LogosAndFaviconProps> = ({
       });
 
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving logos:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save logos and favicon',

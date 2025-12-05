@@ -82,8 +82,7 @@ export const ProductAndCategoryMapping: React.FC<
       });
 
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving mappings:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save product & category mappings',

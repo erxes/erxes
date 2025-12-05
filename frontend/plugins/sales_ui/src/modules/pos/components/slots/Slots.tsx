@@ -3,11 +3,11 @@ import POSSlotsManager from '@/pos/slot/components/slot';
 import { usePosSlots } from '@/pos/hooks/usePosSlots';
 
 interface SlotsProps {
-  posId?: string;
+  posId: string;
 }
 
 const Slots: React.FC<SlotsProps> = ({ posId }) => {
-  const { nodes, setNodes, loading } = usePosSlots(posId || '');
+  const { nodes, setNodes, loading } = usePosSlots(posId);
 
   if (loading) {
     return (
@@ -27,7 +27,7 @@ const Slots: React.FC<SlotsProps> = ({ posId }) => {
         <InfoCard.Content>
           <div className="h-full">
             <POSSlotsManager
-              posId={posId || ''}
+              posId={posId}
               initialNodes={nodes}
               onNodesChange={setNodes}
               isCreating={false}

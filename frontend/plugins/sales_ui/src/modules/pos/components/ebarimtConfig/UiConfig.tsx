@@ -58,8 +58,7 @@ export const UiConfig: React.FC<UiConfigProps> = ({ posId }) => {
       });
 
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving UI config:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save UI config',

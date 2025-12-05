@@ -68,8 +68,7 @@ export const Vat: React.FC<VatProps> = ({ posId }) => {
       });
 
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving VAT config:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save VAT config',

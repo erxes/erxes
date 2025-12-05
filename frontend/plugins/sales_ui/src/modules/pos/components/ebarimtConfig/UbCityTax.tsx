@@ -68,8 +68,7 @@ export const UbCityTax: React.FC<UbCityTaxProps> = ({ posId }) => {
       });
 
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving UB City Tax config:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save UB City Tax config',

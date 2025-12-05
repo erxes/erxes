@@ -65,8 +65,7 @@ export const MainColors: React.FC<MainColorsProps> = ({ posId }) => {
       });
 
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving colors:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save main colors',

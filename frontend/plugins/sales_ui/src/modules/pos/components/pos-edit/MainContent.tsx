@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge, Spinner } from 'erxes-ui';
-import { usePosDetail } from '../../hooks/usePosDetail';
+import { IPos } from '../../types/pos';
 import PosDelete from '../pos-delete/PosDelete';
 import { Properties } from '../properties';
 import { Slots } from '../slots';
@@ -17,6 +17,8 @@ import { SyncCard } from '../syncCard';
 interface MainContentProps {
   activeStep: string;
   posId?: string;
+  posDetail?: IPos;
+  loading: boolean;
 }
 
 export interface PosComponentProps {
@@ -27,8 +29,9 @@ export interface PosComponentProps {
 export const MainContent: React.FC<MainContentProps> = ({
   activeStep,
   posId,
+  posDetail,
+  loading,
 }) => {
-  const { posDetail, loading } = usePosDetail(posId);
   const posType = posDetail?.type;
 
   const renderContent = (): React.ReactNode => {
@@ -36,7 +39,7 @@ export const MainContent: React.FC<MainContentProps> = ({
       case 'properties':
         return <Properties posId={posId} posType={posType} />;
       case 'slots':
-        return <Slots posId={posId} />;
+        return posId ? <Slots posId={posId} /> : null;
       case 'payments':
         return <Payment posId={posId} posType={posType} />;
       case 'permission':

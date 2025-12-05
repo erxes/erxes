@@ -66,8 +66,7 @@ export const KioskExcludeProducts: React.FC<KioskExcludeProductsProps> = ({
       });
 
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving kiosk exclude settings:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save kiosk exclude settings',

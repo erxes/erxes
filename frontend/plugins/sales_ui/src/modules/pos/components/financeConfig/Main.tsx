@@ -68,8 +68,7 @@ export const Main: React.FC<MainProps> = ({ posId }) => {
       });
 
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving finance config:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save finance config',

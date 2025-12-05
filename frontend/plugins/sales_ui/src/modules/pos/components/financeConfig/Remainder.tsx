@@ -52,8 +52,7 @@ export const Remainder: React.FC<RemainderProps> = ({ posId }) => {
       });
 
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving remainder config:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save remainder config',

@@ -89,8 +89,7 @@ export const OtherPayment: React.FC<OtherPaymentProps> = ({ posId }) => {
         description: 'Payment types saved successfully',
       });
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving payment types:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save payment types',
@@ -110,7 +109,8 @@ export const OtherPayment: React.FC<OtherPaymentProps> = ({ posId }) => {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        type is must latin, some default types: golomtCard, khaanCard, TDBCard
+        type must use latin characters, some default types: golomtCard,
+        khaanCard, TDBCard
         <br />
         Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: "skipEbarimt: true",
         Харилцагч сонгосон үед л харагдах бол: "mustCustomer: true", Хэрэв

@@ -64,8 +64,7 @@ export const Other: React.FC<OtherProps> = ({ posId }) => {
       });
 
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving other config:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save other config',

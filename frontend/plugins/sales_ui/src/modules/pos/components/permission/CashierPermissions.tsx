@@ -67,8 +67,7 @@ export const CashierPermissions: React.FC<CashierPermissionsProps> = ({
         description: 'Cashier permissions saved successfully',
       });
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving cashier permissions:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save cashier permissions',

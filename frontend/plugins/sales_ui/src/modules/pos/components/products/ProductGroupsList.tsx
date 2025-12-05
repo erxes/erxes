@@ -74,8 +74,7 @@ export const ProductGroupsList: React.FC<ProductGroupsListProps> = ({
 
       setHasChanges(false);
       refetch();
-    } catch (err) {
-      console.error('Error saving product groups:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save product groups',
@@ -85,7 +84,13 @@ export const ProductGroupsList: React.FC<ProductGroupsListProps> = ({
   };
 
   if (error) {
-    console.error('Error loading product groups:', error);
+    return (
+      <div className="p-6 text-center">
+        <p className="text-destructive">
+          Failed to load product groups: {error.message}
+        </p>
+      </div>
+    );
   }
 
   if (loading) {

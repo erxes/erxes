@@ -120,8 +120,7 @@ const Properties: React.FC<PropertiesProps> = ({ posId, posType }) => {
         description: 'Properties saved successfully',
       });
       form.reset(data);
-    } catch (err) {
-      console.error('Error saving properties:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save properties',

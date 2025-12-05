@@ -55,8 +55,7 @@ export const Main: React.FC<MainProps> = ({ posId }) => {
       });
 
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving ebarimt config:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save ebarimt config',

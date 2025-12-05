@@ -62,8 +62,7 @@ export const InitialProductCategories: React.FC<
       });
 
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving initial category:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save initial product category',

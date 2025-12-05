@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Button, Dialog } from 'erxes-ui';
+import { useState } from 'react';
+import { Button, Dialog, useToast } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { useNavigate } from 'react-router';
 import { usePosRemove } from '../../hooks/usePosRemove';
@@ -12,6 +12,7 @@ interface PosDeleteProps {
 const PosDelete = ({ posId, onDelete }: PosDeleteProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { posRemove, loading } = usePosRemove();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleDelete = async () => {
@@ -27,8 +28,12 @@ const PosDelete = ({ posId, onDelete }: PosDeleteProps) => {
       setIsDialogOpen(false);
 
       navigate('/sales/pos');
-    } catch (error) {
-      console.error('Error deleting POS:', error);
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete POS. Please try again.',
+        variant: 'destructive',
+      });
     }
   };
 

@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react';
 import { Button, toast } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useMutation } from '@apollo/client';
-import { usePosDetail } from '../../hooks/usePosDetail';
-import mutations from '../../graphql/mutations';
-import { AddConfigSheet, CardConfig } from './AddConfigSheet';
+import { usePosDetail } from '@/pos/hooks/usePosDetail';
+import mutations from '@/pos/graphql/mutations';
+import {
+  AddConfigSheet,
+  CardConfig,
+} from '@/pos/components/syncCard/AddConfigSheet';
 
 interface SyncListProps {
   posId?: string;
@@ -95,8 +98,7 @@ export const SyncList: React.FC<SyncListProps> = ({ posId }) => {
       });
 
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving cards config:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save cards config',

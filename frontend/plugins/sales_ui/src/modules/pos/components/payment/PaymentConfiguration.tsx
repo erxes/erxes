@@ -8,10 +8,10 @@ import {
   MultiSelectOption,
 } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
-import { usePosDetail } from '../../hooks/usePosDetail';
-import { usePayments } from '../../hooks/usePayments';
-import mutations from '../../graphql/mutations';
-import { isFieldVisible } from '../../constants';
+import { usePosDetail } from '@/pos/hooks/usePosDetail';
+import { usePayments } from '@/pos/hooks/usePayments';
+import mutations from '@/pos/graphql/mutations';
+import { isFieldVisible } from '@/pos/constants';
 
 interface PaymentConfigurationProps {
   posId?: string;
@@ -49,15 +49,20 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
 
     setPaymentIds(posDetail.paymentIds || []);
     setErxesAppToken(posDetail.erxesAppToken || '');
-
-    const selected = paymentOptions.filter((opt) =>
-      posDetail.paymentIds?.includes(opt.value),
-    );
-    setSelectedPayments(selected);
     setHasChanges(false);
     initializedRef.current = true;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [posDetail]);
+
+  useEffect(() => {
+    if (paymentOptions.length === 0 || paymentIds.length === 0) {
+      return;
+    }
+
+    const selected = paymentOptions.filter((opt) =>
+      paymentIds.includes(opt.value),
+    );
+    setSelectedPayments(selected);
+  }, [paymentOptions, paymentIds]);
 
   const handlePaymentChange = (values: MultiSelectOption[]) => {
     setSelectedPayments(values);
@@ -89,8 +94,7 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
         description: 'Payment configuration saved successfully',
       });
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving payment config:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save payment configuration',

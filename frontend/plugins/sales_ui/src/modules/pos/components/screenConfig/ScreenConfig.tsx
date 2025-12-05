@@ -34,15 +34,24 @@ const ScreenConfig: React.FC<ScreenConfigProps> = ({ posId, posType }) => {
   const [waitingScreen, setWaitingScreen] = useState<WaitingScreenData>({});
   const [hasChanges, setHasChanges] = useState(false);
 
-  const { posDetail, loading: detailLoading } = usePosDetail(posId);
+  const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
 
   useEffect(() => {
-    if (posDetail) {
+    if (error) {
+      toast({
+        title: 'Error',
+        description: `Failed to load screen config: ${error.message}`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (posDetail && !error) {
       setKitchenScreen(posDetail.kitchenScreen || {});
       setWaitingScreen(posDetail.waitingScreen || {});
     }
-  }, [posDetail]);
+  }, [posDetail, error]);
 
   const handleKitchenChange = (data: KitchenScreenData) => {
     setKitchenScreen(data);

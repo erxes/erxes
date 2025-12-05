@@ -73,8 +73,7 @@ export const RemainderConfigs: React.FC<RemainderConfigsProps> = ({
       });
 
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving remainder configs:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save remainder configs',
