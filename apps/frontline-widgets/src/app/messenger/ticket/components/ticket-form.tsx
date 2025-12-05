@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useTicketForm } from '../hooks/useTicketForm';
 import {
   Button,
@@ -12,12 +12,12 @@ import {
   Upload,
 } from 'erxes-ui';
 import { Path } from 'react-hook-form';
-import { TicketFormFields, TicketFormPlaceholders } from '../types';
 import { EXCLUDED_TICKET_FORM_FIELDS } from '../../constants';
 import { ticketConfigAtom } from '../../states';
 import { useCreateWidgetTicket } from '../hooks/useCreateWidgetTicket';
 import { getLocalStorageItem } from '@libs/utils';
 import { SelectTicketTag } from './tags/select-ticket-tag';
+import { userTicketCreatedNumberAtom } from '../../states';
 
 const TICKET_DETAILS_FIELDS = ['name', 'description', 'attachments', 'tags'];
 
@@ -32,6 +32,7 @@ export const TicketForm = ({
     useCreateWidgetTicket();
   const { control, handleSubmit, reset } = form;
   const ticketConfig = useAtomValue(ticketConfigAtom);
+  const setUserTicketCreatedNumber = useSetAtom(userTicketCreatedNumberAtom);
 
   const excludedFields = EXCLUDED_TICKET_FORM_FIELDS;
 
@@ -53,13 +54,14 @@ export const TicketForm = ({
         customerIds: [cachedCustomerId],
       },
       onCompleted: (dataOnCompleted: {
-        widgetTicketCreated: { _id: string };
+        widgetTicketCreated: { _id: string; number: string };
       }) => {
         toast({
           title: 'Success',
           variant: 'success',
-          description: 'Ticket created successfully',
+          description: `Ticket created successfully. Number: ${dataOnCompleted.widgetTicketCreated.number}`,
         });
+        setUserTicketCreatedNumber(dataOnCompleted.widgetTicketCreated.number);
         reset();
         setPage('submissions');
       },
@@ -82,12 +84,12 @@ export const TicketForm = ({
     .sort(([keyA], [keyB]) => {
       const fieldKeyA = keyA === 'attachments' ? 'attachment' : keyA;
       const fieldKeyB = keyB === 'attachments' ? 'attachment' : keyB;
-      
+
       const orderA =
         (ticketConfig?.formFields as any)?.[fieldKeyA]?.order ?? 999;
       const orderB =
         (ticketConfig?.formFields as any)?.[fieldKeyB]?.order ?? 999;
-      
+
       return orderA - orderB;
     });
 

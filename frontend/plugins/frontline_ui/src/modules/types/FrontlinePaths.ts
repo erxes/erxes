@@ -11,4 +11,6 @@ export enum FrontlinePaths {
   Tickets = '/tickets',
   TicketsConfigs = '/:id/pipelines/:pipelineId/configs',
   TicketsStatuses = '/:id/pipelines/:pipelineId/statuses',
+  ChannelResponsePage = '/:id/response',
+  ResponseDetail = '/:id/response/:responseId',
 }

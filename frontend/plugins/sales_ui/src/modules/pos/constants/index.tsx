@@ -24,6 +24,25 @@ export type {
   PosTypeValue,
 } from './fieldConfig';
 
+export type AllowedPosType =
+  | 'eat'
+  | 'take'
+  | 'delivery'
+  | 'loss'
+  | 'spend'
+  | 'reject';
+
+export const DEFAULT_ALLOW_TYPE: AllowedPosType = 'eat';
+
+export const ALLOWED_TYPE_VALUES: readonly AllowedPosType[] = [
+  'eat',
+  'take',
+  'delivery',
+  'loss',
+  'spend',
+  'reject',
+] as const;
+
 export const ALLOW_TYPES = [
   { value: 'eat', label: 'Eat', kind: 'sale' },
   { value: 'take', label: 'Take', kind: 'sale' },

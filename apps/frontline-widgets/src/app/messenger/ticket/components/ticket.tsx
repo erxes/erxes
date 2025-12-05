@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { TicketForm } from './ticket-form';
 import { TicketSubmissions } from './ticket-submissions';
 import { useCustomerData } from '../../hooks/useCustomerData';

@@ -92,6 +92,8 @@ export interface SidebarListProps {
   onAddSlot: () => void;
   onDuplicateSlot: (id: string) => void;
   onDeleteSlot: (id: string) => void;
+  onNodeSelect: (nodeId: string) => void;
+  onAddNew: (nodeData?: Partial<TableNodeData>) => void;
 }
 
 export interface SidebarDetailProps {
