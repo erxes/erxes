@@ -22,7 +22,7 @@ export const PosIndexPage = () => {
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/pos">
+                  <Link to="/sales/pos">
                     <IconCashRegister />
                     pos
                   </Link>

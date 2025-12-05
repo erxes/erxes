@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client';
 import queries from '../graphql/queries';
-import { ProductGroup } from '../create-pos/types';
+import { ProductGroup } from '../pos-detail/types/IPos';
 
 interface ProductGroupsData {
   productGroups: ProductGroup[];

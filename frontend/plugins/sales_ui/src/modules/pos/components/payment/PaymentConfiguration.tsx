@@ -9,7 +9,7 @@ import {
 } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
 import { usePosDetail } from '../../hooks/usePosDetail';
-import { usePayments } from '../../create-pos/hooks/usePayments';
+import { usePayments } from '../../hooks/usePayments';
 import mutations from '../../graphql/mutations';
 import { isFieldVisible } from '../../constants';
 
@@ -17,18 +17,6 @@ interface PaymentConfigurationProps {
   posId?: string;
   posType?: string;
 }
-
-const STATIC_PAYMENTS = [
-  {
-    _id: '0sZvoDO76mQ7PtMdYZ_Sy',
-    name: 'Эн Эм Эм Эй ХХК',
-    kind: 'qpayQuickqr',
-  },
-  { _id: 'wVwEpQRAmutkBZeTJEYHa', name: 'enkhtuvshin', kind: 'qpay' },
-  { _id: 'PYkAu-XZ5Iep8y5b0BYgG', name: 'test', kind: 'qpayQuickqr' },
-  { _id: 'OKy6iUk087EpS_gVgzEOt', name: 'Hotel test', kind: 'stripe' },
-  { _id: 'yCM0wNZS24r0NSMYRpxqJ', name: 'Nomin', kind: 'qpayQuickqr' },
-];
 
 export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
   posId,
@@ -47,10 +35,9 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
     status: 'active',
   });
 
-  const paymentsList = payments.length > 0 ? payments : STATIC_PAYMENTS;
   const paymentOptions: MultiSelectOption[] = useMemo(
-    () => paymentsList.map((p) => ({ value: p._id, label: p.name })),
-    [paymentsList],
+    () => payments.map((p) => ({ value: p._id, label: p.name })),
+    [payments],
   );
 
   useEffect(() => {

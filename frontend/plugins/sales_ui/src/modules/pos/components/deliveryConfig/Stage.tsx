@@ -3,10 +3,10 @@ import { Label, Button, Select, toast } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
 import { usePosDetail } from '../../hooks/usePosDetail';
 import mutations from '../../graphql/mutations';
-import { SelectBoardFormItem } from '../../create-pos/hooks/useSelectBoard';
-import { SelectPipelineFormItem } from '../../create-pos/hooks/useSelectPipeline';
-import { SelectStageFormItem } from '../../create-pos/hooks/useSelectStage';
-import { useFieldsCombined } from '../../create-pos/hooks/useFieldsCombined';
+import { SelectBoardFormItem } from '../../hooks/useSelectBoard';
+import { SelectPipelineFormItem } from '../../hooks/useSelectPipeline';
+import { SelectStageFormItem } from '../../hooks/useSelectStage';
+import { useFieldsCombined } from '../../hooks/useFieldsCombined';
 
 interface StageProps {
   posId?: string;

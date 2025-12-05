@@ -6,6 +6,11 @@ export interface PosAddVariables {
   name?: string;
   description?: string;
   type?: string;
+  branchId?: string;
+  paymentIds?: string[];
+  adminIds?: string[];
+  cashierIds?: string[];
+  initialCategoryIds?: string[];
 }
 
 export function usePosAdd(

@@ -72,17 +72,17 @@ export const MainContent: React.FC<MainContentProps> = ({
   return (
     <div className="flex overflow-hidden flex-col flex-1 h-full">
       <div className="flex justify-between items-center px-6 py-4 border-b border-border bg-background shrink-0">
-        <div className="flex gap-4 items-center">
-          <h1 className="text-xl font-semibold text-foreground">
+        <div className="flex flex-1 gap-4 items-center min-w-0">
+          <h1 className="max-w-[100px] text-xl font-semibold truncate text-foreground">
             {posDetail?.name || 'New POS'}
           </h1>
 
-          <Badge variant="secondary" className="text-xs">
+          <Badge variant="secondary" className="text-xs shrink-0">
             {posDetail?.type || 'N/A'}
           </Badge>
         </div>
 
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center shrink-0">
           <PosDelete posId={posId} />
         </div>
       </div>

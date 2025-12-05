@@ -1,4 +1,3 @@
-import { StepConfig } from '../pos-detail/types/IPosLayout';
 import { CustomNode } from '../slot/types';
 import {
   IconCreditCard,
@@ -82,18 +81,18 @@ export const CANVAS = {
   HEIGHT: 1000,
 } as const;
 
-export const getSteps = (posType: string | null): StepConfig[] => {
-  const baseSteps: StepConfig[] = [
+export const getSteps = (posType: string | null) => {
+  const baseSteps = [
     { value: 'properties', title: 'General information' },
     { value: 'slots', title: 'Slots' },
     { value: 'payments', title: 'Payments' },
     { value: 'permission', title: 'Permission' },
     { value: 'product', title: 'Product & Service' },
     { value: 'appearance', title: 'Appearance' },
-    { value: 'screen', title: 'Screen config' },
-    { value: 'ebarimt', title: 'Ebarimt config' },
-    { value: 'finance', title: 'Finance config' },
-    { value: 'delivery', title: 'Delivery config' },
+    { value: 'screen', title: 'Screen' },
+    { value: 'ebarimt', title: 'Ebarimt' },
+    { value: 'finance', title: 'Erkhet' },
+    { value: 'delivery', title: 'Delivery' },
     { value: 'sync', title: 'Sync card' },
   ];
 

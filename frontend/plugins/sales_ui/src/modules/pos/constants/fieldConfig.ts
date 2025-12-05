@@ -108,7 +108,7 @@ export const FIELD_VISIBILITY_CONFIG: CategoryFieldConfig = {
     res: false,
   },
   onServer: {
-    ecom: true,
+    ecom: false,
     pos: true,
     res: true,
   },

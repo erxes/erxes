@@ -82,8 +82,26 @@ const commonVariables = `
 `;
 
 const posAdd = gql`
-  mutation PosAdd($name: String, $description: String, $type: String) {
-    posAdd(name: $name, description: $description, type: $type) {
+  mutation PosAdd(
+    $name: String
+    $description: String
+    $type: String
+    $branchId: String
+    $paymentIds: [String]
+    $adminIds: [String]
+    $cashierIds: [String]
+    $initialCategoryIds: [String]
+  ) {
+    posAdd(
+      name: $name
+      description: $description
+      type: $type
+      branchId: $branchId
+      paymentIds: $paymentIds
+      adminIds: $adminIds
+      cashierIds: $cashierIds
+      initialCategoryIds: $initialCategoryIds
+    ) {
       _id
     }
   }
