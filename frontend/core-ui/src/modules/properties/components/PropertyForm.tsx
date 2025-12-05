@@ -6,11 +6,15 @@ import { propertySchema } from '../propertySchema';
 import {
   IconCalendarEvent,
   IconCheck,
+  IconFile,
   IconNumbers,
   IconRelationManyToMany,
   IconTag,
   IconTextSize,
 } from '@tabler/icons-react';
+import { PropertyFormValidation } from './PropertyFormValidations';
+import { PropertyFormSelectFields } from './PropertyFormSelectFields';
+import { PropertySelectRelationType } from './PropertySelectRelationType';
 
 export const PropertyForm = () => {
   const form = useForm<IPropertyForm>({
@@ -37,7 +41,6 @@ export const PropertyForm = () => {
       >
         <div className="flex gap-5">
           <Form.Field
-            control={form.control}
             name="icon"
             render={({ field }) => (
               <Form.Item className="flex-none">
@@ -54,7 +57,6 @@ export const PropertyForm = () => {
             )}
           />
           <Form.Field
-            control={form.control}
             name="name"
             render={({ field }) => (
               <Form.Item className="flex-auto">
@@ -67,7 +69,6 @@ export const PropertyForm = () => {
           />
         </div>
         <Form.Field
-          control={form.control}
           name="code"
           render={({ field }) => (
             <Form.Item className="flex-auto">
@@ -79,7 +80,6 @@ export const PropertyForm = () => {
           )}
         />
         <Form.Field
-          control={form.control}
           name="description"
           render={({ field }) => (
             <Form.Item className="flex-auto">
@@ -91,11 +91,10 @@ export const PropertyForm = () => {
           )}
         />
         <Form.Field
-          control={form.control}
           name="type"
           render={({ field }) => (
             <Form.Item className="flex-auto">
-              <Form.Label>Group</Form.Label>
+              <Form.Label>Type</Form.Label>
 
               <Select value={field.value} onValueChange={field.onChange}>
                 <Form.Control>
@@ -117,15 +116,9 @@ export const PropertyForm = () => {
             </Form.Item>
           )}
         />
-        <Form.Field
-          control={form.control}
-          name="validation"
-          render={({ field }) => (
-            <Form.Item className="flex-auto">
-              <Form.Label>Validation</Form.Label>
-            </Form.Item>
-          )}
-        />
+        <PropertyFormValidation form={form} />
+        <PropertyFormSelectFields form={form} />
+        <PropertySelectRelationType form={form} />
       </form>
     </Form>
   );
@@ -138,4 +131,5 @@ const FIELD_TYPES = [
   { value: 'date', label: 'Date', icon: <IconCalendarEvent /> },
   { value: 'select', label: 'Select', icon: <IconTag /> },
   { value: 'relation', label: 'Relation', icon: <IconRelationManyToMany /> },
+  { value: 'file', label: 'File', icon: <IconFile /> },
 ];

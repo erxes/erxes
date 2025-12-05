@@ -1,12 +1,11 @@
 import { PageHeader } from 'ui-modules';
-import { Breadcrumb, Button, useQueryState } from 'erxes-ui';
-import { Link } from 'react-router-dom';
+import { Breadcrumb, Button } from 'erxes-ui';
+import { Link, useParams } from 'react-router';
 import { IconHierarchy2 } from '@tabler/icons-react';
 import { AddPropertyGroup } from './AddPropertyGroup';
-import { AddProperty } from './AddProperty';
 
 export function PropertiesHeader() {
-  const [type] = useQueryState<string>('type');
+  const { type } = useParams<{ type: string }>();
   return (
     <PageHeader>
       <PageHeader.Start>
@@ -33,6 +32,9 @@ export function PropertiesHeader() {
           </Breadcrumb.List>
         </Breadcrumb>
       </PageHeader.Start>
+      <PageHeader.End>
+        <AddPropertyGroup />
+      </PageHeader.End>
     </PageHeader>
   );
 }

@@ -35,29 +35,35 @@ export const PropertiesSettingsPage = lazy(() =>
 export const PropertiesSettingsRoutes = () => {
   return (
     <Suspense fallback={<Spinner />}>
-      <PageContainer>
-        <PropertiesHeader />
-
-        <Routes>
-          <Route element={<PropertiesLayout />}>
-            <Route
-              index
-              element={
-                <Navigate
-                  to={`/${SettingsPath.Index}${SettingsWorkspacePath.Properties}/core:customer`}
-                  replace
-                />
-              }
+      <Routes>
+        <Route
+          index
+          element={
+            <Navigate
+              to={`/${SettingsPath.Index}${SettingsWorkspacePath.Properties}/core:customer`}
+              replace
             />
-            <Route path="/:type" element={<PropertiesSettingsPage />} />
-            <Route
-              path="/:type/:groupId/add"
-              element={<AddPropertyFieldPage />}
-            />
-            <Route path="/:type/:id" element={<EditPropertyFieldPage />} />
-          </Route>
-        </Routes>
-      </PageContainer>
+          }
+        />
+        <Route
+          path="/:type/*"
+          element={
+            <PageContainer>
+              <PropertiesHeader />
+              <PropertiesLayout>
+                <Routes>
+                  <Route index element={<PropertiesSettingsPage />} />
+                  <Route
+                    path="/:groupId/add"
+                    element={<AddPropertyFieldPage />}
+                  />
+                  <Route path="/:id" element={<EditPropertyFieldPage />} />
+                </Routes>
+              </PropertiesLayout>
+            </PageContainer>
+          }
+        />
+      </Routes>
     </Suspense>
   );
 };

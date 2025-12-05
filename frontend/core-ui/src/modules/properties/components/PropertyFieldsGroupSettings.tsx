@@ -6,9 +6,13 @@ import {
 } from '@tabler/icons-react';
 import { Button, Collapsible, Table } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
+import { useFieldGroups } from '../hooks/useFieldGroups';
 
 export const PropertyFieldsGroupSettings = () => {
   const { type } = useParams<{ type: string }>();
+
+  const { fieldGroups, loading } = useFieldGroups({ contentType: type || '' });
+
   return (
     <div className="m-3">
       <div className="max-w-lg mx-auto flex flex-col gap-2">

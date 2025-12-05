@@ -14,12 +14,12 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { useAddPropertyGroup } from '../hooks/useAddPropertyGroup';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { propertyGroupSchema } from '../propertySchema';
+import { useParams } from 'react-router-dom';
 
 export const AddPropertyGroup = () => {
-  const [contentType] = useQueryState<string>('type');
+  const { type } = useParams<{ type: string }>();
   const { addPropertyGroup, loading } = useAddPropertyGroup();
   const form = useForm<IPropertyGroupForm>({
-    mode: 'onBlur',
     resolver: zodResolver(propertyGroupSchema),
     defaultValues: {
       name: '',
@@ -32,11 +32,10 @@ export const AddPropertyGroup = () => {
   const submitHandler: SubmitHandler<IPropertyGroupForm> = (data) => {
     addPropertyGroup({
       variables: {
-        doc: {
-          ...data,
-          contentType: contentType || '',
-          order: 0,
-        },
+        name: data.name,
+        code: data.code,
+        description: data.description,
+        contentType: type,
       },
       onCompleted: () => {
         toast({ title: 'Created a group', variant: 'success' });
@@ -67,13 +66,11 @@ export const AddPropertyGroup = () => {
                 Add Group
               </Sheet.Title>
               <Sheet.Description className="sr-only">
-                Add a new group for the content type {contentType}
+                Add a new group for the content type {type}
               </Sheet.Description>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full h-auto flex flex-col px-5 py-4 gap-5">
-              {/* Add your form fields here, for example: */}
-
               <Form.Field
                 name="name"
                 render={({ field }) => (

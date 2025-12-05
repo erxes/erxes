@@ -15,4 +15,12 @@ export const propertySchema = z.object({
   type: z.string().min(1, 'Type is required'),
   validation: z.string().optional(),
   isSearchable: z.boolean().default(false),
+  options: z
+    .array(
+      z.object({
+        label: z.string().min(1, 'Label is required'),
+        value: z.string().min(1, 'Value is required'),
+      }),
+    )
+    .optional(),
 });

@@ -1,10 +1,21 @@
 import { gql } from '@apollo/client';
 
 export const FIELD_GROUP_ADD = gql`
-  mutation FieldGroupAdd($doc: FieldGroupInput!) {
-    fieldGroupAdd(doc: $doc) {
+  mutation FieldGroupAdd(
+    $name: String
+    $code: String
+    $description: String
+    $contentType: String
+    $logics: JSON
+  ) {
+    fieldGroupAdd(
+      name: $name
+      code: $code
+      description: $description
+      contentType: $contentType
+      logics: $logics
+    ) {
       _id
-      code
     }
   }
 `;
