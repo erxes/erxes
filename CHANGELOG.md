@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.17.29](https://github.com/erxes/erxes/compare/2.17.28...2.17.29) (2025-12-05)
+
+### Features
+
+* product lastCode ([#6715](https://github.com/erxes/erxes/issues/6715)) ([6528f90](https://github.com/erxes/erxes/commit/6528f90c15dc693ff96335bec218a35537fe5726))
+* **tickets:** fix create ticket properties ([881c355](https://github.com/erxes/erxes/commit/881c355fa15a68688025749bfd0f5961d50b8aa3))
+
 ## [2.17.28](https://github.com/erxes/erxes/compare/2.17.27...2.17.28) (2025-11-19)
 
 ## <small>2.17.27 (2025-11-18)</small>
