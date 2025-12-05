@@ -2,14 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button, Label, Input, Select, Sheet } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import PaymentIcon from '../../constants';
-
-interface PaymentType {
-  _id: string;
-  type: string;
-  title: string;
-  icon: string;
-  config?: string;
-}
+import { PaymentType } from '@/pos/types/types';
 
 interface AddPaymentSheetProps {
   onPaymentAdded?: (payment: PaymentType) => void;
@@ -40,6 +33,14 @@ export const AddPaymentSheet: React.FC<AddPaymentSheetProps> = ({
   const [formIcon, setFormIcon] = useState('');
   const [formConfig, setFormConfig] = useState('');
 
+  const generateId = () => {
+    if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+      return crypto.randomUUID();
+    }
+
+    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  };
+
   useEffect(() => {
     if (editingPayment) {
       setOpen(true);
@@ -65,7 +66,7 @@ export const AddPaymentSheet: React.FC<AddPaymentSheetProps> = ({
 
   const handleSubmit = () => {
     const payment: PaymentType = {
-      _id: editingPayment?._id || String(Math.random()),
+      _id: editingPayment?._id || generateId(),
       type: formType,
       title: formTitle,
       icon: formIcon,

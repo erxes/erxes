@@ -88,8 +88,7 @@ const ScreenConfig: React.FC<ScreenConfigProps> = ({ posId, posType }) => {
       });
 
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving screen config:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save screen config',

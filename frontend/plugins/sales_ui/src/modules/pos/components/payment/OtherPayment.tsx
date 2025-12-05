@@ -5,14 +5,7 @@ import { useMutation } from '@apollo/client';
 import { usePosDetail } from '../../hooks/usePosDetail';
 import mutations from '../../graphql/mutations';
 import { AddPaymentSheet } from './AddPaymentSheet';
-
-interface PaymentType {
-  _id: string;
-  type: string;
-  title: string;
-  icon: string;
-  config?: string;
-}
+import { PaymentType } from '@/pos/types/types';
 
 interface OtherPaymentProps {
   posId?: string;

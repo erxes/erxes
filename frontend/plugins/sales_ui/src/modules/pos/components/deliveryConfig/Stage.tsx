@@ -78,8 +78,7 @@ export const Stage: React.FC<StageProps> = ({ posId }) => {
       });
 
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving delivery config:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save delivery config',

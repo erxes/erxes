@@ -14,10 +14,6 @@ export const PosEdit = ({ id }: PosEditProps) => {
 
   const activeTab = searchParams.get('activeTab') || 'properties';
 
-  const handleTabChange = (tab: string) => {
-    setSearchParams({ activeTab: tab });
-  };
-
   useEffect(() => {
     if (!searchParams.get('activeTab')) {
       setSearchParams({ activeTab: 'properties' });
@@ -26,11 +22,7 @@ export const PosEdit = ({ id }: PosEditProps) => {
 
   return (
     <div className="flex h-full">
-      <PosEditSidebar
-        posType={posDetail?.type}
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-      />
+      <PosEditSidebar posType={posDetail?.type} activeTab={activeTab} />
       <MainContent activeStep={activeTab} posId={id} />
     </div>
   );

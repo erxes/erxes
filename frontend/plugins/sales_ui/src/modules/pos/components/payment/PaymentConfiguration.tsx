@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import {
   Label,
   Input,
@@ -40,18 +40,24 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
     [payments],
   );
 
-  useEffect(() => {
-    if (posDetail) {
-      setPaymentIds(posDetail.paymentIds || []);
-      setErxesAppToken(posDetail.erxesAppToken || '');
+  const initializedRef = useRef(false);
 
-      const selected = paymentOptions.filter((opt) =>
-        posDetail.paymentIds?.includes(opt.value),
-      );
-      setSelectedPayments(selected);
-      setHasChanges(false);
+  useEffect(() => {
+    if (!posDetail || initializedRef.current) {
+      return;
     }
-  }, [posDetail, paymentOptions]);
+
+    setPaymentIds(posDetail.paymentIds || []);
+    setErxesAppToken(posDetail.erxesAppToken || '');
+
+    const selected = paymentOptions.filter((opt) =>
+      posDetail.paymentIds?.includes(opt.value),
+    );
+    setSelectedPayments(selected);
+    setHasChanges(false);
+    initializedRef.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [posDetail]);
 
   const handlePaymentChange = (values: MultiSelectOption[]) => {
     setSelectedPayments(values);

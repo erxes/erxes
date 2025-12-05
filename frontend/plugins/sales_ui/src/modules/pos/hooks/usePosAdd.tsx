@@ -1,24 +1,13 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { mutations } from '../graphql';
-import { AddPosDetailResult } from '../types/mutations';
-
-export interface PosAddVariables {
-  name?: string;
-  description?: string;
-  type?: string;
-  branchId?: string;
-  paymentIds?: string[];
-  adminIds?: string[];
-  cashierIds?: string[];
-  initialCategoryIds?: string[];
-}
+import { AddPosDetailResult, AddPosDetailVariables } from '../types/mutations';
 
 export function usePosAdd(
-  options?: MutationHookOptions<AddPosDetailResult, PosAddVariables>,
+  options?: MutationHookOptions<AddPosDetailResult, AddPosDetailVariables>,
 ) {
   const [posAdd, { loading, error }] = useMutation<
     AddPosDetailResult,
-    PosAddVariables
+    AddPosDetailVariables
   >(mutations.posAdd, {
     ...options,
     refetchQueries: ['posList'],

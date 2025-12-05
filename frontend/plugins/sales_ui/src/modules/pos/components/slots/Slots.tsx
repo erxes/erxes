@@ -1,6 +1,6 @@
 import { InfoCard } from 'erxes-ui';
-import POSSlotsManager from '../../slot/components/slot';
-import { usePosSlots } from '../../hooks/usePosSlots';
+import POSSlotsManager from '@/pos/slot/components/slot';
+import { usePosSlots } from '@/pos/hooks/usePosSlots';
 
 interface SlotsProps {
   posId?: string;

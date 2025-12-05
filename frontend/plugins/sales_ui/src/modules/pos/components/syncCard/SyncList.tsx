@@ -69,7 +69,8 @@ export const SyncList: React.FC<SyncListProps> = ({ posId }) => {
     try {
       const cardsConfig: Record<string, any> = {};
       configs.forEach((config) => {
-        const key = config._id || config.branchId || 'all';
+        const key =
+          config._id || config.branchId || `config_${configs.indexOf(config)}`;
         cardsConfig[key] = {
           branchId: config.branchId,
           boardId: config.boardId,

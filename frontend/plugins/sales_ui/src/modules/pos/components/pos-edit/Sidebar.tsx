@@ -5,14 +5,9 @@ import { getSteps } from '../../constants';
 interface PosEditSidebarProps {
   posType?: string;
   activeTab: string;
-  onTabChange: (tab: string) => void;
 }
 
-export const PosEditSidebar = ({
-  posType,
-  activeTab,
-  onTabChange,
-}: PosEditSidebarProps) => {
+export const PosEditSidebar = ({ posType, activeTab }: PosEditSidebarProps) => {
   const steps = getSteps(posType || null);
 
   return (
@@ -25,7 +20,6 @@ export const PosEditSidebar = ({
                 key={step.value}
                 to={step.value}
                 isActive={activeTab === step.value}
-                onClick={() => onTabChange(step.value)}
               >
                 {step.title}
               </PosEditSidebarItem>
@@ -41,12 +35,10 @@ export const PosEditSidebarItem = ({
   to,
   children,
   isActive,
-  onClick,
 }: {
   to: string;
   children: React.ReactNode;
   isActive: boolean;
-  onClick: () => void;
 }) => {
   const location = useLocation();
   const currentUrl = `${location.pathname}?activeTab=${to}`;
@@ -54,9 +46,7 @@ export const PosEditSidebarItem = ({
   return (
     <Sidebar.MenuItem>
       <Sidebar.MenuButton asChild isActive={isActive}>
-        <Link to={currentUrl} onClick={onClick}>
-          {children}
-        </Link>
+        <Link to={currentUrl}>{children}</Link>
       </Sidebar.MenuButton>
     </Sidebar.MenuItem>
   );

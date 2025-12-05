@@ -56,8 +56,7 @@ export const DealUsers: React.FC<DealUsersProps> = ({ posId }) => {
       });
 
       setHasChanges(false);
-    } catch (err) {
-      console.error('Error saving deal users config:', err);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save deal users config',
