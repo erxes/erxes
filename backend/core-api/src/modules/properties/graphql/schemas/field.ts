@@ -1,13 +1,24 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
+
+    type FieldOption {
+        label: String
+        value: String
+    }
+
+    input FieldOptionInput {
+        label: String
+        value: String
+    }
+
     type Field {
         _id: String!
         name: String
         code: String
         type: String
         order: Float
-        options: [String]
+        options: [FieldOption]
         validations: JSON
         logics: JSON
         icon: String
@@ -43,7 +54,7 @@ const mutationParams = `
     contentTypeId: String
     
     type: String
-    options: [String]
+    options: [FieldOptionInput]
     validations: JSON
     logics: JSON
     icon: String

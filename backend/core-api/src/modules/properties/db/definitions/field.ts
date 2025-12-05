@@ -1,5 +1,13 @@
 import { Schema } from 'mongoose';
 
+const fieldOptionSchema = new Schema(
+  {
+    label: { type: String, required: true },
+    value: { type: String, required: true },
+  },
+  { _id: false },
+);
+
 export const fieldSchema = new Schema(
   {
     name: { type: String, label: 'Name', required: true },
@@ -24,7 +32,7 @@ export const fieldSchema = new Schema(
     logics: { type: Schema.Types.Mixed, label: 'Logic' },
     validations: { type: Schema.Types.Mixed, label: 'Validation' },
 
-    options: { type: [Schema.Types.Mixed], label: 'Options' },
+    options: { type: [fieldOptionSchema], label: 'Options' },
     icon: { type: String, label: 'Icon' },
 
     createdBy: { type: String, label: 'Created By' },
