@@ -59,8 +59,8 @@ export const useSlotManager = (
     nodes: hookNodes,
     setNodes: setHookNodes,
     loading: slotsLoading,
+    saving: slotsSaving,
     error: slotsError,
-    addSlot: hookAddSlot,
     saveSlots: hookSaveSlots,
     deleteSlot: hookDeleteSlot,
     hasSlots,
@@ -97,6 +97,12 @@ export const useSlotManager = (
       setNodes(hookNodes.map(clampPositionForNode));
     }
   }, [hookNodes, setNodes, clampPositionForNode]);
+
+  useEffect(() => {
+    if (!slotsLoading && hookNodes.length === 0 && nodes.length > 0) {
+      setHookNodes(nodes);
+    }
+  }, [slotsLoading, hookNodes.length, nodes, setHookNodes]);
 
   useEffect(() => {
     if (slotsError) {
@@ -195,6 +201,71 @@ export const useSlotManager = (
     ],
   );
 
+  const updateNodeDimensions = useCallback(
+    (
+      nodeId: string,
+      dimensions: {
+        width?: number;
+        height?: number;
+        position?: { x: number; y: number };
+      },
+    ) => {
+      const updateNode = (node: CustomNode) => {
+        if (node.id === nodeId) {
+          const updatedNode = {
+            ...node,
+            data: {
+              ...node.data,
+              ...(dimensions.width && { width: dimensions.width }),
+              ...(dimensions.height && { height: dimensions.height }),
+              ...(dimensions.position && {
+                positionX: dimensions.position.x,
+                positionY: dimensions.position.y,
+              }),
+            },
+            ...(dimensions.width && { width: dimensions.width }),
+            ...(dimensions.height && { height: dimensions.height }),
+            ...(dimensions.position && { position: dimensions.position }),
+          };
+          return updatedNode;
+        }
+        return node;
+      };
+
+      setNodes((nds) => nds.map(updateNode));
+      setHookNodes((nds) => nds.map(updateNode));
+
+      if (selectedNode && selectedNode.id === nodeId) {
+        setSelectedNode({
+          ...selectedNode,
+          data: {
+            ...selectedNode.data,
+            ...(dimensions.width && { width: dimensions.width }),
+            ...(dimensions.height && { height: dimensions.height }),
+            ...(dimensions.position && {
+              positionX: dimensions.position.x,
+              positionY: dimensions.position.y,
+            }),
+          },
+          ...(dimensions.width && { width: dimensions.width }),
+          ...(dimensions.height && { height: dimensions.height }),
+          ...(dimensions.position && { position: dimensions.position }),
+        });
+
+        setSlotDetail((prev) => ({
+          ...prev,
+          ...(dimensions.width && { width: String(dimensions.width) }),
+          ...(dimensions.height && { height: String(dimensions.height) }),
+          ...(dimensions.position && {
+            left: String(dimensions.position.x),
+            top: String(dimensions.position.y),
+          }),
+        }));
+      }
+    },
+    [setNodes, setHookNodes, selectedNode, setSelectedNode, setSlotDetail],
+  );
+
   const handleNodesChange: OnNodesChange = useCallback(
     (changes) => {
       onNodesChangeInternal(changes as NodeChange<CustomNode>[]);
@@ -268,13 +339,42 @@ export const useSlotManager = (
   );
 
   const handleAddSlot = useCallback(() => {
-    const newNode = hookAddSlot();
+    // Use ReactFlow nodes state to generate next ID (includes default node)
+    const newId = generateNextId(nodesRef.current);
+    const nodeCount = nodesRef.current.length;
+    const x = 250 + (nodeCount % 3) * 200;
+    const y = 100 + Math.floor(nodeCount / 3) * 150;
+
+    const newNode: CustomNode = {
+      id: newId,
+      type: 'tableNode',
+      position: { x, y },
+      width: DEFAULT_SLOT_DIMENSIONS.WIDTH,
+      height: DEFAULT_SLOT_DIMENSIONS.HEIGHT,
+      data: {
+        label: `TABLE ${newId}`,
+        code: newId,
+        color: '#4F46E5',
+        width: DEFAULT_SLOT_DIMENSIONS.WIDTH,
+        height: DEFAULT_SLOT_DIMENSIONS.HEIGHT,
+        positionX: x,
+        positionY: y,
+        rounded: 0,
+        rotateAngle: 0,
+        zIndex: 0,
+        disabled: false,
+      },
+    };
+
+    // Update both ReactFlow state and usePosSlots state
     setNodes((nds) => [...nds, newNode]);
+    setHookNodes((nds) => [...nds, newNode]);
+
     toast({
       title: 'Slot added',
       description: `Added new slot: ${newNode.data.label}`,
     });
-  }, [hookAddSlot, setNodes, toast]);
+  }, [generateNextId, setNodes, setHookNodes, toast]);
 
   const handleSaveSlotDetail = useCallback(async () => {
     if (!selectedNodeRef.current) return false;
@@ -322,7 +422,7 @@ export const useSlotManager = (
 
     toast({
       title: 'Slot updated',
-      description: `Updated slot: ${slotDetail.name}. Click 'Save Changes' to persist.`,
+      description: `Updated slot: ${slotDetail.name}.`,
     });
     setSidebarView('list');
     setSelectedNode(null);
@@ -351,7 +451,7 @@ export const useSlotManager = (
 
       toast({
         title: 'Slot deleted',
-        description: `Deleted slot: ${id}. Click 'Save Changes' to persist.`,
+        description: `Deleted slot: ${id}.`,
       });
     },
     [
@@ -495,12 +595,14 @@ export const useSlotManager = (
     slotDetail,
     sidebarView,
     slotsLoading,
+    slotsSaving,
     hasSlots,
 
     // Actions
     setSelectedNode,
     setSidebarView,
     updateNodePosition,
+    updateNodeDimensions,
 
     // Handlers
     handleNodesChange,

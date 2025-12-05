@@ -9,6 +9,7 @@ interface UsePosSlotReturn {
   nodes: CustomNode[];
   setNodes: React.Dispatch<React.SetStateAction<CustomNode[]>>;
   loading: boolean;
+  saving: boolean;
   error: any;
   refetch: () => void;
   addSlot: (nodeData?: Partial<CustomNode['data']>) => CustomNode;
@@ -20,7 +21,7 @@ interface UsePosSlotReturn {
 
 export function usePosSlots(posId: string): UsePosSlotReturn {
   const [nodes, setNodes] = useState<CustomNode[]>([]);
-  const { updatePosSlots } = useUpdatePosSlots();
+  const { updatePosSlots, loading: saving } = useUpdatePosSlots();
   const { toast } = useToast();
 
   const { data, loading, error, refetch } = useQuery(queries.posSlots, {
@@ -95,18 +96,6 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
     }
   }, [data, transformSlotsToNodes]);
 
-  const generateNextId = useCallback((currentNodes: CustomNode[]): string => {
-    if (currentNodes.length === 0) return '1';
-
-    const numericIds = currentNodes
-      .map((node) => parseInt(node.id, 10))
-      .filter((id) => !isNaN(id));
-
-    if (numericIds.length === 0) return '1';
-
-    return String(Math.max(...numericIds) + 1);
-  }, []);
-
   const saveSlots = useCallback(
     async (targetPosId: string) => {
       try {
@@ -141,7 +130,16 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
 
   const addSlot = useCallback(
     (nodeData?: Partial<CustomNode['data']>) => {
-      const newId = generateNextId(nodes);
+      const getNextId = (currentNodes: CustomNode[]): string => {
+        if (currentNodes.length === 0) return '1';
+        const numericIds = currentNodes
+          .map((node) => parseInt(node.id, 10))
+          .filter((id) => !isNaN(id));
+        if (numericIds.length === 0) return '1';
+        return String(Math.max(...numericIds) + 1);
+      };
+
+      const newId = getNextId(nodes);
       const x = nodeData?.positionX ?? 250 + (nodes.length % 3) * 200;
       const y = nodeData?.positionY ?? 100 + Math.floor(nodes.length / 3) * 150;
       const width = nodeData?.width ?? 80;
@@ -171,7 +169,7 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
       setNodes((prev) => [...prev, newNode]);
       return newNode;
     },
-    [nodes, generateNextId],
+    [nodes],
   );
 
   const updateSlot = useCallback((id: string, updates: Partial<CustomNode>) => {
@@ -211,6 +209,7 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
     nodes,
     setNodes,
     loading,
+    saving,
     error,
     refetch,
     addSlot,
