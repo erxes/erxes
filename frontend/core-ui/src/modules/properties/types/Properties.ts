@@ -16,3 +16,13 @@ export enum PropertiesHotkeyScope {
 
 export type IPropertyGroupForm = z.infer<typeof propertyGroupSchema>;
 export type IPropertyForm = z.infer<typeof propertySchema>;
+
+export interface IFieldGroup {
+  _id: string;
+  name: string;
+  code: string;
+  description: string;
+  contentType: string;
+  order: number;
+  logics: string;
+}

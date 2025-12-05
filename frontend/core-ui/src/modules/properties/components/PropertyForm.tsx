@@ -1,43 +1,35 @@
-import { Form, IconPicker, Input, Select, Textarea } from 'erxes-ui';
+import { Button, Form, IconPicker, Input, Select, Textarea } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { IPropertyForm } from '../types/Properties';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { propertySchema } from '../propertySchema';
-import {
-  IconCalendarEvent,
-  IconCheck,
-  IconFile,
-  IconNumbers,
-  IconRelationManyToMany,
-  IconTag,
-  IconTextSize,
-} from '@tabler/icons-react';
+
 import { PropertyFormValidation } from './PropertyFormValidations';
 import { PropertyFormSelectFields } from './PropertyFormSelectFields';
 import { PropertySelectRelationType } from './PropertySelectRelationType';
+import { FIELD_TYPES } from '../constants/fieldTypes';
 
-export const PropertyForm = () => {
+export const PropertyForm = ({
+  onSubmit,
+  loading,
+  defaultValues,
+}: {
+  onSubmit: (data: IPropertyForm) => void;
+  loading: boolean;
+  defaultValues: IPropertyForm;
+}) => {
   const form = useForm<IPropertyForm>({
     resolver: zodResolver(propertySchema),
-    defaultValues: {
-      icon: '',
-      name: '',
-      description: '',
-      code: '',
-      groupId: '',
-      type: '',
-    },
+    defaultValues,
   });
-
-  const onSubmit = (data: IPropertyForm) => {
-    console.log(data);
-  };
 
   return (
     <Form {...form}>
       <form
         className="w-full flex flex-col gap-5"
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          console.log(errors);
+        })}
       >
         <div className="flex gap-5">
           <Form.Field
@@ -53,6 +45,7 @@ export const PropertyForm = () => {
                     size="icon"
                   />
                 </Form.Control>
+                <Form.Message />
               </Form.Item>
             )}
           />
@@ -64,6 +57,7 @@ export const PropertyForm = () => {
                 <Form.Control>
                   <Input {...field} />
                 </Form.Control>
+                <Form.Message />
               </Form.Item>
             )}
           />
@@ -76,6 +70,7 @@ export const PropertyForm = () => {
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
+              <Form.Message />
             </Form.Item>
           )}
         />
@@ -87,6 +82,7 @@ export const PropertyForm = () => {
               <Form.Control>
                 <Textarea {...field} />
               </Form.Control>
+              <Form.Message />
             </Form.Item>
           )}
         />
@@ -113,23 +109,17 @@ export const PropertyForm = () => {
                   ))}
                 </Select.Content>
               </Select>
+              <Form.Message />
             </Form.Item>
           )}
         />
         <PropertyFormValidation form={form} />
         <PropertyFormSelectFields form={form} />
         <PropertySelectRelationType form={form} />
+        <Button type="submit" disabled={loading}>
+          Add Property
+        </Button>
       </form>
     </Form>
   );
 };
-
-const FIELD_TYPES = [
-  { value: 'text', label: 'Text', icon: <IconTextSize /> },
-  { value: 'number', label: 'Number', icon: <IconNumbers /> },
-  { value: 'boolean', label: 'True/False', icon: <IconCheck /> },
-  { value: 'date', label: 'Date', icon: <IconCalendarEvent /> },
-  { value: 'select', label: 'Select', icon: <IconTag /> },
-  { value: 'relation', label: 'Relation', icon: <IconRelationManyToMany /> },
-  { value: 'file', label: 'File', icon: <IconFile /> },
-];

@@ -9,11 +9,11 @@ export const PropertyFormSelectFields = ({
   form: UseFormReturn<IPropertyForm>;
 }) => {
   const type = form.watch('type');
-  console.log(type);
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'options' as never,
   });
+
   if (type !== 'select') {
     return <></>;
   }
@@ -25,24 +25,28 @@ export const PropertyFormSelectFields = ({
           {fields.map((field, index) => (
             <div className="flex gap-2" key={field.id}>
               <Form.Field
-                name={`options.${field.id}.label`}
+                control={form.control}
+                name={`options.${index}.label`}
                 render={({ field }) => (
                   <Form.Item className="flex-auto">
                     <Form.Label>Label</Form.Label>
                     <Form.Control>
                       <Input {...field} placeholder="Enter label" />
                     </Form.Control>
+                    <Form.Message />
                   </Form.Item>
                 )}
               />
               <Form.Field
-                name={`options.${field.id}.value`}
+                control={form.control}
+                name={`options.${index}.value`}
                 render={({ field }) => (
                   <Form.Item className="flex-auto">
                     <Form.Label>Value</Form.Label>
                     <Form.Control>
                       <Input {...field} placeholder="Enter value" />
                     </Form.Control>
+                    <Form.Message />
                   </Form.Item>
                 )}
               />

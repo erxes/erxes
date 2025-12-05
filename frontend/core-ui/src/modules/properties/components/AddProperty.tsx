@@ -1,158 +1,54 @@
-import { useAddPropertyForm } from '@/properties/hooks/useAddPropertyForm';
-import { IPropertyForm } from '@/properties/types/Properties';
-import { Button, Form, Input, Sheet, Spinner, Switch } from 'erxes-ui';
 import React from 'react';
-import { SubmitHandler } from 'react-hook-form';
+import { PropertyForm } from './PropertyForm';
+import { IPropertyForm } from '../types/Properties';
+import { useAddProperty } from '../hooks/useAddProperty';
+import { toast } from 'erxes-ui';
+import { useParams } from 'react-router';
 
 export const AddProperty = () => {
-  const [loading] = React.useState<boolean>(false); // Replace with actual loading state if needed
-  const { methods } = useAddPropertyForm();
-  const { handleSubmit } = methods;
-  const [open, setOpen] = React.useState<boolean>(false);
+  const { groupId, type } = useParams<{
+    groupId: string;
+    type: string;
+  }>();
+  const { addProperty, loading } = useAddProperty();
 
-  const submitHandler: SubmitHandler<IPropertyForm> = React.useCallback(
-    async (data) => {
-      // Handle the form submission logic here
-      methods.reset();
-      setOpen(false);
-    },
-    [methods],
-  );
+  const onSubmit = (data: IPropertyForm) => {
+    // console.log(data);
+    addProperty({
+      variables: {
+        ...data,
+        groupId,
+        contentType: type,
+      },
+      onCompleted: () => {
+        toast({ title: 'Property added', variant: 'success' });
+      },
+      onError: (error) => {
+        toast({
+          title: 'Error',
+          variant: 'destructive',
+          description: error.message,
+        });
+      },
+    });
+  };
 
   return (
-    <Sheet onOpenChange={setOpen} open={open}>
-      <Sheet.Trigger asChild>
-        <Button>Add Property</Button>
-      </Sheet.Trigger>
-      <Sheet.View
-        className="p-0"
-        onEscapeKeyDown={(e) => {
-          e.preventDefault();
+    <div className="mx-auto max-w-lg w-full px-4 py-8">
+      <PropertyForm
+        onSubmit={onSubmit}
+        loading={loading}
+        defaultValues={{
+          icon: '',
+          name: '',
+          type: type || '',
+          isSearchable: false,
+          description: '',
+          code: '',
+          validation: '',
+          options: [],
         }}
-      >
-        <Form {...methods}>
-          <form
-            onSubmit={handleSubmit(submitHandler)}
-            className=" flex flex-col gap-0 w-full h-full"
-          >
-            <Sheet.Header>
-              <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
-                Add Property
-              </Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="grow size-full h-auto flex flex-col px-5 py-4 gap-5">
-              {/* Add your form fields here, for example: */}
-
-              <Form.Field
-                control={methods.control}
-                name="name"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Property Name</Form.Label>
-                    <Form.Control>
-                      <Input
-                        {...field}
-                        type="text"
-                        placeholder="Enter property name"
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={methods.control}
-                name="description"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Description</Form.Label>
-                    <Form.Control>
-                      <Input
-                        {...field}
-                        type="text"
-                        placeholder="Enter property description"
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={methods.control}
-                name="code"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Code</Form.Label>
-                    <Form.Control>
-                      <Input
-                        {...field}
-                        type="text"
-                        placeholder="Enter property code"
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={methods.control}
-                name="groupId"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Parent Group</Form.Label>
-                    <Form.Control>
-                      <Input
-                        {...field}
-                        type="text"
-                        placeholder="Enter parent group"
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={methods.control}
-                name="type"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Type</Form.Label>
-                    <Form.Control>
-                      <Input {...field} type="text" placeholder="Enter type" />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={methods.control}
-                name="isSearchable"
-                render={({ field }) => (
-                  <Form.Item className="justify-between items-center flex">
-                    <Form.Label>Searchable</Form.Label>
-                    <Form.Control>
-                      <Switch
-                        checked={field.value as boolean}
-                        onCheckedChange={field.onChange}
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            </Sheet.Content>
-            <Sheet.Footer>
-              <Button variant={'ghost'} onClick={() => setOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : 'Create'}
-              </Button>
-            </Sheet.Footer>
-          </form>
-        </Form>
-      </Sheet.View>
-    </Sheet>
+      />
+    </div>
   );
 };

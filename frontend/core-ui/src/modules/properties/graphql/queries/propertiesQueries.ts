@@ -25,6 +25,7 @@ export const FIELDS_QUERY = gql`
       list {
         _id
         name
+        icon
         code
         type
         order
@@ -34,6 +35,27 @@ export const FIELDS_QUERY = gql`
         updatedAt
       }
       ${GQL_PAGE_INFO}
+    }
+  }
+`;
+
+export const FIELD_DETAILS_QUERY = gql`
+  query FieldDetail($id: String!) {
+    fieldDetail(_id: $id) {
+      _id
+      name
+      code
+      type
+      order
+      options {
+        label
+        value
+      }
+      validations
+      logics
+      icon
+      createdAt
+      updatedAt
     }
   }
 `;

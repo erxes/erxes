@@ -7,11 +7,10 @@ export const propertyGroupSchema = z.object({
 });
 
 export const propertySchema = z.object({
-  icon: z.string().optional(),
+  icon: z.string().min(1, 'Icon is required'),
   name: z.string().min(1, 'Property name is required'),
   description: z.string().optional(),
   code: z.string().optional(),
-  groupId: z.string(),
   type: z.string().min(1, 'Type is required'),
   validation: z.string().optional(),
   isSearchable: z.boolean().default(false),

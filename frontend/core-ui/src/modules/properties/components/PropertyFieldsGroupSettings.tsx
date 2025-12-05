@@ -7,6 +7,7 @@ import {
 import { Button, Collapsible, Table } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
 import { useFieldGroups } from '../hooks/useFieldGroups';
+import { Properties } from './Properties';
 
 export const PropertyFieldsGroupSettings = () => {
   const { type } = useParams<{ type: string }>();
@@ -25,66 +26,32 @@ export const PropertyFieldsGroupSettings = () => {
             </Table.Row>
           </Table.Header>
         </Table>
-        <Collapsible className="group" defaultOpen>
-          <Collapsible.Trigger asChild>
-            <Button variant="secondary" className="w-full justify-start">
-              <Collapsible.TriggerIcon />
-              Erxes CSO
-            </Button>
-          </Collapsible.Trigger>
+        {fieldGroups.map((group) => (
+          <Collapsible className="group" defaultOpen key={group._id}>
+            <Collapsible.Trigger asChild>
+              <Button variant="secondary" className="w-full justify-start">
+                <Collapsible.TriggerIcon />
+                {group.name}
+              </Button>
+            </Collapsible.Trigger>
 
-          <Collapsible.Content className="pt-2">
-            <Table className="[&_tr_td]:border-b-0 [&_tr_td:first-child]:border-l-0 [&_tr_td]:border-r-0">
-              <Table.Body>
-                <Table.Row className="hover:bg-sidebar">
-                  <Table.Cell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-full w-full justify-start hover:bg-transparent"
-                      asChild
-                    >
-                      <div>
-                        <IconUsers />
-                        Employees
-                      </div>
-                    </Button>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-full w-full justify-start hover:bg-transparent text-muted-foreground"
-                      asChild
-                    >
-                      <div>
-                        <IconNumbers />
-                        Numbers
-                      </div>
-                    </Button>
-                  </Table.Cell>
-                  <Table.Cell className="w-8 p-0.5">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-full w-full text-muted-foreground size-7"
-                    >
-                      <IconDots />
-                    </Button>
-                  </Table.Cell>
-                </Table.Row>
-              </Table.Body>
-            </Table>
-          </Collapsible.Content>
-        </Collapsible>
-        <div className="flex items-center justify-end">
-          <Button variant="secondary" asChild>
-            <Link to={`/settings/properties/${type}/hi/add`}>
-              <IconPlus />
-              Add field
-            </Link>
-          </Button>
-        </div>
+            <Collapsible.Content className="pt-2">
+              <Table className="[&_tr_td]:border-b-0 [&_tr_td:first-child]:border-l-0 [&_tr_td]:border-r-0">
+                <Table.Body>
+                  <Properties groupId={group._id} />
+                </Table.Body>
+              </Table>
+              <div className="flex items-center justify-end mt-2">
+                <Button variant="secondary" asChild>
+                  <Link to={`/settings/properties/${type}/${group._id}/add`}>
+                    <IconPlus />
+                    Add field
+                  </Link>
+                </Button>
+              </div>
+            </Collapsible.Content>
+          </Collapsible>
+        ))}
       </div>
     </div>
   );
