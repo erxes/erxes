@@ -8,7 +8,6 @@ export const useCreateCustomerForm = () => {
     resolver: zodResolver(createCustomerSchema),
     defaultValues: {
       type: undefined,
-      value: undefined,
     },
   });
   return { form };

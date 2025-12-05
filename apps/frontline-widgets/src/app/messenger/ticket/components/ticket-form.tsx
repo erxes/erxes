@@ -9,6 +9,7 @@ import {
   Spinner,
   Textarea,
   toast,
+  Upload,
 } from 'erxes-ui';
 import { Path } from 'react-hook-form';
 import { TicketFormFields, TicketFormPlaceholders } from '../types';
@@ -16,18 +17,9 @@ import { EXCLUDED_TICKET_FORM_FIELDS } from '../../constants';
 import { ticketConfigAtom } from '../../states';
 import { useCreateWidgetTicket } from '../hooks/useCreateWidgetTicket';
 import { getLocalStorageItem } from '@libs/utils';
-import { useCreateRelation } from 'ui-modules';
 import { SelectTicketTag } from './tags/select-ticket-tag';
 
 const TICKET_DETAILS_FIELDS = ['name', 'description', 'attachments', 'tags'];
-const CUSTOMER_FIELDS = ['firstName', 'lastName', 'phoneNumber', 'email'];
-const COMPANY_FIELDS = [
-  'companyName',
-  'address',
-  'registrationNumber',
-  'companyPhoneNumber',
-  'companyEmail',
-];
 
 export const TicketForm = ({
   setPage,
@@ -36,18 +28,12 @@ export const TicketForm = ({
 }) => {
   const cachedCustomerId = getLocalStorageItem('customerId');
   const { form, ticketSchema } = useTicketForm();
-  const {
-    createTicket,
-    saveTicketCustomers,
-    loading,
-    saveTicketCustomersLoading,
-  } = useCreateWidgetTicket();
-  const { createRelation } = useCreateRelation();
+  const { createTicket, loading, saveTicketCustomersLoading } =
+    useCreateWidgetTicket();
   const { control, handleSubmit, reset } = form;
   const ticketConfig = useAtomValue(ticketConfigAtom);
 
   const excludedFields = EXCLUDED_TICKET_FORM_FIELDS;
-  const contactType = ticketConfig?.contactType;
 
   const handleCancel = () => {
     form.reset();
@@ -63,97 +49,19 @@ export const TicketForm = ({
         description: (formData?.description as string) ?? '',
         attachments: (formData?.attachments as any[]) ?? [],
         statusId: ticketConfig?.selectedStatusId as string,
-        type: ticketConfig?.contactType as string,
         tagIds: (formData?.tags as string[]) ?? [],
         customerIds: [cachedCustomerId],
       },
       onCompleted: (dataOnCompleted: {
         widgetTicketCreated: { _id: string };
       }) => {
-        if (contactType === 'customer') {
-          saveTicketCustomers({
-            variables: {
-              customerId: cachedCustomerId,
-              firstName: (formData?.firstName as string) ?? '',
-              lastName: (formData?.lastName as string) ?? '',
-              emails: [(formData?.email as string) ?? ''],
-              phones: [(formData?.phoneNumber as string) ?? ''],
-            },
-            onCompleted: () => {
-              createRelation({
-                entities: [
-                  {
-                    contentType: 'core:customer',
-                    contentId: cachedCustomerId,
-                  },
-                  {
-                    contentType: 'frontline:ticket',
-                    contentId: dataOnCompleted.widgetTicketCreated._id,
-                  },
-                ],
-              });
-              toast({
-                title: 'Success',
-                variant: 'success',
-                description: 'Ticket created successfully',
-              });
-              reset();
-              setPage('submissions');
-            },
-            onError: (error) => {
-              toast({
-                title: 'Error',
-                variant: 'destructive',
-                description: error.message,
-              });
-            },
-          });
-        } else if (contactType === 'company') {
-          saveTicketCustomers({
-            variables: {
-              customerId: cachedCustomerId,
-              firstName: (formData?.companyName as string) ?? '',
-              emails: [(formData?.companyEmail as string) ?? ''],
-              phones: [(formData?.companyPhoneNumber as string) ?? ''],
-            },
-            onCompleted: () => {
-              createRelation({
-                entities: [
-                  {
-                    contentType: 'core:company',
-                    contentId: cachedCustomerId,
-                  },
-                  {
-                    contentType: 'frontline:ticket',
-                    contentId: dataOnCompleted.widgetTicketCreated._id,
-                  },
-                ],
-              });
-              toast({
-                title: 'Success',
-                variant: 'success',
-                description: 'Ticket created successfully',
-              });
-              reset();
-              setPage('submissions');
-            },
-            onError: (error) => {
-              toast({
-                title: 'Error',
-                variant: 'destructive',
-                description: error.message,
-              });
-            },
-          });
-        } else {
-          toast({
-            title: 'Success',
-            variant: 'success',
-            description: 'Ticket created successfully',
-          });
-          reset();
-          setPage('submissions');
-        }
+        toast({
+          title: 'Success',
+          variant: 'success',
+          description: 'Ticket created successfully',
+        });
+        reset();
+        setPage('submissions');
       },
       onError: (error) => {
         toast({
@@ -169,17 +77,19 @@ export const TicketForm = ({
     ([key]) => !excludedFields.includes(key),
   );
 
-  const ticketDetailsFields = allFields.filter(([key]) =>
-    TICKET_DETAILS_FIELDS.includes(key),
-  );
-
-  const customerFields = allFields.filter(
-    ([key]) => CUSTOMER_FIELDS.includes(key) && contactType === 'customer',
-  );
-
-  const companyFields = allFields.filter(
-    ([key]) => COMPANY_FIELDS.includes(key) && contactType === 'company',
-  );
+  const ticketDetailsFields = allFields
+    .filter(([key]) => TICKET_DETAILS_FIELDS.includes(key))
+    .sort(([keyA], [keyB]) => {
+      const fieldKeyA = keyA === 'attachments' ? 'attachment' : keyA;
+      const fieldKeyB = keyB === 'attachments' ? 'attachment' : keyB;
+      
+      const orderA =
+        (ticketConfig?.formFields as any)?.[fieldKeyA]?.order ?? 999;
+      const orderB =
+        (ticketConfig?.formFields as any)?.[fieldKeyB]?.order ?? 999;
+      
+      return orderA - orderB;
+    });
 
   const renderField = ([key]: [string, unknown]) => {
     if (key === 'description') {
@@ -191,15 +101,14 @@ export const TicketForm = ({
           render={({ field }) => (
             <Form.Item>
               <Form.Label>
-                {TicketFormFields[key as keyof typeof TicketFormFields]}
+                {ticketConfig?.formFields.description?.label || 'Description'}
               </Form.Label>
               <Form.Control>
                 <Textarea
                   {...field}
                   placeholder={
-                    TicketFormPlaceholders[
-                      key as keyof typeof TicketFormPlaceholders
-                    ]
+                    ticketConfig?.formFields.description?.placeholder ||
+                    'Enter description'
                   }
                 />
               </Form.Control>
@@ -218,10 +127,14 @@ export const TicketForm = ({
           render={({ field }) => (
             <Form.Item>
               <Form.Label>
-                {TicketFormFields[key as keyof typeof TicketFormFields]}
+                {ticketConfig?.formFields.tags?.label || 'Tags'}
               </Form.Label>
               <Form.Control>
                 <SelectTicketTag
+                  placeholder={
+                    ticketConfig?.formFields.tags?.placeholder || 'Select tags'
+                  }
+                  parentId={ticketConfig?.parentId}
                   value={field.value}
                   mode="multiple"
                   onValueChange={field.onChange}
@@ -247,23 +160,26 @@ export const TicketForm = ({
             return (
               <Form.Item>
                 <Form.Label>
-                  {TicketFormFields[key as keyof typeof TicketFormFields]}
+                  {ticketConfig?.formFields.attachment?.label || 'Attachments'}
                 </Form.Label>
                 <Form.Control>
-                  <Input
+                  <Upload.Root
                     value={displayValue}
                     onChange={(e) => {
-                      const value = e.target.value;
+                      const value = (e as any).target.value;
                       field.onChange(
-                        value ? value.split(',').map((v) => v.trim()) : [],
+                        value
+                          ? value.split(',').map((v: string) => v.trim())
+                          : [],
                       );
                     }}
-                    placeholder={
-                      TicketFormPlaceholders[
-                        key as keyof typeof TicketFormPlaceholders
-                      ]
-                    }
-                  />
+                  >
+                    <Upload.Preview />
+                    <Upload.Button type="button">
+                      {ticketConfig?.formFields.attachment?.placeholder ||
+                        'Upload attachments'}
+                    </Upload.Button>
+                  </Upload.Root>
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -281,15 +197,13 @@ export const TicketForm = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label>
-              {TicketFormFields[key as keyof typeof TicketFormFields]}
+              {ticketConfig?.formFields.name?.label || 'Name'}
             </Form.Label>
             <Form.Control>
               <Input
                 {...field}
                 placeholder={
-                  TicketFormPlaceholders[
-                    key as keyof typeof TicketFormPlaceholders
-                  ]
+                  ticketConfig?.formFields.name?.placeholder || 'Enter name'
                 }
               />
             </Form.Control>
@@ -316,30 +230,6 @@ export const TicketForm = ({
               >
                 <InfoCard.Content>
                   {ticketDetailsFields.map(renderField)}
-                </InfoCard.Content>
-              </InfoCard>
-            )}
-
-            {/* Customer Details */}
-            {customerFields.length > 0 && (
-              <InfoCard
-                title="Contact information"
-                description="Please fill in the contact information"
-              >
-                <InfoCard.Content>
-                  {customerFields.map(renderField)}
-                </InfoCard.Content>
-              </InfoCard>
-            )}
-
-            {/* Company Details */}
-            {companyFields.length > 0 && (
-              <InfoCard
-                title="Contact information"
-                description="Please fill in the contact information"
-              >
-                <InfoCard.Content>
-                  {companyFields.map(renderField)}
                 </InfoCard.Content>
               </InfoCard>
             )}

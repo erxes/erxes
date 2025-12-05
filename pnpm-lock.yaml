@@ -18756,7 +18756,7 @@ snapshots:
     dependencies:
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-blur@1.6.0':
     dependencies:
@@ -18766,7 +18766,7 @@ snapshots:
   '@jimp/plugin-circle@1.6.0':
     dependencies:
       '@jimp/types': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-color@1.6.0':
     dependencies:
@@ -18774,7 +18774,7 @@ snapshots:
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
       tinycolor2: 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-contain@1.6.0':
     dependencies:
@@ -18783,7 +18783,7 @@ snapshots:
       '@jimp/plugin-resize': 1.6.0
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-cover@1.6.0':
     dependencies:
@@ -18791,20 +18791,20 @@ snapshots:
       '@jimp/plugin-crop': 1.6.0
       '@jimp/plugin-resize': 1.6.0
       '@jimp/types': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-crop@1.6.0':
     dependencies:
       '@jimp/core': 1.6.0
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-displace@1.6.0':
     dependencies:
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-dither@1.6.0':
     dependencies:
@@ -18814,12 +18814,12 @@ snapshots:
     dependencies:
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-flip@1.6.0':
     dependencies:
       '@jimp/types': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-hash@1.6.0':
     dependencies:
@@ -18837,7 +18837,7 @@ snapshots:
   '@jimp/plugin-mask@1.6.0':
     dependencies:
       '@jimp/types': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-print@1.6.0':
     dependencies:
@@ -18850,18 +18850,18 @@ snapshots:
       parse-bmfont-binary: 1.0.6
       parse-bmfont-xml: 1.1.6
       simple-xml-to-json: 1.2.3
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-quantize@1.6.0':
     dependencies:
       image-q: 4.0.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-resize@1.6.0':
     dependencies:
       '@jimp/core': 1.6.0
       '@jimp/types': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-rotate@1.6.0':
     dependencies:
@@ -18870,7 +18870,7 @@ snapshots:
       '@jimp/plugin-resize': 1.6.0
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-threshold@1.6.0':
     dependencies:
@@ -18879,11 +18879,11 @@ snapshots:
       '@jimp/plugin-hash': 1.6.0
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/types@1.6.0':
     dependencies:
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/utils@1.6.0':
     dependencies:
@@ -20218,7 +20218,7 @@ snapshots:
       fs-extra: 9.1.0
       is-reference: 1.2.1
       jest-worker: 26.6.2
-      magic-string: 0.30.17
+      magic-string: 0.30.21
       ms: 2.1.3
       normalize-path: 3.0.0
       npm-packlist: 2.2.2

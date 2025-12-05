@@ -1,56 +1,69 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Editor, Form, Input, Label, Spinner, Switch } from 'erxes-ui';
+import { Button, Editor, Form, Input, Select, Spinner } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { CLIENTPORTAL_MAIL_SCHEMA } from '../constants/clientPortalEditSchema';
 import { z } from 'zod';
 import { IClientPortal } from '../types/clientPortal';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
+import { useState } from 'react';
 
-export const ClientPortalDetailConfirmationEmail = ({
+export const ClientPortalDetailUserVerification = ({
   clientPortal,
 }: {
   clientPortal: IClientPortal;
 }) => {
-  const isActive = clientPortal.enableMail ?? false;
+  const [verificationType, setVerificationType] = useState<
+    'email' | 'phone' | 'both' | 'none'
+  >(clientPortal.verificationType || 'email');
+
   const form = useForm<z.infer<typeof CLIENTPORTAL_MAIL_SCHEMA>>({
     resolver: zodResolver(CLIENTPORTAL_MAIL_SCHEMA),
-    defaultValues: clientPortal?.mailConfig,
+    defaultValues: clientPortal?.verificationMailConfig,
   });
   const { updateClientPortal, loading } = useUpdateClientPortal();
-
-  const handleEnableConfirmationEmail = (value: boolean) => {
-    updateClientPortal({
-      variables: {
-        id: clientPortal?._id,
-        clientPortal: { enableMail: value },
-      },
-    });
-  };
 
   function handleSubmit(data: z.infer<typeof CLIENTPORTAL_MAIL_SCHEMA>) {
     // handle save here
     updateClientPortal({
       variables: {
         id: clientPortal?._id,
-        clientPortal: { mailConfig: data },
+        clientPortal: { verificationMailConfig: data },
       },
     });
   }
 
+  const handleVerificationTypeChange = (
+    value: 'email' | 'phone' | 'both' | 'none',
+  ) => {
+    updateClientPortal({
+      variables: {
+        id: clientPortal?._id,
+        clientPortal: { verificationType: value },
+      },
+    });
+
+    setVerificationType(value);
+  };
+
   return (
     <>
       <div className="flex items-center gap-2 mb-4">
-        <Switch
-          id="enableConfirmationEmail"
-          checked={isActive}
-          onCheckedChange={handleEnableConfirmationEmail}
-          disabled={loading}
-        />
-        <Label variant="peer" htmlFor="enableConfirmationEmail">
-          Enable confirmation email
-        </Label>
+        <Select
+          value={verificationType}
+          onValueChange={handleVerificationTypeChange}
+        >
+          <Select.Trigger>
+            <Select.Value placeholder="Select verification type" />{' '}
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="email">Email</Select.Item>
+            <Select.Item value="phone">Phone</Select.Item>
+            <Select.Item value="both">Both</Select.Item>
+            <Select.Item value="none">None</Select.Item>
+          </Select.Content>
+        </Select>
       </div>
-      {isActive && (
+      {(verificationType === 'email' || verificationType === 'both') && (
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}

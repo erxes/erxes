@@ -92,7 +92,7 @@ export const portalSchema = new Schema({
   otpConfig: { type: otpConfigSchema, optional: true },
   twoFactorConfig: { type: twoFactorSchema, optional: true },
 
-  mailConfig: { type: mailConfigSchema, optional: true },
+  verificationMailConfig: { type: mailConfigSchema, optional: true },
   manualVerificationConfig: {
     type: {
       userIds: { type: [String], required: true },
