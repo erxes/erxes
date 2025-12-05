@@ -3,16 +3,13 @@ import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import {
   ReactFlow,
   Background,
-  // Controls,
   ReactFlowProvider,
   useViewport,
   type NodeMouseHandler,
   type ReactFlowInstance,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { useAtom } from 'jotai';
 import { TableNode } from './tableNode';
-import { isFullscreenAtom } from '../states/slot';
 import NodeControls from './nodeControl';
 import { cn, Tabs, Spinner } from 'erxes-ui';
 import SidebarList from './sideBar';
@@ -32,14 +29,12 @@ const CanvasBounds = ({ width, height }: CanvasBoundsProps) => {
   const { x, y, zoom } = useViewport();
   return (
     <div
-      className="pointer-events-none absolute top-0 left-0 z-[1]"
+      className="absolute top-0 left-0 z-50 border-2 pointer-events-none"
       style={{
         transform: `translate(${x}px, ${y}px) scale(${zoom})`,
         transformOrigin: '0 0',
         width,
         height,
-        border: '2px solid hsl(var(--border))',
-        borderRadius: 2,
       }}
     />
   );
@@ -59,12 +54,14 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
     slotDetail,
     sidebarView,
     slotsLoading,
+    slotsSaving,
     hasSlots,
 
     // Actions
     setSelectedNode,
     setSidebarView,
     updateNodePosition,
+    updateNodeDimensions,
 
     // Handlers
     handleNodesChange,
@@ -76,11 +73,9 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
     handleDeleteSlot,
     handleDuplicateSlot,
     arrangeNodesInGrid,
-    handleAddNew,
     handleSaveAllChanges,
   } = useSlotManager(posId, initialNodes);
 
-  const [isFullscreen, setIsFullscreen] = useAtom(isFullscreenAtom);
   const [isDragging, setIsDragging] = useState(false);
   const [activeTab, setActiveTab] = useState('slots');
 
@@ -90,25 +85,10 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
   const nodeTypes = useMemo(() => ({ tableNode: TableNode }), []);
   const snapGrid = useMemo(() => [...SNAP_GRID] as [number, number], []);
 
-  const createNodeUpdater = useCallback(
-    (updater: any) => {
-      if (typeof updater === 'function') {
-        handleNodesChange(updater(nodes));
-      } else {
-        handleNodesChange(updater);
-      }
-    },
-    [nodes, handleNodesChange],
-  );
-
-  const setNodes = createNodeUpdater;
-  const setHookNodes = createNodeUpdater;
-
   useNodeEvents({
     nodes,
-    setNodes,
-    setHookNodes,
     updateNodePosition,
+    updateNodeDimensions,
     setActiveTab,
   });
 
@@ -146,17 +126,6 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
     setSidebarView('list');
     setActiveTab('slots');
   }, [setSidebarView, setSelectedNode]);
-
-  const handleNodeSelect = useCallback(
-    (nodeId: string) => {
-      const node = nodes.find((n) => n.id === nodeId);
-      if (node) {
-        handleNodeClick(node);
-        setActiveTab('details');
-      }
-    },
-    [nodes, handleNodeClick],
-  );
 
   const handleSidebarSave = useCallback(async () => {
     try {
@@ -210,8 +179,6 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
 
               <CanvasBounds width={CANVAS.WIDTH} height={CANVAS.HEIGHT} />
 
-              {/* <Controls position="bottom-right" showInteractive={false} /> */}
-
               <MiniMapToggle
                 nodeStrokeWidth={3}
                 zoomable
@@ -222,16 +189,9 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
               <NodeControls
                 onAddSlot={handleAddSlot}
                 onArrangeNodes={arrangeNodesInGrid}
-                isFullscreen={isFullscreen}
-                toggleFullscreen={() => setIsFullscreen(!isFullscreen)}
-                selectedNode={selectedNode}
-                onSave={handleSidebarSave}
-                onDelete={() =>
-                  selectedNode && handleDeleteSlot(selectedNode.id)
-                }
-                onAdd={handleAddNew}
                 onSaveChanges={handleSaveAllChanges}
                 isCreating={isCreating}
+                saving={slotsSaving}
               />
             </ReactFlow>
           </ReactFlowProvider>
@@ -257,8 +217,6 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
                   onAddSlot={handleAddSlot}
                   onDuplicateSlot={handleDuplicateSlot}
                   onDeleteSlot={handleDeleteSlot}
-                  onNodeSelect={handleNodeSelect}
-                  onAddNew={handleAddNew}
                 />
               </Tabs.Content>
 
