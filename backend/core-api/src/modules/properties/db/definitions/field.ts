@@ -25,6 +25,7 @@ export const fieldSchema = new Schema(
     validations: { type: Schema.Types.Mixed, label: 'Validation' },
 
     options: { type: [Schema.Types.Mixed], label: 'Options' },
+    icon: { type: String, label: 'Icon' },
 
     createdBy: { type: String, label: 'Created By' },
     updatedBy: { type: String, label: 'Updated By' },

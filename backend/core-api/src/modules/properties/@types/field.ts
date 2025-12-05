@@ -15,6 +15,7 @@ export interface IField {
   order: number;
 
   options?: string[];
+  icon?: string;
 
   logics?: any;
   validations?: any;
@@ -29,4 +30,5 @@ export interface IFieldParams extends IListParams, ICursorPaginateParams {
   contentType: string;
   contentTypeId?: string;
   groupId?: string[];
+  icon?: string;
 }

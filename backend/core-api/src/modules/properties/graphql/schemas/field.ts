@@ -10,6 +10,7 @@ export const types = `
         options: [String]
         validations: JSON
         logics: JSON
+        icon: String
         createdAt: Date
         updatedAt: Date
     }
@@ -45,6 +46,7 @@ const mutationParams = `
     options: [String]
     validations: JSON
     logics: JSON
+    icon: String
 `;
 
 export const mutations = `
